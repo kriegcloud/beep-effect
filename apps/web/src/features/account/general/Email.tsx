@@ -1,5 +1,5 @@
-import { useSendEmailVerification } from "@beep/iam-sdk";
-import { useChangeEmailForm } from "@beep/iam-sdk/clients/user";
+import { useSendEmailVerification } from "@beep/iam-client";
+import { useChangeEmailForm } from "@beep/iam-client/clients/user";
 import { Iconify } from "@beep/ui/atoms";
 import { Alert, Button, Stack, Typography } from "@mui/material";
 import * as Redacted from "effect/Redacted";

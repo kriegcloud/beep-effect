@@ -1,5 +1,5 @@
 import { SignInView } from "@beep/iam-ui";
-import { serverEnv } from "@beep/shared-infra/ServerEnv";
+import { serverEnv } from "@beep/shared-server/ServerEnv";
 
 import type { Metadata } from "next";
 

@@ -29,7 +29,7 @@
       "path": "../../shared/tables"
     },
     {
-      "path": "../../shared/infra"
+      "path": "../../shared/server"
     },
     {
       "path": "../../iam/domain"
@@ -44,7 +44,7 @@
       "path": "../../ui"
     },
     {
-      "path": "../../documents/infra"
+      "path": "../../documents/server"
     },
     {
       "path": "../../documents/domain"

@@ -28,6 +28,3 @@ export class IamApi extends HttpApi.make("iam")
       },
     ],
   })) {}
-
-/** @deprecated Use IamApi instead */
-export const Api = IamApi;

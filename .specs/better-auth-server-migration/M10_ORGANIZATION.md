@@ -91,7 +91,7 @@ const response = yield* BetterAuthBridge.updateOrgRole(auth.api as Record<string
 });
 ```
 
-See `packages/iam/infra/src/adapters/better-auth/BetterAuthBridge.ts` for all available wrappers.
+See `packages/iam/server/src/adapters/better-auth/BetterAuthBridge.ts` for all available wrappers.
 
 ## Phase 2.5: Boilerplating Checklist
 
@@ -501,7 +501,7 @@ For each of the 35 endpoints, follow this pattern:
 
 #### Create Group File `_group.ts`
 
-- [ ] Create stub file `packages/iam/infra/src/api/v1/organization/_group.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/organization/_group.ts`
 - [ ] Import all 35 organization endpoint handlers
 - [ ] Create Service, ServiceError, ServiceDependencies types
 - [ ] Create Routes layer with `HttpApiBuilder.group(IamApi, "iam.organization", ...)`
@@ -509,7 +509,7 @@ For each of the 35 endpoints, follow this pattern:
 
 #### Update Parent Index
 
-- [ ] Update `packages/iam/infra/src/api/v1/index.ts` to export Organization routes
+- [ ] Update `packages/iam/server/src/api/v1/index.ts` to export Organization routes
 
 ### Boilerplate Verification
 
@@ -575,7 +575,7 @@ Implement schema fields for all 35 endpoints based on spec. Key considerations:
 
 ### 2. Infra Handlers
 
-**Helper Selection**: See `packages/iam/infra/src/api/common/schema-helpers.ts` for available helpers. Import:
+**Helper Selection**: See `packages/iam/server/src/api/common/schema-helpers.ts` for available helpers. Import:
 ```typescript
 import { runAuthEndpoint, runAuthQuery, runAuthCommand, forwardCookieResponse } from "../../common/schema-helpers";
 ```
@@ -636,7 +636,7 @@ Implement handler logic for all 35 endpoints. Each handler should:
 ### 3. Verification
 
 - [ ] `bun run check` passes
-- [ ] `bun run build --filter=@beep/iam-domain --filter=@beep/iam-infra` succeeds
+- [ ] `bun run build --filter=@beep/iam-domain --filter=@beep/iam-server` succeeds
 - [ ] All 35 endpoints appear in OpenAPI spec at server `/docs`
 - [ ] Status updated to `COMPLETE` in PLAN.md
 

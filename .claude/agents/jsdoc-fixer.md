@@ -347,7 +347,7 @@ export interface EncryptionService { ... }
  *
  * @example
  * ```typescript
- * import { EncryptionServiceLive } from "@beep/shared-infra"
+ * import { EncryptionServiceLive } from "@beep/shared-server"
  * import * as Effect from "effect/Effect"
  *
  * const program = myEffect.pipe(Effect.provide(EncryptionServiceLive))

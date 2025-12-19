@@ -869,7 +869,7 @@ assertTrue(result.size > 0);
 - `packages/common/schema/src/integrations/files/metadata/Metadata.service.ts` - MetadataService with WASM
 - `packages/common/schema/src/integrations/files/exif-metadata/errors.ts` - Error types
 - `packages/_internal/db-admin/test/AccountRepo.test.ts` - Integration test patterns
-- `packages/shared/infra/test/EventStreamHub.test.ts` - Scoped test patterns
+- `packages/shared/server/test/EventStreamHub.test.ts` - Scoped test patterns
 - `packages/common/utils/test/md5/parallel-hasher.test.ts` - File/Blob handling patterns
 - `tooling/testkit/AGENTS.md` - Test harness documentation
 

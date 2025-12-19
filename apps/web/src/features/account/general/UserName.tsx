@@ -1,4 +1,4 @@
-import { useUpdateUsernameForm } from "@beep/iam-sdk/clients/user";
+import { useUpdateUsernameForm } from "@beep/iam-client/clients/user";
 import { Iconify } from "@beep/ui/atoms";
 import { Stack } from "@mui/material";
 import * as O from "effect/Option";

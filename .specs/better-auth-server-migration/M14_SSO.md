@@ -189,7 +189,7 @@ These endpoints are required for the complete domain verification workflow and m
 
 #### `callback.ts`
 
-- [ ] Create stub file `packages/iam/infra/src/api/v1/sso/callback.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/sso/callback.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type with JSDoc (uses PathParams + UrlParams)
 - [ ] Add `Handler` stub with:
@@ -200,7 +200,7 @@ These endpoints are required for the complete domain verification workflow and m
 
 #### `register.ts`
 
-- [ ] Create stub file `packages/iam/infra/src/api/v1/sso/register.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/sso/register.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type with JSDoc (uses Payload)
 - [ ] Add `Handler` stub with TODO and placeholder
@@ -208,7 +208,7 @@ These endpoints are required for the complete domain verification workflow and m
 
 #### `saml2-callback.ts`
 
-- [ ] Create stub file `packages/iam/infra/src/api/v1/sso/saml2-callback.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/sso/saml2-callback.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type with JSDoc (uses PathParams + Payload)
 - [ ] Add `Handler` stub with TODO and placeholder
@@ -216,7 +216,7 @@ These endpoints are required for the complete domain verification workflow and m
 
 #### `saml2-sp-acs.ts`
 
-- [ ] Create stub file `packages/iam/infra/src/api/v1/sso/saml2-sp-acs.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/sso/saml2-sp-acs.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type with JSDoc (uses PathParams + Payload)
 - [ ] Add `Handler` stub with TODO and placeholder
@@ -224,7 +224,7 @@ These endpoints are required for the complete domain verification workflow and m
 
 #### `saml2-sp-metadata.ts`
 
-- [ ] Create stub file `packages/iam/infra/src/api/v1/sso/saml2-sp-metadata.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/sso/saml2-sp-metadata.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type with JSDoc (uses UrlParams)
 - [ ] Add `Handler` stub with TODO and placeholder noting XML response
@@ -232,7 +232,7 @@ These endpoints are required for the complete domain verification workflow and m
 
 #### `verify-domain.ts`
 
-- [ ] Create stub file `packages/iam/infra/src/api/v1/sso/verify-domain.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/sso/verify-domain.ts`
 - [ ] Fill module-level JSDoc with:
   - Better Auth method: `auth.api.verifyDomain()`
   - Note: Requires active session (authentication headers)
@@ -242,7 +242,7 @@ These endpoints are required for the complete domain verification workflow and m
 
 #### `request-domain-verification.ts`
 
-- [ ] Create stub file `packages/iam/infra/src/api/v1/sso/request-domain-verification.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/sso/request-domain-verification.ts`
 - [ ] Fill module-level JSDoc with:
   - Better Auth method: `auth.api.requestDomainVerification()`
   - Note: Requires active session (authentication headers)
@@ -252,18 +252,18 @@ These endpoints are required for the complete domain verification workflow and m
 
 #### Create Group Files
 
-- [ ] Create `packages/iam/infra/src/api/v1/sso/_group.ts`
+- [ ] Create `packages/iam/server/src/api/v1/sso/_group.ts`
 - [ ] Import all endpoint handlers
 - [ ] Define Service, ServiceError, ServiceDependencies types
 - [ ] Create Routes layer with HttpApiBuilder.group()
 - [ ] Register all handlers with `.handle()` calls
-- [ ] Create `packages/iam/infra/src/api/v1/sso/index.ts` barrel export
+- [ ] Create `packages/iam/server/src/api/v1/sso/index.ts` barrel export
 
 #### Update Parent V1 API
 
-- [ ] Import SSO routes in `packages/iam/infra/src/api/v1/api.ts`
+- [ ] Import SSO routes in `packages/iam/server/src/api/v1/api.ts`
 - [ ] Add SSO.Routes to V1.ApiLive layer
-- [ ] Export SSO namespace from `packages/iam/infra/src/api/v1/index.ts`
+- [ ] Export SSO namespace from `packages/iam/server/src/api/v1/index.ts`
 
 ### Boilerplate Verification
 
@@ -478,7 +478,7 @@ import { runAuthEndpoint, forwardCookieResponse } from "../../common/schema-help
 ### 3. Verification
 
 - [ ] `bun run check` passes
-- [ ] `bun run build --filter=@beep/iam-domain --filter=@beep/iam-infra` succeeds
+- [ ] `bun run build --filter=@beep/iam-domain --filter=@beep/iam-server` succeeds
 - [ ] Endpoints appear in OpenAPI spec at server `/docs`
 - [ ] Status updated to `COMPLETE` in PLAN.md
 

@@ -144,7 +144,7 @@ This milestone implements OAuth 2.0 provider endpoints, allowing the application
 
 #### `authorize.ts`
 
-- [ ] Create stub file `packages/iam/infra/src/api/v1/oauth2/authorize.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/oauth2/authorize.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type with JSDoc (uses UrlParams)
 - [ ] Add `Handler` stub with:
@@ -155,7 +155,7 @@ This milestone implements OAuth 2.0 provider endpoints, allowing the application
 
 #### `callback.ts`
 
-- [ ] Create stub file `packages/iam/infra/src/api/v1/oauth2/callback.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/oauth2/callback.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type with JSDoc (uses PathParams + UrlParams)
 - [ ] Add `Handler` stub with TODO and placeholder
@@ -163,7 +163,7 @@ This milestone implements OAuth 2.0 provider endpoints, allowing the application
 
 #### `get-client.ts`
 
-- [ ] Create stub file `packages/iam/infra/src/api/v1/oauth2/get-client.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/oauth2/get-client.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type with JSDoc (uses PathParams)
 - [ ] Add `Handler` stub with TODO and placeholder
@@ -171,7 +171,7 @@ This milestone implements OAuth 2.0 provider endpoints, allowing the application
 
 #### `consent.ts`
 
-- [ ] Create stub file `packages/iam/infra/src/api/v1/oauth2/consent.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/oauth2/consent.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type with JSDoc (uses Payload)
 - [ ] Add `Handler` stub with TODO and placeholder
@@ -179,7 +179,7 @@ This milestone implements OAuth 2.0 provider endpoints, allowing the application
 
 #### `link.ts`
 
-- [ ] Create stub file `packages/iam/infra/src/api/v1/oauth2/link.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/oauth2/link.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type with JSDoc (uses Payload)
 - [ ] Add `Handler` stub with TODO and placeholder
@@ -187,7 +187,7 @@ This milestone implements OAuth 2.0 provider endpoints, allowing the application
 
 #### `register.ts`
 
-- [ ] Create stub file `packages/iam/infra/src/api/v1/oauth2/register.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/oauth2/register.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type with JSDoc (uses Payload)
 - [ ] Add `Handler` stub with TODO and placeholder
@@ -195,7 +195,7 @@ This milestone implements OAuth 2.0 provider endpoints, allowing the application
 
 #### `token.ts`
 
-- [ ] Create stub file `packages/iam/infra/src/api/v1/oauth2/token.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/oauth2/token.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type with JSDoc (uses Payload)
 - [ ] Add `Handler` stub with TODO and placeholder
@@ -203,7 +203,7 @@ This milestone implements OAuth 2.0 provider endpoints, allowing the application
 
 #### `userinfo.ts`
 
-- [ ] Create stub file `packages/iam/infra/src/api/v1/oauth2/userinfo.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/oauth2/userinfo.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type with JSDoc (no params)
 - [ ] Add `Handler` stub with TODO and placeholder
@@ -211,18 +211,18 @@ This milestone implements OAuth 2.0 provider endpoints, allowing the application
 
 #### Create Group Files
 
-- [ ] Create `packages/iam/infra/src/api/v1/oauth2/_group.ts`
+- [ ] Create `packages/iam/server/src/api/v1/oauth2/_group.ts`
 - [ ] Import all endpoint handlers
 - [ ] Define Service, ServiceError, ServiceDependencies types
 - [ ] Create Routes layer with HttpApiBuilder.group()
 - [ ] Register all handlers with `.handle()` calls
-- [ ] Create `packages/iam/infra/src/api/v1/oauth2/index.ts` barrel export
+- [ ] Create `packages/iam/server/src/api/v1/oauth2/index.ts` barrel export
 
 #### Update Parent V1 API
 
-- [ ] Import OAuth2 routes in `packages/iam/infra/src/api/v1/api.ts`
+- [ ] Import OAuth2 routes in `packages/iam/server/src/api/v1/api.ts`
 - [ ] Add OAuth2.Routes to V1.ApiLive layer
-- [ ] Export OAuth2 namespace from `packages/iam/infra/src/api/v1/index.ts`
+- [ ] Export OAuth2 namespace from `packages/iam/server/src/api/v1/index.ts`
 
 ### Boilerplate Verification
 
@@ -452,7 +452,7 @@ import { forwardCookieResponse } from "../../common/schema-helpers";
 ### 3. Verification
 
 - [ ] `bun run check` passes
-- [ ] `bun run build --filter=@beep/iam-domain --filter=@beep/iam-infra` succeeds
+- [ ] `bun run build --filter=@beep/iam-domain --filter=@beep/iam-server` succeeds
 - [ ] Endpoints appear in OpenAPI spec at server `/docs`
 - [ ] Status updated to `COMPLETE` in PLAN.md
 

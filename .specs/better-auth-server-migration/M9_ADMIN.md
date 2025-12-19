@@ -328,7 +328,7 @@ Administrative user management endpoints providing privileged operations for use
 
 #### `ban-user.ts`
 
-- [ ] Create stub file `packages/iam/infra/src/api/v1/admin/ban-user.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/admin/ban-user.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type with JSDoc
 - [ ] Add `Handler` stub with:
@@ -339,7 +339,7 @@ Administrative user management endpoints providing privileged operations for use
 
 #### `create-user.ts`
 
-- [ ] Create stub file `packages/iam/infra/src/api/v1/admin/create-user.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/admin/create-user.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type with JSDoc
 - [ ] Add `Handler` stub with:
@@ -350,7 +350,7 @@ Administrative user management endpoints providing privileged operations for use
 
 #### `get-user.ts`
 
-- [ ] Create stub file `packages/iam/infra/src/api/v1/admin/get-user.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/admin/get-user.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type with JSDoc (using UrlParams)
 - [ ] Add `Handler` stub with:
@@ -361,7 +361,7 @@ Administrative user management endpoints providing privileged operations for use
 
 #### `has-permission.ts`
 
-- [ ] Create stub file `packages/iam/infra/src/api/v1/admin/has-permission.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/admin/has-permission.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type with JSDoc
 - [ ] Add `Handler` stub with:
@@ -372,7 +372,7 @@ Administrative user management endpoints providing privileged operations for use
 
 #### `impersonate-user.ts`
 
-- [ ] Create stub file `packages/iam/infra/src/api/v1/admin/impersonate-user.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/admin/impersonate-user.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type with JSDoc
 - [ ] Add `Handler` stub with:
@@ -383,7 +383,7 @@ Administrative user management endpoints providing privileged operations for use
 
 #### `list-user-sessions.ts`
 
-- [ ] Create stub file `packages/iam/infra/src/api/v1/admin/list-user-sessions.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/admin/list-user-sessions.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type with JSDoc
 - [ ] Add `Handler` stub with:
@@ -394,7 +394,7 @@ Administrative user management endpoints providing privileged operations for use
 
 #### `list-users.ts`
 
-- [ ] Create stub file `packages/iam/infra/src/api/v1/admin/list-users.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/admin/list-users.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type with JSDoc (using UrlParams)
 - [ ] Add `Handler` stub with:
@@ -405,7 +405,7 @@ Administrative user management endpoints providing privileged operations for use
 
 #### `remove-user.ts`
 
-- [ ] Create stub file `packages/iam/infra/src/api/v1/admin/remove-user.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/admin/remove-user.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type with JSDoc
 - [ ] Add `Handler` stub with:
@@ -416,7 +416,7 @@ Administrative user management endpoints providing privileged operations for use
 
 #### `revoke-user-session.ts`
 
-- [ ] Create stub file `packages/iam/infra/src/api/v1/admin/revoke-user-session.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/admin/revoke-user-session.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type with JSDoc
 - [ ] Add `Handler` stub with:
@@ -427,7 +427,7 @@ Administrative user management endpoints providing privileged operations for use
 
 #### `revoke-user-sessions.ts`
 
-- [ ] Create stub file `packages/iam/infra/src/api/v1/admin/revoke-user-sessions.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/admin/revoke-user-sessions.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type with JSDoc
 - [ ] Add `Handler` stub with:
@@ -438,7 +438,7 @@ Administrative user management endpoints providing privileged operations for use
 
 #### `set-role.ts`
 
-- [ ] Create stub file `packages/iam/infra/src/api/v1/admin/set-role.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/admin/set-role.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type with JSDoc
 - [ ] Add `Handler` stub with:
@@ -449,7 +449,7 @@ Administrative user management endpoints providing privileged operations for use
 
 #### `set-user-password.ts`
 
-- [ ] Create stub file `packages/iam/infra/src/api/v1/admin/set-user-password.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/admin/set-user-password.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type with JSDoc
 - [ ] Add `Handler` stub with:
@@ -460,7 +460,7 @@ Administrative user management endpoints providing privileged operations for use
 
 #### `stop-impersonating.ts`
 
-- [ ] Create stub file `packages/iam/infra/src/api/v1/admin/stop-impersonating.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/admin/stop-impersonating.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type with JSDoc
 - [ ] Add `Handler` stub with:
@@ -471,7 +471,7 @@ Administrative user management endpoints providing privileged operations for use
 
 #### `unban-user.ts`
 
-- [ ] Create stub file `packages/iam/infra/src/api/v1/admin/unban-user.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/admin/unban-user.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type with JSDoc
 - [ ] Add `Handler` stub with:
@@ -482,7 +482,7 @@ Administrative user management endpoints providing privileged operations for use
 
 #### `update-user.ts`
 
-- [ ] Create stub file `packages/iam/infra/src/api/v1/admin/update-user.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/admin/update-user.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type with JSDoc
 - [ ] Add `Handler` stub with:
@@ -493,7 +493,7 @@ Administrative user management endpoints providing privileged operations for use
 
 #### Create Group File `_group.ts`
 
-- [ ] Create stub file `packages/iam/infra/src/api/v1/admin/_group.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/admin/_group.ts`
 - [ ] Import all admin endpoint handlers
 - [ ] Create Service, ServiceError, ServiceDependencies types
 - [ ] Create Routes layer with `HttpApiBuilder.group(IamApi, "iam.admin", ...)`
@@ -501,7 +501,7 @@ Administrative user management endpoints providing privileged operations for use
 
 #### Update Parent Index
 
-- [ ] Update `packages/iam/infra/src/api/v1/index.ts` to export Admin routes
+- [ ] Update `packages/iam/server/src/api/v1/index.ts` to export Admin routes
 
 ### Boilerplate Verification
 
@@ -538,7 +538,7 @@ For each endpoint, implement the schema fields based on the spec:
 
 ### 2. Infra Handlers
 
-**Helper Selection**: See `packages/iam/infra/src/api/common/schema-helpers.ts` for available helpers. Import:
+**Helper Selection**: See `packages/iam/server/src/api/common/schema-helpers.ts` for available helpers. Import:
 ```typescript
 import { runAuthEndpoint, runAuthQuery, runAuthCommand, forwardCookieResponse } from "../../common/schema-helpers";
 ```
@@ -597,7 +597,7 @@ For each endpoint, implement the handler logic:
 ### 3. Verification
 
 - [ ] `bun run check` passes
-- [ ] `bun run build --filter=@beep/iam-domain --filter=@beep/iam-infra` succeeds
+- [ ] `bun run build --filter=@beep/iam-domain --filter=@beep/iam-server` succeeds
 - [ ] Endpoints appear in OpenAPI spec at server `/docs`
 - [ ] Status updated to `COMPLETE` in PLAN.md
 

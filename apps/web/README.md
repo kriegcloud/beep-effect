@@ -182,11 +182,11 @@ Plus global UI components: `Snackbar`, `ProgressBar`, `SettingsDrawer`
 | Package | Purpose |
 |---------|---------|
 | `@beep/iam-ui` | Authentication UI flows |
-| `@beep/iam-sdk` | IAM client contracts |
+| `@beep/iam-client` | IAM client contracts |
 | `@beep/documents-ui` | File upload components |
-| `@beep/documents-sdk` | Documents client contracts |
+| `@beep/documents-client` | Documents client contracts |
 | `@beep/shared-ui` | Shared UI components |
-| `@beep/shared-sdk` | Shared SDK contracts |
+| `@beep/shared-client` | Shared SDK contracts |
 
 ### Infrastructure
 
@@ -254,7 +254,7 @@ Environment variables are managed via `dotenvx` from the repository root `.env` 
 | `REDIS_URL` | Server | Redis connection for Better Auth sessions |
 | `AUTH_SECRET` | Server | Better Auth secret key |
 
-**Important**: Never read `process.env` directly. Use `serverEnv`/`clientEnv` from `@beep/shared-infra`.
+**Important**: Never read `process.env` directly. Use `serverEnv`/`clientEnv` from `@beep/shared-server`.
 
 ## Effect Pattern Compliance
 
@@ -335,7 +335,7 @@ See `packages/tooling/build-utils` for the complete configuration implementation
 2. **Type Safety**: No `any`, `@ts-ignore`, or unchecked casts
 3. **Import Guardrails**: Follow namespace import conventions
 4. **Provider Consistency**: Update `GlobalProviders` when adding global dependencies
-5. **Environment**: Add new vars to `@beep/shared-infra` config
+5. **Environment**: Add new vars to `@beep/shared-server` config
 
 ### Before Committing
 
@@ -349,7 +349,7 @@ See `packages/tooling/build-utils` for the complete configuration implementation
 - Mark components `"use client"` only when necessary
 - Server components: fetch data via `runServerPromise(effect, label)`
 - Client components: use `useRuntime()` + `makeRunClientPromise(runtime, label)`
-- Avoid `process.env` — use validated config from `@beep/shared-infra`
+- Avoid `process.env` — use validated config from `@beep/shared-server`
 
 ## Observability
 

@@ -58,7 +58,7 @@ invariant(
 invariant(
   config.isValid(),
   () => `BUG: invalid config ${JSON.stringify(config)}`,
-  { file: "packages/shared/infra/Config.ts", line: 89, args: [config] }
+  { file: "packages/shared/server/Config.ts", line: 89, args: [config] }
 );
 ```
 
@@ -428,7 +428,7 @@ describe("invariant", () => {
 |------------------|------------------------------------------------------------------------------|
 | `@beep/types`    | Compile-time helpers only; no runtime overlap                               |
 | `@beep/utils`    | Pure runtime helpers; no assertions or error types                           |
-| `@beep/errors/*` | Application/infrastructure error facades; `InvariantViolation` stays generic |
+| `@beep/errors/*` | Application/serverstructure error facades; `InvariantViolation` stays generic |
 | `@beep/schema`   | Uses `@beep/invariant` for schema validation assertions                     |
 
 ## Guidelines for Adding New Features

@@ -1,4 +1,4 @@
-import { editingPasskeyAtom, useAddPasskeyForm, useUpdatePasskeyForm } from "@beep/iam-sdk/clients/passkey";
+import { editingPasskeyAtom, useAddPasskeyForm, useUpdatePasskeyForm } from "@beep/iam-client/clients/passkey";
 import { Iconify } from "@beep/ui/atoms";
 import { Form } from "@beep/ui/form";
 import { Scrollbar } from "@beep/ui/molecules";

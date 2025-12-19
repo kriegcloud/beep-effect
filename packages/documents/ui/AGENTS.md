@@ -2,7 +2,7 @@
 
 ## Purpose & Fit
 - House reusable React components for the documents slice so apps do not reimplement UI flows.
-- Build atop `@beep/ui/ui` components and `@beep/ui/core` design tokens while consuming `@beep/documents-domain` entities and future `@beep/documents-sdk` clients.
+- Build atop `@beep/ui/ui` components and `@beep/ui/core` design tokens while consuming `@beep/documents-domain` entities and future `@beep/documents-client` clients.
 - Provide document editor, knowledge page, discussion, and comment UI components.
 
 ## Current State
@@ -25,7 +25,7 @@ When implemented, this package should include:
 - NEVER use switch statements or long if-else chains; use `effect/Match` for pattern matching and `effect/Predicate` for type guards.
 - Keep components client-boundary aware (`"use client"` where required) and favor hooks/providers for stateful flows rather than ad-hoc context.
 - Validate data with `@beep/documents-domain` schemas; do not trust external data blindly.
-- Separate data fetching from presentation: inject `@beep/documents-sdk` clients or handlers via props instead of hardcoding fetch calls.
+- Separate data fetching from presentation: inject `@beep/documents-client` clients or handlers via props instead of hardcoding fetch calls.
 - Use Effect-based data fetching integrated with TanStack Query for optimal caching and invalidation.
 
 ## Suggested Building Blocks (future)
@@ -42,7 +42,7 @@ When implemented, this package should include:
 
 ## Contributor Checklist
 - [ ] Components rely on `@beep/ui/ui` primitives and respect theme/settings invariants.
-- [ ] Validation uses `@beep/documents-domain`; networking is injected (or uses `@beep/documents-sdk` when available).
+- [ ] Validation uses `@beep/documents-domain`; networking is injected (or uses `@beep/documents-client` when available).
 - [ ] No new native array/string/object helpers introduced.
 - [ ] No native Date; use `effect/DateTime` for all date/time operations.
 - [ ] Pattern matching uses `effect/Match` instead of switch statements.

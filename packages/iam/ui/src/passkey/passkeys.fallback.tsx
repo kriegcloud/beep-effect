@@ -1,4 +1,4 @@
-import { passkeysAtom } from "@beep/iam-sdk/clients/passkey";
+import { passkeysAtom } from "@beep/iam-client/clients/passkey";
 import { useAtomRefresh } from "@effect-atom/atom-react";
 import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";

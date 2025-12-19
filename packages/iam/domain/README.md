@@ -440,8 +440,8 @@ Error modules for admin, anonymous auth, API keys, CAPTCHA, device authorization
 
 - **No I/O or side effects**: no database queries, network calls, or file system operations
 - **No infrastructure**: no Drizzle clients, repositories, or Better Auth runtime
-- **No HTTP handlers or routes**: define contracts only; implement handlers in `@beep/iam-infra`
-- **No application logic**: keep orchestration in `@beep/iam-infra` or application layers
+- **No HTTP handlers or routes**: define contracts only; implement handlers in `@beep/iam-server`
+- **No application logic**: keep orchestration in `@beep/iam-server` or application layers
 - **No framework dependencies**: avoid Next.js, React, or platform-specific code
 - **No cross-slice domain imports**: only depend on `@beep/shared-domain` and `@beep/common/*`
 
@@ -500,9 +500,9 @@ bun run --filter @beep/iam-domain lint:circular
 
 ## Relationship to Other Packages
 
-- `@beep/iam-infra` — Infrastructure layer implementing domain API contracts as HTTP routes, repositories, and Better Auth integration
+- `@beep/iam-server` — Infrastructure layer implementing domain API contracts as HTTP routes, repositories, and Better Auth integration
 - `@beep/iam-tables` — Drizzle table definitions that consume these entity models
-- `@beep/iam-sdk` — Client-side contracts and Better Auth handlers (may consume domain API types)
+- `@beep/iam-client` — Client-side contracts and Better Auth handlers (may consume domain API types)
 - `@beep/iam-ui` — React components for IAM flows
 - `@beep/shared-domain` — Shared kernel entities (User, Organization, Team, Session)
 - `@beep/shared-tables` — Table factories (`Table.make`, `OrgTable.make`) used by IAM tables
@@ -512,7 +512,7 @@ bun run --filter @beep/iam-domain lint:circular
 ```
 @beep/iam-domain (contracts)
     ↓
-@beep/iam-infra (route implementations)
+@beep/iam-server (route implementations)
     ↓
 apps/server (HTTP server runtime)
 ```
@@ -533,7 +533,7 @@ Domain defines the "what" (API shape), infrastructure defines the "how" (handler
   - Update entity model schema
   - Regenerate Drizzle types: `bun run db:generate`
   - Create migration: `bun run db:migrate`
-  - Update affected repositories in `@beep/iam-infra`
+  - Update affected repositories in `@beep/iam-server`
   - Update UI components in `@beep/iam-ui`
 - Document migrations in commit messages and update AGENTS.md
 
@@ -543,14 +543,14 @@ After modifying entities:
 
 1. Regenerate database types and migrations
 2. Update corresponding table definitions in `@beep/iam-tables`
-3. Adjust repositories in `@beep/iam-infra` if persistence logic changes
-4. Update SDK contracts in `@beep/iam-sdk` if client-facing types change
+3. Adjust repositories in `@beep/iam-server` if persistence logic changes
+4. Update SDK contracts in `@beep/iam-client` if client-facing types change
 5. Verify UI components in `@beep/iam-ui` still compile
 6. Run full verification: `bun run check && bun run lint && bun run test`
 
 ## Additional Resources
 
 - `AGENTS.md` — Detailed agent guide with recipes and guardrails
-- `packages/iam/infra/AGENTS.md` — Infrastructure layer patterns
+- `packages/iam/server/AGENTS.md` — Infrastructure layer patterns
 - `packages/iam/tables/AGENTS.md` — Table schema definitions
 - `docs/patterns/` — Repository-wide implementation patterns

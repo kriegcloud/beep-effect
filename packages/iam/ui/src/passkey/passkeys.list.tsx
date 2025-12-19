@@ -1,6 +1,6 @@
 "use client";
-import { editingPasskeyAtom, usePasskeyCRUD } from "@beep/iam-sdk";
-import type { PasskeyDTO } from "@beep/iam-sdk/clients/passkey/passkey.contracts";
+import { editingPasskeyAtom, usePasskeyCRUD } from "@beep/iam-client";
+import type { PasskeyDTO } from "@beep/iam-client/clients/passkey/passkey.contracts";
 import { PasskeyForm } from "@beep/iam-ui/passkey/passkey.form";
 import { PasskeyItem } from "@beep/iam-ui/passkey/passkey.item";
 import { PasskeysEmpty } from "@beep/iam-ui/passkey/passkeys.empty";

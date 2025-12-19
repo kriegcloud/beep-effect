@@ -343,7 +343,7 @@ dispatch({ type: "reset" });
 2. **Normalize**: `fillInputRouteConfig` → `ExpandedRouteConfig`
 3. **Generate accept**: `generateClientDropzoneAccept` → `AcceptProp`
 4. **Validate files**: `matchFileType`, `isValidSize`, `isValidQuantity`
-5. **Handle upload**: Use `@beep/documents/infra/StorageService`
+5. **Handle upload**: Use `@beep/documents/server/StorageService`
 
 ### File Validation Pipeline
 

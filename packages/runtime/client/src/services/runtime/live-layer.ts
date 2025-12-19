@@ -1,12 +1,10 @@
-import { ApiClient } from "@beep/runtime-client/services/common/iam-api-client";
-import { clientEnv } from "@beep/shared-infra/ClientEnv";
+import { clientEnv } from "@beep/shared-server/ClientEnv";
 import { ToasterService } from "@beep/ui/services/toaster.service";
 import { WebSdk } from "@effect/opentelemetry";
 import { FetchHttpClient } from "@effect/platform";
 import type { HttpClient } from "@effect/platform/HttpClient";
 import type * as KeyValueStore from "@effect/platform/KeyValueStore";
 import { BrowserKeyValueStore } from "@effect/platform-browser";
-import * as BrowserHttpClient from "@effect/platform-browser/BrowserHttpClient";
 import * as Geolocation from "@effect/platform-browser/Geolocation";
 import { Registry } from "@effect-atom/atom-react";
 import { OTLPLogExporter } from "@opentelemetry/exporter-logs-otlp-http";
@@ -90,7 +88,6 @@ export const clientRuntimeLayer = Layer.mergeAll(
   ObservabilityLive,
   NetworkMonitorLive,
   WorkerClientLive,
-  ApiClient.Default.pipe(Layer.provideMerge(BrowserHttpClient.layerXMLHttpRequest)),
   BrowserKeyValueStore.layerLocalStorage,
   GeoLocationLive
 ).pipe(Layer.provide(LogLevelLive), Layer.provideMerge(Layer.setConfigProvider(configProvider)));

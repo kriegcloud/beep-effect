@@ -99,12 +99,12 @@ apps/notes/
 |----------|-------------------|------------------|
 | **Frontend** | Next.js 15, React 19, Plate Editor | Continue |
 | **State Management** | Jotai, Zustand, TanStack Query | Migrate to Effect state management |
-| **Backend** | tRPC, Hono, Better Auth | Migrate to `@effect/rpc`, `@beep/iam-infra` |
+| **Backend** | tRPC, Hono, Better Auth | Migrate to `@effect/rpc`, `@beep/iam-server` |
 | **Database** | PostgreSQL (Prisma) | Migrate to Drizzle via `@beep/*-tables` |
 | **Caching** | Redis (ioredis) | Continue with Effect wrappers |
 | **Collaboration** | YJS, Hocuspocus, Redis | Continue |
 | **AI** | Vercel AI SDK, OpenAI | Continue |
-| **File Upload** | UploadThing | Migrate to `@beep/documents-infra` |
+| **File Upload** | UploadThing | Migrate to `@beep/documents-server` |
 | **Styling** | TailwindCSS, MUI, Radix UI | Continue with `@beep/ui-core` theming |
 | **Effect Integration** | Limited (`@beep/utils`, `@beep/schema`) | Full adoption across all layers |
 
@@ -124,15 +124,15 @@ This application integrates with the following beep-effect workspace packages:
 
 #### IAM Layer
 - `@beep/iam-domain` - IAM entity models
-- `@beep/iam-infra` - Better Auth integration
-- `@beep/iam-sdk` - Auth contracts
+- `@beep/iam-server` - Better Auth integration
+- `@beep/iam-client` - Auth contracts
 - `@beep/iam-tables` - IAM Drizzle schemas
 - `@beep/iam-ui` - Auth UI components
 
 #### Documents Layer
 - `@beep/documents-domain` - Files domain logic
-- `@beep/documents-infra` - DocumentsDb, repos, S3 storage
-- `@beep/documents-sdk` - Documents client contracts
+- `@beep/documents-server` - DocumentsDb, repos, S3 storage
+- `@beep/documents-client` - Documents client contracts
 - `@beep/documents-tables` - Documents Drizzle schemas
 - `@beep/documents-ui` - Documents React components
 
@@ -319,8 +319,8 @@ Connection to Hocuspocus server is managed automatically via `NEXT_PUBLIC_YJS_UR
 
 | Layer | Packages | Current Alternative | Migration Priority |
 |-------|----------|---------------------|-------------------|
-| **IAM** | `@beep/iam-domain`, `@beep/iam-infra`, `@beep/iam-sdk`, `@beep/iam-tables`, `@beep/iam-ui` | Custom Better Auth setup | High |
-| **Documents** | `@beep/documents-domain`, `@beep/documents-infra`, `@beep/documents-sdk`, `@beep/documents-tables`, `@beep/documents-ui` | Custom Prisma models | High |
+| **IAM** | `@beep/iam-domain`, `@beep/iam-server`, `@beep/iam-client`, `@beep/iam-tables`, `@beep/iam-ui` | Custom Better Auth setup | High |
+| **Documents** | `@beep/documents-domain`, `@beep/documents-server`, `@beep/documents-client`, `@beep/documents-tables`, `@beep/documents-ui` | Custom Prisma models | High |
 | **Shared** | `@beep/shared-domain`, `@beep/shared-tables` | N/A | Medium |
 | **Runtime** | `@beep/runtime-client`, `@beep/runtime-server` | N/A | Medium |
 | **Common** | `@beep/constants`, `@beep/contract`, `@beep/errors`, `@beep/identity`, `@beep/invariant`, `@beep/mock` | Various libraries | Low |
@@ -337,7 +337,7 @@ Connection to Hocuspocus server is managed automatically via `NEXT_PUBLIC_YJS_UR
 This application serves as a **reference implementation** for gradually migrating a traditional Next.js app to Effect-based architecture:
 
 1. **Current State**: Uses `@beep/utils` and `@beep/schema` for data utilities
-2. **Next Steps**: Migrate authentication to `@beep/iam-infra`, documents to `@beep/documents-infra`
+2. **Next Steps**: Migrate authentication to `@beep/iam-server`, documents to `@beep/documents-server`
 3. **Future State**: Full Effect adoption with `@effect/rpc`, Drizzle ORM, and Effect state management
 
 ### Database Schema (Prisma)
@@ -628,5 +628,5 @@ Check `tsconfig.json` for path aliases:
 - [Monorepo Root README](/home/elpresidank/YeeBois/projects/beep-effect/README.md) - Overview and setup
 - [Root AGENTS.md](/home/elpresidank/YeeBois/projects/beep-effect/AGENTS.md) - Architecture and patterns
 - [Notes AGENTS.md](/home/elpresidank/YeeBois/projects/beep-effect/apps/notes/AGENTS.md) - Detailed implementation guide
-- [IAM Infrastructure](/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/infra/AGENTS.md) - Auth integration target
-- [Documents Infrastructure](/home/elpresidank/YeeBois/projects/beep-effect/packages/documents/infra/AGENTS.md) - Document management target
+- [IAM Infrastructure](/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/server/AGENTS.md) - Auth integration target
+- [Documents Infrastructure](/home/elpresidank/YeeBois/projects/beep-effect/packages/documents/server/AGENTS.md) - Document management target

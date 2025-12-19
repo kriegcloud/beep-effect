@@ -34,13 +34,13 @@
       "path": "../../packages/shared/domain"
     },
     {
-      "path": "../../packages/shared/infra"
+      "path": "../../packages/shared/server"
     },
     {
       "path": "../../packages/shared/tables"
     },
     {
-      "path": "../../packages/iam/infra"
+      "path": "../../packages/iam/server"
     },
     {
       "path": "../../packages/iam/domain"
@@ -49,7 +49,7 @@
       "path": "../../packages/iam/tables"
     },
     {
-      "path": "../../packages/documents/infra"
+      "path": "../../packages/documents/server"
     },
     {
       "path": "../../packages/documents/domain"

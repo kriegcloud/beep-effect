@@ -164,7 +164,7 @@ console.log()         // Use Effect.logInfo with structured data
 - Use `Redacted<string>` for sensitive configuration
 
 **Environment Configuration**:
-- Read from `@beep/shared-infra/ServerEnv`
+- Read from `@beep/shared-server/ServerEnv`
 - Access via `serverEnv.app.*`, `serverEnv.otlp.*`, etc.
 - Never access `process.env` or `Bun.env` directly
 
@@ -208,7 +208,7 @@ Application (HTTP Server, RPC, Middleware)
 - `packages/runtime/server/src/v1/AuthContext.layer.ts` - Middleware pattern
 
 **Shared Infrastructure**:
-- `packages/shared/infra/src/ServerEnv.ts` - Environment configuration
+- `packages/shared/server/src/ServerEnv.ts` - Environment configuration
 - `packages/common/errors/src/server/` - Pretty logger, cause formatting
 
 **Server Entry Point**:
@@ -226,7 +226,7 @@ Application (HTTP Server, RPC, Middleware)
 
 ### Package AGENTS.md Files
 - `packages/runtime/server/AGENTS.md`
-- `packages/shared/infra/AGENTS.md`
+- `packages/shared/server/AGENTS.md`
 - `packages/common/errors/AGENTS.md`
 
 ---
@@ -342,7 +342,7 @@ import { BatchLogRecordProcessor } from "@opentelemetry/sdk-logs";
 import { OTLPLogExporter } from "@opentelemetry/exporter-logs-otlp-http";
 import { PeriodicExportingMetricReader } from "@opentelemetry/sdk-metrics";
 import { OTLPMetricExporter } from "@opentelemetry/exporter-metrics-otlp-proto";
-import { serverEnv } from "@beep/shared-infra/ServerEnv";
+import { serverEnv } from "@beep/shared-server/ServerEnv";
 
 // Environment-aware OTLP setup
 export const layer = Layer.unwrapEffect(
@@ -452,7 +452,7 @@ import * as F from "effect/Function";
 import * as Duration from "effect/Duration";
 import * as DateTime from "effect/DateTime";
 import { HttpRouter, HttpServerResponse } from "@effect/platform";
-import { SharedDb } from "@beep/shared-infra/db";
+import { SharedDb } from "@beep/shared-server/db";
 
 // Database connectivity probe
 const probeDatabase = Effect.gen(function* () {
@@ -658,7 +658,7 @@ export const ApplicationLive = DomainServicesLive.pipe(
 - `packages/runtime/server/src/Tracing.ts`
 - `packages/runtime/server/src/DevTools.ts`
 - `packages/runtime/server/src/v1/*.layer.ts` (all 6 files)
-- `packages/shared/infra/src/ServerEnv.ts`
+- `packages/shared/server/src/ServerEnv.ts`
 - `packages/common/errors/src/server/`
 
 **Documentation Referenced**:
@@ -669,7 +669,7 @@ export const ApplicationLive = DomainServicesLive.pipe(
 **AGENTS.md Files Consulted**:
 - `packages/runtime/server/AGENTS.md`
 - `packages/runtime/client/AGENTS.md`
-- `packages/shared/infra/AGENTS.md`
+- `packages/shared/server/AGENTS.md`
 - `packages/common/errors/AGENTS.md`
 - `apps/server/AGENTS.md`
 

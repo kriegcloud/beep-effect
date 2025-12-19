@@ -2,7 +2,7 @@
 
 ## Purpose & Fit
 
-- Effect-first contract runtime powering all RPC-style interactions shared across slices (`@beep/iam-sdk` contracts, runtime services, and future documents slices).
+- Effect-first contract runtime powering all RPC-style interactions shared across slices (`@beep/iam-client` contracts, runtime services, and future documents slices).
 - Publishes three public entry points (`Contract`, `ContractKit`, `ContractError`) that wrap the internal implementation and keep internal layout flexible.
 - Consumed anywhere we need typed payload schemas, runtime-independent error envelopes, continuations with abort awareness, or contract grouping/lifting helpers.
 - **Dependencies**: `effect`, `@beep/schema`, `@beep/invariant`, `@beep/utils`, `@beep/identity` (all peer dependencies).
@@ -23,9 +23,9 @@
 
 ## Usage Snapshots
 
-- `packages/iam/sdk/src/clients/passkey/passkey.contracts.ts` defines Better Auth-facing contracts via `Contract.make` and groups them with `ContractKit.make`.
-- `packages/iam/sdk/src/clients/passkey/passkey.implementations.ts` uses `contract.continuation` inside `.implement` calls to normalize Better Auth responses and surface `IamError`.
-- `packages/iam/sdk/src/clients/passkey/passkey.service.ts` lifts a contract kit into an Effect Service via `ContractKit.liftService`, wiring hooks for UI runtimes.
+- `packages/iam/client/src/clients/passkey/passkey.contracts.ts` defines Better Auth-facing contracts via `Contract.make` and groups them with `ContractKit.make`.
+- `packages/iam/client/src/clients/passkey/passkey.implementations.ts` uses `contract.continuation` inside `.implement` calls to normalize Better Auth responses and surface `IamError`.
+- `packages/iam/client/src/clients/passkey/passkey.service.ts` lifts a contract kit into an Effect Service via `ContractKit.liftService`, wiring hooks for UI runtimes.
 - Implementations use `continuation.run` for manual error handling or `continuation.runDecode` for automatic success/failure processing.
 
 ## Authoring Guardrails
@@ -168,4 +168,4 @@ export class WidgetsService extends Effect.Service<WidgetsService>()(
 - [ ] Updated `ContractError` schemas + metadata derivations when adding new error types, and documented them here.
 - [ ] Provided usage guidance/examples when evolving `ContractKit`, `continuation`, or FailureMode semantics.
 - [ ] Ran `bun run lint --filter @beep/contract` and `bun run check --filter @beep/contract`; triggered builds/tests if touching emitted artifacts.
-- [ ] Reflected significant changes back into this AGENT and alerted consumers (e.g., `@beep/iam-sdk`) when APIs shift.
+- [ ] Reflected significant changes back into this AGENT and alerted consumers (e.g., `@beep/iam-client`) when APIs shift.

@@ -1,6 +1,6 @@
 "use client";
 import { EnvValue } from "@beep/constants";
-import { clientEnv } from "@beep/shared-infra/ClientEnv";
+import { clientEnv } from "@beep/shared-server/ClientEnv";
 import { TanStackDevtools } from "@tanstack/react-devtools";
 import { formDevtoolsPlugin } from "@tanstack/react-form-devtools";
 import type React from "react";

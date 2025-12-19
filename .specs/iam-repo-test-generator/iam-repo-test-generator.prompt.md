@@ -20,7 +20,7 @@ You are working in the `beep-effect` monorepo, a Bun-managed Effect-first full-s
 
 | Category | Path |
 |----------|------|
-| **Repository sources** | `packages/iam/infra/src/adapters/repos/*.repo.ts` |
+| **Repository sources** | `packages/iam/server/src/adapters/repos/*.repo.ts` |
 | **Test output directory** | `packages/_internal/db-admin/test/` |
 | **Reference test file** | `packages/_internal/db-admin/test/UserRepo.test.ts` |
 | **Test container setup** | `packages/_internal/db-admin/test/container.ts` |
@@ -721,7 +721,7 @@ layer(PgTest, { timeout: Duration.seconds(180) })("property-based tests", (it) =
 
 2. **Repository source file** (to understand custom methods):
    ```
-   packages/iam/infra/src/adapters/repos/{Entity}.repo.ts
+   packages/iam/server/src/adapters/repos/{Entity}.repo.ts
    ```
 
 3. **Entity model file** (to understand schema and required fields):
@@ -747,7 +747,7 @@ layer(PgTest, { timeout: Duration.seconds(180) })("property-based tests", (it) =
 ```typescript
 // Standard test imports
 import { describe, expect } from "bun:test";
-import { {Entity}Repo } from "@beep/iam-infra";
+import { {Entity}Repo } from "@beep/iam-server";
 import { BS } from "@beep/schema";
 import { {Entity} } from "@beep/iam-domain"; // or @beep/shared-domain/entities
 import { assertNone, deepStrictEqual, layer, strictEqual, assertTrue } from "@beep/testkit";
@@ -758,7 +758,7 @@ import * as S from "effect/Schema";
 import { PgTest } from "./container";
 
 // For entities with foreign keys, also import parent repos
-import { UserRepo, OrganizationRepo, TeamRepo } from "@beep/iam-infra";
+import { UserRepo, OrganizationRepo, TeamRepo } from "@beep/iam-server";
 import { User, Organization, Team } from "@beep/shared-domain/entities";
 
 // For property-based tests (optional)
@@ -1204,17 +1204,17 @@ Each subagent should:
 **Files Explored:**
 - `packages/_internal/db-admin/test/UserRepo.test.ts` (reference template)
 - `packages/_internal/db-admin/test/container.ts` (PgTest layer)
-- `packages/iam/infra/src/adapters/repos/*.repo.ts` (all 22+ repos)
+- `packages/iam/server/src/adapters/repos/*.repo.ts` (all 22+ repos)
 - `packages/iam/domain/src/entities/*/` (entity models)
 - `packages/shared/domain/src/entities/*/` (shared entity models)
-- `packages/shared/infra/src/internal/db/pg/repo.ts` (Repo.make implementation)
+- `packages/shared/server/src/internal/db/pg/repo.ts` (Repo.make implementation)
 - `tooling/testkit/src/` (layer(), assertions)
 
 **AGENTS.md Files Consulted:**
-- `packages/iam/infra/AGENTS.md`
+- `packages/iam/server/AGENTS.md`
 - `packages/_internal/db-admin/AGENTS.md`
 - `tooling/testkit/AGENTS.md`
-- `packages/shared/infra/AGENTS.md`
+- `packages/shared/server/AGENTS.md`
 
 **Effect Documentation:**
 - Effect.exit for defect handling

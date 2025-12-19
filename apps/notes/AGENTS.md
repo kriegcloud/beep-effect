@@ -17,8 +17,8 @@ This application is **in active transition** from standalone patterns to full Ef
 | **Database** | Prisma + PostgreSQL | Migrating to Drizzle (via `@beep/*-tables`) |
 | **API** | tRPC + Hono | Migrating to `@effect/rpc` |
 | **State** | Jotai, Zustand, React Query | Migrating to Effect state management |
-| **Auth** | Custom Better Auth setup | Integrating `@beep/iam-infra` |
-| **Files** | Custom Prisma models | Integrating `@beep/documents-infra` |
+| **Auth** | Custom Better Auth setup | Integrating `@beep/iam-server` |
+| **Files** | Custom Prisma models | Integrating `@beep/documents-server` |
 
 ### Effect Integration Progress
 
@@ -31,8 +31,8 @@ The application **does** use these beep-effect packages:
 The application **imports but may not fully integrate**:
 
 - `@beep/constants`, `@beep/contract`, `@beep/errors`, `@beep/identity`, `@beep/invariant`, `@beep/mock`
-- `@beep/iam-domain`, `@beep/iam-infra`, `@beep/iam-sdk`, `@beep/iam-tables`, `@beep/iam-ui`
-- `@beep/documents-domain`, `@beep/documents-infra`, `@beep/documents-sdk`, `@beep/documents-tables`, `@beep/documents-ui`
+- `@beep/iam-domain`, `@beep/iam-server`, `@beep/iam-client`, `@beep/iam-tables`, `@beep/iam-ui`
+- `@beep/documents-domain`, `@beep/documents-server`, `@beep/documents-client`, `@beep/documents-tables`, `@beep/documents-ui`
 - `@beep/shared-domain`, `@beep/shared-tables`
 - `@beep/runtime-client`, `@beep/runtime-server`
 - `@beep/ui-core` - Design tokens and MUI configuration
@@ -264,22 +264,22 @@ These packages are listed in `package.json` but are not yet deeply integrated in
 #### IAM Layer
 
 - `@beep/iam-domain` - IAM entity models (planned integration)
-- `@beep/iam-infra` - Better Auth integration (planned migration)
-- `@beep/iam-sdk` - Auth contracts (planned migration)
+- `@beep/iam-server` - Better Auth integration (planned migration)
+- `@beep/iam-client` - Auth contracts (planned migration)
 - `@beep/iam-tables` - IAM Drizzle schemas (planned migration)
 - `@beep/iam-ui` - Auth UI components (planned migration)
 
-**Current state**: Application has custom Better Auth setup. Plan is to migrate to `@beep/iam-infra`.
+**Current state**: Application has custom Better Auth setup. Plan is to migrate to `@beep/iam-server`.
 
 #### Documents Layer
 
 - `@beep/documents-domain` - Files domain logic (planned integration)
-- `@beep/documents-infra` - DocumentsDb, S3 storage (planned migration)
-- `@beep/documents-sdk` - Documents client contracts (planned migration)
+- `@beep/documents-server` - DocumentsDb, S3 storage (planned migration)
+- `@beep/documents-client` - Documents client contracts (planned migration)
 - `@beep/documents-tables` - Documents Drizzle schemas (planned migration)
 - `@beep/documents-ui` - Documents React components (planned migration)
 
-**Current state**: Application has custom Prisma models for documents and files. Plan is to migrate to `@beep/documents-infra`.
+**Current state**: Application has custom Prisma models for documents and files. Plan is to migrate to `@beep/documents-server`.
 
 #### Common Layer
 
@@ -415,8 +415,8 @@ bun run studio          # Opens Prisma Studio in browser
 
 Currently minimal integration. Future integration targets:
 
-1. **Authentication**: Migrate to `@beep/iam-infra` for unified auth
-2. **Documents**: Migrate to `@beep/documents-infra` for file handling
+1. **Authentication**: Migrate to `@beep/iam-server` for unified auth
+2. **Documents**: Migrate to `@beep/documents-server` for file handling
 3. **Database**: Migrate from Prisma to Drizzle via `@beep/*-tables`
 4. **API**: Migrate from tRPC to `@effect/rpc` via `@beep/*-sdk`
 5. **Runtime**: Adopt `@beep/runtime-server` and `@beep/runtime-client`
@@ -443,8 +443,8 @@ Currently minimal integration. Future integration targets:
 
 ### Phase 4: Infrastructure
 
-- Replace custom Better Auth setup with `@beep/iam-infra`
-- Migrate file storage to `@beep/documents-infra`
+- Replace custom Better Auth setup with `@beep/iam-server`
+- Migrate file storage to `@beep/documents-server`
 - Adopt `@beep/runtime-server` and `@beep/runtime-client`
 
 ### Phase 5: API Layer
@@ -607,6 +607,6 @@ This application represents a **reference implementation** for migrating legacy 
 
 - `/home/elpresidank/YeeBois/projects/beep-effect/README.md` - Monorepo overview
 - `/home/elpresidank/YeeBois/projects/beep-effect/AGENTS.md` - Root agent guide
-- `/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/infra/AGENTS.md` - IAM infrastructure
-- `/home/elpresidank/YeeBois/projects/beep-effect/packages/documents/infra/AGENTS.md` - Documents infrastructure
+- `/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/server/AGENTS.md` - IAM infrastructure
+- `/home/elpresidank/YeeBois/projects/beep-effect/packages/documents/server/AGENTS.md` - Documents infrastructure
 - `/home/elpresidank/YeeBois/projects/beep-effect/packages/runtime/server/AGENTS.md` - Server runtime

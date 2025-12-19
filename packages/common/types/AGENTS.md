@@ -32,7 +32,7 @@
 
 ## Usage Snapshots
 - `packages/common/schema/src/core/utils/brands.ts` builds branded schemas with `UnsafeTypes` + `effect/Brand` to guarantee nominal IDs.
-- `packages/shared/infra/src/internal/db/pg/PgClient.ts` and other DB helpers depend on `UnsafeTypes` to thread Drizzle client generics without losing type safety.
+- `packages/shared/server/src/internal/db/pg/PgClient.ts` and other DB helpers depend on `UnsafeTypes` to thread Drizzle client generics without losing type safety.
 - `packages/common/utils/src/data/struct.utils.ts` imports `RecordTypes`/`StructTypes` to keep runtime helpers aligned with the type-level contracts.
 
 ## Authoring Guardrails

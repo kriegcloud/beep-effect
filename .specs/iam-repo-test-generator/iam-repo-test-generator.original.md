@@ -1,7 +1,7 @@
 # IAM Repository Test Generator - Original Prompt
 
 Create comprehensive unit tests for all IAM repository files in
-@packages/iam/infra/src/adapters/repos/. Deploy parallel subagents to create a test file for each
+@packages/iam/server/src/adapters/repos/. Deploy parallel subagents to create a test file for each
 repository, following the exact patterns established in the working UserRepo.test.ts at
 /packages/_internal/db-admin/test/UserRepo.test.ts.
 

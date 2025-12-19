@@ -125,7 +125,7 @@ Each package may have its own `AGENTS.md` with specific guidance:
 
 ### Shared Layer
 - `packages/shared/domain/AGENTS.md` — Entity IDs/models, ManualCache, Policy combinators
-- `packages/shared/infra/AGENTS.md` — Db, Email, Repo factories (consolidated from core packages)
+- `packages/shared/server/AGENTS.md` — Db, Email, Repo factories (consolidated from core packages)
 - `packages/shared/tables/AGENTS.md` — Table factories, audit defaults, multi-tenant recipes
 - `packages/shared/ui/AGENTS.md` — Shared UI components and utilities
 
@@ -133,15 +133,15 @@ Each package may have its own `AGENTS.md` with specific guidance:
 
 #### Documents
 - `packages/documents/domain/AGENTS.md` — Files domain, EXIF schemas, upload helpers
-- `packages/documents/infra/AGENTS.md` — DocumentsDb, repo layers, S3 StorageService
-- `packages/documents/sdk/AGENTS.md` — Documents client contracts
+- `packages/documents/server/AGENTS.md` — DocumentsDb, repo layers, S3 StorageService
+- `packages/documents/client/AGENTS.md` — Documents client contracts
 - `packages/documents/tables/AGENTS.md` — Documents Drizzle schemas
 - `packages/documents/ui/AGENTS.md` — Documents React components
 
 #### IAM
 - `packages/iam/domain/AGENTS.md` — IAM entity models, schema-kit guardrails
-- `packages/iam/infra/AGENTS.md` — Better Auth wiring, IAM repo bundle
-- `packages/iam/sdk/AGENTS.md` — Better Auth handler playbook
+- `packages/iam/server/AGENTS.md` — Better Auth wiring, IAM repo bundle
+- `packages/iam/client/AGENTS.md` — Better Auth handler playbook
 - `packages/iam/tables/AGENTS.md` — Tenant-aware Drizzle schemas
 - `packages/iam/ui/AGENTS.md` — IAM React flows, recaptcha, social providers
 
@@ -517,7 +517,7 @@ exec $SHELL
 ## Operational Notes
 
 ### Configuration
-- Environment via Effect Config from `@beep/shared-infra`
+- Environment via Effect Config from `@beep/shared-server`
 - Use `Redacted<string>` for sensitive values
 
 ### Migrations

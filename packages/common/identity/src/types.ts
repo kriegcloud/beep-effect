@@ -56,7 +56,7 @@ export type Segment<S extends StringTypes.NonEmptyString = StringTypes.NonEmptyS
  * @example
  * import type * as Identity from "@beep/identity/types";
  *
- * type PasskeyId = Identity.IdentityString<"@beep/iam-sdk/clients/passkey">;
+ * type PasskeyId = Identity.IdentityString<"@beep/iam-client/clients/passkey">;
  *
  * @category Identity/Types
  * @since 0.1.0
@@ -71,7 +71,7 @@ export type IdentityString<Value extends string> = Value & {
  * @example
  * import type * as Identity from "@beep/identity/types";
  *
- * type RepoSymbol = Identity.IdentitySymbol<"@beep/iam-infra/repos/UserRepo">;
+ * type RepoSymbol = Identity.IdentitySymbol<"@beep/iam-server/repos/UserRepo">;
  *
  * @category Identity/Types
  * @since 0.1.0

@@ -1,4 +1,4 @@
-import { useUpdatePhoneNumberForm } from "@beep/iam-sdk/clients/user";
+import { useUpdatePhoneNumberForm } from "@beep/iam-client/clients/user";
 import { Iconify } from "@beep/ui/atoms";
 import { Link, Stack, Typography } from "@mui/material";
 import * as O from "effect/Option";

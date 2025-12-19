@@ -741,9 +741,9 @@ import { validate } from "../../src/utils/validation"
 import { Config } from "../../../src/config"
 
 // ✅ REQUIRED - path alias imports
-import { UserService } from "@beep/iam-infra/services/UserService"
+import { UserService } from "@beep/iam-server/services/UserService"
 import { validate } from "@beep/utils/validation"
-import { Config } from "@beep/shared-infra/config"
+import { Config } from "@beep/shared-server/config"
 ```
 
 **Why path aliases:**

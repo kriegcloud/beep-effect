@@ -1,0 +1,54 @@
+{
+  "extends": "./tsconfig.src.json",
+  "compilerOptions": {
+    "types": ["node", "bun"],
+    "outDir": "build/esm",
+    "declarationDir": "build/dts",
+    "jsx": "react-jsx",
+    "module": "ESNext",
+    "target": "ES2023",
+    "lib": ["ES2024", "DOM", "DOM.Iterable"],
+    "moduleResolution": "bundler",
+    "composite": true,
+    "incremental": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "stripInternal": false
+  },
+  "references": [
+    {
+      "path": "../../shared/domain/tsconfig.build.json"
+    },
+    {
+      "path": "../../shared/client/tsconfig.build.json"
+    },
+    {
+      "path": "../../common/identity/tsconfig.build.json"
+    },
+    {
+      "path": "../../common/schema/tsconfig.build.json"
+    },
+    {
+      "path": "../../common/utils/tsconfig.build.json"
+    },
+    {
+      "path": "../../common/errors/tsconfig.build.json"
+    },
+    {
+      "path": "../../common/constants/tsconfig.build.json"
+    },
+    {
+      "path": "../../common/invariant/tsconfig.build.json"
+    },
+    {
+      "path": "../../common/types/tsconfig.build.json"
+    },
+    {
+      "path": "../domain/tsconfig.build.json"
+    },
+    {
+      "path": "../server/tsconfig.build.json"
+    }
+  ],
+  "include": ["src"]
+}

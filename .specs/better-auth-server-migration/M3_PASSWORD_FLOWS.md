@@ -125,7 +125,7 @@ This milestone implements password management flows including password changes, 
 
 #### `change-password.ts`
 
-- [ ] Create stub file `packages/iam/infra/src/api/v1/core/change-password.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/core/change-password.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type with JSDoc
 - [ ] Add `Handler` stub with:
@@ -136,7 +136,7 @@ This milestone implements password management flows including password changes, 
 
 #### `request-password-reset.ts`
 
-- [ ] Create stub file `packages/iam/infra/src/api/v1/core/request-password-reset.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/core/request-password-reset.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type with JSDoc
 - [ ] Add `Handler` stub with:
@@ -147,7 +147,7 @@ This milestone implements password management flows including password changes, 
 
 #### `reset-password.ts`
 
-- [ ] Create stub file `packages/iam/infra/src/api/v1/core/reset-password.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/core/reset-password.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type with JSDoc
 - [ ] Add `Handler` stub with:
@@ -158,7 +158,7 @@ This milestone implements password management flows including password changes, 
 
 #### `reset-password-token.ts`
 
-- [ ] Create stub file `packages/iam/infra/src/api/v1/core/reset-password-token.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/core/reset-password-token.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type with JSDoc
 - [ ] Add `Handler` stub with:
@@ -376,7 +376,7 @@ import { runAuthEndpoint, runAuthQuery, runAuthCommand, forwardCookieResponse } 
 ### 3. Verification
 
 - [ ] `bun run check` passes
-- [ ] `bun run build --filter=@beep/iam-domain --filter=@beep/iam-infra` succeeds
+- [ ] `bun run build --filter=@beep/iam-domain --filter=@beep/iam-server` succeeds
 - [ ] Endpoints appear in OpenAPI spec at server `/docs`
 - [ ] Status updated to `COMPLETE` in PLAN.md
 

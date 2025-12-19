@@ -28,13 +28,13 @@
       "path": "../../shared/domain"
     },
     {
-      "path": "../../shared/infra"
+      "path": "../../shared/server"
     },
     {
       "path": "../../shared/tables"
     },
     {
-      "path": "../../iam/infra"
+      "path": "../../iam/server"
     },
     {
       "path": "../../iam/domain"
@@ -43,7 +43,7 @@
       "path": "../../iam/tables"
     },
     {
-      "path": "../../documents/infra"
+      "path": "../../documents/server"
     },
     {
       "path": "../../documents/domain"

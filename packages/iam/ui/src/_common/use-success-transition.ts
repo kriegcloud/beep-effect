@@ -1,5 +1,5 @@
 "use client";
-import { client } from "@beep/iam-sdk/adapters/better-auth/client";
+import { client } from "@beep/iam-client/adapters/better-auth/client";
 
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState, useTransition } from "react";

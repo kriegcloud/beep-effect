@@ -1,4 +1,4 @@
-import type { PasskeyDTO } from "@beep/iam-sdk/clients/passkey/passkey.contracts";
+import type { PasskeyDTO } from "@beep/iam-client/clients/passkey/passkey.contracts";
 import { Iconify } from "@beep/ui/atoms/iconify/iconify";
 import IconButton from "@mui/material/Button";
 import ListItem from "@mui/material/ListItem";

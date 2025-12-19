@@ -50,7 +50,7 @@
       "path": "../../shared/tables/tsconfig.build.json"
     },
     {
-      "path": "../../shared/sdk/tsconfig.build.json"
+      "path": "../../shared/client/tsconfig.build.json"
     },
     {
       "path": "../../shared/ui/tsconfig.build.json"

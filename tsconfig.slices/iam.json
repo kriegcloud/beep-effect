@@ -6,8 +6,8 @@
   "references": [
     { "path": "../packages/iam/domain/tsconfig.build.json" },
     { "path": "../packages/iam/tables/tsconfig.build.json" },
-    { "path": "../packages/iam/infra/tsconfig.build.json" },
-    { "path": "../packages/iam/sdk/tsconfig.build.json" },
+    { "path": "../packages/iam/server/tsconfig.build.json" },
+    { "path": "../packages/iam/client/tsconfig.build.json" },
     { "path": "../packages/iam/ui/tsconfig.build.json" }
   ]
 }

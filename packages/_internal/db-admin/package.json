@@ -38,7 +38,7 @@
     "execute": "TSX_TSCONFIG_PATH=./tsconfig.src.json NODE_ENV=development NODE_OPTIONS='--import tsx' bun run dotenvx -- bunx tsx ./src/scratch.ts"
   },
   "dependencies": {
-    "@beep/shared-infra": "workspace:^",
+    "@beep/shared-server": "workspace:^",
     "drizzle-zero": "catalog:",
     "@rocicorp/zero": "catalog:",
     "@beep/invariant": "workspace:^",
@@ -51,10 +51,10 @@
     "@beep/shared-tables": "workspace:^",
     "@beep/iam-domain": "workspace:^",
     "@beep/iam-tables": "workspace:^",
-    "@beep/iam-infra": "workspace:^",
+    "@beep/iam-server": "workspace:^",
     "@beep/documents-domain": "workspace:^",
     "@beep/documents-tables": "workspace:^",
-    "@beep/documents-infra": "workspace:^",
+    "@beep/documents-server": "workspace:^",
     "@effect/platform-bun": "catalog:",
     "@effect/sql-pg": "catalog:",
     "@faker-js/faker": "catalog:",

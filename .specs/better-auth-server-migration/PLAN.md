@@ -15,14 +15,14 @@ This plan systematically migrates ~138 Better Auth endpoints from a Next.js catc
 ### Goals
 
 1. **Type Safety**: Migrate all endpoints to Effect Platform's HttpApi with full schema validation
-2. **Maintainability**: Establish clear domain/infra separation following hexagonal architecture
+2. **Maintainability**: Establish clear domain/server separation following hexagonal architecture
 3. **Observability**: Leverage Effect's built-in telemetry and error tracking
 4. **Incremental Delivery**: Enable progressive rollout with milestone-based checkpoints
 
 ### Architecture
 
 - **Domain Layer**: `packages/iam/domain/src/api/v1/` - Contract definitions with Effect Schema
-- **Infra Layer**: `packages/iam/infra/src/api/v1/` - Handler implementations calling Better Auth
+- **Infra Layer**: `packages/iam/server/src/api/v1/` - Handler implementations calling Better Auth
 - **Pattern**: Cookie forwarding, schema validation, structured error handling via `IamAuthError`
 
 ---
@@ -192,7 +192,7 @@ The CORE spec (29 endpoints) is split across multiple milestones:
 **Group**: `iam.core`
 **Endpoints**: 2
 **Domain**: `packages/iam/domain/src/api/v1/core/`
-**Infra**: `packages/iam/infra/src/api/v1/core/`
+**Infra**: `packages/iam/server/src/api/v1/core/`
 
 | Method | Path           | Domain File       | Infra File        | Better Auth Method |
 |--------|----------------|-------------------|-------------------|--------------------|
@@ -208,7 +208,7 @@ The CORE spec (29 endpoints) is split across multiple milestones:
 **Group**: `iam.signIn`
 **Endpoints**: 7
 **Domain**: `packages/iam/domain/src/api/v1/sign-in/`
-**Infra**: `packages/iam/infra/src/api/v1/sign-in/`
+**Infra**: `packages/iam/server/src/api/v1/sign-in/`
 
 | Method | Path                  | Domain File       | Infra File        | Better Auth Method     |
 |--------|-----------------------|-------------------|-------------------|------------------------|
@@ -229,7 +229,7 @@ The CORE spec (29 endpoints) is split across multiple milestones:
 **Group**: `iam.signUp`
 **Endpoints**: 1
 **Domain**: `packages/iam/domain/src/api/v1/sign-up/`
-**Infra**: `packages/iam/infra/src/api/v1/sign-up/`
+**Infra**: `packages/iam/server/src/api/v1/sign-up/`
 
 | Method | Path             | Domain File | Infra File  | Better Auth Method |
 |--------|------------------|-------------|-------------|--------------------|
@@ -345,7 +345,7 @@ The CORE spec (29 endpoints) is split across multiple milestones:
 **Path Prefix**: `/admin`
 
 **Domain**: `packages/iam/domain/src/api/v1/admin/`
-**Infra**: `packages/iam/infra/src/api/v1/admin/`
+**Infra**: `packages/iam/server/src/api/v1/admin/`
 
 | Method | Path                    | Domain File          | Infra File           | Better Auth Method     |
 |--------|-------------------------|----------------------|----------------------|------------------------|
@@ -378,7 +378,7 @@ The CORE spec (29 endpoints) is split across multiple milestones:
 **Path Prefix**: `/organization`
 
 **Domain**: `packages/iam/domain/src/api/v1/organization/`
-**Infra**: `packages/iam/infra/src/api/v1/organization/`
+**Infra**: `packages/iam/server/src/api/v1/organization/`
 
 **Invitation Management (7 endpoints)**:
 - `accept-invitation`, `cancel-invitation`, `get-invitation`, `invite-member`, `list-invitations`, `list-user-invitations`, `reject-invitation`
@@ -408,7 +408,7 @@ The CORE spec (29 endpoints) is split across multiple milestones:
 **Path Prefix**: `/two-factor`
 
 **Domain**: `packages/iam/domain/src/api/v1/two-factor/`
-**Infra**: `packages/iam/infra/src/api/v1/two-factor/`
+**Infra**: `packages/iam/server/src/api/v1/two-factor/`
 
 | Method | Path                      | Domain File               | Infra File                | Better Auth Method      |
 |--------|---------------------------|---------------------------|---------------------------|-------------------------|
@@ -434,7 +434,7 @@ The CORE spec (29 endpoints) is split across multiple milestones:
 **Path Prefix**: `/passkey`
 
 **Domain**: `packages/iam/domain/src/api/v1/passkey/`
-**Infra**: `packages/iam/infra/src/api/v1/passkey/`
+**Infra**: `packages/iam/server/src/api/v1/passkey/`
 
 | Method | Path                                  | Domain File                       | Infra File                        | Better Auth Method                    |
 |--------|---------------------------------------|-----------------------------------|-----------------------------------|---------------------------------------|
@@ -512,7 +512,7 @@ Each milestone must satisfy **all** of the following before marking as COMPLETE:
 - [ ] Barrel exports (`index.ts`) updated
 
 ### 2. Infra Layer
-- [ ] All infra handlers implemented in `packages/iam/infra/src/api/v1/[group]/`
+- [ ] All infra handlers implemented in `packages/iam/server/src/api/v1/[group]/`
 - [ ] Handlers call correct Better Auth API methods
 - [ ] Cookie forwarding implemented (set-cookie header)
 - [ ] Response decoding uses domain Success schemas
@@ -522,7 +522,7 @@ Each milestone must satisfy **all** of the following before marking as COMPLETE:
 ### 3. Build & Type Safety
 - [ ] `bun run check` passes (no TypeScript errors)
 - [ ] `bun run build --filter=@beep/iam-domain` succeeds
-- [ ] `bun run build --filter=@beep/iam-infra` succeeds
+- [ ] `bun run build --filter=@beep/iam-server` succeeds
 - [ ] No lint errors (`bun run lint`)
 
 ### 4. Documentation
@@ -552,7 +552,7 @@ Recent schema pattern improvements in PATTERNS.md:
 2. **Model Variants**: Use `Model.json` for API responses, `Model.jsonCreate` for create payloads, `Model.jsonUpdate` for update payloads
 3. **Optional Schema**: Use `S.optionalWith(X, { nullable: true })` for JSON-compatible optional fields
 
-### Helper Functions (packages/iam/infra/src/api/common/schema-helpers.ts)
+### Helper Functions (packages/iam/server/src/api/common/schema-helpers.ts)
 
 Three reusable helpers exist for infra handler implementations:
 
@@ -682,7 +682,7 @@ Then update the dependency graph ASCII art to reflect COMPLETE/IN_PROGRESS miles
 2. Use existing domain contracts (already boilerplated)
 3. Follow `sign-in/email.ts` and `sign-in/social.ts` as templates
 4. Use `runAuthEndpoint` helper for all handlers
-5. Verify with `bun run check --filter=@beep/iam-infra`
+5. Verify with `bun run check --filter=@beep/iam-server`
 6. Update M1 status to COMPLETE
 
 **Pros**: Delivers complete sign-in functionality quickly, validates helper pattern works across multiple endpoints
@@ -749,7 +749,7 @@ Fill in the boilerplated stubs with working code:
 - Handle OAuth redirect flows without helpers (return `{ url, redirect }` directly)
 - Verify cookie forwarding works (except for OAuth initial requests)
 
-**Verification**: `bun run check --filter=@beep/iam-domain && bun run check --filter=@beep/iam-infra` must pass with zero errors.
+**Verification**: `bun run check --filter=@beep/iam-domain && bun run check --filter=@beep/iam-server` must pass with zero errors.
 
 ---
 

@@ -120,7 +120,7 @@ Both use the same Better Auth method (`deleteUser`) but with different parameter
 
 **Recommended Helper**: `runAuthEndpoint` - POST endpoint with payload (name/image, no Redacted fields) and decoded response
 
-- [ ] Create stub file `packages/iam/infra/src/api/v1/core/update-user.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/core/update-user.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type: `Common.HandlerEffect<V1.Core.UpdateUser.Payload>`
 - [ ] Add `Handler` stub with:
@@ -137,7 +137,7 @@ Both use the same Better Auth method (`deleteUser`) but with different parameter
 
 **Recommended Helper**: `forwardCookieResponse` - Payload contains Redacted password field requiring manual encoding
 
-- [ ] Create stub file `packages/iam/infra/src/api/v1/core/delete-user.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/core/delete-user.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add two `HandlerEffect` types:
   - `DeleteHandlerEffect = Common.HandlerEffect<V1.Core.DeleteUser.Payload>`
@@ -245,7 +245,7 @@ Both use the same Better Auth method (`deleteUser`) but with different parameter
 ### 3. Verification
 
 - [ ] `bun run check` passes
-- [ ] `bun run build --filter=@beep/iam-domain --filter=@beep/iam-infra` succeeds
+- [ ] `bun run build --filter=@beep/iam-domain --filter=@beep/iam-server` succeeds
 - [ ] Endpoints appear in OpenAPI spec at server `/docs`
 - [ ] Status updated to `COMPLETE` in PLAN.md
 

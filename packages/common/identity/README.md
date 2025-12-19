@@ -324,7 +324,7 @@ import type { IdentityString, IdentitySymbol } from "@beep/identity/types";
 type ServiceId = IdentityString<"@beep/schema/TenantService">;
 
 // Symbols are branded with description
-type RepoSymbol = IdentitySymbol<"@beep/iam-infra/repos/UserRepo">;
+type RepoSymbol = IdentitySymbol<"@beep/iam-server/repos/UserRepo">;
 ```
 
 ### Segment Validation

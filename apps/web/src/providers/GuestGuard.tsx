@@ -1,7 +1,7 @@
 "use client";
 
-import { AuthCallback } from "@beep/iam-sdk";
-import { client } from "@beep/iam-sdk/adapters/better-auth/client";
+import { AuthCallback } from "@beep/iam-client";
+import { client } from "@beep/iam-client/adapters/better-auth/client";
 import { paths } from "@beep/shared-domain";
 import { useRouter } from "@beep/ui/hooks";
 import { SplashScreen } from "@beep/ui/progress/loading-screen/splash-screen";

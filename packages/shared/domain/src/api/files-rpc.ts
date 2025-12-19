@@ -1,5 +1,4 @@
 import { BS } from "@beep/schema";
-import { AuthContextRpcMiddleware } from "@beep/shared-domain/Policy";
 import * as Rpc from "@effect/rpc/Rpc";
 import * as RpcGroup from "@effect/rpc/RpcGroup";
 import * as S from "effect/Schema";
@@ -24,7 +23,6 @@ export class InitiateUploadPayload extends S.Class<InitiateUploadPayload>("Initi
   entityKind: EntityKind,
   entityIdentifier: AnyEntityId,
   entityAttribute: S.NonEmptyTrimmedString,
-
   folderId: S.NullOr(SharedEntityIds.FolderId),
   metadata: File.Model.fields.metadata,
 }) {}
@@ -101,9 +99,7 @@ export class FilesRpc extends RpcGroup.make(
   DeleteFoldersRpc,
   MoveFilesRpc,
   GetFilesByKeyRpc
-)
-  .prefix("files_")
-  .middleware(AuthContextRpcMiddleware) {}
+).prefix("files_") {}
 
 export const FilesEvent = S.Union(
   S.TaggedStruct("Files.Uploaded", {

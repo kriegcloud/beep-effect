@@ -1,4 +1,4 @@
-import { ExifToolService } from "@beep/documents-infra/files";
+import { ExifToolService } from "@beep/documents-server/files";
 import { accumulateEffectsAndReport } from "@beep/errors/client";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";

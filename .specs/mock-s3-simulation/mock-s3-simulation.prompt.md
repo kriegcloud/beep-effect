@@ -150,7 +150,7 @@ const TestLayer = Layer.mergeAll(
 
 - All file operations through `@effect/platform` FileSystem service
 - Secrets wrapped in `Redacted<string>`
-- Database operations via `Repo.make` pattern from `@beep/shared-infra`
+- Database operations via `Repo.make` pattern from `@beep/shared-server`
 - Entity IDs via `SharedEntityIds.FileId.create()`
 - Audit columns automatically via `makeFields` from `@beep/shared-domain/common`
 
@@ -164,8 +164,8 @@ const TestLayer = Layer.mergeAll(
 | `packages/shared/domain/src/entities/File/File.model.ts` | File entity model with `Model.create` factory |
 | `packages/shared/domain/src/entities/File/schemas/UploadKey.ts` | S3 path schema with shard prefix generation |
 | `packages/common/schema/src/integrations/files/FileInstance.ts` | `FileInstanceFromNative` transformation |
-| `packages/documents/infra/src/adapters/repos/File.repo.ts` | FileRepo service definition |
-| `packages/documents/infra/src/files/ExifToolService.ts` | EXIF metadata extraction |
+| `packages/documents/server/src/adapters/repos/File.repo.ts` | FileRepo service definition |
+| `packages/documents/server/src/files/ExifToolService.ts` | EXIF metadata extraction |
 | `packages/shared/domain/src/services/EncryptionService/EncryptionService.ts` | `generateFileKey`, `generateSignedURL` |
 
 ### Files to Read (Reference)
@@ -173,10 +173,10 @@ const TestLayer = Layer.mergeAll(
 | Path | Purpose |
 |------|---------|
 | `packages/documents/domain/src/entities/Document/Document.rpc.ts` | RpcGroup definition example with streaming |
-| `packages/documents/infra/src/handlers/Document.handlers.ts` | RPC handler implementation pattern |
+| `packages/documents/server/src/handlers/Document.handlers.ts` | RPC handler implementation pattern |
 | `apps/web/src/features/upload/uploadToS3.ts` | XHR upload with progress tracking |
 | `apps/web/src/features/upload/UploadFileService.ts` | Effect.Service pattern with ExifTool |
-| `packages/shared/infra/src/internal/upload/upload.service.ts` | Server-side presigned URL generation |
+| `packages/shared/server/src/internal/upload/upload.service.ts` | Server-side presigned URL generation |
 
 ### Files to Create
 
@@ -478,7 +478,7 @@ const uploadWithRetry = (file: NativeFile, url: string) =>
 - `scratchpad/index.ts` - Mock S3 layer with `createMockS3Layer`, progress simulation
 - `packages/shared/domain/src/entities/File/` - File.Model, UploadKey, schemas
 - `packages/common/schema/src/integrations/files/` - FileInstance, EXIF, validation
-- `packages/documents/infra/src/` - FileRepo, ExifToolService, StorageService
+- `packages/documents/server/src/` - FileRepo, ExifToolService, StorageService
 - `packages/shared/domain/src/services/EncryptionService/` - Key generation, signing
 - `packages/documents/domain/src/entities/Document/Document.rpc.ts` - RPC patterns
 - `apps/web/src/features/upload/` - Full upload pipeline reference
@@ -490,8 +490,8 @@ const uploadWithRetry = (file: NativeFile, url: string) =>
 
 **Package Guidelines:**
 - `@beep/shared-domain/AGENTS.md` - Entity model patterns, makeFields
-- `@beep/shared-infra/AGENTS.md` - Repo.make, Layer composition, Config
-- `@beep/documents-infra/AGENTS.md` - StorageService, ExifToolService
+- `@beep/shared-server/AGENTS.md` - Repo.make, Layer composition, Config
+- `@beep/documents-server/AGENTS.md` - StorageService, ExifToolService
 - `@beep/schema/AGENTS.md` - EntityId factories, transformation schemas
 - `@beep/testkit/AGENTS.md` - Test layer patterns, it.effect
 

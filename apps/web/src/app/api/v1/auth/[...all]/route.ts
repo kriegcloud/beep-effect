@@ -1,4 +1,4 @@
-import { Auth } from "@beep/iam-infra";
+import { Auth } from "@beep/iam-server";
 import { runServerPromise } from "@beep/runtime-server";
 import * as Effect from "effect/Effect";
 

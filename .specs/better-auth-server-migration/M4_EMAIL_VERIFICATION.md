@@ -102,7 +102,7 @@ This milestone implements email verification flows including sending verificatio
 
 #### `send-verification-email.ts`
 
-- [ ] Create stub file `packages/iam/infra/src/api/v1/core/send-verification-email.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/core/send-verification-email.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type with JSDoc
 - [ ] Add `Handler` stub with:
@@ -113,7 +113,7 @@ This milestone implements email verification flows including sending verificatio
 
 #### `verify-email.ts`
 
-- [ ] Create stub file `packages/iam/infra/src/api/v1/core/verify-email.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/core/verify-email.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type with JSDoc (note: uses UrlParams, not Payload)
 - [ ] Add `Handler` stub with:
@@ -124,7 +124,7 @@ This milestone implements email verification flows including sending verificatio
 
 #### `change-email.ts`
 
-- [ ] Create stub file `packages/iam/infra/src/api/v1/core/change-email.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/core/change-email.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type with JSDoc
 - [ ] Add `Handler` stub with:
@@ -305,7 +305,7 @@ import { runAuthEndpoint, runAuthQuery, runAuthCommand, forwardCookieResponse } 
 ### 3. Verification
 
 - [ ] `bun run check` passes
-- [ ] `bun run build --filter=@beep/iam-domain --filter=@beep/iam-infra` succeeds
+- [ ] `bun run build --filter=@beep/iam-domain --filter=@beep/iam-server` succeeds
 - [ ] Endpoints appear in OpenAPI spec at server `/docs`
 - [ ] Status updated to `COMPLETE` in PLAN.md
 

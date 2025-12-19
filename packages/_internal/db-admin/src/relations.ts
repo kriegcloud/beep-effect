@@ -9,17 +9,7 @@
  */
 
 // Import Documents tables
-import {
-  comment,
-  discussion,
-  document,
-  documentFile,
-  documentVersion,
-  knowledgeBlock,
-  knowledgePage,
-  knowledgeSpace,
-  pageLink,
-} from "@beep/documents-tables/tables";
+import { comment, discussion, document, documentFile, documentVersion } from "@beep/documents-tables/tables";
 // Import IAM tables
 import {
   account,
@@ -88,8 +78,6 @@ export const userRelations = d.relations(user, ({ many }) => ({
   documents: many(document),
   documentVersions: many(documentVersion),
   documentFiles: many(documentFile),
-  ownedKnowledgeSpaces: many(knowledgeSpace),
-  editedKnowledgeBlocks: many(knowledgeBlock),
   discussions: many(discussion),
   comments: many(comment),
 }));
@@ -124,10 +112,6 @@ export const organizationRelations = d.relations(organization, ({ many, one }) =
   documents: many(document),
   documentVersions: many(documentVersion),
   documentFiles: many(documentFile),
-  knowledgeSpaces: many(knowledgeSpace),
-  knowledgePages: many(knowledgePage),
-  knowledgeBlocks: many(knowledgeBlock),
-  pageLinks: many(pageLink),
   discussions: many(discussion),
   comments: many(comment),
 }));
@@ -143,7 +127,4 @@ export const teamRelations = d.relations(team, ({ one, many }) => ({
   }),
   members: many(teamMember),
   invitations: many(invitation),
-
-  // === Documents slice relations ===
-  knowledgeSpaces: many(knowledgeSpace),
 }));

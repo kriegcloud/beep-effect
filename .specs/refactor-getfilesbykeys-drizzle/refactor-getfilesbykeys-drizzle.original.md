@@ -16,7 +16,7 @@ You are working in the `beep-effect` monorepo, an Effect-first full-stack applic
 
 ### Current State
 
-The `FileRepo` in `packages/shared/infra/src/repos/File.repo.ts` has a `getFilesByKeys` implementation using raw SQL that needs to be converted to Drizzle ORM.
+The `FileRepo` in `packages/shared/server/src/repos/File.repo.ts` has a `getFilesByKeys` implementation using raw SQL that needs to be converted to Drizzle ORM.
 
 **Current Implementation** (lines 146-185):
 ```typescript
@@ -155,8 +155,8 @@ export const file = OrgTable.make(SharedEntityIds.FileId)({
 import { $SharedInfraId } from "@beep/identity/packages";
 import { SharedEntityIds } from "@beep/shared-domain";
 import { File, Folder } from "@beep/shared-domain/entities";
-import { SharedDb } from "@beep/shared-infra/db";
-import { Repo } from "@beep/shared-infra/Repo";
+import { SharedDb } from "@beep/shared-server/db";
+import { Repo } from "@beep/shared-server/Repo";
 import { folder } from "@beep/shared-tables";  // NOTE: 'file' table NOT imported
 import * as d from "drizzle-orm";
 import * as A from "effect/Array";
@@ -291,10 +291,10 @@ client
 ## Resources
 
 ### Files to Modify
-- `packages/shared/infra/src/repos/File.repo.ts` - Target file
+- `packages/shared/server/src/repos/File.repo.ts` - Target file
 
 ### Files to Reference
-- `packages/shared/infra/src/internal/db/pg/PgClient.ts` - `makeQueryWithSchema` implementation
+- `packages/shared/server/src/internal/db/pg/PgClient.ts` - `makeQueryWithSchema` implementation
 - `packages/shared/tables/src/tables/file.table.ts` - File table schema
 - `packages/shared/domain/src/entities/File/File.model.ts` - File.Model schema
 - `packages/shared/domain/src/entities/File/schemas/UploadKey.ts` - UploadKey schema
@@ -450,8 +450,8 @@ yield* FileRepo.getFilesByKeys({
 - [ ] Uses `HashMap.fromIterable` (not native `Map`)
 - [ ] Uses `HashMap.get` with `O.getOrNull` for lookups
 - [ ] `getFilesByKeys` exported in service return object
-- [ ] `bun run check --filter @beep/shared-infra` passes
-- [ ] `bun run lint --filter @beep/shared-infra` passes
+- [ ] `bun run check --filter @beep/shared-server` passes
+- [ ] `bun run lint --filter @beep/shared-server` passes
 - [ ] No native Array methods used
 - [ ] No `any` types or type assertions
 
@@ -465,8 +465,8 @@ yield* FileRepo.getFilesByKeys({
 6. **Handle empty** - Return early for empty keys array
 7. **Export function** - Add to service return object
 8. **Clean imports** - Remove unused `SqlSchema` if applicable
-9. **Run type check** - `bun run check --filter @beep/shared-infra`
-10. **Run lint** - `bun run lint --filter @beep/shared-infra`
+9. **Run type check** - `bun run check --filter @beep/shared-server`
+10. **Run lint** - `bun run lint --filter @beep/shared-server`
 
 ---
 
@@ -475,8 +475,8 @@ yield* FileRepo.getFilesByKeys({
 ### Research Sources
 
 **Files Explored:**
-- `packages/shared/infra/src/repos/File.repo.ts` - Current implementation
-- `packages/shared/infra/src/internal/db/pg/PgClient.ts` - `makeQueryWithSchema`
+- `packages/shared/server/src/repos/File.repo.ts` - Current implementation
+- `packages/shared/server/src/internal/db/pg/PgClient.ts` - `makeQueryWithSchema`
 - `packages/shared/domain/src/api/files-rpc.ts` - RPC definitions
 - `packages/shared/domain/src/entities/File/File.model.ts` - File.Model schema
 - `packages/shared/domain/src/entities/File/schemas/UploadKey.ts` - UploadKey type

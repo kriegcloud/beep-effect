@@ -4,7 +4,7 @@ Effect-based primitives for declaring, implementing, and organizing RPC-style co
 
 ## Purpose
 
-Provides a typed, schema-validated contract system for client-runtime interactions across the monorepo. Normalizes payload/success/failure schemas with Effect continuations, enabling consistent RPC communication patterns that are transport-agnostic. Used by `@beep/iam-sdk`, runtime services, and all future domain slices.
+Provides a typed, schema-validated contract system for client-runtime interactions across the monorepo. Normalizes payload/success/failure schemas with Effect continuations, enabling consistent RPC communication patterns that are transport-agnostic. Used by `@beep/iam-client`, runtime services, and all future domain slices.
 
 ## Key Exports
 
@@ -386,22 +386,22 @@ bun run --filter @beep/contract lint:circular
 - For breaking changes to contract/kit APIs:
   - Update affected consumers in the same PR
   - Provide migration notes in commit message
-  - Alert downstream packages (`@beep/iam-sdk`, etc.)
+  - Alert downstream packages (`@beep/iam-client`, etc.)
 
 ## Relationship to Other Packages
 
 - `@beep/schema` — Schema primitives, EntityId, validation utilities
 - `@beep/invariant` — Assertion contracts, InvariantViolation errors
 - `@beep/utils` — Pure runtime helpers (noOp, nullOp, nullOpE)
-- `@beep/iam-sdk` — IAM contracts built on this package
+- `@beep/iam-client` — IAM contracts built on this package
 - `@beep/runtime/*` — Client/server runtimes that execute contract implementations
 - Slice `sdk` packages — Domain-specific contracts extending these primitives
 
 ## Real-World Usage
 
-- **`packages/iam/sdk/src/clients/passkey/passkey.contracts.ts`** — Better Auth-facing contracts via `Contract.make`, grouped with `ContractKit.make`
-- **`packages/iam/sdk/src/clients/passkey/passkey.implementations.ts`** — Uses `contract.continuation` inside `.implement` calls to normalize Better Auth responses
-- **`packages/iam/sdk/src/clients/passkey/passkey.service.ts`** — Lifts contract kit into Effect Service via `ContractKit.liftService`
+- **`packages/iam/client/src/clients/passkey/passkey.contracts.ts`** — Better Auth-facing contracts via `Contract.make`, grouped with `ContractKit.make`
+- **`packages/iam/client/src/clients/passkey/passkey.implementations.ts`** — Uses `contract.continuation` inside `.implement` calls to normalize Better Auth responses
+- **`packages/iam/client/src/clients/passkey/passkey.service.ts`** — Lifts contract kit into Effect Service via `ContractKit.liftService`
 - Implementations use `continuation.run` for manual error handling or `continuation.runDecode` for automatic success/failure processing
 
 ## Additional Resources

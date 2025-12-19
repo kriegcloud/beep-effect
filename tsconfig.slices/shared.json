@@ -3,8 +3,8 @@
   "references": [
     { "path": "../packages/shared/domain/tsconfig.build.json" },
     { "path": "../packages/shared/tables/tsconfig.build.json" },
-    { "path": "../packages/shared/infra/tsconfig.build.json" },
-    { "path": "../packages/shared/sdk/tsconfig.build.json" },
+    { "path": "../packages/shared/server/tsconfig.build.json" },
+    { "path": "../packages/shared/client/tsconfig.build.json" },
     { "path": "../packages/shared/ui/tsconfig.build.json" }
   ]
 }

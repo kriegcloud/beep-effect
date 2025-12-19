@@ -115,7 +115,7 @@ const StreamError = S.Union(StreamTimeout, StreamCancelled);
 ### Monorepo Conventions
 
 1. **Span naming**: Use `"rpc-demo.operation"` pattern for all `runServerPromise` calls
-2. **Environment**: Use `@beep/shared-infra` for any env access (though not needed for this demo)
+2. **Environment**: Use `@beep/shared-server` for any env access (though not needed for this demo)
 3. **No-ops**: Use `noOp`, `nullOp`, `nullOpE` from `@beep/utils` instead of inline arrow functions
 4. **PascalCase constructors**: `S.Struct`, `S.String`, `S.Number` (never lowercase)
 5. **File size limit**: Each file should be < 100 LOC. This is a minimal demonstration, not a production feature.
@@ -472,7 +472,7 @@ export default function RpcDemoPage() {
   - `packages/runtime/client/AGENTS.md`
   - `packages/runtime/server/AGENTS.md`
   - `packages/common/contract/AGENTS.md`
-  - `packages/shared/sdk/AGENTS.md`
+  - `packages/shared/client/AGENTS.md`
 
 ### Refinement History
 | Iteration | Issues Found                  | Fixes Applied                                                                                                                                                                                   |

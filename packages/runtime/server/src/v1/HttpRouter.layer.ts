@@ -1,46 +1,79 @@
 import { AllowedHeaders } from "@beep/constants";
 import { IamApi } from "@beep/iam-domain";
-import { IamApiLive } from "@beep/iam-infra";
+import { IamApiLive } from "@beep/iam-server";
 import { BS } from "@beep/schema";
-import { serverEnv } from "@beep/shared-infra/ServerEnv";
-import * as HttpApiBuilder from "@effect/platform/HttpApiBuilder";
+import { serverEnv } from "@beep/shared-server/ServerEnv";
 import * as HttpApiScalar from "@effect/platform/HttpApiScalar";
 import * as HttpLayerRouter from "@effect/platform/HttpLayerRouter";
 import * as HttpMiddleware from "@effect/platform/HttpMiddleware";
-import * as HttpServer from "@effect/platform/HttpServer";
+import type * as HttpServerRequest from "@effect/platform/HttpServerRequest";
 import * as HttpServerResponse from "@effect/platform/HttpServerResponse";
+import * as Eq from "effect/Equal";
 import * as Layer from "effect/Layer";
+import * as P from "effect/Predicate";
 import * as AuthContext from "./AuthContext.layer.ts";
+import * as Logger from "./Logger.layer.ts";
+import * as Rpc from "./Rpc.layer.ts";
 
-const ApiLive = HttpLayerRouter.addHttpApi(IamApi).pipe(
-  Layer.provide(Layer.mergeAll(IamApiLive)),
-  Layer.provide(HttpServer.layerContext)
-);
-const HealthRoute = HttpLayerRouter.use((router) => router.add("GET", "/v1/health", HttpServerResponse.text("OK")));
-const AllRoutes = Layer.mergeAll(ApiLive, HealthRoute);
-
-// Merge all layers that require the Api service
-// Both HttpApiBuilder.serve() and HttpApiScalar.layer() need Api
-const ApiConsumersLayer = Layer.mergeAll(
-  HttpApiBuilder.serve(HttpMiddleware.logger),
-  HttpApiScalar.layer({ path: "/v1/docs" }),
-  HttpApiBuilder.middlewareOpenApi({ path: "/v1/docs/openapi.json" })
-);
-
-export const layer = ApiConsumersLayer.pipe(
-  // Provide the API implementation to all consumers
-  Layer.provide(AllRoutes),
-  // Provide CORS configuration
-  Layer.provide(
-    HttpApiBuilder.middlewareCors({
-      allowedOrigins: serverEnv.security.trustedOrigins,
-      allowedMethods: BS.HttpMethod.pickOptions("GET", "POST", "PUT", "DELETE", "PATCH"),
-      allowedHeaders: AllowedHeaders.Options,
-      credentials: true,
-    })
-  ),
-  // Log the server's listening address
-  HttpServer.withLogAddress,
-  // Provide auth context middleware
+// Register the IAM HttpApi with the HttpLayerRouter
+// This is the correct pattern for combining HttpApi with HttpLayerRouter
+const IamApiRoutes = HttpLayerRouter.addHttpApi(IamApi, {
+  openapiPath: "/v1/docs/openapi.json",
+}).pipe(
+  // Provide the IAM API handler implementations
+  Layer.provide(IamApiLive),
+  // Provide unified auth middleware for routes that need AuthContext
   Layer.provide(AuthContext.layer)
+);
+
+// Swagger/Scalar documentation route
+const DocsRoute = HttpApiScalar.layerHttpLayerRouter({
+  api: IamApi,
+  path: "/v1/docs",
+});
+
+// Health check route
+const HealthRoute = HttpLayerRouter.use((router) => router.add("GET", "/v1/health", HttpServerResponse.text("OK")));
+
+// CORS middleware layer
+const CorsMiddleware = HttpLayerRouter.cors({
+  allowedOrigins: serverEnv.security.trustedOrigins,
+  allowedMethods: BS.HttpMethod.pickOptions("GET", "POST", "PUT", "DELETE", "PATCH"),
+  allowedHeaders: AllowedHeaders.Options,
+  credentials: true,
+});
+
+// Merge all routes with unified AuthContext middleware
+const AllRoutes = Layer.mergeAll(
+  IamApiRoutes,
+  DocsRoute,
+  // RPC routes also get AuthContext via the unified middleware
+  Rpc.layer.pipe(Layer.provide(AuthContext.layer)),
+  HealthRoute
+).pipe(Layer.provide(CorsMiddleware));
+
+// Serve all routes with middleware
+export const layer = HttpLayerRouter.serve(AllRoutes, {
+  middleware: Logger.httpLogger,
+  disableLogger: false,
+  disableListenLog: false,
+}).pipe(
+  // Configure tracing and span names
+  HttpMiddleware.withTracerDisabledWhen(
+    (request) =>
+      BS.HttpMethod.is.OPTIONS(request.method) ||
+      P.or(Eq.equals("/v1/health"), Eq.equals("/v1/documents/rpc"))(request.url)
+  ),
+  HttpMiddleware.withSpanNameGenerator((request: HttpServerRequest.HttpServerRequest) => {
+    let path = request.url;
+    try {
+      const host = request.headers.host ?? "localhost:8080";
+      const base = `http://${host}`;
+      const parsedUrl = new URL(request.url, base);
+      path = parsedUrl.pathname;
+    } catch {
+      path = "[unparseable_url_path]";
+    }
+    return `http ${request.method} ${path}`;
+  })
 );

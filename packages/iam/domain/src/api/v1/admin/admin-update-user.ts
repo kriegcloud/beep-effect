@@ -9,6 +9,7 @@
 
 import { IamAuthError } from "@beep/iam-domain/api/common";
 import { $IamDomainId } from "@beep/identity/packages";
+import { BS } from "@beep/schema";
 import { User } from "@beep/shared-domain/entities";
 import * as HttpApiEndpoint from "@effect/platform/HttpApiEndpoint";
 import * as S from "effect/Schema";
@@ -25,7 +26,7 @@ export const UserData = S.Struct({
   /**
    * The name of the user.
    */
-  name: S.optionalWith(S.String, { as: "Option", exact: true }).annotations({
+  name: S.optionalWith(BS.NameAttribute, { as: "Option", exact: true }).annotations({
     description: "The name of the user.",
   }),
 

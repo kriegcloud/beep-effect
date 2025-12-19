@@ -231,7 +231,7 @@ Always use `@beep/*` aliases defined in `tsconfig.base.jsonc`:
 ```typescript
 // REQUIRED
 import { EntityId } from "@beep/schema";
-import { Db } from "@beep/shared-infra";
+import { Db } from "@beep/shared-server";
 
 // FORBIDDEN
 import { EntityId } from "../../../packages/common/schema/src";

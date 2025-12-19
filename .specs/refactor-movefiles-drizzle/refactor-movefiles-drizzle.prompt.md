@@ -16,7 +16,7 @@ You are working in the `beep-effect` monorepo, an Effect-first full-stack applic
 
 ### Current State
 
-The `FileRepo` in `packages/shared/infra/src/repos/File.repo.ts` has two implementations for moving files:
+The `FileRepo` in `packages/shared/server/src/repos/File.repo.ts` has two implementations for moving files:
 
 1. **`_moveFiles`** (lines 95-103) - A stub using `makeQueryWithSchema` that needs completion:
 ```typescript
@@ -67,8 +67,8 @@ The current SQL implementation has important authorization logic:
 import { $SharedInfraId } from "@beep/identity/packages";
 import { SharedEntityIds } from "@beep/shared-domain";
 import { File, Folder } from "@beep/shared-domain/entities";
-import { SharedDb } from "@beep/shared-infra/db";
-import { Repo } from "@beep/shared-infra/Repo";
+import { SharedDb } from "@beep/shared-server/db";
+import { Repo } from "@beep/shared-server/Repo";
 import { folder } from "@beep/shared-tables";  // NOTE: 'file' table NOT imported
 import * as d from "drizzle-orm";
 import * as A from "effect/Array";
@@ -189,14 +189,14 @@ Effect.gen(function* () { yield* query })  // REQUIRED
 file.user_id                        // FORBIDDEN
 file.userId                         // REQUIRED
 
-// NEVER use new Date() in repo/infra layer (per AGENTS.md)
+// NEVER use new Date() in repo/server layer (per AGENTS.md)
 new Date()                          // FORBIDDEN
 d.sql`now()`                        // REQUIRED (database-native)
 ```
 
 ### makeQueryWithSchema Signature
 
-From `packages/shared/infra/src/internal/db/pg/PgClient.ts`:
+From `packages/shared/server/src/internal/db/pg/PgClient.ts`:
 
 ```typescript
 const makeQueryWithSchema = <InputSchema, OutputSchema, A, E>({
@@ -288,11 +288,11 @@ queryFn: (execute, { fileIds, folderId, userId }) =>
 ## Resources
 
 ### Files to Modify
-- `packages/shared/infra/src/repos/File.repo.ts` - Target file
+- `packages/shared/server/src/repos/File.repo.ts` - Target file
 
 ### Files to Reference
-- `packages/shared/infra/src/internal/db/pg/PgClient.ts` - `makeQueryWithSchema` implementation (lines 812-839)
-- `packages/shared/infra/src/internal/db/pg/types.ts` - Type definitions
+- `packages/shared/server/src/internal/db/pg/PgClient.ts` - `makeQueryWithSchema` implementation (lines 812-839)
+- `packages/shared/server/src/internal/db/pg/types.ts` - Type definitions
 - `packages/shared/tables/src/tables/file.table.ts` - File table schema
 - `packages/shared/tables/src/tables/folder.table.ts` - Folder table schema
 
@@ -465,8 +465,8 @@ yield* SharedDb.transaction(function* () {
 - [ ] Service return object includes `moveFiles`
 
 ### CI Checks
-- [ ] `bun run check --filter @beep/shared-infra` passes
-- [ ] `bun run lint --filter @beep/shared-infra` passes
+- [ ] `bun run check --filter @beep/shared-server` passes
+- [ ] `bun run lint --filter @beep/shared-server` passes
 
 ## Implementation Steps
 
@@ -479,8 +479,8 @@ yield* SharedDb.transaction(function* () {
 7. **Use database timestamps** - `d.sql`now()`` not `new Date()`
 8. **Add observability** - Wrap with `Effect.withSpan()`
 9. **Verify service export** - Check `moveFiles` in return object
-10. **Run type check** - `bun run check --filter @beep/shared-infra`
-11. **Run lint** - `bun run lint --filter @beep/shared-infra`
+10. **Run type check** - `bun run check --filter @beep/shared-server`
+11. **Run lint** - `bun run lint --filter @beep/shared-server`
 
 ---
 
@@ -489,13 +489,13 @@ yield* SharedDb.transaction(function* () {
 ### Research Sources
 
 **Files Explored:**
-- `packages/shared/infra/src/repos/File.repo.ts` - Current implementations (lines 95-144)
-- `packages/shared/infra/src/internal/db/pg/PgClient.ts` - `makeQueryWithSchema` (lines 812-839)
-- `packages/shared/infra/src/internal/db/pg/types.ts` - Type definitions
+- `packages/shared/server/src/repos/File.repo.ts` - Current implementations (lines 95-144)
+- `packages/shared/server/src/internal/db/pg/PgClient.ts` - `makeQueryWithSchema` (lines 812-839)
+- `packages/shared/server/src/internal/db/pg/types.ts` - Type definitions
 - `packages/shared/tables/src/tables/file.table.ts` - File table schema
 - `packages/shared/tables/src/tables/folder.table.ts` - Folder table schema
-- `packages/documents/infra/src/adapters/repos/KnowledgePage.repo.ts` - Drizzle update example
-- `packages/shared/infra/src/api/public/event-stream/event-stream-hub.ts` - `A.isEmptyArray` usage
+- `packages/documents/server/src/adapters/repos/KnowledgePage.repo.ts` - Drizzle update example
+- `packages/shared/server/src/api/public/event-stream/event-stream-hub.ts` - `A.isEmptyArray` usage
 
 ### Exploration Findings
 

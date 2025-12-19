@@ -1,10 +1,10 @@
 import { fileURLToPath } from "node:url";
-import { DocumentsRepos } from "@beep/documents-infra";
-import { DocumentsDb } from "@beep/documents-infra/db";
-import { IamRepos } from "@beep/iam-infra";
-import { IamDb } from "@beep/iam-infra/db";
-import { Db, SharedDb } from "@beep/shared-infra/Db";
-import { SharedRepos } from "@beep/shared-infra/repos";
+import { DocumentsRepos } from "@beep/documents-server";
+import { DocumentsDb } from "@beep/documents-server/db";
+import { IamRepos } from "@beep/iam-server";
+import { IamDb } from "@beep/iam-server/db";
+import { Db, SharedDb } from "@beep/shared-server/Db";
+import { SharedRepos } from "@beep/shared-server/repos";
 import * as FileSystem from "@effect/platform/FileSystem";
 import * as Path from "@effect/platform/Path";
 import * as BunContext from "@effect/platform-bun/BunContext";

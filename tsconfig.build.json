@@ -42,19 +42,19 @@
       "path": "packages/shared/tables/tsconfig.build.json"
     },
     {
-      "path": "packages/shared/infra/tsconfig.build.json"
+      "path": "packages/shared/server/tsconfig.build.json"
     },
     {
       "path": "packages/shared/ui/tsconfig.build.json"
     },
     {
-      "path": "packages/shared/sdk/tsconfig.build.json"
+      "path": "packages/shared/client/tsconfig.build.json"
     },
     {
-      "path": "packages/iam/sdk/tsconfig.build.json"
+      "path": "packages/iam/client/tsconfig.build.json"
     },
     {
-      "path": "packages/iam/infra/tsconfig.build.json"
+      "path": "packages/iam/server/tsconfig.build.json"
     },
     {
       "path": "packages/iam/domain/tsconfig.build.json"
@@ -72,7 +72,7 @@
       "path": "packages/ui/core/tsconfig.build.json"
     },
     {
-      "path": "packages/documents/sdk/tsconfig.build.json"
+      "path": "packages/documents/client/tsconfig.build.json"
     },
     {
       "path": "packages/documents/ui/tsconfig.build.json"
@@ -84,7 +84,7 @@
       "path": "packages/documents/tables/tsconfig.build.json"
     },
     {
-      "path": "packages/documents/infra/tsconfig.build.json"
+      "path": "packages/documents/server/tsconfig.build.json"
     },
     {
       "path": "packages/runtime/server/tsconfig.build.json"

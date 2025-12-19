@@ -1,4 +1,4 @@
-import { useChangePasswordForm } from "@beep/iam-sdk/clients/user/user.forms";
+import { useChangePasswordForm } from "@beep/iam-client/clients/user/user.forms";
 import { Iconify } from "@beep/ui/atoms";
 import { PasswordFieldsGroup } from "@beep/ui/form/groups";
 import { useBoolean } from "@beep/ui/hooks/use-boolean";

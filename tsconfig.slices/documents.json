@@ -3,8 +3,8 @@
   "references": [
     { "path": "../packages/documents/domain/tsconfig.build.json" },
     { "path": "../packages/documents/tables/tsconfig.build.json" },
-    { "path": "../packages/documents/infra/tsconfig.build.json" },
-    { "path": "../packages/documents/sdk/tsconfig.build.json" },
+    { "path": "../packages/documents/server/tsconfig.build.json" },
+    { "path": "../packages/documents/client/tsconfig.build.json" },
     { "path": "../packages/documents/ui/tsconfig.build.json" }
   ]
 }

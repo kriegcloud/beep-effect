@@ -354,7 +354,7 @@ packages/iam/domain/src/api/
 ### Infrastructure Layer
 
 ```
-packages/iam/infra/src/api/
+packages/iam/server/src/api/
 ├── index.ts                    # Export IamApiLive
 ├── v1/
 │   ├── index.ts                # Export layer
@@ -406,12 +406,12 @@ export * from "./value-objects";
 
 ### Step 2: Fix Infrastructure Exports
 
-**Goal:** Enable `import { IamApiLive } from "@beep/iam-infra"`
+**Goal:** Enable `import { IamApiLive } from "@beep/iam-server"`
 
-**File:** `packages/iam/infra/src/api/v1/api.ts`
+**File:** `packages/iam/server/src/api/v1/api.ts`
 ```typescript
 import type { IamAuthError } from "@beep/iam-domain";
-import type { Auth } from "@beep/iam-infra";
+import type { Auth } from "@beep/iam-server";
 import * as Layer from "effect/Layer";
 import { Core } from "./core";
 import { SignIn } from "./sign-in";
@@ -425,13 +425,13 @@ export const layer: Layer.Layer<Service, ApiError, ApiDependencies> =
   Layer.mergeAll(SignIn.Routes, SignUp.Routes, Core.Routes);
 ```
 
-**File:** `packages/iam/infra/src/api/index.ts`
+**File:** `packages/iam/server/src/api/index.ts`
 ```typescript
 export { layer as IamApiLive } from "./v1/api";
 export * as V1 from "./v1";
 ```
 
-**File:** `packages/iam/infra/src/index.ts`
+**File:** `packages/iam/server/src/index.ts`
 ```typescript
 export { IamApiLive } from "./api";
 export * from "./adapters";
@@ -560,10 +560,10 @@ export const Contract = HttpApiEndpoint.post("email", "/email")
 
 ### Step 6: Infrastructure Handler Pattern
 
-**File:** `packages/iam/infra/src/api/v1/sign-in/_group.ts`
+**File:** `packages/iam/server/src/api/v1/sign-in/_group.ts`
 ```typescript
 import { IamApi, IamAuthError } from "@beep/iam-domain";
-import type { Auth } from "@beep/iam-infra";
+import type { Auth } from "@beep/iam-server";
 import * as HttpApiBuilder from "@effect/platform/HttpApiBuilder";
 import type * as HttpApiGroup from "@effect/platform/HttpApiGroup";
 import type * as Layer from "effect/Layer";
@@ -597,7 +597,7 @@ import { IamApi as IamApiNS } from "@beep/iam-domain"; // Namespace
 import { IamAuthError } from "@beep/iam-domain";
 
 // From infra
-import { IamApiLive } from "@beep/iam-infra";
+import { IamApiLive } from "@beep/iam-server";
 
 // Usage
 const api: typeof IamApi = IamApi;
@@ -789,8 +789,8 @@ await client.getSession();
 - [ ] Rename `Api` class to `IamApi` in `packages/iam/domain/src/api/api.ts`
 - [ ] Add OpenAPI annotations (Title, Version, Description) to `IamApi`
 - [ ] Add `x-tagGroups` transform if nested docs desired
-- [ ] Update `packages/iam/infra/src/api/index.ts` - export `IamApiLive`
-- [ ] Update `packages/iam/infra/src/index.ts` - export `IamApiLive`
+- [ ] Update `packages/iam/server/src/api/index.ts` - export `IamApiLive`
+- [ ] Update `packages/iam/server/src/index.ts` - export `IamApiLive`
 - [ ] Add OpenAPI annotations to all groups (Title, Description)
 - [ ] Add OpenAPI annotations to all endpoints (Summary, Description)
 - [ ] Update imports in `apps/server` and `apps/web`

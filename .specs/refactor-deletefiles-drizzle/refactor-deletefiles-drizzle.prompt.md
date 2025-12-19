@@ -16,7 +16,7 @@ You are working in the `beep-effect` monorepo, an Effect-first full-stack applic
 
 ### Current State
 
-The `FileRepo` in `packages/shared/infra/src/repos/File.repo.ts` has a `deleteFiles` implementation using raw SQL that needs to be converted to Drizzle ORM.
+The `FileRepo` in `packages/shared/server/src/repos/File.repo.ts` has a `deleteFiles` implementation using raw SQL that needs to be converted to Drizzle ORM.
 
 **Current Implementation** (lines 150-171):
 ```typescript
@@ -120,8 +120,8 @@ export const file = OrgTable.make(SharedEntityIds.FileId)({
 import { $SharedInfraId } from "@beep/identity/packages";
 import { SharedEntityIds } from "@beep/shared-domain";
 import { File, Folder } from "@beep/shared-domain/entities";
-import { SharedDb } from "@beep/shared-infra/db";
-import { Repo } from "@beep/shared-infra/Repo";
+import { SharedDb } from "@beep/shared-server/db";
+import { Repo } from "@beep/shared-server/Repo";
 import { file, folder } from "@beep/shared-tables";
 import * as SqlClient from "@effect/sql/SqlClient";
 import * as SqlSchema from "@effect/sql/SqlSchema";
@@ -227,10 +227,10 @@ client
 ## Resources
 
 ### Files to Modify
-- `packages/shared/infra/src/repos/File.repo.ts` - Target file (lines 150-171)
+- `packages/shared/server/src/repos/File.repo.ts` - Target file (lines 150-171)
 
 ### Files to Reference
-- `packages/shared/infra/src/internal/db/pg/PgClient.ts` - `makeQueryWithSchema` implementation
+- `packages/shared/server/src/internal/db/pg/PgClient.ts` - `makeQueryWithSchema` implementation
 - `packages/shared/tables/src/tables/file.table.ts` - File table schema
 - `packages/shared/domain/src/entities/File/schemas/UploadKey.ts` - UploadKey schema
 
@@ -341,8 +341,8 @@ yield* FileRepo.deleteFiles({
 - [ ] Uses `A.map` instead of native `.map()`
 - [ ] Span name corrected: `"FilesRepo.deleteFiles"` → `"FileRepo.deleteFiles"`
 - [ ] Returns `ReadonlyArray<File.UploadKey.Type>`
-- [ ] `bun run check --filter @beep/shared-infra` passes
-- [ ] `bun run lint --filter @beep/shared-infra` passes
+- [ ] `bun run check --filter @beep/shared-server` passes
+- [ ] `bun run lint --filter @beep/shared-server` passes
 - [ ] No native Array methods used
 - [ ] No `any` types or type assertions
 
@@ -355,8 +355,8 @@ yield* FileRepo.deleteFiles({
 5. **Extract keys** - Use `A.map((r) => r.key)` instead of native `.map()`
 6. **Keep observability** - Preserve `Effect.withSpan` wrapper
 7. **Clean imports** - Remove unused `SqlSchema` and `SqlClient` if applicable
-8. **Run type check** - `bun run check --filter @beep/shared-infra`
-9. **Run lint** - `bun run lint --filter @beep/shared-infra`
+8. **Run type check** - `bun run check --filter @beep/shared-server`
+9. **Run lint** - `bun run lint --filter @beep/shared-server`
 
 ---
 
@@ -365,8 +365,8 @@ yield* FileRepo.deleteFiles({
 ### Research Sources
 
 **Files Explored:**
-- `packages/shared/infra/src/repos/File.repo.ts` - Current implementation
-- `packages/shared/infra/src/internal/db/pg/PgClient.ts` - `makeQueryWithSchema`
+- `packages/shared/server/src/repos/File.repo.ts` - Current implementation
+- `packages/shared/server/src/internal/db/pg/PgClient.ts` - `makeQueryWithSchema`
 - `packages/shared/domain/src/entities/File/schemas/UploadKey.ts` - UploadKey type
 - `packages/shared/tables/src/tables/file.table.ts` - File table schema
 

@@ -5,18 +5,10 @@ import {
   DocumentFileId,
   DocumentId,
   DocumentVersionId,
-  KnowledgeBlockId,
-  KnowledgePageId,
-  KnowledgeSpaceId,
-  PageLinkId,
 } from "@beep/shared-domain/entity-ids/documents";
 import type * as S from "effect/Schema";
 
 export class DocumentsTableName extends BS.StringLiteralKit(
-  KnowledgePageId.tableName,
-  KnowledgeBlockId.tableName,
-  KnowledgeSpaceId.tableName,
-  PageLinkId.tableName,
   DocumentId.tableName,
   DocumentVersionId.tableName,
   DiscussionId.tableName,

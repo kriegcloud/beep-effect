@@ -4,7 +4,7 @@ React UI components for IAM authentication flows, bridging Effect-based RPC cont
 
 ## Purpose
 
-Provides the client-side IAM entry points (sign-in, sign-up, password recovery, verification, organization invitations) consumed by `apps/web` and any application embedding IAM flows. This package bridges Effect-based RPC contracts from `@beep/iam-sdk` to React components using `@beep/ui` form primitives, `@beep/runtime-client` runners, and `@beep/shared-domain` navigation paths.
+Provides the client-side IAM entry points (sign-in, sign-up, password recovery, verification, organization invitations) consumed by `apps/web` and any application embedding IAM flows. This package bridges Effect-based RPC contracts from `@beep/iam-client` to React components using `@beep/ui` form primitives, `@beep/runtime-client` runners, and `@beep/shared-domain` navigation paths.
 
 Owns the UX orchestration layer (headings, dividers, CTA links, reCAPTCHA wiring, social provider grids) so that route-level pages remain declarative and avoid duplicating validation or RPC orchestration logic.
 
@@ -160,7 +160,7 @@ export default function SignInPage() {
 Custom email sign-in form with explicit runtime wiring:
 
 ```typescript
-import { iam } from "@beep/iam-sdk";
+import { iam } from "@beep/iam-client";
 import { SignInEmailForm } from "@beep/iam-ui/sign-in";
 import { makeRunClientPromise, useRuntime } from "@beep/runtime-client";
 import * as Effect from "effect/Effect";
@@ -190,10 +190,10 @@ export const MinimalEmailSignIn = () => {
 Custom social provider buttons with filtered providers:
 
 ```typescript
-import { clientEnv } from "@beep/shared-infra/ClientEnv";
+import { clientEnv } from "@beep/shared-server/ClientEnv";
 import { SocialIconButton, SocialProviderIcons } from "@beep/iam-ui/_components";
 import { makeRunClientPromise, useRuntime } from "@beep/runtime-client";
-import { iam } from "@beep/iam-sdk";
+import { iam } from "@beep/iam-client";
 import { AuthProviderNameValue } from "@beep/constants";
 import Box from "@mui/material/Box";
 import * as A from "effect/Array";
@@ -274,7 +274,7 @@ Phone verification form with Effect integration:
 
 ```typescript
 import { VerifyPhoneForm } from "@beep/iam-ui/verify";
-import { iam } from "@beep/iam-sdk";
+import { iam } from "@beep/iam-client";
 import { makeRunClientPromise, useRuntime } from "@beep/runtime-client";
 import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
@@ -357,7 +357,7 @@ export const CustomFormWithCaptcha = () => {
 
 - **Authentication UI flows**: Sign-in, sign-up, password recovery, verification, invitations
 - **IAM form components**: Email forms, social provider buttons, passkey authentication
-- **RPC orchestration**: Wiring `@beep/iam-sdk` contracts to React components via `@beep/runtime-client`
+- **RPC orchestration**: Wiring `@beep/iam-client` contracts to React components via `@beep/runtime-client`
 - **UX composition**: Headings, dividers, links, icons specialized for IAM flows
 - **reCAPTCHA integration**: reCAPTCHA v3 provider and execution hooks with Effect integration
 - **Navigation helpers**: CTA links using `@beep/shared-domain` paths
@@ -365,23 +365,23 @@ export const CustomFormWithCaptcha = () => {
 
 ## What Must NOT Go Here
 
-- **Business logic**: Belongs in `@beep/iam-domain` or `@beep/iam-infra`
-- **RPC contracts**: Defined in `@beep/iam-sdk`, not here
-- **Database access**: Belongs in `@beep/iam-infra` repository layers
-- **Better Auth configuration**: Lives in `@beep/iam-infra`
+- **Business logic**: Belongs in `@beep/iam-domain` or `@beep/iam-server`
+- **RPC contracts**: Defined in `@beep/iam-client`, not here
+- **Database access**: Belongs in `@beep/iam-server` repository layers
+- **Better Auth configuration**: Lives in `@beep/iam-server`
 - **Generic UI components**: Should go in `@beep/ui` or `@beep/shared-ui`
-- **Server-side logic**: Belongs in `apps/server` or `@beep/iam-infra`
+- **Server-side logic**: Belongs in `apps/server` or `@beep/iam-server`
 
 ## Dependencies
 
 | Package                         | Purpose                                              |
 |---------------------------------|------------------------------------------------------|
-| `@beep/iam-sdk`                 | IAM RPC contracts and Better Auth client utilities   |
+| `@beep/iam-client`                 | IAM RPC contracts and Better Auth client utilities   |
 | `@beep/iam-domain`              | IAM entity models and value objects                  |
-| `@beep/iam-infra`               | Better Auth configuration and infrastructure         |
+| `@beep/iam-server`               | Better Auth configuration and infrastructure         |
 | `@beep/runtime-client`          | Browser ManagedRuntime for Effect execution          |
 | `@beep/shared-domain`           | Shared paths and navigation utilities                |
-| `@beep/shared-sdk`              | Shared SDK contracts                                 |
+| `@beep/shared-client`              | Shared SDK contracts                                 |
 | `@beep/shared-ui`               | Shared UI components                                 |
 | `@beep/ui`                      | Core component library                               |
 | `@beep/ui-core`                 | Design tokens and MUI theme configuration            |
@@ -466,10 +466,10 @@ iam.signIn.email(value);
 
 ### Schema-First Forms
 
-Forms must lean on Effect schemas from `@beep/iam-sdk/clients` with `formOptionsWithSubmit`. Do not hand-roll validation or default values; extend schemas upstream when fields change:
+Forms must lean on Effect schemas from `@beep/iam-client/clients` with `formOptionsWithSubmit`. Do not hand-roll validation or default values; extend schemas upstream when fields change:
 
 ```typescript
-import { signInEmailSchema } from "@beep/iam-sdk/clients/sign-in";
+import { signInEmailSchema } from "@beep/iam-client/clients/sign-in";
 import { formOptionsWithSubmit } from "@beep/ui/forms";
 
 const form = useForm(formOptionsWithSubmit(signInEmailSchema, onSubmit));
@@ -550,7 +550,7 @@ Currently, the package has placeholder tests (`test/Dummy.test.ts`). Add real te
 
 - **No native collection helpers**: Use `A.*`, `Str.*`, `Record.*` from Effect
 - **Export through index files**: Update `src/index.ts` and feature `index.ts` files for new components
-- **Source schemas from SDK**: Import validation schemas from `@beep/iam-sdk/clients`, never duplicate
+- **Source schemas from SDK**: Import validation schemas from `@beep/iam-client/clients`, never duplicate
 - **Coordinate with UI packages**: New primitives should go to `@beep/ui` or `@beep/shared-ui`
 - **Document divergences**: Record intentional deviations from Effect patterns and open follow-up tasks
 - **Two-factor stub**: Keep `two-factor/index.ts` empty until requirements land
@@ -559,7 +559,7 @@ Currently, the package has placeholder tests (`test/Dummy.test.ts`). Add real te
 
 - **AGENTS.md**: Detailed package authoring guidelines and quick recipes
 - **apps/web**: Next.js application consuming these components
-- **@beep/iam-sdk**: RPC contracts and Better Auth client utilities
+- **@beep/iam-client**: RPC contracts and Better Auth client utilities
 - **@beep/runtime-client**: Browser ManagedRuntime documentation
 - **@beep/ui**: Core component library documentation
 

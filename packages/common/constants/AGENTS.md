@@ -2,7 +2,7 @@
 
 ## Purpose & Fit
 - Provide effect-first constants, literal schemas, and path tooling consumed across server config, IAM surfaces, and web assets.
-- Centralize environment & logging enums so `@beep/shared-infra` env loaders can share validated options without duplicating literals.
+- Centralize environment & logging enums so `@beep/shared-server` env loaders can share validated options without duplicating literals.
 - Offer generated asset path registries and utilities so UI layers avoid stringly-typed URLs.
 - Serve as glue between `@beep/schema` literal kits, `@beep/types` string brands, and higher-level slices that need canonical values.
 
@@ -19,8 +19,8 @@
 - **index.ts** — curated re-export surface (constants, env schemas, path helpers) consumed by other workspaces.
 
 ## Usage Snapshots
-- `packages/shared/infra/src/ServerEnv.ts` — imports `EnvValue`, `AuthProviderNameValue`, `LogFormat` to gate Effect Config wiring and OAuth provider arrays.
-- `packages/shared/infra/src/ClientEnv.ts` — reuses the same schemas on the client for `NEXT_PUBLIC_*` validation and provider parsing.
+- `packages/shared/server/src/ServerEnv.ts` — imports `EnvValue`, `AuthProviderNameValue`, `LogFormat` to gate Effect Config wiring and OAuth provider arrays.
+- `packages/shared/server/src/ClientEnv.ts` — reuses the same schemas on the client for `NEXT_PUBLIC_*` validation and provider parsing.
 - `packages/iam/ui/src/sign-in/sign-in-social.tsx` — drives sign-in buttons through `AuthProviderNameValue.filter`, emphasizing non-empty provider lists.
 - `packages/shared/domain/src/value-objects/paths.ts` — uses `PathBuilder` from `@beep/shared-domain/factories` (not from this package) for comprehensive dashboard/auth routes.
 - `apps/web/src/app/manifest.ts` — sources icon URLs from `assetPaths` so manifest entries remain aligned with generated assets.

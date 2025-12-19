@@ -3,7 +3,7 @@
 ## Purpose & Fit
 - Provides the production-grade Effect runtime that powers server-side entry points, bundling observability, persistence, and IAM/files domain services defined across multiple modules in `packages/runtime/server/src/`.
 - Acts as the shared runtime for both API routes (`apps/web/src/app/api/*`) and any future Bun/Node hosts, encapsulating logging, tracing, repository hydration, and auth flows so apps do not hand-wire layers.
-- Anchors environment-sensitive behaviour via `@beep/shared-infra` (log level, OTLP endpoints) while deferring domain contracts to `@beep/iam-infra` and `@beep/documents-infra`.
+- Anchors environment-sensitive behaviour via `@beep/shared-server` (log level, OTLP endpoints) while deferring domain contracts to `@beep/iam-server` and `@beep/documents-server`.
 
 ## Surface Map
 - `TracingLive` — OTLP trace/log exporters, service name binding (`packages/runtime/server/src/Tracing.ts:16`).
@@ -26,7 +26,7 @@
 - Import Effect modules through namespace bindings (`import * as Effect from "effect/Effect";`, `import * as Layer from "effect/Layer";`) and respect the no-native-array/string rule as documented in the root guardrails.
 - Never bypass `serverRuntime` when running server effects; downstream hosts rely on its span wrapping (`Effect.withSpan`) for telemetry cohesion.
 - Keep observability layers memoizable — prefer `Layer.mergeAll` and `Layer.provideMerge` rather than manual `Layer.build` so Turbo builds can reuse cached allocations.
-- Respect environment toggles from `serverEnv.app` (`@beep/shared-infra`) before introducing new logging or dev tooling to avoid leaking debug behaviour in production.
+- Respect environment toggles from `serverEnv.app` (`@beep/shared-server`) before introducing new logging or dev tooling to avoid leaking debug behaviour in production.
 - When extending persistence slices, contribute live layers via `Layer.provideMerge(SliceReposLive, <NewSlice>.Repos.layer)` or `Layer.mergeAll` so that future slices inline cleanly.
 - Reuse existing error/tag definitions from `@beep/invariant` / `@beep/errors` instead of ad-hoc classes to keep logging JSON-compatible.
 
@@ -65,7 +65,7 @@ export const runJob = (payload: string) =>
 
 ```ts
 import { runServerPromise } from "@beep/runtime-server";
-import { AuthService } from "@beep/iam-infra/adapters/better-auth/Auth.service";
+import { AuthService } from "@beep/iam-server/adapters/better-auth/Auth.service";
 import * as Effect from "effect/Effect";
 
 // Request-scoped helper that pulls the Better Auth handler with contextual logging.
@@ -85,7 +85,7 @@ export const resolveAuthHandler = async (request: Request) => {
 - `bun run test --filter=@beep/runtime-server` — Vitest suite (currently placeholder but keeps regressions obvious).
 
 ## Contributor Checklist
-- Align any new environment knobs with `@beep/shared-infra` exports and document defaults here.
+- Align any new environment knobs with `@beep/shared-server` exports and document defaults here.
 - Ensure new layers are exposed via appropriate source files and recorded in **Surface Map**.
 - Capture at least one live usage reference for every new helper or runtime entry point.
 - Re-run the package scripts listed in **Verifications** and note results in the handoff.

@@ -29,7 +29,7 @@
 - `apps/web/src/middleware.ts:3` — imports `paths` to drive auth/public route logic and string guards.  
 - `apps/web/src/middleware.ts:10` — leverages `paths.auth.signIn` / `paths.auth.signUp` to normalize protected route redirects.  
 - `apps/web/src/providers/AuthGuard.tsx:37` — redirects anonymous users with `paths.auth.signIn` inside router effects.  
-- `packages/iam/infra/src/adapters/better-auth/Auth.service.ts:7` — consumes `IamEntityIds`, `SharedEntityIds`, and `paths` when configuring Better Auth hooks and email URLs.  
+- `packages/iam/server/src/adapters/better-auth/Auth.service.ts:7` — consumes `IamEntityIds`, `SharedEntityIds`, and `paths` when configuring Better Auth hooks and email URLs.  
 - `packages/shared/domain/test/entities/File/schemas/UploadKey.test.ts:11` — exercises `File.UploadKey` encode/decode round-trips and shard prefix guarantees.  
 - `packages/shared/domain/test/policy.test.ts:70` — demonstrates `Policy.permission`, `Policy.all`, and `Policy.any` behavior with layered fallbacks.
 

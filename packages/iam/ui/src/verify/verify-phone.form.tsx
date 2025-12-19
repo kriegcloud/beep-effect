@@ -1,5 +1,5 @@
-import { VerifyPhonePayload } from "@beep/iam-sdk/clients";
-import { useVerifyPhone } from "@beep/iam-sdk/clients/verify";
+import { VerifyPhonePayload } from "@beep/iam-client/clients";
+import { useVerifyPhone } from "@beep/iam-client/clients/verify";
 import { Form, formOptionsWithSubmitEffect, useAppForm } from "@beep/ui/form";
 
 export const VerifyPhoneForm = () => {

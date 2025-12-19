@@ -566,8 +566,8 @@ export declare namespace MyConstant {
 
 ### Consumed By
 
-- **@beep/shared-infra** — Environment config, logging setup
-- **@beep/iam/infra** — Auth provider validation
+- **@beep/shared-server** — Environment config, logging setup
+- **@beep/iam/server** — Auth provider validation
 - **@beep/iam/ui** — Social login buttons
 - **apps/web** — Asset manifests, API route validation, CSP headers
 - **apps/server** — Environment detection, logging configuration
@@ -575,7 +575,7 @@ export declare namespace MyConstant {
 ### Integration Points
 
 ```ts
-// In @beep/shared-infra ServerEnv
+// In @beep/shared-server ServerEnv
 import { EnvValue, AuthProviderNameValue, LogFormat } from "@beep/constants";
 
 // In @beep/iam/ui sign-in flow

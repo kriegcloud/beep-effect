@@ -207,7 +207,7 @@ This milestone implements utility and infrastructure endpoints that support the 
 
 **Recommended Helper**: `runAuthQuery` - Simple GET health check returning `{ ok: true }`
 
-- [ ] Create stub file `packages/iam/infra/src/api/v1/core/ok.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/core/ok.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type: `Common.HandlerEffect<void>` (no payload or params)
 - [ ] Add `Handler` stub with:
@@ -223,7 +223,7 @@ This milestone implements utility and infrastructure endpoints that support the 
 
 **Recommended Helper**: `runAuthQuery` - GET endpoint returning error page response
 
-- [ ] Create stub file `packages/iam/infra/src/api/v1/core/error.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/core/error.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type: `Common.HandlerEffect<void>`
 - [ ] Add `Handler` stub with:
@@ -239,7 +239,7 @@ This milestone implements utility and infrastructure endpoints that support the 
 
 **Recommended Helper**: `runAuthQuery` - GET endpoint returning JWKS (JSON Web Key Set)
 
-- [ ] Create stub file `packages/iam/infra/src/api/v1/core/jwks.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/core/jwks.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type: `Common.HandlerEffect<void>`
 - [ ] Add `Handler` stub with:
@@ -256,7 +256,7 @@ This milestone implements utility and infrastructure endpoints that support the 
 
 **Recommended Helper**: `runAuthQuery` - GET endpoint with URL params returning device authorization status
 
-- [ ] Create stub file `packages/iam/infra/src/api/v1/core/device.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/core/device.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type: `Common.HandlerEffect<V1.Core.Device.UrlParams>`
 - [ ] Add `Handler` stub with:
@@ -272,7 +272,7 @@ This milestone implements utility and infrastructure endpoints that support the 
 
 **Recommended Helper**: `runAuthEndpoint` - POST endpoint with payload (username) returning availability status
 
-- [ ] Create stub file `packages/iam/infra/src/api/v1/core/is-username-available.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/core/is-username-available.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type: `Common.HandlerEffect<V1.Core.IsUsernameAvailable.Payload>`
 - [ ] Add `Handler` stub with:
@@ -288,7 +288,7 @@ This milestone implements utility and infrastructure endpoints that support the 
 
 **Recommended Helper**: `runAuthQuery` - GET endpoint returning generated one-time token
 
-- [ ] Create stub file `packages/iam/infra/src/api/v1/core/one-time-token-generate.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/core/one-time-token-generate.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type: `Common.HandlerEffect<void>`
 - [ ] Add `Handler` stub with:
@@ -304,7 +304,7 @@ This milestone implements utility and infrastructure endpoints that support the 
 
 **Recommended Helper**: Check for Redacted token field during implementation - use `forwardCookieResponse` if present, otherwise `runAuthEndpoint`
 
-- [ ] Create stub file `packages/iam/infra/src/api/v1/core/one-time-token-verify.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/core/one-time-token-verify.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type: `Common.HandlerEffect<V1.Core.OneTimeTokenVerify.Payload>`
 - [ ] Add `Handler` stub with:
@@ -500,7 +500,7 @@ This milestone implements utility and infrastructure endpoints that support the 
 ### 3. Verification
 
 - [ ] `bun run check` passes
-- [ ] `bun run build --filter=@beep/iam-domain --filter=@beep/iam-infra` succeeds
+- [ ] `bun run build --filter=@beep/iam-domain --filter=@beep/iam-server` succeeds
 - [ ] Endpoints appear in OpenAPI spec at server `/docs`
 - [ ] Status updated to `COMPLETE` in PLAN.md
 

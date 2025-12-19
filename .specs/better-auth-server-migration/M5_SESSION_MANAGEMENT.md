@@ -161,7 +161,7 @@ This milestone implements session management capabilities including listing acti
 
 #### `list-sessions.ts`
 
-- [ ] Create stub file `packages/iam/infra/src/api/v1/core/list-sessions.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/core/list-sessions.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type with JSDoc (note: no payload or urlParams)
 - [ ] Add `Handler` stub with:
@@ -172,7 +172,7 @@ This milestone implements session management capabilities including listing acti
 
 #### `revoke-session.ts`
 
-- [ ] Create stub file `packages/iam/infra/src/api/v1/core/revoke-session.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/core/revoke-session.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type with JSDoc
 - [ ] Add `Handler` stub with:
@@ -183,7 +183,7 @@ This milestone implements session management capabilities including listing acti
 
 #### `revoke-sessions.ts`
 
-- [ ] Create stub file `packages/iam/infra/src/api/v1/core/revoke-sessions.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/core/revoke-sessions.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type with JSDoc
 - [ ] Add `Handler` stub with:
@@ -195,7 +195,7 @@ This milestone implements session management capabilities including listing acti
 
 #### `revoke-other-sessions.ts`
 
-- [ ] Create stub file `packages/iam/infra/src/api/v1/core/revoke-other-sessions.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/core/revoke-other-sessions.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type with JSDoc
 - [ ] Add `Handler` stub with:
@@ -207,7 +207,7 @@ This milestone implements session management capabilities including listing acti
 
 #### `refresh-token.ts`
 
-- [ ] Create stub file `packages/iam/infra/src/api/v1/core/refresh-token.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/core/refresh-token.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type with JSDoc
 - [ ] Add `Handler` stub with:
@@ -218,7 +218,7 @@ This milestone implements session management capabilities including listing acti
 
 #### `get-access-token.ts`
 
-- [ ] Create stub file `packages/iam/infra/src/api/v1/core/get-access-token.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/core/get-access-token.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type with JSDoc
 - [ ] Add `Handler` stub with:
@@ -476,7 +476,7 @@ import { runAuthEndpoint, runAuthQuery, runAuthCommand, forwardCookieResponse } 
 ### 3. Verification
 
 - [ ] `bun run check` passes
-- [ ] `bun run build --filter=@beep/iam-domain --filter=@beep/iam-infra` succeeds
+- [ ] `bun run build --filter=@beep/iam-domain --filter=@beep/iam-server` succeeds
 - [ ] Endpoints appear in OpenAPI spec at server `/docs`
 - [ ] Status updated to `COMPLETE` in PLAN.md
 

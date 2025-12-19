@@ -1,4 +1,4 @@
-import type { TraceHeaders } from "@beep/shared-infra/internal/upload/utils";
+import type { TraceHeaders } from "@beep/shared-server/internal/upload/utils";
 import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
 

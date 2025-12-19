@@ -5,7 +5,7 @@
 - Continuation metadata (title/domain/method/supportsAbort) is being used in IAM clients to propagate context into errors and to wire abort signals through Better Auth fetch helpers.
 - `ContractKit.handle` enforces payload/result validation, and `lift` covers the `failureMode` return path with hooks for success/failure/defect.
 
-## Usage observations from `packages/iam/sdk/src/clients/*`
+## Usage observations from `packages/iam/client/src/clients/*`
 - Implementations almost always call `continuation.run` → `continuation.raiseResult` → `Contract.decodeUnknownSuccess`. The Better Auth client returns `{ data, error }`, so we repeatedly map that shape manually and fail fast on `error`.
 - Abort support is opted in via `Contract.SupportsAbort` and propagated to fetch options; this works but requires ad-hoc helpers (`withFetchOptions`, `addFetchOptions`).
 - Failure modes are effectively always `"error"` in production clients; `"return"` is only covered in tests, so runtime consumers rarely exercise `Contract.handleOutcome`.

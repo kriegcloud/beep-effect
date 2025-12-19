@@ -3,7 +3,7 @@
 ## Purpose & Fit
 - Domain layer for the documents vertical: entities, value objects, and business logic for a knowledge management and document editing system.
 - Supplies strongly-typed domain models for document editors, knowledge pages, discussions, comments, and versioning.
-- Provides Effect-first APIs and HTTP contracts consumed by `packages/documents/infra` and application runtimes.
+- Provides Effect-first APIs and HTTP contracts consumed by `packages/documents/server` and application runtimes.
 - Owns document structure value objects (block types, text styles, link types) while delegating persistence to infra/tables layers.
 
 ## Surface Map
@@ -29,7 +29,7 @@
 
 ## Usage Snapshots
 - `packages/runtime/server/src/server-runtime.ts` — Likely consumes `DomainApi` for HTTP routing.
-- `packages/documents/infra/src/adapters/repositories.ts` — References all entity repos (CommentRepo, DiscussionRepo, DocumentFileRepo, DocumentRepo, etc.).
+- `packages/documents/server/src/adapters/repositories.ts` — References all entity repos (CommentRepo, DiscussionRepo, DocumentFileRepo, DocumentRepo, etc.).
 - `packages/documents/tables/src/tables/` — Drizzle table definitions mirror domain entities.
 - `packages/_internal/db-admin/` — Migration files correspond to entity schemas.
 

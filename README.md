@@ -42,7 +42,7 @@ Therefore, I proclaim—nay, I yell into the abyss—I’m making a codebase I c
 
 **Fix: slice-scoped clients**
 
-- [`Db.make`](https://github.com/kriegcloud/beep-effect/blob/main/packages/core/db/src/Db/Db.ts) builds per-slice Drizzle clients so TS only reasons about relevant tables. Examples: [IamDb](https://github.com/kriegcloud/beep-effect/blob/main/packages/iam/infra/src/db/Db/Db.ts), [DocumentsDb](https://github.com/kriegcloud/beep-effect/blob/main/packages/documents/infra/src/db/Db/Db.ts), [TasksDb](https://github.com/kriegcloud/beep-effect/blob/main/packages/tasks/infra/src/db/Db/Db.ts).
+- [`Db.make`](https://github.com/kriegcloud/beep-effect/blob/main/packages/core/db/src/Db/Db.ts) builds per-slice Drizzle clients so TS only reasons about relevant tables. Examples: [IamDb](https://github.com/kriegcloud/beep-effect/blob/main/packages/iam/server/src/db/Db/Db.ts), [DocumentsDb](https://github.com/kriegcloud/beep-effect/blob/main/packages/documents/server/src/db/Db/Db.ts), [TasksDb](https://github.com/kriegcloud/beep-effect/blob/main/packages/tasks/server/src/db/Db/Db.ts).
 - API surfaces (TRPC or `@effect/platform`) will be generated per slice too. God clients are cancelled.
 
 ---
@@ -165,7 +165,7 @@ ASCII cheat sheet:
 
 - `Contract.make` wraps payload/success/failure schemas, annotations, and telemetry continuations.
 - `ContractKit.make` bundles contracts, converts them to Layers, and `.liftService()` turns them into DI-friendly services.
-- Passkey example: [`contracts`](https://github.com/kriegcloud/beep-effect/blob/main/packages/iam/sdk/src/clients/passkey/passkey.contracts.ts) → [`implementations`](https://github.com/kriegcloud/beep-effect/blob/main/packages/iam/sdk/src/clients/passkey/passkey.implementations.ts) → [`service`](https://github.com/kriegcloud/beep-effect/blob/main/packages/iam/sdk/src/clients/passkey/passkey.service.ts) → [`atoms/ui`](https://github.com/kriegcloud/beep-effect/tree/main/packages/iam/sdk/src/clients/passkey).
+- Passkey example: [`contracts`](https://github.com/kriegcloud/beep-effect/blob/main/packages/iam/client/src/clients/passkey/passkey.contracts.ts) → [`implementations`](https://github.com/kriegcloud/beep-effect/blob/main/packages/iam/client/src/clients/passkey/passkey.implementations.ts) → [`service`](https://github.com/kriegcloud/beep-effect/blob/main/packages/iam/client/src/clients/passkey/passkey.service.ts) → [`atoms/ui`](https://github.com/kriegcloud/beep-effect/tree/main/packages/iam/client/src/clients/passkey).
 - Continuations normalize HTTP failures, decode unknown successes, and attach telemetry. `.liftService()` gives UI code typed `Effect`s without touching raw fetch responses.
 
 ---
@@ -259,7 +259,7 @@ See [`turbo.json`](turbo.json) for the canonical task graph.
 
 - `S/domain` → entities, value objects, pure logic.
 - `S/application` → use cases, ports (depends on domain only).
-- `S/infra` → adapters (DB, auth, email, storage).
+- `S/server` → adapters (DB, auth, email, storage).
 - `S/tables` → Drizzle schema definitions.
 - `S/ui` / `apps/*` → React/Next surfaces.
 

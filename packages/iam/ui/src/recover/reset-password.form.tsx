@@ -1,5 +1,5 @@
 "use client";
-import { useResetPasswordForm } from "@beep/iam-sdk/clients/recover";
+import { useResetPasswordForm } from "@beep/iam-client/clients/recover";
 import { paths } from "@beep/shared-domain";
 import { Form } from "@beep/ui/form";
 import { PasswordFieldsGroup } from "@beep/ui/form/groups";

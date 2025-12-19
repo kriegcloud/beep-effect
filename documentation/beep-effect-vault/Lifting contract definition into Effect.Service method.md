@@ -283,11 +283,11 @@ The above is just an example of how a discriminated type could be utilized to ha
 
 
 At the end of the day If you take a look at:
-- packages/iam/sdk/src/clients/passkey-v2/passkey.contracts.ts
-- packages/iam/sdk/src/clients/passkey-v2/passkey.implementations.ts
-- packages/iam/sdk/src/clients/passkey-v2/passkey.service.ts
-- packages/iam/sdk/src/clients/passkey-v2/passkey.atoms.ts
-- packages/iam/sdk/src/clients/passkey-v2/passkey.forms.ts
+- packages/iam/client/src/clients/passkey-v2/passkey.contracts.ts
+- packages/iam/client/src/clients/passkey-v2/passkey.implementations.ts
+- packages/iam/client/src/clients/passkey-v2/passkey.service.ts
+- packages/iam/client/src/clients/passkey-v2/passkey.atoms.ts
+- packages/iam/client/src/clients/passkey-v2/passkey.forms.ts
 
 You can see that In order for me to make use of the `@beep/contract` packages features a lot of boilerplate would be required each time I want to create a system such as this.
 What I like for obvious reasons is how typesafe and strict this system is. But it feels repetitive to have to handle the result each time.
@@ -298,13 +298,13 @@ import {
   PasskeyListContract,
   PasskeyRemoveContract,
   PasskeyUpdateContract,
-} from "@beep/iam-sdk/clients/passkey-v2/passkey.contracts";
-import { passkeyLayer } from "@beep/iam-sdk/clients/passkey-v2/passkey.implementations";
+} from "@beep/iam-client/clients/passkey-v2/passkey.contracts";
+import { passkeyLayer } from "@beep/iam-client/clients/passkey-v2/passkey.implementations";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 
 export class PasskeyService extends Effect.Service<PasskeyService>()(
-  "@beep/iam-sdk/clients/passkey-v2/PasskeyService",
+  "@beep/iam-client/clients/passkey-v2/PasskeyService",
   {
     accessors: true,
     dependencies: [passkeyLayer],

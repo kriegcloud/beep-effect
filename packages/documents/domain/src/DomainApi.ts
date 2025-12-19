@@ -1,4 +1,0 @@
-import * as HttpApi from "@effect/platform/HttpApi";
-import { KnowledgePage } from "./entities";
-
-export class DomainApi extends HttpApi.make("domain").add(KnowledgePage.Contract).prefix("/api/v1/documents") {}

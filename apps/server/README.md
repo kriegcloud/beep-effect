@@ -29,7 +29,7 @@ import * as HttpLayerRouter from "@effect/platform/HttpLayerRouter";
 import * as BunHttpServer from "@effect/platform-bun/BunHttpServer";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import { Layer } from "effect";
-import { IamRoutes } from "@beep/iam-infra";
+import { IamRoutes } from "@beep/iam-server";
 import { IamDomainApi } from "@beep/iam-domain";
 
 // Domain API layer with route implementations
@@ -121,7 +121,7 @@ The server applies middleware in this order:
 
 ### Configuration
 
-Environment configuration is read through `@beep/shared-infra`:
+Environment configuration is read through `@beep/shared-server`:
 - `serverEnv.security.trustedOrigins` - CORS allowed origins
 - Port configuration (currently hardcoded to 8080)
 
@@ -131,7 +131,7 @@ The server references `serverEnv` directly rather than reading `process.env` or 
 
 IAM functionality is integrated via:
 - `@beep/iam-domain` - Domain API contracts (`IamDomainApi`)
-- `@beep/iam-infra` - Route implementations (`IamRoutes.layer`)
+- `@beep/iam-server` - Route implementations (`IamRoutes.layer`)
 
 Route handlers are provided to the API builder through Layer composition, ensuring dependency injection for repositories, database clients, and other services.
 
@@ -148,10 +148,10 @@ The server configures CORS with:
 | Category | Packages |
 |----------|----------|
 | **Runtime** | `@beep/runtime-server` |
-| **IAM Slice** | `@beep/iam-domain`, `@beep/iam-infra`, `@beep/iam-tables` |
-| **Documents Slice** | `@beep/documents-domain`, `@beep/documents-infra`, `@beep/documents-tables` |
+| **IAM Slice** | `@beep/iam-domain`, `@beep/iam-server`, `@beep/iam-tables` |
+| **Documents Slice** | `@beep/documents-domain`, `@beep/documents-server`, `@beep/documents-tables` |
 | **Common** | `@beep/constants`, `@beep/contract`, `@beep/errors`, `@beep/identity`, `@beep/invariant`, `@beep/schema`, `@beep/utils` |
-| **Shared** | `@beep/shared-domain`, `@beep/shared-infra`, `@beep/shared-tables` |
+| **Shared** | `@beep/shared-domain`, `@beep/shared-server`, `@beep/shared-tables` |
 | **Effect Platform** | `effect`, `@effect/platform`, `@effect/platform-bun`, `@effect/rpc` |
 | **Effect SQL** | `@effect/sql`, `@effect/sql-pg`, `@effect/sql-drizzle` |
 | **Observability** | `@effect/opentelemetry`, `@opentelemetry/exporter-trace-otlp-http`, `@opentelemetry/sdk-trace-base`, `@opentelemetry/sdk-logs`, `@opentelemetry/sdk-metrics` |
@@ -228,7 +228,7 @@ const CustomRoute = HttpLayerRouter.use((router) =>
 
 ### Configuration
 
-- Read configuration from `serverEnv` (`@beep/shared-infra`)
+- Read configuration from `serverEnv` (`@beep/shared-server`)
 - Never read `process.env` or `Bun.env` directly
 - Keep port and TLS settings configurable
 
@@ -252,7 +252,7 @@ The server integrates Better Auth for authentication:
 
 IAM endpoints follow the HttpApi pattern:
 - Contract defined in `@beep/iam-domain` (`IamDomainApi`)
-- Implementations in `@beep/iam-infra` (`IamRoutes.layer`)
+- Implementations in `@beep/iam-server` (`IamRoutes.layer`)
 - Endpoints:
   - `POST /v1/iam/sign-in/email` - Email sign-in
   - `POST /v1/iam/sign-up/email` - Email sign-up
@@ -311,5 +311,5 @@ F.pipe(headers, Headers.get("host"), O.getOrElse(F.constant("localhost")));
 
 - `/home/elpresidank/YeeBois/projects/beep-effect/apps/server/AGENTS.md` — Server-specific patterns and guidelines
 - `/home/elpresidank/YeeBois/projects/beep-effect/packages/runtime/server/AGENTS.md` — Runtime layer patterns
-- `/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/infra/AGENTS.md` — IAM infrastructure implementation
+- `/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/server/AGENTS.md` — IAM infrastructure implementation
 - `/home/elpresidank/YeeBois/projects/beep-effect/CLAUDE.md` — Monorepo-wide conventions

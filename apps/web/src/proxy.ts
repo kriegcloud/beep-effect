@@ -1,5 +1,5 @@
 import { CSP_HEADER } from "@beep/constants";
-import { AuthCallback } from "@beep/iam-sdk/constants";
+import { AuthCallback } from "@beep/iam-client/constants";
 import { paths } from "@beep/shared-domain";
 import { getSessionCookie } from "better-auth/cookies";
 import * as A from "effect/Array";

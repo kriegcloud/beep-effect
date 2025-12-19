@@ -317,7 +317,7 @@ These are consumed by:
 - `packages/iam/tables` for IAM relations
 - `packages/documents/tables` for file ownership relations
 - `packages/_internal/db-admin` schema barrel for migrations
-- Repository layers in `@beep/iam-infra` and `@beep/documents-infra`
+- Repository layers in `@beep/iam-server` and `@beep/documents-server`
 
 ## Custom column types
 
@@ -388,7 +388,7 @@ After modifying table schemas:
 - **Never bypass `_check.ts`**: Extend it when adding shared tables to catch schema/domain drift at compile time.
 - **Entity IDs first**: Create `EntityIdSchemaInstance` in `@beep/shared-domain` before defining a table.
 - **Import conventions**: Use `@beep/*` path aliases, never relative `../../../` paths across packages.
-- **No side effects**: Tables are pure Drizzle schema definitions; business logic belongs in domain/infra layers.
+- **No side effects**: Tables are pure Drizzle schema definitions; business logic belongs in domain/server layers.
 - **Postgres enums**: Use domain factories (`Organization.makeOrganizationTypePgEnum`) to keep enum names canonical.
 - **Index strategy**: Prefer Drizzle index helpers; use raw SQL only for computed checks (see `session.table.ts` expiry index).
 - **Multi-tenant by default**: Use `OrgTable.make` for organization-scoped data; use `Table.make` for global entities.
@@ -466,7 +466,7 @@ Before submitting changes:
 - `@beep/iam-tables` — IAM-specific Drizzle tables (auth, members, invitations)
 - `@beep/documents-tables` — Documents-specific tables (files, folders, permissions)
 - `@beep/_internal/db-admin` — Migration warehouse, Drizzle CLI, schema barrel
-- `@beep/shared-infra` — Db service, repository factories, multi-tenant adapters
+- `@beep/shared-server` — Db service, repository factories, multi-tenant adapters
 
 ## Further reading
 

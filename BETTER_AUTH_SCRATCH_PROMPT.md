@@ -50,7 +50,7 @@ api/
     └── core/              # M0 - complete
 ```
 
-**Infra Layer** (`packages/iam/infra/src/api/`):
+**Infra Layer** (`packages/iam/server/src/api/`):
 ```
 api/
 ├── index.ts            # IamApiLive layer export
@@ -580,14 +580,14 @@ Before creating planning documents, discover what already exists:
 bun --bun find packages/iam/domain/src/api/v1 -name "*.ts" -not -name "_group.ts" -not -name "index.ts"
 
 # Discover existing infra handlers
-bun --bun find packages/iam/infra/src/api/v1 -name "*.ts" -not -name "_group.ts" -not -name "index.ts"
+bun --bun find packages/iam/server/src/api/v1 -name "*.ts" -not -name "_group.ts" -not -name "index.ts"
 
 # Count endpoints per category from Phase 1 specs
 grep -c "^### " .specs/better-auth-specs/*.md
 
 # Alternative using Glob tool (recommended for agents)
 # Glob: packages/iam/domain/src/api/v1/**/*.ts
-# Glob: packages/iam/infra/src/api/v1/**/*.ts
+# Glob: packages/iam/server/src/api/v1/**/*.ts
 ```
 
 This discovery step is critical for:
@@ -598,7 +598,7 @@ This discovery step is critical for:
 ### Execution Order
 
 1. **Run discovery commands** to identify existing contracts and handlers
-2. Read existing implementations in `packages/iam/domain/src/api/` and `packages/iam/infra/src/api/`
+2. Read existing implementations in `packages/iam/domain/src/api/` and `packages/iam/server/src/api/`
 3. Read Phase 1 spec documents
 4. Create `PATTERNS.md` (extracted from existing M0-M2 implementations)
 5. Create milestone documents M3-M15
@@ -716,7 +716,7 @@ This discovery step is critical for:
 2. All infra handlers implemented with cookie forwarding
 3. Group `_group.ts` updated with new contracts/handlers
 4. `bun run check` passes
-5. `bun run build --filter=@beep/iam-domain --filter=@beep/iam-infra` succeeds
+5. `bun run build --filter=@beep/iam-domain --filter=@beep/iam-server` succeeds
 ````
 
 #### PATTERNS.md
@@ -1017,13 +1017,13 @@ export * as ChangePassword from "./change-password.ts";
 ## Infra Handler Pattern
 
 ### File Location
-`packages/iam/infra/src/api/v1/[group]/[endpoint].ts`
+`packages/iam/server/src/api/v1/[group]/[endpoint].ts`
 
 ### Template (POST with Body)
 
 ```typescript
 import { IamAuthError, V1 } from "@beep/iam-domain/api";
-import { Auth } from "@beep/iam-infra";
+import { Auth } from "@beep/iam-server";
 import * as HttpServerRequest from "@effect/platform/HttpServerRequest";
 import * as HttpServerResponse from "@effect/platform/HttpServerResponse";
 import * as Effect from "effect/Effect";
@@ -1079,7 +1079,7 @@ export const Handler: HandlerEffect = Effect.fn("EndpointName")(function* ({ pay
 
 ```typescript
 import { IamAuthError, V1 } from "@beep/iam-domain/api";
-import { Auth } from "@beep/iam-infra";
+import { Auth } from "@beep/iam-server";
 import * as HttpServerRequest from "@effect/platform/HttpServerRequest";
 import * as HttpServerResponse from "@effect/platform/HttpServerResponse";
 import * as Effect from "effect/Effect";
@@ -1329,13 +1329,13 @@ export { Endpoint1, Endpoint2 };
 ## Infra Group Pattern
 
 ### File Location
-`packages/iam/infra/src/api/v1/[group]/_group.ts`
+`packages/iam/server/src/api/v1/[group]/_group.ts`
 
 ### Template
 
 ```typescript
 import { IamApi, IamAuthError } from "@beep/iam-domain";
-import type { Auth } from "@beep/iam-infra";
+import type { Auth } from "@beep/iam-server";
 import * as HttpApiBuilder from "@effect/platform/HttpApiBuilder";
 import type * as HttpApiGroup from "@effect/platform/HttpApiGroup";
 import type * as Layer from "effect/Layer";
@@ -1369,7 +1369,7 @@ export const Routes: Routes = HttpApiBuilder.group(IamApi, "iam.[groupName]", (h
 bun run check
 
 # Build affected packages
-bun run build --filter=@beep/iam-domain --filter=@beep/iam-infra
+bun run build --filter=@beep/iam-domain --filter=@beep/iam-server
 
 # Full build
 bun run build
@@ -1446,7 +1446,7 @@ bun run build
 
 #### `change-password.ts`
 
-- [ ] Create stub file `packages/iam/infra/src/api/v1/core/change-password.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/core/change-password.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type with JSDoc
 - [ ] Add `Handler` stub with:
@@ -1505,7 +1505,7 @@ bun run build
 ### 3. Verification
 
 - [ ] `bun run check` passes
-- [ ] `bun run build --filter=@beep/iam-domain --filter=@beep/iam-infra` succeeds
+- [ ] `bun run build --filter=@beep/iam-domain --filter=@beep/iam-server` succeeds
 - [ ] Endpoints appear in OpenAPI spec at server `/docs`
 - [ ] Status updated to `COMPLETE` in PLAN.md
 
@@ -1549,7 +1549,7 @@ Create stub files with complete structure and JSDoc documentation BEFORE impleme
 For each endpoint in a milestone, create:
 
 1. **Domain Contract Stub** (`packages/iam/domain/src/api/v1/[group]/[endpoint].ts`)
-2. **Infra Handler Stub** (`packages/iam/infra/src/api/v1/[group]/[endpoint].ts`)
+2. **Infra Handler Stub** (`packages/iam/server/src/api/v1/[group]/[endpoint].ts`)
 3. **Updated Group Files** (add imports and stub registrations)
 
 ### Domain Contract Stub Template
@@ -1766,7 +1766,7 @@ export const Contract = HttpApiEndpoint.post("[endpoint-name]", "/[path]")
  */
 
 import { IamAuthError, V1 } from "@beep/iam-domain/api";
-import { Auth } from "@beep/iam-infra";
+import { Auth } from "@beep/iam-server";
 import * as HttpServerRequest from "@effect/platform/HttpServerRequest";
 import * as HttpServerResponse from "@effect/platform/HttpServerResponse";
 import * as Effect from "effect/Effect";
@@ -1798,7 +1798,7 @@ type HandlerEffect = Common.HandlerEffect<V1.[Group].[Endpoint].Payload>;
  *
  * @example
  * ```typescript
- * import { [Endpoint] } from "@beep/iam-infra/api/v1/[group]"
+ * import { [Endpoint] } from "@beep/iam-server/api/v1/[group]"
  *
  * // Used in group Routes:
  * // HttpApiBuilder.group(IamApi, "iam.[group]", (h) =>
@@ -1993,7 +1993,7 @@ This separation reduces context requirements and parallelizes work.
 bun run check
 
 # Package build
-bun run build --filter=@beep/iam-domain --filter=@beep/iam-infra
+bun run build --filter=@beep/iam-domain --filter=@beep/iam-server
 
 # Full workspace build
 bun run build

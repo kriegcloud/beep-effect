@@ -48,7 +48,7 @@
 ## Authoring Guardrails
 - Effect-first only: namespace imports (`import * as Effect from "effect/Effect";`, `import * as A from "effect/Array";`, `import * as Str from "effect/String";`) and no native array/string/object helpers—pipe through Effect collection utilities.
 - Respect App Router boundaries: only mark components `"use client"` when necessary; server components should keep data fetching inside Effects executed via `runServerPromise`.
-- Do not read `process.env` directly; rely on `serverEnv`/`clientEnv` from `@beep/shared-infra` (`NEXT_PUBLIC_CAPTCHA_SITE_KEY` powers IAM, `NEXT_PUBLIC_STATIC_URL` feeds Next image patterns).
+- Do not read `process.env` directly; rely on `serverEnv`/`clientEnv` from `@beep/shared-server` (`NEXT_PUBLIC_CAPTCHA_SITE_KEY` powers IAM, `NEXT_PUBLIC_STATIC_URL` feeds Next image patterns).
 - Prefer `@beep/ui` and `@beep/ui-core` components/tokens over hand-rolled MUI styling; update provider ordering in `GlobalProviders` if you add/remove foundations.
 - When adjusting `next.config.mjs`, keep security headers, turbopack rules, and `transpilePackages` filtering behavior intact; add new `@beep/*` packages only when their exports point to TS.
 - Maintain atom registry consistency: new atoms consumed globally should be registered in `GlobalProviders` or mounted under the existing `RegistryProvider`, not in isolated trees.
@@ -62,6 +62,6 @@
 ## Contributor Checklist
 - [ ] Updated `apps/web/README.md` and this guide if provider ordering, runtime wiring, or routes changed.
 - [ ] Kept Effect import/collection guardrails intact; no native array/string/object helpers introduced.
-- [ ] Added any new env needs to `packages/shared/infra` and documented required `NEXT_PUBLIC_*`/server vars.
+- [ ] Added any new env needs to `packages/shared/server` and documented required `NEXT_PUBLIC_*`/server vars.
 - [ ] Regenerated `assetPaths` after adding/removing files under `public/`.
 - [ ] Confirmed lint + check (and build if touching config/runtime) before handing work back.

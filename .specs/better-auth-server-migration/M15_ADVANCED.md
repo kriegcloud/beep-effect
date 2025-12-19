@@ -443,246 +443,246 @@ These are advanced features used less frequently than core auth flows, grouped t
 #### Phone Number Group
 
 ##### Create Group Directory
-- [ ] Create directory `packages/iam/infra/src/api/v1/phone-number/`
+- [ ] Create directory `packages/iam/server/src/api/v1/phone-number/`
 
 ##### `request-password-reset.ts`
-- [ ] Create stub file `packages/iam/infra/src/api/v1/phone-number/request-password-reset.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/phone-number/request-password-reset.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type using `Payload`
 - [ ] Add `Handler` stub with TODO template for `auth.api.phoneNumber.requestPasswordReset()`
 - [ ] Add placeholder `Effect.fail(new Error("Not implemented"))`
 
 ##### `reset-password.ts`
-- [ ] Create stub file `packages/iam/infra/src/api/v1/phone-number/reset-password.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/phone-number/reset-password.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type using `Payload`
 - [ ] Add `Handler` stub with TODO template for `auth.api.phoneNumber.resetPassword()`
 - [ ] Add placeholder `Effect.fail(new Error("Not implemented"))`
 
 ##### `send-otp.ts`
-- [ ] Create stub file `packages/iam/infra/src/api/v1/phone-number/send-otp.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/phone-number/send-otp.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type using `Payload`
 - [ ] Add `Handler` stub with TODO template for `auth.api.phoneNumber.sendPhoneNumberOTP()`
 - [ ] Add placeholder `Effect.fail(new Error("Not implemented"))`
 
 ##### `verify.ts`
-- [ ] Create stub file `packages/iam/infra/src/api/v1/phone-number/verify.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/phone-number/verify.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type using `Payload`
 - [ ] Add `Handler` stub with TODO template for `auth.api.phoneNumber.verify()`
 - [ ] Add placeholder `Effect.fail(new Error("Not implemented"))`
 
 ##### `_group.ts` (Phone Number)
-- [ ] Create `packages/iam/infra/src/api/v1/phone-number/_group.ts`
+- [ ] Create `packages/iam/server/src/api/v1/phone-number/_group.ts`
 - [ ] Import all 4 phone number handlers
 - [ ] Create Routes with all 4 handlers registered
 - [ ] Export Service, ServiceError, ServiceDependencies types
 
 ##### `index.ts` (Phone Number)
-- [ ] Create `packages/iam/infra/src/api/v1/phone-number/index.ts`
+- [ ] Create `packages/iam/server/src/api/v1/phone-number/index.ts`
 - [ ] Barrel export all 4 handlers and group
 
 #### API Key Group
 
 ##### Create Group Directory
-- [ ] Create directory `packages/iam/infra/src/api/v1/api-key/`
+- [ ] Create directory `packages/iam/server/src/api/v1/api-key/`
 
 ##### `create.ts`
-- [ ] Create stub file `packages/iam/infra/src/api/v1/api-key/create.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/api-key/create.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type using `Payload`
 - [ ] Add `Handler` stub with TODO template for `auth.api.apiKey.create()`
 - [ ] Add placeholder `Effect.fail(new Error("Not implemented"))`
 
 ##### `delete.ts`
-- [ ] Create stub file `packages/iam/infra/src/api/v1/api-key/delete.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/api-key/delete.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type using `Payload`
 - [ ] Add `Handler` stub with TODO template for `auth.api.apiKey.delete()`
 - [ ] Add placeholder `Effect.fail(new Error("Not implemented"))`
 
 ##### `get.ts`
-- [ ] Create stub file `packages/iam/infra/src/api/v1/api-key/get.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/api-key/get.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type using `UrlParams` (GET request)
 - [ ] Add `Handler` stub with TODO template for `auth.api.apiKey.get()`
 - [ ] Add placeholder `Effect.fail(new Error("Not implemented"))`
 
 ##### `list.ts`
-- [ ] Create stub file `packages/iam/infra/src/api/v1/api-key/list.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/api-key/list.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type (no params for list)
 - [ ] Add `Handler` stub with TODO template for `auth.api.apiKey.list()`
 - [ ] Add placeholder `Effect.fail(new Error("Not implemented"))`
 
 ##### `update.ts`
-- [ ] Create stub file `packages/iam/infra/src/api/v1/api-key/update.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/api-key/update.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type using `Payload`
 - [ ] Add `Handler` stub with TODO template for `auth.api.apiKey.update()`
 - [ ] Add placeholder `Effect.fail(new Error("Not implemented"))`
 
 ##### `_group.ts` (API Key)
-- [ ] Create `packages/iam/infra/src/api/v1/api-key/_group.ts`
+- [ ] Create `packages/iam/server/src/api/v1/api-key/_group.ts`
 - [ ] Import all 5 api-key handlers
 - [ ] Create Routes with all 5 handlers registered
 - [ ] Export Service, ServiceError, ServiceDependencies types
 
 ##### `index.ts` (API Key)
-- [ ] Create `packages/iam/infra/src/api/v1/api-key/index.ts`
+- [ ] Create `packages/iam/server/src/api/v1/api-key/index.ts`
 - [ ] Barrel export all 5 handlers and group
 
 #### Device Group
 
 ##### Create Group Directory
-- [ ] Create directory `packages/iam/infra/src/api/v1/device/`
+- [ ] Create directory `packages/iam/server/src/api/v1/device/`
 
 ##### `approve.ts`
-- [ ] Create stub file `packages/iam/infra/src/api/v1/device/approve.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/device/approve.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type using `Payload`
 - [ ] Add `Handler` stub with TODO template for `auth.api.device.approve()`
 - [ ] Add placeholder `Effect.fail(new Error("Not implemented"))`
 
 ##### `code.ts`
-- [ ] Create stub file `packages/iam/infra/src/api/v1/device/code.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/device/code.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type using `Payload`
 - [ ] Add `Handler` stub with TODO template for `auth.api.device.code()`
 - [ ] Add placeholder `Effect.fail(new Error("Not implemented"))`
 
 ##### `deny.ts`
-- [ ] Create stub file `packages/iam/infra/src/api/v1/device/deny.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/device/deny.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type using `Payload`
 - [ ] Add `Handler` stub with TODO template for `auth.api.device.deny()`
 - [ ] Add placeholder `Effect.fail(new Error("Not implemented"))`
 
 ##### `token.ts`
-- [ ] Create stub file `packages/iam/infra/src/api/v1/device/token.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/device/token.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type using `Payload`
 - [ ] Add `Handler` stub with TODO template for `auth.api.device.token()`
 - [ ] Add placeholder `Effect.fail(new Error("Not implemented"))`
 
 ##### `_group.ts` (Device)
-- [ ] Create `packages/iam/infra/src/api/v1/device/_group.ts`
+- [ ] Create `packages/iam/server/src/api/v1/device/_group.ts`
 - [ ] Import all 4 device handlers
 - [ ] Create Routes with all 4 handlers registered
 - [ ] Export Service, ServiceError, ServiceDependencies types
 
 ##### `index.ts` (Device)
-- [ ] Create `packages/iam/infra/src/api/v1/device/index.ts`
+- [ ] Create `packages/iam/server/src/api/v1/device/index.ts`
 - [ ] Barrel export all 4 handlers and group
 
 #### Multi-Session Group
 
 ##### Create Group Directory
-- [ ] Create directory `packages/iam/infra/src/api/v1/multi-session/`
+- [ ] Create directory `packages/iam/server/src/api/v1/multi-session/`
 
 ##### `list-device-sessions.ts`
-- [ ] Create stub file `packages/iam/infra/src/api/v1/multi-session/list-device-sessions.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/multi-session/list-device-sessions.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type (GET, no params)
 - [ ] Add `Handler` stub with TODO template for `auth.api.multiSession.listDeviceSessions()`
 - [ ] Add placeholder `Effect.fail(new Error("Not implemented"))`
 
 ##### `revoke.ts`
-- [ ] Create stub file `packages/iam/infra/src/api/v1/multi-session/revoke.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/multi-session/revoke.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type using `Payload`
 - [ ] Add `Handler` stub with TODO template for `auth.api.multiSession.revoke()`
 - [ ] Add placeholder `Effect.fail(new Error("Not implemented"))`
 
 ##### `set-active.ts`
-- [ ] Create stub file `packages/iam/infra/src/api/v1/multi-session/set-active.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/multi-session/set-active.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type using `Payload`
 - [ ] Add `Handler` stub with TODO template for `auth.api.multiSession.setActive()`
 - [ ] Add placeholder `Effect.fail(new Error("Not implemented"))`
 
 ##### `_group.ts` (Multi-Session)
-- [ ] Create `packages/iam/infra/src/api/v1/multi-session/_group.ts`
+- [ ] Create `packages/iam/server/src/api/v1/multi-session/_group.ts`
 - [ ] Import all 3 multi-session handlers
 - [ ] Create Routes with all 3 handlers registered
 - [ ] Export Service, ServiceError, ServiceDependencies types
 
 ##### `index.ts` (Multi-Session)
-- [ ] Create `packages/iam/infra/src/api/v1/multi-session/index.ts`
+- [ ] Create `packages/iam/server/src/api/v1/multi-session/index.ts`
 - [ ] Barrel export all 3 handlers and group
 
 #### Miscellaneous Group
 
 ##### Create Group Directory
-- [ ] Create directory `packages/iam/infra/src/api/v1/misc/`
+- [ ] Create directory `packages/iam/server/src/api/v1/misc/`
 
 ##### `openid-configuration.ts`
-- [ ] Create stub file `packages/iam/infra/src/api/v1/misc/openid-configuration.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/misc/openid-configuration.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type (GET, no params)
 - [ ] Add `Handler` stub with TODO template for Better Auth method (TBD)
 - [ ] Add placeholder `Effect.fail(new Error("Not implemented"))`
 
 ##### `oauth-proxy-callback.ts`
-- [ ] Create stub file `packages/iam/infra/src/api/v1/misc/oauth-proxy-callback.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/misc/oauth-proxy-callback.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type using `UrlParams`
 - [ ] Add `Handler` stub with TODO template for Better Auth method (TBD)
 - [ ] Add placeholder `Effect.fail(new Error("Not implemented"))`
 
 ##### `one-tap-callback.ts`
-- [ ] Create stub file `packages/iam/infra/src/api/v1/misc/one-tap-callback.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/misc/one-tap-callback.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type using `Payload`
 - [ ] Add `Handler` stub with TODO template for Better Auth method (TBD)
 - [ ] Add placeholder `Effect.fail(new Error("Not implemented"))`
 
 ##### `siwe-nonce.ts`
-- [ ] Create stub file `packages/iam/infra/src/api/v1/misc/siwe-nonce.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/misc/siwe-nonce.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type using `Payload`
 - [ ] Add `Handler` stub with TODO template for Better Auth method (TBD)
 - [ ] Add placeholder `Effect.fail(new Error("Not implemented"))`
 
 ##### `siwe-verify.ts`
-- [ ] Create stub file `packages/iam/infra/src/api/v1/misc/siwe-verify.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/misc/siwe-verify.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type using `Payload`
 - [ ] Add `Handler` stub with TODO template for Better Auth method (TBD)
 - [ ] Add placeholder `Effect.fail(new Error("Not implemented"))`
 
 ##### `stripe-webhook.ts`
-- [ ] Create stub file `packages/iam/infra/src/api/v1/misc/stripe-webhook.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/misc/stripe-webhook.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type using `Payload`
 - [ ] Add `Handler` stub with TODO template for Better Auth method (TBD)
 - [ ] Add placeholder `Effect.fail(new Error("Not implemented"))`
 
 ##### `token.ts`
-- [ ] Create stub file `packages/iam/infra/src/api/v1/misc/token.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/misc/token.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type (GET, no params)
 - [ ] Add `Handler` stub with TODO template for Better Auth method (TBD)
 - [ ] Add placeholder `Effect.fail(new Error("Not implemented"))`
 
 ##### `_group.ts` (Miscellaneous)
-- [ ] Create `packages/iam/infra/src/api/v1/misc/_group.ts`
+- [ ] Create `packages/iam/server/src/api/v1/misc/_group.ts`
 - [ ] Import all 7 misc handlers
 - [ ] Create Routes with all 7 handlers registered
 - [ ] Export Service, ServiceError, ServiceDependencies types
 
 ##### `index.ts` (Miscellaneous)
-- [ ] Create `packages/iam/infra/src/api/v1/misc/index.ts`
+- [ ] Create `packages/iam/server/src/api/v1/misc/index.ts`
 - [ ] Barrel export all 7 handlers and group
 
 #### Update V1 Infra API
 
-##### Update `packages/iam/infra/src/api/v1/api.ts`
+##### Update `packages/iam/server/src/api/v1/api.ts`
 - [ ] Import PhoneNumber, ApiKey, Device, MultiSession, Misc route groups
 - [ ] Add all 5 groups to V1.ApiLive layer
 
-##### Update `packages/iam/infra/src/api/v1/index.ts`
+##### Update `packages/iam/server/src/api/v1/index.ts`
 - [ ] Barrel export PhoneNumber, ApiKey, Device, MultiSession, Misc
 
 ### Boilerplate Verification
@@ -941,7 +941,7 @@ import { IamEntityIds } from "@beep/shared-domain";
 
 ### 6. Infra Handlers - Phone Number
 
-**Helper Selection**: See `packages/iam/infra/src/api/common/schema-helpers.ts` for available helpers. Import:
+**Helper Selection**: See `packages/iam/server/src/api/common/schema-helpers.ts` for available helpers. Import:
 ```typescript
 import { runAuthEndpoint, runAuthQuery, runAuthCommand, forwardCookieResponse } from "../../common/schema-helpers";
 ```
@@ -1199,7 +1199,7 @@ import { runAuthEndpoint, runAuthQuery, runAuthCommand, forwardCookieResponse } 
 ### 11. Verification
 
 - [ ] `bun run check` passes for all packages
-- [ ] `bun run build --filter=@beep/iam-domain --filter=@beep/iam-infra` succeeds
+- [ ] `bun run build --filter=@beep/iam-domain --filter=@beep/iam-server` succeeds
 - [ ] All 23 endpoints appear in OpenAPI spec at server `/docs`
 - [ ] Phone number endpoints grouped under `iam.phoneNumber`
 - [ ] API key endpoints grouped under `iam.apiKey`

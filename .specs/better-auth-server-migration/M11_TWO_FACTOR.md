@@ -208,7 +208,7 @@ This milestone implements all two-factor authentication (2FA/MFA) endpoints for 
 
 #### `disable.ts`
 
-- [ ] Create stub file `packages/iam/infra/src/api/v1/two-factor/disable.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/two-factor/disable.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type with JSDoc
 - [ ] Add `Handler` stub with:
@@ -219,7 +219,7 @@ This milestone implements all two-factor authentication (2FA/MFA) endpoints for 
 
 #### `enable.ts`
 
-- [ ] Create stub file `packages/iam/infra/src/api/v1/two-factor/enable.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/two-factor/enable.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type with JSDoc
 - [ ] Add `Handler` stub with:
@@ -230,7 +230,7 @@ This milestone implements all two-factor authentication (2FA/MFA) endpoints for 
 
 #### `generate-backup-codes.ts`
 
-- [ ] Create stub file `packages/iam/infra/src/api/v1/two-factor/generate-backup-codes.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/two-factor/generate-backup-codes.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type with JSDoc
 - [ ] Add `Handler` stub with:
@@ -241,7 +241,7 @@ This milestone implements all two-factor authentication (2FA/MFA) endpoints for 
 
 #### `get-totp-uri.ts`
 
-- [ ] Create stub file `packages/iam/infra/src/api/v1/two-factor/get-totp-uri.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/two-factor/get-totp-uri.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type with JSDoc
 - [ ] Add `Handler` stub with:
@@ -252,7 +252,7 @@ This milestone implements all two-factor authentication (2FA/MFA) endpoints for 
 
 #### `send-otp.ts`
 
-- [ ] Create stub file `packages/iam/infra/src/api/v1/two-factor/send-otp.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/two-factor/send-otp.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type with JSDoc (note: no payload for this endpoint)
 - [ ] Add `Handler` stub with:
@@ -263,7 +263,7 @@ This milestone implements all two-factor authentication (2FA/MFA) endpoints for 
 
 #### `verify-backup-code.ts`
 
-- [ ] Create stub file `packages/iam/infra/src/api/v1/two-factor/verify-backup-code.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/two-factor/verify-backup-code.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type with JSDoc
 - [ ] Add `Handler` stub with:
@@ -274,7 +274,7 @@ This milestone implements all two-factor authentication (2FA/MFA) endpoints for 
 
 #### `verify-otp.ts`
 
-- [ ] Create stub file `packages/iam/infra/src/api/v1/two-factor/verify-otp.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/two-factor/verify-otp.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type with JSDoc
 - [ ] Add `Handler` stub with:
@@ -285,7 +285,7 @@ This milestone implements all two-factor authentication (2FA/MFA) endpoints for 
 
 #### `verify-totp.ts`
 
-- [ ] Create stub file `packages/iam/infra/src/api/v1/two-factor/verify-totp.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/two-factor/verify-totp.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type with JSDoc
 - [ ] Add `Handler` stub with:
@@ -296,7 +296,7 @@ This milestone implements all two-factor authentication (2FA/MFA) endpoints for 
 
 #### Create `_group.ts`
 
-- [ ] Create file `packages/iam/infra/src/api/v1/two-factor/_group.ts`
+- [ ] Create file `packages/iam/server/src/api/v1/two-factor/_group.ts`
 - [ ] Import all endpoint handlers
 - [ ] Define `Service`, `ServiceError`, `ServiceDependencies` types
 - [ ] Create `Routes` layer with `HttpApiBuilder.group(IamApi, "iam.twoFactor", ...)`
@@ -304,7 +304,7 @@ This milestone implements all two-factor authentication (2FA/MFA) endpoints for 
 
 #### Create `index.ts`
 
-- [ ] Create file `packages/iam/infra/src/api/v1/two-factor/index.ts`
+- [ ] Create file `packages/iam/server/src/api/v1/two-factor/index.ts`
 - [ ] Export all handlers using namespace re-export pattern
 
 #### Update parent `v1/api.ts`
@@ -411,7 +411,7 @@ This milestone implements all two-factor authentication (2FA/MFA) endpoints for 
 
 ### 2. Infra Handlers
 
-**Helper Selection**: See `packages/iam/infra/src/api/common/schema-helpers.ts` for available helpers. Import:
+**Helper Selection**: See `packages/iam/server/src/api/common/schema-helpers.ts` for available helpers. Import:
 ```typescript
 import { runAuthEndpoint, runAuthQuery, runAuthCommand, forwardCookieResponse } from "../../common/schema-helpers";
 ```
@@ -502,7 +502,7 @@ import { runAuthEndpoint, runAuthQuery, runAuthCommand, forwardCookieResponse } 
 ### 3. Verification
 
 - [ ] `bun run check` passes
-- [ ] `bun run build --filter=@beep/iam-domain --filter=@beep/iam-infra` succeeds
+- [ ] `bun run build --filter=@beep/iam-domain --filter=@beep/iam-server` succeeds
 - [ ] Endpoints appear in OpenAPI spec at server `/docs`
 - [ ] Status updated to `COMPLETE` in PLAN.md
 

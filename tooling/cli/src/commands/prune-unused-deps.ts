@@ -19,7 +19,7 @@
  * // beep prune-unused-deps --dry-run
  *
  * // Remove unused deps from specific package
- * // beep prune-unused-deps --filter @beep/iam-infra
+ * // beep prune-unused-deps --filter @beep/iam-server
  *
  * // Exclude test directories from scan
  * // beep prune-unused-deps --exclude-tests
@@ -60,7 +60,7 @@ const dryRunOption = CliOptions.boolean("dry-run").pipe(
 
 const filterOption = CliOptions.optional(CliOptions.text("filter")).pipe(
   CliOptions.withAlias("f"),
-  CliOptions.withDescription("Filter to specific workspace (e.g. @beep/iam-infra)")
+  CliOptions.withDescription("Filter to specific workspace (e.g. @beep/iam-server)")
 );
 
 const excludeTestsOption = CliOptions.boolean("exclude-tests").pipe(

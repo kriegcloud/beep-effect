@@ -19,7 +19,7 @@ When implemented, this package will provide:
 
 ## Architecture Fit
 
-- **Vertical Slice**: UI layer for the documents slice, consuming `@beep/documents-domain` and `@beep/documents-sdk`
+- **Vertical Slice**: UI layer for the documents slice, consuming `@beep/documents-domain` and `@beep/documents-client`
 - **Design System**: Built on `@beep/ui/ui` components and `@beep/ui/core` design tokens
 - **Effect Integration**: Data fetching uses Effect-based hooks with TanStack Query for caching
 - **Client Boundaries**: Explicit `"use client"` markers for Next.js App Router compatibility
@@ -32,9 +32,9 @@ When implemented, this package will provide:
 | `@beep/ui`               | Base component library (MUI, shadcn, Tailwind)    |
 | `@beep/ui-core`          | Design tokens and theme pipeline                  |
 | `@beep/documents-domain` | Domain entities and validation schemas            |
-| `@beep/documents-sdk`    | Client contracts for document operations          |
+| `@beep/documents-client`    | Client contracts for document operations          |
 | `@beep/shared-domain`    | Cross-slice entities and policies                 |
-| `@beep/shared-sdk`       | Shared SDK contracts                              |
+| `@beep/shared-client`       | Shared SDK contracts                              |
 | `@beep/shared-ui`        | Shared UI components and utilities                |
 | `@beep/schema`           | Schema utilities and validators                   |
 | `@beep/utils`            | Pure runtime helpers                              |
@@ -255,8 +255,8 @@ export function useUpdateDocument() {
 ## What Must NOT Go Here
 
 - **Business Logic**: Keep domain rules in `@beep/documents-domain`
-- **Data Fetching Implementation**: Use `@beep/documents-sdk` contracts; inject as props
-- **Database Queries**: Belong in `@beep/documents-infra`
+- **Data Fetching Implementation**: Use `@beep/documents-client` contracts; inject as props
+- **Database Queries**: Belong in `@beep/documents-server`
 - **Hardcoded API Calls**: Always inject clients or use SDK contracts
 - **Cross-Slice UI**: Shared components belong in `@beep/shared-ui`
 - **Native Array/String Methods**: Use Effect utilities exclusively
@@ -296,7 +296,7 @@ When adding new components:
 
 - [ ] Component uses `@beep/ui/ui` primitives and respects theme/settings
 - [ ] Validation uses `@beep/documents-domain` schemas
-- [ ] Data fetching is injected via props or uses `@beep/documents-sdk`
+- [ ] Data fetching is injected via props or uses `@beep/documents-client`
 - [ ] No native array/string/object methods; Effect utilities only
 - [ ] No native Date; use `effect/DateTime` for all date/time operations
 - [ ] Pattern matching uses `effect/Match` instead of switch statements
@@ -311,7 +311,7 @@ When adding new components:
 - `packages/ui/ui/AGENTS.md` — Component library patterns and design system
 - `packages/ui/core/AGENTS.md` — Design tokens and theme pipeline
 - `packages/documents/domain/AGENTS.md` — Domain entities and validation
-- `packages/documents/sdk/AGENTS.md` — Client SDK contracts
+- `packages/documents/client/AGENTS.md` — Client SDK contracts
 - `packages/shared/ui/AGENTS.md` — Shared UI components and utilities
 
 ## Versioning and Changes

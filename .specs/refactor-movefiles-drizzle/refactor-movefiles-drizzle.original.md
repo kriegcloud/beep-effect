@@ -16,7 +16,7 @@ You are working in the `beep-effect` monorepo, an Effect-first full-stack applic
 
 ### Current State
 
-The `FileRepo` in `packages/shared/infra/src/repos/File.repo.ts` has two implementations for moving files:
+The `FileRepo` in `packages/shared/server/src/repos/File.repo.ts` has two implementations for moving files:
 
 1. **`_moveFiles`** (lines 92-100) - A stub using `makeQueryWithSchema` that needs completion:
 ```typescript
@@ -245,8 +245,8 @@ queryFn: (execute, { fileIds, folderId, userId }) =>
 ## Resources
 
 ### Files to Read
-- `/home/elpresidank/YeeBois/projects/beep-effect/packages/shared/infra/src/repos/File.repo.ts` - Target file
-- `/home/elpresidank/YeeBois/projects/beep-effect/packages/shared/infra/src/internal/db/pg/PgClient.ts` - `makeQueryWithSchema` implementation
+- `/home/elpresidank/YeeBois/projects/beep-effect/packages/shared/server/src/repos/File.repo.ts` - Target file
+- `/home/elpresidank/YeeBois/projects/beep-effect/packages/shared/server/src/internal/db/pg/PgClient.ts` - `makeQueryWithSchema` implementation
 - `/home/elpresidank/YeeBois/projects/beep-effect/packages/shared/tables/src/tables/file.table.ts` - File table
 - `/home/elpresidank/YeeBois/projects/beep-effect/packages/shared/tables/src/tables/folder.table.ts` - Folder table
 - `/home/elpresidank/YeeBois/projects/beep-effect/packages/shared/domain/src/entity-ids/shared.ts` - Entity IDs
@@ -260,7 +260,7 @@ queryFn: (execute, { fileIds, folderId, userId }) =>
 
 ### Deliverable
 
-A complete implementation of `moveFiles` (rename from `_moveFiles`) in `packages/shared/infra/src/repos/File.repo.ts` that:
+A complete implementation of `moveFiles` (rename from `_moveFiles`) in `packages/shared/server/src/repos/File.repo.ts` that:
 
 1. Replaces the raw SQL implementation
 2. Uses `makeQueryWithSchema` with proper input/output schemas
@@ -387,8 +387,8 @@ moveFiles({
 
 ## Verification Checklist
 
-- [ ] `bun run check --filter @beep/shared-infra` passes
-- [ ] `bun run lint --filter @beep/shared-infra` passes
+- [ ] `bun run check --filter @beep/shared-server` passes
+- [ ] `bun run lint --filter @beep/shared-server` passes
 - [ ] Authorization check prevents moving to unauthorized folders
 - [ ] Move to root (null folderId) works correctly
 - [ ] Move to folder (non-null folderId) works correctly
@@ -407,8 +407,8 @@ moveFiles({
 5. **Handle empty array edge case** - Return Effect.void for empty fileIds
 6. **Remove old implementation** - Delete the raw SQL `moveFiles` and rename `_moveFiles` to `moveFiles`
 7. **Update exports** - Ensure `moveFiles` is returned from the service
-8. **Run type check** - `bun run check --filter @beep/shared-infra`
-9. **Run lint** - `bun run lint --filter @beep/shared-infra`
+8. **Run type check** - `bun run check --filter @beep/shared-server`
+9. **Run lint** - `bun run lint --filter @beep/shared-server`
 
 ---
 
@@ -417,8 +417,8 @@ moveFiles({
 ### Research Sources
 
 **Files Explored:**
-- `packages/shared/infra/src/repos/File.repo.ts`
-- `packages/shared/infra/src/internal/db/pg/PgClient.ts`
+- `packages/shared/server/src/repos/File.repo.ts`
+- `packages/shared/server/src/internal/db/pg/PgClient.ts`
 - `packages/shared/tables/src/tables/file.table.ts`
 - `packages/shared/tables/src/tables/folder.table.ts`
 - `packages/shared/domain/src/entity-ids/shared.ts`

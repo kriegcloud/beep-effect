@@ -17,7 +17,7 @@
 - **Tagged template syntax**: `const { $SchemaId } = modules.$I.compose("schema"); const id = $SchemaId\`TenantProfile\`;` — produces `IdentityString<"@beep/schema/TenantProfile">` using template literals.
 - **Schema annotations**: `modules.$SchemaId.compose("annotations").annotations("TenantProfile")` supplies `schemaId`, `identifier`, `title`, plus optional extras merged into Effect Schema annotations.
 - **Service/type tokens**: `modules.$IamInfraId.compose("repos").symbol()` feeds `Effect.Service` TypeIds and DI layers without manual `Symbol.for`.
-- **Namespaced strings**: `modules.$IamInfraId.compose("adapters").make("UserRepo")` returns an `IdentityString<"@beep/iam-infra/adapters/UserRepo">` retained through type inference.
+- **Namespaced strings**: `modules.$IamInfraId.compose("adapters").make("UserRepo")` returns an `IdentityString<"@beep/iam-server/adapters/UserRepo">` retained through type inference.
 - **Custom composer creation**: `Identifier.make("custom").then(({ $CustomId }) => $CustomId\`Feature\`)` creates composers for new namespaces while keeping validation.
 
 ## Authoring Guardrails

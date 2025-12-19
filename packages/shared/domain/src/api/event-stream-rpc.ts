@@ -1,7 +1,6 @@
 import * as Rpc from "@effect/rpc/Rpc";
 import * as RpcGroup from "@effect/rpc/RpcGroup";
 import * as S from "effect/Schema";
-import { AuthContextRpcMiddleware } from "../Policy.ts";
 import { FilesEvent } from "./files-rpc.ts";
 
 export class Ka extends S.TaggedClass<Ka>("Ka")("Ka", {}) {}
@@ -14,6 +13,4 @@ export class EventStreamRpc extends RpcGroup.make(
     stream: true,
     success: S.Array(EventStreamEvents),
   })
-)
-  .prefix("eventStream_")
-  .middleware(AuthContextRpcMiddleware) {}
+).prefix("eventStream_") {}

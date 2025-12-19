@@ -1352,7 +1352,7 @@ export const ASCII_WHITESPACE_AT_END = RegexFromString.make(`[${ASCII_WHITESPACE
 
 /**
  * An ASCII code point is a code point in the range U+0000 NULL to
- * U+007F DELETE, inclusive." See <https://infra.spec.whatwg.org/#ascii-string>.
+ * U+007F DELETE, inclusive." See <https://server.spec.whatwg.org/#ascii-string>.
  * deno-lint-ignore no-control-regex
  *
  * @example

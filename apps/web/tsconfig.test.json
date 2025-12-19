@@ -33,19 +33,19 @@
       "path": "../../packages/shared/tables/tsconfig.build.json"
     },
     {
-      "path": "../../packages/shared/infra/tsconfig.build.json"
+      "path": "../../packages/shared/server/tsconfig.build.json"
     },
     {
-      "path": "../../packages/shared/sdk/tsconfig.build.json"
+      "path": "../../packages/shared/client/tsconfig.build.json"
     },
     {
       "path": "../../packages/shared/ui/tsconfig.build.json"
     },
     {
-      "path": "../../packages/iam/sdk/tsconfig.build.json"
+      "path": "../../packages/iam/client/tsconfig.build.json"
     },
     {
-      "path": "../../packages/iam/infra/tsconfig.build.json"
+      "path": "../../packages/iam/server/tsconfig.build.json"
     },
     {
       "path": "../../packages/iam/domain/tsconfig.build.json"
@@ -63,7 +63,7 @@
       "path": "../../packages/ui/core/tsconfig.build.json"
     },
     {
-      "path": "../../packages/documents/sdk/tsconfig.build.json"
+      "path": "../../packages/documents/client/tsconfig.build.json"
     },
     {
       "path": "../../packages/documents/ui/tsconfig.build.json"
@@ -108,10 +108,10 @@
       "@beep/shared-domain/*": ["../../packages/shared/domain/src/*"],
       "@beep/shared-tables": ["../../packages/shared/tables/src/index"],
       "@beep/shared-tables/*": ["../../packages/shared/tables/src/*"],
-      "@beep/shared-infra": ["../../packages/shared/infra/src/index"],
-      "@beep/shared-infra/*": ["../../packages/shared/infra/src/*"],
-      "@beep/shared-sdk": ["../../packages/shared/sdk/src/index"],
-      "@beep/shared-sdk/*": ["../../packages/shared/sdk/src/*"],
+      "@beep/shared-server": ["../../packages/shared/server/src/index"],
+      "@beep/shared-server/*": ["../../packages/shared/server/src/*"],
+      "@beep/shared-client": ["../../packages/shared/client/src/index"],
+      "@beep/shared-client/*": ["../../packages/shared/client/src/*"],
       "@beep/shared-ui": ["../../packages/shared/ui/src/index"],
       "@beep/shared-ui/*": ["../../packages/shared/ui/src/*"],
       "@beep/ui/*": ["../../packages/ui/ui/src/*"],
@@ -120,20 +120,20 @@
       "@beep/iam-domain/*": ["../../packages/iam/domain/src/*"],
       "@beep/iam-tables": ["../../packages/iam/tables/src/index"],
       "@beep/iam-tables/*": ["../../packages/iam/tables/src/*"],
-      "@beep/iam-infra": ["../../packages/iam/infra/src/index"],
-      "@beep/iam-infra/*": ["../../packages/iam/infra/src/*"],
-      "@beep/iam-sdk": ["../../packages/iam/sdk/src/index"],
-      "@beep/iam-sdk/*": ["../../packages/iam/sdk/src/*"],
+      "@beep/iam-server": ["../../packages/iam/server/src/index"],
+      "@beep/iam-server/*": ["../../packages/iam/server/src/*"],
+      "@beep/iam-client": ["../../packages/iam/client/src/index"],
+      "@beep/iam-client/*": ["../../packages/iam/client/src/*"],
       "@beep/iam-ui": ["../../packages/iam/ui/src/index"],
       "@beep/iam-ui/*": ["../../packages/iam/ui/src/*"],
       "@beep/documents-domain": ["../../packages/documents/domain/src/index"],
       "@beep/documents-domain/*": ["../../packages/documents/domain/src/*"],
       "@beep/documents-tables": ["../../packages/documents/tables/src/index"],
       "@beep/documents-tables/*": ["../../packages/documents/tables/src/*"],
-      "@beep/documents-infra": ["../../packages/documents/infra/src/index"],
-      "@beep/documents-infra/*": ["../../packages/documents/infra/src/*"],
-      "@beep/documents-sdk": ["../../packages/documents/sdk/src/index"],
-      "@beep/documents-sdk/*": ["../../packages/documents/sdk/src/*"],
+      "@beep/documents-server": ["../../packages/documents/server/src/index"],
+      "@beep/documents-server/*": ["../../packages/documents/server/src/*"],
+      "@beep/documents-client": ["../../packages/documents/client/src/index"],
+      "@beep/documents-client/*": ["../../packages/documents/client/src/*"],
       "@beep/documents-ui": ["../../packages/documents/ui/src/index"],
       "@beep/documents-ui/*": ["../../packages/documents/ui/src/*"],
       "@beep/runtime-server": ["../../packages/runtime/server/src/index"],

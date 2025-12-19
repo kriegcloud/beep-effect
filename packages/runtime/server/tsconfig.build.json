@@ -38,10 +38,10 @@
       "path": "../../shared/tables/tsconfig.build.json"
     },
     {
-      "path": "../../shared/infra/tsconfig.build.json"
+      "path": "../../shared/server/tsconfig.build.json"
     },
     {
-      "path": "../../iam/infra/tsconfig.build.json"
+      "path": "../../iam/server/tsconfig.build.json"
     },
     {
       "path": "../../iam/domain/tsconfig.build.json"
@@ -50,7 +50,7 @@
       "path": "../../iam/tables/tsconfig.build.json"
     },
     {
-      "path": "../../documents/infra/tsconfig.build.json"
+      "path": "../../documents/server/tsconfig.build.json"
     },
     {
       "path": "../../documents/domain/tsconfig.build.json"

@@ -1,7 +1,6 @@
 import { BeepError } from "@beep/errors/shared";
 import type { Organization, Session, User } from "@beep/shared-domain/entities";
-import * as HttpApiMiddleware from "@effect/platform/HttpApiMiddleware";
-import * as RpcMiddleware from "@effect/rpc/RpcMiddleware";
+import * as HttpLayerRouter from "@effect/platform/HttpLayerRouter";
 import type { NonEmptyReadonlyArray } from "effect/Array";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
@@ -84,22 +83,20 @@ export class CurrentUser extends Context.Tag("CurrentUser")<
   }
 >() {}
 
-export class AuthContextHttpMiddleware extends HttpApiMiddleware.Tag<AuthContextHttpMiddleware>()(
-  "AuthContextHttpMiddleware",
-  {
-    failure: BeepError.Unauthorized,
-    provides: AuthContext,
-  }
-) {}
-
-export class AuthContextRpcMiddleware extends RpcMiddleware.Tag<AuthContextRpcMiddleware>()(
-  "AuthContextRpcMiddleware",
-  {
-    failure: BeepError.Unauthorized,
-    provides: AuthContext,
-  }
-) {}
-
+/**
+ * Unified authentication middleware for HttpLayerRouter.
+ * Works with both HttpApi routes and RpcServer routes.
+ *
+ * Usage:
+ * ```ts
+ * const routes = Layer.mergeAll(ApiRoutes, RpcRoutes).pipe(
+ *   Layer.provide(AuthContextMiddleware.layer)
+ * )
+ * ```
+ */
+export const AuthContextMiddleware = HttpLayerRouter.middleware<{
+  provides: AuthContext;
+}>();
 // ==========================================
 // Policy
 // ==========================================

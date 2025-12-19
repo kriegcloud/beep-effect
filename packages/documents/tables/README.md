@@ -1,6 +1,6 @@
 # @beep/documents-tables
 
-Drizzle schema package for the documents slice. Houses PostgreSQL table definitions and relations that back `@beep/documents-infra` repositories and power the knowledge management and document editing system.
+Drizzle schema package for the documents slice. Houses PostgreSQL table definitions and relations that back `@beep/documents-server` repositories and power the knowledge management and document editing system.
 
 ## Contents
 
@@ -167,7 +167,7 @@ bun run db:migrate
 
 - This package is schema-only (no runtime config or `process.env` access)
 - Table changes require coordinated migration work in `packages/_internal/db-admin`
-- Consumed by `@beep/documents-infra` repositories via the `DocumentsDb` service
+- Consumed by `@beep/documents-server` repositories via the `DocumentsDb` service
 - See `packages/documents/tables/AGENTS.md` for detailed authoring guardrails
 
 ## Dependencies

@@ -1,7 +1,7 @@
 # AGENTS.md — `@beep/documents-tables`
 
 ## Purpose & Fit
-- Define Drizzle tables and relations for the documents slice, exposing a schema namespace (`DocumentsDbSchema`) consumed by `@beep/documents-infra` and shared runtimes.
+- Define Drizzle tables and relations for the documents slice, exposing a schema namespace (`DocumentsDbSchema`) consumed by `@beep/documents-server` and shared runtimes.
 - Bridge `@beep/documents-domain` entities to PostgreSQL storage while honoring shared multi-tenant defaults from `@beep/shared-tables`.
 - Provide type-safe database schema definitions for the knowledge management and document editing system.
 
@@ -30,7 +30,7 @@
 - Observe repository-wide Effect guardrails when adding helper code (namespace imports, no native array/string/object helpers).
 
 ## Usage Patterns
-- Tables are consumed by `@beep/documents-infra` repos via the `DocumentsDb` service.
+- Tables are consumed by `@beep/documents-server` repos via the `DocumentsDb` service.
 - Migrations are generated in `packages/_internal/db-admin` from these schema definitions.
 - Type checks ensure compatibility between Drizzle models and Effect Schema domain models.
 

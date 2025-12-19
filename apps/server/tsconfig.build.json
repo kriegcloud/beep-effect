@@ -35,10 +35,10 @@
       "path": "../../packages/shared/tables/tsconfig.build.json"
     },
     {
-      "path": "../../packages/shared/infra/tsconfig.build.json"
+      "path": "../../packages/shared/server/tsconfig.build.json"
     },
     {
-      "path": "../../packages/iam/infra/tsconfig.build.json"
+      "path": "../../packages/iam/server/tsconfig.build.json"
     },
     {
       "path": "../../packages/iam/domain/tsconfig.build.json"
@@ -47,7 +47,7 @@
       "path": "../../packages/iam/tables/tsconfig.build.json"
     },
     {
-      "path": "../../packages/documents/infra/tsconfig.build.json"
+      "path": "../../packages/documents/server/tsconfig.build.json"
     },
     {
       "path": "../../packages/documents/domain/tsconfig.build.json"

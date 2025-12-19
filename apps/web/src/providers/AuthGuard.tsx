@@ -1,5 +1,5 @@
 "use client";
-import { useGetSession } from "@beep/iam-sdk/clients/session";
+import { useGetSession } from "@beep/iam-client/clients/session";
 import { paths } from "@beep/shared-domain";
 import { useIsClient, useRouter } from "@beep/ui/hooks";
 import { SplashScreen } from "@beep/ui/progress/loading-screen/splash-screen";

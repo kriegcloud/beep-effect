@@ -410,7 +410,7 @@ assertFailure(failure, Cause.fail("error"));
 This package is designed to be used by all `@beep/*` packages that require Effect-aware testing. It integrates seamlessly with:
 
 - **Database testing**: Use with `@beep/db-admin` for ephemeral PostgreSQL containers via Testcontainers
-- **Repository testing**: Test repository implementations from `packages/*/infra` with real or mock database connections
+- **Repository testing**: Test repository implementations from `packages/*/server` with real or mock database connections
 - **Domain logic testing**: Test pure domain logic from `packages/*/domain` using `live` runner for real services or `effect` runner for controlled test environments
 - **SDK testing**: Test client contracts from `packages/*/sdk` with mock service layers
 

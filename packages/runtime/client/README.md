@@ -169,7 +169,7 @@ import * as F from "effect/Function";
 import * as O from "effect/Option";
 import { Atom, useAtom } from "@effect-atom/atom-react";
 import { withToast } from "@beep/ui/common/with-toast";
-import { SignOutImplementations } from "@beep/iam-sdk";
+import { SignOutImplementations } from "@beep/iam-client";
 
 // Atoms created with Atom.fn automatically have access to clientRuntimeLayer
 // when KaServices is mounted in the app
@@ -315,9 +315,9 @@ const fetchData = Effect.gen(function* () {
 
 - **Server runtime**: `@beep/runtime-server`
 - **Business logic**: Domain packages (`@beep/iam-domain`, `@beep/documents-domain`)
-- **Data access**: Infra packages (`@beep/iam-infra`, `@beep/documents-infra`)
+- **Data access**: Infra packages (`@beep/iam-server`, `@beep/documents-server`)
 - **React components**: UI packages (`@beep/iam-ui`, `@beep/documents-ui`, `@beep/ui`)
-- **API contracts**: SDK packages (`@beep/iam-sdk`, `@beep/documents-sdk`)
+- **API contracts**: SDK packages (`@beep/iam-client`, `@beep/documents-client`)
 
 ## Development
 
@@ -357,7 +357,7 @@ bun run --filter @beep/runtime-client build
 - `next` — Next.js App Router
 
 ### Workspace Dependencies
-- `@beep/shared-infra` — Environment configuration
+- `@beep/shared-server` — Environment configuration
 - `@beep/ui` — ToasterService and UI utilities
 - Various domain/table packages for typing
 

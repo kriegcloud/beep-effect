@@ -15,7 +15,7 @@
       "path": "../../shared/domain"
     },
     {
-      "path": "../../shared/sdk"
+      "path": "../../shared/client"
     },
     {
       "path": "../../shared/ui"
@@ -24,10 +24,10 @@
       "path": "../../common/identity"
     },
     {
-      "path": "../sdk"
+      "path": "../client"
     },
     {
-      "path": "../infra"
+      "path": "../server"
     },
     {
       "path": "../domain"

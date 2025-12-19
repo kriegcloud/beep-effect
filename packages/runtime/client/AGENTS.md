@@ -36,7 +36,7 @@
   import * as O from "effect/Option";
   import { clientRuntimeLayer } from "@beep/runtime-client";
   import { withToast } from "@beep/ui/common/with-toast";
-  import { SignOutImplementations } from "@beep/iam-sdk";
+  import { SignOutImplementations } from "@beep/iam-client";
   import { Atom, useAtom } from "@effect-atom/atom-react";
 
   const runtime = Atom.runtime(clientRuntimeLayer);

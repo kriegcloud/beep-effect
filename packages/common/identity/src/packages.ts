@@ -79,7 +79,7 @@ const composers = $I.compose(
 export const $SharedUiId = composers.$SharedUiId;
 
 /**
- * Identity composer for the `@beep/shared-sdk` namespace.
+ * Identity composer for the `@beep/shared-client` namespace.
  *
  * @example
  * ```typescript
@@ -109,7 +109,7 @@ export const $SharedSdkId = composers.$SharedSdkId;
 export const $RepoScriptsId = composers.$RepoScriptsId;
 
 /**
- * Identity composer for the `@beep/iam-infra` namespace.
+ * Identity composer for the `@beep/iam-server` namespace.
  *
  * @example
  * ```typescript
@@ -244,7 +244,7 @@ export const $ContractId = composers.$ContractId;
 export const $RuntimeServerId = composers.$RuntimeServerId;
 
 /**
- * Identity composer for the `@beep/iam-sdk` namespace.
+ * Identity composer for the `@beep/iam-client` namespace.
  *
  * @example
  * ```typescript
@@ -274,7 +274,7 @@ export const $IamSdkId = composers.$IamSdkId;
 export const $IamUiId = composers.$IamUiId;
 
 /**
- * Identity composer for the `@beep/shared-infra` namespace.
+ * Identity composer for the `@beep/shared-server` namespace.
  *
  * @example
  * ```typescript
@@ -454,7 +454,7 @@ export const $TypesId = composers.$TypesId;
 export const $BuildUtilsId = composers.$BuildUtilsId;
 
 /**
- * Identity composer for the `@beep/documents-sdk` namespace.
+ * Identity composer for the `@beep/documents-client` namespace.
  *
  * @example
  * ```typescript
@@ -559,7 +559,7 @@ export const $RepoCliId = composers.$RepoCliId;
 export const $NotesId = composers.$NotesId;
 
 /**
- * Identity composer for the `@beep/documents-infra` namespace.
+ * Identity composer for the `@beep/documents-server` namespace.
  *
  * @example
  * ```typescript

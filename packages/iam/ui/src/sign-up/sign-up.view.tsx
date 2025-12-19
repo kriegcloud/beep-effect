@@ -1,5 +1,5 @@
 "use client";
-import { useSignIn } from "@beep/iam-sdk";
+import { useSignIn } from "@beep/iam-client";
 import { paths } from "@beep/shared-domain";
 import { varFade } from "@beep/ui/animate";
 import { RouterLink } from "@beep/ui/routing";

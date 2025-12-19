@@ -69,6 +69,6 @@ bun run --filter @beep/shared-ui test
 ## Notes
 
 - This package is currently a placeholder and will be expanded as shared UI patterns emerge
-- For file upload utilities, see `@beep/documents-domain` and `@beep/documents-infra`
+- For file upload utilities, see `@beep/documents-domain` and `@beep/documents-server`
 - For React hooks like `useEvent`, see `@beep/ui/ui`
 - For file type validation, see `@beep/schema` integrations

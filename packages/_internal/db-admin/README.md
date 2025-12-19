@@ -10,7 +10,7 @@ This package aggregates Drizzle schemas across all vertical slices (IAM, documen
 - Cross-slice relationship definitions
 - Test database provisioning for integration tests
 
-Lives under `_internal` because it is **not shipped to production apps**. Applications should import schemas through their slice-specific packages (`@beep/iam-tables`, `@beep/documents-tables`, `@beep/shared-tables`) or database layers (`@beep/iam-infra/db`, `@beep/documents-infra/db`).
+Lives under `_internal` because it is **not shipped to production apps**. Applications should import schemas through their slice-specific packages (`@beep/iam-tables`, `@beep/documents-tables`, `@beep/shared-tables`) or database layers (`@beep/iam-server/db`, `@beep/documents-server/db`).
 
 ## Key Exports
 
@@ -132,7 +132,7 @@ This prevents Drizzle warnings about duplicate relation definitions while mainta
 ## What Must NOT Go Here
 
 - **Production app imports**: Apps should never depend on this package
-- **Slice-specific logic**: Business rules belong in slice domain/infra packages
+- **Slice-specific logic**: Business rules belong in slice domain/server packages
 - **Schema definitions**: Define tables in slice packages, not here (this is a barrel only)
 - **General test utilities**: Use `@beep/testkit` for shared test utilities (this package contains integration test infrastructure only)
 
@@ -147,7 +147,7 @@ This prevents Drizzle warnings about duplicate relation definitions while mainta
 | `@beep/shared-tables` | Shared table definitions (user, org, team) |
 | `@beep/iam-tables` | IAM slice table definitions |
 | `@beep/documents-tables` | Documents slice table definitions |
-| `@beep/shared-infra` | Database factory (`Db.make`) |
+| `@beep/shared-server` | Database factory (`Db.make`) |
 | `@testcontainers/postgresql` | Test container provisioning (currently unused) |
 
 ## Development
@@ -199,7 +199,7 @@ If a new slice needs to reference shared tables:
 ### Known Issues
 
 - **Missing db:reset script**: `package.json` references `src/scripts/ResetDatabase.ts` which does not exist. Either implement the script or remove the package.json entry.
-- **Incorrect Context tag**: `AdminDb.ts` uses tag `"@beep/documents-infra/AdminDb"` but should be `"@beep/db-admin/AdminDb"`
+- **Incorrect Context tag**: `AdminDb.ts` uses tag `"@beep/documents-server/AdminDb"` but should be `"@beep/db-admin/AdminDb"`
 - **No main index**: Package lacks `src/index.ts`, requiring direct subpath imports
 
 ### Effect Patterns Required
@@ -238,9 +238,9 @@ email.toLowerCase();
 | `@beep/shared-tables` | Imports shared table definitions (user, organization, team) |
 | `@beep/iam-tables` | Imports IAM slice Drizzle schemas and relations |
 | `@beep/documents-tables` | Imports Documents slice Drizzle schemas and relations |
-| `@beep/shared-infra` | Uses `Db.make` factory to create AdminDb service |
-| `@beep/iam-infra` | Test layer composes IamDb and IamRepos |
-| `@beep/documents-infra` | Test layer composes DocumentsDb and DocumentsRepos |
+| `@beep/shared-server` | Uses `Db.make` factory to create AdminDb service |
+| `@beep/iam-server` | Test layer composes IamDb and IamRepos |
+| `@beep/documents-server` | Test layer composes DocumentsDb and DocumentsRepos |
 | `@beep/testkit` | Provides Effect testing utilities for integration tests |
 | `@testcontainers/postgresql` | Provisions ephemeral Postgres for integration tests |
 
@@ -248,4 +248,4 @@ email.toLowerCase();
 
 - See `AGENTS.md` for agent-specific guidance, surface maps, and implementation patterns
 - See `packages/shared/tables/AGENTS.md` for table factory patterns
-- See `packages/shared/infra/AGENTS.md` for database layer conventions
+- See `packages/shared/server/AGENTS.md` for database layer conventions

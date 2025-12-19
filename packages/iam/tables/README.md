@@ -10,7 +10,7 @@ Supplies IAM-specific Drizzle tables, enums, and relations layered on top of sha
 - Ensures IAM tables are multi-tenant aware via `OrgTable.make` and `Table.make` factories
 - Re-exports shared tables (`organization`, `team`, `user`, `session`) to keep infra consumers on a single schema namespace
 - Provides compile-time alignment checks between Drizzle models and Effect schemas
-- Partners with `@beep/shared-infra`'s `Db.make` to wire up typed `SqlClient` layers
+- Partners with `@beep/shared-server`'s `Db.make` to wire up typed `SqlClient` layers
 
 ## Key Exports
 
@@ -84,7 +84,7 @@ Pass `IamDbSchema` to `Db.make` to create a typed database client:
 
 ```typescript
 import { IamDbSchema } from "@beep/iam-tables";
-import { Db } from "@beep/shared-infra/db/Db";
+import { Db } from "@beep/shared-server/db/Db";
 import * as Layer from "effect/Layer";
 
 export const IamDbLive = Db.make({
@@ -100,7 +100,7 @@ export const IamDbLive = Db.make({
 Use the schema in Effect-based queries:
 
 ```typescript
-import { IamDb } from "@beep/iam-infra/db/Db";
+import { IamDb } from "@beep/iam-server/db/Db";
 import { IamDbSchema } from "@beep/iam-tables";
 import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
@@ -238,7 +238,7 @@ export const _checkInsertAuditLog: typeof AuditLog.Model.insert.Encoded =
 ## What Must NOT Go Here
 
 - **No business logic**: domain rules belong in `@beep/iam-domain`
-- **No queries or repositories**: those belong in `@beep/iam-infra`
+- **No queries or repositories**: those belong in `@beep/iam-server`
 - **No migrations**: SQL migrations live in `packages/_internal/db-admin`
 - **No Effect services**: table factories are pure, no Layer/Context/Effect execution
 - **No shared table edits**: changes to `organization`, `team`, `user` go in `@beep/shared-tables`
@@ -377,9 +377,9 @@ The `account`, `session`, `user`, and other tables follow better-auth's expected
 ## Relationship to Other Packages
 
 - `@beep/iam-domain` — Entity schemas and value objects that tables persist
-- `@beep/iam-infra` — Repositories and services that query these tables
+- `@beep/iam-server` — Repositories and services that query these tables
 - `@beep/shared-tables` — Provides `Table.make`, `OrgTable.make`, and shared tables
-- `@beep/shared-infra` — Database factory that consumes this schema
+- `@beep/shared-server` — Database factory that consumes this schema
 - `packages/_internal/db-admin` — Migration warehouse for schema changes
 
 ## Versioning and Changes

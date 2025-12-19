@@ -201,8 +201,8 @@ import * as F from "effect/Function";
 - `packages/X/domain/src/ValueObject.ts`
 
 #### Infrastructure Layer
-- `packages/X/infra/src/Repository.ts`
-- `packages/X/infra/src/Service.ts`
+- `packages/X/server/src/Repository.ts`
+- `packages/X/server/src/Service.ts`
 
 #### Tables Layer
 - `packages/X/tables/src/schema.ts`

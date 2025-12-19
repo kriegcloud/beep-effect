@@ -20,7 +20,7 @@ assistant: "Let me launch the readme-updater agent to generate README.md files f
 
 <example>
 Context: User wants to validate a specific package's README.
-user: "Check if packages/iam/infra/README.md is up to date"
+user: "Check if packages/iam/server/README.md is up to date"
 assistant: "I'll use the readme-updater agent to verify that file against the current codebase and package.json."
 <Task tool call to readme-updater agent with specific file>
 </example>
@@ -116,8 +116,8 @@ The following packages should have README.md files:
 | Path | Package Name |
 |------|--------------|
 | `packages/shared/domain` | `@beep/shared-domain` |
-| `packages/shared/infra` | `@beep/shared-infra` |
-| `packages/shared/sdk` | `@beep/shared-sdk` |
+| `packages/shared/server` | `@beep/shared-server` |
+| `packages/shared/client` | `@beep/shared-client` |
 | `packages/shared/tables` | `@beep/shared-tables` |
 | `packages/shared/ui` | `@beep/shared-ui` |
 
@@ -125,8 +125,8 @@ The following packages should have README.md files:
 | Path | Package Name |
 |------|--------------|
 | `packages/iam/domain` | `@beep/iam-domain` |
-| `packages/iam/infra` | `@beep/iam-infra` |
-| `packages/iam/sdk` | `@beep/iam-sdk` |
+| `packages/iam/server` | `@beep/iam-server` |
+| `packages/iam/client` | `@beep/iam-client` |
 | `packages/iam/tables` | `@beep/iam-tables` |
 | `packages/iam/ui` | `@beep/iam-ui` |
 
@@ -134,8 +134,8 @@ The following packages should have README.md files:
 | Path | Package Name |
 |------|--------------|
 | `packages/documents/domain` | `@beep/documents-domain` |
-| `packages/documents/infra` | `@beep/documents-infra` |
-| `packages/documents/sdk` | `@beep/documents-sdk` |
+| `packages/documents/server` | `@beep/documents-server` |
+| `packages/documents/client` | `@beep/documents-client` |
 | `packages/documents/tables` | `@beep/documents-tables` |
 | `packages/documents/ui` | `@beep/documents-ui` |
 

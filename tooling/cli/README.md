@@ -139,7 +139,7 @@ bun run tooling/cli/src/index.ts prune-unused-deps --dry-run
 bun run tooling/cli/src/index.ts prune-unused-deps --dry-run=false
 
 # Filter to specific workspace
-bun run tooling/cli/src/index.ts prune-unused-deps --filter @beep/iam-infra
+bun run tooling/cli/src/index.ts prune-unused-deps --filter @beep/iam-server
 
 # Exclude test directories from scanning
 bun run tooling/cli/src/index.ts prune-unused-deps --exclude-tests

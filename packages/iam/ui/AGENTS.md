@@ -2,7 +2,7 @@
 
 ## Purpose & Fit
 - Provides the client-side IAM entry points (sign-in, sign-up, recovery, verification, invitation) consumed by `apps/web` and any app-shell embedding IAM flows.
-- Bridges Effect-based RPC contracts from `@beep/iam-sdk` to React components that speak `@beep/ui` form primitives, `@beep/runtime-client` runners, and shared-domain navigation (`paths`).
+- Bridges Effect-based RPC contracts from `@beep/iam-client` to React components that speak `@beep/ui` form primitives, `@beep/runtime-client` runners, and shared-domain navigation (`paths`).
 - Owns UX glue (headings, dividers, CTA links, recaptcha wiring) so route-level pages stay declarative and do not replicate validation or RPC orchestration.
 
 ## Surface Map
@@ -26,7 +26,7 @@
 - **Effect pipelines only:** Always compose RPC invocations with `F.pipe`, `Effect.flatMap`, or `Effect.gen`. Avoid introducing `async/await` in new logic; existing `async` wrappers remain for compatibility but should not expand.
 - **No native collection helpers:** Respect repo rule-set. If you need to merge `sx` overrides, pipe through `@beep/ui` helpers or lift into `A.prepend/append`. Document tech debt where legacy `Array.isArray` persists before touching it.
 - **Runtime linking:** Every networked action should be routed through `makeRunClientPromise(runtime, "<port>")`. Never call `iam.*` effects directly without the runtime runner; this preserves Layer injection and Better Auth session context.
-- **Schema-first forms:** Forms must lean on Effect schemas from `@beep/iam-sdk/clients` with `formOptionsWithSubmit`. Do not hand-roll validation or default values—extend schemas upstream when fields change.
+- **Schema-first forms:** Forms must lean on Effect schemas from `@beep/iam-client/clients` with `formOptionsWithSubmit`. Do not hand-roll validation or default values—extend schemas upstream when fields change.
 - **ReCAPTCHA hand-off:** Any submission that feeds Better Auth should inject `captchaResponse` prior to calling `handleSubmit`. Maintain the `executeRecaptcha` presence guard and surface telemetry rather than silently continuing.
 - **Path hygiene:** Build navigation using `paths` from `@beep/shared-domain`. Hardcoded strings introduce drift across apps and server redirects.
 - **Reset token redirect review:** `ResetPasswordForm` uses router navigation inside conditional branches. When adjusting this flow, ensure absence moves users to sign-in while presence keeps the form active.
@@ -35,7 +35,7 @@
 
 ## Quick Recipes
 ```tsx
-import { iam } from "@beep/iam-sdk";
+import { iam } from "@beep/iam-client";
 import { SignInEmailForm } from "@beep/iam-ui/sign-in";
 import { makeRunClientPromise, useRuntime } from "@beep/runtime-client";
 import * as Effect from "effect/Effect";
@@ -60,10 +60,10 @@ export const MinimalEmailSignIn = () => {
 ```
 
 ```tsx
-import { clientEnv } from "@beep/shared-infra/ClientEnv";
+import { clientEnv } from "@beep/shared-server/ClientEnv";
 import { SocialIconButton, SocialProviderIcons } from "@beep/iam-ui/_components";
 import { makeRunClientPromise, useRuntime } from "@beep/runtime-client";
-import { iam } from "@beep/iam-sdk";
+import { iam } from "@beep/iam-client";
 import { AuthProviderNameValue } from "@beep/constants";
 import Box from "@mui/material/Box";
 import * as A from "effect/Array";
@@ -101,7 +101,7 @@ export const CustomSocialButtons = () => {
 
 ```tsx
 import { VerifyPhoneForm } from "@beep/iam-ui/verify";
-import { iam } from "@beep/iam-sdk";
+import { iam } from "@beep/iam-client";
 import { makeRunClientPromise, useRuntime } from "@beep/runtime-client";
 import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
@@ -130,7 +130,7 @@ export const VerifyPhoneCard = () => {
 ## Contributor Checklist
 - [ ] Updated or added exports in `src/index.ts` and feature `index.ts` files so consumers receive new components.
 - [ ] Wrapped every RPC call with `makeRunClientPromise` and Effect combinators; no direct `iam.*` invocation escapes runtime wiring.
-- [ ] Sourced schemas and enums from `@beep/iam-sdk/clients` and `@beep/shared-domain`; no duplicated literal unions.
+- [ ] Sourced schemas and enums from `@beep/iam-client/clients` and `@beep/shared-domain`; no duplicated literal unions.
 - [ ] Ensured UI atoms lean on `@beep/ui` (forms, icons, routing). If a new primitive is required, coordinate with `packages/ui`.
 - [ ] Recorded new docs references or guardrails in this guide when adding flows or changing defaults.
 - [ ] Added or amended tests in `packages/iam/ui/test` mirroring the feature (snapshot, interaction, or effect contract).

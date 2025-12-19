@@ -1,4 +1,4 @@
-import { useRequestResetPasswordForm } from "@beep/iam-sdk/clients";
+import { useRequestResetPasswordForm } from "@beep/iam-client/clients";
 import { Form } from "@beep/ui/form";
 
 export const RequestResetPasswordForm = () => {

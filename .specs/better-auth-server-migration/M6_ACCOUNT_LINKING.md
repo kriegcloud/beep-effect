@@ -155,7 +155,7 @@ This milestone implements account linking functionality, allowing users to conne
 
 **Recommended Helper**: `runAuthEndpoint` - POST endpoint with payload and decoded response (no Redacted fields)
 
-- [ ] Create stub file `packages/iam/infra/src/api/v1/core/link-social.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/core/link-social.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type: `Common.HandlerEffect<V1.Core.LinkSocial.Payload>`
 - [ ] Add `Handler` stub with:
@@ -172,7 +172,7 @@ This milestone implements account linking functionality, allowing users to conne
 
 **Recommended Helper**: `runAuthCommand` - POST endpoint returning fixed `{ status: true }` response
 
-- [ ] Create stub file `packages/iam/infra/src/api/v1/core/unlink-account.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/core/unlink-account.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type: `Common.HandlerEffect<V1.Core.UnlinkAccount.Payload>`
 - [ ] Add `Handler` stub with:
@@ -188,7 +188,7 @@ This milestone implements account linking functionality, allowing users to conne
 
 **Recommended Helper**: `runAuthQuery` - GET endpoint with decoded response
 
-- [ ] Create stub file `packages/iam/infra/src/api/v1/core/list-accounts.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/core/list-accounts.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type: `Common.HandlerEffect<void>` (no URL params in spec)
 - [ ] Add `Handler` stub with:
@@ -204,7 +204,7 @@ This milestone implements account linking functionality, allowing users to conne
 
 **Recommended Helper**: `runAuthQuery` - GET endpoint with URL params and decoded response
 
-- [ ] Create stub file `packages/iam/infra/src/api/v1/core/account-info.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/core/account-info.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type: `Common.HandlerEffect<V1.Core.AccountInfo.UrlParams>`
 - [ ] Add `Handler` stub with:
@@ -345,7 +345,7 @@ This milestone implements account linking functionality, allowing users to conne
 ### 3. Verification
 
 - [ ] `bun run check` passes
-- [ ] `bun run build --filter=@beep/iam-domain --filter=@beep/iam-infra` succeeds
+- [ ] `bun run build --filter=@beep/iam-domain --filter=@beep/iam-server` succeeds
 - [ ] Endpoints appear in OpenAPI spec at server `/docs`
 - [ ] Status updated to `COMPLETE` in PLAN.md
 

@@ -65,12 +65,12 @@ export default $config({
     const outputs = {};
 
     // Dynamically load all infrastructure modules
-    const dir = readdirSync("./infra");
+    const dir = readdirSync("./server");
     for (const file of dir) {
       if (file === "lib" || file.startsWith(".")) continue;
       if (!file.endsWith(".ts")) continue;
 
-      const infra = await import(`./infra/${file}`);
+      const infra = await import(`./server/${file}`);
       if (infra.outputs) Object.assign(outputs, infra.outputs);
     }
 
@@ -82,7 +82,7 @@ export default $config({
 ### 1.2 Create Infrastructure Directory
 
 ```bash
-mkdir -p infra/lib/components
+mkdir -p server/lib/components
 ```
 
 ---
@@ -91,7 +91,7 @@ mkdir -p infra/lib/components
 
 ### 2.1 Core Infrastructure Files
 
-Create modular infrastructure definitions in `/infra/`:
+Create modular infrastructure definitions in `/server/`:
 
 | File | Purpose |
 |------|---------|
@@ -104,10 +104,10 @@ Create modular infrastructure definitions in `/infra/`:
 | `auth.ts` | Better Auth configuration, OAuth providers |
 | `dns.ts` | Domain management (Route53 or Cloudflare) |
 
-### 2.2 Example: `infra/misc.ts`
+### 2.2 Example: `server/misc.ts`
 
 ```typescript
-// infra/misc.ts
+// server/misc.ts
 import * as aws from "@pulumi/aws";
 
 // Stage detection
@@ -139,13 +139,13 @@ export const outputs = {
 };
 ```
 
-### 2.3 Example: `infra/storage.ts`
+### 2.3 Example: `server/storage.ts`
 
 ```typescript
-// infra/storage.ts
+// server/storage.ts
 import { isProdStage } from "./misc";
 
-// Documents bucket (maps to @beep/documents-infra S3 storage)
+// Documents bucket (maps to @beep/documents-server S3 storage)
 export const documentsBucket = new sst.aws.Bucket("DocumentsBucket", {
   versioning: isProdStage,
   // Access control handled via IAM, not public
@@ -172,10 +172,10 @@ export const outputs = {
 };
 ```
 
-### 2.4 Example: `infra/db.ts`
+### 2.4 Example: `server/db.ts`
 
 ```typescript
-// infra/db.ts
+// server/db.ts
 import * as aws from "@pulumi/aws";
 import { isProdStage } from "./misc";
 
@@ -216,10 +216,10 @@ export const outputs = {
 };
 ```
 
-### 2.5 Example: `infra/api.ts`
+### 2.5 Example: `server/api.ts`
 
 ```typescript
-// infra/api.ts
+// server/api.ts
 import { database } from "./db";
 import { documentsBucket, temporaryBucket } from "./storage";
 import { appData, awsInfo } from "./misc";
@@ -263,10 +263,10 @@ export const outputs = {
 };
 ```
 
-### 2.6 Example: `infra/web.ts`
+### 2.6 Example: `server/web.ts`
 
 ```typescript
-// infra/web.ts
+// server/web.ts
 import { api } from "./api";
 import { appData } from "./misc";
 
@@ -333,7 +333,7 @@ Add SST commands to root `package.json`:
 
 ## Phase 4: Custom Components (Advanced)
 
-For advanced patterns like the printdesk reference, create custom components in `infra/lib/components/`:
+For advanced patterns like the printdesk reference, create custom components in `server/lib/components/`:
 
 ### 4.1 Physical Name Component
 
@@ -567,7 +567,7 @@ Before deploying to production:
 From the `tmp/printdesk/` reference implementation:
 
 1. **Ciphertext Encryption** - AES-256-GCM for sensitive config in Lambda
-2. **Dynamic Module Loading** - `readdirSync("./infra")` for modular infrastructure
+2. **Dynamic Module Loading** - `readdirSync("./server")` for modular infrastructure
 3. **Stage-Based Profiles** - `profile: isProdStage ? "prod" : "dev"`
 4. **VPC Reuse in Dev** - Reference existing VPC to save costs
 5. **Default Function Transforms** - `$transform(sst.aws.Function, ...)` for ARM64/Node22

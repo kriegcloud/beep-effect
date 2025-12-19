@@ -13,7 +13,7 @@
       "path": "../domain"
     },
     {
-      "path": "../sdk"
+      "path": "../client"
     },
     {
       "path": "../../common/schema"

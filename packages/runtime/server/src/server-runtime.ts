@@ -1,2 +1,0 @@
-/* @deprecated */
-export * from "./Runtime";

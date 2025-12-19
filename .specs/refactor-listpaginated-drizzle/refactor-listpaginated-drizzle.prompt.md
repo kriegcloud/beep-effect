@@ -16,7 +16,7 @@ You are working in the `beep-effect` monorepo, an Effect-first full-stack applic
 
 ### Current State
 
-The `FileRepo` in `packages/shared/infra/src/repos/File.repo.ts` has two implementations:
+The `FileRepo` in `packages/shared/server/src/repos/File.repo.ts` has two implementations:
 
 1. **`listPaginated`** (lines 44-192) - A working implementation using `@effect/sql`'s `SqlSchema.single` with raw PostgreSQL SQL.
 
@@ -316,9 +316,9 @@ No special handling required - the query will automatically use the transaction 
 ## Resources
 
 ### Files to Read
-- `/home/elpresidank/YeeBois/projects/beep-effect/packages/shared/infra/src/repos/File.repo.ts` - Target file
-- `/home/elpresidank/YeeBois/projects/beep-effect/packages/shared/infra/src/internal/db/pg/PgClient.ts` - `makeQueryWithSchema` implementation
-- `/home/elpresidank/YeeBois/projects/beep-effect/packages/shared/infra/src/internal/db/pg/types.ts` - Type definitions
+- `/home/elpresidank/YeeBois/projects/beep-effect/packages/shared/server/src/repos/File.repo.ts` - Target file
+- `/home/elpresidank/YeeBois/projects/beep-effect/packages/shared/server/src/internal/db/pg/PgClient.ts` - `makeQueryWithSchema` implementation
+- `/home/elpresidank/YeeBois/projects/beep-effect/packages/shared/server/src/internal/db/pg/types.ts` - Type definitions
 - `/home/elpresidank/YeeBois/projects/beep-effect/packages/shared/tables/src/tables/file.table.ts` - File table
 - `/home/elpresidank/YeeBois/projects/beep-effect/packages/shared/tables/src/tables/folder.table.ts` - Folder table
 - `/home/elpresidank/YeeBois/projects/beep-effect/packages/shared/tables/src/relations.ts` - Drizzle relations
@@ -333,7 +333,7 @@ No special handling required - the query will automatically use the transaction 
 
 ### Deliverable
 
-A complete implementation of `_listPaginated` (rename to `listPaginated`) in `packages/shared/infra/src/repos/File.repo.ts` that:
+A complete implementation of `_listPaginated` (rename to `listPaginated`) in `packages/shared/server/src/repos/File.repo.ts` that:
 
 1. Replaces the raw SQL implementation
 2. Uses `makeQueryWithSchema` with proper input/output schemas
@@ -629,8 +629,8 @@ listPaginated({
 
 ## Verification Checklist
 
-- [ ] `bun run check --filter @beep/shared-infra` passes
-- [ ] `bun run lint --filter @beep/shared-infra` passes
+- [ ] `bun run check --filter @beep/shared-server` passes
+- [ ] `bun run lint --filter @beep/shared-server` passes
 - [ ] Query returns correct structure matching `Folder.WithUploadedFiles`
 - [ ] All required fields present (`organizationId`, `userId` in folders)
 - [ ] Root files (folderId IS NULL) included in `rootFiles`
@@ -648,8 +648,8 @@ listPaginated({
 4. **Update outputSchema** - Use `S.parseJson` only if using `json_agg()`
 5. **Test empty cases** - Verify behavior with 0 folders, 0 files
 6. **Verify pagination** - Check `hasNext` calculation with various offsets
-7. **Run type check** - `bun run check --filter @beep/shared-infra`
-8. **Run lint** - `bun run lint --filter @beep/shared-infra`
+7. **Run type check** - `bun run check --filter @beep/shared-server`
+8. **Run lint** - `bun run lint --filter @beep/shared-server`
 
 ---
 
@@ -658,9 +658,9 @@ listPaginated({
 ### Research Sources
 
 **Files Explored:**
-- `packages/shared/infra/src/repos/File.repo.ts`
-- `packages/shared/infra/src/internal/db/pg/PgClient.ts`
-- `packages/shared/infra/src/internal/db/pg/types.ts`
+- `packages/shared/server/src/repos/File.repo.ts`
+- `packages/shared/server/src/internal/db/pg/PgClient.ts`
+- `packages/shared/server/src/internal/db/pg/types.ts`
 - `packages/shared/domain/src/entities/File/File.model.ts`
 - `packages/shared/domain/src/entities/Folder/Folder.model.ts`
 - `packages/shared/domain/src/entities/Folder/schemas/WithUploadedFiles.ts`
@@ -669,10 +669,10 @@ listPaginated({
 - `packages/shared/tables/src/relations.ts`
 - `packages/shared/domain/src/api/files-rpc.ts`
 - `packages/shared/domain/src/entity-ids/shared.ts`
-- `packages/shared/infra/src/db/Db/Db.ts`
+- `packages/shared/server/src/db/Db/Db.ts`
 
 **AGENTS.md Files Consulted:**
-- `packages/shared/infra/AGENTS.md`
+- `packages/shared/server/AGENTS.md`
 - `packages/shared/domain/AGENTS.md`
 - `packages/shared/tables/AGENTS.md`
 - `packages/_internal/db-admin/AGENTS.md`

@@ -1,6 +1,6 @@
 // Direct import to avoid pulling in server-only dependencies (pg, fs, dns, etc.)
 // from the barrel export which includes DocumentsRepos/Db layers
-import { ExifToolService } from "@beep/documents-infra/files";
+import { ExifToolService } from "@beep/documents-server/files";
 import { BS } from "@beep/schema";
 import {
   type DetectedFileInfo,

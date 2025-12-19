@@ -86,7 +86,7 @@ Execute server-side effects with automatic observability:
 
 ```typescript
 import { runServerPromise } from "@beep/runtime-server";
-import { AuthService } from "@beep/iam-infra";
+import { AuthService } from "@beep/iam-server";
 import * as Effect from "effect/Effect";
 
 export async function POST(request: Request) {
@@ -145,8 +145,8 @@ Use repository and service layers provided by the runtime:
 
 ```typescript
 import { runServerPromise } from "@beep/runtime-server";
-import { IamRepos } from "@beep/iam-infra";
-import { DocumentsRepos } from "@beep/documents-infra";
+import { IamRepos } from "@beep/iam-server";
+import { DocumentsRepos } from "@beep/documents-server";
 import * as Effect from "effect/Effect";
 
 const processUserDocuments = (userId: string) =>
@@ -243,7 +243,7 @@ const rpcRouter = RpcRouter.make(/* your handlers */).pipe(
 The runtime automatically configures based on environment variables:
 
 ```typescript
-// Environment variables (via @beep/shared-infra/ServerEnv):
+// Environment variables (via @beep/shared-server/ServerEnv):
 // - APP_ENV: dev, staging, production
 // - APP_LOG_LEVEL: trace, debug, info, warn, error, fatal
 // - SERVICE_NAME: beep-server (default)
@@ -288,9 +288,9 @@ This package is infrastructure-only, providing the runtime foundation for execut
 | `@effect/rpc`                | RPC router and middleware                        |
 | `@effect/opentelemetry`      | OpenTelemetry integration for Effect            |
 | `@effect/experimental`       | Effect DevTools for development                  |
-| `@beep/shared-infra`         | Shared infrastructure (Db, Email, Config, Repos) |
-| `@beep/iam-infra`            | IAM repositories and Better Auth service         |
-| `@beep/documents-infra`      | Documents repositories and storage service       |
+| `@beep/shared-server`         | Shared infrastructure (Db, Email, Config, Repos) |
+| `@beep/iam-server`            | IAM repositories and Better Auth service         |
+| `@beep/documents-server`      | Documents repositories and storage service       |
 | `@beep/errors`               | Logging utilities and error schemas              |
 | `@beep/constants`            | Schema-backed constants (AllowedHeaders, etc.)   |
 | `@beep/schema`               | Schema utilities (HttpMethod, etc.)              |
@@ -326,10 +326,10 @@ When adding a new domain slice to the runtime:
 
 1. **Create slice layers** in the slice's `infra` package:
    ```typescript
-   // packages/new-slice/infra/db/index.ts
+   // packages/new-slice/server/db/index.ts
    export const NewSliceDb = Layer.effect(/* ... */);
 
-   // packages/new-slice/infra/repos/index.ts
+   // packages/new-slice/server/repos/index.ts
    export const NewSliceRepos = Layer.effect(/* ... */);
    ```
 
@@ -447,15 +447,15 @@ OpenTelemetry metrics are exported to the configured OTLP endpoint automatically
 - **server-runtime.ts is deprecated**: The `src/server-runtime.ts` file exists only for backwards compatibility. All imports should use `@beep/runtime-server` directly, which re-exports from `Runtime.ts`
 - **Single runtime instance**: The `serverRuntime` is a singleton ManagedRuntime; do not create multiple instances within the same process
 - **No browser support**: This runtime is server-only; use `@beep/runtime-client` for browser contexts
-- **Environment must be configured**: Missing OTLP URLs or invalid log levels will cause runtime failures. Ensure environment variables are properly set via `@beep/shared-infra/ServerEnv`
+- **Environment must be configured**: Missing OTLP URLs or invalid log levels will cause runtime failures. Ensure environment variables are properly set via `@beep/shared-server/ServerEnv`
 - **Wildcard exports**: Internal layers are accessible via wildcard exports (e.g., `@beep/runtime-server/App`). These are semi-internal and may change. Prefer using the main runtime exports when possible
 
 ## Relationship to Other Packages
 
 - `@beep/runtime-client` — Browser equivalent with TanStack Query integration
-- `@beep/shared-infra` — Provides Db, Email, and Config layers consumed by this runtime
-- `@beep/iam-infra` — Provides AuthService and IAM repositories
-- `@beep/documents-infra` — Provides Documents repositories and storage
+- `@beep/shared-server` — Provides Db, Email, and Config layers consumed by this runtime
+- `@beep/iam-server` — Provides AuthService and IAM repositories
+- `@beep/documents-server` — Provides Documents repositories and storage
 - `@beep/errors` — Provides logging utilities and error schemas
 - `apps/web` — Consumes this runtime in API routes and server components
 - `apps/server` — Uses this runtime as the foundation for the backend service

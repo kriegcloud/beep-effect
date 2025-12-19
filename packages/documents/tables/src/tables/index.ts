@@ -6,7 +6,3 @@ export * from "./discussion.table";
 export * from "./document.table";
 export * from "./documentFile.table";
 export * from "./documentVersion.table";
-export * from "./knowledgeBlock.table";
-export * from "./knowledgePage.table";
-export * from "./knowledgeSpace.table";
-export * from "./pageLink.table";

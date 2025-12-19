@@ -7,11 +7,11 @@ I want to create a full simulation pipeline of uploading a file to S3 using the 
 ## File References
 
 - `@packages/shared/domain/src/entities/File/File.model.ts`
-- `@packages/documents/infra/src/adapters/repos/File.repo.ts`
+- `@packages/documents/server/src/adapters/repos/File.repo.ts`
 - `@packages/shared/domain/src/entities/File/schemas/UploadKey.ts`
 - `@packages/common/schema/src/integrations/files/FileInstance.ts`
 - `@packages/common/schema/src/integrations/files/exif-metadata/ExifMetadata.ts`
-- `@packages/documents/infra/src/files/ExifToolService.ts`
+- `@packages/documents/server/src/files/ExifToolService.ts`
 - `@packages/shared/domain/src/common.ts`
 - `@packages/shared/tables/src/common.ts`
 - `@packages/shared/domain/src/services/EncryptionService/`

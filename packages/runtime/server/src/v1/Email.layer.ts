@@ -1,4 +1,4 @@
-import { Email } from "@beep/shared-infra/Email";
+import { Email } from "@beep/shared-server/Email";
 import type * as Layer from "effect/Layer";
 
 export type Services = Email.ResendService;

@@ -185,7 +185,7 @@ This milestone implements all WebAuthn passkey authentication endpoints for Bett
 
 #### `delete-passkey.ts`
 
-- [ ] Create stub file `packages/iam/infra/src/api/v1/passkey/delete-passkey.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/passkey/delete-passkey.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type with JSDoc
 - [ ] Add `Handler` stub with:
@@ -196,7 +196,7 @@ This milestone implements all WebAuthn passkey authentication endpoints for Bett
 
 #### `generate-authenticate-options.ts`
 
-- [ ] Create stub file `packages/iam/infra/src/api/v1/passkey/generate-authenticate-options.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/passkey/generate-authenticate-options.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type with JSDoc (note: GET request, use UrlParams)
 - [ ] Add `Handler` stub with:
@@ -207,7 +207,7 @@ This milestone implements all WebAuthn passkey authentication endpoints for Bett
 
 #### `generate-register-options.ts`
 
-- [ ] Create stub file `packages/iam/infra/src/api/v1/passkey/generate-register-options.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/passkey/generate-register-options.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type with JSDoc (note: GET request, use UrlParams)
 - [ ] Add `Handler` stub with:
@@ -218,7 +218,7 @@ This milestone implements all WebAuthn passkey authentication endpoints for Bett
 
 #### `list-user-passkeys.ts`
 
-- [ ] Create stub file `packages/iam/infra/src/api/v1/passkey/list-user-passkeys.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/passkey/list-user-passkeys.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type with JSDoc (note: GET request, use UrlParams)
 - [ ] Add `Handler` stub with:
@@ -229,7 +229,7 @@ This milestone implements all WebAuthn passkey authentication endpoints for Bett
 
 #### `update-passkey.ts`
 
-- [ ] Create stub file `packages/iam/infra/src/api/v1/passkey/update-passkey.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/passkey/update-passkey.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type with JSDoc
 - [ ] Add `Handler` stub with:
@@ -240,7 +240,7 @@ This milestone implements all WebAuthn passkey authentication endpoints for Bett
 
 #### `verify-authentication.ts`
 
-- [ ] Create stub file `packages/iam/infra/src/api/v1/passkey/verify-authentication.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/passkey/verify-authentication.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type with JSDoc
 - [ ] Add `Handler` stub with:
@@ -252,7 +252,7 @@ This milestone implements all WebAuthn passkey authentication endpoints for Bett
 
 #### `verify-registration.ts`
 
-- [ ] Create stub file `packages/iam/infra/src/api/v1/passkey/verify-registration.ts`
+- [ ] Create stub file `packages/iam/server/src/api/v1/passkey/verify-registration.ts`
 - [ ] Fill module-level JSDoc with spec references
 - [ ] Add `HandlerEffect` type with JSDoc
 - [ ] Add `Handler` stub with:
@@ -263,7 +263,7 @@ This milestone implements all WebAuthn passkey authentication endpoints for Bett
 
 #### Create `_group.ts`
 
-- [ ] Create file `packages/iam/infra/src/api/v1/passkey/_group.ts`
+- [ ] Create file `packages/iam/server/src/api/v1/passkey/_group.ts`
 - [ ] Import all endpoint handlers
 - [ ] Define `Service`, `ServiceError`, `ServiceDependencies` types
 - [ ] Create `Routes` layer with `HttpApiBuilder.group(IamApi, "iam.passkey", ...)`
@@ -271,7 +271,7 @@ This milestone implements all WebAuthn passkey authentication endpoints for Bett
 
 #### Create `index.ts`
 
-- [ ] Create file `packages/iam/infra/src/api/v1/passkey/index.ts`
+- [ ] Create file `packages/iam/server/src/api/v1/passkey/index.ts`
 - [ ] Export all handlers using namespace re-export pattern
 
 #### Update parent `v1/api.ts`
@@ -380,7 +380,7 @@ This milestone implements all WebAuthn passkey authentication endpoints for Bett
 
 ### 2. Infra Handlers
 
-**Helper Selection**: See `packages/iam/infra/src/api/common/schema-helpers.ts` for available helpers. Import:
+**Helper Selection**: See `packages/iam/server/src/api/common/schema-helpers.ts` for available helpers. Import:
 ```typescript
 import { runAuthEndpoint, runAuthQuery, runAuthCommand, forwardCookieResponse } from "../../common/schema-helpers";
 ```
@@ -461,7 +461,7 @@ import { runAuthEndpoint, runAuthQuery, runAuthCommand, forwardCookieResponse } 
 ### 3. Verification
 
 - [ ] `bun run check` passes
-- [ ] `bun run build --filter=@beep/iam-domain --filter=@beep/iam-infra` succeeds
+- [ ] `bun run build --filter=@beep/iam-domain --filter=@beep/iam-server` succeeds
 - [ ] Endpoints appear in OpenAPI spec at server `/docs`
 - [ ] Status updated to `COMPLETE` in PLAN.md
 

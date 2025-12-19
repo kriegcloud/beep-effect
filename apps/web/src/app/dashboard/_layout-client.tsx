@@ -1,7 +1,7 @@
 "use client";
 import { assetPaths } from "@beep/constants";
+import { useSignOut } from "@beep/iam-client/clients/sign-out";
 import { AccountSettingsTabSearchParamValue } from "@beep/iam-domain";
-import { useSignOut } from "@beep/iam-sdk/clients/sign-out";
 import { _contacts, _notifications } from "@beep/mock";
 import { makeRunClientPromise, urlSearchParamSSR, useRuntime } from "@beep/runtime-client";
 import { DashboardLayout } from "@beep/ui/layouts";

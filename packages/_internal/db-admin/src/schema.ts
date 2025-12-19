@@ -34,10 +34,6 @@ export {
   documentFileRelations,
   documentRelations,
   documentVersionRelations,
-  knowledgeBlockRelations,
-  knowledgePageRelations,
-  knowledgeSpaceRelations,
-  pageLinkRelations,
 } from "@beep/documents-tables/relations";
 // IAM slice relations (excluding userRelations, organizationRelations, teamRelations)
 export {

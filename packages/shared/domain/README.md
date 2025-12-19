@@ -476,7 +476,7 @@ For detailed API documentation, see [AGENTS.md](./AGENTS.md).
 
 - `packages/iam/*` - Uses IamEntityIds, Session/User models
 - `packages/documents/*` - Uses DocumentsEntityIds, File models
-- `packages/shared/infra` - Builds on entity IDs and models for repos
+- `packages/shared/server` - Builds on entity IDs and models for repos
 - `packages/shared/tables` - Drizzle schemas aligned with entity IDs
 
 ## Contribution Guidelines
@@ -523,5 +523,5 @@ MIT
 - [@beep/schema](../common/schema) - Schema utilities, EntityId factories
 - [@beep/constants](../common/constants) - Schema-backed enums, path builders
 - [@beep/errors](../common/errors) - Error types and logging
-- [@beep/shared-infra](../shared/infra) - Database, repos, email services
+- [@beep/shared-server](../shared/server) - Database, repos, email services
 - [@beep/shared-tables](../shared/tables) - Drizzle table definitions

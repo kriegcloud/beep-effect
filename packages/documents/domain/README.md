@@ -288,20 +288,20 @@ import { pipe } from "effect/Function";
 - Entity ID type definitions
 
 ### What Doesn't Belong Here
-- Database queries or migrations (use `@beep/documents-infra`)
-- API route handlers (use `@beep/documents-sdk`)
+- Database queries or migrations (use `@beep/documents-server`)
+- API route handlers (use `@beep/documents-client`)
 - React components (use `@beep/documents-ui`)
-- External service integrations (use `@beep/documents-infra`)
-- Storage operations (use `@beep/documents-infra`)
+- External service integrations (use `@beep/documents-server`)
+- Storage operations (use `@beep/documents-server`)
 
 ## Related Packages
 
 - `@beep/documents-tables` — Drizzle schema definitions
-- `@beep/documents-infra` — Repository implementations, database adapters, S3 storage
-- `@beep/documents-sdk` — Client-side contracts and RPC handlers
+- `@beep/documents-server` — Repository implementations, database adapters, S3 storage
+- `@beep/documents-client` — Client-side contracts and RPC handlers
 - `@beep/documents-ui` — React components for documents
 - `@beep/shared-domain` — Cross-slice domain primitives
-- `@beep/shared-infra` — Shared infrastructure layers
+- `@beep/shared-server` — Shared infrastructure layers
 
 ## Notes
 

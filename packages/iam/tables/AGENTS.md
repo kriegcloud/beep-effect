@@ -4,7 +4,7 @@
 - Supplies IAM-specific Drizzle tables, enums, and relations layered on top of the shared table factories so the authentication slice stays multi-tenant aware.
 - Bridges `@beep/iam-domain` entity codecs to persistent storage; `_check.ts` keeps Drizzle `Infer*Model` outputs aligned with Effect models.
 - Re-exports shared organization/team/user tables to keep infra consumers on a single schema namespace (`IamDbSchema`) when wiring adapters (e.g. Better Auth).
-- Partners with `@beep/shared-infra`'s `Db.make` by providing the schema object required to spin up `SqlClient` layers inside IAM infrastructure.
+- Partners with `@beep/shared-server`'s `Db.make` by providing the schema object required to spin up `SqlClient` layers inside IAM infrastructure.
 
 ## Surface Map
 - `src/index.ts` — exposes the schema namespace as `IamDbSchema`; consumers usually `import { IamDbSchema } from "@beep/iam-tables"`.
@@ -69,7 +69,7 @@ export const notificationPreferenceRelations = d.relations(notificationPreferenc
 
 ### Surface typed queries from an Effect Layer
 ```ts
-import { IamDb } from "@beep/iam-infra/db/Db";
+import { IamDb } from "@beep/iam-server/db/Db";
 import { IamDbSchema } from "@beep/iam-tables";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";

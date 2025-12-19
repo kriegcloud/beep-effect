@@ -9,9 +9,9 @@ This document captures the established patterns for implementing Better Auth end
 - `packages/iam/domain/src/api/v1/core/` (M0)
 - `packages/iam/domain/src/api/v1/sign-in/` (M1)
 - `packages/iam/domain/src/api/v1/sign-up/` (M2)
-- `packages/iam/infra/src/api/v1/core/` (M0)
-- `packages/iam/infra/src/api/v1/sign-in/` (M1)
-- `packages/iam/infra/src/api/v1/sign-up/` (M2)
+- `packages/iam/server/src/api/v1/core/` (M0)
+- `packages/iam/server/src/api/v1/sign-in/` (M1)
+- `packages/iam/server/src/api/v1/sign-up/` (M2)
 
 ---
 
@@ -276,7 +276,7 @@ export const Contract = HttpApiEndpoint.post("social", "/social")
 
 ### File Location
 
-`packages/iam/infra/src/api/v1/[group]/[endpoint].ts`
+`packages/iam/server/src/api/v1/[group]/[endpoint].ts`
 
 ### Infra Handler Helpers
 
@@ -354,11 +354,11 @@ Does the endpoint return headers (cookies)?
 
 Use this pattern for most POST endpoints that accept a request body. This is the preferred approach using the `runAuthEndpoint` helper.
 
-**Example**: `packages/iam/infra/src/api/v1/sign-in/email.ts`
+**Example**: `packages/iam/server/src/api/v1/sign-in/email.ts`
 
 ```typescript
 import { IamAuthError, V1 } from "@beep/iam-domain/api";
-import { Auth } from "@beep/iam-infra";
+import { Auth } from "@beep/iam-server";
 import * as HttpServerRequest from "@effect/platform/HttpServerRequest";
 import * as Effect from "effect/Effect";
 import type { Common } from "../../common";
@@ -406,11 +406,11 @@ export const Handler: HandlerEffect = Effect.fn("SignInEmail")(
 
 Use this pattern for GET endpoints. This is the preferred approach using the `runAuthQuery` helper.
 
-**Example**: `packages/iam/infra/src/api/v1/core/get-session.ts`
+**Example**: `packages/iam/server/src/api/v1/core/get-session.ts`
 
 ```typescript
 import { IamAuthError, V1 } from "@beep/iam-domain/api";
-import { Auth } from "@beep/iam-infra/adapters";
+import { Auth } from "@beep/iam-server/adapters";
 import * as HttpServerRequest from "@effect/platform/HttpServerRequest";
 import * as Effect from "effect/Effect";
 import type { Common } from "../../common";
@@ -458,11 +458,11 @@ export const Handler: HandlerEffect = Effect.fn("GetSession")(
 
 **⚠️ WARNING**: Use this pattern ONLY when `runAuthEndpoint` causes TypeScript errors with Better Auth's API. This is the exception, not the rule.
 
-**Example**: `packages/iam/infra/src/api/v1/sign-up/email.ts`
+**Example**: `packages/iam/server/src/api/v1/sign-up/email.ts`
 
 ```typescript
 import { IamAuthError, V1 } from "@beep/iam-domain/api";
-import { Auth } from "@beep/iam-infra/adapters";
+import { Auth } from "@beep/iam-server/adapters";
 import * as HttpServerRequest from "@effect/platform/HttpServerRequest";
 import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
@@ -529,11 +529,11 @@ export const Handler: HandlerEffect = Effect.fn("SignUpEmailHandler")(
 - Endpoints that return redirect URLs without session cookies
 - Response is plain JSON without headers
 
-**Example**: `packages/iam/infra/src/api/v1/sign-in/oauth2.ts` (hypothetical)
+**Example**: `packages/iam/server/src/api/v1/sign-in/oauth2.ts` (hypothetical)
 
 ```typescript
 import { IamAuthError, V1 } from "@beep/iam-domain/api";
-import { Auth } from "@beep/iam-infra/adapters";
+import { Auth } from "@beep/iam-server/adapters";
 import * as HttpServerRequest from "@effect/platform/HttpServerRequest";
 import * as HttpServerResponse from "@effect/platform/HttpServerResponse";
 import * as Effect from "effect/Effect";
@@ -721,9 +721,9 @@ return yield* forwardCookieResponse(headers, response);
 
 ### Overview
 
-The `@beep/iam-infra/api/common/schema-helpers` module provides composable helper functions that encapsulate the common patterns for Better Auth endpoint handlers. These helpers eliminate boilerplate and standardize encoding, decoding, and cookie forwarding.
+The `@beep/iam-server/api/common/schema-helpers` module provides composable helper functions that encapsulate the common patterns for Better Auth endpoint handlers. These helpers eliminate boilerplate and standardize encoding, decoding, and cookie forwarding.
 
-**File Location**: `packages/iam/infra/src/api/common/schema-helpers.ts`
+**File Location**: `packages/iam/server/src/api/common/schema-helpers.ts`
 
 ### AuthApiResponse<T> Type
 
@@ -775,11 +775,11 @@ runAuthEndpoint<PayloadType, SuccessType>({
 3. Decodes response via `S.decodeUnknown(successSchema)(response)` (covariant transformation)
 4. Forwards `set-cookie` header to HTTP response
 
-**Example**: `packages/iam/infra/src/api/v1/sign-in/social.ts`
+**Example**: `packages/iam/server/src/api/v1/sign-in/social.ts`
 
 ```typescript
 import { IamAuthError, V1 } from "@beep/iam-domain/api";
-import { Auth } from "@beep/iam-infra";
+import { Auth } from "@beep/iam-server";
 import * as HttpServerRequest from "@effect/platform/HttpServerRequest";
 import * as Effect from "effect/Effect";
 import type { Common } from "../../common";
@@ -838,11 +838,11 @@ runAuthQuery<SuccessType>({
 2. Decodes response via `S.decodeUnknown(successSchema)(response)`
 3. Forwards `set-cookie` header to HTTP response
 
-**Example**: `packages/iam/infra/src/api/v1/core/get-session.ts`
+**Example**: `packages/iam/server/src/api/v1/core/get-session.ts`
 
 ```typescript
 import { IamAuthError, V1 } from "@beep/iam-domain/api";
-import { Auth } from "@beep/iam-infra/adapters";
+import { Auth } from "@beep/iam-server/adapters";
 import * as HttpServerRequest from "@effect/platform/HttpServerRequest";
 import * as Effect from "effect/Effect";
 import type { Common } from "../../common";
@@ -904,11 +904,11 @@ runAuthCommand<SuccessType>({
 3. Returns fixed `successValue` (typically `{ success: true }`)
 4. Forwards `set-cookie` header to HTTP response
 
-**Example**: `packages/iam/infra/src/api/v1/core/sign-out.ts`
+**Example**: `packages/iam/server/src/api/v1/core/sign-out.ts`
 
 ```typescript
 import { IamAuthError } from "@beep/iam-domain/api";
-import { Auth } from "@beep/iam-infra/adapters";
+import { Auth } from "@beep/iam-server/adapters";
 import * as HttpServerRequest from "@effect/platform/HttpServerRequest";
 import * as Effect from "effect/Effect";
 import type { Common } from "../../common";
@@ -971,11 +971,11 @@ forwardCookieResponse<T>(
 2. Returns JSON response with cookie header if present
 3. Returns plain JSON response otherwise
 
-**Example**: `packages/iam/infra/src/api/v1/sign-up/email.ts`
+**Example**: `packages/iam/server/src/api/v1/sign-up/email.ts`
 
 ```typescript
 import { IamAuthError, V1 } from "@beep/iam-domain/api";
-import { Auth } from "@beep/iam-infra/adapters";
+import { Auth } from "@beep/iam-server/adapters";
 import * as HttpServerRequest from "@effect/platform/HttpServerRequest";
 import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
@@ -1119,13 +1119,13 @@ export { Endpoint1, Endpoint2 };
 
 ### Infra Group Pattern
 
-**File Location**: `packages/iam/infra/src/api/v1/[group]/_group.ts`
+**File Location**: `packages/iam/server/src/api/v1/[group]/_group.ts`
 
 **Template**:
 
 ```typescript
 import { IamApi, IamAuthError } from "@beep/iam-domain";
-import type { Auth } from "@beep/iam-infra";
+import type { Auth } from "@beep/iam-server";
 import * as HttpApiBuilder from "@effect/platform/HttpApiBuilder";
 import type * as HttpApiGroup from "@effect/platform/HttpApiGroup";
 import type * as Layer from "effect/Layer";
@@ -1584,7 +1584,7 @@ const response = yield* BetterAuthBridge.listOrgRoles(auth.api as Record<string,
 });
 ```
 
-**Available DAC wrappers** (in `packages/iam/infra/src/adapters/better-auth/BetterAuthBridge.ts`):
+**Available DAC wrappers** (in `packages/iam/server/src/adapters/better-auth/BetterAuthBridge.ts`):
 - `getOrgRole` - Get role by ID
 - `createOrgRole` - Create new role
 - `deleteOrgRole` - Delete role
@@ -1744,7 +1744,7 @@ Before implementing a handler, verify the exact Better Auth method name using on
 **Example Verification Workflow**:
 ```typescript
 // Step 1: Check TypeScript types
-import { Auth } from "@beep/iam-infra/adapters";
+import { Auth } from "@beep/iam-server/adapters";
 
 const auth = yield* Auth.Service;
 
@@ -1842,7 +1842,7 @@ After implementing endpoints, run these commands to verify correctness:
 bun run check
 
 # Build affected packages
-bun run build --filter=@beep/iam-domain --filter=@beep/iam-infra
+bun run build --filter=@beep/iam-domain --filter=@beep/iam-server
 
 # Full workspace build
 bun run build
@@ -1853,7 +1853,7 @@ bun run lint:fix
 
 **Success Criteria**:
 - `bun run check` passes with no errors
-- `bun run build --filter=@beep/iam-domain --filter=@beep/iam-infra` succeeds
+- `bun run build --filter=@beep/iam-domain --filter=@beep/iam-server` succeeds
 - Endpoints appear in OpenAPI spec at server `/docs` route
 - Cookie forwarding works in all handlers
 - All schemas properly annotated with `$I`
@@ -1880,7 +1880,7 @@ bun run lint:fix
 ### Infra Handler Checklist
 
 - [ ] Import domain contract: `import { V1 } from "@beep/iam-domain/api"`
-- [ ] Import Auth service: `import { Auth } from "@beep/iam-infra"` (or `"@beep/iam-infra/adapters"`)
+- [ ] Import Auth service: `import { Auth } from "@beep/iam-server"` (or `"@beep/iam-server/adapters"`)
 - [ ] Import appropriate helper from `"../../common/schema-helpers"`
   - [ ] `runAuthEndpoint` for POST/PUT with body (DEFAULT for all POST endpoints)
   - [ ] `runAuthQuery` for GET endpoints
@@ -1918,4 +1918,4 @@ bun run lint:fix
 
 ## Summary
 
-This patterns document captures the working implementation patterns from M0-M2. Follow these patterns exactly for consistency and to ensure compatibility with the existing codebase. When in doubt, refer to the actual implementation files in `packages/iam/domain/src/api/v1/` and `packages/iam/infra/src/api/v1/`.
+This patterns document captures the working implementation patterns from M0-M2. Follow these patterns exactly for consistency and to ensure compatibility with the existing codebase. When in doubt, refer to the actual implementation files in `packages/iam/domain/src/api/v1/` and `packages/iam/server/src/api/v1/`.

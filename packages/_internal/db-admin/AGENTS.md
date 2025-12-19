@@ -2,10 +2,10 @@
 
 ## Purpose & Fit
 - Aggregates every Drizzle schema used across slices by re-exporting IAM and shared tables so migrations have a single source of truth (`packages/_internal/db-admin/src/schema.ts:3`).
-- Wraps `@beep/shared-infra/Db` factory into an admin-only Layer that can be merged into tooling runtimes without duplicating configuration logic (`packages/_internal/db-admin/src/Db/AdminDb.ts:14`).
+- Wraps `@beep/shared-server/Db` factory into an admin-only Layer that can be merged into tooling runtimes without duplicating configuration logic (`packages/_internal/db-admin/src/Db/AdminDb.ts:14`).
 - Hosts generated SQL migrations and Drizzle metadata consumed by CI, Docker-backed tests, and local seed/reset workflows (`packages/_internal/db-admin/drizzle/0000_plain_leper_queen.sql`).
 - Provides Pg container harnesses so repository tests can exercise migrations end-to-end with real Postgres + slice layers (`packages/_internal/db-admin/test/container.ts`).
-- Lives under `_internal` because it is not shipped to apps directly; `packages/shared/infra/AGENTS.md` describes how production runtimes depend on these exports.
+- Lives under `_internal` because it is not shipped to apps directly; `packages/shared/server/AGENTS.md` describes how production runtimes depend on these exports.
 
 ## Surface Map
 - `src/Db/AdminDb.ts` — Defines `AdminDb` Context tag and `AdminDb.Live` Layer via `Db.make(DbSchema)`, exposing migrations-aware schema bundles to tooling.
@@ -29,17 +29,17 @@
 - Treat `AdminDb.Live` as the single entrypoint for admin DB access—if a new tool needs direct Drizzle clients, expose them through the Context tag rather than instantiating new connections.
 - Migrations must be generated through `bun run db:generate` so the SQL and journal stay in sync; manual edits belong in `--custom` migrations committed alongside generated ones.
 - The `db:reset` script in `package.json` references `src/scripts/ResetDatabase.ts`, which does not exist—either add the implementation or remove the script to avoid dead references.
-- When layering repositories, reuse slice Layers from `@beep/iam-infra` and `@beep/documents-infra` instead of duplicating repository construction.
-- Coordinate with `packages/shared/tables/AGENTS.md` and `packages/shared/infra/AGENTS.md` so schema or repo guidance is not duplicated; link out rather than restating cross-slice rules.
-- Keep this package `_internal`—it must never be declared as a dependency of other workspaces. Consumers should pull schemas through their slice barrels or `@beep/shared-infra/Db` layers instead.
+- When layering repositories, reuse slice Layers from `@beep/iam-server` and `@beep/documents-server` instead of duplicating repository construction.
+- Coordinate with `packages/shared/tables/AGENTS.md` and `packages/shared/server/AGENTS.md` so schema or repo guidance is not duplicated; link out rather than restating cross-slice rules.
+- Keep this package `_internal`—it must never be declared as a dependency of other workspaces. Consumers should pull schemas through their slice barrels or `@beep/shared-server/Db` layers instead.
 - Integration tests in `test/container.ts` and `test/repo.test.ts` are currently commented out; restore them when Testcontainers setup is needed again.
 
 ## Quick Recipes
 - **Merge the admin database Layer into a tooling runtime**
 ```ts
 import { AdminDb } from "@beep/db-admin/Db/AdminDb";
-import { DocumentsDb } from "@beep/documents-infra/db";
-import { IamDb } from "@beep/iam-infra/db";
+import { DocumentsDb } from "@beep/documents-server/db";
+import { IamDb } from "@beep/iam-server/db";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as F from "effect/Function";

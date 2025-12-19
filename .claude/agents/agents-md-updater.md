@@ -20,14 +20,14 @@ assistant: "Let me launch the agents-md-updater agent to find and fix all refere
 
 <example>
 Context: User wants to validate a specific package's AGENTS.md.
-user: "Check if packages/iam/infra/AGENTS.md is up to date"
+user: "Check if packages/iam/server/AGENTS.md is up to date"
 assistant: "I'll use the agents-md-updater agent to verify that file against the current codebase."
 <Task tool call to agents-md-updater agent with specific file>
 </example>
 
 <example>
 Context: User asks to create a missing AGENTS.md file.
-user: "Create AGENTS.md for packages/shared/infra"
+user: "Create AGENTS.md for packages/shared/server"
 assistant: "I'll use the agents-md-updater agent to generate an AGENTS.md file that accurately documents the shared-infra package."
 <Task tool call to agents-md-updater agent>
 </example>
@@ -94,12 +94,12 @@ The following packages were migrated and references need updating:
 
 | Old Reference | New Reference |
 |---------------|---------------|
-| `@beep/core-db` | `@beep/shared-infra` |
-| `@beep/core-env` | `@beep/shared-infra` |
-| `@beep/core-email` | `@beep/shared-infra` |
-| `packages/core/db` | `packages/shared/infra` |
-| `packages/core/env` | `packages/shared/infra` |
-| `packages/core/email` | `packages/shared/infra` |
+| `@beep/core-db` | `@beep/shared-server` |
+| `@beep/core-env` | `@beep/shared-server` |
+| `@beep/core-email` | `@beep/shared-server` |
+| `packages/core/db` | `packages/shared/server` |
+| `packages/core/env` | `packages/shared/server` |
+| `packages/core/email` | `packages/shared/server` |
 | `packages/ui-core` | `packages/ui/core` |
 | `packages/ui` (for UI lib) | `packages/ui/ui` |
 

@@ -1,6 +1,6 @@
 import { describe, expect } from "bun:test";
 import { Entities } from "@beep/iam-domain";
-import { OAuthApplicationRepo, OrganizationRepo, UserRepo } from "@beep/iam-infra/adapters/repositories";
+import { OAuthApplicationRepo, OrganizationRepo, UserRepo } from "@beep/iam-server/adapters/repositories";
 import { BS } from "@beep/schema";
 
 import { Organization, User } from "@beep/shared-domain/entities";
