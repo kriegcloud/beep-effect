@@ -14,6 +14,7 @@ import {
   genericOAuthClient,
   inferAdditionalFields,
   // jwtClient,
+  // inferOrgAdditionalFields,
   lastLoginMethodClient,
   multiSessionClient,
   oidcClient,
@@ -31,12 +32,12 @@ export const client = createAuthClient({
   baseURL: clientEnv.authUrl,
   basePath: clientEnv.authPath,
   plugins: [
-    inferAdditionalFields<Auth>(),
+    inferAdditionalFields<Auth.Auth>(),
     adminClient(),
     anonymousClient(),
     // jwtClient(),
     apiKeyClient(),
-    customSessionClient<Auth>(),
+    customSessionClient<Auth.Auth>(),
     genericOAuthClient(),
     multiSessionClient(),
     oidcClient(),
@@ -50,6 +51,7 @@ export const client = createAuthClient({
     }),
     oneTimeTokenClient(),
     organizationClient({
+      // schema: inferOrgAdditionalFields<Auth.Auth>(),
       teams: {
         enabled: true,
       },

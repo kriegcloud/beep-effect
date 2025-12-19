@@ -80,6 +80,7 @@ const AppConfig = Config.zipWith(
           )
         )
       ),
+
       name: Config.string("NAME"),
       env: S.Config("ENV", EnvValue).pipe(Config.withDefault(EnvValue.Enum.dev)),
       rootDomain: Config.string("DOMAIN").pipe(Config.map((domain) => Str.split(":")(domain)[0])),
@@ -91,6 +92,13 @@ const AppConfig = Config.zipWith(
       authUrl: Config.url("AUTH_URL"),
       apiUrl: Config.url("API_URL"),
       clientUrl: Config.url("CLIENT_URL"),
+      api: Config.nested("API")(
+        Config.all({
+          url: Config.url("URL"),
+          port: Config.port("PORT"),
+          host: Config.nonEmptyString("HOST"),
+        })
+      ),
     })
   ),
   Config.nested("VERCEL")(

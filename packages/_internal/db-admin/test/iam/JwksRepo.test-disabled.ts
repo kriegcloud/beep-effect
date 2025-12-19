@@ -1,6 +1,6 @@
 import { describe, expect } from "bun:test";
 import { Jwks } from "@beep/iam-domain/entities";
-import { JwksRepo } from "@beep/iam-infra";
+import { JwksRepo } from "@beep/iam-infra/adapters/repositories";
 import { assertNone, assertTrue, deepStrictEqual, layer, strictEqual } from "@beep/testkit";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";

@@ -13,3 +13,5 @@ export class DocumentsDb extends Context.Tag("@beep/documents-infra/DocumentsDb"
 >() {
   static readonly Live: Layer.Layer<DocumentsDb, never, Db.SliceDbRequirements> = Layer.scoped(this, serviceEffect);
 }
+
+export const layer: Layer.Layer<DocumentsDb, never, Db.SliceDbRequirements> = DocumentsDb.Live;

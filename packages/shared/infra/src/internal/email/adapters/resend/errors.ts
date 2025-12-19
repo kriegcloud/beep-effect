@@ -1,10 +1,10 @@
-import { $SharedDomainId } from "@beep/identity/packages";
+import { $SharedInfraId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 
-const $I = $SharedDomainId.create("Email/errors");
+const $I = $SharedInfraId.create("Email/errors");
 
 export class ResendErrorCode extends BS.StringLiteralKit(
   "missing_required_field",
@@ -57,3 +57,11 @@ export class ResendError extends S.TaggedError<ResendError>($I`ResendError`)("Re
     return new ResendError({ cause, payload });
   };
 }
+
+export class EmailTemplateRenderError extends S.TaggedError<EmailTemplateRenderError>($I`EmailTemplateRenderError`)(
+  "EmailTemplateRenderError",
+  {
+    operation: S.String,
+    cause: S.Defect,
+  }
+) {}

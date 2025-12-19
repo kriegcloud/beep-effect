@@ -1,8 +1,8 @@
-import {User} from "@beep/shared-domain/entities";
-import {$IamDomainId} from "@beep/identity/packages";
-import * as S from "effect/Schema";
-import {IamAuthError, CommonFields} from "@beep/iam-domain/api/common";
+import { CommonFields, IamAuthError } from "@beep/iam-domain/api/common";
+import { $IamDomainId } from "@beep/identity/packages";
+import { User } from "@beep/shared-domain/entities";
 import * as HttpApiEndpoint from "@effect/platform/HttpApiEndpoint";
+import * as S from "effect/Schema";
 
 const $I = $IamDomainId.create("api/v1/sign-up/email");
 
@@ -18,8 +18,7 @@ export class Payload extends S.Class<Payload>($I`SignUpEmailPayload`)(
   $I.annotations("SignUpEmailPayload", {
     description: "Payload for sign up with email and password.",
   })
-) {
-}
+) {}
 
 export class Success extends S.Class<Success>($I`SignUpEmailSuccess`)(
   {
@@ -27,14 +26,10 @@ export class Success extends S.Class<Success>($I`SignUpEmailSuccess`)(
     token: CommonFields.SessionToken,
     url: CommonFields.RedirectURL,
   },
-  $I.annotations(
-    "SignUpEmailSuccess",
-    {
-      description: "Success response for sign up with email and password.",
-    }
-  )
-) {
-}
+  $I.annotations("SignUpEmailSuccess", {
+    description: "Success response for sign up with email and password.",
+  })
+) {}
 
 export const Contract = HttpApiEndpoint.post("email", "/email")
   .addSuccess(Success)

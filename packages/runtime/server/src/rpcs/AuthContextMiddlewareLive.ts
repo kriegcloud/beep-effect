@@ -1,5 +1,5 @@
 import { BeepError } from "@beep/errors";
-import { type Auth, IamDb } from "@beep/iam-infra";
+import { Auth, IamDb } from "@beep/iam-infra";
 import { IamDbSchema } from "@beep/iam-tables";
 import { Organization, Session, User } from "@beep/shared-domain/entities";
 import { AuthContextHttpMiddleware, AuthContextRpcMiddleware } from "@beep/shared-domain/Policy";
@@ -12,7 +12,6 @@ import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import { AuthService } from "./AuthLive";
 import { DbLive } from "./DbLive.ts";
 
 const middlewareEffect = ({
@@ -20,7 +19,7 @@ const middlewareEffect = ({
   iamDb: { execute },
   headers,
 }: {
-  auth: Auth;
+  auth: Auth.Auth;
   iamDb: IamDb.Shape;
   headers: PlatformHeaders.Headers;
 }) =>
@@ -92,7 +91,7 @@ export const AuthContextRpcMiddlewareLive = Layer.effect(
   AuthContextRpcMiddleware,
   Effect.gen(function* () {
     // Acquire dependencies during Layer construction
-    const { auth } = yield* AuthService;
+    const auth = yield* Auth.Service;
     const iamDb = yield* IamDb.IamDb;
 
     // Return the middleware FUNCTION (not the context value)
@@ -106,14 +105,14 @@ export const AuthContextRpcMiddlewareLive = Layer.effect(
     );
   })
 ).pipe(
-  Layer.provideMerge(AuthService.layer.pipe(Layer.provideMerge(DbLive))),
+  Layer.provideMerge(Auth.layer.pipe(Layer.provideMerge(DbLive))),
   Layer.provideMerge(Email.ResendService.Default)
 );
 
 export const AuthContextHttpMiddlewareLive = Layer.effect(
   AuthContextHttpMiddleware,
   Effect.gen(function* () {
-    const { auth } = yield* AuthService;
+    const auth = yield* Auth.Service;
     const iamDb = yield* IamDb.IamDb;
 
     return Effect.gen(function* () {
@@ -128,6 +127,6 @@ export const AuthContextHttpMiddlewareLive = Layer.effect(
     });
   })
 ).pipe(
-  Layer.provideMerge(AuthService.layer.pipe(Layer.provideMerge(DbLive))),
+  Layer.provideMerge(Auth.layer.pipe(Layer.provideMerge(DbLive))),
   Layer.provideMerge(Email.ResendService.Default)
 );

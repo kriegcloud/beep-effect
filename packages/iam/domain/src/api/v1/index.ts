@@ -1,1 +1,1 @@
-export * from "./domain-api.ts";
+export * from "./api";

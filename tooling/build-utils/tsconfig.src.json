@@ -30,6 +30,7 @@
     "outDir": "build/src",
     "target": "ES2023",
 
+    "exactOptionalPropertyTypes": true,
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "moduleDetection": "force",

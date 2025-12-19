@@ -72,6 +72,7 @@
     "@beep/invariant": "workspace:^",
     "@beep/utils": "workspace:^",
     "@beep/constants": "workspace:^",
+    "@beep/contract": "workspace:^",
     "@beep/shared-domain": "workspace:^",
     "@beep/errors": "workspace:^",
     "@beep/iam-domain": "workspace:^",

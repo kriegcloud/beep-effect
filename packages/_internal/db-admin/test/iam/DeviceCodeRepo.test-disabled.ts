@@ -1,6 +1,6 @@
 import { describe, expect } from "bun:test";
 import { Entities } from "@beep/iam-domain";
-import { DeviceCodeRepo } from "@beep/iam-infra";
+import { DeviceCodeRepo } from "@beep/iam-infra/adapters/repositories";
 import { assertNone, assertTrue, deepStrictEqual, layer, strictEqual } from "@beep/testkit";
 import * as DateTime from "effect/DateTime";
 import * as Duration from "effect/Duration";

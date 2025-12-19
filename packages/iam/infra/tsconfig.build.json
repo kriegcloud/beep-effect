@@ -35,6 +35,9 @@
       "path": "../../common/utils/tsconfig.build.json"
     },
     {
+      "path": "../../common/contract/tsconfig.build.json"
+    },
+    {
       "path": "../../common/invariant/tsconfig.build.json"
     },
     {

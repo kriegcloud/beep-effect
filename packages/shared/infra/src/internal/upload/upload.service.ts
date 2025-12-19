@@ -6,7 +6,7 @@ import { File, type Organization } from "@beep/shared-domain/entities";
 import type { S3ServiceError } from "@effect-aws/client-s3/Errors";
 import { S3Service } from "@effect-aws/client-s3/S3Service";
 import type { SdkError } from "@effect-aws/commons/Errors";
-import { type Cause, Effect, Layer, type ParseResult, Redacted } from "effect";
+import { type Cause, Effect, type ParseResult, Redacted } from "effect";
 import * as Config from "effect/Config";
 import type { ConfigError } from "effect/ConfigError";
 import * as S from "effect/Schema";
@@ -96,5 +96,5 @@ export class UploadService extends Effect.Service<UploadService>()("S3Service", 
   accessors: true,
   effect: serviceEffect,
 }) {
-  static readonly layer = UploadService.Default.pipe(Layer.provideMerge(S3Service.defaultLayer));
+  static readonly layer = UploadService.Default;
 }

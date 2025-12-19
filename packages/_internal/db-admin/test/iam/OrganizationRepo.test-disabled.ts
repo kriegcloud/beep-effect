@@ -1,5 +1,5 @@
 import { describe, expect } from "bun:test";
-import { OrganizationRepo, UserRepo } from "@beep/iam-infra";
+import { OrganizationRepo, UserRepo } from "@beep/iam-infra/adapters/repositories";
 import { BS } from "@beep/schema";
 import type { SharedEntityIds } from "@beep/shared-domain";
 import { Organization, User } from "@beep/shared-domain/entities";

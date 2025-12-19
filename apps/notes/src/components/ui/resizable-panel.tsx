@@ -3,7 +3,7 @@
 import { useCookieStorage } from "@beep/notes/hooks/useCookieStorage";
 import { RightPanelType } from "@beep/notes/hooks/useResizablePanel";
 // Import from shared schema file so it can be used by Server Components
-import { parseLayout, type Layout } from "@beep/notes/lib/layout-schema";
+import { type Layout, parseLayout } from "@beep/notes/lib/layout-schema";
 import { cn } from "@beep/notes/lib/utils";
 import React, { useCallback, useContext, useEffect, useState } from "react";
 

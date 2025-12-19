@@ -10,7 +10,7 @@ import { modelKit } from "../../factories";
 import * as Organization from "../Organization";
 import { UploadKey } from "./schemas";
 
-const $I = $SharedDomainId.create("shared/domain/entities/File");
+const $I = $SharedDomainId.create("entities/File");
 
 export class Model extends M.Class<Model>($I`FileModel`)(
   {

@@ -321,3 +321,126 @@ export declare namespace IsoStringToTimestamp {
    */
   export type Encoded = S.Schema.Encoded<typeof IsoStringToTimestamp>;
 }
+
+/**
+ * Converts any acceptable date input into a numeric millisecond timestamp.
+ *
+ * This schema accepts `string | number | Date | DateTime.Utc` as input during decoding
+ * and normalizes all of them to a numeric epoch millisecond timestamp.
+ *
+ * **Key characteristics**:
+ * - **Type**: `number` (runtime value is always a number)
+ * - **Encoded**: `number` (both input and output are numbers)
+ * - **Decoding**: Accepts `string | number | Date | DateTime.Utc` and converts to `number`
+ * - **Encoding**: `number` → `number` (identity transformation)
+ *
+ * This is implemented using `Schema.declare` to have precise control over the `Encoded` type,
+ * ensuring it's `number` rather than the union of all acceptable input types. The decode function
+ * handles all input type variants internally.
+ *
+ * @example
+ * import * as S from "effect/Schema";
+ * import { EpochMillisFromAllAcceptable } from "@beep/schema/primitives/temporal/dates/date-time";
+ *
+ * // Decoding from various input types
+ * const toTimestamp = S.decodeSync(EpochMillisFromAllAcceptable);
+ * const fromString = toTimestamp("2024-01-01T00:00:00Z"); // 1704067200000
+ * const fromNumber = toTimestamp(1704067200000);           // 1704067200000
+ * const fromDate = toTimestamp(new Date("2024-01-01"));    // 1704067200000
+ *
+ * // Encoding always produces a number
+ * const encode = S.encodeSync(EpochMillisFromAllAcceptable);
+ * const encoded = encode(1704067200000); // 1704067200000 (number)
+ *
+ * // In structs, Encoded type is number
+ * const MySchema = S.Struct({ expiresAt: S.optional(EpochMillisFromAllAcceptable) });
+ * type Encoded = S.Schema.Encoded<typeof MySchema>; // { readonly expiresAt?: number }
+ *
+ * @category Primitives/Temporal/Dates
+ * @since 0.1.0
+ */
+export const EpochMillisFromAllAcceptable: S.Schema<number, number> = S.declare(
+  [],
+  {
+    decode: () => (input, _options, ast) =>
+      Effect.gen(function* () {
+        // Handle number input (identity)
+        if (typeof input === "number") {
+          if (Number.isNaN(input) || !Number.isFinite(input) || input < 0) {
+            return yield* ParseResult.fail(new ParseResult.Type(ast, input, "Invalid timestamp"));
+          }
+          return input;
+        }
+
+        // Handle string input (ISO date string)
+        if (typeof input === "string") {
+          const time = new Date(input).getTime();
+          if (Number.isNaN(time)) {
+            return yield* ParseResult.fail(new ParseResult.Type(ast, input, "Invalid ISO date string"));
+          }
+          return time;
+        }
+
+        // Handle Date input
+        if (input instanceof Date) {
+          const time = input.getTime();
+          if (Number.isNaN(time)) {
+            return yield* ParseResult.fail(new ParseResult.Type(ast, input, "Invalid Date object"));
+          }
+          return time;
+        }
+
+        // Handle DateTime.Utc input
+        if (DateTime.isDateTime(input)) {
+          return yield* ParseResult.try({
+            try: () => DateTime.toEpochMillis(input),
+            catch: () => new ParseResult.Type(ast, input, "Invalid DateTime.Utc"),
+          });
+        }
+
+        // Unknown input type
+        return yield* ParseResult.fail(
+          new ParseResult.Type(ast, input, "Expected string | number | Date | DateTime.Utc")
+        );
+      }),
+    encode: () => (input, _options, _ast) =>
+      // Encoding: number → number (identity)
+      // The input is already validated to be a number by the Type
+      ParseResult.succeed(input as number),
+  },
+  Id.annotations("dates/EpochMillisFromAllAcceptable", {
+    description: "Epoch milliseconds timestamp that accepts string, number, Date, or DateTime.Utc during decoding",
+    jsonSchema: {
+      type: "number",
+      format: "timestamp",
+    },
+  })
+);
+
+/**
+ * Namespace exposing helper types for {@link EpochMillisFromAllAcceptable}.
+ *
+ * @example
+ * import type { EpochMillisFromAllAcceptable } from "@beep/schema/primitives/temporal/dates/date-time";
+ *
+ * type Millis = EpochMillisFromAllAcceptable.Type;
+ *
+ * @category Primitives/Temporal/Dates
+ * @since 0.1.0
+ */
+export declare namespace EpochMillisFromAllAcceptable {
+  /**
+   * Runtime type produced by {@link EpochMillisFromAllAcceptable}.
+   *
+   * @category Primitives/Temporal/Dates
+   * @since 0.1.0
+   */
+  export type Type = S.Schema.Type<typeof EpochMillisFromAllAcceptable>;
+  /**
+   * Encoded representation accepted by {@link EpochMillisFromAllAcceptable}.
+   *
+   * @category Primitives/Temporal/Dates
+   * @since 0.1.0
+   */
+  export type Encoded = S.Schema.Encoded<typeof EpochMillisFromAllAcceptable>;
+}

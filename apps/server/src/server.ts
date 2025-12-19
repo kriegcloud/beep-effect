@@ -1,36 +1,32 @@
 import { AllowedHeaders } from "@beep/constants";
+import { IamApi } from "@beep/iam-domain";
+import { IamApiLive } from "@beep/iam-infra";
 import { AuthContextHttpMiddlewareLive } from "@beep/runtime-server/rpcs/AuthContextMiddlewareLive.ts";
 import { BS } from "@beep/schema";
 import { serverEnv } from "@beep/shared-infra/ServerEnv";
 import { FetchHttpClient } from "@effect/platform";
 import * as HttpApiBuilder from "@effect/platform/HttpApiBuilder";
 import * as HttpApiScalar from "@effect/platform/HttpApiScalar";
+import * as HttpLayerRouter from "@effect/platform/HttpLayerRouter";
 import * as HttpMiddleware from "@effect/platform/HttpMiddleware";
 import * as HttpServer from "@effect/platform/HttpServer";
+import * as HttpServerResponse from "@effect/platform/HttpServerResponse";
 import * as BunHttpServer from "@effect/platform-bun/BunHttpServer";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import { Layer } from "effect";
-import {IamRoutes } from "@beep/iam-infra";
-import { IamDomainApi} from "@beep/iam-domain";
-import * as HttpLayerRouter from "@effect/platform/HttpLayerRouter";
-import * as HttpServerResponse from "@effect/platform/HttpServerResponse";
 
 // Merge all group handler implementations
 
 // Create the top-level HttpApi layer
 // This requires all ApiGroup services (signIn, signUp) to be provided
-const DomainApiLayer = HttpApiBuilder.api(IamDomainApi).pipe(Layer.provide(IamRoutes.layer));
+const DomainApiLayer = HttpApiBuilder.api(IamApi).pipe(Layer.provide(IamApiLive));
 
-const HttpApiRouter = HttpLayerRouter.addHttpApi(
-  IamDomainApi
-).pipe(
-  Layer.provide(IamRoutes.layer),
+const HttpApiRouter = HttpLayerRouter.addHttpApi(IamApi).pipe(
+  Layer.provide(IamApiLive),
   Layer.provide(HttpServer.layerContext)
-)
-
-const HealthRoute = HttpLayerRouter.use((router) =>
-  router.add("GET", "/api/health", HttpServerResponse.text("OK")),
 );
+
+const HealthRoute = HttpLayerRouter.use((router) => router.add("GET", "/api/health", HttpServerResponse.text("OK")));
 
 export const AllRoutes = Layer.mergeAll(HttpApiRouter, HealthRoute);
 
@@ -62,11 +58,14 @@ const ServerLayer = ApiConsumersLayer.pipe(
   Layer.provide(AuthContextHttpMiddlewareLive),
   // Provide the Bun HTTP server
   Layer.provide(BunHttpServer.layer({ port: 8080 })),
-  // Provide HTTP server context
-  Layer.provide(HttpServer.layerContext),
-  // Provide FetchHttpClient for any outbound HTTP needs
-  Layer.provide(FetchHttpClient.layer)
+  Layer.provide([
+    // Provide HTTP server context
+    HttpServer.layerContext,
+    // Provide FetchHttpClient for any outbound HTTP needs
+    FetchHttpClient.layer,
+  ])
 );
 
 // Launch the server
+
 Layer.launch(ServerLayer).pipe(BunRuntime.runMain);

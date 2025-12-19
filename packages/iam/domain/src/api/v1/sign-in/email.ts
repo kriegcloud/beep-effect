@@ -1,8 +1,8 @@
-import {User} from "@beep/shared-domain/entities";
-import {$IamDomainId} from "@beep/identity/packages";
-import * as S from "effect/Schema";
-import {IamAuthError, CommonFields} from "@beep/iam-domain/api/common";
+import { CommonFields, IamAuthError } from "@beep/iam-domain/api/common";
+import { $IamDomainId } from "@beep/identity/packages";
+import { User } from "@beep/shared-domain/entities";
 import * as HttpApiEndpoint from "@effect/platform/HttpApiEndpoint";
+import * as S from "effect/Schema";
 
 const $I = $IamDomainId.create("api/v1/sign-in/email");
 
@@ -16,8 +16,7 @@ export class Payload extends S.Class<Payload>($I`Payload`)(
   $I.annotations("SignInPayload", {
     description: "Sign in with email and password.",
   })
-) {
-}
+) {}
 
 export class Success extends S.Class<Success>($I`Success`)(
   {
@@ -29,14 +28,15 @@ export class Success extends S.Class<Success>($I`Success`)(
   $I.annotations("SignInSuccess", {
     description: "Session response when idToken is provided.",
   })
-) {
-}
+) {}
 
-
-export const Contract = HttpApiEndpoint
-  .post("email", "/email")
+export const Contract = HttpApiEndpoint.post("email", "/email")
   .setPayload(Payload)
-  .addError(IamAuthError.annotations($I.annotations("IamAuthError", {
-    description: "An Error indicating a failure to sign in with email and password."
-  })))
+  .addError(
+    IamAuthError.annotations(
+      $I.annotations("IamAuthError", {
+        description: "An Error indicating a failure to sign in with email and password.",
+      })
+    )
+  )
   .addSuccess(Success);

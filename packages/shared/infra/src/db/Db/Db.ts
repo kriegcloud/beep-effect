@@ -76,3 +76,5 @@ export class SharedDb extends Context.Tag($I`SharedDb`)<SharedDb, Db.Shape<typeo
    */
   static readonly Live: Layer.Layer<SharedDb, never, Db.SliceDbRequirements> = Layer.scoped(this, serviceEffect);
 }
+
+export const layer: Layer.Layer<SharedDb, never, Db.SliceDbRequirements> = SharedDb.Live;

@@ -49,16 +49,20 @@ declare const self: PWAServiceWorkerGlobalScope;
  * Uses globalValue to persist across hot-reloads in Next.js development.
  */
 const PlatformLayer = globalValue(Symbol.for("@beep/build-utils/pwa/PlatformLayer"), () =>
-  Layer.provideMerge(BunFileSystem.layer, BunPath.layer)
+  Layer.merge(BunFileSystem.layer, BunPath.layer)
 );
 
 /**
  * Run an Effect synchronously with platform services provided.
  * Used for running Effects within webpack's synchronous config callback.
+ *
+ * @remarks
+ * Type assertion is necessary due to @effect/platform version mismatch between
+ * root dependencies (0.94.0) and @effect/platform-bun's peer dependency (0.93.0),
+ * which causes duplicate type definitions that TypeScript cannot unify.
  */
-const runSyncWithPlatform = <A, E>(effect: Effect.Effect<A, E, FileSystem.FileSystem | Path.Path>): A => {
-  return Effect.runSync(Effect.provide(effect, PlatformLayer));
-};
+const runSyncWithPlatform = <A, E>(effect: Effect.Effect<A, E, FileSystem.FileSystem | Path.Path>): A =>
+  Effect.runSync(effect.pipe(Effect.provide(PlatformLayer)) as Effect.Effect<A, E, never>);
 
 /**
  * Calculate MD5 hash of a file for cache revision.

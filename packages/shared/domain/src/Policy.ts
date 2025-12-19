@@ -68,15 +68,13 @@ export type Permission = typeof Permission.Type;
 // ==========================================
 // Authentication Middleware
 // ==========================================
+export type AuthContextShape = {
+  readonly user: typeof User.Model.Type;
+  readonly session: typeof Session.Model.Type;
+  readonly organization: typeof Organization.Model.Type;
+};
 
-export class AuthContext extends Context.Tag("AuthContext")<
-  AuthContext,
-  {
-    readonly user: typeof User.Model.Type;
-    readonly session: typeof Session.Model.Type;
-    readonly organization: typeof Organization.Model.Type;
-  }
->() {}
+export class AuthContext extends Context.Tag("AuthContext")<AuthContext, AuthContextShape>() {}
 
 export class CurrentUser extends Context.Tag("CurrentUser")<
   CurrentUser,

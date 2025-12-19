@@ -321,6 +321,7 @@ const withDefaults = (packageName: `@beep/${string}`, config?: BeepNextConfig) =
         O.fromNullable,
         O.getOrElse(
           constant({
+            root: repoRoot,
             rules: {
               "*.svg": {
                 loaders: A.make("@svgr/webpack"),

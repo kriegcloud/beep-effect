@@ -2,9 +2,9 @@ import * as Effect from "effect/Effect";
 import * as Match from "effect/Match";
 import * as ParseResult from "effect/ParseResult";
 import * as P from "effect/Predicate";
+import type * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Struct from "effect/Struct";
-import type * as R from "effect/Record";
 
 type IamAuthErrorContext = {
   readonly operation: string;
@@ -12,7 +12,6 @@ type IamAuthErrorContext = {
 } & R.ReadonlyRecord<string, unknown>;
 
 const getMessage = Struct.get("message");
-
 
 /**
  * Authentication error with optional context.

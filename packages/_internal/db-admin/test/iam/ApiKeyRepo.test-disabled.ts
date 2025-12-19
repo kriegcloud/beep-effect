@@ -1,6 +1,6 @@
 import { describe, expect } from "bun:test";
 import { Entities } from "@beep/iam-domain";
-import { ApiKeyRepo, UserRepo } from "@beep/iam-infra";
+import { ApiKeyRepo, UserRepo } from "@beep/iam-infra/adapters/repositories";
 import { BS } from "@beep/schema";
 import { User } from "@beep/shared-domain/entities";
 import { assertNone, assertTrue, deepStrictEqual, layer, strictEqual } from "@beep/testkit";
