@@ -17,7 +17,7 @@ import { AuthContextRpcMiddlewareLive } from "./AuthContextMiddlewareLive.ts";
 
 const RpcRouter = RpcServer.layerHttpRouter({
   group: DomainRpc.middleware(RpcLogger),
-  path: "/v1/rpc",
+  path: "/v1/documents/rpc",
   protocol: "websocket",
   spanPrefix: "rpc",
   disableFatalDefects: true,

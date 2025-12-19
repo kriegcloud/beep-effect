@@ -17,8 +17,10 @@ export class Payload extends S.Class<Payload>($I`Payload`)(
 
 export class Passkey extends S.Class<Passkey>($I`Passkey`)(
   {
-    id: S.String.annotations({ description: "Passkey ID" }),
-    name: S.optionalWith(S.String, { as: "Option", exact: true }).annotations({
+    id: S.optionalWith(S.String, { nullable: true }).annotations({
+      description: "Passkey ID",
+    }),
+    name: S.optionalWith(S.String, { nullable: true }).annotations({
       description: "Passkey name",
     }),
     publicKey: S.String.annotations({ description: "Public key" }),
@@ -27,11 +29,13 @@ export class Passkey extends S.Class<Passkey>($I`Passkey`)(
     counter: S.Number.annotations({ description: "Signature counter" }),
     deviceType: S.String.annotations({ description: "Device type" }),
     backedUp: S.Boolean.annotations({ description: "Backup eligibility" }),
-    transports: S.optionalWith(S.String, { as: "Option", exact: true }).annotations({
+    transports: S.optionalWith(S.String, { nullable: true }).annotations({
       description: "Available transports",
     }),
-    createdAt: S.Date.annotations({ description: "Creation timestamp" }),
-    aaguid: S.optionalWith(S.String, { as: "Option", exact: true }).annotations({
+    createdAt: S.optionalWith(S.Date, { nullable: true }).annotations({
+      description: "Creation timestamp",
+    }),
+    aaguid: S.optionalWith(S.String, { nullable: true }).annotations({
       description: "Authenticator AAGUID",
     }),
   },

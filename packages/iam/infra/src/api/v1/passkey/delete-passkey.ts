@@ -18,10 +18,11 @@ export const Handler: HandlerEffect = Effect.fn("DeletePasskey")(
     const encodedPayload = yield* S.encode(V1.Passkey.DeletePasskey.Payload)(payload);
 
     // Call Better Auth - passkey endpoints don't support returnHeaders
+    // Cast headers to satisfy Better Auth's type expectations
     const result = yield* Effect.tryPromise(() =>
       auth.api.deletePasskey({
         body: encodedPayload,
-        headers: request.headers,
+        headers: request.headers as Record<string, string>,
       })
     );
 

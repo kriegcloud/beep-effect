@@ -15,9 +15,10 @@ export const Handler: HandlerEffect = Effect.fn("ListUserPasskeys")(
     const request = yield* HttpServerRequest.HttpServerRequest;
 
     // Call Better Auth - passkey endpoints don't support returnHeaders
+    // Cast headers to satisfy Better Auth's type expectations
     const result = yield* Effect.tryPromise(() =>
       auth.api.listPasskeys({
-        headers: request.headers,
+        headers: request.headers as Record<string, string>,
       })
     );
 

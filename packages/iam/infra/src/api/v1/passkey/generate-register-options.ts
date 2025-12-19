@@ -15,9 +15,10 @@ export const Handler: HandlerEffect = Effect.fn("GenerateRegisterOptions")(
     const request = yield* HttpServerRequest.HttpServerRequest;
 
     // Call Better Auth - passkey endpoints don't support returnHeaders
+    // Cast headers to satisfy Better Auth's type expectations
     const result = yield* Effect.tryPromise(() =>
       auth.api.generatePasskeyRegistrationOptions({
-        headers: request.headers,
+        headers: request.headers as Record<string, string>,
       })
     );
 
@@ -28,7 +29,7 @@ export const Handler: HandlerEffect = Effect.fn("GenerateRegisterOptions")(
   Effect.mapError(
     (e) =>
       new IamAuthError({
-        message: "Failed to generate register options.",
+        message: "Failed to generate registration options.",
         cause: e,
       })
   )

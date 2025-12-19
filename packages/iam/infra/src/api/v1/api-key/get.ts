@@ -7,29 +7,35 @@ import * as F from "effect/Function";
 import * as S from "effect/Schema";
 import type { Common } from "../../common";
 
-type HandlerEffect = Common.HandlerEffect<undefined>;
+type HandlerEffect = Common.UrlParamsHandlerEffect<V1.ApiKey.Get.UrlParams>;
 
-export const Handler: HandlerEffect = Effect.fn("GenerateAuthenticateOptions")(
-  function* () {
+/**
+ * Handler for getting an API key.
+ *
+ * Calls Better Auth `auth.api.getApiKey` to retrieve an API key.
+ *
+ * @since 1.0.0
+ * @category handlers
+ */
+export const Handler: HandlerEffect = Effect.fn("ApiKeyGet")(
+  function* ({ urlParams }) {
     const auth = yield* Auth.Service;
     const request = yield* HttpServerRequest.HttpServerRequest;
 
-    // Call Better Auth - passkey endpoints don't support returnHeaders
-    // Cast headers to satisfy Better Auth's type expectations
     const result = yield* Effect.tryPromise(() =>
-      auth.api.generatePasskeyAuthenticationOptions({
-        headers: request.headers as Record<string, string>,
+      auth.api.getApiKey({
+        query: { id: urlParams.id },
+        headers: request.headers,
       })
     );
 
-    // Decode response and return
-    const decoded = yield* S.decodeUnknown(V1.Passkey.GenerateAuthenticateOptions.Success)(result);
+    const decoded = yield* S.decodeUnknown(V1.ApiKey.Get.Success)(result);
     return yield* F.pipe(decoded, HttpServerResponse.json);
   },
   Effect.mapError(
     (e) =>
       new IamAuthError({
-        message: "Failed to generate authentication options.",
+        message: "Failed to get API key.",
         cause: e,
       })
   )

@@ -4,7 +4,6 @@ import * as HttpServerRequest from "@effect/platform/HttpServerRequest";
 import * as HttpServerResponse from "@effect/platform/HttpServerResponse";
 import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
-import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as BetterAuthBridge from "../../../adapters/better-auth/BetterAuthBridge";
 import type { Common } from "../../common";
@@ -16,16 +15,15 @@ export const Handler: HandlerEffect = Effect.fn("VerifyAuthentication")(
     const auth = yield* Auth.Service;
     const request = yield* HttpServerRequest.HttpServerRequest;
 
-    // Convert readonly record to mutable for BetterAuthBridge
-    const webAuthnResponse = F.pipe(
-      payload.response,
-      R.map((v) => v)
-    );
+    // Parse JSON-stringified WebAuthn response from browser
+    const webAuthnResponse: Record<string, unknown> = JSON.parse(payload.response);
 
     // Call Better Auth via bridge - handles opaque WebAuthn types
-    const result = yield* BetterAuthBridge.verifyPasskeyAuthentication(auth.api as Record<string, unknown>, {
+    // Cast headers to satisfy Better Auth's type expectations
+    const authApi: Record<string, unknown> = auth.api;
+    const result = yield* BetterAuthBridge.verifyPasskeyAuthentication(authApi, {
       body: { response: webAuthnResponse },
-      headers: request.headers,
+      headers: request.headers as Record<string, string>,
     });
 
     // Decode response and return

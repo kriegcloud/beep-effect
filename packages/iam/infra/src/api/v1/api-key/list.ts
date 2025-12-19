@@ -9,27 +9,32 @@ import type { Common } from "../../common";
 
 type HandlerEffect = Common.HandlerEffect<undefined>;
 
-export const Handler: HandlerEffect = Effect.fn("GenerateAuthenticateOptions")(
+/**
+ * Handler for listing API keys.
+ *
+ * Calls Better Auth `auth.api.listApiKeys` to list all API keys.
+ *
+ * @since 1.0.0
+ * @category handlers
+ */
+export const Handler: HandlerEffect = Effect.fn("ApiKeyList")(
   function* () {
     const auth = yield* Auth.Service;
     const request = yield* HttpServerRequest.HttpServerRequest;
 
-    // Call Better Auth - passkey endpoints don't support returnHeaders
-    // Cast headers to satisfy Better Auth's type expectations
     const result = yield* Effect.tryPromise(() =>
-      auth.api.generatePasskeyAuthenticationOptions({
-        headers: request.headers as Record<string, string>,
+      auth.api.listApiKeys({
+        headers: request.headers,
       })
     );
 
-    // Decode response and return
-    const decoded = yield* S.decodeUnknown(V1.Passkey.GenerateAuthenticateOptions.Success)(result);
+    const decoded = yield* S.decodeUnknown(V1.ApiKey.List.Success)(result);
     return yield* F.pipe(decoded, HttpServerResponse.json);
   },
   Effect.mapError(
     (e) =>
       new IamAuthError({
-        message: "Failed to generate authentication options.",
+        message: "Failed to list API keys.",
         cause: e,
       })
   )
