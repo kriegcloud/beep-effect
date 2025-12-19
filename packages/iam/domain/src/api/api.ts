@@ -13,7 +13,7 @@ export class IamApi extends HttpApi.make("iam")
     "x-tagGroups": [
       {
         name: "v1 / IAM",
-        tags: ["iam.signIn", "iam.signUp", "iam.core", "iam.admin", "iam.organization"],
+        tags: ["iam.signIn", "iam.signUp", "iam.core", "iam.admin", "iam.organization", "iam.passkey", "iam.twoFactor"],
       },
     ],
   })) {}

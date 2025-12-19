@@ -42,14 +42,14 @@ This plan systematically migrates ~138 Better Auth endpoints from a Next.js catc
 | M8        | Token Management   | COMPLETE     | 3         | [CORE.md](../better-auth-specs/CORE.md#post-refresh-token)             |
 | M9        | Admin              | COMPLETE     | 15        | [ADMIN.md](../better-auth-specs/ADMIN.md)                              |
 | M10       | Organization       | COMPLETE     | 35        | [ORGANIZATION.md](../better-auth-specs/ORGANIZATION.md)                |
-| M11       | Two-Factor         | PENDING      | 8         | [TWO_FACTOR.md](../better-auth-specs/TWO_FACTOR.md)                    |
-| M12       | Passkey            | PENDING      | 7         | [PASSKEY.md](../better-auth-specs/PASSKEY.md)                          |
+| M11       | Two-Factor         | COMPLETE     | 8         | [TWO_FACTOR.md](../better-auth-specs/TWO_FACTOR.md)                    |
+| M12       | Passkey            | COMPLETE     | 7         | [PASSKEY.md](../better-auth-specs/PASSKEY.md)                          |
 | M13       | OAuth2             | PENDING      | 8         | [OAUTH2.md](../better-auth-specs/OAUTH2.md)                            |
 | M14       | SSO                | PENDING      | 5         | [SSO.md](../better-auth-specs/SSO.md)                                  |
 | M15       | Advanced           | PENDING      | 33        | Multiple (Phone, API Key, Device, Multi-Session, Misc, CORE utilities) |
 
 **Total**: 138 endpoints across 16 milestones (2+7+1+3+2+3+3+3+3+15+35+8+7+8+5+33)
-**Completed**: 77 endpoints (M0: 2/2 ✅, M1: 7/7 ✅, M2: 1/1 ✅, M3: 3/3 ✅, M4: 2/2 ✅, M5: 3/3 ✅, M6: 3/3 ✅, M7: 3/3 ✅, M8: 3/3 ✅, M9: 15/15 ✅, M10: 35/35 ✅)
+**Completed**: 92 endpoints (M0: 2/2 ✅, M1: 7/7 ✅, M2: 1/1 ✅, M3: 3/3 ✅, M4: 2/2 ✅, M5: 3/3 ✅, M6: 3/3 ✅, M7: 3/3 ✅, M8: 3/3 ✅, M9: 15/15 ✅, M10: 35/35 ✅, M11: 8/8 ✅, M12: 7/7 ✅)
 **In Progress**: 0 endpoints
 
 ---
@@ -115,8 +115,8 @@ After M5 completes, these milestones can execute in **any order** or **in parall
 
    M9:  Admin                   - admin/* (15 endpoints)              [COMPLETE]
    M10: Organization            - organization/* (35 endpoints)       [COMPLETE]
-   M11: Two-Factor              - two-factor/* (8 endpoints)          [PENDING]
-   M12: Passkey                 - passkey/* (7 endpoints)             [PENDING]
+   M11: Two-Factor              - two-factor/* (8 endpoints)          [COMPLETE]
+   M12: Passkey                 - passkey/* (7 endpoints)             [COMPLETE]
    M13: OAuth2                  - oauth2/* (8 endpoints)              [PENDING]
    M14: SSO                     - sso/* (5 endpoints)                 [PENDING]
    M15: Advanced                - phone-number, api-key, device,      [PENDING]
@@ -400,27 +400,54 @@ The CORE spec (29 endpoints) is split across multiple milestones:
 
 ---
 
-### M11: Two-Factor (PENDING)
+### M11: Two-Factor (COMPLETE)
 
 **Group**: `iam.twoFactor`
 **Endpoints**: 8
 **Spec**: [TWO_FACTOR.md](../better-auth-specs/TWO_FACTOR.md)
 **Path Prefix**: `/two-factor`
 
+**Domain**: `packages/iam/domain/src/api/v1/two-factor/`
+**Infra**: `packages/iam/infra/src/api/v1/two-factor/`
+
+| Method | Path                      | Domain File               | Infra File                | Better Auth Method      |
+|--------|---------------------------|---------------------------|---------------------------|-------------------------|
+| POST   | /two-factor/disable       | `disable.ts`              | `disable.ts`              | `disableTwoFactor`      |
+| POST   | /two-factor/enable        | `enable.ts`               | `enable.ts`               | `enableTwoFactor`       |
+| POST   | /two-factor/generate-backup-codes | `generate-backup-codes.ts` | `generate-backup-codes.ts` | `generateBackupCodes` |
+| POST   | /two-factor/get-totp-uri  | `get-totp-uri.ts`         | `get-totp-uri.ts`         | `getTOTPURI`            |
+| POST   | /two-factor/send-otp      | `send-otp.ts`             | `send-otp.ts`             | `sendTwoFactorOTP`      |
+| POST   | /two-factor/verify-backup-code | `verify-backup-code.ts` | `verify-backup-code.ts`  | `verifyBackupCode`      |
+| POST   | /two-factor/verify-otp    | `verify-otp.ts`           | `verify-otp.ts`           | `verifyTwoFactorOTP`    |
+| POST   | /two-factor/verify-totp   | `verify-totp.ts`          | `verify-totp.ts`          | `verifyTOTP`            |
+
 **Dependencies**: M5
-**Document**: See milestone document `M11_TWO_FACTOR.md` (to be created)
+**Status**: All 8 two-factor endpoints implemented with `runAuthEndpoint`, `runAuthCommand` helpers.
 
 ---
 
-### M12: Passkey (PENDING)
+### M12: Passkey (COMPLETE)
 
 **Group**: `iam.passkey`
 **Endpoints**: 7
 **Spec**: [PASSKEY.md](../better-auth-specs/PASSKEY.md)
 **Path Prefix**: `/passkey`
 
+**Domain**: `packages/iam/domain/src/api/v1/passkey/`
+**Infra**: `packages/iam/infra/src/api/v1/passkey/`
+
+| Method | Path                                  | Domain File                       | Infra File                        | Better Auth Method                    |
+|--------|---------------------------------------|-----------------------------------|-----------------------------------|---------------------------------------|
+| POST   | /passkey/delete-passkey               | `delete-passkey.ts`               | `delete-passkey.ts`               | `deletePasskey`                       |
+| GET    | /passkey/generate-authenticate-options| `generate-authenticate-options.ts`| `generate-authenticate-options.ts`| `generatePasskeyAuthenticationOptions`|
+| GET    | /passkey/generate-register-options    | `generate-register-options.ts`    | `generate-register-options.ts`    | `generatePasskeyRegistrationOptions`  |
+| GET    | /passkey/list-user-passkeys           | `list-user-passkeys.ts`           | `list-user-passkeys.ts`           | `listPasskeys`                        |
+| POST   | /passkey/update-passkey               | `update-passkey.ts`               | `update-passkey.ts`               | `updatePasskey`                       |
+| POST   | /passkey/verify-authentication        | `verify-authentication.ts`        | `verify-authentication.ts`        | `verifyPasskeyAuthentication`         |
+| POST   | /passkey/verify-registration          | `verify-registration.ts`          | `verify-registration.ts`          | `verifyPasskeyRegistration`           |
+
 **Dependencies**: M5
-**Document**: See milestone document `M12_PASSKEY.md` (to be created)
+**Status**: All 7 passkey endpoints implemented. WebAuthn response types handled via BetterAuthBridge wrappers to avoid type assertions.
 
 ---
 
@@ -773,6 +800,6 @@ Fill in the boilerplated stubs with working code:
 ---
 
 **Last Updated**: 2025-12-19
-**Migration Phase**: Phase 3 - Parallel Implementation (M11-M15)
-**Next Milestone**: M11 (Two-Factor - 8 endpoints) or M12-M15 (all unlocked)
-**Current Status**: M0-M10 ✅ COMPLETE | 77/138 endpoints complete (56% migrated)
+**Migration Phase**: Phase 3 - Parallel Implementation (M13-M15)
+**Next Milestone**: M13 (OAuth2 - 8 endpoints), M14 (SSO - 5 endpoints), or M15 (Advanced - 33 endpoints)
+**Current Status**: M0-M12 ✅ COMPLETE | 92/138 endpoints complete (67% migrated)

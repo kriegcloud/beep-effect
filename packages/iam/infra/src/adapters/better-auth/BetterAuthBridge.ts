@@ -163,3 +163,62 @@ export const listOrgRoles = (
     readonly headers: unknown;
   }
 ): Effect.Effect<unknown, Error> => callDynamicMethod(api, "listOrgRoles", opts);
+
+/**
+ * Passkey input types for endpoints that accept WebAuthn responses.
+ *
+ * WebAuthn response types are complex external types from @simplewebauthn/server.
+ * These wrappers allow passing opaque JSON objects that the browser generates.
+ */
+export namespace PasskeyInput {
+  /**
+   * Input for verifyPasskeyAuthentication endpoint.
+   * The response field contains WebAuthn AuthenticationResponseJSON from the browser.
+   */
+  export interface VerifyAuthentication {
+    readonly response: Record<string, unknown>;
+  }
+
+  /**
+   * Input for verifyPasskeyRegistration endpoint.
+   * The response field contains WebAuthn RegistrationResponseJSON from the browser.
+   */
+  export interface VerifyRegistration {
+    readonly response: Record<string, unknown>;
+    readonly name?: string | undefined;
+  }
+}
+
+/**
+ * Verify a passkey authentication response.
+ *
+ * The WebAuthn response from the browser is passed through opaquely since
+ * the AuthenticationResponseJSON type is complex and external.
+ *
+ * @category Passkey
+ * @since 0.1.0
+ */
+export const verifyPasskeyAuthentication = (
+  api: Record<string, unknown>,
+  opts: {
+    readonly body: PasskeyInput.VerifyAuthentication;
+    readonly headers: unknown;
+  }
+): Effect.Effect<unknown, Error> => callDynamicMethod(api, "verifyPasskeyAuthentication", opts);
+
+/**
+ * Verify a passkey registration response.
+ *
+ * The WebAuthn response from the browser is passed through opaquely since
+ * the RegistrationResponseJSON type is complex and external.
+ *
+ * @category Passkey
+ * @since 0.1.0
+ */
+export const verifyPasskeyRegistration = (
+  api: Record<string, unknown>,
+  opts: {
+    readonly body: PasskeyInput.VerifyRegistration;
+    readonly headers: unknown;
+  }
+): Effect.Effect<unknown, Error> => callDynamicMethod(api, "verifyPasskeyRegistration", opts);
