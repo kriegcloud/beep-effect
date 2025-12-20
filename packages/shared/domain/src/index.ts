@@ -1,3 +1,4 @@
+export { SharedApi } from "./api/api";
 export * as Common from "./common";
 export * as Entities from "./entities";
 export * from "./entity-ids";

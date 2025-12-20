@@ -70,7 +70,7 @@ export const layer = HttpLayerRouter.serve(AllRoutes, {
   HttpMiddleware.withSpanNameGenerator((request: HttpServerRequest.HttpServerRequest) => {
     let path = request.url;
     try {
-      const host = request.headers.host ?? "localhost:8080";
+      const host = request.headers.host ?? `${serverEnv.app.apiHost}:${serverEnv.app.apiPort}`;
       const base = `http://${host}`;
       const parsedUrl = new URL(request.url, base);
       path = parsedUrl.pathname;

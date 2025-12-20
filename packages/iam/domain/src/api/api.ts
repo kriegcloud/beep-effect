@@ -5,9 +5,9 @@ import * as V1 from "./v1";
 export class IamApi extends HttpApi.make("iam")
   .addHttpApi(V1.Api)
   .prefix("/v1")
-  .annotate(OpenApi.Title, "IAM API")
+  .annotate(OpenApi.Title, "Beep Effect API")
   .annotate(OpenApi.Version, "1.0.0")
-  .annotate(OpenApi.Description, "Identity and Access Management API")
+  .annotate(OpenApi.Description, "Identity and Access Management API with RPC reference documentation")
   .annotate(OpenApi.Transform, (spec) => ({
     ...spec,
     "x-tagGroups": [
@@ -25,6 +25,10 @@ export class IamApi extends HttpApi.make("iam")
           "iam.oauth2",
           "iam.apiKey",
         ],
+      },
+      {
+        name: "v1 / Shared & RPC",
+        tags: ["shared.rpc"],
       },
     ],
   })) {}

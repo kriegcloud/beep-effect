@@ -91,6 +91,8 @@ const AppConfig = Config.zipWith(
       mcpUrl: Config.url("MCP_URL"),
       authUrl: Config.url("AUTH_URL"),
       apiUrl: Config.url("API_URL"),
+      apiHost: Config.string("API_HOST"),
+      apiPort: Config.port("API_PORT"),
       clientUrl: Config.url("CLIENT_URL"),
       api: Config.nested("API")(
         Config.all({
