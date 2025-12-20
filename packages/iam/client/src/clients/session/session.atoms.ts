@@ -1,5 +1,5 @@
 "use client";
-import { makeAtomRuntime } from "@beep/runtime-client/services/runtime/make-atom-runtime";
+import { makeAtomRuntime } from "@beep/runtime-client/runtime";
 import { Atom, useAtomValue } from "@effect-atom/atom-react";
 import { SessionService } from "./session.service";
 

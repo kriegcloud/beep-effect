@@ -1,6 +1,6 @@
 "use client";
 import { SignUpService } from "@beep/iam-client/clients/sign-up/sign-up.service";
-import { makeAtomRuntime } from "@beep/runtime-client/services/runtime/make-atom-runtime";
+import { makeAtomRuntime } from "@beep/runtime-client/runtime";
 import { withToast } from "@beep/ui/common";
 import { useAtomSet } from "@effect-atom/atom-react";
 import * as F from "effect/Function";

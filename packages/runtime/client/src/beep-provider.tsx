@@ -1,9 +1,9 @@
 "use client";
 import * as ManagedRuntime from "effect/ManagedRuntime";
 import React from "react";
-import type { LiveManagedRuntime } from "./services/runtime/live-layer";
-import { clientRuntimeLayer } from "./services/runtime/live-layer";
-import { RuntimeProvider } from "./services/runtime/runtime-provider";
+import { clientRuntimeLayer } from "./layer";
+import { RuntimeProvider } from "./providers";
+import type { LiveManagedRuntime } from "./runtime";
 
 type BeepProviderProps = {
   children: React.ReactNode;

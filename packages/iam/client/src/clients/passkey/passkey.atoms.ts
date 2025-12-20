@@ -7,7 +7,7 @@ import type {
   PasskeyUpdateContract,
 } from "@beep/iam-client/clients/passkey/passkey.contracts";
 import { PasskeyService } from "@beep/iam-client/clients/passkey/passkey.service";
-import { makeAtomRuntime } from "@beep/runtime-client/services/runtime/make-atom-runtime";
+import { makeAtomRuntime } from "@beep/runtime-client/runtime";
 import { IamEntityIds } from "@beep/shared-domain";
 import { withToast } from "@beep/ui/common";
 import { Atom, Registry, Result, useAtomSet, useAtomValue } from "@effect-atom/atom-react";

@@ -1,5 +1,5 @@
 "use client";
-import { makeAtomRuntime } from "@beep/runtime-client/services/runtime/make-atom-runtime";
+import { makeAtomRuntime } from "@beep/runtime-client/runtime";
 import { paths } from "@beep/shared-domain";
 import { withToast } from "@beep/ui/common";
 import { useAtomSet } from "@effect-atom/atom-react";

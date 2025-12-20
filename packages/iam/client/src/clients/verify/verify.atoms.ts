@@ -1,6 +1,6 @@
 "use client";
 import type { Contract } from "@beep/contract";
-import { makeAtomRuntime } from "@beep/runtime-client/services/runtime/make-atom-runtime";
+import { makeAtomRuntime } from "@beep/runtime-client/runtime";
 import { withToast } from "@beep/ui/common";
 import { useAtomSet } from "@effect-atom/atom-react";
 import * as F from "effect/Function";

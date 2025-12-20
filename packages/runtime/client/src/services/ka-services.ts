@@ -1,8 +1,8 @@
 "use client";
 import { useAtomMount } from "@effect-atom/atom-react";
 import type React from "react";
-import { WorkerClient } from "../../worker/worker-client";
-import { makeAtomRuntime } from "./make-atom-runtime";
+import { makeAtomRuntime } from "../runtime.ts";
+import { WorkerClient } from "../workers/worker-client";
 
 const kaRuntime = makeAtomRuntime(WorkerClient.Default);
 

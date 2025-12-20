@@ -1,5 +1,5 @@
 // import { $WebId } from "@beep/identity/packages";
-// import { makeAtomRuntime } from "@beep/runtime-client/services/runtime/make-atom-runtime";
+// import { makeAtomRuntime } from "@beep/runtime-client/runtime";
 // import type { BS } from "@beep/schema";
 // import type { FileFromSelf } from "@beep/schema/integrations/files/File";
 // import type { File } from "@beep/shared-domain/entities";
