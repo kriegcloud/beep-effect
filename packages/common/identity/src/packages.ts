@@ -22,9 +22,9 @@ export const $I = Identifier.make("beep").$BeepId;
 
 const composers = $I.compose(
   "shared-ui",
-  "shared-sdk",
+  "shared-client",
   "repo-scripts",
-  "iam-infra",
+  "iam-server",
   "documents-tables",
   "ui",
   "invariant",
@@ -33,9 +33,9 @@ const composers = $I.compose(
   "documents-domain",
   "contract",
   "runtime-server",
-  "iam-sdk",
+  "iam-client",
   "iam-ui",
-  "shared-infra",
+  "shared-server",
   "identity",
   "utils",
   "iam-domain",
@@ -47,14 +47,14 @@ const composers = $I.compose(
   "errors",
   "types",
   "build-utils",
-  "documents-sdk",
+  "documents-client",
   "documents-ui",
   "constants",
   "testkit",
   "tooling-utils",
   "repo-cli",
   "notes",
-  "documents-infra",
+  "documents-server",
   "scraper",
   "shared-domain",
   "db-admin",
@@ -83,15 +83,15 @@ export const $SharedUiId = composers.$SharedUiId;
  *
  * @example
  * ```typescript
- * import { $SharedSdkId } from "@beep/identity"
+ * import { $SharedClientId } from "@beep/identity"
  *
- * const contractId = $SharedSdkId.make("ApiContract")
+ * const contractId = $SharedClientId.make("ApiContract")
  * ```
  *
  * @category symbols
  * @since 0.1.0
  */
-export const $SharedSdkId = composers.$SharedSdkId;
+export const $SharedClientId = composers.$SharedClientId;
 
 /**
  * Identity composer for the `@beep/repo-scripts` namespace.
@@ -113,15 +113,15 @@ export const $RepoScriptsId = composers.$RepoScriptsId;
  *
  * @example
  * ```typescript
- * import { $IamInfraId } from "@beep/identity"
+ * import { $IamServerId } from "@beep/identity"
  *
- * const repoId = $IamInfraId.make("UserRepository")
+ * const repoId = $IamServerId.make("UserRepository")
  * ```
  *
  * @category symbols
  * @since 0.1.0
  */
-export const $IamInfraId = composers.$IamInfraId;
+export const $IamServerId = composers.$IamServerId;
 
 /**
  * Identity composer for the `@beep/documents-tables` namespace.
@@ -248,15 +248,15 @@ export const $RuntimeServerId = composers.$RuntimeServerId;
  *
  * @example
  * ```typescript
- * import { $IamSdkId } from "@beep/identity"
+ * import { $IamClientId } from "@beep/identity"
  *
- * const clientId = $IamSdkId.make("AuthClient")
+ * const clientId = $IamClientId.make("AuthClient")
  * ```
  *
  * @category symbols
  * @since 0.1.0
  */
-export const $IamSdkId = composers.$IamSdkId;
+export const $IamClientId = composers.$IamClientId;
 
 /**
  * Identity composer for the `@beep/iam-ui` namespace.
@@ -278,15 +278,15 @@ export const $IamUiId = composers.$IamUiId;
  *
  * @example
  * ```typescript
- * import { $SharedInfraId } from "@beep/identity"
+ * import { $SharedServerId } from "@beep/identity"
  *
- * const serviceId = $SharedInfraId.make("DatabaseService")
+ * const serviceId = $SharedServerId.make("DatabaseService")
  * ```
  *
  * @category symbols
  * @since 0.1.0
  */
-export const $SharedInfraId = composers.$SharedInfraId;
+export const $SharedServerId = composers.$SharedServerId;
 
 /**
  * Identity composer for the `@beep/identity` namespace.
@@ -458,15 +458,15 @@ export const $BuildUtilsId = composers.$BuildUtilsId;
  *
  * @example
  * ```typescript
- * import { $DocumentsSdkId } from "@beep/identity"
+ * import { $DocumentsClientId } from "@beep/identity"
  *
- * const clientId = $DocumentsSdkId.make("DocumentsClient")
+ * const clientId = $DocumentsClientId.make("DocumentsClient")
  * ```
  *
  * @category symbols
  * @since 0.1.0
  */
-export const $DocumentsSdkId = composers.$DocumentsSdkId;
+export const $DocumentsClientId = composers.$DocumentsClientId;
 
 /**
  * Identity composer for the `@beep/documents-ui` namespace.
@@ -563,15 +563,15 @@ export const $NotesId = composers.$NotesId;
  *
  * @example
  * ```typescript
- * import { $DocumentsInfraId } from "@beep/identity"
+ * import { $DocumentsServerId } from "@beep/identity"
  *
- * const serviceId = $DocumentsInfraId.make("S3StorageService")
+ * const serviceId = $DocumentsServerId.make("S3StorageService")
  * ```
  *
  * @category symbols
  * @since 0.1.0
  */
-export const $DocumentsInfraId = composers.$DocumentsInfraId;
+export const $DocumentsServerId = composers.$DocumentsServerId;
 
 /**
  * Identity composer for the `@beep/scraper` namespace.

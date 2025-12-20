@@ -65,7 +65,7 @@ export function PrimaryNav({ sx, navData, className, ...other }: PrimaryNavProps
             gap: "var(--primary-nav-list-gap)",
           }}
         >
-          {navData?.map((section) => (
+          {navData?.map((section: { readonly title: string; readonly items: ReadonlyArray<NavItemData> }) => (
             <PrimaryNavList key={section.title} subheader={section.title} items={section.items} />
           ))}
         </NavUl>
@@ -141,14 +141,16 @@ function PrimaryNavList({ subheader, items }: NavListProps) {
 
 // ----------------------------------------------------------------------
 
+type SecondaryNavItem = {
+  readonly name: string;
+  readonly description?: React.ReactNode;
+  readonly component: React.ReactNode;
+};
+
 type SecondaryNavProps = NavRootProps & {
   activeItem: number | null;
   onClickItem: (index: number) => void;
-  navData?: {
-    name: string;
-    description?: React.ReactNode;
-    component: React.ReactNode;
-  }[];
+  navData?: SecondaryNavItem[];
 };
 
 export function SecondaryNav({ sx, navData, className, onClickItem, activeItem, ...other }: SecondaryNavProps) {
@@ -158,7 +160,7 @@ export function SecondaryNav({ sx, navData, className, onClickItem, activeItem, 
         <NavUl sx={{ gap: "var(--secondary-nav-item-gap)" }}>
           <NavLi sx={{ mb: 1, typography: "overline" }}>On this page</NavLi>
 
-          {navData?.map((item, index) => (
+          {navData?.map((item: SecondaryNavItem, index: number) => (
             <NavLi key={item.name}>
               <NavItem isActive={activeItem === index} onClick={() => onClickItem(index)}>
                 {index + 1} - {item.name}

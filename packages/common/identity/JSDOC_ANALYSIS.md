@@ -79,13 +79,13 @@ You are tasked with adding missing JSDoc documentation to this package. Follow t
 - [ ] `src/packages.ts:539` — **$SharedUiId** (const)
   - Missing: @category, @example, @since
 
-- [ ] `src/packages.ts:540` — **$SharedSdkId** (const)
+- [ ] `src/packages.ts:540` — **$SharedClientId** (const)
   - Missing: @category, @example, @since
 
 - [ ] `src/packages.ts:541` — **$RepoScriptsId** (const)
   - Missing: @category, @example, @since
 
-- [ ] `src/packages.ts:542` — **$IamInfraId** (const)
+- [ ] `src/packages.ts:542` — **$IamServerId** (const)
   - Missing: @category, @example, @since
 
 - [ ] `src/packages.ts:543` — **$DocumentsTablesId** (const)
@@ -112,13 +112,13 @@ You are tasked with adding missing JSDoc documentation to this package. Follow t
 - [ ] `src/packages.ts:550` — **$RuntimeServerId** (const)
   - Missing: @category, @example, @since
 
-- [ ] `src/packages.ts:551` — **$IamSdkId** (const)
+- [ ] `src/packages.ts:551` — **$IamClientId** (const)
   - Missing: @category, @example, @since
 
 - [ ] `src/packages.ts:552` — **$IamUiId** (const)
   - Missing: @category, @example, @since
 
-- [ ] `src/packages.ts:553` — **$SharedInfraId** (const)
+- [ ] `src/packages.ts:553` — **$SharedServerId** (const)
   - Missing: @category, @example, @since
 
 - [ ] `src/packages.ts:554` — **$IdentityId** (const)
@@ -154,7 +154,7 @@ You are tasked with adding missing JSDoc documentation to this package. Follow t
 - [ ] `src/packages.ts:564` — **$BuildUtilsId** (const)
   - Missing: @category, @example, @since
 
-- [ ] `src/packages.ts:565` — **$DocumentsSdkId** (const)
+- [ ] `src/packages.ts:565` — **$DocumentsClientId** (const)
   - Missing: @category, @example, @since
 
 - [ ] `src/packages.ts:566` — **$DocumentsUiId** (const)
@@ -175,7 +175,7 @@ You are tasked with adding missing JSDoc documentation to this package. Follow t
 - [ ] `src/packages.ts:571` — **$NotesId** (const)
   - Missing: @category, @example, @since
 
-- [ ] `src/packages.ts:572` — **$DocumentsInfraId** (const)
+- [ ] `src/packages.ts:572` — **$DocumentsServerId** (const)
   - Missing: @category, @example, @since
 
 - [ ] `src/packages.ts:573` — **$ScraperId** (const)

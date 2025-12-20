@@ -6,7 +6,6 @@ import { rgbaFromChannel } from "@beep/ui-core/utils";
 import { StrUtils } from "@beep/utils";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
-import type { CardHeaderProps } from "@mui/material/CardHeader";
 import CardHeader from "@mui/material/CardHeader";
 import type { ContainerProps } from "@mui/material/Container";
 import Container from "@mui/material/Container";
@@ -22,18 +21,18 @@ import { allComponents } from "./nav-config-components";
 
 // ----------------------------------------------------------------------
 
+type SectionDataItem = {
+  readonly name: string;
+  readonly description?: React.ReactNode | undefined;
+  readonly action?: React.ReactNode | undefined;
+  readonly component: React.ReactNode;
+};
+
 type ComponentLayoutProps = React.ComponentProps<typeof LayoutRoot> & {
   readonly offsetValue?: number | undefined;
   readonly queryClassName?: string | undefined;
   readonly containerProps?: ContainerProps | undefined;
-  readonly sectionData?:
-    | {
-        readonly name: string;
-        readonly description?: CardHeaderProps["subheader"] | undefined;
-        readonly action?: CardHeaderProps["action"] | undefined;
-        readonly component: React.ReactNode;
-      }[]
-    | undefined;
+  readonly sectionData?: SectionDataItem[] | undefined;
   readonly heroProps?:
     | (CustomBreadcrumbsProps & {
         readonly overrideContent?: React.ReactNode | undefined;
@@ -114,7 +113,7 @@ export function ComponentLayout({
     <LayoutContainer maxWidth="md" {...containerProps}>
       {children ?? (
         <LayoutSection>
-          {sectionData?.map((section) => {
+          {sectionData?.map((section: SectionDataItem) => {
             const hashId = `${StrUtils.kebabCase(section.name)}`;
 
             return (

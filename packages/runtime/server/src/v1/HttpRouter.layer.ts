@@ -1,6 +1,7 @@
 import { AllowedHeaders } from "@beep/constants";
 import { IamApi } from "@beep/iam-domain";
 import { IamApiLive } from "@beep/iam-server";
+
 import { BS } from "@beep/schema";
 import { serverEnv } from "@beep/shared-server/ServerEnv";
 import * as HttpApiScalar from "@effect/platform/HttpApiScalar";
@@ -13,7 +14,8 @@ import * as Layer from "effect/Layer";
 import * as P from "effect/Predicate";
 import * as AuthContext from "./AuthContext.layer.ts";
 import * as Logger from "./Logger.layer.ts";
-import * as Rpc from "./Rpc.layer.ts";
+
+// import * as Rpc from "./Rpc.layer.ts";
 
 // Register the IAM HttpApi with the HttpLayerRouter
 // This is the correct pattern for combining HttpApi with HttpLayerRouter
@@ -21,9 +23,7 @@ const IamApiRoutes = HttpLayerRouter.addHttpApi(IamApi, {
   openapiPath: "/v1/docs/openapi.json",
 }).pipe(
   // Provide the IAM API handler implementations
-  Layer.provide(IamApiLive),
-  // Provide unified auth middleware for routes that need AuthContext
-  Layer.provide(AuthContext.layer)
+  Layer.provideMerge(IamApiLive)
 );
 
 // Swagger/Scalar documentation route
@@ -43,14 +43,17 @@ const CorsMiddleware = HttpLayerRouter.cors({
   credentials: true,
 });
 
-// Merge all routes with unified AuthContext middleware
-const AllRoutes = Layer.mergeAll(
-  IamApiRoutes,
-  DocsRoute,
-  // RPC routes also get AuthContext via the unified middleware
-  Rpc.layer.pipe(Layer.provide(AuthContext.layer)),
-  HealthRoute
-).pipe(Layer.provide(CorsMiddleware));
+// Protected routes that require authentication
+const ProtectedRoutes = Layer.mergeAll(
+  IamApiRoutes
+  // Rpc.layer
+).pipe(Layer.provideMerge(AuthContext.layer));
+
+// Public routes that don't require authentication
+const PublicRoutes = Layer.mergeAll(DocsRoute, HealthRoute);
+
+// Merge protected and public routes, apply CORS to all
+const AllRoutes = Layer.mergeAll(ProtectedRoutes, PublicRoutes).pipe(Layer.provide(CorsMiddleware));
 
 // Serve all routes with middleware
 export const layer = HttpLayerRouter.serve(AllRoutes, {

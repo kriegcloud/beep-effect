@@ -1,5 +1,6 @@
 import { useBoolean, usePathname } from "@beep/ui/hooks";
 import { isActiveLink, isEqualPath, isExternalLink } from "@beep/ui-core/utils";
+import type { Theme } from "@mui/material/styles";
 import { useCallback, useEffect, useRef } from "react";
 import { Nav, NavDropdown, NavLi, NavUl } from "../components";
 import type { NavListProps, NavSubListProps } from "../types";
@@ -85,7 +86,7 @@ function NavSubList({ data, subheader, sx, ...other }: NavSubListProps) {
     >
       <NavUl>
         <NavLi
-          sx={(theme) => ({
+          sx={(theme: Theme) => ({
             mb: 0.75,
             typography: "overline",
             fontSize: theme.typography.pxToRem(11),

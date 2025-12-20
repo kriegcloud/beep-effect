@@ -1,4 +1,4 @@
-import { $SharedInfraId } from "@beep/identity/packages";
+import { $SharedServerId } from "@beep/identity/packages";
 import * as SqlError from "@effect/sql/SqlError";
 import * as F from "effect/Function";
 import * as Match from "effect/Match";
@@ -10,7 +10,7 @@ import { BOX, QueryType, SqlString } from "./formatter";
 // import { DrizzleQueryError, DrizzleError, TransactionRollbackError } from "drizzle-orm/errors";
 import { PgErrorCodeFromKey } from "./pg-error-enum";
 
-const $I = $SharedInfraId.create("internal/pg/errors");
+const $I = $SharedServerId.create("internal/pg/errors");
 
 export class RawPgError extends S.declare(
   (error: unknown): error is pg.DatabaseError => error instanceof pg.DatabaseError

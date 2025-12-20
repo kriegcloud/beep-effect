@@ -1,4 +1,4 @@
-import { $IamSdkId } from "@beep/identity/packages";
+import { $IamClientId } from "@beep/identity/packages";
 
 export const {
   $AdminId,
@@ -20,7 +20,7 @@ export const {
   $TwoFactorId,
   $UserId,
   $VerifyId,
-} = $IamSdkId
+} = $IamClientId
   .compose("clients")
   .$ClientsId.compose(
     "admin",

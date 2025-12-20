@@ -3,13 +3,13 @@
  *
  * @since 0.1.0
  */
-import { $SharedInfraId } from "@beep/identity/packages";
+import { $SharedServerId } from "@beep/identity/packages";
 import { Db } from "@beep/shared-server/internal/db";
 import * as SharedDbSchema from "@beep/shared-tables/schema";
 import * as Context from "effect/Context";
 import * as Layer from "effect/Layer";
 
-const $I = $SharedInfraId.create("db/Db");
+const $I = $SharedServerId.create("db/Db");
 
 const serviceEffect: Db.PgClientServiceEffect<typeof SharedDbSchema> = Db.make({
   schema: SharedDbSchema,

@@ -1,6 +1,8 @@
 import { BeepError } from "@beep/errors/shared";
 import type { Organization, Session, User } from "@beep/shared-domain/entities";
+import * as HttpApiMiddleware from "@effect/platform/HttpApiMiddleware";
 import * as HttpLayerRouter from "@effect/platform/HttpLayerRouter";
+import * as RpcMiddleware from "@effect/rpc/RpcMiddleware";
 import type { NonEmptyReadonlyArray } from "effect/Array";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
@@ -74,7 +76,21 @@ export type AuthContextShape = {
 };
 
 export class AuthContext extends Context.Tag("AuthContext")<AuthContext, AuthContextShape>() {}
+export class AuthContextHttpMiddleware extends HttpApiMiddleware.Tag<AuthContextHttpMiddleware>()(
+  "AuthContextHttpMiddleware",
+  {
+    failure: BeepError.Unauthorized,
+    provides: AuthContext,
+  }
+) {}
 
+export class AuthContextRpcMiddleware extends RpcMiddleware.Tag<AuthContextRpcMiddleware>()(
+  "AuthContextRpcMiddleware",
+  {
+    failure: BeepError.Unauthorized,
+    provides: AuthContext,
+  }
+) {}
 export class CurrentUser extends Context.Tag("CurrentUser")<
   CurrentUser,
   {

@@ -3,7 +3,7 @@ import { getFileMeta } from "@beep/ui/atoms";
 import { fData, mergeClasses, rgbaFromChannel } from "@beep/ui-core/utils";
 
 import { styled } from "@mui/material/styles";
-import type { FileRejection } from "react-dropzone";
+import type { ErrorCode, FileRejection } from "react-dropzone";
 import { uploadClasses } from "../classes";
 
 export type RejectedFilesProps = React.ComponentProps<typeof RejectedList> & {
@@ -13,7 +13,7 @@ export type RejectedFilesProps = React.ComponentProps<typeof RejectedList> & {
 export function RejectedFiles({ files = [], sx, className, ...other }: RejectedFilesProps) {
   return (
     <RejectedList className={mergeClasses([uploadClasses.rejected, className])} sx={sx ?? {}} {...other}>
-      {files.map(({ file, errors }) => {
+      {files.map(({ file, errors }: FileRejection) => {
         const fileMeta = getFileMeta(file);
 
         return (
@@ -21,7 +21,7 @@ export function RejectedFiles({ files = [], sx, className, ...other }: RejectedF
             <RejectedTitle>
               {fileMeta.name} - {fileMeta.size ? fData(fileMeta.size) : ""}
             </RejectedTitle>
-            {errors.map((error) => (
+            {errors.map((error: { code: ErrorCode | string; message: string }) => (
               <RejectedMsg key={error.code}>- {error.message}</RejectedMsg>
             ))}
           </RejectedItem>

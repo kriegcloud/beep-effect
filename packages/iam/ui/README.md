@@ -190,7 +190,7 @@ export const MinimalEmailSignIn = () => {
 Custom social provider buttons with filtered providers:
 
 ```typescript
-import { clientEnv } from "@beep/shared-server/ClientEnv";
+import { clientEnv } from "@beep/shared-client/ClientEnv";
 import { SocialIconButton, SocialProviderIcons } from "@beep/iam-ui/_components";
 import { makeRunClientPromise, useRuntime } from "@beep/runtime-client";
 import { iam } from "@beep/iam-client";

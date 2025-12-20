@@ -32,7 +32,7 @@ import { modules } from "@beep/identity";
 const id = modules.$SchemaId`Entity`;
 
 // Strategy 2: Import specific composers directly
-import { $SchemaId, $IamInfraId } from "@beep/identity/packages";
+import { $SchemaId, $IamServerId } from "@beep/identity/packages";
 const id = $SchemaId`Entity`;
 
 // Strategy 3: Import types separately
@@ -71,18 +71,18 @@ import { modules } from "@beep/identity";
 
 const tenantId = modules.$SchemaId`TenantProfile`;
 const fileMetaId = modules.$DocumentsDomainId`FileMetadata`;
-const userRepoId = modules.$IamInfraId.compose("repos").make("UserRepo");
+const userRepoId = modules.$IamServerId.compose("repos").make("UserRepo");
 
 // Option 2: Import pre-configured composers directly
-import { $SchemaId, $IamInfraId, $DocumentsDomainId } from "@beep/identity/packages";
+import { $SchemaId, $IamServerId, $DocumentsDomainId } from "@beep/identity/packages";
 
 const tenantId = $SchemaId`TenantProfile`;
-const userRepoId = $IamInfraId.compose("repos").make("UserRepo");
+const userRepoId = $IamServerId.compose("repos").make("UserRepo");
 
 // Option 3: Compose from root $I
 import { $I } from "@beep/identity/packages";
 
-const { $SchemaId, $IamInfraId } = $I.compose("schema", "iam-infra");
+const { $SchemaId, $IamServerId } = $I.compose("schema", "iam-infra");
 ```
 
 ### Schema Annotations
@@ -119,7 +119,7 @@ import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 
 // Create stable service symbols
-const UserRepoTypeId = modules.$IamInfraId.compose("repos").symbol();
+const UserRepoTypeId = modules.$IamServerId.compose("repos").symbol();
 
 // Use in Effect services
 export class UserRepo extends Context.Tag("UserRepo")<
@@ -149,7 +149,7 @@ const stripeClientId = $StripeId`Client`;
 import { modules } from "@beep/identity";
 
 // Compose multiple segments at once
-const { $ReposId, $ServicesId, $AdaptersId } = modules.$IamInfraId.compose(
+const { $ReposId, $ServicesId, $AdaptersId } = modules.$IamServerId.compose(
   "repos",
   "services",
   "adapters"
@@ -190,7 +190,7 @@ const id = $SchemaId`ServiceName`;
 Creates multiple child composers from the current namespace.
 
 ```typescript
-const { $ReposId, $ServicesId } = $IamInfraId.compose("repos", "services");
+const { $ReposId, $ServicesId } = $IamServerId.compose("repos", "services");
 ```
 
 #### `make(segment)`
@@ -267,22 +267,22 @@ modules.$IdentityId;
 
 // Feature slices - IAM
 modules.$IamDomainId;
-modules.$IamInfraId;
-modules.$IamSdkId;
+modules.$IamServerId;
+modules.$IamClientId;
 modules.$IamUiId;
 modules.$IamTablesId;
 
 // Feature slices - Documents
 modules.$DocumentsDomainId;
-modules.$DocumentsInfraId;
-modules.$DocumentsSdkId;
+modules.$DocumentsServerId;
+modules.$DocumentsClientId;
 modules.$DocumentsUiId;
 modules.$DocumentsTablesId;
 
 // Shared packages
 modules.$SharedDomainId;
-modules.$SharedInfraId;
-modules.$SharedSdkId;
+modules.$SharedServerId;
+modules.$SharedClientId;
 modules.$SharedUiId;
 modules.$SharedTablesId;
 
@@ -506,7 +506,7 @@ import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 
 export class UserRepo extends Context.Tag(
-  modules.$IamInfraId.compose("repos").make("UserRepo")
+  modules.$IamServerId.compose("repos").make("UserRepo")
 )<UserRepo, UserRepoService>() {}
 
 export const UserRepoLive = Layer.succeed(UserRepo, {

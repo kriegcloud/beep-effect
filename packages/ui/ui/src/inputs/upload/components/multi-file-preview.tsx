@@ -4,6 +4,7 @@ import { FileThumbnail, getFileMeta, Iconify, useFilesPreview } from "@beep/ui/a
 import { fData, mergeClasses, rgbaFromChannel } from "@beep/ui-core/utils";
 import IconButton from "@mui/material/IconButton";
 import ListItemText from "@mui/material/ListItemText";
+import type { Theme } from "@mui/material/styles";
 import { styled } from "@mui/material/styles";
 import { uploadClasses } from "../classes";
 import type { FilesUploadType, UploadProps } from "../types";
@@ -51,7 +52,7 @@ export function MultiFilePreview({
               onRemove={() => onRemove?.(file)}
               {...commonProps}
               sx={[
-                (theme) => ({
+                (theme: Theme) => ({
                   width: 80,
                   height: 80,
                   border: `solid 1px ${rgbaFromChannel(theme.vars.palette.grey["500Channel"], 0.16)}`,

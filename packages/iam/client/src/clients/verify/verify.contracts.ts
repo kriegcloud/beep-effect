@@ -1,9 +1,9 @@
 import { Contract, ContractKit } from "@beep/contract";
 import { $VerifyId } from "@beep/iam-client/clients/_internal";
 import { BS } from "@beep/schema";
+import { clientEnv } from "@beep/shared-client/ClientEnv";
 import { paths } from "@beep/shared-domain";
 import * as SharedEntities from "@beep/shared-domain/entities";
-import { clientEnv } from "@beep/shared-server/ClientEnv";
 import * as S from "effect/Schema";
 import { IamError } from "../../errors";
 

@@ -1,6 +1,5 @@
-import { DomainRpc } from "@beep/shared-domain";
-import { EventStreamRpcLive } from "@beep/shared-server/api/public/event-stream/event-stream-rpc-live";
-import { FilesRpcLive } from "@beep/shared-server/api/public/files/files-rpc-live";
+import { SharedRpcs } from "@beep/shared-domain";
+import { SharedServerRpcs } from "@beep/shared-server/rpc";
 import * as RpcMiddleware from "@effect/rpc/RpcMiddleware";
 import * as RpcSerialization from "@effect/rpc/RpcSerialization";
 import * as RpcServer from "@effect/rpc/RpcServer";
@@ -8,13 +7,14 @@ import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as F from "effect/Function";
 import * as Layer from "effect/Layer";
+import * as AuthContextLive from "./AuthContext.layer.ts";
 
 export class RpcLogger extends RpcMiddleware.Tag<RpcLogger>()("RpcLogger", {
   wrap: true,
   optional: true,
 }) {}
 
-export const RpcLoggerLive = Layer.succeed(
+export const RpcLoggerLive: Layer.Layer<RpcLogger, never, never> = Layer.succeed(
   RpcLogger,
   RpcLogger.of((opts) =>
     Effect.flatMap(Effect.exit(opts.next), (exit) =>
@@ -33,13 +33,20 @@ export const RpcLoggerLive = Layer.succeed(
   )
 );
 
+const rpcLayer = RpcServer.layerHttpRouter({
+  group: SharedRpcs.V1.Rpcs,
+  path: "/v1/shared/rpc",
+  protocol: "websocket",
+  spanPrefix: "rpc",
+  disableFatalDefects: true,
+}).pipe(Layer.provide(Layer.mergeAll(SharedServerRpcs.layer)), Layer.provide(AuthContextLive.layer));
+
+const rpcsLayer = Layer.mergeAll(rpcLayer).pipe(Layer.provide(AuthContextLive.layer));
+
 export const layer = RpcServer.layerHttpRouter({
-  group: DomainRpc.middleware(RpcLogger),
+  group: SharedRpcs.V1.Rpcs.middleware(RpcLogger),
   path: "/v1/documents/rpc",
   protocol: "websocket",
   spanPrefix: "rpc",
   disableFatalDefects: true,
-}).pipe(
-  Layer.provide(Layer.mergeAll(EventStreamRpcLive, FilesRpcLive, RpcLoggerLive)),
-  Layer.provide(RpcSerialization.layerNdjson)
-);
+}).pipe(Layer.provideMerge(rpcsLayer), Layer.provide(RpcLoggerLive), Layer.provide(RpcSerialization.layerNdjson));

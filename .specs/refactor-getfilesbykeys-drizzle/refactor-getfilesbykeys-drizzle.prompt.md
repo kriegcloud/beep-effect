@@ -152,7 +152,7 @@ export const file = OrgTable.make(SharedEntityIds.FileId)({
 ### Current Imports in File.repo.ts
 
 ```typescript
-import { $SharedInfraId } from "@beep/identity/packages";
+import { $SharedServerId } from "@beep/identity/packages";
 import { SharedEntityIds } from "@beep/shared-domain";
 import { File, Folder } from "@beep/shared-domain/entities";
 import { SharedDb } from "@beep/shared-server/db";

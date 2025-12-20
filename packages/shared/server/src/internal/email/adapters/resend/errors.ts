@@ -1,10 +1,10 @@
-import { $SharedInfraId } from "@beep/identity/packages";
+import { $SharedServerId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 
-const $I = $SharedInfraId.create("Email/errors");
+const $I = $SharedServerId.create("Email/errors");
 
 export class ResendErrorCode extends BS.StringLiteralKit(
   "missing_required_field",

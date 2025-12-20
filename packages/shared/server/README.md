@@ -91,7 +91,7 @@ Browser-safe environment variables for Next.js client bundles. Validates `NEXT_P
 
 ```typescript
 "use client";
-import { clientEnv } from "@beep/shared-server/ClientEnv";
+import { clientEnv } from "@beep/shared-client/ClientEnv";
 
 const appUrl = clientEnv.appUrl;
 const authUrl = clientEnv.authUrl;

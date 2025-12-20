@@ -22,4 +22,4 @@
  * @category utilities
  * @since 0.1.0
  */
-export const beep = "beep";
+export * from "./ClientEnv";

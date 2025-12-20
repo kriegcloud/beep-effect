@@ -1,5 +1,5 @@
 import type { ConnectionOptions } from "node:tls";
-import { $SharedInfraId } from "@beep/identity/packages";
+import { $SharedServerId } from "@beep/identity/packages";
 import { thunk } from "@beep/utils/thunk";
 import * as Config from "effect/Config";
 import * as Duration from "effect/Duration";
@@ -10,7 +10,7 @@ import type * as Redacted from "effect/Redacted";
 import * as Str from "effect/String";
 import * as Pg from "pg";
 
-const $I = $SharedInfraId.create("internal/db/pg/services/ConnectionConfigService");
+const $I = $SharedServerId.create("internal/db/pg/services/ConnectionConfigService");
 
 Pg.types.setTypeParser(Pg.types.builtins.DATE, F.identity);
 Pg.types.setTypeParser(Pg.types.builtins.TIMESTAMP, F.identity);

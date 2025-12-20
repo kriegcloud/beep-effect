@@ -8,7 +8,7 @@ import { ObjectUtils } from "@beep/utils";
 import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
 import Link from "@mui/material/Link";
-import type { Breakpoint } from "@mui/material/styles";
+import type { Breakpoint, Theme } from "@mui/material/styles";
 import { SettingsButton } from "../components/settings-button";
 import type { HeaderSectionProps, LayoutSectionProps, MainSectionProps } from "../core";
 import { HeaderSection, LayoutSection, MainSection } from "../core";
@@ -100,7 +100,7 @@ export function AuthSplitLayout({ sx, cssVars, children, slotProps, layoutQuery 
     <MainSection
       {...slotProps?.main}
       sx={[
-        (theme) => ({
+        (theme: Theme) => ({
           [theme.breakpoints.up(layoutQuery)]: { flexDirection: "row" },
         }),
         ...(Array.isArray(slotProps?.main?.sx) ? slotProps.main.sx : [slotProps?.main?.sx]),

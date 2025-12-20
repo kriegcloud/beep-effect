@@ -3,7 +3,7 @@
  *
  * @since 0.1.0
  */
-import { $SharedInfraId } from "@beep/identity/packages";
+import { $SharedServerId } from "@beep/identity/packages";
 import { SharedEntityIds } from "@beep/shared-domain";
 import { Folder } from "@beep/shared-domain/entities";
 import { SharedDb } from "@beep/shared-server/db";
@@ -15,7 +15,7 @@ import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 import { dependencies } from "./_common";
 
-const $I = $SharedInfraId.create("repos/Folder");
+const $I = $SharedServerId.create("repos/Folder");
 
 /**
  * Repository service for managing Folder entities with database operations.

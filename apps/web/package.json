@@ -37,6 +37,7 @@
     "@beep/shared-ui": "workspace:^",
     "@emotion/cache": "catalog:",
     "@emotion/react": "catalog:",
+    "@emotion/styled": "catalog:",
     "@emoji-mart/react": "catalog:",
     "@emoji-mart/data": "catalog:",
     "@effect-atom/atom-react": "catalog:",

@@ -1,4 +1,4 @@
-import { $SharedInfraId } from "@beep/identity/packages";
+import { $SharedServerId } from "@beep/identity/packages";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
@@ -8,7 +8,7 @@ import * as Pg from "pg";
 import { DatabaseConnectionLostError } from "../errors";
 import * as ConnectionConfig from "./ConnectionConfig.service";
 
-const $I = $SharedInfraId.create("internal/db/pg/services/ConnectionPoolService");
+const $I = $SharedServerId.create("internal/db/pg/services/ConnectionPoolService");
 export type Shape = {
   readonly pool: Pg.Pool;
   readonly setupConnectionListeners: Effect.Effect<void, DatabaseConnectionLostError, never>;

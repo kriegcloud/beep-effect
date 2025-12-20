@@ -32,7 +32,7 @@ export function ColorPreview({
 
   return (
     <ColorPreviewRoot className={mergeClasses([colorPreviewClasses.root, className])} sx={sx ?? {}} {...other}>
-      {colorsRange.map((color, index) => (
+      {colorsRange.map((color: string, index: number) => (
         <ItemRoot
           key={color + index}
           className={colorPreviewClasses.item}

@@ -1,12 +1,11 @@
 import { BeepError } from "@beep/errors";
 import { Auth, IamDb } from "@beep/iam-server";
 import { IamDbSchema } from "@beep/iam-tables";
+import { Policy } from "@beep/shared-domain";
 import { Organization, Session, User } from "@beep/shared-domain/entities";
-import { AuthContext } from "@beep/shared-domain/Policy";
+import { AuthContext, AuthContextRpcMiddleware, type AuthContextShape } from "@beep/shared-domain/Policy";
 import * as PlatformHeaders from "@effect/platform/Headers";
-import * as HttpLayerRouter from "@effect/platform/HttpLayerRouter";
 import * as HttpServerRequest from "@effect/platform/HttpServerRequest";
-import type * as HttpServerResponse from "@effect/platform/HttpServerResponse";
 import { eq } from "drizzle-orm";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
@@ -19,14 +18,14 @@ import * as Authentication from "./Authentication.layer.ts";
  * Extracts authentication context from HTTP headers.
  */
 const getAuthContext = ({
-  auth,
-  iamDb: { execute },
   headers,
+  iamDb: { execute },
+  auth,
 }: {
-  auth: Auth.Auth;
-  iamDb: IamDb.Shape;
-  headers: PlatformHeaders.Headers;
-}) =>
+  readonly auth: Auth.Auth;
+  readonly iamDb: IamDb.Shape;
+  readonly headers: PlatformHeaders.Headers;
+}): Effect.Effect<AuthContextShape, BeepError.Unauthorized, never> =>
   Effect.gen(function* () {
     const cookie = PlatformHeaders.get(headers, "cookie");
     const authorization = PlatformHeaders.get(headers, "authorization");
@@ -88,43 +87,91 @@ const getAuthContext = ({
   });
 
 /**
- * HttpLayerRouter middleware that provides AuthContext to route handlers.
+ * Layer that provides AuthContext per-request.
  *
- * This middleware:
- * 1. Captures Auth.Service and IamDb at construction time (from layer dependencies)
- * 2. At request time, extracts headers from HttpServerRequest
- * 3. Validates session and provides AuthContext to downstream handlers
- *
- * The middleware pattern ensures HttpServerRequest dependency doesn't leak
- * to the server layer - it's only required during request handling.
+ * This layer depends on HttpServerRequest which is available during request handling.
+ * When a handler runs and accesses AuthContext, this layer extracts auth from the
+ * request headers and provides the AuthContext service.
  */
-export const AuthContextMiddlewareLive = HttpLayerRouter.middleware<{
-  provides: AuthContext;
-}>()(
+const contextLayerEffect: Effect.Effect<
+  AuthContextShape,
+  BeepError.Unauthorized,
+  Auth.Service | IamDb.IamDb | HttpServerRequest.HttpServerRequest
+> = Effect.gen(function* () {
+  const auth = yield* Auth.Service;
+  const iamDb = yield* IamDb.IamDb;
+  const request = yield* HttpServerRequest.HttpServerRequest;
+  return yield* getAuthContext({
+    auth,
+    iamDb,
+    headers: request.headers,
+  });
+});
+export const AuthContextLayer = Layer.effect(AuthContext, contextLayerEffect);
+
+export const AuthContextRpcMiddlewaresLayer: Layer.Layer<AuthContextRpcMiddleware, never, IamDb.IamDb | Auth.Service> =
+  Layer.effect(
+    Policy.AuthContextRpcMiddleware,
+    Effect.gen(function* () {
+      // Acquire dependencies during Layer construction
+      const auth = yield* Auth.Service;
+      const iamDb = yield* IamDb.IamDb;
+
+      // Return the middleware FUNCTION (not the context value)
+      // This function will be called for each RPC request with headers, clientId, etc.
+      return AuthContextRpcMiddleware.of((options) =>
+        getAuthContext({
+          auth,
+          iamDb,
+          headers: options.headers,
+        })
+      );
+    })
+  );
+export const AuthContextHttpMiddlewaresLayer: Layer.Layer<
+  Policy.AuthContextHttpMiddleware,
+  never,
+  Auth.Service | IamDb.IamDb
+> = Layer.effect(
+  Policy.AuthContextHttpMiddleware,
   Effect.gen(function* () {
-    // Capture dependencies at construction time
     const auth = yield* Auth.Service;
     const iamDb = yield* IamDb.IamDb;
 
-    // Return the middleware function that runs per-request
-    return (httpEffect: Effect.Effect<HttpServerResponse.HttpServerResponse, unknown, AuthContext>) =>
-      Effect.gen(function* () {
-        // Access request at request time (from Provided)
-        const request = yield* HttpServerRequest.HttpServerRequest;
-        const authContext = yield* getAuthContext({
-          auth,
-          iamDb,
-          headers: request.headers,
-        });
-        return yield* Effect.provideService(httpEffect, AuthContext, authContext);
+    return Effect.gen(function* () {
+      const request = yield* HttpServerRequest.HttpServerRequest;
+      const headers = request.headers;
+
+      return yield* getAuthContext({
+        auth,
+        iamDb,
+        headers,
       });
+    });
   })
 );
 
-export type Services = Authentication.Services;
+/**
+ * Combined middleware layer for RPC and HTTP auth context.
+ *
+ * The middleware layers return Effect values that capture HttpServerRequest
+ * at request time (deferred pattern), so they don't require HttpServerRequest
+ * at layer construction time.
+ */
+export const authContextMiddlewareLayer: Layer.Layer<
+  Policy.AuthContextHttpMiddleware | Policy.AuthContextRpcMiddleware,
+  never,
+  Auth.Service | IamDb.IamDb
+> = Layer.merge(AuthContextRpcMiddlewaresLayer, AuthContextHttpMiddlewaresLayer);
+
+export type Services = AuthContextRpcMiddleware | Policy.AuthContextHttpMiddleware | Authentication.Services;
 
 /**
- * Layer that provides the AuthContext middleware.
- * Provides Request.From<"Requires", AuthContext> which is consumed by HttpLayerRouter.serve.
+ * Complete auth layer that provides auth context middlewares and authentication services.
+ *
+ * Uses `provideMerge` to expose Authentication.Services (including Auth.Service)
+ * so that downstream layers like IamApiLive can access them.
  */
-export const layer = AuthContextMiddlewareLive.layer.pipe(Layer.provide(Authentication.layer));
+export const layer: Layer.Layer<Services, never, never> = authContextMiddlewareLayer.pipe(
+  Layer.provideMerge(Authentication.layer)
+);

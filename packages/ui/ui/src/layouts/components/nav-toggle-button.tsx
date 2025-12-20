@@ -3,6 +3,7 @@ import { Iconify } from "@beep/ui/atoms";
 import { rgbaFromChannel } from "@beep/ui-core/utils";
 import type { IconButtonProps } from "@mui/material/IconButton";
 import IconButton from "@mui/material/IconButton";
+import type { Theme } from "@mui/material/styles";
 
 export type NavToggleButtonProps = IconButtonProps & {
   readonly isNavMini: boolean;
@@ -13,7 +14,7 @@ export function NavToggleButton({ isNavMini, sx, ...other }: NavToggleButtonProp
     <IconButton
       size="small"
       sx={[
-        (theme) => ({
+        (theme: Theme) => ({
           p: 0.5,
           position: "absolute",
           color: "action.active",
@@ -39,7 +40,7 @@ export function NavToggleButton({ isNavMini, sx, ...other }: NavToggleButtonProp
       <Iconify
         width={16}
         icon={isNavMini ? "eva:arrow-ios-forward-fill" : "eva:arrow-ios-back-fill"}
-        sx={(theme) => ({
+        sx={(theme: Theme) => ({
           ...(theme.direction === "rtl" && { transform: "scaleX(-1)" }),
         })}
       />

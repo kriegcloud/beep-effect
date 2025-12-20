@@ -35,7 +35,7 @@
     "lint:circular": "bunx madge -c .",
     "execute": "TSX_TSCONFIG_PATH=./tsconfig.src.json NODE_OPTIONS='--import tsx' tsx ./src/execute.ts"
   },
-  "peerDependencies": {
+  "dependencies": {
     "mutative": "catalog:",
     "@effect-atom/atom-react": "catalog:",
     "@better-auth/stripe": "catalog:",
@@ -63,6 +63,7 @@
     "@beep/contract": "workspace:^",
     "@better-auth/passkey": "catalog:",
     "@better-auth/sso": "catalog:",
+    "@effect-atom/atom": "catalog:",
     "@better-auth/core": "catalog:",
     "@effect/experimental": "catalog:",
     "@effect/workflow": "catalog:",
@@ -100,6 +101,7 @@
     "mutative": "catalog:",
     "@effect-atom/atom-react": "catalog:",
     "@beep/identity": "workspace:^",
+    "@effect-atom/atom": "catalog:",
     "@better-auth/stripe": "catalog:",
     "@beep/shared-client": "workspace:^",
     "better-auth": "catalog:",
