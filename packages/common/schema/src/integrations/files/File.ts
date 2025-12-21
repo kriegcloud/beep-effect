@@ -258,7 +258,8 @@ export const NormalizedFileFields = {
   fileSizeBitsSI: S.String,
   fileSizeBitsIEC: S.String,
   // Use S.OptionFromSelf since extractMetadata passes decoded Option values (O.some/O.none)
-  // rather than the encoded form ({ _tag: "Some", value: ... })
+  // S.Class.make() validates inputs by encoding, which fails with S.Option expecting { _tag: "Some" | "None" }
+  // while we're providing decoded Option instances. OptionFromSelf accepts decoded Options directly.
   exif: S.OptionFromSelf(ExifMetadata),
   // Use IAudioMetadataFromSelf (declare schema) to avoid encode validation issues
   // with nested Option fields in IAudioMetadata class
