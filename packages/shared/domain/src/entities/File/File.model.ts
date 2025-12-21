@@ -27,7 +27,7 @@ export class Model extends M.Class<Model>($I`FileModel`)(
     mimeType: BS.MimeType,
     uploadedByUserId: SharedEntityIds.UserId,
     userId: SharedEntityIds.UserId,
-    folderId: BS.FieldOptionOmittable(SharedEntityIds.FolderId),
+    folderId: SharedEntityIds.FolderId,
     metadata: M.JsonFromString(
       BS.NormalizedFile.pipe(
         S.pick(

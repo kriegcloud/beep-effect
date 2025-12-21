@@ -30,6 +30,9 @@
       "path": "../domain/tsconfig.build.json"
     },
     {
+      "path": "../env/tsconfig.build.json"
+    },
+    {
       "path": "../client/tsconfig.build.json"
     },
     {

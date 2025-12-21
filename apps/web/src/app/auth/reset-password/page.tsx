@@ -1,5 +1,5 @@
 import { ResetPasswordView } from "@beep/iam-ui";
-import { serverEnv } from "@beep/shared-server/ServerEnv";
+import { serverEnv } from "@beep/shared-env/ServerEnv";
 import type { Metadata } from "next";
 
 export const generateMetadata = (): Metadata => ({

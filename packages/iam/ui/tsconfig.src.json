@@ -56,6 +56,9 @@
     },
     {
       "path": "../../shared/ui"
+    },
+    {
+      "path": "../../shared/env"
     }
   ],
   "compilerOptions": {

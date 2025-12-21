@@ -9,6 +9,9 @@
       "path": "../../shared/domain"
     },
     {
+      "path": "../../shared/env"
+    },
+    {
       "path": "../../shared/server"
     },
     {

@@ -43,6 +43,7 @@
     "@beep/constants": "workspace:^",
     "@beep/invariant": "workspace:^",
     "@beep/shared-server": "workspace:^",
+    "@beep/shared-env": "workspace:^",
     "effect": "catalog:"
   },
   "devDependencies": {
@@ -58,6 +59,7 @@
     "@beep/constants": "workspace:^",
     "@beep/invariant": "workspace:^",
     "@beep/shared-server": "workspace:^",
+    "@beep/shared-env": "workspace:^",
     "effect": "catalog:",
     "@total-typescript/ts-reset": "catalog:"
   },

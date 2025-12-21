@@ -1,5 +1,5 @@
 import { EnvValue } from "@beep/constants";
-import { serverEnv } from "@beep/shared-server/ServerEnv";
+import { serverEnv } from "@beep/shared-env/ServerEnv";
 import * as DevTools from "@effect/experimental/DevTools";
 import { BunSocket } from "@effect/platform-bun";
 import * as Bool from "effect/Boolean";

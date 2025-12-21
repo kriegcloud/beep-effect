@@ -47,7 +47,7 @@ This package is part of the `beep-effect` monorepo and is typically consumed by 
 Runtime singleton providing typed access to server-side environment variables. Parsed via Effect Config with automatic validation and detailed error reporting.
 
 ```typescript
-import { serverEnv } from "@beep/shared-server/ServerEnv";
+import { serverEnv } from "@beep/shared-env/ServerEnv";
 
 // Database configuration
 const dbConfig = serverEnv.db.pg;
@@ -91,7 +91,7 @@ Browser-safe environment variables for Next.js client bundles. Validates `NEXT_P
 
 ```typescript
 "use client";
-import { clientEnv } from "@beep/shared-client/ClientEnv";
+import { clientEnv } from "@beep/shared-env/ClientEnv";
 
 const appUrl = clientEnv.appUrl;
 const authUrl = clientEnv.authUrl;

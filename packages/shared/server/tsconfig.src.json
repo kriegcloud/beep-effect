@@ -18,6 +18,9 @@
       "path": "../domain"
     },
     {
+      "path": "../env"
+    },
+    {
       "path": "../tables"
     }
   ],

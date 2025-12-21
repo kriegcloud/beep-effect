@@ -50,6 +50,9 @@
       "path": "../../shared/client/tsconfig.build.json"
     },
     {
+      "path": "../../shared/env/tsconfig.build.json"
+    },
+    {
       "path": "../domain/tsconfig.build.json"
     },
     {

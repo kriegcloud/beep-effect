@@ -1,7 +1,7 @@
 import { dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { FsUtilsLive } from "@beep/tooling-utils/FsUtils";
-import { findRepoRoot } from "@beep/tooling-utils/repo";
+import { findRepoRoot } from "@beep/tooling-utils/repo/Root";
 import * as BunContext from "@effect/platform-bun/BunContext";
 import { Config, Effect, Layer, pipe } from "effect";
 import * as A from "effect/Array";
@@ -349,10 +349,6 @@ const withDefaults = (packageName: `@beep/${string}`, config?: BeepNextConfig) =
               mcpServer: true,
               turbopackFileSystemCacheForDev: true,
               browserDebugInfoInTerminal: true,
-              turbotrace: {
-                contextDirectory: __dirname,
-                loadersToBundle: ["babel-loader"],
-              },
             }),
             onSome: ({ optimizePackageImports: _, ...experimental }) => ({
               ...experimental,

@@ -18,6 +18,9 @@
       "path": "../client"
     },
     {
+      "path": "../env"
+    },
+    {
       "path": "../../common/identity"
     },
     {

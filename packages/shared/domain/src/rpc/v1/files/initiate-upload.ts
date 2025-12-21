@@ -17,6 +17,7 @@ export class Payload extends S.Class<Payload>($I`Payload`)(
     entityAttribute: S.NonEmptyTrimmedString,
     folderId: S.NullOr(SharedEntityIds.FolderId),
     metadata: File.Model.fields.metadata,
+    fields: S.Record({ key: S.String, value: S.String }),
   },
   $I.annotations("InitiateUploadPayload", {
     description: "Payload for initiate upload rpc",

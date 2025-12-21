@@ -42,7 +42,7 @@
         "!.next/cache/**"
       ]
     },
-    "web#build": {
+    "@beep/web#build": {
       "inputs": [
         "$TURBO_DEFAULT$",
         ".env*"

@@ -5,7 +5,7 @@
  */
 import { AuthProviderNameValue, EnvValue, LogFormat } from "@beep/constants";
 import { DomainName, Email, Url } from "@beep/schema/primitives";
-import { SharedEntityIds } from "@beep/shared-domain";
+import { SharedEntityIds } from "@beep/shared-domain/entity-ids";
 import * as A from "effect/Array";
 import * as Config from "effect/Config";
 import * as ConfigProvider from "effect/ConfigProvider";

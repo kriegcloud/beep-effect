@@ -342,7 +342,7 @@ import { BatchLogRecordProcessor } from "@opentelemetry/sdk-logs";
 import { OTLPLogExporter } from "@opentelemetry/exporter-logs-otlp-http";
 import { PeriodicExportingMetricReader } from "@opentelemetry/sdk-metrics";
 import { OTLPMetricExporter } from "@opentelemetry/exporter-metrics-otlp-proto";
-import { serverEnv } from "@beep/shared-server/ServerEnv";
+import { serverEnv } from "@beep/shared-env/ServerEnv";
 
 // Environment-aware OTLP setup
 export const layer = Layer.unwrapEffect(

@@ -36,6 +36,9 @@
       "path": "../../shared/client"
     },
     {
+      "path": "../../shared/env"
+    },
+    {
       "path": "../domain"
     },
     {

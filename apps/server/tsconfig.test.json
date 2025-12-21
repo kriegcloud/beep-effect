@@ -36,6 +36,9 @@
       "path": "../../packages/iam/server"
     },
     {
+      "path": "../../packages/shared/env"
+    },
+    {
       "path": "../../packages/iam/domain"
     },
     {

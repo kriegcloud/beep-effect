@@ -150,7 +150,7 @@ export class FileRepo extends Effect.Service<FileRepo>()($I`FileRepo`, {
               client
                 .update(file)
                 .set({
-                  folderId: null,
+                  folderId: folderId,
                   updatedAt: d.sql`now()`,
                 })
                 .where(d.and(d.inArray(file.id, fileIds), d.eq(file.userId, userId)))

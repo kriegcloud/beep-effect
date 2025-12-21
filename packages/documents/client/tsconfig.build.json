@@ -23,6 +23,9 @@
       "path": "../../shared/client/tsconfig.build.json"
     },
     {
+      "path": "../../shared/env/tsconfig.build.json"
+    },
+    {
       "path": "../../common/identity/tsconfig.build.json"
     },
     {

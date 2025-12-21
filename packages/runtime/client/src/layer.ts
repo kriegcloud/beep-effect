@@ -1,4 +1,5 @@
-import { clientEnv } from "@beep/shared-client/ClientEnv";
+import { EnvValue } from "@beep/constants";
+import { clientEnv } from "@beep/shared-env/ClientEnv";
 import { ToasterService } from "@beep/ui/services/toaster.service";
 import { WebSdk } from "@effect/opentelemetry";
 import { FetchHttpClient } from "@effect/platform";
@@ -14,7 +15,6 @@ import { BatchLogRecordProcessor } from "@opentelemetry/sdk-logs";
 import { PeriodicExportingMetricReader } from "@opentelemetry/sdk-metrics";
 import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-base";
 import * as ConfigProvider from "effect/ConfigProvider";
-
 import * as Layer from "effect/Layer";
 import * as Logger from "effect/Logger";
 import * as LogLevel from "effect/LogLevel";
@@ -26,7 +26,7 @@ const configProvider = ConfigProvider.fromJson(process.env);
 // Environment constants
 // ============================================================================
 
-const isDevEnvironment = clientEnv.env === "dev";
+const isDevEnvironment = EnvValue.is.dev(clientEnv.env);
 const serviceName = `${clientEnv.appName}-client`;
 
 export const GeoLocationLive = clientEnv.enableGeoTracking ? Geolocation.layer : Layer.empty;

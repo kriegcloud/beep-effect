@@ -6,7 +6,11 @@ import type { Files } from "@beep/shared-domain/rpc/v1/files";
 import { Effect } from "effect";
 import * as S from "effect/Schema";
 
-export const Handler = Effect.fn("files_initiateUpload")(
+type HandlerEffect = (
+  payload: Files.InitiateUpload.Payload
+) => Effect.Effect<Files.InitiateUpload.Success, never, Policy.AuthContext>;
+
+export const Handler: HandlerEffect = Effect.fn("files_initiateUpload")(
   function* (payload: Files.InitiateUpload.Payload) {
     const { user, session, organization } = yield* Policy.AuthContext;
     yield* Effect.logInfo(payload);

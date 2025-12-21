@@ -22,6 +22,7 @@ export const file = OrgTable.make(SharedEntityIds.FileId)({
   folderId: pg
     .text("folder_id")
     .references(() => folder.id, { onDelete: "cascade" })
+    .notNull()
     .$type<SharedEntityIds.FolderId.Type>(),
   uploadedByUserId: pg
     .text("uploaded_by_user_id")

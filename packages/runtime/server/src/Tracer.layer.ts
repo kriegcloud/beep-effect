@@ -1,4 +1,4 @@
-import { serverEnv } from "@beep/shared-server/ServerEnv";
+import { serverEnv } from "@beep/shared-env/ServerEnv";
 import { NodeSdk } from "@effect/opentelemetry";
 import type * as Resource from "@effect/opentelemetry/Resource";
 import { OTLPLogExporter } from "@opentelemetry/exporter-logs-otlp-http";

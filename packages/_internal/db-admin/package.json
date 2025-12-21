@@ -39,6 +39,7 @@
   },
   "dependencies": {
     "@beep/shared-server": "workspace:^",
+    "@beep/shared-env": "workspace:^",
     "drizzle-zero": "catalog:",
     "@rocicorp/zero": "catalog:",
     "@beep/invariant": "workspace:^",

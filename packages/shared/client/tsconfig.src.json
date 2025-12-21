@@ -28,7 +28,7 @@
       "path": "../domain"
     },
     {
-      "path": "../server"
+      "path": "../env"
     }
   ],
   "compilerOptions": {

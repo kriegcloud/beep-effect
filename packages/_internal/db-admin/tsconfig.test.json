@@ -36,6 +36,9 @@
       "path": "../../shared/server/tsconfig.build.json"
     },
     {
+      "path": "../../shared/env/tsconfig.build.json"
+    },
+    {
       "path": "../../iam/server/tsconfig.build.json"
     },
     {

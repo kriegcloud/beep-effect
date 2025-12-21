@@ -19,6 +19,9 @@
       "path": "../../shared/ui"
     },
     {
+      "path": "../../shared/env"
+    },
+    {
       "path": "../../common/schema"
     },
     {

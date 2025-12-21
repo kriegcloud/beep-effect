@@ -41,7 +41,7 @@
       "path": "../domain/tsconfig.build.json"
     },
     {
-      "path": "../server/tsconfig.build.json"
+      "path": "../env/tsconfig.build.json"
     }
   ],
   "include": ["src"]

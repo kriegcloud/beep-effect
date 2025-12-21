@@ -7,14 +7,14 @@ import * as InitiateUpload from "./initiate-upload.ts";
 import * as ListFiles from "./list-files.ts";
 import * as MoveFiles from "./move-files.ts";
 
-export const layer = Files.Rpcs.toLayer(
-  Files.Rpcs.of({
-    files_initiateUpload: InitiateUpload.Handler,
-    files_list: ListFiles.Handler,
-    files_moveFiles: MoveFiles.Handler,
-    files_createFolder: CreateFolder.Handler,
-    files_deleteFolders: DeleteFolders.Handler,
-    files_deleteFiles: DeleteFiles.Handler,
-    files_getFilesByKeys: GetFilesByKeys.Handler,
-  })
-);
+const implementation = Files.Rpcs.of({
+  files_initiateUpload: InitiateUpload.Handler,
+  files_list: ListFiles.Handler,
+  files_moveFiles: MoveFiles.Handler,
+  files_createFolder: CreateFolder.Handler,
+  files_deleteFolders: DeleteFolders.Handler,
+  files_deleteFiles: DeleteFiles.Handler,
+  files_getFilesByKeys: GetFilesByKeys.Handler,
+});
+
+export const layer = Files.Rpcs.toLayer(implementation);

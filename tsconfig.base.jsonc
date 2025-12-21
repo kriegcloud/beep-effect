@@ -208,6 +208,15 @@
       "@beep/shared-ui/test/*": [
         "./packages/shared/ui/test/*"
       ],
+      "@beep/shared-env": [
+        "./packages/shared/env/src/index"
+      ],
+      "@beep/shared-env/*": [
+        "./packages/shared/env/src/*"
+      ],
+      "@beep/shared-env/test/*": [
+        "./packages/shared/env/test/*"
+      ],
       "@beep/ui-core/*": [
         "./packages/ui/core/src/*"
       ],

@@ -37,6 +37,9 @@
       "path": "../../packages/shared/server"
     },
     {
+      "path": "../../packages/shared/env"
+    },
+    {
       "path": "../../packages/shared/tables"
     },
     {

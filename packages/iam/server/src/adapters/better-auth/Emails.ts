@@ -1,7 +1,7 @@
 import { BS } from "@beep/schema";
+import { serverEnv } from "@beep/shared-env/ServerEnv";
 import { Email } from "@beep/shared-server/Email";
 import type { ResendError } from "@beep/shared-server/internal/email/adapters/resend/errors";
-import { serverEnv } from "@beep/shared-server/ServerEnv";
 import * as Effect from "effect/Effect";
 import type * as Layer from "effect/Layer";
 import * as Redacted from "effect/Redacted";

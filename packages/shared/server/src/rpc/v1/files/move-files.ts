@@ -3,7 +3,9 @@ import type { Files } from "@beep/shared-domain/rpc/v1/files";
 import { FileRepo } from "@beep/shared-server";
 import { Effect } from "effect";
 
-export const Handler = Effect.fn("files_moveFiles")(
+type HandlerEffect = (payload: Files.MoveFiles.Payload) => Effect.Effect<void, never, FileRepo | Policy.AuthContext>;
+
+export const Handler: HandlerEffect = Effect.fn("files_moveFiles")(
   function* (payload: Files.MoveFiles.Payload) {
     const { user } = yield* Policy.AuthContext;
     const fileRepo = yield* FileRepo;

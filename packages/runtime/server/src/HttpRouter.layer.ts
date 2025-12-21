@@ -3,7 +3,7 @@ import { IamApi } from "@beep/iam-domain";
 import { IamApiLive } from "@beep/iam-server";
 
 import { BS } from "@beep/schema";
-import { serverEnv } from "@beep/shared-server/ServerEnv";
+import { serverEnv } from "@beep/shared-env/ServerEnv";
 import * as HttpApiScalar from "@effect/platform/HttpApiScalar";
 import * as HttpLayerRouter from "@effect/platform/HttpLayerRouter";
 import * as HttpMiddleware from "@effect/platform/HttpMiddleware";

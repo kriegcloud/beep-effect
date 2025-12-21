@@ -18,6 +18,9 @@
       "path": "../../shared/tables"
     },
     {
+      "path": "../../shared/env"
+    },
+    {
       "path": "../../shared/domain"
     },
     {

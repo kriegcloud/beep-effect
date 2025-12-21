@@ -32,6 +32,9 @@
       "path": "../../shared/server"
     },
     {
+      "path": "../../shared/env"
+    },
+    {
       "path": "../../iam/domain"
     },
     {

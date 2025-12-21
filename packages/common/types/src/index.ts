@@ -256,7 +256,7 @@ export type * as StructTypes from "./struct.types.js";
  * @since 0.1.0
  */
 export type * as TagTypes from "./tag.types.js";
-
+export * from "./thunk.types.ts";
 /**
  * Escape-hatch type aliases for unsafe any-based and safe unknown-based types.
  *
@@ -271,7 +271,6 @@ export type * as TagTypes from "./tag.types.js";
  * @since 0.1.0
  */
 export type * as UnsafeTypes from "./unsafe.types.js";
-
 /**
  * General-purpose utility types for non-empty strings and struct field maps.
  *

@@ -45,6 +45,7 @@
     "@opentelemetry/exporter-metrics-otlp-proto": "catalog:",
     "@effect/opentelemetry": "catalog:",
     "@beep/shared-server": "workspace:^",
+    "@beep/shared-env": "workspace:^",
     "@beep/utils": "workspace:^",
     "@beep/schema": "workspace:^",
     "@beep/constants": "workspace:^",

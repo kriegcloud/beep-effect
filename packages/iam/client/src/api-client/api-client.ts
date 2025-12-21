@@ -1,6 +1,6 @@
 import { IamApi } from "@beep/iam-domain";
 import { $IamClientId } from "@beep/identity/packages";
-import { clientEnv } from "@beep/shared-client/ClientEnv";
+import { clientEnv } from "@beep/shared-env/ClientEnv";
 import { FetchHttpClient } from "@effect/platform";
 import { AtomHttpApi } from "@effect-atom/atom-react";
 

@@ -29,6 +29,7 @@
     { "path": "../../packages/documents/domain/tsconfig.build.json" },
     { "path": "../../packages/documents/tables/tsconfig.build.json" },
     { "path": "../../packages/runtime/server/tsconfig.build.json" },
-    { "path": "../../packages/runtime/client/tsconfig.build.json" }
+    { "path": "../../packages/runtime/client/tsconfig.build.json" },
+    { "path": "../../packages/shared/env/tsconfig.build.json" }
   ]
 }

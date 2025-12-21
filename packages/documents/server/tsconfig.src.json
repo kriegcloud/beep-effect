@@ -12,6 +12,9 @@
       "path": "../../shared/server"
     },
     {
+      "path": "../../shared/env"
+    },
+    {
       "path": "../../common/schema"
     },
     {

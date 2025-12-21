@@ -1,4 +1,4 @@
-import { buildRepoDependencyIndex, mapWorkspaceToPackageJsonPath } from "@beep/tooling-utils/repo";
+import { buildRepoDependencyIndex, mapWorkspaceToPackageJsonPath } from "@beep/tooling-utils/repo/index";
 import { PackageJson } from "@beep/tooling-utils/schemas/PackageJson";
 import * as FileSystem from "@effect/platform/FileSystem";
 import { pipe } from "effect";

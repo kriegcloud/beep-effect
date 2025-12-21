@@ -53,6 +53,7 @@
     "@fontsource/barlow": "catalog:",
     "@mui/stylis-plugin-rtl": "catalog:",
     "@beep/shared-server": "workspace:^",
+    "@beep/shared-env": "workspace:^",
     "@mui/x-data-grid": "catalog:",
     "@mui/x-date-pickers": "catalog:",
     "@mui/x-tree-view": "catalog:",

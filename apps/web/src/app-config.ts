@@ -1,5 +1,5 @@
 import { EnvValue } from "@beep/constants";
-import { serverEnv } from "@beep/shared-server/ServerEnv";
+import { serverEnv } from "@beep/shared-env/ServerEnv";
 import type { SupportedLangValue } from "@beep/ui-core/i18n/constants";
 import { fallbackLang } from "@beep/ui-core/i18n/constants";
 import { detectLanguage as detectLanguageHandler } from "@beep/ui-core/i18n/server";
