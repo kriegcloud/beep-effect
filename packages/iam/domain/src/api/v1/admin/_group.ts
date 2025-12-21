@@ -24,7 +24,7 @@ import * as SetUserPassword from "./set-user-password";
 import * as StopImpersonating from "./stop-impersonating";
 import * as UnbanUser from "./unban-user";
 
-export class Group extends HttpApiGroup.make("iam.admin")
+export class Group extends HttpApiGroup.make("admin")
   .prefix("/admin")
   .add(BanUser.Contract)
   .add(CreateUser.Contract)

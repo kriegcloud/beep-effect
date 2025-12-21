@@ -18,7 +18,7 @@ export class Success extends S.Class<Success>($I`Success`)(
   })
 ) {}
 
-export const Contract = HttpApiEndpoint.post("revoke-other-sessions", "/revoke-other-sessions")
+export const Contract = HttpApiEndpoint.post("revokeOtherSessions", "/revoke-other-sessions")
   .addSuccess(Success)
   .addError(
     IamAuthError.annotations(

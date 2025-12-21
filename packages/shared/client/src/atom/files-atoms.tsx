@@ -2,8 +2,9 @@ import { $WebId } from "@beep/identity/packages";
 import { makeAtomRuntime } from "@beep/runtime-client";
 import { ImageCompressionRpc } from "@beep/runtime-client/workers/image-compression-rpc";
 import { BS } from "@beep/schema";
-import type { AnyEntityId, EntityKind, SharedEntityIds } from "@beep/shared-domain";
-import type { File as BeepFile, Folder } from "@beep/shared-domain/entities";
+import { AnyEntityId, EntityKind, SharedEntityIds } from "@beep/shared-domain";
+import type { Folder } from "@beep/shared-domain/entities";
+import { File as BeepFile } from "@beep/shared-domain/entities";
 import { Events } from "@beep/shared-domain/rpc/v1";
 import { InitiateUpload } from "@beep/shared-domain/rpc/v1/files/_rpcs";
 import * as FetchHttpClient from "@effect/platform/FetchHttpClient";
@@ -20,21 +21,22 @@ import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as F from "effect/Function";
 import * as Layer from "effect/Layer";
+import * as Match from "effect/Match";
 import * as O from "effect/Option";
 import * as Schedule from "effect/Schedule";
 import * as S from "effect/Schema";
 import * as Schema from "effect/Schema";
 import * as Stream from "effect/Stream";
 import * as Struct from "effect/Struct";
-import { EventStream, makeEventStreamAtom } from "@/atom/event-stream-atoms";
-import { SharedRpcClient } from "@/atom/shared-rpc-client";
+import { ApiClient } from "./api-client.ts";
+import { EventStream, makeEventStreamAtom } from "./event-stream-atoms";
 
 const $I = $WebId.create("atoms/files-atoms");
 
 export class Api extends Effect.Service<Api>()($I`Api`, {
-  dependencies: [SharedRpcClient.Default],
+  dependencies: [ApiClient.Default],
   effect: Effect.gen(function* () {
-    const { rpc } = yield* SharedRpcClient;
+    const { rpc } = yield* ApiClient;
 
     return {
       list: F.flow(rpc.files_list),
@@ -188,7 +190,7 @@ type FileCacheUpdate = Data.TaggedEnum<{
   readonly DeleteFiles: { readonly fileIds: readonly SharedEntityIds.FileId.Type[] };
   readonly CreateFolder: { readonly folder: Folder.WithUploadedFiles };
   readonly MoveFiles: {
-    readonly fileIds: readonly BeepFile.Model[];
+    readonly fileIds: readonly SharedEntityIds.FileId.Type[];
     readonly fromFolderId: SharedEntityIds.FolderId.Type | null;
     readonly toFolderId: SharedEntityIds.FolderId.Type | null;
   };
@@ -198,7 +200,50 @@ type FileCacheUpdate = Data.TaggedEnum<{
   };
 }>;
 
-const { CreateFolder, MoveFiles, AddFile } = Data.taggedEnum<FileCacheUpdate>();
+const { DeleteFiles, DeleteFolders, CreateFolder, MoveFiles, AddFile } = Data.taggedEnum<FileCacheUpdate>();
+
+export class FilePicker extends Effect.Service<FilePicker>()($I`FilePicker`, {
+  scoped: Effect.gen(function* () {
+    const fileRef = yield* Effect.acquireRelease(
+      Effect.sync(() => {
+        const input = document.createElement("input");
+        input.type = "file";
+        input.accept = "image/*";
+        input.style.display = "none";
+        document.body.appendChild(input);
+        return input;
+      }),
+      (input) =>
+        Effect.sync(() => {
+          input.remove();
+        })
+    );
+
+    return {
+      open: Effect.async<O.Option<File>>((resume) => {
+        const changeHandler = (e: Event) => {
+          const selectedFile = (e.target as HTMLInputElement).files?.[0];
+          resume(Effect.succeed(O.fromNullable(selectedFile)));
+          fileRef.value = "";
+        };
+
+        const cancelHandler = () => {
+          resume(Effect.succeed(O.none()));
+        };
+
+        fileRef.addEventListener("change", changeHandler, { once: true });
+        fileRef.addEventListener("cancel", cancelHandler, { once: true });
+        fileRef.click();
+
+        return Effect.sync(() => {
+          fileRef.removeEventListener("change", changeHandler);
+          fileRef.removeEventListener("cancel", cancelHandler);
+        });
+      }),
+    };
+  }),
+}) {}
+
 // ================================
 // Active Uploads (for UI rendering)
 // ================================
@@ -208,7 +253,8 @@ export const runtime = makeAtomRuntime(
     FetchHttpClient.layer,
     EventStream.Default,
     FileSync.Default,
-    ImageCompressionClient.Default
+    ImageCompressionClient.Default,
+    FilePicker.Default
   )
 );
 
@@ -218,13 +264,41 @@ export const selectedFilesAtom = Atom.make({
 });
 export const activeUploadsAtom = Atom.make<ReadonlyArray<ActiveUpload>>(A.empty());
 
+// ================================
+// Delete Files and Folders
+// ================================
+
+export const deleteFilesAtom = runtime.fn(
+  Effect.fn(function* () {
+    const registry = yield* Registry.AtomRegistry;
+    const api = yield* Api;
+    const { fileIds, folderIds } = registry.get(selectedFilesAtom);
+    yield* Effect.zip(
+      api.deleteFiles({ fileIds }).pipe(Effect.unless(() => A.isEmptyArray(fileIds))),
+      api.deleteFolders({ folderIds }).pipe(Effect.unless(() => A.isEmptyArray(folderIds))),
+      {
+        concurrent: true,
+      }
+    );
+
+    if (A.isNonEmptyArray(folderIds)) {
+      registry.set(filesAtom, DeleteFolders({ folderIds }));
+    }
+    if (A.isNonEmptyArray(fileIds)) {
+      registry.set(filesAtom, DeleteFiles({ fileIds }));
+    }
+
+    registry.refresh(selectedFilesAtom);
+  })
+);
+
 export const filesAtom = (() => {
   const remoteAtom = runtime.atom(
     Stream.unwrap(
       Effect.gen(function* () {
         const api = yield* Api;
-        const r = api.list();
-        return r;
+
+        return api.list();
       })
     ).pipe(
       Stream.scan(
@@ -246,30 +320,24 @@ export const filesAtom = (() => {
       const current = ctx.get(filesAtom);
       if (current._tag !== "Success") return;
 
-      const nextValue = (() => {
-        switch (update._tag) {
-          case "DeleteFolders": {
-            return {
-              ...current.value,
-              folders: A.filter(current.value.folders, (folder) => !A.contains(update.folderIds, folder.id)),
-            };
-          }
-          case "DeleteFiles": {
-            return {
-              rootFiles: A.filter(current.value.rootFiles, (file) => !A.contains(update.fileIds, file.id)),
-              folders: A.map(current.value.folders, (folder) => ({
-                ...folder,
-                files: A.filter(folder.uploadedFiles, (file) => !A.contains(update.fileIds, file.id)),
-              })),
-            };
-          }
-          case "CreateFolder": {
-            return {
-              ...current.value,
-              folders: A.append(current.value.folders, { ...update.folder, files: A.empty() }),
-            };
-          }
-          case "MoveFiles": {
+      const nextValue = Match.type<FileCacheUpdate>().pipe(
+        Match.tagsExhaustive({
+          DeleteFolders: (update) => ({
+            ...current.value,
+            folders: A.filter(current.value.folders, (folder) => !A.contains(update.folderIds, folder.id)),
+          }),
+          DeleteFiles: (update) => ({
+            rootFiles: A.filter(current.value.rootFiles, (file) => !A.contains(update.fileIds, file.id)),
+            folders: A.map(current.value.folders, (folder) => ({
+              ...folder,
+              files: A.filter(folder.uploadedFiles, (file) => !A.contains(update.fileIds, file.id)),
+            })),
+          }),
+          CreateFolder: (update) => ({
+            ...current.value,
+            folders: A.append(current.value.folders, { ...update.folder, files: A.empty() }),
+          }),
+          MoveFiles: (update) => {
             const idsToMove = new Set(update.fileIds);
             const movedFiles = A.empty<BeepFile.Model>();
 
@@ -317,8 +385,8 @@ export const filesAtom = (() => {
                 return folder;
               }),
             };
-          }
-          case "AddFile": {
+          },
+          AddFile: (update) => {
             if (update.folderId === null) {
               return {
                 ...current.value,
@@ -338,11 +406,11 @@ export const filesAtom = (() => {
                 return folder;
               }),
             };
-          }
-        }
-      })();
+          },
+        })
+      );
 
-      ctx.setSelf(Result.success(nextValue));
+      ctx.setSelf(Result.success(nextValue(update)));
     },
     (refresh) => {
       refresh(remoteAtom);
@@ -385,7 +453,7 @@ export const createFolderAtom = runtime.fn(
 
 export const moveFilesAtom = runtime.fn(
   Effect.fn(function* (payload: {
-    readonly fileIds: readonly BeepFile.Model[];
+    readonly fileIds: readonly SharedEntityIds.FileId.Type[];
     readonly folderId: SharedEntityIds.FolderId.Type | null;
   }) {
     const registry = yield* Registry.AtomRegistry;
@@ -549,4 +617,143 @@ const makeUploadStream = (uploadId: string, input: UploadInput) =>
 
 export const uploadAtom = Atom.family((uploadId: string) =>
   runtime.fn((input: UploadInput) => makeUploadStream(uploadId, input))
+);
+
+// ================================
+// Selection Management
+// ================================
+
+export const toggleFileSelectionAtom = runtime.fn(
+  Effect.fnUntraced(function* (fileId: SharedEntityIds.FileId.Type) {
+    const registry = yield* Registry.AtomRegistry;
+    const current = registry.get(selectedFilesAtom);
+    registry.set(selectedFilesAtom, {
+      ...current,
+      fileIds: A.contains(current.fileIds, fileId)
+        ? A.filter(current.fileIds, (id) => id !== fileId)
+        : A.append(current.fileIds, fileId),
+    });
+  })
+);
+
+export const toggleFolderSelectionAtom = runtime.fn(
+  Effect.fnUntraced(function* (payload: {
+    readonly folderId: SharedEntityIds.FolderId.Type;
+    readonly fileIdsInFolder: readonly SharedEntityIds.FileId.Type[];
+  }) {
+    const registry = yield* Registry.AtomRegistry;
+    const current = registry.get(selectedFilesAtom);
+    const isFolderSelected = A.contains(current.folderIds, payload.folderId);
+
+    if (isFolderSelected) {
+      registry.set(selectedFilesAtom, {
+        folderIds: A.filter(current.folderIds, (id) => id !== payload.folderId),
+        fileIds: A.filter(current.fileIds, (fileId) => !A.contains(payload.fileIdsInFolder, fileId)),
+      });
+    } else {
+      registry.set(selectedFilesAtom, {
+        folderIds: A.append(current.folderIds, payload.folderId),
+        fileIds: A.appendAll(current.fileIds, payload.fileIdsInFolder),
+      });
+    }
+  })
+);
+
+export const clearSelectionAtom = runtime.fn(
+  Effect.fnUntraced(function* () {
+    const registry = yield* Registry.AtomRegistry;
+    registry.set(selectedFilesAtom, {
+      folderIds: A.empty<SharedEntityIds.FolderId.Type>(),
+      fileIds: A.empty<SharedEntityIds.FileId.Type>(),
+    });
+  })
+);
+
+// ================================
+// Cancel Upload Atom
+// ================================
+
+export const cancelUploadAtom = runtime.fn(
+  Effect.fnUntraced(function* (uploadId: string) {
+    const registry = yield* Registry.AtomRegistry;
+
+    registry.set(uploadAtom(uploadId), Atom.Interrupt);
+    registry.set(
+      activeUploadsAtom,
+      A.filter(registry.get(activeUploadsAtom), (u) => u.id !== uploadId)
+    );
+  })
+);
+
+// ================================
+// Start Upload Atom
+// ================================
+
+const startUploadFieldsShared = {
+  entityKind: EntityKind,
+  entityIdentifier: AnyEntityId,
+  entityAttribute: S.String,
+  metadata: BeepFile.Model.fields.metadata,
+} as const;
+
+export class StartUploadRoot extends S.TaggedClass<StartUploadRoot>($I`StartUploadRoot`)(
+  "Root",
+  startUploadFieldsShared,
+  $I.annotations("StartUploadRoot", {
+    description: "Start upload for a root entity",
+  })
+) {}
+
+export class StartUploadFolder extends S.TaggedClass<StartUploadFolder>($I`StartUploadFolder`)("Folder", {
+  ...startUploadFieldsShared,
+  id: SharedEntityIds.FolderId,
+}) {}
+
+export class StartUploadInput extends S.Union(StartUploadFolder, StartUploadRoot).annotations(
+  $I.annotations("StartUploadInput", {
+    description: "Start upload for a root entity or a folder",
+  })
+) {
+  static readonly makeFolder = (input: Omit<StartUploadFolder, "_tag">) => new StartUploadFolder(input);
+  static readonly makeRoot = (input: Omit<StartUploadRoot, "_tag">) => new StartUploadRoot(input);
+}
+
+export declare namespace StartUploadInput {
+  export type Type = typeof StartUploadInput.Type;
+  export type Encoded = typeof StartUploadInput.Encoded;
+}
+
+export const startUploadAtom = runtime.fn(
+  Effect.fn(function* (payload: StartUploadInput.Type) {
+    const registry = yield* Registry.AtomRegistry;
+    const filePicker = yield* FilePicker;
+
+    const selectedFile = yield* filePicker.open.pipe(
+      Effect.flatten,
+      Effect.catchTag("NoSuchElementException", () => Effect.interrupt)
+    );
+
+    const uploadId = crypto.randomUUID();
+    const folderId = payload._tag === "Folder" ? payload.id : null;
+
+    registry.set(
+      activeUploadsAtom,
+      A.append(registry.get(activeUploadsAtom), {
+        id: uploadId,
+        fileName: selectedFile.name,
+        fileSize: selectedFile.size,
+        mimeType: selectedFile.type,
+        folderId,
+      })
+    );
+
+    registry.set(uploadAtom(uploadId), {
+      file: selectedFile,
+      folderId,
+      entityKind: payload.entityKind,
+      entityIdentifier: payload.entityIdentifier,
+      entityAttribute: payload.entityAttribute,
+      metadata: payload.metadata,
+    });
+  })
 );

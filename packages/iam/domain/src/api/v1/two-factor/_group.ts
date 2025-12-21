@@ -8,7 +8,7 @@ import * as VerifyBackupCode from "./verify-backup-code";
 import * as VerifyOtp from "./verify-otp";
 import * as VerifyTotp from "./verify-totp";
 
-export class Group extends HttpApiGroup.make("iam.twoFactor")
+export class Group extends HttpApiGroup.make("twoFactor")
   .prefix("/two-factor")
   .add(Disable.Contract)
   .add(Enable.Contract)

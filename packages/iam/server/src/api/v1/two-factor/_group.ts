@@ -12,13 +12,13 @@ import * as VerifyBackupCode from "./verify-backup-code.ts";
 import * as VerifyOtp from "./verify-otp.ts";
 import * as VerifyTotp from "./verify-totp.ts";
 
-export type Service = HttpApiGroup.ApiGroup<"iam", "iam.twoFactor">;
+export type Service = HttpApiGroup.ApiGroup<"iam", "twoFactor">;
 export type ServiceError = IamAuthError;
 export type ServiceDependencies = Auth.Service;
 
 export type Routes = Layer.Layer<Service, ServiceError, ServiceDependencies>;
 
-export const Routes: Routes = HttpApiBuilder.group(IamApi, "iam.twoFactor", (h) =>
+export const Routes: Routes = HttpApiBuilder.group(IamApi, "twoFactor", (h) =>
   h
     .handle("disable", Disable.Handler)
     .handle("enable", Enable.Handler)

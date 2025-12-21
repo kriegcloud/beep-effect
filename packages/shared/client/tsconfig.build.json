@@ -42,6 +42,9 @@
     },
     {
       "path": "../env/tsconfig.build.json"
+    },
+    {
+      "path": "../../runtime/client/tsconfig.build.json"
     }
   ],
   "include": ["src"]

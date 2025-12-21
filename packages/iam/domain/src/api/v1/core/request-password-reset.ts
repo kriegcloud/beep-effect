@@ -70,7 +70,7 @@ export class Success extends S.Class<Success>($I`Success`)(
  * @since 1.0.0
  * @category Contract
  */
-export const Contract = HttpApiEndpoint.post("request-password-reset", "/request-password-reset")
+export const Contract = HttpApiEndpoint.post("requestPasswordReset", "/request-password-reset")
   .setPayload(Payload)
   .addError(
     IamAuthError.annotations(

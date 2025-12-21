@@ -23,31 +23,31 @@ import * as UnlinkAccount from "./unlink-account.ts";
 import * as UpdateUser from "./update-user.ts";
 import * as VerifyEmail from "./verify-email.ts";
 
-export type Service = HttpApiGroup.ApiGroup<"iam", "iam.core">;
+export type Service = HttpApiGroup.ApiGroup<"iam", "core">;
 export type ServiceError = IamAuthError;
 export type ServiceDependencies = Auth.Service;
 
 export type Routes = Layer.Layer<Service, ServiceError, ServiceDependencies>;
 
-export const Routes: Routes = HttpApiBuilder.group(IamApi, "iam.core", (h) =>
+export const Routes: Routes = HttpApiBuilder.group(IamApi, "core", (h) =>
   h
-    .handle("get-session", GetSession.Handler)
-    .handle("list-sessions", ListSessions.Handler)
-    .handle("sign-out", SignOut.Handler)
-    .handle("revoke-sessions", RevokeSessions.Handler)
-    .handle("revoke-other-sessions", RevokeOtherSessions.Handler)
-    .handle("change-password", ChangePassword.Handler)
-    .handle("change-email", ChangeEmail.Handler)
-    .handle("reset-password", ResetPassword.Handler)
-    .handle("request-password-reset", RequestPasswordReset.Handler)
-    .handle("verify-email", VerifyEmail.Handler)
-    .handle("send-verification-email", SendVerificationEmail.Handler)
-    .handle("account-info", AccountInfo.Handler)
-    .handle("delete-user", DeleteUser.Handler)
-    .handle("update-user", UpdateUser.Handler)
-    .handle("link-social", LinkSocial.Handler)
-    .handle("list-accounts", ListAccounts.Handler)
-    .handle("unlink-account", UnlinkAccount.Handler)
-    .handle("refresh-token", RefreshToken.Handler)
-    .handle("get-access-token", GetAccessToken.Handler)
+    .handle("accountInfo", AccountInfo.Handler)
+    .handle("changeEmail", ChangeEmail.Handler)
+    .handle("changePassword", ChangePassword.Handler)
+    .handle("deleteUser", DeleteUser.Handler)
+    .handle("getAccessToken", GetAccessToken.Handler)
+    .handle("getSession", GetSession.Handler)
+    .handle("linkSocial", LinkSocial.Handler)
+    .handle("listAccounts", ListAccounts.Handler)
+    .handle("listSessions", ListSessions.Handler)
+    .handle("refreshToken", RefreshToken.Handler)
+    .handle("requestPasswordReset", RequestPasswordReset.Handler)
+    .handle("resetPassword", ResetPassword.Handler)
+    .handle("revokeOtherSessions", RevokeOtherSessions.Handler)
+    .handle("revokeSessions", RevokeSessions.Handler)
+    .handle("sendVerificationEmail", SendVerificationEmail.Handler)
+    .handle("signOut", SignOut.Handler)
+    .handle("unlinkAccount", UnlinkAccount.Handler)
+    .handle("updateUser", UpdateUser.Handler)
+    .handle("verifyEmail", VerifyEmail.Handler)
 );

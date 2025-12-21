@@ -22,7 +22,7 @@ import * as Register from "./register.ts";
 import * as Token from "./token.ts";
 import * as Userinfo from "./userinfo.ts";
 
-export type Service = HttpApiGroup.ApiGroup<"iam", "iam.oauth2">;
+export type Service = HttpApiGroup.ApiGroup<"iam", "oauth2">;
 export type ServiceError = IamAuthError;
 export type ServiceDependencies = Auth.Service;
 
@@ -34,7 +34,7 @@ export type Routes = Layer.Layer<Service, ServiceError, ServiceDependencies>;
  * @since 1.0.0
  * @category Layer
  */
-export const Routes: Routes = HttpApiBuilder.group(IamApi, "iam.oauth2", (h) =>
+export const Routes: Routes = HttpApiBuilder.group(IamApi, "oauth2", (h) =>
   h
     .handle("authorize", Authorize.Handler)
     .handle("callback", Callback.Handler)

@@ -3,9 +3,6 @@ CREATE TYPE "public"."subscription_status_enum" AS ENUM('active', 'canceled');--
 CREATE TYPE "public"."subscription_tier_enum" AS ENUM('free', 'plus', 'pro', 'enterprise');--> statement-breakpoint
 CREATE TYPE "public"."user_role_enum" AS ENUM('admin', 'user');--> statement-breakpoint
 CREATE TYPE "public"."text_style_enum" AS ENUM('default', 'serif', 'mono');--> statement-breakpoint
-CREATE TYPE "public"."block_type_enum" AS ENUM('paragraph', 'heading', 'code', 'image', 'file_embed');--> statement-breakpoint
-CREATE TYPE "public"."page_status_enum" AS ENUM('draft', 'published', 'archived');--> statement-breakpoint
-CREATE TYPE "public"."link_type_enum" AS ENUM('explicit', 'inline-reference', 'block_embed');--> statement-breakpoint
 CREATE TYPE "public"."device_code_status_enum" AS ENUM('pending', 'approved', 'denied');--> statement-breakpoint
 CREATE TYPE "public"."invitation_status_enum" AS ENUM('pending', 'rejected', 'cancelled', 'accepted');--> statement-breakpoint
 CREATE TYPE "public"."member_role_enum" AS ENUM('admin', 'member', 'owner');--> statement-breakpoint
@@ -203,7 +200,7 @@ CREATE TABLE "document_version" (
 	CONSTRAINT "document_version_id_unique" UNIQUE("id")
 );
 --> statement-breakpoint
-CREATE TABLE "knowledge_block" (
+CREATE TABLE "file" (
 	"id" text NOT NULL,
 	"_row_id" serial PRIMARY KEY NOT NULL,
 	"organization_id" text NOT NULL,
@@ -215,79 +212,16 @@ CREATE TABLE "knowledge_block" (
 	"deleted_by" text,
 	"version" integer DEFAULT 1 NOT NULL,
 	"source" text,
-	"page_id" text NOT NULL,
-	"parent_block_id" text,
-	"type" "block_type_enum" NOT NULL,
-	"order" text NOT NULL,
-	"encrypted_content" text NOT NULL,
-	"content_hash" text NOT NULL,
-	"last_edited_by" text NOT NULL,
-	CONSTRAINT "knowledge_block_id_unique" UNIQUE("id")
-);
---> statement-breakpoint
-CREATE TABLE "knowledge_page" (
-	"id" text NOT NULL,
-	"_row_id" serial PRIMARY KEY NOT NULL,
-	"organization_id" text NOT NULL,
-	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
-	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
-	"deleted_at" timestamp with time zone,
-	"created_by" text DEFAULT 'app',
-	"updated_by" text DEFAULT 'app',
-	"deleted_by" text,
-	"version" integer DEFAULT 1 NOT NULL,
-	"source" text,
-	"space_id" text NOT NULL,
-	"parent_page_id" text,
-	"title" text NOT NULL,
-	"slug" text NOT NULL,
-	"status" "page_status_enum" NOT NULL,
-	"order" integer DEFAULT 0 NOT NULL,
-	"last_edited_at" timestamp with time zone NOT NULL,
-	CONSTRAINT "knowledge_page_id_unique" UNIQUE("id")
-);
---> statement-breakpoint
-CREATE TABLE "knowledge_space" (
-	"id" text NOT NULL,
-	"_row_id" serial PRIMARY KEY NOT NULL,
-	"organization_id" text NOT NULL,
-	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
-	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
-	"deleted_at" timestamp with time zone,
-	"created_by" text DEFAULT 'app',
-	"updated_by" text DEFAULT 'app',
-	"deleted_by" text,
-	"version" integer DEFAULT 1 NOT NULL,
-	"source" text,
-	"team_id" text,
-	"owner_id" text NOT NULL,
+	"key" text NOT NULL,
+	"url" text NOT NULL,
 	"name" text NOT NULL,
-	"slug" text NOT NULL,
-	"description" text,
-	"is_encrypted" boolean NOT NULL,
-	"encryption_key_id" text,
-	"default_permissions" jsonb NOT NULL,
-	CONSTRAINT "knowledge_space_id_unique" UNIQUE("id")
-);
---> statement-breakpoint
-CREATE TABLE "page_link" (
-	"id" text NOT NULL,
-	"_row_id" serial PRIMARY KEY NOT NULL,
-	"organization_id" text NOT NULL,
-	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
-	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
-	"deleted_at" timestamp with time zone,
-	"created_by" text DEFAULT 'app',
-	"updated_by" text DEFAULT 'app',
-	"deleted_by" text,
-	"version" integer DEFAULT 1 NOT NULL,
-	"source" text,
-	"source_page_id" text NOT NULL,
-	"target_page_id" text NOT NULL,
-	"link_type" "link_type_enum" NOT NULL,
-	"source_block_id" text,
-	"context_snippet" text,
-	CONSTRAINT "page_link_id_unique" UNIQUE("id")
+	"size" integer NOT NULL,
+	"mime_type" text NOT NULL,
+	"user_id" text NOT NULL,
+	"folder_id" text NOT NULL,
+	"uploaded_by_user_id" text NOT NULL,
+	"metadata" text NOT NULL,
+	CONSTRAINT "file_id_unique" UNIQUE("id")
 );
 --> statement-breakpoint
 CREATE TABLE "session" (
@@ -721,30 +655,6 @@ CREATE TABLE "wallet_address" (
 	CONSTRAINT "wallet_address_id_unique" UNIQUE("id")
 );
 --> statement-breakpoint
-CREATE TABLE "file" (
-	"id" text NOT NULL,
-	"_row_id" serial PRIMARY KEY NOT NULL,
-	"organization_id" text NOT NULL,
-	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
-	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
-	"deleted_at" timestamp with time zone,
-	"created_by" text DEFAULT 'app',
-	"updated_by" text DEFAULT 'app',
-	"deleted_by" text,
-	"version" integer DEFAULT 1 NOT NULL,
-	"source" text,
-	"key" text NOT NULL,
-	"url" text NOT NULL,
-	"name" text NOT NULL,
-	"size" integer NOT NULL,
-	"mime_type" text NOT NULL,
-	"user_id" text NOT NULL,
-	"folder_id" text,
-	"uploaded_by_user_id" text NOT NULL,
-	"metadata" text NOT NULL,
-	CONSTRAINT "file_id_unique" UNIQUE("id")
-);
---> statement-breakpoint
 CREATE TABLE "folder" (
 	"id" text NOT NULL,
 	"_row_id" serial PRIMARY KEY NOT NULL,
@@ -778,18 +688,10 @@ ALTER TABLE "document_file" ADD CONSTRAINT "document_file_document_id_document_i
 ALTER TABLE "document_version" ADD CONSTRAINT "document_version_organization_id_organization_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
 ALTER TABLE "document_version" ADD CONSTRAINT "document_version_document_id_document_id_fk" FOREIGN KEY ("document_id") REFERENCES "public"."document"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "document_version" ADD CONSTRAINT "document_version_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "knowledge_block" ADD CONSTRAINT "knowledge_block_organization_id_organization_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
-ALTER TABLE "knowledge_block" ADD CONSTRAINT "knowledge_block_page_id_knowledge_page_id_fk" FOREIGN KEY ("page_id") REFERENCES "public"."knowledge_page"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "knowledge_block" ADD CONSTRAINT "knowledge_block_last_edited_by_user_id_fk" FOREIGN KEY ("last_edited_by") REFERENCES "public"."user"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "knowledge_page" ADD CONSTRAINT "knowledge_page_organization_id_organization_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
-ALTER TABLE "knowledge_page" ADD CONSTRAINT "knowledge_page_space_id_knowledge_space_id_fk" FOREIGN KEY ("space_id") REFERENCES "public"."knowledge_space"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "knowledge_space" ADD CONSTRAINT "knowledge_space_organization_id_organization_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
-ALTER TABLE "knowledge_space" ADD CONSTRAINT "knowledge_space_team_id_team_id_fk" FOREIGN KEY ("team_id") REFERENCES "public"."team"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "knowledge_space" ADD CONSTRAINT "knowledge_space_owner_id_user_id_fk" FOREIGN KEY ("owner_id") REFERENCES "public"."user"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "page_link" ADD CONSTRAINT "page_link_organization_id_organization_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
-ALTER TABLE "page_link" ADD CONSTRAINT "page_link_source_page_id_knowledge_page_id_fk" FOREIGN KEY ("source_page_id") REFERENCES "public"."knowledge_page"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "page_link" ADD CONSTRAINT "page_link_target_page_id_knowledge_page_id_fk" FOREIGN KEY ("target_page_id") REFERENCES "public"."knowledge_page"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "page_link" ADD CONSTRAINT "page_link_source_block_id_knowledge_block_id_fk" FOREIGN KEY ("source_block_id") REFERENCES "public"."knowledge_block"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "file" ADD CONSTRAINT "file_organization_id_organization_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "file" ADD CONSTRAINT "file_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "file" ADD CONSTRAINT "file_folder_id_folder_id_fk" FOREIGN KEY ("folder_id") REFERENCES "public"."folder"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "file" ADD CONSTRAINT "file_uploaded_by_user_id_user_id_fk" FOREIGN KEY ("uploaded_by_user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "session" ADD CONSTRAINT "session_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
 ALTER TABLE "session" ADD CONSTRAINT "session_impersonated_by_user_id_fk" FOREIGN KEY ("impersonated_by") REFERENCES "public"."user"("id") ON DELETE set null ON UPDATE cascade;--> statement-breakpoint
 ALTER TABLE "session" ADD CONSTRAINT "session_active_organization_id_organization_id_fk" FOREIGN KEY ("active_organization_id") REFERENCES "public"."organization"("id") ON DELETE set null ON UPDATE cascade;--> statement-breakpoint
@@ -820,10 +722,6 @@ ALTER TABLE "team_member" ADD CONSTRAINT "team_member_user_id_user_id_fk" FOREIG
 ALTER TABLE "two_factor" ADD CONSTRAINT "two_factor_organization_id_organization_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
 ALTER TABLE "two_factor" ADD CONSTRAINT "two_factor_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "wallet_address" ADD CONSTRAINT "wallet_address_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "file" ADD CONSTRAINT "file_organization_id_organization_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
-ALTER TABLE "file" ADD CONSTRAINT "file_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "file" ADD CONSTRAINT "file_folder_id_folder_id_fk" FOREIGN KEY ("folder_id") REFERENCES "public"."folder"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "file" ADD CONSTRAINT "file_uploaded_by_user_id_user_id_fk" FOREIGN KEY ("uploaded_by_user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "folder" ADD CONSTRAINT "folder_organization_id_organization_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
 ALTER TABLE "folder" ADD CONSTRAINT "folder_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 CREATE INDEX "organization_name_idx" ON "organization" USING btree ("name");--> statement-breakpoint
@@ -859,20 +757,6 @@ CREATE INDEX "document_file_document_idx" ON "document_file" USING btree ("docum
 CREATE INDEX "document_file_type_idx" ON "document_file" USING btree ("type");--> statement-breakpoint
 CREATE INDEX "document_version_document_idx" ON "document_version" USING btree ("document_id");--> statement-breakpoint
 CREATE INDEX "document_version_user_idx" ON "document_version" USING btree ("user_id");--> statement-breakpoint
-CREATE INDEX "knowledge_block_page_idx" ON "knowledge_block" USING btree ("page_id");--> statement-breakpoint
-CREATE INDEX "knowledge_block_parent_idx" ON "knowledge_block" USING btree ("parent_block_id");--> statement-breakpoint
-CREATE INDEX "knowledge_block_order_idx" ON "knowledge_block" USING btree ("page_id","order");--> statement-breakpoint
-CREATE INDEX "knowledge_block_content_hash_idx" ON "knowledge_block" USING btree ("content_hash");--> statement-breakpoint
-CREATE UNIQUE INDEX "knowledge_page_space_slug_idx" ON "knowledge_page" USING btree ("space_id","slug");--> statement-breakpoint
-CREATE INDEX "knowledge_page_space_idx" ON "knowledge_page" USING btree ("space_id");--> statement-breakpoint
-CREATE INDEX "knowledge_page_parent_idx" ON "knowledge_page" USING btree ("parent_page_id");--> statement-breakpoint
-CREATE INDEX "knowledge_page_status_idx" ON "knowledge_page" USING btree ("status");--> statement-breakpoint
-CREATE UNIQUE INDEX "knowledge_space_org_slug_idx" ON "knowledge_space" USING btree ("organization_id","slug");--> statement-breakpoint
-CREATE INDEX "knowledge_space_owner_idx" ON "knowledge_space" USING btree ("owner_id");--> statement-breakpoint
-CREATE INDEX "page_link_source_idx" ON "page_link" USING btree ("source_page_id");--> statement-breakpoint
-CREATE INDEX "page_link_target_idx" ON "page_link" USING btree ("target_page_id");--> statement-breakpoint
-CREATE INDEX "page_link_type_idx" ON "page_link" USING btree ("link_type");--> statement-breakpoint
-CREATE UNIQUE INDEX "page_link_source_target_block_idx" ON "page_link" USING btree ("source_page_id","target_page_id","source_block_id");--> statement-breakpoint
 CREATE INDEX "session_token_idx" ON "session" USING btree ("token");--> statement-breakpoint
 CREATE INDEX "session_user_id_idx" ON "session" USING btree ("user_id");--> statement-breakpoint
 CREATE INDEX "session_expires_at_idx" ON "session" USING btree ("expires_at");--> statement-breakpoint

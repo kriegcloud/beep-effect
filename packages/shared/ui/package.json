@@ -54,6 +54,7 @@
     "@beep/ui": "workspace:^",
     "@beep/shared-domain": "workspace:^",
     "@beep/schema": "workspace:^",
+    "@beep/shared-client": "workspace:^",
     "@beep/identity": "workspace:^",
     "@beep/utils": "workspace:^",
     "@beep/errors": "workspace:^",

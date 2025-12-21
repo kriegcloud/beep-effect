@@ -14,4 +14,4 @@ export class Success extends S.Class<Success>($I`Success`)(
   })
 ) {}
 
-export const Contract = HttpApiEndpoint.post("sign-out", "/sign-out").addSuccess(Success).addError(IamAuthError);
+export const Contract = HttpApiEndpoint.post("signOut", "/sign-out").addSuccess(Success).addError(IamAuthError);

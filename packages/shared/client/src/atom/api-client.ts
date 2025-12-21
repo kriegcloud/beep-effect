@@ -12,12 +12,12 @@ import * as Schedule from "effect/Schedule";
 
 const $I = $SharedClientId.create("atoms/shared-rpc-client");
 
-export class SharedRpcClient extends Effect.Service<SharedRpcClient>()($I`SharedRpcClient`, {
+export class ApiClient extends Effect.Service<ApiClient>()($I`SharedRpcClient`, {
   dependencies: [RpcConfigLive, FetchHttpClient.layer],
   scoped: Effect.gen(function* () {
     const rpcClient = yield* RpcClient.make(SharedRpcs.V1.Rpcs);
 
-    const httpClient = yield* HttpApiClient.make(IamApi, {
+    const iamHttpClient = yield* HttpApiClient.make(IamApi, {
       baseUrl: clientEnv.apiUrl.toString(),
       transformClient: (client) =>
         client.pipe(
@@ -31,7 +31,7 @@ export class SharedRpcClient extends Effect.Service<SharedRpcClient>()($I`Shared
 
     return {
       rpc: addRpcErrorLogging(rpcClient),
-      http: httpClient,
+      iam: iamHttpClient,
     };
   }),
 }) {}

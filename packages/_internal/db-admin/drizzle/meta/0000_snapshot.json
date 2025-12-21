@@ -1,5 +1,5 @@
 {
-  "id": "394b1d85-99ac-47fe-b567-21a30b651999",
+  "id": "4941a253-32ee-4bfc-baf2-a75e45fbc8f2",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -1820,8 +1820,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.knowledge_block": {
-      "name": "knowledge_block",
+    "public.file": {
+      "name": "file",
       "schema": "",
       "columns": {
         "id": {
@@ -1895,462 +1895,14 @@
           "primaryKey": false,
           "notNull": false
         },
-        "page_id": {
-          "name": "page_id",
+        "key": {
+          "name": "key",
           "type": "text",
           "primaryKey": false,
           "notNull": true
         },
-        "parent_block_id": {
-          "name": "parent_block_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "type": {
-          "name": "type",
-          "type": "block_type_enum",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "order": {
-          "name": "order",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "encrypted_content": {
-          "name": "encrypted_content",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "content_hash": {
-          "name": "content_hash",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "last_edited_by": {
-          "name": "last_edited_by",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {
-        "knowledge_block_page_idx": {
-          "name": "knowledge_block_page_idx",
-          "columns": [
-            {
-              "expression": "page_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "knowledge_block_parent_idx": {
-          "name": "knowledge_block_parent_idx",
-          "columns": [
-            {
-              "expression": "parent_block_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "knowledge_block_order_idx": {
-          "name": "knowledge_block_order_idx",
-          "columns": [
-            {
-              "expression": "page_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "order",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "knowledge_block_content_hash_idx": {
-          "name": "knowledge_block_content_hash_idx",
-          "columns": [
-            {
-              "expression": "content_hash",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "knowledge_block_organization_id_organization_id_fk": {
-          "name": "knowledge_block_organization_id_organization_id_fk",
-          "tableFrom": "knowledge_block",
-          "tableTo": "organization",
-          "columnsFrom": ["organization_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
-        },
-        "knowledge_block_page_id_knowledge_page_id_fk": {
-          "name": "knowledge_block_page_id_knowledge_page_id_fk",
-          "tableFrom": "knowledge_block",
-          "tableTo": "knowledge_page",
-          "columnsFrom": ["page_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "knowledge_block_last_edited_by_user_id_fk": {
-          "name": "knowledge_block_last_edited_by_user_id_fk",
-          "tableFrom": "knowledge_block",
-          "tableTo": "user",
-          "columnsFrom": ["last_edited_by"],
-          "columnsTo": ["id"],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "knowledge_block_id_unique": {
-          "name": "knowledge_block_id_unique",
-          "nullsNotDistinct": false,
-          "columns": ["id"]
-        }
-      },
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.knowledge_page": {
-      "name": "knowledge_page",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "_row_id": {
-          "name": "_row_id",
-          "type": "serial",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "organization_id": {
-          "name": "organization_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "deleted_at": {
-          "name": "deleted_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_by": {
-          "name": "created_by",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "'app'"
-        },
-        "updated_by": {
-          "name": "updated_by",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "'app'"
-        },
-        "deleted_by": {
-          "name": "deleted_by",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "version": {
-          "name": "version",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 1
-        },
-        "source": {
-          "name": "source",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "space_id": {
-          "name": "space_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "parent_page_id": {
-          "name": "parent_page_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "title": {
-          "name": "title",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "slug": {
-          "name": "slug",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "status": {
-          "name": "status",
-          "type": "page_status_enum",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "order": {
-          "name": "order",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
-        },
-        "last_edited_at": {
-          "name": "last_edited_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {
-        "knowledge_page_space_slug_idx": {
-          "name": "knowledge_page_space_slug_idx",
-          "columns": [
-            {
-              "expression": "space_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "slug",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": true,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "knowledge_page_space_idx": {
-          "name": "knowledge_page_space_idx",
-          "columns": [
-            {
-              "expression": "space_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "knowledge_page_parent_idx": {
-          "name": "knowledge_page_parent_idx",
-          "columns": [
-            {
-              "expression": "parent_page_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "knowledge_page_status_idx": {
-          "name": "knowledge_page_status_idx",
-          "columns": [
-            {
-              "expression": "status",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "knowledge_page_organization_id_organization_id_fk": {
-          "name": "knowledge_page_organization_id_organization_id_fk",
-          "tableFrom": "knowledge_page",
-          "tableTo": "organization",
-          "columnsFrom": ["organization_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
-        },
-        "knowledge_page_space_id_knowledge_space_id_fk": {
-          "name": "knowledge_page_space_id_knowledge_space_id_fk",
-          "tableFrom": "knowledge_page",
-          "tableTo": "knowledge_space",
-          "columnsFrom": ["space_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "knowledge_page_id_unique": {
-          "name": "knowledge_page_id_unique",
-          "nullsNotDistinct": false,
-          "columns": ["id"]
-        }
-      },
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.knowledge_space": {
-      "name": "knowledge_space",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "_row_id": {
-          "name": "_row_id",
-          "type": "serial",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "organization_id": {
-          "name": "organization_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "deleted_at": {
-          "name": "deleted_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_by": {
-          "name": "created_by",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "'app'"
-        },
-        "updated_by": {
-          "name": "updated_by",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "'app'"
-        },
-        "deleted_by": {
-          "name": "deleted_by",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "version": {
-          "name": "version",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 1
-        },
-        "source": {
-          "name": "source",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "team_id": {
-          "name": "team_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "owner_id": {
-          "name": "owner_id",
+        "url": {
+          "name": "url",
           "type": "text",
           "primaryKey": false,
           "notNull": true
@@ -2361,330 +1913,77 @@
           "primaryKey": false,
           "notNull": true
         },
-        "slug": {
-          "name": "slug",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "description": {
-          "name": "description",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "is_encrypted": {
-          "name": "is_encrypted",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "encryption_key_id": {
-          "name": "encryption_key_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "default_permissions": {
-          "name": "default_permissions",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {
-        "knowledge_space_org_slug_idx": {
-          "name": "knowledge_space_org_slug_idx",
-          "columns": [
-            {
-              "expression": "organization_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "slug",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": true,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "knowledge_space_owner_idx": {
-          "name": "knowledge_space_owner_idx",
-          "columns": [
-            {
-              "expression": "owner_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "knowledge_space_organization_id_organization_id_fk": {
-          "name": "knowledge_space_organization_id_organization_id_fk",
-          "tableFrom": "knowledge_space",
-          "tableTo": "organization",
-          "columnsFrom": ["organization_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
-        },
-        "knowledge_space_team_id_team_id_fk": {
-          "name": "knowledge_space_team_id_team_id_fk",
-          "tableFrom": "knowledge_space",
-          "tableTo": "team",
-          "columnsFrom": ["team_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "knowledge_space_owner_id_user_id_fk": {
-          "name": "knowledge_space_owner_id_user_id_fk",
-          "tableFrom": "knowledge_space",
-          "tableTo": "user",
-          "columnsFrom": ["owner_id"],
-          "columnsTo": ["id"],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "knowledge_space_id_unique": {
-          "name": "knowledge_space_id_unique",
-          "nullsNotDistinct": false,
-          "columns": ["id"]
-        }
-      },
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.page_link": {
-      "name": "page_link",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "_row_id": {
-          "name": "_row_id",
-          "type": "serial",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "organization_id": {
-          "name": "organization_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "deleted_at": {
-          "name": "deleted_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_by": {
-          "name": "created_by",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "'app'"
-        },
-        "updated_by": {
-          "name": "updated_by",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "'app'"
-        },
-        "deleted_by": {
-          "name": "deleted_by",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "version": {
-          "name": "version",
+        "size": {
+          "name": "size",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true,
-          "default": 1
+          "notNull": true
         },
-        "source": {
-          "name": "source",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "source_page_id": {
-          "name": "source_page_id",
+        "mime_type": {
+          "name": "mime_type",
           "type": "text",
           "primaryKey": false,
           "notNull": true
         },
-        "target_page_id": {
-          "name": "target_page_id",
+        "user_id": {
+          "name": "user_id",
           "type": "text",
           "primaryKey": false,
           "notNull": true
         },
-        "link_type": {
-          "name": "link_type",
-          "type": "link_type_enum",
-          "typeSchema": "public",
+        "folder_id": {
+          "name": "folder_id",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
         },
-        "source_block_id": {
-          "name": "source_block_id",
+        "uploaded_by_user_id": {
+          "name": "uploaded_by_user_id",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
-        "context_snippet": {
-          "name": "context_snippet",
+        "metadata": {
+          "name": "metadata",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         }
       },
-      "indexes": {
-        "page_link_source_idx": {
-          "name": "page_link_source_idx",
-          "columns": [
-            {
-              "expression": "source_page_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "page_link_target_idx": {
-          "name": "page_link_target_idx",
-          "columns": [
-            {
-              "expression": "target_page_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "page_link_type_idx": {
-          "name": "page_link_type_idx",
-          "columns": [
-            {
-              "expression": "link_type",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "page_link_source_target_block_idx": {
-          "name": "page_link_source_target_block_idx",
-          "columns": [
-            {
-              "expression": "source_page_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "target_page_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "source_block_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": true,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
+      "indexes": {},
       "foreignKeys": {
-        "page_link_organization_id_organization_id_fk": {
-          "name": "page_link_organization_id_organization_id_fk",
-          "tableFrom": "page_link",
+        "file_organization_id_organization_id_fk": {
+          "name": "file_organization_id_organization_id_fk",
+          "tableFrom": "file",
           "tableTo": "organization",
           "columnsFrom": ["organization_id"],
           "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         },
-        "page_link_source_page_id_knowledge_page_id_fk": {
-          "name": "page_link_source_page_id_knowledge_page_id_fk",
-          "tableFrom": "page_link",
-          "tableTo": "knowledge_page",
-          "columnsFrom": ["source_page_id"],
+        "file_user_id_user_id_fk": {
+          "name": "file_user_id_user_id_fk",
+          "tableFrom": "file",
+          "tableTo": "user",
+          "columnsFrom": ["user_id"],
           "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "page_link_target_page_id_knowledge_page_id_fk": {
-          "name": "page_link_target_page_id_knowledge_page_id_fk",
-          "tableFrom": "page_link",
-          "tableTo": "knowledge_page",
-          "columnsFrom": ["target_page_id"],
+        "file_folder_id_folder_id_fk": {
+          "name": "file_folder_id_folder_id_fk",
+          "tableFrom": "file",
+          "tableTo": "folder",
+          "columnsFrom": ["folder_id"],
           "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "page_link_source_block_id_knowledge_block_id_fk": {
-          "name": "page_link_source_block_id_knowledge_block_id_fk",
-          "tableFrom": "page_link",
-          "tableTo": "knowledge_block",
-          "columnsFrom": ["source_block_id"],
+        "file_uploaded_by_user_id_user_id_fk": {
+          "name": "file_uploaded_by_user_id_user_id_fk",
+          "tableFrom": "file",
+          "tableTo": "user",
+          "columnsFrom": ["uploaded_by_user_id"],
           "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
@@ -2692,8 +1991,8 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "page_link_id_unique": {
-          "name": "page_link_id_unique",
+        "file_id_unique": {
+          "name": "file_id_unique",
           "nullsNotDistinct": false,
           "columns": ["id"]
         }
@@ -6289,187 +5588,6 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.file": {
-      "name": "file",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "_row_id": {
-          "name": "_row_id",
-          "type": "serial",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "organization_id": {
-          "name": "organization_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "deleted_at": {
-          "name": "deleted_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_by": {
-          "name": "created_by",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "'app'"
-        },
-        "updated_by": {
-          "name": "updated_by",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "'app'"
-        },
-        "deleted_by": {
-          "name": "deleted_by",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "version": {
-          "name": "version",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 1
-        },
-        "source": {
-          "name": "source",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "key": {
-          "name": "key",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "url": {
-          "name": "url",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "name": {
-          "name": "name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "size": {
-          "name": "size",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "mime_type": {
-          "name": "mime_type",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "user_id": {
-          "name": "user_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "folder_id": {
-          "name": "folder_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "uploaded_by_user_id": {
-          "name": "uploaded_by_user_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "metadata": {
-          "name": "metadata",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "file_organization_id_organization_id_fk": {
-          "name": "file_organization_id_organization_id_fk",
-          "tableFrom": "file",
-          "tableTo": "organization",
-          "columnsFrom": ["organization_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
-        },
-        "file_user_id_user_id_fk": {
-          "name": "file_user_id_user_id_fk",
-          "tableFrom": "file",
-          "tableTo": "user",
-          "columnsFrom": ["user_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "file_folder_id_folder_id_fk": {
-          "name": "file_folder_id_folder_id_fk",
-          "tableFrom": "file",
-          "tableTo": "folder",
-          "columnsFrom": ["folder_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "file_uploaded_by_user_id_user_id_fk": {
-          "name": "file_uploaded_by_user_id_user_id_fk",
-          "tableFrom": "file",
-          "tableTo": "user",
-          "columnsFrom": ["uploaded_by_user_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "file_id_unique": {
-          "name": "file_id_unique",
-          "nullsNotDistinct": false,
-          "columns": ["id"]
-        }
-      },
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
     "public.folder": {
       "name": "folder",
       "schema": "",
@@ -6633,21 +5751,6 @@
       "name": "text_style_enum",
       "schema": "public",
       "values": ["default", "serif", "mono"]
-    },
-    "public.block_type_enum": {
-      "name": "block_type_enum",
-      "schema": "public",
-      "values": ["paragraph", "heading", "code", "image", "file_embed"]
-    },
-    "public.page_status_enum": {
-      "name": "page_status_enum",
-      "schema": "public",
-      "values": ["draft", "published", "archived"]
-    },
-    "public.link_type_enum": {
-      "name": "link_type_enum",
-      "schema": "public",
-      "values": ["explicit", "inline-reference", "block_embed"]
     },
     "public.device_code_status_enum": {
       "name": "device_code_status_enum",

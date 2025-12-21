@@ -76,7 +76,7 @@ export class Success extends S.Class<Success>($I`Success`)(
  * @since 1.0.0
  * @category Contract
  */
-export const Contract = HttpApiEndpoint.post("delete-user", "/delete-user")
+export const Contract = HttpApiEndpoint.post("deleteUser", "/delete-user")
   .setPayload(Payload)
   .addError(
     IamAuthError.annotations(

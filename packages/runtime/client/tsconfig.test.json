@@ -39,12 +39,6 @@
       "path": "../../shared/tables"
     },
     {
-      "path": "../../shared/client"
-    },
-    {
-      "path": "../../shared/ui"
-    },
-    {
       "path": "../../iam/domain"
     },
     {

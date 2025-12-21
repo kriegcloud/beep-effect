@@ -19,7 +19,7 @@ import * as UnlinkAccount from "./unlink-account";
 import * as UpdateUser from "./update-user";
 import * as VerifyEmail from "./verify-email";
 
-export class Group extends HttpApiGroup.make("iam.core")
+export class Group extends HttpApiGroup.make("core")
   .add(GetSession.Contract)
   .add(ListSessions.Contract)
   .add(SignOut.Contract)

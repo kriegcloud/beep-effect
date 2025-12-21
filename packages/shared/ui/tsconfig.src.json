@@ -19,6 +19,9 @@
       "path": "../env"
     },
     {
+      "path": "../client"
+    },
+    {
       "path": "../../common/schema"
     },
     {

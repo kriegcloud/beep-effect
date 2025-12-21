@@ -5,7 +5,7 @@ import * as Get from "./get";
 import * as List from "./list";
 import * as Update from "./update";
 
-export class Group extends HttpApiGroup.make("iam.apiKey")
+export class Group extends HttpApiGroup.make("apiKey")
   .add(Create.Contract)
   .add(Delete.Contract)
   .add(Get.Contract)

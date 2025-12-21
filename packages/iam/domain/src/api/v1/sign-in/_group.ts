@@ -7,7 +7,7 @@ import * as Social from "./social.ts";
 import * as SSO from "./sso.ts";
 import * as Username from "./username.ts";
 
-export class Group extends HttpApiGroup.make("iam.signIn")
+export class Group extends HttpApiGroup.make("signIn")
   .add(Anonymous.Contract)
   .add(Email.Contract)
   .add(OAuth2.Contract)

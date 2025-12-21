@@ -18,7 +18,7 @@ export class Success extends S.Class<Success>($I`Success`)(
   })
 ) {}
 
-export const Contract = HttpApiEndpoint.get("get-session", "/get-session")
+export const Contract = HttpApiEndpoint.get("getSession", "/get-session")
   .addSuccess(Success)
   .addError(
     IamAuthError.annotations(

@@ -7,7 +7,7 @@ import * as UpdatePasskey from "./update-passkey.ts";
 import * as VerifyAuthentication from "./verify-authentication.ts";
 import * as VerifyRegistration from "./verify-registration.ts";
 
-export class Group extends HttpApiGroup.make("iam.passkey")
+export class Group extends HttpApiGroup.make("passkey")
   .add(DeletePasskey.Contract)
   .add(GenerateAuthenticateOptions.Contract)
   .add(GenerateRegisterOptions.Contract)

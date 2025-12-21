@@ -21,7 +21,7 @@ import * as Saml2SpAcs from "./saml2-sp-acs.ts";
 import * as Saml2SpMetadata from "./saml2-sp-metadata.ts";
 import * as VerifyDomain from "./verify-domain.ts";
 
-export type Service = HttpApiGroup.ApiGroup<"iam", "iam.sso">;
+export type Service = HttpApiGroup.ApiGroup<"iam", "sso">;
 export type ServiceError = IamAuthError;
 export type ServiceDependencies = Auth.Service;
 
@@ -41,7 +41,7 @@ export type Routes = Layer.Layer<Service, ServiceError, ServiceDependencies>;
  *
  * @since 0.1.0
  */
-export const Routes: Routes = HttpApiBuilder.group(IamApi, "iam.sso", (h) =>
+export const Routes: Routes = HttpApiBuilder.group(IamApi, "sso", (h) =>
   h
     .handle("callback", Callback.Handler)
     .handle("register", Register.Handler)

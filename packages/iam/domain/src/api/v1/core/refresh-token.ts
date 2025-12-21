@@ -120,7 +120,7 @@ export class Success extends S.Class<Success>($I`Success`)(
  * @since 0.1.0
  * @category Contract
  */
-export const Contract = HttpApiEndpoint.post("refresh-token", "/refresh-token")
+export const Contract = HttpApiEndpoint.post("refreshToken", "/refresh-token")
   .setPayload(Payload)
   .addError(
     IamAuthError.annotations(

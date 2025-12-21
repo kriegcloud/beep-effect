@@ -11,13 +11,13 @@ import * as UpdatePasskey from "./update-passkey.ts";
 import * as VerifyAuthentication from "./verify-authentication.ts";
 import * as VerifyRegistration from "./verify-registration.ts";
 
-export type Service = HttpApiGroup.ApiGroup<"iam", "iam.passkey">;
+export type Service = HttpApiGroup.ApiGroup<"iam", "passkey">;
 export type ServiceError = IamAuthError;
 export type ServiceDependencies = Auth.Service;
 
 export type Routes = Layer.Layer<Service, ServiceError, ServiceDependencies>;
 
-export const Routes: Routes = HttpApiBuilder.group(IamApi, "iam.passkey", (h) =>
+export const Routes: Routes = HttpApiBuilder.group(IamApi, "passkey", (h) =>
   h
     .handle("delete-passkey", DeletePasskey.Handler)
     .handle("generate-authenticate-options", GenerateAuthenticateOptions.Handler)

@@ -28,13 +28,13 @@ import * as SetUserPassword from "./set-user-password.ts";
 import * as StopImpersonating from "./stop-impersonating.ts";
 import * as UnbanUser from "./unban-user.ts";
 
-export type Service = HttpApiGroup.ApiGroup<"iam", "iam.admin">;
+export type Service = HttpApiGroup.ApiGroup<"iam", "admin">;
 export type ServiceError = IamAuthError;
 export type ServiceDependencies = Auth.Service;
 
 export type Routes = Layer.Layer<Service, ServiceError, ServiceDependencies>;
 
-export const Routes: Routes = HttpApiBuilder.group(IamApi, "iam.admin", (h) =>
+export const Routes: Routes = HttpApiBuilder.group(IamApi, "admin", (h) =>
   h
     .handle("ban-user", BanUser.Handler)
     .handle("create-user", CreateUser.Handler)

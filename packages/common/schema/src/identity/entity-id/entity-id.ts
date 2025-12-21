@@ -53,7 +53,7 @@ const makeDescription = <const TableName extends string>(tableName: SnakeTag.Lit
   F.pipe(Str.concat(tableName)("Entity identifier for "), Str.concat(" records."));
 
 const makeFormat = <const TableName extends string>(tableName: SnakeTag.Literal<TableName>) =>
-  F.pipe(tableName, Str.concat("__uuid"));
+  F.pipe(tableName, Str.concat("__${string}-${string}-${string}-${string}-${string}"));
 
 const makeCreateFn =
   <const TableName extends string>(tableName: SnakeTag.Literal<TableName>) =>

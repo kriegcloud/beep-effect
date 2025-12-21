@@ -10,7 +10,7 @@ import * as Layer from "effect/Layer";
 import * as PubSub from "effect/PubSub";
 import * as Schedule from "effect/Schedule";
 import * as Stream from "effect/Stream";
-import { SharedRpcClient } from "./shared-rpc-client.ts";
+import { ApiClient } from "./api-client.ts";
 
 const $I = $SharedClientId.create("atoms/event-stream-atoms");
 
@@ -28,14 +28,14 @@ export const makeAtomRuntime = Atom.context({
   memoMap: Atom.defaultMemoMap,
 });
 makeAtomRuntime.addGlobalLayer(clientRuntimeLayer);
-const layer = Layer.mergeAll(EventStream.Default, SharedRpcClient.Default);
+const layer = Layer.mergeAll(EventStream.Default, ApiClient.Default);
 
 const runtime = makeAtomRuntime(layer);
 
 export const eventStreamAtom = runtime
   .atom(
     Effect.gen(function* () {
-      const { rpc } = yield* SharedRpcClient;
+      const { rpc } = yield* ApiClient;
       const eventStream = yield* EventStream;
 
       const source = yield* Effect.acquireRelease(

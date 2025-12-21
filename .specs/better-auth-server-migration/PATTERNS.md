@@ -1683,7 +1683,7 @@ export const Handler: HandlerEffect = Effect.fn("SignInEmail")(function* ({ payl
 First argument to `.handle()` in group uses kebab-case matching endpoint name:
 
 ```typescript
-export const Routes: Routes = HttpApiBuilder.group(IamApi, "iam.signIn", (h) =>
+export const Routes: Routes = HttpApiBuilder.group(IamApi, "signIn", (h) =>
   h.handle("email", Email.Handler)  // "email" matches Contract name
    .handle("social", Social.Handler)
 );

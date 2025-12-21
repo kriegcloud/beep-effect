@@ -60,7 +60,7 @@ export class Success extends S.Class<Success>($I`Success`)(
  * @since 1.0.0
  * @category Contract
  */
-export const Contract = HttpApiEndpoint.post("send-verification-email", "/send-verification-email")
+export const Contract = HttpApiEndpoint.post("sendVerificationEmail", "/send-verification-email")
   .setPayload(Payload)
   .addError(
     IamAuthError.annotations(

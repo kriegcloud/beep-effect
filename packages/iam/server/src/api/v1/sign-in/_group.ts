@@ -11,13 +11,13 @@ import * as Social from "./social.ts";
 import * as SSO from "./sso.ts";
 import * as Username from "./username.ts";
 
-export type Service = HttpApiGroup.ApiGroup<"iam", "iam.signIn">;
+export type Service = HttpApiGroup.ApiGroup<"iam", "signIn">;
 export type ServiceError = IamAuthError;
 export type ServiceDependencies = Auth.Service;
 
 export type Routes = Layer.Layer<Service, ServiceError, ServiceDependencies>;
 
-export const Routes: Routes = HttpApiBuilder.group(IamApi, "iam.signIn", (h) =>
+export const Routes: Routes = HttpApiBuilder.group(IamApi, "signIn", (h) =>
   h
     .handle("anonymous", Anonymous.Handler)
     .handle("email", Email.Handler)

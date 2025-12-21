@@ -9,13 +9,13 @@ import * as Get from "./get";
 import * as List from "./list";
 import * as Update from "./update";
 
-export type Service = HttpApiGroup.ApiGroup<"iam", "iam.apiKey">;
+export type Service = HttpApiGroup.ApiGroup<"iam", "apiKey">;
 export type ServiceError = IamAuthError;
 export type ServiceDependencies = Auth.Service;
 
 export type Routes = Layer.Layer<Service, ServiceError, ServiceDependencies>;
 
-export const Routes: Routes = HttpApiBuilder.group(IamApi, "iam.apiKey", (h) =>
+export const Routes: Routes = HttpApiBuilder.group(IamApi, "apiKey", (h) =>
   h
     .handle("create", Create.Handler)
     .handle("delete", Delete.Handler)

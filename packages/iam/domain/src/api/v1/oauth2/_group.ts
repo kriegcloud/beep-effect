@@ -24,7 +24,7 @@ import * as Userinfo from "./userinfo.ts";
  * @since 1.0.0
  * @category Group
  */
-export class Group extends HttpApiGroup.make("iam.oauth2")
+export class Group extends HttpApiGroup.make("oauth2")
   .add(Authorize.Contract)
   .add(Callback.Contract)
   .add(Consent.Contract)

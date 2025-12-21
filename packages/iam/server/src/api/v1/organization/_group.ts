@@ -49,13 +49,13 @@ import * as UpdateMemberRole from "./update-member-role";
 import * as UpdateRole from "./update-role";
 import * as UpdateTeam from "./update-team";
 
-export type Service = HttpApiGroup.ApiGroup<"iam", "iam.organization">;
+export type Service = HttpApiGroup.ApiGroup<"iam", "organization">;
 export type ServiceError = IamAuthError;
 export type ServiceDependencies = Auth.Service;
 
 export type Routes = Layer.Layer<Service, ServiceError, ServiceDependencies>;
 
-export const Routes: Routes = HttpApiBuilder.group(IamApi, "iam.organization", (h) =>
+export const Routes: Routes = HttpApiBuilder.group(IamApi, "organization", (h) =>
   h
     // Invitation Management
     .handle("accept-invitation", AcceptInvitation.Handler)

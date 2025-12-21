@@ -36,6 +36,7 @@
   },
   "peerDependencies": {
     "@beep/shared-domain": "workspace:^",
+    "@beep/runtime-client": "workspace:^",
     "@beep/schema": "workspace:^",
     "@beep/utils": "workspace:^",
     "@beep/identity": "workspace:^",
@@ -53,6 +54,7 @@
     "@babel/preset-react": "catalog:",
     "@beep/shared-domain": "workspace:^",
     "@beep/schema": "workspace:^",
+    "@beep/runtime-client": "workspace:^",
     "@beep/utils": "workspace:^",
     "@beep/identity": "workspace:^",
     "@beep/errors": "workspace:^",

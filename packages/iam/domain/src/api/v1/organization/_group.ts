@@ -45,7 +45,7 @@ import * as UpdateMemberRole from "./update-member-role";
 import * as UpdateRole from "./update-role";
 import * as UpdateTeam from "./update-team";
 
-export class Group extends HttpApiGroup.make("iam.organization")
+export class Group extends HttpApiGroup.make("organization")
   .prefix("/organization")
   // Invitation Management
   .add(AcceptInvitation.Contract)
@@ -87,7 +87,8 @@ export class Group extends HttpApiGroup.make("iam.organization")
   .add(ListUserTeams.Contract)
   .add(RemoveTeamMember.Contract)
   .add(SetActiveTeam.Contract)
-  .add(UpdateTeam.Contract) {}
+  .add(UpdateTeam.Contract)
+  .prefix("/organization") {}
 
 export {
   AcceptInvitation,

@@ -33,7 +33,7 @@ import * as VerifyDomain from "./verify-domain.ts";
  *
  * @since 1.0.0
  */
-export class Group extends HttpApiGroup.make("iam.sso")
+export class Group extends HttpApiGroup.make("sso")
   .add(Callback.Contract)
   .add(Register.Contract)
   .add(RequestDomainVerification.Contract)

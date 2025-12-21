@@ -108,6 +108,16 @@ function DialogDescription({ className, ...props }: React.ComponentProps<typeof 
   );
 }
 
+Dialog.Content = DialogContent;
+Dialog.Header = DialogHeader;
+Dialog.Footer = DialogFooter;
+Dialog.Title = DialogTitle;
+Dialog.Description = DialogDescription;
+Dialog.Close = DialogClose;
+Dialog.Trigger = DialogTrigger;
+Dialog.Portal = DialogPortal;
+Dialog.Overlay = DialogOverlay;
+
 export {
   Dialog,
   DialogClose,

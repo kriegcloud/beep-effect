@@ -324,8 +324,6 @@ export function formatSizeEffect<O extends PrettyBytesOptions | undefined = unde
 /**
  * Synchronous version that throws on error (for compatibility with legacy code).
  *
- * @deprecated Prefer {@link formatSizeEffect} for Effect contexts. This function
- * will throw a defect on invalid input rather than returning a typed error.
  *
  * @example
  * formatSize(1337);                      // '1.34 kB'
