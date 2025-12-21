@@ -54,7 +54,7 @@ const defaultCSPDirectives = {
   defaultSrc: "'self'",
   baseURI: "'self'",
   formAction: "'self'",
-  scriptSrc: ["'self'", "blob:", "https://cdn.jsdelivr.net"],
+  scriptSrc: ["'self'", "blob:", "https://cdn.jsdelivr.net", "'wasm-unsafe-eval'", "'unsafe-eval'"],
   workerSrc: ["'self'", "blob:"],
   styleSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net"],
   fontSrc: ["'self'", "https://fonts.scalar.com"],
@@ -69,6 +69,8 @@ const defaultCSPDirectives = {
     "https://www.gstatic.com",
     "https://cdn.jsdelivr.net",
     "https://www.google.com",
+    "'wasm-unsafe-eval'",
+    "'unsafe-eval'",
   ],
   connectSrc: [
     "'self'",

@@ -28,6 +28,11 @@ export const FilesLayout: React.FC<React.PropsWithChildren> = ({ children }) => 
   const [createFolderDialogOpen, setCreateFolderDialogOpen] = React.useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false);
   const [moveDialogOpen, setMoveDialogOpen] = React.useState(false);
+  const [hydrated, setHydrated] = React.useState(false);
+
+  React.useEffect(() => {
+    setHydrated(true);
+  }, []);
 
   const hasSelection = !A.isEmptyArray(selection.fileIds) || !A.isEmptyArray(selection.folderIds);
   const canMoveFiles = !A.isEmptyArray(selection.fileIds) && A.isEmptyArray(selection.folderIds);
@@ -90,7 +95,7 @@ export const FilesLayout: React.FC<React.PropsWithChildren> = ({ children }) => 
           </div>
         </div>
 
-        <div className="h-1">{filesResult.waiting ? <FilesLoadingBar /> : null}</div>
+        <div className="h-1">{hydrated && filesResult.waiting ? <FilesLoadingBar /> : null}</div>
       </div>
 
       <div className="flex-1 overflow-y-auto min-h-0 mt-8">{children}</div>

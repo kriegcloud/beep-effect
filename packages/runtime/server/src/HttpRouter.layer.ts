@@ -14,8 +14,7 @@ import * as Layer from "effect/Layer";
 import * as P from "effect/Predicate";
 import * as AuthContext from "./AuthContext.layer.ts";
 import * as Logger from "./Logger.layer.ts";
-
-// import * as Rpc from "./Rpc.layer.ts";
+import * as Rpc from "./Rpc.layer.ts";
 
 // Register the IAM HttpApi with the HttpLayerRouter
 // This is the correct pattern for combining HttpApi with HttpLayerRouter
@@ -44,10 +43,7 @@ const CorsMiddleware = HttpLayerRouter.cors({
 });
 
 // Protected routes that require authentication
-const ProtectedRoutes = Layer.mergeAll(
-  IamApiRoutes
-  // Rpc.layer
-).pipe(Layer.provideMerge(AuthContext.layer));
+const ProtectedRoutes = Layer.mergeAll(IamApiRoutes, Rpc.layer).pipe(Layer.provide(AuthContext.layer));
 
 // Public routes that don't require authentication
 const PublicRoutes = Layer.mergeAll(DocsRoute, HealthRoute);
@@ -78,5 +74,6 @@ export const layer = HttpLayerRouter.serve(AllRoutes, {
       path = "[unparseable_url_path]";
     }
     return `http ${request.method} ${path}`;
-  })
+  }),
+  Layer.provideMerge(AuthContext.layer)
 );

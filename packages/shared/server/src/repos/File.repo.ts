@@ -95,17 +95,12 @@ export class FileRepo extends Effect.Service<FileRepo>()($I`FileRepo`, {
             })
           );
 
-          // 3. Transform: rename 'files' to 'uploadedFiles'
+          // 3. Transform: rename 'files' to 'uploadedFiles' while preserving all folder fields
           const folders = F.pipe(
             foldersWithFiles,
-            A.map((f) => ({
-              id: f.id,
-              organizationId: f.organizationId,
-              userId: f.userId,
-              name: f.name,
-              createdAt: f.createdAt,
-              updatedAt: f.updatedAt,
-              uploadedFiles: f.files,
+            A.map(({ files, ...folderFields }) => ({
+              ...folderFields,
+              uploadedFiles: files,
             }))
           );
 

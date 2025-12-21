@@ -53,7 +53,7 @@ export const RpcConfigLive = RpcClient.layerProtocolSocket({
 }).pipe(
   Layer.provide([
     BrowserSocket.layerWebSocket(
-      `${F.pipe(clientEnv.apiUrl.toString(), Str.replace(/^http:/, "ws:"), Str.replace(/^https:/, "wss:"))}rpc`
+      `${F.pipe(clientEnv.apiUrl.toString(), Str.replace(/^http:/, "ws:"), Str.replace(/^https:/, "wss:"))}/v1/shared/rpc`
     ),
     RpcSerialization.layerNdjson,
   ])

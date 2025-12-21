@@ -1,15 +1,29 @@
 "use client";
 import { activeUploadsAtom, filesAtom } from "@beep/shared-client/atom";
+import { File } from "@beep/shared-domain/entities";
 import { Result, useAtomValue } from "@effect-atom/atom-react";
+import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
+import * as FC from "effect/FastCheck";
 import * as F from "effect/Function";
+import React from "react";
 import { FilesEmptyState } from "./FilesEmptyState.tsx";
-// import { FolderSection } from "./folder";
+import { FolderSection } from "./folder";
 import { RootFilesSection } from "./RootFilesSection.tsx";
 
+const mockMetadata = F.constant(FC.sample(Arbitrary.make(File.Model.fields.metadata), 1)[0]!);
 export const FilesPage = () => {
+  const [hydrated, setHydrated] = React.useState(false);
   const filesResult = useAtomValue(filesAtom);
   const activeUploads = useAtomValue(activeUploadsAtom);
+
+  React.useEffect(() => {
+    setHydrated(true);
+  }, []);
+
+  if (!hydrated) {
+    return null;
+  }
   const pendingRootUploads = F.pipe(
     activeUploads,
     A.filter((u) => u.folderId === null)
@@ -32,9 +46,16 @@ export const FilesPage = () => {
 
           {F.pipe(
             folders,
-            A.map(
-              (_folder) => <p>hello</p> //<FolderSection key={folder.id} folder={folder} />
-            )
+            A.map((folder) => (
+              <FolderSection
+                key={folder.id}
+                folder={folder}
+                entityKind={"user"}
+                entityAttribute={"image"}
+                entityIdentifier={"user__73df4268-ea84-4c58-bc89-7ca868de0d56"}
+                metadata={mockMetadata()}
+              />
+            ))
           )}
         </div>
       );

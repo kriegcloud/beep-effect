@@ -11,7 +11,7 @@ export const CSP_DIRECTIVES = {
   "default-src": ["'self'"],
   "base-uri": ["'self'"],
   "form-action": ["'self'"],
-  "script-src": ["'self'", "blob:", "https://cdn.jsdelivr.net"],
+  "script-src": ["'self'", "blob:", "https://cdn.jsdelivr.net", "'wasm-unsafe-eval'", "'unsafe-eval'"],
   "worker-src": ["'self'", "blob:"],
   "style-src": ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net"],
   "font-src": ["'self'", "https://fonts.scalar.com"],
@@ -26,6 +26,8 @@ export const CSP_DIRECTIVES = {
     "https://www.gstatic.com",
     "https://cdn.jsdelivr.net",
     "https://www.google.com",
+    "'wasm-unsafe-eval'",
+    "'unsafe-eval'",
   ],
   "connect-src": [
     "'self'",

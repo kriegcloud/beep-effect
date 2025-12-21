@@ -628,6 +628,21 @@ input[type="number"]::-webkit-inner-spin-button {
   --color-ring: var(--mui-palette-primary-main);
   --color-background: rgb(var(--mui-palette-background-defaultChannel));
   --color-foreground: rgb(var(--mui-palette-text-primaryChannel));
+
+  /* shadcn/ui popover colors - map to MUI paper background */
+  --color-popover: rgb(var(--mui-palette-background-paperChannel));
+  --color-popover-foreground: rgb(var(--mui-palette-text-primaryChannel));
+
+  /* shadcn/ui accent colors - for hover/focus states */
+  --color-accent: var(--mui-palette-action-hover);
+  --color-accent-foreground: rgb(var(--mui-palette-text-primaryChannel));
+
+  /* shadcn/ui muted colors - for labels and disabled states */
+  --color-muted: rgb(var(--mui-palette-background-neutralChannel));
+  --color-muted-foreground: rgb(var(--mui-palette-text-secondaryChannel));
+
+  /* shadcn/ui subtle foreground - for icons and secondary elements */
+  --color-subtle-foreground: rgb(var(--mui-palette-text-secondaryChannel));
 }
 
 /* Material UI base styles */

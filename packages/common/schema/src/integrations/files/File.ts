@@ -16,6 +16,7 @@ import {
   VideoMimeType,
 } from "@beep/schema/integrations/files/mime-types";
 import { DateTimeUtcFromAllAcceptable, DurationFromSeconds } from "@beep/schema/primitives";
+import { faker } from "@faker-js/faker";
 import { Effect, Equivalence, Match, ParseResult, pipe } from "effect";
 import * as A from "effect/Array";
 import * as Num from "effect/Number";
@@ -27,7 +28,7 @@ import * as Str from "effect/String";
 import { AspectRatio, AspectRatioStringSchema } from "./AspectRatio.ts";
 import { ExifMetadata } from "./exif-metadata";
 import { MetadataService } from "./metadata/Metadata.service.ts";
-import { IAudioMetadata } from "./metadata/types.ts";
+import { IAudioMetadata, ICommonTagsResult, IFormat, IQualityInformation } from "./metadata/types.ts";
 import { FileSizeBitsIEC, FileSizeBitsSI, FileSizeIEC, FileSizeSI } from "./utils/formatSize.ts";
 
 /**
@@ -44,6 +45,165 @@ export const IAudioMetadataFromSelf = S.declare((u): u is IAudioMetadata => u in
   description: "IAudioMetadata instance (self-referential, skips encode validation)",
   pretty: (): Pretty.Pretty<IAudioMetadata> => (metadata) =>
     `IAudioMetadata { duration: ${O.getOrElse(metadata.format.duration, () => "none")}, sampleRate: ${O.getOrElse(metadata.format.sampleRate, () => "none")} }`,
+  arbitrary: () => (fc) =>
+    fc.constant(null).map(() => {
+      // Create instances by setting prototypes directly to bypass S.Class constructor validation
+      // This is necessary because the constructor validation serializes Options during comparison
+      const format = Object.assign(Object.create(IFormat.prototype), {
+        trackInfo: [],
+        tagTypes: [],
+        container: O.some(faker.helpers.arrayElement(["mp3", "flac", "ogg", "wav", "aac"])),
+        duration: O.some(faker.number.float({ min: 30, max: 600, fractionDigits: 2 })),
+        bitrate: O.some(faker.number.int({ min: 128000, max: 320000 })),
+        sampleRate: O.some(faker.helpers.arrayElement([44100, 48000, 96000])),
+        bitsPerSample: O.some(faker.helpers.arrayElement([16, 24, 32])),
+        tool: O.none(),
+        codec: O.some(faker.helpers.arrayElement(["MP3", "FLAC", "AAC", "Vorbis"])),
+        codecProfile: O.none(),
+        lossless: O.some(faker.datatype.boolean()),
+        numberOfChannels: O.some(faker.helpers.arrayElement([1, 2])),
+        numberOfSamples: O.none(),
+        audioMD5: O.none(),
+        chapters: O.none(),
+        creationTime: O.none(),
+        modificationTime: O.none(),
+        trackGain: O.none(),
+        trackPeakLevel: O.none(),
+        albumGain: O.none(),
+        hasAudio: O.some(true),
+        hasVideo: O.some(false),
+      });
+
+      const quality = Object.assign(Object.create(IQualityInformation.prototype), {
+        warnings: [],
+      });
+
+      const common = Object.assign(Object.create(ICommonTagsResult.prototype), {
+        track: { no: faker.number.int({ min: 1, max: 20 }), of: faker.number.int({ min: 10, max: 20 }) },
+        disk: { no: 1, of: 1 },
+        movementIndex: { no: null, of: null },
+        year: O.some(faker.number.int({ min: 1970, max: 2024 })),
+        title: O.some(faker.music.songName()),
+        artist: O.some(faker.person.fullName()),
+        artists: O.none(),
+        albumartist: O.none(),
+        album: O.some(faker.lorem.words(3)),
+        date: O.none(),
+        originaldate: O.none(),
+        originalyear: O.none(),
+        releasedate: O.none(),
+        comment: O.none(),
+        genre: O.some([faker.music.genre()]),
+        picture: O.none(),
+        composer: O.none(),
+        lyrics: O.none(),
+        albumsort: O.none(),
+        titlesort: O.none(),
+        work: O.none(),
+        artistsort: O.none(),
+        albumartistsort: O.none(),
+        composersort: O.none(),
+        lyricist: O.none(),
+        writer: O.none(),
+        conductor: O.none(),
+        remixer: O.none(),
+        arranger: O.none(),
+        engineer: O.none(),
+        publisher: O.none(),
+        producer: O.none(),
+        djmixer: O.none(),
+        mixer: O.none(),
+        technician: O.none(),
+        label: O.none(),
+        grouping: O.none(),
+        subtitle: O.none(),
+        description: O.none(),
+        longDescription: O.none(),
+        discsubtitle: O.none(),
+        totaltracks: O.none(),
+        totaldiscs: O.none(),
+        movementTotal: O.none(),
+        compilation: O.none(),
+        rating: O.none(),
+        bpm: O.some(faker.number.int({ min: 60, max: 180 })),
+        mood: O.none(),
+        media: O.none(),
+        catalognumber: O.none(),
+        tvShow: O.none(),
+        tvShowSort: O.none(),
+        tvSeason: O.none(),
+        tvEpisode: O.none(),
+        tvEpisodeId: O.none(),
+        tvNetwork: O.none(),
+        podcast: O.none(),
+        podcasturl: O.none(),
+        releasestatus: O.none(),
+        releasetype: O.none(),
+        releasecountry: O.none(),
+        script: O.none(),
+        language: O.none(),
+        copyright: O.none(),
+        license: O.none(),
+        encodedby: O.none(),
+        encodersettings: O.none(),
+        gapless: O.none(),
+        barcode: O.none(),
+        isrc: O.none(),
+        asin: O.none(),
+        musicbrainz_recordingid: O.none(),
+        musicbrainz_trackid: O.none(),
+        musicbrainz_albumid: O.none(),
+        musicbrainz_artistid: O.none(),
+        musicbrainz_albumartistid: O.none(),
+        musicbrainz_releasegroupid: O.none(),
+        musicbrainz_workid: O.none(),
+        musicbrainz_trmid: O.none(),
+        musicbrainz_discid: O.none(),
+        acoustid_id: O.none(),
+        acoustid_fingerprint: O.none(),
+        musicip_puid: O.none(),
+        musicip_fingerprint: O.none(),
+        website: O.none(),
+        "performer:instrument": O.none(),
+        averageLevel: O.none(),
+        peakLevel: O.none(),
+        notes: O.none(),
+        originalalbum: O.none(),
+        originalartist: O.none(),
+        discogs_artist_id: O.none(),
+        discogs_release_id: O.none(),
+        discogs_label_id: O.none(),
+        discogs_master_release_id: O.none(),
+        discogs_votes: O.none(),
+        discogs_rating: O.none(),
+        replaygain_track_gain_ratio: O.none(),
+        replaygain_track_peak_ratio: O.none(),
+        replaygain_track_gain: O.none(),
+        replaygain_track_peak: O.none(),
+        replaygain_album_gain: O.none(),
+        replaygain_album_peak: O.none(),
+        replaygain_undo: O.none(),
+        replaygain_track_minmax: O.none(),
+        replaygain_album_minmax: O.none(),
+        key: O.none(),
+        category: O.none(),
+        hdVideo: O.none(),
+        keywords: O.none(),
+        movement: O.none(),
+        podcastId: O.none(),
+        showMovement: O.none(),
+        stik: O.none(),
+        playCounter: O.none(),
+      });
+
+      // Create IAudioMetadata instance with proper prototype chain
+      return Object.assign(Object.create(IAudioMetadata.prototype), {
+        format,
+        native: {},
+        quality,
+        common,
+      });
+    }),
 });
 
 const $I = $SchemaId.create("integrations/files/FileInstance");
@@ -87,19 +247,18 @@ export declare namespace FileFromSelf {
 
 export const NormalizedFileFields = {
   file: FileFromSelf,
-  name: S.NonEmptyTrimmedString,
+  name: S.String,
   size: S.NonNegativeInt,
   lastModified: DateTimeUtcFromAllAcceptable,
-  webkitRelativePath: S.NonEmptyTrimmedString,
+  webkitRelativePath: S.String,
   // File size fields use plain strings since they're pre-transformed from the raw size
   // The transformation happens in normalizeFileProperties using the format helpers
   fileSizeSI: S.String,
   fileSizeIEC: S.String,
   fileSizeBitsSI: S.String,
   fileSizeBitsIEC: S.String,
-  // Use OptionFromSelf to preserve Option values without encode/decode transformation
-  // This is necessary because the schema is used in transformOrFail which validates
-  // returned values, and S.Option would try to encode to { _tag, value } format
+  // Use S.OptionFromSelf since extractMetadata passes decoded Option values (O.some/O.none)
+  // rather than the encoded form ({ _tag: "Some", value: ... })
   exif: S.OptionFromSelf(ExifMetadata),
   // Use IAudioMetadataFromSelf (declare schema) to avoid encode validation issues
   // with nested Option fields in IAudioMetadata class
@@ -166,7 +325,7 @@ export declare namespace NormalizedFile {
 
 const normalizeFileProperties = Effect.fn("normalizeFile")(function* (file: FileFromSelf.Type) {
   const mimeType = yield* S.decodeUnknown(MimeType)(file.type);
-  const name = yield* pipe(file.name, S.decode(S.NonEmptyTrimmedString));
+  const name = yield* pipe(file.name, S.decode(S.String));
   const size = yield* pipe(file.size, S.decode(S.NonNegativeInt));
   const extensionStr = yield* pipe(file.name, Str.split("."), A.tail, O.flatMap(A.last));
   const fileSizeSI = yield* pipe(file.size, S.decode(FileSizeSI));
@@ -174,7 +333,7 @@ const normalizeFileProperties = Effect.fn("normalizeFile")(function* (file: File
   const fileSizeBitsSI = yield* pipe(file.size, S.decode(FileSizeBitsSI));
   const fileSizeBitsIEC = yield* pipe(file.size, S.decode(FileSizeBitsIEC));
   const lastModified = yield* pipe(file.lastModified, S.decode(DateTimeUtcFromAllAcceptable));
-  const webkitRelativePath = yield* pipe(file.webkitRelativePath, S.decode(S.NonEmptyTrimmedString));
+  const webkitRelativePath = yield* pipe(file.webkitRelativePath, S.decode(S.String));
 
   const baseProperties = {
     file,

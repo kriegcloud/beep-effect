@@ -7,13 +7,12 @@ import type { Folder } from "@beep/shared-domain/entities";
 import { File as BeepFile } from "@beep/shared-domain/entities";
 import { Events } from "@beep/shared-domain/rpc/v1";
 import { InitiateUpload } from "@beep/shared-domain/rpc/v1/files/_rpcs";
-import * as FetchHttpClient from "@effect/platform/FetchHttpClient";
-import * as HttpBody from "@effect/platform/HttpBody";
-import * as HttpClient from "@effect/platform/HttpClient";
+import * as BrowserHttpClient from "@effect/platform-browser/BrowserHttpClient";
 import * as BrowserWorker from "@effect/platform-browser/BrowserWorker";
 import * as RpcClient from "@effect/rpc/RpcClient";
 import { Atom, Registry, Result } from "@effect-atom/atom-react";
 import * as A from "effect/Array";
+import * as Cause from "effect/Cause";
 import * as Data from "effect/Data";
 import * as DateTime from "effect/DateTime";
 import * as Deferred from "effect/Deferred";
@@ -27,9 +26,9 @@ import * as Schedule from "effect/Schedule";
 import * as S from "effect/Schema";
 import * as Schema from "effect/Schema";
 import * as Stream from "effect/Stream";
-import * as Struct from "effect/Struct";
 import { ApiClient } from "./api-client.ts";
 import { EventStream, makeEventStreamAtom } from "./event-stream-atoms";
+import { makePresignedPostOptions, UploadRegistry, uploadToS3 } from "./upload-service.ts";
 
 const $I = $WebId.create("atoms/files-atoms");
 
@@ -250,11 +249,13 @@ export class FilePicker extends Effect.Service<FilePicker>()($I`FilePicker`, {
 export const runtime = makeAtomRuntime(
   Layer.mergeAll(
     Api.Default,
-    FetchHttpClient.layer,
+    BrowserHttpClient.layerXMLHttpRequest,
     EventStream.Default,
     FileSync.Default,
     ImageCompressionClient.Default,
-    FilePicker.Default
+    FilePicker.Default,
+    UploadRegistry.Default,
+    BS.MetadataService.Default
   )
 );
 
@@ -492,31 +493,58 @@ export const moveFilesAtom = runtime.fn(
 
 const makeUploadStream = (uploadId: string, input: UploadInput) =>
   Effect.gen(function* () {
+    yield* Effect.logInfo(`[UploadStream] Starting upload stream`, {
+      uploadId,
+      fileName: input.file.name,
+      fileSize: input.file.size,
+      mimeType: input.file.type,
+      folderId: input.folderId,
+    });
+
     const api = yield* Api;
-    const httpClient = (yield* HttpClient.HttpClient).pipe(
-      HttpClient.filterStatusOk,
-      HttpClient.retryTransient({
-        times: 3,
-        schedule: Schedule.exponential("250 millis", 1.5),
-      })
-    );
     const fileSync = yield* FileSync;
     const imageCompression = yield* ImageCompressionClient;
 
     const transition = (state: UploadState) =>
       Effect.gen(function* () {
+        yield* Effect.logDebug(`[UploadStream] State transition`, {
+          uploadId,
+          currentState: state._tag,
+        });
+
         switch (state._tag) {
           case "Idle": {
+            yield* Effect.logInfo(`[UploadStream] Processing Idle state`, {
+              uploadId,
+              fileName: state.input.file.name,
+              fileSize: state.input.file.size,
+              mimeType: state.input.file.type,
+              maxSizeBytes: MAX_FILE_SIZE_BYTES,
+              needsCompression: state.input.file.size > MAX_FILE_SIZE_BYTES,
+              isImage: F.pipe(state.input.file.type, BS.MimeType.isImageMimeType),
+            });
+
             // If file is too large and is an image, compress first
             if (
               state.input.file.size > MAX_FILE_SIZE_BYTES &&
               F.pipe(state.input.file.type, BS.MimeType.isImageMimeType)
             ) {
+              yield* Effect.logInfo(`[UploadStream] Transitioning to Compressing`, {
+                uploadId,
+                fileName: state.input.file.name,
+                originalSize: state.input.file.size,
+              });
               return O.some<readonly [UploadPhase, UploadState]>([
                 UploadPhase.Compressing(),
                 UploadState.Compressing({ input: state.input }),
               ]);
             }
+
+            yield* Effect.logInfo(`[UploadStream] Transitioning to Uploading (no compression needed)`, {
+              uploadId,
+              fileName: state.input.file.name,
+              fileSize: state.input.file.size,
+            });
             // Otherwise, upload directly
             return O.some<readonly [UploadPhase, UploadState]>([
               UploadPhase.Uploading(),
@@ -527,6 +555,13 @@ const makeUploadStream = (uploadId: string, input: UploadInput) =>
           case "Compressing": {
             const maxAttempts = 3;
 
+            yield* Effect.logInfo(`[UploadStream] Starting compression`, {
+              uploadId,
+              fileName: state.input.file.name,
+              originalSize: state.input.file.size,
+              maxAttempts,
+            });
+
             const compressed = yield* Effect.iterate(
               {
                 data: new Uint8Array(yield* Effect.promise(() => state.input.file.arrayBuffer())),
@@ -536,23 +571,47 @@ const makeUploadStream = (uploadId: string, input: UploadInput) =>
               {
                 while: (s) => s.data.length > MAX_FILE_SIZE_BYTES && s.attempt < maxAttempts,
                 body: (s) =>
-                  Effect.map(
-                    imageCompression.client.compress({
+                  Effect.gen(function* () {
+                    yield* Effect.logDebug(`[UploadStream] Compression attempt`, {
+                      uploadId,
+                      attempt: s.attempt + 1,
+                      currentSize: s.data.length,
+                      targetSize: MAX_FILE_SIZE_BYTES,
+                    });
+
+                    const result = yield* imageCompression.client.compress({
                       data: s.data,
                       mimeType: s.mimeType,
                       fileName: state.input.file.name,
                       maxSizeMB: 1,
-                    }),
-                    (result) => ({
+                    });
+
+                    return {
                       data: new Uint8Array(result.data),
                       mimeType: result.mimeType,
                       attempt: s.attempt + 1,
-                    })
-                  ),
+                    };
+                  }),
               }
             );
 
+            yield* Effect.logInfo(`[UploadStream] Compression completed`, {
+              uploadId,
+              fileName: state.input.file.name,
+              originalSize: state.input.file.size,
+              compressedSize: compressed.data.length,
+              attempts: compressed.attempt,
+            });
+
             if (compressed.data.length > MAX_FILE_SIZE_BYTES) {
+              yield* Effect.logError(`[UploadStream] File too large after compression`, {
+                uploadId,
+                fileName: state.input.file.name,
+                originalSizeBytes: state.input.file.size,
+                compressedSizeBytes: compressed.data.length,
+                maxSizeBytes: MAX_FILE_SIZE_BYTES,
+              });
+
               return yield* new ImageTooLargeAfterCompression({
                 fileName: state.input.file.name,
                 originalSizeBytes: state.input.file.size,
@@ -564,6 +623,12 @@ const makeUploadStream = (uploadId: string, input: UploadInput) =>
               type: compressed.mimeType,
             });
 
+            yield* Effect.logInfo(`[UploadStream] Transitioning to Uploading (after compression)`, {
+              uploadId,
+              fileName: state.input.file.name,
+              fileSize: compressedFile.size,
+            });
+
             return O.some<readonly [UploadPhase, UploadState]>([
               UploadPhase.Uploading(),
               UploadState.Uploading({ input: state.input, fileToUpload: compressedFile }),
@@ -571,44 +636,148 @@ const makeUploadStream = (uploadId: string, input: UploadInput) =>
           }
 
           case "Uploading": {
+            yield* Effect.logInfo(`[UploadStream] Preparing upload payload`, {
+              uploadId,
+              fileName: state.fileToUpload.name,
+              fileSize: state.fileToUpload.size,
+              mimeType: state.fileToUpload.type,
+              folderId: state.input.folderId,
+            });
+
+            const metadata = yield* BS.extractMetadata(state.fileToUpload);
+
+            yield* Effect.logInfo("metadata extracted", {
+              metadata,
+            });
+
             const payload = yield* S.decodeUnknown(InitiateUpload.Payload)({
               fileName: state.fileToUpload.name,
               fileSize: state.fileToUpload.size,
               mimeType: state.fileToUpload.type,
               folderId: state.input.folderId,
+              entityKind: state.input.entityKind,
+              entityIdentifier: state.input.entityIdentifier,
+              entityAttribute: state.input.entityAttribute,
+              // metadata schema uses JsonFromString, so we need to pass a JSON string
+              metadata: JSON.stringify(metadata),
               fields: {},
             });
-            const { presignedUrl, fileKey } = yield* api.initiateUpload(payload);
 
-            const formData = new FormData();
-            for (const [key, value] of Struct.entries(payload.fields)) {
-              formData.append(key, value);
-            }
-            formData.append("file", state.fileToUpload);
+            yield* Effect.logInfo(`[UploadStream] Calling initiateUpload RPC`, {
+              uploadId,
+              payload: {
+                fileName: payload.fileName,
+                fileSize: payload.fileSize,
+                mimeType: payload.mimeType,
+                folderId: payload.folderId,
+                metadata: payload.metadata,
+              },
+            });
 
-            yield* httpClient.post(presignedUrl, { body: HttpBody.formData(formData) });
+            const initiateResult = yield* api.initiateUpload(payload);
+
+            yield* Effect.logInfo(`[UploadStream] Received initiateUpload response`, {
+              uploadId,
+              presignedUrl: initiateResult.presignedUrl,
+              fileKey: initiateResult.fileKey,
+              hasPresignedUrl: !!initiateResult.presignedUrl,
+              presignedUrlLength: initiateResult.presignedUrl?.length,
+            });
+
+            const uploadOptions = makePresignedPostOptions(
+              uploadId,
+              state.fileToUpload,
+              initiateResult.presignedUrl,
+              payload.fields
+            );
+
+            yield* Effect.logInfo(`[UploadStream] Starting S3 upload`, {
+              uploadId,
+              fileName: state.fileToUpload.name,
+              fileSize: state.fileToUpload.size,
+              presignedUrl: initiateResult.presignedUrl,
+              fields: payload.fields,
+            });
+
+            // Use XHR-based upload with progress tracking
+            yield* uploadToS3(uploadOptions);
+
+            yield* Effect.logInfo(`[UploadStream] S3 upload completed`, {
+              uploadId,
+              fileKey: initiateResult.fileKey,
+            });
+
+            yield* Effect.logInfo(`[UploadStream] Transitioning to Syncing`, {
+              uploadId,
+              fileKey: initiateResult.fileKey,
+            });
 
             return O.some<readonly [UploadPhase, UploadState]>([
               UploadPhase.Syncing(),
-              UploadState.Syncing({ input: state.input, fileKey }),
+              UploadState.Syncing({ input: state.input, fileKey: initiateResult.fileKey }),
             ]);
           }
 
           case "Syncing": {
+            yield* Effect.logInfo(`[UploadStream] Starting file sync`, {
+              uploadId,
+              fileKey: state.fileKey,
+            });
+
             yield* fileSync.waitForFile(state.fileKey, uploadId);
+
+            yield* Effect.logInfo(`[UploadStream] File sync completed`, {
+              uploadId,
+              fileKey: state.fileKey,
+            });
+
+            yield* Effect.logInfo(`[UploadStream] Transitioning to Done`, {
+              uploadId,
+            });
+
             return O.some<readonly [UploadPhase, UploadState]>([UploadPhase.Done(), UploadState.Done()]);
           }
 
           case "Done": {
+            yield* Effect.logInfo(`[UploadStream] Upload complete`, {
+              uploadId,
+            });
             return O.none();
           }
         }
       }).pipe(
+        Effect.tapErrorCause((cause) =>
+          Effect.logError(`[UploadStream] State transition error`, {
+            uploadId,
+            error: Cause.pretty(cause),
+            causeSquash: Cause.squash(cause),
+          })
+        ),
         Effect.catchTags({
-          Unauthorized: (e) => Effect.die(e),
-          RpcClientError: (e) => Effect.die(e),
-          RequestError: (e) => Effect.die(e),
-          ResponseError: (e) => Effect.die(e),
+          Unauthorized: (e: unknown) =>
+            Effect.gen(function* () {
+              yield* Effect.logError(`[UploadStream] Unauthorized error`, {
+                uploadId,
+                error: e,
+              });
+              return yield* Effect.dieMessage(`[Unauthorized]: ${JSON.stringify(e)}`);
+            }),
+          RpcClientError: (e: unknown) =>
+            Effect.gen(function* () {
+              yield* Effect.logError(`[UploadStream] RPC Client error`, {
+                uploadId,
+                error: e,
+              });
+              return yield* Effect.dieMessage(`[RpcClientError]: ${JSON.stringify(e)}`);
+            }),
+          S3UploadError: (e: unknown) =>
+            Effect.gen(function* () {
+              yield* Effect.logError(`[UploadStream] S3 Upload error`, {
+                uploadId,
+                error: e,
+              });
+              return yield* Effect.dieMessage(`[S3UploadError]: ${JSON.stringify(e)}`);
+            }),
         })
       );
 
@@ -676,12 +845,41 @@ export const clearSelectionAtom = runtime.fn(
 export const cancelUploadAtom = runtime.fn(
   Effect.fnUntraced(function* (uploadId: string) {
     const registry = yield* Registry.AtomRegistry;
+    const uploadRegistry = yield* UploadRegistry;
+
+    // Cancel via the upload registry (aborts XHR)
+    yield* uploadRegistry.cancel(uploadId);
 
     registry.set(uploadAtom(uploadId), Atom.Interrupt);
     registry.set(
       activeUploadsAtom,
       A.filter(registry.get(activeUploadsAtom), (u) => u.id !== uploadId)
     );
+  })
+);
+
+// ================================
+// Upload Progress Atoms
+// ================================
+
+/**
+ * Atom that provides a stream of all upload progress events.
+ * UI components can subscribe to this for real-time progress updates.
+ */
+export const uploadProgressStreamAtom = runtime.atom(
+  Effect.gen(function* () {
+    const uploadRegistry = yield* UploadRegistry;
+    return uploadRegistry.progressStream;
+  }).pipe(Stream.unwrap)
+);
+
+/**
+ * Get the current progress for a specific upload.
+ */
+export const getUploadProgressAtom = runtime.fn(
+  Effect.fn(function* (uploadId: string) {
+    const uploadRegistry = yield* UploadRegistry;
+    return yield* uploadRegistry.getStatus(uploadId);
   })
 );
 
@@ -725,16 +923,51 @@ export declare namespace StartUploadInput {
 
 export const startUploadAtom = runtime.fn(
   Effect.fn(function* (payload: StartUploadInput.Type) {
+    yield* Effect.logInfo(`[Upload] Starting file picker`, {
+      payloadTag: payload._tag,
+      entityKind: payload.entityKind,
+      entityIdentifier: payload.entityIdentifier,
+      entityAttribute: payload.entityAttribute,
+      folderId: payload._tag === "Folder" ? payload.id : null,
+    });
+
     const registry = yield* Registry.AtomRegistry;
     const filePicker = yield* FilePicker;
 
+    yield* Effect.logDebug(`[Upload] Opening file picker dialog`);
+
     const selectedFile = yield* filePicker.open.pipe(
       Effect.flatten,
-      Effect.catchTag("NoSuchElementException", () => Effect.interrupt)
+      Effect.tap((file) =>
+        Effect.logInfo(`[Upload] File selected`, {
+          fileName: file.name,
+          fileSize: file.size,
+          mimeType: file.type,
+        })
+      ),
+      Effect.catchTag("NoSuchElementException", () =>
+        Effect.gen(function* () {
+          yield* Effect.logWarning(`[Upload] No file selected (user cancelled)`);
+          return yield* Effect.interrupt;
+        })
+      )
     );
 
     const uploadId = crypto.randomUUID();
     const folderId = payload._tag === "Folder" ? payload.id : null;
+
+    yield* Effect.logInfo(`[Upload] Generated upload ID`, {
+      uploadId,
+      fileName: selectedFile.name,
+      fileSize: selectedFile.size,
+      mimeType: selectedFile.type,
+      folderId,
+    });
+
+    yield* Effect.logDebug(`[Upload] Adding to active uploads atom`, {
+      uploadId,
+      currentActiveUploads: registry.get(activeUploadsAtom).length,
+    });
 
     registry.set(
       activeUploadsAtom,
@@ -747,6 +980,17 @@ export const startUploadAtom = runtime.fn(
       })
     );
 
+    yield* Effect.logInfo(`[Upload] Setting upload atom`, {
+      uploadId,
+      fileName: selectedFile.name,
+      fileSize: selectedFile.size,
+      mimeType: selectedFile.type,
+      folderId,
+      entityKind: payload.entityKind,
+      entityIdentifier: payload.entityIdentifier,
+      entityAttribute: payload.entityAttribute,
+    });
+
     registry.set(uploadAtom(uploadId), {
       file: selectedFile,
       folderId,
@@ -754,6 +998,11 @@ export const startUploadAtom = runtime.fn(
       entityIdentifier: payload.entityIdentifier,
       entityAttribute: payload.entityAttribute,
       metadata: payload.metadata,
+    });
+
+    yield* Effect.logInfo(`[Upload] Upload initiated successfully`, {
+      uploadId,
+      fileName: selectedFile.name,
     });
   })
 );

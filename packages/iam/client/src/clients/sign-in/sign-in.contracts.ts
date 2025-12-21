@@ -41,7 +41,7 @@ export declare namespace SignInEmailPayload {
   export type Encoded = S.Schema.Encoded<typeof SignInEmailPayload>;
 }
 
-export class SignInEmailContract extends Contract.make("SignInEmail", {
+export const SignInEmailContract = Contract.make("SignInEmail", {
   description: "Signs the user in using email",
   failure: IamError,
   success: S.Void,
@@ -49,12 +49,8 @@ export class SignInEmailContract extends Contract.make("SignInEmail", {
   .setPayload(SignInEmailPayload)
   .annotate(Contract.Title, "Sign In Email Contract")
   .annotate(Contract.Domain, "SignIn")
-  .annotate(Contract.Method, "signInEmail") {}
-const notAProto = {
-  beep: "boop",
-} as any;
+  .annotate(Contract.Method, "signInEmail");
 
-export class NotAProto extends notAProto {}
 // =====================================================================================================================
 // SIGN IN SOCIAL CONTRACT
 // =====================================================================================================================

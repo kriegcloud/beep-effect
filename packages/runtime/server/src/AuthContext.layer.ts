@@ -109,30 +109,25 @@ const contextLayerEffect: Effect.Effect<
 });
 export const AuthContextLayer = Layer.effect(AuthContext, contextLayerEffect);
 
-export const AuthContextRpcMiddlewaresLayer: Layer.Layer<AuthContextRpcMiddleware, never, IamDb.IamDb | Auth.Service> =
-  Layer.effect(
-    Policy.AuthContextRpcMiddleware,
-    Effect.gen(function* () {
-      // Acquire dependencies during Layer construction
-      const auth = yield* Auth.Service;
-      const iamDb = yield* IamDb.IamDb;
+export const AuthContextRpcMiddlewaresLayer = Layer.effect(
+  Policy.AuthContextRpcMiddleware,
+  Effect.gen(function* () {
+    // Acquire dependencies during Layer construction
+    const auth = yield* Auth.Service;
+    const iamDb = yield* IamDb.IamDb;
 
-      // Return the middleware FUNCTION (not the context value)
-      // This function will be called for each RPC request with headers, clientId, etc.
-      return AuthContextRpcMiddleware.of((options) =>
-        getAuthContext({
-          auth,
-          iamDb,
-          headers: options.headers,
-        })
-      );
-    })
-  );
-export const AuthContextHttpMiddlewaresLayer: Layer.Layer<
-  Policy.AuthContextHttpMiddleware,
-  never,
-  Auth.Service | IamDb.IamDb
-> = Layer.effect(
+    // Return the middleware FUNCTION (not the context value)
+    // This function will be called for each RPC request with headers, clientId, etc.
+    return AuthContextRpcMiddleware.of((options) =>
+      getAuthContext({
+        auth,
+        iamDb,
+        headers: options.headers,
+      })
+    );
+  })
+);
+export const AuthContextHttpMiddlewaresLayer = Layer.effect(
   Policy.AuthContextHttpMiddleware,
   Effect.gen(function* () {
     const auth = yield* Auth.Service;
@@ -158,11 +153,7 @@ export const AuthContextHttpMiddlewaresLayer: Layer.Layer<
  * at request time (deferred pattern), so they don't require HttpServerRequest
  * at layer construction time.
  */
-export const authContextMiddlewareLayer: Layer.Layer<
-  Policy.AuthContextHttpMiddleware | Policy.AuthContextRpcMiddleware,
-  never,
-  Auth.Service | IamDb.IamDb
-> = Layer.merge(AuthContextRpcMiddlewaresLayer, AuthContextHttpMiddlewaresLayer);
+export const authContextMiddlewareLayer = Layer.merge(AuthContextRpcMiddlewaresLayer, AuthContextHttpMiddlewaresLayer);
 
 export type Services = AuthContextRpcMiddleware | Policy.AuthContextHttpMiddleware | Authentication.Services;
 

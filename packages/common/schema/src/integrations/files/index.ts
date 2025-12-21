@@ -4,6 +4,7 @@ export * from "./File";
 export * from "./FileAttributes";
 export * from "./FileSize";
 export * from "./file-types";
+export * from "./metadata/Metadata.service";
 export * from "./mime-types";
 export * from "./pdf-metadata";
 export * from "./utils";

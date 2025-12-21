@@ -7,7 +7,7 @@ import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as F from "effect/Function";
 import * as Layer from "effect/Layer";
-import * as AuthContextLive from "./AuthContext.layer.ts";
+import { AuthContextRpcMiddlewaresLayer } from "./AuthContext.layer.ts";
 
 export class RpcLogger extends RpcMiddleware.Tag<RpcLogger>()("RpcLogger", {
   wrap: true,
@@ -33,20 +33,34 @@ export const RpcLoggerLive: Layer.Layer<RpcLogger, never, never> = Layer.succeed
   )
 );
 
-const rpcLayer = RpcServer.layerHttpRouter({
-  group: SharedRpcs.V1.Rpcs,
+export const layer = RpcServer.layerHttpRouter({
+  group: SharedRpcs.V1.Rpcs.middleware(RpcLogger),
   path: "/v1/shared/rpc",
   protocol: "websocket",
   spanPrefix: "rpc",
   disableFatalDefects: true,
-}).pipe(Layer.provide(Layer.mergeAll(SharedServerRpcs.layer)), Layer.provide(AuthContextLive.layer));
-
-const rpcsLayer = Layer.mergeAll(rpcLayer).pipe(Layer.provide(AuthContextLive.layer));
-
-export const layer = RpcServer.layerHttpRouter({
-  group: SharedRpcs.V1.Rpcs.middleware(RpcLogger),
-  path: "/v1/documents/rpc",
-  protocol: "websocket",
-  spanPrefix: "rpc",
-  disableFatalDefects: true,
-}).pipe(Layer.provideMerge(rpcsLayer), Layer.provide(RpcLoggerLive), Layer.provide(RpcSerialization.layerNdjson));
+}).pipe(
+  Layer.provide(RpcLoggerLive),
+  Layer.provide(RpcSerialization.layerNdjson),
+  // Provide RPC handler implementations
+  Layer.provide(SharedServerRpcs.layer),
+  // Provide AuthContext middleware implementation
+  Layer.provide(AuthContextRpcMiddlewaresLayer)
+);
+// const rpcLayer = RpcServer.layerHttpRouter({
+//   group: SharedRpcs.V1.Rpcs,
+//   path: "/v1/shared/rpc",
+//   protocol: "websocket",
+//   spanPrefix: "rpc",
+//   disableFatalDefects: true,
+// }).pipe(Layer.provide(Layer.mergeAll(SharedServerRpcs.layer)), Layer.provide(AuthContextLive.layer));
+//
+// const rpcsLayer = Layer.mergeAll(rpcLayer).pipe(Layer.provide(AuthContextLive.layer));
+//
+// export const layer = RpcServer.layerHttpRouter({
+//   group: SharedRpcs.V1.Rpcs.middleware(RpcLogger),
+//   path: "/v1/documents/rpc",
+//   protocol: "websocket",
+//   spanPrefix: "rpc",
+//   disableFatalDefects: true,
+// }).pipe(Layer.provideMerge(rpcsLayer), Layer.provide(RpcLoggerLive), Layer.provide(RpcSerialization.layerNdjson));

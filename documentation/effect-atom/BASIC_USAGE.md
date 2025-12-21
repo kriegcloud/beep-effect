@@ -430,7 +430,7 @@ class CountClient extends AtomRpc.Tag<CountClient>()("CountClient", {
   protocol: RpcClient.layerProtocolSocket({
     retryTransientErrors: true
   }).pipe(
-    Layer.provide(BrowserSocket.layerWebSocket("ws://localhost:3000/rpc")),
+    Layer.provide(BrowserSocket.layerWebSocket("ws://localhost:8080/rpc")),
     Layer.provide(RpcSerialization.layerJson)
   )
 }) {}

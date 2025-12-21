@@ -13,6 +13,9 @@ import * as Mailbox from "effect/Mailbox";
 import * as Stream from "effect/Stream";
 import { EventStreamHub } from "./event-stream-hub";
 
+// Attach middleware to inform toLayer that AuthContext will be provided by middleware
+const RpcsWithMiddleware = Rpcs.middleware(Policy.AuthContextRpcMiddleware);
+
 /**
  * Live layer providing EventStreamRpc service for real-time event streaming.
  *
@@ -30,13 +33,13 @@ import { EventStreamHub } from "./event-stream-hub";
  * @category layers
  * @since 0.1.0
  */
-export const EventStreamRpcLive = Rpcs.toLayer(
+export const EventStreamRpcLive = RpcsWithMiddleware.toLayer(
   Effect.gen(function* () {
     const eventStreamHub = yield* EventStreamHub;
     const ka: [Ka] = [{ _tag: "Ka" }];
     const kaStream = Stream.tick("3 seconds").pipe(Stream.map(constant(ka)));
 
-    return Rpcs.of({
+    return RpcsWithMiddleware.of({
       eventStream_connect: Effect.fnUntraced(function* () {
         const { user: currentUser } = yield* Policy.AuthContext;
         const connectionId = crypto.randomUUID();
