@@ -20,23 +20,19 @@ import { hashBlobSync } from "./md5-file-hasher";
  * @category Schemas
  */
 const WorkerErrorSchema = S.Union(
-  S.Struct({
-    _tag: S.Literal("FileReadError"),
+  S.TaggedStruct("FileReadError", {
     message: S.String,
     cause: S.Unknown,
   }),
-  S.Struct({
-    _tag: S.Literal("BlobSliceError"),
+  S.TaggedStruct("BlobSliceError", {
     message: S.String,
     cause: S.Unknown,
   }),
-  S.Struct({
-    _tag: S.Literal("UnicodeEncodingError"),
+  S.TaggedStruct("UnicodeEncodingError", {
     message: S.String,
     codePoint: S.Number,
   }),
-  S.Struct({
-    _tag: S.Literal("Md5ComputationError"),
+  S.TaggedStruct("Md5ComputationError", {
     message: S.String,
     cause: S.Unknown,
   })
@@ -87,7 +83,6 @@ export const launchWorker = Runner.makeSerialized(WorkerRequestSchema, {
       const arrayBuffer = req.buffer.buffer as ArrayBuffer;
       const blob = new Blob([arrayBuffer], { type: "application/octet-stream" });
       const config = req.chunkSize ? { chunkSize: req.chunkSize } : undefined;
-      const hash = yield* hashBlobSync(blob, config);
-      return hash;
+      return yield* hashBlobSync(blob, config);
     }),
 }).pipe(Effect.provide(BrowserRunner.layer));

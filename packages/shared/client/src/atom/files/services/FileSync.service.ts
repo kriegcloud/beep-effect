@@ -1,14 +1,20 @@
 import { $SharedClientId } from "@beep/identity/packages";
-import { AddFile } from "@beep/shared-client/atom/files/types";
+import { AddFile, type ActiveUpload, type FileCacheUpdate } from "@beep/shared-client/atom/files/types";
 import type { File } from "@beep/shared-domain/entities";
-import { Registry } from "@effect-atom/atom-react";
+import { Atom, Registry } from "@effect-atom/atom-react";
 import { DateTime, Effect, MutableHashMap, Schedule } from "effect";
 import * as A from "effect/Array";
 import * as F from "effect/Function";
 import { FilesApi } from "../../services";
-import { activeUploadsAtom } from "../atoms/activeUploads.atom.ts";
-import { filesAtom } from "../atoms/files.atom.ts";
 import * as FileCompletionSignals from "./FileCompletionSignals.ts";
+
+// Lazy imports to break circular dependency:
+// runtime.ts → FileSync.service.ts → files.atom.ts → runtime.ts
+// We use explicit return type annotations to break the type inference cycle
+const getFilesAtom = (): Promise<unknown> =>
+  import("../atoms/files.atom.ts").then((m) => m.filesAtom);
+const getActiveUploadsAtom = (): Promise<unknown> =>
+  import("../atoms/activeUploads.atom.ts").then((m) => m.activeUploadsAtom);
 
 const $I = $SharedClientId.create("atom/files/services/FileSync");
 
@@ -17,6 +23,14 @@ export class Service extends Effect.Service<Service>()($I`Service`, {
   scoped: Effect.gen(function* () {
     const registry = yield* Registry.AtomRegistry;
     const api = yield* FilesApi.Service;
+
+    // Resolve atoms lazily to avoid circular import at module load time
+    // Type assertions are safe here - the actual atom types are known at runtime
+    const filesAtom = (yield* Effect.promise(getFilesAtom)) as Atom.Writable<unknown, FileCacheUpdate>;
+    const activeUploadsAtom = (yield* Effect.promise(getActiveUploadsAtom)) as Atom.Writable<
+      ReadonlyArray<ActiveUpload>,
+      ReadonlyArray<ActiveUpload>
+    >;
 
     const waitForFile = (key: File.UploadKey.Type, uploadId: string) =>
       Effect.gen(function* () {

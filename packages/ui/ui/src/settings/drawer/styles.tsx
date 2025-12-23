@@ -64,7 +64,7 @@ export function LargeBlock({ sx, title, tooltip, children, canReset, onReset, ..
 type SmallBlockProps = React.ComponentProps<typeof SmallBlockRoot> & {
   label: string;
   canReset?: boolean;
-  onReset?: () => void;
+  onReset?: undefined | (() => void);
 };
 
 const SmallBlockRoot = styled("div")(({ theme }) => ({

@@ -314,8 +314,8 @@ function CommentMoreDropdown(props: {
   readonly dropdownOpen: boolean;
   readonly setDropdownOpen: React.Dispatch<React.SetStateAction<boolean>>;
   readonly setEditingId: React.Dispatch<React.SetStateAction<string | null>>;
-  readonly onCloseAutoFocus?: () => void;
-  readonly onRemoveComment?: () => void;
+  readonly onCloseAutoFocus?: undefined | (() => void);
+  readonly onRemoveComment?: undefined | (() => void);
 }) {
   const { comment, dropdownOpen, setDropdownOpen, setEditingId, onCloseAutoFocus, onRemoveComment } = props;
 

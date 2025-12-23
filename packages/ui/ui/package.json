@@ -97,6 +97,12 @@
       "require": "./build/cjs/hooks/*",
       "default": "./src/hooks/*.ts"
     },
+    "./lexical/*": {
+      "import": "./src/lexical/*.ts",
+      "types": "./build/dts/lexical/*",
+      "require": "./build/cjs/lexical/*",
+      "default": "./src/lexical/*.ts"
+    },
     "./services/*": {
       "import": "./src/services/*.ts",
       "types": "./build/dts/services/*",
@@ -183,6 +189,8 @@
     }
   },
   "peerDependencies": {
+    "@ffmpeg/ffmpeg": "catalog:",
+    "@ffmpeg/util": "catalog:",
     "@beep/invariant": "workspace:^",
     "@beep/schema": "workspace:^",
     "@beep/utils": "workspace:^",
@@ -327,9 +335,34 @@
     "react-tweet": "catalog:",
     "remark-math": "catalog:",
     "uploadthing": "catalog:",
-    "use-file-picker": "catalog:"
+    "use-file-picker": "catalog:",
+    "lexical": "catalog:",
+    "@lexical/react": "catalog:",
+    "@lexical/utils": "catalog:",
+    "@lexical/code": "catalog:",
+    "@lexical/link": "catalog:",
+    "@lexical/list": "catalog:",
+    "@lexical/markdown": "catalog:",
+    "@lexical/overflow": "catalog:",
+    "@lexical/rich-text": "catalog:",
+    "@lexical/selection": "catalog:",
+    "@lexical/table": "catalog:",
+    "mdi-material-ui": "catalog:"
   },
   "devDependencies": {
+    "@lexical/code": "catalog:",
+    "@lexical/link": "catalog:",
+    "@lexical/list": "catalog:",
+    "@lexical/markdown": "catalog:",
+    "@lexical/overflow": "catalog:",
+    "@lexical/rich-text": "catalog:",
+    "@lexical/selection": "catalog:",
+    "@lexical/table": "catalog:",
+    "mdi-material-ui": "catalog:",
+    "trystero": "catalog:",
+    "lexical": "catalog:",
+    "@lexical/react": "catalog:",
+    "@lexical/utils": "catalog:",
     "@beep/invariant": "workspace:^",
     "@beep/schema": "workspace:^",
     "@beep/utils": "workspace:^",
@@ -386,6 +419,8 @@
     "class-variance-authority": "catalog:",
     "@radix-ui/react-toast": "catalog:",
     "@zip.js/zip.js": "catalog:",
+    "@ffmpeg/ffmpeg": "catalog:",
+    "@ffmpeg/util": "catalog:",
     "@radix-ui/react-dialog": "catalog:",
     "@radix-ui/react-separator": "catalog:",
     "@radix-ui/react-slot": "catalog:",

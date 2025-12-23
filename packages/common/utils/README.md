@@ -203,7 +203,7 @@ import { noOp, nullOp, nullOpE } from "@beep/utils";
 import * as Effect from "effect/Effect";
 
 // Synchronous void no-op
-const handler: { onclick?: () => void } = { onclick: noOp };
+const handler: { onclick?: undefined | (() => void) } = { onclick: noOp };
 
 // Synchronous null-returning no-op
 const getter: () => null = nullOp;

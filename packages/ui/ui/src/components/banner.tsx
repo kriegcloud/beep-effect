@@ -59,7 +59,7 @@ const BannerDescription = ({ className, ...props }: React.ComponentProps<"p">) =
 };
 
 type BannerDismissProps = React.ComponentProps<"button"> & {
-  onDismiss?: () => void;
+  onDismiss?: undefined | (() => void);
 };
 
 const BannerDismiss = ({ className, onDismiss, onClick, ...props }: BannerDismissProps) => {

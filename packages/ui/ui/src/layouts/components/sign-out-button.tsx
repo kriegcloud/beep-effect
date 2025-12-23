@@ -6,7 +6,7 @@ import Button from "@mui/material/Button";
 import { useCallback } from "react";
 
 type Props = ButtonProps & {
-  onClose?: () => void;
+  onClose?: undefined | (() => void);
 };
 
 export function SignOutButton({ onClose, sx, ...other }: Props) {

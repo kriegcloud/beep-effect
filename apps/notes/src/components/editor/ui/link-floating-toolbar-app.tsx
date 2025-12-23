@@ -412,7 +412,7 @@ const InternalLinkCommandItem = ({
   onSelect,
 }: {
   document: UnsafeTypes.UnsafeAny;
-  onSelect?: () => void;
+  onSelect?: undefined | (() => void);
 }) => {
   const editor = useEditorRef();
 

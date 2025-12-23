@@ -98,6 +98,7 @@ const defaultCSPDirectives = {
     "blob:",
     "https://purecatamphetamine.github.io",
     "https://lh3.googleusercontent.com",
+    "https://raw.githubusercontent.com",
   ],
   frameSrc: ["'self'", "https://vercel.live", "https://www.google.com", "https://vercel.com"],
 } as const;

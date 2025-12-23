@@ -15,7 +15,7 @@ export function BackToTopButton({ sx, isDebounce, renderButton, scrollThreshold 
   const { onBackToTop, isVisible } = useBackToTop(scrollThreshold, isDebounce);
 
   if (renderButton) {
-    return cloneElement(renderButton(isVisible) as React.ReactElement<{ onClick?: () => void }>, {
+    return cloneElement(renderButton(isVisible) as React.ReactElement<{ onClick?: undefined | (() => void) }>, {
       onClick: onBackToTop,
     });
   }
