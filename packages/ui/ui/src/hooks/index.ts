@@ -3,6 +3,7 @@ export * from "./stable-hooks";
 export * from "./use-back-to-top";
 export { useBoolean } from "./use-boolean";
 export * from "./use-callback-ref";
+export * from "./use-click-outside";
 export * from "./use-client-rect";
 export { useCookies } from "./use-cookies";
 export * from "./use-copy-to-clipboard";

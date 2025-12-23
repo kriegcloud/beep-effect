@@ -102,6 +102,9 @@
       "path": "apps/web/tsconfig.json"
     },
         {
+      "path": "apps/interfere/tsconfig.json"
+    },
+        {
       "path": "apps/marketing/tsconfig.json"
     },
     {

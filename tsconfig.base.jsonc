@@ -340,6 +340,9 @@
       "@/*": [
         "./apps/web/src/*"
       ],
+      "@beep/interfere/*": [
+        "./apps/interfere/src/*"
+      ],
       "@beep/db-admin": [
         "./packages/_internal/db-admin/src/index"
       ],

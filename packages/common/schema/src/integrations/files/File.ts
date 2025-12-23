@@ -625,7 +625,7 @@ export class NormalizedFileFromSelf extends S.transformOrFail(FileFromSelf, Norm
     Effect.gen(function* () {
       // 1. Read file buffer for validation
       const buffer = yield* Effect.tryPromise({
-        try: file.arrayBuffer,
+        try: () => file.arrayBuffer(),
         catch: (error) => new ParseResult.Type(ast, file, `Failed to read file buffer: ${error}`),
       });
 

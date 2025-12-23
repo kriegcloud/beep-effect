@@ -1,0 +1,198 @@
+{
+  "extends": "../../tsconfig.base.jsonc",
+  "compilerOptions": {
+    "exactOptionalPropertyTypes": false,
+    "moduleDetection": "force",
+    "downlevelIteration": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "allowImportingTsExtensions": true,
+    "isolatedModules": true,
+    "noImplicitReturns": false,
+    "noUnusedLocals": true,
+    "noUnusedParameters": false,
+    "noFallthroughCasesInSwitch": true,
+    "noEmitOnError": false,
+    "noErrorTruncation": false,
+    "noEmit": true,
+    "allowJs": false,
+    "checkJs": false,
+    "forceConsistentCasingInFileNames": true,
+    "useDefineForClassFields": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "resolveJsonModule": true,
+    "strict": true,
+    "strictNullChecks": true,
+    "removeComments": false,
+    "types": ["node", "bun"],
+    "outDir": "build/src",
+    "jsx": "preserve",
+    "module": "ESNext",
+    "target": "ES2023",
+    "lib": ["ES2024", "DOM", "DOM.Iterable"],
+    "moduleResolution": "bundler",
+    "incremental": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "disableSourceOfProjectReferenceRedirect": true,
+    "paths": {
+      "@beep/interfere/*": ["./src/*"],
+      "@beep/types": ["../../packages/common/types/src/index"],
+      "@beep/types/*": ["../../packages/common/types/src/*"],
+      "@beep/invariant": ["../../packages/common/invariant/src/index"],
+      "@beep/invariant/*": ["../../packages/common/invariant/src/*"],
+      "@beep/utils": ["../../packages/common/utils/src/index"],
+      "@beep/utils/*": ["../../packages/common/utils/src/*"],
+      "@beep/schema": ["../../packages/common/schema/src/index"],
+      "@beep/schema/*": ["../../packages/common/schema/src/*"],
+      "@beep/constants": ["../../packages/common/constants/src/index"],
+      "@beep/constants/*": ["../../packages/common/constants/src/*"],
+      "@beep/errors/client": ["../../packages/common/errors/src/client"],
+      "@beep/errors/shared": ["../../packages/common/errors/src/shared"],
+      "@beep/errors/server": ["../../packages/common/errors/src/server"],
+      "@beep/mock": ["../../packages/common/mock/src/index"],
+      "@beep/mock/*": ["../../packages/common/mock/src/*"],
+      "@beep/contract": ["../../packages/common/contract/src/index"],
+      "@beep/contract/*": ["../../packages/common/mock/src/*"],
+      "@beep/shared-domain": ["../../packages/shared/domain/src/index"],
+      "@beep/shared-domain/*": ["../../packages/shared/domain/src/*"],
+      "@beep/shared-tables": ["../../packages/shared/tables/src/index"],
+      "@beep/shared-tables/*": ["../../packages/shared/tables/src/*"],
+      "@beep/shared-server": ["../../packages/shared/server/src/index"],
+      "@beep/shared-server/*": ["../../packages/shared/server/src/*"],
+      "@beep/shared-client": ["../../packages/shared/client/src/index"],
+      "@beep/shared-client/*": ["../../packages/shared/client/src/*"],
+      "@beep/shared-ui": ["../../packages/shared/ui/src/index"],
+      "@beep/shared-ui/*": ["../../packages/shared/ui/src/*"],
+      "@beep/ui/*": ["../../packages/ui/ui/src/*"],
+      "@beep/ui-core/*": ["../../packages/ui/core/src/*"],
+      "@beep/iam-domain": ["../../packages/iam/domain/src/index"],
+      "@beep/iam-domain/*": ["../../packages/iam/domain/src/*"],
+      "@beep/iam-tables": ["../../packages/iam/tables/src/index"],
+      "@beep/iam-tables/*": ["../../packages/iam/tables/src/*"],
+      "@beep/iam-server": ["../../packages/iam/server/src/index"],
+      "@beep/iam-server/*": ["../../packages/iam/server/src/*"],
+      "@beep/iam-client": ["../../packages/iam/client/src/index"],
+      "@beep/iam-client/*": ["../../packages/iam/client/src/*"],
+      "@beep/iam-ui": ["../../packages/iam/ui/src/index"],
+      "@beep/iam-ui/*": ["../../packages/iam/ui/src/*"],
+      "@beep/documents-domain": ["../../packages/documents/domain/src/index"],
+      "@beep/documents-domain/*": ["../../packages/documents/domain/src/*"],
+      "@beep/documents-tables": ["../../packages/documents/tables/src/index"],
+      "@beep/documents-tables/*": ["../../packages/documents/tables/src/*"],
+      "@beep/documents-server": ["../../packages/documents/server/src/index"],
+      "@beep/documents-server/*": ["../../packages/documents/server/src/*"],
+      "@beep/documents-client": ["../../packages/documents/client/src/index"],
+      "@beep/documents-client/*": ["../../packages/documents/client/src/*"],
+      "@beep/documents-ui": ["../../packages/documents/ui/src/index"],
+      "@beep/documents-ui/*": ["../../packages/documents/ui/src/*"],
+      "@beep/runtime-server": ["../../packages/runtime/server/src/index"],
+      "@beep/runtime-server/*": ["../../packages/runtime/server/src/*"],
+      "@beep/runtime-client": ["../../packages/runtime/client/src/index"],
+      "@beep/runtime-client/*": ["../../packages/runtime/client/src/*"]
+    },
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ]
+  },
+  "references": [
+    {
+      "path": "../../packages/common/types/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/common/invariant/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/common/utils/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/common/schema/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/common/identity/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/common/constants/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/common/errors/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/common/mock/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/common/contract/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/shared/domain/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/shared/tables/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/shared/server/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/shared/client/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/shared/ui/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/iam/client/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/iam/server/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/iam/domain/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/iam/ui/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/iam/tables/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/ui/ui/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/ui/core/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/documents/client/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/documents/ui/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/documents/server/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/documents/domain/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/documents/tables/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/runtime/server/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/runtime/client/tsconfig.build.json"
+    }
+  ],
+  "include": [
+    "./scripts/*.ts",
+    "execute.ts",
+    "next-env.d.ts",
+    "*.json",
+    "src/**/*.json",
+    ".",
+    ".next/types/**/*.ts"
+  ],
+  "exclude": []
+}

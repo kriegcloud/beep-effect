@@ -14,7 +14,7 @@
       "path": "../apps/notes/tsconfig.build.json"
     },
     {
-      "path": "../apps/www/tsconfig.build.json"
+      "path": "../apps/interfere/tsconfig.build.json"
     }
   ]
 }

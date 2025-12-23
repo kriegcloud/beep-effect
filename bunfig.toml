@@ -20,3 +20,6 @@ onlyBuiltDependencies = [
 
 [install.scopes."@buf"]
 registry = "https://buf.build/gen/npm/v1"
+
+[test]
+preload = ["./tooling/testkit/src/test-preload.ts"]

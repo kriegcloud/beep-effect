@@ -47,6 +47,8 @@ Configuration and guardrails for AI collaborators working in the `beep-effect` m
 `beep-effect` is a Bun-managed monorepo delivering a full-stack Effect application. It combines:
 - `apps/web` — Next.js 15 + React 19 frontend
 - `apps/server` — Effect Platform runtime backend
+- `apps/interfere` — Interactive Effect TypeScript playground (WebContainer + Monaco editor)
+- `apps/notes` — Collaborative notes application
 
 Vertical slices live in `packages/iam/*` and `packages/documents/*`, with shared foundations under `packages/shared/*` and `packages/common/*`.
 
@@ -58,7 +60,9 @@ Vertical slices live in `packages/iam/*` and `packages/documents/*`, with shared
 beep-effect/
 ├── apps/
 │   ├── web/              # Next.js App Router frontend
-│   └── server/           # Effect-based backend runtime
+│   ├── server/           # Effect-based backend runtime
+│   ├── interfere/        # Effect TypeScript playground (WebContainer)
+│   └── notes/            # Collaborative notes application
 ├── packages/
 │   ├── _internal/
 │   │   └── db-admin/     # Migration warehouse, Drizzle CLI
@@ -113,6 +117,7 @@ Each package may have its own `AGENTS.md` with specific guidance:
 - `apps/web/AGENTS.md` — Next.js frontend application patterns
 - `apps/server/AGENTS.md` — Effect Platform backend server
 - `apps/notes/AGENTS.md` — Collaborative notes application (Prisma + Effect hybrid)
+- `apps/interfere/AGENTS.md` — Interactive Effect TypeScript playground with WebContainer
 
 ### Common Layer
 - `packages/common/constants/AGENTS.md` — Schema-backed enums, locale generators, path-builder

@@ -44,15 +44,15 @@ This package is internal to the monorepo and not published separately.
 
 All exports are available from the main entry point (`@beep/constants`) and optionally via subpaths for specific modules.
 
-| Category | Exports | Description |
-|----------|---------|-------------|
-| **Environment** | `EnvValue`, `NodeEnvValue` | Deployment and runtime environment literals |
-| **Authentication** | `AuthProviderNameValue`, `TaggedAuthProviderNameValue` | OAuth provider schemas with configuration |
-| **Logging** | `LogLevel`, `LogFormat`, `LogFormatTagged` | Log severity and format enums |
-| **HTTP/API** | `AllowedHeaders`, `AllowedHttpMethods`, `AllowedHttpMethodsKit` | Permitted headers and HTTP methods |
-| **Security** | `CSP_DIRECTIVES`, `CSP_HEADER`, `CspDirective` (type) | Content Security Policy configuration |
-| **Business** | `SubscriptionPlanValue`, `PAGINATION_LIMIT` | Subscription tiers and pagination defaults |
-| **Asset Paths** | `assetPaths`, `publicPaths`, `pathObjFromPaths`, `toJsAccessor`, `removeExt`, `toNestedTuple`, `buildPathTuples` | Type-safe public asset path accessors and utilities |
+| Category           | Exports                                                                                                          | Description                                         |
+|--------------------|------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------|
+| **Environment**    | `EnvValue`, `NodeEnvValue`                                                                                       | Deployment and runtime environment literals         |
+| **Authentication** | `AuthProviderNameValue`, `TaggedAuthProviderNameValue`                                                           | OAuth provider schemas with configuration           |
+| **Logging**        | `LogLevel`, `LogFormat`, `LogFormatTagged`                                                                       | Log severity and format enums                       |
+| **HTTP/API**       | `AllowedHeaders`, `AllowedHttpMethods`, `AllowedHttpMethodsKit`                                                  | Permitted headers and HTTP methods                  |
+| **Security**       | `CSP_DIRECTIVES`, `CSP_HEADER`, `CspDirective` (type)                                                            | Content Security Policy configuration               |
+| **Business**       | `SubscriptionPlanValue`, `PAGINATION_LIMIT`                                                                      | Subscription tiers and pagination defaults          |
+| **Asset Paths**    | `assetPaths`, `publicPaths`, `pathObjFromPaths`, `toJsAccessor`, `removeExt`, `toNestedTuple`, `buildPathTuples` | Type-safe public asset path accessors and utilities |
 
 ### Environment Configuration
 
