@@ -5,6 +5,8 @@
  *
  * Removed all the stuff we didn't use
  */
+
+import { $SchemaId } from "@beep/identity/packages";
 import { invariant } from "@beep/invariant";
 import { StringLiteralKit } from "@beep/schema/derived";
 import { HashSet, pipe, Struct } from "effect";
@@ -17,6 +19,8 @@ import { image } from "./image";
 import { misc } from "./misc";
 import { text } from "./text";
 import { video } from "./video";
+
+const $I = $SchemaId.create("integrations/files/mime-types");
 
 type MimeTypeProperty = {
   readonly [mimeType: string]: {
@@ -58,60 +62,96 @@ export const extractMimeTypes = <const T extends MimeTypeProperty>(mime: T): A.N
     return values;
   });
 
-export class ApplicationMimeType extends StringLiteralKit(...extractMimeTypes(application)).annotations({
-  identifier: "ApplicationMimeType",
-  description: "MIME type for application files",
-}) {}
+export class ApplicationMimeType extends StringLiteralKit(...extractMimeTypes(application))
+  .annotations({
+    identifier: "ApplicationMimeType",
+    description: "MIME type for application files",
+  })
+  .annotations(
+    $I.annotations("ApplicationMimeType", {
+      description: "MIME type for application files",
+    })
+  ) {}
 
 export declare namespace ApplicationMimeType {
   export type Type = typeof ApplicationMimeType.Type;
   export type Encoded = typeof ApplicationMimeType.Encoded;
 }
 
-export class VideoMimeType extends StringLiteralKit(...extractMimeTypes(video)).annotations({
-  identifier: "VideoMimeType",
-  description: "MIME type for video files",
-}) {}
+export class VideoMimeType extends StringLiteralKit(...extractMimeTypes(video))
+  .annotations({
+    identifier: "VideoMimeType",
+    description: "MIME type for video files",
+  })
+  .annotations(
+    $I.annotations("VideoMimeType", {
+      description: "MIME type for video files",
+    })
+  ) {}
 
 export declare namespace VideoMimeType {
   export type Type = typeof VideoMimeType.Type;
   export type Encoded = typeof VideoMimeType.Encoded;
 }
 
-export class TextMimeType extends StringLiteralKit(...extractMimeTypes(text)).annotations({
-  identifier: "TextMimeType",
-  description: "MIME type for text files",
-}) {}
+export class TextMimeType extends StringLiteralKit(...extractMimeTypes(text))
+  .annotations({
+    identifier: "TextMimeType",
+    description: "MIME type for text files",
+  })
+  .annotations(
+    $I.annotations("TextMimeType", {
+      description: "MIME type for text files",
+    })
+  ) {}
 
 export declare namespace TextMimeType {
   export type Type = typeof TextMimeType.Type;
   export type Encoded = typeof TextMimeType.Encoded;
 }
 
-export class ImageMimeType extends StringLiteralKit(...extractMimeTypes(image)).annotations({
-  identifier: "ImageMimeType",
-  description: "MIME type for image files",
-}) {}
+export class ImageMimeType extends StringLiteralKit(...extractMimeTypes(image))
+  .annotations({
+    identifier: "ImageMimeType",
+    description: "MIME type for image files",
+  })
+  .annotations(
+    $I.annotations("ImageMimeType", {
+      description: "MIME type for image files",
+    })
+  ) {}
 
 export declare namespace ImageMimeType {
   export type Type = typeof ImageMimeType.Type;
   export type Encoded = typeof ImageMimeType.Encoded;
 }
 
-export class AudioMimeType extends StringLiteralKit(...extractMimeTypes(audio)).annotations({
-  identifier: "AudioMimeType",
-  description: "MIME type for audio files",
-}) {}
+export class AudioMimeType extends StringLiteralKit(...extractMimeTypes(audio))
+  .annotations({
+    identifier: "AudioMimeType",
+    description: "MIME type for audio files",
+  })
+  .annotations(
+    $I.annotations("AudioMimeType", {
+      description: "MIME type for audio files",
+    })
+  ) {}
 
 export declare namespace AudioMimeType {
   export type Type = typeof AudioMimeType.Type;
   export type Encoded = typeof AudioMimeType.Encoded;
 }
 
-export class MiscMimeType extends StringLiteralKit(...extractMimeTypes(misc)).annotations({
-  identifier: "MiscMimeType",
-  description: "MIME type for miscellaneous files",
-}) {}
+export class MiscMimeType extends StringLiteralKit(...extractMimeTypes(misc))
+  .annotations({
+    identifier: "MiscMimeType",
+    description: "MIME type for miscellaneous files",
+  })
+  .annotations(
+    $I.annotations("MiscMimeType", {
+      description: "MIME type for miscellaneous files",
+    })
+  ) {}
 
 export declare namespace MiscMimeType {
   export type Type = typeof MiscMimeType.Type;
@@ -134,6 +174,10 @@ export class MimeType extends StringLiteralKit(
   ...TextMimeType.Options,
   ...VideoMimeType.Options,
   ...MiscMimeType.Options
+).annotations(
+  $I.annotations("MimeType", {
+    description: "MIME type for files",
+  })
 ) {
   static readonly isApplicationMimeType = S.is(ApplicationMimeType);
   static readonly isAudioMimeType = S.is(AudioMimeType);
@@ -148,60 +192,96 @@ export declare namespace MimeType {
   export type Encoded = typeof MimeType.Encoded;
 }
 
-export class ApplicationFileExtension extends StringLiteralKit(...extractMimeExtensions(application)).annotations({
-  identifier: "ApplicationFileExtension",
-  description: "File extension for application files",
-}) {}
+export class ApplicationFileExtension extends StringLiteralKit(...extractMimeExtensions(application))
+  .annotations({
+    identifier: "ApplicationFileExtension",
+    description: "File extension for application files",
+  })
+  .annotations(
+    $I.annotations("ApplicationFileExtension", {
+      description: "File extension for application files",
+    })
+  ) {}
 
 export declare namespace ApplicationFileExtension {
   export type Type = typeof ApplicationFileExtension.Type;
   export type Encoded = typeof ApplicationFileExtension.Encoded;
 }
 
-export class AudioFileExtension extends StringLiteralKit(...extractMimeExtensions(audio)).annotations({
-  identifier: "AudioFileExtension",
-  description: "File extension for audio files",
-}) {}
+export class AudioFileExtension extends StringLiteralKit(...extractMimeExtensions(audio))
+  .annotations({
+    identifier: "AudioFileExtension",
+    description: "File extension for audio files",
+  })
+  .annotations(
+    $I.annotations("AudioFileExtension", {
+      description: "File extension for audio files",
+    })
+  ) {}
 
 export declare namespace AudioFileExtension {
   export type Type = typeof AudioFileExtension.Type;
   export type Encoded = typeof AudioFileExtension.Encoded;
 }
 
-export class ImageFileExtension extends StringLiteralKit(...extractMimeExtensions(image)).annotations({
-  identifier: "ImageFileExtension",
-  description: "File extension for image files",
-}) {}
+export class ImageFileExtension extends StringLiteralKit(...extractMimeExtensions(image))
+  .annotations({
+    identifier: "ImageFileExtension",
+    description: "File extension for image files",
+  })
+  .annotations(
+    $I.annotations("ImageFileExtension", {
+      description: "File extension for image files",
+    })
+  ) {}
 
 export declare namespace ImageFileExtension {
   export type Type = typeof ImageFileExtension.Type;
   export type Encoded = typeof ImageFileExtension.Encoded;
 }
 
-export class TextFileExtension extends StringLiteralKit(...extractMimeExtensions(text)).annotations({
-  identifier: "TextFileExtension",
-  description: "File extension for text files",
-}) {}
+export class TextFileExtension extends StringLiteralKit(...extractMimeExtensions(text))
+  .annotations({
+    identifier: "TextFileExtension",
+    description: "File extension for text files",
+  })
+  .annotations(
+    $I.annotations("TextFileExtension", {
+      description: "File extension for text files",
+    })
+  ) {}
 
 export declare namespace TextFileExtension {
   export type Type = typeof TextFileExtension.Type;
   export type Encoded = typeof TextFileExtension.Encoded;
 }
 
-export class VideoFileExtension extends StringLiteralKit(...extractMimeExtensions(video)).annotations({
-  identifier: "VideoFileExtension",
-  description: "File extension for video files",
-}) {}
+export class VideoFileExtension extends StringLiteralKit(...extractMimeExtensions(video))
+  .annotations({
+    identifier: "VideoFileExtension",
+    description: "File extension for video files",
+  })
+  .annotations(
+    $I.annotations("VideoFileExtension", {
+      description: "File extension for video files",
+    })
+  ) {}
 
 export declare namespace VideoFileExtension {
   export type Type = typeof VideoFileExtension.Type;
   export type Encoded = typeof VideoFileExtension.Encoded;
 }
 
-export class MiscFileExtension extends StringLiteralKit(...extractMimeExtensions(misc)).annotations({
-  identifier: "MiscFileExtension",
-  description: "File extension for miscellaneous files",
-}) {}
+export class MiscFileExtension extends StringLiteralKit(...extractMimeExtensions(misc))
+  .annotations({
+    identifier: "MiscFileExtension",
+    description: "File extension for miscellaneous files",
+  })
+  .annotations(
+    $I.annotations("MiscFileExtension", {
+      description: "File extension for miscellaneous files",
+    })
+  ) {}
 
 export declare namespace MiscFileExtension {
   export type Type = typeof MiscFileExtension.Type;
@@ -215,6 +295,10 @@ export class FileExtension extends StringLiteralKit(
   ...TextFileExtension.Options,
   ...VideoFileExtension.Options,
   ...MiscFileExtension.Options
+).annotations(
+  $I.annotations("FileExtension", {
+    description: "File extension for files",
+  })
 ) {
   static readonly isApplicationFileExtension = S.is(ApplicationFileExtension);
   static readonly isAudioFileExtension = S.is(AudioFileExtension);
@@ -320,9 +404,92 @@ function populateMaps(
   });
 }
 
-export class FileType extends StringLiteralKit("application", "audio", "image", "text", "video", "misc") {}
+export class FileType extends StringLiteralKit("application", "audio", "image", "text", "video", "misc").annotations(
+  $I.annotations("FileType", {
+    description: "File type for files",
+  })
+) {}
 
 export declare namespace FileType {
   export type Type = typeof FileType.Type;
   export type Encoded = typeof FileType.Encoded;
 }
+
+export class ApplicationMimeTypePair extends S.Tuple(ApplicationMimeType, ApplicationFileExtension).annotations(
+  $I.annotations("ApplicationMimeTypePair", {
+    description: "Application MIME type and file extension pair",
+  })
+) {}
+
+export declare namespace ApplicationMimeTypePair {
+  export type Type = typeof ApplicationMimeTypePair.Type;
+  export type Encoded = typeof ApplicationMimeTypePair.Encoded;
+}
+
+export class AudioMimeTypePair extends S.Tuple(AudioMimeType, AudioFileExtension).annotations(
+  $I.annotations("AudioMimeTypePair", {
+    description: "Audio MIME type and file extension pair",
+  })
+) {}
+
+export declare namespace AudioMimeTypePair {
+  export type Type = typeof AudioMimeTypePair.Type;
+  export type Encoded = typeof AudioMimeTypePair.Encoded;
+}
+
+export class VideoMimeTypePair extends S.Tuple(VideoMimeType, VideoFileExtension).annotations(
+  $I.annotations("VideoMimeTypePair", {
+    description: "Video MIME type and file extension pair",
+  })
+) {}
+
+export declare namespace VideoMimeTypePair {
+  export type Type = typeof VideoMimeTypePair.Type;
+  export type Encoded = typeof VideoMimeTypePair.Encoded;
+}
+
+export class TextMimeTypePair extends S.Tuple(TextMimeType, TextFileExtension).annotations(
+  $I.annotations("TextMimeTypePair", {
+    description: "Text MIME type and file extension pair",
+  })
+) {}
+
+export declare namespace TextMimeTypePair {
+  export type Type = typeof TextMimeTypePair.Type;
+  export type Encoded = typeof TextMimeTypePair.Encoded;
+}
+
+export class ImageMimeTypePair extends S.Tuple(ImageMimeType, ImageFileExtension).annotations(
+  $I.annotations("ImageMimeTypePair", {
+    description: "Image MIME type and file extension pair",
+  })
+) {}
+
+export declare namespace ImageMimeTypePair {
+  export type Type = typeof ImageMimeTypePair.Type;
+  export type Encoded = typeof ImageMimeTypePair.Encoded;
+}
+
+export class MiscMimeTypePair extends S.Tuple(MiscMimeType, MiscFileExtension).annotations(
+  $I.annotations("MiscMimeTypePair", {
+    description: "Miscellaneous MIME type and file extension pair",
+  })
+) {}
+
+export declare namespace MiscMimeTypePair {
+  export type Type = typeof MiscMimeTypePair.Type;
+  export type Encoded = typeof MiscMimeTypePair.Encoded;
+}
+
+export class MimeTypePair extends S.Union(
+  ApplicationMimeTypePair,
+  AudioMimeTypePair,
+  VideoMimeTypePair,
+  TextMimeTypePair,
+  ImageMimeTypePair,
+  MiscMimeTypePair
+).annotations(
+  $I.annotations("MimeTypePair", {
+    description: "MIME type and file extension pair",
+  })
+) {}

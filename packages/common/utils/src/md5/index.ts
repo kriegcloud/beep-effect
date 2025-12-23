@@ -66,14 +66,16 @@ export {
   hashBlobSync,
   makeConfig,
 } from "./md5-file-hasher";
-// Parallel worker pool hashing (placeholder - not yet implemented)
+// Parallel worker pool hashing
 export {
   DEFAULT_POOL_SIZE,
   hashBlob as hashBlobParallel,
   hashBlobWithConfig,
   makeLayer,
+  makeLayerWithSpawner,
   ParallelHasher,
   type ParallelHasherConfig,
+  type ParallelHasherSpawnerConfig,
 } from "./parallel-hasher";
 // Worker implementation (for use in worker context)
 export {

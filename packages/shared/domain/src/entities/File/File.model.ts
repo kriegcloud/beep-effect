@@ -45,6 +45,7 @@ export class Model extends M.Class<Model>($I`FileModel`)(
           "width",
           "extension",
           "height",
+          "md5Hash",
           "aspectRatio",
           "duration"
         )

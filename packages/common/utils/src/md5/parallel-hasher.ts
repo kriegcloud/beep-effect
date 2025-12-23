@@ -189,6 +189,66 @@ export const makeLayer = (config: ParallelHasherConfig): Layer.Layer<ParallelHas
   );
 
 /**
+ * Configuration for the parallel hasher with spawner function.
+ * Use this for bundler-compatible worker creation.
+ * @since 1.0.0
+ * @category Models
+ */
+export interface ParallelHasherSpawnerConfig {
+  readonly spawner: (id: number) => globalThis.Worker;
+  readonly poolSize: number;
+  readonly chunkSize?: number | undefined;
+}
+
+/**
+ * Create a parallel hasher layer with a worker spawner function.
+ *
+ * This is the preferred method when using module bundlers (Vite, Bun, etc.)
+ * that support the `new URL(..., import.meta.url)` pattern for workers.
+ *
+ * Example usage:
+ * ```typescript
+ * const hasherLayer = makeLayerWithSpawner({
+ *   spawner: () => new Worker(
+ *     new URL("@beep/runtime-client/workers/md5-hasher-worker.ts?worker", import.meta.url),
+ *     { type: "module" }
+ *   ),
+ *   poolSize: 4,
+ *   chunkSize: 2097152 // 2MB
+ * });
+ * ```
+ *
+ * @since 1.0.0
+ * @category Layers
+ */
+export const makeLayerWithSpawner = (
+  config: ParallelHasherSpawnerConfig
+): Layer.Layer<ParallelHasher, WorkerHashError, never> =>
+  Layer.scoped(
+    ParallelHasher,
+    Effect.gen(function* () {
+      const workerLayer = BrowserWorker.layer(config.spawner);
+
+      const pool: Worker.SerializedWorkerPool<WorkerRequest> = yield* Worker.makePoolSerialized<WorkerRequest>({
+        size: config.poolSize,
+      }).pipe(Effect.provide(workerLayer));
+
+      const chunkSize = config.chunkSize ?? DEFAULT_CHUNK_SIZE;
+
+      return makeService(pool, chunkSize);
+    })
+  ).pipe(
+    Layer.catchAll((error) =>
+      Layer.fail(
+        new WorkerHashError({
+          message: "Failed to initialize worker pool",
+          cause: error,
+        })
+      )
+    )
+  );
+
+/**
  * Hash a blob using parallel workers from context
  *
  * This function requires ParallelHasher to be provided in the context.

@@ -8,6 +8,7 @@ import * as Layer from "effect/Layer";
 import type { SharedDb } from "../db";
 import { FileRepo } from "./File.repo.ts";
 import { FolderRepo } from "./Folder.repo.ts";
+import { UploadSessionRepo } from "./UploadSession.repo.ts";
 
 /**
  * Union type of all shared repository services.
@@ -23,7 +24,7 @@ import { FolderRepo } from "./Folder.repo.ts";
  * @category models
  * @since 0.1.0
  */
-export type SharedRepos = FileRepo | FolderRepo;
+export type SharedRepos = FileRepo | FolderRepo | UploadSessionRepo;
 
 /**
  * Layer type providing all shared repositories with database dependencies.
@@ -58,7 +59,7 @@ export type SharedReposLive = Layer.Layer<SharedRepos, never, Db.SliceDbRequirem
  * @category layers
  * @since 0.1.0
  */
-export const layer: SharedReposLive = Layer.mergeAll(FileRepo.Default, FolderRepo.Default);
+export const layer: SharedReposLive = Layer.mergeAll(FileRepo.Default, FolderRepo.Default, UploadSessionRepo.Default);
 
 /**
  * Re-exports File repository implementation.
@@ -85,3 +86,16 @@ export * from "./File.repo.ts";
  * @since 0.1.0
  */
 export * from "./Folder.repo.ts";
+
+/**
+ * Re-exports UploadSession repository implementation.
+ *
+ * @example
+ * ```typescript
+ * import { UploadSessionRepo } from "@beep/shared-server/repos/repositories"
+ * ```
+ *
+ * @category exports
+ * @since 0.1.0
+ */
+export * from "./UploadSession.repo.ts";

@@ -2,7 +2,7 @@ import * as S from "effect/Schema";
 import * as DocumentsEntityIds from "./documents";
 import * as IamEntityIds from "./iam";
 
-import { FolderId, OrganizationId, SessionId, TeamId, UserId } from "./shared";
+import { FolderId, OrganizationId, SessionId, TeamId, UploadSessionId, UserId } from "./shared";
 
 export class AnyEntityId extends S.Union(
   IamEntityIds.AccountId,
@@ -32,7 +32,8 @@ export class AnyEntityId extends S.Union(
   TeamId,
   UserId,
   SessionId,
-  FolderId
+  FolderId,
+  UploadSessionId
 ).annotations({
   schemaId: Symbol.for("@beep/shared/domain/EntityIds/AnyEntityId"),
   description: "Any entity id",

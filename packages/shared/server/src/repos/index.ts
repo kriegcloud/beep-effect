@@ -16,7 +16,6 @@
  * @since 0.1.0
  */
 export * from "./File.repo.ts";
-
 /**
  * Re-exports consolidated shared repository namespace with layer composition.
  *
@@ -32,3 +31,21 @@ export * from "./File.repo.ts";
  * @since 0.1.0
  */
 export * as SharedRepos from "./repositories.ts";
+/**
+ * Re-exports UploadSession repository implementation.
+ *
+ * @example
+ * ```typescript
+ * import { UploadSessionRepo } from "@beep/shared-server"
+ * import * as Effect from "effect/Effect"
+ *
+ * const program = Effect.gen(function* () {
+ *   const repo = yield* UploadSessionRepo
+ *   const deletedCount = yield* repo.deleteExpired()
+ * })
+ * ```
+ *
+ * @category exports
+ * @since 0.1.0
+ */
+export * from "./UploadSession.repo.ts";

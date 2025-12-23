@@ -5,6 +5,8 @@ import {
   ApplicationMimeType,
   AudioFileExtension,
   AudioMimeType,
+  FileExtension,
+  FileType,
   ImageFileExtension,
   ImageMimeType,
   MimeType,
@@ -16,9 +18,12 @@ import {
   VideoMimeType,
 } from "@beep/schema/integrations/files/mime-types";
 import { DateTimeUtcFromAllAcceptable, DurationFromSeconds } from "@beep/schema/primitives";
+import { ParallelHasher } from "@beep/utils/md5";
 import { faker } from "@faker-js/faker";
 import { Effect, Equivalence, Match, ParseResult, pipe } from "effect";
 import * as A from "effect/Array";
+import type * as B from "effect/Brand";
+import * as F from "effect/Function";
 import * as Num from "effect/Number";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -30,6 +35,23 @@ import { ExifMetadata } from "./exif-metadata";
 import { MetadataService } from "./metadata/Metadata.service.ts";
 import { IAudioMetadata, ICommonTagsResult, IFormat, IQualityInformation } from "./metadata/types.ts";
 import { FileSizeBitsIEC, FileSizeBitsSI, FileSizeIEC, FileSizeSI } from "./utils/formatSize.ts";
+
+/**
+ * Branded type for MD5 hash strings (32 lowercase hexadecimal characters).
+ *
+ * @since 1.0.0
+ * @category Models
+ */
+export type Md5Hash = string & B.Brand<"Md5Hash">;
+
+/**
+ * Schema for validating MD5 hash strings.
+ * Ensures the string is exactly 32 lowercase hexadecimal characters.
+ *
+ * @since 1.0.0
+ * @category Schemas
+ */
+export const Md5Hash = S.String.pipe(S.pattern(/^[a-f0-9]{32}$/), S.brand("Md5Hash"));
 
 /**
  * Schema that validates if a value is an IAudioMetadata instance.
@@ -269,22 +291,31 @@ export const NormalizedFileFields = {
   // Use AspectRatioStringSchema for pre-computed values, not the transform schema
   aspectRatio: S.OptionFromSelf(AspectRatioStringSchema),
   duration: S.OptionFromSelf(S.DurationFromSelf),
+  // MD5 hash computed during schema transformation via ParallelHasher service
+  // Required field - schema fails if hash cannot be computed
+  md5Hash: Md5Hash,
 };
 
-export class NormalizedAudioFile extends S.TaggedClass<NormalizedAudioFile>($I`NormalizedAudioFile`)("audio", {
-  ...NormalizedFileFields,
-  mimeType: AudioMimeType,
-  extension: AudioFileExtension,
-}) {}
+export class NormalizedAudioFile extends S.TaggedClass<NormalizedAudioFile>($I`NormalizedAudioFile`)(
+  FileType.Enum.audio,
+  {
+    ...NormalizedFileFields,
+    mimeType: AudioMimeType,
+    extension: AudioFileExtension,
+  }
+) {}
 
-export class NormalizedImageFile extends S.TaggedClass<NormalizedImageFile>($I`NormalizedImageFile`)("image", {
-  ...NormalizedFileFields,
-  mimeType: ImageMimeType,
-  extension: ImageFileExtension,
-}) {}
+export class NormalizedImageFile extends S.TaggedClass<NormalizedImageFile>($I`NormalizedImageFile`)(
+  FileType.Enum.image,
+  {
+    ...NormalizedFileFields,
+    mimeType: ImageMimeType,
+    extension: ImageFileExtension,
+  }
+) {}
 
 export class NormalizedApplicationFile extends S.TaggedClass<NormalizedApplicationFile>($I`NormalizedApplicationFile`)(
-  "application",
+  FileType.Enum.application,
   {
     ...NormalizedFileFields,
     mimeType: ApplicationMimeType,
@@ -292,19 +323,22 @@ export class NormalizedApplicationFile extends S.TaggedClass<NormalizedApplicati
   }
 ) {}
 
-export class NormalizedTextFile extends S.TaggedClass<NormalizedTextFile>($I`NormalizedTextFile`)("text", {
+export class NormalizedTextFile extends S.TaggedClass<NormalizedTextFile>($I`NormalizedTextFile`)(FileType.Enum.text, {
   ...NormalizedFileFields,
   mimeType: TextMimeType,
   extension: TextFileExtension,
 }) {}
 
-export class NormalizedVideoFile extends S.TaggedClass<NormalizedVideoFile>($I`NormalizedVideoFile`)("video", {
-  ...NormalizedFileFields,
-  mimeType: VideoMimeType,
-  extension: VideoFileExtension,
-}) {}
+export class NormalizedVideoFile extends S.TaggedClass<NormalizedVideoFile>($I`NormalizedVideoFile`)(
+  FileType.Enum.video,
+  {
+    ...NormalizedFileFields,
+    mimeType: VideoMimeType,
+    extension: VideoFileExtension,
+  }
+) {}
 
-export class NormalizedMiscFile extends S.TaggedClass<NormalizedMiscFile>($I`NormalizedMiscFile`)("misc", {
+export class NormalizedMiscFile extends S.TaggedClass<NormalizedMiscFile>($I`NormalizedMiscFile`)(FileType.Enum.misc, {
   ...NormalizedFileFields,
   mimeType: MiscMimeType,
   extension: MiscFileExtension,
@@ -328,7 +362,13 @@ const normalizeFileProperties = Effect.fn("normalizeFile")(function* (file: File
   const mimeType = yield* S.decodeUnknown(MimeType)(file.type);
   const name = yield* pipe(file.name, S.decode(S.String));
   const size = yield* pipe(file.size, S.decode(S.NonNegativeInt));
-  const extensionStr = yield* pipe(file.name, Str.split("."), A.tail, O.flatMap(A.last));
+  const extensionStr = yield* pipe(
+    file.name,
+    Str.split("."),
+    A.tail,
+    O.flatMap(A.last),
+    O.flatMap(S.decodeUnknownOption(FileExtension))
+  );
   const fileSizeSI = yield* pipe(file.size, S.decode(FileSizeSI));
   const fileSizeIEC = yield* pipe(file.size, S.decode(FileSizeIEC));
   const fileSizeBitsSI = yield* pipe(file.size, S.decode(FileSizeBitsSI));
@@ -348,56 +388,69 @@ const normalizeFileProperties = Effect.fn("normalizeFile")(function* (file: File
     name,
   };
 
-  return Match.value(mimeType).pipe(
-    Match.when(MimeType.isApplicationMimeType, (mt) => ({
-      _tag: "application" as const,
+  const isApplication = P.tuple(MimeType.isApplicationMimeType, FileExtension.isApplicationFileExtension);
+  const isAudio = P.tuple(MimeType.isAudioMimeType, FileExtension.isAudioFileExtension);
+  const isImage = P.tuple(MimeType.isImageMimeType, FileExtension.isImageFileExtension);
+  const isText = P.tuple(MimeType.isTextMimeType, FileExtension.isTextFileExtension);
+  const isVideo = P.tuple(MimeType.isVideoMimeType, FileExtension.isVideoFileExtension);
+  const isMisc = P.tuple(MimeType.isMiscMimeType, FileExtension.isMiscFileExtension);
+
+  return Match.value([mimeType, extensionStr] as const).pipe(
+    Match.when(isApplication, ([mimeType, extension]) => ({
+      _tag: FileType.Enum.application,
       ...baseProperties,
-      mimeType: mt as ApplicationMimeType.Type,
-      extension: extensionStr as ApplicationFileExtension.Type,
+      mimeType,
+      extension,
     })),
-    Match.when(MimeType.isAudioMimeType, (mt) => ({
-      _tag: "audio" as const,
+    Match.when(isAudio, ([mimeType, extension]) => ({
+      _tag: FileType.Enum.audio,
       ...baseProperties,
-      mimeType: mt as AudioMimeType.Type,
-      extension: extensionStr as AudioFileExtension.Type,
+      mimeType,
+      extension,
     })),
-    Match.when(MimeType.isImageMimeType, (mt) => ({
-      _tag: "image" as const,
+    Match.when(isImage, ([mimeType, extension]) => ({
+      _tag: FileType.Enum.image,
       ...baseProperties,
-      mimeType: mt as ImageMimeType.Type,
-      extension: extensionStr as ImageFileExtension.Type,
+      mimeType,
+      extension,
     })),
-    Match.when(MimeType.isTextMimeType, (mt) => ({
-      _tag: "text" as const,
+    Match.when(isText, ([mimeType, extension]) => ({
+      _tag: FileType.Enum.text,
       ...baseProperties,
-      mimeType: mt as TextMimeType.Type,
-      extension: extensionStr as TextFileExtension.Type,
+      mimeType,
+      extension,
     })),
-    Match.when(MimeType.isVideoMimeType, (mt) => ({
-      _tag: "video" as const,
+    Match.when(isVideo, ([mimeType, extension]) => ({
+      _tag: FileType.Enum.video,
       ...baseProperties,
-      mimeType: mt as VideoMimeType.Type,
-      extension: extensionStr as VideoFileExtension.Type,
+      mimeType,
+      extension,
     })),
-    Match.when(MimeType.isMiscMimeType, (mt) => ({
-      _tag: "misc" as const,
+    Match.when(isMisc, ([mimeType, extension]) => ({
+      _tag: FileType.Enum.misc,
       ...baseProperties,
-      mimeType: mt as MiscMimeType.Type,
-      extension: extensionStr as MiscFileExtension.Type,
+      mimeType,
+      extension,
     })),
-    Match.exhaustive
+    Match.orElseAbsurd
   );
 });
 
 export const extractMetadata = Effect.fn("extractMetadata")(function* (file: FileFromSelf.Type) {
   const metadataService = yield* MetadataService;
+  const hasher = yield* ParallelHasher;
   const normalizedFileProperties = yield* normalizeFileProperties(file);
+
+  // Compute MD5 hash - required for S3 content integrity verification
+  const hashString = yield* hasher.hashBlob(file);
+  const md5Hash = yield* S.decode(Md5Hash)(hashString);
 
   const exifMetadata = yield* metadataService.exif.extractMetadata(file);
 
-  const withExifMetadata = <Data extends Record<string, any>>(data: Data) => ({
+  const withExifAndHash = <Data extends Record<string, any>>(data: Data) => ({
     ...data,
     exif: O.some(exifMetadata),
+    md5Hash,
   });
 
   return yield* Match.value(normalizedFileProperties).pipe(
@@ -405,7 +458,7 @@ export const extractMetadata = Effect.fn("extractMetadata")(function* (file: Fil
       application: (fp) =>
         Effect.succeed(
           NormalizedApplicationFile.make(
-            withExifMetadata({
+            withExifAndHash({
               file: fp.file,
               name: fp.name,
               size: fp.size,
@@ -430,7 +483,7 @@ export const extractMetadata = Effect.fn("extractMetadata")(function* (file: Fil
           const audioMetadata = yield* metadataService.audio.parseBlob(fp.file);
           const duration = pipe(audioMetadata.format.duration, O.flatMap(S.decodeOption(DurationFromSeconds)));
           return NormalizedAudioFile.make(
-            withExifMetadata({
+            withExifAndHash({
               file: fp.file,
               name: fp.name,
               size: fp.size,
@@ -462,7 +515,7 @@ export const extractMetadata = Effect.fn("extractMetadata")(function* (file: Fil
             O.flatMap(S.decodeOption(AspectRatio))
           );
           return NormalizedImageFile.make(
-            withExifMetadata({
+            withExifAndHash({
               file: fp.file,
               name: fp.name,
               size: fp.size,
@@ -485,7 +538,7 @@ export const extractMetadata = Effect.fn("extractMetadata")(function* (file: Fil
       text: (fp) =>
         Effect.succeed(
           NormalizedTextFile.make(
-            withExifMetadata({
+            withExifAndHash({
               file: fp.file,
               name: fp.name,
               size: fp.size,
@@ -519,7 +572,7 @@ export const extractMetadata = Effect.fn("extractMetadata")(function* (file: Fil
             O.flatMap(S.decodeOption(AspectRatio))
           );
           return NormalizedVideoFile.make(
-            withExifMetadata({
+            withExifAndHash({
               file: fp.file,
               name: fp.name,
               size: fp.size,
@@ -542,7 +595,7 @@ export const extractMetadata = Effect.fn("extractMetadata")(function* (file: Fil
       misc: (fp) =>
         Effect.succeed(
           NormalizedMiscFile.make(
-            withExifMetadata({
+            withExifAndHash({
               file: fp.file,
               name: fp.name,
               size: fp.size,
@@ -572,7 +625,7 @@ export class NormalizedFileFromSelf extends S.transformOrFail(FileFromSelf, Norm
     Effect.gen(function* () {
       // 1. Read file buffer for validation
       const buffer = yield* Effect.tryPromise({
-        try: () => file.arrayBuffer(),
+        try: file.arrayBuffer,
         catch: (error) => new ParseResult.Type(ast, file, `Failed to read file buffer: ${error}`),
       });
 
@@ -581,17 +634,16 @@ export class NormalizedFileFromSelf extends S.transformOrFail(FileFromSelf, Norm
 
       // 3. Validate file type signature matches the file's own extension
       // Only validate if we can extract an extension; skip validation otherwise
-      const isValidType = pipe(
+      // Effect.try wraps errors in UnknownException, then orElseSucceed converts any failure to true
+      const isValidType = yield* pipe(
         extensionOpt,
-        O.map((ext) => {
-          try {
-            return fileTypeChecker.validateFileType(buffer, [ext]);
-          } catch {
-            // Extension not supported by file type checker - skip validation
-            return true;
-          }
-        }),
-        O.getOrElse(() => true) // No extension found - skip validation
+        O.match({
+          // No extension found - skip validation
+          onNone: () => Effect.succeed(true),
+          // Extension found - validate with fallback for unsupported extensions
+          onSome: (ext) =>
+            Effect.try(() => fileTypeChecker.validateFileType(buffer, [ext])).pipe(Effect.orElseSucceed(F.constTrue)),
+        })
       );
 
       if (!isValidType) {
@@ -600,7 +652,7 @@ export class NormalizedFileFromSelf extends S.transformOrFail(FileFromSelf, Norm
         );
       }
 
-      // 3. Extract metadata (requires MetadataService from context)
+      // 3. Extract metadata and compute MD5 hash (requires MetadataService and ParallelHasher from context)
       // Transform errors into ParseResult issues with specific messages
       return yield* extractMetadata(file).pipe(
         Effect.mapError(
@@ -623,6 +675,10 @@ export class NormalizedFileFromSelf extends S.transformOrFail(FileFromSelf, Norm
               Match.tag(
                 "ExifTimeoutError",
                 (e) => new ParseResult.Type(ast, file, `EXIF extraction timed out after ${e.timeoutMs}ms`)
+              ),
+              Match.tag(
+                "WorkerHashError",
+                (e) => new ParseResult.Type(ast, file, `MD5 hash computation failed: ${e.message}`)
               ),
               Match.tag("ParseError", (e) => e.issue),
               Match.orElse((e) => new ParseResult.Type(ast, file, `Unexpected error: ${String(e)}`))

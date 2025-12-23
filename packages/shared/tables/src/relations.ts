@@ -1,5 +1,5 @@
 import * as d from "drizzle-orm";
-import { file, folder, organization, session, team, user } from "./tables";
+import { file, folder, organization, session, team, uploadSession, user } from "./tables";
 
 export const organizationRelations = d.relations(organization, ({ many, one }) => ({
   owner: one(user, {
@@ -9,6 +9,7 @@ export const organizationRelations = d.relations(organization, ({ many, one }) =
   teams: many(team),
   folders: many(folder),
   files: many(file),
+  uploadSessions: many(uploadSession),
 }));
 
 export const folderRelations = d.relations(folder, ({ one, many }) => ({
@@ -75,5 +76,12 @@ export const sessionRelations = d.relations(session, ({ one }) => ({
   user: one(user, {
     fields: [session.userId],
     references: [user.id],
+  }),
+}));
+
+export const uploadSessionRelations = d.relations(uploadSession, ({ one }) => ({
+  organization: one(organization, {
+    fields: [uploadSession.organizationId],
+    references: [organization.id],
   }),
 }));

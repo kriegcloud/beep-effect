@@ -1,6 +1,6 @@
 import { BS } from "@beep/schema";
 import type * as S from "effect/Schema";
-import { AuditLogId, FileId, FolderId, OrganizationId, SessionId, TeamId, UserId } from "../shared";
+import { AuditLogId, FileId, FolderId, OrganizationId, SessionId, TeamId, UploadSessionId, UserId } from "../shared";
 
 export class SharedTableName extends BS.StringLiteralKit(
   FileId.tableName,
@@ -9,7 +9,8 @@ export class SharedTableName extends BS.StringLiteralKit(
   UserId.tableName,
   SessionId.tableName,
   AuditLogId.tableName,
-  FolderId.tableName
+  FolderId.tableName,
+  UploadSessionId.tableName
 ).annotations({
   schemaId: Symbol.for("@beep/shared/domain/EntityIds/iam/SharedTableName"),
   description: "The set of table_names for entityIds within the shared-kernel",

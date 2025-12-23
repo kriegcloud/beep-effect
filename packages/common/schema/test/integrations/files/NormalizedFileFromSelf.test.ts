@@ -36,6 +36,7 @@ import {
 } from "@beep/schema/integrations/files";
 import { MetadataService } from "@beep/schema/integrations/files/metadata/Metadata.service";
 import { IAudioMetadata } from "@beep/schema/integrations/files/metadata/types";
+import { ParallelHasher } from "@beep/utils/md5";
 
 // ============================================================================
 // Test Configuration
@@ -403,6 +404,33 @@ const createMockMetadataServiceLayer = (config?: {
   });
 };
 
+// ============================================================================
+// Mock ParallelHasher Layer Factory
+// ============================================================================
+
+/**
+ * Deterministic mock MD5 hash for testing.
+ * This is a valid 32-character hex string.
+ */
+const MOCK_MD5_HASH = "d41d8cd98f00b204e9800998ecf8427e";
+
+/**
+ * Creates a mock ParallelHasher layer for testing.
+ * Returns a deterministic hash value for all blobs.
+ */
+const createMockParallelHasherLayer = (config?: { hashResult?: string }): Layer.Layer<ParallelHasher> => {
+  const hashValue = config?.hashResult ?? MOCK_MD5_HASH;
+
+  return Layer.succeed(ParallelHasher, {
+    hashBlob: () => Effect.succeed(hashValue),
+  });
+};
+
+/**
+ * Default mock ParallelHasher layer that returns a deterministic hash.
+ */
+const MockParallelHasherLayer = createMockParallelHasherLayer();
+
 // Pre-built error layers for common error scenarios
 const MockMetadataServiceParseErrorLayer = createMockMetadataServiceLayer({
   exifResult: Effect.fail(
@@ -554,7 +582,7 @@ describe("NormalizedFileFromSelf Integration Tests", () => {
           webkitRelativePath: "uploads/fake.png",
         });
 
-        const testLayer = createMockMetadataServiceLayer();
+        const testLayer = Layer.merge(createMockMetadataServiceLayer(), MockParallelHasherLayer);
         const decode = S.decodeUnknown(NormalizedFileFromSelf);
 
         const result: Either.Either<NormalizedFile.Type, ParseResult.ParseError> = yield* pipe(
@@ -580,7 +608,7 @@ describe("NormalizedFileFromSelf Integration Tests", () => {
           webkitRelativePath: "uploads/empty.png",
         });
 
-        const testLayer = createMockMetadataServiceLayer();
+        const testLayer = Layer.merge(createMockMetadataServiceLayer(), MockParallelHasherLayer);
         const decode = S.decodeUnknown(NormalizedFileFromSelf);
 
         const result: Either.Either<NormalizedFile.Type, ParseResult.ParseError> = yield* pipe(
@@ -607,10 +635,11 @@ describe("NormalizedFileFromSelf Integration Tests", () => {
         });
 
         const decode = S.decodeUnknown(NormalizedFileFromSelf);
+        const testLayer = Layer.merge(MockMetadataServiceParseErrorLayer, MockParallelHasherLayer);
 
         const result: Either.Either<NormalizedFile.Type, ParseResult.ParseError> = yield* pipe(
           decode(mockFile),
-          Effect.provide(MockMetadataServiceParseErrorLayer),
+          Effect.provide(testLayer),
           Effect.either
         );
 
@@ -631,10 +660,11 @@ describe("NormalizedFileFromSelf Integration Tests", () => {
         });
 
         const decode = S.decodeUnknown(NormalizedFileFromSelf);
+        const testLayer = Layer.merge(MockMetadataServiceFileTooLargeLayer, MockParallelHasherLayer);
 
         const result: Either.Either<NormalizedFile.Type, ParseResult.ParseError> = yield* pipe(
           decode(mockFile),
-          Effect.provide(MockMetadataServiceFileTooLargeLayer),
+          Effect.provide(testLayer),
           Effect.either
         );
 
@@ -655,10 +685,11 @@ describe("NormalizedFileFromSelf Integration Tests", () => {
         });
 
         const decode = S.decodeUnknown(NormalizedFileFromSelf);
+        const testLayer = Layer.merge(MockMetadataServiceTimeoutLayer, MockParallelHasherLayer);
 
         const result: Either.Either<NormalizedFile.Type, ParseResult.ParseError> = yield* pipe(
           decode(mockFile),
-          Effect.provide(MockMetadataServiceTimeoutLayer),
+          Effect.provide(testLayer),
           Effect.either
         );
 
@@ -679,10 +710,11 @@ describe("NormalizedFileFromSelf Integration Tests", () => {
         });
 
         const decode = S.decodeUnknown(NormalizedFileFromSelf);
+        const testLayer = Layer.merge(MockMetadataServiceAudioErrorLayer, MockParallelHasherLayer);
 
         const result: Either.Either<NormalizedFile.Type, ParseResult.ParseError> = yield* pipe(
           decode(mockFile),
-          Effect.provide(MockMetadataServiceAudioErrorLayer),
+          Effect.provide(testLayer),
           Effect.either
         );
 
@@ -715,7 +747,7 @@ describe("NormalizedFileFromSelf Integration Tests", () => {
 
         // Should be the exact same File object (reference equality)
         assertTrue(encoded === mockFile);
-      }).pipe(Effect.provide(createMockMetadataServiceLayer()))
+      }).pipe(Effect.provide(Layer.merge(createMockMetadataServiceLayer(), MockParallelHasherLayer)))
     );
   });
 
@@ -803,7 +835,7 @@ describe("NormalizedFileFromSelf Integration Tests", () => {
           webkitRelativePath: "uploads/photo.png",
         });
 
-        const testLayer = createMockMetadataServiceLayer({
+        const metadataLayer = createMockMetadataServiceLayer({
           exifResult: Effect.succeed(
             createMockExifMetadata({
               imageWidth: 1920,
@@ -812,6 +844,7 @@ describe("NormalizedFileFromSelf Integration Tests", () => {
             })
           ),
         });
+        const testLayer = Layer.merge(metadataLayer, MockParallelHasherLayer);
 
         const decode = S.decodeUnknown(NormalizedFileFromSelf);
         const result: NormalizedFile.Type = yield* pipe(decode(mockFile), Effect.provide(testLayer));
@@ -833,7 +866,7 @@ describe("NormalizedFileFromSelf Integration Tests", () => {
           webkitRelativePath: "uploads/song.mp3",
         });
 
-        const testLayer = createMockMetadataServiceLayer({
+        const metadataLayer = createMockMetadataServiceLayer({
           audioResult: Effect.succeed(
             createMockAudioMetadata({
               duration: 180, // 3 minutes
@@ -841,6 +874,7 @@ describe("NormalizedFileFromSelf Integration Tests", () => {
             })
           ),
         });
+        const testLayer = Layer.merge(metadataLayer, MockParallelHasherLayer);
 
         const decode = S.decodeUnknown(NormalizedFileFromSelf);
         const result: NormalizedFile.Type = yield* pipe(decode(mockFile), Effect.provide(testLayer));
@@ -872,7 +906,7 @@ describe("NormalizedFileFromSelf Integration Tests", () => {
           webkitRelativePath: "uploads/widescreen.png",
         });
 
-        const testLayer = createMockMetadataServiceLayer({
+        const metadataLayer = createMockMetadataServiceLayer({
           exifResult: Effect.succeed(
             createMockExifMetadata({
               imageWidth: 1920,
@@ -880,6 +914,7 @@ describe("NormalizedFileFromSelf Integration Tests", () => {
             })
           ),
         });
+        const testLayer = Layer.merge(metadataLayer, MockParallelHasherLayer);
 
         const decode = S.decodeUnknown(NormalizedFileFromSelf);
         const result: NormalizedFile.Type = yield* pipe(decode(mockFile), Effect.provide(testLayer));
@@ -911,7 +946,7 @@ describe("NormalizedFileFromSelf Integration Tests", () => {
           webkitRelativePath: "uploads/movie.mp4",
         });
 
-        const testLayer = createMockMetadataServiceLayer({
+        const metadataLayer = createMockMetadataServiceLayer({
           exifResult: Effect.succeed(
             createMockExifMetadata({
               imageWidth: 1920,
@@ -924,6 +959,7 @@ describe("NormalizedFileFromSelf Integration Tests", () => {
             })
           ),
         });
+        const testLayer = Layer.merge(metadataLayer, MockParallelHasherLayer);
 
         const decode = S.decodeUnknown(NormalizedFileFromSelf);
         const result: NormalizedFile.Type = yield* pipe(decode(mockFile), Effect.provide(testLayer));

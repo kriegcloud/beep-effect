@@ -1,6 +1,7 @@
 import type { DeleteObjectCommandOutput } from "@aws-sdk/client-s3";
 import { EnvValue } from "@beep/constants";
 import { $SharedServerId } from "@beep/identity/packages";
+import { BS } from "@beep/schema";
 import { SharedEntityIds } from "@beep/shared-domain";
 import type { Organization } from "@beep/shared-domain/entities";
 import { File } from "@beep/shared-domain/entities";
@@ -8,7 +9,7 @@ import type { Files } from "@beep/shared-domain/rpc/v1/files";
 import type { S3ServiceError } from "@effect-aws/client-s3/Errors";
 import { S3Service } from "@effect-aws/client-s3/S3Service";
 import type { SdkError } from "@effect-aws/commons/Errors";
-import { type Cause, Effect, type ParseResult, Redacted } from "effect";
+import { type Cause, Effect, type ParseResult } from "effect";
 import * as Config from "effect/Config";
 import type { ConfigError } from "effect/ConfigError";
 import * as S from "effect/Schema";
@@ -19,7 +20,7 @@ type GetPreSignedUrl = (
   payload: Files.InitiateUpload.Payload & {
     organization: typeof Organization.Model.Type;
   }
-) => Effect.Effect<Redacted.Redacted<string>, ParseResult.ParseError | SdkError | S3ServiceError | ConfigError, never>;
+) => Effect.Effect<BS.URLString.Type, ParseResult.ParseError | SdkError | S3ServiceError | ConfigError, never>;
 type DeleteObject = (
   uploadParams: File.UploadKey.Encoded
 ) => Effect.Effect<
@@ -63,16 +64,18 @@ const serviceEffect: UploadServiceEffect = Effect.gen(function* () {
     };
     const Key = yield* S.decode(File.UploadKey)(p);
     const ContentType = payload.mimeType;
+    const ContentMD5 = payload.metadata.md5Hash;
 
     const result = yield* s3.putObject(
       {
         Bucket,
         Key,
         ContentType,
+        ContentMD5,
       },
       { presigned: true }
     );
-    return Redacted.make(result);
+    return BS.URLString.make(result);
   });
 
   const deleteObject = Effect.fn("S3Service.deleteObject")(function* (uploadParams: File.UploadKey.Encoded) {

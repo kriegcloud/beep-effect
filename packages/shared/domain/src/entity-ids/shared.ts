@@ -92,3 +92,16 @@ export declare namespace FolderId {
   export type Type = typeof FolderId.Type;
   export type Encoded = typeof FolderId.Encoded;
 }
+
+export const UploadSessionId = EntityId.make("upload_session", {
+  brand: "UploadSessionId",
+  annotations: {
+    schemaId: Symbol.for("@beep/shared-domain/EntityIds/shared/UploadSessionId"),
+    description: "A unique identifier for an upload session",
+  },
+});
+
+export declare namespace UploadSessionId {
+  export type Type = typeof UploadSessionId.Type;
+  export type Encoded = typeof UploadSessionId.Encoded;
+}

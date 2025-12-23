@@ -53,6 +53,7 @@ export class FolderRepo extends Effect.Service<FolderRepo>()($I`FolderRepo`, {
         folderIds: S.Array(SharedEntityIds.FolderId),
       }),
       outputSchema: S.Void,
+
       queryFn: (execute, { folderIds }) => {
         if (A.isEmptyReadonlyArray(folderIds)) {
           return Effect.void;
