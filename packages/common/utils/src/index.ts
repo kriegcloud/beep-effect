@@ -451,7 +451,10 @@ export * from "./random-hex-string.ts";
  * @since 0.1.0
  */
 export * as RemoveAccents from "./remove-accents/remove-accents.ts";
+export * from "./sqids.ts";
+export { default as Sqids } from "./sqids.ts";
 export * from "./tag";
+export * from "./thunk.ts";
 /**
  * Re-exports topological sort utilities.
  *

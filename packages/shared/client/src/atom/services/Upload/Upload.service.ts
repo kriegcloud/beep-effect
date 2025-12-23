@@ -1,42 +1,34 @@
 /**
- * @fileoverview S3 Upload Service with Progress Tracking
+ * @fileoverview S3 Upload Service with Progress Tracking (Reducer Pattern)
  *
  * Provides XHR-based file uploads to S3 presigned URLs with real-time progress tracking.
  * Uses XMLHttpRequest instead of fetch() because:
  * 1. XHR provides upload progress events via xhr.upload.onprogress
  * 2. fetch() doesn't support upload progress in most browsers
  *
- * This service supports both:
- * - Presigned PUT: Direct file upload (simpler, used in scratchpad simulation)
- * - Presigned POST: FormData upload with policy fields (used in production)
+ * This implementation uses a functional reducer pattern with Effect Match for:
+ * - Exhaustive pattern matching on actions
+ * - Type-safe state transitions
+ * - Centralized state update logic
+ * - Clear separation of state changes and side effects
  */
 import { $SharedClientId } from "@beep/identity/packages";
+import { tagPropIs } from "@beep/utils";
 import * as Cause from "effect/Cause";
 import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
 import * as HashMap from "effect/HashMap";
+import * as Match from "effect/Match";
 import * as O from "effect/Option";
 import * as PubSub from "effect/PubSub";
 import * as Ref from "effect/Ref";
+import * as Runtime from "effect/Runtime";
 import * as Stream from "effect/Stream";
+import * as Struct from "effect/Struct";
+import * as UploadError from "./Upload.errors";
 
-const $I = $SharedClientId.create("atoms/upload-service");
-
-// ============================================================================
-// Error Types
-// ============================================================================
-
-/**
- * Error that can occur during S3 upload.
- */
-export class S3UploadError extends Data.TaggedError("S3UploadError")<{
-  readonly message: string;
-  readonly code: "NETWORK_ERROR" | "TIMEOUT" | "ABORTED" | "UPLOAD_FAILED" | "VALIDATION_ERROR";
-  readonly status?: number | undefined;
-  readonly uploadId?: string | undefined;
-  readonly cause?: unknown;
-}> {}
+const $I = $SharedClientId.create("atom/services/Upload");
 
 // ============================================================================
 // Progress Types
@@ -65,7 +57,7 @@ export type UploadStatus = Data.TaggedEnum<{
   readonly Pending: { readonly uploadId: string };
   readonly InProgress: { readonly uploadId: string; readonly progress: UploadProgressEvent };
   readonly Completed: { readonly uploadId: string };
-  readonly Failed: { readonly uploadId: string; readonly error: S3UploadError };
+  readonly Failed: { readonly uploadId: string; readonly error: UploadError.S3Error.Type };
   readonly Cancelled: { readonly uploadId: string };
 }>;
 
@@ -112,23 +104,178 @@ export interface PresignedPostOptions {
 export type UploadOptions = PresignedPutOptions | PresignedPostOptions;
 
 // ============================================================================
-// Upload Registry Service
+// Action Types (Reducer Pattern)
+// ============================================================================
+
+/**
+ * All possible actions that can modify upload registry state.
+ * Each action is a tagged union variant representing a state transition.
+ */
+export type UploadAction = Data.TaggedEnum<{
+  /** Register a new upload with its abort function */
+  readonly Register: {
+    readonly uploadId: string;
+    readonly abortFn: () => void;
+  };
+  /** Update progress for an upload */
+  readonly UpdateProgress: {
+    readonly event: UploadProgressEvent;
+  };
+  /** Mark upload as completed */
+  readonly Complete: {
+    readonly uploadId: string;
+  };
+  /** Mark upload as failed */
+  readonly Fail: {
+    readonly uploadId: string;
+    readonly error: UploadError.S3Error.Type;
+  };
+  /** Cancel an upload (triggers abort) */
+  readonly Cancel: {
+    readonly uploadId: string;
+  };
+  /** Remove upload from registry */
+  readonly Cleanup: {
+    readonly uploadId: string;
+  };
+}>;
+
+export const UploadAction = Data.taggedEnum<UploadAction>();
+
+// ============================================================================
+// Registry State
+// ============================================================================
+
+/**
+ * Complete registry state that the reducer operates on.
+ */
+interface RegistryState {
+  readonly states: HashMap.HashMap<string, UploadStatus>;
+  readonly abortControllers: HashMap.HashMap<string, () => void>;
+}
+
+/** Type alias for the upload status HashMap */
+type StatusMap = HashMap.HashMap<string, UploadStatus>;
+
+/**
+ * Type-safe helper to set a status in the HashMap while preserving the union type.
+ * This avoids the type narrowing issue with HashMap.set and TaggedEnum variants.
+ */
+const setStatus = (map: StatusMap, uploadId: string, status: UploadStatus): StatusMap =>
+  HashMap.set(map, uploadId, status);
+
+// ============================================================================
+// Reducer (Pure State Transitions)
+// ============================================================================
+
+/**
+ * Pure reducer function that applies an action to the current state.
+ * Uses Match.exhaustive to ensure all action cases are handled.
+ *
+ * This function is completely pure - no side effects.
+ * Side effects (like calling abort functions or publishing events) happen in dispatch.
+ */
+const reducer = (state: RegistryState, action: UploadAction): RegistryState =>
+  Match.value(action).pipe(
+    Match.tag("Register", (a) => ({
+      states: setStatus(state.states, a.uploadId, UploadStatus.Pending({ uploadId: a.uploadId })),
+      abortControllers: HashMap.set(state.abortControllers, a.uploadId, a.abortFn),
+    })),
+    Match.tag("UpdateProgress", (a) => ({
+      states: setStatus(
+        state.states,
+        a.event.uploadId,
+        UploadStatus.InProgress({ uploadId: a.event.uploadId, progress: a.event })
+      ),
+      abortControllers: state.abortControllers,
+    })),
+    Match.tag("Complete", (a) => ({
+      states: setStatus(state.states, a.uploadId, UploadStatus.Completed({ uploadId: a.uploadId })),
+      abortControllers: state.abortControllers,
+    })),
+    Match.tag("Fail", (a) => ({
+      states: setStatus(state.states, a.uploadId, UploadStatus.Failed({ uploadId: a.uploadId, error: a.error })),
+      abortControllers: state.abortControllers,
+    })),
+    Match.tag("Cancel", (a) => ({
+      states: setStatus(state.states, a.uploadId, UploadStatus.Cancelled({ uploadId: a.uploadId })),
+      abortControllers: state.abortControllers,
+    })),
+    Match.tag("Cleanup", (a) => ({
+      states: HashMap.remove(state.states, a.uploadId),
+      abortControllers: HashMap.remove(state.abortControllers, a.uploadId),
+    })),
+    Match.exhaustive
+  );
+
+// ============================================================================
+// Side Effect Handlers
+// ============================================================================
+
+/**
+ * Extract side effects that should happen after state transitions.
+ * Returns an Effect representing the side effects for this action.
+ */
+const sideEffects = (
+  state: RegistryState,
+  action: UploadAction,
+  pubSub: PubSub.PubSub<UploadProgressEvent>
+): Effect.Effect<void> =>
+  Match.value(action).pipe(
+    Match.tag("UpdateProgress", (a) => PubSub.publish(pubSub, a.event)),
+    Match.tag("Cancel", (a) =>
+      Effect.gen(function* () {
+        const abortFn = F.pipe(state.abortControllers, HashMap.get(a.uploadId), O.getOrNull);
+        if (abortFn) {
+          abortFn();
+        }
+      })
+    ),
+    // No side effects for these actions
+    Match.tag("Register", () => Effect.void),
+    Match.tag("Complete", () => Effect.void),
+    Match.tag("Fail", () => Effect.void),
+    Match.tag("Cleanup", () => Effect.void),
+    Match.exhaustive
+  );
+
+// ============================================================================
+// Upload Registry Service (Refactored with Reducer Pattern)
 // ============================================================================
 
 /**
  * Registry for tracking multiple concurrent uploads with progress.
  *
- * Uses PubSub for emitting progress events that atoms can subscribe to,
- * and Ref for storing current upload states.
+ * Uses a reducer pattern for state management:
+ * - All state transitions go through a pure reducer function
+ * - Actions are dispatched via Match-based pattern matching
+ * - Side effects are separated from state updates
  */
 export class UploadRegistry extends Effect.Service<UploadRegistry>()($I`UploadRegistry`, {
   effect: Effect.gen(function* () {
     // PubSub for broadcasting progress events
     const progressPubSub = yield* PubSub.unbounded<UploadProgressEvent>();
-    // Ref for current upload states
-    const statesRef = yield* Ref.make(HashMap.empty<string, UploadStatus>());
-    // Ref for abort controllers
-    const abortControllersRef = yield* Ref.make(HashMap.empty<string, () => void>());
+
+    // Single Ref for the entire registry state
+    const stateRef = yield* Ref.make<RegistryState>({
+      states: HashMap.empty(),
+      abortControllers: HashMap.empty(),
+    });
+
+    /**
+     * Dispatch an action through the reducer, apply state changes, and handle side effects.
+     */
+    const dispatch = (action: UploadAction) =>
+      Effect.gen(function* () {
+        // Get current state before update (for side effects that need it)
+        const currentState = yield* Ref.get(stateRef);
+
+        // Apply the reducer to get new state
+        yield* Ref.update(stateRef, (state) => reducer(state, action));
+
+        // Execute side effects based on the action
+        yield* sideEffects(currentState, action, progressPubSub);
+      });
 
     return {
       /**
@@ -139,80 +286,43 @@ export class UploadRegistry extends Effect.Service<UploadRegistry>()($I`UploadRe
       /**
        * Register a new upload and return its abort function.
        */
-      register: (uploadId: string, abortFn: () => void) =>
-        Effect.gen(function* () {
-          yield* Ref.update(statesRef, (map) =>
-            F.pipe(map, HashMap.set(uploadId, UploadStatus.Pending({ uploadId }) as UploadStatus))
-          );
-          yield* Ref.update(abortControllersRef, (map) => F.pipe(map, HashMap.set(uploadId, abortFn)));
-        }),
+      register: (uploadId: string, abortFn: () => void) => dispatch(UploadAction.Register({ uploadId, abortFn })),
 
       /**
        * Update progress for an upload.
        */
-      updateProgress: (event: UploadProgressEvent) =>
-        Effect.gen(function* () {
-          yield* Ref.update(statesRef, (map) =>
-            F.pipe(
-              map,
-              HashMap.set(
-                event.uploadId,
-                UploadStatus.InProgress({ uploadId: event.uploadId, progress: event }) as UploadStatus
-              )
-            )
-          );
-          yield* PubSub.publish(progressPubSub, event);
-        }),
+      updateProgress: (event: UploadProgressEvent) => dispatch(UploadAction.UpdateProgress({ event })),
 
       /**
        * Mark upload as completed.
        */
-      complete: (uploadId: string) =>
-        Ref.update(statesRef, (map) =>
-          F.pipe(map, HashMap.set(uploadId, UploadStatus.Completed({ uploadId }) as UploadStatus))
-        ),
+      complete: (uploadId: string) => dispatch(UploadAction.Complete({ uploadId })),
 
       /**
        * Mark upload as failed.
        */
-      fail: (uploadId: string, error: S3UploadError) =>
-        Ref.update(statesRef, (map) =>
-          F.pipe(map, HashMap.set(uploadId, UploadStatus.Failed({ uploadId, error }) as UploadStatus))
-        ),
+      fail: (uploadId: string, error: UploadError.S3Error.Type) => dispatch(UploadAction.Fail({ uploadId, error })),
 
       /**
        * Cancel an upload.
        */
-      cancel: (uploadId: string) =>
-        Effect.gen(function* () {
-          const controllers = yield* Ref.get(abortControllersRef);
-          const abortFn = F.pipe(controllers, HashMap.get(uploadId), O.getOrNull);
-          if (abortFn) {
-            abortFn();
-          }
-          yield* Ref.update(statesRef, (map) =>
-            F.pipe(map, HashMap.set(uploadId, UploadStatus.Cancelled({ uploadId }) as UploadStatus))
-          );
-        }),
+      cancel: (uploadId: string) => dispatch(UploadAction.Cancel({ uploadId })),
 
       /**
        * Get current status of an upload.
        */
-      getStatus: (uploadId: string) => Ref.get(statesRef).pipe(Effect.map((map) => HashMap.get(map, uploadId))),
+      getStatus: (uploadId: string) =>
+        Ref.get(stateRef).pipe(Effect.map((state) => F.pipe(state.states, HashMap.get(uploadId)))),
 
       /**
        * Get all current upload states.
        */
-      getAllStates: () => Ref.get(statesRef),
+      getAllStates: () => Ref.get(stateRef).pipe(Effect.map((state) => state.states)),
 
       /**
        * Clean up a completed/failed/cancelled upload from registry.
        */
-      cleanup: (uploadId: string) =>
-        Effect.gen(function* () {
-          yield* Ref.update(statesRef, (map) => F.pipe(map, HashMap.remove(uploadId)));
-          yield* Ref.update(abortControllersRef, (map) => F.pipe(map, HashMap.remove(uploadId)));
-        }),
+      cleanup: (uploadId: string) => dispatch(UploadAction.Cleanup({ uploadId })),
     };
   }),
 }) {}
@@ -227,9 +337,9 @@ export class UploadRegistry extends Effect.Service<UploadRegistry>()($I`UploadRe
  * Supports both PUT (direct upload) and POST (FormData with policy fields).
  *
  * @param options - Upload configuration
- * @returns Effect that completes when upload is done or fails with S3UploadError
+ * @returns Effect that completes when upload is done or fails with UploadError.S3Error.Type
  */
-export const uploadToS3 = (options: UploadOptions): Effect.Effect<void, S3UploadError, UploadRegistry> =>
+export const uploadToS3 = (options: UploadOptions): Effect.Effect<void, UploadError.S3Error.Type, UploadRegistry> =>
   Effect.gen(function* () {
     yield* Effect.logInfo(`[S3Upload] Starting upload`, {
       uploadId: options.uploadId,
@@ -243,21 +353,24 @@ export const uploadToS3 = (options: UploadOptions): Effect.Effect<void, S3Upload
     });
 
     const registry = yield* UploadRegistry;
+    // Extract runtime once to use in XHR callbacks (avoids creating new minimal runtimes)
+    const runtime = yield* Effect.runtime<UploadRegistry>();
+    const runSync = Runtime.runSync(runtime);
 
-    yield* Effect.async<void, S3UploadError>((resume) => {
+    yield* Effect.async<void, UploadError.S3Error.Type>((resume) => {
       const xhr = new XMLHttpRequest();
       let previousLoaded = 0;
 
-      Effect.runSync(
+      runSync(
         Effect.logDebug(`[S3Upload] Registering abort function`, {
           uploadId: options.uploadId,
         })
       );
 
       // Register abort function
-      Effect.runSync(
+      runSync(
         registry.register(options.uploadId, () => {
-          Effect.runSync(
+          runSync(
             Effect.logWarning(`[S3Upload] Abort function called`, {
               uploadId: options.uploadId,
             })
@@ -267,8 +380,8 @@ export const uploadToS3 = (options: UploadOptions): Effect.Effect<void, S3Upload
       );
 
       // Configure request based on type
-      if (options._tag === "PUT") {
-        Effect.runSync(
+      if (tagPropIs(options, "PUT")) {
+        runSync(
           Effect.logInfo(`[S3Upload] Configuring PUT request`, {
             uploadId: options.uploadId,
             url: options.presignedUrl,
@@ -285,12 +398,12 @@ export const uploadToS3 = (options: UploadOptions): Effect.Effect<void, S3Upload
           xhr.setRequestHeader("Range", `bytes=${options.rangeStart}-`);
         }
       } else {
-        Effect.runSync(
+        runSync(
           Effect.logInfo(`[S3Upload] Configuring POST request`, {
             uploadId: options.uploadId,
             url: options.presignedUrl,
             fields: options.fields,
-            fieldsCount: Object.keys(options.fields).length,
+            fieldsCount: Struct.keys(options.fields).length,
           })
         );
 
@@ -314,7 +427,7 @@ export const uploadToS3 = (options: UploadOptions): Effect.Effect<void, S3Upload
 
           // Log progress (throttled to every 10%)
           if (progressEvent.percentage % 10 < 1) {
-            Effect.runSync(
+            runSync(
               Effect.logDebug(`[S3Upload] Progress update`, {
                 uploadId: options.uploadId,
                 loaded: progressEvent.loaded,
@@ -325,7 +438,7 @@ export const uploadToS3 = (options: UploadOptions): Effect.Effect<void, S3Upload
           }
 
           // Update registry
-          Effect.runSync(registry.updateProgress(progressEvent));
+          runSync(registry.updateProgress(progressEvent));
 
           // Call optional callback
           options.onProgress?.(progressEvent);
@@ -334,7 +447,7 @@ export const uploadToS3 = (options: UploadOptions): Effect.Effect<void, S3Upload
 
       // Handle successful upload
       xhr.onload = () => {
-        Effect.runSync(
+        runSync(
           Effect.logInfo(`[S3Upload] XHR onload event`, {
             uploadId: options.uploadId,
             status: xhr.status,
@@ -345,23 +458,22 @@ export const uploadToS3 = (options: UploadOptions): Effect.Effect<void, S3Upload
         );
 
         if (xhr.status >= 200 && xhr.status < 300) {
-          Effect.runSync(
+          runSync(
             Effect.logInfo(`[S3Upload] Upload successful`, {
               uploadId: options.uploadId,
               status: xhr.status,
             })
           );
-          Effect.runSync(registry.complete(options.uploadId));
+          runSync(registry.complete(options.uploadId));
           resume(Effect.succeed(undefined));
         } else {
-          const error = new S3UploadError({
-            code: "UPLOAD_FAILED",
+          const error = new UploadError.S3UploadFailedError({
             message: `S3 upload failed with status ${xhr.status}: ${xhr.statusText}`,
             status: xhr.status,
             uploadId: options.uploadId,
           });
 
-          Effect.runSync(
+          runSync(
             Effect.logError(`[S3Upload] Upload failed with non-2xx status`, {
               uploadId: options.uploadId,
               status: xhr.status,
@@ -371,20 +483,19 @@ export const uploadToS3 = (options: UploadOptions): Effect.Effect<void, S3Upload
             })
           );
 
-          Effect.runSync(registry.fail(options.uploadId, error));
+          runSync(registry.fail(options.uploadId, error));
           resume(Effect.fail(error));
         }
       };
 
       // Handle network errors
       xhr.onerror = () => {
-        const error = new S3UploadError({
-          code: "NETWORK_ERROR",
+        const error = new UploadError.S3NetworkError({
           message: "Network error during S3 upload",
           uploadId: options.uploadId,
         });
 
-        Effect.runSync(
+        runSync(
           Effect.logError(`[S3Upload] Network error`, {
             uploadId: options.uploadId,
             readyState: xhr.readyState,
@@ -393,19 +504,18 @@ export const uploadToS3 = (options: UploadOptions): Effect.Effect<void, S3Upload
           })
         );
 
-        Effect.runSync(registry.fail(options.uploadId, error));
+        runSync(registry.fail(options.uploadId, error));
         resume(Effect.fail(error));
       };
 
       // Handle timeouts
       xhr.ontimeout = () => {
-        const error = new S3UploadError({
-          code: "TIMEOUT",
+        const error = new UploadError.S3TimeoutError({
           message: "S3 upload timed out",
           uploadId: options.uploadId,
         });
 
-        Effect.runSync(
+        runSync(
           Effect.logError(`[S3Upload] Timeout error`, {
             uploadId: options.uploadId,
             timeout: xhr.timeout,
@@ -413,19 +523,18 @@ export const uploadToS3 = (options: UploadOptions): Effect.Effect<void, S3Upload
           })
         );
 
-        Effect.runSync(registry.fail(options.uploadId, error));
+        runSync(registry.fail(options.uploadId, error));
         resume(Effect.fail(error));
       };
 
       // Handle abort
       xhr.onabort = () => {
-        const error = new S3UploadError({
-          code: "ABORTED",
+        const error = new UploadError.S3AbortedError({
           message: "S3 upload was aborted",
           uploadId: options.uploadId,
         });
 
-        Effect.runSync(
+        runSync(
           Effect.logWarning(`[S3Upload] Upload aborted`, {
             uploadId: options.uploadId,
             error,
@@ -437,12 +546,12 @@ export const uploadToS3 = (options: UploadOptions): Effect.Effect<void, S3Upload
       };
 
       // Prepare and send the request
-      if (options._tag === "PUT") {
+      if (tagPropIs(options, "PUT")) {
         // Direct file upload
         const blob =
           options.rangeStart && options.rangeStart > 0 ? options.file.slice(options.rangeStart) : options.file;
 
-        Effect.runSync(
+        runSync(
           Effect.logInfo(`[S3Upload] Sending PUT request`, {
             uploadId: options.uploadId,
             blobSize: blob.size,
@@ -456,8 +565,8 @@ export const uploadToS3 = (options: UploadOptions): Effect.Effect<void, S3Upload
         const formData = new FormData();
 
         // Add policy fields first (order matters for S3)
-        const fieldEntries = Object.entries(options.fields);
-        Effect.runSync(
+        const fieldEntries = Struct.entries(options.fields);
+        runSync(
           Effect.logInfo(`[S3Upload] Building FormData`, {
             uploadId: options.uploadId,
             fieldCount: fieldEntries.length,
@@ -467,7 +576,7 @@ export const uploadToS3 = (options: UploadOptions): Effect.Effect<void, S3Upload
 
         for (const [key, value] of fieldEntries) {
           formData.append(key, value);
-          Effect.runSync(
+          runSync(
             Effect.logDebug(`[S3Upload] Added FormData field`, {
               uploadId: options.uploadId,
               key,
@@ -479,7 +588,7 @@ export const uploadToS3 = (options: UploadOptions): Effect.Effect<void, S3Upload
         // Add file last
         formData.append("file", options.file);
 
-        Effect.runSync(
+        runSync(
           Effect.logInfo(`[S3Upload] Sending POST request with FormData`, {
             uploadId: options.uploadId,
             fileName: options.file.name,
@@ -491,7 +600,7 @@ export const uploadToS3 = (options: UploadOptions): Effect.Effect<void, S3Upload
         xhr.send(formData);
       }
 
-      Effect.runSync(
+      runSync(
         Effect.logDebug(`[S3Upload] XHR request sent, waiting for response`, {
           uploadId: options.uploadId,
           readyState: xhr.readyState,
@@ -500,7 +609,7 @@ export const uploadToS3 = (options: UploadOptions): Effect.Effect<void, S3Upload
 
       // Return finalizer to abort on Effect interruption
       return Effect.sync(() => {
-        Effect.runSync(
+        runSync(
           Effect.logWarning(`[S3Upload] Effect interrupted, aborting XHR`, {
             uploadId: options.uploadId,
           })
@@ -525,10 +634,12 @@ export const makePresignedPutOptions = (
   uploadId: string,
   file: File,
   presignedUrl: string,
-  options?: {
-    readonly rangeStart?: number;
-    readonly onProgress?: (event: UploadProgressEvent) => void;
-  }
+  options?:
+    | undefined
+    | {
+        readonly rangeStart?: undefined | number;
+        readonly onProgress?: undefined | ((event: UploadProgressEvent) => void);
+      }
 ): PresignedPutOptions => ({
   _tag: "PUT",
   uploadId,
@@ -546,9 +657,11 @@ export const makePresignedPostOptions = (
   file: File,
   presignedUrl: string,
   fields: Record<string, string>,
-  options?: {
-    readonly onProgress?: (event: UploadProgressEvent) => void;
-  }
+  options?:
+    | undefined
+    | {
+        readonly onProgress?: undefined | ((event: UploadProgressEvent) => void);
+      }
 ): PresignedPostOptions => ({
   _tag: "POST",
   uploadId,
@@ -573,16 +686,5 @@ export const progressStreamForUpload = (uploadId: string) =>
       Stream.filter((event) => event.uploadId === uploadId)
     );
   }).pipe(Stream.unwrap);
-
-/**
- * Formatting utilities for progress display.
- */
-export const formatBytes = (bytes: number): string => {
-  if (bytes === 0) return "0 B";
-  const k = 1024;
-  const sizes = ["B", "KB", "MB", "GB", "TB"];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return `${(bytes / k ** i).toFixed(2)} ${sizes[i]}`;
-};
 
 export const formatPercentage = (percentage: number): string => `${percentage.toFixed(1)}%`;

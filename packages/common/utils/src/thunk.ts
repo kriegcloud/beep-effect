@@ -3,10 +3,11 @@
  */
 
 import * as A from "effect/Array";
-import { constant, constFalse, constNull, constTrue, constUndefined, constVoid, flow } from "effect/Function";
+import * as Effect from "effect/Effect";
+import { constant, constFalse, constNull, constTrue, constUndefined, constVoid, flow, pipe } from "effect/Function";
+import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as Str from "effect/String";
-
 /**
  * Thunk that returns an empty record.
  *
@@ -176,3 +177,29 @@ export const thunkVoid = constVoid;
  * @since 0.1.0
  */
 export const thunk = flow(constant);
+
+export const thunkNone = flow(O.none, thunk);
+
+export const thunkEffect = <A, E, R>(effect: Effect.Effect<A, E, R>) => pipe(effect, thunk);
+
+export const thunkLogInfoEffect = flow(Effect.logInfo, thunk);
+
+export const thunkLogErrorEffect = flow(Effect.logError, thunk);
+
+export const thunkLogWarningEffect = flow(Effect.logWarning, thunk);
+
+export const thunkLogDebugEffect = flow(Effect.logDebug, thunk);
+
+export const thunkLogTraceEffect = flow(Effect.logTrace, thunk);
+
+export const thunkLogFatalEffect = flow(Effect.logFatal, thunk);
+
+export const thunkLogWithLevel = flow(Effect.logWithLevel, thunk);
+
+export const thunkTapEffect = flow(Effect.tap, thunk);
+
+export const thunkDie = flow(Effect.die, thunk);
+
+export const thunkDieMessage = flow(Effect.dieMessage, thunk);
+
+export const thunkEffectVoid = thunk(Effect.void);

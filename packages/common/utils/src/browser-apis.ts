@@ -393,3 +393,37 @@ export const HAS_BEFORE_INPUT_SUPPORT =
  */
 export const IS_MOBILE =
   isNavigatorDefined && /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(navigator.userAgent);
+
+/**
+ * Checks if the Location API is available in the current environment.
+ *
+ * @example
+ * ```typescript
+ * import { isLocationDefined } from "@beep/utils"
+ *
+ * if (isLocationDefined) {
+ *   console.log("Location is available")
+ * }
+ * ```
+ *
+ * @category guards
+ * @since 0.1.0
+ */
+export const isLocationDefined = typeof location !== "undefined";
+
+/**
+ * Checks if the Location API is unavailable in the current environment.
+ *
+ * @example
+ * ```typescript
+ * import { isLocationNullable } from "@beep/utils"
+ *
+ * if (isLocationNullable) {
+ *   console.log("Location is not available")
+ * }
+ * ```
+ *
+ * @category guards
+ * @since 0.1.0
+ */
+export const isLocationNullable = !isLocationDefined;
