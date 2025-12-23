@@ -1,233 +1,239 @@
 # @beep/documents-client
 
-Client-facing SDK layer for the documents slice, providing Effect-first wrappers for document management, knowledge pages, discussions, and file operations.
+Client SDK layer for the documents slice, providing Effect-first client wrappers for document management, knowledge pages, discussions, and file operations.
 
 ## Purpose
 
-The SDK package bridges client applications (web, CLI, mobile) with the documents infrastructure layer, exposing type-safe Effect-based contracts that eliminate direct dependency on raw HTTP endpoints or RPC internals. This ensures consumers work with validated domain models and benefit from structured error handling aligned with Effect patterns.
+This package serves as the client SDK layer for the documents slice, bridging client applications (web, CLI) with the documents server infrastructure. It exposes type-safe Effect-based contracts for document operations while maintaining proper layering boundaries.
 
-## Current Status
+**Current Status**: This package is currently a stub with only a placeholder export (`beep`). Implementation will follow the `@beep/iam-client` pattern once the documents server infrastructure is finalized.
 
-**Placeholder Stage**: The package currently exports a stub (`beep`) while the infra layer and HTTP/RPC API stabilize.
+## Installation
 
-**Available Contracts in Domain**:
-- `@beep/documents-domain/DomainApi` — HTTP API with `KnowledgePage.Contract` (get endpoint)
-- `@beep/documents-domain/entities/Document` — RPC contracts for full document CRUD (12 operations)
-- `@beep/documents-domain/entities/Discussion` — RPC contracts for discussions
-- `@beep/documents-domain/entities/Comment` — RPC contracts for comments
+```bash
+# This package is internal to the monorepo
+# Add as a dependency in your package.json:
+"@beep/documents-client": "workspace:*"
+```
 
-Once `@beep/documents-server` finalizes route implementations and these contracts are wired into the server runtime, this package will host the official client wrappers for both HTTP and RPC endpoints.
+## Key Exports
 
-## Architecture Fit
+**Current Status**: Only `beep` (placeholder string constant)
 
-- **Vertical Slice Layering**: SDK sits between `domain` (entities/value objects) and `ui` (React components), consuming contracts defined in domain and exposing them to client runtimes
-- **Effect-First**: All client methods return Effect types, no async/await or bare Promises
-- **Dependency Injection**: Configuration (base URLs, auth tokens, HTTP clients) provided via Layers for testability and runtime flexibility
-- **Platform Agnostic**: Supports Bun, browsers, Node, and test environments through injectable network concerns
+**Planned Exports** (when implemented):
+
+| Export | Description |
+|--------|-------------|
+| `DocumentService` | Effect Service for document operations |
+| `KnowledgePageService` | Effect Service for knowledge page operations |
+| `DiscussionService` | Effect Service for discussion operations |
+| `FileUploadService` | Effect Service for file upload operations |
+| Contract Definitions | Type-safe request/response schemas using `@beep/contract` |
+| Reactive Atoms | Runtime-backed atoms for React integration (`signInEmailAtom` pattern) |
+| Form Helpers | Schema-backed form utilities with validation |
+
+## Implementation Blockers
+
+Before this package can be fully implemented:
+
+1. **Missing Dependency**: Add `@beep/contract` to both `peerDependencies` and `devDependencies`
+2. **Domain Contracts**: Finalize schemas and error types in `@beep/documents-domain`
+3. **Server Infrastructure**: Complete server-side routes and handlers in `@beep/documents-server`
+4. **Better Auth Adapter**: Implement the better-auth client adapter (see `@beep/iam-client/adapters/better-auth`)
+5. **Service Layer**: Create Effect Services following the `@beep/iam-client` pattern
+
+## Architecture
+
+- **Layer**: Client SDK layer between domain and UI in the vertical slice pattern
+- **Effect-First**: All operations return Effect types with proper error handling
+- **Service-Oriented**: Uses Effect Services with Layer-based dependency injection
+- **Contract-Driven**: Type-safe request/response schemas via `@beep/contract`
+- **Platform Agnostic**: Works in Bun, browsers, and Node via Effect Platform
 
 ## Planned Features
 
-When implemented, the SDK will provide client wrappers for:
+| Feature Area | Operations |
+|-------------|-----------|
+| **Documents** | CRUD, versioning, metadata management |
+| **Knowledge Pages** | Page creation, updates, block management, status transitions |
+| **Discussions** | Thread creation, replies, resolution workflows |
+| **Comments** | Inline comments, mentions, reactions |
+| **File Operations** | Upload initiation, signed URLs, progress tracking, EXIF extraction |
+| **React Integration** | Runtime-backed atoms and hooks for optimistic updates |
 
-| Feature Area | Description | Domain Contract Status |
-|-------------|-------------|------------------------|
-| **Documents** | CRUD operations for documents, versioning, metadata management | ✅ RPC contracts defined (12 operations) |
-| **Knowledge Pages** | Page creation, updates, block management, status transitions | ✅ HTTP contract defined (get endpoint) |
-| **Knowledge Spaces** | Space organization, hierarchy, permissions | ⏳ Pending |
-| **Discussions** | Thread creation, replies, resolution workflows | ✅ RPC contracts defined |
-| **Comments** | Inline comments, mentions, reactions | ✅ RPC contracts defined |
-| **File Operations** | Upload initiation, signed URLs, progress tracking, metadata extraction | ⏳ Pending |
+## Expected API Pattern
 
-## Expected API Shape
+Following `@beep/iam-client`, this package will implement:
 
-### HTTP Client (for Knowledge Pages)
-
-```typescript
-import * as Effect from "effect/Effect";
-import * as Layer from "effect/Layer";
-import * as Context from "effect/Context";
-import * as HttpClient from "@effect/platform/HttpClient";
-import { DomainApi, KnowledgePage } from "@beep/documents-domain";
-
-// HTTP client for Knowledge Pages using DomainApi
-export class KnowledgePageClient extends Effect.Service<KnowledgePageClient>()(
-  "@beep/documents-client/KnowledgePageClient",
-  {
-    effect: Effect.gen(function* () {
-      const httpClient = yield* HttpClient.HttpClient;
-
-      const getPage = (id: string) =>
-        Effect.gen(function* () {
-          // Use DomainApi.KnowledgePage.Contract.get endpoint
-          // Returns Effect<KnowledgePage, KnowledgePageNotFoundError>
-        });
-
-      return { getPage };
-    }),
-    dependencies: [HttpClient.layer]
-  }
-) {}
-```
-
-### RPC Client (for Documents, Discussions, Comments)
+### 1. Contract Definitions
 
 ```typescript
-import * as Rpc from "@effect/rpc/Rpc";
-import * as RpcResolver from "@effect/rpc/RpcResolver";
-import * as Effect from "effect/Effect";
+import { Contract } from "@beep/contract";
+import * as S from "effect/Schema";
 import { Document } from "@beep/documents-domain";
+import { DocumentsClientError } from "@beep/documents-client/errors";
 
-// RPC client for Document operations using Document.Rpcs
-export class DocumentClient extends Effect.Service<DocumentClient>()(
-  "@beep/documents-client/DocumentClient",
-  {
-    effect: Effect.gen(function* () {
-      const resolver = yield* RpcResolver.RpcResolver;
+// Payload schema with default form values
+export class CreateDocumentPayload extends S.Class<CreateDocumentPayload>("CreateDocumentPayload")({
+  organizationId: S.String,
+  title: S.String,
+  content: S.String,
+}, [
+  { [BS.DefaultFormValuesAnnotationId]: { title: "", content: "" } }
+]) {}
 
-      // Example: get document
-      const get = (id: string) =>
-        Effect.gen(function* () {
-          // Use Document.Rpcs.get
-          const result = yield* resolver(Document.Rpcs.get({ id }));
-          return result;
-        });
-
-      // Example: create document
-      const create = (data: Document.CreatePayload) =>
-        Effect.gen(function* () {
-          // Use Document.Rpcs.create
-          const document = yield* resolver(Document.Rpcs.create(data));
-          return document;
-        });
-
-      // Example: list documents (streaming)
-      const list = (params: Document.ListPayload) =>
-        Effect.gen(function* () {
-          // Use Document.Rpcs.list (streaming RPC)
-          const stream = yield* resolver(Document.Rpcs.list(params));
-          return stream;
-        });
-
-      return {
-        get,
-        create,
-        list,
-        // ... all 12 Document RPC operations
-      };
-    }),
-    dependencies: [RpcResolver.layer]
-  }
-) {}
+// Contract definition
+export const CreateDocumentContract = Contract.make("CreateDocument", {
+  description: "Creates a new document",
+  failure: DocumentsClientError,
+  success: Document.Model,
+})
+  .setPayload(CreateDocumentPayload)
+  .annotate(Contract.Title, "Create Document Contract");
 ```
 
-## Usage Examples
-
-### HTTP Client Setup (Knowledge Pages)
+### 2. Contract Implementations
 
 ```typescript
 import * as Effect from "effect/Effect";
-import * as Layer from "effect/Layer";
-import * as HttpClient from "@effect/platform/HttpClient";
-import { KnowledgePageClient } from "@beep/documents-client";
+import { client } from "@beep/documents-client/adapters";
 
-// Use HTTP client for Knowledge Pages
-const program = Effect.gen(function* () {
-  const client = yield* KnowledgePageClient;
-  const page = yield* client.getPage("page-id");
-  return page;
-});
+export const CreateDocumentHandler = CreateDocumentContract.implement(
+  Effect.fn(function* (payload, { continuation }) {
+    const encoded = yield* CreateDocumentContract.encodePayload(payload);
 
-// Provide HTTP client layer
-const runnable = program.pipe(
-  Effect.provide(KnowledgePageClient.Default)
+    const result = yield* continuation.run((handlers) =>
+      client.documents.create({
+        ...encoded,
+        fetchOptions: withFetchOptions(handlers),
+      })
+    );
+
+    yield* continuation.raiseResult(result);
+  })
 );
 ```
 
-### RPC Client Setup (Documents)
+### 3. Effect Services
 
 ```typescript
 import * as Effect from "effect/Effect";
-import * as RpcResolver from "@effect/rpc/RpcResolver";
-import { DocumentClient } from "@beep/documents-client";
+import * as Layer from "effect/Layer";
 
-// Use RPC client for Documents
+export class DocumentService extends Effect.Service<DocumentService>()("DocumentService", {
+  effect: Effect.gen(function* () {
+    return {
+      CreateDocument: CreateDocumentHandler,
+      GetDocument: GetDocumentHandler,
+      UpdateDocument: UpdateDocumentHandler,
+      // ... other handlers
+    } as const;
+  }),
+  dependencies: [/* HttpClient, Config, etc */]
+}) {}
+```
+
+### 4. Runtime-Backed Atoms
+
+```typescript
+"use client";
+import { makeAtomRuntime } from "@beep/runtime-client/runtime";
+import { withToast } from "@beep/ui/common";
+import * as F from "effect/Function";
+
+const documentRuntime = makeAtomRuntime(DocumentService.Live);
+
+const createDocumentToastOptions = {
+  onWaiting: "Creating document...",
+  onSuccess: "Document created successfully",
+  onFailure: (e) => e.message,
+} as const;
+
+export const createDocumentAtom = documentRuntime.fn(
+  F.flow(DocumentService.CreateDocument, withToast(createDocumentToastOptions))
+);
+```
+
+### 5. React Hooks
+
+```typescript
+import { useAtomSet } from "@effect-atom/atom-react";
+
+export const useDocuments = () => {
+  const createDocument = useAtomSet(createDocumentAtom);
+  const getDocument = useAtomSet(getDocumentAtom);
+
+  return {
+    createDocument,
+    getDocument,
+  };
+};
+```
+
+## Usage
+
+### In React Components
+
+```typescript
+"use client";
+import { useDocuments } from "@beep/documents-client";
+
+export function CreateDocumentButton() {
+  const { createDocument } = useDocuments();
+
+  const handleCreate = () => {
+    createDocument({
+      organizationId: "org-123",
+      title: "New Document",
+      content: "",
+    });
+  };
+
+  return (
+    <button onClick={handleCreate}>
+      Create Document
+    </button>
+  );
+}
+```
+
+### In Server-Side Effects
+
+```typescript
+import * as Effect from "effect/Effect";
+import { DocumentService } from "@beep/documents-client";
+
 const program = Effect.gen(function* () {
-  const client = yield* DocumentClient;
+  const service = yield* DocumentService;
 
-  const document = yield* client.create({
+  const document = yield* service.CreateDocument({
     organizationId: "org-123",
-    title: "New Document",
-    content: "Document content"
+    title: "Server Document",
+    content: "Created from server",
   });
 
   return document;
-});
-
-// Provide RPC resolver layer
-const runnable = program.pipe(
-  Effect.provide(DocumentClient.Default)
-);
+}).pipe(Effect.provide(DocumentService.Live));
 ```
 
-### Document Operations with RPC
+### Error Handling
 
 ```typescript
 import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
-import * as Stream from "effect/Stream";
-import * as A from "effect/Array";
-import { DocumentClient } from "@beep/documents-client";
+import { DocumentService } from "@beep/documents-client";
 
-const listAndArchiveOldDocuments = (organizationId: string) =>
-  Effect.gen(function* () {
-    const client = yield* DocumentClient;
-
-    // List all documents (streaming RPC)
-    const documentsStream = yield* client.list({ organizationId });
-
-    // Collect stream into array
-    const documents = yield* Stream.runCollect(documentsStream);
-
-    // Archive old documents
-    const archived = yield* F.pipe(
-      documents,
-      A.filter((doc) => doc.lastModified < oldThreshold),
-      A.map((doc) => client.archive({ id: doc.id })),
-      Effect.all
-    );
-
-    return archived;
-  });
-```
-
-### Document Search with Streaming
-
-```typescript
-import * as Effect from "effect/Effect";
-import * as Stream from "effect/Stream";
-import * as F from "effect/Function";
-import { DocumentClient } from "@beep/documents-client";
-
-const searchDocuments = (query: string, organizationId: string) =>
-  Effect.gen(function* () {
-    const client = yield* DocumentClient;
-
-    // Search documents (streaming RPC)
-    const searchStream = yield* client.search({
-      query,
-      organizationId,
-      limit: 50
-    });
-
-    // Process results as they arrive
-    const results = yield* F.pipe(
-      searchStream,
-      Stream.take(10), // Take first 10 results
-      Stream.runCollect
-    );
-
-    return results;
-  });
+const safeGetDocument = (id: string) =>
+  F.pipe(
+    Effect.gen(function* () {
+      const service = yield* DocumentService;
+      return yield* service.GetDocument({ id });
+    }),
+    Effect.catchTag("DocumentNotFoundError", () =>
+      Effect.succeed(null)
+    ),
+    Effect.provide(DocumentService.Live)
+  );
 ```
 
 ## Development
@@ -236,11 +242,11 @@ const searchDocuments = (query: string, organizationId: string) =>
 # Type check
 bun run --filter @beep/documents-client check
 
-# Lint
+# Lint and format
 bun run --filter @beep/documents-client lint
 bun run --filter @beep/documents-client lint:fix
 
-# Build
+# Build (ESM + CJS with annotations)
 bun run --filter @beep/documents-client build
 
 # Test
@@ -251,104 +257,63 @@ bun run --filter @beep/documents-client coverage
 bun run --filter @beep/documents-client lint:circular
 ```
 
-## Authoring Guidelines
+## Implementation Guidelines
 
-### Effect-First Patterns
+When implementing this package:
 
-Always use Effect utilities, never native array/string/object methods:
+### Follow IAM Client Pattern
+
+Study `@beep/iam-client` for the authoritative implementation pattern:
+- Contract definitions in `*.contracts.ts` files
+- Handlers in `*.implementations.ts` files
+- Services in `*.service.ts` files
+- Atoms in `*.atoms.ts` files
+- Forms in `*.forms.ts` files (if needed)
+
+### Effect Patterns Required
 
 ```typescript
+// ✅ REQUIRED - Effect utilities
 import * as A from "effect/Array";
 import * as F from "effect/Function";
 import * as Str from "effect/String";
-import * as R from "effect/Record";
 
-// ✅ REQUIRED - Effect utilities with pipe
 F.pipe(items, A.map((item) => item.name));
 F.pipe(str, Str.toUpperCase);
-F.pipe(obj, R.keys);
 
 // ❌ FORBIDDEN - Native methods
 items.map(item => item.name);
 str.toUpperCase();
-Object.keys(obj);
 ```
 
-### Schema Validation
-
-Validate all external data using domain schemas:
+### Contract Structure
 
 ```typescript
-import * as S from "effect/Schema";
-import * as Effect from "effect/Effect";
-import * as HttpClient from "@effect/platform/HttpClient";
-import { KnowledgePage } from "@beep/documents-domain";
+// 1. Payload class with default form values
+export class CreateDocumentPayload extends S.Class<CreateDocumentPayload>("CreateDocumentPayload")({
+  title: S.String,
+  content: S.String,
+}, [
+  { [BS.DefaultFormValuesAnnotationId]: { title: "", content: "" } }
+]) {}
 
-const fetchPage = (id: string) =>
-  Effect.gen(function* () {
-    const httpClient = yield* HttpClient.HttpClient;
-    const response = yield* httpClient.get(`/api/v1/documents/knowledgePage/get/${id}`);
-    const json = yield* response.json;
+// 2. Contract definition
+export const CreateDocumentContract = Contract.make("CreateDocument", {
+  description: "Creates a new document",
+  failure: DocumentsClientError,
+  success: Document.Model,
+}).setPayload(CreateDocumentPayload);
 
-    // Always decode with domain schemas
-    const page = yield* S.decodeUnknown(KnowledgePage.Model)(json);
-
-    return page;
-  });
-```
-
-### Error Handling
-
-Use tagged errors from domain layer:
-
-```typescript
-import * as Effect from "effect/Effect";
-import * as F from "effect/Function";
-import {
-  DocumentNotFoundError,
-  KnowledgePageNotFoundError
-} from "@beep/documents-domain";
-
-// Error handling with catchTag
-const handleDocumentOperation = (id: string) =>
-  F.pipe(
-    DocumentClient.get(id),
-    Effect.catchTag("DocumentNotFoundError", (error) =>
-      Effect.fail({ _tag: "NotFound", message: error.message } as const)
-    ),
-    Effect.catchAll((error) =>
-      Effect.fail({ _tag: "UnknownError", cause: error } as const)
-    )
-  );
-```
-
-### Dependency Injection
-
-Use Effect services with proper Layer composition:
-
-```typescript
-import * as Effect from "effect/Effect";
-import * as Layer from "effect/Layer";
-import * as HttpClient from "@effect/platform/HttpClient";
-import * as RpcResolver from "@effect/rpc/RpcResolver";
-
-// ✅ REQUIRED - Compose layers
-const AppLayer = Layer.mergeAll(
-  HttpClient.layer,
-  RpcResolver.layer
+// 3. Handler implementation
+export const CreateDocumentHandler = CreateDocumentContract.implement(
+  Effect.fn(function* (payload, { continuation }) {
+    const encoded = yield* CreateDocumentContract.encodePayload(payload);
+    const result = yield* continuation.run((handlers) =>
+      client.documents.create({ ...encoded, fetchOptions: withFetchOptions(handlers) })
+    );
+    yield* continuation.raiseResult(result);
+  })
 );
-
-// Use in program
-const program = Effect.gen(function* () {
-  const httpClient = yield* HttpClient.HttpClient;
-  const rpcResolver = yield* RpcResolver.RpcResolver;
-  // ... use clients
-});
-
-const runnable = program.pipe(Effect.provide(AppLayer));
-
-// ❌ FORBIDDEN - Direct global access
-const client = new HttpClient();  // No global clients
 ```
 
 ## Dependencies
@@ -356,74 +321,72 @@ const client = new HttpClient();  // No global clients
 | Package | Purpose |
 |---------|---------|
 | `effect` | Core Effect runtime, Schema, and utilities |
-| `@effect/platform` | HTTP client for HttpApi endpoints |
-| `@effect/rpc` | RPC client and resolver for RPC contracts |
-| `@beep/documents-domain` | Entity models, DomainApi (HTTP), RPC contracts |
-| `@beep/documents-server` | Infrastructure implementations (peer dependency) |
+| `@beep/contract` | **MISSING** - Required for type-safe request/response contracts |
+| `@beep/documents-domain` | Entity models, value objects, domain errors |
+| `@beep/documents-server` | Server infrastructure (peer dependency) |
+| `@beep/shared-domain` | Shared entities (User, Organization, Policy) |
+| `@beep/shared-client` | Cross-slice SDK utilities (atoms, toast wrappers) |
+| `@beep/shared-env` | Environment configuration |
 | `@beep/schema` | Shared schema primitives and EntityId |
-| `@beep/shared-client` | Cross-slice SDK utilities |
-| `@beep/shared-domain` | Shared entities (User, Organization) |
 | `@beep/errors` | Error logging and telemetry |
-| `@beep/utils` | Pure runtime helpers |
+| `@beep/utils` | Pure runtime helpers (noOp, nullOp, etc.) |
+| `@beep/constants` | Schema-backed enums and constants |
+| `@beep/identity` | Package identity utilities |
+| `@beep/invariant` | Assertion contracts |
 
-## What Belongs Here
+## Module Structure
 
-- **HTTP client wrappers** for HttpApi endpoints (DomainApi.KnowledgePage.Contract)
-- **RPC client wrappers** for RPC contracts (Document.Rpcs, Discussion.Rpcs, Comment.Rpcs)
-- **Type-safe request builders** with schema validation
-- **Effect-based error handling** aligned with domain error types
-- **Layer-based configuration** for HTTP/RPC clients, auth, retry policies
-- **Client-side utilities** for streaming, caching, optimistic updates
-- **React integration** via atoms and hooks (following `@beep/iam-client` pattern)
+Following `@beep/iam-client`, organize by feature area:
 
-## What Must NOT Go Here
+```
+src/
+├── adapters/              # Better-auth or other client adapters
+│   └── index.ts
+├── clients/
+│   ├── document/
+│   │   ├── document.contracts.ts
+│   │   ├── document.implementations.ts
+│   │   ├── document.service.ts
+│   │   ├── document.atoms.ts
+│   │   ├── document.forms.ts
+│   │   └── index.ts
+│   ├── knowledge-page/    # Similar structure
+│   ├── discussion/        # Similar structure
+│   ├── file-upload/       # Similar structure
+│   └── _internal/         # Shared helpers (withFetchOptions, etc.)
+├── errors.ts              # DocumentsClientError
+└── index.ts               # Public API surface
+```
 
-- **Server-side logic**: keep infrastructure, database, storage in `@beep/documents-server`
-- **UI components**: React/Next components belong in `@beep/documents-ui`
-- **Business rules**: domain policies stay in `@beep/documents-domain`
-- **Direct DB access**: SDK never touches Drizzle or SQL clients
-- **Platform-specific code**: avoid Node/Bun/Deno-only APIs; use `@effect/platform` abstractions
+## Boundaries
 
-## Testing Strategy
+**Belongs Here**:
+- Contract definitions and implementations
+- Effect Services with Layer-based DI
+- Runtime-backed atoms for React
+- Form helpers with schema validation
+- Client adapters (better-auth style)
 
-- **Unit tests**: Mock HTTP clients and test request/response transformations
-- **Contract tests**: Verify SDK matches server-side API contracts
-- **Error handling**: Test all error paths and schema validation failures
-- **Layer composition**: Test that services wire correctly with test/prod configs
+**Does NOT Belong Here**:
+- Server infrastructure (`@beep/documents-server`)
+- UI components (`@beep/documents-ui`)
+- Business logic (`@beep/documents-domain`)
+- Database schemas (`@beep/documents-tables`)
 
-Tests should use `@beep/testkit` for Effect-based test utilities and live in `test/` directory.
+## Related Packages
 
-## Implementation Roadmap
+- **`@beep/iam-client`** - Reference implementation for client SDK patterns
+- **`@beep/documents-domain`** - Entity models, value objects, domain errors
+- **`@beep/documents-server`** - Server-side infrastructure
+- **`@beep/documents-ui`** - React UI components
+- **`@beep/contract`** - Contract system (needs to be added as dependency)
+- **Root AGENTS.md** - Effect patterns and monorepo conventions
 
-This section tracks progress as the SDK evolves from placeholder to full implementation:
+## Notes
 
-- [ ] **Phase 1**: Define HTTP and RPC client service interfaces and Layer structure
-- [ ] **Phase 2**: Implement HTTP client for Knowledge Pages (DomainApi.KnowledgePage.Contract)
-- [ ] **Phase 3**: Implement RPC client for Documents (Document.Rpcs - 12 operations)
-- [ ] **Phase 4**: Implement RPC clients for Discussions and Comments
-- [ ] **Phase 5**: Add streaming support for list/search operations
-- [ ] **Phase 6**: React integration with atoms and hooks (following @beep/iam-client pattern)
-- [ ] **Phase 7**: Error handling, retry policies, and logging
-- [ ] **Phase 8**: Optimistic updates and caching layers
-- [ ] **Phase 9**: Integration tests with mock HTTP/RPC resolvers
-
-## See Also
-
-- **AGENTS.md**: Authoring guardrails, integration notes, and contributor checklist
-- **@beep/documents-domain**: Entity models, DomainApi, and contracts
-- **@beep/documents-server**: Server-side implementation and storage
-- **@beep/iam-client**: Reference SDK implementation pattern
-- **Root AGENTS.md**: Effect patterns and monorepo conventions
-
-## Contributor Checklist
-
-Before submitting changes:
-
-- [ ] No native array/string/object methods; use Effect utilities (`A.*`, `Str.*`, `R.*`)
-- [ ] All network responses decoded through domain schemas
-- [ ] Services provide Layer-based dependency injection
-- [ ] Error types align with `@beep/documents-domain` error hierarchy
-- [ ] Added or updated tests in `test/` directory
-- [ ] Updated this README if adding new public APIs
-- [ ] Ran `bun run check`, `bun run lint`, `bun run test`
-- [ ] Verified circular dependency check passes: `bun run lint:circular`
+- This package currently only exports a placeholder (`beep`)
+- Add `@beep/contract` to `peerDependencies` and `devDependencies` before implementation
+- Study `@beep/iam-client` structure before adding new features
+- All client operations must go through Effect Services and Layers
+- Atoms must use `makeAtomRuntime` from `@beep/runtime-client`
+- Follow the continuation pattern in contract implementations (see IAM client examples)

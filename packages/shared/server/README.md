@@ -1,120 +1,49 @@
 # @beep/shared-server
 
-Foundational infrastructure services for the beep-effect monorepo, providing Effect-first abstractions for database access, configuration management, email delivery, file uploads, Redis, and rate limiting.
+Foundational infrastructure services for the beep-effect monorepo, providing Effect-first abstractions for database access, repository factories, email delivery, file uploads, and RPC handlers.
+
+## Purpose
+
+`@beep/shared-server` consolidates cross-cutting server infrastructure concerns into a unified service layer. It provides:
+- **Database Client Factory**: PostgreSQL client with Drizzle ORM, transaction support, and telemetry
+- **Repository Factory**: Auto-generated CRUD operations with error mapping and observability
+- **Email Service**: Resend integration with React Email template rendering
+- **Upload Service**: S3-backed file operations with pre-signed URL generation
+- **RPC Handlers**: Shared server-side RPC implementations for file management
+- **Job Utilities**: Scheduled cleanup tasks for upload sessions
+- **Shared Repositories**: Pre-built repositories for File, Folder, and UploadSession entities
+
+This package sits in the infrastructure layer and is consumed by vertical slices (IAM, Documents) and applications (apps/server, apps/web). Configuration management has been moved to `@beep/shared-env`.
 
 ## Installation
 
 ```bash
-bun add @beep/shared-server
+# This package is internal to the monorepo
+# Add as a dependency in your package.json:
+"@beep/shared-server": "workspace:*"
 ```
-
-This package is part of the `beep-effect` monorepo and is typically consumed by vertical slices and applications within the workspace.
-
-## Overview
-
-`@beep/shared-server` consolidates cross-cutting infrastructure concerns into a unified service layer. It replaces fragmented primitives previously scattered across `@beep/core-db`, `@beep/core-env`, and `@beep/core-email` with a cohesive, Effect-based API.
-
-### Key Capabilities
-
-- **Configuration Management**: Schema-validated environment variable parsing via Effect Config
-- **Database Layer**: PostgreSQL client with Drizzle ORM, transaction support, and telemetry
-- **Repository Factory**: Auto-generated CRUD operations with error mapping and observability
-- **Email Service**: Resend integration with React Email template rendering
-- **Upload Service**: S3-backed file operations with pre-signed URL generation
-- **Shared Runtime**: Ready-to-merge `Live` Layer for application composition
-
-## Quick Reference
-
-| Export | Type | Description |
-|--------|------|-------------|
-| `serverEnv` | Runtime Config | Server-side environment variables (DB, auth, cloud, OAuth, OTLP, etc.) |
-| `clientEnv` | Runtime Config | Browser-safe `NEXT_PUBLIC_*` environment variables |
-| `Db` | Namespace | Database client utilities (`make`, `layer`, `ConnectionContext`, `TransactionContext`, etc.) |
-| `SharedDb` | Service | Shared database service with file/folder schema |
-| `Repo` | Namespace | Repository factory (`make`) with base CRUD operations |
-| `FileRepo` | Service | Pre-built file repository with pagination, move, delete, key lookup |
-| `SharedRepos` | Namespace | Combined shared repositories layer |
-| `Email` | Namespace | Email service (`ResendService`, `renderEmail`, `components`) |
-| `UploadService` | Service | S3 file upload service with pre-signed URLs |
-| `Live` | Layer | Unified layer combining all shared infrastructure services |
 
 ## Key Exports
 
-### Configuration
+| Export | Type | Description |
+|--------|------|-------------|
+| `Db` | Namespace | Database client utilities (`make`, `layer`, `PgClient`, `TransactionContext`, etc.) |
+| `SharedDb` | Service | Shared database service with file/folder/upload session schema |
+| `Repo` | Namespace | Repository factory (`make`) with base CRUD operations |
+| `FileRepo` | Service | File repository with pagination, move, delete, key lookup |
+| `UploadSessionRepo` | Service | Upload session repository with expiration cleanup |
+| `SharedRepos` | Namespace | Combined shared repositories (includes `FileRepo`, `FolderRepo`, `UploadSessionRepo`) |
+| `Email` | Namespace | Email service (`ResendService`, `components`) |
+| `Upload` | Namespace | Upload service with S3 pre-signed URLs |
+| `SharedServerRpcs` | Namespace | RPC handlers layer for file operations |
 
-#### `serverEnv`
+**Note**: `FolderRepo` is available through the `SharedRepos` namespace export, not as a top-level export.
 
-Runtime singleton providing typed access to server-side environment variables. Parsed via Effect Config with automatic validation and detailed error reporting.
-
-```typescript
-import { serverEnv } from "@beep/shared-env/ServerEnv";
-
-// Database configuration
-const dbConfig = serverEnv.db.pg;
-console.log(dbConfig.host, dbConfig.port, dbConfig.database);
-
-// Cloud credentials
-const s3Bucket = serverEnv.cloud.aws.s3.bucketName;
-const awsRegion = serverEnv.cloud.aws.region;
-
-// Auth secrets (Redacted)
-const authSecret = serverEnv.auth.secret; // Redacted<string>
-
-// OAuth providers
-const googleClientId = serverEnv.oauth.provider.google.clientId;
-
-// Email configuration
-const resendKey = serverEnv.email.resend.apiKey; // Redacted<string>
-const fromEmail = serverEnv.email.from;
-
-// Observability endpoints
-const traceUrl = serverEnv.otlp.traceExporterUrl;
-```
-
-**Configuration Sections**:
-- `app` — Application metadata (name, domain, URLs, admin user IDs, log format/level)
-- `auth` — Better Auth secret
-- `cloud` — AWS (S3, region, credentials), Google (reCAPTCHA)
-- `db` — PostgreSQL connection (host, port, user, password, SSL)
-- `email` — Resend API key, default from/test addresses
-- `kv` — Redis connection (URL, port, password)
-- `oauth` — Provider credentials (Google, Microsoft, GitHub, Discord, LinkedIn, Twitter)
-- `otlp` — OpenTelemetry endpoints (traces, logs, metrics)
-- `payment` — Stripe API key and webhook secret
-- `marketing` — Dub.co token
-- `ai` — OpenAI and Anthropic API keys
-- `security` — Trusted origins, CSP headers
-
-#### `clientEnv`
-
-Browser-safe environment variables for Next.js client bundles. Validates `NEXT_PUBLIC_*` vars with schema-backed parsing.
-
-```typescript
-"use client";
-import { clientEnv } from "@beep/shared-env/ClientEnv";
-
-const appUrl = clientEnv.appUrl;
-const authUrl = clientEnv.authUrl;
-const captchaSiteKey = clientEnv.captchaSiteKey; // Redacted<string>
-const logLevel = clientEnv.logLevel;
-```
+## Usage
 
 ### Database
 
-#### `Db`
-
-Core database service factory and utilities for PostgreSQL with Drizzle ORM.
-
-**Key Exports**:
-- `Db.make<TSchema>({ schema })` — Factory producing `DatabaseService<TSchema>` with typed Drizzle client, transaction support, and query builders
-- `Db.layer` — Layer providing `PgClient`, `SqlClient`, `PoolService`, `ConnectionContext`, `Logger`, and `Reactivity`
-- `Db.ConnectionContext` — Service tag for Postgres connection config
-- `Db.PoolService` — Scoped pg.Pool manager with health checks
-- `Db.Logger` — Drizzle-compatible query logger with SQL syntax highlighting
-- `Db.TransactionContext` — Context tag for transaction-aware queries
-- `Db.DatabaseError` — Tagged error with Postgres-specific constraint/enum handling
-
-**Example: Slice-Specific Database Layer**
+#### Creating a Slice-Specific Database Layer
 
 ```typescript
 import { Db } from "@beep/shared-server";
@@ -124,7 +53,7 @@ import * as Context from "effect/Context";
 import * as mySchema from "./schema"; // Drizzle tables
 
 type MySchema = typeof mySchema;
-type MyDb = Db.DatabaseService<MySchema>;
+type MyDb = Db.Shape<MySchema>;
 
 export class MyDb extends Context.Tag("MyDb")<MyDb, MyDb>() {
   static readonly Live: Layer.Layer<MyDb, never, Db.PgClientServices> = Layer.scoped(
@@ -134,11 +63,21 @@ export class MyDb extends Context.Tag("MyDb")<MyDb, MyDb>() {
 }
 ```
 
-**Query Builders**:
-- `makeQuery(fn)` — Execute queries with automatic transaction detection
-- `makeQueryWithSchema(schema, fn)` — Execute queries with schema validation
+#### Using SharedDb
 
-**Transaction Support**:
+```typescript
+import { SharedDb } from "@beep/shared-server";
+import * as Effect from "effect/Effect";
+
+const program = Effect.gen(function* () {
+  const db = yield* SharedDb.SharedDb;
+  const result = yield* db.makeQuery((execute) =>
+    execute((client) => client.query.file.findMany())
+  );
+});
+```
+
+#### Transaction Support
 
 ```typescript
 import { Db } from "@beep/shared-server";
@@ -153,46 +92,9 @@ const updateWithTx = Effect.gen(function* () {
 });
 ```
 
-#### `SharedDb`
+### Repositories
 
-Shared database service implementing `DatabaseService` with the shared domain schema (files, folders, etc.).
-
-**Usage**:
-```typescript
-import { SharedDb } from "@beep/shared-server";
-import * as Effect from "effect/Effect";
-
-const program = Effect.gen(function* () {
-  const db = yield* SharedDb.SharedDb;
-  const result = yield* db.makeQuery((execute) =>
-    execute((client) => client.query.file.findMany())
-  );
-});
-```
-
-#### `Repo`
-
-Repository factory auto-generating CRUD operations with telemetry, error mapping, and transaction support.
-
-**Signature**:
-```typescript
-Repo.make<Model, Id>(
-  idSchema: EntityIdSchemaInstance,
-  model: Model,
-  maker?: Effect<CustomMethods, never, DatabaseService>
-)
-```
-
-**Base CRUD Methods**:
-- `insert(data)` — Insert single record, return entity
-- `insertVoid(data)` — Insert single record, return void
-- `insertManyVoid(data[])` — Bulk insert, return void
-- `update(data)` — Update record, return entity
-- `updateVoid(data)` — Update record, return void
-- `findById(id)` — Find by ID, return `Option<Entity>`
-- `delete(id)` — Delete by ID, return void
-
-**Example: Repository with Custom Queries**
+#### Creating a Repository with Custom Queries
 
 ```typescript
 import { Repo } from "@beep/shared-server";
@@ -232,9 +134,36 @@ export class MyEntityRepo extends Effect.Service<MyEntityRepo>()("@my-slice/serv
 }) {}
 ```
 
-#### `FileRepo` & `SharedRepos`
+**Base CRUD Methods** provided by `Repo.make`:
+- `insert(data)` — Insert single record, return entity
+- `insertVoid(data)` — Insert single record, return void
+- `insertManyVoid(data[])` — Bulk insert, return void
+- `update(data)` — Update record, return entity
+- `updateVoid(data)` — Update record, return void
+- `findById(id)` — Find by ID, return `Option<Entity>`
+- `delete(id)` — Delete by ID, return void
 
-Pre-built repositories for shared domain entities (files, folders).
+#### Using Shared Repositories
+
+```typescript
+import { FileRepo, UploadSessionRepo, SharedRepos } from "@beep/shared-server";
+import { SharedEntityIds } from "@beep/shared-domain";
+import * as Effect from "effect/Effect";
+
+const program = Effect.gen(function* () {
+  const fileRepo = yield* FileRepo;
+  // FolderRepo is available via SharedRepos namespace
+  const folderRepo = yield* SharedRepos.FolderRepo;
+
+  const files = yield* fileRepo.listPaginated({
+    userId: SharedEntityIds.UserId.make(),
+    offset: 0,
+    limit: 20
+  });
+
+  yield* Effect.logInfo(`Found ${files.folders.length} folders`);
+}).pipe(Effect.provide(SharedRepos.layer));
+```
 
 **FileRepo** provides:
 - `listPaginated({ userId, offset, limit })` — List files and folders with pagination
@@ -243,42 +172,19 @@ Pre-built repositories for shared domain entities (files, folders).
 - `getFilesByKeys({ keys, userId })` — Retrieve files by upload keys
 - All base CRUD methods from `Repo.make`
 
-**SharedRepos** exports:
-- `FileRepo` — File repository service
-- `layer` — Combined layer for all shared repos
+**SharedRepos.FolderRepo** provides:
+- All base CRUD methods from `Repo.make`
 
-**Example**:
-```typescript
-import { FileRepo, SharedRepos } from "@beep/shared-server";
-import { SharedEntityIds } from "@beep/shared-domain";
-import * as Effect from "effect/Effect";
-
-const program = Effect.gen(function* () {
-  const fileRepo = yield* FileRepo;
-
-  const result = yield* fileRepo.listPaginated({
-    userId: SharedEntityIds.UserId.make(),
-    offset: 0,
-    limit: 20
-  });
-
-  yield* Effect.logInfo(`Found ${result.folders.length} folders`);
-}).pipe(Effect.provide(SharedRepos.layer));
-```
+**UploadSessionRepo** provides:
+- `deleteExpired()` — Delete expired upload sessions
+- All base CRUD methods from `Repo.make`
 
 ### Email
 
-#### `Email.ResendService`
-
-Effect service wrapping the Resend SDK for transactional email delivery.
-
-**Methods**:
-- `send(payload, options?)` — Send email via Resend API
-
-**Example: Send Verification Email**
+#### Sending Transactional Email
 
 ```typescript
-import { Email } from "@beep/shared-server/Email";
+import { Email } from "@beep/shared-server";
 import * as Effect from "effect/Effect";
 
 const sendVerification = Effect.gen(function* () {
@@ -293,98 +199,67 @@ const sendVerification = Effect.gen(function* () {
 });
 ```
 
-#### `Email.renderEmail`
+#### Using Email Templates
 
-Helper for rendering React Email templates to HTML/text for send operations.
-
-```typescript
-import { Email } from "@beep/shared-server/Email";
-import { VerificationEmail } from "./templates/verification";
-
-const html = await Email.renderEmail(VerificationEmail, {
-  userName: "John Doe",
-  verificationUrl: "https://example.com/verify",
-});
-```
-
-#### `Email.components`
-
-Pre-built React Email templates for common auth flows (exported via `Email` namespace):
-- `InvitationEmail` — Organization invitations
-- `ResetPasswordEmail` — Password reset requests
-
-**Usage**:
 ```typescript
 import { Email } from "@beep/shared-server";
 
-// Access components through Email namespace
+// Access pre-built templates
 const { InvitationEmail, ResetPasswordEmail } = Email.components;
 ```
 
 ### Upload
 
-#### `UploadService`
-
-S3-backed file service for pre-signed URL generation and object management.
-
-**Methods**:
-- `initiateUpload(uploadParams)` — Generate pre-signed PUT URL for client uploads
-- `deleteObject(uploadParams)` — Delete object from S3
-
-**Example: Generate Upload URL**
+#### Generating Pre-Signed Upload URLs
 
 ```typescript
-import { UploadService } from "@beep/shared-server";
+import * as Upload from "@beep/shared-server/services/Upload.service";
 import { File } from "@beep/shared-domain/entities";
 import * as Effect from "effect/Effect";
 
 const getUploadUrl = Effect.gen(function* () {
-  const upload = yield* UploadService;
+  const uploadService = yield* Upload.Service;
   const uploadPath: File.UploadKey.Encoded = {
-    orgId: "org_123",
-    userId: "user_456",
-    fileItemId: "file_789",
-    extension: "png",
+    env: "development",
+    fileId: "file_123",
+    organizationType: "team",
+    organizationId: "org_456",
+    entityKind: "document",
   };
-  const url = yield* upload.initiateUpload(uploadPath);
+  const url = yield* uploadService.initiateUpload({
+    ...uploadPath,
+    organization: { id: "org_456", type: "team" }
+  });
   yield* Effect.logInfo("Pre-signed URL generated");
   return url; // Redacted<string>
 });
 ```
 
-**Dependencies**: Requires `S3Service` from `@effect-aws/client-s3` and `CLOUD_AWS_S3_BUCKET_NAME` env var.
+**Dependencies**: Requires `S3Service` from `@effect-aws/client-s3` and configuration from `@beep/shared-env`.
 
-### Shared Layer
-
-#### `Live`
-
-Top-level Layer merging all shared infrastructure services for consumption by slice runtimes.
+### RPC Handlers
 
 ```typescript
-import { Live } from "@beep/shared-server/Live";
+import { SharedServerRpcs } from "@beep/shared-server";
 import * as Layer from "effect/Layer";
 
-// Compose with slice-specific layers
-const AppRuntime = Layer.mergeAll(
-  Live,
-  MySliceDb.Live,
-  MySliceRepos.Live
+// Compose with slice-specific RPC layers
+const AppRpcLayer = Layer.mergeAll(
+  SharedServerRpcs.layer,
+  MySliceRpcs.layer
 );
 ```
 
-**Provided Services**:
-- `Email.ResendService`
-- `Db.PgClient` + `Db.SqlClient` + `Db.PoolService` + `Db.ConnectionContext` + `Db.Logger` + `Db.Reactivity`
-- `EncryptionService` (from `@beep/shared-domain/services`)
-- `UploadService`
-
-### Redis & Rate Limiting
-
-**Status**: Stub exports awaiting implementation.
-
-- `Redis` — Redis client service (placeholder)
-- `RateLimit` — Rate limiting service (placeholder)
-- `YJS` — Collaborative editing service (placeholder)
+**Provided RPC handlers**:
+- `files_listFiles` — List files and folders with pagination
+- `files_createFolder` — Create a new folder
+- `files_moveFiles` — Move files to a folder
+- `files_deleteFiles` — Delete files
+- `files_deleteFolders` — Delete folders
+- `files_getFilesByKeys` — Retrieve files by upload keys
+- `files_initiateUpload` — Generate pre-signed upload URL
+- `health` — Health check endpoint
+- `eventStream` — Server-sent events hub
 
 ## Effect Patterns
 
@@ -399,37 +274,6 @@ import * as S from "effect/Schema";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as Str from "effect/String";
-```
-
-### Configuration Best Practices
-
-```typescript
-// ✅ Use Effect Config combinators
-const dbConfig = Config.nested("DB")(
-  Config.all({
-    host: Config.nonEmptyString("HOST"),
-    port: Config.port("PORT"),
-    password: Config.redacted(Config.nonEmptyString("PASSWORD")),
-  })
-);
-
-// ❌ Never parse env vars manually
-const dbHost = process.env.DB_HOST; // WRONG
-```
-
-### Secret Handling
-
-```typescript
-import * as Redacted from "effect/Redacted";
-
-// Wrap secrets in Config.redacted
-const apiKey = Config.redacted(Config.nonEmptyString("API_KEY"));
-
-// Use at boundaries
-const revealedKey = Redacted.value(serverEnv.email.resend.apiKey);
-
-// ❌ Never log unwrapped secrets
-console.log(Redacted.value(secret)); // DANGEROUS
 ```
 
 ### Error Mapping
@@ -449,15 +293,15 @@ const safeInsert = repo.insert(data).pipe(
 
 ## Testing
 
-### Override Config for Tests
+### Override Database Connection for Tests
 
 ```typescript
-import { Db } from "@beep/shared-server";
+import { Db } from "@beep/shared-server/Db";
 import * as Layer from "effect/Layer";
 import * as Redacted from "effect/Redacted";
 import * as Str from "effect/String";
 
-const testConnectionLayer = Layer.succeed(Db.ConnectionContext, {
+const testConnectionLayer = Layer.succeed(Db.ConnectionConfig, {
   config: {
     host: "localhost",
     port: 54320,
@@ -477,10 +321,11 @@ const testDbLayer = Db.layer.pipe(Layer.provide(testConnectionLayer));
 
 ```bash
 # Requires Docker running
+bun run test --filter @beep/shared-server test
 bun run test --filter @beep/db-admin -- --grep "PgClient"
 ```
 
-## Development Commands
+## Development
 
 ```bash
 # Type check
@@ -505,29 +350,37 @@ bun run --filter @beep/shared-server lint:circular
 packages/shared/server/
 ├── src/
 │   ├── index.ts              # Main barrel export
-│   ├── ClientEnv.ts          # Browser env validation
-│   ├── ServerEnv.ts          # Server env parsing
 │   ├── Db.ts                 # Database namespace re-export
 │   ├── Email.ts              # Email namespace re-export
 │   ├── Repo.ts               # Repository factory re-export
-│   ├── Upload.ts             # Upload service re-export
-│   ├── Live.ts               # Shared runtime layer
 │   ├── db/
 │   │   ├── index.ts          # SharedDb barrel
 │   │   └── Db/
 │   │       ├── index.ts      # SharedDb service barrel
 │   │       └── Db.ts         # SharedDb service implementation
 │   ├── repos/
-│   │   ├── index.ts          # Shared repos barrel
+│   │   ├── index.ts          # Shared repos barrel (FileRepo, UploadSessionRepo)
 │   │   ├── File.repo.ts      # FileRepo service
+│   │   ├── Folder.repo.ts    # FolderRepo service (via SharedRepos)
+│   │   ├── UploadSession.repo.ts  # UploadSessionRepo service
 │   │   ├── _common.ts        # Shared repo dependencies
-│   │   └── repositories.ts   # Combined SharedRepos layer
-│   ├── api/                  # API route utilities
-│   │   └── callback/
-│   │       └── upload-callback.ts
+│   │   └── repositories.ts   # Combined SharedRepos namespace
+│   ├── services/
+│   │   ├── index.ts          # Services barrel
+│   │   └── Upload.service.ts # Upload service
+│   ├── rpc/
+│   │   ├── index.ts          # RPC barrel (SharedServerRpcs)
+│   │   ├── _rpcs.ts          # Combined RPC layer
+│   │   └── v1/               # Version 1 RPC handlers
+│   │       ├── _rpcs.ts      # V1 RPC layer composition
+│   │       ├── health.ts     # Health check handler
+│   │       ├── event-stream-hub.ts  # SSE hub
+│   │       └── files/        # File management RPCs
+│   ├── jobs/
+│   │   └── cleanup-upload-sessions.ts  # Scheduled cleanup
 │   └── internal/
 │       ├── db/
-│       │   ├── index.ts      # Db namespace barrel
+│       │   ├── index.ts      # Db and Repo namespace exports
 │       │   └── pg/
 │       │       ├── index.ts          # Pg exports
 │       │       ├── PgClient.ts       # Database service factory
@@ -537,38 +390,24 @@ packages/shared/server/
 │       │       ├── types.ts          # Type definitions
 │       │       ├── pg-error-enum.ts  # Postgres error codes
 │       │       └── services/
-│       │           ├── index.ts              # Service exports
 │       │           ├── ConnectionConfig.service.ts
 │       │           ├── ConnectionPool.service.ts
 │       │           └── QueryLogger.service.ts
-│       ├── email/
-│       │   ├── index.ts              # Email barrel
-│       │   ├── Email.ts              # Email namespace
-│       │   ├── renderEmail.ts        # Template renderer
-│       │   ├── errors.ts             # Email errors
-│       │   ├── adapters/
-│       │   │   └── resend/
-│       │   │       └── service.ts    # Resend integration
-│       │   └── components/
-│       │       └── auth-emails/
-│       │           ├── invitation.tsx
-│       │           └── reset-password.tsx
-│       ├── upload/
-│       │   ├── index.ts              # Upload barrel
-│       │   ├── upload.service.ts     # S3 upload service
-│       │   ├── upload-callback-route.ts
-│       │   ├── error.ts              # Upload errors
-│       │   └── utils.ts              # Upload utilities
-│       ├── redis/
-│       │   └── index.ts              # Redis stub (TBD)
-│       ├── ratelimit/
-│       │   └── index.ts              # Rate limit stub (TBD)
-│       └── yjs/
-│           └── index.ts              # YJS stub (TBD)
-└── test/
-    ├── Dummy.test.ts
-    └── upload/
-        └── crypto.test.ts
+│       └── email/
+│           ├── index.ts              # Email namespace export
+│           ├── Email.ts              # Email barrel
+│           ├── adapters/
+│           │   ├── index.ts
+│           │   └── resend/
+│           │       ├── index.ts
+│           │       ├── service.ts    # Resend integration
+│           │       └── errors.ts     # Email errors
+│           └── components/
+│               ├── index.ts
+│               └── auth-emails/
+│                   ├── index.ts
+│                   ├── invitation.tsx
+│                   └── reset-password.tsx
 ```
 
 ### Dependencies
@@ -582,29 +421,27 @@ packages/shared/server/
 - `@effect-aws/s3` + `@effect-aws/client-s3` — AWS S3 integration
 - `resend` — Email delivery
 - `@react-email/components` + `@react-email/render` — Email templating
-- Workspace packages: `@beep/constants`, `@beep/errors`, `@beep/schema`, `@beep/invariant`, `@beep/utils`, `@beep/identity`, `@beep/shared-domain`
+- Workspace packages: `@beep/constants`, `@beep/errors`, `@beep/schema`, `@beep/invariant`, `@beep/utils`, `@beep/identity`, `@beep/shared-domain`, `@beep/shared-env`
 
-## Usage in Monorepo
+## Integration
 
 ### Applications
 
-**`apps/server`**: Composes `Live` with IAM-specific layers in the server runtime to build the core services Layer.
+**`apps/server`**: Composes shared infrastructure layers with IAM-specific layers in the server runtime.
 
-**`apps/web`**: Imports `clientEnv` for runtime URL/domain resolution in Next.js middleware (`src/proxy.ts`) and `serverEnv` for server-side config.
+**`apps/web`**: Uses shared RPC handlers for file management operations.
 
-**`apps/notes`**: Uses `SharedDb` and `FileRepo` for file management in the collaborative notes application.
+**`apps/notes`**: Uses `SharedDb` and shared repositories for file management in the collaborative notes application.
 
 ### Feature Slices
 
 **IAM** (`packages/iam/server`):
 - Uses `Db.make` to create `IamDb` with IAM-specific Drizzle schema
 - Leverages `Repo.make` for `WalletAddressRepo`, `UserRepo`, etc.
-- Consumes `serverEnv` for Better Auth configuration
 
 **Documents** (`packages/documents/server`):
 - Creates `DocumentsDb` via `Db.make`
-- Uses `UploadService` for S3 file operations
-- Sources S3 bucket config from `serverEnv.cloud.aws.s3.bucketName`
+- Uses `Upload.Service` for S3 file operations
 
 ### Testing
 
@@ -614,45 +451,69 @@ packages/shared/server/
 
 ### Adding a New Service
 
-1. Create service implementation in `src/internal/<service>/`
+1. Create service implementation in `src/internal/<service>/` or `src/services/`
 2. Define `Effect.Service` with typed `effect` block
-3. Export Layer and types via barrel (`src/<Service>.ts`)
-4. Append to `Live` exports in `src/Live.ts`
-5. Update `SharedServices` type union in `Live.ts`
+3. Export service via barrel file
+4. Update main index exports in `src/index.ts`
+5. Document service in this README with usage examples
 
-### Extending Configuration
+### Configuration
 
-1. Add to `ServerConfig` or `ClientEnvSchema`
-2. Follow naming convention: `DB_PG_*`, `CLOUD_AWS_S3_*`, etc.
-3. Use `Config.redacted` for secrets
-4. Document in `AGENTS.md` and update `.env.example`
+**Configuration is managed in `@beep/shared-env`**, not this package.
+
+- Server configuration: See `packages/shared/env/README.md`
+- To add new config: Update `@beep/shared-env` schemas
+- Services consume config via dependency injection
 
 ### Database Utilities
 
-- Add helpers to `Db` namespace or `Repo` module
+- Add helpers to `Db` namespace (`src/internal/db/pg/`) or `Repo` module
 - Ensure transaction-awareness via `TransactionContext`
 - Auto-wire telemetry with `Effect.withSpan`
+- Follow Effect patterns: use `Effect.gen`, avoid `async/await`
+
+### Repository Factories
+
+- Create new repos in `src/repos/<Entity>.repo.ts`
+- Use `Repo.make(idSchema, model, maker)` pattern
+- Export via `src/repos/index.ts` if top-level, or via namespace
+- Add custom queries in the `maker` Effect block
+- Update `SharedRepos` if adding shared entity repos
 
 ### Email Templates
 
 - Place in `src/internal/email/components/`
 - Export via barrel (`components/index.ts`)
 - Document schema in template props
+- Use React Email components for consistency
 
 ### Upload/Storage
 
-- Extend `UploadService` with new S3 operations (list, copy, etc.)
+- Extend `Upload.Service` in `src/services/Upload.service.ts`
+- Add new S3 operations (list, copy, etc.) as needed
 - Keep all S3 concerns inside this service
-- Use `Redacted` for pre-signed URLs
+- Use `Redacted<string>` for pre-signed URLs and sensitive data
 
 ## Related Packages
 
+- `@beep/shared-env` — Environment configuration (serverEnv, clientEnv)
 - `@beep/shared-domain` — Entity models, value objects, and domain services
 - `@beep/shared-tables` — Drizzle table factories and multi-tenant schemas
+- `@beep/shared-client` — Client-side services and utilities
 - `@beep/shared-ui` — Shared UI components
 - `@beep/constants` — Schema-backed enums and asset paths
 - `@beep/schema` — Effect Schema utilities and EntityId factories
 - `@beep/errors` — Logging and telemetry infrastructure
+
+## Notes
+
+- **Configuration Migration**: `serverEnv` and `clientEnv` have been moved to `@beep/shared-env`. This package consumes configuration via dependency injection.
+- **Effect-First**: All database operations, repository methods, and service calls use Effect for error handling and observability.
+- **Telemetry**: Repository factories auto-generate telemetry spans and structured logging via `Effect.withSpan`.
+- **Email Rendering**: Email templates use React Email components for consistent HTML rendering.
+- **S3 Uploads**: Upload service generates time-limited pre-signed URLs for secure client-side uploads.
+- **RPC Handlers**: Shared RPC handlers follow Effect RPC patterns with middleware support for authentication and authorization.
+- **Repository Access**: `FolderRepo` is exported via `SharedRepos` namespace, not as a top-level export. Use `SharedRepos.FolderRepo` to access it.
 
 ## License
 

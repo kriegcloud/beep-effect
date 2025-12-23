@@ -8,7 +8,7 @@
 
 ## Surface Map
 - **`src/NextConfig.ts`** — Main Next.js configuration builder
-  - `createNextConfig()` — Composable Next.js config factory with security, PWA, MDX, and transpilation
+  - `beepNextConfig()` — Composable Next.js config factory with security, PWA, MDX, and transpilation (returns `Promise<NextConfig>`)
   - Effect-based configuration resolution from environment
   - Default optimizeImports for common packages (`@mui/*`, `@beep/*`, `@effect/*`)
   - Hardcoded secure CSP directives as baseline
@@ -49,23 +49,30 @@
 ## Quick Recipes
 
 ```typescript
-import { createNextConfig } from "@beep/build-utils";
+import { beepNextConfig } from "@beep/build-utils";
 
-// Basic Next.js config
-const nextConfig = createNextConfig({
-  pwa: {
-    enabled: true,
-    dest: "public",
-    disable: process.env.NODE_ENV === "development",
-  },
-  security: {
-    csp: {
+// Basic Next.js config (minimal usage - all defaults applied)
+export default beepNextConfig("@beep/web");
+```
+
+```typescript
+import { beepNextConfig } from "@beep/build-utils";
+
+// Advanced Next.js config with custom options
+const nextConfig = await beepNextConfig("@beep/web", {
+  reactCompiler: true,
+  headers: {
+    contentSecurityPolicy: {
       directives: {
-        // Additional CSP directives
+        scriptSrc: ["'self'", "https://trusted-cdn.com"],
       },
     },
   },
-  bundleAnalyzer: {
+  pwaConfig: {
+    disable: process.env.NODE_ENV === "development",
+    dest: "public",
+  },
+  bundleAnalyzerOptions: {
     enabled: process.env.ANALYZE === "true",
   },
 });
@@ -91,17 +98,20 @@ const configWithPWA = withPWA({
 ```
 
 ```typescript
-import { createSecureHeaders } from "@beep/build-utils/create-secure-headers";
+// Note: createSecureHeaders is used internally by beepNextConfig
+// To customize security headers, pass them via the headers option:
+import { beepNextConfig } from "@beep/build-utils";
 
-// Generate security headers
-const headers = createSecureHeaders({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: "'self'",
-      scriptSrc: ["'self'", "'unsafe-inline'"],
+export default beepNextConfig("@beep/web", {
+  headers: {
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: "'self'",
+        scriptSrc: ["'self'", "'unsafe-inline'"],
+      },
     },
+    forceHTTPSRedirect: [true, { maxAge: 63072000 }],
   },
-  forceHTTPSRedirect: [true, { maxAge: 63072000 }],
 });
 ```
 

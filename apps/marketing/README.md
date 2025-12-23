@@ -32,42 +32,41 @@ bun install
 
 ## Development
 
-### Running Locally
-
 ```bash
-# From workspace root
+# Run development server
 bun run dev --filter @beep/marketing
-
-# Or from this directory
-bun run dev
-```
-
-The development server will start at [http://localhost:3000](http://localhost:3000).
-
-### Building
-
-```bash
-# Type check
-bun run --filter @beep/marketing check
 
 # Production build
 bun run --filter @beep/marketing build
 
 # Start production server
 bun run --filter @beep/marketing start
+
+# Type check (from workspace root)
+bun run check
+
+# Lint (from workspace root)
+bun run lint
 ```
+
+The development server will start at [http://localhost:3000](http://localhost:3000).
+
+**Note**: The marketing app's `package.json` defines only `dev`, `build`, and `start` scripts. Type checking and linting should be run from the workspace root.
 
 ## Project Structure
 
 ```
 apps/marketing/
 ├── app/
-│   ├── layout.tsx       # Root layout with fonts and metadata
+│   ├── layout.tsx       # Root layout with Geist fonts and metadata
 │   ├── page.tsx         # Homepage component
-│   └── globals.css      # Global Tailwind styles
-├── public/              # Static assets
-├── next.config.ts       # Next.js configuration
-└── tsconfig.json        # TypeScript configuration
+│   ├── globals.css      # Tailwind v4 styles with @theme inline config
+│   └── favicon.ico      # App icon
+├── public/              # Static assets (Next.js SVG placeholders)
+├── next.config.ts       # Next.js configuration (minimal)
+├── postcss.config.mjs   # PostCSS with @tailwindcss/postcss
+├── tsconfig.json        # TypeScript configuration (extends workspace)
+└── tsconfig.build.json  # Build-specific TypeScript config
 ```
 
 ## Configuration
@@ -80,9 +79,20 @@ The application uses a minimal Next.js configuration in `next.config.ts`. Additi
 - Environment variables
 - Custom webpack settings
 
+### TypeScript
+
+The app extends the workspace's `tsconfig.base.jsonc` and defines a path alias:
+```typescript
+"@beep/marketing/*": ["./src/*"]
+```
+
+However, note that the current source files are in the `app/` directory, not `src/`. This path alias is configured but currently unused.
+
 ### Tailwind CSS
 
-Tailwind is configured via PostCSS with `@tailwindcss/postcss`. The app supports dark mode out of the box using the `dark:` variant.
+Tailwind is configured via PostCSS with `@tailwindcss/postcss` (v4.x). The configuration uses the modern inline `@theme` directive in `app/globals.css` rather than a separate `tailwind.config.ts` file.
+
+Dark mode is implemented using system preferences via `@media (prefers-color-scheme: dark)`, automatically adapting to the user's OS settings.
 
 ## Dependencies
 
@@ -107,8 +117,11 @@ Deployment configuration should be coordinated with the overall beep platform in
 - This app is intentionally separate from the Effect-based architecture to keep the marketing site simple and performant
 - No authentication or backend integration is currently implemented
 - The homepage contains placeholder content from the Next.js template and should be replaced with actual marketing content
+- The metadata in `app/layout.tsx` still uses Next.js defaults (`"Create Next App"` title and description) and should be updated with beep branding
 - Consider implementing:
-  - SEO metadata and Open Graph tags
-  - Analytics integration
+  - Custom SEO metadata and Open Graph tags
+  - Analytics integration (Google Analytics, Plausible, etc.)
   - Contact forms or lead capture
   - Blog or content management system integration
+  - Proper branding (logo, color scheme, typography)
+  - Performance optimizations (image optimization, lazy loading)

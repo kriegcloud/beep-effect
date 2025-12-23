@@ -3,8 +3,8 @@
   "version": "0.0.0",
   "type": "module",
   "license": "MIT",
-  "description": "A package which contains cross cutting infra services",
-  "homepage": "https://github.com/kriegcloud/beep-effect/tree/main/packages/shared/server",
+  "description": "Type-safe environment configuration loaders for client and server contexts",
+  "homepage": "https://github.com/kriegcloud/beep-effect/tree/main/packages/shared/env",
   "publishConfig": {
     "access": "public",
     "provenance": true,
@@ -19,7 +19,7 @@
   "repository": {
     "type": "git",
     "url": "git@github.com:kriegcloud/beep-effect.git",
-    "directory": "packages/shared/server"
+    "directory": "packages/shared/env"
   },
   "scripts": {
     "build": "bun run build-esm && bun run build-cjs && bun run build-annotate",

@@ -75,9 +75,3 @@ const buildCspHeader = (directives: Record<string, ReadonlyArray<string>>): stri
  * This constant replaces the dynamic CSP loading from environment variables.
  */
 export const CSP_HEADER = buildCspHeader(CSP_DIRECTIVES);
-
-/**
- * The CSP directives configuration object.
- * Useful for inspection or modification before building a custom header.
- */
-export const CSP_DIRECTIVES_CONFIG = CSP_DIRECTIVES;

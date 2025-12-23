@@ -5,9 +5,9 @@ Infrastructure layer for the IAM slice. Provides Effect Layers, repositories, an
 ## Purpose
 
 `@beep/iam-server` implements the infrastructure layer for Identity and Access Management, providing:
-- Database repositories for all IAM entities using the `@beep/shared-server/Repo` factory pattern
+- Database repositories for all IAM entities (23 repos) using the `@beep/shared-server/Repo` factory pattern
 - Better Auth service integration with custom plugins and database hooks
-- Effect-based API route handlers for authentication flows (sign-in, sign-up)
+- Effect-based API route handlers for authentication flows
 - Email service for authentication-related communications
 - Type-safe Effect Layers that compose into server runtimes
 
@@ -26,25 +26,25 @@ This package sits between `@beep/iam-domain` (business logic) and consuming appl
 | Export | Description |
 |--------|-------------|
 | `IamDb.IamDb` | Context tag and Layer for Drizzle-backed Postgres access with IAM schema |
-| `IamRepos.layer` | Merged Layer providing 21+ repository services |
-| `AuthService` | Better Auth integration with plugin aggregation and session management |
-| `AuthEmailService` | Email delivery for verification, password reset, invitations, and OTP |
-| `SignIn.Routes` | Effect HTTP route handlers for sign-in flows |
-| `SignUp.Routes` | Effect HTTP route handlers for sign-up flows |
+| `IamRepos.layer` | Merged Layer providing 23 repository services |
+| `Auth.Service` | Better Auth integration with plugin aggregation and session management |
+| `Auth.AuthEmailService` | Email delivery for verification, password reset, invitations, and OTP |
+| `IamApiLive` | Merged Layer for all IAM API route handlers |
+| `IamApiV1` | Namespace export for v1 API handlers (SignIn, SignUp, Admin, etc.) |
 
 ## Usage
 
 ### Basic Layer Composition
 
 ```typescript
-import { IamDb, IamRepos, AuthService, AuthEmailService } from "@beep/iam-server";
+import { Auth, IamDb, IamRepos } from "@beep/iam-server";
 import * as Layer from "effect/Layer";
 
 const IamInfraLayer = Layer.mergeAll(
   IamDb.IamDb.Live,
   IamRepos.layer,
-  AuthEmailService.Default,
-  AuthService.Default
+  Auth.AuthEmailService.Default,
+  Auth.Service.layer
 );
 ```
 
@@ -52,12 +52,12 @@ const IamInfraLayer = Layer.mergeAll(
 
 ```typescript
 import { UserRepo } from "@beep/iam-server";
-import { SharedEntityIds } from "@beep/shared-domain";
+import { IamEntityIds } from "@beep/shared-domain";
 import * as Effect from "effect/Effect";
 
 const program = Effect.gen(function* () {
   const userRepo = yield* UserRepo;
-  const userId = SharedEntityIds.UserId.create();
+  const userId = IamEntityIds.UserId.create();
 
   const user = yield* userRepo.findById(userId);
   return user;
@@ -67,15 +67,15 @@ const program = Effect.gen(function* () {
 ### Using Auth Service
 
 ```typescript
-import { AuthService } from "@beep/iam-server";
+import { Auth } from "@beep/iam-server";
 import * as Effect from "effect/Effect";
 
 const program = Effect.gen(function* () {
-  const { auth } = yield* AuthService;
+  const authService = yield* Auth.Service;
 
   // Better Auth instance is available for use
   const session = yield* Effect.tryPromise(() =>
-    auth.api.getSession({ headers: request.headers })
+    authService.auth.api.getSession({ headers: request.headers })
   );
 
   return session;
@@ -98,7 +98,7 @@ All repositories extend `Effect.Service` and use the `Repo.make` factory pattern
 
 ### Better Auth Integration
 
-`AuthService` provides a fully-configured Better Auth instance with:
+`Auth.Service` provides a fully-configured Better Auth instance with:
 
 - **Account Linking**: Unified identity across multiple OAuth providers
 - **Email Verification**: Automated flows for signup and email changes
@@ -109,7 +109,7 @@ All repositories extend `Effect.Service` and use the `Repo.make` factory pattern
 
 ### Email Service
 
-`AuthEmailService` handles all authentication-related email delivery:
+`Auth.AuthEmailService` handles all authentication-related email delivery:
 
 - Verification emails for new accounts and email changes
 - Password reset emails with branded templates
@@ -123,19 +123,30 @@ All emails use Resend via `@beep/shared-server/Email` with React-based templatin
 The package provides Effect-based HTTP route handlers that integrate with `@effect/platform/HttpServer`:
 
 ```typescript
-import { SignIn, SignUp } from "@beep/iam-server/api-routes/v1";
+import { IamApiLive, IamApiV1 } from "@beep/iam-server";
 import * as Layer from "effect/Layer";
 
-// Compose authentication routes
-const authRoutes = Layer.mergeAll(
-  SignIn.Routes,
-  SignUp.Routes
+// Use the complete IAM API layer
+const serverLayer = Layer.mergeAll(
+  IamApiLive,
+  // ...other layers
 );
+
+// Or access individual route groups
+const signInHandlers = IamApiV1.SignIn;
+const signUpHandlers = IamApiV1.SignUp;
 ```
 
-Route handlers:
-- **SignIn.Email.Handler**: Email/password sign-in with session creation
-- **SignUp.Email.Handler**: Email/password registration with verification
+Route groups available via `IamApiV1`:
+- **SignIn**: Social, SSO, username, anonymous authentication
+- **SignUp**: Email registration flows
+- **Admin**: User management, impersonation, permissions
+- **Organization**: Teams, members, roles, invitations
+- **Passkey**: WebAuthn registration and authentication
+- **TwoFactor**: TOTP enablement and verification
+- **ApiKey**: API key creation and management
+- **OAuth2**: OAuth client operations
+- **SSO**: SAML and OIDC integration
 
 All route handlers follow Effect patterns with tagged errors from `@beep/iam-domain`.
 
@@ -201,14 +212,14 @@ The package follows a strict dependency hierarchy:
 
 ```
 IamDb.IamDb.Live
-  ├─> IamRepos.layer (requires IamDb + Db.PgClientServices)
-  └─> AuthService.Default
-        ├─> AuthEmailService.DefaultWithoutDependencies
+  ├─> IamRepos.layer (requires IamDb + Db.SliceDbRequirements)
+  └─> Auth.Service.layer
+        ├─> Auth.AuthEmailService.Default
         └─> IamDb.IamDb.Live
 ```
 
 Route handlers depend on:
-- `AuthService` for Better Auth operations
+- `Auth.Service` for Better Auth operations
 - `HttpServerRequest.HttpServerRequest` for request context
 
 ### Integration
@@ -225,7 +236,7 @@ Route handlers depend on:
 - Use `Effect.withSpan` and `Effect.annotateLogs` for observability
 - Database hooks auto-create personal organizations and set session context
 - All secrets use `Redacted<string>` to prevent accidental logging
-- Better Auth integration is exposed via `AuthService` - never import Better Auth directly
+- Better Auth integration is exposed via `Auth.Service` - never import Better Auth directly
 - Route handlers follow Effect patterns with pipe, namespace imports, and tagged errors
 - Email templates use React components via `@beep/shared-server/Email`
 
@@ -240,7 +251,7 @@ import { Repo } from "@beep/shared-server/Repo";
 import { Entities } from "@beep/iam-domain";
 import { dependencies } from "@beep/iam-server/adapters/repos/_common";
 import { IamDb } from "@beep/iam-server/db";
-import { SharedEntityIds } from "@beep/shared-domain";
+import { IamEntityIds } from "@beep/shared-domain";
 import * as Effect from "effect/Effect";
 
 export class AuditLogRepo extends Effect.Service<AuditLogRepo>()(
@@ -249,7 +260,7 @@ export class AuditLogRepo extends Effect.Service<AuditLogRepo>()(
     dependencies,
     accessors: true,
     effect: Repo.make(
-      SharedEntityIds.AuditLogId,
+      IamEntityIds.AuditLogId,
       Entities.AuditLog.Model,
       Effect.gen(function* () {
         yield* IamDb.IamDb; // Ensure database is injected
@@ -272,7 +283,7 @@ export const layer: IamReposLive = Layer.mergeAll(
 ### Creating a Custom Route Handler
 
 ```typescript
-import { AuthService } from "@beep/iam-server/adapters";
+import { Auth } from "@beep/iam-server";
 import { IamAuthError } from "@beep/iam-domain";
 import * as HttpServerRequest from "@effect/platform/HttpServerRequest";
 import * as HttpServerResponse from "@effect/platform/HttpServerResponse";
@@ -283,16 +294,16 @@ type HandlerEffect = (args: { readonly payload: MyPayload }) =>
   Effect.Effect<
     HttpServerResponse.HttpServerResponse,
     IamAuthError,
-    AuthService | HttpServerRequest.HttpServerRequest
+    Auth.Service | HttpServerRequest.HttpServerRequest
   >;
 
 export const Handler: HandlerEffect = Effect.fn("MyHandler")(
   function* ({ payload }) {
-    const { auth } = yield* AuthService;
+    const authService = yield* Auth.Service;
     const request = yield* HttpServerRequest.HttpServerRequest;
 
     const result = yield* Effect.tryPromise(() =>
-      auth.api.someMethod({
+      authService.auth.api.someMethod({
         body: payload,
         headers: request.headers,
       })
@@ -307,13 +318,13 @@ export const Handler: HandlerEffect = Effect.fn("MyHandler")(
 ### Sending Authentication Emails
 
 ```typescript
-import { AuthEmailService } from "@beep/iam-server";
+import { Auth } from "@beep/iam-server";
 import { BS } from "@beep/schema";
 import * as Effect from "effect/Effect";
 import * as Redacted from "effect/Redacted";
 
 const program = Effect.gen(function* () {
-  const emailService = yield* AuthEmailService;
+  const emailService = yield* Auth.AuthEmailService;
 
   yield* emailService.sendVerification({
     email: Redacted.make("user@example.com" as BS.Email.Type),

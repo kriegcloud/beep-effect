@@ -8,48 +8,72 @@ The IAM SDK provides a complete client-side authentication system built on bette
 
 ## Key Exports
 
-| Export                          | Description                                                                                |
-|---------------------------------|--------------------------------------------------------------------------------------------|
-| `AuthClient`                    | Type alias for better-auth client with all configured plugins                              |
-| `client`                        | Better-auth client instance (from `adapters/better-auth`)                                  |
-| `$store`                        | Better-auth store for session state notifications (from `adapters/better-auth`)            |
-| `BetterAuthError`               | Tagged error for better-auth specific failures                                             |
-| `IamError`                      | Tagged error with metadata for all IAM operations (code, status, plugin, method)           |
-| `IamErrorMetadata`              | Metadata schema for structured error handling                                              |
-| `SignInContracts`               | Contract definitions for sign-in operations (email, social, credential)                    |
-| `SignInImplementations`         | Contract implementations for sign-in flows                                                 |
-| `SignUpContracts`               | Contract definitions for user registration                                                 |
-| `SignUpImplementations`         | Contract implementations for sign-up flows                                                 |
-| `UserContracts`                 | Contracts for user management (update profile, change email/password, phone)               |
-| `UserImplementations`           | Implementations for user operations                                                        |
-| `SessionContracts`              | Contracts for session management and validation                                            |
-| `SessionImplementations`        | Session operation implementations                                                          |
-| `MultiSessionContracts`         | Contracts for multi-session support (list, switch, revoke sessions)                        |
-| `MultiSessionImplementations`   | Multi-session implementations                                                              |
-| `TwoFactorContracts`            | Contracts for TOTP two-factor authentication flows                                         |
-| `TwoFactorImplementations`      | 2FA operation implementations                                                              |
-| `PasskeyContracts`              | Contracts for WebAuthn passkey registration and authentication                             |
-| `PasskeyImplementations`        | Passkey operation implementations                                                          |
-| `OAuthContracts`                | Contracts for OAuth provider integration (Google, GitHub, etc.)                            |
-| `OAuthImplementations`          | OAuth flow implementations                                                                 |
-| `SSOContracts`                  | Contracts for enterprise SSO via SAML/OIDC                                                 |
-| `SSOImplementations`            | SSO operation implementations                                                              |
-| `OrganizationContracts`         | Contracts for organization/tenant management                                               |
-| `OrganizationImplementations`   | Organization operation implementations                                                     |
-| `DeviceAuthorizationContracts`  | Contracts for device authorization flow for CLI/IoT devices                                |
-| `DeviceAuthorizationImplementations` | Device authorization implementations                                                  |
-| `ApiKeyContracts`               | Contracts for API key generation and validation                                            |
-| `ApiKeyImplementations`         | API key operation implementations                                                          |
-| `VerifyContracts`               | Contracts for email and phone verification                                                 |
-| `VerifyImplementations`         | Verification operation implementations                                                     |
-| `RecoverContracts`              | Contracts for password recovery and reset flows                                            |
-| `RecoverImplementations`        | Password recovery implementations                                                          |
-| `SignOutContracts`              | Contracts for sign-out operations                                                          |
-| `SignOutImplementations`        | Sign-out implementations with session cleanup                                              |
-| `useChangePassword`             | React hook for password change form                                                        |
-| `useUpdateUsername`             | React hook for username update                                                             |
-| `useSignUpForm`                 | Form helper for registration with validation                                               |
-| `AuthCallback`                  | Constants and helpers for OAuth/SSO callback URL sanitization                              |
+### Core Types & Errors
+
+| Export                | Description                                                                                |
+|-----------------------|--------------------------------------------------------------------------------------------|
+| `AuthClient`          | Type alias for better-auth client with all configured plugins                              |
+| `IamError`            | Tagged error with metadata for all IAM operations (code, status, plugin, method)           |
+| `IamErrorMetadata`    | Metadata schema for structured error handling                                              |
+
+### Contract Implementations
+
+Each feature exports an `Implementations` object with contract handlers:
+
+| Export                              | Description                                                                    |
+|-------------------------------------|--------------------------------------------------------------------------------|
+| `SignInImplementations`             | Sign-in contract implementations (email, social, credential)                   |
+| `SignUpImplementations`             | User registration contract implementations                                     |
+| `UserImplementations`               | User management implementations (update profile, change email/password, phone) |
+| `SessionImplementations`            | Session management and validation implementations                              |
+| `MultiSessionImplementations`       | Multi-session support (list, switch, revoke sessions)                          |
+| `TwoFactorImplementations`          | TOTP two-factor authentication implementations                                 |
+| `OAuthImplementations`              | OAuth provider integration implementations (Google, GitHub, etc.)              |
+| `OidcImplementations`               | OpenID Connect flow implementations                                            |
+| `OrganizationImplementations`       | Organization/tenant management implementations                                 |
+| `DeviceAuthorizationImplementations`| Device authorization flow implementations for CLI/IoT devices                  |
+| `ApiKeyImplementations`             | API key generation and validation implementations                              |
+| `VerifyImplementations`             | Email and phone verification implementations                                   |
+| `RecoverImplementations`            | Password recovery and reset implementations                                    |
+| `SignOutImplementations`            | Sign-out implementations with session cleanup                                  |
+| `AdminImplementations`              | Admin operations (user impersonation, bans)                                    |
+
+### Individual Contracts
+
+Contracts are exported individually by name (e.g., `SignInEmailContract`, `SignInSocialContract`, `ChangePasswordContract`). Each contract includes:
+- `payloadSchema` - Input validation schema
+- `successSchema` - Success response schema
+- `failureSchema` - Error schema (IamError)
+- `implement()` - Method to create Effect-based implementation
+- `decodeUnknownSuccess()` - Response decoder
+
+### React Integration
+
+| Export                        | Description                                                        |
+|-------------------------------|--------------------------------------------------------------------|
+| `useChangePasswordForm`       | React hook for password change form with validation                |
+| `useUpdateUserIdentityForm`   | Form helper for updating user name                                 |
+| `useUpdateUsernameForm`       | Form helper for updating username                                  |
+| `useUpdatePhoneNumberForm`    | Form helper for updating phone number                              |
+| `useSignUpEmailForm`          | Form helper for email registration with validation                 |
+| `useSignInEmailForm`          | Form helper for email sign-in with validation                      |
+| `useResetPasswordForm`        | Form helper for password reset                                     |
+| `useRequestResetPasswordForm` | Form helper for requesting password reset                          |
+| `useAddPasskeyForm`           | Form helper for adding passkey                                     |
+| `useUpdatePasskeyForm`        | Form helper for updating passkey                                   |
+
+### Atoms & Runtimes
+
+Most client modules export atoms and runtimes for reactive state management. Notable exports include:
+- `passkeysAtom`, `addPasskeyAtom`, `removePasskeyAtom`, `updatePasskeyAtom`, `editingPasskeyAtom` (Passkey management)
+- `resetPasswordAtom`, `requestResetPasswordAtom` (Password recovery)
+- Module-specific runtimes: `adminRuntime`, `apiKeyRuntime`, `deviceAuthorizationRuntime`, `multiSessionRuntime`, `oauthRuntime`, `oidcRuntime`, `organizationRuntime`, `recoverRuntime`
+
+### Constants & Utilities
+
+| Export                | Description                                                                    |
+|-----------------------|--------------------------------------------------------------------------------|
+| `AuthCallback`        | Constants and helpers for OAuth/SSO callback URL sanitization                  |
 
 ## Architecture Fit
 
@@ -64,41 +88,55 @@ The IAM SDK provides a complete client-side authentication system built on bette
 
 ```
 src/
+├── index.ts                    # Main package exports
 ├── adapters/
-│   └── better-auth/       # Better-auth client wrapper, error normalization
+│   ├── index.ts               # Adapter re-exports
+│   └── better-auth/           # Better-auth client wrapper, error normalization
+│       ├── client.ts          # Better-auth client instance with plugins
+│       ├── errors.ts          # BetterAuthError wrapper
+│       ├── types.ts           # Type definitions
+│       └── index.ts           # Re-exports client, $store, types
+├── api-client/
+│   └── index.ts               # API client exports
 ├── clients/
-│   ├── admin/             # Admin operations (user impersonation, bans)
-│   ├── api-key/           # API key contracts, atoms, service
-│   ├── device-authorization/ # Device flow for CLI/IoT
-│   ├── last-login-method/ # Track last used login method
-│   ├── multi-session/     # Multi-session management
-│   ├── oauth/             # OAuth provider integration
-│   ├── oidc/              # OpenID Connect flows
-│   ├── organization/      # Organization/tenant management
-│   ├── passkey/           # WebAuthn passkey support
-│   ├── recover/           # Password recovery (contracts, forms, atoms)
-│   ├── session/           # Session validation and management
-│   ├── sign-in/           # Sign-in flows (atoms, contracts, service)
-│   ├── sign-out/          # Sign-out with cleanup
-│   ├── sign-up/           # Registration (contracts, forms, atoms, service)
-│   ├── sso/               # Enterprise SSO (SAML/OIDC)
-│   ├── stripe/            # Stripe billing integration
-│   ├── two-factor/        # TOTP 2FA (contracts, atoms, service)
-│   ├── user/              # User management (profile, email, password, phone)
-│   ├── verify/            # Email/phone verification
-│   └── _internal/         # Shared client helpers
+│   ├── index.ts               # Re-exports all client modules
+│   ├── admin/                 # Admin operations (user impersonation, bans)
+│   ├── api-key/               # API key contracts, implementations, service
+│   ├── device-authorization/  # Device flow for CLI/IoT
+│   ├── last-login-method/     # Track last used login method
+│   ├── multi-session/         # Multi-session management
+│   ├── oauth/                 # OAuth provider integration
+│   ├── oidc/                  # OpenID Connect flows
+│   ├── organization/          # Organization/tenant management
+│   ├── last-login-method/     # Track last used login method
+│   ├── passkey/               # WebAuthn passkey support (contracts, forms, atoms, layer)
+│   ├── recover/               # Password recovery (contracts, forms, atoms)
+│   ├── session/               # Session validation and management
+│   ├── sign-in/               # Sign-in flows (atoms, contracts, implementations, forms, service)
+│   ├── sign-out/              # Sign-out with cleanup
+│   ├── sign-up/               # Registration (contracts, forms, atoms, implementations, service)
+│   ├── two-factor/            # TOTP 2FA (contracts, atoms, implementations, service)
+│   ├── user/                  # User management (profile, email, password, phone)
+│   ├── verify/                # Email/phone verification
+│   └── _internal/             # Shared client helpers (_id.ts, client-method-helpers.ts)
 ├── constants/
-│   └── AuthCallback/      # OAuth/SSO callback URL constants
-└── errors.ts              # IamError and IamErrorMetadata schemas
+│   ├── index.ts               # Constants re-exports
+│   └── AuthCallback/          # OAuth/SSO callback URL sanitization
+│       ├── AuthCallback.ts    # Callback helper implementation
+│       └── index.ts           # Re-exports
+└── errors.ts                  # IamError and IamErrorMetadata schemas
 ```
 
-Each client module follows a consistent pattern:
+### Client Module Pattern
 
-- **`*.contracts.ts`**: Effect contracts defining payload, success, and failure schemas using `Contract.make`
-- **`*.implementations.ts`**: Contract implementations calling better-auth via `Contract.implement` with continuation handlers
-- **`*.atoms.ts`**: Reactive atoms with toast notifications and reactivity keys using `@effect-atom/atom-react`
-- **`*.forms.ts`**: React hook form helpers with schema validation
-- **`*.service.ts`**: (Legacy) Some modules may still have service-based exports for compatibility
+Each client module (under `src/clients/*`) follows this pattern:
+
+- **`index.ts`**: Re-exports all module exports (contracts, implementations, atoms, forms, service)
+- **`*.contracts.ts`**: Individual contract definitions using `Contract.make`, grouped with `ContractKit.make`
+- **`*.implementations.ts`**: Contract implementations via `ContractName.implement()`, exported as single `*Implementations` object via `ContractKit.of()`
+- **`*.atoms.ts`** (optional): Reactive atoms with toast notifications using `@effect-atom/atom-react`
+- **`*.forms.ts`** (optional): React hook form helpers with schema validation
+- **`*.service.ts`** (optional): Effect service layer for some modules (legacy pattern)
 
 ## Installation
 
@@ -108,21 +146,45 @@ Each client module follows a consistent pattern:
 "@beep/iam-client": "workspace:*"
 ```
 
+### Package Exports
+
+The package exports are configured to allow flexible imports:
+
+```typescript
+// Main package exports (recommended)
+import { UserImplementations, SignInEmailContract } from "@beep/iam-client";
+
+// Error types (from errors module)
+import { IamError, IamErrorMetadata } from "@beep/iam-client/errors";
+
+// Deep imports to adapters (for guard usage)
+import { client, $store } from "@beep/iam-client/adapters/better-auth";
+
+// Deep imports to specific feature modules
+import { SignInEmailContract } from "@beep/iam-client/clients/sign-in";
+```
+
 ## Usage
 
 ### Namespace Import
 
-Prefer named imports for implementations, contracts, and errors:
+Prefer named imports for implementations, individual contracts, and errors:
 
 ```typescript
-import { UserImplementations, SignInImplementations, IamError } from "@beep/iam-client";
+import {
+  UserImplementations,
+  SignInImplementations,
+  SignInEmailContract,
+  ChangePasswordContract
+} from "@beep/iam-client";
+import { IamError } from "@beep/iam-client/errors";
 import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
 ```
 
 ### Contract Implementation Usage
 
-Contract implementations provide Effect-based wrappers around better-auth operations:
+Contract implementations provide Effect-based wrappers around better-auth operations. Each `Implementations` object contains methods corresponding to the contracts:
 
 ```typescript
 import { UserImplementations } from "@beep/iam-client";
@@ -131,9 +193,10 @@ import * as F from "effect/Function";
 
 // Use contract implementation directly
 const updateProfile = F.pipe(
-  UserImplementations.UpdateUserIdentity({
+  UserImplementations.UpdateUserInformation({
     firstName: "John",
-    lastName: "Doe"
+    lastName: "Doe",
+    image: "https://example.com/avatar.jpg"
   }),
   Effect.catchTag("IamError", (error) =>
     Effect.log(`Update failed: ${error.message}`)
@@ -150,17 +213,17 @@ runtime.runPromise(updateProfile);
 
 ### Contracts
 
-Contracts define type-safe schemas with domain/method metadata using `@beep/contract`:
+Contracts define type-safe schemas with domain/method metadata using `@beep/contract`. Individual contracts are exported by name:
 
 ```typescript
-import { UserContracts } from "@beep/iam-client";
+import { ChangePasswordContract } from "@beep/iam-client";
 import * as S from "effect/Schema";
 import * as F from "effect/Function";
 
 // Access contract schemas
-UserContracts.ChangePassword.payloadSchema;  // Input validation schema
-UserContracts.ChangePassword.successSchema;  // Success response schema
-UserContracts.ChangePassword.failureSchema;  // Error schema (IamError)
+ChangePasswordContract.payloadSchema;  // Input validation schema
+ChangePasswordContract.successSchema;  // Success response schema
+ChangePasswordContract.failureSchema;  // Error schema (IamError)
 
 // Decode payload with schema
 const payload = F.pipe(
@@ -170,7 +233,7 @@ const payload = F.pipe(
     currentPassword: "OldPass123!",
     revokeOtherSessions: false
   },
-  S.decodeUnknownSync(UserContracts.ChangePassword.payloadSchema)
+  S.decodeUnknownSync(ChangePasswordContract.payloadSchema)
 );
 
 // Or use contract implementation directly
@@ -235,7 +298,7 @@ function ProfileSettings() {
 Form hooks integrate Effect schemas with react-hook-form:
 
 ```typescript
-import { useChangePasswordForm, useSignUpForm } from "@beep/iam-client";
+import { useChangePasswordForm, useSignUpEmailForm } from "@beep/iam-client";
 
 function PasswordChangeForm() {
   const { form } = useChangePasswordForm({
@@ -246,9 +309,9 @@ function PasswordChangeForm() {
 
   return (
     <form onSubmit={form.handleSubmit}>
-      <input {...form.register("currentPassword")} />
-      <input {...form.register("password")} />
-      <input {...form.register("passwordConfirm")} />
+      <input {...form.register("currentPassword")} type="password" />
+      <input {...form.register("password")} type="password" />
+      <input {...form.register("passwordConfirm")} type="password" />
       <button type="submit">Change Password</button>
     </form>
   );
@@ -260,7 +323,8 @@ function PasswordChangeForm() {
 Structured error handling with metadata:
 
 ```typescript
-import { IamError, UserImplementations } from "@beep/iam-client";
+import { UserImplementations } from "@beep/iam-client";
+import { IamError } from "@beep/iam-client/errors";
 import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
 
@@ -286,23 +350,23 @@ const program = F.pipe(
 
 ### Better Auth Client Access
 
-For guard usage and session state management:
+For guard usage and session state management, access the client directly from the adapter:
 
 ```typescript
-import { client, $store } from "@beep/iam-client/adapters";
+import { client, $store } from "@beep/iam-client/adapters/better-auth";
 
 // Access session state
 const session = client.useSession();
 
 // Notify session signal after mutations
-client.$store.notify("$sessionSignal");
+$store.notify("$sessionSignal");
 
 // Use in guards
 function AuthGuard({ children }: { children: React.ReactNode }) {
   const session = client.useSession();
 
   React.useEffect(() => {
-    client.$store.notify("$sessionSignal");
+    $store.notify("$sessionSignal");
   }, []);
 
   if (!session.data) {
@@ -344,12 +408,12 @@ const revokeSession = (sessionId: string) =>
   MultiSessionImplementations.RevokeSession({ sessionId });
 ```
 
-### OAuth/SSO Integration
+### OAuth Integration
 
-OAuth and SSO flows with callback URL sanitization:
+OAuth flows with callback URL sanitization:
 
 ```typescript
-import { OAuthImplementations, SSOImplementations, AuthCallback } from "@beep/iam-client";
+import { OAuthImplementations, AuthCallback } from "@beep/iam-client";
 import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
 import * as Str from "effect/String";
@@ -362,37 +426,9 @@ const signInWithGoogle = F.pipe(
   })
 );
 
-// Enterprise SSO
-const signInWithSAML = F.pipe(
-  SSOImplementations.SignIn({
-    organizationSlug: "acme-corp",
-    callbackURL: AuthCallback.getURL("/workspace")
-  })
-);
-
 // Sanitize callback targets before redirecting
 const resolveCallbackTarget = (raw: string | null | undefined) =>
   AuthCallback.sanitizePath(F.pipe(raw ?? AuthCallback.defaultTarget, Str.trim));
-```
-
-### Passkey Support
-
-WebAuthn passkey registration and authentication:
-
-```typescript
-import { PasskeyImplementations } from "@beep/iam-client";
-import * as Effect from "effect/Effect";
-import * as F from "effect/Function";
-
-const registerPasskey = F.pipe(
-  PasskeyImplementations.Register({
-    deviceName: "MacBook Pro"
-  })
-);
-
-const signInWithPasskey = F.pipe(
-  PasskeyImplementations.Authenticate()
-);
 ```
 
 ### Two-Factor Authentication
@@ -427,15 +463,15 @@ const disable2FA = (password: string) =>
 When creating new contract implementations, follow the continuation-based pattern:
 
 ```typescript
-import { client } from "@beep/iam-client/adapters";
+import { client, $store } from "@beep/iam-client/adapters/better-auth";
 import { addFetchOptions, requireData } from "@beep/iam-client/clients/_internal";
-import { SignInContracts } from "@beep/iam-client/clients/sign-in/sign-in.contracts";
+import { SignInSocialContract } from "@beep/iam-client/clients/sign-in/sign-in.contracts";
 import { IamError } from "@beep/iam-client/errors";
 import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
 
 // Define implementation using Contract.implement
-export const SignInWithProviderHandler = SignInContracts.Social.implement(
+export const SignInWithProviderHandler = SignInSocialContract.implement(
   Effect.fn(function* (payload, { continuation }) {
     // 1. Run better-auth call via continuation
     const result = yield* continuation.run((handlers) =>
@@ -452,14 +488,14 @@ export const SignInWithProviderHandler = SignInContracts.Social.implement(
 
     // 3. Notify session signal if successful
     if (result.error == null) {
-      client.$store.notify("$sessionSignal");
+      $store.notify("$sessionSignal");
     }
 
     // 4. Require data or fail with structured error
     const data = yield* requireData(result.data, "SignInWithProviderHandler", continuation.metadata);
 
     // 5. Decode and validate response
-    return yield* SignInContracts.Social.decodeUnknownSuccess(data);
+    return yield* SignInSocialContract.decodeUnknownSuccess(data);
   }, Effect.catchTags({
     ParseError: (error) => Effect.fail(IamError.match(error, continuation.metadata)),
   }))
@@ -470,7 +506,7 @@ Key steps in the continuation pattern:
 
 1. **Run the operation**: Use `continuation.run` to execute better-auth calls with fetch handlers
 2. **Raise result**: Call `continuation.raiseResult` for telemetry and error tracking
-3. **Notify session**: Fire `$store.notify("$sessionSignal")` for session-mutating operations
+3. **Notify session**: Fire `$store.notify("$sessionSignal")` for session-mutating operations (import `$store` from `@beep/iam-client/adapters/better-auth`)
 4. **Validate data**: Use `requireData` helper to ensure data exists or fail gracefully
 5. **Decode response**: Use contract's `decodeUnknownSuccess` for type-safe validation
 6. **Handle errors**: Catch `ParseError` and other errors, normalize to `IamError`
@@ -499,24 +535,58 @@ This is the SDK/contract layer. Keep it focused on client-facing Effect contract
 
 ## Dependencies
 
-| Package                | Purpose                                                    |
-|------------------------|------------------------------------------------------------|
-| `effect`               | Core Effect runtime and Schema system                      |
-| `better-auth`          | Authentication framework                                   |
-| `@beep/contract`       | Contract system for type-safe request/response schemas    |
-| `@beep/iam-domain`     | IAM domain models and entities                             |
-| `@beep/iam-server`      | IAM infrastructure implementations                         |
-| `@beep/shared-domain`  | Shared domain entities (User, Organization)                |
-| `@beep/schema`         | Reusable Effect schemas (Email, Password, etc.)            |
-| `@beep/errors`         | Error logging and telemetry                                |
-| `@beep/runtime-client` | Client-side ManagedRuntime and atom helpers                |
-| `@beep/ui`             | UI components and form utilities                           |
-| `@effect-atom/atom-react` | Reactive atoms for React integration                    |
-| `react-hook-form`      | Form state management                                      |
-| `jose`                 | JWT utilities for token handling                           |
-| `@better-auth/passkey` | Passkey/WebAuthn plugin                                    |
-| `@better-auth/sso`     | Enterprise SSO plugin                                      |
-| `@better-auth/stripe`  | Stripe billing integration                                 |
+### Core Dependencies
+
+| Package                      | Purpose                                                    |
+|------------------------------|------------------------------------------------------------|
+| `effect`                     | Core Effect runtime and Schema system                      |
+| `better-auth`                | Authentication framework                                   |
+| `@beep/contract`             | Contract system for type-safe request/response schemas    |
+| `@beep/iam-domain`           | IAM domain models and entities                             |
+| `@beep/iam-server`           | Better-auth server configuration and types                 |
+| `@beep/iam-tables`           | Drizzle schemas for IAM tables                             |
+| `@beep/shared-domain`        | Shared domain entities (User, Organization)                |
+| `@beep/shared-client`        | Shared SDK patterns and utilities                          |
+| `@beep/schema`               | Reusable Effect schemas (Email, Password, EntityId, etc.)  |
+| `@beep/errors`               | Error logging and telemetry                                |
+| `@beep/constants`            | Schema-backed enums and constants                          |
+| `@beep/identity`             | Package identity system                                    |
+| `@beep/invariant`            | Assertion contracts                                        |
+| `@beep/utils`                | Pure runtime helpers                                       |
+
+### UI & React Integration
+
+| Package                      | Purpose                                                    |
+|------------------------------|------------------------------------------------------------|
+| `@effect-atom/atom`          | Core atom system                                           |
+| `@effect-atom/atom-react`    | Reactive atoms for React integration                       |
+| `@beep/ui`                   | UI components and form utilities                           |
+| `@beep/ui-core`              | Design tokens and MUI theme                                |
+| `react`                      | React library                                              |
+| `react-dom`                  | React DOM rendering                                        |
+| `next`                       | Next.js for routing and server components                  |
+
+### Better-auth Plugins
+
+| Package                      | Purpose                                                    |
+|------------------------------|------------------------------------------------------------|
+| `@better-auth/passkey`       | Passkey/WebAuthn plugin                                    |
+| `@better-auth/sso`           | Enterprise SSO plugin (SAML/OIDC)                          |
+| `@better-auth/stripe`        | Stripe billing integration                                 |
+| `@better-auth/scim`          | SCIM user provisioning                                     |
+| `@better-auth/utils`         | Better-auth utility functions                              |
+| `better-auth-localization`   | Internationalization support                               |
+
+### Additional Dependencies
+
+| Package                      | Purpose                                                    |
+|------------------------------|------------------------------------------------------------|
+| `jose`                       | JWT utilities for token handling                           |
+| `@simplewebauthn/server`     | WebAuthn server utilities                                  |
+| `dub`                        | URL shortening integration                                 |
+| `stripe`                     | Stripe SDK                                                 |
+| `sonner`                     | Toast notifications                                        |
+| `mutative`                   | Immutable state updates                                    |
 
 ## Development
 
@@ -545,16 +615,18 @@ bun run --filter @beep/iam-client dev
 
 ## Guidelines for Adding New Clients
 
-- **Follow the pattern**: each client needs `*.contracts.ts`, `*.implementations.ts`, optionally `*.atoms.ts` and `*.forms.ts`
-- **Contract definition**: define contracts with `Contract.make` from `@beep/contract`, include metadata annotations
+- **Follow the pattern**: each client needs `*.contracts.ts`, `*.implementations.ts`, optionally `*.atoms.ts`, `*.forms.ts`, and `*.service.ts`
+- **Contract definition**: define individual contracts with `Contract.make` from `@beep/contract`, include metadata annotations
+- **Contract grouping**: group related contracts with `ContractKit.make` to create a `*ContractKit`
 - **Contract implementation**: implement via `ContractName.implement(Effect.fn(function* (payload, { continuation }) { ... }))`
 - **Error handling**: all contracts must fail with `IamError` for consistent error handling; use `IamError.match` to normalize errors
-- **Continuation handlers**: encode payloads via `ContractName.encodePayload`, call better-auth with `continuation.run`, raise results via `continuation.raiseResult`, decode with `ContractName.decodeUnknownSuccess`
-- **Session notifications**: fire `client.$store.notify("$sessionSignal")` after successful operations that mutate session state
+- **Continuation handlers**: call better-auth with `continuation.run` and fetch option helpers, raise results via `continuation.raiseResult`, decode with `ContractName.decodeUnknownSuccess`
+- **Session notifications**: import `$store` from `@beep/iam-client/adapters/better-auth` and fire `$store.notify("$sessionSignal")` after successful operations that mutate session state
 - **Atoms with toasts**: use `withToast` wrapper from `@beep/ui/common/with-toast` for user feedback in atom definitions
 - **Effect patterns**: use `F.pipe`, Effect Array/String utilities (`A.*`, `Str.*`), never native methods
 - **TypeScript**: avoid `any`, use branded types from domain, validate with schemas
 - **Internal helpers**: use `_internal` helpers like `addFetchOptions`, `requireData`, `withFetchOptions` when calling better-auth
+- **Export pattern**: export individual contracts by name, then create and export one `*Implementations` object via `ContractKit.of()`
 
 ## Testing
 

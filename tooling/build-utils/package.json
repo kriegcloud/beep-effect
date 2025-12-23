@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "type": "module",
   "license": "MIT",
-  "description": "A cli tool for the repo",
+  "description": "Next.js configuration utilities with Effect-based security, PWA, and build optimization",
   "repository": {
     "type": "git",
     "url": "git@github.com:kriegcloud/beep-effect.git",

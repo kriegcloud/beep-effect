@@ -1,101 +1,296 @@
 # @beep/documents-domain
 
-Domain layer for the documents feature slice. Provides pure business entities, value objects, and HTTP API contracts for document management, knowledge bases, discussions, and file versioning.
+Domain layer for the documents feature slice providing pure business entities, value objects, and RPC schemas for document management, discussions, comments, and file versioning.
 
-## Architecture
+## Purpose
 
-This package follows vertical slice architecture as the **domain layer**:
-- Pure domain models using `@effect/sql/Model`
-- Value objects for domain-specific types
-- Tagged errors for domain violations
-- HTTP API contracts via `@effect/platform`
-- No infrastructure concerns (no database, storage, or external APIs)
+This package defines the core domain models for document-centric features in the beep-effect monorepo. It provides strongly-typed entities for collaborative document editing, discussion threads, file attachments, and version control. The domain layer remains pure and infrastructure-agnostic, delegating persistence and infrastructure concerns to `@beep/documents-server` and table schemas to `@beep/documents-tables`. All entities use `@effect/sql/Model` for consistency with the repository layer.
 
-## Contents
+## Installation
 
-### Entities
+```bash
+# This package is internal to the monorepo
+# Add as a dependency in your package.json:
+"@beep/documents-domain": "workspace:*"
+```
 
-Each entity is structured with Effect Schema models and supporting artifacts:
+## Key Exports
 
-- **Comment** — Individual comments within discussions (plain text and rich content)
-- **Discussion** — Discussion threads attached to documents
-- **Document** — Rich-text documents with Yjs snapshots for real-time collaboration
-- **DocumentFile** — File attachments linked to documents
-- **DocumentVersion** — Version history tracking for documents
-- **KnowledgeBlock** — Content blocks for knowledge pages (paragraphs, headings, code, images, embeds)
-- **KnowledgePage** — Pages within knowledge spaces with hierarchical organization
-- **KnowledgeSpace** — Top-level organizational containers for knowledge pages
-- **PageLink** — Links between knowledge pages for relationship mapping
+| Export | Description |
+|--------|-------------|
+| `Entities.Document` | Rich-text documents with Yjs snapshots for real-time collaboration, includes Model, RPC schemas, and tagged errors |
+| `Entities.DocumentVersion` | Version history tracking for documents |
+| `Entities.DocumentFile` | File attachments linked to documents |
+| `Entities.Discussion` | Discussion threads attached to documents, includes Model, RPC schemas, and tagged errors |
+| `Entities.Comment` | Individual comments within discussions, includes Model, RPC schemas, and tagged errors |
+| `TextStyle` | Text styling schema: `default`, `serif`, `mono` |
+| `LinkType` | Link type schema: `explicit`, `inline-reference`, `block_embed` |
+| `MetadataParseError` | Tagged error for metadata parsing failures with diagnostic context |
+| `FileReadError` | Tagged error for file reading failures with diagnostic context |
 
-Access via namespace imports:
+## Entities
+
+All entities are built using `@effect/sql/Model` and follow consistent patterns with Effect Schema validation. Each entity namespace exports standardized artifacts:
+- `Model` — Effect SQL Model class with schema validation
+- `*Rpcs` — RPC schema definitions for remote operations (Document, Discussion, Comment)
+- `*Errors` — Entity-specific tagged errors (Document, Discussion, Comment)
+
+### Document
+
+Rich-text document entity supporting collaborative editing with Yjs snapshots, rich content storage, and various display options.
+
 ```typescript
+import { Entities } from "@beep/documents-domain";
+import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
+import * as F from "effect/Function";
+
+// Access the model
+const DocumentModel = Entities.Document.Model;
+
+// Access RPC definitions
+const DocumentRpcs = Entities.Document.DocumentRpcs;
+
+// Access errors
+const DocumentErrors = Entities.Document.DocumentErrors;
+```
+
+**Model Fields:**
+- `organizationId` — Organization owner
+- `userId` — Document creator
+- `templateId` — Optional template reference
+- `parentDocumentId` — Optional parent document for hierarchies
+- `title` — Document title (max 500 chars)
+- `content` — Plain text content
+- `contentRich` — Rich content structure
+- `yjsSnapshot` — Yjs CRDT snapshot for collaboration
+- `coverImage`, `icon` — Visual metadata
+- `isPublished`, `isArchived` — Publication state
+- `textStyle` — Text style (`default`, `serif`, `mono`)
+- `smallText`, `fullWidth`, `lockPage`, `toc` — Display options
+
+### Discussion
+
+Discussion thread entity for attaching conversations to documents with RPC support for remote operations.
+
+```typescript
+import { Entities } from "@beep/documents-domain";
+import * as Effect from "effect/Effect";
+
+const DiscussionModel = Entities.Discussion.Model;
+const DiscussionRpcs = Entities.Discussion.DiscussionRpcs;
+const DiscussionErrors = Entities.Discussion.DiscussionErrors;
+```
+
+### Comment
+
+Individual comment entity within discussion threads with RPC support for remote operations.
+
+```typescript
+import { Entities } from "@beep/documents-domain";
+import * as Effect from "effect/Effect";
+
+const CommentModel = Entities.Comment.Model;
+const CommentRpcs = Entities.Comment.CommentRpcs;
+const CommentErrors = Entities.Comment.CommentErrors;
+```
+
+### DocumentFile
+
+File attachment entity linking files to documents.
+
+```typescript
 import { Entities } from "@beep/documents-domain";
 
-// Entity models
-const page: typeof Entities.KnowledgePage.Model.Type = /* ... */;
-const block: typeof Entities.KnowledgeBlock.Model.Type = /* ... */;
-
-// Entity contracts
-const contract = Entities.KnowledgePage.Contract;
-
-// Entity errors
-const error = new Entities.KnowledgePage.KnowledgePageNotFoundError({ id: "..." });
+const DocumentFileModel = Entities.DocumentFile.Model;
 ```
 
-### Value Objects
+### DocumentVersion
 
-Schema-backed enums for domain-specific types:
-
-- **BlockType** — Content block types: `paragraph`, `heading`, `code`, `image`, `file_embed`
-- **ImageAlignment** — Image alignment options
-- **LinkType** — Types of links between pages
-- **PageStatus** — Page lifecycle states: `draft`, `published`, `archived`
-- **TextStyle** — Text styling options for documents
+Version history entity tracking document changes over time for audit and rollback capabilities.
 
 ```typescript
-import { PageStatus, BlockType } from "@beep/documents-domain";
+import { Entities } from "@beep/documents-domain";
 
-const status: typeof PageStatus.Type = "draft";
-const blockType: typeof BlockType.Type = "heading";
+const DocumentVersionModel = Entities.DocumentVersion.Model;
 ```
 
-### Domain API
+## Value Objects
 
-Unified HTTP API aggregating all entity contracts:
+Schema-backed value objects for domain-specific types built with `BS.StringLiteralKit` from `@beep/schema`.
+
+### TextStyle
+
+Text styling schema for document content display preferences.
 
 ```typescript
-import { DomainApi } from "@beep/documents-domain";
+import { TextStyle } from "@beep/documents-domain";
+import * as S from "effect/Schema";
+import * as F from "effect/Function";
 
-// DomainApi extends HttpApi with:
-// - KnowledgePage.Contract
-// - Prefix: /api/v1/documents
+// Type: "default" | "serif" | "mono"
+const style: TextStyle.Type = "serif";
+
+// Validate at runtime
+const validated = F.pipe("mono", S.decodeUnknown(TextStyle));
 ```
 
-### Errors
+### LinkType
 
-Tagged errors for domain-level failures:
-
-- **MetadataParseError** — Metadata parsing failures (file type, size, phase tracking)
-- **FileReadError** — File reading failures with diagnostic context
+Link type schema defining relationships between content elements.
 
 ```typescript
-import * as Effect from "effect/Effect";
+import { LinkType } from "@beep/documents-domain";
+import * as S from "effect/Schema";
+import * as F from "effect/Function";
+
+// Type: "explicit" | "inline-reference" | "block_embed"
+const linkType: LinkType.Type = "inline-reference";
+
+// Validate at runtime
+const validated = F.pipe("block_embed", S.decodeUnknown(LinkType));
+```
+
+## Errors
+
+Domain-level tagged errors for handling failures using `Data.TaggedError` from Effect.
+
+```typescript
 import { MetadataParseError, FileReadError } from "@beep/documents-domain/errors";
+import * as Effect from "effect/Effect";
+import * as F from "effect/Function";
 
 const program = Effect.gen(function* () {
   // Domain operations that may fail with tagged errors
 }).pipe(
   Effect.catchTags({
-    MetadataParseError: (error) => Effect.logError(error.message),
-    FileReadError: (error) => Effect.logError(error.message),
+    MetadataParseError: (error) =>
+      F.pipe(
+        Effect.logError(`Metadata parse error: ${error.message}`),
+        Effect.flatMap(() => Effect.fail(error))
+      ),
+    FileReadError: (error) =>
+      F.pipe(
+        Effect.logError(`File read error: ${error.message}`),
+        Effect.flatMap(() => Effect.fail(error))
+      ),
   })
 );
 ```
 
+**MetadataParseError** — Occurs during metadata parsing with diagnostic context:
+- `message` — Error description
+- `cause` — Underlying error cause
+- `fileName`, `fileType`, `fileSize` — File metadata for debugging
+- `phase` — Failure phase: `read`, `parse`, or `decode`
+
+**FileReadError** — Occurs during file reading operations with similar diagnostic context for troubleshooting file access issues.
+
+## Usage
+
+### Working with Entity Namespaces
+
+```typescript
+import { Entities } from "@beep/documents-domain";
+import * as Effect from "effect/Effect";
+import * as S from "effect/Schema";
+
+// Access entity model
+const DocumentModel = Entities.Document.Model;
+
+// Access RPC definitions (where available)
+const DocumentRpcs = Entities.Document.DocumentRpcs;
+const DiscussionRpcs = Entities.Discussion.DiscussionRpcs;
+const CommentRpcs = Entities.Comment.CommentRpcs;
+```
+
+### Document Creation Pattern
+
+```typescript
+import * as Effect from "effect/Effect";
+import * as S from "effect/Schema";
+import { Entities, TextStyle } from "@beep/documents-domain";
+import * as F from "effect/Function";
+
+const createDocument = (input: {
+  title: string;
+  organizationId: string;
+  userId: string;
+}) =>
+  Effect.gen(function* () {
+    // Decode and validate using the model schema
+    const document = yield* F.pipe(
+      {
+        title: input.title,
+        organizationId: input.organizationId,
+        userId: input.userId,
+        textStyle: "default" as const,
+        isPublished: false,
+        isArchived: false,
+        toc: true,
+      },
+      S.decodeUnknown(Entities.Document.Model)
+    );
+
+    return document;
+  });
+```
+
+### Value Object Validation
+
+```typescript
+import * as S from "effect/Schema";
+import * as Effect from "effect/Effect";
+import * as F from "effect/Function";
+import { TextStyle, LinkType } from "@beep/documents-domain";
+
+const program = Effect.gen(function* () {
+  const style = yield* F.pipe(
+    "serif",
+    S.decodeUnknown(TextStyle)
+  );
+  const linkType = yield* F.pipe(
+    "inline-reference",
+    S.decodeUnknown(LinkType)
+  );
+
+  return { style, linkType };
+});
+```
+
+### Error Handling with Tagged Errors
+
+```typescript
+import * as Effect from "effect/Effect";
+import * as F from "effect/Function";
+import { MetadataParseError, FileReadError } from "@beep/documents-domain/errors";
+
+const parseMetadata = (file: { name: string; type: string; size: number }) =>
+  Effect.gen(function* () {
+    // Parsing logic that may fail
+    yield* Effect.fail(
+      new MetadataParseError({
+        message: "Failed to parse file metadata",
+        cause: new Error("Invalid format"),
+        fileName: file.name,
+        fileType: file.type,
+        fileSize: file.size,
+        phase: "parse",
+      })
+    );
+  }).pipe(
+    Effect.catchTag("MetadataParseError", (error) =>
+      F.pipe(
+        Effect.logError(error.message),
+        Effect.flatMap(() => Effect.fail(error))
+      )
+    )
+  );
+```
+
 ## Entity Model Patterns
 
-All entities follow consistent Effect SQL Model patterns:
+All entities follow consistent Effect SQL Model patterns using shared infrastructure from `@beep/shared-domain`:
 
 ```typescript
 import * as M from "@effect/sql/Model";
@@ -106,209 +301,151 @@ import { makeFields } from "@beep/shared-domain/common";
 import { modelKit } from "@beep/shared-domain/factories";
 import { DocumentsEntityIds, SharedEntityIds } from "@beep/shared-domain";
 
-export class Model extends M.Class<Model>(`KnowledgePageModel`)(
-  makeFields(DocumentsEntityIds.KnowledgePageId, {
-    spaceId: DocumentsEntityIds.KnowledgeSpaceId,
+export class Model extends M.Class<Model>(`DocumentModel`)(
+  makeFields(DocumentsEntityIds.DocumentId, {
     organizationId: SharedEntityIds.OrganizationId,
-    parentPageId: BS.FieldOptionOmittable(DocumentsEntityIds.KnowledgePageId),
+    userId: SharedEntityIds.UserId,
     title: F.pipe(S.String, S.maxLength(500)),
-    slug: S.String,
-    status: PageStatus,
-    order: BS.toOptionalWithDefault(S.Int)(0),
-    lastEditedAt: BS.DateTimeUtcFromAllAcceptable,
+    textStyle: TextStyle,
+    isPublished: S.Boolean,
+    isArchived: S.Boolean,
+    // ... other fields
   })
 ) {
   static readonly utils = modelKit(Model);
 }
 ```
 
-### Key Features
-- **makeFields** — Standardized field construction with audit fields (createdAt, updatedAt)
-- **modelKit** — Utility factory for common model operations
-- **BS helpers** — `FieldOptionOmittable`, `toOptionalWithDefault` for nullable/default fields
-- **Entity IDs** — Branded types from `@beep/shared-domain` for type safety
-
-## HTTP API Contracts
-
-Some entities define typed HTTP endpoints with Effect Platform. Currently, only `KnowledgePage` has a contract:
-
-```typescript
-import * as HttpApiEndpoint from "@effect/platform/HttpApiEndpoint";
-import * as HttpApiGroup from "@effect/platform/HttpApiGroup";
-import { DocumentsEntityIds } from "@beep/shared-domain";
-import { AuthContextHttpMiddleware } from "@beep/shared-domain/Policy";
-
-export class Contract extends HttpApiGroup.make("knowledgePage")
-  .middleware(AuthContextHttpMiddleware)
-  .add(
-    HttpApiEndpoint.get("get", "/get/:id")
-      .setUrlParams(DocumentsEntityIds.KnowledgePageId)
-      .addError(KnowledgePageNotFoundError)
-      .addSuccess(Model)
-  ) {}
-```
-
-Entities with RPC schemas instead of HTTP contracts include: `Comment`, `Discussion`, and `Document`.
-
-## Usage Examples
-
-### Working with Entity Namespaces
-
-```typescript
-import { Entities } from "@beep/documents-domain";
-import * as Effect from "effect/Effect";
-
-// Access entity model
-const pageModel = Entities.KnowledgePage.Model;
-
-// Access entity contract
-const pageContract = Entities.KnowledgePage.Contract;
-
-// Access entity errors
-const notFoundError = new Entities.KnowledgePage.KnowledgePageNotFoundError({
-  id: "page_123",
-});
-
-// Access RPC definitions (where available)
-const documentRpcs = Entities.Document.DocumentRpcs;
-```
-
-### Value Object Validation
-
-```typescript
-import * as S from "effect/Schema";
-import * as Effect from "effect/Effect";
-import { PageStatus, BlockType } from "@beep/documents-domain";
-
-const program = Effect.gen(function* () {
-  const status = yield* S.decodeUnknown(PageStatus)("draft"); // Type: "draft" | "published" | "archived"
-  const blockType = yield* S.decodeUnknown(BlockType)("paragraph");
-
-  return { status, blockType };
-});
-```
-
-### Document Creation Pattern
-
-```typescript
-import * as Effect from "effect/Effect";
-import * as S from "effect/Schema";
-import { Entities, TextStyle } from "@beep/documents-domain";
-
-const createDocument = (input: {
-  title: string;
-  organizationId: string;
-  userId: string;
-}) =>
-  Effect.gen(function* () {
-    // Decode and validate using the model schema
-    const document = yield* S.decodeUnknown(Entities.Document.Model)({
-      title: input.title,
-      organizationId: input.organizationId,
-      userId: input.userId,
-      textStyle: "default" as const,
-      isPublished: false,
-      isArchived: false,
-      toc: true,
-    });
-
-    return document;
-  });
-```
+### Key Pattern Features
+- **makeFields** — Standardized field construction with audit fields (`id`, `createdAt`, `updatedAt`) automatically included
+- **modelKit** — Utility factory providing common model operations (decode, encode, insert, update helpers)
+- **BS helpers** — `FieldOptionOmittable`, `toOptionalWithDefault` for nullable fields with defaults
+- **Entity IDs** — Branded types from `@beep/shared-domain` for compile-time type safety and runtime validation
+- **Effect SQL Model** — Seamless integration with repository layer using `@effect/sql`
 
 ## Development
 
-### Type Checking
 ```bash
+# Type check
 bun run --filter @beep/documents-domain check
-```
 
-### Linting
-```bash
+# Lint
 bun run --filter @beep/documents-domain lint
 bun run --filter @beep/documents-domain lint:fix
-```
 
-### Testing
-```bash
+# Test
 bun run --filter @beep/documents-domain test
 bun run --filter @beep/documents-domain coverage
-```
 
-### Circular Dependency Check
-```bash
+# Build
+bun run --filter @beep/documents-domain build
+
+# Check for circular dependencies
 bun run --filter @beep/documents-domain lint:circular
+
+# Regenerate Effect indices after adding modules
+bunx effect generate --cwd packages/documents/domain
 ```
 
 ## Import Guidelines
 
 ### Workspace Alias Usage
 ```typescript
-// ✅ Correct - workspace alias
-import { Entities, PageStatus } from "@beep/documents-domain";
-import { DomainApi } from "@beep/documents-domain";
+// ✅ REQUIRED - workspace alias
+import { Entities, TextStyle, LinkType } from "@beep/documents-domain";
 
-// ✅ Correct - sub-path exports
-import { BlockType } from "@beep/documents-domain/value-objects";
+// ✅ REQUIRED - sub-path exports
+import { MetadataParseError, FileReadError } from "@beep/documents-domain/errors";
 
-// ❌ Incorrect - relative imports
+// ❌ FORBIDDEN - relative imports
 import { Entities } from "../../../documents/domain";
 ```
 
 ### Effect Import Conventions
 ```typescript
-// ✅ Namespace imports for Effect modules
+// ✅ REQUIRED - namespace imports for Effect modules
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 import * as M from "@effect/sql/Model";
+import * as F from "effect/Function";
+import * as A from "effect/Array";
+import * as Str from "effect/String";
+import * as R from "effect/Record";
 
-// ✅ Named imports for specific utilities
-import { pipe } from "effect/Function";
+// ✅ REQUIRED - Use pipe for all transformations
+F.pipe(items, A.map((item) => item.name));
+F.pipe(str, Str.split(","), A.filter(Str.isNonEmpty));
+F.pipe(obj, R.map((value) => value.toString()));
+
+// ❌ FORBIDDEN - native array/string/object methods
+items.map((item) => item.name);
+str.split(",").filter((s) => s !== "");
+Object.keys(obj).map((key) => obj[key]);
 ```
 
 ## Dependencies
 
-### Peer Dependencies
-- `effect` — Core Effect library
-- `@effect/sql` — SQL modeling utilities
-- `@beep/shared-domain` — Cross-slice entities and factories
-- `@beep/schema` — Schema utilities and helpers
-- `@beep/invariant` — Assertion contracts
-- `@beep/utils` — Pure runtime helpers
-- `@beep/constants` — Schema-backed enums
-- `@beep/identity` — Package identity
+| Package | Purpose |
+|---------|---------|
+| `effect` | Core Effect library for functional effects and schemas |
+| `@effect/sql` | SQL modeling utilities and Model base class |
+| `@beep/shared-domain` | Cross-slice entities, entity IDs, and model factories (`makeFields`, `modelKit`) |
+| `@beep/schema` | Schema utilities and helpers (BS namespace for `StringLiteralKit`, `FieldOptionOmittable`) |
+| `@beep/invariant` | Assertion contracts for runtime validation |
+| `@beep/utils` | Pure runtime helpers and utility functions |
+| `@beep/constants` | Schema-backed enums and constants |
+| `@beep/identity` | Package identity utilities |
 
-## Layer Boundaries
+## Architecture
+
+### Layer Position
+This package is the **domain layer** in the documents vertical slice, sitting at the foundation of the architecture. It defines pure business models consumed by all other layers.
 
 ### What Belongs Here
-- Pure domain models (entities, value objects)
-- Business logic that doesn't require side effects
-- HTTP API contract definitions
-- Domain-specific tagged errors
-- Entity ID type definitions
+- Pure domain models (entities, value objects) using Effect Schema and SQL Model
+- Business logic that doesn't require side effects or infrastructure
+- RPC schema definitions for remote operations between client and server
+- Domain-specific tagged errors with diagnostic context
+- Entity ID type definitions and branding
 
 ### What Doesn't Belong Here
-- Database queries or migrations (use `@beep/documents-server`)
-- API route handlers (use `@beep/documents-client`)
-- React components (use `@beep/documents-ui`)
-- External service integrations (use `@beep/documents-server`)
-- Storage operations (use `@beep/documents-server`)
+- Database queries, repositories, or migrations → use `@beep/documents-server`
+- Drizzle table schemas → use `@beep/documents-tables`
+- API route handlers or client contracts → use `@beep/documents-client`
+- React components or UI logic → use `@beep/documents-ui`
+- External service integrations (S3, email) → use `@beep/documents-server`
+- Storage operations or file handling → use `@beep/documents-server`
 
 ## Related Packages
 
-- `@beep/documents-tables` — Drizzle schema definitions
-- `@beep/documents-server` — Repository implementations, database adapters, S3 storage
-- `@beep/documents-client` — Client-side contracts and RPC handlers
-- `@beep/documents-ui` — React components for documents
-- `@beep/shared-domain` — Cross-slice domain primitives
-- `@beep/shared-server` — Shared infrastructure layers
+| Package | Purpose |
+|---------|---------|
+| `@beep/documents-tables` | Drizzle schema definitions for documents domain |
+| `@beep/documents-server` | Repository implementations, database adapters, S3 storage |
+| `@beep/documents-client` | Client-side contracts and RPC handlers |
+| `@beep/documents-ui` | React components for documents |
+| `@beep/shared-domain` | Cross-slice domain primitives |
+| `@beep/shared-server` | Shared infrastructure layers |
 
 ## Notes
 
-- Keep all code Effect-first (use namespace imports, avoid native array/string methods)
-- Use `@beep/schema` helpers (`BS.FieldOptionOmittable`, `BS.toOptionalWithDefault`) for schema construction
-- Add new entities following the established pattern: Model, Contract, Errors, RPC (optional)
-- Export all entity artifacts through namespace modules for clean imports
-- Use `modelKit` from `@beep/shared-domain/factories` for model utilities
-- Document all models with JSDoc comments explaining their purpose
-- Maintain entity ID references from `@beep/shared-domain` for consistency
+### Effect-First Development
+- **ALWAYS** use namespace imports for Effect modules (`import * as Effect from "effect/Effect"`)
+- **NEVER** use native array methods → use `effect/Array` (`A.map`, `A.filter`, etc.)
+- **NEVER** use native string methods → use `effect/String` (`Str.split`, `Str.trim`, etc.)
+- **NEVER** use `Object.keys/values/entries` → use `effect/Record` and `effect/Struct`
+- **ALWAYS** use `F.pipe` for transformations and composition
+
+### Entity Patterns
+- Add new entities following the established pattern: Model, RPC schema (optional), Errors (optional)
+- Export all entity artifacts through namespace modules for clean imports (`export * as Entity from "./Entity"`)
+- Use `makeFields` from `@beep/shared-domain/common` for consistent field construction with audit fields
+- Use `modelKit` from `@beep/shared-domain/factories` for standard model utilities
+- Use `@beep/schema` helpers (`BS.FieldOptionOmittable`, `BS.toOptionalWithDefault`, `BS.StringLiteralKit`) for schemas
+- Document all models with JSDoc comments explaining their purpose and usage
+
+### Type Safety
+- Maintain entity ID references from `@beep/shared-domain` for cross-slice consistency
+- Use branded types for entity IDs to prevent mixing different ID types
+- Validate all external data with Effect Schema before creating domain models
+- Use tagged errors for domain-specific failures with diagnostic context

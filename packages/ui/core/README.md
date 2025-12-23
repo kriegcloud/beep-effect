@@ -66,9 +66,23 @@ packages/ui/core/
 ### Theme System
 
 ```typescript
-import { createTheme, baseTheme, themeConfig } from "@beep/ui-core/theme";
-import { Rtl } from "@beep/ui-core/theme/with-settings";
+// Main theme factory and base theme (NOT exported from theme index)
+import { createTheme, baseTheme } from "@beep/ui-core/theme/create-theme";
+import type { CreateThemeProps } from "@beep/ui-core/theme/create-theme";
+
+// Theme configuration and core building blocks (from theme index)
+import { themeConfig } from "@beep/ui-core/theme/theme-config";
+import { palette, basePalette, primary } from "@beep/ui-core/theme";
+import { typography } from "@beep/ui-core/theme";
+import { shadows, customShadows, createShadowColor } from "@beep/ui-core/theme";
+import { components } from "@beep/ui-core/theme";
+import { mixins } from "@beep/ui-core/theme";
 import type { ThemeOptions, ThemeColorPreset } from "@beep/ui-core/theme";
+
+// Settings and RTL support (from with-settings subpath)
+import { Rtl } from "@beep/ui-core/theme/with-settings";
+import { primaryColorPresets, secondaryColorPresets } from "@beep/ui-core/theme/with-settings";
+import { applySettingsToTheme, applySettingsToComponents } from "@beep/ui-core/theme/with-settings";
 ```
 
 **Core Exports:**
@@ -77,18 +91,16 @@ import type { ThemeOptions, ThemeColorPreset } from "@beep/ui-core/theme";
 - `themeConfig` - Theme configuration defaults (direction, mode, fonts, CSS variables)
 - `Rtl` - RTL wrapper component with stylis plugin support
 
-**Theme Building Blocks:**
+**Theme Building Blocks (from `theme/core`):**
 - `palette`, `basePalette`, `primary` - Color system with channel-based tokens
 - `typography` - Typography scale and variants
 - `shadows`, `customShadows`, `createShadowColor` - Shadow system
-- `opacity` - Opacity tokens for variants (filled, outlined, soft)
 - `mixins` - Reusable style mixins
 - `components` - Complete MUI component override catalog
+
+**Settings Application (from `theme/with-settings`):**
 - `primaryColorPresets`, `secondaryColorPresets` - Color preset system
 - `applySettingsToTheme`, `applySettingsToComponents` - Settings application utilities
-
-**Theme Styles:**
-- `colorPicker` - Reusable color picker styles (from `theme/styles/colorPicker`)
 
 ### Settings Management
 
@@ -112,8 +124,11 @@ import type { SettingsState, SettingsContextValue } from "@beep/ui-core/settings
 ### Internationalization
 
 ```typescript
+// Main i18n exports (from i18n index)
 import { allLanguages, allLangs, fallbackLang, defaultNS } from "@beep/ui-core/i18n";
-import { getCurrentLang, i18nOptions, i18nResourceLoader } from "@beep/ui-core/i18n/locales-config";
+import { getCurrentLang, i18nOptions, i18nResourceLoader } from "@beep/ui-core/i18n";
+
+// Language schema (separate export per package.json)
 import { SupportedLangValue } from "@beep/ui-core/i18n/SupportedLangValue";
 ```
 
@@ -233,9 +248,10 @@ import postcssConfig from "@beep/ui-core/postcss.config";
 ### Creating a Theme
 
 ```typescript
-import { createTheme } from "@beep/ui-core/theme";
+import { createTheme } from "@beep/ui-core/theme/create-theme";
 import { defaultSettings } from "@beep/ui-core/settings";
-import { getCurrentLang } from "@beep/ui-core/i18n/locales-config";
+import { getCurrentLang } from "@beep/ui-core/i18n";
+import { SupportedLangValue } from "@beep/ui-core/i18n/SupportedLangValue";
 import { ThemeProvider } from "@mui/material/styles";
 
 // Basic theme
@@ -251,7 +267,7 @@ const customTheme = createTheme({
 });
 
 // With locale and overrides
-const currentLang = getCurrentLang("en");
+const currentLang = getCurrentLang(SupportedLangValue.Enum.en);
 const fullTheme = createTheme({
   settingsState: defaultSettings,
   localeComponents: currentLang.systemValue,
@@ -324,7 +340,7 @@ const blueAlpha = cssVarRgba("--palette-primary-mainChannel", 0.08);
 ### Internationalization
 
 ```typescript
-import { getCurrentLang, i18nOptions, i18nResourceLoader } from "@beep/ui-core/i18n/locales-config";
+import { getCurrentLang, i18nOptions, i18nResourceLoader } from "@beep/ui-core/i18n";
 import { SupportedLangValue } from "@beep/ui-core/i18n/SupportedLangValue";
 import i18next from "i18next";
 
@@ -335,7 +351,7 @@ await i18next
 
 // Get current language with MUI locale
 const currentLang = getCurrentLang(SupportedLangValue.Enum.fr);
-console.log(currentLang.label); // "Français"
+console.log(currentLang.label); // "French"
 console.log(currentLang.systemValue.components); // MUI locale components
 ```
 
@@ -358,10 +374,33 @@ function DatePickerExample() {
 
 ### Base Theme Pipeline
 
-1. **Base Theme** (`create-theme.ts`): Assembles dual color schemes (light/dark), typography, shape, mixins, and CSS variables
-2. **Settings Application** (`with-settings/`): Applies runtime settings to theme core and components
-3. **Locale Integration**: Merges MUI component locale bundles for Data Grid and Date Pickers
-4. **User Overrides**: Final layer for custom component styles
+The theme system is structured in layers:
+
+1. **Core Theme Building Blocks** (`theme/core/`):
+   - `palette.ts` - Color system with channel-based tokens
+   - `typography.ts` - Typography scale and variants
+   - `shadows.ts` - Shadow definitions
+   - `components/` - MUI component overrides catalog
+   - `mixins/` - Reusable style utilities
+   - These are exported from `@beep/ui-core/theme` (via `theme/index.ts`)
+
+2. **Base Theme Assembly** (`theme/create-theme.ts`):
+   - `baseTheme` - Combines core building blocks into dual color schemes (light/dark)
+   - `createTheme()` - Factory function that merges baseTheme with settings, locale, and overrides
+   - Exported from `@beep/ui-core/theme/create-theme` (NOT re-exported from theme index)
+
+3. **Settings Application** (`theme/with-settings/`):
+   - `applySettingsToTheme()` - Applies runtime settings to theme core
+   - `applySettingsToComponents()` - Applies settings-specific component overrides
+   - `Rtl` - RTL wrapper component with stylis plugin
+   - Color presets and theme customization utilities
+
+4. **Locale Integration** (`i18n/constants.ts`):
+   - MUI component locale bundles for Data Grid and Date Pickers
+   - Passed via `localeComponents` prop to `createTheme()`
+
+5. **User Overrides**:
+   - Final layer via `themeOverrides` prop to `createTheme()`
 
 ### Color System
 

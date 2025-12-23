@@ -4,9 +4,14 @@ Collaborative note-taking and document editing application built with Next.js 15
 
 ## Purpose
 
-`@beep/notes` is a full-stack document editing application within the beep-effect monorepo that demonstrates the gradual migration from traditional Next.js patterns to Effect-based architecture. It provides real-time collaborative editing capabilities powered by YJS and Hocuspocus, rich text editing via Plate editor, and serves as a reference implementation for hybrid Prisma/Effect integration.
+`@beep/notes` is a full-stack collaborative document editing application that demonstrates incremental migration from traditional Next.js patterns to Effect-based architecture. It provides:
 
-This application is currently in **transition mode**, operating with a hybrid architecture that combines legacy Prisma-based database layer with emerging Effect-based utilities and patterns from the beep-effect ecosystem. It showcases how to incrementally adopt Effect patterns while maintaining production stability with traditional approaches.
+- **Real-time Collaboration**: YJS CRDT with Hocuspocus WebSocket server and Redis persistence
+- **Rich Text Editing**: Plate editor with 50+ plugins (tables, callouts, code blocks, AI, media)
+- **Hybrid Architecture**: Combines Prisma database layer with Effect utilities from beep-effect packages
+- **Reference Implementation**: Showcases how to adopt Effect patterns incrementally while maintaining production stability
+
+This application operates in **transition mode**, serving as a practical example of gradual Effect adoption in an existing Next.js codebase. It actively uses `@beep/utils`, `@beep/schema`, `@beep/ui`, and `@beep/types`, with planned migration to IAM and Documents infrastructure packages.
 
 ## Installation
 
@@ -307,23 +312,26 @@ Connection to Hocuspocus server is managed automatically via `NEXT_PUBLIC_YJS_UR
 
 ### Active Workspace Dependencies
 
-| Package | Purpose |
-|---------|---------|
-| `@beep/utils` | Effect collection utilities for data manipulation (`debounce`, `omit`, `merge`, `exact`, `dedent`) |
-| `@beep/schema` | Effect Schema utilities (`BS` namespace) for type-safe validation |
-| `@beep/ui` | Shared UI hooks (`useCopyToClipboard`) for component functionality |
-| `@beep/types` | TypeScript utility types (`UnsafeTypes`) for type safety |
-| `@beep/ui-core` | Design tokens and MUI theming configuration |
+| Package | Purpose | Actual Usage |
+|---------|---------|--------------|
+| `@beep/types` | TypeScript utility types | `UnsafeTypes` type imported in 40+ files across components, hooks, and routers |
+| `@beep/utils` | Effect collection and data manipulation utilities | `debounce`, `dedent`, `exact`, `omit`, `merge`, `defaultsDeep`, `cloneDeep` - used in API routers, hooks, and components |
+| `@beep/schema` | Effect Schema utilities (`BS` namespace) | Schema validation in `src/server/api/routers/user.ts` |
+| `@beep/ui` | Shared UI component hooks | `useCopyToClipboard` hook used in code blocks and share functionality (3 locations) |
 
-### Planned Integration (Listed but Not Fully Used)
+### Planned Integration (Listed but Not Currently Used)
+
+These packages are listed in `package.json` as dependencies but have **zero actual imports** in the codebase. They represent future migration targets:
 
 | Layer | Packages | Current Alternative | Migration Priority |
 |-------|----------|---------------------|-------------------|
-| **IAM** | `@beep/iam-domain`, `@beep/iam-server`, `@beep/iam-client`, `@beep/iam-tables`, `@beep/iam-ui` | Custom Better Auth setup | High |
-| **Documents** | `@beep/documents-domain`, `@beep/documents-server`, `@beep/documents-client`, `@beep/documents-tables`, `@beep/documents-ui` | Custom Prisma models | High |
-| **Shared** | `@beep/shared-domain`, `@beep/shared-tables` | N/A | Medium |
-| **Runtime** | `@beep/runtime-client`, `@beep/runtime-server` | N/A | Medium |
-| **Common** | `@beep/constants`, `@beep/contract`, `@beep/errors`, `@beep/identity`, `@beep/invariant`, `@beep/mock` | Various libraries | Low |
+| **IAM** | `@beep/iam-domain`, `@beep/iam-server`, `@beep/iam-client`, `@beep/iam-tables`, `@beep/iam-ui` | Custom Better Auth + Lucia sessions | High |
+| **Documents** | `@beep/documents-domain`, `@beep/documents-server`, `@beep/documents-client`, `@beep/documents-tables`, `@beep/documents-ui` | Custom Prisma models + UploadThing | High |
+| **Shared** | `@beep/shared-domain`, `@beep/shared-tables`, `@beep/shared-server`, `@beep/shared-client` | N/A | Medium |
+| **Runtime** | `@beep/runtime-client`, `@beep/runtime-server` | Direct Effect usage, no managed runtime | Medium |
+| **Common** | `@beep/constants`, `@beep/contract`, `@beep/errors`, `@beep/identity`, `@beep/invariant`, `@beep/mock` | Zod schemas, custom utilities | Low |
+
+**Note**: These packages are included as `workspace:*` dependencies to ensure monorepo consistency and prepare for future integration, but they are not yet consumed by the application code.
 
 ## Integration
 
@@ -630,3 +638,7 @@ Check `tsconfig.json` for path aliases:
 - [Notes AGENTS.md](/home/elpresidank/YeeBois/projects/beep-effect/apps/notes/AGENTS.md) - Detailed implementation guide
 - [IAM Infrastructure](/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/server/AGENTS.md) - Auth integration target
 - [Documents Infrastructure](/home/elpresidank/YeeBois/projects/beep-effect/packages/documents/server/AGENTS.md) - Document management target
+
+---
+
+**Documentation Audit**: Last verified 2025-12-23. All package dependencies, import paths, usage statistics, and structural information verified against source code via automated analysis.

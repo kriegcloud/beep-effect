@@ -16,14 +16,14 @@ Lives under `_internal` because it is **not shipped to production apps**. Applic
 
 | Export | Description |
 |--------|-------------|
-| `AdminDb.AdminDb` | Effect Context tag exposing the unified database layer for admin tooling |
-| `AdminDb.AdminDb.Live` | Layer providing admin database access with the full schema barrel |
+| `AdminDb` | Effect Context tag exposing the unified database layer for admin tooling |
+| `AdminDb.Live` | Layer providing admin database access with the full schema barrel |
 | Schema barrel (`src/schema.ts`) | Re-exports all tables from IAM, documents, and shared slices for drizzle-kit |
 | Unified relations (`src/relations.ts`) | Merged Drizzle relations for shared tables (user, organization, team) |
 | Migration SQL (`drizzle/*.sql`) | Generated migrations and journal maintained by drizzle-kit |
 
 **Note**: This package does not export a main index file. Import directly from subpaths:
-- `@beep/db-admin/Db` for AdminDb service
+- `@beep/db-admin/Db/AdminDb` for AdminDb service
 - Schema and relations are consumed internally by drizzle-kit via `src/schema.ts`
 
 ## Architecture Fit
@@ -48,11 +48,14 @@ packages/_internal/db-admin/
 │   └── meta/               # Drizzle migration journal
 ├── drizzle.config.ts       # Drizzle kit configuration
 ├── test/
-│   ├── container.ts        # Testcontainers integration Layer
-│   ├── AccountRepo.test.ts # Repository integration test
+│   ├── container.ts        # Testcontainers integration Layer (commented out)
+│   ├── AccountRepo.test.ts # Repository integration test (commented out)
 │   ├── iam/                # IAM slice test fixtures
 │   ├── documents/          # Documents slice test fixtures
 │   └── shared/             # Shared test fixtures
+├── tsconfig.build.json     # Build configuration
+├── tsconfig.src.json       # Source configuration with path aliases
+├── tsconfig.test.json      # Test configuration
 └── package.json            # Admin tooling scripts
 ```
 
@@ -63,18 +66,18 @@ packages/_internal/db-admin/
 Compose `AdminDb.Live` when building admin runtimes, seeds, or data utilities:
 
 ```typescript
-import { AdminDb } from "@beep/db-admin/Db";
+import { AdminDb } from "@beep/db-admin/Db/AdminDb";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
 import * as Layer from "effect/Layer";
 
 const ToolRuntime = Layer.mergeAll(
-  AdminDb.AdminDb.Live
+  AdminDb.Live
 );
 
 export const listUserEmails = Effect.gen(function* () {
-  const adminDb = yield* AdminDb.AdminDb;
+  const adminDb = yield* AdminDb;
   const rows = yield* adminDb.db.select().from(adminDb.schema.user);
   return F.pipe(rows, A.map((row) => row.email));
 });
@@ -107,19 +110,24 @@ All commands use `dotenvx` to load `DB_PG_URL` from the repo root `.env` file.
 
 ### Schema Barrel Structure
 
-The schema barrel (`src/schema.ts`) re-exports:
-1. All tables from `@beep/shared-tables/tables`
+The schema barrel (`src/schema.ts`) re-exports tables and relations in this order:
+
+**Tables exported:**
+1. All tables from `@beep/documents-tables/tables`
 2. All tables from `@beep/iam-tables/tables`
-3. All tables from `@beep/documents-tables/tables`
-4. Unified relations from `./relations.ts`
-5. Slice-specific relations that don't conflict
+3. All tables from `@beep/shared-tables/tables`
 
-The unified relations (`src/relations.ts`) merge cross-slice relationships for shared tables:
-- `userRelations`: Combines IAM relations (accounts, sessions, memberships) with documents relations (documents, files, comments)
-- `organizationRelations`: Merges ownership, teams, and slice-specific entities
-- `teamRelations`: Combines IAM membership with documents workspace relations
+**Relations exported:**
+1. Unified relations from `./relations.ts` (user, organization, team)
+2. Slice-specific relations from `@beep/documents-tables/relations`: `commentRelations`, `discussionRelations`, `documentFileRelations`, `documentRelations`, `documentVersionRelations`
+3. Slice-specific relations from `@beep/iam-tables/relations`: `accountRelations`, `apiKeyRelations`, `deviceCodeRelations`, `invitationRelations`, `memberRelations`, `oauthAccessTokenRelations`, `oauthApplicationRelations`, `oauthConsentRelations`, `organizationRoleRelations`, `passkeyRelations`, `scimProviderRelations`, `sessionRelations`, `ssoProviderRelations`, `subscriptionRelations`, `teamMemberRelations`, `twoFactorRelations`, `walletAddressRelations`
 
-This prevents Drizzle warnings about duplicate relation definitions while maintaining type safety.
+The unified relations (`src/relations.ts`) merge cross-slice relationships for shared tables (user, organization, team) to avoid duplicate relation warnings from Drizzle. Each unified relation combines:
+- `userRelations`: IAM relations (accounts, sessions, memberships, etc.) + Documents relations (documents, files, comments)
+- `organizationRelations`: IAM relations (owner, members, teams, subscriptions) + Documents relations (documents, files, discussions)
+- `teamRelations`: IAM relations (organization, members, invitations)
+
+This structure ensures Drizzle has a complete view of all cross-slice relationships while maintaining type safety.
 
 ## What Belongs Here
 
@@ -143,12 +151,16 @@ This prevents Drizzle warnings about duplicate relation definitions while mainta
 | `effect` | Core Effect runtime and Schema system |
 | `drizzle-orm` | ORM and type generation |
 | `drizzle-kit` | Migration CLI and schema introspection |
+| `drizzle-zero` | Zero-config Drizzle utilities |
 | `@effect/sql`, `@effect/sql-pg`, `@effect/sql-drizzle` | SQL layer integration |
 | `@beep/shared-tables` | Shared table definitions (user, org, team) |
 | `@beep/iam-tables` | IAM slice table definitions |
 | `@beep/documents-tables` | Documents slice table definitions |
 | `@beep/shared-server` | Database factory (`Db.make`) |
-| `@testcontainers/postgresql` | Test container provisioning (currently unused) |
+| `@beep/shared-env` | Environment configuration and validation |
+| `@testcontainers/postgresql` | Test container provisioning for integration tests |
+| `@beep/testkit` | Effect testing utilities |
+| `@beep/tooling-utils` | Workspace utilities (FsUtils, RepoUtils) |
 
 ## Development
 
@@ -169,17 +181,28 @@ bun run --filter @beep/db-admin test
 bun run --filter @beep/db-admin build
 ```
 
-## Guidelines for Maintenance
+## Notes
 
-### When Slices Add/Remove Tables
+### Migration Coordination
 
-1. Update `src/schema.ts` to export the new table
+All schema changes across slices must flow through this package to maintain migration consistency. When any slice package (`@beep/iam-tables`, `@beep/documents-tables`, `@beep/shared-tables`) modifies its schema:
+
+1. This package's `src/schema.ts` automatically picks up the changes via re-exports
+2. Run `bun run db:generate` to create migration SQL
+3. Review the generated migration carefully for unintended side effects
+4. Commit both schema changes and migration files together
+
+### Guidelines for Maintenance
+
+#### When Slices Add/Remove Tables
+
+1. Update `src/schema.ts` to export the new table (if not automatically picked up via barrel re-export)
 2. If the table has relationships to shared tables (user, org, team), update `src/relations.ts`
 3. Run `bun run db:generate` to create migration SQL
 4. Review the generated migration for unintended changes
 5. Commit both `src/schema.ts` and `drizzle/**` files together
 
-### When Adding Cross-Slice Relations
+#### When Adding Cross-Slice Relations
 
 If a new slice needs to reference shared tables:
 
@@ -188,7 +211,7 @@ If a new slice needs to reference shared tables:
 3. Merge the new relations into `userRelations`, `organizationRelations`, or `teamRelations`
 4. Export slice-specific non-conflicting relations in `src/schema.ts`
 
-### Configuration Notes
+#### Configuration Notes
 
 - `drizzle.config.ts` points to `src/schema.ts` as the schema source
 - `DB_PG_URL` environment variable is loaded from root `.env` via `dotenvx`
@@ -199,8 +222,9 @@ If a new slice needs to reference shared tables:
 ### Known Issues
 
 - **Missing db:reset script**: `package.json` references `src/scripts/ResetDatabase.ts` which does not exist. Either implement the script or remove the package.json entry.
-- **Incorrect Context tag**: `AdminDb.ts` uses tag `"@beep/documents-server/AdminDb"` but should be `"@beep/db-admin/AdminDb"`
-- **No main index**: Package lacks `src/index.ts`, requiring direct subpath imports
+- **Incorrect Context tag**: `AdminDb.ts` (line 10) uses tag `"@beep/documents-server/AdminDb"` but should be `"@beep/db-admin/AdminDb"` for proper identification in Layer composition and debugging.
+- **No main index**: Package intentionally lacks `src/index.ts` to prevent accidental imports—always use explicit subpaths like `@beep/db-admin/Db/AdminDb`.
+- **Integration tests disabled**: Test infrastructure in `test/container.ts` and `test/AccountRepo.test.ts` exists but is currently commented out.
 
 ### Effect Patterns Required
 

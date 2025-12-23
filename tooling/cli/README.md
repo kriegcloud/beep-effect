@@ -1,14 +1,24 @@
 # @beep/repo-cli
 
-Effect-based CLI toolkit for beep-effect monorepo maintenance and development workflows.
+A CLI tool for the repo.
 
 ## Purpose
 
-A command-line interface built on `@effect/cli` and `@effect/platform-bun` that provides automated maintenance tasks for the beep-effect monorepo. Commands include environment setup, workspace synchronization, dependency management, and AI-powered documentation generation. All commands are implemented using Effect patterns with proper error handling and structured logging.
+A command-line interface built on `@effect/cli` and `@effect/platform-bun` that provides automated maintenance tasks for the beep-effect monorepo. The CLI exposes four main commands: environment setup (`env`), workspace synchronization (`sync`), dependency pruning (`prune-unused-deps`), and comprehensive documentation generation (`docgen`). All commands are implemented using Effect patterns with proper error handling, structured logging, and dry-run modes for safe operation.
 
 ## Installation
 
-This package is internal to the monorepo and not published to npm. Commands are executed via direct execution or root package scripts:
+This package is internal to the monorepo and not published to npm. Add it as a dependency in your package.json:
+
+```json
+{
+  "dependencies": {
+    "@beep/repo-cli": "workspace:*"
+  }
+}
+```
+
+Commands are executed via direct execution or root package scripts:
 
 ```bash
 # From repository root (direct execution)
@@ -22,9 +32,6 @@ bun run docgen:generate    # Generate documentation
 bun run docgen:aggregate   # Aggregate docs to central location
 bun run docgen:status      # Show docgen status
 bun run docgen:agents      # AI-powered JSDoc improvements
-
-# Or with filter for development
-bun run --filter @beep/repo-cli execute
 ```
 
 The main entry point is `src/index.ts`, which exports `runRepoCli` for programmatic use and supports direct execution via `import.meta.main`.
@@ -51,10 +58,12 @@ The main entry point is `src/index.ts`, which exports `runRepoCli` for programma
 
 | Command              | Description                                                                    |
 |---------------------|--------------------------------------------------------------------------------|
-| `env`          | Interactively create or update your `.env` file from `.env.example`          |
-| `sync`         | Copy `.env` to workspaces and regenerate type definitions                    |
-| `prune-unused-deps` | Find and remove unused `@beep/*` workspace dependencies              |
-| `docgen`       | Documentation generation suite with JSDoc analysis and AI-powered fixes      |
+| `env`               | Interactively create or update your `.env` file from `.env.example`          |
+| `sync`              | Copy `.env` to workspaces and regenerate type definitions                    |
+| `prune-unused-deps` | Find and remove unused `@beep/*` workspace dependencies                      |
+| `docgen`            | Documentation generation suite with JSDoc analysis and AI-powered fixes      |
+
+All commands are accessible via `bun run tooling/cli/src/index.ts <command> [options]` or through root package.json scripts.
 
 ## Architecture Fit
 
@@ -448,15 +457,11 @@ From `package.json`:
 | `lint:fix`           | Auto-fix linting issues                               |
 | `test`               | Run test suite                                        |
 | `coverage`           | Generate test coverage report                         |
-| `execute`            | Run execute.ts script                                 |
-| `gen:secrets`        | Generate environment secrets                          |
-| `bootstrap`          | Bootstrap repository setup                            |
-| `generate-public-paths` | Generate asset path constants                      |
-| `gen:locales`        | Generate locale files                                 |
-| `iconify`            | Process iconify assets                                |
-| `purge`              | Clean build artifacts                                 |
-| `docs:lint`          | Lint documentation files                              |
-| `docs:lint:file`     | Lint specific documentation file                      |
+| `lint:circular`      | Check for circular dependencies                       |
+
+**Note**: Additional repository scripts exist in `package.json` but reference implementations in other packages:
+- `bootstrap`, `purge` — Execute via `@beep/repo-scripts`
+- `execute` — Turbo-orchestrated build task
 
 ## Dependencies
 
@@ -819,6 +824,22 @@ The `sync` command copies `.env` to specific workspace locations:
 - `apps/server/.dev.vars` - Server runtime configuration
 
 After copying, it runs `bun run types` in each workspace to regenerate TypeScript type definitions for environment variables.
+
+## Known Considerations
+
+### Legacy Scripts in package.json
+
+Some scripts in `package.json` reference source files that have been moved to other packages or are no longer actively maintained:
+- `execute`, `gen:secrets`, `bootstrap`, `generate-public-paths`, `gen:locales`, `iconify`, `purge`
+
+These are maintained for backward compatibility but new workflows should use the Effect-based commands in this package (env, sync, docgen, prune-unused-deps).
+
+For legacy script execution:
+```bash
+# Execute from repository root, not directly through @beep/repo-cli
+bun run bootstrap
+bun run purge
+```
 
 ## Versioning and Changes
 

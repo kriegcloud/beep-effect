@@ -4,28 +4,21 @@ Effect-based web crawler built on Playwright for parallel link discovery and ext
 
 ## Purpose
 
-This tooling package provides a configurable, concurrent web crawler with proper resource management, depth-limited traversal, and structured JSON output. It's designed as a development tool for documentation crawling, sitemap generation, or link validation within the beep-effect monorepo.
+This tooling package provides a standalone CLI tool for concurrent web crawling with proper resource management, depth-limited traversal, and structured JSON output. It's designed as a development utility for documentation crawling, sitemap generation, or link validation within the beep-effect monorepo.
 
 The scraper implements a breadth-first crawl using Effect-based concurrency with bounded queues, worker pools, and scoped resource management for browser lifecycle handling.
+
+**Note**: This is a CLI tool, not a reusable library. The package does not export any public APIs for consumption by other packages. All functionality is accessed by running the source files directly.
 
 ## Installation
 
 ```bash
-# This package is internal to the monorepo
-# Add as a dependency in your package.json:
-"@beep/scraper": "workspace:*"
+# Navigate to the scraper directory
+cd tooling/scraper
+
+# Install Playwright browsers (first time only)
+bunx playwright install chromium
 ```
-
-## Key Exports
-
-| Export | Description |
-|--------|-------------|
-| `PlaywrightBrowser` | Context.Tag wrapping a Playwright Browser instance |
-| `PlaywrightBrowserLive` | Layer providing scoped browser lifecycle (launch → close) |
-| `PlaywrightError` | Tagged error for browser launch/page creation failures |
-| `PageLoadError` | Tagged error for navigation timeouts or network errors |
-| `LinkExtractionError` | Tagged error for DOM query failures |
-
 
 ## Usage
 
@@ -48,94 +41,121 @@ cd tooling/scraper
 bun run src/links.ts
 ```
 
-The crawler launches a headless Chromium browser, performs breadth-first crawling with configurable depth limits, and outputs results to `crawled-links.json`.
+The crawler:
+1. Launches a headless Chromium browser
+2. Performs breadth-first crawling starting from `WEB_URL`
+3. Respects depth limits (`MAX_DEPTH`)
+4. Uses concurrent workers (`CONCURRENCY`) for parallel processing
+5. Outputs results to `crawled-links.json` in the current directory
 
-### Basic Example
+### Output Format
+
+Results are written to `crawled-links.json`:
+
+```json
+{
+  "crawledAt": "2025-12-23T10:30:00.000Z",
+  "baseUrl": "https://developers.notion.com/",
+  "maxDepth": 10,
+  "totalLinks": 147,
+  "links": [
+    "https://developers.notion.com/",
+    "https://developers.notion.com/reference",
+    ...
+  ]
+}
+```
+
+## Implementation Details
+
+The crawler implements several Effect patterns worth studying:
+
+### Scoped Browser Lifecycle
 
 ```typescript
-import * as Effect from "effect/Effect";
-import * as Layer from "effect/Layer";
-import { PlaywrightBrowser, PlaywrightBrowserLive } from "@beep/scraper";
+class PlaywrightBrowser extends Context.Tag("PlaywrightBrowser")<PlaywrightBrowser, Browser>() {}
 
-const program = Effect.gen(function* () {
-  const browser = yield* PlaywrightBrowser;
-  const page = yield* Effect.promise(() => browser.newPage());
-
-  yield* Effect.tryPromise({
-    try: () => page.goto("https://example.com"),
-    catch: (e) => new PageLoadError({ url: "https://example.com", cause: e }),
-  });
-
-  // Extract links and process...
-
-  yield* Effect.promise(() => page.close());
-});
-
-const runnable = program.pipe(
-  Effect.provide(PlaywrightBrowserLive)
+const PlaywrightBrowserLive = Layer.scoped(
+  PlaywrightBrowser,
+  Effect.acquireRelease(
+    Effect.tryPromise({
+      try: () => chromium.launch({ headless: true }),
+      catch: (e) => new PlaywrightError({ cause: e }),
+    }),
+    (browser) => Effect.promise(() => browser.close())
+  )
 );
 ```
 
-
-### Worker Pool Pattern
+### Bounded Queue Worker Pool
 
 ```typescript
-import * as Effect from "effect/Effect";
-import * as Queue from "effect/Queue";
-import * as Ref from "effect/Ref";
-import * as HashSet from "effect/HashSet";
-import * as F from "effect/Function";
-import * as O from "effect/Option";
+// Work queue with depth tracking
+const urlQueue = yield* Queue.bounded<QueueItem>(QUEUE_SIZE);
 
-const crawlWorker = (
-  queue: Queue.Queue<string>,
-  visited: Ref.Ref<HashSet.HashSet<string>>
-) =>
-  Effect.gen(function* () {
-    const browser = yield* PlaywrightBrowser;
-
-    while (true) {
-      const maybeUrl = yield* F.pipe(
-        Queue.take(queue),
-        Effect.timeout("5 seconds"),
-        Effect.option
-      );
-
-      if (O.isNone(maybeUrl)) break;
-
-      const url = maybeUrl.value;
-      const alreadyVisited = yield* Ref.modify(visited, (set) =>
-        HashSet.has(set, url)
-          ? [true, set]
-          : [false, HashSet.add(set, url)]
-      );
-
-      if (alreadyVisited) continue;
-
-      // Process URL...
-    }
-  });
+// Worker pool processes URLs concurrently
+const workers = Array.from({ length: CONCURRENCY }, () => worker);
+yield* Effect.all(workers, { concurrency: "unbounded" });
 ```
 
+### Atomic State Management
+
+```typescript
+// Shared state using Ref<HashSet> for thread-safe visited tracking
+const visitedRef = yield* Ref.make(HashSet.empty<string>());
+
+// Atomic check-and-set to prevent duplicate processing
+const visited = yield* Ref.get(visitedRef);
+if (HashSet.has(visited, url)) return;
+yield* Ref.update(visitedRef, HashSet.add(url));
+```
+
+### Tagged Error Handling
+
+```typescript
+class PlaywrightError extends S.TaggedError<PlaywrightError>("PlaywrightError")("PlaywrightError", {
+  cause: S.Defect,
+}) {}
+
+class PageLoadError extends S.TaggedError<PageLoadError>("PageLoadError")("PageLoadError", {
+  url: S.String,
+  cause: S.Defect,
+}) {}
+
+class LinkExtractionError extends S.TaggedError<LinkExtractionError>("LinkExtractionError")("LinkExtractionError", {
+  url: S.String,
+  cause: S.Defect,
+}) {}
+```
 
 ## Dependencies
 
+### Core Dependencies
+
 | Package | Purpose |
 |---------|---------|
-| `playwright` | Headless browser automation for web scraping |
-| `@beep/tooling-utils` | FsUtils for JSON file writing |
-| `@beep/schema` | Schema validation utilities |
-| `@effect/platform` | Platform services (Path) |
+| `effect` | Effect runtime and core utilities |
+| `@effect/platform` | Platform services (Path, FileSystem) |
 | `@effect/platform-bun` | Bun runtime context |
+| `playwright` (dev) | Headless browser automation for web scraping |
+| `@beep/tooling-utils` | FsUtils for JSON file writing |
+| `@beep/schema` | Schema utilities for tagged errors |
+| `@beep/constants` | Shared constants |
+| `@beep/invariant` | Assertion contracts |
+| `@beep/utils` | Pure runtime helpers |
+| `@beep/identity` | Package identity |
 
-## Integration
+### Additional Dependencies
 
-This package is primarily used as a standalone CLI tool within the monorepo for:
-- Crawling documentation sites to generate sitemaps
-- Validating link integrity across documentation
-- Extracting structured link data for analysis
+The package.json includes additional dependencies that may be used for future tooling features:
+- `@effect/cli` — CLI framework
+- `@effect/workflow` — Workflow orchestration
+- `@effect/cluster` — Distributed computing
+- `ts-morph` — TypeScript AST manipulation
+- `@jsquash/*` — Image processing libraries (webp, avif, jpeg, jxl, png)
+- `glob` — File pattern matching
 
-It uses `@beep/tooling-utils` for file system operations and follows Effect-first patterns for all async operations.
+These dependencies suggest planned or experimental features beyond the current web crawling functionality.
 
 ## Development
 
@@ -152,34 +172,54 @@ bun run --filter @beep/scraper lint:fix
 # Run tests
 bun run --filter @beep/scraper test
 
-# Run the crawler
-cd tooling/scraper
-bun run src/links.ts
+# Build
+bun run --filter @beep/scraper build
+
+# Check for circular dependencies
+bun run --filter @beep/scraper lint:circular
 ```
+
+### Additional Scripts
+
+The package.json includes additional scripts that may be legacy or experimental:
+- `execute` — Generic script execution with environment setup
+- `gen:secrets` — Environment secrets generation
+- `bootstrap` — Package bootstrapping
+- `generate-public-paths` — Asset path generation
+- `gen:locales` — Locale file generation
+- `iconify` — Icon processing workflow
+- `purge` — Cleanup script
+- `docs:lint` — Documentation linting
+- `docs:lint:file` — Single file documentation linting
+
+These scripts may not be actively maintained or may serve experimental purposes.
 
 ## Notes
 
-### Architecture Patterns
+### Architecture Highlights
 
-The crawler implements several Effect patterns:
 - **Scoped resources**: Browser lifecycle managed via `Effect.acquireRelease`
-- **Bounded queues**: `Queue.bounded` prevents memory overflow
+- **Bounded queues**: `Queue.bounded` prevents memory overflow during large crawls
 - **Worker pools**: Concurrent workers process URLs from a shared queue
 - **Atomic state**: `Ref<HashSet>` for thread-safe visited URL tracking
 - **Tagged errors**: Structured error handling for browser, page load, and extraction failures
+- **Effect-first**: All async operations use Effect primitives (no async/await)
 
-### Configuration
+### Link Processing
 
-All configuration is done via constants at the top of `src/links.ts`:
-- `WEB_URL`: Starting crawl URL
-- `MAX_DEPTH`: Maximum depth from starting URL
-- `CONCURRENCY`: Number of concurrent workers (default: 5)
-- `QUEUE_SIZE`: Bounded queue capacity (default: 4096)
-- `WORKER_TIMEOUT`: Worker idle timeout before exit
+The crawler:
+- Normalizes URLs (removes hash fragments, validates protocols)
+- Filters to same-domain links only
+- Deduplicates visited URLs atomically
+- Respects depth limits to prevent infinite crawls
+- Times out workers when queue is empty
 
-### Output
+### Performance
 
-Results are written to `crawled-links.json` with metadata including crawl timestamp, base URL, max depth, and total link count.
+- Default settings: 5 concurrent workers, 4096 queue size
+- Adjust `CONCURRENCY` for more parallel processing
+- Increase `QUEUE_SIZE` for larger crawls
+- `WORKER_TIMEOUT` determines when to stop (queue appears empty)
 
 ### Playwright Installation
 

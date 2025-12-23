@@ -420,6 +420,9 @@ This package is designed to be used by all `@beep/*` packages that require Effec
 # Type check
 bun run --filter @beep/testkit check
 
+# Build
+bun run --filter @beep/testkit build
+
 # Lint
 bun run --filter @beep/testkit lint
 

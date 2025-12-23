@@ -1,25 +1,26 @@
-# @beep/shared-tables — Drizzle table factories and cross-slice schemas
+# @beep/shared-tables
 
-Cross-slice Drizzle table factories, audit column defaults, and canonical multi-tenant tables consumed by IAM, Documents, and runtime adapters. Guarantees every table includes audit, user tracking, optimistic locking, and source metadata through `globalColumns`.
+Cross-slice Drizzle table factories, audit column defaults, and canonical multi-tenant tables consumed by IAM, Documents, and runtime adapters.
 
-## What this package provides
+## Purpose
 
-- **Table factories** (`Table.make`, `OrgTable.make`) build Drizzle tables with automatic ID, audit, and metadata columns from `EntityIdSchemaInstance`.
-- **Global column defaults** (`src/common.ts`) provide `auditColumns`, `userTrackingColumns`, and optimistic locking via `globalColumns`.
-- **Custom column types** (`src/columns/`) for binary data: `bytea` (Uint8Array) and `byteaBase64` (Base64 string interface).
-- **Shared database schemas** (`SharedDbSchema` namespace) re-export canonical tables: `organization`, `team`, `user`, `file`, `folder`, `session`.
-- **Drizzle relations** (`src/relations.ts`) export pre-configured relations between shared tables for query composition.
-- **Type safety contracts** (`src/Columns.ts`) define structural types for default column builders.
-- **Compile-time checks** (`src/_check.ts`) enforce Drizzle `Infer*Model` matches domain codecs from `@beep/shared-domain`.
-- **TypeScript builds** (`build/**`) produced by `tsc` + Babel transforms; artifacts consumed by slice packages and apps.
+This package provides cross-slice Drizzle table factories and canonical multi-tenant table schemas that guarantee consistency across the beep-effect monorepo. It ensures every table includes:
+- Standard audit trails (created/updated/deleted timestamps and user tracking)
+- Optimistic locking via version counters
+- Source metadata for traceability
+- Multi-tenant wiring for organization-scoped data
 
-## When to reach for it
+Table factories automatically inject these global columns while maintaining type safety with domain models from `@beep/shared-domain`. The package also exports shared table definitions (organization, user, team, file, folder, session) that are consumed by IAM, Documents, and other vertical slices for establishing Drizzle relations.
 
-- Defining new Drizzle tables that need standard audit trails, optimistic locking, and multi-tenant wiring.
-- Building organization-scoped tables with automatic `organizationId` foreign key cascade semantics.
-- Creating tables that must stay in sync with Effect Schema domain models via compile-time checks.
-- Importing shared table definitions (`organization`, `user`, `team`) for Drizzle relations in vertical slices.
-- Never use this for domain business logic; keep table definitions pure Drizzle schema with no side effects.
+This is infrastructure-layer code: pure Drizzle schema definitions with no business logic or side effects.
+
+## Installation
+
+```bash
+# This package is internal to the monorepo
+# Add as a dependency in your package.json:
+"@beep/shared-tables": "workspace:*"
+```
 
 ## Key Exports
 
@@ -39,16 +40,18 @@ Cross-slice Drizzle table factories, audit column defaults, and canonical multi-
 | `file` | File metadata table |
 | `folder` | Folder table |
 | `session` | Session table |
+| `uploadSession` | Upload session table for HMAC signature verification |
 | `organizationRelations` | Pre-configured Drizzle relations for organization |
 | `userRelations` | Pre-configured Drizzle relations for user |
 | `teamRelations` | Pre-configured Drizzle relations for team |
 | `fileRelations` | Pre-configured Drizzle relations for file |
 | `folderRelations` | Pre-configured Drizzle relations for folder |
 | `sessionRelations` | Pre-configured Drizzle relations for session |
+| `uploadSessionRelations` | Pre-configured Drizzle relations for upload session |
 
-## Quickstart
+## Usage
 
-### Define a basic table with Table.make
+### Basic Table with Table.make
 
 ```ts
 import { SharedEntityIds } from "@beep/shared-domain";
@@ -76,7 +79,7 @@ Automatically includes:
 - `version` — optimistic locking counter
 - `source` — traceability metadata
 
-### Define an organization-scoped table with OrgTable.make
+### Organization-Scoped Table with OrgTable.make
 
 ```ts
 import { SharedEntityIds } from "@beep/shared-domain";
@@ -99,7 +102,7 @@ export const document = OrgTable.make(SharedEntityIds.DocumentId)(
 Includes everything from `Table.make` plus:
 - `organizationId` — foreign key to `organization.id` with cascade delete/update
 
-### Use custom binary columns
+### Custom Binary Columns
 
 ```ts
 import { bytea, byteaBase64 } from "@beep/shared-tables/columns";
@@ -130,7 +133,7 @@ await db.insert(snapshot).values({
 });
 ```
 
-### Import shared tables and relations
+### Importing Shared Tables and Relations
 
 ```ts
 import { relations } from "drizzle-orm";
@@ -158,15 +161,16 @@ import * as SharedDbSchema from "@beep/shared-tables/schema";
 const { organizationRelations, userRelations, teamRelations } = SharedDbSchema;
 
 // Available relations:
-// - organizationRelations (owner, teams, folders, files)
+// - organizationRelations (owner, teams, folders, files, uploadSessions)
 // - userRelations (ownedOrganizations, sessions, folders, files)
 // - teamRelations (organization)
 // - fileRelations (organization, folder, userId, uploadedByUserId)
 // - folderRelations (organization, files, userId)
 // - sessionRelations (user)
+// - uploadSessionRelations (organization)
 ```
 
-### Extend compile-time checks for new shared tables
+### Compile-Time Checks for Schema Alignment
 
 When adding a new shared table that should align with domain codecs:
 
@@ -185,292 +189,94 @@ const _webhook_encode: (a: Webhook.Webhook.Type) => _webhook_insert = Webhook.We
 const _webhook_decode: (a: _webhook_select) => Webhook.Webhook.Type = Webhook.Webhook.make;
 ```
 
-## Package structure
+## Dependencies
 
-```
-packages/shared/tables/
-├── src/
-│   ├── Table/
-│   │   ├── Table.ts         # Table.make factory
-│   │   └── index.ts
-│   ├── OrgTable/
-│   │   ├── OrgTable.ts      # OrgTable.make factory
-│   │   └── index.ts
-│   ├── columns/
-│   │   ├── bytea.ts         # Custom binary column types
-│   │   └── index.ts
-│   ├── tables/
-│   │   ├── organization.table.ts  # Organization schema + enums
-│   │   ├── user.table.ts          # User schema + enums
-│   │   ├── team.table.ts          # Team schema
-│   │   ├── file.table.ts          # File metadata schema
-│   │   ├── folder.table.ts        # Folder schema
-│   │   ├── session.table.ts       # Session schema
-│   │   └── index.ts
-│   ├── Columns.ts           # Type definitions for default columns
-│   ├── common.ts            # globalColumns, auditColumns, userTrackingColumns
-│   ├── relations.ts         # Drizzle relations between shared tables
-│   ├── schema.ts            # Re-exports all tables and relations
-│   ├── _check.ts            # Compile-time schema/domain parity checks
-│   └── index.ts             # Package exports
-├── AGENTS.md                # AI agent collaboration guide
-├── README.md                # This file
-├── package.json
-├── tsconfig.json
-└── tsconfig.build.json
-```
-
-## Effect patterns and guardrails
-
-### Always use Effect utilities over native methods
-
-```ts
-import * as A from "effect/Array";
-import * as F from "effect/Function";
-import * as Str from "effect/String";
-
-// Iterate over table metadata
-const indexNames = (descriptors: ReadonlyArray<IndexDescriptor>) =>
-  F.pipe(
-    descriptors,
-    A.filter((d) => d.kind === "index"),
-    A.map((d) => d.name)
-  );
-
-// Process column names
-const normalizeColumnName = (name: string) =>
-  F.pipe(
-    name,
-    Str.toLowerCase,
-    Str.replace("-", "_")
-  );
-```
-
-### Namespace imports for Effect modules
-
-```ts
-import * as Effect from "effect/Effect";
-import * as Layer from "effect/Layer";
-import * as Context from "effect/Context";
-import * as S from "effect/Schema";
-import * as DateTime from "effect/DateTime";
-```
-
-### Keep tables synchronized with domain schemas
-
-- Before creating a table, define the matching `EntityId` in `@beep/shared-domain/entity-ids`.
-- Extend `_check.ts` whenever adding shared tables to catch drift at build time.
-- Use domain factories for Postgres enums: `Organization.makeSubscriptionTierPgEnum("subscription_tier_enum")`.
-
-### Respect cascade semantics in OrgTable
-
-`OrgTable.make` hard-wires cascade delete/update on `organizationId`. If you need different behavior:
-1. Document it explicitly in the table file
-2. Coordinate with downstream relations (e.g., IAM relations module)
-3. Consider whether the table truly belongs to an organization scope
-
-## Global columns explained
-
-Every table created via `Table.make` or `OrgTable.make` includes:
-
-| Column | Type | Purpose |
-|--------|------|---------|
-| `createdAt` | `timestamp with timezone` | UTC timestamp, auto-set on insert |
-| `updatedAt` | `timestamp with timezone` | UTC timestamp, auto-updated on modification |
-| `deletedAt` | `timestamp with timezone` | Soft delete timestamp (null = active) |
-| `createdBy` | `text` | User ID who created the record (defaults to "app") |
-| `updatedBy` | `text` | User ID who last updated the record (defaults to "app") |
-| `deletedBy` | `text` | User ID who soft-deleted the record |
-| `version` | `integer` | Optimistic locking counter (increments on update) |
-| `source` | `text` | Traceability: 'api', 'import', 'migration', etc. |
-
-Changes to `globalColumns` require coordinated updates to:
-- `@beep/shared-domain/src/common.ts` — domain schema helpers
-- Migration generation via `bun run db:generate`
-- Any ingestion/export logic that depends on these fields
-
-## Shared database schemas
-
-The `SharedDbSchema` namespace re-exports canonical tables and their relations:
-
-```ts
-import * as SharedDbSchema from "@beep/shared-tables/schema";
-
-// Available tables:
-SharedDbSchema.organization        // Organization table + type/subscription enums
-SharedDbSchema.user                // User table + role enum
-SharedDbSchema.team                // Team table
-SharedDbSchema.file                // File metadata table
-SharedDbSchema.folder              // Folder table
-SharedDbSchema.session             // Session table
-
-// Available relations:
-SharedDbSchema.organizationRelations  // Organization relations
-SharedDbSchema.userRelations          // User relations
-SharedDbSchema.teamRelations          // Team relations
-SharedDbSchema.fileRelations          // File relations
-SharedDbSchema.folderRelations        // Folder relations
-SharedDbSchema.sessionRelations       // Session relations
-```
-
-These are consumed by:
-- `packages/iam/tables` for IAM relations
-- `packages/documents/tables` for file ownership relations
-- `packages/_internal/db-admin` schema barrel for migrations
-- Repository layers in `@beep/iam-server` and `@beep/documents-server`
-
-## Custom column types
-
-### bytea — Uint8Array interface
-
-Stores binary data efficiently in PostgreSQL's native `bytea` format:
-
-```ts
-import { bytea } from "@beep/shared-tables/columns";
-
-export const myTable = pgTable("my_table", {
-  binaryData: bytea("binary_data").notNull(),
-});
-
-// Usage
-await db.insert(myTable).values({
-  binaryData: new Uint8Array([1, 2, 3, 4, 5]),
-});
-```
-
-Benefits:
-- ~33% storage savings vs. Base64 in text columns
-- No encoding/decoding overhead on reads/writes
-- Native binary operations in PostgreSQL
-
-### byteaBase64 — Base64 string interface
-
-Stores binary data as `bytea` but exposes Base64 strings to the application:
-
-```ts
-import { byteaBase64 } from "@beep/shared-tables/columns";
-
-export const myTable = pgTable("my_table", {
-  snapshot: byteaBase64("snapshot"),
-});
-
-// Usage
-await db.insert(myTable).values({
-  snapshot: "SGVsbG8gV29ybGQ=",  // Base64 encoded
-});
-
-const row = await db.select().from(myTable);
-console.log(row.snapshot);  // Returns "SGVsbG8gV29ybGQ="
-```
-
-Uses Effect's `Encoding` module for Base64 encoding/decoding with proper error handling.
-
-## Scripts and workflows
-
-| Command | Purpose |
+| Package | Purpose |
 |---------|---------|
-| `bun run build` | Compile ESM + CJS artifacts via `tsc` and Babel |
-| `bun run dev` | Watch mode type checking |
-| `bun run check` | TypeScript type check (includes `_check.ts` validation) |
-| `bun run lint` | Biome lint check |
-| `bun run lint:fix` | Auto-fix linting issues |
-| `bun run test` | Run Bun test suite |
-| `bun run coverage` | Generate test coverage report |
-| `bun run lint:circular` | Check for circular dependencies via madge |
+| `@beep/shared-domain` | Entity schemas, EntityId factories, domain models |
+| `@beep/schema` | Effect Schema utilities, EntityId helpers |
+| `@beep/invariant` | Assertion contracts for validation |
+| `@beep/utils` | Pure runtime helpers |
+| `@beep/identity` | Package identity utilities |
+| `drizzle-orm` | PostgreSQL schema builder and query interface |
+| `effect` | Effect runtime and utilities |
+| `@effect/sql` | SQL integration for Effect |
+| `@effect/experimental` | Experimental Effect features |
+| `mutative` | Immutable update utilities |
+
+## Integration
+
+This package is consumed by:
+- `@beep/iam-tables` — IAM-specific tables reference shared organization/user tables for relations
+- `@beep/documents-tables` — Documents tables use OrgTable.make and reference shared tables
+- `@beep/shared-server` — Db service and repository factories operate on these table definitions
+- `@beep/_internal/db-admin` — Migration warehouse imports schema barrel for Drizzle migrations
+
+## Development
+
+```bash
+# Type check
+bun run --filter @beep/shared-tables check
+
+# Lint
+bun run --filter @beep/shared-tables lint
+
+# Auto-fix linting issues
+bun run --filter @beep/shared-tables lint:fix
+
+# Build
+bun run --filter @beep/shared-tables build
+
+# Test
+bun run --filter @beep/shared-tables test
+
+# Test coverage
+bun run --filter @beep/shared-tables coverage
+
+# Check for circular dependencies
+bun run --filter @beep/shared-tables lint:circular
+```
 
 After modifying table schemas:
 1. Run `bun run check` to verify type safety
 2. Run `bun run db:generate` from repo root to regenerate migrations
 3. Confirm migrations are correct in `packages/_internal/db-admin/drizzle/`
 
-## Notes and gotchas
+## Notes
 
-- **Never bypass `_check.ts`**: Extend it when adding shared tables to catch schema/domain drift at compile time.
-- **Entity IDs first**: Create `EntityIdSchemaInstance` in `@beep/shared-domain` before defining a table.
-- **Import conventions**: Use `@beep/*` path aliases, never relative `../../../` paths across packages.
-- **No side effects**: Tables are pure Drizzle schema definitions; business logic belongs in domain/server layers.
-- **Postgres enums**: Use domain factories (`Organization.makeOrganizationTypePgEnum`) to keep enum names canonical.
-- **Index strategy**: Prefer Drizzle index helpers; use raw SQL only for computed checks (see `session.table.ts` expiry index).
-- **Multi-tenant by default**: Use `OrgTable.make` for organization-scoped data; use `Table.make` for global entities.
+### Global Columns
+Every table created via `Table.make` or `OrgTable.make` automatically includes:
+- `id` — Public EntityId (e.g., `webhook_abc123xyz`)
+- `_rowId` — Internal UUID v7 for database joins
+- `createdAt`, `updatedAt`, `deletedAt` — Audit timestamps (UTC)
+- `createdBy`, `updatedBy`, `deletedBy` — User tracking (defaults to "app")
+- `version` — Optimistic locking counter (increments on update)
+- `source` — Traceability metadata ('api', 'import', 'migration', etc.)
 
-## Integration examples
+Changes to `globalColumns` require coordinated updates to:
+- `@beep/shared-domain/src/common.ts` for domain schema helpers
+- Migration generation via `bun run db:generate`
+- Any ingestion/export logic that depends on these fields
 
-### IAM member table with organization relation
+### Table Factory Guardrails
+- **Entity IDs first**: Create `EntityIdSchemaInstance` in `@beep/shared-domain` before defining a table
+- **Compile-time checks**: Extend `_check.ts` when adding shared tables to catch schema/domain drift at build time
+- **Cascade semantics**: `OrgTable.make` hard-wires cascade delete/update on `organizationId`. Document explicitly if you need different behavior
+- **No side effects**: Tables are pure Drizzle schema definitions; business logic belongs in domain/server layers
+- **Import conventions**: Use `@beep/*` path aliases, never relative `../../../` paths across packages
 
-```ts
-// packages/iam/tables/src/tables/member.table.ts
-import { IamEntityIds } from "@beep/iam-domain";
-import { OrgTable } from "@beep/shared-tables/OrgTable";
-import { organization, user } from "@beep/shared-tables/schema";
-import * as pg from "drizzle-orm/pg-core";
+### Postgres Enums
+Use domain factories to keep enum names canonical:
+```typescript
+import { Organization } from "@beep/shared-domain/entities";
 
-export const memberRolePgEnum = pgEnum("member_role_enum", ["owner", "admin", "member"]);
-
-export const member = OrgTable.make(IamEntityIds.MemberId)(
-  {
-    userId: pg.text("user_id")
-      .notNull()
-      .references(() => user.id, { onDelete: "cascade" }),
-    role: memberRolePgEnum("role").notNull().default("member"),
-    invitedBy: pg.text("invited_by"),
-  },
-  (t) => [
-    pg.uniqueIndex("member_org_user_idx").on(t.organizationId, t.userId),
-    pg.index("member_user_idx").on(t.userId),
-  ]
-);
+const subscriptionTierEnum = Organization.makeSubscriptionTierPgEnum("subscription_tier_enum");
 ```
 
-### Documents file table with custom binary column
+### Multi-Tenant Strategy
+- Use `OrgTable.make` for organization-scoped data (includes `organizationId` foreign key)
+- Use `Table.make` for global entities (users, sessions, system tables)
 
-```ts
-// packages/documents/tables/src/tables/file-content.table.ts
-import { DocumentsEntityIds } from "@beep/documents-domain";
-import { OrgTable } from "@beep/shared-tables/OrgTable";
-import { bytea } from "@beep/shared-tables/columns";
-import { file } from "@beep/shared-tables/schema";
-import * as pg from "drizzle-orm/pg-core";
-
-export const fileContent = OrgTable.make(DocumentsEntityIds.FileContentId)(
-  {
-    fileId: pg.text("file_id")
-      .notNull()
-      .references(() => file.id, { onDelete: "cascade" }),
-    content: bytea("content").notNull(),
-    checksum: pg.text("checksum").notNull(),
-    compressionType: pg.text("compression_type"),
-  },
-  (t) => [
-    pg.uniqueIndex("file_content_file_idx").on(t.fileId),
-    pg.index("file_content_checksum_idx").on(t.checksum),
-  ]
-);
-```
-
-## Contributor checklist
-
-Before submitting changes:
-- [ ] Created or updated `EntityId` in `@beep/shared-domain/entity-ids` for new tables
-- [ ] Extended `_check.ts` to mirror new shared tables against domain models
-- [ ] Documented relations in downstream slice packages (e.g., IAM relations module)
-- [ ] Ran `bun run lint`, `bun run check` locally
-- [ ] Generated migrations via `bun run db:generate` from repo root
-- [ ] Coordinated enum or column changes with `@beep/shared-domain` and `@beep/schema`
-- [ ] Updated AGENTS.md if introducing new patterns or factories
-- [ ] Noted required migrations or follow-up work in PR description
-
-## Related packages
-
-- `@beep/shared-domain` — Entity schemas, EntityId factories, domain models
-- `@beep/schema` — Effect Schema utilities, JSON Schema normalization
-- `@beep/iam-tables` — IAM-specific Drizzle tables (auth, members, invitations)
-- `@beep/documents-tables` — Documents-specific tables (files, folders, permissions)
-- `@beep/_internal/db-admin` — Migration warehouse, Drizzle CLI, schema barrel
-- `@beep/shared-server` — Db service, repository factories, multi-tenant adapters
-
-## Further reading
-
-- `AGENTS.md` — Detailed agent collaboration guide with usage snapshots and recipes
-- `docs/patterns/` (repo root) — Implementation patterns and best practices
-- Drizzle ORM docs: https://orm.drizzle.team/
-- Effect documentation: https://effect.website/
+### Custom Binary Columns
+- `bytea` — Stores `Uint8Array` directly, ~33% storage savings vs Base64
+- `byteaBase64` — Stores as bytea but exposes Base64 string interface for API compatibility

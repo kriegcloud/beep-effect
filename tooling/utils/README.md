@@ -24,7 +24,7 @@ Effect-based filesystem operations with observability spans and typed error hand
 
 **Key Features:**
 - Glob pattern matching via `glob` and `globFiles`
-- File manipulation with `modifyFile`, `modifyGlob`, `copyGlobCached`
+- File manipulation with `modifyFile`, `modifyGlob`, `copyGlobCached`, `copyIfExists`
 - JSON operations with `readJson`, `writeJson`
 - Directory management with `mkdirCached`, `rmAndMkdir`, `rmAndCopy`
 - Path validation with `existsOrThrow`, `isDirectory`, `isFile`, `dirHasFile`
@@ -168,7 +168,8 @@ Effect Schema definitions for repository metadata (exported via `@beep/tooling-u
 ```typescript
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
-import { FsUtils, FsUtilsLive, PackageJson } from "@beep/tooling-utils";
+import { FsUtils, FsUtilsLive } from "@beep/tooling-utils";
+import { PackageJson } from "@beep/tooling-utils/schemas";
 
 // Read and validate package.json
 const loadPackageJson = Effect.gen(function* () {
@@ -276,7 +277,7 @@ Extend the `IGNORE` constant in `src/repo/Workspaces.ts` if new artifact directo
 
 ### JSON Formatting
 
-`writeJson` produces stable two-space formatting without trailing newline to avoid noisy diffs in generated files.
+`writeJson` produces stable two-space formatting to avoid noisy diffs in generated files.
 
 ### Span Instrumentation
 
@@ -335,9 +336,9 @@ import { getUniqueDeps, collectUniqueNpmDependencies } from "@beep/tooling-utils
 import { Repo } from "@beep/tooling-utils";
 
 // Repo utilities (via subpath exports)
-import { findRepoRoot } from "@beep/tooling-utils/repo/Root";
-import { resolveWorkspaceDirs } from "@beep/tooling-utils/repo/Workspaces";
-import { extractWorkspaceDependencies } from "@beep/tooling-utils/repo/Dependencies";
+import { findRepoRoot } from "@beep/tooling-utils/repo";
+import { resolveWorkspaceDirs } from "@beep/tooling-utils/repo";
+import { extractWorkspaceDependencies } from "@beep/tooling-utils/repo";
 
 // Schemas (via subpath exports)
 import { PackageJson, TsConfigJson } from "@beep/tooling-utils/schemas";
@@ -348,12 +349,26 @@ import { DotEnv, EnvironmentVariableName } from "@beep/tooling-utils/schemas";
 import { DomainError, NoSuchFileError } from "@beep/tooling-utils";
 ```
 
+## Integration
+
+This package is consumed by:
+- **`@beep/repo-scripts`**: Automation scripts for locale generation, asset paths, and tsconfig synchronization
+- **`@beep/cli`**: Repository CLI tools for documentation and environment management
+- **`@beep/build-utils`**: Build configuration utilities
+
+It depends on:
+- **`@beep/types`**: Compile-time type utilities (provides `UnsafeAny` bridge for glob typing)
+- **`effect`**: Core Effect runtime and standard library
+- **`@effect/platform`**: Platform-agnostic filesystem and path abstractions
+- **`@effect/platform-bun`**: Bun-specific implementations
+- **`glob`**: Fast glob pattern matching library
+
 ## Related Packages
 
 - **`@beep/testkit`**: Effect testing harness for unit tests
-- **`@beep/types`**: Compile-time type utilities (provides `UnsafeAny` bridge)
 - **`@beep/repo-scripts`**: Automation scripts consuming these utilities
 - **`@beep/cli`**: Repository CLI tools
+- **`@beep/build-utils`**: Build configuration utilities
 
 ## License
 

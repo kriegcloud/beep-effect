@@ -2,9 +2,25 @@
 
 React UI components for the documents slice. Houses reusable document editing, knowledge management, discussion, and file upload components that compose with the design system and integrate with document domain models.
 
+## Installation
+
+```bash
+# This package is internal to the monorepo
+# Add as a dependency in your package.json:
+"@beep/documents-ui": "workspace:*"
+```
+
 ## Status
 
 Currently a placeholder export (`beep`) while domain and SDK packages stabilize. This package serves as the staging area for all document-related React components, preventing UI duplication across apps.
+
+## Key Exports
+
+| Export | Description |
+|--------|-------------|
+| `beep` | Placeholder export (current) |
+
+**Note**: When components are implemented, exports will include `DocumentEditor`, `KnowledgePageViewer`, `DiscussionThread`, `FileUploader`, and related hooks.
 
 ## Planned Components
 
@@ -27,22 +43,22 @@ When implemented, this package will provide:
 
 ## Package Dependencies
 
-| Package                  | Purpose                                           |
-|--------------------------|---------------------------------------------------|
-| `@beep/ui`               | Base component library (MUI, shadcn, Tailwind)    |
-| `@beep/ui-core`          | Design tokens and theme pipeline                  |
-| `@beep/documents-domain` | Domain entities and validation schemas            |
-| `@beep/documents-client`    | Client contracts for document operations          |
-| `@beep/shared-domain`    | Cross-slice entities and policies                 |
-| `@beep/shared-client`       | Shared SDK contracts                              |
-| `@beep/shared-ui`        | Shared UI components and utilities                |
-| `@beep/schema`           | Schema utilities and validators                   |
-| `@beep/utils`            | Pure runtime helpers                              |
-| `@beep/errors`           | Logging and error handling                        |
-| `@beep/constants`        | Schema-backed enums and constants                 |
-| `@beep/identity`         | Package identity utilities                        |
-| `@beep/invariant`        | Assertion contracts                               |
-| `effect`                 | Core Effect runtime                               |
+| Package                  | Purpose                                           | Status |
+|--------------------------|---------------------------------------------------|--------|
+| `@beep/ui`               | Base component library (MUI, shadcn, Tailwind)    | Active |
+| `@beep/shared-domain`    | Cross-slice entities and policies                 | Active |
+| `@beep/schema`           | Schema utilities and validators                   | Active |
+| `@beep/utils`            | Pure runtime helpers                              | Active |
+| `@beep/errors`           | Logging and error handling                        | Active |
+| `@beep/shared-client`    | Shared SDK contracts                              | Active |
+| `@beep/shared-env`       | Environment configuration                         | Active |
+| `@beep/shared-ui`        | Shared UI components and utilities                | Active |
+| `@beep/constants`        | Schema-backed enums and constants                 | Active |
+| `@beep/identity`         | Package identity utilities                        | Active |
+| `@beep/invariant`        | Assertion contracts                               | Active |
+| `effect`                 | Core Effect runtime                               | Active |
+
+**Note**: `@beep/ui-core`, `@beep/documents-domain`, and `@beep/documents-client` are available packages but not yet added as dependencies. They will be included when UI components are implemented.
 
 ## Future Usage Patterns
 

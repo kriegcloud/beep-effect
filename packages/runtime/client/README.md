@@ -1,99 +1,105 @@
 # @beep/runtime-client
 
-Browser-side Effect ManagedRuntime with OpenTelemetry observability, effect-atom integration, and RPC worker access for the beep-effect monorepo.
+Browser-side Effect ManagedRuntime with OpenTelemetry observability, effect-atom integration, and RPC worker access.
 
-## Overview
+## Purpose
 
-`@beep/runtime-client` provides the client-side Effect runtime infrastructure that powers all browser surfaces in the beep-effect application. It assembles a `ManagedRuntime` with:
+`@beep/runtime-client` provides the client-side Effect runtime infrastructure that powers all browser surfaces in the beep-effect application. It assembles a `ManagedRuntime` with OpenTelemetry Web SDK observability, effect-atom registry integration, RPC worker clients, network connectivity monitoring, browser storage adapters, and a Fetch-based HTTP client.
 
-- **OpenTelemetry Web SDK** for traces, logs, and metrics via OTLP exporters
-- **Effect-atom registry** integration for reactive state management
-- **RPC worker client** for offloading computation to web workers
-- **Network monitoring** service tracking browser connectivity
-- **IndexedDB and localStorage** key-value store implementations
-- **Browser-safe HTTP client** using Fetch API
+This package is the browser counterpart to `@beep/runtime-server`, providing a consistent Effect-first runtime environment across the full stack while maintaining browser-safe implementations of platform services.
 
-The runtime is mounted via `BeepProvider` in the App Router shell and shared across all client components through React context and the effect-atom registry.
+The runtime is mounted via `BeepProvider` in the Next.js App Router shell and shared across all client components through React context. The `KaServices` component integrates the runtime with the effect-atom registry, enabling all atoms to access runtime services automatically.
+
+## Installation
+
+```bash
+# This package is internal to the monorepo
+# Add as a dependency in your package.json:
+"@beep/runtime-client": "workspace:*"
+```
 
 ## Key Exports
 
-### Runtime Providers
+| Export | Description |
+|--------|-------------|
+| `BeepProvider` | Top-level React provider that instantiates and manages the `LiveManagedRuntime` |
+| `KaServices` | Effect-atom registry mount point that injects `clientRuntimeLayer` into all atoms |
+| `useRuntime` | React hook to access the runtime from within components |
+| `clientRuntimeLayer` | Main composition of all browser-safe Effect services |
+| `clientRuntime` | Pre-instantiated `ManagedRuntime` created from `clientRuntimeLayer` |
+| `makeAtomRuntime` | Atom context with `clientRuntimeLayer` pre-configured |
+| `runClientPromise` | Execute an Effect within the runtime, wrapped in an observability span |
+| `makeRunClientPromise` | Curried version bound to a specific runtime for reuse |
+| `runClientPromiseExit` | Execute and return the Exit value instead of unwrapping |
+| `makeRunClientPromiseExit` | Curried Exit-returning version |
+| `NetworkMonitor` | Service exposing browser online/offline state |
+| `WorkerClient` | RPC client for communicating with web workers |
+| `urlSearchParamSSR` | URL search param atoms compatible with SSR |
 
-- **`BeepProvider`** — Top-level React provider that instantiates and manages the `LiveManagedRuntime`
-- **`KaServices`** — Effect-atom registry mount point that injects `clientRuntimeLayer` into all atoms
-- **`useRuntime`** — React hook to access the runtime from within components
+### Runtime Layer Services
 
-### Runtime Layers
+The `clientRuntimeLayer` provides these Effect services:
 
-- **`clientRuntimeLayer`** — Main composition of all browser-safe Effect services:
-  - `HttpClient` (Fetch-based)
-  - `ToasterService` for UI notifications
-  - `NetworkMonitor` for connectivity tracking
-  - `WorkerClient` for RPC worker access
-  - `KeyValueStore` (localStorage by default)
-  - `ApiClient` for Better Auth HTTP integration
-  - `Geolocation` for browser geolocation tracking (when enabled)
-  - OpenTelemetry exporters and logging
+| Service | Description |
+|---------|-------------|
+| `HttpClient` | Fetch-based HTTP client from `@effect/platform` |
+| `ToasterService` | UI toast notifications |
+| `NetworkMonitor` | Browser connectivity tracking |
+| `WorkerClient` | RPC worker access |
+| `KeyValueStore` | Browser localStorage adapter |
+| `Geolocation` | Browser geolocation tracking (when `clientEnv.enableGeoTracking` is true) |
+| `Registry` | Effect-atom registry layer |
+| OpenTelemetry | Trace/log/metric exporters to OTLP endpoints |
 
-- **`ObservabilityLive`** — Merged telemetry stack with trace/log/metric exporters
-- **`LoggerLive`** — Pretty logs in dev, JSON logs in production
-- **`LogLevelLive`** — Debug level in dev, Info level in production
+### Additional Exports
 
-### Runtime Helpers
+Available via subpath imports (see `package.json` exports):
 
-- **`runClientPromise`** — Execute an Effect within the runtime, wrapped in an observability span
-- **`makeRunClientPromise`** — Curried version bound to a specific runtime for reuse
-- **`runClientPromiseExit`** — Execute and return the Exit value instead of unwrapping
-- **`makeRunClientPromiseExit`** — Curried Exit-returning version
-
-### Services
-
-- **`NetworkMonitor`** — Exposes browser online/offline state via `SubscriptionRef` and `Latch`
-- **`WorkerClient`** — RPC client for communicating with the web worker (see `worker/worker.ts`)
-- **`layerIndexedDB`** — Optional IndexedDB-backed `KeyValueStore` layer (from `@beep/runtime-client/services/common/layer-indexed-db`)
-- **`ApiClient`** — Better Auth HTTP client service (from `@beep/runtime-client/services/common/iam-api-client`)
-
-### SSR Utilities
-
-Re-exported from `./atom`:
-- **`urlSearchParamSSR`** — URL search param atoms compatible with SSR
+| Export Path | Description |
+|-------------|-------------|
+| `@beep/runtime-client/layers/layer-indexed-db` | IndexedDB-backed `KeyValueStore` layer |
+| `@beep/runtime-client/services/unsafe-http-api-client` | Unsafe HTTP client service |
+| `@beep/runtime-client/services/network-monitor` | NetworkMonitor service implementation |
+| `@beep/runtime-client/workers/worker-client` | WorkerClient service implementation |
 
 ## Architecture
+
+The runtime is composed in layers and exposed to the application through React providers:
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                      BeepProvider                            │
-│  (apps/web/src/GlobalProviders.tsx)                          │
+│  (Instantiates and manages the ManagedRuntime)              │
 │                                                               │
 │  ┌────────────────────────────────────────────────────────┐ │
 │  │            LiveManagedRuntime                           │ │
 │  │  (ManagedRuntime.make(clientRuntimeLayer))              │ │
 │  │                                                          │ │
-│  │  Services:                                               │ │
-│  │  • HttpClient (Fetch)                                   │ │
-│  │  • ToasterService                                       │ │
-│  │  • NetworkMonitor                                       │ │
-│  │  • WorkerClient (RPC)                                   │ │
+│  │  Services provided by clientRuntimeLayer:               │ │
+│  │  • HttpClient (Fetch API)                               │ │
+│  │  • ToasterService (UI notifications)                    │ │
+│  │  • NetworkMonitor (connectivity tracking)               │ │
+│  │  • WorkerClient (RPC to web workers)                    │ │
 │  │  • KeyValueStore (localStorage)                         │ │
-│  │  • ApiClient (Better Auth)                              │ │
+│  │  • Geolocation (optional, based on env config)          │ │
+│  │  • Registry (effect-atom integration)                   │ │
 │  │  • OpenTelemetry (traces, logs, metrics)                │ │
 │  └────────────────────────────────────────────────────────┘ │
 │                                                               │
+│  └──────────────────> RuntimeProvider (React Context)        │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│              RegistryProvider (effect-atom)                  │
+│                                                               │
 │  ┌────────────────────────────────────────────────────────┐ │
-│  │         RuntimeProvider (React Context)                 │ │
+│  │        KaServices (useAtomMount)                        │ │
 │  │                                                          │ │
-│  │  ┌──────────────────────────────────────────────────┐  │ │
-│  │  │       RegistryProvider (effect-atom)             │  │ │
-│  │  │                                                   │  │ │
-│  │  │  ┌────────────────────────────────────────────┐  │  │ │
-│  │  │  │        KaServices (useAtomMount)          │  │  │ │
-│  │  │  │                                            │  │  │ │
-│  │  │  │  All atoms share clientRuntimeLayer       │  │  │ │
-│  │  │  └────────────────────────────────────────────┘  │  │ │
-│  │  │                                                   │  │ │
-│  │  │  Application Components                          │  │ │
-│  │  └──────────────────────────────────────────────────┘  │ │
+│  │  Injects clientRuntimeLayer into all atoms created      │ │
+│  │  with Atom.fn, making runtime services available        │ │
 │  └────────────────────────────────────────────────────────┘ │
+│                                                               │
+│  Application Components & Atoms                              │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -103,7 +109,7 @@ Re-exported from `./atom`:
 
 Mount `BeepProvider` at the root of your Next.js application:
 
-```tsx
+```typescript
 // apps/web/src/GlobalProviders.tsx
 import { BeepProvider } from "@beep/runtime-client";
 
@@ -118,7 +124,7 @@ export function GlobalProviders({ children }: { children: React.ReactNode }) {
 
 Mount `KaServices` under the effect-atom `RegistryProvider`:
 
-```tsx
+```typescript
 // apps/web/src/app/layout.tsx
 import { RegistryProvider } from "@effect-atom/atom-react";
 import { KaServices } from "@beep/runtime-client";
@@ -137,7 +143,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
 Access the runtime via the `useRuntime` hook:
 
-```tsx
+```typescript
 import * as Effect from "effect/Effect";
 import { useRuntime, makeRunClientPromise } from "@beep/runtime-client";
 
@@ -164,7 +170,8 @@ function MyComponent() {
 
 Create atoms that automatically have access to the client runtime through `KaServices`:
 
-```tsx
+```typescript
+import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
 import * as O from "effect/Option";
 import { Atom, useAtom } from "@effect-atom/atom-react";
@@ -190,19 +197,21 @@ const signOutAtom = Atom.fn(
 export const useSignOut = () => useAtom(signOutAtom);
 ```
 
-### Extending the Runtime with IndexedDB
+### Using IndexedDB Storage
 
-For atoms that need persistent storage, you can provide additional layers:
+For persistent browser storage, use the IndexedDB layer:
 
-```tsx
+```typescript
 import * as Effect from "effect/Effect";
-import { layerIndexedDB } from "@beep/runtime-client/services/common/layer-indexed-db";
 import * as KeyValueStore from "@effect/platform/KeyValueStore";
+import { layerIndexedDB } from "@beep/runtime-client/layers/layer-indexed-db";
 
 // Use IndexedDB in an Effect
 const storeData = Effect.gen(function* () {
   const store = yield* KeyValueStore.KeyValueStore;
   yield* store.set("myKey", "myValue");
+  const value = yield* store.get("myKey");
+  return value;
 }).pipe(Effect.provide(layerIndexedDB({ dbName: "beep-cache", storeName: "kv" })));
 ```
 
@@ -210,12 +219,13 @@ const storeData = Effect.gen(function* () {
 
 Offload computation to a web worker:
 
-```tsx
+```typescript
 import * as Effect from "effect/Effect";
 import { makeRunClientPromise } from "@beep/runtime-client";
-import { WorkerClient } from "@beep/runtime-client/worker/worker-client";
+import { WorkerClient } from "@beep/runtime-client/workers/worker-client";
+import type { LiveManagedRuntime } from "@beep/runtime-client";
 
-export const runWorkerFilter = (runtime: import("@beep/runtime-client").LiveManagedRuntime) =>
+export const runWorkerFilter = (runtime: LiveManagedRuntime) =>
   makeRunClientPromise(runtime, "worker.filterData")(
     Effect.gen(function* () {
       const worker = yield* WorkerClient;
@@ -232,10 +242,10 @@ export const runWorkerFilter = (runtime: import("@beep/runtime-client").LiveMana
 
 React to online/offline state changes:
 
-```tsx
+```typescript
 import * as Effect from "effect/Effect";
 import * as SubscriptionRef from "effect/SubscriptionRef";
-import { NetworkMonitor } from "@beep/runtime-client/services/common/network-monitor";
+import { NetworkMonitor } from "@beep/runtime-client/services/network-monitor";
 
 const checkConnectivity = Effect.gen(function* () {
   const monitor = yield* NetworkMonitor;
@@ -253,71 +263,33 @@ const checkConnectivity = Effect.gen(function* () {
 });
 ```
 
-## Effect Patterns
+## Dependencies
 
-### Namespace Imports (Required)
+| Package | Purpose |
+|---------|---------|
+| `effect` | Core Effect runtime and data structures |
+| `@effect/platform` | Cross-platform HTTP client and KeyValueStore abstractions |
+| `@effect/platform-browser` | Browser-specific implementations (Fetch, localStorage, IndexedDB, Geolocation) |
+| `@effect/rpc` | RPC protocol for web worker communication |
+| `@effect/opentelemetry` | OpenTelemetry observability integration |
+| `@effect-atom/atom-react` | Reactive atom state management for React |
+| `react` / `react-dom` | React framework for UI components |
+| `next` | Next.js App Router integration |
+| `@beep/shared-env` | Client environment configuration schema |
+| `@beep/ui` | ToasterService and UI utilities |
+| `@beep/constants` | Shared constants and environment values |
+| Various domain packages | Type definitions for IAM and Documents entities |
 
-```typescript
-import * as Effect from "effect/Effect";
-import * as Layer from "effect/Layer";
-import * as F from "effect/Function";
-import * as A from "effect/Array";
-import * as Str from "effect/String";
-import * as O from "effect/Option";
-```
+## Integration
 
-### Never Use Native Methods
+This package integrates with:
 
-```typescript
-// ❌ FORBIDDEN
-items.map(x => x.id);
-str.toUpperCase();
-Object.keys(obj);
-
-// ✅ REQUIRED
-F.pipe(items, A.map(x => x.id));
-F.pipe(str, Str.toUpperCase);
-F.pipe(obj, Struct.keys);
-```
-
-### Effect-First Development
-
-```typescript
-// ❌ Avoid async/await
-async function fetchData() {
-  const response = await fetch("/api/data");
-  return response.json();
-}
-
-// ✅ Use Effect
-import * as HttpClient from "@effect/platform/HttpClient";
-
-const fetchData = Effect.gen(function* () {
-  const client = yield* HttpClient.HttpClient;
-  const response = yield* client.get("/api/data");
-  return yield* response.json;
-});
-```
-
-## Service Boundaries
-
-### What Lives Here
-
-- Browser-only runtime infrastructure
-- Client-side ManagedRuntime assembly
-- OpenTelemetry Web SDK configuration
-- Effect-atom integration
-- Worker RPC client setup
-- Network connectivity monitoring
-- Browser storage adapters
-
-### What Lives Elsewhere
-
-- **Server runtime**: `@beep/runtime-server`
-- **Business logic**: Domain packages (`@beep/iam-domain`, `@beep/documents-domain`)
-- **Data access**: Infra packages (`@beep/iam-server`, `@beep/documents-server`)
-- **React components**: UI packages (`@beep/iam-ui`, `@beep/documents-ui`, `@beep/ui`)
-- **API contracts**: SDK packages (`@beep/iam-client`, `@beep/documents-client`)
+- **`apps/web`** — Next.js frontend mounts `BeepProvider` and `KaServices` in the App Router shell
+- **`@beep/runtime-server`** — Server-side runtime counterpart with similar observability patterns
+- **`@beep/iam-client`** / **`@beep/documents-client`** — SDK packages consume the runtime to execute client contracts
+- **`@beep/iam-ui`** / **`@beep/documents-ui`** — UI packages use atoms powered by the runtime
+- **`@beep/ui`** — Provides `ToasterService` integrated into the runtime layer
+- **`@beep/shared-env`** — Supplies client environment configuration schema
 
 ## Development
 
@@ -336,32 +308,45 @@ bun run --filter @beep/runtime-client test
 bun run --filter @beep/runtime-client build
 ```
 
-## Dependencies
+## Notes
 
-### Core Runtime
-- `effect` — Effect runtime
-- `@effect/platform` — Cross-platform HTTP, KeyValueStore
-- `@effect/platform-browser` — Browser-specific implementations
-- `@effect/rpc` — RPC protocol for worker communication
-- `@effect/opentelemetry` — Observability integration
+### Observability
 
-### Telemetry
-- `@opentelemetry/sdk-trace-web` — Web tracing
-- `@opentelemetry/exporter-trace-otlp-http` — OTLP trace export
-- `@opentelemetry/exporter-logs-otlp-http` — OTLP log export
-- `@opentelemetry/exporter-metrics-otlp-proto` — OTLP metric export
+The runtime automatically instruments all Effects with OpenTelemetry:
 
-### UI Integration
-- `@effect-atom/atom-react` — Reactive atom state management
-- `react` / `react-dom` — React framework
-- `next` — Next.js App Router
+- **Traces** exported to `clientEnv.otlpTraceExporterUrl` via OTLP HTTP
+- **Logs** exported to `clientEnv.otlpLogExporterUrl` via OTLP HTTP
+- **Metrics** exported to `clientEnv.otlpMetricExporterUrl` via OTLP Proto
 
-### Workspace Dependencies
-- `@beep/shared-server` — Environment configuration
-- `@beep/ui` — ToasterService and UI utilities
-- Various domain/table packages for typing
+Spans are automatically created when using `runClientPromise` or `makeRunClientPromise`:
 
-## Type Exports
+```typescript
+// Automatically wrapped in span "myOperation"
+makeRunClientPromise(runtime, "myOperation")(
+  Effect.gen(function* () {
+    yield* Effect.log("Inside traced operation");
+  })
+);
+```
+
+Log level is dynamically tuned based on environment:
+- **Development**: `LogLevel.Debug` with pretty console output
+- **Production**: `LogLevel.Info` with structured JSON logs
+
+### Runtime Lifecycle
+
+- `BeepProvider` creates a single `LiveManagedRuntime` instance for the entire application lifecycle
+- `RuntimeProvider` handles automatic cleanup via `ManagedRuntime.dispose` on unmount
+- `KaServices` should be mounted once under `RegistryProvider` so all atoms share the same runtime services
+
+### Testing
+
+When testing components that use the runtime:
+- Provide mock layers for browser-only services (IndexedDB, WorkerClient, NetworkMonitor)
+- Use `Layer.succeed` to create test implementations of services
+- Consider using `@beep/testkit` for Effect testing utilities
+
+### TypeScript Types
 
 ```typescript
 import type {
@@ -376,52 +361,3 @@ type MyRuntime = LiveManagedRuntime;
 // The context type containing all available services
 type MyContext = LiveRuntimeContext;
 ```
-
-## Observability
-
-The runtime automatically instruments all Effects with:
-
-- **Traces** exported to `clientEnv.otlpTraceExporterUrl`
-- **Logs** exported to `clientEnv.otlpLogExporterUrl`
-- **Metrics** exported to `clientEnv.otlpMetricExporterUrl`
-
-Spans are automatically created when using `runClientPromise` or `makeRunClientPromise`:
-
-```typescript
-// Automatically wrapped in span "myOperation"
-makeRunClientPromise(runtime, "myOperation")(
-  Effect.gen(function* () {
-    yield* Effect.log("Inside traced operation");
-  })
-);
-```
-
-## Best Practices
-
-1. **Single Runtime Instance**: `BeepProvider` creates one runtime for the entire application lifecycle
-2. **Atom Registry**: Mount `KaServices` once under `RegistryProvider` so all atoms share the same runtime
-3. **Proper Cleanup**: `RuntimeProvider` handles `ManagedRuntime.dispose` on unmount
-4. **Span Naming**: Use descriptive span names in `makeRunClientPromise` for observability
-5. **Error Handling**: Use `Effect.catchTag` for typed error recovery
-6. **Testing**: Provide mock layers for browser-only services (IndexedDB, WorkerClient) in tests
-
-## Migration Notes
-
-If upgrading from a previous runtime setup:
-
-1. Replace manual `ManagedRuntime.make` calls with `BeepProvider`
-2. Move atom runtime initialization to use `KaServices` under `RegistryProvider`
-3. Update any direct telemetry configuration to use `clientRuntimeLayer` merging
-4. Replace `runPromise` calls with `makeRunClientPromise` for automatic span wrapping
-5. Migrate localStorage usage to the provided `KeyValueStore` service
-
-## Further Reading
-
-- `AGENTS.md` — Detailed implementation guidance for AI agents
-- `@beep/runtime-server` — Server-side runtime counterpart
-- `@effect/platform-browser` — Browser platform documentation
-- Effect documentation: https://effect.website
-
-## License
-
-MIT

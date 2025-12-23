@@ -28,17 +28,23 @@ This is a **common layer** package consumed by `apps/notes` and potentially othe
 | `SerializedEditorState` | Top-level editor state schema |
 | `SerializedLexicalNode` | Discriminated union of all node types |
 | `SerializedRootNode` | Root container node schema |
+| `SerializedTextNode` | Text node with formatting schema |
+| `SerializedParagraphNode` | Paragraph container node schema |
 | `decodeEditorStateUnknownSync` | Synchronous validation from unknown input |
 | `decodeEditorStateSync` | Synchronous validation from typed input |
-| `encodeEditorStateSync` | Encode to JSON for persistence |
+| `encodeEditorStateSync` | Synchronous encoding to JSON for persistence |
+| `LexicalSchemaValidationError` | Tagged error for validation failures |
+| `UnknownNodeTypeError` | Tagged error for unknown node types |
 
 ## Usage
 
 ### Basic Validation
 
 ```typescript
-import { SerializedEditorState, decodeEditorStateUnknownSync } from "@beep/lexical-schemas";
-import * as S from "effect/Schema";
+import {
+  decodeEditorStateUnknownSync,
+  encodeEditorStateSync,
+} from "@beep/lexical-schemas";
 
 // Validate editor state from JSON (e.g., from database or API)
 const editorState = decodeEditorStateUnknownSync(jsonInput);
@@ -47,7 +53,7 @@ const editorState = decodeEditorStateUnknownSync(jsonInput);
 const rootChildren = editorState.root.children;
 
 // Encode back to JSON for persistence
-const encoded = S.encodeSync(SerializedEditorState)(editorState);
+const encoded = encodeEditorStateSync(editorState);
 ```
 
 ### Effect-Based Validation
@@ -56,6 +62,7 @@ const encoded = S.encodeSync(SerializedEditorState)(editorState);
 import { SerializedEditorState } from "@beep/lexical-schemas";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
+import * as F from "effect/Function";
 
 const validateEditorContent = (input: unknown) =>
   Effect.gen(function* () {
@@ -64,11 +71,29 @@ const validateEditorContent = (input: unknown) =>
   });
 
 // With error handling
-const program = validateEditorContent(jsonInput).pipe(
+const program = F.pipe(
+  validateEditorContent(jsonInput),
   Effect.catchTag("ParseError", (error) =>
     Effect.fail({ _tag: "InvalidEditorContent" as const, cause: error })
   )
 );
+```
+
+### Error Handling
+
+```typescript
+import { decodeEditorStateUnknownSync, LexicalSchemaValidationError } from "@beep/lexical-schemas";
+import * as Effect from "effect/Effect";
+
+// Effect-based with tagged errors
+const safeValidate = (input: unknown) =>
+  Effect.try({
+    try: () => decodeEditorStateUnknownSync(input),
+    catch: (error) =>
+      new LexicalSchemaValidationError({
+        message: String(error),
+      }),
+  });
 ```
 
 ### Pattern Matching on Node Types
@@ -90,7 +115,18 @@ const describeNode = (node: SerializedLexicalNode.Type): string =>
     Match.tag("heading", (n) => `Heading ${n.tag}`),
     Match.tag("list", (n) => `${n.listType} list`),
     Match.tag("link", (n) => `Link to ${n.url}`),
-    Match.orElse((n) => n.type)
+    Match.tag("autolink", (n) => `Autolink to ${n.url}`),
+    Match.tag("code", (n) => `Code block (${n.language ?? "plaintext"})`),
+    Match.tag("code-highlight", (n) => `Code highlight: ${n.text}`),
+    Match.tag("quote", () => "Quote block"),
+    Match.tag("listitem", (n) => `List item (value: ${n.value})`),
+    Match.tag("linebreak", () => "Line break"),
+    Match.tag("tab", () => "Tab"),
+    Match.tag("root", (n) =>
+      `Root with ${F.pipe(n.children, A.length)} children`
+    ),
+    Match.tag("horizontalrule", () => "Horizontal rule"),
+    Match.exhaustive
   );
 ```
 
@@ -99,7 +135,8 @@ const describeNode = (node: SerializedLexicalNode.Type): string =>
 ```typescript
 import * as A from "effect/Array";
 import * as F from "effect/Function";
-import type { SerializedEditorState } from "@beep/lexical-schemas";
+import * as P from "effect/Predicate";
+import type { SerializedEditorState, SerializedLexicalNode } from "@beep/lexical-schemas";
 
 const extractAllText = (state: SerializedEditorState.Type): string[] => {
   const collectText = (nodes: readonly SerializedLexicalNode.Type[]): string[] =>
@@ -107,7 +144,7 @@ const extractAllText = (state: SerializedEditorState.Type): string[] => {
       nodes,
       A.flatMap((node) => {
         if (node.type === "text") return [node.text];
-        if ("children" in node) return collectText(node.children);
+        if (P.hasProperty(node, "children")) return collectText(node.children);
         return [];
       })
     );
@@ -205,18 +242,28 @@ Formats can be combined: `format: 3` = bold + italic.
 To add custom node types, extend the union in `src/nodes/element.ts`:
 
 ```typescript
-// In element.ts, add to the S.Union inside SerializedLexicalNode:
-S.Struct({
-  type: S.tag("callout"),  // Use S.tag for discriminator
-  version: S.Number,
-  calloutType: S.Union(S.Literal("info"), S.Literal("warning"), S.Literal("error")),
-  children: S.Array(SerializedLexicalNode),
-  direction: TextDirectionType,
-  format: ElementFormatType,
-  indent: S.Number,
-  textFormat: S.optional(S.Number),
-  textStyle: S.optional(S.String),
-}),
+import * as S from "effect/Schema";
+
+// In element.ts, add to the S.Union inside SerializedLexicalNode class:
+export class SerializedLexicalNode extends S.suspend(
+  (): S.Schema<SerializedLexicalNode.Type> =>
+    S.Union(
+      // ... existing node types ...
+
+      // Add your custom node to the union
+      S.Struct({
+        type: S.tag("callout"),  // S.tag creates discriminated union member
+        version: S.Number,
+        calloutType: S.Union(S.Literal("info"), S.Literal("warning"), S.Literal("error")),
+        children: S.Array(SerializedLexicalNode),  // Recursive reference
+        direction: TextDirectionType,
+        format: ElementFormatType,
+        indent: S.Number,
+        textFormat: S.optional(S.Number),
+        textStyle: S.optional(S.String),
+      }),
+    )
+).annotations({ ... }) {}
 
 // Then add to the namespace Type union:
 export declare namespace SerializedLexicalNode {
@@ -238,6 +285,15 @@ export declare namespace SerializedLexicalNode {
     // ... existing types
     | CalloutNode;  // Add here
 }
+
+// Pattern match with Match.tag (not S.tag):
+import * as Match from "effect/Match";
+
+const handleCallout = (node: SerializedLexicalNode.Type) =>
+  Match.value(node).pipe(
+    Match.tag("callout", (n) => `Callout: ${n.calloutType}`),
+    Match.orElse(() => "Other node")
+  );
 ```
 
 ## Dependencies
@@ -245,15 +301,20 @@ export declare namespace SerializedLexicalNode {
 | Package | Purpose |
 |---------|---------|
 | `effect` | Effect Schema runtime and utilities |
-| `@beep/identity` | Package identity annotations |
-| `@beep/schema` | Base schema utilities (peer) |
+| `@beep/identity` | Package identity annotations (peer) |
+| `@beep/schema` | Base schema utilities and kits (peer) |
 | `@beep/invariant` | Assertion helpers (peer) |
+| `@beep/utils` | Effect utility functions (peer) |
+| `@beep/constants` | Schema-backed constants (peer) |
 
 ## Integration
 
-This package is consumed by:
-- `apps/notes` - Rich text content validation for note documents
-- Any package needing to persist Lexical editor state
+This package is designed for:
+- Applications needing to persist Lexical editor state to databases
+- Validating rich text content from external sources
+- Type-safe handling of collaborative editor content
+
+Planned integration with `apps/notes` for rich text content validation.
 
 ## Development
 
@@ -277,11 +338,13 @@ bun run --filter @beep/lexical-schemas build
 ## Notes
 
 - All schemas use `S.suspend` for recursive node references
-- Node types are discriminated by the `type` field
-- Use `Match.tag` for pattern matching (not `Match.when({ type: "..." })`)
+- Node types are discriminated by the `type` field using `S.tag` in schema definitions
+- Use `Match.tag` for pattern matching on discriminated unions (not `Match.when`)
+- `S.tag("value")` creates a schema discriminator, `Match.tag("value", fn)` matches on it
 - Container nodes have `children: S.Array(SerializedLexicalNode)`
 - Leaf nodes (text, linebreak, tab, code-highlight, horizontalrule) have no children
 - Text formatting uses bitwise flags (see Text Formatting table)
+- Always use `Match.exhaustive` for complete pattern matching to ensure all node types are handled
 
 ## License
 

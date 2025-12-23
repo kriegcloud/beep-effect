@@ -27,12 +27,21 @@ Key features:
 
 ## Dependencies
 
-| Package | Purpose |
-|---------|---------|
-| `effect` | Effect Array utilities (`A.makeBy`) |
-| `@beep/utils` | Time formatting helpers |
+### Runtime Dependencies
 
-**Note**: The package declares additional peer dependencies that are not actively used in the current implementation. See [Known Issues](#known-issues) section.
+| Package | Purpose | Usage |
+|---------|---------|-------|
+| `effect` | Effect Array utilities | `A.makeBy` in `_time.ts`, `A.*` in `_others.ts` |
+| `@beep/utils` | Time formatting helpers | `fAdd`, `fSub`, `today` in overview/invoice scenarios |
+
+### Declared But Unused
+
+The package declares several peer dependencies in `package.json` that are not actively imported or used in the current implementation:
+- `@beep/schema`, `@beep/constants`, `@beep/identity`, `@beep/invariant`
+- `@effect/platform`, `@effect/cluster`, `@effect/workflow`
+- `uuid`, `picocolors`
+
+This represents technical debt documented in `AGENTS.md` ("Known Issues" section). The package is intentionally lean to remain client-safe and side-effect free.
 
 ## Key Exports
 

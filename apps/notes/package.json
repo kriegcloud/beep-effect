@@ -1,6 +1,7 @@
 {
   "name": "@beep/notes",
   "version": "0.1.0",
+  "description": "Collaborative note-taking and document editing application built with Next.js 15, Plate editor, and YJS real-time collaboration",
   "private": true,
   "type": "module",
   "scripts": {

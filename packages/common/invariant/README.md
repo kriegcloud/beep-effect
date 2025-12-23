@@ -9,8 +9,16 @@ Consistent, environment-agnostic assertion library for runtime validation across
 ## Why This Package Exists
 
 - **Consistency** — Single canonical API for preconditions, postconditions, and impossible branches
-- **Observability-friendly** — Failures are `InvariantViolation` instances (Effect Schema tagged errors) suitable for logging/telemetry
+- **Observability-friendly** — Failures are `InvariantViolation` error instances with structured metadata suitable for logging/telemetry
 - **Architecture-safe** — Pure runtime code with no I/O, logging, or platform dependencies; safe in all layers
+
+## Installation
+
+```bash
+# This package is internal to the monorepo
+# Add as a dependency in your package.json:
+"@beep/invariant": "workspace:*"
+```
 
 ## Key Exports
 
@@ -19,14 +27,16 @@ Consistent, environment-agnostic assertion library for runtime validation across
 | `invariant`             | Core assertion function that throws `InvariantViolation` when condition is falsy             |
 | `invariant.nonNull`     | Type-narrowing helper that asserts value is `NonNullable<T>`                                 |
 | `invariant.unreachable` | Exhaustiveness guard for impossible code paths (accepts `never`)                             |
-| `InvariantViolation`    | Tagged error class with `message`, `file`, `line`, and `args` metadata                      |
-| `CallMetadata`          | Effect Schema for validation of assertion metadata (`file`, `line`, `args`)                  |
+| `InvariantViolation`    | Error class with `message`, `file`, `line`, and `args` metadata                             |
+| `CallMetadata`          | Effect Schema struct for validation of assertion metadata (`file`, `line`, `args`)          |
 
-## Architecture Fit
+## Integration
 
-- **Vertical Slice + Hexagonal**: Safe for all layers (domain, application, api, db, ui) because it's pure and infrastructure-free
-- **Effect-first**: `InvariantViolation` is schema-backed, enabling pattern-matching and error mapping in application layers
-- **Production-ready**: Integrates with logging strategies from `docs/PRODUCTION_CHECKLIST.md` without coupling to specific implementations
+`@beep/invariant` is a foundational package used throughout the monorepo for runtime assertions:
+
+- **Safe for all layers**: domain, tables, server, client, ui (pure runtime code with no I/O or platform dependencies)
+- **Effect-first**: `InvariantViolation` carries structured metadata, enabling pattern-matching and error mapping in application layers
+- **Production-ready**: Integrates with logging strategies without coupling to specific implementations
 - **Path alias**: Import as `@beep/invariant` (configured in `tsconfig.base.jsonc`)
 
 ## Module Structure
@@ -383,13 +393,13 @@ const domainError = Effect.catchTag(safeOperation, "InvariantViolation", (err) =
 
 ## Testing
 
-- Unit tests use Vitest
+- Unit tests use Bun's built-in test runner
 - Assert on `InvariantViolation` instances with `.toThrow(InvariantViolation)`
 - Validate error properties: `message`, `file`, `line`, `args`
 - Avoid testing exact line numbers (they may differ across builds)
 
 ```typescript
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "bun:test";
 import { invariant, InvariantViolation } from "@beep/invariant";
 
 describe("invariant", () => {
@@ -428,7 +438,7 @@ describe("invariant", () => {
 |------------------|------------------------------------------------------------------------------|
 | `@beep/types`    | Compile-time helpers only; no runtime overlap                               |
 | `@beep/utils`    | Pure runtime helpers; no assertions or error types                           |
-| `@beep/errors/*` | Application/serverstructure error facades; `InvariantViolation` stays generic |
+| `@beep/errors`   | Application/server error facades; `InvariantViolation` stays generic        |
 | `@beep/schema`   | Uses `@beep/invariant` for schema validation assertions                     |
 
 ## Guidelines for Adding New Features

@@ -2,20 +2,16 @@
 
 Repository automation and code generation utilities for the beep-effect monorepo.
 
-## Overview
+## Purpose
 
-`@beep/repo-scripts` orchestrates repo-wide maintenance workflows including environment setup, asset generation, locale hydration, and workspace bootstrapping. All scripts follow Effect-first patterns with explicit Layer composition, schema validation, and structured error handling.
+`@beep/repo-scripts` orchestrates repo-wide maintenance workflows including environment setup, asset generation, locale hydration, and workspace bootstrapping. It provides:
 
-## Key Features
+- **Infrastructure Automation** - Interactive development environment setup with Docker orchestration and database migrations
+- **Code Generation** - Asset path validation, locale fetching, and TypeScript constant generation
+- **Maintenance Tooling** - Workspace cleanup, JSDoc analysis, TypeScript reference synchronization
+- **Codemod Framework** - AST-based code transformation utilities for automated refactoring
 
-- **Bootstrap Automation** - Interactive infrastructure setup (Docker, migrations, env scaffolding)
-- **Secret Generation** - Secure `.env` hydration with Effect Random and cryptographic utilities
-- **Asset Pipeline** - Public asset crawler with schema validation and AVIF/WebP conversion
-- **Locale Generation** - CLDR-based locale fetching and code generation
-- **JSDoc Analysis** - Static analysis tool for enforcing documentation standards
-- **Workspace Purging** - Intelligent cleanup of build artifacts across all workspaces
-- **TypeScript Reference Sync** - Automated workspace reference management
-- **Codemods** - AST-based code transformation utilities for maintenance tasks
+All scripts follow Effect-first patterns with explicit Layer composition, schema validation, and structured error handling. This package is primarily executed via scripts rather than imported as a library, though key utilities are exported for reuse in other tooling packages.
 
 ## Installation
 
@@ -25,22 +21,75 @@ Repository automation and code generation utilities for the beep-effect monorepo
 "@beep/repo-scripts": "workspace:*"
 ```
 
-## Package Exports
+## Key Exports
 
-This package exports utilities and schemas for use in other tooling packages:
+This package primarily provides executable scripts, but also exports utilities for use in other tooling packages:
+
+| Export | Description |
+|--------|-------------|
+| `AssetPath` | Schema for validating public asset paths with JS accessor rules |
+| `AssetPaths` | Schema for validating collections of asset paths (deduplication, collision detection) |
+| `pathObjFromPaths` | Build type-safe accessor object from asset path arrays |
+| `toJsAccessor` | Convert kebab-case to camelCase for JS accessors |
+| `toNestedTuple` | Convert path string to nested tuple structure |
+| `fetchAvailableCLDRLocales` | Effect for fetching locale list from Unicode CLDR |
+| `generateLocalesContent` | Effect for generating locale constant file |
+| `convertDirectoryToNextgen` | Convert images to AVIF format using WASM encoders |
+
+**Note:** The package uses wildcard exports (`"./*": "./src/*.ts"`), allowing imports from any source file via `@beep/repo-scripts/path/to/module`.
+
+## Usage
+
+### Asset Path Validation
 
 ```typescript
-// Asset path utilities and schemas
 import { AssetPath, AssetPaths, pathObjFromPaths } from "@beep/repo-scripts/utils";
+import * as S from "effect/Schema";
+import * as Effect from "effect/Effect";
 
-// CLDR locale fetching
-import { fetchAvailableCLDRLocales, generateLocalesContent } from "@beep/repo-scripts/i18n";
+// Validate single asset path
+const validatePath = Effect.gen(function* () {
+  const path = "/assets/logo.png";
+  return yield* S.decodeUnknown(AssetPath)(path);
+});
 
-// Image conversion utilities
-import { convertDirectoryToNextgen } from "@beep/repo-scripts/utils/convert-to-nextgen";
+// Build type-safe accessor object
+const publicPaths = [
+  "/logo.png",
+  "/assets/background/bg-3-blur.avif"
+] as const;
+
+const assets = pathObjFromPaths(publicPaths);
+// assets.logo === "/logo.png"
+// assets.assets.background.bg3Blur === "/assets/background/bg-3-blur.avif"
 ```
 
-Scripts in `src/` are meant to be executed directly via `package.json` scripts or CLI, not imported.
+### CLDR Locale Fetching
+
+```typescript
+import { fetchAvailableCLDRLocales } from "@beep/repo-scripts/i18n";
+import * as Effect from "effect/Effect";
+import * as FetchHttpClient from "@effect/platform/FetchHttpClient";
+
+const program = Effect.gen(function* () {
+  const locales = yield* fetchAvailableCLDRLocales;
+  return locales; // ["af", "ar", "bg", ...]
+}).pipe(Effect.provide(FetchHttpClient.layer));
+```
+
+### Image Conversion
+
+```typescript
+import { convertDirectoryToNextgen } from "@beep/repo-scripts/utils/convert-to-nextgen";
+import * as Effect from "effect/Effect";
+
+const convertAssets = Effect.gen(function* () {
+  const conversions = yield* convertDirectoryToNextgen({
+    dir: "/path/to/public"
+  });
+  // Returns: [{ source: "/path/logo.png", target: "/path/logo.avif" }]
+});
+```
 
 ## Scripts
 
@@ -60,14 +109,17 @@ bun run gen:secrets
 
 ```bash
 # Generate public asset paths with validation
+# Note: Run from repo root as `bun run gen:beep-paths`
 bun run generate-public-paths
 
 # Generate locale definitions from CLDR
 bun run gen:locales
 
-# Execute locale generator (prints to console)
+# Test script execution (prints "beep")
 bun run execute
 ```
+
+> **Note:** The `iconify` script is referenced in `package.json` but the source file (`src/iconify/index.ts`) does not exist. This appears to be a stale reference that should be removed or the script should be implemented.
 
 ### Maintenance
 
@@ -85,93 +137,26 @@ bun run docs:lint
 bun run docs:lint:file --file path/to/file.ts
 ```
 
-### Development
+### Development Commands
 
 ```bash
 # Type check
-bun run check
+bun run --filter @beep/repo-scripts check
 
 # Lint with Biome
-bun run lint
+bun run --filter @beep/repo-scripts lint
 
 # Auto-fix linting issues
-bun run lint:fix
+bun run --filter @beep/repo-scripts lint:fix
 
 # Run tests
-bun run test
+bun run --filter @beep/repo-scripts test
 
 # Generate coverage report
-bun run coverage
+bun run --filter @beep/repo-scripts coverage
 ```
 
-## Architecture
-
-### Effect-First Design
-
-All scripts are built on Effect's composable effect system:
-
-```typescript
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as BunRuntime from "@effect/platform-bun/BunRuntime";
-import * as BunContext from "@effect/platform-bun/BunContext";
-
-const program = Effect.gen(function* () {
-  const fs = yield* FileSystem.FileSystem;
-  const path = yield* Path.Path;
-
-  // Your logic here
-  yield* Console.log("Program complete");
-});
-
-BunRuntime.runMain(program.pipe(Effect.provide(BunContext.layer)));
-```
-
-### Layer Composition
-
-Scripts compose layers explicitly for filesystem access, networking, and utilities:
-
-```typescript
-import { FsUtilsLive } from "@beep/tooling-utils/FsUtils";
-import { RepoUtilsLive } from "@beep/tooling-utils/RepoUtils";
-import * as FetchHttpClient from "@effect/platform/FetchHttpClient";
-
-const layer = Layer.mergeAll(
-  BunContext.layer,
-  FsUtilsLive,
-  RepoUtilsLive,
-  FetchHttpClient.layer
-);
-
-BunRuntime.runMain(program.pipe(Effect.provide(layer)));
-```
-
-### Schema Validation
-
-Generated outputs are validated through Effect Schema before writing to disk:
-
-```typescript
-import * as S from "effect/Schema";
-import { AssetPaths } from "@beep/repo-scripts/utils";
-
-const validateAssets = Effect.gen(function* () {
-  const rawPaths = collectFiles(publicDir);
-
-  // Schema validation with detailed error messages
-  const validatedPaths = yield* S.decodeUnknown(AssetPaths)(rawPaths).pipe(
-    Effect.mapError((error) =>
-      new DomainError({
-        message: `Invalid asset paths: ${TreeFormatter.formatErrorSync(error)}`,
-        cause: error,
-      })
-    )
-  );
-
-  return validatedPaths;
-});
-```
-
-## Core Scripts
+## Script Reference
 
 ### bootstrap.ts
 
@@ -346,6 +331,20 @@ AST-based code transformation framework using jscodeshift for automated maintena
 bun run dotenvx -- bunx tsx src/codemod.ts
 ```
 
+### Workspace Templates
+
+Handlebars templates for scaffolding new workspace packages are available in `src/templates/package/`:
+
+**Available Templates:**
+- `package.json.hbs` - Package manifest template
+- `tsconfig.json.hbs` - Base TypeScript configuration
+- `tsconfig.build.json.hbs` - Build-specific TypeScript config
+- `tsconfig.src.json.hbs` - Source-specific TypeScript config
+- `tsconfig.test.json.hbs` - Test-specific TypeScript config (note: typo in filename)
+- `vitest.config.ts.hbs` - Vitest test configuration
+
+These templates support consistent workspace structure across the monorepo.
+
 ### sync-ts-references.ts
 
 Automated TypeScript workspace reference management to keep `tsconfig.json` files in sync.
@@ -363,164 +362,6 @@ bun run dotenvx -- bunx tsx src/sync-ts-references.ts
 
 # Check mode (verify without modifying)
 bun run dotenvx -- bunx tsx src/sync-ts-references.ts --check
-```
-
-## Utilities
-
-### Asset Path Schema
-
-Type-safe asset path validation and accessor generation.
-
-```typescript
-import { AssetPath, AssetPaths, pathObjFromPaths } from "@beep/repo-scripts/utils";
-
-// Validate single path
-const path = "/assets/logo.png";
-const validated = S.decodeUnknownSync(AssetPath)(path);
-
-// Validate collection
-const paths = ["/logo.png", "/assets/bg.avif"];
-const validPaths = S.decodeUnknownSync(AssetPaths)(paths);
-
-// Generate type-safe accessor object
-const publicPaths = [
-  "/logo.png",
-  "/assets/background/bg-3-blur.avif"
-] as const;
-
-const assets = pathObjFromPaths(publicPaths);
-// assets.logo === "/logo.png"
-// assets.assets.background.bg3Blur === "/assets/background/bg-3-blur.avif"
-```
-
-### Image Conversion
-
-WASM-based image format conversion using jsquash libraries.
-
-```typescript
-import { convertDirectoryToNextgen } from "@beep/repo-scripts/utils/convert-to-nextgen";
-
-const conversions = yield* convertDirectoryToNextgen({
-  dir: "/path/to/public"
-});
-// Returns: [{ source: "/path/logo.png", target: "/path/logo.avif" }]
-```
-
-**Supported Conversions:**
-- JPEG → AVIF
-- PNG → AVIF
-- WebP → AVIF
-
-### CLDR Utilities
-
-Fetch and process locale data from the Unicode CLDR repository.
-
-```typescript
-import { fetchAvailableCLDRLocales } from "@beep/repo-scripts/i18n";
-import * as Effect from "effect/Effect";
-import * as FetchHttpClient from "@effect/platform/FetchHttpClient";
-
-const program = Effect.gen(function* () {
-  // Fetch latest locales from CLDR
-  const locales = yield* fetchAvailableCLDRLocales;
-  return locales;
-}).pipe(Effect.provide(FetchHttpClient.layer));
-```
-
-**Features:**
-- Fetches from pinned CLDR JSON commit for stability
-- Returns sorted array of locale codes
-- Uses Effect Schema for validation
-- Requires `FetchHttpClient.Fetch` service
-
-## Effect Patterns
-
-### Import Conventions
-
-```typescript
-// Namespace imports for Effect modules
-import * as Effect from "effect/Effect";
-import * as Console from "effect/Console";
-import * as Layer from "effect/Layer";
-
-// Single-letter aliases for utilities
-import * as A from "effect/Array";
-import * as F from "effect/Function";
-import * as O from "effect/Option";
-import * as S from "effect/Schema";
-import * as Str from "effect/String";
-```
-
-### No Native Methods
-
-This package strictly follows Effect utilities over native JavaScript methods:
-
-```typescript
-// Array operations
-F.pipe(items, A.map(fn));           // NOT items.map(fn)
-F.pipe(items, A.filter(fn));        // NOT items.filter(fn)
-F.pipe(items, A.reduce(0, fn));     // NOT items.reduce(fn, 0)
-
-// String operations
-F.pipe(str, Str.split(","));        // NOT str.split(",")
-F.pipe(str, Str.trim);              // NOT str.trim()
-F.pipe(str, Str.toUpperCase);       // NOT str.toUpperCase()
-
-// Object operations
-F.pipe(obj, Struct.keys);           // NOT Object.keys(obj)
-F.pipe(obj, Record.values);         // NOT Object.values(obj)
-```
-
-### Error Handling
-
-Use `DomainError` for structured error reporting:
-
-```typescript
-import { DomainError } from "@beep/tooling-utils/repo";
-
-const program = Effect.gen(function* () {
-  const result = yield* riskyOperation.pipe(
-    Effect.mapError((cause) =>
-      new DomainError({
-        message: "Operation failed with specific context",
-        cause,
-      })
-    )
-  );
-});
-```
-
-### CLI Commands
-
-Use `@effect/cli` for argument parsing:
-
-```typescript
-import * as Command from "@effect/cli/Command";
-import * as Options from "@effect/cli/Options";
-
-const options = {
-  scope: F.pipe(
-    Options.text("scope"),
-    Options.withAlias("s"),
-    Options.withDefault("schema")
-  ),
-  verbose: F.pipe(
-    Options.boolean("verbose"),
-    Options.withAlias("v"),
-    Options.withDefault(false)
-  ),
-};
-
-const myCommand = Command.make("analyze", options, (config) =>
-  Effect.gen(function* () {
-    yield* Console.log(`Analyzing scope: ${config.scope}`);
-    // Command logic
-  })
-);
-
-const cli = Command.run(myCommand, { name: "my-cli", version: "1.0.0" });
-
-BunRuntime.runMain(cli(process.argv).pipe(Effect.provide(BunContext.layer)));
 ```
 
 ## Generated Outputs
@@ -558,6 +399,50 @@ export const ALL_LOCALES = [
 ```
 
 The script also generates an internal cache at `tooling/repo-scripts/src/i18n/_generated/available-locales.ts` for testing and development.
+
+## Dependencies
+
+| Package | Purpose |
+|---------|---------|
+| `@beep/tooling-utils` | Filesystem operations (FsUtils), repository utilities (RepoUtils) |
+| `@beep/schema` | EntityId, Schema utilities |
+| `@beep/constants` | Receives generated asset paths |
+| `@beep/invariant` | Assertion contracts |
+| `@effect/platform` | FileSystem, Path, HTTP client abstractions |
+| `@effect/platform-bun` | Bun runtime and context |
+| `@effect/cli` | Command-line argument parsing |
+| `@jsquash/*` | WASM-based image encoding/decoding (AVIF, JPEG, PNG, WebP) |
+| `typescript` | TypeScript compiler API |
+| `ts-morph` | TypeScript AST manipulation |
+| `jscodeshift` | Codemod transformation framework |
+
+## Integration
+
+### Generated Artifacts
+
+This package generates code consumed by other packages in the monorepo:
+
+**Asset Paths** (`@beep/constants`)
+- Source: `generate-asset-paths.ts`
+- Target: `packages/common/constants/src/_generated/asset-paths.ts`
+- Consumers: `@beep/web`, `@beep/ui` (for type-safe asset references)
+
+**Locales** (`@beep/schema`)
+- Source: `generate-locales.ts`
+- Target: `packages/common/schema/src/custom/locales/ALL_LOCALES.generated.ts`
+- Consumers: `@beep/schema`, `@beep/iam-domain` (for locale validation)
+
+### Bootstrap Flow
+
+The `bootstrap.ts` script orchestrates initial setup:
+1. Copies `.env.example` → `.env` (if missing)
+2. Invokes `generate-env-secrets.ts` for secret generation
+3. Starts Docker services via root script
+4. Applies database migrations via `@beep/db-admin`
+
+### Workspace Scaffolding
+
+Templates in `src/templates/package/*.hbs` provide Handlebars scaffolding for new workspace packages, ensuring consistency in `package.json`, `tsconfig*.json`, and `vitest.config.ts` across the monorepo.
 
 ## Development Workflow
 
@@ -605,58 +490,41 @@ const program = Effect.gen(function* () {
 });
 ```
 
-## Dependencies
+## Development
 
-### Core
-- `effect` - Effect runtime and standard library
-- `@effect/platform` - Platform abstractions
-- `@effect/platform-bun` - Bun-specific implementations
-- `@effect/cli` - CLI argument parsing
+```bash
+# Type check
+bun run --filter @beep/repo-scripts check
 
-### Utilities
-- `@beep/tooling-utils` - Filesystem and repository utilities
-- `@beep/schema` - Schema definitions and utilities
-- `@beep/constants` - Shared constants
+# Lint
+bun run --filter @beep/repo-scripts lint
 
-### Image Processing
-- `@jsquash/avif` - AVIF encoding
-- `@jsquash/jpeg` - JPEG decoding
-- `@jsquash/png` - PNG decoding
-- `@jsquash/webp` - WebP decoding
+# Auto-fix linting issues
+bun run --filter @beep/repo-scripts lint:fix
 
-### Analysis & Transformation
-- `typescript` - TypeScript compiler API
-- `ts-morph` - TypeScript AST manipulation
-- `jscodeshift` - Codemod framework
-- `glob` - File pattern matching
+# Run tests
+bun run --filter @beep/repo-scripts test
 
-## Contributing
+# Generate coverage report
+bun run --filter @beep/repo-scripts coverage
+```
 
-### Code Style
+## Notes
 
-- Use Effect namespace imports
-- Prefer Effect utilities over native methods
-- Compose layers explicitly
-- Validate with schemas before IO
-- Use `DomainError` for errors
-- Follow Effect naming conventions
+### Stale Script Reference
 
-### Testing Requirements
+The `iconify` script in `package.json` references `src/iconify/index.ts`, which does not exist. This script should either be removed or implemented.
 
-- Test exported logic functions
-- Provide test layers for dependencies
-- Cover error paths
-- Validate schema edge cases
+### Template Filename Typo
 
-### Documentation
+The file `src/templates/package/tsconifg.test.json.hbs` has a typo in its name (should be `tsconfig.test.json.hbs`).
 
-All exported functions must include:
-- `@category` - Functional categorization
-- `@example` - Usage example
-- `@since` - Version introduced
+### Effect-First Patterns
 
-Run `bun run docs:lint` to verify compliance.
+All scripts in this package follow strict Effect-first development:
+- No native `Array` or `String` methods - use `A.*` and `Str.*` from `effect`
+- Explicit Layer composition for dependencies
+- Schema validation with `effect/Schema` before all I/O operations
+- Structured error handling with `DomainError` from `@beep/tooling-utils`
 
-## License
-
-MIT
+See `AGENTS.md` for detailed authoring guidelines and the root `CLAUDE.md` for comprehensive Effect patterns.

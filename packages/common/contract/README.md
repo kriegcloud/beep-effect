@@ -110,7 +110,6 @@ Use annotation tags to enrich contracts with metadata for logging, telemetry, an
 
 ```typescript
 import { Contract } from "@beep/contract";
-import * as Context from "effect/Context";
 import * as S from "effect/Schema";
 
 export const ListWidgets = Contract.make("ListWidgets", {
@@ -122,8 +121,7 @@ export const ListWidgets = Contract.make("ListWidgets", {
 })
   .annotate(Contract.Domain, "catalog")
   .annotate(Contract.Method, "widgets.list")
-  .annotate(Contract.Title, "List Widgets")
-  .annotateContext(Context.empty());
+  .annotate(Contract.Title, "List Widgets");
 ```
 
 ### Implement with Automatic Decoding
@@ -145,8 +143,24 @@ export const listWidgets = ListWidgets.implement((payload, { continuation }) =>
 import { CreateWidget } from "./contracts";
 import * as Effect from "effect/Effect";
 
+// Using Effect.gen
 export const createWidget = CreateWidget.implement((payload, { continuation }) =>
   Effect.gen(function* () {
+    const result = yield* continuation.run((handlers) =>
+      widgetClient.create(payload, handlers)
+    );
+
+    if (result.error) {
+      return yield* WidgetError.match(result.error);
+    }
+
+    return result.data;
+  })
+);
+
+// Alternative using Effect.fn (shorter syntax)
+export const createWidgetFn = CreateWidget.implement(
+  Effect.fn(function* (payload, { continuation }) {
     const result = yield* continuation.run((handlers) =>
       widgetClient.create(payload, handlers)
     );
@@ -197,13 +211,13 @@ import { ListWidgets, CreateWidget, listWidgets, createWidget } from "./contract
 
 const WidgetsKit = ContractKit.make(ListWidgets, CreateWidget);
 
-// Type-safe implementation declarations
+// Type-safe implementation declarations - ContractKit.of ensures type safety
 const implementations = WidgetsKit.of({
   ListWidgets: listWidgets,
   CreateWidget: createWidget,
 });
 
-// Convert to Layer
+// Convert to Layer for dependency injection
 export const WidgetsLayer = WidgetsKit.toLayer(implementations);
 ```
 
@@ -293,6 +307,8 @@ const continuation = contract.continuation({
 Contracts here should be generic, reusable, and transport-independent. If a contract is slice-specific, define it in the slice's `sdk` package.
 
 ## Dependencies
+
+All dependencies are peer dependencies (must be provided by consuming packages):
 
 | Package | Purpose |
 |---------|---------|

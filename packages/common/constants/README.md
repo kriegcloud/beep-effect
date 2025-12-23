@@ -18,8 +18,14 @@ All constants leverage `BS.StringLiteralKit` from `@beep/schema` to expose `.Enu
 
 ## Installation
 
-```bash
-bun add @beep/constants
+This package is internal to the monorepo and not published separately.
+
+```json
+{
+  "dependencies": {
+    "@beep/constants": "workspace:*"
+  }
+}
 ```
 
 ### Peer Dependencies
@@ -43,10 +49,10 @@ All exports are available from the main entry point (`@beep/constants`) and opti
 | **Environment** | `EnvValue`, `NodeEnvValue` | Deployment and runtime environment literals |
 | **Authentication** | `AuthProviderNameValue`, `TaggedAuthProviderNameValue` | OAuth provider schemas with configuration |
 | **Logging** | `LogLevel`, `LogFormat`, `LogFormatTagged` | Log severity and format enums |
-| **HTTP/API** | `AllowedHeaders`, `AllowedHttpMethods` | Permitted headers and HTTP methods |
-| **Security** | `CSP_DIRECTIVES`, `CSP_HEADER`, `CspDirective` | Content Security Policy configuration |
+| **HTTP/API** | `AllowedHeaders`, `AllowedHttpMethods`, `AllowedHttpMethodsKit` | Permitted headers and HTTP methods |
+| **Security** | `CSP_DIRECTIVES`, `CSP_HEADER`, `CspDirective` (type) | Content Security Policy configuration |
 | **Business** | `SubscriptionPlanValue`, `PAGINATION_LIMIT` | Subscription tiers and pagination defaults |
-| **Asset Paths** | `assetPaths`, `pathObjFromPaths`, `toJsAccessor`, `removeExt`, `toNestedTuple`, `buildPathTuples` | Type-safe public asset path accessors and utilities |
+| **Asset Paths** | `assetPaths`, `publicPaths`, `pathObjFromPaths`, `toJsAccessor`, `removeExt`, `toNestedTuple`, `buildPathTuples` | Type-safe public asset path accessors and utilities |
 
 ### Environment Configuration
 
@@ -187,12 +193,15 @@ Permitted HTTP methods for API routes.
 **Values**: `"GET"`, `"POST"`, `"PUT"`, `"DELETE"`, `"PATCH"`
 
 ```ts
-import { AllowedHttpMethods } from "@beep/constants";
+import { AllowedHttpMethods, AllowedHttpMethodsKit } from "@beep/constants";
 
 const methods = AllowedHttpMethods.Options;
 // ["GET", "POST", "PUT", "DELETE", "PATCH"]
 
 const getMethod = AllowedHttpMethods.Enum.GET;
+
+// Access the underlying kit for advanced use cases
+const kit = AllowedHttpMethodsKit;
 ```
 
 ### Content Security Policy
@@ -240,7 +249,33 @@ const directive: CspDirective = "script-src";
 // Valid: "default-src" | "base-uri" | "form-action" | "script-src" | ...
 ```
 
-#### Working with CSP in Effect
+#### Working with CSP in Next.js Middleware
+
+Real-world usage from `apps/web/src/proxy.ts`:
+
+```ts
+import { CSP_HEADER } from "@beep/constants";
+import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
+
+const withCsp = (response: NextResponse) => {
+  response.headers.set("Content-Security-Policy", CSP_HEADER);
+  return response;
+};
+
+export async function proxy(request: NextRequest) {
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set("Content-Security-Policy", CSP_HEADER);
+
+  const response = NextResponse.next({
+    request: { headers: requestHeaders },
+  });
+
+  return withCsp(response);
+}
+```
+
+#### Extending CSP Directives with Effect
 
 ```ts
 import { CSP_DIRECTIVES } from "@beep/constants";
@@ -328,7 +363,7 @@ import { assetPaths } from "@beep/constants";
 // or via subpath: import { assetPaths } from "@beep/constants/paths";
 
 const logo = assetPaths.logo; // "/logo.avif"
-const androidIcon = assetPaths.androidChrome192x192; // "/android-chrome-192x192.png"
+const icon192 = assetPaths.icons.icon192x192; // "/icons/icon-192x192.png"
 const overlay = assetPaths.assets.background.overlay; // "/assets/background/overlay.png"
 ```
 
@@ -566,47 +601,51 @@ export declare namespace MyConstant {
 
 ### Consumed By
 
-- **@beep/shared-server** — Environment config, logging setup
-- **@beep/iam/server** — Auth provider validation
+- **@beep/shared-env** — Environment config, logging setup, auth provider validation
+- **@beep/shared-server** — File upload service (EnvValue)
+- **@beep/shared-domain** — File entity models (EnvValue)
 - **@beep/iam/ui** — Social login buttons
-- **apps/web** — Asset manifests, API route validation, CSP headers
+- **apps/web** — Asset manifests, CSP middleware, environment detection
 - **apps/server** — Environment detection, logging configuration
 
 ### Integration Points
 
 ```ts
-// In @beep/shared-server ServerEnv
+// In @beep/shared-env ServerEnv
 import { EnvValue, AuthProviderNameValue, LogFormat } from "@beep/constants";
 
 // In @beep/iam/ui sign-in flow
 import { AuthProviderNameValue } from "@beep/constants";
 const providers = AuthProviderNameValue.filter(["google", "github"]);
 
-// In apps/web next.config.ts
+// In apps/web middleware (proxy.ts)
 import { CSP_HEADER } from "@beep/constants";
-export default {
-  async headers() {
-    return [
-      {
-        source: "/:path*",
-        headers: [
-          { key: "Content-Security-Policy", value: CSP_HEADER },
-        ],
-      },
-    ];
-  },
-};
+export async function proxy(request: NextRequest) {
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set("Content-Security-Policy", CSP_HEADER);
+  // ...
+}
 
-// In apps/web manifest
+// In apps/web manifest.ts
 import { assetPaths } from "@beep/constants";
-const icons = [{ src: assetPaths.androidChrome192x192, sizes: "192x192" }];
+export default function manifest(): MetadataRoute.Manifest {
+  return {
+    name: "Business Entity & Endpoint Parser",
+    short_name: "BEEP",
+    icons: [
+      { src: assetPaths.icons.icon192x192, sizes: "192x192", type: "image/png" },
+      { src: assetPaths.icons.icon512x512, sizes: "512x512", type: "image/png" },
+    ],
+    // ...
+  };
+}
 ```
 
 ## API Reference
 
 For detailed API documentation, see:
-- [AGENTS.md](/home/elpresidank/YeeBois/projects/beep-effect/packages/common/constants/AGENTS.md) — Package-specific agent guide
-- [Source code](/home/elpresidank/YeeBois/projects/beep-effect/packages/common/constants/src) — Full type definitions and implementations
+- [AGENTS.md](./AGENTS.md) — Package-specific agent guide
+- [Source code](./src) — Full type definitions and implementations
 
 ## Contributing
 

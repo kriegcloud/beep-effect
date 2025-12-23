@@ -44,11 +44,10 @@ Effect-first observability toolkit providing logging layers, telemetry helpers, 
 
 ### Tagged Errors
 
-All errors are exported as individual classes with HTTP status annotations:
+All errors are exported as individual classes. Most include HTTP status annotations for RPC integration:
 
 | Error Class | Status | Description |
 |-------------|--------|-------------|
-| `UnknownError` | 500 | Generic wrapper with optional custom message |
 | `NotFoundError` | 404 | Resource not found |
 | `UniqueViolationError` | 409 | Unique constraint violation |
 | `DatabaseError` | 500 | Database operation failure |
@@ -58,7 +57,8 @@ All errors are exported as individual classes with HTTP status annotations:
 | `Unauthorized` | 401 | Authentication required |
 | `Forbidden` | 403 | Authorization denied |
 | `UnrecoverableError` | 500 | Fatal error marker |
-| `Es5Error` | N/A | ES5-compatible error wrapper |
+| `UnknownError` | N/A | Generic wrapper with optional custom message (no HTTP annotation) |
+| `Es5Error` | N/A | ES5-compatible error wrapper (extends Data.Error) |
 
 ## Architecture Fit
 

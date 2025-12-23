@@ -80,19 +80,23 @@ const userTable = IamDbSchema.user;
 
 ### Wire with Database Layer
 
-Pass `IamDbSchema` to `Db.make` to create a typed database client:
+Pass the schema to `Db.make` to create a typed database client:
 
 ```typescript
-import { IamDbSchema } from "@beep/iam-tables";
-import { Db } from "@beep/shared-server/db/Db";
+import { Schema } from "@beep/iam-tables/schema-object";
+import { Db } from "@beep/shared-server/Db";
+import * as Context from "effect/Context";
 import * as Layer from "effect/Layer";
 
-export const IamDbLive = Db.make({
-  schema: IamDbSchema,
-  poolConfig: {
-    /* connection pool options */
-  }
+const serviceEffect = Db.make({
+  schema: Schema,
 });
+
+export type Shape = Db.Shape<typeof Schema>;
+
+export class IamDb extends Context.Tag("@beep/iam-server/IamDb")<IamDb, Shape>() {
+  static readonly Live = Layer.scoped(this, serviceEffect);
+}
 ```
 
 ### Query with Type Safety
@@ -105,21 +109,24 @@ import { IamDbSchema } from "@beep/iam-tables";
 import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
 import * as A from "effect/Array";
+import { eq } from "drizzle-orm";
 
 export const listActiveMembers = (organizationId: string) =>
   Effect.gen(function* () {
-    const { db } = yield* IamDb.IamDb;
+    const { db } = yield* IamDb;
 
-    const rows = yield* db
-      .select({
-        memberId: IamDbSchema.member.id,
-        userId: IamDbSchema.member.userId,
-        role: IamDbSchema.member.role,
-      })
-      .from(IamDbSchema.member)
-      .where(
-        IamDbSchema.member.organizationId.eq(organizationId)
-      );
+    const rows = yield* Effect.tryPromise({
+      try: () =>
+        db
+          .select({
+            memberId: IamDbSchema.member.id,
+            userId: IamDbSchema.member.userId,
+            role: IamDbSchema.member.role,
+          })
+          .from(IamDbSchema.member)
+          .where(eq(IamDbSchema.member.organizationId, organizationId)),
+      catch: (error) => new Error("Failed to query members", { cause: error }),
+    });
 
     return F.pipe(
       rows,
@@ -225,6 +232,7 @@ export const _checkInsertAuditLog: typeof AuditLog.Model.insert.Encoded =
 - `team` — From `@beep/shared-tables`
 - `user` — From `@beep/shared-tables`
 - `session` — From `@beep/shared-tables`
+- `file` — From `@beep/shared-tables`
 
 ## What Belongs Here
 

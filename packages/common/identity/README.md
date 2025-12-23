@@ -2,9 +2,11 @@
 
 Composable identity builder for creating namespace-safe schema IDs, service tokens, and TypeId symbols across the beep-effect monorepo. Produces stable literal strings and branded symbols while enforcing runtime validation and preserving type safety.
 
-## Overview
+## Purpose
 
-This package provides the canonical identity system for all `@beep/*` namespaces, featuring:
+This package provides the canonical identity system for all `@beep/*` namespaces. It solves the problem of maintaining consistent, type-safe identifiers throughout the monorepo for Effect services, schema annotations, and module namespacing. Every package in the beep-effect ecosystem uses this system to generate stable symbols and identity strings that are validated at both compile-time and runtime.
+
+## Key Features
 
 - **Tagged Template Syntax** — Create identity strings with `$SchemaId\`TenantService\`` for clean, type-safe composition
 - **Branded Types** — `IdentityString` and `IdentitySymbol` brands preserve literal types through the type system
@@ -24,22 +26,22 @@ This package provides the canonical identity system for all `@beep/*` namespaces
 
 ### Import Strategies
 
-This package supports multiple import patterns depending on your needs:
+This package supports multiple import patterns:
 
 ```typescript
-// Strategy 1: Import via modules namespace (recommended for most use cases)
+// Recommended: Import via modules namespace
 import { modules } from "@beep/identity";
 const id = modules.$SchemaId`Entity`;
 
-// Strategy 2: Import specific composers directly
-import { $SchemaId, $IamServerId } from "@beep/identity/packages";
-const id = $SchemaId`Entity`;
+// Alternative: Import specific composers from packages module
+import * as Packages from "@beep/identity/packages";
+const id = Packages.$SchemaId`Entity`;
 
-// Strategy 3: Import types separately
-import type { types } from "@beep/identity";
-type IdString = types.IdentityString<"@beep/schema/Entity">;
+// Type-only imports
+import type { IdentityString, IdentitySymbol } from "@beep/identity/types";
+type IdString = IdentityString<"@beep/schema/Entity">;
 
-// Strategy 4: Create custom composers
+// Create custom composers for new namespaces
 import { Identifier } from "@beep/identity";
 const { $CustomId } = Identifier.make("custom-namespace");
 ```
@@ -66,23 +68,18 @@ const entityId = $SchemaId.make("TenantEntity");
 ### Using Pre-configured Module Composers
 
 ```typescript
-// Option 1: Import via modules namespace
+// Import via modules namespace (recommended)
 import { modules } from "@beep/identity";
 
 const tenantId = modules.$SchemaId`TenantProfile`;
 const fileMetaId = modules.$DocumentsDomainId`FileMetadata`;
 const userRepoId = modules.$IamServerId.compose("repos").make("UserRepo");
 
-// Option 2: Import pre-configured composers directly
-import { $SchemaId, $IamServerId, $DocumentsDomainId } from "@beep/identity/packages";
+// Compose from root $I for dynamic namespace composition
+import * as Packages from "@beep/identity/packages";
 
-const tenantId = $SchemaId`TenantProfile`;
-const userRepoId = $IamServerId.compose("repos").make("UserRepo");
-
-// Option 3: Compose from root $I
-import { $I } from "@beep/identity/packages";
-
-const { $SchemaId, $IamServerId } = $I.compose("schema", "iam-infra");
+const { $SchemaId, $IamServerId } = Packages.$I.compose("schema", "iam-server");
+const entityId = $SchemaId`Entity`;
 ```
 
 ### Schema Annotations
@@ -244,15 +241,15 @@ const annotations = $SchemaId.annotations("UserProfile", {
 
 ### Pre-configured Modules
 
-All workspace composers are exported from `packages.ts`:
+All workspace composers are exported via the `modules` namespace or directly from `packages`:
 
 ```typescript
 import { modules } from "@beep/identity";
 // OR
-import { $I, $SchemaId, $ErrorsId /* ... */ } from "@beep/identity/packages";
+import * as Packages from "@beep/identity/packages";
 
 // Root beep namespace
-modules.$I;  // or $I when imported from /packages
+modules.$I;  // or Packages.$I
 
 // Common packages
 modules.$SchemaId;
@@ -393,23 +390,24 @@ if (E.isLeft(decoded)) {
 
 ## Error Handling
 
-Three tagged error classes for different validation failures:
+Three tagged error classes from `schema.ts` provide validation failure details:
 
 ```typescript
-import {
-  InvalidSegmentError,
-  InvalidModuleSegmentError,
-  InvalidBaseError
-} from "@beep/identity/schema";
+import { InvalidSegmentError, InvalidModuleSegmentError, InvalidBaseError } from "@beep/identity/schema";
 
 try {
-  $SchemaId.compose("1invalid");
+  const { $BeepId } = Identifier.make("beep");
+  $BeepId.compose("1invalid");
 } catch (error) {
   if (error instanceof InvalidModuleSegmentError) {
     console.error(error.message);
     // => "Module segments must start with an alphabetic character..."
   }
 }
+
+// InvalidSegmentError: Empty segments or segments with leading/trailing "/"
+// InvalidModuleSegmentError: Invalid characters or numeric leading character
+// InvalidBaseError: Invalid base namespace format
 ```
 
 ## Testing
@@ -451,32 +449,33 @@ packages/common/identity/
 ## Development
 
 ```bash
-# Install dependencies
-bun install
-
 # Type checking
-bun run check
+bun run --filter @beep/identity check
 
 # Linting
-bun run lint
-bun run lint:fix
+bun run --filter @beep/identity lint
+bun run --filter @beep/identity lint:fix
+
+# Circular dependency check
+bun run --filter @beep/identity lint:circular
 
 # Build
-bun run build
+bun run --filter @beep/identity build
 
 # Tests
-bun run test
-bun run coverage
+bun run --filter @beep/identity test
+bun run --filter @beep/identity coverage
 ```
 
 ## Contributing
 
 When adding new workspace namespaces:
 
-1. Update `packages.ts` with new composer in `$I.compose(...)`
-2. Ensure segment name follows validation rules (alphanumeric, hyphens, underscores only)
-3. Add tests verifying the new composer
-4. Run `bun run check` and `bun run lint` to verify
+1. Update `packages.ts` with new composer in `$I.compose(...)` call
+2. Export the new composer constant (e.g., `export const $NewPackageId = composers.$NewPackageId`)
+3. Ensure segment name follows validation rules (starts with letter, alphanumeric/hyphens/underscores only)
+4. Add tests verifying the new composer
+5. Run `bun run --filter @beep/identity check` and `bun run --filter @beep/identity lint` to verify
 
 ## Integration Examples
 
@@ -530,13 +529,43 @@ export const users = pgTable(
 );
 ```
 
+## Key Exports
+
+| Export | Description |
+|--------|-------------|
+| `Identifier` | Core builder factory with `make()` for creating root composers |
+| `modules` | Namespace containing all pre-configured workspace composers |
+| `types` | Type definitions including `IdentityString`, `IdentitySymbol`, and validation types |
+| `packages` | Direct access to `$I` root composer and all workspace composers |
+
+## Dependencies
+
+| Package | Purpose |
+|---------|---------|
+| `effect` | Schema validation, branded types, and Effect utilities |
+
+**Note**: `@beep/types` is referenced via workspace path aliases defined in `tsconfig.base.jsonc` for type-level `StringTypes.NonEmptyString` constraints.
+
+## Integration
+
+The `@beep/identity` package is a foundational dependency consumed across the entire monorepo:
+
+- **Schema Packages** (`@beep/schema`, slice domain packages): Use `.annotations()` for Effect Schema class decorators with stable TypeIds
+- **Server Packages** (slice infra/server): Use `.symbol()` for service tokens in Effect Context.Tag definitions
+- **Table Packages** (slice tables): Use `.make()` for consistent table naming in Drizzle schemas
+- **Client Packages** (slice sdk): Use for contract identifiers and handler naming
+- **UI Packages**: Use for component keys and stable element identifiers
+
+All workspace packages are pre-registered in `packages.ts`. When adding new packages to the monorepo, update the `$I.compose(...)` call to register the new namespace.
+
 ## Notes
 
 - Segments are validated at runtime to prevent accidental `/` characters or invalid identifiers
-- `make()` returns branded identity strings while `compose()` continues chaining
+- `make()` returns branded identity strings, `compose()` creates child composers, `create()` creates a single child composer
 - Use `Identifier.make("custom")` to create composers for new namespaces outside `@beep/*`
 - All exports include comprehensive JSDoc with examples and `@since 0.1.0` tags
 - Title generation splits on `_`/`-` and capitalizes words for human-readable schema annotations
+- Tagged template syntax prevents interpolations to maintain type safety
 
 ## License
 

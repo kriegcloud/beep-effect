@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "type": "module",
   "license": "MIT",
-  "description": "The testing utilities package",
+  "description": "Bun-first Effect testing harness with Layer composition, scoped resource management, and assertion helpers for Effect data types",
   "repository": {
     "type": "git",
     "url": "git@github.com:kriegcloud/beep-effect.git",

@@ -64,7 +64,7 @@ src/
 ├── molecules/          # Simple composites (built from atoms)
 ├── organisms/          # Complex feature components
 ├── sections/           # Page-level section compositions
-├── components/         # shadcn/ui + Plate.js editor components (200+ components)
+├── components/         # shadcn/ui + Plate.js editor components (150+ components)
 ├── animate/            # Framer Motion variants and utilities
 ├── assets/             # Static data (countries) and illustrations
 ├── branding/           # Logo and brand identity
@@ -93,9 +93,10 @@ src/
 
 - **Effect Utilities**: Use namespace imports (`import * as A from "effect/Array"`), avoid native array/string/object methods
 - **Client Directives**: Most components include `"use client"` directive at the file top for React 19 server component compliance with Next.js App Router
-- **Barrel Exports**: Directories with atomic components (atoms, molecules, organisms) maintain `index.ts` barrel exports. The `components/` directory contains individual shadcn/Plate.js components without a top-level barrel due to size (200+ components)
+- **Barrel Exports**: Directories with atomic components (atoms, molecules, organisms) maintain `index.ts` barrel exports. The `components/` directory contains individual shadcn/Plate.js components without a top-level barrel due to size (150+ components)
 - **Colocation**: Colocate tests, stories, and utilities near component implementations
 - **Component Imports**: Import individual components from their direct paths (e.g., `@beep/ui/components/button`) rather than from barrels
+- **Styled Utilities**: Styled component variants are colocated within component directories (e.g., `styles.tsx` files) using MUI's `styled` API from `@mui/material/styles`
 
 ## Theme & Settings Integration
 
@@ -127,7 +128,7 @@ function App({ children }) {
 Settings context (`src/settings/context`) provides theme customization state:
 
 ```tsx
-import { useSettingsContext } from "@beep/ui/settings";
+import { useSettingsContext } from "@beep/ui/settings/context";
 
 function CustomComponent() {
   const settings = useSettingsContext();
@@ -136,7 +137,10 @@ function CustomComponent() {
   const { mode, primaryColor, direction } = settings.state;
 
   // Update settings
-  settings.onUpdate("mode", "dark");
+  settings.setField("mode", "dark");
+
+  // Or update multiple fields at once
+  settings.setState({ mode: "dark", primaryColor: "blue" });
 }
 ```
 
@@ -166,7 +170,7 @@ Global styles in `src/styles/globals.css`:
 
 MUI components styled via theme tokens from `@beep/ui-core`:
 - Use `sx` prop for token-aware styling
-- Use `styled` helpers for reusable component variants
+- Use `styled` API from `@mui/material/styles` for reusable component variants (colocated in `styles.tsx` files)
 - Theme tokens automatically sync with Tailwind CSS variables
 
 ### shadcn/ui
@@ -236,6 +240,7 @@ The package exports numerous React hooks for common UI patterns:
 | `useCountDown`         | Countdown timer logic               |
 | **Performance**        |                                     |
 | `useDebouncedCallback` | Debounced callback execution        |
+| `useDebounce`          | Debounced value updates             |
 | `useCallbackRef`       | Stable callback references          |
 | `useStableCallback`    | Referentially stable callbacks      |
 | `useStableMemo`        | Referentially stable memoization    |
@@ -262,6 +267,8 @@ The package exports numerous React hooks for common UI patterns:
 | `useDidMount`          | Component did mount detection       |
 | `useIsomorphicLayoutEffect` | SSR-safe layout effects      |
 | `useCopyToClipboard`   | Clipboard copy utilities            |
+| `useClickOutside`      | Detect clicks outside element       |
+| `useIsTouchDevice`     | Touch device detection              |
 | `useThemeMode`         | Theme mode state access             |
 
 ## Form Integration
@@ -341,7 +348,7 @@ function AnimatedComponent() {
 
 ## Rich Text Editing with Plate.js
 
-The `components/` directory contains 200+ Plate.js editor components for building rich text editing experiences:
+The `components/` directory contains 150+ Plate.js editor components for building rich text editing experiences:
 
 ```tsx
 import { PlateEditor } from "@beep/ui/components/plate-editor";
@@ -620,7 +627,7 @@ bun run ui-add
 
 ```tsx
 import { ThemeProvider } from "@beep/ui/theme/theme-provider";
-import { SettingsProvider } from "@beep/ui/settings/context/settings-provider";
+import { SettingsProvider } from "@beep/ui/settings/context";
 import "@beep/ui/globals.css";
 
 function App({ children }) {

@@ -1,6 +1,6 @@
 # @beep/web
 
-Next.js 15 App Router frontend for the beep-effect platform.
+Next.js 15 App Router frontend application for the beep-effect platform.
 
 ## Purpose
 
@@ -8,15 +8,14 @@ Next.js 15 App Router frontend for the beep-effect platform.
 
 ## Key Exports
 
-| Export | Type | Description |
-|--------|------|-------------|
-| `getAppConfig` | `Effect<AppConfig>` | Server-side Effect that detects language, settings, and direction from cookies/headers |
-| `GlobalProviders` | Component | Root provider stack (BeepProvider → Registry → Theme → i18n → Settings → IAM) |
-| `KaServices` | Component | Client-side Effect services mount point |
-| `AuthGuard` | Component | Protected route wrapper requiring authentication |
-| `GuestGuard` | Component | Public route wrapper (redirects authenticated users) |
-| `/api/v1/auth/[...all]` | Route Handler | Better Auth integration endpoint |
-| `/api/v1/iam/[...iam]` | Route Handler | IAM API routes |
+| Export | Location | Description |
+|--------|----------|-------------|
+| `getAppConfig` | `/src/app-config.ts` | Server-side Effect program that detects language, settings, and direction from cookies/headers |
+| `GlobalProviders` | `/src/GlobalProviders.tsx` | Root provider stack wrapping BeepProvider, theme, i18n, settings, and IAM |
+| `KaServices` | `@beep/runtime-client` | Client-side Effect runtime services component (mounted in root layout) |
+| `AuthGuard` | `/src/providers/AuthGuard.tsx` | Protected route wrapper requiring authentication |
+| `GuestGuard` | `/src/providers/GuestGuard.tsx` | Public route wrapper that redirects authenticated users |
+| `/api/v1/auth/[...all]` | `/src/app/api/v1/auth/[...all]/route.ts` | Better Auth integration route handler |
 
 ## Usage Examples
 
@@ -38,14 +37,14 @@ export default async function RootLayout({ children }: RootLayoutProps) {
   );
 
   return (
-    <html lang={appConfig.lang ?? "en"} dir={appConfig.dir}>
+    <html lang={appConfig.lang ?? "en"} dir={appConfig.dir} suppressHydrationWarning>
       <body>
-        <KaServices />
-        <RegistryProvider>
-          <GlobalProviders appConfig={appConfig}>
+        <GlobalProviders appConfig={appConfig}>
+          <RegistryProvider>
+            <KaServices />
             {children}
-          </GlobalProviders>
-        </RegistryProvider>
+          </RegistryProvider>
+        </GlobalProviders>
       </body>
     </html>
   );
@@ -98,14 +97,16 @@ const getActiveUserEmails = (users: User[]) =>
   );
 
 // Use Effect String utilities instead of native methods
-const formatDisplayName = (name: string) =>
+const formatDisplayName = (name: string): ReadonlyArray<string> =>
   F.pipe(
     name,
     Str.trim,
     Str.split(" "),
-    A.map((word) => F.pipe(word, Str.capitalize)),
-    A.join(" ")  // Join array elements into string
+    A.map((word) => F.pipe(word, Str.capitalize))
   );
+
+// Note: Effect does not provide Array.join. If you need to join back to string,
+// handle it outside the Effect pipeline or use reduce.
 ```
 
 ## Architecture Overview
@@ -135,33 +136,36 @@ apps/web/src/app/
 │   └── _layout-client.tsx
 ├── upload/                             # File upload feature
 │   └── page.tsx
+├── files/                              # File management
 └── api/                                # API routes
     └── v1/
-        ├── auth/[...all]/route.ts      # Better Auth handler
-        └── iam/[...iam]/route.ts       # IAM endpoints
+        └── auth/[...all]/route.ts      # Better Auth handler
 ```
 
 ### Provider Stack
 
-The `GlobalProviders` component establishes the following provider hierarchy:
+The root layout establishes the following provider hierarchy (from outer to inner):
 
-1. `BeepProvider` — Client Effect runtime
-2. `RegistryContext` — Atom registry for global state
-3. `InitColorSchemeScript` — MUI color scheme hydration
-4. `I18nProvider` — Internationalization
-5. `DevToolsProvider` — TanStack development tools
-6. `SettingsProvider` — User preferences (theme, layout, etc.)
-7. `LocalizationProvider` — Date/number formatting
-8. `AppRouterCacheProvider` — MUI Emotion cache
-9. `ThemeProvider` — MUI theming system
-10. `BreakpointsProvider` — Responsive breakpoint utilities
-11. `ConfirmProvider` — Confirmation dialogs
-12. `IamProvider` — Authentication context
-13. `MotionLazy` — Framer Motion lazy loading
+1. **Root Layout** (`layout.tsx`)
+   - `GlobalProviders` — Wraps all providers below
+   - `RegistryProvider` — Effect-atom registry (from `@effect-atom/atom-react`)
+   - `KaServices` — Client Effect runtime services mount point
 
-Plus global UI components: `Snackbar`, `ProgressBar`, `SettingsDrawer`
-
-**Note**: The root layout also mounts `<KaServices />` before `GlobalProviders` and wraps everything in `<RegistryProvider />` for atom management.
+2. **GlobalProviders** (`GlobalProviders.tsx`)
+   - `BeepProvider` — Client ManagedRuntime from `@beep/runtime-client`
+   - `RegistryContext.Provider` — Atom registry with initial values
+   - `InitColorSchemeScript` — MUI color scheme hydration
+   - `I18nProvider` — Internationalization context
+   - `DevToolsProvider` — TanStack development tools
+   - `SettingsProvider` — User preferences (theme, layout, etc.)
+   - `LocalizationProvider` — Date/number formatting
+   - `AppRouterCacheProvider` — MUI Emotion cache
+   - `ThemeProvider` — MUI theming system
+   - `BreakpointsProvider` — Responsive breakpoint utilities
+   - `ConfirmProvider` — Confirmation dialogs
+   - `IamProvider` — Authentication context
+   - `MotionLazy` — Framer Motion lazy loading
+   - Global UI components: `Snackbar`, `ProgressBar`, `SettingsDrawer`
 
 ## Dependencies
 
@@ -192,6 +196,7 @@ Plus global UI components: `Snackbar`, `ProgressBar`, `SettingsDrawer`
 
 | Package | Purpose |
 |---------|---------|
+| `@beep/shared-env` | Environment variable validation and typing |
 | `@effect/platform-browser` | Browser platform layer |
 | `@effect/opentelemetry` | Observability/tracing |
 | `better-auth` | Authentication library |
@@ -254,7 +259,7 @@ Environment variables are managed via `dotenvx` from the repository root `.env` 
 | `REDIS_URL` | Server | Redis connection for Better Auth sessions |
 | `AUTH_SECRET` | Server | Better Auth secret key |
 
-**Important**: Never read `process.env` directly. Use `serverEnv`/`clientEnv` from `@beep/shared-server`.
+**Important**: Never read `process.env` directly. Use `serverEnv` from `@beep/shared-env/ServerEnv` or validated config from `@beep/shared-server`.
 
 ## Effect Pattern Compliance
 
@@ -349,7 +354,7 @@ See `packages/tooling/build-utils` for the complete configuration implementation
 - Mark components `"use client"` only when necessary
 - Server components: fetch data via `runServerPromise(effect, label)`
 - Client components: use `useRuntime()` + `makeRunClientPromise(runtime, label)`
-- Avoid `process.env` — use validated config from `@beep/shared-server`
+- Avoid `process.env` — use `serverEnv` from `@beep/shared-env/ServerEnv` or validated config
 
 ## Observability
 

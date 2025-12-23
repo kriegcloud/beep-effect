@@ -164,6 +164,20 @@ import type { TagTypes } from "@beep/types";
 type TenantTag = TagTypes.SnakeTag<"tenant_id">;
 ```
 
+#### `Thunk<A>` - Zero-Argument Function Type
+Direct export for zero-argument function signatures, commonly used for lazy evaluation.
+
+**Type:**
+- `Thunk<A>` - Function type `() => A` representing deferred computation
+
+**Example:**
+```typescript
+import type { Thunk } from "@beep/types";
+
+type LazyConfig = Thunk<{ port: number }>;
+const getConfig: LazyConfig = () => ({ port: 3000 });
+```
+
 #### `UnsafeTypes` - Escape Hatches
 Unavoidable `any`-adjacent helpers wrapped with explicit naming for audits. Use sparingly and review carefully.
 
@@ -208,13 +222,17 @@ The following types are exported directly without namespace wrapping:
 - `UpperLetter` - Template literal helpers for uppercase letters
 
 #### `common.types.ts`
-- Shared aliases like `BrandWith` for other modules to build on
+- `BrandWith` - Shared alias for brand/tag construction used by other type modules
+- `Prettify<T>` - Flattens intersection types for better IntelliSense display
 
 #### `deep-non-nullable.types.ts`
 - `DeepNonNullable<T>` - Recursive non-nullable transformer
 
 #### `primitive.types.ts`
 - `PrimitiveTypes` - Union of string, number, boolean, bigint, symbol, undefined, null
+
+#### `prop.type.ts`
+- Property key utilities for Effect Schema struct builders (available via subpath export `@beep/types/prop.type`)
 
 **Example:**
 ```typescript
@@ -353,28 +371,26 @@ If a slice-level type proves broadly reusable and still meets the constraints ab
 Unit tests can live in `test/` but should remain type-focused (e.g., compile-time assertions via `// @ts-expect-error`). Avoid introducing runtime-only test utilities.
 
 ```bash
-bunx turbo run test --filter=@beep/types
+bun run test --filter @beep/types
 ```
 
 ## Development Commands
 
 ```bash
-# Type checking
-bunx turbo run check --filter=@beep/types
+# From package directory
+bun run check
+bun run lint
+bun run lint:fix
+bun run test
+bun run coverage
+bun run build
+bun run lint:circular
 
-# Linting
-bunx turbo run lint --filter=@beep/types
-bunx turbo run lint:fix --filter=@beep/types
-
-# Testing
-bunx turbo run test --filter=@beep/types
-bunx turbo run coverage --filter=@beep/types
-
-# Build
-bunx turbo run build --filter=@beep/types
-
-# Circular dependency check
-bunx turbo run lint:circular --filter=@beep/types
+# From monorepo root
+bun run --filter @beep/types check
+bun run --filter @beep/types lint
+bun run --filter @beep/types test
+bun run --filter @beep/types build
 ```
 
 ## Constraints Checklist (PR Reviewer Aid)

@@ -2,9 +2,9 @@
 
 Shared domain logic, entities, and infrastructure primitives for the beep-effect monorepo.
 
-## Overview
+## Purpose
 
-`@beep/shared-domain` provides the foundational domain layer consumed across IAM, Documents, and Files slices. It defines branded entity IDs, Effect-based models, `@effect/rpc` contracts, authorization policies, caching primitives, retry strategies, encryption services, and typed routing paths that power `apps/web` and `apps/server`.
+`@beep/shared-domain` provides the foundational domain layer consumed across IAM, Documents, and Files slices. It defines branded entity IDs, Effect-based models, RPC contracts, authorization policies, caching primitives, retry strategies, encryption services, and typed routing paths that power `apps/web` and `apps/server`.
 
 Built on `@beep/schema` utilities and `@effect/sql/Model`, this package ensures consistent entity definitions, audit tracking, and cross-slice interoperability. RPC contracts enable type-safe client-server communication for file operations and real-time event streaming.
 
@@ -23,7 +23,9 @@ Built on `@beep/schema` utilities and `@effect/sql/Model`, this package ensures 
 ## Installation
 
 ```bash
-bun add @beep/shared-domain
+# This package is internal to the monorepo
+# Add as a dependency in your package.json:
+"@beep/shared-domain": "workspace:*"
 ```
 
 ### Peer Dependencies
@@ -49,39 +51,153 @@ bun add @beep/shared-domain
 
 ```
 src/
+├── index.ts                     # Main exports aggregation
 ├── common.ts                    # Audit columns, makeFields helper
-├── DomainApi.ts                 # Top-level RPC API aggregation
-├── api/                         # RPC contracts and events
-│   ├── files-rpc.ts            # Files RPC operations (list, upload, move, delete)
-│   └── event-stream-rpc.ts     # Event streaming RPC (real-time updates)
+├── api/
+│   ├── api.ts                  # SharedApi - Top-level HTTP API aggregation
+│   └── v1/                     # Version 1 API definitions
+│       ├── api.ts              # V1 API aggregation
+│       ├── index.ts            # V1 exports
+│       └── rpc-reference.ts    # RPC reference documentation endpoint
+├── rpc/                        # RPC contracts and events
+│   ├── index.ts                # RPC exports aggregation
+│   ├── rpc.ts                  # RPC type definitions
+│   └── v1/                     # Version 1 RPC definitions
+│       ├── index.ts            # V1 RPC exports
+│       ├── _rpcs.ts            # RPC group aggregation
+│       ├── _events.ts          # Event union types
+│       ├── event-stream.ts     # Event streaming RPC (real-time updates)
+│       ├── health.ts           # Health check RPC
+│       └── files/              # Files RPC operations
+│           ├── index.ts        # Files RPC group
+│           ├── _rpcs.ts        # Files RPC aggregation
+│           ├── list-files.ts   # List files and folders
+│           ├── initiate-upload.ts  # Get presigned URL for upload
+│           ├── create-folder.ts    # Create folder
+│           ├── delete-files.ts     # Delete files
+│           ├── delete-folders.ts   # Delete folders
+│           ├── move-files.ts       # Move files
+│           └── get-files-by-keys.ts # Retrieve files by keys
 ├── entity-ids/                  # Branded entity ID schemas
+│   ├── index.ts                # Entity ID exports
 │   ├── shared.ts               # SharedEntityIds (User, Organization, File, Folder, etc.)
 │   ├── iam.ts                  # IamEntityIds (Account, Member, etc.)
 │   ├── documents.ts            # DocumentsEntityIds
 │   ├── table-names.ts          # Table name literal kits
 │   ├── entity-kind.ts          # EntityKind union type
-│   └── any-entity-id.ts        # Aggregate entity ID union
+│   ├── any-entity-id.ts        # Aggregate entity ID union
+│   ├── SharedTableNames/       # Shared table name kits
+│   │   ├── index.ts
+│   │   └── SharedTableNames.ts
+│   ├── IamTableNames/          # IAM table name kits
+│   │   ├── index.ts
+│   │   └── IamTableNames.ts
+│   └── DocumentsTableNames.ts  # Documents table name kits
 ├── entities/                    # Effect Model schemas
+│   ├── index.ts                # Entities exports
+│   ├── entities.ts             # Entities aggregation (deprecated)
 │   ├── AuditLog/               # Audit log model
+│   │   ├── index.ts
+│   │   └── AuditLog.model.ts
 │   ├── File/                   # File entity with upload schemas
+│   │   ├── index.ts
+│   │   ├── File.model.ts
+│   │   └── schemas/
+│   │       ├── index.ts
+│   │       └── UploadKey.ts
 │   ├── Folder/                 # Folder entity with file relationships
+│   │   ├── index.ts
+│   │   ├── Folder.model.ts
+│   │   └── schemas/
+│   │       ├── index.ts
+│   │       └── WithUploadedFiles.ts
 │   ├── Organization/           # Organization model + enums
+│   │   ├── index.ts
+│   │   ├── Organization.model.ts
+│   │   └── schemas/
+│   │       ├── index.ts
+│   │       ├── OrganizationType.schema.ts
+│   │       ├── SubscriptionStatus.schema.ts
+│   │       └── SubscriptionTier.schema.ts
 │   ├── Session/                # Session model
+│   │   ├── index.ts
+│   │   └── Session.model.ts
 │   ├── Team/                   # Team model with policies
+│   │   ├── index.ts
+│   │   ├── Team.model.ts
+│   │   └── Team.policy.ts
+│   ├── UploadSession/          # Upload session model with metadata
+│   │   ├── index.ts
+│   │   ├── UploadSession.model.ts
+│   │   └── schemas/
+│   │       ├── index.ts
+│   │       └── UploadSessionMetadata.ts
 │   └── User/                   # User model + roles
+│       ├── index.ts
+│       ├── User.model.ts
+│       ├── User.constants.ts
+│       ├── User.plans.ts
+│       └── schemas/
+│           ├── index.ts
+│           └── UserRole.ts
 ├── value-objects/
+│   ├── index.ts                # Value objects exports
 │   ├── paths.ts                # PathBuilder collection of routes
 │   └── EntitySource.ts         # Entity source metadata
+├── policy/                      # Policy types and permissions
+│   ├── policy-types.ts         # Policy type definitions
+│   └── permissions.ts          # Permission literals
 ├── Policy.ts                    # Authorization policies and RPC middleware
 ├── ManualCache.ts              # Manual cache facade
 ├── Retry.ts                     # Retry policy factory
+├── errors.ts                    # Error types
 ├── services/
+│   ├── index.ts                # Services exports
 │   └── EncryptionService/      # Encryption service
+│       ├── index.ts
+│       ├── EncryptionService.ts
+│       ├── schemas.ts
+│       └── errors.ts
 ├── factories/                   # Error codes, model kits, path builders
+│   ├── index.ts                # Factories exports
+│   ├── error-code.ts           # Error code factory
+│   ├── model-kit.ts            # Model kit factory
+│   └── path-builder/           # PathBuilder implementation
+│       ├── index.ts
+│       ├── types.ts
+│       └── PathBuilder/
+│           ├── index.ts
+│           └── PathBuilder.ts
 └── _internal/                   # Implementation details (do not import)
+    ├── manual-cache.ts         # ManualCache implementation
+    ├── policy.ts               # Policy implementation
+    └── policy-builder.ts       # Policy builder
 ```
 
 ## Core Exports
+
+This package supports two import patterns:
+
+1. **Main package exports**: `import { SharedEntityIds } from "@beep/shared-domain"`
+2. **Subpath exports**: `import * as Policy from "@beep/shared-domain/Policy"`
+
+Both patterns are valid. Subpath exports are preferred for module-level imports to maintain consistency with Effect conventions.
+
+### Main Exports
+
+| Export | Description |
+|--------|-------------|
+| `SharedApi` | HTTP API aggregation with OpenAPI metadata |
+| `Common` | Audit columns and `makeFields` helper |
+| `Entities` | All entity models (File, Folder, User, Organization, etc.) |
+| `SharedEntityIds`, `IamEntityIds`, `DocumentsEntityIds` | Branded entity ID kits |
+| `EntityKind` | Union type of all entity kinds |
+| `Policy` | Authorization policies and middleware |
+| `Retry` | Retry policy factory and presets |
+| `ManualCache` | Manual cache with TTL and LRU eviction (subpath only) |
+| `EncryptionService` | Cryptographic operations service |
+| `paths` | Type-safe route building collection |
+| `EntitySource` | Entity source metadata schema |
 
 ### Entity IDs
 
@@ -124,6 +240,7 @@ Authorization policies with composable permission checks and context propagation
 
 ```typescript
 import * as Effect from "effect/Effect";
+import * as F from "effect/Function";
 import * as Policy from "@beep/shared-domain/Policy";
 import { SharedEntityIds } from "@beep/shared-domain";
 
@@ -142,17 +259,20 @@ const strictAccess = Policy.all(canManage, Policy.permission("user:read"));
 const flexibleAccess = Policy.any(strictAccess, isSelf);
 
 // Apply policy to effect
-const guardedEffect = Policy.withPolicy(flexibleAccess)(
+const guardedEffect = F.pipe(
   Effect.gen(function* () {
     // Protected operation
     return yield* Effect.succeed("saved");
-  })
+  }),
+  Policy.withPolicy(flexibleAccess)
 );
 ```
 
 **RPC Middleware**: The `Policy` module also exports `AuthContextRpcMiddleware` for use with `@effect/rpc` RPC groups, automatically providing authentication context to RPC handlers.
 
 ### Manual Cache
+
+A scoped cache implementation with TTL and LRU eviction semantics.
 
 ```typescript
 import * as Effect from "effect/Effect";
@@ -181,9 +301,11 @@ const program = Effect.scoped(
 
 ### Retry Policies
 
+Configurable retry strategies with exponential backoff.
+
 ```typescript
 import * as Effect from "effect/Effect";
-import { Retry } from "@beep/shared-domain";
+import * as Retry from "@beep/shared-domain/Retry";
 
 // Use default exponential backoff
 const withDefaultRetry = Effect.retry(
@@ -239,11 +361,12 @@ paths.auth.routes.signIn.withCallbackAndMethod(
 ```typescript
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
-import { Entities, SharedEntityIds } from "@beep/shared-domain";
+import * as File from "@beep/shared-domain/entities/File";
+import { SharedEntityIds } from "@beep/shared-domain";
 import type { EnvValue } from "@beep/constants";
 
 const uploadPath = Effect.gen(function* () {
-  const decoded: Entities.File.UploadKeyDecoded.Type = {
+  const decoded: File.UploadKeyDecoded.Type = {
     env: "dev" as EnvValue.Type,
     fileId: SharedEntityIds.FileId.make("file__12345678-1234-1234-1234-123456789012"),
     organizationType: "individual",
@@ -256,7 +379,7 @@ const uploadPath = Effect.gen(function* () {
     extension: "jpg",
   };
 
-  return yield* S.decode(Entities.File.UploadKey)(decoded);
+  return yield* S.decode(File.UploadKey)(decoded);
 });
 ```
 
@@ -265,55 +388,50 @@ const uploadPath = Effect.gen(function* () {
 Folders organize files and provide hierarchical structure for file management.
 
 ```typescript
-import { Entities, SharedEntityIds } from "@beep/shared-domain";
+import * as S from "effect/Schema";
+import * as Folder from "@beep/shared-domain/entities/Folder";
+import { SharedEntityIds } from "@beep/shared-domain";
 
-// Folder model includes:
+// Folder.Model includes:
 // - id: FolderId
 // - organizationId: OrganizationId
 // - userId: UserId (folder owner)
 // - name: string
-// - Standard audit columns (createdAt, updatedAt, etc.)
+// - Standard audit columns from makeFields (createdAt, updatedAt, version, etc.)
 
-// WithUploadedFiles schema extends Folder with associated files
-const folderWithFiles: Entities.Folder.WithUploadedFiles = {
+// Folder.WithUploadedFiles schema extends Folder.Model with associated files
+const folderWithFilesSchema = S.decodeUnknownSync(Folder.WithUploadedFiles)({
   id: SharedEntityIds.FolderId.make("folder__123"),
   organizationId: SharedEntityIds.OrganizationId.make("org__456"),
   userId: SharedEntityIds.UserId.make("user__789"),
   name: "My Documents",
-  uploadedFiles: [
-    // Array of File.Model instances
-  ],
-  // ... audit fields
-};
+  uploadedFiles: [], // Array of File.Model instances
+  // ... audit fields (createdAt, updatedAt, version, source, etc.)
+});
 ```
 
 ### RPC Contracts
 
-The package provides `@effect/rpc` contracts for real-time file operations and event streaming.
+The package provides RPC contracts for real-time file operations and event streaming.
 
 #### Files RPC
 
 ```typescript
-import * as Rpc from "@effect/rpc/Rpc";
-import * as S from "effect/Schema";
-import { Entities } from "@beep/shared-domain";
-
-// Import from api directory (not exported at package level - internal use)
-// Server implementations can reference these from @beep/shared-domain/api/files-rpc
+import * as Effect from "effect/Effect";
+import { SharedEntityIds } from "@beep/shared-domain";
+import type * as Files from "@beep/shared-domain/rpc/v1/files";
 
 // Available RPC operations:
-// - ListFilesRpc: List files and folders
-// - InitiateUploadRpc: Get presigned URL for file upload
-// - CreateFolderRpc: Create a new folder
-// - DeleteFilesRpc: Delete files by IDs
-// - DeleteFoldersRpc: Delete folders by IDs
-// - MoveFilesRpc: Move files to a different folder
-// - GetFilesByKeyRpc: Retrieve files by upload keys
+// - ListFiles: List files and folders
+// - InitiateUpload: Get presigned URL for file upload
+// - CreateFolder: Create a new folder
+// - DeleteFiles: Delete files by IDs
+// - DeleteFolders: Delete folders by IDs
+// - MoveFiles: Move files to a different folder
+// - GetFilesByKeys: Retrieve files by upload keys
 
 // Example payload construction
-import type { InitiateUploadPayload } from "@beep/shared-domain/api/files-rpc";
-
-const uploadPayload: InitiateUploadPayload = {
+const uploadPayload: Files.InitiateUpload.Payload = {
   fileName: "avatar.jpg",
   fileSize: 1024000,
   mimeType: "image/jpeg",
@@ -323,28 +441,49 @@ const uploadPayload: InitiateUploadPayload = {
   folderId: null,
   metadata: {},
 };
+
+// Example usage in Effect context
+const initiateUpload = Effect.gen(function* () {
+  const result = yield* Files.InitiateUpload.handler(uploadPayload);
+  return result.uploadUrl;
+});
 ```
 
 #### Event Stream RPC
 
 ```typescript
-// Event streaming for real-time updates
-// Server implementations can use EventStreamRpc for websocket connections
+import * as Effect from "effect/Effect";
+import type * as Events from "@beep/shared-domain/rpc/v1/_events";
+
+// Event streaming for real-time updates via websocket connections
 
 // Supported events:
-// - FilesEvent: File upload notifications
+// - Files.Uploaded: File upload notifications
 // - Ka: Keep-alive heartbeat
 
-// Example event handler pattern (server-side)
-import * as Effect from "effect/Effect";
-import type { EventStreamEvents } from "@beep/shared-domain/api/event-stream-rpc";
-
-const handleEvent = (event: EventStreamEvents) =>
+// Example event handler pattern
+const handleEvent = (event: Events.Events) =>
   Effect.gen(function* () {
     if (event._tag === "Files.Uploaded") {
       console.log("File uploaded:", event.file.id);
+    } else if (event._tag === "Ka") {
+      console.log("Keep-alive ping received");
     }
   });
+```
+
+#### HTTP API
+
+```typescript
+import { SharedApi } from "@beep/shared-domain";
+
+// SharedApi is an @effect/platform HttpApi that aggregates all shared domain endpoints
+// including RPC reference documentation and health checks
+
+// The API is versioned and includes OpenAPI metadata:
+// - Title: "Shared API"
+// - Version: "1.0.0"
+// - Tag Groups: "v1 / Shared"
 ```
 
 ## Usage Examples
@@ -443,10 +582,12 @@ bun run --filter @beep/shared-domain lint
 
 ### Test Suites
 
-- `test/ManualCache.test.ts` - Cache behavior, TTL, LRU eviction
-- `test/internal/policy.test.ts` - Policy combinators (all, any, permission)
-- `test/entities/File/schemas/UploadKey.test.ts` - Upload path encoding
-- `test/services/EncryptionService.test.ts` - Encryption operations
+This package includes comprehensive test coverage for:
+- Manual cache behavior (TTL, LRU eviction)
+- Policy combinators (all, any, permission)
+- Upload path encoding/decoding
+- Encryption service operations
+- PathBuilder functionality
 
 ## API Documentation
 
@@ -455,10 +596,10 @@ For detailed API documentation, see [AGENTS.md](./AGENTS.md).
 ### Key Modules
 
 - **Common** (`src/common.ts`) - Audit columns, makeFields
-- **DomainApi** (`src/DomainApi.ts`) - Top-level RPC API aggregation
-- **API** (`src/api/*`) - RPC contracts (FilesRpc, EventStreamRpc)
+- **SharedApi** (`src/api/api.ts`) - Top-level HTTP API aggregation with OpenAPI metadata
+- **RPC** (`src/rpc/*`) - RPC contracts for files operations, event streaming, and health checks
 - **Entity IDs** (`src/entity-ids/*`) - Branded ID schemas, table names
-- **Entities** (`src/entities/*`) - Effect models for File, Folder, User, Organization, etc.
+- **Entities** (`src/entities/*`) - Effect models for File, Folder, User, Organization, UploadSession, etc.
 - **Policy** (`src/Policy.ts`) - Authorization policies, RPC middleware, auth context
 - **ManualCache** (`src/ManualCache.ts`) - TTL+LRU cache
 - **Retry** (`src/Retry.ts`) - Exponential backoff policies
@@ -474,8 +615,8 @@ For detailed API documentation, see [AGENTS.md](./AGENTS.md).
 
 ### Packages
 
-- `packages/iam/*` - Uses IamEntityIds, Session/User models
-- `packages/documents/*` - Uses DocumentsEntityIds, File models
+- `packages/iam/*` - Uses IamEntityIds, Session/User models, auth paths
+- `packages/documents/*` - Uses DocumentsEntityIds, File/Folder/UploadSession models, file RPC contracts
 - `packages/shared/server` - Builds on entity IDs and models for repos
 - `packages/shared/tables` - Drizzle schemas aligned with entity IDs
 

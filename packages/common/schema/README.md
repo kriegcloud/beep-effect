@@ -1,6 +1,6 @@
 # @beep/schema
 
-A library for `effect/Schema` stuff
+Effect Schema toolkit with primitives, nominal IDs, and integrations
 
 ## Purpose
 
@@ -14,17 +14,30 @@ Canonical, environment-agnostic schemas and helpers built on top of `effect/Sche
 | `BS.Email`            | Lowercased, trimmed email schema with RFC-leaning pattern validation                          |
 | `BS.Phone`            | Phone number validation schema                                                                |
 | `BS.Url`              | URL schema with validation                                                                    |
-| `BS.EntityId`         | Factory for nominal `${table}__uuid` branded identifiers with Drizzle column builders         |
-| `BS.StringLiteralKit` | Literal kit builder with `.Options`, `.Enum`, and transformation helpers                      |
-| `BS.DateTimeFromDate` | Postgres-tuned temporal schema for date/time handling                                         |
-| `BS.OptionFromDateTime` | Optional DateTime schema handling null/undefined temporal values                           |
-| `BS.toJsonSchema`     | JSON Schema derivation from Effect schemas                                                    |
-| `BS.toPgEnum`         | Convert literal kits to Postgres enum definitions                                             |
 | `BS.Slug`             | URL-safe slug schema                                                                          |
 | `BS.Password`         | Password validation with strength requirements                                                |
 | `BS.UUID`             | UUID literal schema and validation                                                            |
-| `BS.Duration`         | Duration schemas with tagged representations                                                   |
+| `BS.EntityId`         | Factory for nominal `${table}__uuid` branded identifiers with Drizzle column builders         |
+| `BS.StringLiteralKit` | Literal kit builder with `.Options`, `.Enum`, and transformation helpers                      |
+| `BS.DateTimeUtcFromAllAcceptable` | Converts acceptable inputs (Date, ISO string, timestamp) to Effect DateTime.Utc |
+| `BS.DateFromAllAcceptable` | Converts acceptable inputs to canonical JavaScript Date                             |
+| `BS.DateTimeFromDate` | SQL-tuned temporal schema wrapper (from `integrations/sql`)                                |
+| `BS.DurationFromSeconds` | Duration schemas with tagged representations from numeric seconds                           |
+| `BS.StreetLine`       | Street address line schema                                                                    |
+| `BS.Locality`         | City/town locality schema                                                                     |
+| `BS.PostalCode`       | Postal/ZIP code schema                                                                        |
+| `BS.CountryCodeValue` | ISO country code schema                                                                       |
+| `BS.toPgEnum`         | Convert literal kits to Postgres enum definitions                                             |
 | `BS.Csp`              | Content Security Policy parsing and rendering utilities                                        |
+| `BS.HttpMethod`       | HTTP method validation schema                                                                 |
+| `BS.File`             | File schemas with metadata, MIME types, and validation                                         |
+| `BS.FileAttributes`   | File attribute schemas (size, type, lastModified, name, paths)                                 |
+| `BS.FileHash`         | File hash computation service and schemas                                                      |
+| `BS.FileSize`         | File size schemas with human-readable formatting                                               |
+| `BS.SignedFile`       | Signed file schemas for secure upload/download workflows                                       |
+| `BS.MimeType`         | MIME type schemas and validation (video, text, misc categories)                                |
+| `BS.ExifMetadata`     | EXIF metadata schemas for image files                                                          |
+| `BS.AspectRatio`      | Aspect ratio schemas for media files                                                           |
 
 ## Architecture Fit
 
@@ -38,13 +51,20 @@ Canonical, environment-agnostic schemas and helpers built on top of `effect/Sche
 ```
 src/
 ├── primitives/     # String, email, phone, URL, temporal, network, geo, duration,
-│                   # array, bool, number, person, regex, currency, locales
+│                   # array, bool, number, person, regex, locales, currency
 ├── identity/       # EntityId factory for branded ${table}__uuid identifiers
-├── derived/        # Kits (StringLiteralKit, nullables, transformations, tuple/struct helpers)
-├── builders/       # JSON Schema and form field builders
-├── integrations/   # HTTP headers/methods, SQL helpers, CSP config, file types/MIME
-├── core/           # Annotations, extended schemas, generics, variance, brands
-└── schema.ts       # Main barrel re-exporting all modules
+├── derived/        # Kits (StringLiteralKit, LiteralKit, nullables, transformations,
+│                   # tuple/struct helpers, ArrayLookup, KeyOrderLookup)
+├── builders/       # JSON Schema helpers and form field builders
+│   ├── json-schema/# JsonSchema, JsonProp, JsonType schemas for validation
+│   └── form/       # Form field and form metadata builders
+├── integrations/   # HTTP headers/methods, SQL helpers, CSP config, file schemas
+│   ├── config/     # CSP parsing and rendering
+│   ├── files/      # File, FileHash, FileSize, SignedFile, MIME types, EXIF/PDF metadata
+│   ├── http/       # HTTP method, headers, request schemas
+│   └── sql/        # Postgres enum helpers, column transformers, DateTimeFromDate
+├── core/           # Annotations, extended schemas, generics, variance, brands, defaults
+└── schema.ts       # Main barrel re-exporting all modules through BS namespace
 ```
 
 ## Usage
@@ -118,11 +138,12 @@ const visibilityEnum = BS.toPgEnum(Visibility);
 
 ### JSON Schema Derivation
 
-Derive JSON Schema for forms and API documentation:
+Derive JSON Schema for forms and API documentation using Effect's JSONSchema:
 
 ```typescript
 import { BS } from "@beep/schema";
 import * as S from "effect/Schema";
+import * as JSONSchema from "effect/JSONSchema";
 import * as F from "effect/Function";
 
 const Person = S.Struct({
@@ -134,7 +155,7 @@ const Person = S.Struct({
   description: "User profile information"
 });
 
-const jsonSchema = BS.toJsonSchema(Person);
+const jsonSchema = JSONSchema.make(Person);
 ```
 
 ### Drizzle Integration
@@ -160,7 +181,7 @@ export const user = Table.make("user", UserId)({
 
 ### Temporal Schemas
 
-Work with dates and times using Postgres-tuned schemas:
+Work with dates and times using flexible input schemas:
 
 ```typescript
 import { BS } from "@beep/schema";
@@ -169,11 +190,11 @@ import * as F from "effect/Function";
 
 const Event = S.Struct({
   id: BS.EntityId.make("event", { brand: "EventId", annotations: {} }),
-  createdAt: BS.DateTimeFromDate,
-  updatedAt: BS.OptionFromDateTime
+  createdAt: BS.DateTimeUtcFromAllAcceptable,
+  updatedAt: S.OptionFromNullOr(BS.DateTimeUtcFromAllAcceptable)
 });
 
-// Parse and validate
+// Parse and validate - accepts Date, ISO string, or timestamp
 const event = F.pipe(
   {
     id: "event__550e8400-e29b-41d4-a716-446655440000",
@@ -219,6 +240,33 @@ const Address = S.Struct({
 const CommaDelimitedNumbers = BS.arrayToCommaSeparatedString(S.Number);
 const numbers = F.pipe("1,2,3,4", S.decodeUnknownSync(CommaDelimitedNumbers));
 // Result: [1, 2, 3, 4]
+```
+
+### File Schemas
+
+Work with file metadata, MIME types, and validation:
+
+```typescript
+import { BS } from "@beep/schema";
+import * as S from "effect/Schema";
+import * as F from "effect/Function";
+
+// File with metadata
+const UploadedFile = S.Struct({
+  file: BS.File,
+  size: BS.FileSize,
+  mimeType: BS.MimeType,
+  hash: S.OptionFromNullOr(S.String)
+});
+
+// Signed file for secure uploads
+const SignedUpload = BS.SignedFile;
+
+// EXIF metadata for images
+const ImageWithMetadata = S.Struct({
+  file: BS.File,
+  exif: S.OptionFromNullOr(BS.ExifMetadata)
+});
 ```
 
 ### Integration Helpers
