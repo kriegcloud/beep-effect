@@ -12,13 +12,13 @@
  * @category Types/Primitives
  * @since 0.1.0
  */
-import type { PrimitiveTypes } from "./primitive.types";
+import type { Primitive } from "./primitive.types";
 
 /**
  * Union of all JavaScript built-in types that should be treated as leaf nodes
  * in recursive type transformations.
  *
- * Extends {@link PrimitiveTypes} with common built-in object types (Function,
+ * Extends {@link Primitive} with common built-in object types (Function,
  * Date, Error, RegExp) that typically should not be recursively traversed
  * when applying deep type transformations.
  *
@@ -41,4 +41,4 @@ import type { PrimitiveTypes } from "./primitive.types";
  * @category Types/Primitives
  * @since 0.1.0
  */
-export type Builtin = PrimitiveTypes | Function | Date | Error | RegExp;
+export type Builtin = Primitive | Function | Date | Error | RegExp;

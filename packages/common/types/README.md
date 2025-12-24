@@ -229,14 +229,14 @@ The following types are exported directly without namespace wrapping:
 - `DeepNonNullable<T>` - Recursive non-nullable transformer
 
 #### `primitive.types.ts`
-- `PrimitiveTypes` - Union of string, number, boolean, bigint, symbol, undefined, null
+- `Primitive` - Union of string, number, boolean, bigint, symbol, undefined, null
 
 #### `prop.type.ts`
 - Property key utilities for Effect Schema struct builders (available via subpath export `@beep/types/prop.type`)
 
 **Example:**
 ```typescript
-import type { PrimitiveTypes, Builtin } from "@beep/types";
+import type { Primitive, Builtin } from "@beep/types";
 
 type SafeValue = Exclude<Builtin, null | undefined>;
 ```

@@ -14,10 +14,10 @@
  */
 import type * as A from "effect/Array";
 import type * as S from "effect/Schema";
-import type { NonEmptyRecordWithStringKeys } from "./record.types.js";
-import type * as StringTypes from "./string.types.js";
-import type { NonEmptyString } from "./string.types.js";
-import type * as UnsafeTypes from "./unsafe.types.js";
+import type { NonEmptyRecordWithStringKeys } from "./record.types";
+import type * as StringTypes from "./string.types";
+import type { NonEmptyString } from "./string.types";
+import type * as UnsafeTypes from "./unsafe.types";
 
 /**
  * Effect Schema struct fields keyed by {@link StringTypes.NonEmptyString}.

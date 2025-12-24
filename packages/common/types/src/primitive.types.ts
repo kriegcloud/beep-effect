@@ -2,9 +2,9 @@
  * JavaScript primitive type utilities.
  *
  * @example
- * import type { PrimitiveTypes } from "@beep/types/primitive.types";
+ * import type { Primitive } from "@beep/types/primitive.types";
  *
- * const check = (v: unknown): v is PrimitiveTypes =>
+ * const check = (v: unknown): v is Primitive =>
  *   v === null || (typeof v !== "object" && typeof v !== "function");
  * void check;
  *
@@ -20,9 +20,9 @@
  * conditional types that need to distinguish primitives from objects.
  *
  * @example
- * import type { PrimitiveTypes } from "@beep/types/primitive.types";
+ * import type { Primitive } from "@beep/types/primitive.types";
  *
- * function isPrimitive(value: unknown): value is PrimitiveTypes {
+ * function isPrimitive(value: unknown): value is Primitive {
  *   return value === null || (typeof value !== "object" && typeof value !== "function")
  * }
  *
@@ -32,4 +32,4 @@
  * @category Types/Primitives
  * @since 0.1.0
  */
-export type PrimitiveTypes = string | number | boolean | bigint | symbol | undefined | null;
+export type Primitive = string | number | boolean | bigint | symbol | undefined | null;

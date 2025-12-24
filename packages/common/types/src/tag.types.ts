@@ -11,7 +11,8 @@
  * @category Types/Tags
  * @since 0.1.0
  */
-import type * as LiteralTypes from "./literal.types.js";
+
+import type { LowercaseLetter } from "@beep/types/characters";
 
 /**
  * Validates snake_case tags composed of lowercase letters and underscores.
@@ -26,7 +27,7 @@ import type * as LiteralTypes from "./literal.types.js";
  * @category Types/Tags
  * @since 0.1.0
  */
-export type SnakeTag<S extends string = string> = S extends `${LiteralTypes.LowerChar}${infer R}`
+export type SnakeTag<S extends string = string> = S extends `${LowercaseLetter}${infer R}`
   ? ValidateSnakeAfterLetter<R, S>
   : never;
 
@@ -47,8 +48,8 @@ export type Underscore = "_";
 
 type ValidateSnakeAfterLetter<R extends string, Original extends string> = R extends ""
   ? Original
-  : R extends `${LiteralTypes.LowerChar}${infer Rest}`
+  : R extends `${LowercaseLetter}${infer Rest}`
     ? ValidateSnakeAfterLetter<Rest, Original>
-    : R extends `${Underscore}${LiteralTypes.LowerChar}${infer Rest}`
+    : R extends `${Underscore}${LowercaseLetter}${infer Rest}`
       ? ValidateSnakeAfterLetter<Rest, Original>
       : never;

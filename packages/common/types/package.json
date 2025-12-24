@@ -43,10 +43,11 @@
     "@effect/experimental": "catalog:"
   },
   "devDependencies": {
-    "@effect/experimental": "catalog:",
     "@effect/build-utils": "catalog:",
+    "@effect/experimental": "catalog:",
+    "@total-typescript/ts-reset": "catalog:",
     "effect": "catalog:",
-    "@total-typescript/ts-reset": "catalog:"
+    "tagged-tag": "catalog:"
   },
   "effect": {
     "generateExports": {

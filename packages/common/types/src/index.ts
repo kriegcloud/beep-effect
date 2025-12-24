@@ -28,7 +28,7 @@
  * @category exports
  * @since 0.1.0
  */
-export type * from "./built-in.types";
+export type * from "./built-in";
 
 /**
  * Re-exports character literal types for template string helpers.
@@ -43,7 +43,7 @@ export type * from "./built-in.types";
  * @category exports
  * @since 0.1.0
  */
-export type * from "./char.types";
+export type * from "./characters";
 
 /**
  * Re-exports common utility types for intersection flattening and deep partials.
@@ -58,7 +58,7 @@ export type * from "./char.types";
  * @category exports
  * @since 0.1.0
  */
-export type * from "./common.types.js";
+export type * from "./common";
 
 /**
  * Re-exports deep non-nullable transformation utilities.
@@ -73,22 +73,7 @@ export type * from "./common.types.js";
  * @category exports
  * @since 0.1.0
  */
-export type * from "./deep-non-nullable.types";
-
-/**
- * Function type utilities for guards and refinements.
- *
- * @example
- * ```typescript
- * import type { FnTypes } from "@beep/types"
- *
- * type IsString = FnTypes.Guard<unknown, string>
- * ```
- *
- * @category exports
- * @since 0.1.0
- */
-export type * as FnTypes from "./fn.types.js";
+export type * from "./deep-non-nullable";
 
 /**
  * Literal character types and case transformation utilities.
@@ -103,7 +88,7 @@ export type * as FnTypes from "./fn.types.js";
  * @category exports
  * @since 0.1.0
  */
-export type * as LiteralTypes from "./literal.types.js";
+export type * as LiteralTypes from "./literal.types";
 
 /**
  * Variant Schema model field utilities for non-empty constraints.
@@ -119,7 +104,7 @@ export type * as LiteralTypes from "./literal.types.js";
  * @category exports
  * @since 0.1.0
  */
-export type * as ModelTypes from "./model.types.js";
+export type * as ModelTypes from "./model.types";
 
 /**
  * Mutability transformation utilities for removing readonly modifiers.
@@ -134,7 +119,7 @@ export type * as ModelTypes from "./model.types.js";
  * @category exports
  * @since 0.1.0
  */
-export type * as MutTypes from "./mut.types.js";
+export type * as MutTypes from "./mut.types";
 
 /**
  * Union type helpers for adding null or undefined.
@@ -149,16 +134,16 @@ export type * as MutTypes from "./mut.types.js";
  * @category exports
  * @since 0.1.0
  */
-export type * as Or from "./or.types.js";
+export type * as Or from "./or.types";
 
 /**
  * Re-exports primitive type definitions.
  *
  * @example
  * ```typescript
- * import type { PrimitiveTypes } from "@beep/types"
+ * import type { Primitive } from "@beep/types"
  *
- * type Value = PrimitiveTypes
+ * type Value = Primitive
  * ```
  *
  * @category exports
@@ -179,7 +164,7 @@ export type * from "./primitive.types";
  * @category exports
  * @since 0.1.0
  */
-export type * as PromiseTypes from "./promise.types.js";
+export type * as PromiseTypes from "./promise.types";
 
 /**
  * Record transformation utilities for non-empty string-keyed dictionaries.
@@ -194,7 +179,7 @@ export type * as PromiseTypes from "./promise.types.js";
  * @category exports
  * @since 0.1.0
  */
-export type * as RecordTypes from "./record.types.js";
+export type * as RecordTypes from "./record.types";
 
 /**
  * Effect Schema helper aliases for type-only schema references.
@@ -209,7 +194,7 @@ export type * as RecordTypes from "./record.types.js";
  * @category exports
  * @since 0.1.0
  */
-export type * as SchemaTypes from "./schema.types.js";
+export type * as SchemaTypes from "./schema.types";
 
 /**
  * String literal utilities for non-empty and case-sensitive constraints.
@@ -224,7 +209,7 @@ export type * as SchemaTypes from "./schema.types.js";
  * @category exports
  * @since 0.1.0
  */
-export type * as StringTypes from "./string.types.js";
+export type * as StringTypes from "./string.types";
 
 /**
  * Effect Schema struct field utilities for non-empty validation.
@@ -240,7 +225,7 @@ export type * as StringTypes from "./string.types.js";
  * @category exports
  * @since 0.1.0
  */
-export type * as StructTypes from "./struct.types.js";
+export type * as StructTypes from "./struct.types";
 
 /**
  * Template literal helpers for snake_case tag validation.
@@ -255,7 +240,7 @@ export type * as StructTypes from "./struct.types.js";
  * @category exports
  * @since 0.1.0
  */
-export type * as TagTypes from "./tag.types.js";
+export type * as TagTypes from "./tag.types";
 export * from "./thunk.types";
 /**
  * Escape-hatch type aliases for unsafe any-based and safe unknown-based types.
@@ -270,7 +255,7 @@ export * from "./thunk.types";
  * @category exports
  * @since 0.1.0
  */
-export type * as UnsafeTypes from "./unsafe.types.js";
+export type * as UnsafeTypes from "./unsafe.types";
 /**
  * General-purpose utility types for non-empty strings and struct field maps.
  *
@@ -285,4 +270,4 @@ export type * as UnsafeTypes from "./unsafe.types.js";
  * @category exports
  * @since 0.1.0
  */
-export type * as UtilTypes from "./util.types.js";
+export type * as UtilTypes from "./util.types";

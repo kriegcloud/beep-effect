@@ -13,8 +13,8 @@
  */
 import type * as A from "effect/Array";
 import type * as R from "effect/Record";
-import type { NonEmptyString } from "./string.types.js";
-import type * as UnsafeTypes from "./unsafe.types.js";
+import type { NonEmptyString } from "./string.types";
+import type * as UnsafeTypes from "./unsafe.types";
 
 /**
  * Readonly record with arbitrary string or symbol keys.

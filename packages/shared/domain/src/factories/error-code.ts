@@ -1,11 +1,11 @@
 import { invariant } from "@beep/invariant";
-import type { UpperLetter } from "@beep/types";
+import type { UppercaseLetter } from "@beep/types/characters";
 import * as S from "effect/Schema";
 
 type SpecialCharacter = "_";
 
 type IsValidUpperSnakeCase<S extends string> = S extends `${infer F}${infer R}`
-  ? F extends UpperLetter | SpecialCharacter
+  ? F extends UppercaseLetter | SpecialCharacter
     ? IsValidUpperSnakeCase<R>
     : false
   : true;

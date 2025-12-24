@@ -27,7 +27,7 @@
 - `char.types.ts` — `UpperLetter` for template literal helpers.
 - `common.types.ts` — shared aliases (e.g. `BrandWith`) for other modules to build on.
 - `deep-non-nullable.types.ts` — `DeepNonNullable<T>` recursive non-nullable transformer.
-- `primitive.types.ts` — `PrimitiveTypes` union of string, number, boolean, bigint, symbol, undefined, null.
+- `primitive.types.ts` — `Primitive` union of string, number, boolean, bigint, symbol, undefined, null.
 - `prop.type.ts` — Property key utilities for Effect Schema struct builders (not in index.ts but available via subpath export).
 
 ## Usage Snapshots

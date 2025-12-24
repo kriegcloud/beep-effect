@@ -8,7 +8,7 @@
  * @since 0.1.0
  */
 import type * as S from "effect/Schema";
-import type * as StringTypes from "./string.types.js";
+import type * as StringTypes from "./string.types";
 
 /**
  * Non-empty string literal ensuring struct keys are not blank.

@@ -17,9 +17,11 @@
  */
 
 import { invariant } from "@beep/invariant";
+import type { UnsafeTypes } from "@beep/types";
 import * as A from "effect/Array";
 import * as F from "effect/Function";
 import * as O from "effect/Option";
+
 /**
  * Creates a `NonEmptyReadonlyArray` literal either from an existing array or a
  * variadic list of values without losing tuple inference.
@@ -107,23 +109,21 @@ export const filter: {
   /**
    * @category filtering
    * @since 2.0.0
-   */
-  <A, B extends A>(refinement: (a: NoInfer<A>, i: number) => a is B): (self: Iterable<A>) => A.NonEmptyReadonlyArray<B>;
+   */ <A, B extends A>(
+    refinement: (a: NoInfer<A>, i: number) => a is B
+  ): (self: Iterable<A>) => A.NonEmptyReadonlyArray<B>;
   /**
    * @category filtering
    * @since 2.0.0
-   */
-  <A>(predicate: (a: NoInfer<A>, i: number) => boolean): (self: Iterable<A>) => A.NonEmptyReadonlyArray<A>;
+   */ <A>(predicate: (a: NoInfer<A>, i: number) => boolean): (self: Iterable<A>) => A.NonEmptyReadonlyArray<A>;
   /**
    * @category filtering
    * @since 2.0.0
-   */
-  <A, B extends A>(self: Iterable<A>, refinement: (a: A, i: number) => a is B): A.NonEmptyReadonlyArray<B>;
+   */ <A, B extends A>(self: Iterable<A>, refinement: (a: A, i: number) => a is B): A.NonEmptyReadonlyArray<B>;
   /**
    * @category filtering
    * @since 2.0.0
-   */
-  <A>(self: Iterable<A>, predicate: (a: A, i: number) => boolean): A.NonEmptyReadonlyArray<A>;
+   */ <A>(self: Iterable<A>, predicate: (a: A, i: number) => boolean): A.NonEmptyReadonlyArray<A>;
 } = F.dual(2, <A>(self: Iterable<A>, predicate: (a: A, i: number) => boolean): A.NonEmptyReadonlyArray<A> => {
   const as = A.fromIterable(self);
   const out: Array<A> = [];
@@ -159,3 +159,33 @@ export const fromIterable = <A>(collection: Iterable<A>): A.NonEmptyReadonlyArra
   });
   return array;
 };
+
+export namespace NonEmptyReadonlyArray {
+  export type With<
+    S extends Iterable<UnsafeTypes.UnsafeAny>,
+    A,
+  > = S extends A.NonEmptyReadonlyArray<UnsafeTypes.UnsafeAny> ? A.NonEmptyReadonlyArray<A> : never;
+}
+type MapNonEmpty = {
+  <const S extends ReadonlyArray<UnsafeTypes.UnsafeAny>, const B>(
+    f: (a: A.ReadonlyArray.Infer<S>, i: number) => B
+  ): (self: S) => NonEmptyReadonlyArray.With<S, B>;
+  <const S extends ReadonlyArray<UnsafeTypes.UnsafeAny>, const B>(
+    self: S,
+    f: (a: A.ReadonlyArray.Infer<S>, i: number) => B
+  ): NonEmptyReadonlyArray.With<S, B>;
+};
+
+export const mapNonEmpty: MapNonEmpty = F.dual(
+  2,
+  <A, B>(self: ReadonlyArray<A>, f: (a: A, i: number) => B): Array<B> => {
+    const arr = A.map(self, f);
+    invariant(A.isNonEmptyReadonlyArray(arr), "array must be non-empty", {
+      file: "@beep/utils/data/array.utils/NonEmptyReadonly/NonEmptyreadonly.ts",
+      line: 188,
+      args: [arr],
+    });
+
+    return arr;
+  }
+);

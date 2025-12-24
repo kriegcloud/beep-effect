@@ -13,7 +13,7 @@
  * @since 0.1.0
  */
 import type { Field } from "@effect/experimental/VariantSchema";
-import type * as StringTypes from "./string.types.js";
+import type * as StringTypes from "./string.types";
 
 /**
  * Variant Schema field map restricted to non-empty string keys.
