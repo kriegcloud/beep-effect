@@ -1,2 +1,2 @@
-export * from "./FileItem.tsx";
-export * from "./PendingFileItem.tsx";
+export * from "./FileItem";
+export * from "./PendingFileItem";

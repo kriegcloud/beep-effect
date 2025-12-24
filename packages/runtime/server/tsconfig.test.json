@@ -3,22 +3,10 @@
   "include": ["test"],
   "references": [
     {
-      "path": "../../common/types"
-    },
-    {
-      "path": "../../common/invariant"
-    },
-    {
-      "path": "../../common/utils"
-    },
-    {
       "path": "../../common/schema"
     },
     {
       "path": "../../common/constants"
-    },
-    {
-      "path": "../../common/identity"
     },
     {
       "path": "../../common/errors"
@@ -33,9 +21,6 @@
       "path": "../../shared/server"
     },
     {
-      "path": "../../shared/tables"
-    },
-    {
       "path": "../../iam/server"
     },
     {
@@ -46,12 +31,6 @@
     },
     {
       "path": "../../documents/server"
-    },
-    {
-      "path": "../../documents/domain"
-    },
-    {
-      "path": "../../documents/tables"
     }
   ],
   "compilerOptions": {

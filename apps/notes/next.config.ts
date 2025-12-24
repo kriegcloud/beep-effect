@@ -2,7 +2,7 @@ import fs from "node:fs";
 import { createRequire } from "node:module";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { defaultCache, withPWA } from "@beep/build-utils/pwa";
+
 import createJiti from "jiti";
 import type { NextConfig } from "next";
 import { createSecureHeaders } from "next-secure-headers";
@@ -43,17 +43,6 @@ if (process.env.NODE_ENV !== "test") {
   jiti("./src/env");
 }
 const debug = process.env.NEXT_PUBLIC_ENVIRONMENT === "development";
-
-const withPWAConfig = withPWA({
-  dest: "public",
-  disable: debug,
-  register: true,
-  skipWaiting: true,
-  runtimeCaching: [...defaultCache],
-  fallbacks: {
-    document: "/_offline",
-  },
-});
 
 const candidateTranspilePackages = [
   "@beep/build-utils",
@@ -227,6 +216,6 @@ const nextConfig = {
   },
 } satisfies NextConfig;
 
-const config = withPWAConfig(withBundleAnalyzer(nextConfig));
+const config = withBundleAnalyzer(nextConfig);
 
 export default config;

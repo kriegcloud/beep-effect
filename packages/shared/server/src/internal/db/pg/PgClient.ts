@@ -30,7 +30,7 @@ import * as Stream from "effect/Stream";
 import * as Pg from "pg";
 import * as PgConnString from "pg-connection-string";
 import Cursor from "pg-cursor";
-import { DatabaseError } from "./errors.ts";
+import { DatabaseError } from "./errors";
 import { type ConnectionConfig, ConnectionPool, QueryLogger } from "./services";
 
 import type {

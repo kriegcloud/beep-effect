@@ -261,6 +261,11 @@
     "ui-add": {
       "cache": false,
       "interactive": true
+    },
+    "topo-sort": {
+      "cache": false,
+      "dependsOn": ["^build"],
+      "inputs": ["**/package.json"]
     }
   }
 }

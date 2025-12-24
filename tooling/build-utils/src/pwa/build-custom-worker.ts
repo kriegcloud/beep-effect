@@ -17,8 +17,8 @@ import { globalValue } from "effect/GlobalValue";
 import * as O from "effect/Option";
 import TerserPlugin from "terser-webpack-plugin";
 import webpack from "webpack";
-import { WebpackBuildError } from "./errors.ts";
-import type { BuildCustomWorkerOptions } from "./types.ts";
+import { WebpackBuildError } from "./errors.js";
+import type { BuildCustomWorkerOptions } from "./types.js";
 
 /**
  * Node polyfills fallback configuration for web workers.

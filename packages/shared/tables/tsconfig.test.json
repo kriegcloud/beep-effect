@@ -9,19 +9,7 @@
       "path": "../domain"
     },
     {
-      "path": "../../common/types"
-    },
-    {
       "path": "../../common/schema"
-    },
-    {
-      "path": "../../common/utils"
-    },
-    {
-      "path": "../../common/identity"
-    },
-    {
-      "path": "../../common/invariant"
     }
   ],
   "compilerOptions": {

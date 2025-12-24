@@ -4,7 +4,7 @@ import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as PubSub from "effect/PubSub";
 import * as Stream from "effect/Stream";
-import * as FilesRpcClient from "./FilesRpcClient.service.ts";
+import * as FilesRpcClient from "./FilesRpcClient.service";
 
 const $I = $SharedClientId.create("atom/rpc/v1/event-stream");
 

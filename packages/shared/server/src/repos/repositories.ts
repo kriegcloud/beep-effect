@@ -6,9 +6,9 @@
 import type { Db } from "@beep/shared-server/Db";
 import * as Layer from "effect/Layer";
 import type { SharedDb } from "../db";
-import { FileRepo } from "./File.repo.ts";
-import { FolderRepo } from "./Folder.repo.ts";
-import { UploadSessionRepo } from "./UploadSession.repo.ts";
+import { FileRepo } from "./File.repo";
+import { FolderRepo } from "./Folder.repo";
+import { UploadSessionRepo } from "./UploadSession.repo";
 
 /**
  * Union type of all shared repository services.
@@ -72,7 +72,7 @@ export const layer: SharedReposLive = Layer.mergeAll(FileRepo.Default, FolderRep
  * @category exports
  * @since 0.1.0
  */
-export * from "./File.repo.ts";
+export * from "./File.repo";
 
 /**
  * Re-exports Folder repository implementation.
@@ -85,7 +85,7 @@ export * from "./File.repo.ts";
  * @category exports
  * @since 0.1.0
  */
-export * from "./Folder.repo.ts";
+export * from "./Folder.repo";
 
 /**
  * Re-exports UploadSession repository implementation.
@@ -98,4 +98,4 @@ export * from "./Folder.repo.ts";
  * @category exports
  * @since 0.1.0
  */
-export * from "./UploadSession.repo.ts";
+export * from "./UploadSession.repo";

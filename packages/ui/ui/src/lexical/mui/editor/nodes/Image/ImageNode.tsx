@@ -253,3 +253,6 @@ export function $createImageNode({
 export function $isImageNode(node: LexicalNode | null | undefined): node is ImageNode {
   return node instanceof ImageNode;
 }
+
+// Re-export from guards to maintain backward compatibility
+export { $isImageNode as $isImageNodeFromGuards } from "./guards";

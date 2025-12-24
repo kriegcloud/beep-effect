@@ -3,8 +3,8 @@ import { Atom, Registry } from "@effect-atom/atom-react";
 import { Effect } from "effect";
 import * as A from "effect/Array";
 import { runtime } from "../runtime";
-import { activeUploadsAtom } from "./activeUploads.atom.ts";
-import { uploadAtom } from "./upload.atom.ts";
+import { activeUploadsAtom } from "./activeUploads.atom";
+import { uploadAtom } from "./upload.atom";
 
 export const cancelUploadAtom = runtime.fn(
   Effect.fnUntraced(function* (uploadId: string) {

@@ -30,11 +30,11 @@ import * as P from "effect/Predicate";
 import type * as Pretty from "effect/Pretty";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import { AspectRatio, AspectRatioStringSchema } from "./AspectRatio.ts";
+import { AspectRatio, AspectRatioStringSchema } from "./AspectRatio";
 import { ExifMetadata } from "./exif-metadata";
-import { MetadataService } from "./metadata/Metadata.service.ts";
-import { IAudioMetadata, ICommonTagsResult, IFormat, IQualityInformation } from "./metadata/types.ts";
-import { FileSizeBitsIEC, FileSizeBitsSI, FileSizeIEC, FileSizeSI } from "./utils/formatSize.ts";
+import { MetadataService } from "./metadata/Metadata.service";
+import { IAudioMetadata, ICommonTagsResult, IFormat, IQualityInformation } from "./metadata/types";
+import { FileSizeBitsIEC, FileSizeBitsSI, FileSizeIEC, FileSizeSI } from "./utils/formatSize";
 
 /**
  * Branded type for MD5 hash strings (32 lowercase hexadecimal characters).

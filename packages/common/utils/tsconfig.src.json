@@ -3,7 +3,8 @@
   "include": ["src"],
   "references": [
     { "path": "../types/tsconfig.build.json" },
-    { "path": "../invariant/tsconfig.build.json" }
+    { "path": "../invariant/tsconfig.build.json" },
+    { "path": "../identity/tsconfig.build.json" }
   ],
   "compilerOptions": {
     "types": ["bun", "node"],

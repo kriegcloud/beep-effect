@@ -3,26 +3,10 @@
   "references": [
     {
       "path": "../utils/tsconfig.build.json"
-    },
-    {
-      "path": "../../packages/common/identity/tsconfig.build.json"
-    },
-    {
-      "path": "../../packages/common/types/tsconfig.build.json"
-    },
-    {
-      "path": "../../packages/common/utils/tsconfig.build.json"
-    },
-    {
-      "path": "../../packages/common/invariant/tsconfig.build.json"
-    },
-    {
-      "path": "../../packages/common/schema/tsconfig.build.json"
     }
   ],
   "compilerOptions": {
     "types": ["node", "bun"],
-
     "outDir": "build/esm",
     "declarationDir": "build/dts",
     "stripInternal": false

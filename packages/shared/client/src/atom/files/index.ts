@@ -1,4 +1,4 @@
 export * from "./atoms";
-export * from "./constants.ts";
-export * from "./errors.ts";
+export * from "./constants";
+export * from "./errors";
 export * from "./types";

@@ -6,55 +6,16 @@
       "path": "../../common/types"
     },
     {
-      "path": "../../common/invariant"
-    },
-    {
       "path": "../../common/utils"
-    },
-    {
-      "path": "../../common/schema"
-    },
-    {
-      "path": "../../common/mock"
-    },
-    {
-      "path": "../../common/identity"
-    },
-    {
-      "path": "../../common/contract"
     },
     {
       "path": "../../common/constants"
     },
     {
-      "path": "../../common/errors"
-    },
-    {
-      "path": "../../shared/domain"
-    },
-    {
       "path": "../../shared/env"
     },
     {
-      "path": "../../shared/tables"
-    },
-    {
-      "path": "../../iam/domain"
-    },
-    {
-      "path": "../../iam/tables"
-    },
-    {
       "path": "../../ui/ui"
-    },
-    {
-      "path": "../../ui/core"
-    },
-    {
-      "path": "../../documents/domain"
-    },
-    {
-      "path": "../../documents/tables"
     }
   ],
   "compilerOptions": {

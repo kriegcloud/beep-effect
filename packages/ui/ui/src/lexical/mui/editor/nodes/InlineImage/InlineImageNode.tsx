@@ -14,10 +14,8 @@ import type {
 } from "lexical";
 import { $applyNodeReplacement, createEditor, DecoratorNode, isHTMLElement } from "lexical";
 import type { JSX } from "react";
-
+import type { Position } from "./guards";
 import { InlineImageComponent } from "./InlineImageComponent";
-
-export type Position = "left" | "right" | "full" | undefined;
 
 export interface IInlineImagePayload {
   altText: string;
@@ -266,3 +264,6 @@ export function $createInlineImageNode({
 export function $isInlineImageNode(node: LexicalNode | null | undefined): node is InlineImageNode {
   return node instanceof InlineImageNode;
 }
+
+// Re-export from guards to maintain backward compatibility
+export { $isInlineImageNode as $isInlineImageNodeFromGuards, type Position as PositionType } from "./guards";

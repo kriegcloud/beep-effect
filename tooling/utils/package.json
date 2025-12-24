@@ -68,7 +68,6 @@
     "@effect/cluster": "catalog:"
   },
   "devDependencies": {
-    "@beep/types": "workspace:^",
     "typescript": "catalog:",
     "@effect/platform": "catalog:",
     "@effect/platform-bun": "catalog:",

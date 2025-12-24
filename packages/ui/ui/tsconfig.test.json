@@ -18,9 +18,6 @@
       "path": "../../common/schema"
     },
     {
-      "path": "../../common/identity"
-    },
-    {
       "path": "../../common/constants"
     },
     {

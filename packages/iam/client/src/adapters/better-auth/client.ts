@@ -6,24 +6,21 @@ import { passkeyClient } from "@better-auth/passkey/client";
 import { ssoClient } from "@better-auth/sso/client";
 import { stripeClient } from "@better-auth/stripe/client";
 import {
-  adminClient,
+  // adminClient,
   anonymousClient,
-  apiKeyClient,
-  customSessionClient,
-  deviceAuthorizationClient,
-  genericOAuthClient,
-  inferAdditionalFields,
+  // apiKeyClient,
+  // deviceAuthorizationClient,
+  // genericOAuthClient,
   // jwtClient,
-  // inferOrgAdditionalFields,
+  inferOrgAdditionalFields,
   lastLoginMethodClient,
-  multiSessionClient,
-  oidcClient,
+  // multiSessionClient,
+  // oidcClient,
   oneTapClient,
   oneTimeTokenClient,
   organizationClient,
   phoneNumberClient,
   siweClient,
-  twoFactorClient,
   usernameClient,
 } from "better-auth/client/plugins";
 import { createAuthClient } from "better-auth/react";
@@ -32,15 +29,14 @@ export const client = createAuthClient({
   baseURL: clientEnv.authUrl,
   basePath: clientEnv.authPath,
   plugins: [
-    inferAdditionalFields<Auth.Auth>(),
-    adminClient(),
+    // inferAdditionalFields<Auth.Auth>(),
+    // adminClient(),
     anonymousClient(),
     // jwtClient(),
-    apiKeyClient(),
-    customSessionClient<Auth.Auth>(),
-    genericOAuthClient(),
-    multiSessionClient(),
-    oidcClient(),
+    // apiKeyClient(),
+    // genericOAuthClient(),
+    // multiSessionClient(),
+    // oidcClient(),
     oneTapClient({
       clientId: clientEnv.googleClientId,
       promptOptions: {
@@ -51,7 +47,7 @@ export const client = createAuthClient({
     }),
     oneTimeTokenClient(),
     organizationClient({
-      // schema: inferOrgAdditionalFields<Auth.Auth>(),
+      schema: inferOrgAdditionalFields<Auth.Auth>(),
       teams: {
         enabled: true,
       },
@@ -63,12 +59,12 @@ export const client = createAuthClient({
     phoneNumberClient(),
     siweClient(),
     ssoClient(),
-    twoFactorClient(),
+
     usernameClient(),
     stripeClient({
       subscription: true,
     }),
-    deviceAuthorizationClient(),
+    // deviceAuthorizationClient(),
     lastLoginMethodClient(),
   ],
 } satisfies BetterAuthClientOptions);

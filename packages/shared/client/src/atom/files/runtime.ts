@@ -3,12 +3,12 @@ import { BS } from "@beep/schema";
 import { DEFAULT_POOL_SIZE, makeLayerWithSpawner } from "@beep/utils/md5";
 import * as BrowserHttpClient from "@effect/platform-browser/BrowserHttpClient";
 import * as Layer from "effect/Layer";
+import * as FilesApi from "../services/FilesApi.service";
+import * as FilesEventStream from "../services/FilesEventStream.service";
+import * as ImageCompressionClient from "../services/ImageCompressionClient.service";
+import { UploadRegistry } from "../services/Upload";
 import * as FilePicker from "./services/FilePicker.service";
 import * as FileSync from "./services/FileSync.service";
-import * as FilesApi from "../services/FilesApi.service.ts";
-import * as FilesEventStream from "../services/FilesEventStream.service.ts";
-import * as ImageCompressionClient from "../services/ImageCompressionClient.service.ts";
-import {UploadRegistry} from "../services/Upload";
 
 const ParallelHasherLayer = makeLayerWithSpawner({
   spawner: () =>

@@ -1,1 +1,1 @@
-export * as SSO from "./_group.ts";
+export * as SSO from "./_group";

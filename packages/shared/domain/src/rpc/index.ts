@@ -1,2 +1,2 @@
-export * from "./rpc.ts";
+export * from "./rpc";
 export * from "./v1";

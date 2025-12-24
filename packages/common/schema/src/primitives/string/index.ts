@@ -5,7 +5,7 @@
  * @since 0.1.0
  */
 
-export * from "./decode-string.ts";
+export * from "./decode-string";
 export * from "./email";
 /**
  * Hexadecimal string schemas.

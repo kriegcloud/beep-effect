@@ -1,1 +1,1 @@
-export * as OAuth2 from "./_group.ts";
+export * as OAuth2 from "./_group";

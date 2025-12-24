@@ -2,8 +2,8 @@ import { Atom } from "@effect-atom/atom-react";
 import * as Effect from "effect/Effect";
 import type * as Layer from "effect/Layer";
 import * as ManagedRuntime from "effect/ManagedRuntime";
+import type { ClientRuntimeLayer } from "./layer";
 import { clientRuntimeLayer } from "./layer";
-import type { ClientRuntimeLayer } from "./layer.ts";
 
 export const makeAtomRuntime = Atom.context({
   memoMap: Atom.defaultMemoMap,

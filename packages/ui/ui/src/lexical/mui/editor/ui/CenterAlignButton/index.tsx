@@ -15,7 +15,7 @@ export const CenterAlignButton: FC<ICenterAlignButtonProps> = ({ activeEditor, i
       onClick={() => {
         activeEditor.dispatchCommand(FORMAT_ELEMENT_COMMAND, "center");
       }}
-      className={"toolbar-item spaced " + (isCenterAlign ? "active" : "")}
+      className={`toolbar-item spaced ${isCenterAlign ? "active" : ""}`}
       title={`Center Align (${SHORTCUTS.CENTER_ALIGN})`}
       type="button"
       aria-label={`Format text as center align. Shortcut: ${SHORTCUTS.CENTER_ALIGN}`}

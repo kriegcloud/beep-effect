@@ -38,11 +38,9 @@
   "peerDependencies": {
     "effect": "catalog:",
     "@beep/schema": "workspace:^",
-    "@beep/utils": "workspace:^",
     "@effect/cluster": "catalog:",
     "@effect/workflow": "catalog:",
     "@beep/invariant": "workspace:^",
-    "@beep/identity": "workspace:^",
     "uuid": "catalog:"
   },
   "devDependencies": {
@@ -50,11 +48,9 @@
     "@effect/docgen": "catalog:",
     "effect": "catalog:",
     "@beep/schema": "workspace:^",
-    "@beep/utils": "workspace:^",
     "@effect/cluster": "catalog:",
     "@effect/workflow": "catalog:",
     "@beep/invariant": "workspace:^",
-    "@beep/identity": "workspace:^",
     "uuid": "catalog:",
     "@beep/types": "workspace:^",
     "@total-typescript/ts-reset": "catalog:"

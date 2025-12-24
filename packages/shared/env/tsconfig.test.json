@@ -6,16 +6,7 @@
       "path": "tsconfig.src.json"
     },
     {
-      "path": "../../common/types"
-    },
-    {
       "path": "../../common/constants"
-    },
-    {
-      "path": "../../common/identity"
-    },
-    {
-      "path": "../../common/errors"
     },
     {
       "path": "../domain"

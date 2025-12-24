@@ -30,7 +30,7 @@ export interface CollabNetwork {
 }
 
 export function debugEventSyncMessage(direction: "up" | "down", m: SyncMessageClient | SyncMessageServer): DebugEvent {
-  let message;
+  let message: string | undefined;
   const nestedMessages: string[] = [];
   switch (m.type) {
     case "init":
@@ -41,7 +41,7 @@ export function debugEventSyncMessage(direction: "up" | "down", m: SyncMessageCl
       break;
     case "peer-chunk":
       m.messages.forEach((pm) => {
-        let nestedMessage;
+        let nestedMessage: string;
         switch (pm.type) {
           case "created":
             nestedMessage = `${pm.userId} created: ${pm.node.$.syncId}|previousId: ${pm.previousId}|parentId: ${pm.parentId}|streamId: ${pm.streamId}`;

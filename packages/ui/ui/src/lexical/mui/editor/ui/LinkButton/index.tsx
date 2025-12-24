@@ -13,7 +13,7 @@ export const LinkButton: FC<ILinkButtonProps> = ({ insertLink, isLink, disabled 
     <button
       disabled={disabled}
       onClick={insertLink}
-      className={"toolbar-item spaced " + (isLink ? "active" : "")}
+      className={`toolbar-item spaced ${isLink ? "active" : ""}`}
       aria-label="Insert link"
       title={`Insert link (${SHORTCUTS.INSERT_LINK})`}
       type="button"

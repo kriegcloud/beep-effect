@@ -1,1 +1,1 @@
-export * as Core from "./_group.ts";
+export * as Core from "./_group";

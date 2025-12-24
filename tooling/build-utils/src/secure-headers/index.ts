@@ -2,70 +2,70 @@ import {
   ContentSecurityPolicyHeaderSchema,
   ContentSecurityPolicyOptionSchema,
   createContentSecurityPolicyHeader,
-} from "./content-security-policy.ts";
+} from "./content-security-policy.js";
 import {
   CrossOriginEmbedderPolicyHeaderSchema,
   CrossOriginEmbedderPolicyOptionSchema,
   createCrossOriginEmbedderPolicyHeader,
-} from "./cross-origin-embedder-policy.ts";
+} from "./cross-origin-embedder-policy.js";
 import {
   CrossOriginOpenerPolicyHeaderSchema,
   CrossOriginOpenerPolicyOptionSchema,
   createCrossOriginOpenerPolicyHeader,
-} from "./cross-origin-opener-policy.ts";
+} from "./cross-origin-opener-policy.js";
 import {
   CrossOriginResourcePolicyHeaderSchema,
   CrossOriginResourcePolicyOptionSchema,
   createCrossOriginResourcePolicyHeader,
-} from "./cross-origin-resource-policy.ts";
-import { createExpectCTHeader, ExpectCTHeaderSchema, ExpectCTOptionSchema } from "./expect-ct.ts";
+} from "./cross-origin-resource-policy.js";
+import { createExpectCTHeader, ExpectCTHeaderSchema, ExpectCTOptionSchema } from "./expect-ct.js";
 import {
   createForceHTTPSRedirectHeader,
   ForceHTTPSRedirectHeaderSchema,
   ForceHTTPSRedirectOptionSchema,
-} from "./force-https-redirect.ts";
-import { createFrameGuardHeader, FrameGuardHeaderSchema, FrameGuardOptionSchema } from "./frame-guard.ts";
-import { createNoopenHeader, NoopenHeaderSchema, NoopenOptionSchema } from "./no-open.ts";
-import { createNosniffHeader, NosniffHeaderSchema, NosniffOptionSchema } from "./no-sniff.ts";
+} from "./force-https-redirect.js";
+import { createFrameGuardHeader, FrameGuardHeaderSchema, FrameGuardOptionSchema } from "./frame-guard.js";
+import { createNoopenHeader, NoopenHeaderSchema, NoopenOptionSchema } from "./no-open.js";
+import { createNosniffHeader, NosniffHeaderSchema, NosniffOptionSchema } from "./no-sniff.js";
 import {
   createPermissionsPolicyHeader,
   PermissionsPolicyHeaderSchema,
   PermissionsPolicyOptionSchema,
-} from "./permissions-policy.ts";
+} from "./permissions-policy.js";
 import {
   createPermittedCrossDomainPoliciesHeader,
   PermittedCrossDomainPoliciesHeaderSchema,
   PermittedCrossDomainPoliciesOptionSchema,
-} from "./permitted-cross-domain-policies.ts";
+} from "./permitted-cross-domain-policies.js";
 import {
   createReferrerPolicyHeader,
   ReferrerPolicyHeaderSchema,
   ReferrerPolicyOptionSchema,
-} from "./referrer-policy.ts";
-import { createXSSProtectionHeader, XSSProtectionHeaderSchema, XSSProtectionOptionSchema } from "./xss-protection.ts";
+} from "./referrer-policy.js";
+import { createXSSProtectionHeader, XSSProtectionHeaderSchema, XSSProtectionOptionSchema } from "./xss-protection.js";
 
-export type { ContentSecurityPolicyHeader, ContentSecurityPolicyOption } from "./content-security-policy.ts";
+export type { ContentSecurityPolicyHeader, ContentSecurityPolicyOption } from "./content-security-policy.js";
 export type {
   CrossOriginEmbedderPolicyHeader,
   CrossOriginEmbedderPolicyOption,
-} from "./cross-origin-embedder-policy.ts";
-export type { CrossOriginOpenerPolicyHeader, CrossOriginOpenerPolicyOption } from "./cross-origin-opener-policy.ts";
+} from "./cross-origin-embedder-policy.js";
+export type { CrossOriginOpenerPolicyHeader, CrossOriginOpenerPolicyOption } from "./cross-origin-opener-policy.js";
 export type {
   CrossOriginResourcePolicyHeader,
   CrossOriginResourcePolicyOption,
-} from "./cross-origin-resource-policy.ts";
-export type { ExpectCTHeader, ExpectCTOption } from "./expect-ct.ts";
-export type { ForceHTTPSRedirectHeader, ForceHTTPSRedirectOption } from "./force-https-redirect.ts";
-export type { FrameGuardHeader, FrameGuardOption } from "./frame-guard.ts";
-export type { NoopenHeader, NoopenOption } from "./no-open.ts";
-export type { NosniffHeader, NosniffOption } from "./no-sniff.ts";
-export type { PermissionsPolicyHeader, PermissionsPolicyOption } from "./permissions-policy.ts";
+} from "./cross-origin-resource-policy.js";
+export type { ExpectCTHeader, ExpectCTOption } from "./expect-ct.js";
+export type { ForceHTTPSRedirectHeader, ForceHTTPSRedirectOption } from "./force-https-redirect.js";
+export type { FrameGuardHeader, FrameGuardOption } from "./frame-guard.js";
+export type { NoopenHeader, NoopenOption } from "./no-open.js";
+export type { NosniffHeader, NosniffOption } from "./no-sniff.js";
+export type { PermissionsPolicyHeader, PermissionsPolicyOption } from "./permissions-policy.js";
 export type {
   PermittedCrossDomainPoliciesHeader,
   PermittedCrossDomainPoliciesOption,
-} from "./permitted-cross-domain-policies.ts";
-export type { ReferrerPolicyHeader, ReferrerPolicyOption } from "./referrer-policy.ts";
-export type { XSSProtectionHeader, XSSProtectionOption } from "./xss-protection.ts";
+} from "./permitted-cross-domain-policies.js";
+export type { ReferrerPolicyHeader, ReferrerPolicyOption } from "./referrer-policy.js";
+export type { XSSProtectionHeader, XSSProtectionOption } from "./xss-protection.js";
 
 // From TypeScript 3.9 has been set `enumerable: false` so we cannot `import * as rules` and `jest.spyOn(rules, "xxx")` ,
 // so exports manually.

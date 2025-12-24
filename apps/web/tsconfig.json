@@ -6,7 +6,7 @@
     "downlevelIteration": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "allowImportingTsExtensions": true,
+    "allowImportingTsExtensions": false,
     "isolatedModules": true,
     "noImplicitReturns": false,
     "noUnusedLocals": true,
@@ -30,7 +30,7 @@
     "outDir": "build/src",
     "jsx": "preserve",
     "module": "ESNext",
-    "target": "ES2023",
+    "target": "ES2024",
     "lib": ["ES2024", "DOM", "DOM.Iterable"],
     "moduleResolution": "bundler",
     "incremental": true,
@@ -126,19 +126,7 @@
       "path": "../../packages/common/mock/tsconfig.build.json"
     },
     {
-      "path": "../../packages/common/contract/tsconfig.build.json"
-    },
-    {
       "path": "../../packages/shared/domain/tsconfig.build.json"
-    },
-    {
-      "path": "../../packages/shared/tables/tsconfig.build.json"
-    },
-    {
-      "path": "../../packages/shared/server/tsconfig.build.json"
-    },
-    {
-      "path": "../../packages/shared/client/tsconfig.build.json"
     },
     {
       "path": "../../packages/shared/ui/tsconfig.build.json"
@@ -156,28 +144,13 @@
       "path": "../../packages/iam/ui/tsconfig.build.json"
     },
     {
-      "path": "../../packages/iam/tables/tsconfig.build.json"
-    },
-    {
       "path": "../../packages/ui/ui/tsconfig.build.json"
     },
     {
       "path": "../../packages/ui/core/tsconfig.build.json"
     },
     {
-      "path": "../../packages/documents/client/tsconfig.build.json"
-    },
-    {
-      "path": "../../packages/documents/ui/tsconfig.build.json"
-    },
-    {
       "path": "../../packages/documents/server/tsconfig.build.json"
-    },
-    {
-      "path": "../../packages/documents/domain/tsconfig.build.json"
-    },
-    {
-      "path": "../../packages/documents/tables/tsconfig.build.json"
     },
     {
       "path": "../../packages/runtime/server/tsconfig.build.json"

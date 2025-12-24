@@ -4,15 +4,6 @@
   "exclude": ["build"],
   "references": [
     {
-      "path": "../../common/types"
-    },
-    {
-      "path": "../../common/invariant"
-    },
-    {
-      "path": "../../common/utils"
-    },
-    {
       "path": "../../common/schema"
     },
     {
@@ -22,9 +13,6 @@
       "path": "../../common/errors"
     },
     {
-      "path": "../../common/identity"
-    },
-    {
       "path": "../../shared/domain"
     },
     {
@@ -32,9 +20,6 @@
     },
     {
       "path": "../../shared/env"
-    },
-    {
-      "path": "../../shared/tables"
     },
     {
       "path": "../../iam/server"
@@ -47,12 +32,6 @@
     },
     {
       "path": "../../documents/server"
-    },
-    {
-      "path": "../../documents/domain"
-    },
-    {
-      "path": "../../documents/tables"
     }
   ],
   "compilerOptions": {

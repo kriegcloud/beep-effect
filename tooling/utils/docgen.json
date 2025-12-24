@@ -11,9 +11,9 @@
     "skipLibCheck": true,
     "moduleResolution": "Bundler",
     "module": "ESNext",
-    "target": "ES2023",
+    "target": "ES2024",
     "lib": ["ESNext", "DOM", "DOM.Iterable"],
-    "allowImportingTsExtensions": true,
+    "allowImportingTsExtensions": false,
     "rewriteRelativeImportExtensions": true,
     "paths": {
       "@beep/tooling-utils": ["./src/index.ts"],
@@ -29,9 +29,9 @@
     "skipLibCheck": true,
     "moduleResolution": "Bundler",
     "module": "ESNext",
-    "target": "ES2023",
+    "target": "ES2024",
     "lib": ["ESNext", "DOM", "DOM.Iterable"],
-    "allowImportingTsExtensions": true,
+    "allowImportingTsExtensions": false,
     "rewriteRelativeImportExtensions": true,
     "paths": {
       "@beep/tooling-utils": ["./src/index.ts"],

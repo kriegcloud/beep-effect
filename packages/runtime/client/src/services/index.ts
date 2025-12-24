@@ -1,3 +1,3 @@
-export * from "./ka-services.ts";
-export * from "./network-monitor.ts";
-export * from "./unsafe-http-api-client.ts";
+export * from "./ka-services";
+export * from "./network-monitor";
+export * from "./unsafe-http-api-client";

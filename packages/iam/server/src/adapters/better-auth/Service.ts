@@ -5,8 +5,8 @@ import type { Email } from "@beep/shared-server/Email";
 import * as Context from "effect/Context";
 import type * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
-import { AuthEmailService } from "./Emails.ts";
-import { AuthEffect } from "./Options.ts";
+import { AuthEmailService } from "./Emails";
+import { AuthEffect } from "./Options";
 
 const $I = $IamServerId.create("adapters/better-auth/Auth");
 

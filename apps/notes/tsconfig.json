@@ -6,7 +6,7 @@
     "downlevelIteration": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "allowImportingTsExtensions": true,
+    "allowImportingTsExtensions": false,
     "isolatedModules": true,
     "noImplicitReturns": false,
     "noUnusedLocals": true,
@@ -31,7 +31,7 @@
     "outDir": "build/src",
     "jsx": "preserve",
     "module": "ESNext",
-    "target": "ES2023",
+    "target": "ES2024",
     "lib": ["ES2024", "DOM", "DOM.Iterable"],
     "moduleResolution": "bundler",
     "incremental": true,
@@ -93,7 +93,9 @@
       "@beep/runtime-server": ["../../packages/runtime/server/src/index"],
       "@beep/runtime-server/*": ["../../packages/runtime/server/src/*"],
       "@beep/runtime-client": ["../../packages/runtime/client/src/index"],
-      "@beep/runtime-client/*": ["../../packages/runtime/client/src/*"]
+      "@beep/runtime-client/*": ["../../packages/runtime/client/src/*"],
+      "@beep/build-utils": ["../../tooling/build-utils/src/index"],
+      "@beep/build-utils/*": ["../../tooling/build-utils/src/*"]
     },
     "plugins": [
       {
@@ -103,37 +105,16 @@
   },
   "references": [
     {
-      "path": "../../packages/common/types/tsconfig.build.json"
+      "path": "../../tooling/build-utils/tsconfig.build.json"
     },
     {
-      "path": "../../packages/common/invariant/tsconfig.build.json"
+      "path": "../../packages/common/types/tsconfig.build.json"
     },
     {
       "path": "../../packages/common/utils/tsconfig.build.json"
     },
     {
       "path": "../../packages/common/schema/tsconfig.build.json"
-    },
-    {
-      "path": "../../packages/common/identity/tsconfig.build.json"
-    },
-    {
-      "path": "../../packages/common/constants/tsconfig.build.json"
-    },
-    {
-      "path": "../../packages/common/errors/tsconfig.build.json"
-    },
-    {
-      "path": "../../packages/common/mock/tsconfig.build.json"
-    },
-    {
-      "path": "../../packages/common/contract/tsconfig.build.json"
-    },
-    {
-      "path": "../../packages/shared/domain/tsconfig.build.json"
-    },
-    {
-      "path": "../../packages/shared/tables/tsconfig.build.json"
     },
     {
       "path": "../../packages/shared/client/tsconfig.build.json"
@@ -145,46 +126,7 @@
       "path": "../../packages/shared/ui/tsconfig.build.json"
     },
     {
-      "path": "../../packages/iam/client/tsconfig.build.json"
-    },
-    {
-      "path": "../../packages/iam/server/tsconfig.build.json"
-    },
-    {
-      "path": "../../packages/iam/domain/tsconfig.build.json"
-    },
-    {
-      "path": "../../packages/iam/ui/tsconfig.build.json"
-    },
-    {
-      "path": "../../packages/iam/tables/tsconfig.build.json"
-    },
-    {
       "path": "../../packages/ui/ui/tsconfig.build.json"
-    },
-    {
-      "path": "../../packages/ui/core/tsconfig.build.json"
-    },
-    {
-      "path": "../../packages/documents/client/tsconfig.build.json"
-    },
-    {
-      "path": "../../packages/documents/ui/tsconfig.build.json"
-    },
-    {
-      "path": "../../packages/documents/server/tsconfig.build.json"
-    },
-    {
-      "path": "../../packages/documents/domain/tsconfig.build.json"
-    },
-    {
-      "path": "../../packages/documents/tables/tsconfig.build.json"
-    },
-    {
-      "path": "../../packages/runtime/server/tsconfig.build.json"
-    },
-    {
-      "path": "../../packages/runtime/client/tsconfig.build.json"
     }
   ],
   "include": [

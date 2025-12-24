@@ -5,8 +5,8 @@ import { Events } from "@beep/shared-domain";
 import { Registry } from "@effect-atom/atom-react";
 import { Effect } from "effect";
 import * as S from "effect/Schema";
-import * as FileCompletionSignals from "../services/FileCompletionSignals.ts";
-import { makeEventStreamAtom } from "./event-stream.atom.tsx";
+import * as FileCompletionSignals from "../services/FileCompletionSignals";
+import { makeEventStreamAtom } from "./event-stream.atom";
 
 export const filesEventStreamAtom = makeEventStreamAtom({
   runtime,

@@ -3,8 +3,8 @@ import { Effect } from "effect";
 import * as A from "effect/Array";
 import { FilesApi } from "../../services";
 import { runtime } from "../runtime";
-import { CreateFolder } from "../types.ts";
-import { filesAtom } from "./files.atom.ts";
+import { CreateFolder } from "../types";
+import { filesAtom } from "./files.atom";
 
 export const createFolderAtom = runtime.fn(
   Effect.fn(function* (folderName: string) {

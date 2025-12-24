@@ -1,6 +1,6 @@
 import { pipe } from "effect";
 import * as Str from "effect/String";
-import type { RuntimeCaching, UrlPatternParams } from "./types.ts";
+import type { RuntimeCaching, UrlPatternParams } from "./types.js";
 
 /**
  * Declare self as ServiceWorkerGlobalScope for proper typing.

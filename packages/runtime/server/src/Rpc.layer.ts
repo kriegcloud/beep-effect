@@ -7,7 +7,7 @@ import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as F from "effect/Function";
 import * as Layer from "effect/Layer";
-import { AuthContextRpcMiddlewaresLayer } from "./AuthContext.layer.ts";
+import { AuthContextRpcMiddlewaresLayer } from "./AuthContext.layer";
 
 export class RpcLogger extends RpcMiddleware.Tag<RpcLogger>()("RpcLogger", {
   wrap: true,

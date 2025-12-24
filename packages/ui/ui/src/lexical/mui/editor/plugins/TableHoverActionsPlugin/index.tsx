@@ -224,10 +224,16 @@ function TableHoverActionsContainer({ anchorElem }: { anchorElem: HTMLElement })
   return (
     <>
       {isShownRow && (
-        <button className={`${getTheme()?.tableAddRows}`} style={{ ...position }} onClick={() => insertAction(true)} />
+        <button
+          type="button"
+          className={`${getTheme()?.tableAddRows}`}
+          style={{ ...position }}
+          onClick={() => insertAction(true)}
+        />
       )}
       {isShownColumn && (
         <button
+          type="button"
           className={`${getTheme()?.tableAddColumns}`}
           style={{ ...position }}
           onClick={() => insertAction(false)}

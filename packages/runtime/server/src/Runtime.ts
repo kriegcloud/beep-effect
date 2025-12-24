@@ -1,6 +1,6 @@
 import * as Effect from "effect/Effect";
 import * as ManagedRuntime from "effect/ManagedRuntime";
-import * as Authentication from "./Authentication.layer.ts";
+import * as Authentication from "./Authentication.layer";
 
 export const serverRuntime = ManagedRuntime.make(Authentication.layer);
 

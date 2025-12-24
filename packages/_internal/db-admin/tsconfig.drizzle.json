@@ -2,25 +2,11 @@
   "extends": "./tsconfig.src.json",
   "include": ["drizzle.config.ts"],
   "references": [
-    { "path": "../../../tooling/utils" },
-    { "path": "../../../tooling/testkit/tsconfig.build.json" },
     {
-      "path": "../../common/types"
-    },
-    {
-      "path": "../../common/invariant"
-    },
-    {
-      "path": "../../common/utils"
+      "path": "../../../tooling/testkit/tsconfig.build.json"
     },
     {
       "path": "../../common/schema"
-    },
-    {
-      "path": "../../common/constants"
-    },
-    {
-      "path": "../../common/errors"
     },
     {
       "path": "../../shared/domain"
@@ -30,9 +16,6 @@
     },
     {
       "path": "../../shared/server"
-    },
-    {
-      "path": "../../shared/env"
     },
     {
       "path": "../../iam/domain"
@@ -48,9 +31,6 @@
     },
     {
       "path": "../../documents/server"
-    },
-    {
-      "path": "../../documents/domain"
     },
     {
       "path": "../../documents/tables"

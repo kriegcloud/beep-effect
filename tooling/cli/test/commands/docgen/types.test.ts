@@ -140,7 +140,7 @@ describe("types", () => {
           noEmit: true,
         },
         examplesCompilerOptions: {
-          target: "ES2022",
+          target: "ES2024",
         },
       };
       const result = S.decodeUnknownEither(DocgenConfigSchema)(config);

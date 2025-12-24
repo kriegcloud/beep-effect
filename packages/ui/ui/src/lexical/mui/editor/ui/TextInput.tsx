@@ -10,6 +10,8 @@ type Props = Readonly<{
   readonly type?: undefined | HTMLInputTypeAttribute;
 }>;
 
+let textInputIdCounter = 0;
+
 export const TextInput = ({
   label,
   value,
@@ -18,10 +20,14 @@ export const TextInput = ({
   "data-test-id": dataTestId,
   type = "text",
 }: Props): JSX.Element => {
+  const id = `text-input-${++textInputIdCounter}`;
   return (
     <div className="Input__wrapper">
-      <label className="Input__label">{label}</label>
+      <label htmlFor={id} className="Input__label">
+        {label}
+      </label>
       <input
+        id={id}
         type={type}
         className="Input__input"
         placeholder={placeholder}

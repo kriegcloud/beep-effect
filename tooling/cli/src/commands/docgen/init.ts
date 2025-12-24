@@ -457,9 +457,9 @@ const handleInit = (args: {
       strict: true,
       skipLibCheck: true,
       moduleResolution: "Bundler",
-      module: "ES2022",
-      target: "ES2022",
-      lib: ["ES2022", "DOM", "DOM.Iterable"],
+      module: "ES2024",
+      target: "ES2024",
+      lib: ["ES2024", "DOM", "DOM.Iterable"],
       paths: F.pipe(R.keys(examplesPathsWithSelf), A.length) > 0 ? examplesPathsWithSelf : undefined,
     };
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { findRepoRoot } from "@beep/tooling-utils/repo/index.js";
+import { findRepoRoot } from "@beep/tooling-utils/repo/index";
 import * as Command from "@effect/cli/Command";
 import * as Options from "@effect/cli/Options";
 import * as FileSystem from "@effect/platform/FileSystem";

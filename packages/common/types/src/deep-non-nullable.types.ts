@@ -11,7 +11,7 @@
  * @category Types/Utilities
  * @since 0.1.0
  */
-import type { Builtin } from "./built-in.types.ts";
+import type { Builtin } from "./built-in.types";
 
 /**
  * Recursively removes `null` and `undefined` from all properties of a type.

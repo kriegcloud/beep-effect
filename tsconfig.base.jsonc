@@ -3,8 +3,8 @@
     // Use incremental builds with project references.
     "incremental": true,
     "composite": true,
-    // Target modern JavaScript (ES2023+) whilst staying closely compatible with the Node.js module system.
-    "target": "ES2023",
+    // Target modern JavaScript (ES2024+) whilst staying closely compatible with the Node.js module system.
+    "target": "ES2024",
     "module": "ESNext",
     //todo "module": "NodeNext",
     "moduleDetection": "force",
@@ -408,6 +408,16 @@
       ],
       "@beep/lexical-schemas/test/*": [
         "./packages/common/lexical-schemas/test/*"
+      ],
+      
+      "@beep/yjs": [
+        "./packages/common/yjs/src/index"
+      ],
+      "@beep/yjs/*": [
+        "./packages/common/yjs/src/*"
+      ],
+      "@beep/yjs/test/*": [
+        "./packages/common/yjs/test/*"
       ]
     }
   }

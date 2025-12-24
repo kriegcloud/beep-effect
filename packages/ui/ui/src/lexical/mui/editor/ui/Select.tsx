@@ -7,13 +7,16 @@ interface ISelectProps extends SelectIntrinsicProps {
   label: string;
 }
 
+let selectIdCounter = 0;
+
 export const Select = ({ children, label, className, ...other }: ISelectProps): JSX.Element => {
+  const id = other.id ?? `select-${++selectIdCounter}`;
   return (
     <div className="Input__wrapper">
-      <label style={{ marginTop: "-1em" }} className="Input__label">
+      <label htmlFor={id} style={{ marginTop: "-1em" }} className="Input__label">
         {label}
       </label>
-      <select {...other} className={className || "select"}>
+      <select {...other} id={id} className={className || "select"}>
         {children}
       </select>
     </div>

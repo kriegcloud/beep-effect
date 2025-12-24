@@ -11,31 +11,10 @@
   },
   "references": [
     {
-      "path": "../../../tooling/utils/tsconfig.build.json"
-    },
-    {
       "path": "../../../tooling/testkit/tsconfig.build.json"
     },
     {
-      "path": "../../common/types/tsconfig.build.json"
-    },
-    {
-      "path": "../../common/invariant/tsconfig.build.json"
-    },
-    {
-      "path": "../../common/utils/tsconfig.build.json"
-    },
-    {
       "path": "../../common/schema/tsconfig.build.json"
-    },
-    {
-      "path": "../../common/identity/tsconfig.build.json"
-    },
-    {
-      "path": "../../common/constants/tsconfig.build.json"
-    },
-    {
-      "path": "../../common/errors/tsconfig.build.json"
     },
     {
       "path": "../../shared/domain/tsconfig.build.json"
@@ -45,9 +24,6 @@
     },
     {
       "path": "../../shared/server/tsconfig.build.json"
-    },
-    {
-      "path": "../../shared/env/tsconfig.build.json"
     },
     {
       "path": "../../iam/server/tsconfig.build.json"
@@ -60,9 +36,6 @@
     },
     {
       "path": "../../documents/server/tsconfig.build.json"
-    },
-    {
-      "path": "../../documents/domain/tsconfig.build.json"
     },
     {
       "path": "../../documents/tables/tsconfig.build.json"

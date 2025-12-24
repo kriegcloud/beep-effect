@@ -30,6 +30,7 @@ import { type JSX, useCallback, useMemo, useState } from "react";
 import * as ReactDOM from "react-dom";
 
 import { useModal } from "../../hooks";
+import type { ShowModalFn } from "../../hooks/useModal.types";
 import {
   ChatSquareQuoteIcon,
   CodeIcon,
@@ -97,9 +98,7 @@ function ComponentPickerMenuItem({
       tabIndex={-1}
       className={className}
       ref={option.setRefElement}
-      role="option"
-      aria-selected={isSelected}
-      id={"typeahead-item-" + index}
+      id={`typeahead-item-${index}`}
       onMouseEnter={onMouseEnter}
       onClick={onClick}
     >
@@ -137,9 +136,7 @@ function getDynamicOptions(editor: LexicalEditor, queryString: string) {
   return options;
 }
 
-type ShowModal = ReturnType<typeof useModal>[1];
-
-function getBaseOptions(editor: LexicalEditor, showModal: ShowModal) {
+function getBaseOptions(editor: LexicalEditor, showModal: ShowModalFn) {
   return [
     new ComponentPickerOption("Paragraph", {
       icon: <TextParagraphIcon />,

@@ -25,7 +25,7 @@ export type MediaAudioTrackConstraints = Pick<
 >;
 type UseAudioRecorder = (
   audioTrackConstraints?: undefined | MediaAudioTrackConstraints,
-  onNotAllowedOrFound?: undefined | ((exception: DOMException) => any),
+  onNotAllowedOrFound?: undefined | ((exception: DOMException) => void),
   mediaRecorderOptions?: undefined | MediaRecorderOptions
 ) => recorderControls;
 /**
@@ -46,7 +46,7 @@ type UseAudioRecorder = (
  */
 export const useAudioRecorder: UseAudioRecorder = (
   audioTrackConstraints?: undefined | MediaAudioTrackConstraints,
-  onNotAllowedOrFound?: undefined | ((exception: DOMException) => any),
+  onNotAllowedOrFound?: undefined | ((exception: DOMException) => void),
   mediaRecorderOptions?: undefined | MediaRecorderOptions
 ) => {
   const [isRecording, setIsRecording] = React.useState(false);

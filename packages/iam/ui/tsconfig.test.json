@@ -15,52 +15,22 @@
       "path": "../../shared/domain"
     },
     {
-      "path": "../../shared/client"
-    },
-    {
       "path": "../../shared/env"
-    },
-    {
-      "path": "../../shared/ui"
-    },
-    {
-      "path": "../../common/identity"
     },
     {
       "path": "../client"
     },
     {
-      "path": "../server"
-    },
-    {
-      "path": "../domain"
-    },
-    {
-      "path": "../../common/schema"
-    },
-    {
-      "path": "../../common/mock"
-    },
-    {
-      "path": "../../common/contract"
-    },
-    {
-      "path": "../../common/types"
-    },
-    {
       "path": "../../common/constants"
     },
     {
-      "path": "../../common/errors"
-    },
-    {
-      "path": "../../common/invariant"
-    },
-    {
-      "path": "../../common/utils"
-    },
-    {
       "path": "../../runtime/client"
+    },
+    {
+      "path": "../../shared/ui"
+    },
+    {
+      "path": "../../shared/client"
     }
   ],
   "compilerOptions": {

@@ -11,18 +11,6 @@
   },
   "references": [
     {
-      "path": "../../common/types/tsconfig.build.json"
-    },
-    {
-      "path": "../../common/invariant/tsconfig.build.json"
-    },
-    {
-      "path": "../../common/identity/tsconfig.build.json"
-    },
-    {
-      "path": "../../common/utils/tsconfig.build.json"
-    },
-    {
       "path": "../../common/schema/tsconfig.build.json"
     },
     {
@@ -38,9 +26,6 @@
       "path": "../../shared/env/tsconfig.build.json"
     },
     {
-      "path": "../../shared/tables/tsconfig.build.json"
-    },
-    {
       "path": "../../shared/server/tsconfig.build.json"
     },
     {
@@ -54,12 +39,6 @@
     },
     {
       "path": "../../documents/server/tsconfig.build.json"
-    },
-    {
-      "path": "../../documents/domain/tsconfig.build.json"
-    },
-    {
-      "path": "../../documents/tables/tsconfig.build.json"
     }
   ]
 }

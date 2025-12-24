@@ -65,13 +65,13 @@ export interface TypedMessage {
   type: string;
 }
 
-export const isTypedMessage = (message: any): message is TypedMessage => {
-  return typeof message === "object" && "type" in message;
+export const isTypedMessage = (message: unknown): message is TypedMessage => {
+  return typeof message === "object" && message !== null && "type" in message;
 };
 
 export type PeerMessage = CreatedMessage | UpdatedMessage | DestroyedMessage | CursorMessage;
 
-export const isPeerMessage = (message: any): message is PeerMessage => {
+export const isPeerMessage = (message: unknown): message is PeerMessage => {
   return isTypedMessage(message) && ["created", "updated", "destroyed", "cursor"].includes(message.type);
 };
 
@@ -81,21 +81,21 @@ export type SyncMessagePeerChunk = {
   messages: PeerMessage[];
 };
 
-export const isSyncMessagePeerChunk = (message: any): message is SyncMessagePeerChunk => {
+export const isSyncMessagePeerChunk = (message: unknown): message is SyncMessagePeerChunk => {
   return isTypedMessage(message) && message.type === "peer-chunk";
 };
 
 // Messages clients expect the server to send
 export type SyncMessageServer = InitMessage | SyncMessagePeerChunk;
 
-export const isSyncMessageServer = (message: any): message is SyncMessageServer => {
+export const isSyncMessageServer = (message: unknown): message is SyncMessageServer => {
   return isSyncMessagePeerChunk(message) || (isTypedMessage(message) && message.type === "init");
 };
 
 // Messages the server expects clients to send
 export type SyncMessageClient = InitReceivedMessage | PersistDocumentMessage | SyncMessagePeerChunk;
 
-export const isSyncMessageClient = (message: any): message is SyncMessageClient => {
+export const isSyncMessageClient = (message: unknown): message is SyncMessageClient => {
   return (
     isSyncMessagePeerChunk(message) ||
     (isTypedMessage(message) && ["init-received", "persist-document"].includes(message.type))
@@ -103,5 +103,5 @@ export const isSyncMessageClient = (message: any): message is SyncMessageClient 
 };
 
 export const compareRedisStreamIds = (a: string, b: string): number => {
-  return Number.parseInt(Str.split("-")(a)[0]) - Number.parseInt(Str.split("-")(b)[0]);
+  return Number.parseInt(Str.split("-")(a)[0], 10) - Number.parseInt(Str.split("-")(b)[0], 10);
 };

@@ -55,43 +55,48 @@ export default function ToolbarPlugin() {
   return (
     <div className="toolbar" ref={toolbarRef}>
       <button
+        type="button"
         onClick={() => {
           editor.dispatchCommand(FORMAT_TEXT_COMMAND, "bold");
         }}
-        className={"toolbar-item spaced " + (isBold ? "active" : "")}
+        className={`toolbar-item spaced ${isBold ? "active" : ""}`}
         aria-label="Format Bold"
       >
         <i className="format bold" />
       </button>
       <button
+        type="button"
         onClick={() => {
           editor.dispatchCommand(FORMAT_TEXT_COMMAND, "italic");
         }}
-        className={"toolbar-item spaced " + (isItalic ? "active" : "")}
+        className={`toolbar-item spaced ${isItalic ? "active" : ""}`}
         aria-label="Format Italics"
       >
         <i className="format italic" />
       </button>
       <button
+        type="button"
         onClick={() => {
           editor.dispatchCommand(FORMAT_TEXT_COMMAND, "underline");
         }}
-        className={"toolbar-item spaced " + (isUnderline ? "active" : "")}
+        className={`toolbar-item spaced ${isUnderline ? "active" : ""}`}
         aria-label="Format Underline"
       >
         <i className="format underline" />
       </button>
       <button
+        type="button"
         onClick={() => {
           editor.dispatchCommand(FORMAT_TEXT_COMMAND, "strikethrough");
         }}
-        className={"toolbar-item spaced " + (isStrikethrough ? "active" : "")}
+        className={`toolbar-item spaced ${isStrikethrough ? "active" : ""}`}
         aria-label="Format Strikethrough"
       >
         <i className="format strikethrough" />
       </button>
       <Divider />
       <button
+        type="button"
         onClick={() => {
           editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, "left");
         }}
@@ -101,6 +106,7 @@ export default function ToolbarPlugin() {
         <i className="format left-align" />
       </button>
       <button
+        type="button"
         onClick={() => {
           editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, "center");
         }}
@@ -110,6 +116,7 @@ export default function ToolbarPlugin() {
         <i className="format center-align" />
       </button>
       <button
+        type="button"
         onClick={() => {
           editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, "right");
         }}
@@ -119,6 +126,7 @@ export default function ToolbarPlugin() {
         <i className="format right-align" />
       </button>
       <button
+        type="button"
         onClick={() => {
           editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, "justify");
         }}

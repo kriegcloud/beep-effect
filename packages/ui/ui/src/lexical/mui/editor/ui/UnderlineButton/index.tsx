@@ -15,7 +15,7 @@ export const UnderlineButton: FC<IUnderlineButtonProps> = ({ activeEditor, isUnd
       onClick={() => {
         activeEditor.dispatchCommand(FORMAT_TEXT_COMMAND, "underline");
       }}
-      className={"toolbar-item spaced " + (isUnderline ? "active" : "")}
+      className={`toolbar-item spaced ${isUnderline ? "active" : ""}`}
       title={`Italic (${SHORTCUTS.UNDERLINE})`}
       type="button"
       aria-label={`Format text as italics. Shortcut: ${SHORTCUTS.UNDERLINE}`}

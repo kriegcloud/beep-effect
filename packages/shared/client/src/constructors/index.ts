@@ -1,1 +1,1 @@
-export * from "./RpcClient.ts";
+export * from "./RpcClient";

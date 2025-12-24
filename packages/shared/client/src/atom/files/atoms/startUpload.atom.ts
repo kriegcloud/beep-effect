@@ -3,11 +3,11 @@ import { tagPropIs } from "@beep/utils";
 import { Registry } from "@effect-atom/atom-react";
 import { Effect } from "effect";
 import * as A from "effect/Array";
-import { runtime } from "../runtime.ts";
+import { runtime } from "../runtime";
 import { FilePicker } from "../services";
-import type { StartUploadInput } from "../types.ts";
-import { activeUploadsAtom } from "./activeUploads.atom.ts";
-import { uploadAtom } from "./upload.atom.ts";
+import type { StartUploadInput } from "../types";
+import { activeUploadsAtom } from "./activeUploads.atom";
+import { uploadAtom } from "./upload.atom";
 
 export const startUploadAtom = runtime.fn(
   Effect.fn(function* (payload: StartUploadInput.Type) {

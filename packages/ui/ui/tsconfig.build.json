@@ -2,12 +2,11 @@
   "extends": "./tsconfig.src.json",
   "compilerOptions": {
     "types": ["node", "bun"],
-
     "outDir": "build/esm",
     "declarationDir": "build/dts",
     "jsx": "react-jsx",
     "module": "ESNext",
-    "target": "ES2023",
+    "target": "ES2024",
     "lib": ["ES2024", "DOM", "DOM.Iterable"],
     "moduleResolution": "bundler",
     "incremental": true,
@@ -18,9 +17,6 @@
   "references": [
     {
       "path": "../../common/types/tsconfig.build.json"
-    },
-    {
-      "path": "../../common/identity/tsconfig.build.json"
     },
     {
       "path": "../../common/constants/tsconfig.build.json"

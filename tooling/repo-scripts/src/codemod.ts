@@ -1,5 +1,5 @@
-import { FsUtilsLive } from "@beep/tooling-utils/FsUtils.js";
-import { resolveWorkspaceDirs } from "@beep/tooling-utils/repo/index.js";
+import { FsUtilsLive } from "@beep/tooling-utils/FsUtils";
+import { resolveWorkspaceDirs } from "@beep/tooling-utils/repo/index";
 import * as Path from "@effect/platform/Path";
 import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
@@ -7,7 +7,7 @@ import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as HashMap from "effect/HashMap";
 import * as Glob from "glob";
-import Jscodeshift from "jscodeshift/src/Runner.js";
+import Jscodeshift from "jscodeshift/src/Runner";
 
 const program = Effect.gen(function* () {
   const path = yield* Path.Path;

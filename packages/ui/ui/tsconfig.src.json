@@ -19,9 +19,6 @@
       "path": "../../common/utils"
     },
     {
-      "path": "../../common/identity"
-    },
-    {
       "path": "../../common/schema"
     },
     {
@@ -37,13 +34,11 @@
   "compilerOptions": {
     "types": ["node", "bun", "react"],
     "outDir": "build/src",
-
     "rootDir": "src",
-
     "jsx": "preserve",
     "lib": ["dom", "dom.iterable", "esnext"],
     "module": "esnext",
-    "target": "es2022",
+    "target": "ES2024",
     "moduleResolution": "bundler",
     "incremental": true,
     "skipLibCheck": true,

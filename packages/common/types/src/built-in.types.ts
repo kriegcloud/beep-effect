@@ -12,7 +12,7 @@
  * @category Types/Primitives
  * @since 0.1.0
  */
-import type { PrimitiveTypes } from "./primitive.types.ts";
+import type { PrimitiveTypes } from "./primitive.types";
 
 /**
  * Union of all JavaScript built-in types that should be treated as leaf nodes

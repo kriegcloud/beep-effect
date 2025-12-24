@@ -1,1 +1,1 @@
-export * as Files from "./_rpcs.ts";
+export * as Files from "./_rpcs";

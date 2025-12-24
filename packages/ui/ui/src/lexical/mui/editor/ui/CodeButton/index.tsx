@@ -15,7 +15,7 @@ export const CodeButton: FC<ICodeButtonProps> = ({ activeEditor, isCode, disable
       onClick={() => {
         activeEditor.dispatchCommand(FORMAT_TEXT_COMMAND, "code");
       }}
-      className={"toolbar-item spaced " + (isCode ? "active" : "")}
+      className={`toolbar-item spaced ${isCode ? "active" : ""}`}
       title={`Insert code block (${SHORTCUTS.INSERT_CODE_BLOCK})`}
       type="button"
       aria-label="Insert code block"

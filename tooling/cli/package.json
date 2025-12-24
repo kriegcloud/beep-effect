@@ -88,6 +88,7 @@
     "@beep/identity": "workspace:^",
     "effect": "catalog:",
     "glob": "^11.0.3",
+    "@beep/testkit": "workspace:^",
     "@effect/cluster": "catalog:",
     "@total-typescript/ts-reset": "catalog:"
   },

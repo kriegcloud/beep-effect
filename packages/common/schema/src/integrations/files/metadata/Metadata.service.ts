@@ -16,7 +16,7 @@ import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import type { IFileInfo, IOptions } from "music-metadata";
-import { IAudioMetadata } from "./types.ts";
+import { IAudioMetadata } from "./types";
 
 const $I = $SchemaId.create("integrations/files/metadata");
 

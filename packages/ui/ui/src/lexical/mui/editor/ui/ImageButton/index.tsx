@@ -1,12 +1,12 @@
 import type { FC } from "react";
 
 import type { IToolbarComponentProps } from "../../../common";
-import type { useModal } from "../../hooks";
+import type { ShowModalFn } from "../../hooks/useModal.types";
 import { FileImageIcon } from "../../images/icons";
-import { InsertImageDialog } from "../../plugins";
+import { InsertImageDialog } from "../../plugins/ImagesPlugin";
 
 interface IImageButtonProps extends Omit<IToolbarComponentProps, "disabled"> {
-  showModal: ReturnType<typeof useModal>[1];
+  showModal: ShowModalFn;
 }
 
 export const ImageButton: FC<IImageButtonProps> = ({ activeEditor, showModal }) => {

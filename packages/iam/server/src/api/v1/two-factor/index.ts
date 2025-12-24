@@ -1,1 +1,1 @@
-export * as TwoFactor from "./_group.ts";
+export * as TwoFactor from "./_group";

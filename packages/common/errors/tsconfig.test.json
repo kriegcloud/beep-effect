@@ -6,22 +6,7 @@
       "path": "tsconfig.src.json"
     },
     {
-      "path": "../types"
-    },
-    {
-      "path": "../utils"
-    },
-    {
-      "path": "../schema"
-    },
-    {
-      "path": "../invariant"
-    },
-    {
       "path": "../constants"
-    },
-    {
-      "path": "../identity"
     }
   ],
   "compilerOptions": {

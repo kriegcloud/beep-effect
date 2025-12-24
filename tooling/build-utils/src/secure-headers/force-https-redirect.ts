@@ -5,8 +5,8 @@ import * as O from "effect/Option";
 import * as ParseResult from "effect/ParseResult";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import { SecureHeadersError } from "./errors.ts";
-import type { ResponseHeader } from "./types.ts";
+import { SecureHeadersError } from "./errors.js";
+import type { ResponseHeader } from "./types.js";
 
 const headerName = "Strict-Transport-Security";
 const defaultMaxAge = 60 * 60 * 24 * 365 * 2; // 2 years

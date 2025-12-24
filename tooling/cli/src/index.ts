@@ -35,10 +35,11 @@ import { docgenCommand } from "./commands/docgen.js";
 import { envCommand } from "./commands/env.js";
 import { pruneUnusedDepsCommand } from "./commands/prune-unused-deps.js";
 import { syncCommand } from "./commands/sync.js";
+import { topoSortCommand } from "./commands/topo-sort.js";
 
 const repoCommand = CliCommand.make("beep").pipe(
   CliCommand.withDescription("Beep repository maintenance CLI."),
-  CliCommand.withSubcommands([docgenCommand, envCommand, pruneUnusedDepsCommand, syncCommand])
+  CliCommand.withSubcommands([docgenCommand, envCommand, pruneUnusedDepsCommand, syncCommand, topoSortCommand])
 );
 
 const runBeepCli = CliCommand.run(repoCommand, {

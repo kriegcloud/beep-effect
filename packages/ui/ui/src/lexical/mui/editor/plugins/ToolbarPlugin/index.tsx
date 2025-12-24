@@ -13,6 +13,7 @@ import { $isHeadingNode } from "@lexical/rich-text";
 import { $isParentElementRTL } from "@lexical/selection";
 import { $isTableNode, $isTableSelection } from "@lexical/table";
 import { $findMatchingParent, $getNearestNodeOfType, $isEditorIsNestedEditor, mergeRegister } from "@lexical/utils";
+import type { LexicalNode } from "lexical";
 import {
   $getNodeByKey,
   $getSelection,
@@ -140,7 +141,7 @@ export const ToolbarPlugin: FC<IToolbarPluginProps> = ({
             }
           }
         }
-        let matchingParent;
+        let matchingParent: LexicalNode | null = null;
         if ($isLinkNode(parent)) {
           // If node is a link, we need to fetch the parent paragraph node to set format
           matchingParent = $findMatchingParent(

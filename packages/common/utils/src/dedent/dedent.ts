@@ -7,9 +7,9 @@ import { constant, pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as Str from "effect/String";
-import type { Dedent, DedentOptions } from "./types.ts";
+import type { Dedent, DedentOptions } from "./types";
 
-export type * from "./types.ts";
+export type * from "./types";
 
 import * as Num from "effect/Number";
 

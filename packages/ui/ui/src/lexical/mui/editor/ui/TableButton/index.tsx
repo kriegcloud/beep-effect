@@ -1,12 +1,12 @@
 import type { FC } from "react";
 
 import type { IToolbarComponentProps } from "../../../common";
-import type { useModal } from "../../hooks";
+import type { ShowModalFn } from "../../hooks/useModal.types";
 import { TableIcon } from "../../images/icons";
-import { InsertTableDialog } from "../../plugins";
+import { InsertTableDialog } from "../../plugins/TablePlugin";
 
 interface ITableButtonProps extends Omit<IToolbarComponentProps, "disabled"> {
-  showModal: ReturnType<typeof useModal>[1];
+  showModal: ShowModalFn;
 }
 
 export const TableButton: FC<ITableButtonProps> = ({ activeEditor, showModal }) => {

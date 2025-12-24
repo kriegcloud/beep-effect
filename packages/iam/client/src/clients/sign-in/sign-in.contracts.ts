@@ -170,38 +170,6 @@ export const SignInOneTapContract = Contract.make("SignInOneTap", {
   .annotate(Contract.Domain, "SignIn")
   .annotate(Contract.Method, "signInOneTap");
 
-// =====================================================================================================================
-// Signin OAuth 2
-// =====================================================================================================================
-export class SignInOAuth2Payload extends S.Class<SignInOAuth2Payload>("SignInOAuth2Payload")(
-  {
-    providerId: AuthProviderNameValue,
-    callbackURL: S.optional(BS.URLString),
-    errorCallbackURL: S.optional(BS.URLString),
-    newUserCallbackURL: S.optional(BS.URLString),
-    disableRedirect: S.optional(S.Boolean),
-    requestSignUp: S.optional(S.Boolean),
-  },
-  Id.annotations("SignInOAuth2Payload", {
-    description: "Payload for signing in with an OAuth 2 provider",
-  })
-) {}
-
-export declare namespace SignInOAuth2Payload {
-  export type Type = S.Schema.Type<typeof SignInOAuth2Payload>;
-  export type Encoded = S.Schema.Encoded<typeof SignInOAuth2Payload>;
-}
-
-export const SignInOAuth2Contract = Contract.make("SignInOAuth2", {
-  description: "Signs the user in using an OAuth 2 provider.",
-  payload: SignInOAuth2Payload,
-  failure: IamError,
-  success: S.Void,
-})
-  .annotate(Contract.Title, "Sign In OAuth 2 Contract")
-  .annotate(Contract.Domain, "SignIn")
-  .annotate(Contract.Method, "signInOAuth2");
-
 export class AnonymousSignInSuccess extends S.Class<AnonymousSignInSuccess>("AnonymousSignInSuccess")(
   {
     token: S.String,
@@ -235,6 +203,5 @@ export const SignInContractKit = ContractKit.make(
   SignInPhoneNumberContract,
   SignInPasskeyContract,
   SignInOneTapContract,
-  SignInOAuth2Contract,
   AnonymousSignInContract
 );

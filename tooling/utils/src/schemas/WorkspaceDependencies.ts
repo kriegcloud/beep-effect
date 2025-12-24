@@ -158,7 +158,7 @@ export const Dependencies = S.Struct({
 });
 
 /**
- * Value type stored for each workspace: its dev and prod dependency sets.
+ * Value type stored for each workspace: its dev, prod, and peer dependency sets.
  *
  * @example
  * ```typescript
@@ -174,6 +174,10 @@ export const Dependencies = S.Struct({
  *   devDependencies: {
  *     workspace: HashSet.empty(),
  *     npm: HashSet.fromIterable(["vitest"])
+ *   },
+ *   peerDependencies: {
+ *     workspace: HashSet.fromIterable(["@beep/types"]),
+ *     npm: HashSet.fromIterable(["effect"])
  *   }
  * })
  * ```
@@ -190,6 +194,10 @@ export const RepoDepMapValue = S.Struct({
    * Prod dependencies for the workspace.
    */
   dependencies: Dependencies,
+  /**
+   * Peer dependencies for the workspace.
+   */
+  peerDependencies: Dependencies,
 });
 
 /**

@@ -45,7 +45,7 @@ export function mergeArrayStringFromIndex(
   ).characters;
 }
 
-export function mergeRefs<T = any>(
+export function mergeRefs<T = unknown>(
   refs: (React.RefObject<T> | React.Ref<T> | undefined | null)[]
 ): React.RefCallback<T> {
   return (value) => {

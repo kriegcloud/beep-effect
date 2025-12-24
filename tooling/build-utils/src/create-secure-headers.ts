@@ -16,9 +16,9 @@ import type {
   PermittedCrossDomainPoliciesOption,
   ReferrerPolicyOption,
   XSSProtectionOption,
-} from "./secure-headers/index.ts";
-import { rules } from "./secure-headers/index.ts";
-import type { ResponseHeader } from "./secure-headers/types.ts";
+} from "./secure-headers/index.js";
+import { rules } from "./secure-headers/index.js";
+import type { ResponseHeader } from "./secure-headers/types.js";
 
 export type CreateSecureHeadersOptions = Partial<{
   /**

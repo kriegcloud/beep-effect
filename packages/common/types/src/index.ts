@@ -28,7 +28,7 @@
  * @category exports
  * @since 0.1.0
  */
-export type * from "./built-in.types.ts";
+export type * from "./built-in.types";
 
 /**
  * Re-exports character literal types for template string helpers.
@@ -43,7 +43,7 @@ export type * from "./built-in.types.ts";
  * @category exports
  * @since 0.1.0
  */
-export type * from "./char.types.ts";
+export type * from "./char.types";
 
 /**
  * Re-exports common utility types for intersection flattening and deep partials.
@@ -73,7 +73,7 @@ export type * from "./common.types.js";
  * @category exports
  * @since 0.1.0
  */
-export type * from "./deep-non-nullable.types.ts";
+export type * from "./deep-non-nullable.types";
 
 /**
  * Function type utilities for guards and refinements.
@@ -164,7 +164,7 @@ export type * as Or from "./or.types.js";
  * @category exports
  * @since 0.1.0
  */
-export type * from "./primitive.types.ts";
+export type * from "./primitive.types";
 
 /**
  * Promise-related type utilities for async value handling.
@@ -256,7 +256,7 @@ export type * as StructTypes from "./struct.types.js";
  * @since 0.1.0
  */
 export type * as TagTypes from "./tag.types.js";
-export * from "./thunk.types.ts";
+export * from "./thunk.types";
 /**
  * Escape-hatch type aliases for unsafe any-based and safe unknown-based types.
  *

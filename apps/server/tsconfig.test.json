@@ -4,54 +4,6 @@
   "references": [
     {
       "path": "tsconfig.src.json"
-    },
-    {
-      "path": "../../packages/common/types"
-    },
-    {
-      "path": "../../packages/common/invariant"
-    },
-    {
-      "path": "../../packages/common/utils"
-    },
-    {
-      "path": "../../packages/common/schema"
-    },
-    {
-      "path": "../../packages/common/constants"
-    },
-    {
-      "path": "../../packages/common/contract"
-    },
-    {
-      "path": "../../packages/common/errors"
-    },
-    {
-      "path": "../../packages/shared/domain"
-    },
-    {
-      "path": "../../packages/shared/tables"
-    },
-    {
-      "path": "../../packages/iam/server"
-    },
-    {
-      "path": "../../packages/shared/env"
-    },
-    {
-      "path": "../../packages/iam/domain"
-    },
-    {
-      "path": "../../packages/iam/tables"
-    },
-    {
-      "path": "../../packages/documents/server"
-    },
-    {
-      "path": "../../packages/documents/domain"
-    },
-    {
-      "path": "../../packages/documents/tables"
     }
   ],
   "compilerOptions": {

@@ -1,1 +1,1 @@
-export * as Upload from "./Upload.service.ts";
+export * as Upload from "./Upload.service";

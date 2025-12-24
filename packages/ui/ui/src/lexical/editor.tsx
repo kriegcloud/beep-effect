@@ -70,7 +70,7 @@ const editorConfig: InitialConfigType = {
 
 export function Editor() {
   const roomId = "beep_collab_room";
-  const userId = useMemo(() => "user_" + Math.floor(Math.random() * 100), []);
+  const userId = useMemo(() => `user_${Math.floor(Math.random() * 100)}`, []);
   const [debug, setDebug] = useState<DebugEvent[]>([]);
   const [cursors, setCursors] = useState<Map<string, CollabCursor>>();
   const [connected, setConnected] = useState<boolean>();
@@ -103,7 +103,7 @@ export function Editor() {
           {desynced && (
             <div className="desync-warning">Your editor is too far behind the remote stream to catch up!</div>
           )}
-          <button onClick={() => setConnected(connected === undefined ? false : !connected)}>
+          <button type="button" onClick={() => setConnected(connected === undefined ? false : !connected)}>
             {connected === true || connected === undefined ? "Disconnect" : "Connect"}
           </button>
           {cursors &&
@@ -152,7 +152,7 @@ const DebugPlugin = (props: { events: DebugEvent[] }) => {
             {e.message && `|${e.message}`}
             {e.nestedMessages !== undefined &&
               e.nestedMessages.length > 0 &&
-              "\n  ↳ " + e.nestedMessages.join("\n  ↳ ")}
+              `\n  ↳ ${e.nestedMessages.join("\n  ↳ ")}`}
           </li>
         ))}
       </ul>

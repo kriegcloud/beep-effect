@@ -6,7 +6,7 @@ import { Atom, Result } from "@effect-atom/atom-react";
 import { Effect, Stream } from "effect";
 import * as A from "effect/Array";
 import * as Match from "effect/Match";
-import { filesEventStreamAtom } from "./filesEventStream.atom.ts";
+import { filesEventStreamAtom } from "./filesEventStream.atom";
 export const filesAtom = (() => {
   const remoteAtom = runtime.atom(
     Stream.unwrap(

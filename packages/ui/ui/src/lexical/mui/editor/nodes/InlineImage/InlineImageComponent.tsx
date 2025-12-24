@@ -22,10 +22,9 @@ import {
 import type { ChangeEvent, JSX } from "react";
 import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { useModal } from "../../hooks";
-import { LinkPlugin } from "../../plugins";
+import { LinkPlugin } from "../../plugins/LinkPlugin";
 import { Button, LexicalContentEditable as ContentEditable, DialogActions, Select, TextInput } from "../../ui";
-import type { Position } from "./InlineImageNode";
-import { $isInlineImageNode } from "./InlineImageNode";
+import { $isInlineImageNode, type Position } from "./guards";
 
 const imageCache = new Set();
 
@@ -295,6 +294,7 @@ export const InlineImageComponent = ({
         <span draggable={draggable}>
           {isEditable && (
             <button
+              type="button"
               className="image-edit-button"
               ref={buttonRef}
               onClick={() => {

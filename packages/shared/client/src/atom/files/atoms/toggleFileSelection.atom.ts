@@ -2,8 +2,8 @@ import type { SharedEntityIds } from "@beep/shared-domain";
 import { Registry } from "@effect-atom/atom-react";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
-import { runtime } from "../runtime.ts";
-import { selectedFilesAtom } from "./selectedFiles.atom.ts";
+import { runtime } from "../runtime";
+import { selectedFilesAtom } from "./selectedFiles.atom";
 
 export const toggleFileSelectionAtom = runtime.fn(
   Effect.fnUntraced(function* (fileId: SharedEntityIds.FileId.Type) {

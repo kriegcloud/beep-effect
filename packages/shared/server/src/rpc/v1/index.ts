@@ -1,1 +1,1 @@
-export * from "./_rpcs.ts";
+export * from "./_rpcs";

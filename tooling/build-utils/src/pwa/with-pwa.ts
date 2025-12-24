@@ -27,10 +27,10 @@ import type { NextConfig } from "next";
 import type { DefinePlugin } from "webpack";
 import type { ManifestTransform } from "workbox-build";
 import WorkboxPlugin from "workbox-webpack-plugin";
-import { buildCustomWorker } from "./build-custom-worker.ts";
-import { buildFallbackWorker } from "./build-fallback-worker.ts";
-import { defaultCache } from "./default-cache.ts";
-import { FileReadError, GlobError } from "./errors.ts";
+import { buildCustomWorker } from "./build-custom-worker.js";
+import { buildFallbackWorker } from "./build-fallback-worker.js";
+import { defaultCache } from "./default-cache.js";
+import { FileReadError, GlobError } from "./errors.js";
 import type {
   FallbackRoutes,
   ManifestEntry,
@@ -39,7 +39,7 @@ import type {
   RuntimeCaching,
   WebpackGenerateSWOptions,
   WebpackInjectManifestOptions,
-} from "./types.ts";
+} from "./types.js";
 
 /** Declare self as the PWA service worker global scope */
 declare const self: PWAServiceWorkerGlobalScope;

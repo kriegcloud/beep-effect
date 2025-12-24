@@ -15,7 +15,7 @@
  * @category exports
  * @since 0.1.0
  */
-export * from "./File.repo.ts";
+export * from "./File.repo";
 /**
  * Re-exports consolidated shared repository namespace with layer composition.
  *
@@ -30,7 +30,7 @@ export * from "./File.repo.ts";
  * @category exports
  * @since 0.1.0
  */
-export * as SharedRepos from "./repositories.ts";
+export * as SharedRepos from "./repositories";
 /**
  * Re-exports UploadSession repository implementation.
  *
@@ -48,4 +48,4 @@ export * as SharedRepos from "./repositories.ts";
  * @category exports
  * @since 0.1.0
  */
-export * from "./UploadSession.repo.ts";
+export * from "./UploadSession.repo";

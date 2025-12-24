@@ -15,7 +15,7 @@ export const RightAlignButton: FC<IRightAlignButtonProps> = ({ activeEditor, isR
       onClick={() => {
         activeEditor.dispatchCommand(FORMAT_ELEMENT_COMMAND, "right");
       }}
-      className={"toolbar-item spaced " + (isRightAlign ? "active" : "")}
+      className={`toolbar-item spaced ${isRightAlign ? "active" : ""}`}
       title={`Right Align (${SHORTCUTS.RIGHT_ALIGN})`}
       type="button"
       aria-label={`Format text as right align. Shortcut: ${SHORTCUTS.RIGHT_ALIGN}`}

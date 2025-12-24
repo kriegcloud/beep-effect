@@ -118,6 +118,7 @@ export const PrettierButton = ({ lang, editor, getCodeDOMNode }: IPrettierButton
   return (
     <div className="prettier-wrapper">
       <button
+        type="button"
         className="menu-item"
         onClick={handleClick}
         onMouseEnter={handleMouseEnter}

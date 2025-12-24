@@ -2,8 +2,8 @@ import { Effect } from "effect";
 import * as O from "effect/Option";
 import * as ParseResult from "effect/ParseResult";
 import * as S from "effect/Schema";
-import { SecureHeadersError } from "./errors.ts";
-import type { ResponseHeader } from "./types.ts";
+import { SecureHeadersError } from "./errors.js";
+import type { ResponseHeader } from "./types.js";
 
 const headerName = "Permissions-Policy";
 

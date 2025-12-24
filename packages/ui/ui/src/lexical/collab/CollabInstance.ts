@@ -218,7 +218,7 @@ export class CollabInstance {
       const messageMap: Map<string, [PeerMessage, number]> = new Map();
       const destroyedList: string[] = [];
       stack.forEach((m, i) => {
-        let existing;
+        let existing: [PeerMessage, number] | undefined;
         switch (m.type) {
           case "cursor":
             messageMap.set("cursor", [m, i]);
@@ -311,7 +311,7 @@ export class CollabInstance {
     this.editor.read(() => {
       const messages: PeerMessage[] = [];
       nodes.forEach((mutation, nodeKey) => {
-        let message;
+        let message: PeerMessage | undefined;
         switch (mutation) {
           case "created":
             message = $createCreatedMessage(this.syncIdMap, nodeKey, this.userId);

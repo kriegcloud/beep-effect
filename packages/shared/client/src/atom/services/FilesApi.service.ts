@@ -3,7 +3,7 @@ import * as Thunk from "@beep/utils/thunk";
 import * as Effect from "effect/Effect";
 import { flow, pipe } from "effect/Function";
 import * as Struct from "effect/Struct";
-import * as FilesRpcClient from "./FilesRpcClient.service.ts";
+import * as FilesRpcClient from "./FilesRpcClient.service";
 
 const $I = $SharedClientId.create("atom/services/FilesApi");
 

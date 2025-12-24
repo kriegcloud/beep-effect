@@ -2,11 +2,8 @@
   "extends": "./tsconfig.src.json",
   "compilerOptions": {
     "types": ["bun", "node"],
-
     "outDir": "build/esm",
     "declarationDir": "build/dts",
-    "moduleResolution": "NodeNext",
-    "module": "NodeNext",
     "stripInternal": false,
     "composite": true,
     "declaration": true,

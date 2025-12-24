@@ -6,11 +6,11 @@ import * as F from "effect/Function";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { FilesApi, ImageCompressionClient, makePresignedPostOptions, uploadToS3 } from "../../services";
-import { MAX_FILE_SIZE_BYTES } from "../constants.ts";
-import { ImageTooLargeAfterCompression } from "../errors.ts";
-import { runtime } from "../runtime.ts";
+import { MAX_FILE_SIZE_BYTES } from "../constants";
+import { ImageTooLargeAfterCompression } from "../errors";
+import { runtime } from "../runtime";
 import { FileSync } from "../services";
-import { type UploadInput, UploadPhase, UploadState } from "../types.ts";
+import { type UploadInput, UploadPhase, UploadState } from "../types";
 
 const makeUploadStream = (uploadId: string, input: UploadInput) =>
   Effect.gen(function* () {

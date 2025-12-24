@@ -15,7 +15,7 @@ export const BoldButton: FC<IBoldButtonProps> = ({ activeEditor, isBold, disable
       onClick={() => {
         activeEditor.dispatchCommand(FORMAT_TEXT_COMMAND, "bold");
       }}
-      className={"toolbar-item spaced " + (isBold ? "active" : "")}
+      className={`toolbar-item spaced ${isBold ? "active" : ""}`}
       title={`Bold (${SHORTCUTS.BOLD})`}
       type="button"
       aria-label={`Format text as bold. Shortcut: ${SHORTCUTS.BOLD}`}

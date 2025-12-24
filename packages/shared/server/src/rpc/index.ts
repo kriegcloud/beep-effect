@@ -1,1 +1,1 @@
-export * as SharedServerRpcs from "./_rpcs.ts";
+export * as SharedServerRpcs from "./_rpcs";

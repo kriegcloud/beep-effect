@@ -11,13 +11,13 @@
  * @see {@link https://www.better-auth.com/docs/plugins/sso | Better Auth SSO Plugin}
  */
 import * as HttpApiGroup from "@effect/platform/HttpApiGroup";
-import * as Callback from "./callback.ts";
-import * as Register from "./register.ts";
-import * as RequestDomainVerification from "./request-domain-verification.ts";
-import * as Saml2Callback from "./saml2-callback.ts";
-import * as Saml2SpAcs from "./saml2-sp-acs.ts";
-import * as Saml2SpMetadata from "./saml2-sp-metadata.ts";
-import * as VerifyDomain from "./verify-domain.ts";
+import * as Callback from "./callback";
+import * as Register from "./register";
+import * as RequestDomainVerification from "./request-domain-verification";
+import * as Saml2Callback from "./saml2-callback";
+import * as Saml2SpAcs from "./saml2-sp-acs";
+import * as Saml2SpMetadata from "./saml2-sp-metadata";
+import * as VerifyDomain from "./verify-domain";
 
 /**
  * SSO API group.

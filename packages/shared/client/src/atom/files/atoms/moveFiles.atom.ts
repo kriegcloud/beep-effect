@@ -7,7 +7,7 @@ import * as A from "effect/Array";
 import { FilesApi } from "../../services";
 import { runtime } from "../runtime";
 import { MoveFiles } from "../types";
-import { selectedFilesAtom } from "./selectedFiles.atom.ts";
+import { selectedFilesAtom } from "./selectedFiles.atom";
 
 export const moveFilesAtom = runtime.fn(
   Effect.fn(function* (payload: {

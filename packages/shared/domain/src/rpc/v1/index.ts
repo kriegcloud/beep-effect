@@ -1,5 +1,5 @@
-export * as Events from "./_events.ts";
-export * as V1 from "./_rpcs.ts";
-export * as EventStream from "./event-stream.ts";
+export * as Events from "./_events";
+export * as V1 from "./_rpcs";
+export * as EventStream from "./event-stream";
 export * from "./files";
-export * as Health from "./health.ts";
+export * as Health from "./health";

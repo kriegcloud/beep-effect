@@ -15,9 +15,6 @@
       "path": "../../common/identity"
     },
     {
-      "path": "../../shared/tables"
-    },
-    {
       "path": "../../shared/env"
     },
     {
@@ -33,19 +30,7 @@
       "path": "../../common/utils"
     },
     {
-      "path": "../../common/contract"
-    },
-    {
-      "path": "../../common/invariant"
-    },
-    {
-      "path": "../../common/types"
-    },
-    {
       "path": "../../common/constants"
-    },
-    {
-      "path": "../../common/errors"
     },
     {
       "path": "../../ui/core"

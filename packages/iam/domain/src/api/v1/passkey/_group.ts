@@ -1,11 +1,11 @@
 import * as HttpApiGroup from "@effect/platform/HttpApiGroup";
-import * as DeletePasskey from "./delete-passkey.ts";
-import * as GenerateAuthenticateOptions from "./generate-authenticate-options.ts";
-import * as GenerateRegisterOptions from "./generate-register-options.ts";
-import * as ListUserPasskeys from "./list-user-passkeys.ts";
-import * as UpdatePasskey from "./update-passkey.ts";
-import * as VerifyAuthentication from "./verify-authentication.ts";
-import * as VerifyRegistration from "./verify-registration.ts";
+import * as DeletePasskey from "./delete-passkey";
+import * as GenerateAuthenticateOptions from "./generate-authenticate-options";
+import * as GenerateRegisterOptions from "./generate-register-options";
+import * as ListUserPasskeys from "./list-user-passkeys";
+import * as UpdatePasskey from "./update-passkey";
+import * as VerifyAuthentication from "./verify-authentication";
+import * as VerifyRegistration from "./verify-registration";
 
 export class Group extends HttpApiGroup.make("passkey")
   .add(DeletePasskey.Contract)

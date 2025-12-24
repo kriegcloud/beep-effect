@@ -1,2 +1,2 @@
-export { AudioRecorder } from "./AudioRecordingComponent.tsx";
-export { useAudioRecorder } from "./use-audio-recorder.ts";
+export { AudioRecorder } from "./AudioRecordingComponent";
+export { useAudioRecorder } from "./use-audio-recorder";

@@ -18,6 +18,9 @@
     },
     {
       "path": "../../packages/common/schema/tsconfig.build.json"
+    },
+    {
+      "path": "../testkit/tsconfig.build.json"
     }
   ],
   "compilerOptions": {

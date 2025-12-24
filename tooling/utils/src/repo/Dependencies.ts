@@ -58,6 +58,7 @@ export const extractWorkspaceDependencies = Effect.fn("extractWorkspaceDependenc
   const decoded = yield* S.decode(PackageJson)(json);
   const devMap = decoded.devDependencies ?? {};
   const prodMap = decoded.dependencies ?? {};
+  const peerMap = decoded.peerDependencies ?? {};
 
   const isWorkspaceDep = S.is(WorkspaceDepTuple);
   const isNpmDep = S.is(NpmDepTuple);
@@ -70,9 +71,11 @@ export const extractWorkspaceDependencies = Effect.fn("extractWorkspaceDependenc
 
   const devEntries = Object.entries(devMap) as ReadonlyArray<readonly [string, string]>;
   const prodEntries = Object.entries(prodMap) as ReadonlyArray<readonly [string, string]>;
+  const peerEntries = Object.entries(peerMap) as ReadonlyArray<readonly [string, string]>;
 
   return yield* S.decode(RepoDepMapValue)({
     devDependencies: toDeps(devEntries),
     dependencies: toDeps(prodEntries),
+    peerDependencies: toDeps(peerEntries),
   });
 });

@@ -1,1 +1,1 @@
-export * from "./asset-path.schema.js";
+export * from "./asset-path.schema";

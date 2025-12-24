@@ -1,1 +1,1 @@
-export * as IamRoutes from "./api.ts";
+export * as IamRoutes from "./api";

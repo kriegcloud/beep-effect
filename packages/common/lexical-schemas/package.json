@@ -38,22 +38,14 @@
   },
   "peerDependencies": {
     "effect": "catalog:",
-    "@beep/invariant": "workspace:^",
     "@beep/schema": "workspace:^",
-    "@beep/utils": "workspace:^",
-    "@beep/identity": "workspace:^",
-    "@beep/constants": "workspace:^"
+    "@beep/identity": "workspace:^"
   },
   "devDependencies": {
     "effect": "catalog:",
-    "@beep/invariant": "workspace:^",
-    "@beep/types": "workspace:^",
-    "@beep/testkit": "workspace:^",
     "@total-typescript/ts-reset": "catalog:",
     "@beep/schema": "workspace:^",
-    "@beep/utils": "workspace:^",
-    "@beep/identity": "workspace:^",
-    "@beep/constants": "workspace:^"
+    "@beep/identity": "workspace:^"
   },
   "effect": {
     "generateExports": {

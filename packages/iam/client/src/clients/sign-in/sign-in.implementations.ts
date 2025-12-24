@@ -4,7 +4,6 @@ import {
   AnonymousSignInContract,
   SignInContractKit,
   SignInEmailContract,
-  SignInOAuth2Contract,
   SignInOneTapContract,
   SignInPasskeyContract,
   SignInPhoneNumberContract,
@@ -139,18 +138,6 @@ const SignInPasskeyHandler = SignInPasskeyContract.implement(
 // =====================================================================================================================
 // Sign In OAuth 2 Handler
 // =====================================================================================================================
-const SignInOAuth2Handler = SignInOAuth2Contract.implement(
-  Effect.fn(function* (payload, { continuation }) {
-    const result = yield* continuation.run((handlers) =>
-      client.signIn.oauth2({
-        ...payload,
-        fetchOptions: withFetchOptions(handlers),
-      })
-    );
-
-    yield* continuation.raiseResult(result);
-  })
-);
 
 const AnonymousSignInHandler = AnonymousSignInContract.implement(
   Effect.fn(function* (_, { continuation }) {
@@ -182,7 +169,6 @@ export const SignInImplementations = SignInContractKit.of({
   SignInUsername: SignInUsernameHandler,
   SignInPasskey: SignInPasskeyHandler,
   SignInOneTap: SignInOneTapHandler,
-  SignInOAuth2: SignInOAuth2Handler,
   AnonymousSignIn: AnonymousSignInHandler,
 });
 

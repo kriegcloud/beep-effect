@@ -9,16 +9,10 @@
       "path": "../../common/constants"
     },
     {
-      "path": "../../common/errors"
-    },
-    {
       "path": "../../common/identity"
     },
     {
       "path": "../domain"
-    },
-    {
-      "path": "../env"
     },
     {
       "path": "../tables"
@@ -27,12 +21,10 @@
   "compilerOptions": {
     "types": ["node", "bun"],
     "outDir": "build/src",
-
     "rootDir": "src",
-
     "jsx": "react-jsx",
     "module": "ESNext",
-    "target": "ES2023",
+    "target": "ES2024",
     "lib": ["ES2024", "DOM", "DOM.Iterable"],
     "moduleResolution": "bundler",
     "incremental": true,

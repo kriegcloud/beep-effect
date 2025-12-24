@@ -2,7 +2,7 @@ import { DocumentsRepos } from "@beep/documents-server";
 import { IamRepos } from "@beep/iam-server";
 import { SharedRepos } from "@beep/shared-server";
 import * as Layer from "effect/Layer";
-import * as Persistence from "./Persistence.layer.ts";
+import * as Persistence from "./Persistence.layer";
 
 type SliceRepos = IamRepos.IamRepos | DocumentsRepos.DocumentsRepos | SharedRepos.SharedRepos;
 

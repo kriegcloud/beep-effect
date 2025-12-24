@@ -7,7 +7,7 @@
     "declarationDir": "build/dts",
     "jsx": "react-jsx",
     "module": "ESNext",
-    "target": "ES2023",
+    "target": "ES2024",
     "lib": ["ES2024", "DOM", "DOM.Iterable"],
     "moduleResolution": "bundler",
     "incremental": true,
@@ -20,55 +20,16 @@
       "path": "../../common/types/tsconfig.build.json"
     },
     {
-      "path": "../../common/invariant/tsconfig.build.json"
-    },
-    {
       "path": "../../common/utils/tsconfig.build.json"
-    },
-    {
-      "path": "../../common/identity/tsconfig.build.json"
-    },
-    {
-      "path": "../../common/schema/tsconfig.build.json"
     },
     {
       "path": "../../common/constants/tsconfig.build.json"
     },
     {
-      "path": "../../common/errors/tsconfig.build.json"
-    },
-    {
-      "path": "../../common/contract/tsconfig.build.json"
-    },
-    {
-      "path": "../../common/mock/tsconfig.build.json"
-    },
-    {
-      "path": "../../shared/domain/tsconfig.build.json"
-    },
-    {
-      "path": "../../shared/tables/tsconfig.build.json"
-    },
-    {
       "path": "../../shared/env/tsconfig.build.json"
     },
     {
-      "path": "../../iam/domain/tsconfig.build.json"
-    },
-    {
-      "path": "../../iam/tables/tsconfig.build.json"
-    },
-    {
       "path": "../../ui/ui/tsconfig.build.json"
-    },
-    {
-      "path": "../../ui/core/tsconfig.build.json"
-    },
-    {
-      "path": "../../documents/domain/tsconfig.build.json"
-    },
-    {
-      "path": "../../documents/tables/tsconfig.build.json"
     }
   ]
 }

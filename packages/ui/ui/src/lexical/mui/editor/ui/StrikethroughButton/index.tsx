@@ -15,7 +15,7 @@ export const StrikethroughButton: FC<IStrikethroughButtonProps> = ({ activeEdito
       onClick={() => {
         activeEditor.dispatchCommand(FORMAT_TEXT_COMMAND, "strikethrough");
       }}
-      className={"toolbar-item spaced " + (isStrikethrough ? "active" : "")}
+      className={`toolbar-item spaced ${isStrikethrough ? "active" : ""}`}
       title={`Italic (${SHORTCUTS.STRIKETHROUGH})`}
       type="button"
       aria-label={`Format text as italics. Shortcut: ${SHORTCUTS.STRIKETHROUGH}`}

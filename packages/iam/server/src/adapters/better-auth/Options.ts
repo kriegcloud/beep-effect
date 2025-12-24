@@ -57,7 +57,7 @@ import {
   InvitationEmailPayload,
   SendResetPasswordEmailPayload,
   SendVerificationEmailPayload,
-} from "./Emails.ts";
+} from "./Emails";
 
 export class LocalizationError extends Data.TaggedError("NextCookiesError")<{
   readonly type: "failed_to_detect_language" | "unknown";
@@ -561,11 +561,51 @@ export const makeAuth = ({
         cancelPendingInvitationsOnReInvite: true,
         requireEmailVerificationOnInvitation: true,
         schema: {
+          verification: {
+            additionalFields: {
+              _rowId: {
+                type: "number",
+                required: false,
+              },
+              deletedAt: {
+                type: "date",
+                required: false,
+              },
+              updatedAt: {
+                type: "date",
+                required: false,
+              },
+              createdAt: {
+                type: "date",
+                required: false,
+              },
+              createdBy: {
+                type: "string",
+                required: false,
+              },
+              updatedBy: {
+                type: "string",
+                required: false,
+              },
+              deletedBy: {
+                type: "string",
+                required: false,
+              },
+              version: {
+                type: "number",
+                required: false,
+              },
+              source: {
+                type: "string",
+                required: false,
+              },
+            },
+          },
           organization: {
             additionalFields: {
               type: {
                 type: "string",
-                required: true,
+                required: false,
                 defaultValue: Organization.OrganizationTypeEnum.individual,
               },
               ownerUserId: {

@@ -47,4 +47,4 @@ export * from "./http-request-details";
  * @category Integrations/Http
  * @since 0.1.0
  */
-export * from "./http-status-code.ts";
+export * from "./http-status-code";

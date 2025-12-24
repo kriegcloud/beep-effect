@@ -9,14 +9,14 @@
  */
 
 import * as HttpApiGroup from "@effect/platform/HttpApiGroup";
-import * as Authorize from "./authorize.ts";
-import * as Callback from "./callback.ts";
-import * as Consent from "./consent.ts";
-import * as GetClient from "./get-client.ts";
-import * as Link from "./link.ts";
-import * as Register from "./register.ts";
-import * as Token from "./token.ts";
-import * as Userinfo from "./userinfo.ts";
+import * as Authorize from "./authorize";
+import * as Callback from "./callback";
+import * as Consent from "./consent";
+import * as GetClient from "./get-client";
+import * as Link from "./link";
+import * as Register from "./register";
+import * as Token from "./token";
+import * as Userinfo from "./userinfo";
 
 /**
  * OAuth2 API group containing all OAuth2 provider endpoints.

@@ -52,7 +52,7 @@ function parseTimeToSeconds(raw: string | null): number | undefined {
 
 function parseYoutube(url: URL): ParsedVideo | null {
   const host = url.hostname.toLowerCase();
-  let id;
+  let id: string | null | undefined;
 
   if (host === "youtu.be") {
     const splitPathname = url.pathname.split("/").filter(Boolean);

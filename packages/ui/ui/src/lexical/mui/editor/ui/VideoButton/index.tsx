@@ -1,12 +1,12 @@
 import type { FC } from "react";
 
 import type { IToolbarComponentProps } from "../../../common";
-import type { useModal } from "../../hooks";
+import type { ShowModalFn } from "../../hooks/useModal.types";
 import { YoutubeIcon } from "../../images/icons";
-import { InsertVideoDialog } from "../../plugins";
+import { InsertVideoDialog } from "../../plugins/VideoPlugin";
 
 interface IVideoButtonProps extends Omit<IToolbarComponentProps, "disabled"> {
-  showModal: ReturnType<typeof useModal>[1];
+  showModal: ShowModalFn;
 }
 
 export const VideoButton: FC<IVideoButtonProps> = ({ activeEditor, showModal }) => {

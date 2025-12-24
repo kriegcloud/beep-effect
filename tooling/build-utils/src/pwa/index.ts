@@ -24,10 +24,10 @@
  */
 
 // Build utilities
-export { buildCustomWorker } from "./build-custom-worker.ts";
-export { buildFallbackWorker } from "./build-fallback-worker.ts";
+export { buildCustomWorker } from "./build-custom-worker.js";
+export { buildFallbackWorker } from "./build-fallback-worker.js";
 // Default caching strategies
-export { defaultCache } from "./default-cache.ts";
+export { defaultCache } from "./default-cache.js";
 // Error types
 export {
   FileNotFoundError,
@@ -35,11 +35,11 @@ export {
   GlobError,
   type PWAError,
   WebpackBuildError,
-} from "./errors.ts";
+} from "./errors.js";
 // Fallback worker source
-export { fallbackWorkerSource } from "./fallback.ts";
+export { fallbackWorkerSource } from "./fallback.js";
 // Register worker source
-export { registerWorkerSource } from "./register.ts";
+export { registerWorkerSource } from "./register.js";
 // Type exports
 export type {
   // Asset types
@@ -77,6 +77,6 @@ export type {
   WorkboxHandler,
   WorkboxManifestEntry,
   WorkboxManifestTransform,
-} from "./types.ts";
+} from "./types.js";
 // Main plugin export
-export { withPWA } from "./with-pwa.ts";
+export { withPWA } from "./with-pwa.js";

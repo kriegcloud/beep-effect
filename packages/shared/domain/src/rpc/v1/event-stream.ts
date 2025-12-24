@@ -2,7 +2,7 @@ import { $SharedDomainId } from "@beep/identity/packages";
 import * as Rpc from "@effect/rpc/Rpc";
 import * as RpcGroup from "@effect/rpc/RpcGroup";
 import * as S from "effect/Schema";
-import * as Events from "./_events.ts";
+import * as Events from "./_events";
 
 const $I = $SharedDomainId.create("rpc/v1/event-stream");
 

@@ -1,14 +1,7 @@
-export * from "./api-key";
-export * from "./device-authorization";
-export * from "./multi-session";
-export * from "./oauth";
-export * from "./oidc";
-export * from "./organization";
-export * from "./passkey";
+// export * from "./passkey";
 export * from "./recover";
 export * from "./session";
 export * from "./sign-in";
 export * from "./sign-out";
 export * from "./sign-up";
-export * from "./two-factor";
 export * from "./verify";

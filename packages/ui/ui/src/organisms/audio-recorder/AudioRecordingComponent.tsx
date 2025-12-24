@@ -124,6 +124,7 @@ export const AudioRecorder: (props: Props) => React.ReactElement = ({
         onClick={isRecording ? () => stopAudioRecorder() : startRecording}
         data-testid="ar_mic"
         title={isRecording ? "Save recording" : "Start recording"}
+        alt={isRecording ? "Save recording" : "Start recording"}
       />
       <span
         className={`audio-recorder-timer ${
@@ -168,6 +169,7 @@ export const AudioRecorder: (props: Props) => React.ReactElement = ({
         } ${classes?.AudioRecorderPauseResumeClass ?? ""}`}
         onClick={togglePauseResume}
         title={isPaused ? "Resume recording" : "Pause recording"}
+        alt={isPaused ? "Resume recording" : "Pause recording"}
         data-testid="ar_pause"
       />
       <img
@@ -177,6 +179,7 @@ export const AudioRecorder: (props: Props) => React.ReactElement = ({
         } ${classes?.AudioRecorderDiscardClass ?? ""}`}
         onClick={() => stopAudioRecorder(false)}
         title="Discard Recording"
+        alt="Discard Recording"
         data-testid="ar_cancel"
       />
     </div>

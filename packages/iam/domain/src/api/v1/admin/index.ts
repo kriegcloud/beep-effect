@@ -1,1 +1,1 @@
-export * as Admin from "./_group.ts";
+export * as Admin from "./_group";

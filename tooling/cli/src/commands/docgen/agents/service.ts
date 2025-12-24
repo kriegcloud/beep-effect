@@ -47,7 +47,7 @@ import * as Str from "effect/String";
 import * as Struct from "effect/Struct";
 import { analyzePackage } from "../shared/ast.js";
 import { loadDocgenConfig } from "../shared/config.js";
-import type { ExportAnalysis } from "../types.ts";
+import type { ExportAnalysis } from "../types.js";
 import type { AgentError } from "./errors.js";
 import { JSDOC_BATCH_GENERATOR_PROMPT } from "./prompts.js";
 import type { PackageFixResult } from "./schemas.js";

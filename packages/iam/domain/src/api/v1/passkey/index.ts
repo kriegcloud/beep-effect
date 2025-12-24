@@ -1,1 +1,1 @@
-export * as Passkey from "./_group.ts";
+export * as Passkey from "./_group";

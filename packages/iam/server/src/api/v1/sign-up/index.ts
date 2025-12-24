@@ -1,1 +1,1 @@
-export * as SignUp from "./_group.ts";
+export * as SignUp from "./_group";

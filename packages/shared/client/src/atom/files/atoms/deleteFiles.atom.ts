@@ -2,10 +2,10 @@ import { FilesApi } from "@beep/shared-client/atom/services";
 import { Registry } from "@effect-atom/atom-react";
 import { Effect } from "effect";
 import * as A from "effect/Array";
-import { runtime } from "../runtime.ts";
+import { runtime } from "../runtime";
 import { DeleteFiles, DeleteFolders } from "../types";
-import { filesAtom } from "./files.atom.ts";
-import { selectedFilesAtom } from "./selectedFiles.atom.ts";
+import { filesAtom } from "./files.atom";
+import { selectedFilesAtom } from "./selectedFiles.atom";
 
 export const deleteFilesAtom = runtime.fn(
   Effect.fn(function* () {

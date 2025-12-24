@@ -11,7 +11,7 @@ import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
 import * as Layer from "effect/Layer";
 import color from "picocolors";
-import { generateEnvSecrets } from "./generate-env-secrets.js";
+import { generateEnvSecrets } from "./generate-env-secrets";
 
 const CONTENT_WIDTH = 70;
 const BORDER = color.gray(`+${"-".repeat(CONTENT_WIDTH + 2)}+`);

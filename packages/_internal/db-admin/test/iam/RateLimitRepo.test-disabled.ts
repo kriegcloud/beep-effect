@@ -6,7 +6,7 @@ import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import { PgTest } from "../container.ts";
+import { PgTest } from "../container";
 
 // SharedEntityIds available if foreign key relationships are needed
 /**

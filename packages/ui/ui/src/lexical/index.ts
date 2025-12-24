@@ -9,5 +9,5 @@ export type {
 export { CollabTrystero } from "./collab/CollabTrystero";
 export type { CollabCursor } from "./collab/cursor";
 export * from "./collab/Messages";
-export * from "./editor.tsx";
-export * from "./plugins/CollaborationPlugin.tsx";
+export * from "./editor";
+export * from "./plugins/CollaborationPlugin";

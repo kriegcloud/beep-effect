@@ -1,2 +1,2 @@
-export * from "./Folder.model.ts";
+export * from "./Folder.model";
 export * from "./schemas";

@@ -1,3 +1,3 @@
-export * as FileCompletionSignals from "./FileCompletionSignals.ts";
-export * as FilePicker from "./FilePicker.service.ts";
-export * as FileSync from "./FileSync.service.ts";
+export * as FileCompletionSignals from "./FileCompletionSignals";
+export * as FilePicker from "./FilePicker.service";
+export * as FileSync from "./FileSync.service";

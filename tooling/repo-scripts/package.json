@@ -43,9 +43,7 @@
   "dependencies": {
     "jscodeshift": "^17.1.2",
     "ast-types": "catalog:",
-    "@beep/utils": "workspace:^",
     "@beep/constants": "workspace:^",
-    "@beep/invariant": "workspace:^",
     "@beep/schema": "workspace:^",
     "@beep/tooling-utils": "workspace:^",
     "@effect/platform": "catalog:",
@@ -67,7 +65,6 @@
   "devDependencies": {
     "@types/jscodeshift": "^17.3.0",
     "typescript": "catalog:",
-    "@beep/types": "workspace:^",
     "@total-typescript/ts-reset": "catalog:"
   },
   "effect": {

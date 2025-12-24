@@ -12,9 +12,9 @@ import * as HttpServerResponse from "@effect/platform/HttpServerResponse";
 import * as Eq from "effect/Equal";
 import * as Layer from "effect/Layer";
 import * as P from "effect/Predicate";
-import * as AuthContext from "./AuthContext.layer.ts";
-import * as Logger from "./Logger.layer.ts";
-import * as Rpc from "./Rpc.layer.ts";
+import * as AuthContext from "./AuthContext.layer";
+import * as Logger from "./Logger.layer";
+import * as Rpc from "./Rpc.layer";
 
 // Register the IAM HttpApi with the HttpLayerRouter
 // This is the correct pattern for combining HttpApi with HttpLayerRouter

@@ -12,7 +12,7 @@
  * @category Primitives/Json
  * @since 0.1.0
  */
-
+import { $SchemaId } from "@beep/identity/packages";
 import { invariant } from "@beep/invariant";
 import type { UnsafeTypes } from "@beep/types";
 import { faker } from "@faker-js/faker";
@@ -22,10 +22,10 @@ import * as Effect from "effect/Effect";
 import * as Num from "effect/Number";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import { $JsonId } from "../../internal";
 import { path_regex, prop_regex } from "../../internal/regex/regexes";
 
-const Id = $JsonId;
+const $I = $SchemaId.create("primitives/json/json");
+
 /**
  * JSON literal schema accepting primitive values.
  *
@@ -39,7 +39,7 @@ const Id = $JsonId;
  * @since 0.1.0
  */
 export const JsonLiteral = S.Union(S.String, S.Number, S.Boolean, S.Null).annotations(
-  Id.annotations("json/JsonLiteral", {
+  $I.annotations("json/JsonLiteral", {
     description: "JSON literal primitives (string, number, boolean, null).",
     arbitrary: () => (fc) => fc.oneof(fc.string(), fc.float(), fc.integer(), fc.boolean(), fc.constant(null)),
   })
@@ -98,7 +98,7 @@ export declare namespace JsonLiteral {
 export class Json extends S.suspend(
   (): S.Schema<Json.Type> => S.Union(JsonLiteral, S.Array(Json), S.Record({ key: S.String, value: Json }))
 ).annotations(
-  Id.annotations("json/Json", {
+  $I.annotations("json/Json", {
     description: "Recursive JSON value schema.",
   })
 ) {
@@ -144,6 +144,17 @@ export declare namespace Json {
    * @since 0.1.0
    */
   export type Encoded = typeof Json.Encoded;
+}
+
+export class JsonObject extends S.Record({ key: S.String, value: S.Union(Json, S.Undefined) }).annotations(
+  $I.annotations("json/JsonObject", {
+    description: "JSON object schema.",
+  })
+) {}
+
+export declare namespace JsonObject {
+  export type Type = typeof JsonObject.Type;
+  export type Encoded = typeof JsonObject.Encoded;
 }
 
 /**
@@ -289,7 +300,7 @@ export const equalsJson: (left: Json.Type, right: Json.Type) => boolean = S.equi
  * @since 0.1.0
  */
 export class JsonPath extends S.String.pipe(S.pattern(path_regex), S.brand("JsonPath")).annotations(
-  Id.annotations("json/JsonPath", {
+  $I.annotations("json/JsonPath", {
     description: "JSON path pointing to a nested property.",
     arbitrary: () => (fc) => fc.constantFrom(null).map(() => faker.database.column() as B.Branded<string, "JsonPath">),
   })
@@ -382,7 +393,7 @@ export class JsonProp extends S.NonEmptyString.pipe(
     message: () => "Property name must contain only letters, numbers, and underscores",
   })
 ).annotations(
-  Id.annotations("json/JsonProp", {
+  $I.annotations("json/JsonProp", {
     description: "Property name must contain only letters, numbers, and underscores",
   })
 ) {
@@ -459,7 +470,7 @@ export const JsonStringToStringArray = S.transformOrFail(S.Union(S.String, S.Arr
   encode: (array) => Effect.succeed(JSON.stringify(array)),
   strict: true,
 }).annotations(
-  Id.annotations("json/JsonStringToStringArray", {
+  $I.annotations("json/JsonStringToStringArray", {
     description: "Transforms JSON string or raw array input into an array of strings.",
   })
 );
@@ -510,7 +521,7 @@ export const JsonStringToArray = <A>(itemSchema: S.Schema<A, UnsafeTypes.UnsafeA
     encode: (array) => Effect.succeed(JSON.stringify(array)),
     strict: true,
   }).annotations(
-    Id.annotations("json/JsonStringToArray", {
+    $I.annotations("json/JsonStringToArray", {
       description: "Transforms JSON strings or raw arrays into validated arrays for the provided schema.",
     })
   );

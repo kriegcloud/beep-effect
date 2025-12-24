@@ -3,9 +3,9 @@ import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as ParseResult from "effect/ParseResult";
 import * as S from "effect/Schema";
-import { SecureHeadersError } from "./errors.ts";
-import { encodeStrictURI } from "./helpers.ts";
-import type { ResponseHeader } from "./types.ts";
+import { SecureHeadersError } from "./errors.js";
+import { encodeStrictURI } from "./helpers.js";
+import type { ResponseHeader } from "./types.js";
 
 const headerName = "X-XSS-Protection";
 

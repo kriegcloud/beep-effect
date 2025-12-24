@@ -21,8 +21,8 @@ import * as R from "effect/Record";
 import * as Str from "effect/String";
 import TerserPlugin from "terser-webpack-plugin";
 import webpack from "webpack";
-import { WebpackBuildError } from "./errors.ts";
-import type { BuildFallbackWorkerOptions, BuildFallbackWorkerResult, FallbackEnvs, FallbackRoutes } from "./types.ts";
+import { WebpackBuildError } from "./errors.js";
+import type { BuildFallbackWorkerOptions, BuildFallbackWorkerResult, FallbackEnvs, FallbackRoutes } from "./types.js";
 
 /**
  * Node polyfills fallback configuration for web workers.

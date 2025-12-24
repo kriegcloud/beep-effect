@@ -1,2 +1,2 @@
-export * from "./Upload.errors.ts";
-export * from "./Upload.service.ts";
+export * from "./Upload.errors";
+export * from "./Upload.service";

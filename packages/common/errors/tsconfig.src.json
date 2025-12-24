@@ -3,30 +3,13 @@
   "include": ["src"],
   "references": [
     {
-      "path": "../types"
-    },
-    {
-      "path": "../schema"
-    },
-    {
-      "path": "../utils"
-    },
-    {
-      "path": "../invariant"
-    },
-    {
       "path": "../constants"
-    },
-    {
-      "path": "../identity"
     }
   ],
   "compilerOptions": {
     "types": ["node", "bun"],
     "outDir": "build/src",
-
     "rootDir": "src",
-
     "moduleResolution": "bundler",
     "incremental": true,
     "skipLibCheck": true,

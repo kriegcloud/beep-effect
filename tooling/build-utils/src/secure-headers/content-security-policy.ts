@@ -7,7 +7,7 @@ import * as ParseResult from "effect/ParseResult";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { encodeStrictURI, wrapArray } from "./helpers.js";
-import type { ResponseHeader } from "./types.ts";
+import type { ResponseHeader } from "./types.js";
 
 type DirectiveSource = string | readonly string[] | undefined;
 type PluginTypes = string | readonly string[];

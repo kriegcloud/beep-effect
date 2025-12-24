@@ -4,7 +4,7 @@ import * as RpcServer from "@effect/rpc/RpcServer";
 import imageCompression from "browser-image-compression";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
-import { ImageCompressionRpc } from "./image-compression-rpc.ts";
+import { ImageCompressionRpc } from "./image-compression-rpc";
 
 const Live = ImageCompressionRpc.toLayer(
   Effect.gen(function* () {

@@ -1,18 +1,17 @@
 import { $SharedClientId } from "@beep/identity/packages";
-import { AddFile, type ActiveUpload, type FileCacheUpdate } from "@beep/shared-client/atom/files/types";
+import { type ActiveUpload, AddFile, type FileCacheUpdate } from "@beep/shared-client/atom/files/types";
 import type { File } from "@beep/shared-domain/entities";
-import { Atom, Registry } from "@effect-atom/atom-react";
+import { type Atom, Registry } from "@effect-atom/atom-react";
 import { DateTime, Effect, MutableHashMap, Schedule } from "effect";
 import * as A from "effect/Array";
 import * as F from "effect/Function";
 import { FilesApi } from "../../services";
-import * as FileCompletionSignals from "./FileCompletionSignals.ts";
+import * as FileCompletionSignals from "./FileCompletionSignals";
 
 // Lazy imports to break circular dependency:
 // runtime.ts → FileSync.service.ts → files.atom.ts → runtime.ts
 // We use explicit return type annotations to break the type inference cycle
-const getFilesAtom = (): Promise<unknown> =>
-  import("../atoms/files.atom.ts").then((m) => m.filesAtom);
+const getFilesAtom = (): Promise<unknown> => import("../atoms/files.atom.ts").then((m) => m.filesAtom);
 const getActiveUploadsAtom = (): Promise<unknown> =>
   import("../atoms/activeUploads.atom.ts").then((m) => m.activeUploadsAtom);
 

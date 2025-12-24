@@ -499,7 +499,7 @@ function run() {
     "--outDir", outDir,
     "--sourceMap", "true",
     "--target", "esnext",
-    "--lib", "ES2022,DOM,DOM.Iterable",
+    "--lib", "ES2024,DOM,DOM.Iterable",
     program,
     "--onSuccess", \`node --enable-source-maps \${compiledProgram}\`
   ], {

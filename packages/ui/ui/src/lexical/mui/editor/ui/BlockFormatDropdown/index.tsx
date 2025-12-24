@@ -122,7 +122,7 @@ export const BlockFormatDropDown = ({
         return (
           <DropDownItem
             key={o.blockType}
-            className={"item wide " + dropDownActiveClass(blockType === o.blockType)}
+            className={`item wide ${dropDownActiveClass(blockType === o.blockType)}`}
             onClick={onClItemClick[o.blockType]}
           >
             <div className="icon-text-container">

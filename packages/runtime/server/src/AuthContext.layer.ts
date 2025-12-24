@@ -12,7 +12,7 @@ import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import * as Authentication from "./Authentication.layer.ts";
+import * as Authentication from "./Authentication.layer";
 
 /**
  * Extracts authentication context from HTTP headers.

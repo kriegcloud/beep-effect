@@ -434,7 +434,7 @@ export * from "./deep-remove-null";
  * @category exports
  * @since 0.1.0
  */
-export * from "./random-hex-string.ts";
+export * from "./random-hex-string";
 
 /**
  * Re-exports accent removal utilities.
@@ -450,11 +450,11 @@ export * from "./random-hex-string.ts";
  * @category exports
  * @since 0.1.0
  */
-export * as RemoveAccents from "./remove-accents/remove-accents.ts";
-export * from "./sqids.ts";
-export { default as Sqids } from "./sqids.ts";
+export * as RemoveAccents from "./remove-accents/remove-accents";
+export * from "./sqids";
+export { default as Sqids } from "./sqids";
 export * from "./tag";
-export * from "./thunk.ts";
+export * from "./thunk";
 /**
  * Re-exports topological sort utilities.
  *

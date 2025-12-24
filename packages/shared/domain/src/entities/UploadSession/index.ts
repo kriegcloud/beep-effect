@@ -1,2 +1,2 @@
 export * from "./schemas";
-export * from "./UploadSession.model.ts";
+export * from "./UploadSession.model";

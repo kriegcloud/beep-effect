@@ -18,31 +18,10 @@
       "path": "../client"
     },
     {
-      "path": "../env"
-    },
-    {
       "path": "../client"
     },
     {
-      "path": "../../common/identity"
-    },
-    {
       "path": "../../common/schema"
-    },
-    {
-      "path": "../../common/utils"
-    },
-    {
-      "path": "../../common/errors"
-    },
-    {
-      "path": "../../common/constants"
-    },
-    {
-      "path": "../../common/invariant"
-    },
-    {
-      "path": "../../common/types"
     }
   ],
   "compilerOptions": {

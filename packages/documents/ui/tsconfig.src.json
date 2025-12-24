@@ -2,56 +2,14 @@
   "extends": "../../../tsconfig.base.jsonc",
   "include": ["src"],
   "exclude": [],
-  "references": [
-    {
-      "path": "../../ui/ui"
-    },
-    {
-      "path": "../../ui/core"
-    },
-    {
-      "path": "../../shared/domain"
-    },
-    {
-      "path": "../../shared/client"
-    },
-    {
-      "path": "../../shared/ui"
-    },
-    {
-      "path": "../../shared/env"
-    },
-    {
-      "path": "../../common/schema"
-    },
-    {
-      "path": "../../common/identity"
-    },
-    {
-      "path": "../../common/utils"
-    },
-    {
-      "path": "../../common/errors"
-    },
-    {
-      "path": "../../common/constants"
-    },
-    {
-      "path": "../../common/invariant"
-    },
-    {
-      "path": "../../common/types"
-    }
-  ],
+  "references": [],
   "compilerOptions": {
     "types": ["node", "bun"],
     "outDir": "build/src",
-
     "rootDir": "src",
-
     "jsx": "react-jsx",
     "module": "ESNext",
-    "target": "ES2023",
+    "target": "ES2024",
     "lib": ["ES2024", "DOM", "DOM.Iterable"],
     "moduleResolution": "bundler",
     "incremental": true,

@@ -9,13 +9,7 @@
       "path": "../schema"
     },
     {
-      "path": "../utils"
-    },
-    {
       "path": "../invariant"
-    },
-    {
-      "path": "../identity"
     }
   ],
   "compilerOptions": {

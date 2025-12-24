@@ -1,1 +1,1 @@
-export * from "./UploadSessionMetadata.ts";
+export * from "./UploadSessionMetadata";

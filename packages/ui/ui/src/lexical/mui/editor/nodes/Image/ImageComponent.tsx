@@ -26,9 +26,10 @@ import { type JSX, Suspense, useCallback, useEffect, useRef, useState } from "re
 
 import { useSharedHistoryContext } from "../../context";
 import { ImageBrokenIcon } from "../../images/image-broken";
-import { LinkPlugin } from "../../plugins";
-import { LexicalContentEditable as ContentEditable, ImageResizer } from "../../ui";
-import { $isImageNode } from "./ImageNode";
+import { LinkPlugin } from "../../plugins/LinkPlugin";
+import { LexicalContentEditable as ContentEditable } from "../../ui/ContentEditable";
+import { ImageResizer } from "../../ui/ImageResizer";
+import { $isImageNode } from "./guards";
 
 const imageCache = new Set();
 

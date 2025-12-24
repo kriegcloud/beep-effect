@@ -41,8 +41,6 @@
     "docs:lint:file": "bunx tsx ./src/run-docs-lint.ts --file"
   },
   "dependencies": {
-    "@beep/constants": "workspace:^",
-    "@beep/schema": "workspace:^",
     "@beep/tooling-utils": "workspace:^",
     "@effect/workflow": "catalog:",
     "picocolors": "catalog:",
@@ -56,18 +54,12 @@
     "typescript": "catalog:",
     "@effect/platform": "catalog:",
     "@effect/platform-bun": "catalog:",
-    "@beep/invariant": "workspace:^",
-    "@beep/utils": "workspace:^",
-    "@beep/identity": "workspace:^",
     "effect": "catalog:",
     "glob": "^11.0.3",
     "@effect/cluster": "catalog:"
   },
   "devDependencies": {
     "playwright": "catalog:",
-    "@beep/types": "workspace:^",
-    "@beep/constants": "workspace:^",
-    "@beep/schema": "workspace:^",
     "@beep/tooling-utils": "workspace:^",
     "@effect/workflow": "catalog:",
     "picocolors": "catalog:",
@@ -81,9 +73,6 @@
     "typescript": "catalog:",
     "@effect/platform": "catalog:",
     "@effect/platform-bun": "catalog:",
-    "@beep/invariant": "workspace:^",
-    "@beep/utils": "workspace:^",
-    "@beep/identity": "workspace:^",
     "effect": "catalog:",
     "glob": "^11.0.3",
     "@effect/cluster": "catalog:",

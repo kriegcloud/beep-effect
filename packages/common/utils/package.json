@@ -41,9 +41,11 @@
     "@beep/invariant": "workspace:^",
     "@faker-js/faker": "catalog:",
     "mutative": "catalog:",
-    "next": "catalog:"
+    "next": "catalog:",
+    "@beep/identity": "workspace:^"
   },
   "devDependencies": {
+    "@beep/identity": "workspace:^",
     "@beep/testkit": "workspace:^",
     "@beep/types": "workspace:^",
     "@total-typescript/ts-reset": "catalog:"

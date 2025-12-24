@@ -2,19 +2,14 @@
   "extends": "../../../tsconfig.base.jsonc",
   "include": ["src"],
   "references": [
-    { "path": "../types/tsconfig.build.json" },
-    { "path": "../schema/tsconfig.build.json" },
-    { "path": "../utils/tsconfig.build.json" },
-    { "path": "../invariant/tsconfig.build.json" },
-    { "path": "../constants/tsconfig.build.json" },
-    { "path": "../identity/tsconfig.build.json" }
+    {
+      "path": "../utils/tsconfig.build.json"
+    }
   ],
   "compilerOptions": {
     "types": ["node", "bun"],
     "outDir": "build/src",
-
     "rootDir": "src",
-
     "moduleResolution": "bundler",
     "incremental": true,
     "skipLibCheck": true,

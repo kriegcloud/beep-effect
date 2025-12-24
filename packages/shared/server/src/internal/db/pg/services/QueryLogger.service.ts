@@ -6,7 +6,7 @@ import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
 import type * as Layer from "effect/Layer";
 import * as Str from "effect/String";
-import { BOX, QueryType, SqlString } from "../formatter.ts";
+import { BOX, QueryType, SqlString } from "../formatter";
 
 const $I = $SharedServerId.create("internal/db/pg/services/LoggerService");
 

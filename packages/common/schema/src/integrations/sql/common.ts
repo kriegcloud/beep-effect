@@ -101,11 +101,23 @@ export const DateTimeAllEncoded = S.Union(
 export interface FieldOptionOmittable<S extends S.Schema.Any>
   extends VariantSchema.Field<{
     readonly select: S.OptionFromNullishOr<S>;
-    readonly insert: S.optionalWith<S.OptionFromNullishOr<S>, { default: () => O.Option<S.Schema.Type<S>> }>;
-    readonly update: S.optionalWith<S.OptionFromNullishOr<S>, { default: () => O.Option<S.Schema.Type<S>> }>;
+    readonly insert: S.optionalWith<
+      S.OptionFromNullishOr<S>,
+      { default: () => O.Option<S.Schema.Type<S>>; exact: true }
+    >;
+    readonly update: S.optionalWith<
+      S.OptionFromNullishOr<S>,
+      { default: () => O.Option<S.Schema.Type<S>>; exact: true }
+    >;
     readonly json: S.OptionFromNullishOr<S>;
-    readonly jsonCreate: S.optionalWith<S.OptionFromNullishOr<S>, { default: () => O.Option<S.Schema.Type<S>> }>;
-    readonly jsonUpdate: S.optionalWith<S.OptionFromNullishOr<S>, { default: () => O.Option<S.Schema.Type<S>> }>;
+    readonly jsonCreate: S.optionalWith<
+      S.OptionFromNullishOr<S>,
+      { default: () => O.Option<S.Schema.Type<S>>; exact: true }
+    >;
+    readonly jsonUpdate: S.optionalWith<
+      S.OptionFromNullishOr<S>,
+      { default: () => O.Option<S.Schema.Type<S>>; exact: true }
+    >;
   }> {}
 
 /**
@@ -123,11 +135,20 @@ export interface FieldOptionOmittable<S extends S.Schema.Any>
 export const FieldOptionOmittable = <S extends S.Schema.Any>(schema: S): FieldOptionOmittable<S> =>
   Field({
     select: S.OptionFromNullishOr(schema, null),
-    insert: S.optionalWith(S.OptionFromNullishOr(schema, null), { default: () => O.none() }),
-    update: S.optionalWith(S.OptionFromNullishOr(schema, null), { default: () => O.none<S.Schema.Type<S>>() }),
+    insert: S.optionalWith(S.OptionFromNullishOr(schema, null), { default: () => O.none(), exact: true }),
+    update: S.optionalWith(S.OptionFromNullishOr(schema, null), {
+      default: () => O.none<S.Schema.Type<S>>(),
+      exact: true,
+    }),
     json: S.OptionFromNullishOr(schema, null),
-    jsonCreate: S.optionalWith(S.OptionFromNullishOr(schema, null), { default: () => O.none<S.Schema.Type<S>>() }),
-    jsonUpdate: S.optionalWith(S.OptionFromNullishOr(schema, null), { default: () => O.none<S.Schema.Type<S>>() }),
+    jsonCreate: S.optionalWith(S.OptionFromNullishOr(schema, null), {
+      default: () => O.none<S.Schema.Type<S>>(),
+      exact: true,
+    }),
+    jsonUpdate: S.optionalWith(S.OptionFromNullishOr(schema, null), {
+      default: () => O.none<S.Schema.Type<S>>(),
+      exact: true,
+    }),
   });
 
 /**

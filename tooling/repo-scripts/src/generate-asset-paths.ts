@@ -12,8 +12,8 @@ import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 import { TreeFormatter } from "effect/ParseResult";
 import * as S from "effect/Schema";
-import { convertDirectoryToNextgen } from "./utils/convert-to-nextgen.js";
-import { AssetPaths } from "./utils/index.js";
+import { convertDirectoryToNextgen } from "./utils/convert-to-nextgen";
+import { AssetPaths } from "./utils/index";
 
 /**
  * Recursively collect all files under a directory.

@@ -28,7 +28,7 @@
   "compilerOptions": {
     "types": ["node", "bun"],
     "outDir": "build/src",
-    "target": "ES2023",
+    "target": "ES2024",
 
     "exactOptionalPropertyTypes": true,
     "module": "NodeNext",

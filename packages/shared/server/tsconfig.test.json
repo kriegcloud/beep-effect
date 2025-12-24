@@ -15,13 +15,7 @@
       "path": "../../common/identity"
     },
     {
-      "path": "../../common/errors"
-    },
-    {
       "path": "../domain"
-    },
-    {
-      "path": "../env"
     },
     {
       "path": "../tables"

@@ -13,6 +13,9 @@
     },
     {
       "path": "../../../tooling/testkit/tsconfig.build.json"
+    },
+    {
+      "path": "../identity/tsconfig.build.json"
     }
   ],
   "compilerOptions": {

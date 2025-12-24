@@ -5,7 +5,7 @@ import { BunSocket } from "@effect/platform-bun";
 import * as Bool from "effect/Boolean";
 import * as F from "effect/Function";
 import * as Layer from "effect/Layer";
-import * as Tracer from "./Tracer.layer.ts";
+import * as Tracer from "./Tracer.layer";
 
 export type Services = Tracer.Tracing;
 

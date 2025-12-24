@@ -38,28 +38,19 @@
   "peerDependencies": {
     "effect": "catalog:",
     "@effect/platform": "catalog:",
-    "@beep/schema": "workspace:^",
     "@beep/utils": "workspace:^",
-    "@beep/constants": "workspace:^",
-    "@beep/identity": "workspace:^",
     "@effect/cluster": "catalog:",
     "@effect/workflow": "catalog:",
-    "@beep/invariant": "workspace:^",
     "uuid": "catalog:",
     "picocolors": "catalog:"
   },
   "devDependencies": {
     "@effect/docgen": "catalog:",
-    "@beep/types": "workspace:^",
     "effect": "catalog:",
-    "@beep/identity": "workspace:^",
     "@effect/platform": "catalog:",
-    "@beep/schema": "workspace:^",
     "@beep/utils": "workspace:^",
-    "@beep/constants": "workspace:^",
     "@effect/cluster": "catalog:",
     "@effect/workflow": "catalog:",
-    "@beep/invariant": "workspace:^",
     "uuid": "catalog:",
     "picocolors": "catalog:",
     "@total-typescript/ts-reset": "catalog:"

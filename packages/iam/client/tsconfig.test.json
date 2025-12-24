@@ -6,49 +6,40 @@
       "path": "tsconfig.src.json"
     },
     {
-      "path": "../../common/types"
+      "path": "../../../packages/common/types"
     },
     {
-      "path": "../../common/utils"
+      "path": "../../../packages/common/utils"
     },
     {
-      "path": "../../common/invariant"
+      "path": "../../../packages/common/identity"
     },
     {
-      "path": "../../common/identity"
+      "path": "../../../packages/common/schema"
     },
     {
-      "path": "../../common/schema"
+      "path": "../../../packages/common/errors"
     },
     {
-      "path": "../../common/errors"
+      "path": "../../../packages/common/contract"
     },
     {
-      "path": "../../common/contract"
+      "path": "../../../packages/common/constants"
     },
     {
-      "path": "../../common/constants"
+      "path": "../../../packages/shared/domain"
     },
     {
-      "path": "../../shared/domain"
+      "path": "../../../packages/shared/env"
     },
     {
-      "path": "../../shared/client"
+      "path": "../../../packages/iam/domain"
     },
     {
-      "path": "../../shared/env"
+      "path": "../../../packages/iam/server"
     },
     {
-      "path": "../domain"
-    },
-    {
-      "path": "../server"
-    },
-    {
-      "path": "../../ui/ui"
-    },
-    {
-      "path": "../../ui/core"
+      "path": "../../../packages/ui/ui"
     }
   ],
   "compilerOptions": {

@@ -15,7 +15,7 @@ export const ItalicButton: FC<IItalicButtonProps> = ({ activeEditor, isItalic, d
       onClick={() => {
         activeEditor.dispatchCommand(FORMAT_TEXT_COMMAND, "italic");
       }}
-      className={"toolbar-item spaced " + (isItalic ? "active" : "")}
+      className={`toolbar-item spaced ${isItalic ? "active" : ""}`}
       title={`Italic (${SHORTCUTS.ITALIC})`}
       type="button"
       aria-label={`Format text as italics. Shortcut: ${SHORTCUTS.ITALIC}`}

@@ -9,16 +9,7 @@
       "path": "../types"
     },
     {
-      "path": "../utils"
-    },
-    {
       "path": "../schema"
-    },
-    {
-      "path": "../invariant"
-    },
-    {
-      "path": "../identity"
     }
   ],
   "compilerOptions": {

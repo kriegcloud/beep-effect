@@ -1,4 +1,4 @@
-import type { TSTypeKind } from "ast-types/gen/kinds.js";
+import type { TSTypeKind } from "ast-types/gen/kinds";
 import type * as cs from "jscodeshift";
 
 //
