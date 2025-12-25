@@ -12,12 +12,12 @@
  * @since 0.1.0
  */
 
+import { $SchemaId } from "@beep/identity/packages";
 import { faker } from "@faker-js/faker";
 import * as S from "effect/Schema";
-import { $PersonId } from "../../internal";
 import { NameAttribute } from "../string/name-attribute";
 
-const { $PersonAttributesId: Id } = $PersonId.compose("person-attributes");
+const $I = $SchemaId.create("primitives/person/person-attributes");
 
 const MAX_AGE = 130;
 const MILLIS_PER_YEAR = 365 * 24 * 60 * 60 * 1000;
@@ -43,7 +43,7 @@ const ageOn = (birth: Date, on: Date) => {
  * @since 0.1.0
  */
 export class FirstName extends NameAttribute.annotations(
-  Id.annotations("person/FirstName", {
+  $I.annotations("person/FirstName", {
     description: "A person or user's given name.",
     arbitrary: () => (fc) => fc.constant(null).map(() => faker.person.firstName()),
   })
@@ -99,7 +99,7 @@ export declare namespace FirstName {
  * @since 0.1.0
  */
 export class LastName extends NameAttribute.annotations(
-  Id.annotations("person/LastName", {
+  $I.annotations("person/LastName", {
     description: "A person or user's family name.",
     arbitrary: () => (fc) => fc.constant(null).map(() => faker.person.lastName()),
   })
@@ -155,7 +155,7 @@ export declare namespace LastName {
  * @since 0.1.0
  */
 export class FullName extends NameAttribute.annotations(
-  Id.annotations("person/FullName", {
+  $I.annotations("person/FullName", {
     description: "A person or user's display name.",
     arbitrary: () => (fc) => fc.constant(null).map(() => faker.person.fullName()),
   })
@@ -211,7 +211,7 @@ export declare namespace FullName {
  * @since 0.1.0
  */
 export class MiddleName extends NameAttribute.annotations(
-  Id.annotations("person/MiddleName", {
+  $I.annotations("person/MiddleName", {
     description: "A person or user's middle name.",
     arbitrary: () => (fc) => fc.constant(null).map(() => faker.person.middleName()),
   })
@@ -274,7 +274,7 @@ export class BirthDate extends S.Date.pipe(
     message: () => `age must be ≤ ${MAX_AGE}`,
   })
 ).annotations(
-  Id.annotations("person/BirthDate", {
+  $I.annotations("person/BirthDate", {
     description: "A realistic birth date that is not in the future and corresponds to an age ≤ 130.",
     arbitrary: () => (fc) =>
       fc.constant(null).map(() => {

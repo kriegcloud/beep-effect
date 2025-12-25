@@ -1,11 +1,13 @@
 import { Entities } from "@beep/iam-domain";
 import { dependencies } from "@beep/iam-server/adapters/repos/_common";
 import { IamDb } from "@beep/iam-server/db";
+import { $IamServerId } from "@beep/identity/packages";
 import { IamEntityIds } from "@beep/shared-domain";
 import { Repo } from "@beep/shared-server/Repo";
 import * as Effect from "effect/Effect";
 
-export class ApiKeyRepo extends Effect.Service<ApiKeyRepo>()("@beep/iam-server/adapters/repos/ApiKeyRepo", {
+const $I = $IamServerId.create("adapters/repos/ApiKeyRepo");
+export class ApiKeyRepo extends Effect.Service<ApiKeyRepo>()($I`ApiKeyRepo`, {
   dependencies,
   accessors: true,
   effect: Repo.make(

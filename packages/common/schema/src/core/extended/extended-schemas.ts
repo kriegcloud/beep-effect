@@ -12,7 +12,6 @@
  * @category Core/Extended
  * @since 0.1.0
  */
-
 import type { StructTypes, UnsafeTypes } from "@beep/types";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
@@ -28,9 +27,6 @@ import * as S from "effect/Schema";
 import type * as AST from "effect/SchemaAST";
 import * as Str from "effect/String";
 import * as _Struct from "effect/Struct";
-import { $ExtendedId } from "../../internal";
-
-const { $ExtendedSchemasId: Id } = $ExtendedId.compose("extended-schemas");
 /**
  * Wraps a schema in a property signature that injects constructor defaults.
  *
@@ -82,12 +78,10 @@ export function Struct<Fields extends S.Struct.Fields, const Records extends S.I
   ...records: Records
 ): S.TypeLiteral<Fields, Records> {
   return S.Struct(fields, ...(records as UnsafeTypes.UnsafeAny)).pipe(
-    S.annotations(
-      Id.annotations("Struct", {
-        description: "Struct helper with batching enabled by default.",
-        batching: true,
-      })
-    )
+    S.annotations({
+      description: "Struct helper with batching enabled by default.",
+      batching: true,
+    })
   );
 }
 
@@ -165,14 +159,9 @@ export function Tuple<Elements extends S.TupleType.Elements>(...elements: Elemen
  * @since 0.1.0
  */
 export function Tuple(...args: ReadonlyArray<UnsafeTypes.UnsafeAny>): UnsafeTypes.UnsafeAny {
-  return S.Tuple(...args).pipe(
-    S.annotations(
-      Id.annotations("Tuple", {
-        description: "Tuple helper with batching enabled by default.",
-        batching: true,
-      })
-    )
-  );
+  return S.Tuple(...args).annotations({
+    batching: true,
+  });
 }
 
 /**
@@ -190,12 +179,10 @@ export function Tuple(...args: ReadonlyArray<UnsafeTypes.UnsafeAny>): UnsafeType
 export function NonEmptyArray<Value extends S.Schema.Any>(value: Value): S.NonEmptyArray<Value> {
   return F.pipe(
     S.NonEmptyArray(value),
-    S.annotations(
-      Id.annotations("NonEmptyArray", {
-        description: "Non-empty array helper with batching.",
-        batching: true,
-      })
-    )
+    S.annotations({
+      description: "Non-empty array helper with batching.",
+      batching: true,
+    })
   );
 }
 
@@ -214,12 +201,10 @@ export function NonEmptyArray<Value extends S.Schema.Any>(value: Value): S.NonEm
 export function Array<Value extends S.Schema.Any>(value: Value) {
   const schema = F.pipe(
     S.Array(value),
-    S.annotations(
-      Id.annotations("Array", {
-        description: "Array helper with batching and default constructor support.",
-        batching: true,
-      })
-    )
+    S.annotations({
+      description: "Array helper with batching and default constructor support.",
+      batching: true,
+    })
   );
   const withDefault = schema.pipe(withDefaultConstructor(() => []));
   return R.set(schema, "withDefault" as const, withDefault) as typeof schema & {
@@ -242,12 +227,10 @@ export function Array<Value extends S.Schema.Any>(value: Value) {
 export const ReadonlySet = <Value extends S.Schema.Any>(value: Value) => {
   const schema = F.pipe(
     S.ReadonlySet(value),
-    S.annotations(
-      Id.annotations("ReadonlySet", {
-        description: "ReadonlySet helper with batching and empty-set defaults.",
-        batching: true,
-      })
-    )
+    S.annotations({
+      description: "ReadonlySet helper with batching and empty-set defaults.",
+      batching: true,
+    })
   );
   const withDefault = schema.pipe(withDefaultConstructor(() => new Set<S.Schema.Type<Value>>()));
   return R.set(schema, "withDefault" as const, withDefault) as typeof schema & {
@@ -273,12 +256,10 @@ export const ReadonlyMap = <K extends S.Schema.Any, V extends S.Schema.Any>(pair
 }) => {
   const schema = F.pipe(
     S.ReadonlyMap(pair),
-    S.annotations(
-      Id.annotations("ReadonlyMap", {
-        description: "ReadonlyMap helper with batching and map defaults.",
-        batching: true,
-      })
-    )
+    S.annotations({
+      description: "ReadonlyMap helper with batching and map defaults.",
+      batching: true,
+    })
   );
   const withDefault = schema.pipe(withDefaultConstructor(() => new Map()));
   return R.set(schema, "withDefault" as const, withDefault) as typeof schema & {
@@ -612,13 +593,11 @@ export const TrimNonEmpty = (opts?: { message?: string }): S.refine<string, S.fi
   S.Trim.pipe(
     S.minLength(1),
     S.maxLength(5000),
-    S.annotations(
-      Id.annotations("TrimNonEmpty", {
-        description: "Trimmed string schema that rejects empty values.",
-        message: () => opts?.message ?? "Expected a non-empty trimmed string",
-        override: true,
-      })
-    )
+    S.annotations({
+      description: "Trimmed string schema that rejects empty values.",
+      message: () => opts?.message ?? "Expected a non-empty trimmed string",
+      override: true,
+    })
   );
 
 /**

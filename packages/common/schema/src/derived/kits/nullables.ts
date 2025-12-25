@@ -12,11 +12,11 @@
  * @since 0.1.0
  */
 
+import { $SchemaId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
-import { $KitsId } from "../../internal";
 import { DateTimeUtcFromAllAcceptable } from "../../primitives/temporal/dates/date-time";
 
-const { $NullablesId: Id } = $KitsId.compose("nullables");
+const $I = $SchemaId.create("derived/kits/nullables");
 
 /**
  * Nullable string schema (string | null).
@@ -30,7 +30,7 @@ const { $NullablesId: Id } = $KitsId.compose("nullables");
  * @since 0.1.0
  */
 export class NullableStr extends S.NullOr(S.String).annotations(
-  Id.annotations("nullables/NullableStr", {
+  $I.annotations("nullables/NullableStr", {
     description: "A nullable string (string | null).",
   })
 ) {}
@@ -85,7 +85,7 @@ export declare namespace NullableStr {
  * @since 0.1.0
  */
 export class NullableNum extends S.NullOr(S.Number).annotations(
-  Id.annotations("nullables/NullableNum", {
+  $I.annotations("nullables/NullableNum", {
     description: "A nullable number (number | null).",
   })
 ) {}
@@ -140,7 +140,7 @@ export declare namespace NullableNum {
  * @since 0.1.0
  */
 export class NullableDate extends S.NullOr(DateTimeUtcFromAllAcceptable).annotations(
-  Id.annotations("nullables/NullableDate", {
+  $I.annotations("nullables/NullableDate", {
     description: "A nullable Date represented as TIMESTAMPTZ | null.",
   })
 ) {}
@@ -195,7 +195,7 @@ export declare namespace NullableDate {
  * @since 0.1.0
  */
 export class NullableUnknown extends S.NullOr(S.Unknown).annotations(
-  Id.annotations("nullables/NullableUnknown", {
+  $I.annotations("nullables/NullableUnknown", {
     description: "A nullable unknown value.",
   })
 ) {}

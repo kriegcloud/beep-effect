@@ -4,11 +4,11 @@
  * @category Builders/JsonSchema
  * @since 0.1.0
  */
+
+import { $SchemaId } from "@beep/identity/packages";
 import { StringLiteralKit } from "../../derived/kits/string-literal-kit";
 
-import { $JsonSchemaId } from "../../internal";
-
-const { $JsonTypeId } = $JsonSchemaId.compose("json-type");
+const $I = $SchemaId.create("builders/json-schema/json-type");
 /**
  * Enumerates JSON Schema `type` keywords.
  *
@@ -29,7 +29,7 @@ export class $JsonType extends StringLiteralKit(
   "null",
   "integer"
 ).annotations(
-  $JsonTypeId.annotations("$JsonType", {
+  $I.annotations("$JsonType", {
     description: "The possible json types as string literals",
   })
 ) {}

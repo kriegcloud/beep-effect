@@ -14,17 +14,19 @@
  * @since 0.1.0
  */
 
+import { $SchemaId } from "@beep/identity/packages";
 import type { Or, UnsafeTypes } from "@beep/types";
 import * as A from "effect/Array";
 import * as F from "effect/Function";
 import * as S from "effect/Schema";
 import * as StructRecord from "effect/Struct";
 import { Struct as ExtendedStruct } from "../../core/extended/extended-schemas";
-import { $JsonSchemaId } from "../../internal";
 import { RegexFromString } from "../../internal/regex/regex";
 import { LiteralDefaults } from "../../primitives/string/literal";
 import type { JsonProp } from "./json-prop";
 import { $JsonType } from "./json-type";
+
+const $I = $SchemaId.create("builders/json-schema/json-schema");
 
 /**
  * Recursive helper type representing either a JSON Schema definition or a boolean shorthand.
@@ -838,7 +840,7 @@ const JsonSchemaStruct = ExtendedStruct(
     value: S.Unknown,
   })
 ).annotations(
-  $JsonSchemaId.annotations("JsonSchema", {
+  $I.annotations("JsonSchema", {
     description: "Structured representation of JSON Schema documents with Effect-powered annotations.",
   })
 );
@@ -988,7 +990,7 @@ export class ObjectSchema extends ExtendedStruct({
   ...JsonSchema.fields,
   type: LiteralDefaults("object")("object"),
 }).annotations(
-  $JsonSchemaId.annotations("ObjectSchema", {
+  $I.annotations("ObjectSchema", {
     description: "Convenience helper for JSON Schema documents describing objects.",
   })
 ) {}
@@ -1050,7 +1052,7 @@ export class ArraySchema extends ExtendedStruct({
   ...JsonSchema.fields,
   type: LiteralDefaults("array")("array"),
 }).annotations(
-  $JsonSchemaId.annotations("ArraySchema", {
+  $I.annotations("ArraySchema", {
     description: "Convenience helper for JSON Schema documents describing arrays.",
   })
 ) {}
@@ -1112,7 +1114,7 @@ export class StringSchema extends ExtendedStruct({
   ...JsonSchema.fields,
   type: LiteralDefaults("string")("string"),
 }).annotations(
-  $JsonSchemaId.annotations("StringSchema", {
+  $I.annotations("StringSchema", {
     description: "Convenience helper for JSON Schema documents describing strings.",
   })
 ) {}
@@ -1174,7 +1176,7 @@ export class NumberSchema extends ExtendedStruct({
   ...JsonSchema.fields,
   type: LiteralDefaults("number")("number"),
 }).annotations(
-  $JsonSchemaId.annotations("NumberSchema", {
+  $I.annotations("NumberSchema", {
     description: "Convenience helper for JSON Schema documents describing numbers.",
   })
 ) {}
@@ -1236,7 +1238,7 @@ export class IntegerSchema extends ExtendedStruct({
   ...JsonSchema.fields,
   type: LiteralDefaults("integer")("integer"),
 }).annotations(
-  $JsonSchemaId.annotations("IntegerSchema", {
+  $I.annotations("IntegerSchema", {
     description: "Convenience helper for JSON Schema documents describing integers.",
   })
 ) {}
@@ -1298,7 +1300,7 @@ export class BooleanSchema extends ExtendedStruct({
   ...JsonSchema.fields,
   type: LiteralDefaults("boolean")("boolean"),
 }).annotations(
-  $JsonSchemaId.annotations("BooleanSchema", {
+  $I.annotations("BooleanSchema", {
     description: "Convenience helper for JSON Schema documents describing booleans.",
   })
 ) {}
@@ -1360,7 +1362,7 @@ export class NullSchema extends ExtendedStruct({
   ...JsonSchema.fields,
   type: LiteralDefaults("null")("null"),
 }).annotations(
-  $JsonSchemaId.annotations("NullSchema", {
+  $I.annotations("NullSchema", {
     description: "Convenience helper for JSON Schema documents describing null values.",
   })
 ) {}

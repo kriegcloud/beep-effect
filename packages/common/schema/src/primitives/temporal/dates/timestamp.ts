@@ -18,13 +18,13 @@
  * @since 0.1.0
  */
 
+import { $SchemaId } from "@beep/identity/packages";
 import * as F from "effect/Function";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import { $TemporalId } from "../../../internal";
 import { Regex } from "../../../internal/regex/regex";
 
-const { $TimestampId: Id } = $TemporalId.compose("timestamp");
+const $I = $SchemaId.create("primitives/temporal/dates/timestamp");
 
 const stripMilliseconds = (value: string): string => F.pipe(value, Str.replace(Regex.make(/\.\d{3}Z$/), "Z"));
 
@@ -46,7 +46,7 @@ export const TimestampToIsoString = S.transform(S.Union(S.Number, S.String), S.S
   decode: (input) => F.pipe(new Date(input).toISOString(), stripMilliseconds),
   encode: (isoString) => F.pipe(new Date(isoString).toISOString(), stripMilliseconds),
 }).annotations(
-  Id.annotations("timestamp/TimestampToIsoString", {
+  $I.annotations("timestamp/TimestampToIsoString", {
     description:
       "Schema transformer that converts timestamp numbers or ISO strings into canonical ISO strings without milliseconds.",
   })

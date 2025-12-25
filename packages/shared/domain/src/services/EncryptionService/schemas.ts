@@ -6,6 +6,7 @@
  * schema-based encryption/decryption transformations.
  */
 
+import { $SharedDomainId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
@@ -16,6 +17,8 @@ import * as S from "effect/Schema";
 // Using dynamic import pattern to avoid circular dependencies
 import type { EncryptionService as EncryptionServiceTag } from "./EncryptionService";
 import { DecryptionError, EncryptionError } from "./errors";
+
+const $I = $SharedDomainId.create("services/EncryptionService/schemas");
 /**
  * The encryption algorithm identifier
  * @since 0.1.0
@@ -357,10 +360,8 @@ export const HMAC_SIGNATURE_PATTERN = /^hmac-sha256=[a-f0-9]{64}$/;
  * const sig = "hmac-sha256=abcd1234..."; // 64 hex chars
  * const validated = yield* S.decode(HmacSignature)(sig);
  */
-export const HmacSignature = S.String.pipe(
-  S.pattern(HMAC_SIGNATURE_PATTERN),
-  S.annotations({
-    identifier: "HmacSignature",
+export const HmacSignature = S.String.pipe(S.pattern(HMAC_SIGNATURE_PATTERN)).annotations(
+  $I.annotations("HmacSignature", {
     description: "HMAC-SHA256 signature in format: hmac-sha256=<64-hex-chars>",
     examples: ["hmac-sha256=a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2"],
   })

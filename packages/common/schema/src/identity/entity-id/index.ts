@@ -11,6 +11,7 @@
  * @since 0.1.0
  */
 export * from "./entity-id";
+
 /**
  * UUID literal schemas used across entity id helpers.
  *

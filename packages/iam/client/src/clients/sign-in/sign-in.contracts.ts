@@ -16,7 +16,7 @@ const defaultFormValuesCommon = {
 // =====================================================================================================================
 // SIGN IN EMAIL CONTRACT
 // =====================================================================================================================
-export class SignInEmailPayload extends S.Class<SignInEmailPayload>("SignInEmailPayload")(
+export class SignInEmailPayload extends S.Class<SignInEmailPayload>(Id`SignInEmailPayload`)(
   {
     email: BS.EmailBase,
     password: BS.PasswordBase,
@@ -54,7 +54,7 @@ export const SignInEmailContract = Contract.make("SignInEmail", {
 // =====================================================================================================================
 // SIGN IN SOCIAL CONTRACT
 // =====================================================================================================================
-export class SignInSocialPayload extends S.Class<SignInSocialPayload>("SignInSocialPayload")(
+export class SignInSocialPayload extends S.Class<SignInSocialPayload>(Id`SignInSocialPayload`)(
   {
     provider: AuthProviderNameValue,
   },
@@ -82,7 +82,7 @@ export const SignInSocialContract = Contract.make("SignInSocial", {
 // =====================================================================================================================
 // SIGN IN USERNAME CONTRACT
 // =====================================================================================================================
-export class SignInUsernamePayload extends S.Class<SignInUsernamePayload>("SignInUserName")(
+export class SignInUsernamePayload extends S.Class<SignInUsernamePayload>(Id`SignInUsernamePayload`)(
   {
     username: S.NonEmptyTrimmedString,
     password: BS.Password,
@@ -117,7 +117,7 @@ export const SignInUsernameContract = Contract.make("SignInUsername", {
 // =====================================================================================================================
 // SIGN IN PHONE NUMBER CONTRACT
 // =====================================================================================================================
-export class SignInPhoneNumberPayload extends S.Class<SignInPhoneNumberPayload>("SignInPhoneNumberPayload")(
+export class SignInPhoneNumberPayload extends S.Class<SignInPhoneNumberPayload>(Id`SignInPhoneNumberPayload`)(
   {
     phoneNumber: BS.Phone,
     password: BS.Password,
@@ -170,7 +170,7 @@ export const SignInOneTapContract = Contract.make("SignInOneTap", {
   .annotate(Contract.Domain, "SignIn")
   .annotate(Contract.Method, "signInOneTap");
 
-export class AnonymousSignInSuccess extends S.Class<AnonymousSignInSuccess>("AnonymousSignInSuccess")(
+export class AnonymousSignInSuccess extends S.Class<AnonymousSignInSuccess>(Id`AnonymousSignInSuccess`)(
   {
     token: S.String,
     user: User.Model,

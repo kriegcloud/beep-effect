@@ -13,12 +13,12 @@
  * @since 0.1.0
  */
 
+import { $SchemaId } from "@beep/identity/packages";
 import type * as S from "effect/Schema";
 import { StringLiteralKit } from "../../derived/kits/string-literal-kit";
-import { $LocalesId } from "../../internal";
 import { ALL_LOCALES } from "./all-locales-generated";
 
-const { $LocaleId: Id } = $LocalesId.compose("locale");
+const $I = $SchemaId.create("primitives/locales/locale");
 /**
  * Schema enforcing BCP 47 locale identifiers.
  *
@@ -34,7 +34,7 @@ const { $LocaleId: Id } = $LocalesId.compose("locale");
  * @since 0.1.0
  */
 export class Locale extends StringLiteralKit(...ALL_LOCALES).annotations(
-  Id.annotations("Locale", {
+  $I.annotations("Locale", {
     description: "Represents a BCP 47 locale identifier.",
   })
 ) {}

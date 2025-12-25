@@ -13,12 +13,12 @@
  * @since 0.1.0
  */
 
-import { $NetworkId } from "@beep/schema/internal";
+import { $SchemaId } from "@beep/identity/packages";
 import { faker } from "@faker-js/faker";
 import * as Either from "effect/Either";
 import * as S from "effect/Schema";
 
-const { $UrlId: Id } = $NetworkId.compose("url");
+const $I = $SchemaId.create("primitives/network/url");
 /**
  * URL string schema (http/https).
  *
@@ -48,7 +48,7 @@ export class CustomURL extends S.instanceOf(URL)
     S.brand("CustomURL")
   )
   .annotations(
-    Id.annotations("CustomURL", {
+    $I.annotations("CustomURL", {
       description: "A URL",
       jsonSchema: { type: "string", format: "url" },
     })
@@ -113,7 +113,7 @@ export class URLFromString extends S.instanceOf(URL)
     S.brand("URLFromString")
   )
   .annotations(
-    Id.annotations("URLFromString", {
+    $I.annotations("URLFromString", {
       description: "A URL from a string.",
       jsonSchema: { type: "string", format: "url" },
     })
@@ -174,7 +174,7 @@ export class Url extends S.Trimmed.pipe(
   S.filter((a) => Either.try(() => new URL(a).toString()).pipe(Either.isRight)),
   S.brand("Url")
 ).annotations(
-  Id.annotations("Url", {
+  $I.annotations("Url", {
     description: "A URL string",
     jsonSchema: { type: "string", format: "url" },
   })
@@ -237,7 +237,7 @@ export class HttpsUrl extends S.TemplateLiteral("https://", S.String)
     S.filter((a) => Either.try(() => new URL(a).toString()).pipe(Either.isRight))
   )
   .annotations(
-    Id.annotations("HttpsUrl", {
+    $I.annotations("HttpsUrl", {
       description: "An https URL",
       jsonSchema: { type: "string", format: "url" },
     })
@@ -300,7 +300,7 @@ export class HttpUrl extends S.TemplateLiteral("http://", S.String)
     S.filter((a) => Either.try(() => new URL(a).toString()).pipe(Either.isRight))
   )
   .annotations(
-    Id.annotations("HttpUrl", {
+    $I.annotations("HttpUrl", {
       description: "An http URL",
       jsonSchema: { type: "string", format: "url" },
     })
@@ -357,7 +357,7 @@ export declare namespace HttpUrl {
  * @since 0.1.0
  */
 export class URLString extends S.Union(HttpUrl, HttpsUrl).annotations(
-  Id.annotations("UrlString", {
+  $I.annotations("UrlString", {
     description: "An http or https URL",
     jsonSchema: { type: "string", format: "url" },
   })

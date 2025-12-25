@@ -1,6 +1,7 @@
 import { SharedEntityIds } from "@beep/shared-domain";
 import * as d from "drizzle-orm";
 import * as pg from "drizzle-orm/pg-core";
+import { datetime } from "../columns";
 import { Table } from "../Table";
 // import { organization, Table, team, user } from "../index";
 import { organization } from "./organization.table";
@@ -9,7 +10,7 @@ import { user } from "./user.table";
 
 export const session = Table.make(SharedEntityIds.SessionId)(
   {
-    expiresAt: pg.timestamp("expires_at").notNull(),
+    expiresAt: datetime("expires_at").notNull(),
     token: pg.text("token").notNull().unique(),
     ipAddress: pg.text("ip_address"),
     userAgent: pg.text("user_agent"),

@@ -7,12 +7,12 @@
  * @since 0.1.0
  */
 
+import { $SchemaId } from "@beep/identity/packages";
 import { Equivalence, type Pretty } from "effect";
 import type { LazyArbitrary } from "effect/Arbitrary";
 import * as S from "effect/Schema";
-import { $ArrayBufferId } from "../internal";
 
-const Id = $ArrayBufferId;
+const $I = $SchemaId.create("primitives/array-buffer");
 
 const isArrayBuffer = (i: unknown): i is ArrayBuffer => i instanceof ArrayBuffer;
 
@@ -24,7 +24,7 @@ const isArrayBuffer = (i: unknown): i is ArrayBuffer => i instanceof ArrayBuffer
  */
 
 export class ArrayBufferFromSelf extends S.declare(isArrayBuffer).annotations(
-  Id.annotations("ArrayBufferFromSelf", {
+  $I.annotations("ArrayBufferFromSelf", {
     description: "An Array Buffer",
     equivalence: (): Equivalence.Equivalence<ArrayBuffer> =>
       Equivalence.make((a, b) => {

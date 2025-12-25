@@ -13,14 +13,14 @@
  * @since 0.1.0
  */
 
+import { $SchemaId } from "@beep/identity/packages";
 import type { StringTypes } from "@beep/types";
 import type * as A from "effect/Array";
 import * as S from "effect/Schema";
 import type * as AST from "effect/SchemaAST";
 import type { DefaultAnnotations } from "../../core/annotations/default";
-import { $KitsId } from "../../internal";
 
-const { $LiteralId: Id } = $KitsId.compose("literal");
+const $I = $SchemaId.create("derived/kits/literal");
 /**
  * Builds literal schemas that automatically inject provided defaults.
  *
@@ -45,7 +45,7 @@ export function LiteralDefaults<const Literals extends A.NonEmptyReadonlyArray<A
         })
       )
       .annotations(
-        Id.annotations("literal/LiteralDefaults", {
+        $I.annotations("literal/LiteralDefaults", {
           default: defaultValue,
         })
       );
@@ -120,7 +120,7 @@ export const LiteralWithDefault = <const Literal extends StringTypes.NonEmptyStr
       })
     )
     .annotations(
-      Id.annotations("literal/LiteralWithDefault", {
+      $I.annotations("literal/LiteralWithDefault", {
         ...annotations,
         default: value,
       })

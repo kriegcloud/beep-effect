@@ -13,11 +13,11 @@
  * @since 0.1.0
  */
 
+import { $SchemaId } from "@beep/identity/packages";
 import * as Redacted from "effect/Redacted";
 import * as S from "effect/Schema";
-import { $StringId } from "../../internal";
 
-const { $PasswordId: Id } = $StringId.compose("password");
+const $I = $SchemaId.create("primitives/string/password");
 /**
  * Schema that validates encoded password strings before redaction.
  *
@@ -50,7 +50,7 @@ export class EncodedPassword extends S.String.pipe(
     message: () => "Password must contain at least one special character!",
   })
 ).annotations(
-  Id.annotations("password/EncodedPassword", {
+  $I.annotations("password/EncodedPassword", {
     description: "Encoded password schema",
   })
 ) {}
@@ -80,7 +80,7 @@ export class PasswordBase extends EncodedPassword.pipe(S.brand("Password")) {}
  * @since 0.1.0
  */
 export class Password extends S.Redacted(PasswordBase.pipe(S.minLength(8))).annotations(
-  Id.annotations("password/Password", {
+  $I.annotations("password/Password", {
     description: "Redacted Password Schema",
   })
 ) {

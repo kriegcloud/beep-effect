@@ -1,4 +1,4 @@
-import { $RegexId } from "@beep/schema/internal";
+import { $SchemaId } from "@beep/identity/packages";
 import * as Arbitrary from "effect/Arbitrary";
 import type * as B from "effect/Brand";
 import * as FC from "effect/FastCheck";
@@ -6,7 +6,7 @@ import * as ParseResult from "effect/ParseResult";
 import * as S from "effect/Schema";
 import RandExp from "randexp-ts";
 
-const { $RegexId: Id } = $RegexId.compose("regex");
+const $I = $SchemaId.create("internal/regex/regex");
 
 /**
  * Branded schema for `RegExp` instances with arbitraries for documentation examples.
@@ -23,7 +23,7 @@ const { $RegexId: Id } = $RegexId.compose("regex");
 export const Regex = S.instanceOf(RegExp)
   .pipe(S.brand("Regex"))
   .annotations(
-    Id.annotations("Regex", {
+    $I.annotations("Regex", {
       description: "A regular expression",
       arbitrary: () => (fc) =>
         fc
@@ -96,7 +96,7 @@ export class RegexFromString extends S.NonEmptyTrimmedString.pipe(
     encode: (value) => ParseResult.succeed(value.toString()),
   })
 ).annotations(
-  Id.annotations("RegexFromString", {
+  $I.annotations("RegexFromString", {
     description: "A string that is a valid regular expression",
     arbitrary: () => (fc) => fc.constant(null).map(() => FC.sample(Arbitrary.make(Regex), 1)[0] as typeof Regex.Type),
   })

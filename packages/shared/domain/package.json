@@ -61,6 +61,7 @@
     "@beep/errors": "workspace:^",
     "@beep/invariant": "workspace:^",
     "@effect/experimental": "catalog:",
+    "@xyflow/react": "^12.10.0",
     "drizzle-orm": "catalog:",
     "mutative": "catalog:",
     "@total-typescript/ts-reset": "catalog:"

@@ -13,11 +13,11 @@
  * @since 0.1.0
  */
 
+import { $SchemaId } from "@beep/identity/packages";
 import type * as S from "effect/Schema";
 import { StringLiteralKit } from "../../derived/kits/string-literal-kit";
-import { $HttpId } from "../../internal";
 
-const { $HttpMethodId: Id } = $HttpId.compose("http-method");
+const $I = $SchemaId.create("integrations/http/http-method");
 /**
  * Schema validating HTTP request methods.
  *
@@ -39,7 +39,7 @@ export class HttpMethod extends StringLiteralKit(
   "HEAD",
   "OPTIONS"
 ).annotations(
-  Id.annotations("HttpMethod", {
+  $I.annotations("HttpMethod", {
     description: "The HTTP verb used by a request.",
   })
 ) {}

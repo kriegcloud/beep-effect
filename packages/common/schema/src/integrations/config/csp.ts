@@ -12,6 +12,7 @@
  * @since 0.1.0
  */
 
+import { $SchemaId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
@@ -23,11 +24,10 @@ import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import * as Struct from "effect/Struct";
 import { StringLiteralKit } from "../../derived/kits/string-literal-kit";
-import { $ConfigId } from "../../internal";
 import { RegexFromString } from "../../internal/regex/regex";
 import { Url } from "../../primitives/network/url";
 
-const { $CspId: Id } = $ConfigId.compose("csp");
+const $I = $SchemaId.create("integrations/config/csp");
 
 /**
  * Single-character delimiter that terminates each directive in a CSP policy string.
@@ -104,7 +104,7 @@ const CSPDirective = StringLiteralKit(
     ],
   }
 ).annotations(
-  Id.annotations("CSPDirectiveSchema", {
+  $I.annotations("CSPDirectiveSchema", {
     description: "Directive name allowed in the Content Security Policy header.",
   })
 );
@@ -127,7 +127,7 @@ export const CSPDirectivePart = S.TemplateLiteralParser(
   S.String,
   POLICY_DELIMITER
 ).annotations(
-  Id.annotations("CSPDirectivePart", {
+  $I.annotations("CSPDirectivePart", {
     description:
       "Parses a single CSP directive segment comprising the directive name, an equal sign, one or more values, and the trailing delimiter.",
   })
@@ -174,7 +174,7 @@ const StaticDirective = StringLiteralKit(
   "http://127.0.0.1:*",
   "https://127.0.0.1:*"
 ).annotations(
-  Id.annotations("StaticDirectiveSchema", {
+  $I.annotations("StaticDirectiveSchema", {
     title: "Static Directive Value",
     description: "Static directive values that do not require URL validation.",
   })
@@ -193,7 +193,7 @@ const StaticDirective = StringLiteralKit(
  * @since 0.1.0
  */
 export const CSPDirectiveValue = S.Union(StaticDirective, Url).annotations(
-  Id.annotations("CSPDirectiveValue", {
+  $I.annotations("CSPDirectiveValue", {
     description: "Represents a single value allowed in a CSP directive: a static keyword or a URL string.",
   })
 );
@@ -211,7 +211,7 @@ export const CSPDirectiveValue = S.Union(StaticDirective, Url).annotations(
  * @since 0.1.0
  */
 export const CSPDirectiveValues = S.NonEmptyArray(CSPDirectiveValue).annotations(
-  Id.annotations("CSPDirectiveValues", {
+  $I.annotations("CSPDirectiveValues", {
     description: "A non-empty, ordered list of directive values starting with the default `'self'` keyword.",
   })
 );
@@ -234,7 +234,7 @@ export const CSPStruct = S.Struct({
     value: CSPDirectiveValues,
   }),
 }).annotations(
-  Id.annotations("CSPStruct", {
+  $I.annotations("CSPStruct", {
     title: "CSP Struct",
     description:
       "Normalized representation of a CSP policy where directive names map to ordered, validated non-empty arrays of values.",
@@ -287,7 +287,7 @@ const CSP_STRING_REGEX = RegexFromString.make(CSP_STRING_PATTERN);
 
 /** Schema that ensures CSP strings are non-empty, trimmed, and match the compiled CSP regex. */
 const CSP_ENCODED_STRING = S.NonEmptyTrimmedString.pipe(S.pattern(CSP_STRING_REGEX)).annotations(
-  Id.annotations("CSP_ENCODED_STRING", {
+  $I.annotations("CSP_ENCODED_STRING", {
     title: "Encoded CSP String",
     description: "A normalized CSP string containing one or more directives separated by semicolons.",
   })
@@ -295,7 +295,7 @@ const CSP_ENCODED_STRING = S.NonEmptyTrimmedString.pipe(S.pattern(CSP_STRING_REG
 
 /** Schema for non-empty arrays of parsed directive segments. */
 class CSPDirectiveSegments extends S.NonEmptyArray(CSPDirectivePart).annotations(
-  Id.annotations("CSPDirectiveSegments", {
+  $I.annotations("CSPDirectiveSegments", {
     title: "CSP Directive Segments",
     description: "Non-empty list of parsed directive segments extracted from a CSP string.",
   })
@@ -434,7 +434,7 @@ export const CSPString = S.transformOrFail(CSP_ENCODED_STRING, CSPDirectiveSegme
         ),
     }),
 }).annotations(
-  Id.annotations("CSPString", {
+  $I.annotations("CSPString", {
     title: "CSP String Schema",
     description:
       "Transforms between a validated CSP string and its array of directive segments while normalizing formatting.",
@@ -490,7 +490,7 @@ export const CSPFromString = S.transformOrFail(CSPString, CSPStruct, {
         new ParseResult.Type(ast, cspStruct, error instanceof Error ? error.message : "Invalid CSPStruct"),
     }),
 }).annotations(
-  Id.annotations("CSPFromString", {
+  $I.annotations("CSPFromString", {
     description: "Transforms between parsed CSP directive segments and the structured CSP directives record.",
   })
 );
@@ -566,7 +566,7 @@ export const toHeader = (directives: CSPStruct.Type["directives"], nonce?: strin
  * @since 0.1.0
  */
 export class Csp extends CSPFromString.annotations(
-  Id.annotations("Csp", {
+  $I.annotations("Csp", {
     title: "CSP Header Schema",
     description:
       "Transforms a structured CSP representation into a destructive branded header string that can be sent to clients.",

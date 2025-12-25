@@ -13,11 +13,11 @@
  * @since 0.1.0
  */
 
+import { $SchemaId } from "@beep/identity/packages";
 import type * as B from "effect/Brand";
 import * as S from "effect/Schema";
-import { $StringId } from "../../internal";
 
-const { $SemanticVersionId: Id } = $StringId.compose("semantic-version");
+const $I = $SchemaId.create("primitives/string/semantic-version");
 /**
  * Semantic version schema using template literal composition.
  *
@@ -33,7 +33,7 @@ const { $SemanticVersionId: Id } = $StringId.compose("semantic-version");
 export const SemanticVersion = S.TemplateLiteral(S.Number, ".", S.Number, ".", S.Number)
   .pipe(S.brand("SemanticVersion"))
   .annotations(
-    Id.annotations("semantic-version/SemanticVersion", {
+    $I.annotations("semantic-version/SemanticVersion", {
       description: "A value representing a semantic version",
       examples: [
         "1.0.0" as B.Branded<`${number}.${number}.${number}`, "SemanticVersion">,

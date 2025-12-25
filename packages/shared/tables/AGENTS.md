@@ -27,7 +27,7 @@
 
 ## Authoring Guardrails
 - Always import Effect modules via namespaces (`import * as F from "effect/Function";`) and avoid native array/string/object APIs; rely on `effect/Array`, `effect/String`, `effect/Record`, and friends.
-- `Table.make` expects an `EntityId.EntityIdSchemaInstance`; create or update the matching entity id in `@beep/shared-domain` before adding a table.
+- `Table.make` expects an `EntityId.EntityId.SchemaInstance`; create or update the matching entity id in `@beep/shared-domain` before adding a table.
 - `OrgTable.make` hard-wires a cascade foreign key to `organization.id`. If you need different cascade behavior, document it explicitly and adjust downstream relations (`packages/iam/tables/src/relations.ts:1`).
 - Keep `globalColumns` in sync with `@beep/shared-domain/src/common.ts`; changes require coordinated updates to domain schema helpers and any ingestion/export logic.
 - Do not bypass `_check.ts`; extend it whenever new shared tables should align with domain codecs to catch drift at build time.

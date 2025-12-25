@@ -1,7 +1,7 @@
 import { Invitation } from "@beep/iam-domain/entities";
 import type { SharedEntityIds } from "@beep/shared-domain";
 import { IamEntityIds } from "@beep/shared-domain";
-import { organization, Table, team, user } from "@beep/shared-tables";
+import { datetime, organization, Table, team, user } from "@beep/shared-tables";
 import * as d from "drizzle-orm";
 import * as pg from "drizzle-orm/pg-core";
 
@@ -16,7 +16,7 @@ export const invitation = Table.make(IamEntityIds.InvitationId)(
       .$type<SharedEntityIds.TeamId.Type>()
       .references(() => team.id, { onDelete: "cascade", onUpdate: "cascade" }),
     status: invitationStatusEnum("status").notNull().default(Invitation.InvitationStatusEnum.pending),
-    expiresAt: pg.timestamp("expires_at").notNull(),
+    expiresAt: datetime("expires_at").notNull(),
     inviterId: pg
       .text("inviter_id")
       .notNull()

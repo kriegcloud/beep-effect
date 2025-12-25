@@ -21,15 +21,15 @@
  * @since 0.1.0
  */
 
+import { $SchemaId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
-import { $HttpId } from "../../internal";
 import { URLString } from "../../primitives/network/url";
 import { HttpHeaders } from "./http-headers";
 import { HttpMethod } from "./http-method";
 
-const { $HttpRequestDetailsId: Id } = $HttpId.compose("http-request-details");
+const $I = $SchemaId.create("integrations/http/http-request-details");
 const UrlParamEntry = S.Tuple(S.String, S.String).annotations(
-  Id.annotations("HttpRequestDetailsUrlParam", {
+  $I.annotations("HttpRequestDetailsUrlParam", {
     identifier: "HttpRequestDetailsUrlParam",
     title: "HTTP URL Parameter",
     description: "Tuple representing a single query parameter (key/value).",
@@ -62,7 +62,7 @@ export class HttpRequestDetails extends S.Struct({
   hash: S.OptionFromSelf(S.String),
   headers: HttpHeaders,
 }).annotations(
-  Id.annotations("HttpRequestDetails", {
+  $I.annotations("HttpRequestDetails", {
     identifier: "HttpRequestDetails",
     title: "HTTP Request Details",
     description: "Captures method, URL, params, hash, and headers for a request.",

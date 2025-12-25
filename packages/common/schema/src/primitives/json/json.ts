@@ -12,6 +12,7 @@
  * @category Primitives/Json
  * @since 0.1.0
  */
+
 import { $SchemaId } from "@beep/identity/packages";
 import { invariant } from "@beep/invariant";
 import type { UnsafeTypes } from "@beep/types";

@@ -2,24 +2,25 @@
 import { Contract, ContractKit } from "@beep/contract";
 import { IamError } from "@beep/iam-client/errors";
 import { Session } from "@beep/iam-domain/entities";
+import { $IamClientId } from "@beep/identity/packages";
 import { User } from "@beep/shared-domain/entities";
 import * as S from "effect/Schema";
+
+const $I = $IamClientId.create("clients/session/session.contracts");
 
 // =====================================================================================================================
 // GetSession
 // =====================================================================================================================
 
-export class GetSessionSuccess extends S.Class<GetSessionSuccess>("GetSessionSuccess")(
+export class GetSessionSuccess extends S.Class<GetSessionSuccess>($I`GetSessionSuccess`)(
   {
     session: Session.Model,
     user: User.Model,
   },
-  {
-    schemaId: Symbol.for("@beep/iam-client/clients/session/GetSessionSuccess"),
-    identifier: "GetSessionSuccess",
+  $I.annotations("GetSessionSuccess", {
     title: "Get Session Success",
     description: "The result of a successful get session call.",
-  }
+  })
 ) {}
 
 export declare namespace GetSessionSuccess {
@@ -39,12 +40,12 @@ export const GetSessionContract = Contract.make("GetSession", {
 // =====================================================================================================================
 // ListSessions
 // =====================================================================================================================
-export class ListSessionsSuccess extends S.NonEmptyArray(Session.Model).annotations({
-  schemaId: Symbol.for("@beep/iam-client/clients/session/ListSessionsSuccess"),
-  identifier: "ListSessionsSuccess",
-  title: "List Sessions Success",
-  description: "The result of a successful list sessions call.",
-}) {}
+export class ListSessionsSuccess extends S.NonEmptyArray(Session.Model).annotations(
+  $I.annotations("ListSessionsSuccess", {
+    title: "List Sessions Success",
+    description: "The result of a successful list sessions call.",
+  })
+) {}
 
 export declare namespace ListSessionsSuccess {
   export type Type = S.Schema.Type<typeof ListSessionsSuccess>;
@@ -64,8 +65,9 @@ export const ListSessionsContract = Contract.make("ListSessions", {
 // =====================================================================================================================
 // RevokeSession
 // =====================================================================================================================
-export class RevokeSessionPayload extends S.Class<RevokeSessionPayload>("RevokeSessionPayload")(
-  Session.Model.select.pick("token")
+export class RevokeSessionPayload extends S.Class<RevokeSessionPayload>($I`RevokeSessionPayload`)(
+  Session.Model.select.pick("token"),
+  $I.annotations("RevokeSessionPayload", { description: "Payload for revoking a session." })
 ) {}
 
 export declare namespace RevokeSessionPayload {

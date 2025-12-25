@@ -14,11 +14,11 @@
  * @since 0.1.0
  */
 
+import { $SchemaId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
 import { StringLiteralKit } from "../../derived/kits/string-literal-kit";
-import { $GeoId } from "../../internal";
 
-const { $CountryFromCodeId: Id } = $GeoId.compose("country-from-code");
+const $I = $SchemaId.create("primitives/geo/country-from-code");
 
 /**
  * Schema representing canonical ISO 3166 country names.
@@ -286,7 +286,7 @@ export class CountryName extends StringLiteralKit(
   "South Sudan",
   "Kosovo"
 ).annotations(
-  Id.annotations("country-from-code/CountryName", {
+  $I.annotations("country-from-code/CountryName", {
     description: "Represents a country name",
   })
 ) {}
@@ -596,7 +596,7 @@ export class CountryFromCode extends S.transformLiterals(
   ["SS", "South Sudan"],
   ["XK", "Kosovo"]
 ).annotations(
-  Id.annotations("country-from-code/CountryFromCode", {
+  $I.annotations("country-from-code/CountryFromCode", {
     description: "Transforms ISO 3166-1 alpha-2 codes into country names",
     jsonSchema: {
       type: "string",

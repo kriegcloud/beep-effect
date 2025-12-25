@@ -21,6 +21,8 @@
  * @category Derived/Kits
  * @since 0.1.0
  */
+
+import { $SchemaId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import * as Equal from "effect/Equal";
 import * as F from "effect/Function";
@@ -28,9 +30,8 @@ import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as AST from "effect/SchemaAST";
 import { mergeSchemaAnnotations } from "../../core/annotations/built-in-annotations";
-import { $KitsId } from "../../internal";
 
-const { $LiteralKitId: Id } = $KitsId.compose("literal-kit");
+const $I = $SchemaId.create("derived/kits/literal-kit");
 
 // ============================================================================
 // Type Utilities
@@ -309,7 +310,7 @@ export function makeGenericLiteralKit<const Literals extends LiteralsType>(
  */
 export function LiteralKit<const Literals extends LiteralsType>(...literals: Literals): IGenericLiteralKit<Literals> {
   return makeGenericLiteralKit(literals).annotations(
-    Id.annotations("LiteralKit", {
+    $I.annotations("LiteralKit", {
       description: "Literal kit schema for any literal value type",
       arbitrary: () => (fc) => fc.constantFrom(...literals),
     })

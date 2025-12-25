@@ -13,12 +13,12 @@
  * @since 0.1.0
  */
 
+import { $SchemaId } from "@beep/identity/packages";
 import { faker } from "@faker-js/faker";
 import type * as B from "effect/Brand";
 import * as S from "effect/Schema";
-import { $GeoId } from "../../internal";
 
-const { $LocalityId: Id } = $GeoId.compose("locality");
+const $I = $SchemaId.create("primitives/geo/locality");
 /**
  * Human locality / city name schema with lenient character support.
  *
@@ -39,7 +39,7 @@ export class Locality extends S.String.pipe(
   // (avoid over-restricting, addresses are messy)
   S.brand("Locality")
 ).annotations(
-  Id.annotations("Locality", {
+  $I.annotations("Locality", {
     description: "Human locality / city name",
     arbitrary: () => (fc) => fc.constantFrom(null).map(() => faker.location.city() as B.Branded<string, "Locality">),
     jsonSchema: {

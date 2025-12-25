@@ -1,7 +1,10 @@
+import { $UiCoreId } from "@beep/identity/packages";
 import type { PickersTimezone } from "@mui/x-date-pickers/models";
 import * as DateTime from "effect/DateTime";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+
+const $I = $UiCoreId.create("adapters/schema");
 
 /**
  * Schema that transforms a nullable/optional string into DateTime | null.
@@ -11,7 +14,9 @@ import * as S from "effect/Schema";
  * - null → null
  * - string → parsed DateTime or invalid DateTime
  */
-export const DateInputToDateTime = S.Union(S.Null, S.Undefined, S.String).annotations({ identifier: "DateInput" });
+export const DateInputToDateTime = S.Union(S.Null, S.Undefined, S.String).annotations(
+  $I.annotations("DateInput", { description: "Nullable/optional string that transforms into DateTime | null" })
+);
 
 export type DateInput = S.Schema.Type<typeof DateInputToDateTime>;
 

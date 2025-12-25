@@ -45,8 +45,8 @@ effect("relative and comparison helpers evaluate ranges correctly", () =>
     expect(fIsAfter(DateTime.formatIso(future), DateTime.formatIso(past))).toBe(true);
     expect(fIsAfter("bad", DateTime.formatIso(past))).toBe(false);
 
-    const nextWeek = DateTime.add(now, { days: 7 });
-    expect(fIsSame(DateTime.formatIso(now), DateTime.formatIso(nextWeek), "year")).toBe(true);
+    const sameYearLater = DateTime.add(now, { hours: 1 });
+    expect(fIsSame(DateTime.formatIso(now), DateTime.formatIso(sameYearLater), "year")).toBe(true);
     expect(fIsSame(DateTime.formatIso(now), DateTime.formatIso(future), "day")).toBe(false);
   })
 );

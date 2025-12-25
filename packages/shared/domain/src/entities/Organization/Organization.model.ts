@@ -1,3 +1,4 @@
+import { $SharedDomainId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
 import { Slug, Url } from "@beep/schema/primitives";
 import { makeFields } from "@beep/shared-domain/common";
@@ -7,6 +8,7 @@ import * as S from "effect/Schema";
 import { SharedEntityIds } from "../../entity-ids";
 import { OrganizationType, OrganizationTypeEnum, SubscriptionStatus, SubscriptionTier } from "./schemas";
 
+const $I = $SharedDomainId.create("entities/Organization/Organization.model");
 export const OrganizationModelSchemaId = Symbol.for("@beep/shared-domain/OrganizationModel");
 
 /**
@@ -14,7 +16,7 @@ export const OrganizationModelSchemaId = Symbol.for("@beep/shared-domain/Organiz
  * Maps to the `organization` table in the database.
  */
 
-export class Model extends M.Class<Model>(`OrganizationModel`)(
+export class Model extends M.Class<Model>($I`OrganizationModel`)(
   makeFields(SharedEntityIds.OrganizationId, {
     /** Organization name */
     name: S.NonEmptyString.annotations({
@@ -62,11 +64,9 @@ export class Model extends M.Class<Model>(`OrganizationModel`)(
       description: "The subscription status of the organization",
     }),
   }),
-  {
-    title: "Organization Model",
+  $I.annotations("OrganizationModel", {
     description: "Organization model representing organizations.",
-    schemaId: OrganizationModelSchemaId,
-  }
+  })
 ) {
   static readonly utils = modelKit(Model);
 }

@@ -13,15 +13,15 @@
  * @since 0.1.0
  */
 
+import { $SchemaId } from "@beep/identity/packages";
 import { faker } from "@faker-js/faker";
 import * as F from "effect/Function";
 import * as ParseResult from "effect/ParseResult";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import { $GeoId } from "../../internal";
 import { POSTAL_CODE_REGEX } from "../../internal/regex/regexes";
 
-const { $PostalCodeId: Id } = $GeoId.compose("postal-code");
+const $I = $SchemaId.create("primitives/geo/postal-code");
 
 /**
  * Raw encoded postal code string schema.
@@ -40,7 +40,7 @@ export class PostalCodeRawEncoded extends S.NonEmptyTrimmedString.pipe(
   S.minLength(1),
   S.maxLength(16)
 ).annotations(
-  Id.annotations("postal-code/PostalCodeRawEncoded", {
+  $I.annotations("postal-code/PostalCodeRawEncoded", {
     description: "Postal code in its raw encoded form.",
   })
 ) {}
@@ -96,7 +96,7 @@ export declare namespace PostalCodeRawEncoded {
  * @since 0.1.0
  */
 export class PostalCodeRawDecoded extends PostalCodeRawEncoded.pipe(S.brand("PostalCodeRaw")).annotations(
-  Id.annotations("postal-code/PostalCodeRawDecoded", {
+  $I.annotations("postal-code/PostalCodeRawDecoded", {
     description: "Postal code in its decoded form.",
   })
 ) {}
@@ -160,7 +160,7 @@ export class PostalCodeRaw extends S.transformOrFail(PostalCodeRawEncoded, Posta
     }),
   encode: (value) => ParseResult.succeed(value),
 }).annotations(
-  Id.annotations("postal-code/PostalCodeRaw", {
+  $I.annotations("postal-code/PostalCodeRaw", {
     description: "Normalized postal code string.",
   })
 ) {}
@@ -226,7 +226,7 @@ export class PostalCode extends S.Union(
   PostalCodeRaw.pipe(S.pattern(POSTAL_CODE_REGEX.BRAZIL)),
   PostalCodeRaw.pipe(S.pattern(POSTAL_CODE_REGEX.IRELAND))
 ).annotations(
-  Id.annotations("postal-code/PostalCode", {
+  $I.annotations("postal-code/PostalCode", {
     description: "Postal code supporting multiple country formats.",
     arbitrary: () => (fc) => fc.constantFrom(null).map(() => PostalCodeRawDecoded.make(faker.location.zipCode())),
   })

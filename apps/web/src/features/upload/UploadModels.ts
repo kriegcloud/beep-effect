@@ -1,4 +1,5 @@
 import type { AccumulateResult } from "@beep/errors/client";
+import { $WebId } from "@beep/identity/packages";
 import type {
   DetectedFileInfo,
   ExifMetadata,
@@ -10,6 +11,8 @@ import type {
 import type { InvalidChunkSizeError } from "@beep/schema/integrations/files/file-types/detection";
 import * as S from "effect/Schema";
 import type * as Errors from "./errors";
+
+const $I = $WebId.create("features/upload/UploadModels");
 
 /**************
  * Upload pipeline shared models (scaffolding)
@@ -112,13 +115,16 @@ export interface UploadPipelineError {
 /**
  * Single presigned URL item returned from the server
  */
-export class PresignedUrlItem extends S.Class<PresignedUrlItem>("PresignedUrlItem")({
-  url: S.String,
-  key: S.String,
-  fileId: S.String,
-  name: S.String,
-  customId: S.NullOr(S.String),
-}) {}
+export class PresignedUrlItem extends S.Class<PresignedUrlItem>($I`PresignedUrlItem`)(
+  {
+    url: S.String,
+    key: S.String,
+    fileId: S.String,
+    name: S.String,
+    customId: S.NullOr(S.String),
+  },
+  $I.annotations("PresignedUrlItem", { description: "Single presigned URL item returned from the server" })
+) {}
 
 /**
  * Trace headers for distributed tracing

@@ -16,11 +16,11 @@
  * @since 0.1.0
  */
 
+import { $SchemaId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
-import { $FnId } from "../../../internal";
 import { Fn } from "../fn";
 
-const { $NoInputVoidFnId: Id } = $FnId.compose("no-input-void-fn");
+const $I = $SchemaId.create("primitives/fn/no-input-void-fn/no-input-void-fn");
 
 const noInputVoidFn = new Fn({
   input: S.Any,
@@ -40,7 +40,7 @@ const noInputVoidFn = new Fn({
  * @since 0.1.0
  */
 export const Schema = noInputVoidFn.Schema.annotations(
-  Id.annotations("no-input-void-fn/Schema", {
+  $I.annotations("no-input-void-fn/Schema", {
     description: "Function schema that validates zero-argument void callbacks.",
   })
 );

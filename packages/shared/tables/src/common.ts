@@ -3,12 +3,14 @@ import * as pg from "drizzle-orm/pg-core";
 import * as DateTime from "effect/DateTime";
 import * as F from "effect/Function";
 
-export const utcNow = F.constant(DateTime.toDateUtc(DateTime.unsafeNow()));
+import { datetime, sqlNow } from "./columns";
+
+export const utcNow = F.constant(F.pipe(DateTime.unsafeNow(), DateTime.toDateUtc).toISOString());
 
 export const auditColumns = {
-  createdAt: pg.timestamp("created_at", { withTimezone: true }).defaultNow().notNull().$defaultFn(utcNow),
-  updatedAt: pg.timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdateFn(utcNow),
-  deletedAt: pg.timestamp("deleted_at", { withTimezone: true }),
+  createdAt: datetime("created_at").default(sqlNow).notNull().$defaultFn(utcNow),
+  updatedAt: datetime("updated_at").notNull().default(sqlNow).$onUpdateFn(utcNow),
+  deletedAt: datetime("deleted_at"),
 } as const;
 
 export const userTrackingColumns = {

@@ -1,6 +1,7 @@
 import type { Entities } from "@beep/shared-domain";
 import { SharedEntityIds } from "@beep/shared-domain/entity-ids";
 import * as pg from "drizzle-orm/pg-core";
+import { datetime } from "../columns";
 import { OrgTable } from "../OrgTable";
 
 /**
@@ -57,7 +58,7 @@ export const uploadSession = OrgTable.make(SharedEntityIds.UploadSessionId)(
      * 2. Schema flexibility for different upload types
      * 3. PostgreSQL native JSON validation
      */
-    metadata: pg.text("metadata").notNull().$type<typeof Entities.UploadSession.Model.fields.metadata.Encoded>(),
+    metadata: pg.jsonb("metadata").notNull().$type<typeof Entities.UploadSession.Model.fields.metadata.Encoded>(),
 
     /**
      * Expiration timestamp for TTL enforcement.
@@ -66,7 +67,7 @@ export const uploadSession = OrgTable.make(SharedEntityIds.UploadSessionId)(
      * Stored with timezone for correct UTC handling.
      * Indexed for efficient cleanup queries.
      */
-    expiresAt: pg.timestamp("expires_at", { withTimezone: true }).notNull(),
+    expiresAt: datetime("expires_at").notNull(),
   },
   (t) => [
     /**

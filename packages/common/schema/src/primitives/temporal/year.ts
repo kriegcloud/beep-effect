@@ -7,10 +7,10 @@
  * @since 0.1.0
  */
 
+import { $SchemaId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
-import { $TemporalId } from "../../internal";
 
-const { $YearId: Id } = $TemporalId.compose("year");
+const $I = $SchemaId.create("primitives/temporal/year");
 /**
  * Number-encoded year schema.
  *
@@ -18,7 +18,7 @@ const { $YearId: Id } = $TemporalId.compose("year");
  * @since 0.1.0
  */
 export class YearEncoded extends S.Number.annotations(
-  Id.annotations("year/YearEncoded", {
+  $I.annotations("year/YearEncoded", {
     description: "A year encoded as a number",
   })
 ) {}

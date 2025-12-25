@@ -4,6 +4,7 @@ import { User } from "@beep/shared-domain/entities";
 import { Table } from "@beep/shared-tables/Table";
 import * as d from "drizzle-orm";
 import * as pg from "drizzle-orm/pg-core";
+import { datetime } from "../columns";
 export const userRolePgEnum = SharedEntities.User.makeUserRolePgEnum("user_role_enum");
 export const user = Table.make(SharedEntityIds.UserId)(
   {
@@ -15,7 +16,7 @@ export const user = Table.make(SharedEntityIds.UserId)(
     role: userRolePgEnum("role").notNull().default(SharedEntities.User.UserRole.Enum.user),
     banned: pg.boolean("banned").notNull().default(false),
     banReason: pg.text("ban_reason"),
-    banExpires: pg.timestamp("ban_expires"),
+    banExpires: datetime("ban_expires"),
     isAnonymous: pg.boolean("is_anonymous").notNull().default(false),
     phoneNumber: pg.text("phone_number").unique(),
     phoneNumberVerified: pg.boolean("phone_number_verified").notNull().default(false),

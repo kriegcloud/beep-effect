@@ -12,16 +12,16 @@
  * @since 0.1.0
  */
 
+import { $SchemaId } from "@beep/identity/packages";
 import type { StringTypes } from "@beep/types";
 import * as A from "effect/Array";
 import type * as B from "effect/Brand";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { makeBranded } from "../../core/utils/brands";
-import { $UrlId } from "../../internal";
 import * as regexes from "../../internal/regex/regexes";
 
-const { $UrlpathId: Id } = $UrlId.compose("urlpath");
+const $I = $SchemaId.create("primitives/url/urlpath");
 
 const pathExamples = [
   "/icons/navbar/ic-lock.svg",
@@ -100,7 +100,7 @@ export class URLPath extends S.TemplateLiteral("/", S.String)
     S.brand("URLPath")
   )
   .annotations(
-    Id.annotations("urlpath/URLPath", {
+    $I.annotations("urlpath/URLPath", {
       description: "A valid Next.js pathname that always starts with `/` and contains safe characters.",
     })
   ) {

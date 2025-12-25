@@ -1,8 +1,11 @@
+import { $SharedServerId } from "@beep/identity/packages";
 import { invariant } from "@beep/invariant";
 import { BS } from "@beep/schema";
 import { reverseRecord } from "@beep/utils/data/record.utils";
 import { pipe, Struct } from "effect";
 import * as A from "effect/Array";
+
+const $I = $SharedServerId.create("internal/db/pg/pg-error-enum");
 
 export const PostgresErrorEnum = {
   /** Class 00 - Successful Completion: [S] successful_completion */
@@ -553,7 +556,11 @@ export const pgErrorEntries = pipe(PostgresErrorEnum, Struct.entries, (entries):
   return entries;
 });
 
-export class PgErrorCodeFromKey extends BS.MappedLiteralKit(...pgErrorEntries) {
+export class PgErrorCodeFromKey extends BS.MappedLiteralKit(...pgErrorEntries).annotations(
+  $I.annotations("PgErrorCodeFromKey", {
+    description: "A pg error code mapped literal kit",
+  })
+) {
   static readonly Enum = PostgresErrorEnum;
   static readonly EnumReverse = reverseRecord(PostgresErrorEnum);
 }

@@ -1,48 +1,87 @@
-/**
- * Entity id factory that bridges snake_case table names with branded UUID literals.
- *
- * Provides runtime helpers used by IAM/documents slices to mint deterministic identifiers, configure Drizzle columns,
- * and annotate schemas with identity-aware metadata.
- *
- * @example
- * import { SnakeTag } from "@beep/schema/primitives/string/string";
- * import * as EntityId from "@beep/schema/identity/entity-id/entity-id";
- *
- * const PeopleId = EntityId.make(SnakeTag.make("people"), {
- *   brand: "PersonId",
- *   annotations: {
- *     description: "Primary key for people records",
- *   },
- * });
- *
- * const value = PeopleId.create();
- *
- * @category Identity/EntityId
- * @since 0.1.0
- */
 import { invariant } from "@beep/invariant";
+import type { DefaultAnnotations } from "@beep/schema/core";
+import { mergeSchemaAnnotations } from "@beep/schema/core/annotations/built-in-annotations";
 import type { $Type, HasDefault, HasRuntimeDefault, IsPrimaryKey, NotNull } from "drizzle-orm";
 import * as pg from "drizzle-orm/pg-core";
 import * as A from "effect/Array";
 import type * as B from "effect/Brand";
-import * as Data from "effect/Data";
 import type * as FastCheck from "effect/FastCheck";
 import * as F from "effect/Function";
 import * as S from "effect/Schema";
 import { TypeId } from "effect/Schema";
+import type * as AST from "effect/SchemaAST";
 import * as Str from "effect/String";
-import type { DefaultAnnotations } from "../../core/annotations/default";
 import { variance } from "../../core/variance";
-import { $IdentityId } from "../../internal/modules/modules";
 import { SnakeTag } from "../../primitives/string/string";
-
 import { UUIDLiteralEncoded } from "./uuid";
 
-const { $EntityIdId } = $IdentityId.compose("entity-id");
-type Config<Brand extends string, TableName extends string> = {
-  readonly tableName: SnakeTag.Literal<TableName>;
-  readonly brand: Brand;
-};
+export declare namespace EntityId {
+  export type SchemaType<TableName extends string> =
+    S.TemplateLiteral<`${SnakeTag.Literal<TableName>}__${string}-${string}-${string}-${string}-${string}`>;
+  export type PublicId<TableName extends string> = HasRuntimeDefault<
+    HasDefault<
+      $Type<
+        NotNull<pg.PgTextBuilderInitial<"id", [string, ...string[]]>>,
+        `${SnakeTag.Literal<TableName>}__${string}-${string}-${string}-${string}-${string}`
+      >
+    >
+  >;
+  export type PrivateId<Brand extends string> = $Type<
+    IsPrimaryKey<NotNull<NotNull<pg.PgSerialBuilderInitial<"_row_id">>>>,
+    B.Branded<number, Brand>
+  >;
+  export type Config<Brand extends string, TableName extends string> = {
+    readonly tableName: SnakeTag.Literal<TableName>;
+    readonly brand: Brand;
+    readonly annotations?: undefined | Omit<DefaultAnnotations<Type<TableName>>, "title" | "identifier">;
+  };
+
+  export type DataTypeSchema<TableName extends string> =
+    S.TemplateLiteral<`${SnakeTag.Literal<TableName>}__${string}-${string}-${string}-${string}-${string}`>;
+
+  /**
+   * The runtime data type - just the template literal string.
+   * This is what Schema.Type resolves to.
+   */
+  export type Type<TableName extends string> = S.Schema.Type<DataTypeSchema<TableName>>;
+
+  /**
+   * Schema class instance with static properties for entity ID utilities.
+   *
+   * The Type parameter in AnnotableClass is ONLY the runtime data type (template literal string).
+   * Static properties/methods are declared on the interface itself, NOT on the Type parameter.
+   */
+  export interface SchemaInstance<TableName extends string, Brand extends string>
+    extends S.AnnotableClass<
+      SchemaInstance<TableName, Brand>,
+      Type<TableName>, // ← ONLY the template literal string, not the class properties
+      Type<TableName>, // I (Encoded) - same as Type for this schema
+      never // R (Context) - no context requirements
+    > {
+    readonly [TypeId]: typeof variance;
+    readonly create: () => Type<TableName>;
+    readonly tableName: SnakeTag.Literal<TableName>;
+    readonly brand: Brand;
+    readonly is: (u: unknown) => u is Type<TableName>;
+    readonly publicId: () => PublicId<TableName>;
+    readonly privateId: () => PrivateId<Brand>;
+    readonly privateIdColumnNameSql: "_row_id";
+    readonly privateIdColumnName: "_rowId";
+    readonly publicIdColumnNameSql: "id";
+    readonly publicIdColumnName: "id";
+    readonly privateSchema: S.brand<S.refine<number, typeof S.NonNegative>, Brand>;
+    readonly modelIdSchema: S.optionalWith<
+      DataTypeSchema<TableName>,
+      {
+        exact: true;
+        default: () => Type<TableName>;
+      }
+    >;
+    readonly modelRowIdSchema: S.brand<S.refine<number, typeof S.NonNegative>, Brand>;
+    readonly make: (input: string) => Type<TableName>;
+    readonly makePrivateId: (input: number) => B.Branded<number, Brand>;
+  }
+}
 
 const makeIdentifier = (brand: string) => (Str.endsWith("Id")(brand) ? brand : Str.concat("Id")(brand));
 
@@ -60,239 +99,78 @@ const makeCreateFn =
   () =>
     F.pipe(tableName, Str.concat("__"), Str.concat(UUIDLiteralEncoded.create()));
 
-type Annotations<TableName extends string> = DefaultAnnotations<Type<TableName>>;
-
-/**
- * Template literal schema describing `${tableName}__uuid` identifiers.
- *
- * @example
- * import type { SchemaType } from "@beep/schema/identity/entity-id/entity-id";
- * import { SnakeTag } from "@beep/schema/primitives/string/string";
- *
- * type PeopleIdSchema = SchemaType<SnakeTag.Literal<"people">>;
- *
- * @category Identity/EntityId
- * @since 0.1.0
- */
-export type SchemaType<TableName extends string> =
-  S.TemplateLiteral<`${SnakeTag.Literal<TableName>}__${string}-${string}-${string}-${string}-${string}`>;
-
-/**
- * Runtime type produced by {@link SchemaType}.
- *
- * @example
- * import { SnakeTag } from "@beep/schema/primitives/string/string";
- * import type { Type } from "@beep/schema/identity/entity-id/entity-id";
- *
- * type PeopleId = Type<SnakeTag.Literal<"people">>;
- *
- * @category Identity/EntityId
- * @since 0.1.0
- */
-export type Type<TableName extends string> = S.Schema.Type<SchemaType<TableName>>;
-
-/**
- * Encoded representation accepted by {@link SchemaType}.
- *
- * @example
- * import { SnakeTag } from "@beep/schema/primitives/string/string";
- * import type { Encoded } from "@beep/schema/identity/entity-id/entity-id";
- *
- * type SerializedPeopleId = Encoded<SnakeTag.Literal<"people">>;
- *
- * @category Identity/EntityId
- * @since 0.1.0
- */
-export type Encoded<TableName extends string> = S.Schema.Encoded<SchemaType<TableName>>;
-
-/**
- * Entity id schema factory that wires annotations, json schema metadata, and FastCheck samples.
- *
- * @example
- * import { SnakeTag } from "@beep/schema/primitives/string/string";
- * import { Factory } from "@beep/schema/identity/entity-id/entity-id";
- *
- * const factory = new Factory({ tableName: SnakeTag.make("people"), brand: "PersonId" });
- * const schema = factory.Schema({ description: "Primary key" });
- *
- * @category Identity/EntityId
- * @since 0.1.0
- */
-export class Factory<const TableName extends string, const Brand extends string> extends Data.TaggedClass("EntityId")<
-  Config<Brand, TableName>
-> {
-  /**
-   * Produces a fully annotated template literal schema for the configured table + brand.
-   *
-   * @category Identity/EntityId
-   * @since 0.1.0
-   */
-  readonly Schema: (annotations: Annotations<TableName>) => SchemaType<TableName>;
-
-  constructor({ tableName, brand }: Config<Brand, TableName>) {
-    const create = makeCreateFn(tableName);
-    super({ tableName, brand });
-    this.Schema = (annotations: Annotations<TableName>) => {
-      const identifier = makeIdentifier(brand);
-      const title = makeTitle(tableName);
-      const description = makeDescription(tableName);
-      const jsonSchemaFormat = makeFormat(tableName);
-
-      return S.TemplateLiteral(S.Literal(tableName), "__", UUIDLiteralEncoded)
-        .annotations(annotations)
-        .annotations(
-          $EntityIdId.annotations("EntityIdSchema", {
-            identifier,
-            title,
-            description,
-            jsonSchema: { type: "string", format: jsonSchemaFormat },
-            arbitrary: () => (fc: typeof FastCheck) => fc.constantFrom(null).map(() => create()),
-            pretty: () => (value: string) => `${brand}(${value})`,
-          })
-        );
-    };
-  }
-}
-
-/**
- * Drizzle column definition representing the public UUID text column.
- *
- * @example
- * import { SnakeTag } from "@beep/schema/primitives/string/string";
- * import type { PublicId } from "@beep/schema/identity/entity-id/entity-id";
- *
- * type Column = PublicId<SnakeTag.Literal<"people">>;
- *
- * @category Identity/EntityId
- * @since 0.1.0
- */
-export type PublicId<TableName extends string> = HasRuntimeDefault<
-  HasDefault<
-    $Type<
-      NotNull<pg.PgTextBuilderInitial<"id", [string, ...string[]]>>,
-      `${SnakeTag.Literal<TableName>}__${string}-${string}-${string}-${string}-${string}`
-    >
-  >
->;
-
-/**
- * Drizzle serial column wired as the private autoincrement id.
- *
- * @example
- * import type { PrivateId } from "@beep/schema/identity/entity-id/entity-id";
- *
- * type RowId = PrivateId<"PersonId">;
- *
- * @category Identity/EntityId
- * @since 0.1.0
- */
-export type PrivateId<Brand extends string> = $Type<
-  IsPrimaryKey<NotNull<NotNull<pg.PgSerialBuilderInitial<"_row_id">>>>,
-  B.Branded<number, Brand>
->;
-
-/**
- * Schema instance returned by {@link make}, including helper metadata + Drizzle builders.
- *
- * @example
- * import { SnakeTag } from "@beep/schema/primitives/string/string";
- * import type { EntityIdSchemaInstance } from "@beep/schema/identity/entity-id/entity-id";
- * import * as EntityId from "@beep/schema/identity/entity-id/entity-id";
- * const PersonIdSchema: EntityIdSchemaInstance<SnakeTag.Literal<"person">, "PersonId"> = EntityId.make("person", {
- *   brand: "PersonId",
- *   annotations: {
- *     schemaId: Symbol.for("@beep/PersonId"),
- *     description: "A unique identifier for a person",
- *   },
- * });
- * const personIdColumn = PersonIdSchema.publicId();
- *
- * @category Identity/EntityId
- * @since 0.1.0
- */
-export type EntityIdSchemaInstance<TableName extends string, Brand extends string> = SchemaType<TableName> & {
-  readonly [TypeId]: typeof variance;
-  readonly create: () => Type<TableName>;
-  readonly tableName: SnakeTag.Literal<TableName>;
-  readonly brand: Brand;
-  readonly is: (u: unknown) => u is Type<TableName>;
-  readonly publicId: () => PublicId<TableName>;
-  readonly privateId: () => PrivateId<Brand>;
-  readonly privateIdColumnNameSql: "_row_id";
-  readonly privateIdColumnName: "_rowId";
-  readonly publicIdColumnNameSql: "id";
-  readonly publicIdColumnName: "id";
-  readonly privateSchema: S.brand<S.refine<number, typeof S.NonNegative>, Brand>;
-  readonly modelIdSchema: S.optionalWith<
-    SchemaType<TableName>,
-    {
-      exact: true;
-      default: () => Type<TableName>;
-    }
-  >;
-  readonly modelRowIdSchema: S.brand<S.refine<number, typeof S.NonNegative>, Brand>;
-  readonly make: (input: string) => Type<TableName>;
-  readonly makePrivateId: (input: number) => B.Branded<number, Brand>;
+const getDefaultEntityIdAST = <Config extends EntityId.Config<string, string>>(config: Config) => {
+  return S.TemplateLiteral(config.tableName, "__", UUIDLiteralEncoded).ast;
 };
 
-/**
- * Public factory for creating entity id schemas with Drizzle column helpers.
- *
- * @example
- * import { SnakeTag } from "@beep/schema/primitives/string/string";
- * import { make } from "@beep/schema/identity/entity-id/entity-id";
- *
- * const TagId = make(SnakeTag.make("tags"), {
- *   brand: "TagId",
- *   annotations: { description: "Primary key for tags" },
- * });
- *
- * @category Identity/EntityId
- * @since 0.1.0
- */
-export const make = <const TableName extends string, const Brand extends string>(
-  tableName: SnakeTag.Literal<TableName>,
-  {
-    annotations,
-    brand,
-  }: {
-    readonly brand: Brand;
-    readonly annotations: Omit<DefaultAnnotations<Type<TableName>>, "title" | "identifier">;
-  }
-): EntityIdSchemaInstance<TableName, Brand> => {
-  invariant(S.is(SnakeTag)(tableName), "TableName must be a lowercase snake case string", {
+export function makeEntityIdSchemaInstance<const TableName extends string, const Brand extends string>(
+  config: {
+    tableName: SnakeTag.Literal<TableName>;
+    brand: Brand;
+    annotations?: undefined | Omit<DefaultAnnotations<EntityId.Type<TableName>>, "title" | "identifier">;
+  },
+  ast?: AST.AST | undefined
+): EntityId.SchemaInstance<TableName, Brand> {
+  const identifier = makeIdentifier(config.brand);
+  const title = makeTitle(config.tableName);
+  const description = makeDescription(config.tableName);
+  const jsonSchema = {
+    type: "string",
+    format: makeFormat(config.tableName),
+  };
+  const create = makeCreateFn(config.tableName);
+  const arbitrary = () => (fc: typeof FastCheck) => fc.constantFrom(null).map(() => create());
+  const pretty = () => (value: string) => `${config.brand}(${value})`;
+  // Create the schema - TypeScript infers this with AppendType wrappers, but we know it resolves to our Type
+  const schema = S.TemplateLiteral(
+    config.tableName,
+    "__",
+    UUIDLiteralEncoded
+  ) as unknown as EntityId.DataTypeSchema<TableName>;
+  const schemaAST = ast ?? getDefaultEntityIdAST(config);
+  invariant(S.is(SnakeTag)(config.tableName), "TableName must be a lowercase snake case string", {
     file: "@beep/schema/identity/entity-id/entity-id.ts",
     line: 188,
-    args: [tableName],
+    args: [config.tableName],
   });
-  const factory = new Factory<TableName, Brand>({ tableName, brand });
-  const create = makeCreateFn(tableName);
 
-  const privateSchema = S.NonNegativeInt.pipe(S.brand(brand));
+  const defaultAST = mergeSchemaAnnotations(schemaAST, {
+    identifier,
+    title,
+    description,
+    jsonSchema,
+    arbitrary,
+    pretty,
+  });
+  const privateSchema = S.NonNegativeInt.pipe(S.brand(config.brand));
   const modelRowIdSchema = privateSchema;
-
-  const schema = factory.Schema({
-    ...annotations,
-    title: makeTitle(tableName),
-    identifier: makeIdentifier(brand),
-  });
 
   const publicId = pg
     .text("id")
     .notNull()
     .unique()
-    .$type<typeof schema.Type>()
+    .$type<EntityId.Type<TableName>>()
     .$defaultFn(() => create());
 
   const privateId = pg.serial("_row_id").notNull().primaryKey().$type<B.Branded<number, Brand>>();
 
-  class WithStatics extends schema {
+  // Wrap S.is to match the simpler signature expected by the interface
+  const schemaIs = S.is(schema);
+  const isGuard = (u: unknown): u is EntityId.Type<TableName> => schemaIs(u);
+
+  return class EntityIdClass extends S.make<EntityId.Type<TableName>>(defaultAST) {
+    static override annotations(
+      annotations: S.Annotations.Schema<EntityId.Type<TableName>>
+    ): EntityId.SchemaInstance<TableName, Brand> {
+      return makeEntityIdSchemaInstance(config, mergeSchemaAnnotations(defaultAST, annotations));
+    }
+
     override [TypeId] = variance;
     static override [TypeId] = variance;
     static readonly create = create;
-    static readonly tableName = tableName;
-    static readonly brand = brand;
-    static readonly is = S.is(schema);
+    static readonly tableName = config.tableName;
+    static readonly brand = config.brand;
+    static readonly is = isGuard;
     static readonly publicId = () => publicId;
     static readonly privateId = () => privateId;
     static readonly privateSchema = privateSchema;
@@ -306,7 +184,7 @@ export const make = <const TableName extends string, const Brand extends string>
     });
     static readonly modelRowIdSchema = modelRowIdSchema;
     static readonly make = (input: string) => {
-      invariant(S.is(schema)(input), `Invalid id for ${tableName}: ${input}`, {
+      invariant(S.is(schema)(input), `Invalid id for ${config.tableName}: ${input}`, {
         file: "@beep/schema/identity/entity-id/entity-id.ts",
         line: 231,
         args: [input],
@@ -314,14 +192,25 @@ export const make = <const TableName extends string, const Brand extends string>
       return input;
     };
     static readonly makePrivateId = (input: number) => {
-      invariant(S.is(privateSchema)(input), `Invalid private id for ${tableName}: ${input}`, {
+      invariant(S.is(privateSchema)(input), `Invalid private id for ${config.tableName}: ${input}`, {
         file: "@beep/schema/identity/entity-id/entity-id.ts",
         line: 239,
         args: [input],
       });
       return input;
     };
-  }
+  };
+}
 
-  return WithStatics;
+export const make = <const TableName extends string, const Brand extends string>(
+  tableName: SnakeTag.Literal<TableName>,
+  {
+    annotations,
+    brand,
+  }: {
+    readonly brand: Brand;
+    readonly annotations?: undefined | Omit<DefaultAnnotations<EntityId.Type<TableName>>, "title" | "identifier">;
+  }
+): EntityId.SchemaInstance<TableName, Brand> => {
+  return makeEntityIdSchemaInstance({ tableName, brand, annotations });
 };

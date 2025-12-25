@@ -13,11 +13,11 @@
  * @since 0.1.0
  */
 
+import { $SchemaId } from "@beep/identity/packages";
 import * as ParseResult from "effect/ParseResult";
 import * as S from "effect/Schema";
-import { $KitsId } from "../../internal";
 
-const { $TransformationsId: Id } = $KitsId.compose("transformations");
+const $I = $SchemaId.create("derived/kits/transformations");
 /**
  * Transformation that parses an integer from a string.
  *
@@ -39,7 +39,7 @@ export class IntFromStr extends S.transformOrFail(S.String, S.Int, {
     }),
   encode: (i, _) => ParseResult.succeed(String(i)),
 }).annotations(
-  Id.annotations("transformations/IntFromStr", {
+  $I.annotations("transformations/IntFromStr", {
     description: "Transforms a string into an integer",
   })
 ) {}

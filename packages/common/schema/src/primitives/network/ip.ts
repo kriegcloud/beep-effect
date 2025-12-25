@@ -13,12 +13,12 @@
  * @since 0.1.0
  */
 
+import { $SchemaId } from "@beep/identity/packages";
 import type * as B from "effect/Brand";
 import * as S from "effect/Schema";
-import { $NetworkId } from "../../internal";
 import * as regexes from "../../internal/regex/regexes";
 
-const { $IpId: Id } = $NetworkId.compose("ip");
+const $I = $SchemaId.create("primitives/network/ip");
 
 /**
  * IPv4 schema that ensures dotted quad notation with valid octets.
@@ -36,7 +36,7 @@ export const IPv4 = S.NonEmptyString.pipe(
   S.pattern(regexes.ipv4, { message: () => "Must be a valid IPv4 address." }),
   S.brand("IPv4")
 ).annotations(
-  Id.annotations("ip/IPv4", {
+  $I.annotations("ip/IPv4", {
     description: "IPv4 address represented as dotted quad.",
     arbitrary: () => (fc) => fc.oneof(fc.ipV4(), fc.ipV4Extended()).map((value) => value as B.Branded<string, "IPv4">),
   })
@@ -96,7 +96,7 @@ export const IPv6 = S.NonEmptyString.pipe(
   S.pattern(regexes.ipv6, { message: () => "Must be a valid IPv6 address." }),
   S.brand("IPv6")
 ).annotations(
-  Id.annotations("ip/IPv6", {
+  $I.annotations("ip/IPv6", {
     description: "IPv6 address supporting compressed and expanded forms.",
     arbitrary: () => (fc) => fc.ipV6().map((value) => value as B.Branded<string, "IPv6">),
   })
@@ -153,7 +153,7 @@ export declare namespace IPv6 {
  * @since 0.1.0
  */
 export const IP = S.Union(IPv4, IPv6).annotations(
-  Id.annotations("ip/IP", {
+  $I.annotations("ip/IP", {
     description: "Valid IP address (IPv4 or IPv6).",
     arbitrary: () => (fc) =>
       fc.oneof(fc.ipV4(), fc.ipV6()).map((value) => (S.is(IPv4)(value) ? IPv4.make(value) : IPv6.make(value))),

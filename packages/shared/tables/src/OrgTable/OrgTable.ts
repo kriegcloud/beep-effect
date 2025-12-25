@@ -15,7 +15,7 @@ type OrgTableDefaultColumns<TableName extends string, Brand extends string> = De
 };
 
 export const make = <const TableName extends string, const Brand extends string>(
-  entityId: EntityId.EntityIdSchemaInstance<TableName, Brand>
+  entityId: EntityId.EntityId.SchemaInstance<TableName, Brand>
 ) => {
   const defaultColumns: OrgTableDefaultColumns<TableName, Brand> = {
     id: entityId.publicId(),

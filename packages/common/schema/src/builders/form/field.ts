@@ -14,11 +14,11 @@
  * @since 0.1.0
  */
 
+import { $SchemaId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
 import { StringLiteralKit } from "../../derived/kits/string-literal-kit";
-import { $FormId } from "../../internal";
 
-const { $FieldId } = $FormId.compose("field");
+const $I = $SchemaId.create("builders/form/field");
 /**
  * Schema capturing JSON Schema primitive types.
  *
@@ -40,7 +40,7 @@ export class FormFieldType extends StringLiteralKit(
   "array",
   "null"
 ).annotations(
-  $FieldId.annotations("FormFieldType", {
+  $I.annotations("FormFieldType", {
     description: "JSON Schema field type literal.",
   })
 ) {}
@@ -109,7 +109,7 @@ export const FormFieldFormatKit = StringLiteralKit("email", "date", "time", "dat
  * @since 0.1.0
  */
 export class FormFieldFormat extends StringLiteralKit("email", "date", "time", "date-time", "uri", "uuid").annotations(
-  $FieldId.annotations("FormFieldFormat", {
+  $I.annotations("FormFieldFormat", {
     description: "JSON Schema field format literal.",
   })
 ) {}
@@ -264,7 +264,7 @@ export const FormFieldSchema = S.Struct({
   readOnly: S.optional(S.Boolean),
   writeOnly: S.optional(S.Boolean),
 }).annotations(
-  $FieldId.annotations("FormFieldSchema", {
+  $I.annotations("FormFieldSchema", {
     description: "JSON Schema definition for a single form field.",
   })
 );

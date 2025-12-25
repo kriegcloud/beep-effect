@@ -12,14 +12,14 @@
  * @since 0.1.0
  */
 
+import { $SchemaId } from "@beep/identity/packages";
 import { faker } from "@faker-js/faker";
 import * as A from "effect/Array";
 import type * as B from "effect/Brand";
 import * as S from "effect/Schema";
-import { $StringId } from "../../internal";
 import * as regexes from "../../internal/regex/regexes";
 
-const { $SlugId: Id } = $StringId.compose("slug");
+const $I = $SchemaId.create("primitives/string/slug");
 
 const exampleSlugs = A.make("hello-world", "hello-world-2", "hello-world-3");
 
@@ -45,7 +45,7 @@ export const SlugBase = S.String.pipe(
     message: () => "Slug must match the URL-friendly slug pattern",
   })
 ).annotations(
-  Id.annotations("slug/SlugBase", {
+  $I.annotations("slug/SlugBase", {
     description: "A URL-friendly string identifier consisting of lowercase words separated by hyphens.",
     examples: exampleSlugs,
     arbitrary: () => (fc) => fc.constant(null).map(() => faker.lorem.slug()),
@@ -102,7 +102,7 @@ export declare namespace SlugBase {
  * @since 0.1.0
  */
 export const Slug = SlugBase.pipe(S.brand("Slug")).annotations(
-  Id.annotations("slug/Slug", {
+  $I.annotations("slug/Slug", {
     description: "A branded URL-friendly slug string.",
     examples: A.map(exampleSlugs, (value) => value as B.Branded<string, "Slug">),
     arbitrary: () => (fc) => fc.constant(null).map(() => faker.lorem.slug() as B.Branded<string, "Slug">),

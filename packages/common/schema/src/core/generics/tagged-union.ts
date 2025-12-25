@@ -11,14 +11,10 @@
  * @category Core/Generics
  * @since 0.1.0
  */
-
 import type { StructTypes, UnsafeTypes } from "@beep/types";
 import * as S from "effect/Schema";
-import { $GenericsId } from "../../internal";
 import { Struct } from "../extended/extended-schemas";
 import type { OptionalWithDefault } from "../types";
-
-const { $TaggedUnionId: Id } = $GenericsId.compose("tagged-union");
 /**
  * Namespace bundling tagged union schema and runtime helper types.
  *
@@ -94,8 +90,4 @@ export const TaggedUnion =
         })
       ),
       ...fields,
-    }).annotations(
-      Id.annotations("TaggedUnion", {
-        description: "Struct schema factory for discriminated unions.",
-      })
-    ) as TaggedUnion.Schema<Discriminator, Literal, Fields>;
+    }) as TaggedUnion.Schema<Discriminator, Literal, Fields>;

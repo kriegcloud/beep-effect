@@ -1,3 +1,4 @@
+import { $IamServerId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
 import { serverEnv } from "@beep/shared-env/ServerEnv";
 import { Email } from "@beep/shared-server/Email";
@@ -7,39 +8,66 @@ import type * as Layer from "effect/Layer";
 import * as Redacted from "effect/Redacted";
 import * as S from "effect/Schema";
 
-export class SendVerificationEmailPayload extends S.Class<SendVerificationEmailPayload>("SendVerificationEmailPayload")(
+const $I = $IamServerId.create("adapters/better-auth/Emails");
+
+export class SendVerificationEmailPayload extends S.Class<SendVerificationEmailPayload>(
+  $I`SendVerificationEmailPayload`
+)(
   {
     email: BS.Email,
     url: BS.Url,
-  }
+  },
+  $I.annotations("SendVerificationEmailPayload", {
+    description: "Payload for sending a verification email",
+  })
 ) {}
 
 export class SendChangeEmailVerificationPayload extends S.Class<SendChangeEmailVerificationPayload>(
-  "SendChangeEmailVerificationPayload"
-)({
-  email: BS.Email,
-  url: BS.Url,
-}) {}
+  $I`SendChangeEmailVerificationPayload`
+)(
+  {
+    email: BS.Email,
+    url: BS.Url,
+  },
+  $I.annotations("SendChangeEmailVerificationPayload", {
+    description: "Payload for sending a change email verification email",
+  })
+) {}
 
-export class SendOTPEmailPayload extends S.Class<SendOTPEmailPayload>("SendOTPEmailPayload")({
-  email: BS.Email,
-  otp: S.Redacted(S.String),
-}) {}
+export class SendOTPEmailPayload extends S.Class<SendOTPEmailPayload>($I`SendOTPEmailPayload`)(
+  {
+    email: BS.Email,
+    otp: S.Redacted(S.String),
+  },
+  $I.annotations("SendOTPEmailPayload", {
+    description: "Payload for sending an OTP email",
+  })
+) {}
 
 export class SendResetPasswordEmailPayload extends S.Class<SendResetPasswordEmailPayload>(
-  "SendResetPasswordEmailPayload"
-)({
-  username: S.String,
-  url: BS.Url,
-  email: BS.Email,
-}) {}
+  $I`SendResetPasswordEmailPayload`
+)(
+  {
+    username: S.String,
+    url: BS.Url,
+    email: BS.Email,
+  },
+  $I.annotations("SendResetPasswordEmailPayload", {
+    description: "Payload for sending a reset password email",
+  })
+) {}
 
-export class InvitationEmailPayload extends S.Class<InvitationEmailPayload>("InvitationEmailPayload")({
-  email: BS.Email,
-  invitedByUsername: S.String,
-  invitedByEmail: BS.Email,
-  teamName: S.String,
-}) {}
+export class InvitationEmailPayload extends S.Class<InvitationEmailPayload>($I`InvitationEmailPayload`)(
+  {
+    email: BS.Email,
+    invitedByUsername: S.String,
+    invitedByEmail: BS.Email,
+    teamName: S.String,
+  },
+  $I.annotations("InvitationEmailPayload", {
+    description: "Payload for sending an invitation email",
+  })
+) {}
 
 export interface AuthEmailServiceShape {
   readonly sendChangeEmailVerification: (
@@ -165,7 +193,7 @@ export const serviceEffect: AuthServiceEffect = Effect.flatMap(Email.ResendServi
   })
 );
 
-export class AuthEmailService extends Effect.Service<AuthEmailService>()("AuthEmailService", {
+export class AuthEmailService extends Effect.Service<AuthEmailService>()($I`AuthEmailService`, {
   accessors: true,
   dependencies: [Email.ResendService.Default],
   effect: serviceEffect,

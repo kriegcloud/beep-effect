@@ -1,8 +1,11 @@
+import { $ConstantsId } from "@beep/identity/packages";
 import { invariant } from "@beep/invariant";
 import { BS } from "@beep/schema";
 import * as A from "effect/Array";
 import * as F from "effect/Function";
 import * as S from "effect/Schema";
+
+const $I = $ConstantsId.create("AuthProviders");
 
 export class AuthProviderNameValue extends BS.StringLiteralKit(
   "github",
@@ -12,12 +15,12 @@ export class AuthProviderNameValue extends BS.StringLiteralKit(
   "discord"
   // "facebook",
   // "microsoft",
-).annotations({
-  schemaId: Symbol.for("@beep/constants/AuthProviderNameValue"),
-  identifier: "AuthProviderNameValue",
-  title: "Auth Provider Name Value",
-  description: "One of the supported social authentication providers.",
-}) {
+).annotations(
+  $I.annotations("AuthProviderNameValue", {
+    title: "Auth Provider Name Value",
+    description: "One of the supported social authentication providers.",
+  })
+) {
   static readonly configMap = {
     github: {
       prompt: "consent",

@@ -1,7 +1,7 @@
 import { Member } from "@beep/iam-domain/entities";
 import type { SharedEntityIds } from "@beep/shared-domain";
 import { IamEntityIds } from "@beep/shared-domain";
-import { OrgTable } from "@beep/shared-tables";
+import { datetime, OrgTable } from "@beep/shared-tables";
 import * as pg from "drizzle-orm/pg-core";
 
 export const memberRoleEnum = Member.makeMemberRolePgEnum("member_role_enum");
@@ -15,10 +15,10 @@ export const member = OrgTable.make(IamEntityIds.MemberId)(
     // todo make not null
     invitedBy: pg.text("invited_by"), // User ID who sent the invitation (relation defined in relations.ts)
     // todo make not null
-    invitedAt: pg.timestamp("invited_at", { withTimezone: true }), // When invitation was sent
+    invitedAt: datetime("invited_at"), // When invitation was sent
     // todo make not null
-    joinedAt: pg.timestamp("joined_at", { withTimezone: true }), // When user accepted/joined
-    lastActiveAt: pg.timestamp("last_active_at", { withTimezone: true }), // Last activity timestamp
+    joinedAt: datetime("joined_at"), // When user accepted/joined
+    lastActiveAt: datetime("last_active_at"), // Last activity timestamp
     // todo make not null (and finish permissions implementation)
     permissions: pg.text("permissions"), // JSON string for member-specific permissions
   },

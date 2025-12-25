@@ -13,6 +13,7 @@
  * @since 0.1.0
  */
 
+import { $SchemaId } from "@beep/identity/packages";
 import type { UnsafeTypes } from "@beep/types";
 import * as VariantSchema from "@effect/experimental/VariantSchema";
 import * as M from "@effect/sql/Model";
@@ -21,9 +22,8 @@ import * as O from "effect/Option";
 import type * as Redacted from "effect/Redacted";
 import * as S from "effect/Schema";
 import type { DefaultAnnotations } from "../../core/annotations/default";
-import { $SqlId } from "../../internal";
 
-const { $CommonId: Id } = $SqlId.compose("common");
+const $I = $SchemaId.create("integrations/sql/common");
 const { Field } = VariantSchema.make({
   variants: ["select", "insert", "update", "json", "jsonCreate", "jsonUpdate"],
   defaultVariant: "select",
@@ -67,7 +67,7 @@ export const DateTimeFromDate = (annotations?: Annotations<S.Schema.Type<typeof 
     ...(description ? { description } : {}),
   });
   return M.DateTimeFromDate.annotations(docAnnotations).annotations(
-    Id.annotations("sql/DateTimeFromDate", {
+    $I.annotations("sql/DateTimeFromDate", {
       title: title ?? "SQL DateTime",
       description: description ?? "Timestamp value backed by PostgreSQL TIMESTAMPTZ.",
     })

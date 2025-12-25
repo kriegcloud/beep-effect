@@ -1,6 +1,6 @@
 import { DeviceCode } from "@beep/iam-domain/entities";
 import { IamEntityIds } from "@beep/shared-domain";
-import { Table, user } from "@beep/shared-tables";
+import { datetime, Table, user } from "@beep/shared-tables";
 import * as pg from "drizzle-orm/pg-core";
 
 export const deviceCodeStatusPgEnum = DeviceCode.makeDeviceCodeStatusPgEnum("device_code_status_enum");
@@ -19,11 +19,11 @@ export const deviceCode = Table.make(IamEntityIds.DeviceCodeId)({
     onUpdate: "cascade",
   }),
   /** Timestamp when the device code expires and becomes invalid. */
-  expiresAt: pg.timestamp("expires_at").notNull(),
+  expiresAt: datetime("expires_at").notNull(),
   /** Current status of the request (e.g., "pending", "approved", or "denied"). */
   status: deviceCodeStatusPgEnum("status").notNull().default(DeviceCode.DeviceCodeStatus.Enum.pending),
   /** Timestamp of the last time the device polled for authorization status (nullable). */
-  lastPolledAt: pg.timestamp("last_polled_at"),
+  lastPolledAt: datetime("last_polled_at"),
   /** Minimum interval in seconds the device should wait between polls (nullable). */
   pollingInterval: pg.integer("polling_interval"),
   /** OAuth client identifier for the application/device making the request (nullable). */

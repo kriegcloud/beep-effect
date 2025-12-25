@@ -47,20 +47,19 @@
  * @since 0.1.0
  */
 
-import type { UnsafeTypes } from "@beep/types";
+import type {UnsafeTypes} from "@beep/types";
 import * as A from "effect/Array";
 import * as Equal from "effect/Equal";
 import * as F from "effect/Function";
 import * as HashMap from "effect/HashMap";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import * as Struct from "effect/Struct";
 import type * as AST from "effect/SchemaAST";
-import { mergeSchemaAnnotations } from "../../core/annotations/built-in-annotations";
-import { $KitsId } from "../../internal";
-import type { IGenericLiteralKit } from "./literal-kit";
-import { makeGenericLiteralKit } from "./literal-kit";
-
-const { $MappedLiteralKitId: Id } = $KitsId.compose("mapped-literal-kit");
+import {mergeSchemaAnnotations} from "../../core/annotations/built-in-annotations";
+import type {IGenericLiteralKit} from "./literal-kit";
+import {makeGenericLiteralKit} from "./literal-kit";
+import {ArrayUtils} from "@beep/utils";
 
 // ============================================================================
 // Type Utilities
@@ -423,10 +422,69 @@ export function makeMappedLiteralKit<const Pairs extends MappedPairs>(
  * @since 0.1.0
  */
 export function MappedLiteralKit<const Pairs extends MappedPairs>(...pairs: Pairs): IMappedLiteralKit<Pairs> {
-  return makeMappedLiteralKit(pairs).annotations(
-    Id.annotations("MappedLiteralKit", {
-      description: "Bidirectional literal mapping schema with From/To literal kits",
-      arbitrary: () => (fc) => fc.constantFrom(...A.map(pairs, ([, to]) => to)),
-    })
-  );
+  return makeMappedLiteralKit(pairs).annotations({
+    description: "Bidirectional literal mapping schema with From/To literal kits",
+    arbitrary: () => (fc) => fc.constantFrom(...A.map(pairs, ([, to]) => to)),
+  });
 }
+
+// ============================================================================
+// Enum Conversion
+// ============================================================================
+
+/**
+ * Creates a MappedLiteralKit directly from a TypeScript enum object.
+ *
+ * Works with any enum where values are AST.LiteralValue (string, number, boolean, null, bigint):
+ * ```ts
+ * enum Position { Left = "left", Top = "top" }
+ * enum HttpStatus { OK = 200, NotFound = 404 }
+ * ```
+ *
+ * @example
+ * ```ts
+ * import { Position as XYFlowPosition } from "@xyflow/react";
+ *
+ * // Creates a MappedLiteralKit from the enum
+ * export const Position = MappedLiteralKitFromEnum(XYFlowPosition);
+ *
+ * // Access decoded values via encoded keys
+ * Position.DecodedEnum.Left    // => "left"
+ * Position.DecodedEnum.Top     // => "top"
+ *
+ * // Access encoded values via decoded keys
+ * Position.EncodedEnum.left    // => "Left"
+ * Position.EncodedEnum.top     // => "Top"
+ *
+ * // Use as a schema
+ * S.decodeSync(Position)("Left")  // => "left"
+ * S.encodeSync(Position)("left")  // => "Left"
+ * ```
+ *
+ * @example
+ * ```ts
+ * // Works with numeric enums too
+ * enum HttpStatus { OK = 200, NotFound = 404 }
+ *
+ * const Status = MappedLiteralKitFromEnum(HttpStatus);
+ * Status.DecodedEnum.OK        // => 200
+ * Status.EncodedEnum.n200      // => "OK"
+ * ```
+ *
+ * @param enumObj - A TypeScript enum object (Record<string, AST.LiteralValue>)
+ * @returns A MappedLiteralKit instance with bidirectional mapping
+ *
+ * @category Derived/Kits
+ * @since 0.1.0
+ */
+export const MappedLiteralKitFromEnum = <const E extends Record<string, AST.LiteralValue>>(
+  enumObj: E
+): IMappedLiteralKit<A.NonEmptyReadonlyArray<readonly [keyof E & string, E[keyof E]]>> => {
+  const keys = ArrayUtils.NonEmptyReadonly.fromIterable(Struct.keys(enumObj));
+  const pairs = ArrayUtils.NonEmptyReadonly.mapNonEmpty(
+    keys,
+    (key) => [key, enumObj[key]] as const
+  ) as MappedPairs;
+  return makeMappedLiteralKit(pairs) as UnsafeTypes.UnsafeAny;
+};
+

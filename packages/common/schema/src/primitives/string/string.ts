@@ -12,15 +12,16 @@
  * @category Primitives/String
  * @since 0.1.0
  */
+
+import { $SchemaId } from "@beep/identity/packages";
 import { invariant } from "@beep/invariant";
 import type { TagTypes } from "@beep/types";
 import * as A from "effect/Array";
 import * as S from "effect/Schema";
 import { toOptionalWithDefault } from "../../core/utils/to-optional-with";
-import { $StringId } from "../../internal";
 import * as regexes from "../../internal/regex/regexes";
 
-const Id = $StringId;
+const $I = $SchemaId.create("primitives/string/string");
 
 /**
  * Snake-case tag schema used for identifiers like `team_alpha`.
@@ -40,7 +41,7 @@ export class SnakeTag extends S.NonEmptyString.pipe(
     message: () => "SnakeTag must be a valid snake_case tag",
   })
 ).annotations(
-  Id.annotations("string/SnakeTag", {
+  $I.annotations("string/SnakeTag", {
     description:
       "A snake_case tag made of lowercase letters, numbers, and underscores with no consecutive underscores.",
     examples: A.make("team_alpha", "group_one", "marketing_ops"),

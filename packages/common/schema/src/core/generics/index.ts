@@ -42,3 +42,22 @@ export * from "./tagged-union";
  * @since 0.1.0
  */
 export * from "./tagged-union-factory";
+/**
+ * Tagged union with shared fields re-export.
+ *
+ * @example
+ * import * as S from "effect/Schema";
+ * import { Generics } from "@beep/schema/core";
+ *
+ * const Options = Generics.TaggedUnionWith({
+ *   tags: ["a", "b", "c"],
+ *   fields: { enabled: S.Boolean },
+ * });
+ *
+ * @category Core/Generics
+ * @since 0.1.0
+ */
+export * from "./tagged-union-with";
+export * as DiscriminatedStruct from "./discriminated-struct";
+export * from "./struct-record";
+export * from "./nullish";

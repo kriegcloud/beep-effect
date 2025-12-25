@@ -461,6 +461,7 @@ export interface Shape<TFullSchema extends DbSchema = DbSchema> {
   readonly makeQuery: MakeQuery<TFullSchema>;
   readonly makeQueryWithSchema: MakeQueryWithSchema<TFullSchema>;
   readonly effectClient: Effect.Effect.Success<ReturnType<typeof PgDrizzle.make<TFullSchema>>>;
+  readonly DbSchema: TFullSchema;
 }
 
 export type PgClientServiceEffect<TFullSchema extends DbSchema = DbSchema> = Effect.Effect<
@@ -594,6 +595,7 @@ export const make = <const TFullSchema extends DbSchema = DbSchema>({
       makeQuery,
       makeQueryWithSchema,
       effectClient,
+      DbSchema: schema,
     };
   }).pipe(Effect.scoped, Effect.orDie);
 

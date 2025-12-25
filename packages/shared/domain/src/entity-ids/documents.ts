@@ -1,12 +1,15 @@
+import { $SharedDomainId } from "@beep/identity/packages";
 import { EntityId } from "@beep/schema/identity";
 
-export const DocumentId = EntityId.make("document", {
+const $I = $SharedDomainId.create("entity-ids/documents");
+
+export class DocumentId extends EntityId.make("document", {
   brand: "DocumentId",
-  annotations: {
-    schemaId: Symbol.for("@beep/shared/domain/EntityIds/documents/DocumentId"),
+}).annotations(
+  $I.annotations("DocumentId", {
     description: "A unique identifier for a Document",
-  },
-});
+  })
+) {}
 
 export declare namespace DocumentId {
   export type Type = typeof DocumentId.Type;

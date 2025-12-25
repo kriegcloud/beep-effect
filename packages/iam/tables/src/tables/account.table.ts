@@ -1,5 +1,6 @@
 import type { SharedEntityIds } from "@beep/shared-domain/entity-ids";
 import { IamEntityIds } from "@beep/shared-domain/entity-ids";
+import { datetime } from "@beep/shared-tables/columns";
 import { user } from "@beep/shared-tables/schema";
 import { Table } from "@beep/shared-tables/Table";
 import * as d from "drizzle-orm";
@@ -17,8 +18,8 @@ export const account = Table.make(IamEntityIds.AccountId)(
     accessToken: pg.text("access_token"),
     refreshToken: pg.text("refresh_token"),
     idToken: pg.text("id_token"),
-    accessTokenExpiresAt: pg.timestamp("access_token_expires_at"),
-    refreshTokenExpiresAt: pg.timestamp("refresh_token_expires_at"),
+    accessTokenExpiresAt: datetime("access_token_expires_at"),
+    refreshTokenExpiresAt: datetime("refresh_token_expires_at"),
     scope: pg.text("scope"),
     password: pg.text("password"),
   },

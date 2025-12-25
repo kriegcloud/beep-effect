@@ -30,9 +30,9 @@ export const organization = Table.make(SharedEntityIds.OrganizationId)(
     isPersonal: pg.boolean("is_personal").notNull().default(false), // True for auto-created personal orgs
     maxMembers: pg.integer("max_members"), // Maximum members allowed
     // todo make this typed when actually used
-    features: pg.jsonb("features").$type<BS.Json.Type>(), // JSON string for feature flags
+    features: pg.jsonb("features").$type<BS.Json.Encoded>(), // JSON string for feature flags
     // todo make this typed when actually used
-    settings: pg.jsonb("settings").$type<BS.Json.Type>(), // JSON string for org settings
+    settings: pg.jsonb("settings").$type<BS.Json.Encoded>(), // JSON string for org settings
     subscriptionTier: subscriptionTierPgEnum("subscription_tier")
       .notNull()
       .default(Organization.SubscriptionTierEnum.free), // 'free', 'plus', 'pro', etc.

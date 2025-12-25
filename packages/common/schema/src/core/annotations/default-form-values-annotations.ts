@@ -5,13 +5,13 @@
  * @since 0.1.0
  */
 
+import { $SchemaId } from "@beep/identity/packages";
 import type { UnsafeTypes } from "@beep/types";
 import type * as R from "effect/Record";
 import type * as S from "effect/Schema";
 import * as AST from "effect/SchemaAST";
-import { $AnnotationsId } from "../../internal";
 
-const { $DefaultFormValuesAnnotationsId: Id } = $AnnotationsId.compose("default-form-values-annotations");
+const $I = $SchemaId.create("core/annotations/default-form-values-annotations");
 
 /**
  * Symbol used to store default form value metadata on schemas.
@@ -19,7 +19,7 @@ const { $DefaultFormValuesAnnotationsId: Id } = $AnnotationsId.compose("default-
  * @category Core/Annotations
  * @since 0.1.0
  */
-export const DefaultFormValuesAnnotationId = Symbol.for(Id`DefaultFormValuesAnnotationId`);
+export const DefaultFormValuesAnnotationId = Symbol.for($I`DefaultFormValuesAnnotationId`);
 
 /**
  * Default form values annotation payload keyed by form field.

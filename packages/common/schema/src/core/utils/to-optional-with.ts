@@ -14,6 +14,7 @@
  */
 import * as S from "effect/Schema";
 import { WithDefaultsThunk } from "./with-defaults-thunk";
+import * as F from "effect/Function";
 
 /**
  * Decorates a schema with optional defaults backed by a constructor thunk.
@@ -33,3 +34,8 @@ export const toOptionalWithDefault =
     defaultValue: Exclude<S.Schema.Type<S.Schema<A, I, R>>, undefined>
   ): S.PropertySignature<":", Exclude<A, undefined>, never, "?:", I | undefined, true, R> =>
     WithDefaultsThunk.make(S.optional(schema))(defaultValue);
+
+
+export const NumWithDefault = F.flow(
+  toOptionalWithDefault(S.Number),
+)

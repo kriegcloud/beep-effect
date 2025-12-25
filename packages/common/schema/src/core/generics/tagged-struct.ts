@@ -13,13 +13,13 @@
  * @since 0.1.0
  */
 
+import { $SchemaId } from "@beep/identity/packages";
 import type { StringTypes, StructTypes } from "@beep/types";
 import * as S from "effect/Schema";
-import { $GenericsId } from "../../internal";
 import type { DefaultAnnotations } from "../annotations/default";
 import { Struct } from "../extended/extended-schemas";
 
-const { $TaggedStructId: Id } = $GenericsId.compose("tagged-struct");
+const $I = $SchemaId.create("core/generics/tagged-struct");
 
 /**
  * Namespace bundling the tagged struct schema and runtime types.
@@ -92,7 +92,7 @@ export const TaggedStruct =
 
     return schema
       .annotations(
-        Id.annotations("TaggedStruct", {
+        $I.annotations("TaggedStruct", {
           description: "Struct schema with an optional discriminator literal.",
         })
       )

@@ -12,11 +12,12 @@
 
 export * from "@beep/documents-tables/tables";
 export * from "@beep/iam-tables/tables";
+export * from "@beep/shared-tables/columns/bytea";
+export * from "@beep/shared-tables/columns/custom-datetime";
 // =============================================================================
 // Tables - export all tables from each slice
 // =============================================================================
 export * from "@beep/shared-tables/tables";
-
 // =============================================================================
 // Unified relations for shared tables (user, organization, team)
 // These merge relations from all slices to avoid Drizzle warnings

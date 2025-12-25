@@ -17,6 +17,7 @@ import type { StringTypes } from "@beep/types";
 import * as A from "effect/Array";
 import * as E from "effect/Either";
 import * as F from "effect/Function";
+import * as MutableHashSet from "effect/MutableHashSet";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
@@ -39,6 +40,26 @@ import type {
   SchemaAnnotationExtras,
   SegmentValue,
 } from "./types";
+
+type Registry = MutableHashSet.MutableHashSet<string>;
+
+/**
+ * Registers an identity value and warns if a duplicate is detected.
+ * Duplicates indicate potential copy-paste errors that would cause
+ * runtime Effect Context/Layer conflicts.
+ *
+ * @internal
+ */
+const registerIdentity = (registry: Registry, identity: string): void => {
+  if (MutableHashSet.has(registry, identity)) {
+    console.warn(
+      `[beep/identity] Duplicate identity detected: "${identity}"\n` +
+        `This may indicate a copy-paste error. Each identity string must be unique.\n` +
+        `Duplicate Effect Context/Service tags cause runtime Layer conflicts.`
+    );
+  }
+  MutableHashSet.add(registry, identity);
+};
 
 const BEEP_NAMESPACE = "@beep" as const;
 
@@ -161,13 +182,16 @@ const createBaseIdentity = <const Base extends StringTypes.NonEmptyString>(
   return `${BEEP_NAMESPACE}/${base}` as BaseIdentity<Base>;
 };
 
-const createAnnotations = <const Value extends StringTypes.NonEmptyString>(value: Value) =>
+const createAnnotations = <const Value extends StringTypes.NonEmptyString>(value: Value, registry: Registry) =>
   (<SchemaType = unknown, Next extends StringTypes.NonEmptyString = StringTypes.NonEmptyString>(
     identifier: SegmentValue<Next>,
     extras?: SchemaAnnotationExtras<SchemaType>
   ) => {
     const next = ensureSegment(identifier);
     const composed = `${value}/${next}` as `${Value}/${SegmentValue<Next>}`;
+    // Register with #annotation suffix to differentiate from template tag/make() usages
+    // This prevents false positives when both $I`Model` and $I.annotations("Model") are used
+    registerIdentity(registry, `${composed}#annotation`);
     const base = {
       schemaId: toIdentitySymbol(composed),
       identifier: next,
@@ -183,7 +207,13 @@ const createAnnotations = <const Value extends StringTypes.NonEmptyString>(value
     >;
   }) as TaggedComposer<Value>["annotations"];
 
-const createComposer = <const Value extends StringTypes.NonEmptyString>(value: Value): TaggedComposer<Value> => {
+const createComposer = <const Value extends StringTypes.NonEmptyString>(
+  value: Value,
+  registry: Registry
+): TaggedComposer<Value> => {
+  // Register this value immediately
+  registerIdentity(registry, value);
+
   const identityValue = toIdentityString(value);
   const tag = ((strings: TemplateStringsArray, ...values: ReadonlyArray<unknown>) => {
     if (values.length > 0) {
@@ -195,6 +225,7 @@ const createComposer = <const Value extends StringTypes.NonEmptyString>(value: V
     const raw = strings[0];
     const segment = ensureModuleSegment(raw as StringTypes.NonEmptyString);
     const composed = `${value}/${segment}` as `${Value}/${ModuleSegmentValue<StringTypes.NonEmptyString>}`;
+    registerIdentity(registry, composed);
     return toIdentityString(composed);
   }) as TaggedComposer<Value>;
   tag.value = identityValue;
@@ -203,7 +234,9 @@ const createComposer = <const Value extends StringTypes.NonEmptyString>(value: V
   tag.symbol = () => toIdentitySymbol(value);
   tag.make = <Next extends StringTypes.NonEmptyString>(segment: SegmentValue<Next>) => {
     const next = ensureSegment(segment);
-    return toIdentityString(`${value}/${next}` as `${Value}/${SegmentValue<Next>}`);
+    const composed = `${value}/${next}` as `${Value}/${SegmentValue<Next>}`;
+    registerIdentity(registry, composed);
+    return toIdentityString(composed);
   };
   tag.compose = <
     const Segments extends readonly [
@@ -218,20 +251,21 @@ const createComposer = <const Value extends StringTypes.NonEmptyString>(value: V
       A.map((segment) => {
         const ensured = ensureModuleSegment(segment);
         const composed = `${value}/${ensured}` as `${Value}/${ModuleSegmentValue<StringTypes.NonEmptyString>}`;
-        const composer = createComposer(composed);
+        const composer = createComposer(composed, registry);
         return [toTaggedKey(ensured), composer] as const;
       })
     );
     return R.fromEntries(entries) as TaggedModuleRecord<Value, Segments>;
   };
-  tag.annotations = createAnnotations(value);
+  tag.annotations = createAnnotations(value, registry);
   tag.create = <const Segment extends ModuleSegmentValue<StringTypes.NonEmptyString>>(
     segment: Segment
   ): TaggedComposerResult<Value, Segment> => {
     const next = ensureSegment(segment);
     const composed = `${value}/${next}` as `${Value}/${SegmentValue<Segment>}`;
-    return createComposer(composed);
+    return createComposer(composed, registry);
   };
+  (tag as { identityRegistry: typeof registry }).identityRegistry = registry;
 
   return tag;
 };
@@ -250,9 +284,10 @@ const createComposer = <const Value extends StringTypes.NonEmptyString>(value: V
  * @since 0.1.0
  */
 export const make = <const Base extends StringTypes.NonEmptyString>(base: Base) => {
+  const registry = MutableHashSet.empty<string>();
   const normalizedBase = normalizeBase(base);
   const baseIdentity = createBaseIdentity(normalizedBase);
-  const composer = createComposer(baseIdentity);
+  const composer = createComposer(baseIdentity, registry);
   const key = toTaggedKey(normalizedBase);
   return {
     [key]: composer,
@@ -319,6 +354,24 @@ export type TaggedComposer<Value extends StringTypes.NonEmptyString> = {
   create<const Segment extends ModuleSegmentValue<StringTypes.NonEmptyString>>(
     segment: Segment
   ): TaggedComposerResult<Value, Segment>;
+
+  /**
+   * Shared registry containing all identity strings created from this composer's root.
+   * All child composers derived via `compose`, `create`, template tags, `make`, or
+   * `annotations` share the same registry instance.
+   *
+   * @category Registry
+   * @since 0.1.0
+   * @example
+   * ```typescript
+   * import * as MutableHashSet from "effect/MutableHashSet";
+   * import { $I } from "@beep/identity/packages";
+   *
+   * const values = [...MutableHashSet.values($I.identityRegistry)];
+   * console.log(values); // All registered identity strings
+   * ```
+   */
+  readonly identityRegistry: MutableHashSet.MutableHashSet<string>;
 };
 
 /**

@@ -12,12 +12,12 @@
  * @since 0.1.0
  */
 
+import { $SchemaId } from "@beep/identity/packages";
 import { faker } from "@faker-js/faker";
 import * as S from "effect/Schema";
-import { $StringId } from "../../internal";
 import * as regexes from "../../internal/regex/regexes";
 
-const { $NameAttributeId: Id } = $StringId.compose("name-attribute");
+const $I = $SchemaId.create("primitives/string/name-attribute");
 
 /**
  * Name attribute schema limiting values to trimmed, printable text between 1 and 200 characters.
@@ -35,7 +35,7 @@ export class NameAttribute extends S.NonEmptyTrimmedString.pipe(
   S.maxLength(200),
   S.pattern(regexes.NO_ASCII_CTRL)
 ).annotations(
-  Id.annotations("name-attribute/NameAttribute", {
+  $I.annotations("name-attribute/NameAttribute", {
     description: "A printable, non-empty name attribute limited to 200 characters.",
     arbitrary: () => (fc) => fc.constant(null).map(() => faker.lorem.word()),
   })

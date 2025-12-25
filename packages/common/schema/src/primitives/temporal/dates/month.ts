@@ -13,13 +13,13 @@
  * @since 0.1.0
  */
 
+import { $SchemaId } from "@beep/identity/packages";
 import * as ParseResult from "effect/ParseResult";
 import * as S from "effect/Schema";
 import { MappedLiteralKit } from "../../../derived/kits/mapped-literal-kit";
 import { StringLiteralKit } from "../../../derived/kits/string-literal-kit";
-import { $TemporalId } from "../../../internal";
 
-const { $MonthId: Id } = $TemporalId.compose("month");
+const $I = $SchemaId.create("primitives/temporal/dates/month");
 
 /**
  * Schema validating lowercase month strings.
@@ -47,7 +47,7 @@ export class MonthString extends StringLiteralKit(
   "november",
   "december"
 ).annotations(
-  Id.annotations("MonthString", {
+  $I.annotations("MonthString", {
     description: "Month of the year as a string.",
   })
 ) {}
@@ -122,7 +122,7 @@ export class MonthNumber extends StringLiteralKit(
     ],
   }
 ).annotations(
-  Id.annotations("MonthNumber", {
+  $I.annotations("MonthNumber", {
     description: "Month of the year as a zero-padded number.",
   })
 ) {}
@@ -190,7 +190,7 @@ export class MonthInt extends S.transformOrFail(S.Int, MonthInts, {
     }),
   encode: (i) => ParseResult.succeed(i),
 }).annotations(
-  Id.annotations("MonthInt", {
+  $I.annotations("MonthInt", {
     description: "Month of the year as an integer (1-12).",
   })
 ) {}
@@ -257,7 +257,7 @@ export const MonthIntToNumber = MappedLiteralKit(
   [11, "11"],
   [12, "12"]
 ).annotations(
-  Id.annotations("MonthIntToNumber", {
+  $I.annotations("MonthIntToNumber", {
     description: "Bidirectional month integer to zero-padded string mapping.",
   })
 );
@@ -324,7 +324,7 @@ export const MonthIntToName = MappedLiteralKit(
   [11, "November"],
   [12, "December"]
 ).annotations(
-  Id.annotations("MonthIntToName", {
+  $I.annotations("MonthIntToName", {
     description: "Bidirectional month integer to zero-padded string mapping.",
   })
 );
@@ -409,7 +409,7 @@ export class MonthNumberFromMonthInt extends S.transform(MonthInt, MonthNumber, 
   decode: monthIntToNumber,
   encode: monthNumberToInt,
 }).annotations(
-  Id.annotations("MonthNumberFromMonthInt", {
+  $I.annotations("MonthNumberFromMonthInt", {
     description: "Transform month integers to zero-padded literals.",
   })
 ) {}

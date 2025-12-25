@@ -12,13 +12,13 @@
  * @since 0.1.0
  */
 
+import { $SchemaId } from "@beep/identity/packages";
 import type * as B from "effect/Brand";
 import * as Redacted from "effect/Redacted";
 import * as S from "effect/Schema";
-import { $StringId } from "../../internal";
 import * as regexes from "../../internal/regex/regexes";
 
-const { $EmailId: Id } = $StringId.compose("email");
+const $I = $SchemaId.create("primitives/string/email");
 
 /**
  * Lowercased, trimmed, non-empty email string schema used on the encoded side.
@@ -39,7 +39,7 @@ export const EmailEncoded = S.Lowercase.pipe(
   }),
   S.pattern(regexes.email)
 ).annotations(
-  Id.annotations("email/EmailEncoded", {
+  $I.annotations("email/EmailEncoded", {
     description: 'Lowercased, trimmed email string that matches an RFC-leaning pattern for "local@domain" addresses.',
   })
 );
@@ -94,7 +94,7 @@ export declare namespace EmailEncoded {
  * @since 0.1.0
  */
 export const EmailBase = EmailEncoded.pipe(S.brand("Email")).annotations(
-  Id.annotations("email/EmailBase", {
+  $I.annotations("email/EmailBase", {
     jsonSchema: { format: "email", type: "string" },
     arbitrary: () => (fc) => fc.emailAddress().map((value) => value as B.Branded<string, "Email">),
     message: () => "Email must be a valid email address.",
@@ -153,7 +153,7 @@ export declare namespace EmailBase {
  * @since 0.1.0
  */
 export class Email extends S.Redacted(EmailBase).annotations(
-  Id.annotations("email/Email", {
+  $I.annotations("email/Email", {
     description:
       "Email schema that enforces lowercase/trimmed inputs, regex validation, and wraps the value in `Redacted` to avoid PII leaks.",
   })

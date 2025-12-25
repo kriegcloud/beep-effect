@@ -15,6 +15,7 @@
  * @since 0.1.0
  */
 
+import { $SchemaId } from "@beep/identity/packages";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
@@ -22,12 +23,11 @@ import * as O from "effect/Option";
 import * as ParseResult from "effect/ParseResult";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import { $TemporalId } from "../../../internal";
 
-const { $DateTimeId: Id } = $TemporalId.compose("date-time");
+const $I = $SchemaId.create("primitives/temporal/dates/date-time");
 
 const DateTimeUtcByInstant = S.DateTimeUtcFromSelf.annotations(
-  Id.annotations("dates/DateTimeUtcByInstant", {
+  $I.annotations("dates/DateTimeUtcByInstant", {
     equivalence: () => (a: DateTime.Utc, b: DateTime.Utc) =>
       DateTime.toDate(a).getTime() === DateTime.toDate(b).getTime(),
     jsonSchema: {
@@ -55,7 +55,7 @@ const DateTimeUtcByInstant = S.DateTimeUtcFromSelf.annotations(
  */
 export const AllAcceptableDateInputs = S.Union(
   S.DateFromSelf.annotations(
-    Id.annotations("dates/AllAcceptableDateInputs/DateFromSelf", {
+    $I.annotations("dates/AllAcceptableDateInputs/DateFromSelf", {
       jsonSchema: {
         format: "date-time",
         type: "string",
@@ -63,7 +63,7 @@ export const AllAcceptableDateInputs = S.Union(
     })
   ),
   S.DateFromString.annotations(
-    Id.annotations("dates/AllAcceptableDateInputs/DateFromString", {
+    $I.annotations("dates/AllAcceptableDateInputs/DateFromString", {
       jsonSchema: {
         format: "date-time",
         type: "string",
@@ -71,7 +71,7 @@ export const AllAcceptableDateInputs = S.Union(
     })
   ),
   S.DateFromNumber.annotations(
-    Id.annotations("dates/AllAcceptableDateInputs/DateFromNumber", {
+    $I.annotations("dates/AllAcceptableDateInputs/DateFromNumber", {
       jsonSchema: {
         format: "timestamp",
         type: "number",
@@ -80,7 +80,7 @@ export const AllAcceptableDateInputs = S.Union(
   ),
   DateTimeUtcByInstant
 ).annotations(
-  Id.annotations("dates/AllAcceptableDateInputs", {
+  $I.annotations("dates/AllAcceptableDateInputs", {
     jsonSchema: {
       format: "date-time",
       type: "string",
@@ -141,7 +141,7 @@ export const DateFromAllAcceptable = S.transformOrFail(AllAcceptableDateInputs, 
   encode: (input) => ParseResult.succeed(input),
   strict: true,
 }).annotations(
-  Id.annotations("dates/DateFromAllAcceptable", {
+  $I.annotations("dates/DateFromAllAcceptable", {
     jsonSchema: {
       format: "date-time",
       type: "string",
@@ -219,7 +219,7 @@ export const DateTimeUtcFromAllAcceptable = S.transformOrFail(
     strict: true,
   }
 ).annotations(
-  Id.annotations("dates/DateTimeUtcFromAllAcceptable", {
+  $I.annotations("dates/DateTimeUtcFromAllAcceptable", {
     jsonSchema: {
       format: "date-time",
       type: "string",
@@ -289,7 +289,7 @@ export const IsoStringToTimestamp = S.transform(S.Union(S.String, S.Number), S.N
   encode: normalizeIsoString,
   strict: true,
 }).annotations(
-  Id.annotations("dates/IsoStringToTimestamp", {
+  $I.annotations("dates/IsoStringToTimestamp", {
     description: "Transforms ISO strings into millisecond timestamps and encodes back to canonical ISO.",
   })
 );
@@ -408,7 +408,7 @@ export const EpochMillisFromAllAcceptable: S.Schema<number, number> = S.declare(
       // The input is already validated to be a number by the Type
       ParseResult.succeed(input as number),
   },
-  Id.annotations("dates/EpochMillisFromAllAcceptable", {
+  $I.annotations("dates/EpochMillisFromAllAcceptable", {
     description: "Epoch milliseconds timestamp that accepts string, number, Date, or DateTime.Utc during decoding",
     jsonSchema: {
       type: "number",

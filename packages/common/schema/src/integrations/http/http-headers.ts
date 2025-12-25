@@ -12,10 +12,10 @@
  * @since 0.1.0
  */
 
+import { $SchemaId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
-import { $HttpId } from "../../internal";
 
-const { $HttpHeadersId: Id } = $HttpId.compose("http-headers");
+const $I = $SchemaId.create("integrations/http/http-headers");
 
 /**
  * Schema describing a map of HTTP header key/value pairs.
@@ -34,7 +34,7 @@ export class HttpHeaders extends S.Record({
   key: S.String,
   value: S.String,
 }).annotations(
-  Id.annotations("HttpHeaders", {
+  $I.annotations("HttpHeaders", {
     identifier: "HttpHeaders",
     title: "HTTP Headers",
     description: "Key/value map representing HTTP request or response headers.",

@@ -1,7 +1,9 @@
-import { describe, expect, expectTypeOf, it } from "bun:test";
+import { describe, expect, expectTypeOf, it, spyOn } from "bun:test";
 import * as Identifier from "@beep/identity/Identifier";
 import { __internal } from "@beep/identity/Identifier";
 import type { IdentityString } from "@beep/identity/types";
+import * as A from "effect/Array";
+import * as F from "effect/Function";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as AST from "effect/SchemaAST";
@@ -113,5 +115,178 @@ describe("Identifier v2", () => {
     expect(() => __internal.ensureBaseSegment("" as unknown as string)).toThrow("Identity bases cannot be empty.");
     expect(() => __internal.ensureBaseSegment(123 as unknown as string)).toThrow("Identity bases must be strings.");
     expect(__internal.normalizeBase("@beep/foo" as const)).toBe("foo");
+  });
+});
+
+describe("Identity Registry", () => {
+  it("registers root identity on make() call", () => {
+    const { $TestId } = Identifier.make("test");
+
+    const values = [...$TestId.identityRegistry];
+    expect(values).toEqual(["@beep/test"]);
+  });
+
+  it("tracks identities created via compose", () => {
+    const { $TestId } = Identifier.make("test");
+    $TestId.compose("module-a", "module-b");
+
+    const values = [...$TestId.identityRegistry];
+    expect(values).toContain("@beep/test");
+    expect(values).toContain("@beep/test/module-a");
+    expect(values).toContain("@beep/test/module-b");
+  });
+
+  it("tracks identities created via create", () => {
+    const { $TestId } = Identifier.make("test");
+    const child = $TestId.create("child");
+    child.create("grandchild");
+
+    const values = [...$TestId.identityRegistry];
+    expect(values).toContain("@beep/test/child");
+    expect(values).toContain("@beep/test/child/grandchild");
+  });
+
+  it("tracks identities created via template tags", () => {
+    const { $TestId } = Identifier.make("test");
+    const { $ModuleId } = $TestId.compose("module");
+    $ModuleId`ServiceA`;
+    $ModuleId`ServiceB`;
+
+    const values = [...$TestId.identityRegistry];
+    expect(values).toContain("@beep/test/module/ServiceA");
+    expect(values).toContain("@beep/test/module/ServiceB");
+  });
+
+  it("tracks identities created via make method", () => {
+    const { $TestId } = Identifier.make("test");
+    $TestId.make("CustomPath");
+
+    const values = [...$TestId.identityRegistry];
+    expect(values).toContain("@beep/test/CustomPath");
+  });
+
+  it("tracks identities created via annotations with #annotation suffix", () => {
+    const { $TestId } = Identifier.make("test");
+    const { $SchemaId } = $TestId.compose("schema");
+    $SchemaId.annotations("MyEntity");
+    $SchemaId.annotations("AnotherEntity", { description: "With extras" });
+
+    const values = [...$TestId.identityRegistry];
+    // Annotations are registered with #annotation suffix to avoid collision with template tags
+    expect(values).toContain("@beep/test/schema/MyEntity#annotation");
+    expect(values).toContain("@beep/test/schema/AnotherEntity#annotation");
+  });
+
+  it("shares registry across all derived composers", () => {
+    const { $TestId } = Identifier.make("test");
+    const { $ChildId } = $TestId.compose("child");
+    const grandchild = $ChildId.create("grandchild");
+    grandchild`Service`;
+
+    // All share the same registry reference
+    expect($TestId.identityRegistry).toBe($ChildId.identityRegistry);
+    expect($ChildId.identityRegistry).toBe(grandchild.identityRegistry);
+
+    // Verify all expected values are present
+    const values = [...$TestId.identityRegistry];
+    expect(values).toEqual(
+      expect.arrayContaining([
+        "@beep/test",
+        "@beep/test/child",
+        "@beep/test/child/grandchild",
+        "@beep/test/child/grandchild/Service",
+      ])
+    );
+    expect(values).toHaveLength(4);
+  });
+
+  it("isolates registries between different make() calls", () => {
+    const { $FooId } = Identifier.make("foo");
+    const { $BarId } = Identifier.make("bar");
+
+    $FooId.compose("module");
+    $BarId.compose("other");
+
+    const fooValues = [...$FooId.identityRegistry];
+    const barValues = [...$BarId.identityRegistry];
+
+    expect(fooValues).toContain("@beep/foo/module");
+    expect(fooValues).not.toContain("@beep/bar/other");
+    expect(barValues).toContain("@beep/bar/other");
+    expect(barValues).not.toContain("@beep/foo/module");
+  });
+
+  it("warns on duplicate identity registration", () => {
+    const { $TestId } = Identifier.make("test");
+    const warnSpy = spyOn(console, "warn");
+
+    // First registration - no warning
+    $TestId.make("Duplicate");
+    expect(warnSpy).not.toHaveBeenCalled();
+
+    // Second registration - should warn
+    $TestId.make("Duplicate");
+    expect(warnSpy).toHaveBeenCalledTimes(1);
+    expect(warnSpy.mock.calls[0]?.[0]).toContain("Duplicate identity detected");
+    expect(warnSpy.mock.calls[0]?.[0]).toContain("@beep/test/Duplicate");
+
+    // Third registration - should warn again
+    $TestId.make("Duplicate");
+    expect(warnSpy).toHaveBeenCalledTimes(2);
+
+    // Value is still only stored once (HashSet deduplicates)
+    const values = [...$TestId.identityRegistry];
+    const duplicateCount = F.pipe(
+      values,
+      A.filter((v) => v === "@beep/test/Duplicate"),
+      A.length
+    );
+    expect(duplicateCount).toBe(1);
+
+    warnSpy.mockRestore();
+  });
+
+  it("warns on cross-slice duplicate (simulating copy-paste error)", () => {
+    // Simulate the copy-paste error scenario from the docs
+    const { $DocumentsDomainId } = Identifier.make("documents-domain");
+    const warnSpy = spyOn(console, "warn");
+
+    // First slice registers Document
+    const docsModels = $DocumentsDomainId.create("models");
+    docsModels`Document`;
+
+    // Second slice (simulating wrong import - same base composer)
+    // This would happen if someone copy-pasted and forgot to change the import
+    docsModels`Document`; // Same path = duplicate!
+
+    expect(warnSpy).toHaveBeenCalledTimes(1);
+    expect(warnSpy.mock.calls[0]?.[0]).toContain("@beep/documents-domain/models/Document");
+    expect(warnSpy.mock.calls[0]?.[0]).toContain("copy-paste error");
+
+    warnSpy.mockRestore();
+  });
+
+  it("does not warn when template tag and annotations use same name", () => {
+    // This is the common pattern where $I`Model` and $I.annotations("Model") are both used
+    const { $TestId } = Identifier.make("test");
+    const warnSpy = spyOn(console, "warn");
+
+    const { $ModelsId } = $TestId.compose("models");
+
+    // Use template tag for Model class identifier
+    $ModelsId`SessionModel`;
+
+    // Use annotations for schema annotations (same name)
+    $ModelsId.annotations("SessionModel", { description: "Session model" });
+
+    // No warning should occur because annotations uses #annotation suffix
+    expect(warnSpy).not.toHaveBeenCalled();
+
+    // Both should be in registry with different keys
+    const values = [...$TestId.identityRegistry];
+    expect(values).toContain("@beep/test/models/SessionModel");
+    expect(values).toContain("@beep/test/models/SessionModel#annotation");
+
+    warnSpy.mockRestore();
   });
 });

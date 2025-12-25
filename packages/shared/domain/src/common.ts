@@ -11,7 +11,7 @@ import * as S from "effect/Schema";
  * - deletedAt: Optional field for soft delete functionality defaults to null is Option on select variants
  */
 export const auditColumns = <const TableName extends string, const Brand extends string>(
-  entityId: EntityId.EntityIdSchemaInstance<TableName, Brand>
+  entityId: EntityId.EntityId.SchemaInstance<TableName, Brand>
 ) =>
   ({
     createdAt: M.Generated(
@@ -27,7 +27,7 @@ export const auditColumns = <const TableName extends string, const Brand extends
 export type AuditColumns = typeof auditColumns;
 
 export const userTrackingColumns = <const TableName extends string, const Brand extends string>(
-  entityId: EntityId.EntityIdSchemaInstance<TableName, Brand>
+  entityId: EntityId.EntityId.SchemaInstance<TableName, Brand>
 ) =>
   ({
     createdBy: BS.FieldOmittableWithDefault(
@@ -51,7 +51,7 @@ export type UserTrackingColumns = typeof userTrackingColumns;
 export type Fields = Field.Fields;
 
 export const globalColumns = <const TableName extends string, const Brand extends string>(
-  entityId: EntityId.EntityIdSchemaInstance<TableName, Brand>
+  entityId: EntityId.EntityId.SchemaInstance<TableName, Brand>
 ) =>
   ({
     ...userTrackingColumns(entityId),
@@ -72,7 +72,7 @@ export const globalColumns = <const TableName extends string, const Brand extend
 export type GlobalColumns = typeof globalColumns;
 
 export const makeFields = <const TableName extends string, const Brand extends string, const A extends Fields>(
-  entityId: EntityId.EntityIdSchemaInstance<TableName, Brand>,
+  entityId: EntityId.EntityId.SchemaInstance<TableName, Brand>,
   a: A
 ) => {
   const idFields = {

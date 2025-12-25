@@ -36,7 +36,9 @@ export const VerifyPhoneContract = Contract.make("VerifyPhone", {
 // Send Email Verification Contract
 // =====================================================================================================================
 
-export class SendEmailVerificationPayload extends S.Class<SendEmailVerificationPayload>("SendEmailVerificationPayload")(
+export class SendEmailVerificationPayload extends S.Class<SendEmailVerificationPayload>(
+  Id`SendEmailVerificationPayload`
+)(
   {
     email: BS.EmailBase,
     callbackURL: S.optional(S.UndefinedOr(BS.URLString)).pipe(
@@ -46,11 +48,9 @@ export class SendEmailVerificationPayload extends S.Class<SendEmailVerificationP
       })
     ),
   },
-  {
-    schemaId: Symbol.for("@beep/iam-client/clients/SendEmailVerificationPayload"),
-    identifier: "SendEmailVerificationPayload",
+  Id.annotations("SendEmailVerificationPayload", {
     description: "Payload for sending an email verification link.",
-  }
+  })
 ) {}
 
 export declare namespace SendEmailVerificationPayload {
@@ -58,15 +58,15 @@ export declare namespace SendEmailVerificationPayload {
   export type Encoded = S.Schema.Encoded<typeof SendEmailVerificationPayload>;
 }
 
-export class SendEmailVerificationSuccess extends S.Class<SendEmailVerificationSuccess>("SendEmailVerificationSuccess")(
+export class SendEmailVerificationSuccess extends S.Class<SendEmailVerificationSuccess>(
+  Id`SendEmailVerificationSuccess`
+)(
   {
     status: S.Boolean,
   },
-  {
-    schemaId: Symbol.for("@beep/iam-client/clients/SendEmailVerificationSuccess"),
-    identifier: "SendEmailVerificationSuccess",
+  Id.annotations("SendEmailVerificationSuccess", {
     description: "Success response indicating whether the verification email was dispatched.",
-  }
+  })
 ) {}
 
 export declare namespace SendEmailVerificationSuccess {
@@ -92,7 +92,7 @@ export const SendEmailVerificationContract = Contract.make("SendEmailVerificatio
 // =====================================================================================================================
 // Verify Email Contract
 // =====================================================================================================================
-export class VerifyEmailPayload extends S.Class<VerifyEmailPayload>("VerifyEmailPayload")(
+export class VerifyEmailPayload extends S.Class<VerifyEmailPayload>(Id`VerifyEmailPayload`)(
   {
     token: S.Redacted(S.String),
     callbackURL: S.optional(BS.URLString),
@@ -105,11 +105,9 @@ export class VerifyEmailPayload extends S.Class<VerifyEmailPayload>("VerifyEmail
       output: S.Void,
     }).Schema,
   },
-  {
-    schemaId: Symbol.for("@beep/iam-client/clients/VerifyEmailPayload"),
-    identifier: "VerifyEmailPayload",
+  Id.annotations("VerifyEmailPayload", {
     description: "Payload for verifying an email address via a token.",
-  }
+  })
 ) {}
 
 export declare namespace VerifyEmailPayload {
@@ -127,16 +125,14 @@ const VerifyEmailUser = S.Struct({
   updatedAt: BS.DateTimeUtcFromAllAcceptable,
 });
 
-export class VerifyEmailSuccess extends S.Class<VerifyEmailSuccess>("VerifyEmailSuccess")(
+export class VerifyEmailSuccess extends S.Class<VerifyEmailSuccess>(Id`VerifyEmailSuccess`)(
   {
     status: S.Boolean,
     user: S.NullOr(VerifyEmailUser),
   },
-  {
-    schemaId: Symbol.for("@beep/iam-client/clients/VerifyEmailSuccess"),
-    identifier: "VerifyEmailSuccess",
+  Id.annotations("VerifyEmailSuccess", {
     description: "Result payload returned after attempting email verification.",
-  }
+  })
 ) {}
 
 export declare namespace VerifyEmailSuccess {

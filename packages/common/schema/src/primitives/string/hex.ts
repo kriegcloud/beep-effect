@@ -13,12 +13,12 @@
  * @since 0.1.0
  */
 
+import { $SchemaId } from "@beep/identity/packages";
 import * as ParseResult from "effect/ParseResult";
 import * as S from "effect/Schema";
-import { $StringId } from "../../internal";
 import * as regexes from "../../internal/regex/regexes";
 
-const { $HexId: Id } = $StringId.compose("hex");
+const $I = $SchemaId.create("primitives/string/hex");
 
 /**
  * Hex color encoded schema capturing raw string literals.
@@ -33,7 +33,7 @@ const { $HexId: Id } = $StringId.compose("hex");
  * @since 0.1.0
  */
 export const HexColorEncoded = S.TemplateLiteral("#", S.String).annotations(
-  Id.annotations("hex/HexColorEncoded", {
+  $I.annotations("hex/HexColorEncoded", {
     description: "CSS hex color encoded as a string.",
     jsonSchema: {
       type: "string",
@@ -97,7 +97,7 @@ export const HexColorDecoded = S.NonEmptyTrimmedString.pipe(
   S.pattern(regexes.css_hex_color_regex, { message: () => "Hex color must be a valid CSS hex color" }),
   S.brand("HexColor")
 ).annotations(
-  Id.annotations("hex/HexColorDecoded", {
+  $I.annotations("hex/HexColorDecoded", {
     description: "Canonical representation of a CSS hex color.",
     jsonSchema: {
       type: "string",
@@ -169,7 +169,7 @@ export class HexColor extends S.transformOrFail(HexColorEncoded, HexColorDecoded
       catch: () => new ParseResult.Type(ast, value, "Invalid hex color"),
     }),
 }).annotations(
-  Id.annotations("hex/HexColor", {
+  $I.annotations("hex/HexColor", {
     description: "Hex color schema with encoding/decoding guarantees.",
   })
 ) {

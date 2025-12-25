@@ -1,10 +1,13 @@
 import { Contract, ContractKit } from "@beep/contract";
+import { $IamClientId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
 import { paths } from "@beep/shared-domain";
 import * as Equal from "effect/Equal";
 import * as Redacted from "effect/Redacted";
 import * as S from "effect/Schema";
 import { IamError } from "../../errors";
+
+const $I = $IamClientId.create("clients/recover/recover.contracts");
 
 // =====================================================================================================================
 // Reset Password Contract
@@ -13,17 +16,18 @@ const ResetPasswordPayloadFields = {
   newPassword: BS.Password,
   passwordConfirm: BS.Password,
 };
-export const ResetPasswordPayload = S.Struct(ResetPasswordPayloadFields).pipe(
-  S.filter(
-    ({ newPassword, passwordConfirm }) =>
-      Equal.equals(Redacted.value(newPassword), Redacted.value(passwordConfirm)) || "Passwords do not match"
-  ),
-  S.annotations({
-    identifier: "ResetPasswordPayload",
-    description: "Payload containing the data required to reset a password.",
-    schemaId: Symbol.for("@beep/iam-client/clients/ResetPasswordPayload"),
-  })
-);
+export const ResetPasswordPayload = S.Struct(ResetPasswordPayloadFields)
+  .pipe(
+    S.filter(
+      ({ newPassword, passwordConfirm }) =>
+        Equal.equals(Redacted.value(newPassword), Redacted.value(passwordConfirm)) || "Passwords do not match"
+    )
+  )
+  .annotations(
+    $I.annotations("ResetPasswordPayload", {
+      description: "Payload containing the data required to reset a password.",
+    })
+  );
 
 export declare namespace ResetPasswordPayload {
   export type Type = S.Schema.Type<typeof ResetPasswordPayload>;
@@ -44,16 +48,14 @@ export const ResetPasswordContract = Contract.make("ResetPassword", {
 // Request Reset Password Contract
 // =====================================================================================================================
 
-export class RequestResetPasswordPayload extends S.Class<RequestResetPasswordPayload>("RequestResetPasswordPayload")(
+export class RequestResetPasswordPayload extends S.Class<RequestResetPasswordPayload>($I`RequestResetPasswordPayload`)(
   {
     email: BS.Email,
     redirectTo: BS.StringWithDefault(paths.auth.requestResetPassword),
   },
-  {
-    schemaId: Symbol.for("@beep/iam-client/clients/RequestResetPasswordPayload"),
-    identifier: "RequestResetPasswordPayload",
+  $I.annotations("RequestResetPasswordPayload", {
     description: "Payload for requesting a password reset email.",
-  }
+  })
 ) {}
 
 export declare namespace RequestResetPasswordPayload {

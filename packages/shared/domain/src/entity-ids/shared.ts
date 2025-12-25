@@ -96,7 +96,7 @@ export declare namespace FolderId {
 export const UploadSessionId = EntityId.make("upload_session", {
   brand: "UploadSessionId",
   annotations: {
-    schemaId: Symbol.for("@beep/shared-domain/EntityIds/shared/UploadSessionId"),
+    schemaId: Symbol.for("@beep/shared-domain/entity-ids/shared/UploadSessionId"),
     description: "A unique identifier for an upload session",
   },
 });
@@ -105,3 +105,11 @@ export declare namespace UploadSessionId {
   export type Type = typeof UploadSessionId.Type;
   export type Encoded = typeof UploadSessionId.Encoded;
 }
+
+export const AgentId = EntityId.make("agent", {
+  brand: "AgentId",
+  annotations: {
+    schemaId: Symbol.for("@beep/shared-domain/entity-ids/shared/AgentId"),
+    description: "A unique identifier for an Agent",
+  },
+});

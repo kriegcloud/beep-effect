@@ -13,11 +13,11 @@
  * @since 0.1.0
  */
 
+import { $SchemaId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
 import { toOptionalWithDefault } from "../../core/utils/to-optional-with";
-import { $BoolId } from "../../internal";
 
-const Id = $BoolId;
+const $I = $SchemaId.create("primitives/bool/bool");
 
 /**
  * Property signature representing an optional boolean with write omittability.
@@ -95,7 +95,7 @@ export declare namespace BoolWithDefault {
  * @since 0.1.0
  */
 export const BoolTrue = toOptionalWithDefault(S.Boolean)(true).annotations(
-  Id.annotations("bool/BoolTrue", {
+  $I.annotations("bool/BoolTrue", {
     description: "Boolean whose default value resolves to true.",
   })
 );
@@ -150,7 +150,7 @@ export declare namespace BoolTrue {
  * @since 0.1.0
  */
 export const BoolFalse = toOptionalWithDefault(S.Boolean)(false).annotations(
-  Id.annotations("bool/BoolFalse", {
+  $I.annotations("bool/BoolFalse", {
     description: "Boolean whose default value resolves to false.",
   })
 );
@@ -206,7 +206,7 @@ export declare namespace BoolFalse {
  * @since 0.1.0
  */
 export const TrueLiteral = S.Literal(true).annotations(
-  Id.annotations("bool/TrueLiteral", {
+  $I.annotations("bool/TrueLiteral", {
     description: "Literal boolean that only accepts true.",
   })
 );
@@ -224,7 +224,7 @@ export const TrueLiteral = S.Literal(true).annotations(
  * @since 0.1.0
  */
 export const FalseLiteral = S.Literal(false).annotations(
-  Id.annotations("bool/FalseLiteral", {
+  $I.annotations("bool/FalseLiteral", {
     description: "Literal boolean that only accepts false.",
   })
 );

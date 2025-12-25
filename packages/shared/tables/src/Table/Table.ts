@@ -6,7 +6,7 @@ import * as pg from "drizzle-orm/pg-core";
 import { globalColumns } from "../common";
 
 export const make = <const TableName extends string, const Brand extends string>(
-  entityId: EntityId.EntityIdSchemaInstance<TableName, Brand>
+  entityId: EntityId.EntityId.SchemaInstance<TableName, Brand>
 ) => {
   const defaultColumns: DefaultColumns<TableName, Brand> = {
     id: entityId.publicId(),

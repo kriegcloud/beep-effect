@@ -62,7 +62,7 @@ const makeBaseRepo = <
 >(
   model: Model,
   options: {
-    idSchema: EntityId.EntityIdSchemaInstance<TableName, Brand>;
+    idSchema: EntityId.EntityId.SchemaInstance<TableName, Brand>;
     idColumn: Id;
   }
 ): MakeBaseRepoEffect<Model, Id> =>
@@ -306,7 +306,7 @@ export const make = <
   SR,
   TExtra extends Record<string, UnsafeTypes.UnsafeAny> = NonNullable<unknown>,
 >(
-  idSchema: EntityId.EntityIdSchemaInstance<TableName, Brand>,
+  idSchema: EntityId.EntityId.SchemaInstance<TableName, Brand>,
   model: Model,
   maker?: Effect.Effect<TExtra, SE, SR> | undefined
 ): ServiceEffect<Model, SE, SR, TExtra> =>

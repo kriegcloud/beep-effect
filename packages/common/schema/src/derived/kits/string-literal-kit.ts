@@ -14,6 +14,7 @@
  * @since 0.1.0
  */
 
+import { $SchemaId } from "@beep/identity/packages";
 import type { UnsafeTypes } from "@beep/types";
 import { ArrayUtils, enumFromStringArray } from "@beep/utils";
 import type { CreateEnumType, ValidMapping } from "@beep/utils/data/tuple.utils";
@@ -27,11 +28,10 @@ import * as AST from "effect/SchemaAST";
 import type * as Types from "effect/Types";
 import type { TaggedUnion } from "../../core/generics/tagged-union";
 import { TaggedUnion as TaggedUnionFactory } from "../../core/generics/tagged-union";
-import { $KitsId } from "../../internal";
 
 // const LiteralToAccessor =
 
-const { $StringLiteralKitId: Id } = $KitsId.compose("string-literal-kit");
+const $I = $SchemaId.create("derived/kits/string-literal-kit");
 type LiteralsType = A.NonEmptyReadonlyArray<string>;
 
 type LiteralsSubset<Literals extends LiteralsType> = A.NonEmptyReadonlyArray<Literals[number]>;
@@ -372,7 +372,7 @@ export function makeLiteralKit<
       ...keys: Keys
     ): DerivedLiteralKitSchema<Keys> => {
       const Schema = S.Literal(...keys).annotations(
-        Id.annotations("StringLiteralKitLiteral", {
+        $I.annotations("StringLiteralKitLiteral", {
           description: "Literal schema produced by stringLiteralKit",
           arbitrary: () => (fc) => fc.constantFrom(...keys),
         })

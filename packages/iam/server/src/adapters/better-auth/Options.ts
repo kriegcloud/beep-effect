@@ -84,6 +84,45 @@ const PLUS_PRICE_ID = {
   annual: "price_1Roxo5HmTADgihItEbJu5llL",
 } as const;
 
+const additionalFieldsCommon = {
+  _rowId: {
+    type: "number",
+    required: false,
+  },
+  deletedAt: {
+    type: "date",
+    required: false,
+  },
+  updatedAt: {
+    type: "date",
+    required: false,
+  },
+  createdAt: {
+    type: "date",
+    required: false,
+  },
+  createdBy: {
+    type: "string",
+    required: false,
+  },
+  updatedBy: {
+    type: "string",
+    required: false,
+  },
+  deletedBy: {
+    type: "string",
+    required: false,
+  },
+  version: {
+    type: "number",
+    required: false,
+  },
+  source: {
+    type: "string",
+    required: false,
+  },
+} as const;
+
 export const makeAuth = ({
   iamDb,
   emailService,
@@ -128,44 +167,7 @@ export const makeAuth = ({
       max: 100, // max requests in the window
     },
     account: {
-      additionalFields: {
-        _rowId: {
-          type: "number",
-          required: false,
-        },
-        deletedAt: {
-          type: "date",
-          required: false,
-        },
-        updatedAt: {
-          type: "date",
-          required: false,
-        },
-        createdAt: {
-          type: "date",
-          required: false,
-        },
-        createdBy: {
-          type: "string",
-          required: false,
-        },
-        updatedBy: {
-          type: "string",
-          required: false,
-        },
-        deletedBy: {
-          type: "string",
-          required: false,
-        },
-        version: {
-          type: "number",
-          required: false,
-        },
-        source: {
-          type: "string",
-          required: false,
-        },
-      },
+      additionalFields: additionalFieldsCommon,
       accountLinking: {
         enabled: true,
         allowDifferentEmails: true,
@@ -178,42 +180,7 @@ export const makeAuth = ({
     session: {
       modelName: SharedEntityIds.SessionId.tableName,
       additionalFields: {
-        _rowId: {
-          type: "number",
-          required: false,
-        },
-        deletedAt: {
-          type: "date",
-          required: false,
-        },
-        updatedAt: {
-          type: "date",
-          required: false,
-        },
-        createdAt: {
-          type: "date",
-          required: false,
-        },
-        createdBy: {
-          type: "string",
-          required: false,
-        },
-        updatedBy: {
-          type: "string",
-          required: false,
-        },
-        deletedBy: {
-          type: "string",
-          required: false,
-        },
-        version: {
-          type: "number",
-          required: false,
-        },
-        source: {
-          type: "string",
-          required: false,
-        },
+        ...additionalFieldsCommon,
         activeTeamId: {
           type: "string",
           required: false,
@@ -315,42 +282,7 @@ export const makeAuth = ({
           type: "date",
           required: false,
         },
-        _rowId: {
-          type: "number",
-          required: false,
-        },
-        deletedAt: {
-          type: "date",
-          required: false,
-        },
-        updatedAt: {
-          type: "date",
-          required: false,
-        },
-        createdAt: {
-          type: "date",
-          required: false,
-        },
-        createdBy: {
-          type: "string",
-          required: false,
-        },
-        updatedBy: {
-          type: "string",
-          required: false,
-        },
-        deletedBy: {
-          type: "string",
-          required: false,
-        },
-        version: {
-          type: "number",
-          required: false,
-        },
-        source: {
-          type: "string",
-          required: false,
-        },
+        ...additionalFieldsCommon,
       },
     },
     emailVerification: {
@@ -562,44 +494,7 @@ export const makeAuth = ({
         requireEmailVerificationOnInvitation: true,
         schema: {
           verification: {
-            additionalFields: {
-              _rowId: {
-                type: "number",
-                required: false,
-              },
-              deletedAt: {
-                type: "date",
-                required: false,
-              },
-              updatedAt: {
-                type: "date",
-                required: false,
-              },
-              createdAt: {
-                type: "date",
-                required: false,
-              },
-              createdBy: {
-                type: "string",
-                required: false,
-              },
-              updatedBy: {
-                type: "string",
-                required: false,
-              },
-              deletedBy: {
-                type: "string",
-                required: false,
-              },
-              version: {
-                type: "number",
-                required: false,
-              },
-              source: {
-                type: "string",
-                required: false,
-              },
-            },
+            additionalFields: additionalFieldsCommon,
           },
           organization: {
             additionalFields: {
@@ -638,42 +533,7 @@ export const makeAuth = ({
                 required: false,
                 defaultValue: Organization.SubscriptionStatusEnum.active,
               },
-              _rowId: {
-                type: "number",
-                required: false,
-              },
-              deletedAt: {
-                type: "date",
-                required: false,
-              },
-              updatedAt: {
-                type: "date",
-                required: false,
-              },
-              createdAt: {
-                type: "date",
-                required: false,
-              },
-              createdBy: {
-                type: "string",
-                required: false,
-              },
-              updatedBy: {
-                type: "string",
-                required: false,
-              },
-              deletedBy: {
-                type: "string",
-                required: false,
-              },
-              version: {
-                type: "number",
-                required: false,
-              },
-              source: {
-                type: "string",
-                required: false,
-              },
+              ...additionalFieldsCommon,
             },
           },
           member: {
@@ -685,83 +545,11 @@ export const makeAuth = ({
               joinedAt: { type: "date", required: false },
               lastActiveAt: { type: "date", required: false },
               permissions: { type: "string", required: false }, // JSON string
-              _rowId: {
-                type: "number",
-                required: false,
-              },
-              deletedAt: {
-                type: "date",
-                required: false,
-              },
-              updatedAt: {
-                type: "date",
-                required: false,
-              },
-              createdAt: {
-                type: "date",
-                required: false,
-              },
-              createdBy: {
-                type: "string",
-                required: false,
-              },
-              updatedBy: {
-                type: "string",
-                required: false,
-              },
-              deletedBy: {
-                type: "string",
-                required: false,
-              },
-              version: {
-                type: "number",
-                required: false,
-              },
-              source: {
-                type: "string",
-                required: false,
-              },
+              ...additionalFieldsCommon,
             },
           },
           invitation: {
-            additionalFields: {
-              _rowId: {
-                type: "number",
-                required: false,
-              },
-              deletedAt: {
-                type: "date",
-                required: false,
-              },
-              updatedAt: {
-                type: "date",
-                required: false,
-              },
-              createdAt: {
-                type: "date",
-                required: false,
-              },
-              createdBy: {
-                type: "string",
-                required: false,
-              },
-              updatedBy: {
-                type: "string",
-                required: false,
-              },
-              deletedBy: {
-                type: "string",
-                required: false,
-              },
-              version: {
-                type: "number",
-                required: false,
-              },
-              source: {
-                type: "string",
-                required: false,
-              },
-            },
+            additionalFields: additionalFieldsCommon,
           },
           team: {
             additionalFields: {
@@ -769,83 +557,11 @@ export const makeAuth = ({
               description: { type: "string", required: false },
               metadata: { type: "string", required: false },
               logo: { type: "string", required: false },
-              _rowId: {
-                type: "number",
-                required: false,
-              },
-              deletedAt: {
-                type: "date",
-                required: false,
-              },
-              updatedAt: {
-                type: "date",
-                required: false,
-              },
-              createdAt: {
-                type: "date",
-                required: false,
-              },
-              createdBy: {
-                type: "string",
-                required: false,
-              },
-              updatedBy: {
-                type: "string",
-                required: false,
-              },
-              deletedBy: {
-                type: "string",
-                required: false,
-              },
-              version: {
-                type: "number",
-                required: false,
-              },
-              source: {
-                type: "string",
-                required: false,
-              },
+              ...additionalFieldsCommon,
             },
           },
           organizationRole: {
-            additionalFields: {
-              _rowId: {
-                type: "number",
-                required: false,
-              },
-              deletedAt: {
-                type: "date",
-                required: false,
-              },
-              updatedAt: {
-                type: "date",
-                required: false,
-              },
-              createdAt: {
-                type: "date",
-                required: false,
-              },
-              createdBy: {
-                type: "string",
-                required: false,
-              },
-              updatedBy: {
-                type: "string",
-                required: false,
-              },
-              deletedBy: {
-                type: "string",
-                required: false,
-              },
-              version: {
-                type: "number",
-                required: false,
-              },
-              source: {
-                type: "string",
-                required: false,
-              },
-            },
+            additionalFields: additionalFieldsCommon,
           },
         },
         dynamicAccessControl: {

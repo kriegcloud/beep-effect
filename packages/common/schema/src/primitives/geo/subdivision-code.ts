@@ -13,10 +13,10 @@
  * @since 0.1.0
  */
 
+import { $SchemaId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
-import { $GeoId } from "../../internal";
 
-const { $SubdivisionCodeId: Id } = $GeoId.compose("subdivision-code");
+const $I = $SchemaId.create("primitives/geo/subdivision-code");
 /**
  * ISO 3166-2 subdivision code schema (e.g., US-CA, CA-ON, GB-ENG, CN-11).
  *
@@ -35,7 +35,7 @@ export class SubdivisionCode extends S.NonEmptyTrimmedString.pipe(
   S.pattern(/^[A-Z]{2}-[A-Z0-9]{1,3}$/),
   S.brand("SubdivisionCode")
 ).annotations(
-  Id.annotations("subdivision-code/SubdivisionCode", {
+  $I.annotations("subdivision-code/SubdivisionCode", {
     description: "ISO 3166-2 subdivision code (e.g., US-CA, CA-ON, GB-ENG, CN-11)",
     jsonSchema: {
       type: "string",

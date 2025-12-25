@@ -13,11 +13,11 @@
  * @since 0.1.0
  */
 
+import { $SchemaId } from "@beep/identity/packages";
 import { faker } from "@faker-js/faker";
 import * as S from "effect/Schema";
-import { $GeoId } from "../../internal";
 
-const { $StreetLineId: Id } = $GeoId.compose("street-line");
+const $I = $SchemaId.create("primitives/geo/street-line");
 /**
  * Street line schema with trimmed non-empty string constraints.
  *
@@ -31,7 +31,7 @@ const { $StreetLineId: Id } = $GeoId.compose("street-line");
  * @since 0.1.0
  */
 export class StreetLine extends S.NonEmptyTrimmedString.pipe(S.maxLength(200)).annotations(
-  Id.annotations("street-line/StreetLine", {
+  $I.annotations("street-line/StreetLine", {
     description: "A street line",
     arbitrary: () => (fc) => fc.constantFrom(null).map(() => faker.location.streetAddress()),
     jsonSchema: {

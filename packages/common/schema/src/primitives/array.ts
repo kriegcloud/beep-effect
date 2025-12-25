@@ -7,12 +7,12 @@
  * @since 0.1.0
  */
 
+import { $SchemaId } from "@beep/identity/packages";
 import type * as A from "effect/Array";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import { $ArrayId } from "../internal";
 
-const Id = $ArrayId;
+const $I = $SchemaId.create("primitives/array");
 /**
  * Schema for arrays of numbers with identity annotations.
  *
@@ -20,7 +20,7 @@ const Id = $ArrayId;
  * @since 0.1.0
  */
 export class ArrayOfNumbers extends S.Array(S.Number).annotations(
-  Id.annotations("ArrayOfNumbers", {
+  $I.annotations("ArrayOfNumbers", {
     description: "Array of numbers",
   })
 ) {
@@ -64,7 +64,7 @@ export const arrayToCommaSeparatedString = <A extends string | number | boolean>
     encode: (array) => array.join(","),
     strict: true,
   }).annotations(
-    Id.annotations("arrayToCommaSeparatedString", {
+    $I.annotations("arrayToCommaSeparatedString", {
       description: "Converts an array to a comma separated string",
     })
   );

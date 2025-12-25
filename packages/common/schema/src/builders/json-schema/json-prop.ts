@@ -11,12 +11,12 @@
  * @since 0.1.0
  */
 
+import { $SchemaId } from "@beep/identity/packages";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import { $JsonSchemaId } from "../../internal";
 import { prop_regex } from "../../internal/regex/regexes";
 
-const { $JsonPropId } = $JsonSchemaId.compose("json-prop");
+const $I = $SchemaId.create("builders/json-schema/json-prop");
 /**
  * Branded schema for JSON property names used in JsonSchema helpers.
  *
@@ -33,7 +33,7 @@ export class JsonProp extends S.NonEmptyString.pipe(
     message: () => "Property name must contain only letters, numbers, and underscores",
   })
 ).annotations(
-  $JsonPropId.annotations("JsonProp", {
+  $I.annotations("JsonProp", {
     description: "Property name must contain only letters, numbers, and underscores",
   })
 ) {

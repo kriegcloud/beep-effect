@@ -13,6 +13,7 @@
  * @since 0.1.0
  */
 
+import { $SchemaId } from "@beep/identity/packages";
 import type { StringTypes, UnsafeTypes } from "@beep/types";
 import type * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
@@ -21,10 +22,9 @@ import * as O from "effect/Option";
 import type * as Pretty from "effect/Pretty";
 import type * as R from "effect/Record";
 import * as AST from "effect/SchemaAST";
-import { $AnnotationsId } from "../../internal";
 import { type DefaultFormValuesAnnotation, DefaultFormValuesAnnotationId } from "./default-form-values-annotations";
 
-const { $DefaultId } = $AnnotationsId.compose("default");
+const $I = $SchemaId.create("core/annotations/default");
 declare module "effect/Schema" {
   namespace Annotations {
     interface GenericSchema<A> extends Schema<A> {
@@ -88,7 +88,7 @@ export type Scopes = ReadonlyArray<StringTypes.NonEmptyString>;
  * @category Core/Annotations
  * @since 0.1.0
  */
-export const LabelAnnotationId = Symbol.for($DefaultId`LabelAnnotation`);
+export const LabelAnnotationId = Symbol.for($I`LabelAnnotation`);
 
 /**
  * Annotation symbol identifying canonical BS field names.
@@ -102,7 +102,7 @@ export const LabelAnnotationId = Symbol.for($DefaultId`LabelAnnotation`);
  * @category Core/Annotations
  * @since 0.1.0
  */
-export const BSFieldName = Symbol.for($DefaultId`fieldName`);
+export const BSFieldName = Symbol.for($I`fieldName`);
 
 /**
  * Annotation symbol toggling bespoke UI control rendering.
@@ -116,7 +116,7 @@ export const BSFieldName = Symbol.for($DefaultId`fieldName`);
  * @category Core/Annotations
  * @since 0.1.0
  */
-export const BSCustomField = Symbol.for($DefaultId`customField`);
+export const BSCustomField = Symbol.for($I`customField`);
 
 /**
  * Annotation symbol that omits a schema field from generated forms.
@@ -130,7 +130,7 @@ export const BSCustomField = Symbol.for($DefaultId`customField`);
  * @category Core/Annotations
  * @since 0.1.0
  */
-export const BSSkipField = Symbol.for($DefaultId`skipField`);
+export const BSSkipField = Symbol.for($I`skipField`);
 
 /**
  * Annotation symbol pointing to the entity schema for a field.
@@ -144,7 +144,7 @@ export const BSSkipField = Symbol.for($DefaultId`skipField`);
  * @category Core/Annotations
  * @since 0.1.0
  */
-export const BSEntity = Symbol.for($DefaultId`entity`);
+export const BSEntity = Symbol.for($I`entity`);
 
 /**
  * Annotation symbol describing edge metadata for graph relationships.
@@ -160,7 +160,7 @@ export const BSEntity = Symbol.for($DefaultId`entity`);
  * @category Core/Annotations
  * @since 0.1.0
  */
-export const BSEdge = Symbol.for($DefaultId`edge`);
+export const BSEdge = Symbol.for($I`edge`);
 
 /**
  * Annotation symbol describing folder metadata for grouping entities.
@@ -174,7 +174,7 @@ export const BSEdge = Symbol.for($DefaultId`edge`);
  * @category Core/Annotations
  * @since 0.1.0
  */
-export const BSFolder = Symbol.for($DefaultId`folder`);
+export const BSFolder = Symbol.for($I`folder`);
 
 /**
  * Annotation symbol toggling whether an entity should be omitted from sync flows.
@@ -188,7 +188,7 @@ export const BSFolder = Symbol.for($DefaultId`folder`);
  * @category Core/Annotations
  * @since 0.1.0
  */
-export const BSSkipEntity = Symbol.for($DefaultId`skipEntity`);
+export const BSSkipEntity = Symbol.for($I`skipEntity`);
 
 /**
  * Annotation symbol carrying transformation hints for runtime processing.
@@ -202,7 +202,7 @@ export const BSSkipEntity = Symbol.for($DefaultId`skipEntity`);
  * @category Core/Annotations
  * @since 0.1.0
  */
-export const BSTransformer = Symbol.for($DefaultId`transformer`);
+export const BSTransformer = Symbol.for($I`transformer`);
 
 /**
  * Annotation symbol for predicate filters that decide whether an entity syncs.
@@ -218,7 +218,7 @@ export const BSTransformer = Symbol.for($DefaultId`transformer`);
  * @category Core/Annotations
  * @since 0.1.0
  */
-export const BSFilterFn = Symbol.for($DefaultId`filterFn`);
+export const BSFilterFn = Symbol.for($I`filterFn`);
 
 /**
  * Annotation symbol for tagging folders with semantic folder types.
@@ -232,7 +232,7 @@ export const BSFilterFn = Symbol.for($DefaultId`filterFn`);
  * @category Core/Annotations
  * @since 0.1.0
  */
-export const BSFolderType = Symbol.for($DefaultId`folderType`);
+export const BSFolderType = Symbol.for($I`folderType`);
 
 /**
  * Annotation symbol for mapping schema fields to backing database tables.
@@ -246,7 +246,7 @@ export const BSFolderType = Symbol.for($DefaultId`folderType`);
  * @category Core/Annotations
  * @since 0.1.0
  */
-export const BSTable = Symbol.for($DefaultId`table`);
+export const BSTable = Symbol.for($I`table`);
 
 /**
  * Annotation symbol for attaching UI metadata (forms, tables, navigation) to schemas.
@@ -262,7 +262,7 @@ export const BSTable = Symbol.for($DefaultId`table`);
  * @category Core/Annotations
  * @since 0.1.0
  */
-export const BSUIConfig = Symbol.for($DefaultId`uiConfig`);
+export const BSUIConfig = Symbol.for($I`uiConfig`);
 
 /**
  * Annotation symbol describing relation metadata for entity schemas.
@@ -278,7 +278,7 @@ export const BSUIConfig = Symbol.for($DefaultId`uiConfig`);
  * @category Core/Annotations
  * @since 0.1.0
  */
-export const BSRelations = Symbol.for($DefaultId`relations`);
+export const BSRelations = Symbol.for($I`relations`);
 
 /**
  * Annotation symbol describing a foreign key target for a field.
@@ -294,7 +294,7 @@ export const BSRelations = Symbol.for($DefaultId`relations`);
  * @category Core/Annotations
  * @since 0.1.0
  */
-export const BSForeignKey = Symbol.for($DefaultId`foreignKey`);
+export const BSForeignKey = Symbol.for($I`foreignKey`);
 
 /**
  * Edge metadata encoding a relationship type and target entity tag.
@@ -516,7 +516,7 @@ export type RelationConfig = {
  */
 export type DefaultAnnotations<A, TypeParameters extends ReadonlyArray<UnsafeTypes.UnsafeAny> = readonly []> = {
   readonly identifier?: AST.IdentifierAnnotation;
-  readonly title: AST.TitleAnnotation;
+  readonly title?: AST.TitleAnnotation;
   readonly description: AST.DescriptionAnnotation;
   readonly documentation?: AST.DocumentationAnnotation;
   readonly examples?: AST.ExamplesAnnotation<A>;

@@ -13,11 +13,11 @@
  * @since 0.1.0
  */
 
+import { $SchemaId } from "@beep/identity/packages";
 import * as ParseResult from "effect/ParseResult";
 import * as S from "effect/Schema";
-import { $NumberId } from "../../internal";
 
-const { $NumberId: Id } = $NumberId.compose("number");
+const $I = $SchemaId.create("primitives/number/number");
 /**
  * Schema transformer that converts string or number input to number output.
  *
@@ -44,7 +44,7 @@ export const StringOrNumberToNumber = S.transformOrFail(S.Union(S.String, S.Numb
   encode: (value) => ParseResult.succeed(String(value)),
   strict: true,
 }).annotations(
-  Id.annotations("number/StringOrNumberToNumber", {
+  $I.annotations("number/StringOrNumberToNumber", {
     description: "Schema transformer that converts string or number input to number output.",
   })
 );

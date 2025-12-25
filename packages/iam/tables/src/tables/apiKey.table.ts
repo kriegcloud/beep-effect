@@ -1,6 +1,6 @@
 import type { SharedEntityIds } from "@beep/shared-domain";
 import { IamEntityIds } from "@beep/shared-domain";
-import { OrgTable, user } from "@beep/shared-tables";
+import { datetime, OrgTable, user } from "@beep/shared-tables";
 import * as d from "drizzle-orm";
 import * as pg from "drizzle-orm/pg-core";
 export const apiKey = OrgTable.make(IamEntityIds.ApiKeyId)(
@@ -16,7 +16,7 @@ export const apiKey = OrgTable.make(IamEntityIds.ApiKeyId)(
       .references(() => user.id, { onDelete: "cascade" }),
     refillInterval: pg.integer("refill_interval"),
     refillAmount: pg.integer("refill_amount"),
-    lastRefillAt: pg.timestamp("last_refill_at"),
+    lastRefillAt: datetime("last_refill_at"),
     enabled: pg.boolean("enabled").notNull().default(true),
     rateLimitEnabled: pg.boolean("rate_limit_enabled").notNull().default(true),
     rateLimitTimeWindow: pg.integer("rate_limit_time_window").notNull().default(86400000),
@@ -25,8 +25,8 @@ export const apiKey = OrgTable.make(IamEntityIds.ApiKeyId)(
     requestCount: pg.integer("request_count"),
     // todo defaults
     remaining: pg.integer("remaining"),
-    lastRequest: pg.timestamp("last_request"),
-    expiresAt: pg.timestamp("expires_at"),
+    lastRequest: datetime("last_request"),
+    expiresAt: datetime("expires_at"),
     permissions: pg.text("permissions"),
     metadata: pg.text("metadata"),
   },

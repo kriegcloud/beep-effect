@@ -12,12 +12,12 @@
  * @since 0.1.0
  */
 
+import { $SchemaId } from "@beep/identity/packages";
 import { faker } from "@faker-js/faker";
 import * as S from "effect/Schema";
-import { $NetworkId } from "../../internal";
 import * as regexes from "../../internal/regex/regexes";
 
-const { $DomainId: Id } = $NetworkId.compose("domain");
+const $I = $SchemaId.create("primitives/network/domain");
 
 /**
  * Schema ensuring a domain label (the segments between dots) is valid.
@@ -39,7 +39,7 @@ export class DomainLabel extends S.Lowercase.pipe(
     message: () => `Domain label must match ${regexes.domain_label.source}`,
   })
 ).annotations(
-  Id.annotations("domain/DomainLabel", {
+  $I.annotations("domain/DomainLabel", {
     description: "A valid DNS domain label (subdomain segment).",
     arbitrary: () => (fc) => fc.constantFrom(null).map(() => faker.internet.domainWord()),
   })
@@ -103,7 +103,7 @@ export class TopLevelDomain extends S.Lowercase.pipe(
     message: () => `Top level domain must match ${regexes.top_level_domain.source}`,
   })
 ).annotations(
-  Id.annotations("domain/TopLevelDomain", {
+  $I.annotations("domain/TopLevelDomain", {
     description: "A valid top-level domain (TLD).",
     arbitrary: () => (fc) => fc.constantFrom(null).map(() => faker.internet.domainSuffix()),
   })
@@ -173,7 +173,7 @@ export class DomainName extends S.String.pipe(
     message: () => `Domain name must match ${regexes.domain.source}`,
   })
 ).annotations(
-  Id.annotations("domain/DomainName", {
+  $I.annotations("domain/DomainName", {
     description: "A fully qualified domain name.",
     arbitrary: () => (fc) => fc.constantFrom(null).map(() => faker.internet.domainName()),
   })

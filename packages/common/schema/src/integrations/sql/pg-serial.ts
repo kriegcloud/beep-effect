@@ -13,10 +13,10 @@
  * @since 0.1.0
  */
 
+import { $SchemaId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
-import { $SqlId } from "../../internal";
 
-const { $PgSerialId: Id } = $SqlId.compose("pg-serial");
+const $I = $SchemaId.create("integrations/sql/pg-serial");
 /**
  * PostgreSQL SERIAL (auto-incrementing integer primary key).
  *
@@ -32,7 +32,7 @@ const { $PgSerialId: Id } = $SqlId.compose("pg-serial");
  * @since 0.1.0
  */
 export class PgSerialSchema extends S.NonNegativeInt.annotations(
-  Id.annotations("pg-serial/PgSerial", {
+  $I.annotations("pg-serial/PgSerial", {
     description: "Auto-incrementing 32-bit integer primary key. Equivalent to PostgreSQL SERIAL.",
   })
 ) {}

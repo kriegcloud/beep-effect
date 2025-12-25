@@ -1,11 +1,13 @@
 import { Entities } from "@beep/iam-domain";
 import { dependencies } from "@beep/iam-server/adapters/repos/_common";
 import { IamDb } from "@beep/iam-server/db";
+import { $IamServerId } from "@beep/identity/packages";
 import { SharedEntityIds } from "@beep/shared-domain";
 import { Repo } from "@beep/shared-server/Repo";
 import * as Effect from "effect/Effect";
 
-export class TeamRepo extends Effect.Service<TeamRepo>()("@beep/iam-server/adapters/repos/TeamRepo", {
+const $I = $IamServerId.create("adapters/repos/TeamRepo");
+export class TeamRepo extends Effect.Service<TeamRepo>()($I`TeamRepo`, {
   dependencies,
   accessors: true,
   effect: Repo.make(

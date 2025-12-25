@@ -12,16 +12,16 @@
  * @since 0.1.0
  */
 
+import { $SchemaId } from "@beep/identity/packages";
 import { faker } from "@faker-js/faker";
 import type * as B from "effect/Brand";
 import * as F from "effect/Function";
 import * as O from "effect/Option";
 import * as Redacted from "effect/Redacted";
 import * as S from "effect/Schema";
-import { $StringId } from "../../internal";
 import * as regexes from "../../internal/regex/regexes";
 
-const { $PhoneId: Id } = $StringId.compose("phone");
+const $I = $SchemaId.create("primitives/string/phone");
 
 /**
  * Raw branded phone schema that validates E.164 compatible strings.
@@ -35,7 +35,7 @@ const { $PhoneId: Id } = $StringId.compose("phone");
  * @since 0.1.0
  */
 export const UnsafePhone = S.NonEmptyTrimmedString.pipe(S.pattern(regexes.e164), S.brand("Phone")).annotations(
-  Id.annotations("phone/UnsafePhone", {
+  $I.annotations("phone/UnsafePhone", {
     description: "A phone number that matches the strict E.164 pattern.",
     arbitrary: () => (fc) => fc.constant(null).map(() => faker.phone.number() as B.Branded<string, "Phone">),
   })
@@ -91,7 +91,7 @@ export declare namespace UnsafePhone {
  * @since 0.1.0
  */
 export class Phone extends S.Redacted(UnsafePhone).annotations(
-  Id.annotations("phone/Phone", {
+  $I.annotations("phone/Phone", {
     description: "A redacted phone number built from the E.164-branded schema.",
   })
 ) {

@@ -14,11 +14,11 @@
  * @since 0.1.0
  */
 
+import { $SchemaId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
 import { StringLiteralKit } from "../../derived/kits/string-literal-kit";
-import { $GeoId } from "../../internal";
 
-const { $UsstateId: Id } = $GeoId.compose("usstate");
+const $I = $SchemaId.create("primitives/geo/usstate");
 
 /**
  * Schema validating US state/territory abbreviations.
@@ -90,7 +90,7 @@ export class USStateCode extends StringLiteralKit(
   "AS",
   "MP"
 ).annotations(
-  Id.annotations("USStateCode", {
+  $I.annotations("USStateCode", {
     description: "A valid US state or territory abbreviation.",
   })
 ) {}
@@ -203,7 +203,7 @@ export class USStateName extends StringLiteralKit(
   "American Samoa",
   "Northern Mariana Islands"
 ).annotations(
-  Id.annotations("USStateName", {
+  $I.annotations("USStateName", {
     description: "A valid US state or territory name.",
   })
 ) {}
@@ -317,7 +317,7 @@ export class USStateNameFromCode extends S.transformLiterals(
   [USStateCode.Enum.AS, USStateName.Enum["American Samoa"]],
   [USStateCode.Enum.MP, USStateName.Enum["Northern Mariana Islands"]]
 ).annotations(
-  Id.annotations("USStateNameFromCode", {
+  $I.annotations("USStateNameFromCode", {
     description: "Maps US state codes to their canonical names.",
   })
 ) {}
