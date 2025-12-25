@@ -11,7 +11,7 @@ import * as S from "effect/Schema";
 import * as Str from "effect/String";
 
 // Converts XYFlow's Position enum into a MappedLiteralKit... Yeah this is an effect/Schema now dig deeper for set of sick fucking utils attached
-export const Position = BS.MappedLiteralKitFromEnum(XYFlowPosition);
+export const { DecodedEnum: Position} = BS.MappedLiteralKitFromEnum(XYFlowPosition);
 
 // Domain schemas
 export const Maintainer = BS.StructRecord({ name: S.String, email: BS.NullishString, url: BS.NullishString });
@@ -79,11 +79,11 @@ export class GardenNode extends WithPosition(
   })
 ) {
   get sourcePosition() {
-    return Position.DecodedEnum.Bottom;
+    return Position.Bottom;
   }
 
   get targetPosition() {
-    return Position.DecodedEnum.Top;
+    return Position.Top;
   }
 }
 
@@ -98,7 +98,7 @@ export class SproutNode extends WithPosition(
   })
 ) {
   get targetPosition() {
-    return Position.DecodedEnum.Top;
+    return Position.Top;
   }
 }
 
@@ -113,7 +113,7 @@ export class SupergardenNode extends WithPosition(
   })
 ) {
   get sourcePosition() {
-    return Position.DecodedEnum.Bottom;
+    return Position.Bottom;
   }
 }
 
@@ -127,11 +127,11 @@ export class SubgardenNode extends WithPosition(
   })
 ) {
   get sourcePosition() {
-    return Position.DecodedEnum.Bottom;
+    return Position.Bottom;
   }
 
   get targetPosition() {
-    return Position.DecodedEnum.Top;
+    return Position.Top;
   }
 }
 
@@ -242,10 +242,10 @@ const nullableToArray = <T>(nullable: T[] | ReadonlyArray<T> | undefined | null)
 // Node position configuration - exhaustive matching on "kind" discriminator
 export const getNodePositions = M.type<FlowNode>().pipe(
   M.discriminatorsExhaustive("kind")({
-    garden: () => ({ sourcePosition: Position.DecodedEnum.Bottom, targetPosition: Position.DecodedEnum.Top }),
-    sprout: () => ({ targetPosition: Position.DecodedEnum.Top }),
-    supergarden: () => ({ sourcePosition: Position.DecodedEnum.Bottom }),
-    subgarden: () => ({ sourcePosition: Position.DecodedEnum.Bottom, targetPosition: Position.DecodedEnum.Top }),
+    garden: () => ({ sourcePosition: Position.Bottom, targetPosition: Position.Top }),
+    sprout: () => ({ targetPosition: Position.Top }),
+    supergarden: () => ({ sourcePosition: Position.Bottom }),
+    subgarden: () => ({ sourcePosition: Position.Bottom, targetPosition: Position.Top }),
   })
 );
 
