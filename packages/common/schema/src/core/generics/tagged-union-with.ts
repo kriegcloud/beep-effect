@@ -164,12 +164,11 @@ export const TaggedUnionWith = <
   // S.Union requires at least 2 members
   const schema = S.Union(first, second, ...rest);
 
-  return schema
-    .annotations(
-      $I.annotations("TaggedUnionWith", {
-        description: `Tagged union with variants: ${A.join(config.tags, ", ")}`,
-      })
-    ) as TaggedUnionWith.Schema<Tags, Fields>;
+  return schema.annotations(
+    $I.annotations("TaggedUnionWith", {
+      description: `Tagged union with variants: ${A.join(config.tags, ", ")}`,
+    })
+  ) as TaggedUnionWith.Schema<Tags, Fields>;
 };
 
 /**

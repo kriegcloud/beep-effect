@@ -5,10 +5,10 @@ import * as A from "effect/Array";
 import * as F from "effect/Function";
 import * as M from "effect/Match";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import * as P from "effect/Predicate";
 
 // Converts XYFlow's Position enum into a MappedLiteralKit... Yeah this is an effect/Schema now dig deeper for set of sick fucking utils attached
 export const Position = BS.MappedLiteralKitFromEnum(XYFlowPosition);
@@ -34,15 +34,13 @@ export const Theme = BS.StructRecord({
   secondary_color: BS.NullishString,
   text_color: BS.NullishString,
 });
-export type Theme = typeof Theme.Type;
 
 // Position schema for flow nodes
 const Position2D = S.Struct({ x: S.Number, y: S.Number });
 type Position2D = typeof Position2D.Type;
 
 // Helper to create kind discriminator with constructor default
-const Kind = <K extends string>(kind: K) =>
-  BS.LiteralWithDefault(kind)
+const Kind = <K extends string>(kind: K) => BS.LiteralWithDefault(kind);
 
 // Shared node fields
 const baseNodeFields = {
@@ -131,6 +129,7 @@ export class SubgardenNode extends WithPosition(
   get sourcePosition() {
     return Position.DecodedEnum.Bottom;
   }
+
   get targetPosition() {
     return Position.DecodedEnum.Top;
   }
@@ -211,18 +210,11 @@ const flowOptionsFields = { expandSubgardens: S.optional(S.Boolean), animateEdge
 export const FlowOptions = BS.TaggedUnionWith({
   tags: ["default", "straight", "step", "smoothstep", "simplebezier"],
   fields: flowOptionsFields,
-})
+});
 
-export declare namespace FlowOptions {
-  export type Type = typeof FlowOptions.Type;
-}
 export const FlowDefault = S.TaggedStruct("default", flowOptionsFields);
 
 export const NodeType = BS.StringLiteralKit("garden", "sprout", "supergarden", "subgarden");
-
-export declare namespace NodeType {
-  export type Type = typeof NodeType.Type;
-}
 
 const prefixId = (prefix?: undefined | string) => (normalizedId: string) =>
   prefix ? `${prefix}-${normalizedId}` : normalizedId;
@@ -346,9 +338,7 @@ export const findGardenByName: {
       O.orElse(() =>
         pipe(
           gardens,
-          A.flatMap((g) =>
-            A.appendAll(nullableToArray(g.supergardens))(nullableToArray(g.subgardens))
-          ),
+          A.flatMap((g) => A.appendAll(nullableToArray(g.supergardens))(nullableToArray(g.subgardens))),
           A.match({
             onEmpty: O.none,
             onNonEmpty: findGardenByName(name),
@@ -410,7 +400,7 @@ export const processSubgardensRecursively: {
       A.reduce(emptyFlowGraph, (acc, item) => ({
         nodes: pipe(acc.nodes, A.appendAll(item.nodes)),
         edges: pipe(acc.edges, A.appendAll(item.edges)),
-      })),
+      }))
     )
 );
 
@@ -465,17 +455,8 @@ export const gardenToFlowGraph = (garden: Garden): FlowGraph.Type => {
   const subgardensFlow = processSubgardensRecursively(garden, rootId);
 
   return {
-    nodes: pipe(
-      supergardenNodes,
-      A.append(rootNode),
-      A.appendAll(sproutNodes),
-      A.appendAll(subgardensFlow.nodes)
-    ),
-    edges: pipe(
-      supergardenEdges,
-      A.appendAll(sproutEdges),
-      A.appendAll(subgardensFlow.edges)
-    ),
+    nodes: pipe(supergardenNodes, A.append(rootNode), A.appendAll(sproutNodes), A.appendAll(subgardensFlow.nodes)),
+    edges: pipe(supergardenEdges, A.appendAll(sproutEdges), A.appendAll(subgardensFlow.edges)),
   };
 };
 

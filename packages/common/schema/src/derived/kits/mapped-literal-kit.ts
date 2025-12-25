@@ -47,19 +47,19 @@
  * @since 0.1.0
  */
 
-import type {UnsafeTypes} from "@beep/types";
+import type { UnsafeTypes } from "@beep/types";
+import { ArrayUtils } from "@beep/utils";
 import * as A from "effect/Array";
 import * as Equal from "effect/Equal";
 import * as F from "effect/Function";
 import * as HashMap from "effect/HashMap";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import * as Struct from "effect/Struct";
 import type * as AST from "effect/SchemaAST";
-import {mergeSchemaAnnotations} from "../../core/annotations/built-in-annotations";
-import type {IGenericLiteralKit} from "./literal-kit";
-import {makeGenericLiteralKit} from "./literal-kit";
-import {ArrayUtils} from "@beep/utils";
+import * as Struct from "effect/Struct";
+import { mergeSchemaAnnotations } from "../../core/annotations/built-in-annotations";
+import type { IGenericLiteralKit } from "./literal-kit";
+import { makeGenericLiteralKit } from "./literal-kit";
 
 // ============================================================================
 // Type Utilities
@@ -481,10 +481,6 @@ export const MappedLiteralKitFromEnum = <const E extends Record<string, AST.Lite
   enumObj: E
 ): IMappedLiteralKit<A.NonEmptyReadonlyArray<readonly [keyof E & string, E[keyof E]]>> => {
   const keys = ArrayUtils.NonEmptyReadonly.fromIterable(Struct.keys(enumObj));
-  const pairs = ArrayUtils.NonEmptyReadonly.mapNonEmpty(
-    keys,
-    (key) => [key, enumObj[key]] as const
-  ) as MappedPairs;
+  const pairs = ArrayUtils.NonEmptyReadonly.mapNonEmpty(keys, (key) => [key, enumObj[key]] as const) as MappedPairs;
   return makeMappedLiteralKit(pairs) as UnsafeTypes.UnsafeAny;
 };
-

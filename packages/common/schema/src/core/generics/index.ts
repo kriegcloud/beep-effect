@@ -13,6 +13,9 @@
  * @since 0.1.0
  */
 
+export * as DiscriminatedStruct from "./discriminated-struct";
+export * from "./nullish";
+export * from "./struct-record";
 export * from "./tagged-class";
 export * from "./tagged-struct";
 /**
@@ -58,6 +61,3 @@ export * from "./tagged-union-factory";
  * @since 0.1.0
  */
 export * from "./tagged-union-with";
-export * as DiscriminatedStruct from "./discriminated-struct";
-export * from "./struct-record";
-export * from "./nullish";

@@ -420,7 +420,7 @@ export * from "./dedent";
  * @since 0.1.0
  */
 export * from "./deep-remove-null";
-
+export * from "./nullable";
 /**
  * Re-exports random hex string generator.
  *
@@ -435,7 +435,6 @@ export * from "./deep-remove-null";
  * @since 0.1.0
  */
 export * from "./random-hex-string";
-
 /**
  * Re-exports accent removal utilities.
  *
@@ -469,4 +468,3 @@ export * from "./thunk";
  * @since 0.1.0
  */
 export * as TopoSort from "./topo-sort";
-export * from "./nullable";
