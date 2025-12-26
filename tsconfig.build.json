@@ -36,6 +36,9 @@
       "path": "packages/common/contract/tsconfig.build.json"
     },
     {
+      "path": "packages/common/dsl/tsconfig.build.json"
+    },
+    {
       "path": "packages/shared/domain/tsconfig.build.json"
     },
     {
@@ -50,7 +53,7 @@
     {
       "path": "packages/shared/client/tsconfig.build.json"
     },
-        {
+    {
       "path": "packages/shared/env/tsconfig.build.json"
     },
     {
@@ -101,16 +104,16 @@
     {
       "path": "apps/web/tsconfig.json"
     },
-        {
+    {
       "path": "apps/interfere/tsconfig.json"
     },
-        {
+    {
       "path": "apps/marketing/tsconfig.json"
     },
     {
       "path": "packages/_internal/db-admin/tsconfig.build.json"
     },
-        {
+    {
       "path": "tooling/build-utils/tsconfig.build.json"
     },
     {

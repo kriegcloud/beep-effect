@@ -1,0 +1,73 @@
+{
+  "name": "@beep/shared-dsl",
+  "version": "0.0.0",
+  "type": "module",
+  "license": "MIT",
+  "description": "A package which contains table definitions which cross context boundaries",
+  "homepage": "https://github.com/kriegcloud/beep-effect",
+  "publishConfig": {
+    "access": "public",
+    "provenance": true,
+    "directory": "dist",
+    "linkDirectory": false
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./package.json": "./package.json",
+    "./*": "./src/*.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:kriegcloud/beep-effect.git",
+    "directory": "packages/shared/dsl"
+  },
+  "scripts": {
+    "build": "bun run build-esm && bun run build-cjs && bun run build-annotate",
+    "dev": "tsc -b tsconfig.build.json --watch",
+    "build-esm": "tsc -b tsconfig.build.json",
+    "build-cjs": "babel build/esm --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --out-dir build/cjs --source-maps",
+    "build-annotate": "babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps",
+    "check": "tsc -b tsconfig.json",
+    "test": "bun test",
+    "lint": "biome check .",
+    "lint:fix": "biome check . --write",
+    "coverage": "bun test --coverage",
+    "lint:circular": "bunx madge -c ."
+  },
+  "peerDependencies": {
+    "@effect/sql": "catalog:",
+    "@effect/experimental": "catalog:",
+    "@beep/schema": "workspace:^",
+    "@beep/utils": "workspace:^",
+    "@beep/identity": "workspace:^",
+    "drizzle-orm": "catalog:",
+    "effect": "catalog:",
+    "mutative": "catalog:"
+  },
+  "devDependencies": {
+    "@beep/utils": "workspace:^",
+    "@beep/identity": "workspace:^",
+    "@beep/invariant": "workspace:^",
+    "@beep/types": "workspace:^",
+    "@effect/docgen": "catalog:",
+    "@effect/sql": "catalog:",
+    "@effect/experimental": "catalog:",
+    "@beep/schema": "workspace:^",
+    "drizzle-orm": "catalog:",
+    "effect": "catalog:",
+    "mutative": "catalog:",
+    "@total-typescript/ts-reset": "catalog:"
+  },
+  "effect": {
+    "generateExports": {
+      "include": [
+        "**/*.ts"
+      ]
+    },
+    "generateIndex": {
+      "include": [
+        "**/*.ts"
+      ]
+    }
+  }
+}

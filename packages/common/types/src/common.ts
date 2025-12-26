@@ -15,9 +15,12 @@
  * @category Types/Common
  * @since 0.1.0
  */
-export type Prettify<T> = {
-  [K in keyof T]: T[K];
-} & {};
+/**
+ * Recursively expands type aliases for better IDE hover display.
+ *
+ * Transforms `{ a: string } & { b: number }` into `{ a: string; b: number }`.
+ */
+export type Prettify<T> = T extends infer U ? { [K in keyof U]: Prettify<U[K]> } : never;
 
 /**
  * Recursively makes every property optional, matching `Partial<T>` semantics at

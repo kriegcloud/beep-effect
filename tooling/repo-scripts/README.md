@@ -341,7 +341,7 @@ Handlebars templates for scaffolding new workspace packages are available in `sr
 - `tsconfig.build.json.hbs` - Build-specific TypeScript config
 - `tsconfig.src.json.hbs` - Source-specific TypeScript config
 - `tsconfig.test.json.hbs` - Test-specific TypeScript config (note: typo in filename)
-- `vitest.config.ts.hbs` - Vitest test configuration
+- `vitest.config.ts.hbs` - TestKit test configuration
 
 These templates support consistent workspace structure across the monorepo.
 

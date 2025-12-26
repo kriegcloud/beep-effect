@@ -1,4 +1,5 @@
 import { BS } from "@beep/schema";
+import { nullableToArray } from "@beep/utils";
 import { MarkerType, Position as XYFlowPosition } from "@xyflow/react";
 import { pipe, Struct } from "effect";
 import * as A from "effect/Array";
@@ -11,7 +12,8 @@ import * as S from "effect/Schema";
 import * as Str from "effect/String";
 
 // Converts XYFlow's Position enum into a MappedLiteralKit... Yeah this is an effect/Schema now dig deeper for set of sick fucking utils attached
-export const { DecodedEnum: Position} = BS.MappedLiteralKitFromEnum(XYFlowPosition);
+export const _Pos = BS.MappedLiteralKitFromEnum(XYFlowPosition);
+export const { DecodedEnum: Position } = _Pos;
 
 // Domain schemas
 export const Maintainer = BS.StructRecord({ name: S.String, email: BS.NullishString, url: BS.NullishString });
@@ -234,10 +236,6 @@ export const generateId: {
       (base) => `${type}-${base}`
     )
 );
-
-// Converts nullable array to non-nullable readonly array (returns empty if null/undefined)
-const nullableToArray = <T>(nullable: T[] | ReadonlyArray<T> | undefined | null): readonly T[] =>
-  pipe(O.fromNullable(nullable), O.getOrElse(A.empty<T>));
 
 // Node position configuration - exhaustive matching on "kind" discriminator
 export const getNodePositions = M.type<FlowNode>().pipe(

@@ -1,0 +1,181 @@
+import { shouldNeverHappen } from "@beep/dsl/util";
+import { ArrayUtils } from "@beep/utils";
+import type { MigrationOptions } from "../adapter-types.ts";
+import type { EventDef, EventDefRecord, Materializer } from "./EventDef/mod.ts";
+import { tableIsClientDocumentTable } from "./state/pg/client-document-def.ts";
+import type { PgDSL } from "./state/pg/db-schema/mod.ts";
+import { stateSystemTables } from "./state/pg/system-tables/state-tables.ts";
+import type { TableDef } from "./state/pg/table-def.ts";
+import type { UnknownEvents } from "./unknown-events.ts";
+import { normalizeUnknownEventHandling } from "./unknown-events.ts";
+export const LiveStoreSchemaSymbol = Symbol.for("livestore.LiveStoreSchema");
+export type LiveStoreSchemaSymbol = typeof LiveStoreSchemaSymbol;
+
+export const UNKNOWN_EVENT_SCHEMA_HASH = -1;
+
+export interface LiveStoreSchema<
+  TDbSchema extends PgDSL.DbSchema = PgDSL.DbSchema,
+  TEventsDefRecord extends EventDefRecord = EventDefRecord,
+> {
+  readonly LiveStoreSchemaSymbol: LiveStoreSchemaSymbol;
+  /** Only used on type-level */
+  readonly _DbSchemaType: TDbSchema;
+  /** Only used on type-level */
+  readonly _EventDefMapType: TEventsDefRecord;
+
+  readonly state: InternalState;
+  readonly eventsDefsMap: Map<string, EventDef.AnyWithoutFn>;
+  readonly unknownEventHandling: UnknownEvents.HandlingConfig;
+  readonly devtools: {
+    /** @default 'default' */
+    readonly alias: string;
+  };
+}
+
+export namespace LiveStoreSchema {
+  export type Any = LiveStoreSchema<any, any>;
+}
+
+/**
+ * Runtime type guard for LiveStoreSchema.
+ *
+ * The guard intentionally performs lightweight structural checks that are
+ * stable across implementations. It verifies the identifying symbol marker
+ * and the presence of core maps/state used at runtime.
+ */
+export const isLiveStoreSchema = (value: unknown): value is LiveStoreSchema<any, any> => {
+  if (typeof value !== "object" || value === null) return false;
+
+  const v: any = value;
+
+  // Identity marker must match exactly
+  if (v.LiveStoreSchemaSymbol !== LiveStoreSchemaSymbol) return false;
+
+  // Core structures used at runtime
+  const hasEventsMap = v.eventsDefsMap instanceof Map;
+  const hasStatePgTables = v.state?.pg?.tables instanceof Map;
+  const hasStateMaterializers = v.state?.materializers instanceof Map;
+  const hasDevtoolsAlias = typeof v.devtools?.alias === "string";
+
+  return hasEventsMap && hasStatePgTables && hasStateMaterializers && hasDevtoolsAlias;
+};
+
+// TODO abstract this further away from pg/tables
+export interface InternalState {
+  readonly pg: {
+    readonly tables: Map<string, TableDef.Any>;
+    readonly migrations: MigrationOptions;
+    /** Compound hash of all table defs etc */
+    readonly hash: number;
+  };
+  readonly materializers: Map<string, Materializer>;
+}
+
+export interface InputSchema {
+  readonly events: ReadonlyArray<EventDef.AnyWithoutFn> | Record<string, EventDef.AnyWithoutFn>;
+  readonly state: InternalState;
+  readonly devtools?: {
+    /**
+     * This alias value is used to disambiguate between multiple schemas in the devtools.
+     * Only needed when an app uses multiple schemas.
+     *
+     * @default 'default'
+     */
+    readonly alias?: string;
+  };
+  /**
+   * Configures how unknown events should be handled. Defaults to `{ strategy: 'warn' }`.
+   */
+  readonly unknownEventHandling?: UnknownEvents.HandlingConfig;
+}
+
+export const makeSchema = <TInputSchema extends InputSchema>(
+  /** Note when using the object-notation for tables/events, the object keys are ignored and not used as table/mutation names */
+  inputSchema: TInputSchema
+): FromInputSchema.DeriveSchema<TInputSchema> => {
+  const state = inputSchema.state;
+  const tables = inputSchema.state.pg.tables;
+
+  for (const tableDef of stateSystemTables) {
+    tables.set(tableDef.pgDef.name, tableDef);
+  }
+
+  const eventsDefsMap = new Map<string, EventDef.AnyWithoutFn>();
+
+  if (ArrayUtils.Readonly.isReadonlyArray(inputSchema.events)) {
+    for (const eventDef of inputSchema.events) {
+      eventsDefsMap.set(eventDef.name, eventDef);
+    }
+  } else {
+    for (const eventDef of Object.values(inputSchema.events ?? {})) {
+      if (eventsDefsMap.has(eventDef.name)) {
+        shouldNeverHappen(`Duplicate event name: ${eventDef.name}. Please use unique names for events.`);
+      }
+      eventsDefsMap.set(eventDef.name, eventDef);
+    }
+  }
+
+  for (const tableDef of tables.values()) {
+    if (tableIsClientDocumentTable(tableDef) && eventsDefsMap.has(tableDef.set.name) === false) {
+      eventsDefsMap.set(tableDef.set.name, tableDef.set);
+    }
+  }
+
+  const unknownEventHandling = normalizeUnknownEventHandling(inputSchema.unknownEventHandling);
+
+  return {
+    LiveStoreSchemaSymbol,
+    _DbSchemaType: Symbol.for("livestore.DbSchemaType") as any,
+    _EventDefMapType: Symbol.for("livestore.EventDefMapType") as any,
+    state,
+    eventsDefsMap,
+    unknownEventHandling,
+    devtools: {
+      alias: inputSchema.devtools?.alias ?? "default",
+    },
+  } satisfies LiveStoreSchema;
+};
+
+export const getEventDef = <TSchema extends LiveStoreSchema>(
+  schema: TSchema,
+  eventName: string
+): {
+  eventDef: EventDef.AnyWithoutFn;
+  materializer: Materializer;
+} => {
+  const eventDef = schema.eventsDefsMap.get(eventName);
+  if (eventDef === undefined) {
+    return shouldNeverHappen(`No event definition found for \`${eventName}\`.`);
+  }
+  const materializer = schema.state.materializers.get(eventName);
+  if (materializer === undefined) {
+    return shouldNeverHappen(`No materializer found for \`${eventName}\`.`);
+  }
+  return { eventDef, materializer };
+};
+
+export namespace FromInputSchema {
+  export type DeriveSchema<TInputSchema extends InputSchema> = LiveStoreSchema<
+    DbSchemaFromInputSchemaTables<TInputSchema["state"]["pg"]["tables"]>,
+    EventDefRecordFromInputSchemaEvents<TInputSchema["events"]>
+  >;
+
+  /**
+   * In case of ...
+   * - array: we use the table name of each array item (= table definition) as the object key
+   * - object: we discard the keys of the input object and use the table name of each object value (= table definition) as the new object key
+   */
+  type DbSchemaFromInputSchemaTables<TTables extends InputSchema["state"]["pg"]["tables"]> =
+    TTables extends ReadonlyArray<TableDef>
+      ? { [K in TTables[number] as K["pgDef"]["name"]]: K["pgDef"] }
+      : TTables extends Record<string, TableDef>
+        ? { [K in keyof TTables as TTables[K]["pgDef"]["name"]]: TTables[K]["pgDef"] }
+        : never;
+
+  type EventDefRecordFromInputSchemaEvents<TEvents extends InputSchema["events"]> =
+    TEvents extends ReadonlyArray<EventDef.Any>
+      ? { [K in TEvents[number] as K["name"]]: K }
+      : TEvents extends { [name: string]: EventDef.Any }
+        ? { [K in keyof TEvents as TEvents[K]["name"]]: TEvents[K] }
+        : never;
+}

@@ -1,0 +1,96 @@
+import { Transferable } from "@effect/platform";
+import { Effect, Hash, ParseResult, Schema } from "effect";
+import type { ParseError } from "effect/ParseResult";
+import type { ParseOptions } from "effect/SchemaAST";
+import * as SchemaAST from "effect/SchemaAST";
+
+import { shouldNeverHappen } from "../../mod.ts";
+
+export * from "./debug-diff.ts";
+
+// NOTE this is a temporary workaround until Effect schema has a better way to hash schemas
+// https://github.com/Effect-TS/effect/issues/2719
+// TODO remove this once the issue is resolved
+export const hash = (schema: Schema.Schema<any>) => {
+  try {
+    return Hash.string(JSON.stringify(schema.ast, null, 2));
+  } catch {
+    console.warn(
+      `Schema hashing failed, falling back to hashing the shortend schema AST string. This is less reliable and may cause false positives.`
+    );
+    return Hash.hash(schema.ast.toString());
+  }
+};
+
+const resolveStructAst = (ast: SchemaAST.AST): SchemaAST.AST => {
+  if (SchemaAST.isTransformation(ast)) {
+    return resolveStructAst(ast.from);
+  }
+
+  return ast;
+};
+
+export const getResolvedPropertySignatures = (
+  schema: Schema.Schema.AnyNoContext
+): ReadonlyArray<SchemaAST.PropertySignature> => {
+  const resolvedAst = resolveStructAst(schema.ast);
+  return SchemaAST.getPropertySignatures(resolvedAst);
+};
+
+export const encodeWithTransferables =
+  <A, I, R>(schema: Schema.Schema<A, I, R>, options?: ParseOptions | undefined) =>
+  (a: A, overrideOptions?: ParseOptions | undefined): Effect.Effect<[I, Transferable[]], ParseError, R> =>
+    Effect.gen(function* () {
+      const collector = yield* Transferable.makeCollector;
+
+      const encoded: I = yield* Schema.encode(schema, options)(a, overrideOptions).pipe(
+        Effect.provideService(Transferable.Collector, collector)
+      );
+
+      return [encoded, collector.unsafeRead() as Transferable[]];
+    });
+
+export const decodeSyncDebug: <A, I>(
+  schema: Schema.Schema<A, I, never>,
+  options?: SchemaAST.ParseOptions
+) => (i: I, overrideOptions?: SchemaAST.ParseOptions) => A = (schema, options) => (input, overrideOptions) => {
+  const res = Schema.decodeEither(schema, options)(input, overrideOptions);
+  if (res._tag === "Left") {
+    return shouldNeverHappen(`decodeSyncDebug failed:`, res.left);
+  }
+  return res.right;
+};
+
+export const encodeSyncDebug: <A, I>(
+  schema: Schema.Schema<A, I, never>,
+  options?: SchemaAST.ParseOptions
+) => (a: A, overrideOptions?: SchemaAST.ParseOptions) => I = (schema, options) => (input, overrideOptions) => {
+  const res = Schema.encodeEither(schema, options)(input, overrideOptions);
+  if (res._tag === "Left") {
+    return shouldNeverHappen(`encodeSyncDebug failed:`, res.left);
+  }
+  return res.right;
+};
+
+export const swap = <A, I, R>(schema: Schema.Schema<A, I, R>): Schema.Schema<I, A, R> =>
+  Schema.transformOrFail(Schema.typeSchema(schema), Schema.encodedSchema(schema), {
+    decode: ParseResult.encode(schema),
+    encode: ParseResult.decode(schema),
+  });
+
+export const Base64FromUint8Array: Schema.Schema<string, Uint8Array> = swap(Schema.Uint8ArrayFromBase64);
+
+export interface JsonArray extends ReadonlyArray<JsonValue> {}
+export interface JsonObject {
+  [key: string]: JsonValue;
+}
+export type JsonValue = string | number | boolean | null | JsonObject | JsonArray;
+
+export const JsonValue: Schema.Schema<JsonValue> = Schema.Union(
+  Schema.String,
+  Schema.Number,
+  Schema.Boolean,
+  Schema.Null,
+  Schema.Array(Schema.suspend(() => JsonValue)),
+  Schema.Record({ key: Schema.String, value: Schema.suspend(() => JsonValue) })
+).annotations({ identifier: "JsonValue" });

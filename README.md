@@ -218,7 +218,7 @@ If anyone whispers “over-engineered,” I will annotate their existence with `
 - Auth: better-auth (wrapped via contract kits).
 - UI: React 19 + Next.js 15 App Router + MUI + Tailwind + shadcn + TanStack Query.
 - State machines: XState 5.
-- Quality: Biome, Vitest.
+- Quality: Biome, TestKit.
 - Infra: Docker + dotenvx.
 
 ## Quick start

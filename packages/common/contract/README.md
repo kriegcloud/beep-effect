@@ -391,7 +391,7 @@ bun run --filter @beep/contract lint:circular
 
 ## Testing
 
-- Unit tests with Vitest for contract behavior and schema validation
+- Unit tests with TestKit for contract behavior and schema validation
 - Test error mapping pipelines and continuation edge cases
 - Verify round-trip encoding/decoding for all schemas
 - Property-based tests for schema transformations where applicable

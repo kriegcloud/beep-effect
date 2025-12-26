@@ -77,7 +77,7 @@ const primaryProduct = StrUtils.getNestedValue(
 ```
 
 ## Verifications
-- `bun run test --filter=@beep/utils` for Vitest/Bun test suites (pure runtime behavior).
+- `bun run test --filter=@beep/utils` for TestKit/Bun test suites (pure runtime behavior).
 - `bun run lint --filter=@beep/utils` / `bun run lint:fix --filter=@beep/utils` to satisfy Biome + circular checks.
 - `bun run check --filter=@beep/utils` to ensure TypeScript config stays aligned.
 - `bun run coverage --filter=@beep/utils` generates coverage reports.
@@ -86,5 +86,5 @@ const primaryProduct = StrUtils.getNestedValue(
 - [ ] Implementation stays pure (no timers, I/O, platform APIs).
 - [ ] Effect namespace imports + `F.pipe` are used instead of native array/string helpers.
 - [ ] Reused existing helpers (`noOp`, `nullOpE`, guards) instead of duplicating logic.
-- [ ] Added or updated Vitest coverage when introducing new branches.
+- [ ] Added or updated TestKit coverage when introducing new branches.
 - [ ] Documented new helpers with JSDoc and, when relevant, cross-linked to `@beep/types` or `@beep/invariant`.

@@ -61,7 +61,8 @@ const composers = $I.compose(
   "db-admin",
   "server",
   "iam-tables",
-  "lexical-schemas"
+  "lexical-schemas",
+  "dsl"
 );
 
 /**
@@ -665,3 +666,5 @@ export const $IamTablesId = composers.$IamTablesId;
 export const $LexicalSchemasId = composers.$LexicalSchemasId;
 
 export const $YjsId = composers.$YjsId;
+
+export const $DslId = composers.$DslId;

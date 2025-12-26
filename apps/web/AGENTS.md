@@ -56,7 +56,7 @@
 ## Verifications
 - `bun run check --filter @beep/web` — type safety across app + shared slices.
 - `bun run lint --filter @beep/web` — Biome formatting/import rules (catches native collection helpers).
-- `bun run test --filter @beep/web` — Bun/Vitest placeholder suite (extend when adding behaviour).
+- `bun run test --filter @beep/web` — Bun/TestKit placeholder suite (extend when adding behaviour).
 - `bun run build --filter @beep/web` — ensures React Compiler + turbopack output tracing still succeed.
 
 ## Contributor Checklist

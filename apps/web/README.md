@@ -307,7 +307,7 @@ F.pipe(str, Str.trim)
 ## Testing Strategy
 
 - **Unit tests**: Colocated in `test/` directory
-- **Test runner**: Bun test with Vitest compatibility
+- **Test runner**: Bun test with TestKit compatibility
 - **Effect testing**: Use utilities from `@beep/testkit`
 - **Component testing**: React Testing Library patterns
 

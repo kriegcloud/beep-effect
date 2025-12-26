@@ -127,7 +127,7 @@ const uploadPath = Effect.gen(function* () {
 ```
 
 ## Verifications
-- `bun run --filter @beep/shared-domain test` — executes Bun/Vitest suite (ManualCache, Policy, UploadKey coverage).
+- `bun run --filter @beep/shared-domain test` — executes Bun/TestKit suite (ManualCache, Policy, UploadKey coverage).
 - `bun run --filter @beep/shared-domain lint` — Biome hygiene; ensures no forbidden native helpers slip in.
 - `bun run --filter @beep/shared-domain check` — TypeScript project references for schema/model drift.
 - For focused work on upload paths: `bun test packages/shared/domain/test/entities/File/schemas/UploadKey.test.ts`.

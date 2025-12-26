@@ -13,7 +13,7 @@
 - `src/core/annotations/*`, `core/extended/extended-schemas.ts`, `core/generics/tagged-union*.ts`, `core/utils/*`, `core/variance.ts` — annotations, extended combinators, tagged struct/union factories, defaults/arbitraries/brands.
 - `src/builders/json-schema/*`, `src/builders/form/*` — JSON Schema builder DSL plus form field/metadata helpers derived from annotations.
 - `src/integrations/config/csp.ts`, `src/integrations/http/http-headers.ts`, `src/integrations/sql/*` — CSP parsing/rendering utilities, HTTP header/method schemas, and Postgres enum/serial helpers for Drizzle annotations.
-- `test/config|custom|kits/**` — Vitest coverage for builders, primitives, and kits; extend alongside new exports.
+- `test/config|custom|kits/**` — TestKit coverage for builders, primitives, and kits; extend alongside new exports.
 
 ## Usage Snapshots
 - `packages/shared/domain/src/entities/User/User.model.ts:13` — BS optional field helpers, defaults, and email schema inside a Drizzle `Model` with shared entity IDs.
@@ -84,12 +84,12 @@ const header = F.pipe(policy, Csp.toHeader);
 ## Verifications
 - `bunx turbo run lint --filter=@beep/schema` — Biome lint plus circular checks for this package.
 - `bunx turbo run check --filter=@beep/schema` — type check via the package `check` script.
-- `bunx turbo run test --filter=@beep/schema` — Vitest suite under `packages/common/schema/test`.
+- `bunx turbo run test --filter=@beep/schema` — TestKit suite under `packages/common/schema/test`.
 
 ## Contributor Checklist
 - Export new symbols through `src/schema.ts` so the BS namespace stays stable and consumable via `@beep/schema`.
 - Keep additions pure and slice-agnostic; no platform APIs or `@beep/iam-*`/`@beep/documents-*` imports.
 - Use `_id.ts` helpers for identifiers; for table IDs prefer `EntityId.make` with `SnakeTag` and brands suffixed with `Id`.
 - Avoid native array/string/object operations in code and examples; prefer `F.pipe` with Effect collections and string utilities.
-- Add annotations, JSON Schema metadata, FastCheck arbitraries, and Vitest coverage (`test/**`) alongside new schemas or kits.
+- Add annotations, JSON Schema metadata, FastCheck arbitraries, and TestKit coverage (`test/**`) alongside new schemas or kits.
 - Update docs (`README.md`, doc prompts/strategy) and notify downstream slices when public surfaces change or enums/tables move.

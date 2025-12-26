@@ -66,7 +66,7 @@ type EntityFields = ModelTypes.NonEmptyModelFields<{
 
 ## Verifications
 - `bun run check --filter=@beep/types` for TS build baselines.
-- `bun run test --filter=@beep/types` (Vitest workspace) for compile-time assertion suites.
+- `bun run test --filter=@beep/types` (TestKit workspace) for compile-time assertion suites.
 - `bun run lint --filter=@beep/types` to keep Biome happy; prefer `bun run lint:fix --filter=@beep/types` before handing back changes.
 
 ## Contributor Checklist

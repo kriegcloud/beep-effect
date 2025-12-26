@@ -25,6 +25,9 @@ export * from "./arbitrary";
  * @since 0.1.0
  */
 export * from "./brands";
+export * from "./encode-sync-debug";
+export * from "./get-resolved-property-signatures";
+export * from "./hash";
 /**
  * Merge helper exports for struct field dictionaries.
  *

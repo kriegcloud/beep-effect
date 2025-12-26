@@ -371,7 +371,7 @@ bun run --filter @beep/schema coverage
 
 ## Testing
 
-- Use Vitest for schema behavior and round-trip tests
+- Use TestKit for schema behavior and round-trip tests
 - Prefer table-driven tests and property-based checks for codecs where feasible
 - Tests located in `test/` directory mirroring source structure
 

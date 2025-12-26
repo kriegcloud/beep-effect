@@ -57,7 +57,7 @@ const program = Effect.try({
 ```
 
 ## Verifications
-- `bun run test --filter=@beep/invariant` to execute the Vitest suite.
+- `bun run test --filter=@beep/invariant` to execute the TestKit suite.
 - `bun run check --filter=@beep/invariant` for TypeScript alignment.
 - `bun run lint --filter=@beep/invariant` / `bun run lint:fix --filter=@beep/invariant` to maintain Biome rules.
 

@@ -120,7 +120,7 @@ export type * as ModelTypes from "./model.types";
  * @since 0.1.0
  */
 export type * as MutTypes from "./mut.types";
-
+export * from "./nullable";
 /**
  * Union type helpers for adding null or undefined.
  *
@@ -135,7 +135,7 @@ export type * as MutTypes from "./mut.types";
  * @since 0.1.0
  */
 export type * as Or from "./or.types";
-
+export * from "./prettify";
 /**
  * Re-exports primitive type definitions.
  *
@@ -150,7 +150,6 @@ export type * as Or from "./or.types";
  * @since 0.1.0
  */
 export type * from "./primitive.types";
-
 /**
  * Promise-related type utilities for async value handling.
  *
@@ -165,7 +164,6 @@ export type * from "./primitive.types";
  * @since 0.1.0
  */
 export type * as PromiseTypes from "./promise.types";
-
 /**
  * Record transformation utilities for non-empty string-keyed dictionaries.
  *
@@ -180,7 +178,6 @@ export type * as PromiseTypes from "./promise.types";
  * @since 0.1.0
  */
 export type * as RecordTypes from "./record.types";
-
 /**
  * Effect Schema helper aliases for type-only schema references.
  *
@@ -195,7 +192,6 @@ export type * as RecordTypes from "./record.types";
  * @since 0.1.0
  */
 export type * as SchemaTypes from "./schema.types";
-
 /**
  * String literal utilities for non-empty and case-sensitive constraints.
  *
@@ -210,7 +206,6 @@ export type * as SchemaTypes from "./schema.types";
  * @since 0.1.0
  */
 export type * as StringTypes from "./string.types";
-
 /**
  * Effect Schema struct field utilities for non-empty validation.
  *
@@ -226,7 +221,6 @@ export type * as StringTypes from "./string.types";
  * @since 0.1.0
  */
 export type * as StructTypes from "./struct.types";
-
 /**
  * Template literal helpers for snake_case tag validation.
  *

@@ -42,13 +42,17 @@
     "@faker-js/faker": "catalog:",
     "mutative": "catalog:",
     "next": "catalog:",
+    "qrcode-generator": "catalog:",
     "@beep/identity": "workspace:^"
   },
   "devDependencies": {
     "@beep/identity": "workspace:^",
     "@beep/testkit": "workspace:^",
     "@beep/types": "workspace:^",
-    "@total-typescript/ts-reset": "catalog:"
+    "@total-typescript/ts-reset": "catalog:",
+    "jsdom": "catalog:",
+    "qrcode-generator": "catalog:",
+    "@types/jsdom": "catalog:"
   },
   "effect": {
     "generateExports": {

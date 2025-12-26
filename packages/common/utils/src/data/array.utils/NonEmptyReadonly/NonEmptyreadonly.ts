@@ -178,7 +178,7 @@ type MapNonEmpty = {
 
 export const mapNonEmpty: MapNonEmpty = F.dual(
   2,
-  <A, B>(self: ReadonlyArray<A>, f: (a: A, i: number) => B): Array<B> => {
+  <A, B>(self: ReadonlyArray<A>, f: (a: A, i: number) => B): A.NonEmptyReadonlyArray<B> => {
     const arr = A.map(self, f);
     invariant(A.isNonEmptyReadonlyArray(arr), "array must be non-empty", {
       file: "@beep/utils/data/array.utils/NonEmptyReadonly/NonEmptyreadonly.ts",

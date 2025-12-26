@@ -1,0 +1,74 @@
+import { shouldNeverHappen } from "@beep/dsl/util";
+
+import type { MigrationOptions } from "../../../adapter-types.ts";
+import type { Materializer } from "../../EventDef/mod.ts";
+import type { InternalState } from "../../schema.ts";
+import { ClientDocumentTableDefSymbol, tableIsClientDocumentTable } from "./client-document-def.ts";
+import { PgAST } from "./db-schema/mod.ts";
+import { stateSystemTables } from "./system-tables/state-tables.ts";
+import type { TableDef, TableDefBase } from "./table-def.ts";
+
+export * from "../../EventDef/mod.ts";
+export {
+  type ClientDocumentTableDef,
+  ClientDocumentTableDefSymbol,
+  type ClientDocumentTableOptions,
+  clientDocument,
+  createOptimisticEventSchema,
+  tableIsClientDocumentTable,
+} from "./client-document-def.ts";
+export * from "./column-annotations.ts";
+export * from "./column-spec.ts";
+export * from "./table-def.ts";
+
+export const makeState = <TStateInput extends InputState>(inputSchema: TStateInput): InternalState => {
+  const inputTables: ReadonlyArray<TableDef> = Array.isArray(inputSchema.tables)
+    ? inputSchema.tables
+    : Object.values(inputSchema.tables);
+
+  const tables = new Map<string, TableDef.Any>();
+
+  for (const tableDef of inputTables) {
+    const pgDef = tableDef.pgDef;
+    // TODO validate tables (e.g. index names are unique)
+    if (tables.has(pgDef.ast.name)) {
+      shouldNeverHappen(`Duplicate table name: ${pgDef.ast.name}. Please use unique names for tables.`);
+    }
+    tables.set(pgDef.ast.name, tableDef);
+  }
+
+  for (const tableDef of stateSystemTables) {
+    tables.set(tableDef.pgDef.name, tableDef);
+  }
+
+  const materializers = new Map<string, Materializer<any>>();
+
+  for (const [name, materializer] of Object.entries(inputSchema.materializers)) {
+    materializers.set(name, materializer);
+  }
+
+  for (const tableDef of inputTables) {
+    if (tableIsClientDocumentTable(tableDef)) {
+      materializers.set(
+        tableDef[ClientDocumentTableDefSymbol].derived.setEventDef.name,
+        tableDef[ClientDocumentTableDefSymbol].derived.setMaterializer
+      );
+    }
+  }
+
+  const hash = PgAST.hash({
+    _tag: "dbSchema",
+    tables: [...tables.values()].map((_) => _.pgDef.ast),
+  });
+
+  return { pg: { tables, migrations: inputSchema.migrations ?? { strategy: "auto" }, hash }, materializers };
+};
+
+export type InputState = {
+  readonly tables: Record<string, TableDefBase> | ReadonlyArray<TableDefBase>;
+  readonly materializers: Record<string, Materializer<any>>;
+  /**
+   * @default { strategy: 'auto' }
+   */
+  readonly migrations?: MigrationOptions;
+};

@@ -354,7 +354,7 @@ The sharing service is implemented using Effect RPC for type-safe client-server 
 ## Testing Strategy
 
 - **Unit tests**: Colocated in `test/` directory
-- **Test runner**: Bun test with Vitest compatibility
+- **Test runner**: Bun test with TestKit compatibility
 - **Effect testing**: Use utilities from `@beep/testkit`
 - **Component testing**: React Testing Library patterns
 - **WebContainer mocking**: Mock WebContainer service for isolated testing

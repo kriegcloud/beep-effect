@@ -456,7 +456,7 @@ Before submitting changes, verify:
 - [ ] Implementation stays pure (no timers, I/O, platform APIs)
 - [ ] Effect namespace imports + `F.pipe` used instead of native array/string methods
 - [ ] Reused existing helpers (`noOp`, `nullOpE`, guards) instead of duplicating
-- [ ] Added or updated Vitest tests for new functionality
+- [ ] Added or updated TestKit tests for new functionality
 - [ ] Documented new helpers with JSDoc
 - [ ] No cross-slice or platform dependencies introduced
 - [ ] Runs `bun run check` and `bun run lint` without errors

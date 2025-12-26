@@ -1,16 +1,41 @@
 {
   "files": [],
   "references": [
-    { "path": "../packages/common/types/tsconfig.build.json" },
-    { "path": "../packages/common/invariant/tsconfig.build.json" },
-    { "path": "../packages/common/utils/tsconfig.build.json" },
-    { "path": "../packages/common/schema/tsconfig.build.json" },
-    { "path": "../packages/common/identity/tsconfig.build.json" },
-    { "path": "../packages/common/constants/tsconfig.build.json" },
-    { "path": "../packages/common/errors/tsconfig.build.json" },
-    { "path": "../packages/common/mock/tsconfig.build.json" },
-    { "path": "../packages/common/contract/tsconfig.build.json" },
-    { "path":  "../packages/common/lexical-schemas/tsconfig.build.json" },
-    { "path":  "../packages/common/yjs/tsconfig.build.json" }
+    {
+      "path": "../packages/common/types/tsconfig.build.json"
+    },
+    {
+      "path": "../packages/common/invariant/tsconfig.build.json"
+    },
+    {
+      "path": "../packages/common/utils/tsconfig.build.json"
+    },
+    {
+      "path": "../packages/common/schema/tsconfig.build.json"
+    },
+    {
+      "path": "../packages/common/identity/tsconfig.build.json"
+    },
+    {
+      "path": "../packages/common/constants/tsconfig.build.json"
+    },
+    {
+      "path": "../packages/common/errors/tsconfig.build.json"
+    },
+    {
+      "path": "../packages/common/mock/tsconfig.build.json"
+    },
+    {
+      "path": "../packages/common/contract/tsconfig.build.json"
+    },
+    {
+      "path": "../packages/common/lexical-schemas/tsconfig.build.json"
+    },
+    {
+      "path": "../packages/common/yjs/tsconfig.build.json"
+    },
+    {
+      "path": "../packages/common/dsl/tsconfig.build.json"
+    }
   ]
 }

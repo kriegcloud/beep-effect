@@ -475,7 +475,7 @@ Match.value(x).pipe(
 
 ### Testing
 - Unit tests colocated in package directories
-- Use Vitest via `bun run test`
+- Use TestKit via `bun run test`
 - Effect testing utilities in `@beep/testkit`
 
 ### Observability
@@ -495,7 +495,7 @@ bun run build            # Workspace builds
 bun run check            # Type check
 bun run lint             # Biome lint
 bun run lint:fix         # Auto-fix lint issues
-bun run test             # Vitest suite
+bun run test             # TestKit suite
 ```
 
 ### Database & Infrastructure

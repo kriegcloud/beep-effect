@@ -71,7 +71,7 @@ const PublicRoutes = Layer.mergeAll(DocsRoute, HealthRoute, CustomRoute);
 ## Verifications
 - `bun run check --filter=@beep/server` — type-check against tsconfigs.
 - `bun run lint --filter=@beep/server` / `bun run lint:fix --filter=@beep/server` — Biome + circular checks.
-- `bun run test --filter=@beep/server` (or `coverage`) — Vitest placeholder suite.
+- `bun run test --filter=@beep/server` (or `coverage`) — TestKit placeholder suite.
 - `bun run build --filter=@beep/server` — emit `build/esm` + `build/dts`.
 
 ## Contributor Checklist

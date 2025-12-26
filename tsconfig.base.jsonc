@@ -400,6 +400,15 @@
       "@beep/notes/*": [
         "./apps/notes/src/*"
       ],
+      "@beep/dsl": [
+        "./packages/common/dsl/src/index"
+      ],
+      "@beep/dsl/*": [
+        "./packages/common/dsl/src/*"
+      ],
+      "@beep/dsl/test/*": [
+        "./packages/common/dsl/test/*"
+      ],
       "@beep/lexical-schemas": [
         "./packages/common/lexical-schemas/src/index"
       ],
@@ -409,7 +418,6 @@
       "@beep/lexical-schemas/test/*": [
         "./packages/common/lexical-schemas/test/*"
       ],
-      
       "@beep/yjs": [
         "./packages/common/yjs/src/index"
       ],

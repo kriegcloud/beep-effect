@@ -1,0 +1,20 @@
+import { Effect } from "effect";
+
+import { type BeepEvent, EventSequenceNumber } from "../schema/mod.ts";
+import { InvalidPushError, ServerAheadError } from "./sync.ts";
+
+// TODO proper batch validation
+export const validatePushPayload = (
+  batch: ReadonlyArray<BeepEvent.Global.Encoded>,
+  currentEventSequenceNumber: EventSequenceNumber.Global.Type
+) =>
+  Effect.gen(function* () {
+    if (batch[0]!.seqNum <= currentEventSequenceNumber) {
+      return yield* InvalidPushError.make({
+        cause: new ServerAheadError({
+          minimumExpectedNum: EventSequenceNumber.Global.make(currentEventSequenceNumber + 1),
+          providedNum: EventSequenceNumber.Global.make(batch[0]!.seqNum),
+        }),
+      });
+    }
+  });
