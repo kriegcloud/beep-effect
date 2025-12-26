@@ -19,3 +19,5 @@ export * from "./pg-enum";
  * @since 0.1.0
  */
 export * from "./pg-serial";
+
+export * as Model from "./Model";

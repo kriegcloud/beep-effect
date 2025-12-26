@@ -11,7 +11,7 @@ import * as S from "effect/Schema";
 import * as Str from "effect/String";
 
 // Converts XYFlow's Position enum into a MappedLiteralKit... Yeah this is an effect/Schema now dig deeper for set of sick fucking utils attached
-export const { DecodedEnum: Position} = BS.MappedLiteralKitFromEnum(XYFlowPosition);
+export const { DecodedEnum: Position } = BS.MappedLiteralKitFromEnum(XYFlowPosition);
 
 // Domain schemas
 export const Maintainer = BS.StructRecord({ name: S.String, email: BS.NullishString, url: BS.NullishString });

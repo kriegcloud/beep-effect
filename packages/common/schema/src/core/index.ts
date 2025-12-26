@@ -94,3 +94,6 @@ export * from "./utils";
  * @since 0.1.0
  */
 export * from "./variance";
+
+
+export * as VariantSchema from "./VariantSchema"

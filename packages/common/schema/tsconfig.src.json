@@ -12,7 +12,20 @@
     "outDir": "build/src",
 
     "rootDir": "src",
-
+"plugins": [
+      {
+        "name": "@effect/language-service",
+        "transform": "@effect/language-service/transform",
+        "diagnosticSeverity": {
+          "classSelfMismatch": "off"
+        },
+        "mermaidProvider": "mermaid.live",
+        "namespaceImportPackages": [
+          "effect",
+          "@effect/*"
+        ]
+      }
+    ],
     "moduleResolution": "bundler",
     "incremental": true,
     "skipLibCheck": true,
