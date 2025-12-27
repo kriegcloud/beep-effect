@@ -28,6 +28,7 @@ const composers = $I.compose(
   "documents-tables",
   "ui",
   "yjs",
+  "bsl",
   "invariant",
   "web",
   "schema",
@@ -665,3 +666,4 @@ export const $IamTablesId = composers.$IamTablesId;
 export const $LexicalSchemasId = composers.$LexicalSchemasId;
 
 export const $YjsId = composers.$YjsId;
+export const $BslId = composers.$BslId;

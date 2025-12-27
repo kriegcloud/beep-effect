@@ -94,10 +94,13 @@ The comprehensive design specification at `.specs/dsl-model/DSL-MODEL-DESIGN.md`
 import * as DSL from "@beep/schema/integrations/sql/dsl";
 import { SharedEntityIds } from "@beep/shared-domain/entity-ids";
 import * as S from "effect/Schema";
+import { $SharedDomainId } from "@beep/identity/packages";
+
+const $I = $SharedDomainId.create("entities/User/User.model");
 
 // Note: Production code uses makeFields pattern from @beep/shared-domain/common
 // Domain entities are exported as namespaces: User.Model
-class Model extends DSL.Model<Model>()("UserModel", {
+class Model extends DSL.Model<Model>($I`UserModel`)({
   // Public UUID identifier (NOT primary key)
   id: DSL.Field(SharedEntityIds.UserId, {
     column: { type: "uuid", unique: true, defaultValue: () => SharedEntityIds.UserId.create() }
@@ -107,7 +110,9 @@ class Model extends DSL.Model<Model>()("UserModel", {
     column: { type: "integer", primaryKey: true, autoIncrement: true }
   }),
   email: DSL.Field(S.String, { column: { type: "string", unique: true } }),
-}) {}
+}, $I.annotations("UserModel", {
+  description: "The domain entity model for the User"
+})) {}
 
 // Access via namespace: User.Model
 User.Model.tableName;   // "user"
@@ -348,17 +353,34 @@ import type * as AST from "effect/SchemaAST";
 
 export type ColumnType = "string" | "number" | "integer" | "boolean" | "datetime" | "uuid" | "json";
 
-export interface ColumnDef {
-  readonly type: ColumnType;
-  readonly primaryKey?: boolean;
-  readonly unique?: boolean;
-  readonly nullable?: boolean;
-  readonly defaultValue?: string | (() => string);
-  readonly autoIncrement?: boolean;  // For serial primary keys like _rowId
+// Generic ColumnDef preserves specific literals
+export interface ColumnDef<
+  T extends ColumnType = ColumnType,
+  PK extends boolean = boolean,
+  U extends boolean = boolean,
+  N extends boolean = boolean,
+  AI extends boolean = boolean
+> {
+  readonly type: T;
+  readonly primaryKey?: PK;
+  readonly unique?: U;
+  readonly nullable?: N;
+  readonly defaultValue?: undefined | string | (() => string);
+  readonly autoIncrement?: AI;
 }
 
-export interface FieldConfig {
-  readonly column?: Partial<ColumnDef>;
+// Helper to create exact ColumnDef from partial config
+export type ExactColumnDef<C extends Partial<ColumnDef>> = {
+  readonly type: C extends { type: infer T extends ColumnType } ? T : "string";
+  readonly primaryKey: C extends { primaryKey: infer PK extends boolean } ? PK : false;
+  readonly unique: C extends { unique: infer U extends boolean } ? U : false;
+  readonly nullable: C extends { nullable: infer N extends boolean } ? N : false;
+  readonly autoIncrement: C extends { autoIncrement: infer AI extends boolean } ? AI : false;
+  readonly defaultValue: C extends { defaultValue: infer DV } ? DV : undefined;
+};
+
+export interface FieldConfig<C extends Partial<ColumnDef> = Partial<ColumnDef>> {
+  readonly column?: C;
 }
 
 // Annotation symbol - use Symbol.for for cross-module consistency
@@ -369,16 +391,28 @@ export type ColumnMetaSymbol = typeof ColumnMetaSymbol;
 **Field.ts**:
 ```typescript
 import * as S from "effect/Schema";
-import type { FieldConfig } from "./types";
+import type { FieldConfig, ColumnDef, ExactColumnDef } from "./types";
+import { ColumnMetaSymbol } from "./types";
 
-export interface DSLField<A, I = A, R = never> extends S.Schema<A, I, R> {
-  // Marker interface - implementation adds ColumnMetaSymbol annotation
+export interface DSLField<
+  A,
+  I = A,
+  R = never,
+  C extends ColumnDef = ColumnDef
+> extends S.Schema<A, I, R> {
+  readonly [ColumnMetaSymbol]: C;
 }
 
-export const Field: <A, I, R>(
+export const Field = <
+  A,
+  I,
+  R,
+  const C extends Partial<ColumnDef> = {}
+>(
   schema: S.Schema<A, I, R>,
-  config?: FieldConfig
-) => DSLField<A, I, R> = (_schema, _config) => {
+  config?: FieldConfig<C>
+): DSLField<A, I, R, ExactColumnDef<C>> => {
+  // Implementation attaches column metadata via annotation
   throw new Error("TODO: Implement Field");
 };
 ```
@@ -387,25 +421,55 @@ export const Field: <A, I, R>(
 ```typescript
 import type * as S from "effect/Schema";
 import type { ColumnDef } from "./types";
+import * as Data from "effect/Data";
+import { $SchemaId } from "@beep/identity/packages";
+const $I = $SchemaId.create("");
 
-export interface ModelStatics {
-  readonly tableName: string;
-  readonly columns: Record<string, ColumnDef>;
-  readonly primaryKey: readonly string[];
-  readonly identifier: string;
+export interface ModelStatics<
+  TName extends string = string,
+  Columns extends Record<string, ColumnDef> = Record<string, ColumnDef>,
+  PK extends readonly string[] = readonly string[],
+  Id extends string = string
+> {
+  readonly tableName: TName;
+  readonly columns: Columns;
+  readonly primaryKey: PK;
+  readonly identifier: Id;
 }
 
-export interface ModelSchema<Self, Fields extends S.Struct.Fields>
-  extends S.Schema<Self, S.Struct.Encoded<Fields>, S.Struct.Context<Fields>>,
-          ModelStatics {}
+class ImplementModelError extends Data.TaggedError("ImplementModelError")<{
+  readonly messsage: string;
+}> {
+  constructor(messsage: string) {
+    super({ messsage });
+  }
+}
 
-export const Model: <Self>() => <const Fields extends S.Struct.Fields>(
-  identifier: string,
-  fields: Fields
-) => ModelSchema<Self, Fields> & (new (props: S.Struct.Type<Fields>) => Self) =
-  () => (_identifier, _fields) => {
-    throw new Error("TODO: Implement Model");
-  };
+export interface ModelSchema<
+  Self,
+  Fields extends S.Struct.Fields,
+  TName extends string = string,
+  Columns extends Record<string, ColumnDef> = Record<string, ColumnDef>,
+  PK extends readonly string[] = readonly string[],
+  Id extends string = string
+>
+  extends S.Schema<Self, S.Struct.Encoded<Fields>, S.Struct.Context<Fields>>,
+          ModelStatics<TName, Columns, PK, Id> {}
+
+function Class<Self>(identifier: string) {
+  return <const Fields extends S.Struct.Fields>(
+    fields: Fields & Struct.Validate<Fields, Variants[number]>,
+    annotations
+   )
+}
+
+// export const Model: <Self>() => <const Fields extends S.Struct.Fields>(
+//   identifier: string,
+//   fields: Fields
+// ) => ModelSchema<Self, Fields> & (new (props: S.Struct.Type<Fields>) => Self) =
+//   () => (_identifier, _fields) => {
+//     throw new ImplementModelError("TODO: Implement Model");
+//   };
 ```
 
 **adapters/drizzle.ts**:
@@ -416,7 +480,7 @@ import type { ModelStatics } from "../Model";
 export const toDrizzle = <M extends ModelStatics>(
   _model: M
 ): PgTableWithColumns<any> => {
-  throw new Error("TODO: Implement toDrizzle");
+  throw new ImplementModelError("TODO: Implement toDrizzle");
 };
 ```
 
@@ -448,7 +512,7 @@ describe("DSL.Model POC", () => {
       const field = Field(S.String, { column: { type: "string", unique: true } });
       const meta = F.pipe(
         field.ast,
-        AST.getAnnotation<{ type: string; unique?: boolean }>(ColumnMetaSymbol),
+        AST.getAnnotation<{ readonly type: string; readonly unique?: undefined | boolean }>(ColumnMetaSymbol),
         O.getOrElse(() => ({ type: "unknown" }))
       );
       expect(meta.type).toBe("string");
@@ -459,7 +523,7 @@ describe("DSL.Model POC", () => {
       const field = Field(S.Int, { column: { type: "integer", primaryKey: true, autoIncrement: true } });
       const meta = F.pipe(
         field.ast,
-        AST.getAnnotation<{ type: string; primaryKey?: boolean; autoIncrement?: boolean }>(ColumnMetaSymbol),
+        AST.getAnnotation<{ readonly type: string; readonly primaryKey?: undefined | boolean; readonly autoIncrement?: undefined | boolean }>(ColumnMetaSymbol),
         O.getOrElse(() => ({ type: "unknown" }))
       );
       expect(meta.type).toBe("integer");
@@ -514,6 +578,7 @@ describe("DSL.Model POC", () => {
         email: Field(S.String, { column: { type: "string", unique: true } }),
       }) {}
 
+      // Runtime assertions
       expect(TestModel.columns._rowId.type).toBe("integer");
       expect(TestModel.columns._rowId.primaryKey).toBe(true);
       expect(TestModel.columns._rowId.autoIncrement).toBe(true);
@@ -521,6 +586,30 @@ describe("DSL.Model POC", () => {
       expect(TestModel.columns.id.unique).toBe(true);
       expect(TestModel.columns.email.type).toBe("string");
       expect(TestModel.columns.email.unique).toBe(true);
+
+      // Type-level assertions - these verify compile-time correctness
+      // If the types are not preserved, these will cause TypeScript errors
+      type IdColumn = typeof TestModel.columns.id;
+      type RowIdColumn = typeof TestModel.columns._rowId;
+      type EmailColumn = typeof TestModel.columns.email;
+
+      // Assert id column type is literally "uuid" (not just ColumnType)
+      type IdTypeIsUuid = IdColumn["type"] extends "uuid" ? true : false;
+      const _idCheck: IdTypeIsUuid = true;
+
+      // Assert _rowId column has primaryKey: true and autoIncrement: true
+      type RowIdIsPK = RowIdColumn["primaryKey"] extends true ? true : false;
+      type RowIdIsAI = RowIdColumn["autoIncrement"] extends true ? true : false;
+      const _rowIdPKCheck: RowIdIsPK = true;
+      const _rowIdAICheck: RowIdIsAI = true;
+
+      // Assert email column has unique: true
+      type EmailIsUnique = EmailColumn["unique"] extends true ? true : false;
+      const _emailUniqueCheck: EmailIsUnique = true;
+
+      // Assert identifier is preserved as literal type "Test"
+      type IdentifierIsTest = typeof TestModel.identifier extends "Test" ? true : false;
+      const _identifierCheck: IdentifierIsTest = true;
     });
 
     it("S.decodeSync works with Model", () => {
@@ -578,27 +667,109 @@ describe("DSL.Model POC", () => {
 1. **types.ts** - Already complete from boilerplating
 
 2. **Field.ts** - Annotation attachment
-   ```typescript
-   import * as S from "effect/Schema";
-   import type { FieldConfig, ColumnDef } from "./types";
-   import { ColumnMetaSymbol } from "./types";
+```typescript
+import * as S from "effect/Schema";
+import type { FieldConfig, ColumnDef, ExactColumnDef } from "./types";
+import { ColumnMetaSymbol } from "./types";
+import { $SchemaId } from "@beep/identity/packages";
 
-   export interface DSLField<A, I = A, R = never> extends S.Schema<A, I, R> {}
+const $I = $SchemaId.create("path-to-module");
 
-   export const Field = <A, I, R>(
-     schema: S.Schema<A, I, R>,
-     config?: FieldConfig
-   ): DSLField<A, I, R> => {
-     const columnDef: ColumnDef = {
-       type: config?.column?.type ?? "string", // Default fallback
-       ...config?.column,
-     };
+export const TypeId: unique symbol = Symbol.for($I`TypeId`);
+export type TypeId = typeof TypeId;
+const cacheSymbol = Symbol.for($I`cache`);
+export interface Struct<in out A extends Field.Fields> extends Pipeable.Pipeable {
+  readonly [TypeId]: A;
 
-     return schema.annotations({
-       [ColumnMetaSymbol]: columnDef,
-     }) as DSLField<A, I, R>;
-   };
-   ```
+  [cacheSymbol]?: undefined | Record<string, S.Schema.All>;
+}
+
+export const isStruct = (u: unknown): u is Struct<any> => P.hasProperty(u, TypeId);
+
+export declare namespace Struct {
+  /**
+   * @since 1.0.0
+   * @category models
+   */
+  export type Any = { readonly [TypeId]: any };
+
+  /**
+   * @since 1.0.0
+   * @category models
+   */
+  export type Fields = {
+    readonly [key: string]: S.Schema.All | S.PropertySignature.All | Field<any> | Struct<any> | undefined;
+  };
+
+  /**
+   * @since 1.0.0
+   * @category models
+   */
+  export type Validate<A, Variant extends string> = {
+    readonly [K in keyof A]: A[K] extends { readonly [TypeId]: infer _ }
+      ? Validate<A[K], Variant>
+      : A[K] extends Field<infer Config>
+        ? [keyof Config] extends [Variant]
+          ? {}
+          : "field must have valid variants"
+        : {};
+  };
+}
+
+
+/**
+ * @since 1.0.0
+ * @category type ids
+ */
+export const FieldTypeId: unique symbol = Symbol.for($I`Field`);
+
+/**
+ * @since 1.0.0
+ * @category type ids
+ */
+export type FieldTypeId = typeof FieldTypeId;
+export interface AnySchema extends Pipeable {
+  readonly [S.TypeId]: any;
+  readonly Type: any;
+  readonly Encoded: any;
+  readonly Context: any;
+  readonly make?: (params: any, ...rest: ReadonlyArray<any>) => any;
+  readonly ast: AST.AST;
+  readonly annotations: any;
+}
+/**
+ * @since 1.0.0
+ * @category models
+ */
+export interface DSLField<
+  C extends ColumnDef = ColumnDef
+> extends AnySchema {
+  readonly [FieldTypeId]: FieldTypeId;
+  readonly [ColumnMetaSymbol]: C;
+}
+
+
+export const Field = <
+  Schema extends AnySchema,
+  const C extends Partial<ColumnDef> = {}
+>(
+  schema: Schema,
+  config?: FieldConfig<C>
+): DSLField<ExactColumnDef<C>> => {
+  const columnDef: ExactColumnDef<C> = {
+    type: config?.column?.type ?? "string",
+    primaryKey: config?.column?.primaryKey ?? false,
+    unique: config?.column?.unique ?? false,
+    nullable: config?.column?.nullable ?? false,
+    autoIncrement: config?.column?.autoIncrement ?? false,
+    defaultValue: config?.column?.defaultValue,
+  } as ExactColumnDef<C>;
+
+  return schema.annotations({
+    [ColumnMetaSymbol]: columnDef,
+  }) as DSLField<ExactColumnDef<C>>;
+};
+```
 
 3. **Model.ts** - Factory with static properties
    ```typescript
@@ -606,17 +777,36 @@ describe("DSL.Model POC", () => {
    import * as A from "effect/Array";
    import * as F from "effect/Function";
    import * as O from "effect/Option";
-   import * as Struct from "effect/Struct";
+   import * as _Struct from "effect/Struct";
+   import * as R from "effect/Record";
    import * as AST from "effect/SchemaAST";
-   import type { ColumnDef } from "./types";
-   import { ColumnMetaSymbol } from "./types";
+   import type { ColumnDef, ExactColumnDef } from "./types";
+   import { ColumnMetaSymbol, type DSLField } from "./types";
 
    // Snake case helper (POC: simple implementation)
    const toSnakeCase = (str: string): string =>
      str.replace(/([A-Z])/g, "_$1").toLowerCase().replace(/^_/, "");
 
-   // Extract column metadata from field annotations
-   const extractColumns = (fields: S.Struct.Fields): Record<string, ColumnDef> =>
+   // Type-level extraction of columns from fields
+   export type ExtractColumnsType<Fields extends S.Struct.Fields> = {
+     readonly [K in keyof Fields]: Fields[K] extends DSLField<any, any, any, infer C>
+       ? C
+       : ColumnDef<"string", false, false, false, false>;
+   };
+
+   // Type-level extraction of primary key field names
+   export type ExtractPrimaryKeys<Fields extends S.Struct.Fields> = {
+     [K in keyof Fields]: Fields[K] extends DSLField<any, any, any, infer C>
+       ? C extends { primaryKey: true }
+         ? K
+         : never
+       : never;
+   }[keyof Fields];
+
+   // Extract column metadata from field annotations (runtime)
+   const extractColumns = <Fields extends S.Struct.Fields>(
+     fields: Fields
+   ): ExtractColumnsType<Fields> =>
      F.pipe(
        fields,
        _Struct.keys,
@@ -626,15 +816,17 @@ describe("DSL.Model POC", () => {
          const columnDef = F.pipe(
            schema.ast,
            AST.getAnnotation<ColumnDef>(ColumnMetaSymbol),
-           O.getOrElse(() => ({ type: "string" as const }))
+           O.getOrElse(() => ({ type: "string" as const, primaryKey: false, unique: false, nullable: false, autoIncrement: false }))
          );
          return [key, columnDef] as const;
        }),
        R.fromEntries
-     );
+     ) as ExtractColumnsType<Fields>;
 
-   // Derive primary key fields
-   const derivePrimaryKey = (columns: Record<string, ColumnDef>): readonly string[] =>
+   // Derive primary key fields (runtime)
+   const derivePrimaryKey = <Columns extends Record<string, ColumnDef>>(
+     columns: Columns
+   ): readonly string[] =>
      F.pipe(
        columns,
        _Struct.entries,
@@ -642,18 +834,27 @@ describe("DSL.Model POC", () => {
        A.map(([key]) => key)
      );
 
-   export interface ModelStatics {
-     readonly tableName: string;
-     readonly columns: Record<string, ColumnDef>;
-     readonly primaryKey: readonly string[];
-     readonly identifier: string;
+   export interface ModelStatics<
+     TName extends string = string,
+     Columns extends Record<string, ColumnDef> = Record<string, ColumnDef>,
+     PK extends readonly string[] = readonly string[],
+     Id extends string = string
+   > {
+     readonly tableName: TName;
+     readonly columns: Columns;
+     readonly primaryKey: PK;
+     readonly identifier: Id;
    }
 
-   export const Model = <Self>() =>
-     <const Fields extends S.Struct.Fields>(
-       identifier: string,
-       fields: Fields
+   export const Model = <Self = never>(identifier: string) =>
+    <const Fields extends Struct.Fields>(
+   fields: Fields & Struct.Validate<Fields, Variants[number]>,
+    annotations?: S.Annotations.Schema<Self>
      ) => {
+       type Columns = ExtractColumnsType<Fields>;
+       type PKFields = ExtractPrimaryKeys<Fields>;
+       type TableName = string; // POC: toSnakeCase result type is string
+
        const columns = extractColumns(fields);
        const primaryKey = derivePrimaryKey(columns);
        const tableName = toSnakeCase(identifier);
@@ -665,19 +866,38 @@ describe("DSL.Model POC", () => {
          static readonly identifier = identifier;
        }
 
-       return ModelClass as typeof ModelClass & ModelStatics;
+       return ModelClass as typeof ModelClass & ModelStatics<TableName, Columns, readonly PKFields[], Identifier>;
      };
    ```
 
 4. **adapters/drizzle.ts** - Table generation
    ```typescript
    import { pgTable, text, integer, boolean, timestamp, uuid, jsonb, serial } from "drizzle-orm/pg-core";
-   import type { PgTableWithColumns } from "drizzle-orm/pg-core";
+   import type { PgTableWithColumns, PgColumn } from "drizzle-orm/pg-core";
    import * as A from "effect/Array";
    import * as F from "effect/Function";
+   import * as R from "effect/Record";
+   import * as _Struct from "effect/Struct";
    import * as Match from "effect/Match";
    import type { ModelStatics } from "../Model";
    import type { ColumnDef, ColumnType } from "../types";
+
+   // Type-level mapping from ColumnDef to Drizzle column types
+   // This allows preserving column type information in the output
+   type DrizzleColumnForType<T extends ColumnType> =
+     T extends "string" ? ReturnType<typeof text>
+     : T extends "number" ? ReturnType<typeof integer>
+     : T extends "integer" ? ReturnType<typeof integer> | ReturnType<typeof serial>
+     : T extends "boolean" ? ReturnType<typeof boolean>
+     : T extends "datetime" ? ReturnType<typeof timestamp>
+     : T extends "uuid" ? ReturnType<typeof uuid>
+     : T extends "json" ? ReturnType<typeof jsonb>
+     : never;
+
+   // Type-level transformation of columns record to Drizzle table shape
+   export type DrizzleTableShape<Columns extends Record<string, ColumnDef>> = {
+     [K in keyof Columns]: DrizzleColumnForType<Columns[K]["type"]>;
+   };
 
    // Map ColumnType to Drizzle column builder
    const columnBuilder = (name: string, def: ColumnDef) => {
@@ -704,16 +924,32 @@ describe("DSL.Model POC", () => {
      return column;
    };
 
-   export const toDrizzle = <M extends ModelStatics>(
+   export const toDrizzle = <
+     TName extends string,
+     Columns extends Record<string, ColumnDef>,
+     PK extends readonly string[],
+     Id extends string,
+     M extends ModelStatics<TName, Columns, PK, Id>
+   >(
      model: M
-   ): PgTableWithColumns<any> => {
+   ): PgTableWithColumns<{
+     name: TName;
+     schema: undefined;
+     columns: DrizzleTableShape<Columns>;
+     dialect: "pg";
+   }> => {
      const columnDefs = F.pipe(
        _Struct.entries(model.columns),
        A.map(([key, def]) => [key, columnBuilder(key, def)] as const),
        R.fromEntries
      );
 
-     return pgTable(model.tableName, columnDefs);
+     return pgTable(model.tableName, columnDefs) as PgTableWithColumns<{
+       name: TName;
+       schema: undefined;
+       columns: DrizzleTableShape<Columns>;
+       dialect: "pg";
+     }>;
    };
    ```
 
@@ -829,12 +1065,14 @@ import * as DSL from "@beep/schema/integrations/sql/dsl";
 import { SharedEntityIds } from "@beep/shared-domain/entity-ids";
 import { BS } from "@beep/schema";  // Required for BS.DateTimeUtcFromAllAcceptable
 import * as S from "effect/Schema";
+import { $SchemaId } from "@beep/identity/packages";
+const $I = $SchemaId.create("path-to-module");
 
 // Define model - exported as namespace (User.Model pattern)
 // The User namespace comes from entities/index.ts doing:
 //   export * as User from "./User"
 // And the User module's index.ts re-exports from User.model.ts
-class Model extends DSL.Model<Model>()("UserModel", {
+class Model extends DSL.Model<Model>($I`"UserModel"`)({
   // Public UUID identifier (NOT primary key)
   id: DSL.Field(SharedEntityIds.UserId, {
     column: { type: "uuid", unique: true, defaultValue: () => SharedEntityIds.UserId.create() }
@@ -846,7 +1084,9 @@ class Model extends DSL.Model<Model>()("UserModel", {
   email: DSL.Field(S.String, { column: { type: "string", unique: true } }),
   name: DSL.Field(S.String, { column: { type: "string" } }),
   createdAt: DSL.Field(BS.DateTimeUtcFromAllAcceptable, { column: { type: "datetime" } }),
-}) {}
+}, $I.annotations("UserModel", {
+  description: "The User domain entity."
+})) {}
 
 // Access via namespace pattern requires: export * as User from "./User" in an index file
 // Use as Effect Schema

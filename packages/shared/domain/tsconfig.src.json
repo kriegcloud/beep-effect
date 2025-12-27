@@ -3,7 +3,7 @@
   "include": ["src"],
   "references": [
     {
-      "path": "../../common/schema"
+      "path": "../../common/schema/tsconfig.src.json"
     },
     {
       "path": "../../common/types"

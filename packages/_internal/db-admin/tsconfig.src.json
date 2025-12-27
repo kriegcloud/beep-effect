@@ -4,7 +4,7 @@
   "exclude": [],
   "references": [
     {
-      "path": "../../common/schema"
+      "path": "../../common/schema/tsconfig.src.json"
     },
     {
       "path": "../../shared/domain"

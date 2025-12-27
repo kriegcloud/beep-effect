@@ -35,15 +35,15 @@ See `packages/shared/domain/src/common.ts` for the canonical implementation.
  * Adapters translate these to driver-specific types (e.g., "uuid" → pg.uuid()).
  */
 export type ColumnType =
-  | "string"    // Text/varchar - Drizzle: text/varchar, BetterAuth: "string"
-  | "number"    // Integer/float - Drizzle: integer/real, BetterAuth: "number"
-  | "integer"   // Integer/serial - Drizzle: integer/serial, BetterAuth: "number"
-  | "boolean"   // Boolean - Drizzle: boolean, BetterAuth: "boolean"
-  | "date"      // Date only - Drizzle: date, BetterAuth: "date"
-  | "datetime"  // Timestamp - Drizzle: timestamp, BetterAuth: "date"
-  | "json"      // JSON object - Drizzle: jsonb, BetterAuth: "json"
-  | "uuid"      // UUID - Drizzle: uuid, BetterAuth: "string"
-  | "blob";     // Binary - Drizzle: bytea, BetterAuth: N/A
+  | "string",    // Text/varchar - Drizzle: text/varchar, BetterAuth: "string"
+  | "number",    // Integer/float - Drizzle: integer/real, BetterAuth: "number"
+  | "integer",   // Integer/serial - Drizzle: integer/serial, BetterAuth: "number"
+  | "boolean",   // Boolean - Drizzle: boolean, BetterAuth: "boolean"
+  | "date",      // Date only - Drizzle: date, BetterAuth: "date"
+  | "datetime",  // Timestamp - Drizzle: timestamp, BetterAuth: "date"
+  | "json",      // JSON object - Drizzle: jsonb, BetterAuth: "json"
+  | "uuid",      // UUID - Drizzle: uuid, BetterAuth: "string"
+  | "blob",;     // Binary - Drizzle: bytea, BetterAuth: N/A
 ```
 
 ### 1.2 ColumnDef - Driver-Agnostic Column Definition
@@ -147,13 +147,23 @@ export interface VariantConfig {
 
 /**
  * Configuration object passed to DSL.Field().
+ *
+ * Type Parameters:
+ * - C: Column definition type (partial ColumnDef)
+ * - V: Variant configuration type
+ *
+ * Making this generic allows type-level extraction of the exact config
+ * passed to each field, enabling precise column type inference.
  */
-export interface FieldConfig {
+export interface FieldConfig<
+  C extends Partial<ColumnDef> = Partial<ColumnDef>,
+  V extends VariantConfig = VariantConfig
+> {
   /** Column metadata - driver-agnostic SQL definition */
-  readonly column?: Partial<ColumnDef>;
+  readonly column?: C;
 
   /** Variant behavior - controls field presence in each variant */
-  readonly variants?: VariantConfig;
+  readonly variants?: V;
 }
 ```
 
@@ -191,7 +201,7 @@ export const VariantConfigSymbol: unique symbol = Symbol.for($I`variant-config`)
 
 ## 2. Interface Specifications
 
-### 2.1 DSLField<A, I, R> - Effect Schema with Column Metadata
+### 2.1 DSLField<A, I, R, Config> - Effect Schema with Column Metadata
 
 ```typescript
 /**
@@ -201,25 +211,80 @@ export const VariantConfigSymbol: unique symbol = Symbol.for($I`variant-config`)
  * - A: Decoded/runtime type
  * - I: Encoded/wire type
  * - R: Effect context requirements
+ * - Config: The FieldConfig type carrying column and variant information
+ *
+ * The 4th type parameter (Config) enables type-level extraction of
+ * the exact column definition and variant configuration, which is
+ * essential for the mapped types that compute columns and primary keys.
  */
-export interface DSLField<A, I = A, R = never> extends S.Schema<A, I, R> {
+export interface DSLField<
+  A,
+  I = A,
+  R = never,
+  Config extends FieldConfig = FieldConfig
+> extends S.Schema<A, I, R> {
   /**
    * Retrieve the column definition from this field's annotations.
    * Returns Option.none() if no column metadata is attached.
+   * The return type is narrowed to the exact column type from Config.
    */
-  readonly getColumnDef: () => O.Option<ColumnDef>;
+  readonly getColumnDef: () => O.Option<Config["column"] & {}>;
 
   /**
    * Retrieve the variant configuration from this field's annotations.
    * Returns Option.none() if no variant config is attached.
+   * The return type is narrowed to the exact variant type from Config.
    */
-  readonly getVariantConfig: () => O.Option<VariantConfig>;
+  readonly getVariantConfig: () => O.Option<Config["variants"] & {}>;
+
+  /**
+   * The configuration object, exposed for type-level extraction.
+   * This enables mapped types to access the exact config type.
+   */
+  readonly _config: Config;
 }
 ```
 
 ### 2.2 ModelSchemaInstance<Self, Fields> - Full Model Interface
 
 ```typescript
+// ============ Required Effect Imports ============
+import * as S from "effect/Schema";
+import * as A from "effect/Array";
+import * as F from "effect/Function";
+import * as O from "effect/Option";
+import * as AST from "effect/SchemaAST";
+
+// ============ Type Helpers for Field Extraction ============
+
+/**
+ * Extract the FieldConfig from a DSLField type.
+ * Used to access column and variant configuration at the type level.
+ */
+type ExtractConfig<F> = F extends DSLField<any, any, any, infer C> ? C : never;
+
+/**
+ * Extract columns record from Fields, preserving the exact column types.
+ * Each field's column definition is extracted from its Config type parameter.
+ */
+type ExtractColumnsRecord<Fields extends Record<string, DSLField<any, any, any, FieldConfig>>> = {
+  readonly [K in keyof Fields]: ExtractConfig<Fields[K]>["column"] extends infer C
+    ? C extends Partial<ColumnDef>
+      ? C & { type: ColumnType }
+      : ColumnDef
+    : ColumnDef;
+};
+
+/**
+ * Extract primary key field names from Fields.
+ * Returns a union of field names where column.primaryKey is true.
+ */
+type PrimaryKeyColumns<Fields extends Record<string, DSLField<any, any, any, FieldConfig>>> = {
+  [K in keyof Fields]: ExtractConfig<Fields[K]>["column"] extends { primaryKey: true }
+    ? K
+    : never;
+}[keyof Fields];
+
 /**
  * The complete DSL.Model interface combining:
  * - Effect Schema functionality (S.decode, .pipe, .annotations)
@@ -231,11 +296,11 @@ export interface DSLField<A, I = A, R = never> extends S.Schema<A, I, R> {
  * - Fields: Record of DSLField definitions
  */
 // Note: `any` in the generic constraint is intentional here.
-// DSLField<any, any, any> allows Fields to contain any DSLField specialization.
+// DSLField<any, any, any, FieldConfig> allows Fields to contain any DSLField specialization.
 // This is a standard Effect Schema pattern for polymorphic containers.
 export interface ModelSchemaInstance<
   Self,
-  Fields extends Record<string, DSLField<any, any, any>>
+  Fields extends Record<string, DSLField<any, any, any, FieldConfig>>
 > extends S.AnnotableClass<
     ModelSchemaInstance<Self, Fields>,
     ModelType<Fields>,
@@ -247,11 +312,17 @@ export interface ModelSchemaInstance<
   /** Snake_case table name derived from identifier */
   readonly tableName: string;
 
-  /** Record of column definitions per field */
-  readonly columns: { readonly [K in keyof Fields]: ColumnDef };
+  /**
+   * Record of column definitions per field.
+   * Uses ExtractColumnsRecord to preserve the exact column types from each field's config.
+   */
+  readonly columns: ExtractColumnsRecord<Fields>;
 
-  /** Primary key column names (supports composite keys) */
-  readonly primaryKey: readonly string[];
+  /**
+   * Primary key column names (supports composite keys).
+   * Uses PrimaryKeyColumns to extract field names where primaryKey: true.
+   */
+  readonly primaryKey: readonly PrimaryKeyColumns<Fields>[];
 
   /** Index definitions for the table */
   readonly indexes: readonly IndexDef[];
@@ -299,22 +370,49 @@ export interface ModelSchemaInstance<
 
 // ============ Type Inference Helpers ============
 
+/**
+ * Helper to extract variant behavior from a DSLField.
+ * Uses ExtractConfig to access the Config type parameter, then
+ * navigates to the specific variant within the variants config.
+ *
+ * Defaults to "required" when:
+ * - variants is undefined
+ * - the specific variant key is not present
+ * - the variant value is not a valid VariantBehavior
+ */
+type GetVariantBehavior<
+  F extends DSLField<any, any, any, FieldConfig>,
+  V extends keyof VariantConfig
+> = ExtractConfig<F>["variants"] extends infer VC
+  ? VC extends undefined
+    ? "required"
+    : V extends keyof VC
+      ? VC[V] extends VariantBehavior
+        ? VC[V]
+        : "required"
+      : "required"
+  : "required";
+
 /** Extract runtime type from fields */
-type ModelType<Fields extends Record<string, DSLField<any, any, any>>> = {
+type ModelType<Fields extends Record<string, DSLField<any, any, any, FieldConfig>>> = {
   readonly [K in keyof Fields]: S.Schema.Type<Fields[K]>;
 };
 
 /** Extract encoded type from fields */
-type ModelEncoded<Fields extends Record<string, DSLField<any, any, any>>> = {
+type ModelEncoded<Fields extends Record<string, DSLField<any, any, any, FieldConfig>>> = {
   readonly [K in keyof Fields]: S.Schema.Encoded<Fields[K]>;
 };
 
 /** Extract context from fields */
-type ModelContext<Fields extends Record<string, DSLField<any, any, any>>> =
+type ModelContext<Fields extends Record<string, DSLField<any, any, any, FieldConfig>>> =
   S.Schema.Context<Fields[keyof Fields]>;
 
-/** Extract insert variant type from fields */
-type InsertType<Fields extends Record<string, DSLField<any, any, any>>> = {
+/**
+ * Extract insert variant type from fields.
+ * Fields with insert: "omit" are excluded from the type.
+ * Fields with insert: "optional" allow undefined values.
+ */
+type InsertType<Fields extends Record<string, DSLField<any, any, any, FieldConfig>>> = {
   readonly [K in keyof Fields as GetVariantBehavior<Fields[K], "insert"> extends "omit" ? never : K]:
     GetVariantBehavior<Fields[K], "insert"> extends "optional"
       ? S.Schema.Type<Fields[K]> | undefined
@@ -322,7 +420,7 @@ type InsertType<Fields extends Record<string, DSLField<any, any, any>>> = {
 };
 
 /** Extract insert encoded type from fields */
-type InsertEncoded<Fields extends Record<string, DSLField<any, any, any>>> = {
+type InsertEncoded<Fields extends Record<string, DSLField<any, any, any, FieldConfig>>> = {
   readonly [K in keyof Fields as GetVariantBehavior<Fields[K], "insert"> extends "omit" ? never : K]:
     GetVariantBehavior<Fields[K], "insert"> extends "optional"
       ? S.Schema.Encoded<Fields[K]> | undefined
@@ -330,54 +428,44 @@ type InsertEncoded<Fields extends Record<string, DSLField<any, any, any>>> = {
 };
 
 /** Extract insert context from fields */
-type InsertContext<Fields extends Record<string, DSLField<any, any, any>>> =
+type InsertContext<Fields extends Record<string, DSLField<any, any, any, FieldConfig>>> =
   S.Schema.Context<Fields[keyof Fields]>;
 
 /** Extract update variant type (all optional) */
-type UpdateType<Fields extends Record<string, DSLField<any, any, any>>> = {
+type UpdateType<Fields extends Record<string, DSLField<any, any, any, FieldConfig>>> = {
   readonly [K in keyof Fields as GetVariantBehavior<Fields[K], "update"> extends "omit" ? never : K]?:
     S.Schema.Type<Fields[K]>;
 };
 
 /** Extract update encoded type (all optional) */
-type UpdateEncoded<Fields extends Record<string, DSLField<any, any, any>>> = {
+type UpdateEncoded<Fields extends Record<string, DSLField<any, any, any, FieldConfig>>> = {
   readonly [K in keyof Fields as GetVariantBehavior<Fields[K], "update"> extends "omit" ? never : K]?:
     S.Schema.Encoded<Fields[K]>;
 };
 
 /** Extract update context from fields */
-type UpdateContext<Fields extends Record<string, DSLField<any, any, any>>> =
+type UpdateContext<Fields extends Record<string, DSLField<any, any, any, FieldConfig>>> =
   S.Schema.Context<Fields[keyof Fields]>;
 
 /** JSON variant types follow similar pattern */
-type JsonType<Fields extends Record<string, DSLField<any, any, any>>> = ModelType<Fields>;
-type JsonEncoded<Fields extends Record<string, DSLField<any, any, any>>> = ModelEncoded<Fields>;
-type JsonContext<Fields extends Record<string, DSLField<any, any, any>>> = ModelContext<Fields>;
+type JsonType<Fields extends Record<string, DSLField<any, any, any, FieldConfig>>> = ModelType<Fields>;
+type JsonEncoded<Fields extends Record<string, DSLField<any, any, any, FieldConfig>>> = ModelEncoded<Fields>;
+type JsonContext<Fields extends Record<string, DSLField<any, any, any, FieldConfig>>> = ModelContext<Fields>;
 
-type JsonCreateType<Fields extends Record<string, DSLField<any, any, any>>> = InsertType<Fields>;
-type JsonCreateEncoded<Fields extends Record<string, DSLField<any, any, any>>> = InsertEncoded<Fields>;
-type JsonCreateContext<Fields extends Record<string, DSLField<any, any, any>>> = InsertContext<Fields>;
+type JsonCreateType<Fields extends Record<string, DSLField<any, any, any, FieldConfig>>> = InsertType<Fields>;
+type JsonCreateEncoded<Fields extends Record<string, DSLField<any, any, any, FieldConfig>>> = InsertEncoded<Fields>;
+type JsonCreateContext<Fields extends Record<string, DSLField<any, any, any, FieldConfig>>> = InsertContext<Fields>;
 
-type JsonUpdateType<Fields extends Record<string, DSLField<any, any, any>>> = UpdateType<Fields>;
-type JsonUpdateEncoded<Fields extends Record<string, DSLField<any, any, any>>> = UpdateEncoded<Fields>;
-type JsonUpdateContext<Fields extends Record<string, DSLField<any, any, any>>> = UpdateContext<Fields>;
-
-/** Helper to extract variant behavior from a DSLField */
-type GetVariantBehavior<F extends DSLField<any, any, any>, V extends keyof VariantConfig> =
-  F extends { getVariantConfig: () => O.Option<infer C> }
-    ? C extends VariantConfig
-      ? C[V] extends VariantBehavior
-        ? C[V]
-        : "required"
-      : "required"
-    : "required";
+type JsonUpdateType<Fields extends Record<string, DSLField<any, any, any, FieldConfig>>> = UpdateType<Fields>;
+type JsonUpdateEncoded<Fields extends Record<string, DSLField<any, any, any, FieldConfig>>> = UpdateEncoded<Fields>;
+type JsonUpdateContext<Fields extends Record<string, DSLField<any, any, any, FieldConfig>>> = UpdateContext<Fields>;
 
 /**
  * Constructor props for model instantiation.
  * Derives from the insert variant - fields present in insert are constructor props.
  * Fields with insert: "omit" are excluded, fields with insert: "optional" are optional.
  */
-type ConstructorProps<Fields extends Record<string, DSLField<any, any, any>>> = InsertType<Fields>;
+type ConstructorProps<Fields extends Record<string, DSLField<any, any, any, FieldConfig>>> = InsertType<Fields>;
 ```
 
 ---
@@ -386,7 +474,13 @@ type ConstructorProps<Fields extends Record<string, DSLField<any, any, any>>> = 
 
 ### 3.1 DSL.Field - Create Field with Column Metadata
 
-```typescript
+````typescript
+/**
+ * Default FieldConfig used when no config is provided.
+ * Represents a field with no explicit column metadata or variant behavior.
+ */
+type DefaultFieldConfig = FieldConfig<Partial<ColumnDef>, VariantConfig>;
+
 /**
  * Create a DSL.Field by wrapping an Effect Schema with column metadata.
  *
@@ -395,6 +489,9 @@ type ConstructorProps<Fields extends Record<string, DSLField<any, any, any>>> = 
  * - Carries column metadata in annotations
  * - Carries variant configuration in annotations
  *
+ * IMPORTANT: Uses `const` generic to preserve literal types in the config.
+ * This enables type-level extraction of exact column and variant definitions.
+ *
  * @example
  * ```typescript
  * const emailField = DSL.Field(S.String, {
@@ -402,19 +499,34 @@ type ConstructorProps<Fields extends Record<string, DSLField<any, any, any>>> = 
  *   variants: { insert: "required", update: "optional" }
  * });
  *
- * // Type inference preserved
+ * // Type inference preserved - Config carries exact literals
  * type Email = S.Schema.Type<typeof emailField>; // string
+ * type EmailConfig = typeof emailField["_config"];
+ * // { column: { type: "string", unique: true, maxLength: 255 }, variants: { insert: "required", update: "optional" } }
  * ```
  */
-export const Field: <A, I, R>(
+
+// Overload 1: No config provided - uses DefaultFieldConfig
+export function Field<A, I, R>(
+  schema: S.Schema<A, I, R>
+): DSLField<A, I, R, DefaultFieldConfig>;
+
+// Overload 2: Config provided - uses const generic to preserve literal types
+export function Field<A, I, R, const Config extends FieldConfig>(
   schema: S.Schema<A, I, R>,
-  config?: FieldConfig
-) => DSLField<A, I, R>;
-```
+  config: Config
+): DSLField<A, I, R, Config>;
+
+// Implementation signature (not exported)
+export function Field<A, I, R, Config extends FieldConfig = DefaultFieldConfig>(
+  schema: S.Schema<A, I, R>,
+  config?: Config
+): DSLField<A, I, R, Config>;
+````
 
 ### 3.2 DSL.Model - Create Model Class
 
-```typescript
+````typescript
 /**
  * Create a DSL.Model class with driver-agnostic SQL metadata.
  *
@@ -491,12 +603,12 @@ export const Field: <A, I, R>(
  * ```
  */
 export const Model: <Self>() => (identifier: string) => <
-  const Fields extends Record<string, DSLField<any, any, any>>
+  const Fields extends Record<string, DSLField<any, any, any, FieldConfig>>
 >(
   fields: Fields,
   options?: { readonly indexes?: readonly IndexDef[] }
 ) => ModelSchemaInstance<Self, Fields>;
-```
+````
 
 ---
 
@@ -504,7 +616,7 @@ export const Model: <Self>() => (identifier: string) => <
 
 ### 4.1 toDrizzle - Generate Drizzle PgTable
 
-```typescript
+````typescript
 /**
  * Transform a DSL.Model into a Drizzle PgTable.
  *
@@ -549,11 +661,11 @@ export const Model: <Self>() => (identifier: string) => <
 export const toDrizzle: <M extends ModelSchemaInstance<any, any>>(
   model: M
 ) => PgTable;
-```
+````
 
 ### 4.2 toBetterAuth - Generate better-auth Field Config
 
-```typescript
+````typescript
 /**
  * Transform a DSL.Model into better-auth additionalFields config.
  *
@@ -597,7 +709,7 @@ export const toBetterAuth: <M extends ModelSchemaInstance<any, any>>(
     excludeGenerated?: boolean;
   }
 ) => Record<string, DBFieldAttribute>;
-```
+````
 
 ---
 
@@ -878,14 +990,15 @@ const emailField = DSL.Field(BS.Email, {
 // Domain entities are exported as namespaces: User.Model
 // via `export * as User from "./User"` in packages/shared/domain/src/entities/index.ts
 
-export class Model extends DSL.Model<Model>($I`UserModel`)({
+export class Model extends DSL.Model<Model>()($I`UserModel`)({
   // Public UUID identifier (NOT primary key)
   id: DSL.Field(SharedEntityIds.UserId, {
     column: { type: "uuid", unique: true, defaultValue: () => SharedEntityIds.UserId.create() },
     variants: { insert: "omit", select: "required" },
   }),
   // Internal primary key (pg.serial)
-  _rowId: DSL.Field(SharedEntityIds.UserId.privateSchema, {
+  // Note: modelRowIdSchema and privateSchema are aliases for the internal ID schema
+  _rowId: DSL.Field(SharedEntityIds.UserId.modelRowIdSchema, {
     column: { type: "integer", primaryKey: true, autoIncrement: true },
     variants: { insert: "omit", select: "required" },
   }),
@@ -917,7 +1030,7 @@ export class Model extends DSL.Model<Model>($I`UserModel`)({
 **Alternative: Fluent API (future enhancement):**
 
 ```typescript
-export class Model extends DSL.Model<Model>($I`UserModel`)({
+export class Model extends DSL.Model<Model>()($I`UserModel`)({
   // fields...
 }).index("idx_users_org_email", ["organizationId", "email"], { unique: true })
   .index("idx_users_status", ["status"]) {}
@@ -949,10 +1062,27 @@ import * as O from "effect/Option";
 import * as AST from "effect/SchemaAST";
 import * as F from "effect/Function";
 
-export const Field = <A, I, R>(
+/**
+ * Default FieldConfig for fields created without explicit config.
+ */
+type DefaultFieldConfig = FieldConfig<Partial<ColumnDef>, VariantConfig>;
+
+// Overload 1: No config provided
+export function Field<A, I, R>(
+  schema: S.Schema<A, I, R>
+): DSLField<A, I, R, DefaultFieldConfig>;
+
+// Overload 2: Config provided with const generic for literal preservation
+export function Field<A, I, R, const Config extends FieldConfig>(
   schema: S.Schema<A, I, R>,
-  config?: FieldConfig
-): DSLField<A, I, R> => {
+  config: Config
+): DSLField<A, I, R, Config>;
+
+// Implementation
+export function Field<A, I, R, Config extends FieldConfig = DefaultFieldConfig>(
+  schema: S.Schema<A, I, R>,
+  config?: Config
+): DSLField<A, I, R, Config> {
   // 1. Infer column type if not provided
   const inferredType = inferColumnType(schema, config?.column?.type);
 
@@ -970,18 +1100,19 @@ export const Field = <A, I, R>(
     [VariantConfigSymbol]: config?.variants ?? {},
   });
 
-  // 4. Add helper methods via Object.assign
+  // 4. Add helper methods and _config property via Object.assign
   // Note: This mutation is intentional - we're extending the annotated schema
   // with additional methods. This is safe because annotatedSchema is a new
   // instance created by .annotations(). An alternative immutable pattern would
   // be to create a wrapper class, but that adds complexity without benefit here.
   const dslField = Object.assign(annotatedSchema, {
-    getColumnDef: () => O.some(columnDef),
-    getVariantConfig: () => O.fromNullable(config?.variants),
+    getColumnDef: () => O.some(columnDef) as O.Option<Config["column"] & {}>,
+    getVariantConfig: () => O.fromNullable(config?.variants) as O.Option<Config["variants"] & {}>,
+    _config: config as Config,
   });
 
-  return dslField as DSLField<A, I, R>;
-};
+  return dslField as DSLField<A, I, R, Config>;
+}
 ```
 
 ### 6.2 DSL.Model Factory Implementation
@@ -1013,13 +1144,14 @@ const {
 const VARIANT_KEYS = ["select", "insert", "update", "json", "jsonCreate", "jsonUpdate"] as const;
 
 export const Model = <Self>() => (identifier: string) => <
-  const Fields extends Record<string, DSLField<any, any, any>>
+  const Fields extends Record<string, DSLField<any, any, any, FieldConfig>>
 >(
   fields: Fields,
   options?: { indexes?: readonly IndexDef[] }
 ): ModelSchemaInstance<Self, Fields> => {
 
   // 1. Extract column definitions from field annotations
+  // Uses ExtractColumnsRecord at the type level to preserve exact column types
   const columns = F.pipe(
     _Struct.keys(fields),
     A.map((key) => {
@@ -1028,17 +1160,18 @@ export const Model = <Self>() => (identifier: string) => <
       return [key, columnDef] as const;
     }),
     R.fromEntries
-  ) as { readonly [K in keyof Fields]: ColumnDef };
+  ) as ExtractColumnsRecord<Fields>;
 
   // 2. Derive primary key columns
+  // Uses PrimaryKeyColumns at the type level to extract field names with primaryKey: true
   // Note: _Struct.entries is available in VariantSchema.ts (line 557)
   // It returns [key, value] pairs for object iteration
   const primaryKey = F.pipe(
     _Struct.keys(columns),
-    A.map((key) => [key, columns[key]] as const),
+    A.map((key) => [key, columns[key as keyof typeof columns]] as const),
     A.filter(([_, def]) => def.primaryKey === true),
     A.map(([key, _]) => key)
-  );
+  ) as readonly PrimaryKeyColumns<Fields>[];
 
   // 3. Convert DSL.Fields to VariantSchema.Fields
   const variantFields = F.pipe(
@@ -1084,8 +1217,8 @@ export const Model = <Self>() => (identifier: string) => <
     }
   } as typeof SchemaClass & {
     readonly tableName: string;
-    readonly columns: typeof columns;
-    readonly primaryKey: readonly string[];
+    readonly columns: ExtractColumnsRecord<Fields>;
+    readonly primaryKey: readonly PrimaryKeyColumns<Fields>[];
     readonly indexes: readonly IndexDef[];
     readonly identifier: string;
     readonly fields: Fields;
@@ -1141,8 +1274,11 @@ const toSnakeCase = (str: string): string =>
 ```typescript
 /**
  * Get ColumnDef from a field, with fallback inference.
+ * The Config type parameter is used for proper type inference.
  */
-const getColumnDefOrInfer = <A, I, R>(field: DSLField<A, I, R>): ColumnDef => {
+const getColumnDefOrInfer = <A, I, R, Config extends FieldConfig>(
+  field: DSLField<A, I, R, Config>
+): ColumnDef => {
   // Try to get from annotations
   const existing = F.pipe(
     field.ast,
@@ -1161,8 +1297,11 @@ const getColumnDefOrInfer = <A, I, R>(field: DSLField<A, I, R>): ColumnDef => {
 
 /**
  * Get VariantConfig from a field.
+ * The Config type parameter is used for proper type inference.
  */
-const getVariantConfig = <A, I, R>(field: DSLField<A, I, R>): VariantConfig | undefined =>
+const getVariantConfig = <A, I, R, Config extends FieldConfig>(
+  field: DSLField<A, I, R, Config>
+): VariantConfig | undefined =>
   F.pipe(
     field.ast,
     AST.getAnnotation<VariantConfig>(VariantConfigSymbol),
@@ -1188,7 +1327,7 @@ import { mergeSchemaAnnotations } from "@beep/schema/core/annotations/built-in-a
  * This is called by the annotations() override to create a new class
  * with merged annotations while preserving all static properties.
  */
-const makeModelClass = <Self, Fields extends Record<string, DSLField<any, any, any>>>(
+const makeModelClass = <Self, Fields extends Record<string, DSLField<any, any, any, FieldConfig>>>(
   identifier: string,
   fields: Fields,
   options?: { readonly indexes?: readonly IndexDef[] },
@@ -1297,6 +1436,10 @@ packages/common/schema/src/integrations/sql/dsl/
 ## 9. Usage Example
 
 ```typescript
+// ============================================================================
+// File: packages/shared/domain/src/entities/User/User.model.ts
+// ============================================================================
+
 import { DSL } from "@beep/schema/integrations/sql/dsl";
 import { SharedEntityIds } from "@beep/shared-domain/entity-ids";
 import * as S from "effect/Schema";
@@ -1306,9 +1449,10 @@ import { BS } from "@beep/schema";
 const $I = $SharedDomainId.create("entities/User/User.model");
 
 // Define a model with driver-agnostic column metadata
-// Domain entities are exported as namespaces: User.Model
-// This is done via `export * as User from "./User"` in packages/shared/domain/src/entities/index.ts
-export class Model extends DSL.Model<Model>($I`UserModel`)({
+// This file defines `Model` which will be accessed as `User.Model`
+// after the namespace export in packages/shared/domain/src/entities/index.ts:
+//   `export * as User from "./User";`
+export class Model extends DSL.Model<Model>()($I`UserModel`)({
   // Public UUID identifier (NOT the primary key!)
   // Has default generator via EntityId.create()
   id: DSL.Field(SharedEntityIds.UserId, {
@@ -1317,7 +1461,8 @@ export class Model extends DSL.Model<Model>($I`UserModel`)({
   }),
   // Internal primary key (pg.serial - auto-increment integer)
   // This IS the actual primary key, marked as M.Generated in the real codebase
-  _rowId: DSL.Field(SharedEntityIds.UserId.privateSchema, {
+  // Note: modelRowIdSchema and privateSchema are aliases for the internal ID schema
+  _rowId: DSL.Field(SharedEntityIds.UserId.modelRowIdSchema, {
     column: { type: "integer", primaryKey: true, autoIncrement: true },
     variants: { insert: "omit", select: "required" },
   }),
@@ -1338,8 +1483,22 @@ export class Model extends DSL.Model<Model>($I`UserModel`)({
   }),
 }) {}
 
+// ============================================================================
+// File: packages/shared/domain/src/entities/index.ts
+// ============================================================================
+
+// Namespace export pattern - creates User.Model, Organization.Model, etc.
+export * as User from "./User";
+export * as Organization from "./Organization";
+
+// ============================================================================
+// Consumer code (e.g., in apps/server or packages/iam/infra)
+// ============================================================================
+
+import { User } from "@beep/shared-domain/entities";
+
 // ============ Works as Effect Schema ============
-// Access via namespace: User.Model (not UserModel)
+// Access via namespace: User.Model (not UserModel directly)
 const decodeUser = S.decode(User.Model);
 const user = S.decodeSync(User.Model)({
   id: "user__a1b2c3d4-e5f6-7890-abcd-ef1234567890",

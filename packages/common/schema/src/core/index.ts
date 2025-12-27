@@ -82,6 +82,7 @@ export * as Utils from "./utils";
  * @since 0.1.0
  */
 export * from "./utils";
+export * as VariantSchema from "./VariantSchema";
 /**
  * Variance helpers for generics exported via the core namespace.
  *
@@ -94,6 +95,3 @@ export * from "./utils";
  * @since 0.1.0
  */
 export * from "./variance";
-
-
-export * as VariantSchema from "./VariantSchema"

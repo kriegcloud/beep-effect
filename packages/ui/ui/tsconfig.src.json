@@ -19,7 +19,7 @@
       "path": "../../common/utils"
     },
     {
-      "path": "../../common/schema"
+      "path": "../../common/schema/tsconfig.src.json"
     },
     {
       "path": "../../common/constants"

@@ -2,15 +2,15 @@ import { $SchemaId } from "@beep/identity/packages";
 import type { UnsafeTypes } from "@beep/types";
 import type { Effect } from "effect";
 import { ParseResult, Pipeable } from "effect";
+import * as A from "effect/Array";
 import type * as B from "effect/Brand";
 import * as F from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import type * as AST from "effect/SchemaAST";
 import * as _Struct from "effect/Struct";
-import * as R from "effect/Record";
-import * as A from "effect/Array";
 
 const $I = $SchemaId.create("core/VariantSchema");
 
@@ -242,15 +242,7 @@ type RequiredKeys<T> = {
  * @since 1.0.0
  * @category models
  */
-export interface Class<
-  Self,
-  Fields extends Struct.Fields,
-  SchemaFields extends S.Struct.Fields,
-  A,
-  I,
-  R,
-  C
->
+export interface Class<Self, Fields extends Struct.Fields, SchemaFields extends S.Struct.Fields, A, I, R, C>
   extends S.Schema<Self, S.Simplify<I>, R>,
     Struct<S.Simplify<Fields>> {
   new (
@@ -535,9 +527,7 @@ export const make = <const Variants extends ReadonlyArray<string>, const Default
       self: Field<any> | S.Schema.All | S.PropertySignature.All,
       f: Record<string, (schema: Field.ValueAny) => Field.ValueAny>
     ): Field<any> => {
-      const field = isField(self)
-        ? self
-        : Field(R.fromEntries(A.map(options.variants,(variant) => [variant, self])));
+      const field = isField(self) ? self : Field(R.fromEntries(A.map(options.variants, (variant) => [variant, self])));
       return Field(_Struct.evolve(field.schemas, f));
     }
   );
@@ -643,7 +633,7 @@ const Union = <Members extends ReadonlyArray<Struct<any>>, Variants extends Read
   members: Members,
   variants: Variants
 ) => {
-  class VariantUnion extends (S.Union(...A.filter(members,(member) => S.isSchema(member))) as any) {}
+  class VariantUnion extends (S.Union(...A.filter(members, (member) => S.isSchema(member))) as any) {}
   for (const variant of variants) {
     Object.defineProperty(VariantUnion, variant, {
       value: S.Union(...A.map(members, (member) => extract(member, variant))),

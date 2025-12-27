@@ -50,7 +50,7 @@
     {
       "path": "packages/shared/client/tsconfig.build.json"
     },
-        {
+    {
       "path": "packages/shared/env/tsconfig.build.json"
     },
     {
@@ -101,16 +101,16 @@
     {
       "path": "apps/web/tsconfig.json"
     },
-        {
+    {
       "path": "apps/interfere/tsconfig.json"
     },
-        {
+    {
       "path": "apps/marketing/tsconfig.json"
     },
     {
       "path": "packages/_internal/db-admin/tsconfig.build.json"
     },
-        {
+    {
       "path": "tooling/build-utils/tsconfig.build.json"
     },
     {
@@ -130,6 +130,9 @@
     },
     {
       "path": "packages/common/yjs/tsconfig.build.json"
+    },
+    {
+      "path": "packages/common/bsl/tsconfig.build.json"
     }
   ]
 }

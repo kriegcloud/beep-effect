@@ -24,7 +24,7 @@
       "path": "../../shared/server"
     },
     {
-      "path": "../../common/schema"
+      "path": "../../common/schema/tsconfig.src.json"
     },
     {
       "path": "../../common/utils"

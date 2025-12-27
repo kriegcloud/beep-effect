@@ -5,6 +5,7 @@
  * @since 0.1.0
  */
 export * from "./common";
+export * as Model from "./Model";
 /**
  * Postgres enum schema helpers.
  *
@@ -12,12 +13,3 @@ export * from "./common";
  * @since 0.1.0
  */
 export * from "./pg-enum";
-/**
- * Postgres serial column helpers.
- *
- * @category Surface/Integrations
- * @since 0.1.0
- */
-export * from "./pg-serial";
-
-export * as Model from "./Model";

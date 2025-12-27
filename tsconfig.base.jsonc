@@ -422,6 +422,16 @@
       ],
       "@beep/yjs/test/*": [
         "./packages/common/yjs/test/*"
+      ],
+      
+            "@beep/bsl": [
+        "./packages/common/bsl/src/index"
+      ],
+      "@beep/bsl/*": [
+        "./packages/common/bsl/src/*"
+      ],
+      "@beep/bsl/test/*": [
+        "./packages/common/bsl/test/*"
       ]
     }
   }

@@ -12,3 +12,4 @@ export * from "./fn";
  * @since 0.1.0
  */
 export * from "./no-input-void-fn/no-input-void-fn";
+export * from "./thunk";

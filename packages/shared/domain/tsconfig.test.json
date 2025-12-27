@@ -6,7 +6,7 @@
       "path": "tsconfig.src.json"
     },
     {
-      "path": "../../common/schema"
+      "path": "../../common/schema/tsconfig.src.json"
     },
     {
       "path": "../../common/types"

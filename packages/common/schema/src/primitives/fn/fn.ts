@@ -19,12 +19,9 @@
  * @since 0.1.0
  */
 
-import { $SchemaId } from "@beep/identity/packages";
 import * as Data from "effect/Data";
 import * as F from "effect/Function";
 import * as S from "effect/Schema";
-
-const $I = $SchemaId.create("primitives/fn/fn");
 /**
  * Schema-powered function wrapper enforcing validation at call boundaries.
  *
@@ -60,10 +57,6 @@ export class Fn<const IA, const IE, const OA, const OE> extends Data.TaggedClass
   }) {
     const BaseFn = S.declare(
       (candidate: unknown): candidate is (input: IA) => OA => F.isFunction(candidate) && candidate.length >= 1
-    ).annotations(
-      $I.annotations("fn/ValidatedFunction", {
-        description: "Wraps a function to validate inputs and outputs at invocation time.",
-      })
     );
 
     super({ Schema: BaseFn });
