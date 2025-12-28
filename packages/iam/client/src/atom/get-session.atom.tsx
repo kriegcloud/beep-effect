@@ -1,5 +1,5 @@
+import { thunkNull } from "@beep/utils";
 import { Result, useAtomValue } from "@effect-atom/atom-react";
-import * as F from "effect/Function";
 import { ApiClient } from "./api-client.ts";
 export const useSession = () => {
   const sessionResult = useAtomValue(
@@ -9,6 +9,6 @@ export const useSession = () => {
   );
 
   return {
-    session: Result.getOrElse(sessionResult, F.constNull),
+    session: Result.getOrElse(sessionResult, thunkNull),
   };
 };

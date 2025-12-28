@@ -10,7 +10,6 @@ type HandlerEffect = Common.HandlerEffect<V1.SignIn.Email.Payload>;
 export const Handler: HandlerEffect = Effect.fn("SignInEmail")(function* ({ payload }) {
   const auth = yield* Auth.Service;
   const request = yield* HttpServerRequest.HttpServerRequest;
-
   return yield* runAuthEndpoint({
     payloadSchema: V1.SignIn.Email.Payload,
     successSchema: V1.SignIn.Email.Success,

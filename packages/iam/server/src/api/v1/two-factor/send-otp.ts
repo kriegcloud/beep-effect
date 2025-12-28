@@ -19,7 +19,6 @@ export const Handler: HandlerEffect = Effect.fn("TwoFactorSendOtp")(
   function* () {
     const auth = yield* Auth.Service;
     const request = yield* HttpServerRequest.HttpServerRequest;
-
     return yield* runAuthCommand({
       successValue: { status: true },
       headers: request.headers,
