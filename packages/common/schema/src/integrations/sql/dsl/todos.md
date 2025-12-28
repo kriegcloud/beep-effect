@@ -1,0 +1,4 @@
+- [] remove automatic table name generation in favor of manually defined parameter
+- [] figure out support for defining relations on either the Field or the Model level
+- [] add support for extra config on Model level used as the second parameter after fields and before annotations
+- [] add support for creating a Model factory which produces a Model class constructor attaching default fields allowing for a reduction in boilerplate for fields like `createdAt` and `updatedAt` etc.
