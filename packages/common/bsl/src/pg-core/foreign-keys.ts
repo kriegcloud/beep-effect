@@ -40,7 +40,7 @@ export class ForeignKeyBuilder {
   ) {
     this.reference = () => {
       const { name, columns, foreignColumns } = config();
-      return { name, columns, foreignTable: foreignColumns[0]!.table as PgTable, foreignColumns };
+      return { name, columns, foreignTable: foreignColumns[0]?.table as PgTable, foreignColumns };
     };
     if (actions) {
       this._onUpdate = actions.onUpdate;
