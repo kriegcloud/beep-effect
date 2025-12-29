@@ -15,6 +15,7 @@
  */
 
 import { DiscriminatedStruct } from "@beep/schema/core/generics";
+import { mergeFields } from "@beep/schema/core/utils/merge-fields";
 import type { UnsafeTypes } from "@beep/types";
 import { ArrayUtils, enumFromStringArray } from "@beep/utils";
 import type { CreateEnumType, ValidMapping } from "@beep/utils/data/tuple.utils";
@@ -64,11 +65,7 @@ type TaggedUnion<Literals extends LiteralsType, D extends string> = S.Union<Tagg
 type TaggedMembersResult<Literals extends LiteralsType, D extends string> = {
   readonly Union: TaggedUnion<Literals, D>;
   readonly Members: TaggedMembersMap<Literals, D>;
-  readonly composer: {
-    readonly [K in Literals[number]]: <Fields extends S.Struct.Fields>(
-      fields: Fields
-    ) => DiscriminatedStruct.Schema<D, K, Fields>;
-  };
+  readonly composer: StructComposer<Literals, D>;
 };
 // type Composer = {
 //           readonly [K in Literals[number]]: <Fields extends S.Struct.Fields>(fields: Fields) => DiscriminatedStruct.Schema<D, K, Fields>
@@ -84,27 +81,103 @@ type TaggedMembersResult<Literals extends LiteralsType, D extends string> = {
 //           A.reduce({} as Composer, (acc, [key, value]) => ({ ...acc, [key]: value }))
 //         )
 
-export type StructComposer<Literals extends LiteralsType, D extends string> = {
+/**
+ * Composable struct factory with support for default fields.
+ *
+ * Can be called as a function to create a new composer with default fields:
+ * - `composer(defaultFields)` → returns new composer with defaults
+ *
+ * Can be called as an object with literal methods:
+ * - `composer.select(fields)` → creates struct with discriminator + fields
+ *
+ * When called with defaults first, creates nested composition:
+ * - `composer(defaults).select(fields)` → struct with discriminator + defaults + fields
+ *
+ * @example
+ * import { StringLiteralKit } from "@beep/schema/derived/kits/string-literal-kit";
+ * import * as S from "effect/Schema";
+ *
+ * class ModelVariant extends StringLiteralKit("select", "insert", "update") {}
+ *
+ * const factory = ModelVariant.toTagged("variant").composer({
+ *   id: S.String,
+ *   createdAt: S.DateTimeUtc
+ * });
+ *
+ * class SelectModel extends factory.select({ data: S.String }) {}
+ * // Produces: { variant: "select", id: string, createdAt: DateTime.Utc, data: string }
+ *
+ * @since 0.1.0
+ * @category Derived/Kits
+ */
+export type StructComposer<
+  Literals extends LiteralsType,
+  D extends string,
+  Defaults extends S.Struct.Fields = {}
+> = {
+  /**
+   * Call with default fields to create a new composer with those defaults baked in.
+   */
+  <const DefaultFields extends S.Struct.Fields>(
+    defaultFields: DefaultFields
+  ): StructComposer<Literals, D, Defaults & DefaultFields>;
+} & {
+  /**
+   * Method accessors for each literal - merges defaults with new fields.
+   */
   readonly [K in Literals[number]]: <Fields extends S.Struct.Fields>(
     fields: Fields
-  ) => DiscriminatedStruct.Schema<D, K, Fields>;
+  ) => DiscriminatedStruct.Schema<D, K, Defaults & Fields>;
 };
 
-const makeComposer = <const Literals extends LiteralsType, const D extends string>(
+/**
+ * Creates a callable struct composer with support for default fields.
+ *
+ * The returned composer can be:
+ * 1. Called as a function with default fields to create a new composer with those defaults
+ * 2. Accessed via literal methods to create discriminated structs
+ *
+ * @param literals - Array of literal string values
+ * @param discriminator - The discriminator field name
+ * @param defaults - Default fields to merge into all variants (defaults to empty)
+ * @returns A callable StructComposer with literal methods
+ *
+ * @since 0.1.0
+ * @category Derived/Kits
+ */
+const makeComposer = <
+  const Literals extends LiteralsType,
+  const D extends string,
+  const Defaults extends S.Struct.Fields = {}
+>(
   literals: Literals,
-  discriminator: D
-) => {
+  discriminator: D,
+  defaults: Defaults = {} as Defaults
+): StructComposer<Literals, D, Defaults> => {
   const structFactory = DiscriminatedStruct.make(discriminator);
-  const composerFn = F.flow(
-    <Tag extends Literals[number]>(tag: Tag) =>
-      <Fields extends S.Struct.Fields>(fields: Fields) =>
-        structFactory(tag, fields)
-  );
-  return F.pipe(
+
+  // Create literal methods - each merges defaults with new fields
+  const composerMethods = F.pipe(
     literals,
-    ArrayUtils.NonEmptyReadonly.mapNonEmpty((lit) => [lit, composerFn(lit)]),
-    A.reduce({} as StructComposer<Literals, D>, (acc, [key, value]) => ({ ...acc, [key]: value }))
+    ArrayUtils.NonEmptyReadonly.mapNonEmpty((lit) => {
+      const method = <Fields extends S.Struct.Fields>(fields: Fields) =>
+        structFactory(lit, mergeFields(defaults, fields));
+      return [lit, method] as const;
+    }),
+    A.reduce({} as Record<string, unknown>, (acc, [key, method]) => ({
+      ...acc,
+      [key]: method,
+    }))
   );
+
+  // Create callable function that returns a new composer with extended defaults
+  const composerFn = <const DefaultFields extends S.Struct.Fields>(
+    defaultFields: DefaultFields
+  ): StructComposer<Literals, D, Defaults & DefaultFields> =>
+    makeComposer(literals, discriminator, mergeFields(defaults, defaultFields));
+
+  // Merge callable function with literal methods
+  return Object.assign(composerFn, composerMethods) as StructComposer<Literals, D, Defaults>;
 };
 
 type PickOptions<Literals extends LiteralsType> = <const Keys extends LiteralsSubset<Literals>>(

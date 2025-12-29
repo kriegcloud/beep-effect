@@ -1,7 +1,7 @@
 import { describe, expect, expectTypeOf, it } from "bun:test";
 import * as BSL from "@beep/schema/integrations/sql/dsl";
 import { ColumnMetaSymbol, Field, Model, toDrizzle } from "@beep/schema/integrations/sql/dsl";
-import type { ColumnDef } from "@beep/schema/integrations/sql/dsl/types";
+import type { AnyColumnDef } from "@beep/schema/integrations/sql/dsl/types";
 import * as drizzle from "drizzle-orm";
 import { getTableName } from "drizzle-orm";
 import * as pg from "drizzle-orm/pg-core";
@@ -22,9 +22,9 @@ describe("DSL.Model POC", () => {
       const field = Field(S.String)({ column: { type: "string", unique: true } });
       const meta = F.pipe(
         field.ast,
-        AST.getAnnotation<ColumnDef>(ColumnMetaSymbol),
+        AST.getAnnotation<AnyColumnDef>(ColumnMetaSymbol),
         O.getOrElse(
-          (): ColumnDef => ({
+          (): AnyColumnDef => ({
             type: "string",
             primaryKey: false,
             unique: false,
@@ -40,7 +40,7 @@ describe("DSL.Model POC", () => {
       const field = Field(S.Int)({ column: { type: "integer", primaryKey: true, autoIncrement: true } });
       const meta = F.pipe(
         field.ast,
-        AST.getAnnotation<ColumnDef>(ColumnMetaSymbol),
+        AST.getAnnotation<AnyColumnDef>(ColumnMetaSymbol),
         O.getOrElse(() => ({
           type: "string",
           primaryKey: false,
@@ -93,7 +93,7 @@ describe("DSL.Model POC", () => {
       expect(TestModel.primaryKey).toEqual(["_rowId"]);
     });
 
-    it("exposes columns record with ColumnDef for each field", () => {
+    it("exposes columns record with AnyColumnDef for each field", () => {
       class TestModel extends Model<TestModel>("Test")({
         id: Field(S.String)({ column: { type: "uuid", unique: true } }),
         _rowId: Field(S.Int)({ column: { type: "integer", primaryKey: true, autoIncrement: true } }),

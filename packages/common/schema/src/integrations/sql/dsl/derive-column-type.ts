@@ -1,6 +1,6 @@
-import { $SchemaId } from "@beep/identity/packages";
-import { BS } from "@beep/schema";
-import { thunk, thunkThrow } from "@beep/utils/thunk";
+import {$SchemaId} from "@beep/identity/packages";
+import {BS} from "@beep/schema";
+import {thunk, thunkThrow} from "@beep/utils/thunk";
 import * as A from "effect/Array";
 import * as F from "effect/Function";
 import * as Match from "effect/Match";
@@ -8,8 +8,8 @@ import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as AST from "effect/SchemaAST";
-import { UnsupportedColumnTypeError } from "./errors";
-import { ColumnType } from "./literals";
+import {UnsupportedColumnTypeError} from "./errors";
+import {ColumnType} from "./literals";
 
 const $I = $SchemaId.create("integrations/sql/dsl/derive-column-type");
 // ============================================================================
@@ -272,7 +272,8 @@ export class DateSchemaId extends BS.StringLiteralKit(
   $I.annotations("DateSchemaId", {
     description: "Date-related transformation schema id's",
   })
-) {}
+) {
+}
 
 export declare namespace DateSchemaId {
   export type Type = typeof DateSchemaId.Type;
@@ -282,7 +283,8 @@ export class BigIntSchemaId extends BS.StringLiteralKit("BigInt", "BigIntFromStr
   $I.annotations("BigIntSchemaId", {
     description: "BigInt transformation schema id's",
   })
-) {}
+) {
+}
 
 export declare namespace BigIntSchemaId {
   export type Type = typeof BigIntSchemaId.Type;
@@ -369,9 +371,21 @@ const deriveUnionColumnType = (unionAst: AST.Union, visited: WeakSet<AST.AST>): 
     });
   }
 
+
+
+  // const m = Match.type<AST.Union<AST.AST>>().pipe(
+  //   Match.when(P.struct({ types: A.every(P.isString)}), ColumnType.thunks.string),
+  //   Match.when(P.struct({ types: A.every(P.isNumber)}), ColumnType.thunks.number),
+  //   Match.when(P.struct({types: A.every(P.isBoolean)}), ColumnType.thunks.boolean),
+  //   Match.when(P.struct({types: A.every(P.isBigInt)}), ColumnType.thunks.bigint),
+  //
+  //   Match.orElse(thunk(ColumnType.thunks.json))
+  // )
+
+
   // Check if it's a homogeneous string literal union (e.g., "a" | "b" | "c")
   const allStringLiterals = F.pipe(
-    unionAst.types,
+    nonNullMembers,
     A.every((t) => AST.isLiteral(t) && P.isString(t.literal))
   );
   if (allStringLiterals) return ColumnType.Enum.string;

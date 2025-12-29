@@ -210,6 +210,29 @@ export class MultipleAutoIncrementError extends S.TaggedError<MultipleAutoIncrem
   }
 ) {}
 
+/**
+ * INV-MODEL-VALIDATE-001: Model validation failed with multiple errors.
+ *
+ * Thrown when model validation discovers one or more invariant violations.
+ * This aggregates all individual validation errors (field-level, identifier,
+ * constraint violations) into a single TaggedError for proper Effect handling.
+ *
+ * Use Match.tag("ModelValidationAggregateError", ...) for exhaustive matching.
+ *
+ * @since 1.0.0
+ * @category errors
+ */
+export class ModelValidationAggregateError extends S.TaggedError<ModelValidationAggregateError>()(
+  "ModelValidationAggregateError",
+  {
+    ...commonErrorFields,
+    modelName: S.String,
+    errorCount: S.Number,
+    /** Individual validation errors that triggered this aggregate */
+    errors: S.Array(S.Unknown),
+  }
+) {}
+
 // ============================================================================
 // Union Type for All DSL Validation Errors
 // ============================================================================
@@ -228,7 +251,8 @@ export type DSLValidationError =
   | EmptyModelIdentifierError
   | MultipleAutoIncrementError
   | MissingVariantSchemaError
-  | UnsupportedColumnTypeError;
+  | UnsupportedColumnTypeError
+  | ModelValidationAggregateError;
 
 /**
  * Schema for encoding/decoding DSLValidationError union.
@@ -243,5 +267,6 @@ export const DSLValidationErrorSchema = S.Union(
   EmptyModelIdentifierError,
   MultipleAutoIncrementError,
   MissingVariantSchemaError,
-  UnsupportedColumnTypeError
+  UnsupportedColumnTypeError,
+  ModelValidationAggregateError
 );

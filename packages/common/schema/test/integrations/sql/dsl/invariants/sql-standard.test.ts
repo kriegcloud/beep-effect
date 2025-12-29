@@ -17,7 +17,7 @@ import type {
   InvalidIdentifierCharsError,
   NullablePrimaryKeyError,
 } from "@beep/schema/integrations/sql/dsl/errors";
-import type { ColumnDef } from "@beep/schema/integrations/sql/dsl/types";
+import type { AnyColumnDef } from "@beep/schema/integrations/sql/dsl/types";
 import {
   validateAutoIncrementType,
   validateIdentifierChars,
@@ -29,7 +29,7 @@ import * as Either from "effect/Either";
 
 describe("INV-SQL-AI-001: AutoIncrement Type Restriction", () => {
   it("should fail for autoIncrement with string type", () => {
-    const def: ColumnDef = { type: "string", autoIncrement: true };
+    const def: AnyColumnDef = { type: "string", autoIncrement: true };
     const result = Effect.runSync(Effect.either(validateAutoIncrementType("id", def)));
 
     expect(Either.isLeft(result)).toBe(true);
@@ -45,7 +45,7 @@ describe("INV-SQL-AI-001: AutoIncrement Type Restriction", () => {
   });
 
   it("should fail for autoIncrement with boolean type", () => {
-    const def: ColumnDef = { type: "boolean", autoIncrement: true };
+    const def: AnyColumnDef = { type: "boolean", autoIncrement: true };
     const result = Effect.runSync(Effect.either(validateAutoIncrementType("flag", def)));
 
     expect(Either.isLeft(result)).toBe(true);
@@ -57,7 +57,7 @@ describe("INV-SQL-AI-001: AutoIncrement Type Restriction", () => {
   });
 
   it("should fail for autoIncrement with uuid type", () => {
-    const def: ColumnDef = { type: "uuid", autoIncrement: true };
+    const def: AnyColumnDef = { type: "uuid", autoIncrement: true };
     const result = Effect.runSync(Effect.either(validateAutoIncrementType("id", def)));
 
     expect(Either.isLeft(result)).toBe(true);
@@ -69,7 +69,7 @@ describe("INV-SQL-AI-001: AutoIncrement Type Restriction", () => {
   });
 
   it("should fail for autoIncrement with json type", () => {
-    const def: ColumnDef = { type: "json", autoIncrement: true };
+    const def: AnyColumnDef = { type: "json", autoIncrement: true };
     const result = Effect.runSync(Effect.either(validateAutoIncrementType("data", def)));
 
     expect(Either.isLeft(result)).toBe(true);
@@ -80,28 +80,28 @@ describe("INV-SQL-AI-001: AutoIncrement Type Restriction", () => {
   });
 
   it("should pass for autoIncrement with integer type", () => {
-    const def: ColumnDef = { type: "integer", autoIncrement: true };
+    const def: AnyColumnDef = { type: "integer", autoIncrement: true };
     const result = Effect.runSync(Effect.either(validateAutoIncrementType("id", def)));
 
     expect(Either.isRight(result)).toBe(true);
   });
 
   it("should pass for autoIncrement with bigint type", () => {
-    const def: ColumnDef = { type: "bigint", autoIncrement: true };
+    const def: AnyColumnDef = { type: "bigint", autoIncrement: true };
     const result = Effect.runSync(Effect.either(validateAutoIncrementType("id", def)));
 
     expect(Either.isRight(result)).toBe(true);
   });
 
   it("should pass when autoIncrement is false regardless of type", () => {
-    const def: ColumnDef = { type: "string", autoIncrement: false };
+    const def: AnyColumnDef = { type: "string", autoIncrement: false };
     const result = Effect.runSync(Effect.either(validateAutoIncrementType("name", def)));
 
     expect(Either.isRight(result)).toBe(true);
   });
 
   it("should pass when autoIncrement is undefined", () => {
-    const def: ColumnDef = { type: "string" };
+    const def: AnyColumnDef = { type: "string" };
     const result = Effect.runSync(Effect.either(validateAutoIncrementType("name", def)));
 
     expect(Either.isRight(result)).toBe(true);
