@@ -110,11 +110,7 @@ type TaggedMembersResult<Literals extends LiteralsType, D extends string> = {
  * @since 0.1.0
  * @category Derived/Kits
  */
-export type StructComposer<
-  Literals extends LiteralsType,
-  D extends string,
-  Defaults extends S.Struct.Fields = {}
-> = {
+export type StructComposer<Literals extends LiteralsType, D extends string, Defaults extends S.Struct.Fields = {}> = {
   /**
    * Call with default fields to create a new composer with those defaults baked in.
    */
@@ -148,7 +144,7 @@ export type StructComposer<
 const makeComposer = <
   const Literals extends LiteralsType,
   const D extends string,
-  const Defaults extends S.Struct.Fields = {}
+  const Defaults extends S.Struct.Fields = {},
 >(
   literals: Literals,
   discriminator: D,

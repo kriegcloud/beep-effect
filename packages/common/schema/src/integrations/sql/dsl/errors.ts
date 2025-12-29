@@ -267,6 +267,5 @@ export const DSLValidationErrorSchema = S.Union(
   EmptyModelIdentifierError,
   MultipleAutoIncrementError,
   MissingVariantSchemaError,
-  UnsupportedColumnTypeError,
-  ModelValidationAggregateError
+  UnsupportedColumnTypeError
 );

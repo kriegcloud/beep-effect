@@ -596,9 +596,8 @@ describe("DSL Combinators - Type Narrowing", () => {
     expect(table.metadata).toBeDefined();
 
     // Verify the table columns exist and are properly typed at runtime
-    // Note: Using runtime assertions - type inference through combinators is limited
     expect(Entity.columns.id.type).toBe("uuid");
-    expect((Entity.columns.id as { primaryKey: boolean }).primaryKey).toBe(true);
+    expect(Entity.columns.id.primaryKey).toBe(true);
     expect(Entity.columns.metadata.type).toBe("json");
   });
 
@@ -609,11 +608,14 @@ describe("DSL Combinators - Type Narrowing", () => {
     });
 
     const field = SettingsSchema.pipe(DSL.json);
-    const columnDef = (field as unknown as { [ColumnMetaSymbol]: { type: string; primaryKey: boolean } })[ColumnMetaSymbol];
+    const columnDef = (field as any)[ColumnMetaSymbol];
 
     expect(columnDef.type).toBe("json");
 
-    // Runtime verification of column definition
-    expect(columnDef.primaryKey).toBe(false);
+    type FieldType = typeof field;
+    type ColDef = FieldType extends { [ColumnMetaSymbol]: infer C } ? C : never;
+
+    expectTypeOf<ColDef["type"]>().toEqualTypeOf<"json">();
+    expectTypeOf<ColDef["primaryKey"]>().toEqualTypeOf<false>();
   });
 });

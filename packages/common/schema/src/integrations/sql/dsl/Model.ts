@@ -1,7 +1,6 @@
-import * as VariantSchema from "@beep/schema/core/VariantSchema";
 import type { UnsafeTypes } from "@beep/types";
 import { thunk, thunkEmptyReadonlyArray } from "@beep/utils";
-import * as ExperimentalVariantSchema from "@effect/experimental/VariantSchema";
+import * as VariantSchema from "@effect/experimental/VariantSchema";
 import * as A from "effect/Array";
 import * as F from "effect/Function";
 import * as O from "effect/Option";
@@ -23,7 +22,7 @@ import {
 import type { DSLField, DSLVariantField } from "./Field";
 import { ModelVariant } from "./literals.ts";
 import { isNullable } from "./nullability";
-import type { AnyColumnDef, ColumnDefSchema, DSL, ModelClassWithVariants } from "./types";
+import type { ColumnDef, DSL, ModelClassWithVariants } from "./types";
 import { ColumnMetaSymbol, isDSLVariantField } from "./types";
 
 /**
@@ -32,7 +31,7 @@ import { ColumnMetaSymbol, isDSLVariantField } from "./types";
  * @internal
  */
 const isAnyVariantField = (input: unknown): input is VariantSchema.Field<VariantSchema.Field.Config> =>
-  VariantSchema.isField(input) || ExperimentalVariantSchema.isField(input);
+  VariantSchema.isField(input);
 // Snake case helper (POC: simple implementation)
 const toSnakeCase = (str: string): string =>
   F.pipe(str, Str.replace(/([A-Z])/g, "_$1"), Str.toLowerCase, Str.replace(/^_/, ""));
@@ -47,7 +46,7 @@ export type ExtractColumnsType<Fields extends DSL.Fields> = {
       [Fields[K]] extends [DSLField<UnsafeTypes.UnsafeAny, UnsafeTypes.UnsafeAny, UnsafeTypes.UnsafeAny, infer C>]
       ? C
       : // Fallback for plain schemas or VariantSchema.Field without column metadata
-        ColumnDefSchema.Generic<"string", false, false, false>;
+        ColumnDef<"string", false, false, false>;
 };
 
 // Type-level extraction of primary key field names
@@ -87,12 +86,12 @@ const getFieldAST = (field: S.Schema.All | S.PropertySignature.All): AST.AST => 
 };
 
 // Default column definition used when no metadata is found
-// Note: nullable is no longer stored in column defs - it's derived from the schema AST
-const defaultColumnDef: ColumnDefSchema.Generic<"string", false, false, false> = {
+// Note: nullable is no longer stored in ColumnDef - it's derived from the schema AST
+const defaultColumnDef: ColumnDef<"string", false, false, false> = {
   type: "string" as const,
   primaryKey: false,
   unique: false,
-  autoIncrement: undefined,
+  autoIncrement: false,
 };
 
 /**
@@ -102,10 +101,10 @@ const defaultColumnDef: ColumnDefSchema.Generic<"string", false, false, false> =
  * 2. AST annotations (plain Schema)
  * @internal
  */
-const getColumnDef = (field: unknown): ColumnDefSchema.Generic => {
+const getColumnDef = (field: unknown): ColumnDef => {
   // Case 1: Direct property access (DSLField or DSLVariantField)
   if (P.isNotNull(field) && P.isObject(field) && ColumnMetaSymbol in field) {
-    const meta = (field as { [ColumnMetaSymbol]?: ColumnDefSchema.Generic })[ColumnMetaSymbol];
+    const meta = (field as { [ColumnMetaSymbol]?: ColumnDef })[ColumnMetaSymbol];
     if (meta !== undefined) {
       return meta;
     }
@@ -114,7 +113,7 @@ const getColumnDef = (field: unknown): ColumnDefSchema.Generic => {
   // Case 2: Check AST annotations for Schema or PropertySignature
   if (S.isSchema(field) || S.isPropertySignature(field)) {
     const ast = getFieldAST(field as S.Schema.All | S.PropertySignature.All);
-    return F.pipe(ast, AST.getAnnotation<ColumnDefSchema.Generic>(ColumnMetaSymbol), O.getOrElse(thunk(defaultColumnDef)));
+    return F.pipe(ast, AST.getAnnotation<ColumnDef>(ColumnMetaSymbol), O.getOrElse(thunk(defaultColumnDef)));
   }
 
   // Case 3: No metadata found, return default
@@ -134,7 +133,7 @@ const extractColumns = <Fields extends DSL.Fields>(fields: Fields): ExtractColum
   ) as ExtractColumnsType<Fields>;
 
 // Derive primary key fields (runtime)
-const derivePrimaryKey = <Columns extends Record<string, AnyColumnDef>>(columns: Columns): readonly string[] =>
+const derivePrimaryKey = <Columns extends Record<string, ColumnDef>>(columns: Columns): readonly string[] =>
   F.pipe(
     columns,
     Struct.entries,
@@ -161,7 +160,7 @@ const INVALID_CHAR_PATTERN = /[^a-zA-Z0-9_$]/g;
 const validateModelInvariants = <Fields extends DSL.Fields>(
   identifier: string,
   fields: Fields,
-  columns: Record<string, AnyColumnDef>
+  columns: Record<string, ColumnDef>
 ): void => {
   const errors: DSLValidationError[] = [];
 
@@ -447,7 +446,7 @@ export const Model =
     const columns = extractColumns(fields);
 
     // Validate all invariants before proceeding
-    validateModelInvariants(identifier, fields, columns as Record<string, AnyColumnDef>);
+    validateModelInvariants(identifier, fields, columns as Record<string, ColumnDef>);
 
     const primaryKey = derivePrimaryKey(columns);
     const tableName = toSnakeCase(identifier);

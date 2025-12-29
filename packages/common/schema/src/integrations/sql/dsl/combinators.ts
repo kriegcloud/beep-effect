@@ -28,11 +28,11 @@
  * @category combinators
  */
 import type * as S from "effect/Schema";
-import {deriveColumnType} from "./derive-column-type.ts";
-import {extractASTFromInput} from "./Field.ts";
-import {ColumnType} from "./literals.ts";
-import type {AnyColumnDef, ColumnConfig, DeriveColumnTypeFromSchema, DSLField, ExactColumnDef, ValidateSchemaColumn} from "./types";
-import {ColumnMetaSymbol} from "./types";
+import { deriveColumnType } from "./derive-column-type.ts";
+import { extractASTFromInput } from "./Field.ts";
+import { ColumnType } from "./literals.ts";
+import type { ColumnDef, DeriveColumnTypeFromSchema, DSLField, ExactColumnDef, ValidateSchemaColumn } from "./types";
+import { ColumnMetaSymbol } from "./types";
 
 // ============================================================================
 // Type Utilities
@@ -73,17 +73,17 @@ type ResolveColumnDef<Schema, C> = [C] extends [never] ? DerivedDefaultColumnDef
  * Note: nullable is no longer stored in ColumnDef - it's derived from the schema AST
  * @internal
  */
-// type GetColumnDef<Schema> = Schema extends { [ColumnMetaSymbol]: infer C extends ColumnDefSchema.Generic }
+// type GetColumnDef<Schema> = Schema extends { [ColumnMetaSymbol]: infer C extends ColumnDef }
 //   ? C
 //   : DefaultColumnDef;
 
 /**
  * Merges existing column definition with new properties.
  * New properties override existing ones.
- * Note: nullable is no longer part of column config - it's derived from the schema AST
+ * Note: nullable is no longer part of ColumnDef - it's derived from the schema AST
  * @internal
  */
-type MergeColumnDef<Existing extends ColumnConfig, New extends ColumnConfig> = ExactColumnDef<{
+type MergeColumnDef<Existing extends Partial<ColumnDef>, New extends Partial<ColumnDef>> = ExactColumnDef<{
   readonly type: New extends { type: infer T } ? T : Existing extends { type: infer T } ? T : "string";
   readonly primaryKey: New extends { primaryKey: infer PK }
     ? PK
@@ -113,14 +113,14 @@ type MergeColumnDef<Existing extends ColumnConfig, New extends ColumnConfig> = E
  * @internal
  */
 const attachColumnDef = <A, I, R>(
-  self: S.Schema<A, I, R> | DSLField<A, I, R, AnyColumnDef>,
-  partial: ColumnConfig
+  self: S.Schema<A, I, R> | DSLField<A, I, R, ColumnDef>,
+  partial: Partial<ColumnDef>
 ): DSLField<A, I, R, any> => {
   // Extract existing metadata if present
-  const existingDef = (self as any)[ColumnMetaSymbol] as AnyColumnDef | undefined;
+  const existingDef = (self as any)[ColumnMetaSymbol] as ColumnDef | undefined;
 
   // Merge with defaults (nullable removed - it's derived from schema AST)
-  const columnDef: AnyColumnDef = {
+  const columnDef: ColumnDef = {
     type: partial.type ?? existingDef?.type ?? deriveColumnType(extractASTFromInput(self)),
     primaryKey: partial.primaryKey ?? existingDef?.primaryKey ?? false,
     unique: partial.unique ?? existingDef?.unique ?? false,
@@ -163,7 +163,7 @@ const attachColumnDef = <A, I, R>(
  * @since 1.0.0
  * @category type setters
  */
-export const uuid = <A, I, R, C extends AnyColumnDef = never>(
+export const uuid = <A, I, R, C extends ColumnDef = never>(
   self: S.Schema<A, I, R> | DSLField<A, I, R, C>
 ): ValidateSchemaColumn<
   I,
@@ -185,7 +185,7 @@ export const uuid = <A, I, R, C extends AnyColumnDef = never>(
  * @since 1.0.0
  * @category type setters
  */
-export const string = <A, I, R, C extends AnyColumnDef = never>(
+export const string = <A, I, R, C extends ColumnDef = never>(
   self: S.Schema<A, I, R> | DSLField<A, I, R, C>
 ): ValidateSchemaColumn<
   I,
@@ -207,7 +207,7 @@ export const string = <A, I, R, C extends AnyColumnDef = never>(
  * @since 1.0.0
  * @category type setters
  */
-export const integer = <A, I, R, C extends AnyColumnDef = never>(
+export const integer = <A, I, R, C extends ColumnDef = never>(
   self: S.Schema<A, I, R> | DSLField<A, I, R, C>
 ): ValidateSchemaColumn<
   I,
@@ -229,7 +229,7 @@ export const integer = <A, I, R, C extends AnyColumnDef = never>(
  * @since 1.0.0
  * @category type setters
  */
-export const number = <A, I, R, C extends AnyColumnDef = never>(
+export const number = <A, I, R, C extends ColumnDef = never>(
   self: S.Schema<A, I, R> | DSLField<A, I, R, C>
 ): ValidateSchemaColumn<
   I,
@@ -251,7 +251,7 @@ export const number = <A, I, R, C extends AnyColumnDef = never>(
  * @since 1.0.0
  * @category type setters
  */
-export const boolean = <A, I, R, C extends AnyColumnDef = never>(
+export const boolean = <A, I, R, C extends ColumnDef = never>(
   self: S.Schema<A, I, R> | DSLField<A, I, R, C>
 ): ValidateSchemaColumn<
   I,
@@ -278,7 +278,7 @@ export const boolean = <A, I, R, C extends AnyColumnDef = never>(
  * @since 1.0.0
  * @category type setters
  */
-export const json = <A, I, R, C extends AnyColumnDef = never>(
+export const json = <A, I, R, C extends ColumnDef = never>(
   self: S.Schema<A, I, R> | DSLField<A, I, R, C>
 ): ValidateSchemaColumn<
   I,
@@ -300,7 +300,7 @@ export const json = <A, I, R, C extends AnyColumnDef = never>(
  * @since 1.0.0
  * @category type setters
  */
-export const datetime = <A, I, R, C extends AnyColumnDef = never>(
+export const datetime = <A, I, R, C extends ColumnDef = never>(
   self: S.Schema<A, I, R> | DSLField<A, I, R, C>
 ): ValidateSchemaColumn<
   I,
@@ -326,10 +326,10 @@ export const datetime = <A, I, R, C extends AnyColumnDef = never>(
  * @since 1.0.0
  * @category constraint setters
  */
-export const primaryKey = <A, I, R, C extends AnyColumnDef = never>(
+export const primaryKey = <A, I, R, C extends ColumnDef = never>(
   self: S.Schema<A, I, R> | DSLField<A, I, R, C>
 ): DSLField<A, I, R, MergeColumnDef<ResolveColumnDef<S.Schema<A, I, R>, C>, { primaryKey: true }>> =>
-  attachColumnDef(self, {primaryKey: true} as const);
+  attachColumnDef(self, { primaryKey: true } as const);
 
 /**
  * Marks the column as unique (adds UNIQUE constraint).
@@ -345,10 +345,10 @@ export const primaryKey = <A, I, R, C extends AnyColumnDef = never>(
  * @since 1.0.0
  * @category constraint setters
  */
-export const unique = <A, I, R, C extends AnyColumnDef = never>(
+export const unique = <A, I, R, C extends ColumnDef = never>(
   self: S.Schema<A, I, R> | DSLField<A, I, R, C>
 ): DSLField<A, I, R, MergeColumnDef<ResolveColumnDef<S.Schema<A, I, R>, C>, { unique: true }>> =>
-  attachColumnDef(self, {unique: true} as const);
+  attachColumnDef(self, { unique: true } as const);
 
 /**
  * Marks the column as auto-incrementing (PostgreSQL SERIAL or GENERATED ALWAYS AS IDENTITY).
@@ -366,10 +366,10 @@ export const unique = <A, I, R, C extends AnyColumnDef = never>(
  * @since 1.0.0
  * @category constraint setters
  */
-export const autoIncrement = <A, I, R, C extends AnyColumnDef = never>(
+export const autoIncrement = <A, I, R, C extends ColumnDef = never>(
   self: S.Schema<A, I, R> | DSLField<A, I, R, C>
 ): DSLField<A, I, R, MergeColumnDef<ResolveColumnDef<S.Schema<A, I, R>, C>, { autoIncrement: true }>> =>
-  attachColumnDef(self, {autoIncrement: true} as const);
+  attachColumnDef(self, { autoIncrement: true } as const);
 
 // ============================================================================
 // Default Value Setter
@@ -403,8 +403,8 @@ export const autoIncrement = <A, I, R, C extends AnyColumnDef = never>(
  * @category constraint setters
  */
 export const defaultValue =
-  <A, I, R, C extends AnyColumnDef = never>(value: string | (() => string)) =>
-    (
-      self: S.Schema<A, I, R> | DSLField<A, I, R, C>
-    ): DSLField<A, I, R, MergeColumnDef<ResolveColumnDef<S.Schema<A, I, R>, C>, { defaultValue: typeof value }>> =>
-      attachColumnDef(self, {defaultValue: value} as const);
+  <A, I, R, C extends ColumnDef = never>(value: string | (() => string)) =>
+  (
+    self: S.Schema<A, I, R> | DSLField<A, I, R, C>
+  ): DSLField<A, I, R, MergeColumnDef<ResolveColumnDef<S.Schema<A, I, R>, C>, { defaultValue: typeof value }>> =>
+    attachColumnDef(self, { defaultValue: value } as const);

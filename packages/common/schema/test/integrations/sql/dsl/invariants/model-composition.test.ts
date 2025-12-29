@@ -14,7 +14,7 @@ import type {
   EmptyModelIdentifierError,
   MultipleAutoIncrementError,
 } from "@beep/schema/integrations/sql/dsl/errors";
-import type { AnyColumnDef } from "@beep/schema/integrations/sql/dsl/types";
+import type { ColumnDef } from "@beep/schema/integrations/sql/dsl/types";
 import {
   validateModel,
   validateModelIdentifier,
@@ -62,7 +62,7 @@ describe("INV-MODEL-ID-001: Model Identifier Validation", () => {
 
 describe("INV-MODEL-AI-001: Single AutoIncrement Per Model", () => {
   it("should fail for model with multiple autoIncrement fields", () => {
-    const columns: Record<string, AnyColumnDef> = {
+    const columns: Record<string, ColumnDef> = {
       id: { type: "integer", autoIncrement: true, primaryKey: true },
       seq: { type: "integer", autoIncrement: true },
       counter: { type: "bigint", autoIncrement: true },
@@ -85,7 +85,7 @@ describe("INV-MODEL-AI-001: Single AutoIncrement Per Model", () => {
   });
 
   it("should fail for model with two autoIncrement fields", () => {
-    const columns: Record<string, AnyColumnDef> = {
+    const columns: Record<string, ColumnDef> = {
       id: { type: "integer", autoIncrement: true, primaryKey: true },
       seq: { type: "bigint", autoIncrement: true },
     };
@@ -100,7 +100,7 @@ describe("INV-MODEL-AI-001: Single AutoIncrement Per Model", () => {
   });
 
   it("should pass for model with single autoIncrement field", () => {
-    const columns: Record<string, AnyColumnDef> = {
+    const columns: Record<string, ColumnDef> = {
       id: { type: "integer", autoIncrement: true, primaryKey: true },
       name: { type: "string" },
       email: { type: "string", unique: true },
@@ -111,7 +111,7 @@ describe("INV-MODEL-AI-001: Single AutoIncrement Per Model", () => {
   });
 
   it("should pass for model with no autoIncrement fields", () => {
-    const columns: Record<string, AnyColumnDef> = {
+    const columns: Record<string, ColumnDef> = {
       id: { type: "uuid", primaryKey: true },
       name: { type: "string" },
       createdAt: { type: "datetime" },
@@ -122,7 +122,7 @@ describe("INV-MODEL-AI-001: Single AutoIncrement Per Model", () => {
   });
 
   it("should pass for empty columns (edge case)", () => {
-    const columns: Record<string, AnyColumnDef> = {};
+    const columns: Record<string, ColumnDef> = {};
     const result = Effect.runSync(Effect.either(validateSingleAutoIncrement("Empty", columns)));
 
     expect(Either.isRight(result)).toBe(true);
@@ -132,7 +132,7 @@ describe("INV-MODEL-AI-001: Single AutoIncrement Per Model", () => {
 describe("validateModel: Composed Model Validation", () => {
   it("should accumulate multiple errors", () => {
     // Model with: empty identifier checked, multiple autoIncrement, invalid field names
-    const columns: Record<string, AnyColumnDef> = {
+    const columns: Record<string, ColumnDef> = {
       id: { type: "integer", autoIncrement: true },
       "invalid-name": { type: "string" }, // Invalid characters
       seq: { type: "integer", autoIncrement: true }, // Second autoIncrement
@@ -154,7 +154,7 @@ describe("validateModel: Composed Model Validation", () => {
   });
 
   it("should pass for valid model", () => {
-    const columns: Record<string, AnyColumnDef> = {
+    const columns: Record<string, ColumnDef> = {
       id: { type: "integer", autoIncrement: true, primaryKey: true },
       name: { type: "string" },
       email: { type: "string", unique: true },
@@ -165,7 +165,7 @@ describe("validateModel: Composed Model Validation", () => {
   });
 
   it("should catch empty model identifier", () => {
-    const columns: Record<string, AnyColumnDef> = {
+    const columns: Record<string, ColumnDef> = {
       id: { type: "integer" },
     };
     const result = Effect.runSync(Effect.either(validateModel("", columns)));
@@ -183,7 +183,7 @@ describe("validateModel: Composed Model Validation", () => {
 
   it("should catch model identifier too long", () => {
     const longName = "A".repeat(64);
-    const columns: Record<string, AnyColumnDef> = {
+    const columns: Record<string, ColumnDef> = {
       id: { type: "integer" },
     };
     const result = Effect.runSync(Effect.either(validateModel(longName, columns)));
@@ -200,7 +200,7 @@ describe("validateModel: Composed Model Validation", () => {
   });
 
   it("errors should be JSON serializable", () => {
-    const columns: Record<string, AnyColumnDef> = {
+    const columns: Record<string, ColumnDef> = {
       id: { type: "integer", autoIncrement: true },
       seq: { type: "integer", autoIncrement: true },
     };

@@ -34,7 +34,7 @@ import {
   MultipleAutoIncrementError,
   NullablePrimaryKeyError,
 } from "./errors";
-import type { AnyColumnDef } from "./types";
+import type { ColumnDef } from "./types";
 
 // ============================================================================
 // Internal Helpers
@@ -89,7 +89,7 @@ const INVALID_CHAR_PATTERN = /[^a-zA-Z0-9_$]/g;
  */
 export const validateAutoIncrementType = (
   fieldName: string,
-  def: AnyColumnDef
+  def: ColumnDef
 ): Effect.Effect<void, AutoIncrementTypeError> =>
   F.pipe(
     Match.value({ autoIncrement: def.autoIncrement, type: def.type }),
@@ -294,7 +294,7 @@ export const validateModelIdentifier = (identifier: string): Effect.Effect<void,
  */
 export const validateSingleAutoIncrement = (
   modelName: string,
-  columns: Record<string, AnyColumnDef>
+  columns: Record<string, ColumnDef>
 ): Effect.Effect<void, MultipleAutoIncrementError> => {
   const autoIncrementFields = F.pipe(
     columns,
@@ -348,7 +348,7 @@ export const validateSingleAutoIncrement = (
  */
 export const validateField = (
   fieldName: string,
-  def: AnyColumnDef,
+  def: ColumnDef,
   isNullableField = false
 ): Effect.Effect<void, ReadonlyArray<DSLValidationError>> =>
   Effect.gen(function* () {
@@ -386,7 +386,7 @@ export const validateField = (
  */
 export const validateModel = (
   modelName: string,
-  columns: Record<string, AnyColumnDef>
+  columns: Record<string, ColumnDef>
 ): Effect.Effect<void, ReadonlyArray<DSLValidationError>> =>
   Effect.gen(function* () {
     // Run model-level validations and capture their Either results
@@ -450,7 +450,7 @@ export const validateModel = (
  */
 export const validateFieldSync = (
   fieldName: string,
-  def: AnyColumnDef,
+  def: ColumnDef,
   isNullableField = false
 ):
   | { readonly _tag: "Right"; readonly right: void }
@@ -470,7 +470,7 @@ export const validateFieldSync = (
  */
 export const validateModelSync = (
   modelName: string,
-  columns: Record<string, AnyColumnDef>
+  columns: Record<string, ColumnDef>
 ):
   | { readonly _tag: "Right"; readonly right: void }
   | { readonly _tag: "Left"; readonly left: ReadonlyArray<DSLValidationError> } =>

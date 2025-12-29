@@ -442,8 +442,6 @@ describe("Integration: Typed Columns + Validation", () => {
       optional: Field(M.FieldOption(S.String))({ column: { type: "string" } }),
     }) {}
 
-
-
     const table = toDrizzle(ComplexEntity);
 
     expect(table).toBeDefined();

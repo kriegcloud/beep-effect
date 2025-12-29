@@ -11,7 +11,6 @@ import type {
 import type {
   PgBigInt53BuilderInitial,
   PgBooleanBuilderInitial,
-  PgColumnBuilderBase,
   PgIntegerBuilderInitial,
   PgJsonbBuilderInitial,
   PgSerialBuilderInitial,
@@ -31,7 +30,7 @@ import * as Struct from "effect/Struct";
 import type { ColumnType } from "../literals";
 import type { ModelStatics } from "../Model";
 import { isNullable } from "../nullability";
-import type { AnyColumnDef, DSL, ExtractEncodedType } from "../types";
+import type { ColumnDef, DSL, ExtractEncodedType } from "../types";
 import { isDSLVariantField } from "../types";
 
 // ============================================================================
@@ -73,7 +72,7 @@ type IsEncodedNullable<T> = null extends T ? true : undefined extends T ? true :
  * Primary keys get notNull: true. Nullability is derived from the schema's encoded type.
  * Serial/autoIncrement columns handle their own nullability.
  */
-type ApplyNotNull<T extends ColumnBuilderBase, Col extends AnyColumnDef, EncodedType> = Col extends { primaryKey: true }
+type ApplyNotNull<T extends ColumnBuilderBase, Col extends ColumnDef, EncodedType> = Col extends { primaryKey: true }
   ? NotNull<T>
   : Col extends { autoIncrement: true }
     ? T // Serial columns handle their own nullability
@@ -84,14 +83,14 @@ type ApplyNotNull<T extends ColumnBuilderBase, Col extends AnyColumnDef, Encoded
 /**
  * Applies IsPrimaryKey modifier if the column is a primary key.
  */
-type ApplyPrimaryKey<T extends ColumnBuilderBase, Col extends AnyColumnDef> = Col extends { primaryKey: true }
+type ApplyPrimaryKey<T extends ColumnBuilderBase, Col extends ColumnDef> = Col extends { primaryKey: true }
   ? IsPrimaryKey<T>
   : T;
 
 /**
  * Applies HasDefault modifier if the column has a default value or is auto-incrementing.
  */
-type ApplyHasDefault<T extends ColumnBuilderBase, Col extends AnyColumnDef> = Col extends { autoIncrement: true }
+type ApplyHasDefault<T extends ColumnBuilderBase, Col extends ColumnDef> = Col extends { autoIncrement: true }
   ? HasDefault<T>
   : Col extends { defaultValue: string | (() => string) }
     ? HasDefault<T>
@@ -100,7 +99,7 @@ type ApplyHasDefault<T extends ColumnBuilderBase, Col extends AnyColumnDef> = Co
 /**
  * Applies IsAutoincrement modifier if the column is auto-incrementing.
  */
-type ApplyAutoincrement<T extends ColumnBuilderBase, Col extends AnyColumnDef> = Col extends { autoIncrement: true }
+type ApplyAutoincrement<T extends ColumnBuilderBase, Col extends ColumnDef> = Col extends { autoIncrement: true }
   ? IsAutoincrement<T>
   : T;
 
@@ -114,7 +113,7 @@ type Apply$Type<T extends ColumnBuilderBase, EncodedType> = $Type<T, EncodedType
  * Order matters: notNull and primaryKey should be applied before $type.
  * Nullability is derived from the schema's EncodedType (checking for null | undefined).
  */
-type DrizzleTypedBuilderFor<Name extends string, Col extends AnyColumnDef, EncodedType> = Apply$Type<
+type DrizzleTypedBuilderFor<Name extends string, Col extends ColumnDef, EncodedType> = Apply$Type<
   ApplyAutoincrement<
     ApplyHasDefault<
       ApplyPrimaryKey<
@@ -136,7 +135,7 @@ type DrizzleTypedBuilderFor<Name extends string, Col extends AnyColumnDef, Encod
  * Maps a record of ColumnDefs to typed Drizzle builders using the original DSL fields.
  * Each column gets all appropriate modifiers applied based on its ColumnDef.
  */
-type DrizzleTypedBuildersFor<Columns extends Record<string, AnyColumnDef>, Fields extends DSL.Fields> = {
+type DrizzleTypedBuildersFor<Columns extends Record<string, ColumnDef>, Fields extends DSL.Fields> = {
   [K in keyof Columns & keyof Fields & string]: DrizzleTypedBuilderFor<K, Columns[K], ExtractEncodedType<Fields[K]>>;
 };
 
@@ -214,9 +213,9 @@ const isFieldNullable = (field: DSL.Fields[string]): boolean => {
  */
 const columnBuilder = <ColumnName extends string, EncodedType>(
   name: ColumnName,
-  def: AnyColumnDef,
+  def: ColumnDef,
   field: DSL.Fields[string]
-): PgColumnBuilderBase =>
+) =>
   F.pipe(
     Match.value(def).pipe(
       Match.discriminatorsExhaustive("type")({
@@ -272,7 +271,7 @@ const columnBuilder = <ColumnName extends string, EncodedType>(
  */
 export const toDrizzle = <
   TName extends string,
-  Columns extends Record<string, AnyColumnDef>,
+  Columns extends Record<string, ColumnDef>,
   PK extends readonly string[],
   Id extends string,
   Fields extends DSL.Fields,

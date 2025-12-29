@@ -24,7 +24,7 @@ function Field<VC extends VariantSchema.Field.Config>(variantField: VariantSchem
 
 ### Overload 3: Experimental VariantSchema.Field
 ```typescript
-function Field<VC extends ExperimentalVariantSchema.Field.Config>(variantField: ExperimentalVariantSchema.Field<VC>): ExperimentalVariantConfiguratorWithSchema<VC>;
+function Field<VC extends VariantSchema.Field.Config>(variantField: VariantSchema.Field<VC>): ExperimentalVariantConfiguratorWithSchema<VC>;
 ```
 - Handles M.Generated, M.Sensitive, M.FieldOption variants
 - Result: `DSLVariantField<VC, ColumnDef>`

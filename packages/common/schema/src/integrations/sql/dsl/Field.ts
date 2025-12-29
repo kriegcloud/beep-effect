@@ -1,5 +1,4 @@
-import * as VariantSchema from "@beep/schema/core/VariantSchema";
-import * as ExperimentalVariantSchema from "@effect/experimental/VariantSchema";
+import * as VariantSchema from "@effect/experimental/VariantSchema";
 import * as P from "effect/Predicate";
 import type * as S from "effect/Schema";
 import type * as AST from "effect/SchemaAST";
@@ -8,8 +7,7 @@ import { deriveColumnType } from "./derive-column-type";
 import { AutoIncrementTypeError, MissingVariantSchemaError } from "./errors";
 import type { ColumnType } from "./literals.ts";
 import type {
-  AnyColumnDef,
-  ColumnConfig,
+  ColumnDef,
   DerivedColumnDefFromSchema,
   DSLField,
   DSLVariantField,
@@ -27,19 +25,14 @@ import { ColumnMetaSymbol, VariantFieldSymbol } from "./types";
  * @internal
  */
 const isAnyVariantField = (input: unknown): input is VariantSchema.Field<VariantSchema.Field.Config> =>
-  VariantSchema.isField(input) || ExperimentalVariantSchema.isField(input);
+  VariantSchema.isField(input);
 
 /**
  * Extracts AST from a Schema or VariantSchema.Field input.
  * For VariantFields, uses the "select" variant's schema as that represents the DB storage type.
  * @internal
  */
-export const extractASTFromInput = (
-  input:
-    | S.Schema.All
-    | VariantSchema.Field<VariantSchema.Field.Config>
-    | ExperimentalVariantSchema.Field<ExperimentalVariantSchema.Field.Config>
-): AST.AST => {
+export const extractASTFromInput = (input: S.Schema.All | VariantSchema.Field<VariantSchema.Field.Config>): AST.AST => {
   if (isAnyVariantField(input)) {
     // For variant fields, use the "select" variant's schema
     const selectSchema = input.schemas.select;
@@ -78,7 +71,7 @@ export type { DSLField, DSLVariantField, SchemaColumnError };
 /**
  * Helper type to extract column type from config, defaulting to "string".
  */
-export type ExtractColumnType<C extends ColumnConfig> = C extends { type: infer T extends ColumnType.Type }
+export type ExtractColumnType<C extends Partial<ColumnDef>> = C extends { type: infer T extends ColumnType.Type }
   ? T
   : "string";
 
@@ -102,7 +95,7 @@ export type ExtractColumnType<C extends ColumnConfig> = C extends { type: infer 
  *
  * @typeParam Schema - The Effect Schema type (captured for class identity checks)
  */
-export type SchemaConfiguratorWithSchema<Schema extends S.Schema.All> = <const C extends ColumnConfig = {}>(
+export type SchemaConfiguratorWithSchema<Schema extends S.Schema.All> = <const C extends Partial<ColumnDef> = {}>(
   config?: FieldConfig<C>
 ) => C extends { type: ColumnType.Type }
   ? ValidateSchemaColumn<
@@ -126,7 +119,7 @@ export type SchemaConfiguratorWithSchema<Schema extends S.Schema.All> = <const C
  * This correctly infers `S.Int` → `"integer"`, `S.UUID` → `"uuid"`, etc.
  */
 export type LocalVariantConfiguratorWithSchema<VC extends VariantSchema.Field.Config> = <
-  const C extends ColumnConfig = {},
+  const C extends Partial<ColumnDef> = {},
 >(
   config?: FieldConfig<C>
 ) => C extends { type: ColumnType.Type }
@@ -141,8 +134,8 @@ export type LocalVariantConfiguratorWithSchema<VC extends VariantSchema.Field.Co
  * derived from the variant field's "select" schema using class identity checks.
  * This correctly infers `S.Int` → `"integer"`, `S.UUID` → `"uuid"`, etc.
  */
-export type ExperimentalVariantConfiguratorWithSchema<VC extends ExperimentalVariantSchema.Field.Config> = <
-  const C extends ColumnConfig = {},
+export type ExperimentalVariantConfiguratorWithSchema<VC extends VariantSchema.Field.Config> = <
+  const C extends Partial<ColumnDef> = {},
 >(
   config?: FieldConfig<C>
 ) => C extends { type: ColumnType.Type }
@@ -236,8 +229,8 @@ export function Field<VC extends VariantSchema.Field.Config>(
  * @since 1.0.0
  * @category constructors
  */
-export function Field<VC extends ExperimentalVariantSchema.Field.Config>(
-  variantField: ExperimentalVariantSchema.Field<VC>
+export function Field<VC extends VariantSchema.Field.Config>(
+  variantField: VariantSchema.Field<VC>
 ): ExperimentalVariantConfiguratorWithSchema<VC>;
 
 /**
@@ -245,18 +238,15 @@ export function Field<VC extends ExperimentalVariantSchema.Field.Config>(
  * Returns a configurator function that accepts column config.
  */
 export function Field<A, I, R>(
-  input:
-    | S.Schema<A, I, R>
-    | VariantSchema.Field<VariantSchema.Field.Config>
-    | ExperimentalVariantSchema.Field<ExperimentalVariantSchema.Field.Config>
-): <const C extends ColumnConfig = {}>(
+  input: S.Schema<A, I, R> | VariantSchema.Field<VariantSchema.Field.Config>
+): <const C extends Partial<ColumnDef> = {}>(
   config?: FieldConfig<C>
 ) =>
-  | DSLField<A, I, R, AnyColumnDef>
-  | DSLVariantField<VariantSchema.Field.Config, AnyColumnDef>
+  | DSLField<A, I, R, ColumnDef>
+  | DSLVariantField<VariantSchema.Field.Config, ColumnDef>
   | SchemaColumnError<unknown, ColumnType.Type> {
   // Return the configurator function
-  return <const C extends ColumnConfig = {}>(config?: FieldConfig<C>) => {
+  return <const C extends Partial<ColumnDef> = {}>(config?: FieldConfig<C>) => {
     const columnDef = {
       type: config?.column?.type ?? deriveColumnType(extractASTFromInput(input)),
       primaryKey: config?.column?.primaryKey ?? false,

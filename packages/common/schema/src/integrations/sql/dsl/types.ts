@@ -1,13 +1,11 @@
-import {$SchemaId} from "@beep/identity/packages";
-import type * as DateTime from "effect/DateTime";
+import { $SchemaId } from "@beep/identity/packages";
+import { BS } from "@beep/schema";
+import { thunkFalse } from "@beep/utils";
+import * as F from "effect/Function";
 import * as S from "effect/Schema";
 import type * as VariantSchema from "../../../core/VariantSchema";
-import type {ModelVariant} from "./literals.ts";
-import {ColumnType} from "./literals.ts";
-import {BS} from "@beep/schema";
-import {thunkFalse} from "@beep/utils";
-import * as F from "effect/Function";
-import * as P from "effect/Predicate";
+import type { ModelVariant } from "./literals.ts";
+import { ColumnType } from "./literals.ts";
 
 const $I = $SchemaId.create("integrations/sql/dsl/types");
 
@@ -42,17 +40,17 @@ export type ColumnTypeToTS<T extends ColumnType.Type> = T extends "string" | "uu
  * @category type-level
  */
 export type TSToColumnTypes<T> =
-// Check for Date first (before object check, since Date extends object)
+  // Check for Date first (before object check, since Date extends object)
   [T] extends [Date]
     ? "datetime"
     : // Check for array types (before object check)
-    [T] extends [readonly unknown[]]
+      [T] extends [readonly unknown[]]
       ? "json"
       : // Check for object/record types
-      [T] extends [object]
+        [T] extends [object]
         ? "json"
         : // Primitive checks
-        [T] extends [string]
+          [T] extends [string]
           ? "string" | "uuid" | "datetime"
           : [T] extends [number]
             ? "number" | "integer"
@@ -161,8 +159,8 @@ export type ExtractVariantSelectEncoded<VC> = VC extends { select: infer SelectS
   ? [SelectSchema] extends [S.Schema<infer _A, infer I, infer _R>]
     ? I
     : [SelectSchema] extends [
-        S.PropertySignature<infer _TT, infer _T, infer _K, infer _ET, infer I, infer _HD, infer _C>,
-      ]
+          S.PropertySignature<infer _TT, infer _T, infer _K, infer _ET, infer I, infer _HD, infer _C>,
+        ]
       ? I
       : unknown
   : unknown;
@@ -181,8 +179,8 @@ export type ExtractVariantSelectSchema<VC> = VC extends { select: infer SelectSc
   ? [SelectSchema] extends [S.Schema<infer _A, infer _I, infer _R>]
     ? SelectSchema
     : [SelectSchema] extends [
-        S.PropertySignature<infer _TT, infer _T, infer _K, infer _ET, infer _I, infer _HD, infer _C>,
-      ]
+          S.PropertySignature<infer _TT, infer _T, infer _K, infer _ET, infer _I, infer _HD, infer _C>,
+        ]
       ? SelectSchema
       : unknown
   : unknown;
@@ -228,26 +226,26 @@ type IsUnknown<T> = IsAny<T> extends true ? false : unknown extends T ? true : f
  * @category type-level
  */
 export type DeriveColumnTypeFromEncoded<I> =
-// Handle `any` type first - `any` matches everything including Date, so it must be checked first
+  // Handle `any` type first - `any` matches everything including Date, so it must be checked first
   IsAny<I> extends true
     ? "json"
     : // Handle `unknown` type
-    IsUnknown<I> extends true
+      IsUnknown<I> extends true
       ? "json"
       : // Handle nullable types by stripping null/undefined first
-      [StripNullable<I>] extends [never]
+        [StripNullable<I>] extends [never]
         ? ColumnType.Type // Pure null/undefined - fall back to full union
         : // Date must be checked before object (Date extends object)
-        [StripNullable<I>] extends [Date]
+          [StripNullable<I>] extends [Date]
           ? "datetime"
           : // Arrays map to json (check before object since arrays are objects)
-          [StripNullable<I>] extends [readonly unknown[]]
+            [StripNullable<I>] extends [readonly unknown[]]
             ? "json"
             : // Object types (structs, records) map to json
-            [StripNullable<I>] extends [object]
+              [StripNullable<I>] extends [object]
               ? "json"
               : // Primitive type mappings
-              [StripNullable<I>] extends [string]
+                [StripNullable<I>] extends [string]
                 ? "string"
                 : [StripNullable<I>] extends [number]
                   ? "number"
@@ -256,7 +254,7 @@ export type DeriveColumnTypeFromEncoded<I> =
                     : [StripNullable<I>] extends [bigint]
                       ? "bigint"
                       : // Fallback for unknown types
-                      ColumnType.Type;
+                        ColumnType.Type;
 
 // ============================================================================
 // Schema-Level Column Type Derivation (via Class Identity)
@@ -271,7 +269,7 @@ export type DeriveColumnTypeFromEncoded<I> =
  * @internal
  */
 type UnwrapNullable<Schema> =
-// Check for NullOr pattern: Union with null literal
+  // Check for NullOr pattern: Union with null literal
   Schema extends S.NullOr<infer Inner> ? Inner : Schema;
 
 /**
@@ -295,7 +293,7 @@ type UnwrapNullable<Schema> =
  * @category type-level
  */
 export type DeriveColumnTypeFromSchema<Schema> =
-// First unwrap any NullOr wrapper to get the inner schema
+  // First unwrap any NullOr wrapper to get the inner schema
   DeriveColumnTypeFromSchemaInner<UnwrapNullable<Schema>>;
 
 /**
@@ -323,24 +321,24 @@ export type DeriveColumnTypeFromSchema<Schema> =
  * @internal
  */
 type DeriveColumnTypeFromSchemaInner<Schema> =
-// First extract the Type parameter to check for any/unknown
+  // First extract the Type parameter to check for any/unknown
   Schema extends S.Schema<infer A, infer _I, infer _R>
     ? // Check if Type is `any` (S.Any case) using the IsAny helper
-    IsAny<A> extends true
+      IsAny<A> extends true
       ? "json"
       : // Check if Type is `unknown` (S.Unknown case)
-      IsUnknown<A> extends true
+        IsUnknown<A> extends true
         ? "json"
         : // Check if Type is `object` (S.Object case)
-        [A] extends [object]
+          [A] extends [object]
           ? [object] extends [A]
             ? "json" // Only matches when A is exactly `object`, not subtypes
             : // Not exactly `object`, continue with other checks
-            DeriveColumnTypeFromSchemaSpecific<Schema, A>
+              DeriveColumnTypeFromSchemaSpecific<Schema, A>
           : // Not object, continue with other checks
-          DeriveColumnTypeFromSchemaSpecific<Schema, A>
+            DeriveColumnTypeFromSchemaSpecific<Schema, A>
     : // Not a schema, fallback
-    ColumnType.Type;
+      ColumnType.Type;
 
 /**
  * Derives column type from specific schema types after ruling out any/unknown/object.
@@ -355,12 +353,12 @@ type DeriveColumnTypeFromSchemaInner<Schema> =
  * @internal
  */
 type DeriveColumnTypeFromSchemaSpecific<Schema, A> =
-// FIRST: Check specific schema types (before generic filter/transform checks)
-// Integer type (refined from number)
+  // FIRST: Check specific schema types (before generic filter/transform checks)
+  // Integer type (refined from number)
   Schema extends typeof S.Int
     ? "integer"
     : // Number refinements (still number, not integer)
-    Schema extends typeof S.Positive
+      Schema extends typeof S.Positive
       ? "number"
       : Schema extends typeof S.Negative
         ? "number"
@@ -369,12 +367,12 @@ type DeriveColumnTypeFromSchemaSpecific<Schema, A> =
           : Schema extends typeof S.NonNegative
             ? "number"
             : // UUID/ULID types (refined from string)
-            Schema extends typeof S.UUID
+              Schema extends typeof S.UUID
               ? "uuid"
               : Schema extends typeof S.ULID
                 ? "uuid"
                 : // DateTime types (transformations - check before generic transform)
-                Schema extends typeof S.DateFromString
+                  Schema extends typeof S.DateFromString
                   ? "datetime"
                   : Schema extends typeof S.Date
                     ? "datetime"
@@ -383,22 +381,22 @@ type DeriveColumnTypeFromSchemaSpecific<Schema, A> =
                       : Schema extends typeof S.DateTimeUtcFromSelf
                         ? "datetime"
                         : // BigInt types (transformations - check before generic transform)
-                        Schema extends typeof S.BigInt
+                          Schema extends typeof S.BigInt
                           ? "bigint"
                           : Schema extends typeof S.BigIntFromSelf
                             ? "bigint"
                             : // SECOND: Generic refinements/filters - recurse to inner type
-                            Schema extends S.filter<infer Inner>
+                              Schema extends S.filter<infer Inner>
                               ? DeriveColumnTypeFromSchemaInner<Inner>
                               : Schema extends S.refine<infer _A2, infer From>
                                 ? DeriveColumnTypeFromSchemaInner<From>
                                 : // THIRD: Generic transformations - recurse to encoded side
-                                Schema extends S.transform<infer From, infer _To>
+                                  Schema extends S.transform<infer From, infer _To>
                                   ? DeriveColumnTypeFromSchemaInner<From>
                                   : Schema extends S.transformOrFail<infer From, infer _To, infer _R2>
                                     ? DeriveColumnTypeFromSchemaInner<From>
                                     : // LAST: Fallback to Type parameter derivation
-                                    DeriveFromTypeParameter<A>;
+                                      DeriveFromTypeParameter<A>;
 
 /**
  * Derives column type from the schema's Type parameter (A).
@@ -412,14 +410,14 @@ type DeriveColumnTypeFromSchemaSpecific<Schema, A> =
  * @internal
  */
 type DeriveFromTypeParameter<A> =
-// Check for Date (before object since Date extends object)
+  // Check for Date (before object since Date extends object)
   [A] extends [Date]
     ? "datetime"
     : // Check for array types (before object since arrays are objects)
-    [A] extends [readonly unknown[]]
+      [A] extends [readonly unknown[]]
       ? "json"
       : // Check primitives BEFORE object (branded types are primitive & object intersections)
-      [A] extends [string]
+        [A] extends [string]
         ? "string"
         : [A] extends [number]
           ? "number"
@@ -428,13 +426,13 @@ type DeriveFromTypeParameter<A> =
             : [A] extends [bigint]
               ? "bigint"
               : // Check for object types (records, structs) - AFTER primitives
-              [A] extends [object]
+                [A] extends [object]
                 ? "json"
                 : // Fallback
-                ColumnType.Type;
+                  ColumnType.Type;
 
 /**
- * Creates a column definition with the type derived from the schema's class identity.
+ * Creates a ColumnDef with the type derived from the schema's class identity.
  * Used when no explicit column type is provided in the config.
  *
  * This version uses schema-level derivation for more precise type inference,
@@ -443,7 +441,7 @@ type DeriveFromTypeParameter<A> =
  * @since 1.0.0
  * @category type-level
  */
-export type DerivedColumnDefFromSchema<Schema, C extends ColumnConfig> = {
+export type DerivedColumnDefFromSchema<Schema, C extends Partial<ColumnDef>> = {
   readonly type: DeriveColumnTypeFromSchema<Schema>;
   readonly primaryKey: C extends { primaryKey: infer PK extends boolean } ? PK : false;
   readonly unique: C extends { unique: infer U extends boolean } ? U : false;
@@ -451,15 +449,16 @@ export type DerivedColumnDefFromSchema<Schema, C extends ColumnConfig> = {
   readonly defaultValue: C extends { defaultValue: infer DV } ? DV : undefined;
 };
 
-const defaultValueSchema = <A, E, R>(schema: S.Schema<A, E, R>) => S.optionalWith(
-  S.Union(
-    schema,
-    S.declare((u: unknown): u is A => F.isFunction(u))
-  ),
-  {
-    exact: true,
-  }
-);
+const defaultValueSchema = <A, E, R>(schema: S.Schema<A, E, R>) =>
+  S.optionalWith(
+    S.Union(
+      schema,
+      S.declare((u: unknown): u is A => F.isFunction(u))
+    ),
+    {
+      exact: true,
+    }
+  );
 
 // ============================================================================
 // Column Definition Schema Factories
@@ -473,8 +472,8 @@ const defaultValueSchema = <A, E, R>(schema: S.Schema<A, E, R>) => S.optionalWit
  * Types that don't support autoIncrement simply don't have the property.
  */
 const baseColumnDefFactory = ColumnType.toTagged("type").composer({
-  primaryKey: S.optionalWith(S.Boolean, {exact: true, default: thunkFalse}),
-  unique: S.optionalWith(S.Boolean, {exact: true, default: thunkFalse}),
+  primaryKey: S.optionalWith(S.Boolean, { exact: true, default: thunkFalse }),
+  unique: S.optionalWith(S.Boolean, { exact: true, default: thunkFalse }),
 });
 
 /**
@@ -484,21 +483,20 @@ const baseColumnDefFactory = ColumnType.toTagged("type").composer({
  * Per INV-SQL-AI-001: only integer and bigint types support autoIncrement.
  */
 const autoIncrementColumnDefFactory = ColumnType.toTagged("type").composer({
-  primaryKey: S.optionalWith(S.Boolean, {exact: true, default: thunkFalse}),
-  unique: S.optionalWith(S.Boolean, {exact: true, default: thunkFalse}),
-  autoIncrement: S.optionalWith(S.Boolean, {exact: true, default: thunkFalse}),
+  primaryKey: S.optionalWith(S.Boolean, { exact: true, default: thunkFalse }),
+  unique: S.optionalWith(S.Boolean, { exact: true, default: thunkFalse }),
+  autoIncrement: S.optionalWith(S.Boolean, { exact: true, default: thunkFalse }),
 });
 
-export class StringColumnDefSchema extends baseColumnDefFactory.string(
-  {
-    defaultValue: defaultValueSchema(S.String)
-  }
-).annotations(
-  $I.annotations("StringColumnDefSchema", {
-    description: "String column definition"
+export class StringColumnDefSchema extends baseColumnDefFactory
+  .string({
+    defaultValue: defaultValueSchema(S.String),
   })
-) {
-}
+  .annotations(
+    $I.annotations("StringColumnDefSchema", {
+      description: "String column definition",
+    })
+  ) {}
 
 export declare namespace StringColumnDefSchema {
   export type Type = typeof StringColumnDefSchema.Type;
@@ -509,30 +507,25 @@ export declare namespace StringColumnDefSchema {
    *
    * @remarks
    * String columns do not support autoIncrement per INV-SQL-AI-001.
-   * The `autoIncrement?: undefined` allows runtime property access but prevents setting to `true`.
+   * The ColumnDefSchema.Generic mapped type handles arity differences.
    */
-  export interface Generic<
-    PrimaryKey extends boolean = boolean,
-    Unique extends boolean = boolean,
-  > {
+  export interface Generic<PrimaryKey extends boolean = boolean, Unique extends boolean = boolean> {
     readonly type: Type["type"];
     readonly primaryKey?: PrimaryKey | undefined;
     readonly unique?: Unique | undefined;
     readonly defaultValue?: Type["defaultValue"];
-    readonly autoIncrement?: undefined;
   }
 }
 
-export class NumberColumnDefSchema extends baseColumnDefFactory.number(
-  {
-    defaultValue: defaultValueSchema(S.Number)
-  }
-).annotations(
-  $I.annotations("NumberColumnDefSchema", {
-    description: "Number column definition"
+export class NumberColumnDefSchema extends baseColumnDefFactory
+  .number({
+    defaultValue: defaultValueSchema(S.Number),
   })
-) {
-}
+  .annotations(
+    $I.annotations("NumberColumnDefSchema", {
+      description: "Number column definition",
+    })
+  ) {}
 
 export declare namespace NumberColumnDefSchema {
   export type Type = typeof NumberColumnDefSchema.Type;
@@ -544,30 +537,24 @@ export declare namespace NumberColumnDefSchema {
    * @remarks
    * Number columns do not support autoIncrement per INV-SQL-AI-001.
    * Use integer or bigint for autoIncrement support.
-   * The `autoIncrement?: undefined` allows runtime property access but prevents setting to `true`.
    */
-  export interface Generic<
-    PrimaryKey extends boolean = boolean,
-    Unique extends boolean = boolean,
-  > {
+  export interface Generic<PrimaryKey extends boolean = boolean, Unique extends boolean = boolean> {
     readonly type: Type["type"];
     readonly primaryKey?: PrimaryKey | undefined;
     readonly unique?: Unique | undefined;
     readonly defaultValue?: Type["defaultValue"];
-    readonly autoIncrement?: undefined;
   }
 }
 
-export class IntegerColumnDefSchema extends autoIncrementColumnDefFactory.integer(
-  {
-    defaultValue: S.optionalWith(S.Int, {exact: true})
-  }
-).annotations(
-  $I.annotations("IntegerColumnDefSchema", {
-    description: "Integer column definition"
+export class IntegerColumnDefSchema extends autoIncrementColumnDefFactory
+  .integer({
+    defaultValue: S.optionalWith(S.Int, { exact: true }),
   })
-) {
-}
+  .annotations(
+    $I.annotations("IntegerColumnDefSchema", {
+      description: "Integer column definition",
+    })
+  ) {}
 
 export declare namespace IntegerColumnDefSchema {
   export type Type = typeof IntegerColumnDefSchema.Type;
@@ -593,16 +580,15 @@ export declare namespace IntegerColumnDefSchema {
   }
 }
 
-export class BooleanColumnDefSchema extends baseColumnDefFactory.boolean(
-  {
-    defaultValue: defaultValueSchema(S.Boolean)
-  }
-).annotations(
-  $I.annotations("BooleanColumnDefSchema", {
-    description: "Boolean column definition"
+export class BooleanColumnDefSchema extends baseColumnDefFactory
+  .boolean({
+    defaultValue: defaultValueSchema(S.Boolean),
   })
-) {
-}
+  .annotations(
+    $I.annotations("BooleanColumnDefSchema", {
+      description: "Boolean column definition",
+    })
+  ) {}
 
 export declare namespace BooleanColumnDefSchema {
   export type Type = typeof BooleanColumnDefSchema.Type;
@@ -613,30 +599,24 @@ export declare namespace BooleanColumnDefSchema {
    *
    * @remarks
    * Boolean columns do not support autoIncrement per INV-SQL-AI-001.
-   * The `autoIncrement?: undefined` allows runtime property access but prevents setting to `true`.
    */
-  export interface Generic<
-    PrimaryKey extends boolean = boolean,
-    Unique extends boolean = boolean,
-  > {
+  export interface Generic<PrimaryKey extends boolean = boolean, Unique extends boolean = boolean> {
     readonly type: Type["type"];
     readonly primaryKey?: PrimaryKey | undefined;
     readonly unique?: Unique | undefined;
     readonly defaultValue?: Type["defaultValue"];
-    readonly autoIncrement?: undefined;
   }
 }
 
-export class DatetimeColumnDefSchema extends baseColumnDefFactory.datetime(
-  {
-    defaultValue: defaultValueSchema(BS.DateTimeUtcFromAllAcceptable)
-  }
-).annotations(
-  $I.annotations("DatetimeColumnDefSchema", {
-    description: "Datetime column definition"
+export class DatetimeColumnDefSchema extends baseColumnDefFactory
+  .datetime({
+    defaultValue: defaultValueSchema(BS.DateTimeUtcFromAllAcceptable),
   })
-) {
-}
+  .annotations(
+    $I.annotations("DatetimeColumnDefSchema", {
+      description: "Datetime column definition",
+    })
+  ) {}
 
 export declare namespace DatetimeColumnDefSchema {
   export type Type = typeof DatetimeColumnDefSchema.Type;
@@ -647,30 +627,24 @@ export declare namespace DatetimeColumnDefSchema {
    *
    * @remarks
    * Datetime columns do not support autoIncrement per INV-SQL-AI-001.
-   * The `autoIncrement?: undefined` allows runtime property access but prevents setting to `true`.
    */
-  export interface Generic<
-    PrimaryKey extends boolean = boolean,
-    Unique extends boolean = boolean,
-  > {
+  export interface Generic<PrimaryKey extends boolean = boolean, Unique extends boolean = boolean> {
     readonly type: Type["type"];
     readonly primaryKey?: PrimaryKey | undefined;
     readonly unique?: Unique | undefined;
     readonly defaultValue?: Type["defaultValue"];
-    readonly autoIncrement?: undefined;
   }
 }
 
-export class UuidColumnDefSchema extends baseColumnDefFactory.uuid(
-  {
-    defaultValue: defaultValueSchema(S.UUID)
-  }
-).annotations(
-  $I.annotations("UuidColumnDefSchema", {
-    description: "UUID column definition"
+export class UuidColumnDefSchema extends baseColumnDefFactory
+  .uuid({
+    defaultValue: defaultValueSchema(S.UUID),
   })
-) {
-}
+  .annotations(
+    $I.annotations("UuidColumnDefSchema", {
+      description: "UUID column definition",
+    })
+  ) {}
 
 export declare namespace UuidColumnDefSchema {
   export type Type = typeof UuidColumnDefSchema.Type;
@@ -681,30 +655,24 @@ export declare namespace UuidColumnDefSchema {
    *
    * @remarks
    * UUID columns do not support autoIncrement per INV-SQL-AI-001.
-   * The `autoIncrement?: undefined` allows runtime property access but prevents setting to `true`.
    */
-  export interface Generic<
-    PrimaryKey extends boolean = boolean,
-    Unique extends boolean = boolean,
-  > {
+  export interface Generic<PrimaryKey extends boolean = boolean, Unique extends boolean = boolean> {
     readonly type: Type["type"];
     readonly primaryKey?: PrimaryKey | undefined;
     readonly unique?: Unique | undefined;
     readonly defaultValue?: Type["defaultValue"];
-    readonly autoIncrement?: undefined;
   }
 }
 
-export class JsonColumnDefSchema extends baseColumnDefFactory.json(
-  {
-    defaultValue: defaultValueSchema(BS.Json)
-  }
-).annotations(
-  $I.annotations("JsonColumnDefSchema", {
-    description: "JSON column definition"
+export class JsonColumnDefSchema extends baseColumnDefFactory
+  .json({
+    defaultValue: defaultValueSchema(BS.Json),
   })
-) {
-}
+  .annotations(
+    $I.annotations("JsonColumnDefSchema", {
+      description: "JSON column definition",
+    })
+  ) {}
 
 export declare namespace JsonColumnDefSchema {
   export type Type = typeof JsonColumnDefSchema.Type;
@@ -715,30 +683,24 @@ export declare namespace JsonColumnDefSchema {
    *
    * @remarks
    * JSON columns do not support autoIncrement per INV-SQL-AI-001.
-   * The `autoIncrement?: undefined` allows runtime property access but prevents setting to `true`.
    */
-  export interface Generic<
-    PrimaryKey extends boolean = boolean,
-    Unique extends boolean = boolean,
-  > {
+  export interface Generic<PrimaryKey extends boolean = boolean, Unique extends boolean = boolean> {
     readonly type: Type["type"];
     readonly primaryKey?: PrimaryKey | undefined;
     readonly unique?: Unique | undefined;
     readonly defaultValue?: Type["defaultValue"];
-    readonly autoIncrement?: undefined;
   }
 }
 
-export class BigintColumnDefSchema extends autoIncrementColumnDefFactory.bigint(
-  {
-    defaultValue: defaultValueSchema(S.BigIntFromSelf)
-  }
-).annotations(
-  $I.annotations("BigintColumnDefSchema", {
-    description: "Bigint column definition"
+export class BigintColumnDefSchema extends autoIncrementColumnDefFactory
+  .bigint({
+    defaultValue: defaultValueSchema(S.BigIntFromSelf),
   })
-) {
-}
+  .annotations(
+    $I.annotations("BigintColumnDefSchema", {
+      description: "Bigint column definition",
+    })
+  ) {}
 
 export declare namespace BigintColumnDefSchema {
   export type Type = typeof BigintColumnDefSchema.Type;
@@ -775,11 +737,9 @@ export class ColumnDefSchema extends S.Union(
   BigintColumnDefSchema
 ).annotations(
   $I.annotations("ColumnDefSchema", {
-    description: "Column definition schema"
+    description: "Column definition schema",
   })
-) {
-  static readonly make = (def: AnyColumnDef) => S.decodeUnknownSync(ColumnDefSchema)(def)
-}
+) {}
 
 export declare namespace ColumnDefSchema {
   export type Type = typeof ColumnDefSchema.Type;
@@ -796,11 +756,7 @@ export declare namespace ColumnDefSchema {
    *
    * @internal
    */
-  export type GenericMap<
-    PrimaryKey extends boolean,
-    Unique extends boolean,
-    AutoIncrement extends boolean,
-  > = {
+  export type GenericMap<PrimaryKey extends boolean, Unique extends boolean, AutoIncrement extends boolean> = {
     readonly string: StringColumnDefSchema.Generic<PrimaryKey, Unique>;
     readonly number: NumberColumnDefSchema.Generic<PrimaryKey, Unique>;
     readonly integer: IntegerColumnDefSchema.Generic<PrimaryKey, Unique, AutoIncrement>;
@@ -851,109 +807,38 @@ export declare namespace ColumnDefSchema {
    * Helper type to check if a column type supports autoIncrement.
    * Only 'integer' and 'bigint' return true per INV-SQL-AI-001.
    */
-  export type SupportsAutoIncrement<T extends ColumnType.Type> =
-    T extends "integer" | "bigint" ? true : false;
+  export type SupportsAutoIncrement<T extends ColumnType.Type> = T extends "integer" | "bigint" ? true : false;
 }
 
+// Generic ColumnDef preserves specific literals
+// Note: `nullable` has been removed - nullability is derived from the Effect Schema AST
+export interface ColumnDef<
+  ColType extends ColumnType.Type = ColumnType.Type,
+  PrimaryKey extends boolean = boolean,
+  Unique extends boolean = boolean,
+  AutoIncrement extends boolean = boolean,
+> {
+  readonly type: ColType;
+  readonly primaryKey?: PrimaryKey;
+  readonly unique?: Unique;
+  readonly defaultValue?: undefined | string | (() => string);
+  readonly autoIncrement?: AutoIncrement;
+}
 
-/**
- * Configuration type for building column definitions incrementally.
- *
- * This is used as the input constraint when building column defs from partial configs.
- * Unlike `Partial<ColumnDefSchema.Generic>`, this type doesn't distribute over union members.
- *
- * @remarks
- * Use this when accepting partial column configurations that will be completed later.
- * The final output should be `ColumnDefSchema.Generic<T, PK, U, AI>` with specific type parameters.
- *
- * @example
- * ```ts
- * // Partial config for a primary key column (type derived from schema)
- * const config: ColumnConfig = { primaryKey: true };
- *
- * // Partial config with explicit type
- * const intConfig: ColumnConfig = { type: "integer", autoIncrement: true };
- * ```
- *
- * @since 1.0.0
- * @category type-level
- */
-export type ColumnConfig = {
-  readonly type?: ColumnType.Type | undefined;
-  readonly primaryKey?: boolean | undefined;
-  readonly unique?: boolean | undefined;
-  readonly autoIncrement?: boolean | undefined;
-  readonly defaultValue?: DefaultValueAllTypes | undefined;
-};
+export declare namespace ColumnDef {
+  export interface Any {
+    readonly type: ColumnType.Type;
+    readonly primaryKey?: boolean;
+    readonly unique?: boolean;
+    readonly defaultValue?: undefined | string | (() => string);
+    readonly autoIncrement?: boolean;
+  }
+}
 
-/**
- * Union of all possible default value types across all column types.
- * This includes primitives, DateTime.Utc (for datetime columns), recursive Json types,
- * and thunk functions.
- *
- * @internal
- */
-type DefaultValueAllTypes =
-  | string
-  | number
-  | bigint
-  | boolean
-  | null
-  | DateTime.Utc
-  | ReadonlyArray<DefaultValueAllTypes>
-  | { readonly [key: string]: DefaultValueAllTypes }
-  | ((...args: never[]) => unknown);
-
-/**
- * Base type for complete column definitions.
- *
- * This type serves as the common constraint for DSLField, DSLVariantField, and related types.
- * Both `ColumnDefSchema.Generic` union members and `ExactColumnDef` outputs satisfy this shape.
- *
- * @remarks
- * Unlike `ColumnConfig` (partial input), this type has required `type` property.
- * Use this as the constraint in generic type parameters where a complete column definition is expected.
- * The `defaultValue` type is permissive to accommodate all column types (string, number, etc.).
- *
- * @example
- * ```ts
- * // Both of these satisfy AnyColumnDef
- * type Generic = ColumnDefSchema.Generic<"string", true, false, false>;
- * type Exact = ExactColumnDef<{ type: "string", primaryKey: true }>;
- * ```
- *
- * @since 1.0.0
- * @category type-level
- */
-export type AnyColumnDef = {
-  readonly type: ColumnType.Type;
-  readonly primaryKey?: boolean | undefined;
-  readonly unique?: boolean | undefined;
-  readonly autoIncrement?: boolean | undefined;
-  readonly defaultValue?: DefaultValueAllTypes | undefined;
-};
-
-
-/**
- * Extracts a concrete column definition from a partial config.
- *
- * @remarks
- * When no explicit type is given, uses ColumnType.Type union (runtime derives the actual type).
- * Returns a concrete object type with required properties for proper type-level inference.
- * The output is compatible with `ColumnDefSchema.Generic` member types.
- *
- * @example
- * ```ts
- * // Partial config with type
- * type IntCol = ExactColumnDef<{ type: "integer"; primaryKey: true }>;
- * // => { type: "integer", primaryKey: true, unique: false, autoIncrement: false, defaultValue: undefined }
- *
- * // Partial config without type
- * type AnyCol = ExactColumnDef<{ primaryKey: true }>;
- * // => { type: ColumnType.Type, primaryKey: true, unique: false, autoIncrement: false, defaultValue: undefined }
- * ```
- */
-export type ExactColumnDef<C extends ColumnConfig> = {
+// Helper to create exact ColumnDef from partial config
+// Note: `nullable` has been removed - nullability is derived from the Effect Schema AST
+// When no explicit type is given, use ColumnType.Type union (runtime derives the actual type)
+export type ExactColumnDef<C extends Partial<ColumnDef>> = {
   readonly type: C extends { type: infer T extends ColumnType.Type } ? T : ColumnType.Type;
   readonly primaryKey: C extends { primaryKey: infer PK extends boolean } ? PK : false;
   readonly unique: C extends { unique: infer U extends boolean } ? U : false;
@@ -961,7 +846,7 @@ export type ExactColumnDef<C extends ColumnConfig> = {
   readonly defaultValue: C extends { defaultValue: infer DV } ? DV : undefined;
 };
 
-export interface FieldConfig<C extends ColumnConfig = ColumnConfig> {
+export interface FieldConfig<C extends Partial<ColumnDef> = Partial<ColumnDef>> {
   readonly column?: C;
 }
 
@@ -977,17 +862,17 @@ export type VariantFieldSymbol = typeof VariantFieldSymbol;
  * DSLField wraps a plain Schema with column metadata.
  * @since 1.0.0
  */
-export interface DSLField<A, I = A, R = never, C extends AnyColumnDef = AnyColumnDef> extends S.Schema<A, I, R> {
+export interface DSLField<A, I = A, R = never, C extends ColumnDef = ColumnDef> extends S.Schema<A, I, R> {
   readonly [ColumnMetaSymbol]: C;
 }
 
 export type WithColumnDef = {
-  <A, I = A, R = never, C extends AnyColumnDef = AnyColumnDef>(
-    columnDef: AnyColumnDef
+  <A, I = A, R = never, C extends ColumnDef = ColumnDef>(
+    columnDef: ColumnDef
   ): (self: S.Schema<A, I, R>) => DSLField<A, I, R, C>;
-  <A, I = A, R = never, C extends AnyColumnDef = AnyColumnDef>(
+  <A, I = A, R = never, C extends ColumnDef = ColumnDef>(
     self: S.Schema<A, I, R>,
-    columnDef: AnyColumnDef
+    columnDef: ColumnDef
   ): DSLField<A, I, R, C>;
 };
 
@@ -996,7 +881,7 @@ export type WithColumnDef = {
  * Carries BOTH column metadata AND variant config for multi-variant models.
  * @since 1.0.0
  */
-export interface DSLVariantField<A extends VariantSchema.Field.Config, C extends AnyColumnDef = AnyColumnDef>
+export interface DSLVariantField<A extends VariantSchema.Field.Config, C extends ColumnDef = ColumnDef>
   extends VariantSchema.Field<A> {
   readonly [ColumnMetaSymbol]: C;
   readonly [VariantFieldSymbol]: true;
@@ -1031,12 +916,12 @@ export declare namespace DSL {
  * Type guard to check if a value is a DSLVariantField.
  * @since 1.0.0
  */
-export const isDSLVariantField = <A extends VariantSchema.Field.Config, C extends AnyColumnDef>(
+export const isDSLVariantField = <A extends VariantSchema.Field.Config, C extends ColumnDef>(
   u: unknown
 ): u is DSLVariantField<A, C> =>
-  P.isNotNull(u) &&
-  P.isObject(u) &&
-  P.hasProperty(VariantFieldSymbol)(u) &&
+  u !== null &&
+  typeof u === "object" &&
+  VariantFieldSymbol in u &&
   (u as Record<symbol, unknown>)[VariantFieldSymbol] === true;
 
 /**
@@ -1044,19 +929,19 @@ export const isDSLVariantField = <A extends VariantSchema.Field.Config, C extend
  * Determines the appropriate return type based on input type.
  * @since 1.0.0
  */
-export type FieldResult<Input, C extends AnyColumnDef> = Input extends VariantSchema.Field<infer VariantConfig>
+export type FieldResult<Input, C extends ColumnDef> = Input extends VariantSchema.Field<infer VariantConfig>
   ? DSLVariantField<VariantConfig, C>
   : Input extends S.Schema<infer A, infer I, infer R>
     ? DSLField<A, I, R, C>
     : Input extends S.PropertySignature<
-        infer _TypeToken,
-        infer Type,
-        infer _Key,
-        infer _EncodedToken,
-        infer Encoded,
-        infer _HasDefault,
-        infer Context
-      >
+          infer _TypeToken,
+          infer Type,
+          infer _Key,
+          infer _EncodedToken,
+          infer Encoded,
+          infer _HasDefault,
+          infer Context
+        >
       ? DSLField<Type, Encoded, Context, C>
       : never;
 
@@ -1092,12 +977,12 @@ export type ShouldIncludeField<V extends string, F> = [F] extends [DSLVariantFie
     ? true
     : false
   : // Check raw VariantSchema.Field (from @effect/experimental or @effect/sql/Model)
-  [F] extends [VariantSchema.Field<infer Config>]
+    [F] extends [VariantSchema.Field<infer Config>]
     ? V extends keyof Config
       ? true
       : false
     : // Plain DSLField/Schema included in all variants
-    true;
+      true;
 
 /**
  * Extracts the schema type for a field in a specific variant.
@@ -1115,20 +1000,20 @@ export type ExtractFieldSchema<V extends string, F> = [F] extends [DSLVariantFie
       : never
     : never
   : // Raw VariantSchema.Field (from @effect/experimental or @effect/sql/Model)
-  [F] extends [VariantSchema.Field<infer Config>]
+    [F] extends [VariantSchema.Field<infer Config>]
     ? V extends keyof Config
       ? [Config[V]] extends [S.Schema.All | S.PropertySignature.All]
         ? Config[V]
         : never
       : never
     : // DSLField (plain schema with column metadata) - use any for ColumnDef
-    [F] extends [DSLField<infer A, infer I, infer R, any>]
+      [F] extends [DSLField<infer A, infer I, infer R, any>]
       ? S.Schema<A, I, R>
       : // Plain Schema
-      [F] extends [S.Schema.All]
+        [F] extends [S.Schema.All]
         ? F
         : // PropertySignature
-        [F] extends [S.PropertySignature.All]
+          [F] extends [S.PropertySignature.All]
           ? F
           : never;
 
@@ -1150,7 +1035,7 @@ export interface ModelClassWithVariants<
   Self,
   Fields extends DSL.Fields,
   TName extends string,
-  Columns extends Record<string, AnyColumnDef>,
+  Columns extends Record<string, ColumnDef>,
   PK extends readonly string[],
   Id extends string,
 > extends ModelClass<Self, Fields, TName, Columns, PK, Id> {
@@ -1178,12 +1063,12 @@ export interface ModelClass<
   Self,
   Fields extends DSL.Fields,
   TName extends string,
-  Columns extends Record<string, AnyColumnDef>,
+  Columns extends Record<string, ColumnDef>,
   PK extends readonly string[],
   Id extends string,
 > extends S.Schema<Self, S.Struct.Encoded<SelectVariantFields<Fields>>, S.Struct.Context<SelectVariantFields<Fields>>>,
-  ModelStatics<TName, Columns, PK, Id, Fields> {
-  new(
+    ModelStatics<TName, Columns, PK, Id, Fields> {
+  new (
     props: S.Struct.Constructor<SelectVariantFields<Fields>>,
     options?: { readonly disableValidation?: boolean }
   ): S.Struct.Type<SelectVariantFields<Fields>>;
@@ -1191,7 +1076,7 @@ export interface ModelClass<
   readonly ast: import("effect/SchemaAST").Transformation;
   readonly fields: SelectVariantFields<Fields>;
 
-  make<Args extends ReadonlyArray<unknown>, X>(this: { new(...args: Args): X }, ...args: Args): X;
+  make<Args extends ReadonlyArray<unknown>, X>(this: { new (...args: Args): X }, ...args: Args): X;
 
   annotations(
     annotations: S.Annotations.Schema<Self>
@@ -1205,7 +1090,7 @@ export interface ModelClass<
  */
 export interface ModelStatics<
   TName extends string = string,
-  Columns extends Record<string, AnyColumnDef> = Record<string, AnyColumnDef>,
+  Columns extends Record<string, ColumnDef> = Record<string, ColumnDef>,
   PK extends readonly string[] = readonly string[],
   Id extends string = string,
   Fields extends DSL.Fields = DSL.Fields,
@@ -1234,36 +1119,36 @@ export interface ModelStatics<
  * @category type-level
  */
 export type ExtractEncodedType<F> =
-// DSLVariantField (has column metadata + variant schemas)
-  [F] extends [DSLVariantField<infer Config, AnyColumnDef>]
+  // DSLVariantField (has column metadata + variant schemas)
+  [F] extends [DSLVariantField<infer Config, ColumnDef>]
     ? Config extends { select: infer SelectSchema }
       ? [SelectSchema] extends [S.Schema<infer _A, infer I, infer _R>]
         ? I
         : [SelectSchema] extends [
-            S.PropertySignature<infer _TT, infer _T, infer _K, infer _ET, infer I, infer _HD, infer _C>,
-          ]
+              S.PropertySignature<infer _TT, infer _T, infer _K, infer _ET, infer I, infer _HD, infer _C>,
+            ]
           ? I
           : unknown
       : unknown
     : // Raw VariantSchema.Field (from @effect/sql/Model or local)
-    [F] extends [VariantSchema.Field<infer Config>]
+      [F] extends [VariantSchema.Field<infer Config>]
       ? Config extends { select: infer SelectSchema }
         ? [SelectSchema] extends [S.Schema<infer _A, infer I, infer _R>]
           ? I
           : [SelectSchema] extends [
-              S.PropertySignature<infer _TT, infer _T, infer _K, infer _ET, infer I, infer _HD, infer _C>,
-            ]
+                S.PropertySignature<infer _TT, infer _T, infer _K, infer _ET, infer I, infer _HD, infer _C>,
+              ]
             ? I
             : unknown
         : unknown
       : // DSLField (plain schema with column metadata)
-      [F] extends [DSLField<infer _A, infer I, infer _R, AnyColumnDef>]
+        [F] extends [DSLField<infer _A, infer I, infer _R, ColumnDef>]
         ? I
         : // Plain Schema
-        [F] extends [S.Schema<infer _A, infer I, infer _R>]
+          [F] extends [S.Schema<infer _A, infer I, infer _R>]
           ? I
           : // PropertySignature
-          [F] extends [S.PropertySignature<infer _TT, infer _T, infer _K, infer _ET, infer I, infer _HD, infer _C>]
+            [F] extends [S.PropertySignature<infer _TT, infer _T, infer _K, infer _ET, infer I, infer _HD, infer _C>]
             ? I
             : unknown;
 
