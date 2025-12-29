@@ -15,6 +15,22 @@
 
 export * as DiscriminatedStruct from "./discriminated-struct";
 export * from "./nullish";
+/**
+ * Option field helpers for transforming nullish values to Option types.
+ *
+ * @example
+ * import * as S from "effect/Schema";
+ * import { makeFieldOption } from "@beep/schema/core/generics";
+ *
+ * const schema = S.Struct({
+ *   id: S.String,
+ *   name: makeFieldOption(S.String)
+ * });
+ *
+ * @category Core/Generics
+ * @since 0.1.0
+ */
+export * from "./option-fields";
 export * from "./struct-record";
 export * from "./tagged-class";
 export * from "./tagged-struct";

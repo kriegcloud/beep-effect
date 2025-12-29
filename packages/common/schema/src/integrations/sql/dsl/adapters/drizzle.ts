@@ -9,8 +9,8 @@ import type {
   NotNull,
 } from "drizzle-orm";
 import type {
+  PgBigInt53BuilderInitial,
   PgBooleanBuilderInitial,
-  PgColumnBuilderBase,
   PgIntegerBuilderInitial,
   PgJsonbBuilderInitial,
   PgSerialBuilderInitial,
@@ -23,9 +23,15 @@ import * as pg from "drizzle-orm/pg-core";
 import * as A from "effect/Array";
 import * as F from "effect/Function";
 import * as Match from "effect/Match";
+import * as P from "effect/Predicate";
+import * as S from "effect/Schema";
+import type * as AST from "effect/SchemaAST";
 import * as Struct from "effect/Struct";
+import type { ColumnType } from "../literals";
 import type { ModelStatics } from "../Model";
-import type { ColumnDef, ColumnType, DSL, ExtractEncodedType } from "../types";
+import { isNullable } from "../nullability";
+import type { ColumnDef, DSL, ExtractEncodedType } from "../types";
+import { isDSLVariantField } from "../types";
 
 // ============================================================================
 // Type-Level Drizzle Builder Mapping
@@ -35,7 +41,7 @@ import type { ColumnDef, ColumnType, DSL, ExtractEncodedType } from "../types";
  * Maps a ColumnType to its corresponding base Drizzle builder type.
  * This is the "untyped" builder before modifiers are applied.
  */
-type DrizzleBaseBuilderFor<Name extends string, T extends ColumnType, AI extends boolean> = T extends "string"
+type DrizzleBaseBuilderFor<Name extends string, T extends ColumnType.Type, AI extends boolean> = T extends "string"
   ? PgTextBuilderInitial<Name, [string, ...string[]]>
   : T extends "number"
     ? PgIntegerBuilderInitial<Name>
@@ -51,18 +57,27 @@ type DrizzleBaseBuilderFor<Name extends string, T extends ColumnType, AI extends
             ? PgUUIDBuilderInitial<Name>
             : T extends "json"
               ? PgJsonbBuilderInitial<Name>
-              : never;
+              : T extends "bigint"
+                ? PgBigInt53BuilderInitial<Name>
+                : never;
+
+/**
+ * Type-level helper to check if a type includes null or undefined.
+ * Used to derive column nullability from the schema's encoded type.
+ */
+type IsEncodedNullable<T> = null extends T ? true : undefined extends T ? true : false;
 
 /**
  * Applies NotNull modifier if the column is not nullable.
- * Primary keys and non-nullable columns get notNull: true.
+ * Primary keys get notNull: true. Nullability is derived from the schema's encoded type.
+ * Serial/autoIncrement columns handle their own nullability.
  */
-type ApplyNotNull<T extends ColumnBuilderBase, Col extends ColumnDef> = Col extends { primaryKey: true }
+type ApplyNotNull<T extends ColumnBuilderBase, Col extends ColumnDef, EncodedType> = Col extends { primaryKey: true }
   ? NotNull<T>
-  : Col extends { nullable: true }
-    ? T
-    : Col extends { autoIncrement: true }
-      ? T // Serial columns handle their own nullability
+  : Col extends { autoIncrement: true }
+    ? T // Serial columns handle their own nullability
+    : IsEncodedNullable<EncodedType> extends true
+      ? T
       : NotNull<T>;
 
 /**
@@ -96,12 +111,17 @@ type Apply$Type<T extends ColumnBuilderBase, EncodedType> = $Type<T, EncodedType
 /**
  * Composes all Drizzle builder modifiers in the correct order.
  * Order matters: notNull and primaryKey should be applied before $type.
+ * Nullability is derived from the schema's EncodedType (checking for null | undefined).
  */
 type DrizzleTypedBuilderFor<Name extends string, Col extends ColumnDef, EncodedType> = Apply$Type<
   ApplyAutoincrement<
     ApplyHasDefault<
       ApplyPrimaryKey<
-        ApplyNotNull<DrizzleBaseBuilderFor<Name, Col["type"], Col extends { autoIncrement: true } ? true : false>, Col>,
+        ApplyNotNull<
+          DrizzleBaseBuilderFor<Name, Col["type"], Col extends { autoIncrement: true } ? true : false>,
+          Col,
+          EncodedType
+        >,
         Col
       >,
       Col
@@ -124,11 +144,78 @@ type DrizzleTypedBuildersFor<Columns extends Record<string, ColumnDef>, Fields e
 // ============================================================================
 
 /**
- * Builds a Drizzle column from a ColumnDef.
+ * Extracts AST.AST from a Schema or PropertySignature.
+ * PropertySignature has a different AST type, so we need to extract the inner type.
+ */
+const extractAST = (schemaOrPS: S.Schema.All | S.PropertySignature.All): AST.AST => {
+  if (S.isPropertySignature(schemaOrPS)) {
+    // PropertySignature has ast of type PropertySignatureDeclaration | PropertySignatureTransformation
+    const psAst = schemaOrPS.ast;
+    if (psAst._tag === "PropertySignatureDeclaration") {
+      return psAst.type;
+    }
+    // PropertySignatureTransformation - use the 'from' side for nullability
+    return psAst.from.type;
+  }
+  return schemaOrPS.ast;
+};
+
+/**
+ * Gets the AST from a DSL field for nullability analysis.
+ * For VariantFields, we analyze the "select" variant's schema since that
+ * represents what gets stored/retrieved from the database.
+ */
+const getFieldAST = (field: DSL.Fields[string]): AST.AST | null => {
+  if (field == null) return null;
+
+  // DSLVariantField: get the "select" variant's schema AST
+  if (isDSLVariantField(field)) {
+    const selectSchema = field.schemas.select;
+    if (selectSchema && (S.isSchema(selectSchema) || S.isPropertySignature(selectSchema))) {
+      return extractAST(selectSchema);
+    }
+    return null;
+  }
+
+  // Check for raw VariantSchema.Field (has .schemas property)
+  if (P.hasProperty("schemas")(field) && P.isObject(field.schemas) && P.isNotNull(field.schemas)) {
+    const schemas = field.schemas as Record<string, unknown>;
+    const selectSchema = schemas.select;
+    if (selectSchema && (S.isSchema(selectSchema) || S.isPropertySignature(selectSchema))) {
+      return extractAST(selectSchema as S.Schema.All | S.PropertySignature.All);
+    }
+    return null;
+  }
+
+  // DSLField or plain Schema/PropertySignature: has .ast property directly
+  if (S.isSchema(field) || S.isPropertySignature(field)) {
+    return extractAST(field);
+  }
+
+  return null;
+};
+
+/**
+ * Derives nullability from a DSL field by analyzing its schema AST.
+ * Returns true if the field's schema can encode to null/undefined.
+ */
+const isFieldNullable = (field: DSL.Fields[string]): boolean => {
+  const ast = getFieldAST(field);
+  if (ast == null) return false;
+  return isNullable(ast, "from");
+};
+
+/**
+ * Builds a Drizzle column from a ColumnDef and its corresponding DSL field.
  * The column builder applies constraints in order, with .$type<T>() called last.
+ * Nullability is derived from the field's schema AST, not from ColumnDef.
  * Note: .$type<T>() is purely type-level - it returns `this` at runtime.
  */
-const columnBuilder = <ColumnName extends string, EncodedType>(name: ColumnName, def: ColumnDef): PgColumnBuilderBase =>
+const columnBuilder = <ColumnName extends string, EncodedType>(
+  name: ColumnName,
+  def: ColumnDef,
+  field: DSL.Fields[string]
+) =>
   F.pipe(
     Match.value(def).pipe(
       Match.discriminatorsExhaustive("type")({
@@ -139,13 +226,16 @@ const columnBuilder = <ColumnName extends string, EncodedType>(name: ColumnName,
         datetime: thunk(pg.timestamp(name)),
         uuid: thunk(pg.uuid(name)),
         json: thunk(pg.jsonb(name)),
+        bigint: thunk(pg.bigint(name, { mode: "bigint" })),
       })
     ),
     (column) => {
       // Apply constraints in order
       if (def.primaryKey) column = column.primaryKey();
       if (def.unique) column = column.unique();
-      if (!def.nullable && !def.autoIncrement) column = column.notNull();
+      // Derive nullability from the field's schema AST
+      const fieldIsNullable = isFieldNullable(field);
+      if (!fieldIsNullable && !def.autoIncrement) column = column.notNull();
       // Apply .$type<T>() LAST - this is purely type-level at runtime
       // The type parameter is enforced at the type level via DrizzleTypedBuildersFor
       return column.$type<EncodedType>();
@@ -199,7 +289,11 @@ export const toDrizzle = <
     F.pipe(
       model.columns,
       Struct.entries,
-      A.map(([key, def]) => [key, columnBuilder(key, def)] as const),
+      A.map(([key, def]) => {
+        // Get the corresponding DSL field for nullability derivation
+        const field = model._fields[key];
+        return [key, columnBuilder(key, def, field)] as const;
+      }),
       A.reduce(
         {} as {
           [K in keyof DrizzleTypedBuildersFor<M["columns"], M["_fields"]>]: DrizzleTypedBuildersFor<

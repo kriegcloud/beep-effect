@@ -14,7 +14,8 @@
  * @since 0.1.0
  */
 
-import { $SchemaId } from "@beep/identity/packages";
+import { DiscriminatedStruct } from "@beep/schema/core/generics";
+import { mergeFields } from "@beep/schema/core/utils/merge-fields";
 import type { UnsafeTypes } from "@beep/types";
 import { ArrayUtils, enumFromStringArray } from "@beep/utils";
 import type { CreateEnumType, ValidMapping } from "@beep/utils/data/tuple.utils";
@@ -29,10 +30,7 @@ import type * as Types from "effect/Types";
 import type { TaggedUnion } from "../../core/generics/tagged-union";
 import { TaggedUnion as TaggedUnionFactory } from "../../core/generics/tagged-union";
 
-// const LiteralToAccessor =
-
-const $I = $SchemaId.create("derived/kits/string-literal-kit");
-type LiteralsType = A.NonEmptyReadonlyArray<string>;
+export type LiteralsType = A.NonEmptyReadonlyArray<string>;
 
 type LiteralsSubset<Literals extends LiteralsType> = A.NonEmptyReadonlyArray<Literals[number]>;
 
@@ -67,6 +65,115 @@ type TaggedUnion<Literals extends LiteralsType, D extends string> = S.Union<Tagg
 type TaggedMembersResult<Literals extends LiteralsType, D extends string> = {
   readonly Union: TaggedUnion<Literals, D>;
   readonly Members: TaggedMembersMap<Literals, D>;
+  readonly composer: StructComposer<Literals, D>;
+};
+// type Composer = {
+//           readonly [K in Literals[number]]: <Fields extends S.Struct.Fields>(fields: Fields) => DiscriminatedStruct.Schema<D, K, Fields>
+//         }
+//         const structFactory = DiscriminatedStruct.make(discriminator)
+//         const composerFn = F.flow(
+//           <Tag extends Literals[number]>(tag: Tag) => <Fields extends S.Struct.Fields>(fields: Fields) =>
+//             structFactory(tag, fields)
+//         )
+//         const composer: Composer = F.pipe(
+//           literals,
+//           ArrayUtils.NonEmptyReadonly.mapNonEmpty((lit) => [lit, composerFn(lit)]),
+//           A.reduce({} as Composer, (acc, [key, value]) => ({ ...acc, [key]: value }))
+//         )
+
+/**
+ * Composable struct factory with support for default fields.
+ *
+ * Can be called as a function to create a new composer with default fields:
+ * - `composer(defaultFields)` → returns new composer with defaults
+ *
+ * Can be called as an object with literal methods:
+ * - `composer.select(fields)` → creates struct with discriminator + fields
+ *
+ * When called with defaults first, creates nested composition:
+ * - `composer(defaults).select(fields)` → struct with discriminator + defaults + fields
+ *
+ * @example
+ * import { StringLiteralKit } from "@beep/schema/derived/kits/string-literal-kit";
+ * import * as S from "effect/Schema";
+ *
+ * class ModelVariant extends StringLiteralKit("select", "insert", "update") {}
+ *
+ * const factory = ModelVariant.toTagged("variant").composer({
+ *   id: S.String,
+ *   createdAt: S.DateTimeUtc
+ * });
+ *
+ * class SelectModel extends factory.select({ data: S.String }) {}
+ * // Produces: { variant: "select", id: string, createdAt: DateTime.Utc, data: string }
+ *
+ * @since 0.1.0
+ * @category Derived/Kits
+ */
+export type StructComposer<Literals extends LiteralsType, D extends string, Defaults extends S.Struct.Fields = {}> = {
+  /**
+   * Call with default fields to create a new composer with those defaults baked in.
+   */
+  <const DefaultFields extends S.Struct.Fields>(
+    defaultFields: DefaultFields
+  ): StructComposer<Literals, D, Defaults & DefaultFields>;
+} & {
+  /**
+   * Method accessors for each literal - merges defaults with new fields.
+   */
+  readonly [K in Literals[number]]: <Fields extends S.Struct.Fields>(
+    fields: Fields
+  ) => DiscriminatedStruct.Schema<D, K, Defaults & Fields>;
+};
+
+/**
+ * Creates a callable struct composer with support for default fields.
+ *
+ * The returned composer can be:
+ * 1. Called as a function with default fields to create a new composer with those defaults
+ * 2. Accessed via literal methods to create discriminated structs
+ *
+ * @param literals - Array of literal string values
+ * @param discriminator - The discriminator field name
+ * @param defaults - Default fields to merge into all variants (defaults to empty)
+ * @returns A callable StructComposer with literal methods
+ *
+ * @since 0.1.0
+ * @category Derived/Kits
+ */
+const makeComposer = <
+  const Literals extends LiteralsType,
+  const D extends string,
+  const Defaults extends S.Struct.Fields = {},
+>(
+  literals: Literals,
+  discriminator: D,
+  defaults: Defaults = {} as Defaults
+): StructComposer<Literals, D, Defaults> => {
+  const structFactory = DiscriminatedStruct.make(discriminator);
+
+  // Create literal methods - each merges defaults with new fields
+  const composerMethods = F.pipe(
+    literals,
+    ArrayUtils.NonEmptyReadonly.mapNonEmpty((lit) => {
+      const method = <Fields extends S.Struct.Fields>(fields: Fields) =>
+        structFactory(lit, mergeFields(defaults, fields));
+      return [lit, method] as const;
+    }),
+    A.reduce({} as Record<string, unknown>, (acc, [key, method]) => ({
+      ...acc,
+      [key]: method,
+    }))
+  );
+
+  // Create callable function that returns a new composer with extended defaults
+  const composerFn = <const DefaultFields extends S.Struct.Fields>(
+    defaultFields: DefaultFields
+  ): StructComposer<Literals, D, Defaults & DefaultFields> =>
+    makeComposer(literals, discriminator, mergeFields(defaults, defaultFields));
+
+  // Merge callable function with literal methods
+  return Object.assign(composerFn, composerMethods) as StructComposer<Literals, D, Defaults>;
 };
 
 type PickOptions<Literals extends LiteralsType> = <const Keys extends LiteralsSubset<Literals>>(
@@ -88,17 +195,6 @@ type OmitOptions<Literals extends LiteralsType> = <const Keys extends LiteralsSu
 type IsGuards<Literals extends LiteralsType> = {
   readonly [K in Literals[number] & string]: (i: unknown) => i is K;
 };
-
-type DerivedLiteralKit<Literals extends LiteralsType> = {
-  readonly Schema: S.Literal<[...Literals]>;
-  readonly Options: Literals;
-  readonly Enum: CreateEnumType<Literals, undefined>;
-  readonly omitOptions: OmitOptions<Literals>;
-  readonly pickOptions: PickOptions<Literals>;
-  readonly toTagged: <const D extends string>(discriminator: D) => TaggedMembersResult<Literals, D>;
-};
-
-type DerivedLiteralKitSchema<Literals extends LiteralsType> = DerivedLiteralKit<Literals>;
 
 type LiteralKitEnum<
   Literals extends LiteralsType,
@@ -125,7 +221,7 @@ export interface ILiteralKit<Literals extends LiteralsType, Mapping extends Mapp
   readonly is: IsGuards<Literals>;
   readonly omitOptions: OmitOptions<Literals>;
   readonly pickOptions: PickOptions<Literals>;
-  readonly derive: <Keys extends LiteralsSubset<Literals>>(...keys: Keys) => DerivedLiteralKit<Keys>;
+  readonly derive: <Keys extends LiteralsSubset<Literals>>(...keys: Keys) => ILiteralKit<Keys, undefined>;
   readonly toTagged: <const D extends string>(discriminator: D) => TaggedMembersResult<Literals, D>;
 }
 
@@ -262,9 +358,23 @@ const buildIsGuards = <Literals extends LiteralsType>(literals: Literals): IsGua
 };
 
 /**
+ * Factory for creating string literal kits without enum mapping.
+ *
+ * @returns A literal kit with Schema, Options, Enum, derive, and toTagged utilities
+ *
+ * @category Derived/Kits
+ * @since 0.1.0
+ */
+export function makeLiteralKit<const Literals extends A.NonEmptyReadonlyArray<string>>(
+  literals: Literals,
+  enumMapping: undefined,
+  ast?: AST.AST | undefined
+): ILiteralKit<Literals, undefined>;
+
+/**
  * Factory for creating string literal kits with custom enum mapping.
  *
- * Extended overload that accepts an optional `enumMapping` configuration for custom enum key names.
+ * Extended overload that accepts an `enumMapping` configuration for custom enum key names.
  *
  * @returns A literal kit with Schema, Options, Enum (with custom mapping), derive, and toTagged utilities
  *
@@ -290,7 +400,7 @@ export function makeLiteralKit<
   const Mapping extends A.NonEmptyReadonlyArray<[Literals[number], string]>,
 >(
   literals: Literals,
-  enumMapping: ValidMapping<Literals, Mapping> | undefined,
+  enumMapping: ValidMapping<Literals, Mapping>,
   ast?: AST.AST | undefined
 ): ILiteralKit<Literals, Mapping>;
 
@@ -328,6 +438,7 @@ export function makeLiteralKit<
     return {
       Union,
       Members: buildMembersMap(literals, memberTuple),
+      composer: makeComposer(literals, discriminator),
     };
   };
 
@@ -358,9 +469,11 @@ export function makeLiteralKit<
 
   return class WithStatics extends S.make<Literals[number]>(ast) {
     static override annotations(annotations: S.Annotations.Schema<Literals[number]>): ILiteralKit<Literals, Mapping> {
-      return enumMapping
-        ? makeLiteralKit(this.Options, enumMapping, mergeSchemaAnnotations(this.ast, annotations))
-        : makeLiteralKit(this.Options, undefined, mergeSchemaAnnotations(this.ast, annotations));
+      return (
+        enumMapping
+          ? makeLiteralKit(this.Options, enumMapping, mergeSchemaAnnotations(this.ast, annotations))
+          : makeLiteralKit(this.Options, undefined, mergeSchemaAnnotations(this.ast, annotations))
+      ) as ILiteralKit<Literals, Mapping>;
     }
 
     static omitOptions = omitOptions;
@@ -370,58 +483,7 @@ export function makeLiteralKit<
     static is = buildIsGuards(literals);
     static derive = <Keys extends A.NonEmptyReadonlyArray<Literals[number]>>(
       ...keys: Keys
-    ): DerivedLiteralKitSchema<Keys> => {
-      const Schema = S.Literal(...keys).annotations(
-        $I.annotations("StringLiteralKitLiteral", {
-          description: "Literal schema produced by stringLiteralKit",
-          arbitrary: () => (fc) => fc.constantFrom(...keys),
-        })
-      );
-
-      const toTagged = <const D extends string>(discriminator: D): TaggedMembersResult<Keys, D> => {
-        const memberTuple = F.pipe(
-          keys,
-          A.map((lit) => makeTaggedStruct(discriminator, lit))
-        ) as TaggedMembers<Keys, D>;
-
-        const Union = S.Union(
-          ...(memberTuple as [
-            S.Schema<UnsafeTypes.UnsafeAny, UnsafeTypes.UnsafeAny, UnsafeTypes.UnsafeAny>,
-            ...S.Schema<UnsafeTypes.UnsafeAny, UnsafeTypes.UnsafeAny, UnsafeTypes.UnsafeAny>[],
-          ])
-        ) as TaggedUnion<Keys, D>;
-
-        return {
-          Union,
-          Members: buildMembersMap(keys, memberTuple),
-        };
-      };
-
-      const pickOptions = <KeysDerived extends LiteralsSubset<Keys>>(
-        ...keysDerived: KeysDerived
-      ): A.NonEmptyReadonlyArray<KeysDerived[number]> =>
-        F.pipe(
-          keys,
-          ArrayUtils.NonEmptyReadonly.filter((lit) => A.contains(keysDerived, lit))
-        );
-
-      const omitOptions = <KeysDerived extends LiteralsSubset<Keys>>(
-        ...keysDerived: KeysDerived
-      ): A.NonEmptyReadonlyArray<Exclude<Keys[number], KeysDerived[number]>> =>
-        F.pipe(
-          keys,
-          ArrayUtils.NonEmptyReadonly.filter((lit) => !A.contains(keysDerived, lit))
-        ) as unknown as A.NonEmptyReadonlyArray<Exclude<Keys[number], KeysDerived[number]>>;
-
-      return {
-        Options: keys,
-        Enum: enumFromStringArray(...keys),
-        toTagged,
-        omitOptions,
-        pickOptions,
-        Schema,
-      };
-    };
+    ): ILiteralKit<Keys, undefined> => makeLiteralKit(keys, undefined);
     static toTagged = toTagged;
   };
 }
@@ -466,9 +528,10 @@ export function StringLiteralKit<
   );
 
   return O.fromNullable(options).pipe(
+    O.flatMap((opts) => O.fromNullable(opts.enumMapping)),
     O.match({
       onNone: () => makeLiteralKit(literals, undefined),
-      onSome: (opts) => makeLiteralKit(literals, opts.enumMapping),
+      onSome: (mapping) => makeLiteralKit(literals, mapping as ValidMapping<Literals, Mapping>),
     })
   );
 }

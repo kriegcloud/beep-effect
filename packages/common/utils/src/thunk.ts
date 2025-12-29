@@ -203,3 +203,11 @@ export const thunkDie = flow(Effect.die, thunk);
 export const thunkDieMessage = flow(Effect.dieMessage, thunk);
 
 export const thunkEffectVoid = thunk(Effect.void);
+
+export const thunkEmptyReadonlyArray = <T>() => [] as ReadonlyArray<T>;
+
+export const thunkThrow =
+  <E>(error: E) =>
+  () => {
+    throw error;
+  };

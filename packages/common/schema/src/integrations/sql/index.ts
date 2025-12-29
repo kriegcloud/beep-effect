@@ -5,7 +5,6 @@
  * @since 0.1.0
  */
 export * from "./common";
-export * as Model from "./Model";
 /**
  * Postgres enum schema helpers.
  *
