@@ -15,6 +15,8 @@
     "rootDir": "src",
     "resolveJsonModule": true,
     "moduleResolution": "bundler",
+    "erasableSyntaxOnly": false,
+    "verbatimModuleSyntax": false,
     "incremental": true,
     "skipLibCheck": true,
     "esModuleInterop": true

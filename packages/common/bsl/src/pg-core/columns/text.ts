@@ -1,0 +1,60 @@
+import { entityKind } from "../../entity";
+import type { PgTable } from "../../pg-core/table";
+import { getColumnNameAndConfig, type Writable } from "../../utils";
+import { PgColumn, PgColumnBuilder } from "./common";
+
+type PgTextBuilderConfig<TEnum extends [string, ...string[]] | undefined> = TEnum extends [string, ...string[]]
+  ? { dataType: "string enum"; data: TEnum[number]; enumValues: TEnum; driverParam: string }
+  : { dataType: "string"; data: string; driverParam: string };
+
+export class PgTextBuilder<TEnum extends [string, ...string[]] | undefined = undefined> extends PgColumnBuilder<
+  PgTextBuilderConfig<TEnum>,
+  { enumValues: TEnum }
+> {
+  static override readonly [entityKind]: string = "PgTextBuilder";
+
+  constructor(name: string, config: PgTextConfig<TEnum>) {
+    super(name, config.enum?.length ? "string enum" : "string", "PgText");
+    this.config.enumValues = config.enum as TEnum;
+  }
+
+  /** @internal */
+  override build(table: PgTable<any>) {
+    return new PgText(table, this.config as any, this.config.enumValues);
+  }
+}
+
+export class PgText<TEnum extends [string, ...string[]] | undefined = undefined> extends PgColumn<
+  TEnum extends [string, ...string[]] ? "string enum" : "string"
+> {
+  static override readonly [entityKind]: string = "PgText";
+  override readonly enumValues;
+
+  constructor(table: PgTable<any>, config: any, enumValues?: undefined | string[]) {
+    super(table, config);
+    this.enumValues = enumValues;
+  }
+
+  getSQLType(): string {
+    return "text";
+  }
+}
+
+export interface PgTextConfig<TEnum extends readonly string[] | undefined = readonly string[] | undefined> {
+  enum?: undefined | TEnum;
+}
+
+// Original function overloads style
+export function text(): PgTextBuilder<undefined>;
+export function text(name: string): PgTextBuilder<undefined>;
+export function text<U extends string, T extends Readonly<[U, ...U[]]>>(
+  config: PgTextConfig<T | Writable<T>>
+): PgTextBuilder<Writable<T>>;
+export function text<U extends string, T extends Readonly<[U, ...U[]]>>(
+  name: string,
+  config: PgTextConfig<T | Writable<T>>
+): PgTextBuilder<Writable<T>>;
+export function text(a?: undefined | string | PgTextConfig, b: PgTextConfig = {}): any {
+  const { name, config } = getColumnNameAndConfig<PgTextConfig>(a, b);
+  return new PgTextBuilder(name, config as any);
+}

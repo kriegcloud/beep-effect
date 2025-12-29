@@ -30,7 +30,7 @@ type SubmitEffect<SchemaA, SubmitSuccess, SubmitError> = (
 type Params<SchemaA, SchemaI extends Record<PropertyKey, UnsafeTypes.UnsafeAny>, SubmitSuccess, SubmitError> = {
   readonly schema: S.Schema<SchemaA, SchemaI>;
   readonly submitEffect: SubmitEffect<SchemaA, SubmitSuccess, SubmitError>;
-  readonly spanName?: string;
+  readonly spanName?: undefined |  string;
 };
 
 type EffectFormOptionsReturn<SchemaI extends Record<PropertyKey, UnsafeTypes.UnsafeAny>> =

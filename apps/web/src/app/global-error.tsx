@@ -4,7 +4,7 @@ export default function GlobalError({
   error,
   reset,
 }: {
-  readonly error: Error & { readonly digest?: string };
+  readonly error: Error & { readonly digest?: undefined |  string };
   readonly reset: () => void;
 }) {
   return (

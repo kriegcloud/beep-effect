@@ -67,19 +67,6 @@ type TaggedMembersResult<Literals extends LiteralsType, D extends string> = {
   readonly Members: TaggedMembersMap<Literals, D>;
   readonly composer: StructComposer<Literals, D>;
 };
-// type Composer = {
-//           readonly [K in Literals[number]]: <Fields extends S.Struct.Fields>(fields: Fields) => DiscriminatedStruct.Schema<D, K, Fields>
-//         }
-//         const structFactory = DiscriminatedStruct.make(discriminator)
-//         const composerFn = F.flow(
-//           <Tag extends Literals[number]>(tag: Tag) => <Fields extends S.Struct.Fields>(fields: Fields) =>
-//             structFactory(tag, fields)
-//         )
-//         const composer: Composer = F.pipe(
-//           literals,
-//           ArrayUtils.NonEmptyReadonly.mapNonEmpty((lit) => [lit, composerFn(lit)]),
-//           A.reduce({} as Composer, (acc, [key, value]) => ({ ...acc, [key]: value }))
-//         )
 
 /**
  * Composable struct factory with support for default fields.

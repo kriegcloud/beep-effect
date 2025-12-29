@@ -105,7 +105,7 @@ export const url = (strings: TemplateStringsArray, ...values: Array<string>): UR
 export const sanitizeUrl = (url: string): string | null => {
   // If the URL starts with "www.", normalize it as an HTTPS URL
   if (F.pipe(url, Str.startsWith("www."))) {
-    url = "https://" + url;
+    url = `https://${url}`;
   }
 
   // Fast path for hash-only URLs
@@ -148,7 +148,7 @@ export const sanitizeUrl = (url: string): string | null => {
       }).pipe(
         Match.when(
           ({ hasTrailingSlash, endsWithSlash }) => hasTrailingSlash && !endsWithSlash,
-          () => urlObject.pathname + "/"
+          () => `${urlObject.pathname}/`
         ),
         Match.orElse(() => urlObject.pathname)
       );

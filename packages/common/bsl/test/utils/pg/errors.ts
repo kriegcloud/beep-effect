@@ -137,8 +137,7 @@ export class DatabaseError extends S.TaggedError<DatabaseError>($I`DatabaseError
         const [, filePath, lineNum, colNum] = match;
         // Skip internal paths, node_modules, and non-file paths (native, etc.)
         if (
-          filePath &&
-          filePath.startsWith("/") && // Must be an absolute file path
+          filePath?.startsWith("/") && // Must be an absolute file path
           !filePath.includes("node_modules") &&
           !filePath.includes("shared/server/src/internal") // Skip our internal db code
         ) {
