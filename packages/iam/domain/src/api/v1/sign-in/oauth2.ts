@@ -21,7 +21,7 @@
  *
  * @see {@link https://www.better-auth.com/docs/concepts/oauth2 | Better Auth OAuth2}
  */
-import { CommonFields, IamAuthError } from "@beep/iam-domain/api/common";
+import { CommonFields, CommonHeaders, IamAuthError } from "@beep/iam-domain/api/common";
 import { $IamDomainId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
 import * as HttpApiEndpoint from "@effect/platform/HttpApiEndpoint";
@@ -106,6 +106,7 @@ export class Success extends S.Class<Success>($I`Success`)(
 export const Contract = HttpApiEndpoint.post("oauth2", "/oauth2")
   .setPayload(Payload)
   .addSuccess(Success)
+  .setHeaders(CommonHeaders.CaptchaRequestHeaders)
   .addError(
     IamAuthError.annotations(
       $I.annotations("IamAuthError", {

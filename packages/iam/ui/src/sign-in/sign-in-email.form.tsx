@@ -1,5 +1,5 @@
 "use client";
-import { useSignInEmailForm } from "@beep/iam-client/clients";
+import { useSignInEmailForm } from "@beep/iam-client/atom/sign-in";
 import { useCaptcha } from "@beep/iam-ui/_common";
 import { paths } from "@beep/shared-domain";
 import { Iconify } from "@beep/ui/atoms";

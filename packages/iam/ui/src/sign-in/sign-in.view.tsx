@@ -1,16 +1,16 @@
 "use client";
-import { useSignIn } from "@beep/iam-client/clients/sign-in";
+
 import { paths } from "@beep/shared-domain";
 import { RouterLink } from "@beep/ui/routing";
 import Link from "@mui/material/Link";
-import Stack from "@mui/material/Stack";
+// import Stack from "@mui/material/Stack";
 import { FormDivider, FormHead } from "../_components";
 import { SignInEmailForm } from "./sign-in-email.form";
-import { SignInPasskey } from "./sign-in-passkey";
-import { SignInSocial } from "./sign-in-social";
+// import { SignInPasskey } from "./sign-in-passkey";
+// import { SignInSocial } from "./sign-in-social";
 
 export const SignInView = () => {
-  const { signInPasskey, signInSocial } = useSignIn();
+  // const { signInPasskey, signInSocial } = useSignIn();
   return (
     <>
       <FormHead
@@ -27,10 +27,10 @@ export const SignInView = () => {
       />
       <SignInEmailForm />
       <FormDivider />
-      <Stack spacing={2}>
-        <SignInSocial signIn={async (provider) => signInSocial({ provider })} />
-        <SignInPasskey onSubmit={async () => signInPasskey()} />
-      </Stack>
+      {/*<Stack spacing={2}>*/}
+      {/*  <SignInSocial signIn={async (provider) => signInSocial({ provider })} />*/}
+      {/*  <SignInPasskey onSubmit={async () => signInPasskey()} />*/}
+      {/*</Stack>*/}
     </>
   );
 };

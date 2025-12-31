@@ -43,7 +43,7 @@ export default async function RootLayout({ children }: RootLayoutProps) {
       <head>
         {isDev && (
           <Script
-            src="https://unpkg.com/react-grab@0.0.91/dist/index.global.js"
+            src="https://unpkg.com/react-grab@0.0.97/dist/index.global.js"
             crossOrigin="anonymous"
             strategy="beforeInteractive"
           />

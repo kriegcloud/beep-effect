@@ -193,7 +193,7 @@ export declare namespace DateFromAllAcceptable {
  * @since 0.1.0
  */
 export const DateTimeUtcFromAllAcceptable = S.transformOrFail(
-  S.Union(DateFromAllAcceptable, DateTimeUtcByInstant),
+  DateFromAllAcceptable,
   DateTimeUtcByInstant,
   {
     decode: (input, _options, ast) =>

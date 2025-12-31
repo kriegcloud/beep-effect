@@ -34,7 +34,10 @@ export const Handler: HandlerEffect = Effect.fn("SignUpEmailHandler")(function* 
     Effect.flatMap((result) =>
       Effect.all({
         headers: Effect.succeed(result.headers),
-        response: S.decodeUnknown(V1.SignUp.Email.Success)(result.response),
+        // Decode to validate, then encode back for JSON serialization
+        response: S.decodeUnknown(V1.SignUp.Email.Success)(result.response).pipe(
+          Effect.flatMap(S.encode(V1.SignUp.Email.Success))
+        ),
       })
     )
   );

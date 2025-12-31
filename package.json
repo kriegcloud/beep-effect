@@ -76,7 +76,8 @@
     "slate-dom": "0.117.4",
     "slate-react": "0.117.4",
     "@effect-atom/atom": "catalog:",
-    "@effect/platform": "catalog:"
+    "@effect/platform": "catalog:",
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@aws-sdk/client-appsync": "^3.958.0",
@@ -486,7 +487,7 @@
     "ws": "^8.18.3",
     "yjs": "^13.6.28",
     "y-indexeddb": "^9.0.12",
-    "zod": "^4.2.1",
+    "zod": "^4.3.2",
     "zustand": "^5.0.9",
     "zustand-x": "^6.2.1",
     "@ffmpeg/ffmpeg": "^0.12.15",

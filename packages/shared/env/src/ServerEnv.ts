@@ -38,7 +38,7 @@ export const ConfigArrayURL = <TName extends string>(name: TName) =>
     Config.map(
       F.flow(
         A.fromIterable,
-        A.map((url) => url.toString())
+        A.map((url) => url.origin) // Use .origin to get URL without trailing slash
       )
     )
   );

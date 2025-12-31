@@ -4,7 +4,8 @@ export class AllowedHeaders extends BS.StringLiteralKit(
   "Content-Type",
   "Authorization",
   "B3",
-  "traceparent"
+  "traceparent",
+  "x-captcha-response"
 ).annotations({
   description: "Allowed headers for API routes",
 }) {}

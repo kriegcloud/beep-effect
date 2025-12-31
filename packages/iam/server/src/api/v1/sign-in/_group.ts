@@ -22,7 +22,7 @@ export const Routes: Routes = HttpApiBuilder.group(IamApi, "signIn", (h) =>
     .handle("anonymous", Anonymous.Handler)
     .handle("email", Email.Handler)
     .handle("oauth2", OAuth2.Handler)
-    .handle("phone-number", PhoneNumber.Handler)
+    .handle("phoneNumber", PhoneNumber.Handler)
     .handle("social", Social.Handler)
     .handle("sso", SSO.Handler)
     .handle("username", Username.Handler)

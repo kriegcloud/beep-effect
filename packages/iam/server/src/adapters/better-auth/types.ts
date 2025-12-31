@@ -1,4 +1,6 @@
-import type * as Effect from "effect/Effect";
-import type { AuthEffect } from "./Options";
+import type { makeAuth } from "./Options";
 
-export type Auth = Effect.Effect.Success<typeof AuthEffect>;
+/**
+ * The return type of the `makeAuth` function.
+ */
+export type Auth = ReturnType<typeof makeAuth>;

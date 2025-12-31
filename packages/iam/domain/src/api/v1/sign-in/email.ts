@@ -1,4 +1,4 @@
-import { CommonFields, IamAuthError } from "@beep/iam-domain/api/common";
+import { CommonFields, CommonHeaders, IamAuthError } from "@beep/iam-domain/api/common";
 import { $IamDomainId } from "@beep/identity/packages";
 import { User } from "@beep/shared-domain/entities";
 import * as HttpApiEndpoint from "@effect/platform/HttpApiEndpoint";
@@ -20,7 +20,7 @@ export class Payload extends S.Class<Payload>($I`Payload`)(
 
 export class Success extends S.Class<Success>($I`Success`)(
   {
-    user: User.Model,
+    user: User.Model.json,
     redirect: CommonFields.Redirect,
     token: CommonFields.SessionToken,
     url: CommonFields.RedirectURL,
@@ -32,6 +32,7 @@ export class Success extends S.Class<Success>($I`Success`)(
 
 export const Contract = HttpApiEndpoint.post("email", "/email")
   .setPayload(Payload)
+  .setHeaders(CommonHeaders.CaptchaRequestHeaders)
   .addError(
     IamAuthError.annotations(
       $I.annotations("IamAuthError", {

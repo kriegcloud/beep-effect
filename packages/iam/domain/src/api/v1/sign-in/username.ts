@@ -20,7 +20,7 @@
  *
  * @see {@link https://www.better-auth.com/docs/plugins/username | Better Auth Username Plugin}
  */
-import { CommonFields, IamAuthError } from "@beep/iam-domain/api/common";
+import { CommonFields, CommonHeaders, IamAuthError } from "@beep/iam-domain/api/common";
 import { $IamDomainId } from "@beep/identity/packages";
 import { User } from "@beep/shared-domain/entities";
 import * as HttpApiEndpoint from "@effect/platform/HttpApiEndpoint";
@@ -83,6 +83,7 @@ export class Success extends S.Class<Success>($I`Success`)(
  */
 export const Contract = HttpApiEndpoint.post("username", "/username")
   .setPayload(Payload)
+  .setHeaders(CommonHeaders.CaptchaRequestHeaders)
   .addSuccess(Success)
   .addError(
     IamAuthError.annotations(

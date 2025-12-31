@@ -432,6 +432,13 @@
       ],
       "@beep/bsl/test/*": [
         "./packages/common/bsl/test/*"
+      ],
+      // TODO remove when posssible
+      "zod": [
+        "./node_modules/zod"
+      ],
+      "zod/*": [
+        "./node_modules/zod/*"
       ]
     }
   }

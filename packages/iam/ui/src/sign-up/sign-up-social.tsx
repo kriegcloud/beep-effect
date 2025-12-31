@@ -6,7 +6,7 @@ import * as F from "effect/Function";
 import { SocialIconButton, SocialProviderIcons } from "../_components";
 
 type Props = BoxProps & {
-  signUp: (provider: AuthProviderNameValue.Type) => Promise<void>;
+  readonly signUp: (provider: AuthProviderNameValue.Type) => Promise<void>;
 };
 
 export const SignUpSocial = ({ signUp, sx, ...rest }: Props) => {

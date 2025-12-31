@@ -1,5 +1,5 @@
 import { AuthProviderNameValue } from "@beep/constants";
-import { CommonFields, IamAuthError } from "@beep/iam-domain/api/common";
+import { CommonFields, CommonHeaders, IamAuthError } from "@beep/iam-domain/api/common";
 import { $IamDomainId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
 import { User } from "@beep/shared-domain/entities";
@@ -65,5 +65,6 @@ export class Success extends S.Class<Success>($I`Success`)(
 
 export const Contract = HttpApiEndpoint.post("social", "/social")
   .setPayload(Payload)
+  .setHeaders(CommonHeaders.CaptchaRequestHeaders)
   .addError(IamAuthError)
   .addSuccess(Success);

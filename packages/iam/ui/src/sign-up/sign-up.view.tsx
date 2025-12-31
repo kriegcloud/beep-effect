@@ -1,19 +1,24 @@
 "use client";
-import { useSignIn } from "@beep/iam-client";
+// import { useSignIn } from "@beep/iam-client";
 import { paths } from "@beep/shared-domain";
 import { varFade } from "@beep/ui/animate";
 import { RouterLink } from "@beep/ui/routing";
 import Box from "@mui/material/Box";
 import Link from "@mui/material/Link";
 import { AnimatePresence, m } from "framer-motion";
-import { FormDivider, FormHead, Terms } from "../_components";
+import {
+  //FormDivider,
+  FormHead,
+  Terms,
+} from "../_components";
 import { SignUpEmailForm } from "./sign-up-email.form";
-import { SignUpSocial } from "./sign-up-social";
+
+// import { SignUpSocial } from "./sign-up-social";
 
 const signUpTransitionVariants = varFade("inUp", { distance: 64 });
 
 export const SignUpView = () => {
-  const { signInSocial } = useSignIn();
+  // const { signInSocial } = useSignIn();
 
   return (
     <AnimatePresence mode={"wait"} initial={false}>
@@ -40,10 +45,10 @@ export const SignUpView = () => {
         />
         <SignUpEmailForm />
         <Terms />
-        <Box sx={{ gap: 2, display: "flex", flexDirection: "column" }}>
-          <FormDivider />
-          <SignUpSocial signUp={async (provider) => signInSocial({ provider })} />
-        </Box>
+        {/*<Box sx={{ gap: 2, display: "flex", flexDirection: "column" }}>*/}
+        {/*  <FormDivider />*/}
+        {/*  <SignUpSocial signUp={async (provider) => signInSocial({ provider })} />*/}
+        {/*</Box>*/}
       </Box>
     </AnimatePresence>
   );

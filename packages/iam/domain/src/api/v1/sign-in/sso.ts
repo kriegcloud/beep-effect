@@ -27,7 +27,7 @@
  *
  * @see {@link https://www.better-auth.com/docs/plugins/sso | Better Auth SSO Plugin}
  */
-import { IamAuthError } from "@beep/iam-domain/api/common";
+import { CommonHeaders, IamAuthError } from "@beep/iam-domain/api/common";
 import { $IamDomainId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
 import * as HttpApiEndpoint from "@effect/platform/HttpApiEndpoint";
@@ -129,6 +129,7 @@ export class Success extends S.Class<Success>($I`Success`)(
 export const Contract = HttpApiEndpoint.post("sso", "/sso")
   .setPayload(Payload)
   .addSuccess(Success)
+  .setHeaders(CommonHeaders.CaptchaRequestHeaders)
   .addError(
     IamAuthError.annotations(
       $I.annotations("IamAuthError", {

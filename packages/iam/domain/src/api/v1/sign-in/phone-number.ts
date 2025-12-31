@@ -20,7 +20,7 @@
  *
  * @see {@link https://www.better-auth.com/docs/plugins/phone-number | Better Auth Phone Number Plugin}
  */
-import { CommonFields, IamAuthError } from "@beep/iam-domain/api/common";
+import { CommonFields, CommonHeaders, IamAuthError } from "@beep/iam-domain/api/common";
 import { $IamDomainId } from "@beep/identity/packages";
 import { Session, User } from "@beep/shared-domain/entities";
 import * as HttpApiEndpoint from "@effect/platform/HttpApiEndpoint";
@@ -79,9 +79,10 @@ export class Success extends S.Class<Success>($I`Success`)(
  *
  * @since 1.0.0
  */
-export const Contract = HttpApiEndpoint.post("phone-number", "/phone-number")
+export const Contract = HttpApiEndpoint.post("phoneNumber", "/phone-number")
   .setPayload(Payload)
   .addSuccess(Success)
+  .setHeaders(CommonHeaders.CaptchaRequestHeaders)
   .addError(
     IamAuthError.annotations(
       $I.annotations("IamAuthError", {

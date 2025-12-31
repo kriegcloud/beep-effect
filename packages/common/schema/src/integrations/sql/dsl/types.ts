@@ -76,7 +76,8 @@ export type StripNullable<T> = T extends null | undefined ? never : T;
  * @since 1.0.0
  * @category type-level
  */
-export type IsSchemaColumnCompatible<SchemaEncoded, ColType extends ColumnType.Type> = [ // Handle case where SchemaEncoded is just null/undefined
+export type IsSchemaColumnCompatible<SchemaEncoded, ColType extends ColumnType.Type> = [
+  // Handle case where SchemaEncoded is just null/undefined
   StripNullable<SchemaEncoded>,
 ] extends [never]
   ? false

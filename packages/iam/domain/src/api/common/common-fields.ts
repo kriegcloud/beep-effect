@@ -21,7 +21,7 @@ export declare namespace UserPassword {
   export type Encoded = typeof UserPassword.Encoded;
 }
 
-export const CallbackURL = S.optionalWith(BS.URLPath, { as: "Option", exact: true }).annotations(
+export const CallbackURL = S.optionalWith(BS.URLPath, { as: "Option", exact: true, }).annotations(
   $I.annotations("CallbackURL", { description: "The URL to use for email verification callback." })
 );
 
