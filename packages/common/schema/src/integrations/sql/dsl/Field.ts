@@ -5,7 +5,8 @@ import type * as AST from "effect/SchemaAST";
 import * as Struct from "effect/Struct";
 import { deriveColumnType } from "./derive-column-type";
 import { AutoIncrementTypeError, MissingVariantSchemaError } from "./errors";
-import type { ColumnType } from "./literals.ts";
+import { ColumnType } from "./literals.ts";
+
 import type {
   ColumnDef,
   DerivedColumnDefFromSchema,
@@ -17,7 +18,10 @@ import type {
   SchemaColumnError,
   ValidateSchemaColumn,
 } from "./types";
-import { ColumnMetaSymbol, VariantFieldSymbol } from "./types";
+// ============================================================================
+// Phase 3 Import - Foreign Key References
+// ============================================================================
+import { ColumnMetaSymbol, ForeignKeySymbol, VariantFieldSymbol } from "./types";
 
 /**
  * Check if the input is a VariantSchema.Field from either our local implementation
@@ -71,7 +75,9 @@ export type { DSLField, DSLVariantField, SchemaColumnError };
 /**
  * Helper type to extract column type from config, defaulting to "string".
  */
-export type ExtractColumnType<C extends Partial<ColumnDef>> = C extends { type: infer T extends ColumnType.Type }
+export type ExtractColumnType<C extends Partial<ColumnDef>> = C extends {
+  readonly type: infer T extends ColumnType.Type;
+}
   ? T
   : "string";
 
@@ -252,11 +258,20 @@ export function Field<A, I, R>(
       primaryKey: config?.column?.primaryKey ?? false,
       unique: config?.column?.unique ?? false,
       autoIncrement: config?.column?.autoIncrement ?? false,
-      defaultValue: config?.column?.defaultValue,
+      // New default properties (replacing old defaultValue)
+      default: config?.column?.default,
+      $default: config?.column?.$default,
+      $defaultFn: config?.column?.$defaultFn,
+      $onUpdate: config?.column?.$onUpdate,
+      $onUpdateFn: config?.column?.$onUpdateFn,
     } as ExactColumnDef<C>;
 
     // INV-SQL-AI-001: Validate autoIncrement requires integer/bigint type
-    if (columnDef.autoIncrement === true && columnDef.type !== "integer" && columnDef.type !== "bigint") {
+    if (
+      columnDef.autoIncrement === true &&
+      !ColumnType.is.integer(columnDef.type) &&
+      !ColumnType.is.bigint(columnDef.type)
+    ) {
       throw new AutoIncrementTypeError({
         message: `AutoIncrement requires integer or bigint type, but field has type '${columnDef.type}'`,
         code: "INV-SQL-AI-001",
@@ -287,6 +302,16 @@ export function Field<A, I, R>(
       result[ColumnMetaSymbol] = columnDef;
       result[VariantFieldSymbol] = true;
 
+      // ============================================================================
+      // Phase 3.4: Variant Field Reference Handling
+      // ============================================================================
+
+      // Handle references config for foreign keys on variant fields
+      if (config?.references) {
+        // Attach FK metadata via symbol (dual storage pattern)
+        result[ForeignKeySymbol] = config.references;
+      }
+
       return result as DSLVariantField<VariantSchema.Field.Config, ExactColumnDef<C>>;
     }
 
@@ -299,8 +324,20 @@ export function Field<A, I, R>(
     });
 
     // Also attach as a direct property for easy access without AST traversal
-    return Object.assign(annotated, {
+    const result = Object.assign(annotated, {
       [ColumnMetaSymbol]: columnDef,
-    }) as DSLField<A, I, R, ExactColumnDef<C>>;
+    });
+
+    // ============================================================================
+    // Phase 3.4: Field Reference Handling
+    // ============================================================================
+
+    // Handle references config for foreign keys
+    if (config?.references) {
+      // Attach FK metadata via symbol (dual storage pattern)
+      (result as unknown as Record<symbol, unknown>)[ForeignKeySymbol] = config.references;
+    }
+
+    return result as DSLField<A, I, R, ExactColumnDef<C>>;
   };
 }

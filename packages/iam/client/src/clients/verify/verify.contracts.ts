@@ -2,7 +2,6 @@ import { Contract, ContractKit } from "@beep/contract";
 import { $VerifyId } from "@beep/iam-client/clients/_internal";
 import { BS } from "@beep/schema";
 import { paths } from "@beep/shared-domain";
-import * as SharedEntities from "@beep/shared-domain/entities";
 import { clientEnv } from "@beep/shared-env/ClientEnv";
 import * as S from "effect/Schema";
 import { IamError } from "../../errors";
@@ -90,73 +89,7 @@ export const SendEmailVerificationContract = Contract.make("SendEmailVerificatio
 });
 
 // =====================================================================================================================
-// Verify Email Contract
-// =====================================================================================================================
-export class VerifyEmailPayload extends S.Class<VerifyEmailPayload>(Id`VerifyEmailPayload`)(
-  {
-    token: S.Redacted(S.String),
-    callbackURL: S.optional(BS.URLString),
-    onFailure: new BS.Fn({
-      input: S.Undefined,
-      output: S.Void,
-    }).Schema,
-    onSuccess: new BS.Fn({
-      input: S.Undefined,
-      output: S.Void,
-    }).Schema,
-  },
-  Id.annotations("VerifyEmailPayload", {
-    description: "Payload for verifying an email address via a token.",
-  })
-) {}
-
-export declare namespace VerifyEmailPayload {
-  export type Type = S.Schema.Type<typeof VerifyEmailPayload>;
-  export type Encoded = S.Schema.Encoded<typeof VerifyEmailPayload>;
-}
-
-const VerifyEmailUser = S.Struct({
-  id: SharedEntities.User.Model.select.fields.id,
-  email: SharedEntities.User.Model.select.fields.email,
-  name: SharedEntities.User.Model.select.fields.name,
-  image: S.NullOr(BS.URLString),
-  emailVerified: SharedEntities.User.Model.select.fields.emailVerified,
-  createdAt: BS.DateTimeUtcFromAllAcceptable,
-  updatedAt: BS.DateTimeUtcFromAllAcceptable,
-});
-
-export class VerifyEmailSuccess extends S.Class<VerifyEmailSuccess>(Id`VerifyEmailSuccess`)(
-  {
-    status: S.Boolean,
-    user: S.NullOr(VerifyEmailUser),
-  },
-  Id.annotations("VerifyEmailSuccess", {
-    description: "Result payload returned after attempting email verification.",
-  })
-) {}
-
-export declare namespace VerifyEmailSuccess {
-  export type Type = S.Schema.Type<typeof VerifyEmailSuccess>;
-  export type Encoded = S.Schema.Encoded<typeof VerifyEmailSuccess>;
-}
-
-export const VerifyEmailErrorCode = S.Literal("INVALID_TOKEN", "TOKEN_EXPIRED", "EMAIL_ALREADY_VERIFIED");
-
-export type VerifyEmailErrorCode = S.Schema.Type<typeof VerifyEmailErrorCode>;
-
-export const VerifyEmailContract = Contract.make("VerifyEmail", {
-  description: "Verifies a user's email via a token.",
-  payload: VerifyEmailPayload.fields,
-  failure: IamError,
-  success: VerifyEmailSuccess,
-});
-
-// =====================================================================================================================
 // Verify Contract Set
 // =====================================================================================================================
 
-export const VerifyContractKit = ContractKit.make(
-  VerifyPhoneContract,
-  SendEmailVerificationContract,
-  VerifyEmailContract
-);
+export const VerifyContractKit = ContractKit.make(VerifyPhoneContract, SendEmailVerificationContract);

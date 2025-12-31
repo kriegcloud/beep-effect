@@ -16,10 +16,10 @@
  * @since 1.0.0
  */
 
-import { thunkEffectVoid, thunkEmptyReadonlyArray } from "@beep/utils";
+import { thunk, thunkEffectVoid, thunkEmptyReadonlyArray } from "@beep/utils";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
-import type * as Either from "effect/Either";
+import * as Either from "effect/Either";
 import * as F from "effect/Function";
 import * as Match from "effect/Match";
 import * as O from "effect/Option";
@@ -45,8 +45,7 @@ import type { ColumnDef } from "./types";
  * Used to work around TypeScript's exactOptionalPropertyTypes with union types.
  * @internal
  */
-const extractLeft = <E>(either: Either.Either<unknown, E>): O.Option<E> =>
-  either._tag === "Left" ? O.some(either.left) : O.none();
+const extractLeft = <E>(either: Either.Either<unknown, E>): O.Option<E> => Either.getLeft(either);
 
 // ============================================================================
 // Constants
@@ -132,20 +131,23 @@ export const validateIdentifierLength = (
   const length = F.pipe(identifier, Str.length);
   return F.pipe(
     Match.value(length > POSTGRES_MAX_IDENTIFIER_LENGTH),
-    Match.when(true, () =>
-      Effect.fail(
-        new IdentifierTooLongError({
-          message: `Identifier '${identifier}' exceeds PostgreSQL maximum length of ${POSTGRES_MAX_IDENTIFIER_LENGTH} characters`,
-          code: "INV-SQL-ID-001",
-          severity: "error",
-          path: F.pipe(context, A.fromIterable),
-          expected: `<= ${POSTGRES_MAX_IDENTIFIER_LENGTH} characters`,
-          received: `${length} characters`,
-          suggestion: `Shorten the identifier to ${POSTGRES_MAX_IDENTIFIER_LENGTH} characters or less`,
-          identifier,
-          length,
-          maxLength: POSTGRES_MAX_IDENTIFIER_LENGTH,
-        })
+    Match.when(
+      true,
+      thunk(
+        Effect.fail(
+          new IdentifierTooLongError({
+            message: `Identifier '${identifier}' exceeds PostgreSQL maximum length of ${POSTGRES_MAX_IDENTIFIER_LENGTH} characters`,
+            code: "INV-SQL-ID-001",
+            severity: "error",
+            path: F.pipe(context, A.fromIterable),
+            expected: `<= ${POSTGRES_MAX_IDENTIFIER_LENGTH} characters`,
+            received: `${length} characters`,
+            suggestion: `Shorten the identifier to ${POSTGRES_MAX_IDENTIFIER_LENGTH} characters or less`,
+            identifier,
+            length,
+            maxLength: POSTGRES_MAX_IDENTIFIER_LENGTH,
+          })
+        )
       )
     ),
     Match.when(false, thunkEffectVoid),
@@ -226,18 +228,21 @@ export const validatePrimaryKeyNonNullable = (
 ): Effect.Effect<void, NullablePrimaryKeyError> =>
   F.pipe(
     Match.value({ isPrimaryKey, isNullableField }),
-    Match.when({ isPrimaryKey: true, isNullableField: true }, () =>
-      Effect.fail(
-        new NullablePrimaryKeyError({
-          message: `Primary key field '${fieldName}' cannot be nullable`,
-          code: "INV-SQL-PK-001",
-          severity: "error",
-          path: [fieldName, "primaryKey"],
-          expected: "Non-nullable schema (e.g., S.String, S.Int)",
-          received: "Nullable schema (e.g., S.NullOr, S.optional)",
-          suggestion: "Remove S.NullOr or S.optional wrapper from the schema, or remove primaryKey constraint",
-          fieldName,
-        })
+    Match.when(
+      { isPrimaryKey: true, isNullableField: true },
+      thunk(
+        Effect.fail(
+          new NullablePrimaryKeyError({
+            message: `Primary key field '${fieldName}' cannot be nullable`,
+            code: "INV-SQL-PK-001",
+            severity: "error",
+            path: [fieldName, "primaryKey"],
+            expected: "Non-nullable schema (e.g., S.String, S.Int)",
+            received: "Nullable schema (e.g., S.NullOr, S.optional)",
+            suggestion: "Remove S.NullOr or S.optional wrapper from the schema, or remove primaryKey constraint",
+            fieldName,
+          })
+        )
       )
     ),
     Match.orElse(thunkEffectVoid)

@@ -48,7 +48,7 @@ export * from "./duration";
  * @category Surface/Primitives
  * @since 0.1.0
  */
-export * from "./fn";
+export * from "./function";
 /**
  * Geographic primitive schemas (latitude/longitude, coordinates).
  *

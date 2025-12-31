@@ -30,7 +30,7 @@ describe("Primitive Keywords - Column Type Derivation", () => {
     });
 
     it("works in Model with toDrizzle", () => {
-      class TestModel extends Model<TestModel>("TestModel")({
+      class TestModel extends Model<TestModel>("TestModel")("test_model", {
         id: Field(S.String)({ column: { primaryKey: true } }),
       }) {}
       const table = toDrizzle(TestModel);
@@ -46,7 +46,7 @@ describe("Primitive Keywords - Column Type Derivation", () => {
     });
 
     it("works in Model with toDrizzle", () => {
-      class TestModel extends Model<TestModel>("TestModelNumber")({
+      class TestModel extends Model<TestModel>("TestModelNumber")("test_model_number", {
         id: Field(S.String)({ column: { primaryKey: true } }),
         value: Field(S.Number)({}),
       }) {}
@@ -708,15 +708,21 @@ describe("Column Options", () => {
     expect(field[ColumnMetaSymbol].autoIncrement).toBe(true);
   });
 
-  it("defaultValue option is preserved - string", () => {
-    const field = Field(S.String)({ column: { defaultValue: "default" } });
-    expect(field[ColumnMetaSymbol].defaultValue).toBe("default");
+  it("default option is preserved - SQL string", () => {
+    const field = Field(S.String)({ column: { default: "'default'" } });
+    expect(field[ColumnMetaSymbol].default).toBe("'default'");
   });
 
-  it("defaultValue option is preserved - function", () => {
+  it("$defaultFn option is preserved", () => {
     const defaultFn = () => "generated";
-    const field = Field(S.String)({ column: { defaultValue: defaultFn } });
-    expect(field[ColumnMetaSymbol].defaultValue).toBe(defaultFn);
+    const field = Field(S.String)({ column: { $defaultFn: defaultFn } });
+    expect(field[ColumnMetaSymbol].$defaultFn).toBe(defaultFn);
+  });
+
+  it("$onUpdateFn option is preserved", () => {
+    const updateFn = () => new Date().toISOString();
+    const field = Field(S.String)({ column: { $onUpdateFn: updateFn } });
+    expect(field[ColumnMetaSymbol].$onUpdateFn).toBe(updateFn);
   });
 
   it("multiple options combined", () => {
@@ -766,7 +772,7 @@ describe("Error Cases - Invalid Types", () => {
 
 describe("Complete Model Integration", () => {
   it("handles all column types in a single Model", () => {
-    class CompleteModel extends Model<CompleteModel>("CompleteModel")({
+    class CompleteModel extends Model<CompleteModel>("CompleteModel")("complete_model", {
       // Primary key with autoIncrement
       _rowId: Field(M.Generated(S.Int))({ column: { primaryKey: true, autoIncrement: true } }),
       // UUID
@@ -806,7 +812,7 @@ describe("Complete Model Integration", () => {
   });
 
   it("Model.columns contains correct ColumnDef for all fields", () => {
-    class TestModel extends Model<TestModel>("TestModelColumns")({
+    class TestModel extends Model<TestModel>("TestModelColumns")("test_model_columns", {
       id: Field(S.UUID)({ column: { primaryKey: true } }),
       name: Field(S.String)({ column: { unique: true } }),
       count: Field(S.Int)({ column: { type: "integer" } }),
@@ -821,7 +827,7 @@ describe("Complete Model Integration", () => {
   });
 
   it("Model.primaryKey is correctly derived", () => {
-    class TestModel extends Model<TestModel>("TestModelPK")({
+    class TestModel extends Model<TestModel>("TestModelPK")("test_model_pk", {
       id: Field(S.String)({ column: { primaryKey: true } }),
       name: Field(S.String)({}),
     }) {}
@@ -830,7 +836,7 @@ describe("Complete Model Integration", () => {
   });
 
   it("Model.tableName is correctly derived from PascalCase", () => {
-    class UserProfile extends Model<UserProfile>("UserProfile")({
+    class UserProfile extends Model<UserProfile>("UserProfile")("user_profile", {
       id: Field(S.String)({ column: { primaryKey: true } }),
     }) {}
 
@@ -838,7 +844,7 @@ describe("Complete Model Integration", () => {
   });
 
   it("Model.identifier preserves original name", () => {
-    class MyModel extends Model<MyModel>("MyModel")({
+    class MyModel extends Model<MyModel>("MyModel")("my_model", {
       id: Field(S.String)({ column: { primaryKey: true } }),
     }) {}
 

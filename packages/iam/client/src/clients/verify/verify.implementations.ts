@@ -3,10 +3,8 @@ import { withFetchOptions } from "@beep/iam-client/clients/_internal";
 import {
   SendEmailVerificationContract,
   VerifyContractKit,
-  VerifyEmailContract,
   VerifyPhoneContract,
 } from "@beep/iam-client/clients/verify/verify.contracts";
-import { IamError } from "@beep/iam-client/errors";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 import * as Redacted from "effect/Redacted";
@@ -30,34 +28,6 @@ const SendEmailVerificationHandler = SendEmailVerificationContract.implement(
   })
 );
 
-const VerifyEmailHandler = VerifyEmailContract.implement(
-  Effect.fn(function* (payload, { continuation }) {
-    const result = yield* continuation.run((handlers) =>
-      client.verifyEmail(
-        {
-          query: {
-            token: Redacted.value(payload.token),
-            ...(payload.callbackURL === undefined ? {} : { callbackURL: payload.callbackURL }),
-          },
-        },
-        withFetchOptions(handlers, {
-          onSuccess: () => {
-            payload.onSuccess(undefined);
-          },
-        })
-      )
-    );
-
-    yield* continuation.raiseResult(result);
-
-    if (result.data == null) {
-      return yield* IamError.new({}, "VerifyEmailHandler returned no payload from Better Auth", continuation.metadata);
-    }
-
-    return yield* VerifyEmailContract.decodeUnknownSuccess(result.data);
-  })
-);
-
 const VerifyPhoneHandler = VerifyPhoneContract.implement(
   Effect.fn(function* (payload, { continuation }) {
     const { phoneNumber, code, updatePhoneNumber } = payload;
@@ -78,7 +48,6 @@ const VerifyPhoneHandler = VerifyPhoneContract.implement(
 export const VerifyImplementations = VerifyContractKit.of({
   VerifyPhone: VerifyPhoneHandler,
   SendEmailVerification: SendEmailVerificationHandler,
-  VerifyEmail: VerifyEmailHandler,
 });
 
 export const verifyLayer = VerifyContractKit.toLayer(VerifyImplementations);

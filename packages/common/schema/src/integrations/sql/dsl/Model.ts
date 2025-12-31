@@ -1,12 +1,15 @@
+import { variance } from "@beep/schema/core/variance";
 import type { UnsafeTypes } from "@beep/types";
 import { thunk, thunkEmptyReadonlyArray } from "@beep/utils";
 import * as VariantSchema from "@effect/experimental/VariantSchema";
 import * as A from "effect/Array";
 import * as F from "effect/Function";
+import * as Match from "effect/Match";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import { TypeId } from "effect/Schema";
 import * as AST from "effect/SchemaAST";
 import * as Str from "effect/String";
 import * as Struct from "effect/Struct";
@@ -22,7 +25,8 @@ import {
 import type { DSLField, DSLVariantField } from "./Field";
 import { ModelVariant } from "./literals.ts";
 import { isNullable } from "./nullability";
-import type { ColumnDef, DSL, ModelClassWithVariants } from "./types";
+
+import type { ColumnDef, DSL, ModelClassWithVariants, RelationsConfig } from "./types";
 import { ColumnMetaSymbol, isDSLVariantField } from "./types";
 
 /**
@@ -32,9 +36,6 @@ import { ColumnMetaSymbol, isDSLVariantField } from "./types";
  */
 const isAnyVariantField = (input: unknown): input is VariantSchema.Field<VariantSchema.Field.Config> =>
   VariantSchema.isField(input);
-// Snake case helper (POC: simple implementation)
-const toSnakeCase = (str: string): string =>
-  F.pipe(str, Str.replace(/([A-Z])/g, "_$1"), Str.toLowerCase, Str.replace(/^_/, ""));
 
 // Type-level extraction of columns from fields
 // Checks DSLVariantField first (has ColumnMetaSymbol), then DSLField, then fallback
@@ -69,18 +70,18 @@ export type ExtractPrimaryKeys<Fields extends DSL.Fields> = {
 export type { ModelClass, ModelStatics } from "./types";
 
 type MissingSelfGeneric<Params extends string = ""> =
-  `Missing \`Self\` generic - use \`class Self extends Model<Self>()${Params}({ ... })\``;
+  `Missing \`Self\` generic - use \`class Self extends Model<Self>${Params}('table_name', { ... })\``;
 
 // Helper to extract the AST from a field (handles both Schema and PropertySignature)
 const getFieldAST = (field: S.Schema.All | S.PropertySignature.All): AST.AST => {
   if (S.isPropertySignature(field)) {
     // PropertySignature has an `ast` of type PropertySignatureDeclaration | PropertySignatureTransformation
     const psAst = field.ast;
-    if (psAst._tag === "PropertySignatureDeclaration") {
-      return psAst.type;
-    }
-    // PropertySignatureTransformation - use the 'from' side
-    return psAst.from.type;
+    return Match.value(psAst).pipe(
+      Match.tag("PropertySignatureDeclaration", (ast) => ast.type),
+      Match.tag("PropertySignatureTransformation", (ast) => ast.from.type),
+      Match.exhaustive
+    );
   }
   return field.ast;
 };
@@ -307,7 +308,11 @@ const validateModelInvariants = <Fields extends DSL.Fields>(
           fieldAST = field.ast;
         } else if (S.isPropertySignature(field)) {
           const psAst = field.ast;
-          fieldAST = psAst._tag === "PropertySignatureDeclaration" ? psAst.type : psAst.from.type;
+          fieldAST = Match.value(psAst).pipe(
+            Match.tag("PropertySignatureDeclaration", (ast) => ast.type),
+            Match.tag("PropertySignatureTransformation", (ast) => ast.from.type),
+            Match.exhaustive
+          );
         }
 
         if (fieldAST && isNullable(fieldAST)) {
@@ -354,12 +359,12 @@ const validateModelInvariants = <Fields extends DSL.Fields>(
  * Create a VariantSchema instance configured for Model variants.
  * @internal
  */
-const createModelVariantSchema = () =>
+const createModelVariantSchema = thunk(
   VariantSchema.make({
     variants: ModelVariant.Options,
     defaultVariant: ModelVariant.Enum.select,
-  });
-
+  })
+);
 /**
  * Extracts the underlying schema from a DSLField.
  * For DSLField, the field itself is the schema.
@@ -408,48 +413,69 @@ const toVariantFields = <Fields extends DSL.Fields>(
   );
 
 /**
+ * Configuration object for Model creation.
+ * @since 1.0.0
+ * @category models
+ */
+export interface ModelConfig<Self, Relations extends RelationsConfig = RelationsConfig> {
+  /** Model-level relation definitions */
+  readonly relations?: Relations;
+  /** Schema annotations for the Model class */
+  readonly annotations?: S.Annotations.Schema<Self>;
+}
+
+/**
  * Creates a DSL Model class with static properties for table metadata.
  * Also attaches 6 variant schema accessors: select, insert, update, json, jsonCreate, jsonUpdate.
  *
+ * The Model function uses a two-step curried call:
+ * 1. `Model<Self>("Identifier")` - provides the Self type and display identifier (can be PascalCase)
+ * 2. `("table_name", fields, config?)` - provides the snake_case table name, field definitions, and optional config
+ *
+ * The tableName MUST be a valid snake_case string (lowercase letters and underscores only,
+ * must start with a lowercase letter, no consecutive or trailing underscores).
+ *
  * @example
  * ```typescript
- * class UserProfile extends Model<UserProfile>("UserProfile")({
- *   id: Field(S.String, { column: { type: "uuid", unique: true } }),
- *   _rowId: Field(S.Int, { column: { type: "integer", primaryKey: true, autoIncrement: true } }),
+ * // Basic model without relations
+ * class UserProfile extends Model<UserProfile>("UserProfile")("user_profile", {
+ *   id: Field(S.String)({ column: { type: "uuid", unique: true } }),
+ *   _rowId: Field(S.Int)({ column: { type: "integer", primaryKey: true, autoIncrement: true } }),
  * }) {}
  *
- * UserProfile.tableName  // "user_profile"
+ * UserProfile.identifier // "UserProfile" (display name)
+ * UserProfile.tableName  // "user_profile" (literal type preserved!)
  * UserProfile.primaryKey // ["_rowId"]
  * UserProfile.columns.id // { type: "uuid", unique: true, ... }
  *
- * // Variant schemas (for models with Generated/Sensitive fields)
- * UserProfile.select     // Schema with all fields
- * UserProfile.insert     // Schema excluding Generated fields
- * UserProfile.json       // Schema excluding Sensitive fields
+ * // Model with relations
+ * class Post extends Model<Post>("Post")("post", {
+ *   id: Field(PostId)({ column: { type: "uuid", primaryKey: true } }),
+ *   authorId: Field(UserId)({ column: { type: "uuid" } }),
+ * }, {
+ *   relations: {
+ *     author: Relation.one(() => User, { from: "authorId", to: "id" }),
+ *   },
+ * }) {}
+ *
+ * Post.relations.author // OneRelation<User, "authorId", "id">
  * ```
  */
 export const Model =
-  <Self = never>(identifier: string) =>
-  <const Fields extends DSL.Fields>(
+  <Self = never, const Id extends string = string>(identifier: Id) =>
+  <const Fields extends DSL.Fields, const TableName extends string, const Relations extends RelationsConfig = {}>(
+    tableName: TableName,
     fields: Fields,
-    annotations?: S.Annotations.Schema<Self>
+    config?: ModelConfig<Self, Relations>
   ): [Self] extends [never]
-    ? MissingSelfGeneric<`("${typeof identifier}")`>
-    : ModelClassWithVariants<
-        Self,
-        Fields,
-        string,
-        ExtractColumnsType<Fields>,
-        readonly string[],
-        typeof identifier
-      > => {
+    ? MissingSelfGeneric<`("${Id}")`>
+    : ModelClassWithVariants<Self, Fields, TableName, ExtractColumnsType<Fields>, readonly string[], Id, Relations> => {
     const columns = extractColumns(fields);
 
     // Validate all invariants before proceeding
     validateModelInvariants(identifier, fields, columns as Record<string, ColumnDef>);
 
     const primaryKey = derivePrimaryKey(columns);
-    const tableName = toSnakeCase(identifier);
 
     // Create internal VariantSchema instance for variant extraction
     const VS = createModelVariantSchema();
@@ -466,12 +492,17 @@ export const Model =
 
     // Create the base class using S.Class with extracted select variant fields
     // We use UnsafeAny to bypass TypeScript's limitations with extending class expressions
-    class BaseClass extends S.Class<UnsafeTypes.UnsafeAny>(identifier)(selectSchema.fields, annotations) {
+    class BaseClass extends S.Class<UnsafeTypes.UnsafeAny>(identifier)(selectSchema.fields, config?.annotations) {
+      // Override TypeId with covariant variance markers to allow assignment to AnyModelClass
+      // Without this, Schema's invariant Self type prevents ModelClass<User> from being
+      // assignable to ModelClass<unknown>, requiring "as unknown as AnyModelClass" casts
+      static override [TypeId] = variance;
       static readonly tableName = tableName;
       static readonly columns = columns;
       static readonly primaryKey = primaryKey;
       static override readonly identifier = identifier;
       static readonly _fields = fields;
+      static readonly relations = (config?.relations ?? {}) as Relations;
     }
 
     // Add 6 variant accessors using Object.defineProperty for lazy evaluation

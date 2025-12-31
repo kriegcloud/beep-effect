@@ -31,7 +31,7 @@ const PostIdSchema = S.Int.pipe(S.fromBrand(PostId));
 describe("Drizzle Typed Columns", () => {
   describe(".$type<T>() application", () => {
     it("applies correct type for string schema", () => {
-      class User extends Model<User>("User")({
+      class User extends Model<User>("User")("user", {
         id: Field(S.String)({ column: { type: "uuid", primaryKey: true } }),
         name: Field(S.String)({ column: { type: "string" } }),
       }) {}
@@ -45,7 +45,7 @@ describe("Drizzle Typed Columns", () => {
     });
 
     it("applies correct type for integer schema", () => {
-      class Counter extends Model<Counter>("Counter")({
+      class Counter extends Model<Counter>("Counter")("counter", {
         id: Field(S.Int)({ column: { type: "integer", primaryKey: true } }),
         value: Field(S.Int)({ column: { type: "integer" } }),
       }) {}
@@ -58,7 +58,7 @@ describe("Drizzle Typed Columns", () => {
     });
 
     it("applies correct type for boolean schema", () => {
-      class Settings extends Model<Settings>("Settings")({
+      class Settings extends Model<Settings>("Settings")("settings", {
         id: Field(S.String)({ column: { type: "uuid", primaryKey: true } }),
         enabled: Field(S.Boolean)({ column: { type: "boolean" } }),
       }) {}
@@ -70,7 +70,7 @@ describe("Drizzle Typed Columns", () => {
     });
 
     it("applies correct type for branded string schema", () => {
-      class UserEntity extends Model<UserEntity>("UserEntity")({
+      class UserEntity extends Model<UserEntity>("UserEntity")("user_entity", {
         id: Field(UserIdSchema)({ column: { type: "uuid", primaryKey: true } }),
         name: Field(S.String)({ column: { type: "string" } }),
       }) {}
@@ -81,7 +81,7 @@ describe("Drizzle Typed Columns", () => {
     });
 
     it("applies correct type for branded integer schema", () => {
-      class PostEntity extends Model<PostEntity>("PostEntity")({
+      class PostEntity extends Model<PostEntity>("PostEntity")("post_entity", {
         id: Field(PostIdSchema)({ column: { type: "integer", primaryKey: true } }),
         title: Field(S.String)({ column: { type: "string" } }),
       }) {}
@@ -92,7 +92,7 @@ describe("Drizzle Typed Columns", () => {
     });
 
     it("applies correct type for M.Generated variant field", () => {
-      class Post extends Model<Post>("Post")({
+      class Post extends Model<Post>("Post")("post", {
         id: Field(M.Generated(S.Int))({ column: { type: "integer", primaryKey: true, autoIncrement: true } }),
         title: Field(S.String)({ column: { type: "string" } }),
       }) {}
@@ -104,7 +104,8 @@ describe("Drizzle Typed Columns", () => {
     });
 
     it("applies correct type for M.Sensitive variant field", () => {
-      class User extends Model<User>("User")({
+      // TS2345: Argument of type "user" is not assignable to parameter of type never
+      class User extends Model<User>("User")("user", {
         id: Field(S.String)({ column: { type: "uuid", primaryKey: true } }),
         passwordHash: Field(M.Sensitive(S.String))({ column: { type: "string" } }),
       }) {}
@@ -116,7 +117,7 @@ describe("Drizzle Typed Columns", () => {
     });
 
     it("applies correct type for M.GeneratedByApp variant field", () => {
-      class Document extends Model<Document>("Document")({
+      class Document extends Model<Document>("Document")("document", {
         id: Field(M.GeneratedByApp(S.String))({ column: { type: "uuid", primaryKey: true } }),
         content: Field(S.String)({ column: { type: "string" } }),
       }) {}
@@ -132,7 +133,7 @@ describe("Drizzle Typed Columns", () => {
         tags: S.Array(S.String),
       });
 
-      class Entity extends Model<Entity>("Entity")({
+      class Entity extends Model<Entity>("Entity")("entity", {
         id: Field(S.String)({ column: { type: "uuid", primaryKey: true } }),
         metadata: Field(MetadataSchema)({ column: { type: "json" } }),
       }) {}
@@ -146,7 +147,7 @@ describe("Drizzle Typed Columns", () => {
 
   describe("Model exposes _fields for type extraction", () => {
     it("Model class has _fields property", () => {
-      class User extends Model<User>("User")({
+      class User extends Model<User>("User")("user", {
         id: Field(S.String)({ column: { type: "uuid", primaryKey: true } }),
         name: Field(S.String)({ column: { type: "string" } }),
       }) {}
@@ -356,7 +357,7 @@ describe("Schema/Column Compatibility Validation", () => {
 
 describe("InferSelectModel Runtime Behavior", () => {
   it("creates tables with correct column constraints", () => {
-    class User extends Model<User>("User")({
+    class User extends Model<User>("User")("user", {
       id: Field(S.String)({ column: { type: "uuid", primaryKey: true } }),
       name: Field(S.String)({ column: { type: "string" } }),
       count: Field(S.Int)({ column: { type: "integer" } }),
@@ -375,7 +376,7 @@ describe("InferSelectModel Runtime Behavior", () => {
   });
 
   it("handles variant fields correctly at runtime", () => {
-    class Post extends Model<Post>("Post")({
+    class Post extends Model<Post>("Post")("post", {
       id: Field(M.Generated(S.Int))({ column: { type: "integer", primaryKey: true, autoIncrement: true } }),
       title: Field(S.String)({ column: { type: "string" } }),
       secret: Field(M.Sensitive(S.String))({ column: { type: "string" } }),
@@ -392,7 +393,7 @@ describe("InferSelectModel Runtime Behavior", () => {
   it("handles JSON columns correctly at runtime", () => {
     const Metadata = S.Struct({ level: S.Number, tags: S.Array(S.String) });
 
-    class Entity extends Model<Entity>("Entity")({
+    class Entity extends Model<Entity>("Entity")("entity", {
       id: Field(S.String)({ column: { type: "uuid", primaryKey: true } }),
       metadata: Field(Metadata)({ column: { type: "json" } }),
     }) {}
@@ -407,7 +408,7 @@ describe("InferSelectModel Runtime Behavior", () => {
 
 describe("Integration: Typed Columns + Validation", () => {
   it("complete model with all column types", () => {
-    class CompleteModel extends Model<CompleteModel>("CompleteModel")({
+    class CompleteModel extends Model<CompleteModel>("CompleteModel")("complete_model", {
       id: Field(S.String)({ column: { type: "uuid", primaryKey: true } }),
       name: Field(S.String)({ column: { type: "string" } }),
       count: Field(S.Int)({ column: { type: "integer" } }),
@@ -434,7 +435,7 @@ describe("Integration: Typed Columns + Validation", () => {
   });
 
   it("handles complex model with multiple variant types", () => {
-    class ComplexEntity extends Model<ComplexEntity>("ComplexEntity")({
+    class ComplexEntity extends Model<ComplexEntity>("ComplexEntity")("complex_entity", {
       _rowId: Field(M.Generated(S.Int))({ column: { type: "integer", primaryKey: true, autoIncrement: true } }),
       id: Field(M.GeneratedByApp(S.String))({ column: { type: "uuid", unique: true } }),
       secret: Field(M.Sensitive(S.String))({ column: { type: "string" } }),

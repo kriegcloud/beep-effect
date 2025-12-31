@@ -8,6 +8,7 @@ import type {
   IsPrimaryKey,
   NotNull,
 } from "drizzle-orm";
+import { sql } from "drizzle-orm";
 import type {
   PgBigInt53BuilderInitial,
   PgBooleanBuilderInitial,
@@ -38,28 +39,40 @@ import { isDSLVariantField } from "../types";
 // ============================================================================
 
 /**
+ * Config mapping ColumnType to corresponding Drizzle builder types.
+ * This provides a single source of truth for the column type -> builder mapping.
+ *
+ * Note: The "integer" type has a special case for autoIncrement which is
+ * handled separately in `DrizzleBaseBuilderFor`.
+ *
+ * @since 1.0.0
+ * @category type-level
+ * @internal
+ */
+interface DrizzleBuilderConfig<Name extends string> {
+  readonly string: PgTextBuilderInitial<Name, [string, ...string[]]>;
+  readonly number: PgIntegerBuilderInitial<Name>;
+  readonly integer: PgIntegerBuilderInitial<Name>;
+  readonly boolean: PgBooleanBuilderInitial<Name>;
+  readonly datetime: PgTimestampBuilderInitial<Name>;
+  readonly uuid: PgUUIDBuilderInitial<Name>;
+  readonly json: PgJsonbBuilderInitial<Name>;
+  readonly bigint: PgBigInt53BuilderInitial<Name>;
+}
+
+/**
  * Maps a ColumnType to its corresponding base Drizzle builder type.
  * This is the "untyped" builder before modifiers are applied.
+ *
+ * Uses `DrizzleBuilderConfig` as the source of truth for type mappings.
+ * Special handling for "integer" with autoIncrement which uses `PgSerialBuilderInitial`.
  */
-type DrizzleBaseBuilderFor<Name extends string, T extends ColumnType.Type, AI extends boolean> = T extends "string"
-  ? PgTextBuilderInitial<Name, [string, ...string[]]>
-  : T extends "number"
-    ? PgIntegerBuilderInitial<Name>
-    : T extends "integer"
-      ? AI extends true
-        ? PgSerialBuilderInitial<Name>
-        : PgIntegerBuilderInitial<Name>
-      : T extends "boolean"
-        ? PgBooleanBuilderInitial<Name>
-        : T extends "datetime"
-          ? PgTimestampBuilderInitial<Name>
-          : T extends "uuid"
-            ? PgUUIDBuilderInitial<Name>
-            : T extends "json"
-              ? PgJsonbBuilderInitial<Name>
-              : T extends "bigint"
-                ? PgBigInt53BuilderInitial<Name>
-                : never;
+type DrizzleBaseBuilderFor<Name extends string, T extends ColumnType.Type, AI extends boolean> = T extends "integer" // Special case: integer with autoIncrement uses Serial
+  ? AI extends true
+    ? PgSerialBuilderInitial<Name>
+    : DrizzleBuilderConfig<Name>["integer"]
+  : // All other types use direct config lookup
+    DrizzleBuilderConfig<Name>[T];
 
 /**
  * Type-level helper to check if a type includes null or undefined.
@@ -88,13 +101,27 @@ type ApplyPrimaryKey<T extends ColumnBuilderBase, Col extends ColumnDef> = Col e
   : T;
 
 /**
- * Applies HasDefault modifier if the column has a default value or is auto-incrementing.
+ * Applies HasDefault modifier if the column has any default value or is auto-incrementing.
+ * Checks for all five default-related properties:
+ * - autoIncrement: Serial columns have implicit default
+ * - default: Static SQL default value
+ * - $default: Alias for $defaultFn
+ * - $defaultFn: Runtime default function
+ * - $onUpdate / $onUpdateFn: Also counts as hasDefault (Drizzle behavior)
  */
 type ApplyHasDefault<T extends ColumnBuilderBase, Col extends ColumnDef> = Col extends { autoIncrement: true }
   ? HasDefault<T>
-  : Col extends { defaultValue: string | (() => string) }
+  : Col extends { default: string }
     ? HasDefault<T>
-    : T;
+    : Col extends { $default: () => unknown }
+      ? HasDefault<T>
+      : Col extends { $defaultFn: () => unknown }
+        ? HasDefault<T>
+        : Col extends { $onUpdate: () => unknown }
+          ? HasDefault<T>
+          : Col extends { $onUpdateFn: () => unknown }
+            ? HasDefault<T>
+            : T;
 
 /**
  * Applies IsAutoincrement modifier if the column is auto-incrementing.
@@ -166,7 +193,7 @@ const extractAST = (schemaOrPS: S.Schema.All | S.PropertySignature.All): AST.AST
  * represents what gets stored/retrieved from the database.
  */
 const getFieldAST = (field: DSL.Fields[string]): AST.AST | null => {
-  if (field == null) return null;
+  if (P.isNullable(field)) return null;
 
   // DSLVariantField: get the "select" variant's schema AST
   if (isDSLVariantField(field)) {
@@ -201,7 +228,7 @@ const getFieldAST = (field: DSL.Fields[string]): AST.AST | null => {
  */
 const isFieldNullable = (field: DSL.Fields[string]): boolean => {
   const ast = getFieldAST(field);
-  if (ast == null) return false;
+  if (P.isNullable(ast)) return false;
   return isNullable(ast, "from");
 };
 
@@ -210,6 +237,11 @@ const isFieldNullable = (field: DSL.Fields[string]): boolean => {
  * The column builder applies constraints in order, with .$type<T>() called last.
  * Nullability is derived from the field's schema AST, not from ColumnDef.
  * Note: .$type<T>() is purely type-level - it returns `this` at runtime.
+ *
+ * Default application order (following Drizzle semantics):
+ * 1. Static `.default()` - SQL default evaluated by database
+ * 2. Runtime `.$defaultFn()` / `.$default()` - Function called on INSERT
+ * 3. Runtime `.$onUpdateFn()` / `.$onUpdate()` - Function called on UPDATE
  */
 const columnBuilder = <ColumnName extends string, EncodedType>(
   name: ColumnName,
@@ -236,6 +268,28 @@ const columnBuilder = <ColumnName extends string, EncodedType>(
       // Derive nullability from the field's schema AST
       const fieldIsNullable = isFieldNullable(field);
       if (!fieldIsNullable && !def.autoIncrement) column = column.notNull();
+
+      // Apply defaults in order: static first, then runtime functions
+      // 1. Static SQL default (evaluated by database)
+      // Use sql.raw to wrap string defaults as raw SQL expressions
+      if (def.default !== undefined) {
+        column = column.default(sql.raw(def.default) as never);
+      }
+
+      // 2. Runtime default function (called by Drizzle on INSERT)
+      // $default is alias for $defaultFn - prefer $defaultFn if both present
+      const runtimeDefaultFn = def.$defaultFn ?? def.$default;
+      if (runtimeDefaultFn !== undefined) {
+        column = column.$defaultFn(runtimeDefaultFn as never);
+      }
+
+      // 3. Runtime update function (called by Drizzle on UPDATE)
+      // $onUpdate is alias for $onUpdateFn - prefer $onUpdateFn if both present
+      const runtimeOnUpdateFn = def.$onUpdateFn ?? def.$onUpdate;
+      if (runtimeOnUpdateFn !== undefined) {
+        column = column.$onUpdateFn(runtimeOnUpdateFn as never);
+      }
+
       // Apply .$type<T>() LAST - this is purely type-level at runtime
       // The type parameter is enforced at the type level via DrizzleTypedBuildersFor
       return column.$type<EncodedType>();
@@ -253,16 +307,20 @@ const columnBuilder = <ColumnName extends string, EncodedType>(
  * This ensures type-safe queries where Drizzle understands the actual TypeScript types
  * that will be stored in and retrieved from the database.
  *
+ * The table name literal type is preserved via SnakeTag constraint, enabling
+ * type-safe `db.query.<tableName>` access patterns.
+ *
  * @example
  * ```typescript
- * // Define a Model with branded types
- * class User extends Model<User>("User")({
+ * // Define a Model with branded types and snake_case table name
+ * class User extends Model<User, "user">("user")({
  *   id: Field(UserId.Schema, { column: { type: "uuid", primaryKey: true } }),
  *   email: Field(S.String, { column: { type: "string", unique: true } }),
  * }) {}
  *
- * // Convert to Drizzle table - columns are typed!
+ * // Convert to Drizzle table - columns are typed, table name is literal!
  * const users = toDrizzle(User);
+ * // typeof users._.name is "user", not string
  *
  * // Type-safe queries
  * const result = await db.select().from(users);

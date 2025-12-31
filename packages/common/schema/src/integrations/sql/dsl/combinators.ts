@@ -27,12 +27,24 @@
  * @since 1.0.0
  * @category combinators
  */
+
+import * as P from "effect/Predicate";
 import type * as S from "effect/Schema";
 import { deriveColumnType } from "./derive-column-type.ts";
 import { extractASTFromInput } from "./Field.ts";
 import { ColumnType } from "./literals.ts";
-import type { ColumnDef, DeriveColumnTypeFromSchema, DSLField, ExactColumnDef, ValidateSchemaColumn } from "./types";
-import { ColumnMetaSymbol } from "./types";
+import type {
+  ColumnDef,
+  DeriveColumnTypeFromSchema,
+  DSL,
+  DSLField,
+  ExactColumnDef,
+  FieldReference,
+  ForeignKeyConfig,
+  ModelClass,
+  ValidateSchemaColumn,
+} from "./types";
+import { ColumnMetaSymbol, ForeignKeySymbol } from "./types";
 
 // ============================================================================
 // Type Utilities
@@ -55,7 +67,11 @@ type DerivedDefaultColumnDef<Schema> = {
   readonly primaryKey: false;
   readonly unique: false;
   readonly autoIncrement: false;
-  readonly defaultValue: undefined;
+  readonly default?: undefined;
+  readonly $default?: undefined;
+  readonly $defaultFn?: undefined;
+  readonly $onUpdate?: undefined;
+  readonly $onUpdateFn?: undefined;
 };
 
 /**
@@ -96,10 +112,26 @@ type MergeColumnDef<Existing extends Partial<ColumnDef>, New extends Partial<Col
     : Existing extends { autoIncrement: infer AI }
       ? AI
       : false;
-  readonly defaultValue: New extends { defaultValue: infer DV }
-    ? DV
-    : Existing extends { defaultValue: infer DV }
-      ? DV
+  readonly default?: New extends { default: infer D } ? D : Existing extends { default: infer D } ? D : undefined;
+  readonly $default?: New extends { $default: infer DF }
+    ? DF
+    : Existing extends { $default: infer DF }
+      ? DF
+      : undefined;
+  readonly $defaultFn?: New extends { $defaultFn: infer DFn }
+    ? DFn
+    : Existing extends { $defaultFn: infer DFn }
+      ? DFn
+      : undefined;
+  readonly $onUpdate?: New extends { $onUpdate: infer OU }
+    ? OU
+    : Existing extends { $onUpdate: infer OU }
+      ? OU
+      : undefined;
+  readonly $onUpdateFn?: New extends { $onUpdateFn: infer OUFn }
+    ? OUFn
+    : Existing extends { $onUpdateFn: infer OUFn }
+      ? OUFn
       : undefined;
 }>;
 
@@ -125,7 +157,12 @@ const attachColumnDef = <A, I, R>(
     primaryKey: partial.primaryKey ?? existingDef?.primaryKey ?? false,
     unique: partial.unique ?? existingDef?.unique ?? false,
     autoIncrement: partial.autoIncrement ?? existingDef?.autoIncrement ?? false,
-    defaultValue: partial.defaultValue ?? existingDef?.defaultValue,
+    // New default properties
+    default: partial.default ?? existingDef?.default,
+    $default: partial.$default ?? existingDef?.$default,
+    $defaultFn: partial.$defaultFn ?? existingDef?.$defaultFn,
+    $onUpdate: partial.$onUpdate ?? existingDef?.$onUpdate,
+    $onUpdateFn: partial.$onUpdateFn ?? existingDef?.$onUpdateFn,
   };
 
   // Attach via annotations API
@@ -372,39 +409,181 @@ export const autoIncrement = <A, I, R, C extends ColumnDef = never>(
   attachColumnDef(self, { autoIncrement: true } as const);
 
 // ============================================================================
-// Default Value Setter
+// Default Value Setters
 // ============================================================================
 
 /**
- * Sets a default value for the column.
- *
- * Accepts either a static string or a function that returns a string.
- * The string is used as-is in SQL (e.g., "now()", "'default'").
+ * Sets a static SQL default value for the column.
+ * The value is evaluated by the database, not by Drizzle at runtime.
  *
  * @example
  * ```ts
  * import * as S from "effect/Schema";
  * import * as DSL from "@beep/schema/integrations/sql/dsl/combinators";
  *
- * // Static default
+ * // Static SQL default
  * const statusField = S.String.pipe(
  *   DSL.string,
- *   DSL.defaultValue("'active'")
+ *   DSL.sqlDefault("'active'")
  * );
  *
- * // Function default (SQL expression)
+ * // SQL function default
  * const createdAtField = S.String.pipe(
  *   DSL.datetime,
- *   DSL.defaultValue("now()")
+ *   DSL.sqlDefault("now()")
  * );
  * ```
  *
  * @since 1.0.0
- * @category constraint setters
+ * @category default setters
  */
-export const defaultValue =
-  <A, I, R, C extends ColumnDef = never>(value: string | (() => string)) =>
+export const sqlDefault =
+  <A, I, R, C extends ColumnDef = never>(value: string) =>
   (
     self: S.Schema<A, I, R> | DSLField<A, I, R, C>
-  ): DSLField<A, I, R, MergeColumnDef<ResolveColumnDef<S.Schema<A, I, R>, C>, { defaultValue: typeof value }>> =>
-    attachColumnDef(self, { defaultValue: value } as const);
+  ): DSLField<A, I, R, MergeColumnDef<ResolveColumnDef<S.Schema<A, I, R>, C>, { default: typeof value }>> =>
+    attachColumnDef(self, { default: value } as const);
+
+/**
+ * Alias for `sqlDefault` - sets a static SQL default value.
+ * @deprecated Use `sqlDefault` instead for clarity
+ * @since 1.0.0
+ * @category default setters
+ */
+export { sqlDefault as defaultValue };
+
+/**
+ * Sets a runtime default function for the column.
+ * The function is called by Drizzle on INSERT when no value is provided.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema";
+ * import * as DSL from "@beep/schema/integrations/sql/dsl/combinators";
+ *
+ * // Runtime default function
+ * const idField = S.String.pipe(
+ *   DSL.uuid,
+ *   DSL.$defaultFn(() => crypto.randomUUID())
+ * );
+ * ```
+ *
+ * @since 1.0.0
+ * @category default setters
+ */
+export const $defaultFn =
+  <A, I, R, C extends ColumnDef = never>(fn: () => unknown) =>
+  (
+    self: S.Schema<A, I, R> | DSLField<A, I, R, C>
+  ): DSLField<A, I, R, MergeColumnDef<ResolveColumnDef<S.Schema<A, I, R>, C>, { $defaultFn: typeof fn }>> =>
+    attachColumnDef(self, { $defaultFn: fn } as const);
+
+/**
+ * Alias for `$defaultFn` - sets a runtime default function.
+ * @since 1.0.0
+ * @category default setters
+ */
+export { $defaultFn as $default };
+
+/**
+ * Sets a runtime update function for the column.
+ * The function is called by Drizzle on UPDATE when no value is provided.
+ * Also used on INSERT if no `$defaultFn` is set.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema";
+ * import * as DSL from "@beep/schema/integrations/sql/dsl/combinators";
+ *
+ * // Runtime update function
+ * const updatedAtField = S.String.pipe(
+ *   DSL.datetime,
+ *   DSL.$onUpdateFn(() => new Date().toISOString())
+ * );
+ * ```
+ *
+ * @since 1.0.0
+ * @category default setters
+ */
+export const $onUpdateFn =
+  <A, I, R, C extends ColumnDef = never>(fn: () => unknown) =>
+  (
+    self: S.Schema<A, I, R> | DSLField<A, I, R, C>
+  ): DSLField<A, I, R, MergeColumnDef<ResolveColumnDef<S.Schema<A, I, R>, C>, { $onUpdateFn: typeof fn }>> =>
+    attachColumnDef(self, { $onUpdateFn: fn } as const);
+
+/**
+ * Alias for `$onUpdateFn` - sets a runtime update function.
+ * @since 1.0.0
+ * @category default setters
+ */
+export { $onUpdateFn as $onUpdate };
+
+// ============================================================================
+// Reference Combinator
+// ============================================================================
+
+/**
+ * Marks a field as referencing another model's field (foreign key).
+ *
+ * This is a pipe-friendly combinator for use with other DSL combinators
+ * like DSL.uuid, DSL.string, etc. It attaches foreign key metadata
+ * that is used by toDrizzle to generate FK constraints.
+ *
+ * @example
+ * ```ts
+ * import * as DSL from "@beep/schema/integrations/sql/dsl/combinators";
+ *
+ * // Using with pipe
+ * const authorIdField = UserId.pipe(
+ *   DSL.uuid,
+ *   DSL.references(() => User, "id", { onDelete: "cascade" })
+ * );
+ *
+ * // In Model definition
+ * class Post extends Model<Post>("Post")({
+ *   authorId: authorIdField,
+ *   // or inline:
+ *   categoryId: CategoryId.pipe(
+ *     DSL.uuid,
+ *     DSL.references(() => Category, "id")
+ *   ),
+ * }) {}
+ * ```
+ *
+ * @param target - Thunk returning the target model (lazy for circular dependencies)
+ * @param field - Target field name to reference (typically the primary key)
+ * @param foreignKey - Optional FK constraint configuration (onDelete, onUpdate, name)
+ * @returns A combinator that attaches FK reference metadata to the schema
+ *
+ * @since 1.0.0
+ * @category reference combinators
+ */
+export const references =
+  <
+    Target extends ModelClass<unknown, DSL.Fields, string, Record<string, ColumnDef>, readonly string[], string>,
+    TargetField extends string,
+  >(
+    target: () => Target,
+    field: TargetField,
+    foreignKey?: ForeignKeyConfig
+  ) =>
+  <A, I, R, C extends ColumnDef = never>(
+    self: S.Schema<A, I, R> | DSLField<A, I, R, C>
+  ): DSLField<A, I, R, ResolveColumnDef<S.Schema<A, I, R>, C>> => {
+    // Get or create column metadata using existing helper
+    const result = attachColumnDef(self, {});
+
+    // Create FieldReference object with conditional spread for optional foreignKey
+    // to satisfy exactOptionalPropertyTypes
+    const ref: FieldReference<Target, TargetField> = {
+      target,
+      field,
+      ...(P.isNotUndefined(foreignKey) && { foreignKey }),
+    };
+
+    // Attach FK metadata via symbol (dual storage pattern)
+    (result as unknown as Record<symbol, unknown>)[ForeignKeySymbol] = ref;
+
+    return result;
+  };

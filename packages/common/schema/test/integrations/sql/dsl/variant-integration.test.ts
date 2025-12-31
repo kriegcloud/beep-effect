@@ -30,7 +30,7 @@ describe("DSL.Model VariantSchema Integration", () => {
   // ============================================================================
   describe("Field with M.Generated", () => {
     it("creates a DSLVariantField that excludes field from insert variant", () => {
-      class Post extends Model<Post>("Post")({
+      class Post extends Model<Post>("Post")("post", {
         id: Field(M.Generated(S.String))({ column: { type: "uuid", primaryKey: true } }),
         title: Field(S.String)({ column: { type: "string" } }),
       }) {}
@@ -51,7 +51,7 @@ describe("DSL.Model VariantSchema Integration", () => {
     });
 
     it("excludes field from jsonCreate and jsonUpdate variants", () => {
-      class Entity extends Model<Entity>("Entity")({
+      class Entity extends Model<Entity>("Entity")("entity", {
         id: Field(M.Generated(S.String))({ column: { type: "uuid", primaryKey: true } }),
         name: Field(S.String)({ column: { type: "string" } }),
       }) {}
@@ -64,7 +64,7 @@ describe("DSL.Model VariantSchema Integration", () => {
     });
 
     it("allows decoding without generated field for insert", () => {
-      class Post extends Model<Post>("Post")({
+      class Post extends Model<Post>("Post")("post", {
         id: Field(M.Generated(S.String))({ column: { type: "uuid", primaryKey: true } }),
         title: Field(S.String)({ column: { type: "string" } }),
       }) {}
@@ -75,7 +75,7 @@ describe("DSL.Model VariantSchema Integration", () => {
     });
 
     it("requires generated field for select variant", () => {
-      class Post extends Model<Post>("Post")({
+      class Post extends Model<Post>("Post")("post", {
         id: Field(M.Generated(S.String))({ column: { type: "uuid", primaryKey: true } }),
         title: Field(S.String)({ column: { type: "string" } }),
       }) {}
@@ -89,7 +89,7 @@ describe("DSL.Model VariantSchema Integration", () => {
     });
 
     it("works with S.Int for auto-increment primary keys", () => {
-      class Item extends Model<Item>("Item")({
+      class Item extends Model<Item>("Item")("item", {
         _rowId: Field(M.Generated(S.Int))({ column: { type: "integer", primaryKey: true, autoIncrement: true } }),
         name: Field(S.String)({ column: { type: "string" } }),
       }) {}
@@ -109,7 +109,7 @@ describe("DSL.Model VariantSchema Integration", () => {
   // ============================================================================
   describe("Field with M.Sensitive", () => {
     it("excludes field from all json variants", () => {
-      class User extends Model<User>("User")({
+      class User extends Model<User>("User")("user", {
         id: Field(S.String)({ column: { type: "uuid", primaryKey: true } }),
         email: Field(S.String)({ column: { type: "string" } }),
         passwordHash: Field(M.Sensitive(S.String))({ column: { type: "string" } }),
@@ -126,7 +126,7 @@ describe("DSL.Model VariantSchema Integration", () => {
     });
 
     it("includes field in database variants (select, insert, update)", () => {
-      class User extends Model<User>("User")({
+      class User extends Model<User>("User")("user", {
         id: Field(S.String)({ column: { type: "uuid", primaryKey: true } }),
         passwordHash: Field(M.Sensitive(S.String))({ column: { type: "string" } }),
       }) {}
@@ -138,7 +138,7 @@ describe("DSL.Model VariantSchema Integration", () => {
     });
 
     it("allows decoding sensitive data for database operations", () => {
-      class User extends Model<User>("User")({
+      class User extends Model<User>("User")("user", {
         id: Field(S.String)({ column: { type: "uuid", primaryKey: true } }),
         passwordHash: Field(M.Sensitive(S.String))({ column: { type: "string" } }),
       }) {}
@@ -159,7 +159,7 @@ describe("DSL.Model VariantSchema Integration", () => {
     });
 
     it("does not require sensitive field for json variants", () => {
-      class User extends Model<User>("User")({
+      class User extends Model<User>("User")("user", {
         id: Field(S.String)({ column: { type: "uuid", primaryKey: true } }),
         email: Field(S.String)({ column: { type: "string" } }),
         passwordHash: Field(M.Sensitive(S.String))({ column: { type: "string" } }),
@@ -179,7 +179,7 @@ describe("DSL.Model VariantSchema Integration", () => {
   // ============================================================================
   describe("Field with M.GeneratedByApp", () => {
     it("includes field in insert variant as required", () => {
-      class Document extends Model<Document>("Document")({
+      class Document extends Model<Document>("Document")("document", {
         id: Field(M.GeneratedByApp(S.String))({ column: { type: "uuid", primaryKey: true } }),
         slug: Field(S.String)({ column: { type: "string" } }),
       }) {}
@@ -190,7 +190,7 @@ describe("DSL.Model VariantSchema Integration", () => {
     });
 
     it("includes field in all database variants", () => {
-      class Document extends Model<Document>("Document")({
+      class Document extends Model<Document>("Document")("document", {
         id: Field(M.GeneratedByApp(S.String))({ column: { type: "uuid", primaryKey: true } }),
         slug: Field(S.String)({ column: { type: "string" } }),
       }) {}
@@ -202,7 +202,7 @@ describe("DSL.Model VariantSchema Integration", () => {
     });
 
     it("includes field in json variant but excludes from jsonCreate and jsonUpdate", () => {
-      class Document extends Model<Document>("Document")({
+      class Document extends Model<Document>("Document")("document", {
         id: Field(M.GeneratedByApp(S.String))({ column: { type: "uuid", primaryKey: true } }),
         content: Field(S.String)({ column: { type: "string" } }),
       }) {}
@@ -216,7 +216,7 @@ describe("DSL.Model VariantSchema Integration", () => {
     });
 
     it("requires field for insert operations", () => {
-      class Document extends Model<Document>("Document")({
+      class Document extends Model<Document>("Document")("document", {
         id: Field(M.GeneratedByApp(S.String))({ column: { type: "uuid", primaryKey: true } }),
         slug: Field(S.String)({ column: { type: "string" } }),
       }) {}
@@ -238,7 +238,7 @@ describe("DSL.Model VariantSchema Integration", () => {
   // ============================================================================
   describe("Field with M.FieldOption", () => {
     it("makes field optional across all variants", () => {
-      class Profile extends Model<Profile>("Profile")({
+      class Profile extends Model<Profile>("Profile")("profile", {
         id: Field(S.String)({ column: { type: "uuid", primaryKey: true } }),
         // Nullability is derived from M.FieldOption's internal nullable schema
         bio: Field(M.FieldOption(S.String))({ column: { type: "string" } }),
@@ -252,7 +252,7 @@ describe("DSL.Model VariantSchema Integration", () => {
     });
 
     it("accepts null for database variants", () => {
-      class Profile extends Model<Profile>("Profile")({
+      class Profile extends Model<Profile>("Profile")("profile", {
         id: Field(S.String)({ column: { type: "uuid", primaryKey: true } }),
         bio: Field(M.FieldOption(S.String))({ column: { type: "string" } }),
       }) {}
@@ -273,7 +273,7 @@ describe("DSL.Model VariantSchema Integration", () => {
     });
 
     it("accepts missing key for json variants", () => {
-      class Profile extends Model<Profile>("Profile")({
+      class Profile extends Model<Profile>("Profile")("profile", {
         id: Field(S.String)({ column: { type: "uuid", primaryKey: true } }),
         bio: Field(M.FieldOption(S.String))({ column: { type: "string" } }),
       }) {}
@@ -297,7 +297,7 @@ describe("DSL.Model VariantSchema Integration", () => {
   // ============================================================================
   describe("Model variant accessors", () => {
     it("exposes all 6 variant schema accessors", () => {
-      class Entity extends Model<Entity>("Entity")({
+      class Entity extends Model<Entity>("Entity")("entity", {
         id: Field(S.String)({ column: { type: "uuid", primaryKey: true } }),
         name: Field(S.String)({ column: { type: "string" } }),
       }) {}
@@ -312,7 +312,7 @@ describe("DSL.Model VariantSchema Integration", () => {
     });
 
     it("variant schemas have proper identifiers", () => {
-      class User extends Model<User>("User")({
+      class User extends Model<User>("User")("user", {
         id: Field(S.String)({ column: { type: "uuid", primaryKey: true } }),
       }) {}
 
@@ -331,7 +331,7 @@ describe("DSL.Model VariantSchema Integration", () => {
     });
 
     it("variant schemas are memoized (same reference on multiple accesses)", () => {
-      class User extends Model<User>("User")({
+      class User extends Model<User>("User")("user", {
         id: Field(S.String)({ column: { type: "uuid" } }),
       }) {}
 
@@ -345,7 +345,7 @@ describe("DSL.Model VariantSchema Integration", () => {
     });
 
     it("for plain DSL fields, all variants include all fields", () => {
-      class User extends Model<User>("User")({
+      class User extends Model<User>("User")("user", {
         id: Field(S.String)({ column: { type: "uuid", primaryKey: true } }),
         name: Field(S.String)({ column: { type: "string" } }),
       }) {}
@@ -374,7 +374,7 @@ describe("DSL.Model VariantSchema Integration", () => {
   // ============================================================================
   describe("Column metadata preservation", () => {
     it("Model.columns contains ColumnDef for all fields including Generated", () => {
-      class Entity extends Model<Entity>("Entity")({
+      class Entity extends Model<Entity>("Entity")("entity", {
         id: Field(M.Generated(S.String))({ column: { type: "uuid", unique: true, primaryKey: true } }),
         name: Field(S.String)({ column: { type: "string" } }),
       }) {}
@@ -394,7 +394,7 @@ describe("DSL.Model VariantSchema Integration", () => {
     });
 
     it("Model.columns contains ColumnDef for Sensitive fields", () => {
-      class User extends Model<User>("User")({
+      class User extends Model<User>("User")("user", {
         id: Field(S.String)({ column: { type: "uuid", primaryKey: true } }),
         passwordHash: Field(M.Sensitive(S.String))({ column: { type: "string" } }),
       }) {}
@@ -413,7 +413,7 @@ describe("DSL.Model VariantSchema Integration", () => {
     });
 
     it("Model.columns contains ColumnDef for GeneratedByApp fields", () => {
-      class Document extends Model<Document>("Document")({
+      class Document extends Model<Document>("Document")("document", {
         id: Field(M.GeneratedByApp(S.String))({ column: { type: "uuid", primaryKey: true } }),
         content: Field(S.String)({ column: { type: "string" } }),
       }) {}
@@ -427,7 +427,7 @@ describe("DSL.Model VariantSchema Integration", () => {
     });
 
     it("Model.columns contains ColumnDef for FieldOption fields", () => {
-      class Profile extends Model<Profile>("Profile")({
+      class Profile extends Model<Profile>("Profile")("profile", {
         id: Field(S.String)({ column: { type: "uuid", primaryKey: true } }),
         bio: Field(M.FieldOption(S.String))({ column: { type: "string" } }),
       }) {}
@@ -441,7 +441,7 @@ describe("DSL.Model VariantSchema Integration", () => {
     });
 
     it("primaryKey is correctly derived from variant fields", () => {
-      class Entity extends Model<Entity>("Entity")({
+      class Entity extends Model<Entity>("Entity")("entity", {
         id: Field(M.Generated(S.String))({ column: { type: "uuid", primaryKey: true } }),
         name: Field(S.String)({ column: { type: "string" } }),
       }) {}
@@ -450,7 +450,7 @@ describe("DSL.Model VariantSchema Integration", () => {
     });
 
     it("tableName is correctly derived for variant-enabled Models", () => {
-      class UserProfile extends Model<UserProfile>("UserProfile")({
+      class UserProfile extends Model<UserProfile>("UserProfile")("user_profile", {
         id: Field(M.Generated(S.String))({ column: { type: "uuid", primaryKey: true } }),
       }) {}
 
@@ -464,7 +464,7 @@ describe("DSL.Model VariantSchema Integration", () => {
   // ============================================================================
   describe("toDrizzle with variant-enabled Models", () => {
     it("produces a Drizzle table with all columns including Generated", () => {
-      class Post extends Model<Post>("Post")({
+      class Post extends Model<Post>("Post")("post", {
         id: Field(M.Generated(S.String))({ column: { type: "uuid", primaryKey: true } }),
         title: Field(S.String)({ column: { type: "string" } }),
       }) {}
@@ -478,7 +478,7 @@ describe("DSL.Model VariantSchema Integration", () => {
     });
 
     it("produces a Drizzle table with Sensitive columns", () => {
-      class User extends Model<User>("User")({
+      class User extends Model<User>("User")("user", {
         id: Field(S.String)({ column: { type: "uuid", primaryKey: true } }),
         passwordHash: Field(M.Sensitive(S.String))({ column: { type: "string" } }),
       }) {}
@@ -491,7 +491,7 @@ describe("DSL.Model VariantSchema Integration", () => {
     });
 
     it("produces a Drizzle table with GeneratedByApp columns", () => {
-      class Document extends Model<Document>("Document")({
+      class Document extends Model<Document>("Document")("document", {
         id: Field(M.GeneratedByApp(S.String))({ column: { type: "uuid", primaryKey: true } }),
         slug: Field(S.String)({ column: { type: "string" } }),
       }) {}
@@ -504,7 +504,7 @@ describe("DSL.Model VariantSchema Integration", () => {
     });
 
     it("produces a Drizzle table with FieldOption columns as nullable", () => {
-      class Profile extends Model<Profile>("Profile")({
+      class Profile extends Model<Profile>("Profile")("profile", {
         id: Field(S.String)({ column: { type: "uuid", primaryKey: true } }),
         // Nullability is derived from M.FieldOption's internal nullable schema
         bio: Field(M.FieldOption(S.String))({ column: { type: "string" } }),
@@ -518,7 +518,7 @@ describe("DSL.Model VariantSchema Integration", () => {
     });
 
     it("handles autoIncrement with Generated fields", () => {
-      class Item extends Model<Item>("Item")({
+      class Item extends Model<Item>("Item")("item", {
         _rowId: Field(M.Generated(S.Int))({ column: { type: "integer", primaryKey: true, autoIncrement: true } }),
         name: Field(S.String)({ column: { type: "string" } }),
       }) {}
@@ -536,7 +536,7 @@ describe("DSL.Model VariantSchema Integration", () => {
   // ============================================================================
   describe("S.decodeSync with different variants", () => {
     it("select variant requires all fields including Generated", () => {
-      class Post extends Model<Post>("Post")({
+      class Post extends Model<Post>("Post")("post", {
         id: Field(M.Generated(S.String))({ column: { type: "uuid", primaryKey: true } }),
         title: Field(S.String)({ column: { type: "string" } }),
         content: Field(S.String)({ column: { type: "string" } }),
@@ -549,7 +549,7 @@ describe("DSL.Model VariantSchema Integration", () => {
     });
 
     it("insert variant does not require Generated fields", () => {
-      class Post extends Model<Post>("Post")({
+      class Post extends Model<Post>("Post")("post", {
         id: Field(M.Generated(S.String))({ column: { type: "uuid", primaryKey: true } }),
         title: Field(S.String)({ column: { type: "string" } }),
         content: Field(S.String)({ column: { type: "string" } }),
@@ -564,7 +564,7 @@ describe("DSL.Model VariantSchema Integration", () => {
     });
 
     it("insert variant requires GeneratedByApp fields", () => {
-      class Document extends Model<Document>("Document")({
+      class Document extends Model<Document>("Document")("document", {
         id: Field(M.GeneratedByApp(S.String))({ column: { type: "uuid", primaryKey: true } }),
         content: Field(S.String)({ column: { type: "string" } }),
       }) {}
@@ -580,7 +580,7 @@ describe("DSL.Model VariantSchema Integration", () => {
     });
 
     it("json variant does not include Sensitive fields", () => {
-      class User extends Model<User>("User")({
+      class User extends Model<User>("User")("user", {
         id: Field(S.String)({ column: { type: "uuid", primaryKey: true } }),
         email: Field(S.String)({ column: { type: "string" } }),
         passwordHash: Field(M.Sensitive(S.String))({ column: { type: "string" } }),
@@ -595,7 +595,7 @@ describe("DSL.Model VariantSchema Integration", () => {
     });
 
     it("update variant includes all database-relevant fields", () => {
-      class Post extends Model<Post>("Post")({
+      class Post extends Model<Post>("Post")("post", {
         id: Field(M.Generated(S.String))({ column: { type: "uuid", primaryKey: true } }),
         title: Field(S.String)({ column: { type: "string" } }),
         content: Field(S.String)({ column: { type: "string" } }),
@@ -609,7 +609,7 @@ describe("DSL.Model VariantSchema Integration", () => {
     });
 
     it("jsonCreate variant excludes Generated and GeneratedByApp fields", () => {
-      class Entity extends Model<Entity>("Entity")({
+      class Entity extends Model<Entity>("Entity")("entity", {
         id: Field(M.Generated(S.String))({ column: { type: "uuid", primaryKey: true } }),
         internalId: Field(M.GeneratedByApp(S.String))({ column: { type: "string" } }),
         name: Field(S.String)({ column: { type: "string" } }),
@@ -625,7 +625,7 @@ describe("DSL.Model VariantSchema Integration", () => {
     });
 
     it("jsonUpdate variant excludes Generated and GeneratedByApp fields", () => {
-      class Entity extends Model<Entity>("Entity")({
+      class Entity extends Model<Entity>("Entity")("entity", {
         id: Field(M.Generated(S.String))({ column: { type: "uuid", primaryKey: true } }),
         internalId: Field(M.GeneratedByApp(S.String))({ column: { type: "string" } }),
         name: Field(S.String)({ column: { type: "string" } }),
@@ -646,7 +646,7 @@ describe("DSL.Model VariantSchema Integration", () => {
   // ============================================================================
   describe("Complex model with multiple variant field types", () => {
     it("handles a model with Generated, Sensitive, GeneratedByApp, and FieldOption together", () => {
-      class ComplexUser extends Model<ComplexUser>("ComplexUser")({
+      class ComplexUser extends Model<ComplexUser>("ComplexUser")("complex_user", {
         // Database-generated ID (excluded from insert)
         _rowId: Field(M.Generated(S.Int))({ column: { type: "integer", primaryKey: true, autoIncrement: true } }),
         // App-generated UUID (required for insert, excluded from jsonCreate/jsonUpdate)
@@ -697,7 +697,7 @@ describe("DSL.Model VariantSchema Integration", () => {
     });
 
     it("toDrizzle works with complex variant model", () => {
-      class ComplexEntity extends Model<ComplexEntity>("ComplexEntity")({
+      class ComplexEntity extends Model<ComplexEntity>("ComplexEntity")("complex_entity", {
         _rowId: Field(M.Generated(S.Int))({ column: { type: "integer", primaryKey: true, autoIncrement: true } }),
         id: Field(M.GeneratedByApp(S.String))({ column: { type: "uuid", unique: true } }),
         secret: Field(M.Sensitive(S.String))({ column: { type: "string" } }),
@@ -721,7 +721,7 @@ describe("DSL.Model VariantSchema Integration", () => {
   // ============================================================================
   describe("Type-level verification", () => {
     it("insert variant type excludes Generated field keys", () => {
-      class Post extends Model<Post>("Post")({
+      class Post extends Model<Post>("Post")("post", {
         id: Field(M.Generated(S.String))({ column: { type: "uuid", primaryKey: true } }),
         title: Field(S.String)({ column: { type: "string" } }),
       }) {}
@@ -733,7 +733,7 @@ describe("DSL.Model VariantSchema Integration", () => {
     });
 
     it("json variant type excludes Sensitive field keys", () => {
-      class User extends Model<User>("User")({
+      class User extends Model<User>("User")("user", {
         id: Field(S.String)({ column: { type: "uuid", primaryKey: true } }),
         passwordHash: Field(M.Sensitive(S.String))({ column: { type: "string" } }),
       }) {}
@@ -744,7 +744,7 @@ describe("DSL.Model VariantSchema Integration", () => {
     });
 
     it("columns type includes all fields regardless of variant exclusions", () => {
-      class Entity extends Model<Entity>("Entity")({
+      class Entity extends Model<Entity>("Entity")("entity", {
         id: Field(M.Generated(S.String))({ column: { type: "uuid", primaryKey: true } }),
         secret: Field(M.Sensitive(S.String))({ column: { type: "string" } }),
         name: Field(S.String)({ column: { type: "string" } }),

@@ -1,5 +1,4 @@
 import { $SchemaId } from "@beep/identity/packages";
-import { BS } from "@beep/schema";
 import { thunkFalse } from "@beep/utils";
 import * as F from "effect/Function";
 import * as S from "effect/Schema";
@@ -19,19 +18,33 @@ const $I = $SchemaId.create("integrations/sql/dsl/types");
  * @since 1.0.0
  * @category type-level
  */
-export type ColumnTypeToTS<T extends ColumnType.Type> = T extends "string" | "uuid"
-  ? string
-  : T extends "number" | "integer"
-    ? number
-    : T extends "boolean"
-      ? boolean
-      : T extends "datetime"
-        ? string | Date
-        : T extends "json"
-          ? object | unknown[] | Record<string, unknown>
-          : T extends "bigint"
-            ? bigint
-            : never;
+
+type JsonPrimitive = string | number | boolean | null;
+type JsonArray = readonly JsonValue[];
+type JsonObject = { readonly [key: string]: JsonValue };
+type JsonValue = JsonPrimitive | JsonArray | JsonObject;
+
+/**
+ * The type that JSON columns can accept for schema/column compatibility checking.
+ * Uses `object | readonly unknown[]` to be permissive - any object or array structure
+ * is valid for JSON columns. This allows struct schemas with arbitrary value types
+ * (like `{ preferences: Record<string, unknown> }`) to be compatible with "json" columns.
+ * @internal
+ */
+type JsonColumnAccepts = object | readonly unknown[];
+
+export interface ColumnTypeConfig {
+  readonly string: { readonly output: string; readonly accepts: string };
+  readonly uuid: { readonly output: string; readonly accepts: string };
+  readonly number: { readonly output: number; readonly accepts: number };
+  readonly integer: { readonly output: number; readonly accepts: number };
+  readonly boolean: { readonly output: boolean; readonly accepts: boolean };
+  readonly datetime: { readonly output: string | Date; readonly accepts: string | Date };
+  readonly json: { readonly output: unknown; readonly accepts: JsonColumnAccepts };
+  readonly bigint: { readonly output: bigint; readonly accepts: bigint };
+}
+
+export type ColumnTypeToTS<T extends ColumnType.Type> = ColumnTypeConfig[T]["output"];
 
 /**
  * Maps TypeScript types to their compatible ColumnTypes.
@@ -39,26 +52,9 @@ export type ColumnTypeToTS<T extends ColumnType.Type> = T extends "string" | "uu
  * @since 1.0.0
  * @category type-level
  */
-export type TSToColumnTypes<T> =
-  // Check for Date first (before object check, since Date extends object)
-  [T] extends [Date]
-    ? "datetime"
-    : // Check for array types (before object check)
-      [T] extends [readonly unknown[]]
-      ? "json"
-      : // Check for object/record types
-        [T] extends [object]
-        ? "json"
-        : // Primitive checks
-          [T] extends [string]
-          ? "string" | "uuid" | "datetime"
-          : [T] extends [number]
-            ? "number" | "integer"
-            : [T] extends [boolean]
-              ? "boolean"
-              : [T] extends [bigint]
-                ? "bigint"
-                : never;
+export type TSToColumnTypes<T> = {
+  readonly [K in ColumnType.Type]: [T] extends [ColumnTypeConfig[K]["accepts"]] ? K : never;
+}[ColumnType.Type];
 
 /**
  * Strips `null` and `undefined` from a type to get the non-nullable base type.
@@ -72,6 +68,7 @@ export type StripNullable<T> = T extends null | undefined ? never : T;
  * Checks if a schema's encoded type is compatible with a column type.
  * Returns `true` if compatible, `false` otherwise.
  *
+ * Uses the `accepts` property from `ColumnTypeConfig` for a single source of truth.
  * This check is lenient with nullable types: if the base type (excluding null/undefined)
  * is compatible with the column type, the check passes. This allows nullable columns
  * (e.g., `S.NullOr(S.String)` encoding to `string | null`) to work with their base column type.
@@ -79,48 +76,61 @@ export type StripNullable<T> = T extends null | undefined ? never : T;
  * @since 1.0.0
  * @category type-level
  */
-export type IsSchemaColumnCompatible<SchemaEncoded, ColType extends ColumnType.Type> = ColType extends "string" | "uuid" // Handle union types by checking if the column type works for the non-nullable base type
-  ? [StripNullable<SchemaEncoded>] extends [string]
+export type IsSchemaColumnCompatible<SchemaEncoded, ColType extends ColumnType.Type> = [ // Handle case where SchemaEncoded is just null/undefined
+  StripNullable<SchemaEncoded>,
+] extends [never]
+  ? false
+  : // Use ColumnTypeConfig as single source of truth for type compatibility
+    [StripNullable<SchemaEncoded>] extends [ColumnTypeConfig[ColType]["accepts"]]
     ? true
-    : [StripNullable<SchemaEncoded>] extends [never] // Handle case where SchemaEncoded is just null
-      ? false
-      : false
-  : ColType extends "datetime"
-    ? [StripNullable<SchemaEncoded>] extends [string | Date]
-      ? true
-      : false
-    : ColType extends "number" | "integer"
-      ? [StripNullable<SchemaEncoded>] extends [number]
-        ? true
-        : false
-      : ColType extends "boolean"
-        ? [StripNullable<SchemaEncoded>] extends [boolean]
-          ? true
-          : false
-        : ColType extends "json"
-          ? [StripNullable<SchemaEncoded>] extends [object | readonly unknown[]]
-            ? true
-            : false
-          : false;
+    : false;
+
+/**
+ * Config for pretty-printing TypeScript types in error messages.
+ * Maps type categories to their display names.
+ *
+ * @since 1.0.0
+ * @category type-level
+ * @internal
+ */
+interface PrettyPrintConfig {
+  readonly string: "string";
+  readonly number: "number";
+  readonly boolean: "boolean";
+  readonly Date: "Date";
+  readonly Array: "Array";
+  readonly object: "object";
+}
 
 /**
  * Pretty-prints a TypeScript type for error messages.
+ *
+ * Uses precedence-aware checking since types overlap:
+ * - Date must be checked before object (Date extends object)
+ * - Array must be checked before object (arrays are objects)
+ * - Primitives (string, number, boolean) are checked first
+ *
  * @since 1.0.0
  * @category type-level
  */
-export type PrettyPrintType<T> = [T] extends [string]
-  ? "string"
-  : [T] extends [number]
-    ? "number"
-    : [T] extends [boolean]
-      ? "boolean"
-      : [T] extends [Date]
-        ? "Date"
-        : [T] extends [readonly unknown[]]
-          ? "Array"
-          : [T] extends [object]
-            ? "object"
-            : "unknown";
+export type PrettyPrintType<T> =
+  // Primitives first (no overlap issues)
+  [T] extends [string]
+    ? PrettyPrintConfig["string"]
+    : [T] extends [number]
+      ? PrettyPrintConfig["number"]
+      : [T] extends [boolean]
+        ? PrettyPrintConfig["boolean"]
+        : // Date before object (Date extends object)
+          [T] extends [Date]
+          ? PrettyPrintConfig["Date"]
+          : // Array before object (arrays are objects)
+            [T] extends [readonly unknown[]]
+            ? PrettyPrintConfig["Array"]
+            : // Generic object
+              [T] extends [object]
+              ? PrettyPrintConfig["object"]
+              : "unknown";
 
 /**
  * Error type returned when schema encoded type is incompatible with column type.
@@ -149,21 +159,81 @@ export type ValidateSchemaColumn<SchemaEncoded, ColType extends ColumnType.Type,
   ? ResultType
   : SchemaColumnError<SchemaEncoded, ColType>;
 
+// ============================================================================
+// Schema Type Extraction Helpers
+// ============================================================================
+
+/**
+ * Extracts the Encoded type (I) from a Schema or PropertySignature.
+ * Returns `unknown` if neither pattern matches.
+ *
+ * This is a foundational helper used throughout the DSL type system to extract
+ * the wire/database representation type from Effect schemas.
+ *
+ * @since 1.0.0
+ * @category type-level
+ * @internal
+ */
+export type InferEncodedType<T> = [T] extends [S.Schema<infer _A, infer I, infer _R>]
+  ? I
+  : [T] extends [S.PropertySignature<infer _TT, infer _T, infer _K, infer _ET, infer I, infer _HD, infer _C>]
+    ? I
+    : unknown;
+
+/**
+ * Extracts the Type (A) from a Schema or PropertySignature.
+ * Returns `unknown` if neither pattern matches.
+ *
+ * This is a foundational helper used to extract the decoded/runtime type
+ * from Effect schemas.
+ *
+ * @since 1.0.0
+ * @category type-level
+ * @internal
+ */
+export type InferTypeType<T> = [T] extends [S.Schema<infer A, infer _I, infer _R>]
+  ? A
+  : [T] extends [S.PropertySignature<infer _TT, infer T, infer _K, infer _ET, infer _I, infer _HD, infer _C>]
+    ? T
+    : unknown;
+
+/**
+ * Extracts the Context/Requirements type (R) from a Schema or PropertySignature.
+ * Returns `never` if neither pattern matches.
+ *
+ * @since 1.0.0
+ * @category type-level
+ * @internal
+ */
+export type InferContextType<T> = [T] extends [S.Schema<infer _A, infer _I, infer R>]
+  ? R
+  : [T] extends [S.PropertySignature<infer _TT, infer _T, infer _K, infer _ET, infer _I, infer _HD, infer C>]
+    ? C
+    : never;
+
 /**
  * Extracts the encoded type from a VariantSchema.Field's "select" variant.
  * Used for column compatibility validation of variant fields.
  * @since 1.0.0
  * @category type-level
  */
-export type ExtractVariantSelectEncoded<VC> = VC extends { select: infer SelectSchema }
-  ? [SelectSchema] extends [S.Schema<infer _A, infer I, infer _R>]
-    ? I
-    : [SelectSchema] extends [
-          S.PropertySignature<infer _TT, infer _T, infer _K, infer _ET, infer I, infer _HD, infer _C>,
-        ]
-      ? I
-      : unknown
+export type ExtractVariantSelectEncoded<VC> = VC extends { readonly select: infer SelectSchema }
+  ? InferEncodedType<SelectSchema>
   : unknown;
+
+/**
+ * Checks if a type is a Schema or PropertySignature and returns it, otherwise returns `unknown`.
+ * Used when we need to validate that a type is schema-like before using it.
+ *
+ * @since 1.0.0
+ * @category type-level
+ * @internal
+ */
+export type AsSchemaLike<T> = [T] extends [S.Schema<infer _A, infer _I, infer _R>]
+  ? T
+  : [T] extends [S.PropertySignature<infer _TT, infer _T, infer _K, infer _ET, infer _I, infer _HD, infer _C>]
+    ? T
+    : unknown;
 
 /**
  * Extracts the schema type from a VariantSchema.Field's "select" variant.
@@ -175,14 +245,8 @@ export type ExtractVariantSelectEncoded<VC> = VC extends { select: infer SelectS
  * @since 1.0.0
  * @category type-level
  */
-export type ExtractVariantSelectSchema<VC> = VC extends { select: infer SelectSchema }
-  ? [SelectSchema] extends [S.Schema<infer _A, infer _I, infer _R>]
-    ? SelectSchema
-    : [SelectSchema] extends [
-          S.PropertySignature<infer _TT, infer _T, infer _K, infer _ET, infer _I, infer _HD, infer _C>,
-        ]
-      ? SelectSchema
-      : unknown
+export type ExtractVariantSelectSchema<VC> = VC extends { readonly select: infer SelectSchema }
+  ? AsSchemaLike<SelectSchema>
   : unknown;
 
 // ============================================================================
@@ -204,6 +268,102 @@ type IsAny<T> = 0 extends 1 & T ? true : false;
  */
 type IsUnknown<T> = IsAny<T> extends true ? false : unknown extends T ? true : false;
 
+// ============================================================================
+// Field Category Helper Analysis (NOT IMPLEMENTED)
+// ============================================================================
+//
+// Considered but rejected: A unified `FieldCategory<F>` helper type to categorize
+// DSL fields. Analysis showed this would ADD complexity rather than reduce it:
+//
+// 1. **Different check orders**: `FieldResult` checks VariantSchema.Field first,
+//    while `ShouldIncludeField` and `ExtractFieldSchema` check DSLVariantField first.
+//    A unified category would force incorrect ordering in some consumers.
+//
+// 2. **Different return requirements**:
+//    - `ShouldIncludeField`: Returns boolean, needs variant key membership check
+//    - `ExtractFieldSchema`: Extracts and returns the schema type from each category
+//    - `FieldResult`: Wraps input in DSLField/DSLVariantField with ColumnDef
+//
+//    Each type needs to extract different type parameters at each conditional branch.
+//    A category string can't carry these extracted parameters forward.
+//
+// 3. **Line count analysis**:
+//    - Current approach: ~35 lines total across 3 types
+//    - With FieldCategory + config: ~50+ lines (helper + config + still-complex consumers)
+//
+// 4. **IsExactlyObject<T>** helper was also considered for the pattern:
+//    `[A] extends [object] ? [object] extends [A] ? ... : ...`
+//    Only 1 usage site found. Adding 5-line helper to save 1 line is not justified.
+//
+// The current approach, while appearing repetitive, is actually more maintainable
+// because each type's conditional logic is self-contained and optimized for its
+// specific use case. The apparent duplication is superficial - the logic differs
+// in ordering, return types, and extracted type parameters.
+// ============================================================================
+
+/**
+ * Config for deriving column types from encoded TypeScript types.
+ * Maps TypeScript type categories to their corresponding ColumnType.
+ *
+ * @since 1.0.0
+ * @category type-level
+ * @internal
+ */
+interface EncodedTypeConfig {
+  readonly date: "datetime";
+  readonly array: "json";
+  readonly object: "json";
+  readonly string: "string";
+  readonly number: "number";
+  readonly boolean: "boolean";
+  readonly bigint: "bigint";
+}
+
+/**
+ * Derives the SQL column type from a TypeScript type.
+ * Uses `EncodedTypeConfig` as the source of truth.
+ *
+ * Precedence order (critical for correct type matching):
+ * 1. Date before object (Date extends object)
+ * 2. Array before object (arrays are objects)
+ * 3. Primitives (string, number, boolean, bigint) - must come before object
+ *    because branded types like `string & Brand<"X">` are intersections with object
+ * 4. Object (structs, records) - AFTER primitives
+ * 5. Fallback to full ColumnType.Type union
+ *
+ * @since 1.0.0
+ * @category type-level
+ * @internal
+ */
+type DeriveColumnTypeFromTSType<T> =
+  // Date must be checked before object (Date extends object)
+  [T] extends [Date]
+    ? EncodedTypeConfig["date"]
+    : // Arrays map to json (check before object since arrays are objects)
+      [T] extends [readonly unknown[]]
+      ? EncodedTypeConfig["array"]
+      : // Primitives - check BEFORE object (branded types are primitive & object intersections)
+        [T] extends [string]
+        ? EncodedTypeConfig["string"]
+        : [T] extends [number]
+          ? EncodedTypeConfig["number"]
+          : [T] extends [boolean]
+            ? EncodedTypeConfig["boolean"]
+            : [T] extends [bigint]
+              ? EncodedTypeConfig["bigint"]
+              : // Object types (structs, records) map to json
+                [T] extends [object]
+                ? EncodedTypeConfig["object"]
+                : // Fallback for unknown types
+                  ColumnType.Type;
+
+/**
+ * Helper type that derives column type from a non-nullable type.
+ * Alias for `DeriveColumnTypeFromTSType` - kept for internal consistency.
+ * @internal
+ */
+type DeriveFromStrippedType<T> = DeriveColumnTypeFromTSType<T>;
+
 /**
  * Derives the SQL column type from a schema's encoded TypeScript type.
  *
@@ -218,6 +378,8 @@ type IsUnknown<T> = IsAny<T> extends true ? false : unknown extends T ? true : f
  * - `number` → `"number"` (includes Int at runtime, but type-level can't distinguish)
  * - `boolean` → `"boolean"`
  * - `bigint` → `"bigint"`
+ *
+ * Uses `EncodedTypeConfig` as single source of truth for type mappings.
  *
  * **Note**: This is a fallback for when schema identity cannot be determined.
  * Prefer `DeriveColumnTypeFromSchema` when the schema type is available.
@@ -235,26 +397,8 @@ export type DeriveColumnTypeFromEncoded<I> =
       : // Handle nullable types by stripping null/undefined first
         [StripNullable<I>] extends [never]
         ? ColumnType.Type // Pure null/undefined - fall back to full union
-        : // Date must be checked before object (Date extends object)
-          [StripNullable<I>] extends [Date]
-          ? "datetime"
-          : // Arrays map to json (check before object since arrays are objects)
-            [StripNullable<I>] extends [readonly unknown[]]
-            ? "json"
-            : // Object types (structs, records) map to json
-              [StripNullable<I>] extends [object]
-              ? "json"
-              : // Primitive type mappings
-                [StripNullable<I>] extends [string]
-                ? "string"
-                : [StripNullable<I>] extends [number]
-                  ? "number"
-                  : [StripNullable<I>] extends [boolean]
-                    ? "boolean"
-                    : [StripNullable<I>] extends [bigint]
-                      ? "bigint"
-                      : // Fallback for unknown types
-                        ColumnType.Type;
+        : // Derive from the stripped type using config-based helper
+          DeriveFromStrippedType<StripNullable<I>>;
 
 // ============================================================================
 // Schema-Level Column Type Derivation (via Class Identity)
@@ -341,95 +485,127 @@ type DeriveColumnTypeFromSchemaInner<Schema> =
       ColumnType.Type;
 
 /**
+ * Config mapping Effect Schema types to their corresponding ColumnType.
+ *
+ * This provides a single source of truth for schema-to-column-type mappings.
+ * The config is organized by category for maintainability.
+ *
+ * @since 1.0.0
+ * @category type-level
+ * @internal
+ */
+interface SchemaTypeConfig {
+  // Integer type (refined from number)
+  readonly Int: "integer";
+  // Number refinements (still number, not integer)
+  readonly Positive: "number";
+  readonly Negative: "number";
+  readonly NonPositive: "number";
+  readonly NonNegative: "number";
+  // UUID/ULID types (refined from string)
+  readonly UUID: "uuid";
+  readonly ULID: "uuid";
+  // DateTime types (transformations)
+  readonly DateFromString: "datetime";
+  readonly Date: "datetime";
+  readonly DateTimeUtc: "datetime";
+  readonly DateTimeUtcFromSelf: "datetime";
+  // BigInt types (transformations)
+  readonly BigInt: "bigint";
+  readonly BigIntFromSelf: "bigint";
+}
+
+/**
+ * Maps config keys to their corresponding Effect Schema types.
+ * Used for reverse lookup: Schema -> Config Key.
+ * @internal
+ */
+interface SchemaTypeMapping {
+  readonly Int: typeof S.Int;
+  readonly Positive: typeof S.Positive;
+  readonly Negative: typeof S.Negative;
+  readonly NonPositive: typeof S.NonPositive;
+  readonly NonNegative: typeof S.NonNegative;
+  readonly UUID: typeof S.UUID;
+  readonly ULID: typeof S.ULID;
+  readonly DateFromString: typeof S.DateFromString;
+  readonly Date: typeof S.Date;
+  readonly DateTimeUtc: typeof S.DateTimeUtc;
+  readonly DateTimeUtcFromSelf: typeof S.DateTimeUtcFromSelf;
+  readonly BigInt: typeof S.BigInt;
+  readonly BigIntFromSelf: typeof S.BigIntFromSelf;
+}
+
+/**
+ * Extracts the config key for a known schema type using distributive key remapping.
+ * Returns `never` if the schema doesn't match any known type.
+ * @internal
+ */
+type SchemaToConfigKey<Schema> = {
+  readonly [K in keyof SchemaTypeMapping]: Schema extends SchemaTypeMapping[K] ? K : never;
+}[keyof SchemaTypeMapping];
+
+/**
  * Derives column type from specific schema types after ruling out any/unknown/object.
  *
- * IMPORTANT: The ordering of checks is critical:
- * 1. FIRST: Check specific transformation/refinement types (S.Int, S.UUID, S.BigInt, etc.)
- *    - These MUST be checked before generic filter/transform checks
- * 2. SECOND: Check for generic refinements/filters - recurse to inner type
- * 3. THIRD: Check for generic transformations - recurse to encoded side
- * 4. LAST: Fallback to encoded type derivation
+ * Uses `SchemaTypeConfig` and `SchemaTypeMapping` for config-based lookup of known schemas.
+ * Falls back to recursion for generic filters, refinements, and transformations.
  *
  * @internal
  */
 type DeriveColumnTypeFromSchemaSpecific<Schema, A> =
-  // FIRST: Check specific schema types (before generic filter/transform checks)
-  // Integer type (refined from number)
-  Schema extends typeof S.Int
-    ? "integer"
-    : // Number refinements (still number, not integer)
-      Schema extends typeof S.Positive
-      ? "number"
-      : Schema extends typeof S.Negative
-        ? "number"
-        : Schema extends typeof S.NonPositive
-          ? "number"
-          : Schema extends typeof S.NonNegative
-            ? "number"
-            : // UUID/ULID types (refined from string)
-              Schema extends typeof S.UUID
-              ? "uuid"
-              : Schema extends typeof S.ULID
-                ? "uuid"
-                : // DateTime types (transformations - check before generic transform)
-                  Schema extends typeof S.DateFromString
-                  ? "datetime"
-                  : Schema extends typeof S.Date
-                    ? "datetime"
-                    : Schema extends typeof S.DateTimeUtc
-                      ? "datetime"
-                      : Schema extends typeof S.DateTimeUtcFromSelf
-                        ? "datetime"
-                        : // BigInt types (transformations - check before generic transform)
-                          Schema extends typeof S.BigInt
-                          ? "bigint"
-                          : Schema extends typeof S.BigIntFromSelf
-                            ? "bigint"
-                            : // SECOND: Generic refinements/filters - recurse to inner type
-                              Schema extends S.filter<infer Inner>
-                              ? DeriveColumnTypeFromSchemaInner<Inner>
-                              : Schema extends S.refine<infer _A2, infer From>
-                                ? DeriveColumnTypeFromSchemaInner<From>
-                                : // THIRD: Generic transformations - recurse to encoded side
-                                  Schema extends S.transform<infer From, infer _To>
-                                  ? DeriveColumnTypeFromSchemaInner<From>
-                                  : Schema extends S.transformOrFail<infer From, infer _To, infer _R2>
-                                    ? DeriveColumnTypeFromSchemaInner<From>
-                                    : // LAST: Fallback to Type parameter derivation
-                                      DeriveFromTypeParameter<A>;
+  // Try direct config lookup for known schema types
+  // First check if the key is not `never` (schema matches a known type)
+  [SchemaToConfigKey<Schema>] extends [never]
+    ? // Schema not in mapping - check generic patterns
+      // Generic refinements/filters - recurse to inner type
+      Schema extends S.filter<infer Inner>
+      ? DeriveColumnTypeFromSchemaInner<Inner>
+      : Schema extends S.refine<infer _A2, infer From>
+        ? DeriveColumnTypeFromSchemaInner<From>
+        : // Generic transformations - recurse to encoded side
+          Schema extends S.transform<infer From, infer _To>
+          ? DeriveColumnTypeFromSchemaInner<From>
+          : Schema extends S.transformOrFail<infer From, infer _To, infer _R2>
+            ? DeriveColumnTypeFromSchemaInner<From>
+            : // Fallback to Type parameter derivation
+              DeriveFromTypeParameter<A>
+    : // Schema matches a known type - lookup in config
+      SchemaTypeConfig[SchemaToConfigKey<Schema>];
 
 /**
  * Derives column type from the schema's Type parameter (A).
  * Used as a fallback when schema-specific checks don't match.
  *
- * IMPORTANT: Primitive checks must come BEFORE object checks.
- * Branded types like `string & Brand<"X">` are intersections with an object type,
- * so they match `[object]`. By checking primitives first, we correctly derive
- * branded strings as "string", branded numbers as "number", etc.
+ * Alias for `DeriveColumnTypeFromTSType` - the logic is identical since both
+ * derive column types from TypeScript types using the same precedence rules.
  *
+ * @see DeriveColumnTypeFromTSType for precedence order documentation
  * @internal
  */
-type DeriveFromTypeParameter<A> =
-  // Check for Date (before object since Date extends object)
-  [A] extends [Date]
-    ? "datetime"
-    : // Check for array types (before object since arrays are objects)
-      [A] extends [readonly unknown[]]
-      ? "json"
-      : // Check primitives BEFORE object (branded types are primitive & object intersections)
-        [A] extends [string]
-        ? "string"
-        : [A] extends [number]
-          ? "number"
-          : [A] extends [boolean]
-            ? "boolean"
-            : [A] extends [bigint]
-              ? "bigint"
-              : // Check for object types (records, structs) - AFTER primitives
-                [A] extends [object]
-                ? "json"
-                : // Fallback
-                  ColumnType.Type;
+type DeriveFromTypeParameter<A> = DeriveColumnTypeFromTSType<A>;
+
+/**
+ * Extracts column definition properties from a partial config.
+ * Excludes the `type` property which must be provided separately.
+ *
+ * This is a helper type used by both `ExactColumnDef` and `DerivedColumnDefFromSchema`
+ * to avoid duplicating the property extraction logic.
+ *
+ * @since 1.0.0
+ * @category type-level
+ * @internal
+ */
+type ExtractColumnDefProps<C extends Partial<ColumnDef>> = {
+  readonly primaryKey: C extends { readonly primaryKey: infer PK extends boolean } ? PK : false;
+  readonly unique: C extends { readonly unique: infer U extends boolean } ? U : false;
+  readonly autoIncrement: C extends { readonly autoIncrement: infer AI extends boolean } ? AI : false;
+  readonly default?: C extends { readonly default: infer D extends string } ? D : undefined;
+  readonly $default?: C extends { readonly $default: infer DF } ? DF : undefined;
+  readonly $defaultFn?: C extends { readonly $defaultFn: infer DFn } ? DFn : undefined;
+  readonly $onUpdate?: C extends { readonly $onUpdate: infer OU } ? OU : undefined;
+  readonly $onUpdateFn?: C extends { readonly $onUpdateFn: infer OUFn } ? OUFn : undefined;
+};
 
 /**
  * Creates a ColumnDef with the type derived from the schema's class identity.
@@ -443,22 +619,22 @@ type DeriveFromTypeParameter<A> =
  */
 export type DerivedColumnDefFromSchema<Schema, C extends Partial<ColumnDef>> = {
   readonly type: DeriveColumnTypeFromSchema<Schema>;
-  readonly primaryKey: C extends { primaryKey: infer PK extends boolean } ? PK : false;
-  readonly unique: C extends { unique: infer U extends boolean } ? U : false;
-  readonly autoIncrement: C extends { autoIncrement: infer AI extends boolean } ? AI : false;
-  readonly defaultValue: C extends { defaultValue: infer DV } ? DV : undefined;
-};
+} & ExtractColumnDefProps<C>;
 
-const defaultValueSchema = <A, E, R>(schema: S.Schema<A, E, R>) =>
-  S.optionalWith(
-    S.Union(
-      schema,
-      S.declare((u: unknown): u is A => F.isFunction(u))
-    ),
-    {
-      exact: true,
-    }
-  );
+/**
+ * Schema for static SQL default value (string).
+ * @internal
+ */
+const defaultSchema = S.optionalWith(S.String, { exact: true });
+
+/**
+ * Schema for runtime default function.
+ * @internal
+ */
+const runtimeFunctionSchema = S.optionalWith(
+  S.declare((u: unknown): u is () => unknown => F.isFunction(u)),
+  { exact: true }
+);
 
 // ============================================================================
 // Column Definition Schema Factories
@@ -490,7 +666,11 @@ const autoIncrementColumnDefFactory = ColumnType.toTagged("type").composer({
 
 export class StringColumnDefSchema extends baseColumnDefFactory
   .string({
-    defaultValue: defaultValueSchema(S.String),
+    default: defaultSchema,
+    $default: runtimeFunctionSchema,
+    $defaultFn: runtimeFunctionSchema,
+    $onUpdate: runtimeFunctionSchema,
+    $onUpdateFn: runtimeFunctionSchema,
   })
   .annotations(
     $I.annotations("StringColumnDefSchema", {
@@ -501,25 +681,15 @@ export class StringColumnDefSchema extends baseColumnDefFactory
 export declare namespace StringColumnDefSchema {
   export type Type = typeof StringColumnDefSchema.Type;
   export type Encoded = typeof StringColumnDefSchema.Encoded;
-
-  /**
-   * Generic interface for string column definitions.
-   *
-   * @remarks
-   * String columns do not support autoIncrement per INV-SQL-AI-001.
-   * The ColumnDefSchema.Generic mapped type handles arity differences.
-   */
-  export interface Generic<PrimaryKey extends boolean = boolean, Unique extends boolean = boolean> {
-    readonly type: Type["type"];
-    readonly primaryKey?: PrimaryKey | undefined;
-    readonly unique?: Unique | undefined;
-    readonly defaultValue?: Type["defaultValue"];
-  }
 }
 
 export class NumberColumnDefSchema extends baseColumnDefFactory
   .number({
-    defaultValue: defaultValueSchema(S.Number),
+    default: defaultSchema,
+    $default: runtimeFunctionSchema,
+    $defaultFn: runtimeFunctionSchema,
+    $onUpdate: runtimeFunctionSchema,
+    $onUpdateFn: runtimeFunctionSchema,
   })
   .annotations(
     $I.annotations("NumberColumnDefSchema", {
@@ -530,25 +700,15 @@ export class NumberColumnDefSchema extends baseColumnDefFactory
 export declare namespace NumberColumnDefSchema {
   export type Type = typeof NumberColumnDefSchema.Type;
   export type Encoded = typeof NumberColumnDefSchema.Encoded;
-
-  /**
-   * Generic interface for number column definitions.
-   *
-   * @remarks
-   * Number columns do not support autoIncrement per INV-SQL-AI-001.
-   * Use integer or bigint for autoIncrement support.
-   */
-  export interface Generic<PrimaryKey extends boolean = boolean, Unique extends boolean = boolean> {
-    readonly type: Type["type"];
-    readonly primaryKey?: PrimaryKey | undefined;
-    readonly unique?: Unique | undefined;
-    readonly defaultValue?: Type["defaultValue"];
-  }
 }
 
 export class IntegerColumnDefSchema extends autoIncrementColumnDefFactory
   .integer({
-    defaultValue: S.optionalWith(S.Int, { exact: true }),
+    default: defaultSchema,
+    $default: runtimeFunctionSchema,
+    $defaultFn: runtimeFunctionSchema,
+    $onUpdate: runtimeFunctionSchema,
+    $onUpdateFn: runtimeFunctionSchema,
   })
   .annotations(
     $I.annotations("IntegerColumnDefSchema", {
@@ -559,30 +719,15 @@ export class IntegerColumnDefSchema extends autoIncrementColumnDefFactory
 export declare namespace IntegerColumnDefSchema {
   export type Type = typeof IntegerColumnDefSchema.Type;
   export type Encoded = typeof IntegerColumnDefSchema.Encoded;
-
-  /**
-   * Generic interface for integer column definitions.
-   *
-   * @remarks
-   * Integer columns support autoIncrement per INV-SQL-AI-001.
-   * PostgreSQL SERIAL type maps to integer with autoIncrement.
-   */
-  export interface Generic<
-    PrimaryKey extends boolean = boolean,
-    Unique extends boolean = boolean,
-    AutoIncrement extends boolean = boolean,
-  > {
-    readonly type: Type["type"];
-    readonly primaryKey?: PrimaryKey | undefined;
-    readonly unique?: Unique | undefined;
-    readonly autoIncrement?: AutoIncrement | undefined;
-    readonly defaultValue?: Type["defaultValue"];
-  }
 }
 
 export class BooleanColumnDefSchema extends baseColumnDefFactory
   .boolean({
-    defaultValue: defaultValueSchema(S.Boolean),
+    default: defaultSchema,
+    $default: runtimeFunctionSchema,
+    $defaultFn: runtimeFunctionSchema,
+    $onUpdate: runtimeFunctionSchema,
+    $onUpdateFn: runtimeFunctionSchema,
   })
   .annotations(
     $I.annotations("BooleanColumnDefSchema", {
@@ -593,24 +738,15 @@ export class BooleanColumnDefSchema extends baseColumnDefFactory
 export declare namespace BooleanColumnDefSchema {
   export type Type = typeof BooleanColumnDefSchema.Type;
   export type Encoded = typeof BooleanColumnDefSchema.Encoded;
-
-  /**
-   * Generic interface for boolean column definitions.
-   *
-   * @remarks
-   * Boolean columns do not support autoIncrement per INV-SQL-AI-001.
-   */
-  export interface Generic<PrimaryKey extends boolean = boolean, Unique extends boolean = boolean> {
-    readonly type: Type["type"];
-    readonly primaryKey?: PrimaryKey | undefined;
-    readonly unique?: Unique | undefined;
-    readonly defaultValue?: Type["defaultValue"];
-  }
 }
 
 export class DatetimeColumnDefSchema extends baseColumnDefFactory
   .datetime({
-    defaultValue: defaultValueSchema(BS.DateTimeUtcFromAllAcceptable),
+    default: defaultSchema,
+    $default: runtimeFunctionSchema,
+    $defaultFn: runtimeFunctionSchema,
+    $onUpdate: runtimeFunctionSchema,
+    $onUpdateFn: runtimeFunctionSchema,
   })
   .annotations(
     $I.annotations("DatetimeColumnDefSchema", {
@@ -632,13 +768,21 @@ export declare namespace DatetimeColumnDefSchema {
     readonly type: Type["type"];
     readonly primaryKey?: PrimaryKey | undefined;
     readonly unique?: Unique | undefined;
-    readonly defaultValue?: Type["defaultValue"];
+    readonly default?: Type["default"];
+    readonly $default?: Type["$default"];
+    readonly $defaultFn?: Type["$defaultFn"];
+    readonly $onUpdate?: Type["$onUpdate"];
+    readonly $onUpdateFn?: Type["$onUpdateFn"];
   }
 }
 
 export class UuidColumnDefSchema extends baseColumnDefFactory
   .uuid({
-    defaultValue: defaultValueSchema(S.UUID),
+    default: defaultSchema,
+    $default: runtimeFunctionSchema,
+    $defaultFn: runtimeFunctionSchema,
+    $onUpdate: runtimeFunctionSchema,
+    $onUpdateFn: runtimeFunctionSchema,
   })
   .annotations(
     $I.annotations("UuidColumnDefSchema", {
@@ -649,24 +793,15 @@ export class UuidColumnDefSchema extends baseColumnDefFactory
 export declare namespace UuidColumnDefSchema {
   export type Type = typeof UuidColumnDefSchema.Type;
   export type Encoded = typeof UuidColumnDefSchema.Encoded;
-
-  /**
-   * Generic interface for UUID column definitions.
-   *
-   * @remarks
-   * UUID columns do not support autoIncrement per INV-SQL-AI-001.
-   */
-  export interface Generic<PrimaryKey extends boolean = boolean, Unique extends boolean = boolean> {
-    readonly type: Type["type"];
-    readonly primaryKey?: PrimaryKey | undefined;
-    readonly unique?: Unique | undefined;
-    readonly defaultValue?: Type["defaultValue"];
-  }
 }
 
 export class JsonColumnDefSchema extends baseColumnDefFactory
   .json({
-    defaultValue: defaultValueSchema(BS.Json),
+    default: defaultSchema,
+    $default: runtimeFunctionSchema,
+    $defaultFn: runtimeFunctionSchema,
+    $onUpdate: runtimeFunctionSchema,
+    $onUpdateFn: runtimeFunctionSchema,
   })
   .annotations(
     $I.annotations("JsonColumnDefSchema", {
@@ -677,24 +812,15 @@ export class JsonColumnDefSchema extends baseColumnDefFactory
 export declare namespace JsonColumnDefSchema {
   export type Type = typeof JsonColumnDefSchema.Type;
   export type Encoded = typeof JsonColumnDefSchema.Encoded;
-
-  /**
-   * Generic interface for JSON column definitions.
-   *
-   * @remarks
-   * JSON columns do not support autoIncrement per INV-SQL-AI-001.
-   */
-  export interface Generic<PrimaryKey extends boolean = boolean, Unique extends boolean = boolean> {
-    readonly type: Type["type"];
-    readonly primaryKey?: PrimaryKey | undefined;
-    readonly unique?: Unique | undefined;
-    readonly defaultValue?: Type["defaultValue"];
-  }
 }
 
 export class BigintColumnDefSchema extends autoIncrementColumnDefFactory
   .bigint({
-    defaultValue: defaultValueSchema(S.BigIntFromSelf),
+    default: defaultSchema,
+    $default: runtimeFunctionSchema,
+    $defaultFn: runtimeFunctionSchema,
+    $onUpdate: runtimeFunctionSchema,
+    $onUpdateFn: runtimeFunctionSchema,
   })
   .annotations(
     $I.annotations("BigintColumnDefSchema", {
@@ -705,25 +831,6 @@ export class BigintColumnDefSchema extends autoIncrementColumnDefFactory
 export declare namespace BigintColumnDefSchema {
   export type Type = typeof BigintColumnDefSchema.Type;
   export type Encoded = typeof BigintColumnDefSchema.Encoded;
-
-  /**
-   * Generic interface for bigint column definitions.
-   *
-   * @remarks
-   * Bigint columns support autoIncrement per INV-SQL-AI-001.
-   * PostgreSQL BIGSERIAL type maps to bigint with autoIncrement.
-   */
-  export interface Generic<
-    PrimaryKey extends boolean = boolean,
-    Unique extends boolean = boolean,
-    AutoIncrement extends boolean = boolean,
-  > {
-    readonly type: Type["type"];
-    readonly primaryKey?: PrimaryKey | undefined;
-    readonly unique?: Unique | undefined;
-    readonly autoIncrement?: AutoIncrement | undefined;
-    readonly defaultValue?: Type["defaultValue"];
-  }
 }
 
 export class ColumnDefSchema extends S.Union(
@@ -744,74 +851,11 @@ export class ColumnDefSchema extends S.Union(
 export declare namespace ColumnDefSchema {
   export type Type = typeof ColumnDefSchema.Type;
   export type Encoded = typeof ColumnDefSchema.Encoded;
-
-  /**
-   * Maps ColumnType.Type to the corresponding member Generic interface.
-   *
-   * @remarks
-   * This lookup table enables the mapped type pattern for Generic, allowing:
-   * 1. Each member schema to have its natural arity (no phantom type params)
-   * 2. Precise types when column type is known at compile time
-   * 3. Union behavior when column type is the full ColumnType.Type union
-   *
-   * @internal
-   */
-  export type GenericMap<PrimaryKey extends boolean, Unique extends boolean, AutoIncrement extends boolean> = {
-    readonly string: StringColumnDefSchema.Generic<PrimaryKey, Unique>;
-    readonly number: NumberColumnDefSchema.Generic<PrimaryKey, Unique>;
-    readonly integer: IntegerColumnDefSchema.Generic<PrimaryKey, Unique, AutoIncrement>;
-    readonly boolean: BooleanColumnDefSchema.Generic<PrimaryKey, Unique>;
-    readonly datetime: DatetimeColumnDefSchema.Generic<PrimaryKey, Unique>;
-    readonly uuid: UuidColumnDefSchema.Generic<PrimaryKey, Unique>;
-    readonly json: JsonColumnDefSchema.Generic<PrimaryKey, Unique>;
-    readonly bigint: BigintColumnDefSchema.Generic<PrimaryKey, Unique, AutoIncrement>;
-  };
-
-  /**
-   * Mapped type for column definitions that provides precise types based on column type.
-   *
-   * @remarks
-   * This type uses indexed access on GenericMap to provide:
-   * - **Precise types when T is a literal**: `Generic<"integer">` gives exactly `IntegerColumnDefSchema.Generic`
-   * - **Union when T is unknown**: `Generic<ColumnType.Type>` distributes to a union of all member types
-   * - **No phantom type parameters**: Each member has its natural arity
-   *
-   * The `AutoIncrement` parameter is only used by `integer` and `bigint` members
-   * per INV-SQL-AI-001. Other members receive but ignore this parameter.
-   *
-   * @example
-   * ```ts
-   * // Precise type when column type is known
-   * type IntCol = ColumnDefSchema.Generic<"integer", true, false, true>;
-   * // => IntegerColumnDefSchema.Generic<true, false, true>
-   *
-   * // Union when column type is unknown
-   * type AnyCol = ColumnDefSchema.Generic;
-   * // => StringColumnDefSchema.Generic | NumberColumnDefSchema.Generic | ...
-   *
-   * // Type narrows correctly based on discriminator
-   * const def: ColumnDefSchema.Generic = { type: "integer", autoIncrement: true };
-   * if (def.type === "integer") {
-   *   // def.autoIncrement?: boolean is accessible here
-   * }
-   * ```
-   */
-  export type Generic<
-    T extends ColumnType.Type = ColumnType.Type,
-    PrimaryKey extends boolean = boolean,
-    Unique extends boolean = boolean,
-    AutoIncrement extends boolean = boolean,
-  > = GenericMap<PrimaryKey, Unique, AutoIncrement>[T];
-
-  /**
-   * Helper type to check if a column type supports autoIncrement.
-   * Only 'integer' and 'bigint' return true per INV-SQL-AI-001.
-   */
-  export type SupportsAutoIncrement<T extends ColumnType.Type> = T extends "integer" | "bigint" ? true : false;
 }
 
 // Generic ColumnDef preserves specific literals
 // Note: `nullable` has been removed - nullability is derived from the Effect Schema AST
+// Note: Using `| undefined` on optional properties for exactOptionalPropertyTypes compatibility
 export interface ColumnDef<
   ColType extends ColumnType.Type = ColumnType.Type,
   PrimaryKey extends boolean = boolean,
@@ -819,19 +863,46 @@ export interface ColumnDef<
   AutoIncrement extends boolean = boolean,
 > {
   readonly type: ColType;
-  readonly primaryKey?: PrimaryKey;
-  readonly unique?: Unique;
-  readonly defaultValue?: undefined | string | (() => string);
-  readonly autoIncrement?: AutoIncrement;
+  readonly primaryKey?: PrimaryKey | undefined;
+  readonly unique?: Unique | undefined;
+  readonly autoIncrement?: AutoIncrement | undefined;
+  /**
+   * Static SQL default value evaluated by the database.
+   * @example 'now()', "'active'", '1'
+   */
+  readonly default?: string | undefined;
+  /**
+   * Alias for `$defaultFn` - runtime function called by Drizzle on INSERT.
+   */
+  readonly $default?: (() => unknown) | undefined;
+  /**
+   * Runtime function called by Drizzle on INSERT when value is undefined.
+   * @example () => crypto.randomUUID()
+   */
+  readonly $defaultFn?: (() => unknown) | undefined;
+  /**
+   * Alias for `$onUpdateFn` - runtime function called by Drizzle on UPDATE.
+   */
+  readonly $onUpdate?: (() => unknown) | undefined;
+  /**
+   * Runtime function called by Drizzle on UPDATE when value is undefined.
+   * Also used on INSERT if no `$defaultFn` is provided.
+   * @example () => new Date().toISOString()
+   */
+  readonly $onUpdateFn?: (() => unknown) | undefined;
 }
 
 export declare namespace ColumnDef {
   export interface Any {
     readonly type: ColumnType.Type;
-    readonly primaryKey?: boolean;
-    readonly unique?: boolean;
-    readonly defaultValue?: undefined | string | (() => string);
-    readonly autoIncrement?: boolean;
+    readonly primaryKey?: boolean | undefined;
+    readonly unique?: boolean | undefined;
+    readonly autoIncrement?: boolean | undefined;
+    readonly default?: string | undefined;
+    readonly $default?: (() => unknown) | undefined;
+    readonly $defaultFn?: (() => unknown) | undefined;
+    readonly $onUpdate?: (() => unknown) | undefined;
+    readonly $onUpdateFn?: (() => unknown) | undefined;
   }
 }
 
@@ -839,15 +910,12 @@ export declare namespace ColumnDef {
 // Note: `nullable` has been removed - nullability is derived from the Effect Schema AST
 // When no explicit type is given, use ColumnType.Type union (runtime derives the actual type)
 export type ExactColumnDef<C extends Partial<ColumnDef>> = {
-  readonly type: C extends { type: infer T extends ColumnType.Type } ? T : ColumnType.Type;
-  readonly primaryKey: C extends { primaryKey: infer PK extends boolean } ? PK : false;
-  readonly unique: C extends { unique: infer U extends boolean } ? U : false;
-  readonly autoIncrement: C extends { autoIncrement: infer AI extends boolean } ? AI : false;
-  readonly defaultValue: C extends { defaultValue: infer DV } ? DV : undefined;
-};
+  readonly type: C extends { readonly type: infer T extends ColumnType.Type } ? T : ColumnType.Type;
+} & ExtractColumnDefProps<C>;
 
 export interface FieldConfig<C extends Partial<ColumnDef> = Partial<ColumnDef>> {
   readonly column?: C;
+  readonly references?: FieldReference;
 }
 
 // Annotation symbol - use Symbol.for for cross-module consistency
@@ -1028,6 +1096,7 @@ export type SelectVariantFields<Fields extends DSL.Fields> = S.Simplify<ExtractV
 /**
  * Model class interface that includes 6 variant schema accessors.
  * Uses intersection pattern: BaseClass & VariantAccessors.
+ * TName and Id are string types that preserve literal table names.
  * @since 1.0.0
  * @category models
  */
@@ -1038,7 +1107,8 @@ export interface ModelClassWithVariants<
   Columns extends Record<string, ColumnDef>,
   PK extends readonly string[],
   Id extends string,
-> extends ModelClass<Self, Fields, TName, Columns, PK, Id> {
+  Relations extends RelationsConfig = RelationsConfig,
+> extends ModelClass<Self, Fields, TName, Columns, PK, Id, Relations> {
   /** Schema for SELECT queries - all fields */
   readonly select: S.Struct<S.Simplify<ExtractVariantFields<"select", Fields>>>;
   /** Schema for INSERT operations - excludes Generated fields */
@@ -1056,6 +1126,7 @@ export interface ModelClassWithVariants<
 /**
  * Base ModelClass interface.
  * Uses DSL.Fields constraint and computes schema types from the select variant.
+ * TName and Id are string types that preserve literal table names.
  * @since 1.0.0
  * @category models
  */
@@ -1066,8 +1137,9 @@ export interface ModelClass<
   Columns extends Record<string, ColumnDef>,
   PK extends readonly string[],
   Id extends string,
+  Relations extends RelationsConfig = RelationsConfig,
 > extends S.Schema<Self, S.Struct.Encoded<SelectVariantFields<Fields>>, S.Struct.Context<SelectVariantFields<Fields>>>,
-    ModelStatics<TName, Columns, PK, Id, Fields> {
+    ModelStatics<TName, Columns, PK, Id, Fields, Relations> {
   new (
     props: S.Struct.Constructor<SelectVariantFields<Fields>>,
     options?: { readonly disableValidation?: boolean }
@@ -1085,6 +1157,7 @@ export interface ModelClass<
 
 /**
  * Static properties attached to a Model class.
+ * TName and Id are string types that preserve literal table names.
  * @since 1.0.0
  * @category models
  */
@@ -1094,6 +1167,7 @@ export interface ModelStatics<
   PK extends readonly string[] = readonly string[],
   Id extends string = string,
   Fields extends DSL.Fields = DSL.Fields,
+  Relations extends RelationsConfig = RelationsConfig,
 > {
   readonly tableName: TName;
   readonly columns: Columns;
@@ -1101,7 +1175,85 @@ export interface ModelStatics<
   readonly identifier: Id;
   /** Original DSL fields - used for extracting encoded types in toDrizzle */
   readonly _fields: Fields;
+  /** Model-level relations configuration */
+  readonly relations: Relations;
 }
+
+/**
+ * Interface for a Model class with any type parameters.
+ * Used for runtime operations that only need static properties.
+ *
+ * This interface avoids the computed `fields` type issues that occur when
+ * using `ModelClass<unknown, any, ...>` - the computed `SelectVariantFields<any>`
+ * doesn't unify properly with concrete field types.
+ *
+ * Instead, we define just the properties needed at runtime:
+ * - Static properties from ModelStatics
+ * - Schema properties we might need for identity checks
+ *
+ * @since 1.0.0
+ * @category models
+ */
+export interface AnyModelClass extends ModelStatics {
+  /** Schema fields - use any to avoid computed type issues */
+  readonly fields: Record<string, S.Schema.All>;
+  /** Identifier for the schema */
+  readonly identifier: string;
+}
+
+// ============================================================================
+// Model Collection Utility Types
+// ============================================================================
+
+/**
+ * Transforms either a record or an array of models into a record
+ * where keys are model identifiers and values are the model classes.
+ *
+ * Similar to `ContractsByName` from `@beep/contract`.
+ *
+ * Note: Due to TypeScript's limitations with class constructor types,
+ * the value types may be a union of all models. The keys are correctly
+ * typed as the literal identifiers.
+ *
+ * @example
+ * ```ts
+ * type Models = ModelsByIdentifier<[typeof User, typeof Post]>;
+ * // { readonly User: typeof User | typeof Post; readonly Post: typeof User | typeof Post }
+ * ```
+ *
+ * @since 1.0.0
+ * @category type-level
+ */
+export type ModelsByIdentifier<Models> =
+  Models extends Record<string, AnyModelClass>
+    ? { readonly [Id in keyof Models]: Models[Id] }
+    : Models extends ReadonlyArray<AnyModelClass>
+      ? { readonly [M in Models[number] as M["identifier"]]: Models[number] }
+      : never;
+
+/**
+ * Transforms either a record or an array of models into a record
+ * where keys are table names (snake_case) and values are the model classes.
+ *
+ * Note: Due to TypeScript's limitations with class constructor types,
+ * the value types may be a union of all models. The keys are correctly
+ * typed as the literal table names.
+ *
+ * @example
+ * ```ts
+ * type Models = ModelsByTableName<[typeof User, typeof Post]>;
+ * // { readonly user: typeof User | typeof Post; readonly post: typeof User | typeof Post }
+ * ```
+ *
+ * @since 1.0.0
+ * @category type-level
+ */
+export type ModelsByTableName<Models> =
+  Models extends Record<string, AnyModelClass>
+    ? { readonly [TName in keyof Models]: Models[TName] }
+    : Models extends ReadonlyArray<AnyModelClass>
+      ? { readonly [M in Models[number] as M["tableName"]]: Models[number] }
+      : never;
 
 // ============================================================================
 // Encoded Type Extraction for Drizzle .$type<T>()
@@ -1121,36 +1273,15 @@ export interface ModelStatics<
 export type ExtractEncodedType<F> =
   // DSLVariantField (has column metadata + variant schemas)
   [F] extends [DSLVariantField<infer Config, ColumnDef>]
-    ? Config extends { select: infer SelectSchema }
-      ? [SelectSchema] extends [S.Schema<infer _A, infer I, infer _R>]
-        ? I
-        : [SelectSchema] extends [
-              S.PropertySignature<infer _TT, infer _T, infer _K, infer _ET, infer I, infer _HD, infer _C>,
-            ]
-          ? I
-          : unknown
-      : unknown
+    ? ExtractVariantSelectEncoded<Config>
     : // Raw VariantSchema.Field (from @effect/sql/Model or local)
       [F] extends [VariantSchema.Field<infer Config>]
-      ? Config extends { select: infer SelectSchema }
-        ? [SelectSchema] extends [S.Schema<infer _A, infer I, infer _R>]
-          ? I
-          : [SelectSchema] extends [
-                S.PropertySignature<infer _TT, infer _T, infer _K, infer _ET, infer I, infer _HD, infer _C>,
-              ]
-            ? I
-            : unknown
-        : unknown
-      : // DSLField (plain schema with column metadata)
+      ? ExtractVariantSelectEncoded<Config>
+      : // DSLField (plain schema with column metadata) - extract inner schema's encoded type
         [F] extends [DSLField<infer _A, infer I, infer _R, ColumnDef>]
         ? I
-        : // Plain Schema
-          [F] extends [S.Schema<infer _A, infer I, infer _R>]
-          ? I
-          : // PropertySignature
-            [F] extends [S.PropertySignature<infer _TT, infer _T, infer _K, infer _ET, infer I, infer _HD, infer _C>]
-            ? I
-            : unknown;
+        : // Plain Schema or PropertySignature - use the helper
+          InferEncodedType<F>;
 
 /**
  * Maps DSL fields to their encoded types for Drizzle column typing.
@@ -1160,3 +1291,281 @@ export type ExtractEncodedType<F> =
 export type ExtractEncodedTypes<Fields extends DSL.Fields> = {
   readonly [K in keyof Fields]: ExtractEncodedType<Fields[K]>;
 };
+
+// ============================================================================
+// Relation Types (Phase 1 - Boilerplate)
+// ============================================================================
+
+/**
+ * Relation cardinality discriminant.
+ * @since 1.0.0
+ * @category relations
+ */
+export type RelationType = "one" | "many" | "manyToMany";
+
+/**
+ * Foreign key action literals for ON DELETE/ON UPDATE.
+ * @since 1.0.0
+ * @category relations
+ */
+export type ForeignKeyAction = "cascade" | "restrict" | "no action" | "set null" | "set default";
+
+/**
+ * Foreign key configuration.
+ * @since 1.0.0
+ * @category relations
+ */
+export interface ForeignKeyConfig {
+  readonly onDelete?: ForeignKeyAction;
+  readonly onUpdate?: ForeignKeyAction;
+  readonly name?: string;
+}
+
+/**
+ * Field-level reference for foreign key columns.
+ * Uses lazy thunk for target to handle circular dependencies.
+ * @since 1.0.0
+ * @category relations
+ */
+export interface FieldReference<Target extends AnyModelClass = AnyModelClass, TargetField extends string = string> {
+  readonly target: () => Target;
+  readonly field: TargetField;
+  readonly foreignKey?: ForeignKeyConfig;
+}
+
+/**
+ * Junction table configuration for many-to-many relations.
+ * @since 1.0.0
+ * @category relations
+ */
+export interface JunctionConfig<
+  Junction extends AnyModelClass = AnyModelClass,
+  FromField extends string = string,
+  ToField extends string = string,
+> {
+  readonly through: () => Junction;
+  readonly fromField: FromField;
+  readonly toField: ToField;
+}
+
+/**
+ * Base relation metadata interface.
+ * @since 1.0.0
+ * @category relations
+ */
+export interface RelationMeta<
+  Type extends RelationType = RelationType,
+  Target extends AnyModelClass = AnyModelClass,
+  FromField extends string = string,
+  ToField extends string = string,
+> {
+  readonly _tag: Type;
+  readonly target: () => Target;
+  readonly fromField: FromField;
+  readonly toField: ToField;
+  readonly optional: boolean;
+  readonly foreignKey?: ForeignKeyConfig;
+}
+
+/**
+ * One-to-one or many-to-one relation (from FK side).
+ * @since 1.0.0
+ * @category relations
+ */
+export interface OneRelation<
+  Target extends AnyModelClass = AnyModelClass,
+  FromField extends string = string,
+  ToField extends string = string,
+> extends RelationMeta<"one", Target, FromField, ToField> {}
+
+/**
+ * One-to-many relation (from PK side).
+ * @since 1.0.0
+ * @category relations
+ */
+export interface ManyRelation<
+  Target extends AnyModelClass = AnyModelClass,
+  FromField extends string = string,
+  ToField extends string = string,
+> extends RelationMeta<"many", Target, FromField, ToField> {}
+
+/**
+ * Many-to-many relation through junction table.
+ * @since 1.0.0
+ * @category relations
+ */
+export interface ManyToManyRelation<
+  Target extends AnyModelClass = AnyModelClass,
+  FromField extends string = string,
+  ToField extends string = string,
+  Junction extends AnyModelClass = AnyModelClass,
+> extends RelationMeta<"manyToMany", Target, FromField, ToField> {
+  readonly junction: JunctionConfig<Junction>;
+}
+
+/**
+ * Union type for any relation.
+ * @since 1.0.0
+ * @category relations
+ */
+export type AnyRelation = OneRelation | ManyRelation | ManyToManyRelation;
+
+/**
+ * Relations configuration map.
+ * @since 1.0.0
+ * @category relations
+ */
+export type RelationsConfig = {
+  readonly [name: string]: AnyRelation;
+};
+
+// Symbols for relation metadata attachment
+export const RelationMetaSymbol: unique symbol = Symbol.for($I`relation-meta`);
+export type RelationMetaSymbol = typeof RelationMetaSymbol;
+
+export const ForeignKeySymbol: unique symbol = Symbol.for($I`foreign-key`);
+export type ForeignKeySymbol = typeof ForeignKeySymbol;
+
+// ============================================================================
+// Type-Level Validation (Phase 1 - Boilerplate)
+// ============================================================================
+
+/**
+ * Error type for field not found with helpful message.
+ * @since 1.0.0
+ * @category errors
+ */
+export interface FieldNotFoundError<M, F extends string> {
+  readonly _tag: "FieldNotFoundError";
+  readonly _brand: unique symbol;
+  readonly _message: `Field '${F}' does not exist on model`;
+  readonly _model: M;
+}
+
+/**
+ * Error type for FK/PK type mismatch.
+ * @since 1.0.0
+ * @category errors
+ */
+export interface TypeMismatchError<From, FromField extends string, To, ToField extends string> {
+  readonly _tag: "TypeMismatchError";
+  readonly _brand: unique symbol;
+  readonly _message: `Type of '${FromField}' does not match type of '${ToField}'`;
+  readonly _from: From;
+  readonly _to: To;
+}
+
+/**
+ * Validates that a field exists on a model.
+ * Returns the field name if valid, otherwise returns FieldNotFoundError.
+ * @since 1.0.0
+ * @category type-level
+ */
+export type ValidateFieldExists<M extends { _fields: DSL.Fields }, F extends string> = F extends keyof M["_fields"]
+  ? F
+  : FieldNotFoundError<M, F>;
+
+/**
+ * Validates FK/PK type compatibility between models.
+ * @since 1.0.0
+ * @category type-level
+ */
+export type ValidateForeignKeyTypes<
+  From extends { _fields: DSL.Fields },
+  FromField extends string,
+  To extends { _fields: DSL.Fields },
+  ToField extends string,
+> = ExtractEncodedType<From["_fields"][FromField & keyof From["_fields"]]> extends ExtractEncodedType<
+  To["_fields"][ToField & keyof To["_fields"]]
+>
+  ? true
+  : TypeMismatchError<From, FromField, To, ToField>;
+
+// ============================================================================
+// defineRelations Pattern Types (Phase 1 - Model Relations Redesign)
+// ============================================================================
+
+/**
+ * Field references for a model - maps field names to typed string literals.
+ *
+ * Used in the `defineRelations` callback to provide compile-time field validation.
+ * Each property key is a field name from the model, and its value is the same
+ * field name as a string literal type.
+ *
+ * @example
+ * ```ts
+ * // Given a model with fields { id, name, email }
+ * type Refs = ModelFieldRefs<typeof User>;
+ * // { readonly id: "id"; readonly name: "name"; readonly email: "email" }
+ *
+ * // Usage in defineRelations callback:
+ * defineRelations(Post, (fields) => ({
+ *   // fields.authorId provides autocomplete and type checking
+ *   author: Relation.one(() => User, { from: fields.authorId, to: "id" }),
+ * }));
+ * ```
+ *
+ * @since 1.0.0
+ * @category relations
+ */
+export type ModelFieldRefs<M extends AnyModelClass> = {
+  readonly [K in keyof M["_fields"] & string]: K;
+};
+
+/**
+ * Result of `defineRelations()` - bundles a model with its relations configuration.
+ *
+ * This type represents the output of the `defineRelations` function, which pairs
+ * a fully-defined model class with its relations. The callback pattern in
+ * `defineRelations` breaks circular type dependencies by deferring relation
+ * type evaluation until after all models are defined.
+ *
+ * @example
+ * ```ts
+ * // Created by defineRelations:
+ * const postRelations: ModelRelationsDefinition<typeof Post, {
+ *   author: OneRelation<typeof User, "authorId", "id">;
+ *   comments: ManyRelation<typeof Comment, "id", "postId">;
+ * }> = defineRelations(Post, (fields) => ({
+ *   author: Relation.one(() => User, { from: fields.authorId, to: "id" }),
+ *   comments: Relation.many(() => Comment, { from: fields.id, to: "postId" }),
+ * }));
+ * ```
+ *
+ * @since 1.0.0
+ * @category relations
+ */
+export interface ModelRelationsDefinition<
+  M extends AnyModelClass = AnyModelClass,
+  R extends RelationsConfig = RelationsConfig,
+> {
+  readonly _tag: "ModelRelationsDefinition";
+  readonly model: M;
+  readonly relations: R;
+}
+
+/**
+ * Union type for inputs to relation aggregation functions.
+ *
+ * Accepts either:
+ * - Raw model classes (with static `relations` property) - legacy pattern
+ * - `ModelRelationsDefinition` objects - new `defineRelations()` pattern
+ *
+ * This provides backwards compatibility: existing code using `ModelConfig.relations`
+ * continues to work, while new code can use the `defineRelations()` pattern for
+ * models with circular dependencies.
+ *
+ * @example
+ * ```ts
+ * // Both patterns work with toDrizzleRelations:
+ * const relations = toDrizzleRelations([
+ *   User,                    // Raw model with static relations
+ *   postRelations,           // ModelRelationsDefinition from defineRelations
+ *   commentRelations,        // ModelRelationsDefinition from defineRelations
+ * ], tables);
+ * ```
+ *
+ * @since 1.0.0
+ * @category relations
+ */
+export type RelationsInput = AnyModelClass | ModelRelationsDefinition;

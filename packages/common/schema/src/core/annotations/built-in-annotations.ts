@@ -1,4 +1,4 @@
-import type * as S from "effect/Schema";
+import * as S from "effect/Schema";
 import * as AST from "effect/SchemaAST";
 export const builtInAnnotations = {
   schemaId: AST.SchemaIdAnnotationId,
@@ -44,7 +44,6 @@ export const toASTAnnotations = <A, TypeParameters extends ReadonlyArray<unknown
   return out;
 };
 
-/* <<<<<<<<<<<<<<  ✨ Windsurf Command ⭐ >>>>>>>>>>>>>>>> */
 /**
  * Merges the given annotations with the AST annotations.
  *
@@ -55,6 +54,18 @@ export const toASTAnnotations = <A, TypeParameters extends ReadonlyArray<unknown
  * @category Core/Annotations
  * @since 0.1.0
  */
-/* <<<<<<<<<<  0da96ba1-8e2a-449a-8f6f-e562046f45a2  >>>>>>>>>>> */
 export const mergeSchemaAnnotations = <A>(ast: AST.AST, annotations: S.Annotations.Schema<A>): AST.AST =>
   AST.annotations(ast, toASTAnnotations(annotations));
+
+export function makeDeclareClass<P extends ReadonlyArray<S.Schema.All>, A, I, R>(
+  typeParameters: P,
+  ast: AST.AST
+): S.declare<A, I, P, R> {
+  return class extends S.make<A, I, R>(ast) {
+    static override annotations(annotations: S.Annotations.Schema<A>): S.declare<A, I, P, R> {
+      return makeDeclareClass(typeParameters, mergeSchemaAnnotations(ast, annotations));
+    }
+
+    static typeParameters = [...typeParameters] as any as P;
+  };
+}

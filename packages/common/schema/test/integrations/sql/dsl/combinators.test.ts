@@ -175,22 +175,88 @@ describe("DSL Combinators - Constraint Setters", () => {
 });
 
 // ============================================================================
-// Default Value Setter
+// Default Value Setters
 // ============================================================================
 
-describe("DSL Combinators - Default Value", () => {
-  it("sets static default value", () => {
-    const field = S.String.pipe(DSL.string, DSL.defaultValue("'active'"));
-    const columnDef = (field as any)[ColumnMetaSymbol];
+describe("DSL Combinators - Default Values", () => {
+  describe("sqlDefault / defaultValue", () => {
+    it("sets static SQL default value", () => {
+      const field = S.String.pipe(DSL.string, DSL.sqlDefault("'active'"));
+      const columnDef = (field as any)[ColumnMetaSymbol];
 
-    expect(columnDef.defaultValue).toBe("'active'");
+      expect(columnDef.default).toBe("'active'");
+    });
+
+    it("sets SQL function default", () => {
+      const field = S.String.pipe(DSL.datetime, DSL.sqlDefault("now()"));
+      const columnDef = (field as any)[ColumnMetaSymbol];
+
+      expect(columnDef.default).toBe("now()");
+    });
+
+    it("defaultValue alias works the same as sqlDefault", () => {
+      const field = S.String.pipe(DSL.string, DSL.defaultValue("'test'"));
+      const columnDef = (field as any)[ColumnMetaSymbol];
+
+      expect(columnDef.default).toBe("'test'");
+    });
   });
 
-  it("sets function default value", () => {
-    const field = S.String.pipe(DSL.datetime, DSL.defaultValue("now()"));
-    const columnDef = (field as any)[ColumnMetaSymbol];
+  describe("$defaultFn / $default", () => {
+    it("sets runtime default function", () => {
+      const fn = () => crypto.randomUUID();
+      const field = S.String.pipe(DSL.uuid, DSL.$defaultFn(fn));
+      const columnDef = (field as any)[ColumnMetaSymbol];
 
-    expect(columnDef.defaultValue).toBe("now()");
+      expect(columnDef.$defaultFn).toBe(fn);
+    });
+
+    it("$default alias works the same as $defaultFn", () => {
+      const fn = () => "generated-id";
+      const field = S.String.pipe(DSL.uuid, DSL.$default(fn));
+      const columnDef = (field as any)[ColumnMetaSymbol];
+
+      expect(columnDef.$defaultFn).toBe(fn);
+    });
+  });
+
+  describe("$onUpdateFn / $onUpdate", () => {
+    it("sets runtime update function", () => {
+      const fn = () => new Date().toISOString();
+      const field = S.String.pipe(DSL.datetime, DSL.$onUpdateFn(fn));
+      const columnDef = (field as any)[ColumnMetaSymbol];
+
+      expect(columnDef.$onUpdateFn).toBe(fn);
+    });
+
+    it("$onUpdate alias works the same as $onUpdateFn", () => {
+      const fn = () => new Date().toISOString();
+      const field = S.String.pipe(DSL.datetime, DSL.$onUpdate(fn));
+      const columnDef = (field as any)[ColumnMetaSymbol];
+
+      expect(columnDef.$onUpdateFn).toBe(fn);
+    });
+  });
+
+  describe("combinations", () => {
+    it("combines static default with runtime update", () => {
+      const updateFn = () => new Date().toISOString();
+      const field = S.String.pipe(DSL.datetime, DSL.sqlDefault("now()"), DSL.$onUpdateFn(updateFn));
+      const columnDef = (field as any)[ColumnMetaSymbol];
+
+      expect(columnDef.default).toBe("now()");
+      expect(columnDef.$onUpdateFn).toBe(updateFn);
+    });
+
+    it("combines runtime default with runtime update", () => {
+      const defaultFn = () => new Date().toISOString();
+      const updateFn = () => new Date().toISOString();
+      const field = S.String.pipe(DSL.datetime, DSL.$defaultFn(defaultFn), DSL.$onUpdateFn(updateFn));
+      const columnDef = (field as any)[ColumnMetaSymbol];
+
+      expect(columnDef.$defaultFn).toBe(defaultFn);
+      expect(columnDef.$onUpdateFn).toBe(updateFn);
+    });
   });
 });
 
@@ -243,7 +309,7 @@ describe("DSL Combinators - Composition", () => {
   });
 
   it("merges all column metadata correctly", () => {
-    const field = S.String.pipe(DSL.string, DSL.primaryKey, DSL.unique, DSL.defaultValue("'test'"));
+    const field = S.String.pipe(DSL.string, DSL.primaryKey, DSL.unique, DSL.sqlDefault("'test'"));
     const columnDef = (field as any)[ColumnMetaSymbol];
 
     // Note: nullable is no longer stored - it's derived from schema AST
@@ -252,7 +318,7 @@ describe("DSL Combinators - Composition", () => {
       primaryKey: true,
       unique: true,
       autoIncrement: false,
-      defaultValue: "'test'",
+      default: "'test'",
     });
   });
 });
@@ -263,7 +329,7 @@ describe("DSL Combinators - Composition", () => {
 
 describe("DSL Combinators - Model Integration", () => {
   it("works with Model definition", () => {
-    class User extends Model<User>("User")({
+    class User extends Model<User>("User")("user", {
       id: S.String.pipe(DSL.uuid, DSL.primaryKey),
       email: S.String.pipe(DSL.string, DSL.unique),
       age: S.Int.pipe(DSL.integer),
@@ -279,7 +345,7 @@ describe("DSL Combinators - Model Integration", () => {
   });
 
   it("generates correct Drizzle table", () => {
-    class Post extends Model<Post>("Post")({
+    class Post extends Model<Post>("Post")("post", {
       id: S.Int.pipe(DSL.integer, DSL.primaryKey, DSL.autoIncrement),
       title: S.String.pipe(DSL.string),
       content: S.String.pipe(DSL.string),
@@ -297,7 +363,7 @@ describe("DSL Combinators - Model Integration", () => {
   it("handles nullable columns - nullability derived from schema", () => {
     // Nullability is automatically derived from S.NullOr
     // The DSL.nullable combinator is deprecated and a no-op
-    class Comment extends Model<Comment>("Comment")({
+    class Comment extends Model<Comment>("Comment")("comment", {
       id: S.String.pipe(DSL.uuid, DSL.primaryKey),
       body: S.NullOr(S.String).pipe(DSL.string),
     }) {}
@@ -316,7 +382,7 @@ describe("DSL Combinators - Model Integration", () => {
       level: S.Number,
     });
 
-    class Document extends Model<Document>("Document")({
+    class Document extends Model<Document>("Document")("document", {
       id: S.String.pipe(DSL.uuid, DSL.primaryKey),
       metadata: MetadataSchema.pipe(DSL.json),
     }) {}
@@ -330,14 +396,15 @@ describe("DSL Combinators - Model Integration", () => {
   });
 
   it("handles default values", () => {
-    class Session extends Model<Session>("Session")({
+    class Session extends Model<Session>("Session")("session", {
       id: S.String.pipe(DSL.uuid, DSL.primaryKey),
-      status: S.String.pipe(DSL.string, DSL.defaultValue("'active'")),
-      createdAt: S.String.pipe(DSL.datetime, DSL.defaultValue("now()")),
+      status: S.String.pipe(DSL.string, DSL.sqlDefault("'active'")),
+      createdAt: S.String.pipe(DSL.datetime, DSL.sqlDefault("now()")),
     }) {}
 
-    expect(Session.columns.status.defaultValue).toBe("'active'");
-    expect(Session.columns.createdAt.defaultValue).toBe("now()");
+    // Use unknown cast since Model.columns type doesn't preserve runtime default values
+    expect((Session.columns.status as unknown as { default: string }).default).toBe("'active'");
+    expect((Session.columns.createdAt as unknown as { default: string }).default).toBe("now()");
   });
 });
 
@@ -357,7 +424,7 @@ describe("DSL Combinators - Effect Schema Integration", () => {
     expect(columnDef.type).toBe("uuid");
     expect(columnDef.primaryKey).toBe(true);
 
-    class UserEntity extends Model<UserEntity>("UserEntity")({
+    class UserEntity extends Model<UserEntity>("UserEntity")("user_entity", {
       id: UserIdSchema.pipe(DSL.uuid, DSL.primaryKey),
       name: S.String.pipe(DSL.string),
     }) {}
@@ -388,7 +455,7 @@ describe("DSL Combinators - Effect Schema Integration", () => {
     expect(columnDef.type).toBe("string");
     expect(columnDef.unique).toBe(true);
 
-    class EmailUser extends Model<EmailUser>("EmailUser")({
+    class EmailUser extends Model<EmailUser>("EmailUser")("email_user", {
       id: S.String.pipe(DSL.uuid, DSL.primaryKey),
       email: EmailSchema.pipe(DSL.string, DSL.unique),
     }) {}
@@ -421,11 +488,13 @@ describe("DSL Combinators - Edge Cases", () => {
     expect(columnDef.autoIncrement).toBe(false);
   });
 
-  it("defaultValue defaults to undefined", () => {
+  it("default properties default to undefined", () => {
     const field = S.String.pipe(DSL.uuid);
     const columnDef = (field as any)[ColumnMetaSymbol];
 
-    expect(columnDef.defaultValue).toBeUndefined();
+    expect(columnDef.default).toBeUndefined();
+    expect(columnDef.$defaultFn).toBeUndefined();
+    expect(columnDef.$onUpdateFn).toBeUndefined();
   });
 
   it("handles complex combinator chains", () => {
@@ -448,15 +517,15 @@ describe("DSL Combinators - Edge Cases", () => {
 
 describe("DSL Combinators - Complete Examples", () => {
   it("creates a complete user model with combinators", () => {
-    class User extends Model<User>("User")({
+    class User extends Model<User>("User")("user", {
       id: S.String.pipe(DSL.uuid, DSL.primaryKey),
       email: S.String.pipe(DSL.string, DSL.unique),
       username: S.String.pipe(DSL.string, DSL.unique),
       age: S.Int.pipe(DSL.integer),
-      isActive: S.Boolean.pipe(DSL.boolean, DSL.defaultValue("true")),
+      isActive: S.Boolean.pipe(DSL.boolean, DSL.sqlDefault("true")),
       // Nullability is derived from S.NullOr - no need for DSL.nullable
       bio: S.NullOr(S.String).pipe(DSL.string),
-      createdAt: S.String.pipe(DSL.datetime, DSL.defaultValue("now()")),
+      createdAt: S.String.pipe(DSL.datetime, DSL.sqlDefault("now()")),
     }) {}
 
     const table = toDrizzle(User);
@@ -473,10 +542,10 @@ describe("DSL Combinators - Complete Examples", () => {
   });
 
   it("creates an auto-increment primary key model", () => {
-    class Counter extends Model<Counter>("Counter")({
+    class Counter extends Model<Counter>("Counter")("counter", {
       id: S.Int.pipe(DSL.integer, DSL.primaryKey, DSL.autoIncrement),
       name: S.String.pipe(DSL.string),
-      value: S.Int.pipe(DSL.integer, DSL.defaultValue("0")),
+      value: S.Int.pipe(DSL.integer, DSL.sqlDefault("0")),
     }) {}
 
     expect(Counter.columns.id).toMatchObject({
@@ -496,11 +565,11 @@ describe("DSL Combinators - Complete Examples", () => {
       preferences: S.Record({ key: S.String, value: S.Unknown }),
     });
 
-    class UserSettings extends Model<UserSettings>("UserSettings")({
+    class UserSettings extends Model<UserSettings>("UserSettings")("user_settings", {
       id: S.String.pipe(DSL.uuid, DSL.primaryKey),
       userId: S.String.pipe(DSL.uuid),
       settings: SettingsSchema.pipe(DSL.json),
-      updatedAt: S.String.pipe(DSL.datetime, DSL.defaultValue("now()")),
+      updatedAt: S.String.pipe(DSL.datetime, DSL.sqlDefault("now()")),
     }) {}
 
     expect(UserSettings.columns.settings.type).toBe("json");
@@ -557,7 +626,7 @@ describe("DSL Combinators - Type Narrowing", () => {
   });
 
   it("Model.columns preserves literal types from combinator DSL", () => {
-    class Document extends Model<Document>("Document")({
+    class Document extends Model<Document>("Document")("document", {
       id: S.String.pipe(DSL.uuid, DSL.primaryKey),
       content: S.String.pipe(DSL.string),
       views: S.Int.pipe(DSL.integer),
@@ -583,7 +652,7 @@ describe("DSL Combinators - Type Narrowing", () => {
       level: S.Number,
     });
 
-    class Entity extends Model<Entity>("Entity")({
+    class Entity extends Model<Entity>("Entity")("entity", {
       id: S.String.pipe(DSL.uuid, DSL.primaryKey),
       metadata: MetadataSchema.pipe(DSL.json),
     }) {}

@@ -12,41 +12,115 @@ import * as Struct from "effect/Struct";
 // Core utility types - simplified
 type Columns<TTable extends Drizzle.Table> = TTable["_"]["columns"];
 
-type ColumnSchema<TColumn extends Drizzle.Column> = TColumn["dataType"] extends "custom"
-  ? S.Schema<any>
-  : TColumn["dataType"] extends "json"
-    ? S.Schema<JsonValue>
-    : TColumn extends { enumValues: [string, ...string[]] }
-      ? Drizzle.Equal<TColumn["enumValues"], [string, ...string[]]> extends true
-        ? S.Schema<string>
-        : S.Schema<TColumn["enumValues"][number]>
-      : TColumn["dataType"] extends "bigint"
-        ? S.Schema<bigint, bigint>
-        : TColumn["dataType"] extends "number"
-          ? TColumn["columnType"] extends `PgBigInt${number}`
-            ? S.Schema<bigint, number>
-            : S.Schema<number, number>
-          : TColumn["columnType"] extends "PgNumeric"
-            ? S.Schema<number, string>
-            : TColumn["columnType"] extends "PgUUID"
-              ? S.Schema<string>
-              : TColumn["columnType"] extends "PgDate"
-                ? TColumn extends { mode: "string" }
-                  ? S.Schema<string, string>
-                  : S.Schema<Date, string>
-                : TColumn["columnType"] extends "PgTimestamp"
-                  ? TColumn extends { mode: "string" }
-                    ? S.Schema<string, string>
-                    : S.Schema<Date, string>
-                  : TColumn["dataType"] extends "string"
-                    ? S.Schema<string, string>
-                    : TColumn["dataType"] extends "boolean"
-                      ? S.Schema<boolean>
-                      : TColumn["dataType"] extends "date"
-                        ? TColumn extends { mode: "string" }
-                          ? S.Schema<string>
-                          : S.Schema<Date>
-                        : S.Schema<any>;
+/**
+ * Config mapping Drizzle dataType to corresponding Effect Schema types.
+ * This provides a single source of truth for simple dataType -> Schema mappings.
+ *
+ * @since 1.0.0
+ * @category type-level
+ * @internal
+ */
+interface DataTypeSchemaConfig {
+  readonly custom: S.Schema<any>;
+  readonly json: S.Schema<JsonValue>;
+  readonly bigint: S.Schema<bigint, bigint>;
+  readonly number: S.Schema<number, number>;
+  readonly string: S.Schema<string, string>;
+  readonly boolean: S.Schema<boolean>;
+}
+
+/**
+ * Config mapping specific Drizzle columnType to corresponding Effect Schema types.
+ * Used for columnType-specific overrides that take precedence over dataType mapping.
+ *
+ * @since 1.0.0
+ * @category type-level
+ * @internal
+ */
+interface ColumnTypeSchemaConfig {
+  readonly PgNumeric: S.Schema<number, string>;
+  readonly PgUUID: S.Schema<string>;
+}
+
+/**
+ * Schema types for date/timestamp columns based on mode.
+ * @internal
+ */
+interface DateModeSchemaConfig {
+  readonly string: S.Schema<string, string>;
+  readonly date: S.Schema<Date, string>;
+}
+
+/**
+ * Helper type for date/timestamp columns that respect the mode setting.
+ * @internal
+ */
+type DateColumnSchema<TColumn extends Drizzle.Column> = TColumn extends { readonly mode: "string" }
+  ? DateModeSchemaConfig["string"]
+  : DateModeSchemaConfig["date"];
+
+/**
+ * Helper type for generic date dataType columns.
+ * @internal
+ */
+type GenericDateSchema<TColumn extends Drizzle.Column> = TColumn extends { readonly mode: "string" }
+  ? S.Schema<string>
+  : S.Schema<Date>;
+
+/**
+ * Derives the Effect Schema type from a Drizzle column.
+ *
+ * Uses config interfaces as the source of truth for type mappings.
+ * Complex cases (enums, PgBigInt pattern, date modes) use targeted conditionals.
+ *
+ * Priority order:
+ * 1. Special dataTypes (custom, json)
+ * 2. Enum columns (with non-generic enumValues)
+ * 3. bigint and number dataTypes (with PgBigInt pattern check)
+ * 4. Specific columnTypes (PgNumeric, PgUUID, PgDate, PgTimestamp)
+ * 5. Simple dataTypes (string, boolean, date)
+ * 6. Fallback to S.Schema<any>
+ *
+ * @since 1.0.0
+ * @category type-level
+ */
+type ColumnSchema<TColumn extends Drizzle.Column> =
+  // 1. Special dataTypes - use config
+  TColumn["dataType"] extends "custom"
+    ? DataTypeSchemaConfig["custom"]
+    : TColumn["dataType"] extends "json"
+      ? DataTypeSchemaConfig["json"]
+      : // 2. Enum columns - check for non-generic enumValues
+        TColumn extends { enumValues: [string, ...string[]] }
+        ? Drizzle.Equal<TColumn["enumValues"], [string, ...string[]]> extends true
+          ? S.Schema<string>
+          : S.Schema<TColumn["enumValues"][number]>
+        : // 3. bigint dataType - use config
+          TColumn["dataType"] extends "bigint"
+          ? DataTypeSchemaConfig["bigint"]
+          : // 4. number dataType with PgBigInt pattern check
+            TColumn["dataType"] extends "number"
+            ? TColumn["columnType"] extends `PgBigInt${number}`
+              ? S.Schema<bigint, number>
+              : DataTypeSchemaConfig["number"]
+            : // 5. Specific columnTypes - use config where possible
+              TColumn["columnType"] extends "PgNumeric"
+              ? ColumnTypeSchemaConfig["PgNumeric"]
+              : TColumn["columnType"] extends "PgUUID"
+                ? ColumnTypeSchemaConfig["PgUUID"]
+                : TColumn["columnType"] extends "PgDate"
+                  ? DateColumnSchema<TColumn>
+                  : TColumn["columnType"] extends "PgTimestamp"
+                    ? DateColumnSchema<TColumn>
+                    : // 6. Simple dataTypes - use config
+                      TColumn["dataType"] extends "string"
+                      ? DataTypeSchemaConfig["string"]
+                      : TColumn["dataType"] extends "boolean"
+                        ? DataTypeSchemaConfig["boolean"]
+                        : TColumn["dataType"] extends "date"
+                          ? GenericDateSchema<TColumn>
+                          : // 7. Fallback
+                            S.Schema<any>;
 
 // Simplified JSON types to prevent inference explosion
 type JsonPrimitive = string | number | boolean | null;
@@ -66,14 +140,14 @@ export const JsonValue = S.Union(
 
 // Simplified refinement types
 type RefineFunction<TTable extends Drizzle.Table> = (
-  schemas: { [K in keyof Columns<TTable>]: S.Schema<any> }
+  schemas: { readonly [K in keyof Columns<TTable>]: S.Schema<any> }
 ) => S.Schema<any>;
 
 type RefineArg<TTable extends Drizzle.Table> = S.Schema<any> | RefineFunction<TTable>;
 
 // Clean refinement type without ugly satisfies
 type TableRefine<TTable extends Drizzle.Table> = {
-  [K in keyof Columns<TTable>]?: RefineArg<TTable>;
+  readonly [K in keyof Columns<TTable>]?: RefineArg<TTable>;
 };
 
 // Property signature builders - simplified
@@ -105,11 +179,11 @@ type SelectProperty<TColumn extends Drizzle.Column> = TColumn["_"]["notNull"] ex
 
 // Base schema builders
 type InsertColumnSchemas<TTable extends Drizzle.Table> = {
-  [K in keyof Columns<TTable>]: InsertProperty<Columns<TTable>[K], K & string>;
+  readonly [K in keyof Columns<TTable>]: InsertProperty<Columns<TTable>[K], K & string>;
 };
 
 type SelectColumnSchemas<TTable extends Drizzle.Table> = {
-  [K in keyof Columns<TTable>]: SelectProperty<Columns<TTable>[K]>;
+  readonly [K in keyof Columns<TTable>]: SelectProperty<Columns<TTable>[K]>;
 };
 
 // Refined schema builders - controlled complexity
