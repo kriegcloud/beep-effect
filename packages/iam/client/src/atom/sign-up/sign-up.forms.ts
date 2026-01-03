@@ -1,17 +1,17 @@
-import {BS} from "@beep/schema";
-import {paths} from "@beep/shared-domain";
-import {formOptionsWithDefaults, useAppForm} from "@beep/ui/form";
+import { BS } from "@beep/schema";
+import { paths } from "@beep/shared-domain";
+import { formOptionsWithDefaults, useAppForm } from "@beep/ui/form";
 import * as O from "effect/Option";
 import * as Redacted from "effect/Redacted";
 import * as S from "effect/Schema";
-import {useSignUpEmail} from "./sign-up.atoms";
+import { useSignUpEmail } from "./sign-up.atoms";
 
 type Props = {
   executeRecaptcha: () => Promise<Redacted.Redacted<string>>;
 };
 
-export const useSignUpEmailForm = ({executeRecaptcha}: Props) => {
-  const {signUpEmail} = useSignUpEmail();
+export const useSignUpEmailForm = ({ executeRecaptcha }: Props) => {
+  const { signUpEmail } = useSignUpEmail();
 
   const form = useAppForm(
     formOptionsWithDefaults({
@@ -23,19 +23,17 @@ export const useSignUpEmailForm = ({executeRecaptcha}: Props) => {
         passwordConfirm: BS.Password,
         firstName: S.NonEmptyTrimmedString,
         lastName: S.NonEmptyTrimmedString,
-      }).annotations(
-        {
-          [BS.DefaultFormValuesAnnotationId]: {
-            email: "",
-            password: "",
-            passwordConfirm: "",
-            firstName: "",
-            lastName: "",
-            redirectTo: paths.dashboard.root,
-            rememberMe: false,
-          }
-        }
-      ),
+      }).annotations({
+        [BS.DefaultFormValuesAnnotationId]: {
+          email: "",
+          password: "",
+          passwordConfirm: "",
+          firstName: "",
+          lastName: "",
+          redirectTo: paths.dashboard.root,
+          rememberMe: false,
+        },
+      }),
       onSubmit: async (value) => {
         const captchaRedacted = await executeRecaptcha();
         if (Redacted.value(value.password) !== Redacted.value(value.passwordConfirm)) {

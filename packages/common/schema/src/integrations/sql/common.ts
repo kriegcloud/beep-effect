@@ -15,7 +15,7 @@
 
 import { $SchemaId } from "@beep/identity/packages";
 import type { UnsafeTypes } from "@beep/types";
-import * as VariantSchema from "@effect/experimental/VariantSchema";
+import type * as VariantSchema from "@effect/experimental/VariantSchema";
 import * as M from "@effect/sql/Model";
 import * as DateTime from "effect/DateTime";
 import * as O from "effect/Option";
@@ -24,10 +24,6 @@ import * as S from "effect/Schema";
 import type { DefaultAnnotations } from "../../core/annotations/default";
 
 const $I = $SchemaId.create("integrations/sql/common");
-const { Field } = VariantSchema.make({
-  variants: ["select", "insert", "update", "json", "jsonCreate", "jsonUpdate"],
-  defaultVariant: "select",
-});
 
 type Annotations<A, TypeParameters extends ReadonlyArray<UnsafeTypes.UnsafeAny> = readonly []> = Omit<
   DefaultAnnotations<A, TypeParameters>,
@@ -101,23 +97,11 @@ export const DateTimeAllEncoded = S.Union(
 export interface FieldOptionOmittable<S extends S.Schema.Any>
   extends VariantSchema.Field<{
     readonly select: S.OptionFromNullOr<S>;
-    readonly insert: S.optionalWith<
-      S.OptionFromNullOr<S>,
-      { default: () => O.Option<S.Schema.Type<S>>;}
-    >;
-    readonly update: S.optionalWith<
-      S.OptionFromNullOr<S>,
-      { default: () => O.Option<S.Schema.Type<S>>;  }
-    >;
+    readonly insert: S.optionalWith<S.OptionFromNullOr<S>, { default: () => O.Option<S.Schema.Type<S>> }>;
+    readonly update: S.optionalWith<S.OptionFromNullOr<S>, { default: () => O.Option<S.Schema.Type<S>> }>;
     readonly json: S.OptionFromNullOr<S>;
-    readonly jsonCreate: S.optionalWith<
-      S.OptionFromNullOr<S>,
-      { default: () => O.Option<S.Schema.Type<S>>;  }
-    >;
-    readonly jsonUpdate: S.optionalWith<
-      S.OptionFromNullOr<S>,
-      { default: () => O.Option<S.Schema.Type<S>>;  }
-    >;
+    readonly jsonCreate: S.optionalWith<S.OptionFromNullOr<S>, { default: () => O.Option<S.Schema.Type<S>> }>;
+    readonly jsonUpdate: S.optionalWith<S.OptionFromNullOr<S>, { default: () => O.Option<S.Schema.Type<S>> }>;
   }> {}
 
 /**
@@ -133,17 +117,15 @@ export interface FieldOptionOmittable<S extends S.Schema.Any>
  * @since 0.1.0
  */
 export const FieldOptionOmittable = <S extends S.Schema.Any>(schema: S): FieldOptionOmittable<S> =>
-  Field({
+  M.Field({
     select: S.OptionFromNullOr(schema),
-    insert: S.optionalWith(S.OptionFromNullOr(schema), { default: () => O.none(),  }),
+    insert: S.optionalWith(S.OptionFromNullOr(schema), { default: () => O.none() }),
     update: S.optionalWith(S.OptionFromNullOr(schema), {
       default: () => O.none<S.Schema.Type<S>>(),
-
     }),
     json: S.OptionFromNullOr(schema),
     jsonCreate: S.optionalWith(S.OptionFromNullOr(schema), {
       default: () => O.none<S.Schema.Type<S>>(),
-
     }),
     jsonUpdate: S.optionalWith(S.OptionFromNullOr(schema), {
       default: () => O.none<S.Schema.Type<S>>(),
@@ -187,7 +169,7 @@ export interface FieldOmittableWithDefault<S extends S.Schema.Any>
 export const FieldOmittableWithDefault =
   <S extends S.Schema.Any>(schema: S) =>
   (defaultValue: () => S.Schema.Type<S>): FieldOmittableWithDefault<S> =>
-    Field({
+    M.Field({
       select: schema,
       insert: S.optionalWith(schema, { default: defaultValue }),
       update: S.optionalWith(schema, { default: defaultValue }),
@@ -303,7 +285,7 @@ export interface FieldSensitiveOptionOmittable<S extends S.Schema.Any>
  * @since 0.1.0
  */
 export const FieldSensitiveOptionOmittable = <S extends S.Schema.Any>(schema: S): FieldSensitiveOptionOmittable<S> =>
-  Field({
+  M.Field({
     select: S.OptionFromNullishOr(S.Redacted(schema), null),
     insert: S.optionalWith(S.OptionFromNullishOr(S.Redacted(schema), null), { default: () => O.none() }),
     update: S.optionalWith(S.OptionFromNullishOr(S.Redacted(schema), null), { default: () => O.none() }),

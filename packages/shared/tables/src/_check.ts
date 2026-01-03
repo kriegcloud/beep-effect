@@ -5,9 +5,8 @@ import type * as tables from "./tables";
 export const _checkSelectOrganization: typeof Organization.Model.select.Encoded = {} as InferSelectModel<
   typeof tables.organization
 >;
-export const _checkInsertOrganization: InferInsertModel<
-  typeof tables.organization
-> = {} as typeof Organization.Model.insert.Encoded
+export const _checkInsertOrganization: InferInsertModel<typeof tables.organization> =
+  {} as typeof Organization.Model.insert.Encoded;
 
 export const _checkSelectTeam: typeof Team.Model.select.Encoded = {} as InferSelectModel<typeof tables.team>;
 export const _checkInsertTeam: typeof Team.Model.insert.Encoded = {} as InferInsertModel<typeof tables.team>;
