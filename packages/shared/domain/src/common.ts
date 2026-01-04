@@ -30,16 +30,16 @@ export const userTrackingColumns = <const TableName extends string, const Brand 
   entityId: EntityId.EntityId.SchemaInstance<TableName, Brand>
 ) =>
   ({
-    createdBy: BS.FieldOmittableWithDefault(
-      S.NullOr(S.String).annotations({
+    createdBy: BS.FieldOptionOmittable(
+      S.String.annotations({
         description: `The Actor which created the ${entityId.tableName}.`,
       })
-    )(() => "app"),
-    updatedBy: BS.FieldOmittableWithDefault(
-      S.NullOr(S.String).annotations({
+    ),
+    updatedBy: BS.FieldOptionOmittable(
+      S.String.annotations({
         description: `The Actor who last updated the ${entityId.tableName}`,
       })
-    )(() => "app"),
+    ),
     deletedBy: BS.FieldOptionOmittable(
       S.String.annotations({
         description: `The Actor who soft deleted the ${entityId.tableName}`,

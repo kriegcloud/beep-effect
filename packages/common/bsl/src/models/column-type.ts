@@ -2,6 +2,7 @@ import { $BslId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
 import { ArrayUtils } from "@beep/utils";
 import type * as A from "effect/Array";
+
 const $I = $BslId.create("models/column-type");
 
 /**
@@ -39,7 +40,6 @@ export declare namespace ColumnDataType {
   export type Type = typeof ColumnDataType.Type;
   export type Enum = typeof ColumnDataType.Enum;
 }
-
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Array Constraint
@@ -248,34 +248,25 @@ export class ColumnType extends BS.StringLiteralKit(
   $I.annotations("ColumnType", {
     description: "Full column type including base types and prefixed constraints",
   })
-) {
-
-}
+) {}
 
 export declare namespace ColumnType {
   export type Type = typeof ColumnType.Type;
   export type Enum = typeof ColumnType.Enum;
 }
 
-export const columnDefFactory = ColumnType.toTagged("dataType").composer({
-
-})
-
+export const columnDefFactory = ColumnType.toTagged("dataType").composer({});
 
 export interface ColumnBaseConfig<TDataType extends ColumnType.Type> {
   readonly name: string;
-  readonly dataType: TDataType
+  readonly dataType: TDataType;
   readonly tableName: string;
-	readonly notNull: boolean;
-	readonly hasDefault: boolean;
-	readonly isPrimaryKey: boolean;
-	readonly isAutoincrement: boolean;
-	readonly hasRuntimeDefault: boolean;
-	readonly data: unknown;
-	readonly driverParam: unknown;
-	readonly enumValues: string[] | undefined;
+  readonly notNull: boolean;
+  readonly hasDefault: boolean;
+  readonly isPrimaryKey: boolean;
+  readonly isAutoincrement: boolean;
+  readonly hasRuntimeDefault: boolean;
+  readonly data: unknown;
+  readonly driverParam: unknown;
+  readonly enumValues: string[] | undefined;
 }
-
-
-
-

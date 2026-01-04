@@ -14,7 +14,7 @@ import * as Str from "effect/String";
 import {variance} from "../../core/variance";
 import {SnakeTag} from "../../primitives/string/string";
 import {UUIDLiteralEncoded} from "./uuid";
-import {thunk} from "@beep/utils/thunk";
+
 
 export declare namespace EntityId {
   export type SchemaType<TableName extends string> =
@@ -97,7 +97,7 @@ const makeFormat = <const TableName extends string>(tableName: SnakeTag.Literal<
 
 const makeCreateFn =
   <const TableName extends string>(tableName: SnakeTag.Literal<TableName>) =>
-    thunk(F.pipe(tableName, Str.concat("__"), Str.concat(UUIDLiteralEncoded.create())));
+    () => F.pipe(tableName, Str.concat("__"), Str.concat(UUIDLiteralEncoded.create()));
 const getDefaultEntityIdAST = <Config extends EntityId.Config<string, string>>(config: Config) => {
   return S.TemplateLiteral(config.tableName, "__", UUIDLiteralEncoded).ast;
 };
@@ -118,7 +118,7 @@ export function makeEntityIdSchemaInstance<const TableName extends string, const
     format: makeFormat(config.tableName),
   };
   const create = makeCreateFn(config.tableName);
-  const arbitrary = () => (fc: typeof FastCheck) => fc.constantFrom(null).map(create);
+  const arbitrary = () => (fc: typeof FastCheck) => fc.constantFrom(null).map(() => create());
   const pretty = () => (value: string) => `${config.brand}(${value})`;
   // Create the schema - TypeScript infers this with AppendType wrappers, but we know it resolves to our Type
   const schema = S.TemplateLiteral(
@@ -149,7 +149,7 @@ export function makeEntityIdSchemaInstance<const TableName extends string, const
     .notNull()
     .unique()
     .$type<EntityId.Type<TableName>>()
-    .$defaultFn(create);
+    .$defaultFn(() => create());
 
   const privateId = pg.serial("_row_id").notNull().primaryKey().$type<B.Branded<number, Brand>>();
 
@@ -170,8 +170,8 @@ export function makeEntityIdSchemaInstance<const TableName extends string, const
     static readonly tableName = config.tableName;
     static readonly brand = config.brand;
     static readonly is = isGuard;
-    static readonly publicId = thunk(publicId);
-    static readonly privateId = thunk(privateId);
+    static readonly publicId = () => publicId;
+    static readonly privateId = () => privateId;
     static readonly privateSchema = privateSchema;
     static readonly privateIdColumnNameSql = "_row_id" as const;
     static readonly privateIdColumnName = "_rowId" as const;
@@ -179,7 +179,7 @@ export function makeEntityIdSchemaInstance<const TableName extends string, const
     static readonly publicIdColumnName = "id" as const;
     static readonly modelIdSchema = S.optionalWith(schema, {
       exact: true,
-      default: create,
+      default: () => create(),
     });
     static readonly modelRowIdSchema = modelRowIdSchema;
     static readonly make = (input: string) => {

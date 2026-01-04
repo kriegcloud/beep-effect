@@ -1,11 +1,10 @@
-
 export type Writable<T> = {
-	-readonly [P in keyof T]: T[P];
+  -readonly [P in keyof T]: T[P];
 };
 
 export type RequiredKeys<T> = {
-  [K in keyof T]-?: {} extends Pick<T, K> ? never : K
-}[keyof T]
+  [K in keyof T]-?: {} extends Pick<T, K> ? never : K;
+}[keyof T];
 
 /**
  * Helper type to check if a type is `any`.

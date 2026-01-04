@@ -196,8 +196,8 @@ export class UploadSessionRepo extends Effect.Service<UploadSessionRepo>()($I`Up
           source: O.some("upload-initiation"),
           deletedBy: O.none(),
           // User audit fields
-          createdBy: session.userId,
-          updatedBy: session.userId,
+          createdBy: O.some(session.userId),
+          updatedBy: O.some(session.userId),
         });
 
         // Normalize DateTime fields to Date for Drizzle compatibility

@@ -211,3 +211,7 @@ export const thunkThrow =
   () => {
     throw error;
   };
+
+export const thunkSomeNull = pipe(null, O.some, thunk);
+
+export const thunkNegativeOne = thunk(-1);

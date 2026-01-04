@@ -103,7 +103,6 @@ export class Model extends M.Class<Model>($I`UserModel`)(
         description: "Stripe customer ID for billing integration",
       })
     ),
-
     lastLoginMethod: BS.FieldOptionOmittable(
       S.NonEmptyString.annotations({
         description: "The user's last login method",
@@ -113,4 +112,10 @@ export class Model extends M.Class<Model>($I`UserModel`)(
   $I.annotations("UserModel")
 ) {
   static readonly utils = modelKit(Model);
+
+  // static readonly insertOmittableDefaults = Model.insert
 }
+
+// type OmitOptions<T extends Record<string, unknown>> = {
+//   [K in keyof T]: T[K] extends O.Option<any> ? O.Option<T[K]> : T[K]
+// }

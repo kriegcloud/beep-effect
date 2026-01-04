@@ -19,7 +19,7 @@ export const DocumentHandlersLive = Document.DocumentRpcs.Rpcs.toLayer(
     const repo = yield* DocumentRepo;
 
     // Decode function that applies defaults from the insert schema
-    const decodeDocumentInsert = S.decode(Document.Model.insert);
+    const decodeDocumentInsert = S.decode(Document.Model.jsonCreate);
 
     return {
       get: (payload) =>

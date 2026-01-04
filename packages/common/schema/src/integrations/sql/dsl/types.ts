@@ -1,8 +1,7 @@
 import { $SchemaId } from "@beep/identity/packages";
 import type * as S from "effect/Schema";
 import type * as VariantSchema from "../../../core/VariantSchema";
-import type { ModelVariant } from "./literals.ts";
-import type { ColumnType } from "./literals.ts";
+import type { ColumnType, ModelVariant } from "./literals.ts";
 
 const $I = $SchemaId.create("integrations/sql/dsl/types");
 
@@ -860,7 +859,6 @@ export interface AnyModelClass extends ModelStatics {
   /** Identifier for the schema */
   readonly identifier: string;
 }
-
 
 // ============================================================================
 // Encoded Type Extraction for Drizzle .$type<T>()

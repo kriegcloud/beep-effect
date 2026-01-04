@@ -413,7 +413,6 @@
       "@beep/lexical-schemas/test/*": [
         "./packages/common/lexical-schemas/test/*"
       ],
-      
       "@beep/yjs": [
         "./packages/common/yjs/src/index"
       ],
@@ -423,8 +422,7 @@
       "@beep/yjs/test/*": [
         "./packages/common/yjs/test/*"
       ],
-      
-            "@beep/bsl": [
+      "@beep/bsl": [
         "./packages/common/bsl/src/index"
       ],
       "@beep/bsl/*": [
@@ -432,13 +430,6 @@
       ],
       "@beep/bsl/test/*": [
         "./packages/common/bsl/test/*"
-      ],
-      // TODO remove when posssible
-      "zod": [
-        "./node_modules/zod"
-      ],
-      "zod/*": [
-        "./node_modules/zod/*"
       ]
     }
   }

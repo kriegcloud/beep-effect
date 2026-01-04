@@ -198,7 +198,7 @@ const getFieldAST = (field: DSL.Fields[string]): AST.AST | null => {
   // DSLVariantField: get the "select" variant's schema AST
   if (isDSLVariantField(field)) {
     const selectSchema = field.schemas.select;
-    if (selectSchema && (P.or(S.isSchema, S.isPropertySignature))(selectSchema)) {
+    if (selectSchema && P.or(S.isSchema, S.isPropertySignature)(selectSchema)) {
       return extractAST(selectSchema);
     }
     return null;
