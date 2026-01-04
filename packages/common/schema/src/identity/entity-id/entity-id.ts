@@ -1,6 +1,8 @@
 import { invariant } from "@beep/invariant";
 import type { DefaultAnnotations } from "@beep/schema/core";
 import { mergeSchemaAnnotations } from "@beep/schema/core/annotations/built-in-annotations";
+import { variance } from "@beep/schema/core/variance";
+import { SnakeTag } from "@beep/schema/primitives/string/string";
 import type { $Type, HasDefault, HasRuntimeDefault, IsPrimaryKey, NotNull } from "drizzle-orm";
 import * as pg from "drizzle-orm/pg-core";
 import * as A from "effect/Array";
@@ -11,13 +13,9 @@ import * as S from "effect/Schema";
 import { TypeId } from "effect/Schema";
 import type * as AST from "effect/SchemaAST";
 import * as Str from "effect/String";
-import { variance } from "../../core/variance";
-import { SnakeTag } from "../../primitives/string/string";
 import { UUIDLiteralEncoded } from "./uuid";
 
 export declare namespace EntityId {
-  export type SchemaType<TableName extends string> =
-    S.TemplateLiteral<`${SnakeTag.Literal<TableName>}__${string}-${string}-${string}-${string}-${string}`>;
   export type PublicId<TableName extends string> = HasRuntimeDefault<
     HasDefault<
       $Type<
@@ -65,10 +63,6 @@ export declare namespace EntityId {
     readonly is: (u: unknown) => u is Type<TableName>;
     readonly publicId: () => PublicId<TableName>;
     readonly privateId: () => PrivateId<Brand>;
-    readonly privateIdColumnNameSql: "_row_id";
-    readonly privateIdColumnName: "_rowId";
-    readonly publicIdColumnNameSql: "id";
-    readonly publicIdColumnName: "id";
     readonly privateSchema: S.brand<S.refine<number, typeof S.NonNegative>, Brand>;
     readonly modelIdSchema: S.optionalWith<
       DataTypeSchema<TableName>,
@@ -173,10 +167,7 @@ export function makeEntityIdSchemaInstance<const TableName extends string, const
     static readonly publicId = () => publicId;
     static readonly privateId = () => privateId;
     static readonly privateSchema = privateSchema;
-    static readonly privateIdColumnNameSql = "_row_id" as const;
-    static readonly privateIdColumnName = "_rowId" as const;
-    static readonly publicIdColumnNameSql = "id" as const;
-    static readonly publicIdColumnName = "id" as const;
+
     static readonly modelIdSchema = S.optionalWith(schema, {
       exact: true,
       default: () => create(),
@@ -210,6 +201,4 @@ export const make = <const TableName extends string, const Brand extends string>
     readonly brand: Brand;
     readonly annotations?: undefined | Omit<DefaultAnnotations<EntityId.Type<TableName>>, "title" | "identifier">;
   }
-): EntityId.SchemaInstance<TableName, Brand> => {
-  return makeEntityIdSchemaInstance({ tableName, brand, annotations });
-};
+): EntityId.SchemaInstance<TableName, Brand> => makeEntityIdSchemaInstance({ tableName, brand, annotations })
