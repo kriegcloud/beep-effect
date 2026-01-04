@@ -178,7 +178,7 @@ const extractAST = (schemaOrPS: S.Schema.All | S.PropertySignature.All): AST.AST
   if (S.isPropertySignature(schemaOrPS)) {
     // PropertySignature has ast of type PropertySignatureDeclaration | PropertySignatureTransformation
     const psAst = schemaOrPS.ast;
-    if (psAst._tag === "PropertySignatureDeclaration") {
+    if (P.isTagged("PropertySignatureDeclaration")(psAst)) {
       return psAst.type;
     }
     // PropertySignatureTransformation - use the 'from' side for nullability
@@ -198,7 +198,7 @@ const getFieldAST = (field: DSL.Fields[string]): AST.AST | null => {
   // DSLVariantField: get the "select" variant's schema AST
   if (isDSLVariantField(field)) {
     const selectSchema = field.schemas.select;
-    if (selectSchema && (S.isSchema(selectSchema) || S.isPropertySignature(selectSchema))) {
+    if (selectSchema && (P.or(S.isSchema, S.isPropertySignature))(selectSchema)) {
       return extractAST(selectSchema);
     }
     return null;
@@ -208,14 +208,14 @@ const getFieldAST = (field: DSL.Fields[string]): AST.AST | null => {
   if (P.hasProperty("schemas")(field) && P.isObject(field.schemas) && P.isNotNull(field.schemas)) {
     const schemas = field.schemas as Record<string, unknown>;
     const selectSchema = schemas.select;
-    if (selectSchema && (S.isSchema(selectSchema) || S.isPropertySignature(selectSchema))) {
+    if (P.isNotNullable(selectSchema) && P.or(S.isSchema, S.isPropertySignature)(selectSchema)) {
       return extractAST(selectSchema as S.Schema.All | S.PropertySignature.All);
     }
     return null;
   }
 
   // DSLField or plain Schema/PropertySignature: has .ast property directly
-  if (S.isSchema(field) || S.isPropertySignature(field)) {
+  if (P.or(S.isSchema, S.isPropertySignature)(field)) {
     return extractAST(field);
   }
 
@@ -272,21 +272,21 @@ const columnBuilder = <ColumnName extends string, EncodedType>(
       // Apply defaults in order: static first, then runtime functions
       // 1. Static SQL default (evaluated by database)
       // Use sql.raw to wrap string defaults as raw SQL expressions
-      if (def.default !== undefined) {
+      if (P.isNotUndefined(def.default)) {
         column = column.default(sql.raw(def.default) as never);
       }
 
       // 2. Runtime default function (called by Drizzle on INSERT)
       // $default is alias for $defaultFn - prefer $defaultFn if both present
       const runtimeDefaultFn = def.$defaultFn ?? def.$default;
-      if (runtimeDefaultFn !== undefined) {
+      if (P.isNotUndefined(runtimeDefaultFn)) {
         column = column.$defaultFn(runtimeDefaultFn as never);
       }
 
       // 3. Runtime update function (called by Drizzle on UPDATE)
       // $onUpdate is alias for $onUpdateFn - prefer $onUpdateFn if both present
       const runtimeOnUpdateFn = def.$onUpdateFn ?? def.$onUpdate;
-      if (runtimeOnUpdateFn !== undefined) {
+      if (P.isNotUndefined(runtimeOnUpdateFn)) {
         column = column.$onUpdateFn(runtimeOnUpdateFn as never);
       }
 

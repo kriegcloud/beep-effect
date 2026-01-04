@@ -1,10 +1,8 @@
 import { $SchemaId } from "@beep/identity/packages";
-import { thunkFalse } from "@beep/utils";
-import * as F from "effect/Function";
-import * as S from "effect/Schema";
+import type * as S from "effect/Schema";
 import type * as VariantSchema from "../../../core/VariantSchema";
 import type { ModelVariant } from "./literals.ts";
-import { ColumnType } from "./literals.ts";
+import type { ColumnType } from "./literals.ts";
 
 const $I = $SchemaId.create("integrations/sql/dsl/types");
 
@@ -43,8 +41,6 @@ export interface ColumnTypeConfig {
   readonly json: { readonly output: unknown; readonly accepts: JsonColumnAccepts };
   readonly bigint: { readonly output: bigint; readonly accepts: bigint };
 }
-
-export type ColumnTypeToTS<T extends ColumnType.Type> = ColumnTypeConfig[T]["output"];
 
 /**
  * Maps TypeScript types to their compatible ColumnTypes.
@@ -180,37 +176,6 @@ export type InferEncodedType<T> = [T] extends [S.Schema<infer _A, infer I, infer
   : [T] extends [S.PropertySignature<infer _TT, infer _T, infer _K, infer _ET, infer I, infer _HD, infer _C>]
     ? I
     : unknown;
-
-/**
- * Extracts the Type (A) from a Schema or PropertySignature.
- * Returns `unknown` if neither pattern matches.
- *
- * This is a foundational helper used to extract the decoded/runtime type
- * from Effect schemas.
- *
- * @since 1.0.0
- * @category type-level
- * @internal
- */
-export type InferTypeType<T> = [T] extends [S.Schema<infer A, infer _I, infer _R>]
-  ? A
-  : [T] extends [S.PropertySignature<infer _TT, infer T, infer _K, infer _ET, infer _I, infer _HD, infer _C>]
-    ? T
-    : unknown;
-
-/**
- * Extracts the Context/Requirements type (R) from a Schema or PropertySignature.
- * Returns `never` if neither pattern matches.
- *
- * @since 1.0.0
- * @category type-level
- * @internal
- */
-export type InferContextType<T> = [T] extends [S.Schema<infer _A, infer _I, infer R>]
-  ? R
-  : [T] extends [S.PropertySignature<infer _TT, infer _T, infer _K, infer _ET, infer _I, infer _HD, infer C>]
-    ? C
-    : never;
 
 /**
  * Extracts the encoded type from a VariantSchema.Field's "select" variant.
@@ -357,49 +322,6 @@ type DeriveColumnTypeFromTSType<T> =
                 ? EncodedTypeConfig["object"]
                 : // Fallback for unknown types
                   ColumnType.Type;
-
-/**
- * Helper type that derives column type from a non-nullable type.
- * Alias for `DeriveColumnTypeFromTSType` - kept for internal consistency.
- * @internal
- */
-type DeriveFromStrippedType<T> = DeriveColumnTypeFromTSType<T>;
-
-/**
- * Derives the SQL column type from a schema's encoded TypeScript type.
- *
- * This provides type-level inference that mirrors the runtime `deriveColumnType` function.
- * The mapping is based on the encoded type (what gets stored in the database):
- *
- * - `any`/`unknown` → `"json"` (catch-all types, handled first to prevent false matches)
- * - `Date` → `"datetime"` (checked before object since Date extends object)
- * - `readonly unknown[]` → `"json"` (arrays)
- * - `object` → `"json"` (structs, records)
- * - `string` → `"string"` (includes UUID at runtime, but type-level can't distinguish)
- * - `number` → `"number"` (includes Int at runtime, but type-level can't distinguish)
- * - `boolean` → `"boolean"`
- * - `bigint` → `"bigint"`
- *
- * Uses `EncodedTypeConfig` as single source of truth for type mappings.
- *
- * **Note**: This is a fallback for when schema identity cannot be determined.
- * Prefer `DeriveColumnTypeFromSchema` when the schema type is available.
- *
- * @since 1.0.0
- * @category type-level
- */
-export type DeriveColumnTypeFromEncoded<I> =
-  // Handle `any` type first - `any` matches everything including Date, so it must be checked first
-  IsAny<I> extends true
-    ? "json"
-    : // Handle `unknown` type
-      IsUnknown<I> extends true
-      ? "json"
-      : // Handle nullable types by stripping null/undefined first
-        [StripNullable<I>] extends [never]
-        ? ColumnType.Type // Pure null/undefined - fall back to full union
-        : // Derive from the stripped type using config-based helper
-          DeriveFromStrippedType<StripNullable<I>>;
 
 // ============================================================================
 // Schema-Level Column Type Derivation (via Class Identity)
@@ -622,238 +544,6 @@ export type DerivedColumnDefFromSchema<Schema, C extends Partial<ColumnDef>> = {
   readonly type: DeriveColumnTypeFromSchema<Schema>;
 } & ExtractColumnDefProps<C>;
 
-/**
- * Schema for static SQL default value (string).
- * @internal
- */
-const defaultSchema = S.optionalWith(S.String, { exact: true });
-
-/**
- * Schema for runtime default function.
- * @internal
- */
-const runtimeFunctionSchema = S.optionalWith(
-  S.declare((u: unknown): u is () => unknown => F.isFunction(u)),
-  { exact: true }
-);
-
-// ============================================================================
-// Column Definition Schema Factories
-// ============================================================================
-
-/**
- * Base factory for column definitions WITHOUT autoIncrement.
- * Used by: string, number, boolean, datetime, uuid, json
- *
- * Per INV-SQL-AI-001: autoIncrement requires integer or bigint type.
- * Types that don't support autoIncrement simply don't have the property.
- */
-const baseColumnDefFactory = ColumnType.toTagged("type").composer({
-  primaryKey: S.optionalWith(S.Boolean, { exact: true, default: thunkFalse }),
-  unique: S.optionalWith(S.Boolean, { exact: true, default: thunkFalse }),
-});
-
-/**
- * Factory for column definitions WITH autoIncrement support.
- * Used by: integer, bigint
- *
- * Per INV-SQL-AI-001: only integer and bigint types support autoIncrement.
- */
-const autoIncrementColumnDefFactory = ColumnType.toTagged("type").composer({
-  primaryKey: S.optionalWith(S.Boolean, { exact: true, default: thunkFalse }),
-  unique: S.optionalWith(S.Boolean, { exact: true, default: thunkFalse }),
-  autoIncrement: S.optionalWith(S.Boolean, { exact: true, default: thunkFalse }),
-});
-
-export class StringColumnDefSchema extends baseColumnDefFactory
-  .string({
-    default: defaultSchema,
-    $default: runtimeFunctionSchema,
-    $defaultFn: runtimeFunctionSchema,
-    $onUpdate: runtimeFunctionSchema,
-    $onUpdateFn: runtimeFunctionSchema,
-  })
-  .annotations(
-    $I.annotations("StringColumnDefSchema", {
-      description: "String column definition",
-    })
-  ) {}
-
-export declare namespace StringColumnDefSchema {
-  export type Type = typeof StringColumnDefSchema.Type;
-  export type Encoded = typeof StringColumnDefSchema.Encoded;
-}
-
-export class NumberColumnDefSchema extends baseColumnDefFactory
-  .number({
-    default: defaultSchema,
-    $default: runtimeFunctionSchema,
-    $defaultFn: runtimeFunctionSchema,
-    $onUpdate: runtimeFunctionSchema,
-    $onUpdateFn: runtimeFunctionSchema,
-  })
-  .annotations(
-    $I.annotations("NumberColumnDefSchema", {
-      description: "Number column definition",
-    })
-  ) {}
-
-export declare namespace NumberColumnDefSchema {
-  export type Type = typeof NumberColumnDefSchema.Type;
-  export type Encoded = typeof NumberColumnDefSchema.Encoded;
-}
-
-export class IntegerColumnDefSchema extends autoIncrementColumnDefFactory
-  .integer({
-    default: defaultSchema,
-    $default: runtimeFunctionSchema,
-    $defaultFn: runtimeFunctionSchema,
-    $onUpdate: runtimeFunctionSchema,
-    $onUpdateFn: runtimeFunctionSchema,
-  })
-  .annotations(
-    $I.annotations("IntegerColumnDefSchema", {
-      description: "Integer column definition",
-    })
-  ) {}
-
-export declare namespace IntegerColumnDefSchema {
-  export type Type = typeof IntegerColumnDefSchema.Type;
-  export type Encoded = typeof IntegerColumnDefSchema.Encoded;
-}
-
-export class BooleanColumnDefSchema extends baseColumnDefFactory
-  .boolean({
-    default: defaultSchema,
-    $default: runtimeFunctionSchema,
-    $defaultFn: runtimeFunctionSchema,
-    $onUpdate: runtimeFunctionSchema,
-    $onUpdateFn: runtimeFunctionSchema,
-  })
-  .annotations(
-    $I.annotations("BooleanColumnDefSchema", {
-      description: "Boolean column definition",
-    })
-  ) {}
-
-export declare namespace BooleanColumnDefSchema {
-  export type Type = typeof BooleanColumnDefSchema.Type;
-  export type Encoded = typeof BooleanColumnDefSchema.Encoded;
-}
-
-export class DatetimeColumnDefSchema extends baseColumnDefFactory
-  .datetime({
-    default: defaultSchema,
-    $default: runtimeFunctionSchema,
-    $defaultFn: runtimeFunctionSchema,
-    $onUpdate: runtimeFunctionSchema,
-    $onUpdateFn: runtimeFunctionSchema,
-  })
-  .annotations(
-    $I.annotations("DatetimeColumnDefSchema", {
-      description: "Datetime column definition",
-    })
-  ) {}
-
-export declare namespace DatetimeColumnDefSchema {
-  export type Type = typeof DatetimeColumnDefSchema.Type;
-  export type Encoded = typeof DatetimeColumnDefSchema.Encoded;
-
-  /**
-   * Generic interface for datetime column definitions.
-   *
-   * @remarks
-   * Datetime columns do not support autoIncrement per INV-SQL-AI-001.
-   */
-  export interface Generic<PrimaryKey extends boolean = boolean, Unique extends boolean = boolean> {
-    readonly type: Type["type"];
-    readonly primaryKey?: PrimaryKey | undefined;
-    readonly unique?: Unique | undefined;
-    readonly default?: Type["default"];
-    readonly $default?: Type["$default"];
-    readonly $defaultFn?: Type["$defaultFn"];
-    readonly $onUpdate?: Type["$onUpdate"];
-    readonly $onUpdateFn?: Type["$onUpdateFn"];
-  }
-}
-
-export class UuidColumnDefSchema extends baseColumnDefFactory
-  .uuid({
-    default: defaultSchema,
-    $default: runtimeFunctionSchema,
-    $defaultFn: runtimeFunctionSchema,
-    $onUpdate: runtimeFunctionSchema,
-    $onUpdateFn: runtimeFunctionSchema,
-  })
-  .annotations(
-    $I.annotations("UuidColumnDefSchema", {
-      description: "UUID column definition",
-    })
-  ) {}
-
-export declare namespace UuidColumnDefSchema {
-  export type Type = typeof UuidColumnDefSchema.Type;
-  export type Encoded = typeof UuidColumnDefSchema.Encoded;
-}
-
-export class JsonColumnDefSchema extends baseColumnDefFactory
-  .json({
-    default: defaultSchema,
-    $default: runtimeFunctionSchema,
-    $defaultFn: runtimeFunctionSchema,
-    $onUpdate: runtimeFunctionSchema,
-    $onUpdateFn: runtimeFunctionSchema,
-  })
-  .annotations(
-    $I.annotations("JsonColumnDefSchema", {
-      description: "JSON column definition",
-    })
-  ) {}
-
-export declare namespace JsonColumnDefSchema {
-  export type Type = typeof JsonColumnDefSchema.Type;
-  export type Encoded = typeof JsonColumnDefSchema.Encoded;
-}
-
-export class BigintColumnDefSchema extends autoIncrementColumnDefFactory
-  .bigint({
-    default: defaultSchema,
-    $default: runtimeFunctionSchema,
-    $defaultFn: runtimeFunctionSchema,
-    $onUpdate: runtimeFunctionSchema,
-    $onUpdateFn: runtimeFunctionSchema,
-  })
-  .annotations(
-    $I.annotations("BigintColumnDefSchema", {
-      description: "Bigint column definition",
-    })
-  ) {}
-
-export declare namespace BigintColumnDefSchema {
-  export type Type = typeof BigintColumnDefSchema.Type;
-  export type Encoded = typeof BigintColumnDefSchema.Encoded;
-}
-
-export class ColumnDefSchema extends S.Union(
-  StringColumnDefSchema,
-  NumberColumnDefSchema,
-  IntegerColumnDefSchema,
-  BooleanColumnDefSchema,
-  DatetimeColumnDefSchema,
-  UuidColumnDefSchema,
-  JsonColumnDefSchema,
-  BigintColumnDefSchema
-).annotations(
-  $I.annotations("ColumnDefSchema", {
-    description: "Column definition schema",
-  })
-) {}
-
-export declare namespace ColumnDefSchema {
-  export type Type = typeof ColumnDefSchema.Type;
-  export type Encoded = typeof ColumnDefSchema.Encoded;
-}
-
 // Generic ColumnDef preserves specific literals
 // Note: `nullable` has been removed - nullability is derived from the Effect Schema AST
 // Note: Using `| undefined` on optional properties for exactOptionalPropertyTypes compatibility
@@ -935,16 +625,6 @@ export interface DSLField<A, I = A, R = never, C extends ColumnDef = ColumnDef> 
   readonly [ColumnMetaSymbol]: C;
 }
 
-export type WithColumnDef = {
-  <A, I = A, R = never, C extends ColumnDef = ColumnDef>(
-    columnDef: ColumnDef
-  ): (self: S.Schema<A, I, R>) => DSLField<A, I, R, C>;
-  <A, I = A, R = never, C extends ColumnDef = ColumnDef>(
-    self: S.Schema<A, I, R>,
-    columnDef: ColumnDef
-  ): DSLField<A, I, R, C>;
-};
-
 /**
  * DSLVariantField wraps a VariantSchema.Field with column metadata.
  * Carries BOTH column metadata AND variant config for multi-variant models.
@@ -992,27 +672,6 @@ export const isDSLVariantField = <A extends VariantSchema.Field.Config, C extend
   typeof u === "object" &&
   VariantFieldSymbol in u &&
   (u as Record<symbol, unknown>)[VariantFieldSymbol] === true;
-
-/**
- * Conditional return type for Field factory.
- * Determines the appropriate return type based on input type.
- * @since 1.0.0
- */
-export type FieldResult<Input, C extends ColumnDef> = Input extends VariantSchema.Field<infer VariantConfig>
-  ? DSLVariantField<VariantConfig, C>
-  : Input extends S.Schema<infer A, infer I, infer R>
-    ? DSLField<A, I, R, C>
-    : Input extends S.PropertySignature<
-          infer _TypeToken,
-          infer Type,
-          infer _Key,
-          infer _EncodedToken,
-          infer Encoded,
-          infer _HasDefault,
-          infer Context
-        >
-      ? DSLField<Type, Encoded, Context, C>
-      : never;
 
 // ============================================================================
 // Variant Extraction Types
@@ -1202,59 +861,6 @@ export interface AnyModelClass extends ModelStatics {
   readonly identifier: string;
 }
 
-// ============================================================================
-// Model Collection Utility Types
-// ============================================================================
-
-/**
- * Transforms either a record or an array of models into a record
- * where keys are model identifiers and values are the model classes.
- *
- * Similar to `ContractsByName` from `@beep/contract`.
- *
- * Note: Due to TypeScript's limitations with class constructor types,
- * the value types may be a union of all models. The keys are correctly
- * typed as the literal identifiers.
- *
- * @example
- * ```ts
- * type Models = ModelsByIdentifier<[typeof User, typeof Post]>;
- * // { readonly User: typeof User | typeof Post; readonly Post: typeof User | typeof Post }
- * ```
- *
- * @since 1.0.0
- * @category type-level
- */
-export type ModelsByIdentifier<Models> =
-  Models extends Record<string, AnyModelClass>
-    ? { readonly [Id in keyof Models]: Models[Id] }
-    : Models extends ReadonlyArray<AnyModelClass>
-      ? { readonly [M in Models[number] as M["identifier"]]: Models[number] }
-      : never;
-
-/**
- * Transforms either a record or an array of models into a record
- * where keys are table names (snake_case) and values are the model classes.
- *
- * Note: Due to TypeScript's limitations with class constructor types,
- * the value types may be a union of all models. The keys are correctly
- * typed as the literal table names.
- *
- * @example
- * ```ts
- * type Models = ModelsByTableName<[typeof User, typeof Post]>;
- * // { readonly user: typeof User | typeof Post; readonly post: typeof User | typeof Post }
- * ```
- *
- * @since 1.0.0
- * @category type-level
- */
-export type ModelsByTableName<Models> =
-  Models extends Record<string, AnyModelClass>
-    ? { readonly [TName in keyof Models]: Models[TName] }
-    : Models extends ReadonlyArray<AnyModelClass>
-      ? { readonly [M in Models[number] as M["tableName"]]: Models[number] }
-      : never;
 
 // ============================================================================
 // Encoded Type Extraction for Drizzle .$type<T>()
@@ -1283,15 +889,6 @@ export type ExtractEncodedType<F> =
         ? I
         : // Plain Schema or PropertySignature - use the helper
           InferEncodedType<F>;
-
-/**
- * Maps DSL fields to their encoded types for Drizzle column typing.
- * @since 1.0.0
- * @category type-level
- */
-export type ExtractEncodedTypes<Fields extends DSL.Fields> = {
-  readonly [K in keyof Fields]: ExtractEncodedType<Fields[K]>;
-};
 
 // ============================================================================
 // Relation Types (Phase 1 - Boilerplate)
