@@ -36,9 +36,6 @@ export class Model extends M.Class<Model>(`TeamModel`)(
         description: "JSON metadata for additional team data",
       })
     ),
-    /**
-     *
-     */
     organizationId: SharedEntityIds.OrganizationId,
   }),
   {

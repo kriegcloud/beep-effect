@@ -1,20 +1,19 @@
-import {invariant} from "@beep/invariant";
-import type {DefaultAnnotations} from "@beep/schema/core";
-import {mergeSchemaAnnotations} from "@beep/schema/core/annotations/built-in-annotations";
-import type {$Type, HasDefault, HasRuntimeDefault, IsPrimaryKey, NotNull} from "drizzle-orm";
+import { invariant } from "@beep/invariant";
+import type { DefaultAnnotations } from "@beep/schema/core";
+import { mergeSchemaAnnotations } from "@beep/schema/core/annotations/built-in-annotations";
+import type { $Type, HasDefault, HasRuntimeDefault, IsPrimaryKey, NotNull } from "drizzle-orm";
 import * as pg from "drizzle-orm/pg-core";
 import * as A from "effect/Array";
 import type * as B from "effect/Brand";
 import type * as FastCheck from "effect/FastCheck";
 import * as F from "effect/Function";
 import * as S from "effect/Schema";
-import {TypeId} from "effect/Schema";
+import { TypeId } from "effect/Schema";
 import type * as AST from "effect/SchemaAST";
 import * as Str from "effect/String";
-import {variance} from "../../core/variance";
-import {SnakeTag} from "../../primitives/string/string";
-import {UUIDLiteralEncoded} from "./uuid";
-
+import { variance } from "../../core/variance";
+import { SnakeTag } from "../../primitives/string/string";
+import { UUIDLiteralEncoded } from "./uuid";
 
 export declare namespace EntityId {
   export type SchemaType<TableName extends string> =
@@ -97,7 +96,8 @@ const makeFormat = <const TableName extends string>(tableName: SnakeTag.Literal<
 
 const makeCreateFn =
   <const TableName extends string>(tableName: SnakeTag.Literal<TableName>) =>
-    () => F.pipe(tableName, Str.concat("__"), Str.concat(UUIDLiteralEncoded.create()));
+  () =>
+    F.pipe(tableName, Str.concat("__"), Str.concat(UUIDLiteralEncoded.create()));
 const getDefaultEntityIdAST = <Config extends EntityId.Config<string, string>>(config: Config) => {
   return S.TemplateLiteral(config.tableName, "__", UUIDLiteralEncoded).ast;
 };
@@ -211,5 +211,5 @@ export const make = <const TableName extends string, const Brand extends string>
     readonly annotations?: undefined | Omit<DefaultAnnotations<EntityId.Type<TableName>>, "title" | "identifier">;
   }
 ): EntityId.SchemaInstance<TableName, Brand> => {
-  return makeEntityIdSchemaInstance({tableName, brand, annotations});
+  return makeEntityIdSchemaInstance({ tableName, brand, annotations });
 };

@@ -13,9 +13,9 @@
  * @since 0.1.0
  */
 
-import {$SchemaId} from "@beep/identity/packages";
-import type {DefaultAnnotations} from "@beep/schema/core/annotations/default";
-import type {UnsafeTypes} from "@beep/types";
+import { $SchemaId } from "@beep/identity/packages";
+import type { DefaultAnnotations } from "@beep/schema/core/annotations/default";
+import type { UnsafeTypes } from "@beep/types";
 import type * as VariantSchema from "@effect/experimental/VariantSchema";
 import * as M from "@effect/sql/Model";
 import * as O from "effect/Option";
@@ -54,11 +54,11 @@ const dateTimeJsonSchemaAnnotations = (
  * @since 0.1.0
  */
 export const DateTimeFromDate = (annotations?: Annotations<S.Schema.Type<typeof M.DateTimeFromDate>>) => {
-  const {title, description, ...rest} = annotations ?? {};
+  const { title, description, ...rest } = annotations ?? {};
   const docAnnotations = dateTimeJsonSchemaAnnotations({
     ...rest,
-    ...(title ? {title} : {}),
-    ...(description ? {description} : {}),
+    ...(title ? { title } : {}),
+    ...(description ? { description } : {}),
   });
   return M.DateTimeFromDate.annotations(docAnnotations).annotations(
     $I.annotations("sql/DateTimeFromDate", {
@@ -105,8 +105,7 @@ export interface FieldOptionOmittable<Schema extends S.Schema.Any>
     readonly json: S.OptionFromNullOr<Schema>;
     readonly jsonCreate: OptionalWithOptionDefaultSchema<Schema>;
     readonly jsonUpdate: OptionalWithOptionDefaultSchema<Schema>;
-  }> {
-}
+  }> {}
 
 /**
  * Variant definition for nullable Option fields with automatic O.none() defaults in write variants.
@@ -134,14 +133,15 @@ export interface FieldOptionOmittable<Schema extends S.Schema.Any>
  * });
  * ```
  */
-export const FieldOptionOmittable = <Schema extends S.Schema.Any>(schema: Schema): FieldOptionOmittable<Schema> => M.Field({
-  select: S.OptionFromNullOr(schema),
-  insert: optionalWithOptionDefault(schema),
-  update: optionalWithOptionDefault(schema),
-  json: S.OptionFromNullOr(schema),
-  jsonCreate: optionalWithOptionDefault(schema),
-  jsonUpdate: optionalWithOptionDefault(schema),
-});
+export const FieldOptionOmittable = <Schema extends S.Schema.Any>(schema: Schema): FieldOptionOmittable<Schema> =>
+  M.Field({
+    select: S.OptionFromNullOr(schema),
+    insert: optionalWithOptionDefault(schema),
+    update: optionalWithOptionDefault(schema),
+    json: S.OptionFromNullOr(schema),
+    jsonCreate: optionalWithOptionDefault(schema),
+    jsonUpdate: optionalWithOptionDefault(schema),
+  });
 
 /**
  * PropertySignature type for optional Redacted fields with `as: "Option"`, `nullable: true`, and a constructor default.
@@ -189,8 +189,7 @@ export interface FieldSensitiveOptionOmittable<Schema extends S.Schema.Any>
     readonly json: S.OptionFromNullOr<S.Redacted<Schema>>;
     readonly jsonCreate: OptionalRedactedWithOptionDefaultSchema<Schema>;
     readonly jsonUpdate: OptionalRedactedWithOptionDefaultSchema<Schema>;
-  }> {
-}
+  }> {}
 
 /**
  * Helper providing {@link FieldSensitiveOptionOmittable} semantics for a schema.
@@ -208,7 +207,6 @@ export interface FieldSensitiveOptionOmittable<Schema extends S.Schema.Any>
 export const FieldSensitiveOptionOmittable = <Schema extends S.Schema.Any>(
   schema: Schema
 ): FieldSensitiveOptionOmittable<Schema> => {
-
   return M.Field({
     select: S.OptionFromNullOr(S.Redacted(schema)),
     insert: optionalRedactedWithOptionDefault(schema),
@@ -233,11 +231,9 @@ export const FieldSensitiveOptionOmittable = <Schema extends S.Schema.Any>(
  * @since 0.1.0
  */
 export const JsonFromStringOption = <TSchema extends S.Schema.All>(schema: TSchema) => {
-
   return M.JsonFromString(schema).pipe(
     M.fieldEvolve({
-      select: (variant) =>
-        S.OptionFromNullOr(S.asSchema(variant)),
+      select: (variant) => S.OptionFromNullOr(S.asSchema(variant)),
       insert: (variant) =>
         S.optionalWith(S.asSchema(variant), {
           as: "Option",

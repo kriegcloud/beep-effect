@@ -26,7 +26,7 @@ const makeTestEmail = (prefix: string): BS.Email.Type => BS.Email.make(`${prefix
  * Helper to create a mock user for insert operations.
  * Account requires a valid userId foreign key.
  */
-const makeMockUser = (overrides?: Partial<{ email: BS.Email.Type; name: string }>) =>
+const makeMockUser = (overrides?: Partial<{ readonly email: BS.Email.Type; readonly name: string }>) =>
   User.Model.jsonCreate.make({
     email: overrides?.email ?? makeTestEmail("test"),
     name: overrides?.name ?? "Test User",
@@ -36,7 +36,11 @@ const makeMockUser = (overrides?: Partial<{ email: BS.Email.Type; name: string }
  * Helper to create a mock account for insert operations.
  * Requires a valid userId from an existing user.
  */
-const makeMockAccount = (overrides: { userId: SharedEntityIds.UserId.Type; accountId?: string; providerId?: string }) =>
+const makeMockAccount = (overrides: {
+  readonly userId: SharedEntityIds.UserId.Type;
+  readonly accountId?: string;
+  readonly providerId?: string;
+}) =>
   Entities.Account.Model.jsonCreate.make({
     userId: overrides.userId,
     accountId: overrides.accountId ?? `ext-account-${crypto.randomUUID()}`,
