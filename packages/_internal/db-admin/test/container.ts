@@ -3,8 +3,8 @@ import { DocumentsRepos } from "@beep/documents-server";
 import { DocumentsDb } from "@beep/documents-server/db";
 import { IamRepos } from "@beep/iam-server";
 import { IamDb } from "@beep/iam-server/db";
-import { Db, SharedDb } from "@beep/shared-server/Db";
-import { SharedRepos } from "@beep/shared-server/repos";
+import { DbClient, SharedDb } from "@beep/shared-server/Db";
+import { SharedRepos } from "@beep/shared-server/db";
 import * as FileSystem from "@effect/platform/FileSystem";
 import * as Path from "@effect/platform/Path";
 import * as BunContext from "@effect/platform-bun/BunContext";
@@ -29,18 +29,18 @@ import * as PgConnString from "pg-connection-string";
 import postgres from "postgres";
 import { Wait } from "testcontainers";
 
-export type SliceDatabaseClients = DocumentsDb.DocumentsDb | IamDb.IamDb | SharedDb.SharedDb;
-export type SliceDatabaseClientsLive = Layer.Layer<SliceDatabaseClients, never, Db.PgClientServices>;
+export type SliceDatabaseClients = DocumentsDb.Db | IamDb.Db | SharedDb.Db;
+export type SliceDatabaseClientsLive = Layer.Layer<SliceDatabaseClients, never, DbClient.PgClientServices>;
 export const SliceDatabaseClientsLive: SliceDatabaseClientsLive = Layer.mergeAll(
-  IamDb.IamDb.Live,
-  DocumentsDb.DocumentsDb.Live,
-  SharedDb.SharedDb.Live
+  IamDb.layer,
+  DocumentsDb.layer,
+  SharedDb.layer
 );
 
-type SliceRepositories = DocumentsRepos.DocumentsRepos | IamRepos.IamRepos | SharedRepos.SharedRepos;
+type SliceRepositories = DocumentsRepos.Repos | IamRepos.Repos | SharedRepos.Repos;
 //
 // type L = Layer.Layer.Context<typeof IamRepos.layer>
-type SliceReposLive = Layer.Layer<SliceRepositories, never, Db.PgClientServices | SliceDatabaseClients>;
+type SliceReposLive = Layer.Layer<SliceRepositories, never, DbClient.PgClientServices | SliceDatabaseClients>;
 export const SliceReposLive: SliceReposLive = Layer.mergeAll(
   IamRepos.layer,
   DocumentsRepos.layer,
@@ -51,7 +51,7 @@ export type CoreSliceServices = SqlClient.SqlClient | SliceDatabaseClients | Sli
 
 export type CoreSliceServicesLive = Layer.Layer<CoreSliceServices, ConfigError.ConfigError | SqlError.SqlError, never>;
 
-export const CoreSliceServicesLive = (layer: typeof Db.layer): CoreSliceServicesLive =>
+export const CoreSliceServicesLive = (layer: typeof DbClient.layer): CoreSliceServicesLive =>
   SliceReposLive.pipe(Layer.provideMerge(Layer.provideMerge(SliceDatabaseClientsLive, layer)));
 
 export class PgContainerError extends Data.TaggedError("PgContainerError")<{
@@ -254,7 +254,7 @@ const PgClientTest = Layer.unwrapEffect(
     });
 
     // Use PgClient.layer WITHOUT explicit params, apply ConfigProvider
-    return CoreSliceServicesLive(Db.layer).pipe(Layer.provide(Layer.setConfigProvider(configProvider)));
+    return CoreSliceServicesLive(DbClient.layer).pipe(Layer.provide(Layer.setConfigProvider(configProvider)));
   })
 ).pipe(Layer.provide(PgContainer.Default), Layer.orDie);
 

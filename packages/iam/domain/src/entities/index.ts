@@ -1,5 +1,7 @@
 import { Organization, Session, Team, User } from "@beep/shared-domain/entities";
 
+export { Team, Organization, User, Session };
+
 export * as Account from "./Account";
 export * as ApiKey from "./ApiKey";
 export * as DeviceCode from "./DeviceCode";
@@ -19,4 +21,3 @@ export * as TeamMember from "./TeamMember";
 export * as TwoFactor from "./TwoFactor";
 export * as Verification from "./Verification";
 export * as WalletAddress from "./WalletAddress";
-export { Team, Organization, User, Session };

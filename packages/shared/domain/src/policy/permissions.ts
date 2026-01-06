@@ -1,5 +1,5 @@
 import { BS } from "@beep/schema";
-import { AnyTableName } from "@beep/shared-domain";
+import { EntityKind } from "@beep/shared-domain";
 import { createAccessControl } from "better-auth/plugins/access";
 import { pipe } from "effect";
 import * as A from "effect/Array";
@@ -12,10 +12,10 @@ export declare namespace CommonPermissions {
 
 export const makeAccessControl = () =>
   pipe(
-    AnyTableName.Options,
+    EntityKind.Options,
     A.reduce(
       {} as {
-        readonly [AnyTableName.Type]: typeof CommonPermissions.Options;
+        readonly [EntityKind.Type]: typeof CommonPermissions.Options;
       },
       (acc, option) => ({
         ...acc,

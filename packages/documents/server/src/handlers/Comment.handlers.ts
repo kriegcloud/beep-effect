@@ -1,5 +1,5 @@
 import { Comment } from "@beep/documents-domain/entities";
-import { CommentRepo } from "@beep/documents-server/adapters/repos/Comment.repo";
+import { CommentRepo } from "@beep/documents-server/db";
 import { AuthContext } from "@beep/shared-domain/Policy";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";

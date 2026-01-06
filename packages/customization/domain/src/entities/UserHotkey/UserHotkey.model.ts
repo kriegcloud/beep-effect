@@ -8,15 +8,16 @@ import * as S from "effect/Schema";
 const $I = $CustomizationDomainId.create("entities/UserHotKey");
 
 /**
- * Comment model representing individual comments within discussions.
- * Supports both plain text and rich text content formats,
- * with tracking for edited status.
+ * UserHotkeyModel model representing user configured hotkeys.
  */
 export class Model extends M.Class<Model>($I`UserHotkeyModel`)(
   makeFields(CustomizationEntityIds.UserHotkeyId, {
     userId: SharedEntityIds.UserId,
     // todo make better
     shortcuts: M.JsonFromString(S.Record({ key: S.String, value: S.String })),
+  }),
+  $I.annotations("UserHotkeyModel", {
+    description: "UserHotkeyModel model representing user configured hotkeys.",
   })
 ) {
   static readonly utils = modelKit(Model);

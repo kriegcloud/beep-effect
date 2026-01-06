@@ -672,7 +672,7 @@ export const makeAuth = ({
 };
 
 export const AuthEffect = Effect.gen(function* () {
-  const iamDb = yield* IamDb.IamDb;
+  const iamDb = yield* IamDb.Db;
   const emailService = yield* AuthEmailService;
 
   const runtime = yield* Effect.runtime();

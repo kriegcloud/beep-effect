@@ -5,11 +5,7 @@ import { SharedRepos } from "@beep/shared-server";
 import * as Layer from "effect/Layer";
 import * as Persistence from "./Persistence.layer";
 
-type SliceRepos =
-  | IamRepos.IamRepos
-  | DocumentsRepos.DocumentsRepos
-  | SharedRepos.SharedRepos
-  | CustomizationRepos.CustomizationRepos;
+type SliceRepos = IamRepos.Repos | DocumentsRepos.Repos | SharedRepos.Repos | CustomizationRepos.Repos;
 
 const sliceReposLayer: Layer.Layer<SliceRepos, never, Persistence.Services> = Layer.mergeAll(
   IamRepos.layer,

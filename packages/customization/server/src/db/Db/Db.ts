@@ -1,20 +1,17 @@
-import * as CustomizationDbSchema from "@beep/customization-tables/schema";
+import * as DbSchema from "@beep/customization-tables/schema";
 import { $CustomizationServerId } from "@beep/identity/packages";
-import { Db } from "@beep/shared-server/Db";
+import { DbClient } from "@beep/shared-server";
 import * as Context from "effect/Context";
 import * as Layer from "effect/Layer";
 
-const $I = $CustomizationServerId.create("CustomizationDb");
+const $I = $CustomizationServerId.create("db/Db");
 
-const serviceEffect = Db.make({
-  schema: CustomizationDbSchema,
+const serviceEffect: DbClient.PgClientServiceEffect<typeof DbSchema> = DbClient.make({
+  schema: DbSchema,
 });
 
-export class CustomizationDb extends Context.Tag($I`CustomizationDb`)<
-  CustomizationDb,
-  Db.Shape<typeof CustomizationDbSchema>
->() {
-  static readonly Live: Layer.Layer<CustomizationDb, never, Db.SliceDbRequirements> = Layer.scoped(this, serviceEffect);
-}
+export type Shape = DbClient.Shape<typeof DbSchema>;
 
-export const layer: Layer.Layer<CustomizationDb, never, Db.SliceDbRequirements> = CustomizationDb.Live;
+export class Db extends Context.Tag($I`Db`)<Db, Shape>() {}
+
+export const layer: Layer.Layer<Db, never, DbClient.SliceDbRequirements> = Layer.scoped(Db, serviceEffect);

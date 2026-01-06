@@ -96,10 +96,10 @@ const getAuthContext = ({
 const contextLayerEffect: Effect.Effect<
   AuthContextShape,
   BeepError.Unauthorized,
-  Auth.Service | IamDb.IamDb | HttpServerRequest.HttpServerRequest
+  Auth.Service | IamDb.Db | HttpServerRequest.HttpServerRequest
 > = Effect.gen(function* () {
   const auth = yield* Auth.Service;
-  const iamDb = yield* IamDb.IamDb;
+  const iamDb = yield* IamDb.Db;
   const request = yield* HttpServerRequest.HttpServerRequest;
   return yield* getAuthContext({
     auth,
@@ -114,7 +114,7 @@ export const AuthContextRpcMiddlewaresLayer = Layer.effect(
   Effect.gen(function* () {
     // Acquire dependencies during Layer construction
     const auth = yield* Auth.Service;
-    const iamDb = yield* IamDb.IamDb;
+    const iamDb = yield* IamDb.Db;
 
     // Return the middleware FUNCTION (not the context value)
     // This function will be called for each RPC request with headers, clientId, etc.
@@ -131,7 +131,7 @@ export const AuthContextHttpMiddlewaresLayer = Layer.effect(
   Policy.AuthContextHttpMiddleware,
   Effect.gen(function* () {
     const auth = yield* Auth.Service;
-    const iamDb = yield* IamDb.IamDb;
+    const iamDb = yield* IamDb.Db;
 
     return Effect.gen(function* () {
       const request = yield* HttpServerRequest.HttpServerRequest;

@@ -1,5 +1,5 @@
 import { Document } from "@beep/documents-domain/entities";
-import { DocumentRepo } from "@beep/documents-server/adapters/repos/Document.repo";
+import { DocumentRepo } from "@beep/documents-server/db";
 import { AuthContext } from "@beep/shared-domain/Policy";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";

@@ -8,125 +8,101 @@
  * Individual slices should continue using their own relations for type inference.
  */
 
-import { userHotkey } from "@beep/customization-tables/tables";
-// Import Documents tables
-import { comment, discussion, document, documentFile, documentVersion } from "@beep/documents-tables/tables";
-// Import IAM tables
-import {
-  account,
-  apiKey,
-  deviceCode,
-  invitation,
-  member,
-  oauthAccessToken,
-  oauthApplication,
-  oauthConsent,
-  organizationRole,
-  passkey,
-  scimProvider,
-  session,
-  ssoProvider,
-  subscription,
-  teamMember,
-  twoFactor,
-  walletAddress,
-} from "@beep/iam-tables/tables";
-// Import shared tables
-import { organization, team, user } from "@beep/shared-tables/schema";
 import * as d from "drizzle-orm";
+import * as Tables from "./tables";
 
 // =============================================================================
 // Unified User Relations (merges IAM + Documents)
 // =============================================================================
-export const userRelations = d.relations(user, ({ many }) => ({
+export const userRelations = d.relations(Tables.user, ({ many }) => ({
   // === IAM slice relations ===
   // Organization-related relationships
-  memberships: many(member, {
+  memberships: many(Tables.member, {
     relationName: "memberUser",
   }),
-  ownedOrganizations: many(organization),
-  teamMemberships: many(teamMember),
-  sessions: many(session, {
+  ownedOrganizations: many(Tables.organization),
+  teamMemberships: many(Tables.teamMember),
+  sessions: many(Tables.session, {
     relationName: "sessions",
   }),
-  invitationsSent: many(member, {
+  invitationsSent: many(Tables.member, {
     relationName: "invitedByUser",
   }),
-  wallets: many(walletAddress, {
+  wallets: many(Tables.walletAddress, {
     relationName: "wallets",
   }),
   // Authentication-related relationships
-  accounts: many(account, {
+  accounts: many(Tables.account, {
     relationName: "accounts",
   }),
-  passkeys: many(passkey, {
+  passkeys: many(Tables.passkey, {
     relationName: "passkeys",
   }),
-  oauthApplications: many(oauthApplication),
-  impersonatedSessions: many(session, {
+  oauthApplications: many(Tables.oauthApplication),
+  impersonatedSessions: many(Tables.session, {
     relationName: "impersonatedSessions",
   }),
   // Additional IAM relations
-  twoFactors: many(twoFactor),
-  deviceCodes: many(deviceCode),
-  oauthAccessTokens: many(oauthAccessToken),
-  ssoProviders: many(ssoProvider),
-  invitations: many(invitation),
-  oauthConsents: many(oauthConsent),
-  apiKeys: many(apiKey),
+  twoFactors: many(Tables.twoFactor),
+  deviceCodes: many(Tables.deviceCode),
+  oauthAccessTokens: many(Tables.oauthAccessToken),
+  ssoProviders: many(Tables.ssoProvider),
+  invitations: many(Tables.invitation),
+  oauthConsents: many(Tables.oauthConsent),
+  apiKeys: many(Tables.apiKey),
 
   // === Documents slice relations ===
-  documents: many(document),
-  documentVersions: many(documentVersion),
-  documentFiles: many(documentFile),
-  discussions: many(discussion),
-  comments: many(comment),
-  hotkeys: many(userHotkey),
+  documents: many(Tables.document),
+  documentVersions: many(Tables.documentVersion),
+  documentFiles: many(Tables.documentFile),
+  discussions: many(Tables.discussion),
+  comments: many(Tables.comment),
+  hotkeys: many(Tables.userHotkey),
 }));
 
 // =============================================================================
 // Unified Organization Relations (merges IAM + Documents)
 // =============================================================================
-export const organizationRelations = d.relations(organization, ({ many, one }) => ({
+export const organizationRelations = d.relations(Tables.organization, ({ many, one }) => ({
   // === IAM slice relations ===
   // Ownership
-  owner: one(user, {
-    fields: [organization.ownerUserId],
-    references: [user.id],
+  owner: one(Tables.user, {
+    fields: [Tables.organization.ownerUserId],
+    references: [Tables.user.id],
   }),
   // Core organizational structure
-  members: many(member),
-  teams: many(team),
-  subscriptions: many(subscription),
+  members: many(Tables.member),
+  teams: many(Tables.team),
+  subscriptions: many(Tables.subscription),
   // Additional IAM relations
-  twoFactors: many(twoFactor),
-  oauthAccessTokens: many(oauthAccessToken),
-  organizationRoles: many(organizationRole),
-  ssoProviders: many(ssoProvider),
-  oauthApplications: many(oauthApplication),
-  invitations: many(invitation),
-  oauthConsents: many(oauthConsent),
-  apiKeys: many(apiKey),
-  teamMembers: many(teamMember),
-  scimProviders: many(scimProvider),
+  twoFactors: many(Tables.twoFactor),
+  oauthAccessTokens: many(Tables.oauthAccessToken),
+  organizationRoles: many(Tables.organizationRole),
+  ssoProviders: many(Tables.ssoProvider),
+  oauthApplications: many(Tables.oauthApplication),
+  invitations: many(Tables.invitation),
+  oauthConsents: many(Tables.oauthConsent),
+  apiKeys: many(Tables.apiKey),
+  teamMembers: many(Tables.teamMember),
+  scimProviders: many(Tables.scimProvider),
 
   // === Documents slice relations ===
-  documents: many(document),
-  documentVersions: many(documentVersion),
-  documentFiles: many(documentFile),
-  discussions: many(discussion),
-  comments: many(comment),
+  documents: many(Tables.document),
+  documentVersions: many(Tables.documentVersion),
+  documentFiles: many(Tables.documentFile),
+  discussions: many(Tables.discussion),
+  comments: many(Tables.comment),
 }));
 
 // =============================================================================
 // Unified Team Relations (merges IAM + Documents)
 // =============================================================================
-export const teamRelations = d.relations(team, ({ one, many }) => ({
+export const teamRelations = d.relations(Tables.team, ({ one, many }) => ({
   // === IAM slice relations ===
-  organization: one(organization, {
-    fields: [team.organizationId],
-    references: [organization.id],
+  organization: one(Tables.organization, {
+    fields: [Tables.team.organizationId],
+    references: [Tables.organization.id],
   }),
-  members: many(teamMember),
-  invitations: many(invitation),
+  members: many(Tables.teamMember),
+  invitations: many(Tables.invitation),
 }));

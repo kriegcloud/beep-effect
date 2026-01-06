@@ -43,7 +43,7 @@
 
 import * as Effect from "effect/Effect";
 import * as Schedule from "effect/Schedule";
-import { UploadSessionRepo } from "../repos/UploadSession.repo";
+import { UploadSessionRepo } from "../db";
 
 // ============================================================================
 // Configuration

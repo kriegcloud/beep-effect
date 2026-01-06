@@ -1,6 +1,5 @@
 import { Comment, Discussion } from "@beep/documents-domain/entities";
-import { CommentRepo } from "@beep/documents-server/adapters/repos/Comment.repo";
-import { DiscussionRepo } from "@beep/documents-server/adapters/repos/Discussion.repo";
+import { CommentRepo, DiscussionRepo } from "@beep/documents-server/db";
 import { AuthContext } from "@beep/shared-domain/Policy";
 import { pipe } from "effect";
 import * as A from "effect/Array";

@@ -10,10 +10,10 @@ import type * as S from "effect/Schema";
 import * as Schema from "effect/Schema";
 import * as internal from "./_internal/policy";
 import { PermissionAction, PolicyBuilder } from "./_internal/policy-builder";
-import { AnyTableName, IamEntityIds, SharedEntityIds } from "./entity-ids";
+import { EntityKind, IamEntityIds, SharedEntityIds } from "./entity-ids";
 
 const policyBuilder = new PolicyBuilder({
-  domains: AnyTableName.Options,
+  domains: EntityKind.Options,
   permissionActions: [PermissionAction.Enum.read, PermissionAction.Enum.manage, PermissionAction.Enum.delete],
 });
 

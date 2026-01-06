@@ -1,47 +1,17 @@
+import { $SharedDomainId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
-import * as CustomizationEntityIds from "./customization";
-import * as DocumentsEntityIds from "./documents";
-import * as IamEntityIds from "./iam";
-import { AgentId, FolderId, OrganizationId, SessionId, TeamId, UploadSessionId, UserId } from "./shared";
+import * as Customization from "./customization";
+import * as Documents from "./documents";
+import * as Iam from "./iam";
+import * as Shared from "./shared";
 
-export class AnyEntityId extends S.Union(
-  IamEntityIds.AccountId,
-  IamEntityIds.ApiKeyId,
-  IamEntityIds.InvitationId,
-  IamEntityIds.MemberId,
-  IamEntityIds.OAuthApplicationId,
-  IamEntityIds.OAuthAccessTokenId,
-  IamEntityIds.OAuthConsentId,
-  IamEntityIds.PasskeyId,
-  IamEntityIds.SsoProviderId,
-  IamEntityIds.SubscriptionId,
-  IamEntityIds.SubscriptionId,
-  IamEntityIds.TeamMemberId,
-  IamEntityIds.TwoFactorId,
-  IamEntityIds.VerificationId,
-  IamEntityIds.WalletAddressId,
-  IamEntityIds.OrganizationRoleId,
-  IamEntityIds.DeviceCodeId,
-  IamEntityIds.ScimProviderId,
-  DocumentsEntityIds.DocumentId,
-  DocumentsEntityIds.DocumentVersionId,
-  DocumentsEntityIds.DiscussionId,
-  DocumentsEntityIds.CommentId,
-  DocumentsEntityIds.DocumentFileId,
-  CustomizationEntityIds.UserHotkeyId,
-  OrganizationId,
-  TeamId,
-  UserId,
-  SessionId,
-  FolderId,
-  UploadSessionId,
-  AgentId
-).annotations({
-  schemaId: Symbol.for("@beep/shared/domain/EntityIds/AnyEntityId"),
-  description: "Any entity id",
-  title: "Any Entity Id",
-  identifier: "AnyEntityId",
-}) {}
+const $I = $SharedDomainId.create("entity-ids/any-id");
+
+export class AnyEntityId extends S.Union(Shared.AnyId, Iam.AnyId, Documents.AnyId, Customization.AnyId).annotations(
+  $I.annotations("AnyEntityId", {
+    description: "An entity id for any entity accross all domain contexts.",
+  })
+) {}
 
 export declare namespace AnyEntityId {
   export type Type = S.Schema.Type<typeof AnyEntityId>;
