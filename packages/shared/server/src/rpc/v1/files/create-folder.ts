@@ -16,8 +16,8 @@ export const Handler: HandlerEffect = Effect.fn("files_createFolder")(
     return yield* folderRepo.insert({
       id: SharedEntityIds.FolderId.create(),
       source: O.some("user"),
-      createdBy: user.id,
-      updatedBy: user.id,
+      createdBy: O.some(user.id),
+      updatedBy: O.some(user.id),
       deletedAt: O.none(),
       deletedBy: O.none(),
       organizationId: organization.id,

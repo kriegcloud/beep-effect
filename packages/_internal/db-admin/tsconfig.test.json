@@ -34,6 +34,12 @@
     },
     {
       "path": "../../../tooling/testkit/tsconfig.build.json"
+    },
+    {
+      "path": "../../customization/server/tsconfig.build.json"
+    },
+    {
+      "path": "../../customization/tables/tsconfig.build.json"
     }
   ],
   "compilerOptions": {

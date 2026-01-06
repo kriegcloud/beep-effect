@@ -344,9 +344,6 @@
       "@/*": [
         "./apps/web/src/*"
       ],
-      "@beep/interfere/*": [
-        "./apps/interfere/src/*"
-      ],
       "@beep/db-admin": [
         "./packages/_internal/db-admin/src/index"
       ],
@@ -422,14 +419,51 @@
       "@beep/yjs/test/*": [
         "./packages/common/yjs/test/*"
       ],
-      "@beep/bsl": [
-        "./packages/common/bsl/src/index"
+      
+       "@beep/customization-domain": [
+        "./packages/customization/domain/src/index"
       ],
-      "@beep/bsl/*": [
-        "./packages/common/bsl/src/*"
+      "@beep/customization-domain/*": [
+        "./packages/customization/domain/src/*"
       ],
-      "@beep/bsl/test/*": [
-        "./packages/common/bsl/test/*"
+      "@beep/customization-domain/test/*": [
+        "./packages/customization/domain/test/*"
+      ],
+      "@beep/customization-tables": [
+        "./packages/customization/tables/src/index"
+      ],
+      "@beep/customization-tables/*": [
+        "./packages/customization/tables/src/*"
+      ],
+      "@beep/customization-tables/test/*": [
+        "./packages/customization/tables/test/*"
+      ],
+      "@beep/customization-server": [
+        "./packages/customization/server/src/index"
+      ],
+      "@beep/customization-server/*": [
+        "./packages/customization/server/src/*"
+      ],
+      "@beep/customization-server/test/*": [
+        "./packages/customization/server/test/*"
+      ],
+      "@beep/customization-client": [
+        "./packages/customization/client/src/index"
+      ],
+      "@beep/customization-client/*": [
+        "./packages/customization/client/src/*"
+      ],
+      "@beep/customization-client/test/*": [
+        "./packages/customization/client/test/*"
+      ],
+      "@beep/customization-ui": [
+        "./packages/customization/ui/src/index"
+      ],
+      "@beep/customization-ui/*": [
+        "./packages/customization/ui/src/*"
+      ],
+      "@beep/customization-ui/test/*": [
+        "./packages/customization/ui/test/*"
       ]
     }
   }

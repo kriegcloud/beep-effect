@@ -12,27 +12,6 @@ export class ApiKeyRepo extends Effect.Service<ApiKeyRepo>()($I`ApiKeyRepo`, {
   accessors: true,
   effect: Repo.make(
     IamEntityIds.ApiKeyId,
-    // TS2345: Argument of type typeof Model is not assignable to parameter of type ModelWithId
-    // Type typeof Model is not assignable to type
-    // {
-    //   readonly Type: {
-    //     readonly id: unknown;
-    //   };
-    //   readonly update: {
-    //     readonly Type: {
-    //       readonly id: unknown;
-    //     };
-    //   };
-    //   readonly fields: {
-    //     readonly id: Any;
-    //   };
-    // }
-    // The types of fields.id are incompatible between these types.
-    // Type
-    // optionalWith<EntityIdSchemaInstance<"apikey", "ApiKeyId">, {
-    //   default: () => `apikey__${string}-${string}-${string}-${string}-${string}`;
-    // }>
-    // is missing the following properties from type Schema<any, any, unknown>: Type, Encoded, Context
     Entities.ApiKey.Model,
     Effect.gen(function* () {
       yield* IamDb.IamDb;

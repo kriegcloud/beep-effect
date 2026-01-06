@@ -1,7 +1,7 @@
 import { EntityId } from "@beep/schema/identity";
-import * as V2 from "@beep/schema/identity/entity-id/e-id";
 import type * as S from "effect/Schema";
-export const AccountId = V2.make("account", {
+
+export const AccountId = EntityId.make("account", {
   brand: "AccountId",
   annotations: {
     description: "A unique identifier for an account",

@@ -8,6 +8,7 @@
  * Individual slices should continue using their own relations for type inference.
  */
 
+import { userHotkey } from "@beep/customization-tables/tables";
 // Import Documents tables
 import { comment, discussion, document, documentFile, documentVersion } from "@beep/documents-tables/tables";
 // Import IAM tables
@@ -80,6 +81,7 @@ export const userRelations = d.relations(user, ({ many }) => ({
   documentFiles: many(documentFile),
   discussions: many(discussion),
   comments: many(comment),
+  hotkeys: many(userHotkey),
 }));
 
 // =============================================================================

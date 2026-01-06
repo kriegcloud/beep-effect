@@ -1,23 +1,64 @@
 import type { EntityId } from "@beep/schema/identity";
 import type { SharedEntityIds } from "@beep/shared-domain/entity-ids";
 import type { DefaultColumns } from "@beep/shared-tables/Columns";
-import type { $Type, BuildColumns, BuildExtraConfigColumns, NotNull } from "drizzle-orm";
+import { organization } from "@beep/shared-tables/tables/organization.table";
+import type { $Type, BuildExtraConfigColumns, NotNull } from "drizzle-orm";
 import type { PgTableExtraConfigValue } from "drizzle-orm/pg-core";
 import * as pg from "drizzle-orm/pg-core";
 import { globalColumns } from "../common";
-import { organization } from "../tables/organization.table";
+import type { MergedColumns, PgTableWithMergedColumns, Prettify } from "../Table/types";
 
-type OrgTableDefaultColumns<TableName extends string, Brand extends string> = DefaultColumns<TableName, Brand> & {
+/**
+ * Default columns for organization-scoped tables.
+ * Extends DefaultColumns with the organizationId foreign key.
+ */
+type OrgDefaultColumns<TableName extends string, Brand extends string> = DefaultColumns<TableName, Brand> & {
   organizationId: $Type<
     NotNull<pg.PgTextBuilderInitial<"organization_id", [string, ...string[]]>>,
     SharedEntityIds.OrganizationId.Type
   >;
 };
 
+type OrgDefaultColumnKeys = keyof OrgDefaultColumns<string, string>;
+
+/**
+ * Constraint type that produces a compile error when conflicting keys are provided.
+ * Works by requiring conflicting keys to be `never`, which is unsatisfiable.
+ *
+ * @example
+ * // This will error:
+ * OrgTable.make(SomeId)({ organizationId: pg.text("organization_id") })
+ * // Error: Type 'PgTextBuilderInitial<...>' is not assignable to type 'never'
+ */
+type NoOrgDefaultKeys<T> = T & { readonly [K in OrgDefaultColumnKeys]?: never };
+
+type OrgColumnsMap = Omit<Record<string, pg.PgColumnBuilderBase>, OrgDefaultColumnKeys>;
+
+type OrgExtraConfigColumns<
+  TableName extends string,
+  Brand extends string,
+  TColumnsMap extends OrgColumnsMap,
+> = BuildExtraConfigColumns<TableName, MergedColumns<OrgDefaultColumns<TableName, Brand>, TColumnsMap>, "pg">;
+
+type OrgExtraConfig<TableName extends string, Brand extends string, TColumnsMap extends OrgColumnsMap> =
+  | undefined
+  | ((self: OrgExtraConfigColumns<TableName, Brand, TColumnsMap>) => PgTableExtraConfigValue[]);
+
+/**
+ * All columns (org defaults + custom), flattened for clean display.
+ * This is the type that will be displayed in hover tooltips.
+ */
+type OrgAllColumns<TableName extends string, Brand extends string, TColumnsMap extends OrgColumnsMap> = Prettify<
+  MergedColumns<OrgDefaultColumns<TableName, Brand>, TColumnsMap>
+>;
+
 export const make = <const TableName extends string, const Brand extends string>(
-  entityId: EntityId.EntityId.SchemaInstance<TableName, Brand>
-) => {
-  const defaultColumns: OrgTableDefaultColumns<TableName, Brand> = {
+  entityId: EntityId.EntityId<TableName, Brand>
+): (<TColumnsMap extends OrgColumnsMap>(
+  columns: NoOrgDefaultKeys<TColumnsMap>,
+  extraConfig?: OrgExtraConfig<TableName, Brand, TColumnsMap>
+) => PgTableWithMergedColumns<TableName, OrgAllColumns<TableName, Brand, TColumnsMap>>) => {
+  const defaultColumns: OrgDefaultColumns<TableName, Brand> = {
     id: entityId.publicId(),
     _rowId: entityId.privateId(),
     organizationId: pg
@@ -33,29 +74,21 @@ export const make = <const TableName extends string, const Brand extends string>
   };
 
   const maker =
-    (defaultColumns: OrgTableDefaultColumns<TableName, Brand>) =>
-    <TColumnsMap extends Omit<Record<string, pg.PgColumnBuilderBase>, keyof OrgTableDefaultColumns<TableName, Brand>>>(
-      columns: TColumnsMap,
-      extraConfig?:
-        | ((
-            self: BuildExtraConfigColumns<TableName, TColumnsMap & OrgTableDefaultColumns<TableName, Brand>, "pg">
-          ) => PgTableExtraConfigValue[])
-        | undefined
-    ) => {
+    (
+      defaultColumns: OrgDefaultColumns<TableName, Brand>
+    ): (<TColumnsMap extends OrgColumnsMap>(
+      columns: NoOrgDefaultKeys<TColumnsMap>,
+      extraConfig?: OrgExtraConfig<TableName, Brand, TColumnsMap>
+    ) => PgTableWithMergedColumns<TableName, OrgAllColumns<TableName, Brand, TColumnsMap>>) =>
+    <TColumnsMap extends OrgColumnsMap>(
+      columns: NoOrgDefaultKeys<TColumnsMap>,
+      extraConfig?: OrgExtraConfig<TableName, Brand, TColumnsMap>
+    ): PgTableWithMergedColumns<TableName, OrgAllColumns<TableName, Brand, TColumnsMap>> => {
       const cols = {
         ...defaultColumns,
         ...columns,
       };
-      return pg.pgTable<TableName, TColumnsMap & OrgTableDefaultColumns<TableName, Brand>>(
-        entityId.tableName,
-        cols,
-        extraConfig
-      ) as pg.PgTableWithColumns<{
-        name: TableName;
-        schema: undefined;
-        columns: BuildColumns<TableName, TColumnsMap & OrgTableDefaultColumns<TableName, Brand>, "pg">;
-        dialect: "pg";
-      }>;
+      return pg.pgTable<TableName, OrgAllColumns<TableName, Brand, TColumnsMap>>(entityId.tableName, cols, extraConfig);
     };
 
   return maker(defaultColumns);

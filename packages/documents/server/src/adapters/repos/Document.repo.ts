@@ -13,7 +13,7 @@ import * as S from "effect/Schema";
 
 const SearchResultSchema = S.Struct({
   id: DocumentsEntityIds.DocumentId,
-  _rowId: DocumentsEntityIds.DocumentId.modelRowIdSchema,
+  _rowId: DocumentsEntityIds.DocumentId.privateSchema,
   title: S.NullOr(S.String),
   content: S.NullOr(S.String),
   rank: S.Number,

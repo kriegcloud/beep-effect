@@ -6,7 +6,7 @@ import { Table } from "@beep/shared-tables/Table";
 import * as d from "drizzle-orm";
 import * as pg from "drizzle-orm/pg-core";
 
-export const account = Table.make2(IamEntityIds.AccountId)(
+export const account = Table.make(IamEntityIds.AccountId)(
   {
     accountId: pg.text("account_id").notNull(),
     providerId: pg.text("provider_id").notNull(),

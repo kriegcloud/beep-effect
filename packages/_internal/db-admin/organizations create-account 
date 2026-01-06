@@ -1,8 +1,0 @@
-{
-    "CreateAccountStatus": {
-        "Id": "car-f05cb2ede9244eeeae51d7508cc72627",
-        "AccountName": "todox-ai-production",
-        "State": "IN_PROGRESS",
-        "RequestedTimestamp": "2025-12-08T15:13:54.357000-06:00"
-    }
-}

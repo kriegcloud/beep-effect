@@ -1,0 +1,10 @@
+{
+  "files": [],
+  "references": [
+    { "path": "../packages/customization/domain/tsconfig.build.json" },
+    { "path": "../packages/customization/tables/tsconfig.build.json" },
+    { "path": "../packages/customization/server/tsconfig.build.json" },
+    { "path": "../packages/customization/client/tsconfig.build.json" },
+    { "path": "../packages/customization/ui/tsconfig.build.json" }
+  ]
+}

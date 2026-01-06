@@ -10,7 +10,7 @@ import * as Identifier from "./Identifier";
  *
  * @example
  * ```typescript
- * import { $I } from "@beep/identity"
+ * import { $I } from "@beep/identity/packages"
  *
  * const customId = $I.create("custom-package").make("CustomService")
  * ```
@@ -28,7 +28,6 @@ const composers = $I.compose(
   "documents-tables",
   "ui",
   "yjs",
-  "bsl",
   "invariant",
   "web",
   "schema",
@@ -62,7 +61,12 @@ const composers = $I.compose(
   "db-admin",
   "server",
   "iam-tables",
-  "lexical-schemas"
+  "lexical-schemas",
+  "customization-domain",
+  "customization-tables",
+  "customization-server",
+  "customization-client",
+  "customization-ui"
 );
 
 /**
@@ -70,7 +74,7 @@ const composers = $I.compose(
  *
  * @example
  * ```typescript
- * import { $SharedUiId } from "@beep/identity"
+ * import { $SharedUiId } from "@beep/identity/packages"
  *
  * const componentId = $SharedUiId.make("Button")
  * ```
@@ -85,7 +89,7 @@ export const $SharedUiId = composers.$SharedUiId;
  *
  * @example
  * ```typescript
- * import { $SharedClientId } from "@beep/identity"
+ * import { $SharedClientId } from "@beep/identity/packages"
  *
  * const contractId = $SharedClientId.make("ApiContract")
  * ```
@@ -100,7 +104,7 @@ export const $SharedClientId = composers.$SharedClientId;
  *
  * @example
  * ```typescript
- * import { $RepoScriptsId } from "@beep/identity"
+ * import { $RepoScriptsId } from "@beep/identity/packages"
  *
  * const scriptId = $RepoScriptsId.make("Bootstrap")
  * ```
@@ -115,7 +119,7 @@ export const $RepoScriptsId = composers.$RepoScriptsId;
  *
  * @example
  * ```typescript
- * import { $IamServerId } from "@beep/identity"
+ * import { $IamServerId } from "@beep/identity/packages"
  *
  * const repoId = $IamServerId.make("UserRepository")
  * ```
@@ -130,7 +134,7 @@ export const $IamServerId = composers.$IamServerId;
  *
  * @example
  * ```typescript
- * import { $DocumentsTablesId } from "@beep/identity"
+ * import { $DocumentsTablesId } from "@beep/identity/packages"
  *
  * const tableId = $DocumentsTablesId.make("DocumentsTable")
  * ```
@@ -145,7 +149,7 @@ export const $DocumentsTablesId = composers.$DocumentsTablesId;
  *
  * @example
  * ```typescript
- * import { $UiId } from "@beep/identity"
+ * import { $UiId } from "@beep/identity/packages"
  *
  * const componentId = $UiId.make("Card")
  * ```
@@ -160,7 +164,7 @@ export const $UiId = composers.$UiId;
  *
  * @example
  * ```typescript
- * import { $InvariantId } from "@beep/identity"
+ * import { $InvariantId } from "@beep/identity/packages"
  *
  * const errorId = $InvariantId.make("AssertionError")
  * ```
@@ -175,7 +179,7 @@ export const $InvariantId = composers.$InvariantId;
  *
  * @example
  * ```typescript
- * import { $WebId } from "@beep/identity"
+ * import { $WebId } from "@beep/identity/packages"
  *
  * const pageId = $WebId.make("HomePage")
  * ```
@@ -190,7 +194,7 @@ export const $WebId = composers.$WebId;
  *
  * @example
  * ```typescript
- * import { $SchemaId } from "@beep/identity"
+ * import { $SchemaId } from "@beep/identity/packages"
  *
  * const entityId = $SchemaId.make("TenantSchema")
  * ```
@@ -205,7 +209,7 @@ export const $SchemaId = composers.$SchemaId;
  *
  * @example
  * ```typescript
- * import { $DocumentsDomainId } from "@beep/identity"
+ * import { $DocumentsDomainId } from "@beep/identity/packages"
  *
  * const entityId = $DocumentsDomainId.make("Document")
  * ```
@@ -220,7 +224,7 @@ export const $DocumentsDomainId = composers.$DocumentsDomainId;
  *
  * @example
  * ```typescript
- * import { $ContractId } from "@beep/identity"
+ * import { $ContractId } from "@beep/identity/packages"
  *
  * const contractId = $ContractId.make("UserContract")
  * ```
@@ -235,7 +239,7 @@ export const $ContractId = composers.$ContractId;
  *
  * @example
  * ```typescript
- * import { $RuntimeServerId } from "@beep/identity"
+ * import { $RuntimeServerId } from "@beep/identity/packages"
  *
  * const runtimeId = $RuntimeServerId.make("ManagedRuntime")
  * ```
@@ -250,7 +254,7 @@ export const $RuntimeServerId = composers.$RuntimeServerId;
  *
  * @example
  * ```typescript
- * import { $IamClientId } from "@beep/identity"
+ * import { $IamClientId } from "@beep/identity/packages"
  *
  * const clientId = $IamClientId.make("AuthClient")
  * ```
@@ -265,7 +269,7 @@ export const $IamClientId = composers.$IamClientId;
  *
  * @example
  * ```typescript
- * import { $IamUiId } from "@beep/identity"
+ * import { $IamUiId } from "@beep/identity/packages"
  *
  * const componentId = $IamUiId.make("LoginForm")
  * ```
@@ -280,7 +284,7 @@ export const $IamUiId = composers.$IamUiId;
  *
  * @example
  * ```typescript
- * import { $SharedServerId } from "@beep/identity"
+ * import { $SharedServerId } from "@beep/identity/packages"
  *
  * const serviceId = $SharedServerId.make("DatabaseService")
  * ```
@@ -295,7 +299,7 @@ export const $SharedServerId = composers.$SharedServerId;
  *
  * @example
  * ```typescript
- * import { $IdentityId } from "@beep/identity"
+ * import { $IdentityId } from "@beep/identity/packages"
  *
  * const composerId = $IdentityId.make("TaggedComposer")
  * ```
@@ -310,7 +314,7 @@ export const $IdentityId = composers.$IdentityId;
  *
  * @example
  * ```typescript
- * import { $UtilsId } from "@beep/identity"
+ * import { $UtilsId } from "@beep/identity/packages"
  *
  * const utilId = $UtilsId.make("StringUtils")
  * ```
@@ -325,7 +329,7 @@ export const $UtilsId = composers.$UtilsId;
  *
  * @example
  * ```typescript
- * import { $IamDomainId } from "@beep/identity"
+ * import { $IamDomainId } from "@beep/identity/packages"
  *
  * const entityId = $IamDomainId.make("User")
  * ```
@@ -340,7 +344,7 @@ export const $IamDomainId = composers.$IamDomainId;
  *
  * @example
  * ```typescript
- * import { $RuntimeClientId } from "@beep/identity"
+ * import { $RuntimeClientId } from "@beep/identity/packages"
  *
  * const runtimeId = $RuntimeClientId.make("ClientRuntime")
  * ```
@@ -355,7 +359,7 @@ export const $RuntimeClientId = composers.$RuntimeClientId;
  *
  * @example
  * ```typescript
- * import { $ScratchpadId } from "@beep/identity"
+ * import { $ScratchpadId } from "@beep/identity/packages"
  *
  * const noteId = $ScratchpadId.make("Note")
  * ```
@@ -370,7 +374,7 @@ export const $ScratchpadId = composers.$ScratchpadId;
  *
  * @example
  * ```typescript
- * import { $SharedTablesId } from "@beep/identity"
+ * import { $SharedTablesId } from "@beep/identity/packages"
  *
  * const tableId = $SharedTablesId.make("AuditTable")
  * ```
@@ -385,7 +389,7 @@ export const $SharedTablesId = composers.$SharedTablesId;
  *
  * @example
  * ```typescript
- * import { $MockId } from "@beep/identity"
+ * import { $MockId } from "@beep/identity/packages"
  *
  * const mockId = $MockId.make("MockUser")
  * ```
@@ -400,7 +404,7 @@ export const $MockId = composers.$MockId;
  *
  * @example
  * ```typescript
- * import { $UiCoreId } from "@beep/identity"
+ * import { $UiCoreId } from "@beep/identity/packages"
  *
  * const themeId = $UiCoreId.make("Theme")
  * ```
@@ -415,7 +419,7 @@ export const $UiCoreId = composers.$UiCoreId;
  *
  * @example
  * ```typescript
- * import { $ErrorsId } from "@beep/identity"
+ * import { $ErrorsId } from "@beep/identity/packages"
  *
  * const errorId = $ErrorsId.make("ValidationError")
  * ```
@@ -430,7 +434,7 @@ export const $ErrorsId = composers.$ErrorsId;
  *
  * @example
  * ```typescript
- * import { $TypesId } from "@beep/identity"
+ * import { $TypesId } from "@beep/identity/packages"
  *
  * const typeId = $TypesId.make("StringTypes")
  * ```
@@ -445,7 +449,7 @@ export const $TypesId = composers.$TypesId;
  *
  * @example
  * ```typescript
- * import { $BuildUtilsId } from "@beep/identity"
+ * import { $BuildUtilsId } from "@beep/identity/packages"
  *
  * const utilId = $BuildUtilsId.make("Bundler")
  * ```
@@ -460,7 +464,7 @@ export const $BuildUtilsId = composers.$BuildUtilsId;
  *
  * @example
  * ```typescript
- * import { $DocumentsClientId } from "@beep/identity"
+ * import { $DocumentsClientId } from "@beep/identity/packages"
  *
  * const clientId = $DocumentsClientId.make("DocumentsClient")
  * ```
@@ -475,7 +479,7 @@ export const $DocumentsClientId = composers.$DocumentsClientId;
  *
  * @example
  * ```typescript
- * import { $DocumentsUiId } from "@beep/identity"
+ * import { $DocumentsUiId } from "@beep/identity/packages"
  *
  * const componentId = $DocumentsUiId.make("FileUploader")
  * ```
@@ -490,7 +494,7 @@ export const $DocumentsUiId = composers.$DocumentsUiId;
  *
  * @example
  * ```typescript
- * import { $ConstantsId } from "@beep/identity"
+ * import { $ConstantsId } from "@beep/identity/packages"
  *
  * const constantId = $ConstantsId.make("ApiRoutes")
  * ```
@@ -505,7 +509,7 @@ export const $ConstantsId = composers.$ConstantsId;
  *
  * @example
  * ```typescript
- * import { $TestkitId } from "@beep/identity"
+ * import { $TestkitId } from "@beep/identity/packages"
  *
  * const testId = $TestkitId.make("TestHelpers")
  * ```
@@ -520,7 +524,7 @@ export const $TestkitId = composers.$TestkitId;
  *
  * @example
  * ```typescript
- * import { $ToolingUtilsId } from "@beep/identity"
+ * import { $ToolingUtilsId } from "@beep/identity/packages"
  *
  * const utilId = $ToolingUtilsId.make("FsUtils")
  * ```
@@ -535,7 +539,7 @@ export const $ToolingUtilsId = composers.$ToolingUtilsId;
  *
  * @example
  * ```typescript
- * import { $RepoCliId } from "@beep/identity"
+ * import { $RepoCliId } from "@beep/identity/packages"
  *
  * const commandId = $RepoCliId.make("SyncCommand")
  * ```
@@ -550,7 +554,7 @@ export const $RepoCliId = composers.$RepoCliId;
  *
  * @example
  * ```typescript
- * import { $NotesId } from "@beep/identity"
+ * import { $NotesId } from "@beep/identity/packages"
  *
  * const noteId = $NotesId.make("Note")
  * ```
@@ -565,7 +569,7 @@ export const $NotesId = composers.$NotesId;
  *
  * @example
  * ```typescript
- * import { $DocumentsServerId } from "@beep/identity"
+ * import { $DocumentsServerId } from "@beep/identity/packages"
  *
  * const serviceId = $DocumentsServerId.make("S3StorageService")
  * ```
@@ -580,7 +584,7 @@ export const $DocumentsServerId = composers.$DocumentsServerId;
  *
  * @example
  * ```typescript
- * import { $ScraperId } from "@beep/identity"
+ * import { $ScraperId } from "@beep/identity/packages"
  *
  * const scraperId = $ScraperId.make("WebScraper")
  * ```
@@ -595,7 +599,7 @@ export const $ScraperId = composers.$ScraperId;
  *
  * @example
  * ```typescript
- * import { $SharedDomainId } from "@beep/identity"
+ * import { $SharedDomainId } from "@beep/identity/packages"
  *
  * const entityId = $SharedDomainId.make("BaseEntity")
  * ```
@@ -610,7 +614,7 @@ export const $SharedDomainId = composers.$SharedDomainId;
  *
  * @example
  * ```typescript
- * import { $DbAdminId } from "@beep/identity"
+ * import { $DbAdminId } from "@beep/identity/packages"
  *
  * const migrationId = $DbAdminId.make("Migration")
  * ```
@@ -625,7 +629,7 @@ export const $DbAdminId = composers.$DbAdminId;
  *
  * @example
  * ```typescript
- * import { $ServerId } from "@beep/identity"
+ * import { $ServerId } from "@beep/identity/packages"
  *
  * const serverId = $ServerId.make("ApiServer")
  * ```
@@ -640,7 +644,7 @@ export const $ServerId = composers.$ServerId;
  *
  * @example
  * ```typescript
- * import { $IamTablesId } from "@beep/identity"
+ * import { $IamTablesId } from "@beep/identity/packages"
  *
  * const tableId = $IamTablesId.make("UsersTable")
  * ```
@@ -655,7 +659,7 @@ export const $IamTablesId = composers.$IamTablesId;
  *
  * @example
  * ```typescript
- * import { $LexicalSchemasId } from "@beep/identity"
+ * import { $LexicalSchemasId } from "@beep/identity/packages"
  *
  * const schemaId = $LexicalSchemasId.make("SchemaId")
  * ```
@@ -665,5 +669,92 @@ export const $IamTablesId = composers.$IamTablesId;
  */
 export const $LexicalSchemasId = composers.$LexicalSchemasId;
 
+/**
+ * Identity composer for the `@beep/yjs` namespace.
+ *
+ * @example
+ * ```typescript
+ * import { $YjsId } from "@beep/identity/packages"
+ *
+ * const schemaId = $YjsId.make("SchemaId")
+ * ```
+ *
+ * @category symbols
+ * @since 0.1.0
+ */
 export const $YjsId = composers.$YjsId;
-export const $BslId = composers.$BslId;
+
+/**
+ * Identity composer for the `@beep/customization-domain` namespace.
+ *
+ * @example
+ * ```typescript
+ * import { $CustomizationDomainId } from "@beep/identity/packages"
+ *
+ * const schemaId = $CustomizationDomainId.make("SchemaId")
+ * ```
+ *
+ * @category symbols
+ * @since 0.1.0
+ */
+export const $CustomizationDomainId = composers.$CustomizationDomainId;
+
+/**
+ * Identity composer for the `@beep/customization-client` namespace.
+ *
+ * @example
+ * ```typescript
+ * import { $CustomizationClientId } from "@beep/identity/packages"
+ *
+ * const schemaId = $CustomizationClientId.make("SchemaId")
+ * ```
+ *
+ * @category symbols
+ * @since 0.1.0
+ */
+export const $CustomizationClientId = composers.$CustomizationClientId;
+
+/**
+ * Identity composer for the `@beep/customization-server` namespace.
+ *
+ * @example
+ * ```typescript
+ * import { $CustomizationServerId } from "@beep/identity/packages"
+ *
+ * const schemaId = $CustomizationServerId.make("SchemaId")
+ * ```
+ *
+ * @category symbols
+ * @since 0.1.0
+ */
+export const $CustomizationServerId = composers.$CustomizationServerId;
+
+/**
+ * Identity composer for the `@beep/customization-tables` namespace.
+ *
+ * @example
+ * ```typescript
+ * import { $CustomizationTablesId } from "@beep/identity/packages"
+ *
+ * const schemaId = $CustomizationTablesId.make("SchemaId")
+ * ```
+ *
+ * @category symbols
+ * @since 0.1.0
+ */
+export const $CustomizationTablesId = composers.$CustomizationTablesId;
+
+/**
+ * Identity composer for the `@beep/customization-ui` namespace.
+ *
+ * @example
+ * ```typescript
+ * import { $CustomizationUiId } from "@beep/identity/packages"
+ *
+ * const schemaId = $CustomizationUiId.make("SchemaId")
+ * ```
+ *
+ * @category symbols
+ * @since 0.1.0
+ */
+export const $CustomizationUiId = composers.$CustomizationUiId;

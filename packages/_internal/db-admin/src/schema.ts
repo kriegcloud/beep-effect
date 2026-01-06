@@ -10,6 +10,7 @@
  * slice-scoped schemas for proper type inference and vertical slice isolation.
  */
 
+export * from "@beep/customization-tables/tables";
 export * from "@beep/documents-tables/tables";
 export * from "@beep/iam-tables/tables";
 export * from "@beep/shared-tables/columns/bytea";
@@ -28,6 +29,7 @@ export * from "./relations";
 // Slice-specific relations (non-conflicting)
 // =============================================================================
 
+export { userHotkeyRelations } from "@beep/customization-tables/relations";
 // Documents slice relations (excluding documentsUserRelations, documentsOrganizationRelations, documentsTeamRelations)
 export {
   commentRelations,

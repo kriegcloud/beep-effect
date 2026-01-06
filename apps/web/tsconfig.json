@@ -92,7 +92,25 @@
       "@beep/runtime-server": ["../../packages/runtime/server/src/index"],
       "@beep/runtime-server/*": ["../../packages/runtime/server/src/*"],
       "@beep/runtime-client": ["../../packages/runtime/client/src/index"],
-      "@beep/runtime-client/*": ["../../packages/runtime/client/src/*"]
+      "@beep/runtime-client/*": ["../../packages/runtime/client/src/*"],
+      "@beep/customization-server": [
+        "../../packages/customization/server/src/index"
+      ],
+      "@beep/customization-server/*": [
+        "../../packages/customization/server/src/*"
+      ],
+      "@beep/customization-domain": [
+        "../../packages/customization/domain/src/index"
+      ],
+      "@beep/customization-domain/*": [
+        "../../packages/customization/domain/src/*"
+      ],
+      "@beep/customization-tables": [
+        "../../packages/customization/tables/src/index"
+      ],
+      "@beep/customization-tables/*": [
+        "../../packages/customization/tables/src/*"
+      ]
     },
     "plugins": [
       {
@@ -157,6 +175,15 @@
     },
     {
       "path": "../../packages/runtime/client/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/customization/server/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/customization/domain/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/customization/tables/tsconfig.build.json"
     }
   ],
   "include": [

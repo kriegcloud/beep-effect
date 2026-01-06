@@ -1,7 +1,7 @@
 import * as S from "effect/Schema";
+import * as CustomizationEntityIds from "./customization";
 import * as DocumentsEntityIds from "./documents";
 import * as IamEntityIds from "./iam";
-
 import { AgentId, FolderId, OrganizationId, SessionId, TeamId, UploadSessionId, UserId } from "./shared";
 
 export class AnyEntityId extends S.Union(
@@ -28,6 +28,7 @@ export class AnyEntityId extends S.Union(
   DocumentsEntityIds.DiscussionId,
   DocumentsEntityIds.CommentId,
   DocumentsEntityIds.DocumentFileId,
+  CustomizationEntityIds.UserHotkeyId,
   OrganizationId,
   TeamId,
   UserId,

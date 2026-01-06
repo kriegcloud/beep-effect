@@ -189,3 +189,13 @@ export const mapNonEmpty: MapNonEmpty = F.dual(
     return arr;
   }
 );
+
+export const assertNonEmpty = <A extends Array<any>>(arr: A): A.NonEmptyReadonlyArray<A[number]> => {
+  invariant(A.isNonEmptyReadonlyArray(arr), "array must be non-empty", {
+    file: "@beep/utils/data/array.utils/NonEmptyReadonly/NonEmptyreadonly.ts",
+    line: 194,
+    args: [arr],
+  });
+
+  return arr;
+};

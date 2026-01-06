@@ -39,6 +39,9 @@
     },
     {
       "path": "../../documents/server/tsconfig.build.json"
+    },
+    {
+      "path": "../../customization/server/tsconfig.build.json"
     }
   ]
 }

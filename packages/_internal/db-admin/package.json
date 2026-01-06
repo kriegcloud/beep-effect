@@ -49,6 +49,8 @@
     "@beep/iam-server": "workspace:^",
     "@beep/documents-tables": "workspace:^",
     "@beep/documents-server": "workspace:^",
+    "@beep/customization-tables": "workspace:^",
+    "@beep/customization-server": "workspace:^",
     "@effect/platform-bun": "catalog:",
     "@effect/sql-pg": "catalog:",
     "@faker-js/faker": "catalog:",
