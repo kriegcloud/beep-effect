@@ -1,6 +1,6 @@
 import { BS } from "@beep/schema";
 import { IamEntityIds, SharedEntityIds } from "@beep/shared-domain";
-import { makeFields } from "@beep/shared-domain/common";
+import { makeFields2 } from "@beep/shared-domain/common";
 import { modelKit } from "@beep/shared-domain/factories";
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
@@ -13,7 +13,7 @@ export const AccountModelSchemaId = Symbol.for("@beep/iam-domain/AccountModel");
  */
 
 export class Model extends M.Class<Model>(`AccountModel`)(
-  makeFields(IamEntityIds.AccountId, {
+  makeFields2(IamEntityIds.AccountId, {
     /** External account ID from the OAuth provider */
     accountId: S.NonEmptyString.annotations({
       description: "The account identifier from the OAuth provider",

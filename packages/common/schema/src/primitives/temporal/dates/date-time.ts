@@ -249,6 +249,23 @@ export declare namespace DateTimeUtcFromAllAcceptable {
    * @since 0.1.0
    */
   export type Encoded = S.Schema.Encoded<typeof DateTimeUtcFromAllAcceptable>;
+
+  export type SchemaType = S.transformOrFail<
+    S.transformOrFail<
+      S.Union<
+        [
+          S.declare<Date, Date, readonly [], never>,
+          S.transform<S.SchemaClass<string, string, never>, typeof S.DateFromSelf>,
+          S.transform<S.SchemaClass<number, number, never>, typeof S.DateFromSelf>,
+          S.declare<DateTime.Utc, DateTime.Utc, readonly [], never>,
+        ]
+      >,
+      typeof S.ValidDateFromSelf,
+      never
+    >,
+    S.declare<DateTime.Utc, DateTime.Utc, readonly [], never>,
+    never
+  >;
 }
 
 /**

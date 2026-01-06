@@ -313,7 +313,7 @@ export const make = <
   Effect.flatMap(
     Effect.all([
       O.fromNullable(maker).pipe(O.getOrElse(() => Effect.succeed({} as TExtra))),
-      makeBaseRepo(model, { idColumn: idSchema.publicIdColumnName, idSchema: idSchema }),
+      makeBaseRepo(model, { idColumn: "id" as const, idSchema: idSchema }),
     ]),
     ([extra, baseRepo]) =>
       Effect.succeed({

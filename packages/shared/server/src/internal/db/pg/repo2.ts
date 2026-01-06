@@ -1,6 +1,5 @@
-import type { EntityId } from "@beep/schema/identity";
+import type * as EntityId from "@beep/schema/identity/entity-id/e-id";
 import type { UnsafeTypes } from "@beep/types";
-import type * as M from "@effect/sql/Model";
 import * as SqlClient from "@effect/sql/SqlClient";
 import * as SqlSchema from "@effect/sql/SqlSchema";
 import * as A from "effect/Array";
@@ -8,6 +7,7 @@ import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import type * as M from "@effect/sql/Model";
 import * as Str from "effect/String";
 import { DatabaseError } from "./errors";
 
@@ -62,7 +62,7 @@ const makeBaseRepo = <
 >(
   model: Model,
   options: {
-    idSchema: EntityId.EntityId.SchemaInstance<TableName, Brand>;
+    idSchema: EntityId.EntityId<TableName, Brand>;
     idColumn: Id;
   }
 ): MakeBaseRepoEffect<Model, Id> =>
@@ -243,27 +243,6 @@ const makeBaseRepo = <
     };
   });
 
-/**
- * Property signature for entity ID fields with a default value.
- * Matches the shape produced by `EntityId.modelIdSchema`.
- *
- * @category Repo
- * @since 0.1.0
- */
-export type EntityIdPropertySignature = S.PropertySignature<":", string, never, "?:", string, true, unknown>;
-
-/**
- * Model constraint requiring an `id` field in type, update, and fields.
- * Uses a loose constraint that preserves the actual model types.
- *
- * @category Repo
- * @since 0.1.0
- */
-export type ModelWithId = M.Any & {
-  readonly Type: { readonly id: string };
-  readonly update: { readonly Type: { readonly id: string } };
-  readonly fields: { readonly id: EntityIdPropertySignature };
-};
 
 /**
  * Combined repository type including base operations and optional extensions.
@@ -301,12 +280,12 @@ export type ServiceEffect<
 export const make = <
   TableName extends string,
   Brand extends string,
-  Model extends ModelWithId,
+  Model extends M.Any,
   SE,
   SR,
   TExtra extends Record<string, UnsafeTypes.UnsafeAny> = NonNullable<unknown>,
 >(
-  idSchema: EntityId.EntityId.SchemaInstance<TableName, Brand>,
+  idSchema: EntityId.EntityId<TableName, Brand>,
   model: Model,
   maker?: Effect.Effect<TExtra, SE, SR> | undefined
 ): ServiceEffect<Model, SE, SR, TExtra> =>
