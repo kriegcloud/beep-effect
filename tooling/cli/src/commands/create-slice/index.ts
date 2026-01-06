@@ -32,6 +32,7 @@ import * as S from "effect/Schema";
 import { InvalidSliceNameError } from "./errors.js";
 import { createSliceHandler } from "./handler.js";
 import { CreateSliceInput, SliceDescription, SliceName } from "./schemas.js";
+import { ConfigUpdaterServiceLive } from "./utils/config-updater.js";
 import { FileGeneratorService } from "./utils/file-generator.js";
 import { TsMorphServiceLive } from "./utils/ts-morph.js";
 
@@ -83,15 +84,28 @@ const TsMorphLayer = TsMorphServiceLive;
 const FileGeneratorLayer = FileGeneratorService.Default;
 
 /**
+ * Config updater service layer.
+ * Handles package.json and tsconfig updates.
+ */
+const ConfigUpdaterLayer = ConfigUpdaterServiceLive;
+
+/**
  * Combined layer providing all services needed for create-slice.
  *
  * The handler requires:
  * - FileGeneratorService (for file creation)
  * - TsMorphService (for AST modifications)
+ * - ConfigUpdaterService (for package.json and tsconfig updates)
  * - RepoUtils (for repo root path)
  * - FileSystem (for tsconfig updates)
  */
-const CreateSliceServiceLayer = Layer.mergeAll(FileGeneratorLayer, TsMorphLayer, RepoUtilsLive, BunFileSystem.layer);
+const CreateSliceServiceLayer = Layer.mergeAll(
+  FileGeneratorLayer,
+  TsMorphLayer,
+  ConfigUpdaterLayer,
+  RepoUtilsLive,
+  BunFileSystem.layer
+);
 
 // -----------------------------------------------------------------------------
 // Command

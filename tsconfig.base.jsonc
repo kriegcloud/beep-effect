@@ -419,8 +419,7 @@
       "@beep/yjs/test/*": [
         "./packages/common/yjs/test/*"
       ],
-      
-       "@beep/customization-domain": [
+      "@beep/customization-domain": [
         "./packages/customization/domain/src/index"
       ],
       "@beep/customization-domain/*": [
@@ -464,6 +463,36 @@
       ],
       "@beep/customization-ui/test/*": [
         "./packages/customization/ui/test/*"
+      ],
+      "@beep/comms-domain": [
+        "./packages/comms/domain/src/index"
+      ],
+      "@beep/comms-domain/*": [
+        "./packages/comms/domain/src/*"
+      ],
+      "@beep/comms-tables": [
+        "./packages/comms/tables/src/index"
+      ],
+      "@beep/comms-tables/*": [
+        "./packages/comms/tables/src/*"
+      ],
+      "@beep/comms-server": [
+        "./packages/comms/server/src/index"
+      ],
+      "@beep/comms-server/*": [
+        "./packages/comms/server/src/*"
+      ],
+      "@beep/comms-client": [
+        "./packages/comms/client/src/index"
+      ],
+      "@beep/comms-client/*": [
+        "./packages/comms/client/src/*"
+      ],
+      "@beep/comms-ui": [
+        "./packages/comms/ui/src/index"
+      ],
+      "@beep/comms-ui/*": [
+        "./packages/comms/ui/src/*"
       ]
     }
   }

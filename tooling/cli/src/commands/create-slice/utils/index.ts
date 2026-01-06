@@ -7,6 +7,7 @@
  * @since 1.0.0
  */
 
+export * from "./config-updater.js";
 export * from "./file-generator.js";
 export * from "./template.js";
 export * from "./ts-morph.js";

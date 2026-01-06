@@ -128,11 +128,69 @@ export class TsMorphService extends Effect.Service<TsMorphService>()($I`TsMorphS
     // -------------------------------------------------------------------------
 
     /**
+     * Batch info structure for packages.ts batch definitions.
+     */
+    interface BatchInfo {
+      readonly name: string;
+      readonly items: ReadonlyArray<string>;
+      readonly startIndex: number;
+      readonly endIndex: number;
+    }
+
+    /**
+     * Parses batch definitions from packages.ts and returns batch info.
+     *
+     * @param text - The source file text
+     * @returns Array of batch info with name and item count
+     */
+    const parseBatches = (text: string): Array<BatchInfo> => {
+      const batchRegex = /const\s+(batch\d+)\s*=\s*\$I\.compose\(([\s\S]*?)\);/g;
+      const batches: Array<BatchInfo> = [];
+
+      let match: RegExpExecArray | null;
+      while ((match = batchRegex.exec(text)) !== null) {
+        const batchName = match[1]!;
+        const content = match[2] ?? "";
+        // Extract quoted strings from the compose call
+        const itemMatches = content.match(/"[^"]+"/g) ?? [];
+        batches.push({
+          name: batchName,
+          items: F.pipe(
+            itemMatches,
+            A.map((s) => F.pipe(s, Str.slice(1, -1))) // Remove quotes
+          ),
+          startIndex: match.index,
+          endIndex: match.index + match[0].length,
+        });
+      }
+
+      return batches;
+    };
+
+    /**
+     * Finds the batch with the fewest items.
+     *
+     * @param batches - Array of batch info
+     * @returns The batch with fewest items, or undefined if no batches
+     */
+    const findSmallestBatch = (batches: ReadonlyArray<BatchInfo>): O.Option<BatchInfo> =>
+      F.pipe(
+        batches,
+        A.reduce(O.none<(typeof batches)[number]>(), (acc, batch) =>
+          O.match(acc, {
+            onNone: () => O.some(batch),
+            onSome: (smallest) => (batch.items.length < smallest.items.length ? O.some(batch) : acc),
+          })
+        )
+      );
+
+    /**
      * Adds 5 identity composers for a new slice to packages.ts.
      *
      * Pattern in packages.ts:
-     * - Composers are added to the `$I.compose(...)` call
-     * - Exports are added at the end of the file
+     * - Packages are split into batches (batch1, batch2, batch3) to avoid TS recursion limits
+     * - New packages are added to the batch with the fewest items
+     * - Exports reference the batch variable (e.g., batch3.$SliceDomainId)
      *
      * @param sliceName - kebab-case slice name (e.g., "notifications")
      * @param SliceName - PascalCase slice name (e.g., "Notifications")
@@ -141,59 +199,89 @@ export class TsMorphService extends Effect.Service<TsMorphService>()($I`TsMorphS
       Effect.gen(function* () {
         const filePath = "packages/common/identity/src/packages.ts";
         const sourceFile = yield* getOrAddSourceFile(filePath);
-        const text = sourceFile.getText();
+        let text = sourceFile.getText();
 
-        // 1. Add package names to the $I.compose(...) call
-        const composeRegex = /const\s+composers\s*=\s*\$I\.compose\(([\s\S]*?)\);/;
-        const composeMatch = composeRegex.exec(text);
+        // Parse existing batches
+        const batches = parseBatches(text);
 
-        if (O.isSome(O.fromNullable(composeMatch))) {
-          const existingPackages = composeMatch![1] ?? "";
+        // Build new package names for all 5 layers
+        const newPackageNames = F.pipe(
+          PACKAGE_SUFFIXES,
+          A.map((suffix) => `${sliceName}-${suffix}`)
+        );
 
-          // Build new package names for all 5 layers
-          const newPackageNames = F.pipe(
-            PACKAGE_SUFFIXES,
-            A.map((suffix) => `"${sliceName}-${suffix}"`)
-          );
+        // Check which ones don't exist yet (check all batches)
+        const allExistingItems = F.pipe(
+          batches,
+          A.flatMap((b) => b.items)
+        );
+        const packagesToAdd = F.pipe(
+          newPackageNames,
+          A.filter((pkg) => !F.pipe(allExistingItems, A.contains(pkg)))
+        );
 
-          // Check which ones don't exist yet
-          const packagesToAdd = F.pipe(
-            newPackageNames,
-            A.filter((pkg) => !F.pipe(existingPackages, Str.includes(pkg)))
-          );
+        // Find the batch with fewest items to add new packages
+        const targetBatchOpt = findSmallestBatch(batches);
 
-          if (A.isNonEmptyArray(packagesToAdd)) {
-            // Add to the compose call - insert before the closing parenthesis
-            const trimmedExisting = F.pipe(existingPackages, Str.trimEnd);
-            const hasTrailingComma = F.pipe(trimmedExisting, Str.endsWith(","));
+        if (A.isNonEmptyArray(packagesToAdd) && O.isSome(targetBatchOpt)) {
+          const targetBatch = targetBatchOpt.value;
+
+          // Find the batch declaration in the text and add new packages
+          const batchRegex = new RegExp(`const\\s+${targetBatch.name}\\s*=\\s*\\$I\\.compose\\(([\\s\\S]*?)\\);`, "g");
+          const batchMatch = batchRegex.exec(text);
+
+          if (O.isSome(O.fromNullable(batchMatch))) {
+            const existingContent = F.pipe(batchMatch![1] ?? "", Str.trimEnd);
+            const hasTrailingComma = F.pipe(existingContent, Str.endsWith(","));
             const separator = hasTrailingComma ? "\n  " : ",\n  ";
-            const newPackagesStr = A.join(packagesToAdd, ",\n  ");
-            const updatedCompose = `const composers = $I.compose(${trimmedExisting}${separator}${newPackagesStr}\n);`;
-            const updatedText = F.pipe(text, Str.replace(composeMatch![0]!, updatedCompose));
-            sourceFile.replaceWithText(updatedText);
+            const newPackagesStr = F.pipe(
+              packagesToAdd,
+              A.map((pkg) => `"${pkg}"`),
+              A.join(",\n  ")
+            );
+            const updatedBatch = `const ${targetBatch.name} = $I.compose(${existingContent}${separator}${newPackagesStr}\n);`;
+            text = F.pipe(text, Str.replace(batchMatch![0]!, updatedBatch));
+            sourceFile.replaceWithText(text);
           }
         }
 
         // 2. Add export statements for each composer
-        // Get updated text after compose modification
+        // Get updated text after batch modification
         const currentText = sourceFile.getText();
+
+        // Re-parse batches to find which batch contains each package
+        const updatedBatches = parseBatches(currentText);
+
+        // Helper to find which batch a package is in
+        const findBatchForPackage = (pkgName: string): O.Option<string> =>
+          F.pipe(
+            updatedBatches,
+            A.findFirst((batch) => F.pipe(batch.items, A.contains(pkgName))),
+            O.map((batch) => batch.name)
+          );
 
         // Generate export statements for each layer
         const exportStatements = F.pipe(
           A.zip(LAYER_SUFFIXES, PACKAGE_SUFFIXES),
-          A.map(([layer, _suffix]) => {
+          A.map(([layer, suffix]) => {
             const composerName = `$${SliceName}${layer}Id`;
-            const accessorName = `$${SliceName}${layer}Id`;
+            const packageName = `${sliceName}-${suffix}`;
 
             // Check if export already exists
             if (F.pipe(currentText, Str.includes(`export const ${composerName}`))) {
               return O.none<string>();
             }
 
-            // Generate JSDoc and export
+            // Find which batch this package is in
+            const batchName = findBatchForPackage(packageName);
+            if (O.isNone(batchName)) {
+              return O.none<string>();
+            }
+
+            // Generate JSDoc and export with correct batch reference
             return O.some(`
 /**
- * Identity composer for the \`@beep/${sliceName}-${layer.toLowerCase()}\` namespace.
+ * Identity composer for the \`@beep/${packageName}\` namespace.
  *
  * @example
  * \`\`\`typescript
@@ -205,7 +293,7 @@ export class TsMorphService extends Effect.Service<TsMorphService>()($I`TsMorphS
  * @category symbols
  * @since 0.1.0
  */
-export const ${composerName} = composers.${accessorName};
+export const ${composerName} = ${batchName.value}.${composerName};
 `);
           }),
           A.getSomes,
@@ -521,6 +609,65 @@ export {} from "${importPath}";
       }).pipe(Effect.withSpan("TsMorphService.addToDbAdminRelations"));
 
     /**
+     * Adds new slice to EntityKind StringLiteralKit.
+     *
+     * Modifications:
+     * - Add import: import * as SliceName from "./slice-name";
+     * - Add to StringLiteralKit: ...SliceName.TableName.Options
+     *
+     * @param sliceName - kebab-case slice name
+     * @param SliceName - PascalCase slice name
+     */
+    const addToEntityKind = (sliceName: string, SliceName: string): Effect.Effect<void, TsMorphError> =>
+      Effect.gen(function* () {
+        const filePath = "packages/shared/domain/src/entity-ids/entity-kind.ts";
+        const sourceFile = yield* getOrAddSourceFile(filePath);
+
+        // 1. Add import if not exists
+        const importPath = `./${sliceName}`;
+        const existingImport = F.pipe(
+          sourceFile.getImportDeclarations(),
+          A.findFirst((imp) => imp.getModuleSpecifierValue() === importPath)
+        );
+
+        if (O.isNone(existingImport)) {
+          sourceFile.addImportDeclaration({
+            namespaceImport: SliceName,
+            moduleSpecifier: importPath,
+          });
+        }
+
+        // 2. Add to StringLiteralKit spread
+        let text = sourceFile.getText();
+        const newSpread = `...${SliceName}.TableName.Options`;
+
+        // Check if already in the StringLiteralKit
+        if (F.pipe(text, Str.includes(newSpread))) {
+          sourceFile.organizeImports();
+          yield* saveFile(sourceFile);
+          return;
+        }
+
+        // Pattern: BS.StringLiteralKit(\n  ...Slice1.TableName.Options,\n  ...Slice2.TableName.Options\n)
+        // We need to find the last spread and add ours after it
+        const stringLiteralKitRegex = /BS\.StringLiteralKit\(([\s\S]*?)\)\.annotations/;
+        const kitMatch = stringLiteralKitRegex.exec(text);
+
+        if (O.isSome(O.fromNullable(kitMatch))) {
+          const existingContent = F.pipe(kitMatch![1] ?? "", Str.trimEnd);
+          const hasTrailingComma = F.pipe(existingContent, Str.endsWith(","));
+          const separator = hasTrailingComma ? "\n  " : ",\n  ";
+          const updatedContent = `${existingContent}${separator}${newSpread}\n`;
+          const updatedKit = `BS.StringLiteralKit(${updatedContent}).annotations`;
+          text = F.pipe(text, Str.replace(kitMatch![0]!, updatedKit));
+          sourceFile.replaceWithText(text);
+        }
+
+        sourceFile.organizeImports();
+        yield* saveFile(sourceFile);
+      }).pipe(Effect.withSpan("TsMorphService.addToEntityKind"));
+
+    /**
      * Executes all file modifications for a new slice.
      *
      * This is a convenience method that calls all modification functions
@@ -535,6 +682,7 @@ export {} from "${importPath}";
         yield* addIdentityComposers(sliceName, SliceName);
         yield* addEntityIdsNamespaceExport(sliceName, SliceName);
         yield* addAnyEntityIdUnionMember(sliceName, SliceName);
+        yield* addToEntityKind(sliceName, SliceName);
         yield* addToPersistenceLayer(sliceName, SliceName);
         yield* addToDataAccessLayer(sliceName, SliceName);
         yield* addToDbAdminTables(sliceName);
@@ -552,6 +700,7 @@ export {} from "${importPath}";
       addIdentityComposers,
       addEntityIdsNamespaceExport,
       addAnyEntityIdUnionMember,
+      addToEntityKind,
       addToPersistenceLayer,
       addToDataAccessLayer,
       addToDbAdminTables,

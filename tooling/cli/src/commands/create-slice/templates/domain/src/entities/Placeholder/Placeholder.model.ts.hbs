@@ -1,0 +1,57 @@
+/**
+ * Placeholder entity model for {{SliceName}} slice
+ *
+ * This is a starter entity to demonstrate the pattern.
+ * Rename or replace with your actual domain entities.
+ *
+ * @module {{sliceName}}-domain/entities/Placeholder
+ * @since 0.1.0
+ */
+import { ${{SliceName}}DomainId } from "@beep/identity/packages";
+import { {{SliceName}}EntityIds } from "@beep/shared-domain";
+import { makeFields } from "@beep/shared-domain/common";
+import { modelKit } from "@beep/shared-domain/factories";
+import * as M from "@effect/sql/Model";
+import * as DateTime from "effect/DateTime";
+import * as S from "effect/Schema";
+
+const $I = ${{SliceName}}DomainId.create("entities/Placeholder");
+
+/**
+ * Placeholder model for the {{sliceName}} slice.
+ *
+ * Replace this with your actual domain entity model.
+ *
+ * @example
+ * ```ts
+ * import { Entities } from "@beep/{{sliceName}}-domain";
+ * import * as DateTime from "effect/DateTime";
+ *
+ * const placeholder = Entities.Placeholder.Model.make({
+ *   id: {{SliceName}}EntityIds.PlaceholderId.make("placeholder__123"),
+ *   name: "Example",
+ *   createdAt: DateTime.unsafeNow(),
+ *   updatedAt: DateTime.unsafeNow(),
+ * });
+ * ```
+ *
+ * @since 0.1.0
+ * @category models
+ */
+export class Model extends M.Class<Model>($I`PlaceholderModel`)(
+  makeFields({{SliceName}}EntityIds.PlaceholderId, {
+    name: S.NonEmptyTrimmedString.annotations({
+      title: "Name",
+      description: "The name of the placeholder entity",
+    }),
+    description: S.OptionFromNullOr(S.String).annotations({
+      title: "Description",
+      description: "Optional description of the placeholder entity",
+    }),
+  }),
+  $I.annotations("PlaceholderModel", {
+    description: "Placeholder model for the {{sliceName}} domain context.",
+  })
+) {
+  static readonly utils = modelKit(Model);
+}

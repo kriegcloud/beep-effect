@@ -1,8 +1,3 @@
-/**
- * Canonical identity composers for every `@beep/*` workspace namespace.
- *
- * @since 0.1.0
- */
 import * as Identifier from "./Identifier";
 
 /**
@@ -20,7 +15,9 @@ import * as Identifier from "./Identifier";
  */
 export const $I = Identifier.make("beep").$BeepId;
 
-const composers = $I.compose(
+// Split into batches to avoid TypeScript's type recursion limit (TS2589)
+// When adding new slices, add to the batch with fewest items
+const batch1 = $I.compose(
   "shared-ui",
   "shared-client",
   "repo-scripts",
@@ -36,7 +33,10 @@ const composers = $I.compose(
   "runtime-server",
   "iam-client",
   "iam-ui",
-  "shared-server",
+  "shared-server"
+);
+
+const batch2 = $I.compose(
   "identity",
   "utils",
   "iam-domain",
@@ -52,7 +52,10 @@ const composers = $I.compose(
   "documents-ui",
   "constants",
   "testkit",
-  "tooling-utils",
+  "tooling-utils"
+);
+
+const batch3 = $I.compose(
   "repo-cli",
   "notes",
   "documents-server",
@@ -66,7 +69,12 @@ const composers = $I.compose(
   "customization-tables",
   "customization-server",
   "customization-client",
-  "customization-ui"
+  "customization-ui",
+  "comms-domain",
+  "comms-tables",
+  "comms-server",
+  "comms-client",
+  "comms-ui"
 );
 
 /**
@@ -82,7 +90,7 @@ const composers = $I.compose(
  * @category symbols
  * @since 0.1.0
  */
-export const $SharedUiId = composers.$SharedUiId;
+export const $SharedUiId = batch1.$SharedUiId;
 
 /**
  * Identity composer for the `@beep/shared-client` namespace.
@@ -97,7 +105,7 @@ export const $SharedUiId = composers.$SharedUiId;
  * @category symbols
  * @since 0.1.0
  */
-export const $SharedClientId = composers.$SharedClientId;
+export const $SharedClientId = batch1.$SharedClientId;
 
 /**
  * Identity composer for the `@beep/repo-scripts` namespace.
@@ -112,7 +120,7 @@ export const $SharedClientId = composers.$SharedClientId;
  * @category symbols
  * @since 0.1.0
  */
-export const $RepoScriptsId = composers.$RepoScriptsId;
+export const $RepoScriptsId = batch1.$RepoScriptsId;
 
 /**
  * Identity composer for the `@beep/iam-server` namespace.
@@ -127,7 +135,7 @@ export const $RepoScriptsId = composers.$RepoScriptsId;
  * @category symbols
  * @since 0.1.0
  */
-export const $IamServerId = composers.$IamServerId;
+export const $IamServerId = batch1.$IamServerId;
 
 /**
  * Identity composer for the `@beep/documents-tables` namespace.
@@ -142,7 +150,7 @@ export const $IamServerId = composers.$IamServerId;
  * @category symbols
  * @since 0.1.0
  */
-export const $DocumentsTablesId = composers.$DocumentsTablesId;
+export const $DocumentsTablesId = batch1.$DocumentsTablesId;
 
 /**
  * Identity composer for the `@beep/ui` namespace.
@@ -157,7 +165,7 @@ export const $DocumentsTablesId = composers.$DocumentsTablesId;
  * @category symbols
  * @since 0.1.0
  */
-export const $UiId = composers.$UiId;
+export const $UiId = batch1.$UiId;
 
 /**
  * Identity composer for the `@beep/invariant` namespace.
@@ -172,7 +180,7 @@ export const $UiId = composers.$UiId;
  * @category symbols
  * @since 0.1.0
  */
-export const $InvariantId = composers.$InvariantId;
+export const $InvariantId = batch1.$InvariantId;
 
 /**
  * Identity composer for the `@beep/web` namespace.
@@ -187,7 +195,7 @@ export const $InvariantId = composers.$InvariantId;
  * @category symbols
  * @since 0.1.0
  */
-export const $WebId = composers.$WebId;
+export const $WebId = batch1.$WebId;
 
 /**
  * Identity composer for the `@beep/schema` namespace.
@@ -202,7 +210,7 @@ export const $WebId = composers.$WebId;
  * @category symbols
  * @since 0.1.0
  */
-export const $SchemaId = composers.$SchemaId;
+export const $SchemaId = batch1.$SchemaId;
 
 /**
  * Identity composer for the `@beep/documents-domain` namespace.
@@ -217,7 +225,7 @@ export const $SchemaId = composers.$SchemaId;
  * @category symbols
  * @since 0.1.0
  */
-export const $DocumentsDomainId = composers.$DocumentsDomainId;
+export const $DocumentsDomainId = batch1.$DocumentsDomainId;
 
 /**
  * Identity composer for the `@beep/contract` namespace.
@@ -232,7 +240,7 @@ export const $DocumentsDomainId = composers.$DocumentsDomainId;
  * @category symbols
  * @since 0.1.0
  */
-export const $ContractId = composers.$ContractId;
+export const $ContractId = batch1.$ContractId;
 
 /**
  * Identity composer for the `@beep/runtime-server` namespace.
@@ -247,7 +255,7 @@ export const $ContractId = composers.$ContractId;
  * @category symbols
  * @since 0.1.0
  */
-export const $RuntimeServerId = composers.$RuntimeServerId;
+export const $RuntimeServerId = batch1.$RuntimeServerId;
 
 /**
  * Identity composer for the `@beep/iam-client` namespace.
@@ -262,7 +270,7 @@ export const $RuntimeServerId = composers.$RuntimeServerId;
  * @category symbols
  * @since 0.1.0
  */
-export const $IamClientId = composers.$IamClientId;
+export const $IamClientId = batch1.$IamClientId;
 
 /**
  * Identity composer for the `@beep/iam-ui` namespace.
@@ -277,7 +285,7 @@ export const $IamClientId = composers.$IamClientId;
  * @category symbols
  * @since 0.1.0
  */
-export const $IamUiId = composers.$IamUiId;
+export const $IamUiId = batch1.$IamUiId;
 
 /**
  * Identity composer for the `@beep/shared-server` namespace.
@@ -292,7 +300,7 @@ export const $IamUiId = composers.$IamUiId;
  * @category symbols
  * @since 0.1.0
  */
-export const $SharedServerId = composers.$SharedServerId;
+export const $SharedServerId = batch1.$SharedServerId;
 
 /**
  * Identity composer for the `@beep/identity` namespace.
@@ -307,7 +315,7 @@ export const $SharedServerId = composers.$SharedServerId;
  * @category symbols
  * @since 0.1.0
  */
-export const $IdentityId = composers.$IdentityId;
+export const $IdentityId = batch2.$IdentityId;
 
 /**
  * Identity composer for the `@beep/utils` namespace.
@@ -322,7 +330,7 @@ export const $IdentityId = composers.$IdentityId;
  * @category symbols
  * @since 0.1.0
  */
-export const $UtilsId = composers.$UtilsId;
+export const $UtilsId = batch2.$UtilsId;
 
 /**
  * Identity composer for the `@beep/iam-domain` namespace.
@@ -337,7 +345,7 @@ export const $UtilsId = composers.$UtilsId;
  * @category symbols
  * @since 0.1.0
  */
-export const $IamDomainId = composers.$IamDomainId;
+export const $IamDomainId = batch2.$IamDomainId;
 
 /**
  * Identity composer for the `@beep/runtime-client` namespace.
@@ -352,7 +360,7 @@ export const $IamDomainId = composers.$IamDomainId;
  * @category symbols
  * @since 0.1.0
  */
-export const $RuntimeClientId = composers.$RuntimeClientId;
+export const $RuntimeClientId = batch2.$RuntimeClientId;
 
 /**
  * Identity composer for the `@beep/scratchpad` namespace.
@@ -367,7 +375,7 @@ export const $RuntimeClientId = composers.$RuntimeClientId;
  * @category symbols
  * @since 0.1.0
  */
-export const $ScratchpadId = composers.$ScratchpadId;
+export const $ScratchpadId = batch2.$ScratchpadId;
 
 /**
  * Identity composer for the `@beep/shared-tables` namespace.
@@ -382,7 +390,7 @@ export const $ScratchpadId = composers.$ScratchpadId;
  * @category symbols
  * @since 0.1.0
  */
-export const $SharedTablesId = composers.$SharedTablesId;
+export const $SharedTablesId = batch2.$SharedTablesId;
 
 /**
  * Identity composer for the `@beep/mock` namespace.
@@ -397,7 +405,7 @@ export const $SharedTablesId = composers.$SharedTablesId;
  * @category symbols
  * @since 0.1.0
  */
-export const $MockId = composers.$MockId;
+export const $MockId = batch2.$MockId;
 
 /**
  * Identity composer for the `@beep/ui-core` namespace.
@@ -412,7 +420,7 @@ export const $MockId = composers.$MockId;
  * @category symbols
  * @since 0.1.0
  */
-export const $UiCoreId = composers.$UiCoreId;
+export const $UiCoreId = batch2.$UiCoreId;
 
 /**
  * Identity composer for the `@beep/errors` namespace.
@@ -427,7 +435,7 @@ export const $UiCoreId = composers.$UiCoreId;
  * @category symbols
  * @since 0.1.0
  */
-export const $ErrorsId = composers.$ErrorsId;
+export const $ErrorsId = batch2.$ErrorsId;
 
 /**
  * Identity composer for the `@beep/types` namespace.
@@ -442,7 +450,7 @@ export const $ErrorsId = composers.$ErrorsId;
  * @category symbols
  * @since 0.1.0
  */
-export const $TypesId = composers.$TypesId;
+export const $TypesId = batch2.$TypesId;
 
 /**
  * Identity composer for the `@beep/build-utils` namespace.
@@ -457,7 +465,7 @@ export const $TypesId = composers.$TypesId;
  * @category symbols
  * @since 0.1.0
  */
-export const $BuildUtilsId = composers.$BuildUtilsId;
+export const $BuildUtilsId = batch2.$BuildUtilsId;
 
 /**
  * Identity composer for the `@beep/documents-client` namespace.
@@ -472,7 +480,7 @@ export const $BuildUtilsId = composers.$BuildUtilsId;
  * @category symbols
  * @since 0.1.0
  */
-export const $DocumentsClientId = composers.$DocumentsClientId;
+export const $DocumentsClientId = batch2.$DocumentsClientId;
 
 /**
  * Identity composer for the `@beep/documents-ui` namespace.
@@ -487,7 +495,7 @@ export const $DocumentsClientId = composers.$DocumentsClientId;
  * @category symbols
  * @since 0.1.0
  */
-export const $DocumentsUiId = composers.$DocumentsUiId;
+export const $DocumentsUiId = batch2.$DocumentsUiId;
 
 /**
  * Identity composer for the `@beep/constants` namespace.
@@ -502,7 +510,7 @@ export const $DocumentsUiId = composers.$DocumentsUiId;
  * @category symbols
  * @since 0.1.0
  */
-export const $ConstantsId = composers.$ConstantsId;
+export const $ConstantsId = batch2.$ConstantsId;
 
 /**
  * Identity composer for the `@beep/testkit` namespace.
@@ -517,7 +525,7 @@ export const $ConstantsId = composers.$ConstantsId;
  * @category symbols
  * @since 0.1.0
  */
-export const $TestkitId = composers.$TestkitId;
+export const $TestkitId = batch2.$TestkitId;
 
 /**
  * Identity composer for the `@beep/tooling-utils` namespace.
@@ -532,7 +540,7 @@ export const $TestkitId = composers.$TestkitId;
  * @category symbols
  * @since 0.1.0
  */
-export const $ToolingUtilsId = composers.$ToolingUtilsId;
+export const $ToolingUtilsId = batch2.$ToolingUtilsId;
 
 /**
  * Identity composer for the `@beep/repo-cli` namespace.
@@ -547,7 +555,7 @@ export const $ToolingUtilsId = composers.$ToolingUtilsId;
  * @category symbols
  * @since 0.1.0
  */
-export const $RepoCliId = composers.$RepoCliId;
+export const $RepoCliId = batch3.$RepoCliId;
 
 /**
  * Identity composer for the `@beep/notes` namespace.
@@ -562,7 +570,7 @@ export const $RepoCliId = composers.$RepoCliId;
  * @category symbols
  * @since 0.1.0
  */
-export const $NotesId = composers.$NotesId;
+export const $NotesId = batch3.$NotesId;
 
 /**
  * Identity composer for the `@beep/documents-server` namespace.
@@ -577,7 +585,7 @@ export const $NotesId = composers.$NotesId;
  * @category symbols
  * @since 0.1.0
  */
-export const $DocumentsServerId = composers.$DocumentsServerId;
+export const $DocumentsServerId = batch3.$DocumentsServerId;
 
 /**
  * Identity composer for the `@beep/scraper` namespace.
@@ -592,7 +600,7 @@ export const $DocumentsServerId = composers.$DocumentsServerId;
  * @category symbols
  * @since 0.1.0
  */
-export const $ScraperId = composers.$ScraperId;
+export const $ScraperId = batch3.$ScraperId;
 
 /**
  * Identity composer for the `@beep/shared-domain` namespace.
@@ -607,7 +615,7 @@ export const $ScraperId = composers.$ScraperId;
  * @category symbols
  * @since 0.1.0
  */
-export const $SharedDomainId = composers.$SharedDomainId;
+export const $SharedDomainId = batch3.$SharedDomainId;
 
 /**
  * Identity composer for the `@beep/db-admin` namespace.
@@ -622,7 +630,7 @@ export const $SharedDomainId = composers.$SharedDomainId;
  * @category symbols
  * @since 0.1.0
  */
-export const $DbAdminId = composers.$DbAdminId;
+export const $DbAdminId = batch3.$DbAdminId;
 
 /**
  * Identity composer for the `@beep/server` namespace.
@@ -637,7 +645,7 @@ export const $DbAdminId = composers.$DbAdminId;
  * @category symbols
  * @since 0.1.0
  */
-export const $ServerId = composers.$ServerId;
+export const $ServerId = batch3.$ServerId;
 
 /**
  * Identity composer for the `@beep/iam-tables` namespace.
@@ -652,7 +660,7 @@ export const $ServerId = composers.$ServerId;
  * @category symbols
  * @since 0.1.0
  */
-export const $IamTablesId = composers.$IamTablesId;
+export const $IamTablesId = batch3.$IamTablesId;
 
 /**
  * Identity composer for the `@beep/lexical-schemas` namespace.
@@ -667,7 +675,7 @@ export const $IamTablesId = composers.$IamTablesId;
  * @category symbols
  * @since 0.1.0
  */
-export const $LexicalSchemasId = composers.$LexicalSchemasId;
+export const $LexicalSchemasId = batch3.$LexicalSchemasId;
 
 /**
  * Identity composer for the `@beep/yjs` namespace.
@@ -682,7 +690,7 @@ export const $LexicalSchemasId = composers.$LexicalSchemasId;
  * @category symbols
  * @since 0.1.0
  */
-export const $YjsId = composers.$YjsId;
+export const $YjsId = batch1.$YjsId;
 
 /**
  * Identity composer for the `@beep/customization-domain` namespace.
@@ -697,7 +705,7 @@ export const $YjsId = composers.$YjsId;
  * @category symbols
  * @since 0.1.0
  */
-export const $CustomizationDomainId = composers.$CustomizationDomainId;
+export const $CustomizationDomainId = batch3.$CustomizationDomainId;
 
 /**
  * Identity composer for the `@beep/customization-client` namespace.
@@ -712,7 +720,7 @@ export const $CustomizationDomainId = composers.$CustomizationDomainId;
  * @category symbols
  * @since 0.1.0
  */
-export const $CustomizationClientId = composers.$CustomizationClientId;
+export const $CustomizationClientId = batch3.$CustomizationClientId;
 
 /**
  * Identity composer for the `@beep/customization-server` namespace.
@@ -727,7 +735,7 @@ export const $CustomizationClientId = composers.$CustomizationClientId;
  * @category symbols
  * @since 0.1.0
  */
-export const $CustomizationServerId = composers.$CustomizationServerId;
+export const $CustomizationServerId = batch3.$CustomizationServerId;
 
 /**
  * Identity composer for the `@beep/customization-tables` namespace.
@@ -742,7 +750,7 @@ export const $CustomizationServerId = composers.$CustomizationServerId;
  * @category symbols
  * @since 0.1.0
  */
-export const $CustomizationTablesId = composers.$CustomizationTablesId;
+export const $CustomizationTablesId = batch3.$CustomizationTablesId;
 
 /**
  * Identity composer for the `@beep/customization-ui` namespace.
@@ -757,4 +765,79 @@ export const $CustomizationTablesId = composers.$CustomizationTablesId;
  * @category symbols
  * @since 0.1.0
  */
-export const $CustomizationUiId = composers.$CustomizationUiId;
+export const $CustomizationUiId = batch3.$CustomizationUiId;
+
+/**
+ * Identity composer for the `@beep/comms-domain` namespace.
+ *
+ * @example
+ * ```typescript
+ * import { $CommsDomainId } from "@beep/identity/packages"
+ *
+ * const schemaId = $CommsDomainId.make("SchemaId")
+ * ```
+ *
+ * @category symbols
+ * @since 0.1.0
+ */
+export const $CommsDomainId = batch3.$CommsDomainId;
+
+/**
+ * Identity composer for the `@beep/comms-tables` namespace.
+ *
+ * @example
+ * ```typescript
+ * import { $CommsTablesId } from "@beep/identity/packages"
+ *
+ * const schemaId = $CommsTablesId.make("SchemaId")
+ * ```
+ *
+ * @category symbols
+ * @since 0.1.0
+ */
+export const $CommsTablesId = batch3.$CommsTablesId;
+
+/**
+ * Identity composer for the `@beep/comms-server` namespace.
+ *
+ * @example
+ * ```typescript
+ * import { $CommsServerId } from "@beep/identity/packages"
+ *
+ * const schemaId = $CommsServerId.make("SchemaId")
+ * ```
+ *
+ * @category symbols
+ * @since 0.1.0
+ */
+export const $CommsServerId = batch3.$CommsServerId;
+
+/**
+ * Identity composer for the `@beep/comms-client` namespace.
+ *
+ * @example
+ * ```typescript
+ * import { $CommsClientId } from "@beep/identity/packages"
+ *
+ * const schemaId = $CommsClientId.make("SchemaId")
+ * ```
+ *
+ * @category symbols
+ * @since 0.1.0
+ */
+export const $CommsClientId = batch3.$CommsClientId;
+
+/**
+ * Identity composer for the `@beep/comms-ui` namespace.
+ *
+ * @example
+ * ```typescript
+ * import { $CommsUiId } from "@beep/identity/packages"
+ *
+ * const schemaId = $CommsUiId.make("SchemaId")
+ * ```
+ *
+ * @category symbols
+ * @since 0.1.0
+ */
+export const $CommsUiId = batch3.$CommsUiId;
