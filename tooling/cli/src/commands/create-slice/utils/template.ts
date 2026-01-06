@@ -10,10 +10,12 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
+import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
 import * as Layer from "effect/Layer";
+import * as Match from "effect/Match";
 import * as O from "effect/Option";
 import * as Str from "effect/String";
 import Handlebars from "handlebars";
@@ -79,29 +81,33 @@ export const createSliceContext = (sliceName: string, description: string): Slic
 /**
  * Convert kebab-case to PascalCase.
  *
+ * @param str - The kebab-case string to convert
+ * @returns The PascalCase string
+ *
  * @example
  * ```ts
  * kebabToPascal("user-profile") // "UserProfile"
  * kebabToPascal("notifications") // "Notifications"
  * ```
  */
-const kebabToPascal = (str: string): string => {
-  const parts = F.pipe(str, Str.split("-"));
-  return F.pipe(
-    parts,
-    (arr) =>
-      arr.map((part) => {
-        const firstOpt = Str.charAt(part, 0);
-        const first = O.isSome(firstOpt) ? firstOpt.value : "";
-        const rest = F.pipe(part, Str.slice(1, part.length));
-        return Str.toUpperCase(first) + rest;
-      }),
-    (arr) => arr.join("")
+const kebabToPascal = (str: string): string =>
+  F.pipe(
+    str,
+    Str.split("-"),
+    A.map((part) => {
+      const firstOpt = Str.charAt(part, 0);
+      const first = O.isSome(firstOpt) ? firstOpt.value : "";
+      const rest = F.pipe(part, Str.slice(1, part.length));
+      return Str.toUpperCase(first) + rest;
+    }),
+    A.join("")
   );
-};
 
 /**
  * Convert kebab-case to camelCase.
+ *
+ * @param str - The kebab-case string to convert
+ * @returns The camelCase string
  */
 const kebabToCamel = (str: string): string => {
   const pascal = kebabToPascal(str);
@@ -360,18 +366,15 @@ const makeTemplateService = (): ITemplateService => ({
     }),
 
   renderTsconfig: (_layer, type, _context) =>
-    Effect.sync(() => {
-      switch (type) {
-        case "main":
-          return TSCONFIG_MAIN;
-        case "src":
-          return TSCONFIG_SRC;
-        case "build":
-          return TSCONFIG_BUILD;
-        case "test":
-          return TSCONFIG_TEST;
-      }
-    }),
+    Effect.sync(() =>
+      Match.value(type).pipe(
+        Match.when("main", () => TSCONFIG_MAIN),
+        Match.when("src", () => TSCONFIG_SRC),
+        Match.when("build", () => TSCONFIG_BUILD),
+        Match.when("test", () => TSCONFIG_TEST),
+        Match.exhaustive
+      )
+    ),
 
   renderIndexTs: (layer, context) =>
     Effect.sync(() => {

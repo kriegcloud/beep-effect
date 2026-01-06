@@ -38,6 +38,12 @@
     },
     {
       "path": "../../customization/tables"
+    },
+    {
+      "path": "../../comms/server"
+    },
+    {
+      "path": "../../comms/tables"
     }
   ],
   "compilerOptions": {

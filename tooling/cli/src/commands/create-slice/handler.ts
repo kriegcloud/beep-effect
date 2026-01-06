@@ -30,6 +30,7 @@ import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
 import { type CreateSliceError, FileWriteError, SliceExistsError } from "./errors.js";
 import type { CreateSliceInput } from "./schemas.js";
+import { ConfigUpdaterService } from "./utils/config-updater.js";
 import { FileGeneratorService } from "./utils/file-generator.js";
 import { createSliceContext, type SliceContext } from "./utils/template.js";
 import { TsMorphService } from "./utils/ts-morph.js";
@@ -65,9 +66,9 @@ const updateTsconfigBase = (
     });
 
     // Parse to get current paths
-    const parsed = jsonc.parse(content);
-    // biome-ignore lint/suspicious/noExplicitAny: jsonc-parser returns any
-    const currentPaths: Record<string, any> = parsed?.compilerOptions?.paths || {};
+    type TsconfigPaths = Record<string, ReadonlyArray<string>>;
+    const parsed = jsonc.parse(content) as { compilerOptions?: { paths?: TsconfigPaths } } | undefined;
+    const currentPaths: TsconfigPaths = parsed?.compilerOptions?.paths ?? {};
 
     // Add new path aliases (for each layer)
     const layers = ["domain", "tables", "server", "client", "ui"] as const;
@@ -75,8 +76,8 @@ const updateTsconfigBase = (
 
     for (const layer of layers) {
       const pkg = `@beep/${sliceName}-${layer}`;
-      newPaths[pkg] = [`./packages/${sliceName}/${layer}/src/index.ts`];
-      newPaths[`${pkg}/*`] = [`./packages/${sliceName}/${layer}/src/*.ts`];
+      newPaths[pkg] = [`./packages/${sliceName}/${layer}/src/index`];
+      newPaths[`${pkg}/*`] = [`./packages/${sliceName}/${layer}/src/*`];
     }
 
     // Merge paths
@@ -128,7 +129,7 @@ const updateRootTsconfig = (
 
     if (!exists) {
       // Add new reference
-      const updatedRefs = [...references, newRef];
+      const updatedRefs = F.pipe(references, A.append(newRef));
 
       // Use jsonc.modify to update while preserving formatting
       const edits = jsonc.modify(content, ["references"], updatedRefs, {
@@ -203,11 +204,12 @@ export const createSliceHandler = (
 ): Effect.Effect<
   void,
   CreateSliceError,
-  FileGeneratorService | TsMorphService | RepoUtilsService | FileSystem.FileSystem
+  FileGeneratorService | TsMorphService | ConfigUpdaterService | RepoUtilsService | FileSystem.FileSystem
 > =>
   Effect.gen(function* () {
     const fileGen = yield* FileGeneratorService;
     const tsMorph = yield* TsMorphService;
+    const configUpdater = yield* ConfigUpdaterService;
     const repo = yield* RepoUtils;
     const repoRoot = repo.REPOSITORY_ROOT;
 
@@ -261,12 +263,25 @@ export const createSliceHandler = (
     yield* tsMorph.addToDbAdminTables(input.sliceName);
     yield* tsMorph.addToDbAdminRelations(input.sliceName, context.SliceName);
 
-    // 7. Update tsconfig files
+    yield* Console.log("   - Updating entity-kind.ts...");
+    yield* tsMorph.addToEntityKind(input.sliceName, context.SliceName);
+
+    // 7. Update package.json dependencies
+    yield* Console.log("\nUpdating package.json dependencies...");
+    yield* configUpdater.updateAllPackageJsons(input.sliceName);
+    yield* Console.log("   - Updated root package.json workspaces");
+    yield* Console.log("   - Updated runtime/server package.json");
+    yield* Console.log("   - Updated db-admin package.json");
+
+    // 8. Update tsconfig files
     yield* Console.log("\nUpdating TypeScript configuration...");
     yield* updateTsconfigFiles(input.sliceName, context, repoRoot);
+    yield* configUpdater.updateAllSliceTsconfigs(input.sliceName);
+    yield* Console.log("   - Updated runtime/server tsconfigs");
+    yield* Console.log("   - Updated db-admin tsconfigs");
 
-    // 8. Success summary
-    yield* Console.log("\n" + "=".repeat(50));
+    // 9. Success summary
+    yield* Console.log(`\n${"=".repeat(50)}`);
     yield* Console.log(`Slice "${input.sliceName}" created successfully!`);
     yield* Console.log("=".repeat(50));
     yield* Console.log("\nCreated packages:");

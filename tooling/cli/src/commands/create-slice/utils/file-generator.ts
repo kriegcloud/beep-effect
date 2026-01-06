@@ -24,6 +24,7 @@ import * as Path from "@effect/platform/Path";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
+import * as Match from "effect/Match";
 import { FileWriteError } from "../errors.js";
 import type { SliceContext } from "./template.js";
 
@@ -192,6 +193,38 @@ const generatePackageJson = (layer: LayerName, context: SliceContext, _repoDir: 
     ? "--plugins babel-plugin-transform-next-use-client --plugins annotate-pure-calls --presets @babel/preset-react"
     : "--plugins annotate-pure-calls";
 
+  // Layer-specific exports
+  const layerExports: Record<LayerName, Record<string, string>> = {
+    domain: {
+      ".": "./src/index.ts",
+      "./package.json": "./package.json",
+      "./entities": "./src/entities/index.ts",
+      "./*": "./src/*.ts",
+    },
+    tables: {
+      ".": "./src/index.ts",
+      "./package.json": "./package.json",
+      "./schema": "./src/schema.ts",
+      "./*": "./src/*.ts",
+    },
+    server: {
+      ".": "./src/index.ts",
+      "./package.json": "./package.json",
+      "./db": "./src/db.ts",
+      "./*": "./src/*.ts",
+    },
+    client: {
+      ".": "./src/index.ts",
+      "./package.json": "./package.json",
+      "./*": "./src/*.ts",
+    },
+    ui: {
+      ".": "./src/index.ts",
+      "./package.json": "./package.json",
+      "./*": "./src/*.ts",
+    },
+  };
+
   const pkg = {
     name: packageName,
     version: "0.0.0",
@@ -204,11 +237,7 @@ const generatePackageJson = (layer: LayerName, context: SliceContext, _repoDir: 
       directory: "dist",
       linkDirectory: false,
     },
-    exports: {
-      ".": "./src/index.ts",
-      "./package.json": "./package.json",
-      "./*": "./src/*.ts",
-    },
+    exports: layerExports[layer],
     repository: {
       type: "git",
       url: "git@github.com:kriegcloud/beep-effect.git",
@@ -248,7 +277,7 @@ const generatePackageJson = (layer: LayerName, context: SliceContext, _repoDir: 
  */
 const generateTsconfigJson = (_layer: LayerName): string => {
   const config = {
-    extends: "./tsconfig.src.json",
+    extends: "../../../tsconfig.base.jsonc",
     include: [],
     references: [{ path: "tsconfig.src.json" }, { path: "tsconfig.test.json" }],
   };
@@ -321,6 +350,7 @@ const generateTsconfigBuild = (layer: LayerName, _context: SliceContext): string
     extends: "./tsconfig.src.json",
     compilerOptions: {
       types: ["node", "bun"],
+      rootDir: "src",
       outDir: "build/esm",
       declarationDir: "build/dts",
       stripInternal: false,
@@ -380,38 +410,201 @@ const generateResetDts = (): string => `import "@total-typescript/ts-reset";
 /**
  * Generates src/index.ts content based on layer.
  */
-const generateSrcIndex = (layer: LayerName, context: SliceContext): string => {
-  switch (layer) {
-    case "domain":
-      return `export * as Entities from "./entities/index.js";
+const generateSrcIndex = (layer: LayerName, context: SliceContext): string =>
+  Match.value(layer).pipe(
+    Match.when(
+      "domain",
+      () => `/**
+ * @beep/${context.sliceName}-domain
+ * ${context.sliceDescription} - Domain entities and value objects
+ *
+ * This module contains:
+ * - Entity models
+ * - Value objects
+ * - Business rules (NO side effects)
+ *
+ * @module ${context.sliceName}-domain
+ * @since 0.1.0
+ */
+export * as Entities from "./entities";
+`
+    ),
+    Match.when(
+      "tables",
+      () => `/**
+ * @beep/${context.sliceName}-tables
+ * ${context.sliceDescription} - Drizzle ORM schemas
+ *
+ * @module ${context.sliceName}-tables
+ * @since 0.1.0
+ */
+export * as ${context.SliceName}DbSchema from "./schema";
+`
+    ),
+    Match.when(
+      "server",
+      () => `/**
+ * @beep/${context.sliceName}-server
+ * ${context.sliceDescription} - Server-side infrastructure
+ *
+ * This module contains:
+ * - Database client (${context.SliceName}Db)
+ * - Repositories
+ * - Server-side services
+ *
+ * @module ${context.sliceName}-server
+ * @since 0.1.0
+ */
+export * from "./db";
+`
+    ),
+    Match.when(
+      "client",
+      () => `/**
+ * @beep/${context.sliceName}-client
+ * ${context.sliceDescription} - Client SDK
+ *
+ * This module contains:
+ * - API contracts
+ * - Client-side services
+ * - Type definitions for API communication
+ *
+ * @module ${context.sliceName}-client
+ * @since 0.1.0
+ */
+
+// Export client contracts here
+// Example: export * from "./contracts";
+`
+    ),
+    Match.when(
+      "ui",
+      () => `/**
+ * @beep/${context.sliceName}-ui
+ * ${context.sliceDescription} - React UI components
+ *
+ * This module contains:
+ * - React components
+ * - Hooks
+ * - UI utilities
+ *
+ * @module ${context.sliceName}-ui
+ * @since 0.1.0
+ */
+
+// Export UI components here
+// Example: export * from "./components";
+`
+    ),
+    Match.exhaustive
+  );
+
+/**
+ * Generates domain/src/entities.ts barrel file.
+ */
+const generateEntitiesBarrel = (): string => `export * from "./entities/index";
 `;
-    case "tables":
-      return `export * as ${context.SliceName}DbSchema from "./schema.js";
-`;
-    case "server":
-      return `export * from "./db/index.js";
-`;
-    case "client":
-      return `// ${context.SliceName} Client SDK exports
+
+/**
+ * Generates domain/src/value-objects/index.ts.
+ */
+const generateValueObjectsIndex = (context: SliceContext): string =>
+  `/**
+ * Value objects for the ${context.sliceName} domain.
+ *
+ * Add value objects here as needed.
+ */
 export {};
 `;
-    case "ui":
-      return `// ${context.SliceName} UI components
-export const beep = "beep";
-`;
-    default:
-      return `export {};
-`;
-  }
-};
 
 /**
  * Generates domain/src/entities/index.ts.
  */
 const generateEntitiesIndex = (context: SliceContext): string =>
-  `// ${context.SliceName} domain entities
-// Add entity exports here as they are created
-export {};
+  `/**
+ * ${context.SliceName} domain entity exports
+ *
+ * @module ${context.sliceName}-domain/entities
+ * @since 0.1.0
+ */
+export * as Placeholder from "./Placeholder";
+
+// Export domain entities here
+// Example: export * as MyEntity from "./MyEntity";
+`;
+
+/**
+ * Generates domain/src/entities/Placeholder/index.ts.
+ */
+const generatePlaceholderEntityIndex = (context: SliceContext): string =>
+  `/**
+ * Placeholder entity exports
+ *
+ * @module ${context.sliceName}-domain/entities/Placeholder
+ * @since 0.1.0
+ */
+export * from "./Placeholder.model";
+`;
+
+/**
+ * Generates domain/src/entities/Placeholder/Placeholder.model.ts.
+ */
+const generatePlaceholderModel = (context: SliceContext): string =>
+  `/**
+ * Placeholder entity model for ${context.SliceName} slice
+ *
+ * This is a starter entity to demonstrate the pattern.
+ * Rename or replace with your actual domain entities.
+ *
+ * @module ${context.sliceName}-domain/entities/Placeholder
+ * @since 0.1.0
+ */
+import { $${context.SliceName}DomainId } from "@beep/identity/packages";
+import { ${context.SliceName}EntityIds } from "@beep/shared-domain";
+import { makeFields } from "@beep/shared-domain/common";
+import { modelKit } from "@beep/shared-domain/factories";
+import * as M from "@effect/sql/Model";
+import * as S from "effect/Schema";
+
+const $I = $${context.SliceName}DomainId.create("entities/Placeholder");
+
+/**
+ * Placeholder model for the ${context.sliceName} slice.
+ *
+ * Replace this with your actual domain entity model.
+ *
+ * @example
+ * \`\`\`ts
+ * import { Entities } from "@beep/${context.sliceName}-domain";
+ *
+ * const placeholder = Entities.Placeholder.Model.make({
+ *   id: ${context.SliceName}EntityIds.PlaceholderId.make("placeholder__123"),
+ *   name: "Example",
+ *   createdAt: new Date(),
+ *   updatedAt: new Date(),
+ * });
+ * \`\`\`
+ *
+ * @since 0.1.0
+ * @category models
+ */
+export class Model extends M.Class<Model>($I\`PlaceholderModel\`)(
+  makeFields(${context.SliceName}EntityIds.PlaceholderId, {
+    name: S.NonEmptyTrimmedString.annotations({
+      title: "Name",
+      description: "The name of the placeholder entity",
+    }),
+    description: S.OptionFromNullOr(S.String).annotations({
+      title: "Description",
+      description: "Optional description of the placeholder entity",
+    }),
+  }),
+  $I.annotations("PlaceholderModel", {
+    description: "Placeholder model for the ${context.sliceName} domain context.",
+  })
+) {
+  static readonly utils = modelKit(Model);
+}
 `;
 
 /**
@@ -423,17 +616,59 @@ const generateTablesSchema = (context: SliceContext): string =>
  *
  * Re-exports all table definitions from the tables directory.
  */
-export * from "./tables/index.js";
-export * from "./relations.js";
+export * from "./tables";
+export * from "./relations";
 `;
 
 /**
  * Generates tables/src/tables/index.ts.
  */
 const generateTablesTablesIndex = (context: SliceContext): string =>
-  `// ${context.SliceName} table definitions
-// Add table exports here as they are created
-export {};
+  `/**
+ * ${context.SliceName} table exports
+ *
+ * @module ${context.sliceName}-tables/tables
+ * @since 0.1.0
+ */
+export * from "./placeholder.table";
+
+// Export table definitions here
+// Example: export * from "./my-entity.table";
+`;
+
+/**
+ * Generates tables/src/tables/placeholder.table.ts.
+ */
+const generatePlaceholderTable = (context: SliceContext): string =>
+  `/**
+ * Placeholder table definition for ${context.SliceName} slice
+ *
+ * Defines the database table schema for the Placeholder entity.
+ * Replace or rename with your actual domain table definitions.
+ *
+ * @module ${context.sliceName}-tables/tables/placeholder
+ * @since 0.1.0
+ */
+import { ${context.SliceName}EntityIds } from "@beep/shared-domain";
+import { Table } from "@beep/shared-tables";
+import * as pg from "drizzle-orm/pg-core";
+
+/**
+ * Placeholder table for the ${context.sliceName} slice.
+ *
+ * Uses Table.make factory to include standard audit columns
+ * (id, createdAt, updatedAt).
+ *
+ * @since 0.1.0
+ * @category tables
+ */
+export const placeholder = Table.make(${context.SliceName}EntityIds.PlaceholderId)(
+  {
+    name: pg.text("name").notNull(),
+    description: pg.text("description"),
+  },
+  (t) => [pg.index("${context.slice_name}_placeholder_name_idx").on(t.name)]
+);
 `;
 
 /**
@@ -443,31 +678,82 @@ const generateTablesRelations = (context: SliceContext): string =>
   `/**
  * ${context.SliceName} table relations
  *
- * Define Drizzle relations between tables here.
+ * Defines Drizzle relations between tables in this slice.
+ *
+ * @module ${context.sliceName}-tables/relations
+ * @since 0.1.0
  */
-import { relations } from "drizzle-orm";
-// Import tables here when created
-// import { myTable } from "./tables/my-table.table.js";
+import * as d from "drizzle-orm";
+import { placeholder } from "./tables/placeholder.table";
+
+/**
+ * Placeholder table relations.
+ *
+ * Add foreign key relationships here as needed.
+ *
+ * @since 0.1.0
+ * @category relations
+ */
+export const placeholderRelations = d.relations(placeholder, (_) => ({
+  // Define foreign key relationships here
+  // Example:
+  // user: one(user, {
+  //   fields: [placeholder.userId],
+  //   references: [user.id],
+  // }),
+}));
 
 // Define relations here
-// export const myTableRelations = relations(myTable, ({ one, many }) => ({
-//   // relations
+// Example: import { myEntityTable } from "./tables/my-entity.table";
+// export const myEntityRelations = d.relations(myEntityTable, ({ one, many }) => ({
+//   // Define foreign key relationships
 // }));
+`;
+
+/**
+ * Generates tables/src/_check.ts for type verification.
+ */
+const generateTablesCheck = (context: SliceContext): string =>
+  `/**
+ * Type verification file for ${context.SliceName} tables
+ *
+ * This file ensures compile-time alignment between domain models
+ * and Drizzle table definitions. Add type assertions here when you
+ * create real entities to verify model/table schema alignment.
+ *
+ * @example
+ * \`\`\`ts
+ * import type { MyEntity } from "@beep/${context.sliceName}-domain/entities";
+ * import type { InferSelectModel, InferInsertModel } from "drizzle-orm";
+ * import type * as tables from "./schema";
+ *
+ * export const _checkSelectMyEntity: typeof MyEntity.Model.select.Encoded =
+ *   {} as InferSelectModel<typeof tables.myEntity>;
+ * \`\`\`
+ *
+ * @module ${context.sliceName}-tables/_check
+ * @since 0.1.0
+ */
+
+// Add type verification checks when you create real entities
+// See JSDoc example above for the pattern to use
+export {};
 `;
 
 /**
  * Generates server/src/db/index.ts.
  */
-const generateServerDbIndex = (_context: SliceContext): string =>
-  `export * from "./Db/index.js";
-export * from "./repositories.js";
+const generateServerDbIndex = (context: SliceContext): string =>
+  `export * from "./Db";
+export * from "./repos";
+export * as ${context.SliceName}Repos from "./repositories";
 `;
 
 /**
  * Generates server/src/db/Db/index.ts.
  */
-const generateServerDbDbIndex = (_context: SliceContext): string =>
-  `export * from "./Db.js";
+const generateServerDbDbIndex = (context: SliceContext): string =>
+  `export * as ${context.SliceName}Db from "./Db";
 `;
 
 /**
@@ -496,44 +782,74 @@ export const layer: Layer.Layer<Db, never, DbClient.SliceDbRequirements> = Layer
 /**
  * Generates server/src/db/repos/index.ts.
  */
-const generateServerReposIndex = (context: SliceContext): string =>
-  `// ${context.SliceName} repository exports
-// Add repository exports here as they are created
-export {};
+const generateServerReposIndex = (_context: SliceContext): string =>
+  `export * from "./Placeholder.repo";
+`;
+
+/**
+ * Generates server/src/db/repos/_common.ts.
+ */
+const generateServerReposCommon = (context: SliceContext): string =>
+  `/**
+ * Common repository dependencies for ${context.SliceName} slice
+ *
+ * Shared dependencies injected into all repositories in this slice.
+ *
+ * @module ${context.sliceName}-server/db/repos/_common
+ * @since 0.1.0
+ */
+import { ${context.SliceName}Db } from "@beep/${context.sliceName}-server/db";
+
+/**
+ * Common dependencies for all ${context.sliceName} repositories.
+ *
+ * All repos in this slice should use these dependencies
+ * to ensure consistent database access.
+ */
+export const dependencies = [${context.SliceName}Db.layer] as const;
+`;
+
+/**
+ * Generates server/src/db/repos/Placeholder.repo.ts.
+ */
+const generatePlaceholderRepo = (context: SliceContext): string =>
+  `import { Entities } from "@beep/${context.sliceName}-domain";
+import { ${context.SliceName}Db } from "@beep/${context.sliceName}-server/db";
+import { $${context.SliceName}ServerId } from "@beep/identity/packages";
+import { ${context.SliceName}EntityIds } from "@beep/shared-domain";
+import { DbRepo } from "@beep/shared-server";
+import * as Effect from "effect/Effect";
+import { dependencies } from "./_common";
+
+const $I = $${context.SliceName}ServerId.create("db/repos/PlaceholderRepo");
+
+export class PlaceholderRepo extends Effect.Service<PlaceholderRepo>()($I\`PlaceholderRepo\`, {
+  dependencies,
+  accessors: true,
+  effect: Effect.gen(function* () {
+    yield* ${context.SliceName}Db.Db;
+
+    return yield* DbRepo.make(${context.SliceName}EntityIds.PlaceholderId, Entities.Placeholder.Model, Effect.succeed({}));
+  }),
+}) {}
 `;
 
 /**
  * Generates server/src/db/repositories.ts (combined layer).
  */
 const generateServerRepositories = (context: SliceContext): string =>
-  `/**
- * ${context.SliceName} Repositories
- *
- * Combined layer providing all ${context.sliceName} repositories.
- */
+  `import type { ${context.SliceName}Db } from "@beep/${context.sliceName}-server/db";
+import type { DbClient } from "@beep/shared-server";
 import * as Layer from "effect/Layer";
-// Import repos here when created
-// import { MyEntityRepo } from "./repos/MyEntity.repo.js";
+import * as repos from "./repos";
 
-// Export individual repos for direct usage
-export * from "./repos/index.js";
+export type Repos = repos.PlaceholderRepo;
 
-/**
- * Requirements for the ${context.SliceName} repositories layer.
- */
-export type Requirements = never; // Add requirements as repos are created
+export type ReposLayer = Layer.Layer<Repos, never, DbClient.SliceDbRequirements | ${context.SliceName}Db.Db>;
 
-/**
- * All ${context.sliceName} repositories.
- */
-export type Repos = never; // Add repo types as created
+export const layer: ReposLayer = Layer.mergeAll(repos.PlaceholderRepo.Default);
 
-/**
- * Combined layer providing all ${context.sliceName} repositories.
- */
-export const layer = Layer.mergeAll(
-  // Add repo layers here as they are created
-);
+export * from "./repos";
 `;
 
 /**
@@ -557,48 +873,65 @@ describe("@beep/${context.sliceName}-${layer}", () => {
  * Generates entity-ids/{slice}/ids.ts.
  */
 const generateEntityIdsTs = (context: SliceContext): string =>
-  `import { $SharedDomainId } from "@beep/identity/packages";
+  `/**
+ * ${context.SliceName} entity IDs
+ *
+ * Defines branded entity identifiers for the ${context.sliceName} slice.
+ *
+ * @module ${context.sliceName}/entity-ids/ids
+ * @since 0.1.0
+ */
+import { $SharedDomainId } from "@beep/identity/packages";
 import { EntityId } from "@beep/schema/identity";
 import type * as S from "effect/Schema";
 
 const $I = $SharedDomainId.create("entity-ids/${context.sliceName}/ids");
 
-// Add entity IDs here using EntityId.make()
-// Example:
-// export const MyEntityId = EntityId.make("my_entity", {
-//   brand: "MyEntityId",
-// }).annotations(
-//   $I.annotations("MyEntityId", {
-//     description: "A unique identifier for MyEntity",
-//   })
-// );
-//
-// export declare namespace MyEntityId {
-//   export type Type = S.Schema.Type<typeof MyEntityId>;
-//   export type Encoded = S.Schema.Encoded<typeof MyEntityId>;
-// }
+/**
+ * Placeholder entity ID.
+ *
+ * Replace or rename with your actual entity IDs.
+ *
+ * @since 0.1.0
+ * @category ids
+ */
+export const PlaceholderId = EntityId.make("${context.slice_name}_placeholder", {
+  brand: "PlaceholderId",
+}).annotations(
+  $I.annotations("PlaceholderId", {
+    description: "A unique identifier for a Placeholder entity",
+  })
+);
+
+export declare namespace PlaceholderId {
+  export type Type = S.Schema.Type<typeof PlaceholderId>;
+  export type Encoded = S.Schema.Encoded<typeof PlaceholderId>;
+}
 `;
 
 /**
  * Generates entity-ids/{slice}/any-id.ts.
  */
 const generateEntityAnyIdTs = (context: SliceContext): string =>
-  `import { $SharedDomainId } from "@beep/identity/packages";
+  `/**
+ * ${context.SliceName} any entity ID union
+ *
+ * @module ${context.sliceName}/entity-ids/any-id
+ * @since 0.1.0
+ */
+import { $SharedDomainId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
-// Import entity IDs when created
-// import * as Ids from "./ids.js";
+import * as Ids from "./ids";
 
 const $I = $SharedDomainId.create("entity-ids/${context.sliceName}/any-id");
 
 /**
  * Union of all ${context.sliceName} entity IDs.
  *
- * Add entity IDs to this union as they are created.
+ * @since 0.1.0
+ * @category ids
  */
-export class AnyId extends S.Union(
-  // Add entity IDs here, e.g.: Ids.MyEntityId
-  S.Never, // Placeholder - remove when adding first entity
-).annotations(
+export class AnyId extends S.Union(Ids.PlaceholderId).annotations(
   $I.annotations("Any${context.SliceName}Id", {
     description: "Any entity id within the ${context.sliceName} domain context",
   })
@@ -614,23 +947,26 @@ export declare namespace AnyId {
  * Generates entity-ids/{slice}/table-name.ts.
  */
 const generateEntityTableNameTs = (context: SliceContext): string =>
-  `import { $SharedDomainId } from "@beep/identity/packages";
+  `/**
+ * ${context.SliceName} table names union
+ *
+ * @module ${context.sliceName}/entity-ids/table-name
+ * @since 0.1.0
+ */
+import { $SharedDomainId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
 import type * as S from "effect/Schema";
-// Import entity IDs when created
-// import * as Ids from "./ids.js";
+import * as Ids from "./ids";
 
 const $I = $SharedDomainId.create("entity-ids/${context.sliceName}/table-names");
 
 /**
  * Table names for ${context.sliceName} slice.
  *
- * Add table names here as entity IDs are created.
+ * @since 0.1.0
+ * @category ids
  */
-export class TableName extends BS.StringLiteralKit(
-  // Add table names here, e.g.: Ids.MyEntityId.tableName
-  "" as const, // Placeholder - replace when adding first entity
-).annotations(
+export class TableName extends BS.StringLiteralKit(Ids.PlaceholderId.tableName).annotations(
   $I.annotations("${context.SliceName}TableName", {
     description: "A sql table name for an entity within the ${context.sliceName} domain context",
   })
@@ -646,9 +982,9 @@ export declare namespace TableName {
  * Generates entity-ids/{slice}/index.ts.
  */
 const generateEntityIndexTs = (): string =>
-  `export * from "./any-id.js";
-export * from "./ids.js";
-export * from "./table-name.js";
+  `export * from "./any-id";
+export * from "./ids";
+export * from "./table-name";
 `;
 
 // -----------------------------------------------------------------------------
@@ -734,6 +1070,8 @@ export class FileGeneratorService extends Effect.Service<FileGeneratorService>()
           // Layer-specific subdirectories
           if (layer === "domain") {
             directories.push(path.join(layerDir, "src/entities"));
+            directories.push(path.join(layerDir, "src/entities/Placeholder"));
+            directories.push(path.join(layerDir, "src/value-objects"));
           } else if (layer === "tables") {
             directories.push(path.join(layerDir, "src/tables"));
           } else if (layer === "server") {
@@ -807,6 +1145,29 @@ export class FileGeneratorService extends Effect.Service<FileGeneratorService>()
               content: generateEntitiesIndex(context),
               isNew: true,
             });
+            // Placeholder entity files
+            files.push({
+              path: path.join(layerDir, "src/entities/Placeholder/index.ts"),
+              content: generatePlaceholderEntityIndex(context),
+              isNew: true,
+            });
+            files.push({
+              path: path.join(layerDir, "src/entities/Placeholder/Placeholder.model.ts"),
+              content: generatePlaceholderModel(context),
+              isNew: true,
+            });
+            // entities.ts barrel file
+            files.push({
+              path: path.join(layerDir, "src/entities.ts"),
+              content: generateEntitiesBarrel(),
+              isNew: true,
+            });
+            // value-objects/index.ts
+            files.push({
+              path: path.join(layerDir, "src/value-objects/index.ts"),
+              content: generateValueObjectsIndex(context),
+              isNew: true,
+            });
           } else if (layer === "tables") {
             files.push({
               path: path.join(layerDir, "src/schema.ts"),
@@ -818,9 +1179,21 @@ export class FileGeneratorService extends Effect.Service<FileGeneratorService>()
               content: generateTablesTablesIndex(context),
               isNew: true,
             });
+            // Placeholder table file
+            files.push({
+              path: path.join(layerDir, "src/tables/placeholder.table.ts"),
+              content: generatePlaceholderTable(context),
+              isNew: true,
+            });
             files.push({
               path: path.join(layerDir, "src/relations.ts"),
               content: generateTablesRelations(context),
+              isNew: true,
+            });
+            // Type verification file
+            files.push({
+              path: path.join(layerDir, "src/_check.ts"),
+              content: generateTablesCheck(context),
               isNew: true,
             });
           } else if (layer === "server") {
@@ -844,9 +1217,26 @@ export class FileGeneratorService extends Effect.Service<FileGeneratorService>()
               content: generateServerReposIndex(context),
               isNew: true,
             });
+            // Placeholder repo files
+            files.push({
+              path: path.join(layerDir, "src/db/repos/_common.ts"),
+              content: generateServerReposCommon(context),
+              isNew: true,
+            });
+            files.push({
+              path: path.join(layerDir, "src/db/repos/Placeholder.repo.ts"),
+              content: generatePlaceholderRepo(context),
+              isNew: true,
+            });
             files.push({
               path: path.join(layerDir, "src/db/repositories.ts"),
               content: generateServerRepositories(context),
+              isNew: true,
+            });
+            // db.ts re-export file for @beep/slice-server/db path resolution
+            files.push({
+              path: path.join(layerDir, "src/db.ts"),
+              content: `export * from "./db/index";\n`,
               isNew: true,
             });
           }

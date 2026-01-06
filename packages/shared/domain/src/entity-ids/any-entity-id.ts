@@ -1,5 +1,6 @@
 import { $SharedDomainId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
+import * as Comms from "./comms";
 import * as Customization from "./customization";
 import * as Documents from "./documents";
 import * as Iam from "./iam";
@@ -7,7 +8,13 @@ import * as Shared from "./shared";
 
 const $I = $SharedDomainId.create("entity-ids/any-id");
 
-export class AnyEntityId extends S.Union(Shared.AnyId, Iam.AnyId, Documents.AnyId, Customization.AnyId).annotations(
+export class AnyEntityId extends S.Union(
+  Shared.AnyId,
+  Iam.AnyId,
+  Documents.AnyId,
+  Customization.AnyId,
+  Comms.AnyId
+).annotations(
   $I.annotations("AnyEntityId", {
     description: "An entity id for any entity accross all domain contexts.",
   })

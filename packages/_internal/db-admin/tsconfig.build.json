@@ -45,6 +45,12 @@
     },
     {
       "path": "../../customization/tables/tsconfig.build.json"
+    },
+    {
+      "path": "../../comms/server/tsconfig.build.json"
+    },
+    {
+      "path": "../../comms/tables/tsconfig.build.json"
     }
   ]
 }

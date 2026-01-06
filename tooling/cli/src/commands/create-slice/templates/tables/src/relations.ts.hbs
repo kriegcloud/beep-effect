@@ -6,12 +6,28 @@
  * @module {{sliceName}}-tables/relations
  * @since 0.1.0
  */
-import { relations } from "drizzle-orm";
+import * as d from "drizzle-orm";
+import { placeholder } from "./tables/placeholder.table";
 
-// Import tables when created
-// Example: import { myEntityTable } from "./tables/my-entity.table.js";
+/**
+ * Placeholder table relations.
+ *
+ * Add foreign key relationships here as needed.
+ *
+ * @since 0.1.0
+ * @category relations
+ */
+export const placeholderRelations = d.relations(placeholder, (_) => ({
+  // Define foreign key relationships here
+  // Example:
+  // user: one(user, {
+  //   fields: [placeholder.userId],
+  //   references: [user.id],
+  // }),
+}));
 
 // Define relations here
-// export const myEntityRelations = relations(myEntityTable, ({ one, many }) => ({
+// Example: import { myEntityTable } from "./tables/my-entity.table";
+// export const myEntityRelations = d.relations(myEntityTable, ({ one, many }) => ({
 //   // Define foreign key relationships
 // }));

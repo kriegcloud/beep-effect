@@ -35,6 +35,9 @@
     },
     {
       "path": "../../customization/server"
+    },
+    {
+      "path": "../../comms/server"
     }
   ],
   "compilerOptions": {

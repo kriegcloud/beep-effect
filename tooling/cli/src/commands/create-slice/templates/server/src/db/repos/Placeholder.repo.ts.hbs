@@ -1,0 +1,19 @@
+import { Entities } from "@beep/{{sliceName}}-domain";
+import { {{SliceName}}Db } from "@beep/{{sliceName}}-server/db";
+import { ${{SliceName}}ServerId } from "@beep/identity/packages";
+import { {{SliceName}}EntityIds } from "@beep/shared-domain";
+import { DbRepo } from "@beep/shared-server";
+import * as Effect from "effect/Effect";
+import { dependencies } from "./_common";
+
+const $I = ${{SliceName}}ServerId.create("db/repos/PlaceholderRepo");
+
+export class PlaceholderRepo extends Effect.Service<PlaceholderRepo>()($I`PlaceholderRepo`, {
+  dependencies,
+  accessors: true,
+  effect: Effect.gen(function* () {
+    yield* {{SliceName}}Db.Db;
+
+    return yield* DbRepo.make({{SliceName}}EntityIds.PlaceholderId, Entities.Placeholder.Model, Effect.succeed({}));
+  }),
+}) {}

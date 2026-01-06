@@ -1,0 +1,38 @@
+/**
+ * Placeholder table definition for {{SliceName}} slice
+ *
+ * Defines the database table schema for the Placeholder entity.
+ * Replace or rename with your actual domain table definitions.
+ *
+ * @module {{sliceName}}-tables/tables/placeholder
+ * @since 0.1.0
+ */
+import { {{SliceName}}EntityIds } from "@beep/shared-domain";
+import { Table } from "@beep/shared-tables";
+import * as pg from "drizzle-orm/pg-core";
+
+/**
+ * Placeholder table for the {{sliceName}} slice.
+ *
+ * Uses Table.make factory to include standard audit columns
+ * (id, createdAt, updatedAt).
+ *
+ * @example
+ * ```ts
+ * import { placeholder } from "@beep/{{sliceName}}-tables/schema";
+ * import { eq } from "drizzle-orm";
+ *
+ * // In a repository or query:
+ * const results = await db.select().from(placeholder).where(eq(placeholder.name, "Example"));
+ * ```
+ *
+ * @since 0.1.0
+ * @category tables
+ */
+export const placeholder = Table.make({{SliceName}}EntityIds.PlaceholderId)(
+  {
+    name: pg.text("name").notNull(),
+    description: pg.text("description"),
+  },
+  (t) => [pg.index("{{slice_name}}_placeholder_name_idx").on(t.name)]
+);

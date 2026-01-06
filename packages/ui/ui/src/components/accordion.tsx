@@ -1,6 +1,6 @@
 import { cn } from "@beep/ui-core/utils";
 import * as AccordionPrimitive from "@radix-ui/react-accordion";
-import { ChevronDownIcon } from "@radix-ui/react-icons";
+import { ChevronDown } from "lucide-react";
 import * as React from "react";
 
 const Accordion = AccordionPrimitive.Root;
@@ -34,9 +34,9 @@ const AccordionTrigger = React.forwardRef<
         )}
         {...props}
       >
-        {icon === "left" && <ChevronDownIcon className={iconClasses} aria-hidden />}
+        {icon === "left" && <ChevronDown className={iconClasses} aria-hidden />}
         {children}
-        {icon === "right" && <ChevronDownIcon className={iconClasses} aria-hidden />}
+        {icon === "right" && <ChevronDown className={iconClasses} aria-hidden />}
       </AccordionPrimitive.Trigger>
     </AccordionPrimitive.Header>
   );

@@ -1,6 +1,6 @@
-/* Customization */
+/* Comms */
+export {} from "@beep/comms-tables/relations";
 export { userHotkeyRelations } from "@beep/customization-tables/relations";
-
 /* Documents */
 export {
   commentRelations,
@@ -9,7 +9,6 @@ export {
   documentRelations,
   documentVersionRelations,
 } from "@beep/documents-tables/relations";
-
 /* Iam */
 export {
   accountRelations,
