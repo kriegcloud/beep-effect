@@ -1,6 +1,6 @@
 import type { DbClient } from "@beep/shared-server";
 import * as Layer from "effect/Layer";
-import type { SharedDb } from "../Db";
+import type { SharedDb } from "../db";
 import * as repos from "./repos";
 
 export * from "./repos";

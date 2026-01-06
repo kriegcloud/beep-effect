@@ -1,0 +1,34 @@
+/**
+ * Combined repositories layer for {{SliceName}}
+ *
+ * Merges all repository layers for convenient provisioning.
+ *
+ * @module {{sliceName}}-server/db/repositories
+ * @since 0.1.0
+ */
+import * as Layer from "effect/Layer";
+
+// Import repositories when created
+// Example: import { MyEntityRepoLive } from "./repos/MyEntity.repo.js";
+
+/**
+ * Combined layer for all {{SliceName}} repositories.
+ *
+ * @example
+ * ```ts
+ * import { {{SliceName}}RepositoriesLive } from "@beep/{{sliceName}}-server"
+ * import * as Effect from "effect/Effect"
+ * import * as Layer from "effect/Layer"
+ *
+ * const program = Effect.gen(function* () {
+ *   // Use repositories
+ * }).pipe(Effect.provide({{SliceName}}RepositoriesLive));
+ * ```
+ *
+ * @since 0.1.0
+ * @category layers
+ */
+export const {{SliceName}}RepositoriesLive = Layer.mergeAll(
+  // Add repository layers here as they are created
+  // MyEntityRepoLive,
+);

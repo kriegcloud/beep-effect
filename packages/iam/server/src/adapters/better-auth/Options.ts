@@ -224,12 +224,19 @@ export const makeAuth = ({
       database: {
         generateId: false,
       },
-      defaultCookieAttributes: {
-        httpOnly: true,
-        partitioned: true,
-        sameSite: "none",
-        secure: true,
-      },
+      defaultCookieAttributes:
+        serverEnv.app.env === EnvValue.Enum.dev
+          ? {
+              httpOnly: true,
+              sameSite: "lax",
+              secure: false,
+            }
+          : {
+              httpOnly: true,
+              partitioned: true,
+              sameSite: "none",
+              secure: true,
+            },
     },
     user: {
       changeEmail: {

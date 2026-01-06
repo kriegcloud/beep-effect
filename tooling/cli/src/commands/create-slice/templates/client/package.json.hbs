@@ -1,0 +1,21 @@
+{
+  "name": "@beep/{{sliceName}}-client",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "{{sliceDescription}} - client SDK",
+  "exports": {
+    ".": "./src/index.ts",
+    "./package.json": "./package.json",
+    "./*": "./src/*.ts"
+  },
+  "dependencies": {
+    "@beep/{{sliceName}}-domain": "workspace:*",
+    "@beep/contract": "workspace:*",
+    "@beep/identity": "workspace:*",
+    "effect": "catalog:"
+  },
+  "devDependencies": {
+    "@beep/tsconfig": "workspace:*"
+  }
+}

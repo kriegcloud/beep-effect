@@ -8,10 +8,42 @@ import * as S from "effect/Schema";
 
 const $I = $SchemaId.create("schema/primitives/function");
 
-type FnOptions<IA, IE, OA, OE> = {
+export type FnOptions<IA, IE, OA, OE> = {
   readonly input: S.Schema<IA, IE>;
   readonly output: S.Schema<OA, OE>;
 };
+
+/**
+ * Static methods added to FnSchema classes.
+ */
+export interface FnSchemaStatics<IA, IE, OA, OE> {
+  readonly [S.TypeId]: typeof variance;
+  /**
+   * Wraps a pure handler with validation.
+   * Returns a function that produces an Effect.
+   */
+  readonly implement: (handler: (args: IA) => OA) => (input: unknown) => Effect.Effect<OA, ParseResult.ParseError>;
+  /**
+   * Wraps an effectful handler with validation.
+   */
+  readonly implementEffect: <E, R>(
+    handler: (args: IA) => Effect.Effect<OA, E, R>
+  ) => (input: unknown) => Effect.Effect<OA, ParseResult.ParseError | E, R>;
+  /**
+   * Synchronous version (throws on validation errors).
+   */
+  readonly implementSync: (handler: (args: IA) => OA) => (input: unknown) => OA;
+  /** The input schema for validation */
+  readonly inputSchema: S.Schema<IA, IE>;
+  /** The output schema for validation */
+  readonly outputSchema: S.Schema<OA, OE>;
+}
+
+/**
+ * Interface describing the return type of `Fn`.
+ * Explicitly exported so TypeScript can name it in declaration files.
+ */
+export type FnSchema<IA, IE, OA, OE> = S.Schema<(args: IA) => OA, (args: IA) => OA> & FnSchemaStatics<IA, IE, OA, OE>;
 
 /**
  * Creates a validated function factory.
@@ -37,43 +69,30 @@ type FnOptions<IA, IE, OA, OE> = {
 export const Fn = <IA, IE, OA, OE>(
   opts: FnOptions<IA, IE, OA, OE>,
   annotations?: undefined | S.Annotations.Schema<(args: IA) => OA>
-) => {
-  class Base extends S.declare((i: unknown): i is (args: IA) => OA => P.isFunction(i)).pipe(
-    S.annotations({
-      ...annotations,
-    })
-  ) {
-    override [S.TypeId] = variance;
-    static override [S.TypeId] = variance;
-    /**
-     * Wraps a pure handler with validation.
-     * Returns a function that produces an Effect.
-     */
-    static readonly implement = (handler: (args: IA) => OA) => {
-      return (input: unknown): Effect.Effect<OA, ParseResult.ParseError> =>
-        F.pipe(input, S.decodeUnknown(opts.input), Effect.map(handler), Effect.flatMap(S.validate(opts.output)));
-    };
-    /**
-     * Wraps an effectful handler with validation.
-     */
-    static readonly implementEffect = <E, R>(handler: (args: IA) => Effect.Effect<OA, E, R>) => {
-      return (input: unknown): Effect.Effect<OA, ParseResult.ParseError | E, R> =>
-        F.pipe(input, S.decodeUnknown(opts.input), Effect.flatMap(handler), Effect.flatMap(S.validate(opts.output)));
-    };
-    /**
-     * Synchronous version (throws on validation errors).
-     * Use when you need direct values without Effect wrapper.
-     */
-    static readonly implementSync = (handler: (args: IA) => OA) => {
-      return (input: unknown): OA =>
-        F.pipe(input, S.decodeUnknownSync(opts.input), handler, S.validateSync(opts.output));
-    };
-    // Expose schemas for external use (e.g., generating docs, introspection)
-    static readonly inputSchema = opts.input;
-    static readonly outputSchema = opts.output;
-  }
+): FnSchema<IA, IE, OA, OE> => {
+  const baseSchema = S.declare((i: unknown): i is (args: IA) => OA => P.isFunction(i)).pipe(
+    S.annotations({ ...annotations })
+  );
 
-  return Base;
+  const statics: FnSchemaStatics<IA, IE, OA, OE> = {
+    [S.TypeId]: variance,
+    implement:
+      (handler: (args: IA) => OA) =>
+      (input: unknown): Effect.Effect<OA, ParseResult.ParseError> =>
+        F.pipe(input, S.decodeUnknown(opts.input), Effect.map(handler), Effect.flatMap(S.validate(opts.output))),
+    implementEffect:
+      <E, R>(handler: (args: IA) => Effect.Effect<OA, E, R>) =>
+      (input: unknown): Effect.Effect<OA, ParseResult.ParseError | E, R> =>
+        F.pipe(input, S.decodeUnknown(opts.input), Effect.flatMap(handler), Effect.flatMap(S.validate(opts.output))),
+    implementSync:
+      (handler: (args: IA) => OA) =>
+      (input: unknown): OA =>
+        F.pipe(input, S.decodeUnknownSync(opts.input), handler, S.validateSync(opts.output)),
+    inputSchema: opts.input,
+    outputSchema: opts.output,
+  };
+
+  return Object.assign(baseSchema, statics);
 };
 
 export class AnyFn extends S.declare((u: unknown): u is Function => P.isFunction(u)).annotations(

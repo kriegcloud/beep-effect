@@ -69,6 +69,6 @@ export const client = createAuthClient({
   ],
 } satisfies BetterAuthClientOptions);
 
-export const { $store, signIn } = client;
+export const { $store, signIn, signUp } = client;
 
 $store.listen("$sessionSignal", asyncNoOp);

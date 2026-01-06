@@ -1,5 +1,5 @@
 "use client";
-import { useSignUpEmailForm } from "@beep/iam-client/atom/sign-up";
+import { useSignUpEmailForm } from "@beep/iam-client/clients";
 import { RecaptchaBadge, useCaptcha } from "@beep/iam-ui/_common";
 import { paths } from "@beep/shared-domain";
 import { Form } from "@beep/ui/form";

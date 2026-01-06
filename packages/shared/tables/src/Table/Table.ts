@@ -1,5 +1,5 @@
 import type { EntityId } from "@beep/schema/identity";
-import type { DefaultColumns } from "@beep/shared-tables/Columns";
+import type { DefaultColumns } from "@beep/shared-tables/columns";
 import type { BuildExtraConfigColumns } from "drizzle-orm";
 import type { PgTableExtraConfigValue } from "drizzle-orm/pg-core";
 import * as pg from "drizzle-orm/pg-core";

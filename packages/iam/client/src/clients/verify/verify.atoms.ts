@@ -50,3 +50,21 @@ export const useSendEmailVerification = () => {
     sendEmailVerification: handleSendEmailVerification,
   };
 };
+
+export const verifyEmailAtom = verifyRuntime.fn(
+  F.flow(
+    VerifyService.VerifyEmail,
+    withToast({
+      onWaiting: "Verifying email.",
+      onSuccess: "Email verified.",
+      onFailure: (e) => e.message,
+    })
+  )
+);
+export const useVerifyEmail = () => {
+  const verifyEmail = useAtomSet(verifyEmailAtom);
+
+  return {
+    verifyEmail,
+  };
+};

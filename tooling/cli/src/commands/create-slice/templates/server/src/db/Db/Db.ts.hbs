@@ -1,0 +1,53 @@
+/**
+ * {{SliceName}} database client service
+ *
+ * Provides slice-scoped database access using Effect SQL.
+ * Use {{SliceName}}Db.sql for direct SQL queries or build
+ * repositories on top of this service.
+ *
+ * @module {{sliceName}}-server/db/Db
+ * @since 0.1.0
+ */
+import { ${{SliceName}}ServerId } from "@beep/identity/packages";
+import { SqlClient } from "@effect/sql";
+import * as Effect from "effect/Effect";
+
+const $I = ${{SliceName}}ServerId.create("db");
+
+/**
+ * {{SliceName}} database client service.
+ *
+ * Provides access to the SQL client for this slice's database operations.
+ *
+ * @example
+ * ```ts
+ * import { {{SliceName}}Db } from "@beep/{{sliceName}}-server"
+ * import * as Effect from "effect/Effect"
+ *
+ * const program = Effect.gen(function* () {
+ *   const { sql } = yield* {{SliceName}}Db;
+ *   const results = yield* sql`SELECT * FROM my_table`;
+ *   return results;
+ * });
+ * ```
+ *
+ * @since 0.1.0
+ * @category services
+ */
+export class {{SliceName}}Db extends Effect.Service<{{SliceName}}Db>()($I`{{SliceName}}Db`, {
+  effect: Effect.gen(function* () {
+    const sql = yield* SqlClient.SqlClient;
+    return { sql };
+  }),
+  accessors: true,
+}) {}
+
+/**
+ * Live layer for {{SliceName}}Db.
+ *
+ * Requires SqlClient.SqlClient in the environment.
+ *
+ * @since 0.1.0
+ * @category layers
+ */
+export const {{SliceName}}DbLive = {{SliceName}}Db.Default;

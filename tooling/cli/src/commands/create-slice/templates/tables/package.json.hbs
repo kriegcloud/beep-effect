@@ -1,0 +1,22 @@
+{
+  "name": "@beep/{{sliceName}}-tables",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "{{sliceDescription}} - database tables",
+  "exports": {
+    ".": "./src/index.ts",
+    "./package.json": "./package.json",
+    "./*": "./src/*.ts"
+  },
+  "dependencies": {
+    "@beep/{{sliceName}}-domain": "workspace:*",
+    "@beep/shared-domain": "workspace:*",
+    "@beep/shared-tables": "workspace:*",
+    "drizzle-orm": "catalog:",
+    "effect": "catalog:"
+  },
+  "devDependencies": {
+    "@beep/tsconfig": "workspace:*"
+  }
+}

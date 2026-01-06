@@ -13,6 +13,7 @@ import * as Eq from "effect/Equal";
 import * as Layer from "effect/Layer";
 import * as P from "effect/Predicate";
 import * as AuthContext from "./AuthContext.layer";
+import { BetterAuthRouterLive } from "./BetterAuthRouter.layer";
 import * as Logger from "./Logger.layer";
 import * as Rpc from "./Rpc.layer";
 
@@ -46,7 +47,8 @@ const CorsMiddleware = HttpLayerRouter.cors({
 const ProtectedRoutes = Layer.mergeAll(IamApiRoutes, Rpc.layer).pipe(Layer.provide(AuthContext.layer));
 
 // Public routes that don't require authentication
-const PublicRoutes = Layer.mergeAll(DocsRoute, HealthRoute);
+// BetterAuthRouterLive handles authentication internally via Better Auth
+const PublicRoutes = Layer.mergeAll(DocsRoute, HealthRoute, BetterAuthRouterLive);
 
 // Merge protected and public routes, apply CORS to all
 const AllRoutes = Layer.mergeAll(ProtectedRoutes, PublicRoutes).pipe(Layer.provide(CorsMiddleware));

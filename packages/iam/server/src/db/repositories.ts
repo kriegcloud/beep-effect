@@ -1,4 +1,4 @@
-import type { DbClient } from "@beep/shared-server/Db";
+import type { DbClient } from "@beep/shared-server";
 import * as Layer from "effect/Layer";
 import type { IamDb } from "./Db";
 import * as repos from "./repos";

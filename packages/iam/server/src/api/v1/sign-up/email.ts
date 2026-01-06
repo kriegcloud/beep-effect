@@ -31,6 +31,26 @@ export const Handler: HandlerEffect = Effect.fn("SignUpEmailHandler")(function* 
         returnHeaders: true,
       })
     ),
+    Effect.tap((result) =>
+      Effect.sync(() => {
+        // Debug: Log the headers returned by Better Auth
+        console.log("[SignUp Debug] Headers type:", typeof result.headers);
+        console.log("[SignUp Debug] Headers constructor:", result.headers?.constructor?.name);
+        console.log("[SignUp Debug] Has getSetCookie:", typeof result.headers?.getSetCookie);
+        if (result.headers?.getSetCookie) {
+          const cookies = result.headers.getSetCookie();
+          console.log("[SignUp Debug] Set-Cookie headers count:", cookies.length);
+          console.log("[SignUp Debug] Set-Cookie headers:", cookies);
+        } else {
+          console.log("[SignUp Debug] No getSetCookie method - trying to iterate headers");
+          if (result.headers && typeof result.headers.entries === "function") {
+            for (const [key, value] of result.headers.entries()) {
+              console.log(`[SignUp Debug] Header: ${key} = ${value}`);
+            }
+          }
+        }
+      })
+    ),
     Effect.flatMap((result) =>
       Effect.all({
         headers: Effect.succeed(result.headers),

@@ -1,6 +1,6 @@
 import type { EntityId } from "@beep/schema/identity";
 import type { SharedEntityIds } from "@beep/shared-domain/entity-ids";
-import type { DefaultColumns } from "@beep/shared-tables/Columns";
+import type { DefaultColumns } from "@beep/shared-tables/columns";
 import { organization } from "@beep/shared-tables/tables/organization.table";
 import type { $Type, BuildExtraConfigColumns, NotNull } from "drizzle-orm";
 import type { PgTableExtraConfigValue } from "drizzle-orm/pg-core";

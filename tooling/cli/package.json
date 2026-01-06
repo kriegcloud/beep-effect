@@ -64,7 +64,9 @@
     "@beep/identity": "workspace:^",
     "effect": "catalog:",
     "glob": "^11.0.3",
-    "@effect/cluster": "catalog:"
+    "@effect/cluster": "catalog:",
+    "handlebars": "^4.7.8",
+    "jsonc-parser": "^3.3.1"
   },
   "devDependencies": {
     "@beep/types": "workspace:^",

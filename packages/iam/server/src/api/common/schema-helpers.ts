@@ -1,9 +1,10 @@
+import * as Cookies from "@effect/platform/Cookies";
 import type * as HttpBody from "@effect/platform/HttpBody";
 import type * as HttpServerRequest from "@effect/platform/HttpServerRequest";
 import * as HttpServerResponse from "@effect/platform/HttpServerResponse";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
-import * as O from "effect/Option";
 import type * as ParseResult from "effect/ParseResult";
 import * as S from "effect/Schema";
 
@@ -16,22 +17,47 @@ export type AuthApiResponse<T> = {
 };
 
 /**
- * Forwards set-cookie header from auth response to HTTP response.
- * Returns an HttpServerResponse with the JSON body and optional cookie header.
+ * Forwards all Set-Cookie headers from auth response to HTTP response.
+ * Uses headers.getSetCookie() to retrieve all cookies (Better Auth sets multiple).
+ * Returns an HttpServerResponse with the JSON body and merged cookies.
  */
 export const forwardCookieResponse = <T>(
   headers: Headers,
   response: T
-): Effect.Effect<HttpServerResponse.HttpServerResponse, HttpBody.HttpBodyError, never> =>
-  F.pipe(
-    headers.get("set-cookie"),
-    O.fromNullable,
-    O.match({
-      onNone: F.pipe(response, HttpServerResponse.json, F.constant),
-      onSome: (setCookie) =>
-        F.pipe(response, HttpServerResponse.json, Effect.map(HttpServerResponse.setHeader("set-cookie", setCookie))),
-    })
-  );
+): Effect.Effect<HttpServerResponse.HttpServerResponse, HttpBody.HttpBodyError | Cookies.CookiesError, never> =>
+  F.pipe(headers.getSetCookie(), A.fromIterable, (cookies) => {
+    console.log("[forwardCookieResponse] Raw cookies from getSetCookie:", cookies);
+    console.log("[forwardCookieResponse] Number of cookies:", cookies.length);
+
+    if (A.isEmptyArray(cookies)) {
+      console.log("[forwardCookieResponse] No cookies to forward");
+      return HttpServerResponse.json(response);
+    }
+
+    const parsedCookies = Cookies.fromSetCookie(cookies);
+    console.log("[forwardCookieResponse] Parsed cookies:", parsedCookies);
+
+    return F.pipe(
+      HttpServerResponse.json(response),
+      Effect.tap((res) =>
+        Effect.sync(() => {
+          console.log("[forwardCookieResponse] Response before merge:", {
+            status: res.status,
+            hasCookies: "cookies" in res,
+          });
+        })
+      ),
+      Effect.flatMap(HttpServerResponse.mergeCookies(parsedCookies)),
+      Effect.tap((res) =>
+        Effect.sync(() => {
+          console.log("[forwardCookieResponse] Response after merge:", {
+            status: res.status,
+            cookies: res.cookies,
+          });
+        })
+      )
+    );
+  });
 
 /**
  * Executes an auth endpoint with payload encoding, response decoding, and cookie forwarding.
@@ -77,7 +103,7 @@ export const runAuthEndpoint = <
   }) => Effect.Effect<AuthApiResponse<AuthResponse>, AuthError, AuthContext>;
 }): Effect.Effect<
   HttpServerResponse.HttpServerResponse,
-  ParseResult.ParseError | AuthError | HttpBody.HttpBodyError,
+  ParseResult.ParseError | AuthError | HttpBody.HttpBodyError | Cookies.CookiesError,
   PayloadContext | SuccessContext | AuthContext
 > =>
   F.pipe(
@@ -132,7 +158,7 @@ export const runAuthQuery = <
   }) => Effect.Effect<AuthApiResponse<AuthResponse>, AuthError, AuthContext>;
 }): Effect.Effect<
   HttpServerResponse.HttpServerResponse,
-  ParseResult.ParseError | AuthError | HttpBody.HttpBodyError,
+  ParseResult.ParseError | AuthError | HttpBody.HttpBodyError | Cookies.CookiesError,
   SuccessContext | AuthContext
 > =>
   F.pipe(
@@ -170,7 +196,11 @@ export const runAuthCommand = <SuccessType, AuthError, AuthContext>(params: {
   readonly authHandler: (args: {
     readonly headers: HttpServerRequest.HttpServerRequest["headers"];
   }) => Effect.Effect<AuthApiResponse<unknown>, AuthError, AuthContext>;
-}): Effect.Effect<HttpServerResponse.HttpServerResponse, AuthError | HttpBody.HttpBodyError, AuthContext> =>
+}): Effect.Effect<
+  HttpServerResponse.HttpServerResponse,
+  AuthError | HttpBody.HttpBodyError | Cookies.CookiesError,
+  AuthContext
+> =>
   F.pipe(
     params.authHandler({ headers: params.headers }),
     Effect.flatMap(({ headers }) => forwardCookieResponse(headers, params.successValue))

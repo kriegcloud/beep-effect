@@ -1,0 +1,24 @@
+{
+  "name": "@beep/{{sliceName}}-server",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "{{sliceDescription}} - server infrastructure",
+  "exports": {
+    ".": "./src/index.ts",
+    "./package.json": "./package.json",
+    "./*": "./src/*.ts"
+  },
+  "dependencies": {
+    "@beep/{{sliceName}}-domain": "workspace:*",
+    "@beep/{{sliceName}}-tables": "workspace:*",
+    "@beep/identity": "workspace:*",
+    "@beep/shared-server": "workspace:*",
+    "@effect/sql": "catalog:",
+    "@effect/sql-pg": "catalog:",
+    "effect": "catalog:"
+  },
+  "devDependencies": {
+    "@beep/tsconfig": "workspace:*"
+  }
+}
