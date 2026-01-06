@@ -15,10 +15,16 @@
           "$ref": "#/definitions/User"
         },
         "ip_address": {
-          "type": ["string", "null"]
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "user_agent": {
-          "type": ["string", "null"]
+          "type": [
+            "string",
+            "null"
+          ]
         }
       }
     },
@@ -49,10 +55,16 @@
           "type": "string"
         },
         "password_hash": {
-          "type": ["string", "null"]
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "email": {
-          "type": ["string", "null"]
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "sessions": {
           "type": "array",
@@ -69,30 +81,49 @@
         "role": {
           "type": "string",
           "default": "USER",
-          "enum": ["USER", "ADMIN", "SUPERADMIN"]
+          "enum": [
+            "USER",
+            "ADMIN",
+            "SUPERADMIN"
+          ]
         },
         "uploadLimit": {
           "type": "integer",
           "default": 100000000
         },
         "name": {
-          "type": ["string", "null"]
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "firstName": {
-          "type": ["string", "null"]
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "lastName": {
-          "type": ["string", "null"]
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "profileImageUrl": {
-          "type": ["string", "null"]
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "version": {
           "type": "integer",
           "default": 1
         },
         "stripeCustomerId": {
-          "type": ["string", "null"]
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "createdAt": {
           "type": "string",
@@ -103,7 +134,10 @@
           "format": "date-time"
         },
         "deletedAt": {
-          "type": ["string", "null"],
+          "type": [
+            "string",
+            "null"
+          ],
           "format": "date-time"
         },
         "documents": {
@@ -145,7 +179,10 @@
           "type": "string"
         },
         "templateId": {
-          "type": ["string", "null"]
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "user": {
           "$ref": "#/definitions/User"
@@ -167,22 +204,44 @@
           }
         },
         "title": {
-          "type": ["string", "null"]
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "content": {
-          "type": ["string", "null"]
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "contentRich": {
-          "type": ["number", "string", "boolean", "object", "array", "null"]
+          "type": [
+            "number",
+            "string",
+            "boolean",
+            "object",
+            "array",
+            "null"
+          ]
         },
         "yjsSnapshot": {
-          "type": ["string", "null"]
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "coverImage": {
-          "type": ["string", "null"]
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "icon": {
-          "type": ["string", "null"]
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "isPublished": {
           "type": "boolean",
@@ -195,7 +254,11 @@
         "textStyle": {
           "type": "string",
           "default": "DEFAULT",
-          "enum": ["DEFAULT", "SERIF", "MONO"]
+          "enum": [
+            "DEFAULT",
+            "SERIF",
+            "MONO"
+          ]
         },
         "smallText": {
           "type": "boolean",
@@ -254,10 +317,20 @@
           "$ref": "#/definitions/User"
         },
         "title": {
-          "type": ["string", "null"]
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "contentRich": {
-          "type": ["number", "string", "boolean", "object", "array", "null"]
+          "type": [
+            "number",
+            "string",
+            "boolean",
+            "object",
+            "array",
+            "null"
+          ]
         },
         "createdAt": {
           "type": "string",
@@ -285,7 +358,14 @@
           "type": "string"
         },
         "documentContentRich": {
-          "type": ["number", "string", "boolean", "object", "array", "null"]
+          "type": [
+            "number",
+            "string",
+            "boolean",
+            "object",
+            "array",
+            "null"
+          ]
         },
         "isResolved": {
           "type": "boolean",
@@ -323,7 +403,14 @@
           "type": "string"
         },
         "contentRich": {
-          "type": ["number", "string", "boolean", "object", "array", "null"]
+          "type": [
+            "number",
+            "string",
+            "boolean",
+            "object",
+            "array",
+            "null"
+          ]
         },
         "isEdited": {
           "type": "boolean",
