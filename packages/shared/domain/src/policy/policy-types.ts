@@ -4,6 +4,7 @@
  * @category policy
  */
 
+import { $SharedDomainId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
 import * as A from "effect/Array";
 import * as Data from "effect/Data";
@@ -17,6 +18,8 @@ import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import * as Struct from "effect/Struct";
+
+const $I = $SharedDomainId.create("policy/policy-types");
 
 // Import canonical Capability from the capabilities module - this fixes the duplication
 
@@ -661,7 +664,7 @@ export const RuleEffectsTransform = pipe(
  * @since 0.1.0
  * @category schema/transforms
  */
-export class RuleStats extends S.Class<RuleStats>("RuleStats")({
+export class RuleStats extends S.Class<RuleStats>($I`RuleStats`)({
   totalRules: S.Number,
   allowRules: S.Number,
   denyRules: S.Number,
@@ -1104,7 +1107,7 @@ const getRulePresence = (sorted: ReadonlyArray<PolicyRule>): RulePresence => {
  * @since 0.1.0
  * @category types
  */
-class DecisionResult extends S.Class<DecisionResult>("DecisionResult")({
+class DecisionResult extends S.Class<DecisionResult>($I`DecisionResult`)({
   allowed: S.Boolean,
   reason: AuthorizationDecisionReason,
 }) {

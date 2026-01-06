@@ -1,3 +1,4 @@
+import { $IamDomainId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
 import { IamEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import { makeFields } from "@beep/shared-domain/common";
@@ -5,13 +6,14 @@ import { modelKit } from "@beep/shared-domain/factories";
 import { PolicyRecord } from "@beep/shared-domain/Policy";
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
-export const ApikeyModelSchemaId = Symbol.for("@beep/iam-domain/ApikeyModel");
+
+const $I = $IamDomainId.create("entities/ApiKey/ApiKey.model");
 
 /**
  * API Key model representing user API keys with rate limiting and security features.
  * Maps to the `apikey` table in the database.
  */
-export class Model extends M.Class<Model>(`ApikeyModel`)(
+export class Model extends M.Class<Model>($I`ApikeyModel`)(
   makeFields(IamEntityIds.ApiKeyId, {
     /** Human-readable name for the API key */
     name: BS.FieldOptionOmittable(
@@ -151,11 +153,10 @@ export class Model extends M.Class<Model>(`ApikeyModel`)(
     ),
     organizationId: BS.FieldOptionOmittable(SharedEntityIds.OrganizationId),
   }),
-  {
+  $I.annotations("ApikeyModel", {
     title: "API Key Model",
     description: "API Key model representing user API keys with rate limiting and security features.",
-    schemaId: ApikeyModelSchemaId,
-  }
+  })
 ) {
   static readonly utils = modelKit(Model);
 }

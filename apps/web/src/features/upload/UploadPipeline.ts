@@ -1,3 +1,4 @@
+import { $WebId } from "@beep/identity/packages";
 import * as Cause from "effect/Cause";
 import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
@@ -16,10 +17,12 @@ import type {
 } from "./UploadModels";
 import { computeFileHash, uploadToS3 } from "./uploadToS3";
 
+const $I = $WebId.create("features/upload/UploadPipeline");
+
 /**
  * Error for pipeline-level failures
  */
-export class PipelineError extends Data.TaggedError("PipelineError")<{
+export class PipelineError extends Data.TaggedError($I`PipelineError`)<{
   readonly message: string;
   readonly code: string;
   readonly fileName?: string;

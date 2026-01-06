@@ -1,3 +1,4 @@
+import { $IamDomainId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
 import { IamEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import { makeFields } from "@beep/shared-domain/common";
@@ -5,13 +6,13 @@ import { modelKit } from "@beep/shared-domain/factories";
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
 
-export const OAuthApplicationModelSchemaId = Symbol.for("@beep/iam-domain/OAuthApplicationModel");
+const $I = $IamDomainId.create("entities/OAuthApplication/OAuthApplication.model");
 
 /**
  * OAuth Application model representing registered OAuth applications.
  * Maps to the `oauth_application` table in the database.
  */
-export class Model extends M.Class<Model>(`OAuthApplicationModel`)(
+export class Model extends M.Class<Model>($I`OAuthApplicationModel`)(
   makeFields(IamEntityIds.OAuthApplicationId, {
     /** Application name */
     name: BS.FieldOptionOmittable(
@@ -75,11 +76,10 @@ export class Model extends M.Class<Model>(`OAuthApplicationModel`)(
     ),
     organizationId: SharedEntityIds.OrganizationId,
   }),
-  {
+  $I.annotations("OAuthApplicationModel", {
     title: "OAuth Application Model",
     description: "OAuth Application model representing registered OAuth applications.",
-    schemaId: OAuthApplicationModelSchemaId,
-  }
+  })
 ) {
   static readonly utils = modelKit(Model);
 }

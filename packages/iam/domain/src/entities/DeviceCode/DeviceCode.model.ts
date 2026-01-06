@@ -1,3 +1,4 @@
+import { $IamDomainId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
 import { IamEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import { makeFields } from "@beep/shared-domain/common";
@@ -6,14 +7,14 @@ import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
 import { DeviceCodeStatus } from "./schemas";
 
-export const DeviceCodeModelSchemaId = Symbol.for("@beep/iam-domain/DeviceCodeModel");
+const $I = $IamDomainId.create("entities/DeviceCode/DeviceCode.model");
 
 /**
  * OAuth 2.0 Device Authorization Grant (RFC 8628),
  * enabling authentication for devices with limited input capabilities such as smart TVs,
  * CLI applications, IoT devices, and gaming consoles.
  */
-export class Model extends M.Class<Model>(`DeviceCodeModel`)(
+export class Model extends M.Class<Model>($I`DeviceCodeModel`)(
   makeFields(IamEntityIds.DeviceCodeId, {
     userCode: M.Sensitive(S.NonEmptyTrimmedString),
 
@@ -28,12 +29,10 @@ export class Model extends M.Class<Model>(`DeviceCodeModel`)(
     clientId: BS.FieldOptionOmittable(S.NonEmptyTrimmedString),
     scope: BS.FieldOptionOmittable(S.NonEmptyTrimmedString),
   }),
-  {
-    identifier: "DeviceCodeModel",
+  $I.annotations("DeviceCodeModel", {
     title: "Device Code Model",
     description: "Device code model representing organization and team invitations.",
-    schemaId: DeviceCodeModelSchemaId,
-  }
+  })
 ) {
   static readonly utils = modelKit(Model);
 }

@@ -1,4 +1,7 @@
+import { $ConstantsId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
+
+const $I = $ConstantsId.create("AllowedHeaders");
 
 export class AllowedHeaders extends BS.StringLiteralKit(
   "Content-Type",
@@ -6,9 +9,11 @@ export class AllowedHeaders extends BS.StringLiteralKit(
   "B3",
   "traceparent",
   "x-captcha-response"
-).annotations({
-  description: "Allowed headers for API routes",
-}) {}
+).annotations(
+  $I.annotations("AllowedHeaders", {
+    description: "Allowed headers for API routes",
+  })
+) {}
 
 export declare namespace AllowedHeaders {
   export type Type = typeof AllowedHeaders.Type;

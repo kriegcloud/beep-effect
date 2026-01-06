@@ -1,6 +1,7 @@
 import { Entities } from "@beep/documents-domain";
 import { Document } from "@beep/documents-domain/entities";
 import { DocumentsDb } from "@beep/documents-server/db";
+import { $DocumentsServerId } from "@beep/identity/packages";
 import { DocumentsEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import { DbClient, DbRepo } from "@beep/shared-server";
 import * as SqlClient from "@effect/sql/SqlClient";
@@ -9,6 +10,8 @@ import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { dependencies } from "./_common";
+
+const $I = $DocumentsServerId.create("db/repos/Document.repo");
 
 const SearchResultSchema = S.Struct({
   id: DocumentsEntityIds.DocumentId,
@@ -27,7 +30,7 @@ const SearchRequest = S.Struct({
   offset: S.optional(S.Int.pipe(S.nonNegative())),
 });
 
-export class DocumentRepo extends Effect.Service<DocumentRepo>()("@beep/documents-server/adapters/repos/DocumentRepo", {
+export class DocumentRepo extends Effect.Service<DocumentRepo>()($I`DocumentRepo`, {
   dependencies,
   accessors: true,
   effect: Effect.gen(function* () {

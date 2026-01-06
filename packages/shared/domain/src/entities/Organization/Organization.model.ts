@@ -9,7 +9,6 @@ import { SharedEntityIds } from "../../entity-ids";
 import { OrganizationType, OrganizationTypeEnum, SubscriptionStatus, SubscriptionTier } from "./schemas";
 
 const $I = $SharedDomainId.create("entities/Organization/Organization.model");
-export const OrganizationModelSchemaId = Symbol.for("@beep/shared-domain/OrganizationModel");
 
 /**
  * Organization model representing organizations.

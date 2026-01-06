@@ -1,18 +1,18 @@
 ---
 name: apply-identity-pattern
-version: 3
+version: 5
 created: 2024-12-24T12:00:00Z
-iterations: 2
+iterations: 4
 ---
 
 # Apply Identity Pattern - Refined Prompt
 
 ## Context
 
-The `beep-effect` monorepo uses a custom identity system (`@beep/identity`) that provides hierarchical, type-safe identifiers for Effect services, Context tags, Schema classes, and SQL models. This system produces identifiers like `@beep/iam-server/adapters/repos/UserRepo` for tracing, debugging, and observability.
+The `beep-effect` monorepo uses a custom identity system (`@beep/identity`) that provides hierarchical, type-safe identifiers for Effect services, Context tags, Schema classes, and SQL models. This system produces identifiers like `@beep/iam-server/db/repos/UserRepo` for tracing, debugging, and observability.
 
 **Current State:**
-- ~100+ files use hardcoded string identifiers instead of the `$I` pattern
+- ~26 files use hardcoded string identifiers instead of the `$I` pattern
 - Inconsistent naming: some use full paths, others use short names
 - Missing schema annotations (`identifier`, `title`, `description`)
 - Poor observability: traces show ambiguous service names
@@ -25,26 +25,27 @@ The `beep-effect` monorepo uses a custom identity system (`@beep/identity`) that
 
 **Available TaggedComposers** (from `packages/common/identity/src/packages.ts`):
 ```
-$SharedUiId, $SharedClientId, $IamServerId, $DocumentsTablesId, $UiId,
-$YjsId, $InvariantId, $WebId, $SchemaId, $DocumentsDomainId, $ContractId,
-$RuntimeServerId, $IamClientId, $IamUiId, $SharedServerId, $IdentityId,
-$UtilsId, $IamDomainId, $RuntimeClientId, $ScratchpadId, $SharedTablesId,
-$MockId, $UiCoreId, $ErrorsId, $TypesId, $DocumentsClientId, $DocumentsUiId,
-$ConstantsId, $NotesId, $DocumentsServerId, $SharedDomainId, $DbAdminId,
-$ServerId, $IamTablesId, $LexicalSchemasId
+$ConstantsId, $ContractId, $CustomizationClientId, $CustomizationDomainId,
+$CustomizationServerId, $CustomizationTablesId, $CustomizationUiId, $DbAdminId,
+$DocumentsClientId, $DocumentsDomainId, $DocumentsServerId, $DocumentsTablesId,
+$DocumentsUiId, $ErrorsId, $IamClientId, $IamDomainId, $IamServerId,
+$IamTablesId, $IamUiId, $InvariantId, $LexicalSchemasId, $RepoCliId,
+$RuntimeClientId, $RuntimeServerId, $SchemaId, $SharedClientId, $SharedDomainId,
+$SharedServerId, $SharedTablesId, $SharedUiId, $UiCoreId, $UiId, $UtilsId,
+$WebId, $YjsId
 ```
 
 ## Objective
 
 Apply the `$I` identity pattern to all files in the beep-effect monorepo that define:
-1. **Effect.Service classes** (40 files)
-2. **Context.Tag classes** (9 files)
-3. **@effect/sql/Model classes** (24 files)
-4. **S.TaggedError classes** (15 files, 59 errors)
-5. **Schema classes with hardcoded annotations** (13+ files)
+1. **@effect/sql/Model classes** (9 files)
+2. **Effect.Service classes** (6 files)
+3. **Context.Tag classes** (2 files)
+4. **S.TaggedError classes** (9 files)
+5. **Schema classes with hardcoded annotations** (0 files - none found needing migration)
 
 **Success Criteria:**
-- [ ] All 100+ identified files updated to use `$I` pattern
+- [ ] All 26 identified files updated to use `$I` pattern
 - [ ] Zero TypeScript compilation errors (`bun run check` passes)
 - [ ] Zero lint errors (`bun run lint` passes)
 - [ ] All existing tests pass (`bun run test` passes)
@@ -78,19 +79,18 @@ import { $PackageId } from "@beep/identity/packages";
 
 ### Import Organization
 
-When adding the identity import, follow this order:
-1. **External packages** (`@beep/identity/packages`) — at the very top
-2. **Effect modules** (`effect/*`, `@effect/*`) — after external packages
-3. **Internal project imports** (`@beep/*`) — after Effect modules
-4. **Relative imports** (`./`, `../`) — at the bottom
+When adding the identity import, follow the codebase's alphabetical ordering convention:
+1. **Effect modules** (`effect/*`, `@effect/*`) — first, alphabetically
+2. **Internal project imports** (`@beep/*`) — after Effect modules, alphabetically (identity imports go here in alphabetical order among other `@beep/*` imports)
+3. **Relative imports** (`./`, `../`) — at the bottom
 
 ```typescript
 // Example import order:
-import { $IamDomainId } from "@beep/identity/packages";  // 1. Identity first
-import * as M from "@effect/sql/Model";                   // 2. Effect modules
+import * as M from "@effect/sql/Model";                   // 1. Effect modules (alphabetical)
 import * as S from "effect/Schema";
-import { makeFields } from "@beep/shared-domain/common";  // 3. Internal packages
-import { IamEntityIds } from "../../entity-ids";          // 4. Relative imports
+import { $IamDomainId } from "@beep/identity/packages";   // 2. @beep/* imports (alphabetical: identity before shared-domain)
+import { makeFields } from "@beep/shared-domain/common";
+import { IamEntityIds } from "../../entity-ids";          // 3. Relative imports
 ```
 
 ### Import Conflict Handling
@@ -128,7 +128,7 @@ export class MyRepo extends Effect.Service<MyRepo>()("MyRepo", {...}) {}
 
 // AFTER
 import { $IamServerId } from "@beep/identity/packages";
-const $I = $IamServerId.create("adapters/repos/My");
+const $I = $IamServerId.create("db/repos/My");
 export class MyRepo extends Effect.Service<MyRepo>()($I`MyRepo`, {...}) {}
 ```
 
@@ -197,7 +197,7 @@ The `$I.create("path")` argument must be:
 **Examples:**
 | File Path | Module Path |
 |-----------|-------------|
-| `packages/iam/server/src/adapters/repos/User.repo.ts` | `adapters/repos/User` |
+| `packages/iam/server/src/db/repos/User.repo.ts` | `db/repos/User` |
 | `packages/shared/domain/src/entities/Team/Team.model.ts` | `entities/Team/Team.model` |
 | `packages/common/errors/src/errors.ts` | `errors` |
 | `packages/shared/domain/src/common.ts` | `common` |
@@ -233,17 +233,27 @@ export class Forbidden extends S.TaggedError<Forbidden>()($I`Forbidden`, {...}) 
 | `packages/iam/server/*` | `$IamServerId` |
 | `packages/iam/domain/*` | `$IamDomainId` |
 | `packages/iam/client/*` | `$IamClientId` |
+| `packages/iam/tables/*` | `$IamTablesId` |
+| `packages/iam/ui/*` | `$IamUiId` |
 | `packages/documents/server/*` | `$DocumentsServerId` |
 | `packages/documents/domain/*` | `$DocumentsDomainId` |
+| `packages/documents/client/*` | `$DocumentsClientId` |
+| `packages/documents/tables/*` | `$DocumentsTablesId` |
+| `packages/documents/ui/*` | `$DocumentsUiId` |
 | `packages/shared/server/*` | `$SharedServerId` |
 | `packages/shared/domain/*` | `$SharedDomainId` |
 | `packages/shared/client/*` | `$SharedClientId` |
+| `packages/shared/tables/*` | `$SharedTablesId` |
+| `packages/shared/ui/*` | `$SharedUiId` |
 | `packages/common/schema/*` | `$SchemaId` |
 | `packages/common/errors/*` | `$ErrorsId` |
 | `packages/common/contract/*` | `$ContractId` |
 | `packages/common/utils/*` | `$UtilsId` |
-| `packages/common/identity/*` | `$IdentityId` |
+| `packages/common/invariant/*` | `$InvariantId` |
+| `packages/common/lexical-schemas/*` | `$LexicalSchemasId` |
+| `packages/common/yjs/*` | `$YjsId` |
 | `packages/runtime/client/*` | `$RuntimeClientId` |
+| `packages/runtime/server/*` | `$RuntimeServerId` |
 | `packages/ui/ui/*` | `$UiId` |
 | `packages/ui/core/*` | `$UiCoreId` |
 | `packages/_internal/db-admin/*` | `$DbAdminId` |
@@ -252,6 +262,7 @@ export class Forbidden extends S.TaggedError<Forbidden>()($I`Forbidden`, {...}) 
 ### Exclusions
 
 - **NEVER modify files in the `tooling/` directory** (at repository root) - causes circular dependencies with `@beep/identity`
+- **NEVER modify files in `packages/common/identity/*`** - the identity package defines the TaggedComposer system itself and cannot use `$I` patterns (circular dependency)
 - **NEVER modify `node_modules/`**
 - **Skip files that already use `const $I =` pattern** - already migrated
 
@@ -303,31 +314,19 @@ See **Appendix A** below for the complete file list organized by category.
 
 Deploy parallel sub-agents organized by category:
 
-**Batch 1: Models (24 files)**
-- Agent 1: `packages/iam/domain/src/entities/*` (18 files)
-- Agent 2: `packages/shared/domain/src/entities/*` (5 files)
-- Agent 3: `packages/documents/domain/src/entities/*` (5 files)
+**Batch 1: Models (9 files)**
+- Agent 1: `packages/shared/domain/src/entities/*` (4 files)
+- Agent 2: `packages/documents/domain/src/entities/*` (5 files)
 
-**Batch 2: Services (40 files)**
-- Agent 4: `packages/iam/server/src/adapters/repos/*` (13 files)
-- Agent 5: `packages/iam/client/src/clients/*` (3 files)
-- Agent 6: `packages/documents/server/src/*` (5 files)
-- Agent 7: `packages/shared/server/src/*` (2 files)
-- Agent 8: `packages/runtime/client/src/*` (2 files)
-- Agent 9: `packages/ui/ui/src/services/*` (2 files)
-- Agent 10: `apps/web/src/*` (1 file)
+**Batch 2: Services (6 files)**
+- Agent 3: `packages/iam/client/src/clients/*` (6 files)
 
-**Batch 3: Context Tags (9 files)**
-- Agent 11: All Context.Tag files
+**Batch 3: Context Tags (2 files)**
+- Agent 4: All Context.Tag files (2 files)
 
-**Batch 4: TaggedErrors (15 files)**
-- Agent 12: `packages/common/*` errors
-- Agent 13: `packages/iam/*` errors
-- Agent 14: `packages/documents/*` errors
-- Agent 15: `packages/shared/*` errors
-
-**Batch 5: Schema Annotations (13 files)**
-- Agent 16: All schema annotation files
+**Batch 4: TaggedErrors (9 files)**
+- Agent 5: `packages/common/*` errors (5 files)
+- Agent 6: `packages/documents/domain/*` errors (3 files)
 
 ### Pre-Flight Verification
 
@@ -347,6 +346,76 @@ bun install
 bun run check --filter @beep/identity
 # Must exit with status 0. If it fails, fix before proceeding.
 ```
+
+### Pre-Processing Validation (MANDATORY)
+
+**Before processing ANY file from the file lists, agents MUST validate each file.** This prevents wasted effort on non-existent or already-completed files.
+
+#### Validation Steps (Per File)
+
+For each file in the assigned batch:
+
+1. **Verify File Exists**
+   - Use Read tool or Glob tool to check if the file path exists
+   - If file does NOT exist: **SKIP** and log: `⚠️ SKIPPED (not found): <file_path>`
+
+2. **Check Migration Status**
+   - Read the file content
+   - Search for existing `$I` pattern: `const $I =` or `const $I=`
+   - If pattern found: **SKIP** and log: `✅ SKIPPED (already migrated): <file_path>`
+
+3. **Proceed Only If Valid**
+   - File exists AND does not contain `$I` pattern → proceed with migration
+
+#### Validation Report Format
+
+**Before starting any modifications**, produce a validation report:
+
+```markdown
+## Pre-Processing Validation Report - [Batch Name]
+
+### Summary
+- Total files in batch: X
+- Files to migrate: Y
+- Files skipped (not found): Z
+- Files skipped (already migrated): W
+
+### Files to Migrate
+1. `path/to/file1.ts` - needs migration
+2. `path/to/file2.ts` - needs migration
+...
+
+### Files Skipped (Not Found)
+1. `path/to/missing1.ts` - file does not exist
+...
+
+### Files Skipped (Already Migrated)
+1. `path/to/done1.ts` - contains `const $I =`
+...
+```
+
+#### Detection Patterns for Already Migrated Files
+
+A file is considered **already migrated** if it contains ANY of:
+- `const $I = $` (TaggedComposer assignment)
+- `from "@beep/identity/packages"` (identity import)
+- Pattern `` $I` `` followed by a class name (template tag usage)
+
+**Example detection:**
+```typescript
+// These patterns indicate the file is ALREADY MIGRATED:
+import { $IamDomainId } from "@beep/identity/packages";  // ← identity import
+const $I = $IamDomainId.create("entities/User");          // ← $I assignment
+export class UserModel extends M.Class<UserModel>($I`UserModel`)  // ← template tag
+```
+
+#### Agent Behavior Rules
+
+1. **NEVER modify a file without first validating it**
+2. **NEVER assume file lists are accurate** - always verify existence
+3. **ALWAYS produce the validation report** before any modifications
+4. **STOP and report** if >50% of files in a batch are missing (indicates stale file list)
+5. **Log all skipped files** for audit trail and prompt maintenance
 
 ### Verification Between Batches
 
@@ -410,7 +479,20 @@ Import: `import { $PackageId } from "@beep/identity/packages";`
 [Specific before/after for this category]
 
 ### Steps
-1. Read each file to understand current implementation
+
+#### Phase 1: Validation (MANDATORY - Do This First)
+1. For EACH file in the list:
+   a. Use Read tool to check if file exists
+   b. If file not found → log "⚠️ SKIPPED (not found): <path>" and continue to next
+   c. If file exists, search content for `const $I =` or `from "@beep/identity/packages"`
+   d. If pattern found → log "✅ SKIPPED (already migrated): <path>" and continue to next
+   e. If file exists AND not migrated → add to "files to process" list
+2. Produce validation report with summary counts
+3. If >50% of files are missing, STOP and report stale file list
+
+#### Phase 2: Migration (Only After Validation)
+For each file in "files to process" list:
+1. Read the file to understand current implementation
 2. Add import for TaggedComposer at top of file
 3. Add `const $I = $PackageId.create("module/path");` after imports
 4. Update class declaration to use `$I\`ClassName\``
@@ -421,6 +503,12 @@ Import: `import { $PackageId } from "@beep/identity/packages";`
 - File compiles without errors
 - No lint warnings introduced
 - Existing functionality preserved
+
+### Output Format
+Return:
+1. Validation report (files found, skipped, migrated)
+2. List of files actually modified
+3. Any errors or issues encountered
 ```
 
 ## Examples
@@ -552,6 +640,14 @@ export class Forbidden extends S.TaggedError<Forbidden>()(
 - [ ] Verify `@beep/identity` package is available
 - [ ] Confirm TaggedComposer exports in `packages.ts`
 
+### Pre-Processing Validation (Per Batch)
+- [ ] All files in batch validated for existence
+- [ ] All files checked for existing `$I` pattern
+- [ ] Validation report produced with summary counts
+- [ ] Missing files logged with `⚠️ SKIPPED (not found)` prefix
+- [ ] Already-migrated files logged with `✅ SKIPPED (already migrated)` prefix
+- [ ] Batch not started if >50% files missing (stale list detection)
+
 ### Per-File Checks
 - [ ] Correct TaggedComposer imported for package
 - [ ] `const $I = $PackageId.create("correct/module/path");` added
@@ -571,133 +667,56 @@ export class Forbidden extends S.TaggedError<Forbidden>()(
 
 ## Appendix A: Complete File List
 
-### Category 1: @effect/sql/Model Classes (24 files)
+**Last validated:** 2026-01-06 - File lists verified against actual codebase state.
+
+### Category 1: @effect/sql/Model Classes (9 files)
 
 | File | Package ID | Module Path |
 |------|------------|-------------|
-| `packages/iam/domain/src/entities/TeamMember/TeamMember.model.ts` | `$IamDomainId` | `entities/TeamMember/TeamMember.model` |
-| `packages/iam/domain/src/entities/Subscription/Subscription.model.ts` | `$IamDomainId` | `entities/Subscription/Subscription.model` |
-| `packages/iam/domain/src/entities/Verification/Verification.model.ts` | `$IamDomainId` | `entities/Verification/Verification.model` |
-| `packages/iam/domain/src/entities/ApiKey/ApiKey.model.ts` | `$IamDomainId` | `entities/ApiKey/ApiKey.model` |
-| `packages/iam/domain/src/entities/DeviceCode/DeviceCode.model.ts` | `$IamDomainId` | `entities/DeviceCode/DeviceCode.model` |
-| `packages/iam/domain/src/entities/Invitation/Invitation.model.ts` | `$IamDomainId` | `entities/Invitation/Invitation.model` |
-| `packages/iam/domain/src/entities/Member/Member.model.ts` | `$IamDomainId` | `entities/Member/Member.model` |
-| `packages/iam/domain/src/entities/OAuthAccessToken/OAuthAccessToken.model.ts` | `$IamDomainId` | `entities/OAuthAccessToken/OAuthAccessToken.model` |
-| `packages/iam/domain/src/entities/ScimProvider/ScimProvider.model.ts` | `$IamDomainId` | `entities/ScimProvider/ScimProvider.model` |
-| `packages/iam/domain/src/entities/Account/Account.model.ts` | `$IamDomainId` | `entities/Account/Account.model` |
-| `packages/iam/domain/src/entities/WalletAddress/WalletAddress.model.ts` | `$IamDomainId` | `entities/WalletAddress/WalletAddress.model` |
-| `packages/iam/domain/src/entities/TwoFactor/TwoFactor.model.ts` | `$IamDomainId` | `entities/TwoFactor/TwoFactor.model` |
-| `packages/iam/domain/src/entities/SsoProvider/SsoProvider.model.ts` | `$IamDomainId` | `entities/SsoProvider/SsoProvider.model` |
-| `packages/iam/domain/src/entities/RateLimit/RateLimit.model.ts` | `$IamDomainId` | `entities/RateLimit/RateLimit.model` |
-| `packages/iam/domain/src/entities/Passkey/Passkey.model.ts` | `$IamDomainId` | `entities/Passkey/Passkey.model` |
-| `packages/iam/domain/src/entities/OrganizationRole/OrganizationRole.model.ts` | `$IamDomainId` | `entities/OrganizationRole/OrganizationRole.model` |
-| `packages/iam/domain/src/entities/OAuthConsent/OAuthConsent.model.ts` | `$IamDomainId` | `entities/OAuthConsent/OAuthConsent.model` |
-| `packages/iam/domain/src/entities/OAuthApplication/OAuthApplication.model.ts` | `$IamDomainId` | `entities/OAuthApplication/OAuthApplication.model` |
-| `packages/iam/domain/src/entities/Jwks/Jwks.model.ts` | `$IamDomainId` | `entities/Jwks/Jwks.model` |
+| `packages/shared/domain/src/entities/AuditLog/AuditLog.model.ts` | `$SharedDomainId` | `entities/AuditLog/AuditLog.model` |
 | `packages/shared/domain/src/entities/Team/Team.model.ts` | `$SharedDomainId` | `entities/Team/Team.model` |
 | `packages/shared/domain/src/entities/Session/Session.model.ts` | `$SharedDomainId` | `entities/Session/Session.model` |
-| `packages/shared/domain/src/entities/AuditLog/AuditLog.model.ts` | `$SharedDomainId` | `entities/AuditLog/AuditLog.model` |
 | `packages/shared/domain/src/entities/Folder/Folder.model.ts` | `$SharedDomainId` | `entities/Folder/Folder.model` |
+| `packages/documents/domain/src/entities/DocumentVersion/DocumentVersion.model.ts` | `$DocumentsDomainId` | `entities/DocumentVersion/DocumentVersion.model` |
 | `packages/documents/domain/src/entities/Document/Document.model.ts` | `$DocumentsDomainId` | `entities/Document/Document.model` |
 | `packages/documents/domain/src/entities/DocumentFile/DocumentFile.model.ts` | `$DocumentsDomainId` | `entities/DocumentFile/DocumentFile.model` |
 | `packages/documents/domain/src/entities/Discussion/Discussion.model.ts` | `$DocumentsDomainId` | `entities/Discussion/Discussion.model` |
-| `packages/documents/domain/src/entities/DocumentVersion/DocumentVersion.model.ts` | `$DocumentsDomainId` | `entities/DocumentVersion/DocumentVersion.model` |
 | `packages/documents/domain/src/entities/Comment/Comment.model.ts` | `$DocumentsDomainId` | `entities/Comment/Comment.model` |
 
-### Category 2: Effect.Service Classes (40 files)
+### Category 2: Effect.Service Classes (6 files)
 
 | File | Package ID | Module Path | Service Name |
 |------|------------|-------------|--------------|
-| `packages/iam/server/src/adapters/repos/User.repo.ts` | `$IamServerId` | `adapters/repos/User` | `UserRepo` |
-| `packages/iam/server/src/adapters/repos/Account.repo.ts` | `$IamServerId` | `adapters/repos/Account` | `AccountRepo` |
-| `packages/iam/server/src/adapters/repos/ApiKey.repo.ts` | `$IamServerId` | `adapters/repos/ApiKey` | `ApiKeyRepo` |
-| `packages/iam/server/src/adapters/repos/DeviceCode.repo.ts` | `$IamServerId` | `adapters/repos/DeviceCode` | `DeviceCodeRepo` |
-| `packages/iam/server/src/adapters/repos/Invitation.repo.ts` | `$IamServerId` | `adapters/repos/Invitation` | `InvitationRepo` |
-| `packages/iam/server/src/adapters/repos/Jwks.repo.ts` | `$IamServerId` | `adapters/repos/Jwks` | `JwksRepo` |
-| `packages/iam/server/src/adapters/repos/Member.repo.ts` | `$IamServerId` | `adapters/repos/Member` | `MemberRepo` |
-| `packages/iam/server/src/adapters/repos/Passkey.repo.ts` | `$IamServerId` | `adapters/repos/Passkey` | `PasskeyRepo` |
-| `packages/iam/server/src/adapters/repos/RateLimit.repo.ts` | `$IamServerId` | `adapters/repos/RateLimit` | `RateLimitRepo` |
-| `packages/iam/server/src/adapters/repos/Session.repo.ts` | `$IamServerId` | `adapters/repos/Session` | `SessionRepo` |
-| `packages/iam/server/src/adapters/repos/Team.repo.ts` | `$IamServerId` | `adapters/repos/Team` | `TeamRepo` |
-| `packages/iam/server/src/adapters/repos/TeamMember.repo.ts` | `$IamServerId` | `adapters/repos/TeamMember` | `TeamMemberRepo` |
-| `packages/iam/server/src/adapters/repos/TwoFactor.repo.ts` | `$IamServerId` | `adapters/repos/TwoFactor` | `TwoFactorRepo` |
-| `packages/iam/server/src/adapters/better-auth/Emails.ts` | `$IamServerId` | `adapters/better-auth/Emails` | `AuthEmailService` |
-| `packages/iam/client/src/clients/sign-in/sign-in.service.ts` | `$IamClientId` | `clients/sign-in/sign-in` | `SignInService` |
-| `packages/iam/client/src/clients/user/user.service.ts` | `$IamClientId` | `clients/user/user` | `UserService` |
-| `packages/iam/client/src/clients/verify/verify.service.ts` | `$IamClientId` | `clients/verify/verify` | `VerifyService` |
-| `packages/documents/server/src/adapters/repos/Comment.repo.ts` | `$DocumentsServerId` | `adapters/repos/Comment` | `CommentRepo` |
-| `packages/documents/server/src/adapters/repos/Document.repo.ts` | `$DocumentsServerId` | `adapters/repos/Document` | `DocumentRepo` |
-| `packages/documents/server/src/files/ExifToolService.ts` | `$DocumentsServerId` | `files/ExifToolService` | `ExifToolService` |
-| `packages/documents/server/src/files/PdfMetadataService.ts` | `$DocumentsServerId` | `files/PdfMetadataService` | `PdfMetadataService` |
-| `packages/documents/server/src/SignedUrlService.ts` | `$DocumentsServerId` | `SignedUrlService` | `StorageService` (note: class name differs from filename) |
-| `packages/shared/server/src/internal/email/adapters/resend/service.ts` | `$SharedServerId` | `internal/email/adapters/resend/service` | `ResendService` |
-| `packages/shared/server/src/rpc/v1/event-stream-hub.ts` | `$SharedServerId` | `rpc/v1/event-stream-hub` | `EventStreamHub` |
-| `packages/runtime/client/src/services/network-monitor.ts` | `$RuntimeClientId` | `services/network-monitor` | `NetworkMonitor` |
-| `packages/runtime/client/src/workers/worker-client.ts` | `$RuntimeClientId` | `workers/worker-client` | `WorkerClient` |
-| `packages/ui/ui/src/services/toaster.service.ts` | `$UiId` | `services/toaster` | `ToasterService` |
-| `packages/ui/ui/src/services/zip.service.ts` | `$UiId` | `services/zip` | `ZipService` |
-| `packages/_internal/db-admin/test/container.ts` | `$DbAdminId` | `test/container` | `PgContainer` |
-| `apps/web/src/features/upload/UploadFileService.ts` | `$WebId` | `features/upload/UploadFileService` | `UploadFileService` |
+| `packages/iam/client/src/clients/sign-in/sign-in.service.ts` | `$IamClientId` | `clients/sign-in/sign-in.service` | `SignInService` |
+| `packages/iam/client/src/clients/verify/verify.service.ts` | `$IamClientId` | `clients/verify/verify.service` | `VerifyService` |
+| `packages/iam/client/src/clients/user/user.service.ts` | `$IamClientId` | `clients/user/user.service` | `UserService` |
+| `packages/iam/client/src/clients/sign-out/sign-out.service.ts` | `$IamClientId` | `clients/sign-out/sign-out.service` | `SignOutService` |
+| `packages/iam/client/src/clients/session/session.service.ts` | `$IamClientId` | `clients/session/session.service` | `SessionService` |
+| `packages/iam/client/src/clients/recover/recover.service.ts` | `$IamClientId` | `clients/recover/recover.service` | `RecoverService` |
 
-### Category 3: Context Tags (9 files)
+### Category 3: Context.Tag Classes (2 files)
 
 | File | Package ID | Module Path | Tags |
 |------|------------|-------------|------|
 | `packages/_internal/db-admin/src/Db/AdminDb.ts` | `$DbAdminId` | `Db/AdminDb` | `AdminDb` |
 | `packages/common/utils/src/md5/parallel-hasher.ts` | `$UtilsId` | `md5/parallel-hasher` | `ParallelHasher` |
-| `packages/documents/server/src/config.ts` | `$DocumentsServerId` | `config` | `FilesConfig` |
-| `packages/documents/server/src/db/Db/Db.ts` | `$DocumentsServerId` | `db/Db/Db` | `DocumentsDb` |
-| `packages/iam/server/src/db/Db/Db.ts` | `$IamServerId` | `db/Db/Db` | `IamDb` |
-| `packages/shared/domain/src/Policy.ts` | `$SharedDomainId` | `Policy` | `AuthContext`, `CurrentUser` |
-| `packages/shared/domain/src/services/EncryptionService/EncryptionService.ts` | `$SharedDomainId` | `services/EncryptionService/EncryptionService` | `EncryptionService` |
-| `packages/shared/server/src/internal/db/pg/PgClient.ts` | `$SharedServerId` | `internal/db/pg/PgClient` | `TransactionContext` |
 
-### Category 4: TaggedError Classes (15 files)
+### Category 4: S.TaggedError Classes (9 files)
 
 | File | Package ID | Module Path | Errors |
 |------|------------|-------------|--------|
-| `packages/common/errors/src/errors.ts` | `$ErrorsId` | `errors` | `UnrecoverableError`, `NotFoundError`, `UniqueViolationError`, `DatabaseError`, `TransactionError`, `ConnectionError`, `ParseError`, `Unauthorized`, `Forbidden`, `UnknownError` |
-| `packages/common/identity/src/schema.ts` | `$IdentityId` | `schema` | `InvalidSegmentError`, `InvalidModuleSegmentError`, `InvalidBaseError` |
-| `packages/common/schema/src/integrations/files/SignedFile.ts` | `$SchemaId` | `integrations/files/SignedFile` | `FileIntegrityError` |
+| `packages/common/utils/src/md5/errors.ts` | `$UtilsId` | `md5/errors` | `Md5ComputationError`, `UnicodeEncodingError`, `FileReadError`, `BlobSliceError`, `WorkerHashError` |
 | `packages/common/schema/src/integrations/files/pdf-metadata/errors.ts` | `$SchemaId` | `integrations/files/pdf-metadata/errors` | `PdfParseError`, `PdfTimeoutError`, `PdfFileTooLargeError`, `PdfEncryptedError`, `PdfInvalidError` |
 | `packages/common/schema/src/integrations/files/exif-metadata/errors.ts` | `$SchemaId` | `integrations/files/exif-metadata/errors` | `MetadataParseError`, `ExifTimeoutError`, `ExifFileTooLargeError` |
-| `packages/common/utils/src/md5/errors.ts` | `$UtilsId` | `md5/errors` | `Md5ComputationError`, `UnicodeEncodingError`, `FileReadError`, `BlobSliceError`, `WorkerHashError` |
-| `packages/common/contract/src/internal/contract-error/contract-error.ts` | `$ContractId` | `internal/contract-error/contract-error` | `HttpRequestError`, `HttpResponseError`, `MalformedInput`, `MalformedOutput`, `UnknownError` |
-| `packages/common/lexical-schemas/src/errors.ts` | `$LexicalSchemasId` | `errors` | `LexicalSchemaValidationError`, `UnknownNodeTypeError` |
-| `packages/iam/client/src/errors.ts` | `$IamClientId` | `errors` | `IamError` |
-| `packages/iam/domain/src/api/common/errors.ts` | `$IamDomainId` | `api/common/errors` | `IamAuthError` |
+| `packages/common/schema/src/integrations/files/file-types/detection.ts` | `$SchemaId` | `integrations/files/file-types/detection` | `InvalidChunkSizeError` |
+| `packages/common/schema/src/integrations/files/file-types/utils.ts` | `$SchemaId` | `integrations/files/file-types/utils` | `InvalidFileTypeError`, `IllegalChunkError` |
 | `packages/documents/domain/src/entities/Document/Document.errors.ts` | `$DocumentsDomainId` | `entities/Document/Document.errors` | `DocumentNotFoundError`, `DocumentPermissionDeniedError`, `DocumentArchivedError`, `DocumentLockedError`, `DocumentAlreadyPublishedError`, `DocumentNotPublishedError` |
 | `packages/documents/domain/src/entities/Discussion/Discussion.errors.ts` | `$DocumentsDomainId` | `entities/Discussion/Discussion.errors` | `DiscussionNotFoundError`, `DiscussionPermissionDeniedError`, `DiscussionAlreadyResolvedError`, `DiscussionNotResolvedError` |
 | `packages/documents/domain/src/entities/Comment/Comment.errors.ts` | `$DocumentsDomainId` | `entities/Comment/Comment.errors` | `CommentNotFoundError`, `CommentPermissionDeniedError`, `CommentTooLongError` |
-| `packages/runtime/client/src/workers/worker-rpc.ts` | `$RuntimeClientId` | `workers/worker-rpc` | `FilterError` |
-| `packages/shared/client/src/atom/files/errors.ts` | `$SharedClientId` | `atom/files/errors` | `ImageTooLargeAfterCompression` |
 
-**Note:** The following files already use the `$I` pattern and should be SKIPPED:
-- `packages/shared/client/src/atom/services/Upload/Upload.errors.ts` (already migrated)
-- `packages/shared/server/src/internal/email/adapters/resend/errors.ts` (already migrated)
-- `packages/shared/server/src/internal/db/pg/errors.ts` (already migrated)
+### Category 5: Schema Classes with Hardcoded Annotations (0 files)
 
-### Category 5: Schema Classes with Hardcoded Annotations (13+ files)
-
-| File | Package ID | Module Path | Schemas |
-|------|------------|-------------|---------|
-| `packages/ui/core/src/adapters/schema.ts` | `$UiCoreId` | `adapters/schema` | `DateInputToDateTime` |
-| `packages/shared/domain/src/entity-ids/any-entity-id.ts` | `$SharedDomainId` | `entity-ids/any-entity-id` | `AnyEntityId` |
-| `packages/shared/domain/src/entity-ids/SharedTableNames/SharedTableNames.ts` | `$SharedDomainId` | `entity-ids/SharedTableNames/SharedTableNames` | `SharedTableName` |
-| `packages/shared/domain/src/entity-ids/DocumentsTableNames.ts` | `$SharedDomainId` | `entity-ids/DocumentsTableNames` | `DocumentsTableName` |
-| `packages/shared/domain/src/entity-ids/entity-kind.ts` | `$SharedDomainId` | `entity-ids/entity-kind` | `EntityKind` |
-| `packages/shared/domain/src/Policy.ts` | `$SharedDomainId` | `Policy` | `PolicyRecord`, `Permission`, `Action`, `PolicyRule`, `PolicySet`, `AuthorizationDecision`, etc. |
-| `packages/iam/client/src/clients/verify/verify.contracts.ts` | `$IamClientId` | `clients/verify/verify.contracts` | `VerifyPhonePayload`, `SendEmailVerificationPayload`, etc. |
-| `packages/iam/client/src/clients/recover/recover.contracts.ts` | `$IamClientId` | `clients/recover/recover.contracts` | `ResetPasswordPayload`, `RequestResetPasswordPayload` |
-| `packages/iam/client/src/clients/session/session.contracts.ts` | `$IamClientId` | `clients/session/session.contracts` | `GetSessionSuccess`, `ListSessionsSuccess` |
-| `packages/iam/client/src/clients/sign-in/sign-in.contracts.ts` | `$IamClientId` | `clients/sign-in/sign-in.contracts` | `SignInEmailPayload`, `SignInSocialPayload`, etc. |
-| `packages/shared/domain/src/entities/Organization/schemas/OrganizationType.schema.ts` | `$SharedDomainId` | `entities/Organization/schemas/OrganizationType.schema` | `OrganizationType` |
-| `packages/common/constants/src/AuthProviders.ts` | `$ConstantsId` | `AuthProviders` | `AuthProviderNameValue` |
-| `packages/common/schema/src/integrations/files/AspectRatio.ts` | `$SchemaId` | `integrations/files/AspectRatio` | `AspectRatioDimensions`, `AspectRatioStringSchema` |
-| `packages/common/schema/src/integrations/files/FileAttributes.ts` | `$SchemaId` | `integrations/files/FileAttributes` | `FileAttributes` |
-| `packages/common/schema/src/integrations/files/file-types/FileSignature.ts` | `$SchemaId` | `integrations/files/file-types/FileSignature` | `FileSignature` |
-| `packages/shared/domain/src/services/EncryptionService/schemas.ts` | `$SharedDomainId` | `services/EncryptionService/schemas` | `HmacSignature` |
-| `apps/web/src/features/upload/UploadModels.ts` | `$WebId` | `features/upload/UploadModels` | `PresignedUrlItem`, `TraceHeadersSchema`, etc. |
+No files found needing migration.
 
 ---
 
@@ -741,3 +760,5 @@ export class Forbidden extends S.TaggedError<Forbidden>()(
 | 0         | Initial      | N/A           |
 | 1         | HIGH: Module path edge cases, multi-class handling, annotation syntax clarity, verification specificity. MEDIUM: Import organization, description guidelines, conflict handling, mixed patterns, rollback strategy. | Added edge case examples for src/ root files. Added Multi-Class File Handling section. Clarified Example 3 with merge vs standalone annotation patterns. Added Import Organization section with order rules. Added Import Conflict Handling section. Added Mixed Pattern Files guidance. Added Description Writing Guidelines with examples. Added Pre-Flight Verification section. Made Verification Between Batches commands specific. Added Rollback Strategy section. |
 | 2         | HIGH: Exclusion path notation. MEDIUM: Annotation merging decision rule unclear, git status vague, missing failure threshold, file list inaccuracies. | Clarified exclusion path as "tooling/ directory at repo root". Added explicit Decision Rule for annotation merging (CASE 1 vs CASE 2). Made pre-flight verification require clean working directory. Added Failure Definition section with explicit criteria. Fixed incomplete error listings (removed already-migrated files). Clarified SignedUrlService/StorageService filename vs classname difference. |
+| 3         | HIGH: No validation of file existence before processing. HIGH: No detection of already-migrated files leading to wasted effort. MEDIUM: No validation report format. | Added comprehensive "Pre-Processing Validation (MANDATORY)" section with per-file validation steps, validation report format template, detection patterns for already-migrated files, and agent behavior rules. Updated Agent Instructions Template with two-phase approach (Validation → Migration). Added Pre-Processing Validation checklist items. Added stale file list detection (>50% missing threshold). |
+| 4         | HIGH: Import order incorrect (identity at top vs alphabetical). MEDIUM: TaggedComposer list stale (non-existent: `$ScratchpadId`, `$MockId`, `$IdentityId`, `$NotesId`, `$ServerId`, `$TypesId`; missing: `$RepoCliId`, `$Customization*Id` variants). MEDIUM: Package-to-TaggedComposer mapping incomplete. MEDIUM: File paths incorrect (`adapters/repos` → `db/repos`, `internal/db/pg` → `factories/db-client/pg`). | Fixed Import Organization section: identity imports now alphabetically among `@beep/*` imports, not at top. Updated TaggedComposer list to match actual packages.ts exports (35 composers). Added missing package mappings: `$IamTablesId`, `$IamUiId`, `$DocumentsTablesId`, `$DocumentsUiId`, `$DocumentsClientId`, `$SharedTablesId`, `$SharedUiId`, `$InvariantId`, `$LexicalSchemasId`, `$YjsId`, `$RuntimeServerId`. Fixed IAM server repo paths from `adapters/repos` to `db/repos`. Fixed documents server repo paths. Fixed PgClient path from `internal/db/pg` to `factories/db-client/pg`. Removed `packages/common/identity/src/schema.ts` from Category 4 (no `$IdentityId` exists). Added identity package to Exclusions section. Updated Category 4 file count from 15 to 14. |

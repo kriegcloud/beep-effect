@@ -1,9 +1,12 @@
+import { $RuntimeClientId } from "@beep/identity/packages";
 import * as Chunk from "effect/Chunk";
 import * as Effect from "effect/Effect";
 import * as Stream from "effect/Stream";
 import * as SubscriptionRef from "effect/SubscriptionRef";
 
-export class NetworkMonitor extends Effect.Service<NetworkMonitor>()("NetworkMonitor", {
+const $I = $RuntimeClientId.create("services/network-monitor");
+
+export class NetworkMonitor extends Effect.Service<NetworkMonitor>()($I`NetworkMonitor`, {
   scoped: Effect.gen(function* () {
     const latch = yield* Effect.makeLatch(true);
 

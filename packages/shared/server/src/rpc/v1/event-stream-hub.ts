@@ -3,6 +3,7 @@
  *
  * @since 0.1.0
  */
+import { $SharedServerId } from "@beep/identity/packages";
 import { Policy, type SharedEntityIds } from "@beep/shared-domain";
 import type { EventStreamEvents } from "@beep/shared-domain/rpc/v1/event-stream";
 import * as A from "effect/Array";
@@ -13,6 +14,8 @@ import type * as Mailbox from "effect/Mailbox";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as O from "effect/Option";
 import * as SynchronizedRef from "effect/SynchronizedRef";
+
+const $I = $SharedServerId.create("rpc/v1/event-stream-hub");
 
 type ActiveConnection = {
   readonly userId: SharedEntityIds.UserId.Type;
@@ -44,7 +47,7 @@ type ActiveConnection = {
  * @category services
  * @since 0.1.0
  */
-export class EventStreamHub extends Effect.Service<EventStreamHub>()("EventStreamHub", {
+export class EventStreamHub extends Effect.Service<EventStreamHub>()($I`EventStreamHub`, {
   scoped: Effect.gen(function* () {
     const connections = yield* SynchronizedRef.make(
       MutableHashMap.empty<SharedEntityIds.UserId.Type, Array<ActiveConnection>>()

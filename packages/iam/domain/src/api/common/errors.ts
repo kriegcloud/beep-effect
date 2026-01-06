@@ -1,3 +1,4 @@
+import { $IamDomainId } from "@beep/identity/packages";
 import * as Effect from "effect/Effect";
 import * as Match from "effect/Match";
 import * as ParseResult from "effect/ParseResult";
@@ -5,6 +6,8 @@ import * as P from "effect/Predicate";
 import type * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Struct from "effect/Struct";
+
+const $I = $IamDomainId.create("api/common/errors");
 
 type IamAuthErrorContext = {
   readonly operation: string;
@@ -30,7 +33,7 @@ const getMessage = Struct.get("message");
  * })
  * ```
  */
-export class IamAuthError extends S.TaggedError<IamAuthError>()("IamAuthError", {
+export class IamAuthError extends S.TaggedError<IamAuthError>()($I`IamAuthError`, {
   message: S.String,
   cause: S.optional(S.Defect),
   context: S.optional(S.Record({ key: S.String, value: S.Unknown })),

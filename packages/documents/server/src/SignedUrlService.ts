@@ -1,8 +1,11 @@
+import { $DocumentsServerId } from "@beep/identity/packages";
 import { serverEnv } from "@beep/shared-env/ServerEnv";
 import { S3Service } from "@effect-aws/client-s3";
 import * as Effect from "effect/Effect";
 
-export class StorageService extends Effect.Service<StorageService>()("StorageService", {
+const $I = $DocumentsServerId.create("SignedUrlService");
+
+export class StorageService extends Effect.Service<StorageService>()($I`StorageService`, {
   dependencies: [S3Service.defaultLayer],
   accessors: true,
   effect: Effect.gen(function* () {

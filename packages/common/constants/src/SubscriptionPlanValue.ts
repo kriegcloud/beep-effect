@@ -1,12 +1,13 @@
+import { $ConstantsId } from "@beep/identity/packages";
 import { StringLiteralKit } from "@beep/schema/derived/kits/string-literal-kit";
 import type * as S from "effect/Schema";
 
-export class SubscriptionPlanValue extends StringLiteralKit("basic", "pro", "enterprise").annotations({
-  schemaId: Symbol.for("@beep/constants/SubscriptionPlanValue"),
-  identifier: "SubscriptionPlanValue",
-  title: "Subscription Plan Value",
-  description: "Possible subscription plan values.",
-}) {}
+const $I = $ConstantsId.create("SubscriptionPlanValue");
+export class SubscriptionPlanValue extends StringLiteralKit("basic", "pro", "enterprise").annotations(
+  $I.annotations("SubscriptionPlanValue", {
+    description: "Possible subscription plan values.",
+  })
+) {}
 
 export declare namespace SubscriptionPlanValue {
   export type Type = S.Schema.Type<typeof SubscriptionPlanValue>;

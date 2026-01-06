@@ -1,3 +1,4 @@
+import { $DocumentsServerId } from "@beep/identity/packages";
 import {
   constEmptyPdfMetadata,
   PdfEncryptedError,
@@ -15,6 +16,8 @@ import * as Num from "effect/Number";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as Str from "effect/String";
+
+const $I = $DocumentsServerId.create("files/PdfMetadataService");
 
 /**
  * Represents a binary file for PDF metadata extraction.
@@ -305,7 +308,7 @@ export const pdfMetadataServiceEffect: PdfMetadataServiceEffect = Effect.gen(fun
 /**
  * PDF metadata service as an Effect.Service for dependency injection.
  */
-export class PdfMetadataService extends Effect.Service<PdfMetadataService>()("PdfMetadataService", {
+export class PdfMetadataService extends Effect.Service<PdfMetadataService>()($I`PdfMetadataService`, {
   accessors: true,
   dependencies: [],
   effect: pdfMetadataServiceEffect,

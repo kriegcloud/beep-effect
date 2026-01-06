@@ -1,24 +1,24 @@
+import { $ConstantsId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
 import type * as S from "effect/Schema";
 
-export class LogFormat extends BS.StringLiteralKit("pretty", "json", "logFmt", "structured").annotations({
-  schemaId: Symbol.for("@beep/constants/LogFormat"),
-  identifier: "LogFormat",
-  title: "Log Format",
-  description: "Log format.",
-}) {}
+const $I = $ConstantsId.create("LogFormat");
+export class LogFormat extends BS.StringLiteralKit("pretty", "json", "logFmt", "structured").annotations(
+  $I.annotations("LogFormat", {
+    description: "Log format.",
+  })
+) {}
 
 export declare namespace LogFormat {
   export type Type = S.Schema.Type<typeof LogFormat>;
   export type Encoded = S.Schema.Type<typeof LogFormat>;
 }
 
-export class LogFormatTagged extends LogFormat.toTagged("_tag").Union.annotations({
-  schemaId: Symbol.for("@beep/constants/LogFormatTagged"),
-  identifier: "LogFormatTagged",
-  title: "Log Format Tagged",
-  description: "Log format tagged.",
-}) {}
+export class LogFormatTagged extends LogFormat.toTagged("_tag").Union.annotations(
+  $I.annotations("LogFormatTagged", {
+    description: "Log format tagged.",
+  })
+) {}
 
 export declare namespace LogFormatTagged {
   export type Type = S.Schema.Type<typeof LogFormatTagged>;

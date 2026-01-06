@@ -23,7 +23,7 @@ export const $I = Identifier.make("beep").$BeepId;
 const composers = $I.compose(
   "shared-ui",
   "shared-client",
-  "repo-scripts",
+  "repo-cli",
   "iam-server",
   "documents-tables",
   "ui",
@@ -37,29 +37,18 @@ const composers = $I.compose(
   "iam-client",
   "iam-ui",
   "shared-server",
-  "identity",
   "utils",
   "iam-domain",
   "runtime-client",
-  "scratchpad",
   "shared-tables",
-  "mock",
   "ui-core",
   "errors",
-  "types",
-  "build-utils",
   "documents-client",
   "documents-ui",
   "constants",
-  "testkit",
-  "tooling-utils",
-  "repo-cli",
-  "notes",
   "documents-server",
-  "scraper",
   "shared-domain",
   "db-admin",
-  "server",
   "iam-tables",
   "lexical-schemas",
   "customization-domain",
@@ -98,21 +87,6 @@ export const $SharedUiId = composers.$SharedUiId;
  * @since 0.1.0
  */
 export const $SharedClientId = composers.$SharedClientId;
-
-/**
- * Identity composer for the `@beep/repo-scripts` namespace.
- *
- * @example
- * ```typescript
- * import { $RepoScriptsId } from "@beep/identity/packages"
- *
- * const scriptId = $RepoScriptsId.make("Bootstrap")
- * ```
- *
- * @category symbols
- * @since 0.1.0
- */
-export const $RepoScriptsId = composers.$RepoScriptsId;
 
 /**
  * Identity composer for the `@beep/iam-server` namespace.
@@ -295,21 +269,6 @@ export const $IamUiId = composers.$IamUiId;
 export const $SharedServerId = composers.$SharedServerId;
 
 /**
- * Identity composer for the `@beep/identity` namespace.
- *
- * @example
- * ```typescript
- * import { $IdentityId } from "@beep/identity/packages"
- *
- * const composerId = $IdentityId.make("TaggedComposer")
- * ```
- *
- * @category symbols
- * @since 0.1.0
- */
-export const $IdentityId = composers.$IdentityId;
-
-/**
  * Identity composer for the `@beep/utils` namespace.
  *
  * @example
@@ -355,21 +314,6 @@ export const $IamDomainId = composers.$IamDomainId;
 export const $RuntimeClientId = composers.$RuntimeClientId;
 
 /**
- * Identity composer for the `@beep/scratchpad` namespace.
- *
- * @example
- * ```typescript
- * import { $ScratchpadId } from "@beep/identity/packages"
- *
- * const noteId = $ScratchpadId.make("Note")
- * ```
- *
- * @category symbols
- * @since 0.1.0
- */
-export const $ScratchpadId = composers.$ScratchpadId;
-
-/**
  * Identity composer for the `@beep/shared-tables` namespace.
  *
  * @example
@@ -383,21 +327,6 @@ export const $ScratchpadId = composers.$ScratchpadId;
  * @since 0.1.0
  */
 export const $SharedTablesId = composers.$SharedTablesId;
-
-/**
- * Identity composer for the `@beep/mock` namespace.
- *
- * @example
- * ```typescript
- * import { $MockId } from "@beep/identity/packages"
- *
- * const mockId = $MockId.make("MockUser")
- * ```
- *
- * @category symbols
- * @since 0.1.0
- */
-export const $MockId = composers.$MockId;
 
 /**
  * Identity composer for the `@beep/ui-core` namespace.
@@ -428,36 +357,6 @@ export const $UiCoreId = composers.$UiCoreId;
  * @since 0.1.0
  */
 export const $ErrorsId = composers.$ErrorsId;
-
-/**
- * Identity composer for the `@beep/types` namespace.
- *
- * @example
- * ```typescript
- * import { $TypesId } from "@beep/identity/packages"
- *
- * const typeId = $TypesId.make("StringTypes")
- * ```
- *
- * @category symbols
- * @since 0.1.0
- */
-export const $TypesId = composers.$TypesId;
-
-/**
- * Identity composer for the `@beep/build-utils` namespace.
- *
- * @example
- * ```typescript
- * import { $BuildUtilsId } from "@beep/identity/packages"
- *
- * const utilId = $BuildUtilsId.make("Bundler")
- * ```
- *
- * @category symbols
- * @since 0.1.0
- */
-export const $BuildUtilsId = composers.$BuildUtilsId;
 
 /**
  * Identity composer for the `@beep/documents-client` namespace.
@@ -505,66 +404,6 @@ export const $DocumentsUiId = composers.$DocumentsUiId;
 export const $ConstantsId = composers.$ConstantsId;
 
 /**
- * Identity composer for the `@beep/testkit` namespace.
- *
- * @example
- * ```typescript
- * import { $TestkitId } from "@beep/identity/packages"
- *
- * const testId = $TestkitId.make("TestHelpers")
- * ```
- *
- * @category symbols
- * @since 0.1.0
- */
-export const $TestkitId = composers.$TestkitId;
-
-/**
- * Identity composer for the `@beep/tooling-utils` namespace.
- *
- * @example
- * ```typescript
- * import { $ToolingUtilsId } from "@beep/identity/packages"
- *
- * const utilId = $ToolingUtilsId.make("FsUtils")
- * ```
- *
- * @category symbols
- * @since 0.1.0
- */
-export const $ToolingUtilsId = composers.$ToolingUtilsId;
-
-/**
- * Identity composer for the `@beep/repo-cli` namespace.
- *
- * @example
- * ```typescript
- * import { $RepoCliId } from "@beep/identity/packages"
- *
- * const commandId = $RepoCliId.make("SyncCommand")
- * ```
- *
- * @category symbols
- * @since 0.1.0
- */
-export const $RepoCliId = composers.$RepoCliId;
-
-/**
- * Identity composer for the `@beep/notes` namespace.
- *
- * @example
- * ```typescript
- * import { $NotesId } from "@beep/identity/packages"
- *
- * const noteId = $NotesId.make("Note")
- * ```
- *
- * @category symbols
- * @since 0.1.0
- */
-export const $NotesId = composers.$NotesId;
-
-/**
  * Identity composer for the `@beep/documents-server` namespace.
  *
  * @example
@@ -578,21 +417,6 @@ export const $NotesId = composers.$NotesId;
  * @since 0.1.0
  */
 export const $DocumentsServerId = composers.$DocumentsServerId;
-
-/**
- * Identity composer for the `@beep/scraper` namespace.
- *
- * @example
- * ```typescript
- * import { $ScraperId } from "@beep/identity/packages"
- *
- * const scraperId = $ScraperId.make("WebScraper")
- * ```
- *
- * @category symbols
- * @since 0.1.0
- */
-export const $ScraperId = composers.$ScraperId;
 
 /**
  * Identity composer for the `@beep/shared-domain` namespace.
@@ -623,21 +447,6 @@ export const $SharedDomainId = composers.$SharedDomainId;
  * @since 0.1.0
  */
 export const $DbAdminId = composers.$DbAdminId;
-
-/**
- * Identity composer for the `@beep/server` namespace.
- *
- * @example
- * ```typescript
- * import { $ServerId } from "@beep/identity/packages"
- *
- * const serverId = $ServerId.make("ApiServer")
- * ```
- *
- * @category symbols
- * @since 0.1.0
- */
-export const $ServerId = composers.$ServerId;
 
 /**
  * Identity composer for the `@beep/iam-tables` namespace.
@@ -758,3 +567,18 @@ export const $CustomizationTablesId = composers.$CustomizationTablesId;
  * @since 0.1.0
  */
 export const $CustomizationUiId = composers.$CustomizationUiId;
+
+/**
+ * Identity composer for the `@beep/repo-cli` namespace.
+ *
+ * @example
+ * ```typescript
+ * import { $RepoCliId } from "@beep/identity/packages"
+ *
+ * const schemaId = $RepoCliId.make("SchemaId")
+ * ```
+ *
+ * @category symbols
+ * @since 0.1.0
+ */
+export const $RepoCliId = composers.$RepoCliId;

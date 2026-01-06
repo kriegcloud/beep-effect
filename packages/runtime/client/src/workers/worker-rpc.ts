@@ -1,8 +1,11 @@
+import { $RuntimeClientId } from "@beep/identity/packages";
 import * as Rpc from "@effect/rpc/Rpc";
 import * as RpcGroup from "@effect/rpc/RpcGroup";
 import * as Schema from "effect/Schema";
 
-export class FilterError extends Schema.TaggedError<FilterError>()("FilterError", {
+const $I = $RuntimeClientId.create("workers/worker-rpc");
+
+export class FilterError extends Schema.TaggedError<FilterError>()($I`FilterError`, {
   message: Schema.String,
 }) {}
 

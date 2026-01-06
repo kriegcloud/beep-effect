@@ -1,3 +1,4 @@
+import { $IamDomainId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
 import { IamEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import { makeFields } from "@beep/shared-domain/common";
@@ -5,11 +6,13 @@ import { modelKit } from "@beep/shared-domain/factories";
 import { PolicyRecord } from "@beep/shared-domain/Policy";
 import * as M from "@effect/sql/Model";
 import { MemberRole, MemberRoleEnum, MemberStatus } from "./schemas";
+
+const $I = $IamDomainId.create("entities/Member/Member.model");
 /**
  * @description Member model representing user membership in organizations.
  * Maps to the `member` table in the database.
  */
-export class Model extends M.Class<Model>(`MemberModel`)(
+export class Model extends M.Class<Model>($I`MemberModel`)(
   makeFields(IamEntityIds.MemberId, {
     userId: SharedEntityIds.UserId.annotations({
       description: "ID of the user who is a member",
@@ -31,12 +34,11 @@ export class Model extends M.Class<Model>(`MemberModel`)(
     ),
     organizationId: SharedEntityIds.OrganizationId,
   }),
-  {
+  $I.annotations("MemberModel", {
     title: "Member Model",
     description:
       `Member model representing user membership in organizations.\n` + `Maps to the \`member\` table in the database.`,
-    schemaId: Symbol.for("@beep/iam-domain/entities/MemberModel"),
-  }
+  })
 ) {
   static readonly utils = modelKit(Model);
 }

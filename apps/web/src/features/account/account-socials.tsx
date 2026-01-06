@@ -1,3 +1,4 @@
+import { $WebId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
 import { Iconify } from "@beep/ui/atoms";
 import { Form, formOptionsWithSubmitEffect, useAppForm } from "@beep/ui/form";
@@ -9,16 +10,21 @@ import * as S from "effect/Schema";
 import * as Struct from "effect/Struct";
 import type { ISocialLink } from "./types";
 
+const $I = $WebId.create("features/account/account-socials");
+
 type Props = {
   readonly socialLinks: ISocialLink;
 };
 
-export class AccountSocialsPayload extends S.Class<AccountSocialsPayload>("AccountSocialsPayload")({
-  facebook: BS.Url,
-  instagram: BS.Url,
-  linkedin: BS.Url,
-  x: BS.Url,
-}) {}
+export class AccountSocialsPayload extends S.Class<AccountSocialsPayload>($I`AccountSocialsPayload`)(
+  {
+    facebook: BS.Url,
+    instagram: BS.Url,
+    linkedin: BS.Url,
+    x: BS.Url,
+  },
+  $I.annotations("AccountSocialsPayload", { description: "Payload for account social links" })
+) {}
 
 export function AccountSocials({ socialLinks }: Props) {
   const form = useAppForm(

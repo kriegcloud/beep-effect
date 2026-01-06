@@ -8,6 +8,7 @@
  * Note: Uses Uint8Array<ArrayBuffer> explicitly for TypeScript 5.9+ compatibility.
  * See: https://github.com/microsoft/typescript/issues/62168
  */
+import { $SharedDomainId } from "@beep/identity/packages";
 import SQIds, { defaultOptions } from "@beep/utils/sqids";
 import { pipe, Struct } from "effect";
 import * as A from "effect/Array";
@@ -22,6 +23,8 @@ import * as Redacted from "effect/Redacted";
 import * as Str from "effect/String";
 import { DecryptionError, EncryptionError, HashError, KeyDerivationError, SigningError } from "./errors";
 import type { EncryptedPayload, EncryptedPayloadBinary } from "./schemas";
+
+const $I = $SharedDomainId.create("services/EncryptionService");
 
 // ============================================================================
 // Constants
@@ -112,7 +115,7 @@ function shuffle(str: string, seed: string) {
  * @since 0.1.0
  * @category encryption
  */
-export class EncryptionService extends Context.Tag("@beep/shared-domain/EncryptionService")<
+export class EncryptionService extends Context.Tag($I`EncryptionService`)<
   EncryptionService,
   {
     /**

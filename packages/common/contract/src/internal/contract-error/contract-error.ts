@@ -3,6 +3,8 @@
  * request failures, response failures, malformed payloads, and unknown errors,
  * ensuring logs and telemetry stay consistent across runtimes.
  */
+
+import { $ContractId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
 import { HttpRequestDetails } from "@beep/schema/integrations";
 import type { UnsafeTypes } from "@beep/types";
@@ -14,13 +16,14 @@ import type { ParseError } from "effect/ParseResult";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 
+const $I = $ContractId.create("contract-error");
 /**
  * Unique identifier for contract errors.
  *
  * @since 0.1.0
  * @category Type Ids
  */
-export const TypeId = Symbol.for("@beep/contract/contract-kit/ContractError");
+export const TypeId = Symbol.for($I`TypeId`);
 
 /**
  * Type-level representation of the contract error identifier.
@@ -90,12 +93,11 @@ const getStatusCodeSuggestion = (statusCode: number): string => {
 // Http Request Error
 // =====================================================================================================================
 
-export class HttpRequestErrorReason extends BS.StringLiteralKit("Transport", "Encode", "InvalidUrl").annotations({
-  schemaId: Symbol.for("@beep/contract/ContractError/HttpRequestErrorReason"),
-  identifier: "HttpRequestErrorReason",
-  title: "HTTP Request Error Reason",
-  description: "Reason for an HTTP request error.",
-}) {}
+export class HttpRequestErrorReason extends BS.StringLiteralKit("Transport", "Encode", "InvalidUrl").annotations(
+  $I.annotations("HttpRequestErrorReason", {
+    description: "Reason for an HTTP request error.",
+  })
+) {}
 
 export declare namespace HttpRequestErrorReason {
   export type Type = typeof HttpRequestErrorReason.Type;
@@ -147,12 +149,9 @@ export class HttpRequestError extends S.TaggedError<HttpRequestError>("@beep/con
     description: S.optional(S.String),
     cause: S.optional(S.Defect),
   },
-  {
-    schemaId: Symbol.for("@beep/contract/ContractError/HttpRequestError"),
-    identifier: "HttpRequestError",
-    title: "HTTP Request Error",
+  $I.annotations("HttpRequestError", {
     description: "Error that occurs during HTTP request processing.",
-  }
+  })
 ) {
   /**
    * @since 0.1.0
@@ -265,12 +264,9 @@ export class HttpResponseDetails extends S.Class<HttpResponseDetails>("HttpRespo
     status: S.Number,
     headers: S.Record({ key: S.String, value: S.String }),
   },
-  {
-    schemaId: Symbol.for("@beep/contract/ContractError/HttpResponseDetails"),
-    identifier: "HttpResponseDetails",
-    title: "HTTP Response Details",
+  $I.annotations("HttpResponseDetails", {
     description: "Details about an HTTP response that caused an error.",
-  }
+  })
 ) {}
 
 export declare namespace HttpResponseDetails {
@@ -278,12 +274,11 @@ export declare namespace HttpResponseDetails {
   export type Encoded = S.Schema.Encoded<typeof HttpResponseDetails>;
 }
 
-export class HttpResponseErrorReason extends BS.StringLiteralKit("StatusCode", "Decode", "EmptyBody").annotations({
-  schemaId: Symbol.for("@beep/contract/ContractError/HttpResponseErrorReason"),
-  identifier: "HttpResponseErrorReason",
-  title: "HTTP Response Error Reason",
-  description: "Reason for an HTTP response error.",
-}) {}
+export class HttpResponseErrorReason extends BS.StringLiteralKit("StatusCode", "Decode", "EmptyBody").annotations(
+  $I.annotations("HttpResponseErrorReason", {
+    description: "Reason for an HTTP response error.",
+  })
+) {}
 
 export declare namespace HttpResponseErrorReason {
   export type Type = typeof HttpRequestErrorReason.Type;
@@ -340,12 +335,9 @@ export class HttpResponseError extends S.TaggedError<HttpResponseError>(
     reason: HttpResponseErrorReason,
     description: S.optional(S.String),
   },
-  {
-    schemaId: Symbol.for("@beep/contract/ContractError/HttpResponseError"),
-    identifier: "HttpResponseError",
-    title: "HTTP Response Error",
+  $I.annotations("HttpResponseError", {
     description: "Error that occurs during HTTP response processing.",
-  }
+  })
 ) {
   /**
    * @since 0.1.0
@@ -510,12 +502,9 @@ export class MalformedInput extends S.TaggedError<MalformedInput>("@beep/contrac
     description: S.optional(S.String),
     cause: S.optional(S.Defect),
   },
-  {
-    schemaId: Symbol.for("@beep/contract/ContractError/MalformedInput"),
-    identifier: "MalformedInput",
-    title: "Malformed Input Error",
+  $I.annotations("MalformedInput", {
     description: "Error thrown when input data doesn't match the expected format or schema.",
-  }
+  })
 ) {
   /**
    * @since 0.1.0
@@ -576,12 +565,9 @@ export class MalformedOutput extends S.TaggedError<MalformedOutput>("@beep/contr
     description: S.optional(S.String),
     cause: S.optional(S.Defect),
   },
-  {
-    schemaId: Symbol.for("@beep/contract/ContractError/MalformedOutput"),
-    identifier: "MalformedOutput",
-    title: "Malformed Output Error",
+  $I.annotations("MalformedOutput", {
     description: "Error thrown when output data can't be parsed or validated.",
-  }
+  })
 ) {
   /**
    * @since 0.1.0
@@ -683,12 +669,9 @@ export class UnknownError extends S.TaggedError<UnknownError>("@beep/contract/Un
     description: S.optional(S.String),
     cause: S.optional(S.Defect),
   },
-  {
-    schemaId: Symbol.for("@beep/contract/UnknownError"),
-    identifier: "UnknownError",
-    title: "Unknown Error",
+  $I.annotations("UnknownError", {
     description: "Catch-all error for unexpected runtime errors in AI operations.",
-  }
+  })
 ) {
   /**
    * @since 0.1.0
@@ -749,12 +732,11 @@ export class ContractError extends S.Union(
   MalformedInput,
   MalformedOutput,
   UnknownError
-).annotations({
-  schemaId: Symbol.for("@beep/contract/contract-kit/ContractError"),
-  identifier: "ContractError",
-  title: "Contract Error",
-  description: "Union type representing all possible AI operation errors.",
-}) {}
+).annotations(
+  $I.annotations("ContractError", {
+    description: "Union type representing all possible AI operation errors.",
+  })
+) {}
 
 export declare namespace ContractError {
   /**

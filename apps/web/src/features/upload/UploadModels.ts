@@ -129,46 +129,61 @@ export class PresignedUrlItem extends S.Class<PresignedUrlItem>($I`PresignedUrlI
 /**
  * Trace headers for distributed tracing
  */
-export class TraceHeadersSchema extends S.Class<TraceHeadersSchema>("TraceHeadersSchema")({
-  b3: S.String,
-  traceparent: S.String,
-}) {}
+export class TraceHeadersSchema extends S.Class<TraceHeadersSchema>($I`TraceHeadersSchema`)(
+  {
+    b3: S.String,
+    traceparent: S.String,
+  },
+  $I.annotations("TraceHeadersSchema", { description: "Trace headers for distributed tracing" })
+) {}
 
 /**
  * Response from presigned URL request
  */
-export class PresignedUrlResponse extends S.Class<PresignedUrlResponse>("PresignedUrlResponse")({
-  urls: S.Array(PresignedUrlItem),
-  traceHeaders: TraceHeadersSchema,
-  signature: S.String,
-}) {}
+export class PresignedUrlResponse extends S.Class<PresignedUrlResponse>($I`PresignedUrlResponse`)(
+  {
+    urls: S.Array(PresignedUrlItem),
+    traceHeaders: TraceHeadersSchema,
+    signature: S.String,
+  },
+  $I.annotations("PresignedUrlResponse", { description: "Response from presigned URL request" })
+) {}
 
 /**
  * Callback request payload for upload completion
  */
-export class UploadCallbackPayload extends S.Class<UploadCallbackPayload>("UploadCallbackPayload")({
-  fileId: S.String,
-  key: S.String,
-  fileHash: S.String,
-}) {}
+export class UploadCallbackPayload extends S.Class<UploadCallbackPayload>($I`UploadCallbackPayload`)(
+  {
+    fileId: S.String,
+    key: S.String,
+    fileHash: S.String,
+  },
+  $I.annotations("UploadCallbackPayload", { description: "Callback request payload for upload completion" })
+) {}
 
 /**
  * Response from callback endpoint
  */
-export class UploadCallbackResponse extends S.Class<UploadCallbackResponse>("UploadCallbackResponse")({
-  success: S.Boolean,
-  fileId: S.String,
-  status: S.String,
-  message: S.String,
-}) {}
+export class UploadCallbackResponse extends S.Class<UploadCallbackResponse>($I`UploadCallbackResponse`)(
+  {
+    success: S.Boolean,
+    fileId: S.String,
+    status: S.String,
+    message: S.String,
+  },
+  $I.annotations("UploadCallbackResponse", { description: "Response from callback endpoint" })
+) {}
 
 /**
  * Error response from API
  */
-export class ApiErrorResponse extends S.Class<ApiErrorResponse>("ApiErrorResponse")({
-  error: S.Struct({
-    _tag: S.String,
-    code: S.String,
-    message: S.String,
-  }),
-}) {}
+export class ApiErrorResponse extends S.Class<ApiErrorResponse>($I`ApiErrorResponse`)(
+  {
+    error: S.Struct({
+      _tag: S.String,
+      code: S.String,
+      message: S.String,
+    }),
+  },
+  $I.annotations("ApiErrorResponse", { description: "Error response from API" })
+) {}

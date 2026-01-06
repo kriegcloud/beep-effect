@@ -1,8 +1,11 @@
 import { Contract, ContractKit } from "@beep/contract";
+import { $IamClientId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
 import { User } from "@beep/shared-domain/entities";
 import * as S from "effect/Schema";
 import { IamError } from "../../errors";
+
+const $I = $IamClientId.create("clients/user/user.contracts");
 
 export const UpdateUserInformationContract = Contract.make("UpdateUserInformation", {
   description: "Updates user information.",
@@ -51,12 +54,10 @@ export const UpdatePhoneNumberContract = Contract.make("UpdatePhoneNumber", {
   .annotate(Contract.Domain, "User")
   .annotate(Contract.Method, "updateUser");
 
-export class ChangeEmailPayload extends S.Class<ChangeEmailPayload>("@beep/iam-client/clients/user/ChangeEmailPayload")(
-  {
-    newEmail: User.Model.update.fields.email,
-    callbackURL: S.optional(BS.URLString),
-  }
-) {}
+export class ChangeEmailPayload extends S.Class<ChangeEmailPayload>($I`ChangeEmailPayload`)({
+  newEmail: User.Model.update.fields.email,
+  callbackURL: S.optional(BS.URLString),
+}) {}
 
 export const ChangeEmailContract = Contract.make("ChangeEmail", {
   description: "Change the users email.",
@@ -68,9 +69,7 @@ export const ChangeEmailContract = Contract.make("ChangeEmail", {
   .annotate(Contract.Domain, "User")
   .annotate(Contract.Method, "changeEmail");
 
-export class ChangePasswordPayload extends S.Class<ChangePasswordPayload>(
-  "@beep/iam-client/clients/user/ChangePasswordPayload"
-)({
+export class ChangePasswordPayload extends S.Class<ChangePasswordPayload>($I`ChangePasswordPayload`)({
   password: BS.Password,
   passwordConfirm: BS.Password,
   currentPassword: BS.Password,

@@ -255,7 +255,7 @@ const createComposer = <const Value extends StringTypes.NonEmptyString>(
         return [toTaggedKey(ensured), composer] as const;
       })
     );
-    return R.fromEntries(entries) as TaggedModuleRecord<Value, Segments>;
+    return R.fromEntries(entries) as unknown as TaggedModuleRecord<Value, Segments>;
   };
   tag.annotations = createAnnotations(value, registry);
   tag.create = <const Segment extends ModuleSegmentValue<StringTypes.NonEmptyString>>(
@@ -378,6 +378,9 @@ export type TaggedComposer<Value extends StringTypes.NonEmptyString> = {
  * Represents a record of tagged module accessors for building hierarchical module paths.
  * Each segment in the module path becomes a property with a corresponding tagged composer.
  *
+ * Uses a mapped type with key remapping to avoid recursive type instantiation,
+ * enabling scalability to 50+ segments without TypeScript depth errors.
+ *
  * @category models
  * @example
  * ```typescript
@@ -391,14 +394,9 @@ export type TaggedComposer<Value extends StringTypes.NonEmptyString> = {
 export type TaggedModuleRecord<
   Value extends StringTypes.NonEmptyString,
   Segments extends ReadonlyArray<StringTypes.NonEmptyString>,
-> = Segments extends readonly [
-  infer Head extends StringTypes.NonEmptyString,
-  ...infer Tail extends ReadonlyArray<StringTypes.NonEmptyString>,
-]
-  ? {
-      readonly [Key in TaggedAccessor<Head>]: TaggedComposer<`${Value}/${ModuleSegmentValue<Head>}`>;
-    } & TaggedModuleRecord<Value, Tail>
-  : {};
+> = {
+  readonly [K in Segments[number] as TaggedAccessor<K>]: TaggedComposer<`${Value}/${ModuleSegmentValue<K>}`>;
+};
 
 /**
  * Represents a tagged composer result that combines a base value with a module segment.

@@ -3,9 +3,13 @@
  * carry human-readable metadata (title, domain, method) alongside behavior so
  * runtimes can log, trace, or restrict access without additional wiring.
  */
+
+import { $ContractId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
 import * as Context from "effect/Context";
 import * as F from "effect/Function";
+
+const $I = $ContractId.create("internal/contract/annotations");
 
 export class ContextAnnotationTag extends BS.StringLiteralKit(
   "@beep/contract/Contract/Title",
@@ -26,12 +30,11 @@ export class ContextAnnotationTag extends BS.StringLiteralKit(
       ["@beep/contract/Contract/Audience", "Audience"],
     ],
   }
-).annotations({
-  schemaId: Symbol.for("@beep/contract/ContextAnnotationTag"),
-  identifier: "ContextAnnotationTag",
-  title: "Context Annotation Tag",
-  description: "One of the possible keys for Context Annotations within `@beep/contract/Contract.ts`",
-}) {}
+).annotations(
+  $I.annotations("ContextAnnotationTag", {
+    description: "One of the possible keys for Context Annotations within `@beep/contract/Contract.ts`",
+  })
+) {}
 
 export declare namespace ContextAnnotationTag {
   export type Type = typeof ContextAnnotationTag.Type;

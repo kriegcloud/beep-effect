@@ -1,3 +1,4 @@
+import { $RuntimeServerId } from "@beep/identity/packages";
 import { SharedRpcs } from "@beep/shared-domain";
 import { SharedServerRpcs } from "@beep/shared-server/rpc";
 import * as RpcMiddleware from "@effect/rpc/RpcMiddleware";
@@ -9,7 +10,9 @@ import * as F from "effect/Function";
 import * as Layer from "effect/Layer";
 import { AuthContextRpcMiddlewaresLayer } from "./AuthContext.layer";
 
-export class RpcLogger extends RpcMiddleware.Tag<RpcLogger>()("RpcLogger", {
+const $I = $RuntimeServerId.create("Rpc.layer");
+
+export class RpcLogger extends RpcMiddleware.Tag<RpcLogger>()($I`RpcLogger`, {
   wrap: true,
   optional: true,
 }) {}

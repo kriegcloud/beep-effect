@@ -520,5 +520,8 @@
     "@babel/preset-react": "catalog:",
     "@beep/types": "workspace:^",
     "@total-typescript/ts-reset": "catalog:"
+  },
+  "dependencies": {
+    "@radix-ui/react-icons": "^1.3.2"
   }
 }

@@ -1,3 +1,4 @@
+import { $IamDomainId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
 import { IamEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import { makeFields } from "@beep/shared-domain/common";
@@ -5,14 +6,14 @@ import { modelKit } from "@beep/shared-domain/factories";
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
 
-export const AccountModelSchemaId = Symbol.for("@beep/iam-domain/AccountModel");
+const $I = $IamDomainId.create("entities/Account/Account.model");
 
 /**
  * Account model representing external OAuth provider accounts linked to users.
  * Maps to the `account` table in the database.
  */
 
-export class Model extends M.Class<Model>(`AccountModel`)(
+export class Model extends M.Class<Model>($I`AccountModel`)(
   makeFields(IamEntityIds.AccountId, {
     /** External account ID from the OAuth provider */
     accountId: S.NonEmptyString.annotations({
@@ -78,12 +79,10 @@ export class Model extends M.Class<Model>(`AccountModel`)(
       })
     ),
   }),
-  {
-    identifier: "AccountModel",
+  $I.annotations("AccountModel", {
     title: "Account Model",
     description: "Account model representing external OAuth provider accounts linked to users.",
-    schemaId: AccountModelSchemaId,
-  }
+  })
 ) {
   static readonly utils = modelKit(Model);
 }

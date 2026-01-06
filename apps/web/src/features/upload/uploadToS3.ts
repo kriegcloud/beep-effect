@@ -1,6 +1,9 @@
+import { $WebId } from "@beep/identity/packages";
 import { randomHexString } from "@beep/utils";
 import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
+
+const $I = $WebId.create("features/upload/uploadToS3");
 
 export type TraceHeaders = {
   readonly b3: string;
@@ -20,7 +23,7 @@ export const generateTraceHeaders = (): TraceHeaders => {
 /**
  * Error that can occur during S3 upload
  */
-export class S3UploadError extends Data.TaggedError("S3UploadError")<{
+export class S3UploadError extends Data.TaggedError($I`S3UploadError`)<{
   readonly message: string;
   readonly code: string;
   readonly status?: undefined | number;

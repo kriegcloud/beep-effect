@@ -1,11 +1,13 @@
+import { $ConstantsId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
 
-export class PAGINATION_LIMIT extends S.Literal(100).annotations({
-  identifier: "PAGINATION_LIMIT",
-  title: "Pagination Limit",
-  description: "Default pagination limit for API responses",
-  schemaId: Symbol.for("@beep/constants/Pagination"),
-}) {
+const $I = $ConstantsId.create("Pagination");
+
+export class PAGINATION_LIMIT extends S.Literal(100).annotations(
+  $I.annotations("PAGINATION_LIMIT", {
+    description: "Default pagination limit for API responses",
+  })
+) {
   static readonly Value = 100;
 }
 

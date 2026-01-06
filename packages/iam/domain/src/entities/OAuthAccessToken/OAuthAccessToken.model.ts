@@ -1,3 +1,4 @@
+import { $IamDomainId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
 import { IamEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import { makeFields } from "@beep/shared-domain/common";
@@ -5,11 +6,13 @@ import { modelKit } from "@beep/shared-domain/factories";
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
 
+const $I = $IamDomainId.create("entities/OAuthAccessToken/OAuthAccessToken.model");
+
 /**
  * OAuth Access Token model representing OAuth 2.0 access tokens.
  * Maps to the `oauth_access_token` table in the database.
  */
-export class Model extends M.Class<Model>(`OAuthAccessTokenModel`)(
+export class Model extends M.Class<Model>($I`OAuthAccessTokenModel`)(
   makeFields(IamEntityIds.OAuthAccessTokenId, {
     /** OAuth access token (sensitive) */
     accessToken: BS.FieldSensitiveOptionOmittable(
@@ -62,11 +65,10 @@ export class Model extends M.Class<Model>(`OAuthAccessTokenModel`)(
     ),
     organizationId: SharedEntityIds.OrganizationId,
   }),
-  {
+  $I.annotations("OAuthAccessTokenModel", {
     title: "OAuth Access Token Model",
     description: "OAuth Access Token model representing OAuth 2.0 access tokens.",
-    schemaId: Symbol.for("@beep/iam-domain/entities/OAuthAccessTokenModel"),
-  }
+  })
 ) {
   static readonly utils = modelKit(Model);
 }

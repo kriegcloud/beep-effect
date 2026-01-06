@@ -1,3 +1,4 @@
+import { $IamDomainId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
 import { IamEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import { makeFields } from "@beep/shared-domain/common";
@@ -6,13 +7,13 @@ import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
 import { InvitationStatus, InvitationStatusEnum } from "./schemas";
 
-export const InvitationModelSchemaId = Symbol.for("@beep/iam-domain/InvitationModel");
+const $I = $IamDomainId.create("entities/Invitation/Invitation.model");
 
 /**
  * Invitation model representing organization and team invitations.
  * Maps to the `invitation` table in the database.
  */
-export class Model extends M.Class<Model>(`InvitationModel`)(
+export class Model extends M.Class<Model>($I`InvitationModel`)(
   makeFields(IamEntityIds.InvitationId, {
     /** Email address of the invitee */
     email: M.Sensitive(
@@ -54,11 +55,10 @@ export class Model extends M.Class<Model>(`InvitationModel`)(
 
     organizationId: BS.FieldOptionOmittable(SharedEntityIds.OrganizationId),
   }),
-  {
+  $I.annotations("InvitationModel", {
     title: "Invitation Model",
     description: "Invitation model representing organization and team invitations.",
-    schemaId: InvitationModelSchemaId,
-  }
+  })
 ) {
   static readonly utils = modelKit(Model);
 }

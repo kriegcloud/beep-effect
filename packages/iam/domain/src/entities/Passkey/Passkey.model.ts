@@ -1,3 +1,4 @@
+import { $IamDomainId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
 import { IamEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import { makeFields } from "@beep/shared-domain/common";
@@ -5,13 +6,13 @@ import { modelKit } from "@beep/shared-domain/factories";
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
 
-export const PasskeyModelSchemaId = Symbol.for("@beep/iam-domain/PasskeyModel");
+const $I = $IamDomainId.create("entities/Passkey/Passkey.model");
 
 /**
  * Passkey model representing WebAuthn credentials for passwordless authentication.
  * Maps to the `passkey` table in the database.
  */
-export class Model extends M.Class<Model>(`PasskeyModel`)(
+export class Model extends M.Class<Model>($I`PasskeyModel`)(
   makeFields(IamEntityIds.PasskeyId, {
     name: BS.NameAttribute.annotations({
       description: "User-friendly name for the passkey device",
@@ -65,11 +66,10 @@ export class Model extends M.Class<Model>(`PasskeyModel`)(
       })
     ),
   }),
-  {
+  $I.annotations("PasskeyModel", {
     title: "Passkey Model",
     description: "Passkey model representing WebAuthn credentials for passwordless authentication.",
-    schemaId: PasskeyModelSchemaId,
-  }
+  })
 ) {
   static readonly utils = modelKit(Model);
 }

@@ -58,7 +58,7 @@ const toDateNullable = (value: string | number | Date | DateTime.Utc | null | un
  * @since 0.1.0
  * @category Errors
  */
-export class UploadSessionRepoError extends S.TaggedError<UploadSessionRepoError>()("UploadSessionRepoError", {
+export class UploadSessionRepoError extends S.TaggedError<UploadSessionRepoError>()($I`UploadSessionRepoError`, {
   operation: S.String,
   fileKey: S.optional(File.UploadKey.to),
   cause: S.Unknown,
