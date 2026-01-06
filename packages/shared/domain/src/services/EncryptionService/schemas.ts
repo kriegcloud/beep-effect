@@ -24,7 +24,11 @@ const $I = $SharedDomainId.create("services/EncryptionService/schemas");
  * @since 0.1.0
  * @category models
  */
-export const EncryptionAlgorithm = S.Literal("AES-GCM");
+export const EncryptionAlgorithm = S.Literal("AES-GCM").annotations(
+  $I.annotations("EncryptionAlgorithm", {
+    description: "Supported encryption algorithm identifier for versioning",
+  })
+);
 export type EncryptionAlgorithm = typeof EncryptionAlgorithm.Type;
 
 /**
@@ -40,7 +44,11 @@ export const EncryptedPayloadBinary = S.Struct({
   ciphertext: S.Uint8ArrayFromSelf,
   /** Algorithm identifier for versioning */
   algorithm: EncryptionAlgorithm,
-});
+}).annotations(
+  $I.annotations("EncryptedPayloadBinary", {
+    description: "Encrypted payload using binary Uint8Array format for internal processing",
+  })
+);
 export type EncryptedPayloadBinary = typeof EncryptedPayloadBinary.Type;
 
 /**
@@ -56,7 +64,11 @@ export const EncryptedPayload = S.Struct({
   ciphertext: S.String,
   /** Algorithm identifier for versioning */
   algorithm: EncryptionAlgorithm,
-});
+}).annotations(
+  $I.annotations("EncryptedPayload", {
+    description: "Encrypted payload with Base64-encoded strings for storage and transport",
+  })
+);
 export type EncryptedPayload = typeof EncryptedPayload.Type;
 
 /**

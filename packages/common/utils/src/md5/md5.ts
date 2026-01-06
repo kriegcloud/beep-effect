@@ -8,28 +8,11 @@ import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
 import * as O from "effect/Option";
-import * as S from "effect/Schema";
 import * as Str from "effect/String";
+import { Md5ComputationError, UnicodeEncodingError } from "./errors";
 
-/**
- * Error thrown when MD5 hash computation fails
- * @since 1.0.0
- * @category Errors
- */
-export class Md5ComputationError extends S.TaggedError<Md5ComputationError>()("Md5ComputationError", {
-  message: S.String,
-  cause: S.Unknown,
-}) {}
-
-/**
- * Error thrown when Unicode encoding fails
- * @since 1.0.0
- * @category Errors
- */
-export class UnicodeEncodingError extends S.TaggedError<UnicodeEncodingError>()("UnicodeEncodingError", {
-  message: S.String,
-  codePoint: S.Number,
-}) {}
+// Re-export error types for backward compatibility
+export { Md5ComputationError, UnicodeEncodingError };
 
 /**
  * Immutable MD5 hasher state

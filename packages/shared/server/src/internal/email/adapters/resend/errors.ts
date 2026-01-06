@@ -23,6 +23,10 @@ export class ResendErrorCode extends BS.StringLiteralKit(
   "method_not_allowed",
   "application_error",
   "internal_server_error"
+).annotations(
+  $I.annotations("ResendErrorCode", {
+    description: "Error codes returned by the Resend email API",
+  })
 ) {}
 
 // export class RawResendError extends S.declare(
@@ -37,13 +41,19 @@ const isResendError = (i: unknown): i is ResendError =>
   Str.isString(i.message) &&
   S.is(ResendErrorCode)(i.name);
 
-export class ResendError extends S.TaggedError<ResendError>($I`ResendError`)("ResendError", {
-  cause: S.Defect,
-  message: S.optional(S.String),
-  name: S.optional(ResendErrorCode),
-  statusCode: S.optional(S.NullOr(S.Number)),
-  payload: S.Unknown,
-}) {
+export class ResendError extends S.TaggedError<ResendError>($I`ResendError`)(
+  "ResendError",
+  {
+    cause: S.Defect,
+    message: S.optional(S.String),
+    name: S.optional(ResendErrorCode),
+    statusCode: S.optional(S.NullOr(S.Number)),
+    payload: S.Unknown,
+  },
+  $I.annotations("ResendError", {
+    description: "Error from Resend email service API operations",
+  })
+) {
   static readonly new = (cause: unknown, payload?: any) => {
     if (isResendError(cause)) {
       return new ResendError({
@@ -63,5 +73,8 @@ export class EmailTemplateRenderError extends S.TaggedError<EmailTemplateRenderE
   {
     operation: S.String,
     cause: S.Defect,
-  }
+  },
+  $I.annotations("EmailTemplateRenderError", {
+    description: "Error during email template rendering (React Email compilation)",
+  })
 ) {}

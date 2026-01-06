@@ -1,3 +1,4 @@
+export * from "./detection";
 export * from "./FileInfo";
 export * from "./FileSignature";
 export * from "./FileTypes";

@@ -1,3 +1,4 @@
+import { BeepError } from "@beep/errors/shared";
 import { BS } from "@beep/schema";
 import { InitiateUpload } from "@beep/shared-domain/rpc/v1/files/_rpcs";
 import { Atom } from "@effect-atom/atom-react";
@@ -6,6 +7,13 @@ import * as F from "effect/Function";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { FilesApi, ImageCompressionClient, makePresignedPostOptions, uploadToS3 } from "../../services";
+import {
+  S3AbortedError,
+  S3NetworkError,
+  S3TimeoutError,
+  S3UploadFailedError,
+  S3ValidationError,
+} from "../../services/Upload/Upload.errors";
 import { MAX_FILE_SIZE_BYTES } from "../constants";
 import { ImageTooLargeAfterCompression } from "../errors";
 import { runtime } from "../runtime";
@@ -274,64 +282,48 @@ const makeUploadStream = (uploadId: string, input: UploadInput) =>
             causeSquash: Cause.squash(cause),
           })
         ),
-        Effect.catchTags({
-          Unauthorized: (e: unknown) =>
-            Effect.gen(function* () {
+        Effect.catchAll((e: unknown) =>
+          Effect.gen(function* () {
+            // Handle Unauthorized error
+            if (e instanceof BeepError.Unauthorized) {
               yield* Effect.logError(`[UploadStream] Unauthorized error`, {
                 uploadId,
                 error: e,
               });
               return yield* Effect.dieMessage(`[Unauthorized]: ${JSON.stringify(e)}`);
-            }),
-          RpcClientError: (e: unknown) =>
-            Effect.gen(function* () {
-              yield* Effect.logError(`[UploadStream] RPC Client error`, {
-                uploadId,
-                error: e,
-              });
-              return yield* Effect.dieMessage(`[RpcClientError]: ${JSON.stringify(e)}`);
-            }),
-          S3AbortedError: (e: unknown) =>
-            Effect.gen(function* () {
+            }
+
+            // Handle S3 errors
+            if (
+              e instanceof S3AbortedError ||
+              e instanceof S3NetworkError ||
+              e instanceof S3TimeoutError ||
+              e instanceof S3UploadFailedError ||
+              e instanceof S3ValidationError
+            ) {
               yield* Effect.logError(`[UploadStream] S3 Upload error`, {
                 uploadId,
                 error: e,
               });
               return yield* Effect.dieMessage(`[S3UploadError]: ${JSON.stringify(e)}`);
-            }),
-          S3NetworkError: (e: unknown) =>
-            Effect.gen(function* () {
-              yield* Effect.logError(`[UploadStream] S3 Upload error`, {
-                uploadId,
-                error: e,
-              });
-              return yield* Effect.dieMessage(`[S3UploadError]: ${JSON.stringify(e)}`);
-            }),
-          S3TimeoutError: (e: unknown) =>
-            Effect.gen(function* () {
-              yield* Effect.logError(`[UploadStream] S3 Upload error`, {
-                uploadId,
-                error: e,
-              });
-              return yield* Effect.dieMessage(`[S3UploadError]: ${JSON.stringify(e)}`);
-            }),
-          S3UploadFailedError: (e: unknown) =>
-            Effect.gen(function* () {
-              yield* Effect.logError(`[UploadStream] S3 Upload error`, {
-                uploadId,
-                error: e,
-              });
-              return yield* Effect.dieMessage(`[S3UploadError]: ${JSON.stringify(e)}`);
-            }),
-          S3ValidationError: (e: unknown) =>
-            Effect.gen(function* () {
-              yield* Effect.logError(`[UploadStream] S3 Upload error`, {
-                uploadId,
-                error: e,
-              });
-              return yield* Effect.dieMessage(`[S3UploadError]: ${JSON.stringify(e)}`);
-            }),
-        })
+            }
+
+            // Handle RpcClientError (from @effect/rpc, uses standard tag)
+            if (typeof e === "object" && e !== null && "_tag" in e) {
+              const tag = (e as { _tag: string })._tag;
+              if (tag === "RpcClientError" || tag.endsWith(":RpcClientError")) {
+                yield* Effect.logError(`[UploadStream] RPC Client error`, {
+                  uploadId,
+                  error: e,
+                });
+                return yield* Effect.dieMessage(`[RpcClientError]: ${JSON.stringify(e)}`);
+              }
+            }
+
+            // Re-fail with unknown error
+            return yield* Effect.fail(e);
+          })
+        )
       );
 
     return Stream.unfoldEffect(UploadState.Idle({ input }) as UploadState, transition);

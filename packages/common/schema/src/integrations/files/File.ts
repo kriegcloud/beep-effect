@@ -1,4 +1,9 @@
 import { $SchemaId } from "@beep/identity/packages";
+import {
+  ExifFileTooLargeError,
+  ExifTimeoutError,
+  MetadataParseError,
+} from "@beep/schema/integrations/files/exif-metadata/errors";
 import { fileTypeChecker } from "@beep/schema/integrations/files/file-types";
 import {
   ApplicationFileExtension,
@@ -18,7 +23,7 @@ import {
   VideoMimeType,
 } from "@beep/schema/integrations/files/mime-types";
 import { DateTimeUtcFromAllAcceptable, DurationFromSeconds } from "@beep/schema/primitives";
-import { ParallelHasher } from "@beep/utils/md5";
+import { ParallelHasher, WorkerHashError } from "@beep/utils/md5";
 import { faker } from "@faker-js/faker";
 import { Effect, Equivalence, Match, ParseResult, pipe } from "effect";
 import * as A from "effect/Array";
@@ -35,6 +40,12 @@ import { ExifMetadata } from "./exif-metadata";
 import { MetadataService } from "./metadata/Metadata.service";
 import { IAudioMetadata, ICommonTagsResult, IFormat, IQualityInformation } from "./metadata/types";
 import { FileSizeBitsIEC, FileSizeBitsSI, FileSizeIEC, FileSizeSI } from "./utils/formatSize";
+
+// Create error tag values for pattern matching
+const METADATA_PARSE_ERROR_TAG = new MetadataParseError({ message: "", phase: "load" })._tag;
+const EXIF_FILE_TOO_LARGE_ERROR_TAG = new ExifFileTooLargeError({ message: "", fileSize: 0, maxSize: 0 })._tag;
+const EXIF_TIMEOUT_ERROR_TAG = new ExifTimeoutError({ message: "", timeoutMs: 0 })._tag;
+const WORKER_HASH_ERROR_TAG = new WorkerHashError({ message: "", cause: null })._tag;
 
 /**
  * Branded type for MD5 hash strings (32 lowercase hexadecimal characters).
@@ -655,35 +666,45 @@ export class NormalizedFileFromSelf extends S.transformOrFail(FileFromSelf, Norm
       // 3. Extract metadata and compute MD5 hash (requires MetadataService and ParallelHasher from context)
       // Transform errors into ParseResult issues with specific messages
       return yield* extractMetadata(file).pipe(
-        Effect.mapError(
-          (error): ParseResult.ParseIssue =>
-            Match.value(error).pipe(
-              Match.tag(
-                "MetadataParseError",
-                (e) =>
-                  new ParseResult.Type(
-                    ast,
-                    file,
-                    `Metadata parse error: ${e.message}${e.phase ? ` (phase: ${e.phase})` : ""}`
-                  )
-              ),
-              Match.tag(
-                "ExifFileTooLargeError",
-                (e) =>
-                  new ParseResult.Type(ast, file, `File too large: ${e.fileSize} bytes exceeds max ${e.maxSize} bytes`)
-              ),
-              Match.tag(
-                "ExifTimeoutError",
-                (e) => new ParseResult.Type(ast, file, `EXIF extraction timed out after ${e.timeoutMs}ms`)
-              ),
-              Match.tag(
-                "WorkerHashError",
-                (e) => new ParseResult.Type(ast, file, `MD5 hash computation failed: ${e.message}`)
-              ),
-              Match.tag("ParseError", (e) => e.issue),
-              Match.orElse((e) => new ParseResult.Type(ast, file, `Unexpected error: ${String(e)}`))
-            )
-        )
+        Effect.mapError((error): ParseResult.ParseIssue => {
+          // Match on _tag identity strings for tagged errors
+          const tag = (error as { _tag?: string })._tag;
+
+          if (tag === METADATA_PARSE_ERROR_TAG) {
+            const e = error as MetadataParseError;
+            return new ParseResult.Type(
+              ast,
+              file,
+              `Metadata parse error: ${e.message}${e.phase ? ` (phase: ${e.phase})` : ""}`
+            );
+          }
+
+          if (tag === EXIF_FILE_TOO_LARGE_ERROR_TAG) {
+            const e = error as ExifFileTooLargeError;
+            return new ParseResult.Type(
+              ast,
+              file,
+              `File too large: ${e.fileSize} bytes exceeds max ${e.maxSize} bytes`
+            );
+          }
+
+          if (tag === EXIF_TIMEOUT_ERROR_TAG) {
+            const e = error as ExifTimeoutError;
+            return new ParseResult.Type(ast, file, `EXIF extraction timed out after ${e.timeoutMs}ms`);
+          }
+
+          if (tag === WORKER_HASH_ERROR_TAG) {
+            const e = error as WorkerHashError;
+            return new ParseResult.Type(ast, file, `MD5 hash computation failed: ${e.message}`);
+          }
+
+          if (tag === "ParseError") {
+            const e = error as ParseResult.ParseError;
+            return e.issue;
+          }
+
+          return new ParseResult.Type(ast, file, `Unexpected error: ${String(error)}`);
+        })
       );
     }),
 

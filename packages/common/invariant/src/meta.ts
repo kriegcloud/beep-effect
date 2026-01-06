@@ -25,6 +25,9 @@ import * as S from "effect/Schema";
  * The schema enforces non-empty file paths, non-negative line numbers, and a
  * serializable argument vector so downstream telemetry can safely log context.
  *
+ * @identifier CallMetadata
+ * @description Structured metadata for invariant assertion failures (file location, line number, arguments)
+ *
  * @example
  * ```ts
  * import * as S from "effect/Schema";

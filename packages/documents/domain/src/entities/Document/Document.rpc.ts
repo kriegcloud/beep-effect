@@ -1,3 +1,4 @@
+import { $DocumentsDomainId } from "@beep/identity/packages";
 import { DocumentsEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import * as Rpc from "@effect/rpc/Rpc";
 import * as RpcGroup from "@effect/rpc/RpcGroup";
@@ -5,13 +6,19 @@ import * as S from "effect/Schema";
 import * as Errors from "./Document.errors";
 import { Model } from "./Document.model";
 
+const $I = $DocumentsDomainId.create("entities/Document/Document.rpc");
+
 /**
  * Search result schema for document search operations.
  */
 export const SearchResult = S.Struct({
   ...Model.select.pick("id", "_rowId", "title", "content").fields,
   rank: S.Number,
-});
+}).annotations(
+  $I.annotations("SearchResult", {
+    description: "Document search result with title, content snippet, and ranking score",
+  })
+);
 
 /**
  * RPC contract for Document entity operations.

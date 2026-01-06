@@ -12,7 +12,9 @@ import { dependencies } from "./_common";
 
 const $I = $DocumentsServerId.create("db/repos/DocumentVersion.repo");
 /**
- * Error when a document version is not found
+ * Error when a document version is not found.
+ * @identifier VersionNotFoundError
+ * @description Runtime error indicating the requested document version does not exist
  */
 export class VersionNotFoundError extends Data.TaggedError("VersionNotFoundError")<{
   readonly id: DocumentsEntityIds.DocumentVersionId.Type;
@@ -24,7 +26,11 @@ export class VersionNotFoundError extends Data.TaggedError("VersionNotFoundError
 const VersionWithAuthorSchema = S.Struct({
   ...Entities.DocumentVersion.Model.fields,
   author: User.Model.select.pick("id", "_rowId", "name", "image"),
-});
+}).annotations(
+  $I.annotations("VersionWithAuthorSchema", {
+    description: "Document version with author information for version history display",
+  })
+);
 
 export type VersionWithAuthor = typeof VersionWithAuthorSchema.Type;
 

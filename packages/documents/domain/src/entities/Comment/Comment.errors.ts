@@ -1,46 +1,58 @@
+import { $DocumentsDomainId } from "@beep/identity/packages";
 import { DocumentsEntityIds } from "@beep/shared-domain";
 import * as HttpApiSchema from "@effect/platform/HttpApiSchema";
 import * as S from "effect/Schema";
 
+const $I = $DocumentsDomainId.create("entities/Comment/Comment.errors");
+
 /**
  * Error when a comment with the specified ID cannot be found.
  */
-export class CommentNotFoundError extends S.TaggedError<CommentNotFoundError>(
-  "@beep/documents-domain/entities/Comment/CommentNotFoundError"
-)(
-  "CommentNotFoundError",
+export class CommentNotFoundError extends S.TaggedError<CommentNotFoundError>()(
+  $I`CommentNotFoundError`,
   {
     id: DocumentsEntityIds.CommentId,
   },
-  HttpApiSchema.annotations({ status: 404 })
+  {
+    ...HttpApiSchema.annotations({ status: 404 }),
+    ...$I.annotations("CommentNotFoundError", {
+      description: "Thrown when a comment with the specified ID does not exist.",
+    }),
+  }
 ) {}
 
 /**
  * Error when user lacks permission to perform action on comment.
  */
-export class CommentPermissionDeniedError extends S.TaggedError<CommentPermissionDeniedError>(
-  "@beep/documents-domain/entities/Comment/CommentPermissionDeniedError"
-)(
-  "CommentPermissionDeniedError",
+export class CommentPermissionDeniedError extends S.TaggedError<CommentPermissionDeniedError>()(
+  $I`CommentPermissionDeniedError`,
   {
     id: DocumentsEntityIds.CommentId,
   },
-  HttpApiSchema.annotations({ status: 403 })
+  {
+    ...HttpApiSchema.annotations({ status: 403 }),
+    ...$I.annotations("CommentPermissionDeniedError", {
+      description: "Thrown when the user lacks permission to perform the requested action on the comment.",
+    }),
+  }
 ) {}
 
 /**
  * Error when comment content exceeds maximum length.
  * Todox limit: 50,000 characters (50KB for rich content)
  */
-export class CommentTooLongError extends S.TaggedError<CommentTooLongError>(
-  "@beep/documents-domain/entities/Comment/CommentTooLongError"
-)(
-  "CommentTooLongError",
+export class CommentTooLongError extends S.TaggedError<CommentTooLongError>()(
+  $I`CommentTooLongError`,
   {
     length: S.Int,
     maxLength: S.Int,
   },
-  HttpApiSchema.annotations({ status: 400 })
+  {
+    ...HttpApiSchema.annotations({ status: 400 }),
+    ...$I.annotations("CommentTooLongError", {
+      description: "Thrown when the comment content exceeds the maximum allowed length of 50,000 characters.",
+    }),
+  }
 ) {}
 
 /**

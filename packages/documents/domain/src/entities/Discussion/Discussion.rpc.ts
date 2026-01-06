@@ -1,3 +1,4 @@
+import { $DocumentsDomainId } from "@beep/identity/packages";
 import { DocumentsEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import { User } from "@beep/shared-domain/entities";
 import * as Rpc from "@effect/rpc/Rpc";
@@ -6,6 +7,8 @@ import * as S from "effect/Schema";
 import * as Comment from "../Comment";
 import * as Errors from "./Discussion.errors";
 import { Model } from "./Discussion.model";
+
+const $I = $DocumentsDomainId.create("entities/Discussion/Discussion.rpc");
 
 // Validation constants (from Todox)
 const MAX_DOCUMENT_CONTENT_LENGTH = 1000;
@@ -23,7 +26,11 @@ export const DiscussionWithComments = S.Struct({
         .fields,
     })
   ),
-});
+}).annotations(
+  $I.annotations("DiscussionWithComments", {
+    description: "Discussion with nested comments and user information for RPC responses",
+  })
+);
 
 /**
  * RPC contract for Discussion entity operations.

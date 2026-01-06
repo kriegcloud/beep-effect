@@ -29,10 +29,15 @@ export class ContextualPromptResponseReplace extends S.Class<ContextualPromptRes
 
 export class ContextualPromptResponseOther extends S.Class<ContextualPromptResponseOther>(
   $I`ContextualPromptResponseOther`
-)({
-  type: S.tag("other"),
-  text: S.String,
-}) {}
+)(
+  {
+    type: S.tag("other"),
+    text: S.String,
+  },
+  $I.annotations("ContextualPromptResponseOther", {
+    description: "Contextual prompt response for other text operations in Yjs protocol",
+  })
+) {}
 
 export class ContextualPromptResponse extends S.Union(
   ContextualPromptResponseInsert,

@@ -54,10 +54,15 @@ export const UpdatePhoneNumberContract = Contract.make("UpdatePhoneNumber", {
   .annotate(Contract.Domain, "User")
   .annotate(Contract.Method, "updateUser");
 
-export class ChangeEmailPayload extends S.Class<ChangeEmailPayload>($I`ChangeEmailPayload`)({
-  newEmail: User.Model.update.fields.email,
-  callbackURL: S.optional(BS.URLString),
-}) {}
+export class ChangeEmailPayload extends S.Class<ChangeEmailPayload>($I`ChangeEmailPayload`)(
+  {
+    newEmail: User.Model.update.fields.email,
+    callbackURL: S.optional(BS.URLString),
+  },
+  $I.annotations("ChangeEmailPayload", {
+    description: "Payload for initiating an email address change request",
+  })
+) {}
 
 export const ChangeEmailContract = Contract.make("ChangeEmail", {
   description: "Change the users email.",
@@ -69,12 +74,17 @@ export const ChangeEmailContract = Contract.make("ChangeEmail", {
   .annotate(Contract.Domain, "User")
   .annotate(Contract.Method, "changeEmail");
 
-export class ChangePasswordPayload extends S.Class<ChangePasswordPayload>($I`ChangePasswordPayload`)({
-  password: BS.Password,
-  passwordConfirm: BS.Password,
-  currentPassword: BS.Password,
-  revokeOtherSessions: BS.BoolWithDefault(false),
-}) {}
+export class ChangePasswordPayload extends S.Class<ChangePasswordPayload>($I`ChangePasswordPayload`)(
+  {
+    password: BS.Password,
+    passwordConfirm: BS.Password,
+    currentPassword: BS.Password,
+    revokeOtherSessions: BS.BoolWithDefault(false),
+  },
+  $I.annotations("ChangePasswordPayload", {
+    description: "Payload for changing user password with optional session revocation",
+  })
+) {}
 
 export const ChangePasswordContract = Contract.make("ChangePassword", {
   description: "Change the users password.",

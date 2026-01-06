@@ -7,11 +7,15 @@
  * @module
  */
 
+import { $UtilsId } from "@beep/identity/packages";
 import * as Runner from "@effect/platform/WorkerRunner";
 import * as BrowserRunner from "@effect/platform-browser/BrowserWorkerRunner";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
+import { BlobSliceError, FileReadError, Md5ComputationError, UnicodeEncodingError } from "./errors";
 import { hashBlobSync } from "./md5-file-hasher";
+
+const $I = $UtilsId.create("md5/worker");
 
 /**
  * Worker error schema for serialization
@@ -19,24 +23,7 @@ import { hashBlobSync } from "./md5-file-hasher";
  * @since 1.0.0
  * @category Schemas
  */
-const WorkerErrorSchema = S.Union(
-  S.TaggedStruct("FileReadError", {
-    message: S.String,
-    cause: S.Unknown,
-  }),
-  S.TaggedStruct("BlobSliceError", {
-    message: S.String,
-    cause: S.Unknown,
-  }),
-  S.TaggedStruct("UnicodeEncodingError", {
-    message: S.String,
-    codePoint: S.Number,
-  }),
-  S.TaggedStruct("Md5ComputationError", {
-    message: S.String,
-    cause: S.Unknown,
-  })
-);
+const WorkerErrorSchema = S.Union(FileReadError, BlobSliceError, UnicodeEncodingError, Md5ComputationError);
 
 /**
  * Hash request schema - uses ArrayBuffer instead of Blob for serializability
@@ -44,15 +31,21 @@ const WorkerErrorSchema = S.Union(
  * @since 1.0.0
  * @category Schemas
  */
-export class HashRequest extends S.TaggedRequest<HashRequest>()("HashRequest", {
-  failure: WorkerErrorSchema,
-  success: S.String,
-  payload: {
-    buffer: S.Uint8ArrayFromSelf,
-    size: S.Number,
-    chunkSize: S.optional(S.Number),
+export class HashRequest extends S.TaggedRequest<HashRequest>()(
+  "HashRequest",
+  {
+    failure: WorkerErrorSchema,
+    success: S.String,
+    payload: {
+      buffer: S.Uint8ArrayFromSelf,
+      size: S.Number,
+      chunkSize: S.optional(S.Number),
+    },
   },
-}) {}
+  $I.annotations("HashRequest", {
+    description: "Request to compute MD5 hash from an ArrayBuffer in a web worker",
+  })
+) {}
 
 /**
  * Request union type for the worker
@@ -66,7 +59,11 @@ export type WorkerRequest = HashRequest;
  * @since 1.0.0
  * @category Schemas
  */
-export const WorkerRequestSchema = S.Union(HashRequest);
+export const WorkerRequestSchema = S.Union(HashRequest).annotations(
+  $I.annotations("WorkerRequestSchema", {
+    description: "Union of all MD5 worker request types",
+  })
+);
 
 /**
  * Launch the worker with Effect Platform runner

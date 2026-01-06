@@ -11,6 +11,7 @@
  * @since 0.1.0
  */
 
+import { $SchemaId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import * as Either from "effect/Either";
 import * as F from "effect/Function";
@@ -24,16 +25,24 @@ import { FILE_TYPES_REQUIRED_ADDITIONAL_CHECK, FileTypes } from "./FileTypes";
 import type { DetectFileOptions } from "./types";
 import { getFileChunkEither, type IllegalChunkError, InvalidFileTypeError } from "./utils";
 
+const $I = $SchemaId.create("integrations/files/file-types/detection");
+
 /**
  * Indicates that the chunk size provided is invalid (must be greater than zero)
  *
  * @category Errors
  * @since 0.1.0
  */
-export class InvalidChunkSizeError extends S.TaggedError<InvalidChunkSizeError>()("InvalidChunkSizeError", {
-  message: S.String,
-  receivedSize: S.Number,
-}) {}
+export class InvalidChunkSizeError extends S.TaggedError<InvalidChunkSizeError>()(
+  $I`InvalidChunkSizeError`,
+  {
+    message: S.String,
+    receivedSize: S.Number,
+  },
+  $I.annotations("InvalidChunkSizeError", {
+    description: "Thrown when the chunk size provided for file detection is not a positive number.",
+  })
+) {}
 
 /**
  * Transform a matched signature into a DetectedFileInfo structure.

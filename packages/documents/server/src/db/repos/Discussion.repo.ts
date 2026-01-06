@@ -33,7 +33,11 @@ const DiscussionWithCommentsSchema = S.Struct({
       ).fields,
     })
   ),
-});
+}).annotations(
+  $I.annotations("DiscussionWithCommentsSchema", {
+    description: "Discussion with nested comments and author information for repository queries",
+  })
+);
 
 export type DiscussionWithComments = typeof DiscussionWithCommentsSchema.Type;
 

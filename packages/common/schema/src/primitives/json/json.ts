@@ -170,7 +170,11 @@ export declare namespace JsonObject {
  * @category Primitives/Json
  * @since 0.1.0
  */
-export const JsonArray = S.Array(Json);
+export const JsonArray = S.Array(Json).annotations(
+  $I.annotations("json/JsonArray", {
+    description: "Array of JSON-compatible values for serialization",
+  })
+);
 
 /**
  * Namespace describing types for {@link JsonArray}.
@@ -222,7 +226,11 @@ export declare namespace JsonArray {
  * @category Primitives/Json
  * @since 0.1.0
  */
-export const NonEmptyJsonArray = S.NonEmptyArray(Json);
+export const NonEmptyJsonArray = S.NonEmptyArray(Json).annotations(
+  $I.annotations("json/NonEmptyJsonArray", {
+    description: "Non-empty array of JSON-compatible values requiring at least one element",
+  })
+);
 
 /**
  * Namespace describing types for {@link NonEmptyJsonArray}.

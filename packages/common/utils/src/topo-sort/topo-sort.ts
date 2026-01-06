@@ -2,6 +2,7 @@
  * @since 0.1.0
  */
 
+import { $UtilsId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import * as F from "effect/Function";
 import * as HashMap from "effect/HashMap";
@@ -9,19 +10,34 @@ import * as HashSet from "effect/HashSet";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 
-export const NodeId = S.NonEmptyTrimmedString.pipe(S.brand("NodeId"));
+const $I = $UtilsId.create("topo-sort/topo-sort");
+
+export const NodeId = S.NonEmptyTrimmedString.pipe(
+  S.brand("NodeId"),
+  S.annotations($I.annotations("NodeId", {
+    description: "Branded string identifier for directed acyclic graph nodes",
+  }))
+);
 export type NodeId = S.Schema.Type<typeof NodeId>;
 
 export const DirectedAcyclicGraph = S.HashMap({
   key: NodeId,
   value: S.HashSet(NodeId),
-});
+}).annotations(
+  $I.annotations("DirectedAcyclicGraph", {
+    description: "HashMap representing a directed acyclic graph with node dependencies",
+  })
+);
 export type DirectedAcyclicGraph = S.Schema.Type<typeof DirectedAcyclicGraph>;
 
 export const DependencyGraph = DirectedAcyclicGraph;
 export type DependencyGraph = DirectedAcyclicGraph;
 
-export const TaskList = S.Array(S.HashSet(NodeId));
+export const TaskList = S.Array(S.HashSet(NodeId)).annotations(
+  $I.annotations("TaskList", {
+    description: "Array of parallel task batches from topological sort",
+  })
+);
 export type TaskList = S.Schema.Type<typeof TaskList>;
 
 type InDegrees = HashMap.HashMap<NodeId, number>;

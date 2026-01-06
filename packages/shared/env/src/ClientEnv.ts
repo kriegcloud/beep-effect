@@ -12,10 +12,22 @@ import { TreeFormatter } from "effect/ParseResult";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 
+/**
+ * Comma-separated string transformed to array of auth provider names.
+ *
+ * @identifier AuthProviderNames
+ * @description Comma-separated string transformed to array of auth provider names
+ */
 const AuthProviderNames = BS.destructiveTransform((i: string) =>
   S.decodeUnknownSync(S.NonEmptyArray(AuthProviderNameValue))(Str.split(",")(i))
 )(S.String);
 
+/**
+ * Client-side environment configuration schema for Next.js NEXT_PUBLIC_ variables.
+ *
+ * @identifier ClientEnvSchema
+ * @description Client-side environment configuration schema for Next.js NEXT_PUBLIC_ variables
+ */
 const ClientEnvSchema = S.Struct({
   env: EnvValue,
   appName: S.NonEmptyTrimmedString,

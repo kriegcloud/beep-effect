@@ -73,6 +73,8 @@ export class Title extends Context.Tag(ContextAnnotationTag.Enum.Title)<Title, s
  *
  * @since 0.1.0
  * @category Annotations
+ * @identifier SupportsAbort
+ * @description Contract annotation indicating the operation supports user-initiated abort signals
  */
 export class SupportsAbort extends Context.Reference<SupportsAbort>()("@beep/contract/Contract/SupportsAbort", {
   defaultValue: F.constFalse,

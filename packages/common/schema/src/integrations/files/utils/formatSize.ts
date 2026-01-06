@@ -1,3 +1,4 @@
+import { $SchemaId } from "@beep/identity/packages";
 import type { UnsafeTypes } from "@beep/types";
 import * as A from "effect/Array";
 import * as BI from "effect/BigInt";
@@ -11,6 +12,8 @@ import * as Str from "effect/String";
 import { destructiveTransform } from "../../../core/extended/extended-schemas";
 import type * as Sizes from "../FileSize";
 import { BiBitUnit, BiByteUnit, BitUnit, ByteUnit } from "../FileSize";
+
+const $I = $SchemaId.create("integrations/files/utils/formatSize");
 /* ============================================================================
  * Unit types inferred from your Schemas (kept in one place for clarity)
  * ========================================================================== */
@@ -36,10 +39,16 @@ import { BiBitUnit, BiByteUnit, BitUnit, ByteUnit } from "../FileSize";
  * @category Errors
  * @since 0.1.0
  */
-export class InvalidFileSizeInput extends S.TaggedError<InvalidFileSizeInput>()("InvalidFileSizeInput", {
-  value: S.Unknown,
-  message: S.String,
-}) {}
+export class InvalidFileSizeInput extends S.TaggedError<InvalidFileSizeInput>()(
+  "InvalidFileSizeInput",
+  {
+    value: S.Unknown,
+    message: S.String,
+  },
+  $I.annotations("InvalidFileSizeInput", {
+    description: "Error thrown when file size input is invalid (non-finite number)",
+  })
+) {}
 
 /* ============================================================================
  * Runtime unit tables (type-checked against the schemas)

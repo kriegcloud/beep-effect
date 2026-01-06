@@ -10,6 +10,7 @@
  * @since 0.1.0
  */
 
+import { $SchemaId } from "@beep/identity/packages";
 import type { UnsafeTypes } from "@beep/types";
 import { slice } from "@beep/utils/data/array.utils";
 import * as A from "effect/Array";
@@ -23,6 +24,9 @@ import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { ArrayBufferFromSelf, ArrayOfNumbers } from "../../../primitives";
 import type { FileInfo } from "./FileInfo";
+
+const $I = $SchemaId.create("integrations/files/file-types/utils");
+
 /**
  * Error types for file chunk validation
  */
@@ -33,10 +37,16 @@ import type { FileInfo } from "./FileInfo";
  * @category Errors
  * @since 0.1.0
  */
-export class InvalidFileTypeError extends S.TaggedError<InvalidFileTypeError>()("InvalidFileTypeError", {
-  message: S.String,
-  receivedType: S.String,
-}) {}
+export class InvalidFileTypeError extends S.TaggedError<InvalidFileTypeError>()(
+  $I`InvalidFileTypeError`,
+  {
+    message: S.String,
+    receivedType: S.String,
+  },
+  $I.annotations("InvalidFileTypeError", {
+    description: "Thrown when the provided file type is not supported or cannot be recognized.",
+  })
+) {}
 
 /**
  * Indicates that the file chunk contains illegal byte values
@@ -44,9 +54,15 @@ export class InvalidFileTypeError extends S.TaggedError<InvalidFileTypeError>()(
  * @category Errors
  * @since 0.1.0
  */
-export class IllegalChunkError extends S.TaggedError<IllegalChunkError>()("IllegalChunkError", {
-  message: S.String,
-}) {}
+export class IllegalChunkError extends S.TaggedError<IllegalChunkError>()(
+  $I`IllegalChunkError`,
+  {
+    message: S.String,
+  },
+  $I.annotations("IllegalChunkError", {
+    description: "Thrown when the file chunk contains illegal byte values such as NaN.",
+  })
+) {}
 
 /**
  * Helper to check if a number is valid (not NaN)

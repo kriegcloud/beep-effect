@@ -1,3 +1,4 @@
+import { $SharedDomainId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
 import { makeFields } from "@beep/shared-domain/common";
 import { modelKit } from "@beep/shared-domain/factories";
@@ -5,13 +6,13 @@ import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
 import { SharedEntityIds } from "../../entity-ids";
 
-export const TeamModelSchemaId = Symbol.for("@beep/shared-domain/TeamModel");
+const $I = $SharedDomainId.create("entities/Team/Team.model");
 
 /**
  * Team model representing teams within organizations.
  * Maps to the `team` table in the database.
  */
-export class Model extends M.Class<Model>(`TeamModel`)(
+export class Model extends M.Class<Model>($I`TeamModel`)(
   makeFields(SharedEntityIds.TeamId, {
     /** Team name */
     name: S.NonEmptyString.annotations({
@@ -38,11 +39,9 @@ export class Model extends M.Class<Model>(`TeamModel`)(
     ),
     organizationId: SharedEntityIds.OrganizationId,
   }),
-  {
-    title: "Team Model",
+  $I.annotations("TeamModel", {
     description: "Team model representing teams within organizations.",
-    schemaId: TeamModelSchemaId,
-  }
+  })
 ) {
   static readonly utils = modelKit(Model);
 }

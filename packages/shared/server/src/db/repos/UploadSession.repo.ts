@@ -58,11 +58,17 @@ const toDateNullable = (value: string | number | Date | DateTime.Utc | null | un
  * @since 0.1.0
  * @category Errors
  */
-export class UploadSessionRepoError extends S.TaggedError<UploadSessionRepoError>()($I`UploadSessionRepoError`, {
-  operation: S.String,
-  fileKey: S.optional(File.UploadKey.to),
-  cause: S.Unknown,
-}) {}
+export class UploadSessionRepoError extends S.TaggedError<UploadSessionRepoError>()(
+  $I`UploadSessionRepoError`,
+  {
+    operation: S.String,
+    fileKey: S.optional(File.UploadKey.to),
+    cause: S.Unknown,
+  },
+  $I.annotations("UploadSessionRepoError", {
+    description: "Database error from upload session repository operations",
+  })
+) {}
 
 // ============================================================================
 // Input Types

@@ -12,7 +12,9 @@ import { dependencies } from "./_common";
 const $I = $DocumentsServerId.create("db/repos/DocumentFile.repo");
 
 /**
- * Error when a document file is not found
+ * Error when a document file is not found.
+ * @identifier FileNotFoundError
+ * @description Runtime error indicating the requested document file does not exist
  */
 export class FileNotFoundError extends Data.TaggedError("FileNotFoundError")<{
   readonly id: DocumentsEntityIds.DocumentFileId.Type;
