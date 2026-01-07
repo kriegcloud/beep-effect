@@ -2,7 +2,7 @@ import type { SharedEntityIds } from "@beep/shared-domain/entity-ids";
 import { IamEntityIds } from "@beep/shared-domain/entity-ids";
 import { datetime } from "@beep/shared-tables/columns";
 import { user } from "@beep/shared-tables/schema";
-import { Table } from "@beep/shared-tables/Table";
+import { Table } from "@beep/shared-tables/table";
 import * as d from "drizzle-orm";
 import * as pg from "drizzle-orm/pg-core";
 

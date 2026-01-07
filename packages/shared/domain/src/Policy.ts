@@ -163,6 +163,31 @@ export const withPolicy =
 /**
  * Composes multiple policies with AND semantics - all policies must pass.
  * Returns a new policy that succeeds only if all the given policies succeed.
+ *
+ * @example
+ * ```typescript
+ * import * as Policy from "@beep/shared-domain/Policy";
+ * import * as Effect from "effect/Effect";
+ *
+ * // Combine multiple permission checks - user must have ALL permissions
+ * const canManageTeam = Policy.all(
+ *   Policy.permission("teams:read"),
+ *   Policy.permission("teams:manage"),
+ *   Policy.permission("members:manage")
+ * );
+ *
+ * // Use in an Effect program
+ * const createTeamMember = Effect.gen(function* () {
+ *   yield* canManageTeam; // Fails with Forbidden if any permission is missing
+ *   // ... proceed with team member creation
+ * });
+ *
+ * // Combine custom policies
+ * const canEditDocument = Policy.all(
+ *   Policy.permission("documents:manage"),
+ *   Policy.policy((user) => Effect.succeed(user.user.emailVerified))
+ * );
+ * ```
  */
 export const all = <E, R>(...policies: NonEmptyReadonlyArray<Policy<E, R>>): Policy<E, R> =>
   Effect.all(policies, {
@@ -173,12 +198,68 @@ export const all = <E, R>(...policies: NonEmptyReadonlyArray<Policy<E, R>>): Pol
 /**
  * Composes multiple policies with OR semantics - at least one policy must pass.
  * Returns a new policy that succeeds if any of the given policies succeed.
+ *
+ * @example
+ * ```typescript
+ * import * as Policy from "@beep/shared-domain/Policy";
+ * import * as Effect from "effect/Effect";
+ *
+ * // User needs at least ONE of these permissions to proceed
+ * const canViewDocument = Policy.any(
+ *   Policy.permission("documents:read"),
+ *   Policy.permission("documents:manage"),
+ *   Policy.permission("admin:all")
+ * );
+ *
+ * // Use in an Effect program
+ * const getDocument = (id: string) => Effect.gen(function* () {
+ *   yield* canViewDocument; // Succeeds if user has any of the permissions
+ *   // ... fetch and return document
+ * });
+ *
+ * // Combine with Policy.all for complex authorization
+ * const canModifyTeamSettings = Policy.all(
+ *   Policy.permission("teams:read"),
+ *   Policy.any(
+ *     Policy.permission("teams:manage"),
+ *     Policy.permission("admin:all")
+ *   )
+ * );
+ * ```
  */
 export const any = <E, R>(...policies: NonEmptyReadonlyArray<Policy<E, R>>): Policy<E, R> =>
   Effect.firstSuccessOf(policies);
 
 /**
  * Creates a policy that checks if the current user has a specific permission.
+ *
+ * @example
+ * ```typescript
+ * import * as Policy from "@beep/shared-domain/Policy";
+ * import * as Effect from "effect/Effect";
+ *
+ * // Create a policy for a specific permission
+ * const canReadUsers = Policy.permission("users:read");
+ * const canManageTeams = Policy.permission("teams:manage");
+ *
+ * // Use directly in an Effect program
+ * const listUsers = Effect.gen(function* () {
+ *   yield* canReadUsers; // Fails with Forbidden if permission missing
+ *   // ... return list of users
+ * });
+ *
+ * // Use with withPolicy to guard an effect
+ * const deleteTeam = (teamId: string) =>
+ *   Effect.succeed({ deleted: teamId }).pipe(
+ *     Policy.withPolicy(Policy.permission("teams:delete"))
+ *   );
+ *
+ * // Combine with other policies
+ * const adminOrOwner = Policy.any(
+ *   Policy.permission("admin:all"),
+ *   Policy.permission("organizations:manage")
+ * );
+ * ```
  */
 export const permission = (requiredPermission: Permission): Policy =>
   policy((user) => Effect.succeed(user.permissions.has(requiredPermission)));

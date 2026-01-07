@@ -59,7 +59,6 @@ const PositionFields = (xDefault: number, yDefault: number) =>
 
 // Mixin for position getter - adds computed `position` property to classes with x/y fields
 type HasXY = { readonly x: number; readonly y: number };
-// biome-ignore lint/suspicious/noExplicitAny: Mixin constructor constraint
 type Constructor<T = {}> = new (...args: any[]) => T;
 const WithPosition = <T extends Constructor<HasXY>>(Base: T) =>
   class extends Base {

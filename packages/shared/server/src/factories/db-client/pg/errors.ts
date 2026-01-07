@@ -1,8 +1,10 @@
 import { $SharedServerId } from "@beep/identity/packages";
 import * as SqlError from "@effect/sql/SqlError";
+import * as A from "effect/Array";
 import * as F from "effect/Function";
 import * as Match from "effect/Match";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import * as pg from "pg";
 import pc from "picocolors";
 import { format } from "sql-formatter";
@@ -128,7 +130,7 @@ export class DatabaseError extends S.TaggedError<DatabaseError>($I`DatabaseError
   static readonly extractSourceLocation = (error: unknown): string | null => {
     if (!(error instanceof Error) || !error.stack) return null;
 
-    const stackLines = error.stack.split("\n");
+    const stackLines = F.pipe(error.stack, Str.split("\n"));
     // Skip the error message line(s) and find actual stack frames
     for (const line of stackLines) {
       // Match stack frame patterns: "at ... (path:line:col)" or "at path:line:col"
@@ -137,8 +139,7 @@ export class DatabaseError extends S.TaggedError<DatabaseError>($I`DatabaseError
         const [, filePath, lineNum, colNum] = match;
         // Skip internal paths, node_modules, and non-file paths (native, etc.)
         if (
-          filePath &&
-          filePath.startsWith("/") && // Must be an absolute file path
+          filePath?.startsWith("/") && // Must be an absolute file path
           !filePath.includes("node_modules") &&
           !filePath.includes("shared/server/src/internal") // Skip our internal db code
         ) {
@@ -160,10 +161,10 @@ export class DatabaseError extends S.TaggedError<DatabaseError>($I`DatabaseError
     const failedQueryMatch = message.match(/^Failed query:\s*(.+?)(?:\nparams:\s*(.*))?$/s);
 
     if (failedQueryMatch) {
-      const query = failedQueryMatch[1]?.trim() ?? null;
-      const paramsStr = failedQueryMatch[2]?.trim() ?? "";
+      const query = failedQueryMatch[1] ? Str.trim(failedQueryMatch[1]) : null;
+      const paramsStr = failedQueryMatch[2] ? Str.trim(failedQueryMatch[2]) : "";
       // Parse comma-separated params (basic parsing, values may contain commas in strings)
-      const params = paramsStr ? paramsStr.split(",").map((p) => p.trim()) : [];
+      const params = paramsStr ? F.pipe(paramsStr, Str.split(","), A.map(Str.trim)) : [];
       return { query, params };
     }
 
@@ -281,14 +282,16 @@ export class DatabaseError extends S.TaggedError<DatabaseError>($I`DatabaseError
       const highlightedQuery = SqlString.highlightSql(displayQuery);
 
       lines.push(`${boxColor(BOX.vertical)}  ${badge}`);
-      highlightedQuery
-        .split("\n")
-        .slice(0, 15)
-        .forEach((line) => {
+      F.pipe(
+        highlightedQuery,
+        Str.split("\n"),
+        A.take(15),
+        A.forEach((line) => {
           lines.push(`${boxColor(BOX.vertical)}  ${line}`);
-        });
+        })
+      );
 
-      if (formattedQuery.split("\n").length > 15) {
+      if (F.pipe(formattedQuery, Str.split("\n"), A.length) > 15) {
         lines.push(`${boxColor(BOX.vertical)}  ${pc.dim("… (truncated)")}`);
       }
     }

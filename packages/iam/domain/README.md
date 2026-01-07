@@ -485,4 +485,4 @@ After modifying entities:
 - `AGENTS.md` — Detailed agent guide with recipes and guardrails
 - `packages/iam/server/AGENTS.md` — Infrastructure layer patterns
 - `packages/iam/tables/AGENTS.md` — Table schema definitions
-- `docs/patterns/` — Repository-wide implementation patterns
+- `documentation/patterns/` — Repository-wide implementation patterns

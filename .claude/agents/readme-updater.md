@@ -120,6 +120,7 @@ The following packages should have README.md files:
 | `packages/shared/client` | `@beep/shared-client` |
 | `packages/shared/tables` | `@beep/shared-tables` |
 | `packages/shared/ui` | `@beep/shared-ui` |
+| `packages/shared/env` | `@beep/shared-env` |
 
 #### IAM Slice
 | Path | Package Name |
@@ -138,6 +139,24 @@ The following packages should have README.md files:
 | `packages/documents/client` | `@beep/documents-client` |
 | `packages/documents/tables` | `@beep/documents-tables` |
 | `packages/documents/ui` | `@beep/documents-ui` |
+
+#### Comms Slice
+| Path | Package Name |
+|------|--------------|
+| `packages/comms/domain` | `@beep/comms-domain` |
+| `packages/comms/server` | `@beep/comms-server` |
+| `packages/comms/client` | `@beep/comms-client` |
+| `packages/comms/tables` | `@beep/comms-tables` |
+| `packages/comms/ui` | `@beep/comms-ui` |
+
+#### Customization Slice
+| Path | Package Name |
+|------|--------------|
+| `packages/customization/domain` | `@beep/customization-domain` |
+| `packages/customization/server` | `@beep/customization-server` |
+| `packages/customization/client` | `@beep/customization-client` |
+| `packages/customization/tables` | `@beep/customization-tables` |
+| `packages/customization/ui` | `@beep/customization-ui` |
 
 #### Runtime Layer
 | Path | Package Name |

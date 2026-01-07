@@ -1,5 +1,5 @@
 import { SharedEntityIds } from "@beep/shared-domain";
-import { OrgTable } from "@beep/shared-tables/OrgTable";
+import { OrgTable } from "@beep/shared-tables/org-table";
 import * as pg from "drizzle-orm/pg-core";
 
 export const team = OrgTable.make(SharedEntityIds.TeamId)(

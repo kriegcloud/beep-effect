@@ -128,5 +128,5 @@ export class BillingDeniedError extends S.TaggedError<BillingDeniedError>()(
 - [ ] Extend or add tests under `packages/common/errors/test/utils` for any new logging or accumulation behavior.
 - [ ] Update usage snapshots within this guide when introducing new canonical entry points.
 - [ ] Re-run `bunx turbo run lint --filter=@beep/errors` and `bunx turbo run test --filter=@beep/errors`; note results in handoff.
-- [ ] If introducing additional env knobs, document them in `docs/PRODUCTION_CHECKLIST.md` and mirror warnings for deprecated variables.
+- [ ] If introducing additional env knobs, document them in `documentation/PRODUCTION_CHECKLIST.md` and mirror warnings for deprecated variables.
 - [ ] When adding new TaggedErrors, annotate them with `HttpApiSchema.annotations({ status })` and link to caller workflows (e.g., IAM or Files slices).

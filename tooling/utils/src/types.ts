@@ -17,5 +17,5 @@
  * @category Types
  * @since 0.1.0
  */
-// @biome-ignore lint/correctness/noExplicitAny: YA.
+// biome-ignore lint/suspicious/noExplicitAny: intentional unsafe escape hatch type
 export type UnsafeAny = any;

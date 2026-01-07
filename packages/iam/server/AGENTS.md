@@ -98,7 +98,7 @@ export class AuditLogRepo extends Effect.Service<AuditLogRepo>()(
 ## Contributor Checklist
 - [ ] New repos: use `Repo.make`, register dependencies in `_common.ts`, export via `repos/index.ts`, and append `.Default` to `IamRepos.layer`.
 - [ ] Better Auth plugin changes: update corresponding schema additions plus invitation/email hooks; ensure `AllPlugins` effect stays exhaustive.
-- [ ] Configuration tweaks: expose via `IamConfig` only; document required env keys in `docs/patterns/` if new secrets arise.
+- [ ] Configuration tweaks: expose via `IamConfig` only; document required env keys in `documentation/patterns/` if new secrets arise.
 - [ ] Layer graphs: validate wiring by running `bun run check --filter @beep/iam-server` and inspecting for missing service requirements.
 - [ ] Emails: prefer `renderEmail` templates from `@beep/shared-server/Email`; pass redacted values for secrets and recipients.
 - [ ] Tests: add or extend `_internal/db-admin` suites when touching repo behavior; confirm Docker availability before relying on them.

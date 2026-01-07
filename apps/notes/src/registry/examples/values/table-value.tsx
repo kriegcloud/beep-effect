@@ -5,6 +5,7 @@ import { jsx } from "@platejs/test-utils";
 
 jsx;
 
+// biome-ignore lint/suspicious/noExplicitAny: Platejs test-utils JSX returns untyped fragments
 export const createTable = (spanning?: boolean): any => (
   <fragment>
     <htable colSizes={[100, 100, 100, 100]} marginLeft={20}>
@@ -97,6 +98,7 @@ export const createTable = (spanning?: boolean): any => (
   </fragment>
 );
 
+// biome-ignore lint/suspicious/noExplicitAny: Platejs test-utils JSX returns untyped fragments
 export const tableValue: any = (
   <fragment>
     <hh2>🏓 Table</hh2>

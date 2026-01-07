@@ -1,6 +1,6 @@
 export * from "./columns";
 export * as Common from "./common";
-export * from "./OrgTable";
+export * from "./org-table";
 export * as SharedDbSchema from "./schema";
-export * from "./Table";
+export * from "./table";
 export * from "./tables";

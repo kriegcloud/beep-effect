@@ -37,7 +37,11 @@ const $I = $SharedServerId.create("repos/UploadSession");
 const toDate = (value: string | number | Date | DateTime.Utc): Date => {
   if (value instanceof Date) return value;
   if (DateTime.isDateTime(value)) return DateTime.toDate(value);
-  return new Date(value);
+  return F.pipe(
+    DateTime.make(value),
+    O.getOrElse(() => DateTime.unsafeNow()),
+    DateTime.toDate
+  );
 };
 
 /**

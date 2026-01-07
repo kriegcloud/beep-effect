@@ -281,7 +281,7 @@ CI: see [.github/workflows/check.yml](.github/workflows/check.yml) for lint + ty
 
 ## Production defaults
 
-Reference [docs/PRODUCTION_CHECKLIST.md](docs/PRODUCTION_CHECKLIST.md). Highlights:
+Reference [documentation/PRODUCTION_CHECKLIST.md](documentation/PRODUCTION_CHECKLIST.md). Highlights:
 
 - `APP_LOG_FORMAT=json`
 - `APP_LOG_LEVEL=error`

@@ -4,7 +4,7 @@ import { Organization } from "@beep/shared-domain/entities";
 import { user } from "@beep/shared-tables/tables/user.table";
 import * as d from "drizzle-orm";
 import * as pg from "drizzle-orm/pg-core";
-import { Table } from "../Table";
+import { Table } from "../table";
 
 export const organizationTypePgEnum = Organization.makeOrganizationTypePgEnum("organization_type_enum");
 export const subscriptionTierPgEnum = Organization.makeSubscriptionTierPgEnum("subscription_tier_enum");

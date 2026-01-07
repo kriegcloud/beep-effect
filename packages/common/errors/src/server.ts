@@ -225,7 +225,7 @@ export function formatCauseHeading(cause: Cause.Cause<unknown>, options: boolean
   if (Cause.isEmpty(cause)) return "";
   const opts = typeof options === "boolean" ? ({ colors: options } as CauseHeadingOptions) : (options ?? {});
   const enableColors = opts.colors ?? true;
-  const nowIso = (opts.date ?? new Date()).toISOString();
+  const nowIso = DateTime.formatIso(opts.date ? DateTime.unsafeMake(opts.date) : DateTime.unsafeNow());
 
   const { error, message } = extractPrimaryError(cause);
   const stack = error?.stack ?? "";

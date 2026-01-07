@@ -105,7 +105,7 @@ export const url = (strings: TemplateStringsArray, ...values: Array<string>): UR
 export const sanitizeUrl = (url: string): string | null => {
   // If the URL starts with "www.", normalize it as an HTTPS URL
   if (F.pipe(url, Str.startsWith("www."))) {
-    url = "https://" + url;
+    url = `https://${url}`;
   }
 
   // Fast path for hash-only URLs
@@ -136,7 +136,7 @@ export const sanitizeUrl = (url: string): string | null => {
         // Domain-only URLs always have their pathname set to "/"
         const origin = O.isSome(absoluteUrlOpt) ? urlObject.origin : Str.empty;
         const pathname = O.isSome(trailingSlashOpt) ? "/" : Str.empty;
-        return origin + pathname + urlObject.search + urlObject.hash;
+        return `${origin}${pathname}${urlObject.search}${urlObject.hash}`;
       }
     ),
     Match.orElse(({ absoluteUrlOpt, urlObject, trailingSlashOpt }) => {
@@ -148,11 +148,11 @@ export const sanitizeUrl = (url: string): string | null => {
       }).pipe(
         Match.when(
           ({ hasTrailingSlash, endsWithSlash }) => hasTrailingSlash && !endsWithSlash,
-          () => urlObject.pathname + "/"
+          () => `${urlObject.pathname}/`
         ),
         Match.orElse(() => urlObject.pathname)
       );
-      return origin + pathname + urlObject.search + urlObject.hash;
+      return `${origin}${pathname}${urlObject.search}${urlObject.hash}`;
     })
   );
 

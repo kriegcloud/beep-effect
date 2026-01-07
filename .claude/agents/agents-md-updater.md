@@ -28,7 +28,7 @@ assistant: "I'll use the agents-md-updater agent to verify that file against the
 <example>
 Context: User asks to create a missing AGENTS.md file.
 user: "Create AGENTS.md for packages/shared/server"
-assistant: "I'll use the agents-md-updater agent to generate an AGENTS.md file that accurately documents the shared-infra package."
+assistant: "I'll use the agents-md-updater agent to generate an AGENTS.md file that accurately documents the shared-server package."
 <Task tool call to agents-md-updater agent>
 </example>
 model: sonnet
@@ -44,22 +44,15 @@ The beep-effect monorepo uses AGENTS.md files to provide AI agents with package-
 - Cross-package dependencies
 - Available exports and patterns
 
-A tracking file `AGENTS_MD_TO_UPDATE.md` exists at the repo root documenting known issues. Use this as a starting reference but always verify against the actual filesystem.
-
 ## Your Workflow
 
 ### Phase 1: Discovery & Audit
 
-1. **Read the tracking file** (if it exists):
-   ```
-   AGENTS_MD_TO_UPDATE.md
-   ```
-
-2. **Scan for all AGENTS.md files**:
+1. **Scan for all AGENTS.md files**:
    - Search for `**/AGENTS.md` in the repository
    - Compare against references in root AGENTS.md
 
-3. **Verify package existence**:
+2. **Verify package existence**:
    - For each package path mentioned, verify the directory exists
    - Check for `package.json` to confirm it's a valid package
    - Note any packages that have been deleted or moved
@@ -70,7 +63,7 @@ For each AGENTS.md file, verify:
 
 #### Path References
 - [ ] All `packages/*` paths point to existing directories
-- [ ] Path aliases like `packages/ui-core` vs `packages/ui/core` are correct
+- [ ] Nested paths like `packages/ui/core` and `packages/shared/server` are correct
 - [ ] Cross-references to other AGENTS.md files are valid
 
 #### Import References
@@ -88,20 +81,24 @@ For each AGENTS.md file, verify:
 - [ ] Remove references to non-existent packages
 - [ ] Update moved/renamed package paths
 
-### Phase 3: Known Migrations to Handle
+### Phase 3: Historical Package Migrations
 
-The following packages were migrated and references need updating:
+The following packages were migrated in the past. If you find stale references to these old packages, update them to the new locations:
 
-| Old Reference | New Reference |
-|---------------|---------------|
-| `@beep/core-db` | `@beep/shared-server` |
-| `@beep/core-env` | `@beep/shared-server` |
-| `@beep/core-email` | `@beep/shared-server` |
-| `packages/core/db` | `packages/shared/server` |
-| `packages/core/env` | `packages/shared/server` |
-| `packages/core/email` | `packages/shared/server` |
-| `packages/ui-core` | `packages/ui/core` |
-| `packages/ui` (for UI lib) | `packages/ui/ui` |
+| Old Reference | Current Location |
+|---------------|------------------|
+| `@beep/core-db` | `@beep/shared-server` (`packages/shared/server`) |
+| `@beep/core-env` | `@beep/shared-env` (`packages/shared/env`) |
+| `@beep/core-email` | `@beep/shared-server` (`packages/shared/server`) |
+
+**Current package structure:**
+
+| Package | Path | Description |
+|---------|------|-------------|
+| `@beep/shared-server` | `packages/shared/server` | Server-side shared utilities, DB client, email |
+| `@beep/shared-env` | `packages/shared/env` | Environment configuration |
+| `@beep/ui-core` | `packages/ui/core` | Core UI components and utilities |
+| `@beep/ui` | `packages/ui/ui` | Main UI component library |
 
 ### Phase 4: Apply Fixes
 
@@ -131,7 +128,6 @@ After making changes:
 1. **Validate all paths** mentioned in updated files exist
 2. **Check cross-references** between AGENTS.md files are valid
 3. **Ensure consistency** with root AGENTS.md structure listing
-4. **Update tracking file** (`AGENTS_MD_TO_UPDATE.md`) to mark items as resolved
 
 ## AGENTS.md Template
 
@@ -186,4 +182,4 @@ Provide a structured report:
 - Don't remove valid content when fixing references
 - Keep changes minimal and focused on accuracy
 - If unsure about a migration, flag it for user review rather than guessing
-- The root `AGENTS.md` and `CLAUDE.md` serve similar purposes - keep them in sync
+- `CLAUDE.md` is a symlink to `AGENTS.md` - they are the same file

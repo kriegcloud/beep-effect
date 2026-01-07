@@ -20,6 +20,7 @@ import * as A from "effect/Array";
 import * as DateTime from "effect/DateTime";
 import * as Duration from "effect/Duration";
 import * as F from "effect/Function";
+import * as Match from "effect/Match";
 import * as O from "effect/Option";
 import * as Str from "effect/String";
 /**
@@ -321,42 +322,43 @@ export function fIsSame(
   const startParts = DateTime.toParts(start.value);
   const endParts = DateTime.toParts(end.value);
 
-  switch (unit) {
-    case "year":
-      return startParts.year === endParts.year;
-    case "month":
-      return startParts.year === endParts.year && startParts.month === endParts.month;
-    case "day":
-      return (
-        startParts.year === endParts.year && startParts.month === endParts.month && startParts.day === endParts.day
-      );
-    case "hour":
-      return (
+  return F.pipe(
+    Match.value(unit),
+    Match.when("year", () => startParts.year === endParts.year),
+    Match.when("month", () => startParts.year === endParts.year && startParts.month === endParts.month),
+    Match.when(
+      "day",
+      () => startParts.year === endParts.year && startParts.month === endParts.month && startParts.day === endParts.day
+    ),
+    Match.when(
+      "hour",
+      () =>
         startParts.year === endParts.year &&
         startParts.month === endParts.month &&
         startParts.day === endParts.day &&
         startParts.hours === endParts.hours
-      );
-    case "minute":
-      return (
+    ),
+    Match.when(
+      "minute",
+      () =>
         startParts.year === endParts.year &&
         startParts.month === endParts.month &&
         startParts.day === endParts.day &&
         startParts.hours === endParts.hours &&
         startParts.minutes === endParts.minutes
-      );
-    case "second":
-      return (
+    ),
+    Match.when(
+      "second",
+      () =>
         startParts.year === endParts.year &&
         startParts.month === endParts.month &&
         startParts.day === endParts.day &&
         startParts.hours === endParts.hours &&
         startParts.minutes === endParts.minutes &&
         startParts.seconds === endParts.seconds
-      );
-    default:
-      return false;
-  }
+    ),
+    Match.exhaustive
+  );
 }
 
 /**

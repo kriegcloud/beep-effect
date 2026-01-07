@@ -1,7 +1,7 @@
 import { SharedEntityIds } from "@beep/shared-domain";
 import * as SharedEntities from "@beep/shared-domain/entities";
 import { User } from "@beep/shared-domain/entities";
-import { Table } from "@beep/shared-tables/Table";
+import { Table } from "@beep/shared-tables/table";
 import * as d from "drizzle-orm";
 import * as pg from "drizzle-orm/pg-core";
 import { datetime } from "../columns";

@@ -7,6 +7,7 @@ import { createTable } from "./table-value";
 
 jsx;
 
+// biome-ignore lint/suspicious/noExplicitAny: Platejs test-utils JSX returns untyped fragments
 export const exportValue: any = (
   <fragment>
     <hh2>📄 Export to PDF</hh2>

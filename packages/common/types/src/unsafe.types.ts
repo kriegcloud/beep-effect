@@ -32,7 +32,6 @@ import type * as R from "effect/Record";
  * @since 0.1.0
  */
 
-// biome-ignore lint/suspicious/noExplicitAny: Submit and let this be from here forth the only `any` in this codebase.
 export type UnsafeAny = any;
 
 /**

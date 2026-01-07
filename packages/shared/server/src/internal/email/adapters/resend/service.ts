@@ -11,6 +11,7 @@ import { EmailTemplateRenderError, ResendError } from "./errors";
 const $I = $SharedServerId.create("internal/email/adapters/resend/service");
 
 type RenderEmail = (
+  // biome-ignore lint/suspicious/noExplicitAny: React type requires any for JSXElementConstructor
   element: React.ReactElement<unknown, string | React.JSXElementConstructor<any>>
 ) => Effect.Effect<string, EmailTemplateRenderError, never>;
 
