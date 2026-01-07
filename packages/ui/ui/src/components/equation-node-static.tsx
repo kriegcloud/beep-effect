@@ -32,11 +32,8 @@ export function EquationElementStatic(props: SlateElementProps<TEquationElement>
         )}
       >
         {element.texExpression.length > 0 ? (
-          <span
-            dangerouslySetInnerHTML={{
-              __html: html,
-            }}
-          />
+          // biome-ignore lint/security/noDangerouslySetInnerHtml: KaTeX generates safe HTML from TeX with trust:false
+          <span dangerouslySetInnerHTML={{ __html: html }} />
         ) : (
           <div className="flex h-7 w-full items-center gap-2 whitespace-nowrap text-muted-foreground text-sm">
             <RadicalIcon className="size-6 text-muted-foreground/80" />
@@ -76,6 +73,7 @@ export function InlineEquationElementStatic(props: SlateElementProps<TEquationEl
       >
         <span
           className={cn(props.element.texExpression.length === 0 && "hidden", "font-mono leading-none")}
+          // biome-ignore lint/security/noDangerouslySetInnerHtml: KaTeX generates safe HTML from TeX with trust:false
           dangerouslySetInnerHTML={{ __html: html }}
         />
       </div>

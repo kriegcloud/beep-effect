@@ -113,6 +113,7 @@ const readBlobChunkSync = (chunk: Blob): Effect.Effect<ArrayBuffer, FileReadErro
   Effect.try({
     try: () => {
       // FileReaderSync is only available in web workers
+      // biome-ignore lint/suspicious/noExplicitAny: accessing non-standard FileReaderSync API
       const FileReaderSync = (globalThis as any).FileReaderSync;
       if (!FileReaderSync) {
         throw new Error("FileReaderSync not available");
@@ -231,6 +232,7 @@ export const hashBlob = (
   config?: Partial<FileHasherConfig>
 ): Effect.Effect<string, FileReadError | BlobSliceError | UnicodeEncodingError | Md5ComputationError> => {
   // Check if FileReaderSync is available (worker context)
+  // biome-ignore lint/suspicious/noExplicitAny: accessing non-standard FileReaderSync API
   const hasFileReaderSync = typeof (globalThis as any).FileReaderSync !== "undefined";
 
   return hasFileReaderSync ? hashBlobSync(blob, config) : hashBlobAsync(blob, config);

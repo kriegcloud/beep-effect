@@ -57,5 +57,6 @@ export const DEMO_VALUES = Object.entries(values).reduce(
 
     return acc;
   },
+  // biome-ignore lint/suspicious/noExplicitAny: Platejs demo values are untyped fragments
   {} as Record<string, any>
 );

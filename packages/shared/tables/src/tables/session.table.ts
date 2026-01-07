@@ -2,7 +2,7 @@ import { SharedEntityIds } from "@beep/shared-domain";
 import * as d from "drizzle-orm";
 import * as pg from "drizzle-orm/pg-core";
 import { datetime } from "../columns";
-import { Table } from "../Table";
+import { Table } from "../table";
 // import { organization, Table, team, user } from "../index";
 import { organization } from "./organization.table";
 import { team } from "./team.table";

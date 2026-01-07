@@ -24,6 +24,7 @@ export default function RootLayout({ children }: { readonly children: React.Reac
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        {/* biome-ignore lint/security/noDangerouslySetInnerHtml: Theme initialization script to prevent FOUC */}
         <script
           dangerouslySetInnerHTML={{
             __html: `

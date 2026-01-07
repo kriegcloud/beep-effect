@@ -29,6 +29,7 @@ export function EquationElementStatic(props: SlateElementProps<TEquationElement>
           element.texExpression.length === 0 ? "bg-muted p-3" : "px-2 py-1"
         )}
       >
+        {/* biome-ignore lint/security/noDangerouslySetInnerHtml: KaTeX equation rendering requires HTML output */}
         <span
           dangerouslySetInnerHTML={{
             __html: html,
@@ -67,6 +68,7 @@ export function InlineEquationElementStatic(props: SlateElementProps<TEquationEl
           element.texExpression.length === 0 && "text-muted-foreground after:bg-neutral-500/10"
         )}
       >
+        {/* biome-ignore lint/security/noDangerouslySetInnerHtml: KaTeX equation rendering requires HTML output */}
         <span
           className={cn(element.texExpression.length === 0 && "hidden", "font-mono leading-none")}
           dangerouslySetInnerHTML={{

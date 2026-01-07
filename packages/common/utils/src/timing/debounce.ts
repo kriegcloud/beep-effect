@@ -16,6 +16,7 @@
  */
 import * as Duration from "effect/Duration";
 
+// biome-ignore lint/suspicious/noExplicitAny: required for variadic function type inference
 type AnyFunction = (this: unknown, ...args: readonly any[]) => unknown;
 
 /**

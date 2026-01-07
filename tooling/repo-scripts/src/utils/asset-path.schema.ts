@@ -225,6 +225,7 @@ export function pathObjFromPaths<
 
     if (parts.length === 1) {
       // root file: "/logo.png" => root.logo
+      // biome-ignore lint/suspicious/noExplicitAny: dynamic property assignment
       (root as any)[fileKey] = widen ? (p as string) : p;
     } else {
       // nested file: "/a/b/.../name.ext" => root.a.b....[fileKey]

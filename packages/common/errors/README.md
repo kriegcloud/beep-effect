@@ -353,7 +353,7 @@ str.trim();
 When adding new env-driven configuration:
 1. Define schema in `@beep/constants`
 2. Parse in `shared.ts` if pure, otherwise `server.ts`
-3. Document in `docs/PRODUCTION_CHECKLIST.md`
+3. Document in `documentation/PRODUCTION_CHECKLIST.md`
 4. Warn on deprecated `NEXT_PUBLIC_*` usage
 
 ## Relationship to Other Packages

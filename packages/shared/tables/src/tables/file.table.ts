@@ -2,7 +2,7 @@ import type { BS } from "@beep/schema";
 import { SharedEntityIds } from "@beep/shared-domain";
 import type { File } from "@beep/shared-domain/entities";
 import * as pg from "drizzle-orm/pg-core";
-import { OrgTable } from "../OrgTable";
+import { OrgTable } from "../org-table";
 import { folder } from "./folder.table";
 import { user } from "./user.table";
 

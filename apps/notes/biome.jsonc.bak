@@ -1,0 +1,15 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.3.10/schema.json",
+  "files": {
+    "includes": [
+      "**/*.ts",
+      "**/*.tsx",
+      "**/*.js",
+      "**/*.jsx",
+      "!!**/src/generated",
+      "!!**/.contentlayer",
+      "!!**/.next",
+      "!!**/prisma/json-schema"
+    ]
+  }
+}

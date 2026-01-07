@@ -154,26 +154,19 @@ export class QueryType extends BS.StringLiteralKit(
   ): {
     readonly badge: string;
     readonly color: (s: string) => string;
-  } => {
-    switch (type) {
-      case "SELECT":
-        return { badge: pc.bgBlue(pc.white(pc.bold(` ${type} `))), color: pc.blue };
-      case "INSERT":
-        return { badge: pc.bgGreen(pc.white(pc.bold(` ${type} `))), color: pc.green };
-      case "UPDATE":
-        return { badge: pc.bgYellow(pc.black(pc.bold(` ${type} `))), color: pc.yellow };
-      case "DELETE":
-        return { badge: pc.bgRed(pc.white(pc.bold(` ${type} `))), color: pc.red };
-      case "BEGIN":
-        return { badge: pc.bgMagenta(pc.white(pc.bold(` ${type} `))), color: pc.magenta };
-      case "COMMIT":
-        return { badge: pc.bgGreen(pc.white(pc.bold(` ${type} `))), color: pc.green };
-      case "ROLLBACK":
-        return { badge: pc.bgRed(pc.white(pc.bold(` ${type} `))), color: pc.red };
-      default:
-        return { badge: pc.bgBlack(pc.white(pc.bold(` ${type} `))), color: pc.white };
-    }
-  };
+  } =>
+    pipe(
+      Match.value(type),
+      Match.when("SELECT", (t) => ({ badge: pc.bgBlue(pc.white(pc.bold(` ${t} `))), color: pc.blue })),
+      Match.when("INSERT", (t) => ({ badge: pc.bgGreen(pc.white(pc.bold(` ${t} `))), color: pc.green })),
+      Match.when("UPDATE", (t) => ({ badge: pc.bgYellow(pc.black(pc.bold(` ${t} `))), color: pc.yellow })),
+      Match.when("DELETE", (t) => ({ badge: pc.bgRed(pc.white(pc.bold(` ${t} `))), color: pc.red })),
+      Match.when("BEGIN", (t) => ({ badge: pc.bgMagenta(pc.white(pc.bold(` ${t} `))), color: pc.magenta })),
+      Match.when("COMMIT", (t) => ({ badge: pc.bgGreen(pc.white(pc.bold(` ${t} `))), color: pc.green })),
+      Match.when("ROLLBACK", (t) => ({ badge: pc.bgRed(pc.white(pc.bold(` ${t} `))), color: pc.red })),
+      Match.when("OTHER", (t) => ({ badge: pc.bgBlack(pc.white(pc.bold(` ${t} `))), color: pc.white })),
+      Match.exhaustive
+    );
 }
 
 type TokenState = {

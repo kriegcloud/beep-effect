@@ -7,8 +7,10 @@ export default function transformer(file: cs.FileInfo, api: cs.API) {
   const j = api.jscodeshift;
   const root = j(file.source);
 
+  // biome-ignore lint/suspicious/noExplicitAny: jscodeshift Comment type not properly typed
   root.find(j.Comment as any).forEach((path) => {
     if (path.value.type === "CommentBlock") {
+      // biome-ignore lint/suspicious/noExplicitAny: jscodeshift CommentBlock value type incomplete
       const value = path.value as any;
       const comment = value.value;
       if (comment.includes(EXAMPLE) && !comment.includes(EXAMPLE_WITH_FENCE)) {

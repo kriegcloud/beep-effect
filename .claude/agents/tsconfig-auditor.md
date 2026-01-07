@@ -107,6 +107,16 @@ Use this mapping to convert `@beep/*` names to filesystem paths:
 | `@beep/documents-client` | `packages/documents/client` |
 | `@beep/documents-tables` | `packages/documents/tables` |
 | `@beep/documents-ui` | `packages/documents/ui` |
+| `@beep/comms-domain` | `packages/comms/domain` |
+| `@beep/comms-server` | `packages/comms/server` |
+| `@beep/comms-client` | `packages/comms/client` |
+| `@beep/comms-tables` | `packages/comms/tables` |
+| `@beep/comms-ui` | `packages/comms/ui` |
+| `@beep/customization-domain` | `packages/customization/domain` |
+| `@beep/customization-server` | `packages/customization/server` |
+| `@beep/customization-client` | `packages/customization/client` |
+| `@beep/customization-tables` | `packages/customization/tables` |
+| `@beep/customization-ui` | `packages/customization/ui` |
 | `@beep/runtime-client` | `packages/runtime/client` |
 | `@beep/runtime-server` | `packages/runtime/server` |
 | `@beep/ui` | `packages/ui/ui` |

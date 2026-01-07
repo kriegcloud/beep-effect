@@ -8,6 +8,7 @@ import { type CreateEmailOptions, type CreateEmailRequestOptions, type CreateEma
 import { EmailTemplateRenderError, ResendError } from "./errors";
 
 type RenderEmail = (
+  // biome-ignore lint/suspicious/noExplicitAny: React type requires any for JSXElementConstructor
   element: React.ReactElement<unknown, string | React.JSXElementConstructor<any>>
 ) => Effect.Effect<string, EmailTemplateRenderError, never>;
 

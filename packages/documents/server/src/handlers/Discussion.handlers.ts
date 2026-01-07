@@ -4,6 +4,7 @@ import { AuthContext } from "@beep/shared-domain/Policy";
 import { pipe } from "effect";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import * as F from "effect/Function";
 import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
 
@@ -51,10 +52,13 @@ export const DiscussionHandlersLive = Discussion.DiscussionRpcs.Rpcs.toLayer(
           .pipe(
             Effect.map((discussions) =>
               Stream.fromIterable(
-                discussions.map((discussion) => ({
-                  ...transformToUser(discussion),
-                  comments: discussion.comments.map(transformToUser),
-                }))
+                F.pipe(
+                  discussions,
+                  A.map((discussion) => ({
+                    ...transformToUser(discussion),
+                    comments: F.pipe(discussion.comments, A.map(transformToUser)),
+                  }))
+                )
               )
             ),
             Effect.catchTag("DatabaseError", Effect.die),

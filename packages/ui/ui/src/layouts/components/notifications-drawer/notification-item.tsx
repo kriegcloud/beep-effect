@@ -7,6 +7,7 @@ import ListItemAvatar from "@mui/material/ListItemAvatar";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemText from "@mui/material/ListItemText";
 import SvgIcon from "@mui/material/SvgIcon";
+import DOMPurify from "dompurify";
 import { useEffect, useState } from "react";
 
 import { notificationIcons } from "./icons";
@@ -23,9 +24,14 @@ export type NotificationItemProps = {
   };
 };
 
+/**
+ * Sanitizes and renders HTML content safely.
+ * Uses DOMPurify to prevent XSS attacks from user-generated content.
+ */
 const readerContent = (data: string) => (
   <Box
-    dangerouslySetInnerHTML={{ __html: data }}
+    // biome-ignore lint/security/noDangerouslySetInnerHtml: Content is sanitized via DOMPurify.sanitize()
+    dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(data) }}
     sx={{
       "& p": { m: 0, typography: "body2" },
       "& a": { color: "inherit", textDecoration: "none" },

@@ -7,6 +7,7 @@ jsx;
 
 const today = new Date().toISOString().split("T")[0];
 
+// biome-ignore lint/suspicious/noExplicitAny: Platejs test-utils JSX returns untyped fragments
 export const dateValue: any = (
   <fragment>
     <hh2>🕐 Date</hh2>

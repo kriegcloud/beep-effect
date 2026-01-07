@@ -35,7 +35,7 @@
 
 
 ## Authoring Guardrails
-- Preserve Effect namespacing rules (import modules as `import * as Effect from "effect/Effect";`, `import * as A from "effect/Array";`, etc.) and never introduce native array/string helpers in new code. `Effect.all` and `Effect.firstSuccessOf` give structured sequencing/fallback (`effect_docs` above).
+- Preserve Effect namespacing rules (import modules as `import * as Effect from "effect/Effect";`, `import * as A from "effect/Array";`, etc.) and never introduce native array/string helpers in new code. `Effect.all` and `Effect.firstSuccessOf` give structured sequencing/fallback.
 - When defining new models, always route through `makeFields` so ids + audit and optimistic locking columns remain consistent. Align `EntityId` selection with the appropriate kit (Shared vs IAM vs WMS) to keep table metadata coherent.
 - Extending permissions? Update the literal map inside `Policy.ts` (uses `_internal/policy.makePermissions`) and backfill tests; new keys must follow the `{tableName}:{action}` pattern to stay compatible with `Policy.permission`.
 - Treat `_internal` as a closed namespace. Any enhancement (e.g., manual cache behavior) should surface via the public wrapper (`ManualCache.make`) unless there is consensus to promote utilities.

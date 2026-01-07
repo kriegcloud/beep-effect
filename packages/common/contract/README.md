@@ -423,5 +423,5 @@ bun run --filter @beep/contract lint:circular
 ## Additional Resources
 
 - See `AGENTS.md` for detailed authoring guidelines and internal architecture notes
-- Consult `docs/patterns/` for contract usage patterns across the monorepo
+- Consult `documentation/patterns/` for contract usage patterns across the monorepo
 - Review slice `sdk` packages for real-world contract examples

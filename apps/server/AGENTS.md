@@ -76,7 +76,7 @@ const PublicRoutes = Layer.mergeAll(DocsRoute, HealthRoute, CustomRoute);
 
 ## Contributor Checklist
 - [ ] Entry point wraps work in `runServerPromise`/`runServerPromiseExit` with meaningful span names.
-- [ ] Environment reads flow through `serverEnv` from `@beep/shared-server/ServerEnv`; no raw `process.env`/`Bun.env`.
+- [ ] Environment reads flow through `serverEnv` from `@beep/shared-env/ServerEnv`; no raw `process.env`/`Bun.env`.
 - [ ] Effect imports are namespaced; no native array/string helpers.
 - [ ] Logs and errors use structured, tagged forms (`@beep/errors`, `@beep/invariant`); no secrets in logs.
 - [ ] New layers remain memoizable and merge cleanly with `AppLive` or its constituent layers.

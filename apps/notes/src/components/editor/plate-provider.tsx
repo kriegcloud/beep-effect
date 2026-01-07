@@ -89,7 +89,7 @@ export function DocumentPlate({ children }: { readonly children: React.ReactNode
           },
         }),
       ],
-      skipInitialization: isYjsEnabled ? true : false,
+      skipInitialization: !!isYjsEnabled,
       value: isYjsEnabled ? undefined : value,
     },
     [documentId, isYjsEnabled]

@@ -126,7 +126,7 @@ describe("Relations Type Definitions", () => {
     });
 
     it("should preserve type parameters", () => {
-      type TestRel = OneRelation<any, "authorId", "id">;
+      type TestRel = OneRelation<unknown, "authorId", "id">;
       expectTypeOf<TestRel["fromField"]>().toEqualTypeOf<"authorId">();
       expectTypeOf<TestRel["toField"]>().toEqualTypeOf<"id">();
     });

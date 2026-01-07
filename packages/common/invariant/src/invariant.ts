@@ -143,6 +143,7 @@ export const invariant: InvariantApi = ((
 
   // Optional dev-only break for "BUG: ..." messages.
   if (__DEV__ && Str.startsWith("BUG")(msg)) {
+    // biome-ignore lint/suspicious/noDebugger: intentional debugger for BUG-tagged invariant violations in development
     debugger;
   }
 

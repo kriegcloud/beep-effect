@@ -1,1 +1,29 @@
+#!/bin/sh
+
+# Run gitleaks to detect secrets in staged changes
+if command -v gitleaks >/dev/null 2>&1; then
+  gitleaks protect --staged --verbose --redact
+  if [ $? -ne 0 ]; then
+    echo ""
+    echo "ERROR: gitleaks detected potential secrets in staged changes."
+    echo "Please remove secrets before committing."
+    echo ""
+    echo "If this is a false positive, add the pattern to .gitleaksignore"
+    exit 1
+  fi
+else
+  # Try with npx as fallback
+  if command -v npx >/dev/null 2>&1; then
+    npx --yes gitleaks@latest protect --staged --verbose --redact 2>/dev/null
+    if [ $? -ne 0 ] && [ $? -ne 127 ]; then
+      echo ""
+      echo "ERROR: gitleaks detected potential secrets in staged changes."
+      exit 1
+    fi
+  else
+    echo "WARNING: gitleaks not installed. Install with: brew install gitleaks (macOS) or download from https://github.com/gitleaks/gitleaks"
+  fi
+fi
+
+# Run lint-staged for code quality
 bunx lint-staged

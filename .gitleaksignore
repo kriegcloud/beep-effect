@@ -1,0 +1,12 @@
+# Gitleaks ignore file
+# Add patterns or commit hashes to ignore false positives
+# Format: commit:file:line or just the secret fingerprint
+
+# Example placeholder values in .env.example files are not secrets
+# .env.example files use "placeholder" as values which is safe
+
+# Test fixtures with fake credentials
+# tooling/testkit/**
+
+# Documentation examples
+# docs/**

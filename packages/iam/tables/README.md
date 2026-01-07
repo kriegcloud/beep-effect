@@ -404,4 +404,4 @@ The `account`, `session`, `user`, and other tables follow better-auth's expected
 - `packages/iam/tables/AGENTS.md` — Detailed authoring guide
 - `packages/shared/tables/AGENTS.md` — Table factory patterns
 - `packages/_internal/db-admin/AGENTS.md` — Migration workflow
-- `docs/patterns/` — Implementation recipes
+- `documentation/patterns/` — Implementation recipes

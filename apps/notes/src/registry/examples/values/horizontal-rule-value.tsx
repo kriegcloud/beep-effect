@@ -6,6 +6,7 @@ import { KEYS } from "platejs";
 
 jsx;
 
+// biome-ignore lint/suspicious/noExplicitAny: Platejs test-utils JSX returns untyped fragments
 export const horizontalRuleValue: any = (
   <fragment>
     <hh2>Horizontal Rule</hh2>

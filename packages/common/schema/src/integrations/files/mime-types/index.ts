@@ -346,7 +346,7 @@ export function lookup(path: string): false | MimeType.Type {
   }
 
   // get the extension ("ext" or ".ext" or full path)
-  const extension = pipe(extname("x." + path), Str.toLowerCase, Str.substring(1));
+  const extension = pipe(extname(`x.${path}`), Str.toLowerCase, Str.substring(1));
 
   if (!extension) {
     return false;

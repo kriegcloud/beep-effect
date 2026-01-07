@@ -2,7 +2,7 @@ import type { Entities } from "@beep/shared-domain";
 import { SharedEntityIds } from "@beep/shared-domain/entity-ids";
 import * as pg from "drizzle-orm/pg-core";
 import { datetime } from "../columns";
-import { OrgTable } from "../OrgTable";
+import { OrgTable } from "../org-table";
 
 /**
  * Drizzle schema definition for the `upload_session` table.

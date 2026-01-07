@@ -44,6 +44,7 @@ export class ResendError extends S.TaggedError<ResendError>($I`ResendError`)("Re
   statusCode: S.optional(S.NullOr(S.Number)),
   payload: S.Unknown,
 }) {
+  // biome-ignore lint/suspicious/noExplicitAny: error payload can be any type
   static readonly new = (cause: unknown, payload?: any) => {
     if (isResendError(cause)) {
       return new ResendError({

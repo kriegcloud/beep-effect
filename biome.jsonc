@@ -64,7 +64,8 @@
     "enabled": true,
     "rules": {
       "security": {
-        "noDangerouslySetInnerHtml": "off"
+        "noDangerouslySetInnerHtml": "warn",
+        "noGlobalEval": "error"
       },
       "a11y": {
         "useFocusableInteractive": "off",
@@ -118,13 +119,13 @@
         "useAdjacentOverloadSignatures": "off",
         "noDoubleEquals": "off",
         "noPrototypeBuiltins": "off",
-        "noDebugger": "off",
+        "noDebugger": "error",
         "noRedeclare": "off",
         "noConfusingVoidType": "off",
         "noShadowRestrictedNames": "off",
         "noAssignInExpressions": "off",
         "noArrayIndexKey": "off",
-        "noExplicitAny": "warn",
+        "noExplicitAny": "error",
         "useIterableCallbackReturn": "off",
         "noTemplateCurlyInString": "off",
         "noThenProperty": "off",
@@ -151,5 +152,38 @@
     "enabled": true,
     "clientKind": "git",
     "useIgnoreFile": true
-  }
+  },
+  "overrides": [
+    {
+      // Type utility, schema, contract, and factory files require any for type-level computations
+      "includes": [
+        "packages/common/types/**/*.ts",
+        "packages/common/schema/**/*.ts",
+        "packages/common/contract/**/*.ts",
+        "packages/shared/domain/src/factories/**/*.ts",
+        "packages/shared/server/src/factories/**/*.ts"
+      ],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noExplicitAny": "off"
+          }
+        }
+      }
+    },
+    {
+      // Tooling and test files have lower strictness requirements
+      "includes": [
+        "tooling/**/*.ts",
+        "**/test/**/*.ts"
+      ],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noExplicitAny": "warn"
+          }
+        }
+      }
+    }
+  ]
 }
