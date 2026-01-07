@@ -1,3 +1,4 @@
+import { $SharedDomainId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
 import { makeFields } from "@beep/shared-domain/common";
 import { SharedEntityIds } from "@beep/shared-domain/entity-ids";
@@ -5,13 +6,13 @@ import { modelKit } from "@beep/shared-domain/factories";
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
 
-export const SessionModelSchemaId = Symbol.for("@beep/iam-domain/SessionModel");
+const $I = $SharedDomainId.create("entities/Session/Session.model");
 
 /**
  * Session model representing user authentication sessions.
  * Maps to the `session` table in the database.
  */
-export class Model extends M.Class<Model>(`SessionModel`)(
+export class Model extends M.Class<Model>($I`SessionModel`)(
   makeFields(SharedEntityIds.SessionId, {
     /** When this session expires */
     expiresAt: BS.DateTimeUtcFromAllAcceptable.annotations({
@@ -66,11 +67,9 @@ export class Model extends M.Class<Model>(`SessionModel`)(
       })
     ),
   }),
-  {
-    title: "Session Model",
+  $I.annotations("SessionModel", {
     description: "Session model representing user authentication sessions.",
-    schemaId: SessionModelSchemaId,
-  }
+  })
 ) {
   static readonly utils = modelKit(Model);
 }

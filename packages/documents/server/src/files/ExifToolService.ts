@@ -1,3 +1,4 @@
+import { $DocumentsServerId } from "@beep/identity/packages";
 import {
   constEmptyExifMetadata,
   ExifFileTooLargeError,
@@ -13,6 +14,8 @@ import * as Match from "effect/Match";
 import * as Num from "effect/Number";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
+
+const $I = $DocumentsServerId.create("files/ExifToolService");
 
 /**
  * Represents a binary file for metadata extraction.
@@ -88,7 +91,7 @@ interface ExifToolServiceShape {
  * Uses Effect.Service pattern with lazy WASM module loading.
  * The WASM module is loaded once on first use and cached.
  */
-export class ExifToolService extends Effect.Service<ExifToolService>()("ExifToolService", {
+export class ExifToolService extends Effect.Service<ExifToolService>()($I`ExifToolService`, {
   accessors: true,
   dependencies: [],
   effect: Effect.gen(function* () {

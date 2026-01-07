@@ -1,3 +1,4 @@
+import { $SharedServerId } from "@beep/identity/packages";
 import { render } from "@react-email/render";
 import { type Layer, pipe } from "effect";
 import * as Config from "effect/Config";
@@ -6,6 +7,8 @@ import * as Redacted from "effect/Redacted";
 import type React from "react";
 import { type CreateEmailOptions, type CreateEmailRequestOptions, type CreateEmailResponse, Resend } from "resend";
 import { EmailTemplateRenderError, ResendError } from "./errors";
+
+const $I = $SharedServerId.create("internal/email/adapters/resend/service");
 
 type RenderEmail = (
   // biome-ignore lint/suspicious/noExplicitAny: React type requires any for JSXElementConstructor
@@ -64,7 +67,7 @@ const serviceEffect: ResendServiceEffect = Effect.gen(function* () {
   };
 }).pipe(Effect.catchTag("ConfigError", Effect.die));
 
-export class ResendService extends Effect.Service<ResendService>()("ResendService", {
+export class ResendService extends Effect.Service<ResendService>()($I`ResendService`, {
   accessors: true,
   dependencies: [],
   effect: serviceEffect,

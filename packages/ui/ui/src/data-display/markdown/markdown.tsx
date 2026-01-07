@@ -2,6 +2,7 @@
 
 import "./code-highlight-block.css";
 
+import { $UiId } from "@beep/identity/packages";
 import { Image } from "@beep/ui/atoms";
 import { RouterLink } from "@beep/ui/routing";
 import { isExternalLink, mergeClasses } from "@beep/ui-core/utils";
@@ -9,6 +10,9 @@ import Link from "@mui/material/Link";
 import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
+
+const $I = $UiId.create("data-display/markdown/markdown");
+
 import type { ComponentPropsWithoutRef, ReactEventHandler } from "react";
 import { useEffect, useId, useMemo, useState } from "react";
 import type { Options } from "react-markdown";
@@ -164,11 +168,11 @@ function useMarkdownImageSrc(input: string | Blob | undefined) {
   return resolvedSrc;
 }
 
-class BlobToDataUrlError extends Data.TaggedError("BlobToDataUrlError")<{
+class BlobToDataUrlError extends Data.TaggedError($I`BlobToDataUrlError`)<{
   readonly cause: unknown;
   readonly message: string;
 }> {
-  override readonly _tag = "BlobToDataUrlError";
+  override readonly _tag = $I`BlobToDataUrlError`;
 
   constructor(cause: unknown) {
     super({

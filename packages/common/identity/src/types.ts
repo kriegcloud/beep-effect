@@ -156,14 +156,53 @@ type Digit = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9";
 
 type PascalCaseWord<Word extends string> = Word extends "" ? "" : Capitalize<Lowercase<Word>>;
 
-type PascalCaseValue<Value extends string> = Value extends `${infer Head}-${infer Tail}`
-  ? `${PascalCaseWord<Head>}${PascalCaseValue<Tail>}`
-  : Value extends `${infer Head}_${infer Tail}`
-    ? `${PascalCaseWord<Head>}${PascalCaseValue<Tail>}`
-    : PascalCaseWord<Value>;
+/**
+ * Non-recursive PascalCase transformation with explicit pattern overloads.
+ * Handles up to 4 hyphen/underscore-separated segments with literal type preservation.
+ * Falls back to `string` for more complex patterns to avoid TypeScript recursion limits.
+ *
+ * @internal
+ */
+type PascalCaseValue<Value extends string> =
+  // 4 hyphen segments: a-b-c-d
+  Value extends `${infer A}-${infer B}-${infer C}-${infer D}`
+    ? `${PascalCaseWord<A>}${PascalCaseWord<B>}${PascalCaseWord<C>}${PascalCaseWord<D>}`
+    : // 3 hyphen segments: a-b-c
+      Value extends `${infer A}-${infer B}-${infer C}`
+      ? `${PascalCaseWord<A>}${PascalCaseWord<B>}${PascalCaseWord<C>}`
+      : // 2 hyphen segments: a-b
+        Value extends `${infer A}-${infer B}`
+        ? `${PascalCaseWord<A>}${PascalCaseWord<B>}`
+        : // 4 underscore segments: a_b_c_d
+          Value extends `${infer A}_${infer B}_${infer C}_${infer D}`
+          ? `${PascalCaseWord<A>}${PascalCaseWord<B>}${PascalCaseWord<C>}${PascalCaseWord<D>}`
+          : // 3 underscore segments: a_b_c
+            Value extends `${infer A}_${infer B}_${infer C}`
+            ? `${PascalCaseWord<A>}${PascalCaseWord<B>}${PascalCaseWord<C>}`
+            : // 2 underscore segments: a_b
+              Value extends `${infer A}_${infer B}`
+              ? `${PascalCaseWord<A>}${PascalCaseWord<B>}`
+              : // Single word
+                PascalCaseWord<Value>;
+
+/**
+ * Pattern that matches invalid module segment prefixes (digit, hyphen, or underscore).
+ *
+ * @internal
+ */
+type InvalidModulePrefix<S extends string> = S extends `${Digit}${string}` | `-${string}` | `_${string}` ? true : false;
+
+/**
+ * Pattern that matches segments containing invalid module characters.
+ *
+ * @internal
+ */
+type HasInvalidModuleChar<S extends string> = S extends `${string}${InvalidModuleChar}${string}` ? true : false;
 
 /**
  * A string type that represents a valid module segment value. Module segments cannot start with digits, hyphens, or underscores, and cannot contain invalid module characters.
+ *
+ * Uses a flattened conditional structure to reduce TypeScript instantiation depth.
  *
  * @category Types/Validation
  * @example
@@ -182,15 +221,8 @@ type PascalCaseValue<Value extends string> = Value extends `${infer Head}-${infe
  * ```
  * @since 0.1.0
  */
-export type ModuleSegmentValue<S extends StringTypes.NonEmptyString> = S extends `${Digit}${string}`
-  ? never
-  : S extends `-${string}`
-    ? never
-    : S extends `_${string}`
-      ? never
-      : S extends `${string}${InvalidModuleChar}${string}`
-        ? never
-        : SegmentValue<S>;
+export type ModuleSegmentValue<S extends StringTypes.NonEmptyString> =
+  InvalidModulePrefix<S> extends true ? never : HasInvalidModuleChar<S> extends true ? never : SegmentValue<S>;
 
 /**
  * A string literal type that transforms a module name into a PascalCase identifier with "Id" suffix.
@@ -218,9 +250,12 @@ export type ModuleSegmentValue<S extends StringTypes.NonEmptyString> = S extends
 export type ModuleAccessor<S extends StringTypes.NonEmptyString> = `${PascalCaseValue<ModuleSegmentValue<S>>}Id`;
 
 /**
- * Recursively builds a record type where each segment creates a module accessor property.
+ * Builds a record type where each segment creates a module accessor property.
  * Each property follows the pattern `{PascalCaseSegment}Id` and maps to an `IdentityComposer`
  * for the corresponding module path.
+ *
+ * Uses a mapped type with key remapping to avoid recursive type instantiation,
+ * enabling scalability to 50+ segments without TypeScript depth errors.
  *
  * @category Types/Module
  * @example
@@ -233,17 +268,9 @@ export type ModuleAccessor<S extends StringTypes.NonEmptyString> = `${PascalCase
  * ```
  * @since 0.1.0
  */
-export type ModuleRecord<
-  Value extends string,
-  Segments extends ReadonlyArray<StringTypes.NonEmptyString>,
-> = Segments extends readonly [
-  infer Head extends StringTypes.NonEmptyString,
-  ...infer Tail extends ReadonlyArray<StringTypes.NonEmptyString>,
-]
-  ? {
-      readonly [Key in ModuleAccessor<Head>]: IdentityComposer<`${Value}/${ModuleSegmentValue<Head>}`>;
-    } & ModuleRecord<Value, Tail>
-  : {};
+export type ModuleRecord<Value extends string, Segments extends ReadonlyArray<StringTypes.NonEmptyString>> = {
+  readonly [K in Segments[number] as ModuleAccessor<K>]: IdentityComposer<`${Value}/${ModuleSegmentValue<K>}`>;
+};
 
 /**
  * Immutable builder returned by `BeepId` that keeps literal identity values intact.

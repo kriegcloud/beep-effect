@@ -5,9 +5,14 @@ import * as S from "effect/Schema";
 
 const $I = $SharedDomainId.create("rpc/files/delete-folders");
 
-export class Payload extends S.Class<Payload>($I`Payload`)({
-  folderIds: S.Array(SharedEntityIds.FolderId),
-}) {}
+export class Payload extends S.Class<Payload>($I`Payload`)(
+  {
+    folderIds: S.Array(SharedEntityIds.FolderId),
+  },
+  $I.annotations("DeleteFoldersPayload", {
+    description: "Request payload for deleting multiple folders",
+  })
+) {}
 
 export const Contract = Rpc.make("deleteFolders", {
   payload: Payload,

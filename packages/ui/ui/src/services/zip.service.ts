@@ -1,9 +1,12 @@
+import { $UiId } from "@beep/identity/packages";
 import { arrayBufferToUint8Array } from "@beep/utils/array-buffer-to-uint8-array";
 import { BlobWriter, Uint8ArrayReader, ZipWriter } from "@zip.js/zip.js";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 
-export class ZipService extends Effect.Service<ZipService>()("ZipService", {
+const $I = $UiId.create("services/zip.service");
+
+export class ZipService extends Effect.Service<ZipService>()($I`ZipService`, {
   effect: Effect.gen(function* () {
     const blobWriter = new BlobWriter("application/zip");
     const zipWriter = new ZipWriter(blobWriter);

@@ -75,11 +75,17 @@ const commonErrorFields = {
  * @since 1.0.0
  * @category errors
  */
-export class AutoIncrementTypeError extends S.TaggedError<AutoIncrementTypeError>()("AutoIncrementTypeError", {
-  ...commonErrorFields,
-  fieldName: S.String,
-  actualType: S.String,
-}) {}
+export class AutoIncrementTypeError extends S.TaggedError<AutoIncrementTypeError>()(
+  "AutoIncrementTypeError",
+  {
+    ...commonErrorFields,
+    fieldName: S.String,
+    actualType: S.String,
+  },
+  $I.annotations("AutoIncrementTypeError", {
+    description: "Error thrown when auto-increment column has incompatible data type (requires integer or bigint)",
+  })
+) {}
 
 /**
  * INV-SQL-ID-001: Identifier exceeds PostgreSQL maximum length.
@@ -90,12 +96,18 @@ export class AutoIncrementTypeError extends S.TaggedError<AutoIncrementTypeError
  * @since 1.0.0
  * @category errors
  */
-export class IdentifierTooLongError extends S.TaggedError<IdentifierTooLongError>()("IdentifierTooLongError", {
-  ...commonErrorFields,
-  identifier: S.String,
-  length: S.Number,
-  maxLength: S.Number,
-}) {}
+export class IdentifierTooLongError extends S.TaggedError<IdentifierTooLongError>()(
+  "IdentifierTooLongError",
+  {
+    ...commonErrorFields,
+    identifier: S.String,
+    length: S.Number,
+    maxLength: S.Number,
+  },
+  $I.annotations("IdentifierTooLongError", {
+    description: "Error thrown when identifier exceeds PostgreSQL maximum length (63 bytes)",
+  })
+) {}
 
 /**
  * INV-SQL-ID-002: Identifier contains invalid characters.
@@ -113,7 +125,10 @@ export class InvalidIdentifierCharsError extends S.TaggedError<InvalidIdentifier
     ...commonErrorFields,
     identifier: S.String,
     invalidChars: S.Array(S.String),
-  }
+  },
+  $I.annotations("InvalidIdentifierCharsError", {
+    description: "Error thrown when identifier contains invalid characters for PostgreSQL unquoted identifiers",
+  })
 ) {}
 
 /**
@@ -125,10 +140,16 @@ export class InvalidIdentifierCharsError extends S.TaggedError<InvalidIdentifier
  * @since 1.0.0
  * @category errors
  */
-export class NullablePrimaryKeyError extends S.TaggedError<NullablePrimaryKeyError>()("NullablePrimaryKeyError", {
-  ...commonErrorFields,
-  fieldName: S.String,
-}) {}
+export class NullablePrimaryKeyError extends S.TaggedError<NullablePrimaryKeyError>()(
+  "NullablePrimaryKeyError",
+  {
+    ...commonErrorFields,
+    fieldName: S.String,
+  },
+  $I.annotations("NullablePrimaryKeyError", {
+    description: "Error thrown when primary key field is defined as nullable (PRIMARY KEY implies NOT NULL)",
+  })
+) {}
 
 // ============================================================================
 // Column Type Derivation Errors
@@ -146,10 +167,16 @@ export class NullablePrimaryKeyError extends S.TaggedError<NullablePrimaryKeyErr
  * @since 1.0.0
  * @category errors
  */
-export class MissingVariantSchemaError extends S.TaggedError<MissingVariantSchemaError>()("MissingVariantSchemaError", {
-  ...commonErrorFields,
-  availableSchemaKeys: S.Array(S.String),
-}) {}
+export class MissingVariantSchemaError extends S.TaggedError<MissingVariantSchemaError>()(
+  "MissingVariantSchemaError",
+  {
+    ...commonErrorFields,
+    availableSchemaKeys: S.Array(S.String),
+  },
+  $I.annotations("MissingVariantSchemaError", {
+    description: "Error thrown when VariantSchema.Field has no schema with AST for extraction",
+  })
+) {}
 
 /**
  * Unsupported schema type for SQL column derivation.
@@ -169,7 +196,10 @@ export class UnsupportedColumnTypeError extends S.TaggedError<UnsupportedColumnT
     ...commonErrorFields,
     schemaType: S.String,
     reason: S.String,
-  }
+  },
+  $I.annotations("UnsupportedColumnTypeError", {
+    description: "Error thrown when schema type cannot be mapped to any SQL column type",
+  })
 ) {}
 
 // ============================================================================
@@ -189,7 +219,10 @@ export class UnsupportedColumnTypeError extends S.TaggedError<UnsupportedColumnT
  */
 export class EmptyModelIdentifierError extends S.TaggedError<EmptyModelIdentifierError>()(
   "EmptyModelIdentifierError",
-  commonErrorFields
+  commonErrorFields,
+  $I.annotations("EmptyModelIdentifierError", {
+    description: "Error thrown when model identifier is empty (required for table name derivation)",
+  })
 ) {}
 
 /**
@@ -207,7 +240,11 @@ export class MultipleAutoIncrementError extends S.TaggedError<MultipleAutoIncrem
     ...commonErrorFields,
     modelName: S.String,
     autoIncrementFields: S.Array(S.String),
-  }
+  },
+  $I.annotations("MultipleAutoIncrementError", {
+    description:
+      "Error thrown when model has multiple auto-increment fields (PostgreSQL allows only one SERIAL per table)",
+  })
 ) {}
 
 /**
@@ -230,7 +267,10 @@ export class ModelValidationAggregateError extends S.TaggedError<ModelValidation
     errorCount: S.Number,
     /** Individual validation errors that triggered this aggregate */
     errors: S.Array(S.Unknown),
-  }
+  },
+  $I.annotations("ModelValidationAggregateError", {
+    description: "Aggregate error thrown when model validation discovers one or more invariant violations",
+  })
 ) {}
 
 // ============================================================================

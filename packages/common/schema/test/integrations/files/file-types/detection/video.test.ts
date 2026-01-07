@@ -1,5 +1,5 @@
-import { fileTypeChecker } from "@beep/schema/integrations/files";
-import { assertNone, deepStrictEqual, describe, effect, strictEqual, throws } from "@beep/testkit";
+import { fileTypeChecker, InvalidChunkSizeError, InvalidFileTypeError } from "@beep/schema/integrations/files";
+import { assertNone, assertTrue, deepStrictEqual, describe, effect, strictEqual, throws } from "@beep/testkit";
 import type { UnsafeTypes } from "@beep/types";
 import * as Effect from "effect/Effect";
 import * as Either from "effect/Either";
@@ -70,7 +70,7 @@ describe("detectFileOption", () => {
       const result = fileTypeChecker.detectFileEither(file);
 
       if (Either.isLeft(result)) {
-        strictEqual(result.left._tag, "InvalidFileTypeError");
+        assertTrue(result.left instanceof InvalidFileTypeError);
       } else {
         throw new Error("Expected Left but got Right");
       }
@@ -119,7 +119,7 @@ describe("detectFileOption", () => {
       const result = fileTypeChecker.detectFileEither(file, { chunkSize: 0 });
 
       if (Either.isLeft(result)) {
-        strictEqual(result.left._tag, "InvalidChunkSizeError");
+        assertTrue(result.left instanceof InvalidChunkSizeError);
       } else {
         throw new Error("Expected Left but got Right");
       }
@@ -150,7 +150,7 @@ describe("detectFileOption", () => {
       const result = fileTypeChecker.detectFileEither(file, { chunkSize: -1 });
 
       if (Either.isLeft(result)) {
-        strictEqual(result.left._tag, "InvalidChunkSizeError");
+        assertTrue(result.left instanceof InvalidChunkSizeError);
       } else {
         throw new Error("Expected Left but got Right");
       }

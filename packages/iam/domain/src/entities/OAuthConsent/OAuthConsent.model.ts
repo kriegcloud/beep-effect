@@ -1,16 +1,18 @@
+import { $IamDomainId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
 import { IamEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import { makeFields } from "@beep/shared-domain/common";
 import { modelKit } from "@beep/shared-domain/factories";
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
-export const OAuthConsentModelSchemaId = Symbol.for("@beep/iam-domain/OAuthConsentModel");
+
+const $I = $IamDomainId.create("entities/OAuthConsent/OAuthConsent.model");
 
 /**
  * OAuth Consent model representing user consent for OAuth applications.
  * Maps to the `oauth_consent` table in the database.
  */
-export class Model extends M.Class<Model>(`OAuthConsentModel`)(
+export class Model extends M.Class<Model>($I`OAuthConsentModel`)(
   makeFields(IamEntityIds.OAuthConsentId, {
     /** User who gave consent */
     userId: BS.FieldOptionOmittable(
@@ -36,11 +38,10 @@ export class Model extends M.Class<Model>(`OAuthConsentModel`)(
 
     organizationId: SharedEntityIds.OrganizationId,
   }),
-  {
+  $I.annotations("OAuthConsentModel", {
     title: "OAuth Consent Model",
     description: "OAuth Consent model representing user consent for OAuth applications.",
-    schemaId: OAuthConsentModelSchemaId,
-  }
+  })
 ) {
   static readonly utils = modelKit(Model);
 }

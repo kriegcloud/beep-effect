@@ -1,7 +1,10 @@
 import { describe, expect, it } from "bun:test";
+import { $UiId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
 import type { Paths } from "../../src/form/makeFormOptions";
 import { validateWithSchema } from "../../src/form/makeFormOptions";
+
+const $I = $UiId.create("test/form/makeFormOptions.test");
 
 const SimpleSchema = S.Struct({
   name: S.String,
@@ -340,7 +343,7 @@ describe("validateWithSchema", () => {
       S.brand("DomainString")
     );
 
-    class FilterBrandSchema extends S.Class<FilterBrandSchema>("FilterBrandSchema")({
+    class FilterBrandSchema extends S.Class<FilterBrandSchema>($I`FilterBrandSchema`)({
       domain: DomainSchema,
       type: S.Literal("one", "two"),
     }) {}

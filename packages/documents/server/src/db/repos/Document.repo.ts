@@ -1,6 +1,7 @@
 import { Entities } from "@beep/documents-domain";
 import { Document } from "@beep/documents-domain/entities";
 import { DocumentsDb } from "@beep/documents-server/db";
+import { $DocumentsServerId } from "@beep/identity/packages";
 import { DocumentsEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import { DbClient, DbRepo } from "@beep/shared-server";
 import * as SqlClient from "@effect/sql/SqlClient";
@@ -10,13 +11,19 @@ import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { dependencies } from "./_common";
 
+const $I = $DocumentsServerId.create("db/repos/Document.repo");
+
 const SearchResultSchema = S.Struct({
   id: DocumentsEntityIds.DocumentId,
   _rowId: DocumentsEntityIds.DocumentId.privateSchema,
   title: S.NullOr(S.String),
   content: S.NullOr(S.String),
   rank: S.Number,
-});
+}).annotations(
+  $I.annotations("SearchResultSchema", {
+    description: "Full-text search result with document metadata and ranking score",
+  })
+);
 
 const SearchRequest = S.Struct({
   query: S.String,
@@ -25,9 +32,13 @@ const SearchRequest = S.Struct({
   includeArchived: S.optional(S.Boolean),
   limit: S.optional(S.Int.pipe(S.positive())),
   offset: S.optional(S.Int.pipe(S.nonNegative())),
-});
+}).annotations(
+  $I.annotations("SearchRequest", {
+    description: "Parameters for full-text document search with pagination",
+  })
+);
 
-export class DocumentRepo extends Effect.Service<DocumentRepo>()("@beep/documents-server/adapters/repos/DocumentRepo", {
+export class DocumentRepo extends Effect.Service<DocumentRepo>()($I`DocumentRepo`, {
   dependencies,
   accessors: true,
   effect: Effect.gen(function* () {

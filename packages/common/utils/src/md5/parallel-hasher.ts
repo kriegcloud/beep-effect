@@ -11,6 +11,7 @@
  * @module
  */
 
+import { $UtilsId } from "@beep/identity/packages";
 import * as Worker from "@effect/platform/Worker";
 import * as BrowserWorker from "@effect/platform-browser/BrowserWorker";
 import * as Context from "effect/Context";
@@ -20,6 +21,8 @@ import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import { WorkerHashError } from "./errors";
 import { HashRequest, type WorkerRequest } from "./worker";
+
+const $I = $UtilsId.create("md5/parallel-hasher");
 
 /**
  * Configuration for the parallel hasher pool
@@ -60,10 +63,7 @@ export interface ParallelHasherService {
  * @since 1.0.0
  * @category Services
  */
-export class ParallelHasher extends Context.Tag("@beep/utils/ParallelHasher")<
-  ParallelHasher,
-  ParallelHasherService
->() {}
+export class ParallelHasher extends Context.Tag($I`ParallelHasher`)<ParallelHasher, ParallelHasherService>() {}
 
 /**
  * Convert Blob to Uint8Array for worker serialization

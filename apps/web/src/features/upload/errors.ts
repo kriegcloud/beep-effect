@@ -1,6 +1,9 @@
+import { $WebId } from "@beep/identity/packages";
 import * as Data from "effect/Data";
 
-export class ValidationError extends Data.TaggedError("ValidationError")<{
+const $I = $WebId.create("features/upload/errors");
+
+export class ValidationError extends Data.TaggedError($I`ValidationError`)<{
   readonly message: string;
   readonly cause?: unknown | undefined;
   readonly fileName?: string | undefined;
@@ -10,7 +13,7 @@ export class ValidationError extends Data.TaggedError("ValidationError")<{
   readonly allowedMime?: ReadonlyArray<string> | undefined;
 }> {}
 
-export class DetectionError extends Data.TaggedError("DetectionError")<{
+export class DetectionError extends Data.TaggedError($I`DetectionError`)<{
   readonly message: string;
   readonly cause?: unknown | undefined;
   readonly fileName?: string | undefined;
@@ -19,7 +22,7 @@ export class DetectionError extends Data.TaggedError("DetectionError")<{
   readonly chunkSize?: number | undefined;
 }> {}
 
-export class MetadataParseError extends Data.TaggedError("MetadataParseError")<{
+export class MetadataParseError extends Data.TaggedError($I`MetadataParseError`)<{
   readonly message: string;
   readonly cause: unknown;
   readonly fileName?: string | undefined;

@@ -342,22 +342,30 @@ describe("Error handling simulation", () => {
       const hasher = yield* ParallelHasher;
       const blob = new Blob([stringToUint8Array("test") as BlobPart]);
 
-      const result = yield* hasher
-        .hashBlob(blob)
-        .pipe(Effect.catchTag("WorkerHashError", (error) => Effect.succeed(`Caught error: ${error.message}`)));
+      // Use Effect.catchAll to catch the error and check it matches WorkerHashError
+      const result = yield* hasher.hashBlob(blob).pipe(
+        Effect.catchAll((error) => {
+          if (error._tag === new WorkerHashError({ message: "", cause: null })._tag) {
+            return Effect.succeed(`Caught error: ${error.message}`);
+          }
+          return Effect.fail(error);
+        })
+      );
 
       expect(result).toEqual("Caught error: Simulated worker failure");
     }).pipe(Effect.provide(FailingParallelHasher))
   );
 
-  live("WorkerHashError has correct _tag", () =>
+  live("WorkerHashError has correct _tag format", () =>
     Effect.gen(function* () {
       const error = new WorkerHashError({
         message: "Test message",
         cause: null,
       });
 
-      expect(error._tag).toEqual("WorkerHashError");
+      // The _tag is now an identity string that includes the package namespace
+      expect(error._tag).toContain("WorkerHashError");
+      expect(error._tag).toContain("@beep/utils");
       expect(error.message).toEqual("Test message");
     })
   );

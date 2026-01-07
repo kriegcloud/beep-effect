@@ -1,9 +1,12 @@
+import { $UiId } from "@beep/identity/packages";
 import type { ToastActionElement, ToastProps } from "@beep/ui/components/toast";
 import { Atom, Registry } from "@effect-atom/atom-react";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Queue from "effect/Queue";
 import * as Ref from "effect/Ref";
+
+const $I = $UiId.create("services/toaster.service");
 
 export interface Toast extends ToastProps {
   readonly id: string;
@@ -14,7 +17,7 @@ export interface Toast extends ToastProps {
 
 export const toastsAtom = Atom.make(A.empty<Toast>());
 
-export class ToasterService extends Effect.Service<ToasterService>()("app/Toaster", {
+export class ToasterService extends Effect.Service<ToasterService>()($I`ToasterService`, {
   scoped: Effect.gen(function* () {
     const counter = yield* Ref.make(0);
     const removeQueue = yield* Queue.unbounded<string>();

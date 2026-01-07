@@ -1,6 +1,8 @@
+import { $ConstantsId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
 import type * as S from "effect/Schema";
 
+const $I = $ConstantsId.create("LogLevel");
 export class LogLevel extends BS.StringLiteralKit(
   "All",
   "Debug",
@@ -10,12 +12,11 @@ export class LogLevel extends BS.StringLiteralKit(
   "Trace",
   "None",
   "Warning"
-).annotations({
-  schemaId: Symbol.for("@beep/constants/LogLevel"),
-  identifier: "LogLevel",
-  title: "Log Level",
-  description: "Log level.",
-}) {}
+).annotations(
+  $I.annotations("LogLevel", {
+    description: "Log level.",
+  })
+) {}
 
 export declare namespace LogLevel {
   export type Type = S.Schema.Type<typeof LogLevel>;

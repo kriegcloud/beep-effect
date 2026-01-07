@@ -1,4 +1,5 @@
 import { BeepError } from "@beep/errors/shared";
+import { $SharedDomainId } from "@beep/identity/packages";
 import type { Organization, Session, User } from "@beep/shared-domain/entities";
 import * as HttpApiMiddleware from "@effect/platform/HttpApiMiddleware";
 import * as HttpApiSecurity from "@effect/platform/HttpApiSecurity";
@@ -12,6 +13,8 @@ import * as Schema from "effect/Schema";
 import * as internal from "./_internal/policy";
 import { PermissionAction, PolicyBuilder } from "./_internal/policy-builder";
 import { EntityKind, IamEntityIds, SharedEntityIds } from "./entity-ids";
+
+const $I = $SharedDomainId.create("Policy");
 
 const policyBuilder = new PolicyBuilder({
   domains: EntityKind.Options,
@@ -76,7 +79,7 @@ export type AuthContextShape = {
   readonly organization: typeof Organization.Model.Type;
 };
 
-export class AuthContext extends Context.Tag("AuthContext")<AuthContext, AuthContextShape>() {}
+export class AuthContext extends Context.Tag($I`AuthContext`)<AuthContext, AuthContextShape>() {}
 
 export class AuthContextHttpMiddleware extends HttpApiMiddleware.Tag<AuthContextHttpMiddleware>()(
   "AuthContextHttpMiddleware",
@@ -100,7 +103,7 @@ export class AuthContextRpcMiddleware extends RpcMiddleware.Tag<AuthContextRpcMi
   }
 ) {}
 
-export class CurrentUser extends Context.Tag("CurrentUser")<
+export class CurrentUser extends Context.Tag($I`CurrentUser`)<
   CurrentUser,
   {
     readonly user: S.Schema.Type<typeof User.Model>;

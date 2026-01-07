@@ -79,7 +79,11 @@ export declare namespace AuthProviderNameValue {
   export type Encoded = S.Schema.Type<typeof AuthProviderNameValue>;
 }
 
-export class TaggedAuthProviderNameValue extends AuthProviderNameValue.toTagged("name").Union {}
+export class TaggedAuthProviderNameValue extends AuthProviderNameValue.toTagged("name").Union.annotations(
+  $I.annotations("TaggedAuthProviderNameValue", {
+    description: "Tagged union of auth provider names with discriminant 'name' field",
+  })
+) {}
 
 export declare namespace TaggedAuthProviderNameValue {
   export type Type = S.Schema.Type<typeof TaggedAuthProviderNameValue>;

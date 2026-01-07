@@ -1,12 +1,16 @@
+import { $WebId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 import { ApiErrorResponse, PresignedUrlResponse } from "./UploadModels";
+
+const $I = $WebId.create("features/upload/requestPresignedUrls");
+
 /**
  * Error that can occur when requesting presigned URLs
  */
-export class PresignedUrlError extends Data.TaggedError("PresignedUrlError")<{
+export class PresignedUrlError extends Data.TaggedError($I`PresignedUrlError`)<{
   readonly message: string;
   readonly code: string;
   readonly cause?: unknown;

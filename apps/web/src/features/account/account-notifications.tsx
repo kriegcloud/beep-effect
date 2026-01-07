@@ -1,3 +1,4 @@
+import { $WebId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
 import { Form, formOptionsWithSubmitEffect, useAppForm } from "@beep/ui/form";
 import { toast } from "@beep/ui/molecules";
@@ -11,6 +12,8 @@ import Switch from "@mui/material/Switch";
 import * as A from "effect/Array";
 import * as S from "effect/Schema";
 
+const $I = $WebId.create("features/account/account-notifications");
+
 export const NotificationSelection = BS.StringLiteralKit(
   "activity_comments",
   "activity_answers",
@@ -20,10 +23,13 @@ export const NotificationSelection = BS.StringLiteralKit(
   "application_blog"
 );
 
-export class NotificationSelectionPayload extends S.Class<NotificationSelectionPayload>("NotificationSelectionPayload")(
+export class NotificationSelectionPayload extends S.Class<NotificationSelectionPayload>(
+  $I`NotificationSelectionPayload`
+)(
   {
     selected: S.Array(NotificationSelection),
-  }
+  },
+  $I.annotations("NotificationSelectionPayload", { description: "Payload for notification selection preferences" })
 ) {}
 
 // ----------------------------------------------------------------------

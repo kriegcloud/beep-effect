@@ -1,3 +1,4 @@
+import { $SharedDomainId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
 import { makeFields } from "@beep/shared-domain/common";
 import { EntityKind } from "@beep/shared-domain/entity-ids";
@@ -7,7 +8,9 @@ import { modelKit } from "@beep/shared-domain/factories";
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
 
-export class Model extends M.Class<Model>(`AuditLogModel`)(
+const $I = $SharedDomainId.create("entities/AuditLog/AuditLog.model");
+
+export class Model extends M.Class<Model>($I`AuditLogModel`)(
   makeFields(SharedEntityIds.AuditLogId, {
     /** Surrogate 32 bit integer Primary key identifier for the file */
     entityKind: EntityKind,
@@ -27,6 +30,9 @@ export class Model extends M.Class<Model>(`AuditLogModel`)(
     newValuesJson: M.FieldOption(BS.Json),
     metadataJson: M.FieldOption(BS.Json),
     metadata: M.FieldOption(BS.Json),
+  }),
+  $I.annotations("AuditLogModel", {
+    description: "Audit log model representing tracked changes to entities.",
   })
 ) {
   static readonly utils = modelKit(Model);

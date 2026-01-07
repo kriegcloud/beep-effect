@@ -1,3 +1,4 @@
+import { $IamDomainId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
 import { IamEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import { makeFields } from "@beep/shared-domain/common";
@@ -5,13 +6,13 @@ import { modelKit } from "@beep/shared-domain/factories";
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
 
-export const WalletAddressModelSchemaId = Symbol.for("@beep/iam-domain/WalletAddressModel");
+const $I = $IamDomainId.create("entities/WalletAddress/WalletAddress.model");
 
 /**
  * Wallet address model representing blockchain wallet addresses linked to users.
  * Maps to the `verification` table in the database (note: table name appears to be misnamed).
  */
-export class Model extends M.Class<Model>(`WalletAddressModel`)(
+export class Model extends M.Class<Model>($I`WalletAddressModel`)(
   makeFields(IamEntityIds.WalletAddressId, {
     /** Reference to the user this wallet address belongs to */
     userId: SharedEntityIds.UserId.annotations({
@@ -33,11 +34,10 @@ export class Model extends M.Class<Model>(`WalletAddressModel`)(
       description: "Whether this is the user's primary wallet address",
     }),
   }),
-  {
-    schemaId: WalletAddressModelSchemaId,
+  $I.annotations("WalletAddressModel", {
     title: "Wallet Address Model",
     description: "Wallet address model representing blockchain wallet addresses linked to users.",
-  }
+  })
 ) {
   static readonly utils = modelKit(Model);
 }

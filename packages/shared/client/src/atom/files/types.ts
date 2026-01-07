@@ -75,10 +75,16 @@ export class StartUploadRoot extends S.TaggedClass<StartUploadRoot>($I`StartUplo
   })
 ) {}
 
-export class StartUploadFolder extends S.TaggedClass<StartUploadFolder>($I`StartUploadFolder`)("Folder", {
-  ...startUploadFieldsShared,
-  id: SharedEntityIds.FolderId,
-}) {}
+export class StartUploadFolder extends S.TaggedClass<StartUploadFolder>($I`StartUploadFolder`)(
+  "Folder",
+  {
+    ...startUploadFieldsShared,
+    id: SharedEntityIds.FolderId,
+  },
+  $I.annotations("StartUploadFolder", {
+    description: "Start upload operation for a specific folder destination",
+  })
+) {}
 
 export class StartUploadInput extends S.Union(StartUploadFolder, StartUploadRoot).annotations(
   $I.annotations("StartUploadInput", {

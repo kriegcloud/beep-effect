@@ -121,7 +121,11 @@ export const VerifyEmailUser = S.Struct({
   emailVerified: SharedEntities.User.Model.select.fields.emailVerified,
   createdAt: BS.DateTimeUtcFromAllAcceptable,
   updatedAt: BS.DateTimeUtcFromAllAcceptable,
-});
+}).annotations(
+  $I.annotations("VerifyEmailUser", {
+    description: "User data returned after successful email verification",
+  })
+);
 
 export class VerifyEmailSuccess extends S.Class<VerifyEmailSuccess>($I`VerifyEmailSuccess`)(
   {

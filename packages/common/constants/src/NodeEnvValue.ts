@@ -1,11 +1,12 @@
+import { $ConstantsId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
 
-export class NodeEnvValue extends BS.StringLiteralKit("test", "development", "production").annotations({
-  schemaId: Symbol.for("@beep/constants/NodeEnvValue"),
-  identifier: "NodeEnvValue",
-  title: "Node Env Value",
-  description: "Node Env Value. Can be `test`, `development` or `production`",
-}) {}
+const $I = $ConstantsId.create("NodeEnvValue");
+export class NodeEnvValue extends BS.StringLiteralKit("test", "development", "production").annotations(
+  $I.annotations("NodeEnvValue", {
+    description: "Node Env Value. Can be `test`, `development` or `production`",
+  })
+) {}
 
 export declare namespace NodeEnvValue {
   export type Type = typeof NodeEnvValue.Type;

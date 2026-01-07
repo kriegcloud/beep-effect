@@ -1,9 +1,12 @@
 import { BeepError } from "@beep/errors/client";
+import { $IamClientId } from "@beep/identity/packages";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import { BetterAuthError } from "./adapters";
 
-export class IamErrorMetadata extends S.Class<IamErrorMetadata>("@beep/iam-client/errors/IamErrorMetadata")({
+const $I = $IamClientId.create("errors");
+
+export class IamErrorMetadata extends S.Class<IamErrorMetadata>($I`IamErrorMetadata`)({
   code: S.optional(S.String),
   status: S.optional(S.Number),
   statusText: S.optional(S.String),
@@ -13,7 +16,7 @@ export class IamErrorMetadata extends S.Class<IamErrorMetadata>("@beep/iam-clien
   authCause: S.optional(S.Unknown),
 }) {}
 
-export class IamError extends S.TaggedError<IamError>("@beep/iam-client/errors/IamError")("IamError", {
+export class IamError extends S.TaggedError<IamError>($I`IamError`)("IamError", {
   customMessage: S.String,
   cause: S.Unknown,
   code: S.optional(S.String),

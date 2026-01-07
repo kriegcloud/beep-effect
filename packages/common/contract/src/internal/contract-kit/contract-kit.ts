@@ -16,8 +16,12 @@
  *
  * @since 0.1.0
  */
+import { $ContractId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
 import type { UnsafeTypes } from "@beep/types";
+
+const $I = $ContractId.create("internal/contract-kit/contract-kit");
+
 import * as A from "effect/Array";
 import type * as Cause from "effect/Cause";
 import * as Context from "effect/Context";
@@ -188,7 +192,12 @@ export type ImplementationsFrom<Contracts extends Record<string, Contract.Any>> 
   >;
 };
 
-export class LiftServiceMode extends BS.StringLiteralKit("success", "result") {}
+export class LiftServiceMode extends BS.StringLiteralKit("success", "result").annotations(
+  $I.annotations("LiftServiceMode", {
+    description:
+      "Mode for lifted service methods: 'success' returns only successes, 'result' returns discriminated outcomes",
+  })
+) {}
 
 /**
  * Determines whether lifted service methods should expose only successes or

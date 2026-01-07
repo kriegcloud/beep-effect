@@ -1,7 +1,14 @@
+import { $IamDomainId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
 import type * as S from "effect/Schema";
 
-export class DeviceCodeStatus extends BS.StringLiteralKit("pending", "approved", "denied") {}
+const $I = $IamDomainId.create("entities/DeviceCode/schemas/DeviceCodeStatus");
+
+export class DeviceCodeStatus extends BS.StringLiteralKit("pending", "approved", "denied").annotations(
+  $I.annotations("DeviceCodeStatus", {
+    description: "Device authorization flow status (pending, approved, or denied)",
+  })
+) {}
 export const makeDeviceCodeStatusPgEnum = BS.toPgEnum(DeviceCodeStatus);
 
 export declare namespace DeviceCodeStatus {

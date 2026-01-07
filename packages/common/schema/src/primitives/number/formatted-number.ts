@@ -1,5 +1,8 @@
+import { $SchemaId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
 import { MappedLiteralKit } from "../../derived";
+
+const $I = $SchemaId.create("primitives/number/formatted-number");
 
 // ============================================================================
 // SI Symbol Mapping
@@ -13,6 +16,10 @@ export class BigIntToSiSymbol extends MappedLiteralKit(
   [1e12, "T"],
   [1e15, "P"],
   [1e18, "E"]
+).annotations(
+  $I.annotations("BigIntToSiSymbol", {
+    description: "Maps numeric magnitudes to SI symbol prefixes (K, M, G, T, P, E)",
+  })
 ) {}
 
 export declare namespace BigIntToSiSymbol {
@@ -121,7 +128,11 @@ const FormattedNumberStruct = S.Struct({
   formatted: S.String,
   symbol: S.Literal("", "K", "M", "G", "T", "P", "E"),
   divisor: S.Number,
-});
+}).annotations(
+  $I.annotations("FormattedNumberStruct", {
+    description: "Schema representing a number formatted with SI symbol metadata",
+  })
+);
 
 /**
  * FormatNumber schema that transforms a number into a FormattedNumber object.

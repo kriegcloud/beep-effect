@@ -1,17 +1,21 @@
 import { ExifToolService } from "@beep/documents-server/files";
 import { accumulateEffectsAndReport } from "@beep/errors/client";
+import { $WebId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import { instrumentProcessFile, makeFileAnnotations } from "@/features/upload/observability";
 import { extractBasicMetadata, extractExifMetadata, validateFile } from "@/features/upload/pipeline";
 import type { PipelineConfig, ProcessFilesResult, UploadResult } from "@/features/upload/UploadModels";
+
+const $I = $WebId.create("features/upload/UploadFileService");
+
 /**
  * UploadFileService
  * - Effect service exposing high-level operations for processing one or many files
  * - Delegates to composable pipeline steps in `pipeline.ts`
  * - ExifToolService dependency is satisfied internally via dependencies array
  */
-export class UploadFileService extends Effect.Service<UploadFileService>()("UploadFileService", {
+export class UploadFileService extends Effect.Service<UploadFileService>()($I`UploadFileService`, {
   dependencies: [ExifToolService.Default],
   accessors: true,
   effect: Effect.gen(function* () {

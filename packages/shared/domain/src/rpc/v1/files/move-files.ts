@@ -5,10 +5,15 @@ import * as S from "effect/Schema";
 
 const $I = $SharedDomainId.create("rpc/files/move-files");
 
-export class Payload extends S.Class<Payload>($I`Payload`)({
-  fileIds: S.Array(SharedEntityIds.FileId),
-  folderId: S.NullOr(SharedEntityIds.FolderId),
-}) {}
+export class Payload extends S.Class<Payload>($I`Payload`)(
+  {
+    fileIds: S.Array(SharedEntityIds.FileId),
+    folderId: S.NullOr(SharedEntityIds.FolderId),
+  },
+  $I.annotations("MoveFilesPayload", {
+    description: "Request payload for moving files to a target folder",
+  })
+) {}
 
 export const Contract = Rpc.make("moveFiles", {
   payload: Payload,

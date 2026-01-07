@@ -1,3 +1,4 @@
+import { $SharedTablesId } from "@beep/identity/packages";
 import { sql } from "drizzle-orm";
 import { customType } from "drizzle-orm/pg-core";
 import * as DateTime from "effect/DateTime";
@@ -6,6 +7,8 @@ import * as Match from "effect/Match";
 import * as O from "effect/Option";
 import * as ParseResult from "effect/ParseResult";
 import * as S from "effect/Schema";
+
+const $I = $SharedTablesId.create("columns/custom-datetime");
 
 /**
  * Schema that accepts DateTimeUtcFromAllAcceptable encoded types
@@ -40,6 +43,10 @@ const DateTimeToIsoString = S.transformOrFail(
       ),
     encode: (str) => ParseResult.succeed(str),
   }
+).annotations(
+  $I.annotations("DateTimeToIsoString", {
+    description: "Transform various datetime formats to ISO 8601 string for PostgreSQL timestamp storage",
+  })
 );
 
 /**

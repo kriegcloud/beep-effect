@@ -1,3 +1,4 @@
+import { $IamDomainId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
 import { IamEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import { makeFields } from "@beep/shared-domain/common";
@@ -5,13 +6,14 @@ import { modelKit } from "@beep/shared-domain/factories";
 import { PolicyRecord } from "@beep/shared-domain/Policy";
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
-export const OrganizationRoleModelSchemaId = Symbol.for("@beep/iam-domain/OrganizationRoleModel");
+
+const $I = $IamDomainId.create("entities/OrganizationRole/OrganizationRole.model");
 
 /**
- * OAuth Consent model representing user consent for OAuth applications.
- * Maps to the `oauth_consent` table in the database.
+ * Organization Role model representing roles within organizations.
+ * Maps to the `organization_role` table in the database.
  */
-export class Model extends M.Class<Model>(`OrganizationRoleModel`)(
+export class Model extends M.Class<Model>($I`OrganizationRoleModel`)(
   makeFields(IamEntityIds.OrganizationRoleId, {
     /** The role name */
     role: S.NonEmptyString,
@@ -25,11 +27,10 @@ export class Model extends M.Class<Model>(`OrganizationRoleModel`)(
 
     organizationId: SharedEntityIds.OrganizationId,
   }),
-  {
-    title: "OAuth Consent Model",
-    description: "OAuth Consent model representing user consent for OAuth applications.",
-    schemaId: OrganizationRoleModelSchemaId,
-  }
+  $I.annotations("OrganizationRoleModel", {
+    title: "Organization Role Model",
+    description: "Organization Role model representing roles within organizations.",
+  })
 ) {
   static readonly utils = modelKit(Model);
 }

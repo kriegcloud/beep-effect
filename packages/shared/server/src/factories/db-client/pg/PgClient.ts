@@ -1,6 +1,8 @@
 /**
  * @since 1.0.0
  */
+
+import { $SharedServerId } from "@beep/identity/packages";
 import * as Reactivity from "@effect/experimental/Reactivity";
 import * as SqlClient from "@effect/sql/SqlClient";
 import type { Connection } from "@effect/sql/SqlConnection";
@@ -34,6 +36,8 @@ import * as PgConnString from "pg-connection-string";
 import Cursor from "pg-cursor";
 import { DatabaseError } from "./errors";
 import { type ConnectionConfig, ConnectionPool, QueryLogger } from "./services";
+
+const $I = $SharedServerId.create("factories/db-client/pg/PgClient");
 
 import type {
   Client,
@@ -450,7 +454,7 @@ interface PgJson extends Custom<"PgJson", unknown> {}
  */
 const PgJson = Statement.custom<PgJson>("PgJson");
 
-export class TransactionContext extends Context.Tag("TransactionContext")<
+export class TransactionContext extends Context.Tag($I`TransactionContext`)<
   TransactionContext,
   TransactionContextShape
 >() {

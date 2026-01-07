@@ -1,12 +1,15 @@
+import { $WebId } from "@beep/identity/packages";
 import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 import { ApiErrorResponse, UploadCallbackResponse } from "./UploadModels";
 
+const $I = $WebId.create("features/upload/completeUpload");
+
 /**
  * Error that can occur when completing an upload
  */
-export class CompleteUploadError extends Data.TaggedError("CompleteUploadError")<{
+export class CompleteUploadError extends Data.TaggedError($I`CompleteUploadError`)<{
   readonly message: string;
   readonly code: string;
   readonly fileId?: string;

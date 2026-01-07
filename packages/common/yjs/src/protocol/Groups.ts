@@ -16,7 +16,14 @@ export class GroupMemberData extends S.Class<GroupMemberData>($I`GroupMemberData
 
 export const GroupScopes = S.Struct({
   mention: S.Literal(true),
-}).pipe(S.partial);
+}).pipe(
+  S.partial,
+  S.annotations(
+    $I.annotations("GroupScopes", {
+      description: "Partial struct defining available group scopes (mention permissions)",
+    })
+  )
+);
 
 export declare namespace GroupScopes {
   export type Type = S.Schema.Type<typeof GroupScopes>;

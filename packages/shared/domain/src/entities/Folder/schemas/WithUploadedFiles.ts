@@ -5,7 +5,12 @@ import { Model } from "../Folder.model";
 
 const $I = $SharedDomainId.create("shared/domain/entities/Folder/schemas");
 
-export class WithUploadedFiles extends S.Class<WithUploadedFiles>($I`WithUploadedFiles`)({
-  ...Model.fields,
-  uploadedFiles: S.Array(File.Model),
-}) {}
+export class WithUploadedFiles extends S.Class<WithUploadedFiles>($I`WithUploadedFiles`)(
+  {
+    ...Model.fields,
+    uploadedFiles: S.Array(File.Model),
+  },
+  $I.annotations("WithUploadedFiles", {
+    description: "Folder model extended with its associated uploaded files",
+  })
+) {}
