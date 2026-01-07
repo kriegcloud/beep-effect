@@ -125,7 +125,7 @@
         "noShadowRestrictedNames": "off",
         "noAssignInExpressions": "off",
         "noArrayIndexKey": "off",
-        "noExplicitAny": "error",
+        "noExplicitAny": "warn",
         "useIterableCallbackReturn": "off",
         "noTemplateCurlyInString": "off",
         "noThenProperty": "off",
@@ -166,7 +166,7 @@
       "linter": {
         "rules": {
           "suspicious": {
-            "noExplicitAny": "off"
+            "noExplicitAny": "warn"
           }
         }
       }

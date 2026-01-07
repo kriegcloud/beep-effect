@@ -76,6 +76,7 @@ export function TocSidebar({
                       key={index}
                       variant="ghost"
                       className={cn(
+                        // biome-ignore lint/suspicious/noExplicitAny: CVA depth variant type mismatch
                         tocSidebarButtonVariants({
                           active: isActive,
                           depth: item.depth as any,

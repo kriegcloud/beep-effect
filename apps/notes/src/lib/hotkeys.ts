@@ -56,8 +56,11 @@ const WINDOWS_HOTKEYS = {
 /** Create a platform-aware hotkey checker. */
 
 const create = (key: string) => {
+  // biome-ignore lint/suspicious/noExplicitAny: Dynamic hotkey lookup requires any
   const generic = (HOTKEYS as any)[key];
+  // biome-ignore lint/suspicious/noExplicitAny: Dynamic hotkey lookup requires any
   const apple = (APPLE_HOTKEYS as any)[key];
+  // biome-ignore lint/suspicious/noExplicitAny: Dynamic hotkey lookup requires any
   const windows = (WINDOWS_HOTKEYS as any)[key];
   const isGeneric = generic && isKeyHotkey(generic);
   const isApple = apple && isKeyHotkey(apple);

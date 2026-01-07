@@ -27,6 +27,7 @@ export function TocElementStatic(props: SlateElementProps) {
       <div>
         {headingList.length > 0 ? (
           headingList.map((item) => (
+            {/* biome-ignore lint/suspicious/noExplicitAny: CVA depth variant type mismatch */}
             <Button key={item.title} variant="ghost" className={headingItemVariants({ depth: item.depth as any })}>
               {item.title}
             </Button>

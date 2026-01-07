@@ -22,5 +22,6 @@ export function atomWithStorage<Value>(
   if (options?.getOnInit !== undefined) {
     opts.getOnInit = options.getOnInit;
   }
+  // biome-ignore lint/suspicious/noExplicitAny: Jotai atomWithStorage return type requires cast
   return _atomWithStorage(key, initialValue, storage, pipe(opts, Struct.keys, A.length) > 0 ? opts : undefined) as any;
 }

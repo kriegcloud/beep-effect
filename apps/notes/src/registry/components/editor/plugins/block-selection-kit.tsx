@@ -22,6 +22,7 @@ export const BlockSelectionKit = [
       belowRootNodes: (props) => {
         if (!props.attributes.className?.includes("slate-selectable")) return null;
 
+        // biome-ignore lint/suspicious/noExplicitAny: Platejs render props type compatibility
         return <BlockSelection {...(props as any)} />;
       },
     },

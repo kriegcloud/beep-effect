@@ -69,6 +69,7 @@ export const suggestionPlugin = toTPlatePlugin<SuggestionConfig>(BaseSuggestionP
   },
 })).configure({
   render: {
+    // biome-ignore lint/suspicious/noExplicitAny: Platejs render component type compatibility
     belowNodes: SuggestionLineBreak as any,
     node: SuggestionLeaf,
   },

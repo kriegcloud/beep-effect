@@ -108,6 +108,7 @@ export const useChat = () => {
       api: "/api/ai/command",
       // Mock the API response. Remove it when you implement the route /api/ai/command
       fetch: Object.assign(
+        // biome-ignore lint/suspicious/noExplicitAny: Mock fetch signature requires any for compatibility
         async (input: any, init: any) => {
           const res = await fetch(input, init);
 
@@ -117,6 +118,7 @@ export const useChat = () => {
             try {
               const content = JSON.parse(init?.body as string)
                 .messages.at(-1)
+                // biome-ignore lint/suspicious/noExplicitAny: JSON parsed body structure is dynamic
                 .parts.find((p: any) => p.type === "text")?.text;
 
               if (content.includes("Generate a markdown sample")) {
@@ -224,6 +226,7 @@ export const useChat = () => {
   };
 
   React.useEffect(() => {
+    // biome-ignore lint/suspicious/noExplicitAny: Platejs chat plugin option type compatibility
     editor.setOption(AIChatPlugin, "chat", chat as any);
   }, [chat.status, chat.messages, chat.error]);
 
