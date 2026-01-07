@@ -32,6 +32,7 @@ export function TocElement(props: PlateElementProps) {
             <Button
               key={item.id}
               variant="ghost"
+              // biome-ignore lint/suspicious/noExplicitAny: CVA depth variant type mismatch
               className={headingItemVariants({ depth: item.depth as any })}
               onClick={(e) => btnProps.onClick(e, item, "smooth")}
               aria-current

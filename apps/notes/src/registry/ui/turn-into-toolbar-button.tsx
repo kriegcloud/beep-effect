@@ -115,6 +115,7 @@ export function TurnIntoToolbarButton(props: DropdownMenuProps) {
 
   const value = useSelectionFragmentProp({
     defaultValue: KEYS.p,
+    // biome-ignore lint/suspicious/noExplicitAny: Platejs node type compatibility
     getProp: (node) => getBlockType(node as any),
   });
   const selectedItem = React.useMemo(

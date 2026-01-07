@@ -33,6 +33,7 @@ export async function POST(request: NextRequest) {
     let browser: Browser;
 
     try {
+      // biome-ignore lint/suspicious/noExplicitAny: Puppeteer launch options type compatibility
       const launchOptions: any = {
         args: ["--no-sandbox", "--disable-gpu", "--disable-setuid-sandbox", "--disable-dev-shm-usage"],
         headless: true,
@@ -81,6 +82,7 @@ export async function POST(request: NextRequest) {
           <span class="pageNumber"></span> / <span class="totalPages"></span>
         </div>
       `,
+      // biome-ignore lint/suspicious/noExplicitAny: Puppeteer format string type compatibility
       format: format as any,
       margin: {
         bottom: "30px",

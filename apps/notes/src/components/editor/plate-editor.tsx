@@ -17,6 +17,7 @@ import { Skeleton } from "../ui/skeleton";
 export const PlateEditor = ({ mode }: { mode?: "print" }) => {
   const queryOptions = useDocumentQueryOptions();
 
+  // biome-ignore lint/suspicious/noExplicitAny: Platejs plugin option returns untyped ref
   const contentRef = usePluginOption(AIChatPlugin, "contentRef") as any;
 
   const { data: toc = true, isLoading } = useQuery({
