@@ -1,5 +1,5 @@
 import type { IsNever } from "./is-never";
-
+import type * as UnsafeTypes from "./unsafe.types";
 /**
 Returns a boolean for whether the given type is a union.
 
