@@ -11,12 +11,7 @@ const $I = $DocumentsDomainId.create("entities/Discussion/Discussion.errors");
 export class DiscussionNotFoundError extends S.TaggedError<DiscussionNotFoundError>()(
   $I`DiscussionNotFoundError`,
   { id: DocumentsEntityIds.DiscussionId },
-  {
-    ...HttpApiSchema.annotations({ status: 404 }),
-    ...$I.annotations("DiscussionNotFoundError", {
-      description: "Thrown when a discussion with the specified ID does not exist.",
-    }),
-  }
+  HttpApiSchema.annotations({ status: 404 })
 ) {}
 
 /**
@@ -25,12 +20,7 @@ export class DiscussionNotFoundError extends S.TaggedError<DiscussionNotFoundErr
 export class DiscussionPermissionDeniedError extends S.TaggedError<DiscussionPermissionDeniedError>()(
   $I`DiscussionPermissionDeniedError`,
   { id: DocumentsEntityIds.DiscussionId },
-  {
-    ...HttpApiSchema.annotations({ status: 403 }),
-    ...$I.annotations("DiscussionPermissionDeniedError", {
-      description: "Thrown when the user lacks permission to perform the requested action on the discussion.",
-    }),
-  }
+  HttpApiSchema.annotations({ status: 403 })
 ) {}
 
 /**
@@ -39,12 +29,7 @@ export class DiscussionPermissionDeniedError extends S.TaggedError<DiscussionPer
 export class DiscussionAlreadyResolvedError extends S.TaggedError<DiscussionAlreadyResolvedError>()(
   $I`DiscussionAlreadyResolvedError`,
   { id: DocumentsEntityIds.DiscussionId },
-  {
-    ...HttpApiSchema.annotations({ status: 400 }),
-    ...$I.annotations("DiscussionAlreadyResolvedError", {
-      description: "Thrown when attempting to resolve a discussion that is already marked as resolved.",
-    }),
-  }
+  HttpApiSchema.annotations({ status: 400 })
 ) {}
 
 /**
@@ -53,12 +38,7 @@ export class DiscussionAlreadyResolvedError extends S.TaggedError<DiscussionAlre
 export class DiscussionNotResolvedError extends S.TaggedError<DiscussionNotResolvedError>()(
   $I`DiscussionNotResolvedError`,
   { id: DocumentsEntityIds.DiscussionId },
-  {
-    ...HttpApiSchema.annotations({ status: 400 }),
-    ...$I.annotations("DiscussionNotResolvedError", {
-      description: "Thrown when attempting to unresolve a discussion that is not currently resolved.",
-    }),
-  }
+  HttpApiSchema.annotations({ status: 400 })
 ) {}
 
 /**

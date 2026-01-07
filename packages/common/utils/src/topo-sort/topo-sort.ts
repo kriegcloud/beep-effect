@@ -14,9 +14,11 @@ const $I = $UtilsId.create("topo-sort/topo-sort");
 
 export const NodeId = S.NonEmptyTrimmedString.pipe(
   S.brand("NodeId"),
-  S.annotations($I.annotations("NodeId", {
-    description: "Branded string identifier for directed acyclic graph nodes",
-  }))
+  S.annotations(
+    $I.annotations("NodeId", {
+      description: "Branded string identifier for directed acyclic graph nodes",
+    })
+  )
 );
 export type NodeId = S.Schema.Type<typeof NodeId>;
 

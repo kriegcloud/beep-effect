@@ -242,7 +242,8 @@ export class MultipleAutoIncrementError extends S.TaggedError<MultipleAutoIncrem
     autoIncrementFields: S.Array(S.String),
   },
   $I.annotations("MultipleAutoIncrementError", {
-    description: "Error thrown when model has multiple auto-increment fields (PostgreSQL allows only one SERIAL per table)",
+    description:
+      "Error thrown when model has multiple auto-increment fields (PostgreSQL allows only one SERIAL per table)",
   })
 ) {}
 

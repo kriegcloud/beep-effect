@@ -15,9 +15,11 @@ const $I = $UtilsId.create("topo-sort/topo-sort.graph");
 
 export const NodeId = S.NonEmptyTrimmedString.pipe(
   S.brand("NodeId"),
-  S.annotations($I.annotations("NodeId", {
-    description: "Branded string identifier for Effect Graph-based DAG nodes",
-  }))
+  S.annotations(
+    $I.annotations("NodeId", {
+      description: "Branded string identifier for Effect Graph-based DAG nodes",
+    })
+  )
 );
 export type NodeId = S.Schema.Type<typeof NodeId>;
 

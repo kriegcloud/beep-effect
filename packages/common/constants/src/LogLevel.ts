@@ -2,7 +2,7 @@ import { $ConstantsId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
 import type * as S from "effect/Schema";
 
-const $I = $ConstantsId.create("LogFormat");
+const $I = $ConstantsId.create("LogLevel");
 export class LogLevel extends BS.StringLiteralKit(
   "All",
   "Debug",

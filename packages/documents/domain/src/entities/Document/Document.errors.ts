@@ -11,12 +11,7 @@ const $I = $DocumentsDomainId.create("entities/Document/Document.errors");
 export class DocumentNotFoundError extends S.TaggedError<DocumentNotFoundError>()(
   $I`DocumentNotFoundError`,
   { id: DocumentsEntityIds.DocumentId },
-  {
-    ...HttpApiSchema.annotations({ status: 404 }),
-    ...$I.annotations("DocumentNotFoundError", {
-      description: "Thrown when a document with the specified ID does not exist.",
-    }),
-  }
+  HttpApiSchema.annotations({ status: 404 })
 ) {}
 
 /**
@@ -25,12 +20,7 @@ export class DocumentNotFoundError extends S.TaggedError<DocumentNotFoundError>(
 export class DocumentPermissionDeniedError extends S.TaggedError<DocumentPermissionDeniedError>()(
   $I`DocumentPermissionDeniedError`,
   { id: DocumentsEntityIds.DocumentId },
-  {
-    ...HttpApiSchema.annotations({ status: 403 }),
-    ...$I.annotations("DocumentPermissionDeniedError", {
-      description: "Thrown when the user lacks permission to perform the requested action on the document.",
-    }),
-  }
+  HttpApiSchema.annotations({ status: 403 })
 ) {}
 
 /**
@@ -39,12 +29,7 @@ export class DocumentPermissionDeniedError extends S.TaggedError<DocumentPermiss
 export class DocumentArchivedError extends S.TaggedError<DocumentArchivedError>()(
   $I`DocumentArchivedError`,
   { id: DocumentsEntityIds.DocumentId },
-  {
-    ...HttpApiSchema.annotations({ status: 400 }),
-    ...$I.annotations("DocumentArchivedError", {
-      description: "Thrown when attempting to modify a document that has been archived.",
-    }),
-  }
+  HttpApiSchema.annotations({ status: 400 })
 ) {}
 
 /**
@@ -53,12 +38,7 @@ export class DocumentArchivedError extends S.TaggedError<DocumentArchivedError>(
 export class DocumentLockedError extends S.TaggedError<DocumentLockedError>()(
   $I`DocumentLockedError`,
   { id: DocumentsEntityIds.DocumentId },
-  {
-    ...HttpApiSchema.annotations({ status: 423 }),
-    ...$I.annotations("DocumentLockedError", {
-      description: "Thrown when attempting to modify a document that is locked by another user or process.",
-    }),
-  }
+  HttpApiSchema.annotations({ status: 423 })
 ) {}
 
 /**
@@ -67,12 +47,7 @@ export class DocumentLockedError extends S.TaggedError<DocumentLockedError>()(
 export class DocumentAlreadyPublishedError extends S.TaggedError<DocumentAlreadyPublishedError>()(
   $I`DocumentAlreadyPublishedError`,
   { id: DocumentsEntityIds.DocumentId },
-  {
-    ...HttpApiSchema.annotations({ status: 400 }),
-    ...$I.annotations("DocumentAlreadyPublishedError", {
-      description: "Thrown when attempting to publish a document that is already published.",
-    }),
-  }
+  HttpApiSchema.annotations({ status: 400 })
 ) {}
 
 /**
@@ -81,12 +56,7 @@ export class DocumentAlreadyPublishedError extends S.TaggedError<DocumentAlready
 export class DocumentNotPublishedError extends S.TaggedError<DocumentNotPublishedError>()(
   $I`DocumentNotPublishedError`,
   { id: DocumentsEntityIds.DocumentId },
-  {
-    ...HttpApiSchema.annotations({ status: 400 }),
-    ...$I.annotations("DocumentNotPublishedError", {
-      description: "Thrown when attempting to unpublish a document that is not currently published.",
-    }),
-  }
+  HttpApiSchema.annotations({ status: 400 })
 ) {}
 
 /**

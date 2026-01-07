@@ -13,12 +13,7 @@ export class CommentNotFoundError extends S.TaggedError<CommentNotFoundError>()(
   {
     id: DocumentsEntityIds.CommentId,
   },
-  {
-    ...HttpApiSchema.annotations({ status: 404 }),
-    ...$I.annotations("CommentNotFoundError", {
-      description: "Thrown when a comment with the specified ID does not exist.",
-    }),
-  }
+  HttpApiSchema.annotations({ status: 404 })
 ) {}
 
 /**
@@ -29,12 +24,9 @@ export class CommentPermissionDeniedError extends S.TaggedError<CommentPermissio
   {
     id: DocumentsEntityIds.CommentId,
   },
-  {
-    ...HttpApiSchema.annotations({ status: 403 }),
-    ...$I.annotations("CommentPermissionDeniedError", {
-      description: "Thrown when the user lacks permission to perform the requested action on the comment.",
-    }),
-  }
+  $I.annotations("CommentPermissionDeniedError", {
+    description: "Thrown when the user lacks permission to perform the requested action on the comment.",
+  })
 ) {}
 
 /**
@@ -47,12 +39,7 @@ export class CommentTooLongError extends S.TaggedError<CommentTooLongError>()(
     length: S.Int,
     maxLength: S.Int,
   },
-  {
-    ...HttpApiSchema.annotations({ status: 400 }),
-    ...$I.annotations("CommentTooLongError", {
-      description: "Thrown when the comment content exceeds the maximum allowed length of 50,000 characters.",
-    }),
-  }
+  HttpApiSchema.annotations({ status: 400 })
 ) {}
 
 /**

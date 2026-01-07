@@ -18,9 +18,11 @@ export const GroupScopes = S.Struct({
   mention: S.Literal(true),
 }).pipe(
   S.partial,
-  S.annotations($I.annotations("GroupScopes", {
-    description: "Partial struct defining available group scopes (mention permissions)",
-  }))
+  S.annotations(
+    $I.annotations("GroupScopes", {
+      description: "Partial struct defining available group scopes (mention permissions)",
+    })
+  )
 );
 
 export declare namespace GroupScopes {
