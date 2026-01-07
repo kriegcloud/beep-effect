@@ -6,6 +6,7 @@ import { jsx } from "@platejs/test-utils";
 jsx;
 
 // Using upload-demo in the meantime.
+// biome-ignore lint/suspicious/noExplicitAny: Platejs test-utils JSX returns untyped fragments
 export const imageValue: any = (
   <fragment>
     <hh2>📸 Image</hh2>
@@ -21,6 +22,7 @@ export const imageValue: any = (
   </fragment>
 );
 
+// biome-ignore lint/suspicious/noExplicitAny: Platejs test-utils JSX returns untyped fragments
 export const mediaValue: any = (
   <fragment>
     {imageValue}
