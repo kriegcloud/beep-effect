@@ -281,7 +281,7 @@ const generateTsconfigJson = (_layer: LayerName): string => {
     include: [],
     references: [{ path: "tsconfig.src.json" }, { path: "tsconfig.test.json" }],
   };
-  return JSON.stringify(config, null, 2) + "\n";
+  return `${JSON.stringify(config, null, 2)}\n`;
 };
 
 /**

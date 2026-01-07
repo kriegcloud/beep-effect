@@ -11,7 +11,7 @@ import type { IsAny } from "./is-any";
 import type { IsNever } from "./is-never";
 import type { Subtract } from "./subtract";
 import type { UnknownArray } from "./unknown-array";
-
+import type * as UnsafeTypes from "./unsafe.types";
 /**
 Paths options.
 
@@ -276,7 +276,9 @@ type InternalPaths<
                           ? SubPath extends string | number
                             ?
                                 | (Options["bracketNotation"] extends true
-                                    ? SubPath extends `[${any}]` | `[${any}]${string}`
+                                    ? SubPath extends
+                                        | `[${UnsafeTypes.UnsafeAny}]`
+                                        | `[${UnsafeTypes.UnsafeAny}]${string}`
                                       ? `${TranformedKey}${SubPath}` // If next node is number key like `[3]`, no need to add `.` before it.
                                       : `${TranformedKey}.${SubPath}`
                                     : never)

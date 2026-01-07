@@ -1,5 +1,5 @@
 import type tag from "tagged-tag";
-
+import type * as UnsafeTypes from "./unsafe.types";
 // eslint-disable-next-line type-fest/require-exported-types
 export type TagContainer<Token> = {
   readonly [tag]: Token;
@@ -128,10 +128,10 @@ type WontWork = UnwrapTagged<string>;
 
 @category Type
 */
-export type UnwrapTagged<TaggedType extends Tag<PropertyKey, any>> = RemoveAllTags<TaggedType>;
+export type UnwrapTagged<TaggedType extends Tag<PropertyKey, UnsafeTypes.UnsafeAny>> = RemoveAllTags<TaggedType>;
 
 type RemoveAllTags<T> =
-  T extends Tag<PropertyKey, any>
+  T extends Tag<PropertyKey, UnsafeTypes.UnsafeAny>
     ? {
         [ThisTag in keyof T[typeof tag]]: T extends Tagged<infer Type, ThisTag, T[typeof tag][ThisTag]>
           ? RemoveAllTags<Type>
@@ -252,7 +252,7 @@ type WillWork = UnwrapOpaque<Tagged<number, 'AccountNumber'>>; // number
 @deprecated Use {@link UnwrapTagged} instead
 */
 export type UnwrapOpaque<OpaqueType extends TagContainer<unknown>> =
-  OpaqueType extends Tag<PropertyKey, any>
+  OpaqueType extends Tag<PropertyKey, UnsafeTypes.UnsafeAny>
     ? RemoveAllTags<OpaqueType>
     : OpaqueType extends Opaque<infer Type, OpaqueType[typeof tag]>
       ? Type

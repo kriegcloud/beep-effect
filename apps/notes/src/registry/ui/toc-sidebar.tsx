@@ -22,6 +22,12 @@ const tocSidebarButtonVariants = cva("block h-auto w-full rounded-sm p-0 text-le
   },
 });
 
+const toDepthVariant = (depth: number): 1 | 2 | 3 => {
+  if (depth <= 1) return 1;
+  if (depth === 2) return 2;
+  return 3;
+};
+
 export function TocSidebar({
   className,
   maxShowCount = 20,
@@ -76,10 +82,9 @@ export function TocSidebar({
                       key={index}
                       variant="ghost"
                       className={cn(
-                        // biome-ignore lint/suspicious/noExplicitAny: CVA depth variant type mismatch
                         tocSidebarButtonVariants({
                           active: isActive,
-                          depth: item.depth as any,
+                          depth: toDepthVariant(item.depth),
                         })
                       )}
                       onClick={(e) => onContentClick(e, item, "smooth")}

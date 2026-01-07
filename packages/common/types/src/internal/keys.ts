@@ -1,6 +1,7 @@
 import type { IsAny } from "../is-any";
 import type { IsLiteral } from "../is-literal";
 import type { IsUnknown } from "../is-unknown";
+import type * as UnsafeTypes from "../unsafe.types";
 import type { ToString } from "./string";
 
 // Returns `never` if the key or property is not jsonable without testing whether the property is required or optional otherwise return the key.
@@ -15,7 +16,7 @@ type BaseKeyFilter<Type, Key extends keyof Type> = Key extends symbol
 		*/
       Type[Key] extends Record<string, unknown>
       ? Key
-      : [(...arguments_: any[]) => any] extends [Type[Key]]
+      : [(...arguments_: UnsafeTypes.UnsafeAny[]) => UnsafeTypes.UnsafeAny] extends [Type[Key]]
         ? never
         : Key;
 

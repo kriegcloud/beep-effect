@@ -7,9 +7,10 @@ import type { JsonPrimitive, JsonValue } from "./json-value";
 import type { NegativeInfinity, PositiveInfinity } from "./numeric";
 import type { TypedArray } from "./typed-array";
 import type { UnknownArray } from "./unknown-array";
+import type * as UnsafeTypes from "./unsafe.types";
 
 // Note: The return value has to be `any` and not `unknown` so it can match `void`.
-type NotJsonable = ((...arguments_: any[]) => any) | undefined | symbol;
+type NotJsonable = ((...arguments_: UnsafeTypes.UnsafeAny[]) => UnsafeTypes.UnsafeAny) | undefined | symbol;
 
 type NeverToNull<T> = IsNever<T> extends true ? null : T;
 type UndefinedToNull<T> = T extends undefined ? null : T;

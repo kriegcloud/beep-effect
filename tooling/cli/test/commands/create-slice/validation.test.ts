@@ -39,7 +39,7 @@ describe("SliceName validation", () => {
     });
 
     it("should accept names at maximum length (50 chars)", () => {
-      const name = "a" + "-bcd".repeat(12) + "e"; // 50 chars: a + 48 + e
+      const name = `a${"-bcd".repeat(12)}e`; // 50 chars: a + 48 + e
       const result = S.decodeUnknownEither(SliceName)(name);
       expect(Either.isRight(result)).toBe(true);
     });

@@ -1,6 +1,7 @@
 import { describe } from "bun:test";
 import * as EncryptionService from "@beep/shared-domain/services/EncryptionService";
 import { assertTrue, deepStrictEqual, layer, strictEqual } from "@beep/testkit";
+import { slice } from "@beep/utils/data/array.utils";
 import * as Effect from "effect/Effect";
 import * as Redacted from "effect/Redacted";
 import * as Schema from "effect/Schema";
@@ -376,7 +377,7 @@ describe("EncryptionService", () => {
         // Corrupt the ciphertext by modifying a character
         const corruptedPayload = {
           ...encrypted,
-          ciphertext: encrypted.ciphertext.slice(0, -4) + "XXXX",
+          ciphertext: `${slice(0, -4)(encrypted.ciphertext)}XXXX`,
         };
 
         const result = yield* Effect.either(service.decrypt(corruptedPayload, key));

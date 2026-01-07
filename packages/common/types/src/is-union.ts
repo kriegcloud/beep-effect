@@ -22,7 +22,7 @@ The actual implementation of `IsUnion`.
 type InternalIsUnion<T, U = T> = (
   IsNever<T> extends true
     ? false
-    : T extends any
+    : T extends UnsafeTypes.UnsafeAny
       ? [U] extends [T]
         ? false
         : true

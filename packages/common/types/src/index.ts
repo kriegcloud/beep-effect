@@ -236,7 +236,7 @@ export type * as StructTypes from "./struct.types";
 export type * as TagTypes from "./tag.types";
 export * from "./thunk.types";
 /**
- * Escape-hatch type aliases for unsafe any-based and safe unknown-based types.
+ * Escape-hatch type aliases for unsafe UnsafeTypes.UnsafeAny-based and safe unknown-based types.
  *
  * @example
  * ```typescript

@@ -3,7 +3,7 @@ import type { IsAny } from "../is-any";
 import type { IsNever } from "../is-never";
 import type { Primitive } from "../primitive";
 import type { UnknownArray } from "../unknown-array";
-
+import type * as UnsafeTypes from "../unsafe.types";
 /**
 Matches any primitive, `void`, `Date`, or `RegExp` value.
 */
@@ -12,7 +12,13 @@ export type BuiltIns = Primitive | void | Date | RegExp;
 /**
 Matches non-recursive types.
 */
-export type NonRecursiveType = BuiltIns | Function | (new (...arguments_: any[]) => unknown) | Promise<unknown>;
+export type NonRecursiveType =
+  | BuiltIns
+  | Function
+  | (new (
+      ...arguments_: UnsafeTypes.UnsafeAny[]
+    ) => unknown)
+  | Promise<unknown>;
 
 /**
 Matches maps, sets, or arrays.
@@ -41,7 +47,7 @@ Needed to handle the case of a single call signature with properties.
 Multiple call signatures cannot currently be supported due to a TypeScript limitation.
 @see https://github.com/microsoft/TypeScript/issues/29732
 */
-export type HasMultipleCallSignatures<T extends (...arguments_: any[]) => unknown> = T extends {
+export type HasMultipleCallSignatures<T extends (...arguments_: UnsafeTypes.UnsafeAny[]) => unknown> = T extends {
   (...arguments_: infer A): unknown;
   (...arguments_: infer B): unknown;
 }

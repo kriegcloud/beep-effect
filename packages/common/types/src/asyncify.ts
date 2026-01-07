@@ -1,5 +1,5 @@
 import type { SetReturnType } from "./set-return-type";
-
+import type * as UnsafeTypes from "./unsafe.types";
 /**
 Create an async version of the given function type, by boxing the return type in `Promise` while keeping the same parameter types.
 
@@ -20,7 +20,5 @@ type LoadConfigAsync = Asyncify<typeof loadConfigSync>;
 
 @category Async
 */
-export type Asyncify<Function_ extends (...arguments_: any[]) => any> = SetReturnType<
-  Function_,
-  Promise<Awaited<ReturnType<Function_>>>
->;
+export type Asyncify<Function_ extends (...arguments_: UnsafeTypes.UnsafeAny[]) => UnsafeTypes.UnsafeAny> =
+  SetReturnType<Function_, Promise<Awaited<ReturnType<Function_>>>>;

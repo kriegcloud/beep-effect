@@ -18,6 +18,12 @@ const headingItemVariants = cva(
   }
 );
 
+const toDepthVariant = (depth: number): 1 | 2 | 3 => {
+  if (depth <= 1) return 1;
+  if (depth === 2) return 2;
+  return 3;
+};
+
 export function TocElementStatic(props: SlateElementProps) {
   const { editor } = props;
   const headingList = getHeadingList(editor);
@@ -27,8 +33,11 @@ export function TocElementStatic(props: SlateElementProps) {
       <div>
         {headingList.length > 0 ? (
           headingList.map((item) => (
-            {/* biome-ignore lint/suspicious/noExplicitAny: CVA depth variant type mismatch */}
-            <Button key={item.title} variant="ghost" className={headingItemVariants({ depth: item.depth as any })}>
+            <Button
+              key={item.title}
+              variant="ghost"
+              className={headingItemVariants({ depth: toDepthVariant(item.depth) })}
+            >
               {item.title}
             </Button>
           ))

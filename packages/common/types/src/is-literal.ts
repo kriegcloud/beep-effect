@@ -3,6 +3,7 @@ import type { IsNever } from "./is-never";
 import type { _Numeric } from "./numeric";
 import type { Primitive } from "./primitive";
 import type { TagContainer, UnwrapTagged } from "./tagged";
+import type * as UnsafeTypes from "./unsafe.types";
 
 /**
 Returns a boolean for whether the given type `T` is the specified `LiteralType`.
@@ -110,7 +111,7 @@ type L2 = Length<`${number}`>;
 */
 export type IsStringLiteral<S> = IfNotAnyOrNever<
   S,
-  _IsStringLiteral<CollapseLiterals<S extends TagContainer<any> ? UnwrapTagged<S> : S>>,
+  _IsStringLiteral<CollapseLiterals<S extends TagContainer<UnsafeTypes.UnsafeAny> ? UnwrapTagged<S> : S>>,
   false,
   false
 >;

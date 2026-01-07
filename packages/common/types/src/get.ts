@@ -4,7 +4,7 @@ import type { KeyAsString } from "./key-as-string";
 import type { _LiteralStringUnion } from "./literal-union";
 import type { Paths } from "./paths";
 import type { Split } from "./split";
-
+import type * as UnsafeTypes from "./unsafe.types";
 export type GetOptions = {
   /**
 	Include `undefined` in the return type when accessing properties.
@@ -42,11 +42,11 @@ Known limitations:
 */
 type StrictPropertyOf<BaseType, Key extends keyof BaseType, Options extends Required<GetOptions>> = Record<
   string,
-  any
+  UnsafeTypes.UnsafeAny
 > extends BaseType
   ? string extends keyof BaseType
-    ? Strictify<BaseType[Key], Options> // Record<string, any>
-    : BaseType[Key] // Record<'a' | 'b', any> (Records with a string union as keys have required properties)
+    ? Strictify<BaseType[Key], Options> // Record<string, UnsafeTypes.UnsafeAny>
+    : BaseType[Key] // Record<'a' | 'b', UnsafeTypes.UnsafeAny> (Records with a string union as keys have required properties)
   : BaseType[Key];
 
 /**
@@ -112,7 +112,9 @@ type WithStringKeys<BaseType> = {
 /**
 Perform a `T[U]` operation if `T` supports indexing.
 */
-type UncheckedIndex<T, U extends string | number> = [T] extends [Record<string | number, any>] ? T[U] : never;
+type UncheckedIndex<T, U extends string | number> = [T] extends [Record<string | number, UnsafeTypes.UnsafeAny>]
+  ? T[U]
+  : never;
 
 /**
 Get a property of an object or array. Works when indexing arrays using number-literal-strings, for example, `PropertyOf<number[], '0'> = number`, and when indexing objects with number keys.

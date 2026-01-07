@@ -18,6 +18,12 @@ const headingItemVariants = cva(
   }
 );
 
+const toDepthVariant = (depth: number): 1 | 2 | 3 => {
+  if (depth <= 1) return 1;
+  if (depth === 2) return 2;
+  return 3;
+};
+
 export function TocElement(props: PlateElementProps) {
   const { editor, element } = props;
   const state = useTocElementState();
@@ -32,8 +38,7 @@ export function TocElement(props: PlateElementProps) {
             <Button
               key={item.id}
               variant="ghost"
-              // biome-ignore lint/suspicious/noExplicitAny: CVA depth variant type mismatch
-              className={headingItemVariants({ depth: item.depth as any })}
+              className={headingItemVariants({ depth: toDepthVariant(item.depth) })}
               onClick={(e) => btnProps.onClick(e, item, "smooth")}
               aria-current
             >

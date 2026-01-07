@@ -1,4 +1,6 @@
-type AsyncFunction = (...arguments_: any[]) => PromiseLike<unknown>;
+import type * as UnsafeTypes from "./unsafe.types";
+
+type AsyncFunction = (...arguments_: UnsafeTypes.UnsafeAny[]) => PromiseLike<unknown>;
 
 /**
 Unwrap the return type of a function that returns a `Promise`.
