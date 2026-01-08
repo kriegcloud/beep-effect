@@ -36,18 +36,11 @@ This outputs packages with **fewest dependencies first**. **REVERSE this list** 
 
 For **pattern remediation**, order is flexible since internal code changes don't break consumers. However, we use reverse order for:
 
-1. **Consistency** with structure-standardization spec
-2. **Validation flow** - consumer packages can be validated immediately
-3. **Reference patterns** - by the time you reach provider packages, you've established consistent patterns
+1. **Validation flow** - consumer packages can be validated immediately
+2. **Reference patterns** - by the time you reach provider packages, you've established consistent patterns
+3. **Predictability** - consistent ordering across the monorepo
 
-### Note: Pattern vs Structure
-
-Unlike structure refactoring, pattern fixes don't change exports:
-- Fixing `.map()` → `A.map()` doesn't break consumers
-- Each package is independently validatable
-- Less critical than structure refactoring order
-
-**Process from BOTTOM to TOP of topo-sort output for consistency.**
+**Process from BOTTOM to TOP of topo-sort output.**
 
 ## Execution Strategy
 
