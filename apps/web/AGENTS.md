@@ -1,7 +1,7 @@
 # AGENTS — apps/web
 
 ## Purpose & Fit
-- App Router host for all Beep customer-facing surfaces (marketing, auth, dashboard, upload) running on Next.js 15 + React 19 with the React Compiler and Turbopack.
+- App Router host for all Beep customer-facing surfaces (marketing, auth, dashboard, upload) running on Next.js 16 + React 19 with the React Compiler and Turbopack.
 - Bridges Effect runtimes: server components call `runServerPromise` to execute Effects (e.g., `getAppConfig`) and client shells mount `BeepProvider` + `KaServices` so atoms, telemetry, and workers share a single managed runtime.
 - Keeps UI consistent by wiring `@beep/ui-core` tokens + `@beep/ui` composites through a single provider stack (theme, i18n, settings, confirm/snackbar, progress, IAM).
 

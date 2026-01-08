@@ -69,7 +69,7 @@ Planned components will include theme customization UI.
 
 ## Gotchas
 
-### React 19 / Next.js 15 App Router
+### React 19 / Next.js 16 App Router
 - The `"use client"` directive MUST be the first line of the file, BEFORE any imports. Next.js silently runs misplaced client components on the server.
 - Settings/preference components require `"use client"` because they use hooks for state management.
 - `useSearchParams()` suspends in App Router. Preference pages with URL-based state need `<Suspense>` boundaries.

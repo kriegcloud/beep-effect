@@ -19,6 +19,9 @@ import {
   SparkleIcon,
   UserCircleCheckIcon,
 } from "@phosphor-icons/react";
+import * as A from "effect/Array";
+import * as F from "effect/Function";
+import * as Str from "effect/String";
 
 export interface User {
   readonly name: string;
@@ -33,12 +36,14 @@ interface NavUserProps {
 export function NavUser({ user }: NavUserProps) {
   const { isMobile } = useSidebar();
 
-  const initials = user.name
-    .split(" ")
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2);
+  const initials = F.pipe(
+    user.name,
+    Str.split(" "),
+    A.map((n) => n[0] ?? ""),
+    A.join(""),
+    Str.toUpperCase,
+    Str.slice(0, 2)
+  );
 
   return (
     <SidebarMenu>

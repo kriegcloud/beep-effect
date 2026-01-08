@@ -316,7 +316,7 @@ When adding new components:
 - [ ] No native array/string/object methods; Effect utilities only
 - [ ] No native Date; use `effect/DateTime` for all date/time operations
 - [ ] Pattern matching uses `effect/Match` instead of switch statements
-- [ ] Appropriate `"use client"` markers for React 19 + Next.js 15
+- [ ] Appropriate `"use client"` markers for React 19 + Next.js 16
 - [ ] Effect-based data fetching with TanStack Query integration
 - [ ] Tests added under `packages/documents/ui/test/`
 - [ ] Documentation includes usage examples

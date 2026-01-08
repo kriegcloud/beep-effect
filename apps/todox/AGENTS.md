@@ -2,7 +2,7 @@
 
 Next.js 16 application demonstrating shadcn/ui component library integration with Effect patterns.
 
-## Purpose
+## Overview
 
 TodoX is a showcase application built with Next.js 16 App Router, featuring:
 - shadcn/ui component library with custom theming
@@ -12,17 +12,6 @@ TodoX is a showcase application built with Next.js 16 App Router, featuring:
 - TypeScript strict mode with comprehensive type safety
 
 This app serves as a reference implementation for UI patterns and component composition in the beep-effect monorepo.
-
-## Installation
-
-```bash
-# This package is internal to the monorepo
-# Navigate to the app directory:
-cd apps/todox
-
-# Install dependencies (from monorepo root):
-bun install
-```
 
 ## Package Structure
 
@@ -39,7 +28,7 @@ apps/todox/
 │   │   │   ├── nav-projects.tsx
 │   │   │   ├── nav-user.tsx
 │   │   │   └── team-switcher.tsx
-│   │   ├── ui/             # shadcn/ui components (48 components)
+│   │   ├── ui/             # shadcn/ui components (61 components)
 │   │   ├── component-example.tsx
 │   │   ├── example.tsx
 │   │   ├── mode-toggle.tsx
@@ -138,17 +127,13 @@ const namesProper = F.pipe(items, A.map(x => x.name))
 
 ### shadcn/ui Components
 
-The app includes 48 shadcn/ui components in `src/components/ui/`:
-- Accordion, Alert, AlertDialog, AspectRatio, Avatar
-- Badge, Breadcrumb, Button, Calendar, Card, Carousel, Chart
-- Checkbox, Collapsible, Combobox, Command, ContextMenu
-- Dialog, Drawer, DropdownMenu, Field
-- HoverCard, Input, InputGroup, InputOTP
-- Label, Menubar, NavigationMenu
-- Pagination, Popover, Progress
+The app includes 61 shadcn/ui components in `src/components/ui/`:
+- Alert, AlertDialog, Avatar, Badge, Breadcrumb, Button, Card, Carousel
+- Chart, Checkbox, Collapsible, Combobox, Command, ContextMenu
+- Dialog, Drawer, DropdownMenu, Field, HoverCard, Input, InputGroup, InputOTP
+- Label, Menubar, NavigationMenu, Pagination, Popover, Progress
 - RadioGroup, ResizablePanels, ScrollArea, Select, Separator, Sheet
-- Sidebar, Skeleton, Slider, Sonner, Switch
-- Tabs, Textarea, Toast, Toggle, ToggleGroup, Tooltip
+- Sidebar, Skeleton, Slider, Sonner, Switch, Tabs, Textarea, Toggle, ToggleGroup, Tooltip
 
 ### Custom Components
 
@@ -303,7 +288,7 @@ const enableDebugTools = clientEnv.env === "dev"
 
 // Conditional script loading
 {clientEnv.env === "dev" && (
-  <Script src="//unpkg.com/react-grab/dist/index.global.js" strategy="beforeInteractive" />
+  <Script src="//debug-tool.js" strategy="lazyOnload" />
 )}
 ```
 
@@ -312,6 +297,6 @@ const enableDebugTools = clientEnv.env === "dev"
 - [Next.js 16 Documentation](https://nextjs.org/docs)
 - [shadcn/ui Documentation](https://ui.shadcn.com)
 - [Effect Documentation](https://effect.website)
-- [Root CLAUDE.md](../../CLAUDE.md) — Monorepo-wide patterns
+- [Root AGENTS.md](../../CLAUDE.md) — Monorepo-wide patterns
 - [Shared Environment](../../packages/shared/env/AGENTS.md) — Environment configuration
 - [Effect Patterns](../../documentation/EFFECT_PATTERNS.md) — Effect-specific patterns

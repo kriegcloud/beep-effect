@@ -106,7 +106,7 @@ The package exposes the following entry points:
 
 ## Gotchas
 
-### React 19 / Next.js 15 App Router
+### React 19 / Next.js 16 App Router
 - Theme utilities (`createTheme`, `applySettingsToTheme`) are pure functions and can run in Server Components.
 - `Rtl` component uses Emotion cache and `document.dir`, so it requires `"use client"` in its consumers.
 - MUI locale bundles imported for `ThemeProvider` are static and do not affect server/client boundaries.

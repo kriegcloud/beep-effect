@@ -216,7 +216,7 @@ If anyone whispers “over-engineered,” I will annotate their existence with `
 - Core: Effect 3 + `@effect/platform`.
 - DB: Postgres + Drizzle + `@effect/sql*`.
 - Auth: better-auth (wrapped via contract kits).
-- UI: React 19 + Next.js 15 App Router + MUI + Tailwind + shadcn + TanStack Query.
+- UI: React 19 + Next.js 16 App Router + MUI + Tailwind + shadcn + TanStack Query.
 - State machines: XState 5.
 - Quality: Biome, Vitest.
 - Infra: Docker + dotenvx.
@@ -273,7 +273,7 @@ Imports must respect path aliases enforced in `tsconfig.base.json`.
 
 ## Applications
 
-- `apps/web` — Next.js 15 App Router surface (uses `@/*` alias).
+- `apps/web` — Next.js 16 App Router surface (uses `@/*` alias).
 - `apps/server` — Effect runtime host.
 - `apps/mcp` — Model Context Protocol tooling.
 

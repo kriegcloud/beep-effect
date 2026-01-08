@@ -19,6 +19,7 @@ export const CSP_DIRECTIVES = {
   "script-src-elem": [
     "'self'",
     "https://unpkg.com",
+    "http://unpkg.com",
     "'unsafe-inline'",
     "https://www.googletagmanager.com",
     "blob:",

@@ -43,9 +43,7 @@ export const AudioRecorder: (props: Props) => React.ReactElement = ({
     isPaused,
     recordingTime,
     mediaRecorder,
-  } =
-    recorderControls ??
-    useAudioRecorder(audioTrackConstraints, onNotAllowedOrFound, mediaRecorderOptions);
+  } = recorderControls ?? useAudioRecorder(audioTrackConstraints, onNotAllowedOrFound, mediaRecorderOptions);
 
   const [shouldSave, setShouldSave] = React.useState(false);
 

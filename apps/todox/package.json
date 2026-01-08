@@ -68,7 +68,10 @@
     "@phosphor-icons/react": "catalog:",
     "@react-email/components": "catalog:",
     "@react-email/render": "catalog:",
+    "@react-three/drei": "^10.7.7",
+    "@react-three/fiber": "^9.5.0",
     "@simplewebauthn/server": "catalog:",
+    "@types/three": "^0.182.0",
     "@zip.js/zip.js": "catalog:",
     "ai": "catalog:",
     "babel-plugin-react-compiler": "catalog:",
@@ -102,6 +105,7 @@
     "sonner": "^2.0.7",
     "stripe": "catalog:",
     "tailwind-merge": "catalog:",
+    "three": "^0.182.0",
     "trystero": "catalog:",
     "tw-animate-css": "catalog:",
     "vaul": "^1.1.2"

@@ -27,7 +27,7 @@ Key concerns identified:
 ### Apps (4)
 | App | Purpose |
 |-----|---------|
-| `apps/web` | Next.js 15 + React 19 frontend |
+| `apps/web` | Next.js 16 + React 19 frontend |
 | `apps/server` | Effect Platform backend runtime |
 | `apps/marketing` | Marketing site |
 

@@ -24,7 +24,7 @@ const data = {
   user: {
     name: "John Doe",
     email: "john@example.com",
-    avatar: "/avatars/john.jpg",
+    avatar: "/logo.avif",
   } satisfies User,
   teams: [
     {

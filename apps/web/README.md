@@ -1,10 +1,10 @@
 # @beep/web
 
-Next.js 15 App Router frontend application for the beep-effect platform.
+Next.js 16 App Router frontend application for the beep-effect platform.
 
 ## Purpose
 
-`@beep/web` is the customer-facing Next.js application that serves all Beep surfaces including marketing pages, authentication flows, dashboard, and file upload functionality. It bridges server and client Effect runtimes, running on Next.js 15 + React 19 with the React Compiler and Turbopack. The app maintains a consistent UI experience by wiring `@beep/ui-core` design tokens and `@beep/ui` components through a centralized provider stack that handles theming, i18n, settings, authentication, and global UI state.
+`@beep/web` is the customer-facing Next.js application that serves all Beep surfaces including marketing pages, authentication flows, dashboard, and file upload functionality. It bridges server and client Effect runtimes, running on Next.js 16 + React 19 with the React Compiler and Turbopack. The app maintains a consistent UI experience by wiring `@beep/ui-core` design tokens and `@beep/ui` components through a centralized provider stack that handles theming, i18n, settings, authentication, and global UI state.
 
 ## Key Exports
 
@@ -173,7 +173,7 @@ The root layout establishes the following provider hierarchy (from outer to inne
 
 | Package | Purpose |
 |---------|---------|
-| `next` | Next.js 15 App Router framework |
+| `next` | Next.js 16 App Router framework |
 | `react` | React 19 with compiler support |
 | `effect` | Effect runtime and utilities |
 | `@beep/runtime-client` | Client-side managed Effect runtime |

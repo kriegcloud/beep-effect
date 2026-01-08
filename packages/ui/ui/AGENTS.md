@@ -79,7 +79,7 @@
 
 ## Gotchas
 
-### React 19 / Next.js 15 App Router
+### React 19 / Next.js 16 App Router
 - The `"use client"` directive MUST be the FIRST line of a file, BEFORE any imports. Next.js silently treats misplaced directives as server code.
 - React 19's `use()` hook (used in `use-settings-context.ts`) requires the component be inside `<Suspense>`. Missing boundaries cause unhandled promise rejections.
 - Server Components cannot import modules that use browser APIs. Components using `window`, `document`, or `localStorage` MUST have `"use client"`.

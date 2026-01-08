@@ -42,7 +42,7 @@ When implemented, this package should include:
 
 ## Gotchas
 
-### React 19 / Next.js 15 App Router
+### React 19 / Next.js 16 App Router
 - The `"use client"` directive MUST be the first line of a file, BEFORE any imports. Placing it elsewhere causes the component to silently run on the server.
 - Document editor components are inherently client-side (require DOM access). They cannot be Server Components.
 - `useSearchParams()` and `useParams()` suspend in App Router. Always wrap document route components using these hooks with `<Suspense>`.

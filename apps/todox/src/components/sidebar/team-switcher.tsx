@@ -13,6 +13,8 @@ import {
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@beep/todox/components/ui/sidebar";
 import type { Icon } from "@phosphor-icons/react";
 import { CaretUpDownIcon, CheckIcon, PlusIcon } from "@phosphor-icons/react";
+import * as A from "effect/Array";
+import * as F from "effect/Function";
 import * as React from "react";
 
 export interface Team {
@@ -64,19 +66,22 @@ export function TeamSwitcher({ teams }: TeamSwitcherProps) {
           >
             <DropdownMenuGroup>
               <DropdownMenuLabel className="text-muted-foreground text-xs">Teams</DropdownMenuLabel>
-              {teams.map((team, index) => {
-                const TeamLogo = team.logo;
-                return (
-                  <DropdownMenuItem key={team.name} onClick={() => setActiveTeam(team)} className="gap-2 p-2">
-                    <div className="flex size-6 items-center justify-center rounded-md border">
-                      <TeamLogo className="size-3.5 shrink-0" weight="bold" />
-                    </div>
-                    {team.name}
-                    {team.name === activeTeam.name && <CheckIcon className="ml-auto size-4" />}
-                    <DropdownMenuShortcut>⌘{index + 1}</DropdownMenuShortcut>
-                  </DropdownMenuItem>
-                );
-              })}
+              {F.pipe(
+                teams,
+                A.map((team, index) => {
+                  const TeamLogo = team.logo;
+                  return (
+                    <DropdownMenuItem key={team.name} onClick={() => setActiveTeam(team)} className="gap-2 p-2">
+                      <div className="flex size-6 items-center justify-center rounded-md border">
+                        <TeamLogo className="size-3.5 shrink-0" weight="bold" />
+                      </div>
+                      {team.name}
+                      {team.name === activeTeam.name && <CheckIcon className="ml-auto size-4" />}
+                      <DropdownMenuShortcut>⌘{index + 1}</DropdownMenuShortcut>
+                    </DropdownMenuItem>
+                  );
+                })
+              )}
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem className="gap-2 p-2">

@@ -20,5 +20,8 @@
   },
   "menuColor": "default",
   "menuAccent": "subtle",
-  "registries": {}
+  "registries": {
+    "@basecn": "https://basecn.dev/r/{name}.json",
+    "@elevenlabs-ui": "https://ui.elevenlabs.io/r/{name}.json"
+  }
 }

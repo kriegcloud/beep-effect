@@ -163,9 +163,9 @@ export const VerifyPhoneCard = () => {
 
 ## Gotchas
 
-### React 19 / Next.js 15 App Router
+### React 19 / Next.js 16 App Router
 - The `"use client"` directive MUST appear at the file top BEFORE any imports. Placing it after imports causes silent server-side rendering failures.
-- `useSearchParams()` suspends in Next.js 15 App Router. Wrap components using it with `<Suspense>` or use `useSearchParams` only in client components wrapped appropriately.
+- `useSearchParams()` suspends in Next.js 16 App Router. Wrap components using it with `<Suspense>` or use `useSearchParams` only in client components wrapped appropriately.
 - Server Actions cannot be passed as props to Client Components directly. Use callback patterns or route handlers for auth flows.
 
 ### TanStack Query Invalidation

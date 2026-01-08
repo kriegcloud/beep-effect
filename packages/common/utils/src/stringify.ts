@@ -46,7 +46,6 @@ export function stringifyOrLog(value: unknown): string {
   try {
     return JSON.stringify(value);
   } catch (err) {
-
     console.error(`Could not stringify: ${(err as Error).message}`);
     console.error(value);
 

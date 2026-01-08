@@ -3,7 +3,7 @@
   "author": "elpresidank",
   "version": "0.1.0",
   "type": "module",
-  "description": "Next.js 15 App Router frontend application for the beep-effect platform",
+  "description": "Next.js 16 App Router frontend application for the beep-effect platform",
   "private": true,
   "repository": {
     "type": "git",

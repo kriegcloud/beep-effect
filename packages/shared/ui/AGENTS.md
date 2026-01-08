@@ -413,7 +413,7 @@ const handleSave = useEvent(() => {
 
 ## Gotchas
 
-### React 19 / Next.js 15 App Router
+### React 19 / Next.js 16 App Router
 - The `"use client"` directive MUST be the first statement in a file, BEFORE imports. Next.js silently treats misplaced directives as server code.
 - `NextSSRPlugin` uses `globalThis` for hydration. Ensure it renders BEFORE any components that consume route config.
 - `useSearchParams()` suspends in App Router. Components using file upload route params need `<Suspense>` wrappers.

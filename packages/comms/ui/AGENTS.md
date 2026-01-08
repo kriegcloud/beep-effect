@@ -144,7 +144,7 @@
 
 ## Gotchas
 
-### React 19 / Next.js 15 App Router
+### React 19 / Next.js 16 App Router
 - The `"use client"` directive MUST be the first line of the file, BEFORE any imports. Misplacement causes silent server-side rendering.
 - Notification components using `useState`, `useContext`, or browser APIs (`Notification` API) require `"use client"`.
 - `useSearchParams()` suspends in App Router. Notification routing with URL state needs `<Suspense>` boundaries.

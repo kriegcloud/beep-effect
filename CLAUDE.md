@@ -42,7 +42,7 @@ Configuration and guardrails for AI collaborators working in the `beep-effect` m
 
 ## Project Overview
 
-`beep-effect` is a Bun-managed monorepo delivering a full-stack Effect application with Next.js 15 frontend, Effect Platform backend, and vertical slices in `packages/iam/*` and `packages/documents/*`. See [documentation/PACKAGE_STRUCTURE.md](documentation/PACKAGE_STRUCTURE.md) for full package layout.
+`beep-effect` is a Bun-managed monorepo delivering a full-stack Effect application with Next.js 16 frontend, Effect Platform backend, and vertical slices in `packages/iam/*` and `packages/documents/*`. See [documentation/PACKAGE_STRUCTURE.md](documentation/PACKAGE_STRUCTURE.md) for full package layout.
 
 ## Technology Stack
 
@@ -50,7 +50,7 @@ Configuration and guardrails for AI collaborators working in the `beep-effect` m
 |---------------|---------------------------------------------------------------|
 | **Runtime**   | Bun 1.3.x, Node 22                                            |
 | **Core**      | Effect 3, `@effect/platform`, dependency injection via Layers |
-| **Frontend**  | Next.js 15 App Router, React 19, TanStack Query               |
+| **Frontend**  | Next.js 16 App Router, React 19, TanStack Query               |
 | **Backend**   | `@effect/platform-bun`, `@effect/rpc`, `@effect/sql-pg`       |
 | **Database**  | PostgreSQL, Drizzle ORM                                       |
 | **Auth**      | better-auth with Redis persistence                            |

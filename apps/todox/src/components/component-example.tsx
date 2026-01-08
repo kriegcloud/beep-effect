@@ -92,6 +92,8 @@ import {
   TranslateIcon,
   UserIcon,
 } from "@phosphor-icons/react";
+import * as A from "effect/Array";
+import * as F from "effect/Function";
 import * as React from "react";
 
 export function ComponentExample() {
@@ -425,11 +427,14 @@ function FormExample() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectGroup>
-                        {roleItems.map((item) => (
-                          <SelectItem key={item.value} value={item.value}>
-                            {item.label}
-                          </SelectItem>
-                        ))}
+                        {F.pipe(
+                          roleItems,
+                          A.map((item) => (
+                            <SelectItem key={item.value} value={item.value}>
+                              {item.label}
+                            </SelectItem>
+                          ))
+                        )}
                       </SelectGroup>
                     </SelectContent>
                   </Select>
