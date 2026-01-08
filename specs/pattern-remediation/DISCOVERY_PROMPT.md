@@ -124,6 +124,76 @@ grep -rn "@ts-expect-error" packages/*/src/**/*.ts apps/*/src/**/*.ts 2>/dev/nul
 
 ---
 
+## Phase 1.5: Determine Package Processing Order
+
+Use the `topo-sort` CLI command to determine the optimal order for processing packages:
+
+```bash
+bun run beep topo-sort
+```
+
+### What topo-sort Does
+
+The command outputs all `@beep/*` packages in **topological order**, with packages that have **fewer dependencies listed first** (leaf packages). This uses Kahn's algorithm to ensure:
+
+1. Dependencies are always processed before their dependents
+2. Circular dependencies are detected and reported
+3. Output is deterministic (alphabetically sorted within each tier)
+
+### Example Output
+
+```
+Analyzing workspace dependencies...
+
+Found 45 packages in topological order:
+
+@beep/types
+@beep/invariant
+@beep/identity
+@beep/utils
+@beep/schema
+@beep/contract
+@beep/shared-domain
+@beep/iam-domain
+...
+@beep/runtime-server
+@beep/web
+```
+
+### Why This Order Matters for Pattern Remediation
+
+**Process packages from TOP to BOTTOM of this list:**
+
+1. **Leaf packages first** (top of list) - These have no internal dependencies
+   - Pattern fixes only affect the package itself
+   - No risk of breaking downstream packages
+   - Establishes correct patterns that dependents can reference
+
+2. **Core packages later** (bottom of list) - These are depended upon by many others
+   - By the time you fix these, dependents already have correct patterns
+   - Can reference established patterns in leaf packages
+   - Reduces risk of introducing inconsistencies
+
+### Integrating with PLAN.md
+
+When generating PLAN.md, **order packages by topo-sort output**, NOT by violation count:
+
+```markdown
+## Execution Order (Topological)
+
+Process packages in this exact order:
+
+1. @beep/types (0 internal deps) - 5 violations
+2. @beep/invariant (1 internal dep) - 2 violations
+3. @beep/identity (1 internal dep) - 0 violations
+4. @beep/utils (3 internal deps) - 12 violations
+...
+```
+
+This ensures consistent patterns are established in foundational packages before fixing packages that depend on them.
+
+---
+
 ## Phase 2: Create PLAN.md
 
 ### Required Structure

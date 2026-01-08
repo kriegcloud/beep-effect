@@ -6,6 +6,46 @@
 
 You are refactoring the beep-effect monorepo to standardize naming conventions and structure. The complete inventory is in `/specs/structure-standardization/PLAN.md`. The target conventions are in `/specs/structure-standardization/CONVENTIONS.md`.
 
+## Package Processing Order (CRITICAL)
+
+**Process packages in topological order** (leaf packages first, core packages last).
+
+### Get the Order
+
+```bash
+bun run beep topo-sort
+```
+
+This outputs packages with **fewest dependencies first**. Example:
+
+```
+@beep/types          ← Process first (0 deps, leaf)
+@beep/invariant
+@beep/identity
+@beep/utils
+@beep/schema
+@beep/contract
+@beep/shared-domain
+@beep/iam-domain
+...
+@beep/runtime-server
+@beep/web            ← Process last (many deps, root)
+```
+
+### Why This Order
+
+1. **Leaf packages** (top of list) - No internal dependencies
+   - Renames are isolated to the package
+   - No downstream breakage possible
+   - Safe to commit immediately
+
+2. **Core packages** (bottom of list) - Many dependents
+   - By the time you reach them, all consumers are standardized
+   - Import updates in dependents already done
+   - Consistent patterns established
+
+**NEVER skip ahead** to a package lower in the list. Complete all packages above it first.
+
 ## Critical Safety Rules
 
 1. **Never delete without backup** - Git tracks everything, but be careful

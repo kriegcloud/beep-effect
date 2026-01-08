@@ -6,6 +6,46 @@
 
 You are remediating pattern violations in the beep-effect monorepo. The complete inventory is in `/specs/pattern-remediation/PLAN.md`.
 
+## Package Processing Order (CRITICAL)
+
+**Process packages in topological order** (leaf packages first, core packages last).
+
+### Get the Order
+
+```bash
+bun run beep topo-sort
+```
+
+This outputs packages with **fewest dependencies first**. Example:
+
+```
+@beep/types          ← Process first (0 deps, leaf)
+@beep/invariant
+@beep/identity
+@beep/utils
+@beep/schema
+@beep/contract
+@beep/shared-domain
+@beep/iam-domain
+...
+@beep/runtime-server
+@beep/web            ← Process last (many deps, root)
+```
+
+### Why This Order
+
+1. **Leaf packages first** (top of list)
+   - Pattern fixes are isolated
+   - Establishes correct patterns for others to reference
+   - No risk of breaking downstream packages
+
+2. **Core packages last** (bottom of list)
+   - All dependents already have correct patterns
+   - Can copy/reference patterns from already-fixed packages
+   - Consistent style established across codebase
+
+**NEVER skip ahead** to a package lower in the list. Complete all packages above it first.
+
 ## Execution Strategy
 
 ### Approach: Package-by-Package

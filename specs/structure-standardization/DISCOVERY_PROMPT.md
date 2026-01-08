@@ -98,6 +98,76 @@ done
 
 ---
 
+## Phase 1.5: Determine Package Processing Order
+
+Use the `topo-sort` CLI command to determine the optimal order for processing packages:
+
+```bash
+bun run beep topo-sort
+```
+
+### What topo-sort Does
+
+The command outputs all `@beep/*` packages in **topological order**, with packages that have **fewer dependencies listed first** (leaf packages). This uses Kahn's algorithm to ensure:
+
+1. Dependencies are always processed before their dependents
+2. Circular dependencies are detected and reported
+3. Output is deterministic (alphabetically sorted within each tier)
+
+### Example Output
+
+```
+Analyzing workspace dependencies...
+
+Found 45 packages in topological order:
+
+@beep/types
+@beep/invariant
+@beep/identity
+@beep/utils
+@beep/schema
+@beep/contract
+@beep/shared-domain
+@beep/iam-domain
+...
+@beep/runtime-server
+@beep/web
+```
+
+### Why This Order Matters for Refactoring
+
+**Process packages from TOP to BOTTOM of this list:**
+
+1. **Leaf packages first** (top of list) - These have no internal dependencies
+   - Renames only affect the package itself
+   - No downstream breakage risk
+   - Validate and commit before moving on
+
+2. **Core packages later** (bottom of list) - These are depended upon by many others
+   - Renames require updating imports in dependent packages
+   - Higher risk, but dependents already refactored
+   - All consuming packages already use new conventions
+
+### Integrating with PLAN.md
+
+When generating PLAN.md, **order packages by topo-sort output**, NOT by violation count:
+
+```markdown
+## Execution Order (Topological)
+
+Process packages in this exact order:
+
+1. @beep/types (0 internal deps)
+2. @beep/invariant (1 internal dep)
+3. @beep/identity (1 internal dep)
+4. @beep/utils (3 internal deps)
+...
+```
+
+This ensures that when you rename something in `@beep/schema`, all packages that import from it (`@beep/iam-domain`, `@beep/shared-server`, etc.) have already been standardized.
+
+---
+
 ## Phase 2: Categorize Violations
 
 For each violation found, categorize by type:
