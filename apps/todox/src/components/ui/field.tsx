@@ -2,9 +2,11 @@
 
 import { Label } from "@beep/todox/components/ui/label";
 import { Separator } from "@beep/todox/components/ui/separator";
-
 import { cn } from "@beep/todox/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
+import * as A from "effect/Array";
+import { pipe } from "effect/Function";
+import * as O from "effect/Option";
 import { useMemo } from "react";
 
 function FieldSet({ className, ...props }: React.ComponentProps<"fieldset">) {
@@ -164,26 +166,44 @@ function FieldError({
   errors,
   ...props
 }: React.ComponentProps<"div"> & {
-  readonly errors?: undefined | Array<{ message?: undefined | string } | undefined>;
+  readonly errors?: undefined | Array<{ readonly message?: undefined | string } | undefined>;
 }) {
   const content = useMemo(() => {
     if (children) {
       return children;
     }
 
-    if (!errors?.length) {
+    const errorsOption = O.fromNullable(errors);
+    if (O.isNone(errorsOption) || A.isEmptyArray(errorsOption.value)) {
       return null;
     }
 
-    const uniqueErrors = [...new Map(errors.map((error) => [error?.message, error])).values()];
+    const uniqueErrors = pipe(
+      errorsOption.value,
+      A.dedupeWith((a, b) => a?.message === b?.message),
+      A.filter((error): error is { readonly message?: undefined | string } => error !== undefined)
+    );
 
-    if (uniqueErrors?.length == 1) {
-      return uniqueErrors[0]?.message;
+    if (A.length(uniqueErrors) === 1) {
+      return pipe(
+        A.head(uniqueErrors),
+        O.flatMap((error) => O.fromNullable(error.message)),
+        O.getOrNull
+      );
     }
 
     return (
       <ul className="ml-4 flex list-disc flex-col gap-1">
-        {uniqueErrors.map((error, index) => error?.message && <li key={index}>{error.message}</li>)}
+        {pipe(
+          uniqueErrors,
+          A.filterMap((error) =>
+            pipe(
+              O.fromNullable(error.message),
+              O.map((message) => message)
+            )
+          ),
+          A.map((message, index) => <li key={index}>{message}</li>)
+        )}
       </ul>
     );
   }, [children, errors]);

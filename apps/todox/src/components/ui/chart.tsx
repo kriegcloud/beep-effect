@@ -1,6 +1,8 @@
 "use client";
 
 import { cn } from "@beep/todox/lib/utils";
+import * as P from "effect/Predicate";
+import * as Struct from "effect/Struct";
 import * as React from "react";
 import * as RechartsPrimitive from "recharts";
 
@@ -26,7 +28,7 @@ const ChartContext = React.createContext<ChartContextProps | null>(null);
 function useChart() {
   const context = React.useContext(ChartContext);
 
-  if (!context) {
+  if (P.isNullable(context)) {
     throw new Error("useChart must be used within a <ChartContainer />");
   }
 
@@ -65,7 +67,7 @@ function ChartContainer({
 }
 
 const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
-  const colorConfig = Object.entries(config).filter(([, config]) => config.theme || config.color);
+  const colorConfig = Struct.entries(config).filter(([, config]) => config.theme || config.color);
 
   if (!colorConfig.length) {
     return null;
