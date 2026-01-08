@@ -1,0 +1,130 @@
+"use client";
+
+import { Avatar, AvatarFallback, AvatarImage } from "@beep/todox/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@beep/todox/components/ui/dropdown-menu";
+import {
+  BellIcon,
+  CheckIcon,
+  CreditCardIcon,
+  DesktopIcon,
+  MoonIcon,
+  SignOutIcon,
+  SparkleIcon,
+  SunIcon,
+  UserCircleCheckIcon,
+} from "@phosphor-icons/react";
+import * as A from "effect/Array";
+import * as F from "effect/Function";
+import * as Str from "effect/String";
+import { useTheme } from "next-themes";
+
+export interface User {
+  readonly name: string;
+  readonly email: string;
+  readonly avatar: string;
+}
+
+interface NavbarUserDropdownProps {
+  readonly user: User;
+}
+
+export function NavbarUserDropdown({ user }: NavbarUserDropdownProps) {
+  const { theme, setTheme } = useTheme();
+
+  const initials = F.pipe(
+    user.name,
+    Str.split(" "),
+    A.map((n) => n[0] ?? ""),
+    A.join(""),
+    Str.toUpperCase,
+    Str.slice(0, 2)
+  );
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger
+        render={
+          <button
+            type="button"
+            className="flex items-center justify-center rounded-full ring-sidebar-ring hover:ring-2 focus-visible:ring-2 outline-none transition-all"
+          >
+            <Avatar className="h-8 w-8">
+              <AvatarImage src={user.avatar} alt={user.name} />
+              <AvatarFallback>{initials}</AvatarFallback>
+            </Avatar>
+          </button>
+        }
+      />
+      <DropdownMenuContent className="w-56 rounded-lg" side="bottom" align="end" sideOffset={8}>
+        <DropdownMenuGroup>
+          <DropdownMenuLabel className="p-0 font-normal">
+            <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+              <Avatar className="h-8 w-8 rounded-lg">
+                <AvatarImage src={user.avatar} alt={user.name} />
+                <AvatarFallback className="rounded-lg">{initials}</AvatarFallback>
+              </Avatar>
+              <div className="grid flex-1 text-left text-sm leading-tight">
+                <span className="truncate font-medium">{user.name}</span>
+                <span className="truncate text-xs">{user.email}</span>
+              </div>
+            </div>
+          </DropdownMenuLabel>
+        </DropdownMenuGroup>
+        <DropdownMenuSeparator />
+        <DropdownMenuGroup>
+          <DropdownMenuItem>
+            <SparkleIcon weight="fill" />
+            Upgrade to Pro
+          </DropdownMenuItem>
+        </DropdownMenuGroup>
+        <DropdownMenuSeparator />
+        <DropdownMenuGroup>
+          <DropdownMenuItem>
+            <UserCircleCheckIcon />
+            Account
+          </DropdownMenuItem>
+          <DropdownMenuItem>
+            <CreditCardIcon />
+            Billing
+          </DropdownMenuItem>
+          <DropdownMenuItem>
+            <BellIcon />
+            Notifications
+          </DropdownMenuItem>
+        </DropdownMenuGroup>
+        <DropdownMenuSeparator />
+        <DropdownMenuGroup>
+          <DropdownMenuLabel className="text-xs text-muted-foreground">Theme</DropdownMenuLabel>
+          <DropdownMenuItem onClick={() => setTheme("system")}>
+            <DesktopIcon />
+            System
+            {theme === "system" && <CheckIcon className="ml-auto" />}
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setTheme("light")}>
+            <SunIcon />
+            Light
+            {theme === "light" && <CheckIcon className="ml-auto" />}
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setTheme("dark")}>
+            <MoonIcon />
+            Dark
+            {theme === "dark" && <CheckIcon className="ml-auto" />}
+          </DropdownMenuItem>
+        </DropdownMenuGroup>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem>
+          <SignOutIcon />
+          Log out
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}

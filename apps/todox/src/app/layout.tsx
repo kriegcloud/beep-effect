@@ -1,10 +1,18 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono, Inter } from "next/font/google";
+import type {Metadata} from "next";
+import {Geist, Geist_Mono, Inter} from "next/font/google";
 import "./globals.css";
-import { ThemeProvider } from "@beep/todox/components/theme-provider";
 import Script from "next/script";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
+import {connection} from "next/server";
+
+const inter = Inter({subsets: ["latin"], variable: "--font-sans"});
+import {GlobalProviders} from "@beep/todox/global-providers";
+import * as Effect from "effect/Effect";
+import {getAppConfig} from "@beep/todox/app-config";
+import {ThemeProvider } from "next-themes";
+import {runServerPromise} from "@beep/runtime-server";
+
+const getInitialProps = getAppConfig.pipe(Effect.withSpan("getInitialProps"));
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -22,26 +30,30 @@ export const metadata: Metadata = {
 };
 const isDev = process.env.NODE_ENV === "development";
 
-export default function RootLayout({
-  children,
-}: Readonly<{
+export default async function RootLayout({
+                                           children,
+                                         }: Readonly<{
   children: React.ReactNode;
 }>) {
+  await connection();
+  const appConfig = await runServerPromise(getInitialProps, "RootLayout.getInitialProps");
   return (
-    <html lang="en" className={inter.variable} suppressHydrationWarning>
-      <head>
-        {isDev && (
-          <>
-            <Script src="https://unpkg.com/react-grab/dist/index.global.js" strategy="beforeInteractive" />
-            <Script src="https://unpkg.com/@react-grab/claude-code/dist/client.global.js" strategy="afterInteractive" />
-          </>
-        )}
-      </head>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-          {children}
-        </ThemeProvider>
-      </body>
+    <html lang={appConfig.lang ?? "en"} dir={appConfig.dir} className={inter.variable} suppressHydrationWarning>
+    <head>
+      {isDev && (
+        <>
+          <Script src="https://unpkg.com/react-grab/dist/index.global.js" strategy="beforeInteractive"/>
+          <Script src="https://unpkg.com/@react-grab/claude-code/dist/client.global.js" strategy="afterInteractive"/>
+        </>
+      )}
+    </head>
+    <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+    <GlobalProviders appConfig={appConfig}>
+      <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+      {children}
+      </ThemeProvider>
+    </GlobalProviders>
+    </body>
     </html>
   );
 }

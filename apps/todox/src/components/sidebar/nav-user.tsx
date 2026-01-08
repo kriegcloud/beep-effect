@@ -14,11 +14,16 @@ import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@be
 import {
   BellIcon,
   CaretUpDownIcon,
+  CheckIcon,
   CreditCardIcon,
+  DesktopIcon,
+  MoonIcon,
   SignOutIcon,
   SparkleIcon,
+  SunIcon,
   UserCircleCheckIcon,
 } from "@phosphor-icons/react";
+import { useTheme } from "next-themes";
 import * as A from "effect/Array";
 import * as F from "effect/Function";
 import * as Str from "effect/String";
@@ -35,6 +40,7 @@ interface NavUserProps {
 
 export function NavUser({ user }: NavUserProps) {
   const { isMobile } = useSidebar();
+  const { theme, setTheme } = useTheme();
 
   const initials = F.pipe(
     user.name,
@@ -107,6 +113,25 @@ export function NavUser({ user }: NavUserProps) {
               <DropdownMenuItem>
                 <BellIcon />
                 Notifications
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+            <DropdownMenuSeparator />
+            <DropdownMenuGroup>
+              <DropdownMenuLabel className="text-xs text-muted-foreground">Theme</DropdownMenuLabel>
+              <DropdownMenuItem onClick={() => setTheme("system")}>
+                <DesktopIcon />
+                System
+                {theme === "system" && <CheckIcon className="ml-auto" />}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTheme("light")}>
+                <SunIcon />
+                Light
+                {theme === "light" && <CheckIcon className="ml-auto" />}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTheme("dark")}>
+                <MoonIcon />
+                Dark
+                {theme === "dark" && <CheckIcon className="ml-auto" />}
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />

@@ -2,7 +2,7 @@
   "extends": "./tsconfig.json",
   "files": [],
   "references": [
-    {
+ {
       "path": "../../packages/common/types/tsconfig.build.json"
     },
     {
@@ -15,19 +15,22 @@
       "path": "../../packages/common/schema/tsconfig.build.json"
     },
     {
-      "path": "../../packages/common/constants/tsconfig.build.json"
+      "path": "../../packages/common/identity/tsconfig.build.json"
     },
     {
-      "path": "../../packages/common/mock/tsconfig.build.json"
+      "path": "../../packages/common/constants/tsconfig.build.json"
     },
     {
       "path": "../../packages/common/errors/tsconfig.build.json"
     },
     {
+      "path": "../../packages/common/mock/tsconfig.build.json"
+    },
+    {
       "path": "../../packages/shared/domain/tsconfig.build.json"
     },
     {
-      "path": "../../packages/shared/env"
+      "path": "../../packages/shared/ui/tsconfig.build.json"
     },
     {
       "path": "../../packages/iam/client/tsconfig.build.json"
@@ -39,10 +42,25 @@
       "path": "../../packages/iam/domain/tsconfig.build.json"
     },
     {
+      "path": "../../packages/iam/ui/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/ui/ui/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/ui/core/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/documents/server/tsconfig.build.json"
+    },
+    {
       "path": "../../packages/runtime/server/tsconfig.build.json"
     },
     {
       "path": "../../packages/runtime/client/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/shared/env/tsconfig.build.json"
     }
   ]
 }
