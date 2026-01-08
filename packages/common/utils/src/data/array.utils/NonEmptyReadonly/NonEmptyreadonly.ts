@@ -190,7 +190,6 @@ export const mapNonEmpty: MapNonEmpty = F.dual(
   }
 );
 
-
 export const assertNonEmpty = <A extends Array<UnsafeTypes.UnsafeAny>>(arr: A): A.NonEmptyReadonlyArray<A[number]> => {
   invariant(A.isNonEmptyReadonlyArray(arr), "array must be non-empty", {
     file: "@beep/utils/data/array.utils/NonEmptyReadonly/NonEmptyreadonly.ts",

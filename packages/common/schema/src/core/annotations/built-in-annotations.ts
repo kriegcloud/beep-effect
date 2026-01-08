@@ -1,5 +1,5 @@
-import * as S from "effect/Schema";
 import type { UnsafeTypes } from "@beep/types";
+import * as S from "effect/Schema";
 import * as AST from "effect/SchemaAST";
 export const builtInAnnotations = {
   schemaId: AST.SchemaIdAnnotationId,

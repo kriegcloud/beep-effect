@@ -168,10 +168,11 @@ const loadRootTsConfigPaths: Effect.Effect<RootTsConfigPaths, never, FileSystem.
       Str.replace(/\/\*[\s\S]*?\*\//g, Str.empty) // Remove multi-line comments
     );
 
-    const parsed = yield* Effect.try(() =>
-      JSON.parse(jsonContent) as {
-        compilerOptions?: { paths?: Record<string, string[]> };
-      }
+    const parsed = yield* Effect.try(
+      () =>
+        JSON.parse(jsonContent) as {
+          compilerOptions?: { paths?: Record<string, string[]> };
+        }
     ).pipe(Effect.orElseSucceed(() => ({ compilerOptions: { paths: {} as Record<string, string[]> } })));
 
     const paths = parsed.compilerOptions?.paths ?? {};

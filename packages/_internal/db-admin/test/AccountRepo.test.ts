@@ -38,7 +38,7 @@ const makeMockUser = (overrides?: undefined | Partial<{ readonly email: BS.Email
  */
 const makeMockAccount = (overrides: {
   readonly userId: SharedEntityIds.UserId.Type;
-  readonly accountId?:undefined |  string;
+  readonly accountId?: undefined | string;
   readonly providerId?: undefined | string;
 }) =>
   Entities.Account.Model.jsonCreate.make({

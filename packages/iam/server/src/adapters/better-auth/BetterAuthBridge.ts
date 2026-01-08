@@ -41,7 +41,7 @@ export namespace DynamicAccessControlInput {
   export interface CreateRole {
     readonly role: string;
     readonly permissions: readonly string[];
-    readonly organizationId?: undefined |   string;
+    readonly organizationId?: undefined | string;
   }
 
   /**
@@ -49,7 +49,7 @@ export namespace DynamicAccessControlInput {
    */
   export interface DeleteRole {
     readonly roleId: string;
-    readonly organizationId?: undefined |   string;
+    readonly organizationId?: undefined | string;
   }
 
   /**
@@ -57,8 +57,8 @@ export namespace DynamicAccessControlInput {
    */
   export interface UpdateRole {
     readonly roleId: string;
-    readonly permissions?: undefined |   readonly string[];
-    readonly organizationId?: undefined |   string;
+    readonly permissions?: undefined | readonly string[];
+    readonly organizationId?: undefined | string;
   }
 }
 
@@ -196,7 +196,7 @@ export namespace PasskeyInput {
    */
   export interface VerifyRegistration {
     readonly response: Record<string, unknown>;
-    readonly name?:    string | undefined;
+    readonly name?: string | undefined;
   }
 }
 
@@ -252,12 +252,12 @@ export namespace OAuth2Input {
     readonly client_id: string;
     readonly redirect_uri: string;
     readonly response_type: string;
-    readonly scope?: undefined |   string | null;
-    readonly state?: undefined |   string | null;
-    readonly code_challenge?: undefined |   string | null;
-    readonly code_challenge_method?: undefined |   string | null;
-    readonly nonce?: undefined |   string | null;
-    readonly prompt?: undefined |   string | null;
+    readonly scope?: undefined | string | null;
+    readonly state?: undefined | string | null;
+    readonly code_challenge?: undefined | string | null;
+    readonly code_challenge_method?: undefined | string | null;
+    readonly nonce?: undefined | string | null;
+    readonly prompt?: undefined | string | null;
   }
 
   /**
@@ -265,10 +265,10 @@ export namespace OAuth2Input {
    */
   export interface Callback {
     readonly providerId: string;
-    readonly code?: undefined |   string | null;
-    readonly error?: undefined |   string | null;
-    readonly error_description?: undefined |   string | null;
-    readonly state?: undefined |   string | null;
+    readonly code?: undefined | string | null;
+    readonly error?: undefined | string | null;
+    readonly error_description?: undefined | string | null;
+    readonly state?: undefined | string | null;
   }
 
   /**
@@ -276,7 +276,7 @@ export namespace OAuth2Input {
    */
   export interface Consent {
     readonly accept: boolean;
-    readonly consent_code?: undefined |   string | null;
+    readonly consent_code?: undefined | string | null;
   }
 
   /**
@@ -285,8 +285,8 @@ export namespace OAuth2Input {
   export interface Link {
     readonly providerId: string;
     readonly callbackURL: string;
-    readonly scopes?: undefined |   readonly string[] | null;
-    readonly errorCallbackURL?: undefined |   string | null;
+    readonly scopes?: undefined | readonly string[] | null;
+    readonly errorCallbackURL?: undefined | string | null;
   }
 
   /**
@@ -294,22 +294,22 @@ export namespace OAuth2Input {
    */
   export interface Register {
     readonly redirect_uris: readonly string[];
-    readonly token_endpoint_auth_method?: undefined |   string | null;
-    readonly grant_types?: undefined |   string | null;
-    readonly response_types?: undefined |   string | null;
-    readonly client_name?: undefined |   string | null;
-    readonly client_uri?: undefined |   string | null;
-    readonly logo_uri?: undefined |   string | null;
-    readonly scope?: undefined |   string | null;
-    readonly contacts?: undefined |   readonly string[] | null;
-    readonly tos_uri?: undefined |   string | null;
-    readonly policy_uri?: undefined |   string | null;
-    readonly jwks_uri?: undefined |   string | null;
-    readonly jwks?: undefined |   unknown | null;
-    readonly metadata?: undefined |   unknown | null;
-    readonly software_id?: undefined |   string | null;
-    readonly software_version?: undefined |   string | null;
-    readonly software_statement?: undefined |   string | null;
+    readonly token_endpoint_auth_method?: undefined | string | null;
+    readonly grant_types?: undefined | string | null;
+    readonly response_types?: undefined | string | null;
+    readonly client_name?: undefined | string | null;
+    readonly client_uri?: undefined | string | null;
+    readonly logo_uri?: undefined | string | null;
+    readonly scope?: undefined | string | null;
+    readonly contacts?: undefined | readonly string[] | null;
+    readonly tos_uri?: undefined | string | null;
+    readonly policy_uri?: undefined | string | null;
+    readonly jwks_uri?: undefined | string | null;
+    readonly jwks?: undefined | unknown | null;
+    readonly metadata?: undefined | unknown | null;
+    readonly software_id?: undefined | string | null;
+    readonly software_version?: undefined | string | null;
+    readonly software_statement?: undefined | string | null;
   }
 
   /**
@@ -317,12 +317,12 @@ export namespace OAuth2Input {
    */
   export interface Token {
     readonly grant_type: string;
-    readonly code?: undefined |   string | null;
-    readonly redirect_uri?: undefined |   string | null;
-    readonly client_id?: undefined |   string | null;
-    readonly client_secret?: undefined |   string | null;
-    readonly refresh_token?: undefined |   string | null;
-    readonly code_verifier?: undefined |   string | null;
+    readonly code?: undefined | string | null;
+    readonly redirect_uri?: undefined | string | null;
+    readonly client_id?: undefined | string | null;
+    readonly client_secret?: undefined | string | null;
+    readonly refresh_token?: undefined | string | null;
+    readonly code_verifier?: undefined | string | null;
   }
 }
 
@@ -469,10 +469,10 @@ export namespace SSOInput {
    * Query parameters for the SSO callback endpoint.
    */
   export interface Callback {
-    readonly code?: undefined |   string | null;
-    readonly state?: undefined |   string | null;
-    readonly error?: undefined |   string | null;
-    readonly error_description?: undefined |   string | null;
+    readonly code?: undefined | string | null;
+    readonly state?: undefined | string | null;
+    readonly error?: undefined | string | null;
+    readonly error_description?: undefined | string | null;
   }
 
   /**
@@ -480,7 +480,7 @@ export namespace SSOInput {
    */
   export interface Saml2Callback {
     readonly SAMLResponse: string;
-    readonly RelayState?:  undefined |  string | null;
+    readonly RelayState?: undefined | string | null;
   }
 }
 
@@ -497,7 +497,7 @@ export const ssoCallback = (
   api: Record<string, unknown>,
   opts: {
     readonly providerId: string;
-    readonly query?: undefined |  SSOInput.Callback;
+    readonly query?: undefined | SSOInput.Callback;
     readonly headers: unknown;
   }
 ): Effect.Effect<{ headers: Headers; response: unknown }, Error> => callDynamicMethod(api, "ssoCallback", opts);

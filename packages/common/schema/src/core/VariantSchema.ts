@@ -60,7 +60,12 @@ export declare namespace Struct {
    * @category models
    */
   export type Fields = {
-    readonly [key: string]: S.Schema.All | S.PropertySignature.All | Field<UnsafeTypes.UnsafeAny> | Struct<UnsafeTypes.UnsafeAny> | undefined;
+    readonly [key: string]:
+      | S.Schema.All
+      | S.PropertySignature.All
+      | Field<UnsafeTypes.UnsafeAny>
+      | Struct<UnsafeTypes.UnsafeAny>
+      | undefined;
   };
 
   /**
@@ -143,7 +148,12 @@ export declare namespace Field {
    * @category models
    */
   export type Fields = {
-    readonly [key: string]: S.Schema.All | S.PropertySignature.All | Field<UnsafeTypes.UnsafeAny> | Struct<UnsafeTypes.UnsafeAny> | undefined;
+    readonly [key: string]:
+      | S.Schema.All
+      | S.PropertySignature.All
+      | Field<UnsafeTypes.UnsafeAny>
+      | Struct<UnsafeTypes.UnsafeAny>
+      | undefined;
   };
 }
 
@@ -171,7 +181,9 @@ export type ExtractFields<V extends string, Fields extends Struct.Fields, IsDefa
  * @since 1.0.0
  * @category extractors
  */
-export type Extract<V extends string, A extends Struct<UnsafeTypes.UnsafeAny>, IsDefault = false> = [A] extends [Struct<infer Fields>]
+export type Extract<V extends string, A extends Struct<UnsafeTypes.UnsafeAny>, IsDefault = false> = [A] extends [
+  Struct<infer Fields>,
+]
   ? IsDefault extends true
     ? [A] extends [S.Schema.Any]
       ? A
@@ -545,7 +557,8 @@ export const make = <const Variants extends ReadonlyArray<string>, const Default
       const obj: Record<string, UnsafeTypes.UnsafeAny> = {};
       if (isField(self)) {
         for (const [key, schema] of _Struct.entries(self.schemas)) {
-          obj[key] = mapping[key] !== undefined ? renameFieldValue(schema as UnsafeTypes.UnsafeAny, mapping[key]) : schema;
+          obj[key] =
+            mapping[key] !== undefined ? renameFieldValue(schema as UnsafeTypes.UnsafeAny, mapping[key]) : schema;
         }
       } else {
         for (const key of options.variants) {
@@ -555,10 +568,12 @@ export const make = <const Variants extends ReadonlyArray<string>, const Default
       return Field(obj);
     }
   );
-  const extractVariants = F.dual(2, (self: Struct<UnsafeTypes.UnsafeAny>, variant: string): UnsafeTypes.UnsafeAny =>
-    extract(self, variant, {
-      isDefault: variant === options.defaultVariant,
-    })
+  const extractVariants = F.dual(
+    2,
+    (self: Struct<UnsafeTypes.UnsafeAny>, variant: string): UnsafeTypes.UnsafeAny =>
+      extract(self, variant, {
+        isDefault: variant === options.defaultVariant,
+      })
   );
   return {
     Struct,
@@ -602,7 +617,10 @@ export const Overrideable = <From, IFrom, RFrom, To, ITo, R>(
   S.transformOrFail(from, S.Union(S.Undefined, to as S.brand<S.Schema<To, ITo>, "Override">), {
     decode: (_) => (options.decode ? ParseResult.decode(options.decode)(_) : ParseResult.succeed(undefined)),
     encode: (dt) => options.generate(dt === undefined ? O.none() : O.some(dt)),
-  }).pipe(S.propertySignature, S.withConstructorDefault(options.constructorDefault ?? (F.constUndefined as UnsafeTypes.UnsafeAny)));
+  }).pipe(
+    S.propertySignature,
+    S.withConstructorDefault(options.constructorDefault ?? (F.constUndefined as UnsafeTypes.UnsafeAny))
+  );
 
 const StructProto = {
   pipe() {

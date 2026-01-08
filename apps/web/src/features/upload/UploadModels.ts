@@ -104,7 +104,7 @@ export interface UploadPipelineError {
   readonly _tag: string;
   readonly code: string;
   readonly message: string;
-  readonly fileName?:undefined | string;
+  readonly fileName?: undefined | string;
   readonly cause?: unknown;
 }
 

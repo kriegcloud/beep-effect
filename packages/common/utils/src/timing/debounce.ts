@@ -14,9 +14,11 @@
  * @category Documentation
  * @since 0.1.0
  */
+
+import type { UnsafeTypes } from "@beep/types";
 import * as DateTime from "effect/DateTime";
 import * as Duration from "effect/Duration";
-import type {UnsafeTypes} from "@beep/types";
+
 type AnyFunction = (this: unknown, ...args: readonly UnsafeTypes.UnsafeAny[]) => unknown;
 
 /**

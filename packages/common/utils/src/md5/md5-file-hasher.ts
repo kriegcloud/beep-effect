@@ -3,12 +3,12 @@
  * @module
  */
 
-import type {UnsafeTypes} from "@beep/types";
+import type { UnsafeTypes } from "@beep/types";
 import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
 import * as Stream from "effect/Stream";
-import {BlobSliceError, FileReadError} from "./errors";
-import {appendByteArray, finalize, Md5ComputationError, makeState, type UnicodeEncodingError} from "./md5";
+import { BlobSliceError, FileReadError } from "./errors";
+import { appendByteArray, finalize, Md5ComputationError, makeState, type UnicodeEncodingError } from "./md5";
 // Re-export errors for external use
 export { FileReadError, BlobSliceError };
 

@@ -34,7 +34,9 @@ type ArrayExample = SetRequired<[number?, number?, number?], 0 | 1>;
 
 @category Object
 */
-export type SetRequired<BaseType, Keys extends keyof BaseType> = (BaseType extends (...arguments_: never) => UnsafeTypes.UnsafeAny
+export type SetRequired<BaseType, Keys extends keyof BaseType> = (BaseType extends (
+  ...arguments_: never
+) => UnsafeTypes.UnsafeAny
   ? (...arguments_: Parameters<BaseType>) => ReturnType<BaseType>
   : unknown) &
   _SetRequired<BaseType, Keys>;

@@ -125,7 +125,10 @@ export interface AnySchema extends Pipeable {
   readonly Type: UnsafeTypes.UnsafeAny;
   readonly Encoded: UnsafeTypes.UnsafeAny;
   readonly Context: UnsafeTypes.UnsafeAny;
-  readonly make?: (params: UnsafeTypes.UnsafeAny, ...rest: ReadonlyArray<UnsafeTypes.UnsafeAny>) => UnsafeTypes.UnsafeAny;
+  readonly make?: (
+    params: UnsafeTypes.UnsafeAny,
+    ...rest: ReadonlyArray<UnsafeTypes.UnsafeAny>
+  ) => UnsafeTypes.UnsafeAny;
   readonly ast: AST.AST;
   readonly annotations: UnsafeTypes.UnsafeAny;
 }

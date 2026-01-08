@@ -25,7 +25,7 @@ const $I = $WebId.create("features/upload/UploadPipeline");
 export class PipelineError extends Data.TaggedError($I`PipelineError`)<{
   readonly message: string;
   readonly code: string;
-  readonly fileName?:undefined |  string;
+  readonly fileName?: undefined | string;
   readonly cause?: unknown;
 }> {}
 
@@ -279,7 +279,11 @@ export const uploadFiles = Effect.fn("uploadFiles")(function* (files: ReadonlyAr
         mimeType: uploadResult.result.validated.detected?.mimeType ?? uploadResult.file.type,
       });
     } else if (uploadResult.error) {
-      const err = uploadResult.error as {readonly  _tag?:undefined |  string; readonly code?: undefined | string; readonly message?: undefined | string };
+      const err = uploadResult.error as {
+        readonly _tag?: undefined | string;
+        readonly code?: undefined | string;
+        readonly message?: undefined | string;
+      };
       failures.push({
         _tag: err._tag ?? "UnknownError",
         code: err.code ?? "UNKNOWN",

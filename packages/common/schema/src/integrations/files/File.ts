@@ -23,6 +23,7 @@ import {
   VideoMimeType,
 } from "@beep/schema/integrations/files/mime-types";
 import { DateTimeUtcFromAllAcceptable, DurationFromSeconds } from "@beep/schema/primitives";
+import type { UnsafeTypes } from "@beep/types";
 import { ParallelHasher, WorkerHashError } from "@beep/utils/md5";
 import { faker } from "@faker-js/faker";
 import { Effect, Equivalence, Match, ParseResult, pipe } from "effect";
@@ -40,7 +41,7 @@ import { ExifMetadata } from "./exif-metadata";
 import { MetadataService } from "./metadata/Metadata.service";
 import { IAudioMetadata, ICommonTagsResult, IFormat, IQualityInformation } from "./metadata/types";
 import { FileSizeBitsIEC, FileSizeBitsSI, FileSizeIEC, FileSizeSI } from "./utils/formatSize";
-import type { UnsafeTypes } from "@beep/types";
+
 // Create error tag values for pattern matching
 const METADATA_PARSE_ERROR_TAG = new MetadataParseError({ message: "", phase: "load" })._tag;
 const EXIF_FILE_TOO_LARGE_ERROR_TAG = new ExifFileTooLargeError({ message: "", fileSize: 0, maxSize: 0 })._tag;
