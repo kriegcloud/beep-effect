@@ -1,3 +1,5 @@
+import * as A from "effect/Array";
+import { pipe } from "effect/Function";
 import * as Str from "effect/String";
 import { NODE_STATE_KEY, type SerializedEditorState, type SerializedLexicalNode } from "lexical";
 export interface SerializedSyncNode extends SerializedLexicalNode {
@@ -72,7 +74,7 @@ export const isTypedMessage = (message: unknown): message is TypedMessage => {
 export type PeerMessage = CreatedMessage | UpdatedMessage | DestroyedMessage | CursorMessage;
 
 export const isPeerMessage = (message: unknown): message is PeerMessage => {
-  return isTypedMessage(message) && ["created", "updated", "destroyed", "cursor"].includes(message.type);
+  return isTypedMessage(message) && pipe(["created", "updated", "destroyed", "cursor"] as const, A.contains(message.type));
 };
 
 // Chunks of peer messages stored in Redis and processed between clients
@@ -98,10 +100,10 @@ export type SyncMessageClient = InitReceivedMessage | PersistDocumentMessage | S
 export const isSyncMessageClient = (message: unknown): message is SyncMessageClient => {
   return (
     isSyncMessagePeerChunk(message) ||
-    (isTypedMessage(message) && ["init-received", "persist-document"].includes(message.type))
+    (isTypedMessage(message) && pipe(["init-received", "persist-document"] as const, A.contains(message.type)))
   );
 };
 
 export const compareRedisStreamIds = (a: string, b: string): number => {
-  return Number.parseInt(Str.split("-")(a)[0], 10) - Number.parseInt(Str.split("-")(b)[0], 10);
+  return Number.parseInt(A.unsafeGet(Str.split("-")(a), 0), 10) - Number.parseInt(A.unsafeGet(Str.split("-")(b), 0), 10);
 };

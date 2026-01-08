@@ -1,3 +1,8 @@
+import * as A from "effect/Array";
+import * as DateTime from "effect/DateTime";
+import * as F from "effect/Function";
+import * as Match from "effect/Match";
+import * as Order from "effect/Order";
 import { $dfs, mergeRegister } from "@lexical/utils";
 import {
   $createTextNode,
@@ -140,17 +145,15 @@ export class CollabInstance {
     clearTimeout(this.flushTimer);
     this.network.connect();
     this.tearDownListeners = mergeRegister(
-      ...[...this.editor._nodes.entries()]
-        .filter(([k, _]) => k !== "root")
+      ...F.pipe(
+        A.fromIterable(this.editor._nodes.entries()),
+        A.filter(([k, _]) => k !== "root"),
         // Sort element nodes first, since they're likely parents
         // @todo this may imply that the nodes we track or the order should be
         // user controlled
-        .sort(
-          ([_, a], [__, b]) =>
-            (ElementNode.prototype.isPrototypeOf(a.klass.prototype) ? 0 : 1) -
-            (ElementNode.prototype.isPrototypeOf(b.klass.prototype) ? 0 : 1)
-        )
-        .map(([_, n]) => this.editor.registerMutationListener(n.klass, this.onMutation.bind(this))),
+        A.sort(Order.mapInput(Order.number, ([_, node]) => (ElementNode.prototype.isPrototypeOf(node.klass.prototype) ? 0 : 1))),
+        A.map(([_, n]) => this.editor.registerMutationListener(n.klass, this.onMutation.bind(this)))
+      ),
       this.editor.registerNodeTransform(TextNode, this.wordSplitTransform.bind(this)),
       this.editor.registerCommand(UNDO_COMMAND, this.undoCommand.bind(this), COMMAND_PRIORITY_CRITICAL),
       this.editor.registerCommand(REDO_COMMAND, this.redoCommand.bind(this), COMMAND_PRIORITY_CRITICAL)
@@ -186,7 +189,7 @@ export class CollabInstance {
   // Populates our UUID <=> NodeKey maps after initializing editor state.
   populateSyncIdMap() {
     this.editor.read(() => {
-      $dfs().forEach((dfsNode) => {
+      A.forEach($dfs(), (dfsNode) => {
         if (dfsNode.node.getKey() === "root") {
           return;
         }
@@ -217,49 +220,61 @@ export class CollabInstance {
       // Flatten the stack to avoid sending duplicative messages.
       const messageMap: Map<string, [PeerMessage, number]> = new Map();
       const destroyedList: string[] = [];
-      stack.forEach((m, i) => {
+      A.forEach(stack, (m, i) => {
         let existing: [PeerMessage, number] | undefined;
-        switch (m.type) {
-          case "cursor":
-            messageMap.set("cursor", [m, i]);
-            break;
+        Match.value(m).pipe(
+          Match.when({ type: "cursor" }, (msg) => {
+            messageMap.set("cursor", [msg, i]);
+          }),
           // todo: remove all messages for children of destroyed nodes
-          case "destroyed":
-            existing = messageMap.get(m.node.$.syncId);
+          Match.when({ type: "destroyed" }, (msg) => {
+            existing = messageMap.get(msg.node.$.syncId);
             // No reason to tell peers to delete a node we created.
             if (existing && existing[0].type === "created") {
-              messageMap.delete(m.node.$.syncId);
+              messageMap.delete(msg.node.$.syncId);
             } else {
-              destroyedList.push(m.node.$.syncId);
-              messageMap.set(m.node.$.syncId, [m, i]);
+              destroyedList.push(msg.node.$.syncId);
+              messageMap.set(msg.node.$.syncId, [msg, i]);
             }
-            break;
-          case "created":
-          case "updated":
-            existing = messageMap.get(m.node.$.syncId);
+          }),
+          Match.when({ type: "created" }, (msg) => {
+            existing = messageMap.get(msg.node.$.syncId);
             if (existing && existing[0].type === "created") {
               // Better to just update the created message with updated node
-              existing[0].node = m.node;
-              messageMap.set(m.node.$.syncId, existing);
+              existing[0].node = msg.node;
+              messageMap.set(msg.node.$.syncId, existing);
             } else if (!existing || (existing && existing[0].type !== "destroyed")) {
-              messageMap.set(m.node.$.syncId, [m, i]);
+              messageMap.set(msg.node.$.syncId, [msg, i]);
             }
-            break;
-        }
+          }),
+          Match.when({ type: "updated" }, (msg) => {
+            existing = messageMap.get(msg.node.$.syncId);
+            if (existing && existing[0].type === "created") {
+              // Better to just update the created message with updated node
+              existing[0].node = msg.node;
+              messageMap.set(msg.node.$.syncId, existing);
+            } else if (!existing || (existing && existing[0].type !== "destroyed")) {
+              messageMap.set(msg.node.$.syncId, [msg, i]);
+            }
+          }),
+          Match.exhaustive
+        );
       });
       // Restore original order.
-      const flatStack = Array.from(messageMap.values())
-        .sort((a, b) => a[1] - b[1])
-        .map((a) => a[0])
-        .filter(
+      const flatStack = F.pipe(
+        A.fromIterable(messageMap.values()),
+        A.sort(Order.mapInput(Order.number, (a: [PeerMessage, number]) => a[1])),
+        A.map((a) => a[0]),
+        A.filter(
           (m) =>
             m.type === "cursor" ||
             !m.parentId ||
             // Filter out nodes that would be deleted by their parent anyway.
-            !destroyedList.includes(m.parentId) ||
+            !A.contains(destroyedList, m.parentId) ||
             // Filter out identical updates.
             !(m.type === "updated" && m.node === m.previousNode)
-        );
+        )
+      );
       this.network.send({
         type: "peer-chunk",
         messages: flatStack,
@@ -285,9 +300,9 @@ export class CollabInstance {
     // Ensure every node has a (unique) UUID
     this.editor.update(
       () => {
-        nodes.forEach((mutation, nodeKey) => {
-          switch (mutation) {
-            case "created":
+        A.forEach(A.fromIterable(nodes.entries()), ([nodeKey, mutation]) => {
+          Match.value(mutation).pipe(
+            Match.when("created", () => {
               const node = $getNodeByKey(nodeKey);
               if (!node) {
                 console.error(`Node not found ${nodeKey}`);
@@ -302,27 +317,28 @@ export class CollabInstance {
                 $setState(node.getWritable(), syncIdState, syncId);
                 return;
               }
-              break;
-          }
+            }),
+            Match.when("updated", () => {
+              // No-op for updated mutations in this context
+            }),
+            Match.when("destroyed", () => {
+              // No-op for destroyed mutations in this context
+            }),
+            Match.exhaustive
+          );
         });
       },
       { tag: [SYNC_TAG, SKIP_DOM_SELECTION_TAG] }
     );
     this.editor.read(() => {
       const messages: PeerMessage[] = [];
-      nodes.forEach((mutation, nodeKey) => {
-        let message: PeerMessage | undefined;
-        switch (mutation) {
-          case "created":
-            message = $createCreatedMessage(this.syncIdMap, nodeKey, this.userId);
-            break;
-          case "updated":
-            message = $createUpdatedMessage(this.syncIdMap, prevEditorState, nodeKey, this.userId);
-            break;
-          case "destroyed":
-            message = $createDestroyedMessage(this.syncIdMap, prevEditorState, nodeKey, this.userId);
-            break;
-        }
+      A.forEach(A.fromIterable(nodes.entries()), ([nodeKey, mutation]) => {
+        const message = Match.value(mutation).pipe(
+          Match.when("created", () => $createCreatedMessage(this.syncIdMap, nodeKey, this.userId)),
+          Match.when("updated", () => $createUpdatedMessage(this.syncIdMap, prevEditorState, nodeKey, this.userId)),
+          Match.when("destroyed", () => $createDestroyedMessage(this.syncIdMap, prevEditorState, nodeKey, this.userId)),
+          Match.exhaustive
+        );
         if (message) {
           messages.push(message);
         }
@@ -378,7 +394,7 @@ export class CollabInstance {
           });
           return;
         }
-        serverMessage.messages.forEach((message) => {
+        A.forEach(serverMessage.messages, (message) => {
           if (!isPeerMessage(message)) {
             console.error(`Non-peer message sent from server: ${JSON.stringify(message)}`);
             return;
@@ -406,55 +422,51 @@ export class CollabInstance {
 
   // Applies peer mutations to local editor state.
   applyMessage(message: PeerMessage) {
-    switch (message.type) {
-      case "created":
-        if (message.streamId) {
-          this.lastId = message.streamId;
+    Match.value(message).pipe(
+      Match.when({ type: "created" }, (msg) => {
+        if (msg.streamId) {
+          this.lastId = msg.streamId;
         }
-        $applyCreatedMessage(this.syncIdMap, message);
-        break;
-      case "updated":
-        if (message.streamId) {
-          this.lastId = message.streamId;
+        $applyCreatedMessage(this.syncIdMap, msg);
+      }),
+      Match.when({ type: "updated" }, (msg) => {
+        if (msg.streamId) {
+          this.lastId = msg.streamId;
         }
-        $applyUpdatedMessage(this.syncIdMap, message);
-        break;
-      case "destroyed":
-        if (message.streamId) {
-          this.lastId = message.streamId;
+        $applyUpdatedMessage(this.syncIdMap, msg);
+      }),
+      Match.when({ type: "destroyed" }, (msg) => {
+        if (msg.streamId) {
+          this.lastId = msg.streamId;
         }
-        $applyDestroyedMessage(this.syncIdMap, message);
-        break;
-      case "cursor":
-        if ($updatePeerCursor(this.syncIdMap, this.cursors, message)) {
+        $applyDestroyedMessage(this.syncIdMap, msg);
+      }),
+      Match.when({ type: "cursor" }, (msg) => {
+        if ($updatePeerCursor(this.syncIdMap, this.cursors, msg)) {
           this.onCursorsChange(this.cursors);
         }
-        break;
-      default:
-        console.error(`Unknown message type: ${JSON.stringify(message)}`);
-        return;
-    }
+      }),
+      Match.exhaustive
+    );
   }
 
   // Attempts to undo an applyMessage operation.
   reverseMessage(message: PeerMessage) {
-    switch (message.type) {
-      case "created":
-        $reverseCreatedMessage(this.syncIdMap, message);
-        break;
-      case "updated":
-        $reverseUpdatedMessage(this.syncIdMap, message);
-        break;
-      case "destroyed":
-        $reverseDestroyedMessage(this.syncIdMap, message);
-        break;
-      case "cursor":
+    Match.value(message).pipe(
+      Match.when({ type: "created" }, (msg) => {
+        $reverseCreatedMessage(this.syncIdMap, msg);
+      }),
+      Match.when({ type: "updated" }, (msg) => {
+        $reverseUpdatedMessage(this.syncIdMap, msg);
+      }),
+      Match.when({ type: "destroyed" }, (msg) => {
+        $reverseDestroyedMessage(this.syncIdMap, msg);
+      }),
+      Match.when({ type: "cursor" }, () => {
         // no-op, although moving our own cursor back in time might be cool
-        break;
-      default:
-        console.error(`Unknown message type: ${JSON.stringify(message)}`);
-        return;
-    }
+      }),
+      Match.exhaustive
+    );
   }
 
   // Support undo by undoing our previous sends to the server.
@@ -466,7 +478,7 @@ export class CollabInstance {
     this.redoStack.push(lastStack);
     this.editor.update(
       () => {
-        lastStack.forEach((m) => this.reverseMessage(m));
+        A.forEach(lastStack, (m) => this.reverseMessage(m));
       },
       { tag: [SYNC_UNDO_TAG, SKIP_DOM_SELECTION_TAG] }
     );
@@ -482,7 +494,7 @@ export class CollabInstance {
     this.undoStack.push(lastStack);
     this.editor.update(
       () => {
-        lastStack.forEach((m) => this.applyMessage(m));
+        A.forEach(lastStack, (m) => this.applyMessage(m));
       },
       { tag: [SYNC_UNDO_TAG, SKIP_DOM_SELECTION_TAG] }
     );
@@ -517,7 +529,7 @@ export class CollabInstance {
         if (anchorSyncId && focusSyncId) {
           const message: PeerMessage = {
             type: "cursor",
-            lastActivity: Date.now(),
+            lastActivity: DateTime.toEpochMillis(DateTime.unsafeNow()),
             userId: this.userId,
             anchorId: anchorSyncId,
             anchorOffset: selection.anchor.offset,
@@ -542,8 +554,9 @@ export class CollabInstance {
   // Removes peer cursors if left inactive.
   cleanupInactiveCursors() {
     let cursorsChanged = false;
-    this.cursors.forEach((cursor, userId) => {
-      if (cursor.lastActivity < Date.now() - 1000 * CURSOR_INACTIVITY_LIMIT) {
+    const now = DateTime.toEpochMillis(DateTime.unsafeNow());
+    A.forEach(A.fromIterable(this.cursors.entries()), ([userId, cursor]) => {
+      if (cursor.lastActivity < now - 1000 * CURSOR_INACTIVITY_LIMIT) {
         this.cursors.delete(userId);
         cursorsChanged = true;
       }

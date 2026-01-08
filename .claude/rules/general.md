@@ -50,10 +50,10 @@ domain -> tables -> infra -> client -> ui
 
 ## Documentation
 
-| Document                       | Purpose                          |
-|--------------------------------|----------------------------------|
-| `README.md`                    | Onboarding & summary             |
-| `documentation/`               | Internal contributor docs        |
-| `documentation/patterns/`      | Implementation recipes           |
-| `documentation/EFFECT_PATTERNS.md` | Effect-specific patterns     |
-| `specs/`                       | Specification library            |
+| Document                           | Purpose                   |
+|------------------------------------|---------------------------|
+| `README.md`                        | Onboarding & summary      |
+| `documentation/`                   | Internal contributor docs |
+| `documentation/patterns/`          | Implementation recipes    |
+| `documentation/EFFECT_PATTERNS.md` | Effect-specific patterns  |
+| `specs/`                           | Specification library     |

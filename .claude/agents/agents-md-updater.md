@@ -105,10 +105,10 @@ For each AGENTS.md file, verify:
 
 ### Phase 3: Historical Package Migrations
 
-| Old Reference | Current Location |
-|---------------|------------------|
-| `@beep/core-db` | `@beep/shared-server` (`packages/shared/server`) |
-| `@beep/core-env` | `@beep/shared-env` (`packages/shared/env`) |
+| Old Reference      | Current Location                                 |
+|--------------------|--------------------------------------------------|
+| `@beep/core-db`    | `@beep/shared-server` (`packages/shared/server`) |
+| `@beep/core-env`   | `@beep/shared-env` (`packages/shared/env`)       |
 | `@beep/core-email` | `@beep/shared-server` (`packages/shared/server`) |
 
 ### Phase 4: Apply Fixes
@@ -136,12 +136,12 @@ When updating files:
 
 ### 1. Summary Metrics
 
-| Metric | Count |
-|--------|-------|
-| AGENTS.md Files Scanned | X |
-| Files Valid (no changes) | X |
-| Files Updated | X |
-| Files Created | X |
+| Metric                   | Count |
+|--------------------------|-------|
+| AGENTS.md Files Scanned  | X     |
+| Files Valid (no changes) | X     |
+| Files Updated            | X     |
+| Files Created            | X     |
 
 ### 2. Files Status Detail
 

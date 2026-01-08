@@ -93,6 +93,7 @@ const defaultCSPDirectives = {
   frameAncestors: ["'self'", "https://www.google.com", "https://vercel.live", "https://vercel.com"],
   imgSrc: [
     "'self'",
+    "https://images.unsplash.com",
     "https://www.google-analytics.com",
     "data:",
     "blob:",
@@ -196,6 +197,7 @@ type BeepNextConfig = Omit<NextConfig, "headers"> & {
   readonly headers?: CreateSecureHeadersOptions;
   readonly bundleAnalyzerOptions?: BundleAnalyzerOptions;
   readonly pwaConfig?: PWAConfig;
+
 };
 
 const withDefaults = (packageName: `@beep/${string}`, config?: BeepNextConfig) =>
@@ -218,6 +220,7 @@ const withDefaults = (packageName: `@beep/${string}`, config?: BeepNextConfig) =
         (imgConfig) =>
           ({
             unoptimized: P.isNotNullable(imgConfig.unoptimized) ? imgConfig.unoptimized : false,
+
             remotePatterns: [
               ...pipe(imgConfig.remotePatterns, O.fromNullable, O.getOrElse(A.empty)),
               {
@@ -391,6 +394,7 @@ const make = (packageName: `@beep/${string}`, config?: BeepNextConfig) =>
     return yield* pipe(
       {
         ...configWithDefaults,
+
         headers: async () => [
           {
             source: "/:path*",

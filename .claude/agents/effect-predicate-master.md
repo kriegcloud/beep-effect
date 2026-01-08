@@ -507,235 +507,235 @@ if (isNotString(x)) {
 
 ### effect/Predicate
 
-| Function | Source Location | Description |
-|----------|-----------------|-------------|
-| `P.isString` | Predicate.d.ts:439-457 | Checks if value is a `string` |
-| `P.isNumber` | Predicate.d.ts:458-477 | Checks if value is a `number` |
-| `P.isBoolean` | Predicate.d.ts:478-496 | Checks if value is a `boolean` |
-| `P.isBigInt` | Predicate.d.ts:497-514 | Checks if value is a `bigint` |
-| `P.isSymbol` | Predicate.d.ts:515-531 | Checks if value is a `symbol` |
-| `P.isFunction` | Predicate.d.ts:532-549 | Checks if value is a `Function` |
-| `P.isObject` | Predicate.d.ts:656-677 | Checks if value is an `object` |
-| `P.isRecord` | Predicate.d.ts:964-988 | Checks if value is a plain object |
-| `P.isSet` | Predicate.d.ts:402-420 | Checks if value is a `Set` |
-| `P.isMap` | Predicate.d.ts:421-438 | Checks if value is a `Map` |
-| `P.isDate` | Predicate.d.ts:925-942 | Checks if value is a `Date` |
-| `P.isError` | Predicate.d.ts:888-906 | Checks if value is an `Error` |
-| `P.isRegExp` | Predicate.d.ts:1054-1071 | Checks if value is a `RegExp` |
-| `P.isUint8Array` | Predicate.d.ts:907-924 | Checks if value is a `Uint8Array` |
-| `P.isIterable` | Predicate.d.ts:943-963 | Checks if value is an `Iterable` |
-| `P.isPromise` | Predicate.d.ts:1013-1033 | Checks if value is a `Promise` |
-| `P.isNull` | Predicate.d.ts:586-603 | Checks if value is `null` |
-| `P.isNotNull` | Predicate.d.ts:604-621 | Checks if value is not `null` |
-| `P.isUndefined` | Predicate.d.ts:550-567 | Checks if value is `undefined` |
-| `P.isNotUndefined` | Predicate.d.ts:568-585 | Checks if value is not `undefined` |
-| `P.isNullable` | Predicate.d.ts:847-866 | Checks if value is `null` or `undefined` |
-| `P.isNotNullable` | Predicate.d.ts:867-887 | Checks if value is neither `null` nor `undefined` |
-| `P.hasProperty` | Predicate.d.ts:678-751 | Checks if object has a specific property |
-| `P.isTagged` | Predicate.d.ts:752-846 | Checks if object has matching `_tag` |
-| `P.isTupleOf` | Predicate.d.ts:218-296 | Checks if array is tuple with N elements |
-| `P.isTupleOfAtLeast` | Predicate.d.ts:297-378 | Checks if array has at least N elements |
-| `P.and` | Predicate.d.ts:1586-1761 | Combines predicates with logical AND |
-| `P.or` | Predicate.d.ts:1425-1585 | Combines predicates with logical OR |
-| `P.not` | Predicate.d.ts:1403-1424 | Negates a predicate |
-| `P.xor` | Predicate.d.ts:1762-1834 | Combines predicates with XOR |
-| `P.eqv` | Predicate.d.ts:1835-1907 | Combines predicates with equivalence |
-| `P.nand` | Predicate.d.ts:2117-2144 | Combines predicates with NAND |
-| `P.nor` | Predicate.d.ts:2089-2116 | Combines predicates with NOR |
-| `P.implies` | Predicate.d.ts:1908-2088 | Creates if-then predicate |
-| `P.every` | Predicate.d.ts:2145-2170 | All predicates must return true |
-| `P.some` | Predicate.d.ts:2171-2196 | At least one predicate returns true |
-| `P.tuple` | Predicate.d.ts:1247-1327 | Combines predicates for tuple testing |
-| `P.struct` | Predicate.d.ts:1328-1402 | Combines predicates for struct testing |
-| `P.compose` | Predicate.d.ts:1072-1227 | Composes refinements |
-| `P.mapInput` | Predicate.d.ts:136-217 | Transforms input before testing |
+| Function             | Source Location          | Description                                       |
+|----------------------|--------------------------|---------------------------------------------------|
+| `P.isString`         | Predicate.d.ts:439-457   | Checks if value is a `string`                     |
+| `P.isNumber`         | Predicate.d.ts:458-477   | Checks if value is a `number`                     |
+| `P.isBoolean`        | Predicate.d.ts:478-496   | Checks if value is a `boolean`                    |
+| `P.isBigInt`         | Predicate.d.ts:497-514   | Checks if value is a `bigint`                     |
+| `P.isSymbol`         | Predicate.d.ts:515-531   | Checks if value is a `symbol`                     |
+| `P.isFunction`       | Predicate.d.ts:532-549   | Checks if value is a `Function`                   |
+| `P.isObject`         | Predicate.d.ts:656-677   | Checks if value is an `object`                    |
+| `P.isRecord`         | Predicate.d.ts:964-988   | Checks if value is a plain object                 |
+| `P.isSet`            | Predicate.d.ts:402-420   | Checks if value is a `Set`                        |
+| `P.isMap`            | Predicate.d.ts:421-438   | Checks if value is a `Map`                        |
+| `P.isDate`           | Predicate.d.ts:925-942   | Checks if value is a `Date`                       |
+| `P.isError`          | Predicate.d.ts:888-906   | Checks if value is an `Error`                     |
+| `P.isRegExp`         | Predicate.d.ts:1054-1071 | Checks if value is a `RegExp`                     |
+| `P.isUint8Array`     | Predicate.d.ts:907-924   | Checks if value is a `Uint8Array`                 |
+| `P.isIterable`       | Predicate.d.ts:943-963   | Checks if value is an `Iterable`                  |
+| `P.isPromise`        | Predicate.d.ts:1013-1033 | Checks if value is a `Promise`                    |
+| `P.isNull`           | Predicate.d.ts:586-603   | Checks if value is `null`                         |
+| `P.isNotNull`        | Predicate.d.ts:604-621   | Checks if value is not `null`                     |
+| `P.isUndefined`      | Predicate.d.ts:550-567   | Checks if value is `undefined`                    |
+| `P.isNotUndefined`   | Predicate.d.ts:568-585   | Checks if value is not `undefined`                |
+| `P.isNullable`       | Predicate.d.ts:847-866   | Checks if value is `null` or `undefined`          |
+| `P.isNotNullable`    | Predicate.d.ts:867-887   | Checks if value is neither `null` nor `undefined` |
+| `P.hasProperty`      | Predicate.d.ts:678-751   | Checks if object has a specific property          |
+| `P.isTagged`         | Predicate.d.ts:752-846   | Checks if object has matching `_tag`              |
+| `P.isTupleOf`        | Predicate.d.ts:218-296   | Checks if array is tuple with N elements          |
+| `P.isTupleOfAtLeast` | Predicate.d.ts:297-378   | Checks if array has at least N elements           |
+| `P.and`              | Predicate.d.ts:1586-1761 | Combines predicates with logical AND              |
+| `P.or`               | Predicate.d.ts:1425-1585 | Combines predicates with logical OR               |
+| `P.not`              | Predicate.d.ts:1403-1424 | Negates a predicate                               |
+| `P.xor`              | Predicate.d.ts:1762-1834 | Combines predicates with XOR                      |
+| `P.eqv`              | Predicate.d.ts:1835-1907 | Combines predicates with equivalence              |
+| `P.nand`             | Predicate.d.ts:2117-2144 | Combines predicates with NAND                     |
+| `P.nor`              | Predicate.d.ts:2089-2116 | Combines predicates with NOR                      |
+| `P.implies`          | Predicate.d.ts:1908-2088 | Creates if-then predicate                         |
+| `P.every`            | Predicate.d.ts:2145-2170 | All predicates must return true                   |
+| `P.some`             | Predicate.d.ts:2171-2196 | At least one predicate returns true               |
+| `P.tuple`            | Predicate.d.ts:1247-1327 | Combines predicates for tuple testing             |
+| `P.struct`           | Predicate.d.ts:1328-1402 | Combines predicates for struct testing            |
+| `P.compose`          | Predicate.d.ts:1072-1227 | Composes refinements                              |
+| `P.mapInput`         | Predicate.d.ts:136-217   | Transforms input before testing                   |
 
 ### effect/Number
 
-| Function | Source Location | Description |
-|----------|-----------------|-------------|
-| `Num.isNumber` | Number.d.ts:101-154 | Type guard for numbers |
-| `Num.lessThan` | Number.d.ts:704-761 | Checks if less than |
-| `Num.lessThanOrEqualTo` | Number.d.ts:762-819 | Checks if less than or equal |
-| `Num.greaterThan` | Number.d.ts:820-877 | Checks if greater than |
-| `Num.greaterThanOrEqualTo` | Number.d.ts:878-935 | Checks if greater than or equal |
-| `Num.between` | Number.d.ts:936-1002 | Checks if between min and max |
+| Function                   | Source Location      | Description                     |
+|----------------------------|----------------------|---------------------------------|
+| `Num.isNumber`             | Number.d.ts:101-154  | Type guard for numbers          |
+| `Num.lessThan`             | Number.d.ts:704-761  | Checks if less than             |
+| `Num.lessThanOrEqualTo`    | Number.d.ts:762-819  | Checks if less than or equal    |
+| `Num.greaterThan`          | Number.d.ts:820-877  | Checks if greater than          |
+| `Num.greaterThanOrEqualTo` | Number.d.ts:878-935  | Checks if greater than or equal |
+| `Num.between`              | Number.d.ts:936-1002 | Checks if between min and max   |
 
 ### effect/BigInt
 
-| Function | Source Location | Description |
-|----------|-----------------|-------------|
-| `BI.isBigInt` | BigInt.d.ts:15-30 | Type guard for bigint |
-| `BI.lessThan` | BigInt.d.ts:337-388 | Checks if less than |
-| `BI.lessThanOrEqualTo` | BigInt.d.ts:389-440 | Checks if less than or equal |
-| `BI.greaterThan` | BigInt.d.ts:441-492 | Checks if greater than |
+| Function                  | Source Location     | Description                     |
+|---------------------------|---------------------|---------------------------------|
+| `BI.isBigInt`             | BigInt.d.ts:15-30   | Type guard for bigint           |
+| `BI.lessThan`             | BigInt.d.ts:337-388 | Checks if less than             |
+| `BI.lessThanOrEqualTo`    | BigInt.d.ts:389-440 | Checks if less than or equal    |
+| `BI.greaterThan`          | BigInt.d.ts:441-492 | Checks if greater than          |
 | `BI.greaterThanOrEqualTo` | BigInt.d.ts:493-544 | Checks if greater than or equal |
-| `BI.between` | BigInt.d.ts:545-608 | Checks if between min and max |
-| `BI.sign` | BigInt.d.ts:768-784 | Returns sign (-1, 0, or 1) |
+| `BI.between`              | BigInt.d.ts:545-608 | Checks if between min and max   |
+| `BI.sign`                 | BigInt.d.ts:768-784 | Returns sign (-1, 0, or 1)      |
 
 ### effect/BigDecimal
 
-| Function | Source Location | Description |
-|----------|-----------------|-------------|
-| `BigDecimal.isBigDecimal` | BigDecimal.d.ts:46-51 | Type guard for BigDecimal |
-| `BigDecimal.lessThan` | BigDecimal.d.ts:382-432 | Checks if less than |
-| `BigDecimal.lessThanOrEqualTo` | BigDecimal.d.ts:433-484 | Checks if less than or equal |
-| `BigDecimal.greaterThan` | BigDecimal.d.ts:485-536 | Checks if greater than |
-| `BigDecimal.greaterThanOrEqualTo` | BigDecimal.d.ts:537-588 | Checks if greater than or equal |
-| `BigDecimal.between` | BigDecimal.d.ts:589-661 | Checks if between min and max |
-| `BigDecimal.equals` | BigDecimal.d.ts:1011-1031 | Checks equality |
-| `BigDecimal.isInteger` | BigDecimal.d.ts:1182-1197 | Checks if integer |
-| `BigDecimal.isZero` | BigDecimal.d.ts:1198-1213 | Checks if zero |
-| `BigDecimal.isNegative` | BigDecimal.d.ts:1214-1230 | Checks if negative |
-| `BigDecimal.isPositive` | BigDecimal.d.ts:1231-1247 | Checks if positive |
+| Function                          | Source Location           | Description                     |
+|-----------------------------------|---------------------------|---------------------------------|
+| `BigDecimal.isBigDecimal`         | BigDecimal.d.ts:46-51     | Type guard for BigDecimal       |
+| `BigDecimal.lessThan`             | BigDecimal.d.ts:382-432   | Checks if less than             |
+| `BigDecimal.lessThanOrEqualTo`    | BigDecimal.d.ts:433-484   | Checks if less than or equal    |
+| `BigDecimal.greaterThan`          | BigDecimal.d.ts:485-536   | Checks if greater than          |
+| `BigDecimal.greaterThanOrEqualTo` | BigDecimal.d.ts:537-588   | Checks if greater than or equal |
+| `BigDecimal.between`              | BigDecimal.d.ts:589-661   | Checks if between min and max   |
+| `BigDecimal.equals`               | BigDecimal.d.ts:1011-1031 | Checks equality                 |
+| `BigDecimal.isInteger`            | BigDecimal.d.ts:1182-1197 | Checks if integer               |
+| `BigDecimal.isZero`               | BigDecimal.d.ts:1198-1213 | Checks if zero                  |
+| `BigDecimal.isNegative`           | BigDecimal.d.ts:1214-1230 | Checks if negative              |
+| `BigDecimal.isPositive`           | BigDecimal.d.ts:1231-1247 | Checks if positive              |
 
 ### effect/DateTime
 
-| Function | Source Location | Description |
-|----------|-----------------|-------------|
-| `DateTime.isDateTime` | DateTime.d.ts:227 | Type guard for DateTime |
-| `DateTime.isUtc` | DateTime.d.ts:247 | Checks if Utc instance |
-| `DateTime.isZoned` | DateTime.d.ts:252 | Checks if Zoned instance |
-| `DateTime.greaterThan` | DateTime.d.ts:1027-1038 | Checks if after |
-| `DateTime.greaterThanOrEqualTo` | DateTime.d.ts:1043-1054 | Checks if after or equal |
-| `DateTime.lessThan` | DateTime.d.ts:1059-1070 | Checks if before |
-| `DateTime.lessThanOrEqualTo` | DateTime.d.ts:1075-1086 | Checks if before or equal |
-| `DateTime.between` | DateTime.d.ts:1091-1108 | Checks if between bounds |
-| `DateTime.isFuture` | DateTime.d.ts:1113 | Effectful future check |
-| `DateTime.unsafeIsFuture` | DateTime.d.ts:1118 | Sync future check |
-| `DateTime.isPast` | DateTime.d.ts:1123 | Effectful past check |
-| `DateTime.unsafeIsPast` | DateTime.d.ts:1128 | Sync past check |
+| Function                        | Source Location         | Description               |
+|---------------------------------|-------------------------|---------------------------|
+| `DateTime.isDateTime`           | DateTime.d.ts:227       | Type guard for DateTime   |
+| `DateTime.isUtc`                | DateTime.d.ts:247       | Checks if Utc instance    |
+| `DateTime.isZoned`              | DateTime.d.ts:252       | Checks if Zoned instance  |
+| `DateTime.greaterThan`          | DateTime.d.ts:1027-1038 | Checks if after           |
+| `DateTime.greaterThanOrEqualTo` | DateTime.d.ts:1043-1054 | Checks if after or equal  |
+| `DateTime.lessThan`             | DateTime.d.ts:1059-1070 | Checks if before          |
+| `DateTime.lessThanOrEqualTo`    | DateTime.d.ts:1075-1086 | Checks if before or equal |
+| `DateTime.between`              | DateTime.d.ts:1091-1108 | Checks if between bounds  |
+| `DateTime.isFuture`             | DateTime.d.ts:1113      | Effectful future check    |
+| `DateTime.unsafeIsFuture`       | DateTime.d.ts:1118      | Sync future check         |
+| `DateTime.isPast`               | DateTime.d.ts:1123      | Effectful past check      |
+| `DateTime.unsafeIsPast`         | DateTime.d.ts:1128      | Sync past check           |
 
 ### effect/Duration
 
-| Function | Source Location | Description |
-|----------|-----------------|-------------|
-| `Duration.isDuration` | Duration.d.ts:59 | Type guard for Duration |
-| `Duration.isFinite` | Duration.d.ts:64 | Checks if not infinite |
-| `Duration.isZero` | Duration.d.ts:69 | Checks if zero |
-| `Duration.lessThan` | Duration.d.ts:390-401 | Checks if less than |
-| `Duration.lessThanOrEqualTo` | Duration.d.ts:406-417 | Checks if less than or equal |
-| `Duration.greaterThan` | Duration.d.ts:422-433 | Checks if greater than |
+| Function                        | Source Location       | Description                     |
+|---------------------------------|-----------------------|---------------------------------|
+| `Duration.isDuration`           | Duration.d.ts:59      | Type guard for Duration         |
+| `Duration.isFinite`             | Duration.d.ts:64      | Checks if not infinite          |
+| `Duration.isZero`               | Duration.d.ts:69      | Checks if zero                  |
+| `Duration.lessThan`             | Duration.d.ts:390-401 | Checks if less than             |
+| `Duration.lessThanOrEqualTo`    | Duration.d.ts:406-417 | Checks if less than or equal    |
+| `Duration.greaterThan`          | Duration.d.ts:422-433 | Checks if greater than          |
 | `Duration.greaterThanOrEqualTo` | Duration.d.ts:438-449 | Checks if greater than or equal |
-| `Duration.equals` | Duration.d.ts:454-465 | Checks equality |
-| `Duration.between` | Duration.d.ts:228-249 | Checks if between bounds |
+| `Duration.equals`               | Duration.d.ts:454-465 | Checks equality                 |
+| `Duration.between`              | Duration.d.ts:228-249 | Checks if between bounds        |
 
 ### effect/Boolean
 
-| Function | Source Location | Description |
-|----------|-----------------|-------------|
-| `Bool.isBoolean` | Boolean.d.ts:11-26 | Type guard for boolean |
-| `Bool.match` | Boolean.d.ts:27-81 | Pattern match on boolean |
-| `Bool.not` | Boolean.d.ts:92-107 | Negation |
-| `Bool.and` | Boolean.d.ts:108-162 | Logical AND |
-| `Bool.or` | Boolean.d.ts:218-272 | Logical OR |
-| `Bool.nand` | Boolean.d.ts:163-217 | Logical NAND |
-| `Bool.nor` | Boolean.d.ts:273-327 | Logical NOR |
-| `Bool.xor` | Boolean.d.ts:328-382 | Logical XOR |
-| `Bool.eqv` | Boolean.d.ts:383-437 | Logical equivalence |
-| `Bool.implies` | Boolean.d.ts:438-492 | Logical implication |
-| `Bool.every` | Boolean.d.ts:493-507 | All true |
-| `Bool.some` | Boolean.d.ts:508-522 | At least one true |
+| Function         | Source Location      | Description              |
+|------------------|----------------------|--------------------------|
+| `Bool.isBoolean` | Boolean.d.ts:11-26   | Type guard for boolean   |
+| `Bool.match`     | Boolean.d.ts:27-81   | Pattern match on boolean |
+| `Bool.not`       | Boolean.d.ts:92-107  | Negation                 |
+| `Bool.and`       | Boolean.d.ts:108-162 | Logical AND              |
+| `Bool.or`        | Boolean.d.ts:218-272 | Logical OR               |
+| `Bool.nand`      | Boolean.d.ts:163-217 | Logical NAND             |
+| `Bool.nor`       | Boolean.d.ts:273-327 | Logical NOR              |
+| `Bool.xor`       | Boolean.d.ts:328-382 | Logical XOR              |
+| `Bool.eqv`       | Boolean.d.ts:383-437 | Logical equivalence      |
+| `Bool.implies`   | Boolean.d.ts:438-492 | Logical implication      |
+| `Bool.every`     | Boolean.d.ts:493-507 | All true                 |
+| `Bool.some`      | Boolean.d.ts:508-522 | At least one true        |
 
 ### effect/Match
 
-| Function | Source Location | Description |
-|----------|-----------------|-------------|
-| `Match.value` | Match.d.ts:183-222 | Create matcher from value |
-| `Match.type` | Match.d.ts:141-181 | Create matcher for type |
-| `Match.tag` | Match.d.ts:577-620 | Match by `_tag` field |
-| `Match.when` | Match.d.ts:311-358 | Define condition pattern |
-| `Match.not` | Match.d.ts:719-753 | Exclude value from matching |
-| `Match.discriminator` | Match.d.ts:442-468 | Match by discriminant field |
-| `Match.exhaustive` | Match.d.ts:992-1017 | Ensure all cases handled |
-| `Match.orElse` | Match.d.ts:864-896 | Fallback handler |
-| `Match.orElseAbsurd` | Match.d.ts:897-913 | Throw on no match |
-| `Match.option` | Match.d.ts:955-991 | Return Option |
-| `Match.either` | Match.d.ts:915-953 | Return Either |
-| `Match.string` | Match.d.ts:774 | Match string values |
-| `Match.number` | Match.d.ts:781 | Match number values |
-| `Match.boolean` | Match.d.ts:802 | Match boolean values |
-| `Match.bigint` | Match.d.ts:827 | Match bigint values |
-| `Match.any` | Match.d.ts:788 | Match any value |
-| `Match.defined` | Match.d.ts:795 | Match non-null/undefined |
-| `Match.instanceOf` | Match.d.ts:857 | Match class instances |
+| Function              | Source Location     | Description                 |
+|-----------------------|---------------------|-----------------------------|
+| `Match.value`         | Match.d.ts:183-222  | Create matcher from value   |
+| `Match.type`          | Match.d.ts:141-181  | Create matcher for type     |
+| `Match.tag`           | Match.d.ts:577-620  | Match by `_tag` field       |
+| `Match.when`          | Match.d.ts:311-358  | Define condition pattern    |
+| `Match.not`           | Match.d.ts:719-753  | Exclude value from matching |
+| `Match.discriminator` | Match.d.ts:442-468  | Match by discriminant field |
+| `Match.exhaustive`    | Match.d.ts:992-1017 | Ensure all cases handled    |
+| `Match.orElse`        | Match.d.ts:864-896  | Fallback handler            |
+| `Match.orElseAbsurd`  | Match.d.ts:897-913  | Throw on no match           |
+| `Match.option`        | Match.d.ts:955-991  | Return Option               |
+| `Match.either`        | Match.d.ts:915-953  | Return Either               |
+| `Match.string`        | Match.d.ts:774      | Match string values         |
+| `Match.number`        | Match.d.ts:781      | Match number values         |
+| `Match.boolean`       | Match.d.ts:802      | Match boolean values        |
+| `Match.bigint`        | Match.d.ts:827      | Match bigint values         |
+| `Match.any`           | Match.d.ts:788      | Match any value             |
+| `Match.defined`       | Match.d.ts:795      | Match non-null/undefined    |
+| `Match.instanceOf`    | Match.d.ts:857      | Match class instances       |
 
 ### effect/Equal
 
-| Function | Source Location | Description |
-|----------|-----------------|-------------|
-| `Equal.equals` | Equal.d.ts:22-23 | Structural equality check |
-| `Equal.isEqual` | Equal.d.ts:28 | Type guard for Equal interface |
-| `Equal.equivalence` | Equal.d.ts:33 | Create Equivalence from Equal |
+| Function            | Source Location  | Description                    |
+|---------------------|------------------|--------------------------------|
+| `Equal.equals`      | Equal.d.ts:22-23 | Structural equality check      |
+| `Equal.isEqual`     | Equal.d.ts:28    | Type guard for Equal interface |
+| `Equal.equivalence` | Equal.d.ts:33    | Create Equivalence from Equal  |
 
 ### effect/Equivalence
 
-| Function | Source Location | Description |
-|----------|-----------------|-------------|
-| `Equivalence.make` | Equivalence.d.ts:17-20 | Create custom Equivalence |
-| `Equivalence.strict` | Equivalence.d.ts:21-27 | Strict equality (===) |
-| `Equivalence.string` | Equivalence.d.ts:28-32 | String equality |
-| `Equivalence.number` | Equivalence.d.ts:33-37 | Number equality |
-| `Equivalence.boolean` | Equivalence.d.ts:38-42 | Boolean equality |
-| `Equivalence.bigint` | Equivalence.d.ts:43-47 | BigInt equality |
-| `Equivalence.symbol` | Equivalence.d.ts:48-52 | Symbol equality |
-| `Equivalence.Date` | Equivalence.d.ts:106-110 | Date equality |
-| `Equivalence.struct` | Equivalence.d.ts:150-157 | Struct equality |
-| `Equivalence.array` | Equivalence.d.ts:143-149 | Array equality |
-| `Equivalence.tuple` | Equivalence.d.ts:129-142 | Tuple equality |
-| `Equivalence.mapInput` | Equivalence.d.ts:90-105 | Transform before comparing |
+| Function               | Source Location          | Description                |
+|------------------------|--------------------------|----------------------------|
+| `Equivalence.make`     | Equivalence.d.ts:17-20   | Create custom Equivalence  |
+| `Equivalence.strict`   | Equivalence.d.ts:21-27   | Strict equality (===)      |
+| `Equivalence.string`   | Equivalence.d.ts:28-32   | String equality            |
+| `Equivalence.number`   | Equivalence.d.ts:33-37   | Number equality            |
+| `Equivalence.boolean`  | Equivalence.d.ts:38-42   | Boolean equality           |
+| `Equivalence.bigint`   | Equivalence.d.ts:43-47   | BigInt equality            |
+| `Equivalence.symbol`   | Equivalence.d.ts:48-52   | Symbol equality            |
+| `Equivalence.Date`     | Equivalence.d.ts:106-110 | Date equality              |
+| `Equivalence.struct`   | Equivalence.d.ts:150-157 | Struct equality            |
+| `Equivalence.array`    | Equivalence.d.ts:143-149 | Array equality             |
+| `Equivalence.tuple`    | Equivalence.d.ts:129-142 | Tuple equality             |
+| `Equivalence.mapInput` | Equivalence.d.ts:90-105  | Transform before comparing |
 
 ### effect/Schema
 
-| Function | Source Location | Description |
-|----------|-----------------|-------------|
-| `S.is` | Schema.d.ts:291 | Type guard from schema |
-| `S.asserts` | ParseResult.d.ts:487 | Assert schema match |
-| `S.isSchema` | Schema.d.ts:384 | Type guard for Schema |
-| `S.validate` | Schema.d.ts:367 | Validate with Effect |
-| `S.validateEither` | Schema.d.ts:372 | Validate to Either |
-| `S.validateSync` | Schema.d.ts:302 | Sync validation |
-| `S.validateOption` | Schema.d.ts:296 | Validate to Option |
-| `S.filter` | Schema.d.ts:1907-1909 | Create refinement schema |
+| Function           | Source Location       | Description              |
+|--------------------|-----------------------|--------------------------|
+| `S.is`             | Schema.d.ts:291       | Type guard from schema   |
+| `S.asserts`        | ParseResult.d.ts:487  | Assert schema match      |
+| `S.isSchema`       | Schema.d.ts:384       | Type guard for Schema    |
+| `S.validate`       | Schema.d.ts:367       | Validate with Effect     |
+| `S.validateEither` | Schema.d.ts:372       | Validate to Either       |
+| `S.validateSync`   | Schema.d.ts:302       | Sync validation          |
+| `S.validateOption` | Schema.d.ts:296       | Validate to Option       |
+| `S.filter`         | Schema.d.ts:1907-1909 | Create refinement schema |
 
 ### effect/Array
 
-| Function | Source Location | Description |
-|----------|-----------------|-------------|
-| `A.isEmptyArray` | Array.d.ts:875 | Checks if empty array |
-| `A.isNonEmptyArray` | Array.d.ts:909 | Checks if non-empty array |
-| `A.findFirst` | Array.d.ts:1648-1751 | Find first matching element |
-| `A.findLast` | Array.d.ts:1768-1887 | Find last matching element |
-| `A.filter` | Array.d.ts:4542-4563 | Filter elements |
-| `A.partition` | Array.d.ts:4579-4644 | Split by predicate |
-| `A.every` | Array.d.ts:4904-4933 | All match predicate |
-| `A.some` | Array.d.ts:4940-4955 | Some match predicate |
-| `A.contains` | Array.d.ts:3141-3174 | Contains value |
+| Function            | Source Location      | Description                 |
+|---------------------|----------------------|-----------------------------|
+| `A.isEmptyArray`    | Array.d.ts:875       | Checks if empty array       |
+| `A.isNonEmptyArray` | Array.d.ts:909       | Checks if non-empty array   |
+| `A.findFirst`       | Array.d.ts:1648-1751 | Find first matching element |
+| `A.findLast`        | Array.d.ts:1768-1887 | Find last matching element  |
+| `A.filter`          | Array.d.ts:4542-4563 | Filter elements             |
+| `A.partition`       | Array.d.ts:4579-4644 | Split by predicate          |
+| `A.every`           | Array.d.ts:4904-4933 | All match predicate         |
+| `A.some`            | Array.d.ts:4940-4955 | Some match predicate        |
+| `A.contains`        | Array.d.ts:3141-3174 | Contains value              |
 
 ### effect/Option
 
-| Function | Source Location | Description |
-|----------|-----------------|-------------|
-| `O.isOption` | Option.d.ts:174-201 | Type guard for Option |
-| `O.isSome` | Option.d.ts:222-241 | Checks if Some |
-| `O.isNone` | Option.d.ts:202-221 | Checks if None |
-| `O.liftPredicate` | Option.d.ts:3003-3136 | Lift predicate to Option |
-| `O.filter` | Option.d.ts:2753-2883 | Filter Option value |
-| `O.exists` | Option.d.ts:3271-3436 | Check if value satisfies predicate |
-| `O.contains` | Option.d.ts:3174-3270 | Check if contains value |
+| Function          | Source Location       | Description                        |
+|-------------------|-----------------------|------------------------------------|
+| `O.isOption`      | Option.d.ts:174-201   | Type guard for Option              |
+| `O.isSome`        | Option.d.ts:222-241   | Checks if Some                     |
+| `O.isNone`        | Option.d.ts:202-221   | Checks if None                     |
+| `O.liftPredicate` | Option.d.ts:3003-3136 | Lift predicate to Option           |
+| `O.filter`        | Option.d.ts:2753-2883 | Filter Option value                |
+| `O.exists`        | Option.d.ts:3271-3436 | Check if value satisfies predicate |
+| `O.contains`      | Option.d.ts:3174-3270 | Check if contains value            |
 
 ### effect/List
 
-| Function | Source Location | Description |
-|----------|-----------------|-------------|
-| `List.isList` | List.d.ts:80-95 | Type guard for List |
-| `List.isNil` | List.d.ts:97-102 | Checks if Nil |
-| `List.isCons` | List.d.ts:103-109 | Checks if Cons |
-| `List.every` | List.d.ts:444-479 | All match predicate |
-| `List.some` | List.d.ts:480-501 | Some match predicate |
-| `List.filter` | List.d.ts:502-537 | Filter list elements |
-| `List.partition` | List.d.ts:724-769 | Split by predicate |
-| `List.findFirst` | List.d.ts:574-613 | Find first matching |
+| Function         | Source Location   | Description          |
+|------------------|-------------------|----------------------|
+| `List.isList`    | List.d.ts:80-95   | Type guard for List  |
+| `List.isNil`     | List.d.ts:97-102  | Checks if Nil        |
+| `List.isCons`    | List.d.ts:103-109 | Checks if Cons       |
+| `List.every`     | List.d.ts:444-479 | All match predicate  |
+| `List.some`      | List.d.ts:480-501 | Some match predicate |
+| `List.filter`    | List.d.ts:502-537 | Filter list elements |
+| `List.partition` | List.d.ts:724-769 | Split by predicate   |
+| `List.findFirst` | List.d.ts:574-613 | Find first matching  |
 
 ---
 

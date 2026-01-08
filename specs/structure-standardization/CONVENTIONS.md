@@ -47,45 +47,45 @@
 
 ### File Type Suffixes
 
-| Type | Suffix | Example | Description |
-|------|--------|---------|-------------|
-| **Effect Layer** | `.layer.ts` | `authentication.layer.ts` | Dependency injection layers |
-| **Repository** | `.repo.ts` | `user.repo.ts` | Data access repositories |
-| **Service** | `.service.ts` | `sign-in.service.ts` | Business logic services |
-| **Handler** | `.handlers.ts` | `document.handlers.ts` | Request/RPC handlers |
-| **Model** | `.model.ts` | `user.model.ts` | Entity/domain models |
-| **Schema** | `.schema.ts` | `email.schema.ts` | Validation schemas |
-| **Policy** | `.policy.ts` | `team.policy.ts` | Authorization policies |
-| **Table** | `.table.ts` | `api-key.table.ts` | Database table definitions |
-| **Error** | `.errors.ts` | `upload.errors.ts` | Error definitions |
-| **Constants** | `.constants.ts` | `user.constants.ts` | Constant values |
-| **Types** | `.types.ts` | `auth.types.ts` | Type definitions only |
-| **Utils** | `.utils.ts` | `string.utils.ts` | Utility functions |
-| **Config** | `.config.ts` | `database.config.ts` | Configuration |
-| **Test** | `.test.ts` | `user.repo.test.ts` | Test files |
+| Type             | Suffix          | Example                   | Description                 |
+|------------------|-----------------|---------------------------|-----------------------------|
+| **Effect Layer** | `.layer.ts`     | `authentication.layer.ts` | Dependency injection layers |
+| **Repository**   | `.repo.ts`      | `user.repo.ts`            | Data access repositories    |
+| **Service**      | `.service.ts`   | `sign-in.service.ts`      | Business logic services     |
+| **Handler**      | `.handlers.ts`  | `document.handlers.ts`    | Request/RPC handlers        |
+| **Model**        | `.model.ts`     | `user.model.ts`           | Entity/domain models        |
+| **Schema**       | `.schema.ts`    | `email.schema.ts`         | Validation schemas          |
+| **Policy**       | `.policy.ts`    | `team.policy.ts`          | Authorization policies      |
+| **Table**        | `.table.ts`     | `api-key.table.ts`        | Database table definitions  |
+| **Error**        | `.errors.ts`    | `upload.errors.ts`        | Error definitions           |
+| **Constants**    | `.constants.ts` | `user.constants.ts`       | Constant values             |
+| **Types**        | `.types.ts`     | `auth.types.ts`           | Type definitions only       |
+| **Utils**        | `.utils.ts`     | `string.utils.ts`         | Utility functions           |
+| **Config**       | `.config.ts`    | `database.config.ts`      | Configuration               |
+| **Test**         | `.test.ts`      | `user.repo.test.ts`       | Test files                  |
 
 ### React/UI File Suffixes
 
-| Type | Suffix | Example | Description |
-|------|--------|---------|-------------|
-| **View** | `.view.tsx` | `sign-in.view.tsx` | Main view components |
-| **Form** | `.form.tsx` | `sign-up.form.tsx` | Form components |
-| **List** | `.list.tsx` | `users.list.tsx` | List components |
-| **Item** | `.item.tsx` | `user.item.tsx` | Single item components |
-| **Card** | `.card.tsx` | `project.card.tsx` | Card components |
-| **Modal** | `.modal.tsx` | `confirm.modal.tsx` | Modal/dialog components |
-| **Skeleton** | `.skeleton.tsx` | `user.skeleton.tsx` | Loading skeletons |
-| **Empty** | `.empty.tsx` | `files.empty.tsx` | Empty state components |
-| **Error** | `.error.tsx` | `boundary.error.tsx` | Error components |
-| **Fallback** | `.fallback.tsx` | `auth.fallback.tsx` | Fallback components |
+| Type         | Suffix          | Example              | Description             |
+|--------------|-----------------|----------------------|-------------------------|
+| **View**     | `.view.tsx`     | `sign-in.view.tsx`   | Main view components    |
+| **Form**     | `.form.tsx`     | `sign-up.form.tsx`   | Form components         |
+| **List**     | `.list.tsx`     | `users.list.tsx`     | List components         |
+| **Item**     | `.item.tsx`     | `user.item.tsx`      | Single item components  |
+| **Card**     | `.card.tsx`     | `project.card.tsx`   | Card components         |
+| **Modal**    | `.modal.tsx`    | `confirm.modal.tsx`  | Modal/dialog components |
+| **Skeleton** | `.skeleton.tsx` | `user.skeleton.tsx`  | Loading skeletons       |
+| **Empty**    | `.empty.tsx`    | `files.empty.tsx`    | Empty state components  |
+| **Error**    | `.error.tsx`    | `boundary.error.tsx` | Error components        |
+| **Fallback** | `.fallback.tsx` | `auth.fallback.tsx`  | Fallback components     |
 
 ### State Management Suffixes
 
-| Type | Suffix | Example | Description |
-|------|--------|---------|-------------|
+| Type      | Suffix      | Example            | Description                       |
+|-----------|-------------|--------------------|-----------------------------------|
 | **Atoms** | `.atoms.ts` | `sign-in.atoms.ts` | Jotai/state atoms (always plural) |
-| **Store** | `.store.ts` | `auth.store.ts` | Store definitions |
-| **Hooks** | `.hooks.ts` | `auth.hooks.ts` | Custom React hooks |
+| **Store** | `.store.ts` | `auth.store.ts`    | Store definitions                 |
+| **Hooks** | `.hooks.ts` | `auth.hooks.ts`    | Custom React hooks                |
 
 ---
 
@@ -255,16 +255,16 @@ src/
 
 ## Casing Reference
 
-| Context | Convention | Example |
-|---------|------------|---------|
-| Directories | kebab-case | `api-key/`, `sign-in/` |
-| TypeScript files | kebab-case | `user.repo.ts`, `sign-in.service.ts` |
-| React components | kebab-case | `user-card.view.tsx` |
-| Test files | kebab-case | `user.repo.test.ts` |
-| Type/Interface names | PascalCase | `UserModel`, `SignInRequest` |
-| Function names | camelCase | `createUser`, `signIn` |
-| Constants | SCREAMING_SNAKE | `MAX_RETRIES`, `DEFAULT_TIMEOUT` |
-| Database columns | snake_case | `created_at`, `user_id` |
+| Context              | Convention      | Example                              |
+|----------------------|-----------------|--------------------------------------|
+| Directories          | kebab-case      | `api-key/`, `sign-in/`               |
+| TypeScript files     | kebab-case      | `user.repo.ts`, `sign-in.service.ts` |
+| React components     | kebab-case      | `user-card.view.tsx`                 |
+| Test files           | kebab-case      | `user.repo.test.ts`                  |
+| Type/Interface names | PascalCase      | `UserModel`, `SignInRequest`         |
+| Function names       | camelCase       | `createUser`, `signIn`               |
+| Constants            | SCREAMING_SNAKE | `MAX_RETRIES`, `DEFAULT_TIMEOUT`     |
+| Database columns     | snake_case      | `created_at`, `user_id`              |
 
 ---
 

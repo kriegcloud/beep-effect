@@ -13,6 +13,7 @@ import { Auth } from "@beep/iam-server/adapters";
 import * as HttpServerRequest from "@effect/platform/HttpServerRequest";
 import * as HttpServerResponse from "@effect/platform/HttpServerResponse";
 import * as Effect from "effect/Effect";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import type { Common } from "../../common";
 
@@ -33,11 +34,11 @@ export const Handler: HandlerEffect = Effect.fn("UpdateOrganization")(function* 
   // Parse JSON fields from string to object if present
   // Uses type guard to avoid assertions
   const isRecord = (v: unknown): v is Record<string, unknown> =>
-    typeof v === "object" && v !== null && !Array.isArray(v);
+    P.isObject(v) && !Array.isArray(v);
 
   const parseJson = (value: unknown): Record<string, unknown> | undefined => {
     if (value == null) return undefined;
-    if (typeof value === "string") {
+    if (P.isString(value)) {
       try {
         const parsed = JSON.parse(value);
         return isRecord(parsed) ? parsed : undefined;

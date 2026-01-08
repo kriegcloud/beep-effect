@@ -1,5 +1,5 @@
-import * as A from "effect/Array";
 import { _lastActivity } from "@beep/mock/_time";
+import * as A from "effect/Array";
 import { _mock } from "./_mock";
 
 // ----------------------------------------------------------------------

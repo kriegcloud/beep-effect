@@ -154,9 +154,9 @@ export const _jobs = A.makeBy(12, (index) => {
     title: _mock.jobTitle(index),
     createdAt: _lastActivity[index]!,
     expiredDate: _lastActivity[index]!,
-    skills: JOB_SKILL_OPTIONS.slice(0, 3),
+    skills: F.pipe(JOB_SKILL_OPTIONS, A.take(3)),
     totalViews: _mock.number.nativeL(index),
     locations: [_mock.countryNames(1), _mock.countryNames(2)],
-    workingSchedule: JOB_WORKING_SCHEDULE_OPTIONS.slice(0, 2),
+    workingSchedule: F.pipe(JOB_WORKING_SCHEDULE_OPTIONS, A.take(2)),
   };
 });

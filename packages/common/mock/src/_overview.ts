@@ -33,14 +33,14 @@ export const _appInstalled = F.pipe(
   }))
 );
 
-export const _appAuthors = Array.from({ length: 3 }, (_, index) => ({
+export const _appAuthors = A.makeBy(3, (index) => ({
   id: _mock.id(index),
   name: _mock.fullName(index),
   avatarUrl: _mock.image.avatar(index),
   totalFavorites: _mock.number.nativeL(index),
 }));
 
-export const _appInvoices = Array.from({ length: 5 }, (_, index) => {
+export const _appInvoices = A.makeBy(5, (index) => {
   const category = ["Android", "Mac", "Windows", "Android", "Mac"][index]!;
 
   const status = ["paid", "out of date", "progress", "paid", "paid"][index]!;
@@ -54,7 +54,7 @@ export const _appInvoices = Array.from({ length: 5 }, (_, index) => {
   };
 });
 
-export const _appFeatured = Array.from({ length: 3 }, (_, index) => ({
+export const _appFeatured = A.makeBy(3, (index) => ({
   id: _mock.id(index + 3),
   title: _mock.postTitle(index + 3),
   description: _mock.sentence(index + 3),
@@ -64,12 +64,12 @@ export const _appFeatured = Array.from({ length: 3 }, (_, index) => ({
 // ANALYTIC
 // ----------------------------------------------------------------------
 
-export const _analyticTasks = Array.from({ length: 5 }, (_, index) => ({
+export const _analyticTasks = A.makeBy(5, (index) => ({
   id: _mock.id(index),
   name: _mock.taskNames(index),
 }));
 
-export const _analyticPosts = Array.from({ length: 5 }, (_, index) => ({
+export const _analyticPosts = A.makeBy(5, (index) => ({
   id: _mock.id(index),
   postedAt: _lastActivity[index]!,
   title: _mock.postTitle(index),
@@ -77,7 +77,7 @@ export const _analyticPosts = Array.from({ length: 5 }, (_, index) => ({
   description: _mock.sentence(index),
 }));
 
-export const _analyticOrderTimeline = Array.from({ length: 5 }, (_, index) => {
+export const _analyticOrderTimeline = A.makeBy(5, (index) => {
   const title = [
     "1983, orders, $4220",
     "12 Invoices have been paid",
@@ -129,7 +129,7 @@ export const _ecommerceSalesOverview = F.pipe(
   }))
 );
 
-export const _ecommerceBestSalesman = Array.from({ length: 5 }, (_, index) => {
+export const _ecommerceBestSalesman = A.makeBy(5, (index) => {
   const category = ["CAP", "Branded shoes", "Headphone", "Cell phone", "Earings"][index]!;
 
   return {
@@ -144,7 +144,7 @@ export const _ecommerceBestSalesman = Array.from({ length: 5 }, (_, index) => {
   };
 });
 
-export const _ecommerceLatestProducts = Array.from({ length: 5 }, (_, index) => {
+export const _ecommerceLatestProducts = A.makeBy(5, (index) => {
   const colors = (index === 0 && ["#2EC4B6", "#E71D36", "#FF9F1C", "#011627"]) ||
     (index === 1 && ["#92140C", "#FFCF99"]) ||
     (index === 2 && ["#0CECDD", "#FFF338", "#FF67E7", "#C400FF", "#52006A", "#046582"]) ||
@@ -160,7 +160,7 @@ export const _ecommerceLatestProducts = Array.from({ length: 5 }, (_, index) => 
   };
 });
 
-export const _ecommerceNewProducts = Array.from({ length: 4 }, (_, index) => ({
+export const _ecommerceNewProducts = A.makeBy(4, (index) => ({
   id: _mock.id(index),
   name: _mock.productName(index),
   coverUrl: _mock.image.product(index),
@@ -169,7 +169,7 @@ export const _ecommerceNewProducts = Array.from({ length: 4 }, (_, index) => ({
 // BANKING
 // ----------------------------------------------------------------------
 
-export const _bankingContacts = Array.from({ length: 12 }, (_, index) => ({
+export const _bankingContacts = A.makeBy(12, (index) => ({
   id: _mock.id(index),
   name: _mock.fullName(index),
   email: _mock.email(index),
@@ -264,7 +264,7 @@ export const _bankingRecentTransitions = [
 // BOOKING
 // ----------------------------------------------------------------------
 
-export const _bookings = Array.from({ length: 5 }, (_, index) => {
+export const _bookings = A.makeBy(5, (index) => {
   const status = ["Paid", "Paid", "Pending", "Cancelled", "Paid"][index]!;
 
   const customer = {
@@ -273,7 +273,7 @@ export const _bookings = Array.from({ length: 5 }, (_, index) => {
     phoneNumber: _mock.phoneNumber(index),
   };
 
-  const destination = Array.from({ length: 5 }, (__, _index) => ({
+  const destination = A.makeBy(5, (_index) => ({
     name: _mock.tourName(_index + 1),
     coverUrl: _mock.image.travel(_index + 1),
   }))[index]!;
@@ -288,13 +288,13 @@ export const _bookings = Array.from({ length: 5 }, (_, index) => {
   };
 });
 
-export const _bookingsOverview = Array.from({ length: 3 }, (_, index) => ({
+export const _bookingsOverview = A.makeBy(3, (index) => ({
   status: ["Pending", "Canceled", "Sold"][index],
   quantity: _mock.number.nativeL(index),
   value: _mock.number.percent(index + 5),
 }));
 
-export const _bookingReview = Array.from({ length: 5 }, (_, index) => ({
+export const _bookingReview = A.makeBy(5, (index) => ({
   id: _mock.id(index),
   name: _mock.fullName(index),
   postedAt: _lastActivity[index]!,
@@ -304,7 +304,7 @@ export const _bookingReview = Array.from({ length: 5 }, (_, index) => ({
   tags: ["Great sevice", "Recommended", "Best price"],
 }));
 
-export const _bookingNew = Array.from({ length: 8 }, (_, index) => ({
+export const _bookingNew = A.makeBy(8, (index) => ({
   guests: "3-5",
   id: _mock.id(index),
   bookedAt: _lastActivity[index]!,
@@ -319,7 +319,7 @@ export const _bookingNew = Array.from({ length: 8 }, (_, index) => ({
 // COURSE
 // ----------------------------------------------------------------------
 
-export const _coursesContinue = Array.from({ length: 4 }, (_, index) => ({
+export const _coursesContinue = A.makeBy(4, (index) => ({
   id: _mock.id(index),
   title: _mock.courseNames(index),
   coverUrl: _mock.image.course(index),
@@ -327,7 +327,7 @@ export const _coursesContinue = Array.from({ length: 4 }, (_, index) => ({
   currentLesson: index + 7,
 }));
 
-export const _coursesFeatured = Array.from({ length: 6 }, (_, index) => ({
+export const _coursesFeatured = A.makeBy(6, (index) => ({
   id: _mock.id(index),
   title: _mock.courseNames(index),
   coverUrl: _mock.image.course(index + 6),
@@ -336,7 +336,7 @@ export const _coursesFeatured = Array.from({ length: 6 }, (_, index) => ({
   price: _mock.number.price(index),
 }));
 
-export const _coursesReminder = Array.from({ length: 4 }, (_, index) => ({
+export const _coursesReminder = A.makeBy(4, (index) => ({
   id: _mock.id(index),
   title: _mock.courseNames(index),
   totalLesson: 12,

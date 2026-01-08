@@ -237,12 +237,12 @@ bun run check --filter @beep/[package]
 
 ### Common File Renames
 
-| Current | Target | Notes |
-|---------|--------|-------|
-| `UserService.ts` | `user.service.ts` | PascalCase → kebab-case |
-| `Account.model.ts` | `account.model.ts` | PascalCase → kebab-case |
-| `deviceCodes.table.ts` | `device-codes.table.ts` | camelCase → kebab-case |
-| `apiKey.table.ts` | `api-key.table.ts` | camelCase → kebab-case |
+| Current                | Target                  | Notes                   |
+|------------------------|-------------------------|-------------------------|
+| `UserService.ts`       | `user.service.ts`       | PascalCase → kebab-case |
+| `Account.model.ts`     | `account.model.ts`      | PascalCase → kebab-case |
+| `deviceCodes.table.ts` | `device-codes.table.ts` | camelCase → kebab-case  |
+| `apiKey.table.ts`      | `api-key.table.ts`      | camelCase → kebab-case  |
 
 ---
 
@@ -291,13 +291,13 @@ bun run build --filter @beep/[package]
 
 ### Common Directory Renames
 
-| Current | Target | Package |
-|---------|--------|---------|
-| `entities/Account/` | `entities/account/` | iam-domain |
-| `entities/ApiKey/` | `entities/api-key/` | iam-domain |
-| `entities/User/` | `entities/user/` | shared-domain |
-| `entities/Team/` | `entities/team/` | shared-domain |
-| `db/Db/` | `db/client/` | shared-server |
+| Current             | Target              | Package       |
+|---------------------|---------------------|---------------|
+| `entities/Account/` | `entities/account/` | iam-domain    |
+| `entities/ApiKey/`  | `entities/api-key/` | iam-domain    |
+| `entities/User/`    | `entities/user/`    | shared-domain |
+| `entities/Team/`    | `entities/team/`    | shared-domain |
+| `db/Db/`            | `db/client/`        | shared-server |
 
 ---
 

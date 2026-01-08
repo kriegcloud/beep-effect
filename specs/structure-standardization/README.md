@@ -15,26 +15,26 @@ LLMs (Claude, GPT, Codex) perform significantly better when codebases follow pre
 
 An audit of the codebase found:
 
-| Pattern | Status | Issue |
-|---------|--------|-------|
-| Entity directories | Consistent (PascalCase) | - |
-| Feature directories | Consistent (kebab-case) | - |
-| Model files | Consistent (`Name.model.ts`) | - |
-| Layer files | Consistent (`Name.layer.ts`) | - |
-| **Table files** | **INCONSISTENT** | Mixed camelCase/kebab-case |
-| **Service files** | **INCONSISTENT** | Mixed PascalCase/kebab-case |
-| **Atom files** | **Minor issue** | `.atom.ts` vs `.atoms.ts` |
-| **Schema types** | **Unclear** | `.schema.ts` suffix optional |
+| Pattern             | Status                       | Issue                        |
+|---------------------|------------------------------|------------------------------|
+| Entity directories  | Consistent (PascalCase)      | -                            |
+| Feature directories | Consistent (kebab-case)      | -                            |
+| Model files         | Consistent (`Name.model.ts`) | -                            |
+| Layer files         | Consistent (`Name.layer.ts`) | -                            |
+| **Table files**     | **INCONSISTENT**             | Mixed camelCase/kebab-case   |
+| **Service files**   | **INCONSISTENT**             | Mixed PascalCase/kebab-case  |
+| **Atom files**      | **Minor issue**              | `.atom.ts` vs `.atoms.ts`    |
+| **Schema types**    | **Unclear**                  | `.schema.ts` suffix optional |
 
 ## Files in This Spec
 
-| File | Purpose |
-|------|---------|
-| `README.md` | This overview |
-| `CONVENTIONS.md` | Target conventions (the "golden standard") |
-| `DISCOVERY_PROMPT.md` | Prompt to inventory all violations |
-| `ORCHESTRATION_TEMPLATE.md` | Execution guide for refactoring |
-| `PLAN.md` | Generated checklist (created by discovery) |
+| File                        | Purpose                                    |
+|-----------------------------|--------------------------------------------|
+| `README.md`                 | This overview                              |
+| `CONVENTIONS.md`            | Target conventions (the "golden standard") |
+| `DISCOVERY_PROMPT.md`       | Prompt to inventory all violations         |
+| `ORCHESTRATION_TEMPLATE.md` | Execution guide for refactoring            |
+| `PLAN.md`                   | Generated checklist (created by discovery) |
 
 ## Quick Start
 

@@ -28,7 +28,7 @@ export const _orders = A.makeBy(20, (index) => {
 
   const taxes = 10;
 
-  const items = (index % 2 && ITEMS.slice(0, 1)) || (index % 3 && ITEMS.slice(1, 3)) || ITEMS;
+  const items = (index % 2 && F.pipe(ITEMS, A.take(1))) || (index % 3 && F.pipe(ITEMS, A.drop(1), A.take(2))) || ITEMS;
 
   const totalQuantity = F.pipe(
     items,

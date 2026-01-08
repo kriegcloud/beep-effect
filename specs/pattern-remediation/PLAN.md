@@ -677,7 +677,15 @@ These are type definition files with example code in comments/JSDoc. Consider:
 
 | Package | Date | Violations Fixed | Commit |
 |---------|------|------------------|--------|
-| | | | |
+| @beep/utils | 2026-01-07 | 38 | Phase 1 |
+| @beep/schema | 2026-01-07 | 27 | Phase 1 |
+| @beep/errors | 2026-01-07 | 14 | Phase 1 |
+| @beep/ui-core | 2026-01-07 | 14 | Phase 2 |
+| @beep/ui | 2026-01-07 | 56 | Phase 2 |
+| @beep/iam-server | 2026-01-07 | 5 | Phase 2 |
+| @beep/runtime-client | 2026-01-07 | 4 | Phase 2 |
+| @beep/mock | 2026-01-07 | 61 | Phase 3 |
+| **TOTAL** | | **219** | |
 
 ---
 

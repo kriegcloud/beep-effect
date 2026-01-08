@@ -64,11 +64,11 @@ ALL tsconfig references must use paths relative to the repo root, using `../../.
 
 ### 3. Reference Format by Config Type
 
-| Config File | Reference Format |
-|-------------|------------------|
-| `tsconfig.build.json` | `<depth>/packages/<group>/<name>/tsconfig.build.json` |
-| `tsconfig.src.json` | `<depth>/packages/<group>/<name>` (directory only) |
-| `tsconfig.test.json` | `tsconfig.src.json` first, then `<depth>/packages/<group>/<name>` |
+| Config File           | Reference Format                                                  |
+|-----------------------|-------------------------------------------------------------------|
+| `tsconfig.build.json` | `<depth>/packages/<group>/<name>/tsconfig.build.json`             |
+| `tsconfig.src.json`   | `<depth>/packages/<group>/<name>` (directory only)                |
+| `tsconfig.test.json`  | `tsconfig.src.json` first, then `<depth>/packages/<group>/<name>` |
 
 ### 4. Transitive Dependencies Must Be Explicit
 If this package depends on `@beep/A`, and `@beep/A` depends on `@beep/B`, then this package must:
@@ -79,55 +79,55 @@ If this package depends on `@beep/A`, and `@beep/A` depends on `@beep/B`, then t
 
 Use this mapping to convert `@beep/*` names to filesystem paths:
 
-| Package Name | Filesystem Path |
-|--------------|-----------------|
-| `@beep/types` | `packages/common/types` |
-| `@beep/utils` | `packages/common/utils` |
-| `@beep/schema` | `packages/common/schema` |
-| `@beep/identity` | `packages/common/identity` |
-| `@beep/errors` | `packages/common/errors` |
-| `@beep/constants` | `packages/common/constants` |
-| `@beep/contract` | `packages/common/contract` |
-| `@beep/invariant` | `packages/common/invariant` |
-| `@beep/mock` | `packages/common/mock` |
-| `@beep/lexical-schemas` | `packages/common/lexical-schemas` |
-| `@beep/shared-domain` | `packages/shared/domain` |
-| `@beep/shared-server` | `packages/shared/server` |
-| `@beep/shared-client` | `packages/shared/client` |
-| `@beep/shared-tables` | `packages/shared/tables` |
-| `@beep/shared-ui` | `packages/shared/ui` |
-| `@beep/shared-env` | `packages/shared/env` |
-| `@beep/iam-domain` | `packages/iam/domain` |
-| `@beep/iam-server` | `packages/iam/server` |
-| `@beep/iam-client` | `packages/iam/client` |
-| `@beep/iam-tables` | `packages/iam/tables` |
-| `@beep/iam-ui` | `packages/iam/ui` |
-| `@beep/documents-domain` | `packages/documents/domain` |
-| `@beep/documents-server` | `packages/documents/server` |
-| `@beep/documents-client` | `packages/documents/client` |
-| `@beep/documents-tables` | `packages/documents/tables` |
-| `@beep/documents-ui` | `packages/documents/ui` |
-| `@beep/comms-domain` | `packages/comms/domain` |
-| `@beep/comms-server` | `packages/comms/server` |
-| `@beep/comms-client` | `packages/comms/client` |
-| `@beep/comms-tables` | `packages/comms/tables` |
-| `@beep/comms-ui` | `packages/comms/ui` |
-| `@beep/customization-domain` | `packages/customization/domain` |
-| `@beep/customization-server` | `packages/customization/server` |
-| `@beep/customization-client` | `packages/customization/client` |
-| `@beep/customization-tables` | `packages/customization/tables` |
-| `@beep/customization-ui` | `packages/customization/ui` |
-| `@beep/runtime-client` | `packages/runtime/client` |
-| `@beep/runtime-server` | `packages/runtime/server` |
-| `@beep/ui` | `packages/ui/ui` |
-| `@beep/ui-core` | `packages/ui/core` |
-| `@beep/testkit` | `tooling/testkit` |
-| `@beep/cli` | `tooling/cli` |
-| `@beep/build-utils` | `tooling/build-utils` |
-| `@beep/repo-scripts` | `tooling/repo-scripts` |
-| `@beep/scraper` | `tooling/scraper` |
-| `@beep/tooling-utils` | `tooling/utils` |
-| `@beep/db-admin` | `packages/_internal/db-admin` |
+| Package Name                 | Filesystem Path                   |
+|------------------------------|-----------------------------------|
+| `@beep/types`                | `packages/common/types`           |
+| `@beep/utils`                | `packages/common/utils`           |
+| `@beep/schema`               | `packages/common/schema`          |
+| `@beep/identity`             | `packages/common/identity`        |
+| `@beep/errors`               | `packages/common/errors`          |
+| `@beep/constants`            | `packages/common/constants`       |
+| `@beep/contract`             | `packages/common/contract`        |
+| `@beep/invariant`            | `packages/common/invariant`       |
+| `@beep/mock`                 | `packages/common/mock`            |
+| `@beep/lexical-schemas`      | `packages/common/lexical-schemas` |
+| `@beep/shared-domain`        | `packages/shared/domain`          |
+| `@beep/shared-server`        | `packages/shared/server`          |
+| `@beep/shared-client`        | `packages/shared/client`          |
+| `@beep/shared-tables`        | `packages/shared/tables`          |
+| `@beep/shared-ui`            | `packages/shared/ui`              |
+| `@beep/shared-env`           | `packages/shared/env`             |
+| `@beep/iam-domain`           | `packages/iam/domain`             |
+| `@beep/iam-server`           | `packages/iam/server`             |
+| `@beep/iam-client`           | `packages/iam/client`             |
+| `@beep/iam-tables`           | `packages/iam/tables`             |
+| `@beep/iam-ui`               | `packages/iam/ui`                 |
+| `@beep/documents-domain`     | `packages/documents/domain`       |
+| `@beep/documents-server`     | `packages/documents/server`       |
+| `@beep/documents-client`     | `packages/documents/client`       |
+| `@beep/documents-tables`     | `packages/documents/tables`       |
+| `@beep/documents-ui`         | `packages/documents/ui`           |
+| `@beep/comms-domain`         | `packages/comms/domain`           |
+| `@beep/comms-server`         | `packages/comms/server`           |
+| `@beep/comms-client`         | `packages/comms/client`           |
+| `@beep/comms-tables`         | `packages/comms/tables`           |
+| `@beep/comms-ui`             | `packages/comms/ui`               |
+| `@beep/customization-domain` | `packages/customization/domain`   |
+| `@beep/customization-server` | `packages/customization/server`   |
+| `@beep/customization-client` | `packages/customization/client`   |
+| `@beep/customization-tables` | `packages/customization/tables`   |
+| `@beep/customization-ui`     | `packages/customization/ui`       |
+| `@beep/runtime-client`       | `packages/runtime/client`         |
+| `@beep/runtime-server`       | `packages/runtime/server`         |
+| `@beep/ui`                   | `packages/ui/ui`                  |
+| `@beep/ui-core`              | `packages/ui/core`                |
+| `@beep/testkit`              | `tooling/testkit`                 |
+| `@beep/cli`                  | `tooling/cli`                     |
+| `@beep/build-utils`          | `tooling/build-utils`             |
+| `@beep/repo-scripts`         | `tooling/repo-scripts`            |
+| `@beep/scraper`              | `tooling/scraper`                 |
+| `@beep/tooling-utils`        | `tooling/utils`                   |
+| `@beep/db-admin`             | `packages/_internal/db-admin`     |
 
 **Path Depth by Location:**
 - `packages/<group>/<name>/` → depth is `../../../`

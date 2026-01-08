@@ -1,6 +1,6 @@
-import * as A from "effect/Array";
-
 import { _lastActivity } from "@beep/mock/_time";
+import * as A from "effect/Array";
+import * as F from "effect/Function";
 import { _mock } from "./_mock";
 import { _tags } from "./assets";
 
@@ -98,13 +98,13 @@ export const _tours = A.makeBy(12, (index) => {
     (["Gratuities", "Pick-up and drop off", "Professional guide", "Transport by air-conditioned"] as const);
 
   const tourGuides =
-    (index === 0 && _tourGuides.slice(0, 1)) ||
-    (index === 1 && _tourGuides.slice(1, 3)) ||
-    (index === 2 && _tourGuides.slice(2, 5)) ||
-    (index === 3 && _tourGuides.slice(4, 6)) ||
-    _tourGuides.slice(6, 9);
+    (index === 0 && F.pipe(_tourGuides, A.take(1))) ||
+    (index === 1 && F.pipe(_tourGuides, A.drop(1), A.take(2))) ||
+    (index === 2 && F.pipe(_tourGuides, A.drop(2), A.take(3))) ||
+    (index === 3 && F.pipe(_tourGuides, A.drop(4), A.take(2))) ||
+    F.pipe(_tourGuides, A.drop(6), A.take(3));
 
-  const images = TRAVEL_IMAGES.slice(index, index + 5);
+  const images = F.pipe(TRAVEL_IMAGES, A.drop(index), A.take(5));
 
   return {
     images,
@@ -115,7 +115,7 @@ export const _tours = A.makeBy(12, (index) => {
     bookers: BOOKER,
     content: CONTENT,
     id: _mock.id(index),
-    tags: _tags.slice(0, 5),
+    tags: F.pipe(_tags, A.take(5)),
     name: _mock.tourName(index),
     createdAt: _lastActivity[index]!,
     durations: "4 days 3 nights",
