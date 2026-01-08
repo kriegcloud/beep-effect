@@ -1,6 +1,7 @@
 import type { UnsafeTypes } from "@beep/types";
 import { pipe } from "effect";
 import * as A from "effect/Array";
+import * as O from "effect/Option";
 import * as Str from "effect/String";
 export default function compressFileName(fileName: UnsafeTypes.UnsafeAny): string {
   // Define the maximum length for the substring
@@ -9,10 +10,10 @@ export default function compressFileName(fileName: UnsafeTypes.UnsafeAny): strin
   // Check if the fileName is longer than the maximum length
   if (fileName.length > maxSubstrLength) {
     // Extract the first part of the fileName (before the extension)
-    const fileNameWithoutExtension = pipe(Str.split(".")(fileName).slice(0, -1), A.join("."));
+    const fileNameWithoutExtension = pipe(Str.split(fileName, "."), A.dropRight(1), A.join("."));
 
     // Extract the extension from the fileName
-    const fileExtension = fileName.split(".").pop();
+    const fileExtension = pipe(Str.split(fileName, "."), A.last, O.getOrElse(() => ""));
 
     // Calculate the length of characters to keep in the middle
     const charsToKeep = maxSubstrLength - (fileNameWithoutExtension.length + fileExtension.length + 3);

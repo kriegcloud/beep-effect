@@ -21,6 +21,7 @@ import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
 import * as O from "effect/Option";
 import * as ParseResult from "effect/ParseResult";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 
@@ -378,7 +379,7 @@ export const EpochMillisFromAllAcceptable: S.Schema<number, number> = S.declare(
     decode: () => (input, _options, ast) =>
       Effect.gen(function* () {
         // Handle number input (identity)
-        if (typeof input === "number") {
+        if (P.isNumber(input)) {
           if (Number.isNaN(input) || !Number.isFinite(input) || input < 0) {
             return yield* ParseResult.fail(new ParseResult.Type(ast, input, "Invalid timestamp"));
           }
@@ -386,7 +387,7 @@ export const EpochMillisFromAllAcceptable: S.Schema<number, number> = S.declare(
         }
 
         // Handle string input (ISO date string)
-        if (typeof input === "string") {
+        if (P.isString(input)) {
           const time = new Date(input).getTime();
           if (Number.isNaN(time)) {
             return yield* ParseResult.fail(new ParseResult.Type(ast, input, "Invalid ISO date string"));
@@ -395,7 +396,7 @@ export const EpochMillisFromAllAcceptable: S.Schema<number, number> = S.declare(
         }
 
         // Handle Date input
-        if (input instanceof Date) {
+        if (P.isDate(input)) {
           const time = input.getTime();
           if (Number.isNaN(time)) {
             return yield* ParseResult.fail(new ParseResult.Type(ast, input, "Invalid Date object"));

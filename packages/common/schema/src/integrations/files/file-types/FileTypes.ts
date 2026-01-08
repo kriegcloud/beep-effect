@@ -972,7 +972,7 @@ export class FileTypes extends Data.TaggedClass("FileTypes") {
    * @returns {FileInfo} File type information
    */
   public static getInfoByName(propertyName: string): FileInfo {
-    return fetchFromObject(FileTypes, propertyName.toUpperCase());
+    return fetchFromObject(FileTypes, Str.toUpperCase(propertyName));
   }
 
   /**
@@ -983,7 +983,7 @@ export class FileTypes extends Data.TaggedClass("FileTypes") {
    * @returns {Array<FileSignature>} All unique signatures with their information
    */
   public static getSignaturesByName(propertyName: string): ReadonlyArray<FileSignature.Type> {
-    const { signatures } = fetchFromObject(FileTypes, propertyName.toUpperCase());
+    const { signatures } = fetchFromObject(FileTypes, Str.toUpperCase(propertyName));
     return signatures;
   }
 
@@ -1004,7 +1004,7 @@ export class FileTypes extends Data.TaggedClass("FileTypes") {
       const offset = signature.offset || 0;
       let skippedBytes = 0;
       for (let i = 0; i < signature.sequence.length; i++) {
-        if (signature.skippedBytes?.includes(i)) {
+        if (signature.skippedBytes && A.contains(signature.skippedBytes, i)) {
           skippedBytes++;
           continue;
         }
@@ -1031,23 +1031,23 @@ export class FileTypes extends Data.TaggedClass("FileTypes") {
     fileChunk: Array<number>,
     detectedFiles: Array<DetectedFileInfo.Type | FileInfo.Type>
   ): string | undefined {
-    const detectedExtensions = detectedFiles.map((df) => df.extension);
+    const detectedExtensions = A.map(detectedFiles, (df) => df.extension);
 
-    if (detectedExtensions.some((de) => ["m4v", "flv", "mp4", "heic"].includes(de))) {
-      if (detectedExtensions.includes("heic") && isHEIC(fileChunk)) return "heic";
+    if (A.some(detectedExtensions, (de) => A.contains(["m4v", "flv", "mp4", "heic"], de))) {
+      if (A.contains(detectedExtensions, "heic") && isHEIC(fileChunk)) return "heic";
       const isFlv = isFLV(fileChunk);
       if (isFlv) return "flv";
       const isM4v = isM4V(fileChunk) && !isHEIC(fileChunk);
       if (isM4v) return "m4v";
       return "mp4";
     }
-    if (detectedExtensions.some((de) => ["mkv", "webm"].includes(de))) {
+    if (A.some(detectedExtensions, (de) => A.contains(["mkv", "webm"], de))) {
       const matroskaDocTypeElement = F.pipe(findMatroskaDocTypeElementsOption(fileChunk), O.getOrUndefined);
       if (matroskaDocTypeElement === "mkv" && isMKV(fileChunk)) return "mkv";
       if (matroskaDocTypeElement === "webm" && isWEBM(fileChunk)) return "webm";
       return undefined;
     }
-    if (detectedExtensions.some((de) => ["avif"].includes(de))) {
+    if (A.some(detectedExtensions, (de) => A.contains(["avif"], de))) {
       const isAvif = isAvifStringIncluded(fileChunk);
       if (isAvif) return "avif";
     }
@@ -1074,7 +1074,7 @@ export class FileTypes extends Data.TaggedClass("FileTypes") {
         ? signature.sequence.length + signature.skippedBytes.length
         : signature.sequence.length;
       for (let i = 0; i < signatureLength; i++) {
-        if (signature.skippedBytes?.includes(i)) {
+        if (signature.skippedBytes && A.contains(signature.skippedBytes, i)) {
           skippedBytes++;
           continue;
         }
@@ -1099,7 +1099,7 @@ export class FileTypes extends Data.TaggedClass("FileTypes") {
    * @returns {boolean} True if found a signature of the type in file content, otherwise false
    */
   public static checkByFileType(fileChunk: ReadonlyArray<number>, type: string): boolean {
-    if (Object.prototype.hasOwnProperty.call(FileTypes, type.toUpperCase())) {
+    if (Object.prototype.hasOwnProperty.call(FileTypes, Str.toUpperCase(type))) {
       const acceptedSignatures: ReadonlyArray<FileSignature.Type> = FileTypes.getSignaturesByName(
         Str.toUpperCase(type)
       );

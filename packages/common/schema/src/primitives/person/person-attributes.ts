@@ -14,6 +14,7 @@
 
 import { $SchemaId } from "@beep/identity/packages";
 import { faker } from "@faker-js/faker";
+import * as DateTime from "effect/DateTime";
 import * as S from "effect/Schema";
 import { NameAttribute } from "../string/name-attribute";
 
@@ -267,10 +268,10 @@ export declare namespace MiddleName {
  * @since 0.1.0
  */
 export class BirthDate extends S.Date.pipe(
-  S.filter((value) => value.getTime() <= Date.now(), {
+  S.filter((value) => value.getTime() <= DateTime.toEpochMillis(DateTime.unsafeNow()), {
     message: () => "birthDate cannot be in the future",
   }),
-  S.filter((value) => ageOn(value, new Date()) <= MAX_AGE, {
+  S.filter((value) => ageOn(value, DateTime.toDate(DateTime.unsafeNow())) <= MAX_AGE, {
     message: () => `age must be ≤ ${MAX_AGE}`,
   })
 ).annotations(
@@ -278,7 +279,7 @@ export class BirthDate extends S.Date.pipe(
     description: "A realistic birth date that is not in the future and corresponds to an age ≤ 130.",
     arbitrary: () => (fc) =>
       fc.constant(null).map(() => {
-        const now = Date.now();
+        const now = DateTime.toEpochMillis(DateTime.unsafeNow());
         const min = now - MAX_AGE * MILLIS_PER_YEAR;
         return faker.date.between({ from: new Date(min), to: new Date(now) });
       }),

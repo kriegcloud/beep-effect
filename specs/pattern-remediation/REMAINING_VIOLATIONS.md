@@ -295,8 +295,8 @@ However, many violations remain in @beep/mock and other P2/P3 packages that were
 - [ ] `data/object.utils/clone-deep.ts:51,55` - `instanceof Date/RegExp` → `P.isDate/P.isRegExp`
 - [ ] `data/object.utils/clone-deep.ts:89` - `Object.keys(` → `Struct.keys()`
 - [ ] `data/object.utils/merge-defined.ts:54` - `Object.keys(` → `Struct.keys()`
-- [ ] `data/object.utils/omit.ts:35` - `Object.entries(` → `R.toEntries()`
-- [ ] `data/object.utils/omit-by.ts:35` - `Object.entries(` → `R.toEntries()`
+- [ ] `data/object.utils/omit.ts:35` - `Object.entries(` → `Struct.entries()`
+- [ ] `data/object.utils/omit-by.ts:35` - `Object.entries(` → `Struct.entries()`
 - [ ] `timing/debounce.ts:62` - `Date.now()` → DateTime utility
 
 ---
