@@ -6,6 +6,49 @@
 
 You are remediating pattern violations in the beep-effect monorepo. The complete inventory is in `/specs/pattern-remediation/PLAN.md`.
 
+## Package Processing Order
+
+**Process packages in REVERSE topological order** (consumers first, providers last).
+
+### Get the Order
+
+```bash
+bun run beep topo-sort
+```
+
+This outputs packages with **fewest dependencies first**. **REVERSE this list** for processing:
+
+```
+@beep/types          ← Process LAST
+@beep/invariant
+@beep/identity
+@beep/utils
+@beep/schema
+@beep/contract
+@beep/shared-domain
+@beep/iam-domain
+...
+@beep/runtime-server
+@beep/web            ← Process FIRST
+```
+
+### Why REVERSE Order
+
+For **pattern remediation**, order is flexible since internal code changes don't break consumers. However, we use reverse order for:
+
+1. **Consistency** with structure-standardization spec
+2. **Validation flow** - consumer packages can be validated immediately
+3. **Reference patterns** - by the time you reach provider packages, you've established consistent patterns
+
+### Note: Pattern vs Structure
+
+Unlike structure refactoring, pattern fixes don't change exports:
+- Fixing `.map()` → `A.map()` doesn't break consumers
+- Each package is independently validatable
+- Less critical than structure refactoring order
+
+**Process from BOTTOM to TOP of topo-sort output for consistency.**
+
 ## Execution Strategy
 
 ### Approach: Package-by-Package
@@ -15,43 +58,60 @@ Process one package at a time to:
 2. Allow incremental validation
 3. Enable partial commits
 
-### For Each Package
+### For Each Package (Detailed)
 
-1. **Read the package section** from PLAN.md
-2. **Check required imports** - ensure these are present at top of file:
-
-```typescript
-import * as A from "effect/Array"
-import * as F from "effect/Function"
-import * as Str from "effect/String"
-import * as Match from "effect/Match"
-import * as P from "effect/Predicate"
-import * as DateTime from "effect/DateTime"
-import { nullOp, noOp, nullOpE } from "@beep/utils"
-```
-
-3. **Fix violations in order** (top of file to bottom)
-4. **Run validation after each file**:
-
-```bash
-bun run check --filter @beep/[package-name]
-bun run lint:fix --filter @beep/[package-name]
-```
-
+1. **Read** the package section from PLAN.md
+2. **Check required imports** - ensure these are present at top of each file:
+   ```typescript
+   import * as A from "effect/Array"
+   import * as F from "effect/Function"
+   import * as Str from "effect/String"
+   import * as Match from "effect/Match"
+   import * as P from "effect/Predicate"
+   import * as DateTime from "effect/DateTime"
+   import { nullOp, noOp, nullOpE } from "@beep/utils"
+   ```
+3. **Fix violations** in order (top of file to bottom)
+4. **Validate the package** - ALL four commands must pass:
+   ```bash
+   bun run check --filter @beep/[package]
+   bun run build --filter @beep/[package]
+   bun run test --filter @beep/[package]
+   bun run lint:fix --filter @beep/[package]
+   ```
 5. **Mark items complete** in PLAN.md as you go
-6. **Commit after each package**:
+6. **Commit** after each package:
+   ```bash
+   git add packages/[path]
+   git commit -m "fix(@beep/[package]): remediate pattern violations
+
+   - Convert X native array methods to Effect Array
+   - Convert Y native string methods to Effect String
+   - Replace Z switch statements with Match
+   - [other changes]
+
+   Part of pattern-remediation spec"
+   ```
+7. **Only then** proceed to next package
+
+### Mandatory Validation Gate
+
+**CRITICAL: ALL FOUR validation commands must pass before proceeding:**
 
 ```bash
-git add packages/[path]
-git commit -m "fix(@beep/[package]): remediate pattern violations
-
-- Convert X native array methods to Effect Array
-- Convert Y native string methods to Effect String
-- Replace Z switch statements with Match
-- [other changes]
-
-Part of pattern-remediation spec"
+bun run check --filter @beep/[package]   # TypeScript type checking
+bun run build --filter @beep/[package]   # Build compilation
+bun run test --filter @beep/[package]    # Unit tests
+bun run lint:fix --filter @beep/[package] # Linting + auto-fix
 ```
+
+**If ANY command fails:**
+1. Stop immediately
+2. Fix the issue
+3. Re-run all four commands
+4. Only proceed when all pass
+
+**Do NOT batch failures or proceed with broken packages.** Each package must be green before moving on.
 
 ---
 
