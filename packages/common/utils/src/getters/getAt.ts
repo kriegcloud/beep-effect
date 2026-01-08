@@ -16,6 +16,9 @@
  * @since 0.1.0
  */
 import type { UnsafeTypes } from "@beep/types";
+import * as A from "effect/Array";
+import * as F from "effect/Function";
+import * as Str from "effect/String";
 
 const FORBIDDEN = new Set(["__proto__", "prototype", "constructor"]);
 
@@ -40,10 +43,11 @@ type GetAt = (
 export const getAt: GetAt = (obj: unknown, path: string | Array<string | number>, fallback?: unknown | undefined) => {
   const parts = Array.isArray(path)
     ? path
-    : path
-        .replace(/\[(\d+)]/g, ".$1") // a[0] -> a.0
-        .split(".")
-        .filter(Boolean);
+    : F.pipe(
+        path.replace(/\[(\d+)]/g, ".$1"), // a[0] -> a.0
+        Str.split("."),
+        A.filter(Boolean)
+      );
 
   let cur: UnsafeTypes.UnsafeAny = obj;
   for (const key of parts) {

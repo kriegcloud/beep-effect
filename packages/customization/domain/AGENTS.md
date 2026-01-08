@@ -16,8 +16,8 @@
 - Test harness seeds customization fixtures directly from `Entities.*` model variants when spinning Postgres containers.
 
 ## Authoring Guardrails
-- Always import Effect modules with namespaces (`Effect`, `A`, `F`, `O`, `Str`, `S`, `M`) and rely on Effect collections/utilities instead of native helpers (see global repo guardrails).
-- Use `makeFields` so every entity inherits the audit + tracking columns and typed IDs; never redefine `id`, `_rowId`, `version`, or timestamps manually.
+- ALWAYS import Effect modules with namespaces (`Effect`, `A`, `F`, `O`, `Str`, `S`, `M`) and rely on Effect collections/utilities instead of native helpers (see global repo guardrails).
+- Use `makeFields` so every entity inherits the audit + tracking columns and typed IDs; NEVER redefine `id`, `_rowId`, `version`, or timestamps manually.
 - Maintain `Symbol.for("@beep/customization-domain/<Entity>Model")` naming to keep schema metadata stable across database migrations and clients.
 - Prefer shared schema helpers (`FieldOptionOmittable`, `FieldSensitiveOptionOmittable`, `toOptionalWithDefault`, `BoolWithDefault`) to describe optionality and defaults.
 - When adding new entities, extend entity ID factories in `@beep/shared-domain` and propagate matching enums via table definitions in `@beep/customization-tables`.
@@ -50,6 +50,13 @@
 - `bun run check --filter @beep/customization-domain`
 - `bun run lint --filter @beep/customization-domain`
 - `bun run test --filter @beep/customization-domain`
+
+## Testing
+
+- Run tests: `bun run test --filter=@beep/customization-domain`
+- Test file location: Adjacent to source files as `*.test.ts`
+- Use `@beep/testkit` for Effect testing utilities
+- ALWAYS test schema encode/decode roundtrips
 
 ## Contributor Checklist
 - [ ] Align entity changes with `@beep/customization-tables` columns and regenerate migrations (`bun run db:generate`, `bun run db:migrate`).

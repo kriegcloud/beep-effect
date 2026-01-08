@@ -27,12 +27,12 @@
 - Quick source inspection: `src/identity/entity-id/entity-id.ts` for branded ID factory, `src/derived/kits/string-literal-kit.ts` for literal kit ergonomics, `src/integrations/config/csp.ts` for CSP DSL.
 
 ## Authoring Guardrails
-- Effect namespace imports only; never use native array/string/object helpers—route through `F.pipe` with `A.*`, `Str.*`, `Struct.*`, `Record.*`. Avoid `for`/`for...of` loops and native `Object.*`.
-- Keep schemas pure: no network/DB/filesystem/timers/logging or platform-specific APIs. Runtime values only.
-- Use `_id.ts` helpers for deterministic `Id.annotations(...)`; table names stay snake_case via `SnakeTag`, and brands must end in `Id` when calling `EntityId.make`.
-- Maintain the BS namespace: add new exports through `src/schema.ts` (and thus `src/index.ts`) rather than ad-hoc paths; keep slice boundaries intact (no `@beep/iam-*`, `@beep/documents-*` imports).
+- **IMPORTANT:** ALWAYS use Effect namespace imports; NEVER use native array/string/object helpers—route through `F.pipe` with `A.*`, `Str.*`, `Struct.*`, `Record.*`. NEVER use `for`/`for...of` loops or native `Object.*`.
+- Keep schemas pure: NEVER use network/DB/filesystem/timers/logging or platform-specific APIs. Runtime values only.
+- ALWAYS use `_id.ts` helpers for deterministic `Id.annotations(...)`; table names MUST stay snake_case via `SnakeTag`, and brands MUST end in `Id` when calling `EntityId.make`.
+- Maintain the BS namespace: ALWAYS add new exports through `src/schema.ts` (and thus `src/index.ts`) rather than ad-hoc paths; NEVER import `@beep/iam-*` or `@beep/documents-*` to keep slice boundaries intact.
 - Provide rich annotations (`identifier`, `title`, `description`, `jsonSchema`, `arbitrary`, `pretty`) so builders, forms, and docs stay in sync.
-- SQL helpers should emit column builders/annotations only—never execute queries from this package.
+- SQL helpers MUST emit column builders/annotations only—NEVER execute queries from this package.
 
 ## Quick Recipes
 ```ts
@@ -87,9 +87,9 @@ const header = F.pipe(policy, Csp.toHeader);
 - `bunx turbo run test --filter=@beep/schema` — Vitest suite under `packages/common/schema/test`.
 
 ## Contributor Checklist
-- Export new symbols through `src/schema.ts` so the BS namespace stays stable and consumable via `@beep/schema`.
-- Keep additions pure and slice-agnostic; no platform APIs or `@beep/iam-*`/`@beep/documents-*` imports.
-- Use `_id.ts` helpers for identifiers; for table IDs prefer `EntityId.make` with `SnakeTag` and brands suffixed with `Id`.
-- Avoid native array/string/object operations in code and examples; prefer `F.pipe` with Effect collections and string utilities.
+- ALWAYS export new symbols through `src/schema.ts` so the BS namespace stays stable and consumable via `@beep/schema`.
+- Keep additions pure and slice-agnostic; NEVER use platform APIs or `@beep/iam-*`/`@beep/documents-*` imports.
+- ALWAYS use `_id.ts` helpers for identifiers; for table IDs prefer `EntityId.make` with `SnakeTag` and brands suffixed with `Id`.
+- NEVER use native array/string/object operations in code and examples; ALWAYS prefer `F.pipe` with Effect collections and string utilities.
 - Add annotations, JSON Schema metadata, FastCheck arbitraries, and Vitest coverage (`test/**`) alongside new schemas or kits.
 - Update docs (`README.md`, doc prompts/strategy) and notify downstream slices when public surfaces change or enums/tables move.

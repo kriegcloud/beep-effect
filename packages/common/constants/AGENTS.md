@@ -15,7 +15,7 @@
 - **AllowedHeaders.ts** — `BS.StringLiteralKit` for allowed API headers: "Content-Type", "Authorization", "B3", "traceparent".
 - **AllowedHttpMethods.ts** — `BS.HttpMethod.derive` for allowed HTTP methods: "GET", "POST", "PUT", "DELETE", "PATCH"; exposes `.Enum` and `.Options`.
 - **paths/** — `assetPaths` coerces `_generated/publicPaths` into a type-safe object; `public-paths-to-record` exports utilities (`toJsAccessor`, `pathObjFromPaths`, `toNestedTuple`, `buildPathTuples`) for converting path arrays to typed accessor objects.
-- **_generated/** — machine-written sources (`asset-paths.ts`) refreshed via repo scripts; never hand-edit.
+- **_generated/** — machine-written sources (`asset-paths.ts`) refreshed via repo scripts; NEVER hand-edit.
 - **index.ts** — curated re-export surface (constants, env schemas, path helpers) consumed by other workspaces.
 
 ## Usage Snapshots
@@ -26,9 +26,9 @@
 - `apps/web/src/app/manifest.ts` — sources icon URLs from `assetPaths` so manifest entries remain aligned with generated assets.
 
 ## Authoring Guardrails
-- Treat `_generated/*` as read-only; if values change, run the corresponding repo script and document the provenance.
+- **IMPORTANT:** Treat `_generated/*` as read-only; if values change, run the corresponding repo script and document the provenance. NEVER hand-edit generated files.
 - Stick with `BS.StringLiteralKit` + schema annotations for new enums; this keeps `.Enum`, `.Options`, and schema metadata aligned.
-- Use Effect namespaces (`A`, `F`, `Str`, `Struct`, `HashSet`) everywhere—avoid native `Array`/`String` helpers. Call out any unavoidable exceptions during reviews.
+- ALWAYS use Effect namespaces (`A`, `F`, `Str`, `Struct`, `HashSet`)—NEVER use native `Array`/`String` helpers. Call out any unavoidable exceptions during reviews.
 - When expanding `AuthProviderNameValue.filter`, the current implementation uses native `.includes` for array membership checking; consider refactoring to `HashSet` for consistency with Effect patterns.
 - For path building, use `PathBuilder` from `@beep/shared-domain/factories`, not from this package.
 - Document regeneration steps inside PR descriptions whenever literal kits or generated assets change; downstream teams rely on determinism for Env/CI runs.
@@ -88,7 +88,7 @@
 
 ## Contributor Checklist
 - [ ] Confirm new literals use `BS.StringLiteralKit` with annotations + namespace types.
-- [ ] Update or regenerate `_generated` assets when underlying data shifts; avoid manual edits.
+- [ ] Update or regenerate `_generated` assets when underlying data shifts; NEVER make manual edits.
 - [ ] Add/adjust unit coverage in `packages/common/constants/test` for new helpers.
 - [ ] Run lint + targeted tests noted above; capture outputs in PR description when possible.
 - [ ] Sync root `AGENTS.md` entry whenever guidelines evolve.

@@ -323,7 +323,10 @@ export class JsonPath extends S.String.pipe(S.pattern(path_regex), S.brand("Json
    * @returns Valid JsonPath or throws if invalid.
    */
   static readonly create = (path: Array<string | number>): JsonPath.Type => {
-    const candidatePath = A.map(path, (p, i) => (Num.isNumber(p) ? `[${p}]` : i === 0 ? p : `.${p}`)).join("");
+    const candidatePath = A.join(
+      A.map(path, (p, i) => (Num.isNumber(p) ? `[${p}]` : i === 0 ? p : `.${p}`)),
+      ""
+    );
 
     invariant(JsonPath.is(candidatePath), `Invalid JsonPath: ${candidatePath}`, {
       file: "packages/common/schema/src/custom/Json.schema.ts",

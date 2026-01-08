@@ -103,6 +103,33 @@ function MyComponent() {
 - `bun run test --filter @beep/shared-client` — Bun test suite
 - `bun run build --filter @beep/shared-client` — Build ESM/CJS artifacts
 
+## Gotchas
+
+### Cross-Cutting vs Slice-Specific Boundary
+- **Symptom**: Functionality duplicated between this package and slice-specific clients (`@beep/iam-client`, `@beep/documents-client`).
+- **Root Cause**: Unclear whether a concern is truly cross-cutting or belongs in a vertical slice.
+- **Solution**: A concern belongs here ONLY if it is used by 2+ slices AND does not depend on slice-specific domain types. Authentication helpers belong in `@beep/iam-client`; document-specific clients belong in `@beep/documents-client`.
+
+### Browser-Only Dependencies Leaking to Server
+- **Symptom**: Build errors or runtime crashes when importing this package on server side.
+- **Root Cause**: Package contains browser-only APIs (DOM, IndexedDB, localStorage) that server bundles try to include.
+- **Solution**: Use `"use client"` directive on React-specific exports. For Effect services, provide mock/no-op implementations via conditional layers. Test imports in both browser and Node contexts.
+
+### Circular Dependencies with Slice Clients
+- **Symptom**: Import errors or undefined exports when slice clients import from shared-client or vice versa.
+- **Root Cause**: Shared client depends on slice types, and slice clients depend on shared infrastructure.
+- **Solution**: Shared-client MUST NOT import from slice clients. If shared functionality needs slice types, define interfaces in `@beep/shared-domain` and implement in slices. Run `bun run lint:circular` to detect.
+
+### Layer Composition Order
+- **Symptom**: Runtime errors about missing services when composing shared client layers with slice layers.
+- **Root Cause**: Layer dependencies not provided in correct order; shared layers may depend on slice layers or vice versa.
+- **Solution**: Document layer dependency order explicitly. Shared client layers should be "lower" in the stack (provided first). Use `Layer.provideMerge` for composition and test layer construction in isolation.
+
+### TanStack Query Key Collisions
+- **Symptom**: Stale data or unexpected cache invalidation when multiple slices use shared query utilities.
+- **Root Cause**: Query keys from different slices collide in the shared query cache.
+- **Solution**: Shared query utilities MUST namespace query keys with slice identifiers. Use factory functions that prepend slice names to keys (e.g., `["shared", "iam", "session"]` vs `["shared", "documents", "list"]`).
+
 ## Contributor Checklist
 
 - [ ] Verify new additions are truly cross-cutting (not slice-specific)
@@ -111,7 +138,7 @@ function MyComponent() {
 - [ ] Export Layers for runtime composition
 - [ ] Add type tests when introducing new contracts
 - [ ] Update this AGENTS.md when adding significant functionality
-- [ ] Coordinate with slice CLIENT maintainers to avoid duplication
+- [ ] Coordinate with slice CLIENT maintainers to NEVER duplicate functionality
 
 ## Future Work
 

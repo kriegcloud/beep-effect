@@ -21,11 +21,11 @@
 - **Custom composer creation**: `Identifier.make("custom").then(({ $CustomId }) => $CustomId\`Feature\`)` creates composers for new namespaces while keeping validation.
 
 ## Authoring Guardrails
-- Namespace all Effect imports (`import * as A from "effect/Array"`, `import * as Str from "effect/String"`, `import * as F from "effect/Function"`); never reintroduce native array/string helpers.
-- Keep segment validation intact (`ensureSegment`, `ensureModuleSegment`, `ensureBaseSegment`): no empty segments, no leading/trailing `/`, module segments must start with alphabetic characters and contain only alphanumerics, hyphens, or underscores. New helpers must call these before composition.
-- When adding workspace composers in `packages.ts`, mirror actual package scopes; avoid duplicating namespaces or drifting from `package.json#workspaces`. Use the `$I.compose(...)` pattern to register all workspace namespaces.
+- ALWAYS namespace Effect imports (`import * as A from "effect/Array"`, `import * as Str from "effect/String"`, `import * as F from "effect/Function"`); NEVER reintroduce native array/string helpers.
+- Keep segment validation intact (`ensureSegment`, `ensureModuleSegment`, `ensureBaseSegment`): no empty segments, no leading/trailing `/`, module segments MUST start with alphabetic characters and contain only alphanumerics, hyphens, or underscores. New helpers MUST call these before composition.
+- When adding workspace composers in `packages.ts`, ALWAYS mirror actual package scopes; NEVER duplicate namespaces or drift from `package.json#workspaces`. Use the `$I.compose(...)` pattern to register all workspace namespaces.
 - Titles from `.annotations()` rely on `toTitle` (splits on `_`/`-` and capitalizes words); if you change the heuristic, update docs and ensure schema titles stay human-readable.
-- Brands (`IdentityString`, `IdentitySymbol`) are part of the public API; do not strip them or coerce to `string`/`symbol` in callers—propagate branded types through service layers.
+- Brands (`IdentityString`, `IdentitySymbol`) are part of the public API; NEVER strip them or coerce to `string`/`symbol` in callers—ALWAYS propagate branded types through service layers.
 - JSDoc is part of the contract (docgen uses it). Document new exports with category/since/example blocks consistent with existing files.
 - Tagged template composers (`TaggedComposer`) support both template literal syntax and method calls. Ensure template usage doesn't allow interpolations to maintain type safety.
 

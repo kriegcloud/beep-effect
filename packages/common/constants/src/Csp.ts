@@ -19,6 +19,7 @@ export const CSP_DIRECTIVES = {
   "script-src-elem": [
     "'self'",
     "https://unpkg.com",
+    "http://unpkg.com",
     "'unsafe-inline'",
     "https://www.googletagmanager.com",
     "blob:",
@@ -48,7 +49,14 @@ export const CSP_DIRECTIVES = {
   ],
   "media-src": ["'self'", "data:"],
   "frame-ancestors": ["'self'", "https://vercel.live", "https://vercel.com"],
-  "img-src": ["'self'", "https://www.google-analytics.com", "data:", "blob:", "https://purecatamphetamine.github.io"],
+  "img-src": [
+    "'self'",
+    "https://images.unsplash.com",
+    "https://www.google-analytics.com",
+    "data:",
+    "blob:",
+    "https://purecatamphetamine.github.io",
+  ],
   "frame-src": ["'self'", "https://vercel.live", "https://www.google.com", "https://vercel.com"],
 } as const;
 

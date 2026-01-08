@@ -39,7 +39,7 @@
     "disableSourceOfProjectReferenceRedirect": true,
     "paths": {
       "*": ["./*"],
-      "@beep/marketing/*": ["./src/*"],
+      "@beep/marketing/*": ["./src/*"]
     },
     "plugins": [
       {

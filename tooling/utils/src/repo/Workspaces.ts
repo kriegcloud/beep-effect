@@ -38,7 +38,7 @@ const IGNORE = ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.turbo/**
  *
  * const program = Effect.gen(function* () {
  *   const workspaces = yield* resolveWorkspaceDirs
- *   const dir = HashMap.get(workspaces, "@beep/common-schema")
+ *   const dir = HashMap.get(workspaces, "@beep/schema")
  *   // => Some("/absolute/path/to/packages/common/schema")
  * })
  * ```
@@ -95,7 +95,7 @@ export const resolveWorkspaceDirs: Effect.Effect<
  * import * as Effect from "effect/Effect"
  *
  * const program = Effect.gen(function* () {
- *   const dir = yield* getWorkspaceDir("@beep/common-schema")
+ *   const dir = yield* getWorkspaceDir("@beep/schema")
  *   console.log(dir)
  *   // => /absolute/path/to/packages/common/schema
  * })
@@ -117,7 +117,7 @@ export type GetWorkSpaceDir = (
  * import * as Effect from "effect/Effect"
  *
  * const program = Effect.gen(function* () {
- *   const dir = yield* getWorkspaceDir("@beep/common-schema")
+ *   const dir = yield* getWorkspaceDir("@beep/schema")
  *   console.log(dir)
  *   // => /absolute/path/to/packages/common/schema
  * })

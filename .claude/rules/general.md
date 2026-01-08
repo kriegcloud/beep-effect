@@ -1,0 +1,59 @@
+# General Project Rules
+
+## Code Quality
+
+- NEVER use `any`, `@ts-ignore`, or unchecked casts
+- ALWAYS validate external data with `@beep/schema`
+- ALWAYS run `bun run lint:fix` before committing
+- Use Effect testing utilities from `@beep/testkit`
+- Use `Effect.log*` with structured objects for logging
+
+## Architecture Boundaries
+
+- NEVER use direct cross-slice imports
+- NEVER use relative `../../../` paths
+- ALWAYS use `@beep/*` path aliases
+- Cross-slice imports ONLY through `packages/shared/*` or `packages/common/*`
+
+## Slice Structure
+
+Each vertical slice follows this dependency order:
+```
+domain -> tables -> infra -> client -> ui
+```
+
+## Commands Reference
+
+| Category     | Command                                                          |
+|--------------|------------------------------------------------------------------|
+| **Install**  | `bun install`                                                    |
+| **Dev**      | `bun run dev`                                                    |
+| **Build**    | `bun run build`                                                  |
+| **Check**    | `bun run check`                                                  |
+| **Lint**     | `bun run lint` / `bun run lint:fix`                              |
+| **Test**     | `bun run test`                                                   |
+| **DB**       | `bun run db:generate` / `bun run db:migrate` / `bun run db:push` |
+| **Services** | `bun run services:up`                                            |
+
+## Environment & Secrets
+
+- NEVER access `process.env` directly in application code
+- ALWAYS use the `@beep/env` package for typed environment access
+- NEVER commit `.env` files or secrets to version control
+- Use `dotenvx` for environment management
+
+## Testing
+
+- `bun run test` — Run all tests
+- `bun run test --filter=@beep/package` — Run tests for specific package
+- Place test files adjacent to source files or in `__tests__/` directories
+
+## Documentation
+
+| Document                           | Purpose                   |
+|------------------------------------|---------------------------|
+| `README.md`                        | Onboarding & summary      |
+| `documentation/`                   | Internal contributor docs |
+| `documentation/patterns/`          | Implementation recipes    |
+| `documentation/EFFECT_PATTERNS.md` | Effect-specific patterns  |
+| `specs/`                           | Specification library     |

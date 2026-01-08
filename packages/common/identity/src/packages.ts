@@ -28,7 +28,6 @@ const composers = $I.compose(
   "repo-scripts",
   "documents-tables",
   "ui",
-  "mock",
   "yjs",
   "invariant",
   "build-utils",
@@ -369,21 +368,6 @@ export const $RuntimeClientId = composers.$RuntimeClientId;
  * @since 0.1.0
  */
 export const $SharedTablesId = composers.$SharedTablesId;
-
-/**
- * Identity composer for the `@beep/mock` namespace.
- *
- * @example
- * ```typescript
- * import { $MockId } from "@beep/identity/packages"
- *
- * const mockId = $MockId.make("MockUser")
- * ```
- *
- * @category symbols
- * @since 0.1.0
- */
-export const $MockId = composers.$MockId;
 
 /**
  * Identity composer for the `@beep/ui-core` namespace.

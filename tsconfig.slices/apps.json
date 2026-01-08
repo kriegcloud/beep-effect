@@ -10,8 +10,11 @@
     {
       "path": "../apps/web/tsconfig.build.json"
     },
-        {
+    {
       "path": "../apps/marketing/tsconfig.build.json"
+    },
+    {
+      "path": "../apps/todox/tsconfig.build.json"
     }
   ]
 }

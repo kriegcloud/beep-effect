@@ -82,7 +82,8 @@ export function createRoot<R extends StringTypes.NonEmptyString>(rootPath: R & `
 const isReadonlyRecord = (input: unknown): input is UnsafeTypes.UnsafeReadonlyRecord =>
   typeof input === "object" && input !== null && !Array.isArray(input);
 
-const formatTrail = (trail: readonly (string | number)[]) => (trail.length > 0 ? trail.join(".") : ("(root)" as const));
+const formatTrail = (trail: readonly (string | number)[]) =>
+  A.isNonEmptyReadonlyArray(trail) ? F.pipe(trail, A.map(String), A.join(".")) : ("(root)" as const);
 
 const ensure = <Value extends PathValue>(
   value: Value,

@@ -41,12 +41,12 @@
 - Feature flags check `serverEnv.app.env` to enable dev-only functionality.
 
 ## Authoring Guardrails
-- Always import Effect modules with namespaces (`Effect`, `Config`, `S`, `F`, `O`, `A`) and rely on Effect utilities instead of native helpers.
-- Use `Config.redacted` for sensitive values — never expose secrets in logs or error messages.
+- ALWAYS import Effect modules with namespaces (`Effect`, `Config`, `S`, `F`, `O`, `A`) and rely on Effect utilities instead of native helpers.
+- Use `Config.redacted` for sensitive values — NEVER expose secrets in logs or error messages.
 - Define new config fields in the appropriate section (app, db, oauth, etc.) for logical grouping.
 - Use `Config.withDefault` for optional configuration with sensible defaults.
 - Use `S.Config` from Effect Schema for schema-validated configuration values.
-- Client environment must only include `NEXT_PUBLIC_*` variables for browser security.
+- IMPORTANT: Client environment MUST only include `NEXT_PUBLIC_*` variables for browser security.
 - Server environment is loaded synchronously via `Effect.runSync` — keep the config pure and side-effect free.
 
 ## Quick Recipes

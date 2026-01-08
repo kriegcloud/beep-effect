@@ -1,4 +1,6 @@
 import { _lastActivity } from "@beep/mock/_time";
+import * as A from "effect/Array";
+import * as F from "effect/Function";
 import { _mock } from "./_mock";
 
 // ----------------------------------------------------------------------
@@ -10,7 +12,7 @@ export const ORDER_STATUS_OPTIONS = [
   { value: "refunded", label: "Refunded" },
 ] as const;
 
-const ITEMS = Array.from({ length: 3 }, (_, index) => ({
+const ITEMS = A.makeBy(3, (index) => ({
   id: _mock.id(index),
   sku: `16H9UR${index}`,
   quantity: index + 1,
@@ -19,18 +21,24 @@ const ITEMS = Array.from({ length: 3 }, (_, index) => ({
   price: _mock.number.price(index),
 }));
 
-export const _orders = Array.from({ length: 20 }, (_, index) => {
+export const _orders = A.makeBy(20, (index) => {
   const shipping = 10;
 
   const discount = 10;
 
   const taxes = 10;
 
-  const items = (index % 2 && ITEMS.slice(0, 1)) || (index % 3 && ITEMS.slice(1, 3)) || ITEMS;
+  const items = (index % 2 && F.pipe(ITEMS, A.take(1))) || (index % 3 && F.pipe(ITEMS, A.drop(1), A.take(2))) || ITEMS;
 
-  const totalQuantity = items.reduce((accumulator, item) => accumulator + item.quantity, 0);
+  const totalQuantity = F.pipe(
+    items,
+    A.reduce(0, (acc, item) => acc + item.quantity)
+  );
 
-  const subtotal = items.reduce((accumulator, item) => accumulator + item.price * item.quantity, 0);
+  const subtotal = F.pipe(
+    items,
+    A.reduce(0, (acc, item) => acc + item.price * item.quantity)
+  );
 
   const totalAmount = subtotal - shipping - discount + taxes;
 

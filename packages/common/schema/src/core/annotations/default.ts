@@ -19,6 +19,7 @@ import type * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as F from "effect/Function";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import type * as Pretty from "effect/Pretty";
 import type * as R from "effect/Record";
 import * as AST from "effect/SchemaAST";
@@ -577,13 +578,13 @@ export const getUnderlyingType = (ast: AST.AST): "string" | "number" | "boolean"
     case "BooleanKeyword":
       return "boolean" as const;
     case "Literal":
-      if (typeof ast.literal === "string") {
+      if (P.isString(ast.literal)) {
         return "string" as const;
       }
-      if (typeof ast.literal === "number") {
+      if (P.isNumber(ast.literal)) {
         return "number" as const;
       }
-      if (typeof ast.literal === "boolean") {
+      if (P.isBoolean(ast.literal)) {
         return "boolean" as const;
       }
       return "unknown" as const;

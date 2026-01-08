@@ -54,12 +54,12 @@ DocgenError: Missing documentation in src/index.ts module
 
 **Common patterns requiring documentation in barrel files:**
 
-| Pattern | Requires JSDoc? |
-|---------|-----------------|
-| `export * from "./foo"` | Yes |
-| `export type * from "./foo"` | Yes |
-| `export * as Foo from "./foo"` | Yes |
-| `export type * as Foo from "./foo"` | Yes |
+| Pattern                               | Requires JSDoc?         |
+|---------------------------------------|-------------------------|
+| `export * from "./foo"`               | Yes                     |
+| `export type * from "./foo"`          | Yes                     |
+| `export * as Foo from "./foo"`        | Yes                     |
+| `export type * as Foo from "./foo"`   | Yes                     |
 | `export { foo, bar } from "./module"` | Yes (each named export) |
 
 ## Priority Levels

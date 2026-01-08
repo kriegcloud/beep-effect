@@ -1,3 +1,5 @@
+import * as A from "effect/Array";
+import * as Match from "effect/Match";
 import type { SyncMessageClient, SyncMessageServer } from "./Messages";
 
 export type MessageListener = (message: SyncMessageServer) => void;
@@ -29,46 +31,49 @@ export interface CollabNetwork {
   registerDebugListener(listener: DebugListener): void;
 }
 
+type PeerMessage = Extract<SyncMessageClient | SyncMessageServer, { type: "peer-chunk" }>["messages"][number];
+
+const formatPeerMessage = (pm: PeerMessage): string =>
+  Match.value(pm).pipe(
+    Match.when(
+      { type: "created" },
+      (p) =>
+        `${p.userId} created: ${p.node.$.syncId}|previousId: ${p.previousId}|parentId: ${p.parentId}|streamId: ${p.streamId}`
+    ),
+    Match.when({ type: "destroyed" }, (p) => `${p.userId} destroyed: ${p.node.$.syncId}|streamId: ${p.streamId}`),
+    Match.when({ type: "updated" }, (p) => `${p.userId} updated: ${p.node.$.syncId}|streamId: ${p.streamId}`),
+    Match.when(
+      { type: "cursor" },
+      (p) =>
+        `${p.userId} moved cursor|anchorId: ${p.anchorId}|anchorOffset: ${p.anchorOffset}|focusId: ${p.focusId}|focusOffset: ${p.focusOffset}|streamId: ${p.streamId}`
+    ),
+    Match.orElse((p) => `unknown message type: ${JSON.stringify(p)}`)
+  );
+
 export function debugEventSyncMessage(direction: "up" | "down", m: SyncMessageClient | SyncMessageServer): DebugEvent {
-  let message: string | undefined;
-  const nestedMessages: string[] = [];
-  switch (m.type) {
-    case "init":
-      message = `lastId: ${m.lastId}|firstId: ${m.firstId}`;
-      break;
-    case "init-received":
-      message = `lastId: ${m.lastId}`;
-      break;
-    case "peer-chunk":
-      m.messages.forEach((pm) => {
-        let nestedMessage: string;
-        switch (pm.type) {
-          case "created":
-            nestedMessage = `${pm.userId} created: ${pm.node.$.syncId}|previousId: ${pm.previousId}|parentId: ${pm.parentId}|streamId: ${pm.streamId}`;
-            break;
-          case "destroyed":
-            nestedMessage = `${pm.userId} destroyed: ${pm.node.$.syncId}|streamId: ${pm.streamId}`;
-            break;
-          case "updated":
-            nestedMessage = `${pm.userId} updated: ${pm.node.$.syncId}|streamId: ${pm.streamId}`;
-            break;
-          case "cursor":
-            nestedMessage = `${pm.userId} moved cursor|anchorId: ${pm.anchorId}|anchorOffset: ${pm.anchorOffset}|focusId: ${pm.focusId}|focusOffset: ${pm.focusOffset}|streamId: ${pm.streamId}`;
-            break;
-          default:
-            nestedMessage = `unknown message type: ${JSON.stringify(pm)}`;
-            break;
-        }
-        nestedMessages.push(nestedMessage);
-      });
-      break;
-    case "persist-document":
-      message = `lastId: ${m.lastId}`;
-      break;
-    default:
-      message = `unknown message type: ${JSON.stringify(m)}`;
-      break;
-  }
+  const { message, nestedMessages } = Match.value(m).pipe(
+    Match.when({ type: "init" }, (msg) => ({
+      message: `lastId: ${msg.lastId}|firstId: ${msg.firstId}` as string | undefined,
+      nestedMessages: [] as string[],
+    })),
+    Match.when({ type: "init-received" }, (msg) => ({
+      message: `lastId: ${msg.lastId}` as string | undefined,
+      nestedMessages: [] as string[],
+    })),
+    Match.when({ type: "peer-chunk" }, (msg) => ({
+      message: undefined as string | undefined,
+      nestedMessages: A.map(msg.messages, formatPeerMessage),
+    })),
+    Match.when({ type: "persist-document" }, (msg) => ({
+      message: `lastId: ${msg.lastId}` as string | undefined,
+      nestedMessages: [] as string[],
+    })),
+    Match.orElse((msg) => ({
+      message: `unknown message type: ${JSON.stringify(msg)}` as string | undefined,
+      nestedMessages: [] as string[],
+    }))
+  );
+
   return {
     type: m.type,
     direction,

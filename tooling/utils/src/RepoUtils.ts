@@ -59,7 +59,7 @@ const make: Effect.Effect<IRepoUtilsEffect, DomainError, FileSystem.FileSystem |
  * const program = Effect.gen(function* () {
  *   const repo = yield* RepoUtils
  *   console.log("Repository root:", repo.REPOSITORY_ROOT)
- *   const dir = yield* repo.getWorkspaceDir("@beep/common-schema")
+ *   const dir = yield* repo.getWorkspaceDir("@beep/schema")
  *   console.log("Workspace dir:", dir)
  * })
  * ```

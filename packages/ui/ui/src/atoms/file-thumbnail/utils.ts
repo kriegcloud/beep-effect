@@ -1,3 +1,8 @@
+import * as A from "effect/Array";
+import * as DateTime from "effect/DateTime";
+import * as F from "effect/Function";
+import * as P from "effect/Predicate";
+import * as R from "effect/Record";
 import { v4 as uuidv4 } from "uuid";
 
 export const FILE_FORMATS = {
@@ -75,8 +80,16 @@ const ALL_EXTENSIONS = new Set<AllExtensions>([
  * Maps file extensions to their corresponding file format.
  * Example: { 'jpg': 'image', 'mp3': 'audio', 'pdf': 'pdf' }
  */
-const EXTENSION_TO_FORMAT: Record<string, FileFormat> = Object.fromEntries(
-  Object.entries(FILE_FORMATS).flatMap(([format, exts]) => exts.map((ext) => [ext, format as FileFormat]))
+const EXTENSION_TO_FORMAT: Record<string, FileFormat> = F.pipe(
+  FILE_FORMATS,
+  R.toEntries,
+  A.flatMap(([format, exts]) =>
+    F.pipe(
+      exts,
+      A.map((ext) => [ext, format as FileFormat] as const)
+    )
+  ),
+  R.fromEntries
 );
 
 const isSupportedExtension = (ext: string): ext is AllExtensions => ALL_EXTENSIONS.has(ext as AllExtensions);
@@ -169,13 +182,13 @@ export function getFileMeta(file?: File | string | null | undefined): FileMetaDa
       type: file.type,
       size: file.size,
       lastModified: file.lastModified,
-      lastModifiedDate: new Date(file.lastModified),
+      lastModifiedDate: DateTime.toDate(DateTime.unsafeMake(file.lastModified)),
       format: formatFromMime !== "unknown" ? formatFromMime : formatFromName,
       path: (file as File & { readonly path?: string | undefined }).path ?? file.webkitRelativePath,
     };
   }
 
-  if (typeof file === "string") {
+  if (P.isString(file)) {
     return {
       key: file,
       path: file,

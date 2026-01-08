@@ -127,96 +127,96 @@ For each existing README.md, verify:
 The following packages should have README.md files:
 
 #### Applications
-| Path | Package Name |
-|------|--------------|
-| `apps/web` | `@beep/web` |
+| Path          | Package Name   |
+|---------------|----------------|
+| `apps/web`    | `@beep/web`    |
 | `apps/server` | `@beep/server` |
 
 #### Common Layer
-| Path | Package Name |
-|------|--------------|
+| Path                        | Package Name      |
+|-----------------------------|-------------------|
 | `packages/common/constants` | `@beep/constants` |
-| `packages/common/contract` | `@beep/contract` |
-| `packages/common/errors` | `@beep/errors` |
-| `packages/common/identity` | `@beep/identity` |
+| `packages/common/contract`  | `@beep/contract`  |
+| `packages/common/errors`    | `@beep/errors`    |
+| `packages/common/identity`  | `@beep/identity`  |
 | `packages/common/invariant` | `@beep/invariant` |
-| `packages/common/mock` | `@beep/mock` |
-| `packages/common/schema` | `@beep/schema` |
-| `packages/common/types` | `@beep/types` |
-| `packages/common/utils` | `@beep/utils` |
+| `packages/common/mock`      | `@beep/mock`      |
+| `packages/common/schema`    | `@beep/schema`    |
+| `packages/common/types`     | `@beep/types`     |
+| `packages/common/utils`     | `@beep/utils`     |
 
 #### Shared Layer
-| Path | Package Name |
-|------|--------------|
+| Path                     | Package Name          |
+|--------------------------|-----------------------|
 | `packages/shared/domain` | `@beep/shared-domain` |
 | `packages/shared/server` | `@beep/shared-server` |
 | `packages/shared/client` | `@beep/shared-client` |
 | `packages/shared/tables` | `@beep/shared-tables` |
-| `packages/shared/ui` | `@beep/shared-ui` |
-| `packages/shared/env` | `@beep/shared-env` |
+| `packages/shared/ui`     | `@beep/shared-ui`     |
+| `packages/shared/env`    | `@beep/shared-env`    |
 
 #### IAM Slice
-| Path | Package Name |
-|------|--------------|
+| Path                  | Package Name       |
+|-----------------------|--------------------|
 | `packages/iam/domain` | `@beep/iam-domain` |
 | `packages/iam/server` | `@beep/iam-server` |
 | `packages/iam/client` | `@beep/iam-client` |
 | `packages/iam/tables` | `@beep/iam-tables` |
-| `packages/iam/ui` | `@beep/iam-ui` |
+| `packages/iam/ui`     | `@beep/iam-ui`     |
 
 #### Documents Slice
-| Path | Package Name |
-|------|--------------|
+| Path                        | Package Name             |
+|-----------------------------|--------------------------|
 | `packages/documents/domain` | `@beep/documents-domain` |
 | `packages/documents/server` | `@beep/documents-server` |
 | `packages/documents/client` | `@beep/documents-client` |
 | `packages/documents/tables` | `@beep/documents-tables` |
-| `packages/documents/ui` | `@beep/documents-ui` |
+| `packages/documents/ui`     | `@beep/documents-ui`     |
 
 #### Comms Slice
-| Path | Package Name |
-|------|--------------|
+| Path                    | Package Name         |
+|-------------------------|----------------------|
 | `packages/comms/domain` | `@beep/comms-domain` |
 | `packages/comms/server` | `@beep/comms-server` |
 | `packages/comms/client` | `@beep/comms-client` |
 | `packages/comms/tables` | `@beep/comms-tables` |
-| `packages/comms/ui` | `@beep/comms-ui` |
+| `packages/comms/ui`     | `@beep/comms-ui`     |
 
 #### Customization Slice
-| Path | Package Name |
-|------|--------------|
+| Path                            | Package Name                 |
+|---------------------------------|------------------------------|
 | `packages/customization/domain` | `@beep/customization-domain` |
 | `packages/customization/server` | `@beep/customization-server` |
 | `packages/customization/client` | `@beep/customization-client` |
 | `packages/customization/tables` | `@beep/customization-tables` |
-| `packages/customization/ui` | `@beep/customization-ui` |
+| `packages/customization/ui`     | `@beep/customization-ui`     |
 
 #### Runtime Layer
-| Path | Package Name |
-|------|--------------|
+| Path                      | Package Name           |
+|---------------------------|------------------------|
 | `packages/runtime/client` | `@beep/runtime-client` |
 | `packages/runtime/server` | `@beep/runtime-server` |
 
 #### UI Layer
-| Path | Package Name |
-|------|--------------|
+| Path               | Package Name    |
+|--------------------|-----------------|
 | `packages/ui/core` | `@beep/ui-core` |
-| `packages/ui/ui` | `@beep/ui` |
+| `packages/ui/ui`   | `@beep/ui`      |
 
 #### Internal
-| Path | Package Name |
-|------|--------------|
+| Path                          | Package Name     |
+|-------------------------------|------------------|
 | `packages/_internal/db-admin` | `@beep/db-admin` |
 
 #### Tooling
-| Path | Package Name |
-|------|--------------|
-| `tooling/cli` | `@beep/cli` |
-| `tooling/repo-scripts` | `@beep/repo-scripts` |
-| `tooling/testkit` | `@beep/testkit` |
-| `tooling/utils` | `@beep/tooling-utils` |
-| `tooling/build-utils` | `@beep/build-utils` |
-| `tooling/scraper` | `@beep/scraper` |
+| Path                   | Package Name          |
+|------------------------|-----------------------|
+| `tooling/cli`          | `@beep/cli`           |
+| `tooling/repo-scripts` | `@beep/repo-scripts`  |
+| `tooling/testkit`      | `@beep/testkit`       |
+| `tooling/utils`        | `@beep/tooling-utils` |
+| `tooling/build-utils`  | `@beep/build-utils`   |
+| `tooling/scraper`      | `@beep/scraper`       |
 
 ### Dynamic Package Discovery (Fallback)
 
@@ -331,10 +331,10 @@ Brief one-line description matching package.json description.
 
 ## Key Exports
 
-| Export | Description |
-|--------|-------------|
+| Export       | Description           |
+|--------------|-----------------------|
 | `MainExport` | Primary functionality |
-| `HelperUtil` | Supporting utilities |
+| `HelperUtil` | Supporting utilities  |
 
 ## Usage
 
@@ -365,8 +365,8 @@ const program = Effect.gen(function* () {
 
 ## Dependencies
 
-| Package | Purpose |
-|---------|---------|
+| Package            | Purpose                       |
+|--------------------|-------------------------------|
 | `@beep/dependency` | Why this dependency is needed |
 
 ## Integration
@@ -642,25 +642,25 @@ Provide a structured report with these sections:
 
 ### 1. Summary Metrics
 
-| Metric | Count |
-|--------|-------|
-| Packages Scanned | X |
-| README Files Exist | X |
-| README Files Missing | X |
-| README Files Updated | X |
-| README Files Created | X |
-| Verification Passed | X |
-| Verification Failed | X |
+| Metric               | Count |
+|----------------------|-------|
+| Packages Scanned     | X     |
+| README Files Exist   | X     |
+| README Files Missing | X     |
+| README Files Updated | X     |
+| README Files Created | X     |
+| Verification Passed  | X     |
+| Verification Failed  | X     |
 
 ### 2. Quality Indicators
 
-| Quality Check | Pass | Fail |
-|---------------|------|------|
-| Package name matches | X | X |
-| Effect patterns used | X | X |
-| All sections present | X | X |
-| Import paths valid | X | X |
-| Examples compilable | X | X |
+| Quality Check        | Pass | Fail |
+|----------------------|------|------|
+| Package name matches | X    | X    |
+| Effect patterns used | X    | X    |
+| All sections present | X    | X    |
+| Import paths valid   | X    | X    |
+| Examples compilable  | X    | X    |
 
 ### 3. README Status Detail
 
@@ -695,16 +695,16 @@ Provide a structured report with these sections:
 
 ### 5. Remaining Issues (Require User Decision)
 
-| Package | Issue | Suggested Action |
-|---------|-------|------------------|
-| `@beep/xyz` | Conflicting AGENTS.md | Review and reconcile |
-| `@beep/abc` | No exports found | Manually document API |
+| Package     | Issue                 | Suggested Action      |
+|-------------|-----------------------|-----------------------|
+| `@beep/xyz` | Conflicting AGENTS.md | Review and reconcile  |
+| `@beep/abc` | No exports found      | Manually document API |
 
 ### 6. Skipped Packages
 
-| Path | Reason |
-|------|--------|
-| `packages/deprecated/old` | No package.json |
+| Path                        | Reason                 |
+|-----------------------------|------------------------|
+| `packages/deprecated/old`   | No package.json        |
 | `packages/wip/experimental` | Empty source directory |
 
 ## Important Notes

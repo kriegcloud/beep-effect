@@ -39,12 +39,12 @@
 - `packages/_internal/db-admin/test/pg-container.ts:251` — Composes `DocumentsRepos.layer` with IAM repos to seed fake data during container bootstrap.
 
 ## Authoring Guardrails
-- Always import Effect namespaces (`Effect`, `Layer`, `Context`, `A`, `Str`, etc.) and honor the no-native array/string guardrail; match patterns already present in `Repo.make`.
+- ALWAYS import Effect namespaces (`Effect`, `Layer`, `Context`, `A`, `Str`, etc.) and honor the no-native array/string guardrail; match patterns already present in `Repo.make`.
 - Build new repositories by extending existing repo implementations; reuse `Repo.make` to inherit telemetry + error mapping.
-- Prefer `FilesConfig.layerFrom` when tests or CLIs need custom configuration; never inspect `process.env` within this package.
+- Prefer `FilesConfig.layerFrom` when tests or CLIs need custom configuration; NEVER inspect `process.env` within this package.
 - Treat `StorageService` as the abstraction over S3 operations—add new helpers there and expose functions through generated accessors.
 - When new tables land in `@beep/documents-tables`, update `DocumentsDb` consumers and refresh migrations via `packages/_internal/db-admin` before trusting runtime layers.
-- Ensure layers remain memoizable (`Layer.mergeAll`, `Layer.provideMerge`); avoid manual `Layer.build` that would break runtime caching.
+- Ensure layers remain memoizable (`Layer.mergeAll`, `Layer.provideMerge`); NEVER use manual `Layer.build` that would break runtime caching.
 
 ## Quick Recipes
 - **Hydrate DocumentRepo with a temporary Postgres client (integration tests)**

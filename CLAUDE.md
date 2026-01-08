@@ -23,7 +23,7 @@ to move failure handling up to the caller.
 </example>
 </system-reminder>
 
-# AGENTS.md
+# CLAUDE.md
 
 Configuration and guardrails for AI collaborators working in the `beep-effect` monorepo.
 
@@ -42,7 +42,7 @@ Configuration and guardrails for AI collaborators working in the `beep-effect` m
 
 ## Project Overview
 
-`beep-effect` is a Bun-managed monorepo delivering a full-stack Effect application with Next.js 15 frontend, Effect Platform backend, and vertical slices in `packages/iam/*` and `packages/documents/*`. See [documentation/PACKAGE_STRUCTURE.md](documentation/PACKAGE_STRUCTURE.md) for full package layout.
+`beep-effect` is a Bun-managed monorepo delivering a full-stack Effect application with Next.js 16 frontend, Effect Platform backend, and vertical slices in `packages/iam/*` and `packages/documents/*`. See [documentation/PACKAGE_STRUCTURE.md](documentation/PACKAGE_STRUCTURE.md) for full package layout.
 
 ## Technology Stack
 
@@ -50,7 +50,7 @@ Configuration and guardrails for AI collaborators working in the `beep-effect` m
 |---------------|---------------------------------------------------------------|
 | **Runtime**   | Bun 1.3.x, Node 22                                            |
 | **Core**      | Effect 3, `@effect/platform`, dependency injection via Layers |
-| **Frontend**  | Next.js 15 App Router, React 19, TanStack Query               |
+| **Frontend**  | Next.js 16 App Router, React 19, TanStack Query               |
 | **Backend**   | `@effect/platform-bun`, `@effect/rpc`, `@effect/sql-pg`       |
 | **Database**  | PostgreSQL, Drizzle ORM                                       |
 | **Auth**      | better-auth with Redis persistence                            |
@@ -60,7 +60,7 @@ Configuration and guardrails for AI collaborators working in the `beep-effect` m
 
 ## Architecture & Boundaries
 
-Each slice follows `domain -> tables -> infra -> client -> ui`. Cross-slice imports only through `packages/shared/*` or `packages/common/*`. Use `@beep/*` path aliases. Never use direct cross-slice imports or relative `../../../` paths.
+Each slice follows `domain -> tables -> infra -> client -> ui`. Cross-slice imports only through `packages/shared/*` or `packages/common/*`. ALWAYS use `@beep/*` path aliases. NEVER use direct cross-slice imports or relative `../../../` paths.
 
 ## Effect Patterns
 
@@ -68,18 +68,24 @@ See [documentation/EFFECT_PATTERNS.md](documentation/EFFECT_PATTERNS.md) for det
 
 ## Code Quality
 
-- No `any`, `@ts-ignore`, or unchecked casts. Validate external data with `@beep/schema`.
+- NEVER use `any`, `@ts-ignore`, or unchecked casts. ALWAYS validate external data with `@beep/schema`.
 - Biome formatting: run `bun run lint:fix` before committing.
 - Effect testing utilities in `@beep/testkit`. Use `Effect.log*` with structured objects.
 
+## Testing
+
+- `bun run test` — Run all tests
+- `bun run test --filter=@beep/package` — Run tests for specific package
+- Place test files adjacent to source files or in `__tests__/` directories
+
 ## Workflow for AI Agents
 
-1. **Clarify Intent**: Ask before editing if unclear
+1. **Clarify Intent**: ALWAYS ask before editing if the request could be interpreted multiple ways
 2. **Incremental Changes**: Prefer small, focused diffs
 3. **Verify Changes**: Request `bun run check` after modifications
-4. **Respect Tooling**: Use root scripts with `dotenvx`
+4. **Respect Tooling**: ALWAYS run commands via `bun run <script>` from project root
 5. **Keep Docs Updated**: Align with `documentation/patterns/` when introducing new patterns
-6. **Do Not Auto-Start**: Never launch long-running dev or infra commands without confirmation
+6. **Do Not Auto-Start**: NEVER launch long-running dev or infra commands without confirmation
 
 ## Specifications
 

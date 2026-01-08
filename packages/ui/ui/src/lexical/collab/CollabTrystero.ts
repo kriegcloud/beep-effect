@@ -1,3 +1,7 @@
+import * as A from "effect/Array";
+import * as DateTime from "effect/DateTime";
+import * as F from "effect/Function";
+import * as Match from "effect/Match";
 import type { SerializedEditorState } from "lexical";
 import type { ActionSender, BaseRoomConfig, RelayConfig, Room, TargetPeers, TurnConfig } from "trystero";
 import { joinRoom } from "trystero";
@@ -67,7 +71,7 @@ export class CollabTrystero implements CollabNetwork {
 
   async connect() {
     await this.close();
-    this.debugListeners.forEach((f) => f({ type: "joining-room" }));
+    A.forEach(this.debugListeners, (f) => f({ type: "joining-room" }));
     this.room = joinRoom(this.config, this.roomId);
     this.connected = true;
 
@@ -77,7 +81,7 @@ export class CollabTrystero implements CollabNetwork {
 
     // A peer joined, send them our version of the editorState.
     this.room.onPeerJoin((peerId) => {
-      this.debugListeners.forEach((f) => f({ type: "peer-joined", message: `peerId: ${peerId}` }));
+      A.forEach(this.debugListeners, (f) => f({ type: "peer-joined", message: `peerId: ${peerId}` }));
       this.sendAsServer(
         {
           type: "init",
@@ -94,7 +98,7 @@ export class CollabTrystero implements CollabNetwork {
     // Wait 2 seconds to give time for peer discovery before self-initializing.
     setTimeout(() => {
       if (this.connected && !this.alreadyInit && Object.keys(this.room?.getPeers() ?? {}).length === 0) {
-        this.debugListeners.forEach((f) =>
+        A.forEach(this.debugListeners, (f) =>
           f({ type: "self-init", message: "No peers found, initializing as first peer" })
         );
         this.alreadyInit = true;
@@ -105,8 +109,8 @@ export class CollabTrystero implements CollabNetwork {
           lastId: this.lastId,
           firstId: undefined,
         };
-        this.messageListeners.forEach((f) => f(initMessage));
-        this.debugListeners.forEach((f) => f(debugEventSyncMessage("down", initMessage)));
+        A.forEach(this.messageListeners, (f) => f(initMessage));
+        A.forEach(this.debugListeners, (f) => f(debugEventSyncMessage("down", initMessage)));
       }
     }, 2000);
 
@@ -146,12 +150,12 @@ export class CollabTrystero implements CollabNetwork {
         this.alreadyInit = true;
       }
       // Finally, call into the actual CollabInstance.
-      this.messageListeners.forEach((f) => f(message));
-      this.debugListeners.forEach((f) => f(debugEventSyncMessage("down", message)));
+      A.forEach(this.messageListeners, (f) => f(message));
+      A.forEach(this.debugListeners, (f) => f(debugEventSyncMessage("down", message)));
     });
 
-    this.openListeners.forEach((f) => f());
-    this.debugListeners.forEach((f) => f({ type: "open" }));
+    A.forEach(this.openListeners, (f) => f());
+    A.forEach(this.debugListeners, (f) => f({ type: "open" }));
   }
 
   isOpen() {
@@ -162,23 +166,28 @@ export class CollabTrystero implements CollabNetwork {
     this.alreadyInit = false;
     await this.room?.leave();
     this.connected = false;
-    this.debugListeners.forEach((f) => f({ type: "close" }));
+    A.forEach(this.debugListeners, (f) => f({ type: "close" }));
   }
 
   // Normally Redis creates stream IDs on insert, so we have to make some up.
   assignStreamIdsToMessage(message: SyncMessageClient): SyncMessageClient {
-    switch (message.type) {
-      case "init-received":
-      case "persist-document":
-        return message;
-      case "peer-chunk":
-        message.messages = message.messages.map((message) => {
-          const newMessage = structuredClone(message);
-          newMessage.streamId = (Date.now() + Math.random()).toString();
-          return newMessage;
-        });
-        return message;
-    }
+    return F.pipe(
+      Match.value(message),
+      Match.when({ type: "init-received" }, (m) => m),
+      Match.when({ type: "persist-document" }, (m) => m),
+      Match.when({ type: "peer-chunk" }, (m) => ({
+        ...m,
+        messages: F.pipe(
+          m.messages,
+          A.map((msg) => {
+            const newMessage = structuredClone(msg);
+            newMessage.streamId = (DateTime.toEpochMillis(DateTime.unsafeNow()) + Math.random()).toString();
+            return newMessage;
+          })
+        ),
+      })),
+      Match.exhaustive
+    );
   }
 
   send(rawMessage: SyncMessageClient) {
@@ -192,32 +201,43 @@ export class CollabTrystero implements CollabNetwork {
     if (this.queuedMessages.length > 0) {
       const queue = this.queuedMessages;
       this.queuedMessages = [];
-      queue.forEach((m) => {
+      A.forEach(queue, (m) => {
         if (m.type === "peer-chunk") {
-          m.messages.forEach((pm) => this.addToStream(pm));
+          A.forEach(m.messages, (pm) => this.addToStream(pm));
         }
         this.send(m);
       });
     }
 
-    switch (message.type) {
-      case "persist-document":
-        this.lastEditorState = message.editorState;
+    F.pipe(
+      Match.value(message),
+      Match.when({ type: "persist-document" }, (m) => {
+        this.lastEditorState = m.editorState;
         // no-op, but I guess might be valuable to other clients subjectively
-        return;
-      case "peer-chunk":
-        message.messages.forEach((message) => {
-          this.addToStream(message);
+        return "return" as const;
+      }),
+      Match.when({ type: "peer-chunk" }, (m) => {
+        A.forEach(m.messages, (msg) => {
+          this.addToStream(msg);
         });
         // Mimic websocket behavior of clients getting their own messages.
-        this.messageListeners.forEach((f) => f(message));
-        break;
-      case "init-received":
-        message.lastId = this.lastId;
-        break;
+        A.forEach(this.messageListeners, (f) => f(m));
+        return "continue" as const;
+      }),
+      Match.when({ type: "init-received" }, (m) => {
+        m.lastId = this.lastId;
+        return "continue" as const;
+      }),
+      Match.exhaustive
+    );
+
+    // Check if we should return early (for persist-document case)
+    if (message.type === "persist-document") {
+      return;
     }
+
     this.sendPeerMessage({ messageJSON: JSON.stringify(message) });
-    this.debugListeners.forEach((f) => f(debugEventSyncMessage("up", message)));
+    A.forEach(this.debugListeners, (f) => f(debugEventSyncMessage("up", message)));
   }
 
   // Adds a message to our stream and map the stream ID to the stream index.
@@ -246,7 +266,7 @@ export class CollabTrystero implements CollabNetwork {
 
   sendAsServer(message: SyncMessageServer, targetPeers?: undefined | TargetPeers) {
     this.sendPeerMessage({ messageJSON: JSON.stringify(message) }, targetPeers);
-    this.debugListeners.forEach((f) => f(debugEventSyncMessage("up", message)));
+    A.forEach(this.debugListeners, (f) => f(debugEventSyncMessage("up", message)));
   }
 
   registerMessageListener(listener: MessageListener) {

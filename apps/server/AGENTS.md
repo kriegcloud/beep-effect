@@ -2,7 +2,7 @@
 
 ## Purpose & Fit
 - Production entry point for the Bun-hosted Effect backend runtime that launches the complete HTTP/RPC server from `@beep/runtime-server`.
-- Aligns with the monorepo's Effect-first posture: all dependencies are provided via Layers, configuration comes from `@beep/shared-env/ServerEnv`, and the application never directly accesses `process.env` or `Bun.env`.
+- Aligns with the monorepo's Effect-first posture: all dependencies are provided via Layers, configuration comes from `@beep/shared-env/ServerEnv`, and the application NEVER directly accesses `process.env` or `Bun.env`.
 - The server is a minimal wrapper: `Layer.launch(Server.layer).pipe(BunRuntime.runMain)` — all functionality is delegated to `@beep/runtime-server`.
 
 ## Surface Map
@@ -17,19 +17,19 @@
   - `AuthContext.layer` — Better Auth integration and session management
 
 ## How to Extend
-- **Do not modify this package directly**: `apps/server` is a thin wrapper. Add new functionality to `@beep/runtime-server` instead.
+- **IMPORTANT: Do not modify this package directly**: `apps/server` is a thin wrapper. ALWAYS add new functionality to `@beep/runtime-server` instead.
 - **Adding new endpoints**: Define API contracts in domain packages, implement handlers in slice server packages, register routes in `@beep/runtime-server/HttpRouter.layer.ts`. See README for detailed examples.
-- **Config via env loaders**: read ports, OTLP URLs, and log levels from `serverEnv` exported by `@beep/shared-env/ServerEnv`. Do not reach into `process.env` or `Bun.env` directly.
+- **Config via env loaders**: read ports, OTLP URLs, and log levels from `serverEnv` exported by `@beep/shared-env/ServerEnv`. NEVER reach into `process.env` or `Bun.env` directly.
 - **Platform bindings**: `@beep/runtime-server` uses `@effect/platform-bun` (BunHttpServer) and `@effect/rpc` for RPC. The `Server.layer` composition already includes logging, tracing, and all infrastructure.
 - **Contracts over ad-hoc parsing**: surface APIs through HttpApi contracts (`@effect/platform/HttpApi`) and validate payloads with `@beep/schema` instead of manual parsing.
-- **Error + logging**: stick to tagged errors (`@beep/errors`, `@beep/invariant`) and JSON-safe log fields. Avoid throwing raw `Error` or logging request bodies with secrets.
-- **Performance**: keep Layers memoizable (`Layer.mergeAll` / `Layer.provideMerge`) to retain Turbo cache behavior; avoid spinning new DB connections per request.
+- **Error + logging**: ALWAYS stick to tagged errors (`@beep/errors`, `@beep/invariant`) and JSON-safe log fields. NEVER throw raw `Error` or log request bodies with secrets.
+- **Performance**: ALWAYS keep Layers memoizable (`Layer.mergeAll` / `Layer.provideMerge`) to retain Turbo cache behavior; NEVER spin new DB connections per request.
 
 ## Guardrails (critical)
-- Namespace Effect imports and obey the repo bans on native array/string helpers: use `effect/Array`, `effect/String`, `effect/Function` pipes for all transformations.
-- Keep all dependency injection through Layers; avoid singletons or mutable module state.
-- No direct filesystem/network pokes outside platform abstractions; route through Effects and existing services.
-- Respect environment toggles from `serverEnv.app` (no dev-only behavior leaking into prod).
+- ALWAYS namespace Effect imports and obey the repo bans on native array/string helpers: use `effect/Array`, `effect/String`, `effect/Function` pipes for all transformations.
+- ALWAYS keep all dependency injection through Layers; NEVER use singletons or mutable module state.
+- NEVER make direct filesystem/network pokes outside platform abstractions; ALWAYS route through Effects and existing services.
+- ALWAYS respect environment toggles from `serverEnv.app` (no dev-only behavior leaking into prod).
 
 ## Quick Recipe
 
@@ -40,33 +40,19 @@ import { Server } from "@beep/runtime-server";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import { Layer } from "effect";
 
-// Launch the server
 Layer.launch(Server.layer).pipe(BunRuntime.runMain);
 ```
 
-To add new functionality, modify `@beep/runtime-server` instead. For example, to add a custom route:
+To add new functionality, modify `@beep/runtime-server` instead:
 
 ```typescript
-// In @beep/runtime-server/HttpRouter.layer.ts
-import * as HttpLayerRouter from "@effect/platform/HttpLayerRouter";
-import * as HttpServerResponse from "@effect/platform/HttpServerResponse";
-import * as Effect from "effect/Effect";
-import * as F from "effect/Function";
-import * as Str from "effect/String";
-
+// Pattern: define route with HttpLayerRouter.use(), merge into PublicRoutes/ProtectedRoutes
 const CustomRoute = HttpLayerRouter.use((router) =>
-  router.add("GET", "/v1/custom",
-    Effect.gen(function* () {
-      const status = F.pipe("ok", Str.toUpperCase);
-      yield* Effect.logInfo("custom.route", { status });
-      return HttpServerResponse.json({ status });
-    })
-  )
+  router.add("GET", "/v1/custom", Effect.gen(function* () { /* handler */ }))
 );
-
-// Merge into PublicRoutes or ProtectedRoutes
-const PublicRoutes = Layer.mergeAll(DocsRoute, HealthRoute, CustomRoute);
 ```
+
+See `packages/runtime/server/src/HttpRouter.layer.ts` for full implementation examples.
 
 ## Verifications
 - `bun run check --filter=@beep/server` — type-check against tsconfigs.

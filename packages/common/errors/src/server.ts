@@ -20,10 +20,12 @@ import * as Path from "node:path";
 import type { LogFormat } from "@beep/constants";
 import * as HttpClient from "@effect/platform/HttpClient";
 import * as HttpClientError from "@effect/platform/HttpClientError";
+import * as A from "effect/Array";
 import * as Cause from "effect/Cause";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import * as FiberId from "effect/FiberId";
+import * as F from "effect/Function";
 import * as HashMap from "effect/HashMap";
 import type * as Layer from "effect/Layer";
 import * as Logger from "effect/Logger";
@@ -32,6 +34,7 @@ import * as Match from "effect/Match";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as Record from "effect/Record";
+import * as Str from "effect/String";
 import color from "picocolors";
 import type { AccumulateOptions, AccumulateResult, PrettyLoggerConfig } from "./shared";
 import {
@@ -121,7 +124,7 @@ const STACK_RE_BARE = /^\s*at\s+(.*):(\d+):(\d+)/;
 
 function normalizeFsPath(p: string): string {
   if (!p) return p;
-  if (p.startsWith("file://")) p = p.replace(/^file:\/\//, "");
+  if (Str.startsWith("file://")(p)) p = p.replace(/^file:\/\//, "");
   return p.replace(/\\/g, "/");
 }
 
@@ -133,7 +136,7 @@ function parseTopFrameFromStack(
   | undefined {
   if (!stack) return undefined;
   const normRoot = normalizeFsPath(Path.resolve(repoRoot));
-  const lines = stack.split("\n");
+  const lines = Str.split("\n")(stack);
   for (const raw of lines) {
     const line = raw.trim();
     let m = line.match(STACK_RE_PAREN);
@@ -155,8 +158,8 @@ function parseTopFrameFromStack(
       }
     }
     if (!file || Number.isNaN(ln!) || Number.isNaN(col!)) continue;
-    if (file.startsWith("node:") || file.includes("/node_modules/")) continue;
-    if (!file.includes(normRoot)) continue;
+    if (Str.startsWith("node:")(file) || Str.includes("/node_modules/")(file)) continue;
+    if (!Str.includes(normRoot)(file)) continue;
     return { file, line: ln!, col: col!, func };
   }
   return undefined;
@@ -165,7 +168,7 @@ function parseTopFrameFromStack(
 function renderCodeFrame(file: string, line: number, enableColors: boolean, context = 2): string | undefined {
   try {
     const content = FS.readFileSync(file, "utf8");
-    const lines = content.split(/\r?\n/);
+    const lines = Str.split(/\r?\n/)(content);
     const start = Math.max(1, line - context);
     const end = Math.min(lines.length, line + context);
     const pad = String(end).length;
@@ -178,7 +181,7 @@ function renderCodeFrame(file: string, line: number, enableColors: boolean, cont
       const txt = `${prefix} ${num} | ${codeLine}`;
       out.push(enableColors && i === line ? color.red(txt) : enableColors ? color.gray(txt) : txt);
     }
-    return out.join("\n");
+    return A.join("\n")(out);
   } catch {
     return undefined;
   }
@@ -187,7 +190,7 @@ function renderCodeFrame(file: string, line: number, enableColors: boolean, cont
 function inferFunctionName(file: string, line: number): string | undefined {
   try {
     const content = FS.readFileSync(file, "utf8");
-    const lines = content.split(/\r?\n/);
+    const lines = Str.split(/\r?\n/)(content);
     const index = Math.max(0, line - 1);
     const currentLine = lines[index] ?? "";
     const callMatch = currentLine.match(/([A-Za-z0-9_$]+)\s*\(/);
@@ -260,19 +263,21 @@ export function formatCauseHeading(cause: Cause.Cause<unknown>, options: boolean
     opts.correlationId ? `┃ 🪢 CorrelationId: ${code(opts.correlationId)}` : undefined,
     opts.userId ? `┃ 🙍 UserId: ${code(opts.userId)}` : undefined,
     opts.hostname || opts.pid || opts.nodeVersion
-      ? `┃ 🖥️ Host: ${code([opts.hostname ? `host=${opts.hostname}` : undefined, opts.pid ? `pid=${String(opts.pid)}` : undefined, opts.nodeVersion ? `node=${opts.nodeVersion}` : undefined].filter(Boolean).join(", "))}`
+      ? `┃ 🖥️ Host: ${code(F.pipe([opts.hostname ? `host=${opts.hostname}` : undefined, opts.pid ? `pid=${String(opts.pid)}` : undefined, opts.nodeVersion ? `node=${opts.nodeVersion}` : undefined], A.filter(P.isNotNullable), A.join(", ")))}`
       : undefined,
     `┃ 💬 Message: ${code(message)}`,
     codeFrame ? `┃ 🔎 Code:` : undefined,
     codeFrame
-      ? codeFrame
-          .split("\n")
-          .map((l) => `┃ ${l}`)
-          .join("\n")
+      ? F.pipe(
+          codeFrame,
+          Str.split("\n"),
+          A.map((l) => `┃ ${l}`),
+          A.join("\n")
+        )
       : undefined,
     `┗${border}`,
-  ].filter((x): x is string => typeof x === "string");
-  return lines.join("\n");
+  ];
+  return F.pipe(lines, A.filter(P.isString), A.join("\n"));
 }
 
 /**
@@ -316,7 +321,7 @@ export function makePrettyConsoleLogger(cfg?: Partial<PrettyLoggerConfig> | unde
       partsRight.push(config.colors ? color.dim(fiberTxt) : fiberTxt);
     }
 
-    const line = `${partsLeft.join(" ")}${partsRight.length > 0 ? ` | ${partsRight.join(" ")}` : ""}`;
+    const line = `${A.join(" ")(partsLeft)}${partsRight.length > 0 ? ` | ${A.join(" ")(partsRight)}` : ""}`;
 
     const isWarningOrAbove = logLevel.ordinal >= LogLevel.Warning.ordinal;
     const writer = isWarningOrAbove ? console.error : console.log;

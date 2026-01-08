@@ -53,15 +53,15 @@
 - `packages/iam/client/src/adapters/better-auth/client.ts` — Consumes `clientEnv` for auth URL/provider configuration in browser bundle.
 
 ## Authoring Guardrails
-- **Effect Config precedence**: Always prefer Effect Config combinators (`Config.all`, `Config.nested`, `Config.redacted`) over manual `process.env` parsing. Use `withDefault`, `option`, or `withPlaceholderRedacted` for optional secrets.
-- **Database service hygiene**: Never construct raw `pg.Pool` or Drizzle clients outside `Db.make`. Slice-specific DB tags (like `IamDb.IamDb`) should call `Db.make` with their schema and return a scoped Layer.
-- **Repo.make contracts**: When extending repos, place custom queries in the `maker` Effect block, yielding `DatabaseService` to access `makeQuery` or `execute`. Always return an object merging extra methods with base CRUD. Update type exports in barrel files (`src/index.ts`, `src/Repo.ts`).
+- **Effect Config precedence**: ALWAYS prefer Effect Config combinators (`Config.all`, `Config.nested`, `Config.redacted`) over manual `process.env` parsing. Use `withDefault`, `option`, or `withPlaceholderRedacted` for optional secrets.
+- **Database service hygiene**: NEVER construct raw `pg.Pool` or Drizzle clients outside `Db.make`. Slice-specific DB tags (like `IamDb.IamDb`) should call `Db.make` with their schema and return a scoped Layer.
+- **Repo.make contracts**: When extending repos, place custom queries in the `maker` Effect block, yielding `DatabaseService` to access `makeQuery` or `execute`. ALWAYS return an object merging extra methods with base CRUD. Update type exports in barrel files (`src/index.ts`, `src/Repo.ts`).
 - **Layer composition**: Keep `Live` free of side effects; use `Layer.mergeAll` / `Layer.provideMerge`. When adding new services, export a Layer and append it to `Live` after ensuring dependencies are satisfied.
-- **Secret handling**: Wrap sensitive config in `Config.redacted`. Use `Redacted.make` / `Redacted.value` at boundaries. Never log or serialize redacted values unwrapped.
+- **Secret handling**: Wrap sensitive config in `Config.redacted`. Use `Redacted.make` / `Redacted.value` at boundaries. NEVER log or serialize redacted values unwrapped.
 - **Telemetry**: Attach `Effect.withSpan`, `Effect.annotateLogs` to service methods. Use span attributes for request payloads; keep PII out of logs.
-- **Collections & strings**: Follow repo-wide rule—use `A.*`, `Str.*`, `F.pipe` instead of native array/string methods. Legacy native usages exist in early code; do not replicate them.
-- **Error mapping**: Use `DatabaseError.$match` for Postgres errors, `ResendError.new` for email errors. Always `catchTag("ParseError", Effect.die)` for schema decode failures in infra code.
-- **Config validation**: Schema-backed configs (`ServerConfig`, `ClientEnvSchema`) must die on `ConfigError` to prevent runtime with invalid env. Use `Effect.catchTag("ConfigError", Effect.die)` in service effects.
+- **Collections & strings**: Follow repo-wide rule—ALWAYS use `A.*`, `Str.*`, `F.pipe` instead of native array/string methods. Legacy native usages exist in early code; NEVER replicate them.
+- **Error mapping**: Use `DatabaseError.$match` for Postgres errors, `ResendError.new` for email errors. ALWAYS `catchTag("ParseError", Effect.die)` for schema decode failures in infra code.
+- **Config validation**: Schema-backed configs (`ServerConfig`, `ClientEnvSchema`) MUST die on `ConfigError` to prevent runtime with invalid env. Use `Effect.catchTag("ConfigError", Effect.die)` in service effects.
 
 ## Quick Recipes
 
@@ -206,6 +206,35 @@ const updateWithTx = Effect.gen(function* () {
 - `bun run lint --filter @beep/shared-server`
 - `bun run test --filter @beep/shared-server`
 - For testcontainer-backed integration: `bun run test --filter @beep/db-admin -- --grep "PgClient"` (requires Docker).
+
+## Gotchas
+
+### Database Connection Pool Exhaustion
+- `Db.layer` creates a `pg.Pool` with a default connection limit. Under high concurrency, pool exhaustion causes queries to hang indefinitely waiting for a connection. ALWAYS set `DB_PG_POOL_MAX` appropriate to your workload and monitor pool metrics.
+- Transactions hold a connection for their entire duration. Long-running transactions inside `Effect.gen` blocks can exhaust the pool if many requests hit transaction-heavy code paths simultaneously.
+
+### Transaction Context Propagation
+- `TransactionContext` is an optional service; calling `Effect.serviceOption(TransactionContext)` outside a transaction returns `Option.none()`. Code that assumes transaction context exists will silently run outside the transaction if not properly guarded.
+- NEVER start a new transaction inside an existing transaction unless you explicitly want nested savepoints. Effect-SQL's transaction semantics may differ from raw Drizzle; verify behavior with integration tests.
+
+### Repo.make Error Mapping
+- `Repo.make` wraps database errors in `DatabaseError`, but schema decode failures (e.g., invalid enum values in the database) surface as `ParseError`. ALWAYS handle both error types in calling code, or use `catchTag("ParseError", Effect.die)` if schema violations are invariant failures.
+- Unique constraint violations throw Postgres error code `23505`. Use `DatabaseError.$match` to distinguish constraint errors from other database failures; raw error messages vary by Postgres version.
+
+### Layer Initialization Side Effects
+- `Db.layer` performs health checks and establishes connections during layer construction. If the database is unreachable at startup, layer construction fails and the entire runtime fails to initialize. Use retry policies (`Schedule.exponential`) around layer provision for resilience.
+- `PoolService` registers error listeners on the pool. If you create multiple pool layers (e.g., for different databases), ensure each has distinct error handling to avoid cross-contamination of error logs.
+
+### Effect Config vs Runtime Environment
+- `serverEnv` uses Effect Config and is parsed at module load time. Environment variables set after import (e.g., via late dotenv loading) are not reflected. ALWAYS load environment files before importing `@beep/shared-server`.
+- `Config.redacted` values are `Redacted<string>`, not plain strings. Calling `.toString()` on a redacted value returns `"<redacted>"`. Use `Redacted.value(secret)` explicitly at trust boundaries; forgetting this causes auth failures with opaque error messages.
+
+### Email Service Rate Limits
+- `Email.ResendService` does not implement client-side rate limiting. Resend's API has per-second and daily limits; exceeding them returns `429` errors. ALWAYS implement application-level throttling for bulk email operations.
+- Email sending is fire-and-forget by default. If `send` fails, the error is returned but no retry occurs. For critical emails (password reset, verification), implement retry logic with exponential backoff.
+
+### Upload Service Presigned URL Expiry
+- `UploadService.initiateUpload` generates presigned URLs with a default expiry. If the client delays uploading, the URL expires and the upload fails with a cryptic S3 signature error. Document expected upload windows and consider longer expiries for large files.
 
 ## Contributor Checklist
 - [ ] New services: extend `Effect.Service`, define typed `effect` block, export Layer, and append to `Live` exports.

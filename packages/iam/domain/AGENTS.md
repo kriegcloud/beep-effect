@@ -25,8 +25,8 @@
 - Test harness seeds IAM fixtures directly from `Entities.*` model variants when spinning Postgres containers.
 
 ## Authoring Guardrails
-- Always import Effect modules with namespaces (`Effect`, `A`, `F`, `O`, `Str`, `S`, `M`) and rely on Effect collections/utilities instead of native helpers (see global repo guardrails).
-- Use `makeFields` so every entity inherits the audit + tracking columns and typed IDs; never redefine `id`, `_rowId`, `version`, or timestamps manually.
+- ALWAYS import Effect modules with namespaces (`Effect`, `A`, `F`, `O`, `Str`, `S`, `M`) and rely on Effect collections/utilities instead of native helpers (see global repo guardrails).
+- Use `makeFields` so every entity inherits the audit + tracking columns and typed IDs; NEVER redefine `id`, `_rowId`, `version`, or timestamps manually.
 - Maintain `Symbol.for("@beep/iam-domain/<Entity>Model")` naming to keep schema metadata stable across database migrations and clients.
 - Prefer `BS` helpers (`FieldOptionOmittable`, `FieldSensitiveOptionOmittable`, `toOptionalWithDefault`, `BoolWithDefault`) to describe optionality and defaults; this keeps insert/update variants aligned with `Model.Class` expectations.
 - When updating schema kits, extend literals in the kit file **and** propagate matching enums via `make*PgEnum` within `@beep/iam-tables` to avoid PG drift.
@@ -100,6 +100,33 @@ export const parseSessionPayload = (payload: unknown) =>
 - `bun run check --filter @beep/iam-domain`
 - `bun run lint --filter @beep/iam-domain`
 - `bun run test --filter @beep/iam-domain`
+
+## Security
+
+### Sensitive Field Modeling
+- ALWAYS use `FieldSensitiveOptionOmittable` or equivalent `BS` helpers for fields containing credentials, tokens, or secrets.
+- NEVER define password fields as plain `S.String`; use sensitive wrappers that prevent accidental serialization.
+- ALWAYS wrap OAuth tokens (`accessToken`, `refreshToken`, `idToken`) with sensitive field helpers to prevent logging.
+
+### Schema Validation
+- ALWAYS validate password strength requirements at the schema level using `S.filter` or custom refinements.
+- ALWAYS validate email format using `BS.EmailBase` to prevent injection attacks.
+- NEVER trust user-provided IDs without validation through `IamEntityIds` branded types.
+
+### Token Expiry Modeling
+- ALWAYS include `expiresAt` fields for time-bounded credentials (sessions, API keys, verification tokens, OAuth tokens).
+- ALWAYS model verification tokens with short expiry windows (15-60 minutes for email verification, 5-10 minutes for OTP).
+- NEVER create entities representing credentials without explicit expiry semantics.
+
+### Error Information Disclosure
+- ALWAYS use `IamError` or `IamUnknownError` for error handling; NEVER expose internal details in error messages.
+- NEVER include credential values, token fragments, or user-identifiable data in error payloads.
+- ALWAYS use tagged errors that can be safely serialized without leaking implementation details.
+
+### Audit Field Integrity
+- ALWAYS use `makeFields` to ensure audit columns (`createdAt`, `updatedAt`, `createdBy`, `updatedBy`) are present.
+- NEVER allow audit fields to be modified directly by user input—they should be set by infrastructure layers.
+- ALWAYS maintain `_rowId` and `version` fields for optimistic concurrency and audit trails.
 
 ## Contributor Checklist
 - [ ] Align entity changes with `@beep/iam-tables` enums/columns and regenerate migrations (`bun run db:generate`, `bun run db:migrate`).

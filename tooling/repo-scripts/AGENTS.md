@@ -28,6 +28,9 @@
 ## Verifications
 - Run generators through root scripts to inherit `dotenvx`: `bun run gen:secrets`, `bun run generate-public-paths`, `bun run gen:locales`, `bun run execute` (prints locale payload), `bun run bootstrap`.
 - Focused lint/type sweeps from package root: `bun run lint`, `bun run check`, `bun run test`, `bun run coverage`.
+- Package-filtered checks: `bun run lint --filter @beep/repo-scripts`, `bun run check --filter @beep/repo-scripts`, `bun run test --filter @beep/repo-scripts`.
+- Asset/locales smoke tests: `bun run gen:beep-paths`, `bun run execute` (prints locale payload) — validate diffs before committing.
+- For tsconfig sync, prefer check mode: `bunx turbo run sync-ts --filter=@beep/repo-scripts -- --check`.
 - Documentation analysis: `bun run docs:lint` for JSDoc coverage reports.
 
 ## Authoring Guardrails
@@ -36,6 +39,39 @@
 - Keep generator targets in `_generated/` folders idempotent and schema-validated (e.g., `AssetPaths`); always guard writes with decode + structured errors (`DomainError`).
 - Prefer `FsUtils.modifyFile` / `existsOrThrow` for IO; avoid `node:fs` unless working inside `utils` where necessary (document the escape hatch).
 - When new scripts need prompts or command args, centralize parsing in `@effect/cli` commands, keep handlers effectful, and expose test exports for test coverage.
+
+## Security
+
+### Secret Generation
+- ALWAYS use Effect `Random` or `node:crypto` for cryptographic secret generation; NEVER use `Math.random()` or predictable seeds.
+- Generated secrets must use at least 32 bytes of entropy for auth secrets and session tokens.
+- NEVER log full secret values; truncate to first 8 characters with `...` suffix for verification output.
+
+### Secret Handling
+- NEVER commit generated secrets to version control; `.env` files must be listed in `.gitignore`.
+- NEVER include secret values in error messages, stack traces, or telemetry spans.
+- AVOID storing secrets in memory longer than necessary; prefer generating on-demand over caching.
+- ALWAYS use double quotes around secret values in `.env` files to handle special characters.
+
+### File Permissions
+- Generated `.env` files should have restrictive permissions (`600` or `rw-------`) on Unix systems.
+- NEVER write secrets to world-readable locations or temp directories without cleanup.
+- Prefer writing to repository root `.env` over workspace-specific locations to centralize secret management.
+
+### .gitignore Requirements
+The following patterns must be present in repository `.gitignore`:
+```
+.env
+.env.local
+.env.*.local
+*.secret
+*.secrets
+```
+
+### Environment Variable Safety
+- NEVER access `process.env` directly in generators; use `@beep/env` typed accessors in application code.
+- Environment scaffolding scripts may read `process.argv` for CLI arguments but should not interpolate secrets into command strings.
+- When syncing `.env` across workspaces, validate that destination paths are within the repository boundary to prevent path traversal.
 
 ## Quick Recipes
 
@@ -49,7 +85,7 @@ import * as BunContext from "@effect/platform-bun/BunContext";
 
 const helloCommand = Command.make("hello", {}, () =>
   Effect.gen(function* () {
-    yield* Console.log("👋 from repo-scripts");
+    yield* Console.log("Hello from repo-scripts");
   })
 );
 
@@ -58,7 +94,7 @@ const cli = Command.run(helloCommand, { name: "hello", version: "0.1.0" });
 BunRuntime.runMain(
   cli(process.argv).pipe(
     Effect.provide(Layer.mergeAll(BunContext.layer)),
-    Effect.catchAll((error) => Console.log(`💥 ${String(error)}`))
+    Effect.catchAll((error) => Console.log(`Error: ${String(error)}`))
   )
 );
 ```
@@ -95,11 +131,6 @@ const processMarkdownFiles = Effect.gen(function* () {
   );
 }).pipe(Effect.provide(FsUtilsLive));
 ```
-
-**Verifications**
-- Fast feedback: `bun run lint --filter @beep/repo-scripts`, `bun run check --filter @beep/repo-scripts`, `bun run test --filter @beep/repo-scripts`.
-- Asset/locales smoke tests: `bun run gen:beep-paths`, `bun run execute` (prints locale payload) – validate diffs before committing.
-- For tsconfig sync, prefer check mode: `bunx turbo run sync-ts --filter=@beep/repo-scripts -- --check`.
 
 ## Contributor Checklist
 - Confirm generators target only `_generated/` files and run schema validations before writing.

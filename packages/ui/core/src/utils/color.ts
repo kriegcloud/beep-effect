@@ -1,3 +1,4 @@
+import * as A from "effect/Array";
 import * as F from "effect/Function";
 import * as P from "effect/Predicate";
 import * as Str from "effect/String";
@@ -39,7 +40,7 @@ export type ChannelPalette<T extends ColorPalette> = T & {
 export function createPaletteChannel<T extends ColorPalette>(hexPalette: T): ChannelPalette<T> {
   const channelPalette: Record<string, string> = {};
 
-  Object.entries(hexPalette).forEach(([key, value]) => {
+  A.forEach(Object.entries(hexPalette), ([key, value]) => {
     if (value) {
       channelPalette[`${key}Channel`] = hexToRgbChannel(value);
     }
@@ -73,11 +74,11 @@ function validateOpacity(opacity: string | number, color: string): string {
     format: 'Must be a percentage (e.g., "48%") or CSS variable (e.g., "var(--opacity)").',
   };
 
-  if (typeof opacity === "string") {
+  if (P.isString(opacity)) {
     if (isPercentage(opacity)) return opacity;
     if (isCSSVar(opacity)) return `calc(${opacity} * 100%)`;
 
-    const parsed = Number.parseFloat(opacity.trim());
+    const parsed = Number.parseFloat(Str.trim(opacity));
     if (!Number.isNaN(parsed) && parsed >= 0 && parsed <= 1) {
       return `${Number((parsed * 100).toFixed(2))}%`;
     }
@@ -125,16 +126,19 @@ export function rgbaFromChannel(color: string, opacity: string | number = 1): st
 
   if (isUnsupported) {
     throw new Error(
-      [
-        `[Alpha]: Unsupported color format "${color}"`,
-        "✅ Supported formats:",
-        '- RGB channels: "0 184 217"',
-        '- CSS variables with "Channel" prefix: "var(--palette-common-blackChannel, #000000)"',
-        "❌ Unsupported formats:",
-        '- Hex: "#00B8D9"',
-        '- RGB: "rgb(0, 184, 217)"',
-        '- RGBA: "rgba(0, 184, 217, 1)"',
-      ].join("\n")
+      A.join(
+        [
+          `[Alpha]: Unsupported color format "${color}"`,
+          "✅ Supported formats:",
+          '- RGB channels: "0 184 217"',
+          '- CSS variables with "Channel" prefix: "var(--palette-common-blackChannel, #000000)"',
+          "❌ Unsupported formats:",
+          '- Hex: "#00B8D9"',
+          '- RGB: "rgb(0, 184, 217)"',
+          '- RGBA: "rgba(0, 184, 217, 1)"',
+        ],
+        "\n"
+      )
     );
   }
 

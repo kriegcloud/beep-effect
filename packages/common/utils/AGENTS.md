@@ -2,7 +2,7 @@
 
 ## Purpose & Scope
 - Pure, deterministic runtime helpers shared across slices (string normalization, record transforms, guards, factories).
-- Never introduce I/O, platform APIs, or side-effectful behavior; these utilities must run identically in Node, Bun, or the browser.
+- NEVER introduce I/O, platform APIs, or side-effectful behavior; these utilities MUST run identically in Node, Bun, or the browser.
 - Complements `@beep/types` (compile-time) and `@beep/invariant` (assertions) by providing Effect-friendly building blocks.
 
 ## Module Map (see `src/`)
@@ -47,8 +47,8 @@
 - String utilities like `StrUtils.normalizeString` and `StrUtils.getNameInitials` are used across UI components for consistent text handling.
 
 ## Authoring Guardrails
-- Pure functions only; avoid clocks, randomness, global state, or environment checks.
-- Namespace all Effect imports (`import * as A from "effect/Array"`, etc.) and route every collection/string operation through those utilities—native `.map`, `.split`, etc. are banned.
+- Pure functions only; NEVER use clocks, randomness, global state, or environment checks.
+- ALWAYS namespace Effect imports (`import * as A from "effect/Array"`, etc.) and route every collection/string operation through those utilities—native `.map`, `.split`, etc. are BANNED.
 - Keep helpers domain-neutral; if logic references business concepts (IAM, files, etc.) it belongs in the owning slice.
 - Prefer returning `Option`/`Either` (via Effect helpers) to throwing; reserve `@beep/invariant` for true programming errors and mirror existing patterns (e.g., `enumFromStringArray`).
 - Reuse `noOp`/`nullOp`/`nullOpE` instead of ad-hoc placeholders.

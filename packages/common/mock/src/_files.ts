@@ -1,4 +1,9 @@
 import { _lastActivity } from "@beep/mock/_time";
+import * as A from "effect/Array";
+import * as F from "effect/Function";
+import * as O from "effect/Option";
+import * as Str from "effect/String";
+
 import { _mock } from "./_mock";
 import { _fileNames, _tags } from "./assets";
 
@@ -35,7 +40,7 @@ const URLS = [
   "https://www.cloud.com/s/c218bo6kjuqyv66/xl_david-blaine_component_tanzania_books.pdf",
 ] as const;
 
-const SHARED_PERSONS = Array.from({ length: 20 }, (_, index) => ({
+const SHARED_PERSONS = A.makeBy(20, (index) => ({
   id: _mock.id(index),
   name: _mock.fullName(index),
   email: _mock.email(index),
@@ -61,37 +66,48 @@ export const FILE_TYPE_OPTIONS = [
 // ----------------------------------------------------------------------
 
 const shared = (index: number) =>
-  (index === 0 && SHARED_PERSONS.slice(0, 5)) ||
-  (index === 1 && SHARED_PERSONS.slice(5, 9)) ||
-  (index === 2 && SHARED_PERSONS.slice(9, 11)) ||
-  (index === 3 && SHARED_PERSONS.slice(11, 12)) ||
+  (index === 0 && F.pipe(SHARED_PERSONS, A.take(5))) ||
+  (index === 1 && F.pipe(SHARED_PERSONS, A.drop(5), A.take(4))) ||
+  (index === 2 && F.pipe(SHARED_PERSONS, A.drop(9), A.take(2))) ||
+  (index === 3 && F.pipe(SHARED_PERSONS, A.drop(11), A.take(1))) ||
   [];
 
-export const _folders = FOLDERS.map((name, index) => ({
-  id: `${_mock.id(index)}_folder`,
-  name,
-  type: "folder",
-  url: URLS[index]!,
-  shared: shared(index),
-  tags: _tags.slice(0, 5),
-  size: GB / ((index + 1) * 10),
-  totalFiles: (index + 1) * 100,
-  createdAt: _lastActivity[index]!,
-  modifiedAt: _lastActivity[index]!,
-  isFavorited: _mock.boolean(index + 1),
-}));
+export const _folders = F.pipe(
+  FOLDERS,
+  A.map((name, index) => ({
+    id: `${_mock.id(index)}_folder`,
+    name,
+    type: "folder",
+    url: URLS[index]!,
+    shared: shared(index),
+    tags: F.pipe(_tags, A.take(5)),
+    size: GB / ((index + 1) * 10),
+    totalFiles: (index + 1) * 100,
+    createdAt: _lastActivity[index]!,
+    modifiedAt: _lastActivity[index]!,
+    isFavorited: _mock.boolean(index + 1),
+  }))
+);
 
-export const _files = _fileNames.map((name, index) => ({
-  id: `${_mock.id(index)}_file`,
-  name,
-  url: URLS[index]!,
-  shared: shared(index),
-  tags: _tags.slice(0, 5),
-  size: GB / ((index + 1) * 500),
-  createdAt: _lastActivity[index]!,
-  modifiedAt: _lastActivity[index]!,
-  type: `${name.split(".").pop()}`,
-  isFavorited: _mock.boolean(index + 1),
-}));
+export const _files = F.pipe(
+  _fileNames,
+  A.map((name, index) => ({
+    id: `${_mock.id(index)}_file`,
+    name,
+    url: URLS[index]!,
+    shared: shared(index),
+    tags: F.pipe(_tags, A.take(5)),
+    size: GB / ((index + 1) * 500),
+    createdAt: _lastActivity[index]!,
+    modifiedAt: _lastActivity[index]!,
+    type: F.pipe(
+      name,
+      Str.split("."),
+      A.last,
+      O.getOrElse(() => "")
+    ),
+    isFavorited: _mock.boolean(index + 1),
+  }))
+);
 
 export const _allFiles = [..._folders, ..._files] as const;

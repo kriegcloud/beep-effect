@@ -1,4 +1,7 @@
 import { _lastActivity } from "@beep/mock/_time";
+import * as A from "effect/Array";
+import * as F from "effect/Function";
+import * as O from "effect/Option";
 import { _mock } from "./_mock";
 
 // ----------------------------------------------------------------------
@@ -68,7 +71,7 @@ export const JOB_SORT_OPTIONS = [
   { label: "Oldest", value: "oldest" },
 ] as const;
 
-const CANDIDATES = Array.from({ length: 12 }, (_, index) => ({
+const CANDIDATES = A.makeBy(12, (index) => ({
   id: _mock.id(index),
   role: _mock.role(index),
   name: _mock.fullName(index),
@@ -104,7 +107,7 @@ const CONTENT = `
 </ul>
 `;
 
-export const _jobs = Array.from({ length: 12 }, (_, index) => {
+export const _jobs = A.makeBy(12, (index) => {
   const publish = index % 3 ? "published" : "draft";
 
   const salary = {
@@ -113,9 +116,18 @@ export const _jobs = Array.from({ length: 12 }, (_, index) => {
     negotiable: _mock.boolean(index),
   };
 
-  const benefits = JOB_BENEFIT_OPTIONS.slice(0, 3).map((option) => option.label);
+  const benefits = F.pipe(
+    JOB_BENEFIT_OPTIONS,
+    A.take(3),
+    A.map((option) => option.label)
+  );
 
-  const experience = JOB_EXPERIENCE_OPTIONS.map((option) => option.label)[index]! || JOB_EXPERIENCE_OPTIONS[1].label;
+  const experience = F.pipe(
+    JOB_EXPERIENCE_OPTIONS,
+    A.map((option) => option.label),
+    A.get(index),
+    O.getOrElse(() => JOB_EXPERIENCE_OPTIONS[1].label)
+  );
 
   const employmentTypes = (index % 2 && ["Part-time"]) ||
     (index % 3 && ["On demand"]) ||
@@ -142,9 +154,9 @@ export const _jobs = Array.from({ length: 12 }, (_, index) => {
     title: _mock.jobTitle(index),
     createdAt: _lastActivity[index]!,
     expiredDate: _lastActivity[index]!,
-    skills: JOB_SKILL_OPTIONS.slice(0, 3),
+    skills: F.pipe(JOB_SKILL_OPTIONS, A.take(3)),
     totalViews: _mock.number.nativeL(index),
     locations: [_mock.countryNames(1), _mock.countryNames(2)],
-    workingSchedule: JOB_WORKING_SCHEDULE_OPTIONS.slice(0, 2),
+    workingSchedule: F.pipe(JOB_WORKING_SCHEDULE_OPTIONS, A.take(2)),
   };
 });

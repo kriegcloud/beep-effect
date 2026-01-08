@@ -26,12 +26,12 @@
 - `packages/common/utils/src/data/struct.utils.ts` uses invariant for runtime struct validation.
 
 ## Authoring Guardrails
-- Namespace all Effect imports (`import * as Str from "effect/String"`, `import * as O from "effect/Option"`, etc.); do not reintroduce native string/array helpers.
-- Keep `CallMetadata` schema-aligned: always pass `{ file, line, args }` with values you could expose to logs.
+- ALWAYS namespace Effect imports (`import * as Str from "effect/String"`, `import * as O from "effect/Option"`, etc.); NEVER reintroduce native string/array helpers.
+- Keep `CallMetadata` schema-aligned: ALWAYS pass `{ file, line, args }` with values you could expose to logs.
 - Messages should be actionable. Use lazy `() => "BUG: ..."` when the message needs formatting, and avoid heavy computations on the fast path.
-- Any new helpers must be attached via augmentation on the exported `invariant` function (follow existing typings).
-- Never add logging, metrics, or transport logic here—those belong in runtime layers.
-- Tests should assert against `InvariantViolation` instances, not raw message strings (stable fields: `file`, `line`, `args`).
+- Any new helpers MUST be attached via augmentation on the exported `invariant` function (follow existing typings).
+- NEVER add logging, metrics, or transport logic here—those belong in runtime layers.
+- Tests MUST assert against `InvariantViolation` instances, NEVER raw message strings (stable fields: `file`, `line`, `args`).
 
 ## Quick Recipes
 ```ts

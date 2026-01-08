@@ -1,10 +1,10 @@
 # @beep/marketing
 
-Public-facing marketing website built with Next.js 15 and Tailwind CSS.
+Public-facing marketing website built with Next.js 16 and Tailwind CSS.
 
 ## Purpose
 
-This application serves as the marketing landing page and public website for the beep platform. It is a standalone Next.js 15 App Router application that:
+This application serves as the marketing landing page and public website for the beep platform. It is a standalone Next.js 16 App Router application that:
 - Provides product information and marketing content
 - Handles public landing pages and promotional materials
 - Operates independently from the main authenticated application
@@ -24,7 +24,7 @@ bun install
 
 | Technology | Purpose |
 |------------|---------|
-| Next.js 15 | App Router framework |
+| Next.js 16 | App Router framework |
 | React 19 | UI library |
 | Tailwind CSS | Utility-first styling |
 | TypeScript | Type safety |

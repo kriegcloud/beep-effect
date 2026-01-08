@@ -1,6 +1,7 @@
 import * as BrowserRuntime from "@effect/platform-browser/BrowserRuntime";
 import * as BrowserWorkerRunner from "@effect/platform-browser/BrowserWorkerRunner";
 import * as RpcServer from "@effect/rpc/RpcServer";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import { FilterError, WorkerRpc } from "./worker-rpc";
@@ -33,7 +34,7 @@ const Live = WorkerRpc.toLayer(
             return yield* new FilterError({ message: "Threshold cannot be negative" });
           }
 
-          const filtered = req.data.filter((n) => n > req.threshold);
+          const filtered = A.filter(req.data, (n) => n > req.threshold);
           yield* Effect.logInfo(`Worker finished filtering. Returning ${filtered.length} items.`);
           return filtered;
         }),

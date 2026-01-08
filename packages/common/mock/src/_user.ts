@@ -1,4 +1,5 @@
 import { _lastActivity } from "@beep/mock/_time";
+import * as A from "effect/Array";
 import { _mock } from "./_mock";
 
 // ----------------------------------------------------------------------
@@ -29,33 +30,33 @@ export const _userAbout = {
   },
 };
 
-export const _userFollowers = Array.from({ length: 18 }, (_, index) => ({
+export const _userFollowers = A.makeBy(18, (index) => ({
   id: _mock.id(index),
   name: _mock.fullName(index),
   country: _mock.countryNames(index),
   avatarUrl: _mock.image.avatar(index),
 }));
 
-export const _userFriends = Array.from({ length: 18 }, (_, index) => ({
+export const _userFriends = A.makeBy(18, (index) => ({
   id: _mock.id(index),
   role: _mock.role(index),
   name: _mock.fullName(index),
   avatarUrl: _mock.image.avatar(index),
 }));
 
-export const _userGallery = Array.from({ length: 12 }, (_, index) => ({
+export const _userGallery = A.makeBy(12, (index) => ({
   id: _mock.id(index),
   postedAt: _lastActivity[index]!,
   title: _mock.postTitle(index),
   imageUrl: _mock.image.cover(index),
 }));
 
-export const _userFeeds = Array.from({ length: 3 }, (_, index) => ({
+export const _userFeeds = A.makeBy(3, (index) => ({
   id: _mock.id(index),
   createdAt: _lastActivity[index]!,
   media: _mock.image.travel(index + 1),
   message: _mock.sentence(index),
-  personLikes: Array.from({ length: 20 }, (__, personIndex) => ({
+  personLikes: A.makeBy(20, (personIndex) => ({
     name: _mock.fullName(personIndex),
     avatarUrl: _mock.image.avatar(personIndex + 2),
   })),
@@ -84,7 +85,7 @@ export const _userFeeds = Array.from({ length: 3 }, (_, index) => ({
   ],
 }));
 
-export const _userCards = Array.from({ length: 21 }, (_, index) => ({
+export const _userCards = A.makeBy(21, (index) => ({
   id: _mock.id(index),
   role: _mock.role(index),
   name: _mock.fullName(index),
@@ -95,14 +96,14 @@ export const _userCards = Array.from({ length: 21 }, (_, index) => ({
   totalFollowing: _mock.number.nativeL(index + 1),
 }));
 
-export const _userPayment = Array.from({ length: 3 }, (_, index) => ({
+export const _userPayment = A.makeBy(3, (index) => ({
   id: _mock.id(index),
   cardNumber: ["**** **** **** 1234", "**** **** **** 5678", "**** **** **** 7878"][index]!,
   cardType: ["mastercard", "visa", "visa"][index]!,
   primary: index === 1,
 }));
 
-export const _userAddressBook = Array.from({ length: 4 }, (_, index) => ({
+export const _userAddressBook = A.makeBy(4, (index) => ({
   id: _mock.id(index),
   primary: index === 0,
   name: _mock.fullName(index),
@@ -111,7 +112,7 @@ export const _userAddressBook = Array.from({ length: 4 }, (_, index) => ({
   addressType: (index === 0 && "Home") || "Office",
 }));
 
-export const _userInvoices = Array.from({ length: 10 }, (_, index) => ({
+export const _userInvoices = A.makeBy(10, (index) => ({
   id: _mock.id(index),
   invoiceNumber: `INV-199${index}`,
   createdAt: _lastActivity[index]!,
@@ -124,7 +125,7 @@ export const _userPlans = [
   { subscription: "premium", price: 9.99, primary: false },
 ] as const;
 
-export const _userList = Array.from({ length: 20 }, (_, index) => ({
+export const _userList = A.makeBy(20, (index) => ({
   id: _mock.id(index),
   zipCode: "85807",
   state: "Virginia",

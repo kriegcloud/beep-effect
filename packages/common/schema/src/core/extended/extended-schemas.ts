@@ -14,6 +14,7 @@
  */
 import type { StructTypes, UnsafeTypes } from "@beep/types";
 import * as A from "effect/Array";
+import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import * as Either from "effect/Either";
 import * as Eq from "effect/Equal";
@@ -299,7 +300,8 @@ export const NullOr = <SchemaType extends S.Schema.Any>(self: SchemaType) => {
  * @category Core/Extended
  * @since 0.1.0
  */
-export const defaultDate = <I, R>(s: S.Schema<Date, I, R>) => s.pipe(withDefaultConstructor(() => new global.Date()));
+export const defaultDate = <I, R>(s: S.Schema<Date, I, R>) =>
+  s.pipe(withDefaultConstructor(() => DateTime.toDate(DateTime.unsafeNow())));
 
 /**
  * Decorates a boolean schema with a default `false` constructor.

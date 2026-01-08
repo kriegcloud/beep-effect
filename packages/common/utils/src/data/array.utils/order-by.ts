@@ -21,6 +21,7 @@ import * as A from "effect/Array";
 import * as F from "effect/Function";
 import * as O from "effect/Option";
 import * as Order from "effect/Order";
+import * as P from "effect/Predicate";
 import * as Str from "effect/String";
 
 /**
@@ -169,7 +170,7 @@ const compareUnknown = (left: unknown, right: unknown): -1 | 0 | 1 => {
     return normalizeOrderResult(Order.string(left, right));
   }
 
-  if (left instanceof Date && right instanceof Date) {
+  if (P.isDate(left) && P.isDate(right)) {
     return normalizeOrderResult(Order.Date(left, right));
   }
 
@@ -181,7 +182,7 @@ const compareUnknown = (left: unknown, right: unknown): -1 | 0 | 1 => {
     return normalizeOrderResult(Order.string(JSON.stringify(left), JSON.stringify(right)));
   }
 
-  if (typeof left === "object" && typeof right === "object") {
+  if (P.isObject(left) && P.isObject(right)) {
     return normalizeOrderResult(Order.string(JSON.stringify(left), JSON.stringify(right)));
   }
 

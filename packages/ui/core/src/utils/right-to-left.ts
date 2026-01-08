@@ -1,3 +1,6 @@
+import * as P from "effect/Predicate";
+import * as Str from "effect/String";
+
 /**
  * Prevents automatic RTL (right-to-left) flipping of a CSS declaration
  * by appending the `/* @noflip *\/` comment.
@@ -9,19 +12,19 @@
  * noRtlFlip('margin-left: 10px;')  // 'margin-left: 10px; /* @noflip *\/'
  */
 export function noRtlFlip(cssValue: unknown): string {
-  if (typeof cssValue !== "string") {
+  if (!P.isString(cssValue)) {
     console.warn("Invalid CSS value provided");
     return "";
   }
 
-  const trimmed = cssValue.trim();
+  const trimmed = Str.trim(cssValue);
 
   if (!trimmed) {
     console.warn("Empty CSS value provided");
     return "";
   }
 
-  if (trimmed.includes("/* @noflip */")) {
+  if (Str.includes("/* @noflip */")(trimmed)) {
     return trimmed;
   }
 

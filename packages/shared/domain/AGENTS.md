@@ -11,7 +11,7 @@
   - `shared.ts`, `iam.ts`, `documents.ts` house branded id schemas built with `EntityId.make`.
   - `table-names.ts` provides literal kits (`SharedTableNames`, `IamTableNames`, `DocumentsTableNames`, `AnyTableName`).
   - `entity-kind.ts` emits `EntityKind` union aligned with table names.
-  - `any-entity-id.ts` aggregates every id (note: `SubscriptionId` appears twice on lines 17-18; flag for cleanup).
+  - `any-entity-id.ts` aggregates every id. **Known Issue**: `SubscriptionId` is duplicated (included from both `SharedEntityIds` and `IamEntityIds`); exhaustive pattern matching will have redundant cases until deduplicated.
   - `index.ts` re-exports kits (`SharedEntityIds`, `IamEntityIds`, `DocumentsEntityIds`).
 - **`src/entities/*`** — Effect `M.Class` schemas for `AuditLog`, `File`, `Organization`, `Session`, `Team`, `User` plus nested schema enums (e.g. `OrganizationType`, `SubscriptionStatus`, `UserRole`). `File/schemas/UploadKey.ts` encodes S3 path transforms. `File.Contract` provides HTTP API contracts.
 - **`src/value-objects/`**
@@ -26,21 +26,22 @@
 - **`src/_internal/*`** — Implementation details (`manual-cache` data structures, `path-builder` recursion, `policy.makePermissions`, `policy-builder`). Do not import these directly from downstream slices; they are subject to churn.
 
 ## Usage Snapshots
-- `apps/web/src/middleware.ts:3` — imports `paths` to drive auth/public route logic and string guards.  
-- `apps/web/src/middleware.ts:10` — leverages `paths.auth.signIn` / `paths.auth.signUp` to normalize protected route redirects.  
-- `apps/web/src/providers/AuthGuard.tsx:37` — redirects anonymous users with `paths.auth.signIn` inside router effects.  
-- `packages/iam/server/src/adapters/better-auth/Auth.service.ts:7` — consumes `IamEntityIds`, `SharedEntityIds`, and `paths` when configuring Better Auth hooks and email URLs.  
-- `packages/shared/domain/test/entities/File/schemas/UploadKey.test.ts:11` — exercises `File.UploadKey` encode/decode round-trips and shard prefix guarantees.  
-- `packages/shared/domain/test/policy.test.ts:70` — demonstrates `Policy.permission`, `Policy.all`, and `Policy.any` behavior with layered fallbacks.
+- `apps/web/src/middleware.ts` — imports `paths` to drive auth/public route logic and string guards.
+- `apps/web/src/middleware.ts` — leverages `paths.auth.signIn` / `paths.auth.signUp` to normalize protected route redirects.
+- `apps/web/src/providers/AuthGuard.tsx` — redirects anonymous users with `paths.auth.signIn` inside router effects.
+- `packages/iam/server/src/adapters/better-auth/Auth.service.ts` — consumes `IamEntityIds`, `SharedEntityIds`, and `paths` when configuring Better Auth hooks and email URLs.
+- See `EntityIds` for branded ID types.
+- See `test/entities/File/schemas/UploadKey.test.ts` for `File.UploadKey` encode/decode round-trips and shard prefix guarantees.
+- See `test/policy.test.ts` for `Policy.permission`, `Policy.all`, and `Policy.any` behavior with layered fallbacks.
 
 
 ## Authoring Guardrails
-- Preserve Effect namespacing rules (import modules as `import * as Effect from "effect/Effect";`, `import * as A from "effect/Array";`, etc.) and never introduce native array/string helpers in new code. `Effect.all` and `Effect.firstSuccessOf` give structured sequencing/fallback.
-- When defining new models, always route through `makeFields` so ids + audit and optimistic locking columns remain consistent. Align `EntityId` selection with the appropriate kit (Shared vs IAM vs WMS) to keep table metadata coherent.
-- Extending permissions? Update the literal map inside `Policy.ts` (uses `_internal/policy.makePermissions`) and backfill tests; new keys must follow the `{tableName}:{action}` pattern to stay compatible with `Policy.permission`.
-- Treat `_internal` as a closed namespace. Any enhancement (e.g., manual cache behavior) should surface via the public wrapper (`ManualCache.make`) unless there is consensus to promote utilities.
+- Preserve Effect namespacing rules (import modules as `import * as Effect from "effect/Effect";`, `import * as A from "effect/Array";`, etc.) and NEVER introduce native array/string helpers in new code. `Effect.all` and `Effect.firstSuccessOf` give structured sequencing/fallback.
+- When defining new models, ALWAYS route through `makeFields` so ids + audit and optimistic locking columns remain consistent. Align `EntityId` selection with the appropriate kit (Shared vs IAM vs WMS) to keep table metadata coherent.
+- Extending permissions? Update the literal map inside `Policy.ts` (uses `_internal/policy.makePermissions`) and backfill tests; new keys MUST follow the `{tableName}:{action}` pattern to stay compatible with `Policy.permission`.
+- IMPORTANT: Treat `_internal` as a closed namespace. Any enhancement (e.g., manual cache behavior) should surface via the public wrapper (`ManualCache.make`) unless there is consensus to promote utilities.
 - `AnyEntityId` currently duplicates `IamEntityIds.SubscriptionId`; document and resolve before relying on exhaustive unions in new code.
-- Only mutate `paths` with `PathBuilder.createRoot`/`collection`. Adding raw strings loosens validation and bypasses `BS.URLPath` branding enforced by `_internal/path-builder`.
+- IMPORTANT: Only mutate `paths` with `PathBuilder.createRoot`/`collection`. Adding raw strings loosens validation and bypasses `BS.URLPath` branding enforced by `_internal/path-builder`.
 
 ## Quick Recipes
 ```ts
@@ -131,6 +132,53 @@ const uploadPath = Effect.gen(function* () {
 - `bun run --filter @beep/shared-domain lint` — Biome hygiene; ensures no forbidden native helpers slip in.
 - `bun run --filter @beep/shared-domain check` — TypeScript project references for schema/model drift.
 - For focused work on upload paths: `bun test packages/shared/domain/test/entities/File/schemas/UploadKey.test.ts`.
+
+## Gotchas
+
+### ManualCache Scoped Lifecycle
+- `ManualCache.make` returns an `Effect.Effect<Cache, never, Scope>`, meaning the cache is scoped and will be finalized when the scope closes. If you create a cache inside an API handler's `Effect.gen`, the cache is destroyed when the request completes. For persistent caches, create them at layer construction time.
+- Cache `get` returns `Option<V>`, not the value directly. Forgetting to handle `Option.none()` leads to silent cache misses that appear as undefined values downstream.
+
+### Policy Combinator Short-Circuiting
+- `Policy.all` fails fast on the first policy failure; subsequent policies are not evaluated. If you need to collect all failure reasons (e.g., for detailed error messages), use `Effect.validate` or manual sequencing instead.
+- `Policy.any` succeeds on the first passing policy, but if all policies fail, only the last failure is surfaced. This can mask the "real" reason access was denied when debugging authorization issues.
+- `Policy.permission("table:action")` returns `Effect.succeed(false)` if the permission is missing from the user's permissions array, not an error. Distinguishing "no permission" from "permission check failed" requires explicit handling.
+
+### Entity ID Brand Confusion
+- All entity IDs are branded strings (e.g., `UserId`, `OrganizationId`), but TypeScript's structural typing means a raw `string` can accidentally be passed where a branded ID is expected if not using strict schema decoding. ALWAYS decode IDs through their respective schema (`SharedEntityIds.UserId`) at API boundaries.
+- `AnyEntityId` includes duplicate `SubscriptionId` entries; exhaustive pattern matching against `AnyEntityId` will have redundant cases. This is a known issue flagged for cleanup.
+
+### PathBuilder URL Encoding
+- `paths` collection builds typed URL paths, but does not automatically encode path parameters. If an entity ID contains special characters (unlikely but possible with custom IDs), the resulting URL may be malformed. ALWAYS use `encodeURIComponent` for user-provided path segments.
+- Adding raw string paths to `paths` bypasses `BS.URLPath` branding and validation. ALWAYS use `PathBuilder.createRoot`/`collection` methods to maintain type safety.
+
+### Retry Policy Jitter
+- `Retry` factory adds jitter by default to prevent thundering herd. However, the jitter is pseudo-random and not cryptographically secure. For security-sensitive retries (e.g., authentication), this is acceptable, but do not use the retry delay as an entropy source.
+- Maximum retry count is configured at policy creation. Once exhausted, the effect fails with the last error. There is no built-in circuit breaker; implement one separately if needed for external service calls.
+
+### EncryptionService IV Reuse
+- The `EncryptionService` generates a fresh IV for each encryption call. NEVER reuse IVs from previous encryptions; AES-GCM security guarantees are void with IV reuse. The service handles this correctly, but manual crypto code must not bypass it.
+
+### Model Schema Evolution
+- `makeFields` includes `version` for optimistic locking. Changing the schema (adding/removing fields) does not automatically increment the version; this must be done explicitly in migration code. Stale clients may overwrite newer data if version checks are not enforced.
+
+## Security
+
+### EncryptionService Key Management
+- ALWAYS use `Redacted.Redacted<T>` for encryption keys and secrets to prevent accidental exposure in logs or error messages.
+- NEVER log raw key material, decrypted data, or plaintext secrets—Effect's `Redacted` module prevents `.toString()` leakage but vigilance is required in custom logging.
+- ALWAYS use the `EncryptionService` context tag for cryptographic operations; NEVER instantiate `crypto.subtle` directly in application code.
+- ALWAYS use `crypto.getRandomValues()` (via `generateKey` or `generateIV`) for secure random number generation; NEVER use `Math.random()` for security-sensitive values.
+
+### Key Rotation Patterns
+- When rotating encryption keys, retain old keys in a key ring to decrypt existing data, then re-encrypt with the new key.
+- ALWAYS derive space-specific keys using `deriveKey` (HKDF) from a master key rather than storing multiple independent keys.
+- NEVER hardcode encryption keys in source code; load from environment via `@beep/env` and wrap in `Redacted`.
+
+### Sensitive Data Handling
+- NEVER log decrypted payloads, plaintext passwords, or any PII in `Effect.log*` calls.
+- ALWAYS validate encrypted payload schemas (`EncryptedPayload`, `EncryptedPayloadBinary`) before attempting decryption to fail fast on malformed input.
+- ALWAYS use constant-time comparison (via HMAC verification) when validating signatures to prevent timing attacks.
 
 ## Contributor Checklist
 - Align new ids with the correct kit (`SharedEntityIds`, `IamEntityIds`, `DocumentsEntityIds`) and update `EntityKind` / `AnyEntityId` unions in tandem. Document pending anomalies (e.g., duplicate `SubscriptionId`).

@@ -15,6 +15,7 @@ import * as HttpServerRequest from "@effect/platform/HttpServerRequest";
 import * as HttpServerResponse from "@effect/platform/HttpServerResponse";
 import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
+import * as P from "effect/Predicate";
 
 type HandlerArgs = {
   readonly urlParams: V1.SSO.Saml2SpMetadata.UrlParams;
@@ -54,8 +55,7 @@ export const Handler: HandlerEffect = Effect.fn("SAML2SpMetadata")(
     );
 
     // Handle different response shapes from Better Auth
-    const xmlContent =
-      typeof result === "string" ? result : String((result as { response?: unknown })?.response ?? result);
+    const xmlContent = P.isString(result) ? result : String((result as { response?: unknown })?.response ?? result);
 
     // Return XML response with proper content type
     return F.pipe(

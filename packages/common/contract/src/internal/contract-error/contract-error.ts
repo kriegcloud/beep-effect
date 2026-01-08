@@ -15,6 +15,7 @@ import * as Match from "effect/Match";
 import type { ParseError } from "effect/ParseResult";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const $I = $ContractId.create("contract-error");
 /**
@@ -374,9 +375,9 @@ export class HttpResponseError extends S.TaggedError<HttpResponseError>(
   }): Effect.Effect<never, HttpResponseError> => {
     let body: Effect.Effect<unknown, HttpClientError.ResponseError> = Effect.void;
     const contentType = error.response.headers["content-type"] ?? "";
-    if (contentType.includes("application/json")) {
+    if (Str.includes("application/json")(contentType)) {
       body = error.response.json;
-    } else if (contentType.includes("text/") || contentType.includes("urlencoded")) {
+    } else if (Str.includes("text/")(contentType) || Str.includes("urlencoded")(contentType)) {
       body = error.response.text;
     }
     return Effect.flatMap(
@@ -429,25 +430,6 @@ export class HttpResponseError extends S.TaggedError<HttpResponseError>(
       }),
       Match.exhaustive
     );
-    switch (this.reason) {
-      case "Decode": {
-        suggestion +=
-          "The response format does not match what is expected. " +
-          "Verify API version compatibility, check response content-type, " +
-          "and/or examine if the endpoint schema has changed.";
-        break;
-      }
-      case "EmptyBody": {
-        suggestion +=
-          "The response body was empty. This may indicate a server " +
-          "issue, API version mismatch, or the endpoint may have changed its response format.";
-        break;
-      }
-      case "StatusCode": {
-        suggestion += getStatusCodeSuggestion(this.response.status);
-        break;
-      }
-    }
 
     baseMessage += `\n\n${suggestion}`;
 

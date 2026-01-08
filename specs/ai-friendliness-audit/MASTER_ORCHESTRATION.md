@@ -50,12 +50,12 @@ ls tsconfig.slices/
 
 Catalog existing documentation artifacts:
 
-| Location | Type | Purpose |
-|----------|------|---------|
-| `CLAUDE.md` | Root instructions | AI agent guardrails |
-| `AGENTS.md` | Package-level | Per-package guidance |
-| `README.md` | Package docs | Developer onboarding |
-| `documentation/patterns/` | Pattern library | Implementation recipes |
+| Location                  | Type              | Purpose                |
+|---------------------------|-------------------|------------------------|
+| `CLAUDE.md`               | Root instructions | AI agent guardrails    |
+| `AGENTS.md`               | Package-level     | Per-package guidance   |
+| `README.md`               | Package docs      | Developer onboarding   |
+| `documentation/patterns/` | Pattern library   | Implementation recipes |
 
 **Discovery Task**: For each package, record:
 - Has AGENTS.md? (boolean)
@@ -107,13 +107,13 @@ Score each dimension 1-5 using the rubrics below. For each finding, provide:
 
 #### Rubric
 
-| Score | Criteria |
-|-------|----------|
-| 5 | All public APIs have JSDoc with types, descriptions, and @example |
-| 4 | Most public APIs documented, examples for complex functions |
-| 3 | Basic JSDoc coverage, missing examples |
-| 2 | Sporadic documentation, inconsistent format |
-| 1 | No meaningful documentation |
+| Score | Criteria                                                          |
+|-------|-------------------------------------------------------------------|
+| 5     | All public APIs have JSDoc with types, descriptions, and @example |
+| 4     | Most public APIs documented, examples for complex functions       |
+| 3     | Basic JSDoc coverage, missing examples                            |
+| 2     | Sporadic documentation, inconsistent format                       |
+| 1     | No meaningful documentation                                       |
 
 #### Evaluation Tasks
 
@@ -153,13 +153,13 @@ grep -rn "@ts-ignore" packages/ --include="*.ts" | head -20
 
 #### Rubric
 
-| Score | Criteria |
-|-------|----------|
-| 5 | Predictable naming, clear boundaries, barrel exports, no cycles |
-| 4 | Good organization with minor inconsistencies |
-| 3 | Reasonable structure but some confusion points |
-| 2 | Unclear boundaries, inconsistent patterns |
-| 1 | Chaotic organization, circular dependencies |
+| Score | Criteria                                                        |
+|-------|-----------------------------------------------------------------|
+| 5     | Predictable naming, clear boundaries, barrel exports, no cycles |
+| 4     | Good organization with minor inconsistencies                    |
+| 3     | Reasonable structure but some confusion points                  |
+| 2     | Unclear boundaries, inconsistent patterns                       |
+| 1     | Chaotic organization, circular dependencies                     |
 
 #### Evaluation Tasks
 
@@ -194,13 +194,13 @@ grep -rn "from \"@beep/.*-domain" apps/server/src/ | head -20
 
 #### Rubric
 
-| Score | Criteria |
-|-------|----------|
-| 5 | Comprehensive linting, strict types, full test coverage, CI/CD |
-| 4 | Good tooling with minor gaps |
-| 3 | Basic tooling, some manual steps |
-| 2 | Minimal tooling, many manual processes |
-| 1 | No tooling |
+| Score | Criteria                                                       |
+|-------|----------------------------------------------------------------|
+| 5     | Comprehensive linting, strict types, full test coverage, CI/CD |
+| 4     | Good tooling with minor gaps                                   |
+| 3     | Basic tooling, some manual steps                               |
+| 2     | Minimal tooling, many manual processes                         |
+| 1     | No tooling                                                     |
 
 #### Evaluation Tasks
 
@@ -224,13 +224,13 @@ cat tooling/testkit/package.json
 
 #### Rubric
 
-| Score | Criteria |
-|-------|----------|
-| 5 | 100% Effect idioms, consistent error handling, uniform API design |
-| 4 | Strong patterns with minor deviations |
-| 3 | Mixed patterns, some legacy code |
-| 2 | Inconsistent patterns causing confusion |
-| 1 | No discernible patterns |
+| Score | Criteria                                                          |
+|-------|-------------------------------------------------------------------|
+| 5     | 100% Effect idioms, consistent error handling, uniform API design |
+| 4     | Strong patterns with minor deviations                             |
+| 3     | Mixed patterns, some legacy code                                  |
+| 2     | Inconsistent patterns causing confusion                           |
+| 1     | No discernible patterns                                           |
 
 #### Evaluation Tasks
 
@@ -286,23 +286,23 @@ Before proceeding to Phase 3, reflect:
 
 Aggregate scores across all dimensions:
 
-| Package | Documentation | Structure | Tooling | Patterns | Overall |
-|---------|---------------|-----------|---------|----------|---------|
-| common/contract | ? | ? | ? | ? | ? |
-| shared/domain | ? | ? | ? | ? | ? |
-| iam/domain | ? | ? | ? | ? | ? |
-| ... | ... | ... | ... | ... | ... |
+| Package         | Documentation | Structure | Tooling | Patterns | Overall |
+|-----------------|---------------|-----------|---------|----------|---------|
+| common/contract | ?             | ?         | ?       | ?        | ?       |
+| shared/domain   | ?             | ?         | ?       | ?        | ?       |
+| iam/domain      | ?             | ?         | ?       | ?        | ?       |
+| ...             | ...           | ...       | ...     | ...      | ...     |
 
 ### 3.2 Impact Prioritization Matrix
 
 Categorize findings by:
 
-| Impact | Effort | Priority |
-|--------|--------|----------|
-| High | Low | P1 - Immediate |
-| High | High | P2 - This Sprint |
-| Low | Low | P3 - When Convenient |
-| Low | High | P4 - Consider Deferring |
+| Impact | Effort | Priority                |
+|--------|--------|-------------------------|
+| High   | Low    | P1 - Immediate          |
+| High   | High   | P2 - This Sprint        |
+| Low    | Low    | P3 - When Convenient    |
+| Low    | High   | P4 - Consider Deferring |
 
 ### 3.3 Remediation Categories
 
@@ -453,13 +453,13 @@ For each finding:
 
 ## Critical Rules
 
-| MUST | NEVER |
-|------|-------|
+| MUST                                | NEVER                                                 |
+|-------------------------------------|-------------------------------------------------------|
 | Verify findings against actual code | Suggest changes without current vs. improved examples |
-| Provide file paths and line numbers | Report issues in generated/vendored/node_modules |
-| Focus on AI comprehension impact | Over-engineer solutions beyond what's needed |
-| Use structured feedback format | Generate scalar scores without explanation |
-| Respect package boundaries | Conflate different vertical slices |
+| Provide file paths and line numbers | Report issues in generated/vendored/node_modules      |
+| Focus on AI comprehension impact    | Over-engineer solutions beyond what's needed          |
+| Use structured feedback format      | Generate scalar scores without explanation            |
+| Respect package boundaries          | Conflate different vertical slices                    |
 
 ---
 
@@ -488,17 +488,17 @@ The audit is successful when:
 
 ## Appendix A: Package Inventory
 
-| Category | Packages |
-|----------|----------|
-| Apps | web, server, interfere, notes |
-| Common | constants, contract, errors, identity, invariant, mock, schema, types, utils |
-| Shared | domain, infra, client, tables, ui |
-| IAM | domain, infra, client, tables, ui |
-| Documents | domain, infra, client, tables, ui |
-| Runtime | client, server |
-| UI | core, ui |
-| Tooling | cli, repo-scripts, testkit, utils |
-| Internal | db-admin |
+| Category  | Packages                                                                     |
+|-----------|------------------------------------------------------------------------------|
+| Apps      | web, server, interfere, notes                                                |
+| Common    | constants, contract, errors, identity, invariant, mock, schema, types, utils |
+| Shared    | domain, infra, client, tables, ui                                            |
+| IAM       | domain, infra, client, tables, ui                                            |
+| Documents | domain, infra, client, tables, ui                                            |
+| Runtime   | client, server                                                               |
+| UI        | core, ui                                                                     |
+| Tooling   | cli, repo-scripts, testkit, utils                                            |
+| Internal  | db-admin                                                                     |
 
 ---
 
@@ -534,13 +534,13 @@ This audit methodology is itself subject to improvement. Use `REFLECTION_LOG.md`
 
 ### When to Reflect
 
-| Trigger | Action |
-|---------|--------|
-| After each phase completion | Add reflection entry |
-| When a grep pattern produces false positives | Log pattern refinement |
-| When rubric feels miscalibrated | Log threshold adjustment |
-| When finding something unexpected | Log codebase-specific insight |
-| When an approach wastes time | Log what to avoid |
+| Trigger                                      | Action                        |
+|----------------------------------------------|-------------------------------|
+| After each phase completion                  | Add reflection entry          |
+| When a grep pattern produces false positives | Log pattern refinement        |
+| When rubric feels miscalibrated              | Log threshold adjustment      |
+| When finding something unexpected            | Log codebase-specific insight |
+| When an approach wastes time                 | Log what to avoid             |
 
 ### Reflection Entry Format
 
@@ -575,13 +575,13 @@ After each reflection entry:
 
 ### Meta-Reflection Checkpoints
 
-| Checkpoint | Questions |
-|------------|-----------|
-| After Phase 1 | Was discovery thorough enough? What was missed? |
-| After Each Dimension | Was the rubric calibrated correctly? |
-| After Phase 2 | Did evaluation cover all important areas? |
-| After Phase 3 | Were recommendations actionable? |
-| After Remediation Starts | Are fixes actually improving AI comprehension? |
+| Checkpoint               | Questions                                       |
+|--------------------------|-------------------------------------------------|
+| After Phase 1            | Was discovery thorough enough? What was missed? |
+| After Each Dimension     | Was the rubric calibrated correctly?            |
+| After Phase 2            | Did evaluation cover all important areas?       |
+| After Phase 3            | Were recommendations actionable?                |
+| After Remediation Starts | Are fixes actually improving AI comprehension?  |
 
 ### Improvement Categories to Track
 

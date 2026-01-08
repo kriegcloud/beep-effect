@@ -1,177 +1,88 @@
-# @beep/lexical-schemas - Agent Guide
+# AGENTS.md — `@beep/yjs`
 
-Type-safe Effect Schema validation for Lexical editor state serialization.
+## Purpose & Scope
 
-## Package Purpose
+- Custom Yjs CRDT integration for real-time collaboration features.
+- Provides Effect Schema definitions for Yjs protocol messages (client/server communication, comments, notifications).
+- NEVER import from this package in non-collaboration contexts; it's specialized for real-time sync.
 
-This package provides 100% type-safe schemas for validating Lexical's serialized editor state. It replaces unsafe `S.optional(S.Any)` patterns with proper discriminated union schemas that enable:
+## Module Map (see `src/`)
 
-- Runtime validation of editor content
-- Type-safe database persistence
-- Compile-time type narrowing for node types
-- Protection against invalid/malformed editor state
+### `lib/` — Core Utilities
+- `abort-controller.ts` — AbortController utilities for cancellation.
+- `assert.ts` — Assertion helpers for protocol validation.
+- `position.ts` — Yjs position tracking and transformation utilities.
 
-## Key Schemas
+### `protocol/` — Effect Schema Protocol Definitions
+- `Ai.ts` — AI-related collaboration protocol schemas.
+- `BaseActivitiesData.ts` / `BaseGroupinfo.ts` / `BaseRoomInfo.ts` / `BaseUserMeta.ts` — Base data types for collaboration entities.
+- `ClientMsg.ts` — Client-to-server message schemas (Effect Schema discriminated unions).
+- `ServerMsg.ts` — Server-to-client message schemas.
+- `Comments.ts` — Comment threading and annotation schemas.
+- `Groups.ts` — Collaboration group management schemas.
+- `InboxNotifications.ts` — Real-time notification schemas.
+- `MentionData.ts` — @mention handling schemas.
+- `NotificationSettings.ts` — User notification preference schemas.
+- `Op.ts` — CRDT operation schemas.
+- `SerializedCrdt.ts` — Serialized CRDT state schemas.
+- `UrlMetadata.ts` — Link preview metadata schemas.
+- `VersionHistory.ts` — Document versioning schemas.
 
-### SerializedEditorState
+## Usage Snapshots
 
-The top-level schema for complete editor state:
+- `packages/documents/server` uses protocol schemas for WebSocket message validation.
+- `packages/documents/client` uses `ClientMsg` schemas for type-safe RPC calls.
+- Real-time collaboration features decode incoming messages with `S.decodeUnknown`.
 
-```typescript
-import { SerializedEditorState } from "@beep/lexical-schemas";
+## Authoring Guardrails
 
-// Validate from unknown input
-const state = S.decodeUnknownSync(SerializedEditorState)(jsonFromDb);
+- ALWAYS use Effect Schema (`S.*`) for all protocol definitions.
+- NEVER use `S.Any` or `S.Unknown` for message payloads; define explicit schemas.
+- ALWAYS namespace Effect imports (`import * as S from "effect/Schema"`, etc.).
+- Keep protocol schemas in `protocol/`; keep utilities in `lib/`.
+- ALWAYS add discriminator fields (`type`, `kind`) to enable `S.Union` dispatch.
+- Reuse base schemas (`BaseUserMeta`, `BaseRoomInfo`) instead of duplicating structures.
+
+## Quick Recipes
+
+```ts
+import * as S from "effect/Schema";
+import * as F from "effect/Function";
+import { ClientMsg } from "@beep/yjs/protocol/ClientMsg";
+
+// Decode incoming WebSocket message
+const parseClientMessage = F.pipe(
+  rawMessage,
+  S.decodeUnknownSync(ClientMsg)
+);
+
+// Pattern match on message type
+import * as Match from "effect/Match";
+
+const handleMessage = Match.type<ClientMsg.Type>().pipe(
+  Match.tag("join", (msg) => handleJoin(msg)),
+  Match.tag("leave", (msg) => handleLeave(msg)),
+  Match.orElse(() => handleUnknown())
+);
 ```
 
-### SerializedLexicalNode
+## Verifications
 
-Recursive discriminated union of all node types. Use `S.suspend` pattern internally.
+- `bun run test --filter=@beep/yjs` for protocol schema validation tests.
+- `bun run lint --filter=@beep/yjs` / `bun run lint:fix --filter=@beep/yjs` for Biome checks.
+- `bun run check --filter=@beep/yjs` to ensure TypeScript alignment.
 
-**Discriminator:** `type` field
+## Gotchas
 
-**Supported types:**
-- Core: `text`, `linebreak`, `tab`, `paragraph`, `root`
-- Rich text: `heading`, `quote`
-- Lists: `list`, `listitem`
-- Code: `code`, `code-highlight`
-- Links: `link`, `autolink`
-- Decorators: `horizontalrule`
+- Protocol schemas MUST stay synchronized with server implementations.
+- `S.suspend` is required for recursive structures (nested comments, CRDT trees).
+- WebSocket message order is not guaranteed; handle out-of-order delivery.
+- Yjs document changes MUST be applied within `doc.transact()` blocks.
 
-## Schema Patterns
+## Contributor Checklist
 
-### Recursive Structure
-
-The schemas use `S.suspend` for recursive children:
-
-```typescript
-// Correct pattern (from element.ts)
-export class SerializedLexicalNode extends S.suspend(
-  (): S.Schema<SerializedLexicalNode.Type> =>
-    S.Union(
-      // Leaf nodes
-      S.Struct({ type: S.Literal("text"), ... }),
-      // Container nodes (recursive)
-      S.Struct({
-        type: S.Literal("paragraph"),
-        children: S.Array(SerializedLexicalNode), // Self-reference
-        ...
-      }),
-    )
-).annotations({ ... }) {}
-```
-
-### Type Namespace Pattern
-
-Each schema class has a companion namespace for type exports:
-
-```typescript
-export declare namespace SerializedLexicalNode {
-  export type Type = TextNode | LineBreakNode | ParagraphNode | ...;
-  export type Encoded = typeof SerializedLexicalNode.Encoded;
-}
-```
-
-## File Structure
-
-```
-src/
-├── nodes/
-│   ├── base.ts        # Base types (ElementFormatType, TextModeType, etc.)
-│   ├── text.ts        # SerializedTextNode
-│   ├── linebreak.ts   # SerializedLineBreakNode
-│   ├── tab.ts         # SerializedTabNode
-│   ├── element.ts     # SerializedLexicalNode (main union), Root, Paragraph
-│   ├── plugins/       # Extended node type helpers
-│   │   └── index.ts   # HeadingTagType, ListTypeEnum, etc.
-│   └── index.ts       # Re-exports
-├── state.ts           # SerializedEditorState
-├── errors.ts          # LexicalSchemaValidationError
-└── index.ts           # Main barrel export
-```
-
-## Usage Guidelines
-
-### DO
-
-- Use `decodeEditorStateUnknownSync` for validating external input
-- Use `Match.value` with `Match.exhaustive` for pattern matching
-- Add new node types to the union in `element.ts`
-- Keep type namespace declarations in sync with schema changes
-
-### DON'T
-
-- Use `S.Any` for editor content
-- Use `switch` statements for node type dispatch
-- Define container nodes outside the `S.suspend` callback
-- Forget to update namespace types when adding new node types
-
-## Testing
-
-Test fixtures are in `test/fixtures/`:
-- `empty-editor.json` - Empty editor state
-- `simple-text.json` - Basic text content
-- `formatted-text.json` - Bold, italic, combined formatting
-- `nested-paragraphs.json` - Multiple paragraphs with linebreaks
-- `extended-nodes.json` - Headings, lists, code, links
-
-Run tests:
-```bash
-bun test packages/common/lexical-schemas
-```
-
-## Integration with apps/notes
-
-Replace the current unsafe schema:
-
-```typescript
-// apps/notes/src/server/api/routers/document.ts
-
-// Before:
-contentRich: S.optional(S.Any)  // No validation!
-
-// After:
-import { SerializedEditorState } from "@beep/lexical-schemas";
-contentRich: S.optional(SerializedEditorState)
-```
-
-## Adding Custom Node Types
-
-1. Define the schema inline in the `S.Union` within `element.ts`
-2. Add the type to the namespace `Type` union
-3. Update tests with fixtures
-4. Document in README.md
-
-Example for a custom "callout" node:
-
-```typescript
-// In element.ts S.Union:
-S.Struct({
-  type: S.Literal("callout"),
-  version: S.Number,
-  calloutType: S.Union(S.Literal("info"), S.Literal("warning")),
-  children: S.Array(SerializedLexicalNode),
-  direction: TextDirectionType,
-  format: ElementFormatType,
-  indent: S.Number,
-}),
-
-// In namespace:
-type CalloutNode = {
-  readonly type: "callout";
-  readonly calloutType: "info" | "warning";
-  // ...
-};
-
-export type Type = ... | CalloutNode;
-```
-
-## Dependencies
-
-- `effect` - Effect Schema
-- `@beep/invariant` - Assertion helpers (peer)
-
-## Related Packages
-
-- `@beep/schema` - Base schema utilities
-- `apps/notes` - Notes app using this for content validation
+- [ ] Protocol schemas use discriminated unions with explicit `type` fields.
+- [ ] Effect namespace imports (`import * as S from "effect/Schema"`) used throughout.
+- [ ] No `S.Any` or `S.Unknown` in message payloads.
+- [ ] Added test fixtures for new protocol message types.
+- [ ] Cross-referenced related packages (`@beep/documents-*`) when schemas change.

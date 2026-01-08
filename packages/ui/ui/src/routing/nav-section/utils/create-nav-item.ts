@@ -1,4 +1,5 @@
 import type { UnsafeTypes } from "@beep/types";
+import * as P from "effect/Predicate";
 import type React from "react";
 import { cloneElement } from "react";
 import { RouterLink } from "../../../routing/RouterLink";
@@ -40,7 +41,7 @@ export function createNavItem({
    */
   let renderIcon = null;
 
-  if (icon && render?.navIcon && typeof icon === "string") {
+  if (icon && render?.navIcon && P.isString(icon)) {
     renderIcon = render?.navIcon[icon];
   } else {
     renderIcon = icon;

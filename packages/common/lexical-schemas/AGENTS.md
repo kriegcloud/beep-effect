@@ -94,17 +94,17 @@ src/
 
 ### DO
 
-- Use `decodeEditorStateUnknownSync` for validating external input
-- Use `Match.value` with `Match.exhaustive` for pattern matching
-- Add new node types to the union in `element.ts`
-- Keep type namespace declarations in sync with schema changes
+- ALWAYS use `decodeEditorStateUnknownSync` for validating external input
+- ALWAYS use `Match.value` with `Match.exhaustive` for pattern matching
+- ALWAYS add new node types to the union in `element.ts`
+- ALWAYS keep type namespace declarations in sync with schema changes
 
 ### DON'T
 
-- Use `S.Any` for editor content
-- Use `switch` statements for node type dispatch
-- Define container nodes outside the `S.suspend` callback
-- Forget to update namespace types when adding new node types
+- NEVER use `S.Any` for editor content
+- NEVER use `switch` statements for node type dispatch
+- NEVER define container nodes outside the `S.suspend` callback
+- NEVER forget to update namespace types when adding new node types
 
 ## Testing
 

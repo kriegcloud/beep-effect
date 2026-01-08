@@ -51,7 +51,7 @@ export function mergeDefined<TSource1 extends object, TSource2 extends object>(
 ): TSource1 & TSource2 {
   const result: PlainRecord = {};
 
-  const allKeys = new Set([...Object.keys(source1 as object), ...Object.keys(source2 as object)]);
+  const allKeys = new Set([...Struct.keys(source1 as PlainRecord), ...Struct.keys(source2 as PlainRecord)]);
 
   for (const key of allKeys) {
     if (isUnsafeProperty(key)) continue;

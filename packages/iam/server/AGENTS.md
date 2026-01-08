@@ -26,9 +26,9 @@
 - `packages/_internal/db-admin/test/container.ts` — bootstraps IAM repos + DB Layer inside the testing container alongside Files infra.
 
 ## Authoring Guardrails
-- **Effect-first services**: always extend `Effect.Service` with `dependencies` defined as Layers. Never bypass `IamRepos.layer` or `IamDb.IamDb.Live`; provide additional dependencies via `Layer.provideMerge`.
+- **Effect-first services**: ALWAYS extend `Effect.Service` with `dependencies` defined as Layers. NEVER bypass `IamRepos.layer` or `IamDb.IamDb.Live`; provide additional dependencies via `Layer.provideMerge`.
 - **Layer hygiene**: keep `Layer.mergeAll` inputs free of side effects. When adding a repo, append its `.Default` Layer to `IamRepos.layer` and update `export *` lists.
-- **Env coupling**: `IamConfig` is the single source of secrets/config. Use `.layerFrom` in tests to override; avoid reading `serverEnv` elsewhere in infra.
+- **Env coupling**: `IamConfig` is the single source of secrets/config. Use `.layerFrom` in tests to override; NEVER read `serverEnv` elsewhere in infra.
 - **Collections & strings**: follow repo-wide rule — use `A.*`, `Str.*`, `F.pipe` instead of native array/string helpers when authoring new code. Legacy usages in `Auth.service.ts` are scheduled for cleanup; do not replicate them.
 - **Schema alignment**: ensure repo models, Better Auth plugin schemas, and `@beep/iam-tables` stay synchronized. Prefer reusing `IamEntityIds` factories for IDs.
 - **Telemetry**: wrap side-effecting flows with `Effect.withSpan`/`Effect.annotateLogs` like existing email + auth hooks; keep tagged errors via `Data.TaggedError`.
@@ -94,6 +94,35 @@ export class AuditLogRepo extends Effect.Service<AuditLogRepo>()(
 - `bun run lint --filter @beep/iam-server`
 - `bun run test --filter @beep/iam-server`
 - For Docker-backed repo tests: `bun run test --filter @beep/db-admin -- --grep "@beep/iam-server AccountRepo"` (requires Postgres container support).
+
+## Security
+
+### Credential Handling
+- NEVER log credentials, passwords, tokens, or API keys in any form—use `Effect.annotateLogs` with redacted placeholders only.
+- NEVER store plaintext passwords; Better Auth handles hashing internally but verify plugin schemas do not expose raw secrets.
+- ALWAYS use `Redacted` wrappers from `effect/Redacted` when passing sensitive values between layers.
+- ALWAYS route secrets through `IamConfig`; NEVER read `process.env` directly in service implementations.
+
+### Layer Isolation
+- ALWAYS isolate auth context via Effect Layers—NEVER share mutable session state across Layer boundaries.
+- ALWAYS scope database connections per-request via `IamDb.IamDb` to prevent session leakage.
+- NEVER bypass `IamRepos.layer` or `IamDb.IamDb.Live`; these enforce tenant isolation and audit trails.
+
+### Session Token Security
+- ALWAYS validate session tokens server-side before trusting session claims.
+- ALWAYS set appropriate token expiry via `IamConfig` rather than hardcoding values.
+- NEVER expose session tokens in logs, error messages, or HTTP responses beyond Set-Cookie headers.
+- ALWAYS invalidate sessions on password change, email change, or security-sensitive operations.
+
+### Rate Limiting
+- ALWAYS implement rate limiting for authentication endpoints (sign-in, sign-up, password reset, OTP verification).
+- Use the `rateLimit` table and Better Auth's built-in rate limiting plugins.
+- NEVER allow unlimited authentication attempts—enforce exponential backoff for failed attempts.
+
+### Email Security
+- ALWAYS use `renderEmail` templates for auth emails; NEVER interpolate user-controlled content into email bodies.
+- ALWAYS redact recipient addresses in logs; use structured logging with `Effect.annotateLogs`.
+- NEVER include sensitive tokens directly in email body text—use secure, time-limited URLs.
 
 ## Contributor Checklist
 - [ ] New repos: use `Repo.make`, register dependencies in `_common.ts`, export via `repos/index.ts`, and append `.Default` to `IamRepos.layer`.

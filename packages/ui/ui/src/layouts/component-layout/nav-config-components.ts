@@ -1,6 +1,8 @@
 import type { UnsafeTypes } from "@beep/types";
 import { StrUtils } from "@beep/utils";
 import { orderBy } from "@beep/utils/data/array.utils/order-by";
+import * as A from "effect/Array";
+import * as F from "effect/Function";
 
 // ----------------------------------------------------------------------
 
@@ -27,55 +29,61 @@ const createNavItem = ({ category, name, iconPrefix, packageType }: CreateNavIte
 
 // ----------------------------------------------------------------------
 
-const foundationNav = ["Colors", "Typography", "Shadows", "Grid", "Icons"].map((name) =>
-  createNavItem({
-    name,
-    category: "foundation",
-    iconPrefix: "ic",
-    packageType: "Foundation",
-  })
+const foundationNav = F.pipe(
+  ["Colors", "Typography", "Shadows", "Grid", "Icons"],
+  A.map((name) =>
+    createNavItem({
+      name,
+      category: "foundation",
+      iconPrefix: "ic",
+      packageType: "Foundation",
+    })
+  )
 );
 
 // ----------------------------------------------------------------------
 
 const MUI_X_COMPONENTS = ["Data grid", "Date pickers", "Tree view"];
 
-const muiNav = [
-  ...MUI_X_COMPONENTS,
-  "Chip",
-  "List",
-  "Menu",
-  "Tabs",
-  "Alert",
-  "Badge",
-  "Table",
-  "Avatar",
-  "Dialog",
-  "Rating",
-  "Slider",
-  "Switch",
-  "Drawer",
-  "Buttons",
-  "Popover",
-  "Stepper",
-  "Tooltip",
-  "Checkbox",
-  "Progress",
-  "Timeline",
-  "Accordion",
-  "Text field",
-  "Pagination",
-  "Breadcrumbs",
-  "Autocomplete",
-  "Radio button",
-  "Transfer list",
-].map((name) =>
-  createNavItem({
-    name,
-    category: "mui",
-    iconPrefix: "ic",
-    packageType: MUI_X_COMPONENTS.includes(name) ? "MUI X" : "MUI",
-  })
+const muiNav = F.pipe(
+  [
+    ...MUI_X_COMPONENTS,
+    "Chip",
+    "List",
+    "Menu",
+    "Tabs",
+    "Alert",
+    "Badge",
+    "Table",
+    "Avatar",
+    "Dialog",
+    "Rating",
+    "Slider",
+    "Switch",
+    "Drawer",
+    "Buttons",
+    "Popover",
+    "Stepper",
+    "Tooltip",
+    "Checkbox",
+    "Progress",
+    "Timeline",
+    "Accordion",
+    "Text field",
+    "Pagination",
+    "Breadcrumbs",
+    "Autocomplete",
+    "Radio button",
+    "Transfer list",
+  ],
+  A.map((name) =>
+    createNavItem({
+      name,
+      category: "mui",
+      iconPrefix: "ic",
+      packageType: F.pipe(MUI_X_COMPONENTS, A.contains(name)) ? "MUI X" : "MUI",
+    })
+  )
 );
 
 // ----------------------------------------------------------------------
@@ -99,21 +107,16 @@ const THIRD_PARTY_COMPONENTS = [
   "Organization chart",
 ];
 
-const extraNav = [
-  ...THIRD_PARTY_COMPONENTS,
-  "Image",
-  "Label",
-  "Layout",
-  "Mega menu",
-  "Utilities",
-  "Navigation bar",
-].map((name) =>
-  createNavItem({
-    name,
-    category: "extra",
-    iconPrefix: "ic-extra",
-    packageType: THIRD_PARTY_COMPONENTS.includes(name) ? "3rd Party" : "Custom",
-  })
+const extraNav = F.pipe(
+  [...THIRD_PARTY_COMPONENTS, "Image", "Label", "Layout", "Mega menu", "Utilities", "Navigation bar"],
+  A.map((name) =>
+    createNavItem({
+      name,
+      category: "extra",
+      iconPrefix: "ic-extra",
+      packageType: F.pipe(THIRD_PARTY_COMPONENTS, A.contains(name)) ? "3rd Party" : "Custom",
+    })
+  )
 );
 
 export const allComponents = [

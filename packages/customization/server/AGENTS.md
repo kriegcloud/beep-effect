@@ -19,12 +19,12 @@
 - Server startup layers the `CustomizationDb` over `SliceDbRequirements` from shared server.
 
 ## Authoring Guardrails
-- Always import Effect modules with namespaces (`Effect`, `A`, `F`, `O`, `Str`, `S`, `Layer`) and rely on Effect collections/utilities instead of native helpers (see global repo guardrails).
-- Repositories must use `Repo.make` factories from `@beep/shared-server` with domain entities from `@beep/customization-domain`.
+- ALWAYS import Effect modules with namespaces (`Effect`, `A`, `F`, `O`, `Str`, `S`, `Layer`) and rely on Effect collections/utilities instead of native helpers (see global repo guardrails).
+- Repositories MUST use `Repo.make` factories from `@beep/shared-server` with domain entities from `@beep/customization-domain`.
 - Keep repository methods focused on data access — business logic belongs in services or domain layer.
 - Use Effect for all async operations — no bare Promises or async/await.
 - Wrap external service calls (S3, email) with Effect adapters and proper error channels.
-- Layer composition should follow: `Db -> Repos -> Services` dependency order.
+- Layer composition MUST follow: `Db -> Repos -> Services` dependency order.
 
 ## Quick Recipes
 - **Provide customization repositories to server runtime**
@@ -54,6 +54,13 @@
 - `bun run check --filter @beep/customization-server`
 - `bun run lint --filter @beep/customization-server`
 - `bun run test --filter @beep/customization-server`
+
+## Testing
+
+- Run tests: `bun run test --filter=@beep/customization-server`
+- Use `@beep/testkit` for Effect testing utilities
+- ALWAYS mock external services in tests
+- Test Layer composition with `Layer.provide`
 
 ## Contributor Checklist
 - [ ] Ensure repository methods align with domain entity schemas from `@beep/customization-domain`.

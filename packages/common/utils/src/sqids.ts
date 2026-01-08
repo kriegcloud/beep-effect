@@ -616,7 +616,7 @@ export const defaultOptions = {
 };
 
 // Pure helper functions
-const toChars = (s: string): ReadonlyArray<string> => s.split("");
+const toChars = (s: string): ReadonlyArray<string> => Str.split(s, "");
 
 const fromChars = (chars: ReadonlyArray<string>): string => chars.join("");
 
@@ -695,7 +695,7 @@ const filterBlocklist = (
   );
 
 const isBlockedId = (id: string, blocklist: HashSet.HashSet<string>): boolean => {
-  const lowercaseId = id.toLowerCase();
+  const lowercaseId = Str.toLowerCase(id);
   const idLen = lowercaseId.length;
 
   return pipe(
@@ -708,10 +708,10 @@ const isBlockedId = (id: string, blocklist: HashSet.HashSet<string>): boolean =>
       }
 
       if (/\d/.test(word)) {
-        return lowercaseId.startsWith(word) || lowercaseId.endsWith(word);
+        return Str.startsWith(word)(lowercaseId) || Str.endsWith(word)(lowercaseId);
       }
 
-      return lowercaseId.includes(word);
+      return Str.includes(word)(lowercaseId);
     })
   );
 };
@@ -849,7 +849,7 @@ const decodeWithState = (state: SqidsState, id: string): ReadonlyArray<number> =
       }
     }
 
-    slicedId = pipe(chunks.slice(1), A.join(separator));
+    slicedId = pipe(chunks, A.drop(1), A.join(separator));
   }
 
   return result;

@@ -11,21 +11,25 @@ import * as HttpClientRequest from "@effect/platform/HttpClientRequest";
 import type * as HttpClientResponse from "@effect/platform/HttpClientResponse";
 import * as HttpMethod from "@effect/platform/HttpMethod";
 import * as UrlParams from "@effect/platform/UrlParams";
+import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
+import * as F from "effect/Function";
 import { identity } from "effect/Function";
 import { globalValue } from "effect/GlobalValue";
+import * as Match from "effect/Match";
 import * as O from "effect/Option";
 import * as ParseResult from "effect/ParseResult";
 import type * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import type * as AST from "effect/SchemaAST";
+import * as Str from "effect/String";
 import type { Simplify } from "effect/Types";
 
 const paramsRegex = /:(\w+)/g;
 
 const compilePath = (path: string) => {
-  const segments = path.split(paramsRegex);
+  const segments = F.pipe(path, Str.split(paramsRegex));
   const len = segments.length;
   if (len === 1) {
     return (_: UnsafeTypes.UnsafeAny) => path;
@@ -47,7 +51,7 @@ const HttpBodyFromSelf = S.declare(HttpBody.isHttpBody);
 
 const payloadSchemaBody = (schema: S.Schema.All): S.Schema<UnsafeTypes.UnsafeAny, HttpBody.HttpBody> => {
   const members = schema.ast._tag === "Union" ? schema.ast.types : [schema.ast];
-  return S.Union(...members.map(bodyFromPayload)) as UnsafeTypes.UnsafeAny;
+  return S.Union(...F.pipe(members, A.map(bodyFromPayload))) as UnsafeTypes.UnsafeAny;
 };
 
 const bodyFromPayloadCache = globalValue(
@@ -66,28 +70,30 @@ const bodyFromPayload = (ast: AST.AST) => {
       return ParseResult.fail(new ParseResult.Forbidden(ast, fromA, "encode only schema"));
     },
     encode(toI, _, ast) {
-      switch (encoding.kind) {
-        case "Json": {
-          return HttpBody.json(toI).pipe(
+      return F.pipe(
+        Match.type<typeof encoding.kind>(),
+        Match.when("Json", () =>
+          HttpBody.json(toI).pipe(
             ParseResult.mapError((error) => new ParseResult.Type(ast, toI, `Could not encode as JSON: ${error}`))
-          );
-        }
-        case "Text": {
+          )
+        ),
+        Match.when("Text", () => {
           if (typeof toI !== "string") {
             return ParseResult.fail(new ParseResult.Type(ast, toI, "Expected a string"));
           }
           return ParseResult.succeed(HttpBody.text(toI));
-        }
-        case "UrlParams": {
-          return ParseResult.succeed(HttpBody.urlParams(UrlParams.fromInput(toI as UnsafeTypes.UnsafeAny)));
-        }
-        case "Uint8Array": {
+        }),
+        Match.when("UrlParams", () =>
+          ParseResult.succeed(HttpBody.urlParams(UrlParams.fromInput(toI as UnsafeTypes.UnsafeAny)))
+        ),
+        Match.when("Uint8Array", () => {
           if (!(toI instanceof Uint8Array)) {
             return ParseResult.fail(new ParseResult.Type(ast, toI, "Expected a Uint8Array"));
           }
           return ParseResult.succeed(HttpBody.uint8Array(toI));
-        }
-      }
+        }),
+        Match.exhaustive
+      )(encoding.kind);
     },
   });
   bodyFromPayloadCache.set(ast, transform);
