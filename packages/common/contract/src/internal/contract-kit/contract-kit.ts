@@ -676,7 +676,12 @@ const Proto = {
   toJSON(this: ContractKit<UnsafeTypes.UnsafeAny>): unknown {
     return {
       _id: "@beep/contract/ContractKit",
-      contracts: A.map((contract) => (contract as Contract.Any).name)(Array.from(R.values(this.contracts))),
+      contracts: F.pipe(
+        this.contracts,
+        R.values,
+        A.fromIterable,
+        A.map((contract) => (contract as Contract.Any).name)
+      ),
     } as const;
   },
   pipe() {

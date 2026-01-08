@@ -1,4 +1,7 @@
 import { _lastActivity } from "@beep/mock/_time";
+import * as A from "effect/Array";
+import * as F from "effect/Function";
+import * as O from "effect/Option";
 import { _mock } from "./_mock";
 
 // ----------------------------------------------------------------------
@@ -113,9 +116,18 @@ export const _jobs = Array.from({ length: 12 }, (_, index) => {
     negotiable: _mock.boolean(index),
   };
 
-  const benefits = JOB_BENEFIT_OPTIONS.slice(0, 3).map((option) => option.label);
+  const benefits = F.pipe(
+    JOB_BENEFIT_OPTIONS,
+    A.take(3),
+    A.map((option) => option.label)
+  );
 
-  const experience = JOB_EXPERIENCE_OPTIONS.map((option) => option.label)[index]! || JOB_EXPERIENCE_OPTIONS[1].label;
+  const experience = F.pipe(
+    JOB_EXPERIENCE_OPTIONS,
+    A.map((option) => option.label),
+    A.get(index),
+    O.getOrElse(() => JOB_EXPERIENCE_OPTIONS[1].label)
+  );
 
   const employmentTypes = (index % 2 && ["Part-time"]) ||
     (index % 3 && ["On demand"]) ||

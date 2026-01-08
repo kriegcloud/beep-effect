@@ -111,7 +111,7 @@ import { _lastActivity } from "../../../_time";
   // ✅ Preferred Effect pattern
   A.makeBy(18, (index) => ({ ... }))
   ```
-- **Namespace imports**: Always use namespace imports for Effect modules:
+- **Namespace imports**: ALWAYS use namespace imports for Effect modules:
   ```typescript
   import * as A from "effect/Array";
   import * as F from "effect/Function";
@@ -119,13 +119,13 @@ import { _lastActivity } from "../../../_time";
   ```
 
 ### Data Quality & Safety
-- **Deterministic**: Never introduce `Date.now()`, random generators, or per-request mutations. Extend `_time.ts` or base arrays in `assets.ts` instead.
+- **Deterministic**: NEVER introduce `Date.now()`, random generators, or per-request mutations. Extend `_time.ts` or base arrays in `assets.ts` instead.
 - **Client-safe**: Keep data neutral (no secrets, no real PII, no internal URLs). Content should be safe for screenshots and seeded previews.
 - **Stable shapes**: Many dashboard widgets rely on existing keys; coordinate shape changes with the consuming views in the same PR.
 
 ### Architectural Boundaries
-- **No cross-slice coupling**: Avoid pulling slice-specific models or services; fixtures must remain generic and side-effect free.
-- **No runtime dependencies**: Only depend on `@beep/utils` for pure utilities like `format-time`. Avoid service layers, DB clients, or Effect runtime layers.
+- **No cross-slice coupling**: NEVER pull slice-specific models or services; fixtures MUST remain generic and side-effect free.
+- **No runtime dependencies**: Only depend on `@beep/utils` for pure utilities like `format-time`. NEVER use service layers, DB clients, or Effect runtime layers.
 - **Asset alignment**: If adding new image indices, ensure corresponding files exist under `/assets/images/mock/...` in the host app (`apps/web/public/assets/images/mock/`).
 
 ## Adding New Fixtures

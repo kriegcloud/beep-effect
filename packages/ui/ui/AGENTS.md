@@ -77,6 +77,41 @@
   - Update `components.json` if you add new alias directories to keep shadcn scaffolding usable.
   - Re-run `bun run build` to ensure Babel transforms (CJS/annotate phases) still succeed, especially after introducing `"use client"` entry points.
 
+## Gotchas
+
+### React 19 / Next.js 15 App Router
+- The `"use client"` directive MUST be the FIRST line of a file, BEFORE any imports. Next.js silently treats misplaced directives as server code.
+- React 19's `use()` hook (used in `use-settings-context.ts`) requires the component be inside `<Suspense>`. Missing boundaries cause unhandled promise rejections.
+- Server Components cannot import modules that use browser APIs. Components using `window`, `document`, or `localStorage` MUST have `"use client"`.
+
+### TanStack Query Invalidation
+- Theme/settings changes stored via TanStack Query must be invalidated across the app when updated from `SettingsDrawer`.
+- MUI X Data Grid with server-side data uses TanStack Query. Filtering/sorting changes should invalidate relevant queries.
+- Form submissions with `@tanstack/react-form` are separate from TanStack Query. Coordinate invalidation manually after successful mutations.
+
+### Server vs Client Component Boundaries
+- `ThemeProvider`, `SettingsProvider`, and `AuthAdapterProvider` are Client Components. They MUST wrap the app at a high level.
+- Layout components (`src/layouts/*`) often need `"use client"` due to navigation state, settings context, or responsive hooks.
+- Atomic components (`atoms/*`) that only render props MAY be Server Components. Add `"use client"` only when hooks are needed.
+
+### Effect Integration in React
+- NEVER use native array/string methods. This is a CRITICAL repo-wide rule. Use `A.map`, `Str.split`, etc. from Effect.
+- Effect schemas for form validation run synchronously with `@tanstack/react-form`. No need to wrap in `Effect.runPromise`.
+- Storage hooks (`useLocalStorage`, `useCookies`) manage persistence. Do not also wrap in Effect unless the operation is async.
+
+### Theme & Styling Pitfalls
+- Settings `version` field MUST be incremented when changing `SettingsState` schema. Forgetting this causes users to have stale persisted settings.
+- MUI `ThemeProvider` must wrap components before they render. Components outside `ThemeProvider` get default unstyled MUI behavior.
+- Emotion cache issues with RTL: When switching direction, the RTL cache (`stylis-plugin-rtl`) must be properly swapped or styles persist incorrectly.
+- `components.json` must stay in sync with new shadcn directories. Running `bunx shadcn-ui add` with outdated config causes generation failures.
+- Tailwind classes and MUI `sx` prop can conflict. Prefer `sx` for MUI components and Tailwind for layout/spacing of non-MUI elements.
+- CSS variables from `@beep/ui-core` are authoritative. Do not redefine them locally unless extending the theme system.
+
+### Build & Export Pitfalls
+- New directories require both barrel export updates (`src/**/index.ts`) AND `package.json#exports` updates.
+- Babel transforms run during build. `"use client"` directives are preserved by `babel-plugin-transform-next-use-client`.
+- Missing `globals.css` copy to build outputs breaks Tailwind styles in consumers. Verify after `bun run build`.
+
 ## Reference Library
 - Internal docs:
   - `packages/ui/core/AGENTS.md` – upstream theme & settings contract.

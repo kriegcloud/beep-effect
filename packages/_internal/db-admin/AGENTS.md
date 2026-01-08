@@ -83,6 +83,56 @@ const findUserByEmail = (email: string) =>
 - `bun run db:generate`
 - `bun run db:migrate`
 
+## Security
+
+### Database Credential Handling
+- NEVER hardcode database credentials in source files, configuration, or scripts.
+- ALWAYS use `dotenvx` for loading secrets; the `drizzle.config.ts` and workspace scripts expect `DB_PG_URL` to be injected via environment.
+- NEVER log connection strings that include credentials—use masked versions or omit entirely from `Effect.log*` output.
+- ALWAYS ensure `.env` files are listed in `.gitignore`; NEVER commit files containing database URLs with embedded passwords.
+
+### Production Access Controls
+- ALWAYS restrict `AdminDb` usage to internal tooling and CI pipelines—production apps should consume slices via `@beep/shared-server/Db` layers, not the admin bundle.
+- NEVER expose admin database tooling endpoints in production deployments; the `_internal` designation exists to prevent accidental inclusion.
+- ALWAYS audit migration scripts (`drizzle/**/*.sql`) for sensitive data exposure before committing.
+
+### SQL Injection Prevention
+- ALWAYS use parameterized queries via Drizzle ORM; NEVER concatenate user input into raw SQL strings.
+- When writing custom SQL in `--custom` migrations, ALWAYS use parameter placeholders (`$1`, `$2`, etc.) rather than string interpolation.
+- ALWAYS validate and sanitize any dynamic identifiers (table names, column names) if they must be interpolated—prefer schema-driven approaches that avoid dynamic SQL entirely.
+
+### Secrets in Logs and Errors
+- NEVER log the full `DB_PG_URL` or any connection string with embedded credentials.
+- ALWAYS use Effect's error handling to wrap database errors without exposing sensitive context in stack traces.
+- When debugging connection failures, log only the host/port/database name—NEVER the username or password.
+
+## Gotchas
+
+### Migration Generation Pitfalls
+- **Schema barrel must include all slices**: The `src/schema.ts` barrel file must re-export every slice's tables. Forgetting to add a new slice causes `db:generate` to ignore those tables—migrations will be incomplete.
+- **Drizzle Kit introspection mode**: Running `drizzle-kit introspect` on an existing database may generate schemas that conflict with the codebase. Only use introspection for initial setup or auditing—never overwrite existing schema files.
+- **Migration journal corruption**: The `drizzle/meta/_journal.json` file tracks migration history. Manual edits to this file cause migration state inconsistencies—regenerate from scratch if corrupted.
+
+### Migration Execution Pitfalls
+- **Transaction boundaries**: Drizzle Kit runs each migration file in a single transaction by default. Long-running migrations on large tables may cause lock contention—consider splitting into multiple migration files.
+- **Enum additions are non-transactional**: PostgreSQL `ALTER TYPE ... ADD VALUE` cannot run inside a transaction. Drizzle generates these correctly, but mixing enum additions with other changes in one migration file causes failures.
+- **Extension dependencies**: The `pg_uuidv7` extension must be installed before UUID v7 columns can be used. Ensure the extension migration runs first, or use a setup script outside Drizzle.
+
+### Relation Aggregation Gotchas
+- **Relation name collisions**: When aggregating relations from multiple slices, ensure relation names are unique. Two slices defining `userRelations` will conflict—prefix with slice name (e.g., `iamUserRelations`).
+- **Circular relation imports**: The aggregated `src/relations.ts` imports from slice packages. Circular dependencies between `db-admin` and slices cause build failures—slices should never import from `db-admin`.
+- **Missing relation exports**: If a slice adds relations but does not export them via its barrel, `db-admin` queries will lack join metadata. Ensure all relations are exported from `@beep/<slice>-tables`.
+
+### Integration with Slice Packages
+- **`AdminDb` is for tooling only**: Production applications should use slice-specific `*Db` Layers (e.g., `IamDb`, `DocumentsDb`), not `AdminDb`. Using `AdminDb` in production bypasses slice-specific configuration.
+- **Schema drift detection**: After running `db:migrate`, always run `bun run check` across all slices. Migration success does not guarantee type alignment—`_check.ts` files may fail after schema changes.
+- **Testcontainers port conflicts**: The commented-out `test/container.ts` uses dynamic port allocation. If restored, ensure tests do not conflict with local PostgreSQL instances on port 5432.
+
+### Common Operational Errors
+- **`db:reset` script missing**: The `package.json` references a `ResetDatabase.ts` script that does not exist. Either implement the script or remove the npm script to avoid confusion.
+- **`dotenvx` not installed**: Migration commands require `dotenvx` for environment variable handling. Missing installation causes `DB_PG_URL` to be undefined—install globally or via package dependencies.
+- **Stale build artifacts**: Drizzle Kit reads compiled JavaScript, not TypeScript. Run `bun run build` in affected packages before `db:generate` if schema changes are not reflected.
+
 ## Contributor Checklist
 - [ ] Regenerate migrations (`bun run db:generate`) after modifying schema exports and inspect the resulting SQL for unintended diffs.
 - [ ] Keep `src/schema.ts` aligned with slice schema barrels—add or remove exports when new vertical slices appear.

@@ -84,6 +84,31 @@ export const resolveAuthHandler = async (request: Request) => {
 - `bun run lint --filter=@beep/runtime-server` — Biome lint with repo conventions.
 - `bun run test --filter=@beep/runtime-server` — Vitest suite (currently placeholder but keeps regressions obvious).
 
+## Gotchas
+
+### Layer Composition Order Matters
+- Layers are composed left-to-right in `Layer.mergeAll`; if two layers provide the same service, the rightmost wins. ALWAYS verify which layer should take precedence when extending `AppLive`.
+- `Layer.provideMerge` vs `Layer.provide`: use `provideMerge` when you want to expose the dependency to downstream layers; use `provide` when the dependency should remain internal.
+
+### ManagedRuntime Lifecycle
+- `ManagedRuntime.make` allocates resources lazily on first effect execution, not at construction time. If layer initialization has side effects (DB connections, OTLP exporters), they occur on the first `runPromise` call.
+- NEVER create multiple `ManagedRuntime` instances with overlapping resource layers (e.g., database pools); this leaks connections. Use a single `serverRuntime` and compose additional services via layer extension.
+- The runtime disposes resources when the process exits, but in hot-reload scenarios (Next.js dev), the old runtime may not fully dispose before the new one starts. Watch for "connection refused" or "too many clients" errors in development.
+
+### Effect Stream Consumption
+- Effect streams (`Stream<A, E, R>`) must be consumed (via `Stream.runCollect`, `Stream.runForEach`, etc.) or they do nothing. Forgetting to run a stream is a silent bug that produces no output and no error.
+- When streaming database results, ALWAYS ensure the stream is consumed within the same transaction scope if consistency is required. Streams that escape their transaction context may read stale data.
+
+### Tracing Span Propagation
+- `runServerPromise(effect, spanName)` wraps the effect in a span, but nested `Effect.withSpan` calls create child spans only if the outer span context is properly propagated. NEVER use `Effect.runPromise` directly inside `runServerPromise`; it breaks the span hierarchy.
+- OTLP exporters batch spans asynchronously. In short-lived processes (serverless functions), spans may be lost if the process exits before the batch flushes. Use `TracingLive` flush hooks in Lambda/edge contexts.
+
+### Environment Configuration Timing
+- `serverEnv` is parsed at module load time via Effect Config. If environment variables are set after module initialization (e.g., via dotenv loaded late), the runtime will have stale or missing values. ALWAYS ensure `.env` is loaded before any `@beep/runtime-server` imports.
+
+### Error Type Narrowing
+- `Effect.catchTag` narrows the error channel but ONLY if the tag is correctly defined via `Data.TaggedError` or similar. Ad-hoc error objects without a `_tag` property will not match and will propagate unhandled.
+
 ## Contributor Checklist
 - Align any new environment knobs with `@beep/shared-server` exports and document defaults here.
 - Ensure new layers are exposed via appropriate source files and recorded in **Surface Map**.

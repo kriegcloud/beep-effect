@@ -104,6 +104,41 @@ The package exposes the following entry points:
   - Downstream surfaces: `@beep/ui` consumes `createTheme`, `Rtl`, `mainDrawerWidth`, and settings schema. Breaking changes here will propagate to the Next.js app (`apps/web`) through `@beep/ui`.
   - Coordinate updates with `packages/ui` whenever you adjust token names, preset unions, or settings fields.
 
+## Gotchas
+
+### React 19 / Next.js 15 App Router
+- Theme utilities (`createTheme`, `applySettingsToTheme`) are pure functions and can run in Server Components.
+- `Rtl` component uses Emotion cache and `document.dir`, so it requires `"use client"` in its consumers.
+- MUI locale bundles imported for `ThemeProvider` are static and do not affect server/client boundaries.
+
+### TanStack Query Invalidation
+- Settings stored via `getStorage`/`setStorage` are NOT in TanStack Query. Changing settings requires manual state refresh.
+- Theme changes do not automatically trigger TanStack Query invalidation. Components relying on theme must re-render via React context.
+- MUI X components using locale bundles do not need query invalidation when locale changes; `ThemeProvider` handles re-render.
+
+### Server vs Client Component Boundaries
+- `createTheme` and all palette/typography utilities CAN be called in Server Components for SSR.
+- Settings persistence (`getStorage`, `setStorage`, `getCookie`, `setCookie`) requires browser APIs and MUST be in Client Components.
+- `Rtl` component modifies `document.dir` and MUST be in a Client Component.
+
+### Effect Integration in React
+- NEVER use native array/string methods in component overrides. Use Effect utilities (`A.map`, `R.map`, etc.).
+- Color calculation utilities (`createPaletteChannel`, `hexToRgbChannel`) are synchronous and do not use Effect.
+- Date formatting utilities (`fDate`, `fTime`, `fDateTime`) use standard formatting, not `effect/DateTime`. For Effect DateTime integration, use `AdapterEffectDateTime`.
+
+### Theme & Settings Pitfalls
+- `settings.version` MUST be incremented when changing `SettingsState` schema. `SettingsProvider` uses this to invalidate stale localStorage.
+- RTL cache (`stylis-plugin-rtl`) must be cleared when switching direction. The `Rtl` component handles this, but manual cache manipulation breaks it.
+- `cssVariables: true` in `themeConfig` means MUI uses CSS custom properties. Inline style overrides may not work as expected.
+- Locale bundles MUST export a `.components` object matching MUI's structure. Missing or malformed bundles fail silently.
+- Color preset additions require updating THREE places: `ThemeColorPreset` type, `primaryColorPresets`, and `secondaryColorPresets`.
+- `baseTheme` is memoized. Changes to `theme-config.ts` require a full rebuild to take effect.
+
+### Cross-Package Coordination
+- Token name changes in `palette.ts` break `@beep/ui` components that reference them. Always search for usages before renaming.
+- `mainDrawerWidth` and layout constants are consumed by `@beep/ui/layouts`. Changing values affects app-wide layout.
+- `defaultSettings` changes affect all new users and users whose settings version is outdated. Test migration scenarios.
+
 ## Reference Library
 - MUI documentation resources:
   - Theming: `https://llms.mui.com/material-ui/7.2.0/customization/theming.md`

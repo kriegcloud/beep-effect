@@ -30,16 +30,16 @@
 
 ## Authoring Guardrails
 
-- **Namespace Effect imports** everywhere (`import * as Effect`, `import * as A`, `import * as Str`). Native array/string helpers remain banned; use the Effect equivalents referenced throughout docstrings.
-- Treat `Contract.make` payload/success/failure schemas as the single source of truth. Adjusting runtime fields requires updating both schema definitions and downstream TypeScript types (no `any`/casts without `toSchemaAnyNoContext`).
-- Continuations: always pass accurate metadata (`domain`, `method`, optional `extra`). When adding new continuation options, keep normalization idempotent and ensure `supportsAbort` stays in sync with annotations.
+- **IMPORTANT: Namespace Effect imports** everywhere (`import * as Effect`, `import * as A`, `import * as Str`). Native array/string helpers are BANNED; ALWAYS use the Effect equivalents referenced throughout docstrings.
+- Treat `Contract.make` payload/success/failure schemas as the single source of truth. Adjusting runtime fields requires updating both schema definitions and downstream TypeScript types (NEVER use `any`/casts without `toSchemaAnyNoContext`).
+- Continuations: ALWAYS pass accurate metadata (`domain`, `method`, optional `extra`). When adding new continuation options, keep normalization idempotent and ensure `supportsAbort` stays in sync with annotations.
 - Failure modes:
-  - `"error"` — implementations must fail the Effect channel on business failures (default).
-  - `"return"` — implementations return `HandleOutcome` where failures stay in the success channel; `Contract.handleOutcome` must cover both.
-  - Document new behavior in `types.ts` + this guide before exposing publicly.
-- `ContractKit.liftService`: hooking `onFailure`/`onSuccess`/`onDefect` should stay pure and never modify payloads. Keep `Mode = "success"` vs `"result"` semantics documented.
+  - `"error"` — implementations MUST fail the Effect channel on business failures (default).
+  - `"return"` — implementations return `HandleOutcome` where failures stay in the success channel; `Contract.handleOutcome` MUST cover both.
+  - ALWAYS document new behavior in `types.ts` + this guide before exposing publicly.
+- `ContractKit.liftService`: hooking `onFailure`/`onSuccess`/`onDefect` MUST stay pure and NEVER modify payloads. Keep `Mode = "success"` vs `"result"` semantics documented.
 - When extending `ContractError`, update schema annotations, docstrings, and any derivations in `failureContinuation` that rely on metadata.
-- Every new helper should ship with JSDoc + code comments describing when to use it; avoid IAM- or Better Auth-specific prose to keep the package slice-agnostic.
+- Every new helper MUST ship with JSDoc + code comments describing when to use it; NEVER use IAM- or Better Auth-specific prose to keep the package slice-agnostic.
 
 ## Key Concepts
 

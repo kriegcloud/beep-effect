@@ -1,5 +1,8 @@
 "use client";
+
 import { fAdd, fSub } from "@beep/utils/format-time";
+import * as A from "effect/Array";
+import * as F from "effect/Function";
 
 import { _mock } from "./_mock";
 import { _addressBooks } from "./_others";
@@ -41,7 +44,10 @@ export const _invoices = Array.from({ length: 20 }, (_, index) => {
 
   const shipping = _mock.number.price(index + 3);
 
-  const subtotal = ITEMS.reduce((accumulator, item) => accumulator + item.price * item.quantity, 0);
+  const subtotal = F.pipe(
+    ITEMS,
+    A.reduce(0, (acc, item) => acc + item.price * item.quantity)
+  );
 
   const totalAmount = subtotal - shipping - discount + taxes;
 

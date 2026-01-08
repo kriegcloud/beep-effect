@@ -26,9 +26,9 @@
 - Shared tables documentation shows how `OrgTable.make` is consumed, reinforcing the shared multi-tenant defaults that IAM tables extend.
 
 ## Authoring Guardrails
-- Always import Effect modules by namespace (`import * as A from "effect/Array";`, `import * as F from "effect/Function";`) and use Effect helpers instead of native array/string/object APIs when writing cookbook examples or schema helpers.
+- ALWAYS import Effect modules by namespace (`import * as A from "effect/Array";`, `import * as F from "effect/Function";`) and use Effect helpers instead of native array/string/object APIs when writing cookbook examples or schema helpers.
 - Choose `OrgTable.make` for tenant-scoped resources (anything with an `organizationId` relationship) and leave `Table.make` for global artifacts (e.g. `rateLimit`, `walletAddress`). `OrgTable` automatically wires `organizationId` with cascade semantics defined in `packages/shared/tables/src/OrgTable.ts`.
-- Generate enums via domain kits (e.g. `Member.makeMemberRolePgEnum`) so Postgres enum names align with the domain schema and Better Auth plugin expectations. Never handcraft enum builders.
+- Generate enums via domain kits (e.g. `Member.makeMemberRolePgEnum`) so Postgres enum names align with the domain schema and Better Auth plugin expectations. NEVER handcraft enum builders.
 - Keep `_check.ts` synchronized whenever you add or rename columns; failure to extend the file will silently erode type alignment between Drizzle models and `@beep/iam-domain`.
 - Shared tables (`organization`, `team`, `user`) are re-exported from `@beep/shared-tables`. Edits belong in the shared package, not here; note cross-package implications before touching them.
 - When introducing relations ensure Drizzle relation definitions mirror cascade rules declared in table builders and avoid circular dependencies. Group by resource area (members, OAuth, sessions) to keep the file readable.
@@ -110,6 +110,58 @@ export const _checkInsertNotificationPreference: typeof NotificationPreference.M
 - `bun run build` — Produces ESM/CJS artifacts consumed by infra packages.
 - `bun run test` (or `bun run coverage`) — Executes Bun test suite (currently placeholder; expand alongside meaningful table tests).
 - `bun run db:generate` (root) — Regenerate Drizzle types after schema adjustments and confirm migrations stay coherent.
+
+## Security
+
+### Sensitive Column Handling
+- NEVER store plaintext passwords in any table column; password hashes belong in `account` table only, managed by Better Auth.
+- ALWAYS mark token columns (`accessToken`, `refreshToken`, `idToken`, `hashedSecret`) as sensitive in domain schemas.
+- NEVER expose raw API key secrets in select queries; use hashed comparisons for validation.
+- ALWAYS use `FieldSensitiveOptionOmittable` from `@beep/schema` for sensitive optional fields.
+
+### Data Isolation
+- ALWAYS use `OrgTable.make` for tenant-scoped resources to enforce `organizationId` foreign key constraints.
+- NEVER bypass cascade rules defined in table builders—they enforce data isolation on deletion.
+- ALWAYS validate that queries include tenant scope predicates when accessing organization-bound tables.
+
+### Credential Storage Patterns
+- `session` table: tokens MUST have enforced expiry; NEVER allow indefinite sessions.
+- `apiKey` table: store only hashed secrets (`hashedSecret`); NEVER store the plaintext key after initial generation.
+- `passkey` table: WebAuthn credential IDs and public keys are sensitive—NEVER log them.
+- `twoFactor` table: TOTP secrets MUST be encrypted at rest; NEVER expose in API responses.
+- `oauthAccessToken` / `account` tables: tokens are time-bounded; ensure `expiresAt` columns are indexed for cleanup jobs.
+
+### Audit Trail Integrity
+- NEVER modify `createdAt`, `createdBy` columns after initial insert.
+- ALWAYS populate `updatedAt`, `updatedBy` on every update operation.
+- ALWAYS use typed IDs from `IamEntityIds` to maintain referential integrity and traceability.
+
+### Migration Security
+- NEVER include secrets or credentials in migration scripts.
+- ALWAYS review migrations for accidental exposure of sensitive column defaults.
+- ALWAYS coordinate schema changes with `@beep/iam-domain` to maintain type safety.
+
+## Gotchas
+
+### Drizzle ORM Pitfalls
+- **Enum value additions require migrations**: PostgreSQL enums cannot have values added via `ALTER TYPE ... ADD VALUE` inside a transaction. Drizzle generates these statements, but they may fail if run within a transaction block. Run `db:migrate` separately from other transactional operations.
+- **`InferSelectModel` vs `InferInsertModel` divergence**: Optional columns with defaults (e.g., `createdAt`) appear in `InferSelectModel` but not in `InferInsertModel`. Ensure `_check.ts` covers both model types to catch misalignment with domain schemas.
+- **Nullable vs optional confusion**: Drizzle treats `.notNull()` absence as nullable, but TypeScript may infer `undefined`. Use explicit `.$type<T | null>()` to ensure domain schema alignment.
+
+### Migration Ordering
+- **Cross-table foreign keys**: When adding tables that reference each other (e.g., `member` -> `organization`), ensure the referenced table migration runs first. Drizzle orders by filename—use numeric prefixes if manual ordering is needed.
+- **Enum before table**: PostgreSQL enums must be created before any table uses them. If a migration creates both, ensure enum creation is first in the SQL file.
+- **Rollback limitations**: Drizzle Kit does not generate rollback migrations automatically. Document manual rollback steps in PR descriptions for complex schema changes.
+
+### Relation Definition Gotchas
+- **Circular relation imports**: Drizzle relations files can hit circular import issues when two tables reference each other. Use type-only imports (`import type`) for table types when defining relations to break cycles.
+- **Cascade rule mismatch**: The `onDelete` cascade in table definitions must match the Drizzle `relations()` configuration. Mismatches cause silent failures where deletions do not propagate as expected.
+- **Many-to-many requires junction table**: Drizzle does not auto-generate junction tables. Explicitly define the join table with foreign keys to both sides.
+
+### Integration with Domain Entities
+- **`_check.ts` silent failures**: If `_check.ts` assertions are not imported by the build, type mismatches go undetected. Ensure `tsconfig.json` includes `_check.ts` in compilation.
+- **Better Auth field expectations**: Better Auth plugins expect specific column names (`userId`, `expiresAt`, `token`). Renaming columns requires updating plugin configurations to match.
+- **Timestamp precision**: PostgreSQL `timestamp` defaults to microsecond precision, but JavaScript `Date` has millisecond precision. Use `timestamp('col', { precision: 3 })` for consistency with domain `DateTime` schemas.
 
 ## Contributor Checklist
 - [ ] Registered or updated the matching `IamEntityIds` entry and, when required, shared-domain entity definitions before adding a table.

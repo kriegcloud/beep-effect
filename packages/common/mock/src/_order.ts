@@ -1,4 +1,6 @@
 import { _lastActivity } from "@beep/mock/_time";
+import * as A from "effect/Array";
+import * as F from "effect/Function";
 import { _mock } from "./_mock";
 
 // ----------------------------------------------------------------------
@@ -28,9 +30,15 @@ export const _orders = Array.from({ length: 20 }, (_, index) => {
 
   const items = (index % 2 && ITEMS.slice(0, 1)) || (index % 3 && ITEMS.slice(1, 3)) || ITEMS;
 
-  const totalQuantity = items.reduce((accumulator, item) => accumulator + item.quantity, 0);
+  const totalQuantity = F.pipe(
+    items,
+    A.reduce(0, (acc, item) => acc + item.quantity)
+  );
 
-  const subtotal = items.reduce((accumulator, item) => accumulator + item.price * item.quantity, 0);
+  const subtotal = F.pipe(
+    items,
+    A.reduce(0, (acc, item) => acc + item.price * item.quantity)
+  );
 
   const totalAmount = subtotal - shipping - discount + taxes;
 

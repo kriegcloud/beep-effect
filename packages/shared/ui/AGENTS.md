@@ -253,7 +253,7 @@ const multiLabel = allowedContentTextLabelGenerator(multiConfig);
 
 ## Effect-First Guardrails
 
-### Always Use Effect for Validation
+### ALWAYS Use Effect for Validation
 
 ```typescript
 // ❌ FORBIDDEN: Throwing errors
@@ -318,7 +318,7 @@ const handleSave = useEvent(() => {
 
 ### Dropzone Reducer Pattern
 
-Always use the provided `reducer` and `initialState`:
+ALWAYS use the provided `reducer` and `initialState`:
 
 ```typescript
 import { reducer, initialState } from "@beep/shared-ui";
@@ -374,7 +374,7 @@ const arrayConfig = ["image", "video"];
 const objectConfig = { image: {}, video: { maxFileSize: "8MB" } };
 ```
 
-### Always Await Effect Results
+### ALWAYS Await Effect Results
 
 ```typescript
 // ❌ WRONG: Effect is lazy, won't run
@@ -410,6 +410,34 @@ const handleSave = useEvent(() => {
 - `FileSize` = `${1|2|4|8|16|32|64|128|256|512|1024}${"B"|"KB"|"MB"|"GB"}` (compile-time validated)
 - `ExpandedRouteConfig` adds `ImageProperties` (`width`, `height`, `aspectRatio`) for `image` types
 - `BadRequestError<T>` is generic to type the JSON error payload
+
+## Gotchas
+
+### React 19 / Next.js 15 App Router
+- The `"use client"` directive MUST be the first statement in a file, BEFORE imports. Next.js silently treats misplaced directives as server code.
+- `NextSSRPlugin` uses `globalThis` for hydration. Ensure it renders BEFORE any components that consume route config.
+- `useSearchParams()` suspends in App Router. Components using file upload route params need `<Suspense>` wrappers.
+
+### TanStack Query Invalidation
+- File upload progress is local state, not TanStack Query. Do not attempt to cache upload progress.
+- After successful uploads, invalidate queries for the resource that received the file (e.g., document attachments, user avatars).
+- `useFetch` from this package is a simple fetcher, not TanStack Query. For complex caching needs, use TanStack Query directly.
+
+### Server vs Client Component Boundaries
+- Dropzone components require `"use client"` because they use browser APIs (`File`, `DataTransfer`, drag events).
+- `useEvent`, `usePaste`, and `useReducer`-based dropzone state MUST be in Client Components.
+- `NextSSRPlugin` is a Client Component that hydrates server data. It bridges Server Components to client-side route config access.
+
+### Effect Integration in React
+- `fileSizeToBytes` and `matchFileType` return Effects. NEVER forget to run them with `Effect.runSync` or `Effect.runPromise`.
+- Effect errors from validation are typed (`InvalidFileTypeError`, `InvalidFileSizeError`). Use `Effect.catchTag` for specific error handling.
+- NEVER use native `Array.join` or `String.split`. Use `A.join` and `Str.split` from Effect.
+
+### File Upload Specific Pitfalls
+- `fillInputRouteConfig` validates config and returns an Effect. Invalid configs fail at runtime, not compile time.
+- MIME type detection relies on file extension via `BS.lookup`. Files with wrong extensions may pass type checks incorrectly.
+- `isValidSize` expects bytes. Always convert human-readable sizes via `fileSizeToBytes` before comparison.
+- The dropzone reducer is stateless between renders. Persist accepted files in parent component state if needed across re-renders.
 
 ## Testing Notes
 

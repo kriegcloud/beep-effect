@@ -3,7 +3,7 @@
 ## Purpose & Fit
 - Compile-time-only helper library that keeps shared type idioms aligned across slices. No runtime symbols leave this package.
 - Lives alongside `@beep/utils` and `@beep/invariant` to support schema composition, tagged errors, and effectful layers without creating runtime coupling.
-- Consumers must import these namespaces with `import type` so bundlers can erase them; mixing value imports breaks the zero-runtime guarantee.
+- Consumers MUST import these namespaces with `import type` so bundlers can erase them; mixing value imports breaks the zero-runtime guarantee.
 
 ## Surface Map (see `src/`)
 
@@ -36,9 +36,9 @@
 - `packages/common/utils/src/data/struct.utils.ts` imports `RecordTypes`/`StructTypes` to keep runtime helpers aligned with the type-level contracts.
 
 ## Authoring Guardrails
-- Types only: exporting a value, class, or runtime helper is a bug. Re-run `bun run build` after edits to confirm nothing emits JS.
-- Always namespace Effect imports (`import type * as S from "effect/Schema"`). No bare `Schema` default imports.
-- `import type` for every symbol — even internal relative imports should stay type-only when possible.
+- **IMPORTANT:** Types only: exporting a value, class, or runtime helper is a bug. ALWAYS re-run `bun run build` after edits to confirm nothing emits JS.
+- ALWAYS namespace Effect imports (`import type * as S from "effect/Schema"`). NEVER use bare `Schema` default imports.
+- ALWAYS use `import type` for every symbol — even internal relative imports MUST stay type-only when possible.
 - Keep modules domain-agnostic. If a helper mentions a slice-specific concept (IAM, files, etc.), it belongs in that slice.
 - When promoting a type from a slice, ensure it uses existing aliases (e.g., prefer `StringTypes.NonEmptyString` instead of redefining).
 
@@ -70,8 +70,8 @@ type EntityFields = ModelTypes.NonEmptyModelFields<{
 - `bun run lint --filter=@beep/types` to keep Biome happy; prefer `bun run lint:fix --filter=@beep/types` before handing back changes.
 
 ## Contributor Checklist
-- [ ] No runtime exports (inspect generated `build/esm` if unsure).
-- [ ] All imports are `import type` and namespace Effect modules correctly.
+- [ ] NEVER export runtime values (inspect generated `build/esm` if unsure).
+- [ ] ALWAYS use `import type` and namespace Effect modules correctly.
 - [ ] Helpers remain domain-neutral and additive.
 - [ ] Updated README or docs where new namespaces were introduced.
 - [ ] Added/updated test fixtures (`test/` or inline `// @ts-expect-error`) covering tricky type behavior when necessary.

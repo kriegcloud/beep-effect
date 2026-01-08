@@ -31,12 +31,12 @@
 - Local tests leverage `bun test`; you can target a file via `bun run --filter @beep/errors test -- --filter=heading` (delegates to Bun's `--filter` flag).
 
 ## Authoring Guardrails
-- **Effect-first imports**: always namespace Effect modules (`import * as Effect from "effect/Effect"`, `import * as A from "effect/Array"`, `import * as Str from "effect/String"`, etc.). Never fall back to native `Array` / `String` helpers in new code paths.
-- **Client vs Server split**: Any helper that touches Node globals (FS, OS, process) or colorized output must live behind `@beep/errors/server`. Shared and client entry points must remain side-effect free and bundle-safe.
+- **IMPORTANT: Effect-first imports**: ALWAYS namespace Effect modules (`import * as Effect from "effect/Effect"`, `import * as A from "effect/Array"`, `import * as Str from "effect/String"`, etc.). NEVER fall back to native `Array` / `String` helpers in new code paths.
+- **Client vs Server split**: Any helper that touches Node globals (FS, OS, process) or colorized output MUST live behind `@beep/errors/server`. Shared and client entry points MUST remain side-effect free and bundle-safe.
 - **Environment defaults**: `withEnvLogging` reads `APP_LOG_FORMAT` / `APP_LOG_LEVEL` (falling back to pretty+All outside prod). If you introduce new env toggles, keep the shared parser in `shared.ts` so both runtime surfaces stay in sync and log a deprecation warning when touching legacy `NEXT_PUBLIC_*` keys.
 - **Metrics wiring**: `withSpanAndMetrics` expects Effect Metric counters/histograms. Pass counters that are already registered with the service’s Layer to avoid duplicate instrumentation.
-- **Cause rendering**: `formatCauseHeading` reads source files to render code frames. Guard any new IO so it respects `PrettyLoggerConfig.includeCausePretty` and remains optional for high-volume warning paths.
-- **Accumulation**: `accumulateEffects` partitions successes/errors without logging. Only the `*AndReport` variants perform side effects—use them deliberately in orchestration layers, not core business logic.
+- **Cause rendering**: `formatCauseHeading` reads source files to render code frames. ALWAYS guard any new IO so it respects `PrettyLoggerConfig.includeCausePretty` and remains optional for high-volume warning paths.
+- **Accumulation**: `accumulateEffects` partitions successes/errors without logging. Only the `*AndReport` variants perform side effects—use them deliberately in orchestration layers, NEVER in core business logic.
 
 ## Quick Recipes
 ```ts

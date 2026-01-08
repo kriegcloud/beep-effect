@@ -19,11 +19,11 @@
 - Integration tests validate schema alignment with domain models.
 
 ## Authoring Guardrails
-- Always use `Table.make(EntityId)` factory to create tables — this ensures consistent audit columns and typed primary keys.
+- ALWAYS use `Table.make(EntityId)` factory to create tables — this ensures consistent audit columns and typed primary keys.
 - Reference entity ID types from `@beep/shared-domain` (e.g., `CustomizationEntityIds.UserHotkeyId`) for primary key typing.
 - Use `.$type<T>()` on columns when Drizzle's inferred type doesn't match the domain model type.
 - Define indexes in the table factory's third argument for performance-critical columns.
-- Foreign key references should specify `onDelete` behavior (cascade, set null, etc.).
+- Foreign key references MUST specify `onDelete` behavior (cascade, set null, etc.).
 - Export tables from `./tables/index.ts` and relations from `./relations/index.ts`.
 
 ## Quick Recipes
@@ -52,6 +52,28 @@
 - `bun run lint --filter @beep/customization-tables`
 - `bun run db:generate` — Regenerate migrations after schema changes
 - `bun run db:migrate` — Apply migrations to database
+
+## Gotchas
+
+### Drizzle ORM Pitfalls
+- **JSONB column default handling**: The `shortcuts` JSONB column in `userHotkey` should not have a database-level default. Use domain-level defaults in Effect Schema—Drizzle JSONB defaults are evaluated once at migration time, not per-insert.
+- **Unique constraint on userId**: If a user should have only one hotkey configuration, add a `uniqueIndex` on `userId`. Without this, multiple rows per user cause unexpected behavior in upsert operations.
+- **Type coercion in JSONB queries**: PostgreSQL JSONB operators (`->`, `->>`) return different types. Use `.$type<T>()` to ensure TypeScript understands the extracted value type, but validate at runtime with Effect Schema.
+
+### Migration Ordering
+- **User table dependency**: `userHotkey.userId` references the shared `user` table. Ensure shared table migrations run first—this is automatic via `db-admin`, but custom migration scripts may break ordering.
+- **Adding new preference tables**: New customization tables should follow the `userHotkey` pattern with a `userId` foreign key. Coordinate migration numbering with `db-admin` to avoid sequence gaps.
+- **Nullable vs required columns**: Changing a column from nullable to required requires a data migration to populate existing rows. Plan the migration in two phases: add default, then add constraint.
+
+### Relation Definition Gotchas
+- **One-to-one user preferences**: Most customization tables have a one-to-one relationship with `user`. Use `uniqueIndex` on the `userId` column to enforce this at the database level—Drizzle `one()` relations do not enforce uniqueness.
+- **Cascade delete behavior**: User preference data should cascade when the user is deleted. Always use `onDelete: 'cascade'` for `userId` foreign keys to prevent orphaned customization rows.
+- **No cross-organization preferences**: Customization tables should not reference `organizationId` unless preferences are organization-scoped. The `userHotkey` table correctly uses `Table.make`, not `OrgTable.make`.
+
+### Integration with Domain Entities
+- **Schema validation for JSONB**: The `shortcuts` column stores structured data, but PostgreSQL does not validate the JSON structure. Use Effect Schema in the domain layer to validate and decode JSONB content on read.
+- **Default preference generation**: When a user has no customization row, the domain layer should return defaults—do not insert empty rows on user creation. This pattern keeps the table sparse.
+- **Preference versioning**: Consider adding a `schemaVersion` column if the JSONB structure may evolve. This allows domain code to migrate old preference formats without database migrations.
 
 ## Contributor Checklist
 - [ ] Align table columns with domain entity fields from `@beep/customization-domain`.

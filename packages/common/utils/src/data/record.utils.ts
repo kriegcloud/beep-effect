@@ -15,7 +15,8 @@
  */
 import type { RecordTypes, StringTypes, UnsafeTypes } from "@beep/types";
 import { isUnsafeProperty } from "@beep/utils/guards";
-import type * as A from "effect/Array";
+import * as A from "effect/Array";
+import * as F from "effect/Function";
 import * as HashSet from "effect/HashSet";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
@@ -80,7 +81,12 @@ export const reverseRecord = <
 >(
   obj: T
 ): RecordTypes.ReversedRecord<T> =>
-  Object.fromEntries(Object.entries(obj).map(([key, value]) => [value, key] as const));
+  F.pipe(
+    obj,
+    R.toEntries,
+    A.map(([key, value]) => [value, key] as const),
+    R.fromEntries
+  ) as RecordTypes.ReversedRecord<T>;
 
 /**
  * Deeply merges two plain objects or arrays, mutating the target while

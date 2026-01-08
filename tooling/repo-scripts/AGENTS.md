@@ -37,6 +37,39 @@
 - Prefer `FsUtils.modifyFile` / `existsOrThrow` for IO; avoid `node:fs` unless working inside `utils` where necessary (document the escape hatch).
 - When new scripts need prompts or command args, centralize parsing in `@effect/cli` commands, keep handlers effectful, and expose test exports for test coverage.
 
+## Security
+
+### Secret Generation
+- ALWAYS use Effect `Random` or `node:crypto` for cryptographic secret generation; NEVER use `Math.random()` or predictable seeds.
+- Generated secrets must use at least 32 bytes of entropy for auth secrets and session tokens.
+- NEVER log full secret values; truncate to first 8 characters with `...` suffix for verification output.
+
+### Secret Handling
+- NEVER commit generated secrets to version control; `.env` files must be listed in `.gitignore`.
+- NEVER include secret values in error messages, stack traces, or telemetry spans.
+- AVOID storing secrets in memory longer than necessary; prefer generating on-demand over caching.
+- ALWAYS use double quotes around secret values in `.env` files to handle special characters.
+
+### File Permissions
+- Generated `.env` files should have restrictive permissions (`600` or `rw-------`) on Unix systems.
+- NEVER write secrets to world-readable locations or temp directories without cleanup.
+- Prefer writing to repository root `.env` over workspace-specific locations to centralize secret management.
+
+### .gitignore Requirements
+The following patterns must be present in repository `.gitignore`:
+```
+.env
+.env.local
+.env.*.local
+*.secret
+*.secrets
+```
+
+### Environment Variable Safety
+- NEVER access `process.env` directly in generators; use `@beep/env` typed accessors in application code.
+- Environment scaffolding scripts may read `process.argv` for CLI arguments but should not interpolate secrets into command strings.
+- When syncing `.env` across workspaces, validate that destination paths are within the repository boundary to prevent path traversal.
+
 ## Quick Recipes
 
 ```ts

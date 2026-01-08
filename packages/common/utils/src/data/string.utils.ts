@@ -208,7 +208,7 @@ export const interpolateTemplate = (template: string, data: Record<string, unkno
  * @since 0.1.0
  */
 export const getNestedValue = (obj: Record<string, unknown>, path: string): unknown => {
-  const parts = path.split(".");
+  const parts = F.pipe(path, Str.split("."));
   let current: unknown = obj;
 
   for (const part of parts) {

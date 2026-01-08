@@ -16,8 +16,8 @@
 - Test harness seeds comms fixtures directly from `Entities.*` model variants when spinning Postgres containers.
 
 ## Authoring Guardrails
-- Always import Effect modules with namespaces (`Effect`, `A`, `F`, `O`, `Str`, `S`, `M`) and rely on Effect collections/utilities instead of native helpers (see global repo guardrails).
-- Use `makeFields` so every entity inherits the audit + tracking columns and typed IDs; never redefine `id`, `_rowId`, `version`, or timestamps manually.
+- ALWAYS import Effect modules with namespaces (`Effect`, `A`, `F`, `O`, `Str`, `S`, `M`) and rely on Effect collections/utilities instead of native helpers (see global repo guardrails).
+- Use `makeFields` so every entity inherits the audit + tracking columns and typed IDs; NEVER redefine `id`, `_rowId`, `version`, or timestamps manually.
 - Maintain `Symbol.for("@beep/comms-domain/<Entity>Model")` naming via `$CommsDomainId` to keep schema metadata stable across database migrations and clients.
 - Prefer shared schema helpers (`FieldOptionOmittable`, `FieldSensitiveOptionOmittable`, `toOptionalWithDefault`, `BoolWithDefault`) to describe optionality and defaults.
 - When adding new entities, extend entity ID factories in `@beep/shared-domain` (e.g., `CommsEntityIds`) and propagate matching tables in `@beep/comms-tables`.
@@ -56,9 +56,26 @@
 - `bun run lint --filter @beep/comms-domain`
 - `bun run test --filter @beep/comms-domain`
 
+## Security
+
+### Sensitive Data Modeling
+- ALWAYS use `FieldSensitiveOptionOmittable` for PII fields (email, phone, name) — this marks them for special handling in serialization.
+- NEVER include raw credentials, API keys, or secrets in domain entities — these belong in environment config.
+- Email addresses and phone numbers MUST use validated schema types (e.g., `S.String.pipe(S.pattern(...))`) — never bare strings.
+
+### Data Validation
+- ALWAYS validate all incoming data at schema boundaries using Effect Schema — domain entities are the last line of defense.
+- NEVER trust client-provided IDs without ownership verification in the server layer.
+- Notification content MUST have length limits defined in the schema to prevent storage abuse.
+
+### Audit Trail Requirements
+- NEVER modify `makeFields` audit columns manually — let the framework manage `createdAt`, `updatedAt`, and `version`.
+- Domain entities MUST preserve audit fields for compliance — avoid transformations that strip tracking metadata.
+
 ## Contributor Checklist
 - [ ] Align entity changes with `@beep/comms-tables` columns and regenerate migrations (`bun run db:generate`, `bun run db:migrate`).
 - [ ] Update `packages/_internal/db-admin` fixtures/tests when adding or removing fields to keep container smoke tests honest.
 - [ ] Maintain `Symbol.for` identifiers and audit field structure via `makeFields`.
 - [ ] Prefer `Model.insert/update/json` helpers for transformations—avoid handcrafting payloads in repos or services.
+- [ ] Mark PII fields with appropriate sensitive field helpers.
 - [ ] Re-run verification commands above before handing work off; add Vitest coverage beyond the placeholder suite when touching new behavior.

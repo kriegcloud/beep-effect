@@ -60,7 +60,7 @@ Configuration and guardrails for AI collaborators working in the `beep-effect` m
 
 ## Architecture & Boundaries
 
-Each slice follows `domain -> tables -> infra -> client -> ui`. Cross-slice imports only through `packages/shared/*` or `packages/common/*`. Use `@beep/*` path aliases. Never use direct cross-slice imports or relative `../../../` paths.
+Each slice follows `domain -> tables -> infra -> client -> ui`. Cross-slice imports only through `packages/shared/*` or `packages/common/*`. ALWAYS use `@beep/*` path aliases. NEVER use direct cross-slice imports or relative `../../../` paths.
 
 ## Effect Patterns
 
@@ -68,18 +68,18 @@ See [documentation/EFFECT_PATTERNS.md](documentation/EFFECT_PATTERNS.md) for det
 
 ## Code Quality
 
-- No `any`, `@ts-ignore`, or unchecked casts. Validate external data with `@beep/schema`.
+- NEVER use `any`, `@ts-ignore`, or unchecked casts. ALWAYS validate external data with `@beep/schema`.
 - Biome formatting: run `bun run lint:fix` before committing.
 - Effect testing utilities in `@beep/testkit`. Use `Effect.log*` with structured objects.
 
 ## Workflow for AI Agents
 
-1. **Clarify Intent**: Ask before editing if unclear
+1. **Clarify Intent**: ALWAYS ask before editing if unclear
 2. **Incremental Changes**: Prefer small, focused diffs
 3. **Verify Changes**: Request `bun run check` after modifications
 4. **Respect Tooling**: Use root scripts with `dotenvx`
 5. **Keep Docs Updated**: Align with `documentation/patterns/` when introducing new patterns
-6. **Do Not Auto-Start**: Never launch long-running dev or infra commands without confirmation
+6. **Do Not Auto-Start**: NEVER launch long-running dev or infra commands without confirmation
 
 ## Specifications
 

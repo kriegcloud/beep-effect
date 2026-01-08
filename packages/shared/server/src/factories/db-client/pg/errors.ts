@@ -140,8 +140,8 @@ export class DatabaseError extends S.TaggedError<DatabaseError>($I`DatabaseError
         // Skip internal paths, node_modules, and non-file paths (native, etc.)
         if (
           filePath?.startsWith("/") && // Must be an absolute file path
-          !filePath.includes("node_modules") &&
-          !filePath.includes("shared/server/src/internal") // Skip our internal db code
+          !Str.includes("node_modules")(filePath) &&
+          !Str.includes("shared/server/src/internal")(filePath) // Skip our internal db code
         ) {
           return `${filePath}:${lineNum}:${colNum}`;
         }
@@ -304,7 +304,7 @@ export class DatabaseError extends S.TaggedError<DatabaseError>($I`DatabaseError
     // Footer
     lines.push(`${boxColor(BOX.bottomLeft + BOX.horizontal)}`);
 
-    return lines.join("\n");
+    return F.pipe(lines, A.join("\n"));
   };
 }
 

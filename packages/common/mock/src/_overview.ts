@@ -1,12 +1,15 @@
 import { _lastActivity } from "@beep/mock/_time";
 import { today } from "@beep/utils/format-time";
+import * as A from "effect/Array";
+import * as F from "effect/Function";
 import { _mock } from "./_mock";
 
 // APP
 // ----------------------------------------------------------------------
 
-export const _appRelated = ["Microsoft office 365", "Opera", "Adobe acrobat reader DC", "Joplin", "Topaz photo AI"].map(
-  (name, index) => ({
+export const _appRelated = F.pipe(
+  ["Microsoft office 365", "Opera", "Adobe acrobat reader DC", "Joplin", "Topaz photo AI"],
+  A.map((name, index) => ({
     id: _mock.id(index),
     name,
     downloaded: _mock.number.nativeL(index),
@@ -14,18 +17,21 @@ export const _appRelated = ["Microsoft office 365", "Opera", "Adobe acrobat read
     size: _mock.number.nativeL(index) * 1024,
     totalReviews: _mock.number.nativeL(index),
     shortcut: `/assets/icons/apps/ic-app-${index + 1}.webp`,
-    price: [2, 4].includes(index) ? _mock.number.price(index) : 0,
-  })
+    price: F.pipe([2, 4], A.contains(index)) ? _mock.number.price(index) : 0,
+  }))
 );
 
-export const _appInstalled = ["Germany", "England", "France", "Korean", "USA"].map((country, index) => ({
-  id: _mock.id(index),
-  countryName: country,
-  android: _mock.number.nativeL(index),
-  windows: _mock.number.nativeL(index + 1),
-  apple: _mock.number.nativeL(index + 2),
-  countryCode: ["de", "gb", "fr", "kr", "us"][index]!,
-}));
+export const _appInstalled = F.pipe(
+  ["Germany", "England", "France", "Korean", "USA"],
+  A.map((country, index) => ({
+    id: _mock.id(index),
+    countryName: country,
+    android: _mock.number.nativeL(index),
+    windows: _mock.number.nativeL(index + 1),
+    apple: _mock.number.nativeL(index + 2),
+    countryCode: ["de", "gb", "fr", "kr", "us"][index]!,
+  }))
+);
 
 export const _appAuthors = Array.from({ length: 3 }, (_, index) => ({
   id: _mock.id(index),
@@ -114,11 +120,14 @@ export const _analyticTraffic = [
 // ECOMMERCE
 // ----------------------------------------------------------------------
 
-export const _ecommerceSalesOverview = ["Total profit", "Total income", "Total expenses"].map((label, index) => ({
-  label,
-  totalAmount: _mock.number.price(index) * 100,
-  value: _mock.number.percent(index),
-}));
+export const _ecommerceSalesOverview = F.pipe(
+  ["Total profit", "Total income", "Total expenses"],
+  A.map((label, index) => ({
+    label,
+    totalAmount: _mock.number.price(index) * 100,
+    value: _mock.number.percent(index),
+  }))
+);
 
 export const _ecommerceBestSalesman = Array.from({ length: 5 }, (_, index) => {
   const category = ["CAP", "Branded shoes", "Headphone", "Cell phone", "Earings"][index]!;
@@ -147,7 +156,7 @@ export const _ecommerceLatestProducts = Array.from({ length: 5 }, (_, index) => 
     name: _mock.productName(index),
     price: _mock.number.price(index),
     coverUrl: _mock.image.product(index),
-    priceSale: [1, 3].includes(index) ? _mock.number.price(index) : 0,
+    priceSale: F.pipe([1, 3], A.contains(index)) ? _mock.number.price(index) : 0,
   };
 });
 

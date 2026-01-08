@@ -47,14 +47,14 @@ through runtime helpers, while adapters keep raw Better Auth usage isolated to t
 
 ## Authoring Guardrails
 
-- Keep namespace imports for every Effect module and repo package (`import * as Effect from "effect/Effect"`,
+- ALWAYS keep namespace imports for every Effect module and repo package (`import * as Effect from "effect/Effect"`,
   `import * as F from "effect/Function"`). Native array/string helpers remain forbidden—pipe through `effect/Array` and
   `effect/String`.
 - Treat `contractkit` as the single source of truth for new flows: define schemas with `Contract.make`, group them via
   `ContractKit.make`, and expose implementations with `ContractKit.of`.
-- When calling Better Auth methods, always wire handlers through `ContractName.implement(Effect.fn(function* (payload, { continuation }) { ... }))`, encode payloads via `ContractName.encodePayload`, call Better Auth with `_internal` helpers (`withFetchOptions`, `addFetchOptions`), raise results via `continuation`, and decode with `ContractName.decodeUnknownSuccess`.
+- When calling Better Auth methods, ALWAYS wire handlers through `ContractName.implement(Effect.fn(function* (payload, { continuation }) { ... }))`, encode payloads via `ContractName.encodePayload`, call Better Auth with `_internal` helpers (`withFetchOptions`, `addFetchOptions`), raise results via `continuation`, and decode with `ContractName.decodeUnknownSuccess`.
 - Fire `client.$store.notify("$sessionSignal")` after any successful operation that mutates session state (sign-in, sign-out, passkey, social). Guards rely on that signal.
-- Avoid resurrecting `AuthHandler`/`auth-wrapper` semantics—timeouts, retries, and toasts now live in consuming layers (atoms + `withToast`). Keep CLIENT implementations narrowly focused on transport and error shaping.
+- NEVER resurrect `AuthHandler`/`auth-wrapper` semantics—timeouts, retries, and toasts now live in consuming layers (atoms + `withToast`). Keep CLIENT implementations narrowly focused on transport and error shaping.
 - Keep `AuthCallback` prefixes aligned with app middleware. Update both whenever authenticated route trees move.
 
 ## Quick Recipes
@@ -153,3 +153,75 @@ export const resolveCallbackTarget = (raw: string | null | undefined) =>
   stay aligned.
 - Replace the dummy Bun test with meaningful coverage when modifying `contractkit` or adapters; co-locate tests beside
   the touched module.
+
+## Security
+
+### Credential Handling in Contracts
+- ALWAYS use `Redacted.value` when extracting credential values (email, password, tokens) before passing to Better Auth.
+- NEVER log credential payloads—contract implementations MUST NOT include password or token values in telemetry.
+- ALWAYS define credential fields with sensitive schema wrappers in contract definitions.
+- NEVER expose raw credential values in error messages or continuation metadata.
+
+### Token Security
+- NEVER store session tokens in localStorage or sessionStorage—rely on Better Auth's httpOnly cookie handling.
+- ALWAYS use `AuthCallback.sanitizePath` to validate redirect URLs before authentication redirects.
+- NEVER include tokens in URL query parameters; use POST bodies or secure cookies only.
+- ALWAYS fire `$sessionSignal` after credential operations to ensure guards react to state changes.
+
+### Contract Implementation Security
+- ALWAYS use `continuation.run` to wrap Better Auth calls—this ensures proper error boundary handling.
+- NEVER bypass contract encoding/decoding; raw Better Auth responses may contain sensitive data.
+- ALWAYS decode responses via `ContractName.decodeUnknownSuccess` to strip unexpected fields.
+- NEVER expose Better Auth internal error details to UI consumers; map to `IamError` types.
+
+### Rate Limiting Awareness
+- Client implementations MUST handle rate limit responses gracefully (429 status).
+- NEVER implement client-side retry loops that could amplify rate-limited requests.
+- ALWAYS surface rate limit feedback to users rather than silently retrying.
+
+### Callback URL Validation
+- ALWAYS constrain `callbackURL` values to known `privatePrefix` paths via `AuthCallback`.
+- NEVER allow user-controlled callback URLs without sanitization.
+- ALWAYS validate callback targets match the application's authenticated route structure.
+
+### Session State Management
+- ALWAYS treat `client.$store` as the single source of truth for session state.
+- NEVER cache session data outside the Better Auth client store.
+- ALWAYS handle session expiry by redirecting to authentication flows—NEVER show stale session state.
+
+## Gotchas
+
+### Contract Schema Mismatches
+- **Symptom**: Runtime decode errors with `ParseError` when calling Better Auth methods.
+- **Root Cause**: Contract success/failure schemas drift from Better Auth's actual response shapes after plugin updates.
+- **Solution**: When upgrading Better Auth, verify response shapes in browser devtools and update contract schemas accordingly. Run `ContractName.decodeUnknownSuccess` in isolation to test.
+
+### Continuation Metadata Must Be Accurate
+- **Symptom**: Telemetry spans show wrong `domain` or `method` values; toast messages display incorrect context.
+- **Root Cause**: `continuation.metadata` is derived from contract annotations at implementation time—if you copy/paste implementations, metadata may be stale.
+- **Solution**: ALWAYS verify that `.annotate(Contract.Domain, ...)` and `.annotate(Contract.Method, ...)` match the actual contract being implemented. Metadata flows through `withToast` and tracing.
+
+### `$sessionSignal` Notification Timing
+- **Symptom**: Auth guards do not react after sign-in/sign-out completes; UI shows stale session state.
+- **Root Cause**: `client.$store.notify("$sessionSignal")` was not called after a session-mutating operation.
+- **Solution**: Every implementation that changes session state (sign-in, sign-out, verify, passkey, social) MUST call `client.$store.notify("$sessionSignal")` after success. Guards subscribe to this signal.
+
+### Better Auth Internal Helpers (`addFetchOptions`, `withFetchOptions`)
+- **Symptom**: Requests fail silently or return unexpected errors when calling Better Auth methods.
+- **Root Cause**: Better Auth methods require specific fetch option shapes that change between versions.
+- **Solution**: Use `_internal` helpers from `@beep/iam-client/clients/_internal` to wrap fetch options. These helpers abstract version-specific option shapes.
+
+### `Redacted.value` Must Unwrap Credentials
+- **Symptom**: Better Auth receives `[Redacted]` string instead of actual credential values.
+- **Root Cause**: Schema uses `S.Redacted(S.String)` but implementation forgets to call `Redacted.value()` before passing to Better Auth.
+- **Solution**: ALWAYS extract credential values via `Redacted.value(payload.password)` before calling Better Auth methods. The schema's `Redacted` wrapper is for type safety and logging suppression, not automatic unwrapping.
+
+### Contract Kit Layer vs Implementation Exports
+- **Symptom**: Type errors when wiring contracts into runtime layers; missing implementations at runtime.
+- **Root Cause**: Confusion between `ContractKit.toLayer()` (creates Layer from implementations) and direct implementation exports.
+- **Solution**: Export both the raw implementation functions (for atoms) AND the ContractKit layer (for runtime composition). See `passkey.service.ts` pattern.
+
+### AuthCallback Prefix Synchronization
+- **Symptom**: After sign-in, users redirect to wrong pages or get 404 errors.
+- **Root Cause**: `AuthCallback.privatePrefix` values in this package are out of sync with route middleware in `apps/web`.
+- **Solution**: When adding authenticated routes, update BOTH `packages/iam/client/src/constants.ts` AND the corresponding middleware in `apps/web`. Run `bun run --filter apps/web lint` to catch mismatches.

@@ -16,12 +16,12 @@
 - Storybook stories showcase component variants and interactions.
 
 ## Authoring Guardrails
-- Always import Effect modules with namespaces (`Effect`, `A`, `F`, `O`, `Str`) when using Effect utilities in components.
+- ALWAYS import Effect modules with namespaces (`Effect`, `A`, `F`, `O`, `Str`) when using Effect utilities in components.
 - Use `"use client"` directive for components requiring client-side interactivity.
 - Follow MUI and Tailwind patterns from `@beep/ui-core` for consistent styling.
 - Compose hooks from `@beep/runtime-client` for Effect integration in React components.
 - Keep components focused on presentation — business logic should live in contracts or domain layer.
-- Use React 19 patterns and avoid deprecated lifecycle methods.
+- Use React 19 patterns and NEVER use deprecated lifecycle methods.
 
 ## Quick Recipes
 - **Create a hotkey settings component**
@@ -50,6 +50,35 @@
 - `bun run check --filter @beep/customization-ui`
 - `bun run lint --filter @beep/customization-ui`
 - `bun run test --filter @beep/customization-ui`
+
+## Gotchas
+
+### React 19 / Next.js 15 App Router
+- The `"use client"` directive MUST be the first line of the file, BEFORE any imports. Next.js silently runs misplaced client components on the server.
+- Settings/preference components require `"use client"` because they use hooks for state management.
+- `useSearchParams()` suspends in App Router. Preference pages with URL-based state need `<Suspense>` boundaries.
+
+### TanStack Query Invalidation
+- After saving user preferences, invalidate ALL queries that depend on those preferences (e.g., theme, hotkeys).
+- Optimistic updates for preference toggles should immediately reflect in UI while the save is in progress.
+- Preference changes may affect multiple components across the app. Use broad invalidation patterns like `queryClient.invalidateQueries({ queryKey: ["preferences"] })`.
+
+### Server vs Client Component Boundaries
+- Theme selection components need `"use client"` due to MUI `ThemeProvider` interaction.
+- Hotkey configuration requires `"use client"` because it listens to keyboard events.
+- Preference display (read-only) can be a Server Component, but editing forms must be Client Components.
+
+### Effect Integration in React
+- Preference save contracts return Effects. Use `Effect.runPromise` in mutation handlers or TanStack Query `mutationFn`.
+- Effect schemas validate preference values. Use `S.decodeUnknownSync` for immediate form validation feedback.
+- NEVER construct Effects during render. Create them in event handlers or `useEffect`.
+
+### Customization-Specific Pitfalls
+- Theme changes may cause full-page re-renders. Ensure `ThemeProvider` is high in the component tree to minimize re-render scope.
+- Hotkey conflicts between application shortcuts and browser shortcuts (e.g., Ctrl+S) require careful handling.
+- Preference persistence timing matters. Save preferences on blur or with debouncing, not on every keystroke.
+- Local preference overrides (via localStorage) may conflict with server-synced preferences. Establish clear precedence rules.
+- Accessibility settings (font size, contrast) affect all `@beep/ui` components. Test changes across the entire application.
 
 ## Contributor Checklist
 - [ ] Add `"use client"` directive for interactive components.

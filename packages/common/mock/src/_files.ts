@@ -1,4 +1,9 @@
 import { _lastActivity } from "@beep/mock/_time";
+import * as A from "effect/Array";
+import * as F from "effect/Function";
+import * as O from "effect/Option";
+import * as Str from "effect/String";
+
 import { _mock } from "./_mock";
 import { _fileNames, _tags } from "./assets";
 
@@ -67,31 +72,42 @@ const shared = (index: number) =>
   (index === 3 && SHARED_PERSONS.slice(11, 12)) ||
   [];
 
-export const _folders = FOLDERS.map((name, index) => ({
-  id: `${_mock.id(index)}_folder`,
-  name,
-  type: "folder",
-  url: URLS[index]!,
-  shared: shared(index),
-  tags: _tags.slice(0, 5),
-  size: GB / ((index + 1) * 10),
-  totalFiles: (index + 1) * 100,
-  createdAt: _lastActivity[index]!,
-  modifiedAt: _lastActivity[index]!,
-  isFavorited: _mock.boolean(index + 1),
-}));
+export const _folders = F.pipe(
+  FOLDERS,
+  A.map((name, index) => ({
+    id: `${_mock.id(index)}_folder`,
+    name,
+    type: "folder",
+    url: URLS[index]!,
+    shared: shared(index),
+    tags: _tags.slice(0, 5),
+    size: GB / ((index + 1) * 10),
+    totalFiles: (index + 1) * 100,
+    createdAt: _lastActivity[index]!,
+    modifiedAt: _lastActivity[index]!,
+    isFavorited: _mock.boolean(index + 1),
+  }))
+);
 
-export const _files = _fileNames.map((name, index) => ({
-  id: `${_mock.id(index)}_file`,
-  name,
-  url: URLS[index]!,
-  shared: shared(index),
-  tags: _tags.slice(0, 5),
-  size: GB / ((index + 1) * 500),
-  createdAt: _lastActivity[index]!,
-  modifiedAt: _lastActivity[index]!,
-  type: `${name.split(".").pop()}`,
-  isFavorited: _mock.boolean(index + 1),
-}));
+export const _files = F.pipe(
+  _fileNames,
+  A.map((name, index) => ({
+    id: `${_mock.id(index)}_file`,
+    name,
+    url: URLS[index]!,
+    shared: shared(index),
+    tags: _tags.slice(0, 5),
+    size: GB / ((index + 1) * 500),
+    createdAt: _lastActivity[index]!,
+    modifiedAt: _lastActivity[index]!,
+    type: F.pipe(
+      name,
+      Str.split("."),
+      A.last,
+      O.getOrElse(() => "")
+    ),
+    isFavorited: _mock.boolean(index + 1),
+  }))
+);
 
 export const _allFiles = [..._folders, ..._files] as const;

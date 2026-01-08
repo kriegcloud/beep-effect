@@ -26,11 +26,11 @@
 - SEO-optimized content pages
 
 ## Authoring Guardrails
-- Keep dependencies minimal - this is a simple marketing site
-- Use Next.js App Router conventions for pages and layouts
-- Leverage Tailwind CSS for styling - no component libraries needed
-- Optimize for performance and SEO (static generation, image optimization)
-- No backend logic - this is purely frontend/static content
+- ALWAYS keep dependencies minimal - this is a simple marketing site
+- ALWAYS use Next.js App Router conventions for pages and layouts
+- ALWAYS leverage Tailwind CSS for styling - no component libraries needed
+- ALWAYS optimize for performance and SEO (static generation, image optimization)
+- NEVER include backend logic - this is purely frontend/static content
 
 ## Development Workflow
 - `bun run dev --filter @beep/marketing` — Start development server
