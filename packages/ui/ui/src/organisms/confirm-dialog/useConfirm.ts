@@ -1,3 +1,4 @@
+import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
 import React from "react";
 import ConfirmContext from "./ConfirmContext";
@@ -32,11 +33,16 @@ export const useConfirm = (): ConfirmFunc => {
   return confirm;
 };
 
+/** Tagged error for confirmation dialog failures. */
+class ConfirmError extends Data.TaggedError("ConfirmError")<{
+  readonly message: string;
+}> {}
+
 export const useConfirmEffect = () => {
   const confirm = useConfirm();
   return (opts: ConfirmOptions) =>
     Effect.tryPromise({
       try: () => confirm(opts),
-      catch: (e) => Effect.fail(new Error(`useConfirmEffect: Error while confirming: ${e}`)),
+      catch: (e) => new ConfirmError({ message: `useConfirmEffect: Error while confirming: ${e}` }),
     });
 };

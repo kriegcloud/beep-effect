@@ -23,8 +23,8 @@ function Example({
   containerClassName,
   ...props
 }: React.ComponentProps<"div"> & {
-  title: string;
-  containerClassName?: string;
+  readonly title: string;
+  readonly containerClassName?: undefined | string;
 }) {
   return (
     <div

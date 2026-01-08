@@ -1,4 +1,5 @@
 import * as S from "effect/Schema";
+import type { UnsafeTypes } from "@beep/types";
 import * as AST from "effect/SchemaAST";
 export const builtInAnnotations = {
   schemaId: AST.SchemaIdAnnotationId,
@@ -66,6 +67,6 @@ export function makeDeclareClass<P extends ReadonlyArray<S.Schema.All>, A, I, R>
       return makeDeclareClass(typeParameters, mergeSchemaAnnotations(ast, annotations));
     }
 
-    static typeParameters = [...typeParameters] as any as P;
+    static typeParameters = [...typeParameters] as UnsafeTypes.UnsafeAny as P;
   };
 }

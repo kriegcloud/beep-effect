@@ -190,8 +190,8 @@ export const mapNonEmpty: MapNonEmpty = F.dual(
   }
 );
 
-// biome-ignore lint/suspicious/noExplicitAny: required for generic array type inference
-export const assertNonEmpty = <A extends Array<any>>(arr: A): A.NonEmptyReadonlyArray<A[number]> => {
+
+export const assertNonEmpty = <A extends Array<UnsafeTypes.UnsafeAny>>(arr: A): A.NonEmptyReadonlyArray<A[number]> => {
   invariant(A.isNonEmptyReadonlyArray(arr), "array must be non-empty", {
     file: "@beep/utils/data/array.utils/NonEmptyReadonly/NonEmptyreadonly.ts",
     line: 194,

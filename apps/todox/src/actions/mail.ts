@@ -41,7 +41,7 @@ const runtime = ManagedRuntime.make(HttpClientLive);
  */
 const makeGetRequest = <T>(
   url: string,
-  params?: Record<string, string>
+  params?: undefined | Record<string, string>
 ): Effect.Effect<T, Error, HttpClient.HttpClient> =>
   Effect.gen(function* () {
     const client = yield* HttpClient.HttpClient;
@@ -69,7 +69,7 @@ const makeGetRequest = <T>(
  * @param args - Either a URL string or a tuple of [url, config] where config contains params
  */
 export const fetcher = async <T = unknown>(
-  args: string | [string, { params?: Record<string, string> }]
+  args: string | [string, { readonly params?: undefined | Record<string, string> }]
 ): Promise<T> => {
   const [url, config] = Array.isArray(args) ? args : [args, {}];
   const params = config.params;

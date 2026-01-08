@@ -9,7 +9,7 @@ function Switch({
   size = "default",
   ...props
 }: SwitchPrimitive.Root.Props & {
-  size?: "sm" | "default";
+  readonly size?: undefined | "sm" | "default";
 }) {
   return (
     <SwitchPrimitive.Root

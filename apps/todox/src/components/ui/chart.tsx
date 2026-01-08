@@ -9,9 +9,12 @@ const THEMES = { light: "", dark: ".dark" } as const;
 
 export type ChartConfig = {
   [k in string]: {
-    label?: React.ReactNode;
-    icon?: React.ComponentType;
-  } & ({ color?: string; theme?: never } | { color?: never; theme: Record<keyof typeof THEMES, string> });
+    readonly label?: undefined | React.ReactNode;
+    readonly icon?: undefined | React.ComponentType;
+  } & (
+    | { readonly color?: undefined | string; readonly theme?: undefined | never }
+    | { readonly color?: undefined | never; readonly theme: Record<keyof typeof THEMES, string> }
+  );
 };
 
 type ChartContextProps = {
@@ -108,11 +111,11 @@ function ChartTooltipContent({
   labelKey,
 }: React.ComponentProps<typeof RechartsPrimitive.Tooltip> &
   React.ComponentProps<"div"> & {
-    hideLabel?: boolean;
-    hideIndicator?: boolean;
-    indicator?: "line" | "dot" | "dashed";
-    nameKey?: string;
-    labelKey?: string;
+    readonly hideLabel?: undefined | boolean;
+    readonly hideIndicator?: undefined | boolean;
+    readonly indicator?: undefined | "line" | "dot" | "dashed";
+    readonly nameKey?: undefined | string;
+    readonly labelKey?: undefined | string;
   }) {
   const { config } = useChart();
 
@@ -228,8 +231,8 @@ function ChartLegendContent({
   nameKey,
 }: React.ComponentProps<"div"> &
   Pick<RechartsPrimitive.LegendProps, "payload" | "verticalAlign"> & {
-    hideIcon?: boolean;
-    nameKey?: string;
+    readonly hideIcon?: undefined | boolean;
+    readonly nameKey?: undefined | string;
   }) {
   const { config } = useChart();
 

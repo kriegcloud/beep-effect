@@ -11,7 +11,16 @@ import * as Effect from "effect/Effect";
 import * as Encoding from "effect/Encoding";
 import * as O from "effect/Option";
 import * as Random from "effect/Random";
+import * as S from "effect/Schema";
 import * as Struct from "effect/Struct";
+
+/** Tagged error for secret generation failures. */
+class SecretGenerationError extends S.TaggedError<SecretGenerationError>("SecretGenerationError")(
+  "SecretGenerationError",
+  {
+    message: S.String,
+  }
+) {}
 
 /**
  * Generate a secure random secret using Effect's Random service
@@ -247,7 +256,7 @@ const generateEnvSecrets = Effect.gen(function* () {
 
   if ("error" in result) {
     yield* Effect.log("Program completed with errors");
-    return yield* Effect.fail(new Error(result.error));
+    return yield* new SecretGenerationError({ message: result.error });
   }
 
   yield* Console.log("\n✨ All secrets generated successfully!");

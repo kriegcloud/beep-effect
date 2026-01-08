@@ -26,6 +26,7 @@ const composers = $I.compose(
   "repo-cli",
   "iam-server",
   "repo-scripts",
+  "todox",
   "documents-tables",
   "ui",
   "yjs",
@@ -758,3 +759,18 @@ export const $CommsClientId = composers.$CommsClientId;
  * @since 0.1.0
  */
 export const $CommsUiId = composers.$CommsUiId;
+
+/**
+ * Identity composer for the `@beep/todox` application.
+ *
+ * @example
+ * ```typescript
+ * import { $TodoxId } from "@beep/identity/packages"
+ *
+ * const schemaId = $TodoxId.make("SchemaId")
+ * ```
+ *
+ * @category symbols
+ * @since 0.1.0
+ */
+export const $TodoxId = composers.$TodoxId;

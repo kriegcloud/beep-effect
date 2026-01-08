@@ -1,6 +1,6 @@
 import type { BuiltIns, HasMultipleCallSignatures } from "./internal/index";
 import type { IsNever } from "./is-never";
-
+import type * as UnsafeTypes from "./unsafe.types";
 /**
 Create a type from another type with all keys and nested keys set to required.
 
@@ -58,7 +58,7 @@ export type RequiredDeep<T> = T extends BuiltIns
               ? WeakSet<RequiredDeep<ItemType>>
               : T extends Promise<infer ValueType>
                 ? Promise<RequiredDeep<ValueType>>
-                : T extends (...arguments_: any[]) => unknown
+                : T extends (...arguments_: UnsafeTypes.UnsafeAny[]) => unknown
                   ? IsNever<keyof T> extends true
                     ? T
                     : HasMultipleCallSignatures<T> extends true

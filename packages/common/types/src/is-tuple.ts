@@ -83,7 +83,7 @@ type _IsTuple<TArray extends UnknownArray, Options extends Required<IsTupleOptio
         ? Options["fixedLengthOnly"] extends false
           ? If<
               IsNever<keyof TArray & `${number}`>,
-              TArray extends readonly [...any, UnsafeTypes.UnsafeAny] ? true : false, // To handle cases where a non-rest element follows a rest element, e.g., `[...number[], number]`
+              TArray extends readonly [...UnsafeTypes.UnsafeAny, UnsafeTypes.UnsafeAny] ? true : false, // To handle cases where a non-rest element follows a rest element, e.g., `[...number[], number]`
               true
             >
           : false

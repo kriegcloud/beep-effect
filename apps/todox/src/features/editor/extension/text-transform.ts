@@ -7,20 +7,20 @@ import { Mark } from "@tiptap/core";
 export type TextTransformValue = "uppercase" | "lowercase" | "capitalize";
 
 export interface TextTransformOptions {
-  allowedValues: TextTransformValue[];
-  defaultValue?: TextTransformValue;
+  readonly allowedValues: TextTransformValue[];
+  readonly defaultValue?: undefined | TextTransformValue;
 }
 
 export interface TextTransformAttributes {
-  textTransform?: TextTransformValue;
+  readonly textTransform?: undefined | TextTransformValue;
 }
 
 declare module "@tiptap/core" {
   interface Commands<ReturnType> {
-    textTransform: {
-      unsetTextTransform: () => ReturnType;
-      setTextTransform: (value: TextTransformValue) => ReturnType;
-      toggleTextTransform: (value: TextTransformValue) => ReturnType;
+    readonly textTransform: {
+      readonly unsetTextTransform: () => ReturnType;
+      readonly setTextTransform: (value: TextTransformValue) => ReturnType;
+      readonly toggleTextTransform: (value: TextTransformValue) => ReturnType;
     };
   }
 }

@@ -8,7 +8,7 @@ import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as Fiber from "effect/Fiber";
-import { flow, identity, pipe } from "effect/Function";
+import { identity, pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as Logger from "effect/Logger";
 import * as Schedule from "effect/Schedule";
@@ -214,7 +214,9 @@ export const makeMethods = () => ({
   layer,
   live: makeTester<never>(identity),
   prop,
-  scoped: makeTester<TestServices.TestServices | Scope.Scope>(flow(Effect.scoped, Effect.provide(TestEnv))),
+  scoped: makeTester<TestServices.TestServices | Scope.Scope>(<A, E, R>(effect: Effect.Effect<A, E, R>) =>
+    pipe(Effect.scoped(effect), Effect.provide(TestEnv))
+  ),
   scopedLive: makeTester<Scope.Scope>(Effect.scoped),
 });
 

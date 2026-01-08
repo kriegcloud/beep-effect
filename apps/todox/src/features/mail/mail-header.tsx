@@ -8,8 +8,8 @@ import TextField from "@mui/material/TextField";
 // ----------------------------------------------------------------------
 
 type Props = BoxProps & {
-  onOpenNav: () => void;
-  onOpenMail?: () => void;
+  readonly onOpenNav: () => void;
+  readonly onOpenMail?: undefined | (() => void);
 };
 
 export function MailHeader({ onOpenNav, onOpenMail, sx, ...other }: Props) {

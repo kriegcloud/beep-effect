@@ -4,7 +4,7 @@ import type { HomomorphicPick, IsArrayReadonly } from "./internal/index";
 import type { OptionalKeysOf } from "./optional-keys-of";
 import type { Simplify } from "./simplify";
 import type { UnknownArray } from "./unknown-array";
-
+import type * as UnsafeTypes from "./unsafe.types";
 /**
 Create a type that makes the given keys required. The remaining keys are kept as is. The sister of the `SetOptional` type.
 
@@ -34,7 +34,7 @@ type ArrayExample = SetRequired<[number?, number?, number?], 0 | 1>;
 
 @category Object
 */
-export type SetRequired<BaseType, Keys extends keyof BaseType> = (BaseType extends (...arguments_: never) => any
+export type SetRequired<BaseType, Keys extends keyof BaseType> = (BaseType extends (...arguments_: never) => UnsafeTypes.UnsafeAny
   ? (...arguments_: Parameters<BaseType>) => ReturnType<BaseType>
   : unknown) &
   _SetRequired<BaseType, Keys>;
@@ -56,7 +56,7 @@ Remove the optional modifier from the specified keys in an array.
 type SetArrayRequired<
   TArray extends UnknownArray,
   Keys,
-  Counter extends any[] = [],
+  Counter extends UnsafeTypes.UnsafeAny[] = [],
   Accumulator extends UnknownArray = [],
 > = TArray extends unknown // For distributing `TArray` when it's a union
   ? keyof TArray & `${number}` extends never
@@ -66,10 +66,10 @@ type SetArrayRequired<
     : TArray extends readonly [(infer First)?, ...infer Rest]
       ? "0" extends OptionalKeysOf<TArray> // If the first element of `TArray` is optional
         ? `${Counter["length"]}` extends `${Keys & (string | number)}` // If the current index needs to be required
-          ? SetArrayRequired<Rest, Keys, [...Counter, any], [...Accumulator, First]>
+          ? SetArrayRequired<Rest, Keys, [...Counter, UnsafeTypes.UnsafeAny], [...Accumulator, First]>
           : // If the current element is optional, but it doesn't need to be required,
             // then we can exit early, since no further elements can now be made required.
             [...Accumulator, ...TArray]
-        : SetArrayRequired<Rest, Keys, [...Counter, any], [...Accumulator, TArray[0]]>
+        : SetArrayRequired<Rest, Keys, [...Counter, UnsafeTypes.UnsafeAny], [...Accumulator, TArray[0]]>
       : never // Should never happen, since `[(infer F)?, ...infer R]` is a top-type for arrays.
   : never; // Should never happen

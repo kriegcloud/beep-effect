@@ -6,30 +6,32 @@ import type { Editor, UseEditorOptions } from "@tiptap/react";
 // ----------------------------------------------------------------------
 
 export type EditorProps = UseEditorOptions & {
-  value?: string;
-  error?: boolean;
-  fullItem?: boolean;
-  className?: string;
-  sx?: SxProps<Theme>;
-  resetValue?: boolean;
-  placeholder?: string;
-  helperText?: React.ReactNode;
-  onChange?: (value: string) => void;
-  slotProps?: {
-    wrapper?: BoxProps;
-  };
-  ref?: React.RefObject<HTMLDivElement | null> | React.RefCallback<HTMLDivElement | null>;
+  readonly value?: undefined | string;
+  readonly error?: undefined | boolean;
+  readonly fullItem?: undefined | boolean;
+  readonly className?: undefined | string;
+  readonly sx?: undefined | SxProps<Theme>;
+  readonly resetValue?: undefined | boolean;
+  readonly placeholder?: undefined | string;
+  readonly helperText?: undefined | React.ReactNode;
+  readonly onChange?: undefined | ((value: string) => void);
+  readonly slotProps?:
+    | undefined
+    | {
+        readonly wrapper?: undefined | BoxProps;
+      };
+  readonly ref?: undefined | React.RefObject<HTMLDivElement | null> | React.RefCallback<HTMLDivElement | null>;
 };
 
 export type EditorToolbarProps = {
-  editor: Editor;
-  fullscreen: boolean;
-  onToggleFullscreen: () => void;
-  fullItem?: EditorProps["fullItem"];
+  readonly editor: Editor;
+  readonly fullscreen: boolean;
+  readonly onToggleFullscreen: () => void;
+  readonly fullItem?: undefined | EditorProps["fullItem"];
 };
 
 export type EditorToolbarItemProps = ButtonBaseProps & {
-  label?: string;
-  active?: boolean;
-  icon?: React.ReactNode;
+  readonly label?: undefined | string;
+  readonly active?: undefined | boolean;
+  readonly icon?: undefined | React.ReactNode;
 };

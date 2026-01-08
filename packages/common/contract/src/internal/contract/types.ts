@@ -121,13 +121,13 @@ export declare namespace FailureMode {
 }
 
 export interface AnySchema extends Pipeable {
-  readonly [S.TypeId]: any;
-  readonly Type: any;
-  readonly Encoded: any;
-  readonly Context: any;
-  readonly make?: (params: any, ...rest: ReadonlyArray<any>) => any;
+  readonly [S.TypeId]: UnsafeTypes.UnsafeAny;
+  readonly Type: UnsafeTypes.UnsafeAny;
+  readonly Encoded: UnsafeTypes.UnsafeAny;
+  readonly Context: UnsafeTypes.UnsafeAny;
+  readonly make?: (params: UnsafeTypes.UnsafeAny, ...rest: ReadonlyArray<UnsafeTypes.UnsafeAny>) => UnsafeTypes.UnsafeAny;
   readonly ast: AST.AST;
-  readonly annotations: any;
+  readonly annotations: UnsafeTypes.UnsafeAny;
 }
 /**
  * Represents an API endpoint. An API endpoint is mapped to a single route on

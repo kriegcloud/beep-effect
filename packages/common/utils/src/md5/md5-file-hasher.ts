@@ -2,15 +2,15 @@
  * Effect-based file/blob MD5 hashing with streaming support
  * @module
  */
+
+import type {UnsafeTypes} from "@beep/types";
 import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
 import * as Stream from "effect/Stream";
-import { BlobSliceError, FileReadError } from "./errors";
-
+import {BlobSliceError, FileReadError} from "./errors";
+import {appendByteArray, finalize, Md5ComputationError, makeState, type UnicodeEncodingError} from "./md5";
 // Re-export errors for external use
 export { FileReadError, BlobSliceError };
-
-import { appendByteArray, finalize, Md5ComputationError, makeState, type UnicodeEncodingError } from "./md5";
 
 /**
  * Configuration for file hashing
@@ -113,8 +113,8 @@ const readBlobChunkSync = (chunk: Blob): Effect.Effect<ArrayBuffer, FileReadErro
   Effect.try({
     try: () => {
       // FileReaderSync is only available in web workers
-      // biome-ignore lint/suspicious/noExplicitAny: accessing non-standard FileReaderSync API
-      const FileReaderSync = (globalThis as any).FileReaderSync;
+
+      const FileReaderSync = (globalThis as UnsafeTypes.UnsafeAny).FileReaderSync;
       if (!FileReaderSync) {
         throw new Error("FileReaderSync not available");
       }
@@ -164,8 +164,7 @@ export const hashBlobAsync = (
       Stream.mapEffect((chunk) =>
         Effect.gen(function* () {
           const arrayBuffer = yield* readBlobChunk(chunk);
-          const uint8Array = new Uint8Array(arrayBuffer);
-          return uint8Array;
+          return new Uint8Array(arrayBuffer);
         })
       ),
       Stream.runFold(initialState, (state, chunk) => F.pipe(state, appendByteArray(chunk)))
@@ -203,8 +202,7 @@ export const hashBlobSync = (
       Stream.mapEffect((chunk) =>
         Effect.gen(function* () {
           const arrayBuffer = yield* readBlobChunkSync(chunk);
-          const uint8Array = new Uint8Array(arrayBuffer);
-          return uint8Array;
+          return new Uint8Array(arrayBuffer);
         })
       ),
       Stream.runFold(initialState, (state, chunk) => F.pipe(state, appendByteArray(chunk)))
@@ -232,8 +230,7 @@ export const hashBlob = (
   config?: Partial<FileHasherConfig>
 ): Effect.Effect<string, FileReadError | BlobSliceError | UnicodeEncodingError | Md5ComputationError> => {
   // Check if FileReaderSync is available (worker context)
-  // biome-ignore lint/suspicious/noExplicitAny: accessing non-standard FileReaderSync API
-  const hasFileReaderSync = typeof (globalThis as any).FileReaderSync !== "undefined";
+  const hasFileReaderSync = typeof (globalThis as UnsafeTypes.UnsafeAny).FileReaderSync !== "undefined";
 
   return hasFileReaderSync ? hashBlobSync(blob, config) : hashBlobAsync(blob, config);
 };

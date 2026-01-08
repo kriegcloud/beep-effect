@@ -43,8 +43,8 @@ function SheetContent({
   showCloseButton = true,
   ...props
 }: SheetPrimitive.Popup.Props & {
-  side?: "top" | "right" | "bottom" | "left";
-  showCloseButton?: boolean;
+  readonly side?: undefined | "top" | "right" | "bottom" | "left";
+  readonly showCloseButton?: undefined | boolean;
 }) {
   return (
     <SheetPortal>

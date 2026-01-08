@@ -298,7 +298,7 @@ export interface IdentityComposer<Value extends string> {
   symbol(): IdentitySymbol<Value>;
   annotations<SchemaType = unknown, Next extends StringTypes.NonEmptyString = StringTypes.NonEmptyString>(
     identifier: SegmentValue<Next>,
-    extras?: SchemaAnnotationExtras<SchemaType>
+    extras?: undefined | SchemaAnnotationExtras<SchemaType>
   ): IdentityAnnotationResult<`${Value}/${SegmentValue<Next>}`, SegmentValue<Next>, SchemaType>;
   module<
     const Segments extends readonly [

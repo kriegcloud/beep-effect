@@ -105,12 +105,10 @@ export const walkUpUntilHasPackageJson = Effect.fn("walkUpUntilHasPackageJson")(
   }
 
   if (readParents === walkLimit && dir === startDir) {
-    return yield* Effect.fail(
-      new DomainError({
-        message: "Could not find package.json in parent directories",
-        cause: new Error("Could not find package.json in parent directories"),
-      })
-    );
+    return yield* new DomainError({
+      message: "Could not find package.json in parent directories",
+      cause: undefined,
+    });
   }
   return dir;
 });

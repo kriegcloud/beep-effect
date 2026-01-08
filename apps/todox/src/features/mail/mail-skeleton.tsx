@@ -7,7 +7,7 @@ import Skeleton from "@mui/material/Skeleton";
 // ----------------------------------------------------------------------
 
 type MailNavItemSkeletonProps = BoxProps & {
-  itemCount?: number;
+  readonly itemCount?: undefined | number;
 };
 
 export function MailNavItemSkeleton({ itemCount = 6, sx, ...other }: MailNavItemSkeletonProps) {
@@ -36,7 +36,7 @@ export function MailNavItemSkeleton({ itemCount = 6, sx, ...other }: MailNavItem
 // ----------------------------------------------------------------------
 
 type MailItemSkeletonProps = BoxProps & {
-  itemCount?: number;
+  readonly itemCount?: undefined | number;
 };
 
 export function MailItemSkeleton({ sx, itemCount = 6, ...other }: MailItemSkeletonProps) {

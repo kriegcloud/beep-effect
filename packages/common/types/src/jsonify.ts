@@ -95,7 +95,7 @@ const timeJson = JSON.parse(JSON.stringify(time)) as Jsonify<typeof time>;
 */
 export type Jsonify<T> =
   IsAny<T> extends true
-    ? any
+    ? UnsafeTypes.UnsafeAny
     : T extends PositiveInfinity | NegativeInfinity
       ? null
       : T extends JsonPrimitive
@@ -112,7 +112,7 @@ export type Jsonify<T> =
               ? string
               : T extends Boolean
                 ? boolean
-                : T extends Map<any, any> | Set<any>
+                : T extends Map<UnsafeTypes.UnsafeAny, UnsafeTypes.UnsafeAny> | Set<UnsafeTypes.UnsafeAny>
                   ? EmptyObject
                   : T extends TypedArray
                     ? Record<string, number>

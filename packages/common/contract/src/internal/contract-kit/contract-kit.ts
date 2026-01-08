@@ -23,7 +23,7 @@ import type { UnsafeTypes } from "@beep/types";
 const $I = $ContractId.create("internal/contract-kit/contract-kit");
 
 import * as A from "effect/Array";
-import type * as Cause from "effect/Cause";
+import * as Cause from "effect/Cause";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import { CommitPrototype } from "effect/Effectable";
@@ -635,7 +635,7 @@ const Proto = {
               // If the contract implementation failed, check the contract's failure mode to
               // determine how the result should be returned to the end user
               contract.failureMode === FailureMode.Enum.error
-                ? Effect.fail(error)
+                ? Effect.failCause(Cause.fail(error))
                 : Effect.succeed({ result: error, isFailure: true })
             ),
             Effect.tap(({ result }) => schemas.validateResult(result)),

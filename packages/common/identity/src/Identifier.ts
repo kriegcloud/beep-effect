@@ -185,7 +185,7 @@ const createBaseIdentity = <const Base extends StringTypes.NonEmptyString>(
 const createAnnotations = <const Value extends StringTypes.NonEmptyString>(value: Value, registry: Registry) =>
   (<SchemaType = unknown, Next extends StringTypes.NonEmptyString = StringTypes.NonEmptyString>(
     identifier: SegmentValue<Next>,
-    extras?: SchemaAnnotationExtras<SchemaType>
+    extras?: undefined | SchemaAnnotationExtras<SchemaType>
   ) => {
     const next = ensureSegment(identifier);
     const composed = `${value}/${next}` as `${Value}/${SegmentValue<Next>}`;
@@ -349,7 +349,7 @@ export type TaggedComposer<Value extends StringTypes.NonEmptyString> = {
   symbol(): IdentitySymbol<Value>;
   annotations<SchemaType = unknown, Next extends StringTypes.NonEmptyString = StringTypes.NonEmptyString>(
     identifier: SegmentValue<Next>,
-    extras?: SchemaAnnotationExtras<SchemaType>
+    extras?: undefined | SchemaAnnotationExtras<SchemaType>
   ): IdentityAnnotationResult<`${Value}/${SegmentValue<Next>}`, SegmentValue<Next>, SchemaType>;
   create<const Segment extends ModuleSegmentValue<StringTypes.NonEmptyString>>(
     segment: Segment

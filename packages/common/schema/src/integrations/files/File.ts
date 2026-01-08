@@ -40,7 +40,7 @@ import { ExifMetadata } from "./exif-metadata";
 import { MetadataService } from "./metadata/Metadata.service";
 import { IAudioMetadata, ICommonTagsResult, IFormat, IQualityInformation } from "./metadata/types";
 import { FileSizeBitsIEC, FileSizeBitsSI, FileSizeIEC, FileSizeSI } from "./utils/formatSize";
-
+import type { UnsafeTypes } from "@beep/types";
 // Create error tag values for pattern matching
 const METADATA_PARSE_ERROR_TAG = new MetadataParseError({ message: "", phase: "load" })._tag;
 const EXIF_FILE_TOO_LARGE_ERROR_TAG = new ExifFileTooLargeError({ message: "", fileSize: 0, maxSize: 0 })._tag;
@@ -458,7 +458,7 @@ export const extractMetadata = Effect.fn("extractMetadata")(function* (file: Fil
 
   const exifMetadata = yield* metadataService.exif.extractMetadata(file);
 
-  const withExifAndHash = <Data extends Record<string, any>>(data: Data) => ({
+  const withExifAndHash = <Data extends Record<string, UnsafeTypes.UnsafeAny>>(data: Data) => ({
     ...data,
     exif: O.some(exifMetadata),
     md5Hash,

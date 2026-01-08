@@ -1,6 +1,6 @@
 import type { ApplyDefaultOptions, BuiltIns, HasMultipleCallSignatures } from "./internal/index";
 import type { IsNever } from "./is-never";
-
+import type * as UnsafeTypes from "./unsafe.types";
 /**
 @see {@link PartialDeep}
 */
@@ -102,7 +102,7 @@ export type PartialDeep<T, Options extends PartialDeepOptions = {}> = _PartialDe
 type _PartialDeep<T, Options extends Required<PartialDeepOptions>> = T extends
   | BuiltIns
   | (new (
-      ...arguments_: any[]
+      ...arguments_: UnsafeTypes.UnsafeAny[]
     ) => unknown)
   ? T
   : T extends Map<infer KeyType, infer ValueType>
@@ -113,7 +113,7 @@ type _PartialDeep<T, Options extends Required<PartialDeepOptions>> = T extends
         ? PartialReadonlyMapDeep<KeyType, ValueType, Options>
         : T extends ReadonlySet<infer ItemType>
           ? PartialReadonlySetDeep<ItemType, Options>
-          : T extends (...arguments_: any[]) => unknown
+          : T extends (...arguments_: UnsafeTypes.UnsafeAny[]) => unknown
             ? IsNever<keyof T> extends true
               ? T // For functions with no properties
               : HasMultipleCallSignatures<T> extends true

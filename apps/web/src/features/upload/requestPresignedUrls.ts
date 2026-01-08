@@ -24,7 +24,7 @@ export interface RequestPresignedUrlsInput {
     readonly name: string;
     readonly size: number;
     readonly type: string;
-    readonly lastModified?: number;
+    readonly lastModified?: undefined | number;
   }>;
   readonly input?: unknown; // Custom metadata
 }

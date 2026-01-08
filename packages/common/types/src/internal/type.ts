@@ -138,7 +138,7 @@ type T2 = TrimLeftOptimised<NineHundredNinetyNineSpaces>;
 //=> ''
 ```
 */
-export type IfNotAnyOrNever<T, IfNotAnyOrNever, IfAny = any, IfNever = never> = If<
+export type IfNotAnyOrNever<T, IfNotAnyOrNever, IfAny = UnsafeTypes.UnsafeAny, IfNever = never> = If<
   IsAny<T>,
   IfAny,
   If<IsNever<T>, IfNever, IfNotAnyOrNever>

@@ -47,8 +47,8 @@ function ComboboxInput({
   showClear = false,
   ...props
 }: ComboboxPrimitive.Input.Props & {
-  showTrigger?: undefined | boolean;
-  showClear?: undefined | boolean;
+  readonly showTrigger?: undefined | undefined | boolean;
+  readonly showClear?: undefined | undefined | boolean;
 }) {
   return (
     <InputGroup className={cn("w-auto", className)}>

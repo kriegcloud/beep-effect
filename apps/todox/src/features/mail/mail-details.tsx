@@ -25,10 +25,10 @@ import { Editor } from "../editor";
 // ----------------------------------------------------------------------
 
 type Props = {
-  mail?: IMail;
-  error?: string;
-  loading?: boolean;
-  renderLabel?: (id: string) => IMailLabel | undefined;
+  readonly mail?: undefined | IMail;
+  readonly error?: undefined | string;
+  readonly loading?: undefined | boolean;
+  readonly renderLabel?: undefined | ((id: string) => IMailLabel | undefined);
 };
 
 export function MailDetails({ mail, renderLabel, error, loading }: Props) {

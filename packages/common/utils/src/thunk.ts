@@ -4,8 +4,19 @@
 
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
-import { constant, constFalse, constNull, constTrue, constUndefined, constVoid, flow, pipe } from "effect/Function";
+import {
+  constant,
+  constFalse,
+  constNull,
+  constTrue,
+  constUndefined,
+  constVoid,
+  flow,
+  type LazyArg,
+  pipe,
+} from "effect/Function";
 import * as O from "effect/Option";
+
 import * as R from "effect/Record";
 import * as Str from "effect/String";
 /**
@@ -23,7 +34,7 @@ import * as Str from "effect/String";
  * @category constructors
  * @since 0.1.0
  */
-export const thunkEmtpyRecord = flow(R.empty);
+export const thunkEmtpyRecord = <K extends string | symbol = never, V = never>() => R.empty<K, V>();
 
 /**
  * Thunk that returns an empty array.
@@ -40,7 +51,7 @@ export const thunkEmtpyRecord = flow(R.empty);
  * @category constructors
  * @since 0.1.0
  */
-export const thunkEmptyArray = flow(A.empty);
+export const thunkEmptyArray = <T>() => A.empty<T>();
 
 /**
  * Thunk that returns an empty string.
@@ -176,11 +187,16 @@ export const thunkVoid = constVoid;
  * @category constructors
  * @since 0.1.0
  */
-export const thunk = flow(constant);
+export const thunk =
+  <A>(value: A): LazyArg<A> =>
+  () =>
+    value;
 
 export const thunkNone = flow(O.none, thunk);
 
 export const thunkEffect = <A, E, R>(effect: Effect.Effect<A, E, R>) => pipe(effect, thunk);
+
+export const thunkSucceedEffect = <A>(constant: A) => thunkEffect(Effect.succeed(constant));
 
 export const thunkLogInfoEffect = flow(Effect.logInfo, thunk);
 

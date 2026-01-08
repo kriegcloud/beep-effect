@@ -10,8 +10,14 @@ import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
 import * as Layer from "effect/Layer";
+import * as S from "effect/Schema";
 import color from "picocolors";
 import { generateEnvSecrets } from "./generate-env-secrets";
+
+/** Tagged error for bootstrap script failures. */
+class BootstrapError extends S.TaggedError<BootstrapError>("BootstrapError")("BootstrapError", {
+  message: S.String,
+}) {}
 
 const CONTENT_WIDTH = 70;
 const BORDER = color.gray(`+${"-".repeat(CONTENT_WIDTH + 2)}+`);
@@ -130,7 +136,9 @@ const program = Effect.gen(function* () {
       yield* Console.log(renderStatusLine(status, description, numericExitCode));
 
       if (status === "FAIL") {
-        return yield* Effect.fail(new Error(`${description} failed with exit code ${numericExitCode}.`));
+        return yield* new BootstrapError({
+          message: `${description} failed with exit code ${numericExitCode}.`,
+        });
       }
     });
 
@@ -178,7 +186,7 @@ BunRuntime.runMain(
           yield* Console.log(`\nBOOTSTRAP FAILURE :: ${message}`);
           const cause = Cause.fail(error);
           yield* Console.log(`\nTRACE :: ${Cause.pretty(cause)}`);
-          return yield* Effect.fail(error);
+          return yield* Effect.failCause(cause);
         })
       )
     )

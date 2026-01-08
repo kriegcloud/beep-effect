@@ -5,19 +5,21 @@ import { styled } from "@mui/material/styles";
 // ----------------------------------------------------------------------
 
 type MailLayoutProps = React.ComponentProps<"div"> & {
-  sx?: SxProps<Theme>;
-  slots: {
-    nav: React.ReactNode;
-    list: React.ReactNode;
-    header: React.ReactNode;
-    details: React.ReactNode;
+  readonly sx?: undefined | SxProps<Theme>;
+  readonly slots: {
+    readonly nav: React.ReactNode;
+    readonly list: React.ReactNode;
+    readonly header: React.ReactNode;
+    readonly details: React.ReactNode;
   };
-  slotProps?: {
-    nav?: React.ComponentProps<typeof LayoutNav>;
-    list?: React.ComponentProps<typeof LayoutList>;
-    details?: React.ComponentProps<typeof LayoutDetails>;
-    container?: React.ComponentProps<typeof LayoutContainer>;
-  };
+  readonly slotProps?:
+    | undefined
+    | {
+        readonly nav?: undefined | React.ComponentProps<typeof LayoutNav>;
+        readonly list?: undefined | React.ComponentProps<typeof LayoutList>;
+        readonly details?: undefined | React.ComponentProps<typeof LayoutDetails>;
+        readonly container?: undefined | React.ComponentProps<typeof LayoutContainer>;
+      };
 };
 
 export function MailLayout({ slots, slotProps, sx, ...other }: MailLayoutProps) {

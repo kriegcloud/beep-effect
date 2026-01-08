@@ -38,7 +38,7 @@ const GuestGuardContent: React.FC<GuestGuardContentProps> = ({
   React.useEffect(() => {
     if (!isPending && !session && !hasRefetched) {
       setHasRefetched(true);
-      refetch();
+      void refetch();
     }
   }, [hasRefetched, isPending, refetch, session]);
 

@@ -2,7 +2,13 @@ import { Auth } from "@beep/iam-server";
 import * as HttpLayerRouter from "@effect/platform/HttpLayerRouter";
 import * as HttpServerRequest from "@effect/platform/HttpServerRequest";
 import * as HttpServerResponse from "@effect/platform/HttpServerResponse";
+import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
+
+/** Tagged error for Better Auth handler failures. */
+class BetterAuthHandlerError extends Data.TaggedError("BetterAuthHandlerError")<{
+  readonly message: string;
+}> {}
 
 /**
  * Layer that routes Better Auth requests at /api/v1/auth/*.
@@ -32,7 +38,10 @@ export const BetterAuthRouterLive = HttpLayerRouter.use((router) =>
         // Call Better Auth's web handler
         const webResponse = yield* Effect.tryPromise({
           try: () => auth.handler(webRequest),
-          catch: (error) => new Error(`Better Auth handler error: ${error}`),
+          catch: (error) =>
+            new BetterAuthHandlerError({
+              message: `Better Auth handler error: ${error}`,
+            }),
         });
 
         // Convert Web Response back to Effect Platform response (not an Effect)

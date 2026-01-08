@@ -42,7 +42,7 @@ function DialogContent({
   showCloseButton = true,
   ...props
 }: DialogPrimitive.Popup.Props & {
-  showCloseButton?: boolean;
+  showCloseButton?: undefined | boolean;
 }) {
   return (
     <DialogPortal>
@@ -80,7 +80,7 @@ function DialogFooter({
   children,
   ...props
 }: React.ComponentProps<"div"> & {
-  showCloseButton?: boolean;
+  readonly showCloseButton?: undefined | boolean;
 }) {
   return (
     <div

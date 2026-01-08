@@ -12,7 +12,7 @@ const $I = $WebId.create("features/upload/completeUpload");
 export class CompleteUploadError extends Data.TaggedError($I`CompleteUploadError`)<{
   readonly message: string;
   readonly code: string;
-  readonly fileId?: string;
+  readonly fileId?: undefined | string;
   readonly cause?: unknown;
 }> {}
 

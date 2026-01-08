@@ -1,5 +1,5 @@
 import type { BuiltIns, HasMultipleCallSignatures } from "./internal/index";
-
+import type * as UnsafeTypes from "./unsafe.types";
 /**
 Convert `object`s, `Map`s, `Set`s, and `Array`s and all of their keys/elements into immutable structures recursively.
 
@@ -72,10 +72,10 @@ Note that types containing overloaded functions are not made deeply readonly due
 export type ReadonlyDeep<T> = T extends BuiltIns
   ? T
   : T extends new (
-        ...arguments_: any[]
+        ...arguments_: UnsafeTypes.UnsafeAny[]
       ) => unknown
     ? T // Skip class constructors
-    : T extends (...arguments_: any[]) => unknown
+    : T extends (...arguments_: UnsafeTypes.UnsafeAny[]) => unknown
       ? {} extends _ReadonlyObjectDeep<T>
         ? T
         : HasMultipleCallSignatures<T> extends true

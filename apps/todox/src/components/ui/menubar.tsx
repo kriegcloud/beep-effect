@@ -187,7 +187,7 @@ function MenubarSubTrigger({
   inset,
   ...props
 }: React.ComponentProps<typeof DropdownMenuSubTrigger> & {
-  inset?: boolean;
+  readonly inset?: undefined | boolean;
 }) {
   return (
     <DropdownMenuSubTrigger

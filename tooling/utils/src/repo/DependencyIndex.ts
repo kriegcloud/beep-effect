@@ -14,6 +14,7 @@ import * as S from "effect/Schema";
 import type { RepoDepMapValue } from "../schemas/index.js";
 import { WorkspacePkgKey } from "../schemas/index.js";
 import { extractWorkspaceDependencies } from "./Dependencies.js";
+import { NoSuchFileError } from "./Errors.js";
 import { mapWorkspaceToPackageJsonPath } from "./PackageJsonMap.js";
 import { findRepoRoot } from "./Root.js";
 
@@ -52,9 +53,10 @@ export const buildRepoDependencyIndex = Effect.gen(function* () {
   const repoRootPkgJsonPath = path_.join(repoRoot, "package.json");
   const repoRootExists = yield* fs.exists(repoRootPkgJsonPath);
   if (!repoRootExists) {
-    return yield* Effect.fail(
-      new Error(`[buildRepoDependencyIndex] Root package.json not found at ${repoRootPkgJsonPath}`)
-    );
+    return yield* new NoSuchFileError({
+      path: repoRootPkgJsonPath,
+      message: "[buildRepoDependencyIndex] Root package.json not found",
+    });
   }
 
   const workspacePkgJsonMap = yield* mapWorkspaceToPackageJsonPath;
