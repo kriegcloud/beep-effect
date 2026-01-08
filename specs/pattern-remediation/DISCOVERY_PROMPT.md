@@ -124,6 +124,73 @@ grep -rn "@ts-expect-error" packages/*/src/**/*.ts apps/*/src/**/*.ts 2>/dev/nul
 
 ---
 
+## Phase 1.5: Determine Package Processing Order
+
+Use the `topo-sort` CLI command to determine the optimal order for processing packages:
+
+```bash
+bun run beep topo-sort
+```
+
+### What topo-sort Does
+
+The command outputs all `@beep/*` packages in **topological order**, with packages that have **fewer dependencies listed first** (leaf packages). This uses Kahn's algorithm to ensure:
+
+1. Dependencies are always processed before their dependents
+2. Circular dependencies are detected and reported
+3. Output is deterministic (alphabetically sorted within each tier)
+
+### Example Output
+
+```
+Analyzing workspace dependencies...
+
+Found 45 packages in topological order:
+
+@beep/types
+@beep/invariant
+@beep/identity
+@beep/utils
+@beep/schema
+@beep/contract
+@beep/shared-domain
+@beep/iam-domain
+...
+@beep/runtime-server
+@beep/web
+```
+
+### Recommended Order for Pattern Remediation
+
+**Process from BOTTOM to TOP of topo-sort (reverse order):**
+
+1. **Consumer packages first** (e.g., `@beep/web`)
+   - Validation passes immediately after fixes
+   - Internal changes don't affect exports
+
+2. **Provider packages later** (e.g., `@beep/types`)
+   - By the time you reach them, you've established consistent patterns
+
+### Integrating with PLAN.md
+
+When generating PLAN.md, **use reverse topo-sort order**:
+
+```markdown
+## Execution Order (Reverse Topological)
+
+Process packages in this order (consumers first):
+
+1. @beep/web (many deps) - 8 violations
+2. @beep/runtime-server - 5 violations
+3. @beep/iam-ui - 12 violations
+...
+N. @beep/types (0 deps) - 3 violations
+```
+
+This allows each package to pass validation immediately after fixes.
+
+---
+
 ## Phase 2: Create PLAN.md
 
 ### Required Structure
