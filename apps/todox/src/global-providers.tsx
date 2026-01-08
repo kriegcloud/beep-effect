@@ -1,9 +1,6 @@
 "use client";
-
-import { EnvValue } from "@beep/constants";
 import { IamProvider } from "@beep/iam-ui/IamProvider";
 import { BeepProvider } from "@beep/runtime-client";
-import { clientEnv } from "@beep/shared-env/ClientEnv";
 import type { AppConfig } from "@beep/todox/app-config";
 import { themeOverrides } from "@beep/todox/theme";
 import { MotionLazy } from "@beep/ui/animate/motion-lazy";
@@ -27,7 +24,6 @@ type GlobalProviders = {
   readonly children: React.ReactNode;
   readonly appConfig: AppConfig;
 };
-const isDev = EnvValue.is.dev(clientEnv.env);
 
 export function GlobalProviders({ children, appConfig }: GlobalProviders) {
   return (

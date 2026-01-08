@@ -3,7 +3,7 @@ import type { CssVarsThemeOptions } from "@mui/material/styles";
 // Augment the palette to include custom 'text' property
 declare module "@mui/material/styles" {
   interface PaletteColor {
-    text: string;
+    text?: string;
   }
 
   interface SimplePaletteColorOptions {

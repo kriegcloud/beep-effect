@@ -17,6 +17,7 @@ import {
   BrainIcon,
   CalendarIcon,
   CheckSquareIcon,
+  DeskIcon,
   EnvelopeSimpleIcon,
   FilesIcon,
   GaugeIcon,
@@ -50,7 +51,7 @@ function MailContent() {
   return (
     <>
       {/* Sidebar + Content area */}
-      <div className="flex min-h-0 flex-1">
+      <div className="flex min-h-0 min-w-0 flex-1 overflow-hidden">
         <MainContentPanelSidebar fixed={false} />
         <SidebarInset className="bg-sidebar">
           {/* Main content - Mail List and Details */}
@@ -109,67 +110,73 @@ function MainContent() {
       </SidePanel>
 
       {/* Main Content Panel Wrapper */}
-      <div className={cn("flex flex-1 p-2", chatOpen && "pl-0")}>
+      <div className={cn("flex flex-1 min-w-0 overflow-hidden p-2", chatOpen && "pl-0")}>
         {/* Main Content Panel (floating) */}
-        <div className="flex flex-1 flex-col overflow-hidden rounded-lg border border-sidebar-border bg-sidebar shadow-sm">
+        <div className="flex flex-1 min-w-0 flex-col overflow-hidden rounded-lg border border-sidebar-border bg-sidebar shadow-sm">
           <SidebarProvider
             style={
               {
                 "--sidebar-width": "17rem",
               } as React.CSSProperties
             }
-            className="min-h-0 flex-1 flex-col"
+            className="min-h-0 min-w-0 flex-1 flex-col overflow-hidden"
           >
             {/* Panel Header - Full width above sidebar */}
-            <header className="flex h-12 shrink-0 items-center gap-2 border-b border-sidebar-border px-3">
-              <SidebarTrigger />
+            <header className="flex h-12 shrink-0 items-center gap-2 border-b border-sidebar-border px-3 min-w-0">
+              <SidebarTrigger className="shrink-0" />
               <AIChatPanelTrigger />
-              <ToggleGroup
-                value={viewMode}
-                onValueChange={(value) => {
-                  if (value.length > 0) setViewMode(value);
-                }}
-                variant="outline"
-                size="sm"
-                className="bg-background"
-              >
-                <ToggleGroupItem value="email" className="gap-1.5 px-3">
+              <div className="flex-1 min-w-0 overflow-x-auto scrollbar-none">
+                <ToggleGroup
+                  value={viewMode}
+                  onValueChange={(value) => {
+                    if (value.length > 0) setViewMode(value);
+                  }}
+                  variant="outline"
+                  size="sm"
+                  className="bg-background w-max"
+                >
+                  <ToggleGroupItem value="workspace" className="gap-1.5 px-3">
+                    <DeskIcon className="size-3.5" />
+                    Workspace
+                  </ToggleGroupItem>
                   <ToggleGroupItem value="calendar" className="gap-1.5 px-3">
                     <CalendarIcon className="size-3.5" />
                     Calendar
                   </ToggleGroupItem>
-                  <EnvelopeSimpleIcon className="size-3.5" />
-                  Email
-                </ToggleGroupItem>
-                <ToggleGroupItem value="knowledge-base" className="gap-1.5 px-3">
-                  <BrainIcon className="size-3.5" />
-                  Knowledge Base
-                </ToggleGroupItem>
-                <ToggleGroupItem value="todos" className="gap-1.5 px-3">
-                  <CheckSquareIcon className="size-3.5" />
-                  Todos
-                </ToggleGroupItem>
-                <ToggleGroupItem value="people" className="gap-1.5 px-3">
-                  <UsersIcon className="size-3.5" />
-                  People
-                </ToggleGroupItem>
-                <ToggleGroupItem value="tasks" className="gap-1.5 px-3">
-                  <ListChecksIcon className="size-3.5" />
-                  Tasks
-                </ToggleGroupItem>
-                <ToggleGroupItem value="files" className="gap-1.5 px-3">
-                  <FilesIcon className="size-3.5" />
-                  Files
-                </ToggleGroupItem>
-                <ToggleGroupItem value="calendar" className="gap-1.5 px-3">
-                  <CalendarIcon className="size-3.5" />
-                  Calendar
-                </ToggleGroupItem>
-                <ToggleGroupItem value="heat-map" className="gap-1.5 px-3">
-                  <GaugeIcon className="size-3.5" />
-                  Heat Map
-                </ToggleGroupItem>
-              </ToggleGroup>
+                  <ToggleGroupItem value="email" className="gap-1.5 px-3">
+                    <EnvelopeSimpleIcon className="size-3.5" />
+                    Email
+                  </ToggleGroupItem>
+                  <ToggleGroupItem value="knowledge-base" className="gap-1.5 px-3">
+                    <BrainIcon className="size-3.5" />
+                    Knowledge Base
+                  </ToggleGroupItem>
+                  <ToggleGroupItem value="todos" className="gap-1.5 px-3">
+                    <CheckSquareIcon className="size-3.5" />
+                    Todos
+                  </ToggleGroupItem>
+                  <ToggleGroupItem value="people" className="gap-1.5 px-3">
+                    <UsersIcon className="size-3.5" />
+                    People
+                  </ToggleGroupItem>
+                  <ToggleGroupItem value="tasks" className="gap-1.5 px-3">
+                    <ListChecksIcon className="size-3.5" />
+                    Tasks
+                  </ToggleGroupItem>
+                  <ToggleGroupItem value="files" className="gap-1.5 px-3">
+                    <FilesIcon className="size-3.5" />
+                    Files
+                  </ToggleGroupItem>
+                  <ToggleGroupItem value="calendar" className="gap-1.5 px-3">
+                    <CalendarIcon className="size-3.5" />
+                    Calendar
+                  </ToggleGroupItem>
+                  <ToggleGroupItem value="heat-map" className="gap-1.5 px-3">
+                    <GaugeIcon className="size-3.5" />
+                    Heat Map
+                  </ToggleGroupItem>
+                </ToggleGroup>
+              </div>
             </header>
             {/* Wrap mail content with MailProvider */}
             <MailProvider>
@@ -191,7 +198,7 @@ export default function Page() {
           {/* Top Navigation Bar */}
           <TopNavbar user={user} />
           {/* Main content area */}
-          <div className="flex min-h-0 flex-1">
+          <div className="flex min-h-0 min-w-0 flex-1 overflow-hidden">
             <MainContent />
           </div>
         </div>

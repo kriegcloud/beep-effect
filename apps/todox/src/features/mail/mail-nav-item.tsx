@@ -30,7 +30,7 @@ type Props = ListItemButtonProps & {
 };
 
 export function MailNavItem({ selected, label, onClickNavItem, ...other }: Props) {
-  const labelIcon = LABEL_ICONS[label.id];
+  const labelIcon = LABEL_ICONS[label.name] ?? "solar:tag-horizontal-bold-duotone";
 
   return (
     <Box component="li" sx={{ display: "flex" }}>
@@ -47,7 +47,7 @@ export function MailNavItem({ selected, label, onClickNavItem, ...other }: Props
         }}
         {...other}
       >
-        <Iconify icon={labelIcon as any} width={22} sx={{ color: label.color }} />
+        <Iconify icon={labelIcon} width={22} sx={{ color: label.color }} />
 
         <Box
           component="span"

@@ -224,7 +224,7 @@ function Sidebar({
     return (
       <div
         data-slot="sidebar-container"
-        className={cn("group peer text-sidebar-foreground hidden md:flex", className)}
+        className={cn("group peer text-sidebar-foreground hidden overflow-hidden md:flex", className)}
         data-state={state}
         data-collapsible={state === "collapsed" ? collapsible : ""}
         data-variant={variant}
@@ -354,7 +354,7 @@ function SidebarInset({ className, ...props }: React.ComponentPropsWithoutRef<"m
     <main
       data-slot="sidebar-inset"
       className={cn(
-        "bg-sidebar relative flex w-full min-w-0 flex-1 flex-col",
+        "bg-sidebar relative flex w-full min-w-0 flex-1 flex-col overflow-hidden",
         "peer-data-[variant=inset]:min-h-[calc(100svh-theme(spacing.4))] md:peer-data-[variant=inset]:m-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:shadow-sm md:peer-data-[state=collapsed]:peer-data-[variant=inset]:ml-2",
         className
       )}
@@ -374,11 +374,19 @@ function SidebarInput({ className, ...props }: React.ComponentPropsWithoutRef<ty
 }
 
 function SidebarHeader({ className, ...props }: React.ComponentPropsWithoutRef<"div">) {
-  return <div data-slot="sidebar-header" className={cn("flex flex-col gap-2 p-2", className)} {...props} />;
+  return (
+    <div data-slot="sidebar-header" className={cn("flex flex-col gap-2 overflow-hidden p-2", className)} {...props} />
+  );
 }
 
 function SidebarFooter({ className, ...props }: React.ComponentPropsWithoutRef<"div">) {
-  return <div data-slot="sidebar-footer" className={cn("flex shrink-0 flex-col gap-2 p-2", className)} {...props} />;
+  return (
+    <div
+      data-slot="sidebar-footer"
+      className={cn("flex shrink-0 flex-col gap-2 overflow-hidden p-2", className)}
+      {...props}
+    />
+  );
 }
 
 function SidebarSeparator({ className, ...props }: React.ComponentPropsWithoutRef<typeof Separator>) {
@@ -392,7 +400,7 @@ function SidebarContent({ className, ...props }: React.ComponentPropsWithoutRef<
     <div
       data-slot="sidebar-content"
       className={cn(
-        "flex min-h-0 flex-1 flex-col gap-2 overflow-auto group-data-[collapsible=icon]:overflow-hidden",
+        "flex min-h-0 flex-1 flex-col gap-2 overflow-x-hidden overflow-y-auto group-data-[collapsible=icon]:overflow-hidden",
         className
       )}
       {...props}
