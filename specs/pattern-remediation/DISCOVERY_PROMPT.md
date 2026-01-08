@@ -160,35 +160,20 @@ Found 45 packages in topological order:
 @beep/web
 ```
 
-### Pattern Remediation vs Structure Refactoring
-
-**Pattern remediation is more flexible than structure refactoring:**
-
-- **Pattern fixes** (`.map()` → `A.map()`) are internal code changes
-- They don't change exports, file names, or import paths
-- Each package can be fixed and validated independently
-- Order matters less - any order works
-
-**Structure refactoring** (renaming files/directories) requires reverse topological order because renamed exports break consumers.
-
 ### Recommended Order for Pattern Remediation
-
-For consistency with structure-standardization and to establish patterns early:
 
 **Process from BOTTOM to TOP of topo-sort (reverse order):**
 
 1. **Consumer packages first** (e.g., `@beep/web`)
-   - Can reference correct patterns in provider packages
    - Validation passes immediately after fixes
-   - No risk since internal changes don't affect exports
+   - Internal changes don't affect exports
 
 2. **Provider packages later** (e.g., `@beep/types`)
-   - By the time you reach them, you've established muscle memory
-   - Consistent approach across both specs
+   - By the time you reach them, you've established consistent patterns
 
 ### Integrating with PLAN.md
 
-When generating PLAN.md, **use reverse topo-sort order** (same as structure-standardization):
+When generating PLAN.md, **use reverse topo-sort order**:
 
 ```markdown
 ## Execution Order (Reverse Topological)
@@ -202,7 +187,7 @@ Process packages in this order (consumers first):
 N. @beep/types (0 deps) - 3 violations
 ```
 
-This maintains consistency with structure-standardization and allows each package to pass validation immediately after fixes.
+This allows each package to pass validation immediately after fixes.
 
 ---
 
