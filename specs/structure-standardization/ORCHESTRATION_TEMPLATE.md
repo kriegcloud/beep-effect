@@ -56,6 +56,71 @@ If you start with `@beep/types` and rename `unsafe.types.ts`:
 
 **Process from BOTTOM to TOP of topo-sort output. Never skip ahead to a package higher in the list.**
 
+## Critical Validation Requirement
+
+**After EVERY package refactor, ALL dependent packages must pass validation.**
+
+When you refactor package X and rename its exports:
+1. Previously-processed packages that import from X now have broken imports
+2. You MUST update their import paths immediately
+3. You MUST re-validate ALL affected packages before proceeding
+
+### The Complete Per-Package Flow
+
+```
+For each package X (in reverse topo order):
+  1. Refactor X (internal structure, file renames, export renames)
+  2. Update barrel exports in X
+  3. Validate X passes: check, build, test, lint:fix
+  4. Find all ALREADY-PROCESSED packages that import from X
+  5. Update their imports to use new paths
+  6. Re-validate ALL affected packages pass: check, build, test, lint:fix
+  7. Commit X + all import updates together
+  8. Only then proceed to next package
+```
+
+### Example: Processing @beep/iam-ui
+
+```bash
+# 1. @beep/web was already processed (it's a consumer)
+# 2. Now refactoring @beep/iam-ui
+
+# Step 1-3: Refactor iam-ui and validate it
+git mv packages/iam/ui/src/SignIn/ packages/iam/ui/src/sign-in/
+# Update internal imports...
+bun run check --filter @beep/iam-ui  # Must pass
+
+# Step 4-5: Find and fix dependent packages
+grep -rn "@beep/iam-ui" apps/web/src --include="*.ts" --include="*.tsx"
+# Update any imports referencing old paths
+
+# Step 6: Re-validate ALL affected packages
+bun run check --filter @beep/iam-ui --filter @beep/web
+bun run build --filter @beep/iam-ui --filter @beep/web
+bun run test --filter @beep/iam-ui --filter @beep/web
+bun run lint:fix --filter @beep/iam-ui --filter @beep/web
+
+# Step 7: Commit everything together
+git add packages/iam/ui/ apps/web/
+git commit -m "refactor(@beep/iam-ui): standardize structure
+
+- Rename SignIn/ to sign-in/
+- Update exports
+- Update imports in @beep/web"
+```
+
+### Why This Works Better Than Forward Order
+
+**Reverse order (our strategy):**
+- When refactoring `@beep/iam-ui`, only `@beep/web` is affected (1 package)
+- `@beep/web` was already internally refactored - just update import paths
+- Small, bounded set of changes per step
+
+**Forward order:**
+- When refactoring `@beep/types`, 40+ packages break simultaneously
+- None of them have been refactored yet
+- Must fix imports AND refactor each one - unbounded scope
+
 ## Critical Safety Rules
 
 1. **Never delete without backup** - Git tracks everything, but be careful
@@ -77,14 +142,34 @@ Process categories in this order (lowest risk first):
 3. **Category A: Directory Renames** - Cross-codebase import updates
 4. **Category D: Structure Reorganization** - Most complex, do last
 
-### For Each Package
+### For Each Package (Detailed)
 
-1. Read the package section from PLAN.md
-2. Execute changes in category order (C → B → A → D)
-3. Update all imports after each rename
-4. Run validation commands
-5. Commit changes
-6. Mark checkboxes complete
+1. **Read** the package section from PLAN.md
+2. **Execute** changes in category order (C → B → A → D)
+3. **Update barrel exports** within the package
+4. **Validate** the package itself passes:
+   ```bash
+   bun run check --filter @beep/[package]
+   bun run build --filter @beep/[package]
+   bun run test --filter @beep/[package]
+   bun run lint:fix --filter @beep/[package]
+   ```
+5. **Find affected dependents** (already-processed packages):
+   ```bash
+   grep -rn "@beep/[package]" apps/ packages/ --include="*.ts" --include="*.tsx" | grep -v node_modules
+   ```
+6. **Update imports** in all affected packages
+7. **Re-validate ALL affected packages**:
+   ```bash
+   bun run check --filter @beep/[package] --filter @beep/[dependent1] --filter @beep/[dependent2]
+   bun run build --filter @beep/[package] --filter @beep/[dependent1] --filter @beep/[dependent2]
+   bun run test --filter @beep/[package] --filter @beep/[dependent1] --filter @beep/[dependent2]
+   ```
+8. **Commit** the package + all import updates together
+9. **Mark checkboxes** complete in PLAN.md
+10. **Only then** proceed to next package
+
+**CRITICAL: Steps 5-7 are mandatory. Never skip them. All validation must pass before proceeding.**
 
 ---
 
