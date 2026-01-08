@@ -6,7 +6,7 @@ Pure, Effect-first runtime utilities shared across the beep-effect monorepo.
 
 `@beep/utils` provides deterministic, side-effect-free runtime helpers that complement the Effect ecosystem. Unlike `@beep/types` (compile-time only), this package exports functions and runtime values while maintaining strict purity and environment-agnostic behavior.
 
-The package is built on Effect's core modules (`effect/Array`, `effect/String`, `effect/Record`) and follows Effect-first patterns throughout. It serves as a foundational layer safe to import from any architectural layer (domain, infra, sdk, ui) because utilities remain pure with no infrastructure dependencies.
+The package is built on Effect's core modules (`effect/Array`, `effect/String`, `effect/Record`) and follows Effect-first patterns throughout. It serves as a foundational layer safe to import from any architectural layer (domain, infra, client, ui) because utilities remain pure with no infrastructure dependencies.
 
 This package is consumed across all vertical slices for:
 - String normalization and transformation
@@ -362,7 +362,7 @@ This package serves as a foundational utility layer consumed across the monorepo
 
 - **Domain layers** use string normalization, enum factories, and guards for entity validation
 - **Infra layers** use deep merge, record transforms, and safe property access for adapter logic
-- **SDK layers** use no-ops for placeholder handlers and nested getters for request parsing
+- **CLIENT layers** use no-ops for placeholder handlers and nested getters for request parsing
 - **UI layers** use date formatting, debounce/throttle, and autosuggest highlighting
 
 The package maintains zero dependencies on platform-specific code (`@effect/platform-*`), database layers, or vertical slices, making it safe to import from any architectural layer.

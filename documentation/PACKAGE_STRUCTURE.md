@@ -77,7 +77,6 @@ Each package may have its own `AGENTS.md` with specific guidance:
 ### Applications
 - `apps/web/AGENTS.md` - Next.js frontend application patterns
 - `apps/server/AGENTS.md` - Effect Platform backend server
-- `apps/notes/AGENTS.md` - Collaborative notes application (Prisma + Effect hybrid)
 - `apps/marketing/AGENTS.md` - Marketing website
 
 ### Common Layer

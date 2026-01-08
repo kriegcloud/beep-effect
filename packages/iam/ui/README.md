@@ -404,7 +404,7 @@ export const CustomFormWithCaptcha = () => {
 | `@beep/iam-server`              | Better Auth configuration (direct dependency for internal configuration) |
 | `@beep/runtime-client`          | Browser ManagedRuntime for Effect execution                              |
 | `@beep/shared-domain`           | Shared paths and navigation utilities                                    |
-| `@beep/shared-client`           | Shared SDK contracts                                                     |
+| `@beep/shared-client`           | Shared CLIENT contracts                                                     |
 | `@beep/shared-env`              | Client and server environment configuration                              |
 | `@beep/shared-ui`               | Shared UI components                                                     |
 | `@beep/ui`                      | Core component library                                                   |
@@ -579,7 +579,7 @@ Currently, the package has placeholder tests (`test/Dummy.test.ts`). Add real te
 
 - **No native collection helpers**: Use `A.*`, `Str.*`, `Record.*` from Effect
 - **Export through index files**: Update `src/index.ts` and feature `index.ts` files for new components
-- **Source schemas from SDK**: Import validation schemas from `@beep/iam-client/clients`, never duplicate
+- **Source schemas from CLIENT**: Import validation schemas from `@beep/iam-client/clients`, never duplicate
 - **Coordinate with UI packages**: New primitives should go to `@beep/ui` or `@beep/shared-ui`
 - **Document divergences**: Record intentional deviations from Effect patterns and open follow-up tasks
 - **Two-factor stub**: Keep `two-factor/index.ts` empty until requirements land

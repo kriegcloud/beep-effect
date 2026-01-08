@@ -43,25 +43,6 @@ describe("computeTranspilePackages", () => {
     });
   });
 
-  describe("when targeting @beep/notes", () => {
-    layer(TestLayer)((it) => {
-      it.effect("should return an array of package names", () =>
-        Effect.gen(function* () {
-          const result = yield* computeTranspilePackages({ target: "@beep/notes" });
-          expect(Array.isArray(result)).toBe(true);
-        })
-      );
-
-      it.effect("should only return @beep/* packages", () =>
-        Effect.gen(function* () {
-          const result = yield* computeTranspilePackages({ target: "@beep/notes" });
-          const allBeepPackages = A.every(result, (pkg) => pkg.startsWith("@beep/"));
-          expect(allBeepPackages).toBe(true);
-        })
-      );
-    });
-  });
-
   describe("when targeting a non-existent package", () => {
     layer(TestLayer)((it) => {
       it.effect("should fail with NoSuchElementException", () =>

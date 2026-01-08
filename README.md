@@ -3,7 +3,7 @@
 
 **TL;DR:** This repo is my spite-powered starter kit for every future startup idea. It contains:
 
-- Contracts that floss third-party SDKs before they talk to the rest of the codebase.
+- Contracts that floss third-party CLIENTs before they talk to the rest of the codebase.
 - A theming stack where MUI, Tailwind, and shadcn high-five instead of fistfighting.
 - Upload flows that treat S3 keys like sacred geometry, not `/misc/bucket-of-tears`.
 - Slice-scoped DB/API clients so IntelliSense doesn’t enter a fugue state.
@@ -42,7 +42,7 @@ Therefore, I proclaim—nay, I yell into the abyss—I’m making a codebase I c
 
 **Fix: slice-scoped clients**
 
-- [`Db.make`](https://github.com/kriegcloud/beep-effect/blob/main/packages/core/db/src/Db/Db.ts) builds per-slice Drizzle clients so TS only reasons about relevant tables. Examples: [IamDb](https://github.com/kriegcloud/beep-effect/blob/main/packages/iam/server/src/db/Db/Db.ts), [DocumentsDb](https://github.com/kriegcloud/beep-effect/blob/main/packages/documents/server/src/db/Db/Db.ts), [TasksDb](https://github.com/kriegcloud/beep-effect/blob/main/packages/tasks/server/src/db/Db/Db.ts).
+- [`Db.make`](https://github.com/kriegcloud/beep-effect/blob/main/packages/shared/server/src/internal/db/pg/PgClient.ts) builds per-slice Drizzle clients so TS only reasons about relevant tables. Examples: [IamDb](https://github.com/kriegcloud/beep-effect/blob/main/packages/iam/server/src/db/Db/Db.ts), [DocumentsDb](https://github.com/kriegcloud/beep-effect/blob/main/packages/documents/server/src/db/Db/Db.ts).
 - API surfaces (TRPC or `@effect/platform`) will be generated per slice too. God clients are cancelled.
 
 ---
@@ -199,7 +199,7 @@ If anyone whispers “over-engineered,” I will annotate their existence with `
 ## Architecture (serious bits)
 
 - Vertical-slice architecture with hexagonal flavor: domain → application → infra.
-- Cross-slice sharing only via `packages/shared/*`, `packages/common/*`, `packages/core/*`.
+- Cross-slice sharing only via `packages/shared/*` and `packages/common/*`.
 - Path aliases in [`tsconfig.base.json`](tsconfig.base.jsonc) are the law (`@beep/iam-domain`, `@beep/documents-services`, `@/*` for `apps/web`).
 - Task graph orchestrated via [`turbo.json`](turbo.json).
 - Effect-first, dependency injection via Layers. No sneaky IO in domain code.
@@ -267,9 +267,9 @@ Imports must respect path aliases enforced in `tsconfig.base.json`.
 
 ## Current slices
 
-- **IAM (`packages/iam/*`)** — domain, application/services, infra, tables, UI, SDK.
+- **IAM (`packages/iam/*`)** — domain, application/services, infra, tables, UI, CLIENT.
 - **Documents (`packages/documents/*`)** — same layering, plus upload schemas/test harness.
-- **Shared foundations** — `packages/shared/*`, `packages/common/*`, `packages/core/*`.
+- **Shared foundations** — `packages/shared/*` and `packages/common/*`.
 
 ## Applications
 

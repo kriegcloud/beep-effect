@@ -492,9 +492,9 @@ The audit is successful when:
 |----------|----------|
 | Apps | web, server, interfere, notes |
 | Common | constants, contract, errors, identity, invariant, mock, schema, types, utils |
-| Shared | domain, infra, sdk, tables, ui |
-| IAM | domain, infra, sdk, tables, ui |
-| Documents | domain, infra, sdk, tables, ui |
+| Shared | domain, infra, client, tables, ui |
+| IAM | domain, infra, client, tables, ui |
+| Documents | domain, infra, client, tables, ui |
 | Runtime | client, server |
 | UI | core, ui |
 | Tooling | cli, repo-scripts, testkit, utils |

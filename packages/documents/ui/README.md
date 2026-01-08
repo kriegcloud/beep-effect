@@ -12,7 +12,7 @@ React UI components for the documents slice. Houses reusable document editing, k
 
 ## Status
 
-Currently a placeholder export (`beep`) while domain and SDK packages stabilize. This package serves as the staging area for all document-related React components, preventing UI duplication across apps.
+Currently a placeholder export (`beep`) while domain and CLIENT packages stabilize. This package serves as the staging area for all document-related React components, preventing UI duplication across apps.
 
 ## Key Exports
 
@@ -50,7 +50,7 @@ When implemented, this package will provide:
 | `@beep/schema`           | Schema utilities and validators                   | Active |
 | `@beep/utils`            | Pure runtime helpers                              | Active |
 | `@beep/errors`           | Logging and error handling                        | Active |
-| `@beep/shared-client`    | Shared SDK contracts                              | Active |
+| `@beep/shared-client`    | Shared CLIENT contracts                              | Active |
 | `@beep/shared-env`       | Environment configuration                         | Active |
 | `@beep/shared-ui`        | Shared UI components and utilities                | Active |
 | `@beep/constants`        | Schema-backed enums and constants                 | Active |
@@ -273,7 +273,7 @@ export function useUpdateDocument() {
 - **Business Logic**: Keep domain rules in `@beep/documents-domain`
 - **Data Fetching Implementation**: Use `@beep/documents-client` contracts; inject as props
 - **Database Queries**: Belong in `@beep/documents-server`
-- **Hardcoded API Calls**: Always inject clients or use SDK contracts
+- **Hardcoded API Calls**: Always inject clients or use CLIENT contracts
 - **Cross-Slice UI**: Shared components belong in `@beep/shared-ui`
 - **Native Array/String Methods**: Use Effect utilities exclusively
 
@@ -327,7 +327,7 @@ When adding new components:
 - `packages/ui/ui/AGENTS.md` — Component library patterns and design system
 - `packages/ui/core/AGENTS.md` — Design tokens and theme pipeline
 - `packages/documents/domain/AGENTS.md` — Domain entities and validation
-- `packages/documents/client/AGENTS.md` — Client SDK contracts
+- `packages/documents/client/AGENTS.md` — Client CLIENT contracts
 - `packages/shared/ui/AGENTS.md` — Shared UI components and utilities
 
 ## Versioning and Changes

@@ -1,7 +1,7 @@
 # @beep/customization-client — Agent Guide
 
 ## Purpose & Fit
-- Provides the client-side SDK layer for the customization slice, enabling frontend applications to interact with customization features.
+- Provides the client-side CLIENT layer for the customization slice, enabling frontend applications to interact with customization features.
 - Contains API contracts, client-side services, and type definitions for client-server communication.
 - Acts as the bridge between the customization domain and UI layers, exposing typed contracts for TanStack Query and Effect-based client runtimes.
 - Currently a minimal scaffold awaiting contract definitions as the customization feature matures.

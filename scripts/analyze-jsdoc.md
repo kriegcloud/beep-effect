@@ -141,8 +141,8 @@ The analyzer looks for these export patterns:
 
 Run `--list` to see all 49+ analyzable targets including:
 
-- `apps/web`, `apps/server`, `apps/notes`
+- `apps/web`, `apps/server`
 - `packages/common/*` (identity, schema, contract, utils, etc.)
-- `packages/iam/*` (domain, infra, sdk, tables, ui)
-- `packages/shared/*` (domain, infra, sdk, tables, ui)
+- `packages/iam/*` (domain, infra, client, tables, ui)
+- `packages/shared/*` (domain, infra, client, tables, ui)
 - `packages/documents/*`, , etc.

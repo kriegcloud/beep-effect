@@ -1,6 +1,6 @@
 # @beep/shared-client
 
-Client-facing SDK layer for cross-cutting concerns, providing RPC infrastructure, file management state, and browser utilities.
+Client-facing CLIENT layer for cross-cutting concerns, providing RPC infrastructure, file management state, and browser utilities.
 
 ## Purpose
 
@@ -12,7 +12,7 @@ Key responsibilities:
 - **Client Services**: Effect services for files API, image compression, and upload coordination
 - **Browser Utilities**: Location/hash atoms for URL-based routing and navigation
 
-Unlike slice-specific SDKs (`@beep/iam-client`, `@beep/documents-client`), this package houses cross-cutting client infrastructure used by multiple domains.
+Unlike slice-specific CLIENTs (`@beep/iam-client`, `@beep/documents-client`), this package houses cross-cutting client infrastructure used by multiple domains.
 
 ## Installation
 
@@ -244,7 +244,6 @@ import * as Match from "effect/Match";
 
 ### With Applications
 - `apps/web` — Consumes file management atoms and client services
-- `apps/notes` — May use shared RPC infrastructure for collaborative features
 - React components use Jotai hooks to access file state and trigger operations
 
 ## Development
@@ -335,6 +334,6 @@ When extending this package:
 - [ ] Document new exports and patterns in this README
 - [ ] Run lint + check before commits; run build/tests when modifying exports
 - [ ] Update AGENTS.md for package-specific authoring guardrails
-- [ ] Coordinate with slice SDK maintainers to avoid duplication
+- [ ] Coordinate with slice CLIENT maintainers to avoid duplication
 - [ ] Ensure atoms handle SSR gracefully
 - [ ] Verify RPC methods have proper error logging

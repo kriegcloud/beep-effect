@@ -11,7 +11,7 @@
 - Once HTTP API implementation is complete in `@beep/documents-server`, this package will expose client-side wrappers.
 
 ## Planned Architecture
-When the SDK is implemented, it should provide:
+When the CLIENT is implemented, it should provide:
 - Client wrappers for the `DomainApi` defined in `@beep/documents-domain/DomainApi.ts`.
 - Type-safe HTTP clients for document CRUD, knowledge page operations, discussions, and comments.
 - Effect-based error handling aligned with domain error types.

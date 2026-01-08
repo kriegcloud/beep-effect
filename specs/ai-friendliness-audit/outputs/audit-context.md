@@ -29,7 +29,6 @@ Key concerns identified:
 |-----|---------|
 | `apps/web` | Next.js 15 + React 19 frontend |
 | `apps/server` | Effect Platform backend runtime |
-| `apps/notes` | Collaborative notes application |
 | `apps/marketing` | Marketing site |
 
 ### Packages by Category

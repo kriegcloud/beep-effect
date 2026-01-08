@@ -225,7 +225,6 @@ _mock.image.avatar(5)  // → "/assets/images/mock/avatar/avatar-6.webp"
 
 Used by:
 - `apps/web` — Dashboard layouts, account views
-- `apps/notes` — Component demos
 - Package UI layers — Storybook stories
 
 ## Development

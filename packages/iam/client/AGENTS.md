@@ -54,7 +54,7 @@ through runtime helpers, while adapters keep raw Better Auth usage isolated to t
   `ContractKit.make`, and expose implementations with `ContractKit.of`.
 - When calling Better Auth methods, always wire handlers through `ContractName.implement(Effect.fn(function* (payload, { continuation }) { ... }))`, encode payloads via `ContractName.encodePayload`, call Better Auth with `_internal` helpers (`withFetchOptions`, `addFetchOptions`), raise results via `continuation`, and decode with `ContractName.decodeUnknownSuccess`.
 - Fire `client.$store.notify("$sessionSignal")` after any successful operation that mutates session state (sign-in, sign-out, passkey, social). Guards rely on that signal.
-- Avoid resurrecting `AuthHandler`/`auth-wrapper` semantics—timeouts, retries, and toasts now live in consuming layers (atoms + `withToast`). Keep SDK implementations narrowly focused on transport and error shaping.
+- Avoid resurrecting `AuthHandler`/`auth-wrapper` semantics—timeouts, retries, and toasts now live in consuming layers (atoms + `withToast`). Keep CLIENT implementations narrowly focused on transport and error shaping.
 - Keep `AuthCallback` prefixes aligned with app middleware. Update both whenever authenticated route trees move.
 
 ## Quick Recipes

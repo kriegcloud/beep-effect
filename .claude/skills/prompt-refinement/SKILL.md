@@ -6,17 +6,17 @@ Refine raw prompts into production-quality specifications using structured promp
 
 Invoke this skill when:
 - User wants to refine a rough prompt idea into a detailed specification
-- User provides a `PROMPT_NAME:` identifier with raw content
+- User provides a `SPEC_NAME:` identifier with raw content
 - User asks to "improve", "refine", or "structure" a prompt
 - User wants to create a specification for a coding task
 - User mentions wanting a "prompt file" or "spec" for later use
 
 ## Input Format
 
-The user provides a prompt with a `PROMPT_NAME` identifier:
+The user provides a prompt with a `SPEC_NAME` identifier:
 
 ```
-PROMPT_NAME: <kebab-case-name>
+SPEC_NAME: <kebab-case-name>
 <raw prompt content>
 ```
 
@@ -26,7 +26,7 @@ This skill operates in 5 phases with **authorization gates** between each:
 
 | Phase | Name | Key Actions |
 |-------|------|-------------|
-| 1 | Initialization | Parse input, create `.specs/` directory, save original |
+| 1 | Initialization | Parse input, create `specs/` directory, save original |
 | 2 | Exploration | Deploy parallel research agents (codebase, AGENTS.md, Effect) |
 | 3 | Refinement | Generate COSTAR+CRISPE structured prompt |
 | 4 | Review Loop | Critic-fixer iterations (max 3) |
@@ -35,15 +35,15 @@ This skill operates in 5 phases with **authorization gates** between each:
 ## Phase 1: Initialization
 
 1. **Parse the input** to extract:
-   - `PROMPT_NAME` - the kebab-case identifier
-   - Raw prompt content - everything after the PROMPT_NAME line
+   - `SPEC_NAME` - the kebab-case identifier
+   - Raw prompt content - everything after the SPEC_NAME line
 
-2. **Create the spec directory**: `.specs/<prompt-name>/`
+2. **Create the spec directory**: `specs/<prompt-name>/`
 
-3. **Save the original prompt** to `.specs/<prompt-name>/<prompt-name>.original.md`
+3. **Save the original prompt** to `specs/<prompt-name>/<prompt-name>.original.md`
 
 4. **Present to user**:
-   - Show the parsed PROMPT_NAME
+   - Show the parsed SPEC_NAME
    - Show the spec directory that will be created
    - Show the original prompt content
 
@@ -84,7 +84,7 @@ Using the exploration results, create the refined prompt following the **COSTAR+
 
 > **Reference**: See `COSTAR_CRISPE_FORMAT.md` for the complete template structure.
 
-**Save** to `.specs/<prompt-name>/<prompt-name>.prompt.md`
+**Save** to `specs/<prompt-name>/<prompt-name>.prompt.md`
 
 **Present** the initial refined prompt to user
 
@@ -118,7 +118,7 @@ Spawn a fixer sub-agent to:
 
 ## Phase 5: Finalization
 
-1. **Final prompt** is at `.specs/<prompt-name>/<prompt-name>.prompt.md`
+1. **Final prompt** is at `specs/<prompt-name>/<prompt-name>.prompt.md`
 
 2. **Present summary**:
    - Total iterations performed
@@ -127,7 +127,7 @@ Spawn a fixer sub-agent to:
    - Path to the refined prompt file
 
 3. **Suggest next steps**:
-   - "Use this prompt with: `cat .specs/<prompt-name>/<prompt-name>.prompt.md`"
+   - "Use this prompt with: `cat specs/<prompt-name>/<prompt-name>.prompt.md`"
    - "Or copy the prompt content to use directly"
 
 ## Critical Rules
@@ -143,7 +143,7 @@ Spawn a fixer sub-agent to:
 
 | Scenario | Action |
 |----------|--------|
-| PROMPT_NAME missing | Ask user to provide it |
+| SPEC_NAME missing | Ask user to provide it |
 | Exploration finds no files | Proceed with general best practices, note the gap |
 | Sub-agent fails | Report the failure, continue with available information |
 | User rejects at gate | Ask what changes they want before proceeding |
@@ -159,14 +159,14 @@ Spawn a fixer sub-agent to:
 ## Example Invocation
 
 ```
-PROMPT_NAME: mock-s3-simulation
+SPEC_NAME: mock-s3-simulation
 I want to create a simulation of uploading a file to s3 using the `createMockS3Layer` in @scratchpad/index.ts using `@effect/platform`.
 ```
 
 This will:
-1. Create `.specs/mock-s3-simulation/`
-2. Save original to `.specs/mock-s3-simulation/mock-s3-simulation.original.md`
+1. Create `specs/mock-s3-simulation/`
+2. Save original to `specs/mock-s3-simulation/mock-s3-simulation.original.md`
 3. Explore codebase for `scratchpad/index.ts`, `@effect/platform` patterns
-4. Generate refined prompt at `.specs/mock-s3-simulation/mock-s3-simulation.prompt.md`
+4. Generate refined prompt at `specs/mock-s3-simulation/mock-s3-simulation.prompt.md`
 5. Review and iterate up to 3 times
 6. Present final refined prompt

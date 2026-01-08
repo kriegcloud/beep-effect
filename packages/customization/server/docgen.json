@@ -1,0 +1,66 @@
+{
+  "$schema": "../../../node_modules/@effect/docgen/schema.json",
+  "srcDir": "src",
+  "outDir": "docs",
+  "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/packages/customization/server/src/",
+  "exclude": [
+    "src/internal/**/*.ts"
+  ],
+  "examplesCompilerOptions": {
+    "noEmit": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "moduleResolution": "Bundler",
+    "module": "ES2024",
+    "target": "ES2024",
+    "lib": [
+      "ES2024",
+      "DOM",
+      "DOM.Iterable"
+    ],
+    "paths": {
+      "@beep/customization-server": [
+        "./src/index.ts"
+      ],
+      "@beep/customization-server/*": [
+        "./src/*"
+      ],
+      "@beep/customization-domain": [
+        "../domain/src/index.js"
+      ],
+      "@beep/customization-domain/*": [
+        "../domain/src/*.js"
+      ],
+      "@beep/customization-tables": [
+        "../tables/src/index.js"
+      ],
+      "@beep/customization-tables/*": [
+        "../tables/src/*.js"
+      ],
+      "@beep/schema": [
+        "../../common/schema/src/index.js"
+      ],
+      "@beep/schema/*": [
+        "../../common/schema/src/*.js"
+      ],
+      "@beep/shared-server": [
+        "../../shared/server/src/index.js"
+      ],
+      "@beep/shared-server/*": [
+        "../../shared/server/src/*.js"
+      ],
+      "@beep/shared-env": [
+        "../../shared/env/src/index.js"
+      ],
+      "@beep/shared-env/*": [
+        "../../shared/env/src/*.js"
+      ],
+      "@beep/shared-domain": [
+        "../../shared/domain/src/index.js"
+      ],
+      "@beep/shared-domain/*": [
+        "../../shared/domain/src/*.js"
+      ]
+    }
+  }
+}

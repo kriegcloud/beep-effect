@@ -1,10 +1,10 @@
 # @beep/iam-client
 
-Client SDK and presentation layer for the IAM system, providing Effect-first authentication flows, contracts, and React integration via better-auth.
+Client CLIENT and presentation layer for the IAM system, providing Effect-first authentication flows, contracts, and React integration via better-auth.
 
 ## Purpose
 
-The IAM SDK provides a complete client-side authentication system built on better-auth with Effect's contract-based architecture. It offers type-safe contracts, contract implementations, reactive atoms, and form helpers for all authentication flows including sign-in, sign-up, multi-session, OAuth, SSO, passkeys, two-factor, and user management. This package bridges better-auth's authentication primitives with Effect's type-safety and composability through the `@beep/contract` system, while providing React hooks and form utilities for seamless UI integration.
+The IAM CLIENT provides a complete client-side authentication system built on better-auth with Effect's contract-based architecture. It offers type-safe contracts, contract implementations, reactive atoms, and form helpers for all authentication flows including sign-in, sign-up, multi-session, OAuth, SSO, passkeys, two-factor, and user management. This package bridges better-auth's authentication primitives with Effect's type-safety and composability through the `@beep/contract` system, while providing React hooks and form utilities for seamless UI integration.
 
 ## Key Exports
 
@@ -77,7 +77,7 @@ Most client modules export atoms and runtimes for reactive state management. Not
 
 ## Architecture Fit
 
-- **Vertical Slice + Hexagonal**: SDK layer bridges IAM domain/server with UI, exposing only contracts and client-safe operations
+- **Vertical Slice + Hexagonal**: CLIENT layer bridges IAM domain/server with UI, exposing only contracts and client-safe operations
 - **Effect-first**: All contract implementations return `Effect<Success, IamError, never>` with structured error handling
 - **Contract-driven**: Uses `@beep/contract` for type-safe request/response schemas with metadata annotations (`Contract.make`, `ContractKit`)
 - **Better Auth Integration**: Wraps better-auth client methods through `Contract.implement` with continuation-based error handling
@@ -531,7 +531,7 @@ Key steps in the continuation pattern:
 - **UI components**: presentational components belong in `@beep/iam-ui`
 - **Handler services**: avoid resurrecting `AuthHandler` or `auth-wrapper` patterns; keep implementations focused on transport and error shaping
 
-This is the SDK/contract layer. Keep it focused on client-facing Effect contracts, contract implementations via better-auth, and React integration.
+This is the CLIENT/contract layer. Keep it focused on client-facing Effect contracts, contract implementations via better-auth, and React integration.
 
 ## Dependencies
 
@@ -546,7 +546,7 @@ This is the SDK/contract layer. Keep it focused on client-facing Effect contract
 | `@beep/iam-server`           | Better-auth server configuration and types                 |
 | `@beep/iam-tables`           | Drizzle schemas for IAM tables                             |
 | `@beep/shared-domain`        | Shared domain entities (User, Organization)                |
-| `@beep/shared-client`        | Shared SDK patterns and utilities                          |
+| `@beep/shared-client`        | Shared CLIENT patterns and utilities                          |
 | `@beep/schema`               | Reusable Effect schemas (Email, Password, EntityId, etc.)  |
 | `@beep/errors`               | Error logging and telemetry                                |
 | `@beep/constants`            | Schema-backed enums and constants                          |
@@ -645,8 +645,8 @@ bun run --filter @beep/iam-client dev
 - `@beep/iam-domain` — Entity models and business logic consumed by contracts
 - `@beep/iam-server` — Server-side implementations of IAM operations (better-auth server setup)
 - `@beep/iam-tables` — Drizzle schemas for IAM tables
-- `@beep/iam-ui` — UI components consuming these SDK contract implementations and forms
-- `@beep/shared-client` — Shared SDK patterns and utilities
+- `@beep/iam-ui` — UI components consuming these CLIENT contract implementations and forms
+- `@beep/shared-client` — Shared CLIENT patterns and utilities
 - `@beep/runtime-client` — Client ManagedRuntime for executing Effect programs in browser
 - `@beep/ui` — UI utilities including `withToast` for atom feedback
 

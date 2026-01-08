@@ -553,7 +553,7 @@ The `@beep/identity` package is a foundational dependency consumed across the en
 - **Schema Packages** (`@beep/schema`, slice domain packages): Use `.annotations()` for Effect Schema class decorators with stable TypeIds
 - **Server Packages** (slice infra/server): Use `.symbol()` for service tokens in Effect Context.Tag definitions
 - **Table Packages** (slice tables): Use `.make()` for consistent table naming in Drizzle schemas
-- **Client Packages** (slice sdk): Use for contract identifiers and handler naming
+- **Client Packages** (slice client): Use for contract identifiers and handler naming
 - **UI Packages**: Use for component keys and stable element identifiers
 
 All workspace packages are pre-registered in `packages.ts`. When adding new packages to the monorepo, update the `$I.compose(...)` call to register the new namespace.

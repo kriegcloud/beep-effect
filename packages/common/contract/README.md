@@ -304,7 +304,7 @@ const continuation = contract.continuation({
 - **No domain-specific business logic**: Domain policies belong in slice `domain` or `application` code
 - **No cross-slice imports**: Do not depend on `@beep/iam-*`, `@beep/documents-*`, etc.
 
-Contracts here should be generic, reusable, and transport-independent. If a contract is slice-specific, define it in the slice's `sdk` package.
+Contracts here should be generic, reusable, and transport-independent. If a contract is slice-specific, define it in the slice's `client` package.
 
 ## Dependencies
 
@@ -411,7 +411,7 @@ bun run --filter @beep/contract lint:circular
 - `@beep/utils` — Pure runtime helpers (noOp, nullOp, nullOpE)
 - `@beep/iam-client` — IAM contracts built on this package
 - `@beep/runtime/*` — Client/server runtimes that execute contract implementations
-- Slice `sdk` packages — Domain-specific contracts extending these primitives
+- Slice `client` packages — Domain-specific contracts extending these primitives
 
 ## Real-World Usage
 
@@ -424,4 +424,4 @@ bun run --filter @beep/contract lint:circular
 
 - See `AGENTS.md` for detailed authoring guidelines and internal architecture notes
 - Consult `documentation/patterns/` for contract usage patterns across the monorepo
-- Review slice `sdk` packages for real-world contract examples
+- Review slice `client` packages for real-world contract examples

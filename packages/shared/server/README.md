@@ -431,8 +431,6 @@ packages/shared/server/
 
 **`apps/web`**: Uses shared RPC handlers for file management operations.
 
-**`apps/notes`**: Uses `SharedDb` and shared repositories for file management in the collaborative notes application.
-
 ### Feature Slices
 
 **IAM** (`packages/iam/server`):

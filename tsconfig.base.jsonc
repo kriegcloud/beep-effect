@@ -398,9 +398,6 @@
       "@beep/testkit/test/*": [
         "./tooling/testkit/test/*"
       ],
-      "@beep/notes/*": [
-        "./apps/notes/src/*"
-      ],
       "@beep/lexical-schemas": [
         "./packages/common/lexical-schemas/src/index"
       ],

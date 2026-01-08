@@ -2,10 +2,10 @@
 
 ## Purpose & Fit
 
-- Provides shared SDK (client-server glue) contracts for cross-cutting concerns consumed by applications and feature slices.
+- Provides shared CLIENT (client-server glue) contracts for cross-cutting concerns consumed by applications and feature slices.
 - Currently serves as a placeholder package for future shared client contracts that don't belong to specific vertical slices (IAM, Documents).
 - Designed to house shared RPC contracts, API client utilities, and cross-slice Effect-based client services when they emerge.
-- Maintains clean separation between slice-specific SDKs (`@beep/iam-client`, `@beep/documents-client`) and shared client infrastructure.
+- Maintains clean separation between slice-specific CLIENTs (`@beep/iam-client`, `@beep/documents-client`) and shared client infrastructure.
 
 ## Surface Map
 
@@ -15,7 +15,7 @@ Currently minimal:
 
 ## Package Status
 
-This package is in early stages and serves as a placeholder for shared SDK infrastructure. As cross-cutting client needs emerge, this package will grow to include:
+This package is in early stages and serves as a placeholder for shared CLIENT infrastructure. As cross-cutting client needs emerge, this package will grow to include:
 
 - Shared RPC client contracts (Effect-based)
 - Common API client utilities
@@ -63,16 +63,16 @@ function MyComponent() {
 ## Integration Points
 
 ### With Feature Slices
-- `@beep/iam-client` — IAM-specific contracts remain in iam/sdk
-- `@beep/documents-client` — Documents-specific contracts remain in documents/sdk
+- `@beep/iam-client` — IAM-specific contracts remain in iam/client
+- `@beep/documents-client` — Documents-specific contracts remain in documents/client
 - This package is for cross-slice client infrastructure only
 
 ### With Runtime
 - `@beep/runtime/client` — Client ManagedRuntime for browser Effect execution
-- Future shared SDK contracts will integrate with client runtime layers
+- Future shared CLIENT contracts will integrate with client runtime layers
 
 ### With Applications
-- `apps/web` — Will consume shared SDK when client contracts emerge
+- `apps/web` — Will consume shared CLIENT when client contracts emerge
 - Future API client utilities will be imported from this package
 
 ## Dependencies
@@ -90,7 +90,7 @@ function MyComponent() {
 ## Authoring Guardrails
 
 - Only add truly cross-cutting client concerns to this package
-- Keep slice-specific SDK contracts in their respective packages
+- Keep slice-specific CLIENT contracts in their respective packages
 - Follow Effect-first patterns (no async/await in contracts)
 - Use `Effect.Service` for client service definitions
 - Export Layers for dependency injection
@@ -111,7 +111,7 @@ function MyComponent() {
 - [ ] Export Layers for runtime composition
 - [ ] Add type tests when introducing new contracts
 - [ ] Update this AGENTS.md when adding significant functionality
-- [ ] Coordinate with slice SDK maintainers to avoid duplication
+- [ ] Coordinate with slice CLIENT maintainers to avoid duplication
 
 ## Future Work
 

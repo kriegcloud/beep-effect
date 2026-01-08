@@ -125,7 +125,7 @@ grep -rn "from \"@beep/documents" packages/iam/ --include="*.ts"
 
 # App importing internal slice paths
 grep -rn "from \"@beep/.*-domain" apps/ --include="*.ts"
-grep -rn "from \"@beep/.*-infra" apps/ --include="*.ts"
+grep -rn "from \"@beep/.*-server" apps/ --include="*.ts"
 ```
 
 ## Phase 2: Evaluation
@@ -162,7 +162,7 @@ grep -rn "from \"@beep/.*-infra" apps/ --include="*.ts"
 - domain/src/entities/, value-objects/
 - server/src/db/, repos/
 - tables/src/tables/, relations.ts
-- sdk/src/ with Contract definitions
+- client/src/ with Contract definitions
 - ui/src/components/
 
 ## Phase 3: Findings Format

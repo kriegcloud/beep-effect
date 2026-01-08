@@ -69,7 +69,7 @@ const examplePattern = Effect.gen(function* () {
 
 **Layer Structure:**
 ```
-[domain] → [tables] → [infra] → [sdk] → [ui]
+[domain] → [tables] → [server] → [client] → [ui]
 ```
 
 **Boundary Rules:**
@@ -115,7 +115,7 @@ const examplePattern = Effect.gen(function* () {
 - [ ] Use namespace imports (`import * as X from "effect/X"`)
 - [ ] Use PascalCase constructors (`S.Struct`, not `S.struct`)
 - [ ] Use `@beep/utils` no-ops (`nullOp`, `noOp`, `nullOpE`)
-- [ ] Follow vertical slice layering (domain → tables → infra → sdk)
+- [ ] Follow vertical slice layering (domain → tables → server → client)
 
 ### Import Conventions
 ```typescript

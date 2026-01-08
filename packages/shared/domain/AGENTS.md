@@ -136,7 +136,7 @@ const uploadPath = Effect.gen(function* () {
 - Align new ids with the correct kit (`SharedEntityIds`, `IamEntityIds`, `DocumentsEntityIds`) and update `EntityKind` / `AnyEntityId` unions in tandem. Document pending anomalies (e.g., duplicate `SubscriptionId`).
 - When adding columns to models, stitch them through `makeFields` and review downstream table definitions (`packages/_internal/db-admin`).
 - Extending permissions? Update `Policy` map, regenerate derived literals, and add coverage in `packages/shared/domain/test/policy.test.ts`.
-- Route additions must go through `value-objects/paths.ts` using `PathBuilder.collection`; update UI/SDK references if structure changes.
+- Route additions must go through `value-objects/paths.ts` using `PathBuilder.collection`; update UI/CLIENT references if structure changes.
 - Touching `ManualCache` internals requires reviewing concurrency semantics and `ManualCache.test.ts`.
 - Sync with sibling guides: reference `packages/common/schema/AGENTS.md` for schema patterns and `packages/common/constants/AGENTS.md` for path builder conventions; cross-link any new patterns.
 - After documentation or API updates, refresh this guide and append a blurb in the root `AGENTS.md` package list.

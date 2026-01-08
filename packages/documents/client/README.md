@@ -1,10 +1,10 @@
 # @beep/documents-client
 
-Client SDK layer for the documents slice, providing Effect-first client wrappers for document management, knowledge pages, discussions, and file operations.
+Client CLIENT layer for the documents slice, providing Effect-first client wrappers for document management, knowledge pages, discussions, and file operations.
 
 ## Purpose
 
-This package serves as the client SDK layer for the documents slice, bridging client applications (web, CLI) with the documents server infrastructure. It exposes type-safe Effect-based contracts for document operations while maintaining proper layering boundaries.
+This package serves as the client CLIENT layer for the documents slice, bridging client applications (web, CLI) with the documents server infrastructure. It exposes type-safe Effect-based contracts for document operations while maintaining proper layering boundaries.
 
 **Current Status**: This package is currently a stub with only a placeholder export (`beep`). Implementation will follow the `@beep/iam-client` pattern once the documents server infrastructure is finalized.
 
@@ -44,7 +44,7 @@ Before this package can be fully implemented:
 
 ## Architecture
 
-- **Layer**: Client SDK layer between domain and UI in the vertical slice pattern
+- **Layer**: Client CLIENT layer between domain and UI in the vertical slice pattern
 - **Effect-First**: All operations return Effect types with proper error handling
 - **Service-Oriented**: Uses Effect Services with Layer-based dependency injection
 - **Contract-Driven**: Type-safe request/response schemas via `@beep/contract`
@@ -325,7 +325,7 @@ export const CreateDocumentHandler = CreateDocumentContract.implement(
 | `@beep/documents-domain` | Entity models, value objects, domain errors |
 | `@beep/documents-server` | Server infrastructure (peer dependency) |
 | `@beep/shared-domain` | Shared entities (User, Organization, Policy) |
-| `@beep/shared-client` | Cross-slice SDK utilities (atoms, toast wrappers) |
+| `@beep/shared-client` | Cross-slice CLIENT utilities (atoms, toast wrappers) |
 | `@beep/shared-env` | Environment configuration |
 | `@beep/schema` | Shared schema primitives and EntityId |
 | `@beep/errors` | Error logging and telemetry |
@@ -375,7 +375,7 @@ src/
 
 ## Related Packages
 
-- **`@beep/iam-client`** - Reference implementation for client SDK patterns
+- **`@beep/iam-client`** - Reference implementation for client CLIENT patterns
 - **`@beep/documents-domain`** - Entity models, value objects, domain errors
 - **`@beep/documents-server`** - Server-side infrastructure
 - **`@beep/documents-ui`** - React UI components

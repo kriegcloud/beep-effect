@@ -1,4 +1,0 @@
-import { SuggestionLeafStatic } from "@beep/notes/registry/ui/suggestion-node-static";
-import { BaseSuggestionPlugin } from "@platejs/suggestion";
-
-export const BaseSuggestionKit = [BaseSuggestionPlugin.withComponent(SuggestionLeafStatic)];

@@ -45,7 +45,7 @@ This research was gathered by specialized agents. Use it as your knowledge base 
 ### 1.2 Hexagonal Architecture in Effect
 
 **Ports** = `Context.Tag` definitions (interfaces in domain packages)
-**Adapters** = `Layer` implementations (in infra packages)
+**Adapters** = `Layer` implementations (in server packages)
 **Composition Root** = Runtime packages wire ports to adapters
 
 Domain packages NEVER import Layer implementations.

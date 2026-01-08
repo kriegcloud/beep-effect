@@ -476,7 +476,7 @@ After modifying entities:
 1. Regenerate database types and migrations
 2. Update corresponding table definitions in `@beep/iam-tables`
 3. Adjust repositories in `@beep/iam-server` if persistence logic changes
-4. Update SDK contracts in `@beep/iam-client` if client-facing types change
+4. Update CLIENT contracts in `@beep/iam-client` if client-facing types change
 5. Verify UI components in `@beep/iam-ui` still compile
 6. Run full verification: `bun run check && bun run lint && bun run test`
 

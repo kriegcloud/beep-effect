@@ -60,7 +60,7 @@ Configuration and guardrails for AI collaborators working in the `beep-effect` m
 
 ## Architecture & Boundaries
 
-Each slice follows `domain -> tables -> infra -> sdk -> ui`. Cross-slice imports only through `packages/shared/*` or `packages/common/*`. Use `@beep/*` path aliases. Never use direct cross-slice imports or relative `../../../` paths.
+Each slice follows `domain -> tables -> infra -> client -> ui`. Cross-slice imports only through `packages/shared/*` or `packages/common/*`. Use `@beep/*` path aliases. Never use direct cross-slice imports or relative `../../../` paths.
 
 ## Effect Patterns
 

@@ -34,7 +34,7 @@ node scripts/analyze-jsdoc.mjs --file=<modified-files>
 Update project documentation to reflect completed work:
 
 #### Update Specifications
-- [ ] Mark completed tasks in `.specs/[feature-name]/plan.md` with ✅
+- [ ] Mark completed tasks in `specs/[feature-name]/plan.md` with ✅
 - [ ] Add implementation summary to plan.md
 - [ ] Document any architectural decisions made
 - [ ] Note any deviations from original design with rationale
@@ -56,7 +56,7 @@ git add packages/effect/src/<new-files>
 git add packages/effect/test/<test-files>
 
 # Add documentation updates
-git add .specs/<feature-name>/
+git add specs/<feature-name>/
 git add .claude/commands/ # if commands were added/modified
 
 # Add any other related files

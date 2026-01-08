@@ -53,7 +53,6 @@ const composers = $I.compose(
   "constants",
   "testkit",
   "tooling-utils",
-  "notes",
   "documents-server",
   "shared-domain",
   "db-admin",
@@ -520,21 +519,6 @@ export const $ToolingUtilsId = composers.$ToolingUtilsId;
  * @since 0.1.0
  */
 export const $RepoCliId = composers.$RepoCliId;
-
-/**
- * Identity composer for the `@beep/notes` namespace.
- *
- * @example
- * ```typescript
- * import { $NotesId } from "@beep/identity/packages"
- *
- * const noteId = $NotesId.make("Note")
- * ```
- *
- * @category symbols
- * @since 0.1.0
- */
-export const $NotesId = composers.$NotesId;
 
 /**
  * Identity composer for the `@beep/documents-server` namespace.

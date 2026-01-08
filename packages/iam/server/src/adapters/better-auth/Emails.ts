@@ -2,7 +2,6 @@ import { $IamServerId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
 import { serverEnv } from "@beep/shared-env/ServerEnv";
 import { Email } from "@beep/shared-server/Email";
-import type { ResendError } from "@beep/shared-server/internal/email/adapters/resend/errors";
 import * as Effect from "effect/Effect";
 import type * as Layer from "effect/Layer";
 import * as Redacted from "effect/Redacted";
@@ -80,7 +79,7 @@ export interface AuthEmailServiceShape {
   readonly sendInvitation: (
     params: InvitationEmailPayload
   ) => Effect.Effect<void, Email.EmailTemplateRenderError | Email.ResendError, never>;
-  readonly sendOTP: (params: SendOTPEmailPayload) => Effect.Effect<void, ResendError, never>;
+  readonly sendOTP: (params: SendOTPEmailPayload) => Effect.Effect<void, Email.ResendError, never>;
 }
 
 type AuthServiceEffect = Effect.Effect<AuthEmailServiceShape, never, Email.ResendService>;

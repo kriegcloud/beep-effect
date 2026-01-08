@@ -325,7 +325,7 @@ See `/home/elpresidank/YeeBois/projects/beep-effect/CLAUDE.md` for complete Effe
 - `apps/server/AGENTS.md` — Server-specific patterns and guidelines
 - `packages/runtime/server/` — Complete runtime implementation (routing, auth, persistence)
 - `packages/runtime/server/AGENTS.md` — Runtime layer patterns and extension points
-- `packages/iam/server/AGENTS.md` — IAM infrastructure implementation
-- `packages/documents/server/AGENTS.md` — Documents infrastructure implementation
+- `packages/iam/server/AGENTS.md` — IAM server implementation
+- `packages/documents/server/AGENTS.md` — Documents server implementation
 - `CLAUDE.md` — Monorepo-wide conventions and Effect patterns
 - `AGENTS.md` — Repository overview and package structure

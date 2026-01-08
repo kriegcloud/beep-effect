@@ -190,7 +190,7 @@ The root layout establishes the following provider hierarchy (from outer to inne
 | `@beep/documents-ui` | File upload components |
 | `@beep/documents-client` | Documents client contracts |
 | `@beep/shared-ui` | Shared UI components |
-| `@beep/shared-client` | Shared SDK contracts |
+| `@beep/shared-client` | Shared CLIENT contracts |
 
 ### Infrastructure
 

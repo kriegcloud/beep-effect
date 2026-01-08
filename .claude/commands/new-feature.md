@@ -24,7 +24,7 @@ This workflow is **ONLY** for substantial new features. For other types of work:
 
 **Deliverables**:
 - Create feature branch: `feature/[feature-name]`
-- Create `.specs/[feature-name]/` directory
+- Create `specs/[feature-name]/` directory
 - Create `instructions.md` with:
   - Overview and User Story
   - Core Requirements

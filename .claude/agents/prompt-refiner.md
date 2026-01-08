@@ -7,21 +7,21 @@ description: |
 
   <example>
   Context: User has a rough idea for a new feature and wants a well-structured prompt.
-  user: "Refine this prompt: PROMPT_NAME: user-auth-flow\nI want to implement user authentication using better-auth"
+  user: "Refine this prompt: SPEC_NAME: user-auth-flow\nI want to implement user authentication using better-auth"
   assistant: "I'll use the prompt-refiner agent to transform this into a structured specification."
   <Task tool call to prompt-refiner agent with the prompt>
   </example>
 
   <example>
   Context: User wants to improve an existing prompt for better agent performance.
-  user: "Take this prompt and make it better: PROMPT_NAME: api-migration\nMigrate the REST endpoints to use Effect RPC"
+  user: "Take this prompt and make it better: SPEC_NAME: api-migration\nMigrate the REST endpoints to use Effect RPC"
   assistant: "Let me launch the prompt-refiner agent to explore the codebase and create a comprehensive specification."
   <Task tool call to prompt-refiner agent>
   </example>
 
   <example>
   Context: User has a complex task that needs careful scoping.
-  user: "PROMPT_NAME: db-schema-update\nAdd audit columns to all tables"
+  user: "SPEC_NAME: db-schema-update\nAdd audit columns to all tables"
   assistant: "I'll use the prompt-refiner agent to research the codebase patterns and create a detailed, actionable prompt."
   <Task tool call to prompt-refiner agent>
   </example>
@@ -49,10 +49,10 @@ Enhanced with CRISPE elements:
 
 ### Phase 1: Parse & Initialize
 
-1. Extract `PROMPT_NAME` from the input (format: `PROMPT_NAME: <kebab-case-name>`)
-2. Extract the raw prompt content (everything after PROMPT_NAME line)
-3. Create directory: `.specs/<prompt-name>/`
-4. Save original: `.specs/<prompt-name>/<prompt-name>.original.md`
+1. Extract `SPEC_NAME` from the input (format: `SPEC_NAME: <kebab-case-name>`)
+2. Extract the raw prompt content (everything after SPEC_NAME line)
+3. Create directory: `specs/<prompt-name>/`
+4. Save original: `specs/<prompt-name>/<prompt-name>.original.md`
 
 Report to user:
 ```
@@ -60,7 +60,7 @@ Report to user:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 Name: <prompt-name>
-Directory: .specs/<prompt-name>/
+Directory: specs/<prompt-name>/
 Original saved: <prompt-name>.original.md
 
 Original Prompt:
@@ -241,7 +241,7 @@ Example constraints section:
 | 0         | Initial draft | N/A          |
 ```
 
-Save to `.specs/<prompt-name>/<prompt-name>.prompt.md`
+Save to `specs/<prompt-name>/<prompt-name>.prompt.md`
 
 Present the refined prompt and request approval.
 
@@ -316,8 +316,8 @@ Present changes and request approval.
 ✅ Prompt Refinement Complete
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-📄 Final Prompt: .specs/<prompt-name>/<prompt-name>.prompt.md
-📝 Original: .specs/<prompt-name>/<prompt-name>.original.md
+📄 Final Prompt: specs/<prompt-name>/<prompt-name>.prompt.md
+📝 Original: specs/<prompt-name>/<prompt-name>.original.md
 
 📊 Summary
 ───────────────────────────────────────────────────────
@@ -330,7 +330,7 @@ Key Improvements:
 🚀 Next Steps
 ───────────────────────────────────────────────────────
 View the prompt:
-  cat .specs/<prompt-name>/<prompt-name>.prompt.md
+  cat specs/<prompt-name>/<prompt-name>.prompt.md
 
 Use with Claude:
   Copy the content of <prompt-name>.prompt.md and provide it to an agent
@@ -401,6 +401,6 @@ import * as DateTime from "effect/DateTime"
 
 ## Output Location
 
-All files are saved to `.specs/<prompt-name>/`:
+All files are saved to `specs/<prompt-name>/`:
 - `<prompt-name>.original.md` - Immutable original prompt
 - `<prompt-name>.prompt.md` - Refined prompt (updated each iteration)

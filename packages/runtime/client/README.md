@@ -286,7 +286,7 @@ This package integrates with:
 
 - **`apps/web`** — Next.js frontend mounts `BeepProvider` and `KaServices` in the App Router shell
 - **`@beep/runtime-server`** — Server-side runtime counterpart with similar observability patterns
-- **`@beep/iam-client`** / **`@beep/documents-client`** — SDK packages consume the runtime to execute client contracts
+- **`@beep/iam-client`** / **`@beep/documents-client`** — CLIENT packages consume the runtime to execute client contracts
 - **`@beep/iam-ui`** / **`@beep/documents-ui`** — UI packages use atoms powered by the runtime
 - **`@beep/ui`** — Provides `ToasterService` integrated into the runtime layer
 - **`@beep/shared-env`** — Supplies client environment configuration schema
