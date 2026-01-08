@@ -197,7 +197,6 @@ type BeepNextConfig = Omit<NextConfig, "headers"> & {
   readonly headers?: CreateSecureHeadersOptions;
   readonly bundleAnalyzerOptions?: BundleAnalyzerOptions;
   readonly pwaConfig?: PWAConfig;
-
 };
 
 const withDefaults = (packageName: `@beep/${string}`, config?: BeepNextConfig) =>

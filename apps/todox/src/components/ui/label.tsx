@@ -1,11 +1,11 @@
-"use client"
+"use client";
 
-import * as React from "react"
-
-import { cn } from "@beep/todox/lib/utils"
+import { cn } from "@beep/todox/lib/utils";
+import type * as React from "react";
 
 function Label({ className, ...props }: React.ComponentProps<"label">) {
   return (
+    // biome-ignore lint/a11y/noLabelWithoutControl: generic component
     <label
       data-slot="label"
       className={cn(
@@ -14,7 +14,7 @@ function Label({ className, ...props }: React.ComponentProps<"label">) {
       )}
       {...props}
     />
-  )
+  );
 }
 
-export { Label }
+export { Label };

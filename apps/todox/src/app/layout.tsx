@@ -1,9 +1,9 @@
-import type {Metadata} from "next";
-import {Geist, Geist_Mono, Inter} from "next/font/google";
+import type { Metadata } from "next";
+import { Geist, Geist_Mono, Inter } from "next/font/google";
 import "./globals.css";
-import {ThemeProvider} from "@beep/todox/components/theme-provider";
+import { ThemeProvider } from "@beep/todox/components/theme-provider";
 
-const inter = Inter({subsets: ["latin"], variable: "--font-sans"});
+const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -21,24 +21,17 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({
-                                     children,
-                                   }: Readonly<{
+  children,
+}: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
     <html lang="en" className={inter.variable} suppressHydrationWarning>
-    <body
-      className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-    >
-    <ThemeProvider
-      attribute="class"
-      defaultTheme="system"
-      enableSystem
-      disableTransitionOnChange
-    >
-      {children}
-    </ThemeProvider>
-    </body>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+          {children}
+        </ThemeProvider>
+      </body>
     </html>
   );
 }

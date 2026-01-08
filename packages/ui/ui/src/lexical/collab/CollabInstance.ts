@@ -1,9 +1,9 @@
+import { $dfs, mergeRegister } from "@lexical/utils";
 import * as A from "effect/Array";
 import * as DateTime from "effect/DateTime";
 import * as F from "effect/Function";
 import * as Match from "effect/Match";
 import * as Order from "effect/Order";
-import { $dfs, mergeRegister } from "@lexical/utils";
 import {
   $createTextNode,
   $getNodeByKey,
@@ -151,7 +151,11 @@ export class CollabInstance {
         // Sort element nodes first, since they're likely parents
         // @todo this may imply that the nodes we track or the order should be
         // user controlled
-        A.sort(Order.mapInput(Order.number, ([_, node]) => (ElementNode.prototype.isPrototypeOf(node.klass.prototype) ? 0 : 1))),
+        A.sort(
+          Order.mapInput(Order.number, ([_, node]) =>
+            ElementNode.prototype.isPrototypeOf(node.klass.prototype) ? 0 : 1
+          )
+        ),
         A.map(([_, n]) => this.editor.registerMutationListener(n.klass, this.onMutation.bind(this)))
       ),
       this.editor.registerNodeTransform(TextNode, this.wordSplitTransform.bind(this)),

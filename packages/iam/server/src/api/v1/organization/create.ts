@@ -33,8 +33,7 @@ export const Handler: HandlerEffect = Effect.fn("CreateOrganization")(function* 
 
   // Parse JSON fields from string to object if present
   // Uses type guard to avoid assertions
-  const isRecord = (v: unknown): v is Record<string, unknown> =>
-    P.isObject(v) && !Array.isArray(v);
+  const isRecord = (v: unknown): v is Record<string, unknown> => P.isObject(v) && !Array.isArray(v);
 
   const parseJson = (value: unknown): Record<string, unknown> | undefined => {
     if (value == null) return undefined;

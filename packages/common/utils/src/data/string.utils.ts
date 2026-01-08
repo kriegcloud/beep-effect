@@ -531,7 +531,12 @@ export function pluralize(word: string): string {
     if (!Str.includes(Str.toLowerCase(beforeO))("aeiou")) {
       // Common exceptions that just add 's'
       const oExceptions: readonly string[] = ["photo", "piano", "halo", "solo", "pro", "auto"];
-      if (!F.pipe(oExceptions, A.some((x) => x === lower))) {
+      if (
+        !F.pipe(
+          oExceptions,
+          A.some((x) => x === lower)
+        )
+      ) {
         return `${word}es`;
       }
     }
@@ -569,7 +574,12 @@ export function singularize(word: string): string {
   // Check if word is already a singular form from our irregular plurals
   // This prevents singularizing words that are already singular
   const singularValues: readonly string[] = F.pipe(irregularPlurals, Record.values);
-  if (F.pipe(singularValues, A.some((x) => x === lower))) {
+  if (
+    F.pipe(
+      singularValues,
+      A.some((x) => x === lower)
+    )
+  ) {
     return word;
   }
 

@@ -26,7 +26,11 @@ export const $updatePeerCursor = (
   const editor = $getEditor();
   const anchorElement = editor.getElementByKey(anchorKey);
   const focusElement = editor.getElementByKey(focusKey);
-  if (!anchorElement || !focusElement || message.lastActivity < DateTime.toEpochMillis(DateTime.unsafeNow()) - 1000 * CURSOR_INACTIVITY_LIMIT) {
+  if (
+    !anchorElement ||
+    !focusElement ||
+    message.lastActivity < DateTime.toEpochMillis(DateTime.unsafeNow()) - 1000 * CURSOR_INACTIVITY_LIMIT
+  ) {
     cursors.delete(message.userId);
   } else {
     cursors.set(message.userId, {

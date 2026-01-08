@@ -55,8 +55,7 @@ export const Handler: HandlerEffect = Effect.fn("SAML2SpMetadata")(
     );
 
     // Handle different response shapes from Better Auth
-    const xmlContent =
-      P.isString(result) ? result : String((result as { response?: unknown })?.response ?? result);
+    const xmlContent = P.isString(result) ? result : String((result as { response?: unknown })?.response ?? result);
 
     // Return XML response with proper content type
     return F.pipe(

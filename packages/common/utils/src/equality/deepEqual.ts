@@ -158,7 +158,11 @@ const equalByTag = (
       return allMatch;
     }
     default:
-      if (Str.startsWith("[object Uint")(tag) || Str.startsWith("[object Int")(tag) || Str.startsWith("[object Float")(tag)) {
+      if (
+        Str.startsWith("[object Uint")(tag) ||
+        Str.startsWith("[object Int")(tag) ||
+        Str.startsWith("[object Float")(tag)
+      ) {
         const typedA = value as ArrayLike<number>;
         const typedB = other as ArrayLike<number>;
         return equalArrayBuffer(typedA, typedB, stack, equal);

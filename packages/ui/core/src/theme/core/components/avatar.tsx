@@ -23,10 +23,7 @@ type AvatarVariants = ComponentsVariants<Theme>["MuiAvatar"];
 type AvatarGroupVariants = ComponentsVariants<Theme>["MuiAvatarGroup"];
 
 const baseColors = ["default", "inherit"] as const;
-const allColors = F.pipe(
-  baseColors as ReadonlyArray<string>,
-  A.appendAll(colorKeys.palette)
-);
+const allColors = F.pipe(baseColors as ReadonlyArray<string>, A.appendAll(colorKeys.palette));
 
 export function getAvatarColor(
   inputValue?: string | undefined,
@@ -120,7 +117,7 @@ const colorVariants = [
       ...theme.mixins.filledStyles(theme, "inherit"),
     }),
   },
-  ...F.pipe(
+  ...(F.pipe(
     colorKeys.palette,
     A.map((colorKey) => ({
       props: (props) => props.color === colorKey || (!!props.alt && getAvatarColor(props.alt) === colorKey),
@@ -129,7 +126,7 @@ const colorVariants = [
         backgroundColor: theme.vars.palette[colorKey].main,
       }),
     }))
-  ) satisfies AvatarVariants,
+  ) satisfies AvatarVariants),
 ] satisfies AvatarVariants;
 
 const avatarGroupVariants = {

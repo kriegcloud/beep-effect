@@ -13,7 +13,11 @@ export default function compressFileName(fileName: UnsafeTypes.UnsafeAny): strin
     const fileNameWithoutExtension = pipe(Str.split(fileName, "."), A.dropRight(1), A.join("."));
 
     // Extract the extension from the fileName
-    const fileExtension = pipe(Str.split(fileName, "."), A.last, O.getOrElse(() => ""));
+    const fileExtension = pipe(
+      Str.split(fileName, "."),
+      A.last,
+      O.getOrElse(() => "")
+    );
 
     // Calculate the length of characters to keep in the middle
     const charsToKeep = maxSubstrLength - (fileNameWithoutExtension.length + fileExtension.length + 3);

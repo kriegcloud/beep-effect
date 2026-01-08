@@ -74,7 +74,9 @@ export const isTypedMessage = (message: unknown): message is TypedMessage => {
 export type PeerMessage = CreatedMessage | UpdatedMessage | DestroyedMessage | CursorMessage;
 
 export const isPeerMessage = (message: unknown): message is PeerMessage => {
-  return isTypedMessage(message) && pipe(["created", "updated", "destroyed", "cursor"] as const, A.contains(message.type));
+  return (
+    isTypedMessage(message) && pipe(["created", "updated", "destroyed", "cursor"] as const, A.contains(message.type))
+  );
 };
 
 // Chunks of peer messages stored in Redis and processed between clients
@@ -105,5 +107,7 @@ export const isSyncMessageClient = (message: unknown): message is SyncMessageCli
 };
 
 export const compareRedisStreamIds = (a: string, b: string): number => {
-  return Number.parseInt(A.unsafeGet(Str.split("-")(a), 0), 10) - Number.parseInt(A.unsafeGet(Str.split("-")(b), 0), 10);
+  return (
+    Number.parseInt(A.unsafeGet(Str.split("-")(a), 0), 10) - Number.parseInt(A.unsafeGet(Str.split("-")(b), 0), 10)
+  );
 };

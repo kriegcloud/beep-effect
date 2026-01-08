@@ -1,8 +1,8 @@
+import { pxToRem, rgbaFromChannel } from "@beep/ui-core/utils";
+import { type FabOwnProps, fabClasses } from "@mui/material/Fab";
+import type { Components, ComponentsVariants, CSSObject, Theme } from "@mui/material/styles";
 import * as A from "effect/Array";
 import * as F from "effect/Function";
-import { pxToRem, rgbaFromChannel } from "@beep/ui-core/utils";
-import { fabClasses, type FabOwnProps } from "@mui/material/Fab";
-import type { Components, ComponentsVariants, CSSObject, Theme } from "@mui/material/styles";
 
 type StyleArg = { theme: Theme };
 
@@ -82,7 +82,7 @@ const filledVariants = [
         ...theme.mixins.filledStyles(theme, colorKey, { hover: true }),
         boxShadow: theme.vars.customShadows.z8,
       }),
-    })),
+    }))
   ),
   ...F.pipe(
     colorKeys.palette,
@@ -91,7 +91,7 @@ const filledVariants = [
       style: ({ theme }: StyleArg) => ({
         boxShadow: theme.vars.customShadows[colorKey],
       }),
-    })),
+    }))
   ),
 ] satisfies FabVariants;
 
@@ -134,7 +134,7 @@ const outlinedVariants = [
       style: ({ theme }: StyleArg) => ({
         color: theme.vars.palette.common[colorKey],
       }),
-    })),
+    }))
   ),
   ...F.pipe(
     colorKeys.palette,
@@ -143,7 +143,7 @@ const outlinedVariants = [
       style: ({ theme }: StyleArg) => ({
         color: theme.vars.palette[colorKey].main,
       }),
-    })),
+    }))
   ),
 ] satisfies FabVariants;
 
@@ -155,7 +155,7 @@ const softVariants = [
       style: ({ theme }: StyleArg) => ({
         ...theme.mixins.softStyles(theme, colorKey, { hover: true }),
       }),
-    })),
+    }))
   ),
 ] satisfies FabVariants;
 

@@ -38,10 +38,10 @@
     "@lexical/table": "catalog:",
     "mdi-material-ui": "catalog:",
     "@ffmpeg/ffmpeg": "catalog:",
-       "react-markdown": "catalog:",
-        "browser-image-compression": "catalog:",
+    "react-markdown": "catalog:",
+    "browser-image-compression": "catalog:",
     "@ai-sdk/react": "catalog:",
-        "@faker-js/faker": "catalog:",
+    "@faker-js/faker": "catalog:",
     "ai": "catalog:",
     "babel-plugin-react-compiler": "catalog:",
     "@better-auth/stripe": "catalog:",
@@ -65,7 +65,7 @@
     "drizzle-orm": "catalog:",
     "dub": "catalog:",
     "jose": "catalog:",
-        "mutative": "catalog:",
+    "mutative": "catalog:",
     "picocolors": "catalog:",
     "postgres": "catalog:",
     "randexp-ts": "catalog:",
@@ -76,7 +76,6 @@
     "jotai-x": "catalog:",
     "cookies-next": "catalog:",
     "@beep/ui-core": "workspace:^",
-
     "@beep/shared-ui": "workspace:^",
     "@emotion/cache": "catalog:",
     "@emotion/react": "catalog:",
@@ -95,7 +94,6 @@
     "@fontsource-variable/public-sans": "catalog:",
     "@fontsource/barlow": "catalog:",
     "@mui/stylis-plugin-rtl": "catalog:",
-
     "@mui/x-data-grid": "catalog:",
     "@mui/x-date-pickers": "catalog:",
     "@mui/x-tree-view": "catalog:",
@@ -124,15 +122,10 @@
     "rehype-raw": "catalog:",
     "rehype-highlight": "catalog:",
     "remark-gfm": "catalog:",
-
-
     "class-variance-authority": "catalog:",
     "@radix-ui/react-toast": "catalog:",
-
-
     "@radix-ui/react-dialog": "catalog:",
     "@radix-ui/react-separator": "catalog:",
-
     "@radix-ui/react-slot": "catalog:",
     "@radix-ui/react-tooltip": "catalog:",
     "lucide-react": "catalog:",
@@ -167,16 +160,11 @@
     "@platejs/basic-nodes": "catalog:",
     "@radix-ui/react-toolbar": "catalog:",
     "tailwind-scrollbar-hide": "catalog:",
-
-
     "@tailwindcss/postcss": "catalog:",
     "tailwindcss": "catalog:",
     "prettier": "catalog:",
     "@radix-ui/react-accordion": "catalog:",
     "@ariakit/react": "catalog:",
-
-
-
     "@platejs/ai": "catalog:",
     "@platejs/autoformat": "catalog:",
     "@platejs/basic-styles": "catalog:",
@@ -209,7 +197,6 @@
     "@platejs/toggle": "catalog:",
     "@udecode/cn": "catalog:",
     "@uploadthing/react": "catalog:",
-
     "html2canvas-pro": "catalog:",
     "lowlight": "catalog:",
     "pdf-lib": "catalog:",
@@ -222,17 +209,12 @@
     "remark-math": "catalog:",
     "uploadthing": "catalog:",
     "use-file-picker": "catalog:",
-
-
     "@beep/iam-ui": "workspace:^",
-
     "@beep/ui": "workspace:^",
-        "@beep/mock": "workspace:^",
-
+    "@beep/mock": "workspace:^",
     "@mui/material-nextjs": "catalog:",
     "@svgr/webpack": "catalog:",
     "motion": "catalog:",
-
     "@tanstack/react-devtools": "catalog:",
     "@tanstack/react-form-devtools": "catalog:",
     "@beep/errors": "workspace:^",
@@ -249,7 +231,7 @@
     "@beep/constants": "workspace:^",
     "@beep/shared-domain": "workspace:^",
     "@beep/identity": "workspace:^",
-        "@opentelemetry/api": "catalog:",
+    "@opentelemetry/api": "catalog:",
     "@opentelemetry/exporter-trace-otlp-http": "catalog:",
     "@opentelemetry/sdk-trace-base": "catalog:",
     "@opentelemetry/sdk-trace-web": "catalog:",
@@ -267,7 +249,6 @@
     "@types/nprogress": "catalog:",
     "@types/turndown": "catalog:",
     "@effect/docgen": "catalog:",
-
     "@turbo/gen": "catalog:",
     "babel-plugin-transform-next-use-client": "catalog:",
     "copyfiles": "catalog:",

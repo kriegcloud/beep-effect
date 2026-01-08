@@ -1,4 +1,4 @@
-import { cn } from "@beep/todox/lib/utils"
+import { cn } from "@beep/todox/lib/utils";
 
 function ExampleWrapper({ className, ...props }: React.ComponentProps<"div">) {
   return (
@@ -13,7 +13,7 @@ function ExampleWrapper({ className, ...props }: React.ComponentProps<"div">) {
         {...props}
       />
     </div>
-  )
+  );
 }
 
 function Example({
@@ -23,8 +23,8 @@ function Example({
   containerClassName,
   ...props
 }: React.ComponentProps<"div"> & {
-  title: string
-  containerClassName?: string
+  title: string;
+  containerClassName?: string;
 }) {
   return (
     <div
@@ -35,9 +35,7 @@ function Example({
       )}
       {...props}
     >
-      <div className="text-muted-foreground px-1.5 py-2 text-xs font-medium">
-        {title}
-      </div>
+      <div className="text-muted-foreground px-1.5 py-2 text-xs font-medium">{title}</div>
       <div
         data-slot="example-content"
         className={cn(
@@ -48,7 +46,7 @@ function Example({
         {children}
       </div>
     </div>
-  )
+  );
 }
 
-export { ExampleWrapper, Example }
+export { ExampleWrapper, Example };

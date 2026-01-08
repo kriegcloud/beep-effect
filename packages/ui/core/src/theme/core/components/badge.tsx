@@ -1,5 +1,5 @@
-import * as A from "effect/Array";
 import type { Components, ComponentsVariants, Theme } from "@mui/material/styles";
+import * as A from "effect/Array";
 
 /**
  * TypeScript extension for MUI theme augmentation.
