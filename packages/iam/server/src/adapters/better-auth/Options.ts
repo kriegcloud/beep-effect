@@ -463,9 +463,14 @@ export const makeAuth = ({
       siwe({
         domain: serverEnv.app.domain,
         getNonce: async () => {
-          return "beep";
+          // Generate cryptographically secure random nonce to prevent replay attacks
+          const randomBytes = crypto.getRandomValues(new Uint8Array(32));
+          return Array.from(randomBytes, (byte) => byte.toString(16).padStart(2, "0")).join("");
         },
         verifyMessage: async () => {
+          // TODO: Implement proper SIWE message verification
+          // This currently disables SIWE authentication - implement with viem or ethers.js
+          // to verify the signature before enabling in production
           return false;
         },
       }),
