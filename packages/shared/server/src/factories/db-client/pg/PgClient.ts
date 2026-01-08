@@ -236,7 +236,6 @@ export const makePgClient: MakePgClientEffect = Effect.gen(function* () {
       params: ReadonlyArray<unknown>,
       transformRows: (<A extends object>(row: ReadonlyArray<A>) => ReadonlyArray<A>) | undefined
     ) {
-      // eslint-disable-next-line @typescript-eslint/no-this-alias
       const self = this;
       return Effect.gen(function* () {
         const scope = yield* Effect.scope;

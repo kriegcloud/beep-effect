@@ -1,11 +1,6 @@
 "use client";
 
-
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@beep/todox/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@beep/todox/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,12 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@beep/todox/components/ui/dropdown-menu";
-import {
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  useSidebar,
-} from "@beep/todox/components/ui/sidebar";
+import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@beep/todox/components/ui/sidebar";
 import {
   BellIcon,
   CaretUpDownIcon,

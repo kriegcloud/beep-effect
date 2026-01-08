@@ -1,30 +1,23 @@
 "use client";
 
-import type * as React from "react";
+import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarRail } from "@beep/todox/components/ui/sidebar";
 import {
-  SquaresFourIcon,
-  RobotIcon,
   BookOpenIcon,
-  GearIcon,
-  FrameCornersIcon,
-  ChartPieIcon,
-  MapPinIcon,
   BuildingsIcon,
-  WaveformIcon,
+  ChartPieIcon,
+  FrameCornersIcon,
+  GearIcon,
+  MapPinIcon,
+  RobotIcon,
+  SquaresFourIcon,
   TerminalIcon,
+  WaveformIcon,
 } from "@phosphor-icons/react";
-
+import type * as React from "react";
 import { NavMain, type NavMainItem } from "./nav-main";
 import { NavProjects, type Project } from "./nav-projects";
 import { NavUser, type User } from "./nav-user";
-import { TeamSwitcher, type Team } from "./team-switcher";
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarHeader,
-  SidebarRail,
-} from "@beep/todox/components/ui/sidebar";
+import { type Team, TeamSwitcher } from "./team-switcher";
 
 // Sample data - can be replaced with actual data
 const data = {

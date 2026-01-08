@@ -15,10 +15,7 @@ function CollapsibleContent({ className, ...props }: CollapsiblePrimitive.Panel.
   return (
     <CollapsiblePrimitive.Panel
       data-slot="collapsible-content"
-      className={cn(
-        "overflow-hidden transition-all data-[ending-style]:h-0 data-[starting-style]:h-0",
-        className
-      )}
+      className={cn("overflow-hidden transition-all data-[ending-style]:h-0 data-[starting-style]:h-0", className)}
       {...props}
     />
   );

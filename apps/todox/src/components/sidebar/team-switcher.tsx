@@ -1,6 +1,5 @@
 "use client";
 
-
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,18 +10,9 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@beep/todox/components/ui/dropdown-menu";
-import {
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  useSidebar,
-} from "@beep/todox/components/ui/sidebar";
+import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@beep/todox/components/ui/sidebar";
 import type { Icon } from "@phosphor-icons/react";
-import {
-  CaretUpDownIcon,
-  CheckIcon,
-  PlusIcon,
-} from "@phosphor-icons/react";
+import { CaretUpDownIcon, CheckIcon, PlusIcon } from "@phosphor-icons/react";
 import * as React from "react";
 
 export interface Team {
@@ -73,17 +63,11 @@ export function TeamSwitcher({ teams }: TeamSwitcherProps) {
             sideOffset={4}
           >
             <DropdownMenuGroup>
-              <DropdownMenuLabel className="text-muted-foreground text-xs">
-                Teams
-              </DropdownMenuLabel>
+              <DropdownMenuLabel className="text-muted-foreground text-xs">Teams</DropdownMenuLabel>
               {teams.map((team, index) => {
                 const TeamLogo = team.logo;
                 return (
-                  <DropdownMenuItem
-                    key={team.name}
-                    onClick={() => setActiveTeam(team)}
-                    className="gap-2 p-2"
-                  >
+                  <DropdownMenuItem key={team.name} onClick={() => setActiveTeam(team)} className="gap-2 p-2">
                     <div className="flex size-6 items-center justify-center rounded-md border">
                       <TeamLogo className="size-3.5 shrink-0" weight="bold" />
                     </div>

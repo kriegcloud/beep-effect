@@ -1,6 +1,6 @@
 import type tag from "tagged-tag";
 import type * as UnsafeTypes from "./unsafe.types";
-// eslint-disable-next-line type-fest/require-exported-types
+
 export type TagContainer<Token> = {
   readonly [tag]: Token;
 };

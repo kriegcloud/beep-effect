@@ -343,14 +343,19 @@ function SidebarFooter({ className, ...props }: React.ComponentPropsWithoutRef<"
 }
 
 function SidebarSeparator({ className, ...props }: React.ComponentPropsWithoutRef<typeof Separator>) {
-  return <Separator data-slot="sidebar-separator" className={cn("bg-sidebar-border mx-2 w-auto", className)} {...props} />;
+  return (
+    <Separator data-slot="sidebar-separator" className={cn("bg-sidebar-border mx-2 w-auto", className)} {...props} />
+  );
 }
 
 function SidebarContent({ className, ...props }: React.ComponentPropsWithoutRef<"div">) {
   return (
     <div
       data-slot="sidebar-content"
-      className={cn("flex min-h-0 flex-1 flex-col gap-2 overflow-auto group-data-[collapsible=icon]:overflow-hidden", className)}
+      className={cn(
+        "flex min-h-0 flex-1 flex-col gap-2 overflow-auto group-data-[collapsible=icon]:overflow-hidden",
+        className
+      )}
       {...props}
     />
   );
@@ -358,18 +363,11 @@ function SidebarContent({ className, ...props }: React.ComponentPropsWithoutRef<
 
 function SidebarGroup({ className, ...props }: React.ComponentPropsWithoutRef<"div">) {
   return (
-    <div
-      data-slot="sidebar-group"
-      className={cn("relative flex w-full min-w-0 flex-col p-2", className)}
-      {...props}
-    />
+    <div data-slot="sidebar-group" className={cn("relative flex w-full min-w-0 flex-col p-2", className)} {...props} />
   );
 }
 
-function SidebarGroupLabel({
-  className,
-  ...props
-}: React.ComponentPropsWithoutRef<"div">) {
+function SidebarGroupLabel({ className, ...props }: React.ComponentPropsWithoutRef<"div">) {
   return (
     <div
       data-slot="sidebar-group-label"
@@ -404,13 +402,7 @@ function SidebarGroupContent({ className, ...props }: React.ComponentPropsWithou
 }
 
 function SidebarMenu({ className, ...props }: React.ComponentPropsWithoutRef<"ul">) {
-  return (
-    <ul
-      data-slot="sidebar-menu"
-      className={cn("flex w-full min-w-0 flex-col gap-1", className)}
-      {...props}
-    />
-  );
+  return <ul data-slot="sidebar-menu" className={cn("flex w-full min-w-0 flex-col gap-1", className)} {...props} />;
 }
 
 function SidebarMenuItem({ className, ...props }: React.ComponentPropsWithoutRef<"li">) {
@@ -475,9 +467,7 @@ function SidebarMenuButton({
 
   return (
     <Tooltip>
-      <TooltipTrigger render={button}>
-        {/* render prop handles the trigger element */}
-      </TooltipTrigger>
+      <TooltipTrigger render={button}>{/* render prop handles the trigger element */}</TooltipTrigger>
       <TooltipContent
         side="right"
         align="center"

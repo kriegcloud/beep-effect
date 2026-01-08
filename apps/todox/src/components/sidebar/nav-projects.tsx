@@ -1,14 +1,6 @@
 "use client";
 
 import {
-  FolderIcon,
-  DotsThreeIcon,
-  ShareIcon,
-  TrashIcon,
-} from "@phosphor-icons/react";
-import type { Icon } from "@phosphor-icons/react";
-
-import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -24,6 +16,8 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@beep/todox/components/ui/sidebar";
+import type { Icon } from "@phosphor-icons/react";
+import { DotsThreeIcon, FolderIcon, ShareIcon, TrashIcon } from "@phosphor-icons/react";
 
 export interface Project {
   readonly name: string;

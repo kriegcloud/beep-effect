@@ -2,7 +2,7 @@
 
 import { cn } from "@beep/todox/lib/utils";
 import { CaretRightIcon, DotsThreeIcon } from "@phosphor-icons/react";
-import * as React from "react";
+import type * as React from "react";
 
 function Breadcrumb({ ...props }: React.ComponentPropsWithoutRef<"nav">) {
   return <nav aria-label="breadcrumb" data-slot="breadcrumb" {...props} />;
@@ -25,16 +25,9 @@ function BreadcrumbItem({ className, ...props }: React.ComponentPropsWithoutRef<
   return <li data-slot="breadcrumb-item" className={cn("inline-flex items-center gap-1.5", className)} {...props} />;
 }
 
-function BreadcrumbLink({
-  className,
-  ...props
-}: React.ComponentPropsWithoutRef<"a">) {
+function BreadcrumbLink({ className, ...props }: React.ComponentPropsWithoutRef<"a">) {
   return (
-    <a
-      data-slot="breadcrumb-link"
-      className={cn("hover:text-foreground transition-colors", className)}
-      {...props}
-    />
+    <a data-slot="breadcrumb-link" className={cn("hover:text-foreground transition-colors", className)} {...props} />
   );
 }
 
@@ -80,4 +73,12 @@ function BreadcrumbEllipsis({ className, ...props }: React.ComponentPropsWithout
   );
 }
 
-export { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbPage, BreadcrumbSeparator, BreadcrumbEllipsis };
+export {
+  Breadcrumb,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+  BreadcrumbEllipsis,
+};

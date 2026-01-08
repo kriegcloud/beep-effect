@@ -519,7 +519,6 @@ export const SignedPayload = <A, I, R>(
   _secret: Redacted.Redacted<string>
 ): S.Schema<SignedPayload<A>, A, EncryptionServiceTag | R> => {
   // Lazy import to avoid circular dependency
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { EncryptionService: _EncryptionService } = require("./EncryptionService") as {
     EncryptionService: typeof EncryptionServiceTag;
   };

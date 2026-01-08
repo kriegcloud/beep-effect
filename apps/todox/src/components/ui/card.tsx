@@ -1,7 +1,11 @@
 import { cn } from "@beep/todox/lib/utils";
 import type * as React from "react";
 
-function Card({ className, size = "default", ...props }: React.ComponentProps<"div"> & { size?: undefined | "default" | "sm" }) {
+function Card({
+  className,
+  size = "default",
+  ...props
+}: React.ComponentProps<"div"> & { readonly size?: undefined | "default" | "sm" }) {
   return (
     <div
       data-slot="card"

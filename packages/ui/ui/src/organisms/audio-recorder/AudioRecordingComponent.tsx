@@ -45,7 +45,6 @@ export const AudioRecorder: (props: Props) => React.ReactElement = ({
     mediaRecorder,
   } =
     recorderControls ??
-    // eslint-disable-next-line react-hooks/rules-of-hooks
     useAudioRecorder(audioTrackConstraints, onNotAllowedOrFound, mediaRecorderOptions);
 
   const [shouldSave, setShouldSave] = React.useState(false);

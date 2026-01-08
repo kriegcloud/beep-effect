@@ -1,13 +1,6 @@
 "use client";
 
-import { CaretRightIcon } from "@phosphor-icons/react";
-import type { Icon } from "@phosphor-icons/react";
-
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@beep/todox/components/ui/collapsible";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@beep/todox/components/ui/collapsible";
 import {
   SidebarGroup,
   SidebarGroupLabel,
@@ -18,16 +11,20 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from "@beep/todox/components/ui/sidebar";
+import type { Icon } from "@phosphor-icons/react";
+import { CaretRightIcon } from "@phosphor-icons/react";
 
 export interface NavMainItem {
   readonly title: string;
   readonly url: string;
   readonly icon?: undefined | Icon;
   readonly isActive?: undefined | boolean;
-  readonly items?: undefined | {
-    readonly title: string;
-    readonly url: string;
-  }[];
+  readonly items?:
+    | undefined
+    | {
+        readonly title: string;
+        readonly url: string;
+      }[];
 }
 
 interface NavMainProps {
@@ -40,11 +37,7 @@ export function NavMain({ items }: NavMainProps) {
       <SidebarGroupLabel>Platform</SidebarGroupLabel>
       <SidebarMenu>
         {items.map((item) => (
-          <Collapsible
-            key={item.title}
-            defaultOpen={item.isActive}
-            className="group/collapsible"
-          >
+          <Collapsible key={item.title} defaultOpen={item.isActive} className="group/collapsible">
             <SidebarMenuItem>
               <CollapsibleTrigger
                 render={
