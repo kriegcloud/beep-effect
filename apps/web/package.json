@@ -73,15 +73,9 @@
     "@zip.js/zip.js": "catalog:",
     "jotai": "catalog:",
     "jotai-x": "catalog:",
-
     "react": "catalog:",
-
     "next": "catalog:",
-
     "react-dom": "catalog:",
-
-
-
     "zod": "catalog:",
     "tailwind-merge": "catalog:",
     "clsx": "catalog:",
@@ -147,6 +141,7 @@
     "@platejs/docx": "catalog:",
     "@platejs/emoji": "catalog:",
     "@platejs/excalidraw": "catalog:",
+    "swr": "^2.3.6",
     "@platejs/floating": "catalog:",
     "@platejs/indent": "catalog:",
     "@platejs/juice": "catalog:",
@@ -167,8 +162,6 @@
     "@udecode/cn": "catalog:",
     "@uploadthing/react": "catalog:",
     "html2canvas-pro": "catalog:",
-
-
     "react-lite-youtube-embed": "catalog:",
     "react-player": "catalog:",
     "react-textarea-autosize": "catalog:",
@@ -176,11 +169,10 @@
     "remark-math": "catalog:",
     "uploadthing": "catalog:",
     "use-file-picker": "catalog:",
-
-         "react-phone-number-input": "catalog:",
-      "react-dropzone": "catalog:",
+    "react-phone-number-input": "catalog:",
+    "react-dropzone": "catalog:",
     "react-i18next": "catalog:",
-       "cookies-next": "catalog:",
+    "cookies-next": "catalog:",
     "@beep/ui-core": "workspace:^",
     "@beep/shared-ui": "workspace:^",
     "effect": "catalog:",

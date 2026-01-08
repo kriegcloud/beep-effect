@@ -1,7 +1,5 @@
 "use client";
-import {
-  createTheme,
-} from "@mui/material/styles";
+import { createTheme } from "@mui/material/styles";
 import type {} from "@mui/material/themeCssVarsAugmentation";
 import { colors } from "./colors";
 import { alertTheme } from "./components/alert";
@@ -60,4 +58,3 @@ export const themeOverrides = createTheme({
   typography,
   shadows,
 });
-

@@ -146,19 +146,16 @@ export const buttonTheme: ThemeComponents = {
             props: { variant: "text" },
             style: {
               "&.MuiButton-colorSecondary": {
-                "--variant-textColor": (theme.vars || theme).palette.secondary
-                  .text,
+                "--variant-textColor": (theme.vars || theme).palette.secondary.text,
               },
               "&.MuiButton-colorSuccess": {
-                "--variant-textColor": (theme.vars || theme).palette.success
-                  .text,
+                "--variant-textColor": (theme.vars || theme).palette.success.text,
               },
               "&.MuiButton-colorError": {
                 "--variant-textColor": (theme.vars || theme).palette.error.text,
               },
               "&.MuiButton-colorWarning": {
-                "--variant-textColor": (theme.vars || theme).palette.warning
-                  .text,
+                "--variant-textColor": (theme.vars || theme).palette.warning.text,
               },
               "&.MuiButton-colorInfo": {
                 "--variant-textColor": (theme.vars || theme).palette.info.text,
@@ -176,36 +173,31 @@ export const buttonTheme: ThemeComponents = {
                 } 12%, transparent)`,
               },
               "&.MuiButton-colorSecondary": {
-                "--variant-outlinedColor": (theme.vars || theme).palette
-                  .secondary.text,
+                "--variant-outlinedColor": (theme.vars || theme).palette.secondary.text,
                 "--variant-outlinedBorder": `color-mix(in srgb, ${
                   (theme.vars || theme).palette.secondary.text
                 } 28%, transparent)`,
               },
               "&.MuiButton-colorSuccess": {
-                "--variant-outlinedColor": (theme.vars || theme).palette.success
-                  .text,
+                "--variant-outlinedColor": (theme.vars || theme).palette.success.text,
                 "--variant-outlinedBorder": `color-mix(in srgb, ${
                   (theme.vars || theme).palette.success.text
                 } 28%, transparent)`,
               },
               "&.MuiButton-colorError": {
-                "--variant-outlinedColor": (theme.vars || theme).palette.error
-                  .text,
+                "--variant-outlinedColor": (theme.vars || theme).palette.error.text,
                 "--variant-outlinedBorder": `color-mix(in srgb, ${
                   (theme.vars || theme).palette.error.text
                 } 28%, transparent)`,
               },
               "&.MuiButton-colorWarning": {
-                "--variant-outlinedColor": (theme.vars || theme).palette.warning
-                  .text,
+                "--variant-outlinedColor": (theme.vars || theme).palette.warning.text,
                 "--variant-outlinedBorder": `color-mix(in srgb, ${
                   (theme.vars || theme).palette.warning.text
                 } 28%, transparent)`,
               },
               "&.MuiButton-colorInfo": {
-                "--variant-outlinedColor": (theme.vars || theme).palette.info
-                  .text,
+                "--variant-outlinedColor": (theme.vars || theme).palette.info.text,
                 "--variant-outlinedBorder": `color-mix(in srgb, ${
                   (theme.vars || theme).palette.info.text
                 } 28%, transparent)`,

@@ -89,33 +89,23 @@ export function NotificationDropdown() {
       <DropdownMenuContent className="w-80 rounded-lg" side="bottom" align="end" sideOffset={8}>
         <div className="flex items-center justify-between px-2 py-1.5">
           <span className="text-sm font-medium">Notifications</span>
-          <button
-            type="button"
-            className="text-xs text-muted-foreground hover:text-foreground transition-colors"
-          >
+          <button type="button" className="text-xs text-muted-foreground hover:text-foreground transition-colors">
             Mark all as read
           </button>
         </div>
         <DropdownMenuSeparator />
         <div className="max-h-80 overflow-y-auto">
           {notifications.map((notification) => (
-            <DropdownMenuItem
-              key={notification.id}
-              className="flex items-start gap-3 p-3 cursor-pointer"
-            >
+            <DropdownMenuItem key={notification.id} className="flex items-start gap-3 p-3 cursor-pointer">
               <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted">
                 <NotificationIcon type={notification.type} />
               </div>
               <div className="flex-1 space-y-1">
                 <div className="flex items-center gap-2">
                   <p className="text-sm font-medium leading-none">{notification.title}</p>
-                  {!notification.read && (
-                    <span className="h-2 w-2 rounded-full bg-primary" />
-                  )}
+                  {!notification.read && <span className="h-2 w-2 rounded-full bg-primary" />}
                 </div>
-                <p className="text-xs text-muted-foreground line-clamp-1">
-                  {notification.description}
-                </p>
+                <p className="text-xs text-muted-foreground line-clamp-1">{notification.description}</p>
                 <p className="text-xs text-muted-foreground">{notification.time}</p>
               </div>
             </DropdownMenuItem>

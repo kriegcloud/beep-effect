@@ -1,5 +1,5 @@
-export { AppSidebar } from "./app-sidebar";
+export { MainContentPanelSidebar } from "./main-content-panel-sidebar";
 export { NavMain, type NavMainItem } from "./nav-main";
 export { NavProjects, type Project } from "./nav-projects";
 export { NavUser, type User } from "./nav-user";
-export { type Team, TeamSwitcher } from "./team-switcher";
+export { type Team, TeamSwitcher, TeamSwitcherCompact } from "./team-switcher";

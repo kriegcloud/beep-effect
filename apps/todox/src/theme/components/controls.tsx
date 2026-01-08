@@ -111,11 +111,10 @@ export const controlsTheme: ThemeComponents = {
               },
             }),
           },
-          [`&.${switchClasses.checked}:not(.Mui-disabled) + .${switchClasses.track}`]:
-            {
-              opacity: 1,
-              border: "none",
-            },
+          [`&.${switchClasses.checked}:not(.Mui-disabled) + .${switchClasses.track}`]: {
+            opacity: 1,
+            border: "none",
+          },
           "&:active": {
             "--_thumb-w": "calc(var(--_thumb-size) + 4px)",
           },
@@ -130,8 +129,7 @@ export const controlsTheme: ThemeComponents = {
           background: (theme.vars || theme).palette.common.white,
           width: "var(--_thumb-w)",
           height: "var(--_thumb-h)",
-          boxShadow:
-            "0 3px 8px 0 rgba(0,0,0,0.1), 0 1px 1px 0 rgba(0,0,0,0.12), 0 3px 1px 0 rgba(0,0,0,0.08)",
+          boxShadow: "0 3px 8px 0 rgba(0,0,0,0.1), 0 1px 1px 0 rgba(0,0,0,0.12), 0 3px 1px 0 rgba(0,0,0,0.08)",
           transition: "width 120ms ease-out 0ms",
         },
         [`& .${switchClasses.track}`]: {

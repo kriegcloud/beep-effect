@@ -45,7 +45,7 @@
     "paths": {
       "*": ["./*"],
       "@beep/todox/*": ["./src/*"],
-     "@beep/types": ["../../packages/common/types/src/index"],
+      "@beep/types": ["../../packages/common/types/src/index"],
       "@beep/types/*": ["../../packages/common/types/src/*"],
       "@beep/invariant": ["../../packages/common/invariant/src/index"],
       "@beep/invariant/*": ["../../packages/common/invariant/src/*"],

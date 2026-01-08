@@ -10,9 +10,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@beep/todox/components/ui/dropdown-menu";
+import { ToggleGroup, ToggleGroupItem } from "@beep/todox/components/ui/toggle-group";
 import {
   BellIcon,
-  CheckIcon,
   CreditCardIcon,
   DesktopIcon,
   MoonIcon,
@@ -101,24 +101,33 @@ export function NavbarUserDropdown({ user }: NavbarUserDropdownProps) {
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuGroup>
-          <DropdownMenuLabel className="text-xs text-muted-foreground">Theme</DropdownMenuLabel>
-          <DropdownMenuItem onClick={() => setTheme("system")}>
-            <DesktopIcon />
-            System
-            {theme === "system" && <CheckIcon className="ml-auto" />}
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setTheme("light")}>
-            <SunIcon />
-            Light
-            {theme === "light" && <CheckIcon className="ml-auto" />}
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setTheme("dark")}>
-            <MoonIcon />
-            Dark
-            {theme === "dark" && <CheckIcon className="ml-auto" />}
-          </DropdownMenuItem>
-        </DropdownMenuGroup>
+        <DropdownMenuItem
+          className="justify-between pointer-events-none bg-transparent hover:bg-transparent focus:bg-transparent data-[highlighted]:bg-transparent"
+          onSelect={(e) => e.preventDefault()}
+        >
+          <span className="text-sm">Theme</span>
+          <ToggleGroup
+            className="pointer-events-auto"
+            value={theme === "system" ? ["system"] : theme === "light" ? ["light"] : ["dark"]}
+            onValueChange={(value) => {
+              if (value.length > 0) {
+                setTheme(value[0] as string);
+              }
+            }}
+            variant="outline"
+            size="sm"
+          >
+            <ToggleGroupItem value="system" aria-label="System theme">
+              <DesktopIcon />
+            </ToggleGroupItem>
+            <ToggleGroupItem value="light" aria-label="Light theme">
+              <SunIcon />
+            </ToggleGroupItem>
+            <ToggleGroupItem value="dark" aria-label="Dark theme">
+              <MoonIcon />
+            </ToggleGroupItem>
+          </ToggleGroup>
+        </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem>
           <SignOutIcon />

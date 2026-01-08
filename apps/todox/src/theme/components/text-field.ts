@@ -88,8 +88,7 @@ export const textFieldTheme: ThemeComponents = {
           borderColor: (theme.vars || theme).palette.error.main,
         },
         "&.Mui-disabled": {
-          backgroundColor: (theme.vars || theme).palette.action
-            .disabledBackground,
+          backgroundColor: (theme.vars || theme).palette.action.disabledBackground,
           "& .MuiOutlinedInput-notchedOutline": {
             borderColor: (theme.vars || theme).palette.action.disabled,
           },
@@ -147,8 +146,7 @@ export const textFieldTheme: ThemeComponents = {
           backgroundColor: (theme.vars || theme).palette.action.selected,
         },
         "&.Mui-disabled": {
-          backgroundColor: (theme.vars || theme).palette.action
-            .disabledBackground,
+          backgroundColor: (theme.vars || theme).palette.action.disabledBackground,
         },
         "&::before": {
           transition: theme.transitions.create(["border-bottom-color"], {
@@ -156,14 +154,10 @@ export const textFieldTheme: ThemeComponents = {
           }),
         },
         "&:hover::before": {
-          borderBottom: `2px solid ${
-            (theme.vars || theme).palette.text.primary
-          }`,
+          borderBottom: `2px solid ${(theme.vars || theme).palette.text.primary}`,
         },
         "&::after": {
-          borderBottom: `2px solid ${
-            (theme.vars || theme).palette.primary.main
-          }`,
+          borderBottom: `2px solid ${(theme.vars || theme).palette.primary.main}`,
         },
         "&.Mui-error::after": {
           borderBottomColor: (theme.vars || theme).palette.error.main,
@@ -195,14 +189,10 @@ export const textFieldTheme: ThemeComponents = {
           }),
         },
         "&:hover:not(.Mui-disabled)::before": {
-          borderBottom: `2px solid ${
-            (theme.vars || theme).palette.text.primary
-          }`,
+          borderBottom: `2px solid ${(theme.vars || theme).palette.text.primary}`,
         },
         "&::after": {
-          borderBottom: `2px solid ${
-            (theme.vars || theme).palette.primary.main
-          }`,
+          borderBottom: `2px solid ${(theme.vars || theme).palette.primary.main}`,
         },
         "&.Mui-error::after": {
           borderBottomColor: (theme.vars || theme).palette.error.main,

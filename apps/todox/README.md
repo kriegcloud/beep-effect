@@ -1,17 +1,23 @@
 # @beep/todox
 
-Next.js 16 application demonstrating shadcn/ui component library integration with Effect patterns.
+Full-featured Next.js 16 application demonstrating Material UI theming, shadcn/ui integration, and Effect patterns with a functional email client and rich text editor.
 
 ## Purpose
 
-TodoX is a showcase application built with Next.js 16 App Router, featuring:
-- shadcn/ui component library with custom theming
-- Effect-based utilities for functional data transformations
-- Collapsible sidebar navigation with team switcher
-- Dark mode support via next-themes
-- TypeScript strict mode with comprehensive type safety
+TodoX is a comprehensive showcase application built with Next.js 16 App Router, featuring:
+- **Material UI** design system with extensive theme customization and component overrides
+- **shadcn/ui** component library (49+ components) for accessible UI primitives
+- **Email Client** feature with inbox, compose, navigation, and mail provider
+- **Rich Text Editor** powered by TipTap with toolbar, bubble menu, and code highlighting
+- **Effect-based utilities** for functional data transformations throughout the codebase
+- **Navigation System** with collapsible sidebar, top navbar, team switcher, and side panels
+- **AI Chat Panel** for AI-powered interactions
+- **Command Palette** for global search and keyboard shortcuts
+- **Dark Mode Support** via Material UI's color scheme system
+- **Comprehensive Provider Stack** (IAM, Theme, i18n, Localization, Settings)
+- **TypeScript strict mode** with comprehensive type safety
 
-This app serves as a reference implementation for UI patterns and component composition in the beep-effect monorepo.
+This application demonstrates advanced UI patterns, component composition, Material UI theming, and Effect integration in the beep-effect monorepo.
 
 ## Installation
 
@@ -29,26 +35,98 @@ bun install
 ```
 apps/todox/
 ├── src/
-│   ├── app/                # Next.js App Router pages
-│   │   ├── layout.tsx      # Root layout with theme provider
-│   │   └── page.tsx        # Main page with sidebar demo
+│   ├── app/                      # Next.js App Router
+│   │   ├── api/mail/             # Mail API endpoints (labels, details, list)
+│   │   ├── demo/                 # Demo page
+│   │   ├── layout.tsx            # Root layout with provider stack
+│   │   ├── page.tsx              # Main page
+│   │   └── globals.css           # Global styles and Tailwind imports
+│   ├── features/                 # Feature modules
+│   │   ├── mail/                 # Email client feature
+│   │   │   ├── provider/         # Mail context provider
+│   │   │   ├── view/             # Mail view components
+│   │   │   ├── mail-compose.tsx  # Email composition
+│   │   │   ├── mail-details.tsx  # Email detail view
+│   │   │   ├── mail-list.tsx     # Email list
+│   │   │   ├── mail-header.tsx   # Mail header bar
+│   │   │   ├── mail-item.tsx     # Individual mail item
+│   │   │   ├── mail-nav.tsx      # Mail navigation
+│   │   │   ├── mail-nav-item.tsx # Nav item component
+│   │   │   ├── mail-skeleton.tsx # Loading skeleton
+│   │   │   └── layout.tsx        # Mail layout wrapper
+│   │   └── editor/               # Rich text editor feature
+│   │       ├── components/       # Editor UI components
+│   │       │   ├── toolbar.tsx          # Main toolbar
+│   │       │   ├── bubble-toolbar.tsx   # Floating bubble menu
+│   │       │   ├── toolbar-item.tsx     # Toolbar button component
+│   │       │   ├── toolbar-icons.tsx    # Icon definitions
+│   │       │   ├── use-toolbar-state.ts # Toolbar state hook
+│   │       │   ├── heading-block.tsx    # Heading extension
+│   │       │   ├── link-block.tsx       # Link extension
+│   │       │   ├── image-block.tsx      # Image extension
+│   │       │   ├── code-highlight-block.tsx  # Code highlighting
+│   │       │   └── code-highlight-block.css  # Code block styles
+│   │       ├── extension/        # Custom TipTap extensions
+│   │       │   ├── clear-format.ts      # Clear formatting extension
+│   │       │   └── text-transform.ts    # Text transformation extension
+│   │       ├── editor.tsx        # Main editor component
+│   │       ├── types.ts          # Editor type definitions
+│   │       ├── classes.ts        # CSS class utilities
+│   │       ├── styles.tsx        # Editor styles
+│   │       └── index.ts          # Barrel export
 │   ├── components/
-│   │   ├── sidebar/        # Custom sidebar components
-│   │   │   ├── app-sidebar.tsx
-│   │   │   ├── nav-main.tsx
-│   │   │   ├── nav-projects.tsx
-│   │   │   ├── nav-user.tsx
-│   │   │   └── team-switcher.tsx
-│   │   ├── ui/             # shadcn/ui components (48 components)
-│   │   ├── component-example.tsx
-│   │   ├── example.tsx
-│   │   ├── mode-toggle.tsx
-│   │   └── theme-provider.tsx
-│   └── lib/
-│       └── utils.ts        # Utility functions (cn, etc.)
+│   │   ├── ai-chat/              # AI chat panel
+│   │   │   ├── ai-chat-panel.tsx
+│   │   │   └── index.ts
+│   │   ├── navbar/               # Top navigation bar
+│   │   │   ├── top-navbar.tsx           # Complete navbar with selectors
+│   │   │   ├── command-search.tsx       # Command palette (Cmd+K)
+│   │   │   ├── navbar-user-dropdown.tsx # User menu
+│   │   │   ├── notification-dropdown.tsx # Notifications
+│   │   │   └── index.ts
+│   │   ├── sidebar/              # Main sidebar navigation
+│   │   │   ├── main-content-panel-sidebar.tsx  # Main sidebar component
+│   │   │   ├── nav-main.tsx             # Primary navigation
+│   │   │   ├── nav-projects.tsx         # Projects navigation
+│   │   │   ├── nav-user.tsx             # User profile footer
+│   │   │   ├── team-switcher.tsx        # Team selector dropdown
+│   │   │   └── index.ts
+│   │   ├── side-panel/           # Side panel component
+│   │   ├── mini-sidebar/         # Compact sidebar variant
+│   │   ├── ui/                   # shadcn/ui primitives (49+ components)
+│   │   ├── component-example.tsx # Example components
+│   │   ├── example.tsx           # Usage examples
+│   │   ├── mode-toggle.tsx       # Dark mode toggle
+│   │   └── theme-provider.tsx    # Theme context provider
+│   ├── theme/                    # Material UI theme configuration
+│   │   ├── components/           # Component-specific MUI overrides
+│   │   │   ├── button.ts         # Button theme
+│   │   │   ├── text-field.ts     # TextField theme
+│   │   │   ├── select.ts         # Select theme
+│   │   │   ├── chip.ts           # Chip theme
+│   │   │   ├── date-picker.ts    # DatePicker theme
+│   │   │   ├── controls.tsx      # Form controls theme
+│   │   │   └── ...               # Additional component themes
+│   │   ├── colors.ts             # Color scheme definitions
+│   │   ├── shadows.ts            # Shadow definitions
+│   │   ├── typography.ts         # Typography definitions
+│   │   ├── theme.tsx             # Main theme export with overrides
+│   │   ├── types.ts              # Theme type definitions
+│   │   └── index.ts              # Barrel export
+│   ├── actions/                  # Server actions
+│   │   └── mail.ts               # Mail-related actions
+│   ├── types/                    # Type definitions
+│   │   └── extended-theme-types.ts
+│   ├── lib/
+│   │   └── utils.ts              # Utility functions (cn, etc.)
+│   ├── app-config.ts             # Application configuration
+│   └── global-providers.tsx      # Comprehensive provider stack
 ├── public/
-│   └── logo.avif           # Application logo
-├── components.json         # shadcn/ui configuration
+│   ├── logo.avif                 # Application logo
+│   └── icons/                    # Icon assets
+│       └── empty/                # Empty state icons
+├── components.json               # shadcn/ui configuration
+├── tsconfig.json                 # TypeScript configuration
 └── package.json
 ```
 
@@ -78,6 +156,48 @@ apps/todox/
 | `@beep/runtime-client`   | Browser ManagedRuntime               |
 | `@beep/runtime-server`   | Server ManagedRuntime                |
 | `@beep/shared-domain`    | Cross-slice domain entities          |
+
+### UI Libraries
+
+| Package                    | Purpose                              |
+|----------------------------|--------------------------------------|
+| `shadcn`                   | Component library and CLI            |
+| `@mui/material`            | MUI Material design system           |
+| `@mui/x-data-grid`         | Advanced data grid component         |
+| `@mui/x-date-pickers`      | Date and time picker components      |
+| `@mui/x-tree-view`         | Tree view component                  |
+| `@phosphor-icons/react`    | Icon library                         |
+| `@iconify/react`           | Unified icon framework               |
+| `next-themes`              | Theme management for Next.js         |
+| `framer-motion`            | Animation library                    |
+| `react-resizable-panels`   | Resizable panel layouts              |
+
+### Rich Text Editor
+
+| Package                                | Purpose                           |
+|----------------------------------------|-----------------------------------|
+| `@tiptap/react`                        | TipTap React integration          |
+| `@tiptap/starter-kit`                  | Essential TipTap extensions       |
+| `@tiptap/extensions`                   | Additional TipTap extensions      |
+| `@tiptap/extension-bubble-menu`        | Floating bubble menu              |
+| `@tiptap/extension-code-block-lowlight`| Syntax highlighted code blocks    |
+| `@tiptap/extension-image`              | Image support                     |
+| `@tiptap/extension-text-align`         | Text alignment                    |
+| `lowlight`                             | Syntax highlighting engine        |
+
+### AI & Chat
+
+| Package          | Purpose                    |
+|------------------|----------------------------|
+| `@ai-sdk/react`  | AI SDK React hooks         |
+| `ai`             | Vercel AI SDK core         |
+
+### Mail Feature
+
+| Package          | Purpose                           |
+|------------------|-----------------------------------|
+| `@beep/mock`     | Mock mail data for development    |
+| `date-fns`       | Date formatting and manipulation  |
 
 ### DevDependencies
 
@@ -138,24 +258,176 @@ const namesProper = F.pipe(items, A.map(x => x.name))
 
 ### shadcn/ui Components
 
-The app includes 48 shadcn/ui components in `src/components/ui/`:
+The app includes 49 shadcn/ui components in `src/components/ui/`:
 - Accordion, Alert, AlertDialog, AspectRatio, Avatar
 - Badge, Breadcrumb, Button, Calendar, Card, Carousel, Chart
 - Checkbox, Collapsible, Combobox, Command, ContextMenu
 - Dialog, Drawer, DropdownMenu, Field
 - HoverCard, Input, InputGroup, InputOTP
 - Label, Menubar, NavigationMenu
-- Pagination, Popover, Progress
-- RadioGroup, ResizablePanels, ScrollArea, Select, Separator, Sheet
+- Orb, Pagination, Popover, Progress
+- RadioGroup, Resizable, ScrollArea, Select, Separator, Sheet
 - Sidebar, Skeleton, Slider, Sonner, Switch
-- Tabs, Textarea, Toast, Toggle, ToggleGroup, Tooltip
+- Table, Tabs, Textarea, Toggle, ToggleGroup, Tooltip
 
-### Custom Components
+### MUI Material Theme System
+
+Comprehensive MUI Material theming in `src/theme/`:
+
+```typescript
+// From theme/theme.tsx
+import { createTheme } from "@mui/material/styles"
+
+export const themeOverrides = createTheme({
+  cssVariables: {
+    colorSchemeSelector: "class",
+    cssVarPrefix: "plus",
+  },
+  colorSchemes: colors,
+  shape: { borderRadius: 8 },
+  components: {
+    // 18+ component theme customizations:
+    // Button, TextField, Select, Menu, Autocomplete, Chip,
+    // Avatar, Table, Card, Dialog, DatePicker, DataGrid,
+    // Alert, TreeView, Layout, Link, Controls, List
+  },
+  typography,
+  shadows,
+})
+```
+
+Component-specific theme overrides available for:
+- Data Grid (advanced table features)
+- Date Pickers (calendar and time selection)
+- Tree View (hierarchical data)
+- Form controls (TextField, Select, Autocomplete)
+- Layout components (Card, Dialog, Menu)
+
+### Custom Components & Features
+
+#### Mail Feature
+
+Complete email client implementation with provider-based state management:
+
+```tsx
+// From features/mail/view/mail-view.tsx
+import { MailView } from "@beep/todox/features/mail/view"
+import { MailProvider } from "@beep/todox/features/mail/provider"
+
+export default function MailPage() {
+  return (
+    <MailProvider>
+      <MailView />
+    </MailProvider>
+  )
+}
+```
+
+**Mail Components**:
+- `MailProvider` — Context provider for mail state management
+- `MailView` — Complete mail interface with resizable panels
+- `MailList` — Email list with pagination and filtering
+- `MailDetails` — Email detail view with rich text display
+- `MailCompose` — Email composition with TipTap editor
+- `MailNav` — Label-based navigation (Inbox, Sent, Drafts, etc.)
+- `MailHeader` — Action bar with archive, delete, mark read/unread
+- `MailItem` — Individual email list item with preview
+- `MailSkeleton` — Loading state skeleton UI
+
+**Features**:
+- Resizable panels using `react-resizable-panels`
+- Mock data integration via `@beep/mock`
+- Server actions for mail operations in `src/actions/mail.ts`
+- API routes in `src/app/api/mail/` (labels, details, list)
+
+#### Rich Text Editor
+
+TipTap-based editor with custom extensions and toolbar:
+
+```tsx
+// From features/editor/editor.tsx
+import { Editor } from "@beep/todox/features/editor"
+
+export function ComposeEmail() {
+  return (
+    <Editor
+      placeholder="Write your message..."
+      className="min-h-[200px]"
+    />
+  )
+}
+```
+
+**Editor Components**:
+- `Editor` — Main TipTap editor instance with extensions
+- `Toolbar` — Fixed toolbar with formatting controls
+- `BubbleToolbar` — Floating toolbar on text selection
+- `ToolbarItem` — Reusable toolbar button component
+- `HeadingBlock` — Heading levels (H1-H6)
+- `LinkBlock` — Link insertion and editing
+- `ImageBlock` — Image upload and display
+- `CodeHighlightBlock` — Syntax-highlighted code blocks with lowlight
+
+**Custom Extensions**:
+- `ClearFormat` — Remove all formatting
+- `TextTransform` — Text case transformations (uppercase, lowercase, capitalize)
+
+**Features**:
+- Rich text formatting (bold, italic, underline, strikethrough)
+- Headings, lists (ordered/unordered), blockquotes
+- Code blocks with syntax highlighting (lowlight)
+- Link and image insertion
+- Text alignment (left, center, right, justify)
+- Custom toolbar state management via `useToolbarState`
+- Bubble menu for contextual formatting
+
+#### Navbar Components
+
+```tsx
+// From navbar/top-navbar.tsx and individual components
+import { TopNavbar, CommandSearch, NavbarUserDropdown, NotificationDropdown }
+  from "@beep/todox/components/navbar"
+
+// Option 1: Use complete TopNavbar with team/workspace/app selectors
+<TopNavbar user={user} />
+
+// Option 2: Compose individual components
+<header>
+  <CommandSearch />
+  <NotificationDropdown />
+  <NavbarUserDropdown user={user} />
+</header>
+```
+
+**Components**:
+- `TopNavbar` — Complete navbar with team/workspace/app selectors and logo
+- `CommandSearch` — Global command palette (Cmd+K)
+- `NavbarUserDropdown` — User menu with theme switcher and account options
+- `NotificationDropdown` — Notification center with bell icon and badge
+
+**Effect Pattern Example**:
+```tsx
+import * as A from "effect/Array"
+import * as F from "effect/Function"
+import * as Str from "effect/String"
+
+// Generate user initials using Effect utilities
+const initials = F.pipe(
+  user.name,
+  Str.split(" "),
+  A.map((n) => n[0] ?? ""),
+  A.join(""),
+  Str.toUpperCase,
+  Str.slice(0, 2)
+)
+```
 
 #### Sidebar System
 
 ```tsx
-// From app-sidebar.tsx
+// From sidebar/main-content-panel-sidebar.tsx
+import { MainContentPanelSidebar, NavMain, NavProjects, NavUser, TeamSwitcher }
+  from "@beep/todox/components/sidebar"
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarRail }
   from "@beep/todox/components/ui/sidebar"
 
@@ -178,30 +450,77 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 }
 ```
 
-#### Theme Provider
+**Exports**:
+- `MainContentPanelSidebar` — Main sidebar component for content panels
+- `NavMain` — Primary navigation menu with collapsible items
+- `NavProjects` — Projects list navigation
+- `NavUser` — User profile in sidebar footer
+- `TeamSwitcher` — Full team selector dropdown
+- `TeamSwitcherCompact` — Compact variant for navbar
+
+#### AI Chat Panel
 
 ```tsx
-// From layout.tsx
-import { ThemeProvider } from "@beep/todox/components/theme-provider"
-import { clientEnv } from "@beep/shared-env"
+// From ai-chat/ai-chat-panel.tsx
+import { AIChatPanel, AIChatPanelProvider, AIChatPanelTrigger }
+  from "@beep/todox/components/ai-chat"
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function Page() {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          {children}
-        </ThemeProvider>
-      </body>
-    </html>
+    <AIChatPanelProvider>
+      <AIChatPanelTrigger />
+      <AIChatPanel />
+      {/* Main content */}
+    </AIChatPanelProvider>
   )
 }
 ```
+
+**Features**:
+- Collapsible side panel with localStorage persistence
+- Context-based state management
+- AI SDK integration via `@ai-sdk/react`
+- Model selector and file attachments
+
+#### Global Provider Stack
+
+```tsx
+// From global-providers.tsx
+import { ThemeProvider } from "@beep/ui/theme/theme-provider"
+import { themeOverrides } from "@beep/todox/theme"
+import { IamProvider } from "@beep/iam-ui"
+import { BeepProvider } from "@beep/runtime-client"
+
+export function GlobalProviders({ children }: { children: React.ReactNode }) {
+  return (
+    <BeepProvider>
+      <I18nProvider lang={appConfig.i18nLang}>
+        <SettingsProvider>
+          <LocalizationProvider>
+            <ThemeProvider
+              themeOverrides={themeOverrides}
+              modeStorageKey={themeConfig.modeStorageKey}
+              defaultMode={themeConfig.defaultMode}
+            >
+              <IamProvider>
+                {children}
+              </IamProvider>
+            </ThemeProvider>
+          </LocalizationProvider>
+        </SettingsProvider>
+      </I18nProvider>
+    </BeepProvider>
+  )
+}
+```
+
+**Provider Stack** (from outer to inner):
+1. `BeepProvider` — Effect runtime for browser context
+2. `I18nProvider` — Internationalization support
+3. `SettingsProvider` — Application settings management
+4. `LocalizationProvider` — Date/time/number formatting
+5. `ThemeProvider` — Material UI theme with custom overrides
+6. `IamProvider` — Authentication and identity management
 
 ## Development Workflow
 
@@ -235,6 +554,8 @@ const isDev = clientEnv.env === "dev"
   - `@beep/shared-env` for configuration
   - Various `@beep/*` packages for utilities and infrastructure
   - shadcn/ui for component library
+  - MUI Material for design system
+  - @ai-sdk/react for AI chat functionality
 - **Communicates with**: Server slices via RPC (when integrated)
 
 ## Testing Patterns
@@ -309,9 +630,16 @@ const enableDebugTools = clientEnv.env === "dev"
 
 ## See Also
 
+### External Documentation
 - [Next.js 16 Documentation](https://nextjs.org/docs)
+- [Material UI Documentation](https://mui.com)
 - [shadcn/ui Documentation](https://ui.shadcn.com)
+- [TipTap Editor Documentation](https://tiptap.dev)
 - [Effect Documentation](https://effect.website)
-- [Root CLAUDE.md](../../CLAUDE.md) — Monorepo-wide patterns
-- [Shared Environment](../../packages/shared/env/AGENTS.md) — Environment configuration
+
+### Internal Documentation
+- [Root CLAUDE.md](../../CLAUDE.md) — Monorepo-wide patterns and commands
+- [Root AGENTS.md](../../AGENTS.md) — Architecture and development guidelines
 - [Effect Patterns](../../documentation/EFFECT_PATTERNS.md) — Effect-specific patterns
+- [Package Structure](../../documentation/PACKAGE_STRUCTURE.md) — Monorepo architecture
+- [Shared Environment](../../packages/shared/env/AGENTS.md) — Environment configuration

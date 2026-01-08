@@ -1,14 +1,29 @@
-import { AppSidebar } from "@beep/todox/components/sidebar";
-import { CommandSearch, NavbarUserDropdown, NotificationDropdown } from "@beep/todox/components/navbar";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@beep/todox/components/ui/breadcrumb";
+"use client";
+
+import { AI_CHAT_WIDTH, AIChatPanel, AIChatPanelTrigger } from "@beep/todox/components/ai-chat";
+import { MiniSidebarProvider } from "@beep/todox/components/mini-sidebar";
+import { TopNavbar } from "@beep/todox/components/navbar";
+import { SidePanel, SidePanelProvider, useSidePanel } from "@beep/todox/components/side-panel";
+import { MainContentPanelSidebar } from "@beep/todox/components/sidebar";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@beep/todox/components/ui/sidebar";
+import { ToggleGroup, ToggleGroupItem } from "@beep/todox/components/ui/toggle-group";
+import { MailCompose } from "@beep/todox/features/mail/mail-compose";
+import { MailDetails } from "@beep/todox/features/mail/mail-details";
+import { MailList } from "@beep/todox/features/mail/mail-list";
+import { MailProvider, useMail } from "@beep/todox/features/mail/provider";
+import { cn } from "@beep/todox/lib/utils";
+import Stack from "@mui/material/Stack";
+import {
+  BrainIcon,
+  CalendarIcon,
+  CheckSquareIcon,
+  EnvelopeSimpleIcon,
+  FilesIcon,
+  GaugeIcon,
+  ListChecksIcon,
+  UsersIcon,
+} from "@phosphor-icons/react";
+import * as React from "react";
 
 const user = {
   name: "John Doe",
@@ -16,52 +31,171 @@ const user = {
   avatar: "/logo.avif",
 };
 
+function MailContent() {
+  const {
+    mails,
+    mailsEmpty,
+    mailsLoading,
+    openMail,
+    selectedLabelId,
+    selectedMailId,
+    mail,
+    mailLoading,
+    mailError,
+    labels,
+    openCompose,
+    handleClickMail,
+  } = useMail();
+
+  return (
+    <>
+      {/* Sidebar + Content area */}
+      <div className="flex min-h-0 flex-1">
+        <MainContentPanelSidebar fixed={false} />
+        <SidebarInset className="bg-sidebar">
+          {/* Main content - Mail List and Details */}
+          <Stack
+            direction="row"
+            sx={{
+              flex: "1 1 auto",
+              minHeight: 0,
+              overflow: "hidden",
+            }}
+          >
+            <Stack
+              sx={{
+                width: { xs: 1, md: 320 },
+                flexShrink: 0,
+                borderRight: (theme) => `1px solid ${theme.vars.palette.divider}`,
+              }}
+            >
+              <MailList
+                mails={mails}
+                isEmpty={mailsEmpty}
+                loading={mailsLoading}
+                openMail={openMail.value}
+                onCloseMail={openMail.onFalse}
+                onClickMail={handleClickMail}
+                selectedLabelId={selectedLabelId}
+                selectedMailId={selectedMailId}
+              />
+            </Stack>
+            <Stack sx={{ flex: "1 1 auto", minWidth: 0 }}>
+              <MailDetails
+                mail={mail}
+                error={mailError?.message}
+                loading={mailsLoading || mailLoading}
+                renderLabel={(id: string) => labels.find((label) => label.id === id)}
+              />
+            </Stack>
+          </Stack>
+        </SidebarInset>
+      </div>
+
+      {openCompose.value && <MailCompose onCloseCompose={openCompose.onFalse} />}
+    </>
+  );
+}
+
+function MainContent() {
+  const { open: chatOpen } = useSidePanel();
+  const [viewMode, setViewMode] = React.useState<string[]>(["email"]);
+
+  return (
+    <>
+      {/* AI Chat Panel (includes Mini Sidebar) */}
+      <SidePanel width={AI_CHAT_WIDTH} className="p-2">
+        <AIChatPanel />
+      </SidePanel>
+
+      {/* Main Content Panel Wrapper */}
+      <div className={cn("flex flex-1 p-2", chatOpen && "pl-0")}>
+        {/* Main Content Panel (floating) */}
+        <div className="flex flex-1 flex-col overflow-hidden rounded-lg border border-sidebar-border bg-sidebar shadow-sm">
+          <SidebarProvider
+            style={
+              {
+                "--sidebar-width": "17rem",
+              } as React.CSSProperties
+            }
+            className="min-h-0 flex-1 flex-col"
+          >
+            {/* Panel Header - Full width above sidebar */}
+            <header className="flex h-12 shrink-0 items-center gap-2 border-b border-sidebar-border px-3">
+              <SidebarTrigger />
+              <AIChatPanelTrigger />
+              <ToggleGroup
+                value={viewMode}
+                onValueChange={(value) => {
+                  if (value.length > 0) setViewMode(value);
+                }}
+                variant="outline"
+                size="sm"
+                className="bg-background"
+              >
+                <ToggleGroupItem value="email" className="gap-1.5 px-3">
+                  <ToggleGroupItem value="calendar" className="gap-1.5 px-3">
+                    <CalendarIcon className="size-3.5" />
+                    Calendar
+                  </ToggleGroupItem>
+                  <EnvelopeSimpleIcon className="size-3.5" />
+                  Email
+                </ToggleGroupItem>
+                <ToggleGroupItem value="knowledge-base" className="gap-1.5 px-3">
+                  <BrainIcon className="size-3.5" />
+                  Knowledge Base
+                </ToggleGroupItem>
+                <ToggleGroupItem value="todos" className="gap-1.5 px-3">
+                  <CheckSquareIcon className="size-3.5" />
+                  Todos
+                </ToggleGroupItem>
+                <ToggleGroupItem value="people" className="gap-1.5 px-3">
+                  <UsersIcon className="size-3.5" />
+                  People
+                </ToggleGroupItem>
+                <ToggleGroupItem value="tasks" className="gap-1.5 px-3">
+                  <ListChecksIcon className="size-3.5" />
+                  Tasks
+                </ToggleGroupItem>
+                <ToggleGroupItem value="files" className="gap-1.5 px-3">
+                  <FilesIcon className="size-3.5" />
+                  Files
+                </ToggleGroupItem>
+                <ToggleGroupItem value="calendar" className="gap-1.5 px-3">
+                  <CalendarIcon className="size-3.5" />
+                  Calendar
+                </ToggleGroupItem>
+                <ToggleGroupItem value="heat-map" className="gap-1.5 px-3">
+                  <GaugeIcon className="size-3.5" />
+                  Heat Map
+                </ToggleGroupItem>
+              </ToggleGroup>
+            </header>
+            {/* Wrap mail content with MailProvider */}
+            <MailProvider>
+              <MailContent />
+            </MailProvider>
+          </SidebarProvider>
+        </div>
+      </div>
+    </>
+  );
+}
+
 export default function Page() {
   return (
-    <SidebarProvider
-      style={
-        {
-          "--sidebar-width": "19rem",
-        } as React.CSSProperties
-      }
-    >
-      <AppSidebar />
-      <SidebarInset>
-        {/* Navbar */}
-        <header className="flex h-14 shrink-0 items-center border-b border-sidebar-border px-4">
-          <SidebarTrigger className="-ml-1" />
-          <div className="flex flex-1 justify-center">
-            <CommandSearch />
+    <MiniSidebarProvider>
+      <SidePanelProvider>
+        {/* Full viewport wrapper */}
+        <div className="flex h-svh w-full flex-col bg-background">
+          {/* Top Navigation Bar */}
+          <TopNavbar user={user} />
+          {/* Main content area */}
+          <div className="flex min-h-0 flex-1">
+            <MainContent />
           </div>
-          <div className="flex items-center gap-2">
-            <NotificationDropdown />
-            <NavbarUserDropdown user={user} />
-          </div>
-        </header>
-        {/* Breadcrumbs */}
-        <div className="flex h-10 shrink-0 items-center gap-2 px-4">
-          <Breadcrumb>
-            <BreadcrumbList>
-              <BreadcrumbItem className="hidden md:block">
-                <BreadcrumbLink href="#">Building Your Application</BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator className="hidden md:block" />
-              <BreadcrumbItem>
-                <BreadcrumbPage>Data Fetching</BreadcrumbPage>
-              </BreadcrumbItem>
-            </BreadcrumbList>
-          </Breadcrumb>
         </div>
-        {/* Main content */}
-        <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-          <div className="grid auto-rows-min gap-4 md:grid-cols-3">
-            <div className="bg-muted/50 aspect-video rounded-xl" />
-            <div className="bg-muted/50 aspect-video rounded-xl" />
-            <div className="bg-muted/50 aspect-video rounded-xl" />
-          </div>
-          <div className="bg-muted/50 min-h-[100vh] flex-1 rounded-xl md:min-h-min" />
-        </div>
-      </SidebarInset>
-    </SidebarProvider>
+      </SidePanelProvider>
+    </MiniSidebarProvider>
   );
 }

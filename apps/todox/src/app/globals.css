@@ -84,7 +84,7 @@
 }
 
 .dark {
-  --background: oklch(0.21 0.006 285.885);
+  --background: oklch(0.13 0.004 285.885);
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.21 0.006 285.885);
   --card-foreground: oklch(0.985 0 0);
@@ -123,5 +123,45 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+/* Resizable panel styles for react-resizable-panels v4 */
+@layer components {
+  /* Panel Group: vertical orientation needs column flex direction */
+  [data-slot="resizable-panel-group"][aria-orientation="vertical"] {
+    flex-direction: column;
+  }
+
+  /* Handle: horizontal orientation (default) */
+  [data-slot="resizable-handle"][aria-orientation="horizontal"] {
+    width: 0.5rem;
+    height: 100%;
+    cursor: col-resize;
+  }
+
+  /* Handle: vertical orientation */
+  [data-slot="resizable-handle"][aria-orientation="vertical"] {
+    height: 0.5rem;
+    width: 100%;
+    cursor: row-resize;
+  }
+
+  /* Handle indicator positioning for vertical */
+  [data-slot="resizable-handle"][aria-orientation="vertical"]::before {
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 2.5rem;
+    height: 0.25rem;
+  }
+
+  /* Handle indicator positioning for horizontal */
+  [data-slot="resizable-handle"][aria-orientation="horizontal"]::before {
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 0.25rem;
+    height: 2.5rem;
   }
 }

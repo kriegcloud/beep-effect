@@ -2,7 +2,7 @@
   "extends": "./tsconfig.json",
   "files": [],
   "references": [
- {
+    {
       "path": "../../packages/common/types/tsconfig.build.json"
     },
     {

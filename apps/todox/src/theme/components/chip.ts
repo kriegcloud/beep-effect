@@ -64,9 +64,7 @@ export const chipTheme: ThemeComponents = {
               color: `color-mix(in oklch, ${
                 (theme.vars || theme).palette.success.text
               }, ${(theme.vars || theme).palette.common.onBackground} 30%)`,
-              backgroundColor: `color-mix(in oklch, ${
-                (theme.vars || theme).palette.success.main
-              }, ${
+              backgroundColor: `color-mix(in oklch, ${(theme.vars || theme).palette.success.main}, ${
                 (theme.vars || theme).palette.common.background
               } var(--_p, 80%))`,
             },
@@ -77,9 +75,7 @@ export const chipTheme: ThemeComponents = {
               color: `color-mix(in oklch, ${
                 (theme.vars || theme).palette.error.text
               }, ${(theme.vars || theme).palette.common.onBackground} 30%)`,
-              backgroundColor: `color-mix(in oklch, ${
-                (theme.vars || theme).palette.error.main
-              }, ${
+              backgroundColor: `color-mix(in oklch, ${(theme.vars || theme).palette.error.main}, ${
                 (theme.vars || theme).palette.common.background
               } var(--_p, 80%))`,
             },
@@ -90,9 +86,7 @@ export const chipTheme: ThemeComponents = {
               color: `color-mix(in oklch, ${
                 (theme.vars || theme).palette.warning.text
               }, ${(theme.vars || theme).palette.common.onBackground} 30%)`,
-              backgroundColor: `color-mix(in oklch, ${
-                (theme.vars || theme).palette.warning.main
-              }, ${
+              backgroundColor: `color-mix(in oklch, ${(theme.vars || theme).palette.warning.main}, ${
                 (theme.vars || theme).palette.common.background
               } var(--_p, 80%))`,
             },
@@ -103,9 +97,7 @@ export const chipTheme: ThemeComponents = {
               color: `color-mix(in oklch, ${
                 (theme.vars || theme).palette.info.text
               }, ${(theme.vars || theme).palette.common.onBackground} 30%)`,
-              backgroundColor: `color-mix(in oklch, ${
-                (theme.vars || theme).palette.info.main
-              }, ${
+              backgroundColor: `color-mix(in oklch, ${(theme.vars || theme).palette.info.main}, ${
                 (theme.vars || theme).palette.common.background
               } var(--_p, 80%))`,
             },

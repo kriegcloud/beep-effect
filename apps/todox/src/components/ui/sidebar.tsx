@@ -159,12 +159,14 @@ interface SidebarProps extends React.ComponentPropsWithoutRef<"div"> {
   readonly side?: undefined | "left" | "right";
   readonly variant?: undefined | "sidebar" | "floating" | "inset";
   readonly collapsible?: undefined | "offcanvas" | "icon" | "none";
+  readonly fixed?: undefined | boolean;
 }
 
 function Sidebar({
   side = "left",
   variant = "sidebar",
   collapsible = "offcanvas",
+  fixed = true,
   className,
   children,
   ...props
@@ -217,6 +219,44 @@ function Sidebar({
     );
   }
 
+  // Non-fixed (relative) positioning for embedded sidebars
+  if (!fixed) {
+    return (
+      <div
+        data-slot="sidebar-container"
+        className={cn("group peer text-sidebar-foreground hidden md:flex", className)}
+        data-state={state}
+        data-collapsible={state === "collapsed" ? collapsible : ""}
+        data-variant={variant}
+        data-side={side}
+      >
+        <div
+          data-slot="sidebar"
+          className={cn(
+            "relative h-full w-(--sidebar-width) shrink-0 transition-[width] duration-200 ease-linear md:flex",
+            "group-data-[collapsible=offcanvas]:w-0 group-data-[collapsible=offcanvas]:overflow-hidden",
+            "group-data-[collapsible=icon]:w-(--sidebar-width-icon)",
+            variant === "floating" || variant === "inset" ? "p-2" : ""
+          )}
+          {...props}
+        >
+          <div
+            data-sidebar="sidebar"
+            className={cn(
+              "bg-sidebar flex h-full w-full flex-col overflow-hidden",
+              variant === "floating"
+                ? "border-sidebar-border rounded-lg border shadow-sm"
+                : "border-r border-sidebar-border"
+            )}
+          >
+            {children}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Fixed positioning (default behavior)
   return (
     <div
       data-slot="sidebar-container"
@@ -298,8 +338,7 @@ function SidebarRail({ className, ...props }: React.ComponentPropsWithoutRef<"bu
       title="Toggle Sidebar"
       className={cn(
         "hover:after:bg-sidebar-border absolute inset-y-0 z-20 hidden w-4 -translate-x-1/2 transition-all ease-linear group-data-[side=left]:-right-4 group-data-[side=right]:left-0 after:absolute after:inset-y-0 after:left-1/2 after:w-[2px] sm:flex",
-        "in-data-[side=left]:cursor-w-resize in-data-[side=right]:cursor-e-resize",
-        "[[data-side=left][data-state=collapsed]_&]:cursor-e-resize [[data-side=right][data-state=collapsed]_&]:cursor-w-resize",
+        "cursor-pointer",
         "hover:group-data-[collapsible=offcanvas]:bg-sidebar group-data-[collapsible=offcanvas]:translate-x-0 group-data-[collapsible=offcanvas]:after:left-full",
         "[[data-side=left][data-collapsible=offcanvas]_&]:-right-2",
         "[[data-side=right][data-collapsible=offcanvas]_&]:-left-2",
@@ -339,7 +378,7 @@ function SidebarHeader({ className, ...props }: React.ComponentPropsWithoutRef<"
 }
 
 function SidebarFooter({ className, ...props }: React.ComponentPropsWithoutRef<"div">) {
-  return <div data-slot="sidebar-footer" className={cn("flex flex-col gap-2 p-2", className)} {...props} />;
+  return <div data-slot="sidebar-footer" className={cn("flex shrink-0 flex-col gap-2 p-2", className)} {...props} />;
 }
 
 function SidebarSeparator({ className, ...props }: React.ComponentPropsWithoutRef<typeof Separator>) {

@@ -13,17 +13,16 @@ export const datePickerTheme: ThemeComponents = {
           {
             props: { variant: "outlined" },
             style: {
-              "& .MuiFormLabel-root, & .MuiInputLabel-root.MuiInputLabel-shrink":
-                {
-                  position: "static",
-                  transform: "none",
-                  pointerEvents: "auto",
-                  marginBottom: "0.25rem",
-                  maxWidth: "unset",
-                  fontWeight: 500,
-                  lineHeight: 1.5,
-                  color: (theme.vars || theme).palette.text.primary,
-                },
+              "& .MuiFormLabel-root, & .MuiInputLabel-root.MuiInputLabel-shrink": {
+                position: "static",
+                transform: "none",
+                pointerEvents: "auto",
+                marginBottom: "0.25rem",
+                maxWidth: "unset",
+                fontWeight: 500,
+                lineHeight: 1.5,
+                color: (theme.vars || theme).palette.text.primary,
+              },
               "& .MuiPickersSectionList-root": {
                 paddingBlock: "9.5px",
               },

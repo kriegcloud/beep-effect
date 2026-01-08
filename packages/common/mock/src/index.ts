@@ -2,6 +2,7 @@ export * from "./_blog";
 export * from "./_files";
 export * from "./_invoice";
 export * from "./_job";
+export * from "./_mail";
 export * from "./_mock";
 export * from "./_order";
 export * from "./_others";
