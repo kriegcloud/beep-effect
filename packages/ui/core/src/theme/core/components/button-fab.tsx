@@ -1,7 +1,10 @@
 import * as A from "effect/Array";
+import * as F from "effect/Function";
 import { pxToRem, rgbaFromChannel } from "@beep/ui-core/utils";
-import { fabClasses } from "@mui/material/Fab";
+import { fabClasses, type FabOwnProps } from "@mui/material/Fab";
 import type { Components, ComponentsVariants, CSSObject, Theme } from "@mui/material/styles";
+
+type StyleArg = { theme: Theme };
 
 import { colorKeys } from "../palette";
 
@@ -71,19 +74,25 @@ const filledVariants = [
       boxShadow: theme.vars.customShadows.z8,
     }),
   },
-  ...(colorKeys.common.map((colorKey) => ({
-    props: (props) => isVariant(VARIANTS.filled, props.variant) && props.color === colorKey,
-    style: ({ theme }) => ({
-      ...theme.mixins.filledStyles(theme, colorKey, { hover: true }),
-      boxShadow: theme.vars.customShadows.z8,
-    }),
-  })) satisfies FabVariants),
-  ...(colorKeys.palette.map((colorKey) => ({
-    props: (props) => isVariant(VARIANTS.filled, props.variant) && props.color === colorKey,
-    style: ({ theme }) => ({
-      boxShadow: theme.vars.customShadows[colorKey],
-    }),
-  })) satisfies FabVariants),
+  ...F.pipe(
+    colorKeys.common,
+    A.map((colorKey) => ({
+      props: (props: FabOwnProps) => isVariant(VARIANTS.filled, props.variant) && props.color === colorKey,
+      style: ({ theme }: StyleArg) => ({
+        ...theme.mixins.filledStyles(theme, colorKey, { hover: true }),
+        boxShadow: theme.vars.customShadows.z8,
+      }),
+    })),
+  ),
+  ...F.pipe(
+    colorKeys.palette,
+    A.map((colorKey) => ({
+      props: (props: FabOwnProps) => isVariant(VARIANTS.filled, props.variant) && props.color === colorKey,
+      style: ({ theme }: StyleArg) => ({
+        boxShadow: theme.vars.customShadows[colorKey],
+      }),
+    })),
+  ),
 ] satisfies FabVariants;
 
 const outlinedVariants = [
@@ -118,27 +127,36 @@ const outlinedVariants = [
       color: theme.vars.palette.action.active,
     }),
   },
-  ...(colorKeys.common.map((colorKey) => ({
-    props: (props) => isVariant(VARIANTS.outlined, props.variant) && props.color === colorKey,
-    style: ({ theme }) => ({
-      color: theme.vars.palette.common[colorKey],
-    }),
-  })) satisfies FabVariants),
-  ...(colorKeys.palette.map((colorKey) => ({
-    props: (props) => isVariant(VARIANTS.outlined, props.variant) && props.color === colorKey,
-    style: ({ theme }) => ({
-      color: theme.vars.palette[colorKey].main,
-    }),
-  })) satisfies FabVariants),
+  ...F.pipe(
+    colorKeys.common,
+    A.map((colorKey) => ({
+      props: (props: FabOwnProps) => isVariant(VARIANTS.outlined, props.variant) && props.color === colorKey,
+      style: ({ theme }: StyleArg) => ({
+        color: theme.vars.palette.common[colorKey],
+      }),
+    })),
+  ),
+  ...F.pipe(
+    colorKeys.palette,
+    A.map((colorKey) => ({
+      props: (props: FabOwnProps) => isVariant(VARIANTS.outlined, props.variant) && props.color === colorKey,
+      style: ({ theme }: StyleArg) => ({
+        color: theme.vars.palette[colorKey].main,
+      }),
+    })),
+  ),
 ] satisfies FabVariants;
 
 const softVariants = [
-  ...(allColors.map((colorKey) => ({
-    props: (props) => isVariant(VARIANTS.soft, props.variant) && props.color === colorKey,
-    style: ({ theme }) => ({
-      ...theme.mixins.softStyles(theme, colorKey, { hover: true }),
-    }),
-  })) satisfies FabVariants),
+  ...F.pipe(
+    allColors,
+    A.map((colorKey) => ({
+      props: (props: FabOwnProps) => isVariant(VARIANTS.soft, props.variant) && props.color === colorKey,
+      style: ({ theme }: StyleArg) => ({
+        ...theme.mixins.softStyles(theme, colorKey, { hover: true }),
+      }),
+    })),
+  ),
 ] satisfies FabVariants;
 
 const sizeVariants = [

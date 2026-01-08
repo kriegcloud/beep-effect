@@ -1,3 +1,5 @@
+import * as F from "effect/Function";
+import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as Str from "effect/String";
 
@@ -18,12 +20,13 @@ export function parseCssVar(cssValue: unknown): string {
     return "";
   }
 
-  const match = cssValue.match(/var\(\s*(--[\w-]+)(?:\s*,[^)]*)?\s*\)/);
-
-  if (!match) {
-    console.error(`Invalid CSS variable format: "${cssValue}". Expected format: var(--variable-name)`);
-    return "";
-  }
-
-  return match[1]!;
+  return F.pipe(
+    cssValue,
+    Str.match(/var\(\s*(--[\w-]+)(?:\s*,[^)]*)?\s*\)/),
+    O.flatMap((match) => O.fromNullable(match[1])),
+    O.getOrElse(() => {
+      console.error(`Invalid CSS variable format: "${cssValue}". Expected format: var(--variable-name)`);
+      return "";
+    })
+  );
 }

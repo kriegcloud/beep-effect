@@ -18,6 +18,7 @@
  * @since 0.1.0
  */
 import type { LogLevel as LogLevelSchema } from "@beep/constants";
+import * as A from "effect/Array";
 import * as Cause from "effect/Cause";
 import * as Chunk from "effect/Chunk";
 import * as Clock from "effect/Clock";
@@ -30,6 +31,7 @@ import * as LogSpan from "effect/LogSpan";
 import * as Match from "effect/Match";
 import * as Metric from "effect/Metric";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import color from "picocolors";
 
 /**
@@ -96,10 +98,10 @@ export function colorForLevel(level: LogLevel.LogLevel, enabled: boolean) {
  * @since 0.1.0
  */
 export function formatMessage(message: unknown): string {
-  if (typeof message === "string") return message;
+  if (P.isString(message)) return message;
   if (message instanceof Error) return `${message.name}: ${message.message}`;
   try {
-    return typeof message === "object" ? JSON.stringify(message) : String(message);
+    return P.isObject(message) ? JSON.stringify(message) : String(message);
   } catch {
     return String(message);
   }
@@ -128,7 +130,7 @@ export function formatAnnotations(ann: HashMap.HashMap<string, unknown>, enableC
  * @since 0.1.0
  */
 export function formatSpans(nowMs: number, spans: List.List<LogSpan.LogSpan>, enableColors: boolean): string {
-  const rendered = List.toArray(spans).map((s) => LogSpan.render(nowMs)(s));
+  const rendered = A.map(List.toArray(spans), (s) => LogSpan.render(nowMs)(s));
   const spanTxt = rendered.join(" ");
   return enableColors ? color.dim(spanTxt) : spanTxt;
 }

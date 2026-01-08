@@ -1,8 +1,8 @@
 # Pattern Remediation - Remaining Violations
 
 > Generated: 2026-01-07
-> Status: Review audit completed
-> Total Remaining Violations: ~250
+> Status: Phase 1 Complete
+> Total Remaining Violations: ~171
 
 ## Executive Summary
 
@@ -12,7 +12,12 @@ The previous remediation session successfully fixed violations in:
 - @beep/shared-domain (1 file) - **COMPLETE**
 - @beep/contract (2 files) - **COMPLETE**
 
-However, many violations remain in @beep/mock and other P2/P3 packages that were not fully addressed.
+**Phase 1 (High Priority Business Logic) completed 2026-01-07:**
+- @beep/utils (11 files, 38 violations) - **COMPLETE** ✅
+- @beep/schema (8 files, 27 violations) - **COMPLETE** ✅
+- @beep/errors (2 files, 14 violations) - **COMPLETE** ✅
+
+Remaining violations are in P2/P3 packages (@beep/mock, @beep/ui, @beep/ui-core, etc.).
 
 ---
 
@@ -21,10 +26,10 @@ However, many violations remain in @beep/mock and other P2/P3 packages that were
 | Package | Violations | Priority | Status |
 |---------|------------|----------|--------|
 | @beep/mock | 61 | P3 | NOT STARTED |
-| @beep/lexical-collab | 56 | P2 | NOT STARTED |
-| @beep/utils | 38 | P1 | PARTIAL |
-| @beep/schema | 27 | P1 | NOT STARTED |
-| @beep/errors | 14 | P2 | NOT STARTED |
+| @beep/ui | 56 | P2 | NOT STARTED |
+| @beep/utils | 38 | P1 | **COMPLETE** ✅ |
+| @beep/schema | 27 | P1 | **COMPLETE** ✅ |
+| @beep/errors | 14 | P1 | **COMPLETE** ✅ |
 | @beep/ui-core | 14 | P2 | NOT STARTED |
 | @beep/iam-server | 5 | P2 | NOT STARTED |
 | @beep/runtime-client | 4 | P2 | NOT STARTED |
@@ -201,7 +206,7 @@ However, many violations remain in @beep/mock and other P2/P3 packages that were
 
 ---
 
-## @beep/lexical-collab (packages/ui/ui/src/lexical/collab)
+## @beep/ui (packages/ui/ui/src/lexical/collab)
 
 **Total: 56 violations**
 - 26 `.forEach()` violations
@@ -446,7 +451,7 @@ However, many violations remain in @beep/mock and other P2/P3 packages that were
 
 ### Phase 2 - Medium Priority (UI/Server)
 1. @beep/ui-core (14 violations) - Theme/styling utilities
-2. @beep/lexical-collab (56 violations) - Collaborative editing
+2. @beep/ui (56 violations) - Collaborative editing
 3. @beep/iam-server (5 violations) - Authentication
 4. @beep/runtime-client (4 violations) - HTTP client
 

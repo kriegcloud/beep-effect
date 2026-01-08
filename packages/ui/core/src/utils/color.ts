@@ -74,11 +74,11 @@ function validateOpacity(opacity: string | number, color: string): string {
     format: 'Must be a percentage (e.g., "48%") or CSS variable (e.g., "var(--opacity)").',
   };
 
-  if (typeof opacity === "string") {
+  if (P.isString(opacity)) {
     if (isPercentage(opacity)) return opacity;
     if (isCSSVar(opacity)) return `calc(${opacity} * 100%)`;
 
-    const parsed = Number.parseFloat(opacity.trim());
+    const parsed = Number.parseFloat(Str.trim(opacity));
     if (!Number.isNaN(parsed) && parsed >= 0 && parsed <= 1) {
       return `${Number((parsed * 100).toFixed(2))}%`;
     }

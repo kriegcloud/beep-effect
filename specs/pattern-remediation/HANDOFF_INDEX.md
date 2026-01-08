@@ -9,7 +9,7 @@ This specification contains handoff prompts for remediating ~250 pattern violati
 | Phase | Packages | Violations | Handoff Document |
 |-------|----------|------------|------------------|
 | 1 | @beep/utils, @beep/schema, @beep/errors | 79 | [HANDOFF_PHASE1.md](./HANDOFF_PHASE1.md) |
-| 2 | @beep/ui-core, @beep/lexical-collab, @beep/iam-server, @beep/runtime-client | 79 | [HANDOFF_PHASE2.md](./HANDOFF_PHASE2.md) |
+| 2 | @beep/ui-core, @beep/ui, @beep/iam-server, @beep/runtime-client | 79 | [HANDOFF_PHASE2.md](./HANDOFF_PHASE2.md) |
 | 3 | @beep/mock | 61 | [HANDOFF_PHASE3.md](./HANDOFF_PHASE3.md) |
 
 ## How to Use These Handoffs

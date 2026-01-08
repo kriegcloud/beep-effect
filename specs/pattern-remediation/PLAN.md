@@ -507,7 +507,7 @@ import * as P from "effect/Predicate"
 
 ---
 
-### @beep/lexical-collab (packages/ui/ui/src/lexical/collab)
+### @beep/ui (packages/ui/ui/src/lexical/collab)
 
 #### Native Array Methods (~15 violations)
 

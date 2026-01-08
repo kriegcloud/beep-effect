@@ -23,7 +23,10 @@ type AvatarVariants = ComponentsVariants<Theme>["MuiAvatar"];
 type AvatarGroupVariants = ComponentsVariants<Theme>["MuiAvatarGroup"];
 
 const baseColors = ["default", "inherit"] as const;
-const allColors = [...baseColors, ...colorKeys.palette] as const;
+const allColors = F.pipe(
+  baseColors as ReadonlyArray<string>,
+  A.appendAll(colorKeys.palette)
+);
 
 export function getAvatarColor(
   inputValue?: string | undefined,
@@ -51,8 +54,17 @@ export function getAvatarColor(
     return fallback;
   }
 
-  const alphabetIndex = firstChar.charCodeAt(0) - "a".charCodeAt(0); // 0 for 'a', 25 for 'z'
-  const colorIndex = alphabetIndex % allColors.length;
+  const alphabetIndex = F.pipe(
+    Str.charCodeAt(firstChar, 0),
+    O.flatMap((charCode) =>
+      F.pipe(
+        Str.charCodeAt("a", 0),
+        O.map((aCode) => charCode - aCode)
+      )
+    ),
+    O.getOrElse(() => 0)
+  ); // 0 for 'a', 25 for 'z'
+  const colorIndex = alphabetIndex % A.length(allColors);
 
   return F.pipe(
     allColors,

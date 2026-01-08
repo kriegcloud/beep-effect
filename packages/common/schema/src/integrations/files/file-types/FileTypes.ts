@@ -2091,15 +2091,15 @@ export function validateFileType(
   options?: ValidateFileTypeOptions | undefined
 ): boolean {
   let typeExtensions: Array<string> = [];
-  const uniqueTypes = [
-    ...new Set(
-      A.map(types, (type) => {
-        const normalizedType = F.pipe(type, Str.split("."), A.join(""), Str.toUpperCase);
-        if (normalizedType === "7Z") return `_${normalizedType}`;
-        return normalizedType;
-      })
-    ),
-  ];
+  const uniqueTypes = F.pipe(
+    types,
+    A.map((type) => {
+      const normalizedType = F.pipe(type, Str.split("."), A.join(""), Str.toUpperCase);
+      if (normalizedType === "7Z") return `_${normalizedType}`;
+      return normalizedType;
+    }),
+    A.dedupe
+  );
   for (const type of uniqueTypes) {
     if (!Object.prototype.hasOwnProperty.call(FileTypes, type))
       throw new TypeError(
@@ -2113,14 +2113,14 @@ export function validateFileType(
 
   if (!options || !options?.excludeSimilarTypes) {
     const similarTypes: Array<string> = addSimilarTypes(typeExtensions);
-    if (similarTypes.length > 0) typeExtensions = typeExtensions.concat(similarTypes);
+    if (A.isNonEmptyArray(similarTypes)) typeExtensions = A.appendAll(typeExtensions, similarTypes);
   }
 
   let acceptedSignatures: Array<FileSignature> = [];
   const filesRequiredAdditionalCheck: Array<FileInfo> = [];
   for (const type of typeExtensions) {
     const extensionSignatures: ReadonlyArray<FileSignature.Type> = FileTypes.getSignaturesByName(type);
-    acceptedSignatures = acceptedSignatures.concat(extensionSignatures);
+    acceptedSignatures = A.appendAll(acceptedSignatures, extensionSignatures);
     const lowerType = F.pipe(type, Str.toLowerCase);
     if (F.pipe(FILE_TYPES_REQUIRED_ADDITIONAL_CHECK, A.contains(lowerType as FileExtension.Type))) {
       filesRequiredAdditionalCheck.push(FileTypes.getInfoByName(type));
@@ -2133,7 +2133,7 @@ export function validateFileType(
       onLeft: (error) => {
         throw new TypeError(error.message);
       },
-      onRight: (chunk) => Array.from(chunk),
+      onRight: (chunk) => A.fromIterable(chunk),
     })
   );
 
@@ -2141,11 +2141,11 @@ export function validateFileType(
 
   if (!detectedSignature) return false;
 
-  if (filesRequiredAdditionalCheck.length > 0) {
+  if (A.isNonEmptyArray(filesRequiredAdditionalCheck)) {
     const detectedFilesForAdditionalCheck: Array<FileInfo.Type> = A.filter(filesRequiredAdditionalCheck, (frac) =>
       A.contains(frac.signatures, detectedSignature)
     );
-    if (detectedFilesForAdditionalCheck.length > 0) {
+    if (A.isNonEmptyArray(detectedFilesForAdditionalCheck)) {
       // Some files share the same signature. Additional check required
       const detectedType = FileTypes.detectTypeByAdditionalCheck(fileChunk, detectedFilesForAdditionalCheck);
       if (!detectedType) return false;

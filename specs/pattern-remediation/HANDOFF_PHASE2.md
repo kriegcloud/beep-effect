@@ -17,7 +17,7 @@ You are an **ORCHESTRATION AGENT** responsible for coordinating the remediation 
 | Package | File Count | Violation Count |
 |---------|------------|-----------------|
 | @beep/ui-core | 8 files | 14 violations |
-| @beep/lexical-collab | 5 files | 56 violations |
+| @beep/ui | 5 files | 56 violations |
 | @beep/iam-server | 3 files | 5 violations |
 | @beep/runtime-client | 2 files | 4 violations |
 
@@ -93,13 +93,13 @@ Read the file, apply all applicable conversions, and write the corrected file.
 ```
 → After batch: `bun run check --filter=@beep/ui-core`
 
-### Batch 3: @beep/lexical-collab (Part 1) - CollabInstance.ts
+### Batch 3: @beep/ui (Part 1) - CollabInstance.ts
 This file has 21 violations. Split into 2 agents if needed, or use one thorough agent.
 ```
 1. CollabInstance.ts (21 violations - forEach, map, filter, switch, Date.now)
 ```
 
-### Batch 4: @beep/lexical-collab (Part 2)
+### Batch 4: @beep/ui (Part 2)
 ```
 1. CollabTrystero.ts (20 violations - mostly forEach + switch)
 2. CollabNetwork.ts (3 violations)
@@ -170,7 +170,7 @@ Read the entire file carefully, apply all conversions, and write back.
 After each package:
 ```bash
 bun run check --filter=@beep/ui-core
-bun run check --filter=@beep/ui  # covers lexical-collab
+bun run check --filter=@beep/ui  # covers ui
 bun run check --filter=@beep/iam-server
 bun run check --filter=@beep/runtime-client
 ```
@@ -194,7 +194,7 @@ bunx turbo run check --filter=@beep/ui-core --filter=@beep/ui --filter=@beep/iam
 ## Completion Criteria
 
 - [ ] All 14 violations in @beep/ui-core fixed
-- [ ] All 56 violations in @beep/lexical-collab fixed
+- [ ] All 56 violations in @beep/ui fixed
 - [ ] All 5 violations in @beep/iam-server fixed
 - [ ] All 4 violations in @beep/runtime-client fixed
 - [ ] `bun run check` passes for all packages
