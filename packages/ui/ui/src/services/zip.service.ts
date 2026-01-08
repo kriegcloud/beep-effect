@@ -3,6 +3,7 @@ import { arrayBufferToUint8Array } from "@beep/utils/array-buffer-to-uint8-array
 import { BlobWriter, Uint8ArrayReader, ZipWriter } from "@zip.js/zip.js";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import * as F from "effect/Function";
 
 const $I = $UiId.create("services/zip.service");
 
@@ -16,15 +17,21 @@ export class ZipService extends Effect.Service<ZipService>()($I`ZipService`, {
         readonly data: ArrayBuffer;
       }>
     ) {
-      const fileFxs = files.map((f) =>
-        Effect.tryPromise({
-          try: () => zipWriter.add(f.name, new Uint8ArrayReader(arrayBufferToUint8Array(f.data))),
-          catch: (e) =>
-            new Error(`couldn't add file to zip ${(e instanceof Error && "message" in e && e?.message) || ""}`),
-        })
+      const fileFxs = F.pipe(
+        files,
+        A.map((f) =>
+          Effect.tryPromise({
+            try: () => zipWriter.add(f.name, new Uint8ArrayReader(arrayBufferToUint8Array(f.data))),
+            catch: (e) =>
+              new Error(`couldn't add file to zip ${(e instanceof Error && "message" in e && e?.message) || ""}`),
+          })
+        )
       );
 
-      const chunks = A.chunksOf(fileFxs, 3).map((fxs) => Effect.all(fxs).pipe(Effect.tap(Effect.sleep("100 millis"))));
+      const chunks = F.pipe(
+        A.chunksOf(fileFxs, 3),
+        A.map((fxs) => Effect.all(fxs).pipe(Effect.tap(Effect.sleep("100 millis"))))
+      );
 
       const closeWriter = () =>
         Effect.tryPromise({

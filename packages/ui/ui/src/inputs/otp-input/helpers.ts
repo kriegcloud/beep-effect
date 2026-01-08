@@ -1,12 +1,18 @@
 import * as A from "effect/Array";
+import * as F from "effect/Function";
+import * as Str from "effect/String";
+
 export function getFilledArray<T extends (v: number, k: number) => unknown>(range: number, mapfn: T): ReturnType<T>[] {
-  return range <= 0 ? [] : (Array.from({ length: range }, mapfn) as ReturnType<T>[]);
+  return range <= 0 ? [] : (A.makeBy(range, (i) => mapfn(i, i)) as ReturnType<T>[]);
 }
 
 export function updateIndex<T extends unknown[]>(array: T, indexItem: number, item: T[keyof T]): T {
-  return array.map((chipItem, index) => {
-    return indexItem === index ? item : chipItem;
-  }) as T;
+  return F.pipe(
+    array,
+    A.map((chipItem, index) => {
+      return indexItem === index ? item : chipItem;
+    })
+  ) as unknown as T;
 }
 
 export function joinArrayStrings(array: readonly string[]): string {
@@ -60,5 +66,5 @@ export function mergeRefs<T = unknown>(
 }
 
 export function split(string: string): string[] {
-  return string.split("");
+  return F.pipe(string, Str.split(""));
 }

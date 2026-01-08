@@ -1,5 +1,8 @@
 "use client";
 
+import * as A from "effect/Array";
+import * as F from "effect/Function";
+import * as P from "effect/Predicate";
 import { useEffect, useRef, useState } from "react";
 
 export type UseFilePreviewReturn = {
@@ -22,7 +25,7 @@ export function useFilePreview(file?: File | string | null | undefined): UseFile
       const objectUrl = URL.createObjectURL(file);
       objectUrlRef.current = objectUrl;
       setPreviewUrl(objectUrl);
-    } else if (typeof file === "string") {
+    } else if (P.isString(file)) {
       setPreviewUrl(file);
     } else {
       setPreviewUrl("");
@@ -53,7 +56,7 @@ export type UseFilesPreviewReturn = {
 };
 
 export function revokeObjectUrls(urls: string[]) {
-  urls.forEach((url) => URL.revokeObjectURL(url));
+  A.forEach(urls, (url) => URL.revokeObjectURL(url));
 }
 
 export function useFilesPreview(files: (File | string)[]): UseFilesPreviewReturn {
@@ -65,17 +68,20 @@ export function useFilesPreview(files: (File | string)[]): UseFilesPreviewReturn
     revokeObjectUrls(objectUrlsRef.current);
     objectUrlsRef.current = [];
 
-    const previews: FilePreviewItem[] = files.map((file) => {
-      const isFile = file instanceof File;
-      const previewUrl = isFile ? URL.createObjectURL(file) : file;
+    const previews: FilePreviewItem[] = F.pipe(
+      files,
+      A.map((file) => {
+        const isFile = file instanceof File;
+        const previewUrl = isFile ? URL.createObjectURL(file) : file;
 
-      if (isFile) objectUrlsRef.current.push(previewUrl);
+        if (isFile) objectUrlsRef.current.push(previewUrl);
 
-      return {
-        file,
-        previewUrl,
-      };
-    });
+        return {
+          file,
+          previewUrl,
+        };
+      })
+    );
 
     setFilesPreview(previews);
 

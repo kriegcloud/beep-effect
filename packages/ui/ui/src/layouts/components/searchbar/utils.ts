@@ -1,4 +1,7 @@
 import type { NavSectionProps } from "@beep/ui/routing";
+import * as A from "effect/Array";
+import * as F from "effect/Function";
+import * as Str from "effect/String";
 
 export type NavItem = {
   readonly title: string;
@@ -15,9 +18,9 @@ export type OutputItem = {
 const flattenNavItems = (navItems: NavItem[], parentGroup?: string): OutputItem[] => {
   let flattenedItems: OutputItem[] = [];
 
-  navItems.forEach((navItem) => {
+  A.forEach(navItems, (navItem) => {
     const currentGroup = parentGroup ? `${parentGroup}-${navItem.title}` : navItem.title;
-    const groupArray = currentGroup.split("-");
+    const groupArray = F.pipe(currentGroup, Str.split("-"));
 
     flattenedItems.push({
       title: navItem.title,
@@ -33,7 +36,10 @@ const flattenNavItems = (navItems: NavItem[], parentGroup?: string): OutputItem[
 };
 
 export function flattenNavSections(navSections: NavSectionProps["data"]): OutputItem[] {
-  return navSections.flatMap((navSection) => flattenNavItems(navSection.items, navSection.subheader));
+  return F.pipe(
+    navSections,
+    A.flatMap((navSection) => flattenNavItems(navSection.items, navSection.subheader))
+  );
 }
 
 type ApplyFilterProps = {
@@ -44,7 +50,15 @@ type ApplyFilterProps = {
 export function applyFilter({ inputData, query }: ApplyFilterProps): OutputItem[] {
   if (!query) return inputData;
 
-  return inputData.filter(({ title, path, group }) =>
-    [title, path, group].some((field) => field?.toLowerCase().includes(query.toLowerCase()))
+  const lowerQuery = F.pipe(query, Str.toLowerCase);
+
+  return F.pipe(
+    inputData,
+    A.filter(({ title, path, group }) =>
+      F.pipe(
+        [title, path, group],
+        A.some((field) => field != null && F.pipe(field, Str.toLowerCase, Str.includes(lowerQuery)))
+      )
+    )
   );
 }

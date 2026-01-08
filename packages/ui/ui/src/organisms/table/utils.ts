@@ -1,6 +1,11 @@
 import type { UnsafeTypes } from "@beep/types";
+import * as A from "effect/Array";
+import * as F from "effect/Function";
+import * as Str from "effect/String";
+
 export function rowInPage<T>(data: T[], page: number, rowsPerPage: number) {
-  return data.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+  const start = page * rowsPerPage;
+  return F.pipe(data, A.drop(start), A.take(rowsPerPage));
 }
 
 export function emptyRows(page: number, rowsPerPage: number, arrayLength: number) {
@@ -27,7 +32,11 @@ export function emptyRows(page: number, rowsPerPage: number, arrayLength: number
  * console.log('ex3', ex3); // output: 42
  */
 function getNestedProperty<T>(obj: T, key: string): UnsafeTypes.UnsafeAny {
-  return key.split(".").reduce((acc: UnsafeTypes.UnsafeAny, part: string) => acc?.[part], obj);
+  return F.pipe(
+    key,
+    Str.split("."),
+    A.reduce(obj as UnsafeTypes.UnsafeAny, (acc: UnsafeTypes.UnsafeAny, part: string) => acc?.[part])
+  );
 }
 
 function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {

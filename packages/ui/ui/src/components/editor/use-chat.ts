@@ -11,7 +11,10 @@ import { deserializeMd } from "@platejs/markdown";
 import { BlockSelectionPlugin } from "@platejs/selection/react";
 import { DefaultChatTransport, type UIMessage } from "ai";
 import * as A from "effect/Array";
+import * as DateTime from "effect/DateTime";
 import * as F from "effect/Function";
+import * as Num from "effect/Number";
+import * as O from "effect/Option";
 import { KEYS, NodeApi, nanoid, TextApi, type TNode } from "platejs";
 import { type PlateEditor, useEditorRef, usePluginOption } from "platejs/react";
 import React from "react";
@@ -20,12 +23,13 @@ import { discussionPlugin } from "./plugins/discussion-kit";
 const createCommentChunks = (editor: PlateEditor) => {
   const selectedBlocksApi = editor.getApi(BlockSelectionPlugin).blockSelection;
 
-  const selectedBlocks = selectedBlocksApi
-    .getNodes({
+  const selectedBlocks = F.pipe(
+    selectedBlocksApi.getNodes({
       selectionFallback: true,
       sort: true,
-    })
-    .map(([block]) => block);
+    }),
+    A.map(([block]) => block)
+  );
 
   const isSelectingSome = editor.getOption(BlockSelectionPlugin, "isSelectingSome");
 
@@ -43,10 +47,11 @@ const createCommentChunks = (editor: PlateEditor) => {
     result.add(num);
   }
 
-  const indexes = Array.from(result).sort((a, b) => a - b);
+  const indexes = F.pipe(result, A.fromIterable, A.sort(Num.Order));
 
-  const chunks = indexes
-    .map((index, i) => {
+  const chunks = F.pipe(
+    indexes,
+    A.map((index, i) => {
       const block = blocks[index];
       if (!block) {
         return [];
@@ -62,8 +67,9 @@ const createCommentChunks = (editor: PlateEditor) => {
           texts: `{"id":"${nanoid()}","data":{"comment":{"blockId":"${block.id}","comment":"${faker.lorem.sentence()}","content":"${content}"},"status":"${i === indexes.length - 1 ? "finished" : "streaming"}"},"type":"data-comment"}`,
         },
       ];
-    })
-    .filter((chunk) => chunk.length > 0);
+    }),
+    A.filter((chunk) => chunk.length > 0)
+  );
 
   return [[{ delay: 50, texts: '{"data":"comment","type":"data-toolName"}' }], ...chunks];
 };
@@ -132,9 +138,12 @@ export const useChat = () => {
           let sample: "comment" | "markdown" | "mdx" | null = null;
 
           try {
-            const content = JSON.parse(init?.body as string)
-              .messages.at(-1)
-              .parts.find((p: UnsafeTypes.UnsafeAny) => p.type === "text")?.text;
+            const content = F.pipe(
+              JSON.parse(init?.body as string).messages.at(-1).parts as UnsafeTypes.UnsafeAny[],
+              A.findFirst((p: UnsafeTypes.UnsafeAny) => p.type === "text"),
+              O.map((p) => p.text),
+              O.getOrUndefined
+            );
 
             if (content.includes("Generate a markdown sample")) {
               sample = "markdown";
@@ -194,7 +203,7 @@ export const useChat = () => {
         const newComment = {
           id: nanoid(),
           contentRich: [{ children: [{ text: aiComment.comment }], type: "p" }],
-          createdAt: new Date(),
+          createdAt: DateTime.toDate(DateTime.unsafeNow()),
           discussionId,
           isEdited: false,
           userId: editor.getOption(discussionPlugin, "currentUserId"),
@@ -204,7 +213,7 @@ export const useChat = () => {
         const newDiscussion = {
           id: discussionId,
           comments: [newComment],
-          createdAt: new Date(),
+          createdAt: DateTime.toDate(DateTime.unsafeNow()),
           documentContent: F.pipe(
             deserializeMd(editor, aiComment.content),
             A.map((node: TNode) => NodeApi.string(node)),
@@ -281,17 +290,17 @@ const fakeStreamText = ({
         }
 
         return [
-          Array.from({ length: chunkCount }, () => ({
+          A.makeBy(chunkCount, () => ({
             delay: faker.number.int({ max: 100, min: 30 }),
             texts: `${faker.lorem.words({ max: 3, min: 1 })} `,
           })),
 
-          Array.from({ length: chunkCount + 2 }, () => ({
+          A.makeBy(chunkCount + 2, () => ({
             delay: faker.number.int({ max: 100, min: 30 }),
             texts: `${faker.lorem.words({ max: 3, min: 1 })} `,
           })),
 
-          Array.from({ length: chunkCount + 4 }, () => ({
+          A.makeBy(chunkCount + 4, () => ({
             delay: faker.number.int({ max: 100, min: 30 }),
             texts: `${faker.lorem.words({ max: 3, min: 1 })} `,
           })),
