@@ -160,37 +160,49 @@ Found 45 packages in topological order:
 @beep/web
 ```
 
-### Why This Order Matters for Pattern Remediation
+### Pattern Remediation vs Structure Refactoring
 
-**Process packages from TOP to BOTTOM of this list:**
+**Pattern remediation is more flexible than structure refactoring:**
 
-1. **Leaf packages first** (top of list) - These have no internal dependencies
-   - Pattern fixes only affect the package itself
-   - No risk of breaking downstream packages
-   - Establishes correct patterns that dependents can reference
+- **Pattern fixes** (`.map()` → `A.map()`) are internal code changes
+- They don't change exports, file names, or import paths
+- Each package can be fixed and validated independently
+- Order matters less - any order works
 
-2. **Core packages later** (bottom of list) - These are depended upon by many others
-   - By the time you fix these, dependents already have correct patterns
-   - Can reference established patterns in leaf packages
-   - Reduces risk of introducing inconsistencies
+**Structure refactoring** (renaming files/directories) requires reverse topological order because renamed exports break consumers.
+
+### Recommended Order for Pattern Remediation
+
+For consistency with structure-standardization and to establish patterns early:
+
+**Process from BOTTOM to TOP of topo-sort (reverse order):**
+
+1. **Consumer packages first** (e.g., `@beep/web`)
+   - Can reference correct patterns in provider packages
+   - Validation passes immediately after fixes
+   - No risk since internal changes don't affect exports
+
+2. **Provider packages later** (e.g., `@beep/types`)
+   - By the time you reach them, you've established muscle memory
+   - Consistent approach across both specs
 
 ### Integrating with PLAN.md
 
-When generating PLAN.md, **order packages by topo-sort output**, NOT by violation count:
+When generating PLAN.md, **use reverse topo-sort order** (same as structure-standardization):
 
 ```markdown
-## Execution Order (Topological)
+## Execution Order (Reverse Topological)
 
-Process packages in this exact order:
+Process packages in this order (consumers first):
 
-1. @beep/types (0 internal deps) - 5 violations
-2. @beep/invariant (1 internal dep) - 2 violations
-3. @beep/identity (1 internal dep) - 0 violations
-4. @beep/utils (3 internal deps) - 12 violations
+1. @beep/web (many deps) - 8 violations
+2. @beep/runtime-server - 5 violations
+3. @beep/iam-ui - 12 violations
 ...
+N. @beep/types (0 deps) - 3 violations
 ```
 
-This ensures consistent patterns are established in foundational packages before fixing packages that depend on them.
+This maintains consistency with structure-standardization and allows each package to pass validation immediately after fixes.
 
 ---
 

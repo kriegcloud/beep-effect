@@ -134,37 +134,51 @@ Found 45 packages in topological order:
 @beep/web
 ```
 
-### Why This Order Matters for Refactoring
+### Why REVERSE Order Matters for Refactoring
 
-**Process packages from TOP to BOTTOM of this list:**
+**Process packages from BOTTOM to TOP of this list (reverse topological order).**
 
-1. **Leaf packages first** (top of list) - These have no internal dependencies
-   - Renames only affect the package itself
-   - No downstream breakage risk
-   - Validate and commit before moving on
+The topo-sort output shows packages with fewest dependencies first. For **structure refactoring**, we need the OPPOSITE order:
 
-2. **Core packages later** (bottom of list) - These are depended upon by many others
-   - Renames require updating imports in dependent packages
-   - Higher risk, but dependents already refactored
-   - All consuming packages already use new conventions
+1. **Consumer packages first** (bottom of list, e.g., `@beep/web`)
+   - Have the MOST dependencies (import from many packages)
+   - Are depended upon by FEW/NONE
+   - Internal renames don't break other packages
+   - Can run `build`, `check`, `lint` and pass immediately
+
+2. **Provider packages last** (top of list, e.g., `@beep/types`)
+   - Have FEW dependencies but are DEPENDED UPON by many
+   - Renaming exported files breaks all consumers
+   - By processing last, all consumers are already refactored
+   - Update consumer imports as part of the provider refactor
+
+### The Problem with Forward Order
+
+If you start with `@beep/types` and rename `unsafe.types.ts`:
+- `@beep/types` passes validation ✓
+- But `@beep/schema`, `@beep/utils`, and 40+ other packages now have broken imports
+- Cannot validate ANY package until fixing imports across entire monorepo
+- Context explodes, impossible to work incrementally
 
 ### Integrating with PLAN.md
 
-When generating PLAN.md, **order packages by topo-sort output**, NOT by violation count:
+When generating PLAN.md, **REVERSE the topo-sort output**:
 
 ```markdown
-## Execution Order (Topological)
+## Execution Order (Reverse Topological)
 
-Process packages in this exact order:
+Process packages in this exact order (consumers first, providers last):
 
-1. @beep/types (0 internal deps)
-2. @beep/invariant (1 internal dep)
-3. @beep/identity (1 internal dep)
-4. @beep/utils (3 internal deps)
+1. @beep/web (many deps, depended on by none)
+2. @beep/runtime-server
+3. @beep/iam-ui
 ...
+N-2. @beep/invariant (1 dep, depended on by many)
+N-1. @beep/identity (1 dep, depended on by many)
+N. @beep/types (0 deps, depended on by almost all)
 ```
 
-This ensures that when you rename something in `@beep/schema`, all packages that import from it (`@beep/iam-domain`, `@beep/shared-server`, etc.) have already been standardized.
+This ensures that when you rename something in `@beep/types`, all packages that import from it have already been internally standardized - you just update their import paths.
 
 ---
 

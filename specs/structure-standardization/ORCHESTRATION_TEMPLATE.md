@@ -8,7 +8,7 @@ You are refactoring the beep-effect monorepo to standardize naming conventions a
 
 ## Package Processing Order (CRITICAL)
 
-**Process packages in topological order** (leaf packages first, core packages last).
+**Process packages in REVERSE topological order** (consumers first, providers last).
 
 ### Get the Order
 
@@ -16,10 +16,10 @@ You are refactoring the beep-effect monorepo to standardize naming conventions a
 bun run beep topo-sort
 ```
 
-This outputs packages with **fewest dependencies first**. Example:
+This outputs packages with **fewest dependencies first**. For structure refactoring, **REVERSE this list**:
 
 ```
-@beep/types          ← Process first (0 deps, leaf)
+@beep/types          ← Process LAST (0 deps, but depended on by all)
 @beep/invariant
 @beep/identity
 @beep/utils
@@ -29,22 +29,32 @@ This outputs packages with **fewest dependencies first**. Example:
 @beep/iam-domain
 ...
 @beep/runtime-server
-@beep/web            ← Process last (many deps, root)
+@beep/web            ← Process FIRST (many deps, depended on by none)
 ```
 
-### Why This Order
+### Why REVERSE Order
 
-1. **Leaf packages** (top of list) - No internal dependencies
-   - Renames are isolated to the package
-   - No downstream breakage possible
-   - Safe to commit immediately
+1. **Consumer packages first** (bottom of topo-sort, e.g., `@beep/web`)
+   - Have MOST dependencies (import from many)
+   - Are depended upon by FEW/NONE
+   - Internal renames don't break other packages
+   - `build`, `check`, `lint` pass immediately after refactoring
 
-2. **Core packages** (bottom of list) - Many dependents
-   - By the time you reach them, all consumers are standardized
-   - Import updates in dependents already done
-   - Consistent patterns established
+2. **Provider packages last** (top of topo-sort, e.g., `@beep/types`)
+   - Have FEW dependencies but are IMPORTED BY many
+   - Renaming exports breaks all consumers
+   - By processing last, consumers are already internally standardized
+   - Update all consumer imports as part of provider refactor
 
-**NEVER skip ahead** to a package lower in the list. Complete all packages above it first.
+### The Problem with Forward Order
+
+If you start with `@beep/types` and rename `unsafe.types.ts`:
+- `@beep/types` itself passes validation ✓
+- But 40+ packages with `import from "@beep/types/unsafe.types"` break
+- Cannot validate ANY package until fixing all imports
+- Context explodes, incremental validation impossible
+
+**Process from BOTTOM to TOP of topo-sort output. Never skip ahead to a package higher in the list.**
 
 ## Critical Safety Rules
 

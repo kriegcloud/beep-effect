@@ -6,9 +6,9 @@
 
 You are remediating pattern violations in the beep-effect monorepo. The complete inventory is in `/specs/pattern-remediation/PLAN.md`.
 
-## Package Processing Order (CRITICAL)
+## Package Processing Order
 
-**Process packages in topological order** (leaf packages first, core packages last).
+**Process packages in REVERSE topological order** (consumers first, providers last).
 
 ### Get the Order
 
@@ -16,10 +16,10 @@ You are remediating pattern violations in the beep-effect monorepo. The complete
 bun run beep topo-sort
 ```
 
-This outputs packages with **fewest dependencies first**. Example:
+This outputs packages with **fewest dependencies first**. **REVERSE this list** for processing:
 
 ```
-@beep/types          ← Process first (0 deps, leaf)
+@beep/types          ← Process LAST
 @beep/invariant
 @beep/identity
 @beep/utils
@@ -29,22 +29,25 @@ This outputs packages with **fewest dependencies first**. Example:
 @beep/iam-domain
 ...
 @beep/runtime-server
-@beep/web            ← Process last (many deps, root)
+@beep/web            ← Process FIRST
 ```
 
-### Why This Order
+### Why REVERSE Order
 
-1. **Leaf packages first** (top of list)
-   - Pattern fixes are isolated
-   - Establishes correct patterns for others to reference
-   - No risk of breaking downstream packages
+For **pattern remediation**, order is flexible since internal code changes don't break consumers. However, we use reverse order for:
 
-2. **Core packages last** (bottom of list)
-   - All dependents already have correct patterns
-   - Can copy/reference patterns from already-fixed packages
-   - Consistent style established across codebase
+1. **Consistency** with structure-standardization spec
+2. **Validation flow** - consumer packages can be validated immediately
+3. **Reference patterns** - by the time you reach provider packages, you've established consistent patterns
 
-**NEVER skip ahead** to a package lower in the list. Complete all packages above it first.
+### Note: Pattern vs Structure
+
+Unlike structure refactoring, pattern fixes don't change exports:
+- Fixing `.map()` → `A.map()` doesn't break consumers
+- Each package is independently validatable
+- Less critical than structure refactoring order
+
+**Process from BOTTOM to TOP of topo-sort output for consistency.**
 
 ## Execution Strategy
 
