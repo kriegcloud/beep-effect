@@ -51,6 +51,13 @@
 - `bun run lint --filter @beep/customization-domain`
 - `bun run test --filter @beep/customization-domain`
 
+## Testing
+
+- Run tests: `bun run test --filter=@beep/customization-domain`
+- Test file location: Adjacent to source files as `*.test.ts`
+- Use `@beep/testkit` for Effect testing utilities
+- ALWAYS test schema encode/decode roundtrips
+
 ## Contributor Checklist
 - [ ] Align entity changes with `@beep/customization-tables` columns and regenerate migrations (`bun run db:generate`, `bun run db:migrate`).
 - [ ] Update `packages/_internal/db-admin` fixtures/tests when adding or removing fields to keep container smoke tests honest.

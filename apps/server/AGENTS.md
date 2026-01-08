@@ -40,33 +40,19 @@ import { Server } from "@beep/runtime-server";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import { Layer } from "effect";
 
-// Launch the server
 Layer.launch(Server.layer).pipe(BunRuntime.runMain);
 ```
 
-To add new functionality, modify `@beep/runtime-server` instead. For example, to add a custom route:
+To add new functionality, modify `@beep/runtime-server` instead:
 
 ```typescript
-// In @beep/runtime-server/HttpRouter.layer.ts
-import * as HttpLayerRouter from "@effect/platform/HttpLayerRouter";
-import * as HttpServerResponse from "@effect/platform/HttpServerResponse";
-import * as Effect from "effect/Effect";
-import * as F from "effect/Function";
-import * as Str from "effect/String";
-
+// Pattern: define route with HttpLayerRouter.use(), merge into PublicRoutes/ProtectedRoutes
 const CustomRoute = HttpLayerRouter.use((router) =>
-  router.add("GET", "/v1/custom",
-    Effect.gen(function* () {
-      const status = F.pipe("ok", Str.toUpperCase);
-      yield* Effect.logInfo("custom.route", { status });
-      return HttpServerResponse.json({ status });
-    })
-  )
+  router.add("GET", "/v1/custom", Effect.gen(function* () { /* handler */ }))
 );
-
-// Merge into PublicRoutes or ProtectedRoutes
-const PublicRoutes = Layer.mergeAll(DocsRoute, HealthRoute, CustomRoute);
 ```
+
+See `packages/runtime/server/src/HttpRouter.layer.ts` for full implementation examples.
 
 ## Verifications
 - `bun run check --filter=@beep/server` — type-check against tsconfigs.

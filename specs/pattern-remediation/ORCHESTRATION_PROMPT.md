@@ -21,15 +21,15 @@ Execute packages in this order (by violation count and business criticality):
 
 1. **P1 - High Priority** (Core functionality, many violations)
    - `@beep/ui-ui` (~60 violations)
-   - `@beep/common-utils` (~45 violations)
-   - `@beep/common-schema` (~40 violations)
+   - `@beep/utils` (~45 violations)
+   - `@beep/schema` (~40 violations)
    - `@beep/shared-server` (~25 violations)
    - `@beep/shared-domain` (~20 violations)
 
 2. **P2 - Medium Priority** (Supporting packages)
-   - `@beep/common-contract` (~15 violations)
+   - `@beep/contract` (~15 violations)
    - `@beep/shared-client` (~15 violations)
-   - `@beep/common-errors` (~10 violations)
+   - `@beep/errors` (~10 violations)
    - `@beep/iam-server` (~8 violations)
    - `@beep/iam-client` (~8 violations)
    - `@beep/ui-core` (~8 violations)
@@ -37,8 +37,8 @@ Execute packages in this order (by violation count and business criticality):
    - `@beep/runtime-client` (~5 violations)
 
 3. **P3 - Lower Priority** (Mock data, documentation)
-   - `@beep/common-types` (~35 violations - mostly documentation)
-   - `@beep/common-mock` (~10 violations)
+   - `@beep/types` (~35 violations - mostly documentation)
+   - `@beep/mock` (~10 violations)
    - Other packages
 
 ### For Each Package
@@ -301,7 +301,7 @@ Add completion notes at the bottom of PLAN.md:
 | Package | Date | Violations Fixed | Commit |
 |---------|------|------------------|--------|
 | @beep/ui-ui | 2026-01-XX | 45 | abc123 |
-| @beep/common-utils | 2026-01-XX | 23 | def456 |
+| @beep/utils | 2026-01-XX | 23 | def456 |
 ```
 
 ---

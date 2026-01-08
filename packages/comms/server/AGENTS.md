@@ -62,6 +62,13 @@
 - `bun run lint --filter @beep/comms-server`
 - `bun run test --filter @beep/comms-server`
 
+## Testing
+
+- Run tests: `bun run test --filter=@beep/comms-server`
+- Use `@beep/testkit` for Effect testing utilities
+- ALWAYS mock external services in tests
+- Test Layer composition with `Layer.provide`
+
 ## Security
 
 ### Email Validation

@@ -314,7 +314,7 @@ ANTHROPIC_API_KEY=$ANTHROPIC_API_KEY bun run tooling/cli/src/index.ts docgen age
 bun run tooling/cli/src/index.ts docgen agents --durable --package @beep/contract
 
 # Resume interrupted workflow
-bun run tooling/cli/src/index.ts docgen agents --durable --resume docgen-packages-common-contract
+bun run tooling/cli/src/index.ts docgen agents --durable --resume docgen-packages-contract
 
 # Dry-run to see proposed changes
 bun run tooling/cli/src/index.ts docgen agents --package @beep/contract --dry-run
@@ -809,7 +809,7 @@ Prompts are maintained in `src/commands/docgen/agents/prompts.ts` and can be cus
 When using `--durable` mode, workflows are orchestrated by `@effect/workflow`:
 - State is persisted to disk (default: `.workflow-state/`)
 - Workflows can be resumed after crashes or interruptions
-- Each workflow is identified by a unique ID (e.g., `docgen-packages-common-contract`)
+- Each workflow is identified by a unique ID (e.g., `docgen-packages-contract`)
 - Use `--resume <workflow-id>` to continue interrupted workflows
 
 **Trade-offs**:

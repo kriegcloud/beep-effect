@@ -35,7 +35,7 @@ export const WorkspacePkgKeyPrefix = S.Literal("@beep/");
  * import * as S from "effect/Schema"
  *
  * const decode = S.decodeUnknownSync(WorkspacePkgKey)
- * decode("@beep/common-schema")  // => "@beep/common-schema"
+ * decode("@beep/schema")  // => "@beep/schema"
  * ```
  *
  * @category Schemas/Dependencies
@@ -69,7 +69,7 @@ export const WorkspacePkgValue = S.Literal("workspace:^", "workspace:^");
  * import * as S from "effect/Schema"
  *
  * const decode = S.decodeUnknownSync(WorkspaceDepTuple)
- * decode(["@beep/common-schema", "workspace:^"])
+ * decode(["@beep/schema", "workspace:^"])
  * ```
  *
  * @category Schemas/Dependencies
@@ -138,7 +138,7 @@ export const NpmDepTuple = S.Tuple(S.NonEmptyTrimmedString, NpmDepValue);
  * import * as HashSet from "effect/HashSet"
  *
  * const deps = S.decodeUnknownSync(Dependencies)({
- *   workspace: HashSet.fromIterable(["@beep/common-schema"]),
+ *   workspace: HashSet.fromIterable(["@beep/schema"]),
  *   npm: HashSet.fromIterable(["effect"])
  * })
  * ```
@@ -168,7 +168,7 @@ export const Dependencies = S.Struct({
  *
  * const value = S.decodeUnknownSync(RepoDepMapValue)({
  *   dependencies: {
- *     workspace: HashSet.fromIterable(["@beep/common-schema"]),
+ *     workspace: HashSet.fromIterable(["@beep/schema"]),
  *     npm: HashSet.fromIterable(["effect"])
  *   },
  *   devDependencies: {
@@ -211,7 +211,7 @@ export const RepoDepMapValue = S.Struct({
  * import * as HashSet from "effect/HashSet"
  *
  * const depMap = HashMap.make(
- *   ["@beep/common-schema", {
+ *   ["@beep/schema", {
  *     dependencies: {
  *       workspace: HashSet.empty(),
  *       npm: HashSet.fromIterable(["effect"])

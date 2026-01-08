@@ -1,3 +1,5 @@
+import * as A from "effect/Array";
+
 import { _lastActivity } from "@beep/mock/_time";
 import { _mock } from "./_mock";
 import { _tags } from "./assets";
@@ -68,23 +70,23 @@ const CONTENT = `
 <p>Amet minim mollit non deserunt ullamco est sit aliqua dolor do amet sint. Velit officia consequat duis enim velit mollit. Exercitation veniam consequat sunt nostrud amet.</p>
 `;
 
-const BOOKER = Array.from({ length: 12 }, (_, index) => ({
+const BOOKER = A.makeBy(12, (index) => ({
   id: _mock.id(index),
   guests: index + 10,
   name: _mock.fullName(index),
   avatarUrl: _mock.image.avatar(index),
 }));
 
-export const _tourGuides = Array.from({ length: 12 }, (_, index) => ({
+export const _tourGuides = A.makeBy(12, (index) => ({
   id: _mock.id(index),
   name: _mock.fullName(index),
   avatarUrl: _mock.image.avatar(index),
   phoneNumber: _mock.phoneNumber(index),
 }));
 
-export const TRAVEL_IMAGES = Array.from({ length: 16 }, (_, index) => _mock.image.travel(index));
+export const TRAVEL_IMAGES = A.makeBy(16, (index) => _mock.image.travel(index));
 
-export const _tours = Array.from({ length: 12 }, (_, index) => {
+export const _tours = A.makeBy(12, (index) => {
   const available = { startDate: _lastActivity[index + 1]!, endDate: _lastActivity[index]! };
 
   const publish = index % 3 ? "published" : "draft";

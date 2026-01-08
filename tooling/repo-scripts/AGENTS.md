@@ -28,6 +28,9 @@
 ## Verifications
 - Run generators through root scripts to inherit `dotenvx`: `bun run gen:secrets`, `bun run generate-public-paths`, `bun run gen:locales`, `bun run execute` (prints locale payload), `bun run bootstrap`.
 - Focused lint/type sweeps from package root: `bun run lint`, `bun run check`, `bun run test`, `bun run coverage`.
+- Package-filtered checks: `bun run lint --filter @beep/repo-scripts`, `bun run check --filter @beep/repo-scripts`, `bun run test --filter @beep/repo-scripts`.
+- Asset/locales smoke tests: `bun run gen:beep-paths`, `bun run execute` (prints locale payload) — validate diffs before committing.
+- For tsconfig sync, prefer check mode: `bunx turbo run sync-ts --filter=@beep/repo-scripts -- --check`.
 - Documentation analysis: `bun run docs:lint` for JSDoc coverage reports.
 
 ## Authoring Guardrails
@@ -82,7 +85,7 @@ import * as BunContext from "@effect/platform-bun/BunContext";
 
 const helloCommand = Command.make("hello", {}, () =>
   Effect.gen(function* () {
-    yield* Console.log("👋 from repo-scripts");
+    yield* Console.log("Hello from repo-scripts");
   })
 );
 
@@ -91,7 +94,7 @@ const cli = Command.run(helloCommand, { name: "hello", version: "0.1.0" });
 BunRuntime.runMain(
   cli(process.argv).pipe(
     Effect.provide(Layer.mergeAll(BunContext.layer)),
-    Effect.catchAll((error) => Console.log(`💥 ${String(error)}`))
+    Effect.catchAll((error) => Console.log(`Error: ${String(error)}`))
   )
 );
 ```
@@ -128,11 +131,6 @@ const processMarkdownFiles = Effect.gen(function* () {
   );
 }).pipe(Effect.provide(FsUtilsLive));
 ```
-
-**Verifications**
-- Fast feedback: `bun run lint --filter @beep/repo-scripts`, `bun run check --filter @beep/repo-scripts`, `bun run test --filter @beep/repo-scripts`.
-- Asset/locales smoke tests: `bun run gen:beep-paths`, `bun run execute` (prints locale payload) – validate diffs before committing.
-- For tsconfig sync, prefer check mode: `bunx turbo run sync-ts --filter=@beep/repo-scripts -- --check`.
 
 ## Contributor Checklist
 - Confirm generators target only `_generated/` files and run schema validations before writing.

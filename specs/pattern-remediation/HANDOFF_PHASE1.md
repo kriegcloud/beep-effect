@@ -16,9 +16,9 @@ You are an **ORCHESTRATION AGENT** responsible for coordinating the remediation 
 
 | Package | File Count | Violation Count |
 |---------|------------|-----------------|
-| @beep/common-utils | 13 files | 38 violations |
-| @beep/common-schema | 8 files | 27 violations |
-| @beep/common-errors | 2 files | 14 violations |
+| @beep/utils | 13 files | 38 violations |
+| @beep/schema | 8 files | 27 violations |
+| @beep/errors | 2 files | 14 violations |
 
 ## Sub-Agent Prompt Template
 
@@ -71,7 +71,7 @@ Read the file, apply all applicable conversions, and write the corrected file.
 
 ## Execution Order
 
-### Batch 1: @beep/common-utils (Part 1)
+### Batch 1: @beep/utils (Part 1)
 ```
 1. sqids.ts (4 violations)
 2. data/string.utils.ts (18 violations)
@@ -79,7 +79,7 @@ Read the file, apply all applicable conversions, and write the corrected file.
 4. object/path.ts (1 violation)
 ```
 
-### Batch 2: @beep/common-utils (Part 2)
+### Batch 2: @beep/utils (Part 2)
 ```
 1. equality/deepEqual.ts (2 violations)
 2. data/array.utils/order-by.ts (2 violations)
@@ -87,15 +87,15 @@ Read the file, apply all applicable conversions, and write the corrected file.
 4. data/object.utils/merge-defined.ts (1 violation)
 ```
 
-### Batch 3: @beep/common-utils (Part 3)
+### Batch 3: @beep/utils (Part 3)
 ```
 1. data/object.utils/omit.ts (1 violation)
 2. data/object.utils/omit-by.ts (1 violation)
 3. timing/debounce.ts (1 violation)
 ```
-→ After batch: `bun run check --filter=@beep/common-utils`
+→ After batch: `bun run check --filter=@beep/utils`
 
-### Batch 4: @beep/common-schema (Part 1)
+### Batch 4: @beep/schema (Part 1)
 ```
 1. integrations/files/file-types/FileTypes.ts (12 violations)
 2. integrations/files/utils/compress-file-name.ts (2 violations)
@@ -103,27 +103,27 @@ Read the file, apply all applicable conversions, and write the corrected file.
 4. primitives/temporal/dates/date-time.ts (4 violations)
 ```
 
-### Batch 5: @beep/common-schema (Part 2)
+### Batch 5: @beep/schema (Part 2)
 ```
 1. primitives/temporal/dates/timestamp.ts (2 violations)
 2. core/annotations/default.ts (1 violation)
 3. core/extended/extended-schemas.ts (1 violation)
 4. primitives/json/json.ts (1 violation)
 ```
-→ After batch: `bun run check --filter=@beep/common-schema`
+→ After batch: `bun run check --filter=@beep/schema`
 
-### Batch 6: @beep/common-errors
+### Batch 6: @beep/errors
 ```
 1. shared.ts (3 violations)
 2. server.ts (11 violations)
 ```
-→ After batch: `bun run check --filter=@beep/common-errors`
+→ After batch: `bun run check --filter=@beep/errors`
 
 ## Verification Command
 
 After all packages complete:
 ```bash
-bun run check --filter=@beep/common-utils --filter=@beep/common-schema --filter=@beep/common-errors
+bun run check --filter=@beep/utils --filter=@beep/schema --filter=@beep/errors
 ```
 
 ## Tips & Tricks Learned
@@ -139,8 +139,8 @@ bun run check --filter=@beep/common-utils --filter=@beep/common-schema --filter=
 
 ## Completion Criteria
 
-- [ ] All 38 violations in @beep/common-utils fixed
-- [ ] All 27 violations in @beep/common-schema fixed
-- [ ] All 14 violations in @beep/common-errors fixed
+- [ ] All 38 violations in @beep/utils fixed
+- [ ] All 27 violations in @beep/schema fixed
+- [ ] All 14 violations in @beep/errors fixed
 - [ ] `bun run check` passes for all three packages
 - [ ] Update `specs/pattern-remediation/REMAINING_VIOLATIONS.md` to mark Phase 1 complete

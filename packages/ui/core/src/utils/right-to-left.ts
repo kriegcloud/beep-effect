@@ -1,3 +1,5 @@
+import * as Str from "effect/String";
+
 /**
  * Prevents automatic RTL (right-to-left) flipping of a CSS declaration
  * by appending the `/* @noflip *\/` comment.
@@ -14,14 +16,14 @@ export function noRtlFlip(cssValue: unknown): string {
     return "";
   }
 
-  const trimmed = cssValue.trim();
+  const trimmed = Str.trim(cssValue);
 
   if (!trimmed) {
     console.warn("Empty CSS value provided");
     return "";
   }
 
-  if (trimmed.includes("/* @noflip */")) {
+  if (Str.includes("/* @noflip */")(trimmed)) {
     return trimmed;
   }
 

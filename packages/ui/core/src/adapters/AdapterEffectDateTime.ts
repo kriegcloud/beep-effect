@@ -196,8 +196,19 @@ export class AdapterEffectDateTime implements MuiPickersAdapter<string> {
       "lt",
       "vi",
     ];
-    const localePrefix = this.locale?.split("-")[0]?.toLowerCase() ?? "en";
-    return mondayLocales.includes(localePrefix) ? 1 : 0;
+    const localePrefix = pipe(
+      this.locale,
+      O.fromNullable,
+      O.flatMap(flow((locale) => locale, Str.split("-"), A.head)),
+      O.map(Str.toLowerCase),
+      O.getOrElse(() => "en")
+    );
+    return pipe(
+      mondayLocales,
+      A.some((loc) => loc === localePrefix)
+    )
+      ? 1
+      : 0;
   }
 
   /**
@@ -437,7 +448,12 @@ export class AdapterEffectDateTime implements MuiPickersAdapter<string> {
       O.getOrElse(() => "en")
     );
 
-    if (rtlLocales.includes(localePrefix)) {
+    if (
+      pipe(
+        rtlLocales,
+        A.some((loc) => loc === localePrefix)
+      )
+    ) {
       try {
         return new Intl.NumberFormat(this.locale).format(Number(numberToFormat));
       } catch {

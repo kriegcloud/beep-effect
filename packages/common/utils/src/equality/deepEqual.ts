@@ -17,6 +17,7 @@
 import * as A from "effect/Array";
 import * as F from "effect/Function";
 import * as O from "effect/Option";
+import * as Str from "effect/String";
 import * as Struct from "effect/Struct";
 
 type Stack = WeakMap<object, object>;
@@ -157,7 +158,7 @@ const equalByTag = (
       return allMatch;
     }
     default:
-      if (tag.startsWith("[object Uint") || tag.startsWith("[object Int") || tag.startsWith("[object Float")) {
+      if (Str.startsWith("[object Uint")(tag) || Str.startsWith("[object Int")(tag) || Str.startsWith("[object Float")(tag)) {
         const typedA = value as ArrayLike<number>;
         const typedB = other as ArrayLike<number>;
         return equalArrayBuffer(typedA, typedB, stack, equal);

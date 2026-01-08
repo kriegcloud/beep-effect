@@ -55,6 +55,13 @@
 - `bun run lint --filter @beep/customization-server`
 - `bun run test --filter @beep/customization-server`
 
+## Testing
+
+- Run tests: `bun run test --filter=@beep/customization-server`
+- Use `@beep/testkit` for Effect testing utilities
+- ALWAYS mock external services in tests
+- Test Layer composition with `Layer.provide`
+
 ## Contributor Checklist
 - [ ] Ensure repository methods align with domain entity schemas from `@beep/customization-domain`.
 - [ ] Maintain typed error channels — wrap database errors in tagged error types.

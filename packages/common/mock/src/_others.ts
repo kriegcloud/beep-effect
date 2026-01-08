@@ -4,7 +4,7 @@ import * as F from "effect/Function";
 import { _mock } from "./_mock";
 // ----------------------------------------------------------------------
 
-export const _carouselsMembers = Array.from({ length: 6 }, (_, index) => ({
+export const _carouselsMembers = A.makeBy(6, (index) => ({
   id: _mock.id(index),
   name: _mock.fullName(index),
   role: _mock.role(index),
@@ -13,7 +13,7 @@ export const _carouselsMembers = Array.from({ length: 6 }, (_, index) => ({
 
 // ----------------------------------------------------------------------
 
-export const _faqs = Array.from({ length: 8 }, (_, index) => ({
+export const _faqs = A.makeBy(8, (index) => ({
   id: _mock.id(index),
   value: `panel${index + 1}`,
   title: `Questions ${index + 1}`,
@@ -22,7 +22,7 @@ export const _faqs = Array.from({ length: 8 }, (_, index) => ({
 
 // ----------------------------------------------------------------------
 
-export const _addressBooks = Array.from({ length: 24 }, (_, index) => ({
+export const _addressBooks = A.makeBy(24, (index) => ({
   id: _mock.id(index),
   primary: index === 0,
   name: _mock.fullName(index),
@@ -35,7 +35,7 @@ export const _addressBooks = Array.from({ length: 24 }, (_, index) => ({
 
 // ----------------------------------------------------------------------
 
-export const _contacts = Array.from({ length: 20 }, (_, index) => {
+export const _contacts = A.makeBy(20, (index) => {
   const status = (index % 2 && "online") || (index % 3 && "offline") || (index % 4 && "always") || "busy";
 
   return {

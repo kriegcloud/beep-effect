@@ -1,3 +1,4 @@
+import * as A from "effect/Array";
 import type { Components, ComponentsVariants, Theme } from "@mui/material/styles";
 
 /**
@@ -28,7 +29,7 @@ const colorVariants = [
 
 const statusVariants = [
   {
-    props: (props) => ["online", "always", "busy", "offline"].includes(props.variant as string),
+    props: (props) => A.contains(["online", "always", "busy", "offline"] as const, props.variant as string),
     style: ({ theme }) => ({
       width: 10,
       height: 10,

@@ -6,8 +6,11 @@
 - Integrates with `@beep/customization-client` contracts via TanStack Query hooks.
 - Currently a minimal scaffold awaiting component implementations as the customization feature matures.
 
-## Surface Map
-- **beep** — Placeholder export indicating package initialization (awaiting component implementations).
+## Surface Map (Exports)
+
+> **Status**: Awaiting implementation - no exports yet
+
+Planned components will include theme customization UI.
 
 ## Usage Snapshots
 - Next.js app imports components from this package for settings pages.
@@ -22,6 +25,13 @@
 - Compose hooks from `@beep/runtime-client` for Effect integration in React components.
 - Keep components focused on presentation — business logic should live in contracts or domain layer.
 - Use React 19 patterns and NEVER use deprecated lifecycle methods.
+
+### Accessibility (a11y)
+- ALWAYS include proper ARIA labels on interactive elements (buttons, inputs, toggles).
+- ALWAYS ensure keyboard navigation works for all components—users must be able to tab through and activate controls.
+- ALWAYS maintain sufficient color contrast ratios (WCAG AA minimum: 4.5:1 for normal text, 3:1 for large text).
+- ALWAYS provide visible focus indicators for keyboard users.
+- NEVER rely solely on color to convey information—use icons, text, or patterns as secondary indicators.
 
 ## Quick Recipes
 - **Create a hotkey settings component**
@@ -50,6 +60,12 @@
 - `bun run check --filter @beep/customization-ui`
 - `bun run lint --filter @beep/customization-ui`
 - `bun run test --filter @beep/customization-ui`
+
+## Testing
+
+- Type check: `bun run check --filter=@beep/customization-ui`
+- Visual testing via Storybook (if available)
+- ALWAYS verify component accessibility
 
 ## Gotchas
 

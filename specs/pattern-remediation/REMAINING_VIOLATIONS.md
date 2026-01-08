@@ -22,9 +22,9 @@ However, many violations remain in @beep/mock and other P2/P3 packages that were
 |---------|------------|----------|--------|
 | @beep/mock | 61 | P3 | NOT STARTED |
 | @beep/lexical-collab | 56 | P2 | NOT STARTED |
-| @beep/common-utils | 38 | P1 | PARTIAL |
-| @beep/common-schema | 27 | P1 | NOT STARTED |
-| @beep/common-errors | 14 | P2 | NOT STARTED |
+| @beep/utils | 38 | P1 | PARTIAL |
+| @beep/schema | 27 | P1 | NOT STARTED |
+| @beep/errors | 14 | P2 | NOT STARTED |
 | @beep/ui-core | 14 | P2 | NOT STARTED |
 | @beep/iam-server | 5 | P2 | NOT STARTED |
 | @beep/runtime-client | 4 | P2 | NOT STARTED |
@@ -262,7 +262,7 @@ However, many violations remain in @beep/mock and other P2/P3 packages that were
 
 ---
 
-## @beep/common-utils (packages/common/utils)
+## @beep/utils (packages/common/utils)
 
 **Total: 38 violations**
 - 21 native string methods (`.split`, `.startsWith`, `.endsWith`, `.includes`)
@@ -301,7 +301,7 @@ However, many violations remain in @beep/mock and other P2/P3 packages that were
 
 ---
 
-## @beep/common-schema (packages/common/schema)
+## @beep/schema (packages/common/schema)
 
 **Total: 27 violations**
 - 12 native array methods
@@ -347,7 +347,7 @@ However, many violations remain in @beep/mock and other P2/P3 packages that were
 
 ---
 
-## @beep/common-errors (packages/common/errors)
+## @beep/errors (packages/common/errors)
 
 **Total: 14 violations**
 
@@ -440,9 +440,9 @@ However, many violations remain in @beep/mock and other P2/P3 packages that were
 ## Remediation Priority
 
 ### Phase 1 - High Priority (Business Logic)
-1. @beep/common-utils (38 violations) - Core utilities used everywhere
-2. @beep/common-schema (27 violations) - Schema primitives
-3. @beep/common-errors (14 violations) - Error handling
+1. @beep/utils (38 violations) - Core utilities used everywhere
+2. @beep/schema (27 violations) - Schema primitives
+3. @beep/errors (14 violations) - Error handling
 
 ### Phase 2 - Medium Priority (UI/Server)
 1. @beep/ui-core (14 violations) - Theme/styling utilities

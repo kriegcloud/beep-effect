@@ -17,13 +17,13 @@ export const INVOICE_STATUS_OPTIONS = [
   { value: "draft", label: "Draft" },
 ] as const;
 
-export const INVOICE_SERVICE_OPTIONS = Array.from({ length: 8 }, (_, index) => ({
+export const INVOICE_SERVICE_OPTIONS = A.makeBy(8, (index) => ({
   id: _mock.id(index),
   name: _tags[index]!,
   price: _mock.number.price(index),
 }));
 
-const ITEMS = Array.from({ length: 3 }, (__, index) => {
+const ITEMS = A.makeBy(3, (index) => {
   const total = INVOICE_SERVICE_OPTIONS[index]!.price * _mock.number.nativeS(index);
 
   return {
@@ -37,7 +37,7 @@ const ITEMS = Array.from({ length: 3 }, (__, index) => {
   };
 });
 
-export const _invoices = Array.from({ length: 20 }, (_, index) => {
+export const _invoices = A.makeBy(20, (index) => {
   const taxes = _mock.number.price(index + 1);
 
   const discount = _mock.number.price(index + 2);

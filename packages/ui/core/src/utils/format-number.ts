@@ -1,3 +1,5 @@
+import * as Str from "effect/String";
+
 export type InputNumberValue = string | number | null | undefined;
 
 function processInput(inputValue: InputNumberValue): number | null {
@@ -68,5 +70,5 @@ export function fShortenNumber(inputValue: InputNumberValue) {
     maximumFractionDigits: 2,
   }).format(number);
 
-  return fm.replace(/[A-Z]/g, (match) => match.toLowerCase());
+  return fm.replace(/[A-Z]/g, (match) => Str.toLowerCase(match));
 }

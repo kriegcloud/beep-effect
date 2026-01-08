@@ -2,6 +2,10 @@ import { parseCssVar } from "@beep/ui-core/utils";
 import type { AvatarGroupClassKey } from "@mui/material/AvatarGroup";
 import Box from "@mui/material/Box";
 import type { Components, ComponentsVariants, Theme } from "@mui/material/styles";
+import * as A from "effect/Array";
+import * as F from "effect/Function";
+import * as O from "effect/Option";
+import * as Str from "effect/String";
 import type { PaletteColorKey } from "../palette";
 
 import { colorKeys } from "../palette";
@@ -25,11 +29,22 @@ export function getAvatarColor(
   inputValue?: string | undefined,
   fallback: AvatarExtendColor["color"] = "default"
 ): string {
-  if (!inputValue?.trim()) {
+  if (!inputValue) {
     return fallback;
   }
 
-  const firstChar = inputValue.trim()[0]!.toLowerCase();
+  const trimmed = Str.trim(inputValue);
+  if (Str.isEmpty(trimmed)) {
+    return fallback;
+  }
+
+  const firstChar = F.pipe(
+    trimmed,
+    Str.split(""),
+    A.head,
+    O.map(Str.toLowerCase),
+    O.getOrElse(() => "")
+  );
 
   // Only handle alphabet characters a-z
   if (!/[a-z]/.test(firstChar)) {
@@ -39,7 +54,11 @@ export function getAvatarColor(
   const alphabetIndex = firstChar.charCodeAt(0) - "a".charCodeAt(0); // 0 for 'a', 25 for 'z'
   const colorIndex = alphabetIndex % allColors.length;
 
-  return allColors[colorIndex] || fallback;
+  return F.pipe(
+    allColors,
+    A.get(colorIndex),
+    O.getOrElse(() => fallback)
+  );
 }
 
 const customRenderSurplus = (surplus: number) => (
@@ -89,13 +108,16 @@ const colorVariants = [
       ...theme.mixins.filledStyles(theme, "inherit"),
     }),
   },
-  ...(colorKeys.palette.map((colorKey) => ({
-    props: (props) => props.color === colorKey || (!!props.alt && getAvatarColor(props.alt) === colorKey),
-    style: ({ theme }) => ({
-      color: theme.vars.palette[colorKey].contrastText,
-      backgroundColor: theme.vars.palette[colorKey].main,
-    }),
-  })) satisfies AvatarVariants),
+  ...F.pipe(
+    colorKeys.palette,
+    A.map((colorKey) => ({
+      props: (props) => props.color === colorKey || (!!props.alt && getAvatarColor(props.alt) === colorKey),
+      style: ({ theme }) => ({
+        color: theme.vars.palette[colorKey].contrastText,
+        backgroundColor: theme.vars.palette[colorKey].main,
+      }),
+    }))
+  ) satisfies AvatarVariants,
 ] satisfies AvatarVariants;
 
 const avatarGroupVariants = {

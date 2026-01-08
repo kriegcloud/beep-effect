@@ -6,8 +6,13 @@
 - Provides domain entities for messaging, notifications, email templates, and communication preferences.
 - Contains pure business logic with no side effects — all I/O belongs in the server layer.
 
-## Surface Map
-- **Entities.Placeholder** — Starter entity demonstrating the M.Class pattern with `makeFields`. Includes `name` (required) and `description` (optional) fields. Replace with actual comms entities as the feature matures.
+## Surface Map (Exports)
+
+> **Note**: Example pattern - replace with actual domain entities
+
+| Entity | Purpose |
+|--------|---------|
+| Notification | Example notification entity |
 
 ## Usage Snapshots
 - Repositories import `Entities` to seed `Repo.make` factories that enforce typed persistence.
@@ -55,6 +60,13 @@
 - `bun run check --filter @beep/comms-domain`
 - `bun run lint --filter @beep/comms-domain`
 - `bun run test --filter @beep/comms-domain`
+
+## Testing
+
+- Run tests: `bun run test --filter=@beep/comms-domain`
+- Test file location: Adjacent to source files as `*.test.ts`
+- Use `@beep/testkit` for Effect testing utilities
+- ALWAYS test schema encode/decode roundtrips
 
 ## Security
 

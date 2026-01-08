@@ -18,6 +18,7 @@ import * as A from "effect/Array";
 import * as F from "effect/Function";
 import * as Match from "effect/Match";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import * as Record from "effect/Record";
 import * as Str from "effect/String";
 import * as ArrayUtils from "./array.utils";
@@ -47,7 +48,7 @@ export const getNameInitials = (name: string | null | undefined): string => {
         Str.split(" "),
         A.filter((word) => word.length > 0),
         A.take(2),
-        A.map((word) => word[0]?.toUpperCase() ?? ""),
+        A.map((word) => F.pipe(word[0] ?? "", Str.toUpperCase)),
         A.join("")
       )
     ),
@@ -183,10 +184,11 @@ export const stripMessageFormatting: StripMessageFormatting = F.flow(
  * @since 0.1.0
  */
 export const interpolateTemplate = (template: string, data: Record<string, unknown>): string => {
-  return template.replace(/\{\{([^}]+)}}/g, (match, variablePath: string) => {
-    const trimmedPath = variablePath.trim();
+  // Use native .replace() for regex with callback function - Effect's Str.replace doesn't support callbacks
+  return template.replace(/\{\{([^}]+)}}/g, (_match: string, variablePath: string): string => {
+    const trimmedPath = Str.trim(variablePath);
     const value = getNestedValue(data, trimmedPath);
-    return value !== undefined ? String(value) : match;
+    return value !== undefined ? String(value) : _match;
   });
 };
 
@@ -213,14 +215,16 @@ export const getNestedValue = (obj: Record<string, unknown>, path: string): unkn
 
   for (const part of parts) {
     // Handle array notation like [0], [1], etc.
-    if (part.startsWith("[") && part.endsWith("]")) {
-      const index = Number.parseInt(part.slice(1, -1), 10);
+    if (Str.startsWith("[")(part) && Str.endsWith("]")(part)) {
+      // Extract index between brackets: "[0]" -> "0"
+      const partLen = Str.length(part);
+      const index = Number.parseInt(Str.slice(1, partLen - 1)(part), 10);
       if (A.isArray(current) && index >= 0 && index < current.length) {
         current = current[index];
       } else {
         return undefined;
       }
-    } else if (current && typeof current === "object" && part in current) {
+    } else if (current && P.isObject(current) && part in current) {
       current = (current as Record<string, unknown>)[part];
     } else {
       return undefined;
@@ -488,7 +492,7 @@ export function pluralize(word: string): string {
   // Handle empty strings
   if (Str.isEmpty(word)) return word;
 
-  const lower = word.toLowerCase();
+  const lower = Str.toLowerCase(word);
 
   // Check for irregular plurals (case-insensitive)
   if (irregularPlurals[lower]) {
@@ -496,33 +500,38 @@ export function pluralize(word: string): string {
   }
 
   // Words ending in 'y' preceded by consonant
-  if (word.length > 1 && word.endsWith("y")) {
+  if (word.length > 1 && Str.endsWith("y")(word)) {
     const beforeY = word[word.length - 2] || "";
-    if (!"aeiou".includes(beforeY.toLowerCase())) {
-      return `${word.slice(0, -1)}ies`;
+    // Check if beforeY is NOT a vowel (i.e., is a consonant)
+    if (!Str.includes(Str.toLowerCase(beforeY))("aeiou")) {
+      const wordLen = Str.length(word);
+      return `${Str.slice(0, wordLen - 1)(word)}ies`;
     }
   }
 
   // Words ending in s, x, z, ch, sh
-  if (word.match(/[sxz]$|[cs]h$/)) {
+  if (/[sxz]$|[cs]h$/.test(word)) {
     return `${word}es`;
   }
 
   // Words ending in 'f' or 'fe'
-  if (word.endsWith("f")) {
-    return `${word.slice(0, -1)}ves`;
+  if (Str.endsWith("f")(word)) {
+    const wordLen = Str.length(word);
+    return `${Str.slice(0, wordLen - 1)(word)}ves`;
   }
-  if (word.endsWith("fe")) {
-    return `${word.slice(0, -2)}ves`;
+  if (Str.endsWith("fe")(word)) {
+    const wordLen = Str.length(word);
+    return `${Str.slice(0, wordLen - 2)(word)}ves`;
   }
 
   // Words ending in 'o' preceded by consonant
-  if (word.length > 1 && word.endsWith("o")) {
+  if (word.length > 1 && Str.endsWith("o")(word)) {
     const beforeO = word[word.length - 2] || "";
-    if (!"aeiou".includes(beforeO.toLowerCase())) {
+    // Check if beforeO is NOT a vowel (i.e., is a consonant)
+    if (!Str.includes(Str.toLowerCase(beforeO))("aeiou")) {
       // Common exceptions that just add 's'
-      const oExceptions = ["photo", "piano", "halo", "solo", "pro", "auto"];
-      if (!oExceptions.includes(lower)) {
+      const oExceptions: readonly string[] = ["photo", "piano", "halo", "solo", "pro", "auto"];
+      if (!F.pipe(oExceptions, A.some((x) => x === lower))) {
         return `${word}es`;
       }
     }
@@ -550,7 +559,7 @@ export function singularize(word: string): string {
   // Handle empty strings
   if (!word) return word;
 
-  const lower = word.toLowerCase();
+  const lower = Str.toLowerCase(word);
 
   // Check for irregular singulars (case-insensitive)
   if (irregularSingulars[lower]) {
@@ -559,38 +568,42 @@ export function singularize(word: string): string {
 
   // Check if word is already a singular form from our irregular plurals
   // This prevents singularizing words that are already singular
-  const singularValues = F.pipe(irregularPlurals, Record.values);
-  if (F.pipe(singularValues, A.contains(lower))) {
+  const singularValues: readonly string[] = F.pipe(irregularPlurals, Record.values);
+  if (F.pipe(singularValues, A.some((x) => x === lower))) {
     return word;
   }
 
   // Words ending in 'us' are typically already singular (Latin origin)
   // Common examples: campus, status, virus, focus, bonus, genus, etc.
-  if (word.endsWith("us")) {
+  if (Str.endsWith("us")(word)) {
     return word;
   }
 
   // Words ending in 'ies'
-  if (word.endsWith("ies")) {
-    return `${word.slice(0, -3)}y`;
+  if (Str.endsWith("ies")(word)) {
+    const wordLen = Str.length(word);
+    return `${Str.slice(0, wordLen - 3)(word)}y`;
   }
 
   // Words ending in 'ves'
-  if (word.endsWith("ves")) {
-    return `${word.slice(0, -3)}f`;
+  if (Str.endsWith("ves")(word)) {
+    const wordLen = Str.length(word);
+    return `${Str.slice(0, wordLen - 3)(word)}f`;
   }
 
   // Words ending in 'es'
-  if (word.endsWith("es")) {
-    const base = word.slice(0, -2);
+  if (Str.endsWith("es")(word)) {
+    const wordLen = Str.length(word);
+    const base = Str.slice(0, wordLen - 2)(word);
     // Check if base ends in s, x, z, ch, sh
-    if (base.match(/[sxz]$|[cs]h$/)) {
+    if (/[sxz]$|[cs]h$/.test(base)) {
       return base;
     }
     // Check if base ends in 'o' preceded by consonant
-    if (base.length > 1 && base.endsWith("o")) {
+    if (base.length > 1 && Str.endsWith("o")(base)) {
       const beforeO = base[base.length - 2] || "";
-      if (!"aeiou".includes(beforeO.toLowerCase())) {
+      // Check if beforeO is NOT a vowel (i.e., is a consonant)
+      if (!Str.includes(Str.toLowerCase(beforeO))("aeiou")) {
         return base;
       }
     }
@@ -599,8 +612,9 @@ export function singularize(word: string): string {
   }
 
   // Words ending in 's' (but not 'ss')
-  if (word.endsWith("s") && !word.endsWith("ss")) {
-    return word.slice(0, -1);
+  if (Str.endsWith("s")(word) && !Str.endsWith("ss")(word)) {
+    const wordLen = Str.length(word);
+    return Str.slice(0, wordLen - 1)(word);
   }
 
   // If no plural pattern found, return as is

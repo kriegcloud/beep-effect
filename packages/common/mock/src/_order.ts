@@ -12,7 +12,7 @@ export const ORDER_STATUS_OPTIONS = [
   { value: "refunded", label: "Refunded" },
 ] as const;
 
-const ITEMS = Array.from({ length: 3 }, (_, index) => ({
+const ITEMS = A.makeBy(3, (index) => ({
   id: _mock.id(index),
   sku: `16H9UR${index}`,
   quantity: index + 1,
@@ -21,7 +21,7 @@ const ITEMS = Array.from({ length: 3 }, (_, index) => ({
   price: _mock.number.price(index),
 }));
 
-export const _orders = Array.from({ length: 20 }, (_, index) => {
+export const _orders = A.makeBy(20, (index) => {
   const shipping = 10;
 
   const discount = 10;

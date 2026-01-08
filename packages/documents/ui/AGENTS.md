@@ -36,9 +36,9 @@ When implemented, this package should include:
 - **Navigation Components**: Knowledge space browser, page tree navigation.
 
 ## Verifications
-- `bun run --filter @beep/documents-ui check`
-- `bun run --filter @beep/documents-ui lint`
-- `bun run --filter @beep/documents-ui test` (add component tests as features land).
+- `bun run check --filter=@beep/documents-ui`
+- `bun run lint --filter=@beep/documents-ui`
+- `bun run test --filter=@beep/documents-ui` (add component tests as features land).
 
 ## Gotchas
 

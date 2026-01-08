@@ -6,13 +6,14 @@
 - Integrates with `@beep/comms-client` contracts via TanStack Query hooks for data fetching.
 - Currently a minimal scaffold awaiting component implementations as the comms feature matures.
 
-## Surface Map
-- **(Scaffold)** — Package is initialized but awaiting component implementations. Future exports will include:
-  - `NotificationBell` — Header notification indicator with dropdown
-  - `NotificationList` — Paginated list of user notifications
-  - `ToastProvider` — Context provider for toast notifications
-  - `InboxView` — Messaging inbox component
-  - `EmailPreferences` — Email notification settings form
+## Surface Map (Exports)
+
+> **Status**: Planned Components (not yet implemented)
+
+| Planned Component | Purpose |
+|-------------------|---------|
+| NotificationBell | User notification indicator |
+| MessageList | Display message history |
 
 ## Usage Snapshots
 - Next.js app imports notification components for header and dashboard layouts.
@@ -112,6 +113,12 @@
 - `bun run check --filter @beep/comms-ui`
 - `bun run lint --filter @beep/comms-ui`
 - `bun run test --filter @beep/comms-ui`
+
+## Testing
+
+- Type check: `bun run check --filter=@beep/comms-ui`
+- Visual testing via Storybook (if available)
+- ALWAYS verify component accessibility
 
 ## Security
 

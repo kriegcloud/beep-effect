@@ -22,15 +22,15 @@
 | Package | Violations | Priority |
 |---------|------------|----------|
 | @beep/ui-ui | ~60 | P1 |
-| @beep/common-utils | ~45 | P1 |
-| @beep/common-schema | ~40 | P1 |
-| @beep/common-types | ~35 | P2 (documentation examples) |
+| @beep/utils | ~45 | P1 |
+| @beep/schema | ~40 | P1 |
+| @beep/types | ~35 | P2 (documentation examples) |
 | @beep/shared-server | ~25 | P1 |
 | @beep/shared-domain | ~20 | P1 |
-| @beep/common-contract | ~15 | P2 |
+| @beep/contract | ~15 | P2 |
 | @beep/shared-client | ~15 | P2 |
-| @beep/common-errors | ~10 | P2 |
-| @beep/common-mock | ~10 | P3 (mock data) |
+| @beep/errors | ~10 | P2 |
+| @beep/mock | ~10 | P3 (mock data) |
 | @beep/iam-server | ~8 | P2 |
 | @beep/iam-client | ~8 | P2 |
 | @beep/documents-server | ~6 | P2 |
@@ -181,7 +181,7 @@ import { nullOp, noOp, nullOpE } from "@beep/utils"
 
 ---
 
-### @beep/common-utils (packages/common/utils)
+### @beep/utils (packages/common/utils)
 
 #### Required Import Additions
 
@@ -259,7 +259,7 @@ import * as DateTime from "effect/DateTime"
 
 ---
 
-### @beep/common-schema (packages/common/schema)
+### @beep/schema (packages/common/schema)
 
 #### Required Import Additions
 
@@ -406,7 +406,7 @@ import * as DateTime from "effect/DateTime"
 
 ---
 
-### @beep/common-contract (packages/common/contract)
+### @beep/contract (packages/common/contract)
 
 #### Switch Statements (~2 violations)
 
@@ -426,7 +426,7 @@ import * as DateTime from "effect/DateTime"
 
 ---
 
-### @beep/common-mock (packages/common/mock)
+### @beep/mock (packages/common/mock)
 
 > **Note**: This package contains mock data and may have lower remediation priority.
 
@@ -561,7 +561,7 @@ import * as P from "effect/Predicate"
 
 ---
 
-### @beep/common-types (packages/common/types)
+### @beep/types (packages/common/types)
 
 > **Note**: This package contains TypeScript type definitions and documentation examples.
 > Many violations are in JSDoc examples and type tests, which may not need remediation.
@@ -643,7 +643,7 @@ These are type definition files with example code in comments/JSDoc. Consider:
 
 ---
 
-### @beep/common-errors (packages/common/errors)
+### @beep/errors (packages/common/errors)
 
 #### Native Array Methods (~3 violations)
 
@@ -696,9 +696,9 @@ The following patterns were verified as NOT violations:
 
 ### Packages Requiring Human Review
 
-1. **@beep/common-types** - Contains TypeScript type examples that may use native JS intentionally
-2. **@beep/common-mock** - Mock data may have lower priority
-3. **@beep/common-contract** - Some `instanceof` checks may be intentional for Effect type guards
+1. **@beep/types** - Contains TypeScript type examples that may use native JS intentionally
+2. **@beep/mock** - Mock data may have lower priority
+3. **@beep/contract** - Some `instanceof` checks may be intentional for Effect type guards
 4. **Test files** - Some violations in test files testing invalid inputs with `@ts-expect-error`
 
 ### Ambiguous Cases

@@ -26,9 +26,10 @@
 - SEO-optimized content pages
 
 ## Authoring Guardrails
-- ALWAYS keep dependencies minimal - this is a simple marketing site
+- NEVER add npm dependencies without approval
 - ALWAYS use Next.js App Router conventions for pages and layouts
 - ALWAYS leverage Tailwind CSS for styling - no component libraries needed
+- ALWAYS optimize images before committing
 - ALWAYS optimize for performance and SEO (static generation, image optimization)
 - NEVER include backend logic - this is purely frontend/static content
 
@@ -41,6 +42,16 @@
 - `bun run check --filter @beep/marketing` — TypeScript type checking
 - `bun run lint --filter @beep/marketing` — Lint checks (if configured)
 - `bun run build --filter @beep/marketing` — Ensure production build succeeds
+
+## Testing
+
+ALWAYS verify:
+- Build succeeds: `bun run build --filter=@beep/marketing`
+- Links work: Check internal links resolve
+- Images load: Verify all images have valid paths
+- Meta tags: Confirm SEO meta tags render
+
+No unit tests required for static content pages.
 
 ## Contributor Checklist
 - [ ] Keep marketing content separate from main app functionality

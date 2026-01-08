@@ -7,7 +7,7 @@
 
 ## Surface Map
 - `apps/web/src/app/layout.tsx` — wraps the tree with `GlobalProviders`, `RegistryProvider`, and `KaServices` after resolving `AppConfig` via `runServerPromise(getAppConfig, "RootLayout.getInitialProps")`; sets viewport + metadata.
-- `apps/web/src/GlobalProviders.tsx` — provider chain: `BeepProvider` → atom `RegistryContext` → `InitColorSchemeScript` → `TanstackDevToolsProvider` → `I18nProvider` → `SettingsProvider` → `LocalizationProvider` → `AppRouterCacheProvider` → `ThemeProvider` → `BreakpointsProvider` → `ConfirmProvider` → `IamProvider` → `MotionLazy` → `Snackbar` + `ProgressBar` + `SettingsDrawer`.
+- `apps/web/src/GlobalProviders.tsx` — See `src/app/GlobalProviders.tsx` for the current provider configuration.
 - `apps/web/src/app/dashboard/_layout-client.tsx` — client shell applying `AuthGuard`, `DashboardLayout`, settings dialog atom via `urlSearchParamSSR`, and runtime-backed handlers via `makeRunClientPromise`/`useRuntime`.
 - Route groups: marketing pages under `apps/web/src/app/(public)`, auth flows in `apps/web/src/app/auth/*` (delegates to `@beep/iam-ui`), file uploads in `apps/web/src/app/upload/page.tsx`, mocks/tests in `apps/web/test`.
 - Config: `apps/web/next.config.mjs` enforces security headers, SVGR for SVGs, TS-aware transpilation of `@beep/*` packages whose exports point to source, React Compiler, and output tracing rooted at the monorepo.
@@ -16,30 +16,18 @@
 ## Usage Snapshots
 - Server-side config fetch:
   ```ts
-  import * as Effect from "effect/Effect";
-  import { runServerPromise } from "@beep/runtime-server";
-  import { getAppConfig } from "@/app-config";
-
-  export const loadShellConfig = () =>
-    runServerPromise(
-      Effect.gen(function* () {
-        const appConfig = yield* getAppConfig;
-        return { lang: appConfig.lang, dir: appConfig.dir };
-      }),
-      "layout.loadShellConfig"
-    );
+  // Pattern: wrap Effect in runServerPromise with span name
+  const config = await runServerPromise(getAppConfig, "layout.getConfig");
   ```
+  See `apps/web/src/app/layout.tsx` for full implementation.
+
 - Client-side runtime bridge:
   ```ts
-  import * as Effect from "effect/Effect";
-  import { makeRunClientPromise, useRuntime } from "@beep/runtime-client";
-
-  export const useRefreshSession = () => {
-    const runtime = useRuntime();
-    const run = makeRunClientPromise(runtime, "iam.session.refresh");
-    return () => run(Effect.unit);
-  };
+  // Pattern: get runtime via hook, create runner with span name
+  const runtime = useRuntime();
+  const run = makeRunClientPromise(runtime, "iam.session.refresh");
   ```
+  See `apps/web/src/app/dashboard/_layout-client.tsx` for full implementation.
 
 ## Development Workflow
 - Root scripts (preferred) scoped to this app: `bun run dev|check|lint|test|build --filter @beep/web`.

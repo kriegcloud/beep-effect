@@ -6,8 +6,11 @@
 - Acts as the bridge between the customization domain and UI layers, exposing typed contracts for TanStack Query and Effect-based client runtimes.
 - Currently a minimal scaffold awaiting contract definitions as the customization feature matures.
 
-## Surface Map
-- **beep** — Placeholder export indicating package initialization (awaiting contract implementations).
+## Surface Map (Exports)
+
+> **Status**: Awaiting implementation
+
+Will export RPC contracts for customization features (themes, preferences).
 
 ## Usage Snapshots
 - Frontend apps import contracts from this package to invoke customization-related RPC calls.
@@ -25,6 +28,13 @@
 - `bun run check --filter @beep/customization-client`
 - `bun run lint --filter @beep/customization-client`
 - `bun run test --filter @beep/customization-client`
+
+## Testing
+
+- Run tests: `bun run test --filter=@beep/customization-client`
+- Use `@beep/testkit` for Effect testing utilities
+- ALWAYS test contract request/response schemas
+- Test error mapping completeness
 
 ## Gotchas
 
@@ -57,6 +67,19 @@
 - **Symptom**: Old clients crash when server returns new customization fields; new clients fail with old servers.
 - **Root Cause**: Breaking changes to customization response schema without version migration.
 - **Solution**: Customization contracts MUST include schema version field. Client should handle unknown fields gracefully (strip via schema). When adding required fields, provide defaults for backward compatibility.
+
+## Quick Recipes
+
+### Define a New Contract
+```typescript
+import * as Rpc from "@effect/rpc/Rpc";
+import * as S from "effect/Schema";
+
+export class MyRequest extends Rpc.StreamRequest<MyRequest>()(
+  "MyRequest",
+  { failure: MyError, success: S.String, payload: { id: S.String } }
+) {}
+```
 
 ## Contributor Checklist
 - [ ] Define contracts with proper request/response schemas following `@beep/contract` patterns.

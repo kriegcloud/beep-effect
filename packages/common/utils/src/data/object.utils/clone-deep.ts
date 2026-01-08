@@ -15,6 +15,7 @@
  */
 import * as A from "effect/Array";
 import * as P from "effect/Predicate";
+import * as Struct from "effect/Struct";
 
 type PlainRecord = Record<PropertyKey, unknown>;
 
@@ -48,11 +49,11 @@ function cloneValue(value: unknown, seen: WeakMap<object, unknown>): unknown {
     return seen.get(value as object);
   }
 
-  if (value instanceof Date) {
+  if (P.isDate(value)) {
     return new Date(value.getTime());
   }
 
-  if (value instanceof RegExp) {
+  if (P.isRegExp(value)) {
     return new RegExp(value.source, value.flags);
   }
 
@@ -86,7 +87,7 @@ function cloneValue(value: unknown, seen: WeakMap<object, unknown>): unknown {
   if (isPlainObject(value)) {
     const clonedObject: PlainRecord = {};
     seen.set(value, clonedObject);
-    for (const key of Object.keys(value)) {
+    for (const key of Struct.keys(value)) {
       clonedObject[key] = cloneValue(value[key], seen);
     }
     return clonedObject;

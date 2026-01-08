@@ -23,7 +23,7 @@ to move failure handling up to the caller.
 </example>
 </system-reminder>
 
-# AGENTS.md
+# CLAUDE.md
 
 Configuration and guardrails for AI collaborators working in the `beep-effect` monorepo.
 
@@ -72,12 +72,18 @@ See [documentation/EFFECT_PATTERNS.md](documentation/EFFECT_PATTERNS.md) for det
 - Biome formatting: run `bun run lint:fix` before committing.
 - Effect testing utilities in `@beep/testkit`. Use `Effect.log*` with structured objects.
 
+## Testing
+
+- `bun run test` — Run all tests
+- `bun run test --filter=@beep/package` — Run tests for specific package
+- Place test files adjacent to source files or in `__tests__/` directories
+
 ## Workflow for AI Agents
 
-1. **Clarify Intent**: ALWAYS ask before editing if unclear
+1. **Clarify Intent**: ALWAYS ask before editing if the request could be interpreted multiple ways
 2. **Incremental Changes**: Prefer small, focused diffs
 3. **Verify Changes**: Request `bun run check` after modifications
-4. **Respect Tooling**: Use root scripts with `dotenvx`
+4. **Respect Tooling**: ALWAYS run commands via `bun run <script>` from project root
 5. **Keep Docs Updated**: Align with `documentation/patterns/` when introducing new patterns
 6. **Do Not Auto-Start**: NEVER launch long-running dev or infra commands without confirmation
 

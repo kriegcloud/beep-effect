@@ -13,6 +13,7 @@
  */
 import * as A from "effect/Array";
 import { pipe } from "effect/Function";
+import * as R from "effect/Record";
 
 /**
  * Creates an object composed of properties from the source object excluding
@@ -32,8 +33,8 @@ export function omit<T extends object, K extends keyof T>(obj: T, ...keys: reado
   const keysSet = new Set<PropertyKey>(keys);
 
   return pipe(
-    Object.entries(obj),
+    R.toEntries(obj as Record<string, unknown>),
     A.filter(([key]) => !keysSet.has(key)),
-    Object.fromEntries
+    R.fromEntries
   ) as Omit<T, K>;
 }

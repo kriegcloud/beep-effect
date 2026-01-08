@@ -14,6 +14,7 @@
  * @category Documentation
  * @since 0.1.0
  */
+import * as DateTime from "effect/DateTime";
 import * as Duration from "effect/Duration";
 
 // biome-ignore lint/suspicious/noExplicitAny: required for variadic function type inference
@@ -59,7 +60,7 @@ export interface DebounceOptions {
   readonly maxWait?: Duration.DurationInput | undefined;
 }
 
-const defaultNow = () => Date.now();
+const defaultNow = () => DateTime.toEpochMillis(DateTime.unsafeNow());
 
 const startTimer = (callback: () => void, wait: number) => globalThis.setTimeout(callback, wait);
 

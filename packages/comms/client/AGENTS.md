@@ -31,6 +31,13 @@
 - `bun run lint --filter @beep/comms-client`
 - `bun run test --filter @beep/comms-client`
 
+## Testing
+
+- Run tests: `bun run test --filter=@beep/comms-client`
+- Use `@beep/testkit` for Effect testing utilities
+- ALWAYS test contract request/response schemas
+- Test error mapping completeness
+
 ## Security
 
 ### Request Validation
@@ -80,6 +87,20 @@
 - **Symptom**: Same notification or message appears multiple times in UI.
 - **Root Cause**: Network retries or reconnection delivers duplicate messages; client doesn't deduplicate.
 - **Solution**: All message contracts MUST include unique `messageId` field. Client implementations should maintain a seen-message set (bounded, e.g., last 1000 IDs) and skip duplicates.
+
+## Quick Recipes
+
+### WebSocket Contract Pattern
+```typescript
+import * as Rpc from "@effect/rpc/Rpc";
+import * as S from "effect/Schema";
+
+// StreamRequest for real-time updates
+export class SubscribeNotifications extends Rpc.StreamRequest<SubscribeNotifications>()(
+  "SubscribeNotifications",
+  { failure: CommsError, success: NotificationEvent, payload: {} }
+) {}
+```
 
 ## Contributor Checklist
 - [ ] Define contracts with proper request/response schemas following `@beep/contract` patterns.

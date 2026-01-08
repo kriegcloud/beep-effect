@@ -1,3 +1,4 @@
+import * as A from "effect/Array";
 import { pxToRem, rgbaFromChannel } from "@beep/ui-core/utils";
 import { fabClasses } from "@mui/material/Fab";
 import type { Components, ComponentsVariants, CSSObject, Theme } from "@mui/material/styles";
@@ -49,7 +50,7 @@ const DIMENSIONS: Record<string, CSSObject> = {
 };
 
 function isVariant<T extends string>(allowed: readonly T[], variant?: string | undefined): variant is T {
-  return !!variant && allowed.includes(variant as T);
+  return !!variant && A.contains(allowed, variant as T);
 }
 
 /* **********************************************************************

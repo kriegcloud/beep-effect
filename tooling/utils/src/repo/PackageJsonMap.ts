@@ -26,7 +26,7 @@ import { resolveWorkspaceDirs } from "./Workspaces.js";
  *
  * const program = Effect.gen(function* () {
  *   const map = yield* mapWorkspaceToPackageJsonPath
- *   const path = HashMap.get(map, "@beep/common-schema")
+ *   const path = HashMap.get(map, "@beep/schema")
  *   // => Some("/absolute/path/to/packages/common/schema/package.json")
  * })
  * ```

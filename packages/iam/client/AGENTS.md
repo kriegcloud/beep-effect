@@ -131,6 +131,8 @@ export const resolveCallbackTarget = (raw: string | null | undefined) =>
 
 ## Verifications
 
+> **Note**: The `PATH` prefix ensures Bun is found when running from environments where `~/.bun/bin` is not in the default PATH (e.g., some IDE terminal configurations or CI runners). If Bun is already in your PATH, you can omit this prefix.
+
 - `PATH="$HOME/.bun/bin:$PATH" bun run --filter @beep/iam-client lint` — Biome check for contracts, adapters, and docs.
 - `PATH="$HOME/.bun/bin:$PATH" bun run --filter @beep/iam-client check` — TypeScript project references build.
 - `PATH="$HOME/.bun/bin:$PATH" bun run --filter @beep/iam-client build` — Emits ESM/CJS bundles; catches export drift when contract directories move.

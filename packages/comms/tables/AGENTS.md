@@ -79,6 +79,13 @@
 - `bun run db:generate` — Regenerate migrations after schema changes
 - `bun run db:migrate` — Apply migrations to database
 
+## Testing
+
+- Run tests: `bun run test --filter=@beep/comms-tables`
+- Test file location: Adjacent to source files as `*.test.ts`
+- Use `@beep/testkit` for Effect testing utilities
+- ALWAYS test schema encode/decode roundtrips
+
 ## Security
 
 ### Data Encryption

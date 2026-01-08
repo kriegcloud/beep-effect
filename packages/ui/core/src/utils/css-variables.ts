@@ -1,3 +1,6 @@
+import * as P from "effect/Predicate";
+import * as Str from "effect/String";
+
 /**
  * Extract the CSS variable name from a `var(--...)` expression.
  *
@@ -10,7 +13,7 @@
  * parseCssVar(theme.vars.palette.Tooltip.bg); // → '--palette-Tooltip-bg'
  */
 export function parseCssVar(cssValue: unknown): string {
-  if (typeof cssValue !== "string" || !cssValue.trim()) {
+  if (!P.isString(cssValue) || !Str.trim(cssValue)) {
     console.error("Invalid input: CSS value must be a non-empty string");
     return "";
   }

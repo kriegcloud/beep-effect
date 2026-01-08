@@ -19,6 +19,7 @@ import type { UnsafeTypes } from "@beep/types";
 import * as A from "effect/Array";
 import * as F from "effect/Function";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import * as Str from "effect/String";
 
 const FORBIDDEN_KEYS = new Set(["__proto__", "prototype", "constructor"]);
@@ -35,7 +36,7 @@ const toPropertyKey = (segment: string): PropertyKey => {
 };
 
 const normalizePath = (path: string | ReadonlyArray<PropertyKey>): ReadonlyArray<PropertyKey> => {
-  if (typeof path !== "string") {
+  if (!P.isString(path)) {
     return path;
   }
 

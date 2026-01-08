@@ -71,7 +71,7 @@ export const JOB_SORT_OPTIONS = [
   { label: "Oldest", value: "oldest" },
 ] as const;
 
-const CANDIDATES = Array.from({ length: 12 }, (_, index) => ({
+const CANDIDATES = A.makeBy(12, (index) => ({
   id: _mock.id(index),
   role: _mock.role(index),
   name: _mock.fullName(index),
@@ -107,7 +107,7 @@ const CONTENT = `
 </ul>
 `;
 
-export const _jobs = Array.from({ length: 12 }, (_, index) => {
+export const _jobs = A.makeBy(12, (index) => {
   const publish = index % 3 ? "published" : "draft";
 
   const salary = {

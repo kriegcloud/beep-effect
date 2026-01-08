@@ -122,10 +122,10 @@ export const VerifyPhoneCard = () => {
 ```
 
 ## Verifications
-- `bun run --filter @beep/iam-ui lint` — Biome static analysis (ensures Effect import discipline, no uncontrolled globals).
-- `bun run --filter @beep/iam-ui check` — TypeScript program across src + tests.
-- `bun run --filter @beep/iam-ui test` — Bun test suite (currently placeholder; add Vitest/Bun cases alongside features).
-- When touching Babel build targets, run `bun run --filter @beep/iam-ui build` to regenerate CJS/ESM outputs before publishing.
+- `bun run lint --filter=@beep/iam-ui` — Biome static analysis (ensures Effect import discipline, no uncontrolled globals).
+- `bun run check --filter=@beep/iam-ui` — TypeScript program across src + tests.
+- `bun run test --filter=@beep/iam-ui` — Bun test suite (currently placeholder; add Vitest/Bun cases alongside features).
+- When touching Babel build targets, run `bun run build --filter=@beep/iam-ui` to regenerate CJS/ESM outputs before publishing.
 
 ## Security
 

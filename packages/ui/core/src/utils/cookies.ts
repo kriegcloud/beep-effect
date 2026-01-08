@@ -1,4 +1,6 @@
 import * as A from "effect/Array";
+import * as DateTime from "effect/DateTime";
+import * as Match from "effect/Match";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as Str from "effect/String";
@@ -18,16 +20,12 @@ function hasCookieStore(): boolean {
 
 // Map our title-cased SameSite option to CookieStore's lowercase values
 function toCookieStoreSameSite(sameSite: CookieOptions["sameSite"]): "strict" | "lax" | "none" | undefined {
-  switch (sameSite) {
-    case "Strict":
-      return "strict";
-    case "Lax":
-      return "lax";
-    case "None":
-      return "none";
-    default:
-      return undefined;
-  }
+  return Match.value(sameSite).pipe(
+    Match.when("Strict", () => "strict" as const),
+    Match.when("Lax", () => "lax" as const),
+    Match.when("None", () => "none" as const),
+    Match.orElse(() => undefined)
+  );
 }
 
 /**
@@ -105,7 +103,7 @@ export async function setCookie<T>(key: string, value: T, options?: CookieOption
       if (domain) init.domain = domain;
       if (typeof sameSiteLower !== "undefined") init.sameSite = sameSiteLower;
       if (daysUntilExpiration > 0) {
-        init.expires = Date.now() + daysUntilExpiration * 24 * 60 * 60 * 1000;
+        init.expires = DateTime.toEpochMillis(DateTime.unsafeNow()) + daysUntilExpiration * 24 * 60 * 60 * 1000;
       }
 
       await cookieStore.set(init);
