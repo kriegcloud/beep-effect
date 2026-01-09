@@ -1,9 +1,10 @@
 "use client";
 
 import { cn } from "@beep/todox/lib/utils";
+import * as A from "effect/Array";
 import * as P from "effect/Predicate";
 import * as React from "react";
-import * as A from "effect/Array";
+
 const SIDE_PANEL_WIDTH = "320px";
 const SIDE_PANEL_STORAGE_KEY = "side_panel_state";
 

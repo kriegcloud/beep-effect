@@ -12,12 +12,12 @@ import { ToolbarItem } from "./toolbar-item";
 // ----------------------------------------------------------------------
 
 type ImageBlockProps = Pick<EditorToolbarItemProps, "icon"> & {
-  editor: Editor;
+  readonly editor: Editor;
 };
 
 type ImageFormState = {
-  imageUrl: string;
-  altText: string;
+  readonly imageUrl: string;
+  readonly altText: string;
 };
 
 export function ImageBlock({ editor, icon }: ImageBlockProps) {

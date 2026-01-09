@@ -13,8 +13,8 @@ import Typography from "@mui/material/Typography";
 // ----------------------------------------------------------------------
 
 type Props = ListItemButtonProps & {
-  mail: IMail;
-  selected: boolean;
+  readonly mail: IMail;
+  readonly selected: boolean;
 };
 
 export function MailItem({ mail, selected, sx, ...other }: Props) {

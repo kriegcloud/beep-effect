@@ -1,33 +1,36 @@
 "use client";
-
+import { noOp, thunk } from "@beep/utils";
 import type { CharacterAlignmentResponseModel } from "@elevenlabs/elevenlabs-js/api/types/CharacterAlignmentResponseModel";
+import * as A from "effect/Array";
+import * as P from "effect/Predicate";
+import * as Str from "effect/String";
 import { type RefObject, useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 type ComposeSegmentsOptions = {
-  hideAudioTags?: boolean;
+  readonly hideAudioTags?: undefined | boolean;
 };
 
 type BaseSegment = {
-  segmentIndex: number;
-  text: string;
+  readonly segmentIndex: number;
+  readonly text: string;
 };
 
 type TranscriptWord = BaseSegment & {
-  kind: "word";
-  wordIndex: number;
-  startTime: number;
-  endTime: number;
+  readonly kind: "word";
+  readonly wordIndex: number;
+  readonly startTime: number;
+  readonly endTime: number;
 };
 
 type GapSegment = BaseSegment & {
-  kind: "gap";
+  readonly kind: "gap";
 };
 
 type TranscriptSegment = TranscriptWord | GapSegment;
 
 type ComposeSegmentsResult = {
-  segments: TranscriptSegment[];
-  words: TranscriptWord[];
+  readonly segments: TranscriptSegment[];
+  readonly words: TranscriptWord[];
 };
 
 type SegmentComposer = (alignment: CharacterAlignmentResponseModel) => ComposeSegmentsResult;
@@ -38,8 +41,8 @@ function composeSegments(
 ): ComposeSegmentsResult {
   const { characters, characterStartTimesSeconds: starts, characterEndTimesSeconds: ends } = alignment;
 
-  const segments: TranscriptSegment[] = [];
-  const words: TranscriptWord[] = [];
+  const segments = A.empty<TranscriptSegment>();
+  const words = A.empty<TranscriptWord>();
 
   let wordBuffer = "";
   let whitespaceBuffer = "";
@@ -58,7 +61,7 @@ function composeSegments(
       segmentIndex: segmentIndex++,
       text: whitespaceBuffer,
     });
-    whitespaceBuffer = "";
+    whitespaceBuffer = Str.empty;
   };
 
   const flushWord = () => {
@@ -73,18 +76,18 @@ function composeSegments(
     };
     segments.push(word);
     words.push(word);
-    wordBuffer = "";
+    wordBuffer = Str.empty;
   };
 
   for (let i = 0; i < characters.length; i++) {
-    const char = characters[i] ?? "";
+    const char = characters[i] ?? Str.empty;
     const start = starts[i] ?? 0;
     const end = ends[i] ?? start;
 
     if (hideAudioTags) {
       if (char === "[") {
         flushWord();
-        whitespaceBuffer = "";
+        whitespaceBuffer = Str.empty;
         insideAudioTag = true;
         continue;
       }
@@ -122,35 +125,35 @@ function composeSegments(
 }
 
 type UseTranscriptViewerProps = {
-  alignment: CharacterAlignmentResponseModel;
-  segmentComposer?: SegmentComposer;
-  hideAudioTags?: boolean;
-  onPlay?: () => void;
-  onPause?: () => void;
-  onTimeUpdate?: (time: number) => void;
-  onEnded?: () => void;
-  onDurationChange?: (duration: number) => void;
+  readonly alignment: CharacterAlignmentResponseModel;
+  readonly segmentComposer?: undefined | SegmentComposer;
+  readonly hideAudioTags?: undefined | boolean;
+  readonly onPlay?: undefined | (() => void);
+  readonly onPause?: undefined | (() => void);
+  readonly onTimeUpdate?: undefined | ((time: number) => void);
+  readonly onEnded?: undefined | (() => void);
+  readonly onDurationChange?: undefined | ((duration: number) => void);
 };
 
 type UseTranscriptViewerResult = {
-  segments: TranscriptSegment[];
-  words: TranscriptWord[];
-  spokenSegments: TranscriptSegment[];
-  unspokenSegments: TranscriptSegment[];
-  currentWord: TranscriptWord | null;
-  currentSegmentIndex: number;
-  currentWordIndex: number;
-  seekToTime: (time: number) => void;
-  seekToWord: (word: number | TranscriptWord) => void;
-  audioRef: RefObject<HTMLAudioElement | null>;
-  isPlaying: boolean;
-  isScrubbing: boolean;
-  duration: number;
-  currentTime: number;
-  play: () => void;
-  pause: () => void;
-  startScrubbing: () => void;
-  endScrubbing: () => void;
+  readonly segments: TranscriptSegment[];
+  readonly words: TranscriptWord[];
+  readonly spokenSegments: TranscriptSegment[];
+  readonly unspokenSegments: TranscriptSegment[];
+  readonly currentWord: TranscriptWord | null;
+  readonly currentSegmentIndex: number;
+  readonly currentWordIndex: number;
+  readonly seekToTime: (time: number) => void;
+  readonly seekToWord: (word: number | TranscriptWord) => void;
+  readonly audioRef: RefObject<HTMLAudioElement | null>;
+  readonly isPlaying: boolean;
+  readonly isScrubbing: boolean;
+  readonly duration: number;
+  readonly currentTime: number;
+  readonly play: () => void;
+  readonly pause: () => void;
+  readonly startScrubbing: () => void;
+  readonly endScrubbing: () => void;
 };
 
 function useTranscriptViewer({
@@ -165,8 +168,8 @@ function useTranscriptViewer({
 }: UseTranscriptViewerProps): UseTranscriptViewerResult {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const rafRef = useRef<number | null>(null);
-  const handleTimeUpdateRef = useRef<(time: number) => void>(() => {});
-  const onDurationChangeRef = useRef<(duration: number) => void>(() => {});
+  const handleTimeUpdateRef = useRef<(time: number) => void>(noOp);
+  const onDurationChangeRef = useRef<(duration: number) => void>(noOp);
 
   const [isPlaying, setIsPlaying] = useState(false);
   const [isScrubbing, setIsScrubbing] = useState(false);
@@ -194,7 +197,7 @@ function useTranscriptViewer({
     return 0;
   }, [alignment, words]);
 
-  const [currentWordIndex, setCurrentWordIndex] = useState<number>(() => (words.length ? 0 : -1));
+  const [currentWordIndex, setCurrentWordIndex] = useState<number>(thunk(words.length ? 0 : -1));
 
   useEffect(() => {
     setCurrentTime(0);
@@ -395,7 +398,7 @@ function useTranscriptViewer({
 
   const seekToWord = useCallback(
     (word: number | TranscriptWord) => {
-      const target = typeof word === "number" ? words[word] : word;
+      const target = P.isNumber(word) ? words[word] : word;
       if (!target) return;
       seekToTime(target.startTime);
     },

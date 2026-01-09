@@ -1,12 +1,12 @@
 "use client";
 
-import {cn} from "@beep/todox/lib/utils";
+import { cn } from "@beep/todox/lib/utils";
+import { thunkZero } from "@beep/utils";
 import * as A from "effect/Array";
-import * as P from "effect/Predicate";
 import * as DateTime from "effect/DateTime";
 import * as O from "effect/Option";
-import {type HTMLAttributes, useCallback, useEffect, useMemo, useRef, useState} from "react";
-import {thunkZero} from "@beep/utils";
+import * as P from "effect/Predicate";
+import { type HTMLAttributes, useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 export type WaveformProps = HTMLAttributes<HTMLDivElement> & {
   readonly data?: undefined | number[];
@@ -845,7 +845,12 @@ export const LiveMicrophoneWaveform = ({
 
   const playScrubSound = useCallback(
     (position: number, direction: number) => {
-      if (P.isNullable(enableAudioPlayback) || P.isNullable(audioBufferRef.current) || P.isNullable(audioContextRef.current)) return;
+      if (
+        P.isNullable(enableAudioPlayback) ||
+        P.isNullable(audioBufferRef.current) ||
+        P.isNullable(audioContextRef.current)
+      )
+        return;
 
       if (scrubSourceRef.current) {
         try {
@@ -907,7 +912,11 @@ export const LiveMicrophoneWaveform = ({
 
     let animationId: number;
     const updatePlaybackVisual = () => {
-      if (P.isNotNullable(audioContextRef.current) && P.isNotNullable(sourceNodeRef.current) && P.isNotNullable(audioBufferRef.current)) {
+      if (
+        P.isNotNullable(audioContextRef.current) &&
+        P.isNotNullable(sourceNodeRef.current) &&
+        P.isNotNullable(audioBufferRef.current)
+      ) {
         const elapsed = audioContextRef.current.currentTime - playbackStartTimeRef.current;
         const currentPos = playbackPosition + elapsed * playbackRate;
 

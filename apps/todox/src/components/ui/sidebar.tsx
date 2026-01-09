@@ -3,14 +3,15 @@
 import { cn } from "@beep/todox/lib/utils";
 import { ListIcon } from "@phosphor-icons/react";
 import { cva, type VariantProps } from "class-variance-authority";
+import * as A from "effect/Array";
+import * as P from "effect/Predicate";
+import * as Str from "effect/String";
 import * as React from "react";
 import { Button } from "./button";
 import { Input } from "./input";
-import * as P from "effect/Predicate";
-import * as A from "effect/Array";
 import { Separator } from "./separator";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./tooltip";
-import * as Str from "effect/String";
+
 const SIDEBAR_STORAGE_KEY = "sidebar_state";
 const SIDEBAR_WIDTH = "16rem";
 const SIDEBAR_WIDTH_MOBILE = "18rem";

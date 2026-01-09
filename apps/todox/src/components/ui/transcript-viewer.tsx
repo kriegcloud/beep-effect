@@ -7,12 +7,10 @@ import {
   type UseTranscriptViewerResult,
   useTranscriptViewer,
 } from "@beep/todox/hooks/use-transcript-viewer";
-import {cn} from "@beep/todox/lib/utils";
-import type {
-  CharacterAlignmentResponseModel
-} from "@elevenlabs/elevenlabs-js/api/types/CharacterAlignmentResponseModel";
+import { cn } from "@beep/todox/lib/utils";
+import type { CharacterAlignmentResponseModel } from "@elevenlabs/elevenlabs-js/api/types/CharacterAlignmentResponseModel";
 import * as A from "effect/Array";
-import {Pause, Play} from "lucide-react";
+import { Pause, Play } from "lucide-react";
 import {
   type ComponentPropsWithoutRef,
   type ComponentPropsWithRef,
@@ -22,8 +20,8 @@ import {
   useContext,
   useMemo,
 } from "react";
-import {Button} from "./button";
-import {ScrubBarContainer, ScrubBarProgress, ScrubBarThumb, ScrubBarTimeLabel, ScrubBarTrack} from "./scrub-bar";
+import { Button } from "./button";
+import { ScrubBarContainer, ScrubBarProgress, ScrubBarThumb, ScrubBarTimeLabel, ScrubBarTrack } from "./scrub-bar";
 
 type TranscriptGap = Extract<TranscriptSegment, { kind: "gap" }>;
 
@@ -46,7 +44,7 @@ type TranscriptViewerProviderProps = {
   readonly children: ReactNode;
 };
 
-function TranscriptViewerProvider({value, children}: TranscriptViewerProviderProps) {
+function TranscriptViewerProvider({ value, children }: TranscriptViewerProviderProps) {
   return <TranscriptViewerContext.Provider value={value}>{children}</TranscriptViewerContext.Provider>;
 }
 
@@ -66,20 +64,20 @@ type TranscriptViewerContainerProps = {
   >;
 
 function TranscriptViewerContainer({
-                                     audioSrc,
-                                     audioType = "audio/mpeg",
-                                     alignment,
-                                     segmentComposer,
-                                     hideAudioTags = true,
-                                     children,
-                                     className,
-                                     onPlay,
-                                     onPause,
-                                     onTimeUpdate,
-                                     onEnded,
-                                     onDurationChange,
-                                     ...props
-                                   }: TranscriptViewerContainerProps) {
+  audioSrc,
+  audioType = "audio/mpeg",
+  alignment,
+  segmentComposer,
+  hideAudioTags = true,
+  children,
+  className,
+  onPlay,
+  onPause,
+  onTimeUpdate,
+  onEnded,
+  onDurationChange,
+  ...props
+}: TranscriptViewerContainerProps) {
   const viewerState = useTranscriptViewer({
     alignment,
     hideAudioTags,
@@ -91,7 +89,7 @@ function TranscriptViewerContainer({
     onDurationChange,
   });
 
-  const {audioRef} = viewerState;
+  const { audioRef } = viewerState;
 
   const audioProps = useMemo(
     () => ({
@@ -99,7 +97,7 @@ function TranscriptViewerContainer({
       controls: false,
       preload: "metadata" as const,
       src: audioSrc,
-      children: <source src={audioSrc} type={audioType}/>,
+      children: <source src={audioSrc} type={audioType} />,
     }),
     [audioRef, audioSrc]
   );
@@ -129,7 +127,7 @@ interface TranscriptViewerWordProps extends Omit<HTMLAttributes<HTMLSpanElement>
   readonly children?: undefined | ReactNode;
 }
 
-function TranscriptViewerWord({word, status, className, children, ...props}: TranscriptViewerWordProps) {
+function TranscriptViewerWord({ word, status, className, children, ...props }: TranscriptViewerWordProps) {
   return (
     <span
       data-slot="transcript-word"
@@ -161,14 +159,14 @@ interface TranscriptViewerWordsProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 function TranscriptViewerWords({
-                                 className,
-                                 renderWord,
-                                 renderGap,
-                                 wordClassNames,
-                                 gapClassNames,
-                                 ...props
-                               }: TranscriptViewerWordsProps) {
-  const {spokenSegments, unspokenSegments, currentWord, segments, duration, currentTime} =
+  className,
+  renderWord,
+  renderGap,
+  wordClassNames,
+  gapClassNames,
+  ...props
+}: TranscriptViewerWordsProps) {
+  const { spokenSegments, unspokenSegments, currentWord, segments, duration, currentTime } =
     useTranscriptViewerContext();
 
   const nearEnd = useMemo(() => {
@@ -178,7 +176,7 @@ function TranscriptViewerWords({
 
   const segmentsWithStatus = useMemo(() => {
     if (nearEnd) {
-      return A.map(segments, (segment) => ({segment, status: "spoken" as const}));
+      return A.map(segments, (segment) => ({ segment, status: "spoken" as const }));
     }
 
     const entries = A.empty<{
@@ -187,15 +185,15 @@ function TranscriptViewerWords({
     }>();
 
     for (const segment of spokenSegments) {
-      entries.push({segment, status: "spoken"});
+      entries.push({ segment, status: "spoken" });
     }
 
     if (currentWord) {
-      entries.push({segment: currentWord, status: "current"});
+      entries.push({ segment: currentWord, status: "current" });
     }
 
     for (const segment of unspokenSegments) {
-      entries.push({segment, status: "unspoken"});
+      entries.push({ segment, status: "unspoken" });
     }
 
     return entries;
@@ -203,9 +201,9 @@ function TranscriptViewerWords({
 
   return (
     <div data-slot="transcript-words" className={cn("text-xl leading-relaxed", className)} {...props}>
-      {A.map(segmentsWithStatus, ({segment, status}) => {
+      {A.map(segmentsWithStatus, ({ segment, status }) => {
         if (segment.kind === "gap") {
-          const content = renderGap ? renderGap({segment, status}) : segment.text;
+          const content = renderGap ? renderGap({ segment, status }) : segment.text;
           return (
             <span
               key={`gap-${segment.segmentIndex}`}
@@ -226,7 +224,7 @@ function TranscriptViewerWords({
               data-status={status}
               className={cn(wordClassNames)}
             >
-              {renderWord({word: segment, status})}
+              {renderWord({ word: segment, status })}
             </span>
           );
         }
@@ -244,9 +242,9 @@ function TranscriptViewerWords({
   );
 }
 
-function TranscriptViewerAudio({...props}: ComponentPropsWithoutRef<"audio">) {
-  const {audioProps} = useTranscriptViewerContext();
-  return <audio data-slot="transcript-audio" {...audioProps} {...props} ref={audioProps.ref}/>;
+function TranscriptViewerAudio({ ...props }: ComponentPropsWithoutRef<"audio">) {
+  const { audioProps } = useTranscriptViewerContext();
+  return <audio data-slot="transcript-audio" {...audioProps} {...props} ref={audioProps.ref} />;
 }
 
 type RenderChildren = (state: { readonly isPlaying: boolean }) => ReactNode;
@@ -255,8 +253,8 @@ type TranscriptViewerPlayPauseButtonProps = Omit<ComponentPropsWithoutRef<typeof
   readonly children?: undefined | ReactNode | RenderChildren;
 };
 
-function TranscriptViewerPlayPauseButton({className, children, ...props}: TranscriptViewerPlayPauseButtonProps) {
-  const {isPlaying, play, pause} = useTranscriptViewerContext();
+function TranscriptViewerPlayPauseButton({ className, children, ...props }: TranscriptViewerPlayPauseButtonProps) {
+  const { isPlaying, play, pause } = useTranscriptViewerContext();
   const Icon = isPlaying ? Pause : Play;
 
   const handleClick = () => {
@@ -264,7 +262,7 @@ function TranscriptViewerPlayPauseButton({className, children, ...props}: Transc
     else play();
   };
 
-  const content = typeof children === "function" ? (children as RenderChildren)({isPlaying}) : children;
+  const content = typeof children === "function" ? (children as RenderChildren)({ isPlaying }) : children;
 
   return (
     <Button
@@ -277,7 +275,7 @@ function TranscriptViewerPlayPauseButton({className, children, ...props}: Transc
       onClick={handleClick}
       {...props}
     >
-      {content ?? <Icon className="size-5"/>}
+      {content ?? <Icon className="size-5" />}
     </Button>
   );
 }
@@ -297,15 +295,15 @@ type TranscriptViewerScrubBarProps = Omit<
  * A context-aware implementation of the scrub bar specific to the transcript viewer.
  */
 function TranscriptViewerScrubBar({
-                                    className,
-                                    showTimeLabels = true,
-                                    labelsClassName,
-                                    trackClassName,
-                                    progressClassName,
-                                    thumbClassName,
-                                    ...props
-                                  }: TranscriptViewerScrubBarProps) {
-  const {duration, currentTime, seekToTime, startScrubbing, endScrubbing} = useTranscriptViewerContext();
+  className,
+  showTimeLabels = true,
+  labelsClassName,
+  trackClassName,
+  progressClassName,
+  thumbClassName,
+  ...props
+}: TranscriptViewerScrubBarProps) {
+  const { duration, currentTime, seekToTime, startScrubbing, endScrubbing } = useTranscriptViewerContext();
   return (
     <ScrubBarContainer
       data-slot="transcript-scrub-bar"
@@ -319,13 +317,13 @@ function TranscriptViewerScrubBar({
     >
       <div className="flex flex-1 flex-col gap-1">
         <ScrubBarTrack className={trackClassName}>
-          <ScrubBarProgress className={progressClassName}/>
-          <ScrubBarThumb className={thumbClassName}/>
+          <ScrubBarProgress className={progressClassName} />
+          <ScrubBarThumb className={thumbClassName} />
         </ScrubBarTrack>
         {showTimeLabels && (
           <div className={cn("text-muted-foreground flex items-center justify-between text-xs", labelsClassName)}>
-            <ScrubBarTimeLabel time={currentTime}/>
-            <ScrubBarTimeLabel time={duration - currentTime}/>
+            <ScrubBarTimeLabel time={currentTime} />
+            <ScrubBarTimeLabel time={duration - currentTime} />
           </div>
         )}
       </div>
@@ -343,4 +341,4 @@ export {
   TranscriptViewerProvider,
   useTranscriptViewerContext,
 };
-export type {CharacterAlignmentResponseModel};
+export type { CharacterAlignmentResponseModel };

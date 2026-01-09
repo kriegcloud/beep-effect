@@ -16,14 +16,14 @@ import { MailItemSkeleton } from "./mail-skeleton";
 // ----------------------------------------------------------------------
 
 type Props = {
-  isEmpty: boolean;
-  loading: boolean;
-  openMail: boolean;
-  mails: IMails;
-  selectedMailId: string;
-  selectedLabelId: string;
-  onCloseMail: () => void;
-  onClickMail: (id: string) => void;
+  readonly isEmpty: boolean;
+  readonly loading: boolean;
+  readonly openMail: boolean;
+  readonly mails: IMails;
+  readonly selectedMailId: string;
+  readonly selectedLabelId: string;
+  readonly onCloseMail: () => void;
+  readonly onClickMail: (id: string) => void;
 };
 
 export function MailList({

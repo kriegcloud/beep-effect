@@ -6,7 +6,10 @@ import { type UseBooleanReturn, useBoolean } from "@beep/ui/hooks/use-boolean";
 import { usePathname } from "@beep/ui/hooks/use-pathname";
 import { useRouter } from "@beep/ui/hooks/use-router";
 import { useSearchParams } from "@beep/ui/hooks/use-search-params";
+import { thunkEmptyStr } from "@beep/utils";
 import useMediaQuery from "@mui/material/useMediaQuery";
+import * as A from "effect/Array";
+import * as O from "effect/Option";
 import * as React from "react";
 import { startTransition, useCallback, useEffect, useMemo } from "react";
 
@@ -72,7 +75,7 @@ function MailProvider({ children }: MailProviderProps) {
   const { mail, mailLoading, mailError } = useGetMail(selectedMailId);
 
   // Derived values
-  const firstMailId = mails.allIds[0] || "";
+  const firstMailId = A.head(mails.allIds).pipe(O.getOrElse(thunkEmptyStr));
   const mdUp = useMediaQuery((theme) => theme.breakpoints.up("md"));
 
   // Callbacks

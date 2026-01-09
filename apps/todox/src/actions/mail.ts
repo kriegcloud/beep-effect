@@ -1,9 +1,11 @@
 import type { IMail, IMailLabel } from "@beep/mock/_mail";
+import { thunk } from "@beep/utils";
 import * as FetchHttpClient from "@effect/platform/FetchHttpClient";
 import * as HttpClient from "@effect/platform/HttpClient";
 import * as HttpClientRequest from "@effect/platform/HttpClientRequest";
 import * as Effect from "effect/Effect";
 import * as ManagedRuntime from "effect/ManagedRuntime";
+import * as Struct from "effect/Struct";
 import { keyBy } from "es-toolkit";
 import { useMemo } from "react";
 import type { SWRConfiguration } from "swr";
@@ -100,8 +102,8 @@ export function useGetLabels() {
     ...swrOptions,
   });
 
-  const memoizedValue = useMemo(
-    () => ({
+  return useMemo(
+    thunk({
       labels: data?.labels || [],
       labelsLoading: isLoading,
       labelsError: error,
@@ -110,8 +112,6 @@ export function useGetLabels() {
     }),
     [data?.labels, error, isLoading, isValidating]
   );
-
-  return memoizedValue;
 }
 
 // ----------------------------------------------------------------------
@@ -127,9 +127,9 @@ export function useGetMails(labelId: string) {
     ...swrOptions,
   });
 
-  const memoizedValue = useMemo(() => {
+  return useMemo(() => {
     const byId = data?.mails.length ? keyBy(data?.mails, (option) => option.id) : {};
-    const allIds = Object.keys(byId);
+    const allIds = Struct.keys(byId);
 
     return {
       mails: { byId, allIds },
@@ -139,8 +139,6 @@ export function useGetMails(labelId: string) {
       mailsEmpty: !isLoading && !isValidating && !allIds.length,
     };
   }, [data?.mails, error, isLoading, isValidating]);
-
-  return memoizedValue;
 }
 
 // ----------------------------------------------------------------------
@@ -156,8 +154,8 @@ export function useGetMail(mailId: string) {
     ...swrOptions,
   });
 
-  const memoizedValue = useMemo(
-    () => ({
+  return useMemo(
+    thunk({
       mail: data?.mail,
       mailLoading: isLoading,
       mailError: error,
@@ -166,6 +164,4 @@ export function useGetMail(mailId: string) {
     }),
     [data?.mail, error, isLoading, isValidating]
   );
-
-  return memoizedValue;
 }

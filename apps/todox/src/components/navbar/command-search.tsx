@@ -20,8 +20,8 @@ import {
   SmileyIcon,
   UserIcon,
 } from "@phosphor-icons/react";
-import * as React from "react";
 import * as A from "effect/Array";
+import * as React from "react";
 export function CommandSearch() {
   const [open, setOpen] = React.useState(false);
 

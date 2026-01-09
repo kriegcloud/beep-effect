@@ -24,8 +24,8 @@ const HEADING_OPTIONS = [
 export type TextHeadingLevel = (typeof HEADING_OPTIONS)[number]["level"];
 
 type HeadingBlock = {
-  editor: Editor;
-  isActive: (value: TextHeadingLevel) => boolean;
+  readonly editor: Editor;
+  readonly isActive: (value: TextHeadingLevel) => boolean;
 };
 
 export function HeadingBlock({ editor, isActive }: HeadingBlock) {

@@ -13,14 +13,14 @@ import { MailNavItemSkeleton } from "./mail-skeleton";
 // ----------------------------------------------------------------------
 
 type Props = {
-  isEmpty: boolean;
-  openNav: boolean;
-  loading: boolean;
-  labels: IMailLabel[];
-  selectedLabelId: string;
-  onCloseNav: () => void;
-  onToggleCompose: () => void;
-  onClickLabel: (labelId: string) => void;
+  readonly isEmpty: boolean;
+  readonly openNav: boolean;
+  readonly loading: boolean;
+  readonly labels: IMailLabel[];
+  readonly selectedLabelId: string;
+  readonly onCloseNav: () => void;
+  readonly onToggleCompose: () => void;
+  readonly onClickLabel: (labelId: string) => void;
 };
 
 export function MailNav({

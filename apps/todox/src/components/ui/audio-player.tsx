@@ -4,11 +4,11 @@ import { cn } from "@beep/todox/lib/utils";
 import * as SliderPrimitive from "@radix-ui/react-slider";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
+// import * as Match from "effect/Match";
+import * as P from "effect/Predicate";
 // import * as F from "effect/Function";
 //
 import * as Str from "effect/String";
-// import * as Match from "effect/Match";
-import * as P from "effect/Predicate";
 import { Check, PauseIcon, PlayIcon, Settings } from "lucide-react";
 import type * as React from "react";
 import type { ComponentProps, HTMLProps, ReactNode, RefObject } from "react";

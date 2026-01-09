@@ -1,6 +1,5 @@
 import { rgbaFromChannel } from "@beep/ui-core/utils";
 import type { BoxProps } from "@mui/material/Box";
-
 import Box from "@mui/material/Box";
 import Skeleton from "@mui/material/Skeleton";
 

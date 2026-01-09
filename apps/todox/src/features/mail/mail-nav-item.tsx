@@ -24,9 +24,9 @@ const LABEL_ICONS: Record<string, IconifyName> = {
 // ----------------------------------------------------------------------
 
 type Props = ListItemButtonProps & {
-  selected: boolean;
-  label: IMailLabel;
-  onClickNavItem: () => void;
+  readonly selected: boolean;
+  readonly label: IMailLabel;
+  readonly onClickNavItem: () => void;
 };
 
 export function MailNavItem({ selected, label, onClickNavItem, ...other }: Props) {

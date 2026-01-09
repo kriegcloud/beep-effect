@@ -24,6 +24,9 @@ import type {
   ScribeUnacceptedTermsErrorMessage,
 } from "@elevenlabs/client";
 import { RealtimeEvents, Scribe } from "@elevenlabs/client";
+import * as A from "effect/Array";
+import * as P from "effect/Predicate";
+import * as Str from "effect/String";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 // ============= Types =============
@@ -181,8 +184,8 @@ export function useScribe(options: ScribeHookOptions = {}): UseScribeReturn {
   const activeConnectionIdRef = useRef<number | null>(null);
 
   const [status, setStatus] = useState<ScribeStatus>("disconnected");
-  const [partialTranscript, setPartialTranscript] = useState<string>("");
-  const [committedTranscripts, setCommittedTranscripts] = useState<TranscriptSegment[]>([]);
+  const [partialTranscript, setPartialTranscript] = useState<string>(Str.empty);
+  const [committedTranscripts, setCommittedTranscripts] = useState<TranscriptSegment[]>(A.empty());
   const [error, setError] = useState<string | null>(null);
 
   const disconnect = useCallback(() => {
@@ -199,9 +202,9 @@ export function useScribe(options: ScribeHookOptions = {}): UseScribeReturn {
     try {
       const result = connection.close();
       if (
-        typeof result === "object" &&
-        result !== null &&
-        "catch" in result &&
+        P.isObject(result) &&
+        P.isNotNull(result) &&
+        P.hasProperty("catch")(result) &&
         typeof (result as Promise<unknown>).catch === "function"
       ) {
         const promise = result as Promise<void>;

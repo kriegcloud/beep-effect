@@ -8,25 +8,25 @@ import type { TextHeadingLevel } from "./heading-block";
 export type TextAlignValue = "left" | "center" | "right" | "justify";
 
 export type UseToolbarStateReturn = {
-  isBold: boolean;
-  isCode: boolean;
-  isLink: boolean;
-  isItalic: boolean;
-  isStrike: boolean;
-  isUnderline: boolean;
-  isCodeBlock: boolean;
-  isBulletList: boolean;
-  isBlockquote: boolean;
-  isOrderedList: boolean;
-  isAlign: (value: TextAlignValue) => boolean;
-  isTextLevel: (value: TextHeadingLevel) => boolean;
-  isTextTransform: (value: TextTransformValue) => boolean;
-  canUndo: boolean;
-  canRedo: boolean;
+  readonly isBold: boolean;
+  readonly isCode: boolean;
+  readonly isLink: boolean;
+  readonly isItalic: boolean;
+  readonly isStrike: boolean;
+  readonly isUnderline: boolean;
+  readonly isCodeBlock: boolean;
+  readonly isBulletList: boolean;
+  readonly isBlockquote: boolean;
+  readonly isOrderedList: boolean;
+  readonly isAlign: (value: TextAlignValue) => boolean;
+  readonly isTextLevel: (value: TextHeadingLevel) => boolean;
+  readonly isTextTransform: (value: TextTransformValue) => boolean;
+  readonly canUndo: boolean;
+  readonly canRedo: boolean;
 };
 
 export function useToolbarState(editor: Editor): UseToolbarStateReturn {
-  const toolbarState = useEditorState({
+  return useEditorState({
     editor,
     selector: (ctx) => {
       const canRun = ctx.editor.can().chain().focus();
@@ -51,6 +51,4 @@ export function useToolbarState(editor: Editor): UseToolbarStateReturn {
       };
     },
   });
-
-  return toolbarState;
 }

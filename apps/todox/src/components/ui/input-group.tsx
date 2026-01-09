@@ -5,8 +5,9 @@ import { Input } from "@beep/todox/components/ui/input";
 import { Textarea } from "@beep/todox/components/ui/textarea";
 import { cn } from "@beep/todox/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
-import type * as React from "react";
 import * as Str from "effect/String";
+import type * as React from "react";
+
 function InputGroup({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div

@@ -3,10 +3,10 @@
 import { cn } from "@beep/todox/lib/utils";
 import { useConversation } from "@elevenlabs/react";
 import * as A from "effect/Array";
+import * as P from "effect/Predicate";
 import * as Str from "effect/String";
 import { ArrowUpIcon, ChevronDown, Keyboard, Mic, MicOff, PhoneIcon, XIcon } from "lucide-react";
 import * as React from "react";
-import * as P from 'effect/Predicate';
 import { Button } from "./button";
 import { Card } from "./card";
 import { LiveWaveform } from "./live-waveform";
@@ -81,8 +81,7 @@ export const ConversationBar = React.forwardRef<HTMLDivElement, ConversationBarP
       onError: (error: unknown) => {
         console.error("Error:", error);
         setAgentState("disconnected");
-        const errorObj =
-          error instanceof Error ? error : new Error(P.isString(error) ? error : JSON.stringify(error));
+        const errorObj = error instanceof Error ? error : new Error(P.isString(error) ? error : JSON.stringify(error));
         onError?.(errorObj);
       },
     });

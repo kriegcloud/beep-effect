@@ -13,10 +13,10 @@ import { ToolbarItem } from "./toolbar-item";
 // ----------------------------------------------------------------------
 
 type LinkBlockProps = {
-  editor: Editor;
-  active: boolean;
-  linkIcon: EditorToolbarItemProps["icon"];
-  unlinkIcon: EditorToolbarItemProps["icon"];
+  readonly editor: Editor;
+  readonly active: boolean;
+  readonly linkIcon: EditorToolbarItemProps["icon"];
+  readonly unlinkIcon: EditorToolbarItemProps["icon"];
 };
 
 export function LinkBlock({ editor, linkIcon, unlinkIcon, active }: LinkBlockProps) {

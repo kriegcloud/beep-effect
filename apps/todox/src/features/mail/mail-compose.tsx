@@ -18,7 +18,7 @@ import { Editor } from "../editor";
 const POSITION = 20;
 
 type Props = {
-  onCloseCompose: () => void;
+  readonly onCloseCompose: () => void;
 };
 
 export function MailCompose({ onCloseCompose }: Props) {

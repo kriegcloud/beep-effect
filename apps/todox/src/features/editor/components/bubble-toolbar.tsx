@@ -11,7 +11,7 @@ import { useToolbarState } from "./use-toolbar-state";
 // ----------------------------------------------------------------------
 
 type BubbleToolbarProps = React.ComponentProps<typeof ToolbarRoot> & {
-  editor: Editor;
+  readonly editor: Editor;
 };
 
 export function BubbleToolbar({ editor, sx, ...other }: BubbleToolbarProps) {
