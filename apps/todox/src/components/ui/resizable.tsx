@@ -13,8 +13,8 @@ function ResizablePanel({ ...props }: React.ComponentProps<typeof Panel>) {
 }
 
 interface ResizableHandleProps extends React.ComponentProps<typeof Separator> {
-  withHandle?: boolean;
-  orientation?: "horizontal" | "vertical";
+  readonly withHandle?: undefined | boolean;
+  readonly orientation?: undefined | "horizontal" | "vertical";
 }
 
 function ResizableHandle({

@@ -1,8 +1,9 @@
 "use client";
 
 import { cn } from "@beep/todox/lib/utils";
+import * as P from "effect/Predicate";
 import * as React from "react";
-
+import * as A from "effect/Array";
 const SIDE_PANEL_WIDTH = "320px";
 const SIDE_PANEL_STORAGE_KEY = "side_panel_state";
 
@@ -40,18 +41,18 @@ function SidePanelProvider({ children, defaultOpen = true }: SidePanelProviderPr
   React.useEffect(() => {
     try {
       const stored = localStorage.getItem(SIDE_PANEL_STORAGE_KEY);
-      if (stored !== null) {
+      if (P.isNotNull(stored)) {
         _setOpen(stored === "true");
       }
     } catch {
       // localStorage may be unavailable
     }
     setMounted(true);
-  }, []);
+  }, A.empty());
 
   const setOpen = React.useCallback((value: boolean | ((prev: boolean) => boolean)) => {
     _setOpen((prev) => {
-      const newValue = typeof value === "function" ? value(prev) : value;
+      const newValue = P.isFunction(value) ? value(prev) : value;
       try {
         localStorage.setItem(SIDE_PANEL_STORAGE_KEY, String(newValue));
       } catch {
@@ -59,7 +60,7 @@ function SidePanelProvider({ children, defaultOpen = true }: SidePanelProviderPr
       }
       return newValue;
     });
-  }, []);
+  }, A.empty());
 
   const togglePanel = React.useCallback(() => {
     setOpen((prev) => !prev);
@@ -86,9 +87,9 @@ interface SidePanelProps {
   /** Main content to render inside the panel */
   readonly children: React.ReactNode;
   /** Panel width (default: 320px) */
-  readonly width?: string;
+  readonly width?: undefined | string;
   /** Additional className for the wrapper */
-  readonly className?: string;
+  readonly className?: undefined | string;
 }
 
 /**

@@ -57,14 +57,14 @@ function MiniSidebarProvider({ children }: MiniSidebarProviderProps) {
       clearTimeout(timerRef.current);
       timerRef.current = null;
     }
-  }, []);
+  }, A.empty());
 
   const clearAnimationTimer = React.useCallback(() => {
     if (animationRef.current) {
       clearTimeout(animationRef.current);
       animationRef.current = null;
     }
-  }, []);
+  }, A.empty());
 
   const closeWithAnimation = React.useCallback(() => {
     clearAutoCloseTimer();
@@ -110,7 +110,7 @@ function MiniSidebarProvider({ children }: MiniSidebarProviderProps) {
         clearTimeout(animationRef.current);
       }
     };
-  }, []);
+  }, A.empty());
 
   const contextValue = React.useMemo<MiniSidebarContextValue>(
     () => ({
@@ -133,7 +133,7 @@ function MiniSidebarProvider({ children }: MiniSidebarProviderProps) {
 
 interface MiniSidebarTriggerProps {
   readonly className?: string;
-  readonly children?: React.ReactNode;
+  readonly children?: undefined | React.ReactNode;
 }
 
 function MiniSidebarTrigger({ className, children }: MiniSidebarTriggerProps) {
@@ -165,7 +165,7 @@ interface NavItem {
   readonly title: string;
   readonly icon: Icon;
   readonly url: string;
-  readonly isActive?: boolean;
+  readonly isActive?: undefined | boolean;
 }
 
 const mainNavItems: NavItem[] = [
@@ -184,13 +184,13 @@ const bottomNavItems: NavItem[] = [
 ];
 
 interface MiniSidebarPanelProps {
-  readonly className?: string;
+  readonly className?: undefined | string;
   /** Position relative to the parent SidePanel: "left" or "right" */
-  readonly position?: "left" | "right";
+  readonly position?: undefined | "left" | "right";
   /** Navigation items for the main section */
-  readonly mainItems?: NavItem[];
+  readonly mainItems?: undefined | NavItem[];
   /** Navigation items for the bottom section */
-  readonly bottomItems?: NavItem[];
+  readonly bottomItems?: undefined | NavItem[];
 }
 
 /**

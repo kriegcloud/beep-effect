@@ -6,6 +6,7 @@ import * as A from "effect/Array";
 import * as Eq from "effect/Equal";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
+import * as Str from "effect/String";
 import { Check, ChevronsUpDown, Mic, MicOff } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { Button } from "./button";
@@ -35,7 +36,7 @@ export interface MicSelectorProps {
 
 export function MicSelector({ value, onValueChange, muted, onMutedChange, disabled, className }: MicSelectorProps) {
   const { devices, loading, error, hasPermission, loadDevices } = useAudioDevices();
-  const [selectedDevice, setSelectedDevice] = useState<string>(value || "");
+  const [selectedDevice, setSelectedDevice] = useState<string>(value || Str.empty);
   const [internalMuted, setInternalMuted] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
@@ -50,7 +51,7 @@ export function MicSelector({ value, onValueChange, muted, onMutedChange, disabl
   }, [value]);
 
   // Select first device by default
-  const defaultDeviceId = O.getOrElse(A.get(devices, 0), thunk(({ deviceId: "" }))).deviceId;
+  const defaultDeviceId = O.getOrElse(A.get(devices, 0), thunk({ deviceId: Str.empty })).deviceId;
   useEffect(() => {
     if (!selectedDevice && defaultDeviceId) {
       const newDevice = defaultDeviceId;
@@ -60,14 +61,11 @@ export function MicSelector({ value, onValueChange, muted, onMutedChange, disabl
   }, [defaultDeviceId, selectedDevice, onValueChange]);
 
   const currentDevice = O.getOrElse(
-    O.orElse(
-      A.findFirst(devices, Eq.equals(selectedDevice)),
-      thunk(A.get(devices, 0))
-    ),
+    O.orElse(A.findFirst(devices, Eq.equals(selectedDevice)), thunk(A.get(devices, 0))),
     thunk({
       label: loading ? "Loading..." : "No microphone",
-      deviceId: "",
-      groupId: "",
+      deviceId: Str.empty,
+      groupId: Str.empty,
     })
   );
 
@@ -163,7 +161,7 @@ export function MicSelector({ value, onValueChange, muted, onMutedChange, disabl
 }
 
 export function useAudioDevices() {
-  const [devices, setDevices] = useState<AudioDevice[]>([]);
+  const [devices, setDevices] = useState<AudioDevice[]>(A.empty());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [hasPermission, setHasPermission] = useState(false);
@@ -181,7 +179,7 @@ export function useAudioDevices() {
         }
         const fallbackLabel = `Microphone ${device.deviceId.slice(0, 8)}`;
         const baseLabel = device.label || fallbackLabel;
-        const cleanLabel = baseLabel.replace(/\s*\([^)]*\)/g, "").trim();
+        const cleanLabel = baseLabel.replace(/\s*\([^)]*\)/g, Str.empty).trim();
 
         return O.some({
           deviceId: device.deviceId,
@@ -197,7 +195,7 @@ export function useAudioDevices() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, A.empty());
 
   const loadDevicesWithPermission = useCallback(async () => {
     if (loading) return;
@@ -219,7 +217,7 @@ export function useAudioDevices() {
         }
         const fallbackLabel = `Microphone ${device.deviceId.slice(0, 8)}`;
         const baseLabel = device.label || fallbackLabel;
-        const cleanLabel = baseLabel.replace(/\s*\([^)]*\)/g, "").trim();
+        const cleanLabel = baseLabel.replace(/\s*\([^)]*\)/g, Str.empty).trim();
 
         return O.some({
           deviceId: device.deviceId,

@@ -9,8 +9,8 @@ import * as React from "react";
 
 const ToggleGroupContext = React.createContext<
   VariantProps<typeof toggleVariants> & {
-    spacing?: number;
-    orientation?: "horizontal" | "vertical";
+    readonly spacing?: undefined | number;
+    readonly orientation?: undefined | "horizontal" | "vertical";
   }
 >({
   size: "default",
@@ -29,8 +29,8 @@ function ToggleGroup({
   ...props
 }: ToggleGroupPrimitive.Props &
   VariantProps<typeof toggleVariants> & {
-    spacing?: number;
-    orientation?: "horizontal" | "vertical";
+    readonly spacing?: undefined | number;
+    readonly orientation?: undefined | "horizontal" | "vertical";
   }) {
   return (
     <ToggleGroupPrimitive

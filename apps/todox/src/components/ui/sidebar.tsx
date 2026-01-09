@@ -6,9 +6,11 @@ import { cva, type VariantProps } from "class-variance-authority";
 import * as React from "react";
 import { Button } from "./button";
 import { Input } from "./input";
+import * as P from "effect/Predicate";
+import * as A from "effect/Array";
 import { Separator } from "./separator";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./tooltip";
-
+import * as Str from "effect/String";
 const SIDEBAR_STORAGE_KEY = "sidebar_state";
 const SIDEBAR_WIDTH = "16rem";
 const SIDEBAR_WIDTH_MOBILE = "18rem";
@@ -44,7 +46,7 @@ function useIsMobile() {
     mql.addEventListener("change", onChange);
     setIsMobile(mql.matches);
     return () => mql.removeEventListener("change", onChange);
-  }, []);
+  }, A.empty());
 
   return isMobile;
 }
@@ -71,10 +73,10 @@ function SidebarProvider({
 
   // Sync from localStorage after mount to avoid hydration mismatch
   React.useEffect(() => {
-    if (openProp !== undefined) return; // controlled mode, skip localStorage sync
+    if (P.isNotUndefined(openProp)) return; // controlled mode, skip localStorage sync
     try {
       const stored = localStorage.getItem(SIDEBAR_STORAGE_KEY);
-      if (stored !== null) {
+      if (P.isNotNull(stored)) {
         _setOpen(stored === "true");
       }
     } catch {
@@ -84,7 +86,7 @@ function SidebarProvider({
 
   const setOpen = React.useCallback(
     (value: boolean | ((value: boolean) => boolean)) => {
-      const openState = typeof value === "function" ? value(open) : value;
+      const openState = P.isFunction(value) ? value(open) : value;
       if (setOpenProp) {
         setOpenProp(openState);
       } else {
@@ -226,7 +228,7 @@ function Sidebar({
         data-slot="sidebar-container"
         className={cn("group peer text-sidebar-foreground hidden overflow-hidden md:flex", className)}
         data-state={state}
-        data-collapsible={state === "collapsed" ? collapsible : ""}
+        data-collapsible={state === "collapsed" ? collapsible : Str.empty}
         data-variant={variant}
         data-side={side}
       >
@@ -236,7 +238,7 @@ function Sidebar({
             "relative h-full w-(--sidebar-width) shrink-0 transition-[width] duration-200 ease-linear md:flex",
             "group-data-[collapsible=offcanvas]:w-0 group-data-[collapsible=offcanvas]:overflow-hidden",
             "group-data-[collapsible=icon]:w-(--sidebar-width-icon)",
-            variant === "floating" || variant === "inset" ? "p-2" : ""
+            variant === "floating" || variant === "inset" ? "p-2" : Str.empty
           )}
           {...props}
         >
@@ -262,7 +264,7 @@ function Sidebar({
       data-slot="sidebar-container"
       className="group peer text-sidebar-foreground hidden md:block"
       data-state={state}
-      data-collapsible={state === "collapsed" ? collapsible : ""}
+      data-collapsible={state === "collapsed" ? collapsible : Str.empty}
       data-variant={variant}
       data-side={side}
     >
@@ -518,7 +520,7 @@ function SidebarMenuButton({
       <TooltipContent
         side="right"
         align="center"
-        className={cn(!state || state === "expanded" || isMobile ? "hidden" : "")}
+        className={cn(!state || state === "expanded" || isMobile ? "hidden" : Str.empty)}
         {...tooltipProps}
       />
     </Tooltip>
@@ -530,7 +532,7 @@ function SidebarMenuAction({
   showOnHover = false,
   ...props
 }: React.ComponentPropsWithoutRef<"button"> & {
-  showOnHover?: undefined | boolean;
+  readonly showOnHover?: undefined | boolean;
 }) {
   return (
     <button
@@ -575,11 +577,11 @@ function SidebarMenuSkeleton({
   showIcon = false,
   ...props
 }: React.ComponentPropsWithoutRef<"div"> & {
-  showIcon?: undefined | boolean;
+  readonly showIcon?: undefined | boolean;
 }) {
   const width = React.useMemo(() => {
     return `${Math.floor(Math.random() * 40) + 50}%`;
-  }, []);
+  }, A.empty());
 
   return (
     <div
@@ -620,8 +622,8 @@ function SidebarMenuSubButton({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"a"> & {
-  size?: undefined | "sm" | "md";
-  isActive?: undefined | boolean;
+  readonly size?: undefined | "sm" | "md";
+  readonly isActive?: undefined | boolean;
 }) {
   return (
     <a

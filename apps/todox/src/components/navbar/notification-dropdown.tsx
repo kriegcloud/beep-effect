@@ -7,18 +7,29 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@beep/todox/components/ui/dropdown-menu";
+import { thunk } from "@beep/utils";
 import { BellIcon, CheckIcon, EnvelopeIcon, UserPlusIcon, WarningIcon } from "@phosphor-icons/react";
+import * as A from "effect/Array";
+import * as Match from "effect/Match";
 
-interface Notification {
+interface NotificationCommon {
   readonly id: string;
   readonly title: string;
   readonly description: string;
   readonly time: string;
   readonly read: boolean;
-  readonly type: "message" | "alert" | "user" | "system";
 }
 
-const notifications: Notification[] = [
+export type $MakeNotification<T extends string> = NotificationCommon & {
+  readonly type: T;
+};
+type Notification =
+  | $MakeNotification<"message">
+  | $MakeNotification<"alert">
+  | $MakeNotification<"user">
+  | $MakeNotification<"system">;
+
+const notifications = [
   {
     id: "1",
     title: "New message from Sarah",
@@ -51,23 +62,19 @@ const notifications: Notification[] = [
     read: true,
     type: "system",
   },
-];
-
-function NotificationIcon({ type }: { type: Notification["type"] }) {
-  switch (type) {
-    case "message":
-      return <EnvelopeIcon className="size-4" />;
-    case "alert":
-      return <WarningIcon className="size-4" />;
-    case "user":
-      return <UserPlusIcon className="size-4" />;
-    default:
-      return <BellIcon className="size-4" />;
-  }
-}
+] as const;
+const matchIcon = Match.type<Notification>().pipe(
+  Match.discriminators("type")({
+    message: () => <EnvelopeIcon className="size-4" />,
+    alert: () => <WarningIcon className="size-4" />,
+    user: () => <UserPlusIcon className="size-4" />,
+  }),
+  Match.orElse(thunk(<BellIcon className="size-4" />))
+);
+const NotificationIcon = (props: { readonly notification: Notification }) => matchIcon(props.notification);
 
 export function NotificationDropdown() {
-  const unreadCount = notifications.filter((n) => !n.read).length;
+  const unreadCount = A.filter(notifications, (n) => !n.read).length;
 
   return (
     <DropdownMenu>
@@ -95,10 +102,10 @@ export function NotificationDropdown() {
         </div>
         <DropdownMenuSeparator />
         <div className="max-h-80 overflow-y-auto">
-          {notifications.map((notification) => (
+          {A.map(notifications, (notification) => (
             <DropdownMenuItem key={notification.id} className="flex items-start gap-3 p-3 cursor-pointer">
               <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted">
-                <NotificationIcon type={notification.type} />
+                <NotificationIcon notification={notification} />
               </div>
               <div className="flex-1 space-y-1">
                 <div className="flex items-center gap-2">

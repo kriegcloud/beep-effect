@@ -1,9 +1,12 @@
 "use client";
 
-import { cn } from "@beep/todox/lib/utils";
+import {cn} from "@beep/todox/lib/utils";
 import * as A from "effect/Array";
+import * as P from "effect/Predicate";
+import * as DateTime from "effect/DateTime";
 import * as O from "effect/Option";
-import { type HTMLAttributes, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {type HTMLAttributes, useCallback, useEffect, useMemo, useRef, useState} from "react";
+import {thunkZero} from "@beep/utils";
 
 export type WaveformProps = HTMLAttributes<HTMLDivElement> & {
   readonly data?: undefined | number[];
@@ -20,7 +23,7 @@ export type WaveformProps = HTMLAttributes<HTMLDivElement> & {
 };
 
 export const Waveform = ({
-  data = [],
+  data = A.empty(),
   barWidth = 4,
   barHeight: baseBarHeight = 4,
   barGap = 2,
@@ -163,7 +166,7 @@ export const ScrollingWaveform = ({
 }: ScrollingWaveformProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const barsRef = useRef<Array<{ x: number; height: number }>>([]);
+  const barsRef = useRef<Array<{ x: number; height: number }>>(A.empty());
   const animationRef = useRef<number>(0);
   const lastTimeRef = useRef<number>(0);
   const seedRef = useRef(Math.random());
@@ -197,7 +200,7 @@ export const ScrollingWaveform = ({
           const x = Math.sin(seedRef.current * 10000 + i) * 10000;
           return x - Math.floor(x);
         };
-        const newBars: Array<{ x: number; height: number }> = [];
+        const newBars = A.empty<{ readonly x: number; readonly height: number }>();
         while (currentX > -step) {
           newBars.push({
             x: currentX,
@@ -255,7 +258,7 @@ export const ScrollingWaveform = ({
           newHeight = O.getOrElse(A.get(data, dataIndexRef.current % dataLength), () => 0.1);
           dataIndexRef.current = (dataIndexRef.current + 1) % dataLength;
         } else {
-          const time = Date.now() / 1000;
+          const time = DateTime.toEpochMillis(DateTime.unsafeNow()) / 1000;
           const currentLength = A.length(barsRef.current);
           const uniqueIndex = currentLength + time * 0.01;
           const seededRandom = (index: number) => {
@@ -343,7 +346,7 @@ export type AudioScrubberProps = WaveformProps & {
 };
 
 export const AudioScrubber = ({
-  data = [],
+  data = A.empty(),
   currentTime = 0,
   duration = 100,
   onSeek,
@@ -411,7 +414,7 @@ export const AudioScrubber = ({
     };
   }, [isDragging, duration, handleScrub]);
 
-  const heightStyle = typeof height === "number" ? `${height}px` : height;
+  const heightStyle = P.isNumber(height) ? `${height}px` : height;
 
   return (
     <div
@@ -475,13 +478,13 @@ export const MicrophoneWaveform = ({
   onError,
   ...props
 }: MicrophoneWaveformProps) => {
-  const [data, setData] = useState<number[]>([]);
+  const [data, setData] = useState<number[]>(A.empty());
   const analyserRef = useRef<AnalyserNode | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const animationIdRef = useRef<number | null>(null);
   const processingAnimationRef = useRef<number | null>(null);
-  const lastActiveDataRef = useRef<number[]>([]);
+  const lastActiveDataRef = useRef<number[]>(A.empty());
   const transitionProgressRef = useRef(0);
 
   useEffect(() => {
@@ -493,7 +496,7 @@ export const MicrophoneWaveform = ({
         time += 0.03;
         transitionProgressRef.current = Math.min(1, transitionProgressRef.current + 0.02);
 
-        const processingData = [];
+        const processingData: number[] = A.empty();
         const barCount = 45;
 
         for (let i = 0; i < barCount; i++) {
@@ -510,7 +513,7 @@ export const MicrophoneWaveform = ({
           const lastActiveDataLength = A.length(lastActiveDataRef.current);
           if (A.isNonEmptyArray(lastActiveDataRef.current) && transitionProgressRef.current < 1) {
             const lastDataIndex = Math.floor((i / barCount) * lastActiveDataLength);
-            const lastValue = O.getOrElse(A.get(lastActiveDataRef.current, lastDataIndex), () => 0);
+            const lastValue = O.getOrElse(A.get(lastActiveDataRef.current, lastDataIndex), thunkZero);
             finalValue =
               lastValue * (1 - transitionProgressRef.current) + processingValue * transitionProgressRef.current;
           }
@@ -540,7 +543,7 @@ export const MicrophoneWaveform = ({
             setData(fadedData);
             requestAnimationFrame(fadeToIdle);
           } else {
-            setData([]);
+            setData(A.empty());
           }
         };
         fadeToIdle();
@@ -554,7 +557,7 @@ export const MicrophoneWaveform = ({
       if (streamRef.current) {
         A.forEach(streamRef.current.getTracks(), (track) => track.stop());
       }
-      if (audioContextRef.current && audioContextRef.current.state !== "closed") {
+      if (P.isNotNullable(audioContextRef.current) && audioContextRef.current.state !== "closed") {
         audioContextRef.current.close();
       }
       if (animationIdRef.current) {
@@ -587,7 +590,7 @@ export const MicrophoneWaveform = ({
         const dataArray = new Uint8Array(analyser.frequencyBinCount);
 
         const updateData = () => {
-          if (!analyserRef.current || !active) return;
+          if (P.isNullable(analyserRef.current) || P.isNullable(active)) return;
 
           analyserRef.current.getByteFrequencyData(dataArray);
 
@@ -597,15 +600,15 @@ export const MicrophoneWaveform = ({
           const relevantData = A.take(A.drop(Array.from(dataArray), startFreq), endFreq - startFreq);
 
           const halfLength = Math.floor(A.length(relevantData) / 2);
-          const normalizedData: number[] = [];
+          const normalizedData: number[] = A.empty();
 
           for (let i = halfLength - 1; i >= 0; i--) {
-            const value = Math.min(1, (O.getOrElse(A.get(relevantData, i), () => 0) / 255) * sensitivity);
+            const value = Math.min(1, (O.getOrElse(A.get(relevantData, i), thunkZero) / 255) * sensitivity);
             normalizedData.push(value);
           }
 
           for (let i = 0; i < halfLength; i++) {
-            const value = Math.min(1, (O.getOrElse(A.get(relevantData, i), () => 0) / 255) * sensitivity);
+            const value = Math.min(1, (O.getOrElse(A.get(relevantData, i), thunkZero) / 255) * sensitivity);
             normalizedData.push(value);
           }
 
@@ -698,7 +701,7 @@ export const LiveMicrophoneWaveform = ({
 }: LiveMicrophoneWaveformProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const internalHistoryRef = useRef<number[]>([]);
+  const internalHistoryRef = useRef<number[]>(A.empty());
   const historyRef = savedHistoryRef || internalHistoryRef;
   const analyserRef = useRef<AnalyserNode | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
@@ -714,7 +717,7 @@ export const LiveMicrophoneWaveform = ({
 
   // Audio recording and playback refs
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const audioChunksRef = useRef<Blob[]>([]);
+  const audioChunksRef = useRef<Blob[]>(A.empty());
   const audioBufferRef = useRef<AudioBuffer | null>(null);
   const sourceNodeRef = useRef<AudioBufferSourceNode | null>(null);
   const scrubSourceRef = useRef<AudioBufferSourceNode | null>(null);
@@ -747,10 +750,10 @@ export const LiveMicrophoneWaveform = ({
 
     resizeObserver.observe(container);
     return () => resizeObserver.disconnect();
-  }, []);
+  }, A.empty());
 
   useEffect(() => {
-    if (!active) {
+    if (P.isNullable(active)) {
       if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
         mediaRecorderRef.current.stop();
       }
@@ -758,7 +761,7 @@ export const LiveMicrophoneWaveform = ({
         A.forEach(streamRef.current.getTracks(), (track) => track.stop());
       }
       // Process recorded audio when stopping
-      if (enableAudioPlayback && A.isNonEmptyArray(audioChunksRef.current)) {
+      if (P.isNotNullable(enableAudioPlayback) && A.isNonEmptyArray(audioChunksRef.current)) {
         const audioBlob = new Blob(audioChunksRef.current, {
           type: "audio/webm",
         });
@@ -768,8 +771,8 @@ export const LiveMicrophoneWaveform = ({
     }
 
     setDragOffset?.(0);
-    historyRef.current = [];
-    audioChunksRef.current = [];
+    historyRef.current = A.empty();
+    audioChunksRef.current = A.empty();
     audioBufferRef.current = null;
     setPlaybackPosition(null);
 
@@ -814,16 +817,16 @@ export const LiveMicrophoneWaveform = ({
     void setupMicrophone();
 
     return () => {
-      if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+      if (P.isNotNullable(mediaRecorderRef.current) && mediaRecorderRef.current.state !== "inactive") {
         mediaRecorderRef.current.stop();
       }
-      if (streamRef.current) {
+      if (P.isNotNullable(streamRef.current)) {
         A.forEach(streamRef.current.getTracks(), (track) => track.stop());
       }
-      if (sourceNodeRef.current) {
+      if (P.isNotNullable(sourceNodeRef.current)) {
         sourceNodeRef.current.stop();
       }
-      if (scrubSourceRef.current) {
+      if (P.isNotNullable(scrubSourceRef.current)) {
         scrubSourceRef.current.stop();
       }
     };
@@ -832,9 +835,8 @@ export const LiveMicrophoneWaveform = ({
   const processAudioBlob = async (blob: Blob) => {
     try {
       const arrayBuffer = await blob.arrayBuffer();
-      if (audioContextRef.current) {
-        const audioBuffer = await audioContextRef.current.decodeAudioData(arrayBuffer);
-        audioBufferRef.current = audioBuffer;
+      if (P.isNotNullable(audioContextRef.current)) {
+        audioBufferRef.current = await audioContextRef.current.decodeAudioData(arrayBuffer);
       }
     } catch (error) {
       console.error("Error processing audio:", error);
@@ -843,7 +845,7 @@ export const LiveMicrophoneWaveform = ({
 
   const playScrubSound = useCallback(
     (position: number, direction: number) => {
-      if (!enableAudioPlayback || !audioBufferRef.current || !audioContextRef.current) return;
+      if (P.isNullable(enableAudioPlayback) || P.isNullable(audioBufferRef.current) || P.isNullable(audioContextRef.current)) return;
 
       if (scrubSourceRef.current) {
         try {
@@ -855,9 +857,7 @@ export const LiveMicrophoneWaveform = ({
       source.buffer = audioBufferRef.current;
 
       const speed = Math.abs(direction);
-      const playbackRate = direction > 0 ? Math.min(3, 1 + speed * 0.1) : Math.max(-3, -1 - speed * 0.1);
-
-      source.playbackRate.value = playbackRate;
+      source.playbackRate.value = direction > 0 ? Math.min(3, 1 + speed * 0.1) : Math.max(-3, -1 - speed * 0.1);
 
       const filter = audioContextRef.current.createBiquadFilter();
       filter.type = "lowpass";
@@ -903,11 +903,11 @@ export const LiveMicrophoneWaveform = ({
   );
 
   useEffect(() => {
-    if (playbackPosition === null || !audioBufferRef.current) return;
+    if (P.isNull(playbackPosition) || P.isNullable(audioBufferRef.current)) return;
 
     let animationId: number;
     const updatePlaybackVisual = () => {
-      if (audioContextRef.current && sourceNodeRef.current && audioBufferRef.current) {
+      if (P.isNotNullable(audioContextRef.current) && P.isNotNullable(sourceNodeRef.current) && P.isNotNullable(audioBufferRef.current)) {
         const elapsed = audioContextRef.current.currentTime - playbackStartTimeRef.current;
         const currentPos = playbackPosition + elapsed * playbackRate;
 
@@ -942,11 +942,11 @@ export const LiveMicrophoneWaveform = ({
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    if (P.isNullable(canvas)) return;
     if (!active && historyRef.current.length === 0 && playbackPosition === null) return;
 
     const ctx = canvas.getContext("2d");
-    if (!ctx) return;
+    if (P.isNullable(ctx)) return;
 
     const animate = (currentTime: number) => {
       if (active && currentTime - lastUpdateRef.current > updateRate) {
@@ -1093,7 +1093,7 @@ export const LiveMicrophoneWaveform = ({
 
       setDragOffset?.(clampedOffset);
 
-      const now = Date.now();
+      const now = DateTime.toEpochMillis(DateTime.unsafeNow());
       if (enableAudioPlayback && audioBufferRef.current && now - lastScrubTime > 50) {
         lastScrubTime = now;
         const offsetBars = Math.floor(clampedOffset / step);
@@ -1195,14 +1195,14 @@ export const RecordingWaveform = ({
   className,
   ...props
 }: RecordingWaveformProps) => {
-  const [recordedData, setRecordedData] = useState<number[]>([]);
+  const [recordedData, setRecordedData] = useState<number[]>(A.empty());
   const [viewPosition, setViewPosition] = useState(1);
   const [isDragging, setIsDragging] = useState(false);
   const [isRecordingComplete, setIsRecordingComplete] = useState(false);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const recordingDataRef = useRef<number[]>([]);
+  const recordingDataRef = useRef<number[]>(A.empty());
   const analyserRef = useRef<AnalyserNode | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -1253,7 +1253,7 @@ export const RecordingWaveform = ({
     }
 
     setIsRecordingComplete(false);
-    recordingDataRef.current = [];
+    recordingDataRef.current = A.empty();
     setRecordedData([]);
     setViewPosition(1);
 

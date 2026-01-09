@@ -6,6 +6,7 @@ import * as A from "effect/Array";
 import * as Str from "effect/String";
 import { ArrowUpIcon, ChevronDown, Keyboard, Mic, MicOff, PhoneIcon, XIcon } from "lucide-react";
 import * as React from "react";
+import * as P from 'effect/Predicate';
 import { Button } from "./button";
 import { Card } from "./card";
 import { LiveWaveform } from "./live-waveform";
@@ -56,12 +57,12 @@ export interface ConversationBarProps {
 
 export const ConversationBar = React.forwardRef<HTMLDivElement, ConversationBarProps>(
   ({ agentId, className, waveformClassName, onConnect, onDisconnect, onError, onMessage, onSendMessage }, ref) => {
-    const [isMuted, setIsMuted] = React.useState(false);
+    const [isMuted, setIsMuted] = React.useState<boolean>(false);
     const [agentState, setAgentState] = React.useState<
       "disconnected" | "connecting" | "connected" | "disconnecting" | null
     >("disconnected");
-    const [keyboardOpen, setKeyboardOpen] = React.useState(false);
-    const [textInput, setTextInput] = React.useState("");
+    const [keyboardOpen, setKeyboardOpen] = React.useState<boolean>(false);
+    const [textInput, setTextInput] = React.useState<string>(Str.empty);
     const mediaStreamRef = React.useRef<MediaStream | null>(null);
 
     const conversation = useConversation({
@@ -81,7 +82,7 @@ export const ConversationBar = React.forwardRef<HTMLDivElement, ConversationBarP
         console.error("Error:", error);
         setAgentState("disconnected");
         const errorObj =
-          error instanceof Error ? error : new Error(typeof error === "string" ? error : JSON.stringify(error));
+          error instanceof Error ? error : new Error(P.isString(error) ? error : JSON.stringify(error));
         onError?.(errorObj);
       },
     });
@@ -93,7 +94,7 @@ export const ConversationBar = React.forwardRef<HTMLDivElement, ConversationBarP
       mediaStreamRef.current = stream;
 
       return stream;
-    }, []);
+    }, A.empty());
 
     const startConversation = React.useCallback(async () => {
       if (!agentId) {
@@ -145,7 +146,7 @@ export const ConversationBar = React.forwardRef<HTMLDivElement, ConversationBarP
 
       const messageToSend = textInput;
       conversation.sendUserMessage(messageToSend);
-      setTextInput("");
+      setTextInput(Str.empty);
       onSendMessage?.(messageToSend);
     }, [conversation, textInput, onSendMessage]);
 
@@ -165,7 +166,7 @@ export const ConversationBar = React.forwardRef<HTMLDivElement, ConversationBarP
 
     const handleKeyDown = React.useCallback(
       (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-        if (e.key === "Enter" && !e.shiftKey) {
+        if (e.key === "Enter" && P.isNullable(e.shiftKey)) {
           e.preventDefault();
           handleSendText();
         }
@@ -235,7 +236,7 @@ export const ConversationBar = React.forwardRef<HTMLDivElement, ConversationBarP
                     size="icon"
                     onClick={toggleMute}
                     aria-pressed={isMuted}
-                    className={cn(isMuted ? "bg-foreground/5" : "")}
+                    className={cn(isMuted ? "bg-foreground/5" : Str.empty)}
                     disabled={!isConnected}
                   >
                     {isMuted ? <MicOff /> : <Mic />}

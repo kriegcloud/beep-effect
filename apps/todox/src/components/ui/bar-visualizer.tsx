@@ -1,8 +1,11 @@
 "use client";
 
+import { BS } from "@beep/schema";
 import { cn } from "@beep/todox/lib/utils";
 import * as A from "effect/Array";
+import * as DateTime from "effect/DateTime";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import * as React from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 
@@ -21,11 +24,11 @@ function createAudioAnalyser(mediaStream: MediaStream, options: AudioAnalyserOpt
   const analyser = audioContext.createAnalyser();
 
   if (options.fftSize) analyser.fftSize = options.fftSize;
-  if (options.smoothingTimeConstant !== undefined) {
+  if (P.isNotUndefined(options.smoothingTimeConstant)) {
     analyser.smoothingTimeConstant = options.smoothingTimeConstant;
   }
-  if (options.minDecibels !== undefined) analyser.minDecibels = options.minDecibels;
-  if (options.maxDecibels !== undefined) analyser.maxDecibels = options.maxDecibels;
+  if (P.isNotUndefined(options.minDecibels)) analyser.minDecibels = options.minDecibels;
+  if (P.isNotUndefined(options.maxDecibels)) analyser.maxDecibels = options.maxDecibels;
 
   source.connect(analyser);
 
@@ -58,7 +61,7 @@ export function useAudioVolume(
   );
 
   useEffect(() => {
-    if (!mediaStream) {
+    if (P.isNullable(mediaStream)) {
       setVolume(0);
       volumeRef.current = 0;
       return;
@@ -226,30 +229,42 @@ export function useMultibandVolume(mediaStream?: undefined | MediaStream | null,
   return frequencyBands;
 }
 
-type AnimationState = "connecting" | "initializing" | "listening" | "speaking" | "thinking" | undefined;
+// type AnimationState = "connecting" | "initializing" | "listening" | "speaking" | "thinking" | undefined;
 
-export const useBarAnimator = (state: AnimationState, columns: number, interval: number): number[] => {
+export class AnimationState extends BS.StringLiteralKit(
+  "connecting",
+  "initializing",
+  "listening",
+  "speaking",
+  "thinking"
+) {}
+
+export namespace AnimationState {
+  export type Type = typeof AnimationState.Type;
+}
+
+export const useBarAnimator = (state: undefined | AnimationState.Type, columns: number, interval: number): number[] => {
   const indexRef = useRef(0);
-  const [currentFrame, setCurrentFrame] = useState<number[]>([]);
+  const [currentFrame, setCurrentFrame] = useState<number[]>(A.empty());
   const animationFrameId = useRef<number | null>(null);
 
   // Memoize sequence generation
   const sequence = useMemo(() => {
-    if (state === "thinking" || state === "listening") {
+    if (AnimationState.is.thinking(state) || AnimationState.is.listening(state)) {
       return generateListeningSequenceBar(columns);
     }
-    if (state === "connecting" || state === "initializing") {
+    if (AnimationState.is.connecting(state) || AnimationState.is.initializing(state)) {
       return generateConnectingSequenceBar(columns);
     }
-    if (state === undefined || state === "speaking") {
+    if (P.isNotUndefined(state) || AnimationState.is.speaking(state)) {
       return [A.makeBy(columns, (idx) => idx)];
     }
-    return [[]];
+    return A.make(A.empty());
   }, [state, columns]);
 
   useEffect(() => {
     indexRef.current = 0;
-    setCurrentFrame(O.getOrElse(A.get(sequence, 0), () => []));
+    setCurrentFrame(O.getOrElse(A.get(sequence, 0), A.empty));
   }, [sequence]);
 
   useEffect(() => {
@@ -260,7 +275,7 @@ export const useBarAnimator = (state: AnimationState, columns: number, interval:
 
       if (timeElapsed >= interval) {
         indexRef.current = (indexRef.current + 1) % A.length(sequence);
-        setCurrentFrame(O.getOrElse(A.get(sequence, indexRef.current), () => []));
+        setCurrentFrame(O.getOrElse(A.get(sequence, indexRef.current), A.empty));
         startTime = time;
       }
 
@@ -270,7 +285,7 @@ export const useBarAnimator = (state: AnimationState, columns: number, interval:
     animationFrameId.current = requestAnimationFrame(animate);
 
     return () => {
-      if (animationFrameId.current !== null) {
+      if (P.isNotNull(animationFrameId.current)) {
         cancelAnimationFrame(animationFrameId.current);
       }
     };
@@ -340,7 +355,7 @@ const BarVisualizerComponent = React.forwardRef<HTMLDivElement, BarVisualizerPro
     useEffect(() => {
       if (!demo) return;
 
-      if (state !== "speaking" && state !== "listening") {
+      if (AnimationState.is.speaking(state) && AnimationState.is.listening(state)) {
         const bands = A.replicate(0.2, barCount);
         fakeVolumeBandsRef.current = bands;
         setFakeVolumeBands(bands);
@@ -349,11 +364,11 @@ const BarVisualizerComponent = React.forwardRef<HTMLDivElement, BarVisualizerPro
 
       let lastUpdate = 0;
       const updateInterval = 50;
-      const startTime = Date.now() / 1000;
+      const startTime = DateTime.toEpochMillis(DateTime.unsafeNow()) / 1000;
 
       const updateFakeVolume = (timestamp: number) => {
         if (timestamp - lastUpdate >= updateInterval) {
-          const time = Date.now() / 1000 - startTime;
+          const time = DateTime.toEpochMillis(DateTime.unsafeNow()) / 1000 - startTime;
           const newBands = A.makeBy(barCount, (i) => {
             const waveOffset = i * 0.5;
             const baseVolume = Math.sin(time * 2 + waveOffset) * 0.3 + 0.5;
@@ -400,7 +415,13 @@ const BarVisualizerComponent = React.forwardRef<HTMLDivElement, BarVisualizerPro
     const highlightedIndices = useBarAnimator(
       state,
       barCount,
-      state === "connecting" ? 2000 / barCount : state === "thinking" ? 150 : state === "listening" ? 500 : 1000
+      AnimationState.is.connecting(state)
+        ? 2000 / barCount
+        : AnimationState.is.thinking(state)
+          ? 150
+          : AnimationState.is.listening(state)
+            ? 500
+            : 1000
     );
 
     return (
@@ -441,8 +462,8 @@ const Bar = React.memo<{
       "max-w-[12px] min-w-[8px] flex-1 transition-all duration-150",
       "rounded-full",
       "bg-border data-[highlighted=true]:bg-primary",
-      state === "speaking" && "bg-primary",
-      state === "thinking" && isHighlighted && "animate-pulse"
+      AnimationState.is.speaking(state) && "bg-primary",
+      AnimationState.is.thinking(state) && isHighlighted && "animate-pulse"
     )}
     style={{
       height: `${heightPct}%`,

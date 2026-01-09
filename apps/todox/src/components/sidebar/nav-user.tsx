@@ -45,8 +45,8 @@ export function NavUser({ user }: NavUserProps) {
   const initials = F.pipe(
     user.name,
     Str.split(" "),
-    A.map((n) => n[0] ?? ""),
-    A.join(""),
+    A.map((n) => n[0] ?? Str.empty),
+    A.join(Str.empty),
     Str.toUpperCase,
     Str.slice(0, 2)
   );
@@ -123,10 +123,10 @@ export function NavUser({ user }: NavUserProps) {
               <span className="text-sm">Theme</span>
               <ToggleGroup
                 className="pointer-events-auto"
-                value={theme === "system" ? ["system"] : theme === "light" ? ["light"] : ["dark"]}
+                value={theme === "system" ? A.make("system") : theme === "light" ? A.make("light") : A.make("dark")}
                 onValueChange={(value) => {
-                  if (value.length > 0) {
-                    setTheme(value[0] as string);
+                  if (A.isNonEmptyArray(value)) {
+                    setTheme(A.headNonEmpty(value));
                   }
                 }}
                 variant="outline"

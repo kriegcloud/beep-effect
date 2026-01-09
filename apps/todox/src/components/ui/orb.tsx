@@ -152,7 +152,7 @@ function Scene({
       attributeFilter: ["class"],
     });
     return () => observer.disconnect();
-  }, []);
+  }, A.empty());
 
   useFrame((_, delta: number) => {
     const mat = circleRef.current?.material;

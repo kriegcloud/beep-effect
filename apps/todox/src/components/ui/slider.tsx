@@ -1,12 +1,13 @@
 "use client";
 
-import { Slider as SliderPrimitive } from "@base-ui/react/slider";
-import { cn } from "@beep/todox/lib/utils";
+import {Slider as SliderPrimitive} from "@base-ui/react/slider";
+import {cn} from "@beep/todox/lib/utils";
 import * as React from "react";
-
-function Slider({ className, defaultValue, value, min = 0, max = 100, ...props }: SliderPrimitive.Root.Props) {
+import * as A from "effect/Array";
+import { thunk } from "@beep/utils";
+function Slider({className, defaultValue, value, min = 0, max = 100, ...props}: SliderPrimitive.Root.Props) {
   const _values = React.useMemo(
-    () => (Array.isArray(value) ? value : Array.isArray(defaultValue) ? defaultValue : [min, max]),
+    thunk(A.isArray(value) ? value : A.isArray(defaultValue) ? defaultValue : A.make(min, max)),
     [value, defaultValue, min, max]
   );
 
@@ -36,7 +37,7 @@ function Slider({ className, defaultValue, value, min = 0, max = 100, ...props }
             className="bg-primary select-none data-horizontal:h-full data-vertical:w-full"
           />
         </SliderPrimitive.Track>
-        {Array.from({ length: _values.length }, (_, index) => (
+        {Array.from({length: _values.length}, (_, index) => (
           <SliderPrimitive.Thumb
             data-slot="slider-thumb"
             key={index}
@@ -48,4 +49,4 @@ function Slider({ className, defaultValue, value, min = 0, max = 100, ...props }
   );
 }
 
-export { Slider };
+export {Slider};

@@ -5,6 +5,7 @@ import { cn } from "@beep/todox/lib/utils";
 import { CaretLeftIcon, CaretRightIcon } from "@phosphor-icons/react";
 import useEmblaCarousel, { type UseEmblaCarouselType } from "embla-carousel-react";
 import * as React from "react";
+import * as A from 'effect/Array';
 
 type CarouselApi = UseEmblaCarouselType[1];
 type UseCarouselParameters = Parameters<typeof useEmblaCarousel>;
@@ -62,11 +63,11 @@ function Carousel({
     if (!api) return;
     setCanScrollPrev(api.canScrollPrev());
     setCanScrollNext(api.canScrollNext());
-  }, []);
+  }, A.empty());
 
   const scrollPrev = React.useCallback(() => {
     api?.scrollPrev();
-  }, [api]);
+  }, A.make(api));
 
   const scrollNext = React.useCallback(() => {
     api?.scrollNext();
@@ -88,7 +89,7 @@ function Carousel({
   React.useEffect(() => {
     if (!api || !setApi) return;
     setApi(api);
-  }, [api, setApi]);
+  }, A.make(api, setApi));
 
   React.useEffect(() => {
     if (!api) return;
@@ -99,7 +100,7 @@ function Carousel({
     return () => {
       api?.off("select", onSelect);
     };
-  }, [api, onSelect]);
+  }, A.make(api, onSelect));
 
   return (
     <CarouselContext.Provider

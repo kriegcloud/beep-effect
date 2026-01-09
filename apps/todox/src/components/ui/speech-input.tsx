@@ -168,7 +168,7 @@ const SpeechInput = forwardRef<HTMLDivElement, SpeechInputProps>(function Speech
 ) {
   const transcriptsRef = useRef({
     partialTranscript: "",
-    committedTranscripts: [] as string[],
+    committedTranscripts: A.empty<string>(),
   });
   const startRequestIdRef = useRef(0);
 
@@ -205,8 +205,8 @@ const SpeechInput = forwardRef<HTMLDivElement, SpeechInputProps>(function Speech
     startRequestIdRef.current = requestId;
 
     transcriptsRef.current = {
-      partialTranscript: "",
-      committedTranscripts: [],
+      partialTranscript: Str.empty,
+      committedTranscripts: A.empty(),
     };
     scribe.clearTranscripts();
 
@@ -242,8 +242,8 @@ const SpeechInput = forwardRef<HTMLDivElement, SpeechInputProps>(function Speech
     scribe.disconnect();
     scribe.clearTranscripts();
     transcriptsRef.current = {
-      partialTranscript: "",
-      committedTranscripts: [],
+      partialTranscript: Str.empty,
+      committedTranscripts: A.empty(),
     };
     onCancel?.(event);
   };
@@ -267,7 +267,7 @@ const SpeechInput = forwardRef<HTMLDivElement, SpeechInputProps>(function Speech
       startRequestIdRef.current += 1;
       scribe.disconnect();
     };
-  }, [scribe.disconnect]);
+  }, A.make(scribe.disconnect));
 
   return (
     <SpeechInputContext.Provider value={contextValue}>
@@ -275,7 +275,7 @@ const SpeechInput = forwardRef<HTMLDivElement, SpeechInputProps>(function Speech
         ref={ref}
         className={cn(
           "relative inline-flex items-center overflow-hidden rounded-lg border border-transparent transition-all duration-200",
-          scribe.isConnected ? "bg-background dark:bg-muted border-input shadow-sm" : "",
+          scribe.isConnected ? "bg-background dark:bg-muted border-input shadow-sm" : Str.empty,
           className
         )}
       >
@@ -354,7 +354,7 @@ const SpeechInputPreview = forwardRef<HTMLDivElement, SpeechInputPreviewProps>(f
     <div
       ref={ref}
       // @ts-expect-error inert is not yet in React types
-      inert={speechInput.isConnected ? undefined : ""}
+      inert={speechInput.isConnected ? undefined : Str.empty}
       className={cn(
         "relative flex h-8 flex-shrink-0 items-center overflow-hidden text-sm transition-[opacity,transform,width] duration-200 ease-out",
         showPlaceholder

@@ -47,8 +47,8 @@ function ComboboxInput({
   showClear = false,
   ...props
 }: ComboboxPrimitive.Input.Props & {
-  readonly showTrigger?: undefined | undefined | boolean;
-  readonly showClear?: undefined | undefined | boolean;
+  readonly showTrigger?: undefined | boolean;
+  readonly showClear?: undefined | boolean;
 }) {
   return (
     <InputGroup className={cn("w-auto", className)}>
@@ -201,7 +201,7 @@ function ComboboxChip({
   showRemove = true,
   ...props
 }: ComboboxPrimitive.Chip.Props & {
-  showRemove?: undefined | boolean;
+  readonly showRemove?: undefined | boolean;
 }) {
   return (
     <ComboboxPrimitive.Chip

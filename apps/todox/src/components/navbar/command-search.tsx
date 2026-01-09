@@ -21,7 +21,7 @@ import {
   UserIcon,
 } from "@phosphor-icons/react";
 import * as React from "react";
-
+import * as A from "effect/Array";
 export function CommandSearch() {
   const [open, setOpen] = React.useState(false);
 
@@ -35,7 +35,7 @@ export function CommandSearch() {
 
     document.addEventListener("keydown", down);
     return () => document.removeEventListener("keydown", down);
-  }, []);
+  }, A.empty());
 
   return (
     <>

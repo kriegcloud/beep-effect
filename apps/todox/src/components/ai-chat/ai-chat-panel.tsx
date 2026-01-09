@@ -20,7 +20,7 @@ import * as React from "react";
 const AI_CHAT_WIDTH = "368px"; // 320px content + 48px for mini sidebar
 
 interface AIChatPanelTriggerProps {
-  readonly className?: string;
+  readonly className?: undefined | string;
 }
 
 function AIChatPanelTrigger({ className }: AIChatPanelTriggerProps) {

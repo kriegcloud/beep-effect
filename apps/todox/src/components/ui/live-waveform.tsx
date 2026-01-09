@@ -53,16 +53,16 @@ export const LiveWaveform = ({
 }: LiveWaveformProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const historyRef = useRef<number[]>([]);
+  const historyRef = useRef<number[]>(A.empty());
   const analyserRef = useRef<AnalyserNode | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const animationRef = useRef<number>(0);
   const lastUpdateRef = useRef<number>(0);
   const processingAnimationRef = useRef<number | null>(null);
-  const lastActiveDataRef = useRef<number[]>([]);
+  const lastActiveDataRef = useRef<number[]>(A.empty());
   const transitionProgressRef = useRef(0);
-  const staticBarsRef = useRef<number[]>([]);
+  const staticBarsRef = useRef<number[]>(A.empty());
   const needsRedrawRef = useRef(true);
   const gradientCacheRef = useRef<CanvasGradient | null>(null);
   const lastWidthRef = useRef(0);
@@ -188,9 +188,9 @@ export const LiveWaveform = ({
             requestAnimationFrame(fadeToIdle);
           } else {
             if (mode === "static") {
-              staticBarsRef.current = [];
+              staticBarsRef.current = A.empty();
             } else {
-              historyRef.current = [];
+              historyRef.current = A.empty();
             }
           }
         };
@@ -251,7 +251,7 @@ export const LiveWaveform = ({
         analyserRef.current = analyser;
 
         // Clear history when starting
-        historyRef.current = [];
+        historyRef.current = A.empty();
       } catch (error) {
         onError?.(error as Error);
       }
@@ -382,7 +382,7 @@ export const LiveWaveform = ({
             ? staticBarsRef.current
             : A.length(staticBarsRef.current) > 0
               ? staticBarsRef.current
-              : [];
+              : A.empty();
 
         for (let i = 0; i < barCount && i < A.length(dataToRender); i++) {
           const value = dataToRender[i] || 0.1;

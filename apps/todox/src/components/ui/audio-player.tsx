@@ -3,6 +3,12 @@ import { BS } from "@beep/schema";
 import { cn } from "@beep/todox/lib/utils";
 import * as SliderPrimitive from "@radix-ui/react-slider";
 import * as A from "effect/Array";
+import * as O from "effect/Option";
+// import * as F from "effect/Function";
+//
+import * as Str from "effect/String";
+// import * as Match from "effect/Match";
+import * as P from "effect/Predicate";
 import { Check, PauseIcon, PlayIcon, Settings } from "lucide-react";
 import type * as React from "react";
 import type { ComponentProps, HTMLProps, ReactNode, RefObject } from "react";
@@ -43,7 +49,7 @@ function formatTime(seconds: number) {
 interface AudioPlayerItem<TData = unknown> {
   id: string | number;
   src: string;
-  data?: TData;
+  data?: undefined | TData;
 }
 
 interface AudioPlayerApi<TData = unknown> {
@@ -56,7 +62,7 @@ interface AudioPlayerApi<TData = unknown> {
   playbackRate: number;
   isItemActive: (id: string | number | null) => boolean;
   setActiveItem: (item: AudioPlayerItem<TData> | null) => Promise<void>;
-  play: (item?: AudioPlayerItem<TData> | null) => Promise<void>;
+  play: (item?: undefined | AudioPlayerItem<TData> | null) => Promise<void>;
   pause: () => void;
   seek: (time: number) => void;
   setPlaybackRate: (rate: number) => void;
@@ -76,7 +82,7 @@ const AudioPlayerTimeContext = createContext<number | null>(null);
 
 export const useAudioPlayerTime = () => {
   const time = useContext(AudioPlayerTimeContext);
-  if (time === null) {
+  if (P.isNull(time)) {
     throw new Error("useAudioPlayerTime cannot be called outside of AudioPlayerProvider");
   }
   return time;
@@ -96,7 +102,7 @@ export function AudioPlayerProvider<TData = unknown>({ children }: { children: R
   const [playbackRate, setPlaybackRateState] = useState<number>(1);
 
   const setActiveItem = useCallback(async (item: AudioPlayerItem<TData> | null) => {
-    if (!audioRef.current) return;
+    if (P.isNullable(audioRef.current)) return;
 
     if (item?.id === itemRef.current?.id) {
       return;
@@ -105,20 +111,20 @@ export function AudioPlayerProvider<TData = unknown>({ children }: { children: R
     const currentRate = audioRef.current.playbackRate;
     audioRef.current.pause();
     audioRef.current.currentTime = 0;
-    if (item === null) {
+    if (P.isNull(item)) {
       audioRef.current.removeAttribute("src");
     } else {
       audioRef.current.src = item.src;
     }
     audioRef.current.load();
     audioRef.current.playbackRate = currentRate;
-  }, []);
+  }, A.empty());
 
   const play = useCallback(
     async (item?: AudioPlayerItem<TData> | null) => {
-      if (!audioRef.current) return;
+      if (P.isNullable(audioRef.current)) return;
 
-      if (playPromiseRef.current) {
+      if (P.isNotNullable(playPromiseRef.current)) {
         try {
           await playPromiseRef.current;
         } catch (error) {
@@ -126,7 +132,7 @@ export function AudioPlayerProvider<TData = unknown>({ children }: { children: R
         }
       }
 
-      if (item === undefined) {
+      if (P.isUndefined(item)) {
         const playPromise = audioRef.current.play();
         playPromiseRef.current = playPromise;
         return playPromise;
@@ -143,7 +149,7 @@ export function AudioPlayerProvider<TData = unknown>({ children }: { children: R
         audioRef.current.pause();
       }
       audioRef.current.currentTime = 0;
-      if (item === null) {
+      if (P.isNull(item)) {
         audioRef.current.removeAttribute("src");
       } else {
         audioRef.current.src = item.src;
@@ -158,9 +164,9 @@ export function AudioPlayerProvider<TData = unknown>({ children }: { children: R
   );
 
   const pause = useCallback(async () => {
-    if (!audioRef.current) return;
+    if (P.isNullable(audioRef.current)) return;
 
-    if (playPromiseRef.current) {
+    if (P.isNotNullable(playPromiseRef.current)) {
       try {
         await playPromiseRef.current;
       } catch (e) {
@@ -170,18 +176,18 @@ export function AudioPlayerProvider<TData = unknown>({ children }: { children: R
 
     audioRef.current.pause();
     playPromiseRef.current = null;
-  }, []);
+  }, A.empty());
 
   const seek = useCallback((time: number) => {
-    if (!audioRef.current) return;
+    if (P.isNullable(audioRef.current)) return;
     audioRef.current.currentTime = time;
-  }, []);
+  }, A.empty());
 
   const setPlaybackRate = useCallback((rate: number) => {
-    if (!audioRef.current) return;
+    if (P.isNullable(audioRef.current)) return;
     audioRef.current.playbackRate = rate;
     setPlaybackRateState(rate);
-  }, []);
+  }, A.empty());
 
   const isItemActive = useCallback(
     (id: string | number | null) => {
@@ -243,20 +249,10 @@ export function AudioPlayerProvider<TData = unknown>({ children }: { children: R
   return (
     <AudioPlayerContext.Provider value={api as AudioPlayerApi}>
       <AudioPlayerTimeContext.Provider value={time}>
-        {/* Biome: Provide a track for captions when using audio or video elements. (lint/a11y/useMediaCaption)
-            JSX.IntrinsicElements
-audio: React.DetailedHTMLProps<React.AudioHTMLAttributes<HTMLAudioElement>, HTMLAudioElement>
-
-
-Widely available across major browsers
-Chrome 3, Chrome Android 18, Edge 12, Firefox 3.5, Firefox Android 4, Opera 10.5, Safari 3.1, Safari iOS 3
-Baseline since 2015
-The <audio> HTML   element is used to embed sound content in documents. It may contain one or more audio sources, represented using the src attribute or the <source>   element: the browser will choose the most suitable one. It can also be the destination for streamed media, using a MediaStream  .
-The above example shows basic usage of the <audio> element. In a similar manner to the <img>   element, we include a path to the media we want to embed inside the src attribute; we can include other attributes to specify information such as whether we want it to autoplay and loop, whether we want to show the browser's default audio controls, etc.
-The content inside the opening and closing <audio></audio> tags is shown as a fallback in browsers that don't support the element
-        TODO REMOVE WHEN FIXED */}
-        {/* biome-ignore lint/a11y/useMediaCaption: Audio player manages captions externally when needed */}
-        <audio ref={audioRef} className="hidden" crossOrigin="anonymous" />
+        {/* */}
+        <audio ref={audioRef} className="hidden" crossOrigin="anonymous">
+          <track kind="captions" />
+        </audio>
         {children}
       </AudioPlayerTimeContext.Provider>
     </AudioPlayerContext.Provider>
@@ -275,9 +271,9 @@ export const AudioPlayerProgress = ({
       {...otherProps}
       value={[time]}
       onValueChange={(vals) => {
-        const value = vals[0];
-        if (value !== undefined) {
-          player.seek(value);
+        const valueOption = A.head(vals);
+        if (O.isSome(valueOption)) {
+          player.seek(valueOption.value);
         }
         otherProps.onValueChange?.(vals);
       }}
@@ -494,7 +490,7 @@ export function AudioPlayerSpeed({
             onClick={() => player.setPlaybackRate(speed)}
             className="flex items-center justify-between"
           >
-            <span className={speed === 1 ? "" : "font-mono"}>{speed === 1 ? "Normal" : `${speed}x`}</span>
+            <span className={speed === 1 ? Str.empty : "font-mono"}>{speed === 1 ? "Normal" : `${speed}x`}</span>
             {currentSpeed === speed && <Check className="size-4" />}
           </DropdownMenuItem>
         ))}
