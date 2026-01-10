@@ -379,7 +379,7 @@ describe("CreateSliceError union type", () => {
 describe("Error integration with Effect", () => {
   it("should chain errors using Effect.mapError", async () => {
     const program = F.pipe(
-      Effect.fail(new Error("original error")),
+      Effect.fail(new SliceExistsError({ sliceName: "original-slice" })),
       Effect.mapError(
         (cause) =>
           new FileWriteError({
