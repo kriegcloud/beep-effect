@@ -81,10 +81,29 @@ import * as P from "effect/Predicate";
       "agent": "effect-predicate-master"
     }
   ],
+  "architecturalObservations": [
+    {
+      "category": "A1 | A2 | A3 | A4",
+      "title": "Brief descriptive title",
+      "lines": [15, 16, 17],
+      "currentPattern": "Description of current approach",
+      "issue": "Why this is suboptimal",
+      "opportunity": "What could be done instead",
+      "complexity": "Low | Medium | High",
+      "dependencies": ["file1.ts", "file2.ts"],
+      "notes": "Additional context for synthesis"
+    }
+  ],
   "recommendedAgent": "effect-schema-expert | effect-predicate-master",
   "notes": "Any special considerations for this file"
 }
 ```
+
+### Architectural Observation Categories (see RUBRICS.md for details)
+- **A1**: Composition over inheritance opportunities
+- **A2**: Discriminated unions for exhaustiveness & type-safety
+- **A3**: Effect for error handling, debugging, tracing, telemetry, concurrency
+- **A4**: Performance enhancement opportunities
 
 ## Do NOT
 - Fix any issues (analysis only)

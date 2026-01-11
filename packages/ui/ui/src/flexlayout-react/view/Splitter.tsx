@@ -123,9 +123,11 @@ export const Splitter = (props: ISplitterProps) => {
         return;
       }
       if (node.getOrientation() === Orientation.VERT) {
-        outlineDiv.current!.style.top = `${getBoundPosition(y - clientRect.y - dragStartY.current)}px`;
+        const newTop = getBoundPosition(y - clientRect.y - dragStartY.current);
+        outlineDiv.current!.style.top = `${newTop}px`;
       } else {
-        outlineDiv.current!.style.left = `${getBoundPosition(x - clientRect.x - dragStartX.current)}px`;
+        const newLeft = getBoundPosition(x - clientRect.x - dragStartX.current);
+        outlineDiv.current!.style.left = `${newLeft}px`;
       }
 
       if (layout.isRealtimeResize()) {
@@ -250,10 +252,11 @@ export const Splitter = (props: ISplitterProps) => {
     style2.height = "100%";
     style2.width = `${size + extra}px`;
     style2.cursor = "ew-resize";
+  } else {
+    style2.height = `${size + extra}px`;
+    style2.width = "100%";
+    style2.cursor = "ns-resize";
   }
-  style2.height = `${size + extra}px`;
-  style2.width = "100%";
-  style2.cursor = "ns-resize";
 
   const className2 = cm(CLASSES.FLEXLAYOUT__SPLITTER_EXTRA);
 

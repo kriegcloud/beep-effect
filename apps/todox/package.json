@@ -162,13 +162,14 @@
     "ol": "^10.7.0"
   },
   "devDependencies": {
-    "@types/prismjs": "^1.26.5",
     "@beep/build-utils": "workspace:",
     "@elevenlabs/elevenlabs-js": "catalog:",
     "@tailwindcss/postcss": "catalog:",
     "@types/node": "catalog:",
+    "@types/prismjs": "^1.26.5",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
+    "sass": "^1.97.2",
     "tailwindcss": "catalog:",
     "typescript": "catalog:"
   },

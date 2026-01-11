@@ -1,5 +1,5 @@
 import { DataGrid, type GridColDef } from "@mui/x-data-grid";
-
+import Box from "@mui/material/Box";
 const columns: GridColDef<(typeof rows)[number]>[] = [
   { field: "id", headerName: "ID", width: 90 },
   {
@@ -45,7 +45,11 @@ const rows = [
 
 export default function DataGridDemo() {
   return (
-    <DataGrid
+    <Box sx={{
+      display: "flex",
+      flexDirection: "column",
+    }}>
+     <DataGrid
       rows={rows}
       columns={columns}
       initialState={{
@@ -59,5 +63,7 @@ export default function DataGridDemo() {
       checkboxSelection
       disableRowSelectionOnClick
     />
+    </Box>
+
   );
 }

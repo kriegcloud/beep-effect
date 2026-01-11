@@ -1,5 +1,8 @@
 import type { UnsafeTypes } from "@beep/types";
+import * as A from "effect/Array";
 import * as Data from "effect/Data";
+import * as F from "effect/Function";
+import * as O from "effect/Option";
 import * as Pipeable from "effect/Pipeable";
 import type { AttributeDefinitions } from "../AttributeDefinitions";
 import { DockLocation } from "../DockLocation";
@@ -115,9 +118,13 @@ export abstract class Node extends Data.Class {
   /** @internal */
   fireEvent(event: string, params: UnsafeTypes.UnsafeAny) {
     // console.log(this._type, " fireEvent " + event + " " + JSON.stringify(params));
-    if (this.listeners.has(event)) {
-      this.listeners.get(event)!(params);
-    }
+    F.pipe(
+      O.fromNullable(this.listeners.get(event)),
+      O.match({
+        onNone: () => {},
+        onSome: (listener) => listener(params),
+      }),
+    );
   }
 
   /** @internal */
@@ -139,16 +146,14 @@ export abstract class Node extends Data.Class {
   forEachNode(fn: (node: Node, level: number) => void, level: number) {
     fn(this, level);
     level++;
-    for (const node of this.children) {
+    A.forEach(this.children, (node) => {
       node.forEachNode(fn, level);
-    }
+    });
   }
 
   /** @internal */
   setPaths(path: string) {
-    let i = 0;
-
-    for (const node of this.children) {
+    A.forEach(this.children, (node, i) => {
       let newPath = path;
       if (node.getType() === "row") {
         newPath += `/r${i}`;
@@ -161,8 +166,7 @@ export abstract class Node extends Data.Class {
       node.path = newPath;
 
       node.setPaths(newPath);
-      i++;
-    }
+    });
   }
 
   /** @internal */
@@ -200,12 +204,15 @@ export abstract class Node extends Data.Class {
         rtn = this.canDrop(dragNode, x, y);
         if (rtn === undefined) {
           if (this.children.length !== 0) {
-            for (const child of this.children) {
-              rtn = child.findDropTargetNode(windowId, dragNode, x, y);
-              if (rtn !== undefined) {
-                break;
-              }
-            }
+            rtn = F.pipe(
+              this.children,
+              A.findFirst((child) => {
+                const dropInfo = child.findDropTargetNode(windowId, dragNode, x, y);
+                return dropInfo !== undefined;
+              }),
+              O.flatMap((child) => O.fromNullable(child.findDropTargetNode(windowId, dragNode, x, y))),
+              O.getOrUndefined,
+            );
           }
         }
       }
@@ -248,20 +255,28 @@ export abstract class Node extends Data.Class {
   }
 
   /** @internal */
-  removeChild(childNode: Node) {
-    const pos = this.children.indexOf(childNode);
-    if (pos !== -1) {
-      this.children.splice(pos, 1);
-    }
-    return pos;
+  removeChild(childNode: Node): number {
+    return F.pipe(
+      A.findFirstIndex(this.children, (child) => child === childNode),
+      O.match({
+        onNone: () => -1,
+        onSome: (pos) => {
+          this.children = A.remove(this.children, pos);
+          return pos;
+        },
+      }),
+    );
   }
 
   /** @internal */
-  addChild(childNode: Node, pos?: undefined | number) {
+  addChild(childNode: Node, pos?: undefined | number): number {
     if (pos != null) {
-      this.children.splice(pos, 0, childNode);
+      this.children = F.pipe(
+        A.insertAt(this.children, pos, childNode),
+        O.getOrElse(() => this.children),
+      );
     } else {
-      this.children.push(childNode);
+      this.children = A.append(this.children, childNode);
       pos = this.children.length - 1;
     }
     childNode.parent = this;
@@ -284,6 +299,19 @@ export abstract class Node extends Data.Class {
   /** @internal */
   isEnableDivide() {
     return true;
+  }
+
+  /**
+   * Custom toJSON for safe serialization (e.g., console.log, JSON.stringify).
+   * This prevents serialization tools from traversing into model/parent references,
+   * which could lead to cross-origin Window references and throw SecurityError.
+   */
+  toJSON(): { type: string; id: string; attributes: Record<string, UnsafeTypes.UnsafeAny> } {
+    return {
+      type: this.getType(),
+      id: this.getId(),
+      attributes: { ...this.attributes },
+    };
   }
 
   /** @internal */

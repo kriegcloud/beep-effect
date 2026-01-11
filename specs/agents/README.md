@@ -23,6 +23,7 @@ This directory contains individual specs for each agent to be created as part of
 | [doc-writer](./doc-writer/README.md) | JSDoc and markdown documentation | 400-500 | Draft |
 | [architecture-pattern-enforcer](./architecture-pattern-enforcer/README.md) | Structure and layering validation | 450-550 | Draft |
 | [test-writer](./test-writer/README.md) | Effect-first test creation | 500-600 | Draft |
+| [spec-reviewer](./spec-reviewer/README.md) | Spec structure and context engineering review | 400-500 | Created |
 
 ---
 
@@ -41,11 +42,12 @@ Based on dependencies and foundational importance:
 ### Tier 3: Quality Agents
 5. **code-reviewer** - Repository guideline enforcement
 6. **architecture-pattern-enforcer** - Structure validation
+7. **spec-reviewer** - Spec structure and context engineering review
 
 ### Tier 4: Writer Agents
-7. **code-observability-writer** - Observability instrumentation
-8. **doc-writer** - Documentation creation
-9. **test-writer** - Test generation
+8. **code-observability-writer** - Observability instrumentation
+9. **doc-writer** - Documentation creation
+10. **test-writer** - Test generation
 
 ---
 
@@ -161,7 +163,7 @@ Never use:
 
 The agent specs are complete when:
 
-- [ ] All 9 agent definitions created in `.claude/agents/`
+- [ ] All 10 agent definitions created in `.claude/agents/`
 - [ ] Each agent follows template structure
 - [ ] All code examples use Effect patterns
 - [ ] All file references are valid

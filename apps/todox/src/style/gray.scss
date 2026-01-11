@@ -1,6 +1,0 @@
-@use "base";
-@use "themes";
-
-@include themes.gray_theme;
-@include base.baseMixin;
-@include themes.gray_theme_overrides;

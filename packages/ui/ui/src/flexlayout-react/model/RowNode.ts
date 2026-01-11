@@ -2,6 +2,7 @@ import type { UnsafeTypes } from "@beep/types";
 import * as A from "effect/Array";
 import * as F from "effect/Function";
 import * as O from "effect/Option";
+import * as S from "effect/Schema";
 import { Attribute } from "../Attribute";
 import { AttributeDefinitions } from "../AttributeDefinitions";
 import { DockLocation } from "../DockLocation";
@@ -13,6 +14,7 @@ import { BorderNode } from "./BorderNode";
 import type { IDraggable } from "./IDraggable";
 import type { IDropTarget } from "./IDropTarget";
 import type { IJsonRowNode } from "./IJsonModel";
+import { JsonRowNode } from "./IJsonModel";
 import type { LayoutWindow } from "./LayoutWindow";
 import { DefaultMax, DefaultMin, Model } from "./Model";
 import { Node } from "./Node";
@@ -74,15 +76,14 @@ export class RowNode extends Node implements IDropTarget {
   }
 
   toJson(): IJsonRowNode {
-    const json: UnsafeTypes.UnsafeAny = {};
+    const json: Record<string, unknown> = {};
     RowNode.attributeDefinitions.toJson(json, this.attributes);
 
-    json.children = [];
-    for (const child of this.children) {
-      json.children.push(child.toJson());
-    }
+    // Use Effect Array instead of for loop with push
+    json.children = A.map(this.children, (child) => child.toJson());
 
-    return json;
+    // Validate with Schema
+    return S.decodeUnknownSync(JsonRowNode)(json);
   }
 
   /** @internal */
@@ -538,9 +539,9 @@ export class RowNode extends Node implements IDropTarget {
       node = new TabSetNode(this.model, callback ? callback(dragNode as TabNode) : {});
       node.addChild(dragNode);
     }
-    let size = this.children.reduce((sum, child) => {
-      return sum + (child as RowNode | TabSetNode).getWeight();
-    }, 0);
+    let size = A.reduce(this.children, 0, (sum, child) =>
+      sum + (child as RowNode | TabSetNode).getWeight()
+    );
 
     if (size === 0) {
       size = 100;
@@ -564,9 +565,9 @@ export class RowNode extends Node implements IDropTarget {
       const hrow = new RowNode(this.model, this.windowId, {});
       hrow.setWeight(75);
       node.setWeight(25);
-      for (const child of this.children) {
+      A.forEach(this.children, (child) => {
         hrow.addChild(child);
-      }
+      });
       this.removeAll();
       vrow.addChild(node);
       vrow.addChild(hrow);
@@ -576,9 +577,9 @@ export class RowNode extends Node implements IDropTarget {
       const hrow = new RowNode(this.model, this.windowId, {});
       hrow.setWeight(75);
       node.setWeight(25);
-      for (const child of this.children) {
+      A.forEach(this.children, (child) => {
         hrow.addChild(child);
-      }
+      });
       this.removeAll();
       vrow.addChild(hrow);
       vrow.addChild(node);
@@ -614,20 +615,19 @@ export class RowNode extends Node implements IDropTarget {
 
   // NOTE:  flex-grow cannot have values < 1 otherwise will not fill parent, need to normalize
   normalizeWeights() {
-    let sum = 0;
-    for (const n of this.children) {
+    let sum = A.reduce(this.children, 0, (acc, n) => {
       const node = n as TabSetNode | RowNode;
-      sum += node.getWeight();
-    }
+      return acc + node.getWeight();
+    });
 
     if (sum === 0) {
       sum = 1;
     }
 
-    for (const n of this.children) {
+    A.forEach(this.children, (n) => {
       const node = n as TabSetNode | RowNode;
       node.setWeight(Math.max(0.001, (100 * node.getWeight()) / sum));
-    }
+    });
   }
 
   /** @internal */

@@ -19,6 +19,7 @@ This orchestration follows the [SPEC_CREATION_GUIDE](../../SPEC_CREATION_GUIDE.m
 3. **Log unusual findings** — update `specs/flexlayout-type-safety/REFLECTION_LOG.md`
 4. **Generate handoff before context fills** — save progress to `handoffs/HANDOFF_P2.md`
 5. **Use reflector for improvements** — deploy `reflector` agent after each batch
+6. **Log architectural observations** — capture improvement opportunities in `outputs/ARCHITECTURAL_OBSERVATIONS.md`
 
 ### Your Tools
 
@@ -45,9 +46,11 @@ This orchestration follows the [SPEC_CREATION_GUIDE](../../SPEC_CREATION_GUIDE.m
 Before starting, read these files to understand the spec:
 
 1. `specs/flexlayout-type-safety/README.md` — Overview
-2. `specs/flexlayout-type-safety/RUBRICS.md` — Pattern detection criteria
+2. `specs/flexlayout-type-safety/RUBRICS.md` — Pattern detection criteria + architectural observation categories
 3. `specs/flexlayout-type-safety/AGENT_PROMPTS.md` — Sub-agent prompt templates
 4. `specs/flexlayout-type-safety/REFLECTION_LOG.md` — Prior learnings
+
+**Important**: RUBRICS.md Section "Architectural Observations" defines categories A1-A4 that agents must watch for. These observations will be synthesized into a future refactoring spec.
 
 ---
 
@@ -103,8 +106,18 @@ Analyze `packages/ui/ui/src/flexlayout-react/model/[FILE].ts` for type safety is
 2. **High**: Type assertions, unchecked optional access, non-exhaustive switches
 3. **Medium**: Optional chaining without Option, manual null checks
 
+## Architectural Observations (REQUIRED)
+While analyzing, also identify opportunities for architectural improvements:
+- **A1**: Composition over inheritance (deep hierarchies, protected methods)
+- **A2**: Discriminated unions (string type checks, instanceof, non-exhaustive switches)
+- **A3**: Effect for operations (try/catch, console.log, async/await, race conditions)
+- **A4**: Performance (repeated computations, missing memoization, N+1 patterns)
+
 ## Output Format
-JSON with: file, summary (counts by severity), issues array (type, line, code, fix, agent)
+JSON with:
+- file, summary (counts by severity)
+- issues array (type, line, code, fix, agent)
+- architecturalObservations array (category, title, lines, currentPattern, issue, opportunity, complexity, dependencies, notes)
 
 ## Do NOT fix anything — analysis only.
 ```
@@ -151,8 +164,12 @@ Run: `bun run check && bun run build`
 
 After each file:
 1. Run `bun run check && bun run build`
-2. Update file-checklist.md with status
+2. Update codebase-context.md checklist with status
 3. If unusual patterns found, add to REFLECTION_LOG.md
+4. **Append architectural observations** to `outputs/ARCHITECTURAL_OBSERVATIONS.md`
+   - Use the format from RUBRICS.md "Observation Logging" section
+   - Include all A1-A4 category observations from analysis
+   - These will be synthesized into a future refactoring spec
 
 ### Task 5: Batch Reflection (reflector)
 
@@ -217,6 +234,7 @@ Use template: `templates/handoff.template.md`
 - [ ] First batch (5 model files) analyzed
 - [ ] At least 3 files fixed and verified
 - [ ] REFLECTION_LOG.md updated with learnings
+- [ ] ARCHITECTURAL_OBSERVATIONS.md populated with A1-A4 observations
 - [ ] Build passes: `bun run check && bun run build`
 
 ---

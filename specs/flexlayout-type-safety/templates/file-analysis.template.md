@@ -92,6 +92,28 @@ Files this file depends on:
 
 ---
 
+## Architectural Observations
+
+> Opportunities for architectural improvements (see RUBRICS.md for category definitions)
+
+### A1: Composition Over Inheritance
+<!-- Deep hierarchies, protected methods, override-heavy classes -->
+- None identified / [Observations]
+
+### A2: Discriminated Unions
+<!-- String type checks, instanceof, non-exhaustive switches -->
+- None identified / [Observations]
+
+### A3: Effect for Operations
+<!-- try/catch, console.log, async/await, race conditions -->
+- None identified / [Observations]
+
+### A4: Performance Opportunities
+<!-- Repeated computations, missing memoization, N+1 patterns -->
+- None identified / [Observations]
+
+---
+
 ## Notes
 
 [Any special considerations, patterns to preserve, or context needed for fixing]

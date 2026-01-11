@@ -11,11 +11,12 @@ import { TabSet } from "./TabSet";
 export interface IRowProps {
   layout: LayoutInternal;
   node: RowNode;
+  revision?: number; // Forces re-render when model changes
 }
 
 /** @internal */
 export const Row = (props: IRowProps) => {
-  const { layout, node } = props;
+  const { layout, node, revision } = props;
   const selfRef = React.useRef<HTMLDivElement | null>(null);
 
   const horizontal = node.getOrientation() === Orientation.HORZ;
@@ -33,9 +34,9 @@ export const Row = (props: IRowProps) => {
       items.push(<Splitter key={`splitter${i}`} layout={layout} node={node} index={i} horizontal={horizontal} />);
     }
     if (child instanceof RowNode) {
-      items.push(<Row key={child.getId()} layout={layout} node={child} />);
+      items.push(<Row key={child.getId()} layout={layout} node={child} revision={revision} />);
     } else if (child instanceof TabSetNode) {
-      items.push(<TabSet key={child.getId()} layout={layout} node={child} />);
+      items.push(<TabSet key={child.getId()} layout={layout} node={child} revision={revision} />);
     }
     i++;
   }

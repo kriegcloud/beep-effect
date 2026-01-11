@@ -519,7 +519,7 @@ export class LayoutInternal extends React.Component<ILayoutInternalProps, ILayou
   renderLayout() {
     return (
       <>
-        <Row key="__row__" layout={this} node={this.props.model.getRoot(this.windowId)} />
+        <Row key="__row__" layout={this} node={this.props.model.getRoot(this.windowId)} revision={this.state.layoutRevision} />
         {this.renderEdgeIndicators()}
       </>
     );
@@ -824,7 +824,6 @@ export class LayoutInternal extends React.Component<ILayoutInternalProps, ILayou
   }
 
   redrawInternal(_type: string) {
-    // console.log("redrawInternal", this.windowId, type);
     this.mainLayout.setState((state, _props) => {
       return { layoutRevision: state.layoutRevision + 1 };
     });
@@ -1336,7 +1335,7 @@ export class LayoutInternal extends React.Component<ILayoutInternalProps, ILayou
   // *************************** End Drag Drop *************************************
 }
 
-declare const __VERSION__: string;
+const __VERSION__: string = "0.1.0";
 export const FlexLayoutVersion = __VERSION__;
 
 export type DragRectRenderCallback = (

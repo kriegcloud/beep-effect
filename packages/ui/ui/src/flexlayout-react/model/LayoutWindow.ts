@@ -109,6 +109,18 @@ export class LayoutWindow extends Data.Class {
     return { layout: this.root!.toJson(), rect: this.rect.toJson() };
   }
 
+  /**
+   * Custom toJSON for safe serialization (e.g., console.log, JSON.stringify).
+   * This prevents serialization tools from traversing into Window references,
+   * which would cause SecurityError when cross-origin iframes are present.
+   */
+  public toJSON(): { windowId: string; rect: ReturnType<Rect["toJson"]> } {
+    return {
+      windowId: this._windowId,
+      rect: this._rect.toJson(),
+    };
+  }
+
   static fromJson(windowJson: IJsonPopout, model: Model, windowId: string): LayoutWindow {
     const count = model.getwindowsMap().size;
     const rect = windowJson.rect

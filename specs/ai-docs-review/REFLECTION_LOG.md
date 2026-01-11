@@ -27,7 +27,30 @@ After each phase, record learnings using this format:
 
 ## Reflection Entries
 
-*Entries will be added as phases complete.*
+### 2026-01-11 - Phase 1 Discovery Reflection
+
+#### What Worked
+- Using `codebase-researcher` agent for systematic file inventory was effective
+- Parallel exploration of directory structure and reference extraction saved time
+- Reference type categorization (markdown, path, package, URL) provided clear structure
+
+#### What Didn't Work
+- Initial file count estimate (45) was slightly off (actual: 43) - minor discrepancy
+- Some reference counts required manual verification
+
+#### Methodology Improvements
+- Pre-run grep patterns to get rough counts before detailed inventory
+- Use structured output format from start to reduce reformatting
+
+#### Prompt Refinements
+- Agent prompts could specify exact output table formats upfront
+- Include line count thresholds for "large file" classification (>500 lines)
+
+#### Insights
+- Reference integrity is excellent (0 broken refs)
+- Deleted packages (@beep/mock, @beep/yjs, @beep/lexical-schemas) were properly cleaned
+- Large files (test-writer.md, effect-schema-expert.md) need priority review
+- Frontmatter consistency varies by type (100% agents, 17% skills, 0% commands)
 
 ---
 

@@ -313,7 +313,7 @@ export class TabSetAttributes extends S.Class<TabSetAttributes>($I`TabSetAttribu
     tabLocation: S.optional(TabLocation).annotations({
       description: "Location of the tabs (top or bottom)",
     }),
-    type: F.pipe("tab" as const, (literal) =>
+    type: F.pipe("tabset" as const, (literal) =>
       S.optionalWith(S.Literal(literal), { default: thunk(literal) })
     ).annotations({
       description: "Node type identifier (fixed value: 'tabset')",

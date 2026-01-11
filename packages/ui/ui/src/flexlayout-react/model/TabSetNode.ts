@@ -1,4 +1,6 @@
 import type { UnsafeTypes } from "@beep/types";
+import * as A from "effect/Array";
+import * as S from "effect/Schema";
 import { Attribute } from "../Attribute";
 import { AttributeDefinitions } from "../AttributeDefinitions";
 import { DockLocation } from "../DockLocation";
@@ -11,6 +13,7 @@ import { BorderNode } from "./BorderNode";
 import type { IDraggable } from "./IDraggable";
 import type { IDropTarget } from "./IDropTarget";
 import type { IJsonTabSetNode } from "./IJsonModel";
+import { JsonTabSetNode } from "./IJsonModel";
 import type { LayoutWindow } from "./LayoutWindow";
 import { Model } from "./Model";
 import { Node } from "./Node";
@@ -220,9 +223,11 @@ export class TabSetNode extends Node implements IDraggable, IDropTarget {
   }
 
   toJson(): IJsonTabSetNode {
-    const json: UnsafeTypes.UnsafeAny = {};
+    const json: Record<string, unknown> = {};
     TabSetNode.attributeDefinitions.toJson(json, this.attributes);
-    json.children = this.children.map((child) => child.toJson());
+
+    // Use Effect Array instead of native .map()
+    json.children = A.map(this.children, (child) => child.toJson());
 
     if (this.isActive()) {
       json.active = true;
@@ -232,7 +237,8 @@ export class TabSetNode extends Node implements IDraggable, IDropTarget {
       json.maximized = true;
     }
 
-    return json;
+    // Validate with Schema
+    return S.decodeUnknownSync(JsonTabSetNode)(json);
   }
 
   /** @internal */
@@ -241,13 +247,15 @@ export class TabSetNode extends Node implements IDraggable, IDropTarget {
     this.calculatedMinWidth = this.getAttrMinWidth();
     this.calculatedMaxHeight = this.getAttrMaxHeight();
     this.calculatedMaxWidth = this.getAttrMaxWidth();
-    for (const child of this.children) {
+
+    // Use Effect Array instead of for...of
+    A.forEach(this.children, (child) => {
       const c = child as TabNode;
       this.calculatedMinWidth = Math.max(this.calculatedMinWidth, c.getMinWidth());
       this.calculatedMinHeight = Math.max(this.calculatedMinHeight, c.getMinHeight());
       this.calculatedMaxWidth = Math.min(this.calculatedMaxWidth, c.getMaxWidth());
       this.calculatedMaxHeight = Math.min(this.calculatedMaxHeight, c.getMaxHeight());
-    }
+    });
 
     this.calculatedMinHeight += this.tabStripRect.height;
     this.calculatedMaxHeight += this.tabStripRect.height;

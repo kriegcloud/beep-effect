@@ -247,6 +247,9 @@ export class Model {
       }
       case Actions.ADJUST_WEIGHTS: {
         const row = this.idMap.get(action.data.nodeId) as RowNode;
+        if (!row) {
+          break;
+        }
         const c = row.getChildren();
         for (let i = 0; i < c.length; i++) {
           const n = c[i] as TabSetNode | RowNode;
@@ -485,6 +488,18 @@ export class Model {
 
   toString() {
     return JSON.stringify(this.toJson());
+  }
+
+  /**
+   * Custom toJSON for safe serialization (e.g., console.log, JSON.stringify).
+   * This prevents serialization tools from traversing into Window references,
+   * which could lead to cross-origin SecurityError when iframes are present.
+   */
+  toJSON(): { windowIds: string[]; borderCount: number } {
+    return {
+      windowIds: [...this.windows.keys()],
+      borderCount: this.borders.getBorders().length,
+    };
   }
 
   /***********************internal ********************************/

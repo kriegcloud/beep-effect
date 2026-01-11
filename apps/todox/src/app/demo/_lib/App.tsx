@@ -30,7 +30,7 @@ import { Utils } from "./Utils";
 import "prismjs/themes/prism-coy.css";
 import "./styles.css";
 import "./popupmenu.css";
-import "@beep/todox/style/combined.scss";
+import "../flexlayout.css";
 // -----------------------------------------------------------------------------
 // Type-safe field definitions
 // -----------------------------------------------------------------------------
@@ -240,7 +240,11 @@ function App() {
       enableWindowReMount: false,
       type: "tab" as const,
     });
-    console.log("Added tab", addedTab);
+    // Note: Avoid logging TabNode objects directly as serialization can hit cross-origin
+    // iframe windows and throw SecurityError. Log only primitive identifiers.
+    if (addedTab) {
+      console.log("Added tab:", addedTab.getId(), addedTab.getName());
+    }
   }, []);
 
   const onRealtimeResize = React.useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
@@ -534,8 +538,17 @@ function App() {
 
   const onThemeChange = React.useCallback((event: React.FormEvent) => {
     const target = event.target as HTMLSelectElement;
-    const themeClassName = "flexlayout__theme_" + target.value;
-    document.documentElement.className = themeClassName;
+    const theme = target.value;
+
+    // For Tailwind dark mode compatibility, toggle the 'dark' class
+    if (theme === "dark") {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+
+    // Keep the flexlayout theme class for any legacy compatibility
+    const themeClassName = "flexlayout__theme_" + theme;
     setPopoutClassName(themeClassName);
   }, []);
 

@@ -1,5 +1,7 @@
 import type { UnsafeTypes } from "@beep/types";
+import * as A from "effect/Array";
 import * as Data from "effect/Data";
+import * as O from "effect/Option";
 import type { DockLocation } from "../DockLocation";
 import type { DropInfo } from "../DropInfo";
 import { BorderNode } from "./BorderNode";
@@ -17,10 +19,10 @@ export class BorderSet extends Data.Class {
   /** @internal */
   static fromJson(json: UnsafeTypes.UnsafeAny, model: Model) {
     const borderSet = new BorderSet(model);
-    borderSet.borders = json.map((borderJson: UnsafeTypes.UnsafeAny) => BorderNode.fromJson(borderJson, model));
-    for (const border of borderSet.borders) {
+    borderSet.borders = A.map(json as Array<UnsafeTypes.UnsafeAny>, (borderJson) => BorderNode.fromJson(borderJson, model));
+    A.forEach(borderSet.borders, (border) => {
       borderSet.borderMap.set(border.getLocation(), border);
-    }
+    });
     return borderSet;
   }
 
@@ -33,7 +35,7 @@ export class BorderSet extends Data.Class {
   }
 
   toJson() {
-    return this.borders.map((borderNode) => borderNode.toJson());
+    return A.map(this.borders, (borderNode) => borderNode.toJson());
   }
 
   /** @internal */
@@ -53,37 +55,30 @@ export class BorderSet extends Data.Class {
 
   /** @internal */
   forEachNode(fn: (node: Node, level: number) => void) {
-    for (const borderNode of this.borders) {
+    A.forEach(this.borders, (borderNode) => {
       fn(borderNode, 0);
-      for (const node of borderNode.getChildren()) {
+      A.forEach(borderNode.getChildren(), (node) => {
         node.forEachNode(fn, 1);
-      }
-    }
+      });
+    });
   }
 
   /** @internal */
   setPaths() {
-    for (const borderNode of this.borders) {
+    A.forEach(this.borders, (borderNode) => {
       const path = `/border/${borderNode.getLocation().getName()}`;
       borderNode.setPath(path);
-      let i = 0;
-      for (const node of borderNode.getChildren()) {
+      A.forEach(borderNode.getChildren(), (node, i) => {
         node.setPath(`${path}/t${i}`);
-        i++;
-      }
-    }
+      });
+    });
   }
 
   /** @internal */
   findDropTargetNode(dragNode: Node & IDraggable, x: number, y: number): DropInfo | undefined {
-    for (const border of this.borders) {
-      if (border.isShowing()) {
-        const dropInfo = border.canDrop(dragNode, x, y);
-        if (dropInfo !== undefined) {
-          return dropInfo;
-        }
-      }
-    }
-    return undefined;
+    return A.findFirst(
+      A.filter(this.borders, (border) => border.isShowing()),
+      (border) => O.fromNullable(border.canDrop(dragNode, x, y))
+    ).pipe(O.getOrUndefined);
   }
 }

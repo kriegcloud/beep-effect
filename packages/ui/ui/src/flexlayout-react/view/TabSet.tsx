@@ -20,11 +20,12 @@ import { isAuxMouseEvent } from "./Utils";
 export interface ITabSetProps {
   layout: LayoutInternal;
   node: TabSetNode;
+  revision?: number; // Forces re-render when model changes
 }
 
 /** @internal */
 export const TabSet = (props: ITabSetProps) => {
-  const { node, layout } = props;
+  const { node, layout, revision: _revision } = props; // _revision unused but triggers re-render
 
   const tabStripRef = React.useRef<HTMLDivElement | null>(null);
   const miniScrollRef = React.useRef<HTMLDivElement | null>(null);
