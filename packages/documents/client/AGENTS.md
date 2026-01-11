@@ -12,9 +12,9 @@
 
 ## Planned Architecture
 When the CLIENT is implemented, it should provide:
-- Client wrappers for the `DomainApi` defined in `@beep/documents-domain/DomainApi.ts`.
+- Client wrappers for domain entities and RPC contracts from `@beep/documents-domain`.
 - Type-safe HTTP clients for document CRUD, knowledge page operations, discussions, and comments.
-- Effect-based error handling aligned with domain error types.
+- Effect-based error handling aligned with domain error types from `@beep/documents-domain/errors`.
 - Configuration injection via Layers for base URLs, authentication tokens, etc.
 
 ## Authoring Guardrails
@@ -29,22 +29,25 @@ When the CLIENT is implemented, it should provide:
 // Example future API
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
-import { DomainApi } from "@beep/documents-domain";
+import * as HttpClient from "@effect/platform/HttpClient";
+import { Document, Comment, Discussion } from "@beep/documents-domain/entities";
 
 export class DocumentsClient extends Effect.Service<DocumentsClient>()("@beep/documents-client/DocumentsClient", {
   effect: Effect.gen(function* () {
+    const http = yield* HttpClient.HttpClient;
+
     // HTTP client implementation
-    const getPage = (pageId: string) => Effect.gen(function* () {
-      // Fetch and decode knowledge page
+    const getDocument = (documentId: string) => Effect.gen(function* () {
+      // Fetch and decode document
     });
 
     const createDocument = (data: unknown) => Effect.gen(function* () {
       // Create document via API
     });
 
-    return { getPage, createDocument };
+    return { getDocument, createDocument };
   }),
-  dependencies: [/* HttpClient, Config, etc */]
+  dependencies: [HttpClient.HttpClient.Default]
 }) {}
 ```
 
@@ -81,9 +84,9 @@ export class DocumentsClient extends Effect.Service<DocumentsClient>()("@beep/do
 - **Solution**: Document list contracts MUST handle pagination. NEVER fetch unbounded lists. Client implementations should expose cursor-based iteration helpers.
 
 ### Error Type Alignment with Domain
-- **Symptom**: Caught errors don't match expected `DocumentError` types; generic `UnknownError` appears.
+- **Symptom**: Caught errors don't match expected domain error types; generic `UnknownError` appears.
 - **Root Cause**: Server returns domain-specific errors that client doesn't map correctly.
-- **Solution**: Use `continuation.mapError` to map server error responses to `@beep/documents-domain` error types. Keep error mapping in sync with server error taxonomy.
+- **Solution**: Use `Effect.mapError` or `Effect.catchTag` to map server error responses to `@beep/documents-domain/errors` types. Keep error mapping in sync with server error taxonomy and use tagged error unions for precise error handling.
 
 ## Contributor Checklist
 - [ ] NEVER use native array/string helpers; ALWAYS rely on Effect utilities.

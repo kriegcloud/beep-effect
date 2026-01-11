@@ -107,7 +107,6 @@ apps/todox/
 | `@beep/invariant`  | Assertion contracts               | Runtime assertions                        |
 | `@beep/identity`   | Package identity                  | Package metadata                          |
 | `@beep/types`      | Compile-time types (devDep)       | Type definitions                          |
-| `@beep/mock`       | Mock data generators              | Testing, development, mail feature demo   |
 
 ### Internal @beep Packages (UI)
 
@@ -387,7 +386,6 @@ import { MailView } from "@beep/todox/features/mail/view"
 - `MailHeader` — Header with actions and search
 
 **Features**:
-- Mock data integration via `@beep/mock`
 - Label-based filtering (Inbox, Sent, Drafts, etc.)
 - Mail selection and batch operations
 - Rich text editing with Tiptap
@@ -617,30 +615,6 @@ export function CustomComponent({ items }: { items: string[] }) {
     </div>
   )
 }
-```
-
-### Using Mock Data in Features
-
-```tsx
-// Example from mail feature
-import * as Effect from "effect/Effect"
-import * as A from "effect/Array"
-import * as F from "effect/Function"
-import { mailData } from "@beep/mock"
-
-// Transform mock data with Effect utilities
-const labels = F.pipe(
-  mailData.labels,
-  A.map(label => ({
-    id: label.id,
-    name: label.name,
-    count: F.pipe(
-      mailData.mails,
-      A.filter(mail => A.contains(mail.labels, label.id)),
-      A.length
-    )
-  }))
-)
 ```
 
 ### Feature-Based Organization

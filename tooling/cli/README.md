@@ -4,7 +4,7 @@ A CLI tool for the repo.
 
 ## Purpose
 
-A command-line interface built on `@effect/cli` and `@effect/platform-bun` that provides automated maintenance tasks for the beep-effect monorepo. The CLI exposes four main commands: environment setup (`env`), workspace synchronization (`sync`), dependency pruning (`prune-unused-deps`), and comprehensive documentation generation (`docgen`). All commands are implemented using Effect patterns with proper error handling, structured logging, and dry-run modes for safe operation.
+A command-line interface built on `@effect/cli` and `@effect/platform-bun` that provides automated maintenance tasks for the beep-effect monorepo. The CLI exposes four main commands: environment setup (`env`), workspace synchronization (`sync`), dependency pruning (`prune-deps`), and comprehensive documentation generation (`docgen`). All commands are implemented using Effect patterns with proper error handling, structured logging, and dry-run modes for safe operation.
 
 ## Installation
 
@@ -60,7 +60,7 @@ The main entry point is `src/index.ts`, which exports `runRepoCli` for programma
 |---------------------|--------------------------------------------------------------------------------|
 | `env`               | Interactively create or update your `.env` file from `.env.example`          |
 | `sync`              | Copy `.env` to workspaces and regenerate type definitions                    |
-| `prune-unused-deps` | Find and remove unused `@beep/*` workspace dependencies                      |
+| `prune-deps` | Find and remove unused `@beep/*` workspace dependencies                      |
 | `docgen`            | Documentation generation suite with JSDoc analysis and AI-powered fixes      |
 
 All commands are accessible via `bun run tooling/cli/src/index.ts <command> [options]` or through root package.json scripts.
@@ -81,7 +81,7 @@ src/
 └── commands/
     ├── env.ts                        # Interactive .env file management
     ├── sync.ts                       # Environment and type synchronization
-    ├── prune-unused-deps.ts          # Workspace dependency pruning
+    ├── prune-deps.ts          # Workspace dependency pruning
     └── docgen/                       # Documentation generation system
         ├── docgen.ts                 # Docgen command aggregator
         ├── init.ts                   # Bootstrap docgen.json configuration
@@ -142,16 +142,16 @@ Detect and remove unused workspace dependencies:
 
 ```bash
 # Dry-run mode (default, safe)
-bun run tooling/cli/src/index.ts prune-unused-deps --dry-run
+bun run tooling/cli/src/index.ts prune-deps --dry-run
 
 # Remove unused dependencies
-bun run tooling/cli/src/index.ts prune-unused-deps --dry-run=false
+bun run tooling/cli/src/index.ts prune-deps --dry-run=false
 
 # Filter to specific workspace
-bun run tooling/cli/src/index.ts prune-unused-deps --filter @beep/iam-server
+bun run tooling/cli/src/index.ts prune-deps --filter @beep/iam-server
 
 # Exclude test directories from scanning
-bun run tooling/cli/src/index.ts prune-unused-deps --exclude-tests
+bun run tooling/cli/src/index.ts prune-deps --exclude-tests
 ```
 
 The prune command:
@@ -832,7 +832,7 @@ After copying, it runs `bun run types` in each workspace to regenerate TypeScrip
 Some scripts in `package.json` reference source files that have been moved to other packages or are no longer actively maintained:
 - `execute`, `gen:secrets`, `bootstrap`, `generate-public-paths`, `gen:locales`, `iconify`, `purge`
 
-These are maintained for backward compatibility but new workflows should use the Effect-based commands in this package (env, sync, docgen, prune-unused-deps).
+These are maintained for backward compatibility but new workflows should use the Effect-based commands in this package (env, sync, docgen, prune-deps).
 
 For legacy script execution:
 ```bash

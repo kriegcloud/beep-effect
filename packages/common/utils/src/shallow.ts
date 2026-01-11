@@ -4,7 +4,7 @@ import * as F from "effect/Function";
 import * as Match from "effect/Match";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
-
+import * as Struct from "effect/Struct";
 /**
  * Compares two arrays for shallow equality.
  * Returns true if arrays have the same length and all elements are strictly equal.
@@ -110,8 +110,8 @@ export function shallow2(a: unknown, b: unknown): boolean {
     return shallow(a, b);
   }
 
-  const keysA = R.keys(a);
-  const keysB = R.keys(b);
+  const keysA = Struct.keys(a);
+  const keysB = Struct.keys(b);
 
   // Length check first
   if (keysA.length !== keysB.length) {

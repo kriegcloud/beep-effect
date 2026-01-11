@@ -1,10 +1,10 @@
+import type { DatabaseError } from "@beep/shared-domain/errors";
 import type { ExtractTablesWithRelations } from "drizzle-orm";
 import type { NodePgDatabase, NodePgQueryResultHKT } from "drizzle-orm/node-postgres";
 import type { PgTransaction } from "drizzle-orm/pg-core";
 import type * as Effect from "effect/Effect";
 import type * as S from "effect/Schema";
 import type * as pg from "pg";
-import type { DatabaseError } from "./errors";
 export type DbSchema = Record<string, unknown>;
 
 export type MakeDbServiceOptions<TFullSchema extends DbSchema = DbSchema> = {

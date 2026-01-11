@@ -4,11 +4,16 @@ import Popover from "@mui/material/Popover";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import type { Editor } from "@tiptap/react";
+import * as Str from "effect/String";
 import { useCallback, useState } from "react";
 import { editorClasses } from "../classes";
 import type { EditorToolbarItemProps } from "../types";
 import { ToolbarItem } from "./toolbar-item";
 
+const defaultState = {
+  imageUrl: Str.empty,
+  altText: Str.empty,
+};
 // ----------------------------------------------------------------------
 
 type ImageBlockProps = Pick<EditorToolbarItemProps, "icon"> & {
@@ -22,14 +27,11 @@ type ImageFormState = {
 
 export function ImageBlock({ editor, icon }: ImageBlockProps) {
   const { anchorEl, open, onOpen, onClose } = usePopover();
-  const [state, setState] = useState<ImageFormState>({
-    imageUrl: "",
-    altText: "",
-  });
+  const [state, setState] = useState<ImageFormState>(defaultState);
 
   const handleApply = useCallback(() => {
     onClose();
-    setState({ imageUrl: "", altText: "" });
+    setState(defaultState);
     editor.chain().focus().setImage({ src: state.imageUrl, alt: state.altText }).run();
   }, [editor, onClose, state.altText, state.imageUrl]);
 

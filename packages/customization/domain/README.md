@@ -18,7 +18,7 @@ Centralizes Customization domain models via `M.Class` definitions that provide s
 
 | Export | Description |
 |--------|-------------|
-| `Entities.*` | Namespaced entity models for all Customization domain objects |
+| `Entities.UserHotkey` | User-configurable keyboard shortcuts model with userId reference and shortcuts JSON record |
 
 ## Architecture Fit
 
@@ -41,8 +41,7 @@ import * as S from "effect/Schema";
 import * as F from "effect/Function";
 
 // Access entity models
-const ThemeModel = Entities.Theme.Model;
-const PreferenceModel = Entities.Preference.Model;
+const UserHotkeyModel = Entities.UserHotkey.Model;
 ```
 
 ### Creating Entity Insert Payloads
@@ -51,20 +50,19 @@ Use `Model.insert.make` for type-safe insert operations:
 
 ```typescript
 import { Entities } from "@beep/customization-domain";
-import { SharedEntityIds } from "@beep/shared-domain";
+import { CustomizationEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
-import * as O from "effect/Option";
 
-export const makeThemeInsert = Effect.gen(function* () {
+export const makeUserHotkeyInsert = Effect.gen(function* () {
   const now = yield* DateTime.now;
   const nowDate = DateTime.toDate(now);
+  const hotkeyId = CustomizationEntityIds.UserHotkeyId.create();
 
-  return Entities.Theme.Model.insert.make({
-    id: "theme_1",
-    name: "Dark Mode",
+  return Entities.UserHotkey.Model.insert.make({
+    id: hotkeyId,
     userId: SharedEntityIds.UserId.make("user_1"),
-    settings: { primaryColor: "#000000" },
+    shortcuts: { "ctrl+s": "save", "ctrl+z": "undo" },
     createdAt: nowDate,
     updatedAt: nowDate,
   });
@@ -84,7 +82,7 @@ export const makeThemeInsert = Effect.gen(function* () {
 - **No infrastructure**: no Drizzle clients, repositories, or external service adapters
 - **No application logic**: keep orchestration in `@beep/customization-server`
 - **No framework dependencies**: avoid Next.js, React, or platform-specific code
-- **No cross-slice domain imports**: only depend on `@beep/shared-domain` and `@beep/common/*`
+- **No cross-slice domain imports**: only depend on `@beep/shared-domain` and `@beep//*`
 
 Domain models should be pure, testable, and reusable across all infrastructure implementations.
 
@@ -94,8 +92,8 @@ Domain models should be pure, testable, and reusable across all infrastructure i
 |---------|---------|
 | `effect` | Core Effect runtime and Schema system |
 | `@effect/sql` | SQL model base classes and annotations |
-| `@beep/shared-domain` | Shared entities (User, Organization, Team, Session) |
-| `@beep/schema` | Schema utilities (BS namespace, EntityId) |
+| `@beep/shared-domain` | Shared entities (User, Organization, Team, Session) and entity ID factories |
+| `@beep/identity` | Package identity utilities for stable schema symbols |
 
 ## Development
 

@@ -22,11 +22,11 @@ Create two files in `/specs/structure-standardization/`:
 Find directories using PascalCase (should be kebab-case):
 
 ```bash
-# Find PascalCase directories in packages
-find packages -type d -regex '.*/[A-Z][a-zA-Z]*' 2>/dev/null | grep -v node_modules | grep -v ".git"
+# Find PascalCase directories in packages (excluding Lexical)
+find packages -type d -regex '.*/[A-Z][a-zA-Z]*' 2>/dev/null | grep -v node_modules | grep -v ".git" | grep -v "lexical/mui"
 
-# Specifically in src directories
-find packages/*/src -type d 2>/dev/null | grep -E '/[A-Z][a-zA-Z]+$'
+# Specifically in src directories (excluding Lexical)
+find packages/*/src -type d 2>/dev/null | grep -E '/[A-Z][a-zA-Z]+$' | grep -v "lexical/mui"
 
 # Check entities directories (commonly PascalCase)
 find packages -path "*/entities/*" -type d 2>/dev/null | grep -v node_modules
@@ -368,3 +368,5 @@ When complete, report:
 2. Packages ranked by change count
 3. Estimated complexity (based on import updates needed)
 4. Any ambiguous cases requiring human review
+
+Note: Lexical editor directories (`lexical/mui/**`) are pre-approved exceptions and should not be included in ambiguous cases.

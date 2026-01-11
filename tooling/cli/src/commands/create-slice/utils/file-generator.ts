@@ -817,7 +817,7 @@ const generatePlaceholderRepo = (context: SliceContext): string =>
 import { ${context.SliceName}Db } from "@beep/${context.sliceName}-server/db";
 import { $${context.SliceName}ServerId } from "@beep/identity/packages";
 import { ${context.SliceName}EntityIds } from "@beep/shared-domain";
-import { DbRepo } from "@beep/shared-server";
+import { DbRepo } from "@beep/shared-domain/factories";
 import * as Effect from "effect/Effect";
 import { dependencies } from "./_common";
 
@@ -884,7 +884,7 @@ const generateEntityIdsTs = (context: SliceContext): string =>
 import { $SharedDomainId } from "@beep/identity/packages";
 import { EntityId } from "@beep/schema/identity";
 import type * as S from "effect/Schema";
-
+const make = EntityId.builder("${context.sliceName}");
 const $I = $SharedDomainId.create("entity-ids/${context.sliceName}/ids");
 
 /**
@@ -895,7 +895,7 @@ const $I = $SharedDomainId.create("entity-ids/${context.sliceName}/ids");
  * @since 0.1.0
  * @category ids
  */
-export const PlaceholderId = EntityId.make("${context.slice_name}_placeholder", {
+export const PlaceholderId = make("placeholder", {
   brand: "PlaceholderId",
 }).annotations(
   $I.annotations("PlaceholderId", {
@@ -906,6 +906,11 @@ export const PlaceholderId = EntityId.make("${context.slice_name}_placeholder", 
 export declare namespace PlaceholderId {
   export type Type = S.Schema.Type<typeof PlaceholderId>;
   export type Encoded = S.Schema.Encoded<typeof PlaceholderId>;
+  
+  export namespace RowId {
+    export type Type = typeof PlaceholderId.privateSchema.Type;
+    export type Encoded = typeof PlaceholderId.privateSchema.Encoded;
+  }
 }
 `;
 

@@ -140,7 +140,6 @@ The following packages should have README.md files:
 | `packages/common/errors`    | `@beep/errors`    |
 | `packages/common/identity`  | `@beep/identity`  |
 | `packages/common/invariant` | `@beep/invariant` |
-| `packages/common/mock`      | `@beep/mock`      |
 | `packages/common/schema`    | `@beep/schema`    |
 | `packages/common/types`     | `@beep/types`     |
 | `packages/common/utils`     | `@beep/utils`     |
@@ -216,7 +215,6 @@ The following packages should have README.md files:
 | `tooling/testkit`      | `@beep/testkit`       |
 | `tooling/utils`        | `@beep/tooling-utils` |
 | `tooling/build-utils`  | `@beep/build-utils`   |
-| `tooling/scraper`      | `@beep/scraper`       |
 
 ### Dynamic Package Discovery (Fallback)
 

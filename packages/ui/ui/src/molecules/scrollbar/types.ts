@@ -1,6 +1,6 @@
 import type { SxProps, Theme } from "@mui/material/styles";
 import type * as React from "react";
-import type { SimpleBarProps } from "../SimpleBar";
+import type { SimpleBarProps } from "../simple-bar";
 
 export type ScrollbarProps = SimpleBarProps &
   React.ComponentProps<"div"> & {

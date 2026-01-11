@@ -10,6 +10,8 @@ import * as Str from "effect/String";
 import * as Struct from "effect/Struct";
 import * as React from "react";
 import * as RechartsPrimitive from "recharts";
+import type { Props as DefaultLegendContentProps } from "recharts/types/component/DefaultLegendContent";
+import type { NameType, ValueType } from "recharts/types/component/DefaultTooltipContent";
 
 // Format: { THEME_NAME: CSS_SELECTOR }
 const THEMES = { light: Str.empty, dark: ".dark" } as const;
@@ -25,7 +27,7 @@ export type ChartConfig = {
 };
 
 type ChartContextProps = {
-  config: ChartConfig;
+  readonly config: ChartConfig;
 };
 
 const ChartContext = React.createContext<ChartContextProps | null>(null);
@@ -47,8 +49,8 @@ function ChartContainer({
   config,
   ...props
 }: React.ComponentProps<"div"> & {
-  config: ChartConfig;
-  children: React.ComponentProps<typeof RechartsPrimitive.ResponsiveContainer>["children"];
+  readonly config: ChartConfig;
+  readonly children: React.ComponentProps<typeof RechartsPrimitive.ResponsiveContainer>["children"];
 }) {
   const uniqueId = React.useId();
   const chartId = `chart-${id || Str.replace(/:/g, Str.empty)(uniqueId)}`;
@@ -87,7 +89,7 @@ const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
 ${prefix} [data-chart=${id}] {
 ${colorConfig
   .map(([key, itemConfig]) => {
-    const color = itemConfig.theme?.[theme as keyof typeof itemConfig.theme] || itemConfig.color;
+    const color = itemConfig.theme?.[theme] || itemConfig.color;
     return color ? `  --color-${key}: ${color};` : null;
   })
   .join("\n")}
@@ -120,7 +122,7 @@ function ChartTooltipContent({
   color,
   nameKey,
   labelKey,
-}: React.ComponentProps<typeof RechartsPrimitive.Tooltip> &
+}: RechartsPrimitive.TooltipContentProps<ValueType, NameType> &
   React.ComponentProps<"div"> & {
     readonly hideLabel?: undefined | boolean;
     readonly hideIndicator?: undefined | boolean;
@@ -182,7 +184,7 @@ function ChartTooltipContent({
                   ChatTooltipContentIdicator.is.dot(indicator) && "items-center"
                 )}
               >
-                {formatter && item?.value !== undefined && item.name ? (
+                {formatter && P.isNotUndefined(item?.value) && item.name ? (
                   formatter(item.value, item.name, item, index, item.payload)
                 ) : (
                   <>
@@ -243,7 +245,7 @@ function ChartLegendContent({
   verticalAlign = "bottom",
   nameKey,
 }: React.ComponentProps<"div"> &
-  Pick<RechartsPrimitive.LegendProps, "payload" | "verticalAlign"> & {
+  Pick<DefaultLegendContentProps, "payload" | "verticalAlign"> & {
     readonly hideIcon?: undefined | boolean;
     readonly nameKey?: undefined | string;
   }) {
@@ -303,7 +305,7 @@ function getPayloadConfigFromPayload(config: ChartConfig, payload: unknown, key:
       ? payload.payload
       : undefined;
 
-  let configLabelKey: string = key;
+  let configLabelKey = key;
 
   if (P.hasProperty(key)(payload) && P.isString(payload[key])) {
     configLabelKey = payload[key];
@@ -311,7 +313,7 @@ function getPayloadConfigFromPayload(config: ChartConfig, payload: unknown, key:
     configLabelKey = payloadPayload[key];
   }
 
-  return configLabelKey in config ? config[configLabelKey] : config[key as keyof typeof config];
+  return configLabelKey in config ? config[configLabelKey] : config[key];
 }
 
 export { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent, ChartStyle };

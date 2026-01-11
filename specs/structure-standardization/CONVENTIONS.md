@@ -27,7 +27,7 @@
 ✗ packages/shared/tables/src/Table/            # PascalCase directory
 ```
 
-**Exception**: None. Entity directories that are currently PascalCase should become kebab-case.
+**Note**: Entity directories that are currently PascalCase should become kebab-case (this does not apply to the Lexical exception above).
 
 ### Rationale
 - kebab-case is URL-safe and shell-friendly
@@ -277,6 +277,8 @@ src/
 ✓ src/repos/user.repo.ts      # Consistent kebab-case
 ✓ src/repos/team.repo.ts
 ```
+
+**Note**: The Lexical editor exception does not apply elsewhere. Only `lexical/mui/` may use PascalCase directories.
 
 ### Inconsistent Suffixes
 ```

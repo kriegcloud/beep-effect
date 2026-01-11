@@ -4,6 +4,15 @@
 
 This package is the source of truth for design tokens, palette math, typography, and MUI component overrides consumed by higher-level packages such as `@beep/ui`.
 
+## Dependencies
+
+| Package | Purpose | Type |
+|---------|---------|------|
+| `@beep/schema` | Type-safe schemas for i18n language codes and component validation | Peer |
+| `@beep/utils` | Utility functions (format-time re-exports, RecordUtils for iconify) | Peer |
+| `@beep/types` | TypeScript utility types (UnsafeTypes for theme system) | Dev |
+| `@beep/identity` | Package identity constants for adapters | Used in adapters only |
+
 ### Package Exports (via `package.json`)
 
 The package exposes the following entry points:
@@ -86,7 +95,7 @@ The package exposes the following entry points:
 - Useful entry points:
   - `core/components/mui-x-*` – MUI X overrides align Data Grid and Date Picker tokens with the core palette.
   - `core/components/text-field.tsx` – centralizes variant density rules; update here before touching inline component styles elsewhere.
-  - `core/styles/*` – ready-made style objects (e.g., vibrant nav styles) shared with `@beep/ui`.
+  - `theme/styles/*` – ready-made style objects (e.g., colorPicker utilities) used in theme components.
 
 ## Utilities & Supporting Modules
 - `packages/ui/core/src/utils` includes helpers used throughout the theme:

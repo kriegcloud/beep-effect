@@ -1,5 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import { MappedLiteralKit } from "@beep/schema/derived/kits/mapped-literal-kit";
+import * as A from "effect/Array";
+import * as F from "effect/Function";
 import * as HashMap from "effect/HashMap";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -450,6 +452,106 @@ describe("MappedLiteralKit", () => {
       expect(FloatMapping.EncodedEnum["n0.5"]).toBe("half");
       expect(FloatMapping.EncodedEnum["n0.25"]).toBe("quarter");
       expect(FloatMapping.EncodedEnum["n0.1"]).toBe("tenth");
+    });
+  });
+
+  describe("Options mapping with A.map", () => {
+    const LabelColors = MappedLiteralKit(
+      ["inbox", "#FF5733"],
+      ["sent", "#33FF57"],
+      ["drafts", "#3357FF"],
+      ["spam", "#FF33A1"],
+      ["trash", "#33FFF5"]
+    );
+
+    it("From.Options preserves specific literal types when mapping", () => {
+      // This test verifies the fix for the intersection type issue
+      // Options should be readonly ["inbox", "sent", "drafts", "spam", "trash"]
+      // NOT ["inbox", "sent", ...] & readonly [LiteralValue, ...]
+      const mapped = F.pipe(
+        LabelColors.From.Options,
+        A.map((name, index) => ({
+          id: `label-${index}`,
+          name,
+          // name should be correctly typed as the specific literal union
+          // allowing it to index into DecodedEnum without TS2538 errors
+          color: LabelColors.DecodedEnum[name],
+        }))
+      );
+
+      expect(mapped).toEqual([
+        { id: "label-0", name: "inbox", color: "#FF5733" },
+        { id: "label-1", name: "sent", color: "#33FF57" },
+        { id: "label-2", name: "drafts", color: "#3357FF" },
+        { id: "label-3", name: "spam", color: "#FF33A1" },
+        { id: "label-4", name: "trash", color: "#33FFF5" },
+      ]);
+    });
+
+    it("To.Options preserves specific literal types when mapping", () => {
+      const mapped = F.pipe(
+        LabelColors.To.Options,
+        A.map((color, index) => ({
+          index,
+          color,
+          // color should be correctly typed as the specific literal union
+          name: LabelColors.EncodedEnum[color],
+        }))
+      );
+
+      expect(mapped).toEqual([
+        { index: 0, color: "#FF5733", name: "inbox" },
+        { index: 1, color: "#33FF57", name: "sent" },
+        { index: 2, color: "#3357FF", name: "drafts" },
+        { index: 3, color: "#FF33A1", name: "spam" },
+        { index: 4, color: "#33FFF5", name: "trash" },
+      ]);
+    });
+
+    it("works with A.filter on Options", () => {
+      const filtered = F.pipe(
+        LabelColors.From.Options,
+        A.filter((name) => name !== "spam" && name !== "trash")
+      );
+
+      expect(filtered).toEqual(["inbox", "sent", "drafts"]);
+    });
+
+    it("works with A.reduce on Options", () => {
+      const colorMap = F.pipe(
+        LabelColors.From.Options,
+        A.reduce({} as Record<string, string>, (acc, name) => ({
+          ...acc,
+          [name]: LabelColors.DecodedEnum[name],
+        }))
+      );
+
+      expect(colorMap).toEqual({
+        inbox: "#FF5733",
+        sent: "#33FF57",
+        drafts: "#3357FF",
+        spam: "#FF33A1",
+        trash: "#33FFF5",
+      });
+    });
+
+    it("works with numeric To.Options mapping", () => {
+      const HttpStatus = MappedLiteralKit(["OK", 200], ["NOT_FOUND", 404], ["ERROR", 500]);
+
+      const mapped = F.pipe(
+        HttpStatus.To.Options,
+        A.map((code) => ({
+          code,
+          name: HttpStatus.EncodedEnum[`n${code}` as keyof typeof HttpStatus.EncodedEnum],
+          isSuccess: code < 400,
+        }))
+      );
+
+      expect(mapped).toEqual([
+        { code: 200, name: "OK", isSuccess: true },
+        { code: 404, name: "NOT_FOUND", isSuccess: false },
+        { code: 500, name: "ERROR", isSuccess: false },
+      ]);
     });
   });
 });

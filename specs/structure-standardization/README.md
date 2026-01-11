@@ -26,6 +26,8 @@ An audit of the codebase found:
 | **Atom files**      | **Minor issue**              | `.atom.ts` vs `.atoms.ts`    |
 | **Schema types**    | **Unclear**                  | `.schema.ts` suffix optional |
 
+> **Update (2026-01-09)**: The Lexical editor's 44 PascalCase directories have been excluded from standardization scope. They follow Lexical library conventions and are isolated under `lexical/mui/`.
+
 ## Files in This Spec
 
 | File                        | Purpose                                    |
@@ -91,3 +93,4 @@ After standardization:
 - [ ] All schema files use consistent suffix patterns
 - [ ] Directory structure is documented and predictable
 - [ ] New packages can be scaffolded from templates
+- [ ] Lexical editor directories documented as intentional exception

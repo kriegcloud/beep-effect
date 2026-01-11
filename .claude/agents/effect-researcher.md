@@ -375,7 +375,7 @@ When processing a request:
 ## Output Location
 
 When producing markdown files, save them to:
-- Prompt outputs: `docs/prompts/[topic]-effect-prompt.md`
-- Research outputs: `docs/research/[topic]-effect-research.md`
+- Prompt outputs: `documentation/prompts/[topic]-effect-prompt.md`
+- Research outputs: `documentation/research/[topic]-effect-research.md`
 
 Create the directories if they don't exist.

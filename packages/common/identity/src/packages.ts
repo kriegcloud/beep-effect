@@ -29,7 +29,6 @@ const composers = $I.compose(
   "todox",
   "documents-tables",
   "ui",
-  "yjs",
   "invariant",
   "build-utils",
   "server",
@@ -57,7 +56,6 @@ const composers = $I.compose(
   "shared-domain",
   "db-admin",
   "iam-tables",
-  "lexical-schemas",
   "customization-domain",
   "customization-tables",
   "customization-server",
@@ -579,36 +577,6 @@ export const $ServerId = composers.$ServerId;
  * @since 0.1.0
  */
 export const $IamTablesId = composers.$IamTablesId;
-
-/**
- * Identity composer for the `@beep/lexical-schemas` namespace.
- *
- * @example
- * ```typescript
- * import { $LexicalSchemasId } from "@beep/identity/packages"
- *
- * const schemaId = $LexicalSchemasId.make("SchemaId")
- * ```
- *
- * @category symbols
- * @since 0.1.0
- */
-export const $LexicalSchemasId = composers.$LexicalSchemasId;
-
-/**
- * Identity composer for the `@beep/yjs` namespace.
- *
- * @example
- * ```typescript
- * import { $YjsId } from "@beep/identity/packages"
- *
- * const schemaId = $YjsId.make("SchemaId")
- * ```
- *
- * @category symbols
- * @since 0.1.0
- */
-export const $YjsId = composers.$YjsId;
 
 /**
  * Identity composer for the `@beep/customization-domain` namespace.

@@ -26,6 +26,7 @@
  */
 
 import { buildRepoDependencyIndex, type RepoDepMapValue, type WorkspacePkgKey } from "@beep/tooling-utils";
+import { thunkZero } from "@beep/utils/thunk";
 import * as CliCommand from "@effect/cli/Command";
 import * as A from "effect/Array";
 import * as Console from "effect/Console";
@@ -172,10 +173,7 @@ const topologicalSort = (
               )
             );
             const currentDegrees = yield* Ref.get(inDegreeRef);
-            const newDegree = F.pipe(
-              HashMap.get(currentDegrees, dependent),
-              O.getOrElse(() => 0)
-            );
+            const newDegree = F.pipe(HashMap.get(currentDegrees, dependent), O.getOrElse(thunkZero));
             if (newDegree === 0) {
               newZeroDegree.push(dependent);
             }

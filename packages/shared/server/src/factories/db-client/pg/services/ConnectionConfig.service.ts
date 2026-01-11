@@ -10,7 +10,7 @@ import type * as Redacted from "effect/Redacted";
 import * as Str from "effect/String";
 import * as Pg from "pg";
 
-const $I = $SharedServerId.create("internal/db/pg/services/ConnectionConfigService");
+const $I = $SharedServerId.create("factories/db-client/pg/services/ConnectionConfig.service");
 
 Pg.types.setTypeParser(Pg.types.builtins.DATE, F.identity);
 Pg.types.setTypeParser(Pg.types.builtins.TIMESTAMP, F.identity);

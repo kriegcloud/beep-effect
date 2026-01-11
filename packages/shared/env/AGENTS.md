@@ -29,6 +29,12 @@
   - `otlp.*` — OpenTelemetry exporter URLs
   - `security.trustedOrigins` — CORS allowed origins
   - `ai.*` — AI provider API keys (OpenAI, Anthropic)
+  - `alchemy.password` — Alchemy service password (Redacted)
+  - `marketing.dub.token` — Dub marketing platform token (Redacted)
+  - `upload.secret` — UploadThing secret (Redacted)
+  - `baseUrl` — Computed base URL based on Vercel environment or localhost
+  - `productionUrl` — Optional Vercel project production URL
+  - `isVite` — Flag indicating if running in Vite environment
 
 - **ServerConfig** — Effect Config definition for server environment, composable for custom configurations.
 - **ConfigArrayURL** — Helper for parsing comma-separated URL lists from environment variables.
@@ -72,6 +78,8 @@
 - **Add a new server configuration section**
   ```ts
   // In ServerEnv.ts, add to ServerConfig
+  import * as Config from "effect/Config";
+
   export const ServerConfig = Config.all({
     // ... existing sections
     myService: Config.nested("MY_SERVICE")(
@@ -87,6 +95,7 @@
 - **Check if credentials are configured**
   ```ts
   import { isPlaceholder, serverEnv } from "@beep/shared-env";
+  import * as Redacted from "effect/Redacted";
 
   if (isPlaceholder(serverEnv.cloud.aws.accessKeyId)) {
     console.log("AWS credentials not configured, using local storage fallback");

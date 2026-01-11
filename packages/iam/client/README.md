@@ -526,8 +526,6 @@ Key steps in the continuation pattern:
 
 - **Server-side operations**: database queries, session creation, token signing belong in `@beep/iam-server`
 - **Domain models**: entity definitions and business logic belong in `@beep/iam-domain`
-- **Database schemas**: Drizzle table definitions belong in `@beep/iam-tables`
-- **Server ManagedRuntime**: use `@beep/runtime-client` for client-side runtime
 - **UI components**: presentational components belong in `@beep/iam-ui`
 - **Handler services**: avoid resurrecting `AuthHandler` or `auth-wrapper` patterns; keep implementations focused on transport and error shaping
 
@@ -544,14 +542,12 @@ This is the CLIENT/contract layer. Keep it focused on client-facing Effect contr
 | `@beep/contract`             | Contract system for type-safe request/response schemas    |
 | `@beep/iam-domain`           | IAM domain models and entities                             |
 | `@beep/iam-server`           | Better-auth server configuration and types                 |
-| `@beep/iam-tables`           | Drizzle schemas for IAM tables                             |
 | `@beep/shared-domain`        | Shared domain entities (User, Organization)                |
-| `@beep/shared-client`        | Shared CLIENT patterns and utilities                          |
+| `@beep/shared-env`           | Environment configuration utilities                        |
 | `@beep/schema`               | Reusable Effect schemas (Email, Password, EntityId, etc.)  |
 | `@beep/errors`               | Error logging and telemetry                                |
 | `@beep/constants`            | Schema-backed enums and constants                          |
 | `@beep/identity`             | Package identity system                                    |
-| `@beep/invariant`            | Assertion contracts                                        |
 | `@beep/utils`                | Pure runtime helpers                                       |
 
 ### UI & React Integration
@@ -644,10 +640,7 @@ bun run --filter @beep/iam-client dev
 - `@beep/contract` — Contract system providing `Contract.make`, `ContractKit`, and continuation handlers
 - `@beep/iam-domain` — Entity models and business logic consumed by contracts
 - `@beep/iam-server` — Server-side implementations of IAM operations (better-auth server setup)
-- `@beep/iam-tables` — Drizzle schemas for IAM tables
 - `@beep/iam-ui` — UI components consuming these CLIENT contract implementations and forms
-- `@beep/shared-client` — Shared CLIENT patterns and utilities
-- `@beep/runtime-client` — Client ManagedRuntime for executing Effect programs in browser
 - `@beep/ui` — UI utilities including `withToast` for atom feedback
 
 ## Versioning and Changes

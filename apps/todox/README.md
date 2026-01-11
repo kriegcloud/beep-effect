@@ -196,7 +196,6 @@ apps/todox/
 
 | Package          | Purpose                           |
 |------------------|-----------------------------------|
-| `@beep/mock`     | Mock mail data for development    |
 | `date-fns`       | Date formatting and manipulation  |
 
 ### DevDependencies
@@ -336,7 +335,6 @@ export default function MailPage() {
 
 **Features**:
 - Resizable panels using `react-resizable-panels`
-- Mock data integration via `@beep/mock`
 - Server actions for mail operations in `src/actions/mail.ts`
 - API routes in `src/app/api/mail/` (labels, details, list)
 

@@ -4,6 +4,7 @@
 
 import * as A from "effect/Array";
 import { pipe } from "effect/Function";
+import * as O from "effect/Option";
 import * as Str from "effect/String";
 import type { MatchRange, ParsedSegment } from "./types";
 
@@ -58,15 +59,16 @@ const extractText = (text: string, startIndex: number, endIndex: number): string
  */
 export const parse = (text: string, matches: readonly MatchRange[]): readonly ParsedSegment[] => {
   // Handle empty matches case
-  if (matches.length === 0) {
+  if (A.isEmptyReadonlyArray(matches)) {
     return [createNonHighlightedSegment(text)];
   }
 
-  const segments: ParsedSegment[] = A.empty();
+  const segments: ParsedSegment[] = [];
 
   // Add leading non-highlighted text if first match doesn't start at 0
-  const firstMatch = matches[0];
-  if (firstMatch !== undefined && firstMatch[0] > 0) {
+  const firstMatchOpt = A.get(0)(matches);
+  if (O.isSome(firstMatchOpt) && firstMatchOpt.value[0] > 0) {
+    const firstMatch = firstMatchOpt.value;
     const leadingText = extractText(text, 0, firstMatch[0]);
     segments.push(createNonHighlightedSegment(leadingText));
   }

@@ -1,19 +1,19 @@
 import { describe, expect, it } from "bun:test";
-import type { EnvValue } from "@beep/constants";
-import type { BS } from "@beep/schema";
+import { EnvValue } from "@beep/constants";
+import { BS } from "@beep/schema";
+import { File } from "@beep/shared-domain/entities";
+import * as Organization from "@beep/shared-domain/entities/Organization";
+import { SharedEntityIds } from "@beep/shared-domain/entity-ids";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
-import { File } from "../../../../src/entities";
-import type * as Organization from "../../../../src/entities/Organization";
-import { SharedEntityIds } from "../../../../src/entity-ids";
 
 const { UploadKey, ShardPrefix, ShardPrefixDecoded } = File;
 
 describe("File.UploadKey", () => {
   describe("ShardPrefix", () => {
     it("should generate consistent shard prefix from fileId", () => {
-      const fileId = "file__12345678-1234-1234-1234-123456789012" as SharedEntityIds.FileId.Type;
+      const fileId = "shared_file__12345678-1234-1234-1234-123456789012" as SharedEntityIds.FileId.Type;
 
       const shardPrefix1 = UploadKey.shardPrefixFromFileId(fileId);
       const shardPrefix2 = UploadKey.shardPrefixFromFileId(fileId);
@@ -22,8 +22,8 @@ describe("File.UploadKey", () => {
     });
 
     it("should generate different shard prefixes for different fileIds", () => {
-      const fileId1 = "file__12345678-1234-1234-1234-123456789012" as SharedEntityIds.FileId.Type;
-      const fileId2 = "file__87654321-4321-4321-4321-210987654321" as SharedEntityIds.FileId.Type;
+      const fileId1 = "shared_file__12345678-1234-1234-1234-123456789012" as SharedEntityIds.FileId.Type;
+      const fileId2 = "shared_file__87654321-4321-4321-4321-210987654321" as SharedEntityIds.FileId.Type;
 
       const shardPrefix1 = UploadKey.shardPrefixFromFileId(fileId1);
       const shardPrefix2 = UploadKey.shardPrefixFromFileId(fileId2);
@@ -50,14 +50,14 @@ describe("File.UploadKey", () => {
 
   describe("UploadKey bidirectional transformation", () => {
     const mockUploadKeyDecoded: File.UploadKeyDecoded.Type = {
-      env: "dev" as EnvValue.Type,
-      fileId: "file__12345678-1234-1234-1234-123456789012" as SharedEntityIds.FileId.Type,
-      organizationType: "individual" as Organization.OrganizationType.Type,
-      organizationId: "organization__87654321-4321-4321-4321-210987654321" as SharedEntityIds.OrganizationId.Type,
-      entityKind: "user" as const,
-      entityIdentifier: SharedEntityIds.UserId.make(`user__87654321-4321-4321-4321-210987654321`),
+      env: EnvValue.Enum.dev,
+      fileId: SharedEntityIds.FileId.make("shared_file__12345678-1234-1234-1234-123456789012"),
+      organizationType: Organization.OrganizationType.Enum.individual,
+      organizationId: SharedEntityIds.OrganizationId.make("shared_organization__87654321-4321-4321-4321-210987654321"),
+      entityKind: SharedEntityIds.UserId.tableName,
+      entityIdentifier: SharedEntityIds.UserId.make(`shared_user__87654321-4321-4321-4321-210987654321`),
       entityAttribute: "avatar",
-      extension: "jpg" as BS.FileExtension.Type,
+      extension: BS.FileExtension.Enum.jpg,
     };
 
     it("should decode UploadKeyDecoded to UploadKeyEncoded", () => {
@@ -65,14 +65,15 @@ describe("File.UploadKey", () => {
         const encoded = yield* S.decode(UploadKey)(mockUploadKeyDecoded);
 
         // Verify the encoded path has the expected structure
+
         expect(encoded).toMatch(
-          /^\/dev\/tenants\/[a-f0-9]{2}\/individual\/organization__[a-f0-9-]+\/user\/user__87654321-4321-4321-4321-210987654321\/avatar\/\d{4}\/\d{1,2}\/file__[a-f0-9-]+\.jpg$/
+          /^\/dev\/tenants\/[a-f0-9]{2}\/individual\/shared_organization__[a-f0-9-]+\/shared_user\/shared_user__87654321-4321-4321-4321-210987654321\/avatar\/\d{4}\/\d{1,2}\/shared_file__[a-f0-9-]+\.jpg$/
         );
 
         // Verify it contains the expected components
         expect(encoded).toContain("/dev/tenants/"); //"" as SharedEntityIds.UserId.Type,
         expect(encoded).toContain("/individual/");
-        expect(encoded).toContain("/user/user__87654321-4321-4321-4321-210987654321/avatar/");
+        expect(encoded).toContain("/shared_user/shared_user__87654321-4321-4321-4321-210987654321/avatar/");
         expect(encoded).toContain(".jpg");
       }).pipe(Effect.runPromise);
     });
@@ -156,13 +157,15 @@ describe("File.UploadKey", () => {
     it("should reject invalid environment values", () => {
       const invalidDecoded = {
         env: "invalid",
-        fileId: "file__12345678-1234-1234-1234-123456789012" as SharedEntityIds.FileId.Type,
-        organizationType: "individual" as Organization.OrganizationType.Type,
-        organizationId: "organization__87654321-4321-4321-4321-210987654321" as SharedEntityIds.OrganizationId.Type,
-        entityKind: "user" as const,
-        entityIdentifier: "user__87654321-4321-4321-4321-210987654321" as SharedEntityIds.UserId.Type,
+        fileId: SharedEntityIds.FileId.make("shared_file__12345678-1234-1234-1234-123456789012"),
+        organizationType: Organization.OrganizationType.Enum.individual,
+        organizationId: SharedEntityIds.OrganizationId.make(
+          "shared_organization__87654321-4321-4321-4321-210987654321"
+        ),
+        entityKind: SharedEntityIds.UserId.tableName,
+        entityIdentifier: SharedEntityIds.UserId.make("shared_user__87654321-4321-4321-4321-210987654321"),
         entityAttribute: "avatar",
-        extension: "jpg" as BS.FileExtension.Type,
+        extension: BS.FileExtension.Enum.jpg,
       };
 
       return Effect.gen(function* () {
@@ -175,11 +178,13 @@ describe("File.UploadKey", () => {
     it("should reject invalid file extensions", () => {
       const invalidDecoded = {
         env: "dev" as EnvValue.Type,
-        fileId: "file__12345678-1234-1234-1234-123456789012" as SharedEntityIds.FileId.Type,
-        organizationType: "individual" as Organization.OrganizationType.Type,
-        organizationId: "organization__87654321-4321-4321-4321-210987654321" as SharedEntityIds.OrganizationId.Type,
-        entityKind: "user" as const,
-        entityIdentifier: "user__87654321-4321-4321-4321-210987654321" as SharedEntityIds.UserId.Type,
+        fileId: SharedEntityIds.FileId.make("shared_file__12345678-1234-1234-1234-123456789012"),
+        organizationType: Organization.OrganizationType.Enum.individual,
+        organizationId: SharedEntityIds.OrganizationId.make(
+          "shared_organization__87654321-4321-4321-4321-210987654321"
+        ),
+        entityKind: SharedEntityIds.UserId.tableName,
+        entityIdentifier: SharedEntityIds.UserId.make("shared_user__87654321-4321-4321-4321-210987654321"),
         entityAttribute: "avatar",
         extension: "invalid",
       };
@@ -203,21 +208,22 @@ describe("File.UploadKey", () => {
 
   describe("UploadKey edge cases", () => {
     it("should handle different entity kinds", () => {
-      const entityKinds = ["organization", "user", "team"] as const;
+      const entityKinds = ["shared_organization", "shared_user", "shared_team"] as const;
 
       return Effect.gen(function* () {
         for (const entityKind of entityKinds) {
           const decoded = {
             ...{
               env: "dev" as EnvValue.Type,
-              fileId: "file__12345678-1234-1234-1234-123456789012" as SharedEntityIds.FileId.Type,
-              organizationType: "individual" as Organization.OrganizationType.Type,
-              organizationId:
-                "organization__87654321-4321-4321-4321-210987654321" as SharedEntityIds.OrganizationId.Type,
-              entityKind: "user" as const,
-              entityIdentifier: "user__87654321-4321-4321-4321-210987654321" as SharedEntityIds.UserId.Type,
+              fileId: SharedEntityIds.FileId.make("shared_file__12345678-1234-1234-1234-123456789012"),
+              organizationType: Organization.OrganizationType.Enum.individual,
+              organizationId: SharedEntityIds.OrganizationId.make(
+                "shared_organization__87654321-4321-4321-4321-210987654321"
+              ),
+              entityKind: SharedEntityIds.UserId.tableName,
+              entityIdentifier: SharedEntityIds.UserId.make("shared_user__87654321-4321-4321-4321-210987654321"),
               entityAttribute: "avatar",
-              extension: "jpg" as BS.FileExtension.Type,
+              extension: BS.FileExtension.Enum.jpg,
             },
             entityKind,
           };
@@ -238,13 +244,15 @@ describe("File.UploadKey", () => {
         for (const organizationType of orgTypes) {
           const decoded = {
             env: "dev" as EnvValue.Type,
-            fileId: "file__12345678-1234-1234-1234-123456789012" as SharedEntityIds.FileId.Type,
+            fileId: SharedEntityIds.FileId.make("shared_file__12345678-1234-1234-1234-123456789012"),
             organizationType: organizationType as Organization.OrganizationType.Type,
-            organizationId: "organization__87654321-4321-4321-4321-210987654321" as SharedEntityIds.OrganizationId.Type,
-            entityKind: "user" as const,
-            entityIdentifier: "user__87654321-4321-4321-4321-210987654321" as SharedEntityIds.UserId.Type,
+            organizationId: SharedEntityIds.OrganizationId.make(
+              "shared_organization__87654321-4321-4321-4321-210987654321"
+            ),
+            entityKind: SharedEntityIds.UserId.tableName,
+            entityIdentifier: SharedEntityIds.UserId.make("shared_user__87654321-4321-4321-4321-210987654321"),
             entityAttribute: "avatar",
-            extension: "jpg" as BS.FileExtension.Type,
+            extension: BS.FileExtension.Enum.jpg,
           };
 
           const encoded = yield* S.decode(UploadKey)(decoded);
@@ -257,19 +265,19 @@ describe("File.UploadKey", () => {
     });
 
     it("should handle different environments", () => {
-      const environments = ["dev", "staging", "prod"] as const;
-
       return Effect.gen(function* () {
-        for (const env of environments) {
+        for (const env of EnvValue.Options) {
           const decoded = {
             env: env as EnvValue.Type,
-            fileId: "file__12345678-1234-1234-1234-123456789012" as SharedEntityIds.FileId.Type,
-            organizationType: "individual" as Organization.OrganizationType.Type,
-            organizationId: "organization__87654321-4321-4321-4321-210987654321" as SharedEntityIds.OrganizationId.Type,
-            entityKind: "user" as const,
-            entityIdentifier: "user__87654321-4321-4321-4321-210987654321" as SharedEntityIds.UserId.Type,
+            fileId: SharedEntityIds.FileId.make("shared_file__12345678-1234-1234-1234-123456789012"),
+            organizationType: Organization.OrganizationType.Enum.individual,
+            organizationId: SharedEntityIds.OrganizationId.make(
+              "shared_organization__87654321-4321-4321-4321-210987654321"
+            ),
+            entityKind: SharedEntityIds.UserId.tableName,
+            entityIdentifier: SharedEntityIds.UserId.make("shared_user__87654321-4321-4321-4321-210987654321"),
             entityAttribute: "avatar",
-            extension: "jpg" as BS.FileExtension.Type,
+            extension: BS.FileExtension.Enum.jpg,
           };
 
           const encoded = yield* S.decode(UploadKey)(decoded);

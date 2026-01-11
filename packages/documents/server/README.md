@@ -21,9 +21,8 @@ The package follows vertical slice architecture, implementing the server layer t
 ### Database Layer
 | Export | Description |
 |--------|-------------|
-| `DocumentsDb.DocumentsDb` | Context tag for documents database access |
-| `DocumentsDb.DocumentsDb.Live` | Database layer with documents tables schema (requires `Db.SliceDbRequirements`) |
-| `DocumentsDb.layer` | Alias for `DocumentsDb.Live` |
+| `DocumentsDb.Db` | Context tag for documents database access |
+| `DocumentsDb.Db.layer` | Database layer with documents tables schema (requires `DbClient.SliceDbRequirements`) |
 
 ### Repositories
 | Export | Description |
@@ -44,15 +43,15 @@ Available via main export and `@beep/documents-server/files`:
 | `PdfMetadataService` | PDF metadata extraction and processing |
 | `pdfMetadataServiceEffect` | Effect for PDF metadata service |
 
-### HTTP Handlers
+### RPC Handlers
 Available via wildcard export `@beep/documents-server/handlers`:
 
 | Export | Description |
 |--------|-------------|
-| `DocumentsHandlersLive` | Combined handler layer for all documents endpoints |
-| `DocumentHandlersLive` | Document HTTP handlers |
-| `DiscussionHandlersLive` | Discussion HTTP handlers |
-| `CommentHandlersLive` | Comment HTTP handlers |
+| `DocumentsHandlersLive` | Combined handler layer for all documents RPC endpoints |
+| `DocumentHandlersLive` | Document RPC handlers |
+| `DiscussionHandlersLive` | Discussion RPC handlers |
+| `CommentHandlersLive` | Comment RPC handlers |
 
 Note: The handlers export works via the package.json wildcard export `./*` mapping to `./src/*.ts`.
 
@@ -84,7 +83,7 @@ const program = Effect.gen(function* () {
 
 // Provide layers from shared-server infrastructure
 const runtime = Layer.mergeAll(
-  DocumentsDb.layer,
+  DocumentsDb.Db.layer,
   DocumentsRepos.layer
 );
 ```
@@ -125,7 +124,7 @@ const extractMetadata = Effect.gen(function* () {
 });
 ```
 
-### Using HTTP Handlers
+### Using RPC Handlers
 
 ```typescript
 import { DocumentsHandlersLive } from "@beep/documents-server/handlers";
@@ -134,7 +133,7 @@ import * as Layer from "effect/Layer";
 
 // Compose handlers with their dependencies
 const handlerLayer = DocumentsHandlersLive.pipe(
-  Layer.provide(Layer.mergeAll(DocumentsRepos.layer, DocumentsDb.layer))
+  Layer.provide(Layer.mergeAll(DocumentsRepos.layer, DocumentsDb.Db.layer))
 );
 ```
 
@@ -147,7 +146,7 @@ import * as Layer from "effect/Layer";
 
 // Complete documents infrastructure layer
 const documentsInfraLayer = Layer.mergeAll(
-  DocumentsDb.layer,
+  DocumentsDb.Db.layer,
   DocumentsRepos.layer,
   DocumentsHandlersLive
 );
@@ -170,9 +169,9 @@ const documentsInfraLayer = Layer.mergeAll(
 |---------|---------|
 | `@beep/documents-domain` | Domain entities and business logic |
 | `@beep/documents-tables` | Drizzle table schemas |
-| `@beep/shared-server` | Shared infrastructure (Db, Repo factories) |
+| `@beep/shared-server` | Shared infrastructure (DbClient) |
+| `@beep/shared-domain` | Shared entity IDs, models, and DbRepo factory |
 | `@beep/shared-env` | Server environment configuration (serverEnv) |
-| `@beep/shared-domain` | Shared entity IDs and models |
 | `@beep/shared-tables` | Shared table utilities and factories |
 | `@beep/schema` | EntityId factories and utilities |
 | `@beep/errors` | Error handling and logging |
@@ -197,7 +196,8 @@ This package integrates with:
 - **Server Runtime** (`@beep/runtime-server`) — Provides database and repository layers to the server-side ManagedRuntime
 - **Documents Domain** (`@beep/documents-domain`) — Implements persistence for domain entities
 - **Documents Tables** (`@beep/documents-tables`) — Uses Drizzle schemas for database operations
-- **Shared Server** (`@beep/shared-server`) — Built on `Db.make` and `Repo.make` patterns from shared infrastructure
+- **Shared Server** (`@beep/shared-server`) — Built on `DbClient.make` pattern from shared infrastructure
+- **Shared Domain** (`@beep/shared-domain`) — Uses `DbRepo.make` factory for repositories
 - **DB Admin** (`@beep/db-admin`) — Migration validation and test container setup
 
 ## Architecture
@@ -205,14 +205,14 @@ This package integrates with:
 Follows the vertical slice layering pattern with clear separation of concerns:
 
 ### Database Layer
-`DocumentsDb.Live` provides scoped database access via `Db.make` from `@beep/shared-server`, automatically registering the documents tables schema from `@beep/documents-tables`. This layer handles:
+`DocumentsDb.Db.layer` provides scoped database access via `DbClient.make` from `@beep/shared-server`, automatically registering the documents tables schema from `@beep/documents-tables`. This layer handles:
 - Database connection management
 - Query execution with proper scoping
 - Transaction support
 - Schema registration
 
 ### Repository Layer
-Each repository extends base CRUD operations from `Repo.make` (`@beep/shared-server`) with domain-specific queries:
+Each repository extends base CRUD operations from `DbRepo.make` (`@beep/shared-domain/factories`) with domain-specific queries:
 - **CommentRepo** — Comment CRUD and queries
 - **DiscussionRepo** — Discussion thread management
 - **DocumentFileRepo** — File attachment relationships
@@ -230,11 +230,11 @@ Specialized services for document metadata extraction:
 - **ExifToolService** — EXIF metadata extraction from images (JPEG, PNG, etc.)
 - **PdfMetadataService** — PDF document metadata and structure analysis
 
-### HTTP Handler Layer
-HTTP handlers implement Effect HTTP routes for documents operations:
-- **DocumentHandlersLive** — Document HTTP request handlers
-- **DiscussionHandlersLive** — Discussion HTTP request handlers
-- **CommentHandlersLive** — Comment HTTP request handlers
+### RPC Handler Layer
+RPC handlers implement Effect RPC endpoints for documents operations:
+- **DocumentHandlersLive** — Document RPC request handlers
+- **DiscussionHandlersLive** — Discussion RPC request handlers
+- **CommentHandlersLive** — Comment RPC request handlers
 - **DocumentsHandlersLive** — Combined layer merging all handlers
 
 Handlers provide request validation, business logic coordination, and error mapping.
@@ -266,9 +266,9 @@ bun run --filter @beep/documents-server build
 - Structured logging via `Effect.log*` methods
 
 ### Error Handling
-- All errors follow Effect's tagged error pattern from `@effect/schema`
+- All errors follow Effect's tagged error pattern from `effect/Schema`
 - Repositories propagate errors through the Effect type system
-- Database errors are handled via `Db.DatabaseError` from `@beep/shared-server`
+- Database errors are handled via `DbError` from `@beep/shared-domain`
 
 ### Configuration
 - Configuration is managed through Effect Context tags
@@ -282,7 +282,7 @@ bun run --filter @beep/documents-server build
 - Import from package exports: `@beep/documents-server`, `@beep/documents-server/files`, `@beep/documents-server/handlers`
 
 ### Testing
-- Use `DocumentsDb.layer` in test environments with proper database setup
+- Use `DocumentsDb.Db.layer` in test environments with proper database setup
 - Repositories can be tested in isolation with mock dependencies
 - File processing services can be provided via their respective layers
 
@@ -290,7 +290,7 @@ bun run --filter @beep/documents-server build
 The package provides multiple export paths defined in `package.json`:
 - **Main** (`@beep/documents-server`) — DocumentsDb, DocumentsRepos, file services (ExifToolService, PdfMetadataService)
 - **Files** (`@beep/documents-server/files`) — Explicit export for file processing services
-- **Handlers** (`@beep/documents-server/handlers`) — HTTP handler layers (via wildcard `.*` export)
+- **Handlers** (`@beep/documents-server/handlers`) — RPC handler layers (via wildcard `.*` export)
 - **Config** (`@beep/documents-server/config`) — FilesConfig (via wildcard `.*` export)
 - **SignedUrlService** (`@beep/documents-server/SignedUrlService`) — StorageService (via wildcard `.*` export)
 - **Database** (`@beep/documents-server/db`) — Re-export of DocumentsDb (same as main export)

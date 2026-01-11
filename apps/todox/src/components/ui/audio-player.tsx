@@ -47,25 +47,25 @@ function formatTime(seconds: number) {
 }
 
 interface AudioPlayerItem<TData = unknown> {
-  id: string | number;
-  src: string;
-  data?: undefined | TData;
+  readonly id: string | number;
+  readonly src: string;
+  readonly data?: undefined | TData;
 }
 
 interface AudioPlayerApi<TData = unknown> {
-  ref: RefObject<HTMLAudioElement | null>;
-  activeItem: AudioPlayerItem<TData> | null;
-  duration: number | undefined;
-  error: MediaError | null;
-  isPlaying: boolean;
-  isBuffering: boolean;
-  playbackRate: number;
-  isItemActive: (id: string | number | null) => boolean;
-  setActiveItem: (item: AudioPlayerItem<TData> | null) => Promise<void>;
-  play: (item?: undefined | AudioPlayerItem<TData> | null) => Promise<void>;
-  pause: () => void;
-  seek: (time: number) => void;
-  setPlaybackRate: (rate: number) => void;
+  readonly ref: RefObject<HTMLAudioElement | null>;
+  readonly activeItem: AudioPlayerItem<TData> | null;
+  readonly duration: number | undefined;
+  readonly error: MediaError | null;
+  readonly isPlaying: boolean;
+  readonly isBuffering: boolean;
+  readonly playbackRate: number;
+  readonly isItemActive: (id: string | number | null) => boolean;
+  readonly setActiveItem: (item: AudioPlayerItem<TData> | null) => Promise<void>;
+  readonly play: (item?: undefined | AudioPlayerItem<TData> | null) => Promise<void>;
+  readonly pause: () => void;
+  readonly seek: (time: number) => void;
+  readonly setPlaybackRate: (rate: number) => void;
 }
 
 const AudioPlayerContext = createContext<AudioPlayerApi | null>(null);
@@ -88,7 +88,7 @@ export const useAudioPlayerTime = () => {
   return time;
 };
 
-export function AudioPlayerProvider<TData = unknown>({ children }: { children: ReactNode }) {
+export function AudioPlayerProvider<TData = unknown>({ children }: { readonly children: ReactNode }) {
   const audioRef = useRef<HTMLAudioElement>(null);
   const itemRef = useRef<AudioPlayerItem<TData> | null>(null);
   const playPromiseRef = useRef<Promise<void> | null>(null);

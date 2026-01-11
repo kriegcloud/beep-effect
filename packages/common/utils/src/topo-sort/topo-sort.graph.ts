@@ -3,6 +3,7 @@
  */
 
 import { $UtilsId } from "@beep/identity/packages";
+import { thunk, thunkZero } from "@beep/utils/thunk";
 import * as A from "effect/Array";
 import * as F from "effect/Function";
 import * as Graph from "effect/Graph";
@@ -50,7 +51,7 @@ const ensureNodeIndex = (
   mutable: Graph.MutableDirectedGraph<NodeId, void>,
   indices: HashMap.HashMap<NodeId, NodeIndex>,
   id: NodeId
-): { indices: HashMap.HashMap<NodeId, NodeIndex>; index: NodeIndex } => {
+): { readonly indices: HashMap.HashMap<NodeId, NodeIndex>; readonly index: NodeIndex } => {
   const existing = HashMap.get(id)(indices);
 
   if (O.isSome(existing)) {
@@ -101,11 +102,7 @@ const countIndexInDegrees = (
       A.reduce(degrees, (acc, neighborIndex) =>
         HashMap.set(
           neighborIndex,
-          F.pipe(
-            HashMap.get(neighborIndex)(acc),
-            O.getOrElse(() => 0),
-            (count) => count + 1
-          )
+          F.pipe(HashMap.get(neighborIndex)(acc), O.getOrElse(thunkZero), (count) => count + 1)
         )(acc)
       )
     );
@@ -145,7 +142,7 @@ export const toposortWithGraph = (dag: DirectedAcyclicGraph): TaskList => {
       F.pipe(
         HashMap.get(index)(idByIndex),
         O.match({
-          onNone: () => acc,
+          onNone: thunk(acc),
           onSome: (id) => HashSet.add(id)(acc),
         })
       )
@@ -159,10 +156,7 @@ export const toposortWithGraph = (dag: DirectedAcyclicGraph): TaskList => {
       const updated = F.pipe(
         Graph.neighbors(graph, rootIndex),
         A.reduce({ degrees: inDegrees, pending: newRoots }, (state, neighborIndex) => {
-          const currentDegree = F.pipe(
-            HashMap.get(neighborIndex)(state.degrees),
-            O.getOrElse(() => 0)
-          );
+          const currentDegree = F.pipe(HashMap.get(neighborIndex)(state.degrees), O.getOrElse(thunkZero));
           const nextDegree = currentDegree - 1;
           const updatedDegrees = HashMap.set(neighborIndex, nextDegree)(state.degrees);
           const updatedPending = nextDegree === 0 ? HashSet.add(neighborIndex)(state.pending) : state.pending;
@@ -185,14 +179,15 @@ export const toposortWithGraph = (dag: DirectedAcyclicGraph): TaskList => {
       nonRoots,
       HashSet.reduce(A.empty<NodeId>(), (acc, index) =>
         F.pipe(
-          HashMap.get(index)(idByIndex),
+          idByIndex,
+          HashMap.get(index),
           O.match({
-            onNone: () => acc,
+            onNone: thunk(acc),
             onSome: (id) => F.pipe(acc, A.append(id)),
           })
         )
       ),
-      (nodes) => A.join(nodes, ", ")
+      A.join(", ")
     );
 
     throw new Error(`Cycle(s) detected; toposort only works on acyclic graphs. Cyclic nodes: ${cyclicNodes}`);

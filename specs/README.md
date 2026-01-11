@@ -1,47 +1,138 @@
 # Specifications
 
-Self-improving specification workflow for complex, multi-phase tasks.
+> Agent-assisted, self-improving specification workflow for complex, multi-phase tasks.
+
+---
+
+## Quick Start
+
+1. **New spec?** Follow the [SPEC_CREATION_GUIDE](SPEC_CREATION_GUIDE.md)
+2. **Need an agent?** See [Specialized Agents](agents/README.md)
+3. **Pattern reference?** Read [META_SPEC_TEMPLATE](ai-friendliness-audit/META_SPEC_TEMPLATE.md)
+
+---
+
+## Agent-Assisted Workflow
+
+Specs leverage 9 specialized agents for research, validation, documentation, and continuous improvement:
+
+| Phase | Agents | Purpose |
+|-------|--------|---------|
+| **Discovery** | `codebase-researcher`, `mcp-researcher`, `web-researcher` | Gather context |
+| **Evaluation** | `code-reviewer`, `architecture-pattern-enforcer` | Validate quality |
+| **Synthesis** | `reflector`, `doc-writer` | Generate artifacts, improve prompts |
+| **Iteration** | `test-writer`, `code-observability-writer`, `reflector` | Execute, test, observe |
+
+See [SPEC_CREATION_GUIDE](SPEC_CREATION_GUIDE.md) for detailed phase instructions.
+
+---
+
+## Specialized Agents
+
+| Agent | Purpose | Tier |
+|-------|---------|------|
+| [reflector](agents/reflector/) | Meta-reflection and prompt improvement | Tier 1 |
+| [codebase-researcher](agents/codebase-researcher/) | Systematic code exploration | Tier 1 |
+| [mcp-researcher](agents/mcp-researcher/) | Effect documentation research | Tier 2 |
+| [web-researcher](agents/web-researcher/) | Web-based research synthesis | Tier 2 |
+| [code-reviewer](agents/code-reviewer/) | Repository guideline enforcement | Tier 3 |
+| [architecture-pattern-enforcer](agents/architecture-pattern-enforcer/) | Structure and layering validation | Tier 3 |
+| [code-observability-writer](agents/code-observability-writer/) | Logging, tracing, metrics | Tier 4 |
+| [doc-writer](agents/doc-writer/) | JSDoc and markdown documentation | Tier 4 |
+| [test-writer](agents/test-writer/) | Effect-first test creation | Tier 4 |
+
+Ready-to-use prompts: [Agent Handoffs](agents/handoffs/)
+
+---
 
 ## Structure
 
-Each specification follows the [META_SPEC_TEMPLATE](ai-friendliness-audit/META_SPEC_TEMPLATE.md):
+Every spec follows [META_SPEC_TEMPLATE](ai-friendliness-audit/META_SPEC_TEMPLATE.md):
 
 ```
 specs/[SPEC_NAME]/
-├── README.md                    # Entry point (100-150 lines)
+├── README.md                    # Entry point (required)
 ├── REFLECTION_LOG.md            # Cumulative learnings (required)
 ├── QUICK_START.md               # 5-min getting started (optional)
-├── MASTER_ORCHESTRATION.md      # Full workflow (for complex specs)
-├── AGENT_PROMPTS.md             # Specialized prompts (for complex specs)
+├── MASTER_ORCHESTRATION.md      # Full workflow (complex specs)
+├── AGENT_PROMPTS.md             # Sub-agent prompts (complex specs)
 ├── RUBRICS.md                   # Evaluation criteria (if applicable)
-├── templates/                   # Output templates (if applicable)
+├── templates/                   # Output templates
 ├── outputs/                     # Generated artifacts
-└── HANDOFF_P[N].md              # Iterative execution handoffs
+└── handoffs/                    # Iteration documents
 ```
 
-## Compliance Requirements
-
-Every spec folder MUST have:
-- **README.md** - Entry point with purpose and scope
-- **REFLECTION_LOG.md** - Accumulated learnings (even if empty)
+---
 
 ## Current Specs
 
 | Spec | Description | Status |
 |------|-------------|--------|
+| [agents](agents/) | Specialized agent specifications | Active |
+| [ai-docs-review](ai-docs-review/) | AI documentation accuracy and integrity review | P0 Ready |
 | [ai-friendliness-audit](ai-friendliness-audit/) | AI collaboration audit methodology | Active |
+| [demo-parity](demo-parity/) | FlexLayout demo feature parity | P0 Ready |
+| [docking-system](docking-system/) | FlexLayout drag-drop docking | Complete |
+| [flex-layout-port](flex-layout-port/) | FlexLayout Effect Schema port | Active |
+| [flexlayout-type-safety](flexlayout-type-safety/) | Type safety improvements | Active |
+| [new-specialized-agents](new-specialized-agents/) | Agent creation initiative | Complete |
+| [node-composition-refactor](node-composition-refactor/) | Node hierarchy refactor | Complete |
+| [structure-standardization](structure-standardization/) | Codebase structure standards | Active |
+
+---
 
 ## Creating a New Spec
 
-1. Create directory: `mkdir specs/[name]`
-2. Add required files: `README.md`, `REFLECTION_LOG.md`
-3. Follow [META_SPEC_TEMPLATE](ai-friendliness-audit/META_SPEC_TEMPLATE.md) for structure
+### Quick Version
 
-## Standardization
+```bash
+mkdir -p specs/[name]/{templates,outputs,handoffs}
+touch specs/[name]/{README,REFLECTION_LOG}.md
+```
 
-Run the [SPEC_STANDARDIZATION_PROMPT](SPEC_STANDARDIZATION_PROMPT.md) to audit and standardize specs.
+Then use agents:
+1. `doc-writer` to generate README.md content
+2. `architecture-pattern-enforcer` to validate structure
+
+### Full Version
+
+See [SPEC_CREATION_GUIDE](SPEC_CREATION_GUIDE.md) for complete agent-assisted workflow.
+
+---
+
+## Compliance Requirements
+
+Every spec MUST have:
+
+| File | Purpose | Validation |
+|------|---------|------------|
+| `README.md` | Entry point with purpose and scope | `architecture-pattern-enforcer` |
+| `REFLECTION_LOG.md` | Accumulated learnings | Required even if empty |
+
+Complex specs SHOULD also have:
+- `MASTER_ORCHESTRATION.md` - Full workflow
+- `handoffs/HANDOFF_P[N].md` - Multi-session context preservation
+
+---
 
 ## Skills vs Specs
 
-- **Skills** (`.claude/skills/`): Single-session tasks
-- **Specs** (`specs/`): Multi-session orchestration with handoffs
+| Aspect | Skills (`.claude/skills/`) | Specs (`specs/`) |
+|--------|---------------------------|------------------|
+| Duration | Single session | Multi-session |
+| Handoffs | Not needed | HANDOFF_P[N].md |
+| Reflection | Minimal | REFLECTION_LOG.md |
+| Agents | Optional | Integrated workflow |
+
+**Rule of thumb**: If it spans sessions or needs learning capture, use a spec.
+
+---
+
+## Key Documents
+
+| Document | Purpose |
+|----------|---------|
+| [SPEC_CREATION_GUIDE](SPEC_CREATION_GUIDE.md) | Agent-assisted spec workflow |
+| [META_SPEC_TEMPLATE](ai-friendliness-audit/META_SPEC_TEMPLATE.md) | Core pattern reference |
+| [Agent Specifications](agents/README.md) | All 9 specialized agents |
+| [Agent Handoffs](agents/handoffs/) | Ready-to-use agent prompts |

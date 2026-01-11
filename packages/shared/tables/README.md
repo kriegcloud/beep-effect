@@ -55,8 +55,9 @@ This is infrastructure-layer code: pure Drizzle schema definitions with no busin
 
 ```ts
 import { SharedEntityIds } from "@beep/shared-domain";
-import { Table } from "@beep/shared-tables/Table";
+import { Table } from "@beep/shared-tables";
 import * as pg from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
 
 export const webhook = Table.make(SharedEntityIds.WebhookId)(
   {
@@ -83,7 +84,7 @@ Automatically includes:
 
 ```ts
 import { SharedEntityIds } from "@beep/shared-domain";
-import { OrgTable } from "@beep/shared-tables/OrgTable";
+import { OrgTable } from "@beep/shared-tables";
 import * as pg from "drizzle-orm/pg-core";
 
 export const document = OrgTable.make(SharedEntityIds.DocumentId)(
@@ -105,8 +106,7 @@ Includes everything from `Table.make` plus:
 ### Custom Binary Columns
 
 ```ts
-import { bytea, byteaBase64 } from "@beep/shared-tables/columns";
-import { OrgTable } from "@beep/shared-tables/OrgTable";
+import { bytea, byteaBase64, OrgTable } from "@beep/shared-tables";
 import { DocumentsEntityIds } from "@beep/documents-domain";
 import * as pg from "drizzle-orm/pg-core";
 

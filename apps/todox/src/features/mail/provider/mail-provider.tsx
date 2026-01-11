@@ -1,7 +1,7 @@
 "use client";
 
-import type { IMail, IMailLabel, IMails } from "@beep/mock/_mail";
 import { useGetLabels, useGetMail, useGetMails } from "@beep/todox/actions/mail";
+import type { Mail, MailLabel, Mails } from "@beep/todox/types/mail";
 import { type UseBooleanReturn, useBoolean } from "@beep/ui/hooks/use-boolean";
 import { usePathname } from "@beep/ui/hooks/use-pathname";
 import { useRouter } from "@beep/ui/hooks/use-router";
@@ -25,13 +25,13 @@ type MailContextValue = {
   readonly openNav: UseBooleanReturn;
   readonly openMail: UseBooleanReturn;
   readonly openCompose: UseBooleanReturn;
-  readonly labels: IMailLabel[];
+  readonly labels: MailLabel[];
   readonly labelsLoading: boolean;
   readonly labelsEmpty: boolean;
-  readonly mails: IMails;
+  readonly mails: Mails;
   readonly mailsLoading: boolean;
   readonly mailsEmpty: boolean;
-  readonly mail: IMail | undefined;
+  readonly mail: Mail | undefined;
   readonly mailLoading: boolean;
   readonly mailError: Error | undefined;
   readonly mdUp: boolean;

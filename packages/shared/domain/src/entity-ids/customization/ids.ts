@@ -3,8 +3,8 @@ import { EntityId } from "@beep/schema/identity";
 import type * as S from "effect/Schema";
 
 const $I = $SharedDomainId.create("entity-ids/customization/ids");
-
-export const UserHotkeyId = EntityId.make("user_hotkey", {
+const make = EntityId.builder("customization");
+export const UserHotkeyId = make("user_hotkey", {
   brand: "UserHotkeyId",
 }).annotations(
   $I.annotations("UserHotkeyId", {
@@ -15,4 +15,9 @@ export const UserHotkeyId = EntityId.make("user_hotkey", {
 export declare namespace UserHotkeyId {
   export type Type = S.Schema.Type<typeof UserHotkeyId>;
   export type Encoded = S.Schema.Encoded<typeof UserHotkeyId>;
+
+  export namespace RowId {
+    export type Type = typeof UserHotkeyId.privateSchema.Type;
+    export type Encoded = typeof UserHotkeyId.privateSchema.Encoded;
+  }
 }

@@ -54,9 +54,9 @@
 ## Testing
 
 - Run tests: `bun run test --filter=@beep/customization-domain`
-- Test file location: Adjacent to source files as `*.test.ts`
-- Use `@beep/testkit` for Effect testing utilities
-- ALWAYS test schema encode/decode roundtrips
+- Test file location: Adjacent to source files as `*.test.ts` or in `test/` directory
+- Uses Bun's built-in test framework (`bun:test`)
+- ALWAYS test schema encode/decode roundtrips for entity models
 
 ## Contributor Checklist
 - [ ] Align entity changes with `@beep/customization-tables` columns and regenerate migrations (`bun run db:generate`, `bun run db:migrate`).

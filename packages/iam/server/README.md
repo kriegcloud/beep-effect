@@ -5,7 +5,7 @@ Infrastructure layer for the IAM slice. Provides Effect Layers, repositories, an
 ## Purpose
 
 `@beep/iam-server` implements the infrastructure layer for Identity and Access Management, providing:
-- Database repositories for all IAM entities (23 repos) using the `@beep/shared-server/Repo` factory pattern
+- Database repositories for all IAM entities (23 repos) using the `DbRepo.make` factory pattern from `@beep/shared-domain/factories`
 - Better Auth service integration with custom plugins and database hooks
 - Effect-based API route handlers for authentication flows
 - Email service for authentication-related communications
@@ -25,12 +25,13 @@ This package sits between `@beep/iam-domain` (business logic) and consuming appl
 
 | Export | Description |
 |--------|-------------|
-| `IamDb.IamDb` | Context tag and Layer for Drizzle-backed Postgres access with IAM schema |
+| `IamDb.Db` | Context tag and Layer for Drizzle-backed Postgres access with IAM schema |
 | `IamRepos.layer` | Merged Layer providing 23 repository services |
 | `Auth.Service` | Better Auth integration with plugin aggregation and session management |
 | `Auth.AuthEmailService` | Email delivery for verification, password reset, invitations, and OTP |
 | `IamApiLive` | Merged Layer for all IAM API route handlers |
 | `IamApiV1` | Namespace export for v1 API handlers (SignIn, SignUp, Admin, etc.) |
+| Individual repos | `AccountRepo`, `UserRepo`, `SessionRepo`, etc. exported directly |
 
 ## Usage
 
@@ -41,10 +42,10 @@ import { Auth, IamDb, IamRepos } from "@beep/iam-server";
 import * as Layer from "effect/Layer";
 
 const IamInfraLayer = Layer.mergeAll(
-  IamDb.IamDb.Live,
+  IamDb.Db.Live,
   IamRepos.layer,
   Auth.AuthEmailService.Default,
-  Auth.Service.layer
+  Auth.Service.Default
 );
 ```
 
@@ -52,12 +53,12 @@ const IamInfraLayer = Layer.mergeAll(
 
 ```typescript
 import { UserRepo } from "@beep/iam-server";
-import { IamEntityIds } from "@beep/shared-domain";
+import { SharedEntityIds } from "@beep/shared-domain";
 import * as Effect from "effect/Effect";
 
 const program = Effect.gen(function* () {
   const userRepo = yield* UserRepo;
-  const userId = IamEntityIds.UserId.create();
+  const userId = SharedEntityIds.UserId.create();
 
   const user = yield* userRepo.findById(userId);
   return user;
@@ -211,11 +212,11 @@ All services follow Effect-first patterns:
 The package follows a strict dependency hierarchy:
 
 ```
-IamDb.IamDb.Live
-  ├─> IamRepos.layer (requires IamDb + Db.SliceDbRequirements)
-  └─> Auth.Service.layer
+IamDb.Db.Live
+  ├─> IamRepos.layer (requires IamDb.Db)
+  └─> Auth.Service.Default
         ├─> Auth.AuthEmailService.Default
-        └─> IamDb.IamDb.Live
+        └─> IamDb.Db.Live
 ```
 
 Route handlers depend on:
@@ -247,33 +248,33 @@ Route handlers depend on:
 When adding a new IAM entity, create a repository following this pattern:
 
 ```typescript
-import { Repo } from "@beep/shared-server/Repo";
+import { DbRepo } from "@beep/shared-domain/factories";
 import { Entities } from "@beep/iam-domain";
-import { dependencies } from "@beep/iam-server/adapters/repos/_common";
+import { dependencies } from "@beep/iam-server/db/repos/_common";
 import { IamDb } from "@beep/iam-server/db";
-import { IamEntityIds } from "@beep/shared-domain";
+import { SharedEntityIds } from "@beep/shared-domain";
 import * as Effect from "effect/Effect";
 
 export class AuditLogRepo extends Effect.Service<AuditLogRepo>()(
-  "@beep/iam-server/adapters/repos/AuditLogRepo",
+  "@beep/iam-server/db/repos/AuditLogRepo",
   {
     dependencies,
     accessors: true,
-    effect: Repo.make(
-      IamEntityIds.AuditLogId,
+    effect: DbRepo.make(
+      SharedEntityIds.AuditLogId,
       Entities.AuditLog.Model,
       Effect.gen(function* () {
-        yield* IamDb.IamDb; // Ensure database is injected
+        yield* IamDb.Db; // Ensure database is injected
         return {};
       })
     ),
   }
 ) {}
 
-// Export via src/adapters/repos/index.ts
+// Export via src/db/repos/index.ts
 export * from "./AuditLog.repo";
 
-// Add to IamRepos.layer in src/adapters/repositories.ts
+// Add to IamRepos.layer in src/db/repositories.ts
 export const layer: IamReposLive = Layer.mergeAll(
   // ...existing repos...
   AuditLogRepo.Default
@@ -342,8 +343,8 @@ const program = Effect.gen(function* () {
 ## Related Documentation
 
 For implementation details and architectural guidance:
-- `/home/elpresidank/YeeBois/projects/beep-effect/packages/iam/server/AGENTS.md` - Agent-specific patterns and guardrails
-- `/home/elpresidank/YeeBois/projects/beep-effect/AGENTS.md` - Repository-wide conventions
+- `AGENTS.md` - Agent-specific patterns and guardrails
+- Repository root `CLAUDE.md` - Repository-wide conventions
 
 ## Related Packages
 

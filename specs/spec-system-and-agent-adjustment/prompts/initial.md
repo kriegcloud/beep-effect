@@ -4,9 +4,9 @@ agent (the agent I'm directly communicating with as I am with you now) between d
 research, design, planning, boilerplating,  implementation, testing & review using a specialized `reflection` agent. Here is a list of what I mean.
 
 # 1. folder structure
-come up with a more systematic, efficient & clear folderstructure convention for spec folders such that all spec folders 
+come up with a more systematic, efficient & clear folderstructure convention for spec folders such that all spec folders
 follow the exact same structure
-   - current relevant known files are specs/README.md & specs/SPEC_STANDARDIZATION_PROMPT.md
+   - current relevant known files are specs/README.md & specs/SPEC_CREATION_GUIDE.md
 
 # 2. New Specialized Agents
 create new specialized agents optimized for tasks which need be performed at each phase of the spec workflow

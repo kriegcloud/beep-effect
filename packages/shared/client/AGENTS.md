@@ -2,61 +2,156 @@
 
 ## Purpose & Fit
 
-- Provides shared CLIENT (client-server glue) contracts for cross-cutting concerns consumed by applications and feature slices.
-- Currently serves as a placeholder package for future shared client contracts that don't belong to specific vertical slices (IAM, Documents).
-- Designed to house shared RPC contracts, API client utilities, and cross-slice Effect-based client services when they emerge.
+- Provides shared CLIENT (client-server glue) infrastructure for cross-cutting concerns consumed by applications and feature slices.
+- Houses RPC client infrastructure, file management state (Jotai atoms), and browser utilities that span multiple domains.
 - Maintains clean separation between slice-specific CLIENTs (`@beep/iam-client`, `@beep/documents-client`) and shared client infrastructure.
+- Bridges server contracts (from `@beep/shared-domain`) with browser-based state management and Effect runtime.
 
 ## Surface Map
 
-Currently minimal:
-- **`src/index.ts`** — Barrel export with placeholder constant
-- **`src/client.ts`** — Empty file reserved for future client utilities
+### RPC Infrastructure (`src/constructors/`)
+- **`RpcClient.ts`** — WebSocket-based Effect RPC client with error logging, retry policies, and connection management
+- Exports `addRpcErrorLogging` (higher-order function) and `RpcConfigLive` (Layer)
+
+### File Management State (`src/atom/files/`)
+- **`atoms/filesAtom`** — Writable atom managing files/folders cache with optimistic updates
+- **`atoms/selectedFiles.atom`** — Selected file/folder IDs tracking
+- **`atoms/activeUploads.atom`** — In-progress upload state with progress tracking
+- **`atoms/startUpload.atom`** — Write-only atom to initiate file uploads
+- **`atoms/cancelUpload.atom`** — Write-only atom to cancel uploads
+- **`atoms/deleteFiles.atom`** — Write-only atom to delete files/folders
+- **`atoms/moveFiles.atom`** — Write-only atom to move files between folders
+- **`atoms/createFolderAtom`** — Write-only atom to create folders
+- **`atoms/filesEventStream.atom`** — Atom managing SSE connection for file events
+- **`types.ts`** — Shared type definitions for file operations
+- **`runtime.ts`** — Atom runtime configuration for Effect execution
+- **`errors.ts`** — File operation error definitions
+
+### Client Services (`src/atom/services/`)
+- **`FilesApi.service.ts`** — Effect service wrapping shared files RPC methods (list, upload, delete, create, move)
+- **`FilesRpcClient.service.ts`** — Low-level RPC client for shared file operations
+- **`FilesEventStream.service.ts`** — Server-sent events stream for file change notifications
+- **`ImageCompressionClient.service.ts`** — Client-side image compression service
+- **`Upload/`** — Upload service, errors, and utilities
+
+### Browser Utilities (`src/atom/`)
+- **`location.atom.ts`** — Jotai atom tracking URL hash changes (`Option<string>`)
+
+### Core (`src/`)
+- **`client.ts`** — Client-side SDK utilities documentation
+- **`index.ts`** — Barrel export (currently empty, relies on subpath exports)
 
 ## Package Status
 
-This package is in early stages and serves as a placeholder for shared CLIENT infrastructure. As cross-cutting client needs emerge, this package will grow to include:
+This package has evolved beyond its initial placeholder status and now provides production-ready client infrastructure:
 
-- Shared RPC client contracts (Effect-based)
-- Common API client utilities
+**Implemented**:
+- WebSocket-based RPC client with error logging and retry policies
+- File management state (Jotai atoms) with optimistic updates
+- Client services for files API, image compression, and uploads
+- Browser utilities (location tracking)
+- SSE event stream integration
+
+**Future additions** may include:
 - Shared query/mutation hooks for TanStack Query
-- Client-side Effect services that span multiple slices
-- Cross-slice client observability utilities
+- Additional cross-slice client observability utilities
+- Client-side caching strategies
 
 ## Usage Patterns
 
-### Current State
+### RPC Client Configuration
 
 ```typescript
-import { beep } from "@beep/shared-client";
-// Placeholder export
+import { RpcConfigLive, addRpcErrorLogging } from "@beep/shared-client/constructors";
+import { SharedRpcs } from "@beep/shared-domain";
+import * as RpcClient from "@effect/rpc/RpcClient";
+import * as Effect from "effect/Effect";
+import * as F from "effect/Function";
+
+const program = Effect.gen(function* () {
+  const rpc = F.pipe(
+    SharedRpcs.V1.Rpcs,
+    RpcClient.make,
+    addRpcErrorLogging
+  );
+
+  const result = yield* rpc.files_list();
+  return result;
+}).pipe(Effect.provide(RpcConfigLive));
 ```
 
-### Future Patterns (Examples)
+### Using Client Services
 
-When this package matures, it may include:
-
-**Shared RPC Client**:
 ```typescript
-import { SharedClient } from "@beep/shared-client/client";
+import { FilesApi } from "@beep/shared-client/atom/services";
 import * as Effect from "effect/Effect";
 
 const program = Effect.gen(function* () {
-  const client = yield* SharedClient;
-  const result = yield* client.healthCheck();
-  return result;
+  const api = yield* FilesApi.Service;
+
+  // List files
+  const files = yield* api.list();
+
+  // Create folder
+  yield* api.createFolder({ name: "My Folder", parentId: null });
+
+  return files;
 });
 ```
 
-**Shared Query Utilities**:
-```typescript
-import { useSharedQuery } from "@beep/shared-client/hooks";
+### File Management with Jotai Atoms
 
-function MyComponent() {
-  const { data, isLoading } = useSharedQuery({
-    queryKey: ["shared", "resource"],
-    effect: SharedClient.getResource,
-  });
+```typescript
+import { filesAtom, startUpload, deleteFiles } from "@beep/shared-client/atom/files";
+import { useAtom, useSetAtom }from "@effect-atom/atom-react";
+import * as Match from "effect/Match";
+
+function FileManager() {
+  const [filesResult] = useAtom(filesAtom);
+  const startUploadFn = useSetAtom(startUpload.atom);
+  const deleteFilesFn = useSetAtom(deleteFiles.atom);
+
+  return Match.value(filesResult).pipe(
+    Match.tag("Loading", () => <div>Loading...</div>),
+    Match.tag("Success", (result) => (
+      <div>
+        <button onClick={() => startUploadFn({ files: [] })}>Upload</button>
+        <ul>
+          {result.value.rootFiles.map((file) => (
+            <li key={file.id}>
+              {file.fileName}
+              <button onClick={() => deleteFilesFn({ fileIds: [file.id] })}>
+                Delete
+              </button>
+            </li>
+          ))}
+        </ul>
+      </div>
+    )),
+    Match.tag("Error", (error) => <div>Error: {error.message}</div>),
+    Match.exhaustive
+  );
+}
+```
+
+### Browser Location Tracking
+
+```typescript
+import { hashAtom } from "@beep/shared-client/atom";
+import { useAtomValue }from "@effect-atom/atom-react";
+import * as O from "effect/Option";
+import * as F from "effect/Function";
+
+function LocationTracker() {
+  const hash = useAtomValue(hashAtom);
+
+  return F.pipe(
+    hash,
+    O.match({
+      onNone: () => <div>No hash</div>,
+      onSome: (h) => <div>Current hash: {h}</div>,
+    })
+  );
 }
 ```
 
@@ -68,33 +163,47 @@ function MyComponent() {
 - This package is for cross-slice client infrastructure only
 
 ### With Runtime
-- `@beep/runtime/client` — Client ManagedRuntime for browser Effect execution
-- Future shared CLIENT contracts will integrate with client runtime layers
+- `@beep/runtime-client` — Client ManagedRuntime for browser Effect execution
+- Jotai atoms integrate with client runtime for reactive state management
+- Services use client runtime layers for dependency injection
 
 ### With Applications
-- `apps/web` — Will consume shared CLIENT when client contracts emerge
-- Future API client utilities will be imported from this package
+- `apps/web` — Consumes file management atoms and client services
+- React components use Jotai hooks to access file state and trigger operations
 
 ## Dependencies
 
-- `@beep/shared-domain` — Shared entity models and domain logic
-- `@beep/schema` — Effect Schema utilities
-- `@beep/utils` — Runtime helpers
-- `@beep/identity` — Package identity
-- `@beep/errors` — Error infrastructure
-- `@beep/constants` — Schema-backed enums
-- `@beep/invariant` — Assertion contracts
-- `@beep/shared-server` — Server infrastructure (for type alignment)
+**Official peer dependencies** (from `package.json`):
+- `@beep/shared-domain` — Shared entity models (File, Folder) and SharedRpcs contract definitions
+- `@beep/runtime-client` — Client ManagedRuntime for Effect execution in browser
+- `@beep/schema` — Effect Schema utilities and EntityId factories
+- `@beep/utils` — Pure runtime helpers (thunk, predicates)
+- `@beep/identity` — Package identity for service tagging
+- `@beep/shared-env` — Client environment configuration (API URLs, WebSocket endpoints)
 - `effect` — Effect runtime
+
+**Additional dependencies used in code** (not in package.json):
+- `@beep/errors` — Used for `BeepError` in `src/atom/files/atoms/upload.atom.ts`
+- `@effect/rpc` — RPC client infrastructure
+- `@effect/platform-browser` — Browser-specific platform services
+- `@effect-atom/atom-react` — Jotai integration with Effect
+
+Note: Some imports like `@beep/errors` are used but not declared as peer dependencies, which may indicate missing dependency declarations.
 
 ## Authoring Guardrails
 
-- Only add truly cross-cutting client concerns to this package
-- Keep slice-specific CLIENT contracts in their respective packages
+- **CRITICAL: Effect-first imports**: ALWAYS use namespace imports (`import * as Effect from "effect/Effect"`, `import * as A from "effect/Array"`, etc.). NEVER use native array/string methods—route ALL operations through Effect utilities.
+- **PascalCase Schema constructors**: ALWAYS use `S.Struct`, `S.Array`, `S.String`, `S.Number` (NOT lowercase `S.struct`, `S.array`).
+- Only add truly cross-cutting client concerns to this package (not slice-specific features)
+- Keep slice-specific CLIENT contracts in their respective packages (`@beep/iam-client`, `@beep/documents-client`)
 - Follow Effect-first patterns (no async/await in contracts)
 - Use `Effect.Service` for client service definitions
 - Export Layers for dependency injection
-- Maintain browser-safe dependencies (no server-only code)
+- Maintain browser-safe dependencies (no Node.js-only imports)
+- Jotai atoms should integrate with `@beep/runtime-client` for Effect execution
+- Use `effect/Match` for pattern matching instead of switch statements
+- Use `effect/Predicate` for type guards instead of typeof/instanceof
+- Use `effect/DateTime` instead of native Date objects
 
 ## Verifications
 
@@ -134,21 +243,19 @@ function MyComponent() {
 
 - [ ] Verify new additions are truly cross-cutting (not slice-specific)
 - [ ] Keep browser-safe dependencies (check for Node.js-only imports)
+- [ ] Use Effect namespace imports and collection/string helpers (no native methods)
+- [ ] Follow `effect/Schema` uppercase constructors: `S.Struct`, `S.Array`, `S.String`
 - [ ] Follow Effect Service pattern for client services
 - [ ] Export Layers for runtime composition
-- [ ] Add type tests when introducing new contracts
+- [ ] Add tests under `test/` using `@beep/testkit`
 - [ ] Update this AGENTS.md when adding significant functionality
-- [ ] Coordinate with slice CLIENT maintainers to NEVER duplicate functionality
+- [ ] Coordinate with slice CLIENT maintainers to avoid duplication
+- [ ] Ensure atoms handle SSR gracefully (return `Option.none()` when server-rendered)
+- [ ] Verify RPC methods have proper error logging via `addRpcErrorLogging`
+- [ ] Run `bun run lint:fix` before committing
+- [ ] Run `bun run check` and `bun run test` to verify changes
 
-## Future Work
+## Known Issues
 
-This package will grow organically as cross-cutting client needs emerge. Potential additions:
-
-- Shared RPC client base class
-- Common API error handling utilities
-- Client-side telemetry/logging services
-- Shared query cache utilities
-- Cross-slice client authentication helpers
-- Browser storage abstractions (LocalStorage, IndexedDB via Effect)
-
-Until then, this package remains minimal and serves as a marker for future shared client infrastructure.
+- `@beep/errors` is imported in `src/atom/files/atoms/upload.atom.ts` but not declared in `package.json` peer dependencies
+- This may cause build issues if not resolved via workspace dependency hoisting

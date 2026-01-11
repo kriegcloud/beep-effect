@@ -1,1 +1,1 @@
-export * from "./GlowEffectPaper";
+export * from "./glow-effect-paper.tsx";

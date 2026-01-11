@@ -18,7 +18,7 @@ Centralizes Communications domain models via `M.Class` definitions that provide 
 
 | Export | Description |
 |--------|-------------|
-| `Entities.*` | Namespaced entity models for all Communications domain objects |
+| `Entities.EmailTemplate` | Email template entity model with subject, body, to/cc/bcc fields |
 
 ## Architecture Fit
 
@@ -37,12 +37,9 @@ Prefer the namespace import pattern for entities:
 ```typescript
 import { Entities } from "@beep/comms-domain";
 import * as Effect from "effect/Effect";
-import * as S from "effect/Schema";
-import * as F from "effect/Function";
 
-// Access entity models
-const MessageModel = Entities.Message.Model;
-const ChannelModel = Entities.Channel.Model;
+// Access email template entity model
+const EmailTemplateModel = Entities.EmailTemplate.Model;
 ```
 
 ### Creating Entity Insert Payloads
@@ -51,20 +48,21 @@ Use `Model.insert.make` for type-safe insert operations:
 
 ```typescript
 import { Entities } from "@beep/comms-domain";
-import { SharedEntityIds } from "@beep/shared-domain";
+import { CommsEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
-import * as O from "effect/Option";
 
-export const makeMessageInsert = Effect.gen(function* () {
+export const makeEmailTemplateInsert = Effect.gen(function* () {
   const now = yield* DateTime.now;
   const nowDate = DateTime.toDate(now);
 
-  return Entities.Message.Model.insert.make({
-    id: "msg_1",
-    content: "Hello, world!",
-    channelId: "channel_1",
-    senderId: SharedEntityIds.UserId.make("user_1"),
+  return Entities.EmailTemplate.Model.insert.make({
+    id: CommsEntityIds.EmailTemplateId.make("comms_email_template__123"),
+    organizationId: SharedEntityIds.OrganizationId.make("shared_organization__456"),
+    userId: SharedEntityIds.UserId.make("shared_user__789"),
+    name: "Welcome Email",
+    subject: "Welcome to Beep!",
+    body: "Thank you for joining us.",
     createdAt: nowDate,
     updatedAt: nowDate,
   });
@@ -84,7 +82,7 @@ export const makeMessageInsert = Effect.gen(function* () {
 - **No infrastructure**: no Drizzle clients, repositories, or external service adapters
 - **No application logic**: keep orchestration in `@beep/comms-server`
 - **No framework dependencies**: avoid Next.js, React, or platform-specific code
-- **No cross-slice domain imports**: only depend on `@beep/shared-domain` and `@beep/common/*`
+- **No cross-slice domain imports**: only depend on `@beep/shared-domain` and `@beep//*`
 
 Domain models should be pure, testable, and reusable across all infrastructure implementations.
 

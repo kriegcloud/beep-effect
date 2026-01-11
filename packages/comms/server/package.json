@@ -44,8 +44,7 @@
     "drizzle-orm": "catalog:",
     "effect": "catalog:",
     "@beep/shared-domain": "workspace:^",
-    "@beep/comms-domain": "workspace:^",
-    "@beep/schema": "workspace:^"
+    "@beep/comms-domain": "workspace:^"
   },
   "devDependencies": {
     "@effect/docgen": "catalog:",
@@ -59,7 +58,6 @@
     "drizzle-orm": "catalog:",
     "effect": "catalog:",
     "@beep/shared-domain": "workspace:^",
-    "@beep/schema": "workspace:^",
     "@total-typescript/ts-reset": "catalog:"
   },
   "effect": {

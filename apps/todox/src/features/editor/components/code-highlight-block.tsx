@@ -2,8 +2,9 @@ import "./code-highlight-block.css";
 
 import type { ReactNodeViewProps } from "@tiptap/react";
 import { NodeViewContent, NodeViewWrapper } from "@tiptap/react";
+import * as A from "effect/Array";
+import * as F from "effect/Function";
 import { useCallback } from "react";
-
 import { editorClasses } from "../classes";
 
 // ----------------------------------------------------------------------
@@ -20,13 +21,6 @@ export function CodeHighlightBlock(props: ReactNodeViewProps) {
     [updateAttributes]
   );
 
-  const renderLanguageOptions = () =>
-    lowlight.listLanguages().map((lang: string) => (
-      <option key={lang} value={lang}>
-        {lang}
-      </option>
-    ));
-
   return (
     <NodeViewWrapper className={editorClasses.content.codeBlock}>
       <select
@@ -38,7 +32,16 @@ export function CodeHighlightBlock(props: ReactNodeViewProps) {
       >
         <option value="null">auto</option>
         <option disabled>—</option>
-        {renderLanguageOptions()}
+        {F.flow(
+          lowlight.listLanguages,
+          A.map(
+            (lang: string): React.ReactNode => (
+              <option key={lang} value={lang}>
+                {lang}
+              </option>
+            )
+          )
+        )()}
       </select>
 
       <pre>

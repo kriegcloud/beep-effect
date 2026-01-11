@@ -29,13 +29,14 @@ This package sits in the infrastructure layer and is consumed by vertical slices
 |--------|------|-------------|
 | `Db` | Namespace | Database client utilities (`make`, `layer`, `PgClient`, `TransactionContext`, etc.) |
 | `SharedDb` | Service | Shared database service with file/folder/upload session schema |
-| `Repo` | Namespace | Repository factory (`make`) with base CRUD operations |
 | `FileRepo` | Service | File repository with pagination, move, delete, key lookup |
 | `UploadSessionRepo` | Service | Upload session repository with expiration cleanup |
 | `SharedRepos` | Namespace | Combined shared repositories (includes `FileRepo`, `FolderRepo`, `UploadSessionRepo`) |
 | `Email` | Namespace | Email service (`ResendService`, `components`) |
 | `Upload` | Namespace | Upload service with S3 pre-signed URLs |
 | `SharedServerRpcs` | Namespace | RPC handlers layer for file operations |
+
+**Note**: Repository factory (`DbRepo.make`) and database errors (`DatabaseError`) are now exported from `@beep/shared-domain/factories` and `@beep/shared-domain/errors` respectively.
 
 **Note**: `FolderRepo` is available through the `SharedRepos` namespace export, not as a top-level export.
 
@@ -97,7 +98,7 @@ const updateWithTx = Effect.gen(function* () {
 #### Creating a Repository with Custom Queries
 
 ```typescript
-import { Repo } from "@beep/shared-server";
+import * as DbRepo from "@beep/shared-domain/factories/DbRepo";
 import { SharedEntityIds } from "@beep/shared-domain";
 import { MyEntity } from "./entities";
 import { MyDb } from "./db";
@@ -106,7 +107,7 @@ import * as Effect from "effect/Effect";
 export class MyEntityRepo extends Effect.Service<MyEntityRepo>()("@my-slice/server/repos/MyEntityRepo", {
   dependencies: [MyDb.Live],
   accessors: true,
-  effect: Repo.make(
+  effect: DbRepo.make(
     SharedEntityIds.MyEntityId,
     MyEntity.Model,
     Effect.gen(function* () {
@@ -134,7 +135,7 @@ export class MyEntityRepo extends Effect.Service<MyEntityRepo>()("@my-slice/serv
 }) {}
 ```
 
-**Base CRUD Methods** provided by `Repo.make`:
+**Base CRUD Methods** provided by `DbRepo.make`:
 - `insert(data)` — Insert single record, return entity
 - `insertVoid(data)` — Insert single record, return void
 - `insertManyVoid(data[])` — Bulk insert, return void
@@ -170,14 +171,14 @@ const program = Effect.gen(function* () {
 - `moveFiles({ fileIds, folderId, userId })` — Move files to a folder (or root)
 - `deleteFiles({ fileIds, userId })` — Delete files and return S3 keys
 - `getFilesByKeys({ keys, userId })` — Retrieve files by upload keys
-- All base CRUD methods from `Repo.make`
+- All base CRUD methods from `DbRepo.make`
 
 **SharedRepos.FolderRepo** provides:
-- All base CRUD methods from `Repo.make`
+- All base CRUD methods from `DbRepo.make`
 
 **UploadSessionRepo** provides:
 - `deleteExpired()` — Delete expired upload sessions
-- All base CRUD methods from `Repo.make`
+- All base CRUD methods from `DbRepo.make`
 
 ### Email
 
@@ -221,10 +222,10 @@ const getUploadUrl = Effect.gen(function* () {
   const uploadService = yield* Upload.Service;
   const uploadPath: File.UploadKey.Encoded = {
     env: "development",
-    fileId: "file_123",
+    fileId: "shared_file_123",
     organizationType: "team",
-    organizationId: "org_456",
-    entityKind: "document",
+    organizationId: "shared_organization_456",
+    entityKind: "documents_document",
   };
   const url = yield* uploadService.initiateUpload({
     ...uploadPath,
@@ -279,7 +280,8 @@ import * as Str from "effect/String";
 ### Error Mapping
 
 ```typescript
-import { Db } from "@beep/shared-server";
+import { DatabaseError } from "@beep/shared-domain/errors";
+import * as Effect from "effect/Effect";
 
 const safeInsert = repo.insert(data).pipe(
   Effect.catchTag("DatabaseError", (error) => {
@@ -350,21 +352,21 @@ bun run --filter @beep/shared-server lint:circular
 packages/shared/server/
 ├── src/
 │   ├── index.ts              # Main barrel export
-│   ├── Db.ts                 # Database namespace re-export
 │   ├── Email.ts              # Email namespace re-export
-│   ├── Repo.ts               # Repository factory re-export
+│   ├── db.ts                 # Database re-exports (Db namespace)
 │   ├── db/
 │   │   ├── index.ts          # SharedDb barrel
-│   │   └── Db/
-│   │       ├── index.ts      # SharedDb service barrel
-│   │       └── Db.ts         # SharedDb service implementation
-│   ├── repos/
-│   │   ├── index.ts          # Shared repos barrel (FileRepo, UploadSessionRepo)
-│   │   ├── File.repo.ts      # FileRepo service
-│   │   ├── Folder.repo.ts    # FolderRepo service (via SharedRepos)
-│   │   ├── UploadSession.repo.ts  # UploadSessionRepo service
-│   │   ├── _common.ts        # Shared repo dependencies
-│   │   └── repositories.ts   # Combined SharedRepos namespace
+│   │   ├── Db/
+│   │   │   ├── index.ts      # SharedDb service barrel
+│   │   │   └── Db.ts         # SharedDb service implementation
+│   │   ├── repos/
+│   │   │   ├── index.ts          # Shared repos barrel (FileRepo, UploadSessionRepo)
+│   │   │   ├── File.repo.ts      # FileRepo service
+│   │   │   ├── Folder.repo.ts    # FolderRepo service (via SharedRepos)
+│   │   │   ├── UploadSession.repo.ts  # UploadSessionRepo service
+│   │   │   ├── _common.ts        # Shared repo dependencies
+│   │   │   └── repositories.ts   # Combined SharedRepos namespace
+│   │   └── repositories.ts   # Legacy export (to be removed)
 │   ├── services/
 │   │   ├── index.ts          # Services barrel
 │   │   └── Upload.service.ts # Upload service
@@ -378,21 +380,20 @@ packages/shared/server/
 │   │       └── files/        # File management RPCs
 │   ├── jobs/
 │   │   └── cleanup-upload-sessions.ts  # Scheduled cleanup
+│   └── factories/
+│       ├── index.ts                  # Factory barrel
+│       └── db-client/
+│           ├── index.ts              # Db client factory exports
+│           └── pg/
+│               ├── index.ts          # Pg exports
+│               ├── PgClient.ts       # Database service factory
+│               ├── formatter.ts      # SQL logger
+│               ├── types.ts          # Type definitions
+│               └── services/
+│                   ├── ConnectionConfig.service.ts
+│                   ├── ConnectionPool.service.ts
+│                   └── QueryLogger.service.ts
 │   └── internal/
-│       ├── db/
-│       │   ├── index.ts      # Db and Repo namespace exports
-│       │   └── pg/
-│       │       ├── index.ts          # Pg exports
-│       │       ├── PgClient.ts       # Database service factory
-│       │       ├── repo.ts           # Repository factory
-│       │       ├── errors.ts         # DatabaseError
-│       │       ├── formatter.ts      # SQL logger
-│       │       ├── types.ts          # Type definitions
-│       │       ├── pg-error-enum.ts  # Postgres error codes
-│       │       └── services/
-│       │           ├── ConnectionConfig.service.ts
-│       │           ├── ConnectionPool.service.ts
-│       │           └── QueryLogger.service.ts
 │       └── email/
 │           ├── index.ts              # Email namespace export
 │           ├── Email.ts              # Email barrel
@@ -435,7 +436,7 @@ packages/shared/server/
 
 **IAM** (`packages/iam/server`):
 - Uses `Db.make` to create `IamDb` with IAM-specific Drizzle schema
-- Leverages `Repo.make` for `WalletAddressRepo`, `UserRepo`, etc.
+- Leverages `DbRepo.make` (from `@beep/shared-domain`) for `WalletAddressRepo`, `UserRepo`, etc.
 
 **Documents** (`packages/documents/server`):
 - Creates `DocumentsDb` via `Db.make`
@@ -472,9 +473,9 @@ packages/shared/server/
 
 ### Repository Factories
 
-- Create new repos in `src/repos/<Entity>.repo.ts`
-- Use `Repo.make(idSchema, model, maker)` pattern
-- Export via `src/repos/index.ts` if top-level, or via namespace
+- Create new repos in `src/db/repos/<Entity>.repo.ts`
+- Use `DbRepo.make(idSchema, model, maker)` pattern (from `@beep/shared-domain/factories`)
+- Export via `src/db/repos/index.ts` if top-level, or via namespace
 - Add custom queries in the `maker` Effect block
 - Update `SharedRepos` if adding shared entity repos
 
@@ -506,6 +507,7 @@ packages/shared/server/
 ## Notes
 
 - **Configuration Migration**: `serverEnv` and `clientEnv` have been moved to `@beep/shared-env`. This package consumes configuration via dependency injection.
+- **Repository Factory Migration**: `DbRepo.make` and `DatabaseError` have been moved to `@beep/shared-domain`. Import from `@beep/shared-domain/factories/DbRepo` and `@beep/shared-domain/errors` respectively.
 - **Effect-First**: All database operations, repository methods, and service calls use Effect for error handling and observability.
 - **Telemetry**: Repository factories auto-generate telemetry spans and structured logging via `Effect.withSpan`.
 - **Email Rendering**: Email templates use React Email components for consistent HTML rendering.

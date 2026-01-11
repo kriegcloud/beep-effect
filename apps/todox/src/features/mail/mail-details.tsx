@@ -1,5 +1,5 @@
 "use client";
-import type { IMail, IMailLabel } from "@beep/mock/_mail";
+import type { Mail, MailLabel } from "@beep/todox/types/mail";
 import { FileThumbnail, Iconify, Label } from "@beep/ui/atoms";
 import { Markdown } from "@beep/ui/data-display";
 import { useBoolean } from "@beep/ui/hooks";
@@ -25,10 +25,10 @@ import { Editor } from "../editor";
 // ----------------------------------------------------------------------
 
 type Props = {
-  readonly mail?: undefined | IMail;
+  readonly mail?: undefined | Mail;
   readonly error?: undefined | string;
   readonly loading?: undefined | boolean;
-  readonly renderLabel?: undefined | ((id: string) => IMailLabel | undefined);
+  readonly renderLabel?: undefined | ((id: string) => MailLabel | undefined);
 };
 
 export function MailDetails({ mail, renderLabel, error, loading }: Props) {

@@ -35,7 +35,7 @@ export const addRpcErrorLogging = <Client>(client: Client): Client => {
       for (const [key, value] of Struct.entries(node)) {
         const nextPath = [...path, key];
         if (F.isFunction(value)) {
-          (node as Record<string, unknown>)[key] = wrapCall(value, nextPath);
+          node[key] = wrapCall(value, nextPath);
           continue;
         }
         visit(value, nextPath);

@@ -2,7 +2,7 @@
 import { mergeClasses } from "@beep/ui-core/utils";
 import { styled } from "@mui/material/styles";
 import type * as React from "react";
-import { SimpleBar } from "../SimpleBar";
+import { SimpleBar } from "../simple-bar";
 import { scrollbarClasses } from "./classes";
 
 import type { ScrollbarProps } from "./types";

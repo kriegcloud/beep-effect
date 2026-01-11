@@ -1,11 +1,15 @@
 import { Iconify } from "@beep/ui/atoms";
 import { usePopover } from "@beep/ui/hooks";
 import { rgbaFromChannel } from "@beep/ui-core/utils";
+import { thunk } from "@beep/utils";
 import type { ButtonBaseProps } from "@mui/material/ButtonBase";
 import ButtonBase, { buttonBaseClasses } from "@mui/material/ButtonBase";
 import { listClasses } from "@mui/material/List";
 import Menu from "@mui/material/Menu";
 import type { Editor } from "@tiptap/react";
+import * as A from "effect/Array";
+import * as F from "effect/Function";
+import * as O from "effect/Option";
 import { useCallback, useMemo } from "react";
 import { ToolbarItem } from "./toolbar-item";
 
@@ -31,7 +35,16 @@ type HeadingBlock = {
 export function HeadingBlock({ editor, isActive }: HeadingBlock) {
   const { anchorEl, open, onOpen, onClose } = usePopover();
 
-  const selectedOption = useMemo(() => HEADING_OPTIONS.find((option) => isActive(option.level)), [isActive]);
+  const selectedOption = useMemo(
+    F.pipe(
+      HEADING_OPTIONS,
+      A.findFirst((option) => isActive(option.level)),
+      O.getOrElse(thunk({ label: "Paragraph" })),
+      thunk
+    ),
+    [isActive]
+  );
+  // const selectedOption = useMemo(() => HEADING_OPTIONS.find((option) => isActive(option.level)), [isActive]);
 
   const handleSelect = useCallback(
     (value: TextHeadingLevel) => {
@@ -72,7 +85,7 @@ export function HeadingBlock({ editor, isActive }: HeadingBlock) {
           border: `solid 1px ${rgbaFromChannel(theme.vars.palette.grey["500Channel"], 0.2)}`,
         })}
       >
-        {selectedOption?.label ?? "Paragraph"}
+        {selectedOption.label}
         <Iconify width={16} icon={open ? "eva:arrow-ios-upward-fill" : "eva:arrow-ios-downward-fill"} />
       </ButtonBase>
 

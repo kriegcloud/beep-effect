@@ -31,7 +31,7 @@ Process in this exact order:
 15. @beep/documents-tables *(2 table file renames)*
 16. @beep/customization-tables
 17. @beep/comms-tables
-18. @beep/ui *(45 directory renames - Lexical editor)*
+18. @beep/ui *(3 directory renames)*
 19. @beep/shared-tables
 20. @beep/shared-server *(4 file renames, 1 Db→client)*
 21. @beep/shared-env
@@ -199,7 +199,6 @@ bun run build --filter @beep/[package]
 | `entities/User/`              | `entities/user/`          | shared-domain                   |
 | `db/Db/`                      | `db/client/`              | shared-server, iam-server, etc. |
 | `services/EncryptionService/` | `services/encryption/`    | shared-domain                   |
-| `plugins/ToolbarPlugin/`      | `plugins/toolbar-plugin/` | ui (lexical)                    |
 
 ---
 
@@ -366,7 +365,7 @@ These packages have the most changes and widest impact:
 |----------------------|-------------------|--------------|------------------------|
 | @beep/iam-domain     | 19                | 24           | HIGH - Many consumers  |
 | @beep/shared-domain  | 10                | 15           | HIGHEST - All packages |
-| @beep/ui             | 45                | 0            | MEDIUM - Lexical only  |
+| @beep/ui             | 3                 | 0            | LOW - Non-Lexical only |
 | @beep/iam-server     | 1                 | 30           | HIGH - Many repos      |
 | @beep/runtime-server | 0                 | 12           | MEDIUM - Layer files   |
 
@@ -398,10 +397,13 @@ git mv old-path new-path
 
 ## Edge Cases
 
-### @beep/ui Lexical Components
-The lexical editor has 45 PascalCase directories. These may follow library conventions. Verify before renaming:
-- Check if lexical library expects specific casing
-- Test editor functionality after renames
+### @beep/ui Lexical Components (EXCLUDED)
+The Lexical editor's 44 PascalCase directories have been excluded from standardization.
+They follow Lexical library conventions and are isolated under `lexical/mui/`.
+Only 3 non-Lexical directories in @beep/ui require standardization:
+- `AudioVisualizer/` → `audio-visualizer/`
+- `LiveAudioVisualizer/` → `live-audio-visualizer/`
+- `SimpleBar/` → `simple-bar/`
 
 ### Schema Files in Entities
 Schema files like `DeviceCodeStatus.ts` need both directory and file rename:

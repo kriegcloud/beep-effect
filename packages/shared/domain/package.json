@@ -46,9 +46,12 @@
     "@effect/experimental": "catalog:",
     "@beep/identity": "workspace:^",
     "drizzle-orm": "catalog:",
-    "mutative": "catalog:"
+    "mutative": "catalog:",
+    "picocolors": "catalog:",
+    "sql-formatter": "catalog:"
   },
   "devDependencies": {
+    "pg-protocol": "catalog:",
     "@effect/docgen": "catalog:",
     "@beep/types": "workspace:^",
     "effect": "catalog:",
@@ -61,7 +64,6 @@
     "@beep/errors": "workspace:^",
     "@beep/invariant": "workspace:^",
     "@effect/experimental": "catalog:",
-    "@xyflow/react": "^12.10.0",
     "drizzle-orm": "catalog:",
     "mutative": "catalog:",
     "@total-typescript/ts-reset": "catalog:"

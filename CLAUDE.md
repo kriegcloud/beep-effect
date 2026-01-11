@@ -89,16 +89,29 @@ See [documentation/EFFECT_PATTERNS.md](documentation/EFFECT_PATTERNS.md) for det
 
 ## Specifications
 
-Self-improving specification workflow for complex, multi-phase tasks.
+Agent-assisted, self-improving specification workflow for complex, multi-phase tasks.
 
-| Action            | Location                                                                                              |
-|-------------------|-------------------------------------------------------------------------------------------------------|
-| Create new spec   | `specs/[name]/` following [META_SPEC_TEMPLATE](specs/ai-friendliness-audit/META_SPEC_TEMPLATE.md)     |
-| Standardize specs | [SPEC_STANDARDIZATION_PROMPT](specs/SPEC_STANDARDIZATION_PROMPT.md)                                   |
-| View all specs    | `specs/README.md`                                                                                     |
+| Action            | Location                                                                                          |
+|-------------------|---------------------------------------------------------------------------------------------------|
+| Create new spec   | `specs/[name]/` following [SPEC_CREATION_GUIDE](specs/SPEC_CREATION_GUIDE.md)                     |
+| Pattern reference | [META_SPEC_TEMPLATE](specs/ai-friendliness-audit/META_SPEC_TEMPLATE.md)                           |
+| View all specs    | [specs/README.md](specs/README.md)                                                                |
+| Agent specs       | [specs/agents/](specs/agents/README.md)                                                           |
 
-Key patterns:
-- **Phase-based workflow**: Discovery → Evaluation → Synthesis → Iterative Execution
+### Specialized Agents
+
+9 purpose-built agents assist spec creation:
+
+| Tier | Agents | Purpose |
+|------|--------|---------|
+| Foundation | `reflector`, `codebase-researcher` | Meta-learning, code exploration |
+| Research | `mcp-researcher`, `web-researcher` | Effect docs, external research |
+| Quality | `code-reviewer`, `architecture-pattern-enforcer` | Guidelines, structure |
+| Writers | `doc-writer`, `test-writer`, `code-observability-writer` | Docs, tests, observability |
+
+### Key Patterns
+
+- **Agent-phase mapping**: Match agents to Discovery → Evaluation → Synthesis → Iteration
 - **Self-reflection**: Capture learnings in `REFLECTION_LOG.md` after each phase
 - **Multi-session handoffs**: Use `HANDOFF_P[N].md` to preserve context between sessions
 - **Skills vs Specs**: `.claude/skills/` for single-session, `specs/` for multi-session orchestration

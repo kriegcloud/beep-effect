@@ -346,29 +346,6 @@ function AnimatedComponent() {
 - `useScrollProgress`: Scroll-based progress tracking
 - `features`: Framer Motion feature flags for optimization
 
-## Rich Text Editing with Plate.js
-
-The `components/` directory contains 150+ Plate.js editor components for building rich text editing experiences:
-
-```tsx
-import { PlateEditor } from "@beep/ui/components/plate-editor";
-import { BasicNodesPlugin } from "@platejs/basic-nodes";
-
-function EditorPage() {
-  return (
-    <PlateEditor
-      plugins={[BasicNodesPlugin]}
-      initialValue={[
-        {
-          type: "p",
-          children: [{ text: "Start typing..." }],
-        },
-      ]}
-    />
-  );
-}
-```
-
 **Key Plate.js Components Available**:
 - **Editor Core**: `plate-editor`, `editor-toolbar`, `fixed-toolbar`
 - **Nodes**: `paragraph-node`, `heading-node`, `blockquote-node`, `code-block-node`
@@ -534,8 +511,6 @@ const markdown = htmlToMarkdown("<h1>Hello</h1><p>World</p>");
 
 | Library                | Purpose                                       |
 |------------------------|-----------------------------------------------|
-| `platejs`              | Plate.js rich text editor                     |
-| `@platejs/*`           | Plate.js plugins (autoformat, markdown, etc.) |
 | `@tanstack/react-form` | Form state management                         |
 | `react-markdown`       | Markdown rendering                            |
 | `turndown`             | HTML to markdown conversion                   |

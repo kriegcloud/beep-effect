@@ -117,15 +117,18 @@ export default beepNextConfig("@beep/web", {
 
 ## Dependencies
 
-- `@beep/tooling-utils` — Filesystem utilities for repo operations
-- `@beep/identity` — Package identity
-- `@beep/schema` — Schema validation
-- `next` — Next.js framework
-- `workbox-webpack-plugin` — Service worker generation
-- `workbox-build` — PWA build tooling
-- `@next/mdx` — MDX support
-- `@next/bundle-analyzer` — Bundle analysis
-- `webpack` — Build tooling
+| Package | Purpose |
+|---------|---------|
+| `@beep/tooling-utils` | Repo introspection (FsUtils, findRepoRoot, buildRepoDependencyIndex, PackageJson schema) |
+| `effect` | Core Effect runtime |
+| `@effect/platform` | Platform utilities for Effect |
+| `@effect/platform-node` | Node platform integration |
+| `next` | Next.js framework |
+| `workbox-webpack-plugin` | Service worker generation for PWA |
+| `workbox-build` | PWA build tooling |
+| `@next/mdx` | MDX support for documentation pages |
+| `@next/bundle-analyzer` | Webpack bundle analysis |
+| `webpack` | Build tooling and configuration |
 
 ## Verifications
 - `bun run lint --filter @beep/build-utils`

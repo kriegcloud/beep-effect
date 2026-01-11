@@ -1,454 +1,429 @@
-# @beep/shared-ui AGENTS.md
+# @beep/shared-ui
 
-Cross-cutting UI utilities for file uploads, dropzones, and React hooks used across the beep-effect monorepo.
+Shared React components for file and folder management UI across the beep-effect monorepo.
 
 ## Overview
 
-`@beep/shared-ui` provides Effect-first utilities and React hooks for file handling, upload workflows, and client-side UI interactions. This package bridges the gap between the Effect runtime and browser-based file operations, offering dropzone state management, file validation utilities, and stable React event handlers.
+`@beep/shared-ui` provides reusable UI components for file and folder management that are consumed by multiple applications in the monorepo. It bridges domain entities from `@beep/shared-domain` with UI components from `@beep/ui`, managing file browsing, uploads, folder organization, and selection workflows.
 
-Unlike `@beep/ui/ui` (component library) or `@beep/ui/core` (design tokens), this package focuses on:
-- File upload route configuration and validation
-- Dropzone state reducers and file acceptance logic
-- React hooks for clipboard paste, stable callbacks, and data fetching
-- Next.js SSR plugins for upload metadata hydration
+Key responsibilities:
+- File and folder browsing interfaces with hierarchical display
+- Upload progress tracking UI with compression status
+- File/folder selection and bulk operations
+- Dialog flows for creating folders, moving files, and deletion confirmations
+- Integration with Effect Atom state management for reactive updates
+- Schema utilities for React component validation
+
+This package sits in the shared layer because file management UI is used across multiple feature slices (documents, IAM profile images, etc.) and applications. All components are client-side only and require Next.js "use client" directive.
 
 ## Key Exports
 
 | Export | Description |
 |--------|-------------|
-| **Tagged Errors** | |
-| `InvalidRouteConfigError` | Route config missing required fields |
-| `UnknownFileTypeError` | File type cannot be determined |
-| `InvalidFileTypeError` | File type not allowed for upload |
-| `InvalidFileSizeError` | Invalid file size format |
-| `InvalidURLError` | Failed to parse URL |
-| `RetryError` | Generic retry error |
-| `FetchError` | HTTP fetch failure with request metadata |
-| `InvalidJsonError` | JSON parsing failure |
-| `BadRequestError<T>` | HTTP 4xx error with typed JSON payload |
-| `UploadPausedError` | Upload paused by user |
-| `UploadAbortedError` | Upload aborted by user |
-| **Dropzone Utilities** | |
-| `isFileAccepted` | Check if file matches accept pattern |
-| `isValidSize` | Validate file size within min/max bounds |
-| `isValidQuantity` | Validate file count vs. multiple/maxFiles |
-| `allFilesAccepted` | Batch validation for all files |
-| `acceptPropAsAcceptAttr` | Convert `AcceptProp` to HTML accept attribute |
-| `reducer` | Dropzone state reducer (focus, drag, file selection) |
-| `initialState` | Default dropzone state |
-| **File Route Config** | |
-| `fillInputRouteConfig` | Backfill route config with defaults |
-| `matchFileType` | Match file to allowed type (image/video/audio/pdf/blob) |
-| `getDefaultSizeForType` | Get default max size for file type |
-| `fileSizeToBytes` | Convert "4MB" → bytes (Effect) |
-| `bytesToFileSize` | Convert bytes → "4.00MB" |
-| **Component Utilities** | |
-| `generateMimeTypes` | Generate MIME type list from route config |
-| `generateClientDropzoneAccept` | Generate dropzone accept object |
-| `generatePermittedFileTypes` | Extract fileTypes + multiple flag from config |
-| `allowedContentTextLabelGenerator` | Human-readable upload label ("images up to 4MB") |
-| `getFilesFromClipboardEvent` | Extract files from ClipboardEvent |
-| **URL Helpers** | |
-| `getRequestUrl` | Extract full URL from Request (respects x-forwarded-*) |
-| `getFullApiUrl` | Resolve upload endpoint URL (VERCEL_URL aware) |
-| `resolveMaybeUrlArg` | Convert string/URL to full URL |
-| **React Hooks** | |
-| `useEvent` | Stable callback ref (like useCallback but always stable) |
-| `usePaste` | Listen for clipboard paste events |
-| `useFetch` | Simple data fetcher with caching |
-| **Next.js** | |
-| `NextSSRPlugin` | Hydrate upload route config to client globalThis (next-ssr-plugin.tsx) |
-| **Types** | |
-| `FileRouterInputConfig` | Route config input (array or object) |
-| `ExpandedRouteConfig` | Normalized route config with defaults |
-| `RouteConfig<T>` | Per-type config (maxFileSize, maxFileCount, etc.) |
-| `FileProperties` | Minimal file interface (name, size, type) |
-| `DropzoneOptions` | Dropzone configuration |
-| `DropzoneState` | Dropzone UI state |
+| **Components** | |
+| `FilesPage` | Main file browser component showing root files and folders |
+| `FilesLayout` | Layout wrapper with toolbar, selection controls, and action buttons |
+| `FilesEmptyState` | Empty state UI when no files or folders exist |
+| `FileItem` | Individual file display component with metadata |
+| `PendingFileItem` | Upload-in-progress file display with progress indicator |
+| `FolderSection` | Collapsible folder section with nested files |
+| `RootFilesSection` | Display section for root-level files |
+| `CreateFolderDialog` | Dialog for creating new folders |
+| `DeleteConfirmationDialog` | Confirmation dialog for deleting files/folders |
+| `MoveFilesDialog` | Dialog for moving files to different folders |
+| **Schemas** | |
+| `ReactNodeSchema` | Schema for validating React nodes |
+| `isReactNode` | Type guard function for React nodes |
+| `ReactNode` | Factory function for custom React node schemas |
+| `IReactNodeSchema` | Interface for React node schema type |
 
 ## Dependencies
 
-- `@beep/schema` — `BS.FileType`, `BS.MimeType`, mime-type lookups
-- `@beep/shared-domain` — `ValidACLs`, `ValidContentDispositions`
-- `@beep/utils` — `noOp`, `nullOp`
-- `@beep/errors` — Logging and error utilities (peerDep)
-- `effect` — Effect runtime, Array, String, Struct, Record, Match
+- `@beep/schema` — `BS.formatSize` for file size display, schema annotations
+- `@beep/shared-domain` — File and Folder entity models, `EntityKind`, `SharedEntityIds`
+- `@beep/shared-client` — Effect Atom state management (filesAtom, selectedFilesAtom, uploadAtom, etc.)
+- `@beep/ui` — Base component library (Banner, Button, Dialog, DropdownMenu, Input, Label, Checkbox)
+- `@beep/ui-core` — Design utilities (`cn` helper for className merging)
+- `@beep/identity` — Package identity for schema annotations
+- `@beep/utils` — `exact` utility for struct operations (used in schemas)
+- `@effect-atom/atom-react` — React bindings for Effect Atom (Result.builder, useAtomValue, useAtomSet)
+- `effect` — Effect runtime, Array, String, Predicate, Function, Option, Equal, Schema
 
 ## Usage Patterns
 
-### File Type Validation
-
-```typescript
-import * as Effect from "effect/Effect";
-import { matchFileType, InvalidFileTypeError, UnknownFileTypeError } from "@beep/shared-ui";
-
-const program = matchFileType(
-  { name: "photo.jpg", size: 1024, type: "image/jpeg" },
-  ["image", "video"]
-);
-// Effect<"image", InvalidFileTypeError | UnknownFileTypeError>
-
-Effect.runPromise(program); // "image"
-```
-
-### Dropzone State Management
-
-```typescript
-import { useReducer } from "react";
-import { reducer, initialState, type DropzoneState } from "@beep/shared-ui";
-
-function MyDropzone() {
-  const [state, dispatch] = useReducer(reducer, initialState);
-
-  const onDragEnter = () => {
-    dispatch({
-      type: "setDraggedFiles",
-      payload: { isDragActive: true, isDragAccept: true, isDragReject: false },
-    });
-  };
-
-  const onDrop = (files: File[]) => {
-    dispatch({ type: "setFiles", payload: { acceptedFiles: files } });
-  };
-
-  return <div>{state.isDragActive ? "Drop here!" : "Drag files"}</div>;
-}
-```
-
-### Route Config Normalization
-
-```typescript
-import * as Effect from "effect/Effect";
-import { fillInputRouteConfig, type FileRouterInputConfig } from "@beep/shared-ui";
-
-// Array shorthand
-const config1: FileRouterInputConfig = ["image", "video"];
-const expanded1 = fillInputRouteConfig(config1);
-// Effect<ExpandedRouteConfig, InvalidRouteConfigError>
-// { image: { maxFileSize: "4MB", maxFileCount: 1, ... }, video: { ... } }
-
-// Explicit config
-const config2: FileRouterInputConfig = {
-  image: { maxFileSize: "8MB", maxFileCount: 5 },
-};
-const expanded2 = fillInputRouteConfig(config2);
-// Backfills minFileCount, contentDisposition defaults
-```
-
-### File Size Conversion
-
-```typescript
-import * as Effect from "effect/Effect";
-import { fileSizeToBytes, bytesToFileSize } from "@beep/shared-ui";
-
-const program = fileSizeToBytes("4MB");
-// Effect<number, InvalidFileSizeError>
-
-Effect.runSync(program); // 4194304
-
-bytesToFileSize(4194304); // "4.00MB"
-```
-
-### Stable Callbacks with useEvent
-
-```typescript
-import { useEvent } from "@beep/shared-ui";
-
-function MyComponent({ onSave }: { onSave: (data: string) => void }) {
-  const [count, setCount] = useState(0);
-
-  // ❌ WRONG: Creates new function every render
-  const handleClick = () => {
-    onSave(`Clicked ${count} times`);
-  };
-
-  // ✅ CORRECT: Stable reference, always sees latest count
-  const handleClickStable = useEvent(() => {
-    onSave(`Clicked ${count} times`);
-  });
-
-  return <button onClick={handleClickStable}>Click</button>;
-}
-```
-
-### Clipboard Paste Integration
-
-```typescript
-import { usePaste } from "@beep/shared-ui";
-import { getFilesFromClipboardEvent } from "@beep/shared-ui";
-
-function MyUploader() {
-  usePaste((event) => {
-    const files = getFilesFromClipboardEvent(event);
-    if (files && files.length > 0) {
-      console.log("Pasted files:", files);
-      // Handle files
-    }
-  });
-
-  return <div>Paste files here (Ctrl+V)</div>;
-}
-```
-
-### Next.js Upload Metadata Hydration
+### Basic File Browser
 
 ```typescript
 "use client";
-import { NextSSRPlugin } from "@beep/shared-ui";
-import type { EndpointMetadata } from "@beep/shared-ui/types";
+import * as React from "react";
+import { FilesLayout, FilesPage } from "@beep/shared-ui";
 
-const routerConfig: EndpointMetadata = [
-  { slug: "imageUploader", config: { image: { maxFileSize: "4MB" } } },
-];
-
-export default function UploadProvider({ children }) {
+export default function MyFilesPage() {
   return (
-    <>
-      <NextSSRPlugin routerConfig={routerConfig} />
-      {children}
-    </>
+    <FilesLayout>
+      <FilesPage />
+    </FilesLayout>
   );
 }
 ```
 
-### Generate User-Facing Upload Labels
+### Folder Display
 
 ```typescript
-import { allowedContentTextLabelGenerator, type ExpandedRouteConfig } from "@beep/shared-ui";
+"use client";
+import * as React from "react";
+import { FolderSection } from "@beep/shared-ui/files/folder";
+import { EntityKind } from "@beep/shared-domain";
+import type { Folder } from "@beep/shared-domain/entities";
 
-const config: ExpandedRouteConfig = {
-  image: { maxFileSize: "4MB", maxFileCount: 1 },
-};
+export function MyFolderView({ folder }: { folder: Folder.Type }) {
+  return (
+    <FolderSection
+      folder={folder}
+      entityKind={EntityKind.Enum.user}
+      entityAttribute="image"
+      entityIdentifier="shared_user__73df4268-ea84-4c58-bc89-7ca868de0d56"
+      metadata={/* file metadata */}
+    />
+  );
+}
+```
 
-const label = allowedContentTextLabelGenerator(config);
-// "Image (4MB)"
+### React Node Schema Validation
 
-const multiConfig: ExpandedRouteConfig = {
-  image: { maxFileSize: "8MB", maxFileCount: 5 },
-  video: { maxFileSize: "16MB", maxFileCount: 3 },
-};
+```typescript
+import * as S from "effect/Schema";
+import { ReactNodeSchema, isReactNode } from "@beep/shared-ui/schemas";
 
-const multiLabel = allowedContentTextLabelGenerator(multiConfig);
-// "Images and videos"
+// Type guard usage (recommended for components)
+S.is(ReactNodeSchema)(<div>Hello</div>); // true
+S.is(ReactNodeSchema)("text"); // true
+S.is(ReactNodeSchema)(42); // true
+S.is(ReactNodeSchema)(null); // true
+S.is(ReactNodeSchema)([<div />, "text"]); // true
+
+// Direct type guard function
+isReactNode(<div>Hello</div>); // true
+
+// In schemas for component props
+const Props = S.Struct({
+  children: ReactNodeSchema,
+  icon: S.optional(ReactNodeSchema),
+});
+```
+
+### Custom React Node Schema
+
+```typescript
+import { ReactNode } from "@beep/shared-ui/schemas";
+
+const CustomReactNode = ReactNode({
+  description: "Custom description for this React node field",
+});
 ```
 
 ## Integration Points
 
-### With @beep/schema
-- Uses `BS.FileType.Type` and `BS.MimeType.Type` for file type discrimination
-- Calls `BS.lookup(filename)` for extension-based MIME type fallback
-- Imports MIME type catalogs from `@beep/schema/integrations/files/mime-types/*`
-
-### With @beep/shared-domain
-- References `ValidACLs.Type` for S3 ACL settings
-- References `ValidContentDispositions.Type` for HTTP Content-Disposition headers
-
-### With @beep/ui
-- Provides utility hooks (`useEvent`, `usePaste`) for UI components
-- Dropzone state management used by upload components in `@beep/ui`
+### With Applications
+- `apps/web` - Primary consumer for file management pages in dashboard
 
 ### With Feature Slices
-- `packages/documents/ui` — File upload flows use `fillInputRouteConfig`, `matchFileType`, `generateClientDropzoneAccept`
-- `packages/iam/ui` — May use `useEvent` for stable auth callbacks
+- `packages/documents/ui` - May compose these components for document-specific workflows
+- `packages/iam/ui` - Profile image upload flows
 
-## Effect-First Guardrails
+### With Shared Layer
+- `packages/shared/client` - Consumes atoms for state management (filesAtom, uploadAtom, etc.)
+- `packages/shared/domain` - Uses File and Folder entity types
+- `packages/ui` - Composes base components into file management features
 
-### ALWAYS Use Effect for Validation
+## State Management
+
+This package consumes the following atoms from `@beep/shared-client/atom`:
+
+| Atom | Purpose |
+|------|---------|
+| `filesAtom` | File and folder tree data (returns Result with rootFiles and folders) |
+| `activeUploadsAtom` | Currently uploading files with progress and status |
+| `selectedFilesAtom` | Selected file and folder IDs for bulk operations |
+| `startUploadAtom` | Action atom for initiating file uploads |
+| `uploadAtom(uploadId)` | Individual upload progress tracking (compression, upload, sync phases) |
+| `cancelUploadAtom` | Action atom for canceling active uploads |
+| `toggleFileSelectionAtom` | Action atom for toggling file selection state |
+| `createFolderAtom` | Action atom for creating new folders |
+| `moveFilesAtom` | Action atom for moving files to different folders |
+| `deleteFilesAtom` | Action atom for deleting files and folders |
+
+All state is managed via Effect Atom, providing reactive updates when files are uploaded, moved, or deleted. Components use `Result.builder` to handle loading, success, and error states declaratively.
+
+## Effect-First Patterns
+
+### Loading States with Result.builder
+
+Components use `Result.builder` from `@effect-atom/atom-react` to handle loading and error states declaratively:
 
 ```typescript
-// ❌ FORBIDDEN: Throwing errors
-function parseFileSize(size: FileSize): number {
-  const bytes = /* ... */;
-  if (!bytes) throw new Error("Invalid size");
-  return bytes;
-}
+import { Result, useAtomValue } from "@effect-atom/atom-react";
+import { filesAtom } from "@beep/shared-client/atom";
 
-// ✅ REQUIRED: Effect with tagged errors
-const parseFileSize = (size: FileSize): Effect.Effect<number, InvalidFileSizeError> =>
-  fileSizeToBytes(size);
+function MyComponent() {
+  const filesResult = useAtomValue(filesAtom);
+
+  return Result.builder(filesResult)
+    .onSuccess(({ rootFiles, folders }) => {
+      // Render files and folders UI
+      return <div>{/* ... */}</div>;
+    })
+    .onFailure(() => {
+      // Render error state
+      return <div>Error loading files</div>;
+    })
+    .orNull();
+}
 ```
 
-### Use Effect Array/String Utilities
+### Effect Array Utilities
+
+All array operations follow Effect patterns (NEVER use native array methods):
 
 ```typescript
-// ❌ FORBIDDEN
-const types = ["image/png", "image/jpeg"];
-const joined = types.join(", ");
-
-// ✅ REQUIRED
 import * as A from "effect/Array";
-const joined = pipe(types, A.join(", "));
+import * as F from "effect/Function";
+
+// ❌ FORBIDDEN: Native array methods
+const filtered = activeUploads.filter((u) => u.folderId === null);
+const isSelected = selection.fileIds.includes(file.id);
+
+// ✅ REQUIRED: Effect array utilities
+const filtered = F.pipe(
+  activeUploads,
+  A.filter((u) => u.folderId === null)
+);
+const isSelected = A.contains(selection.fileIds, file.id);
+
+// ✅ REQUIRED: Map folders to components
+F.pipe(
+  folders,
+  A.map((folder) => <FolderSection key={folder.id} folder={folder} />)
+);
 ```
 
-### Tagged Error Construction
+### Date Formatting
 
-All errors extend `Data.TaggedError`:
-
-```typescript
-import * as Data from "effect/Data";
-
-export class InvalidFileTypeError extends Data.TaggedError("InvalidFileType")<{
-  readonly reason: string;
-}> {
-  constructor(fileType: string, fileName: string) {
-    const reason = `File type ${fileType} not allowed for ${fileName}`;
-    super({ reason });
-  }
-}
-
-// Usage
-const error = new InvalidFileTypeError("video", "my-file.mp4");
-```
-
-## React Patterns
-
-### useEvent Over useCallback
+All date formatting uses `effect/DateTime`:
 
 ```typescript
-// ❌ AVOID: useCallback with dependency arrays
-const handleSave = useCallback(() => {
-  saveData(userId, formData);
-}, [userId, formData]); // Easy to forget dependencies
+import * as DateTime from "effect/DateTime";
 
-// ✅ PREFER: useEvent (always stable, no deps)
-const handleSave = useEvent(() => {
-  saveData(userId, formData); // Always sees latest values
+// Format file timestamp
+const formattedDate = DateTime.formatLocal(file.updatedAt, {
+  year: "numeric",
+  month: "short",
+  day: "numeric",
+  hour: "numeric",
+  minute: "2-digit",
 });
 ```
 
-### Dropzone Reducer Pattern
+### Hydration Safety
 
-ALWAYS use the provided `reducer` and `initialState`:
+All components use client-side hydration guards to prevent SSR mismatches with atom state:
 
 ```typescript
-import { reducer, initialState } from "@beep/shared-ui";
+const [hydrated, setHydrated] = React.useState(false);
 
-const [state, dispatch] = useReducer(reducer, initialState);
+React.useEffect(() => {
+  setHydrated(true);
+}, []);
 
-// Supported actions:
-dispatch({ type: "focus" });
-dispatch({ type: "blur" });
-dispatch({ type: "openDialog" });
-dispatch({ type: "closeDialog" });
-dispatch({ type: "setDraggedFiles", payload: { isDragActive: true, ... } });
-dispatch({ type: "setFiles", payload: { acceptedFiles: [...] } });
-dispatch({ type: "reset" });
+if (!hydrated) {
+  return null;
+}
 ```
 
-## File Upload Pipeline
+This pattern is critical because Effect Atom state may not be available during server-side rendering.
 
-### Route Config Flow
+## Upload Progress Tracking
 
-1. **Define config**: `FileRouterInputConfig` (array or object)
-2. **Normalize**: `fillInputRouteConfig` → `ExpandedRouteConfig`
-3. **Generate accept**: `generateClientDropzoneAccept` → `AcceptProp`
-4. **Validate files**: `matchFileType`, `isValidSize`, `isValidQuantity`
-5. **Handle upload**: Use `@beep/documents/server/StorageService`
-
-### File Validation Pipeline
+The `PendingFileItem` component displays real-time upload progress with multiple phases:
 
 ```typescript
-import * as Effect from "effect/Effect";
-import { matchFileType, isValidSize } from "@beep/shared-ui";
+import { PendingFileItem } from "@beep/shared-ui/files/file-item";
+import type { ActiveUpload } from "@beep/shared-client/atom";
 
-const validateFile = (file: File, allowedTypes: string[], maxSize: number) =>
-  Effect.gen(function* () {
-    const fileType = yield* matchFileType(file, allowedTypes);
-    if (!isValidSize(file, 0, maxSize)) {
-      return yield* Effect.fail(new InvalidFileSizeError(`${file.size}`));
-    }
-    return { file, fileType };
-  });
+// The component automatically tracks these phases:
+// 1. "Compressing..." - Image compression in progress
+// 2. "Uploading..." - File upload to storage
+// 3. "Syncing..." - Syncing metadata to database
+// 4. "Done" - Upload complete
+// 5. Error states with specific messages
+
+function MyUploadsList({ uploads }: { uploads: ActiveUpload[] }) {
+  return (
+    <div>
+      {uploads.map((upload) => (
+        <PendingFileItem key={upload.id} upload={upload} />
+      ))}
+    </div>
+  );
+}
+```
+
+Error handling includes specific error types from `@beep/shared-client/atom`:
+- `ImageTooLargeAfterCompression` - Displays compressed size in error message using `BS.formatSize`
+- Generic upload failures show "Upload failed"
+
+## React Node Schema Details
+
+The `ReactNodeSchema` validates any value that React can render:
+
+### Supported Types
+- **Primitives**: string, number, boolean, null, undefined
+- **React Elements**: Created via JSX or `React.createElement`
+- **Arrays**: Recursive validation of all elements
+- **Special Components**: lazy, forwardRef, memo components
+
+### Implementation Details
+- Uses Effect predicates for all type checks (no native type guards)
+- Supports nested arrays recursively
+- Provides custom pretty printer for debugging
+- Includes JSON Schema representation for API documentation
+- Uses Effect Schema annotations for full Effect integration
+
+### Type Guard Function
+
+```typescript
+import { isReactNode } from "@beep/shared-ui/schemas";
+import * as P from "effect/Predicate";
+import * as A from "effect/Array";
+
+// Implementation uses Effect utilities:
+// - P.isString, P.isNumber, P.isBoolean for primitives
+// - P.isNullable for null/undefined
+// - A.isArray for arrays (NOT P.isArray)
+// - A.every for recursive array validation
+// - React.isValidElement for React elements
+// - Symbol comparison for special components
+
+const MyComponent = ({ children }: { children: unknown }) => {
+  if (!isReactNode(children)) {
+    return null;
+  }
+  return <div>{children}</div>;
+};
 ```
 
 ## Common Pitfalls
 
-### Don't Mix Route Config Formats
+### Never Use Native Array Methods
 
 ```typescript
-// ❌ INVALID: Can't mix array and object
-const config = ["image", { video: { maxFileSize: "8MB" } }];
+// ❌ FORBIDDEN
+const fileIds = files.map((f) => f.id);
+const hasSelection = selection.fileIds.length > 0;
+const firstFolder = folders[0];
 
-// ✅ CORRECT: Pick one
-const arrayConfig = ["image", "video"];
-const objectConfig = { image: {}, video: { maxFileSize: "8MB" } };
+// ✅ REQUIRED
+import * as A from "effect/Array";
+const fileIds = A.map(files, (f) => f.id);
+const hasSelection = A.isNonEmptyArray(selection.fileIds);
+const firstFolder = A.headNonEmpty(folders);
 ```
 
-### ALWAYS Await Effect Results
+### Client Component Directive Placement
 
 ```typescript
-// ❌ WRONG: Effect is lazy, won't run
-const bytes = fileSizeToBytes("4MB");
+// ❌ WRONG: Directive after imports
+import * as React from "react";
+"use client";
 
-// ✅ CORRECT: Run the effect
-const bytes = Effect.runSync(fileSizeToBytes("4MB"));
-
-// ✅ BETTER: Compose with other effects
-const program = Effect.gen(function* () {
-  const bytes = yield* fileSizeToBytes("4MB");
-  // ...
-});
+// ✅ CORRECT: Directive as first statement
+"use client";
+import * as React from "react";
 ```
 
-### Don't Access Latest State in useCallback
+### Effect Atom Result Handling
 
 ```typescript
-// ❌ STALE: userId captured at creation time
-const handleSave = useCallback(() => {
-  saveData(userId); // userId might be stale
-}, []); // Empty deps = stale closure
+// ❌ WRONG: Accessing value directly
+const files = useAtomValue(filesAtom).value;
 
-// ✅ CORRECT: useEvent always sees latest
-const handleSave = useEvent(() => {
-  saveData(userId); // Always current
-});
+// ✅ CORRECT: Use Result.builder
+const filesResult = useAtomValue(filesAtom);
+return Result.builder(filesResult)
+  .onSuccess((data) => <div>{/* render data */}</div>)
+  .onFailure(() => <div>Error</div>)
+  .orNull();
+```
+
+### Schema Validation Usage
+
+```typescript
+// ❌ WRONG: Using decodeUnknown for normal props
+const MyComponent = ({ children }: { children: unknown }) => {
+  const validated = Effect.runSync(S.decodeUnknown(ReactNodeSchema)(children));
+  return <div>{validated}</div>;
+};
+
+// ✅ CORRECT: Use type guard for component boundaries
+const MyComponent = ({ children }: { children: unknown }) => {
+  if (!isReactNode(children)) return null;
+  return <div>{children}</div>;
+};
+
+// ✅ CORRECT: Use S.decodeUnknown only for external data
+const validateApiData = (data: unknown) =>
+  F.pipe(
+    data,
+    S.decodeUnknown(ReactNodeSchema),
+    Effect.catchAll(() => Effect.succeed(null))
+  );
 ```
 
 ## Type Safety Notes
 
-- `FileRouterInputKey` = `BS.FileType.Type | BS.MimeType.Type` (supports both "image" and "image/png")
-- `FileSize` = `${1|2|4|8|16|32|64|128|256|512|1024}${"B"|"KB"|"MB"|"GB"}` (compile-time validated)
-- `ExpandedRouteConfig` adds `ImageProperties` (`width`, `height`, `aspectRatio`) for `image` types
-- `BadRequestError<T>` is generic to type the JSON error payload
+- All file operations return Effect results via atoms
+- File and Folder types come from `@beep/shared-domain/entities`
+- Upload phases are discriminated unions from `@beep/shared-client/atom`
+- ReactNodeSchema provides full Effect Schema integration with arbitrary, pretty, jsonSchema annotations
+- Components require explicit type annotations for props (no implicit any)
 
 ## Gotchas
 
 ### React 19 / Next.js 16 App Router
-- The `"use client"` directive MUST be the first statement in a file, BEFORE imports. Next.js silently treats misplaced directives as server code.
-- `NextSSRPlugin` uses `globalThis` for hydration. Ensure it renders BEFORE any components that consume route config.
-- `useSearchParams()` suspends in App Router. Components using file upload route params need `<Suspense>` wrappers.
+- The `"use client"` directive MUST be the first statement in a file, BEFORE imports
+- All components in this package are client-side only
+- Components expect Effect Atom providers to be set up in the application root
+- `useSearchParams()` suspends in App Router - wrap consumers in `<Suspense>`
 
-### TanStack Query Invalidation
-- File upload progress is local state, not TanStack Query. Do not attempt to cache upload progress.
-- After successful uploads, invalidate queries for the resource that received the file (e.g., document attachments, user avatars).
-- `useFetch` from this package is a simple fetcher, not TanStack Query. For complex caching needs, use TanStack Query directly.
+### Effect Atom Integration
+- Atom state may not be available during SSR - always use hydration guards
+- Result.builder handles loading/error states - never access `.value` directly
+- Upload progress is local state - do NOT cache in TanStack Query
+- After successful operations, atoms auto-invalidate - components re-render automatically
 
-### Server vs Client Component Boundaries
-- Dropzone components require `"use client"` because they use browser APIs (`File`, `DataTransfer`, drag events).
-- `useEvent`, `usePaste`, and `useReducer`-based dropzone state MUST be in Client Components.
-- `NextSSRPlugin` is a Client Component that hydrates server data. It bridges Server Components to client-side route config access.
+### File Upload Specific
+- Upload progress tracking happens in `@beep/shared-client/atom`, not here
+- This package only displays upload state, doesn't manage upload logic
+- File metadata schemas use `effect/Arbitrary` for testing
+- Download functionality uses imperative browser APIs (document.createElement)
 
-### Effect Integration in React
-- `fileSizeToBytes` and `matchFileType` return Effects. NEVER forget to run them with `Effect.runSync` or `Effect.runPromise`.
-- Effect errors from validation are typed (`InvalidFileTypeError`, `InvalidFileSizeError`). Use `Effect.catchTag` for specific error handling.
-- NEVER use native `Array.join` or `String.split`. Use `A.join` and `Str.split` from Effect.
-
-### File Upload Specific Pitfalls
-- `fillInputRouteConfig` validates config and returns an Effect. Invalid configs fail at runtime, not compile time.
-- MIME type detection relies on file extension via `BS.lookup`. Files with wrong extensions may pass type checks incorrectly.
-- `isValidSize` expects bytes. Always convert human-readable sizes via `fileSizeToBytes` before comparison.
-- The dropzone reducer is stateless between renders. Persist accepted files in parent component state if needed across re-renders.
-
-## Testing Notes
-
-- Use `@beep/testkit` for Effect testing
-- Mock `BS.lookup` for MIME type resolution
-- Use `initialState` for dropzone test setup
-- Test file validation with `FileProperties` instead of real `File` objects
+### Schema Integration
+- ReactNodeSchema is for validation of external data or untrusted sources
+- DO NOT use `S.decodeUnknown` for normal React props - use TypeScript types
+- Use `S.is(ReactNodeSchema)` or `isReactNode` for type guards
+- Schema supports Effect's full annotation system (arbitrary, pretty, jsonSchema)
 
 ## Build Notes
 
-- Generates ESM and CJS builds (Babel transform for "use client" directives)
-- `babel-plugin-transform-next-use-client` preserves Next.js client boundaries
+- Generates both ESM and CJS builds via Babel
+- Uses `babel-plugin-transform-next-use-client` to preserve Next.js client boundaries
+- All components are client-side only (use `"use client"` directive)
+- Build output includes source maps for debugging
 - No external runtime dependencies (all peer dependencies)
-- Pure utility package — no state or side effects at module scope
+
+## Testing Notes
+
+- File components can be tested with mock atom values
+- Use `mockMetadata` constant for file metadata in tests
+- Schema validation can be tested with `@effect/platform-node/NodeTesting`
+- Effect Atom provides test utilities via `@effect-atom/atom`

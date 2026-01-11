@@ -19,6 +19,16 @@
  * @since 0.1.0
  */
 
+import type { Entities } from "@beep/comms-domain";
+import type { InferInsertModel, InferSelectModel } from "drizzle-orm";
 // Add type verification checks when you create real entities
 // See JSDoc example above for the pattern to use
-export {};
+import type * as DbSchema from "./schema";
+
+export const _checkSelectEmailTemplate: typeof Entities.EmailTemplate.Model.select.Encoded = {} as InferSelectModel<
+  typeof DbSchema.emailTemplate
+>;
+
+export const _checkInsertEmailTemplate: typeof Entities.EmailTemplate.Model.insert.Encoded = {} as InferInsertModel<
+  typeof DbSchema.emailTemplate
+>;

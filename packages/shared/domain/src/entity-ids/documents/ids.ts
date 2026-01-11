@@ -2,8 +2,9 @@ import { $SharedDomainId } from "@beep/identity/packages";
 import { EntityId } from "@beep/schema/identity";
 
 const $I = $SharedDomainId.create("entity-ids/documents/ids");
+const make = EntityId.builder("documents");
 
-export class DocumentId extends EntityId.make("document", {
+export class DocumentId extends make("document", {
   brand: "DocumentId",
 }).annotations(
   $I.annotations("DocumentId", {
@@ -14,9 +15,13 @@ export class DocumentId extends EntityId.make("document", {
 export declare namespace DocumentId {
   export type Type = typeof DocumentId.Type;
   export type Encoded = typeof DocumentId.Encoded;
+  export namespace RowId {
+    export type Type = typeof DocumentId.privateSchema.Type;
+    export type Encoded = typeof DocumentId.privateSchema.Encoded;
+  }
 }
 
-export const DocumentVersionId = EntityId.make("document_version", {
+export const DocumentVersionId = make("document_version", {
   brand: "DocumentVersionId",
 }).annotations(
   $I.annotations("DocumentVersionId", {
@@ -27,9 +32,13 @@ export const DocumentVersionId = EntityId.make("document_version", {
 export declare namespace DocumentVersionId {
   export type Type = typeof DocumentVersionId.Type;
   export type Encoded = typeof DocumentVersionId.Encoded;
+  export namespace RowId {
+    export type Type = typeof DocumentVersionId.privateSchema.Type;
+    export type Encoded = typeof DocumentVersionId.privateSchema.Encoded;
+  }
 }
 
-export const DiscussionId = EntityId.make("discussion", {
+export const DiscussionId = make("discussion", {
   brand: "DiscussionId",
 }).annotations(
   $I.annotations("DiscussionId", {
@@ -40,9 +49,13 @@ export const DiscussionId = EntityId.make("discussion", {
 export declare namespace DiscussionId {
   export type Type = typeof DiscussionId.Type;
   export type Encoded = typeof DiscussionId.Encoded;
+  export namespace RowId {
+    export type Type = typeof DiscussionId.privateSchema.Type;
+    export type Encoded = typeof DiscussionId.privateSchema.Encoded;
+  }
 }
 
-export const CommentId = EntityId.make("comment", {
+export const CommentId = make("comment", {
   brand: "CommentId",
 }).annotations(
   $I.annotations("CommentId", {
@@ -53,9 +66,13 @@ export const CommentId = EntityId.make("comment", {
 export declare namespace CommentId {
   export type Type = typeof CommentId.Type;
   export type Encoded = typeof CommentId.Encoded;
+  export namespace RowId {
+    export type Type = typeof CommentId.privateSchema.Type;
+    export type Encoded = typeof CommentId.privateSchema.Encoded;
+  }
 }
 
-export const DocumentFileId = EntityId.make("document_file", {
+export const DocumentFileId = make("document_file", {
   brand: "DocumentFileId",
 }).annotations(
   $I.annotations("DocumentFileId", {
@@ -66,4 +83,8 @@ export const DocumentFileId = EntityId.make("document_file", {
 export declare namespace DocumentFileId {
   export type Type = typeof DocumentFileId.Type;
   export type Encoded = typeof DocumentFileId.Encoded;
+  export namespace RowId {
+    export type Type = typeof DocumentFileId.privateSchema.Type;
+    export type Encoded = typeof DocumentFileId.privateSchema.Encoded;
+  }
 }

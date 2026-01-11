@@ -8,7 +8,6 @@
 ## Surface Map (see `src/`)
 
 ### Namespaced Exports
-- `fn.types.ts` (`FnTypes`) — conditional type helpers for higher-order functions and composition.
 - `literal.types.ts` (`LiteralTypes`) — literal narrowing helpers (string/number literal enforcement).
 - `model.types.ts` (`ModelTypes`) — Variant Schema field map helpers (non-empty constraints for `@effect/experimental/VariantSchema`).
 - `mut.types.ts` (`MutTypes`) — mutation-oriented escape hatches (use sparingly, mostly for interop tests).
@@ -32,7 +31,7 @@
 
 ## Usage Snapshots
 - `packages/common/schema/src/core/utils/brands.ts` builds branded schemas with `UnsafeTypes` + `effect/Brand` to guarantee nominal IDs.
-- `packages/shared/server/src/internal/db/pg/PgClient.ts` and other DB helpers depend on `UnsafeTypes` to thread Drizzle client generics without losing type safety.
+- `packages/shared/server/src/factories/db-client/pg/PgClient.ts` and other DB helpers depend on `UnsafeTypes` to thread Drizzle client generics without losing type safety.
 - `packages/common/utils/src/data/struct.utils.ts` imports `RecordTypes`/`StructTypes` to keep runtime helpers aligned with the type-level contracts.
 
 ## Authoring Guardrails

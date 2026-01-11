@@ -1,13 +1,12 @@
 "use client";
 
 import { cn } from "@beep/todox/lib/utils";
-import { thunkZero } from "@beep/utils";
+import { thunkZero } from "@beep/utils/thunk";
 import * as A from "effect/Array";
 import * as DateTime from "effect/DateTime";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import { type HTMLAttributes, useCallback, useEffect, useMemo, useRef, useState } from "react";
-
 export type WaveformProps = HTMLAttributes<HTMLDivElement> & {
   readonly data?: undefined | number[];
   readonly barWidth?: undefined | number;
@@ -76,7 +75,7 @@ export const Waveform = ({
 
       for (let i = 0; i < barCount; i++) {
         const dataIndex = Math.floor((i / barCount) * dataLength);
-        const value = O.getOrElse(A.get(data, dataIndex), () => 0);
+        const value = O.getOrElse(A.get(data, dataIndex), thunkZero);
         const barHeight = Math.max(baseBarHeight, value * rect.height * 0.8);
         const x = i * (barWidth + barGap);
         const y = centerY - barHeight / 2;
@@ -129,10 +128,7 @@ export const Waveform = ({
     const dataIndex = Math.floor((barIndex * dataLength) / Math.floor(rect.width / (barWidth + barGap)));
 
     if (dataIndex >= 0 && dataIndex < dataLength) {
-      onBarClick(
-        dataIndex,
-        O.getOrElse(A.get(data, dataIndex), () => 0)
-      );
+      onBarClick(dataIndex, O.getOrElse(A.get(data, dataIndex), thunkZero));
     }
   };
 
@@ -246,7 +242,7 @@ export const ScrollingWaveform = ({
         A.isEmptyArray(barsRef.current) ||
         O.getOrElse(
           O.map(lastBarOption, (b) => b.x),
-          () => 0
+          thunkZero
         ) < rect.width
       ) {
         const lastBar = O.getOrUndefined(A.last(barsRef.current));
@@ -1290,7 +1286,7 @@ export const RecordingWaveform = ({
       }
     };
 
-    setupMicrophone();
+    void setupMicrophone();
 
     return () => {
       if (streamRef.current) {

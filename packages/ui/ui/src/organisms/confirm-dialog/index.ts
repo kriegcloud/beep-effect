@@ -1,4 +1,4 @@
-export { confirm, default as ConfirmProvider } from "./ConfirmProvider";
+export { confirm, default as ConfirmProvider } from "./confirm.provider.tsx";
 export type {
   ConfirmFunc,
   ConfirmOptions,
@@ -6,4 +6,4 @@ export type {
   ConfirmResult,
   ConfirmResultReason,
 } from "./types";
-export { useConfirm, useConfirmEffect } from "./useConfirm";
+export { useConfirmEffect, useConfirmHook } from "./use-confirm.hook.ts";

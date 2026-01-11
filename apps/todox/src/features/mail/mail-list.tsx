@@ -1,4 +1,4 @@
-import type { IMails } from "@beep/mock/_mail";
+import type { Mails } from "@beep/todox/types/mail";
 import { Iconify } from "@beep/ui/atoms/iconify";
 import { EmptyContent } from "@beep/ui/molecules/empty-content";
 import { Scrollbar } from "@beep/ui/molecules/scrollbar";
@@ -19,7 +19,7 @@ type Props = {
   readonly isEmpty: boolean;
   readonly loading: boolean;
   readonly openMail: boolean;
-  readonly mails: IMails;
+  readonly mails: Mails;
   readonly selectedMailId: string;
   readonly selectedLabelId: string;
   readonly onCloseMail: () => void;

@@ -15,7 +15,6 @@
   - Workspace packages: `@beep/invariant`, `@beep/schema`, `@beep/utils`, `@beep/constants`, `@beep/shared-domain`, `@beep/identity`, `@beep/types`
   - Styling: `tailwindcss`, `@tailwindcss/postcss`, `clsx`, `tailwind-merge`, `tailwindcss-animate`, `tw-animate-css`
   - UI libraries: `framer-motion`, `sonner`, `nprogress`, extensive `@radix-ui/*` components, `lucide-react`
-  - Rich text: `platejs` and extensive `@platejs/*` plugins, `turndown`, `react-markdown`, `rehype-*`, `remark-*`
   - Forms/validation: `@tanstack/react-form`, `zod`, `effect`
   - MUI ecosystem: `@mui/x-data-grid`, `@mui/x-date-pickers`, `@mui/x-tree-view`, `@mui/lab`
   - i18n: `i18next`, `react-i18next`, `i18next-browser-languagedetector`, `accept-language`

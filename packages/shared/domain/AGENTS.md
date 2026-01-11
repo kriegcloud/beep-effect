@@ -74,7 +74,7 @@ import * as Effect from "effect/Effect";
 import * as Policy from "@beep/shared-domain/Policy";
 import { SharedEntityIds } from "@beep/shared-domain";
 
-const targetUserId = SharedEntityIds.UserId.make("user__abc123");
+const targetUserId = SharedEntityIds.UserId.make("shared_user__abc123");
 
 const canManage = Policy.permission("__test:manage");
 const isSelf = Policy.policy((user) => Effect.succeed(user.userId === targetUserId));
@@ -113,13 +113,13 @@ import type { EnvValue } from "@beep/constants";
 const uploadPath = Effect.gen(function* () {
   const decoded: File.UploadKeyDecoded.Type = {
     env: "dev" as EnvValue.Type,
-    fileId: SharedEntityIds.FileId.make("file__12345678-1234-1234-1234-123456789012"),
+    fileId: SharedEntityIds.FileId.make("shared_file__12345678-1234-1234-1234-123456789012"),
     organizationType: "individual",
     organizationId: SharedEntityIds.OrganizationId.make(
-      "organization__87654321-4321-4321-4321-210987654321"
+      "shared_organization__87654321-4321-4321-4321-210987654321"
     ),
-    entityKind: "user",
-    entityIdentifier: SharedEntityIds.UserId.make("user__87654321-4321-4321-4321-210987654321"),
+    entityKind: "shared_user",
+    entityIdentifier: SharedEntityIds.UserId.make("shared_user__87654321-4321-4321-4321-210987654321"),
     entityAttribute: "avatar",
     extension: "jpg",
   };

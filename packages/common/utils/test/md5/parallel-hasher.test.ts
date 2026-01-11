@@ -15,6 +15,7 @@ import { describe, expect, live } from "@beep/testkit";
 import { WorkerHashError } from "@beep/utils/md5/errors";
 import { appendByteArray, finalize, makeState } from "@beep/utils/md5/md5";
 import { DEFAULT_CHUNK_SIZE, DEFAULT_POOL_SIZE, hashBlob, ParallelHasher } from "@beep/utils/md5/parallel-hasher";
+import { thunkZero } from "@beep/utils/thunk";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
@@ -34,13 +35,7 @@ const stringToUint8Array = (str: string): Uint8Array => {
 
   const charCodes = F.pipe(
     A.range(0, length - 1),
-    A.map((i) =>
-      F.pipe(
-        str,
-        Str.charCodeAt(i),
-        O.getOrElse(() => 0)
-      )
-    )
+    A.map((i) => F.pipe(str, Str.charCodeAt(i), O.getOrElse(thunkZero)))
   );
 
   F.pipe(

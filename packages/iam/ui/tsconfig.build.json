@@ -29,9 +29,6 @@
       "path": "../../shared/env/tsconfig.build.json"
     },
     {
-      "path": "../../shared/ui/tsconfig.build.json"
-    },
-    {
       "path": "../../common/constants/tsconfig.build.json"
     },
     {
@@ -39,9 +36,6 @@
     },
     {
       "path": "../../runtime/client/tsconfig.build.json"
-    },
-    {
-      "path": "../../shared/client/tsconfig.build.json"
     }
   ],
   "include": ["src"]

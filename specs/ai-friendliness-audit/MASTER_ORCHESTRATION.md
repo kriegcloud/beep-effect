@@ -488,17 +488,17 @@ The audit is successful when:
 
 ## Appendix A: Package Inventory
 
-| Category  | Packages                                                                     |
-|-----------|------------------------------------------------------------------------------|
-| Apps      | web, server, interfere, notes                                                |
-| Common    | constants, contract, errors, identity, invariant, mock, schema, types, utils |
-| Shared    | domain, infra, client, tables, ui                                            |
-| IAM       | domain, infra, client, tables, ui                                            |
-| Documents | domain, infra, client, tables, ui                                            |
-| Runtime   | client, server                                                               |
-| UI        | core, ui                                                                     |
-| Tooling   | cli, repo-scripts, testkit, utils                                            |
-| Internal  | db-admin                                                                     |
+| Category  | Packages                                                               |
+|-----------|------------------------------------------------------------------------|
+| Apps      | web, server, interfere, notes                                          |
+| Common    | constants, contract, errors, identity, invariant, schema, types, utils |
+| Shared    | domain, infra, client, tables, ui                                      |
+| IAM       | domain, infra, client, tables, ui                                      |
+| Documents | domain, infra, client, tables, ui                                      |
+| Runtime   | client, server                                                         |
+| UI        | core, ui                                                               |
+| Tooling   | cli, repo-scripts, testkit, utils                                      |
+| Internal  | db-admin                                                               |
 
 ---
 

@@ -6,22 +6,7 @@
       "path": "../utils"
     },
     {
-      "path": "../../packages/common/identity"
-    },
-    {
       "path": "../../packages/common/types"
-    },
-    {
-      "path": "../../packages/common/utils"
-    },
-    {
-      "path": "../../packages/common/invariant"
-    },
-    {
-      "path": "../../packages/common/schema"
-    },
-    {
-      "path": "../../packages/common/constants"
     }
   ],
   "exclude": [],
@@ -29,7 +14,6 @@
     "types": ["node", "bun"],
     "outDir": "build/src",
     "target": "ES2024",
-
     "exactOptionalPropertyTypes": true,
     "module": "NodeNext",
     "moduleResolution": "NodeNext",

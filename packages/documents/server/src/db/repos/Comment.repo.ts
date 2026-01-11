@@ -3,7 +3,8 @@ import { CommentNotFoundError } from "@beep/documents-domain/entities/Comment/Co
 import { DocumentsDb } from "@beep/documents-server/db";
 import { $DocumentsServerId } from "@beep/identity/packages";
 import { DocumentsEntityIds } from "@beep/shared-domain";
-import { DbClient, DbRepo } from "@beep/shared-server";
+import { DbRepo } from "@beep/shared-domain/factories";
+import { DbClient } from "@beep/shared-server";
 import * as Effect from "effect/Effect";
 import { flow } from "effect/Function";
 import * as O from "effect/Option";

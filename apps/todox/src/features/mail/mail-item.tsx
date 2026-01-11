@@ -1,8 +1,8 @@
 import type { ListItemButtonProps } from "@mui/material/ListItemButton";
 
-// import type { IMail } from '@beep/mock/_mail';
+// import type { Mail } from '@beep/todox/types/mail';
 
-import type { IMail } from "@beep/mock/_mail";
+import type { Mail } from "@beep/todox/types/mail";
 import { fToNow } from "@beep/ui-core/utils";
 import Avatar from "@mui/material/Avatar";
 import Box from "@mui/material/Box";
@@ -13,7 +13,7 @@ import Typography from "@mui/material/Typography";
 // ----------------------------------------------------------------------
 
 type Props = ListItemButtonProps & {
-  readonly mail: IMail;
+  readonly mail: Mail;
   readonly selected: boolean;
 };
 

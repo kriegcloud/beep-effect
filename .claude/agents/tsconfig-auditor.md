@@ -89,8 +89,6 @@ Use this mapping to convert `@beep/*` names to filesystem paths:
 | `@beep/constants`            | `packages/common/constants`       |
 | `@beep/contract`             | `packages/common/contract`        |
 | `@beep/invariant`            | `packages/common/invariant`       |
-| `@beep/mock`                 | `packages/common/mock`            |
-| `@beep/lexical-schemas`      | `packages/common/lexical-schemas` |
 | `@beep/shared-domain`        | `packages/shared/domain`          |
 | `@beep/shared-server`        | `packages/shared/server`          |
 | `@beep/shared-client`        | `packages/shared/client`          |
@@ -125,7 +123,6 @@ Use this mapping to convert `@beep/*` names to filesystem paths:
 | `@beep/cli`                  | `tooling/cli`                     |
 | `@beep/build-utils`          | `tooling/build-utils`             |
 | `@beep/repo-scripts`         | `tooling/repo-scripts`            |
-| `@beep/scraper`              | `tooling/scraper`                 |
 | `@beep/tooling-utils`        | `tooling/utils`                   |
 | `@beep/db-admin`             | `packages/_internal/db-admin`     |
 

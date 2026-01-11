@@ -135,7 +135,7 @@ const program = Effect.gen(function* () {
 
 ```typescript
 import { filesAtom, startUpload, deleteFiles } from "@beep/shared-client/atom/files";
-import { useAtom, useSetAtom } from "jotai";
+import { useAtom, useSetAtom }from "@effect-atom/atom-react";
 import * as Match from "effect/Match";
 
 function FileManager() {
@@ -172,7 +172,7 @@ function FileManager() {
 
 ```typescript
 import { hashAtom } from "@beep/shared-client/atom";
-import { useAtomValue } from "jotai";
+import { useAtomValue }from "@effect-atom/atom-react";
 import * as O from "effect/Option";
 import * as F from "effect/Function";
 
@@ -217,9 +217,7 @@ import * as Match from "effect/Match";
 | `@beep/schema` | EntityId factories and schema utilities |
 | `@beep/utils` | Pure runtime helpers (thunk, predicates) |
 | `@beep/identity` | Package identity for service tagging |
-| `@beep/errors` | Logging and telemetry utilities |
-| `@beep/constants` | Schema-backed enums |
-| `@beep/invariant` | Assertion contracts |
+| `@beep/errors` | Error types (BeepError) for file operations |
 | `effect` | Core Effect runtime |
 | `@effect/rpc` | RPC client infrastructure |
 | `@effect/platform-browser` | Browser-specific platform services (WebSocket) |

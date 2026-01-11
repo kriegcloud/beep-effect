@@ -121,9 +121,9 @@ describe("AccountRepo", () => {
           // IDs should be different
           expect(account1.id).not.toBe(account2.id);
 
-          // Both should be valid EntityId format (account__uuid)
-          expect(account1.id).toMatch(/^account__[0-9a-f-]+$/);
-          expect(account2.id).toMatch(/^account__[0-9a-f-]+$/);
+          // Both should be valid EntityId format (iam_account__uuid)
+          expect(account1.id).toMatch(/^iam_account__[0-9a-f-]+$/);
+          expect(account2.id).toMatch(/^iam_account__[0-9a-f-]+$/);
         }),
       TEST_TIMEOUT
     );
@@ -193,7 +193,7 @@ describe("AccountRepo", () => {
           const accountRepo = yield* AccountRepo;
 
           // Use a valid AccountId format that doesn't exist (EntityId format: account__uuid)
-          const nonExistentId = "account__00000000-0000-0000-0000-000000000000";
+          const nonExistentId = "iam_account__00000000-0000-0000-0000-000000000000";
           const result = yield* accountRepo.findById(nonExistentId);
 
           assertNone(result);
@@ -415,8 +415,8 @@ describe("AccountRepo", () => {
         Effect.gen(function* () {
           const accountRepo = yield* AccountRepo;
 
-          // Deleting a non-existent ID should not throw (EntityId format: account__uuid)
-          const nonExistentId = "account__00000000-0000-0000-0000-000000000000";
+          // Deleting a non-existent ID should not throw (EntityId format: iam_account__uuid)
+          const nonExistentId = "iam_account__00000000-0000-0000-0000-000000000000";
           const result = yield* Effect.either(accountRepo.delete(nonExistentId));
 
           // Should succeed (void operation on non-existent is typically a no-op)

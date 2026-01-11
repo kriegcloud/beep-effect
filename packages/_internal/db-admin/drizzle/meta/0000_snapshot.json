@@ -1,11 +1,198 @@
 {
-  "id": "1b3b2163-4b67-424a-9fad-ffbdea2e1eff",
+  "id": "5bd343fa-0ba3-4fef-b494-b57d05c388c5",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
-    "public.organization": {
-      "name": "organization",
+    "public.comms_email_template": {
+      "name": "comms_email_template",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "_row_id": {
+          "name": "_row_id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "organization_id": {
+          "name": "organization_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_by": {
+          "name": "created_by",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'app'"
+        },
+        "updated_by": {
+          "name": "updated_by",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'app'"
+        },
+        "deleted_by": {
+          "name": "deleted_by",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "version": {
+          "name": "version",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 1
+        },
+        "source": {
+          "name": "source",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "subject": {
+          "name": "subject",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "body": {
+          "name": "body",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "to": {
+          "name": "to",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "cc": {
+          "name": "cc",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "bcc": {
+          "name": "bcc",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "idx_email_template_user_id": {
+          "name": "idx_email_template_user_id",
+          "columns": [
+            {
+              "expression": "user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_org_id": {
+          "name": "idx_org_id",
+          "columns": [
+            {
+              "expression": "organization_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "comms_email_template_organization_id_shared_organization_id_fk": {
+          "name": "comms_email_template_organization_id_shared_organization_id_fk",
+          "tableFrom": "comms_email_template",
+          "tableTo": "shared_organization",
+          "columnsFrom": ["organization_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        },
+        "comms_email_template_user_id_shared_user__row_id_fk": {
+          "name": "comms_email_template_user_id_shared_user__row_id_fk",
+          "tableFrom": "comms_email_template",
+          "tableTo": "shared_user",
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["_row_id"],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "comms_email_template_id_unique": {
+          "name": "comms_email_template_id_unique",
+          "nullsNotDistinct": false,
+          "columns": ["id"]
+        },
+        "uidx_email_template_org_id_user_id_name_unique": {
+          "name": "uidx_email_template_org_id_user_id_name_unique",
+          "nullsNotDistinct": false,
+          "columns": ["organization_id", "user_id", "name"]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.shared_organization": {
+      "name": "shared_organization",
       "schema": "",
       "columns": {
         "id": {
@@ -225,7 +412,7 @@
             }
           ],
           "isUnique": false,
-          "where": "\"organization\".\"is_personal\" = true",
+          "where": "\"shared_organization\".\"is_personal\" = true",
           "concurrently": false,
           "method": "btree",
           "with": {}
@@ -253,10 +440,10 @@
         }
       },
       "foreignKeys": {
-        "organization_owner_user_id_user_id_fk": {
-          "name": "organization_owner_user_id_user_id_fk",
-          "tableFrom": "organization",
-          "tableTo": "user",
+        "shared_organization_owner_user_id_shared_user_id_fk": {
+          "name": "shared_organization_owner_user_id_shared_user_id_fk",
+          "tableFrom": "shared_organization",
+          "tableTo": "shared_user",
           "columnsFrom": ["owner_user_id"],
           "columnsTo": ["id"],
           "onDelete": "cascade",
@@ -265,13 +452,13 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "organization_id_unique": {
-          "name": "organization_id_unique",
+        "shared_organization_id_unique": {
+          "name": "shared_organization_id_unique",
           "nullsNotDistinct": false,
           "columns": ["id"]
         },
-        "organization_slug_unique": {
-          "name": "organization_slug_unique",
+        "shared_organization_slug_unique": {
+          "name": "shared_organization_slug_unique",
           "nullsNotDistinct": false,
           "columns": ["slug"]
         }
@@ -280,8 +467,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.team": {
-      "name": "team",
+    "public.shared_team": {
+      "name": "shared_team",
       "schema": "",
       "columns": {
         "id": {
@@ -440,10 +627,10 @@
         }
       },
       "foreignKeys": {
-        "team_organization_id_organization_id_fk": {
-          "name": "team_organization_id_organization_id_fk",
-          "tableFrom": "team",
-          "tableTo": "organization",
+        "shared_team_organization_id_shared_organization_id_fk": {
+          "name": "shared_team_organization_id_shared_organization_id_fk",
+          "tableFrom": "shared_team",
+          "tableTo": "shared_organization",
           "columnsFrom": ["organization_id"],
           "columnsTo": ["id"],
           "onDelete": "cascade",
@@ -452,13 +639,13 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "team_id_unique": {
-          "name": "team_id_unique",
+        "shared_team_id_unique": {
+          "name": "shared_team_id_unique",
           "nullsNotDistinct": false,
           "columns": ["id"]
         },
-        "team_slug_unique": {
-          "name": "team_slug_unique",
+        "shared_team_slug_unique": {
+          "name": "shared_team_slug_unique",
           "nullsNotDistinct": false,
           "columns": ["slug"]
         }
@@ -467,8 +654,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.user": {
-      "name": "user",
+    "public.shared_user": {
+      "name": "shared_user",
       "schema": "",
       "columns": {
         "id": {
@@ -680,7 +867,7 @@
             }
           ],
           "isUnique": false,
-          "where": "\"user\".\"banned\" IS NOT TRUE AND \"user\".\"email_verified\" = true",
+          "where": "\"shared_user\".\"banned\" IS NOT TRUE AND \"shared_user\".\"email_verified\" = true",
           "concurrently": false,
           "method": "btree",
           "with": {}
@@ -696,7 +883,7 @@
             }
           ],
           "isUnique": false,
-          "where": "\"user\".\"role\" IS NOT NULL",
+          "where": "\"shared_user\".\"role\" IS NOT NULL",
           "concurrently": false,
           "method": "btree",
           "with": {}
@@ -712,7 +899,7 @@
             }
           ],
           "isUnique": false,
-          "where": "\"user\".\"banned\" = true AND \"user\".\"ban_expires\" IS NOT NULL",
+          "where": "\"shared_user\".\"banned\" = true AND \"shared_user\".\"ban_expires\" IS NOT NULL",
           "concurrently": false,
           "method": "btree",
           "with": {}
@@ -728,7 +915,7 @@
             }
           ],
           "isUnique": false,
-          "where": "\"user\".\"two_factor_enabled\" = true",
+          "where": "\"shared_user\".\"two_factor_enabled\" = true",
           "concurrently": false,
           "method": "btree",
           "with": {}
@@ -737,23 +924,23 @@
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "user_id_unique": {
-          "name": "user_id_unique",
+        "shared_user_id_unique": {
+          "name": "shared_user_id_unique",
           "nullsNotDistinct": false,
           "columns": ["id"]
         },
-        "user_email_unique": {
-          "name": "user_email_unique",
+        "shared_user_email_unique": {
+          "name": "shared_user_email_unique",
           "nullsNotDistinct": false,
           "columns": ["email"]
         },
-        "user_phone_number_unique": {
-          "name": "user_phone_number_unique",
+        "shared_user_phone_number_unique": {
+          "name": "shared_user_phone_number_unique",
           "nullsNotDistinct": false,
           "columns": ["phone_number"]
         },
-        "user_username_unique": {
-          "name": "user_username_unique",
+        "shared_user_username_unique": {
+          "name": "shared_user_username_unique",
           "nullsNotDistinct": false,
           "columns": ["username"]
         }
@@ -762,8 +949,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.user_hotkey": {
-      "name": "user_hotkey",
+    "public.customization_user_hotkey": {
+      "name": "customization_user_hotkey",
       "schema": "",
       "columns": {
         "id": {
@@ -862,10 +1049,10 @@
         }
       },
       "foreignKeys": {
-        "user_hotkey_user_id_user_id_fk": {
-          "name": "user_hotkey_user_id_user_id_fk",
-          "tableFrom": "user_hotkey",
-          "tableTo": "user",
+        "customization_user_hotkey_user_id_shared_user_id_fk": {
+          "name": "customization_user_hotkey_user_id_shared_user_id_fk",
+          "tableFrom": "customization_user_hotkey",
+          "tableTo": "shared_user",
           "columnsFrom": ["user_id"],
           "columnsTo": ["id"],
           "onDelete": "cascade",
@@ -874,8 +1061,8 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "user_hotkey_id_unique": {
-          "name": "user_hotkey_id_unique",
+        "customization_user_hotkey_id_unique": {
+          "name": "customization_user_hotkey_id_unique",
           "nullsNotDistinct": false,
           "columns": ["id"]
         }
@@ -884,8 +1071,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.comment": {
-      "name": "comment",
+    "public.documents_comment": {
+      "name": "documents_comment",
       "schema": "",
       "columns": {
         "id": {
@@ -1024,28 +1211,28 @@
         }
       },
       "foreignKeys": {
-        "comment_organization_id_organization_id_fk": {
-          "name": "comment_organization_id_organization_id_fk",
-          "tableFrom": "comment",
-          "tableTo": "organization",
+        "documents_comment_organization_id_shared_organization_id_fk": {
+          "name": "documents_comment_organization_id_shared_organization_id_fk",
+          "tableFrom": "documents_comment",
+          "tableTo": "shared_organization",
           "columnsFrom": ["organization_id"],
           "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         },
-        "comment_discussion_id_discussion_id_fk": {
-          "name": "comment_discussion_id_discussion_id_fk",
-          "tableFrom": "comment",
-          "tableTo": "discussion",
+        "documents_comment_discussion_id_documents_discussion_id_fk": {
+          "name": "documents_comment_discussion_id_documents_discussion_id_fk",
+          "tableFrom": "documents_comment",
+          "tableTo": "documents_discussion",
           "columnsFrom": ["discussion_id"],
           "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "comment_user_id_user_id_fk": {
-          "name": "comment_user_id_user_id_fk",
-          "tableFrom": "comment",
-          "tableTo": "user",
+        "documents_comment_user_id_shared_user_id_fk": {
+          "name": "documents_comment_user_id_shared_user_id_fk",
+          "tableFrom": "documents_comment",
+          "tableTo": "shared_user",
           "columnsFrom": ["user_id"],
           "columnsTo": ["id"],
           "onDelete": "cascade",
@@ -1054,8 +1241,8 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "comment_id_unique": {
-          "name": "comment_id_unique",
+        "documents_comment_id_unique": {
+          "name": "documents_comment_id_unique",
           "nullsNotDistinct": false,
           "columns": ["id"]
         }
@@ -1064,8 +1251,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.discussion": {
-      "name": "discussion",
+    "public.documents_discussion": {
+      "name": "documents_discussion",
       "schema": "",
       "columns": {
         "id": {
@@ -1219,28 +1406,28 @@
         }
       },
       "foreignKeys": {
-        "discussion_organization_id_organization_id_fk": {
-          "name": "discussion_organization_id_organization_id_fk",
-          "tableFrom": "discussion",
-          "tableTo": "organization",
+        "documents_discussion_organization_id_shared_organization_id_fk": {
+          "name": "documents_discussion_organization_id_shared_organization_id_fk",
+          "tableFrom": "documents_discussion",
+          "tableTo": "shared_organization",
           "columnsFrom": ["organization_id"],
           "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         },
-        "discussion_document_id_document_id_fk": {
-          "name": "discussion_document_id_document_id_fk",
-          "tableFrom": "discussion",
-          "tableTo": "document",
+        "documents_discussion_document_id_documents_document_id_fk": {
+          "name": "documents_discussion_document_id_documents_document_id_fk",
+          "tableFrom": "documents_discussion",
+          "tableTo": "documents_document",
           "columnsFrom": ["document_id"],
           "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "discussion_user_id_user_id_fk": {
-          "name": "discussion_user_id_user_id_fk",
-          "tableFrom": "discussion",
-          "tableTo": "user",
+        "documents_discussion_user_id_shared_user_id_fk": {
+          "name": "documents_discussion_user_id_shared_user_id_fk",
+          "tableFrom": "documents_discussion",
+          "tableTo": "shared_user",
           "columnsFrom": ["user_id"],
           "columnsTo": ["id"],
           "onDelete": "cascade",
@@ -1249,8 +1436,8 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "discussion_id_unique": {
-          "name": "discussion_id_unique",
+        "documents_discussion_id_unique": {
+          "name": "documents_discussion_id_unique",
           "nullsNotDistinct": false,
           "columns": ["id"]
         }
@@ -1259,8 +1446,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.document": {
-      "name": "document",
+    "public.documents_document": {
+      "name": "documents_document",
       "schema": "",
       "columns": {
         "id": {
@@ -1538,19 +1725,19 @@
         }
       },
       "foreignKeys": {
-        "document_organization_id_organization_id_fk": {
-          "name": "document_organization_id_organization_id_fk",
-          "tableFrom": "document",
-          "tableTo": "organization",
+        "documents_document_organization_id_shared_organization_id_fk": {
+          "name": "documents_document_organization_id_shared_organization_id_fk",
+          "tableFrom": "documents_document",
+          "tableTo": "shared_organization",
           "columnsFrom": ["organization_id"],
           "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         },
-        "document_user_id_user_id_fk": {
-          "name": "document_user_id_user_id_fk",
-          "tableFrom": "document",
-          "tableTo": "user",
+        "documents_document_user_id_shared_user_id_fk": {
+          "name": "documents_document_user_id_shared_user_id_fk",
+          "tableFrom": "documents_document",
+          "tableTo": "shared_user",
           "columnsFrom": ["user_id"],
           "columnsTo": ["id"],
           "onDelete": "cascade",
@@ -1559,8 +1746,8 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "document_id_unique": {
-          "name": "document_id_unique",
+        "documents_document_id_unique": {
+          "name": "documents_document_id_unique",
           "nullsNotDistinct": false,
           "columns": ["id"]
         }
@@ -1569,8 +1756,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.document_file": {
-      "name": "document_file",
+    "public.documents_document_file": {
+      "name": "documents_document_file",
       "schema": "",
       "columns": {
         "id": {
@@ -1729,28 +1916,28 @@
         }
       },
       "foreignKeys": {
-        "document_file_organization_id_organization_id_fk": {
-          "name": "document_file_organization_id_organization_id_fk",
-          "tableFrom": "document_file",
-          "tableTo": "organization",
+        "documents_document_file_organization_id_shared_organization_id_fk": {
+          "name": "documents_document_file_organization_id_shared_organization_id_fk",
+          "tableFrom": "documents_document_file",
+          "tableTo": "shared_organization",
           "columnsFrom": ["organization_id"],
           "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         },
-        "document_file_user_id_user_id_fk": {
-          "name": "document_file_user_id_user_id_fk",
-          "tableFrom": "document_file",
-          "tableTo": "user",
+        "documents_document_file_user_id_shared_user_id_fk": {
+          "name": "documents_document_file_user_id_shared_user_id_fk",
+          "tableFrom": "documents_document_file",
+          "tableTo": "shared_user",
           "columnsFrom": ["user_id"],
           "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "document_file_document_id_document_id_fk": {
-          "name": "document_file_document_id_document_id_fk",
-          "tableFrom": "document_file",
-          "tableTo": "document",
+        "documents_document_file_document_id_documents_document_id_fk": {
+          "name": "documents_document_file_document_id_documents_document_id_fk",
+          "tableFrom": "documents_document_file",
+          "tableTo": "documents_document",
           "columnsFrom": ["document_id"],
           "columnsTo": ["id"],
           "onDelete": "set null",
@@ -1759,8 +1946,8 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "document_file_id_unique": {
-          "name": "document_file_id_unique",
+        "documents_document_file_id_unique": {
+          "name": "documents_document_file_id_unique",
           "nullsNotDistinct": false,
           "columns": ["id"]
         }
@@ -1769,8 +1956,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.document_version": {
-      "name": "document_version",
+    "public.documents_document_version": {
+      "name": "documents_document_version",
       "schema": "",
       "columns": {
         "id": {
@@ -1902,28 +2089,28 @@
         }
       },
       "foreignKeys": {
-        "document_version_organization_id_organization_id_fk": {
-          "name": "document_version_organization_id_organization_id_fk",
-          "tableFrom": "document_version",
-          "tableTo": "organization",
+        "documents_document_version_organization_id_shared_organization_id_fk": {
+          "name": "documents_document_version_organization_id_shared_organization_id_fk",
+          "tableFrom": "documents_document_version",
+          "tableTo": "shared_organization",
           "columnsFrom": ["organization_id"],
           "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         },
-        "document_version_document_id_document_id_fk": {
-          "name": "document_version_document_id_document_id_fk",
-          "tableFrom": "document_version",
-          "tableTo": "document",
+        "documents_document_version_document_id_documents_document_id_fk": {
+          "name": "documents_document_version_document_id_documents_document_id_fk",
+          "tableFrom": "documents_document_version",
+          "tableTo": "documents_document",
           "columnsFrom": ["document_id"],
           "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "document_version_user_id_user_id_fk": {
-          "name": "document_version_user_id_user_id_fk",
-          "tableFrom": "document_version",
-          "tableTo": "user",
+        "documents_document_version_user_id_shared_user_id_fk": {
+          "name": "documents_document_version_user_id_shared_user_id_fk",
+          "tableFrom": "documents_document_version",
+          "tableTo": "shared_user",
           "columnsFrom": ["user_id"],
           "columnsTo": ["id"],
           "onDelete": "cascade",
@@ -1932,8 +2119,8 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "document_version_id_unique": {
-          "name": "document_version_id_unique",
+        "documents_document_version_id_unique": {
+          "name": "documents_document_version_id_unique",
           "nullsNotDistinct": false,
           "columns": ["id"]
         }
@@ -1942,8 +2129,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.file": {
-      "name": "file",
+    "public.shared_file": {
+      "name": "shared_file",
       "schema": "",
       "columns": {
         "id": {
@@ -2074,37 +2261,37 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "file_organization_id_organization_id_fk": {
-          "name": "file_organization_id_organization_id_fk",
-          "tableFrom": "file",
-          "tableTo": "organization",
+        "shared_file_organization_id_shared_organization_id_fk": {
+          "name": "shared_file_organization_id_shared_organization_id_fk",
+          "tableFrom": "shared_file",
+          "tableTo": "shared_organization",
           "columnsFrom": ["organization_id"],
           "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         },
-        "file_user_id_user_id_fk": {
-          "name": "file_user_id_user_id_fk",
-          "tableFrom": "file",
-          "tableTo": "user",
+        "shared_file_user_id_shared_user_id_fk": {
+          "name": "shared_file_user_id_shared_user_id_fk",
+          "tableFrom": "shared_file",
+          "tableTo": "shared_user",
           "columnsFrom": ["user_id"],
           "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "file_folder_id_folder_id_fk": {
-          "name": "file_folder_id_folder_id_fk",
-          "tableFrom": "file",
-          "tableTo": "folder",
+        "shared_file_folder_id_shared_folder_id_fk": {
+          "name": "shared_file_folder_id_shared_folder_id_fk",
+          "tableFrom": "shared_file",
+          "tableTo": "shared_folder",
           "columnsFrom": ["folder_id"],
           "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "file_uploaded_by_user_id_user_id_fk": {
-          "name": "file_uploaded_by_user_id_user_id_fk",
-          "tableFrom": "file",
-          "tableTo": "user",
+        "shared_file_uploaded_by_user_id_shared_user_id_fk": {
+          "name": "shared_file_uploaded_by_user_id_shared_user_id_fk",
+          "tableFrom": "shared_file",
+          "tableTo": "shared_user",
           "columnsFrom": ["uploaded_by_user_id"],
           "columnsTo": ["id"],
           "onDelete": "cascade",
@@ -2113,8 +2300,8 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "file_id_unique": {
-          "name": "file_id_unique",
+        "shared_file_id_unique": {
+          "name": "shared_file_id_unique",
           "nullsNotDistinct": false,
           "columns": ["id"]
         }
@@ -2123,8 +2310,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.session": {
-      "name": "session",
+    "public.shared_session": {
+      "name": "shared_session",
       "schema": "",
       "columns": {
         "id": {
@@ -2382,37 +2569,37 @@
         }
       },
       "foreignKeys": {
-        "session_user_id_user_id_fk": {
-          "name": "session_user_id_user_id_fk",
-          "tableFrom": "session",
-          "tableTo": "user",
+        "shared_session_user_id_shared_user_id_fk": {
+          "name": "shared_session_user_id_shared_user_id_fk",
+          "tableFrom": "shared_session",
+          "tableTo": "shared_user",
           "columnsFrom": ["user_id"],
           "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         },
-        "session_impersonated_by_user_id_fk": {
-          "name": "session_impersonated_by_user_id_fk",
-          "tableFrom": "session",
-          "tableTo": "user",
+        "shared_session_impersonated_by_shared_user_id_fk": {
+          "name": "shared_session_impersonated_by_shared_user_id_fk",
+          "tableFrom": "shared_session",
+          "tableTo": "shared_user",
           "columnsFrom": ["impersonated_by"],
           "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "cascade"
         },
-        "session_active_organization_id_organization_id_fk": {
-          "name": "session_active_organization_id_organization_id_fk",
-          "tableFrom": "session",
-          "tableTo": "organization",
+        "shared_session_active_organization_id_shared_organization_id_fk": {
+          "name": "shared_session_active_organization_id_shared_organization_id_fk",
+          "tableFrom": "shared_session",
+          "tableTo": "shared_organization",
           "columnsFrom": ["active_organization_id"],
           "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "cascade"
         },
-        "session_active_team_id_team_id_fk": {
-          "name": "session_active_team_id_team_id_fk",
-          "tableFrom": "session",
-          "tableTo": "team",
+        "shared_session_active_team_id_shared_team_id_fk": {
+          "name": "shared_session_active_team_id_shared_team_id_fk",
+          "tableFrom": "shared_session",
+          "tableTo": "shared_team",
           "columnsFrom": ["active_team_id"],
           "columnsTo": ["id"],
           "onDelete": "set null",
@@ -2421,13 +2608,13 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "session_id_unique": {
-          "name": "session_id_unique",
+        "shared_session_id_unique": {
+          "name": "shared_session_id_unique",
           "nullsNotDistinct": false,
           "columns": ["id"]
         },
-        "session_token_unique": {
-          "name": "session_token_unique",
+        "shared_session_token_unique": {
+          "name": "shared_session_token_unique",
           "nullsNotDistinct": false,
           "columns": ["token"]
         }
@@ -2436,13 +2623,13 @@
       "checkConstraints": {
         "session_expires_after_created_check": {
           "name": "session_expires_after_created_check",
-          "value": "\"session\".\"expires_at\" > \"session\".\"created_at\""
+          "value": "\"shared_session\".\"expires_at\" > \"shared_session\".\"created_at\""
         }
       },
       "isRLSEnabled": false
     },
-    "public.account": {
-      "name": "account",
+    "public.iam_account": {
+      "name": "iam_account",
       "schema": "",
       "columns": {
         "id": {
@@ -2655,7 +2842,7 @@
             }
           ],
           "isUnique": false,
-          "where": "\"account\".\"access_token_expires_at\" IS NOT NULL",
+          "where": "\"iam_account\".\"access_token_expires_at\" IS NOT NULL",
           "concurrently": false,
           "method": "btree",
           "with": {}
@@ -2671,17 +2858,17 @@
             }
           ],
           "isUnique": false,
-          "where": "\"account\".\"refresh_token_expires_at\" IS NOT NULL",
+          "where": "\"iam_account\".\"refresh_token_expires_at\" IS NOT NULL",
           "concurrently": false,
           "method": "btree",
           "with": {}
         }
       },
       "foreignKeys": {
-        "account_user_id_user_id_fk": {
-          "name": "account_user_id_user_id_fk",
-          "tableFrom": "account",
-          "tableTo": "user",
+        "iam_account_user_id_shared_user_id_fk": {
+          "name": "iam_account_user_id_shared_user_id_fk",
+          "tableFrom": "iam_account",
+          "tableTo": "shared_user",
           "columnsFrom": ["user_id"],
           "columnsTo": ["id"],
           "onDelete": "cascade",
@@ -2690,8 +2877,8 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "account_id_unique": {
-          "name": "account_id_unique",
+        "iam_account_id_unique": {
+          "name": "iam_account_id_unique",
           "nullsNotDistinct": false,
           "columns": ["id"]
         }
@@ -2700,8 +2887,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.apikey": {
-      "name": "apikey",
+    "public.iam_apikey": {
+      "name": "iam_apikey",
       "schema": "",
       "columns": {
         "id": {
@@ -2890,19 +3077,19 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "apikey_organization_id_organization_id_fk": {
-          "name": "apikey_organization_id_organization_id_fk",
-          "tableFrom": "apikey",
-          "tableTo": "organization",
+        "iam_apikey_organization_id_shared_organization_id_fk": {
+          "name": "iam_apikey_organization_id_shared_organization_id_fk",
+          "tableFrom": "iam_apikey",
+          "tableTo": "shared_organization",
           "columnsFrom": ["organization_id"],
           "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         },
-        "apikey_user_id_user_id_fk": {
-          "name": "apikey_user_id_user_id_fk",
-          "tableFrom": "apikey",
-          "tableTo": "user",
+        "iam_apikey_user_id_shared_user_id_fk": {
+          "name": "iam_apikey_user_id_shared_user_id_fk",
+          "tableFrom": "iam_apikey",
+          "tableTo": "shared_user",
           "columnsFrom": ["user_id"],
           "columnsTo": ["id"],
           "onDelete": "cascade",
@@ -2911,8 +3098,8 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "apikey_id_unique": {
-          "name": "apikey_id_unique",
+        "iam_apikey_id_unique": {
+          "name": "iam_apikey_id_unique",
           "nullsNotDistinct": false,
           "columns": ["id"]
         }
@@ -2921,29 +3108,29 @@
       "checkConstraints": {
         "apikey_request_count_non_negative_check": {
           "name": "apikey_request_count_non_negative_check",
-          "value": "\"apikey\".\"request_count\" IS NULL OR \"apikey\".\"request_count\" >= 0"
+          "value": "\"iam_apikey\".\"request_count\" IS NULL OR \"iam_apikey\".\"request_count\" >= 0"
         },
         "apikey_refill_amount_non_negative_check": {
           "name": "apikey_refill_amount_non_negative_check",
-          "value": "\"apikey\".\"refill_amount\" IS NULL OR \"apikey\".\"refill_amount\" >= 0"
+          "value": "\"iam_apikey\".\"refill_amount\" IS NULL OR \"iam_apikey\".\"refill_amount\" >= 0"
         },
         "apikey_rate_limit_time_window_positive_check": {
           "name": "apikey_rate_limit_time_window_positive_check",
-          "value": "\"apikey\".\"rate_limit_time_window\" IS NULL OR \"apikey\".\"rate_limit_time_window\" > 0"
+          "value": "\"iam_apikey\".\"rate_limit_time_window\" IS NULL OR \"iam_apikey\".\"rate_limit_time_window\" > 0"
         },
         "apikey_rate_limit_max_positive_check": {
           "name": "apikey_rate_limit_max_positive_check",
-          "value": "\"apikey\".\"rate_limit_max\" IS NULL OR \"apikey\".\"rate_limit_max\" > 0"
+          "value": "\"iam_apikey\".\"rate_limit_max\" IS NULL OR \"iam_apikey\".\"rate_limit_max\" > 0"
         },
         "apikey_remaining_non_negative_check": {
           "name": "apikey_remaining_non_negative_check",
-          "value": "\"apikey\".\"remaining\" IS NULL OR \"apikey\".\"remaining\" >= 0"
+          "value": "\"iam_apikey\".\"remaining\" IS NULL OR \"iam_apikey\".\"remaining\" >= 0"
         }
       },
       "isRLSEnabled": false
     },
-    "public.device_code": {
-      "name": "device_code",
+    "public.iam_device_code": {
+      "name": "iam_device_code",
       "schema": "",
       "columns": {
         "id": {
@@ -3070,10 +3257,10 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "device_code_user_id_user_id_fk": {
-          "name": "device_code_user_id_user_id_fk",
-          "tableFrom": "device_code",
-          "tableTo": "user",
+        "iam_device_code_user_id_shared_user_id_fk": {
+          "name": "iam_device_code_user_id_shared_user_id_fk",
+          "tableFrom": "iam_device_code",
+          "tableTo": "shared_user",
           "columnsFrom": ["user_id"],
           "columnsTo": ["id"],
           "onDelete": "cascade",
@@ -3082,8 +3269,8 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "device_code_id_unique": {
-          "name": "device_code_id_unique",
+        "iam_device_code_id_unique": {
+          "name": "iam_device_code_id_unique",
           "nullsNotDistinct": false,
           "columns": ["id"]
         }
@@ -3092,8 +3279,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.invitation": {
-      "name": "invitation",
+    "public.iam_invitation": {
+      "name": "iam_invitation",
       "schema": "",
       "columns": {
         "id": {
@@ -3269,7 +3456,7 @@
             }
           ],
           "isUnique": true,
-          "where": "\"invitation\".\"status\" = 'pending'",
+          "where": "\"iam_invitation\".\"status\" = 'pending'",
           "concurrently": false,
           "method": "btree",
           "with": {}
@@ -3327,7 +3514,7 @@
             }
           ],
           "isUnique": false,
-          "where": "\"invitation\".\"status\" = 'pending'",
+          "where": "\"iam_invitation\".\"status\" = 'pending'",
           "concurrently": false,
           "method": "btree",
           "with": {}
@@ -3343,35 +3530,35 @@
             }
           ],
           "isUnique": false,
-          "where": "\"invitation\".\"team_id\" IS NOT NULL",
+          "where": "\"iam_invitation\".\"team_id\" IS NOT NULL",
           "concurrently": false,
           "method": "btree",
           "with": {}
         }
       },
       "foreignKeys": {
-        "invitation_team_id_team_id_fk": {
-          "name": "invitation_team_id_team_id_fk",
-          "tableFrom": "invitation",
-          "tableTo": "team",
+        "iam_invitation_team_id_shared_team_id_fk": {
+          "name": "iam_invitation_team_id_shared_team_id_fk",
+          "tableFrom": "iam_invitation",
+          "tableTo": "shared_team",
           "columnsFrom": ["team_id"],
           "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         },
-        "invitation_inviter_id_user_id_fk": {
-          "name": "invitation_inviter_id_user_id_fk",
-          "tableFrom": "invitation",
-          "tableTo": "user",
+        "iam_invitation_inviter_id_shared_user_id_fk": {
+          "name": "iam_invitation_inviter_id_shared_user_id_fk",
+          "tableFrom": "iam_invitation",
+          "tableTo": "shared_user",
           "columnsFrom": ["inviter_id"],
           "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         },
-        "invitation_organization_id_organization_id_fk": {
-          "name": "invitation_organization_id_organization_id_fk",
-          "tableFrom": "invitation",
-          "tableTo": "organization",
+        "iam_invitation_organization_id_shared_organization_id_fk": {
+          "name": "iam_invitation_organization_id_shared_organization_id_fk",
+          "tableFrom": "iam_invitation",
+          "tableTo": "shared_organization",
           "columnsFrom": ["organization_id"],
           "columnsTo": ["id"],
           "onDelete": "cascade",
@@ -3380,8 +3567,8 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "invitation_id_unique": {
-          "name": "invitation_id_unique",
+        "iam_invitation_id_unique": {
+          "name": "iam_invitation_id_unique",
           "nullsNotDistinct": false,
           "columns": ["id"]
         }
@@ -3390,8 +3577,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.jwks": {
-      "name": "jwks",
+    "public.iam_jwks": {
+      "name": "iam_jwks",
       "schema": "",
       "columns": {
         "id": {
@@ -3482,8 +3669,8 @@
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "jwks_id_unique": {
-          "name": "jwks_id_unique",
+        "iam_jwks_id_unique": {
+          "name": "iam_jwks_id_unique",
           "nullsNotDistinct": false,
           "columns": ["id"]
         }
@@ -3492,8 +3679,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.member": {
-      "name": "member",
+    "public.iam_member": {
+      "name": "iam_member",
       "schema": "",
       "columns": {
         "id": {
@@ -3776,10 +3963,10 @@
         }
       },
       "foreignKeys": {
-        "member_organization_id_organization_id_fk": {
-          "name": "member_organization_id_organization_id_fk",
-          "tableFrom": "member",
-          "tableTo": "organization",
+        "iam_member_organization_id_shared_organization_id_fk": {
+          "name": "iam_member_organization_id_shared_organization_id_fk",
+          "tableFrom": "iam_member",
+          "tableTo": "shared_organization",
           "columnsFrom": ["organization_id"],
           "columnsTo": ["id"],
           "onDelete": "cascade",
@@ -3788,8 +3975,8 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "member_id_unique": {
-          "name": "member_id_unique",
+        "iam_member_id_unique": {
+          "name": "iam_member_id_unique",
           "nullsNotDistinct": false,
           "columns": ["id"]
         }
@@ -3798,8 +3985,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.oauth_access_token": {
-      "name": "oauth_access_token",
+    "public.iam_oauth_access_token": {
+      "name": "iam_oauth_access_token",
       "schema": "",
       "columns": {
         "id": {
@@ -3918,19 +4105,19 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "oauth_access_token_organization_id_organization_id_fk": {
-          "name": "oauth_access_token_organization_id_organization_id_fk",
-          "tableFrom": "oauth_access_token",
-          "tableTo": "organization",
+        "iam_oauth_access_token_organization_id_shared_organization_id_fk": {
+          "name": "iam_oauth_access_token_organization_id_shared_organization_id_fk",
+          "tableFrom": "iam_oauth_access_token",
+          "tableTo": "shared_organization",
           "columnsFrom": ["organization_id"],
           "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         },
-        "oauth_access_token_user_id_user_id_fk": {
-          "name": "oauth_access_token_user_id_user_id_fk",
-          "tableFrom": "oauth_access_token",
-          "tableTo": "user",
+        "iam_oauth_access_token_user_id_shared_user_id_fk": {
+          "name": "iam_oauth_access_token_user_id_shared_user_id_fk",
+          "tableFrom": "iam_oauth_access_token",
+          "tableTo": "shared_user",
           "columnsFrom": ["user_id"],
           "columnsTo": ["id"],
           "onDelete": "cascade",
@@ -3939,18 +4126,18 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "oauth_access_token_id_unique": {
-          "name": "oauth_access_token_id_unique",
+        "iam_oauth_access_token_id_unique": {
+          "name": "iam_oauth_access_token_id_unique",
           "nullsNotDistinct": false,
           "columns": ["id"]
         },
-        "oauth_access_token_access_token_unique": {
-          "name": "oauth_access_token_access_token_unique",
+        "iam_oauth_access_token_access_token_unique": {
+          "name": "iam_oauth_access_token_access_token_unique",
           "nullsNotDistinct": false,
           "columns": ["access_token"]
         },
-        "oauth_access_token_refresh_token_unique": {
-          "name": "oauth_access_token_refresh_token_unique",
+        "iam_oauth_access_token_refresh_token_unique": {
+          "name": "iam_oauth_access_token_refresh_token_unique",
           "nullsNotDistinct": false,
           "columns": ["refresh_token"]
         }
@@ -3959,8 +4146,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.oauth_application": {
-      "name": "oauth_application",
+    "public.iam_oauth_application": {
+      "name": "iam_oauth_application",
       "schema": "",
       "columns": {
         "id": {
@@ -4092,19 +4279,19 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "oauth_application_organization_id_organization_id_fk": {
-          "name": "oauth_application_organization_id_organization_id_fk",
-          "tableFrom": "oauth_application",
-          "tableTo": "organization",
+        "iam_oauth_application_organization_id_shared_organization_id_fk": {
+          "name": "iam_oauth_application_organization_id_shared_organization_id_fk",
+          "tableFrom": "iam_oauth_application",
+          "tableTo": "shared_organization",
           "columnsFrom": ["organization_id"],
           "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         },
-        "oauth_application_user_id_user_id_fk": {
-          "name": "oauth_application_user_id_user_id_fk",
-          "tableFrom": "oauth_application",
-          "tableTo": "user",
+        "iam_oauth_application_user_id_shared_user_id_fk": {
+          "name": "iam_oauth_application_user_id_shared_user_id_fk",
+          "tableFrom": "iam_oauth_application",
+          "tableTo": "shared_user",
           "columnsFrom": ["user_id"],
           "columnsTo": ["id"],
           "onDelete": "cascade",
@@ -4113,13 +4300,13 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "oauth_application_id_unique": {
-          "name": "oauth_application_id_unique",
+        "iam_oauth_application_id_unique": {
+          "name": "iam_oauth_application_id_unique",
           "nullsNotDistinct": false,
           "columns": ["id"]
         },
-        "oauth_application_client_id_unique": {
-          "name": "oauth_application_client_id_unique",
+        "iam_oauth_application_client_id_unique": {
+          "name": "iam_oauth_application_client_id_unique",
           "nullsNotDistinct": false,
           "columns": ["client_id"]
         }
@@ -4128,8 +4315,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.oauth_consent": {
-      "name": "oauth_consent",
+    "public.iam_oauth_consent": {
+      "name": "iam_oauth_consent",
       "schema": "",
       "columns": {
         "id": {
@@ -4231,19 +4418,19 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "oauth_consent_organization_id_organization_id_fk": {
-          "name": "oauth_consent_organization_id_organization_id_fk",
-          "tableFrom": "oauth_consent",
-          "tableTo": "organization",
+        "iam_oauth_consent_organization_id_shared_organization_id_fk": {
+          "name": "iam_oauth_consent_organization_id_shared_organization_id_fk",
+          "tableFrom": "iam_oauth_consent",
+          "tableTo": "shared_organization",
           "columnsFrom": ["organization_id"],
           "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         },
-        "oauth_consent_user_id_user_id_fk": {
-          "name": "oauth_consent_user_id_user_id_fk",
-          "tableFrom": "oauth_consent",
-          "tableTo": "user",
+        "iam_oauth_consent_user_id_shared_user_id_fk": {
+          "name": "iam_oauth_consent_user_id_shared_user_id_fk",
+          "tableFrom": "iam_oauth_consent",
+          "tableTo": "shared_user",
           "columnsFrom": ["user_id"],
           "columnsTo": ["id"],
           "onDelete": "no action",
@@ -4252,8 +4439,8 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "oauth_consent_id_unique": {
-          "name": "oauth_consent_id_unique",
+        "iam_oauth_consent_id_unique": {
+          "name": "iam_oauth_consent_id_unique",
           "nullsNotDistinct": false,
           "columns": ["id"]
         }
@@ -4262,8 +4449,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.organization_role": {
-      "name": "organization_role",
+    "public.iam_organization_role": {
+      "name": "iam_organization_role",
       "schema": "",
       "columns": {
         "id": {
@@ -4352,10 +4539,10 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "organization_role_organization_id_organization_id_fk": {
-          "name": "organization_role_organization_id_organization_id_fk",
-          "tableFrom": "organization_role",
-          "tableTo": "organization",
+        "iam_organization_role_organization_id_shared_organization_id_fk": {
+          "name": "iam_organization_role_organization_id_shared_organization_id_fk",
+          "tableFrom": "iam_organization_role",
+          "tableTo": "shared_organization",
           "columnsFrom": ["organization_id"],
           "columnsTo": ["id"],
           "onDelete": "cascade",
@@ -4364,8 +4551,8 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "organization_role_id_unique": {
-          "name": "organization_role_id_unique",
+        "iam_organization_role_id_unique": {
+          "name": "iam_organization_role_id_unique",
           "nullsNotDistinct": false,
           "columns": ["id"]
         }
@@ -4374,8 +4561,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.passkey": {
-      "name": "passkey",
+    "public.iam_passkey": {
+      "name": "iam_passkey",
       "schema": "",
       "columns": {
         "id": {
@@ -4501,10 +4688,10 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "passkey_user_id_user_id_fk": {
-          "name": "passkey_user_id_user_id_fk",
-          "tableFrom": "passkey",
-          "tableTo": "user",
+        "iam_passkey_user_id_shared_user_id_fk": {
+          "name": "iam_passkey_user_id_shared_user_id_fk",
+          "tableFrom": "iam_passkey",
+          "tableTo": "shared_user",
           "columnsFrom": ["user_id"],
           "columnsTo": ["id"],
           "onDelete": "cascade",
@@ -4513,8 +4700,8 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "passkey_id_unique": {
-          "name": "passkey_id_unique",
+        "iam_passkey_id_unique": {
+          "name": "iam_passkey_id_unique",
           "nullsNotDistinct": false,
           "columns": ["id"]
         }
@@ -4523,13 +4710,13 @@
       "checkConstraints": {
         "passkey_counter_non_negative_check": {
           "name": "passkey_counter_non_negative_check",
-          "value": "\"passkey\".\"counter\" >= 0"
+          "value": "\"iam_passkey\".\"counter\" >= 0"
         }
       },
       "isRLSEnabled": false
     },
-    "public.rate_limit": {
-      "name": "rate_limit",
+    "public.iam_rate_limit": {
+      "name": "iam_rate_limit",
       "schema": "",
       "columns": {
         "id": {
@@ -4620,8 +4807,8 @@
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "rate_limit_id_unique": {
-          "name": "rate_limit_id_unique",
+        "iam_rate_limit_id_unique": {
+          "name": "iam_rate_limit_id_unique",
           "nullsNotDistinct": false,
           "columns": ["id"]
         }
@@ -4630,8 +4817,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.scim_provider": {
-      "name": "scim_provider",
+    "public.iam_scim_provider": {
+      "name": "iam_scim_provider",
       "schema": "",
       "columns": {
         "id": {
@@ -4720,10 +4907,10 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "scim_provider_organization_id_organization_id_fk": {
-          "name": "scim_provider_organization_id_organization_id_fk",
-          "tableFrom": "scim_provider",
-          "tableTo": "organization",
+        "iam_scim_provider_organization_id_shared_organization_id_fk": {
+          "name": "iam_scim_provider_organization_id_shared_organization_id_fk",
+          "tableFrom": "iam_scim_provider",
+          "tableTo": "shared_organization",
           "columnsFrom": ["organization_id"],
           "columnsTo": ["id"],
           "onDelete": "cascade",
@@ -4732,18 +4919,18 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "scim_provider_id_unique": {
-          "name": "scim_provider_id_unique",
+        "iam_scim_provider_id_unique": {
+          "name": "iam_scim_provider_id_unique",
           "nullsNotDistinct": false,
           "columns": ["id"]
         },
-        "scim_provider_provider_id_unique": {
-          "name": "scim_provider_provider_id_unique",
+        "iam_scim_provider_provider_id_unique": {
+          "name": "iam_scim_provider_provider_id_unique",
           "nullsNotDistinct": false,
           "columns": ["provider_id"]
         },
-        "scim_provider_scim_token_unique": {
-          "name": "scim_provider_scim_token_unique",
+        "iam_scim_provider_scim_token_unique": {
+          "name": "iam_scim_provider_scim_token_unique",
           "nullsNotDistinct": false,
           "columns": ["scim_token"]
         }
@@ -4752,8 +4939,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.sso_provider": {
-      "name": "sso_provider",
+    "public.iam_sso_provider": {
+      "name": "iam_sso_provider",
       "schema": "",
       "columns": {
         "id": {
@@ -4866,19 +5053,19 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "sso_provider_user_id_user_id_fk": {
-          "name": "sso_provider_user_id_user_id_fk",
-          "tableFrom": "sso_provider",
-          "tableTo": "user",
+        "iam_sso_provider_user_id_shared_user_id_fk": {
+          "name": "iam_sso_provider_user_id_shared_user_id_fk",
+          "tableFrom": "iam_sso_provider",
+          "tableTo": "shared_user",
           "columnsFrom": ["user_id"],
           "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "sso_provider_organization_id_organization_id_fk": {
-          "name": "sso_provider_organization_id_organization_id_fk",
-          "tableFrom": "sso_provider",
-          "tableTo": "organization",
+        "iam_sso_provider_organization_id_shared_organization_id_fk": {
+          "name": "iam_sso_provider_organization_id_shared_organization_id_fk",
+          "tableFrom": "iam_sso_provider",
+          "tableTo": "shared_organization",
           "columnsFrom": ["organization_id"],
           "columnsTo": ["id"],
           "onDelete": "cascade",
@@ -4887,13 +5074,13 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "sso_provider_id_unique": {
-          "name": "sso_provider_id_unique",
+        "iam_sso_provider_id_unique": {
+          "name": "iam_sso_provider_id_unique",
           "nullsNotDistinct": false,
           "columns": ["id"]
         },
-        "sso_provider_provider_id_unique": {
-          "name": "sso_provider_provider_id_unique",
+        "iam_sso_provider_provider_id_unique": {
+          "name": "iam_sso_provider_provider_id_unique",
           "nullsNotDistinct": false,
           "columns": ["provider_id"]
         }
@@ -4902,8 +5089,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.subscription": {
-      "name": "subscription",
+    "public.iam_subscription": {
+      "name": "iam_subscription",
       "schema": "",
       "columns": {
         "id": {
@@ -5036,10 +5223,10 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "subscription_organization_id_organization_id_fk": {
-          "name": "subscription_organization_id_organization_id_fk",
-          "tableFrom": "subscription",
-          "tableTo": "organization",
+        "iam_subscription_organization_id_shared_organization_id_fk": {
+          "name": "iam_subscription_organization_id_shared_organization_id_fk",
+          "tableFrom": "iam_subscription",
+          "tableTo": "shared_organization",
           "columnsFrom": ["organization_id"],
           "columnsTo": ["id"],
           "onDelete": "cascade",
@@ -5048,8 +5235,8 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "subscription_id_unique": {
-          "name": "subscription_id_unique",
+        "iam_subscription_id_unique": {
+          "name": "iam_subscription_id_unique",
           "nullsNotDistinct": false,
           "columns": ["id"]
         }
@@ -5058,8 +5245,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.team_member": {
-      "name": "team_member",
+    "public.iam_team_member": {
+      "name": "iam_team_member",
       "schema": "",
       "columns": {
         "id": {
@@ -5221,28 +5408,28 @@
         }
       },
       "foreignKeys": {
-        "team_member_organization_id_organization_id_fk": {
-          "name": "team_member_organization_id_organization_id_fk",
-          "tableFrom": "team_member",
-          "tableTo": "organization",
+        "iam_team_member_organization_id_shared_organization_id_fk": {
+          "name": "iam_team_member_organization_id_shared_organization_id_fk",
+          "tableFrom": "iam_team_member",
+          "tableTo": "shared_organization",
           "columnsFrom": ["organization_id"],
           "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         },
-        "team_member_team_id_team_id_fk": {
-          "name": "team_member_team_id_team_id_fk",
-          "tableFrom": "team_member",
-          "tableTo": "team",
+        "iam_team_member_team_id_shared_team_id_fk": {
+          "name": "iam_team_member_team_id_shared_team_id_fk",
+          "tableFrom": "iam_team_member",
+          "tableTo": "shared_team",
           "columnsFrom": ["team_id"],
           "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         },
-        "team_member_user_id_user_id_fk": {
-          "name": "team_member_user_id_user_id_fk",
-          "tableFrom": "team_member",
-          "tableTo": "user",
+        "iam_team_member_user_id_shared_user_id_fk": {
+          "name": "iam_team_member_user_id_shared_user_id_fk",
+          "tableFrom": "iam_team_member",
+          "tableTo": "shared_user",
           "columnsFrom": ["user_id"],
           "columnsTo": ["id"],
           "onDelete": "cascade",
@@ -5251,8 +5438,8 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "team_member_id_unique": {
-          "name": "team_member_id_unique",
+        "iam_team_member_id_unique": {
+          "name": "iam_team_member_id_unique",
           "nullsNotDistinct": false,
           "columns": ["id"]
         }
@@ -5261,8 +5448,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.two_factor": {
-      "name": "two_factor",
+    "public.iam_two_factor": {
+      "name": "iam_two_factor",
       "schema": "",
       "columns": {
         "id": {
@@ -5357,19 +5544,19 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "two_factor_organization_id_organization_id_fk": {
-          "name": "two_factor_organization_id_organization_id_fk",
-          "tableFrom": "two_factor",
-          "tableTo": "organization",
+        "iam_two_factor_organization_id_shared_organization_id_fk": {
+          "name": "iam_two_factor_organization_id_shared_organization_id_fk",
+          "tableFrom": "iam_two_factor",
+          "tableTo": "shared_organization",
           "columnsFrom": ["organization_id"],
           "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         },
-        "two_factor_user_id_user_id_fk": {
-          "name": "two_factor_user_id_user_id_fk",
-          "tableFrom": "two_factor",
-          "tableTo": "user",
+        "iam_two_factor_user_id_shared_user_id_fk": {
+          "name": "iam_two_factor_user_id_shared_user_id_fk",
+          "tableFrom": "iam_two_factor",
+          "tableTo": "shared_user",
           "columnsFrom": ["user_id"],
           "columnsTo": ["id"],
           "onDelete": "cascade",
@@ -5378,8 +5565,8 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "two_factor_id_unique": {
-          "name": "two_factor_id_unique",
+        "iam_two_factor_id_unique": {
+          "name": "iam_two_factor_id_unique",
           "nullsNotDistinct": false,
           "columns": ["id"]
         }
@@ -5388,8 +5575,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.verification": {
-      "name": "verification",
+    "public.iam_verification": {
+      "name": "iam_verification",
       "schema": "",
       "columns": {
         "id": {
@@ -5553,8 +5740,8 @@
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "verification_id_unique": {
-          "name": "verification_id_unique",
+        "iam_verification_id_unique": {
+          "name": "iam_verification_id_unique",
           "nullsNotDistinct": false,
           "columns": ["id"]
         }
@@ -5563,8 +5750,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.wallet_address": {
-      "name": "wallet_address",
+    "public.iam_wallet_address": {
+      "name": "iam_wallet_address",
       "schema": "",
       "columns": {
         "id": {
@@ -5688,10 +5875,10 @@
         }
       },
       "foreignKeys": {
-        "wallet_address_user_id_user_id_fk": {
-          "name": "wallet_address_user_id_user_id_fk",
-          "tableFrom": "wallet_address",
-          "tableTo": "user",
+        "iam_wallet_address_user_id_shared_user_id_fk": {
+          "name": "iam_wallet_address_user_id_shared_user_id_fk",
+          "tableFrom": "iam_wallet_address",
+          "tableTo": "shared_user",
           "columnsFrom": ["user_id"],
           "columnsTo": ["id"],
           "onDelete": "cascade",
@@ -5700,8 +5887,8 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "wallet_address_id_unique": {
-          "name": "wallet_address_id_unique",
+        "iam_wallet_address_id_unique": {
+          "name": "iam_wallet_address_id_unique",
           "nullsNotDistinct": false,
           "columns": ["id"]
         }
@@ -5710,8 +5897,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.folder": {
-      "name": "folder",
+    "public.shared_folder": {
+      "name": "shared_folder",
       "schema": "",
       "columns": {
         "id": {
@@ -5816,19 +6003,19 @@
         }
       },
       "foreignKeys": {
-        "folder_organization_id_organization_id_fk": {
-          "name": "folder_organization_id_organization_id_fk",
-          "tableFrom": "folder",
-          "tableTo": "organization",
+        "shared_folder_organization_id_shared_organization_id_fk": {
+          "name": "shared_folder_organization_id_shared_organization_id_fk",
+          "tableFrom": "shared_folder",
+          "tableTo": "shared_organization",
           "columnsFrom": ["organization_id"],
           "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         },
-        "folder_user_id_user_id_fk": {
-          "name": "folder_user_id_user_id_fk",
-          "tableFrom": "folder",
-          "tableTo": "user",
+        "shared_folder_user_id_shared_user_id_fk": {
+          "name": "shared_folder_user_id_shared_user_id_fk",
+          "tableFrom": "shared_folder",
+          "tableTo": "shared_user",
           "columnsFrom": ["user_id"],
           "columnsTo": ["id"],
           "onDelete": "cascade",
@@ -5837,8 +6024,8 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "folder_id_unique": {
-          "name": "folder_id_unique",
+        "shared_folder_id_unique": {
+          "name": "shared_folder_id_unique",
           "nullsNotDistinct": false,
           "columns": ["id"]
         }
@@ -5847,8 +6034,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.upload_session": {
-      "name": "upload_session",
+    "public.shared_upload_session": {
+      "name": "shared_upload_session",
       "schema": "",
       "columns": {
         "id": {
@@ -5980,10 +6167,10 @@
         }
       },
       "foreignKeys": {
-        "upload_session_organization_id_organization_id_fk": {
-          "name": "upload_session_organization_id_organization_id_fk",
-          "tableFrom": "upload_session",
-          "tableTo": "organization",
+        "shared_upload_session_organization_id_shared_organization_id_fk": {
+          "name": "shared_upload_session_organization_id_shared_organization_id_fk",
+          "tableFrom": "shared_upload_session",
+          "tableTo": "shared_organization",
           "columnsFrom": ["organization_id"],
           "columnsTo": ["id"],
           "onDelete": "cascade",
@@ -5992,13 +6179,13 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "upload_session_id_unique": {
-          "name": "upload_session_id_unique",
+        "shared_upload_session_id_unique": {
+          "name": "shared_upload_session_id_unique",
           "nullsNotDistinct": false,
           "columns": ["id"]
         },
-        "upload_session_file_key_unique": {
-          "name": "upload_session_file_key_unique",
+        "shared_upload_session_file_key_unique": {
+          "name": "shared_upload_session_file_key_unique",
           "nullsNotDistinct": false,
           "columns": ["file_key"]
         }

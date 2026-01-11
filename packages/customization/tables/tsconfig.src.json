@@ -9,9 +9,6 @@
       "path": "../../shared/domain"
     },
     {
-      "path": "../../common/schema/tsconfig.src.json"
-    },
-    {
       "path": "../domain"
     }
   ],

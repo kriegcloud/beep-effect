@@ -199,6 +199,7 @@ export function makeEntityIdSchema<const TableName extends string, const Brand e
     override [TypeId] = variance;
     static override [TypeId] = variance;
     static readonly create = create;
+    static readonly getSliceName = () => F.pipe(tableName, Str.split("_"), A.head);
     static readonly tableName = tableName;
     static readonly brand = brand;
     static readonly is = S.is(publicSchema);
@@ -236,3 +237,21 @@ export const make = <const TableName extends string, const Brand extends string>
     readonly annotations?: Omit<DefaultAnnotations<EntityId.Type<TableName>>, "title" | "identifier">;
   }
 ): EntityId<TableName, Brand> => makeEntityIdSchema(tableName, opts.brand, opts.annotations);
+
+export const builder = <const SliceName extends string>(
+  sliceName: SnakeTag.Literal<SliceName>
+): (<const TableName extends string, const Brand extends string>(
+  tableName: SnakeTag.Literal<TableName>,
+  opts: {
+    readonly brand: Brand;
+    readonly annotations?: Omit<DefaultAnnotations<EntityId.Type<TableName>>, "title" | "identifier">;
+  }
+) => EntityId<`${SliceName}_${TableName}`, Brand>) => {
+  return <const TableName extends string, const Brand extends string>(
+    tableName: SnakeTag.Literal<TableName>,
+    opts: {
+      readonly brand: Brand;
+      readonly annotations?: Omit<DefaultAnnotations<EntityId.Type<TableName>>, "title" | "identifier">;
+    }
+  ): EntityId<`${SliceName}_${TableName}`, Brand> => make(`${sliceName}_${tableName}` as const, opts);
+};

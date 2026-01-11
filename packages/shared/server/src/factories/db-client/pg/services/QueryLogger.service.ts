@@ -1,4 +1,5 @@
 import { $SharedServerId } from "@beep/identity/packages";
+import { BOX, QueryType, SqlString } from "@beep/shared-domain/errors/db-error/formatter";
 import { thunk } from "@beep/utils/thunk";
 import type { Logger as DrizzleLogger } from "drizzle-orm";
 import * as A from "effect/Array";
@@ -6,9 +7,8 @@ import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
 import type * as Layer from "effect/Layer";
 import * as Str from "effect/String";
-import { BOX, QueryType, SqlString } from "../formatter";
 
-const $I = $SharedServerId.create("internal/db/pg/services/LoggerService");
+const $I = $SharedServerId.create("factories/db-client/pg/services/LoggerService");
 
 export type Shape = {
   readonly logQuery: (query: string, params: Array<unknown>) => void;

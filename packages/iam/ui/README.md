@@ -416,7 +416,6 @@ export const CustomFormWithCaptcha = () => {
 | `@beep/types`                   | Compile-time type utilities                                              |
 | `@beep/utils`                   | Pure runtime helpers                                                     |
 | `@beep/invariant`               | Assertion contracts                                                      |
-| `@beep/mock`                    | Mock data for testing and development                                    |
 | `@beep/errors`                  | Error logging and telemetry                                              |
 | `effect`                        | Core Effect runtime                                                      |
 | `better-auth`                   | Authentication library                                                   |

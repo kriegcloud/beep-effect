@@ -1,24 +1,24 @@
 # Structure Standardization Plan
 
 > Generated: 2026-01-07
-> Updated: 2026-01-07 (final verification pass)
-> Total Changes: ~250 (excluding Lexical editor - see Notes)
+> Updated: 2026-01-09 (Lexical editor exclusion decision)
+> Total Changes: ~206 (Lexical editor directories excluded)
 
 ## Summary
 
-| Category                 | Count       | Complexity |
-|--------------------------|-------------|------------|
-| Directory Renames        | 44 (+47*)   | High       |
-| File Renames             | ~150        | Medium     |
-| Missing Index Files      | 0           | Low        |
-| Structure Reorganization | 0           | High       |
+| Category                 | Count | Complexity |
+|--------------------------|-------|------------|
+| Directory Renames        | 47    | High       |
+| File Renames             | ~150  | Medium     |
+| Missing Index Files      | 0     | Low        |
+| Structure Reorganization | 0     | High       |
 
-\* 47 Lexical editor directories marked [VERIFY] - may be intentional
+Note: 44 Lexical editor directories excluded per decision on 2026-01-09 (see Notes section).
 
 ## Corrections Log (2026-01-07)
 
 ### Initial Updates
-- Added missing packages: @beep/shared-tables, @beep/common/constants, @beep/common/yjs, @beep/common/contract, @beep/common/identity, @beep/db-admin
+- Added missing packages: @beep/shared-tables, @beep/constants, @beep/contract, @beep//identity, @beep/db-admin
 - Added @beep/todox to execution order (new package)
 - Marked Lexical editor directories as [VERIFY] - follows React component conventions
 
@@ -26,7 +26,7 @@
 - **Fixed directory count**: 44 non-Lexical + 47 Lexical = 91 total (was incorrectly stated as 47+47)
 - **Fixed import counts**: @beep/iam-domain has 313 imports (was 857), @beep/shared-domain has 353 imports (was 577)
 - **Removed false positives**: All 3 "missing" index files actually exist
-- **Added missing packages**: @beep/common-schema (~20 files), @beep/shared-env (2 files)
+- **Added missing packages**: @beep/-schema (~20 files), @beep/shared-env (2 files)
 - **Added missed files**:
   - @beep/iam-server/adapters/better-auth: 4 additional PascalCase files (BetterAuthBridge.ts, Emails.ts, Options.ts)
   - @beep/shared-domain root files: ManualCache.ts, Policy.ts, Actor.ts, Retry.ts
@@ -40,7 +40,7 @@
 | Package                    | Changes | Priority |
 |----------------------------|---------|----------|
 | @beep/iam-domain           | 36      | P1       |
-| @beep/ui                   | 45      | P2       |
+| @beep/ui                   | 3       | P3       |
 | @beep/shared-domain        | 16      | P1       |
 | @beep/iam-server           | 30      | P1       |
 | @beep/shared-server        | 7       | P1       |
@@ -56,20 +56,19 @@
 | @beep/iam-client           | 1       | P3       |
 | @beep/shared-client        | 8       | P2       |
 | @beep/shared-tables        | 2       | P3       |
-| @beep/common-constants     | 10      | P2       |
-| @beep/common-yjs           | 16      | P2       |
-| @beep/common-contract      | 3       | P3       |
-| @beep/common-identity      | 1       | P3       |
+| @beep/constants            | 10      | P2       |
+| @beep/contract             | 3       | P3       |
+| @beep/identity             | 1       | P3       |
 | @beep/db-admin             | 1       | P3       |
-| @beep/common-schema        | ~20     | P2       |
+| @beep/schema               | ~20     | P2       |
 | @beep/shared-env           | 2       | P3       |
 
 ### Import Impact Analysis
 
-| Package            | Import Count | Risk   |
-|--------------------|--------------|--------|
-| @beep/shared-domain| 353          | MEDIUM |
-| @beep/iam-domain   | 313          | MEDIUM |
+| Package             | Import Count | Risk   |
+|---------------------|--------------|--------|
+| @beep/shared-domain | 353          | MEDIUM |
+| @beep/iam-domain    | 313          | MEDIUM |
 
 ---
 
@@ -96,7 +95,7 @@ Verified via `bun run topo-sort` on 2026-01-07.
 16. @beep/documents-tables
 17. @beep/customization-tables
 18. @beep/comms-tables
-19. @beep/ui
+19. @beep/ui *(3 directory renames)*
 20. @beep/shared-tables
 21. @beep/shared-server
 22. @beep/shared-env
@@ -105,10 +104,9 @@ Verified via `bun run topo-sort` on 2026-01-07.
 25. @beep/customization-domain
 26. @beep/comms-domain
 27. @beep/shared-domain
-28. @beep/yjs *(common package)*
-29. @beep/constants *(common package)*
-30. @beep/contract *(common package)*
-31. @beep/identity *(common package)*
+28. @beep/constants *(common package)*
+29. @beep/contract *(common package)*
+30. @beep/identity *(common package)*
 
 ---
 
@@ -311,71 +309,23 @@ Verified via `bun run topo-sort` on 2026-01-07.
   - Files: Upload.service.ts, Upload.errors.ts, index.ts
   - Imports to update: ~5
 
-### @beep/ui (Lexical Editor - 45 directories)
+### @beep/ui (3 directories)
 
-#### Plugins (20 directories)
+Non-Lexical directories requiring standardization:
 
-- [ ] `packages/ui/ui/src/lexical/mui/editor/plugins/CodeActionMenuPlugin/` → `code-action-menu-plugin/`
-- [ ] `packages/ui/ui/src/lexical/mui/editor/plugins/CodeActionMenuPlugin/components/CopyButton/` → `copy-button/`
-- [ ] `packages/ui/ui/src/lexical/mui/editor/plugins/CodeActionMenuPlugin/components/PrettierButton/` → `prettier-button/`
-- [ ] `packages/ui/ui/src/lexical/mui/editor/plugins/CodeHighlightPlugin/` → `code-highlight-plugin/`
-- [ ] `packages/ui/ui/src/lexical/mui/editor/plugins/ComponentPickerPlugin/` → `component-picker-plugin/`
-- [ ] `packages/ui/ui/src/lexical/mui/editor/plugins/ContextMenuPlugin/` → `context-menu-plugin/`
-- [ ] `packages/ui/ui/src/lexical/mui/editor/plugins/FloatingLinkEditorPlugin/` → `floating-link-editor-plugin/`
-- [ ] `packages/ui/ui/src/lexical/mui/editor/plugins/FloatingTextFormatToolbarPlugin/` → `floating-text-format-toolbar-plugin/`
-- [ ] `packages/ui/ui/src/lexical/mui/editor/plugins/ImagesPlugin/` → `images-plugin/`
-- [ ] `packages/ui/ui/src/lexical/mui/editor/plugins/LinkPlugin/` → `link-plugin/`
-- [ ] `packages/ui/ui/src/lexical/mui/editor/plugins/MarkdownShortcutPlugin/` → `markdown-shortcut-plugin/`
-- [ ] `packages/ui/ui/src/lexical/mui/editor/plugins/MarkdownTransformers/` → `markdown-transformers/`
-- [ ] `packages/ui/ui/src/lexical/mui/editor/plugins/MaxLengthPlugin/` → `max-length-plugin/`
-- [ ] `packages/ui/ui/src/lexical/mui/editor/plugins/ShortcutsPlugin/` → `shortcuts-plugin/`
-- [ ] `packages/ui/ui/src/lexical/mui/editor/plugins/TabFocusPlugin/` → `tab-focus-plugin/`
-- [ ] `packages/ui/ui/src/lexical/mui/editor/plugins/TableActionMenuPlugin/` → `table-action-menu-plugin/`
-- [ ] `packages/ui/ui/src/lexical/mui/editor/plugins/TableCellResizer/` → `table-cell-resizer/`
-- [ ] `packages/ui/ui/src/lexical/mui/editor/plugins/TableHoverActionsPlugin/` → `table-hover-actions-plugin/`
-- [ ] `packages/ui/ui/src/lexical/mui/editor/plugins/ToolbarPlugin/` → `toolbar-plugin/`
-- [ ] `packages/ui/ui/src/lexical/mui/editor/plugins/VideoPlugin/` → `video-plugin/`
+- [ ] `packages/ui/ui/src/organisms/visualize-audio/AudioVisualizer/` → `packages/ui/ui/src/organisms/visualize-audio/audio-visualizer/`
+  - Files: index.tsx
+  - Imports to update: ~2
 
-#### UI Components (20 directories)
+- [ ] `packages/ui/ui/src/organisms/visualize-audio/LiveAudioVisualizer/` → `packages/ui/ui/src/organisms/visualize-audio/live-audio-visualizer/`
+  - Files: index.tsx
+  - Imports to update: ~2
 
-- [ ] `packages/ui/ui/src/lexical/mui/editor/ui/BlockFormatDropdown/` → `block-format-dropdown/`
-- [ ] `packages/ui/ui/src/lexical/mui/editor/ui/BoldButton/` → `bold-button/`
-- [ ] `packages/ui/ui/src/lexical/mui/editor/ui/CenterAlignButton/` → `center-align-button/`
-- [ ] `packages/ui/ui/src/lexical/mui/editor/ui/ClearEditorButton/` → `clear-editor-button/`
-- [ ] `packages/ui/ui/src/lexical/mui/editor/ui/ClearFormattingButton/` → `clear-formatting-button/`
-- [ ] `packages/ui/ui/src/lexical/mui/editor/ui/CodeButton/` → `code-button/`
-- [ ] `packages/ui/ui/src/lexical/mui/editor/ui/CodeLanguageDropdown/` → `code-language-dropdown/`
-- [ ] `packages/ui/ui/src/lexical/mui/editor/ui/Divider/` → `divider/`
-- [ ] `packages/ui/ui/src/lexical/mui/editor/ui/HorizontalRuleButton/` → `horizontal-rule-button/`
-- [ ] `packages/ui/ui/src/lexical/mui/editor/ui/ImageButton/` → `image-button/`
-- [ ] `packages/ui/ui/src/lexical/mui/editor/ui/ItalicButton/` → `italic-button/`
-- [ ] `packages/ui/ui/src/lexical/mui/editor/ui/LeftAlignButton/` → `left-align-button/`
-- [ ] `packages/ui/ui/src/lexical/mui/editor/ui/LinkButton/` → `link-button/`
-- [ ] `packages/ui/ui/src/lexical/mui/editor/ui/RedoButton/` → `redo-button/`
-- [ ] `packages/ui/ui/src/lexical/mui/editor/ui/RightAlignButton/` → `right-align-button/`
-- [ ] `packages/ui/ui/src/lexical/mui/editor/ui/StrikethroughButton/` → `strikethrough-button/`
-- [ ] `packages/ui/ui/src/lexical/mui/editor/ui/TableButton/` → `table-button/`
-- [ ] `packages/ui/ui/src/lexical/mui/editor/ui/UnderlineButton/` → `underline-button/`
-- [ ] `packages/ui/ui/src/lexical/mui/editor/ui/UndoButton/` → `undo-button/`
-- [ ] `packages/ui/ui/src/lexical/mui/editor/ui/VideoButton/` → `video-button/`
+- [ ] `packages/ui/ui/src/molecules/SimpleBar/` → `packages/ui/ui/src/molecules/simple-bar/`
+  - Files: internal files
+  - Imports to update: ~3
 
-#### Nodes (3 directories)
-
-- [ ] `packages/ui/ui/src/lexical/mui/editor/nodes/Image/` → `image/`
-- [ ] `packages/ui/ui/src/lexical/mui/editor/nodes/InlineImage/` → `inline-image/`
-- [ ] `packages/ui/ui/src/lexical/mui/editor/nodes/Video/` → `video/`
-
-#### Components (1 directory)
-
-- [ ] `packages/ui/ui/src/lexical/mui/components/ui/Modal/` → `modal/`
-
-#### Organisms (3 directories)
-
-- [ ] `packages/ui/ui/src/molecules/SimpleBar/` → `simple-bar/`
-- [ ] `packages/ui/ui/src/organisms/visualize-audio/AudioVisualizer/` → `audio-visualizer/`
-- [ ] `packages/ui/ui/src/organisms/visualize-audio/LiveAudioVisualizer/` → `live-audio-visualizer/`
-
-### @beep/common/utils
+### @beep//utils
 
 - [ ] `packages/common/utils/src/data/array.utils/NonEmptyReadonly/` → `non-empty-readonly/`
   - Note: Flatten or rename
@@ -609,7 +559,7 @@ Layer files (PascalCase → kebab-case):
 - [ ] `atom/services/ImageCompressionClient.service.ts` → `image-compression-client.service.ts`
 - [ ] `constructors/RpcClient.ts` → `rpc-client.ts`
 
-### @beep/common/constants (MISSING FROM ORIGINAL - 10 files)
+### @beep//constants (MISSING FROM ORIGINAL - 10 files)
 
 - [ ] `AllowedHeaders.ts` → `allowed-headers.ts`
 - [ ] `AllowedHttpMethods.ts` → `allowed-http-methods.ts`
@@ -622,36 +572,17 @@ Layer files (PascalCase → kebab-case):
 - [ ] `Pagination.ts` → `pagination.ts`
 - [ ] `SubscriptionPlanValue.ts` → `subscription-plan-value.ts`
 
-### @beep/common/contract (MISSING FROM ORIGINAL - 3 files)
+### @beep//contract (MISSING FROM ORIGINAL - 3 files)
 
 - [ ] `Contract.ts` → `contract.ts`
 - [ ] `ContractKit.ts` → `contract-kit.ts`
 - [ ] `ContractError.ts` → `contract-error.ts`
 
-### @beep/common/identity (MISSING FROM ORIGINAL - 1 file)
+### @beep//identity (MISSING FROM ORIGINAL - 1 file)
 
 - [ ] `Identifier.ts` → `identifier.ts`
 
-### @beep/common/yjs (MISSING FROM ORIGINAL - 16 files in protocol/)
-
-- [ ] `protocol/Ai.ts` → `ai.ts`
-- [ ] `protocol/BaseActivitiesData.ts` → `base-activities-data.ts`
-- [ ] `protocol/BaseGroupinfo.ts` → `base-group-info.ts`
-- [ ] `protocol/BaseRoomInfo.ts` → `base-room-info.ts`
-- [ ] `protocol/BaseUserMeta.ts` → `base-user-meta.ts`
-- [ ] `protocol/ClientMsg.ts` → `client-msg.ts`
-- [ ] `protocol/Comments.ts` → `comments.ts`
-- [ ] `protocol/Groups.ts` → `groups.ts`
-- [ ] `protocol/InboxNotifications.ts` → `inbox-notifications.ts`
-- [ ] `protocol/MentionData.ts` → `mention-data.ts`
-- [ ] `protocol/NotificationSettings.ts` → `notification-settings.ts`
-- [ ] `protocol/Op.ts` → `op.ts`
-- [ ] `protocol/SerializedCrdt.ts` → `serialized-crdt.ts`
-- [ ] `protocol/ServerMsg.ts` → `server-msg.ts`
-- [ ] `protocol/UrlMetadata.ts` → `url-metadata.ts`
-- [ ] `protocol/VersionHistory.ts` → `version-history.ts`
-
-### @beep/common/schema (ADDED in final verification - ~20 files)
+### @beep//schema (ADDED in final verification - ~20 files)
 
 Files integration:
 
@@ -745,15 +676,6 @@ bun run test
 
 ## Notes
 
-### [VERIFY] Items Requiring Human Decision
-
-1. **@beep/ui Lexical Editor (47 directories)**
-   - All plugin, ui, and node directories use PascalCase (e.g., `CodeHighlightPlugin/`, `BoldButton/`)
-   - This follows React component naming conventions and Lexical library patterns
-   - The `@lexical/react` package itself exports PascalCase plugin names
-   - **RECOMMENDATION**: Consider excluding from standardization to maintain consistency with React ecosystem conventions
-   - **ALTERNATIVE**: If standardizing, would require updating 47 directories + all component exports
-
 ### Medium-Risk Packages
 
 2. **@beep/shared-domain**: 353 imports across codebase
@@ -767,7 +689,7 @@ bun run test
 
 5. **Build artifacts**: After running `bun run build`, the build/dist directories will regenerate with correct structure.
 
-6. **Common packages**: The @beep/constants, @beep/yjs, @beep/contract, and @beep/identity packages have many PascalCase files. These are widely used - consider coordinating the rename in a single batch.
+6. **Common packages**: The @beep/constants, @beep/contract, and @beep/identity packages have many PascalCase files. These are widely used - consider coordinating the rename in a single batch.
 
 ### Verification Notes
 
@@ -783,9 +705,9 @@ bun run test
    bun run topo-sort
    ```
 
-8. **Counts verified on 2026-01-07** (final verification pass):
+8. **Counts verified on 2026-01-09** (post Lexical exclusion):
    - 91 PascalCase directories in src/ (excluding build/dist/docs)
-   - 44 non-Lexical directories requiring rename
-   - 47 Lexical editor directories (marked [VERIFY])
-   - ~150 PascalCase files requiring rename (updated from ~115)
+   - 47 directories requiring rename (44 non-UI + 3 UI non-Lexical)
+   - 44 Lexical editor directories (EXCLUDED per decision on 2026-01-09)
+   - ~150 PascalCase files requiring rename
    - Import counts: @beep/shared-domain=353, @beep/iam-domain=313

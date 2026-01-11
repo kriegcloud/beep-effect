@@ -149,15 +149,6 @@
       "@beep/errors/test/*": [
         "./packages/common/errors/test/*"
       ],
-      "@beep/mock": [
-        "./packages/common/mock/src/index"
-      ],
-      "@beep/mock/*": [
-        "./packages/common/mock/src/*"
-      ],
-      "@beep/mock/test/*": [
-        "./packages/common/mock/test/*"
-      ],
       "@beep/contract": [
         "./packages/common/contract/src/index"
       ],
@@ -397,24 +388,6 @@
       ],
       "@beep/testkit/test/*": [
         "./tooling/testkit/test/*"
-      ],
-      "@beep/lexical-schemas": [
-        "./packages/common/lexical-schemas/src/index"
-      ],
-      "@beep/lexical-schemas/*": [
-        "./packages/common/lexical-schemas/src/*"
-      ],
-      "@beep/lexical-schemas/test/*": [
-        "./packages/common/lexical-schemas/test/*"
-      ],
-      "@beep/yjs": [
-        "./packages/common/yjs/src/index"
-      ],
-      "@beep/yjs/*": [
-        "./packages/common/yjs/src/*"
-      ],
-      "@beep/yjs/test/*": [
-        "./packages/common/yjs/test/*"
       ],
       "@beep/customization-domain": [
         "./packages/customization/domain/src/index"

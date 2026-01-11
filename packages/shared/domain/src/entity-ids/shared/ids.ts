@@ -4,7 +4,9 @@ import type * as S from "effect/Schema";
 
 const $I = $SharedDomainId.create("entity-ids/shared/ids");
 
-export const OrganizationId = EntityId.make("organization", {
+const make = EntityId.builder("shared");
+
+export const OrganizationId = make("organization", {
   brand: "OrganizationId",
 }).annotations(
   $I.annotations("OrganizationId", {
@@ -15,9 +17,14 @@ export const OrganizationId = EntityId.make("organization", {
 export declare namespace OrganizationId {
   export type Type = typeof OrganizationId.Type;
   export type Encoded = typeof OrganizationId.Encoded;
+
+  export namespace RowId {
+    export type Type = typeof OrganizationId.privateSchema.Type;
+    export type Encoded = typeof OrganizationId.privateSchema.Encoded;
+  }
 }
 
-export const TeamId = EntityId.make("team", {
+export const TeamId = make("team", {
   brand: "TeamId",
 }).annotations(
   $I.annotations("TeamId", {
@@ -28,9 +35,14 @@ export const TeamId = EntityId.make("team", {
 export declare namespace TeamId {
   export type Type = typeof TeamId.Type;
   export type Encoded = typeof TeamId.Encoded;
+
+  export namespace RowId {
+    export type Type = typeof TeamId.privateSchema.Type;
+    export type Encoded = typeof TeamId.privateSchema.Encoded;
+  }
 }
 
-export const FileId = EntityId.make("file", {
+export const FileId = make("file", {
   brand: "FileId",
 }).annotations(
   $I.annotations("FileId", {
@@ -41,9 +53,14 @@ export const FileId = EntityId.make("file", {
 export declare namespace FileId {
   export type Type = typeof FileId.Type;
   export type Encoded = typeof FileId.Encoded;
+
+  export namespace RowId {
+    export type Type = typeof FileId.privateSchema.Type;
+    export type Encoded = typeof FileId.privateSchema.Encoded;
+  }
 }
 
-export const AuditLogId = EntityId.make("audit_log", {
+export const AuditLogId = make("audit_log", {
   brand: "AuditLogId",
 }).annotations(
   $I.annotations("AuditLogId", {
@@ -54,9 +71,14 @@ export const AuditLogId = EntityId.make("audit_log", {
 export declare namespace AuditLogId {
   export type Type = typeof AuditLogId.Type;
   export type Encoded = typeof AuditLogId.Encoded;
+
+  export namespace RowId {
+    export type Type = typeof AuditLogId.privateSchema.Type;
+    export type Encoded = typeof AuditLogId.privateSchema.Encoded;
+  }
 }
 
-export const UserId = EntityId.make("user", {
+export const UserId = make("user", {
   brand: "UserId",
 }).annotations(
   $I.annotations("UserId", {
@@ -67,9 +89,14 @@ export const UserId = EntityId.make("user", {
 export declare namespace UserId {
   export type Type = typeof UserId.Type;
   export type Encoded = typeof UserId.Encoded;
+
+  export namespace RowId {
+    export type Type = typeof UserId.privateSchema.Type;
+    export type Encoded = typeof UserId.privateSchema.Encoded;
+  }
 }
 
-export const SessionId = EntityId.make("session", {
+export const SessionId = make("session", {
   brand: "SessionId",
 }).annotations(
   $I.annotations("SessionId", {
@@ -80,9 +107,14 @@ export const SessionId = EntityId.make("session", {
 export declare namespace SessionId {
   export type Type = S.Schema.Type<typeof SessionId>;
   export type Encoded = S.Schema.Encoded<typeof SessionId>;
+
+  export namespace RowId {
+    export type Type = typeof SessionId.privateSchema.Type;
+    export type Encoded = typeof SessionId.privateSchema.Encoded;
+  }
 }
 
-export const FolderId = EntityId.make("folder", {
+export const FolderId = make("folder", {
   brand: "FolderId",
 }).annotations(
   $I.annotations("FolderId", {
@@ -93,9 +125,14 @@ export const FolderId = EntityId.make("folder", {
 export declare namespace FolderId {
   export type Type = typeof FolderId.Type;
   export type Encoded = typeof FolderId.Encoded;
+
+  export namespace RowId {
+    export type Type = typeof FolderId.privateSchema.Type;
+    export type Encoded = typeof FolderId.privateSchema.Encoded;
+  }
 }
 
-export const UploadSessionId = EntityId.make("upload_session", {
+export const UploadSessionId = make("upload_session", {
   brand: "UploadSessionId",
 }).annotations(
   $I.annotations("UploadSessionId", {
@@ -106,12 +143,26 @@ export const UploadSessionId = EntityId.make("upload_session", {
 export declare namespace UploadSessionId {
   export type Type = typeof UploadSessionId.Type;
   export type Encoded = typeof UploadSessionId.Encoded;
+
+  export namespace RowId {
+    export type Type = typeof UploadSessionId.privateSchema.Type;
+    export type Encoded = typeof UploadSessionId.privateSchema.Encoded;
+  }
 }
 
-export const AgentId = EntityId.make("agent", {
+export const AgentId = make("agent", {
   brand: "AgentId",
 }).annotations(
   $I.annotations("AgentId", {
     description: "A unique identifier for an Agent",
   })
 );
+export declare namespace AgentId {
+  export type Type = typeof AgentId.Type;
+  export type Encoded = typeof AgentId.Encoded;
+
+  export namespace RowId {
+    export type Type = typeof AgentId.privateSchema.Type;
+    export type Encoded = typeof AgentId.privateSchema.Encoded;
+  }
+}

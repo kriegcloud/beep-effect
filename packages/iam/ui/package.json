@@ -43,8 +43,6 @@
     "@beep/constants": "workspace:^",
     "@beep/runtime-client": "workspace:^",
     "@beep/shared-domain": "workspace:^",
-    "@beep/shared-ui": "workspace:^",
-    "@beep/shared-client": "workspace:^",
     "@effect-atom/atom-react": "catalog:",
     "next": "catalog:",
     "framer-motion": "catalog:",

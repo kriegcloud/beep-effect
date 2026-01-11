@@ -5,7 +5,7 @@ import { IamProvider } from "@beep/iam-ui/IamProvider";
 import { BeepProvider } from "@beep/runtime-client";
 import { MotionLazy } from "@beep/ui/animate/motion-lazy";
 import { I18nProvider } from "@beep/ui/i18n/i18n.provider";
-import { LocalizationProvider } from "@beep/ui/i18n/Localization.provider";
+import { LocalizationProvider } from "@beep/ui/i18n/localization.provider";
 import { Snackbar } from "@beep/ui/molecules";
 import { ConfirmProvider } from "@beep/ui/organisms";
 import { ProgressBar } from "@beep/ui/progress/progress-bar/progress-bar";

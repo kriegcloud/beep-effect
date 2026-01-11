@@ -1,4 +1,4 @@
-@import "../SimpleBar/simplebar.css";
+@import "../simple-bar/simplebar.css";
 
 .simplebar-scrollbar:before {
   background-color: var(--palette-text-disabled);

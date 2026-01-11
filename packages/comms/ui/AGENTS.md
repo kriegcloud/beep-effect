@@ -37,14 +37,17 @@
   import { Badge, IconButton, Popover } from "@mui/material";
   import NotificationsIcon from "@mui/icons-material/Notifications";
   import { useState } from "react";
-  // import { useQuery } from "@tanstack/react-query";
+  import { useQuery } from "@tanstack/react-query";
+  import * as Effect from "effect/Effect";
   // import { notificationContract } from "@beep/comms-client";
 
   export function NotificationBell({ userId }: { userId: string }) {
     const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+
+    // Example: Effect-based contract wrapped in TanStack Query
     // const { data: notifications } = useQuery({
     //   queryKey: ["notifications", userId, "unread"],
-    //   queryFn: () => notificationContract.getUnread({ userId }),
+    //   queryFn: () => Effect.runPromise(notificationContract.getUnread({ userId })),
     // });
     // const unreadCount = notifications?.length ?? 0;
 

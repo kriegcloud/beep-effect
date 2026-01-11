@@ -2,25 +2,29 @@
 
 ## Purpose & Fit
 - Contains the server-side infrastructure layer for the communications slice, including database client, repositories, and server-side services.
-- Provides `CommsDb` for Drizzle ORM integration with PostgreSQL via `@effect/sql-pg`.
+- Provides `Db` (CommsDb namespace) for database integration with PostgreSQL via `@effect/sql-pg` and Drizzle ORM.
 - Bundles repositories into a composable Layer that can be merged into the server runtime.
-- Manages communication-specific data persistence (notifications, messages, email logs) and business logic execution.
+- Manages communication-specific data persistence (email templates, notifications, messages) and business logic execution.
 
 ## Surface Map
-- **CommsDb** — Effect-based database client for the comms slice, wrapping Drizzle ORM with `@effect/sql-pg`.
-- **CommsRepos** — Namespace containing all comms repositories bundled as Effect Layers.
-- **CommsRepos.layer** — Merged Layer providing all repository services.
-- **PlaceholderRepo** — Starter repository demonstrating the Repo pattern. Replace with actual comms repositories (NotificationRepo, MessageRepo, etc.) as the feature matures.
+
+| Export | Description |
+|--------|-------------|
+| `Db` | Database client service tag for the comms slice |
+| `Db.layer` | Layer providing the database client |
+| `CommsRepos` | Namespace containing all comms repositories as Effect Services |
+| `CommsRepos.layer` | Merged Layer providing all repository services |
+| `EmailTemplateRepo` | Repository for email template entity operations |
 
 ## Usage Snapshots
 - Server runtime composes `CommsRepos.layer` to provide repository services to RPC handlers.
-- RPC handlers inject repositories to persist notifications, messages, and communication preferences.
-- Email services use repositories to log sent emails and track delivery status.
-- Integration tests use `CommsDb` with Testcontainers for isolated database testing.
+- RPC handlers inject repositories to persist email templates and communication data.
+- Email services use repositories to load email templates for sending transactional emails.
+- Integration tests provide `Db.layer` with test configuration for isolated database testing.
 
 ## Authoring Guardrails
 - ALWAYS import Effect modules with namespaces (`Effect`, `A`, `F`, `O`, `Str`, `S`, `Layer`) and rely on Effect collections/utilities instead of native helpers (see global repo guardrails).
-- Repositories MUST use `Repo.make` factories from `@beep/shared-server` with domain entities from `@beep/comms-domain`.
+- Repositories MUST use `DbRepo.make` factories from `@beep/shared-domain/factories` with domain entities from `@beep/comms-domain`.
 - Keep repository methods focused on data access — business logic belongs in services or domain layer.
 - Use Effect for all async operations — no bare Promises or async/await.
 - Email sending MUST use the Email service from `@beep/shared-server` with proper error channels.
@@ -29,32 +33,40 @@
 ## Quick Recipes
 - **Provide comms repositories to server runtime**
   ```ts
-  import { CommsRepos, CommsDb } from "@beep/comms-server";
+  import * as CommsRepos from "@beep/comms-server/db/repositories";
+  import { Db } from "@beep/comms-server/db";
   import * as Layer from "effect/Layer";
 
   const CommsLayer = Layer.provide(
     CommsRepos.layer,
-    CommsDb.layer
+    Db.layer
   );
   ```
 
-- **Create a notification repository**
+- **Create an email template repository**
   ```ts
   import { Entities } from "@beep/comms-domain";
-  import { CommsDbSchema } from "@beep/comms-tables";
-  import { Repo } from "@beep/shared-server";
+  import { CommsDb } from "@beep/comms-server/db";
+  import { $CommsServerId } from "@beep/identity/packages";
+  import { CommsEntityIds } from "@beep/shared-domain";
+  import { DbRepo } from "@beep/shared-domain/factories";
   import * as Effect from "effect/Effect";
-  import * as Context from "effect/Context";
 
-  export class NotificationRepo extends Context.Tag("comms/NotificationRepo")<
-    NotificationRepo,
-    Repo.Repo<typeof Entities.Notification.Model>
-  >() {
-    static readonly Default = Repo.make({
-      model: Entities.Notification.Model,
-      table: CommsDbSchema.notification,
-    });
-  }
+  const $I = $CommsServerId.create("db/repos/email-template.repo");
+
+  export class EmailTemplateRepo extends Effect.Service<EmailTemplateRepo>()($I`EmailTemplateRepo`, {
+    dependencies: [CommsDb.Db.Live],
+    accessors: true,
+    effect: Effect.gen(function* () {
+      yield* CommsDb.Db;
+
+      return yield* DbRepo.make(
+        CommsEntityIds.EmailTemplateId,
+        Entities.EmailTemplate.Model,
+        Effect.succeed({})
+      );
+    }),
+  }) {}
   ```
 
 ## Verifications
@@ -108,9 +120,11 @@
 
 ## Contributor Checklist
 - [ ] Ensure repository methods align with domain entity schemas from `@beep/comms-domain`.
-- [ ] Maintain typed error channels — wrap database errors in tagged error types.
-- [ ] Add integration tests using Testcontainers for new repository methods.
-- [ ] Update `CommsRepos.layer` when adding new repositories.
-- [ ] Validate email addresses before any sending operation.
-- [ ] Verify rate limiting is in place for notification endpoints.
+- [ ] Use `DbRepo.make` from `@beep/shared-domain/factories` for all repository implementations.
+- [ ] Maintain typed error channels — wrap database errors in `DatabaseError` from `@beep/shared-domain/errors`.
+- [ ] Add integration tests with Effect test utilities from `@beep/testkit`.
+- [ ] Update `CommsRepos.layer` in `src/db/repositories.ts` when adding new repositories.
+- [ ] Export new repository classes from `src/db/repos/index.ts`.
+- [ ] Validate email addresses before any sending operation using schemas from `@beep/schema`.
+- [ ] Verify rate limiting is in place for communication endpoints.
 - [ ] Re-run verification commands above before handing work off.

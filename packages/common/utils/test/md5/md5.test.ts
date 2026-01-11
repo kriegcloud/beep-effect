@@ -1,5 +1,6 @@
 import { describe, expect, test } from "@beep/testkit";
 import * as Md5 from "@beep/utils/md5";
+import { thunkZero } from "@beep/utils/thunk";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
@@ -22,13 +23,7 @@ const stringToArray = (str: string): Uint8Array => {
   // Build array of char codes using Effect utilities
   const charCodes = F.pipe(
     A.range(0, length - 1),
-    A.map((i) =>
-      F.pipe(
-        str,
-        Str.charCodeAt(i),
-        O.getOrElse(() => 0)
-      )
-    )
+    A.map((i) => F.pipe(str, Str.charCodeAt(i), O.getOrElse(thunkZero)))
   );
 
   // Copy to TypedArray (TypedArrays don't support A.set, so we use forEach)

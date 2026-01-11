@@ -357,10 +357,10 @@ This package is consumed by:
 - **`@beep/build-utils`**: Build configuration utilities
 
 It depends on:
-- **`@beep/types`**: Compile-time type utilities (provides `UnsafeAny` bridge for glob typing)
 - **`effect`**: Core Effect runtime and standard library
 - **`@effect/platform`**: Platform-agnostic filesystem and path abstractions
 - **`@effect/platform-bun`**: Bun-specific implementations
+- **`@effect/cluster`**: Effect clustering utilities
 - **`glob`**: Fast glob pattern matching library
 
 ## Related Packages

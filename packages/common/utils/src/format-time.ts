@@ -22,6 +22,7 @@ import * as Duration from "effect/Duration";
 import * as F from "effect/Function";
 import * as Match from "effect/Match";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import * as Str from "effect/String";
 /**
  * Input union accepted by the date formatting helpers (DateTime, native dates,
@@ -66,7 +67,7 @@ export const formatPatterns = {
  * Helper to convert various inputs to DateTime.DateTime
  */
 const toDateTime = (date: DatePickerFormat): O.Option<DateTime.DateTime> => {
-  if (date === null || date === undefined) {
+  if (P.isNullable(date)) {
     return O.none();
   }
   if (DateTime.isDateTime(date)) {
@@ -414,13 +415,13 @@ export function fDateRangeShortLabel(
  * @since 0.1.0
  */
 export type DurationProps = {
-  years?: undefined | number;
-  months?: undefined | number;
-  days?: undefined | number;
-  hours?: undefined | number;
-  minutes?: undefined | number;
-  seconds?: undefined | number;
-  milliseconds?: undefined | number;
+  readonly years?: undefined | number;
+  readonly months?: undefined | number;
+  readonly days?: undefined | number;
+  readonly hours?: undefined | number;
+  readonly minutes?: undefined | number;
+  readonly seconds?: undefined | number;
+  readonly milliseconds?: undefined | number;
 };
 
 type FAdd = (params: DurationProps) => string;

@@ -1,5 +1,4 @@
 import type { UnsafeTypes } from "@beep/types";
-import { tagPropIs } from "@beep/utils";
 import * as FetchHttpClient from "@effect/platform/FetchHttpClient";
 import type { Registry } from "@effect-atom/atom-react";
 import { Atom, RegistryContext, Result, useAtomSet, useAtomValue } from "@effect-atom/atom-react";
@@ -10,6 +9,7 @@ import * as HashMap from "effect/HashMap";
 import * as Layer from "effect/Layer";
 import * as Logger from "effect/Logger";
 import * as LogLevel from "effect/LogLevel";
+import * as P from "effect/Predicate";
 import type * as S from "effect/Schema";
 import * as React from "react";
 export const prefixLogs =
@@ -22,7 +22,7 @@ const prettyLoggerWithPrefix: Layer.Layer<never> = Logger.replace(
   Logger.prettyLogger().pipe(
     Logger.mapInputOptions((options) => {
       const prefixAnnotation = HashMap.get(options.annotations, "__prefix");
-      if (tagPropIs(prefixAnnotation, "Some")) {
+      if (P.isTagged(prefixAnnotation, "Some")) {
         const prefix = String(prefixAnnotation.value);
         const newAnnotations = HashMap.remove(options.annotations, "__prefix");
 
@@ -50,7 +50,7 @@ export const useAtomRegistry = (): Registry.Registry => {
   return React.useContext(RegistryContext);
 };
 
-export const isResultLoading = <A, E>(result: Result.Result<A, E>) => result.waiting && tagPropIs(result, "Initial");
+export const isResultLoading = <A, E>(result: Result.Result<A, E>) => result.waiting && P.isTagged(result, "Initial");
 
 export const AtomValue = <A>({ atom, children }: { atom: Atom.Atom<A>; children: (value: A) => React.ReactNode }) => {
   const value = useAtomValue(atom);

@@ -443,7 +443,7 @@ bun run beep create-slice -n <name> -d "<description>"
 ```bash
 bun run beep env              # Environment configuration
 bun run beep sync             # Sync dependencies
-bun run beep prune-unused-deps # Clean up unused dependencies
+bun run beep prune-deps # Clean up unused dependencies
 bun run beep topo-sort        # Topological sort of packages
 ```
 

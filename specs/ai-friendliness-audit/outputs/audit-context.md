@@ -25,28 +25,28 @@ Key concerns identified:
 ## Repository Structure
 
 ### Apps (4)
-| App | Purpose |
-|-----|---------|
-| `apps/web` | Next.js 16 + React 19 frontend |
-| `apps/server` | Effect Platform backend runtime |
-| `apps/marketing` | Marketing site |
+| App              | Purpose                         |
+|------------------|---------------------------------|
+| `apps/web`       | Next.js 16 + React 19 frontend  |
+| `apps/server`    | Effect Platform backend runtime |
+| `apps/marketing` | Marketing site                  |
 
 ### Packages by Category
 
-| Category | Package Count | Packages |
-|----------|---------------|----------|
-| common | 11 | constants, contract, errors, identity, invariant, lexical-schemas, mock, schema, types, utils, yjs |
-| iam | 5 | client, domain, server, tables, ui |
-| documents | 5 | client, domain, server, tables, ui |
-| comms | 5 | client, domain, server, tables, ui |
-| customization | 5 | client, domain, server, tables, ui |
-| shared | 6 | client, domain, env, server, tables, ui |
-| runtime | 2 | client, server |
-| ui | 2 | core, ui |
-| _internal | 1 | db-admin |
+| Category      | Package Count | Packages                                                                        |
+|---------------|---------------|---------------------------------------------------------------------------------|
+| common        | 11            | constants, contract, errors, identity, invariant, schema, types, utils, yjs |
+| iam           | 5             | client, domain, server, tables, ui                                              |
+| documents     | 5             | client, domain, server, tables, ui                                              |
+| comms         | 5             | client, domain, server, tables, ui                                              |
+| customization | 5             | client, domain, server, tables, ui                                              |
+| shared        | 6             | client, domain, env, server, tables, ui                                         |
+| runtime       | 2             | client, server                                                                  |
+| ui            | 2             | core, ui                                                                        |
+| _internal     | 1             | db-admin                                                                        |
 
 ### Tooling (6)
-- build-utils, cli, repo-scripts, scraper, testkit, utils
+- build-utils, cli, repo-scripts, testkit, utils
 
 ---
 
@@ -74,10 +74,10 @@ Key concerns identified:
 - Some common packages lack README
 
 ### JSDoc Coverage (Sampled)
-| Package | JSDoc Blocks |
-|---------|--------------|
+| Package         | JSDoc Blocks           |
+|-----------------|------------------------|
 | common/contract | 4 files, minimal JSDoc |
-| common/schema | 1-7 per file, sparse |
+| common/schema   | 1-7 per file, sparse   |
 
 ---
 
@@ -86,18 +86,18 @@ Key concerns identified:
 ### TypeScript (tsconfig.base.jsonc)
 **Strictness Level: EXCELLENT (5/5)**
 
-| Option | Status |
-|--------|--------|
-| strict | true |
-| noUncheckedIndexedAccess | true |
-| exactOptionalPropertyTypes | true |
-| noImplicitOverride | true |
-| noImplicitReturns | true |
-| noUnusedLocals | true |
-| noUnusedParameters | true |
-| noFallthroughCasesInSwitch | true |
-| forceConsistentCasingInFileNames | true |
-| verbatimModuleSyntax | true |
+| Option                           | Status |
+|----------------------------------|--------|
+| strict                           | true   |
+| noUncheckedIndexedAccess         | true   |
+| exactOptionalPropertyTypes       | true   |
+| noImplicitOverride               | true   |
+| noImplicitReturns                | true   |
+| noUnusedLocals                   | true   |
+| noUnusedParameters               | true   |
+| noFallthroughCasesInSwitch       | true   |
+| forceConsistentCasingInFileNames | true   |
+| verbatimModuleSyntax             | true   |
 
 **Notable**: Uses @effect/language-service plugin for enhanced Effect support.
 
@@ -159,7 +159,6 @@ Verified:
 - Some legitimate utility code for formatting
 
 **Sample Locations:**
-- `packages/common/mock/src/_time.ts:7`
 - `packages/common/errors/src/server.ts:228`
 - `packages/common/utils/src/format-time.ts` (multiple)
 

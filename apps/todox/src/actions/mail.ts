@@ -1,4 +1,4 @@
-import type { IMail, IMailLabel } from "@beep/mock/_mail";
+import type { Mail, MailLabel } from "@beep/todox/types/mail";
 import { thunk } from "@beep/utils";
 import * as FetchHttpClient from "@effect/platform/FetchHttpClient";
 import * as HttpClient from "@effect/platform/HttpClient";
@@ -92,7 +92,7 @@ const swrOptions: SWRConfiguration = {
 // ----------------------------------------------------------------------
 
 type LabelsData = {
-  labels: IMailLabel[];
+  labels: MailLabel[];
 };
 
 export function useGetLabels() {
@@ -117,7 +117,7 @@ export function useGetLabels() {
 // ----------------------------------------------------------------------
 
 type MailsData = {
-  mails: IMail[];
+  mails: Mail[];
 };
 
 export function useGetMails(labelId: string) {
@@ -144,7 +144,7 @@ export function useGetMails(labelId: string) {
 // ----------------------------------------------------------------------
 
 type MailData = {
-  mail: IMail;
+  mail: Mail;
 };
 
 export function useGetMail(mailId: string) {
