@@ -19,7 +19,7 @@ import React from "react";
 import { GeneralTabPanel } from "@/features/account/general/GeneralTabPanel";
 import { LocalizationTabPanel } from "@/features/account/localization/LocalizationTabPanel";
 import { SecurityTabPanel } from "@/features/account/security/SecurityTabPanel";
-import { AccountBillingView, AccountNotificationsView, AccountSocialsView } from "@/features/account/view";
+import { AccountNotificationsView } from "@/features/account/view";
 
 const Transition = React.forwardRef(function Transition(
   props: TransitionProps & {
@@ -47,25 +47,11 @@ const NAV_ITEMS = (handleTab: (tab: AccountSettingsTabSearchParamValue.Type) => 
       render: () => <GeneralTabPanel />,
     },
     {
-      slug: AccountSettingsTabSearchParamValue.Enum.billing,
-      label: "Billing",
-      icon: <Iconify width={24} icon="solar:bill-list-bold" />,
-      onClick: () => handleTab(AccountSettingsTabSearchParamValue.Enum.billing),
-      render: () => <AccountBillingView />,
-    },
-    {
       slug: AccountSettingsTabSearchParamValue.Enum.notifications,
       label: "Notifications",
       icon: <Iconify width={24} icon="solar:bell-bing-bold" />,
       onClick: () => handleTab(AccountSettingsTabSearchParamValue.Enum.notifications),
       render: () => <AccountNotificationsView />,
-    },
-    {
-      slug: AccountSettingsTabSearchParamValue.Enum.connections,
-      label: "Connections",
-      icon: <Iconify width={24} icon="solar:share-bold" />,
-      onClick: () => handleTab(AccountSettingsTabSearchParamValue.Enum.connections),
-      render: () => <AccountSocialsView />,
     },
     {
       slug: AccountSettingsTabSearchParamValue.Enum.security,
@@ -171,7 +157,7 @@ function AccountTabs({
             width: "100%",
             px: 0,
             height: { xs: "auto", md: "100%" },
-            [`& .${tabsClasses.flexContainer}`]: {
+            [`& .${tabsClasses.list}`]: {
               gap: 0,
               ...(isMobile
                 ? {
@@ -360,7 +346,7 @@ export const AccountDialog = (props: AccountDialogProps) => {
     >
       <AppBar sx={{ position: "relative" }}>
         <Toolbar sx={{ backgroundColor: "background.default" }}>
-          <IconButton edge="start" color="inherit" onClick={() => props.onClose()} aria-label="close">
+          <IconButton edge="start" color="inherit" onClick={props.onClose} aria-label="close">
             <Iconify icon={"carbon:close"} />
           </IconButton>
           <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">

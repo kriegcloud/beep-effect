@@ -2,7 +2,7 @@
 
 ## Purpose & Fit
 - House reusable React components for the documents slice so apps do not reimplement UI flows.
-- Build atop `@beep/ui/ui` components and `@beep/ui/core` design tokens while consuming `@beep/documents-domain` entities and future `@beep/documents-client` clients.
+- Build atop `@beep/ui` components and `@beep/ui-core` design tokens while consuming `@beep/documents-domain` entities and future `@beep/documents-client` clients.
 - Provide document editor, knowledge page, discussion, and comment UI components.
 
 ## Current State
@@ -19,7 +19,7 @@ When implemented, this package should include:
 - Knowledge space navigation components.
 
 ## Design & Implementation Guardrails
-- Follow the design system guidance in `packages/ui/ui/AGENTS.md` and `packages/ui/core/AGENTS.md` (theme pipeline, settings, CSS variables, shadcn/MUI usage).
+- Follow the design system guidance in `@beep/ui` (`packages/ui/ui/AGENTS.md`) and `@beep/ui-core` (`packages/ui/core/AGENTS.md`) for theme pipeline, settings, CSS variables, and shadcn/MUI usage.
 - Respect repository-wide Effect guardrails: namespace imports (`A`, `F`, `Str`, `Effect`) and no new native array/string/object helpers in utilities or examples.
 - NEVER use native Date; use `effect/DateTime` for all date/time operations (immutable, timezone-safe).
 - NEVER use switch statements or long if-else chains; use `effect/Match` for pattern matching and `effect/Predicate` for type guards.

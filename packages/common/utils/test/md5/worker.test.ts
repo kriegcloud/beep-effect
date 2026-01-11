@@ -12,6 +12,7 @@
 import { describe, expect, live, test } from "@beep/testkit";
 import { appendByteArray, finalize, Md5ComputationError, makeState } from "@beep/utils/md5/md5";
 import { HashRequest, WorkerRequestSchema } from "@beep/utils/md5/worker";
+import { thunkZero } from "@beep/utils/thunk";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
@@ -29,13 +30,7 @@ const stringToUint8Array = (str: string): Uint8Array => {
 
   const charCodes = F.pipe(
     A.range(0, length - 1),
-    A.map((i) =>
-      F.pipe(
-        str,
-        Str.charCodeAt(i),
-        O.getOrElse(() => 0)
-      )
-    )
+    A.map((i) => F.pipe(str, Str.charCodeAt(i), O.getOrElse(thunkZero)))
   );
 
   F.pipe(
@@ -64,12 +59,10 @@ const simulateWorkerHash = (buffer: Uint8Array): Effect.Effect<string, Md5Comput
     }
 
     // This should not happen when raw=false
-    return yield* Effect.fail(
-      new Md5ComputationError({
-        message: "Expected string result from MD5 finalize",
-        cause: result,
-      })
-    );
+    return yield* new Md5ComputationError({
+      message: "Expected string result from MD5 finalize",
+      cause: result,
+    });
   });
 
 describe("Worker schemas", () => {

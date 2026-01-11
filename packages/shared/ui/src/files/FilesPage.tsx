@@ -1,5 +1,6 @@
 "use client";
 import { activeUploadsAtom, filesAtom } from "@beep/shared-client/atom";
+import { SharedEntityIds } from "@beep/shared-domain";
 import { File } from "@beep/shared-domain/entities";
 import { Result, useAtomValue } from "@effect-atom/atom-react";
 import * as Arbitrary from "effect/Arbitrary";
@@ -50,9 +51,9 @@ export const FilesPage = () => {
               <FolderSection
                 key={folder.id}
                 folder={folder}
-                entityKind={"user"}
+                entityKind={SharedEntityIds.UserId.tableName}
                 entityAttribute={"image"}
-                entityIdentifier={"user__73df4268-ea84-4c58-bc89-7ca868de0d56"}
+                entityIdentifier={SharedEntityIds.UserId.create()}
                 metadata={mockMetadata()}
               />
             ))

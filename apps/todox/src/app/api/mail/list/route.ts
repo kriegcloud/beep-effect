@@ -1,7 +1,14 @@
-import { Mail } from "@beep/mock/_mail";
+import { Mail } from "@beep/todox/types/mail";
+import { thunk } from "@beep/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
+import * as DateTime from "effect/DateTime";
+import * as Eq from "effect/Equal";
 import * as FC from "effect/FastCheck";
+import * as F from "effect/Function";
+import * as Num from "effect/Number";
+import * as O from "effect/Option";
+import * as Str from "effect/String";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
@@ -24,8 +31,14 @@ const generateMockMails = (labelId: string, seed: number) => {
   ];
 
   const folders = ["inbox", "sent", "drafts", "spam", "trash"];
-  const folderIndex = folders.indexOf(labelId);
-  const folder = folderIndex >= 0 ? folders[folderIndex] : "inbox";
+  const folder = A.findFirstIndex(Eq.equals(labelId))(folders).pipe(
+    O.flatMap(O.liftPredicate(Num.greaterThanOrEqualTo(0))),
+    O.flatMap((folderIndex) => A.get(folderIndex)(folders)),
+    O.match({
+      onNone: thunk("inbox"),
+      onSome: F.identity,
+    })
+  );
 
   return A.map(baseMails, (mail, index) => ({
     ...mail,
@@ -49,7 +62,12 @@ const generateMockMails = (labelId: string, seed: number) => {
     labelIds: [labelId],
     isStarred: index % 3 === 0,
     isImportant: index % 4 === 0,
-    createdAt: new Date(Date.now() - index * 3600000).toISOString(),
+    createdAt: DateTime.unsafeNow().pipe(
+      DateTime.subtract({
+        millis: index * 3600000,
+      }),
+      DateTime.formatIso
+    ),
     attachments:
       index % 5 === 0
         ? [
@@ -60,8 +78,8 @@ const generateMockMails = (labelId: string, seed: number) => {
               type: "application/pdf",
               path: `/attachments/document-${index}.pdf`,
               preview: `/attachments/preview-${index}.png`,
-              createdAt: new Date().toISOString(),
-              modifiedAt: new Date().toISOString(),
+              createdAt: DateTime.unsafeNow().pipe(DateTime.formatIso),
+              modifiedAt: DateTime.unsafeNow().pipe(DateTime.formatIso),
             },
           ]
         : [],
@@ -73,7 +91,7 @@ export async function GET(request: NextRequest) {
   const labelId = searchParams.get("labelId") ?? "inbox";
 
   // Use labelId as part of seed for different results per label
-  const seed = A.reduce(labelId.split(""), 0, (acc, char) => acc + char.charCodeAt(0));
+  const seed = A.reduce(Str.split("")(labelId), 0, (acc, char) => acc + char.charCodeAt(0));
   const mails = generateMockMails(labelId, seed);
 
   return NextResponse.json({ mails });

@@ -50,7 +50,6 @@
     "@beep/documents-tables": "workspace:^",
     "@beep/documents-server": "workspace:^",
     "@beep/customization-tables": "workspace:^",
-    "@beep/customization-server": "workspace:^",
     "@effect/platform-bun": "catalog:",
     "@effect/sql-pg": "catalog:",
     "@faker-js/faker": "catalog:",
@@ -67,7 +66,6 @@
     "drizzle-orm": "catalog:",
     "effect": "catalog:",
     "@effect/platform": "catalog:",
-    "postgres": "catalog:",
     "@beep/testkit": "workspace:^"
   },
   "devDependencies": {

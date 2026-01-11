@@ -7,7 +7,7 @@
 
 ## Surface Map
 - `apps/web/src/app/layout.tsx` — wraps the tree with `GlobalProviders`, `RegistryProvider`, and `KaServices` after resolving `AppConfig` via `runServerPromise(getAppConfig, "RootLayout.getInitialProps")`; sets viewport + metadata.
-- `apps/web/src/GlobalProviders.tsx` — See `src/app/GlobalProviders.tsx` for the current provider configuration.
+- `apps/web/src/GlobalProviders.tsx` — See `src/GlobalProviders.tsx` for the current provider configuration.
 - `apps/web/src/app/dashboard/_layout-client.tsx` — client shell applying `AuthGuard`, `DashboardLayout`, settings dialog atom via `urlSearchParamSSR`, and runtime-backed handlers via `makeRunClientPromise`/`useRuntime`.
 - Route groups: marketing pages under `apps/web/src/app/(public)`, auth flows in `apps/web/src/app/auth/*` (delegates to `@beep/iam-ui`), file uploads in `apps/web/src/app/upload/page.tsx`, mocks/tests in `apps/web/test`.
 - Config: `apps/web/next.config.mjs` enforces security headers, SVGR for SVGs, TS-aware transpilation of `@beep/*` packages whose exports point to source, React Compiler, and output tracing rooted at the monorepo.

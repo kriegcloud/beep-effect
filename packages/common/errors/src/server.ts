@@ -494,7 +494,7 @@ export const accumulateEffectsAndReport = <A, E, R>(
 export const withResponseErrorLogging = <E, R>(client: HttpClient.HttpClient.With<E, R>) =>
   client.pipe(
     HttpClient.tapError((error) => {
-      if (HttpClientError.isHttpClientError(error) && error._tag === "ResponseError") {
+      if (HttpClientError.isHttpClientError(error) && P.isTagged("ResponseError")(error)) {
         return Effect.gen(function* () {
           const responseBody = yield* error.response.text.pipe(
             Effect.catchAllCause(() => Effect.succeed("<failed to read body>"))

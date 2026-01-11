@@ -24,9 +24,6 @@
       "path": "../../packages/common/errors/tsconfig.build.json"
     },
     {
-      "path": "../../packages/common/mock/tsconfig.build.json"
-    },
-    {
       "path": "../../packages/shared/domain/tsconfig.build.json"
     },
     {
@@ -34,9 +31,6 @@
     },
     {
       "path": "../../packages/iam/client/tsconfig.build.json"
-    },
-    {
-      "path": "../../packages/iam/server/tsconfig.build.json"
     },
     {
       "path": "../../packages/iam/domain/tsconfig.build.json"

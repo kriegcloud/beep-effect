@@ -14,7 +14,8 @@
  */
 import * as A from "effect/Array";
 import { pipe } from "effect/Function";
-import * as R from "effect/Record";
+
+import * as Struct from "effect/Struct";
 
 /**
  * Creates an object composed of properties from the source object for which
@@ -33,7 +34,7 @@ import * as R from "effect/Record";
  */
 export function omitBy<T extends object>(obj: T, predicate: (value: T[keyof T], key: keyof T) => boolean): Partial<T> {
   return pipe(
-    R.toEntries(obj) as [keyof T, T[keyof T]][],
+    Struct.entries(obj) as [keyof T, T[keyof T]][],
     A.filter(([key, value]) => !predicate(value, key)),
     // Using Object.fromEntries here because R.fromEntries has stricter generic
     // constraints that are incompatible with this function's generic signature

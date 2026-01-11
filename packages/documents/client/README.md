@@ -1,12 +1,12 @@
 # @beep/documents-client
 
-Client CLIENT layer for the documents slice, providing Effect-first client wrappers for document management, knowledge pages, discussions, and file operations.
+**Status: STUB PACKAGE** - Currently exports only `beep` placeholder. Awaiting documents server infrastructure completion.
 
 ## Purpose
 
-This package serves as the client CLIENT layer for the documents slice, bridging client applications (web, CLI) with the documents server infrastructure. It exposes type-safe Effect-based contracts for document operations while maintaining proper layering boundaries.
+SDK layer for the documents slice, providing Effect-first client wrappers for document management, knowledge pages, discussions, and file operations. Will bridge client applications (web, CLI) with documents server infrastructure using type-safe Effect-based contracts while maintaining layering boundaries.
 
-**Current Status**: This package is currently a stub with only a placeholder export (`beep`). Implementation will follow the `@beep/iam-client` pattern once the documents server infrastructure is finalized.
+Implementation will follow the `@beep/iam-client` pattern once `@beep/documents-server` infrastructure is finalized.
 
 ## Installation
 
@@ -16,11 +16,13 @@ This package serves as the client CLIENT layer for the documents slice, bridging
 "@beep/documents-client": "workspace:*"
 ```
 
-## Key Exports
+## Current Exports
 
-**Current Status**: Only `beep` (placeholder string constant)
+```typescript
+export const beep = "beep";
+```
 
-**Planned Exports** (when implemented):
+## Planned Exports
 
 | Export | Description |
 |--------|-------------|
@@ -44,7 +46,7 @@ Before this package can be fully implemented:
 
 ## Architecture
 
-- **Layer**: Client CLIENT layer between domain and UI in the vertical slice pattern
+- **Layer**: SDK layer between domain and UI in the vertical slice pattern
 - **Effect-First**: All operations return Effect types with proper error handling
 - **Service-Oriented**: Uses Effect Services with Layer-based dependency injection
 - **Contract-Driven**: Type-safe request/response schemas via `@beep/contract`
@@ -365,7 +367,7 @@ src/
 - Effect Services with Layer-based DI
 - Runtime-backed atoms for React
 - Form helpers with schema validation
-- Client adapters (better-auth style)
+- HTTP/RPC client adapters
 
 **Does NOT Belong Here**:
 - Server infrastructure (`@beep/documents-server`)
@@ -375,7 +377,7 @@ src/
 
 ## Related Packages
 
-- **`@beep/iam-client`** - Reference implementation for client CLIENT patterns
+- **`@beep/iam-client`** - Reference implementation for SDK layer patterns
 - **`@beep/documents-domain`** - Entity models, value objects, domain errors
 - **`@beep/documents-server`** - Server-side infrastructure
 - **`@beep/documents-ui`** - React UI components

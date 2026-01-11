@@ -37,8 +37,6 @@
       "@beep/iam-domain/*": ["../domain/src/*.js"],
       "@beep/constants": ["../../common/constants/src/index.js"],
       "@beep/constants/*": ["../../common/constants/src/*.js"],
-      "@beep/mock": ["../../common/mock/src/index.js"],
-      "@beep/mock/*": ["../../common/mock/src/*.js"],
       "@beep/errors/client": ["../../common/errors/src/client.js"],
       "@beep/errors/shared": ["../../common/errors/src/shared.js"],
       "@beep/errors/server": ["../../common/errors/src/server.js"],

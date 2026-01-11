@@ -13,7 +13,6 @@
  * - Clear separation of state changes and side effects
  */
 import { $SharedClientId } from "@beep/identity/packages";
-import { tagPropIs } from "@beep/utils";
 import * as Cause from "effect/Cause";
 import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
@@ -21,6 +20,7 @@ import * as F from "effect/Function";
 import * as HashMap from "effect/HashMap";
 import * as Match from "effect/Match";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import * as PubSub from "effect/PubSub";
 import * as Ref from "effect/Ref";
 import * as Runtime from "effect/Runtime";
@@ -380,7 +380,7 @@ export const uploadToS3 = (options: UploadOptions): Effect.Effect<void, UploadEr
       );
 
       // Configure request based on type
-      if (tagPropIs(options, "PUT")) {
+      if (P.isTagged(options, "PUT")) {
         runSync(
           Effect.logInfo(`[S3Upload] Configuring PUT request`, {
             uploadId: options.uploadId,
@@ -546,7 +546,7 @@ export const uploadToS3 = (options: UploadOptions): Effect.Effect<void, UploadEr
       };
 
       // Prepare and send the request
-      if (tagPropIs(options, "PUT")) {
+      if (P.isTagged(options, "PUT")) {
         // Direct file upload
         const blob =
           options.rangeStart && options.rangeStart > 0 ? options.file.slice(options.rangeStart) : options.file;

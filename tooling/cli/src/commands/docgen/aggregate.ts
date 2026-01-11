@@ -53,6 +53,7 @@ import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import * as Str from "effect/String";
 import { discoverPackagesWithDocs, resolvePackageByPathOrName } from "./shared/discovery.js";
 import { DocgenLogger, DocgenLoggerLive } from "./shared/logger.js";
@@ -141,12 +142,9 @@ const aggregatePackage = (
     yield* fs.makeDirectory(destDir, { recursive: true }).pipe(Effect.catchAll(() => Effect.void));
 
     // Read source files
-    const files = yield* fs.readDirectory(srcDir).pipe(Effect.catchAll(() => Effect.succeed(A.empty() as string[])));
+    const files = yield* fs.readDirectory(srcDir).pipe(Effect.catchAll(() => Effect.succeed(A.empty<string>())));
 
-    const mdFiles = F.pipe(
-      files,
-      A.filter((f) => F.pipe(f, Str.endsWith(".md")))
-    );
+    const mdFiles = F.pipe(files, A.filter(Str.endsWith(".md")));
 
     // Copy and transform each markdown file
     yield* Effect.forEach(
@@ -214,7 +212,7 @@ const handleAggregate = (args: {
           logger.error("Invalid package", {
             path: e.path,
             error: e._tag,
-            reason: e._tag === "InvalidPackagePathError" ? e.reason : (e.message ?? "not found"),
+            reason: P.isTagged("InvalidPackagePathError")(e) ? e.reason : (e.message ?? "not found"),
           })
         ),
         Effect.catchAll((e) =>
@@ -298,7 +296,7 @@ const handleAggregate = (args: {
   }).pipe(
     Effect.catchAll((exitCode) =>
       Effect.gen(function* () {
-        if (typeof exitCode === "number") {
+        if (P.isNumber(exitCode)) {
           yield* Effect.sync(() => {
             process.exitCode = exitCode;
           });

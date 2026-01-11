@@ -2,10 +2,12 @@
  * @since 0.1.0
  */
 
+import { thunk, thunkZero } from "@beep/utils/thunk";
 import * as A from "effect/Array";
 import { pipe } from "effect/Function";
 import * as HashSet from "effect/HashSet";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import * as Str from "effect/String";
 
 interface SqidsOptions {
@@ -616,9 +618,9 @@ export const defaultOptions = {
 };
 
 // Pure helper functions
-const toChars = (s: string): ReadonlyArray<string> => Str.split(s, "");
+const toChars = (s: string): ReadonlyArray<string> => Str.split(s, Str.empty);
 
-const fromChars = (chars: ReadonlyArray<string>): string => chars.join("");
+const fromChars = (chars: ReadonlyArray<string>): string => chars.join(Str.empty);
 
 const charAtUnsafe = (s: string, index: number): string => s.charAt(index);
 
@@ -658,13 +660,13 @@ const toId = (num: number, alphabet: string): string => {
     const newAcc = pipe(
       A.get(chars, result % len),
       O.map((c) => A.prepend(acc, c)),
-      O.getOrElse(() => acc)
+      O.getOrElse(thunk(acc))
     );
     const nextResult = Math.floor(result / len);
     return nextResult > 0 ? buildId(nextResult, newAcc) : newAcc;
   };
 
-  return pipe(buildId(num, []), fromChars);
+  return pipe(buildId(num, A.empty()), fromChars);
 };
 
 const toNumber = (id: string, alphabet: string): number => {
@@ -703,7 +705,7 @@ const isBlockedId = (id: string, blocklist: HashSet.HashSet<string>): boolean =>
     HashSet.some((word) => {
       if (word.length > idLen) return false;
 
-      if (idLen <= 3 || word.length <= 3) {
+      if (idLen <= 3 || Str.length(word) <= 3) {
         return lowercaseId === word;
       }
 
@@ -747,7 +749,7 @@ const createState = (options?: SqidsOptions): SqidsState => {
     throw new Error("Alphabet must contain unique characters");
   }
 
-  if (typeof minLength !== "number" || minLength < 0 || minLength > MIN_LENGTH_LIMIT) {
+  if (!P.isNumber(minLength) || minLength < 0 || minLength > MIN_LENGTH_LIMIT) {
     throw new Error(`Minimum length has to be between 0 and ${MIN_LENGTH_LIMIT}`);
   }
 
@@ -778,7 +780,7 @@ const encodeNumbersWithState = (state: SqidsState, numbers: ReadonlyArray<number
   const prefix = charAtUnsafe(rotated, 0);
   let alphabet = reverseString(rotated);
 
-  const parts: string[] = [prefix];
+  const parts = A.make(prefix);
 
   for (let i = 0; i < numbers.length; i++) {
     const num = numbers[i]!;
@@ -790,7 +792,7 @@ const encodeNumbersWithState = (state: SqidsState, numbers: ReadonlyArray<number
     }
   }
 
-  let id = parts.join("");
+  let id = A.join(Str.empty)(parts);
 
   if (state.minLength > id.length) {
     id += charAtUnsafe(alphabet, 0);
@@ -810,7 +812,7 @@ const encodeNumbersWithState = (state: SqidsState, numbers: ReadonlyArray<number
 
 const decodeWithState = (state: SqidsState, id: string): ReadonlyArray<number> => {
   if (Str.isEmpty(id)) {
-    return [];
+    return A.empty();
   }
 
   const alphabetChars = HashSet.fromIterable(toChars(state.alphabet));
@@ -822,23 +824,23 @@ const decodeWithState = (state: SqidsState, id: string): ReadonlyArray<number> =
   );
 
   if (!allCharsValid) {
-    return [];
+    return A.empty();
   }
 
   const prefix = charAtUnsafe(id, 0);
-  const offset = state.alphabet.indexOf(prefix);
+  const offset = Str.indexOf(prefix)(state.alphabet).pipe(O.getOrElse(thunkZero));
   let alphabet = pipe(rotateAlphabet(state.alphabet, offset), reverseString);
 
   let slicedId = sliceString(id, 1);
-  const result: number[] = [];
+  const result = A.empty<number>();
 
   while (slicedId.length > 0) {
     const separator = charAtUnsafe(alphabet, 0);
     const chunks = Str.split(separator)(slicedId);
 
     if (chunks.length > 0) {
-      const firstChunk = chunks[0]!;
-      if (firstChunk === "") {
+      const firstChunk = chunks[0];
+      if (P.isNotNullable(firstChunk) && firstChunk === Str.empty) {
         return result;
       }
 
@@ -886,7 +888,7 @@ export default class Sqids {
    */
   encode(numbers: ReadonlyArray<number>): string {
     if (A.isEmptyReadonlyArray(numbers)) {
-      return "";
+      return Str.empty;
     }
 
     const allInRange = pipe(

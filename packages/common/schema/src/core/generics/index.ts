@@ -31,6 +31,7 @@ export * from "./nullish";
  * @since 0.1.0
  */
 export * from "./option-fields";
+export * from "./optional-options";
 export * from "./struct-record";
 export * from "./tagged-class";
 export * from "./tagged-struct";

@@ -1,4 +1,4 @@
-import type { IMailLabel } from "@beep/mock/_mail";
+import type { MailLabel } from "@beep/todox/types/mail";
 import { Iconify } from "@beep/ui/atoms/iconify";
 import { EmptyContent } from "@beep/ui/molecules/empty-content";
 import { Scrollbar } from "@beep/ui/molecules/scrollbar";
@@ -16,7 +16,7 @@ type Props = {
   readonly isEmpty: boolean;
   readonly openNav: boolean;
   readonly loading: boolean;
-  readonly labels: IMailLabel[];
+  readonly labels: MailLabel[];
   readonly selectedLabelId: string;
   readonly onCloseNav: () => void;
   readonly onToggleCompose: () => void;

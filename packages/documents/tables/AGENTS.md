@@ -12,10 +12,6 @@
   - `document.table.ts` — Core document table with versioning support.
   - `documentFile.table.ts` — File attachment metadata.
   - `documentVersion.table.ts` — Version history tracking.
-  - `knowledgeBlock.table.ts` — Content blocks within pages.
-  - `knowledgePage.table.ts` — Knowledge base pages.
-  - `knowledgeSpace.table.ts` — Knowledge space containers.
-  - `pageLink.table.ts` — Page-to-page relationships.
 - **Relations (`src/relations.ts`)** — Drizzle relations defining foreign key relationships between tables.
 - **Schema Export (`src/schema.ts`)** — Central export point for all tables and relations.
 - **Type Checks (`src/_check.ts`)** — Assertions ensuring Drizzle inferred types match domain models.
@@ -50,13 +46,12 @@
 
 ### Migration Ordering
 - **Document versioning tables**: `documentVersion` depends on `document`. Ensure the base table migration runs before version tracking tables are created.
-- **Self-referential relations**: `pageLink` creates links between `knowledgePage` rows. The foreign key constraints require the target table to exist first—Drizzle handles this, but manual migration edits may break ordering.
-- **Index creation on large tables**: Creating indexes on `document` or `knowledgeBlock` tables with existing data can lock the table. Use `CONCURRENTLY` in manual migrations for production deployments.
+- **Index creation on large tables**: Creating indexes on `document` or `documentVersion` tables with existing data can lock the table. Use `CONCURRENTLY` in manual migrations for production deployments.
 
 ### Relation Definition Gotchas
 - **Polymorphic relations not supported**: Documents may attach to multiple entity types (projects, tasks). Drizzle does not support polymorphic foreign keys—use separate nullable columns or a discriminator pattern.
-- **Cascade delete propagation**: Deleting a `knowledgeSpace` cascades to `knowledgePage`, then to `knowledgeBlock`. Ensure domain logic accounts for this chain—repositories should not re-fetch deleted children.
-- **Relation loading depth**: Drizzle `with` queries do not limit depth. Deeply nested document structures (page -> blocks -> nested blocks) can cause performance issues. Use explicit `columns` selection.
+- **Cascade delete propagation**: Deleting a `discussion` cascades to its `comment` rows. Ensure domain logic accounts for this chain—repositories should not re-fetch deleted children.
+- **Relation loading depth**: Drizzle `with` queries do not limit depth. Deeply nested document structures with multiple relations can cause performance issues. Use explicit `columns` selection to limit fetched data.
 
 ### Integration with Domain Entities
 - **Version numbering**: `documentVersion.version` should be monotonically increasing per document. The domain layer must enforce this—the table only stores the value without sequence constraints.

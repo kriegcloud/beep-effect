@@ -17,7 +17,7 @@ const $I = $SharedDomainId.create("entity-ids/comms/table-names");
  * @since 0.1.0
  * @category ids
  */
-export class TableName extends BS.StringLiteralKit(Ids.PlaceholderId.tableName).annotations(
+export class TableName extends BS.StringLiteralKit(Ids.EmailTemplateId.tableName).annotations(
   $I.annotations("CommsTableName", {
     description: "A sql table name for an entity within the comms domain context",
   })

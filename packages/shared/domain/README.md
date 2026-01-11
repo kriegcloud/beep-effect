@@ -150,7 +150,12 @@ src/
 ├── Policy.ts                    # Authorization policies and RPC middleware
 ├── ManualCache.ts              # Manual cache facade
 ├── Retry.ts                     # Retry policy factory
-├── errors.ts                    # Error types
+├── errors/                      # Error types and formatting
+│   └── db-error/               # PostgreSQL error handling
+│       ├── db-error.ts         # DatabaseError class with formatting
+│       ├── formatter.ts        # SQL query formatting utilities
+│       ├── pg-error-enum.ts    # PostgreSQL error code enums
+│       └── index.ts
 ├── services/
 │   ├── index.ts                # Services exports
 │   └── EncryptionService/      # Encryption service
@@ -158,8 +163,9 @@ src/
 │       ├── EncryptionService.ts
 │       ├── schemas.ts
 │       └── errors.ts
-├── factories/                   # Error codes, model kits, path builders
+├── factories/                   # Error codes, model kits, path builders, repo factories
 │   ├── index.ts                # Factories exports
+│   ├── db-repo.ts              # Database repository factory
 │   ├── error-code.ts           # Error code factory
 │   ├── model-kit.ts            # Model kit factory
 │   └── path-builder/           # PathBuilder implementation
@@ -168,6 +174,7 @@ src/
 │       └── PathBuilder/
 │           ├── index.ts
 │           └── PathBuilder.ts
+├── factories.ts                # Re-export all factories
 └── _internal/                   # Implementation details (do not import)
     ├── manual-cache.ts         # ManualCache implementation
     ├── policy.ts               # Policy implementation
@@ -190,7 +197,7 @@ Both patterns are valid. Subpath exports are preferred for module-level imports 
 | `SharedApi` | HTTP API aggregation with OpenAPI metadata |
 | `Common` | Audit columns and `makeFields` helper |
 | `Entities` | All entity models (File, Folder, User, Organization, etc.) |
-| `SharedEntityIds`, `IamEntityIds`, `DocumentsEntityIds` | Branded entity ID kits |
+| `SharedEntityIds`, `IamEntityIds`, `DocumentsEntityIds`, `CommsEntityIds`, `CustomizationEntityIds` | Branded entity ID kits |
 | `EntityKind` | Union type of all entity kinds |
 | `Policy` | Authorization policies and middleware |
 | `Retry` | Retry policy factory and presets |
@@ -198,6 +205,8 @@ Both patterns are valid. Subpath exports are preferred for module-level imports 
 | `EncryptionService` | Cryptographic operations service |
 | `paths` | Type-safe route building collection |
 | `EntitySource` | Entity source metadata schema |
+| `DbRepo` | Database repository factory utilities |
+| `DatabaseError` | Structured PostgreSQL error handling |
 
 ### Entity IDs
 
@@ -205,8 +214,8 @@ Both patterns are valid. Subpath exports are preferred for module-level imports 
 import { SharedEntityIds, IamEntityIds, DocumentsEntityIds } from "@beep/shared-domain";
 
 // Create branded entity IDs
-const userId = SharedEntityIds.UserId.make("user__abc123");
-const orgId = SharedEntityIds.OrganizationId.make("organization__xyz789");
+const userId = SharedEntityIds.UserId.make("shared_user__abc123");
+const orgId = SharedEntityIds.OrganizationId.make("shared_organization__xyz789");
 const accountId = IamEntityIds.AccountId.make("account__def456");
 
 // Access table names
@@ -244,7 +253,7 @@ import * as F from "effect/Function";
 import * as Policy from "@beep/shared-domain/Policy";
 import { SharedEntityIds } from "@beep/shared-domain";
 
-const targetUserId = SharedEntityIds.UserId.make("user__abc123");
+const targetUserId = SharedEntityIds.UserId.make("shared_user__abc123");
 
 // Define policies
 const canManage = Policy.permission("user:manage");
@@ -342,7 +351,7 @@ paths.auth.signIn;              // "/auth/sign-in"
 paths.dashboard.root;           // "/dashboard"
 
 // Dynamic paths
-const userId = SharedEntityIds.UserId.make("user__123");
+const userId = SharedEntityIds.UserId.make("shared_user__123");
 paths.dashboard.user.edit(userId); // "/dashboard/user/user__123/edit"
 
 // Query parameters
@@ -368,13 +377,13 @@ import type { EnvValue } from "@beep/constants";
 const uploadPath = Effect.gen(function* () {
   const decoded: File.UploadKeyDecoded.Type = {
     env: "dev" as EnvValue.Type,
-    fileId: SharedEntityIds.FileId.make("file__12345678-1234-1234-1234-123456789012"),
+    fileId: SharedEntityIds.FileId.make("shared_file__12345678-1234-1234-1234-123456789012"),
     organizationType: "individual",
     organizationId: SharedEntityIds.OrganizationId.make(
-      "organization__87654321-4321-4321-4321-210987654321"
+      "shared_organization__87654321-4321-4321-4321-210987654321"
     ),
-    entityKind: "user",
-    entityIdentifier: SharedEntityIds.UserId.make("user__87654321-4321-4321-4321-210987654321"),
+    entityKind: "shared_user",
+    entityIdentifier: SharedEntityIds.UserId.make("shared_user__87654321-4321-4321-4321-210987654321"),
     entityAttribute: "avatar",
     extension: "jpg",
   };
@@ -403,7 +412,7 @@ import { SharedEntityIds } from "@beep/shared-domain";
 const folderWithFilesSchema = S.decodeUnknownSync(Folder.WithUploadedFiles)({
   id: SharedEntityIds.FolderId.make("folder__123"),
   organizationId: SharedEntityIds.OrganizationId.make("org__456"),
-  userId: SharedEntityIds.UserId.make("user__789"),
+  userId: SharedEntityIds.UserId.make("shared_user__789"),
   name: "My Documents",
   uploadedFiles: [], // Array of File.Model instances
   // ... audit fields (createdAt, updatedAt, version, source, etc.)
@@ -435,8 +444,8 @@ const uploadPayload: Files.InitiateUpload.Payload = {
   fileName: "avatar.jpg",
   fileSize: 1024000,
   mimeType: "image/jpeg",
-  entityKind: "user",
-  entityIdentifier: SharedEntityIds.UserId.make("user__123"),
+  entityKind: "shared_user",
+  entityIdentifier: SharedEntityIds.UserId.make("shared_user__123"),
   entityAttribute: "avatar",
   folderId: null,
   metadata: {},
@@ -505,6 +514,28 @@ const checkPermission = Effect.gen(function* () {
   const current = yield* CurrentUser;
   return current.permissions.has("user:read");
 });
+```
+
+### Database Error Handling
+
+```typescript
+import * as Effect from "effect/Effect";
+import * as F from "effect/Function";
+import { DatabaseError } from "@beep/shared-domain";
+
+// Handle database errors with structured formatting
+const queryWithErrorHandling = Effect.gen(function* () {
+  return yield* myDatabaseQuery;
+}).pipe(
+  Effect.catchTag("SqlError", (error) =>
+    Effect.gen(function* () {
+      const dbError = DatabaseError.$match(error.cause);
+      const formatted = DatabaseError.format(error.cause);
+      yield* Effect.logError(formatted);
+      return Effect.fail(dbError);
+    })
+  )
+);
 ```
 
 ### Audit Columns
@@ -605,6 +636,8 @@ For detailed API documentation, see [AGENTS.md](./AGENTS.md).
 - **Retry** (`src/Retry.ts`) - Exponential backoff policies
 - **Paths** (`src/value-objects/paths.ts`) - Type-safe route building
 - **EncryptionService** (`src/services/EncryptionService/`) - Crypto operations
+- **DatabaseError** (`src/errors/db-error/`) - Structured PostgreSQL error handling with formatting
+- **Factories** (`src/factories/`) - DbRepo, error codes, model kits, path builders
 
 ## Integration Points
 

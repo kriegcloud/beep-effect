@@ -69,11 +69,6 @@
     "docs:lint:file": "bunx tsx ./src/run-docs-lint.ts --file"
   },
   "dependencies": {
-    "@beep/identity": "workspace:^",
-    "@beep/invariant": "workspace:^",
-    "@beep/utils": "workspace:^",
-    "@beep/schema": "workspace:^",
-    "@beep/constants": "workspace:^",
     "@next/mdx": "catalog:",
     "@beep/tooling-utils": "workspace:^",
     "workbox-core": "catalog:",

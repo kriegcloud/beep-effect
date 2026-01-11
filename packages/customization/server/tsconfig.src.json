@@ -9,12 +9,6 @@
       "path": "../../shared/server"
     },
     {
-      "path": "../../shared/env"
-    },
-    {
-      "path": "../../common/schema/tsconfig.src.json"
-    },
-    {
       "path": "../domain"
     },
     {

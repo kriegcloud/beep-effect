@@ -44,7 +44,6 @@
     "@effect/opentelemetry": "catalog:",
     "@beep/runtime-server": "workspace:^",
     "@faker-js/faker": "catalog:",
-    "postgres": "catalog:",
     "@effect/platform": "catalog:",
     "@effect/rpc": "catalog:",
     "@effect/platform-bun": "catalog:",

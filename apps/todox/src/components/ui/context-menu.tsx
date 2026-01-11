@@ -63,7 +63,7 @@ function ContextMenuLabel({
   inset,
   ...props
 }: ContextMenuPrimitive.GroupLabel.Props & {
-  inset?: boolean;
+  readonly inset?: undefined | boolean;
 }) {
   return (
     <ContextMenuPrimitive.GroupLabel
@@ -81,8 +81,8 @@ function ContextMenuItem({
   variant = "default",
   ...props
 }: ContextMenuPrimitive.Item.Props & {
-  inset?: boolean;
-  variant?: "default" | "destructive";
+  readonly inset?: undefined | boolean;
+  readonly variant?: undefined | "default" | "destructive";
 }) {
   return (
     <ContextMenuPrimitive.Item
@@ -108,7 +108,7 @@ function ContextMenuSubTrigger({
   children,
   ...props
 }: ContextMenuPrimitive.SubmenuTrigger.Props & {
-  inset?: boolean;
+  readonly inset?: undefined | boolean;
 }) {
   return (
     <ContextMenuPrimitive.SubmenuTrigger

@@ -16,7 +16,6 @@ beep-effect/
 │   │   ├── errors/       # Logging & telemetry
 │   │   ├── identity/     # Package identity
 │   │   ├── invariant/    # Assertion contracts
-│   │   ├── lexical-schemas/ # Lexical editor schemas
 │   │   ├── mock/         # Mock data for testing
 │   │   ├── schema/       # Effect Schema utilities, EntityId
 │   │   ├── types/        # Compile-time types
@@ -63,7 +62,6 @@ beep-effect/
     ├── build-utils/      # Next.js config utilities
     ├── cli/              # Repository CLI tools
     ├── repo-scripts/     # Automation scripts
-    ├── scraper/          # Effect-based web scraper
     ├── testkit/          # Effect testing harness
     └── utils/            # FsUtils, RepoUtils
 ```
@@ -84,11 +82,9 @@ Each package may have its own `AGENTS.md` with specific guidance:
 - `packages/common/contract/AGENTS.md` - Contract, ContractKit, ContractError patterns
 - `packages/common/errors/AGENTS.md` - Logger layers, accumulation helpers, span/metric instrumentation
 - `packages/common/invariant/AGENTS.md` - Assertion contracts, tagged error schemas
-- `packages/common/lexical-schemas/AGENTS.md` - Lexical editor schemas
 - `packages/common/schema/AGENTS.md` - EntityId factories, kits, JSON Schema normalization
 - `packages/common/types/AGENTS.md` - Compile-time type idioms
 - `packages/common/utils/AGENTS.md` - Effect collection/string utilities
-- `packages/common/yjs/AGENTS.md` - Yjs CRDT utilities
 
 ### Shared Layer
 - `packages/shared/client/AGENTS.md` - Shared client contracts and utilities
@@ -141,6 +137,5 @@ Each package may have its own `AGENTS.md` with specific guidance:
 - `tooling/build-utils/AGENTS.md` - Next.js config utilities, PWA, security headers
 - `tooling/cli/AGENTS.md` - Repository CLI for docgen, env config, dependency management
 - `tooling/repo-scripts/AGENTS.md` - Bootstrap, env generators, Iconify workflows
-- `tooling/scraper/AGENTS.md` - Effect-based web scraping with Playwright
 - `tooling/testkit/AGENTS.md` - Bun-first Effect testing harness
 - `tooling/utils/AGENTS.md` - FsUtils, RepoUtils, workspace schemas

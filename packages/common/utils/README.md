@@ -46,6 +46,7 @@ This package is consumed across all vertical slices for:
 | `RemoveAccents` | Diacritical mark removal |
 | `Sqids` | Safe, short ID encoder/decoder |
 | `TopoSort` | Topological sorting |
+| `Lazy` | Lazy value and schema initialization helpers |
 
 ### Subpath Exports
 
@@ -327,6 +328,28 @@ const noneFields = Struct.getNoneFields({
 
 // Create exact struct type
 const exact = Struct.exact({ name: "Alice", age: 30 });
+```
+
+### Lazy Initialization
+
+```typescript
+import { Lazy } from "@beep/utils";
+import * as S from "effect/Schema";
+
+// Lazy value initialization
+const getLazyConfig = Lazy.lazy({ apiUrl: "https://api.example.com" });
+const config = getLazyConfig();
+// { apiUrl: "https://api.example.com" }
+
+// Lazy schema initialization (prevents circular dependency issues)
+const UserSchema = S.Struct({
+  id: S.String,
+  name: S.String,
+});
+
+const getLazyUserSchema = Lazy.lazySchema(UserSchema);
+const schema = getLazyUserSchema();
+// Returns the schema when needed
 ```
 
 ### Sqids for Safe IDs

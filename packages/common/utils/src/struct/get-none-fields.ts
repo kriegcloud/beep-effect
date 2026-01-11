@@ -31,7 +31,7 @@ export const getNoneFields = F.dual<
     fields,
     A.every((field) => F.pipe(a[field] as OptionFields<A>[F], O.isNone)),
     Bool.match({
-      onFalse: () => O.none(),
+      onFalse: O.none,
       onTrue: () => O.some(Struct.omit(...fields)(a)),
     })
   )

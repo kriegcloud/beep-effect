@@ -1,5 +1,7 @@
-import { MailView } from "@beep/todox/features/mail/view";
+"use client";
 
-export default function Page() {
-  return <MailView />;
+import App from "./_lib/App";
+
+export default function DemoPage() {
+  return <App />;
 }

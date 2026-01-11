@@ -2,7 +2,7 @@ import { Entities } from "@beep/{{sliceName}}-domain";
 import { {{SliceName}}Db } from "@beep/{{sliceName}}-server/db";
 import { ${{SliceName}}ServerId } from "@beep/identity/packages";
 import { {{SliceName}}EntityIds } from "@beep/shared-domain";
-import { DbRepo } from "@beep/shared-server";
+import { DbRepo } from "@beep/shared-domain/factories";
 import * as Effect from "effect/Effect";
 import { dependencies } from "./_common";
 

@@ -16,6 +16,7 @@
  * @since 0.1.0
  */
 import type { UnsafeTypes } from "@beep/types";
+import { thunk } from "@beep/utils/thunk";
 import * as A from "effect/Array";
 import * as F from "effect/Function";
 import * as O from "effect/Option";
@@ -25,7 +26,7 @@ import * as Str from "effect/String";
 const FORBIDDEN_KEYS = new Set(["__proto__", "prototype", "constructor"]);
 
 const isObjectLike = (value: unknown): value is Record<PropertyKey, UnsafeTypes.UnsafeAny> =>
-  value !== null && typeof value === "object";
+  P.isNotNull(value) && P.isObject(value);
 
 const toPropertyKey = (segment: string): PropertyKey => {
   const numericValue = Number(segment);
@@ -42,7 +43,7 @@ const normalizePath = (path: string | ReadonlyArray<PropertyKey>): ReadonlyArray
 
   return F.pipe(
     path,
-    Str.replace(/\[(\d+)\]/g, ".$1"),
+    Str.replace(/\[(\d+)]/g, ".$1"),
     Str.split("."),
     A.filter((segment) => !Str.isEmpty(segment)),
     A.map(toPropertyKey)
@@ -68,21 +69,21 @@ export const getPath = <T, D = undefined>(
 ): T | D | undefined =>
   F.pipe(
     normalizePath(path),
-    A.reduce<O.Option<UnsafeTypes.UnsafeAny>, PropertyKey>(O.some(value as UnsafeTypes.UnsafeAny), (current, segment) =>
+    A.reduce<O.Option<UnsafeTypes.UnsafeAny>, PropertyKey>(O.some(value), (current, segment) =>
       F.pipe(
         current,
         O.filter((currentValue) => currentValue != null),
         O.flatMap((currentValue) => {
-          if (typeof segment === "string" && FORBIDDEN_KEYS.has(segment)) {
+          if (P.isString(segment) && FORBIDDEN_KEYS.has(segment)) {
             return O.none();
           }
-          const nextValue = (currentValue as Record<PropertyKey, UnsafeTypes.UnsafeAny>)[segment];
+          const nextValue = currentValue[segment];
           return O.fromNullable(nextValue);
         })
       )
     ),
     O.match({
-      onNone: () => defaultValue,
+      onNone: thunk(defaultValue),
       onSome: (result) => result as T | D,
     })
   );
@@ -96,10 +97,9 @@ const ensureContainer = (
   if (isObjectLike(current)) {
     return current as Record<PropertyKey, UnsafeTypes.UnsafeAny>;
   }
-  const container =
-    typeof nextKey === "number"
-      ? ([] as Array<UnsafeTypes.UnsafeAny>)
-      : ({} as Record<PropertyKey, UnsafeTypes.UnsafeAny>);
+  const container = P.isNumber(nextKey)
+    ? A.empty<UnsafeTypes.UnsafeAny>()
+    : ({} as Record<PropertyKey, UnsafeTypes.UnsafeAny>);
   parent[key] = container;
   return container;
 };
@@ -123,19 +123,18 @@ export const setPath = (
   value: UnsafeTypes.UnsafeAny
 ): UnsafeTypes.UnsafeAny => {
   const segments = normalizePath(path);
-  if (segments.length === 0) {
+  if (A.isEmptyReadonlyArray(segments)) {
     return target;
   }
 
-  const root: Record<PropertyKey, UnsafeTypes.UnsafeAny> =
-    isObjectLike(target) && !Array.isArray(target) ? (target as Record<PropertyKey, UnsafeTypes.UnsafeAny>) : {};
+  const root: Record<PropertyKey, UnsafeTypes.UnsafeAny> = isObjectLike(target) && !A.isArray(target) ? target : {};
 
   const assign = (
     container: Record<PropertyKey, UnsafeTypes.UnsafeAny> | Array<UnsafeTypes.UnsafeAny>,
     index: number
   ): void => {
     const key = segments[index] as PropertyKey | undefined;
-    if (key === undefined || (typeof key === "string" && FORBIDDEN_KEYS.has(key))) {
+    if (P.isUndefined(key) || (P.isString(key) && FORBIDDEN_KEYS.has(key))) {
       return;
     }
     if (index === segments.length - 1) {

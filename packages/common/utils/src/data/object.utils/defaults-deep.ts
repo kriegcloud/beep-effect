@@ -50,7 +50,7 @@ export function defaultsDeep<T extends PlainRecord>(target: T, ...sources: reado
 
       const targetValue = result[key];
 
-      if (targetValue === undefined) {
+      if (P.isUndefined(targetValue)) {
         result[key] = isPlainObject(sourceValue)
           ? defaultsDeep({}, sourceValue)
           : A.isArray(sourceValue)

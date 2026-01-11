@@ -1,4 +1,3 @@
-export * from "./errors";
+export { DatabaseError } from "@beep/shared-domain/errors";
 export * from "./PgClient";
-export * from "./pg-error-enum";
 export type * from "./types";

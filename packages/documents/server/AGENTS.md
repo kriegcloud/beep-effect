@@ -2,54 +2,45 @@
 
 ## Purpose & Fit
 - Provides the infrastructure layer for the documents slice, wiring domain models from `@beep/documents-domain` to database services via repositories.
-- Exposes ready-to-merge Layers (`DocumentsDb.DocumentsDb.Live`, `DocumentsRepos.layer`) that slot into app runtimes such as `packages/runtime/server`.
-- Bridges configuration from `@beep/shared-server` to document-specific services.
-- Establishes repo contracts backed by `@beep/shared-server/Repo`, safeguarding tagged error handling and telemetry conventions for persistence operations.
+- Exposes ready-to-merge Layers (`DocumentsDb.Db.layer`, `DocumentsRepos.layer`) that slot into app runtime layers in `packages/runtime/server`.
+- Implements repository pattern using `DbRepo.make` from `@beep/shared-domain/factories`, safeguarding tagged error handling and telemetry conventions for persistence operations.
 
 ## Surface Map
-- **`DocumentsDb.DocumentsDb.Live`** — Scoped database layer built on `Db.make` with documents tables schema (`packages/documents/server/src/db/Db.ts`).
-- **`DocumentsDb.DocumentsDb`** — Context tag to access the shared database connection and migrations.
-- **`DocumentsRepos.layer`** — Aggregated layer exporting all document repositories (`packages/documents/server/src/adapters/repositories.ts`).
-- **Repository Services** — Built via `Repo.make`, providing type-safe database operations:
+- **`DocumentsDb.Db`** — Context tag to access the scoped database client with documents tables schema (`packages/documents/server/src/db/Db/Db.ts`).
+- **`DocumentsDb.Db.layer`** — Layer providing the scoped database connection built on `DbClient.make` with documents tables schema.
+- **`DocumentsRepos.layer`** — Aggregated layer exporting all document repositories (`packages/documents/server/src/db/repositories.ts`).
+- **Repository Services** — Built via `DbRepo.make` from `@beep/shared-domain/factories`, providing type-safe database operations:
   - `CommentRepo` — Comment persistence and queries.
   - `DiscussionRepo` — Discussion thread operations.
   - `DocumentFileRepo` — File attachment management.
   - `DocumentRepo` — Core document CRUD and queries.
   - `DocumentVersionRepo` — Version history tracking.
-  - `KnowledgeBlockRepo` — Content block persistence.
-  - `KnowledgePageRepo` — Knowledge page operations.
-  - `KnowledgeSpaceRepo` — Knowledge space management.
-  - `PageLinkRepo` — Page link relationship management.
-- **`FilesConfig` tag + helpers** — Projects `serverEnv` into document-specific configuration, with `Live` and `layerFrom` entry points (`packages/documents/server/src/config.ts`).
-- **`StorageService`** — Effect service for S3-based file storage operations (`packages/documents/server/src/SignedUrlService.ts`).
+- **`SignedUrlService`** — Effect service for S3-based file storage operations (`packages/documents/server/src/SignedUrlService.ts`).
 - **`ExifToolService`** — Effect service for extracting and processing EXIF metadata from image files, available via `@beep/documents-server/files` export (`packages/documents/server/src/files/ExifToolService.ts`).
-- **HTTP Routes (`src/routes/`)** — Effect HTTP router definitions:
-  - `KnowledgePage.router` — Knowledge page HTTP endpoints.
-  - `root` — Root router composition.
-- **HTTP Handlers (`src/handlers/`)** — Effect HTTP request handlers:
-  - `Comment.handlers` — Comment request handlers.
-  - `Discussion.handlers` — Discussion request handlers.
-  - `Document.handlers` — Document request handlers.
-- **Root barrel exports** — `src/index.ts` / `src/db.ts` forward all public pieces for `@beep/documents-server` consumers. Additional export path `files` provides file processing utilities.
+- **`PdfMetadataService`** — Effect service for extracting metadata from PDF files, available via `@beep/documents-server/files` export (`packages/documents/server/src/files/PdfMetadataService.ts`).
+- **RPC Handlers (`src/handlers/`)** — Effect RPC request handlers for client-server communication:
+  - `CommentHandlersLive` — Comment RPC handlers.
+  - `DiscussionHandlersLive` — Discussion RPC handlers.
+  - `DocumentHandlersLive` — Document RPC handlers.
+  - `DocumentsHandlersLive` — Combined layer merging all document handlers.
+- **Root barrel exports** — `src/index.ts` and `src/db.ts` forward all public pieces for `@beep/documents-server` consumers. Additional export path `files` provides file processing utilities.
 
 ## Usage Snapshots
-- `packages/runtime/server/src/server-runtime.ts:69` — Merges `DocumentsRepos.layer` with IAM repos to hydrate server-side persistence.
-- `packages/runtime/server/src/server-runtime.ts:72` — Adds `DocumentsDb.DocumentsDb.Live` to the runtime DB set, letting `Db.Live` receive slice connections.
-- `packages/_internal/db-admin/test/pg-container.ts:249` — Supplies `DocumentsDb.DocumentsDb.Live` when spinning Postgres Testcontainers for migration validation.
-- `packages/_internal/db-admin/test/pg-container.ts:251` — Composes `DocumentsRepos.layer` with IAM repos to seed fake data during container bootstrap.
+- `packages/runtime/server/src/Persistence.layer.ts` — Merges `DocumentsRepos.layer` with IAM repos to hydrate server-side persistence.
+- `packages/runtime/server/src/DataAccess.layer.ts` — Composes database layers including `DocumentsDb.Db.layer` for slice-specific database access.
 
 ## Authoring Guardrails
-- ALWAYS import Effect namespaces (`Effect`, `Layer`, `Context`, `A`, `Str`, etc.) and honor the no-native array/string guardrail; match patterns already present in `Repo.make`.
-- Build new repositories by extending existing repo implementations; reuse `Repo.make` to inherit telemetry + error mapping.
-- Prefer `FilesConfig.layerFrom` when tests or CLIs need custom configuration; NEVER inspect `process.env` within this package.
-- Treat `StorageService` as the abstraction over S3 operations—add new helpers there and expose functions through generated accessors.
-- When new tables land in `@beep/documents-tables`, update `DocumentsDb` consumers and refresh migrations via `packages/_internal/db-admin` before trusting runtime layers.
+- ALWAYS import Effect namespaces (`Effect`, `Layer`, `Context`, `A`, `Str`, etc.) and honor the no-native array/string guardrail; match patterns already present in `DbRepo.make`.
+- Build new repositories by extending existing repo implementations; reuse `DbRepo.make` from `@beep/shared-domain/factories` to inherit telemetry + error mapping.
+- NEVER inspect `process.env` within this package; use `@beep/shared-env` for typed environment access.
+- Treat `SignedUrlService` as the abstraction over S3 operations—add new helpers there and expose functions through generated accessors.
+- When new tables land in `@beep/documents-tables`, update `DocumentsDb.Db` consumers and refresh migrations via `packages/_internal/db-admin` before trusting runtime layers.
 - Ensure layers remain memoizable (`Layer.mergeAll`, `Layer.provideMerge`); NEVER use manual `Layer.build` that would break runtime caching.
 
 ## Quick Recipes
 - **Hydrate DocumentRepo with a temporary Postgres client (integration tests)**
   ```ts
-  import { DocumentRepo } from "@beep/documents-server/adapters/repos";
+  import { DocumentRepo } from "@beep/documents-server/db/repos";
   import { DocumentsDb } from "@beep/documents-server/db";
   import * as PgClient from "@effect/sql-pg/PgClient";
   import * as Effect from "effect/Effect";
@@ -58,8 +49,8 @@
   const makeTestLayer = (config: PgClient.Config) =>
     Layer.mergeAll(
       PgClient.layer(config),
-      DocumentsDb.DocumentsDb.Live,
-      DocumentRepo.DefaultWithoutDependencies
+      DocumentsDb.Db.layer,
+      DocumentRepo.Default
     );
 
   export const runWithRepo = <A, E>(
@@ -69,32 +60,34 @@
   ```
 - **Extend DocumentRepo inside its service effect**
   ```ts
-  import { Repo } from "@beep/shared-server/Repo";
+  import { DbRepo } from "@beep/shared-domain/factories";
   import { DocumentsDb } from "@beep/documents-server/db";
-  import { SharedEntityIds } from "@beep/shared-domain";
+  import { DocumentsEntityIds } from "@beep/shared-domain";
   import { Document } from "@beep/documents-domain/entities";
   import * as Effect from "effect/Effect";
 
-  export class DocumentRepo extends Effect.Service<DocumentRepo>()("@beep/documents-server/adapters/repos/DocumentRepo", {
+  export class DocumentRepo extends Effect.Service<DocumentRepo>()("@beep/documents-server/db/repos/DocumentRepo", {
     dependencies,
     accessors: true,
-    effect: Repo.make(
-      SharedEntityIds.DocumentId,
-      Document.Model,
-      Effect.gen(function* () {
-        const { makeQuery } = yield* DocumentsDb.DocumentsDb;
+    effect: Effect.gen(function* () {
+      const { makeQuery } = yield* DocumentsDb.Db;
 
-        const listBySpace = makeQuery((execute, spaceId: SharedEntityIds.KnowledgeSpaceId.Type) =>
-          execute((client) =>
-            client.query.document.findMany({
-              where: (table, { eq }) => eq(table.spaceId, spaceId),
-            })
-          )
-        );
+      const baseRepo = yield* DbRepo.make(
+        DocumentsEntityIds.DocumentId,
+        Document.Model,
+        Effect.succeed({})
+      );
 
-        return { listBySpace };
-      })
-    ),
+      const listBySpace = makeQuery((execute, spaceId: DocumentsEntityIds.KnowledgeSpaceId.Type) =>
+        execute((client) =>
+          client.query.document.findMany({
+            where: (table, { eq }) => eq(table.spaceId, spaceId),
+          })
+        )
+      );
+
+      return { ...baseRepo, listBySpace };
+    })
   }) {}
   ```
 

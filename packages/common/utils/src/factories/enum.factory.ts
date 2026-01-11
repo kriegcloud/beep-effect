@@ -57,10 +57,10 @@ export const deriveKeyEnum: DeriveKeyEnum = <T extends Record<string, unknown>>(
   F.pipe(
     R.keys(record),
     A.reduce(
-      {} as { [K in keyof T]: K },
+      {} as { readonly [K in keyof T]: K },
       (acc, k) =>
         create(acc, (draft: { [K in keyof T]: K }) => {
           draft[k as keyof typeof draft] = k;
-        }) as { [K in keyof T]: K }
+        }) as { readonly [K in keyof T]: K }
     )
   );

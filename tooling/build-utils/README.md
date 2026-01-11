@@ -48,11 +48,6 @@ All configuration is Effect-based with proper error handling, observability span
 | Package | Purpose |
 |---------|---------|
 | `@beep/tooling-utils` | Repo introspection, workspace analysis, file system utilities |
-| `@beep/identity` | Package identity helpers |
-| `@beep/schema` | Effect Schema utilities |
-| `@beep/constants` | Schema-backed enums and constants |
-| `@beep/invariant` | Assertion contracts |
-| `@beep/utils` | Pure runtime helpers |
 | `next` | Next.js framework types and utilities |
 | `@next/mdx` | MDX support for Next.js |
 | `@next/bundle-analyzer` | Webpack bundle analysis |

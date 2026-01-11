@@ -3,6 +3,8 @@
  */
 
 import { $SharedServerId } from "@beep/identity/packages";
+import { DatabaseError } from "@beep/shared-domain/errors";
+import type { UnsafeTypes } from "@beep/types";
 import * as Reactivity from "@effect/experimental/Reactivity";
 import * as SqlClient from "@effect/sql/SqlClient";
 import type { Connection } from "@effect/sql/SqlConnection";
@@ -23,7 +25,9 @@ import * as F from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as Match from "effect/Match";
 import * as Number from "effect/Number";
+import * as O from "effect/Option";
 import * as Option from "effect/Option";
+import * as P from "effect/Predicate";
 import * as RcRef from "effect/RcRef";
 import * as Redacted from "effect/Redacted";
 import * as Runtime from "effect/Runtime";
@@ -34,7 +38,6 @@ import * as Stream from "effect/Stream";
 import * as Pg from "pg";
 import * as PgConnString from "pg-connection-string";
 import Cursor from "pg-cursor";
-import { DatabaseError } from "./errors";
 import { type ConnectionConfig, ConnectionPool, QueryLogger } from "./services";
 
 const $I = $SharedServerId.create("factories/db-client/pg/PgClient");
@@ -60,13 +63,13 @@ const ATTR_SERVER_PORT = "server.port";
  * @category type ids
  * @since 1.0.0
  */
-export const TypeId: TypeId = "~@beep/shared-server/Db/sql-pg/PgClient";
+export const TypeId: TypeId = "~@beep/shared-server/factories/db-client/pg/services/PgClient";
 
 /**
  * @category type ids
  * @since 1.0.0
  */
-export type TypeId = "~@beep/shared-server/Db/sql-pg/PgClient";
+export type TypeId = "~@beep/shared-server/factories/db-client/pg/services/PgClient";
 
 /**
  * @category models
@@ -168,8 +171,8 @@ export const makePgClient: MakePgClientEffect = Effect.gen(function* () {
     }
 
     private run(query: string, params: ReadonlyArray<unknown>) {
-      return this.runWithClient<ReadonlyArray<any>>((client, resume) => {
-        client.query(query, params as any, (err, result) => {
+      return this.runWithClient<ReadonlyArray<UnsafeTypes.UnsafeAny>>((client, resume) => {
+        client.query(query, params as UnsafeTypes.UnsafeAny, (err, result) => {
           if (err) {
             resume(Effect.fail(new SqlError({ cause: err, message: "Failed to execute statement" })));
           } else {
@@ -190,7 +193,7 @@ export const makePgClient: MakePgClientEffect = Effect.gen(function* () {
 
     executeRaw(sql: string, params: ReadonlyArray<unknown>) {
       return this.runWithClient<Pg.Result>((client, resume) => {
-        client.query(sql, params as any, (err, result) => {
+        client.query(sql, params as UnsafeTypes.UnsafeAny, (err, result) => {
           if (err) {
             resume(Effect.fail(new SqlError({ cause: err, message: "Failed to execute statement" })));
           } else {
@@ -205,7 +208,7 @@ export const makePgClient: MakePgClientEffect = Effect.gen(function* () {
     }
 
     executeValues(sql: string, params: ReadonlyArray<unknown>) {
-      return this.runWithClient<ReadonlyArray<any>>((client, resume) => {
+      return this.runWithClient<ReadonlyArray<UnsafeTypes.UnsafeAny>>((client, resume) => {
         client.query(
           {
             text: sql,
@@ -244,13 +247,17 @@ export const makePgClient: MakePgClientEffect = Effect.gen(function* () {
           scope,
           Effect.promise(() => cursor.close())
         );
-        const cursor = client.query(new Cursor(sql, params as any));
-        const pull = Effect.async<Chunk.Chunk<any>, Option.Option<SqlError>>((resume) => {
+        const cursor = client.query(new Cursor(sql, params as UnsafeTypes.UnsafeAny));
+        const pull = Effect.async<Chunk.Chunk<UnsafeTypes.UnsafeAny>, Option.Option<SqlError>>((resume) => {
           cursor.read(128, (err, rows) => {
             if (err) {
               resume(Effect.fail(Option.some(new SqlError({ cause: err, message: "Failed to execute statement" }))));
             } else if (Arr.isNonEmptyArray(rows)) {
-              resume(Effect.succeed(Chunk.unsafeFromArray(transformRows ? (transformRows(rows) as any) : rows)));
+              resume(
+                Effect.succeed(
+                  Chunk.unsafeFromArray(transformRows ? (transformRows(rows) as UnsafeTypes.UnsafeAny) : rows)
+                )
+              );
             } else {
               resume(Effect.fail(Option.none()));
             }
@@ -274,7 +281,7 @@ export const makePgClient: MakePgClientEffect = Effect.gen(function* () {
             Scope.addFinalizer(
               scope,
               Effect.sync(() => {
-                client!.off("error", onError);
+                client?.off("error", onError);
                 release(cause);
               })
             ),
@@ -297,20 +304,22 @@ export const makePgClient: MakePgClientEffect = Effect.gen(function* () {
   });
 
   let config = options;
-  if (pool.options.connectionString) {
-    try {
-      const parsed = PgConnString.parse(pool.options.connectionString);
-      config = {
-        ...config,
-        host: config.host ?? parsed.host ?? undefined,
-        port: config.port ?? (parsed.port ? Option.getOrUndefined(Number.parse(parsed.port)) : undefined),
-        user: config.user ?? parsed.user ?? undefined,
-        password: config.password ?? (parsed.password ? Redacted.make(parsed.password) : undefined),
-        database: config.database ?? parsed.database ?? undefined,
-      };
-    } catch {
-      //
-    }
+  const parsedOpt = F.pipe(
+    O.fromNullable(pool.options.connectionString),
+    O.flatMap(O.liftPredicate(P.isString)),
+    O.map((connectionString) => PgConnString.parse(connectionString))
+  );
+
+  if (O.isSome(parsedOpt)) {
+    const parsed = parsedOpt.value;
+    config = {
+      ...config,
+      host: config.host ?? parsed.host ?? undefined,
+      port: config.port ?? (parsed.port ? Option.getOrUndefined(Number.parse(parsed.port)) : undefined),
+      user: config.user ?? parsed.user ?? undefined,
+      password: config.password ?? (parsed.password ? Redacted.make(parsed.password) : undefined),
+      database: config.database ?? parsed.database ?? undefined,
+    };
   }
 
   return Object.assign(
@@ -375,7 +384,7 @@ const makeCancel = (pool: Pg.Pool, client: Pg.PoolClient) => {
   if (cancelEffects.has(client)) {
     return cancelEffects.get(client)!;
   }
-  const processId = (client as any).processID;
+  const processId = (client as UnsafeTypes.UnsafeAny).processID;
   const eff =
     processId !== undefined
       ? // query cancelation is best-effort, so we don't fail if it doesn't work
@@ -413,7 +422,7 @@ export const makeCompiler = (transform?: (_: string) => string, transformJson = 
     onRecordUpdate(placeholders, valueAlias, valueColumns, values, returning) {
       return [
         `(values ${placeholders}) AS ${valueAlias}${valueColumns}${returning ? ` RETURNING ${returning[0]}` : ""}`,
-        returning ? values.flat().concat(returning[1]) : values.flat(),
+        returning ? Arr.flatten(values).concat(returning[1]) : Arr.flatten(values),
       ];
     },
     onCustom(type, placeholder, withoutTransform) {
@@ -424,7 +433,7 @@ export const makeCompiler = (transform?: (_: string) => string, transformJson = 
           () =>
             [
               placeholder(undefined),
-              [withoutTransform || transformValue === undefined ? type.i0 : transformValue(type.i0)],
+              [withoutTransform || P.isUndefined(transformValue) ? type.i0 : transformValue(type.i0)],
             ] as const
         ),
         Match.exhaustive
@@ -483,7 +492,16 @@ export type MakeServiceEffect = <TFullSchema extends DbSchema = DbSchema>(
   options: MakeDbServiceOptions<TFullSchema>
 ) => PgClientServiceEffect<TFullSchema>;
 
-export const make = <const TFullSchema extends DbSchema = DbSchema>({
+const logOrThrowError = (cause: unknown) => {
+  const error = DatabaseError.$match(cause);
+  if (P.isNotNull(error)) {
+    console.error(DatabaseError.format(cause));
+    return error;
+  }
+  throw cause;
+};
+
+export const make: MakeServiceEffect = <const TFullSchema extends DbSchema = DbSchema>({
   schema,
 }: MakeDbServiceOptions<TFullSchema>): PgClientServiceEffect<TFullSchema> =>
   Effect.gen(function* () {
@@ -495,14 +513,7 @@ export const make = <const TFullSchema extends DbSchema = DbSchema>({
     const execute: ExecuteFn<TFullSchema> = Effect.fn(<T>(fn: (client: Client<TFullSchema>) => Promise<T>) =>
       Effect.tryPromise({
         try: () => fn(client),
-        catch: (cause) => {
-          const error = DatabaseError.$match(cause);
-          if (error !== null) {
-            console.error(DatabaseError.format(cause));
-            return error;
-          }
-          throw cause;
-        },
+        catch: logOrThrowError,
       })
     );
 
@@ -514,17 +525,10 @@ export const make = <const TFullSchema extends DbSchema = DbSchema>({
             Effect.async<T, DatabaseError | E, R>((resume) => {
               client
                 .transaction(async (tx: TransactionClient<TFullSchema>) => {
-                  const txWrapper = (fn: (client: TransactionClient<TFullSchema>) => Promise<any>) =>
+                  const txWrapper = (fn: (client: TransactionClient<TFullSchema>) => Promise<UnsafeTypes.UnsafeAny>) =>
                     Effect.tryPromise({
                       try: () => fn(tx),
-                      catch: (cause) => {
-                        const error = DatabaseError.$match(cause);
-                        if (error !== null) {
-                          console.error(DatabaseError.format(cause));
-                          return error;
-                        }
-                        throw cause;
-                      },
+                      catch: logOrThrowError,
                     });
 
                   const result = await runPromiseExit(txExecute(txWrapper));
@@ -541,15 +545,7 @@ export const make = <const TFullSchema extends DbSchema = DbSchema>({
                     },
                   });
                 })
-                .catch((cause) => {
-                  const error = DatabaseError.$match(cause);
-                  if (error !== null) {
-                    console.error(DatabaseError.format(cause));
-                    resume(Effect.fail(error));
-                  } else {
-                    resume(Effect.die(cause));
-                  }
-                });
+                .catch(logOrThrowError);
             })
           )
         )
@@ -635,7 +631,7 @@ export const layer: PgClientLayer = Layer.empty.pipe(
     Layer.retry(
       self,
       Schedule.identity<Layer.Layer.Error<typeof self>>().pipe(
-        Schedule.check((input) => input._tag === "SqlError" || input._tag === "DatabaseConnectionLostError"),
+        Schedule.check((input) => P.isTagged("SqlError")(input) || P.isTagged("DatabaseConnectionLostError")(input)),
         Schedule.intersect(Schedule.exponential("1 second")),
         Schedule.intersect(Schedule.recurs(2)),
         Schedule.onDecision(([[_error, duration], attempt], decision) =>

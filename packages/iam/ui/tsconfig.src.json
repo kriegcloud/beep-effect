@@ -23,12 +23,6 @@
     },
     {
       "path": "../../shared/env"
-    },
-    {
-      "path": "../../shared/ui"
-    },
-    {
-      "path": "../../shared/client"
     }
   ],
   "compilerOptions": {

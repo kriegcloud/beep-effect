@@ -99,7 +99,7 @@ export declare namespace ShardPrefixDecoded {
  * @example
  * ```typescript
  * // Generate shard from FileId
- * const shard = ShardPrefix.fromFileId("file__123-456-789");
+ * const shard = ShardPrefix.fromFileId("shared_file__123-456-789");
  *
  * // Decode string to validated shard
  * const decoded = S.decode(ShardPrefix)("a1");
@@ -143,7 +143,7 @@ export class ShardPrefix extends S.transformOrFail(ShardPrefixEncoded, ShardPref
    *
    * @example
    * ```typescript
-   * const fileId = "file__12345678-1234-1234-1234-123456789012" as FileId.Type;
+   * const fileId = "shared_file__12345678-1234-1234-1234-123456789012" as FileId.Type;
    * const shard = ShardPrefix.fromFileId(fileId); // Returns something like "a1"
    * ```
    */
@@ -292,11 +292,11 @@ export declare namespace UploadKeyParser {
  * ```typescript
  * const uploadData: UploadKeyDecoded.Type = {
  *   env: "dev",
- *   fileId: SharedEntityIds.FileId.make("file__12345678-1234-1234-1234-123456789012"),
+ *   fileId: SharedEntityIds.FileId.make("shared_file__12345678-1234-1234-1234-123456789012"),
  *   organizationType: "individual",
- *   organizationId: SharedEntityIds.OrganizationId.make("organization__87654321-4321-4321-4321-210987654321"),
- *   entityKind: "user",
- *   entityIdentifier: SharedEntityIds.UserId.make("user__87654321-4321-4321-4321-210987654321"),
+ *   organizationId: SharedEntityIds.OrganizationId.make("shared_organization__87654321-4321-4321-4321-210987654321"),
+ *   entityKind: "shared_user",
+ *   entityIdentifier: SharedEntityIds.UserId.make("shared_user__87654321-4321-4321-4321-210987654321"),
  *   entityAttribute: "avatar",
  *   extension: "jpg"
  * };
@@ -315,18 +315,6 @@ export const UploadKeyDecoded = S.Struct({
   $I.annotations("UploadKeyDecoded", {
     description:
       "Structured data representation for upload paths. Contains all user-provided components needed to generate S3 paths. System automatically injects timestamp and shard prefix during encoding.",
-    examples: [
-      {
-        env: "dev",
-        fileId: SharedEntityIds.FileId.make("file__12345678-1234-1234-1234-123456789012"),
-        organizationType: "individual",
-        organizationId: SharedEntityIds.OrganizationId.make("organization__87654321-4321-4321-4321-210987654321"),
-        entityKind: "user",
-        entityIdentifier: SharedEntityIds.UserId.make("user__12345678-1234-1234-1234-123456789012"),
-        entityAttribute: "avatar",
-        extension: "jpg",
-      } as UploadKeyDecoded.Type,
-    ],
   })
 );
 
@@ -365,10 +353,10 @@ export declare namespace UploadKeyDecoded {
  * // Encode: structured data -> S3 path
  * const uploadData = {
  *   env: "dev",
- *   fileId: "file__123...",
+ *   fileId: "shared_file__123...",
  *   organizationType: "individual",
  *   organizationId: "org__456...",
- *   entityKind: "user",
+ *   entityKind: "shared_user",
  *   entityIdentifier: "user_789",
  *   entityAttribute: "avatar",
  *   extension: "jpg"
@@ -482,7 +470,7 @@ export class UploadKey extends S.transformOrFail(UploadKeyDecoded, UploadKeyEnco
    *
    * @example
    * ```typescript
-   * const fileId = "file__12345678-1234-1234-1234-123456789012" as FileId.Type;
+   * const fileId = "shared_file__12345678-1234-1234-1234-123456789012" as FileId.Type;
    * const shard = ShardPrefix.fromFileId(fileId); // Returns something like "a1"
    * ```
    */

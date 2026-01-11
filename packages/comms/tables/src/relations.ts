@@ -6,8 +6,10 @@
  * @module comms-tables/relations
  * @since 0.1.0
  */
+
+import { emailTemplate } from "@beep/comms-tables/tables/email-template.table";
+import { organization, user } from "@beep/shared-tables";
 import * as d from "drizzle-orm";
-import { placeholder } from "./tables/placeholder.table";
 
 /**
  * Placeholder table relations.
@@ -17,17 +19,15 @@ import { placeholder } from "./tables/placeholder.table";
  * @since 0.1.0
  * @category relations
  */
-export const placeholderRelations = d.relations(placeholder, (_) => ({
+export const emailTemplateRelations = d.relations(emailTemplate, ({ one }) => ({
   // Define foreign key relationships here
   // Example:
-  // user: one(user, {
-  //   fields: [placeholder.userId],
-  //   references: [user.id],
-  // }),
+  user: one(user, {
+    fields: [emailTemplate.userId],
+    references: [user._rowId],
+  }),
+  organization: one(organization, {
+    fields: [emailTemplate.organizationId],
+    references: [organization.id],
+  }),
 }));
-
-// Define relations here
-// Example: import { myEntityTable } from "./tables/my-entity.table";
-// export const myEntityRelations = d.relations(myEntityTable, ({ one, many }) => ({
-//   // Define foreign key relationships
-// }));

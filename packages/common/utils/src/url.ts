@@ -7,6 +7,7 @@ import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
+import { thunk } from "./thunk";
 
 const $I = $UtilsId.create("@beep/utils/url");
 
@@ -116,8 +117,8 @@ export const sanitizeUrl = (url: string): string | null => {
   const urlObject = F.pipe(
     absoluteUrlOpt,
     O.match({
-      onNone: () => new URL(url, PLACEHOLDER_BASE_URL),
-      onSome: () => new URL(url),
+      onNone: thunk(new URL(url, PLACEHOLDER_BASE_URL)),
+      onSome: thunk(new URL(url)),
     })
   );
 
@@ -148,20 +149,15 @@ export const sanitizeUrl = (url: string): string | null => {
       }).pipe(
         Match.when(
           ({ hasTrailingSlash, endsWithSlash }) => hasTrailingSlash && !endsWithSlash,
-          () => `${urlObject.pathname}/`
+          thunk(`${urlObject.pathname}/`)
         ),
-        Match.orElse(() => urlObject.pathname)
+        Match.orElse(thunk(urlObject.pathname))
       );
       return `${origin}${pathname}${urlObject.search}${urlObject.hash}`;
     })
   );
 
-  return F.pipe(
-    sanitizedUrl,
-    Match.value,
-    Match.when(Str.isEmpty, F.constNull),
-    Match.orElse(() => sanitizedUrl)
-  );
+  return F.pipe(sanitizedUrl, Match.value, Match.when(Str.isEmpty, F.constNull), Match.orElse(thunk(sanitizedUrl)));
 };
 
 /**
@@ -191,10 +187,10 @@ export const generateUrl = (
     urlObject.hash = `#${hash}`;
   }
 
-  return O.isSome(absoluteOpt) ? urlObject.href : F.pipe(urlObject.href, Str.replace(PLACEHOLDER_BASE_URL, ""));
+  return O.isSome(absoluteOpt) ? urlObject.href : F.pipe(urlObject.href, Str.replace(PLACEHOLDER_BASE_URL, Str.empty));
 };
 
 /**
  * Check if a string is a valid URL.
  */
-export const isUrl = (str: string): boolean => F.pipe(O.liftThrowable(() => new URL(str))(), O.isSome);
+export const isUrl = (str: string): boolean => F.pipe(O.liftThrowable(thunk(new URL(str)))(), O.isSome);

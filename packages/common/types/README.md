@@ -427,7 +427,7 @@ Run `bun run build --filter=@beep/types` and inspect the generated `build/esm` d
 - `@beep/utils` - Runtime utility functions (Effect-based)
 - `@beep/schema` - Effect Schema utilities and EntityId factories
 - `@beep/invariant` - Assertion contracts and tagged error schemas
-- `@beep/common/constants` - Schema-backed enums and constants
+- `@beep/constants` - Schema-backed enums and constants
 
 ## Package Metadata
 

@@ -38,6 +38,7 @@ import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import * as Stream from "effect/Stream";
 import * as Str from "effect/String";
 import { discoverConfiguredPackages, resolvePackageByPathOrName } from "./shared/discovery.js";
@@ -134,9 +135,7 @@ const runDocgen = (
 
       let moduleCount: number | undefined = undefined;
       if (docsExist) {
-        const files = yield* fs
-          .readDirectory(docsPath)
-          .pipe(Effect.catchAll(() => Effect.succeed(A.empty() as string[])));
+        const files = yield* fs.readDirectory(docsPath).pipe(Effect.catchAll(() => Effect.succeed(A.empty<string>())));
         moduleCount = F.pipe(files, A.filter(Str.endsWith(".md")), A.length);
       }
 
@@ -189,13 +188,13 @@ const handleGenerate = (args: {
           logger.error("Invalid package", {
             path: e.path,
             error: e._tag,
-            reason: e._tag === "InvalidPackagePathError" ? e.reason : (e.message ?? "not found"),
+            reason: P.isTagged("InvalidPackagePathError")(e) ? e.reason : (e.message ?? "not found"),
           })
         ),
         Effect.catchAll((e) =>
           Effect.gen(function* () {
             yield* error(
-              `Invalid package: ${e.path} - ${e._tag === "InvalidPackagePathError" ? e.reason : (e.message ?? "not found")}`
+              `Invalid package: ${e.path} - ${P.isTagged("InvalidPackagePathError")(e) ? e.reason : (e.message ?? "not found")}`
             );
             return yield* Effect.fail(ExitCode.InvalidInput);
           })
@@ -210,13 +209,13 @@ const handleGenerate = (args: {
     if (A.isEmptyArray([...packages])) {
       if (args.json) {
         const output = {
-          packages: A.empty() as ReadonlyArray<{
-            packageName: string;
-            packagePath: string;
-            success: boolean;
-            error?: string;
-            moduleCount?: number;
-          }>,
+          packages: A.empty<{
+            readonly packageName: string;
+            readonly packagePath: string;
+            readonly success: boolean;
+            readonly error?: undefined | string;
+            readonly moduleCount?: undefined | number;
+          }>(),
           summary: { total: 0, succeeded: 0, failed: 0 },
         };
         yield* Console.log(JSON.stringify(output, null, 2));
@@ -333,7 +332,7 @@ const handleGenerate = (args: {
   }).pipe(
     Effect.catchAll((exitCode) =>
       Effect.gen(function* () {
-        if (typeof exitCode === "number") {
+        if (P.isNumber(exitCode)) {
           yield* Effect.sync(() => {
             process.exitCode = exitCode;
           });

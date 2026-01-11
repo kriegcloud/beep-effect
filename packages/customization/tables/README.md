@@ -28,6 +28,7 @@ Defines multi-tenant Drizzle tables for the Customization slice using factory pa
 import * as customizationSchema from "@beep/customization-tables";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
+import * as Context from "effect/Context";
 import { Db } from "@beep/shared-server";
 
 // Create CustomizationDb service with schema
@@ -93,9 +94,8 @@ bun run db:migrate
 |---------|---------|
 | `drizzle-orm` | ORM toolkit and table definitions |
 | `@beep/shared-tables` | Table factory patterns (`Table.make`, `OrgTable.make`) |
-| `@beep/shared-domain` | Shared entity models |
+| `@beep/shared-domain` | Shared entity ID types |
 | `@beep/customization-domain` | Customization entity models |
-| `@beep/schema` | Schema utilities |
 
 ## Integration
 

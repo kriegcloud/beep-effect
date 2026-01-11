@@ -18,6 +18,7 @@ import { isUnsafeProperty } from "@beep/utils/guards";
 import * as A from "effect/Array";
 import { pipe } from "effect/Function";
 import * as P from "effect/Predicate";
+import * as R from "effect/Record";
 import * as Struct from "effect/Struct";
 
 type PlainRecord = Record<PropertyKey, unknown>;
@@ -59,7 +60,7 @@ export function mergeDefined<TSource1 extends object, TSource2 extends object>(
     const value1 = (source1 as PlainRecord)[key];
     const value2 = (source2 as PlainRecord)[key];
 
-    const shouldUseValue2 = omitNull ? value1 === undefined : value1 === undefined || value1 === null;
+    const shouldUseValue2 = omitNull ? P.isUndefined(value1) : P.isNullable(value1);
 
     if (shouldUseValue2) {
       result[key] = value2;
@@ -72,13 +73,11 @@ export function mergeDefined<TSource1 extends object, TSource2 extends object>(
     }
   }
 
-  const shouldOmit = omitNull
-    ? (value: unknown) => value === undefined
-    : (value: unknown) => value === undefined || value === null;
+  const shouldOmit = omitNull ? (value: unknown) => P.isUndefined(value) : (value: unknown) => P.isNullable(value);
 
   return pipe(
     Struct.entries(result),
     A.filter(([, value]) => !shouldOmit(value)),
-    Object.fromEntries
+    R.fromEntries
   ) as TSource1 & TSource2;
 }

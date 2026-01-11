@@ -104,7 +104,7 @@ const id = OrganizationId.create();
 
 // Validate existing ID
 const validated = F.pipe(
-  "organization__550e8400-e29b-41d4-a716-446655440000",
+  "shared_organization__550e8400-e29b-41d4-a716-446655440000",
   S.decodeUnknownSync(OrganizationId)
 );
 ```

@@ -1,5 +1,6 @@
 import { $SharedClientId } from "@beep/identity/packages";
 import { ImageCompressionRpc } from "@beep/runtime-client/workers/image-compression-rpc";
+import { thunk } from "@beep/utils";
 import * as BrowserWorker from "@effect/platform-browser/BrowserWorker";
 import * as RpcClient from "@effect/rpc/RpcClient";
 import * as Effect from "effect/Effect";
@@ -14,10 +15,11 @@ const ImageCompressionProtocol = RpcClient.layerProtocolWorker({
 }).pipe(
   Layer.provide(
     BrowserWorker.layerPlatform(
-      () =>
+      thunk(
         new Worker(new URL("@beep/runtime-client/workers/image-compression-worker.ts?worker", import.meta.url), {
           type: "module",
         })
+      )
     )
   ),
   Layer.orDie
@@ -25,10 +27,7 @@ const ImageCompressionProtocol = RpcClient.layerProtocolWorker({
 
 export class Service extends Effect.Service<Service>()($I`Service`, {
   dependencies: [ImageCompressionProtocol],
-  scoped: pipe(
-    Effect.Do,
-    Effect.bind("client", () => RpcClient.make(ImageCompressionRpc))
-  ),
+  scoped: pipe(Effect.Do, Effect.bind("client", thunk(RpcClient.make(ImageCompressionRpc)))),
 }) {}
 
 export const layer = Service.Default.pipe(Layer.provide(ImageCompressionProtocol));

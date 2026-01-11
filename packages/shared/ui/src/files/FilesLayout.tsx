@@ -74,7 +74,7 @@ export const FilesLayout: React.FC<React.PropsWithChildren> = ({ children }) => 
                   onClick={() => {
                     startUpload(
                       StartUploadInput.makeRoot({
-                        entityKind: EntityKind.Enum.user,
+                        entityKind: EntityKind.Enum.shared_user,
                         entityIdentifier: SharedEntityIds.UserId.create(),
                         entityAttribute: "image",
                         metadata: mockMetadata(),

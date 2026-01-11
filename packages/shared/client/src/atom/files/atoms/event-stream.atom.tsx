@@ -1,11 +1,11 @@
 import { makeAtomRuntime } from "@beep/runtime-client";
 import { prefixLogs } from "@beep/runtime-client/atom/utils";
 import type { EventStreamEvents } from "@beep/shared-domain/rpc/v1/event-stream";
-import { tagPropIs } from "@beep/utils";
 import * as Thunk from "@beep/utils/thunk";
 import { Atom, type Registry, type Result } from "@effect-atom/atom-react";
 import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
+import * as P from "effect/Predicate";
 import * as Schedule from "effect/Schedule";
 import * as Stream from "effect/Stream";
 import { FilesEventStream, FilesRpcClient } from "../../services";
@@ -25,9 +25,9 @@ export const eventStreamAtom = runtime
 
       yield* Effect.logInfo("connection opened");
 
-      const ka = source.pipe(Stream.filter(tagPropIs("Ka")), Stream.timeout("5 seconds"));
+      const ka = source.pipe(Stream.filter(P.isTagged("Ka")), Stream.timeout("5 seconds"));
 
-      const sync = source.pipe(Stream.filter(tagPropIs("Ka")), Stream.tap(eventStream.publish));
+      const sync = source.pipe(Stream.filter(P.isTagged("Ka")), Stream.tap(eventStream.publish));
 
       return Stream.merge(ka, sync);
     }).pipe(Stream.unwrapScoped, Stream.retry(Schedule.spaced("1 seconds")))

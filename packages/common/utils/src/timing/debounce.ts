@@ -18,6 +18,7 @@
 import type { UnsafeTypes } from "@beep/types";
 import * as DateTime from "effect/DateTime";
 import * as Duration from "effect/Duration";
+import * as P from "effect/Predicate";
 
 type AnyFunction = (this: unknown, ...args: readonly UnsafeTypes.UnsafeAny[]) => unknown;
 
@@ -66,7 +67,7 @@ const defaultNow = () => DateTime.toEpochMillis(DateTime.unsafeNow());
 const startTimer = (callback: () => void, wait: number) => globalThis.setTimeout(callback, wait);
 
 const cancelTimer = (id: ReturnType<typeof setTimeout> | undefined) => {
-  if (id !== undefined) {
+  if (P.isNotUndefined(id)) {
     globalThis.clearTimeout(id);
   }
 };
@@ -133,12 +134,12 @@ export const debounce = <T extends AnyFunction>(
     if (timeSinceLastCall < 0) {
       return true;
     }
-    return maxWaitMs !== undefined && timeSinceLastInvoke >= maxWaitMs;
+    return P.isNotUndefined(maxWaitMs) && timeSinceLastInvoke >= maxWaitMs;
   };
 
   const trailingEdge = (time: number) => {
     timerId = undefined;
-    if (!trailing || lastArgs === undefined) {
+    if (!trailing || P.isUndefined(lastArgs)) {
       lastArgs = undefined;
       lastThis = undefined;
       return result;
@@ -150,7 +151,7 @@ export const debounce = <T extends AnyFunction>(
     const time = defaultNow();
     if (shouldInvoke(time)) {
       trailingEdge(time);
-    } else if (lastCallTime !== undefined) {
+    } else if (P.isNotUndefined(lastCallTime)) {
       timerId = startTimer(timerExpired, remainingWait(time));
     }
   };
@@ -174,13 +175,13 @@ export const debounce = <T extends AnyFunction>(
   };
 
   const flush = () => {
-    if (timerId === undefined) {
+    if (P.isUndefined(timerId)) {
       return result;
     }
     return trailingEdge(defaultNow());
   };
 
-  const pending = () => timerId !== undefined;
+  const pending = () => P.isNotUndefined(timerId);
 
   const debounced = function (this: ThisParameterType<T>, ...args: Parameters<T>): ReturnType<T> {
     const time = defaultNow();
@@ -191,15 +192,15 @@ export const debounce = <T extends AnyFunction>(
     lastCallTime = time;
 
     if (isInvoking) {
-      if (timerId === undefined) {
+      if (P.isUndefined(timerId)) {
         return (leadingEdge(time) ?? result) as ReturnType<T>;
       }
-      if (maxWaitMs !== undefined) {
+      if (P.isNotUndefined(maxWaitMs)) {
         timerId = startTimer(timerExpired, waitMs);
         return invokeFunc(time) as ReturnType<T>;
       }
     }
-    if (timerId === undefined) {
+    if (P.isUndefined(timerId)) {
       timerId = startTimer(timerExpired, waitMs);
     }
     return result as ReturnType<T>;

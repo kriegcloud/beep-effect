@@ -125,11 +125,11 @@ import { SharedEntityIds } from "@beep/shared-domain/entity-ids";
 
 const payload: File.UploadKeyDecoded.Type = {
   env: "dev",
-  fileId: SharedEntityIds.FileId.make("file__12345678-1234-1234-1234-123456789012"),
+  fileId: SharedEntityIds.FileId.make("shared_file__12345678-1234-1234-1234-123456789012"),
   organizationType: "individual",
-  organizationId: SharedEntityIds.OrganizationId.make("organization__..."),
-  entityKind: "user",
-  entityIdentifier: SharedEntityIds.UserId.make("user__..."),
+  organizationId: SharedEntityIds.OrganizationId.make("shared_organization__..."),
+  entityKind: "shared_user",
+  entityIdentifier: SharedEntityIds.UserId.make("shared_user__..."),
   entityAttribute: "avatar",
   extension: "jpg",
 };

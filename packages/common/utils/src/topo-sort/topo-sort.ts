@@ -3,6 +3,7 @@
  */
 
 import { $UtilsId } from "@beep/identity/packages";
+import { thunkZero } from "@beep/utils/thunk";
 import * as A from "effect/Array";
 import * as F from "effect/Function";
 import * as HashMap from "effect/HashMap";
@@ -54,11 +55,7 @@ const countInDegrees = (dag: DirectedAcyclicGraph): InDegrees => {
     counts = ensureNodeWithZeroDegree(counts, vertex);
 
     HashSet.forEach(dependents, (dependent) => {
-      const nextCount = F.pipe(
-        HashMap.get(dependent)(counts),
-        O.getOrElse(() => 0),
-        (value) => value + 1
-      );
+      const nextCount = F.pipe(HashMap.get(dependent)(counts), O.getOrElse(thunkZero), (value) => value + 1);
 
       counts = HashMap.set(dependent, nextCount)(counts);
     });
@@ -124,10 +121,7 @@ export const toposort = (dag: DirectedAcyclicGraph): TaskList => {
           onNone: () => undefined,
           onSome: (dependents) =>
             HashSet.forEach(dependents, (dependent) => {
-              const currentDegree = F.pipe(
-                HashMap.get(dependent)(inDegrees),
-                O.getOrElse(() => 0)
-              );
+              const currentDegree = F.pipe(HashMap.get(dependent)(inDegrees), O.getOrElse(thunkZero));
 
               const nextDegree = currentDegree - 1;
               inDegrees = HashMap.set(dependent, nextDegree)(inDegrees);

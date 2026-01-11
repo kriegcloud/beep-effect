@@ -34,9 +34,10 @@ This package is internal to the monorepo and not published separately.
 {
   "effect": "catalog:",
   "@beep/schema": "workspace:^",
-  "@beep/utils": "workspace:^",
   "@beep/invariant": "workspace:^",
-  "@beep/identity": "workspace:^"
+  "@effect/cluster": "catalog:",
+  "@effect/workflow": "catalog:",
+  "uuid": "catalog:"
 }
 ```
 

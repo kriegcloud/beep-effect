@@ -1,9 +1,9 @@
 import { filesAtom } from "@beep/shared-client/atom";
 import type { SharedEntityIds } from "@beep/shared-domain";
-import { tagPropIs } from "@beep/utils";
 import { Registry } from "@effect-atom/atom-react";
 import { Effect } from "effect";
 import * as A from "effect/Array";
+import * as P from "effect/Predicate";
 import { FilesApi } from "../../services";
 import { runtime } from "../runtime";
 import { MoveFiles } from "../types";
@@ -20,14 +20,14 @@ export const moveFilesAtom = runtime.fn(
     const filesState = registry.get(filesAtom);
     let fromFolderId: SharedEntityIds.FolderId.Type | null = null;
 
-    if (filesState && tagPropIs(filesState, "Success")) {
+    if (filesState && P.isTagged(filesState, "Success")) {
       const inRoot = A.some(filesState.value.rootFiles, (file) => A.contains(payload.fileIds, file.id));
 
       if (!inRoot) {
         const sourceFolder = A.findFirst(filesState.value.folders, (folder) =>
           A.some(folder.uploadedFiles, (file) => A.contains(payload.fileIds, file.id))
         );
-        if (tagPropIs(sourceFolder, "Some")) {
+        if (P.isTagged(sourceFolder, "Some")) {
           fromFolderId = sourceFolder.value.id;
         }
       }

@@ -26,19 +26,26 @@
 - `format-time.ts` — time formatting helpers (e.g., `fToNow`).
 - `getters/` — safe property accessors (`getAt`) returning fallback values.
 - `guards/` — type-narrowing predicates (`isUnsafeProperty`, `isNonEmptyRecord`).
+- `lazy.ts` — lazy value and schema initialization helpers.
+- `md5/` — MD5 hashing utilities for file integrity (parallel processing support).
 - `merge-defined.ts` — merge utilities that skip undefined values.
 - `mut.utils.ts` — mutation escape hatches kept pure via `mutative`.
 - `noOps.ts` — canonical `noOp`, `nullOp`, `nullOpE` helpers required across the repo.
+- `nullable.ts` — nullable type utilities and guards.
 - `object/path.ts` — nested object path utilities (`getPath`).
 - `random-hex-string.ts` — random hex string generation.
 - `remove-accents/` — diacritic removal utilities.
+- `shallow.ts` — shallow equality comparison for arrays, objects, and values.
 - `sqids.ts` — Sqids encoder/decoder utilities.
+- `stringify.ts` — safe JSON stringification helpers.
 - `struct/` — struct merge and field extraction utilities.
 - `sync.utils.ts` — sync status types for adapter patterns.
+- `tag.ts` — dual-signature type guards for tagged unions (`tagPropIs`).
 - `thunk.ts` — thunk utilities for lazy evaluation.
 - `timing/` — debounce and throttle helpers.
 - `topo-sort/` — topological sort implementation.
 - `transformations/` — higher-level transforms (`enumFromStringArray`, `valuesFromEnum`).
+- `url.ts` — URL parsing and validation utilities.
 
 ## Usage Snapshots
 - `packages/common/schema/src/primitives/locales/currency-code-value.ts` uses `RecordUtils.recordKeys` to derive literal unions from currency maps.

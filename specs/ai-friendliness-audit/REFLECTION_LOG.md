@@ -279,7 +279,7 @@ Track prompt effectiveness:
 | `docgen agents` | AI-powered JSDoc fixing | Direct support for documentation fixes |
 | `docgen analyze --fix-mode` | Agent-actionable coverage analysis | Prioritizes missing docs |
 | `create-slice` | Creates vertical slices | Gap: doesn't create AGENTS.md |
-| `env`, `sync`, `prune-unused-deps` | Repo maintenance | Useful for cleanup tasks |
+| `env`, `sync`, `prune-deps` | Repo maintenance | Useful for cleanup tasks |
 
 ### Codebase-Specific Insights
 - The CLI uses @effect/cli Command primitives with consistent handler patterns

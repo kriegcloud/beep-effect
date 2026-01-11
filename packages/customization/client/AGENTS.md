@@ -1,89 +1,199 @@
-# @beep/customization-client — Agent Guide
+# @beep/customization-client
 
-## Purpose & Fit
-- Provides the client-side CLIENT layer for the customization slice, enabling frontend applications to interact with customization features.
-- Contains API contracts, client-side services, and type definitions for client-server communication.
-- Acts as the bridge between the customization domain and UI layers, exposing typed contracts for TanStack Query and Effect-based client runtimes.
-- Currently a minimal scaffold awaiting contract definitions as the customization feature matures.
+Effect-based client contracts for the Customization slice.
 
-## Surface Map (Exports)
+## Overview
 
-> **Status**: Awaiting implementation
+Provides the client-side API surface for customization operations. This package:
+- Defines RPC contracts for user preferences, themes, and hotkey customization
+- Exports typed client handlers consumed by `@beep/web` and other frontend apps
+- Sits in the `customization/client` layer of the vertical slice architecture
+- Currently a minimal scaffold awaiting contract definitions as the customization feature matures
 
-Will export RPC contracts for customization features (themes, preferences).
+**Location**: `packages/customization/client/`
 
-## Usage Snapshots
-- Frontend apps import contracts from this package to invoke customization-related RPC calls.
-- TanStack Query hooks wrap contracts for React component consumption.
-- Effect client runtime uses contracts to execute type-safe requests against the server.
+## Package Metadata
+
+| Property | Value |
+|----------|-------|
+| Package Name | `@beep/customization-client` |
+| Type | `module` (ESM) |
+| Status | Awaiting Implementation |
+| Exports | `src/index.ts`, `src/*.ts` |
+
+## Key Exports
+
+> **Status**: Implementation pending
+
+**Planned Exports:**
+- `CustomizationContracts` — RPC contract definitions for customization operations
+- `CustomizationHandlers` — Client-side handlers for theme/preference updates
+- `HotkeyContracts` — Contracts for user hotkey management
+
+## Dependencies
+
+| Package | Purpose | Location |
+|---------|---------|----------|
+| `effect` | Core Effect runtime | Peer dependency |
+| `@beep/customization-domain` | Domain entities and value objects | `packages/customization/domain/` |
+| `@beep/contract` | Contract system for RPC definitions | `packages/common/contract/` |
+
+**Note**: This package does NOT have direct runtime dependencies on `@beep/customization-server` — communication happens via RPC contracts.
+
+## Architecture Context
+
+### Slice Structure
+
+The customization slice follows this dependency order:
+```
+domain -> tables -> server -> client -> ui
+                       ↓
+                 (RPC boundary)
+```
+
+### Cross-Package Relationships
+
+- **Consumed by**: `@beep/customization-ui`, `@beep/web`
+- **Depends on**: `@beep/customization-domain` (entities), `@beep/contract` (RPC system)
+- **Communicates with**: `@beep/customization-server` (via RPC contracts)
+
+## Usage Patterns
+
+### Creating a Contract (Planned)
+
+```typescript
+import { Contract } from "@beep/contract";
+import * as S from "effect/Schema";
+
+export const UpdateTheme = Contract.make("UpdateTheme", {
+  description: "Update user theme preferences",
+  payload: S.Struct({
+    userId: S.String,
+    theme: S.Literal("light", "dark", "system"),
+  }),
+  success: S.Struct({ updated: S.Boolean }),
+  failure: S.Struct({ message: S.String }),
+  failureMode: "error",
+})
+  .annotate(Contract.Title, "Update Theme")
+  .annotate(Contract.Domain, "customization")
+  .annotate(Contract.Method, "theme.update");
+```
+
+### Using Contracts in Effect Programs (Planned)
+
+```typescript
+import * as Effect from "effect/Effect";
+import { CustomizationContracts } from "@beep/customization-client";
+
+const updateUserTheme = (userId: string, theme: "light" | "dark") =>
+  Effect.gen(function* () {
+    const client = yield* CustomizationContracts.Client;
+    return yield* client.updateTheme({ userId, theme });
+  });
+```
+
+### With Layer Composition (Planned)
+
+```typescript
+import * as Layer from "effect/Layer";
+import { CustomizationClientLive } from "@beep/customization-client";
+import { HttpClientLive } from "@beep/shared-client";
+
+const AppLayer = Layer.provide(CustomizationClientLive, HttpClientLive);
+```
 
 ## Authoring Guardrails
-- ALWAYS import Effect modules with namespaces (`Effect`, `A`, `F`, `O`, `Str`, `S`) and rely on Effect collections/utilities instead of native helpers (see global repo guardrails).
-- Define contracts using `@beep/contract` patterns — each contract should specify request/response schemas and error types.
-- Maintain typed error channels using `S.TaggedError` for predictable client-side error handling.
-- Keep contracts thin — business logic belongs in domain or server layers.
-- Use `"use client"` directive for React-specific exports that need client-side bundling.
 
-## Verifications
-- `bun run check --filter @beep/customization-client`
-- `bun run lint --filter @beep/customization-client`
-- `bun run test --filter @beep/customization-client`
+- **CRITICAL**: ALWAYS import Effect modules with namespaces (`Effect`, `A`, `F`, `O`, `Str`, `S`) and rely on Effect collections/utilities instead of native helpers.
+- Define contracts using `@beep/contract` patterns — each contract MUST specify request/response schemas and error types.
+- Maintain typed error channels using `S.TaggedError` for predictable client-side error handling.
+- Keep contracts thin — business logic belongs in domain or server layers, NOT in client contracts.
+- Use `"use client"` directive for React-specific exports that need client-side bundling.
+- NEVER use `any`, `@ts-ignore`, or unchecked casts. ALWAYS validate external data with schemas.
 
 ## Testing
 
-- Run tests: `bun run test --filter=@beep/customization-client`
-- Use `@beep/testkit` for Effect testing utilities
-- ALWAYS test contract request/response schemas
-- Test error mapping completeness
+```bash
+# Run all tests
+bun run test --filter=@beep/customization-client
 
-## Gotchas
+# Run with coverage
+bun run coverage --filter=@beep/customization-client
 
-### Settings Schema Must Match UI-Core
-- **Symptom**: Customization changes don't apply; theme resets to defaults; console errors about unknown settings fields.
-- **Root Cause**: Customization contracts define settings fields that don't align with `@beep/ui-core` SettingsState schema.
-- **Solution**: Customization schemas MUST import settings types from `@beep/ui-core` directly. When adding new customization options, update BOTH the contract schema AND the ui-core settings schema simultaneously.
+# Type checking
+bun run check --filter @beep/customization-client
 
-### Server-Side vs Client-Side Customization Application
-- **Symptom**: Customizations apply on page reload but not immediately; SSR shows default theme.
-- **Root Cause**: Customization data fetched client-side arrives after initial render.
-- **Solution**: For SSR-compatible customization, fetch settings server-side and pass through initial props. Use `@beep/ui-core` settings provider that accepts initial state. Document which customizations are SSR-safe.
-
-### Contract Response Caching and Stale Settings
-- **Symptom**: User changes customization but sees old settings after navigating away and back.
-- **Root Cause**: TanStack Query caches contract responses; stale cache serves old customization data.
-- **Solution**: Customization mutation contracts MUST invalidate relevant query caches on success. Use `queryClient.invalidateQueries` with appropriate keys. Consider optimistic updates for immediate feedback.
-
-### Tenant-Scoped vs User-Scoped Customization
-- **Symptom**: User's personal customizations override org-wide branding; or vice versa.
-- **Root Cause**: Customization contracts don't clearly separate tenant-level and user-level settings.
-- **Solution**: Define separate contracts for tenant customization and user preferences. Document merge precedence (typically: tenant defaults < user overrides). Contracts should explicitly include scope identifiers.
-
-### Color Preset Validation
-- **Symptom**: Custom theme colors cause accessibility issues or render as invalid CSS.
-- **Root Cause**: Contract accepts arbitrary color strings without validation.
-- **Solution**: Color customization schemas MUST validate hex/rgb format AND contrast ratios. Use `@beep/ui-core` preset validation utilities. Consider restricting to predefined palettes for brand consistency.
-
-### Customization Contract Versioning
-- **Symptom**: Old clients crash when server returns new customization fields; new clients fail with old servers.
-- **Root Cause**: Breaking changes to customization response schema without version migration.
-- **Solution**: Customization contracts MUST include schema version field. Client should handle unknown fields gracefully (strip via schema). When adding required fields, provide defaults for backward compatibility.
-
-## Quick Recipes
-
-### Define a New Contract
-```typescript
-import * as Rpc from "@effect/rpc/Rpc";
-import * as S from "effect/Schema";
-
-export class MyRequest extends Rpc.StreamRequest<MyRequest>()(
-  "MyRequest",
-  { failure: MyError, success: S.String, payload: { id: S.String } }
-) {}
+# Linting
+bun run lint --filter @beep/customization-client
+bun run lint:fix --filter @beep/customization-client
 ```
 
+**Testing Guidelines:**
+- Use Bun's built-in test runner (no separate testing package required)
+- ALWAYS test contract request/response schemas
+- Test error mapping completeness
+- Verify contract annotations are correct
+
+## Common Patterns & Gotchas
+
+### Settings Schema Must Match UI-Core
+**Symptom**: Customization changes don't apply; theme resets to defaults; console errors about unknown settings fields.
+
+**Root Cause**: Customization contracts define settings fields that don't align with `@beep/ui-core` SettingsState schema.
+
+**Solution**: Customization schemas MUST import settings types from `@beep/ui-core` directly. When adding new customization options, update BOTH the contract schema AND the ui-core settings schema simultaneously.
+
+### Server-Side vs Client-Side Customization Application
+**Symptom**: Customizations apply on page reload but not immediately; SSR shows default theme.
+
+**Root Cause**: Customization data fetched client-side arrives after initial render.
+
+**Solution**: For SSR-compatible customization, fetch settings server-side and pass through initial props. Use `@beep/ui-core` settings provider that accepts initial state. Document which customizations are SSR-safe.
+
+### Contract Response Caching and Stale Settings
+**Symptom**: User changes customization but sees old settings after navigating away and back.
+
+**Root Cause**: TanStack Query caches contract responses; stale cache serves old customization data.
+
+**Solution**: Customization mutation contracts MUST invalidate relevant query caches on success. Use `queryClient.invalidateQueries` with appropriate keys. Consider optimistic updates for immediate feedback.
+
+### Tenant-Scoped vs User-Scoped Customization
+**Symptom**: User's personal customizations override org-wide branding; or vice versa.
+
+**Root Cause**: Customization contracts don't clearly separate tenant-level and user-level settings.
+
+**Solution**: Define separate contracts for tenant customization and user preferences. Document merge precedence (typically: tenant defaults < user overrides). Contracts should explicitly include scope identifiers.
+
+### Color Preset Validation
+**Symptom**: Custom theme colors cause accessibility issues or render as invalid CSS.
+
+**Root Cause**: Contract accepts arbitrary color strings without validation.
+
+**Solution**: Color customization schemas MUST validate hex/rgb format AND contrast ratios. Use `@beep/ui-core` preset validation utilities. Consider restricting to predefined palettes for brand consistency.
+
+### Customization Contract Versioning
+**Symptom**: Old clients crash when server returns new customization fields; new clients fail with old servers.
+
+**Root Cause**: Breaking changes to customization response schema without version migration.
+
+**Solution**: Customization contracts MUST include schema version field. Client should handle unknown fields gracefully (strip via schema). When adding required fields, provide defaults for backward compatibility.
+
+## See Also
+
+- [Customization Domain](../domain/AGENTS.md) — Entity definitions and business logic
+- [Customization Server](../server/AGENTS.md) — Server-side implementation
+- [Customization Tables](../tables/AGENTS.md) — Database schemas
+- [Contract Package](../../common/contract/AGENTS.md) — Contract system documentation
+- [UI Core Package](../../ui/core/AGENTS.md) — Settings and theme system
+
 ## Contributor Checklist
-- [ ] Define contracts with proper request/response schemas following `@beep/contract` patterns.
-- [ ] Ensure all contracts have corresponding server-side implementations in `@beep/customization-server`.
-- [ ] Add proper TypeScript doc comments for contract exports.
-- [ ] Use Effect Schema for all data validation — no bare type assertions.
-- [ ] Re-run verification commands above before handing work off.
+
+- [ ] Define contracts with proper request/response schemas following `@beep/contract` patterns
+- [ ] Ensure all contracts have corresponding server-side implementations in `@beep/customization-server`
+- [ ] Add proper TypeScript doc comments for contract exports
+- [ ] Use Effect Schema for all data validation — no bare type assertions
+- [ ] Verify namespace imports for Effect modules (`Effect`, `A`, `F`, `O`, `Str`, `S`)
+- [ ] Test contract schemas with valid and invalid payloads
+- [ ] Document error cases and failure modes
+- [ ] Run verification commands (`check`, `lint`, `test`) before committing

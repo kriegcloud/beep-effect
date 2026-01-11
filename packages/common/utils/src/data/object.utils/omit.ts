@@ -13,7 +13,9 @@
  */
 import * as A from "effect/Array";
 import { pipe } from "effect/Function";
+import * as HashSet from "effect/HashSet";
 import * as R from "effect/Record";
+import * as Struct from "effect/Struct";
 
 /**
  * Creates an object composed of properties from the source object excluding
@@ -29,12 +31,12 @@ import * as R from "effect/Record";
  * @category Data
  * @since 0.1.0
  */
-export function omit<T extends object, K extends keyof T>(obj: T, ...keys: readonly K[]): Omit<T, K> {
-  const keysSet = new Set<PropertyKey>(keys);
+export function omit<T extends object, K extends keyof T & string>(obj: T, ...keys: readonly K[]): Omit<T, K> {
+  const keysSet = HashSet.make(...keys);
 
   return pipe(
-    R.toEntries(obj as Record<string, unknown>),
-    A.filter(([key]) => !keysSet.has(key)),
+    Struct.entries(obj as Record<string, unknown>),
+    A.filter(([key]) => !HashSet.has(key)(keysSet)),
     R.fromEntries
   ) as Omit<T, K>;
 }

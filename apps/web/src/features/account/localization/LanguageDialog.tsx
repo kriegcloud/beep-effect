@@ -1,7 +1,7 @@
 // import { languages } from 'data/account/language-region';
 // import { Language } from 'types/accounts';
 import { Iconify } from "@beep/ui/atoms";
-import { SimpleBar } from "@beep/ui/molecules/SimpleBar";
+import { SimpleBar } from "@beep/ui/molecules/simple-bar";
 import type { DialogProps } from "@mui/material";
 import {
   Button,

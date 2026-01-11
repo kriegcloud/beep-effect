@@ -1,5 +1,6 @@
 import { $SchemaId } from "@beep/identity/packages";
 import type { UnsafeTypes } from "@beep/types";
+import { thunkZero } from "@beep/utils";
 import * as A from "effect/Array";
 import * as BI from "effect/BigInt";
 import * as Effect from "effect/Effect";
@@ -178,10 +179,7 @@ const log10 = (n: number | bigint): number => {
   const s = n.toString(10);
   const firstDigits = F.pipe(s, Str.slice(0, 15));
   // Parse the fractional approximation using Num.parse with Option handling
-  const fractionalValue = F.pipe(
-    Num.parse(`0.${firstDigits}`),
-    O.getOrElse(() => 0)
-  );
+  const fractionalValue = F.pipe(Num.parse(`0.${firstDigits}`), O.getOrElse(thunkZero));
   return F.pipe(Str.length(s), Num.sum(Math.log10(fractionalValue)));
 };
 
@@ -315,7 +313,7 @@ export function formatSizeEffect<O extends PrettyBytesOptions | undefined = unde
       : (() => {
           const intPartStr = F.pipe(
             Num.parse(F.pipe(scaledRaw, floor, (n) => `${n}`)),
-            O.getOrElse(() => 0),
+            O.getOrElse(thunkZero),
             (n) => `${n}`
           );
           const intLen = Str.length(intPartStr);

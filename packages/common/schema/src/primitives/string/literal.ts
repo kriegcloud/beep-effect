@@ -11,7 +11,6 @@
  * @since 0.1.0
  */
 
-import type { StringTypes } from "@beep/types";
 import type * as A from "effect/Array";
 import * as S from "effect/Schema";
 import type * as AST from "effect/SchemaAST";
@@ -98,7 +97,7 @@ export declare namespace LiteralDefaults {
  * @category Primitives/String
  * @since 0.1.0
  */
-export const LiteralWithDefault = <const Literal extends StringTypes.NonEmptyString<string>>(
+export const LiteralWithDefault = <const Literal extends AST.LiteralValue>(
   value: Literal
 ): S.PropertySignature<":", Exclude<Literal, undefined>, never, "?:", Literal | undefined, true, never> =>
   S.Literal(value)

@@ -271,20 +271,6 @@ export * from "@beep/utils/noOps";
 export * from "@beep/utils/object/path";
 
 /**
- * Provides sync status types through the namespace.
- *
- * @example
- * import * as Utils from "@beep/utils";
- *
- * const indexSyncItem: Utils.AdapterSyncItem = { module: "files", entity: "asset", status: { _tag: "synced" } };
- * void indexSyncItem;
- *
- * @category exports
- * @since 0.1.0
- */
-export * from "@beep/utils/sync.utils";
-
-/**
  * Routes debounce/throttle helpers through the namespace.
  *
  * @example
@@ -374,20 +360,6 @@ export * from "./browser-apis";
 export * from "./coerce";
 
 /**
- * Re-exports literal-aware helpers from `const.ts`.
- *
- * @example
- * import * as Utils from "@beep/utils";
- *
- * const indexConstLiteral = Utils.constLiteral("tenant");
- * void indexConstLiteral;
- *
- * @category exports
- * @since 0.1.0
- */
-export * from "./const";
-
-/**
  * Re-exports dedent utilities for template string formatting.
  *
  * @example
@@ -452,7 +424,6 @@ export * from "./random-hex-string";
 export * as RemoveAccents from "./remove-accents/remove-accents";
 export * from "./sqids";
 export { default as Sqids } from "./sqids";
-export * from "./tag";
 export * from "./thunk";
 /**
  * Re-exports topological sort utilities.

@@ -1,0 +1,63 @@
+import * as React from "react";
+import { RowNode } from "../model/RowNode";
+import { TabSetNode } from "../model/TabSetNode";
+import { Orientation } from "../Orientation";
+import { CLASSES } from "../Types";
+import type { LayoutInternal } from "./Layout";
+import { Splitter } from "./Splitter";
+import { TabSet } from "./TabSet";
+
+/** @internal */
+export interface IRowProps {
+  layout: LayoutInternal;
+  node: RowNode;
+  revision?: number; // Forces re-render when model changes
+}
+
+/** @internal */
+export const Row = (props: IRowProps) => {
+  const { layout, node, revision } = props;
+  const selfRef = React.useRef<HTMLDivElement | null>(null);
+
+  const horizontal = node.getOrientation() === Orientation.HORZ;
+
+  React.useLayoutEffect(() => {
+    node.setRect(layout.getBoundingClientRect(selfRef.current!));
+  });
+
+  const items: React.ReactNode[] = [];
+
+  let i = 0;
+
+  for (const child of node.getChildren()) {
+    if (i > 0) {
+      items.push(<Splitter key={`splitter${i}`} layout={layout} node={node} index={i} horizontal={horizontal} />);
+    }
+    if (child instanceof RowNode) {
+      items.push(<Row key={child.getId()} layout={layout} node={child} revision={revision} />);
+    } else if (child instanceof TabSetNode) {
+      items.push(<TabSet key={child.getId()} layout={layout} node={child} revision={revision} />);
+    }
+    i++;
+  }
+
+  const style: React.CSSProperties = {
+    flexGrow: Math.max(1, node.getWeight() * 1000), // NOTE:  flex-grow cannot have values < 1 otherwise will not fill parent, need to normalize
+    minWidth: node.getMinWidth(),
+    minHeight: node.getMinHeight(),
+    maxWidth: node.getMaxWidth(),
+    maxHeight: node.getMaxHeight(),
+  };
+
+  if (horizontal) {
+    style.flexDirection = "row";
+  } else {
+    style.flexDirection = "column";
+  }
+
+  return (
+    <div ref={selfRef} className={layout.getClassName(CLASSES.FLEXLAYOUT__ROW)} style={style}>
+      {items}
+    </div>
+  );
+};

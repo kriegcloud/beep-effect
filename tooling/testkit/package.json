@@ -38,8 +38,7 @@
     "@effect/sql-pg": "catalog:",
     "@effect/sql-drizzle": "catalog:",
     "@testcontainers/postgresql": "catalog:",
-    "drizzle-orm": "catalog:",
-    "postgres": "catalog:"
+    "drizzle-orm": "catalog:"
   },
   "devDependencies": {
     "@effect/platform-bun": "catalog:",
@@ -51,7 +50,6 @@
     "@effect/sql-pg": "catalog:",
     "@effect/sql-drizzle": "catalog:",
     "drizzle-orm": "catalog:",
-    "postgres": "catalog:",
     "pg": "catalog:",
     "@total-typescript/ts-reset": "catalog:"
   },

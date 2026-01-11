@@ -42,7 +42,7 @@ function DialogContent({
   showCloseButton = true,
   ...props
 }: DialogPrimitive.Popup.Props & {
-  showCloseButton?: undefined | boolean;
+  readonly showCloseButton?: undefined | boolean;
 }) {
   return (
     <DialogPortal>

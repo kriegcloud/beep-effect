@@ -72,29 +72,33 @@ import { makeGenericLiteralKit } from "./literal-kit";
 type MappedPairs = A.NonEmptyReadonlyArray<readonly [AST.LiteralValue, AST.LiteralValue]>;
 
 /**
- * Extract the "from" literals from pairs as a tuple type.
+ * Extract the "from" literals from pairs as a readonly tuple type.
+ * Preserves readonly to satisfy A.NonEmptyReadonlyArray constraint without intersection.
  */
 type ExtractFromLiterals<Pairs extends MappedPairs> = {
-  -readonly [K in keyof Pairs]: Pairs[K] extends readonly [infer F extends AST.LiteralValue, AST.LiteralValue]
+  readonly [K in keyof Pairs]: Pairs[K] extends readonly [infer F extends AST.LiteralValue, AST.LiteralValue]
     ? F
     : never;
 };
 
 /**
- * Extract the "to" literals from pairs as a tuple type.
+ * Extract the "to" literals from pairs as a readonly tuple type.
+ * Preserves readonly to satisfy A.NonEmptyReadonlyArray constraint without intersection.
  */
 type ExtractToLiterals<Pairs extends MappedPairs> = {
-  -readonly [K in keyof Pairs]: Pairs[K] extends readonly [AST.LiteralValue, infer T extends AST.LiteralValue]
+  readonly [K in keyof Pairs]: Pairs[K] extends readonly [AST.LiteralValue, infer T extends AST.LiteralValue]
     ? T
     : never;
 };
 
 /**
- * Convert extracted literals to a NonEmptyReadonlyArray type.
+ * Convert extracted literals to the appropriate tuple type.
+ * Since ExtractFromLiterals/ExtractToLiterals now produce readonly tuples,
+ * they naturally satisfy A.NonEmptyReadonlyArray without needing an intersection.
  */
 type ExtractedLiteralsArray<Pairs extends MappedPairs, Side extends "from" | "to"> = Side extends "from"
-  ? ExtractFromLiterals<Pairs> & A.NonEmptyReadonlyArray<AST.LiteralValue>
-  : ExtractToLiterals<Pairs> & A.NonEmptyReadonlyArray<AST.LiteralValue>;
+  ? ExtractFromLiterals<Pairs>
+  : ExtractToLiterals<Pairs>;
 
 /**
  * Convert a literal value to a valid object key (string representation).

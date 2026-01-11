@@ -2,17 +2,17 @@
 import { assetPaths } from "@beep/constants";
 import { useSignOut } from "@beep/iam-client/clients/sign-out";
 import { AccountSettingsTabSearchParamValue } from "@beep/iam-domain";
-import { _contacts, _notifications } from "@beep/mock";
+
 import { makeRunClientPromise, urlSearchParamSSR, useRuntime } from "@beep/runtime-client";
 import { DashboardLayout } from "@beep/ui/layouts";
 import type { Atom } from "@effect-atom/atom-react";
 import { useAtom } from "@effect-atom/atom-react";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
-
 import React from "react";
 import { AccountDialog } from "@/features/account/account-dialog";
 import { AuthGuard } from "@/providers/AuthGuard";
+import { _contacts, _notifications } from "./_mock";
 
 const settingsDialogAtom: Atom.Writable<O.Option<AccountSettingsTabSearchParamValue.Type>> = urlSearchParamSSR(
   "settingsTab",

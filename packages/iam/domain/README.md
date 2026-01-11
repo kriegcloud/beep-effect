@@ -374,7 +374,7 @@ Re-exported from `@beep/shared-domain` for unified IAM context:
 - **No HTTP handlers or routes**: define contracts only; implement handlers in `@beep/iam-server`
 - **No application logic**: keep orchestration in `@beep/iam-server` or application layers
 - **No framework dependencies**: avoid Next.js, React, or platform-specific code
-- **No cross-slice domain imports**: only depend on `@beep/shared-domain` and `@beep/common/*`
+- **No cross-slice domain imports**: only depend on `@beep/shared-domain` and `@beep//*`
 
 Domain models and API contracts should be pure, testable, and reusable across all infrastructure implementations.
 

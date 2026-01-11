@@ -1,4 +1,5 @@
 import { parseCssVar } from "@beep/ui-core/utils";
+import { thunk, thunkZero } from "@beep/utils";
 import type { AvatarGroupClassKey } from "@mui/material/AvatarGroup";
 import Box from "@mui/material/Box";
 import type { Components, ComponentsVariants, Theme } from "@mui/material/styles";
@@ -7,7 +8,6 @@ import * as F from "effect/Function";
 import * as O from "effect/Option";
 import * as Str from "effect/String";
 import type { PaletteColorKey } from "../palette";
-
 import { colorKeys } from "../palette";
 
 /**
@@ -59,15 +59,11 @@ export function getAvatarColor(
         O.map((aCode) => charCode - aCode)
       )
     ),
-    O.getOrElse(() => 0)
+    O.getOrElse(thunkZero)
   ); // 0 for 'a', 25 for 'z'
   const colorIndex = alphabetIndex % A.length(allColors);
 
-  return F.pipe(
-    allColors,
-    A.get(colorIndex),
-    O.getOrElse(() => fallback)
-  );
+  return F.pipe(allColors, A.get(colorIndex), O.getOrElse(thunk(fallback)));
 }
 
 const customRenderSurplus = (surplus: number) => (

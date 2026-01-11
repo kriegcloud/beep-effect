@@ -13,9 +13,14 @@
  */
 
 import { $SchemaId } from "@beep/identity/packages";
+import * as A from "effect/Array";
 import type * as B from "effect/Brand";
+import * as F from "effect/Function";
+import * as O from "effect/Option";
+import * as ParseResult from "effect/ParseResult";
 import * as Redacted from "effect/Redacted";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import * as regexes from "../../internal/regex/regexes";
 
 const $I = $SchemaId.create("primitives/string/email");
@@ -201,4 +206,102 @@ export declare namespace Email {
    * @since 0.1.0
    */
   export type Encoded = typeof Email.Encoded;
+}
+
+/**
+ * Transforms a comma-delimited string of emails into a ReadonlyArray of {@link Email} values.
+ *
+ * - Splits on comma delimiter
+ * - Trims whitespace from each segment
+ * - Filters out empty segments
+ * - Validates each email through the {@link Email} schema
+ *
+ * @example
+ * import { EmailFromCommaDelimitedString } from "@beep/schema/primitives/string/email";
+ * import * as S from "effect/Schema";
+ *
+ * const emails = S.decodeSync(EmailFromCommaDelimitedString)(
+ *   "alice@example.com, bob@example.com, charlie@example.com"
+ * );
+ * // => ReadonlyArray<Email.Type>
+ *
+ * @category Primitives/String
+ * @since 0.1.0
+ */
+export const EmailFromCommaDelimitedString = S.transformOrFail(S.String, S.Array(Email), {
+  strict: true,
+  decode: (input, _options, ast) => {
+    const segments = F.pipe(
+      input,
+      Str.split(","),
+      A.map(Str.trim),
+      A.filter((s) => !Str.isEmpty(s))
+    );
+
+    const invalidEmail = A.findFirst(segments, (s) => !S.is(EmailEncoded)(s));
+
+    return O.match(invalidEmail, {
+      onNone: () => ParseResult.succeed(segments),
+      onSome: (invalid) =>
+        ParseResult.fail(new ParseResult.Type(ast, input, `Invalid email format in list: "${invalid}"`)),
+    });
+  },
+  encode: (_toEncoded, _options, ast, emails) => {
+    // Validate each element is of type Email.Type
+    const invalidEmail = A.findFirst(emails, (e) => !S.is(Email)(e));
+
+    return O.match(invalidEmail, {
+      onNone: () =>
+        ParseResult.succeed(
+          F.pipe(
+            emails,
+            A.map((e) => Email.value(e)),
+            A.join(",")
+          )
+        ),
+      onSome: () => ParseResult.fail(new ParseResult.Type(ast, emails, "Array contains invalid Email type")),
+    });
+  },
+}).annotations(
+  $I.annotations("email/EmailFromCommaDelimitedString", {
+    description: "Transforms a comma-delimited string of emails into a ReadonlyArray of Email values.",
+  })
+);
+
+/**
+ * Namespace describing runtime and encoded types for {@link EmailFromCommaDelimitedString}.
+ *
+ * @example
+ * import type { EmailFromCommaDelimitedString } from "@beep/schema/primitives/string/email";
+ *
+ * type EmailArray = EmailFromCommaDelimitedString.Type;
+ *
+ * @category Primitives/String
+ * @since 0.1.0
+ */
+export declare namespace EmailFromCommaDelimitedString {
+  /**
+   * Runtime type alias for {@link EmailFromCommaDelimitedString}.
+   *
+   * @example
+   * import type { EmailFromCommaDelimitedString } from "@beep/schema/primitives/string/email";
+   *
+   * let emails: EmailFromCommaDelimitedString.Type;
+   *
+   * @category Primitives/String
+   * @since 0.1.0
+   */
+  export type Type = S.Schema.Type<typeof EmailFromCommaDelimitedString>;
+  /**
+   * Encoded type alias for {@link EmailFromCommaDelimitedString}.
+   *
+   * @example
+   * import type { EmailFromCommaDelimitedString } from "@beep/schema/primitives/string/email";
+   *
+   * let encoded: EmailFromCommaDelimitedString.Encoded;
+   *
+   * @category Primitives/String
+   * @since 0.1.0
+   */
+  export type Encoded = S.Schema.Encoded<typeof EmailFromCommaDelimitedString>;
 }

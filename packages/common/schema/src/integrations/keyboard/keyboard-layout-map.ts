@@ -380,7 +380,7 @@ export const convertKey = (key: KeyCode.Type, fromLayout: KeyboardLayout.Type, t
 
   if (fromLayout === KeyboardLayout.Enum.dvorak && toLayout === KeyboardLayout.Enum.qwerty) {
     invariant(S.is(DvorakKeyCode)(normalizedKey), "not a dvorak key", {
-      file: "@beep/common/schema/src/integrations/keyboard/keyboard-layout-map.ts",
+      file: "@beep//schema/src/integrations/keyboard/keyboard-layout-map.ts",
       line: 394,
       args: [key],
     });

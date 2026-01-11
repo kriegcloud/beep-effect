@@ -3,6 +3,7 @@
  * @module
  */
 
+import { thunkZero } from "@beep/utils/thunk";
 import * as A from "effect/Array";
 import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
@@ -10,7 +11,6 @@ import * as F from "effect/Function";
 import * as O from "effect/Option";
 import * as Str from "effect/String";
 import { Md5ComputationError, UnicodeEncodingError } from "./errors";
-
 // Re-export error types for backward compatibility
 export { Md5ComputationError, UnicodeEncodingError };
 
@@ -411,7 +411,7 @@ export const appendAsciiStr =
 
       while (remaining > 0) {
         const charCodeOpt = F.pipe(str, Str.charCodeAt(j));
-        buf8[bufLen++] = O.getOrElse(charCodeOpt, () => 0);
+        buf8[bufLen++] = O.getOrElse(charCodeOpt, thunkZero);
         j++;
         remaining--;
       }
@@ -537,7 +537,7 @@ export const finalize =
         const hi = F.pipe(
           hiOpt,
           O.flatMap((s) => (F.pipe(s, Str.isEmpty) ? O.none() : O.some(Number.parseInt(s, 16)))),
-          O.getOrElse(() => 0)
+          O.getOrElse(thunkZero)
         );
 
         buf32[14] = lo;
@@ -638,7 +638,7 @@ export const setSerializableState = (serializedState: SerializableMd5State): Md5
   const bufLen = F.pipe(buf, Str.length);
   for (let i = 0; i < bufLen; i += 1) {
     const charCodeOpt = F.pipe(buf, Str.charCodeAt(i));
-    state.buffer8[i] = O.getOrElse(charCodeOpt, () => 0);
+    state.buffer8[i] = O.getOrElse(charCodeOpt, thunkZero);
   }
 
   return Data.struct({

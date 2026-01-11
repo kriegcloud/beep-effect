@@ -36,13 +36,16 @@ This package sits in the **shared layer** and is consumed by both `apps/web` and
 ### Client Environment
 
 ```typescript
-import { clientEnv } from "@beep/shared-env";
+import { clientEnv } from "@beep/shared-env"
+import * as Effect from "effect/Effect"
 
 // Access validated client config
-console.log(clientEnv.appName);
-console.log(clientEnv.appUrl);
-console.log(clientEnv.authProviderNames); // Array of enabled auth providers
-console.log(clientEnv.logLevel);
+const program = Effect.gen(function* () {
+  yield* Effect.log({ appName: clientEnv.appName })
+  yield* Effect.log({ appUrl: clientEnv.appUrl })
+  yield* Effect.log({ authProviders: clientEnv.authProviderNames })
+  yield* Effect.log({ logLevel: clientEnv.logLevel })
+})
 ```
 
 **Client environment variables**:
@@ -64,18 +67,21 @@ console.log(clientEnv.logLevel);
 ### Server Environment
 
 ```typescript
-import { serverEnv } from "@beep/shared-env";
-import * as Redacted from "effect/Redacted";
+import { serverEnv } from "@beep/shared-env"
+import * as Effect from "effect/Effect"
+import * as Redacted from "effect/Redacted"
 
 // Access validated server config
-console.log(serverEnv.app.name);
-console.log(serverEnv.app.env); // dev | staging | prod
-console.log(serverEnv.db.pg.host);
-console.log(serverEnv.db.pg.port);
+const program = Effect.gen(function* () {
+  yield* Effect.log({ appName: serverEnv.app.name })
+  yield* Effect.log({ env: serverEnv.app.env })
+  yield* Effect.log({ dbHost: serverEnv.db.pg.host })
+  yield* Effect.log({ dbPort: serverEnv.db.pg.port })
 
-// Redacted values require explicit unwrapping
-const dbPassword = Redacted.value(serverEnv.db.pg.password);
-const awsKey = Redacted.value(serverEnv.cloud.aws.accessKeyId);
+  // Redacted values require explicit unwrapping
+  const dbPassword = Redacted.value(serverEnv.db.pg.password)
+  const awsKey = Redacted.value(serverEnv.cloud.aws.accessKeyId)
+})
 ```
 
 ### Effect Config (Advanced)
@@ -83,18 +89,18 @@ const awsKey = Redacted.value(serverEnv.cloud.aws.accessKeyId);
 For dynamic config loading or custom providers:
 
 ```typescript
-import { ServerConfig } from "@beep/shared-env";
-import * as Config from "effect/Config";
-import * as Effect from "effect/Effect";
+import { ServerConfig } from "@beep/shared-env"
+import * as Config from "effect/Config"
+import * as Effect from "effect/Effect"
 
 const program = Effect.gen(function* () {
-  const config = yield* ServerConfig;
+  const config = yield* ServerConfig
 
-  console.log(config.app.name);
-  console.log(config.app.logLevel);
+  yield* Effect.log({ appName: config.app.name })
+  yield* Effect.log({ logLevel: config.app.logLevel })
 
-  return config;
-});
+  return config
+})
 ```
 
 ### Checking for Placeholders
@@ -102,31 +108,34 @@ const program = Effect.gen(function* () {
 Some optional config values use placeholders when not configured:
 
 ```typescript
-import { serverEnv, isPlaceholder } from "@beep/shared-env";
+import { serverEnv, isPlaceholder } from "@beep/shared-env"
+import * as Effect from "effect/Effect"
 
-if (isPlaceholder(serverEnv.cloud.aws.accessKeyId)) {
-  console.log("AWS credentials not configured - using local storage");
-}
+const program = Effect.gen(function* () {
+  if (isPlaceholder(serverEnv.cloud.aws.accessKeyId)) {
+    yield* Effect.log("AWS credentials not configured - using local storage")
+  }
 
-if (isPlaceholder(serverEnv.email.resend.apiKey)) {
-  console.log("Email service not configured - emails will be logged");
-}
+  if (isPlaceholder(serverEnv.email.resend.apiKey)) {
+    yield* Effect.log("Email service not configured - emails will be logged")
+  }
+})
 ```
 
 ### Parsing URL Arrays
 
 ```typescript
-import { ConfigArrayURL } from "@beep/shared-env";
-import * as Config from "effect/Config";
-import * as Effect from "effect/Effect";
+import { ConfigArrayURL } from "@beep/shared-env"
+import * as Config from "effect/Config"
+import * as Effect from "effect/Effect"
 
-const trustedOrigins = ConfigArrayURL("SECURITY_TRUSTED_ORIGINS");
+const trustedOrigins = ConfigArrayURL("SECURITY_TRUSTED_ORIGINS")
 
 const program = Effect.gen(function* () {
-  const origins = yield* trustedOrigins;
+  const origins = yield* trustedOrigins
   // origins is string[] parsed from comma-separated URLs
-  return origins;
-});
+  return origins
+})
 ```
 
 ## Configuration Structure
@@ -256,17 +265,17 @@ serverEnv: {
 
 ```typescript
 // app/layout.tsx or app/providers.tsx
-import { clientEnv } from "@beep/shared-env";
+import { clientEnv } from "@beep/shared-env"
 
 export function Providers({ children }: { children: React.ReactNode }) {
   // clientEnv is already validated and available synchronously
-  const logLevel = clientEnv.logLevel;
+  const logLevel = clientEnv.logLevel
 
   return (
     <LoggerProvider level={logLevel}>
       {children}
     </LoggerProvider>
-  );
+  )
 }
 ```
 
@@ -274,33 +283,33 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
 ```typescript
 // apps/server/src/main.ts
-import { serverEnv } from "@beep/shared-env";
-import * as Effect from "effect/Effect";
+import { serverEnv } from "@beep/shared-env"
+import * as Effect from "effect/Effect"
 
 const main = Effect.gen(function* () {
   // serverEnv is already validated and available synchronously
-  const port = serverEnv.app.api.port;
-  const logLevel = serverEnv.app.logLevel;
+  const port = serverEnv.app.api.port
+  const logLevel = serverEnv.app.logLevel
 
-  yield* Effect.log(`Starting server on port ${port}`);
-  yield* Effect.log(`Log level: ${logLevel}`);
-});
+  yield* Effect.log({ message: "Starting server", port })
+  yield* Effect.log({ message: "Log level", logLevel })
+})
 ```
 
 ### Conditional Features
 
 ```typescript
-import { serverEnv, isPlaceholder } from "@beep/shared-env";
-import * as Effect from "effect/Effect";
-import * as Layer from "effect/Layer";
+import { serverEnv, isPlaceholder } from "@beep/shared-env"
+import * as Effect from "effect/Effect"
+import * as Layer from "effect/Layer"
 
 const StorageLayer = isPlaceholder(serverEnv.cloud.aws.accessKeyId)
   ? LocalStorageService.Live  // Use local filesystem
-  : S3StorageService.Live;    // Use AWS S3
+  : S3StorageService.Live    // Use AWS S3
 
 const EmailLayer = isPlaceholder(serverEnv.email.resend.apiKey)
   ? ConsoleEmailService.Live  // Log emails to console
-  : ResendEmailService.Live;  // Send via Resend
+  : ResendEmailService.Live  // Send via Resend
 ```
 
 ## Development
@@ -337,14 +346,17 @@ Error: Invalid environment variables:
 Sensitive configuration values are wrapped in `Redacted<string>` to prevent accidental logging:
 
 ```typescript
-import * as Redacted from "effect/Redacted";
+import * as Redacted from "effect/Redacted"
+import * as Effect from "effect/Effect"
 
-// This will NOT log the actual password
-console.log(serverEnv.db.pg.password);
-// Output: <redacted>
+const program = Effect.gen(function* () {
+  // This will NOT log the actual password
+  yield* Effect.log({ dbPassword: serverEnv.db.pg.password })
+  // Output: { dbPassword: <redacted> }
 
-// Explicit unwrapping required
-const password = Redacted.value(serverEnv.db.pg.password);
+  // Explicit unwrapping required
+  const password = Redacted.value(serverEnv.db.pg.password)
+})
 ```
 
 ### Placeholder Pattern
@@ -352,9 +364,15 @@ const password = Redacted.value(serverEnv.db.pg.password);
 Optional services use `PLACE_HOLDER` as a default value. Use `isPlaceholder` to check:
 
 ```typescript
-if (isPlaceholder(serverEnv.cloud.aws.accessKeyId)) {
-  // AWS not configured - use alternative storage
-}
+import { serverEnv, isPlaceholder } from "@beep/shared-env"
+import * as Effect from "effect/Effect"
+
+const program = Effect.gen(function* () {
+  if (isPlaceholder(serverEnv.cloud.aws.accessKeyId)) {
+    // AWS not configured - use alternative storage
+    yield* Effect.log("Using local storage fallback")
+  }
+})
 ```
 
 ### Environment Variable Naming
@@ -372,9 +390,9 @@ The package supports both index imports and direct module imports:
 
 ```typescript
 // Import from index (recommended)
-import { clientEnv, serverEnv, isPlaceholder } from "@beep/shared-env";
+import { clientEnv, serverEnv, isPlaceholder } from "@beep/shared-env"
 
 // Direct module imports (when tree-shaking is critical)
-import { clientEnv } from "@beep/shared-env/ClientEnv";
-import { serverEnv, ServerConfig } from "@beep/shared-env/ServerEnv";
+import { clientEnv } from "@beep/shared-env/ClientEnv"
+import { serverEnv, ServerConfig } from "@beep/shared-env/ServerEnv"
 ```

@@ -1,4 +1,4 @@
-import type { IMailLabel } from "@beep/mock/_mail";
+import type { MailLabel } from "@beep/todox/types/mail";
 import type { IconifyName } from "@beep/ui/atoms/iconify";
 import { Iconify } from "@beep/ui/atoms/iconify";
 import Box from "@mui/material/Box";
@@ -25,7 +25,7 @@ const LABEL_ICONS: Record<string, IconifyName> = {
 
 type Props = ListItemButtonProps & {
   readonly selected: boolean;
-  readonly label: IMailLabel;
+  readonly label: MailLabel;
   readonly onClickNavItem: () => void;
 };
 

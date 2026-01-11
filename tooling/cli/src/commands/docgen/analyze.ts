@@ -25,7 +25,6 @@
  *
  * @module docgen/analyze
  * @since 1.0.0
- * @see DOCGEN_CLI_IMPLEMENTATION.md#2-beep-docgen-analyze
  */
 
 import type * as FsUtils from "@beep/tooling-utils/FsUtils";
@@ -41,6 +40,7 @@ import * as Eq from "effect/Equal";
 import * as F from "effect/Function";
 import * as Num from "effect/Number";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import * as Str from "effect/String";
 import type { TsMorphError } from "./errors.js";
 import { analyzePackage } from "./shared/ast.js";
@@ -90,11 +90,7 @@ const hasMissingTags = (exp: ExportAnalysis): boolean => A.length(exp.missingTag
  */
 const computeSummary = (exports: ReadonlyArray<ExportAnalysis>): PackageAnalysisSummary => ({
   totalExports: A.length(exports),
-  fullyDocumented: F.pipe(
-    exports,
-    A.filter((e) => !hasMissingTags(e)),
-    A.length
-  ),
+  fullyDocumented: F.pipe(exports, A.filter(P.not(hasMissingTags)), A.length),
   missingDocumentation: F.pipe(exports, A.filter(hasMissingTags), A.length),
   missingCategory: F.pipe(
     exports,
@@ -140,7 +136,7 @@ const analyzePackageAndReport = (
             package: pkgName,
             path: relativePath,
           });
-          return { srcDir: "src", exclude: A.empty() as readonly string[] };
+          return { srcDir: "src", exclude: A.empty<string>() };
         })
       )
     );
@@ -164,14 +160,14 @@ const analyzePackageAndReport = (
           path: pkgPath,
           error: e._tag,
           filePath: e.filePath,
-          cause: e.cause !== undefined ? String(e.cause) : undefined,
+          cause: P.isNotUndefined(e.cause) ? String(e.cause) : undefined,
         })
       ),
       Effect.catchTag("TsMorphError", (e) =>
         Effect.gen(function* () {
           yield* errorAccumulator.add(e);
           yield* error(`Failed to analyze ${pkgName}: ${String(e.cause)}`);
-          return A.empty() as ReadonlyArray<ExportAnalysis>;
+          return A.empty<ExportAnalysis>();
         })
       )
     );
@@ -215,11 +211,7 @@ const analyzePackageAndReport = (
           outputPath,
         })
       ),
-      Effect.catchAll((_e) =>
-        Effect.gen(function* () {
-          yield* error(`Failed to write report to ${outputPath}`);
-        })
-      )
+      Effect.catchAll((_e) => error(`Failed to write report to ${outputPath}`))
     );
 
     // Optionally write JSON
@@ -237,11 +229,7 @@ const analyzePackageAndReport = (
             jsonPath,
           })
         ),
-        Effect.catchAll((_e) =>
-          Effect.gen(function* () {
-            yield* error(`Failed to write JSON to ${jsonPath}`);
-          })
-        )
+        Effect.catchAll((_e) => error(`Failed to write JSON to ${jsonPath}`))
       );
     }
 
@@ -288,12 +276,12 @@ const handleAnalyze = (args: {
         Effect.catchAll((e) =>
           Effect.gen(function* () {
             yield* error(
-              `Invalid package: ${e.path} - ${e._tag === "InvalidPackagePathError" ? e.reason : (e.message ?? "not found")}`
+              `Invalid package: ${e.path} - ${P.isTagged("InvalidPackagePathError")(e) ? e.reason : (e.message ?? "not found")}`
             );
             yield* logger.error("Invalid package", {
               path: e.path,
               error: e._tag,
-              reason: e._tag === "InvalidPackagePathError" ? e.reason : (e.message ?? "not found"),
+              reason: P.isTagged("InvalidPackagePathError")(e) ? e.reason : (e.message ?? "not found"),
             });
             return yield* Effect.fail(ExitCode.InvalidInput);
           })

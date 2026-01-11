@@ -24,44 +24,47 @@ This package sits in the infrastructure layer and is consumed by applications (a
 
 | Export | Type | Description |
 |--------|------|-------------|
-| `CommsDb` | Service | Communications database service with messaging schema |
+| `CommsDb.Db` | Service Tag | Communications database client service |
+| `CommsDb.layer` | Layer | Layer providing CommsDb service |
+| `EmailTemplateRepo` | Service | Email template repository with CRUD operations |
+| `layer` (from repositories) | Layer | Merged layer providing all repositories |
 
 ## Usage
 
-### Database
+### Database Client
 
-#### Creating the CommsDb Layer
-
-```typescript
-import { Db } from "@beep/shared-server";
-import * as Effect from "effect/Effect";
-import * as Layer from "effect/Layer";
-import * as Context from "effect/Context";
-import * as commsSchema from "@beep/comms-tables/schema";
-
-type CommsSchema = typeof commsSchema;
-type CommsDb = Db.Shape<CommsSchema>;
-
-export class CommsDb extends Context.Tag("CommsDb")<CommsDb, CommsDb>() {
-  static readonly Live: Layer.Layer<CommsDb, never, Db.PgClientServices> = Layer.scoped(
-    CommsDb,
-    Db.make({ schema: commsSchema })
-  );
-}
-```
-
-#### Using CommsDb
+#### Accessing CommsDb
 
 ```typescript
-import { CommsDb } from "@beep/comms-server";
+import { CommsDb } from "@beep/comms-server/db";
 import * as Effect from "effect/Effect";
 
 const program = Effect.gen(function* () {
-  const db = yield* CommsDb.CommsDb;
+  const db = yield* CommsDb.Db;
   const result = yield* db.makeQuery((execute) =>
-    execute((client) => client.query.message.findMany())
+    execute((client) => client.query.emailTemplate.findMany())
   );
 });
+```
+
+#### Using Repository Layer
+
+```typescript
+import * as Effect from "effect/Effect";
+import * as Layer from "effect/Layer";
+import { CommsDb } from "@beep/comms-server/db";
+import { EmailTemplateRepo } from "@beep/comms-server/db/repositories";
+
+const program = Effect.gen(function* () {
+  const repo = yield* EmailTemplateRepo;
+  const template = yield* repo.findById(templateId);
+  return template;
+});
+
+const runnable = program.pipe(
+  Effect.provide(EmailTemplateRepo.Default),
+  Effect.provide(CommsDb.layer)
+);
 ```
 
 ## Effect Patterns
@@ -98,26 +101,30 @@ bun run --filter @beep/comms-server lint:circular
 
 ## Dependencies
 
-**Peer Dependencies**:
-- `effect` — Effect runtime
-- `@effect/platform` — Platform abstractions
-- `@effect/sql` + `@effect/sql-pg` + `@effect/sql-drizzle` — SQL client
-- `drizzle-orm` — ORM toolkit
-- Workspace packages: `@beep/schema`, `@beep/shared-domain`, `@beep/shared-server`, `@beep/comms-domain`, `@beep/comms-tables`
+| Package | Purpose |
+|---------|---------|
+| `effect` | Effect runtime |
+| `@effect/platform` | Platform abstractions |
+| `@effect/sql` + `@effect/sql-pg` + `@effect/sql-drizzle` | SQL client infrastructure |
+| `drizzle-orm` | ORM toolkit |
+| `@beep/comms-domain` | Domain entities and business logic |
+| `@beep/comms-tables` | Drizzle table schemas |
+| `@beep/shared-domain` | Shared domain utilities and entity ID factories |
+| `@beep/shared-server` | Database client factory |
 
 ## Integration
 
 ### Applications
 
-**`apps/server`**: Composes Communications infrastructure layers with other slices in the server runtime.
+**`apps/server`**: Composes `CommsDb.layer` and repository layers into server runtime for RPC handlers.
 
-**`apps/web`**: Uses Communications services for messaging features.
+**`apps/web`**: Consumes communications services for email template management and messaging features.
 
 ### Feature Slices
 
 **Communications** (`packages/comms/*`):
-- Uses `Db.make` to create `CommsDb` with Communications-specific Drizzle schema
-- Leverages `Repo.make` for message and channel repositories
+- Uses `DbClient.make` to create `CommsDb` with Communications-specific Drizzle schema
+- Leverages `DbRepo.make` from `@beep/shared-domain/factories` for email template repositories
 
 ## Related Packages
 

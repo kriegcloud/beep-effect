@@ -18,6 +18,7 @@
 import type { UnsafeTypes } from "@beep/types";
 import * as A from "effect/Array";
 import * as F from "effect/Function";
+import * as P from "effect/Predicate";
 import * as Str from "effect/String";
 
 const FORBIDDEN = new Set(["__proto__", "prototype", "constructor"]);
@@ -41,19 +42,20 @@ type GetAt = (
  * @since 0.1.0
  */
 export const getAt: GetAt = (obj: unknown, path: string | Array<string | number>, fallback?: unknown | undefined) => {
-  const parts = Array.isArray(path)
+  const parts = A.isArray(path)
     ? path
     : F.pipe(
-        path.replace(/\[(\d+)]/g, ".$1"), // a[0] -> a.0
+        path,
+        Str.replace(/\[(\d+)]/g, ".$1"), // a[0] -> a.0
         Str.split("."),
         A.filter(Boolean)
       );
 
   let cur: UnsafeTypes.UnsafeAny = obj;
   for (const key of parts) {
-    if (cur == null) return fallback;
-    if (typeof key === "string" && FORBIDDEN.has(key)) return fallback;
+    if (P.isNullable(cur)) return fallback;
+    if (P.isString(key) && FORBIDDEN.has(key)) return fallback;
     cur = cur[key as UnsafeTypes.UnsafeAny];
   }
-  return cur === undefined ? fallback : cur;
+  return P.isUndefined(cur) ? fallback : cur;
 };

@@ -313,10 +313,7 @@ All dependencies are peer dependencies (must be provided by consuming packages):
 | Package | Purpose |
 |---------|---------|
 | `effect` | Core Effect runtime and Schema system |
-| `@beep/schema` | Schema utilities, EntityId, JSON Schema normalization |
-| `@beep/invariant` | Assertion contracts and tagged error schemas |
-| `@beep/utils` | Pure runtime helpers (noOp, nullOp, etc.) |
-| `@beep/identity` | Package identity helpers |
+| `@beep/schema` | Schema utilities, EntityId, JSON Schema normalization, HttpRequestDetails |
 
 ## Development
 
@@ -406,9 +403,9 @@ bun run --filter @beep/contract lint:circular
 
 ## Relationship to Other Packages
 
-- `@beep/schema` — Schema primitives, EntityId, validation utilities
-- `@beep/invariant` — Assertion contracts, InvariantViolation errors
-- `@beep/utils` — Pure runtime helpers (noOp, nullOp, nullOpE)
+- `@beep/schema` — Schema primitives, EntityId, validation utilities, HttpRequestDetails
+- `@beep/identity` — Package identity helpers (devDependency only)
+- `@beep/types` — Type utilities (devDependency only)
 - `@beep/iam-client` — IAM contracts built on this package
 - `@beep/runtime/*` — Client/server runtimes that execute contract implementations
 - Slice `client` packages — Domain-specific contracts extending these primitives

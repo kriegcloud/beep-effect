@@ -1,0 +1,7 @@
+# Port Code Quality Reports
+
+This directory contains individual sub-agent reports analyzing code quality issues in the port.
+
+Each report focuses on specific anti-patterns, unsafe types, and repository convention violations.
+
+Report format: `<category>-violations.md`

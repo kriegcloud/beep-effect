@@ -53,12 +53,13 @@ export const CSP_DIRECTIVES = {
     "'self'",
     "https://images.unsplash.com",
     "https://www.google-analytics.com",
+    "https://tile.openstreetmap.org",
     "data:",
     "blob:",
     "https://purecatamphetamine.github.io",
     "https://api.dicebear.com",
   ],
-  "frame-src": ["'self'", "https://vercel.live", "https://www.google.com", "https://vercel.com"],
+  "frame-src": ["'self'", "https://en.wikipedia.org/", "https://vercel.live", "https://www.google.com", "https://vercel.com"],
 } as const;
 
 /**

@@ -2,8 +2,8 @@
  * @since 0.1.0
  */
 
+import * as O from "effect/Option";
 import * as Str from "effect/String";
-
 /**
  * Generates a random hexadecimal string of the specified length.
  *
@@ -25,7 +25,10 @@ export const randomHexString = (() => {
   return (length: number) => {
     let result = Str.empty;
     for (let i = 0; i < length; i++) {
-      result += characters.charAt(Math.floor(Math.random() * charactersLength));
+      const addOpt = Str.charAt(Math.floor(Math.random() * charactersLength))(characters);
+      if (O.isSome(addOpt)) {
+        result += addOpt.value;
+      }
     }
     return result;
   };

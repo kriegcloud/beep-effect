@@ -14,9 +14,12 @@
  * @category Documentation
  * @since 0.1.0
  */
+
+import { thunkFalse } from "@beep/utils/thunk";
 import * as A from "effect/Array";
 import * as F from "effect/Function";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import * as Str from "effect/String";
 import * as Struct from "effect/Struct";
 
@@ -28,7 +31,7 @@ const hasOwnProperty = Object.prototype.hasOwnProperty;
 const sameValueZero = (a: unknown, b: unknown) => a === b || (a !== a && b !== b);
 
 const isObjectLike = (value: unknown): value is object =>
-  value !== null && (typeof value === "object" || typeof value === "function");
+  P.isNotNull(value) && (P.isObject(value) || P.isFunction(value));
 
 const equalArrays = (
   array: ReadonlyArray<unknown>,
@@ -92,7 +95,7 @@ const equalPlainObjects = (
       O.filter((key) => hasOwnProperty.call(other, key)),
       O.filter((key) => equal(value[key], other[key], stack)),
       O.match({
-        onNone: () => false,
+        onNone: thunkFalse,
         onSome: () => compareKeys(index + 1),
       })
     );

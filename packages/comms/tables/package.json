@@ -36,7 +36,6 @@
   },
   "peerDependencies": {
     "@beep/shared-tables": "workspace:^",
-    "@beep/schema": "workspace:^",
     "@beep/shared-domain": "workspace:^",
     "@beep/comms-domain": "workspace:^",
     "drizzle-orm": "catalog:"
@@ -44,7 +43,6 @@
   "devDependencies": {
     "@effect/docgen": "catalog:",
     "@beep/shared-tables": "workspace:^",
-    "@beep/schema": "workspace:^",
     "@beep/shared-domain": "workspace:^",
     "@beep/comms-domain": "workspace:^",
     "drizzle-orm": "catalog:",

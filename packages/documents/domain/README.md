@@ -6,6 +6,9 @@ Domain layer for the documents feature slice providing pure business entities, v
 
 This package defines the core domain models for document-centric features in the beep-effect monorepo. It provides strongly-typed entities for collaborative document editing, discussion threads, file attachments, and version control. The domain layer remains pure and infrastructure-agnostic, delegating persistence and infrastructure concerns to `@beep/documents-server` and table schemas to `@beep/documents-tables`. All entities use `@effect/sql/Model` for consistency with the repository layer.
 
+**Current Entity Set**: Document, DocumentVersion, DocumentFile, Discussion, Comment
+**Current Value Objects**: TextStyle, LinkType
+
 ## Installation
 
 ```bash
@@ -18,22 +21,21 @@ This package defines the core domain models for document-centric features in the
 
 | Export | Description |
 |--------|-------------|
-| `Entities.Document` | Rich-text documents with Yjs snapshots for real-time collaboration, includes Model, RPC schemas, and tagged errors |
-| `Entities.DocumentVersion` | Version history tracking for documents |
-| `Entities.DocumentFile` | File attachments linked to documents |
-| `Entities.Discussion` | Discussion threads attached to documents, includes Model, RPC schemas, and tagged errors |
-| `Entities.Comment` | Individual comments within discussions, includes Model, RPC schemas, and tagged errors |
-| `TextStyle` | Text styling schema: `default`, `serif`, `mono` |
-| `LinkType` | Link type schema: `explicit`, `inline-reference`, `block_embed` |
+| `Entities.Document` | Rich-text documents with Yjs snapshots for real-time collaboration, includes Model and RPC schemas |
+| `Entities.DocumentVersion` | Version history tracking for documents, includes Model |
+| `Entities.DocumentFile` | File attachments linked to documents, includes Model |
+| `Entities.Discussion` | Discussion threads attached to documents, includes Model and RPC schemas |
+| `Entities.Comment` | Individual comments within discussions, includes Model and RPC schemas |
+| `TextStyle` | Text styling value object: `"default"`, `"serif"`, `"mono"` |
+| `LinkType` | Link type value object: `"explicit"`, `"inline-reference"`, `"block_embed"` |
 | `MetadataParseError` | Tagged error for metadata parsing failures with diagnostic context |
 | `FileReadError` | Tagged error for file reading failures with diagnostic context |
 
 ## Entities
 
-All entities are built using `@effect/sql/Model` and follow consistent patterns with Effect Schema validation. Each entity namespace exports standardized artifacts:
+All entities are built using `@effect/sql/Model` and follow consistent patterns with Effect Schema validation. Each entity namespace exports:
 - `Model` — Effect SQL Model class with schema validation
-- `*Rpcs` — RPC schema definitions for remote operations (Document, Discussion, Comment)
-- `*Errors` — Entity-specific tagged errors (Document, Discussion, Comment)
+- `*Rpcs` — RPC schema definitions for remote operations (available for Document, Discussion, Comment)
 
 ### Document
 
@@ -50,9 +52,6 @@ const DocumentModel = Entities.Document.Model;
 
 // Access RPC definitions
 const DocumentRpcs = Entities.Document.DocumentRpcs;
-
-// Access errors
-const DocumentErrors = Entities.Document.DocumentErrors;
 ```
 
 **Model Fields:**
@@ -79,7 +78,6 @@ import * as Effect from "effect/Effect";
 
 const DiscussionModel = Entities.Discussion.Model;
 const DiscussionRpcs = Entities.Discussion.DiscussionRpcs;
-const DiscussionErrors = Entities.Discussion.DiscussionErrors;
 ```
 
 ### Comment
@@ -92,7 +90,6 @@ import * as Effect from "effect/Effect";
 
 const CommentModel = Entities.Comment.Model;
 const CommentRpcs = Entities.Comment.CommentRpcs;
-const CommentErrors = Entities.Comment.CommentErrors;
 ```
 
 ### DocumentFile
@@ -198,7 +195,7 @@ import * as S from "effect/Schema";
 // Access entity model
 const DocumentModel = Entities.Document.Model;
 
-// Access RPC definitions (where available)
+// Access RPC definitions for entities that support them
 const DocumentRpcs = Entities.Document.DocumentRpcs;
 const DiscussionRpcs = Entities.Discussion.DiscussionRpcs;
 const CommentRpcs = Entities.Comment.CommentRpcs;
@@ -391,10 +388,7 @@ Object.keys(obj).map((key) => obj[key]);
 | `@effect/sql` | SQL modeling utilities and Model base class |
 | `@beep/shared-domain` | Cross-slice entities, entity IDs, and model factories (`makeFields`, `modelKit`) |
 | `@beep/schema` | Schema utilities and helpers (BS namespace for `StringLiteralKit`, `FieldOptionOmittable`) |
-| `@beep/invariant` | Assertion contracts for runtime validation |
-| `@beep/utils` | Pure runtime helpers and utility functions |
-| `@beep/constants` | Schema-backed enums and constants |
-| `@beep/identity` | Package identity utilities |
+| `@beep/identity` | Package identity utilities (`$DocumentsDomainId`) |
 
 ## Architecture
 
@@ -437,7 +431,7 @@ This package is the **domain layer** in the documents vertical slice, sitting at
 - **ALWAYS** use `F.pipe` for transformations and composition
 
 ### Entity Patterns
-- Add new entities following the established pattern: Model, RPC schema (optional), Errors (optional)
+- Add new entities following the established pattern: Model, RPC schema (optional)
 - Export all entity artifacts through namespace modules for clean imports (`export * as Entity from "./Entity"`)
 - Use `makeFields` from `@beep/shared-domain/common` for consistent field construction with audit fields
 - Use `modelKit` from `@beep/shared-domain/factories` for standard model utilities

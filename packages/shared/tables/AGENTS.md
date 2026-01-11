@@ -7,22 +7,22 @@
 - Serves as the entry point for shared Postgres enums (e.g., organization subscription tiers) and table re-exports under `SharedDbSchema`.
 
 ## Surface Map
-- `Table.make` (`src/Table/Table.ts`) — builds a pg table with default id/audit columns using an `EntityIdSchemaInstance`.
-- `OrgTable.make` (`src/OrgTable/OrgTable.ts`) — extends `Table.make` with `organizationId` foreign key wiring to `organization.id`.
+- `Table.make` (`src/table/Table.ts`) — builds a pg table with default id/audit columns using an `EntityIdSchemaInstance`.
+- `OrgTable.make` (`src/org-table/OrgTable.ts`) — extends `Table.make` with `organizationId` foreign key wiring to `organization.id`.
 - `Common` namespace (`src/common.ts`): `globalColumns`, `auditColumns`, `userTrackingColumns`, `utcNow` helper.
-- `Columns` types (`src/Columns.ts`) — structural types describing the default column builders.
-- Custom columns (`src/columns/index.ts`): `bytea` (Uint8Array), `byteaBase64` (Base64 string interface for binary data).
-- `SharedDbSchema` namespace (`src/tables/index.ts`) — re-exports concrete tables: `organization`, `team`, `user`, `file`, `session`.
+- `DefaultColumns` types (`src/columns.ts`) — structural types describing the default column builders.
+- Custom columns (`src/columns/index.ts`): `bytea` (Uint8Array), `byteaBase64` (Base64 string interface for binary data), `datetime` custom column builder.
+- `SharedDbSchema` namespace (`src/tables/index.ts`) — re-exports concrete tables: `organization`, `team`, `user`, `file`, `folder`, `uploadSession`, `session`.
 - `schema.ts` — re-exports all tables for convenience import (`@beep/shared-tables/schema`).
 - `_check.ts` — compile-time assertions that Drizzle `Infer*Model` matches domain codecs.
 - Package scripts (`package.json`) — build, lint, type, and test orchestration wired to Bun/TS.
 
 ## Usage Snapshots
-- `packages/shared/tables/src/tables/session.table.ts:10` uses `Table.make(SharedEntityIds.SessionId)` to define session storage with shared audit columns and org/team references.
+- `packages/shared/tables/src/tables/session.table.ts:11` uses `Table.make(SharedEntityIds.SessionId)` to define session storage with shared audit columns and org/team references.
 - `packages/iam/tables/src/tables/member.table.ts:9` calls `OrgTable.make(IamEntityIds.MemberId)` so memberships inherit `organizationId` cascade semantics.
 - `packages/iam/tables/src/relations.ts` imports `@beep/shared-tables/schema` to compose Drizzle relations against the shared `organization`, `team`, and `user` tables.
 - `packages/shared/tables/src/_check.ts` enforces Drizzle `organization`, `team`, and `session` definitions stay in lock-step with `@beep/shared-domain/entities`.
-- `packages/shared/tables/src/tables/file.table.ts:16` demonstrates `OrgTable.make(SharedEntityIds.FileId)` for multi-tenant file metadata with organization relations.
+- `packages/shared/tables/src/tables/file.table.ts` demonstrates `OrgTable.make(SharedEntityIds.FileId)` for multi-tenant file metadata with organization relations.
 - `packages/documents/tables/src/tables/document.table.ts` imports `bytea` custom column type for storing binary snapshots efficiently.
 
 ## Authoring Guardrails
@@ -32,14 +32,14 @@
 - Keep `globalColumns` in sync with `@beep/shared-domain/src/common.ts`; changes require coordinated updates to domain schema helpers and any ingestion/export logic.
 - NEVER bypass `_check.ts`; ALWAYS extend it whenever new shared tables should align with domain codecs to catch drift at build time.
 - Guard enums with domain factories (`Organization.makeSubscriptionTierPgEnum`) so Postgres enum names stay canonical.
-- Prefer Drizzle index helpers rather than raw SQL, except when expressing computed checks (see session expiry at `packages/iam/tables/src/tables/session.table.ts:22`).
+- Prefer Drizzle index helpers rather than raw SQL, except when expressing computed checks (see session expiry check in `packages/shared/tables/src/tables/session.table.ts`).
 
 ## Quick Recipes
 
 ### Define a new shared table
 ```ts
 import { SharedEntityIds } from "@beep/shared-domain";
-import { Table } from "@beep/shared-tables/Table";
+import { Table } from "@beep/shared-tables/table";
 import * as pg from "drizzle-orm/pg-core";
 
 export const webhook = Table.make(SharedEntityIds.WebhookId)(
@@ -56,7 +56,7 @@ export const webhook = Table.make(SharedEntityIds.WebhookId)(
 ### Extend OrgTable with tenant indices
 ```ts
 import { SharedEntityIds } from "@beep/shared-domain";
-import { OrgTable } from "@beep/shared-tables/OrgTable";
+import { OrgTable } from "@beep/shared-tables/org-table";
 import * as pg from "drizzle-orm/pg-core";
 
 export const document = OrgTable.make(SharedEntityIds.DocumentId)(
@@ -125,5 +125,5 @@ const indexNames = (descriptors: ReadonlyArray<IndexDescriptor>) =>
 - [ ] Extended `_check.ts` to mirror new tables against domain models.
 - [ ] Documented relations in downstream slices (e.g., IAM relations module) when adding foreign keys.
 - [ ] Ran `bun run lint`, `bun run check`, and targeted tests / db codegen locally.
-- [ ] Coordinated enum or column changes with `@beep/shared-domain` and `@beep/common/schema` so runtime codecs stay aligned.
+- [ ] Coordinated enum or column changes with `@beep/shared-domain` and `@beep/schema` so runtime codecs stay aligned.
 - [ ] Noted any required migrations or follow-up work inside PR descriptions or slice-specific docs.
