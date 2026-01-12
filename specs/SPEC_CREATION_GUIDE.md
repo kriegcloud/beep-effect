@@ -14,13 +14,45 @@ This guide describes how to create specifications using the specialized agents i
 
 ## Agent-Phase Mapping
 
-| Phase | Primary Agents | Purpose |
-|-------|---------------|---------|
-| **0: Scaffolding** | `doc-writer`, `architecture-pattern-enforcer` | Generate structure, validate compliance |
-| **1: Discovery** | `codebase-researcher`, `mcp-researcher`, `web-researcher` | Gather context, map problem space |
-| **2: Evaluation** | `code-reviewer`, `architecture-pattern-enforcer` | Score against rubrics, validate structure |
-| **3: Synthesis** | `reflector`, `doc-writer` | Generate plans, improve prompts |
-| **4+: Iteration** | `reflector`, `test-writer`, `code-observability-writer` | Execute, test, observe, improve |
+> **Reference**: See `.claude/agents-manifest.yaml` for complete agent capabilities.
+
+### Agent Capability Legend
+
+| Capability | Meaning | Example Agents |
+|------------|---------|----------------|
+| **read-only** | Informs orchestrator, produces NO artifacts | `codebase-researcher`, `mcp-researcher` |
+| **write-reports** | Produces markdown reports in `outputs/` | `code-reviewer`, `reflector` |
+| **write-files** | Creates/modifies source files | `doc-writer`, `test-writer` |
+
+### Phase-Agent Matrix
+
+| Phase | Agent | Capability | Output |
+|-------|-------|------------|--------|
+| **0: Scaffolding** | `doc-writer` | **write-files** | Creates README.md, structure files |
+| **0: Scaffolding** | `architecture-pattern-enforcer` | write-reports | `outputs/structure-review.md` |
+| **1: Discovery** | `codebase-researcher` | read-only | *Informs orchestrator only* |
+| **1: Discovery** | `mcp-researcher` | read-only | *Informs orchestrator only* |
+| **1: Discovery** | `web-researcher` | read-only | *Informs orchestrator only* |
+| **2: Evaluation** | `code-reviewer` | write-reports | `outputs/guideline-review.md` |
+| **2: Evaluation** | `architecture-pattern-enforcer` | write-reports | `outputs/architecture-review.md` |
+| **2: Evaluation** | `spec-reviewer` | write-reports | `outputs/spec-review.md` |
+| **3: Synthesis** | `reflector` | write-reports | `outputs/meta-reflection-*.md` |
+| **3: Synthesis** | `doc-writer` | **write-files** | Creates MASTER_ORCHESTRATION.md, plans |
+| **4+: Iteration** | `test-writer` | **write-files** | Creates `*.test.ts` files |
+| **4+: Iteration** | `code-observability-writer` | **write-files** | Modifies source with logging/tracing |
+| **4+: Iteration** | `package-error-fixer` | **write-files** | Fixes type/build/lint errors |
+
+### Quick Selection Guide
+
+**Need a report/artifact?** Use agents with `write-reports` or `write-files` capability:
+- Reports: `code-reviewer`, `architecture-pattern-enforcer`, `reflector`, `spec-reviewer`
+- Documentation: `doc-writer`, `agents-md-updater`, `readme-updater`
+- Code/Tests: `test-writer`, `code-observability-writer`, `jsdoc-fixer`
+
+**Need information only?** Use `read-only` agents:
+- Codebase: `codebase-researcher`
+- Effect docs: `mcp-researcher`, `effect-schema-expert`
+- External: `web-researcher`
 
 ---
 
@@ -318,34 +350,49 @@ Output: HANDOFF_P[N+1].md containing:
 
 ## Quick Reference: Agent Summaries
 
-### Tier 1: Foundation Agents
+> **Critical**: Agents are categorized by OUTPUT CAPABILITY. Choose based on what you need produced.
+
+### Read-Only Agents (No Output Files)
+
+These agents INFORM the orchestrator but produce NO persistent artifacts.
+Use when you need information to make decisions, not reports.
 
 | Agent | Primary Use | Key Tools |
 |-------|-------------|-----------|
-| **reflector** | Analyze REFLECTION_LOG, improve prompts | Read, Grep |
 | **codebase-researcher** | Systematic code exploration | Glob, Grep, Read |
+| **mcp-researcher** | Effect documentation lookup | effect_docs_search, get_effect_doc |
+| **web-researcher** | External best practices research | WebSearch, WebFetch |
+| **effect-schema-expert** | Schema pattern guidance | Glob, Grep, Read, effect_docs |
+| **effect-predicate-master** | Predicate utilities | Glob, Grep, Read, effect_docs |
 
-### Tier 2: Research Agents
+### Report-Producing Agents (Write to outputs/)
 
-| Agent | Primary Use | Key Tools |
-|-------|-------------|-----------|
-| **mcp-researcher** | Effect documentation | effect_docs_search, get_effect_doc |
-| **web-researcher** | External best practices | WebSearch, WebFetch |
+These agents PRODUCE markdown reports in `outputs/` directories.
+Use when you need documented findings, audits, or reviews.
 
-### Tier 3: Quality Agents
+| Agent | Primary Use | Output Location |
+|-------|-------------|-----------------|
+| **reflector** | Meta-reflection, pattern extraction | `outputs/meta-reflection-*.md` |
+| **code-reviewer** | Guideline violation reports | `outputs/guideline-review.md` |
+| **architecture-pattern-enforcer** | Architecture audit reports | `outputs/architecture-review.md` |
+| **spec-reviewer** | Spec quality assessment | `outputs/spec-review.md` |
+| **tsconfig-auditor** | TypeScript config audit | `outputs/tsconfig-audit.md` |
 
-| Agent | Primary Use | Key Tools |
-|-------|-------------|-----------|
-| **code-reviewer** | Repository guideline enforcement | Read, Grep, Glob |
-| **architecture-pattern-enforcer** | Layer/slice validation | Glob, Grep, Read |
+### File-Modifying Agents (Write Source Files)
 
-### Tier 4: Writer Agents
+These agents CREATE or MODIFY source files (code, docs, tests).
+Use when you need actual file changes, not just reports.
 
-| Agent | Primary Use | Key Tools |
-|-------|-------------|-----------|
-| **doc-writer** | JSDoc, README, AGENTS.md | Read, Write, Edit |
-| **test-writer** | Effect-first tests | Read, Write, Edit, effect_docs_search |
-| **code-observability-writer** | Logging, tracing, metrics | Read, Write, Edit |
+| Agent | Primary Use | Output Type |
+|-------|-------------|-------------|
+| **doc-writer** | README, AGENTS.md, JSDoc | Documentation files |
+| **test-writer** | Effect-first tests with @beep/testkit | `*.test.ts` files |
+| **code-observability-writer** | Logging, tracing, metrics | Source modifications |
+| **jsdoc-fixer** | JSDoc comment compliance | Source modifications |
+| **package-error-fixer** | Type/build/lint error fixes | Source modifications |
+| **agents-md-updater** | AGENTS.md maintenance | Documentation files |
+| **readme-updater** | README.md maintenance | Documentation files |
+| **prompt-refiner** | Agent prompt improvements | Agent definition files |
 
 ---
 
@@ -377,7 +424,35 @@ specs/[SPEC_NAME]/
 
 ## Creating a New Spec
 
-### Step 1: Initialize Structure
+### Option 1: CLI Command (Recommended)
+
+The fastest way to create a new spec is using the `bootstrap-spec` CLI command:
+
+```bash
+# Create medium-complexity spec (default)
+bun run beep bootstrap-spec -n my-feature -d "Feature description"
+
+# Create simple spec (README + REFLECTION_LOG only)
+bun run beep bootstrap-spec -n quick-fix -d "Bug fix" -c simple
+
+# Create complex spec (full orchestration structure)
+bun run beep bootstrap-spec -n major-refactor -d "API redesign" -c complex
+
+# Preview changes without creating files
+bun run beep bootstrap-spec -n my-feature -d "Feature description" --dry-run
+```
+
+**Complexity Levels:**
+
+| Level | Files Created | Use Case |
+|-------|---------------|----------|
+| `simple` | README.md, REFLECTION_LOG.md | Quick fixes, 1 session |
+| `medium` | + QUICK_START.md, outputs/ | Standard specs, 2-3 sessions |
+| `complex` | + MASTER_ORCHESTRATION.md, AGENT_PROMPTS.md, RUBRICS.md, templates/, handoffs/ | Major initiatives, 4+ sessions |
+
+### Option 2: Manual Initialization
+
+For more control, initialize structure manually:
 
 ```bash
 # Create directories
@@ -482,6 +557,67 @@ A spec is complete when:
 ### 5. No Validation
 **Wrong**: Trust output without verification
 **Right**: Use architecture-pattern-enforcer and code-reviewer
+
+### 6. Misunderstanding CLI vs Skill Architecture
+**Wrong**: Treating CLI commands and Skills as parallel alternatives
+- "Option 1: Use CLI" vs "Option 2: Use Skill"
+- Assuming both are user-facing tools
+- Designing Skills to duplicate CLI functionality
+
+**Right**: Skills orchestrate and may invoke CLI commands
+- **CLI commands** are developer-facing automation (deterministic file generation)
+- **Skills** are AI agent guidance layers (interactive workflow orchestration)
+- Skills MAY invoke CLI commands as one step in multi-phase workflows
+- Skills provide context gathering, validation, agent recommendations beyond CLI scope
+
+**Decision Matrix**:
+- **When developer manually creates spec** → Use CLI command directly
+- **When AI agent orchestrates spec creation** → Skill guides workflow and may invoke CLI
+- **When automation script needed** → CLI command
+- **When interactive guidance needed** → Skill
+
+**Example**: The `spec-bootstrapper` spec delivers both:
+- CLI: `bun run beep bootstrap-spec -n name -d desc` (file generation)
+- Skill: `/new-spec` (gathers context, validates, recommends complexity, invokes CLI, suggests next steps)
+
+### 7. Effect Pattern Violations in Spec Code Examples
+**Wrong**: Using Node.js APIs wrapped in `Effect.try()` in spec documentation
+```typescript
+// Wrong - in MASTER_ORCHESTRATION.md
+const exists = yield* Effect.try(() => fs.existsSync(path));
+```
+
+**Right**: Using Effect platform services in all code examples
+```typescript
+// Right - in MASTER_ORCHESTRATION.md
+const fs = yield* FileSystem.FileSystem;
+const exists = yield* fs.exists(path);
+```
+
+**Critical**: All code examples in specs MUST follow Effect patterns documented in `documentation/EFFECT_PATTERNS.md`. Cross-reference existing working implementations (like `create-slice/handler.ts`) when writing spec code examples.
+
+### 8. Template Variable Inconsistencies
+**Wrong**: Documenting template variables in spec synthesis reports without auditing actual template file usage
+
+**Right**:
+1. Audit ALL template files to extract actual `{{variable}}` usage
+2. Only document variables that are ACTUALLY used
+3. If mentioning case variants (SpecName, SPEC_NAME), show where/how they're used
+4. Keep variable set minimal - avoid over-engineering unused variants
+
+**Lesson**: Template variable documentation in synthesis reports must match reality in template files, or implementation will fail.
+
+### 9. Missing Decision Frameworks
+**Wrong**: Defining user-facing options (like complexity levels: simple/medium/complex) without decision criteria
+
+**Right**: Provide concrete heuristics for every user-facing choice:
+- Number of sessions (1 / 2-3 / 4+)
+- Number of files affected (< 5 / 5-15 / 15+)
+- Number of agents needed (1 / 2-3 / 4+)
+- Example use cases per option
+- Decision matrix or checklist
+
+**Lesson**: Users cannot choose wisely without concrete criteria. "Moderate complexity" is not actionable; "2-3 sessions, 5-15 files, multiple agents" is actionable.
 
 ---
 

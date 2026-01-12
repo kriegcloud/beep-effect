@@ -308,6 +308,68 @@ Every handoff includes refined prompts based on learnings:
 - **Parallel**: Independent analysis agents
 - **Sequential**: Tasks with dependencies (skills before pattern fixes)
 
+### 6. Template Variable Consistency
+
+When specs use templates with variables (like `{{specName}}`), ensure documentation matches implementation:
+
+**Consistency Checklist**:
+1. Audit ALL template files to extract actual `{{variable}}` usage
+2. Document ONLY variables that are actually used
+3. If documenting case variants (`{{SpecName}}`, `{{SPEC_NAME}}`), show where/how they're used
+4. Keep variable sets minimal - avoid over-engineering unused variants
+5. Ensure synthesis reports match actual template file contents
+
+**Bad Practice**:
+```markdown
+Synthesis report lists 7 variables including case variants,
+but templates only use 4 variables, and 2 of those aren't in the doc.
+```
+
+**Good Practice**:
+```markdown
+# Template Variables (audited from templates/*.template.md)
+
+| Variable | Used In | Description |
+|----------|---------|-------------|
+| {{specName}} | All templates | kebab-case spec name |
+| {{specDescription}} | README, QUICK_START | User-provided description |
+| {{complexity}} | README | Complexity level (simple/medium/complex) |
+| {{createdAt}} | README | ISO timestamp for audit trail |
+
+Note: Case variants (SpecName, SPEC_NAME) are derived at runtime via Handlebars helpers.
+```
+
+### 7. Decision Frameworks for User Choices
+
+Whenever specs define user-facing options (complexity levels, modes, strategies), provide concrete decision criteria:
+
+**Bad**: "Choose simple, medium, or complex based on your needs"
+
+**Good**:
+```markdown
+## Complexity Selection Guide
+
+Choose **simple** if:
+- [ ] Spec completes in single session (< 2 hours)
+- [ ] Affects < 5 files
+- [ ] No agent orchestration needed
+- [ ] Output is single deliverable
+
+Choose **medium** if:
+- [ ] Requires 2-3 sessions
+- [ ] Affects 5-15 files
+- [ ] 2-3 agents involved
+- [ ] Produces 2-5 output artifacts
+
+Choose **complex** if:
+- [ ] Requires 4+ sessions
+- [ ] Affects 15+ files
+- [ ] Orchestrates 4+ agents
+- [ ] Multi-session with handoffs required
+```
+
+**Key**: Users need concrete heuristics (numbers, counts, durations), not vague descriptors.
+
 ---
 
 ## Creating a New Spec

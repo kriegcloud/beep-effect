@@ -5,8 +5,8 @@ import { getRenderStateEx } from "./Utils";
 
 /** @internal */
 export interface ITabButtonStampProps {
-  node: TabNode;
-  layout: LayoutInternal;
+  readonly node: TabNode;
+  readonly layout: LayoutInternal;
 }
 
 /** @internal */

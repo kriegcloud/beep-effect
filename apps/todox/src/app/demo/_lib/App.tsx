@@ -146,8 +146,13 @@ function App() {
     const currentLayoutFile = latestLayoutFile.current;
 
     if (currentModel && currentLayoutFile) {
-      const jsonStr = JSON.stringify(currentModel.toJson(), null, "\t");
-      localStorage.setItem(currentLayoutFile, jsonStr);
+      try {
+        const jsonStr = JSON.stringify(currentModel.toJson(), null, "\t");
+        localStorage.setItem(currentLayoutFile, jsonStr);
+      } catch (e) {
+        // Ignore serialization errors (can happen with cross-origin iframes)
+        console.warn("Failed to save layout:", e instanceof Error ? e.message : String(e));
+      }
     }
   }, []);
 
@@ -485,6 +490,12 @@ function App() {
                 style={{ display: "block", border: "none", boxSizing: "border-box" }}
                 width="100%"
                 height="100%"
+                // Prevent cross-origin access issues with dev tools
+                // sandbox allows scripts and same-origin access but prevents
+                // dev tools from traversing into cross-origin contentWindow
+                sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+                referrerPolicy="no-referrer"
+                loading="lazy"
               />
             );
           }

@@ -10,7 +10,7 @@ import type { Action } from "../model/Action";
 import { Actions } from "../model/Actions";
 import { BorderNode } from "../model/BorderNode";
 import type { IDraggable } from "../model/IDraggable";
-import type { IJsonTabNode } from "../model/IJsonModel";
+import type { JsonTabNode } from "../model/JsonModel.ts";
 import type { LayoutWindow } from "../model/LayoutWindow";
 import { Model } from "../model/Model";
 import type { Node } from "../model/Node";
@@ -64,7 +64,7 @@ export interface ILayoutProps {
     | ((event: React.DragEvent<HTMLElement>) =>
         | undefined
         | {
-            json: IJsonTabNode;
+            json: JsonTabNode;
             onDrop?: undefined | ((node?: undefined | Node, event?: undefined | React.DragEvent<HTMLElement>) => void);
           });
   /** function called with default css class name, return value is class name that will be used. Mainly for use with css modules. */
@@ -118,7 +118,7 @@ export class Layout extends React.Component<ILayoutProps> {
    * @param json the json for the new tab node
    * @returns the added tab node or undefined
    */
-  addTabToTabSet(tabsetId: string, json: IJsonTabNode): TabNode | undefined {
+  addTabToTabSet(tabsetId: string, json: JsonTabNode): TabNode | undefined {
     return this.selfRef.current!.addTabToTabSet(tabsetId, json);
   }
 
@@ -132,7 +132,7 @@ export class Layout extends React.Component<ILayoutProps> {
    */
   addTabWithDragAndDrop(
     event: DragEvent,
-    json: IJsonTabNode,
+    json: JsonTabNode,
     onDrop?: undefined | ((node?: undefined | Node, event?: undefined | React.DragEvent<HTMLElement>) => void)
   ) {
     this.selfRef.current!.addTabWithDragAndDrop(event, json, onDrop);
@@ -153,7 +153,7 @@ export class Layout extends React.Component<ILayoutProps> {
    * @param json the json for the new tab node
    * @returns the added tab node or undefined
    */
-  addTabToActiveTabSet(json: IJsonTabNode): TabNode | undefined {
+  addTabToActiveTabSet(json: JsonTabNode): TabNode | undefined {
     return this.selfRef.current!.addTabToActiveTabSet(json);
   }
 
@@ -519,7 +519,12 @@ export class LayoutInternal extends React.Component<ILayoutInternalProps, ILayou
   renderLayout() {
     return (
       <>
-        <Row key="__row__" layout={this} node={this.props.model.getRoot(this.windowId)} revision={this.state.layoutRevision} />
+        <Row
+          key="__row__"
+          layout={this}
+          node={this.props.model.getRoot(this.windowId)}
+          revision={this.state.layoutRevision}
+        />
         {this.renderEdgeIndicators()}
       </>
     );
@@ -962,7 +967,7 @@ export class LayoutInternal extends React.Component<ILayoutInternalProps, ILayou
     return rect;
   }
 
-  addTabToTabSet(tabsetId: string, json: IJsonTabNode): TabNode | undefined {
+  addTabToTabSet(tabsetId: string, json: JsonTabNode): TabNode | undefined {
     const tabsetNode = this.props.model.getNodeById(tabsetId);
     if (tabsetNode !== undefined) {
       const node = this.doAction(Actions.addNode(json, tabsetId, DockLocation.CENTER, -1));
@@ -971,7 +976,7 @@ export class LayoutInternal extends React.Component<ILayoutInternalProps, ILayou
     return undefined;
   }
 
-  addTabToActiveTabSet(json: IJsonTabNode): TabNode | undefined {
+  addTabToActiveTabSet(json: JsonTabNode): TabNode | undefined {
     const tabsetNode = this.props.model.getActiveTabset(this.windowId);
     if (tabsetNode !== undefined) {
       const node = this.doAction(Actions.addNode(json, tabsetNode.getId(), DockLocation.CENTER, -1));
@@ -1049,7 +1054,7 @@ export class LayoutInternal extends React.Component<ILayoutInternalProps, ILayou
 
   addTabWithDragAndDrop(
     _event: DragEvent,
-    json: IJsonTabNode,
+    json: JsonTabNode,
     onDrop?: undefined | ((node?: undefined | Node, event?: undefined | React.DragEvent<HTMLElement>) => void)
   ) {
     const tempNode = TabNode.fromJson(json, this.props.model, false);
@@ -1341,7 +1346,7 @@ export const FlexLayoutVersion = __VERSION__;
 export type DragRectRenderCallback = (
   content: React.ReactNode | undefined,
   node?: undefined | Node,
-  json?: undefined | IJsonTabNode
+  json?: undefined | JsonTabNode
 ) => React.ReactNode | undefined;
 
 export type NodeMouseEvent = (
@@ -1436,7 +1441,7 @@ class DragState {
   public readonly mainLayout: LayoutInternal;
   public readonly dragSource: DragSource.Type;
   public readonly dragNode: (Node & IDraggable) | undefined;
-  public readonly dragJson: IJsonTabNode | undefined;
+  public readonly dragJson: JsonTabNode | undefined;
   public readonly fnNewNodeDropped:
     | ((node?: undefined | Node, event?: undefined | React.DragEvent<HTMLElement>) => void)
     | undefined;
@@ -1445,7 +1450,7 @@ class DragState {
     mainLayout: LayoutInternal,
     dragSource: DragSource.Type,
     dragNode: (Node & IDraggable) | undefined,
-    dragJson: IJsonTabNode | undefined,
+    dragJson: JsonTabNode | undefined,
     fnNewNodeDropped: ((node?: undefined | Node, event?: undefined | React.DragEvent<HTMLElement>) => void) | undefined
   ) {
     this.mainLayout = mainLayout;

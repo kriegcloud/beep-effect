@@ -1,7 +1,7 @@
 import * as Data from "effect/Data";
 import { Rect } from "../Rect";
 import type { LayoutInternal } from "../view/Layout";
-import type { IJsonPopout } from "./IJsonModel";
+import type { JsonPopout } from "./JsonModel.ts";
 import type { Model } from "./Model";
 import type { Node } from "./Node";
 import { RowNode } from "./RowNode";
@@ -95,15 +95,20 @@ export class LayoutWindow extends Data.Class {
     this._toScreenRectFunction = value;
   }
 
-  public toJson(): IJsonPopout {
+  public toJson(): JsonPopout {
     // chrome sets top,left to large -ve values when minimized, dont save in this case
-    if (this._window && this._window.screenTop > -10000) {
-      this.rect = new Rect(
-        this._window.screenLeft,
-        this._window.screenTop,
-        this._window.outerWidth,
-        this._window.outerHeight
-      );
+    // Wrapped in try-catch to handle potential cross-origin access errors
+    try {
+      if (this._window && this._window.screenTop > -10000) {
+        this.rect = new Rect(
+          this._window.screenLeft,
+          this._window.screenTop,
+          this._window.outerWidth,
+          this._window.outerHeight
+        );
+      }
+    } catch {
+      // Ignore cross-origin access errors - use existing rect values
     }
 
     return { layout: this.root!.toJson(), rect: this.rect.toJson() };
@@ -121,7 +126,7 @@ export class LayoutWindow extends Data.Class {
     };
   }
 
-  static fromJson(windowJson: IJsonPopout, model: Model, windowId: string): LayoutWindow {
+  static fromJson(windowJson: JsonPopout, model: Model, windowId: string): LayoutWindow {
     const count = model.getwindowsMap().size;
     const rect = windowJson.rect
       ? Rect.fromJson(windowJson.rect)

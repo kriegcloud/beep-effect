@@ -4,13 +4,13 @@ import { CLASSES } from "../Types";
 
 /** @internal */
 export interface IErrorBoundaryProps {
-  message: string;
-  retryText: string;
-  children: React.ReactNode;
+  readonly message: string;
+  readonly retryText: string;
+  readonly children: React.ReactNode;
 }
 /** @internal */
 export interface IErrorBoundaryState {
-  hasError: boolean;
+  readonly hasError: boolean;
 }
 
 /** @internal */

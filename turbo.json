@@ -266,6 +266,13 @@
       "cache": false,
       "dependsOn": ["^build"],
       "inputs": ["**/package.json"]
+    },
+    "agents:validate": {
+      "cache": false,
+      "inputs": [
+        ".claude/agents/**/*.md",
+        ".claude/agents-manifest.yaml"
+      ]
     }
   }
 }

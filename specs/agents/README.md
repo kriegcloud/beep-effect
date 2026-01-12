@@ -12,18 +12,18 @@ This directory contains individual specs for each agent to be created as part of
 
 ## Agent Specs
 
-| Agent | Purpose | Target Lines | Status |
-|-------|---------|--------------|--------|
-| [reflector](./reflector/README.md) | Meta-reflection and prompt improvement | 300-400 | Draft |
-| [codebase-researcher](./codebase-researcher/README.md) | Systematic code exploration | 350-450 | Draft |
-| [web-researcher](./web-researcher/README.md) | Web-based research synthesis | 250-350 | Draft |
-| [mcp-researcher](./mcp-researcher/README.md) | Effect documentation research | 300-400 | Draft |
-| [code-reviewer](./code-reviewer/README.md) | Repository guideline enforcement | 400-500 | Draft |
-| [code-observability-writer](./code-observability-writer/README.md) | Logging, tracing, metrics | 350-450 | Draft |
-| [doc-writer](./doc-writer/README.md) | JSDoc and markdown documentation | 400-500 | Draft |
-| [architecture-pattern-enforcer](./architecture-pattern-enforcer/README.md) | Structure and layering validation | 450-550 | Draft |
-| [test-writer](./test-writer/README.md) | Effect-first test creation | 500-600 | Draft |
-| [spec-reviewer](./spec-reviewer/README.md) | Spec structure and context engineering review | 400-500 | Created |
+| Agent                                                                      | Purpose                                       | Target Lines | Status  |
+|----------------------------------------------------------------------------|-----------------------------------------------|--------------|---------|
+| [reflector](./reflector/README.md)                                         | Meta-reflection and prompt improvement        | 300-400      | Draft   |
+| [codebase-researcher](./codebase-researcher/README.md)                     | Systematic code exploration                   | 350-450      | Draft   |
+| [web-researcher](./web-researcher/README.md)                               | Web-based research synthesis                  | 250-350      | Draft   |
+| [mcp-researcher](./mcp-researcher/README.md)                               | Effect documentation research                 | 300-400      | Draft   |
+| [code-reviewer](./code-reviewer/README.md)                                 | Repository guideline enforcement              | 400-500      | Draft   |
+| [code-observability-writer](./code-observability-writer/README.md)         | Logging, tracing, metrics                     | 350-450      | Draft   |
+| [doc-writer](./doc-writer/README.md)                                       | JSDoc and markdown documentation              | 400-500      | Draft   |
+| [architecture-pattern-enforcer](./architecture-pattern-enforcer/README.md) | Structure and layering validation             | 450-550      | Draft   |
+| [test-writer](./test-writer/README.md)                                     | Effect-first test creation                    | 500-600      | Draft   |
+| [spec-reviewer](./spec-reviewer/README.md)                                 | Spec structure and context engineering review | 400-500      | Created |
 
 ---
 
@@ -55,17 +55,17 @@ Based on dependencies and foundational importance:
 
 Ready-to-use orchestrator prompts for each agent:
 
-| Agent | Handoff | Priority |
-|-------|---------|----------|
-| reflector | [Initial Handoff](./handoffs/reflector-initial-handoff.md) | Tier 1 |
-| codebase-researcher | [Initial Handoff](./handoffs/codebase-researcher-initial-handoff.md) | Tier 1 |
-| mcp-researcher | [Initial Handoff](./handoffs/mcp-researcher-initial-handoff.md) | Tier 2 |
-| web-researcher | [Initial Handoff](./handoffs/web-researcher-initial-handoff.md) | Tier 2 |
-| code-reviewer | [Initial Handoff](./handoffs/code-reviewer-initial-handoff.md) | Tier 3 |
-| architecture-pattern-enforcer | [Initial Handoff](./handoffs/architecture-pattern-enforcer-initial-handoff.md) | Tier 3 |
-| code-observability-writer | [Initial Handoff](./handoffs/code-observability-writer-initial-handoff.md) | Tier 4 |
-| doc-writer | [Initial Handoff](./handoffs/doc-writer-initial-handoff.md) | Tier 4 |
-| test-writer | [Initial Handoff](./handoffs/test-writer-initial-handoff.md) | Tier 4 |
+| Agent                         | Handoff                                                                        | Priority |
+|-------------------------------|--------------------------------------------------------------------------------|----------|
+| reflector                     | [Initial Handoff](./handoffs/reflector-initial-handoff.md)                     | Tier 1   |
+| codebase-researcher           | [Initial Handoff](./handoffs/codebase-researcher-initial-handoff.md)           | Tier 1   |
+| mcp-researcher                | [Initial Handoff](./handoffs/mcp-researcher-initial-handoff.md)                | Tier 2   |
+| web-researcher                | [Initial Handoff](./handoffs/web-researcher-initial-handoff.md)                | Tier 2   |
+| code-reviewer                 | [Initial Handoff](./handoffs/code-reviewer-initial-handoff.md)                 | Tier 3   |
+| architecture-pattern-enforcer | [Initial Handoff](./handoffs/architecture-pattern-enforcer-initial-handoff.md) | Tier 3   |
+| code-observability-writer     | [Initial Handoff](./handoffs/code-observability-writer-initial-handoff.md)     | Tier 4   |
+| doc-writer                    | [Initial Handoff](./handoffs/doc-writer-initial-handoff.md)                    | Tier 4   |
+| test-writer                   | [Initial Handoff](./handoffs/test-writer-initial-handoff.md)                   | Tier 4   |
 
 Each handoff includes:
 - Mission statement

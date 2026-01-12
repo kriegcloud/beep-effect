@@ -14,9 +14,9 @@ import { useTabOverflow } from "./TabOverflowHook";
 import { isAuxMouseEvent } from "./Utils";
 /** @internal */
 export interface IBorderTabSetProps {
-  border: BorderNode;
-  layout: LayoutInternal;
-  size: number;
+  readonly border: BorderNode;
+  readonly layout: LayoutInternal;
+  readonly size: number;
 }
 
 /** @internal */
@@ -81,7 +81,7 @@ export const BorderTabSet = (props: IBorderTabSetProps) => {
     event.stopPropagation();
   };
 
-  const onOverflowItemSelect = (item: { node: TabNode; index: number }) => {
+  const onOverflowItemSelect = (item: { readonly node: TabNode; readonly index: number }) => {
     layout.doAction(Actions.selectTab(item.node.getId()));
     userControlledPositionRef.current = false;
   };

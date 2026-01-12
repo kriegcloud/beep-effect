@@ -27,3 +27,17 @@ fi
 
 # Run lint-staged for code quality
 bunx lint-staged
+
+# Validate agents manifest if agent files changed
+# Check if any agent-related files are staged
+if git diff --cached --name-only | grep -qE '^\.claude/agents/.*\.md$|^\.claude/agents-manifest\.yaml$'; then
+  echo ""
+  echo "Agent files detected in commit, validating manifest..."
+  bun run agents:validate --pre-commit
+  if [ $? -ne 0 ]; then
+    echo ""
+    echo "ERROR: Agent manifest validation failed."
+    echo "Please update .claude/agents-manifest.yaml to match agent definitions."
+    exit 1
+  fi
+fi

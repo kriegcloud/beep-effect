@@ -278,3 +278,79 @@ Match.value(x).pipe(
 ```
 
 **Required Predicate methods**: `P.isString`, `P.isNumber`, `P.isBoolean`, `P.isObject`, `P.isArray`, `P.isNull`, `P.isUndefined`, `P.isNullable`, `P.isNotNull`, `P.isNotUndefined`, `P.isNotNullable`, `P.hasProperty`, `P.isTagged`, `P.and`, `P.or`, `P.not`, `P.struct`
+
+---
+
+### NEVER Use Node.js fs Module
+
+Node.js file system APIs are callback-based or synchronous with unsafe error handling. Use `@effect/platform` FileSystem service instead.
+
+```typescript
+import { FileSystem } from "@effect/platform";
+
+// FORBIDDEN - Node.js fs module
+import * as fs from "node:fs";
+const exists = fs.existsSync(path);
+const content = fs.readFileSync(path, "utf-8");
+fs.writeFileSync(path, data);
+fs.mkdirSync(path, { recursive: true });
+
+// FORBIDDEN - Wrapping Node.js fs in Effect.try
+const exists = yield* Effect.try(() => fs.existsSync(path));
+
+// REQUIRED - Effect FileSystem service
+const fs = yield* FileSystem.FileSystem;
+const exists = yield* fs.exists(path);
+const content = yield* fs.readFileString(path);
+yield* fs.writeFileString(path, data);
+yield* fs.makeDirectory(path, { recursive: true });
+```
+
+**Key FileSystem operations**:
+- **Existence**: `fs.exists(path)` - Returns `Effect<boolean>`
+- **Reading**: `fs.readFileString(path)`, `fs.readFile(path)` - Returns `Effect<string | Uint8Array>`
+- **Writing**: `fs.writeFileString(path, content)`, `fs.writeFile(path, data)`
+- **Directories**: `fs.makeDirectory(path, { recursive: true })`, `fs.readDirectory(path)`
+- **Info**: `fs.stat(path)`, `fs.access(path)`
+- **Removal**: `fs.remove(path, { recursive: true })`
+
+**Layer composition for Bun runtime**:
+
+```typescript
+import { BunContext, BunFileSystem } from "@effect/platform-bun";
+import { FileSystem } from "@effect/platform";
+
+export const BootstrapSpecLive = Layer.mergeAll(
+  BunFileSystem.layer,  // Provides FileSystem.FileSystem service
+  RepoUtils.layer,
+  ConsoleLogger.layer
+);
+
+// In handler
+export const bootstrapSpecHandler = (input: BootstrapSpecInput) =>
+  Effect.gen(function* () {
+    const fs = yield* FileSystem.FileSystem;
+    const exists = yield* fs.exists(specPath);
+    // ...
+  }).pipe(
+    Effect.provide(BootstrapSpecLive)
+  );
+```
+
+**Error handling patterns**:
+
+```typescript
+// Handle specific file system errors
+const content = yield* fs.readFileString(path).pipe(
+  Effect.catchTag("SystemError", (error) =>
+    Effect.fail(new FileNotFoundError({ path, cause: error }))
+  )
+);
+
+// Check existence safely
+const exists = yield* fs.exists(path).pipe(
+  Effect.catchTag("SystemError", () => Effect.succeed(false))
+);
+```
+
+**Reference implementation**: See `tooling/cli/src/commands/create-slice/handler.ts` for canonical file system patterns in CLI commands.

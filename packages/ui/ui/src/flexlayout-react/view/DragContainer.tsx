@@ -6,8 +6,8 @@ import { TabButtonStamp } from "./TabButtonStamp";
 
 /** @internal */
 export interface IDragContainerProps {
-  node: TabNode;
-  layout: LayoutInternal;
+  readonly node: TabNode;
+  readonly layout: LayoutInternal;
 }
 
 /** @internal */

@@ -9,8 +9,7 @@ import { Rect } from "../Rect";
 import { CLASSES } from "../Types";
 import type { IDraggable } from "./IDraggable";
 import type { IDropTarget } from "./IDropTarget";
-import type { IBorderAttributes, IJsonBorderNode, IJsonTabNode } from "./IJsonModel";
-import { JsonBorderNode } from "./IJsonModel";
+import { type BorderAttributes, BorderLocation, JsonBorderNode, type JsonTabNode } from "./JsonModel.ts";
 import { Model } from "./Model";
 import { Node } from "./Node";
 import { TabNode } from "./TabNode";
@@ -21,11 +20,11 @@ export class BorderNode extends Node implements IDropTarget {
   static readonly TYPE = "border";
 
   /** @internal */
-  static fromJson(json: IJsonBorderNode, model: Model) {
+  static fromJson(json: JsonBorderNode, model: Model) {
     const location = DockLocation.getByName(json.location);
     const border = new BorderNode(location, json, model);
     if (json.children) {
-      border.children = json.children.map((jsonChild: IJsonTabNode) => {
+      border.children = json.children.map((jsonChild: JsonTabNode) => {
         const child = TabNode.fromJson(jsonChild, model);
         child.setParent(border);
         return child;
@@ -46,7 +45,7 @@ export class BorderNode extends Node implements IDropTarget {
   private readonly location: DockLocation;
 
   /** @internal */
-  constructor(location: DockLocation, json: IJsonBorderNode, model: Model) {
+  constructor(location: DockLocation, json: JsonBorderNode, model: Model) {
     super(model);
 
     this.location = location;
@@ -139,11 +138,11 @@ export class BorderNode extends Node implements IDropTarget {
     return this.attributes.show as boolean;
   }
 
-  toJson(): IJsonBorderNode {
+  toJson(): JsonBorderNode {
     // Build mutable intermediate object
     const mutableJson: Record<string, unknown> = {};
     BorderNode.attributeDefinitions.toJson(mutableJson, this.attributes);
-    mutableJson.location = this.location.getName() as IJsonBorderNode["location"];
+    mutableJson.location = BorderLocation.make(this.location.getName());
     mutableJson.children = this.children.map((child) => (child as TabNode).toJson());
 
     // Validate the constructed object matches the JsonBorderNode schema
@@ -222,7 +221,7 @@ export class BorderNode extends Node implements IDropTarget {
   }
 
   /** @internal */
-  updateAttrs(json: Partial<IBorderAttributes>) {
+  updateAttrs(json: Partial<BorderAttributes>) {
     BorderNode.attributeDefinitions.update(json, this.attributes);
   }
 

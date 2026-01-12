@@ -12,8 +12,7 @@ import { canDockToWindow } from "../view/Utils";
 import { BorderNode } from "./BorderNode";
 import type { IDraggable } from "./IDraggable";
 import type { IDropTarget } from "./IDropTarget";
-import type { IJsonTabSetNode } from "./IJsonModel";
-import { JsonTabSetNode } from "./IJsonModel";
+import { JsonTabSetNode } from "./JsonModel.ts";
 import type { LayoutWindow } from "./LayoutWindow";
 import { Model } from "./Model";
 import { Node } from "./Node";
@@ -222,7 +221,7 @@ export class TabSetNode extends Node implements IDraggable, IDropTarget {
     return this.getAttr("tabLocation") as string;
   }
 
-  toJson(): IJsonTabSetNode {
+  toJson(): JsonTabSetNode {
     const json: Record<string, unknown> = {};
     TabSetNode.attributeDefinitions.toJson(json, this.attributes);
 

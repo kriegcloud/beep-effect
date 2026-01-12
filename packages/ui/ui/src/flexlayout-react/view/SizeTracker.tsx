@@ -6,12 +6,12 @@ import { ErrorBoundary } from "./ErrorBoundary";
 import type { LayoutInternal } from "./Layout";
 
 export interface ISizeTrackerProps {
-  layout: LayoutInternal;
-  node: TabNode;
-  rect: Rect;
-  visible: boolean;
-  forceRevision: number;
-  tabsRevision: number;
+  readonly layout: LayoutInternal;
+  readonly node: TabNode;
+  readonly rect: Rect;
+  readonly visible: boolean;
+  readonly forceRevision: number;
+  readonly tabsRevision: number;
 }
 
 export const SizeTracker = React.memo(({ layout, node }: ISizeTrackerProps) => {

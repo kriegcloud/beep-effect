@@ -31,6 +31,8 @@ import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as BunTerminal from "@effect/platform-bun/BunTerminal";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
+import { agentsValidateCommand } from "./commands/agents-validate.js";
+import { bootstrapSpecCommand } from "./commands/bootstrap-spec/index.js";
 import { createSliceCommand } from "./commands/create-slice/index.js";
 import { docgenCommand } from "./commands/docgen.js";
 import { envCommand } from "./commands/env.js";
@@ -41,6 +43,8 @@ import { topoSortCommand } from "./commands/topo-sort.js";
 const repoCommand = CliCommand.make("beep").pipe(
   CliCommand.withDescription("Beep repository maintenance CLI."),
   CliCommand.withSubcommands([
+    agentsValidateCommand,
+    bootstrapSpecCommand,
     createSliceCommand,
     docgenCommand,
     envCommand,

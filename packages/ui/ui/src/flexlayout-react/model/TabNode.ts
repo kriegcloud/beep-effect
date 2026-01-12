@@ -5,8 +5,7 @@ import { AttributeDefinitions } from "../AttributeDefinitions";
 import { Rect } from "../Rect";
 import type { BorderNode } from "./BorderNode";
 import type { IDraggable } from "./IDraggable";
-import type { IJsonTabNode } from "./IJsonModel";
-import { JsonTabNode } from "./IJsonModel";
+import { JsonTabNode } from "./JsonModel.ts";
 import { Model } from "./Model";
 import { Node } from "./Node";
 import { TabSetNode } from "./TabSetNode";
@@ -180,7 +179,7 @@ export class TabNode extends Node implements IDraggable {
     return this.visible;
   }
 
-  toJson(): IJsonTabNode {
+  toJson(): JsonTabNode {
     const json: Record<string, unknown> = {};
     TabNode.attributeDefinitions.toJson(json, this.attributes);
 

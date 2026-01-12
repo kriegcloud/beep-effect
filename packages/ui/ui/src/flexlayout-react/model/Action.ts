@@ -1,14 +1,36 @@
-import type { UnsafeTypes } from "@beep/types";
-import * as Data from "effect/Data";
+import { $UiId } from "@beep/identity/packages";
+import * as S from "effect/Schema";
 
-export class Action extends Data.Class<{
-  type: string;
-  data: Record<string, UnsafeTypes.UnsafeAny>;
-}> {
-  constructor(type: string, data: Record<string, UnsafeTypes.UnsafeAny>) {
-    super({
+const $I = $UiId.create("flexlayout-react/model/Action");
+
+export class Action extends S.Class<Action>($I`Action`)(
+  {
+    type: S.NonEmptyTrimmedString,
+    data: S.Record({
+      key: S.String,
+      value: S.Any,
+    }),
+  },
+  $I.annotations($I`Action`, {
+    description: "A flexlayout-react action",
+  })
+) {
+  static readonly new = (type: S.Schema.Type<typeof Action>["type"], data: S.Schema.Type<typeof Action>["data"]) =>
+    new Action({
       type,
       data,
     });
-  }
 }
+
+//
+// export class Action extends Data.Class<{
+//   type: string;
+//   data: Record<string, UnsafeTypes.UnsafeAny>;
+// }> {
+//   constructor(type: string, data: Record<string, UnsafeTypes.UnsafeAny>) {
+//     super({
+//       type,
+//       data,
+//     });
+//   }
+// }

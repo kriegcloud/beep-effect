@@ -12,14 +12,13 @@ import { BorderNode } from "./BorderNode";
 import { BorderSet } from "./BorderSet";
 import type { IDraggable } from "./IDraggable";
 import type { IDropTarget } from "./IDropTarget";
-import type { IJsonModel, IJsonPopout, ITabSetAttributes } from "./IJsonModel";
+import type { JsonModel, JsonPopout, TabSetAttributes } from "./JsonModel.ts";
 import { LayoutWindow } from "./LayoutWindow";
 import type { Node } from "./Node";
 import { RowNode } from "./RowNode";
 import { TabNode } from "./TabNode";
 import { TabSetNode } from "./TabSetNode";
 import { randomUUID } from "./Utils";
-
 /** @internal */
 export const DefaultMin = 0;
 /** @internal */
@@ -45,7 +44,7 @@ export class Model {
   /** @internal */
   private onAllowDrop?: undefined | ((dragNode: Node, dropInfo: DropInfo) => boolean);
   /** @internal */
-  private onCreateTabSet?: undefined | ((tabNode?: TabNode) => ITabSetAttributes);
+  private onCreateTabSet?: undefined | ((tabNode?: TabNode) => TabSetAttributes);
   /** @internal */
   private readonly windows: Map<string, LayoutWindow>;
   /** @internal */
@@ -394,7 +393,7 @@ export class Model {
    * @param json the json model to load
    * @returns {Model} a new Model object
    */
-  static fromJson(json: IJsonModel): Model {
+  static fromJson(json: JsonModel): Model {
     const model = new Model();
     Model.attributeDefinitions.fromJson(json.global, model.attributes);
 
@@ -417,7 +416,7 @@ export class Model {
    * Converts the model to a json object
    * @returns {IJsonModel} json object that represents this model
    */
-  toJson(): IJsonModel {
+  toJson(): JsonModel {
     const global: UnsafeTypes.UnsafeAny = {};
     Model.attributeDefinitions.toJson(global, this.attributes);
 
@@ -426,7 +425,7 @@ export class Model {
       node.fireEvent("save", {});
     });
 
-    const windows: Record<string, IJsonPopout> = {};
+    const windows: Record<string, JsonPopout> = {};
     for (const [id, window] of this.windows) {
       if (id !== Model.MAIN_WINDOW_ID) {
         windows[id] = window.toJson();
@@ -471,7 +470,7 @@ export class Model {
    * tab is deleted, the root tabset can be recreated)
    * @param onCreateTabSet
    */
-  setOnCreateTabSet(onCreateTabSet: (tabNode?: undefined | TabNode) => ITabSetAttributes) {
+  setOnCreateTabSet(onCreateTabSet: (tabNode?: undefined | TabNode) => TabSetAttributes) {
     this.onCreateTabSet = onCreateTabSet;
   }
 

@@ -10,20 +10,8 @@ import type { DropInfo } from "../DropInfo";
 import { Orientation } from "../Orientation";
 import { Rect } from "../Rect";
 import type { IDraggable } from "./IDraggable";
-import type { IJsonBorderNode, IJsonRowNode, IJsonTabNode, IJsonTabSetNode } from "./IJsonModel";
+import type { JsonBorderNode, JsonRowNode, JsonTabNode, JsonTabSetNode } from "./JsonModel.ts";
 import type { Model } from "./Model";
-
-export interface INode extends Pipeable.Pipeable {
-  model: Model;
-  attributes: Record<string, UnsafeTypes.UnsafeAny>;
-  parent?: undefined | INode;
-  children: Array<Node>;
-  rect: Rect;
-  path: string;
-  listeners: Map<string, (params: UnsafeTypes.UnsafeAny) => void>;
-  getId: () => string;
-  getModel: () => Model;
-}
 
 export abstract class Node extends Data.Class {
   /** @internal */
@@ -108,7 +96,7 @@ export abstract class Node extends Data.Class {
     this.listeners.delete(event);
   }
 
-  abstract toJson(): IJsonRowNode | IJsonBorderNode | IJsonTabSetNode | IJsonTabNode | undefined;
+  abstract toJson(): JsonRowNode | JsonBorderNode | JsonTabSetNode | JsonTabNode | undefined;
 
   /** @internal */
   setId(id: string) {
@@ -123,7 +111,7 @@ export abstract class Node extends Data.Class {
       O.match({
         onNone: () => {},
         onSome: (listener) => listener(params),
-      }),
+      })
     );
   }
 
@@ -211,7 +199,7 @@ export abstract class Node extends Data.Class {
                 return dropInfo !== undefined;
               }),
               O.flatMap((child) => O.fromNullable(child.findDropTargetNode(windowId, dragNode, x, y))),
-              O.getOrUndefined,
+              O.getOrUndefined
             );
           }
         }
@@ -264,7 +252,7 @@ export abstract class Node extends Data.Class {
           this.children = A.remove(this.children, pos);
           return pos;
         },
-      }),
+      })
     );
   }
 
@@ -273,7 +261,7 @@ export abstract class Node extends Data.Class {
     if (pos != null) {
       this.children = F.pipe(
         A.insertAt(this.children, pos, childNode),
-        O.getOrElse(() => this.children),
+        O.getOrElse(() => this.children)
       );
     } else {
       this.children = A.append(this.children, childNode);

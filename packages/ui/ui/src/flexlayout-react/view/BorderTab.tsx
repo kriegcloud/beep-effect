@@ -8,9 +8,9 @@ import { Splitter, splitterDragging } from "./Splitter";
 
 /** @internal */
 export interface IBorderTabProps {
-  layout: LayoutInternal;
-  border: BorderNode;
-  show: boolean;
+  readonly layout: LayoutInternal;
+  readonly border: BorderNode;
+  readonly show: boolean;
 }
 
 export function BorderTab(props: IBorderTabProps) {

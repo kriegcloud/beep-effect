@@ -3,8 +3,8 @@ import type { LayoutInternal } from "./Layout";
 
 /** @internal */
 export interface IOverlayProps {
-  layout: LayoutInternal;
-  show: boolean;
+  readonly layout: LayoutInternal;
+  readonly show: boolean;
 }
 
 /** @internal */
