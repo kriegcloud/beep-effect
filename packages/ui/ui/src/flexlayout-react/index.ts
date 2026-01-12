@@ -8,7 +8,7 @@ export * from "./model/BorderSet";
 export * from "./model/ICloseType";
 export * from "./model/IDraggable";
 export * from "./model/IDropTarget";
-export * from "./model/IJsonModel";
+export * from "./model/JsonModel.ts";
 export * from "./model/LayoutWindow";
 export * from "./model/Model";
 export * from "./model/Node";

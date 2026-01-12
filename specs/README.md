@@ -74,16 +74,34 @@ specs/[SPEC_NAME]/
 | [demo-parity](demo-parity/) | FlexLayout demo feature parity | P0 Ready |
 | [docking-system](docking-system/) | FlexLayout drag-drop docking | Complete |
 | [flex-layout-port](flex-layout-port/) | FlexLayout Effect Schema port | Active |
+| [flexlayout-schemas](flexlayout-schemas/) | FlexLayout model class schema migration | P0 Ready |
 | [flexlayout-type-safety](flexlayout-type-safety/) | Type safety improvements | Active |
 | [new-specialized-agents](new-specialized-agents/) | Agent creation initiative | Complete |
 | [node-composition-refactor](node-composition-refactor/) | Node hierarchy refactor | Complete |
+| [spec-bootstrapper](spec-bootstrapper/) | CLI command for spec scaffolding | Complete |
 | [structure-standardization](structure-standardization/) | Codebase structure standards | Active |
 
 ---
 
 ## Creating a New Spec
 
-### Quick Version
+### CLI Command (Recommended)
+
+```bash
+# Medium complexity (default) - most common
+bun run beep bootstrap-spec -n my-feature -d "Feature description"
+
+# Simple - quick fixes, single session
+bun run beep bootstrap-spec -n quick-fix -d "Bug fix" -c simple
+
+# Complex - major initiatives with orchestration
+bun run beep bootstrap-spec -n major-refactor -d "API redesign" -c complex
+
+# Preview without creating files
+bun run beep bootstrap-spec -n my-feature -d "Description" --dry-run
+```
+
+### Manual Version
 
 ```bash
 mkdir -p specs/[name]/{templates,outputs,handoffs}

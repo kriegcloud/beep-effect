@@ -1,0 +1,580 @@
+# Agent Capabilities Manifest
+# Machine-readable registry of agent capabilities for orchestrator selection
+#
+# USAGE: Orchestrators should reference this manifest to choose appropriate
+# agents based on task requirements. Key fields:
+#   - capability: read-only | write-reports | write-files
+#   - output_type: none | reports | documentation | code | tests
+#   - phases: which spec phases this agent is appropriate for
+#   - triggers: keywords that suggest this agent
+#
+# MAINTENANCE: Update this file when adding/modifying agents in .claude/agents/
+# Run `bun run agents:validate` to check manifest matches agent definitions.
+
+schema_version: "1.0"
+generated: "2026-01-11"
+
+# =============================================================================
+# CAPABILITY DEFINITIONS
+# =============================================================================
+capabilities:
+  read-only:
+    description: "Agent only reads and analyzes - provides information but produces no artifacts"
+    persistence: none
+    tools_pattern: "[Glob, Grep, Read] only"
+
+  write-reports:
+    description: "Agent produces markdown reports in outputs/ directories"
+    persistence: "outputs/*.md"
+    tools_pattern: "[Glob, Grep, Read] - writes via orchestrator relay"
+
+  write-files:
+    description: "Agent creates or modifies source files (code, docs, tests)"
+    persistence: "source files"
+    tools_pattern: "Includes [Write, Edit]"
+
+# =============================================================================
+# TIER 1: FOUNDATION AGENTS
+# =============================================================================
+agents:
+  codebase-researcher:
+    tier: 1
+    capability: read-only
+    output_type: none
+    description: "Systematic codebase exploration - read-only analysis"
+    tools:
+      - Glob
+      - Grep
+      - Read
+    phases: [1]
+    triggers:
+      - "explore codebase"
+      - "find files"
+      - "map dependencies"
+      - "where is"
+      - "how does X work"
+      - "what patterns exist"
+    use_when: "Need to understand existing code, find patterns, or map architecture"
+    do_not_use_when: "Need to produce a report file or modify code"
+
+  reflector:
+    tier: 1
+    capability: write-reports
+    output_type: reports
+    output_path: "specs/agents/reflector/outputs/"
+    description: "Meta-reflection and pattern extraction - produces analysis reports"
+    tools:
+      - Glob
+      - Grep
+      - Read
+    phases: [3, 4]
+    triggers:
+      - "analyze reflection"
+      - "extract patterns"
+      - "meta-reflection"
+      - "improve prompts"
+      - "learnings"
+    use_when: "Phase complete, need to capture learnings and generate improvement recommendations"
+    do_not_use_when: "Active development work - this is for reflection only"
+
+# =============================================================================
+# TIER 2: RESEARCH AGENTS
+# =============================================================================
+  mcp-researcher:
+    tier: 2
+    capability: read-only
+    output_type: none
+    description: "Effect documentation research via MCP tools - read-only analysis"
+    tools:
+      - mcp__effect_docs__effect_docs_search
+      - mcp__effect_docs__get_effect_doc
+      - mcp__MCP_DOCKER__mcp-find
+      - mcp__MCP_DOCKER__mcp-add
+      - mcp__MCP_DOCKER__mcp-exec
+      - Read
+      - Glob
+      - Grep
+    mcp_prerequisites:
+      server: effect-mcp
+      enable_command: "mcp__MCP_DOCKER__mcp-add({ name: 'effect-mcp', activate: true })"
+      fallback: "node_modules/effect/src/"
+      requires_user_enablement: true
+      user_instructions: "Docker Desktop → Settings → MCP Toolkit → Enable effect-mcp"
+    phases: [1]
+    triggers:
+      - "effect docs"
+      - "effect api"
+      - "effect pattern"
+      - "how to in effect"
+      - "schema api"
+      - "layer composition"
+    use_when: "Need to look up Effect library documentation, APIs, or patterns"
+    do_not_use_when: "Need general web research or codebase exploration"
+
+  web-researcher:
+    tier: 2
+    capability: read-only
+    output_type: none
+    description: "Web-based research with credibility validation - read-only analysis"
+    tools:
+      - WebSearch
+      - WebFetch
+    phases: [1]
+    triggers:
+      - "research online"
+      - "best practices"
+      - "prior art"
+      - "external documentation"
+      - "industry standard"
+    use_when: "Need external information not in Effect docs or codebase"
+    do_not_use_when: "Effect-specific questions (use mcp-researcher) or codebase questions"
+
+# =============================================================================
+# TIER 3: QUALITY AGENTS
+# =============================================================================
+  code-reviewer:
+    tier: 3
+    capability: write-reports
+    output_type: reports
+    output_path: "outputs/guideline-review.md"
+    description: "Repository guideline enforcement - produces violation reports"
+    tools:
+      - Read
+      - Grep
+      - Glob
+    phases: [2, 4]
+    triggers:
+      - "review code"
+      - "check violations"
+      - "audit guidelines"
+      - "effect patterns check"
+      - "lint review"
+    use_when: "Need to validate code against repository guidelines and Effect patterns"
+    do_not_use_when: "Architecture/boundary validation (use architecture-pattern-enforcer)"
+
+  architecture-pattern-enforcer:
+    tier: 3
+    capability: write-reports
+    output_type: reports
+    output_path: "outputs/architecture-review.md"
+    description: "Architecture validation - produces structure and boundary reports"
+    tools:
+      - Glob
+      - Grep
+      - Read
+    phases: [0, 2]
+    triggers:
+      - "architecture audit"
+      - "layer violations"
+      - "cross-slice imports"
+      - "boundary check"
+      - "structure validation"
+    use_when: "Need to validate package boundaries, layer dependencies, or slice isolation"
+    do_not_use_when: "Code-level pattern violations (use code-reviewer)"
+
+  spec-reviewer:
+    tier: 3
+    capability: write-reports
+    output_type: reports
+    output_path: "outputs/spec-review.md"
+    description: "Spec structure and context engineering validation - produces quality reports"
+    tools:
+      - Glob
+      - Grep
+      - Read
+    phases: [2]
+    triggers:
+      - "review spec"
+      - "spec quality"
+      - "context engineering"
+      - "handoff protocol"
+      - "spec compliance"
+    use_when: "Need to validate spec structure, reflection logs, or handoff protocol"
+    do_not_use_when: "Code review or architecture validation"
+
+# =============================================================================
+# TIER 4: WRITER AGENTS
+# =============================================================================
+  doc-writer:
+    tier: 4
+    capability: write-files
+    output_type: documentation
+    description: "Documentation writer - creates/modifies README, AGENTS.md, JSDoc"
+    tools:
+      - Glob
+      - Grep
+      - Read
+      - Write
+      - Edit
+    phases: [0, 3]
+    triggers:
+      - "write documentation"
+      - "create readme"
+      - "add jsdoc"
+      - "create agents.md"
+      - "document package"
+    use_when: "Need to create or update documentation files"
+    do_not_use_when: "Code changes or test generation"
+
+  test-writer:
+    tier: 4
+    capability: write-files
+    output_type: tests
+    description: "Effect-first test generator - creates test files using @beep/testkit"
+    tools:
+      - Read
+      - Write
+      - Edit
+      - Glob
+      - Grep
+      - mcp__effect_docs__effect_docs_search
+      - mcp__effect_docs__get_effect_doc
+      - mcp__MCP_DOCKER__mcp-find
+      - mcp__MCP_DOCKER__mcp-add
+      - mcp__MCP_DOCKER__mcp-exec
+    mcp_prerequisites:
+      server: effect-mcp
+      enable_command: "mcp__MCP_DOCKER__mcp-add({ name: 'effect-mcp', activate: true })"
+      fallback: "node_modules/effect/src/"
+      requires_user_enablement: true
+      user_instructions: "Docker Desktop → Settings → MCP Toolkit → Enable effect-mcp"
+    phases: [4]
+    triggers:
+      - "write tests"
+      - "add test coverage"
+      - "create test file"
+      - "unit tests"
+      - "integration tests"
+    use_when: "Need to create test files for new or existing functionality"
+    do_not_use_when: "Documentation or code implementation"
+
+  code-observability-writer:
+    tier: 4
+    capability: write-files
+    output_type: code
+    description: "Observability instrumentation - modifies source with logging/tracing/metrics"
+    tools:
+      - Read
+      - Edit
+      - Write
+      - Grep
+      - Glob
+      - mcp__effect_docs__effect_docs_search
+      - mcp__MCP_DOCKER__mcp-find
+      - mcp__MCP_DOCKER__mcp-add
+      - mcp__MCP_DOCKER__mcp-exec
+    mcp_prerequisites:
+      server: effect-mcp
+      enable_command: "mcp__MCP_DOCKER__mcp-add({ name: 'effect-mcp', activate: true })"
+      fallback: "node_modules/effect/src/"
+      requires_user_enablement: true
+      user_instructions: "Docker Desktop → Settings → MCP Toolkit → Enable effect-mcp"
+    phases: [4]
+    triggers:
+      - "add logging"
+      - "add tracing"
+      - "add metrics"
+      - "instrument code"
+      - "observability"
+    use_when: "Need to add structured logging, tracing spans, or metrics to code"
+    do_not_use_when: "Writing tests or documentation"
+
+# =============================================================================
+# UTILITY AGENTS
+# =============================================================================
+  effect-researcher:
+    tier: 2
+    capability: read-only
+    output_type: none
+    description: "General Effect documentation patterns - read-only analysis"
+    tools:
+      - Glob
+      - Grep
+      - Read
+      - mcp__effect_docs__effect_docs_search
+      - mcp__effect_docs__get_effect_doc
+      - mcp__MCP_DOCKER__mcp-find
+      - mcp__MCP_DOCKER__mcp-add
+      - mcp__MCP_DOCKER__mcp-exec
+    mcp_prerequisites:
+      server: effect-mcp
+      enable_command: "mcp__MCP_DOCKER__mcp-add({ name: 'effect-mcp', activate: true })"
+      fallback: "node_modules/effect/src/"
+      requires_user_enablement: true
+      user_instructions: "Docker Desktop → Settings → MCP Toolkit → Enable effect-mcp"
+    phases: [1]
+    triggers:
+      - "effect question"
+      - "effect help"
+    use_when: "General Effect questions when mcp-researcher is too specific"
+    do_not_use_when: "Specific API lookup (use mcp-researcher)"
+
+  effect-schema-expert:
+    tier: 2
+    capability: read-only
+    output_type: none
+    description: "Effect Schema patterns and validation specialist"
+    tools:
+      - Glob
+      - Grep
+      - Read
+      - mcp__effect_docs__effect_docs_search
+      - mcp__effect_docs__get_effect_doc
+      - mcp__MCP_DOCKER__mcp-find
+      - mcp__MCP_DOCKER__mcp-add
+      - mcp__MCP_DOCKER__mcp-exec
+    mcp_prerequisites:
+      server: effect-mcp
+      enable_command: "mcp__MCP_DOCKER__mcp-add({ name: 'effect-mcp', activate: true })"
+      fallback: "node_modules/effect/src/"
+      requires_user_enablement: true
+      user_instructions: "Docker Desktop → Settings → MCP Toolkit → Enable effect-mcp"
+    phases: [1, 4]
+    triggers:
+      - "schema design"
+      - "schema validation"
+      - "tagged error"
+      - "schema pattern"
+    use_when: "Need help designing or validating Effect Schemas"
+    do_not_use_when: "General Effect API questions"
+
+  effect-predicate-master:
+    tier: 2
+    capability: read-only
+    output_type: none
+    description: "Effect Predicate utilities specialist"
+    tools:
+      - Glob
+      - Grep
+      - Read
+      - mcp__effect_docs__effect_docs_search
+      - mcp__effect_docs__get_effect_doc
+      - mcp__MCP_DOCKER__mcp-find
+      - mcp__MCP_DOCKER__mcp-add
+      - mcp__MCP_DOCKER__mcp-exec
+    mcp_prerequisites:
+      server: effect-mcp
+      enable_command: "mcp__MCP_DOCKER__mcp-add({ name: 'effect-mcp', activate: true })"
+      fallback: "node_modules/effect/src/"
+      requires_user_enablement: true
+      user_instructions: "Docker Desktop → Settings → MCP Toolkit → Enable effect-mcp"
+    phases: [1, 4]
+    triggers:
+      - "predicate"
+      - "type guard"
+      - "refinement"
+    use_when: "Need help with Effect Predicate module patterns"
+    do_not_use_when: "Other Effect module questions"
+
+  prompt-refiner:
+    tier: 1
+    capability: write-files
+    output_type: documentation
+    description: "Agent prompt refinement based on reflection learnings"
+    tools:
+      - Glob
+      - Grep
+      - Read
+      - Write
+      - Edit
+    phases: [3, 4]
+    triggers:
+      - "refine prompt"
+      - "improve agent"
+      - "update agent definition"
+    use_when: "Need to apply learnings to improve agent prompts"
+    do_not_use_when: "Initial agent creation"
+
+  agents-md-updater:
+    tier: 4
+    capability: write-files
+    output_type: documentation
+    description: "AGENTS.md file auditor and updater"
+    tools:
+      - Glob
+      - Grep
+      - Read
+      - Write
+      - Edit
+    phases: [4]
+    triggers:
+      - "update agents.md"
+      - "audit agents.md"
+      - "fix agents.md"
+    use_when: "Need to update AGENTS.md files across packages"
+    do_not_use_when: "README or JSDoc updates"
+
+  readme-updater:
+    tier: 4
+    capability: write-files
+    output_type: documentation
+    description: "README.md file auditor and updater"
+    tools:
+      - Glob
+      - Grep
+      - Read
+      - Write
+      - Edit
+    phases: [4]
+    triggers:
+      - "update readme"
+      - "audit readme"
+      - "fix readme"
+    use_when: "Need to update README.md files across packages"
+    do_not_use_when: "AGENTS.md or JSDoc updates"
+
+  jsdoc-fixer:
+    tier: 4
+    capability: write-files
+    output_type: code
+    description: "JSDoc compliance fixer"
+    tools:
+      - Glob
+      - Grep
+      - Read
+      - Write
+      - Edit
+    phases: [4]
+    triggers:
+      - "fix jsdoc"
+      - "add jsdoc"
+      - "jsdoc compliance"
+    use_when: "Need to fix or add JSDoc comments to source files"
+    do_not_use_when: "README or AGENTS.md updates"
+
+  package-error-fixer:
+    tier: 4
+    capability: write-files
+    output_type: code
+    description: "Package-level type, build, and lint error fixer"
+    tools:
+      - Glob
+      - Grep
+      - Read
+      - Write
+      - Edit
+      - Bash
+    phases: [4]
+    triggers:
+      - "fix errors"
+      - "fix types"
+      - "fix build"
+      - "fix package"
+    use_when: "Need to systematically fix all errors in a specific package"
+    do_not_use_when: "Single file fixes or new feature development"
+
+  tsconfig-auditor:
+    tier: 3
+    capability: write-reports
+    output_type: reports
+    description: "TypeScript configuration auditor"
+    tools:
+      - Glob
+      - Grep
+      - Read
+    phases: [2]
+    triggers:
+      - "tsconfig audit"
+      - "typescript config"
+      - "path aliases"
+    use_when: "Need to audit or validate TypeScript configuration"
+    do_not_use_when: "Code or documentation changes"
+
+  ai-trends-researcher:
+    tier: 2
+    capability: write-files
+    output_type: reports
+    output_path: "specs/agents/ai-trends-researcher/outputs/"
+    description: "AI trends research and improvement reports - produces actionable recommendations"
+    tools:
+      - WebSearch
+      - WebFetch
+      - Read
+      - Glob
+      - Grep
+      - Write
+      - Edit
+    phases: [1, 4]
+    triggers:
+      - "ai trends"
+      - "emerging patterns"
+      - "best practices research"
+      - "benchmark configuration"
+      - "improve agent"
+    use_when: "Need to research AI/ML trends, benchmark against best practices, or improve existing agents"
+    do_not_use_when: "Specific Effect documentation lookup (use mcp-researcher)"
+
+# =============================================================================
+# SELECTION RULES
+# =============================================================================
+selection_rules:
+  # When you need persistent output (reports, docs, code)
+  - condition: "need artifact/report/output file"
+    exclude:
+      - codebase-researcher
+      - mcp-researcher
+      - web-researcher
+      - effect-researcher
+      - effect-schema-expert
+      - effect-predicate-master
+    prefer_by_output_type:
+      reports: [code-reviewer, architecture-pattern-enforcer, spec-reviewer, reflector]
+      documentation: [doc-writer, agents-md-updater, readme-updater]
+      code: [code-observability-writer, jsdoc-fixer, package-error-fixer]
+      tests: [test-writer]
+
+  # Phase-based selection
+  - condition: "phase 0 scaffolding"
+    prefer: [doc-writer, architecture-pattern-enforcer]
+
+  - condition: "phase 1 discovery"
+    prefer: [codebase-researcher, mcp-researcher, web-researcher]
+
+  - condition: "phase 2 evaluation"
+    prefer: [code-reviewer, architecture-pattern-enforcer, spec-reviewer]
+
+  - condition: "phase 3 synthesis"
+    prefer: [reflector, doc-writer]
+
+  - condition: "phase 4+ iteration"
+    prefer: [test-writer, code-observability-writer, doc-writer, package-error-fixer]
+
+  # Output type requirements
+  - condition: "must produce markdown report"
+    require_capability: write-reports
+
+  - condition: "must modify source files"
+    require_capability: write-files
+
+  - condition: "research/exploration only"
+    require_capability: read-only
+
+# =============================================================================
+# QUICK REFERENCE FOR ORCHESTRATORS
+# =============================================================================
+# COPY THIS SECTION INTO ORCHESTRATOR PROMPTS
+quick_reference:
+  read_only_agents:
+    - codebase-researcher  # Explore code, no output
+    - mcp-researcher       # Effect docs lookup, no output
+    - web-researcher       # External research, no output
+    - effect-researcher    # General Effect help, no output
+    - effect-schema-expert # Schema patterns, no output
+    - effect-predicate-master # Predicate patterns, no output
+
+  report_producing_agents:
+    - reflector            # Meta-reflection reports
+    - code-reviewer        # Guideline violation reports
+    - architecture-pattern-enforcer # Architecture audit reports
+    - spec-reviewer        # Spec quality reports
+    - tsconfig-auditor     # TSConfig audit reports
+
+  file_modifying_agents:
+    - doc-writer           # README, AGENTS.md, JSDoc
+    - test-writer          # Test files
+    - code-observability-writer # Logging/tracing/metrics
+    - prompt-refiner       # Agent prompt files
+    - agents-md-updater    # AGENTS.md files
+    - readme-updater       # README.md files
+    - jsdoc-fixer          # JSDoc in source
+    - package-error-fixer  # Source fixes

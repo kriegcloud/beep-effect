@@ -6,12 +6,12 @@ import { CLASSES } from "../Types";
 import type { LayoutInternal } from "./Layout";
 /** @internal */
 export interface IPopoutWindowProps {
-  title: string;
-  layout: LayoutInternal;
-  layoutWindow: LayoutWindow;
-  url: string;
-  onCloseWindow: (layoutWindow: LayoutWindow) => void;
-  onSetWindow: (layoutWindow: LayoutWindow, window: Window) => void;
+  readonly title: string;
+  readonly layout: LayoutInternal;
+  readonly layoutWindow: LayoutWindow;
+  readonly url: string;
+  readonly onCloseWindow: (layoutWindow: LayoutWindow) => void;
+  readonly onSetWindow: (layoutWindow: LayoutWindow, window: Window) => void;
 }
 
 /** @internal */
@@ -139,7 +139,7 @@ function copyStyle(
   popoutDoc: Document,
   element: HTMLElement,
   styleMap: Map<HTMLElement, HTMLElement>,
-  promises?: Promise<boolean>[]
+  promises?: undefined | Promise<boolean>[]
 ) {
   if (element instanceof HTMLLinkElement) {
     // prefer links since they will keep paths to images etc

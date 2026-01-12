@@ -1,6 +1,6 @@
 # JSDoc Analysis Report: @beep/types
 
-> **Generated**: 2026-01-07T22:48:44.780Z
+> **Generated**: 2026-01-11T23:49:12.542Z
 > **Package**: packages/common/types
 > **Status**: 477 exports need documentation
 
@@ -2157,28 +2157,28 @@ You are tasked with adding missing JSDoc documentation to this package. Follow t
   - Has: @example, @example, @example, @see, @see
   - Context: Returns a boolean for whether only one of two given types is true.
 
-- [ ] `src/globals/index.ts:20` — **Unsubscribable** (type)
+- [ ] `src/globals/index.ts:19` — **Unsubscribable** (type)
   - Missing: @example, @since
   - Has: @remarks, @see, @see, @see, @category
 
-- [ ] `src/globals/index.ts:43` — **Observer** (type)
+- [ ] `src/globals/index.ts:42` — **Observer** (type)
   - Missing: @example, @since
   - Has: @category
 
-- [ ] `src/globals/index.ts:73` — **ObservableLike** (type)
+- [ ] `src/globals/index.ts:72` — **ObservableLike** (type)
   - Missing: @since
   - Has: @example, @remarks, @see, @see, @see, @category
   - Context: Matches a value that is like an [Observable](https://github.com/tc39/proposal-observable).
 
-- [ ] `src/globals/observable-like.ts:20` — **Unsubscribable** (type)
+- [ ] `src/globals/observable-like.ts:19` — **Unsubscribable** (type)
   - Missing: @example, @since
   - Has: @remarks, @see, @see, @see, @category
 
-- [ ] `src/globals/observable-like.ts:43` — **Observer** (type)
+- [ ] `src/globals/observable-like.ts:42` — **Observer** (type)
   - Missing: @example, @since
   - Has: @category
 
-- [ ] `src/globals/observable-like.ts:73` — **ObservableLike** (type)
+- [ ] `src/globals/observable-like.ts:72` — **ObservableLike** (type)
   - Missing: @since
   - Has: @example, @remarks, @see, @see, @see, @category
   - Context: Matches a value that is like an [Observable](https://github.com/tc39/proposal-observable).

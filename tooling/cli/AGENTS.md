@@ -25,6 +25,11 @@
 - **`src/commands/sync.ts`** — Cross-workspace synchronization
   - Syncs root `.env` to workspace packages (apps/mail, apps/server)
   - Regenerates TypeScript type definitions for environment variables
+- **`src/commands/bootstrap-spec/`** — Specification scaffolding
+  - Creates standardized spec structures in `specs/` directory
+  - Supports three complexity levels: simple, medium, complex
+  - Generates README, REFLECTION_LOG, and additional files based on complexity
+  - Supports dry-run mode for previewing changes
 - **`src/commands/create-slice/`** — Vertical slice scaffolding
   - Creates all 5 sub-packages (domain, tables, server, client, ui)
   - Updates workspace configuration and path aliases automatically
@@ -44,6 +49,9 @@
 - `bun run beep prune-unused-deps --dry-run` — Check for unused dependencies without removing
 - `bun run beep prune-unused-deps --filter @beep/iam-server` — Prune deps from specific package
 - `bun run beep sync` — Synchronize workspace configurations
+- `bun run beep bootstrap-spec -n my-feature -d "Feature description"` — Create new spec (medium complexity)
+- `bun run beep bootstrap-spec -n api-redesign -d "API improvements" -c complex` — Create complex spec
+- `bun run beep bootstrap-spec -n quick-fix -d "Bug fix" -c simple --dry-run` — Preview simple spec
 - `bun run beep create-slice -n notifications -d "User notification system"` — Create new slice
 - `bun run beep create-slice --name billing --description "Billing" --dry-run` — Preview slice creation
 - `bun run beep topo-sort` — Output packages in topological order

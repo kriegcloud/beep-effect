@@ -9,9 +9,9 @@ import { TabSet } from "./TabSet";
 
 /** @internal */
 export interface IRowProps {
-  layout: LayoutInternal;
-  node: RowNode;
-  revision?: number; // Forces re-render when model changes
+  readonly layout: LayoutInternal;
+  readonly node: RowNode;
+  readonly revision?: undefined | number; // Forces re-render when model changes
 }
 
 /** @internal */

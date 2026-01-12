@@ -8,10 +8,10 @@ import type { LayoutInternal } from "./Layout";
 
 /** @internal */
 export interface ITabProps {
-  layout: LayoutInternal;
-  node: TabNode;
-  selected: boolean;
-  path: string;
+  readonly layout: LayoutInternal;
+  readonly node: TabNode;
+  readonly selected: boolean;
+  readonly path: string;
 }
 
 /** @internal */

@@ -19,7 +19,9 @@ export class BorderSet extends Data.Class {
   /** @internal */
   static fromJson(json: UnsafeTypes.UnsafeAny, model: Model) {
     const borderSet = new BorderSet(model);
-    borderSet.borders = A.map(json as Array<UnsafeTypes.UnsafeAny>, (borderJson) => BorderNode.fromJson(borderJson, model));
+    borderSet.borders = A.map(json as Array<UnsafeTypes.UnsafeAny>, (borderJson) =>
+      BorderNode.fromJson(borderJson, model)
+    );
     A.forEach(borderSet.borders, (border) => {
       borderSet.borderMap.set(border.getLocation(), border);
     });

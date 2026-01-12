@@ -4,13 +4,13 @@ import { Action } from "./Action";
 import type {
   IBorderAttributes,
   IGlobalAttributes,
-  IJsonRect,
-  IJsonRowNode,
-  IJsonTabNode,
-  IRowAttributes,
-  ITabAttributes,
-  ITabSetAttributes,
-} from "./IJsonModel";
+  JsonRect,
+  JsonRowNode,
+  JsonTabNode,
+  RowAttributes,
+  TabAttributes,
+  TabSetAttributes,
+} from "./JsonModel.ts";
 /**
  * The Action creator class for FlexLayout model actions
  */
@@ -42,13 +42,13 @@ export class Actions extends Data.Class {
    * @returns {Action} the action
    */
   static addNode(
-    json: IJsonTabNode,
+    json: JsonTabNode,
     toNodeId: string,
     location: DockLocation,
     index: number,
     select?: undefined | boolean
   ): Action {
-    return new Action(Actions.ADD_NODE, {
+    return Action.new(Actions.ADD_NODE, {
       json,
       toNode: toNodeId,
       location: location.getName(),
@@ -73,7 +73,7 @@ export class Actions extends Data.Class {
     index: number,
     select?: undefined | boolean
   ): Action {
-    return new Action(Actions.MOVE_NODE, {
+    return Action.new(Actions.MOVE_NODE, {
       fromNode: fromNodeId,
       toNode: toNodeId,
       location: location.getName(),
@@ -88,7 +88,7 @@ export class Actions extends Data.Class {
    * @returns {Action} the action
    */
   static deleteTab(tabNodeId: string): Action {
-    return new Action(Actions.DELETE_TAB, { node: tabNodeId });
+    return Action.new(Actions.DELETE_TAB, { node: tabNodeId });
   }
 
   /**
@@ -97,7 +97,7 @@ export class Actions extends Data.Class {
    * @returns {Action} the action
    */
   static deleteTabset(tabsetNodeId: string): Action {
-    return new Action(Actions.DELETE_TABSET, { node: tabsetNodeId });
+    return Action.new(Actions.DELETE_TABSET, { node: tabsetNodeId });
   }
 
   /**
@@ -107,7 +107,7 @@ export class Actions extends Data.Class {
    * @returns {Action} the action
    */
   static renameTab(tabNodeId: string, text: string): Action {
-    return new Action(Actions.RENAME_TAB, { node: tabNodeId, text });
+    return Action.new(Actions.RENAME_TAB, { node: tabNodeId, text });
   }
 
   /**
@@ -116,7 +116,7 @@ export class Actions extends Data.Class {
    * @returns {Action} the action
    */
   static selectTab(tabNodeId: string): Action {
-    return new Action(Actions.SELECT_TAB, { tabNode: tabNodeId });
+    return Action.new(Actions.SELECT_TAB, { tabNode: tabNodeId });
   }
 
   /**
@@ -126,7 +126,7 @@ export class Actions extends Data.Class {
    * @returns {Action} the action
    */
   static setActiveTabset(tabsetNodeId: string | undefined, windowId?: string | undefined): Action {
-    return new Action(Actions.SET_ACTIVE_TABSET, { tabsetNode: tabsetNodeId, windowId: windowId });
+    return Action.new(Actions.SET_ACTIVE_TABSET, { tabsetNode: tabsetNodeId, windowId: windowId });
   }
 
   /**
@@ -136,11 +136,11 @@ export class Actions extends Data.Class {
    * @returns {Action} the action
    */
   static adjustWeights(nodeId: string, weights: number[]): Action {
-    return new Action(Actions.ADJUST_WEIGHTS, { nodeId, weights });
+    return Action.new(Actions.ADJUST_WEIGHTS, { nodeId, weights });
   }
 
   static adjustBorderSplit(nodeId: string, pos: number): Action {
-    return new Action(Actions.ADJUST_BORDER_SPLIT, { node: nodeId, pos });
+    return Action.new(Actions.ADJUST_BORDER_SPLIT, { node: nodeId, pos });
   }
 
   /**
@@ -150,7 +150,7 @@ export class Actions extends Data.Class {
    * @returns {Action} the action
    */
   static maximizeToggle(tabsetNodeId: string, windowId?: string | undefined): Action {
-    return new Action(Actions.MAXIMIZE_TOGGLE, { node: tabsetNodeId, windowId: windowId });
+    return Action.new(Actions.MAXIMIZE_TOGGLE, { node: tabsetNodeId, windowId: windowId });
   }
 
   /**
@@ -159,7 +159,7 @@ export class Actions extends Data.Class {
    * @returns {Action} the action
    */
   static updateModelAttributes(attributes: Partial<IGlobalAttributes>): Action {
-    return new Action(Actions.UPDATE_MODEL_ATTRIBUTES, { json: attributes });
+    return Action.new(Actions.UPDATE_MODEL_ATTRIBUTES, { json: attributes });
   }
 
   /**
@@ -170,9 +170,9 @@ export class Actions extends Data.Class {
    */
   static updateNodeAttributes(
     nodeId: string,
-    attributes: Partial<ITabAttributes | ITabSetAttributes | IBorderAttributes | IRowAttributes>
+    attributes: Partial<TabAttributes | TabSetAttributes | IBorderAttributes | RowAttributes>
   ): Action {
-    return new Action(Actions.UPDATE_NODE_ATTRIBUTES, { node: nodeId, json: attributes });
+    return Action.new(Actions.UPDATE_NODE_ATTRIBUTES, { node: nodeId, json: attributes });
   }
 
   /**
@@ -181,7 +181,7 @@ export class Actions extends Data.Class {
    * @returns
    */
   static popoutTab(nodeId: string): Action {
-    return new Action(Actions.POPOUT_TAB, { node: nodeId });
+    return Action.new(Actions.POPOUT_TAB, { node: nodeId });
   }
 
   /**
@@ -190,7 +190,7 @@ export class Actions extends Data.Class {
    * @returns
    */
   static popoutTabset(nodeId: string): Action {
-    return new Action(Actions.POPOUT_TABSET, { node: nodeId });
+    return Action.new(Actions.POPOUT_TABSET, { node: nodeId });
   }
 
   /**
@@ -199,7 +199,7 @@ export class Actions extends Data.Class {
    * @returns
    */
   static closeWindow(windowId: string): Action {
-    return new Action(Actions.CLOSE_WINDOW, { windowId });
+    return Action.new(Actions.CLOSE_WINDOW, { windowId });
   }
 
   /**
@@ -208,7 +208,7 @@ export class Actions extends Data.Class {
    * @param rect the window rectangle in screen coordinates
    * @returns
    */
-  static createWindow(layout: IJsonRowNode, rect: IJsonRect): Action {
-    return new Action(Actions.CREATE_WINDOW, { layout, rect });
+  static createWindow(layout: JsonRowNode, rect: JsonRect): Action {
+    return Action.new(Actions.CREATE_WINDOW, { layout, rect });
   }
 }

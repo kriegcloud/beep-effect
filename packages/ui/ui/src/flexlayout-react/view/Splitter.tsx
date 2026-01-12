@@ -11,10 +11,16 @@ import { enablePointerOnIFrames, isDesktop, startDrag } from "./Utils";
 
 /** @internal */
 export interface ISplitterProps {
-  layout: LayoutInternal;
-  node: RowNode | BorderNode;
-  index: number;
-  horizontal: boolean;
+  readonly layout: LayoutInternal;
+  readonly node: RowNode | BorderNode;
+  readonly index: number;
+  readonly horizontal: boolean;
+}
+
+interface InitialSizes {
+  readonly initialSizes: number[];
+  readonly sum: number;
+  readonly startPosition: number;
 }
 
 /** @internal */
@@ -32,7 +38,7 @@ export const Splitter = (props: ISplitterProps) => {
   const handleDiv = React.useRef<HTMLDivElement | undefined>(undefined);
   const dragStartX = React.useRef<number>(0);
   const dragStartY = React.useRef<number>(0);
-  const initalSizes = React.useRef<{ initialSizes: number[]; sum: number; startPosition: number }>({
+  const initalSizes = React.useRef<InitialSizes>({
     initialSizes: [],
     sum: 0,
     startPosition: 0,

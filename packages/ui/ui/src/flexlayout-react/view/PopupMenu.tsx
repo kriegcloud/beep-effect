@@ -7,12 +7,17 @@ import { CLASSES } from "../Types";
 import type { LayoutInternal } from "./Layout";
 import { TabButtonStamp } from "./TabButtonStamp";
 
+interface NodeItem {
+  readonly index: number;
+  readonly node: TabNode;
+}
+
 /** @internal */
 export function showPopup(
   triggerElement: Element,
   parentNode: TabSetNode | BorderNode,
-  items: { index: number; node: TabNode }[],
-  onSelect: (item: { index: number; node: TabNode }) => void,
+  items: NodeItem[],
+  onSelect: (item: NodeItem) => void,
   layout: LayoutInternal
 ) {
   const layoutDiv = layout.getRootDiv();
@@ -78,13 +83,13 @@ export function showPopup(
 
 /** @internal */
 interface IPopupMenuProps {
-  parentNode: TabSetNode | BorderNode;
-  items: { index: number; node: TabNode }[];
-  currentDocument: Document;
-  onHide: () => void;
-  onSelect: (item: { index: number; node: TabNode }) => void;
-  classNameMapper: (defaultClassName: string) => string;
-  layout: LayoutInternal;
+  readonly parentNode: TabSetNode | BorderNode;
+  readonly items: NodeItem[];
+  readonly currentDocument: Document;
+  readonly onHide: () => void;
+  readonly onSelect: (item: NodeItem) => void;
+  readonly classNameMapper: (defaultClassName: string) => string;
+  readonly layout: LayoutInternal;
 }
 
 /** @internal */

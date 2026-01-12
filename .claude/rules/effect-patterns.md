@@ -99,3 +99,42 @@ A.map(array, x => x + 1)
 Str.split(string, ",")
 A.filter(array, x => x > 0)
 ```
+
+## FileSystem Service (REQUIRED)
+
+NEVER use Node.js fs module. ALWAYS use Effect FileSystem service from @effect/platform:
+
+```typescript
+// FORBIDDEN - Node.js fs
+import * as fs from "node:fs";
+const exists = fs.existsSync(path);
+const content = fs.readFileSync(path, "utf-8");
+
+// FORBIDDEN - Wrapping Node.js fs in Effect.try
+const exists = yield* Effect.try(() => fs.existsSync(path));
+
+// REQUIRED - Effect FileSystem service
+import { FileSystem } from "@effect/platform";
+const fs = yield* FileSystem.FileSystem;
+const exists = yield* fs.exists(path);
+const content = yield* fs.readFileString(path);
+```
+
+**Key operations**:
+- `fs.exists(path)` - Check existence
+- `fs.readFileString(path)` - Read text file
+- `fs.writeFileString(path, content)` - Write text file
+- `fs.makeDirectory(path, { recursive: true })` - Create directory
+- `fs.readDirectory(path)` - List directory contents
+
+**Layer composition** (Bun runtime):
+```typescript
+import { BunFileSystem } from "@effect/platform-bun";
+
+export const MyCommandLive = Layer.mergeAll(
+  BunFileSystem.layer,  // Provides FileSystem.FileSystem service
+  // ... other layers
+);
+```
+
+Reference: `tooling/cli/src/commands/create-slice/handler.ts` for canonical patterns.

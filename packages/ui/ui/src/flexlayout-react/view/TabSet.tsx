@@ -18,9 +18,9 @@ import { useTabOverflow } from "./TabOverflowHook";
 import { isAuxMouseEvent } from "./Utils";
 /** @internal */
 export interface ITabSetProps {
-  layout: LayoutInternal;
-  node: TabSetNode;
-  revision?: number; // Forces re-render when model changes
+  readonly layout: LayoutInternal;
+  readonly node: TabSetNode;
+  readonly revision?: undefined | number; // Forces re-render when model changes
 }
 
 /** @internal */

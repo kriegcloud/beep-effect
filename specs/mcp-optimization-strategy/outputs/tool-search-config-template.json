@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "_comment": "Tool Search Tool configuration template for beep-effect. Activate when MCP tools exceed 10.",
+  "_activation_criteria": {
+    "trigger_when": [
+      "Total MCP tools > 10",
+      "New MCP server with >5 tools added",
+      "Context budget concerns emerge",
+      "Multi-server workflows become common"
+    ],
+    "current_status": "NOT_ACTIVATED",
+    "last_audit": "2026-01-11"
+  },
+  "tools": [
+    {
+      "type": "tool_search_tool_bm25_20251119",
+      "name": "tool_search",
+      "_description": "BM25-based tool search for on-demand tool discovery. Requires beta header: advanced-tool-use-2025-11-20"
+    },
+    {
+      "type": "mcp_toolset",
+      "mcp_server_name": "effect_docs",
+      "_description": "Effect documentation server - high frequency tools remain non-deferred",
+      "default_config": {
+        "defer_loading": true
+      },
+      "configs": {
+        "effect_docs_search": {
+          "defer_loading": false,
+          "_reason": "Used by 7 agents - primary documentation lookup"
+        },
+        "get_effect_doc": {
+          "defer_loading": false,
+          "_reason": "Used by 6 agents - document retrieval"
+        }
+      }
+    },
+    {
+      "type": "mcp_toolset",
+      "mcp_server_name": "ide",
+      "_description": "IDE integration - all tools non-deferred due to low count",
+      "default_config": {
+        "defer_loading": false
+      }
+    },
+    {
+      "type": "mcp_toolset",
+      "mcp_server_name": "shadcn",
+      "_description": "UI component management - all tools deferred, used infrequently",
+      "default_config": {
+        "defer_loading": true
+      },
+      "configs": {
+        "_note": "Add high-frequency shadcn tools here if usage patterns emerge"
+      }
+    }
+  ],
+  "_beta_requirements": {
+    "header": "anthropic-beta: advanced-tool-use-2025-11-20",
+    "models": ["claude-opus-4-5-20251101", "claude-sonnet-4-5-20251101"],
+    "documentation": "https://platform.claude.com/docs/en/agents-and-tools/tool-use/tool-search-tool"
+  },
+  "_expected_results": {
+    "baseline_tokens": "~3,900 (with shadcn)",
+    "optimized_tokens": "<1,000",
+    "reduction_percentage": "75%+",
+    "tools_loaded_initially": 3,
+    "tools_available_via_search": "remaining"
+  }
+}

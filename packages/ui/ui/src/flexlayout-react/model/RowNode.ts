@@ -13,8 +13,7 @@ import { canDockToWindow } from "../view/Utils";
 import { BorderNode } from "./BorderNode";
 import type { IDraggable } from "./IDraggable";
 import type { IDropTarget } from "./IDropTarget";
-import type { IJsonRowNode } from "./IJsonModel";
-import { JsonRowNode } from "./IJsonModel";
+import { JsonRowNode } from "./JsonModel.ts";
 import type { LayoutWindow } from "./LayoutWindow";
 import { DefaultMax, DefaultMin, Model } from "./Model";
 import { Node } from "./Node";
@@ -75,7 +74,7 @@ export class RowNode extends Node implements IDropTarget {
     return this.attributes.weight as number;
   }
 
-  toJson(): IJsonRowNode {
+  toJson(): JsonRowNode {
     const json: Record<string, unknown> = {};
     RowNode.attributeDefinitions.toJson(json, this.attributes);
 
@@ -539,9 +538,7 @@ export class RowNode extends Node implements IDropTarget {
       node = new TabSetNode(this.model, callback ? callback(dragNode as TabNode) : {});
       node.addChild(dragNode);
     }
-    let size = A.reduce(this.children, 0, (sum, child) =>
-      sum + (child as RowNode | TabSetNode).getWeight()
-    );
+    let size = A.reduce(this.children, 0, (sum, child) => sum + (child as RowNode | TabSetNode).getWeight());
 
     if (size === 0) {
       size = 100;

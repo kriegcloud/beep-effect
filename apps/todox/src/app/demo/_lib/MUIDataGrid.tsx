@@ -1,5 +1,6 @@
-import { DataGrid, type GridColDef } from "@mui/x-data-grid";
 import Box from "@mui/material/Box";
+import { DataGrid, type GridColDef } from "@mui/x-data-grid";
+
 const columns: GridColDef<(typeof rows)[number]>[] = [
   { field: "id", headerName: "ID", width: 90 },
   {
@@ -45,25 +46,26 @@ const rows = [
 
 export default function DataGridDemo() {
   return (
-    <Box sx={{
-      display: "flex",
-      flexDirection: "column",
-    }}>
-     <DataGrid
-      rows={rows}
-      columns={columns}
-      initialState={{
-        pagination: {
-          paginationModel: {
-            pageSize: 5,
-          },
-        },
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
       }}
-      pageSizeOptions={[5]}
-      checkboxSelection
-      disableRowSelectionOnClick
-    />
+    >
+      <DataGrid
+        rows={rows}
+        columns={columns}
+        initialState={{
+          pagination: {
+            paginationModel: {
+              pageSize: 5,
+            },
+          },
+        }}
+        pageSizeOptions={[5]}
+        checkboxSelection
+        disableRowSelectionOnClick
+      />
     </Box>
-
   );
 }

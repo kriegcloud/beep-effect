@@ -9,12 +9,12 @@ import { getRenderStateEx, isAuxMouseEvent } from "./Utils";
 
 /** @internal */
 export interface IBorderButtonProps {
-  layout: LayoutInternal;
-  node: TabNode;
-  selected: boolean;
-  border: string;
-  icons: IIcons;
-  path: string;
+  readonly layout: LayoutInternal;
+  readonly node: TabNode;
+  readonly selected: boolean;
+  readonly border: string;
+  readonly icons: IIcons;
+  readonly path: string;
 }
 
 /** @internal */

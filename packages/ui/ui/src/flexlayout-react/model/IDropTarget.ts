@@ -5,9 +5,14 @@ import type { Node } from "./Node";
 
 export interface IDropTarget {
   /** @internal */
-  canDrop(dragNode: Node & IDraggable, x: number, y: number): DropInfo | undefined;
+  readonly canDrop: (dragNode: Node & IDraggable, x: number, y: number) => DropInfo | undefined;
   /** @internal */
-  drop(dragNode: Node & IDraggable, location: DockLocation, index: number, select?: undefined | boolean): void;
+  readonly drop: (
+    dragNode: Node & IDraggable,
+    location: DockLocation,
+    index: number,
+    select?: undefined | boolean
+  ) => void;
   /** @internal */
-  isEnableDrop(): boolean;
+  readonly isEnableDrop: () => boolean;
 }
