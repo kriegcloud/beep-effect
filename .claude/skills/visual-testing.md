@@ -31,6 +31,80 @@ Since Playwright MCP cannot be enabled, this skill generates test files for manu
 
 ---
 
+## Initial Setup (First Time Only)
+
+Before generating tests, ensure Playwright is configured:
+
+### 1. Install Dependencies
+
+```bash
+bun add -d @playwright/test @axe-core/playwright
+bunx playwright install chromium
+```
+
+### 2. Create playwright.config.ts
+
+```typescript
+// apps/web/playwright.config.ts
+import { defineConfig, devices } from "@playwright/test";
+
+export default defineConfig({
+  testDir: "./tests/e2e",
+  fullyParallel: true,
+  forbidOnly: !!process.env.CI,
+  retries: process.env.CI ? 2 : 0,
+  workers: process.env.CI ? 1 : undefined,
+  reporter: "html",
+  use: {
+    baseURL: process.env.BASE_URL ?? "http://localhost:3000",
+    trace: "on-first-retry",
+    screenshot: "only-on-failure",
+  },
+  projects: [
+    {
+      name: "chromium",
+      use: { ...devices["Desktop Chrome"] },
+    },
+    {
+      name: "firefox",
+      use: { ...devices["Desktop Firefox"] },
+    },
+    {
+      name: "webkit",
+      use: { ...devices["Desktop Safari"] },
+    },
+    {
+      name: "mobile-chrome",
+      use: { ...devices["Pixel 5"] },
+    },
+  ],
+  webServer: {
+    command: "bun run dev",
+    url: "http://localhost:3000",
+    reuseExistingServer: !process.env.CI,
+  },
+});
+```
+
+### 3. Add Script to package.json
+
+```json
+{
+  "scripts": {
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui"
+  }
+}
+```
+
+### 4. Create Test Directory
+
+```bash
+mkdir -p apps/web/tests/e2e
+```
+
+---
+
 ## Critical Constraints
 
 1. **Test File Location** — Place tests in `apps/[app]/tests/e2e/` or adjacent to components
@@ -38,6 +112,7 @@ Since Playwright MCP cannot be enabled, this skill generates test files for manu
 3. **Accessibility First** — Use accessibility tree for assertions when possible
 4. **Isolation** — Each test should be independent and self-contained
 5. **No Hardcoded URLs** — Use environment variables or fixtures for URLs
+6. **Component Test IDs** — Ensure tested components have `data-testid` (see `atomic-component.md`)
 
 ---
 
@@ -361,8 +436,31 @@ bun run test:e2e --update-snapshots
 
 ---
 
+## Related Skills
+
+| Skill | Relationship |
+|-------|--------------|
+| `atomic-component.md` | Components MUST have `data-testid` attributes for selectors |
+| `form-field.md` | Form fields need `data-testid` on inputs for test targeting |
+| `mui-component-override.md` | Theme changes require visual regression tests |
+| `effect-check.md` | Test files don't use Effect (validation not needed) |
+
+**Prerequisite Coordination:**
+- Before testing a component, verify it has `data-testid` attributes
+- If missing, use `atomic-component.md` guidance to add them
+- Form fields should follow `form-field.md` conventions for test targeting
+
+**Workflow Integration:**
+1. Create/update component with `atomic-component.md` (adds test IDs)
+2. Generate tests with this skill
+3. Run `bun run test:e2e` to verify
+4. Update screenshots with `--update-snapshots` if visual changes are intentional
+
+---
+
 ## Verification Checklist
 
+- [ ] Playwright config exists (`playwright.config.ts`)
 - [ ] Test file follows naming convention (`*.spec.ts`)
 - [ ] Tests are isolated and independent
 - [ ] Uses `data-testid` selectors where possible

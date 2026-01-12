@@ -344,6 +344,36 @@ import * as Match from "effect/Match";     // Full name OK
 
 ---
 
+## Related Skills
+
+| Skill | Relationship |
+|-------|--------------|
+| `atomic-component.md` | Validate AFTER generating components |
+| `form-field.md` | Validate AFTER generating form fields |
+| `mui-component-override.md` | Validate AFTER generating theme overrides |
+| `visual-testing.md` | Test files don't use Effect (skip validation) |
+
+**When to Run This Skill:**
+- After ANY code generation skill produces TypeScript/TSX files
+- Before committing changes
+- When reviewing PRs for Effect compliance
+- When auditing existing packages
+
+**Workflow Position:**
+This skill is the **final validation step** after all code-generating skills:
+
+```
+atomic-component.md → effect-check.md ✓
+form-field.md → effect-check.md ✓
+mui-component-override.md → effect-check.md ✓
+visual-testing.md → (skip - no Effect in tests)
+```
+
+**Automation Tip:**
+Consider adding this check to pre-commit hooks or CI pipeline.
+
+---
+
 ## Verification Checklist
 
 - [ ] No native `.map()`, `.filter()`, `.reduce()` on arrays
