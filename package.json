@@ -144,7 +144,7 @@
     "@ai-sdk/google": "^3.0.6",
     "@ai-sdk/openai": "^3.0.8",
     "@ai-sdk/react": "^3.0.30",
-    "@ariakit/react": "^0.4.20",
+    "@ariakit/react": "^0.4.21",
     "@babel/cli": "^7.28.3",
     "@babel/core": "^7.28.5",
     "dompurify": "^3.3.1",
