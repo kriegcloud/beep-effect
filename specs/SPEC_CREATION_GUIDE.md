@@ -447,8 +447,10 @@ bun run beep bootstrap-spec -n my-feature -d "Feature description" --dry-run
 | Level | Files Created | Use Case |
 |-------|---------------|----------|
 | `simple` | README.md, REFLECTION_LOG.md | Quick fixes, 1 session |
-| `medium` | + QUICK_START.md, outputs/ | Standard specs, 2-3 sessions |
+| `medium` | + QUICK_START.md, outputs/, handoffs/ | Standard specs, 2-3 sessions |
 | `complex` | + MASTER_ORCHESTRATION.md, AGENT_PROMPTS.md, RUBRICS.md, templates/, handoffs/ | Major initiatives, 4+ sessions |
+
+**Note**: Handoff documents (`handoffs/`) are recommended for any multi-session work (medium and complex specs) to preserve context between sessions. Single-session (simple) specs do not require handoffs.
 
 ### Option 2: Manual Initialization
 

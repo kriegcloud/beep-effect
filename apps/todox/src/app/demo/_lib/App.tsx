@@ -1,6 +1,6 @@
 "use client";
 
-import type { Action, IJsonTabNode, ITabRenderValues, ITabSetRenderValues, Node } from "@beep/ui/flexlayout-react";
+import type { Action, ITabRenderValues, ITabSetRenderValues, JsonTabNode, Node } from "@beep/ui/flexlayout-react";
 import {
   Actions,
   AddIcon,
@@ -261,7 +261,7 @@ function App() {
   }, []);
 
   const onRenderDragRect = React.useCallback(
-    (content: React.ReactNode | undefined, _node?: Node, _json?: IJsonTabNode) => {
+    (content: React.ReactNode | undefined, _node?: Node, _json?: JsonTabNode) => {
       if (layoutFile === "newfeatures") {
         return (
           <>
@@ -292,7 +292,7 @@ function App() {
       if (!rootDiv) return;
 
       showPopup(
-        "Menu for " + (node instanceof TabNode ? "Tab: " + node.getName() : node.getType()),
+        `Menu for ${node instanceof TabNode ? `Tab: ${node.getName()}` : node.getType()}`,
         rootDiv,
         event.clientX,
         event.clientY,
@@ -324,8 +324,8 @@ function App() {
       if (!layout) return;
 
       if (layoutFile?.startsWith("test_")) {
-        const gridName = "Text" + nextGridIndex.current++;
-        event.dataTransfer.setData("text/plain", "FlexLayoutTab:" + JSON.stringify({ name: gridName }));
+        const gridName = `Text${nextGridIndex.current++}`;
+        event.dataTransfer.setData("text/plain", `FlexLayoutTab:${JSON.stringify({ name: gridName })}`);
         layout.setDragComponent(event.nativeEvent, gridName, 10, 10);
         layout.addTabWithDragAndDrop(event.nativeEvent, {
           name: gridName,
@@ -353,7 +353,7 @@ function App() {
   const onExternalDrag = React.useCallback(
     (
       e: React.DragEvent<HTMLElement>
-    ): { json: IJsonTabNode; onDrop?: (node?: Node, event?: React.DragEvent<HTMLElement>) => void } | undefined => {
+    ): { json: JsonTabNode; onDrop?: (node?: Node, event?: React.DragEvent<HTMLElement>) => void } | undefined => {
       // Check for supported content type
       const validTypes = ["text/uri-list", "text/html", "text/plain"];
       const types = A.fromIterable(e.dataTransfer.types);
@@ -559,7 +559,7 @@ function App() {
     }
 
     // Keep the flexlayout theme class for any legacy compatibility
-    const themeClassName = "flexlayout__theme_" + theme;
+    const themeClassName = `flexlayout__theme_${theme}`;
     setPopoutClassName(themeClassName);
   }, []);
 

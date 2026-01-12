@@ -1,5 +1,5 @@
-import { I18nLabel } from "@beep/ui/flexlayout-react/I18nLabel";
 import * as React from "react";
+import { I18nLabel } from "../I18nLabel";
 import { Actions } from "../model/Actions";
 import { ICloseType } from "../model/ICloseType";
 import type { TabNode } from "../model/TabNode";

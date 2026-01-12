@@ -1,6 +1,6 @@
 import { $UiId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
-import * as HashMap from "effect/HashMap";
+import * as MutableHashMap from "effect/MutableHashMap";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { HorzOrientation, IOrientation, Orientation, VertOrientation } from "./Orientation";
@@ -76,7 +76,7 @@ export declare namespace AnyDockLocation {
   export type Encoded = typeof AnyDockLocation.Encoded;
 }
 
-export class DockLocationValues extends S.HashMap({
+export class DockLocationValues extends BS.MutableHashMap({
   key: S.String,
   value: AnyDockLocation,
 }).annotations(
@@ -121,7 +121,7 @@ export class IDockLocation extends S.Class<IDockLocation>($I`IDockLocation`)({
   static readonly new = (name: string, orientation: IOrientation, indexPlus: number) => {
     const instance = new IDockLocation({
       data: {
-        values: HashMap.empty<string, AnyDockLocation.Type>(),
+        values: MutableHashMap.empty<string, AnyDockLocation.Type>(),
         name,
         orientation,
         indexPlus,

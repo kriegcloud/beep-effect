@@ -1,3 +1,4 @@
+import type { UnsafeTypes } from "@beep/types";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { Attribute } from "../Attribute";
@@ -10,9 +11,10 @@ import { CLASSES } from "../Types";
 import type { IDraggable } from "./IDraggable";
 import type { IDropTarget } from "./IDropTarget";
 import { type BorderAttributes, BorderLocation, JsonBorderNode, type JsonTabNode } from "./JsonModel.ts";
+import type { IModel } from "./Model";
 import { Model } from "./Model";
-import { Node } from "./Node";
-import { TabNode } from "./TabNode";
+import { INode, Node } from "./Node";
+import { ITabNode, TabNode } from "./TabNode";
 import type { TabSetNode } from "./TabSetNode";
 import { adjustSelectedIndex } from "./Utils";
 
@@ -421,6 +423,362 @@ export class BorderNode extends Node implements IDropTarget {
   private static createAttributeDefinitions(): AttributeDefinitions {
     const attributeDefinitions = new AttributeDefinitions();
     attributeDefinitions.add("type", BorderNode.TYPE, true).setType(Attribute.STRING).setFixed();
+
+    attributeDefinitions
+      .add("selected", -1)
+      .setType(Attribute.NUMBER)
+      .setDescription(`index of selected/visible tab in border; -1 means no tab selected`);
+    attributeDefinitions.add("show", true).setType(Attribute.BOOLEAN).setDescription(`show/hide this border`);
+    attributeDefinitions
+      .add("config", undefined)
+      .setType("any")
+      .setDescription(`a place to hold json config used in your own code`);
+
+    attributeDefinitions
+      .addInherited("enableDrop", "borderEnableDrop")
+      .setType(Attribute.BOOLEAN)
+      .setDescription(`whether tabs can be dropped into this border`);
+    attributeDefinitions
+      .addInherited("className", "borderClassName")
+      .setType(Attribute.STRING)
+      .setDescription(`class applied to tab button`);
+    attributeDefinitions
+      .addInherited("autoSelectTabWhenOpen", "borderAutoSelectTabWhenOpen")
+      .setType(Attribute.BOOLEAN)
+      .setDescription(`whether to select new/moved tabs in border when the border is already open`);
+    attributeDefinitions
+      .addInherited("autoSelectTabWhenClosed", "borderAutoSelectTabWhenClosed")
+      .setType(Attribute.BOOLEAN)
+      .setDescription(`whether to select new/moved tabs in border when the border is currently closed`);
+    attributeDefinitions
+      .addInherited("size", "borderSize")
+      .setType(Attribute.NUMBER)
+      .setDescription(`size of the tab area when selected`);
+    attributeDefinitions
+      .addInherited("minSize", "borderMinSize")
+      .setType(Attribute.NUMBER)
+      .setDescription(`the minimum size of the tab area`);
+    attributeDefinitions
+      .addInherited("maxSize", "borderMaxSize")
+      .setType(Attribute.NUMBER)
+      .setDescription(`the maximum size of the tab area`);
+    attributeDefinitions
+      .addInherited("enableAutoHide", "borderEnableAutoHide")
+      .setType(Attribute.BOOLEAN)
+      .setDescription(`hide border if it has zero tabs`);
+    attributeDefinitions
+      .addInherited("enableTabScrollbar", "borderEnableTabScrollbar")
+      .setType(Attribute.BOOLEAN)
+      .setDescription(`whether to show a mini scrollbar for the tabs`);
+    return attributeDefinitions;
+  }
+}
+
+// ============================================================================
+// IBorderNode Schema Class - Effect Schema version of BorderNode
+// ============================================================================
+
+/**
+ * Effect Schema version of BorderNode - a border panel node.
+ *
+ * Extends INode using .extend() pattern and provides IDropTarget methods directly.
+ */
+export class IBorderNode extends INode.extend<IBorderNode>("IBorderNode")({}) {
+  static readonly TYPE = "border";
+
+  // ========================================================================
+  // Static factory and attribute definitions
+  // ========================================================================
+
+  /**
+   * Factory method for creating IBorderNode instances.
+   * @internal
+   */
+  static readonly new = (location: DockLocation, json: JsonBorderNode, model: IModel): IBorderNode => {
+    const instance = new IBorderNode({ data: { id: O.none(), type: "border", weight: O.none(), selected: O.none() } });
+    instance._initialize(location, json, model);
+    return instance;
+  };
+
+  /** @internal */
+  static fromJson(json: JsonBorderNode, model: IModel): IBorderNode {
+    const location = DockLocation.getByName(json.location);
+    const border = IBorderNode.new(location, json, model);
+    if (json.children) {
+      for (const jsonChild of json.children) {
+        const child = ITabNode.new(model, jsonChild);
+        child.setParent(border);
+        border.addChild(child);
+      }
+    }
+    return border;
+  }
+
+  /** @internal */
+  private static attributeDefinitions: AttributeDefinitions = IBorderNode.createAttributeDefinitions();
+
+  /** @internal */
+  static getAttributeDefinitions(): AttributeDefinitions {
+    return IBorderNode.attributeDefinitions;
+  }
+
+  // ========================================================================
+  // Non-serializable runtime fields
+  // ========================================================================
+
+  /** @internal */
+  private _contentRect: Rect = Rect.empty();
+  /** @internal */
+  private _tabHeaderRect: Rect = Rect.empty();
+  /** @internal */
+  private _location: DockLocation = DockLocation.LEFT;
+
+  // ========================================================================
+  // Initialization
+  // ========================================================================
+
+  /** @internal */
+  private _initialize(location: DockLocation, json: JsonBorderNode, model: IModel): void {
+    this._location = location;
+    this.initializeModel(model);
+    this.getAttributes().id = `border_${location.getName()}`;
+    IBorderNode.attributeDefinitions.fromJson(json, this.getAttributes());
+    model.addNode(this);
+  }
+
+  // ========================================================================
+  // Overridden abstract methods from INode
+  // ========================================================================
+
+  override toJson(): JsonBorderNode {
+    const mutableJson: Record<string, unknown> = {};
+    IBorderNode.attributeDefinitions.toJson(mutableJson, this.getAttributes());
+    mutableJson.location = BorderLocation.make(this._location.getName());
+    mutableJson.children = this.getChildren().map((child) => (child as unknown as TabNode).toJson());
+    return S.decodeUnknownSync(JsonBorderNode)(mutableJson);
+  }
+
+  /** @internal */
+  override updateAttrs(json: Partial<BorderAttributes>): void {
+    IBorderNode.attributeDefinitions.update(json, this.getAttributes());
+  }
+
+  /** @internal */
+  override getAttributeDefinitions(): AttributeDefinitions {
+    return IBorderNode.attributeDefinitions;
+  }
+
+  // ========================================================================
+  // Getter methods
+  // ========================================================================
+
+  getLocation(): DockLocation {
+    return this._location;
+  }
+
+  getClassName(): string | undefined {
+    return this.getAttr("className") as string | undefined;
+  }
+
+  isHorizontal(): boolean {
+    return this._location.orientation === Orientation.HORZ;
+  }
+
+  getSize(): number {
+    const defaultSize = this.getAttr("size") as number;
+    const selected = this.getSelected();
+    if (selected === -1) {
+      return defaultSize;
+    }
+    const tabNode = this.getChildren()[selected] as unknown as TabNode;
+    const tabBorderSize = this.isHorizontal() ? tabNode.getAttr("borderWidth") : tabNode.getAttr("borderHeight");
+    if (tabBorderSize === -1) {
+      return defaultSize;
+    }
+    return tabBorderSize as number;
+  }
+
+  getMinSize(): number {
+    const selectedNode = this.getSelectedNode();
+    let min = this.getAttr("minSize") as number;
+    if (selectedNode) {
+      const nodeMin = this.isHorizontal() ? selectedNode.getMinWidth() : selectedNode.getMinHeight();
+      min = Math.max(min, nodeMin);
+    }
+    return min;
+  }
+
+  getMaxSize(): number {
+    const selectedNode = this.getSelectedNode();
+    let max = this.getAttr("maxSize") as number;
+    if (selectedNode) {
+      const nodeMax = this.isHorizontal() ? selectedNode.getMaxWidth() : selectedNode.getMaxHeight();
+      max = Math.min(max, nodeMax);
+    }
+    return max;
+  }
+
+  getSelected(): number {
+    return this.getAttributes().selected as number;
+  }
+
+  isAutoHide(): boolean {
+    return this.getAttr("enableAutoHide") as boolean;
+  }
+
+  getSelectedNode(): TabNode | undefined {
+    if (this.getSelected() !== -1) {
+      return this.getChildren()[this.getSelected()] as unknown as TabNode;
+    }
+    return undefined;
+  }
+
+  override getOrientation(): Orientation {
+    return this._location.getOrientation();
+  }
+
+  getConfig(): UnsafeTypes.UnsafeAny {
+    return this.getAttributes().config;
+  }
+
+  isMaximized(): boolean {
+    return false;
+  }
+
+  isShowing(): boolean {
+    return this.getAttributes().show as boolean;
+  }
+
+  isEnableTabScrollbar(): boolean {
+    return this.getAttr("enableTabScrollbar") as boolean;
+  }
+
+  // ========================================================================
+  // IDropTarget methods (no implements clause)
+  // ========================================================================
+
+  isEnableDrop(): boolean {
+    return this.getAttr("enableDrop") as boolean;
+  }
+
+  /** @internal */
+  drop(dragNode: Node & IDraggable, _location: DockLocation, index: number, select?: undefined | boolean): void {
+    let fromIndex = 0;
+    const dragParent = dragNode.getParent() as BorderNode | TabSetNode;
+    if (dragParent !== undefined) {
+      fromIndex = dragParent.removeChild(dragNode);
+      if (
+        dragParent !== (this as unknown as Node) &&
+        dragParent instanceof BorderNode &&
+        dragParent.getSelected() === fromIndex
+      ) {
+        dragParent.setSelected(-1);
+      } else {
+        adjustSelectedIndex(dragParent, fromIndex);
+      }
+    }
+
+    if (dragNode instanceof TabNode && dragParent === (this as unknown as Node) && fromIndex < index && index > 0) {
+      index--;
+    }
+
+    let insertPos = index;
+    if (insertPos === -1) {
+      insertPos = this.getChildren().length;
+    }
+
+    if (dragNode instanceof TabNode) {
+      this.addChild(dragNode as unknown as INode, insertPos);
+    }
+
+    if (select || (select !== false && this.isAutoSelectTab())) {
+      this.setSelected(insertPos);
+    }
+
+    this.getModel().tidy();
+  }
+
+  // ========================================================================
+  // Internal methods
+  // ========================================================================
+
+  /** @internal */
+  isAutoSelectTab(whenOpen?: undefined | boolean): boolean {
+    if (whenOpen == null) {
+      whenOpen = this.getSelected() !== -1;
+    }
+    if (whenOpen) {
+      return this.getAttr("autoSelectTabWhenOpen") as boolean;
+    }
+    return this.getAttr("autoSelectTabWhenClosed") as boolean;
+  }
+
+  /** @internal */
+  override setSelected(index: number): void {
+    this.getAttributes().selected = index;
+  }
+
+  /** @internal */
+  getTabHeaderRect(): Rect {
+    return this._tabHeaderRect;
+  }
+
+  /** @internal */
+  setTabHeaderRect(r: Rect): void {
+    this._tabHeaderRect = r;
+  }
+
+  /** @internal */
+  override getRect(): Rect {
+    return this._tabHeaderRect;
+  }
+
+  /** @internal */
+  getContentRect(): Rect {
+    return this._contentRect;
+  }
+
+  /** @internal */
+  setContentRect(r: Rect): void {
+    this._contentRect = r;
+  }
+
+  /** @internal */
+  setSize(pos: number): void {
+    const selected = this.getSelected();
+    if (selected === -1) {
+      this.getAttributes().size = pos;
+    } else {
+      const tabNode = this.getChildren()[selected] as unknown as TabNode;
+      const tabBorderSize = this.isHorizontal() ? tabNode.getAttr("borderWidth") : tabNode.getAttr("borderHeight");
+      if (tabBorderSize === -1) {
+        this.getAttributes().size = pos;
+      } else {
+        if (this.isHorizontal()) {
+          tabNode.setBorderWidth(pos);
+        } else {
+          tabNode.setBorderHeight(pos);
+        }
+      }
+    }
+  }
+
+  /** @internal */
+  remove(node: TabNode): void {
+    const removedIndex = this.removeChild(node as unknown as INode);
+    if (this.getSelected() !== -1) {
+      adjustSelectedIndex(this as unknown as BorderNode, removedIndex);
+    }
+  }
+
+  // ========================================================================
+  // Private static methods
+  // ========================================================================
+
+  /** @internal */
+  private static createAttributeDefinitions(): AttributeDefinitions {
+    const attributeDefinitions = new AttributeDefinitions();
+    attributeDefinitions.add("type", IBorderNode.TYPE, true).setType(Attribute.STRING).setFixed();
 
     attributeDefinitions
       .add("selected", -1)

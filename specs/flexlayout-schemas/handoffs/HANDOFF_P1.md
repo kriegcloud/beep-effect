@@ -1,6 +1,12 @@
-# FlexLayout Schema Migration Handoff — P1 Phase
+# FlexLayout Schema Creation Handoff — P1 Phase
 
-> Handoff for Phase 1: Actions.ts Migration
+> Handoff for Phase 1: Create IActions Schema Class
+
+---
+
+## Critical Rule
+
+**DO NOT MODIFY ORIGINAL CLASSES.** This is additive work - create NEW schema classes alongside existing classes. Originals stay unchanged.
 
 ---
 
@@ -20,7 +26,7 @@
 ### Spec Scaffolding
 
 1. **README.md** - Overview with patterns, target files, execution strategy
-2. **QUICK_START.md** - 5-minute migration guide
+2. **QUICK_START.md** - 5-minute schema creation guide
 3. **AGENT_PROMPTS.md** - Detailed prompts for all phases
 4. **RUBRICS.md** - Evaluation criteria with 5 dimensions
 5. **MASTER_ORCHESTRATION.md** - Full workflow with dependency graph
@@ -30,7 +36,7 @@
 
 ### Research Completed
 
-- Analyzed existing migrations: Attribute.ts, AttributeDefinitions.ts, DockLocation.ts
+- Analyzed existing schema classes: Attribute.ts, AttributeDefinitions.ts, DockLocation.ts
 - Identified 4 key patterns: Simple Data, Collection, Tagged Variant, Lazy Singleton
 - Mapped dependency graph for 9 target files
 - Documented abstract class handling options

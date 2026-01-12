@@ -1,6 +1,12 @@
-# FlexLayout Schema Migration: Quick Start
+# FlexLayout Schema Creation: Quick Start
 
-> 5-minute guide to migrating a FlexLayout class to Effect Schema.
+> 5-minute guide to creating an Effect Schema class alongside an existing FlexLayout class.
+
+---
+
+## Important: This is Additive Work
+
+**DO NOT modify original classes.** You are creating NEW schema classes (`IClassName`) alongside the existing classes. The originals stay exactly as they are.
 
 ---
 
@@ -15,15 +21,16 @@
 
 ---
 
-## Migration Steps (Per File)
+## Creation Steps (Per File)
 
 ### Step 1: Add Imports
 
 ```typescript
 import { $UiId } from "@beep/identity/packages";
+import { BS } from "@beep/schema";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-// Add other Effect imports as needed (A, Order, HashMap, etc.)
+// Add other Effect imports as needed (A, Order, etc.)
 
 const $I = $UiId.create("flexlayout-react/FileName");
 ```
@@ -49,8 +56,8 @@ export class ClassNameData extends S.Struct({
   // Arrays (mutable)
   items: S.mutable(S.Array(SomeSchema)),
 
-  // Maps (mutable)
-  itemMap: S.mutable(S.Map({key: S.String, value: SomeSchema})),
+  // Maps (mutable) - use BS.MutableHashMap from @beep/schema
+  itemMap: BS.MutableHashMap({key: S.String, value: SomeSchema}),
 
   // Unknown/any type
   attributes: S.Unknown,
@@ -61,9 +68,13 @@ export class ClassNameData extends S.Struct({
 ) {}
 ```
 
-### Step 3: Create Schema Class
+### Step 3: Create Schema Class (Below Original Class)
+
+Add this BELOW the existing class in the same file - do not modify the original:
 
 ```typescript
+// Original class stays above - DO NOT MODIFY IT
+
 export class IClassName extends S.Class<IClassName>($I`IClassName`)({
   data: ClassNameData
 }) {
@@ -80,12 +91,12 @@ export class IClassName extends S.Class<IClassName>($I`IClassName`)({
         alias: O.none(),
         enabled: true,
         items: [],
-        itemMap: new Map(),
+        itemMap: MutableHashMap.empty(),  // from effect/MutableHashMap
         attributes: {},
       }
     });
 
-  // Migrate each method, using `this.data.fieldName` for access
+  // Add each method, using `this.data.fieldName` for access
   readonly getName = (): string => this.data.name;
 
   readonly setName = (value: string): this => {
@@ -111,7 +122,7 @@ turbo run check --filter=@beep/ui
 |----------|----------------|
 | `field: string \| undefined` | `field: S.OptionFromUndefinedOr(S.String)` |
 | `field: any` | `field: S.Unknown` |
-| `field: Map<K, V>` | `field: S.mutable(S.Map({key: K, value: V}))` |
+| `field: Map<K, V>` | `field: BS.MutableHashMap({key: K, value: V})` |
 | `field: T[]` | `field: S.mutable(S.Array(T))` |
 | `this.field` | `this.data.field` |
 | `return this.field` (optional) | `return this.data.field` (returns Option) |
@@ -120,12 +131,13 @@ turbo run check --filter=@beep/ui
 
 ## Gotchas
 
-1. **Don't include callbacks/functions in schema** - Store as private instance fields
-2. **Don't include DOM/Window refs in schema** - Store as private instance fields
-3. **Self-referential types** - Store as `O.Option<IClassName>` private field
-4. **Abstract methods** - Can't have abstract schema classes, use runtime checks
-5. **Effect Array operations** - Use `A.map`, `A.filter`, `A.sort` not native methods
-6. **Sorting** - Use `Order.mapInput(Order.string, fn)` not comparator functions
+1. **DO NOT modify original classes** - This is the most important rule
+2. **Don't include callbacks/functions in schema** - Store as private instance fields
+3. **Don't include DOM/Window refs in schema** - Store as private instance fields
+4. **Self-referential types** - Store as `O.Option<IClassName>` private field
+5. **Abstract methods** - Can't have abstract schema classes, use runtime checks
+6. **Effect Array operations** - Use `A.map`, `A.filter`, `A.sort` not native methods
+7. **Sorting** - Use `Order.mapInput(Order.string, fn)` not comparator functions
 
 ---
 

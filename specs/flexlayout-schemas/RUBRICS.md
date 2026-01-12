@@ -1,6 +1,12 @@
-# FlexLayout Schema Migration: Rubrics
+# FlexLayout Schema Creation: Rubrics
 
-> Evaluation criteria for assessing schema migration quality.
+> Evaluation criteria for assessing schema class creation quality.
+
+---
+
+## Critical Rule
+
+**DO NOT MODIFY ORIGINAL CLASSES.** This is additive work - create NEW schema classes alongside existing classes. Originals stay unchanged.
 
 ---
 
@@ -22,7 +28,7 @@
 - Data struct uses `S.Struct({...}).pipe(S.mutable)` correctly
 - All optional fields use `S.OptionFromUndefinedOr(S.Type)`
 - Arrays use `S.mutable(S.Array(...))`
-- Maps use `S.mutable(S.Map({key, value}))` or Effect HashMap
+- Maps use `BS.MutableHashMap({key, value})` for mutable Map behavior
 - Schema annotations include identifier and description
 - Namespace exports declared (`Type`, `Encoded`)
 
@@ -63,10 +69,11 @@ items: S.mutable(S.Array(ItemSchema))
 ## Dimension 2: API Preservation (Weight: 30%)
 
 ### 5 - Excellent
-- All public methods from legacy class exist in schema class
+- All public methods from original class exist in new schema class
 - Method signatures identical (same params, same return types)
 - Static methods and factories preserved
 - Fluent API maintained (methods returning `this`)
+- Original class remains UNCHANGED
 
 ### 4 - Good
 - All methods present
@@ -91,13 +98,15 @@ items: S.mutable(S.Array(ItemSchema))
 ### Evidence Required
 ```typescript
 // Compare method counts
-Legacy class methods: N
+Original class methods: N
 Schema class methods: M
 // M should equal N
 
 // Check method signatures match
-// Legacy: getName(): string
+// Original: getName(): string
 // Schema: readonly getName = (): string => this.data.name
+
+// Verify original class unchanged (git diff shows no modifications)
 ```
 
 ---
@@ -182,28 +191,28 @@ turbo run check --filter=@beep/ui
 ## Dimension 5: Documentation & Maintainability (Weight: 5%)
 
 ### 5 - Excellent
-- JSDoc on public methods
-- `/** @internal */` on legacy class
+- JSDoc on public methods in schema class
 - Clear method names
 - Schema annotations with descriptions
 - Self-documenting code structure
+- Original class UNCHANGED (no markers added)
 
 ### 4 - Good
 - Key methods documented
-- Internal markers present
 - Readable code
+- Schema annotations present
 
 ### 3 - Acceptable
 - Minimal documentation
 - Code is understandable
 
 ### 2 - Needs Work
-- Missing internal markers
 - Confusing code structure
+- Missing schema annotations
 
 ### 1 - Unacceptable
 - No documentation
-- Legacy class not marked
+- Original class was modified
 - Unclear code
 
 ---
@@ -211,20 +220,21 @@ turbo run check --filter=@beep/ui
 ## Per-File Evaluation Template
 
 ```markdown
-## [FileName].ts Migration Evaluation
+## [FileName].ts Schema Class Creation Evaluation
 
 ### Schema Structure: [1-5]
 - [ ] Mutable struct pattern used
 - [ ] Optional fields use OptionFromUndefinedOr
-- [ ] Collections properly typed
+- [ ] Collections properly typed (BS.MutableHashMap for Maps)
 - [ ] Annotations present
 Evidence: [code snippets]
 
 ### API Preservation: [1-5]
-- [ ] All public methods migrated
+- [ ] All public methods from original class recreated in schema class
 - [ ] Signatures preserved
 - [ ] Static methods present
-Evidence: [method count comparison]
+- [ ] Original class UNCHANGED
+Evidence: [method count comparison, git diff]
 
 ### Effect Patterns: [1-5]
 - [ ] A.* for array operations
@@ -240,9 +250,9 @@ Evidence: [grep for native methods]
 Evidence: [turbo run check output]
 
 ### Documentation: [1-5]
-- [ ] Internal markers
-- [ ] Schema annotations
-Evidence: [JSDoc presence]
+- [ ] Schema annotations with descriptions
+- [ ] Original class not touched
+Evidence: [JSDoc presence, git diff]
 
 ### Overall Score: [weighted average]
 ```
@@ -251,11 +261,12 @@ Evidence: [JSDoc presence]
 
 ## Aggregate Scoring
 
-After all 9 files migrated:
+After all 9 schema classes created:
 
 | Metric | Target | Actual |
 |--------|--------|--------|
-| Files migrated | 9 | |
+| Schema classes created | 9 | |
+| Original classes unchanged | 9 | |
 | Type check | Pass | |
 | Average schema structure | ≥4.0 | |
 | Average API preservation | ≥4.5 | |
@@ -268,21 +279,23 @@ After all 9 files migrated:
 
 ## Acceptance Criteria
 
-Migration is **COMPLETE** when:
+Schema creation is **COMPLETE** when:
 
-1. All 9 files have schema versions
-2. Type check passes: `turbo run check --filter=@beep/ui`
-3. Lint passes: `turbo run lint --filter=@beep/ui`
-4. Overall weighted score ≥ 4.0
-5. No individual dimension below 3.0
-6. REFLECTION_LOG.md updated with learnings
+1. All 9 files have new schema classes (IActions, INode, etc.)
+2. All 9 original classes remain UNCHANGED (verify with git diff)
+3. Type check passes: `turbo run check --filter=@beep/ui`
+4. Lint passes: `turbo run lint --filter=@beep/ui`
+5. Overall weighted score ≥ 4.0
+6. No individual dimension below 3.0
+7. REFLECTION_LOG.md updated with learnings
 
-Migration is **BLOCKED** if:
+Schema creation is **BLOCKED** if:
 
 1. Type check fails
 2. Any dimension scores 1 (Unacceptable)
 3. Critical methods missing (doAction, fromJson, toJson)
 4. Circular dependency errors
+5. **Original classes were modified** (CRITICAL FAILURE)
 
 ---
 
@@ -295,6 +308,7 @@ Per file, verify:
 - [ ] `class IFileName extends S.Class<IFileName>($I\`IFileName\`)({data: FileNameData})`
 - [ ] `static readonly new = (...) => new IFileName({data: {...}})`
 - [ ] All methods use `this.data.fieldName` not `this.fieldName`
-- [ ] Legacy class has `/** @internal */`
+- [ ] Original class UNCHANGED (no modifications, no markers)
 - [ ] No native array/string methods
 - [ ] Type check passes
+- [ ] Both classes exist in same file (original above, schema below)

@@ -1,16 +1,18 @@
-# FlexLayout Schema Migration Spec
+# FlexLayout Schema Creation Spec
 
-> Systematic migration of FlexLayout model classes to Effect Schema-based classes following the mutable data property pattern.
+> Create Effect Schema-based classes alongside existing FlexLayout model classes, following the mutable data property pattern.
 
 ---
 
 ## Purpose
 
-Migrate the following FlexLayout model classes from their current implementations (using `Data.Class` or plain classes) to Effect Schema-based classes (`S.Class`) with:
+Create new Effect Schema-based classes (`S.Class`) **alongside** the following existing FlexLayout model classes. The original classes remain unchanged - this is additive work, not a refactor or migration.
+
+New schema classes will have:
 - Mutable data property pattern (`data: SomeData`)
 - Effect `HashMap` instead of native `Map`
 - Effect `Option` for nullable/optional fields
-- Preserved behavior and method signatures
+- Same behavior and method signatures as originals
 
 ## Target Files
 
@@ -73,7 +75,7 @@ export class IAttribute extends S.Class<IAttribute>($I`IAttribute`)({
 ```typescript
 export class AttributeDefinitionsData extends S.Struct({
   attributes: S.mutable(S.Array(IAttribute)),
-  nameToAttribute: S.mutable(S.Map({key: S.String, value: IAttribute})),
+  nameToAttribute: BS.MutableHashMap({key: S.String, value: IAttribute}),
 }).pipe(S.mutable).annotations(...) {}
 
 export class IAttributeDefinitions extends S.Class<IAttributeDefinitions>($I`IAttributeDefinitions`)({
@@ -141,12 +143,12 @@ export class IDockLocation extends S.Class<IDockLocation>($I`IDockLocation`)({
 }
 ```
 
-### Pattern 4: HashMap Schema (`DockLocation.ts`)
+### Pattern 4: MutableHashMap Schema (`DockLocation.ts`)
 ```typescript
-// Effect HashMap in schema (preferred over native Map)
-export class DockLocationValues extends S.HashMap({
+// Effect MutableHashMap in schema (preferred over native Map, provides mutability)
+export class DockLocationValues extends BS.MutableHashMap({
   key: S.String,
-  value: AnyDockLocation
+  value: AnyDockLocation,
 }).annotations($I.annotations("DockLocationValues", {...})) {}
 ```
 
@@ -164,7 +166,7 @@ const $I = $UiId.create("flexlayout-react/FileName");
 - Use `S.OptionFromUndefinedOr(S.Type)` for optional fields
 - Use `S.Unknown` for values that can be any type
 - Use `S.mutable(S.Array(...))` for mutable arrays
-- Use `S.Map({key: S.String, value: S.Type})` for Maps (consider Effect HashMap)
+- Use `BS.MutableHashMap({key: S.String, value: S.Type})` for mutable Maps (preferred over native Map)
 
 ### 3. Schema Class Pattern
 ```typescript
@@ -205,32 +207,32 @@ const sorted = A.sort(items, byName);
 ## Execution Strategy
 
 ### Phase 1: Foundation (Actions, Node base)
-1. Migrate `Actions.ts` - simplest, no instance state
-2. Create abstract `INode` base class schema pattern
+1. Create `IActions` schema class alongside `Actions.ts` - simplest, no instance state
+2. Create `INode` base class schema pattern alongside `Node.ts`
 
 ### Phase 2: Support Classes (LayoutWindow, BorderSet)
-3. Migrate `LayoutWindow.ts`
-4. Migrate `BorderSet.ts`
+3. Create `ILayoutWindow` schema class alongside `LayoutWindow.ts`
+4. Create `IBorderSet` schema class alongside `BorderSet.ts`
 
 ### Phase 3: Node Subclasses
-5. Migrate `BorderNode.ts`
-6. Migrate `RowNode.ts`
-7. Migrate `TabSetNode.ts`
-8. Migrate `TabNode.ts`
+5. Create `IBorderNode` alongside `BorderNode.ts`
+6. Create `IRowNode` alongside `RowNode.ts`
+7. Create `ITabSetNode` alongside `TabSetNode.ts`
+8. Create `ITabNode` alongside `TabNode.ts`
 
 ### Phase 4: Orchestrator
-9. Migrate `Model.ts` - depends on all others
+9. Create `IModel` alongside `Model.ts` - depends on all others
 
 ---
 
 ## Success Criteria
 
-- [ ] All 9 target files have schema versions (prefix with `I` e.g., `IModel`)
-- [ ] Legacy classes remain intact for backward compatibility
-- [ ] Schema classes have identical public API (methods, return types)
-- [ ] All uses of native `Map` converted to Effect patterns
+- [ ] All 9 target files have new schema classes added (prefix with `I` e.g., `IModel`)
+- [ ] Original classes are completely unchanged
+- [ ] Schema classes have identical public API (methods, return types) to originals
+- [ ] Schema classes use Effect patterns (HashMap, Option, A.*)
 - [ ] Type checking passes: `bun run check`
-- [ ] No runtime regressions in flexlayout behavior
+- [ ] Both original and schema classes can coexist and work independently
 
 ---
 
@@ -248,11 +250,12 @@ bun run lint --filter=@beep/ui
 
 ## Notes for Agent
 
-1. **Preserve Legacy Classes**: Keep existing classes marked with `/** @internal */` for backward compatibility during migration
-2. **Incremental Migration**: Complete one file fully before moving to next
-3. **Test Early**: Run `bun run check` after each file migration
-4. **Abstract Class Challenge**: `Node.ts` is abstract - consider how to represent abstract schema classes (may need runtime checks instead of abstract methods)
-5. **Circular Dependencies**: `Model` ↔ `Node` have circular references - handle carefully
+1. **DO NOT MODIFY Original Classes**: This is additive work. Original classes stay exactly as they are - do not add `@internal`, do not rename, do not refactor
+2. **Create New Classes Alongside**: Add `IClassName` schema classes in the same file, below the original class
+3. **Incremental Creation**: Complete one file's schema class fully before moving to next
+4. **Test Early**: Run `bun run check` after each schema class is created
+5. **Abstract Class Challenge**: `Node.ts` is abstract - the schema version `INode` may need runtime checks instead of abstract methods
+6. **Circular Dependencies**: `Model` ↔ `Node` have circular references - handle carefully with lazy initialization
 
 ---
 

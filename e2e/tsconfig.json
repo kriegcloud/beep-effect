@@ -1,0 +1,24 @@
+{
+  "extends": "../tsconfig.base.jsonc",
+  "compilerOptions": {
+    "composite": false,
+    "noEmit": true,
+    "types": ["node"],
+    "baseUrl": "..",
+    "paths": {
+      "@beep/schema": ["./packages/common/schema/src/index"],
+      "@beep/schema/*": ["./packages/common/schema/src/*"],
+      "@beep/ui/*": ["./packages/ui/ui/src/*"],
+      "@beep/utils": ["./packages/common/utils/src/index"],
+      "@beep/utils/*": ["./packages/common/utils/src/*"]
+    }
+  },
+  "include": [
+    "./**/*.ts",
+    "./**/*.tsx"
+  ],
+  "exclude": [
+    "node_modules",
+    ".auth"
+  ]
+}

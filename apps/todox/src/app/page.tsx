@@ -3,6 +3,7 @@
 import { AI_CHAT_WIDTH, AIChatPanel, AIChatPanelTrigger } from "@beep/todox/components/ai-chat";
 import { MiniSidebarProvider } from "@beep/todox/components/mini-sidebar";
 import { TopNavbar } from "@beep/todox/components/navbar";
+import { PlaceholderView } from "@beep/todox/components/placeholder-view";
 import { SidePanel, SidePanelProvider, useSidePanel } from "@beep/todox/components/side-panel";
 import { MainContentPanelSidebar } from "@beep/todox/components/sidebar";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@beep/todox/components/ui/sidebar";
@@ -98,9 +99,20 @@ function MailContent() {
   );
 }
 
+type ViewMode =
+  | "workspace"
+  | "calendar"
+  | "email"
+  | "knowledge-base"
+  | "todos"
+  | "people"
+  | "tasks"
+  | "files"
+  | "heat-map";
+
 function MainContent() {
   const { open: chatOpen } = useSidePanel();
-  const [viewMode, setViewMode] = React.useState<string[]>(["email"]);
+  const [viewMode, setViewMode] = React.useState<ViewMode[]>(["email"]);
 
   return (
     <>
@@ -129,7 +141,16 @@ function MainContent() {
                 <ToggleGroup
                   value={viewMode}
                   onValueChange={(value) => {
-                    if (value.length > 0) setViewMode(value);
+                    // Implement single-select: take only the newly selected item
+                    if (value.length > 0) {
+                      const newValue = value.filter((v) => !viewMode.includes(v as ViewMode));
+                      if (newValue.length > 0) {
+                        setViewMode([newValue[0] as ViewMode]);
+                      } else if (value.length > 0) {
+                        // Keep current selection if trying to deselect
+                        setViewMode([value[value.length - 1] as ViewMode]);
+                      }
+                    }
                   }}
                   variant="outline"
                   size="sm"
@@ -167,10 +188,6 @@ function MainContent() {
                     <FilesIcon className="size-3.5" />
                     Files
                   </ToggleGroupItem>
-                  <ToggleGroupItem value="calendar" className="gap-1.5 px-3">
-                    <CalendarIcon className="size-3.5" />
-                    Calendar
-                  </ToggleGroupItem>
                   <ToggleGroupItem value="heat-map" className="gap-1.5 px-3">
                     <GaugeIcon className="size-3.5" />
                     Heat Map
@@ -178,10 +195,14 @@ function MainContent() {
                 </ToggleGroup>
               </div>
             </header>
-            {/* Wrap mail content with MailProvider */}
-            <MailProvider>
-              <MailContent />
-            </MailProvider>
+            {/* Conditional view rendering */}
+            {viewMode[0] === "email" ? (
+              <MailProvider>
+                <MailContent />
+              </MailProvider>
+            ) : (
+              <PlaceholderView viewMode={viewMode[0] ?? "workspace"} />
+            )}
           </SidebarProvider>
         </div>
       </div>

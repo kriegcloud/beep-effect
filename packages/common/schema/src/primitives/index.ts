@@ -70,6 +70,7 @@ export * from "./json";
  * @since 0.1.0
  */
 export * from "./locales";
+export * from "./mutable-hash-map";
 /**
  * Network protocol primitives (IP, hostnames).
  *

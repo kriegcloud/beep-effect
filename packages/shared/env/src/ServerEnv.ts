@@ -168,6 +168,9 @@ const AppConfig = Config.zipWith(
  * @since 0.1.0
  */
 export const ServerConfig = Config.all({
+  liveblocks: Config.all({
+    secretKey: Config.redacted(Config.nonEmptyString("LIVEBLOCKS_SECRET_KEY")).pipe(withPlaceholderRedacted),
+  }),
   baseUrl: Config.nested("VERCEL")(
     Config.all({
       url: Config.option(S.Config("URL", DomainName)),

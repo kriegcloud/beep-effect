@@ -78,8 +78,11 @@ specs/[SPEC_NAME]/
 | [flexlayout-type-safety](flexlayout-type-safety/) | Type safety improvements | Active |
 | [new-specialized-agents](new-specialized-agents/) | Agent creation initiative | Complete |
 | [node-composition-refactor](node-composition-refactor/) | Node hierarchy refactor | Complete |
+| [playwright-e2e](playwright-e2e/) | Playwright end-to-end testing infrastructure | P0 Ready |
 | [spec-bootstrapper](spec-bootstrapper/) | CLI command for spec scaffolding | Complete |
 | [structure-standardization](structure-standardization/) | Codebase structure standards | Active |
+| [todox-auth-integration](todox-auth-integration/) | Better-auth integration for apps/todox | P1 Ready |
+| [todox-view-switcher](todox-view-switcher/) | View switcher component for apps/todox | Active |
 
 ---
 

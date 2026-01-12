@@ -15,10 +15,11 @@ import type { IDraggable } from "./IDraggable";
 import type { IDropTarget } from "./IDropTarget";
 import { JsonRowNode } from "./JsonModel.ts";
 import type { LayoutWindow } from "./LayoutWindow";
+import type { IModel } from "./Model";
 import { DefaultMax, DefaultMin, Model } from "./Model";
-import { Node } from "./Node";
-import type { TabNode } from "./TabNode";
-import { TabSetNode } from "./TabSetNode";
+import { INode, Node } from "./Node";
+import type { ITabNode, TabNode } from "./TabNode";
+import { ITabSetNode, TabSetNode } from "./TabSetNode";
 
 export class RowNode extends Node implements IDropTarget {
   static readonly TYPE = "row";
@@ -631,6 +632,463 @@ export class RowNode extends Node implements IDropTarget {
   private static createAttributeDefinitions(): AttributeDefinitions {
     const attributeDefinitions = new AttributeDefinitions();
     attributeDefinitions.add("type", RowNode.TYPE, true).setType(Attribute.STRING).setFixed();
+    attributeDefinitions
+      .add("id", undefined)
+      .setType(Attribute.STRING)
+      .setDescription(`the unique id of the row, if left undefined a uuid will be assigned`);
+    attributeDefinitions
+      .add("weight", 100)
+      .setType(Attribute.NUMBER)
+      .setDescription(`relative weight for sizing of this row in parent row`);
+
+    return attributeDefinitions;
+  }
+}
+
+// ============================================================================
+// IRowNode Schema Class - Effect Schema version of RowNode
+// ============================================================================
+
+/**
+ * Effect Schema version of RowNode - a row container node.
+ *
+ * Extends INode using .extend() pattern and provides IDropTarget methods directly.
+ * Can contain other IRowNodes (recursive) or ITabSetNodes.
+ */
+export class IRowNode extends INode.extend<IRowNode>("IRowNode")({}) {
+  static readonly TYPE = "row";
+
+  // ========================================================================
+  // Static factory and attribute definitions
+  // ========================================================================
+
+  /**
+   * Factory method for creating IRowNode instances.
+   * @internal
+   */
+  static readonly new = (model: IModel, windowId: string, json: UnsafeTypes.UnsafeAny): IRowNode => {
+    const instance = new IRowNode({ data: { id: O.none(), type: "row", weight: O.none(), selected: O.none() } });
+    instance._initialize(model, windowId, json);
+    return instance;
+  };
+
+  /** @internal */
+  static fromJson(json: UnsafeTypes.UnsafeAny, model: IModel, layoutWindow: LayoutWindow): IRowNode {
+    const newLayoutNode = IRowNode.new(model, layoutWindow.windowId, json);
+
+    if (json.children != null) {
+      for (const jsonChild of json.children) {
+        if (jsonChild.type === TabSetNode.TYPE) {
+          const child = ITabSetNode.fromJson(jsonChild, model, layoutWindow);
+          newLayoutNode.addChild(child);
+        } else {
+          const child = IRowNode.fromJson(jsonChild, model, layoutWindow);
+          newLayoutNode.addChild(child);
+        }
+      }
+    }
+
+    return newLayoutNode;
+  }
+
+  /** @internal */
+  private static attributeDefinitions: AttributeDefinitions = IRowNode.createAttributeDefinitions();
+
+  /** @internal */
+  static getAttributeDefinitions(): AttributeDefinitions {
+    return IRowNode.attributeDefinitions;
+  }
+
+  // ========================================================================
+  // Non-serializable runtime fields
+  // ========================================================================
+
+  /** @internal */
+  private _windowId = "";
+  /** @internal */
+  private _minHeight: number = DefaultMin;
+  /** @internal */
+  private _minWidth: number = DefaultMin;
+  /** @internal */
+  private _maxHeight: number = DefaultMax;
+  /** @internal */
+  private _maxWidth: number = DefaultMax;
+
+  // ========================================================================
+  // Initialization
+  // ========================================================================
+
+  /** @internal */
+  private _initialize(model: IModel, windowId: string, json: UnsafeTypes.UnsafeAny): void {
+    this._windowId = windowId;
+    this._minHeight = DefaultMin;
+    this._minWidth = DefaultMin;
+    this._maxHeight = DefaultMax;
+    this._maxWidth = DefaultMax;
+
+    this.initializeModel(model);
+    IRowNode.attributeDefinitions.fromJson(json, this.getAttributes());
+    this.normalizeWeights();
+    model.addNode(this);
+  }
+
+  // ========================================================================
+  // Overridden abstract methods from INode
+  // ========================================================================
+
+  override toJson(): JsonRowNode {
+    const json: Record<string, unknown> = {};
+    IRowNode.attributeDefinitions.toJson(json, this.getAttributes());
+    json.children = A.map(this.getChildren(), (child) => child.toJson());
+    return S.decodeUnknownSync(JsonRowNode)(json);
+  }
+
+  /** @internal */
+  override updateAttrs(json: UnsafeTypes.UnsafeAny): void {
+    IRowNode.attributeDefinitions.update(json, this.getAttributes());
+  }
+
+  /** @internal */
+  override getAttributeDefinitions(): AttributeDefinitions {
+    return IRowNode.attributeDefinitions;
+  }
+
+  // ========================================================================
+  // Getter methods
+  // ========================================================================
+
+  getWeight(): number {
+    return this.getAttributes().weight as number;
+  }
+
+  /** @internal */
+  getWindowId(): string {
+    return this._windowId;
+  }
+
+  setWindowId(windowId: string): void {
+    this._windowId = windowId;
+  }
+
+  /** @internal */
+  override setWeight(weight: number): void {
+    this.getAttributes().weight = weight;
+  }
+
+  /** @internal */
+  getMinSize(orientation: Orientation): number {
+    if (orientation === Orientation.HORZ) {
+      return this.getMinWidth();
+    }
+    return this.getMinHeight();
+  }
+
+  /** @internal */
+  getMinWidth(): number {
+    return this._minWidth;
+  }
+
+  /** @internal */
+  getMinHeight(): number {
+    return this._minHeight;
+  }
+
+  /** @internal */
+  getMaxSize(orientation: Orientation): number {
+    if (orientation === Orientation.HORZ) {
+      return this.getMaxWidth();
+    }
+    return this.getMaxHeight();
+  }
+
+  /** @internal */
+  getMaxWidth(): number {
+    return this._maxWidth;
+  }
+
+  /** @internal */
+  getMaxHeight(): number {
+    return this._maxHeight;
+  }
+
+  // ========================================================================
+  // IDropTarget methods (no implements clause)
+  // ========================================================================
+
+  /** @internal */
+  isEnableDrop(): boolean {
+    return true;
+  }
+
+  /** @internal */
+  override canDrop(dragNode: INode & IDraggable, x: number, y: number): DropInfo | undefined {
+    const yy = y - this.getRect().y;
+    const xx = x - this.getRect().x;
+    const w = this.getRect().width;
+    const h = this.getRect().height;
+    const margin = 10;
+    const half = 50;
+    let dropInfo: DropInfo | undefined = undefined;
+    const dragAsNode = dragNode as unknown as Node & IDraggable;
+    const thisAsNode = this as unknown as Node & IDropTarget;
+
+    if (this.getWindowId() !== Model.MAIN_WINDOW_ID && !canDockToWindow(dragAsNode)) {
+      return undefined;
+    }
+
+    if (this.getModel().isEnableEdgeDock() && this.getParent() === undefined) {
+      if (x < this.getRect().x + margin && yy > h / 2 - half && yy < h / 2 + half) {
+        const dockLocation = DockLocation.LEFT;
+        const outlineRect = dockLocation.getDockRect(this.getRect());
+        outlineRect.width = outlineRect.width / 2;
+        dropInfo = new DropInfo(thisAsNode, outlineRect, dockLocation, -1, CLASSES.FLEXLAYOUT__OUTLINE_RECT_EDGE);
+      } else if (x > this.getRect().getRight() - margin && yy > h / 2 - half && yy < h / 2 + half) {
+        const dockLocation = DockLocation.RIGHT;
+        const outlineRect = dockLocation.getDockRect(this.getRect());
+        outlineRect.width = outlineRect.width / 2;
+        outlineRect.x += outlineRect.width;
+        dropInfo = new DropInfo(thisAsNode, outlineRect, dockLocation, -1, CLASSES.FLEXLAYOUT__OUTLINE_RECT_EDGE);
+      } else if (y < this.getRect().y + margin && xx > w / 2 - half && xx < w / 2 + half) {
+        const dockLocation = DockLocation.TOP;
+        const outlineRect = dockLocation.getDockRect(this.getRect());
+        outlineRect.height = outlineRect.height / 2;
+        dropInfo = new DropInfo(thisAsNode, outlineRect, dockLocation, -1, CLASSES.FLEXLAYOUT__OUTLINE_RECT_EDGE);
+      } else if (y > this.getRect().getBottom() - margin && xx > w / 2 - half && xx < w / 2 + half) {
+        const dockLocation = DockLocation.BOTTOM;
+        const outlineRect = dockLocation.getDockRect(this.getRect());
+        outlineRect.height = outlineRect.height / 2;
+        outlineRect.y += outlineRect.height;
+        dropInfo = new DropInfo(thisAsNode, outlineRect, dockLocation, -1, CLASSES.FLEXLAYOUT__OUTLINE_RECT_EDGE);
+      }
+
+      if (dropInfo !== undefined) {
+        if (!dragAsNode.canDockInto(dragAsNode, dropInfo)) {
+          return undefined;
+        }
+      }
+    }
+
+    return dropInfo;
+  }
+
+  /** @internal */
+  drop(dragNode: Node, location: DockLocation, index: number): void {
+    const dockLocation = location;
+
+    const parent = dragNode.getParent();
+
+    if (parent) {
+      parent.removeChild(dragNode);
+    }
+
+    if (parent !== undefined && parent! instanceof TabSetNode) {
+      parent.setSelected(0);
+    }
+
+    if (parent !== undefined && parent! instanceof BorderNode) {
+      parent.setSelected(-1);
+    }
+
+    let node: ITabSetNode | IRowNode | TabSetNode | RowNode | undefined;
+    if (dragNode instanceof TabSetNode || dragNode instanceof RowNode) {
+      node = dragNode;
+      if (
+        node instanceof RowNode &&
+        node.getOrientation() === this.getOrientation() &&
+        (location.getOrientation() === this.getOrientation() || location === DockLocation.CENTER)
+      ) {
+        node = IRowNode.new(this.getModel(), this._windowId, {});
+        node.addChild(dragNode as unknown as INode);
+      }
+    } else {
+      const callback = this.getModel().getOnCreateTabSet();
+      node = ITabSetNode.new(this.getModel(), callback ? callback(dragNode as unknown as ITabNode) : {});
+      node.addChild(dragNode as unknown as INode);
+    }
+    let size = A.reduce(
+      this.getChildren(),
+      0,
+      (sum, child) => sum + (child as unknown as RowNode | TabSetNode).getWeight()
+    );
+
+    if (size === 0) {
+      size = 100;
+    }
+
+    node.setWeight(size / 3);
+
+    const horz = !this.getModel().isRootOrientationVertical();
+    if (dockLocation === DockLocation.CENTER) {
+      if (index === -1) {
+        this.addChild(node as unknown as INode, this.getChildren().length);
+      } else {
+        this.addChild(node as unknown as INode, index);
+      }
+    } else if ((horz && dockLocation === DockLocation.LEFT) || (!horz && dockLocation === DockLocation.TOP)) {
+      this.addChild(node as unknown as INode, 0);
+    } else if ((horz && dockLocation === DockLocation.RIGHT) || (!horz && dockLocation === DockLocation.BOTTOM)) {
+      this.addChild(node as unknown as INode);
+    } else if ((horz && dockLocation === DockLocation.TOP) || (!horz && dockLocation === DockLocation.LEFT)) {
+      const vrow = IRowNode.new(this.getModel(), this._windowId, {});
+      const hrow = IRowNode.new(this.getModel(), this._windowId, {});
+      hrow.setWeight(75);
+      node.setWeight(25);
+      A.forEach(this.getChildren(), (child) => {
+        hrow.addChild(child as unknown as INode);
+      });
+      this.removeAll();
+      vrow.addChild(node as unknown as INode);
+      vrow.addChild(hrow);
+      this.addChild(vrow);
+    } else if ((horz && dockLocation === DockLocation.BOTTOM) || (!horz && dockLocation === DockLocation.RIGHT)) {
+      const vrow = IRowNode.new(this.getModel(), this._windowId, {});
+      const hrow = IRowNode.new(this.getModel(), this._windowId, {});
+      hrow.setWeight(75);
+      node.setWeight(25);
+      A.forEach(this.getChildren(), (child) => {
+        hrow.addChild(child as unknown as INode);
+      });
+      this.removeAll();
+      vrow.addChild(hrow);
+      vrow.addChild(node as unknown as INode);
+      this.addChild(vrow);
+    }
+
+    if (node instanceof TabSetNode || node instanceof ITabSetNode) {
+      this.getModel().setActiveTabset(node as ITabSetNode, this._windowId);
+    }
+
+    this.getModel().tidy();
+  }
+
+  // ========================================================================
+  // Internal methods
+  // ========================================================================
+
+  /** @internal */
+  calcMinMaxSize(): void {
+    this._minHeight = DefaultMin;
+    this._minWidth = DefaultMin;
+    this._maxHeight = DefaultMax;
+    this._maxWidth = DefaultMax;
+    let first = true;
+    for (const child of this.getChildren()) {
+      const c = child as unknown as RowNode | TabSetNode;
+      c.calcMinMaxSize();
+      if (this.getOrientation() === Orientation.VERT) {
+        this._minHeight += c.getMinHeight();
+        this._maxHeight += c.getMaxHeight();
+        if (!first) {
+          this._minHeight += this.getModel().getSplitterSize();
+          this._maxHeight += this.getModel().getSplitterSize();
+        }
+        this._minWidth = Math.max(this._minWidth, c.getMinWidth());
+        this._maxWidth = Math.min(this._maxWidth, c.getMaxWidth());
+      } else {
+        this._minWidth += c.getMinWidth();
+        this._maxWidth += c.getMaxWidth();
+        if (!first) {
+          this._minWidth += this.getModel().getSplitterSize();
+          this._maxWidth += this.getModel().getSplitterSize();
+        }
+        this._minHeight = Math.max(this._minHeight, c.getMinHeight());
+        this._maxHeight = Math.min(this._maxHeight, c.getMaxHeight());
+      }
+      first = false;
+    }
+  }
+
+  /** @internal */
+  tidy(): void {
+    let i = 0;
+    while (i < this.getChildren().length) {
+      const child = this.getChildren()[i];
+      if (child instanceof IRowNode) {
+        child.tidy();
+
+        const childChildren = child.getChildren();
+        if (childChildren.length === 0) {
+          this.removeChild(child);
+        } else if (childChildren.length === 1) {
+          const subchildOpt = F.pipe(childChildren, A.get(0));
+          this.removeChild(child);
+
+          F.pipe(
+            subchildOpt,
+            O.match({
+              onNone: () => {},
+              onSome: (subchild) => {
+                if (subchild instanceof IRowNode) {
+                  let subChildrenTotal = 0;
+                  const subChildChildren = subchild.getChildren();
+                  for (const ssc of subChildChildren) {
+                    const subsubChild = ssc as unknown as RowNode | TabSetNode;
+                    subChildrenTotal += subsubChild.getWeight();
+                  }
+                  for (let j = 0; j < subChildChildren.length; j++) {
+                    const subsubChild = subChildChildren[j] as unknown as RowNode | TabSetNode;
+                    subsubChild.setWeight((child.getWeight() * subsubChild.getWeight()) / subChildrenTotal);
+                    this.addChild(subsubChild as unknown as INode, i + j);
+                  }
+                } else {
+                  subchild.setWeight(child.getWeight());
+                  this.addChild(subchild, i);
+                }
+              },
+            })
+          );
+        } else {
+          i++;
+        }
+      } else if (child instanceof ITabSetNode && child.getChildren().length === 0) {
+        if (child.isEnableDeleteWhenEmpty()) {
+          this.removeChild(child);
+          if ((child as unknown as TabSetNode) === this.getModel().getMaximizedTabset(this._windowId)) {
+            this.getModel().setMaximizedTabset(undefined, this._windowId);
+          }
+        } else {
+          i++;
+        }
+      } else {
+        i++;
+      }
+    }
+
+    // add tabset into empty root
+    if ((this as unknown as RowNode) === this.getModel().getRoot(this._windowId) && this.getChildren().length === 0) {
+      const callback = this.getModel().getOnCreateTabSet();
+      let attrs = callback ? callback() : {};
+      attrs = { ...attrs, selected: -1 };
+      const childNode = ITabSetNode.new(this.getModel(), attrs);
+      this.getModel().setActiveTabset(childNode, this._windowId);
+      this.addChild(childNode);
+    }
+  }
+
+  normalizeWeights(): void {
+    let sum = A.reduce(this.getChildren(), 0, (acc, n) => {
+      const node = n as unknown as TabSetNode | RowNode;
+      return acc + node.getWeight();
+    });
+
+    if (sum === 0) {
+      sum = 1;
+    }
+
+    A.forEach(this.getChildren(), (n) => {
+      const node = n as unknown as TabSetNode | RowNode;
+      node.setWeight(Math.max(0.001, (100 * node.getWeight()) / sum));
+    });
+  }
+
+  // ========================================================================
+  // Private static methods
+  // ========================================================================
+
+  /** @internal */
+  private static createAttributeDefinitions(): AttributeDefinitions {
+    const attributeDefinitions = new AttributeDefinitions();
+    attributeDefinitions.add("type", IRowNode.TYPE, true).setType(Attribute.STRING).setFixed();
     attributeDefinitions
       .add("id", undefined)
       .setType(Attribute.STRING)

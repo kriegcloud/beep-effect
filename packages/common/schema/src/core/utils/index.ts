@@ -25,6 +25,7 @@ export * from "./arbitrary";
  * @since 0.1.0
  */
 export * from "./brands";
+export * from "./format";
 /**
  * Merge helper exports for struct field dictionaries.
  *
@@ -38,6 +39,7 @@ export * from "./brands";
  * @since 0.1.0
  */
 export * from "./merge-fields";
+export * from "./to-composite";
 /**
  * Optional schema helper exports for defaulted property signatures.
  *
