@@ -1,6 +1,6 @@
 import * as Data from "effect/Data";
 import { Rect } from "../Rect";
-import type { LayoutInternal } from "../view/Layout";
+import type { ILayout } from "./ILayout";
 import type { JsonPopout } from "./JsonModel.ts";
 import type { Model } from "./Model";
 import type { Node } from "./Node";
@@ -8,7 +8,7 @@ import { RowNode } from "./RowNode";
 import type { TabSetNode } from "./TabSetNode";
 export class LayoutWindow extends Data.Class {
   private readonly _windowId: string;
-  private _layout: LayoutInternal | undefined;
+  private _layout: ILayout | undefined;
   private _rect: Rect;
   private _window?: Window | undefined;
   private _root?: RowNode | undefined;
@@ -35,7 +35,7 @@ export class LayoutWindow extends Data.Class {
     return this._rect;
   }
 
-  public get layout(): LayoutInternal | undefined {
+  public get layout(): ILayout | undefined {
     return this._layout;
   }
 
@@ -61,7 +61,7 @@ export class LayoutWindow extends Data.Class {
   }
 
   /** @internal */
-  public set layout(value: LayoutInternal) {
+  public set layout(value: ILayout) {
     this._layout = value;
   }
 
@@ -137,4 +137,3 @@ export class LayoutWindow extends Data.Class {
     return layoutWindow;
   }
 }
-

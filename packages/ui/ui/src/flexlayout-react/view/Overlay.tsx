@@ -1,9 +1,9 @@
 import { CLASSES } from "../Types";
-import type { LayoutInternal } from "./Layout";
+import type { ILayoutInternal } from "./LayoutTypes";
 
 /** @internal */
 export interface IOverlayProps {
-  readonly layout: LayoutInternal;
+  readonly layout: ILayoutInternal;
   readonly show: boolean;
 }
 

@@ -1,12 +1,12 @@
 import type { TabNode } from "../model/TabNode";
 import { CLASSES } from "../Types";
-import type { LayoutInternal } from "./Layout";
+import type { ILayoutInternal } from "./LayoutTypes";
 import { getRenderStateEx } from "./Utils";
 
 /** @internal */
 export interface ITabButtonStampProps {
   readonly node: TabNode;
-  readonly layout: LayoutInternal;
+  readonly layout: ILayoutInternal;
 }
 
 /** @internal */

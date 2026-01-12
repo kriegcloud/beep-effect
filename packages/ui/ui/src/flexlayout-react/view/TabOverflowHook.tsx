@@ -4,12 +4,12 @@ import type { TabNode } from "../model/TabNode";
 import type { TabSetNode } from "../model/TabSetNode";
 import { Orientation } from "../Orientation";
 import type { Rect } from "../Rect";
-import type { LayoutInternal } from "./Layout";
+import type { ILayoutInternal } from "./LayoutTypes";
 import { startDrag } from "./Utils";
 
 /** @internal */
 export const useTabOverflow = (
-  layout: LayoutInternal,
+  layout: ILayoutInternal,
   node: TabSetNode | BorderNode,
   orientation: Orientation,
   tabStripRef: React.RefObject<HTMLElement | null>,

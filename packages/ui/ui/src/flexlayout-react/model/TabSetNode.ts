@@ -9,7 +9,6 @@ import { DropInfo } from "../DropInfo";
 import { Orientation } from "../Orientation";
 import { Rect } from "../Rect";
 import { CLASSES } from "../Types";
-import { canDockToWindow } from "../view/Utils";
 import { BorderNode } from "./BorderNode";
 import type { IDraggable } from "./IDraggable";
 import type { IDropTarget } from "./IDropTarget";
@@ -17,10 +16,10 @@ import { JsonTabSetNode } from "./JsonModel.ts";
 import type { LayoutWindow } from "./LayoutWindow";
 
 import { Model } from "./Model";
-import {  Node } from "./Node";
-import {  RowNode } from "./RowNode";
-import {  TabNode } from "./TabNode";
-import { adjustSelectedIndex } from "./Utils";
+import { Node } from "./Node";
+import { RowNode } from "./RowNode";
+import { TabNode } from "./TabNode";
+import { adjustSelectedIndex, canDockToWindow } from "./Utils";
 
 export class TabSetNode extends Node implements IDraggable, IDropTarget {
   static readonly TYPE = "tabset";
@@ -608,4 +607,3 @@ export class TabSetNode extends Node implements IDraggable, IDropTarget {
     return attributeDefinitions;
   }
 }
-

@@ -4,11 +4,11 @@ import { BorderNode } from "../model/BorderNode";
 import type { TabNode } from "../model/TabNode";
 import { TabSetNode } from "../model/TabSetNode";
 import { CLASSES } from "../Types";
-import type { LayoutInternal } from "./Layout";
+import type { ILayoutInternal } from "./LayoutTypes";
 
 /** @internal */
 export interface ITabProps {
-  readonly layout: LayoutInternal;
+  readonly layout: ILayoutInternal;
   readonly node: TabNode;
   readonly selected: boolean;
   readonly path: string;

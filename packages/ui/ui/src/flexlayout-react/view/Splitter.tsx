@@ -6,12 +6,12 @@ import { RowNode } from "../model/RowNode";
 import { Orientation } from "../Orientation";
 import { Rect } from "../Rect";
 import { CLASSES } from "../Types";
-import type { LayoutInternal } from "./Layout";
+import type { ILayoutInternal } from "./LayoutTypes";
 import { enablePointerOnIFrames, isDesktop, startDrag } from "./Utils";
 
 /** @internal */
 export interface ISplitterProps {
-  readonly layout: LayoutInternal;
+  readonly layout: ILayoutInternal;
   readonly node: RowNode | BorderNode;
   readonly index: number;
   readonly horizontal: boolean;

@@ -1,9 +1,14 @@
 import type { UnsafeTypes } from "@beep/types";
 import type * as React from "react";
-import type { Node } from "../model/Node";
-import { TabNode } from "../model/TabNode";
-import { TabSetNode } from "../model/TabSetNode";
-import type { LayoutInternal } from "./Layout";
+import type { TabNode } from "../model/TabNode";
+
+/** Interface for layout customization callbacks - avoids circular import with Layout.tsx */
+interface ILayoutCustomizer {
+  customizeTab(
+    tabNode: TabNode,
+    renderValues: { leading: React.ReactNode; content: React.ReactNode; name: string; buttons: UnsafeTypes.UnsafeAny[] }
+  ): void;
+}
 
 /** @internal */
 export function isDesktop() {
@@ -14,7 +19,7 @@ export function isDesktop() {
   );
 }
 /** @internal */
-export function getRenderStateEx(layout: LayoutInternal, node: TabNode, iconAngle?: number) {
+export function getRenderStateEx(layout: ILayoutCustomizer, node: TabNode, iconAngle?: number) {
   let leadingContent = undefined;
   const titleContent: React.ReactNode = node.getName();
   const name = node.getName();
@@ -101,21 +106,6 @@ export function startDrag(
   doc.addEventListener("pointermove", pointerMove);
   doc.addEventListener("pointerup", pointerUp);
   doc.addEventListener("pointercancel", pointerCancel);
-}
-
-export function canDockToWindow(node: Node) {
-  if (node instanceof TabNode) {
-    return node.isEnablePopout();
-  }
-  if (node instanceof TabSetNode) {
-    for (const child of node.getChildren()) {
-      if (!(child as TabNode).isEnablePopout()) {
-        return false;
-      }
-    }
-    return true;
-  }
-  return false;
 }
 
 export function copyInlineStyles(source: HTMLElement, target: HTMLElement): boolean {

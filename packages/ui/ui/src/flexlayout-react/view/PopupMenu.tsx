@@ -4,7 +4,7 @@ import type { BorderNode } from "../model/BorderNode";
 import type { TabNode } from "../model/TabNode";
 import type { TabSetNode } from "../model/TabSetNode";
 import { CLASSES } from "../Types";
-import type { LayoutInternal } from "./Layout";
+import type { ILayoutInternal } from "./LayoutTypes";
 import { TabButtonStamp } from "./TabButtonStamp";
 
 interface NodeItem {
@@ -18,7 +18,7 @@ export function showPopup(
   parentNode: TabSetNode | BorderNode,
   items: NodeItem[],
   onSelect: (item: NodeItem) => void,
-  layout: LayoutInternal
+  layout: ILayoutInternal
 ) {
   const layoutDiv = layout.getRootDiv();
   const classNameMapper = layout.getClassName;
@@ -89,7 +89,7 @@ interface IPopupMenuProps {
   readonly onHide: () => void;
   readonly onSelect: (item: NodeItem) => void;
   readonly classNameMapper: (defaultClassName: string) => string;
-  readonly layout: LayoutInternal;
+  readonly layout: ILayoutInternal;
 }
 
 /** @internal */

@@ -3,11 +3,11 @@ import * as React from "react";
 import { createPortal } from "react-dom";
 import type { LayoutWindow } from "../model/LayoutWindow";
 import { CLASSES } from "../Types";
-import type { LayoutInternal } from "./Layout";
+import type { ILayoutInternal } from "./LayoutTypes";
 /** @internal */
 export interface IPopoutWindowProps {
   readonly title: string;
-  readonly layout: LayoutInternal;
+  readonly layout: ILayoutInternal;
   readonly layoutWindow: LayoutWindow;
   readonly url: string;
   readonly onCloseWindow: (layoutWindow: LayoutWindow) => void;

@@ -1,7 +1,5 @@
 import type { UnsafeTypes } from "@beep/types";
 
-
-
 /** @internal */
 export class Attribute {
   static NUMBER = "number";

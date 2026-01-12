@@ -1,6 +1,5 @@
-import {Orientation} from "./Orientation";
-import {Rect} from "./Rect";
-
+import { Orientation } from "./Orientation";
+import { Rect } from "./Rect";
 
 export class DockLocation {
   static values = new Map<string, DockLocation>();
@@ -95,22 +94,22 @@ export class DockLocation {
     if (this === DockLocation.TOP) {
       const r1 = new Rect(rect.x, rect.y, rect.width, size);
       const r2 = new Rect(rect.x, rect.y + size, rect.width, rect.height - size);
-      return {start: r1, end: r2};
+      return { start: r1, end: r2 };
     }
     if (this === DockLocation.LEFT) {
       const r1 = new Rect(rect.x, rect.y, size, rect.height);
       const r2 = new Rect(rect.x + size, rect.y, rect.width - size, rect.height);
-      return {start: r1, end: r2};
+      return { start: r1, end: r2 };
     }
     if (this === DockLocation.RIGHT) {
       const r1 = new Rect(rect.getRight() - size, rect.y, size, rect.height);
       const r2 = new Rect(rect.x, rect.y, rect.width - size, rect.height);
-      return {start: r1, end: r2};
+      return { start: r1, end: r2 };
     }
     // if (this === DockLocation.BOTTOM) {
     const r1 = new Rect(rect.x, rect.getBottom() - size, rect.width, size);
     const r2 = new Rect(rect.x, rect.y, rect.width, rect.height - size);
-    return {start: r1, end: r2};
+    return { start: r1, end: r2 };
   }
 
   /** @internal */

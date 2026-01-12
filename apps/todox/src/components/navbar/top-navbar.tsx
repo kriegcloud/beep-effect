@@ -1,7 +1,8 @@
 "use client";
 
 import { MiniSidebarTrigger } from "@beep/todox/components/mini-sidebar";
-import { type Team, TeamSwitcherCompact } from "@beep/todox/components/sidebar";
+import { TeamSwitcherCompact } from "@beep/todox/components/sidebar";
+import { type Org, OrgSwitcherCompact } from "@beep/todox/components/sidebar/org-switcher";
 import { Avatar, AvatarFallback, AvatarImage } from "@beep/todox/components/ui/avatar";
 import { Button } from "@beep/todox/components/ui/button";
 import {
@@ -22,6 +23,8 @@ import {
   PlusIcon,
   RocketIcon,
   TerminalIcon,
+  UsersFourIcon,
+  UsersThreeIcon,
   WaveformIcon,
 } from "@phosphor-icons/react";
 import * as A from "effect/Array";
@@ -31,7 +34,7 @@ import { CommandSearch } from "./command-search";
 import { NavbarUserDropdown, type User } from "./navbar-user-dropdown";
 import { NotificationDropdown } from "./notification-dropdown";
 
-const teams: Team[] = [
+const organizations: Org[] = [
   {
     name: "Acme Inc",
     logo: BuildingsIcon,
@@ -61,6 +64,24 @@ interface App {
   readonly icon: Icon;
 }
 
+const teams: Org[] = [
+  {
+    name: "Default",
+    logo: BuildingsIcon,
+    plan: "",
+  },
+  {
+    name: "Acme Corp.",
+    logo: UsersThreeIcon,
+    plan: "Startup",
+  },
+  {
+    name: "Evil Corp.",
+    logo: UsersFourIcon,
+    plan: "Free",
+  },
+];
+
 const workspaces: Workspace[] = [
   { id: "1", name: "Workspace", logo: BuildingsIcon },
   { id: "2", name: "Personal", logo: WaveformIcon },
@@ -68,7 +89,7 @@ const workspaces: Workspace[] = [
 ];
 
 const apps: App[] = [
-  { id: "1", name: "App Builder Studio", icon: RocketIcon },
+  { id: "1", name: "Projects", icon: RocketIcon },
   { id: "2", name: "Dashboard", icon: BuildingsIcon },
   { id: "3", name: "Analytics", icon: WaveformIcon },
 ];
@@ -99,6 +120,8 @@ export function TopNavbar({ user }: TopNavbarProps) {
             <AvatarFallback className="bg-sidebar-primary text-sidebar-primary-foreground text-xs">B</AvatarFallback>
           </Avatar>
         </MiniSidebarTrigger>
+        <span className="mx-1 text-muted-foreground">/</span>
+        <OrgSwitcherCompact orgs={organizations} />
         <span className="mx-1 text-muted-foreground">/</span>
         {/* Team Selector */}
         <TeamSwitcherCompact teams={teams} />

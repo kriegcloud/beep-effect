@@ -8,14 +8,14 @@ import type { TabNode } from "../model/TabNode";
 import { Orientation } from "../Orientation";
 import { CLASSES } from "../Types";
 import { BorderButton } from "./BorderButton";
-import type { ITabSetRenderValues, LayoutInternal } from "./Layout";
+import type { ILayoutInternal, ITabSetRenderValues } from "./LayoutTypes";
 import { showPopup } from "./PopupMenu";
 import { useTabOverflow } from "./TabOverflowHook";
 import { isAuxMouseEvent } from "./Utils";
 /** @internal */
 export interface IBorderTabSetProps {
   readonly border: BorderNode;
-  readonly layout: LayoutInternal;
+  readonly layout: ILayoutInternal;
   readonly size: number;
 }
 

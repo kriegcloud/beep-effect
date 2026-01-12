@@ -1,7 +1,7 @@
-import type {DockLocation} from "./DockLocation";
-import type {IDropTarget} from "./model/IDropTarget";
-import type {Node} from "./model/Node";
-import type {Rect} from "./Rect";
+import type { DockLocation } from "./DockLocation";
+import type { IDropTarget } from "./model/IDropTarget";
+import type { Node } from "./model/Node";
+import type { Rect } from "./Rect";
 
 export class DropInfo {
   node: Node & IDropTarget;

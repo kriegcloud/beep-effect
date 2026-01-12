@@ -9,7 +9,6 @@ interface Insets {
   readonly right: number;
 }
 
-
 export class Rect {
   static readonly empty = (): Rect => {
     return new Rect(0, 0, 0, 0);

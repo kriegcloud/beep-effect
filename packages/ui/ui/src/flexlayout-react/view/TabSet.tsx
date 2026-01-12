@@ -10,7 +10,7 @@ import type { TabNode } from "../model/TabNode";
 import type { TabSetNode } from "../model/TabSetNode";
 import { Orientation } from "../Orientation";
 import { CLASSES } from "../Types";
-import type { ITabSetRenderValues, LayoutInternal } from "./Layout";
+import type { ILayoutInternal, ITabSetRenderValues } from "./LayoutTypes";
 import { showPopup } from "./PopupMenu";
 import { splitterDragging } from "./Splitter";
 import { TabButton } from "./TabButton";
@@ -18,7 +18,7 @@ import { useTabOverflow } from "./TabOverflowHook";
 import { isAuxMouseEvent } from "./Utils";
 /** @internal */
 export interface ITabSetProps {
-  readonly layout: LayoutInternal;
+  readonly layout: ILayoutInternal;
   readonly node: TabSetNode;
   readonly revision?: undefined | number; // Forces re-render when model changes
 }

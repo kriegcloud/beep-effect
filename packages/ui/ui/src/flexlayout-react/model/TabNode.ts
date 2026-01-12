@@ -9,8 +9,8 @@ import type { IDraggable } from "./IDraggable";
 import { JsonTabNode } from "./JsonModel.ts";
 
 import { Model } from "./Model";
-import {  Node } from "./Node";
-import {  TabSetNode } from "./TabSetNode";
+import { Node } from "./Node";
+import { TabSetNode } from "./TabSetNode";
 
 export class TabNode extends Node implements IDraggable {
   static readonly TYPE = "tab";

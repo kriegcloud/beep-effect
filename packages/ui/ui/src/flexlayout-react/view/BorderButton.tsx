@@ -4,12 +4,12 @@ import { Actions } from "../model/Actions";
 import { ICloseType } from "../model/ICloseType";
 import type { TabNode } from "../model/TabNode";
 import { CLASSES } from "../Types";
-import type { IIcons, LayoutInternal } from "./Layout";
+import type { IIcons, ILayoutInternal } from "./LayoutTypes";
 import { getRenderStateEx, isAuxMouseEvent } from "./Utils";
 
 /** @internal */
 export interface IBorderButtonProps {
-  readonly layout: LayoutInternal;
+  readonly layout: ILayoutInternal;
   readonly node: TabNode;
   readonly selected: boolean;
   readonly border: string;

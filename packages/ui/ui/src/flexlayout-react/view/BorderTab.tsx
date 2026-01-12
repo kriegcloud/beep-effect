@@ -3,12 +3,12 @@ import { DockLocation } from "../DockLocation";
 import type { BorderNode } from "../model/BorderNode";
 import { Orientation } from "../Orientation";
 import { CLASSES } from "../Types";
-import type { LayoutInternal } from "./Layout";
+import type { ILayoutInternal } from "./LayoutTypes";
 import { Splitter, splitterDragging } from "./Splitter";
 
 /** @internal */
 export interface IBorderTabProps {
-  readonly layout: LayoutInternal;
+  readonly layout: ILayoutInternal;
   readonly border: BorderNode;
   readonly show: boolean;
 }

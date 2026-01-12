@@ -3,10 +3,10 @@ import { I18nLabel } from "../I18nLabel";
 import type { TabNode } from "../model/TabNode";
 import type { Rect } from "../Rect";
 import { ErrorBoundary } from "./ErrorBoundary";
-import type { LayoutInternal } from "./Layout";
+import type { ILayoutInternal } from "./LayoutTypes";
 
 export interface ISizeTrackerProps {
-  readonly layout: LayoutInternal;
+  readonly layout: ILayoutInternal;
   readonly node: TabNode;
   readonly rect: Rect;
   readonly visible: boolean;

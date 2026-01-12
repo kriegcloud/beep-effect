@@ -1,7 +1,7 @@
-import type{  DockLocation } from "../DockLocation";
-import type{  DropInfo } from "../DropInfo";
-import type{  IDraggable } from "./IDraggable";
-import type{   Node } from "./Node";
+import type { DockLocation } from "../DockLocation";
+import type { DropInfo } from "../DropInfo";
+import type { IDraggable } from "./IDraggable";
+import type { Node } from "./Node";
 
 export interface IDropTarget {
   /** @internal */

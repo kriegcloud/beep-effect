@@ -1,13 +1,13 @@
 import * as React from "react";
 import type { TabNode } from "../model/TabNode";
 import { CLASSES } from "../Types";
-import type { LayoutInternal } from "./Layout";
+import type { ILayoutInternal } from "./LayoutTypes";
 import { TabButtonStamp } from "./TabButtonStamp";
 
 /** @internal */
 export interface IDragContainerProps {
   readonly node: TabNode;
-  readonly layout: LayoutInternal;
+  readonly layout: ILayoutInternal;
 }
 
 /** @internal */

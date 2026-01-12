@@ -10,6 +10,7 @@ import type { Action } from "../model/Action";
 import { Actions } from "../model/Actions";
 import { BorderNode } from "../model/BorderNode";
 import type { IDraggable } from "../model/IDraggable";
+import type { ILayout } from "../model/ILayout";
 import type { JsonTabNode } from "../model/JsonModel.ts";
 import type { LayoutWindow } from "../model/LayoutWindow";
 import { Model } from "../model/Model";
@@ -202,8 +203,9 @@ interface ILayoutInternalState {
 }
 
 /** @internal */
-export class LayoutInternal extends React.Component<ILayoutInternalProps, ILayoutInternalState> {
+export class LayoutInternal extends React.Component<ILayoutInternalProps, ILayoutInternalState> implements ILayout {
   public static dragState: DragState | undefined = undefined;
+  public readonly isLayout = true;
 
   private readonly selfRef: React.RefObject<HTMLDivElement | null>;
   private readonly moveablesRef: React.RefObject<HTMLDivElement | null>;

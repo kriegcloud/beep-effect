@@ -1,4 +1,3 @@
-
 import type { UnsafeTypes } from "@beep/types";
 
 import * as A from "effect/Array";
@@ -15,7 +14,7 @@ import { Orientation } from "../Orientation";
 import { Rect } from "../Rect";
 import type { IDraggable } from "./IDraggable";
 import type { JsonBorderNode, JsonRowNode, JsonTabNode, JsonTabSetNode } from "./JsonModel.ts";
-import type {  Model } from "./Model";
+import type { Model } from "./Model";
 
 export abstract class Node extends Data.Class {
   /** @internal */

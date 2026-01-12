@@ -113,6 +113,7 @@ export class Model extends M.Class<Model>($I`UserModel`)(
 ) {
   static readonly utils = modelKit(Model);
 
+  static readonly decodeUnknown = S.decodeUnknown(Model);
   // static readonly insertOmittableDefaults = Model.insert
 }
 

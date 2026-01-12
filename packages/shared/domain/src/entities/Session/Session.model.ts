@@ -27,14 +27,7 @@ export class Model extends M.Class<Model>($I`SessionModel`)(
     ),
 
     /** IP address where session was created */
-    ipAddress: BS.FieldSensitiveOptionOmittable(
-      S.String.pipe(
-        S.pattern(/^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$|^(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$/)
-      ).annotations({
-        description: "IP address where the session was created",
-        examples: ["192.168.1.1", "2001:db8::1"],
-      })
-    ),
+    ipAddress: BS.FieldSensitiveOptionOmittable(S.String),
 
     /** User agent string */
     userAgent: BS.FieldSensitiveOptionOmittable(
@@ -72,4 +65,5 @@ export class Model extends M.Class<Model>($I`SessionModel`)(
   })
 ) {
   static readonly utils = modelKit(Model);
+  static readonly decodeUnknown = S.decodeUnknown(Model);
 }

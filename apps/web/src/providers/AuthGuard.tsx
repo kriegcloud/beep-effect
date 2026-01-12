@@ -1,9 +1,10 @@
 "use client";
-import { useGetSession } from "@beep/iam-client/clients/session";
+import { useSession } from "@beep/iam-client/atom/session.atom";
 import { paths } from "@beep/shared-domain";
 import { useIsClient, useRouter } from "@beep/ui/hooks";
 import { SplashScreen } from "@beep/ui/progress/loading-screen/splash-screen";
 import { AuthAdapterProvider } from "@beep/ui/providers";
+import { thunkNull } from "@beep/utils";
 import { Result } from "@effect-atom/atom-react";
 import * as F from "effect/Function";
 import * as O from "effect/Option";
@@ -22,7 +23,7 @@ type AuthGuardContentProps = AuthGuardProps & {
 };
 
 const AuthGuardContent: React.FC<AuthGuardContentProps> = ({ children, router, ...props }) => {
-  const { sessionResult } = useGetSession();
+  const { sessionResult } = useSession();
   const isClient = useIsClient();
 
   if (!isClient) {
@@ -34,7 +35,6 @@ const AuthGuardContent: React.FC<AuthGuardContentProps> = ({ children, router, .
       {Result.builder(sessionResult)
         .onInitial(() => <SplashScreen />)
         .onDefect(() => <div>an error occurred</div>)
-        .onErrorTag("IamError", () => <div>a failure occurred</div>)
         .onSuccess(({ session, user }) => {
           return (
             <AuthAdapterProvider
@@ -47,21 +47,21 @@ const AuthGuardContent: React.FC<AuthGuardContentProps> = ({ children, router, .
                   phoneNumber: F.pipe(
                     user.phoneNumber,
                     O.match({
-                      onNone: () => null,
-                      onSome: (pn) => Redacted.value(pn),
+                      onNone: thunkNull,
+                      onSome: Redacted.value,
                     })
                   ),
                   username: F.pipe(
                     user.username,
                     O.match({
-                      onNone: () => null,
+                      onNone: thunkNull,
                       onSome: (username) => username,
                     })
                   ),
                   image: F.pipe(
                     user.image,
                     O.match({
-                      onNone: () => null,
+                      onNone: thunkNull,
                       onSome: (image) => image,
                     })
                   ),

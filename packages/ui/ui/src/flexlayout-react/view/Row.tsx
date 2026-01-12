@@ -3,13 +3,13 @@ import { RowNode } from "../model/RowNode";
 import { TabSetNode } from "../model/TabSetNode";
 import { Orientation } from "../Orientation";
 import { CLASSES } from "../Types";
-import type { LayoutInternal } from "./Layout";
+import type { ILayoutInternal } from "./LayoutTypes";
 import { Splitter } from "./Splitter";
 import { TabSet } from "./TabSet";
 
 /** @internal */
 export interface IRowProps {
-  readonly layout: LayoutInternal;
+  readonly layout: ILayoutInternal;
   readonly node: RowNode;
   readonly revision?: undefined | number; // Forces re-render when model changes
 }

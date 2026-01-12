@@ -9,7 +9,6 @@ import { DockLocation } from "../DockLocation";
 import { DropInfo } from "../DropInfo";
 import { Orientation } from "../Orientation";
 import { CLASSES } from "../Types";
-import { canDockToWindow } from "../view/Utils";
 import { BorderNode } from "./BorderNode";
 import type { IDraggable } from "./IDraggable";
 import type { IDropTarget } from "./IDropTarget";
@@ -17,9 +16,10 @@ import { JsonRowNode } from "./JsonModel.ts";
 import type { LayoutWindow } from "./LayoutWindow";
 
 import { DefaultMax, DefaultMin, Model } from "./Model";
-import {  Node } from "./Node";
-import type {  TabNode } from "./TabNode";
-import {  TabSetNode } from "./TabSetNode";
+import { Node } from "./Node";
+import type { TabNode } from "./TabNode";
+import { TabSetNode } from "./TabSetNode";
+import { canDockToWindow } from "./Utils";
 
 export class RowNode extends Node implements IDropTarget {
   static readonly TYPE = "row";
@@ -644,4 +644,3 @@ export class RowNode extends Node implements IDropTarget {
     return attributeDefinitions;
   }
 }
-

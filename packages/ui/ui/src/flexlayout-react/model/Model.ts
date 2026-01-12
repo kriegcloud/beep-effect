@@ -15,11 +15,11 @@ import { BorderSet } from "./BorderSet";
 import type { IDraggable } from "./IDraggable";
 import type { IDropTarget } from "./IDropTarget";
 import type { JsonModel, JsonPopout, TabSetAttributes } from "./JsonModel.ts";
-import {  LayoutWindow } from "./LayoutWindow";
-import type {  Node } from "./Node";
-import {  RowNode } from "./RowNode";
-import {  TabNode } from "./TabNode";
-import {  TabSetNode } from "./TabSetNode";
+import { LayoutWindow } from "./LayoutWindow";
+import type { Node } from "./Node";
+import { RowNode } from "./RowNode";
+import { TabNode } from "./TabNode";
+import { TabSetNode } from "./TabSetNode";
 import { randomUUID } from "./Utils";
 /** @internal */
 export const DefaultMin = 0;
