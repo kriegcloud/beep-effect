@@ -228,6 +228,39 @@ style: ({ theme }) => ({
 
 ---
 
+## Testing Theme Overrides
+
+Theme overrides apply globally to MUI components. To test them:
+
+1. **Visual Testing**: Use `visual-testing.md` skill to verify styled components in demo pages
+2. **Demo Pages**: Create a demo page at `apps/web/src/app/demo/[component]/page.tsx`
+3. **Variant Coverage**: Test each variant/color/size combination
+
+**Note**: Theme overrides don't require `data-testid` attributes—those belong on component instances created with `atomic-component.md`.
+
+---
+
+## Related Skills
+
+| Skill | Relationship |
+|-------|--------------|
+| `atomic-component.md` | Use for creating new components, not theme styling |
+| `effect-check.md` | Run AFTER generation to validate Effect patterns |
+| `visual-testing.md` | Generate tests to verify theme override appearance |
+
+**When to Use Which:**
+- **This skill**: Modifying how existing MUI components look globally
+- **atomic-component.md**: Creating entirely new components
+- **Both**: When a new component also needs MUI component overrides
+
+**Workflow Integration:**
+1. Create theme override with this skill
+2. Run `effect-check.md` to validate patterns
+3. Create demo page showing all variants
+4. Generate visual tests with `visual-testing.md`
+
+---
+
 ## Verification Checklist
 
 - [ ] Component compiles without errors

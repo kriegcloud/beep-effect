@@ -349,6 +349,44 @@ const inputId = `${field.name}-input`;
 
 ---
 
+## Test ID Conventions
+
+Add `data-testid` attributes to form fields for Playwright testing:
+
+```typescript
+<MuiTextField
+  data-testid={`${field.name}-field`}
+  id={field.name}
+  name={field.name}
+  // ... other props
+/>
+```
+
+**Naming Pattern**: `{field.name}-field` (e.g., `email-field`, `password-field`)
+
+---
+
+## Related Skills
+
+| Skill | Relationship |
+|-------|--------------|
+| `atomic-component.md` | Use for custom styled inputs beyond MUI components |
+| `effect-check.md` | Run AFTER generation to validate Effect patterns |
+| `visual-testing.md` | Generate form interaction tests using field test IDs |
+| `mui-component-override.md` | Use for global MUI input styling changes |
+
+**Form vs Component Skill:**
+- **This skill**: TanStack Form integrated inputs with validation
+- **atomic-component.md**: Presentational components without form context
+
+**Workflow Integration:**
+1. Generate form field with this skill
+2. Run `effect-check.md` to validate patterns
+3. Generate form tests with `visual-testing.md`
+4. Use `data-testid="{field.name}-field"` selectors in tests
+
+---
+
 ## Verification Checklist
 
 - [ ] Uses `DefaultOmit<T>` for props type
@@ -363,3 +401,4 @@ const inputId = `${field.name}-input`;
 - [ ] Includes `helperText` prop passthrough
 - [ ] Export added to `inputs/index.ts`
 - [ ] Component is default exported
+- [ ] `data-testid` added for Playwright testing
