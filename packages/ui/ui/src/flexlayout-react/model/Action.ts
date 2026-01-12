@@ -21,16 +21,3 @@ export class Action extends S.Class<Action>($I`Action`)(
       data,
     });
 }
-
-//
-// export class Action extends Data.Class<{
-//   type: string;
-//   data: Record<string, UnsafeTypes.UnsafeAny>;
-// }> {
-//   constructor(type: string, data: Record<string, UnsafeTypes.UnsafeAny>) {
-//     super({
-//       type,
-//       data,
-//     });
-//   }
-// }

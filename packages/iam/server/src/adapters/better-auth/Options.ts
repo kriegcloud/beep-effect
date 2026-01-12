@@ -153,8 +153,31 @@ export const makeAuth = ({
       debugLogs: isDebug,
       provider: "pg",
       usePlural: false,
-      schema: IamDbSchema,
-      camelCase: true,
+      schema: {
+        shared_user: IamDbSchema.user,
+        shared_organization: IamDbSchema.organization,
+        shared_team: IamDbSchema.team,
+        iam_account: IamDbSchema.account,
+        shared_session: IamDbSchema.session,
+        iam_wallet_address: IamDbSchema.walletAddress,
+        iam_verification: IamDbSchema.verification,
+        iam_two_factor: IamDbSchema.twoFactor,
+        iam_team_member: IamDbSchema.teamMember,
+        iam_subscription: IamDbSchema.subscription,
+        iam_sso_provider: IamDbSchema.ssoProvider,
+        iam_scim_provider: IamDbSchema.scimProvider,
+        iam_rate_limit: IamDbSchema.rateLimit,
+        iam_passkey: IamDbSchema.passkey,
+        iam_organization_role: IamDbSchema.organizationRole,
+        iam_oauth_consent: IamDbSchema.oauthConsent,
+        iam_oauth_application: IamDbSchema.oauthApplication,
+        iam_oauth_access_token: IamDbSchema.oauthAccessToken,
+        iam_member: IamDbSchema.member,
+        iam_jwks: IamDbSchema.jwks,
+        iam_device_code: IamDbSchema.deviceCode,
+        iam_invitation: IamDbSchema.invitation,
+        iam_api_key: IamDbSchema.apiKey,
+      },
     }),
     baseURL: serverEnv.app.authUrl.toString(),
     basePath: "/api/v1/auth",
@@ -167,6 +190,7 @@ export const makeAuth = ({
       max: 100, // max requests in the window
     },
     account: {
+      modelName: IamEntityIds.AccountId.tableName,
       additionalFields: additionalFieldsCommon,
       accountLinking: {
         enabled: true,
@@ -506,9 +530,11 @@ export const makeAuth = ({
         requireEmailVerificationOnInvitation: true,
         schema: {
           verification: {
+            modelName: IamEntityIds.VerificationId.tableName,
             additionalFields: additionalFieldsCommon,
           },
           organization: {
+            modelName: SharedEntityIds.OrganizationId.tableName,
             additionalFields: {
               type: {
                 type: "string",
@@ -549,6 +575,7 @@ export const makeAuth = ({
             },
           },
           member: {
+            modelName: IamEntityIds.MemberId.tableName,
             additionalFields: {
               // Enhanced member tracking fields (see iam/tables/src/tables/member.table.ts)
               status: { type: "string", required: true, defaultValue: "active" },
@@ -561,9 +588,11 @@ export const makeAuth = ({
             },
           },
           invitation: {
+            modelName: IamEntityIds.InvitationId.tableName,
             additionalFields: additionalFieldsCommon,
           },
           team: {
+            modelName: SharedEntityIds.TeamId.tableName,
             additionalFields: {
               // Align with shared team table (see shared/tables/src/tables/team.table.ts)
               description: { type: "string", required: false },
@@ -573,6 +602,7 @@ export const makeAuth = ({
             },
           },
           organizationRole: {
+            modelName: IamEntityIds.OrganizationRoleId.tableName,
             additionalFields: additionalFieldsCommon,
           },
         },
@@ -660,7 +690,13 @@ export const makeAuth = ({
           ),
       }),
       lastLoginMethod(),
-      jwt(),
+      jwt({
+        schema: {
+          jwks: {
+            modelName: IamEntityIds.JwksId.tableName,
+          },
+        },
+      }),
       haveIBeenPwned({
         customPasswordCompromisedMessage:
           "The password you entered has been compromised. Please choose a different password.",

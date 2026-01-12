@@ -9,13 +9,217 @@ You are continuing the FlexLayout Schema migration project. Your goal is to comp
 3. **USE SCHEMA GUARDS** - Replace unsafe casts with `S.is()` or `S.decodeUnknownSync()`
 4. **TEST INCREMENTALLY** - Run type check after each file modification
 
+---
+
+## Sub-Agent Usage (REQUIRED)
+
+**Use the Task tool to spawn sub-agents for complex tasks.** This improves reliability and allows parallel execution.
+
+### Recommended Agent Types
+
+| Agent Type | When to Use |
+|------------|-------------|
+| `effect-code-writer` | Writing/modifying Effect schema code (I* classes) |
+| `package-error-fixer` | After changes, to fix type/build/lint errors |
+| `Explore` | Searching codebase for patterns, usage sites |
+| `general-purpose` | Complex multi-step tasks, research |
+
+### Sub-Agent Prompt Pattern
+
+Each task below includes a **Sub-agent prompt** block. Copy the prompt and use it with the Task tool:
+
+```typescript
+// Example Task tool usage:
+Task({
+  subagent_type: "effect-code-writer",
+  description: "Update ILayoutWindow stored types",
+  prompt: "<paste the sub-agent prompt here>"
+})
+```
+
+### Parallel Execution
+
+Tasks within the same step can run in parallel. For example:
+- Task 0.1 and 0.2 can run in parallel (different files)
+- Task 3.1-3.6 can run in parallel (independent files)
+
+---
+
 ## Your Mission
 
 Read `HANDOFF_P8.md` for full context, then execute these tasks in order:
 
 ---
 
-## Task 1: Verify and Implement Missing Methods
+## Task 0: Fix Root Causes - Update Stored Types (DO THIS FIRST)
+
+**Why first?** ILayoutWindow and IBorderSet store original types. Fixing these will naturally eliminate many downstream casts.
+
+### Step 0.1: Update ILayoutWindow to Store I* Types
+
+**Sub-agent prompt** (use `effect-code-writer`):
+```
+Read packages/ui/ui/src/flexlayout-react/model/LayoutWindow.ts
+
+In ILayoutWindow class:
+1. Change `private _root: O.Option<RowNode>` to `O.Option<IRowNode>` (line ~172)
+2. Change `private _maximizedTabSet: O.Option<TabSetNode>` to `O.Option<ITabSetNode>` (line ~173)
+3. Change `private _activeTabSet: O.Option<TabSetNode>` to `O.Option<ITabSetNode>` (line ~174)
+4. Update ALL corresponding getters to return I* types
+5. Update ALL corresponding setters to accept I* types
+
+DO NOT modify the original LayoutWindow class.
+Run type check after changes: turbo run check --filter=@beep/ui
+```
+
+In `LayoutWindow.ts`, change the private fields to use I* types:
+
+```typescript
+// BEFORE (lines 172-174):
+private _root: O.Option<RowNode> = O.none();
+private _maximizedTabSet: O.Option<TabSetNode> = O.none();
+private _activeTabSet: O.Option<TabSetNode> = O.none();
+
+// AFTER:
+private _root: O.Option<IRowNode> = O.none();
+private _maximizedTabSet: O.Option<ITabSetNode> = O.none();
+private _activeTabSet: O.Option<ITabSetNode> = O.none();
+```
+
+Then update ALL corresponding getters and setters:
+- `get root(): IRowNode | undefined`
+- `get maximizedTabSet(): ITabSetNode | undefined`
+- `get activeTabSet(): ITabSetNode | undefined`
+- `setRoot(value: IRowNode | undefined)`
+- `setMaximizedTabSet(value: ITabSetNode | undefined)`
+- `setActiveTabSet(value: ITabSetNode | undefined)`
+
+**Critical**: This will cause `IModel.getMaximizedTabset()` and `IModel.getRoot()` to return I* types, eliminating many downstream casts.
+
+### Step 0.2: Update IBorderSet to Store I* Types
+
+**Sub-agent prompt** (use `effect-code-writer`):
+```
+Read packages/ui/ui/src/flexlayout-react/model/BorderSet.ts
+
+In IBorderSet class:
+1. Change `private _borders: BorderNode[]` to `IBorderNode[]` (line ~121)
+2. Change `private _borderMap: Map<DockLocation, BorderNode>` to `Map<DockLocation, IBorderNode>` (line ~122)
+3. Update `getBorders()` return type to `IBorderNode[]`
+4. Update `getBorderMap()` return type to `Map<DockLocation, IBorderNode>`
+5. Fix the cast at line ~139 in fromJson - should no longer need cast after type change
+
+DO NOT modify the original BorderSet class.
+Run type check after changes: turbo run check --filter=@beep/ui
+```
+
+In `BorderSet.ts`, change the private fields to use I* types:
+
+```typescript
+// BEFORE (lines 121-122):
+private _borders: BorderNode[] = [];
+private _borderMap: Map<DockLocation, BorderNode> = new Map();
+
+// AFTER:
+private _borders: IBorderNode[] = [];
+private _borderMap: Map<DockLocation, IBorderNode> = new Map();
+```
+
+Then update ALL corresponding getters:
+- `getBorders(): IBorderNode[]`
+- `getBorderMap(): Map<DockLocation, IBorderNode>`
+
+### Step 0.3: Update fromJson Method Signatures
+
+In `IRowNode` and `ITabSetNode`, change the `layoutWindow` parameter type:
+
+```typescript
+// BEFORE:
+static fromJson(json: ..., model: IModel, layoutWindow: LayoutWindow): IRowNode
+
+// AFTER:
+static fromJson(json: ..., model: IModel, layoutWindow: ILayoutWindow): IRowNode
+```
+
+Same for `ITabSetNode.fromJson`.
+
+### Step 0.4: Update Method Signatures to Use I* Types
+
+Update these method signatures to use I* types instead of original types:
+
+```typescript
+// IBorderSet:
+forEachNode(fn: (node: INode, level: number) => void): void  // was Node
+findDropTargetNode(dragNode: INode & IDraggable, x: number, y: number): DropInfo | undefined  // was Node
+
+// ILayoutWindow:
+visitNodes(fn: (node: INode, level: number) => void): void  // was Node
+
+// IRowNode:
+drop(dragNode: INode, location: DockLocation, index: number): void  // was Node
+
+// ITabSetNode:
+drop(dragNode: INode, ...): void  // was Node
+remove(node: ITabNode): void  // was TabNode
+
+// IBorderNode:
+drop(dragNode: INode & IDraggable, ...): void  // was Node & IDraggable
+remove(node: ITabNode): void  // was TabNode
+```
+
+### Step 0.5: Fix IModel.doAction to Use IRowNode.fromJson
+
+**Sub-agent prompt** (use `effect-code-writer`):
+```
+Read packages/ui/ui/src/flexlayout-react/model/Model.ts lines 900-1000
+
+In IModel.doAction() method, replace RowNode.fromJson with IRowNode.fromJson at these locations:
+- Line ~925 (POPOUT_TAB case): Change `RowNode.fromJson(json, this as unknown as Model, layoutWindow as unknown as LayoutWindow)` to `IRowNode.fromJson(json, this, layoutWindow)`
+- Line ~963 (POPOUT_TABSET case): Same change
+- Line ~993 (CREATE_WINDOW case): Same change
+
+After Task 0.1-0.3 are complete, these lines should need NO casts.
+Run type check after changes: turbo run check --filter=@beep/ui
+```
+
+IModel.doAction() still calls `RowNode.fromJson` (original) instead of `IRowNode.fromJson`. Fix these three locations:
+
+```typescript
+// Line 925 (POPOUT_TAB case) - BEFORE:
+const row = RowNode.fromJson(json, this as unknown as Model, layoutWindow as unknown as LayoutWindow);
+// AFTER:
+const row = IRowNode.fromJson(json, this, layoutWindow);
+
+// Line 963 (POPOUT_TABSET case) - BEFORE:
+layoutWindow.setRoot(
+  RowNode.fromJson(json, this as unknown as Model, layoutWindow as unknown as LayoutWindow)
+);
+// AFTER:
+layoutWindow.setRoot(
+  IRowNode.fromJson(json, this, layoutWindow)
+);
+
+// Line 993 (CREATE_WINDOW case) - BEFORE:
+layoutWindow.setRoot(
+  RowNode.fromJson(action.data.layout, this as unknown as Model, layoutWindow as unknown as LayoutWindow)
+);
+// AFTER:
+layoutWindow.setRoot(
+  IRowNode.fromJson(action.data.layout, this, layoutWindow)
+);
+```
+
+### Step 0.6: Run Type Check
+
+```bash
+turbo run check --filter=@beep/ui
+```
+
+After Task 0, re-count remaining casts - many should be naturally eliminated.
+
+---
+
+## Task 1: Verify and Implement Missing Methods (DO THIS SECOND)
 
 ### Step 1.1: Audit IBorderNode for missing methods
 
@@ -27,6 +231,22 @@ grep -n "^\s*\(override\s\+\)\?\(canDrop\|drop\|remove\)" packages/ui/ui/src/fle
 **Known issue**: `IBorderNode` is missing `canDrop()` method.
 
 ### Step 1.2: Implement missing `canDrop` in IBorderNode
+
+**Sub-agent prompt** (use `effect-code-writer`):
+```
+Read packages/ui/ui/src/flexlayout-react/model/BorderNode.ts lines 239-329
+
+The original BorderNode has a canDrop() method that IBorderNode is missing.
+
+1. Copy the canDrop method from BorderNode (lines 239-329)
+2. Add it to IBorderNode class
+3. Update the signature: `override canDrop(dragNode: INode & IDraggable, x: number, y: number): DropInfo | undefined`
+4. Update internal references to use I* types
+5. Replace any `this as unknown as` casts with proper I* type usage
+
+DO NOT modify the original BorderNode class.
+Run type check after changes: turbo run check --filter=@beep/ui
+```
 
 Copy from original BorderNode (lines 239-329) and adapt:
 
@@ -124,7 +344,35 @@ Fix: Update callback type in method signature.
 
 ---
 
-### 3.2 BorderNode.ts (8 casts)
+### 3.2 TabNode.ts (2 casts) - NEWLY IDENTIFIED
+
+**Line 622**: `(parent as unknown as ITabSetNode | BorderNode).getSelectedNode()`
+
+Analysis: ITabNode calls `getSelectedNode()` on parent, but `getParent()` returns `INode | undefined`.
+
+Fix: Use schema guard:
+```typescript
+const parent = this.getParent();
+if (parent && (S.is(ITabSetNode)(parent) || S.is(IBorderNode)(parent))) {
+  const selectedNode = parent.getSelectedNode();
+}
+```
+
+**Line 834**: `(parent as unknown as ITabSetNode | BorderNode).remove(this as unknown as TabNode)`
+
+Analysis: ITabNode needs to call `remove()` on parent and pass itself.
+
+Fix: After Task 0.4 updates `remove()` signatures to accept `ITabNode`:
+```typescript
+const parent = this.getParent();
+if (parent && (S.is(ITabSetNode)(parent) || S.is(IBorderNode)(parent))) {
+  parent.remove(this);
+}
+```
+
+---
+
+### 3.3 BorderNode.ts (9 casts)
 
 **Line 557**: `this.getChildren().map((child) => (child as unknown as TabNode).toJson())`
 
@@ -154,7 +402,7 @@ Fix: Check method signature - if it accepts `INode & IDraggable`, no cast needed
 
 ---
 
-### 3.3 RowNode.ts (18 casts)
+### 3.4 RowNode.ts (22 casts)
 
 Work through each systematically. Key patterns:
 
@@ -177,7 +425,7 @@ Solution: Use schema guards or update getChildren() return type.
 
 ---
 
-### 3.4 TabSetNode.ts (35 casts) - Most complex
+### 3.5 TabSetNode.ts (36 casts) - Most complex
 
 **Layout window casts** (lines 654, 658):
 ```typescript
@@ -205,7 +453,7 @@ The drop() method has the most casts. Work through each:
 
 ---
 
-### 3.5 Model.ts (29 casts) - Most impactful
+### 3.6 Model.ts (32 casts) - Most impactful
 
 **fromJson casts** (line 826):
 ```typescript
@@ -230,6 +478,107 @@ fn as unknown as (node: Node, level: number) => void
 ```
 
 Fix: Update forEachNode to accept `(node: INode, level: number) => void`
+
+---
+
+## Task 4: Fix Circular Dependencies (CRITICAL)
+
+**54 circular dependencies exist** in the flexlayout-react code. These MUST be resolved.
+
+### Verification Command
+
+```bash
+turbo run lint:circular --filter=@beep/ui
+# Currently fails with "Found 54 circular dependencies!"
+# Target: "Found 0 circular dependencies!"
+```
+
+### Core Circular Cycles
+
+1. **Model Layer Cycles** (highest priority):
+   - `BorderNode → Model → BorderSet → BorderNode`
+   - `Model → LayoutWindow → RowNode → TabSetNode → TabNode → Model`
+   - `TabSetNode → Utils (model) → TabSetNode`
+
+2. **View Layer Cycles**:
+   - `TabSetNode → Utils.tsx (view) → Layout.tsx → components → TabSetNode`
+   - `Layout.tsx → BorderTab.tsx → Splitter.tsx → Layout.tsx`
+   - `Layout.tsx → Row.tsx → TabSet.tsx → TabButton.tsx → Layout.tsx`
+
+### Fix Strategies
+
+#### Strategy 1: Extract Shared Types to `types.ts`
+
+**Sub-agent prompt** (use `effect-code-writer`):
+```
+Create packages/ui/ui/src/flexlayout-react/model/types.ts
+
+Move these shared types from individual files:
+1. Union types (ILayoutNode, IDraggableNode, etc.)
+2. Shared interfaces (if any are duplicated)
+3. Type guards that don't need runtime class references
+
+Update imports in Model.ts, BorderNode.ts, RowNode.ts, TabSetNode.ts, TabNode.ts, LayoutWindow.ts, BorderSet.ts, Node.ts to import from types.ts instead of cross-importing.
+
+Run: turbo run lint:circular --filter=@beep/ui
+```
+
+#### Strategy 2: Use Type-Only Imports
+
+Change runtime imports to type-only where the import is only used for type annotations:
+
+```typescript
+// BEFORE (creates runtime circular dependency):
+import { TabSetNode } from "./TabSetNode";
+
+// AFTER (breaks circular dependency):
+import type { TabSetNode } from "./TabSetNode";
+```
+
+Audit each model file for imports that can be converted to `import type`.
+
+#### Strategy 3: Break View ↔ Model Coupling
+
+`TabSetNode.ts` imports `view/Utils.tsx` which imports `Layout.tsx`, creating a massive cycle.
+
+Options:
+1. Move the required utility function from view/Utils.tsx to model/Utils.ts
+2. Pass the utility as a parameter instead of importing
+3. Create a shared module that both can import without circular deps
+
+#### Strategy 4: Create Barrel Index with Correct Order
+
+```typescript
+// packages/ui/ui/src/flexlayout-react/model/index.ts
+// Export in dependency order (least dependent first):
+export * from "./types";
+export * from "./Node";
+export * from "./TabNode";
+export * from "./TabSetNode";
+export * from "./RowNode";
+export * from "./BorderNode";
+export * from "./BorderSet";
+export * from "./LayoutWindow";
+export * from "./Model";
+```
+
+Then update imports to use the barrel file where appropriate.
+
+#### Strategy 5: Lazy Initialization (Last Resort)
+
+For runtime references that can't be avoided:
+
+```typescript
+let _ModelClass: typeof Model | undefined;
+const getModelClass = () => _ModelClass ?? (_ModelClass = require("./Model").Model);
+```
+
+### Expected Order of Fixes
+
+1. **Start with type-only imports** - Quick wins, no code changes
+2. **Create types.ts** - Centralize shared types
+3. **Break model → view imports** - TabSetNode.ts → view/Utils.tsx is critical
+4. **Address model-layer cycles** - May require more extensive refactoring
 
 ---
 
@@ -449,23 +798,53 @@ turbo run check --filter=@beep/ui
 turbo run lint:fix --filter=@beep/ui
 ```
 
+### Using package-error-fixer Agent
+
+If type check fails with multiple errors, use the `package-error-fixer` agent:
+
+**Sub-agent prompt** (use `package-error-fixer`):
+```
+Fix all type errors, build errors, and lint issues in @beep/ui package.
+
+Context: We are decoupling I* schema classes from original classes in the flexlayout-react model.
+DO NOT modify original classes (BorderNode, RowNode, TabSetNode, TabNode, Node, Model, LayoutWindow, BorderSet).
+Only modify I* classes (IBorderNode, IRowNode, ITabSetNode, ITabNode, INode, IModel, ILayoutWindow, IBorderSet).
+
+Run: turbo run check --filter=@beep/ui
+Fix any type errors that appear.
+```
+
 ---
 
 ## Progress Tracking
 
 After completing each task, update this checklist:
 
+- [ ] Task 0.1: Update ILayoutWindow to store I* types (_root, _maximizedTabSet, _activeTabSet)
+- [ ] Task 0.2: Update IBorderSet to store I* types (_borders, _borderMap)
+- [ ] Task 0.3: Update IRowNode.fromJson and ITabSetNode.fromJson to accept ILayoutWindow
+- [ ] Task 0.4: Update method signatures to use I* types (forEachNode, findDropTargetNode, drop, remove)
+- [ ] Task 0.5: Fix IModel.doAction to use IRowNode.fromJson (lines 925, 963, 993)
+- [ ] Task 0.6: Run type check - count remaining casts after Task 0
 - [ ] Task 1.1: Audit IBorderNode - found missing `canDrop`
 - [ ] Task 1.2: Implement `IBorderNode.canDrop()`
 - [ ] Task 1.3: Audit other I* classes for missing methods
 - [ ] Task 2: Create schema union types
 - [ ] Task 3.1: Node.ts casts removed (2)
-- [ ] Task 3.2: BorderNode.ts casts removed (8)
-- [ ] Task 3.3: RowNode.ts casts removed (18)
-- [ ] Task 3.4: TabSetNode.ts casts removed (35)
-- [ ] Task 3.5: Model.ts casts removed (29)
+- [ ] Task 3.2: TabNode.ts casts removed (2) - NEWLY IDENTIFIED
+- [ ] Task 3.3: BorderNode.ts casts removed (9)
+- [ ] Task 3.4: RowNode.ts casts removed (22)
+- [ ] Task 3.5: TabSetNode.ts casts removed (36)
+- [ ] Task 3.6: Model.ts casts removed (32)
+- [ ] LayoutWindow.ts cast removed (1) - should be fixed by Task 0
+- [ ] BorderSet.ts cast removed (1) - should be fixed by Task 0
+- [ ] Task 4.1: Convert runtime imports to type-only imports where possible
+- [ ] Task 4.2: Create types.ts with shared types
+- [ ] Task 4.3: Break TabSetNode → view/Utils.tsx → Layout.tsx cycle
+- [ ] Task 4.4: Resolve remaining model-layer cycles
+- [ ] Task 4.5: Verify circular dependencies resolved (`turbo run lint:circular --filter=@beep/ui`)
 - [ ] Final verification: type check passes
-- [ ] Final verification: lint passes
+- [ ] Final verification: lint passes (including lint:circular)
 - [ ] REFLECTION_LOG.md updated
 
 ---
@@ -478,3 +857,4 @@ When complete:
 3. Type safety maintained through schema guards
 4. Original classes completely unchanged
 5. I* classes can be used independently of original classes
+6. Zero circular dependencies (`turbo run lint:circular --filter=@beep/ui` passes)

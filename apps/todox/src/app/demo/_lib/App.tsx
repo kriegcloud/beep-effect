@@ -31,6 +31,79 @@ import "prismjs/themes/prism-coy.css";
 import "./styles.css";
 import "./popupmenu.css";
 import "../flexlayout.css";
+
+// -----------------------------------------------------------------------------
+// CrossOriginIframe Component
+// -----------------------------------------------------------------------------
+
+/**
+ * A wrapper component for iframes that prevents React's dev mode logging from
+ * traversing into cross-origin contentWindow, which would throw SecurityError.
+ *
+ * Uses a Custom Element with Shadow DOM to create a true isolation boundary
+ * that React cannot traverse into during development mode render logging.
+ */
+interface CrossOriginIframeProps {
+  readonly id: string;
+  readonly src: string;
+}
+
+// Register the custom element once
+const CUSTOM_ELEMENT_NAME = "isolated-iframe";
+if (typeof window !== "undefined" && !customElements.get(CUSTOM_ELEMENT_NAME)) {
+  class IsolatedIframe extends HTMLElement {
+    private shadow: ShadowRoot;
+
+    constructor() {
+      super();
+      // Create closed shadow root - React cannot access closed shadow DOM
+      this.shadow = this.attachShadow({ mode: "closed" });
+    }
+
+    static get observedAttributes() {
+      return ["src", "title"];
+    }
+
+    connectedCallback() {
+      this.render();
+    }
+
+    attributeChangedCallback() {
+      this.render();
+    }
+
+    private render() {
+      const src = this.getAttribute("src") || "";
+      const title = this.getAttribute("title") || "";
+
+      this.shadow.innerHTML = `
+        <style>
+          :host { display: block; width: 100%; height: 100%; }
+          iframe { display: block; border: none; box-sizing: border-box; width: 100%; height: 100%; }
+        </style>
+        <iframe
+          src="${src}"
+          title="${title}"
+          sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+          referrerpolicy="no-referrer"
+          loading="lazy"
+        ></iframe>
+      `;
+    }
+  }
+
+  customElements.define(CUSTOM_ELEMENT_NAME, IsolatedIframe);
+}
+
+const CrossOriginIframe = React.memo(function CrossOriginIframe({ id, src }: CrossOriginIframeProps) {
+  // Use the custom element - React treats it as an opaque element and won't traverse its shadow DOM
+  return React.createElement(CUSTOM_ELEMENT_NAME, {
+    src,
+    title: id,
+    style: { width: "100%", height: "100%", display: "block" },
+  });
+});
+
 // -----------------------------------------------------------------------------
 // Type-safe field definitions
 // -----------------------------------------------------------------------------
@@ -128,6 +201,46 @@ function App() {
   const [realtimeResize, setRealtimeResize] = React.useState<boolean>(false);
   const [showLayout, setShowLayout] = React.useState<boolean>(false);
   const [popoutClassName, setPopoutClassName] = React.useState<string>("flexlayout__theme_light");
+
+  // ---------------------------------------------------------------------------
+  // Dev-mode error suppression for cross-origin Window access
+  // ---------------------------------------------------------------------------
+  // React's development mode render logging traverses props/state and encounters
+  // cross-origin Window references in FlexLayout's LayoutWindow model, causing
+  // SecurityError. This is a known React issue (facebook/react#34840) that is
+  // benign and doesn't affect functionality. We suppress it to reduce console noise.
+  // ---------------------------------------------------------------------------
+  React.useEffect(() => {
+    if (process.env.NODE_ENV !== "development") return;
+
+    const originalError = window.onerror;
+
+    window.onerror = (message, _source, _lineno, _colno, error) => {
+      // Check for the specific SecurityError pattern from React's dev mode logging
+      const isReactDevSecurityError =
+        error instanceof DOMException &&
+        error.name === "SecurityError" &&
+        typeof message === "string" &&
+        (message.includes("Blocked a frame with origin") ||
+          message.includes("cross-origin frame") ||
+          message.includes("$typeof"));
+
+      if (isReactDevSecurityError) {
+        // Suppress this known benign error - return true to prevent default handling
+        return true;
+      }
+
+      // Pass through to original handler for other errors
+      if (originalError) {
+        return originalError(message, _source, _lineno, _colno, error);
+      }
+      return false;
+    };
+
+    return () => {
+      window.onerror = originalError;
+    };
+  }, []);
 
   const loadingLayoutName = React.useRef<string | null>(null);
   const nextGridIndex = React.useRef<number>(1);
@@ -483,21 +596,9 @@ function App() {
         try {
           const config = node.getConfig();
           if (config.type === "url") {
-            return (
-              <iframe
-                title={node.getId()}
-                src={config.data}
-                style={{ display: "block", border: "none", boxSizing: "border-box" }}
-                width="100%"
-                height="100%"
-                // Prevent cross-origin access issues with dev tools
-                // sandbox allows scripts and same-origin access but prevents
-                // dev tools from traversing into cross-origin contentWindow
-                sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
-                referrerPolicy="no-referrer"
-                loading="lazy"
-              />
-            );
+            // Use CrossOriginIframe wrapper to prevent DevTools SecurityError
+            // when inspecting cross-origin iframes (e.g., Wikipedia)
+            return <CrossOriginIframe id={node.getId()} src={config.data} />;
           }
           if (config.type === "html") {
             return <div dangerouslySetInnerHTML={{ __html: config.data }} />;

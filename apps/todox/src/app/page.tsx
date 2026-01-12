@@ -1,5 +1,6 @@
 "use client";
 
+import { useSignOut } from "@beep/iam-client/clients/sign-out";
 import { AI_CHAT_WIDTH, AIChatPanel, AIChatPanelTrigger } from "@beep/todox/components/ai-chat";
 import { MiniSidebarProvider } from "@beep/todox/components/mini-sidebar";
 import { TopNavbar } from "@beep/todox/components/navbar";
@@ -13,6 +14,8 @@ import { MailDetails } from "@beep/todox/features/mail/mail-details";
 import { MailList } from "@beep/todox/features/mail/mail-list";
 import { MailProvider, useMail } from "@beep/todox/features/mail/provider";
 import { cn } from "@beep/todox/lib/utils";
+import { AuthGuard } from "@beep/todox/providers/AuthGuard";
+import { useAuthAdapterProvider } from "@beep/ui/providers";
 import Stack from "@mui/material/Stack";
 import {
   BrainIcon,
@@ -26,12 +29,6 @@ import {
   UsersIcon,
 } from "@phosphor-icons/react";
 import * as React from "react";
-
-const user = {
-  name: "John Doe",
-  email: "john@example.com",
-  avatar: "/logo.avif",
-};
 
 function MailContent() {
   const {
@@ -210,7 +207,14 @@ function MainContent() {
   );
 }
 
-export default function Page() {
+function PageContent() {
+  const { session } = useAuthAdapterProvider();
+  const user = {
+    name: session?.user.name ?? "User",
+    email: session?.user.email ?? "",
+    avatar: session?.user.image ?? "/logo.avif",
+  };
+
   return (
     <MiniSidebarProvider>
       <SidePanelProvider>
@@ -225,5 +229,44 @@ export default function Page() {
         </div>
       </SidePanelProvider>
     </MiniSidebarProvider>
+  );
+}
+
+// Mock data for AuthAdapterProvider (can be replaced with real implementations later)
+const AUTH_ADAPTER_MOCK_DATA = {
+  userOrgs: [] as const,
+  userAccounts: [] as const,
+  notifications: [] as const,
+  workspaces: [] as const,
+  contacts: [] as const,
+};
+
+// Stub async functions for account/org switching
+const switchAccount = async () => {
+  await Promise.resolve();
+};
+
+const switchOrganization = async () => {
+  await Promise.resolve();
+};
+
+export default function Page() {
+  const { signOut } = useSignOut();
+
+  return (
+    <React.Suspense>
+      <AuthGuard
+        signOut={signOut}
+        switchAccount={switchAccount}
+        switchOrganization={switchOrganization}
+        userOrgs={AUTH_ADAPTER_MOCK_DATA.userOrgs}
+        userAccounts={AUTH_ADAPTER_MOCK_DATA.userAccounts}
+        notifications={AUTH_ADAPTER_MOCK_DATA.notifications}
+        workspaces={AUTH_ADAPTER_MOCK_DATA.workspaces}
+        contacts={AUTH_ADAPTER_MOCK_DATA.contacts}
+      >
+        <PageContent />
+      </AuthGuard>
+    </React.Suspense>
   );
 }

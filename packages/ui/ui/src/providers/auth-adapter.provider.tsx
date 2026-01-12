@@ -19,7 +19,7 @@ type User = {
   readonly phoneNumber: string | null;
   readonly username?: undefined | null | string;
   readonly image?: string | null | undefined;
-  readonly role: string;
+  readonly role?: undefined | string;
 };
 
 type Session = {

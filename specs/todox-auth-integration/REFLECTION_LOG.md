@@ -51,12 +51,77 @@ After each phase, answer:
 
 ---
 
+### 2025-01-12 - Phase 1: Guard Infrastructure & Auth Routes
+
+#### What Worked Well
+
+1. **Following web reference closely** - Using `apps/web/src/providers/` as template was efficient
+2. **Module aliasing** - Using `@beep/todox/*` instead of `@/` matched existing codebase patterns
+3. **Effect import conventions** - Namespace imports (`import * as F from "effect/Function"`) worked correctly
+4. **Biome auto-fix** - Import reordering handled automatically
+
+#### What Didn't Work
+
+1. **Initial useSession import path** - Spec referenced `@beep/ui/providers/auth-adapter-provider` but actual hook is `useAuthAdapterProvider` from `@beep/ui/providers`
+2. **AuthGuard props underspecified** - Spec omitted that `AuthAdapterProvider` requires many props (signOut, switchAccount, switchOrganization, userOrgs, userAccounts, notifications, workspaces, contacts)
+3. **GuestGuard unused import** - Copied `paths` import from web version but didn't need it (caused lint error)
+
+#### What to Add
+
+1. **Mock data pattern** - For Phase 1, providing stub/mock data for AuthAdapterProvider props was necessary
+2. **React.Suspense wrapper** - Required around AuthGuard for proper async handling
+3. **Middleware (proxy.ts)** - Needed for server-side route protection (deferred to Phase 2)
+
+#### Prompt Refinements
+
+1. **Clarify AuthAdapterProvider props** - Future specs should list all required props explicitly
+2. **Specify hook paths exactly** - Use `useAuthAdapterProvider` from `@beep/ui/providers` (not a subdirectory path)
+3. **Include mock data templates** - Provide boilerplate for AuthAdapterProvider props
+
+#### Codebase-specific Insights
+
+1. **Todox uses `@beep/todox/*` paths** - Not `@/` like some Next.js apps
+2. **AuthAdapterProvider is heavy** - Requires 8+ props beyond session; plan for proper implementations in Phase 2+
+3. **Session access pattern** - `useAuthAdapterProvider().session` provides the session object
+4. **Biome import ordering** - Will auto-reorder imports on lint:fix
+
+---
+
 ## Accumulated Improvements
 
-*To be filled after execution phases*
+### Import Path Corrections
+- `useAuthAdapterProvider` from `@beep/ui/providers` (not `auth-adapter-provider` subdirectory)
+- Local providers use `@beep/todox/providers/` prefix
+
+### Required AuthGuard Props
+```typescript
+<AuthGuard
+  signOut={signOut}
+  switchAccount={async () => { /* stub */ }}
+  switchOrganization={async () => { /* stub */ }}
+  userOrgs={[]}
+  userAccounts={[]}
+  notifications={[]}
+  workspaces={[]}
+  contacts={[]}
+>
+```
+
+### Session Access Pattern
+```typescript
+const { session } = useAuthAdapterProvider();
+const user = {
+  name: session?.user.name ?? "User",
+  email: session?.user.email ?? "",
+  avatar: session?.user.image ?? "/logo.avif",
+};
+```
 
 ---
 
 ## Lessons Learned Summary
 
-*To be filled after completion*
+1. **Reference implementations are gold** - Always read actual web implementations, not just spec snippets
+2. **Type errors reveal integration gaps** - Running `bun run check` early catches missing props
+3. **Mock data is acceptable for Phase 1** - Real implementations can come in subsequent phases
+4. **Biome handles import ordering** - Don't spend time manually ordering imports

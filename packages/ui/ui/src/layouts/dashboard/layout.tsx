@@ -77,7 +77,7 @@ export function DashboardLayout({
   const isNavVertical = isNavMini || settings.state.navLayout === "vertical";
 
   const canDisplayItemByRole = (allowedRoles: NavItemProps["allowedRoles"]): boolean =>
-    !allowedRoles?.includes(user?.role);
+    !allowedRoles?.includes(user?.role ?? "");
 
   const renderHeader = () => {
     const headerSlotProps: HeaderSectionProps["slotProps"] = {

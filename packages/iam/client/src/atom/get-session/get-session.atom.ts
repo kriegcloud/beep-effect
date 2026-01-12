@@ -1,14 +1,9 @@
-import { thunkNull } from "@beep/utils";
-import { Result, useAtomValue } from "@effect-atom/atom-react";
-import { ApiClient } from "../api-client.ts";
+import { client } from "@beep/iam-client/adapters/better-auth";
+
 export const useSession = () => {
-  const sessionResult = useAtomValue(
-    ApiClient.query("core", "getSession", {
-      reactivityKeys: ["session"],
-    })
-  );
+  const sessionResult = client.useSession();
 
   return {
-    session: Result.getOrElse(sessionResult, thunkNull),
+    session: sessionResult.data,
   };
 };

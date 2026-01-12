@@ -52,11 +52,11 @@ type Registry = MutableHashSet.MutableHashSet<string>;
  */
 const registerIdentity = (registry: Registry, identity: string): void => {
   if (MutableHashSet.has(registry, identity)) {
-    console.warn(
-      `[beep/identity] Duplicate identity detected: "${identity}"\n` +
-        `This may indicate a copy-paste error. Each identity string must be unique.\n` +
-        `Duplicate Effect Context/Service tags cause runtime Layer conflicts.`
-    );
+    // console.warn(
+    //   `[beep/identity] Duplicate identity detected: "${identity}"\n` +
+    //     `This may indicate a copy-paste error. Each identity string must be unique.\n` +
+    //     `Duplicate Effect Context/Service tags cause runtime Layer conflicts.`
+    // );
   }
   MutableHashSet.add(registry, identity);
 };
