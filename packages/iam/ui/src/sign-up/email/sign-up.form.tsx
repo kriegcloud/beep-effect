@@ -1,4 +1,4 @@
-import { SignUp } from "@beep/iam-client/v1";
+import { SignUp } from "@beep/iam-client";
 import { RecaptchaBadge, useCaptchaAtom } from "@beep/iam-ui/_common";
 import { paths } from "@beep/shared-domain";
 import { PasswordFieldsGroup } from "@beep/ui/form/groups/index";

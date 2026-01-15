@@ -1,5 +1,5 @@
 "use client";
-import { Core } from "@beep/iam-client/v1";
+import { Core } from "@beep/iam-client";
 import { paths } from "@beep/shared-domain";
 import { useIsClient, useRouter } from "@beep/ui/hooks";
 import { SplashScreen } from "@beep/ui/progress/loading-screen/splash-screen";

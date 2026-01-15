@@ -1,4 +1,4 @@
-import { SignUpService, signUpRuntime } from "@beep/iam-client/v1/sign-up";
+import { SignUpService, signUpRuntime } from "@beep/iam-client/sign-up";
 import { withToast } from "@beep/ui/common/index";
 import { useAtomSet } from "@effect-atom/atom-react";
 import * as F from "effect/Function";

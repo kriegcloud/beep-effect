@@ -3,6 +3,8 @@ import { Geist, Geist_Mono, Inter } from "next/font/google";
 import "./globals.css";
 import Script from "next/script";
 
+import { KaServices } from "@beep/runtime-client";
+import { RegistryProvider } from "@effect-atom/atom-react";
 import { connection } from "next/server";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
@@ -50,9 +52,12 @@ export default async function RootLayout({
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <GlobalProviders appConfig={appConfig}>
-          <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-            {children}
-          </ThemeProvider>
+          <RegistryProvider>
+            <KaServices />
+            <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+              {children}
+            </ThemeProvider>
+          </RegistryProvider>
         </GlobalProviders>
       </body>
     </html>

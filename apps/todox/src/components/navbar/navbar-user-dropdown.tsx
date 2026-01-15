@@ -1,5 +1,6 @@
 "use client";
 
+import { Core } from "@beep/iam-client";
 import { Avatar, AvatarFallback, AvatarImage } from "@beep/todox/components/ui/avatar";
 import {
   DropdownMenu,
@@ -38,6 +39,7 @@ interface NavbarUserDropdownProps {
 
 export function NavbarUserDropdown({ user }: NavbarUserDropdownProps) {
   const { theme, setTheme } = useTheme();
+  const { signOut } = Core.useCore();
 
   const initials = F.pipe(
     user.name,
@@ -129,7 +131,7 @@ export function NavbarUserDropdown({ user }: NavbarUserDropdownProps) {
           </ToggleGroup>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
+        <DropdownMenuItem onClick={() => signOut()}>
           <SignOutIcon />
           Log out
         </DropdownMenuItem>

@@ -59,21 +59,26 @@ const LayoutNav = styled("div")(({ theme }) => ({
 }));
 
 const LayoutList = styled("div")(({ theme }) => ({
-  display: "none",
-  flex: "0 0 320px",
-  overflow: "hidden",
-  flexDirection: "column",
-  borderRadius: Number(theme.shape.borderRadius) * 1.5,
-  backgroundColor: theme.vars.palette.background.default,
-  [theme.breakpoints.up("md")]: { display: "flex" },
-}));
-
-const LayoutDetails = styled("div")(({ theme }) => ({
-  minWidth: 0,
   display: "flex",
   flex: "1 1 auto",
   overflow: "hidden",
   flexDirection: "column",
   borderRadius: Number(theme.shape.borderRadius) * 1.5,
   backgroundColor: theme.vars.palette.background.default,
+  [theme.breakpoints.up("md")]: {
+    flex: "0 0 320px",
+  },
+}));
+
+const LayoutDetails = styled("div")(({ theme }) => ({
+  minWidth: 0,
+  display: "none",
+  flex: "1 1 auto",
+  overflow: "hidden",
+  flexDirection: "column",
+  borderRadius: Number(theme.shape.borderRadius) * 1.5,
+  backgroundColor: theme.vars.palette.background.default,
+  [theme.breakpoints.up("md")]: {
+    display: "flex",
+  },
 }));

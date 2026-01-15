@@ -1,6 +1,6 @@
 "use client";
 
-import { Core } from "@beep/iam-client/v1";
+import { Core } from "@beep/iam-client";
 import { paths } from "@beep/shared-domain";
 import { Avatar, AvatarFallback, AvatarImage } from "@beep/todox/components/ui/avatar";
 import {
