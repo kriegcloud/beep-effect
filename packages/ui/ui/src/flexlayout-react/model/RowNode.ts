@@ -10,12 +10,12 @@ import { DropInfo } from "../DropInfo";
 import { Orientation } from "../Orientation";
 import { CLASSES } from "../Types";
 import { BorderNode } from "./BorderNode";
+import { DefaultMax, DefaultMin, MAIN_WINDOW_ID } from "./constants";
 import type { IDraggable } from "./IDraggable";
 import type { IDropTarget } from "./IDropTarget";
 import { JsonRowNode } from "./JsonModel.ts";
 import type { LayoutWindow } from "./LayoutWindow";
-
-import { DefaultMax, DefaultMin, Model } from "./Model";
+import type { Model } from "./Model";
 import { Node } from "./Node";
 import type { TabNode } from "./TabNode";
 import { TabSetNode } from "./TabSetNode";
@@ -465,7 +465,7 @@ export class RowNode extends Node implements IDropTarget {
     const half = 50; // half width of edge rect
     let dropInfo: DropInfo | undefined = undefined;
 
-    if (this.getWindowId() !== Model.MAIN_WINDOW_ID && !canDockToWindow(dragNode)) {
+    if (this.getWindowId() !== MAIN_WINDOW_ID && !canDockToWindow(dragNode)) {
       return undefined;
     }
 

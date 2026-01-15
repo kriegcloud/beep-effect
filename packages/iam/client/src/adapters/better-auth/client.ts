@@ -1,18 +1,18 @@
-import type {Auth} from "@beep/iam-server";
-import {clientEnv} from "@beep/shared-env/ClientEnv";
-import {asyncNoOp} from "@beep/utils";
-import type {BetterAuthClientOptions} from "@better-auth/core";
-import {passkeyClient} from "@better-auth/passkey/client";
-import {ssoClient} from "@better-auth/sso/client";
-import {stripeClient} from "@better-auth/stripe/client";
+import type { Auth } from "@beep/iam-server";
+import { clientEnv } from "@beep/shared-env/ClientEnv";
+import { asyncNoOp } from "@beep/utils";
+import type { BetterAuthClientOptions } from "@better-auth/core";
+import { passkeyClient } from "@better-auth/passkey/client";
+import { ssoClient } from "@better-auth/sso/client";
+import { stripeClient } from "@better-auth/stripe/client";
 import {
   adminClient,
   anonymousClient,
   apiKeyClient,
   deviceAuthorizationClient,
   genericOAuthClient,
-  jwtClient,
   inferOrgAdditionalFields,
+  jwtClient,
   lastLoginMethodClient,
   multiSessionClient,
   oidcClient,
@@ -23,7 +23,7 @@ import {
   siweClient,
   usernameClient,
 } from "better-auth/client/plugins";
-import {createAuthClient} from "better-auth/react";
+import { createAuthClient } from "better-auth/react";
 import * as Duration from "effect/Duration";
 import * as P from "effect/Predicate";
 export const client = createAuthClient({
@@ -69,9 +69,8 @@ export const client = createAuthClient({
   ],
 } satisfies BetterAuthClientOptions);
 
-export const {$store, signIn, signUp} = client;
+export const { $store, signIn, signUp } = client;
 
 $store.listen("$sessionSignal", asyncNoOp);
 
-export const isClientMethodKey = (u: unknown): u is keyof typeof client.signIn =>
-  P.isString(u);
+export const isClientMethodKey = (u: unknown): u is keyof typeof client.signIn => P.isString(u);

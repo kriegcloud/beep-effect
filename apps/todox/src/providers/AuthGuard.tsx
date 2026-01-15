@@ -7,6 +7,7 @@ import { GuardErrorFallback } from "@beep/todox/providers/GuardErrorFallback";
 import { useIsClient, useRouter } from "@beep/ui/hooks";
 import { SplashScreen } from "@beep/ui/progress/loading-screen/splash-screen";
 import { AuthAdapterProvider } from "@beep/ui/providers";
+import { thunkNull } from "@beep/utils";
 import * as F from "effect/Function";
 import * as O from "effect/Option";
 import React from "react";
@@ -43,27 +44,27 @@ const AuthGuardContent: React.FC<AuthGuardContentProps> = ({ children, router, .
       session={{
         ...data.user,
         user: {
-          role: "beep",
           ...data.user,
+          role: "beep",
           email: data.user.email,
           phoneNumber: F.pipe(
             O.fromNullable(data.user.phoneNumber),
             O.match({
-              onNone: () => null,
+              onNone: thunkNull,
               onSome: (pn) => pn,
             })
           ),
           username: F.pipe(
             O.fromNullable(data.user.username),
             O.match({
-              onNone: () => null,
+              onNone: thunkNull,
               onSome: (username) => username,
             })
           ),
           image: F.pipe(
             O.fromNullable(data.user.image),
             O.match({
-              onNone: () => null,
+              onNone: thunkNull,
               onSome: (image) => image,
             })
           ),

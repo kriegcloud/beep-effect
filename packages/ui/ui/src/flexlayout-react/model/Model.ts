@@ -12,6 +12,7 @@ import type { Action } from "./Action";
 import { Actions } from "./Actions";
 import { BorderNode } from "./BorderNode";
 import { BorderSet } from "./BorderSet";
+import { DefaultMax, DefaultMin, MAIN_WINDOW_ID } from "./constants";
 import type { IDraggable } from "./IDraggable";
 import type { IDropTarget } from "./IDropTarget";
 import type { JsonModel, JsonPopout, TabSetAttributes } from "./JsonModel.ts";
@@ -21,16 +22,15 @@ import { RowNode } from "./RowNode";
 import { TabNode } from "./TabNode";
 import { TabSetNode } from "./TabSetNode";
 import { randomUUID } from "./Utils";
-/** @internal */
-export const DefaultMin = 0;
-/** @internal */
-export const DefaultMax = 99999;
+
+// Re-export for backward compatibility
+export { DefaultMax, DefaultMin };
 
 /**
  * Class containing the Tree of Nodes used by the FlexLayout component
  */
 export class Model {
-  static MAIN_WINDOW_ID = "__main_window_id__";
+  static MAIN_WINDOW_ID = MAIN_WINDOW_ID;
 
   /** @internal */
   private static attributeDefinitions: AttributeDefinitions = Model.createAttributeDefinitions();
@@ -404,7 +404,8 @@ export class Model {
     }
     if (P.isNotNullable(json.popouts)) {
       for (const [windowId, windowJson] of Struct.entries(json.popouts)) {
-        const layoutWindow = LayoutWindow.fromJson(windowJson, model, windowId);
+        const layoutWindow = LayoutWindow.fromJson(windowJson, windowId, model.windows.size);
+        layoutWindow.root = RowNode.fromJson(windowJson.layout, model, layoutWindow);
         model.windows.set(windowId, layoutWindow);
       }
     }
@@ -615,6 +616,16 @@ export class Model {
   /** @internal */
   getOnCreateTabSet() {
     return this.onCreateTabSet;
+  }
+
+  /** @internal - Factory method to break circular dependency */
+  createRowNode(windowId: string, json: UnsafeTypes.UnsafeAny): RowNode {
+    return new RowNode(this, windowId, json);
+  }
+
+  /** @internal - Factory method to break circular dependency */
+  createTabSetNode(json: UnsafeTypes.UnsafeAny): TabSetNode {
+    return new TabSetNode(this, json);
   }
 
   static toTypescriptInterfaces() {

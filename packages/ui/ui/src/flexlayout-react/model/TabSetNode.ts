@@ -10,14 +10,14 @@ import { Orientation } from "../Orientation";
 import { Rect } from "../Rect";
 import { CLASSES } from "../Types";
 import { BorderNode } from "./BorderNode";
+import { MAIN_WINDOW_ID } from "./constants";
 import type { IDraggable } from "./IDraggable";
 import type { IDropTarget } from "./IDropTarget";
 import { JsonTabSetNode } from "./JsonModel.ts";
 import type { LayoutWindow } from "./LayoutWindow";
-
-import { Model } from "./Model";
+import type { Model } from "./Model";
 import { Node } from "./Node";
-import { RowNode } from "./RowNode";
+import type { RowNode } from "./RowNode";
 import { TabNode } from "./TabNode";
 import { adjustSelectedIndex, canDockToWindow } from "./Utils";
 
@@ -313,7 +313,7 @@ export class TabSetNode extends Node implements IDraggable, IDropTarget {
       const dockLocation = DockLocation.CENTER;
       const outlineRect = this.tabStripRect;
       dropInfo = new DropInfo(this, outlineRect!, dockLocation, -1, CLASSES.FLEXLAYOUT__OUTLINE_RECT);
-    } else if (this.getWindowId() !== Model.MAIN_WINDOW_ID && !canDockToWindow(dragNode)) {
+    } else if (this.getWindowId() !== MAIN_WINDOW_ID && !canDockToWindow(dragNode)) {
       return undefined;
     } else if (this.contentRect!.contains(x, y)) {
       let dockLocation = DockLocation.CENTER;
@@ -430,9 +430,9 @@ export class TabSetNode extends Node implements IDraggable, IDropTarget {
           this.setSelected(insertPos);
         }
         // console.log("added child at : " + insertPos);
-      } else if (dragNode instanceof RowNode) {
+      } else if (dragNode.getType() === "row") {
         (dragNode as RowNode).forEachNode((child, _level) => {
-          if (child instanceof TabNode) {
+          if (child.getType() === "tab") {
             this.addChild(child, insertPos);
             // console.log("added child at : " + insertPos);
             insertPos++;
@@ -460,14 +460,14 @@ export class TabSetNode extends Node implements IDraggable, IDropTarget {
         moveNode.addChild(dragNode);
         // console.log("added child at end");
         dragParent = moveNode;
-      } else if (dragNode instanceof RowNode) {
+      } else if (dragNode.getType() === "row") {
         const parent = this.getParent()! as RowNode;
         // need to turn round if same orientation unless docking oposite direction
         if (
           dragNode.getOrientation() === parent.getOrientation() &&
           (location.getOrientation() === parent.getOrientation() || location === DockLocation.CENTER)
         ) {
-          const node = new RowNode(this.model, this.getWindowId(), {});
+          const node = this.model.createRowNode(this.getWindowId(), {});
           node.addChild(dragNode);
           moveNode = node;
         }
@@ -486,7 +486,7 @@ export class TabSetNode extends Node implements IDraggable, IDropTarget {
       } else {
         // create a new row to host the new tabset (it will go in the opposite direction)
         // console.log("create a new row");
-        const newRow = new RowNode(this.model, this.getWindowId(), {});
+        const newRow = this.model.createRowNode(this.getWindowId(), {});
         newRow.setWeight(this.getWeight());
         newRow.addChild(this);
         this.setWeight(50);

@@ -7,11 +7,11 @@ import { DropInfo } from "../DropInfo";
 import { Orientation } from "../Orientation";
 import { Rect } from "../Rect";
 import { CLASSES } from "../Types";
+import { MAIN_WINDOW_ID } from "./constants";
 import type { IDraggable } from "./IDraggable";
 import type { IDropTarget } from "./IDropTarget";
 import { type BorderAttributes, BorderLocation, JsonBorderNode, type JsonTabNode } from "./JsonModel.ts";
-
-import { Model } from "./Model";
+import type { Model } from "./Model";
 import { Node } from "./Node";
 import { TabNode } from "./TabNode";
 import type { TabSetNode } from "./TabSetNode";
@@ -369,7 +369,7 @@ export class BorderNode extends Node implements IDropTarget {
     const pBounds = [0, 0];
     const minSize = useMinSize ? this.getMinSize() : 0;
     const maxSize = useMinSize ? this.getMaxSize() : 99999;
-    const rootRow = this.model.getRoot(Model.MAIN_WINDOW_ID);
+    const rootRow = this.model.getRoot(MAIN_WINDOW_ID);
     const innerRect = rootRow.getRect();
     const splitterSize = this.model.getSplitterSize();
     if (this.location === DockLocation.TOP) {

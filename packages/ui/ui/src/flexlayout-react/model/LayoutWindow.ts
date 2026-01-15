@@ -2,9 +2,8 @@ import * as Data from "effect/Data";
 import { Rect } from "../Rect";
 import type { ILayout } from "./ILayout";
 import type { JsonPopout } from "./JsonModel.ts";
-import type { Model } from "./Model";
 import type { Node } from "./Node";
-import { RowNode } from "./RowNode";
+import type { RowNode } from "./RowNode";
 import type { TabSetNode } from "./TabSetNode";
 export class LayoutWindow extends Data.Class {
   private readonly _windowId: string;
@@ -126,14 +125,11 @@ export class LayoutWindow extends Data.Class {
     };
   }
 
-  static fromJson(windowJson: JsonPopout, model: Model, windowId: string): LayoutWindow {
-    const count = model.getwindowsMap().size;
+  static fromJson(windowJson: JsonPopout, windowId: string, windowCount: number): LayoutWindow {
     const rect = windowJson.rect
       ? Rect.fromJson(windowJson.rect)
-      : new Rect(50 + 50 * count, 50 + 50 * count, 600, 400);
+      : new Rect(50 + 50 * windowCount, 50 + 50 * windowCount, 600, 400);
     rect.snap(10); // snapping prevents issue where window moves 1 pixel per save/restore on Chrome
-    const layoutWindow = new LayoutWindow(windowId, rect);
-    layoutWindow.root = RowNode.fromJson(windowJson.layout, model, layoutWindow);
-    return layoutWindow;
+    return new LayoutWindow(windowId, rect);
   }
 }

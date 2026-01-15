@@ -5,12 +5,12 @@ import { Attribute } from "../Attribute";
 import { AttributeDefinitions } from "../AttributeDefinitions";
 import { Rect } from "../Rect";
 import type { BorderNode } from "./BorderNode";
+import { MAIN_WINDOW_ID } from "./constants";
 import type { IDraggable } from "./IDraggable";
 import { JsonTabNode } from "./JsonModel.ts";
-
-import { Model } from "./Model";
+import type { Model } from "./Model";
 import { Node } from "./Node";
-import { TabSetNode } from "./TabSetNode";
+import type { TabSetNode } from "./TabSetNode";
 
 export class TabNode extends Node implements IDraggable {
   static readonly TYPE = "tab";
@@ -68,10 +68,10 @@ export class TabNode extends Node implements IDraggable {
   }
 
   getWindowId() {
-    if (this.parent instanceof TabSetNode) {
-      return this.parent.getWindowId();
+    if (this.parent?.getType() === "tabset") {
+      return (this.parent as TabSetNode).getWindowId();
     }
-    return Model.MAIN_WINDOW_ID;
+    return MAIN_WINDOW_ID;
   }
 
   getWindow(): Window | undefined {
@@ -102,7 +102,7 @@ export class TabNode extends Node implements IDraggable {
   }
 
   isPoppedOut() {
-    return this.getWindowId() !== Model.MAIN_WINDOW_ID;
+    return this.getWindowId() !== MAIN_WINDOW_ID;
   }
 
   isSelected() {
