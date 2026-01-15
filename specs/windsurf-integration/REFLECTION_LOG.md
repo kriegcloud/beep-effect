@@ -162,13 +162,14 @@ If Windsurf ignores unknown frontmatter or handles missing `trigger:` gracefully
 
 ## Key Insights Summary
 
-| Insight | Impact | Action |
-|---------|--------|--------|
-| Rules fit Windsurf limits | High | Direct symlink viable |
-| Agents don't migrate | High | Accept Claude Code-only |
-| Symlink undocumented | Medium | Requires testing |
-| Frontmatter differs | Medium | May need transformation |
-| AGENTS.md bridges gap | Medium | Create for Windsurf |
+| Insight | Impact | Action | Status |
+|---------|--------|--------|--------|
+| Rules fit Windsurf limits | High | Direct symlink viable | ✅ Verified |
+| Agents don't migrate | High | Accept Claude Code-only | ✅ Accepted |
+| Symlink creation works | High | Symlink created successfully | ✅ Done |
+| Symlink discovery unknown | Medium | Requires Windsurf testing | ⏳ Pending |
+| Frontmatter differs | Medium | May need transformation | ⏳ Deferred |
+| AGENTS.md bridges gap | Medium | Already existed | ✅ Done |
 
 ---
 
