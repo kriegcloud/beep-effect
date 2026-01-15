@@ -77,7 +77,6 @@ function NotificationList({ userId }: { userId: string }) {
 | Package | Purpose |
 |---------|---------|
 | `effect` | Core Effect runtime and Schema system |
-| `@beep/contract` | Contract system for type-safe request/response schemas |
 | `@beep/comms-domain` | Domain models for communications slice |
 | `@beep/schema` | Reusable Effect schemas for validation |
 | `@beep/errors` | Error handling and telemetry |
@@ -115,16 +114,6 @@ bun run --filter @beep/comms-client dev
 ```
 
 ## Notes
-
-### Contract Definition Guidelines
-
-When implementing contracts, follow these patterns:
-
-- Define contracts using `Contract.make` from `@beep/contract` with proper request/response schemas
-- Use `S.TaggedError` for structured error types (e.g., `CommsError`)
-- Include metadata annotations for domain/method tracking
-- Keep contracts thin - business logic belongs in `@beep/comms-domain` and `@beep/comms-server`
-- Use `"use client"` directive for React-specific exports that need client-side bundling
 
 ### Real-Time Features
 

@@ -58,7 +58,6 @@ import {
   SendResetPasswordEmailPayload,
   SendVerificationEmailPayload,
 } from "./Emails";
-
 export class LocalizationError extends Data.TaggedError("NextCookiesError")<{
   readonly type: "failed_to_detect_language" | "unknown";
   readonly message: string;
@@ -188,10 +187,14 @@ export const makeAuth = ({
       enabled: true,
       window: 10, // time window in seconds
       max: 100, // max requests in the window
+      modelName: IamEntityIds.RateLimitId.tableName,
     },
     account: {
       modelName: IamEntityIds.AccountId.tableName,
-      additionalFields: additionalFieldsCommon,
+      // NOTE: Better Auth account model does NOT support additionalFields in core options.
+      // The Table.make default columns (_rowId, deletedAt, createdBy, updatedBy, deletedBy,
+      // version, source) exist in our Drizzle schema but cannot be reflected in Better Auth's
+      // API schema. These columns are handled at the database level only.
       accountLinking: {
         enabled: true,
         allowDifferentEmails: true,
@@ -205,11 +208,17 @@ export const makeAuth = ({
       modelName: SharedEntityIds.SessionId.tableName,
       additionalFields: {
         ...additionalFieldsCommon,
+        // Plugin-managed fields (organization)
+        activeOrganizationId: {
+          type: "string",
+          required: false,
+        },
         activeTeamId: {
           type: "string",
           required: false,
         },
-        activeOrganizationId: {
+        // Plugin-managed fields (admin)
+        impersonatedBy: {
           type: "string",
           required: false,
         },
@@ -277,6 +286,7 @@ export const makeAuth = ({
       },
       modelName: SharedEntityIds.UserId.tableName,
       additionalFields: {
+        // Custom fields
         uploadLimit: {
           type: "number",
           required: false,
@@ -285,32 +295,54 @@ export const makeAuth = ({
           type: "string",
           required: false,
         },
-        lastLoginMethod: {
-          type: "string",
-          required: false,
-        },
+        // Plugin-managed fields (admin)
         role: {
           type: "string",
-          required: false,
-        },
-        isAnonymous: {
-          type: "boolean",
-          required: false,
-        },
-        twoFactorEnabled: {
-          type: "boolean",
-          required: false,
-        },
-        phoneNumberVerified: {
-          type: "boolean",
           required: false,
         },
         banned: {
           type: "boolean",
           required: false,
         },
+        banReason: {
+          type: "string",
+          required: false,
+        },
         banExpires: {
           type: "date",
+          required: false,
+        },
+        // Plugin-managed fields (anonymous)
+        isAnonymous: {
+          type: "boolean",
+          required: false,
+        },
+        // Plugin-managed fields (phoneNumber)
+        phoneNumber: {
+          type: "string",
+          required: false,
+        },
+        phoneNumberVerified: {
+          type: "boolean",
+          required: false,
+        },
+        // Plugin-managed fields (twoFactor)
+        twoFactorEnabled: {
+          type: "boolean",
+          required: false,
+        },
+        // Plugin-managed fields (username)
+        username: {
+          type: "string",
+          required: false,
+        },
+        displayUsername: {
+          type: "string",
+          required: false,
+        },
+        // Plugin-managed fields (lastLoginMethod)
+        lastLoginMethod: {
+          type: "string",
           required: false,
         },
         ...additionalFieldsCommon,
@@ -458,7 +490,23 @@ export const makeAuth = ({
     },
     plugins: [
       username(),
+      // Schema configuration: PARTIAL support (modelName + fields only)
+      // - additionalFields NOT supported by this plugin
+      // - OrgTable.make defaults (_rowId, deletedAt, createdAt, updatedAt, createdBy,
+      //   updatedBy, deletedBy, version, source) exist in DB but are not exposed via
+      //   Better Auth API. These provide audit trail at database level only.
+      // See: packages/iam/tables/src/tables/twoFactor.table.ts
       twoFactor(),
+      // Schema configuration: PARTIAL support (modelName + fields only)
+      // - additionalFields NOT supported by this plugin (InferOptionSchema)
+      // - OrgTable.make defaults (_rowId, deletedAt, createdAt, updatedAt, createdBy,
+      //   updatedBy, deletedBy, version, source, organizationId) exist in DB but are
+      //   not exposed via Better Auth API.
+      // - Custom column not in Better Auth core schema:
+      //   - stripeSubscriptionId (text) - additional Stripe subscription identifier
+      // - Core fields: plan, referenceId, stripeCustomerId, status, periodStart,
+      //   periodEnd, cancelAtPeriodEnd, seats
+      // See: packages/iam/tables/src/tables/subscription.table.ts
       stripe({
         stripeClient: new Stripe(Redacted.value(serverEnv.payment.stripe.key) || "sk_test_"),
         stripeWebhookSecret: Redacted.value(serverEnv.payment.stripe.webhookSecret),
@@ -484,6 +532,17 @@ export const makeAuth = ({
           ],
         },
       }),
+      // Schema configuration: PARTIAL support (modelName + fields only)
+      // - additionalFields NOT supported by this plugin (InferOptionSchema)
+      // - Table.make defaults (_rowId, deletedAt, createdAt, updatedAt, createdBy,
+      //   updatedBy, deletedBy, version, source) exist in DB but are not exposed via
+      //   Better Auth API.
+      // - Custom columns not in Better Auth core schema:
+      //   - chainId (integer) - blockchain chain ID for multi-chain support
+      //   - isPrimary (boolean) - flag to identify user's primary wallet
+      // - Core fields: id, address, userId, createdAt
+      // - Unique constraint on (userId, address, chainId) for multi-chain wallets
+      // See: packages/iam/tables/src/tables/walletAddress.table.ts
       siwe({
         domain: serverEnv.app.domain,
         getNonce: async () => {
@@ -498,7 +557,26 @@ export const makeAuth = ({
           return false;
         },
       }),
+      // Schema configuration: MINIMAL support (direct properties on options, not InferOptionSchema)
+      // - Only modelName and fields supported (via direct properties)
+      // - additionalFields NOT supported by this plugin
+      // - Table.make defaults (_rowId, deletedAt, createdAt, updatedAt, createdBy,
+      //   updatedBy, deletedBy, version, source) exist in DB but are not exposed via
+      //   Better Auth API.
+      // - Custom column not in Better Auth core schema:
+      //   - providerId (text, unique) - unique identifier for the SSO provider
+      // - Core fields: id, issuer, oidcConfig, samlConfig, userId, organizationId, domain
+      // See: packages/iam/tables/src/tables/ssoProvider.table.ts
       sso({}),
+      // Schema configuration: PARTIAL support (modelName + fields only)
+      // - additionalFields NOT supported by this plugin
+      // - Table.make defaults (_rowId, deletedAt, updatedAt, createdBy, updatedBy,
+      //   deletedBy, version, source) exist in DB but are not exposed via Better Auth API.
+      // - Custom column `aaguid` (Authenticator Attestation GUID) exists in Drizzle but
+      //   is not part of Better Auth's passkey plugin schema.
+      // - Core Better Auth fields (id, name, publicKey, userId, credentialID, counter,
+      //   deviceType, backedUp, transports, createdAt) are handled by the plugin.
+      // See: packages/iam/tables/src/tables/passkey.table.ts
       passkey({
         rpID: serverEnv.app.env === EnvValue.Enum.dev ? "localhost" : serverEnv.app.domain,
         rpName: `${serverEnv.app.name} Auth`,
@@ -589,12 +667,20 @@ export const makeAuth = ({
           },
           invitation: {
             modelName: IamEntityIds.InvitationId.tableName,
-            additionalFields: additionalFieldsCommon,
+            additionalFields: {
+              // Align with iam/tables/src/tables/invitation.table.ts
+              teamId: { type: "string", required: false }, // Optional team-specific invitation
+              ...additionalFieldsCommon,
+            },
           },
           team: {
             modelName: SharedEntityIds.TeamId.tableName,
             additionalFields: {
               // Align with shared team table (see shared/tables/src/tables/team.table.ts)
+              // NOTE: slug is notNull in Drizzle but marked required: false here since
+              // Better Auth doesn't auto-generate it. Callers should provide it or a
+              // beforeCreateTeam hook should generate it from the name.
+              slug: { type: "string", required: false },
               description: { type: "string", required: false },
               metadata: { type: "string", required: false },
               logo: { type: "string", required: false },
@@ -603,7 +689,20 @@ export const makeAuth = ({
           },
           organizationRole: {
             modelName: IamEntityIds.OrganizationRoleId.tableName,
-            additionalFields: additionalFieldsCommon,
+            additionalFields: {
+              // Align with iam/tables/src/tables/organizationRole.table.ts
+              role: { type: "string", required: true }, // Role name (e.g., 'admin', 'member')
+              permission: { type: "string", required: true }, // Permission string for this role
+              ...additionalFieldsCommon,
+            },
+          },
+          teamMember: {
+            modelName: IamEntityIds.TeamMemberId.tableName,
+            // NOTE: Better Auth organization plugin does NOT support additionalFields for teamMember.
+            // Custom columns beyond core fields (id, teamId, userId, createdAt) will work at the
+            // database level but will NOT appear in Better Auth's OpenAPI documentation or be
+            // validated/transformed by Better Auth. OrgTable.make defaults are still in the DB
+            // but not exposed via the API.
           },
         },
         dynamicAccessControl: {
@@ -661,8 +760,40 @@ export const makeAuth = ({
           })
         ),
       }),
+      // Schema configuration: PARTIAL support (modelName + fields only)
+      // - additionalFields NOT supported for any of the 3 models (InferOptionSchema)
+      // - OrgTable.make defaults (_rowId, deletedAt, createdAt, updatedAt, createdBy,
+      //   updatedBy, deletedBy, version, source, organizationId) exist in DB but are
+      //   not exposed via Better Auth API for all 3 models.
+      //
+      // oauthApplication:
+      //   - Custom column: metadata (text) - application metadata storage
+      //   - Core fields: name, icon, clientId, clientSecret, redirectURLs, type, disabled, userId
+      //   - See: packages/iam/tables/src/tables/oauthApplication.table.ts
+      //
+      // oauthAccessToken:
+      //   - No custom columns beyond OrgTable.make defaults
+      //   - Core fields: accessToken, refreshToken, accessTokenExpiresAt,
+      //     refreshTokenExpiresAt, clientId, userId, scopes
+      //   - See: packages/iam/tables/src/tables/oauthAccessToken.table.ts
+      //
+      // oauthConsent:
+      //   - No custom columns beyond OrgTable.make defaults
+      //   - Core fields: clientId, userId, scopes, consentGiven
+      //   - See: packages/iam/tables/src/tables/oauthConsent.table.ts
       oidcProvider({
         loginPage: "/sign-in",
+        schema: {
+          oauthConsent: {
+            modelName: IamEntityIds.OAuthConsentId.tableName,
+          },
+          oauthAccessToken: {
+            modelName: IamEntityIds.OAuthAccessTokenId.tableName,
+          },
+          oauthApplication: {
+            modelName: IamEntityIds.OAuthApplicationId.tableName,
+          },
+        },
       }),
       oAuthProxy({
         productionURL: normalizeUrl(productionURL, fallback),
@@ -690,6 +821,15 @@ export const makeAuth = ({
           ),
       }),
       lastLoginMethod(),
+      // Schema configuration: PARTIAL support (modelName + fields only)
+      // - additionalFields NOT supported by this plugin (InferOptionSchema)
+      // - Table.make defaults (_rowId, deletedAt, createdAt, updatedAt, createdBy,
+      //   updatedBy, deletedBy, version, source) exist in DB but are not exposed via
+      //   Better Auth API.
+      // - Custom column not in Better Auth core schema:
+      //   - expiresAt (datetime) - key expiration timestamp for key rotation
+      // - Core fields: id, publicKey, privateKey, createdAt
+      // See: packages/iam/tables/src/tables/jwks.table.ts
       jwt({
         schema: {
           jwks: {
@@ -704,6 +844,17 @@ export const makeAuth = ({
       genericOAuth({
         config: [],
       }),
+      // Schema configuration: PARTIAL support (modelName + fields only)
+      // - additionalFields NOT supported by this plugin (InferOptionSchema)
+      // - Table.make defaults (_rowId, deletedAt, createdAt, updatedAt, createdBy,
+      //   updatedBy, deletedBy, version, source) exist in DB but are not exposed via
+      //   Better Auth API.
+      // - Custom columns not in Better Auth core schema:
+      //   - status (enum: pending, approved, denied) - authorization status with custom enum
+      //   - pollingInterval (integer) - custom device-specific polling interval override
+      // - Column naming note: Drizzle uses `scope` (singular), Better Auth uses `scopes` (plural)
+      // - Core fields: deviceCode, userCode, userId, expiresAt, lastPolledAt, clientId, scopes
+      // See: packages/iam/tables/src/tables/deviceCodes.table.ts
       deviceAuthorization({
         expiresIn: "3min",
         interval: "5s",
@@ -711,6 +862,20 @@ export const makeAuth = ({
         userCodeLength: 8,
       }),
       bearer(),
+      // Schema configuration: PARTIAL support (modelName + fields only)
+      // - additionalFields NOT supported by this plugin
+      // - OrgTable.make defaults (_rowId, deletedAt, createdAt, updatedAt, createdBy,
+      //   updatedBy, deletedBy, version, source, organizationId) exist in DB but are
+      //   not exposed via Better Auth API.
+      // - Custom columns not in Better Auth core schema:
+      //   - enabled (boolean) - soft enable/disable toggle
+      //   - rateLimitEnabled, rateLimitTimeWindow, rateLimitMax - extended rate limiting
+      //   - requestCount - usage tracking
+      //   - permissions, metadata - authorization and custom data
+      // - Column mapping notes:
+      //   - Drizzle `key` maps to Better Auth `hashedSecret`
+      //   - Drizzle `lastRequest` maps to Better Auth `lastUsedAt`
+      // See: packages/iam/tables/src/tables/apiKey.table.ts
       apiKey(),
       anonymous(),
       admin(),

@@ -14,13 +14,13 @@
  * @example
  * ```bash
  * # Standard mode (fast, no crash recovery)
- * bun run docgen:agents --package @beep/contract
+ * bun run docgen:agents --package @beep/schema
  *
  * # Durable mode (crash-resilient, can resume)
- * bun run docgen:agents --durable --package @beep/contract
+ * bun run docgen:agents --durable --package @beep/schema
  *
  * # Resume an interrupted workflow
- * bun run docgen:agents --durable --resume docgen-packages-common-contract
+ * bun run docgen:agents --durable --resume docgen-packages-common-schema
  * ```
  *
  * @module docgen/agents

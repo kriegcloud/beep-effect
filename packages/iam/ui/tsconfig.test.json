@@ -18,6 +18,9 @@
       "path": "../../shared/env"
     },
     {
+      "path": "../../shared/client"
+    },
+    {
       "path": "../client"
     },
     {

@@ -420,8 +420,8 @@ export const resolvePackageByName = (
  *
  * @example
  * ```typescript
- * yield* resolvePackageByPathOrName("packages/common/contract") // path
- * yield* resolvePackageByPathOrName("@beep/contract")           // name
+ * yield* resolvePackageByPathOrName("packages/common/schema") // path
+ * yield* resolvePackageByPathOrName("@beep/schema")           // name
  * ```
  *
  * @param input - Package path or @-prefixed package name

@@ -1,9 +1,7 @@
-// import { useSignUpEmail } from "./sign-up.atoms";
 import { client } from "@beep/iam-client/adapters/better-auth";
 import { BS } from "@beep/schema";
 import { paths } from "@beep/shared-domain";
 import { formOptionsWithDefaults, useAppForm } from "@beep/ui/form";
-// import * as O from "effect/Option";
 import * as Redacted from "effect/Redacted";
 import * as S from "effect/Schema";
 
@@ -13,8 +11,6 @@ type Props = {
 };
 
 export const useSignUpEmailForm = ({ executeRecaptcha, onSuccess }: Props) => {
-  // const { signUpEmail } = useSignUpEmail();
-
   const form = useAppForm(
     formOptionsWithDefaults({
       schema: S.Struct({
@@ -51,18 +47,6 @@ export const useSignUpEmailForm = ({ executeRecaptcha, onSuccess }: Props) => {
             },
           },
         });
-        // const response = await signUpEmail({
-        //   payload: {
-        //     ...value,
-        //     callbackURL: O.some(value.redirectTo),
-        //     name: `${value.firstName} ${value.lastName}`,
-        //     image: O.none(),
-        //   },
-        //   headers: {
-        //     "x-captcha-response": O.some(Redacted.value(captchaRedacted)),
-        //   },
-        // });
-        console.log(response);
         await onSuccess?.();
       },
     })

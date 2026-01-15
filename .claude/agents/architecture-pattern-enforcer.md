@@ -134,7 +134,6 @@ These pure utility packages can be imported by ANY package:
 | @beep/utils      | packages/common/utils     | Pure runtime helpers       |
 | @beep/schema     | packages/common/schema    | Effect Schema utilities    |
 | @beep/constants  | packages/common/constants | Schema-backed enums        |
-| @beep/contract   | packages/common/contract  | Effect-first contracts     |
 | @beep/errors     | packages/common/errors    | Logging & telemetry        |
 | @beep/identity   | packages/common/identity  | Package identity           |
 | @beep/invariant  | packages/common/invariant | Assertion contracts        |

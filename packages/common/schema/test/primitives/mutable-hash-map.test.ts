@@ -13,6 +13,7 @@ import {
   MutableHashMapFromSelf,
 } from "@beep/schema/primitives/mutable-hash-map";
 import { assertFalse, assertTrue, deepStrictEqual, describe, effect, it, strictEqual } from "@beep/testkit";
+import type { UnsafeTypes } from "@beep/types";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as E from "effect/Either";
@@ -589,8 +590,7 @@ describe("Mutation behavior", () => {
         const decoded = S.decodeUnknownSync(schema)(map);
 
         // Force an invalid mutation (bypass TypeScript)
-        // biome-ignore lint/suspicious/noExplicitAny: intentionally testing runtime type validation
-        MutableHashMap.set(decoded as any, "bad", "not a number");
+        MutableHashMap.set(decoded as UnsafeTypes.UnsafeAny, "bad", "not a number");
 
         // Encoding should fail because value is not a number
         const result = S.encodeEither(schema)(decoded);

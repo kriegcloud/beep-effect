@@ -1,6 +1,6 @@
 "use client";
 import { assetPaths } from "@beep/constants";
-import { useSignOut } from "@beep/iam-client/clients/sign-out";
+// import { useSignOut } from "@beep/iam-client/clients/sign-out";
 import { AccountSettingsTabSearchParamValue } from "@beep/iam-domain";
 
 import { makeRunClientPromise, urlSearchParamSSR, useRuntime } from "@beep/runtime-client";
@@ -91,7 +91,9 @@ const switchOrg = async () => {
 
 export function LayoutClient({ children }: Props) {
   const runtime = useRuntime();
-  const { signOut } = useSignOut();
+  const { signOut } = {
+    signOut: () => {},
+  };
   const runSwitchAccount = makeRunClientPromise(runtime, "iam.account.switchAccount");
   const runSwitchOrg = makeRunClientPromise(runtime, "iam.organization.switchOrg");
 

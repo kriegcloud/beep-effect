@@ -41,9 +41,12 @@
     "@beep/utils": "workspace:^",
     "@beep/identity": "workspace:^",
     "@beep/shared-env": "workspace:^",
-    "effect": "catalog:"
+    "effect": "catalog:",
+    "warning": "catalog:"
   },
   "devDependencies": {
+    "warning": "catalog:",
+    "@types/warning": "catalog:",
     "@effect/docgen": "catalog:",
     "babel-plugin-transform-next-use-client": "catalog:",
     "@babel/preset-react": "catalog:",

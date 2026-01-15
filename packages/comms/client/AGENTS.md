@@ -20,7 +20,6 @@
 
 ## Authoring Guardrails
 - ALWAYS import Effect modules with namespaces (`Effect`, `A`, `F`, `O`, `Str`, `S`) and rely on Effect collections/utilities instead of native helpers (see global repo guardrails).
-- Define contracts using `@beep/contract` patterns — each contract should specify request/response schemas and error types.
 - Maintain typed error channels using `S.TaggedError` for predictable client-side error handling.
 - Keep contracts thin — business logic belongs in domain or server layers.
 - Use `"use client"` directive for React-specific exports that need client-side bundling.
@@ -103,7 +102,6 @@ export class SubscribeNotifications extends Rpc.StreamRequest<SubscribeNotificat
 ```
 
 ## Contributor Checklist
-- [ ] Define contracts with proper request/response schemas following `@beep/contract` patterns.
 - [ ] Ensure all contracts have corresponding server-side implementations in `@beep/comms-server`.
 - [ ] Add proper TypeScript doc comments for contract exports.
 - [ ] Use Effect Schema for all data validation — no bare type assertions.

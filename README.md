@@ -159,18 +159,7 @@ ASCII cheat sheet:
 
 ---
 
-## Problem #7 — Wrangling third-party auth clients
-
-[`packages/common/contract`](https://github.com/kriegcloud/beep-effect/tree/main/packages/common/contract) exists because I refuse to trust third-party SDKs blindly again. Highlights:
-
-- `Contract.make` wraps payload/success/failure schemas, annotations, and telemetry continuations.
-- `ContractKit.make` bundles contracts, converts them to Layers, and `.liftService()` turns them into DI-friendly services.
-- Passkey example: [`contracts`](https://github.com/kriegcloud/beep-effect/blob/main/packages/iam/client/src/clients/passkey/passkey.contracts.ts) → [`implementations`](https://github.com/kriegcloud/beep-effect/blob/main/packages/iam/client/src/clients/passkey/passkey.implementations.ts) → [`service`](https://github.com/kriegcloud/beep-effect/blob/main/packages/iam/client/src/clients/passkey/passkey.service.ts) → [`atoms/ui`](https://github.com/kriegcloud/beep-effect/tree/main/packages/iam/client/src/clients/passkey).
-- Continuations normalize HTTP failures, decode unknown successes, and attach telemetry. `.liftService()` gives UI code typed `Effect`s without touching raw fetch responses.
-
----
-
-## Problem #8 — Existential dread and the “forever repo”
+## Problem #7 — Existential dread and the “forever repo”
 
 Every idea inevitably needs:
 
@@ -182,13 +171,13 @@ Every idea inevitably needs:
 - Tech debt management (entropy invoices daily)
 - TypeScript therapy (“tsserver ran out of memory.” Same, tsserver.)
 
-So I weaponized the neuroses: deterministic uploads, slice-scoped clients, contract kits, theme pipelines. Idea #37 should start with “ship,” not “rebuild auth again.”
+So I weaponized the neuroses: deterministic uploads, slice-scoped clients, theme pipelines. Idea #37 should start with “ship,” not “rebuild auth again.”
 
 If anyone whispers “over-engineered,” I will annotate their existence with `Contract.Domain = "Clownery"` and raise a `ContractError` enriched with telemetry + PDF evidence.
 
 ### Roadmap-ish promises
 
-1. **Ship IAM to prod** — finish passkey flows, wire contract kits to live runtimes.
+
 2. **Documents slice** — run `UploadKey` against real S3/R2 with quotas + lifecycle rules.
 3. **Debug surfaces** — land Effect-powered observability (logs/traces/metrics) by default.
 4. **Starter kit mode** — turn this repo into a “press play” template for new ideas.
@@ -215,7 +204,6 @@ If anyone whispers “over-engineered,” I will annotate their existence with `
 - Language: TypeScript (strict), runtime: Bun + Node 22 for leftovers.
 - Core: Effect 3 + `@effect/platform`.
 - DB: Postgres + Drizzle + `@effect/sql*`.
-- Auth: better-auth (wrapped via contract kits).
 - UI: React 19 + Next.js 16 App Router + MUI + Tailwind + shadcn + TanStack Query.
 - State machines: XState 5.
 - Quality: Biome, Vitest.

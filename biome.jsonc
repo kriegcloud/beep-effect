@@ -155,11 +155,10 @@
   },
   "overrides": [
     {
-      // Type utility, schema, contract, and factory files require any for type-level computations
+      // Type utility, schema, and factory files require any for type-level computations
       "includes": [
         "packages/common/types/**/*.ts",
         "packages/common/schema/**/*.ts",
-        "packages/common/contract/**/*.ts",
         "packages/shared/domain/src/factories/**/*.ts",
         "packages/shared/server/src/factories/**/*.ts"
       ],

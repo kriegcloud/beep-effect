@@ -1,5 +1,4 @@
 import { client } from "@beep/iam-client/adapters";
-import { SignIn } from "@beep/iam-domain/api/v1/sign-in";
 import { BS } from "@beep/schema";
 import { formOptionsWithDefaults, useAppForm } from "@beep/ui/form";
 import * as Redacted from "effect/Redacted";
@@ -12,11 +11,15 @@ type Props = {
 export const useSignInEmailForm = ({ executeCaptcha }: Props) => {
   const form = useAppForm(
     formOptionsWithDefaults({
-      schema: SignIn.Email.Payload.pipe(S.pick("email", "password", "rememberMe")).annotations({
+      schema: S.Struct({
+        email: BS.Email,
+        rememberMe: BS.BoolWithDefault(true),
+        password: BS.Password,
+      }).annotations({
         [BS.DefaultFormValuesAnnotationId]: {
           email: "",
           password: "",
-          rememberMe: false,
+          rememberMe: true,
         },
       }),
       onSubmit: async (value) => {
@@ -24,6 +27,7 @@ export const useSignInEmailForm = ({ executeCaptcha }: Props) => {
         await client.signIn.email({
           email: Redacted.value(value.email),
           password: Redacted.value(value.password),
+          rememberMe: value.rememberMe,
           fetchOptions: {
             headers: {
               "x-captcha-response": Redacted.value(captchaResponse),

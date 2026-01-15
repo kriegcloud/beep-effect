@@ -1,10 +1,9 @@
 import { $IamClientId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
+import { thunkTrue } from "@beep/utils";
 import * as S from "effect/Schema";
 
 const $I = $IamClientId.create("_common/common.schemas");
-
-
 
 export class UserEmail extends BS.Email.annotations(
   $I.annotations("UserEmail", {
@@ -30,20 +29,20 @@ export declare namespace UserPassword {
 
 export const CallbackURL = BS.OptionFromOptionalProperty(BS.URLPath).annotations(
   $I.annotations("CallbackURL", {
-    description: "The URL to use for email verification callback.",
+    description: "Callback URL to use as a redirect for email verification.",
   })
-)
+);
 
 export declare namespace CallbackURL {
   export type Type = S.Schema.Type<typeof CallbackURL>;
   export type Encoded = S.Schema.Encoded<typeof CallbackURL>;
 }
 
-export const RememberMe = BS.OptionFromOptionalProperty(S.Boolean).annotations(
+export const RememberMe = S.optionalWith(S.Boolean, { default: thunkTrue }).annotations(
   $I.annotations("RememberMe", {
     description: "If this is false, the session will not be remembered. Default is true.",
   })
-)
+);
 
 export declare namespace RememberMe {
   export type Type = S.Schema.Type<typeof RememberMe>;
@@ -54,7 +53,7 @@ export const Redirect = BS.OptionFromOptionalProperty(S.Boolean).annotations(
   $I.annotations("Redirect", {
     description: "Whether to redirect the user.",
   })
-)
+);
 
 export declare namespace Redirect {
   export type Type = S.Schema.Type<typeof Redirect>;
@@ -63,12 +62,11 @@ export declare namespace Redirect {
 
 export const RedirectURL = BS.OptionFromOptionalProperty(BS.URLString).annotations(
   $I.annotations("RedirectURL", {
-    description: "The URL to redirect to."
+    description: "The URL to redirect to.",
   })
-)
+);
 
 export declare namespace RedirectURL {
   export type Type = S.Schema.Type<typeof RedirectURL>;
   export type Encoded = S.Schema.Encoded<typeof RedirectURL>;
 }
-

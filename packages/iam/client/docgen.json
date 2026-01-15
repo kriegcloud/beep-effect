@@ -40,8 +40,6 @@
       "@beep/iam-domain/*": ["../domain/src/*.js"],
       "@beep/iam-server": ["../server/src/index.js"],
       "@beep/iam-server/*": ["../server/src/*.js"],
-      "@beep/contract": ["../../common/contract/src/index.js"],
-      "@beep/contract/*": ["../../common/contract/src/*.js"],
       "@beep/shared-tables": ["../../shared/tables/src/index.js"],
       "@beep/shared-tables/*": ["../../shared/tables/src/*.js"],
       "@beep/iam-tables": ["../tables/src/index.js"],

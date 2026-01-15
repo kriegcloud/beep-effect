@@ -15,7 +15,7 @@
  *   beep docgen <subcommand> [options]
  *
  * Examples:
- *   beep docgen init -p packages/common/contract
+ *   beep docgen init -p packages/common/schema
  *   beep docgen analyze -p packages/common/schema --json
  *   beep docgen generate --parallel 8
  *   beep docgen aggregate --clean

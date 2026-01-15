@@ -149,15 +149,6 @@
       "@beep/errors/test/*": [
         "./packages/common/errors/test/*"
       ],
-      "@beep/contract": [
-        "./packages/common/contract/src/index"
-      ],
-      "@beep/contract/*": [
-        "./packages/common/contract/src/*"
-      ],
-      "@beep/contract/test/*": [
-        "./packages/common/contract/test/*"
-      ],
       "@beep/shared-domain": [
         "./packages/shared/domain/src/index"
       ],

@@ -1,7 +1,7 @@
 import { Divider, Link, Stack, Typography } from "@mui/material";
 import { AccountTabPanelSection } from "@/features/account/common";
 import AlternateLoginMethod from "./AlternateLoginMethod";
-import ChangePassword from "./ChangePassword";
+
 import ConnectedDevice from "./ConnectedDevice";
 import { connectedDevices, loggedInDevices } from "./data";
 import LoggedDevice from "./LoggedDevice";
@@ -11,13 +11,13 @@ export const SecurityTabPanel = () => {
   return (
     <>
       <Stack direction="column" divider={<Divider />} spacing={5} mt={2}>
-        <AccountTabPanelSection
-          title="Password Modification"
-          subtitle="Update your password regularly to enhance account security. Ensure your new password is strong and unique."
-          icon="material-symbols:key-outline"
-        >
-          <ChangePassword />
-        </AccountTabPanelSection>
+        {/*<AccountTabPanelSection*/}
+        {/*  title="Password Modification"*/}
+        {/*  subtitle="Update your password regularly to enhance account security. Ensure your new password is strong and unique."*/}
+        {/*  icon="material-symbols:key-outline"*/}
+        {/*>*/}
+        {/*  <ChangePassword />*/}
+        {/*</AccountTabPanelSection>*/}
 
         <AccountTabPanelSection
           title="Two Factor Authentication"

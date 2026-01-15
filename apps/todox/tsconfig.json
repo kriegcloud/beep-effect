@@ -58,8 +58,6 @@
       "@beep/errors/client": ["../../packages/common/errors/src/client"],
       "@beep/errors/shared": ["../../packages/common/errors/src/shared"],
       "@beep/errors/server": ["../../packages/common/errors/src/server"],
-      "@beep/contract": ["../../packages/common/contract/src/index"],
-      "@beep/contract/*": ["../../packages/common/contract/src/*"],
       "@beep/shared-domain": ["../../packages/shared/domain/src/index"],
       "@beep/shared-domain/*": ["../../packages/shared/domain/src/*"],
       "@beep/shared-tables": ["../../packages/shared/tables/src/index"],

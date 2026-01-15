@@ -21,9 +21,6 @@
     },
     {
       "path": "../packages/common/errors/tsconfig.build.json"
-    },
-    {
-      "path": "../packages/common/contract/tsconfig.build.json"
     }
   ]
 }

@@ -15,13 +15,6 @@ through runtime helpers, while adapters keep raw Better Auth usage isolated to t
 - **Adapters (`src/adapters/better-auth/*`)** — instantiate the Better Auth React client with all required plugins
   (`client.ts`) and wrap provider errors (`errors.ts`). `$store` and `signIn` are re-exported for guards that need to
   bind to session state.
-- **Contract runtime (`@beep/contract` / `packages/common/contract`)** — Effect-based contract authoring utilities:
-    - `Contract.ts` defines user + provider-defined contract primitives, context annotations, and helper types.
-    - `ContractKit.ts` groups contracts, produces Layer/Context bindings, and provides the `handle` executor used by
-      implementers.
-    - `failure-continuation.ts` (internal) powers `contract.continuation` used by `Contract.make(...).implement(...)`.
-    - `IamError.ts` gives the structured error family shared by contract sets. Keep it in sync with
-      `packages/common/schema` HTTP models.
 - **Errors (`src/errors.ts`)** — wraps `BetterAuthError` into the shared `IamError` class so UI callers always receive
   consistent metadata (`code`, `status`, `plugin`, `method`).
 - **Clients (`src/clients/*`)** — each domain directory exports `<feature>.contracts.ts` (Effect schema definitions) and
@@ -43,7 +36,7 @@ through runtime helpers, while adapters keep raw Better Auth usage isolated to t
 
 ## Related Documentation
 
-- `packages/common/contract/AGENTS.md` — canonical reference for the underlying `Contract`/`ContractKit` runtime (read before altering continuations or lift helpers surfaced here).
+- `packages/common/schema/AGENTS.md` — canonical reference for the underlying `Contract`/`ContractKit` runtime (read before altering continuations or lift helpers surfaced here).
 
 ## Authoring Guardrails
 

@@ -22,6 +22,9 @@
       "path": "../../shared/domain"
     },
     {
+      "path": "../../shared/client"
+    },
+    {
       "path": "../../shared/env"
     }
   ],

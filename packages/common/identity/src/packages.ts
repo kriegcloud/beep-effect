@@ -35,7 +35,6 @@ const composers = $I.compose(
   "web",
   "schema",
   "documents-domain",
-  "contract",
   "runtime-server",
   "iam-client",
   "iam-ui",
@@ -217,21 +216,6 @@ export const $SchemaId = composers.$SchemaId;
  * @since 0.1.0
  */
 export const $DocumentsDomainId = composers.$DocumentsDomainId;
-
-/**
- * Identity composer for the `@beep/contract` namespace.
- *
- * @example
- * ```typescript
- * import { $ContractId } from "@beep/identity/packages"
- *
- * const contractId = $ContractId.make("UserContract")
- * ```
- *
- * @category symbols
- * @since 0.1.0
- */
-export const $ContractId = composers.$ContractId;
 
 /**
  * Identity composer for the `@beep/runtime-server` namespace.

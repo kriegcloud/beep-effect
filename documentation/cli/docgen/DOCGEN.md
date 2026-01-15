@@ -30,8 +30,8 @@ beep docgen <subcommand> [options]
 Or using the package.json scripts:
 
 ```bash
-bun run docgen:init -- -p packages/common/contract
-bun run docgen:analyze -- -p packages/common/contract
+bun run docgen:init -- -p packages/common/schema
+bun run docgen:analyze -- -p packages/common/schema
 bun run docgen:generate
 bun run docgen:aggregate
 bun run docgen:status
@@ -70,19 +70,19 @@ beep docgen init -p <package-path> [--dry-run] [--force]
 
 ```bash
 # Preview configuration
-beep docgen init -p packages/common/contract --dry-run
+beep docgen init -p packages/common/schema --dry-run
 
 # Generate configuration
-beep docgen init -p packages/common/contract
+beep docgen init -p packages/common/schema
 
 # Overwrite existing configuration
-beep docgen init -p packages/common/contract --force
+beep docgen init -p packages/common/schema --force
 ```
 
 **Output:**
 
 ```
-✓ Initializing docgen for @beep/contract (packages/common/contract)
+✓ Initializing docgen for @beep/schema (packages/common/schema)
 ✓ Found tsconfig.json with 15 path mappings
 ✓ Detected 8 @beep/* workspace dependencies
 ✓ Generated docgen.json
@@ -119,13 +119,13 @@ beep docgen analyze [-p <package-path>] [--output <path>] [--json] [--fix-mode]
 
 ```bash
 # Analyze single package
-beep docgen analyze -p packages/common/contract
+beep docgen analyze -p packages/common/schema
 
 # Analyze all configured packages
 beep docgen analyze
 
 # Generate JSON output
-beep docgen analyze -p packages/common/contract --json
+beep docgen analyze -p packages/common/schema --json
 ```
 
 **Output Files:**
@@ -136,10 +136,10 @@ beep docgen analyze -p packages/common/contract --json
 **Report Structure:**
 
 ```markdown
-# JSDoc Analysis Report: @beep/contract
+# JSDoc Analysis Report: @beep/schema
 
 > **Generated**: 2025-12-06T10:30:00Z
-> **Package**: packages/common/contract
+> **Package**: packages/common/schema
 > **Status**: 12 exports need documentation
 
 ## Instructions for Agent
@@ -201,7 +201,7 @@ beep docgen generate
 beep docgen generate --validate-examples
 
 # Generate single package
-beep docgen generate -p packages/common/contract
+beep docgen generate -p packages/common/schema
 
 # Parallel generation
 beep docgen generate --parallel 8
@@ -215,7 +215,7 @@ beep docgen generate --parallel 8
 Generation Results
 ==================
 
-✓ @beep/contract (42 modules)
+✓ @beep/schema (42 modules)
 ✓ @beep/schema (38 modules)
 ✗ @beep/utils
   → Run: beep docgen analyze -p packages/common/utils
@@ -258,7 +258,7 @@ beep docgen aggregate
 beep docgen aggregate --clean
 
 # Aggregate single package
-beep docgen aggregate -p packages/common/contract
+beep docgen aggregate -p packages/common/schema
 ```
 
 **Output Structure:**
@@ -326,7 +326,7 @@ Docgen Status Report
 
 Configured & Generated (6):
   ✓ @beep/identity         packages/common/identity
-  ✓ @beep/contract         packages/common/contract
+  ✓ @beep/schema         packages/common/schema
 
 Configured (not generated) (2):
   ⚠ @beep/utils            packages/common/utils
@@ -372,7 +372,7 @@ AI_ANTHROPIC_API_KEY=sk-ant-...  # Required for actual execution
 bun run docgen:agents -- --dry-run
 
 # Fix single package
-AI_ANTHROPIC_API_KEY=sk-ant-... bun run docgen:agents -- -p packages/common/contract
+AI_ANTHROPIC_API_KEY=sk-ant-... bun run docgen:agents -- -p packages/common/schema
 
 # Verbose output
 bun run docgen:agents -- --dry-run --verbose
@@ -392,7 +392,7 @@ Docgen Agents
 Results
 =======
 
-✓ @beep/contract: 15 fixed, 3 remaining
+✓ @beep/schema: 15 fixed, 3 remaining
 ✓ @beep/schema: 22 fixed, 1 remaining
 
 Summary:

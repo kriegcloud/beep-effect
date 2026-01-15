@@ -74,7 +74,7 @@ const runtimeLayers = Layer.mergeAll(BunContext.layer, BunTerminal.layer, FsUtil
  * import { runRepoCli } from "@beep/repo-cli"
  *
  * // Run docgen analyze command
- * runRepoCli(["bun", "run", "docgen", "analyze", "-p", "packages/common/contract"])
+ * runRepoCli(["bun", "run", "docgen", "analyze", "-p", "packages/common/schema"])
  *
  * // Run env command
  * runRepoCli(["bun", "run", "env"])

@@ -1,6 +1,5 @@
 "use client";
 
-import { useSignOut } from "@beep/iam-client/clients/sign-out";
 import { AI_CHAT_WIDTH, AIChatPanel, AIChatPanelTrigger } from "@beep/todox/components/ai-chat";
 import { MiniSidebarProvider } from "@beep/todox/components/mini-sidebar";
 import { TopNavbar } from "@beep/todox/components/navbar";
@@ -251,7 +250,9 @@ const switchOrganization = async () => {
 };
 
 export default function Page() {
-  const { signOut } = useSignOut();
+  const { signOut } = {
+    signOut: () => {},
+  };
 
   return (
     <React.Suspense>

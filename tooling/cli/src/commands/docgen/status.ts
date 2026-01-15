@@ -33,7 +33,7 @@
  * Configured (not generated) (0):
  *
  * Not Configured (30):
- *   [circle] @beep/contract         packages/common/contract
+ *   [circle] @beep/schema         packages/common/schema
  *   ...
  *
  * Coverage: 6/36 packages (17%)

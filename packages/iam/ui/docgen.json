@@ -40,8 +40,6 @@
       "@beep/errors/client": ["../../common/errors/src/client.js"],
       "@beep/errors/shared": ["../../common/errors/src/shared.js"],
       "@beep/errors/server": ["../../common/errors/src/server.js"],
-      "@beep/contract": ["../../common/contract/src/index.js"],
-      "@beep/contract/*": ["../../common/contract/src/*.js"],
       "@beep/runtime-client": ["../../runtime/client/src/index.js"],
       "@beep/runtime-client/*": ["../../runtime/client/src/*.js"],
       "@beep/shared-domain": ["../../shared/domain/src/index.js"],

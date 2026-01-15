@@ -207,12 +207,12 @@ Scan packages for JSDoc documentation quality and completeness:
 
 ```bash
 # Analyze specific package
-bun run docgen:analyze -p packages/common/contract
+bun run docgen:analyze -p packages/common/schema
 # Or directly:
-bun run tooling/cli/src/index.ts docgen analyze -p packages/common/contract
+bun run tooling/cli/src/index.ts docgen analyze -p packages/common/schema
 
 # Output JSON for programmatic use
-bun run tooling/cli/src/index.ts docgen analyze -p packages/common/contract --json
+bun run tooling/cli/src/index.ts docgen analyze -p packages/common/schema --json
 
 # Analyze all packages with docgen.json
 bun run tooling/cli/src/index.ts docgen analyze --all
@@ -306,18 +306,18 @@ Use AI agents to automatically improve JSDoc documentation:
 
 ```bash
 # Fix JSDoc for a specific package
-bun run docgen:agents --package @beep/contract
+bun run docgen:agents --package @beep/schema
 # Or directly (requires ANTHROPIC_API_KEY):
-ANTHROPIC_API_KEY=$ANTHROPIC_API_KEY bun run tooling/cli/src/index.ts docgen agents --package @beep/contract
+ANTHROPIC_API_KEY=$ANTHROPIC_API_KEY bun run tooling/cli/src/index.ts docgen agents --package @beep/schema
 
 # Durable mode with crash recovery (uses @effect/workflow)
-bun run tooling/cli/src/index.ts docgen agents --durable --package @beep/contract
+bun run tooling/cli/src/index.ts docgen agents --durable --package @beep/schema
 
 # Resume interrupted workflow
-bun run tooling/cli/src/index.ts docgen agents --durable --resume docgen-packages-contract
+bun run tooling/cli/src/index.ts docgen agents --durable --resume docgen-packages-schema
 
 # Dry-run to see proposed changes
-bun run tooling/cli/src/index.ts docgen agents --package @beep/contract --dry-run
+bun run tooling/cli/src/index.ts docgen agents --package @beep/schema --dry-run
 
 # Process multiple packages in parallel
 bun run tooling/cli/src/index.ts docgen agents --all --parallel 4

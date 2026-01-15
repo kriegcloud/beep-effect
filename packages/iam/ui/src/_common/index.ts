@@ -1,4 +1,4 @@
 export * from "./recaptcha-badge";
-export * from "./recaptcha-v3";
-export * from "./use-captcha";
-export * from "./use-success-transition";
+// Atom-based exports (recommended for new code)
+export * from "./recaptcha-v3-atom";
+export * from "./use-captcha-atom";

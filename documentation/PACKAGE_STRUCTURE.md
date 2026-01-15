@@ -79,7 +79,6 @@ Each package may have its own `AGENTS.md` with specific guidance:
 
 ### Common Layer
 - `packages/common/constants/AGENTS.md` - Schema-backed enums, locale generators, path-builder
-- `packages/common/contract/AGENTS.md` - Contract, ContractKit, ContractError patterns
 - `packages/common/errors/AGENTS.md` - Logger layers, accumulation helpers, span/metric instrumentation
 - `packages/common/invariant/AGENTS.md` - Assertion contracts, tagged error schemas
 - `packages/common/schema/AGENTS.md` - EntityId factories, kits, JSON Schema normalization

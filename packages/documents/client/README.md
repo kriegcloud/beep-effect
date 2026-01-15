@@ -30,7 +30,6 @@ export const beep = "beep";
 | `KnowledgePageService` | Effect Service for knowledge page operations |
 | `DiscussionService` | Effect Service for discussion operations |
 | `FileUploadService` | Effect Service for file upload operations |
-| Contract Definitions | Type-safe request/response schemas using `@beep/contract` |
 | Reactive Atoms | Runtime-backed atoms for React integration (`signInEmailAtom` pattern) |
 | Form Helpers | Schema-backed form utilities with validation |
 
@@ -38,7 +37,6 @@ export const beep = "beep";
 
 Before this package can be fully implemented:
 
-1. **Missing Dependency**: Add `@beep/contract` to both `peerDependencies` and `devDependencies`
 2. **Domain Contracts**: Finalize schemas and error types in `@beep/documents-domain`
 3. **Server Infrastructure**: Complete server-side routes and handlers in `@beep/documents-server`
 4. **Better Auth Adapter**: Implement the better-auth client adapter (see `@beep/iam-client/adapters/better-auth`)
@@ -49,7 +47,6 @@ Before this package can be fully implemented:
 - **Layer**: SDK layer between domain and UI in the vertical slice pattern
 - **Effect-First**: All operations return Effect types with proper error handling
 - **Service-Oriented**: Uses Effect Services with Layer-based dependency injection
-- **Contract-Driven**: Type-safe request/response schemas via `@beep/contract`
 - **Platform Agnostic**: Works in Bun, browsers, and Node via Effect Platform
 
 ## Planned Features
@@ -66,74 +63,6 @@ Before this package can be fully implemented:
 ## Expected API Pattern
 
 Following `@beep/iam-client`, this package will implement:
-
-### 1. Contract Definitions
-
-```typescript
-import { Contract } from "@beep/contract";
-import * as S from "effect/Schema";
-import { Document } from "@beep/documents-domain";
-import { DocumentsClientError } from "@beep/documents-client/errors";
-
-// Payload schema with default form values
-export class CreateDocumentPayload extends S.Class<CreateDocumentPayload>("CreateDocumentPayload")({
-  organizationId: S.String,
-  title: S.String,
-  content: S.String,
-}, [
-  { [BS.DefaultFormValuesAnnotationId]: { title: "", content: "" } }
-]) {}
-
-// Contract definition
-export const CreateDocumentContract = Contract.make("CreateDocument", {
-  description: "Creates a new document",
-  failure: DocumentsClientError,
-  success: Document.Model,
-})
-  .setPayload(CreateDocumentPayload)
-  .annotate(Contract.Title, "Create Document Contract");
-```
-
-### 2. Contract Implementations
-
-```typescript
-import * as Effect from "effect/Effect";
-import { client } from "@beep/documents-client/adapters";
-
-export const CreateDocumentHandler = CreateDocumentContract.implement(
-  Effect.fn(function* (payload, { continuation }) {
-    const encoded = yield* CreateDocumentContract.encodePayload(payload);
-
-    const result = yield* continuation.run((handlers) =>
-      client.documents.create({
-        ...encoded,
-        fetchOptions: withFetchOptions(handlers),
-      })
-    );
-
-    yield* continuation.raiseResult(result);
-  })
-);
-```
-
-### 3. Effect Services
-
-```typescript
-import * as Effect from "effect/Effect";
-import * as Layer from "effect/Layer";
-
-export class DocumentService extends Effect.Service<DocumentService>()("DocumentService", {
-  effect: Effect.gen(function* () {
-    return {
-      CreateDocument: CreateDocumentHandler,
-      GetDocument: GetDocumentHandler,
-      UpdateDocument: UpdateDocumentHandler,
-      // ... other handlers
-    } as const;
-  }),
-  dependencies: [/* HttpClient, Config, etc */]
-}) {}
-```
 
 ### 4. Runtime-Backed Atoms
 
@@ -323,7 +252,6 @@ export const CreateDocumentHandler = CreateDocumentContract.implement(
 | Package | Purpose |
 |---------|---------|
 | `effect` | Core Effect runtime, Schema, and utilities |
-| `@beep/contract` | **MISSING** - Required for type-safe request/response contracts |
 | `@beep/documents-domain` | Entity models, value objects, domain errors |
 | `@beep/documents-server` | Server infrastructure (peer dependency) |
 | `@beep/shared-domain` | Shared entities (User, Organization, Policy) |
@@ -381,13 +309,11 @@ src/
 - **`@beep/documents-domain`** - Entity models, value objects, domain errors
 - **`@beep/documents-server`** - Server-side infrastructure
 - **`@beep/documents-ui`** - React UI components
-- **`@beep/contract`** - Contract system (needs to be added as dependency)
 - **Root AGENTS.md** - Effect patterns and monorepo conventions
 
 ## Notes
 
 - This package currently only exports a placeholder (`beep`)
-- Add `@beep/contract` to `peerDependencies` and `devDependencies` before implementation
 - Study `@beep/iam-client` structure before adding new features
 - All client operations must go through Effect Services and Layers
 - Atoms must use `makeAtomRuntime` from `@beep/runtime-client`

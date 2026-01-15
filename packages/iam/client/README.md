@@ -2,10 +2,6 @@
 
 Client CLIENT and presentation layer for the IAM system, providing Effect-first authentication flows, contracts, and React integration via better-auth.
 
-## Purpose
-
-The IAM CLIENT provides a complete client-side authentication system built on better-auth with Effect's contract-based architecture. It offers type-safe contracts, contract implementations, reactive atoms, and form helpers for all authentication flows including sign-in, sign-up, multi-session, OAuth, SSO, passkeys, two-factor, and user management. This package bridges better-auth's authentication primitives with Effect's type-safety and composability through the `@beep/contract` system, while providing React hooks and form utilities for seamless UI integration.
-
 ## Key Exports
 
 ### Core Types & Errors
@@ -79,7 +75,6 @@ Most client modules export atoms and runtimes for reactive state management. Not
 
 - **Vertical Slice + Hexagonal**: CLIENT layer bridges IAM domain/server with UI, exposing only contracts and client-safe operations
 - **Effect-first**: All contract implementations return `Effect<Success, IamError, never>` with structured error handling
-- **Contract-driven**: Uses `@beep/contract` for type-safe request/response schemas with metadata annotations (`Contract.make`, `ContractKit`)
 - **Better Auth Integration**: Wraps better-auth client methods through `Contract.implement` with continuation-based error handling
 - **Reactive**: Atoms via `@effect-atom/atom-react` with `withToast` wrapper for optimistic UI updates and notifications
 - **Path alias**: Import as `@beep/iam-client`
@@ -209,42 +204,6 @@ import { Atom } from "@effect-atom/atom-react";
 
 const runtime = Atom.runtime(clientRuntimeLayer);
 runtime.runPromise(updateProfile);
-```
-
-### Contracts
-
-Contracts define type-safe schemas with domain/method metadata using `@beep/contract`. Individual contracts are exported by name:
-
-```typescript
-import { ChangePasswordContract } from "@beep/iam-client";
-import * as S from "effect/Schema";
-import * as F from "effect/Function";
-
-// Access contract schemas
-ChangePasswordContract.payloadSchema;  // Input validation schema
-ChangePasswordContract.successSchema;  // Success response schema
-ChangePasswordContract.failureSchema;  // Error schema (IamError)
-
-// Decode payload with schema
-const payload = F.pipe(
-  {
-    password: "NewPass123!",
-    passwordConfirm: "NewPass123!",
-    currentPassword: "OldPass123!",
-    revokeOtherSessions: false
-  },
-  S.decodeUnknownSync(ChangePasswordContract.payloadSchema)
-);
-
-// Or use contract implementation directly
-import { UserImplementations } from "@beep/iam-client";
-
-const changePassword = UserImplementations.ChangePassword({
-  password: "NewPass123!",
-  passwordConfirm: "NewPass123!",
-  currentPassword: "OldPass123!",
-  revokeOtherSessions: false
-});
 ```
 
 ### React Hooks with Atoms
@@ -511,17 +470,6 @@ Key steps in the continuation pattern:
 5. **Decode response**: Use contract's `decodeUnknownSuccess` for type-safe validation
 6. **Handle errors**: Catch `ParseError` and other errors, normalize to `IamError`
 
-## What Belongs Here
-
-- **Client contracts** for IAM operations defined with `Contract.make` from `@beep/contract`
-- **Contract implementations** wrapping better-auth operations via `Contract.implement` with continuation handlers
-- **React integration** via atoms, hooks, and form helpers
-- **Error normalization** from better-auth to structured `IamError` with metadata
-- **Client-safe operations** only (no direct database or server-only operations)
-- **Form validation** schemas for registration, login, password changes, etc.
-- **OAuth/SSO helpers** for third-party authentication flows with callback URL sanitization
-- **Better-auth adapter** wrapping client instantiation and session state management
-
 ## What Must NOT Go Here
 
 - **Server-side operations**: database queries, session creation, token signing belong in `@beep/iam-server`
@@ -529,7 +477,7 @@ Key steps in the continuation pattern:
 - **UI components**: presentational components belong in `@beep/iam-ui`
 - **Handler services**: avoid resurrecting `AuthHandler` or `auth-wrapper` patterns; keep implementations focused on transport and error shaping
 
-This is the CLIENT/contract layer. Keep it focused on client-facing Effect contracts, contract implementations via better-auth, and React integration.
+
 
 ## Dependencies
 
@@ -539,7 +487,6 @@ This is the CLIENT/contract layer. Keep it focused on client-facing Effect contr
 |------------------------------|------------------------------------------------------------|
 | `effect`                     | Core Effect runtime and Schema system                      |
 | `better-auth`                | Authentication framework                                   |
-| `@beep/contract`             | Contract system for type-safe request/response schemas    |
 | `@beep/iam-domain`           | IAM domain models and entities                             |
 | `@beep/iam-server`           | Better-auth server configuration and types                 |
 | `@beep/shared-domain`        | Shared domain entities (User, Organization)                |
@@ -612,7 +559,6 @@ bun run --filter @beep/iam-client dev
 ## Guidelines for Adding New Clients
 
 - **Follow the pattern**: each client needs `*.contracts.ts`, `*.implementations.ts`, optionally `*.atoms.ts`, `*.forms.ts`, and `*.service.ts`
-- **Contract definition**: define individual contracts with `Contract.make` from `@beep/contract`, include metadata annotations
 - **Contract grouping**: group related contracts with `ContractKit.make` to create a `*ContractKit`
 - **Contract implementation**: implement via `ContractName.implement(Effect.fn(function* (payload, { continuation }) { ... }))`
 - **Error handling**: all contracts must fail with `IamError` for consistent error handling; use `IamError.match` to normalize errors
@@ -637,7 +583,6 @@ bun run --filter @beep/iam-client dev
 
 ## Relationship to Other Packages
 
-- `@beep/contract` — Contract system providing `Contract.make`, `ContractKit`, and continuation handlers
 - `@beep/iam-domain` — Entity models and business logic consumed by contracts
 - `@beep/iam-server` — Server-side implementations of IAM operations (better-auth server setup)
 - `@beep/iam-ui` — UI components consuming these CLIENT contract implementations and forms

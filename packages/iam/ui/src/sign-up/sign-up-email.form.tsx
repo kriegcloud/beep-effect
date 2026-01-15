@@ -1,12 +1,12 @@
 "use client";
-import { useSignUpEmailForm } from "@beep/iam-client/clients";
-import { RecaptchaBadge, useCaptcha } from "@beep/iam-ui/_common";
+import { useSignUpEmailForm } from "@beep/iam-client/atom/sign-up";
+import { RecaptchaBadge, useCaptchaAtom } from "@beep/iam-ui/_common";
 import { paths } from "@beep/shared-domain";
 import { Form } from "@beep/ui/form";
 import { PasswordFieldsGroup } from "@beep/ui/form/groups";
 import Box from "@mui/material/Box";
 export const SignUpEmailForm = () => {
-  const { executeCaptcha } = useCaptcha();
+  const { executeCaptcha } = useCaptchaAtom();
 
   const { form } = useSignUpEmailForm({
     executeRecaptcha: async () => executeCaptcha(paths.auth.signUp),
@@ -24,7 +24,7 @@ export const SignUpEmailForm = () => {
             }}
           >
             <form.AppField name={"firstName"} children={(field) => <field.Text label={"First name"} />} />
-            <form.AppField name={"lastName"} children={(field) => <field.Text label={"lastName"} />} />
+            <form.AppField name={"lastName"} children={(field) => <field.Text label={"Last name"} />} />
           </Box>
           <form.AppField name={"email"} children={(field) => <field.Text label={"Email"} type={"email"} />} />
           <PasswordFieldsGroup

@@ -16,7 +16,7 @@ import * as A from "effect/Array";
 import * as F from "effect/Function";
 import * as O from "effect/Option";
 import React from "react";
-import { GeneralTabPanel } from "@/features/account/general/GeneralTabPanel";
+// import { GeneralTabPanel } from "@/features/account/general/GeneralTabPanel";
 import { LocalizationTabPanel } from "@/features/account/localization/LocalizationTabPanel";
 import { SecurityTabPanel } from "@/features/account/security/SecurityTabPanel";
 import { AccountNotificationsView } from "@/features/account/view";
@@ -39,13 +39,13 @@ type AccountTabItem = {
 
 const NAV_ITEMS = (handleTab: (tab: AccountSettingsTabSearchParamValue.Type) => void): ReadonlyArray<AccountTabItem> =>
   [
-    {
-      slug: AccountSettingsTabSearchParamValue.Enum.general,
-      label: "General",
-      icon: <Iconify width={24} icon="solar:user-id-bold" />,
-      onClick: () => handleTab(AccountSettingsTabSearchParamValue.Enum.general),
-      render: () => <GeneralTabPanel />,
-    },
+    // {
+    //   slug: AccountSettingsTabSearchParamValue.Enum.general,
+    //   label: "General",
+    //   icon: <Iconify width={24} icon="solar:user-id-bold" />,
+    //   onClick: () => handleTab(AccountSettingsTabSearchParamValue.Enum.general),
+    //   render: () => <GeneralTabPanel />,
+    // },
     {
       slug: AccountSettingsTabSearchParamValue.Enum.notifications,
       label: "Notifications",

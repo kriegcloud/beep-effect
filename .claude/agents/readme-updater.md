@@ -136,7 +136,6 @@ The following packages should have README.md files:
 | Path                        | Package Name      |
 |-----------------------------|-------------------|
 | `packages/common/constants` | `@beep/constants` |
-| `packages/common/contract`  | `@beep/contract`  |
 | `packages/common/errors`    | `@beep/errors`    |
 | `packages/common/identity`  | `@beep/identity`  |
 | `packages/common/invariant` | `@beep/invariant` |

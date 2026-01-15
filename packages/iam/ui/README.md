@@ -410,7 +410,6 @@ export const CustomFormWithCaptcha = () => {
 | `@beep/ui`                      | Core component library                                                   |
 | `@beep/ui-core`                 | Design tokens and MUI theme configuration                                |
 | `@beep/schema`                  | Effect Schema utilities for validation                                   |
-| `@beep/contract`                | Contract system for RPC and API boundaries                               |
 | `@beep/constants`               | Schema-backed enums and constants                                        |
 | `@beep/identity`                | Package identity utilities                                               |
 | `@beep/types`                   | Compile-time type utilities                                              |

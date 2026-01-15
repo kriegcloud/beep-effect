@@ -1,10 +1,7 @@
 import { AllowedHeaders } from "@beep/constants";
-import { IamApi } from "@beep/iam-domain";
-import { IamApiLive } from "@beep/iam-server";
 
 import { BS } from "@beep/schema";
 import { serverEnv } from "@beep/shared-env/ServerEnv";
-import * as HttpApiScalar from "@effect/platform/HttpApiScalar";
 import * as HttpLayerRouter from "@effect/platform/HttpLayerRouter";
 import * as HttpMiddleware from "@effect/platform/HttpMiddleware";
 import type * as HttpServerRequest from "@effect/platform/HttpServerRequest";
@@ -16,21 +13,6 @@ import * as AuthContext from "./AuthContext.layer";
 import { BetterAuthRouterLive } from "./BetterAuthRouter.layer";
 import * as Logger from "./Logger.layer";
 import * as Rpc from "./Rpc.layer";
-
-// Register the IAM HttpApi with the HttpLayerRouter
-// This is the correct pattern for combining HttpApi with HttpLayerRouter
-const IamApiRoutes = HttpLayerRouter.addHttpApi(IamApi, {
-  openapiPath: "/v1/docs/openapi.json",
-}).pipe(
-  // Provide the IAM API handler implementations
-  Layer.provideMerge(IamApiLive)
-);
-
-// Swagger/Scalar documentation route
-const DocsRoute = HttpApiScalar.layerHttpLayerRouter({
-  api: IamApi,
-  path: "/v1/docs",
-});
 
 // Health check route
 const HealthRoute = HttpLayerRouter.use((router) => router.add("GET", "/v1/health", HttpServerResponse.text("OK")));
@@ -44,11 +26,11 @@ const CorsMiddleware = HttpLayerRouter.cors({
 });
 
 // Protected routes that require authentication
-const ProtectedRoutes = Layer.mergeAll(IamApiRoutes, Rpc.layer).pipe(Layer.provide(AuthContext.layer));
+const ProtectedRoutes = Layer.mergeAll(Rpc.layer).pipe(Layer.provide(AuthContext.layer));
 
 // Public routes that don't require authentication
 // BetterAuthRouterLive handles authentication internally via Better Auth
-const PublicRoutes = Layer.mergeAll(DocsRoute, HealthRoute, BetterAuthRouterLive);
+const PublicRoutes = Layer.mergeAll(HealthRoute, BetterAuthRouterLive);
 
 // Merge protected and public routes, apply CORS to all
 const AllRoutes = Layer.mergeAll(ProtectedRoutes, PublicRoutes).pipe(Layer.provide(CorsMiddleware));

@@ -85,7 +85,6 @@ function HotkeySettings({ userId }: { userId: string }) {
 | Package | Purpose |
 |---------|---------|
 | `effect` | Core Effect runtime and Schema system |
-| `@beep/contract` | Contract system for type-safe request/response schemas |
 | `@beep/customization-domain` | Domain models for customization slice |
 | `@beep/schema` | Reusable Effect schemas for validation |
 | `@beep/errors` | Error handling and telemetry |
@@ -128,7 +127,6 @@ bun run --filter @beep/customization-client dev
 
 When implementing contracts, follow these patterns:
 
-- Define contracts using `Contract.make` from `@beep/contract` with proper request/response schemas
 - Use `S.TaggedError` for structured error types (e.g., `CustomizationError`)
 - Include metadata annotations for domain/method tracking
 - Keep contracts thin - business logic belongs in `@beep/customization-domain` and `@beep/customization-server`

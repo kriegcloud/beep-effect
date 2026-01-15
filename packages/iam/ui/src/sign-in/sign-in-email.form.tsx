@@ -1,6 +1,6 @@
 "use client";
-import { useSignInEmailForm } from "@beep/iam-client/clients";
-import { useCaptcha } from "@beep/iam-ui/_common";
+import { useSignInEmailForm } from "@beep/iam-client/atom/sign-in";
+import { useCaptchaAtom } from "@beep/iam-ui/_common";
 import { paths } from "@beep/shared-domain";
 import { Iconify } from "@beep/ui/atoms";
 import { Form } from "@beep/ui/form";
@@ -13,7 +13,7 @@ import Link from "@mui/material/Link";
 
 export const SignInEmailForm = () => {
   const showPassword = useBoolean();
-  const { executeCaptcha } = useCaptcha();
+  const { executeCaptcha } = useCaptchaAtom();
   const { form } = useSignInEmailForm({ executeCaptcha: async () => await executeCaptcha(paths.auth.signIn) });
 
   return (

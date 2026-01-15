@@ -87,7 +87,6 @@ Use this mapping to convert `@beep/*` names to filesystem paths:
 | `@beep/identity`             | `packages/common/identity`        |
 | `@beep/errors`               | `packages/common/errors`          |
 | `@beep/constants`            | `packages/common/constants`       |
-| `@beep/contract`             | `packages/common/contract`        |
 | `@beep/invariant`            | `packages/common/invariant`       |
 | `@beep/shared-domain`        | `packages/shared/domain`          |
 | `@beep/shared-server`        | `packages/shared/server`          |
@@ -287,7 +286,6 @@ This outputs all `@beep/*` packages with dependencies listed first (leaf package
 @beep/utils
 @beep/schema
 @beep/constants
-@beep/contract
 ...
 ```
 

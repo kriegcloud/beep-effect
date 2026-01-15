@@ -263,12 +263,6 @@ export const authContextMiddlewareLayer = Layer.merge(AuthContextRpcMiddlewaresL
 
 export type Services = AuthContextRpcMiddleware | AuthContextHttpMiddleware | Authentication.Services;
 
-/**
- * Complete auth layer that provides auth context middlewares and authentication services.
- *
- * Uses `provideMerge` to expose Authentication.Services (including Auth.Service)
- * so that downstream layers like IamApiLive can access them.
- */
 export const layer: Layer.Layer<Services, never, never> = authContextMiddlewareLayer.pipe(
   Layer.provideMerge(Authentication.layer)
 );

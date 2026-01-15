@@ -25,13 +25,13 @@ The docgen system provides tools for generating, analyzing, and maintaining JSDo
 bun run docgen:status
 
 # Initialize a package
-bun run docgen:init -- -p packages/common/contract
+bun run docgen:init -- -p packages/common/schema
 
 # Analyze JSDoc coverage
-bun run docgen:analyze -- -p packages/common/contract
+bun run docgen:analyze -- -p packages/common/schema
 
 # Generate documentation
-bun run docgen:generate -- -p packages/common/contract
+bun run docgen:generate -- -p packages/common/schema
 
 # Aggregate to docs folder
 bun run docgen:aggregate
@@ -40,7 +40,7 @@ bun run docgen:aggregate
 bun run docgen:agents -- --dry-run
 
 # AI-powered fixes (with API key)
-AI_ANTHROPIC_API_KEY=sk-ant-... bun run docgen:agents -- -p packages/common/contract
+AI_ANTHROPIC_API_KEY=sk-ant-... bun run docgen:agents -- -p packages/common/schema
 ```
 
 ### Common Workflows

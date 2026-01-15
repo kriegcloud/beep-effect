@@ -36,7 +36,6 @@ Provides the client-side API surface for customization operations. This package:
 |---------|---------|----------|
 | `effect` | Core Effect runtime | Peer dependency |
 | `@beep/customization-domain` | Domain entities and value objects | `packages/customization/domain/` |
-| `@beep/contract` | Contract system for RPC definitions | `packages/common/contract/` |
 
 **Note**: This package does NOT have direct runtime dependencies on `@beep/customization-server` — communication happens via RPC contracts.
 
@@ -54,44 +53,10 @@ domain -> tables -> server -> client -> ui
 ### Cross-Package Relationships
 
 - **Consumed by**: `@beep/customization-ui`, `@beep/web`
-- **Depends on**: `@beep/customization-domain` (entities), `@beep/contract` (RPC system)
 - **Communicates with**: `@beep/customization-server` (via RPC contracts)
 
 ## Usage Patterns
 
-### Creating a Contract (Planned)
-
-```typescript
-import { Contract } from "@beep/contract";
-import * as S from "effect/Schema";
-
-export const UpdateTheme = Contract.make("UpdateTheme", {
-  description: "Update user theme preferences",
-  payload: S.Struct({
-    userId: S.String,
-    theme: S.Literal("light", "dark", "system"),
-  }),
-  success: S.Struct({ updated: S.Boolean }),
-  failure: S.Struct({ message: S.String }),
-  failureMode: "error",
-})
-  .annotate(Contract.Title, "Update Theme")
-  .annotate(Contract.Domain, "customization")
-  .annotate(Contract.Method, "theme.update");
-```
-
-### Using Contracts in Effect Programs (Planned)
-
-```typescript
-import * as Effect from "effect/Effect";
-import { CustomizationContracts } from "@beep/customization-client";
-
-const updateUserTheme = (userId: string, theme: "light" | "dark") =>
-  Effect.gen(function* () {
-    const client = yield* CustomizationContracts.Client;
-    return yield* client.updateTheme({ userId, theme });
-  });
-```
 
 ### With Layer Composition (Planned)
 
@@ -106,7 +71,6 @@ const AppLayer = Layer.provide(CustomizationClientLive, HttpClientLive);
 ## Authoring Guardrails
 
 - **CRITICAL**: ALWAYS import Effect modules with namespaces (`Effect`, `A`, `F`, `O`, `Str`, `S`) and rely on Effect collections/utilities instead of native helpers.
-- Define contracts using `@beep/contract` patterns — each contract MUST specify request/response schemas and error types.
 - Maintain typed error channels using `S.TaggedError` for predictable client-side error handling.
 - Keep contracts thin — business logic belongs in domain or server layers, NOT in client contracts.
 - Use `"use client"` directive for React-specific exports that need client-side bundling.
@@ -184,13 +148,12 @@ bun run lint:fix --filter @beep/customization-client
 - [Customization Domain](../domain/AGENTS.md) — Entity definitions and business logic
 - [Customization Server](../server/AGENTS.md) — Server-side implementation
 - [Customization Tables](../tables/AGENTS.md) — Database schemas
-- [Contract Package](../../common/contract/AGENTS.md) — Contract system documentation
 - [UI Core Package](../../ui/core/AGENTS.md) — Settings and theme system
 
 ## Contributor Checklist
 
-- [ ] Define contracts with proper request/response schemas following `@beep/contract` patterns
-- [ ] Ensure all contracts have corresponding server-side implementations in `@beep/customization-server`
+
+
 - [ ] Add proper TypeScript doc comments for contract exports
 - [ ] Use Effect Schema for all data validation — no bare type assertions
 - [ ] Verify namespace imports for Effect modules (`Effect`, `A`, `F`, `O`, `Str`, `S`)
