@@ -113,20 +113,16 @@ import { eq } from "drizzle-orm";
 
 export const listActiveMembers = (organizationId: string) =>
   Effect.gen(function* () {
-    const { db } = yield* IamDb;
+    const { db } = yield* IamDb.IamDb;
 
-    const rows = yield* Effect.tryPromise({
-      try: () =>
-        db
-          .select({
-            memberId: IamDbSchema.member.id,
-            userId: IamDbSchema.member.userId,
-            role: IamDbSchema.member.role,
-          })
-          .from(IamDbSchema.member)
-          .where(eq(IamDbSchema.member.organizationId, organizationId)),
-      catch: (error) => new Error("Failed to query members", { cause: error }),
-    });
+    const rows = yield* db
+      .select({
+        memberId: IamDbSchema.member.id,
+        userId: IamDbSchema.member.userId,
+        role: IamDbSchema.member.role,
+      })
+      .from(IamDbSchema.member)
+      .where(eq(IamDbSchema.member.organizationId, organizationId));
 
     return F.pipe(
       rows,

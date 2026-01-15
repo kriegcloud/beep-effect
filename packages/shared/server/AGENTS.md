@@ -10,120 +10,113 @@
 ## Surface Map
 
 ### Configuration
-- **`ServerEnv.ts`** (`src/ServerEnv.ts`) — Parses server-side env vars into typed `serverEnv` singleton using Effect Config, covering DB, auth, cloud (AWS S3), OAuth providers, OTLP, payments, email, Redis, marketing, and AI credentials.
-- **`ClientEnv.ts`** (`src/ClientEnv.ts`) — Validates `NEXT_PUBLIC_*` env vars for browser bundles; schema-backed with detailed parse errors.
+- **Environment Management** — Configuration has moved to `@beep/shared-env` package. This package consumes configuration via Effect Config at service boundaries.
 
 ### Database
-- **`Db.make`** (`src/internal/db/pg/PgClient.ts`) — Core factory producing a `DatabaseService<TFullSchema>` with typed Drizzle client, transaction support, and query builders (`makeQuery`, `makeQueryWithSchema`).
-- **`Db.layer`** (`src/internal/db/pg/PgClient.ts`) — Layer providing `PgClient`, `SqlClient`, `PoolService`, `ConnectionContext`, `Logger`, and `Reactivity`, with exponential retry logic for connection failures.
-- **`ConnectionContext`** (`src/internal/db/pg/PgClient.ts`) — Service sourcing Postgres connection config from `DB_PG_*` env vars (host, port, user, password, SSL, transformations).
-- **`PoolService`** (`src/internal/db/pg/PgClient.ts`) — Scoped pg.Pool manager with health checks, error listeners, and graceful shutdown.
-- **`Logger`** (`src/internal/db/pg/PgClient.ts`) — Drizzle-compatible query logger with SQL syntax highlighting, parameter formatting, and box-drawing table output.
-- **`TransactionContext`** (`src/internal/db/pg/PgClient.ts`) — Context tag for transaction-aware queries, letting `makeQuery` detect tx scope and delegate execution accordingly.
+- **`DbClient.make`** (`src/factories/db-client/pg/PgClient.ts`) — Core factory producing a `DatabaseService<TFullSchema>` with typed Drizzle client, transaction support, and query builders (`makeQuery`, `makeQueryWithSchema`).
+- **`DbClient.layer`** (`src/factories/db-client/pg/PgClient.ts`) — Layer providing `PgClient`, `SqlClient`, `ConnectionPool`, `ConnectionConfig`, `QueryLogger`, and `Reactivity`, with exponential retry logic for connection failures.
+- **`ConnectionConfig`** (`src/factories/db-client/pg/services/ConnectionConfig.service.ts`) — Service sourcing Postgres connection config from `DB_PG_*` env vars (host, port, user, password, SSL, transformations).
+- **`ConnectionPool`** (`src/factories/db-client/pg/services/ConnectionPool.service.ts`) — Scoped pg.Pool manager with health checks, error listeners, and graceful shutdown.
+- **`QueryLogger`** (`src/factories/db-client/pg/services/QueryLogger.service.ts`) — Drizzle-compatible query logger with SQL syntax highlighting, parameter formatting, and box-drawing table output.
+- **`TransactionContext`** (`src/factories/db-client/pg/PgClient.ts`) — Context tag for transaction-aware queries, letting `makeQuery` detect tx scope and delegate execution accordingly.
 
 ### Repositories
-- **`Repo.make`** (`src/internal/db/pg/repo.ts`) — Factory accepting `(idSchema, model, maker?)` and returning Effect with base CRUD methods: `insert`, `insertVoid`, `insertManyVoid`, `update`, `updateVoid`, `findById`, `delete`. Auto-wires telemetry spans, DatabaseError mapping, and optional custom queries via `maker` block.
-- **`DatabaseError`** (`src/internal/db/pg/errors.ts`) — Tagged error with Postgres-specific constraint/enum handling, formatted stack traces, and `$match` helper for safe error coercion.
+- **Repository Pattern** (`src/db/repos/*.repo.ts`) — Individual repositories use a base repo factory pattern with `DbRepo.make(idSchema, model, maker?)` returning Effect with base CRUD methods: `insert`, `insertVoid`, `insertManyVoid`, `update`, `updateVoid`, `findById`, `delete`. Auto-wires telemetry spans, DatabaseError mapping, and optional custom queries via `maker` block.
+- **Shared Repositories** (`src/db/repositories.ts`) — Pre-built repositories for File, Folder, and UploadSession entities exposed via `SharedRepos` namespace.
+- **`DatabaseError`** (`@beep/shared-domain/errors`) — Tagged error with Postgres-specific constraint/enum handling, formatted stack traces, and `$match` helper for safe error coercion.
 
 ### Email
 - **`Email.ResendService`** (`src/internal/email/adapters/resend/service.ts`) — Effect.Service wrapping Resend SDK; exposes `send(payload, options?)` with tagged ResendError and structured logging.
-- **`Email.renderEmail`** (`src/internal/email/renderEmail.ts`) — Helper for rendering React Email templates to HTML/text for send operations.
 - **`Email.components`** (`src/internal/email/components/`) — Reusable auth email templates (verification, reset, OTP, invitations).
 
 ### Upload
-- **`UploadService`** (`src/internal/upload/upload.service.ts`) — S3-backed file service providing `initiateUpload(uploadParams)` for client uploads and `deleteObject(uploadParams)` for cleanup. Depends on `S3Service` from `@effect-aws/client-s3`.
+- **`UploadService`** (`src/services/Upload.service.ts`) — S3-backed file service providing `initiateUpload(uploadParams)` for client uploads and `deleteObject(uploadParams)` for cleanup. Depends on `S3Service` from `@effect-aws/client-s3`.
 
-### Shared Infrastructure Layer
-- **`Live`** (`src/Live.ts`) — Top-level Layer merging `Email.ResendService.layer`, `Db.layer`, `EncryptionService.layer`, and `UploadService.layer` for slice consumption.
-
-### Redis & Rate Limiting
-- **`Redis.ts`** (`src/Redis.ts`) — (Currently stub export; implementation in `src/internal/redis/index.ts`).
-- **`RateLimit.ts`** (`src/RateLimit.ts`) — (Currently stub export; implementation in `src/internal/ratelimit/index.ts`).
-
-### YJS (Collaborative Editing)
-- **`YJS.ts`** (`src/YJS.ts`) — (Currently stub export; implementation in `src/internal/yjs/index.ts`).
+### RPC Handlers
+- **File Management RPC** (`src/rpc/v1/files/`) — Server-side RPC handlers for file operations, including upload session management.
 
 ## Usage Snapshots
-- `packages/runtime/server/src/CoreServices.ts:11` — Composes `Live` with `IamConfig.Live` to build the core server runtime Layer.
-- `packages/iam/server/src/adapters/repositories.ts:1` — Imports `Db.PgClientServices` type to constrain IAM repo layer dependencies.
-- `packages/iam/server/src/adapters/repos/WalletAddress.repo.ts` — Uses `Repo.make(IamEntityIds.WalletAddressId, Entities.WalletAddress.Model, ...)` to auto-generate repo with custom query extensions.
-- `packages/documents/server/AGENTS.md:29` — Documents FilesConfig sourcing from `serverEnv` for S3 bucket configuration.
-- `apps/web/src/proxy.ts` — References `serverEnv` for runtime URL/domain resolution in Next.js middleware.
-- `packages/_internal/db-admin/src/Db/AdminDb.ts` — Constructs testcontainer-backed DB layers using `Db.make` with admin schema for migration validation.
-- `packages/iam/client/src/adapters/better-auth/client.ts` — Consumes `clientEnv` for auth URL/provider configuration in browser bundle.
+- `packages/runtime/server/src/DataAccess.layer.ts` — Composes database and repository layers for the core server runtime.
+- `packages/iam/server/src/adapters/repositories.ts` — Imports `DbClient.SliceDbRequirements` type to constrain IAM repo layer dependencies.
+- `packages/iam/server/src/adapters/repos/WalletAddress.repo.ts` — Uses repo factory pattern to auto-generate repos with custom query extensions.
+- `packages/shared/server/src/db/repos/File.repo.ts` — Example repository implementation using `DbRepo.make` pattern.
+- `packages/shared/server/src/services/Upload.service.ts` — S3 upload service consuming Effect Config for bucket configuration.
 
 ## Authoring Guardrails
-- **Effect Config precedence**: ALWAYS prefer Effect Config combinators (`Config.all`, `Config.nested`, `Config.redacted`) over manual `process.env` parsing. Use `withDefault`, `option`, or `withPlaceholderRedacted` for optional secrets.
-- **Database service hygiene**: NEVER construct raw `pg.Pool` or Drizzle clients outside `Db.make`. Slice-specific DB tags (like `IamDb.IamDb`) should call `Db.make` with their schema and return a scoped Layer.
-- **Repo.make contracts**: When extending repos, place custom queries in the `maker` Effect block, yielding `DatabaseService` to access `makeQuery` or `execute`. ALWAYS return an object merging extra methods with base CRUD. Update type exports in barrel files (`src/index.ts`, `src/Repo.ts`).
-- **Layer composition**: Keep `Live` free of side effects; use `Layer.mergeAll` / `Layer.provideMerge`. When adding new services, export a Layer and append it to `Live` after ensuring dependencies are satisfied.
-- **Secret handling**: Wrap sensitive config in `Config.redacted`. Use `Redacted.make` / `Redacted.value` at boundaries. NEVER log or serialize redacted values unwrapped.
+- **Effect Config precedence**: ALWAYS prefer Effect Config combinators (`Config.all`, `Config.nested`, `Config.redacted`) over manual `process.env` parsing. Use `Config.withDefault`, `Config.option`, or custom config providers for optional values.
+- **Database service hygiene**: NEVER construct raw `pg.Pool` or Drizzle clients outside `DbClient.make`. Slice-specific DB tags (like `IamDb.IamDb`) should call `DbClient.make` with their schema and return a scoped Layer.
+- **Repository contracts**: When extending repos, place custom queries in the `maker` Effect block, yielding the database service to access `makeQuery` or `execute`. ALWAYS return an object merging extra methods with base CRUD. Update type exports in barrel files.
+- **Layer composition**: Use `Layer.mergeAll` / `Layer.provideMerge` for service composition. When adding new services, export a Layer with proper dependency declarations.
+- **Secret handling**: Wrap sensitive config in `Config.redacted` and `Redacted` from Effect. Use `Redacted.value` only at trust boundaries. NEVER log or serialize redacted values unwrapped.
 - **Telemetry**: Attach `Effect.withSpan`, `Effect.annotateLogs` to service methods. Use span attributes for request payloads; keep PII out of logs.
 - **Collections & strings**: Follow repo-wide rule—ALWAYS use `A.*`, `Str.*`, `F.pipe` instead of native array/string methods. Legacy native usages exist in early code; NEVER replicate them.
-- **Error mapping**: Use `DatabaseError.$match` for Postgres errors, `ResendError.new` for email errors. ALWAYS `catchTag("ParseError", Effect.die)` for schema decode failures in infra code.
-- **Config validation**: Schema-backed configs (`ServerConfig`, `ClientEnvSchema`) MUST die on `ConfigError` to prevent runtime with invalid env. Use `Effect.catchTag("ConfigError", Effect.die)` in service effects.
+- **Error mapping**: Use `DatabaseError.$match` for Postgres errors, `ResendError` for email errors. ALWAYS `catchTag("ParseError", Effect.die)` for schema decode failures in infra code.
+- **Config validation**: Effect Config failures surface as `ConfigError`. Handle appropriately or allow to propagate if invalid configuration should prevent application startup.
 
 ## Quick Recipes
 
-### Access serverEnv in a slice
+### Access configuration in services
 ```ts
-import { serverEnv } from "@beep/shared-server";
+import * as Config from "effect/Config";
+import * as Effect from "effect/Effect";
 
-// serverEnv is a runtime singleton; access directly
-const dbConfig = serverEnv.db.pg;
-const s3Bucket = serverEnv.cloud.aws.s3.bucketName;
-const authSecret = serverEnv.auth.secret; // Redacted<string>
+const program = Effect.gen(function* () {
+  const bucketName = yield* Config.nonEmptyString("CLOUD_AWS_S3_BUCKET_NAME");
+  const dbHost = yield* Config.string("DB_PG_HOST");
+  yield* Effect.logInfo("Config loaded", { bucketName, dbHost });
+});
 ```
 
 ### Build a slice-specific DB Layer
 ```ts
-import { Db } from "@beep/shared-server/Db";
-import type { DbSchema } from "@beep/shared-server/Db";
+import { DbClient } from "@beep/shared-server/factories";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Context from "effect/Context";
 import * as mySchema from "./schema"; // Drizzle tables
 
 type MySchema = typeof mySchema;
-type MyDb = Db.DatabaseService<MySchema>;
+type MyDb = DbClient.Shape<MySchema>;
 
 export class MyDb extends Context.Tag("MyDb")<MyDb, MyDb>() {
-  static readonly Live: Layer.Layer<MyDb, never, Db.PgClientServices> = Layer.scoped(
+  static readonly Live: Layer.Layer<MyDb, never, DbClient.SliceDbRequirements> = Layer.scoped(
     MyDb,
-    Db.make({ schema: mySchema })
+    DbClient.make({ schema: mySchema })
   );
 }
 ```
 
 ### Create a repository with custom queries
 ```ts
-import { Repo } from "@beep/shared-server/Repo";
+import { DbRepo } from "@beep/shared-server";
 import { SharedEntityIds } from "@beep/shared-domain";
 import { MyEntity } from "./entities";
 import { MyDb } from "./db";
 import * as Effect from "effect/Effect";
-import * as Layer from "effect/Layer";
 
 export class MyEntityRepo extends Effect.Service<MyEntityRepo>()("@my-slice/server/repos/MyEntityRepo", {
-  dependencies: [MyDb.Live],
+  dependencies: [MyDb.Default],
   accessors: true,
-  effect: Repo.make(
-    SharedEntityIds.MyEntityId,
-    MyEntity.Model,
-    Effect.gen(function* () {
-      const { makeQuery } = yield* MyDb;
+  effect: Effect.gen(function* () {
+    const baseRepo = yield* DbRepo.make(
+      SharedEntityIds.MyEntityId,
+      MyEntity.Model,
+      Effect.gen(function* () {
+        const { makeQuery } = yield* MyDb;
 
-      const findByOwner = makeQuery((execute, ownerId: string) =>
-        execute((client) =>
-          client.query.myEntity.findMany({
-            where: (table, { eq }) => eq(table.ownerId, ownerId),
-          })
-        )
-      );
+        const findByOwner = makeQuery((execute, ownerId: string) =>
+          execute((client) =>
+            client.query.myEntity.findMany({
+              where: (table, { eq }) => eq(table.ownerId, ownerId),
+            })
+          )
+        );
 
-      return { findByOwner };
-    })
-  ),
+        return { findByOwner };
+      })
+    );
+    return baseRepo;
+  }),
 }) {}
 ```
 
@@ -166,11 +159,13 @@ const getUploadUrl = Effect.gen(function* () {
 
 ### Override config for tests
 ```ts
-import { ConnectionContext } from "@beep/shared-server/Db";
+import { DbClient } from "@beep/shared-server/factories";
 import * as Layer from "effect/Layer";
 import * as Effect from "effect/Effect";
+import * as Redacted from "effect/Redacted";
+import * as Str from "effect/String";
 
-const testConnectionLayer = Layer.succeed(ConnectionContext, {
+const testConnectionLayer = Layer.succeed(DbClient.ConnectionConfig, {
   config: {
     host: "localhost",
     port: 54320,
@@ -183,17 +178,18 @@ const testConnectionLayer = Layer.succeed(ConnectionContext, {
   },
 });
 
-const testDbLayer = Db.layer.pipe(Layer.provide(testConnectionLayer));
+const testDbLayer = DbClient.layer.pipe(Layer.provide(testConnectionLayer));
 ```
 
 ### Access transaction context in a repo
 ```ts
-import { TransactionContext } from "@beep/shared-server/Db";
+import { DbClient } from "@beep/shared-server/factories";
 import * as Effect from "effect/Effect";
+import * as O from "effect/Option";
 
 const updateWithTx = Effect.gen(function* () {
-  const tx = yield* Effect.serviceOption(TransactionContext);
-  if (Option.isSome(tx)) {
+  const tx = yield* Effect.serviceOption(DbClient.TransactionContext);
+  if (O.isSome(tx)) {
     yield* Effect.logInfo("Running inside transaction");
   } else {
     yield* Effect.logInfo("Running outside transaction");

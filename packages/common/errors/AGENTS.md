@@ -3,7 +3,7 @@
 ## Purpose & Fit
 - Provides the shared logging, telemetry, and error-tagging toolkit that every slice relies on for observability.
 - Exposes entry points tuned for server (`@beep/errors/server`) and browser/runtime-safe (`@beep/errors/client`) contexts while sharing the core helpers under `@beep/errors/shared`.
-- Hosts the canonical error namespace (`BeepError.*`) used by higher-level domains (for example `packages/iam/domain/src/IamError.ts`).
+- Hosts the canonical error namespace (`BeepError.*`) used by higher-level domains (for example `packages/iam/client/src/errors.ts`).
 - Bridges repo-wide env settings (`APP_LOG_FORMAT`, `APP_LOG_LEVEL`) with the Effect logger stack so runtimes can switch between JSON, logfmt, and pretty output.
 
 ## Surface Map
@@ -17,9 +17,9 @@
 
 ## Usage Snapshots
 - `apps/web/src/features/upload/UploadFileService.ts:46` – aggregates file processing via `accumulateEffectsAndReport(...)`.
-- `apps/web/src/features/upload/observability.ts:43` – composes `withLogContext`, `withRootSpan`, and `withSpanAndMetrics` to instrument the upload pipeline.
-- `packages/runtime/server/src/Logging.ts:10` – swaps in `makePrettyConsoleLoggerLayer()` for dev-friendly logging.
-- `packages/iam/domain/src/IamError.ts:1` – aliases `BeepError.UnknownError` for domain-specific error hierarchies.
+- `apps/web/src/features/upload/observability.ts:1` – composes `withLogContext`, `withRootSpan`, and `withSpanAndMetrics` to instrument the upload pipeline.
+- `packages/runtime/server/src/Logger.layer.ts` – configures environment-driven logging for the server runtime.
+- `packages/iam/client/src/errors.ts:51` – uses `BeepError.UnknownError` for IAM-specific error hierarchies.
 - `documentation/PRODUCTION_CHECKLIST.md:69` – documents operational expectations for `makeEnvLoggerLayerFromEnv`, `withEnvLogging`, and `accumulateEffectsAndReport`.
 
 ## Tooling Commands

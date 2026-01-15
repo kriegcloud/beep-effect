@@ -1,22 +1,73 @@
 # @beep/comms-client — Agent Guide
 
-## Purpose & Fit
-- Provides the client-side CLIENT layer for the communications slice, enabling frontend applications to interact with messaging, notifications, and communication features.
-- Contains API contracts, client-side services, and type definitions for client-server communication.
-- Acts as the bridge between the comms domain and UI layers, exposing typed contracts for TanStack Query and Effect-based client runtimes.
-- Currently a minimal scaffold awaiting contract definitions as the comms feature matures.
+## Overview
 
-## Surface Map
-- **(Scaffold)** — Package is initialized but awaiting contract implementations. Future exports will include:
-  - Notification contracts for push/in-app notifications
-  - Messaging contracts for real-time communication
-  - Email template contracts for transactional emails
+Provides the client-side CLIENT layer for the communications slice, enabling frontend applications to interact with messaging, notifications, and communication features.
 
-## Usage Snapshots
-- Frontend apps import contracts from this package to invoke comms-related RPC calls.
-- TanStack Query hooks wrap contracts for React component consumption.
-- Effect client runtime uses contracts to execute type-safe requests against the server.
-- Real-time features may use WebSocket contracts for live updates.
+This package:
+- Defines RPC contracts for communication operations (notifications, messaging, email templates)
+- Exports client-side type-safe API contracts used by the web app
+- Acts as the bridge between `@beep/comms-domain` and `@beep/comms-ui` layers
+- Currently a minimal scaffold awaiting contract implementations as the comms feature matures
+
+## Key Exports
+
+**(Scaffold)** — Package is initialized but awaiting contract implementations. Future exports will include:
+
+| Export | Description |
+|--------|-------------|
+| `NotificationContracts` | RPC contracts for push/in-app notifications (pending) |
+| `MessagingContracts` | Real-time messaging contracts (pending) |
+| `EmailTemplateContracts` | Transactional email template contracts (pending) |
+
+## Dependencies
+
+| Package | Purpose |
+|---------|---------|
+| `@beep/comms-domain` | Domain entities and value objects for communications |
+| `@beep/schema` | Schema utilities for validation |
+| `effect` | Core Effect runtime |
+| `@effect/rpc` | RPC contract definitions |
+
+## Usage Patterns
+
+### Consuming RPC Contracts (Future)
+
+Once contracts are implemented, frontend apps will import and use them like this:
+
+```typescript
+import * as Effect from "effect/Effect"
+import { NotificationContracts } from "@beep/comms-client"
+
+// Example: Fetching user notifications
+const program = Effect.gen(function* () {
+  const client = yield* NotificationContracts.Client
+  const notifications = yield* client.list({ userId })
+  return notifications
+})
+```
+
+### WebSocket Streaming (Future)
+
+Real-time features will use streaming contracts:
+
+```typescript
+import * as Effect from "effect/Effect"
+import * as Stream from "effect/Stream"
+import { NotificationContracts } from "@beep/comms-client"
+
+// Example: Subscribe to live notification updates
+const subscribeToNotifications = Effect.gen(function* () {
+  const client = yield* NotificationContracts.Client
+  return yield* client.subscribe({ userId })
+})
+```
+
+## Integration Points
+
+- **Consumed by**: `@beep/comms-ui` and `@beep/web` for communication features
+- **Depends on**: `@beep/comms-domain` for entity types and value objects
+- **Communicates with**: `@beep/comms-server` via RPC contracts
 
 ## Authoring Guardrails
 - ALWAYS import Effect modules with namespaces (`Effect`, `A`, `F`, `O`, `Str`, `S`) and rely on Effect collections/utilities instead of native helpers (see global repo guardrails).
@@ -33,7 +84,7 @@
 ## Testing
 
 - Run tests: `bun run test --filter=@beep/comms-client`
-- Use `@beep/testkit` for Effect testing utilities
+- Use `@beep/testkit` (located in `tooling/testkit`) for Effect testing utilities
 - ALWAYS test contract request/response schemas
 - Test error mapping completeness
 
@@ -90,14 +141,66 @@
 ## Quick Recipes
 
 ### WebSocket Contract Pattern
+
 ```typescript
-import * as Rpc from "@effect/rpc/Rpc";
-import * as S from "effect/Schema";
+import * as Rpc from "@effect/rpc/Rpc"
+import * as S from "effect/Schema"
+import * as F from "effect/Function"
+import * as Effect from "effect/Effect"
+
+// Define error schema
+class CommsError extends S.TaggedError<CommsError>()(
+  "CommsError",
+  { message: S.String }
+) {}
+
+// Define notification event schema
+class NotificationEvent extends S.Class<NotificationEvent>("NotificationEvent")({
+  id: S.String,
+  type: S.Literal("push", "in-app", "email"),
+  message: S.String,
+  timestamp: S.DateTimeUtc
+}) {}
 
 // StreamRequest for real-time updates
 export class SubscribeNotifications extends Rpc.StreamRequest<SubscribeNotifications>()(
   "SubscribeNotifications",
-  { failure: CommsError, success: NotificationEvent, payload: {} }
+  {
+    failure: CommsError,
+    success: NotificationEvent,
+    payload: {
+      userId: S.String
+    }
+  }
+) {}
+```
+
+### Request-Response Contract Pattern
+
+```typescript
+import * as Rpc from "@effect/rpc/Rpc"
+import * as S from "effect/Schema"
+
+// Define request/response schemas
+class ListNotificationsRequest extends S.Class<ListNotificationsRequest>("ListNotificationsRequest")({
+  userId: S.String,
+  limit: S.optional(S.Number).withDefault(() => 20),
+  offset: S.optional(S.Number).withDefault(() => 0)
+}) {}
+
+class ListNotificationsResponse extends S.Class<ListNotificationsResponse>("ListNotificationsResponse")({
+  notifications: S.Array(NotificationEvent),
+  total: S.Number
+}) {}
+
+// Define RPC contract
+export class ListNotifications extends Rpc.Request<ListNotifications>()(
+  "ListNotifications",
+  {
+    failure: CommsError,
+    success: ListNotificationsResponse,
+    payload: ListNotificationsRequest
+  }
 ) {}
 ```
 

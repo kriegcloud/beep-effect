@@ -8,6 +8,10 @@
 
 ## Surface Map
 - **`src/index.ts`** — Main CLI entry point exposing `runRepoCli`
+- **`src/commands/agents-validate.ts`** — Agent manifest validation command
+  - Validates `.claude/agents-manifest.yaml` sync with agent definitions in `.claude/agents/`
+  - Designed for pre-commit hooks to ensure agent documentation stays current
+  - Detects missing agents, manifest mismatches, and configuration drift
 - **`src/commands/docgen.ts`** — Documentation generation and analysis command group
   - `docgen init` — Bootstrap docgen configuration for packages
   - `docgen analyze` — Analyze JSDoc coverage and generate reports
@@ -41,6 +45,7 @@
 
 ## Usage Snapshots
 - Root `package.json` exposes CLI via `bun run beep <command>`
+- `bun run beep agents-validate` — Validate agents-manifest.yaml sync with .claude/agents/
 - `bun run beep docgen init -p packages/common/schema` — Initialize docgen configuration
 - `bun run beep docgen analyze -p packages/common/schema` — Analyze JSDoc coverage
 - `bun run beep docgen generate --parallel 8` — Generate docs with 8 parallel workers

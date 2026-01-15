@@ -8,12 +8,12 @@
 ## Surface Map
 - **`src/common.ts`** — Audit/user tracking column sets (`auditColumns`, `userTrackingColumns`, `globalColumns`) and `makeFields` helper that merges id, audit metadata, and custom columns when creating `M.Class` entity models.
 - **`src/entity-ids/*`**
-  - `shared.ts`, `iam.ts`, `documents.ts` house branded id schemas built with `EntityId.make`.
-  - `table-names.ts` provides literal kits (`SharedTableNames`, `IamTableNames`, `DocumentsTableNames`, `AnyTableName`).
+  - `shared/ids.ts`, `iam/ids.ts`, `documents/ids.ts`, `customization/ids.ts`, `comms/ids.ts` house branded id schemas built with `EntityId.make`.
+  - `*/table-name.ts` provides literal kits (`SharedTableNames`, `IamTableNames`, `DocumentsTableNames`, etc.).
   - `entity-kind.ts` emits `EntityKind` union aligned with table names.
   - `any-entity-id.ts` aggregates every id. **Known Issue**: `SubscriptionId` is duplicated (included from both `SharedEntityIds` and `IamEntityIds`); exhaustive pattern matching will have redundant cases until deduplicated.
-  - `index.ts` re-exports kits (`SharedEntityIds`, `IamEntityIds`, `DocumentsEntityIds`).
-- **`src/entities/*`** — Effect `M.Class` schemas for `AuditLog`, `File`, `Organization`, `Session`, `Team`, `User` plus nested schema enums (e.g. `OrganizationType`, `SubscriptionStatus`, `UserRole`). `File/schemas/UploadKey.ts` encodes S3 path transforms. `File.Contract` provides HTTP API contracts.
+  - `entity-ids.ts` re-exports kits as namespaces (`SharedEntityIds`, `IamEntityIds`, `DocumentsEntityIds`, `CustomizationEntityIds`, `CommsEntityIds`).
+- **`src/entities/*`** — Effect `M.Class` schemas for `AuditLog`, `File`, `Folder`, `Organization`, `Session`, `Team`, `UploadSession`, `User` plus nested schema enums (e.g. `OrganizationType`, `SubscriptionStatus`, `SubscriptionTier`, `UserRole`). `File/schemas/UploadKey.ts` encodes S3 path transforms.
 - **`src/value-objects/`**
   - `paths.ts` — Safe `PathBuilder.collection` of all public routes, combining static strings and dynamic helpers (auth flows, dashboard, API endpoints).
   - `EntitySource.ts` — Source metadata for entity tracking.
@@ -21,18 +21,17 @@
 - **`src/ManualCache.ts`** — Public façade over `_internal/manual-cache.ts`, exposing scoped cache creation with TTL+LRU semantics.
 - **`src/Retry.ts`** — Exponential backoff retry policy factory with configurable delay, growth factor, jitter, and max retries.
 - **`src/services/EncryptionService/`** — Encryption service for cryptographic operations with schema-based validation.
-- **`src/DomainApi.ts`** — Top-level HTTP API definition combining domain contracts.
+- **`src/api/`** — HTTP API definition (`SharedApi`) combining domain contracts via `@effect/platform/HttpApi`.
+- **`src/rpc/`** — RPC definitions for file operations, health checks, and event streaming.
 - **`src/factories/`** — Utilities for error codes, model kits, and path builders.
 - **`src/_internal/*`** — Implementation details (`manual-cache` data structures, `path-builder` recursion, `policy.makePermissions`, `policy-builder`). Do not import these directly from downstream slices; they are subject to churn.
 
 ## Usage Snapshots
-- `apps/web/src/middleware.ts` — imports `paths` to drive auth/public route logic and string guards.
-- `apps/web/src/middleware.ts` — leverages `paths.auth.signIn` / `paths.auth.signUp` to normalize protected route redirects.
 - `apps/web/src/providers/AuthGuard.tsx` — redirects anonymous users with `paths.auth.signIn` inside router effects.
-- `packages/iam/server/src/adapters/better-auth/Auth.service.ts` — consumes `IamEntityIds`, `SharedEntityIds`, and `paths` when configuring Better Auth hooks and email URLs.
+- `packages/iam/server/src/adapters/better-auth/BetterAuthBridge.ts` — consumes `IamEntityIds`, `SharedEntityIds`, and `paths` when configuring Better Auth hooks and email URLs.
 - See `EntityIds` for branded ID types.
-- See `test/entities/File/schemas/UploadKey.test.ts` for `File.UploadKey` encode/decode round-trips and shard prefix guarantees.
-- See `test/policy.test.ts` for `Policy.permission`, `Policy.all`, and `Policy.any` behavior with layered fallbacks.
+- See `test/entities/File/schemas/UploadPath.test.ts` for `File.UploadKey` encode/decode round-trips and shard prefix guarantees.
+- See `test/internal/policy.test.ts` for `Policy.permission`, `Policy.all`, and `Policy.any` behavior with layered fallbacks.
 
 
 ## Authoring Guardrails
@@ -128,10 +127,10 @@ const uploadPath = Effect.gen(function* () {
 ```
 
 ## Verifications
-- `bun run --filter @beep/shared-domain test` — executes Bun/Vitest suite (ManualCache, Policy, UploadKey coverage).
+- `bun run --filter @beep/shared-domain test` — executes Bun/Vitest suite (ManualCache, Policy, UploadPath coverage).
 - `bun run --filter @beep/shared-domain lint` — Biome hygiene; ensures no forbidden native helpers slip in.
 - `bun run --filter @beep/shared-domain check` — TypeScript project references for schema/model drift.
-- For focused work on upload paths: `bun test packages/shared/domain/test/entities/File/schemas/UploadKey.test.ts`.
+- For focused work on upload paths: `bun test packages/shared/domain/test/entities/File/schemas/UploadPath.test.ts`.
 
 ## Gotchas
 

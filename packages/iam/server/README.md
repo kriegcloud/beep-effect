@@ -28,9 +28,8 @@ This package sits between `@beep/iam-domain` (business logic) and consuming appl
 | `IamDb.Db` | Context tag and Layer for Drizzle-backed Postgres access with IAM schema |
 | `IamRepos.layer` | Merged Layer providing 23 repository services |
 | `Auth.Service` | Better Auth integration with plugin aggregation and session management |
-| `Auth.AuthEmailService` | Email delivery for verification, password reset, invitations, and OTP |
-| `IamApiLive` | Merged Layer for all IAM API route handlers |
-| `IamApiV1` | Namespace export for v1 API handlers (SignIn, SignUp, Admin, etc.) |
+| `Auth.Options` | Better Auth configuration effect with all plugins and IAM-specific schemas |
+| `Auth.BetterAuthBridge` | Type bridge for Better Auth organization plugin operations |
 | Individual repos | `AccountRepo`, `UserRepo`, `SessionRepo`, etc. exported directly |
 
 ## Usage
@@ -44,7 +43,6 @@ import * as Layer from "effect/Layer";
 const IamInfraLayer = Layer.mergeAll(
   IamDb.Db.Live,
   IamRepos.layer,
-  Auth.AuthEmailService.Default,
   Auth.Service.Default
 );
 ```
@@ -53,12 +51,12 @@ const IamInfraLayer = Layer.mergeAll(
 
 ```typescript
 import { UserRepo } from "@beep/iam-server";
-import { SharedEntityIds } from "@beep/shared-domain";
+import { IamEntityIds } from "@beep/shared-domain";
 import * as Effect from "effect/Effect";
 
 const program = Effect.gen(function* () {
   const userRepo = yield* UserRepo;
-  const userId = SharedEntityIds.UserId.create();
+  const userId = IamEntityIds.UserId.make("shared_user__abc123");
 
   const user = yield* userRepo.findById(userId);
   return user;
@@ -108,48 +106,9 @@ All repositories extend `Effect.Service` and use the `Repo.make` factory pattern
 - **Database Hooks**: Automatic personal organization creation on user signup, active organization context on session creation
 - **Rate Limiting**: Built-in protection against brute force attacks
 
-### Email Service
+### Email Integration
 
-`Auth.AuthEmailService` handles all authentication-related email delivery:
-
-- Verification emails for new accounts and email changes
-- Password reset emails with branded templates
-- Organization invitation emails
-- OTP delivery for two-factor authentication
-
-All emails use Resend via `@beep/shared-server/Email` with React-based templating.
-
-### API Routes
-
-The package provides Effect-based HTTP route handlers that integrate with `@effect/platform/HttpServer`:
-
-```typescript
-import { IamApiLive, IamApiV1 } from "@beep/iam-server";
-import * as Layer from "effect/Layer";
-
-// Use the complete IAM API layer
-const serverLayer = Layer.mergeAll(
-  IamApiLive,
-  // ...other layers
-);
-
-// Or access individual route groups
-const signInHandlers = IamApiV1.SignIn;
-const signUpHandlers = IamApiV1.SignUp;
-```
-
-Route groups available via `IamApiV1`:
-- **SignIn**: Social, SSO, username, anonymous authentication
-- **SignUp**: Email registration flows
-- **Admin**: User management, impersonation, permissions
-- **Organization**: Teams, members, roles, invitations
-- **Passkey**: WebAuthn registration and authentication
-- **TwoFactor**: TOTP enablement and verification
-- **ApiKey**: API key creation and management
-- **OAuth2**: OAuth client operations
-- **SSO**: SAML and OIDC integration
-
-All route handlers follow Effect patterns with tagged errors from `@beep/iam-domain`.
+Authentication emails (verification, password reset, invitations, OTP) are handled internally by the Better Auth service through `@beep/shared-server/Email` with React-based templates. Email sending is configured via the `Auth.Service` Layer and requires `Email.ResendService` from `@beep/shared-server`.
 
 ### Better Auth Plugins
 
@@ -233,32 +192,36 @@ Route handlers depend on:
 
 ## Notes
 
-- All services extend `Effect.Service` with explicit dependencies declared
-- Use `Effect.withSpan` and `Effect.annotateLogs` for observability
-- Database hooks auto-create personal organizations and set session context
-- All secrets use `Redacted<string>` to prevent accidental logging
-- Better Auth integration is exposed via `Auth.Service` - never import Better Auth directly
-- Route handlers follow Effect patterns with pipe, namespace imports, and tagged errors
-- Email templates use React components via `@beep/shared-server/Email`
+- All services extend `Effect.Service` with explicit dependencies declared via Layer composition
+- Use `Effect.withSpan` and `Effect.annotateLogs` for observability tracing
+- Database hooks automatically create personal organizations on signup and set session context
+- All secrets use `Redacted<string>` to prevent accidental logging exposure
+- Better Auth integration is exposed via `Auth.Service` - never import `better-auth` directly in application code
+- Repositories follow the `DbRepo.make` factory pattern from `@beep/shared-domain/factories`
+- Email functionality is integrated into `Auth.Service` via `@beep/shared-server/Email` with React templates
 
 ## Examples
 
-### Adding a New Repository
+### Adding a New Repository (Internal Development Pattern)
 
-When adding a new IAM entity, create a repository following this pattern:
+When extending the IAM infrastructure with a new entity repository within this package:
 
 ```typescript
+// File: src/db/repos/AuditLog.repo.ts
 import { DbRepo } from "@beep/shared-domain/factories";
 import { Entities } from "@beep/iam-domain";
-import { dependencies } from "@beep/iam-server/db/repos/_common";
 import { IamDb } from "@beep/iam-server/db";
+import { $IamServerId } from "@beep/identity/packages";
 import { SharedEntityIds } from "@beep/shared-domain";
 import * as Effect from "effect/Effect";
+import * as Layer from "effect/Layer";
+
+const $I = $IamServerId.create("db/repos/AuditLog.repo");
 
 export class AuditLogRepo extends Effect.Service<AuditLogRepo>()(
-  "@beep/iam-server/db/repos/AuditLogRepo",
+  $I`AuditLogRepo`,
   {
-    dependencies,
+    dependencies: [IamDb.layer] as const,
     accessors: true,
     effect: DbRepo.make(
       SharedEntityIds.AuditLogId,
@@ -271,73 +234,60 @@ export class AuditLogRepo extends Effect.Service<AuditLogRepo>()(
   }
 ) {}
 
-// Export via src/db/repos/index.ts
+// 1. Export via src/db/repos/index.ts
 export * from "./AuditLog.repo";
 
-// Add to IamRepos.layer in src/db/repositories.ts
-export const layer: IamReposLive = Layer.mergeAll(
+// 2. Add to IamRepos.layer in src/db/repositories.ts
+export const layer = Layer.mergeAll(
   // ...existing repos...
   AuditLogRepo.Default
 );
 ```
 
-### Creating a Custom Route Handler
+### Using Better Auth API
 
 ```typescript
 import { Auth } from "@beep/iam-server";
-import { IamAuthError } from "@beep/iam-domain";
+import * as Effect from "effect/Effect";
 import * as HttpServerRequest from "@effect/platform/HttpServerRequest";
-import * as HttpServerResponse from "@effect/platform/HttpServerResponse";
-import * as Effect from "effect/Effect";
-import * as F from "effect/Function";
-
-type HandlerEffect = (args: { readonly payload: MyPayload }) =>
-  Effect.Effect<
-    HttpServerResponse.HttpServerResponse,
-    IamAuthError,
-    Auth.Service | HttpServerRequest.HttpServerRequest
-  >;
-
-export const Handler: HandlerEffect = Effect.fn("MyHandler")(
-  function* ({ payload }) {
-    const authService = yield* Auth.Service;
-    const request = yield* HttpServerRequest.HttpServerRequest;
-
-    const result = yield* Effect.tryPromise(() =>
-      authService.auth.api.someMethod({
-        body: payload,
-        headers: request.headers,
-      })
-    );
-
-    return yield* F.pipe(result, HttpServerResponse.json);
-  },
-  IamAuthError.flowMap("my-operation")
-);
-```
-
-### Sending Authentication Emails
-
-```typescript
-import { Auth } from "@beep/iam-server";
-import { BS } from "@beep/schema";
-import * as Effect from "effect/Effect";
-import * as Redacted from "effect/Redacted";
 
 const program = Effect.gen(function* () {
-  const emailService = yield* Auth.AuthEmailService;
+  const authService = yield* Auth.Service;
+  const request = yield* HttpServerRequest.HttpServerRequest;
 
-  yield* emailService.sendVerification({
-    email: Redacted.make("user@example.com" as BS.Email.Type),
-    url: new URL("https://app.example.com/verify?token=xyz"),
-  });
+  // Access Better Auth API methods
+  const session = yield* Effect.tryPromise(() =>
+    authService.auth.api.getSession({
+      headers: request.headers,
+    })
+  );
 
-  yield* emailService.sendResetPassword({
-    username: "johndoe",
-    email: Redacted.make("user@example.com" as BS.Email.Type),
-    url: new URL("https://app.example.com/reset?token=abc"),
-  });
+  return session;
 });
+```
+
+### Creating Custom Better Auth Integration
+
+```typescript
+import { Auth } from "@beep/iam-server";
+import { IamDb } from "@beep/iam-server";
+import * as Effect from "effect/Effect";
+import * as Layer from "effect/Layer";
+
+// Extend Better Auth service with custom logic
+const CustomAuthLayer = Layer.effect(
+  Auth.Service,
+  Effect.gen(function* () {
+    const db = yield* IamDb.Db;
+    const authOptions = yield* Auth.Options;
+
+    // Create custom Better Auth instance with additional plugins
+    return {
+      auth: authOptions,
+      // Add custom methods here
+    };
+  })
+);
 ```
 
 ## Related Documentation

@@ -76,6 +76,8 @@ invariant(
 
 ```typescript
 import { invariant } from "@beep/invariant";
+import * as Str from "effect/String";
+import * as F from "effect/Function";
 
 // Non-null assertion with type narrowing
 function processToken(maybeToken: string | null | undefined) {
@@ -85,7 +87,7 @@ function processToken(maybeToken: string | null | undefined) {
     { file: "auth.ts", line: 15, args: [maybeToken] }
   );
   // maybeToken is now typed as string
-  return maybeToken.toUpperCase();
+  return F.pipe(maybeToken, Str.toUpperCase);
 }
 
 // Exhaustiveness check for union types

@@ -19,6 +19,22 @@
 - `src/utils/convert-to-nextgen.ts` – AVIF/WebP image conversion utilities.
 - `src/templates/package/*.hbs` – Turbo-ready workspace scaffolding templates (if present).
 
+## Dependencies
+
+| Package | Purpose |
+|---------|---------|
+| `@beep/constants` | Type-safe constant definitions consumed by generators |
+| `@beep/schema` | Schema validation for generated artifacts and runtime data |
+| `@beep/tooling-utils` | Effect-first filesystem helpers (`FsUtils`, `RepoUtils`) for repo automation |
+| `effect` | Core Effect runtime |
+| `@effect/platform` | Platform-agnostic Effect services |
+| `@effect/platform-bun` | Bun-specific Effect runtime integration |
+| `@effect/cli` | Command-line interface builder for scripts |
+| `jscodeshift` | AST transformation framework for codemods |
+| `ts-morph` | TypeScript compiler API for programmatic code manipulation |
+| `@jsquash/*` | Image encoding libraries (AVIF, WebP, JPEG, PNG, JXL) |
+| `glob` | File pattern matching for asset discovery |
+
 ## Usage Snapshots
 - Root `package.json` scripts expose the bootstrap flow and generators to contributors.
 - `gen:secrets` and `generate-public-paths` invoke `generate-env-secrets.ts` and `generate-asset-paths.ts`.
@@ -111,7 +127,7 @@ import * as S from "effect/Schema";
 const ensureGeneratedAssets = Effect.gen(function* () {
   const fs = yield* FileSystem.FileSystem;
   const raw = yield* fs.readFileString("./apps/web/public/paths.txt");
-  const paths = F.pipe(Str.split("\n")(raw), A.filter(Str.isNonEmpty));
+  const paths = F.pipe(raw, Str.split("\n"), A.filter(Str.isNonEmpty));
   return yield* S.decodeUnknown(AssetPaths)(paths);
 });
 ```

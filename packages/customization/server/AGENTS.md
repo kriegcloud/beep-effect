@@ -6,6 +6,18 @@
 - Bundles repositories into a composable Layer that can be merged into the server runtime.
 - Manages customization-specific data persistence and business logic execution.
 
+## Dependencies
+
+| Package | Purpose |
+|---------|---------|
+| `@beep/customization-domain` | Domain entities, schemas, and business logic |
+| `@beep/customization-tables` | Drizzle table definitions and database schema |
+| `@beep/shared-server` | Shared server infrastructure, `Repo.make` factories, and database client utilities |
+| `@beep/shared-domain` | Cross-slice entity IDs and shared domain types |
+| `@effect/sql-pg` | PostgreSQL integration for Effect SQL |
+| `@effect/platform` | Effect platform services (FileSystem, HTTP, etc.) |
+| `effect` | Core Effect runtime and data types |
+
 ## Surface Map
 - **CustomizationDb** — Effect-based database client for the customization slice, wrapping Drizzle ORM with `@effect/sql-pg`.
 - **CustomizationRepos** — Namespace containing all customization repositories bundled as Effect Layers.
@@ -57,10 +69,15 @@
 
 ## Testing
 
-- Run tests: `bun run test --filter=@beep/customization-server`
-- Use `@beep/testkit` for Effect testing utilities
-- ALWAYS mock external services in tests
-- Test Layer composition with `Layer.provide`
+- **Run tests**: `bun run test --filter=@beep/customization-server`
+- **Testing utilities**: Use `@beep/testkit` for Effect-based test helpers and assertions
+- **External services**: ALWAYS mock S3, email, and other external services using Effect test layers
+- **Layer composition**: Test repository layers with `Layer.provide` and validate dependency injection
+- **Integration tests**: Use Testcontainers for database-backed repository tests (see `@beep/db-admin` for examples)
+
+## Known Issues
+
+- **Stale package.json export**: The `package.json` declares a `"./files": "./src/files/index.ts"` export, but the `src/files/` directory does not exist. This export should be removed if not planned for future use.
 
 ## Contributor Checklist
 - [ ] Ensure repository methods align with domain entity schemas from `@beep/customization-domain`.

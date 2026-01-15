@@ -116,7 +116,7 @@ export function PreferencesPage({ userId }: { userId: string }) {
 | `react` | React library for UI components |
 | `react-dom` | React DOM rendering |
 | `@beep/customization-client` | Customization contracts for data fetching |
-| `@beep/ui-core` | Design tokens and MUI theme |
+| `@beep/ui-core` | Design tokens, MUI theme, settings types, and utilities |
 | `@beep/runtime-client` | Client-side Effect runtime |
 | `@tanstack/react-query` | Data fetching and caching |
 | `@mui/material` | Material UI components |
@@ -126,7 +126,7 @@ export function PreferencesPage({ userId }: { userId: string }) {
 ## Integration
 
 - **Client Layer**: Consumes contracts from `@beep/customization-client` for data operations
-- **UI Core**: Uses design tokens and theme from `@beep/ui-core` for consistent styling
+- **UI System**: Uses MUI components, design tokens, theme system, and settings types from `@beep/ui-core` (accessed via `@beep/ui-core/theme/*`, `@beep/ui-core/settings/*`, `@beep/ui-core/utils/*`)
 - **Runtime**: Integrates with `@beep/runtime-client` for Effect-based operations
 - **Query Layer**: Uses TanStack Query for data fetching, caching, and optimistic updates
 

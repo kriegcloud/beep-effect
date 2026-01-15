@@ -16,8 +16,6 @@
   - `Auth.Service` (`src/adapters/better-auth/Service.ts`): Better Auth integration + plugin aggregation, session helpers, database hooks.
   - `Auth.Options` (`src/adapters/better-auth/Options.ts`): Better Auth configuration effect with all plugins and IAM-specific schemas.
   - `Auth.BetterAuthBridge` (`src/adapters/better-auth/BetterAuthBridge.ts`): type bridge for Better Auth organization plugin operations.
-- **API**
-  - `IamApiV1` (`src/api/v1/`): Effect RPC handlers for IAM operations (admin, api-key, core, oauth2, organization, passkey, sign-in, sign-up, sso, two-factor).
 - **Exports** (`src/index.ts`): re-export adapters, `IamRepos`, and DB layer for consumers.
 
 ## Usage Snapshots

@@ -153,18 +153,18 @@ The root layout establishes the following provider hierarchy (from outer to inne
 
 2. **GlobalProviders** (`GlobalProviders.tsx`)
    - `BeepProvider` — Client ManagedRuntime from `@beep/runtime-client`
-   - `RegistryContext.Provider` — Atom registry with initial values
+   - `RegistryContext.Provider` — Atom registry with initial values (e.g., settingsDialogAtom)
    - `InitColorSchemeScript` — MUI color scheme hydration
    - `I18nProvider` — Internationalization context
-   - `DevToolsProvider` — TanStack development tools
-   - `SettingsProvider` — User preferences (theme, layout, etc.)
-   - `LocalizationProvider` — Date/number formatting
-   - `AppRouterCacheProvider` — MUI Emotion cache
-   - `ThemeProvider` — MUI theming system
+   - `DevToolsProvider` — TanStack development tools (React Query, Form devtools)
+   - `SettingsProvider` — User preferences (theme, layout, direction, etc.)
+   - `LocalizationProvider` — Date/number formatting (MUI date pickers)
+   - `AppRouterCacheProvider` — MUI Emotion cache for Next.js App Router
+   - `ThemeProvider` — MUI theming system with color mode persistence
    - `BreakpointsProvider` — Responsive breakpoint utilities
-   - `ConfirmProvider` — Confirmation dialogs
-   - `IamProvider` — Authentication context
-   - `MotionLazy` — Framer Motion lazy loading
+   - `ConfirmProvider` — Confirmation dialog provider
+   - `IamProvider` — Authentication context from `@beep/iam-ui`
+   - `MotionLazy` — Framer Motion lazy loading wrapper
    - Global UI components: `Snackbar`, `ProgressBar`, `SettingsDrawer`
 
 ## Dependencies
@@ -181,16 +181,28 @@ The root layout establishes the following provider hierarchy (from outer to inne
 | `@beep/ui` | Component library (MUI + shadcn + Radix) |
 | `@beep/ui-core` | Design tokens, theme configuration |
 
+### Common Layer Packages
+
+| Package | Purpose |
+|---------|---------|
+| `@beep/errors` | Standardized error types and handling |
+| `@beep/constants` | Application-wide constants |
+| `@beep/schema` | Effect Schema definitions and validation |
+| `@beep/utils` | Shared utility functions |
+| `@beep/invariant` | Runtime invariant checks |
+| `@beep/identity` | Identity and authentication primitives |
+| `@beep/types` | TypeScript type utilities |
+
 ### Feature Packages
 
 | Package | Purpose |
 |---------|---------|
 | `@beep/iam-ui` | Authentication UI flows |
 | `@beep/iam-client` | IAM client contracts |
-| `@beep/documents-ui` | File upload components |
-| `@beep/documents-client` | Documents client contracts |
+| `@beep/iam-domain` | IAM domain types and business logic |
+| `@beep/documents-server` | Documents server-side handlers |
 | `@beep/shared-ui` | Shared UI components |
-| `@beep/shared-client` | Shared CLIENT contracts |
+| `@beep/shared-domain` | Shared domain types and business logic |
 
 ### Infrastructure
 
@@ -201,7 +213,7 @@ The root layout establishes the following provider hierarchy (from outer to inne
 | `@effect/opentelemetry` | Observability/tracing |
 | `better-auth` | Authentication library |
 | `drizzle-orm` | Database ORM |
-| `jotai` / `jotai-x` | Atomic state management |
+| `@effect-atom/atom-react` | Effect-based atomic state management |
 | `@tanstack/react-form` | Form state management |
 
 ## Development Commands

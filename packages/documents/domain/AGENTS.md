@@ -1,73 +1,85 @@
 # AGENTS.md — `@beep/documents-domain`
 
 ## Purpose & Fit
-- Domain layer for the documents vertical: entities, value objects, and business logic for a knowledge management and document editing system.
-- Supplies strongly-typed domain models for document editors, knowledge pages, discussions, comments, and versioning.
-- Provides Effect-first APIs and HTTP contracts consumed by `packages/documents/server` and application runtimes.
-- Owns document structure value objects (block types, text styles, link types) while delegating persistence to infra/tables layers.
+- Domain layer for the documents vertical: entities, value objects, and business logic for document management and collaboration.
+- Supplies strongly-typed domain models for documents, versions, file attachments, discussions, and comments.
+- Provides Effect-first RPC schemas for remote operations consumed by `packages/documents/server` and application runtimes.
+- Owns document structure value objects (text styles, link types) while delegating persistence to infra/tables layers.
 
 ## Surface Map
-- **Errors (`src/errors.ts`)** — Tagged domain errors for document operations.
+- **Errors (`src/errors.ts`)** — Tagged domain errors for document operations: `MetadataParseError` and `FileReadError` for file processing failures.
 - **Entities (`src/entities/`)**
   - `Document` — Core document entity with versioning and file attachments. Includes RPC schema for remote operations.
   - `DocumentVersion` — Version history tracking for documents.
   - `DocumentFile` — File attachments associated with documents.
-  - `KnowledgePage` — Knowledge base page entity with HTTP contract (`KnowledgePage.Contract`) for API endpoints.
-  - `KnowledgeSpace` — Container for organizing knowledge pages.
-  - `KnowledgeBlock` — Content blocks within knowledge pages.
-  - `Discussion` — Discussion threads on documents/pages. Includes RPC schema for remote operations.
+  - `Discussion` — Discussion threads on documents. Includes RPC schema for remote operations.
   - `Comment` — Individual comments in discussions. Includes RPC schema for remote operations.
-  - `PageLink` — Links between knowledge pages.
 - **Value Objects (`src/value-objects/`)**
-  - `BlockType` — Enumeration of content block types.
-  - `TextStyle` — Text formatting styles.
-  - `ImageAlignment` — Image positioning options.
-  - `LinkType` — Types of links (internal/external).
-  - `PageStatus` — Publication status for pages.
-- **DomainApi (`src/DomainApi.ts`)** — HTTP API definition using `@effect/platform/HttpApi`, currently exposing `KnowledgePage.Contract` under `/api/v1/documents`.
+  - `LinkType` — Types of links: `explicit`, `inline-reference`, `block_embed`.
+  - `TextStyle` — Text formatting styles: `default`, `serif`, `mono`.
 - **RPC Schemas** — Effect RPC schemas for entities that support remote procedure calls (`Comment.rpc`, `Discussion.rpc`, `Document.rpc`).
 
 ## Usage Snapshots
-- `packages/runtime/server/src/server-runtime.ts` — Likely consumes `DomainApi` for HTTP routing.
-- `packages/documents/server/src/adapters/repositories.ts` — References all entity repos (CommentRepo, DiscussionRepo, DocumentFileRepo, DocumentRepo, etc.).
-- `packages/documents/tables/src/tables/` — Drizzle table definitions mirror domain entities.
+- `packages/runtime/server/src/Runtime.ts` — Runtime layer composition for server-side execution.
+- `packages/documents/server/src/db/repositories.ts` — References all entity repos (CommentRepo, DiscussionRepo, DocumentFileRepo, DocumentRepo, DocumentVersionRepo).
+- `packages/documents/server/src/db/repos/` — Individual repository implementations for each entity.
+- `packages/documents/tables/src/tables/` — Drizzle table definitions mirror domain entities (comment.table.ts, discussion.table.ts, document.table.ts, documentFile.table.ts, documentVersion.table.ts).
 - `packages/_internal/db-admin/` — Migration files correspond to entity schemas.
 
 ## Authoring Guardrails
 - ALWAYS namespace every Effect import (`import * as Effect from "effect/Effect"`, `import * as A from "effect/Array"`, `import * as F from "effect/Function"`, etc.) and route **all** collection/string/object transforms through those modules. NEVER add new native `.map`, `.split`, `for...of`, or `Object.entries` usage.
 - IMPORTANT: Keep domain models pure and free of infrastructure concerns (no direct database, HTTP, or storage dependencies).
 - ALWAYS use `@beep/schema` for all entity schemas and validation.
-- Define HTTP contracts using `@effect/platform/HttpApi` following the pattern in `DomainApi.ts`.
-- Value objects MUST be immutable and validated through Effect Schema.
+- RPC schemas MUST be defined for entities that support remote operations, following the pattern in `Document.rpc`, `Discussion.rpc`, and `Comment.rpc`.
+- Value objects MUST be immutable and validated through Effect Schema using `BS.StringLiteralKit` or similar patterns.
 - Entity models MUST align with corresponding Drizzle table schemas in `@beep/documents-tables`.
+- Tagged errors in `errors.ts` MUST use `Data.TaggedError` for structured error handling.
 
 ## Quick Recipes
 ```ts
 import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
 import * as S from "effect/Schema";
-import { KnowledgePage, Document } from "@beep/documents-domain/entities";
-import { BlockType, PageStatus } from "@beep/documents-domain/value-objects";
+import { Document, Discussion, Comment } from "@beep/documents-domain/entities";
+import { LinkType, TextStyle } from "@beep/documents-domain/value-objects";
 
-// Working with domain entities
-export const createKnowledgePage = (data: {
+// Working with domain entities - Document creation
+export const createDocument = (data: {
   title: string;
   content: unknown;
-  status: PageStatus.Type;
+  organizationId: string;
 }) =>
   Effect.gen(function* () {
-    const page = yield* S.decodeUnknown(KnowledgePage.Model)(data);
-    yield* Effect.logInfo("knowledge-page.created", { pageId: page.id });
-    return page;
+    const doc = yield* S.decodeUnknown(Document.Model)(data);
+    yield* Effect.logInfo("document.created", { documentId: doc.id });
+    return doc;
   });
 
-// Using the HTTP API contract
-import { DomainApi } from "@beep/documents-domain";
-import * as HttpApiBuilder from "@effect/platform/HttpApiBuilder";
+// Working with value objects
+export const createStyledLink = (
+  url: string,
+  linkType: LinkType.Type,
+  textStyle: TextStyle.Type
+) =>
+  Effect.gen(function* () {
+    const validatedLinkType = yield* S.decodeUnknown(LinkType)(linkType);
+    const validatedTextStyle = yield* S.decodeUnknown(TextStyle)(textStyle);
+    return {
+      url,
+      linkType: validatedLinkType,
+      textStyle: validatedTextStyle,
+    };
+  });
 
-export const apiImplementation = HttpApiBuilder.api(DomainApi).pipe(
-  // Add endpoint implementations here
-);
+// Using RPC schemas for remote operations
+import * as Rpc from "@effect/rpc";
+
+export const handleDocumentRpc = (request: Document.RpcRequest) =>
+  Effect.gen(function* () {
+    const decoded = yield* S.decodeUnknown(Document.rpc)(request);
+    yield* Effect.logInfo("document.rpc.received", { request: decoded });
+    return decoded;
+  });
 ```
 
 ## Verifications

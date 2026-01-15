@@ -23,7 +23,7 @@ import * as Str from "effect/String";
  *
  * @example
  * ```typescript
- * import { ConfigArrayURL } from "@beep/shared-server"
+ * import { ConfigArrayURL } from "@beep/shared-env"
  * import * as Config from "effect/Config"
  *
  * const trustedOrigins = ConfigArrayURL("TRUSTED_ORIGINS")
@@ -53,7 +53,7 @@ const withPlaceholderRedacted = <A>(config: Config.Config<A>) =>
  *
  * @example
  * ```typescript
- * import { isPlaceholder, serverEnv } from "@beep/shared-server"
+ * import { isPlaceholder, serverEnv } from "@beep/shared-env"
  *
  * if (isPlaceholder(serverEnv.cloud.aws.accessKeyId)) {
  *   console.log("AWS credentials not configured")
@@ -153,7 +153,7 @@ const AppConfig = Config.zipWith(
  *
  * @example
  * ```typescript
- * import { ServerConfig } from "@beep/shared-server"
+ * import { ServerConfig } from "@beep/shared-env"
  * import * as Config from "effect/Config"
  * import * as Effect from "effect/Effect"
  *
@@ -368,7 +368,7 @@ const loadConfig = provider.load(ServerConfig);
  *
  * @example
  * ```typescript
- * import { serverEnv } from "@beep/shared-server"
+ * import { serverEnv } from "@beep/shared-env"
  *
  * console.log(serverEnv.app.name)
  * console.log(serverEnv.db.pg.host)

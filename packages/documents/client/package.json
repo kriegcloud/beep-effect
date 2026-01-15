@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "type": "module",
   "license": "MIT",
-  "description": "The sdk layer for the documents slice",
+  "description": "Effect-first client SDK for document management, knowledge pages, discussions, and file operations",
   "publishConfig": {
     "access": "public",
     "provenance": true,

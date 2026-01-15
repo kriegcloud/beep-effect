@@ -6,8 +6,8 @@ import * as Redacted from "effect/Redacted";
 import * as S from "effect/Schema";
 
 type Props = {
-  executeRecaptcha: () => Promise<Redacted.Redacted<string>>;
-  onSuccess?: () => void | Promise<void>;
+  readonly executeRecaptcha: () => Promise<Redacted.Redacted<string>>;
+  readonly onSuccess?: undefined | (() => void | Promise<void>);
 };
 
 export const useSignUpEmailForm = ({ executeRecaptcha, onSuccess }: Props) => {
@@ -37,7 +37,7 @@ export const useSignUpEmailForm = ({ executeRecaptcha, onSuccess }: Props) => {
         if (Redacted.value(value.password) !== Redacted.value(value.passwordConfirm)) {
           throw new Error("Passwords do not match");
         }
-        const response = await client.signUp.email({
+        await client.signUp.email({
           name: `${value.firstName} ${value.lastName}`,
           email: Redacted.value(value.email),
           password: Redacted.value(value.password),

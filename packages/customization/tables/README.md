@@ -18,48 +18,78 @@ Defines multi-tenant Drizzle tables for the Customization slice using factory pa
 
 | Export | Description |
 |--------|-------------|
-| `schema` | Complete Customization schema for Drizzle client |
+| `CustomizationDbSchema` | Namespace containing all tables and relations |
+| `userHotkey` | Drizzle table for user keyboard shortcut configurations |
+| `userHotkeyRelations` | Drizzle relations for userHotkey table |
+| `userRelations` | Extended user relations including hotkeys |
+| Re-exports | `organization`, `team`, `user` tables from `@beep/shared-tables` |
 
 ## Usage
 
-### Import Schema
+### Import Schema into Database Client
 
 ```typescript
-import * as customizationSchema from "@beep/customization-tables";
-import * as Effect from "effect/Effect";
-import * as Layer from "effect/Layer";
+import * as DbSchema from "@beep/customization-tables/schema";
+import { DbClient } from "@beep/shared-server";
 import * as Context from "effect/Context";
-import { Db } from "@beep/shared-server";
+import * as Layer from "effect/Layer";
 
-// Create CustomizationDb service with schema
-type CustomizationDb = Db.Shape<typeof customizationSchema>;
+const serviceEffect = DbClient.make({
+  schema: DbSchema,
+});
 
-export class CustomizationDb extends Context.Tag("CustomizationDb")<CustomizationDb, CustomizationDb>() {
-  static readonly Live: Layer.Layer<CustomizationDb, never, Db.PgClientServices> = Layer.scoped(
-    CustomizationDb,
-    Db.make({ schema: customizationSchema })
-  );
-}
+export type CustomizationDbShape = DbClient.Shape<typeof DbSchema>;
+
+export class CustomizationDb extends Context.Tag("CustomizationDb")<
+  CustomizationDb,
+  CustomizationDbShape
+>() {}
+
+export const CustomizationDbLive: Layer.Layer<
+  CustomizationDb,
+  never,
+  DbClient.SliceDbRequirements
+> = Layer.scoped(CustomizationDb, serviceEffect);
 ```
 
-### Drizzle Queries
+### Import Tables Directly
 
 ```typescript
-import * as customizationSchema from "@beep/customization-tables";
+import { userHotkey } from "@beep/customization-tables";
 import * as Effect from "effect/Effect";
-import { CustomizationDb } from "@beep/customization-server";
 
-const findThemes = Effect.gen(function* () {
-  const db = yield* CustomizationDb;
-  const result = yield* db.makeQuery((execute) =>
-    execute((client) =>
-      client.query.theme.findMany({
-        where: (table, { eq }) => eq(table.userId, "user_1"),
-      })
-    )
-  );
-  return result;
-});
+// Access table columns
+const columns = {
+  id: userHotkey.id,
+  userId: userHotkey.userId,
+  shortcuts: userHotkey.shortcuts,
+  createdAt: userHotkey.createdAt,
+  updatedAt: userHotkey.updatedAt,
+};
+```
+
+### Query with Relations
+
+```typescript
+import { CustomizationDb } from "@beep/customization-server/db";
+import type { SharedEntityIds } from "@beep/shared-domain";
+import * as Effect from "effect/Effect";
+
+const findUserHotkeys = (userId: SharedEntityIds.UserId.Type) =>
+  Effect.gen(function* () {
+    const db = yield* CustomizationDb.Db;
+    const result = yield* db.makeQuery((execute) =>
+      execute((client) =>
+        client.query.userHotkey.findMany({
+          where: (table, { eq }) => eq(table.userId, userId),
+          with: {
+            user: true,
+          },
+        })
+      )
+    );
+    return result;
+  });
 ```
 
 ## Development

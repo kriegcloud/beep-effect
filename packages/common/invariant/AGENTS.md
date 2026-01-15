@@ -57,9 +57,9 @@ const program = Effect.try({
 ```
 
 ## Verifications
-- `bun run test --filter=@beep/invariant` to execute the Vitest suite.
-- `bun run check --filter=@beep/invariant` for TypeScript alignment.
-- `bun run lint --filter=@beep/invariant` / `bun run lint:fix --filter=@beep/invariant` to maintain Biome rules.
+- `bunx turbo run test --filter=@beep/invariant` — Execute the test suite for this package.
+- `bunx turbo run check --filter=@beep/invariant` — Type check via the package `check` script.
+- `bunx turbo run lint --filter=@beep/invariant` / `bunx turbo run lint:fix --filter=@beep/invariant` — Biome lint checks and fixes.
 
 ## Contributor Checklist
 - [ ] Messages are concise, prefixed with `BUG:` only when appropriate, and avoid PII.

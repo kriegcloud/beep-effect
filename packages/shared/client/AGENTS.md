@@ -3,7 +3,7 @@
 ## Purpose & Fit
 
 - Provides shared CLIENT (client-server glue) infrastructure for cross-cutting concerns consumed by applications and feature slices.
-- Houses RPC client infrastructure, file management state (Jotai atoms), and browser utilities that span multiple domains.
+- Houses RPC client infrastructure, file management state (Jotai atoms), ReCaptcha integration, and browser utilities that span multiple domains.
 - Maintains clean separation between slice-specific CLIENTs (`@beep/iam-client`, `@beep/documents-client`) and shared client infrastructure.
 - Bridges server contracts (from `@beep/shared-domain`) with browser-based state management and Effect runtime.
 
@@ -14,18 +14,25 @@
 - Exports `addRpcErrorLogging` (higher-order function) and `RpcConfigLive` (Layer)
 
 ### File Management State (`src/atom/files/`)
-- **`atoms/filesAtom`** — Writable atom managing files/folders cache with optimistic updates
-- **`atoms/selectedFiles.atom`** — Selected file/folder IDs tracking
-- **`atoms/activeUploads.atom`** — In-progress upload state with progress tracking
-- **`atoms/startUpload.atom`** — Write-only atom to initiate file uploads
-- **`atoms/cancelUpload.atom`** — Write-only atom to cancel uploads
-- **`atoms/deleteFiles.atom`** — Write-only atom to delete files/folders
-- **`atoms/moveFiles.atom`** — Write-only atom to move files between folders
-- **`atoms/createFolderAtom`** — Write-only atom to create folders
-- **`atoms/filesEventStream.atom`** — Atom managing SSE connection for file events
+- **`atoms/files.atom.ts`** — Writable atom managing files/folders cache with optimistic updates
+- **`atoms/selectedFiles.atom.ts`** — Selected file/folder IDs tracking
+- **`atoms/activeUploads.atom.ts`** — In-progress upload state with progress tracking
+- **`atoms/startUpload.atom.ts`** — Write-only atom to initiate file uploads
+- **`atoms/cancelUpload.atom.ts`** — Write-only atom to cancel uploads
+- **`atoms/deleteFiles.atom.ts`** — Write-only atom to delete files/folders
+- **`atoms/moveFiles.atom.ts`** — Write-only atom to move files between folders
+- **`atoms/createFolderAtom.ts`** — Create new folders
+- **`atoms/filesEventStream.atom.ts`** — Atom managing SSE connection for file events
+- **`atoms/toggleFileSelection.atom.ts`** — Toggle individual file selection
+- **`atoms/toggleFolderSelection.atom.ts`** — Toggle folder selection with children
+- **`atoms/clearSelection.atom.ts`** — Clear all selections
+- **`atoms/event-stream.atom.tsx`** — Low-level event stream connection management
+- **`atoms/upload.atom.ts`** — Upload processing and state management
 - **`types.ts`** — Shared type definitions for file operations
 - **`runtime.ts`** — Atom runtime configuration for Effect execution
 - **`errors.ts`** — File operation error definitions
+- **`constants.ts`** — Constants for file operations
+- **`services/`** — File-specific services (FileCompletionSignals, FileSync, FilePicker)
 
 ### Client Services (`src/atom/services/`)
 - **`FilesApi.service.ts`** — Effect service wrapping shared files RPC methods (list, upload, delete, create, move)
@@ -34,8 +41,20 @@
 - **`ImageCompressionClient.service.ts`** — Client-side image compression service
 - **`Upload/`** — Upload service, errors, and utilities
 
+### ReCaptcha Integration (`src/services/react-recaptcha-v3/`)
+- **`ReCaptchaService.ts`** — Effect-based ReCaptcha v3 service with proper dependency injection
+- **`recaptcha.atoms.ts`** — Jotai atoms for ReCaptcha state management
+- **`useReCaptchaAtom.ts`** — React hooks for ReCaptcha integration
+- **`ReCaptcha.tsx`** — React component for ReCaptcha rendering
+- **`schemas.ts`** — ReCaptcha configuration schemas
+- **`errors.ts`** — ReCaptcha error definitions
+- **`guards.ts`** — Type guards and window globals management
+- **`manager.ts`** — Effect-first ReCaptcha manager functions
+- **`utils.ts`** — Utility functions for script loading and random generation
+
 ### Browser Utilities (`src/atom/`)
 - **`location.atom.ts`** — Jotai atom tracking URL hash changes (`Option<string>`)
+- **`captcha.atom.ts`** — Captcha-related atom (placeholder)
 
 ### Core (`src/`)
 - **`client.ts`** — Client-side SDK utilities documentation
@@ -51,6 +70,7 @@ This package has evolved beyond its initial placeholder status and now provides 
 - Client services for files API, image compression, and uploads
 - Browser utilities (location tracking)
 - SSE event stream integration
+- ReCaptcha v3 integration with Effect-based service and React hooks
 
 **Future additions** may include:
 - Shared query/mutation hooks for TanStack Query
@@ -103,7 +123,7 @@ const program = Effect.gen(function* () {
 
 ```typescript
 import { filesAtom, startUpload, deleteFiles } from "@beep/shared-client/atom/files";
-import { useAtom, useSetAtom }from "@effect-atom/atom-react";
+import { useAtom, useSetAtom } from "@effect-atom/atom-react";
 import * as Match from "effect/Match";
 
 function FileManager() {
@@ -138,7 +158,7 @@ function FileManager() {
 
 ```typescript
 import { hashAtom } from "@beep/shared-client/atom";
-import { useAtomValue }from "@effect-atom/atom-react";
+import { useAtomValue } from "@effect-atom/atom-react";
 import * as O from "effect/Option";
 import * as F from "effect/Function";
 
@@ -155,11 +175,35 @@ function LocationTracker() {
 }
 ```
 
+### ReCaptcha Integration
+
+```typescript
+import { useReCaptchaAtom } from "@beep/shared-client/services/react-recaptcha-v3";
+import * as Effect from "effect/Effect";
+
+function LoginForm() {
+  const { executeRecaptcha, isReady } = useReCaptchaAtom({
+    reCaptchaKey: "your-site-key",
+  });
+
+  const handleSubmit = () => {
+    if (!isReady) return;
+
+    Effect.gen(function* () {
+      const token = yield* Effect.promise(() => executeRecaptcha("login"));
+      // Use token for verification
+    }).pipe(Effect.runPromise);
+  };
+
+  return <button onClick={handleSubmit} disabled={!isReady}>Login</button>;
+}
+```
+
 ## Integration Points
 
 ### With Feature Slices
-- `@beep/iam-client` — IAM-specific contracts remain in iam/client
-- `@beep/documents-client` — Documents-specific contracts remain in documents/client
+- `@beep/iam-client` — IAM-specific contracts remain in `packages/iam/client`
+- `@beep/documents-client` — Documents-specific contracts remain in `packages/documents/client`
 - This package is for cross-slice client infrastructure only
 
 ### With Runtime
@@ -174,13 +218,16 @@ function LocationTracker() {
 ## Dependencies
 
 **Official peer dependencies** (from `package.json`):
-- `@beep/shared-domain` — Shared entity models (File, Folder) and SharedRpcs contract definitions
-- `@beep/runtime-client` — Client ManagedRuntime for Effect execution in browser
-- `@beep/schema` — Effect Schema utilities and EntityId factories
-- `@beep/utils` — Pure runtime helpers (thunk, predicates)
-- `@beep/identity` — Package identity for service tagging
-- `@beep/shared-env` — Client environment configuration (API URLs, WebSocket endpoints)
-- `effect` — Effect runtime
+
+| Package | Purpose |
+|---------|---------|
+| `@beep/shared-domain` | Shared entity models (File, Folder) and SharedRpcs contract definitions |
+| `@beep/runtime-client` | Client ManagedRuntime for Effect execution in browser |
+| `@beep/schema` | Effect Schema utilities and EntityId factories |
+| `@beep/utils` | Pure runtime helpers (thunk, predicates) |
+| `@beep/identity` | Package identity for service tagging |
+| `@beep/shared-env` | Client environment configuration (API URLs, WebSocket endpoints) |
+| `effect` | Effect runtime |
 
 **Additional dependencies used in code** (not in package.json):
 - `@beep/errors` — Used for `BeepError` in `src/atom/files/atoms/upload.atom.ts`
@@ -188,7 +235,7 @@ function LocationTracker() {
 - `@effect/platform-browser` — Browser-specific platform services
 - `@effect-atom/atom-react` — Jotai integration with Effect
 
-Note: Some imports like `@beep/errors` are used but not declared as peer dependencies, which may indicate missing dependency declarations.
+**Note**: Some imports like `@beep/errors` are used but not declared as peer dependencies, which may indicate missing dependency declarations or reliance on workspace dependency hoisting.
 
 ## Authoring Guardrails
 
@@ -238,6 +285,11 @@ Note: Some imports like `@beep/errors` are used but not declared as peer depende
 - **Symptom**: Stale data or unexpected cache invalidation when multiple slices use shared query utilities.
 - **Root Cause**: Query keys from different slices collide in the shared query cache.
 - **Solution**: Shared query utilities MUST namespace query keys with slice identifiers. Use factory functions that prepend slice names to keys (e.g., `["shared", "iam", "session"]` vs `["shared", "documents", "list"]`).
+
+### ReCaptcha Script Loading Race Conditions
+- **Symptom**: ReCaptcha execution fails with "not found" or "not ready" errors intermittently.
+- **Root Cause**: Multiple components try to initialize ReCaptcha simultaneously, or script hasn't fully loaded before execution attempt.
+- **Solution**: Use the `ReCaptchaService` singleton pattern or the `useReCaptchaAtom` hook which handles initialization and ready state internally. Always check `isReady` before calling `executeRecaptcha`.
 
 ## Contributor Checklist
 

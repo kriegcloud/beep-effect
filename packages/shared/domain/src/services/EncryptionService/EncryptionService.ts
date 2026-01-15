@@ -19,6 +19,7 @@ import * as Encoding from "effect/Encoding";
 import * as Hash from "effect/Hash";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import * as Redacted from "effect/Redacted";
 import * as Str from "effect/String";
 import { DecryptionError, EncryptionError, HashError, KeyDerivationError, SigningError } from "./errors";
@@ -392,25 +393,21 @@ export const makeEncryptionSubtle = (crypto: Crypto): Effect.Effect<typeof Encry
           const ciphertextResult = Encoding.decodeBase64(payload.ciphertext);
 
           if (ivResult._tag === "Left") {
-            return yield* Effect.fail(
-              new DecryptionError({
-                message: "Failed to decode IV from Base64",
-                cause: ivResult.left,
-                algorithm: "AES-GCM",
-                phase: "decode",
-              })
-            );
+            return yield* new DecryptionError({
+              message: "Failed to decode IV from Base64",
+              cause: ivResult.left,
+              algorithm: "AES-GCM",
+              phase: "decode",
+            });
           }
 
           if (ciphertextResult._tag === "Left") {
-            return yield* Effect.fail(
-              new DecryptionError({
-                message: "Failed to decode ciphertext from Base64",
-                cause: ciphertextResult.left,
-                algorithm: "AES-GCM",
-                phase: "decode",
-              })
-            );
+            return yield* new DecryptionError({
+              message: "Failed to decode ciphertext from Base64",
+              cause: ciphertextResult.left,
+              algorithm: "AES-GCM",
+              phase: "decode",
+            });
           }
 
           const iv = toCryptoUint8Array(ivResult.right);
@@ -437,25 +434,21 @@ export const makeEncryptionSubtle = (crypto: Crypto): Effect.Effect<typeof Encry
           const ciphertextResult = Encoding.decodeBase64(payload.ciphertext);
 
           if (ivResult._tag === "Left") {
-            return yield* Effect.fail(
-              new DecryptionError({
-                message: "Failed to decode IV from Base64",
-                cause: ivResult.left,
-                algorithm: "AES-GCM",
-                phase: "decode",
-              })
-            );
+            return yield* new DecryptionError({
+              message: "Failed to decode IV from Base64",
+              cause: ivResult.left,
+              algorithm: "AES-GCM",
+              phase: "decode",
+            });
           }
 
           if (ciphertextResult._tag === "Left") {
-            return yield* Effect.fail(
-              new DecryptionError({
-                message: "Failed to decode ciphertext from Base64",
-                cause: ciphertextResult.left,
-                algorithm: "AES-GCM",
-                phase: "decode",
-              })
-            );
+            return yield* new DecryptionError({
+              message: "Failed to decode ciphertext from Base64",
+              cause: ciphertextResult.left,
+              algorithm: "AES-GCM",
+              phase: "decode",
+            });
           }
 
           const iv = toCryptoUint8Array(ivResult.right);
@@ -499,13 +492,11 @@ export const makeEncryptionSubtle = (crypto: Crypto): Effect.Effect<typeof Encry
           const keyBytesResult = Encoding.decodeBase64(keyString);
 
           if (keyBytesResult._tag === "Left") {
-            return yield* Effect.fail(
-              new KeyDerivationError({
-                message: "Failed to decode key from Base64",
-                cause: keyBytesResult.left,
-                algorithm: "AES-GCM",
-              })
-            );
+            return yield* new KeyDerivationError({
+              message: "Failed to decode key from Base64",
+              cause: keyBytesResult.left,
+              algorithm: "AES-GCM",
+            });
           }
 
           const keyBytes = toCryptoUint8Array(keyBytesResult.right);
@@ -742,7 +733,7 @@ export const makeEncryptionSubtle = (crypto: Crypto): Effect.Effect<typeof Encry
 
           if (opts.data) {
             A.forEach(Struct.entries(opts.data), ([key, value]) => {
-              if (value == null) return;
+              if (P.isNullable(value)) return;
               const encoded = encodeURIComponent(value);
               parsedURL.searchParams.append(key, encoded);
             });

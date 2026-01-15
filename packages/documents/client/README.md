@@ -37,10 +37,11 @@ export const beep = "beep";
 
 Before this package can be fully implemented:
 
-2. **Domain Contracts**: Finalize schemas and error types in `@beep/documents-domain`
-3. **Server Infrastructure**: Complete server-side routes and handlers in `@beep/documents-server`
-4. **Better Auth Adapter**: Implement the better-auth client adapter (see `@beep/iam-client/adapters/better-auth`)
-5. **Service Layer**: Create Effect Services following the `@beep/iam-client` pattern
+1. **Domain Contracts**: Finalize schemas and error types in `@beep/documents-domain`
+2. **Server Infrastructure**: Complete server-side routes and handlers in `@beep/documents-server`
+3. **Client Adapters**: Implement HTTP/RPC client adapters following `@beep/iam-client` patterns
+4. **Service Layer**: Create Effect Services with Layer-based dependency injection
+5. **Testing Infrastructure**: Add contract validation tests and integration test fixtures
 
 ## Architecture
 
@@ -64,20 +65,24 @@ Before this package can be fully implemented:
 
 Following `@beep/iam-client`, this package will implement:
 
-### 4. Runtime-Backed Atoms
+### Runtime-Backed Atoms
 
 ```typescript
 "use client";
 import { makeAtomRuntime } from "@beep/runtime-client/runtime";
 import { withToast } from "@beep/ui/common";
 import * as F from "effect/Function";
+import * as O from "effect/Option";
 
 const documentRuntime = makeAtomRuntime(DocumentService.Live);
 
 const createDocumentToastOptions = {
   onWaiting: "Creating document...",
   onSuccess: "Document created successfully",
-  onFailure: (e) => e.message,
+  onFailure: O.match({
+    onNone: () => "Failed with unknown error.",
+    onSome: (err) => err.message
+  }),
 } as const;
 
 export const createDocumentAtom = documentRuntime.fn(
@@ -85,9 +90,10 @@ export const createDocumentAtom = documentRuntime.fn(
 );
 ```
 
-### 5. React Hooks
+### React Hooks
 
 ```typescript
+"use client";
 import { useAtomSet } from "@effect-atom/atom-react";
 
 export const useDocuments = () => {
@@ -204,22 +210,30 @@ Study `@beep/iam-client` for the authoritative implementation pattern:
 ### Effect Patterns Required
 
 ```typescript
-// ✅ REQUIRED - Effect utilities
+// ✅ REQUIRED - Namespace imports and Effect utilities
+import * as Effect from "effect/Effect";
 import * as A from "effect/Array";
 import * as F from "effect/Function";
 import * as Str from "effect/String";
+import * as O from "effect/Option";
 
-F.pipe(items, A.map((item) => item.name));
-F.pipe(str, Str.toUpperCase);
+// Use pipe for transformations
+const names = F.pipe(items, A.map((item) => item.name));
+const upper = F.pipe(str, Str.toUpperCase);
 
 // ❌ FORBIDDEN - Native methods
-items.map(item => item.name);
-str.toUpperCase();
+const badNames = items.map(item => item.name);  // Wrong!
+const badUpper = str.toUpperCase();             // Wrong!
 ```
 
 ### Contract Structure
 
 ```typescript
+import * as Effect from "effect/Effect";
+import * as S from "effect/Schema";
+import * as BS from "@beep/schema";
+import { Contract } from "@beep/shared-domain";
+
 // 1. Payload class with default form values
 export class CreateDocumentPayload extends S.Class<CreateDocumentPayload>("CreateDocumentPayload")({
   title: S.String,

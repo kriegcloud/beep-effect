@@ -1,137 +1,14 @@
 # @beep/iam-client
 
-Client CLIENT and presentation layer for the IAM system, providing Effect-first authentication flows, contracts, and React integration via better-auth.
+React client integration for the IAM system, providing Effect-first authentication flows via better-auth.
 
-## Key Exports
+## Purpose
 
-### Core Types & Errors
-
-| Export                | Description                                                                                |
-|-----------------------|--------------------------------------------------------------------------------------------|
-| `AuthClient`          | Type alias for better-auth client with all configured plugins                              |
-| `IamError`            | Tagged error with metadata for all IAM operations (code, status, plugin, method)           |
-| `IamErrorMetadata`    | Metadata schema for structured error handling                                              |
-
-### Contract Implementations
-
-Each feature exports an `Implementations` object with contract handlers:
-
-| Export                              | Description                                                                    |
-|-------------------------------------|--------------------------------------------------------------------------------|
-| `SignInImplementations`             | Sign-in contract implementations (email, social, credential)                   |
-| `SignUpImplementations`             | User registration contract implementations                                     |
-| `UserImplementations`               | User management implementations (update profile, change email/password, phone) |
-| `SessionImplementations`            | Session management and validation implementations                              |
-| `MultiSessionImplementations`       | Multi-session support (list, switch, revoke sessions)                          |
-| `TwoFactorImplementations`          | TOTP two-factor authentication implementations                                 |
-| `OAuthImplementations`              | OAuth provider integration implementations (Google, GitHub, etc.)              |
-| `OidcImplementations`               | OpenID Connect flow implementations                                            |
-| `OrganizationImplementations`       | Organization/tenant management implementations                                 |
-| `DeviceAuthorizationImplementations`| Device authorization flow implementations for CLI/IoT devices                  |
-| `ApiKeyImplementations`             | API key generation and validation implementations                              |
-| `VerifyImplementations`             | Email and phone verification implementations                                   |
-| `RecoverImplementations`            | Password recovery and reset implementations                                    |
-| `SignOutImplementations`            | Sign-out implementations with session cleanup                                  |
-| `AdminImplementations`              | Admin operations (user impersonation, bans)                                    |
-
-### Individual Contracts
-
-Contracts are exported individually by name (e.g., `SignInEmailContract`, `SignInSocialContract`, `ChangePasswordContract`). Each contract includes:
-- `payloadSchema` - Input validation schema
-- `successSchema` - Success response schema
-- `failureSchema` - Error schema (IamError)
-- `implement()` - Method to create Effect-based implementation
-- `decodeUnknownSuccess()` - Response decoder
-
-### React Integration
-
-| Export                        | Description                                                        |
-|-------------------------------|--------------------------------------------------------------------|
-| `useChangePasswordForm`       | React hook for password change form with validation                |
-| `useUpdateUserIdentityForm`   | Form helper for updating user name                                 |
-| `useUpdateUsernameForm`       | Form helper for updating username                                  |
-| `useUpdatePhoneNumberForm`    | Form helper for updating phone number                              |
-| `useSignUpEmailForm`          | Form helper for email registration with validation                 |
-| `useSignInEmailForm`          | Form helper for email sign-in with validation                      |
-| `useResetPasswordForm`        | Form helper for password reset                                     |
-| `useRequestResetPasswordForm` | Form helper for requesting password reset                          |
-| `useAddPasskeyForm`           | Form helper for adding passkey                                     |
-| `useUpdatePasskeyForm`        | Form helper for updating passkey                                   |
-
-### Atoms & Runtimes
-
-Most client modules export atoms and runtimes for reactive state management. Notable exports include:
-- `passkeysAtom`, `addPasskeyAtom`, `removePasskeyAtom`, `updatePasskeyAtom`, `editingPasskeyAtom` (Passkey management)
-- `resetPasswordAtom`, `requestResetPasswordAtom` (Password recovery)
-- Module-specific runtimes: `adminRuntime`, `apiKeyRuntime`, `deviceAuthorizationRuntime`, `multiSessionRuntime`, `oauthRuntime`, `oidcRuntime`, `organizationRuntime`, `recoverRuntime`
-
-### Constants & Utilities
-
-| Export                | Description                                                                    |
-|-----------------------|--------------------------------------------------------------------------------|
-| `AuthCallback`        | Constants and helpers for OAuth/SSO callback URL sanitization                  |
-
-## Architecture Fit
-
-- **Vertical Slice + Hexagonal**: CLIENT layer bridges IAM domain/server with UI, exposing only contracts and client-safe operations
-- **Effect-first**: All contract implementations return `Effect<Success, IamError, never>` with structured error handling
-- **Better Auth Integration**: Wraps better-auth client methods through `Contract.implement` with continuation-based error handling
-- **Reactive**: Atoms via `@effect-atom/atom-react` with `withToast` wrapper for optimistic UI updates and notifications
-- **Path alias**: Import as `@beep/iam-client`
-
-## Module Structure
-
-```
-src/
-├── index.ts                    # Main package exports
-├── adapters/
-│   ├── index.ts               # Adapter re-exports
-│   └── better-auth/           # Better-auth client wrapper, error normalization
-│       ├── client.ts          # Better-auth client instance with plugins
-│       ├── errors.ts          # BetterAuthError wrapper
-│       ├── types.ts           # Type definitions
-│       └── index.ts           # Re-exports client, $store, types
-├── api-client/
-│   └── index.ts               # API client exports
-├── clients/
-│   ├── index.ts               # Re-exports all client modules
-│   ├── admin/                 # Admin operations (user impersonation, bans)
-│   ├── api-key/               # API key contracts, implementations, service
-│   ├── device-authorization/  # Device flow for CLI/IoT
-│   ├── last-login-method/     # Track last used login method
-│   ├── multi-session/         # Multi-session management
-│   ├── oauth/                 # OAuth provider integration
-│   ├── oidc/                  # OpenID Connect flows
-│   ├── organization/          # Organization/tenant management
-│   ├── last-login-method/     # Track last used login method
-│   ├── passkey/               # WebAuthn passkey support (contracts, forms, atoms, layer)
-│   ├── recover/               # Password recovery (contracts, forms, atoms)
-│   ├── session/               # Session validation and management
-│   ├── sign-in/               # Sign-in flows (atoms, contracts, implementations, forms, service)
-│   ├── sign-out/              # Sign-out with cleanup
-│   ├── sign-up/               # Registration (contracts, forms, atoms, implementations, service)
-│   ├── two-factor/            # TOTP 2FA (contracts, atoms, implementations, service)
-│   ├── user/                  # User management (profile, email, password, phone)
-│   ├── verify/                # Email/phone verification
-│   └── _internal/             # Shared client helpers (_id.ts, client-method-helpers.ts)
-├── constants/
-│   ├── index.ts               # Constants re-exports
-│   └── AuthCallback/          # OAuth/SSO callback URL sanitization
-│       ├── AuthCallback.ts    # Callback helper implementation
-│       └── index.ts           # Re-exports
-└── errors.ts                  # IamError and IamErrorMetadata schemas
-```
-
-### Client Module Pattern
-
-Each client module (under `src/clients/*`) follows this pattern:
-
-- **`index.ts`**: Re-exports all module exports (contracts, implementations, atoms, forms, service)
-- **`*.contracts.ts`**: Individual contract definitions using `Contract.make`, grouped with `ContractKit.make`
-- **`*.implementations.ts`**: Contract implementations via `ContractName.implement()`, exported as single `*Implementations` object via `ContractKit.of()`
-- **`*.atoms.ts`** (optional): Reactive atoms with toast notifications using `@effect-atom/atom-react`
-- **`*.forms.ts`** (optional): React hook form helpers with schema validation
-- **`*.service.ts`** (optional): Effect service layer for some modules (legacy pattern)
+Provides the React client layer for authentication and identity management. This package:
+- Wraps better-auth React client with all required plugins (passkey, SSO, organizations, multi-session, etc.)
+- Exports React hooks for sign-in and sign-up forms with schema validation
+- Provides session management utilities and callback URL sanitization
+- Sits in the IAM slice client layer, consumed by `@beep/iam-ui` and `apps/web`
 
 ## Installation
 
@@ -143,188 +20,217 @@ Each client module (under `src/clients/*`) follows this pattern:
 
 ### Package Exports
 
-The package exports are configured to allow flexible imports:
+The package is configured to allow flexible imports:
 
 ```typescript
-// Main package exports (recommended)
-import { UserImplementations, SignInEmailContract } from "@beep/iam-client";
+// Main package exports (AuthClient type, constants)
+import { AuthCallback } from "@beep/iam-client";
+import type { AuthClient } from "@beep/iam-client";
 
-// Error types (from errors module)
-import { IamError, IamErrorMetadata } from "@beep/iam-client/errors";
-
-// Deep imports to adapters (for guard usage)
+// Better-auth client via adapter (for guards and direct usage)
 import { client, $store } from "@beep/iam-client/adapters/better-auth";
 
-// Deep imports to specific feature modules
-import { SignInEmailContract } from "@beep/iam-client/clients/sign-in";
+// Error types
+import { IamError, IamErrorMetadata } from "@beep/iam-client/errors";
+
+// React form hooks via deep imports
+import { useSignInEmailForm } from "@beep/iam-client/atom/sign-in";
+import { useSignUpEmailForm } from "@beep/iam-client/atom/sign-up";
 ```
+
+## Key Exports
+
+### Better Auth Client
+
+| Export        | Description                                                  |
+|---------------|--------------------------------------------------------------|
+| `AuthClient`  | Type alias for better-auth client with all configured plugins |
+| `client`      | Configured better-auth React client instance                 |
+| `$store`      | Better-auth reactive store for session state                 |
+| `signIn`      | Sign-in methods from better-auth client                      |
+| `signUp`      | Sign-up methods from better-auth client                      |
+
+### React Form Hooks
+
+These hooks are available via deep imports from the `atom/` directory:
+
+| Export                 | Import Path                              | Description                                       |
+|------------------------|------------------------------------------|---------------------------------------------------|
+| `useSignInEmailForm`   | `@beep/iam-client/atom/sign-in`          | Form helper for email sign-in with validation    |
+| `useSignUpEmailForm`   | `@beep/iam-client/atom/sign-up`          | Form helper for email registration with validation |
+
+### Error Types
+
+| Export             | Description                                               |
+|--------------------|-----------------------------------------------------------|
+| `IamError`         | Tagged error for all IAM operations with metadata         |
+| `IamErrorMetadata` | Metadata schema for structured error handling             |
+| `BetterAuthError`  | Wrapper for better-auth native errors                     |
+
+### Constants & Utilities
+
+| Export          | Description                                            |
+|-----------------|--------------------------------------------------------|
+| `AuthCallback`  | Constants and helpers for OAuth/SSO callback URL sanitization |
+
+## Architecture Fit
+
+- **Vertical Slice + Hexagonal**: Client layer bridges Better Auth React client with UI components
+- **Effect-first**: Schema validation via Effect Schema, form state management with Effect patterns
+- **Better Auth Integration**: Direct usage of better-auth React client with comprehensive plugin configuration
+- **Reactive**: Session state management via better-auth `$store` with `$sessionSignal` listener
+- **Path alias**: Import as `@beep/iam-client`
+
+## Module Structure
+
+```
+src/
+├── index.ts                    # Main package exports (AuthClient, constants)
+├── adapters/
+│   └── better-auth/
+│       ├── client.ts           # Better-auth client instance with plugins
+│       ├── errors.ts           # BetterAuthError wrapper
+│       └── index.ts            # Re-exports client, $store, types
+├── atom/
+│   ├── get-session/            # Session retrieval atoms
+│   ├── sign-in/
+│   │   └── sign-in.forms.ts    # useSignInEmailForm hook
+│   └── sign-up/
+│       └── sign-up.forms.ts    # useSignUpEmailForm hook
+├── constants/
+│   └── AuthCallback/           # OAuth/SSO callback URL sanitization
+└── errors.ts                   # IamError and IamErrorMetadata schemas
+```
+
+### Better Auth Client Configuration
+
+The client is configured with the following plugins:
+- **adminClient**: User impersonation and admin operations
+- **anonymousClient**: Anonymous session support
+- **jwtClient**: JWT token handling
+- **apiKeyClient**: API key authentication
+- **genericOAuthClient**: Generic OAuth provider integration
+- **multiSessionClient**: Multiple concurrent session management
+- **oidcClient**: OpenID Connect flows
+- **oneTapClient**: Google One Tap sign-in
+- **oneTimeTokenClient**: One-time password tokens
+- **organizationClient**: Organization/tenant management with teams and dynamic access control
+- **passkeyClient**: WebAuthn/FIDO2 passkey support
+- **phoneNumberClient**: Phone number authentication
+- **siweClient**: Sign-in with Ethereum (Web3)
+- **ssoClient**: Enterprise SSO (SAML/OIDC)
+- **stripeClient**: Stripe billing integration
+- **deviceAuthorizationClient**: Device flow for CLI/IoT devices
+- **lastLoginMethodClient**: Track last used authentication method
 
 ## Usage
 
-### Namespace Import
-
-Prefer named imports for implementations, individual contracts, and errors:
+### Namespace Imports
 
 ```typescript
-import {
-  UserImplementations,
-  SignInImplementations,
-  SignInEmailContract,
-  ChangePasswordContract
-} from "@beep/iam-client";
-import { IamError } from "@beep/iam-client/errors";
+import { client, $store, AuthCallback } from "@beep/iam-client";
 import * as Effect from "effect/Effect";
-import * as F from "effect/Function";
+import * as Redacted from "effect/Redacted";
 ```
 
-### Contract Implementation Usage
+### Using Better Auth Client Directly
 
-Contract implementations provide Effect-based wrappers around better-auth operations. Each `Implementations` object contains methods corresponding to the contracts:
+The better-auth client provides direct access to all authentication methods:
 
 ```typescript
-import { UserImplementations } from "@beep/iam-client";
-import * as Effect from "effect/Effect";
-import * as F from "effect/Function";
+import { client } from "@beep/iam-client/adapters/better-auth";
 
-// Use contract implementation directly
-const updateProfile = F.pipe(
-  UserImplementations.UpdateUserInformation({
-    firstName: "John",
-    lastName: "Doe",
-    image: "https://example.com/avatar.jpg"
-  }),
-  Effect.catchTag("IamError", (error) =>
-    Effect.log(`Update failed: ${error.message}`)
-  )
-);
+// Sign in with email
+await client.signIn.email({
+  email: Redacted.value(emailRedacted),
+  password: Redacted.value(passwordRedacted),
+  rememberMe: true
+});
 
-// Execute with client runtime
-import { clientRuntimeLayer } from "@beep/runtime-client";
-import { Atom } from "@effect-atom/atom-react";
+// Sign up with email
+await client.signUp.email({
+  email: Redacted.value(emailRedacted),
+  password: Redacted.value(passwordRedacted),
+  name: fullName
+});
 
-const runtime = Atom.runtime(clientRuntimeLayer);
-runtime.runPromise(updateProfile);
+// Sign in with OAuth provider
+await client.signIn.social({
+  provider: "google",
+  callbackURL: AuthCallback.getURL("/dashboard")
+});
+
+// Access current session
+const session = client.useSession();
 ```
 
-### React Hooks with Atoms
+### React Form Hooks
 
-Atoms provide reactive, optimistic updates with toast notifications via `withToast` wrapper:
+Form hooks integrate Effect Schema validation with react-hook-form. Import via deep paths:
 
 ```typescript
-import { UserImplementations } from "@beep/iam-client";
-import { clientRuntimeLayer } from "@beep/runtime-client";
-import { withToast } from "@beep/ui/common/with-toast";
-import { Atom } from "@effect-atom/atom-react";
-import * as F from "effect/Function";
-import * as O from "effect/Option";
+import { useSignInEmailForm } from "@beep/iam-client/atom/sign-in";
+import { useSignUpEmailForm } from "@beep/iam-client/atom/sign-up";
+import * as Redacted from "effect/Redacted";
 
-// Create atom with toast feedback
-const runtime = Atom.runtime(clientRuntimeLayer);
-
-const changePasswordAtom = runtime.fn(
-  F.flow(
-    UserImplementations.ChangePassword,
-    withToast({
-      onWaiting: "Changing password...",
-      onSuccess: "Password changed successfully",
-      onFailure: O.match({
-        onNone: () => "Failed with unknown error",
-        onSome: (err) => err.message
-      })
-    })
-  )
-);
-
-// Use in React component
-function ProfileSettings() {
-  const changePassword = Atom.useAtom(changePasswordAtom);
-
-  const handlePasswordChange = async (data: ChangePasswordPayload) => {
-    // Atom automatically shows toast notifications based on Effect result
-    await changePassword(data);
+function SignInForm() {
+  const executeCaptcha = async () => {
+    // Get reCAPTCHA token
+    const token = await grecaptcha.execute();
+    return Redacted.make(token);
   };
 
-  return (
-    <form onSubmit={handlePasswordChange}>
-      {/* form fields */}
-    </form>
-  );
-}
-```
-
-### Form Helpers
-
-Form hooks integrate Effect schemas with react-hook-form:
-
-```typescript
-import { useChangePasswordForm, useSignUpEmailForm } from "@beep/iam-client";
-
-function PasswordChangeForm() {
-  const { form } = useChangePasswordForm({
-    onSuccess: () => {
-      // Navigate or close dialog
-    }
-  });
+  const { form } = useSignInEmailForm({ executeCaptcha });
 
   return (
     <form onSubmit={form.handleSubmit}>
-      <input {...form.register("currentPassword")} type="password" />
+      <input {...form.register("email")} type="email" />
+      <input {...form.register("password")} type="password" />
+      <input {...form.register("rememberMe")} type="checkbox" />
+      <button type="submit">Sign In</button>
+    </form>
+  );
+}
+
+function SignUpForm() {
+  const executeRecaptcha = async () => {
+    const token = await grecaptcha.execute();
+    return Redacted.make(token);
+  };
+
+  const onSuccess = async () => {
+    // Navigate after successful registration
+    router.push("/verify-email");
+  };
+
+  const { form } = useSignUpEmailForm({ executeRecaptcha, onSuccess });
+
+  return (
+    <form onSubmit={form.handleSubmit}>
+      <input {...form.register("email")} type="email" />
       <input {...form.register("password")} type="password" />
       <input {...form.register("passwordConfirm")} type="password" />
-      <button type="submit">Change Password</button>
+      <input {...form.register("firstName")} />
+      <input {...form.register("lastName")} />
+      <button type="submit">Sign Up</button>
     </form>
   );
 }
 ```
 
-### Error Handling
+### Session State Management
 
-Structured error handling with metadata:
-
-```typescript
-import { UserImplementations } from "@beep/iam-client";
-import { IamError } from "@beep/iam-client/errors";
-import * as Effect from "effect/Effect";
-import * as F from "effect/Function";
-
-const program = F.pipe(
-  UserImplementations.ChangeEmail({
-    newEmail: "new@example.com",
-    callbackURL: "https://app.example.com/verify"
-  }),
-  Effect.catchTag("IamError", (error) => {
-    // Access structured error metadata
-    console.error({
-      message: error.message,
-      code: error.code,           // "EMAIL_ALREADY_EXISTS"
-      status: error.status,        // 409
-      statusText: error.statusText, // "Conflict"
-      plugin: error.plugin,        // "email-verification"
-      method: error.method         // "changeEmail"
-    });
-    return Effect.fail(error);
-  })
-);
-```
-
-### Better Auth Client Access
-
-For guard usage and session state management, access the client directly from the adapter:
+Use `$store` and `$sessionSignal` for reactive session updates:
 
 ```typescript
 import { client, $store } from "@beep/iam-client/adapters/better-auth";
+import * as React from "react";
 
-// Access session state
-const session = client.useSession();
-
-// Notify session signal after mutations
-$store.notify("$sessionSignal");
-
-// Use in guards
 function AuthGuard({ children }: { children: React.ReactNode }) {
   const session = client.useSession();
 
   React.useEffect(() => {
+    // Notify session signal on mount to trigger guards
     $store.notify("$sessionSignal");
   }, []);
 
@@ -336,148 +242,111 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
 }
 ```
 
+### OAuth Callback URL Sanitization
+
+Always sanitize callback URLs to prevent open redirect vulnerabilities:
+
+```typescript
+import { AuthCallback } from "@beep/iam-client";
+import * as Str from "effect/String";
+import * as F from "effect/Function";
+
+// Get sanitized callback URL for OAuth flow
+const callbackURL = AuthCallback.getURL("/dashboard");
+
+// Sanitize user-provided redirect target
+const sanitizeRedirect = (raw: string | null | undefined) =>
+  AuthCallback.sanitizePath(
+    F.pipe(raw ?? AuthCallback.defaultTarget, Str.trim)
+  );
+
+// Use with OAuth sign-in
+await client.signIn.social({
+  provider: "github",
+  callbackURL: AuthCallback.getURL("/dashboard")
+});
+```
+
+### Error Handling
+
+Handle authentication errors with structured metadata:
+
+```typescript
+import { IamError } from "@beep/iam-client/errors";
+import * as Effect from "effect/Effect";
+
+const signIn = Effect.tryPromise({
+  try: async () => {
+    return await client.signIn.email({
+      email: Redacted.value(email),
+      password: Redacted.value(password)
+    });
+  },
+  catch: (error) => IamError.match(error, {
+    method: "signIn.email",
+    domain: "authentication"
+  })
+});
+
+// Handle specific error cases
+const program = signIn.pipe(
+  Effect.catchTag("IamError", (error) => {
+    console.error({
+      message: error.message,
+      code: error.code,
+      status: error.status,
+      method: error.method
+    });
+    return Effect.fail(error);
+  })
+);
+```
+
 ### Multi-Session Management
 
 Handle multiple concurrent sessions:
 
 ```typescript
-import { MultiSessionImplementations } from "@beep/iam-client";
-import * as Effect from "effect/Effect";
-import * as A from "effect/Array";
-import * as F from "effect/Function";
+import { client } from "@beep/iam-client/adapters/better-auth";
 
-const listSessions = F.pipe(
-  MultiSessionImplementations.ListSessions(),
-  Effect.map((sessions) =>
-    F.pipe(
-      sessions,
-      A.map((session) => ({
-        id: session.id,
-        deviceName: session.deviceName,
-        lastActive: session.lastActiveAt
-      }))
-    )
-  )
-);
+// List all active sessions
+const sessions = await client.session.listSessions();
 
-const switchSession = (sessionId: string) =>
-  MultiSessionImplementations.SwitchSession({ sessionId });
+// Switch to different session
+await client.session.switchSession({ sessionId });
 
-const revokeSession = (sessionId: string) =>
-  MultiSessionImplementations.RevokeSession({ sessionId });
+// Revoke a specific session
+await client.session.revokeSession({ sessionId });
 ```
 
-### OAuth Integration
+### Passkey/WebAuthn Support
 
-OAuth flows with callback URL sanitization:
+Add and manage passkeys for passwordless authentication:
 
 ```typescript
-import { OAuthImplementations, AuthCallback } from "@beep/iam-client";
-import * as Effect from "effect/Effect";
-import * as F from "effect/Function";
-import * as Str from "effect/String";
+import { client } from "@beep/iam-client/adapters/better-auth";
 
-// OAuth with provider
-const signInWithGoogle = F.pipe(
-  OAuthImplementations.SignIn({
-    provider: "google",
-    callbackURL: AuthCallback.getURL("/dashboard")
-  })
-);
+// Add a new passkey
+await client.passkey.addPasskey({
+  name: "My MacBook Pro"
+});
 
-// Sanitize callback targets before redirecting
-const resolveCallbackTarget = (raw: string | null | undefined) =>
-  AuthCallback.sanitizePath(F.pipe(raw ?? AuthCallback.defaultTarget, Str.trim));
+// Sign in with passkey
+await client.signIn.passkey();
+
+// List user's passkeys
+const passkeys = await client.passkey.listPasskeys();
+
+// Remove a passkey
+await client.passkey.removePasskey({ passkeyId });
 ```
-
-### Two-Factor Authentication
-
-TOTP-based 2FA setup and verification:
-
-```typescript
-import { TwoFactorImplementations } from "@beep/iam-client";
-import * as Effect from "effect/Effect";
-import * as F from "effect/Function";
-
-// Enable 2FA and get QR code
-const enable2FA = F.pipe(
-  TwoFactorImplementations.Enable(),
-  Effect.map((result) => ({
-    qrCode: result.qrCode,
-    backupCodes: result.backupCodes
-  }))
-);
-
-// Verify TOTP code
-const verify2FA = (code: string) =>
-  TwoFactorImplementations.Verify({ code });
-
-// Disable 2FA
-const disable2FA = (password: string) =>
-  TwoFactorImplementations.Disable({ password });
-```
-
-### Implementing New Contract Handlers
-
-When creating new contract implementations, follow the continuation-based pattern:
-
-```typescript
-import { client, $store } from "@beep/iam-client/adapters/better-auth";
-import { addFetchOptions, requireData } from "@beep/iam-client/clients/_internal";
-import { SignInSocialContract } from "@beep/iam-client/clients/sign-in/sign-in.contracts";
-import { IamError } from "@beep/iam-client/errors";
-import * as Effect from "effect/Effect";
-import * as F from "effect/Function";
-
-// Define implementation using Contract.implement
-export const SignInWithProviderHandler = SignInSocialContract.implement(
-  Effect.fn(function* (payload, { continuation }) {
-    // 1. Run better-auth call via continuation
-    const result = yield* continuation.run((handlers) =>
-      client.signIn.social(
-        addFetchOptions(handlers, {
-          provider: payload.provider,
-          callbackURL: payload.callbackURL ?? undefined,
-        })
-      )
-    );
-
-    // 2. Raise result for telemetry/error handling
-    yield* continuation.raiseResult(result);
-
-    // 3. Notify session signal if successful
-    if (result.error == null) {
-      $store.notify("$sessionSignal");
-    }
-
-    // 4. Require data or fail with structured error
-    const data = yield* requireData(result.data, "SignInWithProviderHandler", continuation.metadata);
-
-    // 5. Decode and validate response
-    return yield* SignInSocialContract.decodeUnknownSuccess(data);
-  }, Effect.catchTags({
-    ParseError: (error) => Effect.fail(IamError.match(error, continuation.metadata)),
-  }))
-);
-```
-
-Key steps in the continuation pattern:
-
-1. **Run the operation**: Use `continuation.run` to execute better-auth calls with fetch handlers
-2. **Raise result**: Call `continuation.raiseResult` for telemetry and error tracking
-3. **Notify session**: Fire `$store.notify("$sessionSignal")` for session-mutating operations (import `$store` from `@beep/iam-client/adapters/better-auth`)
-4. **Validate data**: Use `requireData` helper to ensure data exists or fail gracefully
-5. **Decode response**: Use contract's `decodeUnknownSuccess` for type-safe validation
-6. **Handle errors**: Catch `ParseError` and other errors, normalize to `IamError`
 
 ## What Must NOT Go Here
 
-- **Server-side operations**: database queries, session creation, token signing belong in `@beep/iam-server`
-- **Domain models**: entity definitions and business logic belong in `@beep/iam-domain`
-- **UI components**: presentational components belong in `@beep/iam-ui`
-- **Handler services**: avoid resurrecting `AuthHandler` or `auth-wrapper` patterns; keep implementations focused on transport and error shaping
-
-
+- **Server-side operations**: Database queries, session creation, token signing belong in `@beep/iam-server`
+- **Domain models**: Entity definitions and business logic belong in `@beep/iam-domain`
+- **UI components**: Presentational components belong in `@beep/iam-ui`
+- **Backend authentication logic**: Better-auth server configuration belongs in `@beep/iam-server`
 
 ## Dependencies
 
@@ -486,14 +355,12 @@ Key steps in the continuation pattern:
 | Package                      | Purpose                                                    |
 |------------------------------|------------------------------------------------------------|
 | `effect`                     | Core Effect runtime and Schema system                      |
-| `better-auth`                | Authentication framework                                   |
-| `@beep/iam-domain`           | IAM domain models and entities                             |
+| `better-auth`                | Authentication framework with React integration            |
 | `@beep/iam-server`           | Better-auth server configuration and types                 |
-| `@beep/shared-domain`        | Shared domain entities (User, Organization)                |
+| `@beep/shared-domain`        | Shared domain entities (paths, routing)                    |
 | `@beep/shared-env`           | Environment configuration utilities                        |
-| `@beep/schema`               | Reusable Effect schemas (Email, Password, EntityId, etc.)  |
-| `@beep/errors`               | Error logging and telemetry                                |
-| `@beep/constants`            | Schema-backed enums and constants                          |
+| `@beep/schema`               | Reusable Effect schemas (Email, Password, etc.)            |
+| `@beep/errors`               | Error types and utilities                                  |
 | `@beep/identity`             | Package identity system                                    |
 | `@beep/utils`                | Pure runtime helpers                                       |
 
@@ -501,10 +368,7 @@ Key steps in the continuation pattern:
 
 | Package                      | Purpose                                                    |
 |------------------------------|------------------------------------------------------------|
-| `@effect-atom/atom`          | Core atom system                                           |
-| `@effect-atom/atom-react`    | Reactive atoms for React integration                       |
 | `@beep/ui`                   | UI components and form utilities                           |
-| `@beep/ui-core`              | Design tokens and MUI theme                                |
 | `react`                      | React library                                              |
 | `react-dom`                  | React DOM rendering                                        |
 | `next`                       | Next.js for routing and server components                  |
@@ -516,9 +380,8 @@ Key steps in the continuation pattern:
 | `@better-auth/passkey`       | Passkey/WebAuthn plugin                                    |
 | `@better-auth/sso`           | Enterprise SSO plugin (SAML/OIDC)                          |
 | `@better-auth/stripe`        | Stripe billing integration                                 |
-| `@better-auth/scim`          | SCIM user provisioning                                     |
+| `@better-auth/core`          | Better-auth core types                                     |
 | `@better-auth/utils`         | Better-auth utility functions                              |
-| `better-auth-localization`   | Internationalization support                               |
 
 ### Additional Dependencies
 
@@ -526,10 +389,7 @@ Key steps in the continuation pattern:
 |------------------------------|------------------------------------------------------------|
 | `jose`                       | JWT utilities for token handling                           |
 | `@simplewebauthn/server`     | WebAuthn server utilities                                  |
-| `dub`                        | URL shortening integration                                 |
-| `stripe`                     | Stripe SDK                                                 |
-| `sonner`                     | Toast notifications                                        |
-| `mutative`                   | Immutable state updates                                    |
+| `@effect-atom/atom-react`    | Reactive atoms for React integration                       |
 
 ## Development
 
@@ -556,42 +416,36 @@ bun run --filter @beep/iam-client coverage
 bun run --filter @beep/iam-client dev
 ```
 
-## Guidelines for Adding New Clients
+## Guidelines for Contributors
 
-- **Follow the pattern**: each client needs `*.contracts.ts`, `*.implementations.ts`, optionally `*.atoms.ts`, `*.forms.ts`, and `*.service.ts`
-- **Contract grouping**: group related contracts with `ContractKit.make` to create a `*ContractKit`
-- **Contract implementation**: implement via `ContractName.implement(Effect.fn(function* (payload, { continuation }) { ... }))`
-- **Error handling**: all contracts must fail with `IamError` for consistent error handling; use `IamError.match` to normalize errors
-- **Continuation handlers**: call better-auth with `continuation.run` and fetch option helpers, raise results via `continuation.raiseResult`, decode with `ContractName.decodeUnknownSuccess`
-- **Session notifications**: import `$store` from `@beep/iam-client/adapters/better-auth` and fire `$store.notify("$sessionSignal")` after successful operations that mutate session state
-- **Atoms with toasts**: use `withToast` wrapper from `@beep/ui/common/with-toast` for user feedback in atom definitions
-- **Effect patterns**: use `F.pipe`, Effect Array/String utilities (`A.*`, `Str.*`), never native methods
-- **TypeScript**: avoid `any`, use branded types from domain, validate with schemas
-- **Internal helpers**: use `_internal` helpers like `addFetchOptions`, `requireData`, `withFetchOptions` when calling better-auth
-- **Export pattern**: export individual contracts by name, then create and export one `*Implementations` object via `ContractKit.of()`
+- **Effect patterns**: Use namespace imports (`import * as Effect from "effect/Effect"`), never named imports
+- **Native method ban**: Use Effect utilities (`A.map`, `Str.split`) instead of native array/string methods
+- **Redacted values**: ALWAYS use `Redacted.value()` to unwrap credentials before passing to better-auth
+- **Session notifications**: Fire `$store.notify("$sessionSignal")` after operations that mutate session state
+- **Callback validation**: ALWAYS use `AuthCallback.sanitizePath` for user-provided redirect URLs
+- **Error handling**: Wrap better-auth calls in `Effect.tryPromise` and map to `IamError` for consistency
+- **TypeScript**: Avoid `any`, use branded types from `@beep/schema`, validate with Effect Schema
 
 ## Testing
 
-- Use Bun test for contract and implementation tests
-- Mock better-auth client responses via `_internal` helpers
-- Test error normalization from `BetterAuthError` to `IamError` with metadata preservation
-- Verify contract schema validation (payload, success, failure)
-- Test continuation handler flows (encode, run, raise, decode)
+- Use Bun test for form and client integration tests
+- Mock better-auth client responses for unit tests
+- Test error normalization from `BetterAuthError` to `IamError`
 - Verify form validation rules and schema transformations
-- Test atom reactivity and toast notifications with `withToast`
-- Located in `test/` directory (currently placeholder suite, expand alongside new logic)
+- Test session state reactivity with `$sessionSignal`
+- Located in `test/` directory (currently placeholder suite)
 
 ## Relationship to Other Packages
 
-- `@beep/iam-domain` — Entity models and business logic consumed by contracts
-- `@beep/iam-server` — Server-side implementations of IAM operations (better-auth server setup)
-- `@beep/iam-ui` — UI components consuming these CLIENT contract implementations and forms
-- `@beep/ui` — UI utilities including `withToast` for atom feedback
+- `@beep/iam-domain` — Entity models consumed by forms and client
+- `@beep/iam-server` — Server-side better-auth configuration and handlers
+- `@beep/iam-ui` — UI components consuming these client utilities and hooks
+- `@beep/ui` — UI utilities and form abstractions
 
-## Versioning and Changes
+## Notes
 
-- Breaking changes to contracts require coordination with `@beep/iam-server` and `@beep/iam-ui`
-- Prefer additive changes (new contracts, new implementations)
-- Document contract changes in PR descriptions with metadata updates
-- Update AGENTS.md when contract patterns or continuation handlers evolve
-- Maintain backward compatibility for atoms and form hooks consumed by UI layers
+- The better-auth client is configured with comprehensive plugin support including passkeys, SSO, multi-session, organizations, and more
+- Session state is managed reactively via `$store` with `$sessionSignal` notification pattern
+- All credential fields (email, password, tokens) use `Redacted` type for type-safe secret handling
+- Callback URLs are sanitized through `AuthCallback` utilities to prevent open redirect vulnerabilities
+- Forms integrate Effect Schema validation with react-hook-form for type-safe field validation

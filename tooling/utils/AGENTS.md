@@ -3,8 +3,8 @@
 ## Purpose & Fit
 - Provides Effect-first filesystem and repository helpers used by automation scripts (`tooling/repo-scripts/*`) and other build-time tooling.
 - Wraps Bun platform services so automation can stay portable between Bun runtime and test harnesses.
-- Ships schema definitions for `package.json`, `tsconfig.json`, and JSON literals to keep repo automation type-safe.
-- Complements `@beep/testkit` (for assertions) and `@beep/types` (UnsafeTypes bridge for glob) without duplicating their responsibilities.
+- Ships schema definitions for `package.json`, `tsconfig.json`, `.env` files, and JSON literals to keep repo automation type-safe.
+- Complements `@beep/types` (UnsafeTypes bridge for glob) without duplicating their responsibilities.
 
 ## Surface Map
 - **`FsUtils` service (`src/FsUtils.ts`)**
@@ -29,6 +29,7 @@
 - **Schemas (`src/schemas/*.ts`)**
   - JSON primitives (`Json`, `JsonLiteral`).
   - Package manifests (`PackageJson`, `RootPackageJson`), workspace dependency structures, and `TsConfigJson`.
+  - Environment schemas (`DotEnv`, `EnvironmentVariable`) for parsing and validating `.env` files and environment variable names.
   - All schemas favour `S.Struct` and `S.TemplateLiteral` to stay aligned with Effect schema expectations.
 
 ## Usage Snapshots
@@ -72,7 +73,10 @@ import * as Str from "effect/String";
 
 export const listSortedDeps = Effect.gen(function* () {
   const result = yield* collectUniqueNpmDependencies;
-  return F.pipe(result.dependencies, A.sort(Str.Order));
+  return F.pipe(
+    result.dependencies,
+    A.sort(Str.Order)
+  );
 });
 ```
 

@@ -166,14 +166,18 @@ Combines scoped resource management with live services. Use when you need finali
 
 ```typescript
 import * as Effect from "effect/Effect";
+import { FileSystem } from "@effect/platform";
 import { scopedLive } from "@beep/testkit";
 
 scopedLive("manages temp file", () =>
-  Effect.acquireUseRelease(
-    Effect.sync(() => fs.openSync("/tmp/test", "w")),
-    (fd) => Effect.sync(() => fs.writeSync(fd, "data")),
-    (fd) => Effect.sync(() => fs.closeSync(fd))
-  )
+  Effect.gen(function* () {
+    const fs = yield* FileSystem.FileSystem;
+    const path = "/tmp/test";
+    yield* Effect.addFinalizer(() => fs.remove(path).pipe(Effect.orElseSucceed(() => void 0)));
+    yield* fs.writeFileString(path, "data");
+    const content = yield* fs.readFileString(path);
+    return content;
+  })
 );
 ```
 
@@ -403,7 +407,7 @@ assertFailure(failure, Cause.fail("error"));
 | `@effect/sql-drizzle` | Drizzle ORM integration with Effect SQL |
 | `@testcontainers/postgresql` | Ephemeral PostgreSQL containers for testing |
 | `drizzle-orm` | Drizzle ORM for type-safe database operations |
-| `postgres` | PostgreSQL client for Node.js |
+| `pg` | PostgreSQL client for Node.js |
 
 ## Integration
 

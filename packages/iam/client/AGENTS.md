@@ -9,22 +9,22 @@ through runtime helpers, while adapters keep raw Better Auth usage isolated to t
 
 ## Surface Map
 
-- **Root exports (`src/index.ts`)** — expose domain-specific contracts + implementations (sign-in/out, sign-up, recover,
-  verify, two-factor, organization, oauth) and `AuthCallback`. No aggregate `iam` facade is published yet;
-  `src/clients/iam.client.ts` remains commented until the bundle stabilises.
+- **Root exports (`src/index.ts`)** — expose `AuthClient` type and `AuthCallback` utilities for callback URL sanitization.
 - **Adapters (`src/adapters/better-auth/*`)** — instantiate the Better Auth React client with all required plugins
-  (`client.ts`) and wrap provider errors (`errors.ts`). `$store` and `signIn` are re-exported for guards that need to
+  (`client.ts`) and wrap provider errors (`errors.ts`). `$store` and client methods are re-exported for guards that need to
   bind to session state.
 - **Errors (`src/errors.ts`)** — wraps `BetterAuthError` into the shared `IamError` class so UI callers always receive
   consistent metadata (`code`, `status`, `plugin`, `method`).
-- **Clients (`src/clients/*`)** — each domain directory exports `<feature>.contracts.ts` (Effect schema definitions) and
-  `<feature>.implementations.ts` (Effect wrappers that call the Better Auth client via the contract’s
-  `implement`/`continuation` helpers).
-  Contracts are also collected into `ContractKit` instances for easy registration.
-- **Constants (`src/constants.ts`)** — `AuthCallback` sanitisation helpers to keep callback URLs constrained to known
+- **V1 Modules (`src/v1/*`)** — each domain directory (sign-in, sign-up, passkey, two-factor, etc.) exports schemas,
+  forms, and atoms for reactive state management. These modules integrate with Better Auth via adapters and expose
+  React hooks for form handling (`useSignInEmailForm`, `useSignUpEmailForm`, etc.) and atoms for runtime-powered flows
+  (passkey atoms, password recovery atoms, etc.). Common schemas and helpers live in `src/v1/_common/`.
+- **Atom Layer (`src/atom/*`)** — contains higher-level atoms that compose v1 module primitives with runtime layers,
+  providing ready-to-use reactive state for sign-in, sign-up, and session management.
+- **Constants (`src/constants/AuthCallback/`)** — `AuthCallback` sanitisation helpers to keep callback URLs constrained to known
   private prefixes.
-- **Tests (`test/Dummy.test.ts`)** — placeholder Bun test file. Add focused suites beside new logic; nothing exercises
-  the contract implementations yet.
+- **Tests (`test/`)** — test suites for IAM client functionality. Add focused tests beside new logic to ensure proper
+  integration with Better Auth and Effect runtime.
 
 ## Usage Snapshots
 
@@ -36,79 +36,94 @@ through runtime helpers, while adapters keep raw Better Auth usage isolated to t
 
 ## Related Documentation
 
-- `packages/common/schema/AGENTS.md` — canonical reference for the underlying `Contract`/`ContractKit` runtime (read before altering continuations or lift helpers surfaced here).
+- `/home/elpresidank/YeeBois/projects/beep-effect/packages/common/schema/AGENTS.md` — canonical reference for Effect Schema patterns and primitives used throughout IAM schemas.
 
 ## Authoring Guardrails
 
 - ALWAYS keep namespace imports for every Effect module and repo package (`import * as Effect from "effect/Effect"`,
   `import * as F from "effect/Function"`). Native array/string helpers remain forbidden—pipe through `effect/Array` and
   `effect/String`.
-- Treat `contractkit` as the single source of truth for new flows: define schemas with `Contract.make`, group them via
-  `ContractKit.make`, and expose implementations with `ContractKit.of`.
-- When calling Better Auth methods, ALWAYS wire handlers through `ContractName.implement(Effect.fn(function* (payload, { continuation }) { ... }))`, encode payloads via `ContractName.encodePayload`, call Better Auth with `_internal` helpers (`withFetchOptions`, `addFetchOptions`), raise results via `continuation`, and decode with `ContractName.decodeUnknownSuccess`.
+- Use Effect Schema (`import * as S from "effect/Schema"`) with PascalCase constructors (`S.Struct`, `S.String`, `S.Number`)
+  for all validation schemas in forms and API payloads.
+- When integrating with Better Auth, wrap calls in `Effect.gen` or `Effect.tryPromise` to maintain Effect-first semantics.
+  Use `IamError.match` to normalize Better Auth errors into structured `IamError` instances.
 - Fire `client.$store.notify("$sessionSignal")` after any successful operation that mutates session state (sign-in, sign-out, passkey, social). Guards rely on that signal.
-- NEVER resurrect `AuthHandler`/`auth-wrapper` semantics—timeouts, retries, and toasts now live in consuming layers (atoms + `withToast`). Keep CLIENT implementations narrowly focused on transport and error shaping.
-- Keep `AuthCallback` prefixes aligned with app middleware. Update both whenever authenticated route trees move.
+- Atoms MUST use `withToast` wrapper from `@beep/ui/common/with-toast` for optimistic updates and user feedback.
+  Keep atoms narrowly focused on single operations (sign-in, sign-out, password change).
+- Keep `AuthCallback` prefixes aligned with app middleware in `apps/web`. Update both whenever authenticated route trees move.
 
 ## Quick Recipes
 
 ### Wire a sign-out atom with toast feedback
 
 ```ts
-import {SignOutImplementations} from "@beep/iam-client";
-import {clientRuntimeLayer} from "@beep/runtime-client";
-import {withToast} from "@beep/ui/common/with-toast";
-import {Atom} from "@effect-atom/atom-react";
+import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
 import * as O from "effect/Option";
+import { Atom } from "@effect-atom/atom-react";
+import { client } from "@beep/iam-client/adapters";
+import { IamError } from "@beep/iam-client/errors";
+import { clientRuntimeLayer } from "@beep/runtime-client";
+import { withToast } from "@beep/ui/common/with-toast";
 
 const runtime = Atom.runtime(clientRuntimeLayer);
 
 export const signOutAtom = runtime.fn(
   F.flow(
-    SignOutImplementations.SignOut,
+    Effect.gen(function* () {
+      const result = yield* Effect.tryPromise({
+        try: () => client.signOut(),
+        catch: (error) => IamError.match(error, { method: "signOut", domain: "auth" }),
+      });
+
+      client.$store.notify("$sessionSignal");
+      return result;
+    }),
     withToast({
       onWaiting: "Signing out",
       onSuccess: "Signed out successfully",
-      onFailure: O.match({onNone: () => "Failed with unknown error.", onSome: (err) => err.message}),
+      onFailure: O.match({ onNone: () => "Failed with unknown error.", onSome: (err) => err.message }),
     })
   )
 );
 ```
 
-### Bridge a Better Auth call with `Contract.implement`
+### Integrate Better Auth with Effect runtime
 
 ```ts
-import {client} from "@beep/iam-client/adapters";
-import {addFetchOptions, requireData} from "@beep/iam-client/clients/_internal";
-import {SignInSocialContract} from "@beep/iam-client/clients/sign-in/sign-in.contracts";
-import {IamError} from "@beep/iam-client/errors";
 import * as Effect from "effect/Effect";
+import * as F from "effect/Function";
+import { client } from "@beep/iam-client/adapters";
+import { IamError } from "@beep/iam-client/errors";
 
-export const SignInWithProviderHandler = SignInSocialContract.implement(
-  Effect.fn(function* (payload, {continuation}) {
-    const result = yield* continuation.run((handlers) =>
-      client.signIn.social(
-        addFetchOptions(handlers, {
-          provider: payload.provider,
-          callbackURL: payload.callbackURL ?? undefined,
+export const signInWithProvider = (provider: string, callbackURL?: string) =>
+  Effect.gen(function* () {
+    const result = yield* Effect.tryPromise({
+      try: () =>
+        client.signIn.social({
+          provider,
+          callbackURL,
+        }),
+      catch: (error) =>
+        IamError.match(error, {
+          method: "signInWithProvider",
+          domain: "auth",
+          plugin: "social",
+        }),
+    });
+
+    if (result.error) {
+      return yield* Effect.fail(
+        IamError.new(result.error, "Social sign-in failed", {
+          method: "signInWithProvider",
+          domain: "auth",
         })
-      )
-    );
-
-    yield* continuation.raiseResult(result);
-
-    if (result.error == null) {
-      client.$store.notify("$sessionSignal");
+      );
     }
 
-    const data = yield* requireData(result.data, "SignInWithProviderHandler", continuation.metadata);
-
-    return yield* SignInSocialContract.decodeUnknownSuccess(data);
-  }, Effect.catchTags({
-    ParseError: (error) => Effect.fail(IamError.match(error, continuation.metadata)),
-  }))
-);
+    client.$store.notify("$sessionSignal");
+    return result.data;
+  });
 ```
 
 ### Sanitize callback targets before redirecting
@@ -116,10 +131,10 @@ export const SignInWithProviderHandler = SignInSocialContract.implement(
 ```ts
 import * as F from "effect/Function";
 import * as Str from "effect/String";
-import {AuthCallback} from "@beep/iam-client";
+import { AuthCallback } from "@beep/iam-client";
 
 export const resolveCallbackTarget = (raw: string | null | undefined) =>
-  AuthCallback.sanitizePath(F.pipe(raw ?? AuthCallback.defaultTarget, Str.trim));
+  F.pipe(raw ?? AuthCallback.defaultTarget, Str.trim, AuthCallback.sanitizePath);
 ```
 
 ## Verifications
@@ -135,19 +150,19 @@ export const resolveCallbackTarget = (raw: string | null | undefined) =>
 
 ## Contributor Checklist
 
-- Add new Better Auth flows by creating matching `*.contracts.ts` and `*.implementations.ts` files, registering them
-  with the existing `ContractKit`, and re-exporting through `src/clients/index.ts`.
-- Implement handlers via `ContractName.implement(Effect.fn(...))`, encode payloads, call Better Auth through
-  `continuation.run`, and decode via `ContractName.decodeUnknownSuccess`; telemetry + toasts rely on those
-  `continuation.metadata` values being accurate.
-- Ensure credential-bearing fields (email, password, tokens) use `Redacted.value` before passing into Better Auth
-  helpers.
-- Keep session-mutating implementations notifying `$sessionSignal`; update usage snapshots if the interaction points
-  move.
-- Update this guide whenever `contractkit` APIs change (for example, new helpers on `ContractKit`) so downstream agents
+- Add new Better Auth flows by creating matching schema/form/atom files in `src/v1/[feature]/` directories.
+  Follow the existing pattern: `*.schema.ts` for Effect Schema definitions, `*.forms.ts` for React hook form helpers,
+  and `*.atoms.ts` for reactive state with runtime integration.
+- Wrap Better Auth calls in `Effect.tryPromise` or `Effect.gen` with proper error handling via `IamError.match`.
+  Ensure error metadata includes `method`, `domain`, and `plugin` fields for structured telemetry.
+- Ensure credential-bearing fields (email, password, tokens) use `S.Redacted(S.String)` in schemas and extract values
+  via `Redacted.value()` before passing to Better Auth.
+- Keep session-mutating implementations notifying `$sessionSignal` via `client.$store.notify("$sessionSignal")`;
+  update usage snapshots if the interaction points move.
+- Update this guide whenever v1 module structure changes or new Better Auth plugins are added so downstream agents
   stay aligned.
-- Replace the dummy Bun test with meaningful coverage when modifying `contractkit` or adapters; co-locate tests beside
-  the touched module.
+- Add focused tests in `test/` when modifying adapters or adding new v1 modules; co-locate tests beside
+  the touched module when possible.
 
 ## Security
 

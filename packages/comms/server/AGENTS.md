@@ -54,8 +54,10 @@
 
   const $I = $CommsServerId.create("db/repos/email-template.repo");
 
+  const dependencies = [CommsDb.layer] as const;
+
   export class EmailTemplateRepo extends Effect.Service<EmailTemplateRepo>()($I`EmailTemplateRepo`, {
-    dependencies: [CommsDb.Db.Live],
+    dependencies,
     accessors: true,
     effect: Effect.gen(function* () {
       yield* CommsDb.Db;

@@ -3,6 +3,7 @@ import { readEnvLoggerConfig } from "@beep/errors/server";
 import { deepStrictEqual, scoped } from "@beep/testkit";
 import * as Effect from "effect/Effect";
 import * as LogLevel from "effect/LogLevel";
+import * as P from "effect/Predicate";
 
 describe("errors/readEnvLoggerConfig", () => {
   scoped("defaults to pretty + All in development (no NODE_ENV)", () =>
@@ -11,7 +12,7 @@ describe("errors/readEnvLoggerConfig", () => {
       delete process.env.NODE_ENV;
       yield* Effect.addFinalizer(() =>
         Effect.sync(() => {
-          if (prev == null) delete process.env.NODE_ENV;
+          if (P.isNullable(prev)) delete process.env.NODE_ENV;
           else process.env.NODE_ENV = prev;
         })
       );

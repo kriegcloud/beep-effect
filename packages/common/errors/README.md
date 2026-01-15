@@ -191,8 +191,8 @@ export const run = Effect.gen(function* () {
     spanLabel: "batch.process",
   });
 
-  const successCount = F.pipe(successes, A.size);
-  const errorCount = F.pipe(errors, A.size);
+  const successCount = F.pipe(successes, A.length);
+  const errorCount = F.pipe(errors, A.length);
 
   yield* Effect.logInfo("Batch complete", { successCount, errorCount });
   return { successCount, errorCount };

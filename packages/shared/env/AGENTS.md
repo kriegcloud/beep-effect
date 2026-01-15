@@ -6,10 +6,19 @@
 - Exposes `clientEnv` for browser-safe NEXT_PUBLIC_ variables and `serverEnv` for server-side configuration.
 - Uses Effect's Config system for composable, type-safe configuration loading with proper error messages.
 
+## Dependencies
+
+| Package | Purpose |
+|---------|---------|
+| `@beep/constants` | Environment mode enums, auth provider names, log format/level types |
+| `@beep/schema` | Branded schema utilities (URL, URLPath validation) |
+| `@beep/shared-domain` | Shared entity ID types (UserId for admin configuration) |
+| `effect` | Core Effect runtime, Config system, Schema validation |
+
 ## Surface Map
 - **clientEnv** — Synchronously loaded client environment configuration from `NEXT_PUBLIC_*` environment variables. Includes:
   - `env` — Environment mode (dev/staging/prod)
-  - `appName`, `appDomain`, `appUrl`, `apiUrl`, `authUrl` — Application URLs
+  - `appName`, `appDomain`, `appUrl`, `apiUrl`, `authUrl`, `authPath` — Application URLs and paths
   - `authProviderNames` — Comma-separated OAuth provider names
   - `otlpTraceExporterUrl`, `otlpLogExporterUrl`, `otlpMetricExporterUrl` — Observability endpoints
   - `logLevel`, `logFormat` — Logging configuration
@@ -32,6 +41,7 @@
   - `alchemy.password` — Alchemy service password (Redacted)
   - `marketing.dub.token` — Dub marketing platform token (Redacted)
   - `upload.secret` — UploadThing secret (Redacted)
+  - `liveblocks.secretKey` — Liveblocks API secret key for real-time collaboration (Redacted)
   - `baseUrl` — Computed base URL based on Vercel environment or localhost
   - `productionUrl` — Optional Vercel project production URL
   - `isVite` — Flag indicating if running in Vite environment

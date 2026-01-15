@@ -56,11 +56,10 @@ Available via wildcard export `@beep/documents-server/handlers`:
 Note: The handlers export works via the package.json wildcard export `./*` mapping to `./src/*.ts`.
 
 ### Internal Services
-Available via wildcard export (e.g., `@beep/documents-server/config`, `@beep/documents-server/SignedUrlService`):
+Available via wildcard export (e.g., `@beep/documents-server/SignedUrlService`):
 
 | Export | Description |
 |--------|-------------|
-| `FilesConfig` | Configuration tag for S3 storage settings (`@beep/documents-server/config`) |
 | `StorageService` | S3 file upload with pre-signed URLs (`@beep/documents-server/SignedUrlService`) |
 
 ## Usage
@@ -110,8 +109,8 @@ const queryDocuments = Effect.gen(function* () {
 
 ```typescript
 import { ExifToolService } from "@beep/documents-server/files";
+import { FileSystem } from "@effect/platform";
 import * as Effect from "effect/Effect";
-import * as FileSystem from "@effect/platform/FileSystem";
 
 const extractMetadata = Effect.gen(function* () {
   const exifTool = yield* ExifToolService;
@@ -271,10 +270,9 @@ bun run --filter @beep/documents-server build
 - Database errors are handled via `DbError` from `@beep/shared-domain`
 
 ### Configuration
-- Configuration is managed through Effect Context tags
-- `FilesConfig` provides S3 settings from `@beep/shared-env/ServerEnv`
-- Access via `FilesConfig.Live` or `FilesConfig.layerFrom(customEnv)` for testing
-- Never read `process.env` directly; use Effect Config or environment layers
+- S3 configuration is accessed via `serverEnv` from `@beep/shared-env/ServerEnv`
+- Storage service reads `serverEnv.cloud.aws.s3.bucketName` for S3 operations
+- Never read `process.env` directly; always use typed environment access from `@beep/shared-env`
 
 ### Import Conventions
 - Follow Effect namespace import conventions: `import * as Effect from "effect/Effect"`
@@ -291,6 +289,5 @@ The package provides multiple export paths defined in `package.json`:
 - **Main** (`@beep/documents-server`) — DocumentsDb, DocumentsRepos, file services (ExifToolService, PdfMetadataService)
 - **Files** (`@beep/documents-server/files`) — Explicit export for file processing services
 - **Handlers** (`@beep/documents-server/handlers`) — RPC handler layers (via wildcard `.*` export)
-- **Config** (`@beep/documents-server/config`) — FilesConfig (via wildcard `.*` export)
 - **SignedUrlService** (`@beep/documents-server/SignedUrlService`) — StorageService (via wildcard `.*` export)
 - **Database** (`@beep/documents-server/db`) — Re-export of DocumentsDb (same as main export)

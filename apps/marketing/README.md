@@ -37,21 +37,21 @@ bun install
 bun run dev --filter @beep/marketing
 
 # Production build
-bun run --filter @beep/marketing build
+bun run build --filter @beep/marketing
 
 # Start production server
-bun run --filter @beep/marketing start
+bun run start --filter @beep/marketing
 
-# Type check (from workspace root)
-bun run check
+# Type check
+bun run check --filter @beep/marketing
 
-# Lint (from workspace root)
-bun run lint
+# Lint
+bun run lint --filter @beep/marketing
 ```
 
 The development server will start at [http://localhost:3000](http://localhost:3000).
 
-**Note**: The marketing app's `package.json` defines only `dev`, `build`, and `start` scripts. Type checking and linting should be run from the workspace root.
+**Note**: The marketing app's `package.json` defines only `dev`, `build`, and `start` scripts. Type checking and linting are run via workspace root with the `--filter` flag.
 
 ## Project Structure
 
@@ -81,12 +81,7 @@ The application uses a minimal Next.js configuration in `next.config.ts`. Additi
 
 ### TypeScript
 
-The app extends the workspace's `tsconfig.base.jsonc` and defines a path alias:
-```typescript
-"@beep/marketing/*": ["./src/*"]
-```
-
-However, note that the current source files are in the `app/` directory, not `src/`. This path alias is configured but currently unused.
+The app extends the workspace's `tsconfig.base.jsonc`. Source files are located in the `app/` directory following Next.js App Router conventions.
 
 ### Tailwind CSS
 

@@ -60,7 +60,7 @@ declare namespace ClientEnvSchema {
  *
  * @example
  * ```typescript
- * import { clientEnv } from "@beep/shared-server"
+ * import { clientEnv } from "@beep/shared-env"
  *
  * console.log(clientEnv.appName)
  * console.log(clientEnv.appUrl)

@@ -11,8 +11,9 @@
 - `src/schema.ts` — aggregates everything exported from `tables/` and `relations.ts`, so `IamDbSchema` always includes both column builders and relation metadata.
 - `src/relations.ts` — Drizzle `relations` definitions grouped by resource families (memberships, OAuth artifacts, sessions, SSO). These rely on shared tables (`organization`, `team`, `user`) and enforce cascade paths declared in the table files.
 - `src/tables/*.table.ts` — concrete IAM tables:
-  - Authentication artifacts: `account`, `session`, `passkey`, `twoFactor`, `deviceCode`, `oauthAccessToken`, `oauthApplication`, `oauthConsent`, `jwks`.
+  - Authentication artifacts: `account`, `session`, `passkey`, `twoFactor`, `deviceCode`, `oauthAccessToken`, `oauthApplication`, `oauthConsent`, `jwks`, `verification`.
   - Access control & membership: `member`, `teamMember`, `organizationRole`, `invitation`, `subscription`, `apiKey`.
+  - Enterprise SSO: `ssoProvider`, `scimProvider`.
   - Aux data: `rateLimit`, `walletAddress`.
   - Every table is built via `Table.make` or `OrgTable.make` and frequently decorates columns with enums generated from `@beep/iam-domain`.
 - `src/_check.ts` — compile-time assertions that each table’s `InferSelectModel` / `InferInsertModel` matches the corresponding domain schema (`@beep/iam-domain/entities`). Extend this file whenever a table gains new columns or when new tables are introduced.
@@ -27,7 +28,7 @@
 
 ## Authoring Guardrails
 - ALWAYS import Effect modules by namespace (`import * as A from "effect/Array";`, `import * as F from "effect/Function";`) and use Effect helpers instead of native array/string/object APIs when writing cookbook examples or schema helpers.
-- Choose `OrgTable.make` for tenant-scoped resources (anything with an `organizationId` relationship) and leave `Table.make` for global artifacts (e.g. `rateLimit`, `walletAddress`). `OrgTable` automatically wires `organizationId` with cascade semantics defined in `packages/shared/tables/src/OrgTable.ts`.
+- Choose `OrgTable.make` for tenant-scoped resources (anything with an `organizationId` relationship) and leave `Table.make` for global artifacts (e.g. `rateLimit`, `walletAddress`). `OrgTable` automatically wires `organizationId` with cascade semantics defined in `packages/shared/tables/src/org-table/OrgTable.ts`.
 - Generate enums via domain kits (e.g. `Member.makeMemberRolePgEnum`) so Postgres enum names align with the domain schema and Better Auth plugin expectations. NEVER handcraft enum builders.
 - Keep `_check.ts` synchronized whenever you add or rename columns; failure to extend the file will silently erode type alignment between Drizzle models and `@beep/iam-domain`.
 - Shared tables (`organization`, `team`, `user`) are re-exported from `@beep/shared-tables`. Edits belong in the shared package, not here; note cross-package implications before touching them.

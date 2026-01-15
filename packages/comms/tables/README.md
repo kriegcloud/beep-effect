@@ -18,25 +18,44 @@ Defines multi-tenant Drizzle tables for the Communications slice using factory p
 
 | Export | Description |
 |--------|-------------|
-| `schema` | Complete Communications schema for Drizzle client |
+| `CommsDbSchema` | Namespace re-exporting all Communications table definitions and relations |
+| `CommsDbSchema.emailTemplate` | Email template table with support for to/cc/bcc recipients, subject, and body |
+| `CommsDbSchema.emailTemplateRelations` | Drizzle relation definitions connecting email templates to users and organizations |
+
+## Schema Overview
+
+### Email Template Table
+
+The `emailTemplate` table stores reusable email templates with support for:
+- **Multi-tenant isolation**: Uses `OrgTable.make` for automatic `organizationId` foreign key
+- **User ownership**: Foreign key to `SharedDbSchema.user`
+- **Recipients**: JSONB columns for `to`, `cc`, `bcc` arrays
+- **Content**: Text columns for `subject` and `body`
+- **Audit fields**: Automatic `id`, `createdAt`, `updatedAt` via `OrgTable.make` factory
+
+**Indexes**:
+- `idx_email_template_user_id` on `userId`
+- `idx_org_id` on `organizationId`
+- Unique constraint on `(organizationId, userId, name)` to prevent duplicate template names per user
 
 ## Usage
 
 ### Import Schema
 
 ```typescript
-import * as commsSchema from "@beep/comms-tables/schema";
+import { CommsDbSchema } from "@beep/comms-tables";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
+import * as Context from "effect/Context";
 import { Db } from "@beep/shared-server";
 
 // Create CommsDb service with schema
-type CommsDb = Db.Shape<typeof commsSchema>;
+type CommsDb = Db.Shape<typeof CommsDbSchema>;
 
 export class CommsDb extends Context.Tag("CommsDb")<CommsDb, CommsDb>() {
   static readonly Live: Layer.Layer<CommsDb, never, Db.PgClientServices> = Layer.scoped(
     CommsDb,
-    Db.make({ schema: commsSchema })
+    Db.make({ schema: CommsDbSchema })
   );
 }
 ```
@@ -44,16 +63,16 @@ export class CommsDb extends Context.Tag("CommsDb")<CommsDb, CommsDb>() {
 ### Drizzle Queries
 
 ```typescript
-import * as commsSchema from "@beep/comms-tables/schema";
+import { CommsDbSchema } from "@beep/comms-tables";
 import * as Effect from "effect/Effect";
 import { CommsDb } from "@beep/comms-server";
 
-const findMessages = Effect.gen(function* () {
+const findEmailTemplates = Effect.gen(function* () {
   const db = yield* CommsDb;
   const result = yield* db.makeQuery((execute) =>
     execute((client) =>
-      client.query.message.findMany({
-        where: (table, { eq }) => eq(table.channelId, "channel_1"),
+      client.query.emailTemplate.findMany({
+        where: (table, { eq }) => eq(table.userId, 123),
       })
     )
   );
@@ -92,10 +111,9 @@ bun run db:migrate
 | Package | Purpose |
 |---------|---------|
 | `drizzle-orm` | ORM toolkit and table definitions |
-| `@beep/shared-tables` | Table factory patterns (`Table.make`, `OrgTable.make`) |
-| `@beep/shared-domain` | Shared entity models |
-| `@beep/comms-domain` | Communications entity models |
-| `@beep/schema` | Schema utilities |
+| `@beep/shared-tables` | Table factory patterns (`Table.make`, `OrgTable.make`) and shared table schemas |
+| `@beep/shared-domain` | Shared entity ID types for foreign key references |
+| `@beep/comms-domain` | Communications domain entity models (EmailTemplate) |
 
 ## Integration
 

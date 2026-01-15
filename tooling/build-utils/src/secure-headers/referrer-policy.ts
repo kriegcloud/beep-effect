@@ -2,6 +2,7 @@ import { Effect, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as ParseResult from "effect/ParseResult";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import { SecureHeadersError } from "./errors.js";
 import { wrapArray } from "./helpers.js";
@@ -115,7 +116,7 @@ export const createReferrerPolicyHeaderValue = (
   option?: undefined | ReferrerPolicyOption
 ): Effect.Effect<string | undefined, SecureHeadersError, never> =>
   Effect.gen(function* () {
-    if (option == undefined) return undefined;
+    if (P.isNullable(option)) return undefined;
     if (option === false) return undefined;
 
     const values = wrapArray(option as ReferrerPolicyValue | ReferrerPolicyValue[]);
@@ -141,7 +142,7 @@ export const createReferrerPolicyHeader = (
   headerValueCreator = createReferrerPolicyHeaderValue
 ): Effect.Effect<O.Option<ResponseHeader>, SecureHeadersError, never> =>
   Effect.gen(function* () {
-    if (option == undefined) return O.none<ResponseHeader>();
+    if (P.isNullable(option)) return O.none<ResponseHeader>();
     if (option === false) return O.none<ResponseHeader>();
 
     const value = yield* headerValueCreator(option);

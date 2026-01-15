@@ -53,8 +53,6 @@ export function AppHeader({ userId }: { userId: string }) {
 ```typescript
 "use client";
 import { ToastProvider, useToast } from "@beep/comms-ui";
-import * as Effect from "effect/Effect";
-import * as F from "effect/Function";
 
 export function App({ children }: { children: React.ReactNode }) {
   return (
@@ -75,24 +73,25 @@ function MyComponent() {
 }
 ```
 
-### With TanStack Query Integration (Future)
+### With Runtime Integration (Future)
 
 ```typescript
 "use client";
 import { NotificationList } from "@beep/comms-ui";
 import { useQuery } from "@tanstack/react-query";
 import * as NotificationContracts from "@beep/comms-client";
-import { clientRuntimeLayer } from "@beep/runtime-client";
-import { Atom } from "@effect-atom/atom-react";
-
-const runtime = Atom.runtime(clientRuntimeLayer);
+import { useRuntime } from "@beep/runtime-client";
+import * as Effect from "effect/Effect";
 
 export function NotificationsPage({ userId }: { userId: string }) {
+  const runtime = useRuntime();
+
   const { data, isLoading } = useQuery({
     queryKey: ["notifications", userId],
-    queryFn: () => runtime.runPromise(
-      NotificationContracts.GetAll.implement({ userId })
-    )
+    queryFn: () =>
+      runtime.runPromise(
+        NotificationContracts.GetAll.implement({ userId })
+      )
   });
 
   if (isLoading) return <div>Loading...</div>;
@@ -102,6 +101,16 @@ export function NotificationsPage({ userId }: { userId: string }) {
 ```
 
 ## Dependencies
+
+### Peer Dependencies
+
+| Package | Purpose |
+|---------|---------|
+| `effect` | Effect runtime for utilities in components |
+
+### Expected Integration Dependencies
+
+When implementing components, you will typically need these packages (add them to `dependencies` in `package.json` as needed):
 
 | Package | Purpose |
 |---------|---------|
@@ -113,7 +122,6 @@ export function NotificationsPage({ userId }: { userId: string }) {
 | `@tanstack/react-query` | Data fetching and caching |
 | `@mui/material` | Material UI components |
 | `@mui/icons-material` | Material UI icons |
-| `effect` | Effect runtime for utilities in components |
 
 ## Integration
 

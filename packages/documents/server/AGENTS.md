@@ -26,8 +26,8 @@
 - **Root barrel exports** — `src/index.ts` and `src/db.ts` forward all public pieces for `@beep/documents-server` consumers. Additional export path `files` provides file processing utilities.
 
 ## Usage Snapshots
-- `packages/runtime/server/src/Persistence.layer.ts` — Merges `DocumentsRepos.layer` with IAM repos to hydrate server-side persistence.
-- `packages/runtime/server/src/DataAccess.layer.ts` — Composes database layers including `DocumentsDb.Db.layer` for slice-specific database access.
+- `packages/runtime/server/src/Persistence.layer.ts` — Composes database layers including `DocumentsDb.layer` for slice-specific database access.
+- `packages/runtime/server/src/DataAccess.layer.ts` — Merges `DocumentsRepos.layer` with other slice repos to hydrate server-side persistence.
 
 ## Authoring Guardrails
 - ALWAYS import Effect namespaces (`Effect`, `Layer`, `Context`, `A`, `Str`, etc.) and honor the no-native array/string guardrail; match patterns already present in `DbRepo.make`.
@@ -40,7 +40,7 @@
 ## Quick Recipes
 - **Hydrate DocumentRepo with a temporary Postgres client (integration tests)**
   ```ts
-  import { DocumentRepo } from "@beep/documents-server/db/repos";
+  import { DocumentRepo } from "@beep/documents-server";
   import { DocumentsDb } from "@beep/documents-server/db";
   import * as PgClient from "@effect/sql-pg/PgClient";
   import * as Effect from "effect/Effect";
@@ -49,7 +49,7 @@
   const makeTestLayer = (config: PgClient.Config) =>
     Layer.mergeAll(
       PgClient.layer(config),
-      DocumentsDb.Db.layer,
+      DocumentsDb.layer,
       DocumentRepo.Default
     );
 
@@ -58,13 +58,21 @@
     effect: Effect.Effect<A, E, DocumentRepo>
   ) => Effect.scoped(Effect.provide(effect, makeTestLayer(config)));
   ```
-- **Extend DocumentRepo inside its service effect**
+- **Extend DocumentRepo with custom query methods**
+
+  When adding new query methods to an existing repository, follow this pattern from `packages/documents/server/src/db/repos/Document.repo.ts`:
+
   ```ts
   import { DbRepo } from "@beep/shared-domain/factories";
   import { DocumentsDb } from "@beep/documents-server/db";
-  import { DocumentsEntityIds } from "@beep/shared-domain";
-  import { Document } from "@beep/documents-domain/entities";
+  import { DocumentsEntityIds, SharedEntityIds } from "@beep/shared-domain";
+  import { Document, Entities } from "@beep/documents-domain";
+  import { DbClient } from "@beep/shared-server";
   import * as Effect from "effect/Effect";
+  import * as S from "effect/Schema";
+
+  // Internal to repos directory - define dependencies inline
+  const dependencies = [DocumentsDb.layer] as const;
 
   export class DocumentRepo extends Effect.Service<DocumentRepo>()("@beep/documents-server/db/repos/DocumentRepo", {
     dependencies,
@@ -78,15 +86,33 @@
         Effect.succeed({})
       );
 
-      const listBySpace = makeQuery((execute, spaceId: DocumentsEntityIds.KnowledgeSpaceId.Type) =>
-        execute((client) =>
-          client.query.document.findMany({
-            where: (table, { eq }) => eq(table.spaceId, spaceId),
-          })
-        )
+      // Add custom query using makeQuery helper
+      const listByOrganization = makeQuery(
+        (
+          execute,
+          params: {
+            readonly organizationId: SharedEntityIds.OrganizationId.Type;
+            readonly limit?: number;
+          }
+        ) =>
+          execute((client) =>
+            client.query.document.findMany({
+              where: (table, { eq, isNull, and }) =>
+                and(
+                  eq(table.organizationId, params.organizationId),
+                  isNull(table.deletedAt)
+                ),
+              orderBy: (table, { desc }) => [desc(table.updatedAt)],
+              limit: params.limit ?? 50,
+            })
+          ).pipe(
+            Effect.flatMap(S.decode(S.Array(Entities.Document.Model))),
+            Effect.mapError(DbClient.DatabaseError.$match),
+            Effect.withSpan("DocumentRepo.listByOrganization")
+          )
       );
 
-      return { ...baseRepo, listBySpace };
+      return { ...baseRepo, listByOrganization };
     })
   }) {}
   ```

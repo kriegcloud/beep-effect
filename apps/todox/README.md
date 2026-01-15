@@ -1,6 +1,6 @@
 # @beep/todox
 
-Full-featured Next.js 16 application demonstrating Material UI theming, shadcn/ui integration, and Effect patterns with a functional email client and rich text editor.
+Full-featured Next.js 16 application demonstrating Material UI theming, shadcn/ui integration, and Effect patterns with email client, rich text editor, and authentication flows.
 
 ## Purpose
 
@@ -9,6 +9,7 @@ TodoX is a comprehensive showcase application built with Next.js 16 App Router, 
 - **shadcn/ui** component library (49+ components) for accessible UI primitives
 - **Email Client** feature with inbox, compose, navigation, and mail provider
 - **Rich Text Editor** powered by TipTap with toolbar, bubble menu, and code highlighting
+- **Authentication System** with guards, sign-in/sign-up flows, and Better Auth integration
 - **Effect-based utilities** for functional data transformations throughout the codebase
 - **Navigation System** with collapsible sidebar, top navbar, team switcher, and side panels
 - **AI Chat Panel** for AI-powered interactions
@@ -17,7 +18,7 @@ TodoX is a comprehensive showcase application built with Next.js 16 App Router, 
 - **Comprehensive Provider Stack** (IAM, Theme, i18n, Localization, Settings)
 - **TypeScript strict mode** with comprehensive type safety
 
-This application demonstrates advanced UI patterns, component composition, Material UI theming, and Effect integration in the beep-effect monorepo.
+This application demonstrates advanced UI patterns, component composition, Material UI theming, and Effect integration in the beep-effect monorepo. It serves as a reference implementation for full-stack Effect applications with React.
 
 ## Installation
 
@@ -37,10 +38,16 @@ apps/todox/
 ├── src/
 │   ├── app/                      # Next.js App Router
 │   │   ├── api/mail/             # Mail API endpoints (labels, details, list)
-│   │   ├── demo/                 # Demo page
+│   │   ├── auth/                 # Authentication pages (sign-in, sign-up)
+│   │   ├── demo/                 # Demo page with MUI/shadcn examples
 │   │   ├── layout.tsx            # Root layout with provider stack
-│   │   ├── page.tsx              # Main page
+│   │   ├── page.tsx              # Main page (mail app)
 │   │   └── globals.css           # Global styles and Tailwind imports
+│   ├── providers/                # Authentication guards
+│   │   ├── AuthGuard.tsx         # Protected route guard
+│   │   ├── GuestGuard.tsx        # Guest-only route guard
+│   │   ├── GuardErrorBoundary.tsx # Error boundary for auth failures
+│   │   └── GuardErrorFallback.tsx # Fallback UI for auth errors
 │   ├── features/                 # Feature modules
 │   │   ├── mail/                 # Email client feature
 │   │   │   ├── provider/         # Mail context provider
@@ -91,8 +98,8 @@ apps/todox/
 │   │   │   ├── nav-user.tsx             # User profile footer
 │   │   │   ├── team-switcher.tsx        # Team selector dropdown
 │   │   │   └── index.ts
-│   │   ├── side-panel/           # Side panel component
 │   │   ├── mini-sidebar/         # Compact sidebar variant
+│   │   ├── side-panel/           # Side panel component
 │   │   ├── ui/                   # shadcn/ui primitives (49+ components)
 │   │   ├── component-example.tsx # Example components
 │   │   ├── example.tsx           # Usage examples
@@ -119,7 +126,7 @@ apps/todox/
 │   │   └── extended-theme-types.ts
 │   ├── lib/
 │   │   └── utils.ts              # Utility functions (cn, etc.)
-│   ├── app-config.ts             # Application configuration
+│   ├── config.ts                 # Application configuration
 │   └── global-providers.tsx      # Comprehensive provider stack
 ├── public/
 │   ├── logo.avif                 # Application logo
@@ -132,30 +139,29 @@ apps/todox/
 
 ## Key Dependencies
 
-### Internal @beep Packages
+### Internal @beep Packages (Common Layer)
 
 | Package            | Purpose                           | Usage                                     |
 |--------------------|-----------------------------------|-------------------------------------------|
-| `@beep/shared-env` | Environment configuration         | Client environment access via `clientEnv` |
 | `@beep/constants`  | Schema-backed enums and constants | Shared constants                          |
-| `@beep/errors`     | Error handling utilities          | Error types and logging                   |
 | `@beep/schema`     | Effect Schema utilities           | Schema validation                         |
 | `@beep/utils`      | Pure runtime helpers              | Functional utilities                      |
-| `@beep/invariant`  | Assertion contracts               | Runtime assertions                        |
-| `@beep/identity`   | Package identity                  | Package metadata                          |
-| `@beep/types`      | Compile-time types                | Type definitions                          |
+| `@beep/shared-env` | Environment configuration         | Client environment access via `clientEnv` |
 
-### Slice Dependencies
+### Internal @beep Packages (UI Layer)
+
+| Package             | Purpose                                    |
+|---------------------|-------------------------------------------|
+| `@beep/ui`          | Main UI library with MUI components        |
+| `@beep/ui-core`     | Core UI configuration and settings         |
+| `@beep/iam-ui`      | IAM-specific UI components                 |
+
+### Internal @beep Packages (Runtime & Slices)
 
 | Package                  | Purpose                              |
 |--------------------------|--------------------------------------|
-| `@beep/documents-server` | Document management server layer     |
-| `@beep/iam-client`       | Authentication client contracts      |
-| `@beep/iam-domain`       | IAM domain models                    |
-| `@beep/iam-server`       | Authentication server infrastructure |
 | `@beep/runtime-client`   | Browser ManagedRuntime               |
 | `@beep/runtime-server`   | Server ManagedRuntime                |
-| `@beep/shared-domain`    | Cross-slice domain entities          |
 
 ### UI Libraries
 
@@ -191,12 +197,6 @@ apps/todox/
 |------------------|----------------------------|
 | `@ai-sdk/react`  | AI SDK React hooks         |
 | `ai`             | Vercel AI SDK core         |
-
-### Mail Feature
-
-| Package          | Purpose                           |
-|------------------|-----------------------------------|
-| `date-fns`       | Date formatting and manipulation  |
 
 ### DevDependencies
 
@@ -302,9 +302,39 @@ Component-specific theme overrides available for:
 - Form controls (TextField, Select, Autocomplete)
 - Layout components (Card, Dialog, Menu)
 
-### Custom Components & Features
+### Authentication Guards
 
-#### Mail Feature
+```tsx
+// From providers/AuthGuard.tsx
+import { AuthGuard } from "@beep/todox/providers/AuthGuard"
+import { GuestGuard } from "@beep/todox/providers/GuestGuard"
+
+// Protected route - requires authentication
+export default function DashboardPage() {
+  return (
+    <AuthGuard>
+      <Dashboard />
+    </AuthGuard>
+  )
+}
+
+// Guest route - redirects if authenticated
+export default function SignInPage() {
+  return (
+    <GuestGuard>
+      <SignInForm />
+    </GuestGuard>
+  )
+}
+```
+
+**Guards**:
+- `AuthGuard` — Protects routes requiring authentication, redirects to sign-in if unauthenticated
+- `GuestGuard` — Protects guest-only routes (sign-in, sign-up), redirects to dashboard if authenticated
+- `GuardErrorBoundary` — Error boundary for authentication failures
+- `GuardErrorFallback` — Fallback UI shown on auth errors
+
+### Mail Feature
 
 Complete email client implementation with provider-based state management:
 
@@ -338,7 +368,7 @@ export default function MailPage() {
 - Server actions for mail operations in `src/actions/mail.ts`
 - API routes in `src/app/api/mail/` (labels, details, list)
 
-#### Rich Text Editor
+### Rich Text Editor
 
 TipTap-based editor with custom extensions and toolbar:
 
@@ -379,7 +409,7 @@ export function ComposeEmail() {
 - Custom toolbar state management via `useToolbarState`
 - Bubble menu for contextual formatting
 
-#### Navbar Components
+### Navbar Components
 
 ```tsx
 // From navbar/top-navbar.tsx and individual components
@@ -420,7 +450,7 @@ const initials = F.pipe(
 )
 ```
 
-#### Sidebar System
+### Sidebar System
 
 ```tsx
 // From sidebar/main-content-panel-sidebar.tsx
@@ -456,7 +486,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 - `TeamSwitcher` — Full team selector dropdown
 - `TeamSwitcherCompact` — Compact variant for navbar
 
-#### AI Chat Panel
+### AI Chat Panel
 
 ```tsx
 // From ai-chat/ai-chat-panel.tsx
@@ -480,7 +510,7 @@ export default function Page() {
 - AI SDK integration via `@ai-sdk/react`
 - Model selector and file attachments
 
-#### Global Provider Stack
+### Global Provider Stack
 
 ```tsx
 // From global-providers.tsx
@@ -640,4 +670,6 @@ const enableDebugTools = clientEnv.env === "dev"
 - [Root AGENTS.md](../../AGENTS.md) — Architecture and development guidelines
 - [Effect Patterns](../../documentation/EFFECT_PATTERNS.md) — Effect-specific patterns
 - [Package Structure](../../documentation/PACKAGE_STRUCTURE.md) — Monorepo architecture
-- [Shared Environment](../../packages/shared/env/AGENTS.md) — Environment configuration
+- [Shared Environment](../../packages/shared/env/CLAUDE.md) — Environment configuration
+- [IAM Client](../../packages/iam/client/CLAUDE.md) — Authentication client patterns
+- [UI Core](../../packages/ui/core/CLAUDE.md) — Theme system and UI foundations

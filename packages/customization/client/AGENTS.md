@@ -37,7 +37,9 @@ Provides the client-side API surface for customization operations. This package:
 | `effect` | Core Effect runtime | Peer dependency |
 | `@beep/customization-domain` | Domain entities and value objects | `packages/customization/domain/` |
 
-**Note**: This package does NOT have direct runtime dependencies on `@beep/customization-server` — communication happens via RPC contracts.
+**Note**:
+- This package does NOT have direct runtime dependencies on `@beep/customization-server` — communication happens via RPC contracts.
+- Runtime dependencies like `@beep/shared-client` will be added as the implementation progresses.
 
 ## Architecture Context
 
@@ -52,7 +54,7 @@ domain -> tables -> server -> client -> ui
 
 ### Cross-Package Relationships
 
-- **Consumed by**: `@beep/customization-ui`, `@beep/web`
+- **Consumed by**: `@beep/customization-ui`, `apps/web` (web application)
 - **Communicates with**: `@beep/customization-server` (via RPC contracts)
 
 ## Usage Patterns

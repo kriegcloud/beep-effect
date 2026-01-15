@@ -3,19 +3,19 @@
 ## Purpose & Fit
 - Centralizes IAM domain models via `M.Class` definitions that merge shared audit fields through `makeFields`, giving infra and tables a single source of truth for schema variants (see `src/entities/Account/Account.model.ts` and `@beep/shared-domain` common utilities).
 - Re-exports the IAM entity inventory to consumers through the package root so repos, tables, and runtimes can import `Entities.*` without piercing folder structure.
-- Provides IAM-specific tagged errors while delegating unknown fallbacks to the shared Beep error stack, keeping error channels typed across slices.
-- Bridges shared-kernel entities (Organization, Team, User) into the IAM slice so cross-slice consumers can stay on the IAM namespace without re-import juggling.
+- **Note**: This package contains ONLY domain entities and schemas. Error types are defined in `@beep/iam-client` (for client operations) and infrastructure packages (for server operations).
+- Bridges shared-kernel entities (Organization, Team, User, Session) into the IAM slice so cross-slice consumers can stay on the IAM namespace without re-import juggling.
 
 ## Surface Map
 - **Entities.Account** — OAuth account linkage with sensitive token wrappers and expiry metadata.
 - **Entities.ApiKey** — API key issuance, hashed secrets, and rate limit defaults.
 - **Entities.DeviceCode / OAuthAccessToken / OAuthApplication / OAuthConsent** — Device flow + OAuth client state machines, covering pending status enums and PKCE secrets.
 - **Entities.Invitation / Member / TeamMember / OrganizationRole** — Membership constructs with schema kits for role/status enums plus PG enum helpers.
-- **Entities.Passkey / TwoFactor / Session / RateLimit** — Authentication hardening (WebAuthn, TOTP, session context) and rate tracking.
+- **Entities.Passkey / TwoFactor / RateLimit** — Authentication hardening (WebAuthn, TOTP) and rate tracking.
+- **Entities.Session** — Session context (re-exported from `@beep/shared-domain/entities`).
 - **Entities.Subscription / WalletAddress / SsoProvider / Verification** — Billing, crypto wallets, SSO metadata, and verification tokens with expiry logic.
 - **Entities.Jwks / ScimProvider** — Additional entities for JSON Web Key Sets and SCIM provider configuration.
 - **Schema kits** — Literal kits expose `.Enum`, `.Options`, and `make*PgEnum` utilities for tables.
-- **IamError exports** — `IamError` (tagged) and `IamUnknownError` (blends shared unknown error contract).
 
 ## Usage Snapshots
 - Repositories import `Entities` to seed `Repo.make` factories that enforce typed persistence.
@@ -30,7 +30,7 @@
 - Maintain `Symbol.for("@beep/iam-domain/<Entity>Model")` naming to keep schema metadata stable across database migrations and clients.
 - Prefer `BS` helpers (`FieldOptionOmittable`, `FieldSensitiveOptionOmittable`, `toOptionalWithDefault`, `BoolWithDefault`) to describe optionality and defaults; this keeps insert/update variants aligned with `Model.Class` expectations.
 - When updating schema kits, extend literals in the kit file **and** propagate matching enums via `make*PgEnum` within `@beep/iam-tables` to avoid PG drift.
-- Route new error types through `IamError` (or compose new tagged subclasses) rather than throwing bare `Error`, ensuring RPC and HTTP layers can map causes predictably.
+- NEVER define error types in this package; IAM-specific errors belong in `@beep/iam-client` (for client-side operations) or downstream infra packages. This package focuses purely on domain entities and schema definitions.
 
 ## Quick Recipes
 - **Compose an invitation insert payload with audit metadata**
@@ -119,9 +119,9 @@ export const parseSessionPayload = (payload: unknown) =>
 - NEVER create entities representing credentials without explicit expiry semantics.
 
 ### Error Information Disclosure
-- ALWAYS use `IamError` or `IamUnknownError` for error handling; NEVER expose internal details in error messages.
-- NEVER include credential values, token fragments, or user-identifiable data in error payloads.
-- ALWAYS use tagged errors that can be safely serialized without leaking implementation details.
+- Domain models should focus on data validation, not error handling; error types belong in client/infra layers.
+- NEVER include credential values, token fragments, or user-identifiable data in schema validation error messages.
+- Schema validation failures should provide minimal context to prevent information leakage.
 
 ### Audit Field Integrity
 - ALWAYS use `makeFields` to ensure audit columns (`createdAt`, `updatedAt`, `createdBy`, `updatedBy`) are present.

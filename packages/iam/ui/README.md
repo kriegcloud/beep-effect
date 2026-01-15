@@ -1,12 +1,14 @@
 # @beep/iam-ui
 
-React UI components for IAM authentication flows, bridging Effect-based RPC contracts to client-side user experiences.
+React UI components for IAM authentication flows (sign-in, sign-up), bridging Effect-based RPC contracts to client-side user experiences.
 
 ## Purpose
 
-Provides the client-side IAM entry points (sign-in, sign-up, password recovery, verification, organization invitations) consumed by `apps/web` and any application embedding IAM flows. This package bridges Effect-based RPC contracts from `@beep/iam-client` to React components using `@beep/ui` form primitives, `@beep/runtime-client` runners, and `@beep/shared-domain` navigation paths.
+Provides client-side IAM entry points consumed by `apps/web` and any application embedding IAM flows. This package bridges Effect-based RPC contracts from `@beep/iam-client` to React components using `@beep/ui` form primitives, `@beep/runtime-client` runners, and `@beep/shared-domain` navigation paths.
 
-Owns the UX orchestration layer (headings, dividers, CTA links, reCAPTCHA wiring, social provider grids) so that route-level pages remain declarative and avoid duplicating validation or RPC orchestration logic.
+Owns the UX orchestration layer (headings, dividers, CTA links, reCAPTCHA wiring) so that route-level pages remain declarative and avoid duplicating validation or RPC orchestration logic.
+
+**Current Status**: This package is in active development. Currently implements basic sign-in and sign-up flows with email authentication. Social provider authentication, passkey support, password recovery, verification flows, and organization invitations are planned but not yet implemented.
 
 ## Architecture Fit
 
@@ -14,7 +16,7 @@ Owns the UX orchestration layer (headings, dividers, CTA links, reCAPTCHA wiring
 - **Effect-First**: All RPC interactions use `Effect.gen`, `Effect.fn`, and Effect combinators
 - **Runtime Integration**: Leverages `@beep/runtime-client` for ManagedRuntime execution
 - **Better Auth Bridge**: Wraps Better Auth authentication contracts with React components
-- **Path Alias**: Import as `@beep/iam-ui`. Feature exports available via subpaths like `@beep/iam-ui/sign-in`
+- **Path Alias**: Import as `@beep/iam-ui`
 
 ## Installation
 
@@ -34,41 +36,30 @@ Then run `bun install` to link the workspace dependency.
 
 Main exports from the package root (`@beep/iam-ui`):
 
-| Export                     | Description                                                    |
-|----------------------------|----------------------------------------------------------------|
-| `IamProvider`              | Top-level provider wrapping reCAPTCHA v3 context for IAM flows |
-| `SignInView`               | Complete sign-in UI with email, social, and passkey options    |
-| `SignUpView`               | Sign-up UI with email and social registration options          |
-| `RequestResetPasswordView` | Password reset request form                                    |
-| `ResetPasswordView`        | Password reset form with token validation                      |
-| `VerifyPhoneView`          | Phone verification UI                                          |
-| `EmailVerificationSent`    | Email verification sent confirmation component                 |
-| `AcceptInvitationView`     | Organization invitation acceptance UI                          |
-| `PasskeysView`             | Passkey management UI (list, add, remove)                      |
+| Export         | Description                                         | Status         |
+|----------------|-----------------------------------------------------|----------------|
+| `IamProvider`  | Top-level provider wrapping reCAPTCHA v3 context    | ✅ Implemented |
+| `SignInView`   | Email sign-in UI (social/passkey planned)           | ✅ Implemented |
+| `SignUpView`   | Email sign-up UI (social authentication planned)    | ✅ Implemented |
 
-Subpath exports for granular component access:
+### Subpath Exports
 
-| Subpath Pattern                | Exported Components                                              | Description                                                      |
-|--------------------------------|------------------------------------------------------------------|------------------------------------------------------------------|
-| `/sign-in`                     | `SignInView`                                                     | Sign-in view and related components                              |
-| `/sign-in/sign-in-email.form`  | `SignInEmailForm`                                                | Email/password sign-in form                                      |
-| `/sign-in/sign-in-social`      | `SignInSocial`                                                   | Social provider sign-in buttons                                  |
-| `/sign-in/sign-in-passkey`     | `SignInPasskey`                                                  | Passkey authentication button                                    |
-| `/sign-up`                     | `SignUpView`                                                     | Sign-up view and related components                              |
-| `/sign-up/sign-up-email.form`  | `SignUpEmailForm`                                                | Email registration form                                          |
-| `/sign-up/sign-up-social`      | `SignUpSocial`                                                   | Social provider registration buttons                             |
-| `/recover`                     | `RequestResetPasswordView`, `ResetPasswordView`                  | Password recovery views                                          |
-| `/recover/request-reset-password.form` | `RequestResetPasswordForm`                                   | Password reset request form                                      |
-| `/recover/reset-password.form` | `ResetPasswordForm`                                              | Password reset form with token                                   |
-| `/verify`                      | `VerifyPhoneView`, `EmailVerificationSent`                       | Verification views                                               |
-| `/verify/verify-phone.form`    | `VerifyPhoneForm`                                                | Phone verification form                                          |
-| `/passkey`                     | `PasskeysView`                                                   | Passkey management view                                          |
-| `/passkey/passkeys.list`       | `PasskeysList`                                                   | Passkey list component                                           |
-| `/passkey/passkey.form`        | `PasskeyForm`                                                    | Passkey creation form                                            |
-| `/passkey/passkey.item`        | `PasskeyItem`                                                    | Individual passkey display                                       |
-| `/organization/accept-invitation` | `AcceptInvitationView`                                        | Organization invitation acceptance view                          |
-| `/_components`                 | `FormHead`, `FormDivider`, `FormReturnLink`, `FormResendCode`, `FormSocials`, `SocialIconButton`, `SocialProviderIcons`, `Terms`, `Privacy` | Shared IAM UI atoms |
-| `/_common`                     | `useCaptcha`, `useSuccessTransition`, `RecaptchaV3Provider`, `RecaptchaBadge` | Shared utilities and hooks |
+Currently available subpath exports:
+
+| Subpath        | Exported Components | Description                  |
+|----------------|---------------------|------------------------------|
+| `/sign-in`     | `SignInView`        | Sign-in view component       |
+| `/sign-up`     | `SignUpView`        | Sign-up view component       |
+
+**Note**: The package exports structure uses wildcard exports (`"./*": "./src/*.ts"`), but most components are internal implementation details. Only the exports listed above are part of the stable public API.
+
+### Internal Components
+
+The following directories contain internal implementation details and are subject to change:
+
+- `_components/` - Shared UI atoms (FormHead, FormDivider, FormReturnLink, etc.)
+- `_common/` - Internal utilities (useCaptcha, useSuccessTransition, RecaptchaV3Provider)
+- `types/` - Extended theme types
 
 ## Module Structure
 
@@ -76,36 +67,14 @@ Subpath exports for granular component access:
 src/
 ├── IamProvider.tsx           # Top-level reCAPTCHA context provider
 ├── sign-in/                  # Sign-in flow components
-│   ├── sign-in.view.tsx      # Main sign-in view
+│   ├── sign-in.view.tsx      # Main sign-in view (email only)
 │   ├── sign-in-email.form.tsx # Email/password form
-│   ├── sign-in-social.tsx    # Social provider buttons
-│   └── sign-in-passkey.tsx   # Passkey authentication
+│   ├── sign-in-social.tsx    # Social provider buttons (commented out)
+│   └── sign-in-passkey.tsx   # Passkey authentication (commented out)
 ├── sign-up/                  # Sign-up flow components
-│   ├── sign-up.view.tsx      # Main sign-up view
+│   ├── sign-up.view.tsx      # Main sign-up view (email only)
 │   ├── sign-up-email.form.tsx # Email registration form
-│   └── sign-up-social.tsx    # Social provider registration
-├── recover/                  # Password recovery components
-│   ├── request-reset-password.view.tsx
-│   ├── request-reset-password.form.tsx
-│   ├── reset-password.view.tsx
-│   └── reset-password.form.tsx
-├── verify/                   # Verification components
-│   ├── verify-phone.view.tsx
-│   ├── verify-phone.form.tsx
-│   └── components/
-│       └── email-verification-sent.tsx
-├── organization/             # Organization invitation flows
-│   └── accept-invitation/
-│       ├── accept-invitation.view.tsx
-│       └── accept-invitation.error.tsx
-├── passkey/                  # Passkey management components
-│   ├── passkeys.view.tsx
-│   ├── passkeys.list.tsx
-│   ├── passkey.item.tsx
-│   ├── passkey.form.tsx
-│   ├── passkeys.empty.tsx
-│   ├── passkeys.skeleton.tsx
-│   └── passkeys.fallback.tsx
+│   └── sign-up-social.tsx    # Social provider registration (commented out)
 ├── _components/              # Shared UI atoms for IAM flows
 │   ├── form-head.tsx
 │   ├── form-divider.tsx
@@ -121,10 +90,6 @@ src/
 │   ├── use-success-transition.ts
 │   ├── recaptcha-v3.tsx      # reCAPTCHA v3 provider component
 │   └── recaptcha-badge.tsx
-├── shared/                   # Shared atoms and utilities
-│   └── shared.atoms.tsx
-├── two-factor/               # Two-factor authentication (empty stub - reserved for future MFA)
-│   └── index.ts              # Empty export file
 └── types/                    # Extended theme types
     └── extended-theme-types.ts
 ```
@@ -149,18 +114,10 @@ export default function AuthLayout({ children }: React.PropsWithChildren) {
 
 ### Sign-In Flow
 
-Complete sign-in view with email, social, and passkey options:
+Complete sign-in view with email authentication:
 
 ```typescript
-// Import from package root (recommended for main views)
 import { SignInView } from "@beep/iam-ui";
-
-export default function SignInPage() {
-  return <SignInView />;
-}
-
-// Or import from subpath (same result)
-import { SignInView } from "@beep/iam-ui/sign-in";
 
 export default function SignInPage() {
   return <SignInView />;
@@ -170,7 +127,6 @@ export default function SignInPage() {
 Custom email sign-in form with explicit runtime wiring:
 
 ```typescript
-// Import form component from subpath (not available from root)
 import { SignInEmailForm } from "@beep/iam-ui/sign-in/sign-in-email.form";
 import { iam } from "@beep/iam-client";
 import { makeRunClientPromise, useRuntime } from "@beep/runtime-client";
@@ -196,154 +152,15 @@ export const MinimalEmailSignIn = () => {
 };
 ```
 
-### Social Provider Authentication
-
-Custom social provider buttons with filtered providers:
-
-```typescript
-import { clientEnv } from "@beep/shared-env/ClientEnv";
-import { SocialIconButton, SocialProviderIcons } from "@beep/iam-ui/_components";
-import { makeRunClientPromise, useRuntime } from "@beep/runtime-client";
-import { iam } from "@beep/iam-client";
-import { AuthProviderNameValue } from "@beep/constants";
-import Box from "@mui/material/Box";
-import * as A from "effect/Array";
-import * as F from "effect/Function";
-
-export const CustomSocialButtons = () => {
-  const runtime = useRuntime();
-  const runSocial = makeRunClientPromise(runtime, "iam.signIn.social");
-
-  const providers = F.pipe(
-    clientEnv.authProviderNames,
-    AuthProviderNameValue.filter,
-    A.filter((provider) => provider !== "twitter")
-  );
-
-  return (
-    <Box sx={{ gap: 1.5, display: "flex", flexWrap: "wrap" }}>
-      {F.pipe(
-        providers,
-        A.map((provider) => {
-          const Icon = SocialProviderIcons[provider];
-          return (
-            <SocialIconButton
-              key={provider}
-              name={provider}
-              onClick={() => runSocial(iam.signIn.social({ provider }))}
-            >
-              <Icon />
-            </SocialIconButton>
-          );
-        })
-      )}
-    </Box>
-  );
-};
-```
-
 ### Sign-Up Flow
 
-Complete sign-up view with email and social registration:
+Complete sign-up view with email registration:
 
 ```typescript
-// Import from package root (recommended)
 import { SignUpView } from "@beep/iam-ui";
 
 export default function SignUpPage() {
   return <SignUpView />;
-}
-```
-
-### Password Recovery
-
-Request password reset:
-
-```typescript
-// Import from package root (recommended)
-import { RequestResetPasswordView } from "@beep/iam-ui";
-
-export default function RequestResetPage() {
-  return <RequestResetPasswordView />;
-}
-```
-
-Reset password with token validation:
-
-```typescript
-// Import from package root (recommended)
-import { ResetPasswordView } from "@beep/iam-ui";
-
-export default function ResetPasswordPage() {
-  return <ResetPasswordView />;
-}
-```
-
-### Phone Verification
-
-Complete phone verification view:
-
-```typescript
-// Import from package root (recommended)
-import { VerifyPhoneView } from "@beep/iam-ui";
-
-export default function VerifyPhonePage() {
-  return <VerifyPhoneView />;
-}
-```
-
-Custom phone verification form with Effect integration:
-
-```typescript
-// Import form component from subpath (not available from root)
-import { VerifyPhoneForm } from "@beep/iam-ui/verify/verify-phone.form";
-import { iam } from "@beep/iam-client";
-import { makeRunClientPromise, useRuntime } from "@beep/runtime-client";
-import * as Effect from "effect/Effect";
-import * as F from "effect/Function";
-
-export const VerifyPhoneCard = () => {
-  const runtime = useRuntime();
-  const runVerifyPhone = makeRunClientPromise(runtime, "iam.verify.phone");
-
-  return (
-    <VerifyPhoneForm
-      onSubmit={(valueEffect) =>
-        runVerifyPhone(
-          F.pipe(valueEffect, Effect.flatMap(iam.verify.phone))
-        )
-      }
-    />
-  );
-};
-```
-
-### Organization Invitations
-
-Accept organization invitation:
-
-```typescript
-// Import from package root (recommended)
-import { AcceptInvitationView } from "@beep/iam-ui";
-
-export default function AcceptInvitationPage() {
-  return <AcceptInvitationView />;
-}
-
-// Or import from subpath (same result)
-import { AcceptInvitationView } from "@beep/iam-ui/organization/accept-invitation";
-```
-
-### Passkey Management
-
-Passkey management view:
-
-```typescript
-// Import from package root (recommended)
-import { PasskeysView } from "@beep/iam-ui";
-
-export default function PasskeysPage() {
-  return <PasskeysView />;
 }
 ```
 
@@ -376,6 +193,31 @@ export const CustomFormWithCaptcha = () => {
 };
 ```
 
+## Planned Features
+
+The following features are planned but not yet implemented:
+
+### Password Recovery
+- `RequestResetPasswordView` - Password reset request form
+- `ResetPasswordView` - Password reset form with token validation
+
+### Verification Flows
+- `VerifyPhoneView` - Phone verification UI
+- `EmailVerificationSent` - Email verification sent confirmation component
+
+### Organization Management
+- `AcceptInvitationView` - Organization invitation acceptance UI
+
+### Passkey Management
+- `PasskeysView` - Passkey management UI (list, add, remove)
+
+### Social Provider Authentication
+- Social provider sign-in buttons (Google, GitHub, etc.)
+- Social provider registration buttons
+
+### Two-Factor Authentication
+- MFA/2FA flows (reserved for future implementation)
+
 ## What Belongs Here
 
 - **Authentication UI flows**: Sign-in, sign-up, password recovery, verification, invitations
@@ -384,7 +226,6 @@ export const CustomFormWithCaptcha = () => {
 - **UX composition**: Headings, dividers, links, icons specialized for IAM flows
 - **reCAPTCHA integration**: reCAPTCHA v3 provider and execution hooks with Effect integration
 - **Navigation helpers**: CTA links using `@beep/shared-domain` paths
-- **Social provider UI**: Icon buttons and provider grids for OAuth flows
 
 ## What Must NOT Go Here
 
@@ -397,34 +238,24 @@ export const CustomFormWithCaptcha = () => {
 
 ## Dependencies
 
-| Package                         | Purpose                                                                  |
-|---------------------------------|--------------------------------------------------------------------------|
-| `@beep/iam-client`              | IAM RPC contracts and Better Auth client utilities                       |
-| `@beep/iam-domain`              | IAM entity models and value objects                                      |
-| `@beep/iam-server`              | Better Auth configuration (direct dependency for internal configuration) |
-| `@beep/runtime-client`          | Browser ManagedRuntime for Effect execution                              |
-| `@beep/shared-domain`           | Shared paths and navigation utilities                                    |
-| `@beep/shared-client`           | Shared CLIENT contracts                                                     |
-| `@beep/shared-env`              | Client and server environment configuration                              |
-| `@beep/shared-ui`               | Shared UI components                                                     |
-| `@beep/ui`                      | Core component library                                                   |
-| `@beep/ui-core`                 | Design tokens and MUI theme configuration                                |
-| `@beep/schema`                  | Effect Schema utilities for validation                                   |
-| `@beep/constants`               | Schema-backed enums and constants                                        |
-| `@beep/identity`                | Package identity utilities                                               |
-| `@beep/types`                   | Compile-time type utilities                                              |
-| `@beep/utils`                   | Pure runtime helpers                                                     |
-| `@beep/invariant`               | Assertion contracts                                                      |
-| `@beep/errors`                  | Error logging and telemetry                                              |
-| `effect`                        | Core Effect runtime                                                      |
-| `better-auth`                   | Authentication library                                                   |
-| `@tanstack/react-form`          | Form state management                                                    |
-| `@mui/material`                 | Material-UI components                                                   |
-| `@wojtekmaj/react-recaptcha-v3` | reCAPTCHA v3 React integration                                           |
-| `@effect-atom/atom-react`       | Effect-based state atoms for React                                       |
-| `framer-motion`                 | Animation library                                                        |
-| `next`                          | Next.js framework (routing, navigation)                                  |
-| `react`                         | React library                                                            |
+| Package                         | Purpose                                                |
+|---------------------------------|--------------------------------------------------------|
+| `@beep/iam-client`              | IAM RPC contracts and Better Auth client utilities     |
+| `@beep/runtime-client`          | Browser ManagedRuntime for Effect execution            |
+| `@beep/shared-domain`           | Shared paths and navigation utilities                  |
+| `@beep/shared-env`              | Client and server environment configuration            |
+| `@beep/ui`                      | Core component library                                 |
+| `@beep/ui-core`                 | Design tokens and MUI theme configuration              |
+| `@beep/constants`               | Schema-backed enums and constants                      |
+| `effect`                        | Core Effect runtime                                    |
+| `better-auth`                   | Authentication library                                 |
+| `@tanstack/react-form`          | Form state management                                  |
+| `@mui/material`                 | Material-UI components                                 |
+| `@wojtekmaj/react-recaptcha-v3` | reCAPTCHA v3 React integration                         |
+| `@effect-atom/atom-react`       | Effect-based state atoms for React                     |
+| `framer-motion`                 | Animation library                                      |
+| `next`                          | Next.js framework (routing, navigation)                |
+| `react`                         | React library                                          |
 
 ## Development
 
@@ -458,10 +289,10 @@ bun run --filter @beep/iam-ui dev
 
 ### Effect-First Development
 
-Always compose RPC invocations with `F.pipe`, `Effect.flatMap`, or `Effect.gen`. Avoid introducing `async/await` in new logic; existing async wrappers remain for compatibility but should not expand:
+Always compose RPC invocations with `F.pipe`, `Effect.flatMap`, or `Effect.gen`. Avoid introducing `async/await` in new logic:
 
 ```typescript
-// Good - Effect pipeline
+// REQUIRED - Effect pipeline
 const handleSubmit = (valueEffect: Effect.Effect<SignInInput>) =>
   runEmail(
     F.pipe(
@@ -471,7 +302,7 @@ const handleSubmit = (valueEffect: Effect.Effect<SignInInput>) =>
     )
   );
 
-// Avoid - async/await (legacy compatibility only)
+// FORBIDDEN - async/await
 const handleSubmit = async (value: SignInInput) => {
   await auth.signIn.email(value);
 };
@@ -479,21 +310,21 @@ const handleSubmit = async (value: SignInInput) => {
 
 ### Runtime Linking
 
-Every networked action should be routed through `makeRunClientPromise(runtime, "<port>")`. Never call `iam.*` effects directly without the runtime runner; this preserves Layer injection and Better Auth session context:
+Every networked action must be routed through `makeRunClientPromise(runtime, "<port>")`. Never call `iam.*` effects directly without the runtime runner:
 
 ```typescript
-// Good - runtime wiring
+// REQUIRED - runtime wiring
 const runtime = useRuntime();
 const runEmail = makeRunClientPromise(runtime, "iam.signIn.email");
 runEmail(F.pipe(valueEffect, Effect.flatMap(iam.signIn.email)));
 
-// Bad - direct effect call (no runtime context)
+// FORBIDDEN - direct effect call
 iam.signIn.email(value);
 ```
 
 ### Schema-First Forms
 
-Forms must lean on Effect schemas from `@beep/iam-client/clients` with `formOptionsWithSubmit`. Do not hand-roll validation or default values; extend schemas upstream when fields change:
+Forms must use Effect schemas from `@beep/iam-client/clients` with `formOptionsWithSubmit`. Do not hand-roll validation:
 
 ```typescript
 import { signInEmailSchema } from "@beep/iam-client/clients/sign-in";
@@ -502,93 +333,85 @@ import { formOptionsWithSubmit } from "@beep/ui/forms";
 const form = useForm(formOptionsWithSubmit(signInEmailSchema, onSubmit));
 ```
 
-### reCAPTCHA Integration
-
-Any submission that feeds Better Auth should inject `captchaResponse` prior to calling `handleSubmit`. Maintain the `executeRecaptcha` presence guard and surface telemetry rather than silently continuing:
-
-```typescript
-const { executeCaptcha } = useCaptcha();
-
-const handleSubmit = async (value: SignInInput) => {
-  const captchaResponse = await executeCaptcha(paths.auth.signIn);
-  return runSignIn(
-    iam.signIn.email({ ...value, captchaResponse })
-  );
-};
-```
-
-### Path Hygiene
-
-Build navigation using `paths` from `@beep/shared-domain`. Hardcoded strings introduce drift across apps and server redirects:
-
-```typescript
-// Good - shared paths
-import { paths } from "@beep/shared-domain";
-<Link href={paths.auth.signUp}>Sign up</Link>
-
-// Bad - hardcoded strings
-<Link href="/auth/sign-up">Sign up</Link>
-```
-
 ### Effect Collection Utilities
 
-Respect monorepo rule-set. Use Effect Array utilities (`A.*`) instead of native array methods:
+Use Effect Array utilities instead of native array methods:
 
 ```typescript
 import * as A from "effect/Array";
 import * as F from "effect/Function";
 
-// Good - Effect Array utilities
+// REQUIRED - Effect Array utilities
 F.pipe(
   providers,
   A.filter((p) => p !== "twitter"),
   A.map((p) => <SocialButton key={p} provider={p} />)
 );
 
-// Bad - native array methods
+// FORBIDDEN - native array methods
 providers
   .filter((p) => p !== "twitter")
   .map((p) => <SocialButton key={p} provider={p} />);
 ```
 
-### Component Alignment
+### Path Hygiene
 
-Mirror theming and spacing decisions with `@beep/ui` package documentation. Use `@beep/ui` components (icons, form groups) instead of reintroducing raw MUI primitives unless the higher-level primitive is missing:
+Build navigation using `paths` from `@beep/shared-domain`:
 
 ```typescript
-// Good - use @beep/ui components
-import { FormGroup } from "@beep/ui/forms";
-import { Icon } from "@beep/ui/icons";
+// REQUIRED - shared paths
+import { paths } from "@beep/shared-domain";
+<Link href={paths.auth.signUp}>Sign up</Link>
 
-// Avoid - raw MUI unless necessary
-import FormGroup from "@mui/material/FormGroup";
+// FORBIDDEN - hardcoded strings
+<Link href="/auth/sign-up">Sign up</Link>
 ```
 
 ## Testing
 
 - Unit tests colocated in `test/` directory
-- Use Vitest/Bun for testing framework
+- Use Bun for testing framework
 - Test form validation, reCAPTCHA integration, and Effect pipelines
 - Mock runtime and RPC calls for isolated component testing
 
 Currently, the package has placeholder tests (`test/Dummy.test.ts`). Add real test coverage alongside new features.
 
-## Authoring Guardrails
+## Security Considerations
 
-- **No native collection helpers**: Use `A.*`, `Str.*`, `Record.*` from Effect
-- **Export through index files**: Update `src/index.ts` and feature `index.ts` files for new components
-- **Source schemas from CLIENT**: Import validation schemas from `@beep/iam-client/clients`, never duplicate
-- **Coordinate with UI packages**: New primitives should go to `@beep/ui` or `@beep/shared-ui`
-- **Document divergences**: Record intentional deviations from Effect patterns and open follow-up tasks
-- **Two-factor stub**: Keep `two-factor/index.ts` empty until requirements land
+### Credential Handling
+- NEVER log form values containing passwords or tokens
+- NEVER store credentials in component state beyond immediate submission
+- ALWAYS clear password fields after submission
+
+### Session Security
+- ALWAYS rely on Better Auth session management
+- NEVER cache session state locally
+- NEVER expose session tokens in URLs or localStorage
+
+### Callback URL Security
+- ALWAYS sanitize callback URLs before redirects
+- NEVER allow arbitrary redirect URLs
+- ALWAYS validate callback URLs server-side
 
 ## Related Documentation
 
-- **AGENTS.md**: Detailed package authoring guidelines and quick recipes
+- **AGENTS.md** (CLAUDE.md): Detailed package authoring guidelines and quick recipes
 - **apps/web**: Next.js application consuming these components
 - **@beep/iam-client**: RPC contracts and Better Auth client utilities
 - **@beep/runtime-client**: Browser ManagedRuntime documentation
 - **@beep/ui**: Core component library documentation
+
+## Contributing
+
+When adding new features:
+
+- [ ] Update exports in `src/index.ts` and feature `index.ts` files
+- [ ] Wrap every RPC call with `makeRunClientPromise` and Effect combinators
+- [ ] Source schemas from `@beep/iam-client/clients`
+- [ ] Use `@beep/ui` components where possible
+- [ ] Add or amend tests in `packages/iam/ui/test`
+- [ ] Update this README with new exports and usage examples
+- [ ] Document any intentional divergence from Effect patterns
 
 ## Versioning and Changes
 

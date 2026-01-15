@@ -31,7 +31,7 @@
 - **`src/secure-headers/`** — Security header type definitions
 
 ## Usage Snapshots
-- `apps/web/next.config.ts` — Uses `createNextConfig` to build production configuration
+- `apps/web/next.config.mjs` — Uses `beepNextConfig` to build production configuration
 - PWA enabled conditionally via environment variables
 - Bundle analyzer activated with `ANALYZE=true` flag
 - Security headers applied automatically in production builds

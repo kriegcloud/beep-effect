@@ -2,9 +2,11 @@
 
 Shared React components for file and folder management UI across the beep-effect monorepo.
 
-## Overview
+## Purpose
 
 `@beep/shared-ui` provides reusable UI components for file and folder management that are consumed by multiple applications in the monorepo. It bridges domain entities from `@beep/shared-domain` with UI components from `@beep/ui`, managing file browsing, uploads, folder organization, and selection workflows.
+
+This package sits in the shared layer because file management UI is used across multiple feature slices (documents, IAM profile images, etc.) and applications. All components are client-side only and require Next.js "use client" directive.
 
 Key responsibilities:
 - File and folder browsing interfaces with hierarchical display
@@ -12,9 +14,14 @@ Key responsibilities:
 - File/folder selection and bulk operations
 - Dialog flows for creating folders, moving files, and deletion confirmations
 - Integration with Effect Atom state management for reactive updates
-- Schema utilities for React component validation
 
-This package sits in the shared layer because file management UI is used across multiple feature slices (documents, IAM profile images, etc.) and applications. All components are client-side only and require Next.js "use client" directive.
+## Installation
+
+```bash
+# This package is internal to the monorepo
+# Add as a dependency in your package.json:
+"@beep/shared-ui": "workspace:*"
+```
 
 ## Key Exports
 
@@ -31,25 +38,22 @@ This package sits in the shared layer because file management UI is used across 
 | `CreateFolderDialog` | Dialog for creating new folders |
 | `DeleteConfirmationDialog` | Confirmation dialog for deleting files/folders |
 | `MoveFilesDialog` | Dialog for moving files to different folders |
-| **Schemas** | |
-| `ReactNodeSchema` | Schema for validating React nodes |
-| `isReactNode` | Type guard function for React nodes |
-| `ReactNode` | Factory function for custom React node schemas |
-| `IReactNodeSchema` | Interface for React node schema type |
 
 ## Dependencies
 
-- `@beep/schema` — `BS.formatSize` for file size display, schema annotations
-- `@beep/shared-domain` — File and Folder entity models, `EntityKind`, `SharedEntityIds`
-- `@beep/shared-client` — Effect Atom state management (filesAtom, selectedFilesAtom, uploadAtom, etc.)
-- `@beep/ui` — Base component library (Banner, Button, Dialog, DropdownMenu, Input, Label, Checkbox)
-- `@beep/ui-core` — Design utilities (`cn` helper for className merging)
-- `@beep/identity` — Package identity for schema annotations
-- `@beep/utils` — `exact` utility for struct operations (used in schemas)
-- `@effect-atom/atom-react` — React bindings for Effect Atom (Result.builder, useAtomValue, useAtomSet)
-- `effect` — Effect runtime, Array, String, Predicate, Function, Option, Equal, Schema
+| Package | Purpose |
+|---------|---------|
+| `@beep/schema` | `BS.formatSize` for file size display, schema annotations |
+| `@beep/shared-domain` | File and Folder entity models, `EntityKind`, `SharedEntityIds` |
+| `@beep/shared-client` | Effect Atom state management (filesAtom, selectedFilesAtom, uploadAtom, etc.) |
+| `@beep/ui` | Base component library (Banner, Button, Dialog, DropdownMenu, Input, Label, Checkbox) |
+| `@beep/ui-core` | Design utilities (`cn` helper for className merging) |
+| `@beep/identity` | Package identity for schema annotations |
+| `@beep/utils` | `exact` utility for struct operations |
+| `@effect-atom/atom-react` | React bindings for Effect Atom (Result.builder, useAtomValue, useAtomSet) |
+| `effect` | Effect runtime, Array, String, Predicate, Function, Option, Equal, Schema, DateTime |
 
-## Usage Patterns
+## Usage
 
 ### Basic File Browser
 
@@ -89,40 +93,31 @@ export function MyFolderView({ folder }: { folder: Folder.Type }) {
 }
 ```
 
-### React Node Schema Validation
+### Upload Progress Display
 
 ```typescript
-import * as S from "effect/Schema";
-import { ReactNodeSchema, isReactNode } from "@beep/shared-ui/schemas";
+"use client";
+import * as React from "react";
+import * as A from "effect/Array";
+import * as F from "effect/Function";
+import { PendingFileItem } from "@beep/shared-ui/files/file-item";
+import type { ActiveUpload } from "@beep/shared-client/atom";
 
-// Type guard usage (recommended for components)
-S.is(ReactNodeSchema)(<div>Hello</div>); // true
-S.is(ReactNodeSchema)("text"); // true
-S.is(ReactNodeSchema)(42); // true
-S.is(ReactNodeSchema)(null); // true
-S.is(ReactNodeSchema)([<div />, "text"]); // true
-
-// Direct type guard function
-isReactNode(<div>Hello</div>); // true
-
-// In schemas for component props
-const Props = S.Struct({
-  children: ReactNodeSchema,
-  icon: S.optional(ReactNodeSchema),
-});
+function MyUploadsList({ uploads }: { uploads: ActiveUpload[] }) {
+  return (
+    <div>
+      {F.pipe(
+        uploads,
+        A.map((upload) => (
+          <PendingFileItem key={upload.id} upload={upload} />
+        ))
+      )}
+    </div>
+  );
+}
 ```
 
-### Custom React Node Schema
-
-```typescript
-import { ReactNode } from "@beep/shared-ui/schemas";
-
-const CustomReactNode = ReactNode({
-  description: "Custom description for this React node field",
-});
-```
-
-## Integration Points
+## Integration
 
 ### With Applications
 - `apps/web` - Primary consumer for file management pages in dashboard
@@ -247,6 +242,8 @@ This pattern is critical because Effect Atom state may not be available during s
 The `PendingFileItem` component displays real-time upload progress with multiple phases:
 
 ```typescript
+import * as A from "effect/Array";
+import * as F from "effect/Function";
 import { PendingFileItem } from "@beep/shared-ui/files/file-item";
 import type { ActiveUpload } from "@beep/shared-client/atom";
 
@@ -260,9 +257,12 @@ import type { ActiveUpload } from "@beep/shared-client/atom";
 function MyUploadsList({ uploads }: { uploads: ActiveUpload[] }) {
   return (
     <div>
-      {uploads.map((upload) => (
-        <PendingFileItem key={upload.id} upload={upload} />
-      ))}
+      {F.pipe(
+        uploads,
+        A.map((upload) => (
+          <PendingFileItem key={upload.id} upload={upload} />
+        ))
+      )}
     </div>
   );
 }
@@ -271,46 +271,6 @@ function MyUploadsList({ uploads }: { uploads: ActiveUpload[] }) {
 Error handling includes specific error types from `@beep/shared-client/atom`:
 - `ImageTooLargeAfterCompression` - Displays compressed size in error message using `BS.formatSize`
 - Generic upload failures show "Upload failed"
-
-## React Node Schema Details
-
-The `ReactNodeSchema` validates any value that React can render:
-
-### Supported Types
-- **Primitives**: string, number, boolean, null, undefined
-- **React Elements**: Created via JSX or `React.createElement`
-- **Arrays**: Recursive validation of all elements
-- **Special Components**: lazy, forwardRef, memo components
-
-### Implementation Details
-- Uses Effect predicates for all type checks (no native type guards)
-- Supports nested arrays recursively
-- Provides custom pretty printer for debugging
-- Includes JSON Schema representation for API documentation
-- Uses Effect Schema annotations for full Effect integration
-
-### Type Guard Function
-
-```typescript
-import { isReactNode } from "@beep/shared-ui/schemas";
-import * as P from "effect/Predicate";
-import * as A from "effect/Array";
-
-// Implementation uses Effect utilities:
-// - P.isString, P.isNumber, P.isBoolean for primitives
-// - P.isNullable for null/undefined
-// - A.isArray for arrays (NOT P.isArray)
-// - A.every for recursive array validation
-// - React.isValidElement for React elements
-// - Symbol comparison for special components
-
-const MyComponent = ({ children }: { children: unknown }) => {
-  if (!isReactNode(children)) {
-    return null;
-  }
-  return <div>{children}</div>;
-};
-```
 
 ## Common Pitfalls
 
@@ -355,39 +315,30 @@ return Result.builder(filesResult)
   .orNull();
 ```
 
-### Schema Validation Usage
-
-```typescript
-// ❌ WRONG: Using decodeUnknown for normal props
-const MyComponent = ({ children }: { children: unknown }) => {
-  const validated = Effect.runSync(S.decodeUnknown(ReactNodeSchema)(children));
-  return <div>{validated}</div>;
-};
-
-// ✅ CORRECT: Use type guard for component boundaries
-const MyComponent = ({ children }: { children: unknown }) => {
-  if (!isReactNode(children)) return null;
-  return <div>{children}</div>;
-};
-
-// ✅ CORRECT: Use S.decodeUnknown only for external data
-const validateApiData = (data: unknown) =>
-  F.pipe(
-    data,
-    S.decodeUnknown(ReactNodeSchema),
-    Effect.catchAll(() => Effect.succeed(null))
-  );
-```
-
 ## Type Safety Notes
 
 - All file operations return Effect results via atoms
 - File and Folder types come from `@beep/shared-domain/entities`
 - Upload phases are discriminated unions from `@beep/shared-client/atom`
-- ReactNodeSchema provides full Effect Schema integration with arbitrary, pretty, jsonSchema annotations
 - Components require explicit type annotations for props (no implicit any)
 
-## Gotchas
+## Development
+
+```bash
+# Type check
+bun run --filter @beep/shared-ui check
+
+# Lint
+bun run --filter @beep/shared-ui lint
+
+# Build
+bun run --filter @beep/shared-ui build
+
+# Test
+bun run --filter @beep/shared-ui test
+```
+
+## Notes
 
 ### React 19 / Next.js 16 App Router
 - The `"use client"` directive MUST be the first statement in a file, BEFORE imports
@@ -407,23 +358,14 @@ const validateApiData = (data: unknown) =>
 - File metadata schemas use `effect/Arbitrary` for testing
 - Download functionality uses imperative browser APIs (document.createElement)
 
-### Schema Integration
-- ReactNodeSchema is for validation of external data or untrusted sources
-- DO NOT use `S.decodeUnknown` for normal React props - use TypeScript types
-- Use `S.is(ReactNodeSchema)` or `isReactNode` for type guards
-- Schema supports Effect's full annotation system (arbitrary, pretty, jsonSchema)
-
-## Build Notes
-
+### Build Notes
 - Generates both ESM and CJS builds via Babel
 - Uses `babel-plugin-transform-next-use-client` to preserve Next.js client boundaries
 - All components are client-side only (use `"use client"` directive)
 - Build output includes source maps for debugging
 - No external runtime dependencies (all peer dependencies)
 
-## Testing Notes
-
+### Testing Notes
 - File components can be tested with mock atom values
 - Use `mockMetadata` constant for file metadata in tests
-- Schema validation can be tested with `@effect/platform-node/NodeTesting`
 - Effect Atom provides test utilities via `@effect-atom/atom`

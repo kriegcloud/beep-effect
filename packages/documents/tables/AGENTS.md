@@ -17,8 +17,8 @@
 - **Type Checks (`src/_check.ts`)** — Assertions ensuring Drizzle inferred types match domain models.
 
 ## Authoring Guardrails
-- Use shared factories (`Table.make`, `OrgTable.make`, `RelationBuilder`) from `@beep/shared-tables` instead of ad-hoc definitions; they embed naming, cascade, and auditing conventions.
-- Align column types with domain schemas and `@beep/shared-domain` entity IDs (e.g., `SharedEntityIds.DocumentId`, `SharedEntityIds.KnowledgePageId`).
+- Use shared factories (`Table.make`, `OrgTable.make`) from `@beep/shared-tables` instead of ad-hoc definitions; they embed naming, cascade, and auditing conventions.
+- Align column types with domain schemas and `@beep/shared-domain` entity IDs (e.g., `DocumentsEntityIds.DocumentId`, `DocumentsEntityIds.CommentId`, `DocumentsEntityIds.DiscussionId`).
 - Generate enums through domain kits rather than raw strings.
 - Update `_check.ts` file whenever schemas change to assert Drizzle `Infer*Model` shapes match domain models.
 - Keep exports centralized via `src/schema.ts` and `src/index.ts` so infra layers can import `DocumentsDbSchema` without reaching into `tables/`.

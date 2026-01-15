@@ -45,6 +45,10 @@ The main entry point is `src/index.ts`, which exports `runRepoCli` for programma
 | `syncCommand` | Workspace environment synchronization command |
 | `pruneUnusedDepsCommand` | Unused dependency detection and removal |
 | `docgenCommand` | Documentation generation command group |
+| `bootstrapSpecCommand` | Specification scaffolding command |
+| `createSliceCommand` | Vertical slice scaffolding command |
+| `topoSortCommand` | Topological dependency sorting command |
+| `agentsValidateCommand` | AGENTS.md validation command |
 
 **Subcommands** (docgen):
 - `initCommand` - Bootstrap docgen.json configuration
@@ -60,8 +64,12 @@ The main entry point is `src/index.ts`, which exports `runRepoCli` for programma
 |---------------------|--------------------------------------------------------------------------------|
 | `env`               | Interactively create or update your `.env` file from `.env.example`          |
 | `sync`              | Copy `.env` to workspaces and regenerate type definitions                    |
-| `prune-deps` | Find and remove unused `@beep/*` workspace dependencies                      |
+| `prune-unused-deps` | Find and remove unused `@beep/*` workspace dependencies                      |
 | `docgen`            | Documentation generation suite with JSDoc analysis and AI-powered fixes      |
+| `bootstrap-spec`    | Create standardized specification structures in `specs/` directory            |
+| `create-slice`      | Scaffold new vertical slices with all 5 sub-packages (domain/tables/server/client/ui) |
+| `topo-sort`         | Output workspace packages in topological dependency order                     |
+| `agents-validate`   | Validate AGENTS.md files across packages for consistency                      |
 
 All commands are accessible via `bun run tooling/cli/src/index.ts <command> [options]` or through root package.json scripts.
 
@@ -81,7 +89,24 @@ src/
 └── commands/
     ├── env.ts                        # Interactive .env file management
     ├── sync.ts                       # Environment and type synchronization
-    ├── prune-deps.ts          # Workspace dependency pruning
+    ├── prune-unused-deps.ts          # Workspace dependency pruning
+    ├── topo-sort.ts                  # Topological dependency sorting
+    ├── agents-validate.ts            # AGENTS.md validation
+    ├── bootstrap-spec/               # Specification scaffolding
+    │   ├── index.ts                  # Command definition
+    │   ├── handler.ts                # Main handler logic
+    │   ├── schemas.ts                # Input/output schemas
+    │   ├── errors.ts                 # Tagged error types
+    │   └── utils/
+    │       ├── template.ts           # Template generation
+    │       └── file-generator.ts     # File system operations
+    ├── create-slice/                 # Vertical slice scaffolding
+    │   ├── index.ts                  # Command definition
+    │   ├── handler.ts                # Main handler logic
+    │   ├── schemas.ts                # Input/output schemas
+    │   ├── errors.ts                 # Tagged error types
+    │   └── utils/
+    │       └── template.ts           # Template generation
     └── docgen/                       # Documentation generation system
         ├── docgen.ts                 # Docgen command aggregator
         ├── init.ts                   # Bootstrap docgen.json configuration
@@ -173,6 +198,106 @@ The prune command:
 - `src/**/*.{ts,tsx}` (always)
 - `test/**/*.{ts,tsx}` (unless `--exclude-tests`)
 - Root-level config files (`*.config.{ts,mts,cts,js,mjs}`)
+
+### Bootstrap Specification
+
+Create standardized specification structures in the `specs/` directory:
+
+```bash
+# Create a new spec with medium complexity (default)
+bun run tooling/cli/src/index.ts bootstrap-spec -n my-feature -d "Feature description"
+
+# Create a complex spec with additional files
+bun run tooling/cli/src/index.ts bootstrap-spec -n api-redesign -d "API improvements" -c complex
+
+# Create a simple spec with minimal structure
+bun run tooling/cli/src/index.ts bootstrap-spec -n quick-fix -d "Bug fix" -c simple
+
+# Preview without creating files (dry-run)
+bun run tooling/cli/src/index.ts bootstrap-spec -n test -d "Test spec" --dry-run
+```
+
+The bootstrap-spec command:
+- Creates spec directory structure in `specs/<spec-name>/`
+- Generates README.md with spec template
+- Creates REFLECTION_LOG.md for capturing learnings
+- Supports three complexity levels: simple, medium, complex
+- Complex specs include additional HANDOFF and phase files
+- Validates spec name (kebab-case, alphanumeric with hyphens)
+
+**Complexity Levels**:
+- **Simple**: README.md only
+- **Medium** (default): README.md + REFLECTION_LOG.md
+- **Complex**: README.md + REFLECTION_LOG.md + HANDOFF_P1.md + additional phase files
+
+### Create Vertical Slice
+
+Scaffold a new vertical slice with all required sub-packages:
+
+```bash
+# Create a new slice
+bun run tooling/cli/src/index.ts create-slice -n notifications -d "User notification system"
+
+# Preview slice structure without creating files
+bun run tooling/cli/src/index.ts create-slice --name billing --description "Billing" --dry-run
+```
+
+The create-slice command:
+- Creates 5 sub-packages: `domain`, `tables`, `server`, `client`, `ui`
+- Updates `package.json` workspace configuration
+- Adds path aliases to `tsconfig.base.jsonc`
+- Generates boilerplate files (index.ts, package.json, tsconfig.json)
+- Follows beep-effect vertical slice architecture patterns
+- Validates slice name (kebab-case, alphanumeric with hyphens)
+
+**Generated Structure**:
+```
+packages/<slice-name>/
+├── domain/     - Business logic and entities
+├── tables/     - Database schema definitions
+├── server/     - Server-side implementations
+├── client/     - Client-side API contracts
+└── ui/         - React components and UI
+```
+
+### Topological Sort
+
+Output workspace packages in topological dependency order:
+
+```bash
+# List packages from least to most dependencies
+bun run tooling/cli/src/index.ts topo-sort
+
+# Output format: one package name per line
+# Example output:
+# @beep/types
+# @beep/schema
+# @beep/utils
+# @beep/errors
+# ...
+```
+
+The topo-sort command:
+- Analyzes workspace dependency graph
+- Uses Kahn's algorithm for topological sorting
+- Detects and reports circular dependencies
+- Outputs packages in build/processing order
+- Useful for CI/CD pipelines and sequential operations
+
+### Validate AGENTS Files
+
+Validate AGENTS.md documentation files across packages:
+
+```bash
+# Validate all AGENTS.md files in the monorepo
+bun run tooling/cli/src/index.ts agents-validate
+```
+
+The agents-validate command:
+- Scans packages for AGENTS.md files
+- Validates markdown structure and required sections
+- Checks for consistency with package.json metadata
+- Reports missing or malformed AGENTS.md files
 
 ### Documentation Generation (docgen)
 
@@ -467,6 +592,7 @@ From `package.json`:
 
 | Package                     | Purpose                                          |
 |-----------------------------|--------------------------------------------------|
+| `effect`                   | Core Effect runtime and type system              |
 | `@effect/cli`              | Command-line interface framework                 |
 | `@effect/platform`         | Effect platform abstractions                     |
 | `@effect/platform-bun`     | Bun-specific platform implementations            |
@@ -476,13 +602,13 @@ From `package.json`:
 | `@effect/cluster`          | Distributed execution support                    |
 | `@beep/tooling-utils`      | Shared utilities for tooling tasks               |
 | `@beep/schema`             | Schema validation and transformations            |
-| `@beep/constants`          | Shared constants and enums                       |
-| `@beep/invariant`          | Assertion contracts                              |
-| `@beep/utils`              | Pure runtime helpers                             |
-| `@beep/identity`           | Package identity utilities                       |
+| `@beep/identity`           | Entity ID generation for slice scaffolding       |
 | `picocolors`               | Terminal color output                            |
 | `ts-morph`                 | TypeScript AST manipulation                      |
+| `typescript`               | TypeScript compiler API                          |
 | `glob`                     | File pattern matching                            |
+| `handlebars`               | Template engine for slice scaffolding            |
+| `jsonc-parser`             | JSON with comments parsing                       |
 | `@jsquash/*`               | Image format conversion utilities                |
 
 ## Effect Patterns and Guardrails

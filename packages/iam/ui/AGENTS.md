@@ -1,26 +1,28 @@
 # AGENTS Guide — `@beep/iam-ui`
 
 ## Purpose & Fit
-- Provides the client-side IAM entry points (sign-in, sign-up, recovery, verification, invitation) consumed by `apps/web` and any app-shell embedding IAM flows.
+- Provides the client-side IAM entry points for authentication (currently: sign-in, sign-up) consumed by `apps/web` and any app-shell embedding IAM flows.
 - Bridges Effect-based RPC contracts from `@beep/iam-client` to React components that speak `@beep/ui` form primitives, `@beep/runtime-client` runners, and shared-domain navigation (`paths`).
 - Owns UX glue (headings, dividers, CTA links, recaptcha wiring) so route-level pages stay declarative and do not replicate validation or RPC orchestration.
+- Additional features (recovery, verification, invitation flows) are planned for future implementation.
 
 ## Surface Map
-- `src/index.ts` — re-exports feature bundles (`sign-in`, `sign-up`, `recover`, `verify`, `organization`).
-- `sign-in/` — `SignInView`, `SignInEmailForm`, `SignInSocial`, `SignInPasskey`; wraps `iam.signIn.*` contracts with runtime runners and social button grid.
-- `sign-up/` — `SignUpView`, `SignUpEmailForm`, `SignUpSocial`; manages verification notice splash + recaptcha gate, delegates to `iam.signUp.email`.
-- `recover/` — `RequestResetPasswordView`, `ResetPasswordView` plus corresponding forms; executes `iam.recover.*` flows and handles token presence (current redirect behaviour requires review, see Guardrails).
-- `verify/` — `VerifyPhoneView`, `VerifyPhoneForm`, `EmailVerificationSent`; composes `iam.verify.phone`.
-- `organization/accept-invitation` — placeholder `AcceptInvitationView` and production-ready `InvitationError` card for invalid invite paths.
-- `_components/` — shared UI atoms (`FormHead`, `FormDivider`, `FormReturnLink`, `SocialIconButton`, `Terms`, `Privacy`, etc.) specialised for IAM flows.
-- `two-factor/` — empty stub reserved for upcoming MFA entrypoint (documented as TODO).
+- `src/index.ts` — re-exports feature bundles (`IamProvider`, `sign-in`, `sign-up`).
+- `IamProvider.tsx` — React context provider for IAM functionality and runtime configuration.
+- `sign-in/` — `SignInView`, `SignInEmailForm`; wraps `iam.signIn.*` contracts with runtime runners. Note: `SignInSocial` and `SignInPasskey` components are currently commented out in the view.
+- `sign-up/` — `SignUpView`, `SignUpEmailForm`; manages verification notice splash + recaptcha gate, delegates to `iam.signUp.email`. Note: `SignUpSocial` is currently commented out in the view.
+- `_components/` — shared UI atoms (`FormHead`, `FormDivider`, `FormReturnLink`, `FormResendCode`, `FormSocials`, `SocialIconButton`, `SocialProviderIcons`, `Terms`, `Privacy`, etc.) specialised for IAM flows.
+- `_common/` — shared utilities including `RecaptchaV3Atom` for ReCAPTCHA integration.
+- `types/` — TypeScript type definitions shared across IAM UI components.
 - `test/Dummy.test.ts` — placeholder Bun test (signals need for real coverage).
 
+**Note**: This package is currently in active development. Features like password recovery, phone verification, organization invitations, and two-factor authentication are planned but not yet implemented in this UI layer.
+
 ## Usage Snapshots
-- Next.js auth routes render views like `<SignInView />`, `<SignUpView />`, and `<RequestResetPasswordView />` directly.
-- Password reset routes consume `ResetPasswordView` guarded by reset token.
-- Reset password forms demonstrate `useSearchParams` token gate with `Effect.Option` utilities.
-- Sign-up views show `Effect.gen` orchestration around sign-up contracts.
+- Next.js auth routes render `<SignInView />` and `<SignUpView />` directly.
+- Both views are wrapped with `RecaptchaV3Atom` for CAPTCHA protection.
+- Sign-in and sign-up forms use `@beep/iam-client` contracts with `makeRunClientPromise` runtime execution.
+- Social authentication and passkey support exist as components but are currently disabled in production views.
 
 ## Authoring Guardrails
 - **Effect pipelines only:** ALWAYS compose RPC invocations with `F.pipe`, `Effect.flatMap`, or `Effect.gen`. NEVER introduce `async/await` in new logic; existing `async` wrappers remain for compatibility but MUST NOT expand.
@@ -29,9 +31,30 @@
 - **Schema-first forms:** Forms MUST lean on Effect schemas from `@beep/iam-client/clients` with `formOptionsWithSubmit`. NEVER hand-roll validation or default values—extend schemas upstream when fields change.
 - **ReCAPTCHA hand-off:** Any submission that feeds Better Auth should inject `captchaResponse` prior to calling `handleSubmit`. Maintain the `executeRecaptcha` presence guard and surface telemetry rather than silently continuing.
 - **Path hygiene:** Build navigation using `paths` from `@beep/shared-domain`. Hardcoded strings introduce drift across apps and server redirects.
-- **Reset token redirect review:** `ResetPasswordForm` uses router navigation inside conditional branches. When adjusting this flow, ensure absence moves users to sign-in while presence keeps the form active.
 - **Siblings alignment:** Mirror theming/spacing decisions with UI package documentation. Use `@beep/ui` components (icons, form groups) instead of reintroducing raw MUI primitives unless the higher-level primitive is missing.
-- **Two-factor stub:** Keep `two-factor/index.ts` empty until requirements land. Document any provisional exports here rather than adding silent placeholders.
+- **Feature development:** When adding new IAM flows (recovery, verification, organization invites, MFA), follow the established pattern: create feature directory with view + form components, export from feature `index.ts`, and add to main `src/index.ts`.
+
+## Dependencies
+
+| Package | Purpose |
+|---------|---------|
+| `@beep/iam-client` | RPC contracts and client handlers for IAM operations |
+| `@beep/ui` | Base UI component library (RouterLink, form primitives) |
+| `@beep/ui-core` | Core UI utilities and theming |
+| `@beep/runtime-client` | Effect runtime integration for React (`useRuntime`, `makeRunClientPromise`) |
+| `@beep/shared-domain` | Domain utilities including `paths` for type-safe navigation |
+| `@beep/shared-client` | Shared client utilities and session management |
+| `@beep/shared-env` | Environment configuration (`clientEnv`) |
+| `@beep/constants` | Constants including `AuthProviderNameValue` |
+| `@effect-atom/atom-react` | State management atoms for React |
+| `@wojtekmaj/react-recaptcha-v3` | ReCAPTCHA v3 integration |
+| `better-auth` | Authentication provider |
+| `next` | Next.js framework (App Router) |
+| `react` / `react-dom` | React framework |
+| `@mui/material` | Material-UI components |
+| `framer-motion` | Animation library |
+| `@tanstack/react-form` | Form state management |
+| `effect` | Core Effect runtime |
 
 ## Quick Recipes
 ```tsx
@@ -100,23 +123,14 @@ export const CustomSocialButtons = () => {
 ```
 
 ```tsx
-import { VerifyPhoneForm } from "@beep/iam-ui/verify";
-import { iam } from "@beep/iam-client";
-import { makeRunClientPromise, useRuntime } from "@beep/runtime-client";
-import * as Effect from "effect/Effect";
-import * as F from "effect/Function";
+import { SignUpView } from "@beep/iam-ui/sign-up";
+import { IamProvider } from "@beep/iam-ui";
 
-export const VerifyPhoneCard = () => {
-  const runtime = useRuntime();
-  const runVerifyPhone = makeRunClientPromise(runtime, "iam.verify.phone");
+export const AuthPage = () => {
   return (
-    <VerifyPhoneForm
-      onSubmit={(valueEffect) =>
-        runVerifyPhone(
-          F.pipe(valueEffect, Effect.flatMap(iam.verify.phone))
-        )
-      }
-    />
+    <IamProvider>
+      <SignUpView />
+    </IamProvider>
   );
 };
 ```
@@ -197,3 +211,14 @@ export const VerifyPhoneCard = () => {
 - [ ] Recorded new docs references or guardrails in this guide when adding flows or changing defaults.
 - [ ] Added or amended tests in `packages/iam/ui/test` mirroring the feature (snapshot, interaction, or effect contract).
 - [ ] Documented any intentional divergence from Effect string/array rules and opened follow-up tasks for remediation.
+
+## See Also
+
+- [IAM Client AGENTS.md](../client/AGENTS.md) — RPC contracts and client handlers that power these UI components
+- [IAM Domain AGENTS.md](../domain/AGENTS.md) — Domain entities and business logic
+- [IAM Server AGENTS.md](../server/AGENTS.md) — Server-side IAM implementation
+- [IAM Tables AGENTS.md](../tables/AGENTS.md) — Database schema for IAM
+- [UI Components AGENTS.md](../../ui/ui/AGENTS.md) — Base UI component library
+- [UI Core AGENTS.md](../../ui/core/AGENTS.md) — Core UI utilities
+- [Shared Domain AGENTS.md](../../shared/domain/AGENTS.md) — Domain utilities including navigation paths
+- [Shared Client AGENTS.md](../../shared/client/AGENTS.md) — Shared client utilities
