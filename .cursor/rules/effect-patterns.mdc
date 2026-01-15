@@ -1,0 +1,144 @@
+---
+alwaysApply: false
+description: "Effect-patterns rules"
+
+globs:
+  - "**/*.ts"
+  - "**/*.tsx"
+---
+
+
+# Effect Patterns
+
+## Namespace Imports (REQUIRED)
+
+ALWAYS use namespace imports for Effect modules:
+
+```typescript
+// Core Effect modules - full namespace
+import * as Effect from "effect/Effect";
+import * as Layer from "effect/Layer";
+import * as Context from "effect/Context";
+import * as Struct from "effect/Struct";
+import * as Cause from "effect/Cause";
+```
+
+## Single-Letter Aliases (REQUIRED)
+
+Use abbreviated aliases for frequently used modules:
+
+```typescript
+import * as A from "effect/Array";
+import * as BI from "effect/BigInt";
+import * as Num from "effect/Number";
+import * as P from "effect/Predicate";
+import * as F from "effect/Function";
+import * as O from "effect/Option";
+import * as R from "effect/Record";
+import * as S from "effect/Schema";
+import * as Str from "effect/String";
+import * as B from "effect/Brand";
+import * as Bool from "effect/Boolean";
+import * as AST from "effect/SchemaAST";
+import * as DateTime from "effect/DateTime";
+import * as Match from "effect/Match";
+import * as M from "@effect/sql/Model";
+```
+
+## PascalCase Constructors (REQUIRED)
+
+ALWAYS use PascalCase exports from Schema and other modules:
+
+```typescript
+// REQUIRED - PascalCase constructors
+S.Struct({ name: S.String })
+S.Array(S.Number)
+S.String
+S.Number
+S.Boolean
+S.Literal("active", "inactive")
+S.Union(S.String, S.Number)
+```
+
+NEVER use lowercase constructors:
+
+```typescript
+// FORBIDDEN
+S.struct({ name: S.string })  // Wrong!
+S.array(S.number)              // Wrong!
+```
+
+## Alias Reference Table
+
+| Module             | Alias      |
+|--------------------|------------|
+| effect/Array       | A          |
+| effect/BigInt      | BI         |
+| effect/Number      | Num        |
+| effect/Predicate   | P          |
+| effect/Function    | F          |
+| effect/Option      | O          |
+| effect/Record      | R          |
+| effect/Schema      | S          |
+| effect/String      | Str        |
+| effect/Brand       | B          |
+| effect/Boolean     | Bool       |
+| effect/SchemaAST   | AST        |
+| effect/DateTime    | DateTime   |
+| effect/Match       | Match      |
+| @effect/sql/Model  | M          |
+
+## Native Method Ban
+
+NEVER use native JavaScript array/string methods. Route ALL operations through Effect utilities:
+
+```typescript
+// FORBIDDEN
+array.map(x => x + 1)
+string.split(",")
+array.filter(x => x > 0)
+
+// REQUIRED
+A.map(array, x => x + 1)
+Str.split(string, ",")
+A.filter(array, x => x > 0)
+```
+
+## FileSystem Service (REQUIRED)
+
+NEVER use Node.js fs module. ALWAYS use Effect FileSystem service from @effect/platform:
+
+```typescript
+// FORBIDDEN - Node.js fs
+import * as fs from "node:fs";
+const exists = fs.existsSync(path);
+const content = fs.readFileSync(path, "utf-8");
+
+// FORBIDDEN - Wrapping Node.js fs in Effect.try
+const exists = yield* Effect.try(() => fs.existsSync(path));
+
+// REQUIRED - Effect FileSystem service
+import { FileSystem } from "@effect/platform";
+const fs = yield* FileSystem.FileSystem;
+const exists = yield* fs.exists(path);
+const content = yield* fs.readFileString(path);
+```
+
+**Key operations**:
+- `fs.exists(path)` - Check existence
+- `fs.readFileString(path)` - Read text file
+- `fs.writeFileString(path, content)` - Write text file
+- `fs.makeDirectory(path, { recursive: true })` - Create directory
+- `fs.readDirectory(path)` - List directory contents
+
+**Layer composition** (Bun runtime):
+```typescript
+import { BunFileSystem } from "@effect/platform-bun";
+
+export const MyCommandLive = Layer.mergeAll(
+  BunFileSystem.layer,  // Provides FileSystem.FileSystem service
+  // ... other layers
+);
+```
+
+Reference: `tooling/cli/src/commands/create-slice/handler.ts` for canonical patterns.

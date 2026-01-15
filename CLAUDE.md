@@ -116,6 +116,30 @@ Agent-assisted, self-improving specification workflow for complex, multi-phase t
 - **Multi-session handoffs**: Use `HANDOFF_P[N].md` to preserve context between sessions
 - **Skills vs Specs**: `.claude/skills/` for single-session, `specs/` for multi-session orchestration
 
+## IDE Compatibility
+
+This project supports both **Claude Code** and **Cursor IDE** with shared rule configuration.
+
+### Claude Code Configuration
+
+Rules are defined in `.claude/rules/` and automatically loaded by Claude Code.
+
+### Cursor IDE Configuration
+
+Rules are automatically synced from `.claude/rules/` to `.cursor/rules/` in MDC format.
+
+**Setup**:
+1. Run the sync script: `bun run scripts/sync-cursor-rules.ts`
+2. Open the project in Cursor IDE
+3. Rules will be automatically loaded from `.cursor/rules/*.mdc`
+
+**Note**: The sync script transforms `.md` files to `.mdc` format with required frontmatter:
+- Adds `description:` field (required by Cursor)
+- Adds `alwaysApply:` field (controls activation mode)
+- Transforms `paths:` → `globs:` (field rename for scoped rules)
+
+**Maintenance**: Re-run the sync script whenever `.claude/rules/` files are updated.
+
 ## Key References
 
 | Document                       | Purpose                          |
