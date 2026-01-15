@@ -31,8 +31,8 @@ const $I = $IamClientId.create("_common/user.schemas");
 export const BetterAuthUserSchema = F.pipe(
   S.Struct({
     id: S.String,
-    createdAt: S.Date,
-    updatedAt: S.Date,
+    createdAt: S.String,
+    updatedAt: S.String,
     email: S.String,
     emailVerified: S.Boolean,
     name: S.String,

@@ -62,10 +62,10 @@ export const NoopenHeaderSchema = S.transformOrFail(
 
 export type NoopenHeader = typeof NoopenHeaderSchema.Type;
 
-export const createXDownloadOptionsHeaderValue = (
+export const createXDownloadOptionsHeaderValue: (
   option?: undefined | NoopenOption
-): Effect.Effect<string | undefined, SecureHeadersError, never> =>
-  Effect.gen(function* () {
+) => Effect.Effect<string | undefined, SecureHeadersError, never> = Effect.fn("createXDownloadOptionsHeaderValue")(
+  function* (option?: undefined | NoopenOption) {
     if (option == undefined) return "noopen";
     if (option === false) return undefined;
     if (option === "noopen") return option;
@@ -74,15 +74,18 @@ export const createXDownloadOptionsHeaderValue = (
       type: "NO_OPEN",
       message: `Invalid value for ${headerName}: ${option}`,
     });
-  }).pipe(Effect.withSpan("createXDownloadOptionsHeaderValue"));
+  }
+);
 
-export const createNoopenHeader = (
+export const createNoopenHeader: (
+  option?: NoopenOption,
+  headerValueCreator?: typeof createXDownloadOptionsHeaderValue
+) => Effect.Effect<O.Option<ResponseHeader>, SecureHeadersError, never> = Effect.fn("createNoopenHeader")(function* (
   option?: NoopenOption,
   headerValueCreator = createXDownloadOptionsHeaderValue
-): Effect.Effect<O.Option<ResponseHeader>, SecureHeadersError, never> =>
-  Effect.gen(function* () {
-    const value = yield* headerValueCreator(option);
+) {
+  const value = yield* headerValueCreator(option);
 
-    if (value === undefined) return O.none<ResponseHeader>();
-    return O.some({ name: headerName, value });
-  }).pipe(Effect.withSpan("createNoopenHeader"));
+  if (value === undefined) return O.none<ResponseHeader>();
+  return O.some({ name: headerName, value });
+});

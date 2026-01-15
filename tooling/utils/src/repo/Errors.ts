@@ -28,7 +28,7 @@ import * as S from "effect/Schema";
  * @category errors
  * @since 0.1.0
  */
-export class NoSuchFileError extends S.TaggedError<NoSuchFileError>("NoSuchFileError")("NoSuchFileError", {
+export class NoSuchFileError extends S.TaggedError<NoSuchFileError>()("NoSuchFileError", {
   /**
    * The path that was expected to exist.
    *
@@ -66,7 +66,7 @@ export class NoSuchFileError extends S.TaggedError<NoSuchFileError>("NoSuchFileE
  * @category errors
  * @since 0.1.0
  */
-export class DomainError extends S.TaggedError<DomainError>("DomainError")("DomainError", {
+export class DomainError extends S.TaggedError<DomainError>()("DomainError", {
   /**
    * Human-friendly error details.
    *

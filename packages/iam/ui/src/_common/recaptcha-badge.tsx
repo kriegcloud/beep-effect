@@ -1,4 +1,4 @@
-import { cn } from "@beep/ui-core/utils";
+import { cn } from "@beep/ui-core/utils/index";
 
 export interface RecaptchaBadgeProps {
   readonly className?: string | undefined;

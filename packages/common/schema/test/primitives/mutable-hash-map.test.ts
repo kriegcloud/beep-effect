@@ -608,8 +608,8 @@ describe("Immutable HashMap rejection", () => {
   // Import immutable HashMap
   // Note: effect/HashMap is immutable, effect/MutableHashMap is mutable
 
-  effect("MutableHashMapFromSelf rejects immutable HashMap", () =>
-    Effect.gen(function* () {
+  effect("MutableHashMapFromSelf rejects immutable HashMap",
+    Effect.fn(function* () {
       const schema = MutableHashMapFromSelf({ key: S.String, value: S.Number });
 
       // Create an immutable HashMap (different type)

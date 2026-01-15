@@ -11,8 +11,8 @@ import * as Effect from "effect/Effect";
 import * as HashSet from "effect/HashSet";
 import * as S from "effect/Schema";
 
-effect("record helpers extract keys, values, and reverse entries safely", () =>
-  Effect.gen(function* () {
+effect("record helpers extract keys, values, and reverse entries safely",
+  Effect.fn(function* () {
     const locales = { en: "English", es: "Español" } as const;
     const keys = recordKeys(locales);
     const values = recordStringValues(locales);
@@ -27,8 +27,8 @@ effect("record helpers extract keys, values, and reverse entries safely", () =>
   })
 );
 
-effect("record merge respects undefined and unsafe properties", () =>
-  Effect.gen(function* () {
+effect("record merge respects undefined and unsafe properties",
+  Effect.fn(function* () {
     const target = { nested: { count: 1 }, list: [1, { value: 1 }], keep: "kept" } as const;
     const source = {
       nested: { extra: 2 },
@@ -48,16 +48,16 @@ effect("record merge respects undefined and unsafe properties", () =>
   })
 );
 
-effect("record merge creates arrays when the target slot is not an array", () =>
-  Effect.gen(function* () {
+effect("record merge creates arrays when the target slot is not an array",
+  Effect.fn(function* () {
     const merged = merge({ items: { stale: true } } as Record<string, unknown>, { items: [1, 2] });
 
     expect(merged.items).toEqual([1, 2]);
   })
 );
 
-effect("struct utilities return non-empty collections and throw on empties", () =>
-  Effect.gen(function* () {
+effect("struct utilities return non-empty collections and throw on empties",
+  Effect.fn(function* () {
     const fields = { id: S.String, age: S.Number };
 
     const keys = structKeys(fields);
@@ -80,8 +80,8 @@ effect("struct utilities return non-empty collections and throw on empties", () 
   })
 );
 
-effect("modelFieldKeys asserts presence of fields", () =>
-  Effect.gen(function* () {
+effect("modelFieldKeys asserts presence of fields",
+  Effect.fn(function* () {
     const model = { fields: { id: {}, name: {} } } as const;
     const keys = modelFieldKeys(model);
 
@@ -90,8 +90,8 @@ effect("modelFieldKeys asserts presence of fields", () =>
   })
 );
 
-effect("getAt reads nested paths and defends against forbidden keys", () =>
-  Effect.gen(function* () {
+effect("getAt reads nested paths and defends against forbidden keys",
+  Effect.fn(function* () {
     const payload = { items: [{ product: { name: "Widget" } }], empty: null };
 
     const found = getAt(payload, "items[0].product.name");
@@ -104,8 +104,8 @@ effect("getAt reads nested paths and defends against forbidden keys", () =>
   })
 );
 
-effect("isNonEmptyRecordWithNonEmptyStringKeys validates shape", () =>
-  Effect.gen(function* () {
+effect("isNonEmptyRecordWithNonEmptyStringKeys validates shape",
+  Effect.fn(function* () {
     const valid = { foo: 1 } as const;
     const invalid = {} as Record<string, number>;
 

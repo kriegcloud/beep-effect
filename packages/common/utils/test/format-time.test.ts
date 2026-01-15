@@ -17,8 +17,8 @@ import {
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 
-effect("date formatting helpers handle valid and invalid inputs", () =>
-  Effect.gen(function* () {
+effect("date formatting helpers handle valid and invalid inputs",
+  Effect.fn(function* () {
     const now = DateTime.unsafeNow();
     const startOfDay = DateTime.startOf(now, "day");
     const parts = DateTime.toParts(startOfDay);
@@ -33,8 +33,8 @@ effect("date formatting helpers handle valid and invalid inputs", () =>
   })
 );
 
-effect("relative and comparison helpers evaluate ranges correctly", () =>
-  Effect.gen(function* () {
+effect("relative and comparison helpers evaluate ranges correctly",
+  Effect.fn(function* () {
     const now = DateTime.unsafeNow();
     const past = DateTime.subtract(now, { minutes: 2 });
     const future = DateTime.add(now, { days: 1 });
@@ -51,8 +51,8 @@ effect("relative and comparison helpers evaluate ranges correctly", () =>
   })
 );
 
-effect("fDateRangeShortLabel condenses ranges and guards invalid sequences", () =>
-  Effect.gen(function* () {
+effect("fDateRangeShortLabel condenses ranges and guards invalid sequences",
+  Effect.fn(function* () {
     const start = "2024-01-01";
     const end = "2024-01-05";
     const sameMonth = fDateRangeShortLabel(start, end);
@@ -67,8 +67,8 @@ effect("fDateRangeShortLabel condenses ranges and guards invalid sequences", () 
   })
 );
 
-effect("fAdd and fSub adjust relative to now", () =>
-  Effect.gen(function* () {
+effect("fAdd and fSub adjust relative to now",
+  Effect.fn(function* () {
     const now = DateTime.unsafeNow();
     const addedStr = fAdd({ days: 1, hours: 1 });
     const subtractedStr = fSub({ hours: 2 });
@@ -81,8 +81,8 @@ effect("fAdd and fSub adjust relative to now", () =>
   })
 );
 
-effect("temporal helpers consistently guard invalid inputs", () =>
-  Effect.gen(function* () {
+effect("temporal helpers consistently guard invalid inputs",
+  Effect.fn(function* () {
     expect(fDateTime(undefined)).toBe("Invalid date");
     expect(fDate(null)).toBe("Invalid date");
     expect(fTime(undefined)).toBe("Invalid date");

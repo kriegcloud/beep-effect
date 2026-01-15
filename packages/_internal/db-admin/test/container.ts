@@ -58,7 +58,7 @@ export class PgContainerError extends Data.TaggedError("PgContainerError")<{
   readonly cause: unknown;
 }> {}
 
-export class DomainError extends S.TaggedError<DomainError>("DomainError")("DomainError", {
+export class DomainError extends S.TaggedError<DomainError>()("DomainError", {
   message: S.String,
   cause: S.Defect,
 }) {

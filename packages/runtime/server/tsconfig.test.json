@@ -37,6 +37,9 @@
     },
     {
       "path": "../../comms/server"
+    },
+    {
+      "path": "../../calendar/server"
     }
   ],
   "compilerOptions": {

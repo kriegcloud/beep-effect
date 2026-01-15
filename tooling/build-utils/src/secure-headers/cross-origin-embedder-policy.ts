@@ -72,30 +72,35 @@ export type CrossOriginEmbedderPolicyHeader = typeof CrossOriginEmbedderPolicyHe
 /**
  * Creates the header value string from a CrossOriginEmbedderPolicyOption.
  */
-export const createCrossOriginEmbedderPolicyHeaderValue = (
+export const createCrossOriginEmbedderPolicyHeaderValue: (
   option?: undefined | CrossOriginEmbedderPolicyOption
-): Effect.Effect<string | undefined, SecureHeadersError, never> =>
-  Effect.gen(function* () {
-    if (option === undefined) return undefined;
-    if (option === false) return undefined;
-    if (coepValues.includes(option as CoepValue)) return option;
+) => Effect.Effect<string | undefined, SecureHeadersError, never> = Effect.fn(
+  "createCrossOriginEmbedderPolicyHeaderValue"
+)(function* (option?: undefined | CrossOriginEmbedderPolicyOption) {
+  if (option === undefined) return undefined;
+  if (option === false) return undefined;
+  if (coepValues.includes(option as CoepValue)) return option;
 
-    return yield* new SecureHeadersError({
-      type: "CROSS_ORIGIN_EMBEDDER_POLICY",
-      message: `Invalid value for ${headerName}: ${option}`,
-    });
-  }).pipe(Effect.withSpan("createCrossOriginEmbedderPolicyHeaderValue"));
+  return yield* new SecureHeadersError({
+    type: "CROSS_ORIGIN_EMBEDDER_POLICY",
+    message: `Invalid value for ${headerName}: ${option}`,
+  });
+});
 
 /**
  * Creates the Cross-Origin-Embedder-Policy header wrapped in Option.
  */
-export const createCrossOriginEmbedderPolicyHeader = (
+export const createCrossOriginEmbedderPolicyHeader: (
+  option?: undefined | CrossOriginEmbedderPolicyOption,
+  headerValueCreator?: typeof createCrossOriginEmbedderPolicyHeaderValue
+) => Effect.Effect<O.Option<ResponseHeader>, SecureHeadersError, never> = Effect.fn(
+  "createCrossOriginEmbedderPolicyHeader"
+)(function* (
   option?: undefined | CrossOriginEmbedderPolicyOption,
   headerValueCreator = createCrossOriginEmbedderPolicyHeaderValue
-): Effect.Effect<O.Option<ResponseHeader>, SecureHeadersError, never> =>
-  Effect.gen(function* () {
-    const value = yield* headerValueCreator(option);
+) {
+  const value = yield* headerValueCreator(option);
 
-    if (value === undefined) return O.none<ResponseHeader>();
-    return O.some({ name: headerName, value });
-  }).pipe(Effect.withSpan("createCrossOriginEmbedderPolicyHeader"));
+  if (value === undefined) return O.none<ResponseHeader>();
+  return O.some({ name: headerName, value });
+});

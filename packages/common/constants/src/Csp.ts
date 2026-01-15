@@ -14,8 +14,14 @@ export const CSP_DIRECTIVES = {
   "script-src": ["'self'", "blob:", "https://cdn.jsdelivr.net", "'wasm-unsafe-eval'", "'unsafe-eval'"],
   "worker-src": ["'self'", "blob:"],
   "style-src": ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net"],
-  "font-src": ["'self'", "https://fonts.scalar.com"],
-  "style-src-elem": ["'self'", "'unsafe-inline'", "https://www.googletagmanager.com", "https://cdn.jsdelivr.net"],
+  "font-src": ["'self'", "https://fonts.gstatic.com", "https://fonts.scalar.com"],
+  "style-src-elem": [
+    "'self'",
+    "https://fonts.googleapis.com",
+    "'unsafe-inline'",
+    "https://www.googletagmanager.com",
+    "https://cdn.jsdelivr.net",
+  ],
   "script-src-elem": [
     "'self'",
     "https://unpkg.com",

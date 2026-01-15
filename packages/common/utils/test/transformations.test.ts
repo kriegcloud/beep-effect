@@ -6,8 +6,8 @@ import { valuesFromEnum } from "@beep/utils/transformations/valuesFromEnum";
 import type * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 
-effect("enum builders preserve literal mappings and expose values", () =>
-  Effect.gen(function* () {
+effect("enum builders preserve literal mappings and expose values",
+  Effect.fn(function* () {
     const Status = enumFromStringArray("pending", "active");
     const Derived = enumOf("draft", "live");
     const values = enumValues(Status);
@@ -23,8 +23,8 @@ effect("enum builders preserve literal mappings and expose values", () =>
   })
 );
 
-effect("valuesFromEnum asserts non-empty enums", () =>
-  Effect.gen(function* () {
+effect("valuesFromEnum asserts non-empty enums",
+  Effect.fn(function* () {
     expect(() => valuesFromEnum({} as Record<string, string>)).toThrow(InvariantViolation);
   })
 );

@@ -169,10 +169,10 @@ export type PermissionsPolicyHeader = typeof PermissionsPolicyHeaderSchema.Type;
 /**
  * Creates the header value string from a PermissionsPolicyOption.
  */
-export const createPermissionsPolicyHeaderValue = (
+export const createPermissionsPolicyHeaderValue: (
   option?: undefined | PermissionsPolicyOption
-): Effect.Effect<string | undefined, SecureHeadersError, never> =>
-  Effect.gen(function* () {
+) => Effect.Effect<string | undefined, SecureHeadersError, never> = Effect.fn("createPermissionsPolicyHeaderValue")(
+  function* (option?: undefined | PermissionsPolicyOption) {
     if (option === undefined) return undefined;
     if (option === false) return undefined;
 
@@ -190,18 +190,23 @@ export const createPermissionsPolicyHeaderValue = (
     }
 
     return buildHeaderValue(directives);
-  }).pipe(Effect.withSpan("createPermissionsPolicyHeaderValue"));
+  }
+);
 
 /**
  * Creates the Permissions-Policy header wrapped in Option.
  */
-export const createPermissionsPolicyHeader = (
+export const createPermissionsPolicyHeader: (
   option?: undefined | PermissionsPolicyOption,
-  headerValueCreator = createPermissionsPolicyHeaderValue
-): Effect.Effect<O.Option<ResponseHeader>, SecureHeadersError, never> =>
-  Effect.gen(function* () {
+  headerValueCreator?: typeof createPermissionsPolicyHeaderValue
+) => Effect.Effect<O.Option<ResponseHeader>, SecureHeadersError, never> = Effect.fn("createPermissionsPolicyHeader")(
+  function* (
+    option?: undefined | PermissionsPolicyOption,
+    headerValueCreator = createPermissionsPolicyHeaderValue
+  ) {
     const value = yield* headerValueCreator(option);
 
     if (value === undefined) return O.none<ResponseHeader>();
     return O.some({ name: headerName, value });
-  }).pipe(Effect.withSpan("createPermissionsPolicyHeader"));
+  }
+);

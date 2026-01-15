@@ -17,7 +17,15 @@
         "name": "@effect/language-service",
         "transform": "@effect/language-service/transform",
         "diagnosticSeverity": {
-          "classSelfMismatch": "off"
+          "classSelfMismatch": "off",
+          "effectFnOpportunity": "off",
+          "catchAllToMapError": "off",
+          "forbiddenInSchema": "off",
+          "unnecessaryYield": "off",
+          "missingEffectError": "off",
+          "unnecessaryPipeChain": "off",
+          "unnecessaryFailYieldableError": "off",
+          "redundantSchemaTagIdentifier": "off"
         },
         "mermaidProvider": "mermaid.live",
         "namespaceImportPackages": ["effect", "@effect/*"]

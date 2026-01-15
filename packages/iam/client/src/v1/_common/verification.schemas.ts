@@ -1,11 +1,11 @@
-import { Verification } from "@beep/iam-domain/entities";
-import { $IamClientId } from "@beep/identity/packages";
-import { IamEntityIds } from "@beep/shared-domain";
+import {Verification} from "@beep/iam-domain/entities";
+import {$IamClientId} from "@beep/identity/packages";
+import {IamEntityIds} from "@beep/shared-domain";
 import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
 import * as ParseResult from "effect/ParseResult";
 import * as S from "effect/Schema";
-import { requireDate, requireNumber, requireString, toDate } from "./transformation-helpers";
+import {requireDate, requireNumber, requireString, toDate} from "./transformation-helpers";
 
 const $I = $IamClientId.create("_common/verification.schemas");
 
@@ -28,15 +28,15 @@ export const BetterAuthVerificationSchema = F.pipe(
   S.Struct({
     // Core fields from coreSchema
     id: S.String,
-    createdAt: S.Date,
-    updatedAt: S.Date,
+    createdAt: S.String,
+    updatedAt: S.String,
 
     // Verification-specific fields
     identifier: S.String,
     value: S.String,
-    expiresAt: S.Date,
+    expiresAt: S.optionalWith(S.String, { nullable: true}),
   }),
-  S.extend(S.Record({ key: S.String, value: S.Unknown })),
+  S.extend(S.Record({key: S.String, value: S.Unknown})),
   S.annotations(
     $I.annotations("BetterAuthVerification", {
       description: "The verification object returned from the BetterAuth library.",
@@ -128,7 +128,7 @@ export const DomainVerificationFromBetterAuthVerification = S.transformOrFail(
           value: betterAuthVerification.value,
 
           // expiresAt is FieldOptionOmittable so it expects null | Date
-          expiresAt: betterAuthVerification.expiresAt,
+          expiresAt: betterAuthVerification.expiresAt ?? null,
 
           // Audit fields - required, validated above
           source,
@@ -151,7 +151,7 @@ export const DomainVerificationFromBetterAuthVerification = S.transformOrFail(
         const id = verificationEncoded.id ?? IamEntityIds.VerificationId.create();
 
         // expiresAt may be null/undefined - convert to Date if present
-        const expiresAt = verificationEncoded.expiresAt ? toDate(verificationEncoded.expiresAt) : new Date();
+        const expiresAt = verificationEncoded.expiresAt ? toDate(verificationEncoded.expiresAt) : undefined;
 
         // Return BetterAuthVerification Type form (plain object matching the struct)
         // Include all fields that might have been set, so they round-trip correctly

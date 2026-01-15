@@ -11,6 +11,7 @@ import {
   apiKeyClient,
   deviceAuthorizationClient,
   genericOAuthClient,
+  inferAdditionalFields,
   inferOrgAdditionalFields,
   jwtClient,
   lastLoginMethodClient,
@@ -30,9 +31,9 @@ export const client = createAuthClient({
   baseURL: clientEnv.authUrl,
   basePath: clientEnv.authPath,
   plugins: [
+    inferAdditionalFields<Auth.Auth>(),
     adminClient(),
     anonymousClient(),
-
     jwtClient(),
     apiKeyClient(),
     genericOAuthClient(),

@@ -1,11 +1,23 @@
 import { CSP_HEADER } from "@beep/constants";
 import { AuthCallback } from "@beep/iam-client/constants";
 import { paths } from "@beep/shared-domain";
-import { getSessionCookie } from "better-auth/cookies";
 import * as A from "effect/Array";
 import * as Str from "effect/String";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
+
+// ============================================================================
+// Session Cookie Detection
+// ============================================================================
+// NOTE: getSessionCookie from better-auth/cookies has a known bug in Next.js
+// Edge Runtime where it returns null even when the cookie exists.
+// See: https://github.com/better-auth/better-auth/issues/2170
+// Workaround: manually check for the session cookie.
+
+const SESSION_COOKIE_NAME = "better-auth.session_token";
+
+const hasSessionCookie = (request: NextRequest): boolean =>
+  request.cookies.has(SESSION_COOKIE_NAME);
 
 const AUTH_ROUTES = [paths.auth.signIn, paths.auth.signUp] as const;
 
@@ -65,16 +77,16 @@ export async function proxy(request: NextRequest) {
     return withCsp(response);
   }
 
-  const sessionCookie = getSessionCookie(request);
+  const hasSession = hasSessionCookie(request);
 
-  if (sessionCookie && isAuthRoute) {
+  if (hasSession && isAuthRoute) {
     const callbackParams = new URLSearchParams(request.nextUrl.search);
     const target = AuthCallback.getURL(callbackParams);
     const redirectUrl = new URL(target, request.url);
     return withCsp(NextResponse.redirect(redirectUrl));
   }
 
-  if (!sessionCookie && isPrivateRoute) {
+  if (!hasSession && isPrivateRoute) {
     const originalTarget = `${pathname}${request.nextUrl.search}${request.nextUrl.hash}`;
     const sanitized = AuthCallback.sanitizePath(originalTarget);
     const signInUrl = new URL(paths.auth.signIn, request.url);

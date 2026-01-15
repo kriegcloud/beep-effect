@@ -13,3 +13,34 @@ export class BetterAuthError extends S.instanceOf(_BetterAuthError).annotations(
 export declare namespace BetterAuthError {
   export type Type = typeof BetterAuthError.Type;
 }
+
+export class UnknownIamError extends S.TaggedError<UnknownIamError>($I`UnknownIamError`)("UnknownIamError", {
+  cause: S.Defect,
+}) {
+  override get message() {
+    return "An unknown error occurred";
+  }
+}
+
+export class IamError extends S.TaggedError<IamError>($I`IamError`)(
+  "IamError",
+  {
+    cause: BetterAuthError,
+    message: S.String,
+  },
+  $I.annotations("IamError", {
+    description: "An error from the IAM client",
+  })
+) {
+  static readonly fromUnknown = (error: unknown) => {
+    if (S.is(BetterAuthError)(error)) {
+      return new IamError({
+        cause: error,
+        message: error.message,
+      });
+    }
+    return new UnknownIamError({
+      cause: error,
+    });
+  };
+}

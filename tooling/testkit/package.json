@@ -38,9 +38,11 @@
     "@effect/sql-pg": "catalog:",
     "@effect/sql-drizzle": "catalog:",
     "@testcontainers/postgresql": "catalog:",
-    "drizzle-orm": "catalog:"
+    "drizzle-orm": "catalog:",
+    "playwright-core": "catalog:"
   },
   "devDependencies": {
+    "playwright": "catalog:",
     "@effect/platform-bun": "catalog:",
     "@testcontainers/postgresql": "catalog:",
     "testcontainers": "catalog:",

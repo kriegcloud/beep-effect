@@ -1,20 +1,18 @@
 "use client";
 import { paths } from "@beep/shared-domain";
-import { varFade } from "@beep/ui/animate";
-import { RouterLink } from "@beep/ui/routing";
+import { varFade } from "@beep/ui/animate/index";
+import { RouterLink } from "@beep/ui/routing/index";
 import Box from "@mui/material/Box";
 import Link from "@mui/material/Link";
 import { AnimatePresence, m } from "framer-motion";
 import { RecaptchaV3Atom } from "../_common";
 import { FormDivider, FormHead, Terms } from "../_components";
-import { SignUpEmailForm } from "./sign-up-email.form";
-
-// import { SignUpSocial } from "./sign-up-social";
+import { SignUpEmailForm } from "./email";
 
 const signUpTransitionVariants = varFade("inUp", { distance: 64 });
 
 export const SignUpView = () => {
-  // const { signInSocial } = useSignIn();
+
 
   return (
     <RecaptchaV3Atom>
@@ -44,7 +42,7 @@ export const SignUpView = () => {
           <Terms />
           <Box sx={{ gap: 2, display: "flex", flexDirection: "column" }}>
             <FormDivider />
-            {/*<SignUpSocial signUp={async (provider) => signInSocial({ provider })} />*/}
+
           </Box>
         </Box>
       </AnimatePresence>

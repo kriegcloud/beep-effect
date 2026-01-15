@@ -17,8 +17,8 @@ import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as Glob from "glob";
-import { DomainError, NoSuchFileError } from "./repo/Errors.js";
-import type { UnsafeAny } from "./types.js";
+import {DomainError, NoSuchFileError} from "./repo/Errors.js";
+import type {UnsafeAny} from "./types.js";
 
 type Glob = (
   pattern: string | string[],
@@ -47,6 +47,7 @@ type IsDirectory = (path: string) => Effect.Effect<boolean, DomainError, never>;
 type IsFile = (path: string) => Effect.Effect<boolean, DomainError, never>;
 type GetParentDirectory = (path: string) => Effect.Effect<string, DomainError, never>;
 type DirHasFile = (dir: string, filename: string) => Effect.Effect<boolean, DomainError, never>;
+
 interface IFsUtilsEffect {
   readonly glob: Glob;
   readonly globFiles: GlobFiles;
@@ -110,7 +111,7 @@ const make: Effect.Effect<IFsUtilsEffect, DomainError, FileSystem.FileSystem | P
     pattern: string | Array<string>,
     options: Glob.GlobOptions = {}
   ) {
-    return yield* glob(pattern, { ...options, nodir: true });
+    return yield* glob(pattern, {...options, nodir: true});
   });
 
   /**
@@ -129,11 +130,11 @@ const make: Effect.Effect<IFsUtilsEffect, DomainError, FileSystem.FileSystem | P
   ) {
     return yield* fs.readFileString(path).pipe(
       Effect.bindTo("original"),
-      Effect.let("modified", ({ original }) => f(original, path)),
-      Effect.flatMap(({ modified, original }) =>
+      Effect.let("modified", ({original}) => f(original, path)),
+      Effect.flatMap(({modified, original}) =>
         original === modified ? Effect.void : fs.writeFile(path, new TextEncoder().encode(modified))
       ),
-      Effect.withSpan("FsUtils.modifyFile", { attributes: { path } }),
+      Effect.withSpan("FsUtils.modifyFile", {attributes: {path}}),
       DomainError.mapError
     );
   });
@@ -158,7 +159,7 @@ const make: Effect.Effect<IFsUtilsEffect, DomainError, FileSystem.FileSystem | P
           discard: true,
         })
       ),
-      Effect.withSpan("FsUtils.modifyGlob", { attributes: { pattern } })
+      Effect.withSpan("FsUtils.modifyGlob", {attributes: {pattern}})
     );
   });
 
@@ -171,11 +172,11 @@ const make: Effect.Effect<IFsUtilsEffect, DomainError, FileSystem.FileSystem | P
 
   const rmAndCopy: RmAndCopy = Effect.fn("FsUtils.rmAndCopy")(function* (from: string, to: string) {
     return yield* fs
-      .remove(to, { recursive: true })
+      .remove(to, {recursive: true})
       .pipe(
         Effect.ignore,
         Effect.zipRight(fs.copy(from, to)),
-        Effect.withSpan("FsUtils.rmAndCopy", { attributes: { from, to } }),
+        Effect.withSpan("FsUtils.rmAndCopy", {attributes: {from, to}}),
         DomainError.mapError
       );
   });
@@ -183,7 +184,7 @@ const make: Effect.Effect<IFsUtilsEffect, DomainError, FileSystem.FileSystem | P
   const isDirectory: IsDirectory = Effect.fn("FsUtils.isDirectory")(function* (path: string) {
     return yield* fs.stat(path).pipe(
       Effect.map((stat) => stat.type === "Directory"),
-      Effect.withSpan("FsUtils.isDirectory", { attributes: { path } }),
+      Effect.withSpan("FsUtils.isDirectory", {attributes: {path}}),
       DomainError.mapError
     );
   });
@@ -191,7 +192,7 @@ const make: Effect.Effect<IFsUtilsEffect, DomainError, FileSystem.FileSystem | P
   const isFile: IsFile = Effect.fn("FsUtils.isFile")(function* (path: string) {
     return yield* fs.stat(path).pipe(
       Effect.map((stat) => stat.type === "File"),
-      Effect.withSpan("FsUtils.isFile", { attributes: { path } }),
+      Effect.withSpan("FsUtils.isFile", {attributes: {path}}),
       DomainError.mapError
     );
   });
@@ -209,9 +210,7 @@ const make: Effect.Effect<IFsUtilsEffect, DomainError, FileSystem.FileSystem | P
     "FsUtils.getParentDirectory"
   )(function* (path: string) {
     if (!(yield* fs.exists(path)))
-      return yield* Effect.fail(
-        new DomainError({ message: `Path ${path} does not exist`, cause: new NoSuchFileError({ path }) })
-      );
+      return yield* new DomainError({message: `Path ${path} does not exist`, cause: new NoSuchFileError({path})});
     return path_.dirname(path);
   }, DomainError.mapError);
 
@@ -224,10 +223,10 @@ const make: Effect.Effect<IFsUtilsEffect, DomainError, FileSystem.FileSystem | P
 
   const copyIfExists: CopyIfExists = Effect.fn("FsUtils.copyIfExists")(function* (from: string, to: string) {
     return yield* fs.access(from).pipe(
-      Effect.zipRight(Effect.ignore(fs.remove(to, { recursive: true }))),
+      Effect.zipRight(Effect.ignore(fs.remove(to, {recursive: true}))),
       Effect.zipRight(fs.copy(from, to)),
       Effect.catchTag("SystemError", (e) => (e.reason === "NotFound" ? Effect.void : Effect.fail(e))),
-      Effect.withSpan("FsUtils.copyIfExists", { attributes: { from, to } }),
+      Effect.withSpan("FsUtils.copyIfExists", {attributes: {from, to}}),
       DomainError.mapError
     );
   });
@@ -239,8 +238,8 @@ const make: Effect.Effect<IFsUtilsEffect, DomainError, FileSystem.FileSystem | P
 
   const mkdirCached_: MkdirCached_ = yield* Effect.cachedFunction((path: string) =>
     fs
-      .makeDirectory(path, { recursive: true })
-      .pipe(Effect.withSpan("FsUtils.mkdirCached", { attributes: { path } }), DomainError.mapError)
+      .makeDirectory(path, {recursive: true})
+      .pipe(Effect.withSpan("FsUtils.mkdirCached", {attributes: {path}}), DomainError.mapError)
   );
 
   /**
@@ -269,11 +268,11 @@ const make: Effect.Effect<IFsUtilsEffect, DomainError, FileSystem.FileSystem | P
             const destDir = path_.dirname(dest);
             return mkdirCached(destDir).pipe(Effect.zipRight(fs.copyFile(path, dest)));
           },
-          { concurrency: "inherit", discard: true }
+          {concurrency: "inherit", discard: true}
         )
       ),
       Effect.withSpan("FsUtils.copyGlobCached", {
-        attributes: { baseDir, pattern, to },
+        attributes: {baseDir, pattern, to},
       }),
       DomainError.mapError
     );
@@ -287,11 +286,11 @@ const make: Effect.Effect<IFsUtilsEffect, DomainError, FileSystem.FileSystem | P
 
   const rmAndMkdir: RmAndMkdir = Effect.fn("FsUtils.rmAndMkdir")(function* (path: string) {
     return yield* fs
-      .remove(path, { recursive: true })
+      .remove(path, {recursive: true})
       .pipe(
         Effect.ignore,
         Effect.zipRight(mkdirCached(path)),
-        Effect.withSpan("FsUtils.rmAndMkdir", { attributes: { path } })
+        Effect.withSpan("FsUtils.rmAndMkdir", {attributes: {path}})
       );
   });
   /**
@@ -302,16 +301,14 @@ const make: Effect.Effect<IFsUtilsEffect, DomainError, FileSystem.FileSystem | P
     return yield* F.pipe(
       fs.exists(path),
       Effect.flatMap(
-        F.pipe(
-          Bool.match({
-            onTrue: () => Effect.succeed(path),
-            onFalse: () =>
-              new DomainError({
-                cause: {},
-                message: `Path ${path} does not exist`,
-              }),
-          })
-        )
+        Bool.match({
+          onTrue: () => Effect.succeed(path),
+          onFalse: () =>
+            new DomainError({
+              cause: {},
+              message: `Path ${path} does not exist`,
+            }),
+        })
       ),
       DomainError.mapError
     );
@@ -385,7 +382,8 @@ const make: Effect.Effect<IFsUtilsEffect, DomainError, FileSystem.FileSystem | P
  * @since 0.1.0
  */
 
-export interface FsUtils extends Effect.Effect.Success<typeof make> {}
+export interface FsUtils extends Effect.Effect.Success<typeof make> {
+}
 
 /**
  * Service tag for dependency injection via Effect Context.

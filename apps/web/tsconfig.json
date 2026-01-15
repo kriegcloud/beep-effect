@@ -116,7 +116,17 @@
       "@beep/comms-client": ["../../packages/comms/client/src/index"],
       "@beep/comms-client/*": ["../../packages/comms/client/src/*"],
       "@beep/comms-ui": ["../../packages/comms/ui/src/index"],
-      "@beep/comms-ui/*": ["../../packages/comms/ui/src/*"]
+      "@beep/comms-ui/*": ["../../packages/comms/ui/src/*"],
+      "@beep/calendar-server": ["../../packages/calendar/server/src/index"],
+      "@beep/calendar-server/*": ["../../packages/calendar/server/src/*"],
+      "@beep/calendar-domain": ["../../packages/calendar/domain/src/index"],
+      "@beep/calendar-domain/*": ["../../packages/calendar/domain/src/*"],
+      "@beep/calendar-tables": ["../../packages/calendar/tables/src/index"],
+      "@beep/calendar-tables/*": ["../../packages/calendar/tables/src/*"],
+      "@beep/calendar-client": ["../../packages/calendar/client/src/index"],
+      "@beep/calendar-client/*": ["../../packages/calendar/client/src/*"],
+      "@beep/calendar-ui": ["../../packages/calendar/ui/src/index"],
+      "@beep/calendar-ui/*": ["../../packages/calendar/ui/src/*"]
     },
     "plugins": [
       {
@@ -199,6 +209,21 @@
     },
     {
       "path": "../../packages/comms/ui/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/calendar/server/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/calendar/domain/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/calendar/tables/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/calendar/client/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/calendar/ui/tsconfig.build.json"
     }
   ],
   "include": [

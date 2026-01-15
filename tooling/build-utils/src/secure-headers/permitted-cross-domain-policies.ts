@@ -81,31 +81,36 @@ export type PermittedCrossDomainPoliciesHeader = typeof PermittedCrossDomainPoli
  * Creates the header value string from a PermittedCrossDomainPoliciesOption.
  * Defaults to "none" (secure default) when undefined.
  */
-export const createPermittedCrossDomainPoliciesHeaderValue = (
+export const createPermittedCrossDomainPoliciesHeaderValue: (
   option?: undefined | PermittedCrossDomainPoliciesOption
-): Effect.Effect<string | undefined, SecureHeadersError, never> =>
-  Effect.gen(function* () {
-    // Default to "none" (secure default) when undefined
-    if (option === undefined) return "none";
-    if (option === false) return undefined;
-    if (permittedCrossDomainValues.includes(option as PermittedCrossDomainValue)) return option;
+) => Effect.Effect<string | undefined, SecureHeadersError, never> = Effect.fn(
+  "createPermittedCrossDomainPoliciesHeaderValue"
+)(function* (option?: undefined | PermittedCrossDomainPoliciesOption) {
+  // Default to "none" (secure default) when undefined
+  if (option === undefined) return "none";
+  if (option === false) return undefined;
+  if (permittedCrossDomainValues.includes(option as PermittedCrossDomainValue)) return option;
 
-    return yield* new SecureHeadersError({
-      type: "PERMITTED_CROSS_DOMAIN_POLICIES",
-      message: `Invalid value for ${headerName}: ${option}`,
-    });
-  }).pipe(Effect.withSpan("createPermittedCrossDomainPoliciesHeaderValue"));
+  return yield* new SecureHeadersError({
+    type: "PERMITTED_CROSS_DOMAIN_POLICIES",
+    message: `Invalid value for ${headerName}: ${option}`,
+  });
+});
 
 /**
  * Creates the X-Permitted-Cross-Domain-Policies header wrapped in Option.
  */
-export const createPermittedCrossDomainPoliciesHeader = (
+export const createPermittedCrossDomainPoliciesHeader: (
+  option?: undefined | PermittedCrossDomainPoliciesOption,
+  headerValueCreator?: typeof createPermittedCrossDomainPoliciesHeaderValue
+) => Effect.Effect<O.Option<ResponseHeader>, SecureHeadersError, never> = Effect.fn(
+  "createPermittedCrossDomainPoliciesHeader"
+)(function* (
   option?: undefined | PermittedCrossDomainPoliciesOption,
   headerValueCreator = createPermittedCrossDomainPoliciesHeaderValue
-): Effect.Effect<O.Option<ResponseHeader>, SecureHeadersError, never> =>
-  Effect.gen(function* () {
-    const value = yield* headerValueCreator(option);
+) {
+  const value = yield* headerValueCreator(option);
 
-    if (value === undefined) return O.none<ResponseHeader>();
-    return O.some({ name: headerName, value });
-  }).pipe(Effect.withSpan("createPermittedCrossDomainPoliciesHeader"));
+  if (value === undefined) return O.none<ResponseHeader>();
+  return O.some({ name: headerName, value });
+});

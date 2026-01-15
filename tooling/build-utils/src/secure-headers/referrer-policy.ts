@@ -112,10 +112,10 @@ export const ReferrerPolicyHeaderSchema = S.transformOrFail(
 
 export type ReferrerPolicyHeader = typeof ReferrerPolicyHeaderSchema.Type;
 
-export const createReferrerPolicyHeaderValue = (
+export const createReferrerPolicyHeaderValue: (
   option?: undefined | ReferrerPolicyOption
-): Effect.Effect<string | undefined, SecureHeadersError, never> =>
-  Effect.gen(function* () {
+) => Effect.Effect<string | undefined, SecureHeadersError, never> = Effect.fn("createReferrerPolicyHeaderValue")(
+  function* (option?: undefined | ReferrerPolicyOption) {
     if (P.isNullable(option)) return undefined;
     if (option === false) return undefined;
 
@@ -135,13 +135,14 @@ export const createReferrerPolicyHeaderValue = (
     }
 
     return pipe(values, A.join(", "));
-  }).pipe(Effect.withSpan("createReferrerPolicyHeaderValue"));
+  }
+);
 
-export const createReferrerPolicyHeader = (
+export const createReferrerPolicyHeader: (
   option?: undefined | ReferrerPolicyOption,
-  headerValueCreator = createReferrerPolicyHeaderValue
-): Effect.Effect<O.Option<ResponseHeader>, SecureHeadersError, never> =>
-  Effect.gen(function* () {
+  headerValueCreator?: typeof createReferrerPolicyHeaderValue
+) => Effect.Effect<O.Option<ResponseHeader>, SecureHeadersError, never> = Effect.fn("createReferrerPolicyHeader")(
+  function* (option?: undefined | ReferrerPolicyOption, headerValueCreator = createReferrerPolicyHeaderValue) {
     if (P.isNullable(option)) return O.none<ResponseHeader>();
     if (option === false) return O.none<ResponseHeader>();
 
@@ -149,4 +150,5 @@ export const createReferrerPolicyHeader = (
 
     if (value === undefined) return O.none<ResponseHeader>();
     return O.some({ name: headerName, value });
-  }).pipe(Effect.withSpan("createReferrerPolicyHeader"));
+  }
+);

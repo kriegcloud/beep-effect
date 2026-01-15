@@ -6,7 +6,6 @@
  * that uses our internal @beep/shared-client/services/react-recaptcha-v3 implementation.
  * @module
  */
-import { makeRunClientPromise, useRuntime } from "@beep/runtime-client";
 import { atomPromise, executeReCaptchaAtom, isReadyAtom } from "@beep/shared-client/services/react-recaptcha-v3";
 import { paths } from "@beep/shared-domain";
 import { useAtomSet, useAtomValue } from "@effect-atom/atom-react";
@@ -59,8 +58,6 @@ class CaptchaError extends Data.TaggedError("CaptchaError")<{
 export const useCaptchaAtom = () => {
   const isReady = useAtomValue(isReadyAtom);
   const executeRecaptchaFn = useAtomSet(executeReCaptchaAtom, atomPromise);
-  const runtime = useRuntime();
-  const runClientPromise = makeRunClientPromise(runtime);
 
   const executeCaptchaEffect = Effect.fn(function* (action: (typeof DEFAULT_CAPTCHA_ENDPOINTS)[number]) {
     const sanitizedAction = sanitizeActionName(action);
@@ -81,8 +78,20 @@ export const useCaptchaAtom = () => {
   });
 
   const executeCaptcha = useCallback(
-    async (action: (typeof DEFAULT_CAPTCHA_ENDPOINTS)[number]) => runClientPromise(executeCaptchaEffect(action)),
-    [runClientPromise, executeCaptchaEffect]
+    async (action: (typeof DEFAULT_CAPTCHA_ENDPOINTS)[number]) => {
+      // Check if reCAPTCHA is ready before attempting execution
+      // This prevents hanging on grecaptcha.ready() if the script hasn't loaded
+      if (!isReady) {
+        throw new CaptchaError({
+          cause: new Error("reCAPTCHA not initialized"),
+          message: "reCAPTCHA is not ready. Please wait for the page to fully load and try again.",
+          action: sanitizeActionName(action),
+        });
+      }
+      const response = await executeRecaptchaFn(action);
+      return Redacted.make(response);
+    },
+    [isReady, executeRecaptchaFn]
   );
 
   const getCaptchaHeadersEffect = Effect.fn(function* (action: (typeof DEFAULT_CAPTCHA_ENDPOINTS)[number]) {
@@ -94,8 +103,8 @@ export const useCaptchaAtom = () => {
   });
 
   const getCaptchaHeaders = useCallback(
-    async (action: (typeof DEFAULT_CAPTCHA_ENDPOINTS)[number]) => runClientPromise(getCaptchaHeadersEffect(action)),
-    [runClientPromise, getCaptchaHeadersEffect]
+    async (action: (typeof DEFAULT_CAPTCHA_ENDPOINTS)[number]) => getCaptchaHeadersEffect(action),
+    [getCaptchaHeadersEffect]
   );
 
   return {

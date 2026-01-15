@@ -25,13 +25,13 @@ const program = Effect.gen(function* () {
     }
   }
 }).pipe(
-  Effect.catchAll((error) =>
-    Effect.gen(function* () {
+  Effect.catchAll(
+    Effect.fnUntraced(function* (error) {
       const message = String(error);
       yield* Console.log(`\nBOOTSTRAP FAILURE :: ${message}`);
       const cause = Cause.fail(error);
       yield* Console.log(`\nTRACE :: ${Cause.pretty(cause)}`);
-      return yield* Effect.fail(error);
+      return yield* error;
     })
   )
 );

@@ -8,8 +8,8 @@ import * as Str from "effect/String";
 import { isNonEmptyReadonlyArrayOfGuard } from "../src/data/array.utils/array.utils";
 import * as NonEmptyReadonly from "../src/data/array.utils/NonEmptyReadonly/NonEmptyreadonly";
 
-effect("guards and assertions validate non-empty schema arrays", () =>
-  Effect.gen(function* () {
+effect("guards and assertions validate non-empty schema arrays",
+  Effect.fn(function* () {
     const guard = isNonEmptyReadonlyArrayOfGuard(S.String);
 
     expect(guard(["a"])).toBe(true);
@@ -18,8 +18,8 @@ effect("guards and assertions validate non-empty schema arrays", () =>
   })
 );
 
-effect("NonEmptyReadonly.make preserves tuples and arrays", () =>
-  Effect.gen(function* () {
+effect("NonEmptyReadonly.make preserves tuples and arrays",
+  Effect.fn(function* () {
     const tuple = NonEmptyReadonly.make("a", "b", "c");
     const fromArray = NonEmptyReadonly.make(...(["x", "y"] as const));
 
@@ -28,8 +28,8 @@ effect("NonEmptyReadonly.make preserves tuples and arrays", () =>
   })
 );
 
-effect("NonEmptyReadonly.mapWith supports curried and uncurried usage", () =>
-  Effect.gen(function* () {
+effect("NonEmptyReadonly.mapWith supports curried and uncurried usage",
+  Effect.fn(function* () {
     const curried = NonEmptyReadonly.mapWith((value: number, index) => value + index)([1, 2, 3]);
     const uncurried = NonEmptyReadonly.mapWith(["a"] as const, (value) => F.pipe(value, Str.toUpperCase));
 
@@ -38,8 +38,8 @@ effect("NonEmptyReadonly.mapWith supports curried and uncurried usage", () =>
   })
 );
 
-effect("NonEmptyReadonly.filter enforces non-empty output", () =>
-  Effect.gen(function* () {
+effect("NonEmptyReadonly.filter enforces non-empty output",
+  Effect.fn(function* () {
     const kept = NonEmptyReadonly.filter<number>((value) => value > 1)([1, 2, 3]);
 
     expect(kept).toEqual([2, 3]);
@@ -47,8 +47,8 @@ effect("NonEmptyReadonly.filter enforces non-empty output", () =>
   })
 );
 
-effect("NonEmptyReadonly.from and fromIterable reject empty inputs", () =>
-  Effect.gen(function* () {
+effect("NonEmptyReadonly.from and fromIterable reject empty inputs",
+  Effect.fn(function* () {
     const iterable = new Set([1, 2]);
     const fromSet = NonEmptyReadonly.fromIterable(iterable);
     const fromArray = NonEmptyReadonly.from([3, 4] as const);

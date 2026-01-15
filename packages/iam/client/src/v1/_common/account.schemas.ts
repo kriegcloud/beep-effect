@@ -27,8 +27,8 @@ export const BetterAuthAccountSchema = F.pipe(
   S.Struct({
     // Core fields from coreSchema
     id: S.String,
-    createdAt: S.Date,
-    updatedAt: S.Date,
+    createdAt: S.String,
+    updatedAt: S.String,
 
     // Account identity fields
     providerId: S.String,
@@ -41,8 +41,8 @@ export const BetterAuthAccountSchema = F.pipe(
     idToken: S.optionalWith(S.String, { nullable: true }),
 
     // Token expiry fields (nullable dates)
-    accessTokenExpiresAt: S.optionalWith(S.Date, { nullable: true }),
-    refreshTokenExpiresAt: S.optionalWith(S.Date, { nullable: true }),
+    accessTokenExpiresAt: S.optionalWith(S.String, { nullable: true }),
+    refreshTokenExpiresAt: S.optionalWith(S.String, { nullable: true }),
 
     // OAuth scope (nullable)
     scope: S.optionalWith(S.String, { nullable: true }),

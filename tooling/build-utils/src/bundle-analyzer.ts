@@ -12,8 +12,8 @@ export type BundleAnalyzerOptions = {
   readonly logLevel?: "info" | "warn" | "error" | "silent" | undefined;
 };
 // NextBundleAnalyzer(options)(config)
-export const withBundleAnalyzer = (options?: BundleAnalyzerOptions) => (config?: undefined | NextConfig) =>
-  Effect.gen(function* () {
+export const withBundleAnalyzer = (options?: BundleAnalyzerOptions) =>
+  Effect.fn("withBundleAnalyzer")(function* (config?: undefined | NextConfig) {
     const enabled = yield* pipe(
       options,
       O.fromNullable,

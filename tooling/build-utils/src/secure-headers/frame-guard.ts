@@ -95,11 +95,11 @@ export const FrameGuardHeaderSchema = S.transformOrFail(FrameGuardOptionSchema, 
 
 export type FrameGuardHeader = typeof FrameGuardHeaderSchema.Type;
 
-export const createXFrameOptionsHeaderValue = (
+export const createXFrameOptionsHeaderValue: (
   option?: undefined | FrameGuardOption,
-  strictURIEncoder = encodeStrictURI
-): Effect.Effect<string | undefined, SecureHeadersError, never> =>
-  Effect.gen(function* () {
+  strictURIEncoder?: typeof encodeStrictURI
+) => Effect.Effect<string | undefined, SecureHeadersError, never> = Effect.fn("createXFrameOptionsHeaderValue")(
+  function* (option?: undefined | FrameGuardOption, strictURIEncoder = encodeStrictURI) {
     if (option == undefined) return "deny";
     if (option === false) return undefined;
     if (option === "deny") return option;
@@ -113,15 +113,17 @@ export const createXFrameOptionsHeaderValue = (
       type: "FRAME_GUARD",
       message: `Invalid value for ${headerName}: ${option}`,
     });
-  }).pipe(Effect.withSpan("createXFrameOptionsHeaderValue"));
+  }
+);
 
-export const createFrameGuardHeader = (
+export const createFrameGuardHeader: (
   option?: FrameGuardOption,
-  headerValueCreator = createXFrameOptionsHeaderValue
-): Effect.Effect<O.Option<ResponseHeader>, SecureHeadersError, never> =>
-  Effect.gen(function* () {
+  headerValueCreator?: typeof createXFrameOptionsHeaderValue
+) => Effect.Effect<O.Option<ResponseHeader>, SecureHeadersError, never> = Effect.fn("createFrameGuardHeader")(
+  function* (option?: FrameGuardOption, headerValueCreator = createXFrameOptionsHeaderValue) {
     const value = yield* headerValueCreator(option);
 
     if (value === undefined) return O.none<ResponseHeader>();
     return O.some({ name: headerName, value });
-  }).pipe(Effect.withSpan("createFrameGuardHeader"));
+  }
+);

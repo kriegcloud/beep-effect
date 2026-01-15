@@ -214,8 +214,8 @@ describe("Fn with complex types", () => {
     output: UserOutput,
   });
 
-  effect("handles struct input/output", () =>
-    Effect.gen(function* () {
+  effect("handles struct input/output",
+    Effect.fn(function* () {
       const impl = CreateUser.implement((user) => ({
         id: "user-123",
         displayName: `${user.name} (${user.age})`,
@@ -230,8 +230,8 @@ describe("Fn with complex types", () => {
     })
   );
 
-  effect("validates complex input", () =>
-    Effect.gen(function* () {
+  effect("validates complex input",
+    Effect.fn(function* () {
       const impl = CreateUser.implement((user) => ({
         id: "user-123",
         displayName: user.name,
@@ -243,8 +243,8 @@ describe("Fn with complex types", () => {
     })
   );
 
-  effect("validates complex output", () =>
-    Effect.gen(function* () {
+  effect("validates complex output",
+    Effect.fn(function* () {
       const impl = CreateUser.implement(
         () =>
           ({
@@ -268,8 +268,8 @@ describe("Fn with void output", () => {
   const VoidThunk = Fn({ output: S.Void });
   const VoidFn = Fn({ input: S.String, output: S.Void });
 
-  effect("thunk with void output", () =>
-    Effect.gen(function* () {
+  effect("thunk with void output",
+    Effect.fn(function* () {
       let called = false;
       const impl = VoidThunk.implement(() => {
         called = true;
@@ -280,8 +280,8 @@ describe("Fn with void output", () => {
     })
   );
 
-  effect("function with void output", () =>
-    Effect.gen(function* () {
+  effect("function with void output",
+    Effect.fn(function* () {
       let lastArg = "";
       const impl = VoidFn.implement((s) => {
         lastArg = s;
@@ -301,8 +301,8 @@ describe("Fn with explicit S.Undefined input", () => {
   // When input is explicitly S.Undefined, it should behave like a thunk
   const ExplicitUndefinedFn = Fn({ input: S.Undefined, output: S.String });
 
-  effect("behaves like a thunk when input is S.Undefined", () =>
-    Effect.gen(function* () {
+  effect("behaves like a thunk when input is S.Undefined",
+    Effect.fn(function* () {
       const impl = ExplicitUndefinedFn.implement(() => "explicit undefined");
       const result = yield* impl();
 

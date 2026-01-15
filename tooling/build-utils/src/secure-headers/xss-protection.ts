@@ -94,32 +94,35 @@ export const XSSProtectionHeaderSchema = S.transformOrFail(
 
 export type XSSProtectionHeader = typeof XSSProtectionHeaderSchema.Type;
 
-export const createXXSSProtectionHeaderValue = (
+export const createXXSSProtectionHeaderValue: (
+  option?: undefined | XSSProtectionOption,
+  strictURIEncoder?: typeof encodeStrictURI
+) => Effect.Effect<string, SecureHeadersError, never> = Effect.fn("createXXSSProtectionHeaderValue")(function* (
   option?: undefined | XSSProtectionOption,
   strictURIEncoder = encodeStrictURI
-): Effect.Effect<string, SecureHeadersError, never> =>
-  Effect.gen(function* () {
-    if (option == undefined) return "1";
-    if (option === false) return "0";
-    if (option === "sanitize") return "1";
-    if (option === "block-rendering") return "1; mode=block";
+) {
+  if (option == undefined) return "1";
+  if (option === false) return "0";
+  if (option === "sanitize") return "1";
+  if (option === "block-rendering") return "1; mode=block";
 
-    if (A.isArray(option)) {
-      if (option[0] === "report") return `1; report=${strictURIEncoder(option[1].uri)}`;
-    }
+  if (A.isArray(option)) {
+    if (option[0] === "report") return `1; report=${strictURIEncoder(option[1].uri)}`;
+  }
 
-    return yield* new SecureHeadersError({
-      type: "XSS_PROTECTION",
-      message: `Invalid value for ${headerName}: ${option}`,
-    });
-  }).pipe(Effect.withSpan("createXXSSProtectionHeaderValue"));
+  return yield* new SecureHeadersError({
+    type: "XSS_PROTECTION",
+    message: `Invalid value for ${headerName}: ${option}`,
+  });
+});
 
-export const createXSSProtectionHeader = (
+export const createXSSProtectionHeader: (
   option?: undefined | XSSProtectionOption,
-  headerValueCreator = createXXSSProtectionHeaderValue
-): Effect.Effect<O.Option<ResponseHeader>, SecureHeadersError, never> =>
-  Effect.gen(function* () {
+  headerValueCreator?: typeof createXXSSProtectionHeaderValue
+) => Effect.Effect<O.Option<ResponseHeader>, SecureHeadersError, never> = Effect.fn("createXSSProtectionHeader")(
+  function* (option?: undefined | XSSProtectionOption, headerValueCreator = createXXSSProtectionHeaderValue) {
     const value = yield* headerValueCreator(option);
 
     return O.some({ name: headerName, value });
-  }).pipe(Effect.withSpan("createXSSProtectionHeader"));
+  }
+);

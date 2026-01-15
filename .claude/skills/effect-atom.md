@@ -43,7 +43,7 @@ const runtime = Atom.context({ memoMap: Atom.defaultMemoMap });
 export const makeAtomRuntime = Atom.context({ memoMap: Atom.defaultMemoMap });
 
 // Create module-specific runtimes from the factory:
-const filesRuntime = makeAtomRuntime(Layer.mergeAll(FilesApi.layer, ...));
+const filesRuntime = makeAtomRuntime(Layer.mergeAll(FilesApi.layer, /* ... */ ));
 ```
 
 ### Rule 3: Atom.runtime is Pre-Created (NOT a Function)
@@ -58,15 +58,15 @@ const myRuntime = Atom.runtime(MyServiceLayer);
 
 ## Forbidden: Jotai Patterns
 
-| Jotai Pattern (WRONG) | Why It Fails | effect-atom Pattern (CORRECT) |
-|-----------------------|--------------|-------------------------------|
-| `import { atom } from 'jotai'` | Wrong library | `import { Atom } from '@effect-atom/atom-react'` |
-| `const a = atom(0)` | Jotai syntax | `const a = Atom.make(0)` |
-| `const [val, set] = useAtom(a)` | Jotai hook pattern | `const val = useAtomValue(a); const set = useAtomSet(a)` |
-| `atom((get) => get(other) * 2)` | Jotai derived syntax | `Atom.make((get) => get(other) * 2)` |
-| `atom(async (get) => ...)` | Jotai async | `runtime.atom(Effect.gen(...))` |
-| `useSetAtom(atom)` | Wrong hook name | `useAtomSet(atom)` |
-| No Provider needed | Jotai is implicit | `RegistryProvider` is REQUIRED |
+| Jotai Pattern (WRONG)           | Why It Fails         | effect-atom Pattern (CORRECT)                            |
+|---------------------------------|----------------------|----------------------------------------------------------|
+| `import { atom } from 'jotai'`  | Wrong library        | `import { Atom } from '@effect-atom/atom-react'`         |
+| `const a = atom(0)`             | Jotai syntax         | `const a = Atom.make(0)`                                 |
+| `const [val, set] = useAtom(a)` | Jotai hook pattern   | `const val = useAtomValue(a); const set = useAtomSet(a)` |
+| `atom((get) => get(other) * 2)` | Jotai derived syntax | `Atom.make((get) => get(other) * 2)`                     |
+| `atom(async (get) => ...)`      | Jotai async          | `runtime.atom(Effect.gen(...))`                          |
+| `useSetAtom(atom)`              | Wrong hook name      | `useAtomSet(atom)`                                       |
+| No Provider needed              | Jotai is implicit    | `RegistryProvider` is REQUIRED                           |
 
 ## Required: effect-atom Patterns
 
@@ -188,65 +188,65 @@ const filesAtom = runtime.atom(
 
 ### Atom Creation
 
-| Function | Description |
-|----------|-------------|
-| `Atom.make(initial)` | Create atom with initial value or read function |
-| `Atom.writable(read, write)` | Create read-write atom |
-| `Atom.family(fn)` | Parameterized atom factory |
-| `Atom.context(options)` | Create RuntimeFactory |
-| `Atom.runtime` | Default RuntimeFactory (pre-created) |
-| `Atom.map(atom, fn)` | Derive from atom |
+| Function                     | Description                                     |
+|------------------------------|-------------------------------------------------|
+| `Atom.make(initial)`         | Create atom with initial value or read function |
+| `Atom.writable(read, write)` | Create read-write atom                          |
+| `Atom.family(fn)`            | Parameterized atom factory                      |
+| `Atom.context(options)`      | Create RuntimeFactory                           |
+| `Atom.runtime`               | Default RuntimeFactory (pre-created)            |
+| `Atom.map(atom, fn)`         | Derive from atom                                |
 
 ### React Hooks
 
-| Hook | Return | Description |
-|------|--------|-------------|
-| `useAtomValue(atom)` | `A` | Read atom value |
-| `useAtomSet(atom)` | `(A) => void` | Get setter |
-| `useAtom(atom)` | `[A, Setter]` | Combined read/write |
-| `useAtomMount(atom)` | `void` | Keep atom alive |
-| `useAtomSuspense(atom)` | `A` | With Suspense |
-| `useAtomRefresh(atom)` | `() => void` | Get refresh function |
+| Hook                    | Return        | Description          |
+|-------------------------|---------------|----------------------|
+| `useAtomValue(atom)`    | `A`           | Read atom value      |
+| `useAtomSet(atom)`      | `(A) => void` | Get setter           |
+| `useAtom(atom)`         | `[A, Setter]` | Combined read/write  |
+| `useAtomMount(atom)`    | `void`        | Keep atom alive      |
+| `useAtomSuspense(atom)` | `A`           | With Suspense        |
+| `useAtomRefresh(atom)`  | `() => void`  | Get refresh function |
 
 ### Atom Context API (inside read function)
 
-| Method | Description |
-|--------|-------------|
-| `get(atom)` | Synchronously read another atom |
-| `get.result(atom)` | Get Result from effectful atom |
-| `get.mount(atom)` | Ensure atom is active |
-| `get.refresh(atom)` | Trigger recomputation |
-| `get.setSelf(value)` | Update self value |
-| `get.addFinalizer(fn)` | Register cleanup |
-| `get.stream(atom)` | Create stream of changes |
-| `get.subscribe(atom, fn)` | Listen to changes |
+| Method                    | Description                     |
+|---------------------------|---------------------------------|
+| `get(atom)`               | Synchronously read another atom |
+| `get.result(atom)`        | Get Result from effectful atom  |
+| `get.mount(atom)`         | Ensure atom is active           |
+| `get.refresh(atom)`       | Trigger recomputation           |
+| `get.setSelf(value)`      | Update self value               |
+| `get.addFinalizer(fn)`    | Register cleanup                |
+| `get.stream(atom)`        | Create stream of changes        |
+| `get.subscribe(atom, fn)` | Listen to changes               |
 
 ### Write Context API (inside writable write function)
 
-| Method | Description |
-|--------|-------------|
-| `ctx.get(atom)` | Read atom value |
-| `ctx.setSelf(value)` | Write to self |
+| Method                 | Description           |
+|------------------------|-----------------------|
+| `ctx.get(atom)`        | Read atom value       |
+| `ctx.setSelf(value)`   | Write to self         |
 | `ctx.set(atom, value)` | Write to another atom |
-| `ctx.refreshSelf()` | Trigger recomputation |
+| `ctx.refreshSelf()`    | Trigger recomputation |
 
 ### Result Type
 
-| Method | Description |
-|--------|-------------|
-| `Result.isInitial(r)` | Check if not yet computed |
-| `Result.isSuccess(r)` | Check if successful |
-| `Result.isFailure(r)` | Check if failed |
-| `result._tag` | `"Initial"` \| `"Success"` \| `"Failure"` |
-| `result.value` | Success value (when Success) |
-| `result.cause` | Failure cause (when Failure) |
-| `Result.success(value)` | Create success result |
-| `Result.failure(cause)` | Create failure result |
-| `Result.initial()` | Create initial result |
+| Method                  | Description                               |
+|-------------------------|-------------------------------------------|
+| `Result.isInitial(r)`   | Check if not yet computed                 |
+| `Result.isSuccess(r)`   | Check if successful                       |
+| `Result.isFailure(r)`   | Check if failed                           |
+| `result._tag`           | `"Initial"` \| `"Success"` \| `"Failure"` |
+| `result.value`          | Success value (when Success)              |
+| `result.cause`          | Failure cause (when Failure)              |
+| `Result.success(value)` | Create success result                     |
+| `Result.failure(cause)` | Create failure result                     |
+| `Result.initial()`      | Create initial result                     |
 
 ## Component Usage
 
-```typescript
+```tsx
 import { useAtomValue, useAtomSet, RegistryProvider } from "@effect-atom/atom-react";
 
 // Provider is REQUIRED at app root

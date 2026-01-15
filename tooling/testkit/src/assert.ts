@@ -23,6 +23,96 @@ export function fail(message: string): never {
   throw new Error(message);
 }
 
+// ----------------------------
+// Chai-style assertion namespace
+// ----------------------------
+
+/**
+ * Chai-style assertion namespace that can be called directly or used with method accessors.
+ *
+ * @example
+ * // Direct call
+ * assert(condition, "message")
+ *
+ * // Method calls
+ * assert.isTrue(value)
+ * assert.isDefined(value)
+ * assert.strictEqual(a, b)
+ *
+ * @since 0.1.0
+ */
+export interface Assert {
+  (condition: unknown, message?: string): asserts condition;
+  isDefined: <T>(value: T | undefined | null, message?: string) => asserts value is T;
+  isUndefined: (value: unknown, message?: string) => void;
+  isTrue: (value: unknown, message?: string) => asserts value;
+  isFalse: (value: boolean, message?: string) => void;
+  isString: (value: unknown, message?: string) => asserts value is string;
+  isNumber: (value: unknown, message?: string) => asserts value is number;
+  isNotEmpty: (value: string | unknown[], message?: string) => void;
+  strictEqual: <A>(actual: A, expected: A, message?: string) => void;
+}
+
+function assertBase(condition: unknown, message?: string): asserts condition {
+  if (!condition) {
+    fail(message ?? "Assertion failed");
+  }
+}
+
+function isDefined<T>(value: T | undefined | null, message?: string): asserts value is T {
+  if (value === undefined || value === null) {
+    fail(message ?? "Expected value to be defined");
+  }
+}
+
+function isUndefined(value: unknown, message?: string): void {
+  if (value !== undefined) {
+    fail(message ?? "Expected value to be undefined");
+  }
+}
+
+function isTrue(value: unknown, message?: string): asserts value {
+  strictEqual(value, true, message ?? "Expected value to be true");
+}
+
+function isFalse(value: boolean, message?: string): void {
+  strictEqual(value, false, message ?? "Expected value to be false");
+}
+
+function isString(value: unknown, message?: string): asserts value is string {
+  if (typeof value !== "string") {
+    fail(message ?? `Expected string but got ${typeof value}`);
+  }
+}
+
+function isNumber(value: unknown, message?: string): asserts value is number {
+  if (typeof value !== "number") {
+    fail(message ?? `Expected number but got ${typeof value}`);
+  }
+}
+
+function isNotEmpty(value: string | unknown[], message?: string): void {
+  if (value.length === 0) {
+    fail(message ?? "Expected value to not be empty");
+  }
+}
+
+/**
+ * Chai-style assertion object that can be called directly or with methods.
+ *
+ * @since 0.1.0
+ */
+export const assert: Assert = Object.assign(assertBase, {
+  isDefined,
+  isUndefined,
+  isTrue,
+  isFalse,
+  isString,
+  isNumber,
+  isNotEmpty,
+  strictEqual,
+});
+
 /**
  * Asserts that `actual` is equal to `expected` using the `Equal.equals` trait.
  *

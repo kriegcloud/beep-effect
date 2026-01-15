@@ -36,8 +36,8 @@ export const BetterAuthTwoFactorSchema = F.pipe(
   S.Struct({
     // Core fields from coreSchema (these ARE returned by API)
     id: S.String,
-    createdAt: S.Date,
-    updatedAt: S.Date,
+    createdAt: S.String,
+    updatedAt: S.String,
     // NOTE: secret, backupCodes, userId have `returned: false` in Better Auth
     // They are NOT included in the Struct, but can be extracted from Record
     // extension when present (internal/admin flows with full database data)

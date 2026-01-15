@@ -57,10 +57,11 @@ const defaultCSPDirectives = {
   scriptSrc: ["'self'", "blob:", "https://cdn.jsdelivr.net", "'wasm-unsafe-eval'", "'unsafe-eval'"],
   workerSrc: ["'self'", "blob:"],
   styleSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net"],
-  fontSrc: ["'self'", "https://fonts.scalar.com"],
+  fontSrc: ["'self'", "https://fonts.gstatic.com", "https://fonts.scalar.com"],
   styleSrcElem: ["'self'", "'unsafe-inline'", "https://www.googletagmanager.com", "https://cdn.jsdelivr.net"],
   scriptSrcElem: [
     "'self'",
+    "https://fonts.googleapis.com",
     "https://unpkg.com",
     "http://unpkg.com",
     "'unsafe-inline'",
@@ -207,9 +208,11 @@ type BeepNextConfig = Omit<NextConfig, "headers"> & {
   readonly pwaConfig?: PWAConfig;
 };
 
-const withDefaults = (packageName: `@beep/${string}`, config?: BeepNextConfig) =>
-  Effect.gen(function* () {
-    const repoRoot = yield* findRepoRoot;
+const withDefaultsImpl = Effect.fn("withDefaults")(function* (
+  packageName: `@beep/${string}`,
+  config?: BeepNextConfig
+) {
+  const repoRoot = yield* findRepoRoot;
     const transpilePackages = yield* TranspilePackages.computeTranspilePackages({
       target: packageName,
     });
@@ -378,10 +381,15 @@ const withDefaults = (packageName: `@beep/${string}`, config?: BeepNextConfig) =
         );
       }),
     } satisfies BeepNextConfig;
-  }).pipe(Effect.provide(layer));
+  });
 
-const make = (packageName: `@beep/${string}`, config?: BeepNextConfig) =>
-  Effect.gen(function* () {
+const withDefaults = (packageName: `@beep/${string}`, config?: BeepNextConfig) =>
+  withDefaultsImpl(packageName, config).pipe(Effect.provide(layer));
+
+const make = Effect.fn("NextConfig.make")(function* (
+  packageName: `@beep/${string}`,
+  config?: BeepNextConfig
+) {
     const mergedHeaders = mergeSecureHeaders(config?.headers);
     const secureHeaders = yield* createSecureHeaders(mergedHeaders);
     const configWithDefaults = yield* withDefaults(packageName, config);
@@ -401,7 +409,7 @@ const make = (packageName: `@beep/${string}`, config?: BeepNextConfig) =>
     return yield* pipe(
       {
         ...configWithDefaults,
-
+        allowedDevOrigins: process.env.NODE_ENV === "development" ? ["host.docker.internal"] : [],
         headers: async () => [
           {
             source: "/:path*",
@@ -413,7 +421,7 @@ const make = (packageName: `@beep/${string}`, config?: BeepNextConfig) =>
       withMDX,
       withBundleAnalyzer(config?.bundleAnalyzerOptions)
     );
-  }).pipe(Effect.withSpan("NextConfig.make"));
+  });
 
 export const beepNextConfig = (packageName: `@beep/${string}`, config?: BeepNextConfig): Promise<NextConfig> =>
   Effect.runPromise(pipe(make(packageName, config), Effect.provide(layer), Effect.catchAll(Effect.die)));

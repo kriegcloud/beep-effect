@@ -63,8 +63,8 @@ describe("MD5 Blob Hashing (Bun runtime)", () => {
       );
     });
 
-  live("should hash a small blob", () =>
-    Effect.gen(function* () {
+  live("should hash a small blob",
+    Effect.fn(function* () {
       const str = "hello";
       const uint8Array = stringToUint8Array(str);
       const blob = new Blob([uint8Array.buffer as ArrayBuffer]);
@@ -75,8 +75,8 @@ describe("MD5 Blob Hashing (Bun runtime)", () => {
     })
   );
 
-  live("should hash a large blob with chunk size 16", () =>
-    Effect.gen(function* () {
+  live("should hash a large blob with chunk size 16",
+    Effect.fn(function* () {
       const uint8Array = stringToUint8Array(largeString);
       const blob = new Blob([uint8Array.buffer as ArrayBuffer]);
 
@@ -86,8 +86,8 @@ describe("MD5 Blob Hashing (Bun runtime)", () => {
     })
   );
 
-  live("should hash a large blob with chunk size 17 (uneven division)", () =>
-    Effect.gen(function* () {
+  live("should hash a large blob with chunk size 17 (uneven division)",
+    Effect.fn(function* () {
       const uint8Array = stringToUint8Array(largeString);
       const blob = new Blob([uint8Array.buffer as ArrayBuffer]);
 
@@ -97,8 +97,8 @@ describe("MD5 Blob Hashing (Bun runtime)", () => {
     })
   );
 
-  live("should hash empty blob", () =>
-    Effect.gen(function* () {
+  live("should hash empty blob",
+    Effect.fn(function* () {
       const blob = new Blob([]);
 
       const hash = yield* hashBlobBun(blob, 1048576);
@@ -108,8 +108,8 @@ describe("MD5 Blob Hashing (Bun runtime)", () => {
     })
   );
 
-  live("should produce consistent results with default chunk size", () =>
-    Effect.gen(function* () {
+  live("should produce consistent results with default chunk size",
+    Effect.fn(function* () {
       const str = "The quick brown fox jumps over the lazy dog";
       const uint8Array = stringToUint8Array(str);
       const blob = new Blob([uint8Array.buffer as ArrayBuffer]);

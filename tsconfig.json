@@ -64,6 +64,9 @@
     },
     {
       "path": "./tsconfig.slices/comms.json"
+    },
+    {
+      "path": "./tsconfig.slices/calendar.json"
     }
   ]
 }

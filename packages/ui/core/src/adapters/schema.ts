@@ -70,16 +70,6 @@ export const applyTimezone = (dt: DateTime.DateTime, timezone: PickersTimezone):
 };
 
 /**
- * Type guard to check if a value is a valid DateTime.
- */
-export const isValidDateTime = (value: DateTime.DateTime | null): value is DateTime.DateTime => {
-  if (value === null) {
-    return false;
-  }
-  return !Number.isNaN(value.epochMillis);
-};
-
-/**
  * Create an invalid DateTime (used for validation errors).
  */
 export const createInvalidDateTime = (): DateTime.DateTime => {

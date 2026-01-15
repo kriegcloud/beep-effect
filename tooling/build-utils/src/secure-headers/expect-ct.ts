@@ -137,59 +137,63 @@ export const ExpectCTHeaderSchema = S.transformOrFail(
 
 export type ExpectCTHeader = typeof ExpectCTHeaderSchema.Type;
 
-export const createExpectCTHeaderValue = (
+export const createExpectCTHeaderValue: (
+  option?: undefined | ExpectCTOption,
+  strictURIEncoder?: typeof encodeStrictURI
+) => Effect.Effect<string | undefined, SecureHeadersError, never> = Effect.fn("createExpectCTHeaderValue")(function* (
   option?: undefined | ExpectCTOption,
   strictURIEncoder = encodeStrictURI
-): Effect.Effect<string | undefined, SecureHeadersError, never> =>
-  Effect.gen(function* () {
-    if (option == undefined) return undefined;
-    if (option === false) return undefined;
-    if (option === true) return `max-age=${defaultMaxAge}`;
+) {
+  if (option == undefined) return undefined;
+  if (option === false) return undefined;
+  if (option === true) return `max-age=${defaultMaxAge}`;
 
-    if (A.isArray(option)) {
-      if (!option[0]) {
-        return yield* new SecureHeadersError({
-          type: "EXPECT_CT",
-          message: `Invalid value for ${headerName} in the first option: ${option[0]}`,
-        });
-      }
-
-      const maxAge = option[1].maxAge ?? defaultMaxAge;
-      if (!P.isNumber(maxAge) || !Number.isFinite(maxAge)) {
-        return yield* new SecureHeadersError({
-          type: "EXPECT_CT",
-          message: `Invalid value for "maxAge" option in ${headerName}: ${maxAge}`,
-        });
-      }
-      const { enforce, reportURI } = option[1];
-
-      return pipe(
-        A.make(
-          `max-age=${maxAge}`,
-          enforce ? "enforce" : undefined,
-          reportURI != undefined ? `report-uri=${strictURIEncoder(reportURI)}` : undefined
-        ),
-        A.filter(P.isNotNullable),
-        A.join(", ")
-      );
+  if (A.isArray(option)) {
+    if (!option[0]) {
+      return yield* new SecureHeadersError({
+        type: "EXPECT_CT",
+        message: `Invalid value for ${headerName} in the first option: ${option[0]}`,
+      });
     }
 
-    return yield* new SecureHeadersError({
-      type: "EXPECT_CT",
-      message: `Invalid value for ${headerName}: ${option}`,
-    });
-  }).pipe(Effect.withSpan("createExpectCTHeaderValue"));
+    const maxAge = option[1].maxAge ?? defaultMaxAge;
+    if (!P.isNumber(maxAge) || !Number.isFinite(maxAge)) {
+      return yield* new SecureHeadersError({
+        type: "EXPECT_CT",
+        message: `Invalid value for "maxAge" option in ${headerName}: ${maxAge}`,
+      });
+    }
+    const { enforce, reportURI } = option[1];
 
-export const createExpectCTHeader = (
+    return pipe(
+      A.make(
+        `max-age=${maxAge}`,
+        enforce ? "enforce" : undefined,
+        reportURI != undefined ? `report-uri=${strictURIEncoder(reportURI)}` : undefined
+      ),
+      A.filter(P.isNotNullable),
+      A.join(", ")
+    );
+  }
+
+  return yield* new SecureHeadersError({
+    type: "EXPECT_CT",
+    message: `Invalid value for ${headerName}: ${option}`,
+  });
+});
+
+export const createExpectCTHeader: (
+  option?: undefined | ExpectCTOption,
+  headerValueCreator?: typeof createExpectCTHeaderValue
+) => Effect.Effect<O.Option<ResponseHeader>, SecureHeadersError, never> = Effect.fn("createExpectCTHeader")(function* (
   option?: undefined | ExpectCTOption,
   headerValueCreator = createExpectCTHeaderValue
-): Effect.Effect<O.Option<ResponseHeader>, SecureHeadersError, never> =>
-  Effect.gen(function* () {
-    if (option == undefined) return O.none<ResponseHeader>();
-    if (option === false) return O.none<ResponseHeader>();
+) {
+  if (option == undefined) return O.none<ResponseHeader>();
+  if (option === false) return O.none<ResponseHeader>();
 
-    const value = yield* headerValueCreator(option);
+  const value = yield* headerValueCreator(option);
 
-    if (value === undefined) return O.none<ResponseHeader>();
-    return O.some({ name: headerName, value });
-  }).pipe(Effect.withSpan("createExpectCTHeader"));
+  if (value === undefined) return O.none<ResponseHeader>();
+  return O.some({ name: headerName, value });
+});

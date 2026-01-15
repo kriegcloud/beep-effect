@@ -88,6 +88,21 @@ const initialState: ReCaptchaState = {
 
 const generateCallbackName = () => F.pipe(Math.random().toString(36), Str.slice(2), (s) => `onLoadCallback_${s}`);
 
+/**
+ * Normalizes a reCAPTCHA script URL for comparison by removing the `onload` callback parameter.
+ * This is necessary because the callback name is randomly generated on each initialization,
+ * but we only want to error if the actual reCAPTCHA parameters (key, language, etc.) differ.
+ */
+const normalizeUrlForComparison = (url: string): string => {
+  try {
+    const parsed = new URL(url);
+    parsed.searchParams.delete("onload");
+    return parsed.toString();
+  } catch {
+    return url;
+  }
+};
+
 const generateScriptSrc = (
   render: string,
   onLoadCallbackName: string,
@@ -326,9 +341,12 @@ export const initializeReCaptchaAtom = reCaptchaRuntime.fn(
     );
 
     // Check if already loaded (from atom state)
+    // Compare URLs without the onload callback parameter since it's randomly generated
     const currentState = registry.get(reCaptchaStateAtom);
     if (O.isSome(currentState.loadedUrl)) {
-      if (currentState.loadedUrl.value !== src) {
+      const existingNormalized = normalizeUrlForComparison(currentState.loadedUrl.value);
+      const requestedNormalized = normalizeUrlForComparison(src);
+      if (existingNormalized !== requestedNormalized) {
         return yield* new ReCaptchaAlreadyLoadedError({
           message: "ReCaptcha has already been loaded with different parameters",
           existingUrl: currentState.loadedUrl.value,

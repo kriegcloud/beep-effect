@@ -544,8 +544,8 @@ describe("MutableHashSet mutation behavior", () => {
 // ─────────────────────────────────────────────────────────────────────────────
 
 describe("MutableHashSet equivalence", () => {
-  effect("empty sets are equivalent", () =>
-    Effect.gen(function* () {
+  effect("empty sets are equivalent",
+    Effect.fn(function* () {
       const schema = MutableHashSetFromSelf(S.Number);
       const equivalence = S.equivalence(schema);
       const set1 = MutableHashSet.empty<number>();
@@ -554,8 +554,8 @@ describe("MutableHashSet equivalence", () => {
     })
   );
 
-  effect("sets with same values (same order) are equivalent", () =>
-    Effect.gen(function* () {
+  effect("sets with same values (same order) are equivalent",
+    Effect.fn(function* () {
       const schema = MutableHashSetFromSelf(S.Number);
       const equivalence = S.equivalence(schema);
       const set1 = MutableHashSet.fromIterable([1, 2, 3]);
@@ -564,8 +564,8 @@ describe("MutableHashSet equivalence", () => {
     })
   );
 
-  effect("sets with different values are not equivalent", () =>
-    Effect.gen(function* () {
+  effect("sets with different values are not equivalent",
+    Effect.fn(function* () {
       const schema = MutableHashSetFromSelf(S.Number);
       const equivalence = S.equivalence(schema);
       const set1 = MutableHashSet.fromIterable([1, 2, 3]);
@@ -574,8 +574,8 @@ describe("MutableHashSet equivalence", () => {
     })
   );
 
-  effect("sets with different sizes are not equivalent", () =>
-    Effect.gen(function* () {
+  effect("sets with different sizes are not equivalent",
+    Effect.fn(function* () {
       const schema = MutableHashSetFromSelf(S.Number);
       const equivalence = S.equivalence(schema);
       const set1 = MutableHashSet.fromIterable([1, 2]);
@@ -584,8 +584,8 @@ describe("MutableHashSet equivalence", () => {
     })
   );
 
-  effect("equivalence is reflexive", () =>
-    Effect.gen(function* () {
+  effect("equivalence is reflexive",
+    Effect.fn(function* () {
       const schema = MutableHashSetFromSelf(S.String);
       const equivalence = S.equivalence(schema);
       const set = MutableHashSet.fromIterable(["a", "b", "c"]);
@@ -593,8 +593,8 @@ describe("MutableHashSet equivalence", () => {
     })
   );
 
-  effect("equivalence is symmetric", () =>
-    Effect.gen(function* () {
+  effect("equivalence is symmetric",
+    Effect.fn(function* () {
       const schema = MutableHashSetFromSelf(S.Number);
       const equivalence = S.equivalence(schema);
       const set1 = MutableHashSet.fromIterable([1, 2, 3]);

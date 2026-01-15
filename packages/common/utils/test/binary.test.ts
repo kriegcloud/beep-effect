@@ -7,8 +7,8 @@ import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
 
-effect("binary helpers convert between ArrayBuffer, Blob, and Uint8Array", () =>
-  Effect.gen(function* () {
+effect("binary helpers convert between ArrayBuffer, Blob, and Uint8Array",
+  Effect.fn(function* () {
     const buffer = new Uint8Array([1, 2, 3]).buffer;
     const blob = arrayBufferToBlob(buffer);
     const uint8 = arrayBufferToUint8Array(buffer);

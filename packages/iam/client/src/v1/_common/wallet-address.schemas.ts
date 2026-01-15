@@ -42,7 +42,7 @@ export const BetterAuthWalletAddressSchema = F.pipe(
     address: S.String,
     chainId: S.Number,
     isPrimary: S.optionalWith(S.Boolean, { default: () => false }),
-    createdAt: S.Date,
+    createdAt: S.String,
     // NOTE: id and updatedAt come from Record extension (database layer)
   }),
   S.extend(S.Record({ key: S.String, value: S.Unknown })),
@@ -214,8 +214,8 @@ export const DomainWalletAddressFromBetterAuthWalletAddress = S.transformOrFail(
         const id = walletAddressEncoded.id ?? IamEntityIds.WalletAddressId.create();
 
         // Convert dates - these may be DateTime.Utc or Date
-        const createdAt = walletAddressEncoded.createdAt ? toDate(walletAddressEncoded.createdAt) : undefined;
-        const updatedAt = walletAddressEncoded.updatedAt ? toDate(walletAddressEncoded.updatedAt) : undefined;
+        const createdAt =toDate(walletAddressEncoded.createdAt);
+        const updatedAt =toDate(walletAddressEncoded.updatedAt);
 
         // Return BetterAuthWalletAddress form with database fields included via Record
         // This ensures proper round-trip through the transformation
@@ -225,7 +225,7 @@ export const DomainWalletAddressFromBetterAuthWalletAddress = S.transformOrFail(
           address: walletAddressEncoded.address ?? "",
           chainId: walletAddressEncoded.chainId ?? 1,
           isPrimary: walletAddressEncoded.isPrimary ?? false,
-          createdAt: createdAt ?? new Date(),
+          createdAt: createdAt,
 
           // Include database fields for round-trip (via Record extension)
           id,

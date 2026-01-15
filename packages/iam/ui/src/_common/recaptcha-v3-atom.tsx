@@ -9,9 +9,10 @@
  * - **Cleanup**: handled by `reCaptchaProviderAtom` via `get.addFinalizer()` - runs when atom unmounts
  * - **Theme updates**: handled reactively by `reCaptchaProviderAtom` reading `reCaptchaThemeConfigAtom`
  *
- * Remaining useLayoutEffect (minimal, for React-to-atom sync):
+ * useEffect (not useLayoutEffect) for React-to-atom sync:
  * - **Init + Theme sync**: syncs React values to atoms on mount/update
- *   (unavoidable since theme/language come from React hooks, not window events)
+ *   (uses useEffect since reCAPTCHA initialization doesn't require DOM measurement
+ *    and can safely run after paint to avoid forced reflow)
  *
  * @module
  */
@@ -22,12 +23,12 @@ import {
   reCaptchaThemeConfigAtom,
 } from "@beep/shared-client/services/react-recaptcha-v3";
 import { clientEnv } from "@beep/shared-env/ClientEnv";
-import { useIsHydrated } from "@beep/ui/hooks";
+import { useIsHydrated } from "@beep/ui/hooks/index";
 import { useTranslate } from "@beep/ui/i18n/use-locales";
 import { useAtomSet, useAtomValue } from "@effect-atom/atom-react";
 import { useTheme } from "@mui/material/styles";
 import * as Redacted from "effect/Redacted";
-import { type ReactNode, useLayoutEffect, useRef } from "react";
+import { type ReactNode, useEffect, useRef } from "react";
 
 /**
  * ReCaptcha v3 provider using atoms.
@@ -74,7 +75,8 @@ export function RecaptchaV3Atom({ children }: { readonly children: ReactNode }) 
   useAtomValue(reCaptchaProviderAtom);
 
   // Sync React values (theme, language) to atoms and initialize
-  // useLayoutEffect runs synchronously after DOM mutations but before paint
+  // useEffect runs asynchronously after paint - this is fine since reCAPTCHA
+  // initialization doesn't require DOM measurement and avoids forced reflow
   // This is ONE effect that replaces TWO useEffects from the original:
   // 1. Initialization (runs once via ref guard)
   // 2. Theme/language sync (runs on change)
@@ -82,7 +84,7 @@ export function RecaptchaV3Atom({ children }: { readonly children: ReactNode }) 
   const themeMode = theme.palette.mode as "dark" | "light";
   const language = currentLang?.value;
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     // Initialize once (idempotent - the Effect checks loadedUrl to prevent re-init)
     if (!initializedRef.current && isHydrated) {
       initializedRef.current = true;

@@ -21,10 +21,10 @@ const $I = $IamClientId.create("_common/session.schemas");
 export const BetterAuthSessionSchema = F.pipe(
   S.Struct({
     id: S.String,
-    createdAt: S.Date,
-    updatedAt: S.Date,
+    createdAt: S.String,
+    updatedAt: S.String,
     userId: S.String,
-    expiresAt: S.Date,
+    expiresAt: S.String,
     token: S.String,
     ipAddress: S.optionalWith(S.String, { nullable: true }),
     userAgent: S.optionalWith(S.String, { nullable: true }),

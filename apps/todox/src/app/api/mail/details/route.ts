@@ -1,4 +1,4 @@
-import { Mail } from "@beep/todox/types/mail";
+import { type IMail, type IMailAttachment, type IMailSender, Mail } from "@beep/todox/types/mail";
 import { thunkNull, thunkZero } from "@beep/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
@@ -17,51 +17,30 @@ const subjects = [
   "Action Required: Review Document",
   "Team Lunch Friday",
 ];
+
 // Generate a single mock mail with realistic data
-const generateMockMail = (mailId: string, seed: number) =>
+const generateMockMail = (mailId: string, seed: number): IMail | null =>
   F.pipe(
     FC.sample(Arbitrary.make(Mail), { seed, numRuns: 1 }),
     A.head,
     O.match({
       onNone: thunkNull,
-      onSome: (baseMail) => ({
-        ...baseMail,
-        id: mailId,
-        folder: "inbox",
-        subject: subjects[seed % subjects.length] ?? "Email Subject",
-        message: Str.trim(`
-Dear User,
-
-This is a detailed email message for mail ID: ${mailId}.
-
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.
-
-Best regards,
-Sender
-    `),
-        isUnread: false,
-        from: {
+      onSome: (baseMail): IMail => {
+        const fromSender: IMailSender = {
           name: "John Doe",
           email: "john.doe@example.com",
           avatarUrl: `https://api.dicebear.com/7.x/avataaars/svg?seed=${seed}`,
-        },
-        to: [
+        };
+
+        const toRecipients: IMailSender[] = [
           {
             name: "Current User",
             email: "user@example.com",
             avatarUrl: null,
           },
-        ],
-        labelIds: A.make("inbox"),
-        isStarred: seed % 2 === 0,
-        isImportant: seed % 3 === 0,
-        createdAt: DateTime.unsafeNow().pipe(
-          DateTime.subtract({
-            millis: seed * 3600000,
-          }),
-          DateTime.formatIso
-        ),
-        attachments:
+        ];
+
+        const attachments: IMailAttachment[] =
           seed % 2 === 0
             ? [
                 {
@@ -75,8 +54,38 @@ Sender
                   modifiedAt: DateTime.unsafeNow().pipe(DateTime.formatIso),
                 },
               ]
-            : [],
-      }),
+            : [];
+
+        return {
+          ...baseMail,
+          id: mailId,
+          folder: "inbox",
+          subject: subjects[seed % subjects.length] ?? "Email Subject",
+          message: Str.trim(`
+Dear User,
+
+This is a detailed email message for mail ID: ${mailId}.
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.
+
+Best regards,
+Sender
+          `),
+          isUnread: false,
+          from: fromSender,
+          to: toRecipients,
+          labelIds: A.make("inbox"),
+          isStarred: seed % 2 === 0,
+          isImportant: seed % 3 === 0,
+          createdAt: DateTime.unsafeNow().pipe(
+            DateTime.subtract({
+              millis: seed * 3600000,
+            }),
+            DateTime.formatIso
+          ),
+          attachments,
+        };
+      },
     })
   );
 

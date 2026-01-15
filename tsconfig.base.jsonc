@@ -43,7 +43,19 @@
         "name": "@effect/language-service",
         "transform": "@effect/language-service/transform",
         "diagnosticSeverity": {
-          "classSelfMismatch": "off"
+          "classSelfMismatch": "off",
+          "effectFnOpportunity": "off",
+          "catchAllToMapError": "off",
+          "forbiddenInSchema": "off",
+          "unnecessaryYield": "off",
+          "missingEffectError": "off",
+          "unnecessaryPipeChain": "off",
+          "unnecessaryFailYieldableError": "off",
+          "redundantSchemaTagIdentifier": "off",
+          "unnecessaryEffectGen": "off",
+          "leakingRequirements": "off",
+          "unnecessaryPipe": "off",
+          "runEffectInsideEffect": "off"
         },
         "mermaidProvider": "mermaid.live",
         "namespaceImportPackages": [
@@ -454,6 +466,36 @@
       ],
       "@beep/comms-ui/*": [
         "./packages/comms/ui/src/*"
+      ],
+      "@beep/calendar-domain": [
+        "./packages/calendar/domain/src/index"
+      ],
+      "@beep/calendar-domain/*": [
+        "./packages/calendar/domain/src/*"
+      ],
+      "@beep/calendar-tables": [
+        "./packages/calendar/tables/src/index"
+      ],
+      "@beep/calendar-tables/*": [
+        "./packages/calendar/tables/src/*"
+      ],
+      "@beep/calendar-server": [
+        "./packages/calendar/server/src/index"
+      ],
+      "@beep/calendar-server/*": [
+        "./packages/calendar/server/src/*"
+      ],
+      "@beep/calendar-client": [
+        "./packages/calendar/client/src/index"
+      ],
+      "@beep/calendar-client/*": [
+        "./packages/calendar/client/src/*"
+      ],
+      "@beep/calendar-ui": [
+        "./packages/calendar/ui/src/index"
+      ],
+      "@beep/calendar-ui/*": [
+        "./packages/calendar/ui/src/*"
       ]
     }
   }

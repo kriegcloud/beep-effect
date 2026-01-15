@@ -179,10 +179,10 @@ const loadScript = (props: {
     const script = document.createElement("script");
     script.src = props.src;
 
-    if (props.async !== undefined) script.async = props.async;
-    if (props.defer !== undefined) script.defer = props.defer;
-    if (props.id !== undefined) script.id = props.id;
-    if (props.nonce !== undefined) script.setAttribute("nonce", props.nonce);
+    if (P.isNotUndefined(props.async)) script.async = props.async;
+    if (P.isNotUndefined(props.defer)) script.defer = props.defer;
+    if (P.isNotUndefined(props.id)) script.id = props.id;
+    if (P.isNotUndefined(props.nonce)) script.setAttribute("nonce", props.nonce);
 
     const target = props.appendTo === "head" ? document.head : document.body;
     target.appendChild(script);
@@ -244,7 +244,7 @@ const makeLive = Effect.gen(function* () {
   const loadReCaptchaScript = (config: ReCaptchaConfig): Effect.Effect<void, ReCaptchaError> =>
     SynchronizedRef.updateEffect(stateRef, (state) =>
       Effect.gen(function* () {
-        const render = config.container?.element !== undefined ? "explicit" : config.reCaptchaKey;
+        const render = P.isNotUndefined(config.container?.element) ? "explicit" : config.reCaptchaKey;
 
         const src = generateScriptSrc(render, callbackName, {
           language: config.language,

@@ -13,6 +13,11 @@ export type CookieOptions = {
   readonly path?: string | undefined;
 };
 
+// Internal: feature-detect browser environment safely (SSR check)
+function isBrowser(): boolean {
+  return typeof document !== "undefined";
+}
+
 // Internal: feature-detect CookieStore API safely across environments (e.g. SSR)
 function hasCookieStore(): boolean {
   return typeof globalThis.cookieStore !== "undefined";
@@ -41,6 +46,11 @@ function toCookieStoreSameSite(sameSite: CookieOptions["sameSite"]): "strict" | 
 export function getCookie<T>(key: string): T | null {
   if (!key || P.not(Str.isString)(key)) {
     console.warn("Invalid cookie key provided");
+    return null;
+  }
+
+  // SSR environment - return null (cookie will be read on client)
+  if (!isBrowser()) {
     return null;
   }
 
@@ -110,8 +120,34 @@ export async function setCookie<T>(key: string, value: T, options?: CookieOption
       return;
     }
 
-    // No direct document.cookie assignment allowed; fail gracefully
-    console.error("CookieStore API is not available in this environment; cannot set cookie.");
+    // Fallback to document.cookie for browsers without CookieStore API
+    if (isBrowser()) {
+      let cookieString = `${encodeURIComponent(key)}=${encodeURIComponent(rawValue)}; path=${path}`;
+
+      if (domain) {
+        cookieString += `; domain=${domain}`;
+      }
+
+      if (daysUntilExpiration > 0) {
+        const expirationDate = new Date(
+          DateTime.toEpochMillis(DateTime.unsafeNow()) + daysUntilExpiration * 24 * 60 * 60 * 1000
+        );
+        cookieString += `; expires=${expirationDate.toUTCString()}`;
+      }
+
+      if (sameSite) {
+        cookieString += `; SameSite=${sameSite}`;
+      }
+
+      if (secure) {
+        cookieString += "; Secure";
+      }
+
+      document.cookie = cookieString;
+      return;
+    }
+
+    // SSR environment - silently skip cookie setting (will be set on client)
   } catch (error) {
     console.error("Error setting cookie:", error);
   }
@@ -143,8 +179,17 @@ export function removeCookie(key: string, options?: Pick<CookieOptions, "path" |
       return;
     }
 
-    // No direct document.cookie assignment allowed; fail gracefully
-    console.error("CookieStore API is not available in this environment; cannot remove cookie.");
+    // Fallback to document.cookie for browsers without CookieStore API
+    if (isBrowser()) {
+      let cookieString = `${encodeURIComponent(key)}=; path=${path}; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
+      if (domain) {
+        cookieString += `; domain=${domain}`;
+      }
+      document.cookie = cookieString;
+      return;
+    }
+
+    // SSR environment - silently skip cookie removal
   } catch (error) {
     console.error("Error removing cookie:", error);
   }

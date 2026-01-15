@@ -14,6 +14,9 @@
     ".": "./src/index.ts",
     "./package.json": "./package.json",
     "./entities": "./src/entities/index.ts",
+    "./value-objects": "./src/value-objects/index.ts",
+    "./value-objects/mail.values": "./src/value-objects/mail.values.ts",
+    "./value-objects/logging.values": "./src/value-objects/logging.values.ts",
     "./*": "./src/*.ts"
   },
   "repository": {

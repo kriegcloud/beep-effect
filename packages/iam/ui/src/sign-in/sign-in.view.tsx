@@ -1,12 +1,12 @@
 "use client";
 
 import { paths } from "@beep/shared-domain";
-import { RouterLink } from "@beep/ui/routing";
+import { RouterLink } from "@beep/ui/routing/index";
 import Link from "@mui/material/Link";
 import Stack from "@mui/material/Stack";
 import { RecaptchaV3Atom } from "../_common";
 import { FormDivider, FormHead } from "../_components";
-import { SignInEmailForm } from "./sign-in-email.form";
+import { SignInEmailForm } from "./email";
 // import { SignInPasskey } from "./sign-in-passkey";
 // import { SignInSocial } from "./sign-in-social";
 

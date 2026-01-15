@@ -18,8 +18,8 @@ import {
 import type * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 
-effect("getNameInitials handles whitespace, nullish, and empty names", () =>
-  Effect.gen(function* () {
+effect("getNameInitials handles whitespace, nullish, and empty names",
+  Effect.fn(function* () {
     expect(getNameInitials(" Ada   Lovelace ")).toBe("AL");
     expect(getNameInitials("single")).toBe("S");
     expect(getNameInitials("")).toBe("?");
@@ -28,8 +28,8 @@ effect("getNameInitials handles whitespace, nullish, and empty names", () =>
   })
 );
 
-effect("normalizeString and kebabCase produce predictable search-friendly strings", () =>
-  Effect.gen(function* () {
+effect("normalizeString and kebabCase produce predictable search-friendly strings",
+  Effect.fn(function* () {
     const normalized = normalizeString("Café GrößE");
     const kebab = kebabCase("PrimaryButton  label");
 
@@ -38,15 +38,15 @@ effect("normalizeString and kebabCase produce predictable search-friendly string
   })
 );
 
-effect("stripMessageFormatting removes markdown tokens", () =>
-  Effect.gen(function* () {
+effect("stripMessageFormatting removes markdown tokens",
+  Effect.fn(function* () {
     const cleaned = stripMessageFormatting("*Hello*\\n\\nWorld");
     expect(cleaned).toBe("Hello World");
   })
 );
 
-effect("interpolateTemplate resolves nested values and leaves missing placeholders intact", () =>
-  Effect.gen(function* () {
+effect("interpolateTemplate resolves nested values and leaves missing placeholders intact",
+  Effect.fn(function* () {
     const template = "Hello {{ user.name }}, item: {{items.[0].product}} {{missing.value}}";
     const output = interpolateTemplate(template, { user: { name: "Ari" }, items: [{ product: "Widget" }] });
 
@@ -54,8 +54,8 @@ effect("interpolateTemplate resolves nested values and leaves missing placeholde
   })
 );
 
-effect("getNestedValue supports array notation and returns undefined for missing paths", () =>
-  Effect.gen(function* () {
+effect("getNestedValue supports array notation and returns undefined for missing paths",
+  Effect.fn(function* () {
     const payload = { list: [{ items: ["x", "y"] }] };
     const value = getNestedValue(payload, "list.[0].items.[1]");
     const missing = getNestedValue(payload, "list.[2].items.[0]");
@@ -65,8 +65,8 @@ effect("getNestedValue supports array notation and returns undefined for missing
   })
 );
 
-effect("applyPrefix/suffix and mapping helpers preserve literal combinations", () =>
-  Effect.gen(function* () {
+effect("applyPrefix/suffix and mapping helpers preserve literal combinations",
+  Effect.fn(function* () {
     const addId = applySuffix("Id");
     const addPrefix = applyPrefix("beep.");
 
@@ -89,15 +89,15 @@ effect("applyPrefix/suffix and mapping helpers preserve literal combinations", (
   })
 );
 
-effect("strLiteralFromNum formats numeric literals as strings", () =>
-  Effect.gen(function* () {
+effect("strLiteralFromNum formats numeric literals as strings",
+  Effect.fn(function* () {
     const literal = strLiteralFromNum(42);
     expect(literal).toBe("42");
   })
 );
 
-effect("formatLabel handles spaced, underscored, and camel case identifiers", () =>
-  Effect.gen(function* () {
+effect("formatLabel handles spaced, underscored, and camel case identifiers",
+  Effect.fn(function* () {
     const spaced = formatLabel("already spaced");
     const underscored = formatLabel("user_profile_id");
     const camel = formatLabel("phoneNumber2");
@@ -110,14 +110,14 @@ effect("formatLabel handles spaced, underscored, and camel case identifiers", ()
   })
 );
 
-effect("mapApplySuffix rejects empty literal arrays", () =>
-  Effect.gen(function* () {
+effect("mapApplySuffix rejects empty literal arrays",
+  Effect.fn(function* () {
     expect(() => mapApplySuffix("Id")([] as unknown as A.NonEmptyReadonlyArray<string>)).toThrow(TypeError);
   })
 );
 
-effect("singularize handles consonant-o plurals gracefully", () =>
-  Effect.gen(function* () {
+effect("singularize handles consonant-o plurals gracefully",
+  Effect.fn(function* () {
     expect(singularize("heroes")).toBe("hero");
   })
 );

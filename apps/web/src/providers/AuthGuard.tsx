@@ -1,5 +1,5 @@
 "use client";
-import { useSession } from "@beep/iam-client/atom/session.atom";
+import { Core } from "@beep/iam-client/v1";
 import { paths } from "@beep/shared-domain";
 import { useIsClient, useRouter } from "@beep/ui/hooks";
 import { SplashScreen } from "@beep/ui/progress/loading-screen/splash-screen";
@@ -23,7 +23,7 @@ type AuthGuardContentProps = AuthGuardProps & {
 };
 
 const AuthGuardContent: React.FC<AuthGuardContentProps> = ({ children, router, ...props }) => {
-  const { sessionResult } = useSession();
+  const { sessionResult } = Core.useCore();
   const isClient = useIsClient();
 
   if (!isClient) {
@@ -35,43 +35,50 @@ const AuthGuardContent: React.FC<AuthGuardContentProps> = ({ children, router, .
       {Result.builder(sessionResult)
         .onInitial(() => <SplashScreen />)
         .onDefect(() => <div>an error occurred</div>)
-        .onSuccess(({ session, user }) => {
-          return (
-            <AuthAdapterProvider
-              {...props}
-              session={{
-                ...session,
-                user: {
-                  ...user,
-                  email: Redacted.value(user.email),
-                  phoneNumber: F.pipe(
-                    user.phoneNumber,
-                    O.match({
-                      onNone: thunkNull,
-                      onSome: Redacted.value,
-                    })
-                  ),
-                  username: F.pipe(
-                    user.username,
-                    O.match({
-                      onNone: thunkNull,
-                      onSome: (username) => username,
-                    })
-                  ),
-                  image: F.pipe(
-                    user.image,
-                    O.match({
-                      onNone: thunkNull,
-                      onSome: (image) => image,
-                    })
-                  ),
-                },
-              }}
-            >
-              <AccountSettingsProvider userInfo={user}>{children}</AccountSettingsProvider>
-            </AuthAdapterProvider>
-          );
-        })
+        .onFailure(() => <div>an error occurred</div>)
+        .onSuccess(({ data }: Core.GetSession.Success) =>
+          O.match(data, {
+            onNone: () => {
+              void router.replace(paths.auth.signIn);
+              return <SplashScreen />;
+            },
+            onSome: ({ session, user }: Core.GetSession.SessionData) => (
+              <AuthAdapterProvider
+                {...props}
+                session={{
+                  ...session,
+                  user: {
+                    ...user,
+                    email: Redacted.value(user.email),
+                    phoneNumber: F.pipe(
+                      user.phoneNumber,
+                      O.match({
+                        onNone: thunkNull,
+                        onSome: Redacted.value,
+                      })
+                    ),
+                    username: F.pipe(
+                      user.username,
+                      O.match({
+                        onNone: thunkNull,
+                        onSome: (username) => username,
+                      })
+                    ),
+                    image: F.pipe(
+                      user.image,
+                      O.match({
+                        onNone: thunkNull,
+                        onSome: (image) => image,
+                      })
+                    ),
+                  },
+                }}
+              >
+                <AccountSettingsProvider userInfo={user}>{children}</AccountSettingsProvider>
+              </AuthAdapterProvider>
+            ),
+          })
+        )
         .render()}
     </>
   );

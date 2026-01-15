@@ -58,7 +58,7 @@ import {
   SendResetPasswordEmailPayload,
   SendVerificationEmailPayload,
 } from "./Emails";
-export class LocalizationError extends Data.TaggedError("NextCookiesError")<{
+export class LocalizationError extends Data.TaggedError("LocalizationError")<{
   readonly type: "failed_to_detect_language" | "unknown";
   readonly message: string;
   readonly cause: unknown;

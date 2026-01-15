@@ -41,6 +41,12 @@
     },
     {
       "path": "../../comms/tables"
+    },
+    {
+      "path": "../../calendar/server"
+    },
+    {
+      "path": "../../calendar/tables"
     }
   ],
   "compilerOptions": {

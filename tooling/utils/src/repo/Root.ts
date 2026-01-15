@@ -8,7 +8,7 @@
 import * as FileSystem from "@effect/platform/FileSystem";
 import * as Path from "@effect/platform/Path";
 import * as Effect from "effect/Effect";
-import { NoSuchFileError } from "./Errors.js";
+import {NoSuchFileError} from "./Errors.js";
 
 /**
  * Find the repository root by walking upward from the current working directory.
@@ -53,10 +53,8 @@ export const findRepoRoot = Effect.gen(function* () {
     current = parent;
   }
 
-  return yield* Effect.fail(
-    new NoSuchFileError({
-      path: process.cwd(),
-      message: "[findRepoRoot] Could not find repo root",
-    })
-  );
+  return yield* new NoSuchFileError({
+    path: process.cwd(),
+    message: "[findRepoRoot] Could not find repo root",
+  });
 });

@@ -48,8 +48,8 @@ const stringToUint8Array = (str: string): Uint8Array => {
  * from a Uint8Array buffer. This mirrors what the worker does without
  * requiring browser APIs (FileReaderSync, Worker, etc.).
  */
-const simulateWorkerHash = (buffer: Uint8Array): Effect.Effect<string, Md5ComputationError> =>
-  Effect.gen(function* () {
+const simulateWorkerHash =
+  Effect.fn(function* (buffer: Uint8Array) {
     const state = makeState();
     const withBytes = F.pipe(state, appendByteArray(buffer));
     const result = yield* F.pipe(withBytes, finalize(false));
@@ -92,8 +92,8 @@ describe("Worker schemas", () => {
       expect(request.chunkSize).toBeUndefined();
     });
 
-    live("decodes HashRequest from encoded form", () =>
-      Effect.gen(function* () {
+    live("decodes HashRequest from encoded form",
+      Effect.fn(function* () {
         const buffer = stringToUint8Array("hello");
         const request = new HashRequest({
           buffer,
@@ -115,8 +115,8 @@ describe("Worker schemas", () => {
   });
 
   describe("WorkerRequestSchema union", () => {
-    live("validates HashRequest as part of the union", () =>
-      Effect.gen(function* () {
+    live("validates HashRequest as part of the union",
+      Effect.fn(function* () {
         const buffer = stringToUint8Array("test");
         const request = new HashRequest({
           buffer,
@@ -132,8 +132,8 @@ describe("Worker schemas", () => {
 });
 
 describe("Worker handler logic simulation", () => {
-  live("produces correct hash for 'hello'", () =>
-    Effect.gen(function* () {
+  live("produces correct hash for 'hello'",
+    Effect.fn(function* () {
       const buffer = stringToUint8Array("hello");
       const hash = yield* simulateWorkerHash(buffer);
 
@@ -141,8 +141,8 @@ describe("Worker handler logic simulation", () => {
     })
   );
 
-  live("produces correct hash for empty input", () =>
-    Effect.gen(function* () {
+  live("produces correct hash for empty input",
+    Effect.fn(function* () {
       const buffer = new Uint8Array(0);
       const hash = yield* simulateWorkerHash(buffer);
 
@@ -151,8 +151,8 @@ describe("Worker handler logic simulation", () => {
     })
   );
 
-  live("produces correct hash for 'The quick brown fox jumps over the lazy dog'", () =>
-    Effect.gen(function* () {
+  live("produces correct hash for 'The quick brown fox jumps over the lazy dog'",
+    Effect.fn(function* () {
       const buffer = stringToUint8Array("The quick brown fox jumps over the lazy dog");
       const hash = yield* simulateWorkerHash(buffer);
 
@@ -160,8 +160,8 @@ describe("Worker handler logic simulation", () => {
     })
   );
 
-  live("produces correct hash for 64-byte boundary input", () =>
-    Effect.gen(function* () {
+  live("produces correct hash for 64-byte boundary input",
+    Effect.fn(function* () {
       // 64 bytes = exactly one MD5 block
       const str = "5d41402abc4b2a76b9719d911017c5925d41402abc4b2a76b9719d911017c592";
       const buffer = stringToUint8Array(str);
@@ -171,8 +171,8 @@ describe("Worker handler logic simulation", () => {
     })
   );
 
-  live("produces correct hash for 128-byte input (two blocks)", () =>
-    Effect.gen(function* () {
+  live("produces correct hash for 128-byte input (two blocks)",
+    Effect.fn(function* () {
       const str =
         "5d41402abc4b2a76b9719d911017c5925d41402abc4b2a76b9719d911017c5925d41402abc4b2a76b9719d911017c5925d41402abc4b2a76b9719d911017c592";
       const buffer = stringToUint8Array(str);
@@ -182,8 +182,8 @@ describe("Worker handler logic simulation", () => {
     })
   );
 
-  live("produces correct hash for large input (160 bytes)", () =>
-    Effect.gen(function* () {
+  live("produces correct hash for large input (160 bytes)",
+    Effect.fn(function* () {
       const str =
         "5d41402abc4b2a76b9719d911017c5925d41402abc4b2a76b9719d911017c5925d41402abc4b2a765d41402abc4b2a76b9719d911017c5925d41402abc4b2a76b9719d911017c5925d41402abc4b2a76";
       const buffer = stringToUint8Array(str);
@@ -195,8 +195,8 @@ describe("Worker handler logic simulation", () => {
 });
 
 describe("HashRequest round-trip with worker handler simulation", () => {
-  live("creates request and simulates worker processing", () =>
-    Effect.gen(function* () {
+  live("creates request and simulates worker processing",
+    Effect.fn(function* () {
       const inputStr = "hello";
       const buffer = stringToUint8Array(inputStr);
 
@@ -214,8 +214,8 @@ describe("HashRequest round-trip with worker handler simulation", () => {
     })
   );
 
-  live("handles chunked processing simulation", () =>
-    Effect.gen(function* () {
+  live("handles chunked processing simulation",
+    Effect.fn(function* () {
       // Simulate chunked processing - the worker receives the full buffer
       // but processes it in chunks (this is what hashBlobSync does internally)
       const inputStr = "The quick brown fox jumps over the lazy dog";

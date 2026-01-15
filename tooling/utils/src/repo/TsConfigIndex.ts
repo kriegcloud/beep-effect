@@ -57,12 +57,10 @@ export const collectTsConfigPaths = Effect.gen(function* () {
   for (const rootTsConfig of [rootTsConfigPath, rootBuildTsConfigPath, rootBaseTsConfigPath]) {
     const exists = yield* fs.exists(rootTsConfig);
     if (!exists) {
-      return yield* Effect.fail(
-        new NoSuchFileError({
-          path: rootTsConfig,
-          message: "[collectTsConfigPaths] Invalid file path",
-        })
-      );
+      return yield* new NoSuchFileError({
+        path: rootTsConfig,
+        message: "[collectTsConfigPaths] Invalid file path",
+      });
     }
   }
 
@@ -79,12 +77,10 @@ export const collectTsConfigPaths = Effect.gen(function* () {
 
     const baseExists = yield* fs.exists(baseTsConfigPath);
     if (!baseExists) {
-      return yield* Effect.fail(
-        new NoSuchFileError({
-          path: baseTsConfigPath,
-          message: "[collectTsConfigPaths] Invalid file path",
-        })
-      );
+      return yield* new NoSuchFileError({
+        path: baseTsConfigPath,
+        message: "[collectTsConfigPaths] Invalid file path",
+      });
     }
 
     const optionalConfigs = A.make(

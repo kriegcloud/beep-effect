@@ -64,7 +64,12 @@ const composers = $I.compose(
   "comms-tables",
   "comms-server",
   "comms-client",
-  "comms-ui"
+  "comms-ui",
+  "calendar-domain",
+  "calendar-tables",
+  "calendar-server",
+  "calendar-client",
+  "calendar-ui"
 );
 
 /**
@@ -726,3 +731,78 @@ export const $CommsUiId = composers.$CommsUiId;
  * @since 0.1.0
  */
 export const $TodoxId = composers.$TodoxId;
+
+/**
+ * Identity composer for the `@beep/calendar-domain` namespace.
+ *
+ * @example
+ * ```typescript
+ * import { $CalendarDomainId } from "@beep/identity/packages"
+ *
+ * const entityId = $CalendarDomainId.make("Event")
+ * ```
+ *
+ * @category symbols
+ * @since 0.1.0
+ */
+export const $CalendarDomainId = composers.$CalendarDomainId;
+
+/**
+ * Identity composer for the `@beep/calendar-tables` namespace.
+ *
+ * @example
+ * ```typescript
+ * import { $CalendarTablesId } from "@beep/identity/packages"
+ *
+ * const tableId = $CalendarTablesId.make("EventsTable")
+ * ```
+ *
+ * @category symbols
+ * @since 0.1.0
+ */
+export const $CalendarTablesId = composers.$CalendarTablesId;
+
+/**
+ * Identity composer for the `@beep/calendar-server` namespace.
+ *
+ * @example
+ * ```typescript
+ * import { $CalendarServerId } from "@beep/identity/packages"
+ *
+ * const serviceId = $CalendarServerId.make("CalendarService")
+ * ```
+ *
+ * @category symbols
+ * @since 0.1.0
+ */
+export const $CalendarServerId = composers.$CalendarServerId;
+
+/**
+ * Identity composer for the `@beep/calendar-client` namespace.
+ *
+ * @example
+ * ```typescript
+ * import { $CalendarClientId } from "@beep/identity/packages"
+ *
+ * const clientId = $CalendarClientId.make("CalendarClient")
+ * ```
+ *
+ * @category symbols
+ * @since 0.1.0
+ */
+export const $CalendarClientId = composers.$CalendarClientId;
+
+/**
+ * Identity composer for the `@beep/calendar-ui` namespace.
+ *
+ * @example
+ * ```typescript
+ * import { $CalendarUiId } from "@beep/identity/packages"
+ *
+ * const componentId = $CalendarUiId.make("EventCard")
+ * ```
+ *
+ * @category symbols
+ * @since 0.1.0
+ */
+export const $CalendarUiId = composers.$CalendarUiId;

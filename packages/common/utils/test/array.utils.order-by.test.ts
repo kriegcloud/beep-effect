@@ -6,8 +6,8 @@ import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
 import * as O from "effect/Option";
 
-effect("orderBy sorts strings ascending by default", () =>
-  Effect.gen(function* () {
+effect("orderBy sorts strings ascending by default",
+  Effect.fn(function* () {
     const data = [
       { id: 1, name: "Charlie" },
       { id: 2, name: "Alpha" },
@@ -25,8 +25,8 @@ effect("orderBy sorts strings ascending by default", () =>
   })
 );
 
-effect("orderBy respects direction hints and keeps nullish values last", () =>
-  Effect.gen(function* () {
+effect("orderBy respects direction hints and keeps nullish values last",
+  Effect.fn(function* () {
     const data = [
       { id: 1, score: 90 },
       { id: 2, score: null },
@@ -46,8 +46,8 @@ effect("orderBy respects direction hints and keeps nullish values last", () =>
   })
 );
 
-effect("orderBy supports functional iteratees", () =>
-  Effect.gen(function* () {
+effect("orderBy supports functional iteratees",
+  Effect.fn(function* () {
     const data = [
       { id: 1, value: 3 },
       { id: 2, value: 1 },
@@ -65,8 +65,8 @@ effect("orderBy supports functional iteratees", () =>
   })
 );
 
-effect("orderBy handles multi-key sorting with fallback directions", () =>
-  Effect.gen(function* () {
+effect("orderBy handles multi-key sorting with fallback directions",
+  Effect.fn(function* () {
     const data = [
       { id: 1, group: "beta", score: 90 },
       { id: 2, group: "alpha", score: 95 },
@@ -86,8 +86,8 @@ effect("orderBy handles multi-key sorting with fallback directions", () =>
   })
 );
 
-effect("orderBy defaults missing directions to ascending", () =>
-  Effect.gen(function* () {
+effect("orderBy defaults missing directions to ascending",
+  Effect.fn(function* () {
     const data = [
       { id: 1, group: "alpha", priority: 2 },
       { id: 2, group: "alpha", priority: 1 },
@@ -106,8 +106,8 @@ effect("orderBy defaults missing directions to ascending", () =>
   })
 );
 
-effect("orderBy resolves nested paths using getNestedValue", () =>
-  Effect.gen(function* () {
+effect("orderBy resolves nested paths using getNestedValue",
+  Effect.fn(function* () {
     const data = [
       { id: 1, stats: { attempts: 3, score: 10 } },
       { id: 2, stats: { attempts: 4, score: 7 } },
@@ -126,8 +126,8 @@ effect("orderBy resolves nested paths using getNestedValue", () =>
   })
 );
 
-effect("orderBy does not mutate the original input array", () =>
-  Effect.gen(function* () {
+effect("orderBy does not mutate the original input array",
+  Effect.fn(function* () {
     const data = [
       { id: 1, label: "c" },
       { id: 2, label: "a" },
@@ -156,8 +156,8 @@ effect("orderBy does not mutate the original input array", () =>
   })
 );
 
-effect("orderBy covers compareUnknown branches for various scalar types", () =>
-  Effect.gen(function* () {
+effect("orderBy covers compareUnknown branches for various scalar types",
+  Effect.fn(function* () {
     const data = [
       { id: "nan", value: Number.NaN },
       { id: "one", value: 1 },
@@ -176,8 +176,8 @@ effect("orderBy covers compareUnknown branches for various scalar types", () =>
   })
 );
 
-effect("orderBy compares booleans, bigints, dates, symbols, arrays, and objects", () =>
-  Effect.gen(function* () {
+effect("orderBy compares booleans, bigints, dates, symbols, arrays, and objects",
+  Effect.fn(function* () {
     const bools = [
       { id: "true", value: true },
       { id: "false", value: false },
@@ -229,8 +229,8 @@ effect("orderBy compares booleans, bigints, dates, symbols, arrays, and objects"
   })
 );
 
-effect("orderBy treats NaN as equal and sorts numbers ahead of nullish values", () =>
-  Effect.gen(function* () {
+effect("orderBy treats NaN as equal and sorts numbers ahead of nullish values",
+  Effect.fn(function* () {
     const input = [{ value: Number.NaN }, { value: 3 }, { value: Number.NaN }, { value: 2 }, { value: null }];
     const sorted = orderBy(input, ["value"]);
     const values = F.pipe(

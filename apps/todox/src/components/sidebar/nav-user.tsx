@@ -1,5 +1,7 @@
 "use client";
 
+import { Core } from "@beep/iam-client/v1";
+import { paths } from "@beep/shared-domain";
 import { Avatar, AvatarFallback, AvatarImage } from "@beep/todox/components/ui/avatar";
 import {
   DropdownMenu,
@@ -27,6 +29,7 @@ import * as A from "effect/Array";
 import * as F from "effect/Function";
 import * as Str from "effect/String";
 import { useTheme } from "next-themes";
+import { useRouter } from "next/navigation";
 
 export interface User {
   readonly name: string;
@@ -41,6 +44,13 @@ interface NavUserProps {
 export function NavUser({ user }: NavUserProps) {
   const { isMobile } = useSidebar();
   const { theme, setTheme } = useTheme();
+  const { signOut } = Core.useCore();
+  const router = useRouter();
+
+  const handleSignOut = async () => {
+    await signOut({});
+    router.push(paths.auth.signIn);
+  };
 
   const initials = F.pipe(
     user.name,
@@ -144,7 +154,7 @@ export function NavUser({ user }: NavUserProps) {
               </ToggleGroup>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={handleSignOut}>
               <SignOutIcon />
               Log out
             </DropdownMenuItem>

@@ -14,8 +14,8 @@ const waitFor = (ms: number) =>
     };
   });
 
-effect("debounce supports leading/trailing execution, flush, and cancel", () =>
-  Effect.gen(function* () {
+effect("debounce supports leading/trailing execution, flush, and cancel",
+  Effect.fn(function* () {
     let count = 0;
     const fn = debounce(
       () => {
@@ -45,8 +45,8 @@ effect("debounce supports leading/trailing execution, flush, and cancel", () =>
   })
 );
 
-effect("throttle limits calls within the wait window", () =>
-  Effect.gen(function* () {
+effect("throttle limits calls within the wait window",
+  Effect.fn(function* () {
     let value = 0;
     const throttled = throttle(() => {
       value += 1;

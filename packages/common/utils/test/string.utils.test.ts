@@ -13,8 +13,8 @@ import {
 import { Effect } from "effect";
 
 // Test pluralize function with regular cases
-effect("pluralize handles regular words correctly", () =>
-  Effect.gen(function* () {
+effect("pluralize handles regular words correctly",
+  Effect.fn(function* () {
     // Basic pluralization - add 's'
     expect(pluralize("cat")).toBe("cats");
     expect(pluralize("dog")).toBe("dogs");
@@ -72,8 +72,8 @@ effect("pluralize handles regular words correctly", () =>
 );
 
 // Test pluralize function with irregular cases
-effect("pluralize handles irregular words correctly", () =>
-  Effect.gen(function* () {
+effect("pluralize handles irregular words correctly",
+  Effect.fn(function* () {
     expect(pluralize("address")).toBe("addresses");
     expect(pluralize("campus")).toBe("campuses");
     expect(pluralize("child")).toBe("children");
@@ -88,8 +88,8 @@ effect("pluralize handles irregular words correctly", () =>
 );
 
 // Test singularize function with regular cases
-effect("singularize handles regular words correctly", () =>
-  Effect.gen(function* () {
+effect("singularize handles regular words correctly", 
+  Effect.fn(function* () {
     // Basic singularization - remove 's'
     expect(singularize("cats")).toBe("cat");
     expect(singularize("dogs")).toBe("dog");
@@ -142,8 +142,8 @@ effect("singularize handles regular words correctly", () =>
 );
 
 // Test singularize function with irregular cases
-effect("singularize handles irregular words correctly", () =>
-  Effect.gen(function* () {
+effect("singularize handles irregular words correctly", 
+  Effect.fn(function* () {
     expect(singularize("addresses")).toBe("address");
     expect(singularize("campuses")).toBe("campus");
     expect(singularize("children")).toBe("child");
@@ -158,8 +158,8 @@ effect("singularize handles irregular words correctly", () =>
 );
 
 // Test singularize function with words that are already singular
-effect("singularize handles words that are already singular", () =>
-  Effect.gen(function* () {
+effect("singularize handles words that are already singular", 
+  Effect.fn(function* () {
     // Words ending in 'us' that are already singular
     expect(singularize("campus")).toBe("campus");
     expect(singularize("status")).toBe("status");
@@ -184,8 +184,8 @@ effect("singularize handles words that are already singular", () =>
 );
 
 // Test case preservation
-effect("preserves case correctly", () =>
-  Effect.gen(function* () {
+effect("preserves case correctly", 
+  Effect.fn(function* () {
     // Test pluralize case preservation
     expect(pluralize("Cat")).toBe("Cats");
     expect(pluralize("CAT")).toBe("CATs"); // The function preserves case but only capitalizes first letter for all caps
@@ -207,8 +207,8 @@ effect("preserves case correctly", () =>
 );
 
 // Test edge cases
-effect("handles edge cases correctly", () =>
-  Effect.gen(function* () {
+effect("handles edge cases correctly", 
+  Effect.fn(function* () {
     // Empty strings
     expect(pluralize("")).toBe("");
     expect(singularize("")).toBe("");
@@ -236,8 +236,8 @@ effect("handles edge cases correctly", () =>
 );
 
 // Test specific word patterns
-effect("handles specific word patterns correctly", () =>
-  Effect.gen(function* () {
+effect("handles specific word patterns correctly", 
+  Effect.fn(function* () {
     // Test 'o' exceptions more thoroughly
     expect(pluralize("photo")).toBe("photos");
     expect(pluralize("piano")).toBe("pianos");
@@ -277,8 +277,8 @@ effect("handles specific word patterns correctly", () =>
 );
 
 // Test round-trip consistency where possible
-effect("maintains round-trip consistency for regular words", () =>
-  Effect.gen(function* () {
+effect("maintains round-trip consistency for regular words", 
+  Effect.fn(function* () {
     const testWords = [
       "cat",
       "dog",
@@ -313,8 +313,8 @@ effect("maintains round-trip consistency for regular words", () =>
 );
 
 // Test round-trip consistency for irregular words
-effect("maintains round-trip consistency for irregular words", () =>
-  Effect.gen(function* () {
+effect("maintains round-trip consistency for irregular words", 
+  Effect.fn(function* () {
     const irregularWords = ["address", "campus", "child", "person"];
 
     for (const word of irregularWords) {
@@ -326,8 +326,8 @@ effect("maintains round-trip consistency for irregular words", () =>
 );
 
 // Test words that don't follow standard patterns
-effect("handles non-standard patterns gracefully", () =>
-  Effect.gen(function* () {
+effect("handles non-standard patterns gracefully", 
+  Effect.fn(function* () {
     // Words that might not singularize perfectly due to ambiguity
     expect(singularize("data")).toBe("data"); // No change - could be singular or plural
     expect(singularize("sheep")).toBe("sheep"); // No change - same for singular/plural
@@ -344,8 +344,8 @@ effect("handles non-standard patterns gracefully", () =>
 );
 
 // Test mkEntityName function
-effect("mkEntityName converts table names to entity names correctly", () =>
-  Effect.gen(function* () {
+effect("mkEntityName converts table names to entity names correctly", 
+  Effect.fn(function* () {
     // Basic snake_case to PascalCase with singularization
     expect(mkEntityName("people")).toBe("Person");
     expect(mkEntityName("phone_numbers")).toBe("PhoneNumber");
@@ -367,8 +367,8 @@ effect("mkEntityName converts table names to entity names correctly", () =>
 );
 
 // Test mkTableName function
-effect("mkTableName converts entity names to table names correctly", () =>
-  Effect.gen(function* () {
+effect("mkTableName converts entity names to table names correctly", 
+  Effect.fn(function* () {
     // Basic PascalCase to snake_case with pluralization
     expect(mkTableName("Person")).toBe("people");
     expect(mkTableName("PhoneNumber")).toBe("phone_numbers");
@@ -390,8 +390,8 @@ effect("mkTableName converts entity names to table names correctly", () =>
 );
 
 // Test mkZeroTableName function
-effect("mkZeroTableName converts entity names to Zero schema table names correctly", () =>
-  Effect.gen(function* () {
+effect("mkZeroTableName converts entity names to Zero schema table names correctly", 
+  Effect.fn(function* () {
     // Basic PascalCase to camelCase with pluralization
     expect(mkZeroTableName("Person")).toBe("people");
     expect(mkZeroTableName("PhoneNumber")).toBe("phoneNumbers");
@@ -413,8 +413,8 @@ effect("mkZeroTableName converts entity names to Zero schema table names correct
 );
 
 // Test mkEntityType function
-effect("mkEntityType converts table names to entity types for IDs correctly", () =>
-  Effect.gen(function* () {
+effect("mkEntityType converts table names to entity types for IDs correctly", 
+  Effect.fn(function* () {
     // Basic snake_case to lowercase singular
     expect(mkEntityType("people")).toBe("person");
     expect(mkEntityType("phone_numbers")).toBe("phonenumber");
@@ -436,8 +436,8 @@ effect("mkEntityType converts table names to entity types for IDs correctly", ()
 );
 
 // Test mkEntityType function with entity names (the problematic case)
-effect("mkEntityType handles entity names passed directly (edge case)", () =>
-  Effect.gen(function* () {
+effect("mkEntityType handles entity names passed directly (edge case)", 
+  Effect.fn(function* () {
     // This tests the case where entity names are passed instead of table names
     // This is the bug case: Campus -> campus (should stay campus, not become campu)
     expect(mkEntityType("Campus")).toBe("campus");
@@ -454,8 +454,8 @@ effect("mkEntityType handles entity names passed directly (edge case)", () =>
 );
 
 // Test round-trip consistency between mkEntityName and mkTableName
-effect("mkEntityName and mkTableName maintain round-trip consistency", () =>
-  Effect.gen(function* () {
+effect("mkEntityName and mkTableName maintain round-trip consistency", 
+  Effect.fn(function* () {
     const testEntities = ["Person", "Group", "Address", "PhoneNumber", "EmailAddress", "User", "Item", "File"];
 
     for (const entity of testEntities) {
@@ -467,8 +467,8 @@ effect("mkEntityName and mkTableName maintain round-trip consistency", () =>
 );
 
 // Test that all transformation utilities work together
-effect("transformation utilities work together correctly", () =>
-  Effect.gen(function* () {
+effect("transformation utilities work together correctly", 
+  Effect.fn(function* () {
     const testCases = [
       { entity: "Person", table: "people", type: "person" },
       { entity: "PhoneNumber", table: "phone_numbers", type: "phonenumber" },
@@ -487,8 +487,8 @@ effect("transformation utilities work together correctly", () =>
 );
 
 // Test mkUrlParamName function
-effect("mkUrlParamName converts entity names to URL parameter names correctly", () =>
-  Effect.gen(function* () {
+effect("mkUrlParamName converts entity names to URL parameter names correctly", 
+  Effect.fn(function* () {
     // Basic entity names to URL parameter names
     expect(mkUrlParamName("Person")).toBe("personId");
     expect(mkUrlParamName("PhoneNumber")).toBe("phoneNumberId");
@@ -519,8 +519,8 @@ effect("mkUrlParamName converts entity names to URL parameter names correctly", 
 );
 
 // Test formatLabel function
-effect("formatLabel should format field names correctly", () =>
-  Effect.gen(function* () {
+effect("formatLabel should format field names correctly", 
+  Effect.fn(function* () {
     // Test camelCase
     expect(formatLabel("firstName")).toBe("First Name");
     expect(formatLabel("lastName")).toBe("Last Name");

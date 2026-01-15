@@ -62,27 +62,30 @@ export const NosniffHeaderSchema = S.transformOrFail(
 
 export type NosniffHeader = typeof NosniffHeaderSchema.Type;
 
-export const createXContentTypeOptionsHeaderValue = (
+export const createXContentTypeOptionsHeaderValue: (
   option?: undefined | NosniffOption
-): Effect.Effect<string | undefined, SecureHeadersError, never> =>
-  Effect.gen(function* () {
-    if (option == undefined) return "nosniff";
-    if (option === false) return undefined;
-    if (option === "nosniff") return option;
+) => Effect.Effect<string | undefined, SecureHeadersError, never> = Effect.fn(
+  "createXContentTypeOptionsHeaderValue"
+)(function* (option?: undefined | NosniffOption) {
+  if (option == undefined) return "nosniff";
+  if (option === false) return undefined;
+  if (option === "nosniff") return option;
 
-    return yield* new SecureHeadersError({
-      type: "NO_SNIFF",
-      message: `Invalid value for ${headerName}: ${option}`,
-    });
-  }).pipe(Effect.withSpan("createXContentTypeOptionsHeaderValue"));
+  return yield* new SecureHeadersError({
+    type: "NO_SNIFF",
+    message: `Invalid value for ${headerName}: ${option}`,
+  });
+});
 
-export const createNosniffHeader = (
+export const createNosniffHeader: (
+  option?: undefined | NosniffOption,
+  headerValueCreator?: typeof createXContentTypeOptionsHeaderValue
+) => Effect.Effect<O.Option<ResponseHeader>, SecureHeadersError, never> = Effect.fn("createNosniffHeader")(function* (
   option?: undefined | NosniffOption,
   headerValueCreator = createXContentTypeOptionsHeaderValue
-): Effect.Effect<O.Option<ResponseHeader>, SecureHeadersError, never> =>
-  Effect.gen(function* () {
-    const value = yield* headerValueCreator(option);
+) {
+  const value = yield* headerValueCreator(option);
 
-    if (value === undefined) return O.none<ResponseHeader>();
-    return O.some({ name: headerName, value });
-  }).pipe(Effect.withSpan("createNosniffHeader"));
+  if (value === undefined) return O.none<ResponseHeader>();
+  return O.some({ name: headerName, value });
+});

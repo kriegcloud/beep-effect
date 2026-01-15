@@ -1,5 +1,5 @@
 import { paths } from "@beep/shared-domain";
-import { RouterLink } from "@beep/ui/routing";
+import { RouterLink } from "@beep/ui/routing/index";
 import type { BoxProps } from "@mui/material/Box";
 import Box from "@mui/material/Box";
 import Link from "@mui/material/Link";

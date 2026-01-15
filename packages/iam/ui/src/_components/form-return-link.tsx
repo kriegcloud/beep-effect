@@ -1,5 +1,5 @@
-import { Iconify } from "@beep/ui/atoms";
-import { RouterLink } from "@beep/ui/routing";
+import { Iconify } from "@beep/ui/atoms/index";
+import { RouterLink } from "@beep/ui/routing/index";
 import type { LinkProps } from "@mui/material/Link";
 import Link from "@mui/material/Link";
 

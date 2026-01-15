@@ -15,6 +15,9 @@
       "path": "../../packages/iam/ui/tsconfig.build.json"
     },
     {
+      "path": "../../packages/iam/client/tsconfig.build.json"
+    },
+    {
       "path": "../../packages/ui/ui/tsconfig.build.json"
     },
     {
@@ -28,6 +31,58 @@
     },
     {
       "path": "../../packages/shared/env/tsconfig.build.json"
+    },
+
+    {
+      "path": "../../packages/calendar/domain/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/calendar/tables/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/calendar/client/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/calendar/ui/tsconfig.build.json"
+    },
+
+    {
+      "path": "../../packages/comms/domain/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/comms/tables/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/comms/client/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/comms/ui/tsconfig.build.json"
+    },
+
+    {
+      "path": "../../packages/customization/domain/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/customization/tables/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/customization/client/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/customization/ui/tsconfig.build.json"
+    },
+
+    {
+      "path": "../../packages/documents/domain/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/documents/tables/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/documents/client/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/documents/ui/tsconfig.build.json"
     }
   ]
 }

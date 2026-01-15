@@ -43,6 +43,12 @@
     },
     {
       "path": "../../comms/tables/tsconfig.build.json"
+    },
+    {
+      "path": "../../calendar/server/tsconfig.build.json"
+    },
+    {
+      "path": "../../calendar/tables/tsconfig.build.json"
     }
   ],
   "compilerOptions": {

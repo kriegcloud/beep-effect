@@ -1,6 +1,7 @@
 import { $SharedDomainId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
 import type * as S from "effect/Schema";
+import * as Calendar from "./calendar";
 import * as Comms from "./comms";
 import * as Customization from "./customization";
 import * as Documents from "./documents";
@@ -14,7 +15,8 @@ export class EntityKind extends BS.StringLiteralKit(
   ...Shared.TableName.Options,
   ...Documents.TableName.Options,
   ...Customization.TableName.Options,
-  ...Comms.TableName.Options
+  ...Comms.TableName.Options,
+  ...Calendar.TableName.Options
 ).annotations(
   $I.annotations("EntityKind", {
     description:

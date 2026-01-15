@@ -16,6 +16,7 @@ import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import * as Errors from "./errors";
+import * as P from "effect/Predicate";
 import { logInfo, logWarning, makeFileAnnotations, UploadMetrics } from "./observability";
 import {
   type BasicMetadataOutput,
@@ -36,7 +37,7 @@ export const validateFile = Effect.fn("upload.validateFile")(function* ({
 }) {
   const formattedSize = formatSize(file.size);
   // Size check (friendly message using BS.formatSize)
-  if (typeof config?.maxSizeBytes === "number" && file.size > config.maxSizeBytes) {
+  if (P.isNumber(config?.maxSizeBytes) && file.size > config.maxSizeBytes) {
     const actual = formattedSize;
     const max = formatSize(config.maxSizeBytes);
     return yield* new Errors.ValidationError({

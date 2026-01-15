@@ -1,6 +1,4 @@
 @layer theme, base, mui, components, utilities;
-@import "@liveblocks/react-ui/styles.css";
-@import "@liveblocks/react-lexical/styles.css";
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";

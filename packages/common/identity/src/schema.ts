@@ -210,7 +210,7 @@ export const BaseSegment = S.String.pipe(
  * ```
  * @since 0.1.0
  */
-export class InvalidSegmentError extends S.TaggedError<InvalidSegmentError>("InvalidSegmentError")(
+export class InvalidSegmentError extends S.TaggedError<InvalidSegmentError>()(
   "InvalidSegmentError",
   {
     value: S.String,
@@ -240,7 +240,7 @@ export class InvalidSegmentError extends S.TaggedError<InvalidSegmentError>("Inv
  * ```
  * @since 0.1.0
  */
-export class InvalidModuleSegmentError extends S.TaggedError<InvalidModuleSegmentError>("InvalidModuleSegmentError")(
+export class InvalidModuleSegmentError extends S.TaggedError<InvalidModuleSegmentError>()(
   "InvalidModuleSegmentError",
   {
     value: S.String,
@@ -270,7 +270,7 @@ export class InvalidModuleSegmentError extends S.TaggedError<InvalidModuleSegmen
  * ```
  * @since 0.1.0
  */
-export class InvalidBaseError extends S.TaggedError<InvalidBaseError>("InvalidBaseError")("InvalidBaseError", {
+export class InvalidBaseError extends S.TaggedError<InvalidBaseError>()("InvalidBaseError", {
   value: S.String,
   reason: S.optional(S.String),
 }) {

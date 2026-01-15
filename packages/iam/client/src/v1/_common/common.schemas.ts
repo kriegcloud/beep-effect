@@ -70,3 +70,14 @@ export declare namespace RedirectURL {
   export type Type = S.Schema.Type<typeof RedirectURL>;
   export type Encoded = S.Schema.Encoded<typeof RedirectURL>;
 }
+
+export const CaptchaResponse = S.Redacted(S.String).annotations(
+  $I.annotations("CaptchaResponse", {
+    description: "The captcha response.",
+  })
+);
+
+export declare namespace CaptchaResponse {
+  export type Type = S.Schema.Type<typeof CaptchaResponse>;
+  export type Encoded = S.Schema.Encoded<typeof CaptchaResponse>;
+}

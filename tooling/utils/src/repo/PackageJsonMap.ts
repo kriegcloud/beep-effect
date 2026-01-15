@@ -45,12 +45,10 @@ export const mapWorkspaceToPackageJsonPath = Effect.gen(function* () {
     const basePackageJsonPath = path_.join(dir, "package.json");
     const baseExists = yield* fs.exists(basePackageJsonPath);
     if (!baseExists) {
-      return yield* Effect.fail(
-        new NoSuchFileError({
-          path: basePackageJsonPath,
-          message: "[mapWorkspaceToPackageJsonPath] Invalid file path",
-        })
-      );
+      return yield* new NoSuchFileError({
+        path: basePackageJsonPath,
+        message: "[mapWorkspaceToPackageJsonPath] Invalid file path",
+      });
     }
     packageJsonMap = HashMap.set(packageJsonMap, workspace, basePackageJsonPath);
   }

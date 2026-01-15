@@ -1,3 +1,4 @@
+import { CalendarRepos } from "@beep/calendar-server";
 import { CommsRepos } from "@beep/comms-server";
 import { CustomizationRepos } from "@beep/customization-server";
 import { DocumentsRepos } from "@beep/documents-server";
@@ -11,14 +12,16 @@ type SliceRepos =
   | DocumentsRepos.Repos
   | SharedRepos.Repos
   | CustomizationRepos.Repos
-  | CommsRepos.Repos;
+  | CommsRepos.Repos
+  | CalendarRepos.Repos;
 
 const sliceReposLayer: Layer.Layer<SliceRepos, never, Persistence.Services> = Layer.mergeAll(
   IamRepos.layer,
   DocumentsRepos.layer,
   SharedRepos.layer,
   CustomizationRepos.layer,
-  CommsRepos.layer
+  CommsRepos.layer,
+  CalendarRepos.layer
 );
 
 export type Services = SliceRepos | Persistence.Services;
