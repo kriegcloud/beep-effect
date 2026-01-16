@@ -150,91 +150,27 @@ bun run check --filter @beep/shared-domain
 ### Location
 `packages/iam/domain/src/entities/`
 
-### Folders (already exist, files empty)
-- `OAuthClient/`
-- `OAuthAccessToken/`
-- `OAuthRefreshToken/`
-- `OAuthConsent/`
+### Overview
+Create 4 domain model entities using `M.Class` and `makeFields` pattern.
 
-### Files per Entity
-- `<Entity>/<Entity>.model.ts` - M.Class model definition
-- `<Entity>/index.ts` - Barrel export
+| Entity | Files to Create |
+|--------|-----------------|
+| OAuthClient | `OAuthClient/OAuthClient.model.ts`, `OAuthClient/index.ts` |
+| OAuthAccessToken | `OAuthAccessToken/OAuthAccessToken.model.ts`, `OAuthAccessToken/index.ts` |
+| OAuthRefreshToken | `OAuthRefreshToken/OAuthRefreshToken.model.ts`, `OAuthRefreshToken/index.ts` |
+| OAuthConsent | `OAuthConsent/OAuthConsent.model.ts`, `OAuthConsent/index.ts` |
 
-### Pattern Reference
-Use `Account/Account.model.ts` as canonical pattern.
+### Detailed Specifications
+**See [P2_ORCHESTRATOR_PROMPT.md](./handoffs/P2_ORCHESTRATOR_PROMPT.md)** for complete field definitions and implementation code.
 
-### OAuthClient Model Fields
-
-| Field | Type | Required |
-|-------|------|----------|
-| `clientId` | `S.NonEmptyString` | Yes |
-| `clientSecret` | `BS.FieldSensitiveOptionOmittable` | No |
-| `disabled` | `BS.toOptionalWithDefault(S.Boolean, false)` | No |
-| `skipConsent` | `BS.FieldOptionOmittable(S.Boolean)` | No |
-| `enableEndSession` | `BS.FieldOptionOmittable(S.Boolean)` | No |
-| `scopes` | `BS.FieldOptionOmittable(S.Array(S.String))` | No |
-| `userId` | `BS.FieldOptionOmittable(SharedEntityIds.UserId)` | No |
-| `name` | `BS.FieldOptionOmittable(S.NonEmptyString)` | No |
-| `uri` | `BS.FieldOptionOmittable(S.String)` | No |
-| `icon` | `BS.FieldOptionOmittable(S.String)` | No |
-| `contacts` | `BS.FieldOptionOmittable(S.Array(S.String))` | No |
-| `tos` | `BS.FieldOptionOmittable(S.String)` | No |
-| `policy` | `BS.FieldOptionOmittable(S.String)` | No |
-| `softwareId` | `BS.FieldOptionOmittable(S.String)` | No |
-| `softwareVersion` | `BS.FieldOptionOmittable(S.String)` | No |
-| `softwareStatement` | `BS.FieldOptionOmittable(S.String)` | No |
-| `redirectUris` | `S.Array(S.String)` | Yes |
-| `postLogoutRedirectUris` | `BS.FieldOptionOmittable(S.Array(S.String))` | No |
-| `tokenEndpointAuthMethod` | `BS.FieldOptionOmittable(S.String)` | No |
-| `grantTypes` | `BS.FieldOptionOmittable(S.Array(S.String))` | No |
-| `responseTypes` | `BS.FieldOptionOmittable(S.Array(S.String))` | No |
-| `public` | `BS.FieldOptionOmittable(S.Boolean)` | No |
-| `type` | `BS.FieldOptionOmittable(S.String)` | No |
-| `referenceId` | `BS.FieldOptionOmittable(S.String)` | No |
-| `metadata` | `BS.FieldOptionOmittable(S.Unknown)` | No |
-
-### OAuthAccessToken Model Fields
-
-| Field | Type | Required |
-|-------|------|----------|
-| `token` | `BS.FieldSensitiveOptionOmittable(S.String)` | No |
-| `clientId` | `S.NonEmptyString` | Yes |
-| `sessionId` | `BS.FieldOptionOmittable(SharedEntityIds.SessionId)` | No |
-| `userId` | `BS.FieldOptionOmittable(SharedEntityIds.UserId)` | No |
-| `referenceId` | `BS.FieldOptionOmittable(S.String)` | No |
-| `refreshId` | `BS.FieldOptionOmittable(IamEntityIds.OAuthRefreshTokenId)` | No |
-| `expiresAt` | `BS.FieldOptionOmittable(BS.DateTimeUtcFromAllAcceptable)` | No |
-| `scopes` | `S.Array(S.String)` | Yes |
-
-### OAuthRefreshToken Model Fields
-
-| Field | Type | Required |
-|-------|------|----------|
-| `token` | `S.NonEmptyString` | Yes |
-| `clientId` | `S.NonEmptyString` | Yes |
-| `sessionId` | `BS.FieldOptionOmittable(SharedEntityIds.SessionId)` | No |
-| `userId` | `SharedEntityIds.UserId` | Yes |
-| `referenceId` | `BS.FieldOptionOmittable(S.String)` | No |
-| `expiresAt` | `BS.FieldOptionOmittable(BS.DateTimeUtcFromAllAcceptable)` | No |
-| `revoked` | `BS.FieldOptionOmittable(BS.DateTimeUtcFromAllAcceptable)` | No |
-| `scopes` | `S.Array(S.String)` | Yes |
-
-### OAuthConsent Model Fields
-
-| Field | Type | Required |
-|-------|------|----------|
-| `clientId` | `S.NonEmptyString` | Yes |
-| `userId` | `BS.FieldOptionOmittable(SharedEntityIds.UserId)` | No |
-| `referenceId` | `BS.FieldOptionOmittable(S.String)` | No |
-| `scopes` | `S.Array(S.String)` | Yes |
-
-### Index Update
-Add to `entities/index.ts`:
+### Quick Pattern Reference
 ```typescript
-export * as OAuthClient from "./OAuthClient";
-export * as OAuthAccessToken from "./OAuthAccessToken";
-export * as OAuthRefreshToken from "./OAuthRefreshToken";
-export * as OAuthConsent from "./OAuthConsent";
+export class Model extends M.Class<Model>($I`OAuthClientModel`)(
+  makeFields(IamEntityIds.OAuthClientId, { /* fields */ }),
+  $I.annotations("OAuthClientModel", { /* metadata */ })
+) {
+  static readonly utils = modelKit(Model);
+}
 ```
 
 ### Verification

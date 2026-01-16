@@ -1,14 +1,21 @@
 # Phase 2: Domain Model Entities - Orchestrator Prompt
 
+## Context (Stable Prefix)
+- **Spec**: oauth-provider-migration
+- **Phase**: 2 of 7
+- **Package**: `@beep/iam-domain`
+- **Location**: `packages/iam/domain/src/entities/`
+- **Prerequisites**: Phase 1 (Entity IDs) complete
+
+---
+
 ## Objective
 
-Create 4 domain model entities for OAuth Provider in `packages/iam/domain/src/entities/`.
+Create 4 domain model entities for OAuth Provider using `M.Class` and `makeFields` pattern.
 
-## Prerequisites
+---
 
-- Phase 1 complete: Entity IDs exist in `@beep/shared-domain`
-
-## Context
+## Pre-Execution State
 
 The entity folders already exist but are empty:
 - `OAuthClient/`

@@ -10,8 +10,34 @@
 |----------|---------|
 | [QUICK_START.md](./QUICK_START.md) | 5-minute overview for fast triage |
 | [MASTER_ORCHESTRATION.md](./MASTER_ORCHESTRATION.md) | Full phase-by-phase details |
+| [AGENT_PROMPTS.md](./AGENT_PROMPTS.md) | Specialized agent guidance |
+| [RUBRICS.md](./RUBRICS.md) | Quality assessment criteria |
 | [REFLECTION_LOG.md](./REFLECTION_LOG.md) | Learnings from execution |
 | [handoffs/](./handoffs/) | Phase handoff documents |
+
+---
+
+## Complexity Estimate
+
+| Metric | Value |
+|--------|-------|
+| **Phases** | 7 |
+| **Files to Create** | ~12-16 |
+| **Files to Modify** | ~8-10 |
+| **Lines of Code** | ~500-700 |
+| **Difficulty** | Medium |
+
+### Per-Phase Complexity
+
+| Phase | Complexity | Files |
+|-------|------------|-------|
+| 1 | Low | 3 modify |
+| 2 | Medium | 8 create, 1 modify |
+| 3 | Medium | 4 create, 1 modify |
+| 4 | Low | 1 modify |
+| 5 | Low | 1 modify |
+| 6 | Low | 2 modify |
+| 7 | Low | 0 (verification only) |
 
 ---
 

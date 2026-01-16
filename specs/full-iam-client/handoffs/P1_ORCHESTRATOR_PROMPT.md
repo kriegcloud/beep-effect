@@ -108,15 +108,15 @@ export { Handler } from "./list-sessions.handler.ts";
 import * as S from "effect/Schema";
 
 export const Payload = S.Struct({
-  sessionToken: S.Redacted(S.String), // Sensitive - use Redacted
+  sessionToken: S.String,
 });
 export type Payload = S.Schema.Type<typeof Payload>;
 
-// Success response - verify exact shape from Better Auth
+// Success response - session activation confirmed
+// Better Auth returns { status: boolean } on success
 export const Success = S.Struct({
-  // May include session info or just confirmation
-  // Start with permissive schema, refine after testing
-}).pipe(S.extend(S.Record({ key: S.String, value: S.Unknown })));
+  status: S.Boolean,
+});
 export type Success = S.Schema.Type<typeof Success>;
 ```
 
@@ -124,7 +124,6 @@ export type Success = S.Schema.Type<typeof Success>;
 ```typescript
 import { client } from "@beep/iam-client/adapters";
 import { createHandler } from "../../_common/handler.factory.ts";
-import * as Redacted from "effect/Redacted";
 import * as Contract from "./set-active.contract.ts";
 
 /**
@@ -138,9 +137,7 @@ import * as Contract from "./set-active.contract.ts";
 export const Handler = createHandler({
   domain: "multi-session",
   feature: "set-active",
-  execute: (encoded) => client.multiSession.setActive({
-    sessionToken: Redacted.value(encoded.sessionToken),
-  }),
+  execute: (encoded) => client.multiSession.setActive(encoded),
   successSchema: Contract.Success,
   payloadSchema: Contract.Payload,
   mutatesSession: true,
@@ -164,14 +161,15 @@ export { Handler } from "./set-active.handler.ts";
 import * as S from "effect/Schema";
 
 export const Payload = S.Struct({
-  sessionToken: S.Redacted(S.String), // Sensitive - use Redacted
+  sessionToken: S.String,
 });
 export type Payload = S.Schema.Type<typeof Payload>;
 
-// Success response - verify exact shape from Better Auth
+// Success response - session revocation confirmed
+// Better Auth returns { status: boolean } on success
 export const Success = S.Struct({
-  // May include confirmation or void
-}).pipe(S.extend(S.Record({ key: S.String, value: S.Unknown })));
+  status: S.Boolean,
+});
 export type Success = S.Schema.Type<typeof Success>;
 ```
 
@@ -179,7 +177,6 @@ export type Success = S.Schema.Type<typeof Success>;
 ```typescript
 import { client } from "@beep/iam-client/adapters";
 import { createHandler } from "../../_common/handler.factory.ts";
-import * as Redacted from "effect/Redacted";
 import * as Contract from "./revoke.contract.ts";
 
 /**
@@ -193,9 +190,7 @@ import * as Contract from "./revoke.contract.ts";
 export const Handler = createHandler({
   domain: "multi-session",
   feature: "revoke",
-  execute: (encoded) => client.multiSession.revoke({
-    sessionToken: Redacted.value(encoded.sessionToken),
-  }),
+  execute: (encoded) => client.multiSession.revoke(encoded),
   successSchema: Contract.Success,
   payloadSchema: Contract.Payload,
   mutatesSession: true,
@@ -258,16 +253,23 @@ All three handlers use the factory pattern because:
 | set-active | `true` | Changes active session context |
 | revoke | `true` | Removes a session from the system |
 
-### Redacted Credentials
+### Session Token Handling
 
-Session tokens are sensitive. Use `S.Redacted(S.String)` and extract with `Redacted.value()`:
+Session tokens are NOT user credentials - they are opaque identifiers returned by the server.
+Use plain `S.String` and pass encoded payloads directly to handlers:
 
 ```typescript
-// In handler
-execute: (encoded) => client.multiSession.setActive({
-  sessionToken: Redacted.value(encoded.sessionToken),
-}),
+// In contract
+export const Payload = S.Struct({
+  sessionToken: S.String,  // Plain string - not a user credential
+});
+
+// In handler - pass encoded directly
+execute: (encoded) => client.multiSession.setActive(encoded),
 ```
+
+> **Note**: Reserve `S.Redacted(S.String)` for actual user credentials like passwords and API keys
+> that should never appear in logs. Session tokens are server-generated and safe to log.
 
 ---
 
@@ -277,7 +279,6 @@ execute: (encoded) => client.multiSession.setActive({
 // REQUIRED - Namespace imports
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
-import * as Redacted from "effect/Redacted";
 
 // REQUIRED - PascalCase constructors
 S.String    // Correct

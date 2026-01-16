@@ -139,9 +139,10 @@ export const Payload = S.Struct({
 });
 export type Payload = S.Schema.Type<typeof Payload>;
 
-// Success likely returns the activated session or confirmation
+// Success response - session activation confirmed
+// Better Auth returns { status: boolean } on success
 export const Success = S.Struct({
-  // Verify exact shape from response
+  status: S.Boolean,
 });
 export type Success = S.Schema.Type<typeof Success>;
 ```
@@ -155,9 +156,10 @@ export const Payload = S.Struct({
 });
 export type Payload = S.Schema.Type<typeof Payload>;
 
-// Success likely returns confirmation
+// Success response - session revocation confirmed
+// Better Auth returns { status: boolean } on success
 export const Success = S.Struct({
-  // Verify exact shape from response
+  status: S.Boolean,
 });
 export type Success = S.Schema.Type<typeof Success>;
 ```
@@ -212,8 +214,50 @@ After implementing each handler:
 ## Gotchas
 
 1. **Empty Object Parameter**: `listDeviceSessions({})` requires empty object, not no args
-2. **Session Token Sensitivity**: `sessionToken` should use `S.Redacted(S.String)` for security
-3. **Response Shape Verification**: Verify exact `response.data` shape before finalizing Success schema
+2. **Session Token Handling**: Use plain `S.String` for `sessionToken` - it's a server-generated identifier, not a user credential. Reserve `S.Redacted` for passwords and API keys only.
+3. **Response Shape Verification**: Verify exact `response.data` shape before finalizing Success schema (see protocol below)
+
+---
+
+## Response Shape Verification Protocol
+
+Before finalizing any Success schema, verify the exact response shape from Better Auth:
+
+### Step 1: Check Better Auth Documentation
+
+Consult the official docs for the method's expected response:
+- [Multi-Session Plugin Docs](https://www.better-auth.com/docs/plugins/multi-session)
+
+### Step 2: Runtime Verification (Recommended)
+
+If documentation is unclear, verify at runtime:
+
+```typescript
+// Temporary debug code - remove after verification
+const response = await client.multiSession.setActive({ sessionToken: "test" });
+console.log("Response shape:", JSON.stringify(response, null, 2));
+```
+
+### Step 3: Schema Definition Rules
+
+| Response Pattern | Schema Approach |
+|------------------|-----------------|
+| `{ status: boolean }` | `S.Struct({ status: S.Boolean })` |
+| `{ data: T }` | Schema for `T` directly (factory unwraps) |
+| `{ session: Session }` | `S.Struct({ session: SessionSchema })` |
+| Empty/void | `S.Struct({})` |
+
+### Step 4: Update Schema and Document
+
+After verification:
+1. Update the Success schema with exact fields
+2. Add a comment noting the verified response shape
+3. Update this handoff if the documented shape differs
+
+> **Expected shapes for Phase 1** (based on Better Auth multi-session plugin):
+> - `listDeviceSessions`: Returns `Session[]` directly in `data`
+> - `setActive`: Returns `{ status: boolean }` in `data`
+> - `revoke`: Returns `{ status: boolean }` in `data`
 
 ---
 

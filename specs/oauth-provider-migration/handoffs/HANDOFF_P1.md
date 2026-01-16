@@ -48,11 +48,48 @@ See [P1_ORCHESTRATOR_PROMPT.md](./P1_ORCHESTRATOR_PROMPT.md)
 - [ ] Verification passed
 - [ ] Entity IDs exported and usable
 
+### Evidence Format
+
+#### Successful Execution Evidence
+```
+✓ Added OAuthClientId to ids.ts (lines 142-158)
+✓ Added OAuthAccessTokenId to ids.ts (lines 160-176)
+✓ Added OAuthRefreshTokenId to ids.ts (lines 178-194)
+✓ Added OAuthConsentId to ids.ts (lines 196-212)
+✓ Updated table-name.ts with 4 new table names
+✓ Updated any-id.ts union with 4 new IDs
+✓ Verification: bun run check --filter @beep/shared-domain → PASSED
+```
+
+#### Failure Evidence (if encountered)
+```
+✗ Type error in any-id.ts:45 - OAuthClientId not assignable to AnyId
+  Cause: Missing import statement
+  Resolution: Added import { OAuthClientId } from "./ids"
+```
+
 ### Learnings
-(Fill after execution)
+(Fill after execution - examples below)
+
+**What Worked:**
+- Pattern copy from AccountId was straightforward
+- Entity ID builder handles namespace declaration automatically
+
+**What Needed Adjustment:**
+- Forgot to update any-id.ts union initially
+- TableName class required specific import ordering
+
+**Unexpected Issues:**
+- (Document any surprises)
 
 ### Prompt Improvements for Phase 2
-(Fill after execution - what should P2 prompt include based on P1 learnings)
+(Fill after execution - examples below)
+
+**Original Gap:** P2 prompt assumed familiarity with makeFields audit columns
+**Refined Instruction:** "Remember that makeFields automatically adds audit columns (id, createdAt, updatedAt, etc.) - do not duplicate them in field definitions."
+
+**Original Gap:** Missing guidance on barrel exports
+**Refined Instruction:** "Create index.ts for each entity folder immediately after creating the model file."
 
 ---
 
