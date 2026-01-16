@@ -18,7 +18,9 @@ import type { Auth, BetterAuthOptions, BetterAuthPlugin } from "better-auth";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { nextCookies } from "better-auth/next-js";
-import { apiKey, bearer, captcha, lastLoginMethod, oneTap, openAPI } from "better-auth/plugins";
+import { apiKey, bearer,
+  // captcha,
+  lastLoginMethod, oneTap, openAPI } from "better-auth/plugins";
 import { admin } from "better-auth/plugins/admin";
 import { anonymous } from "better-auth/plugins/anonymous";
 import { deviceAuthorization } from "better-auth/plugins/device-authorization";
@@ -851,10 +853,10 @@ export const makeAuth = ({
       apiKey(),
       anonymous(),
       admin(),
-      captcha({
-        provider: "google-recaptcha", // or google-recaptcha, hcaptcha, captchafox
-        secretKey: Redacted.value(serverEnv.cloud.google.captcha.secretKey),
-      }),
+      // captcha({
+      //   provider: "google-recaptcha", // or google-recaptcha, hcaptcha, captchafox
+      //   secretKey: Redacted.value(serverEnv.cloud.google.captcha.secretKey),
+      // }),
       nextCookies(),
     ],
   } satisfies BetterAuthOptions);

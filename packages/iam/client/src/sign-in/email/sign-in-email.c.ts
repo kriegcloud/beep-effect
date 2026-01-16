@@ -1,7 +1,8 @@
-import { $IamClientId } from "@beep/identity/packages";
+import { Contract, ContractKit } from "@beep/iam-client/_contract";
 import { BS } from "@beep/schema";
 import * as S from "effect/Schema";
-import * as Common from "../../_common";
+import * as Common from "@beep/iam-client/_common";
+import { $IamClientId } from "@beep/identity/packages";
 
 const $I = $IamClientId.create("sign-in/email");
 
@@ -38,3 +39,16 @@ export class Success extends S.Class<Success>($I`Success`)(
     description: "The success response for signing in with an email and password.",
   })
 ) {}
+
+export const C = Contract.make(
+  "Email",
+  {
+    description: "The contract for signing in with an email and password.",
+    parameters: Payload.fields,
+    success: Success
+  }
+)
+
+export const Kit = ContractKit.make(
+  C,
+)

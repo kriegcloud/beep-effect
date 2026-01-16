@@ -22,7 +22,14 @@ import {
   ReCaptchaNotFoundError,
   ReCaptchaNotReadyError,
 } from "./errors";
-import { clearGRecaptchaGlobals, getReCaptchaInstance, isBrowser, isHTMLDivElement, setWindowCallback } from "./guards";
+import {
+  clearGRecaptchaGlobals,
+  getReCaptchaInstance,
+  isBrowser,
+  isHTMLDivElement,
+  registerReadyCallback,
+  setWindowCallback,
+} from "./guards";
 import type { ReCaptchaInstance } from "./types";
 
 // -----------------------------------------------------------------------------
@@ -360,7 +367,7 @@ export const initializeReCaptchaAtom = reCaptchaRuntime.fn(
     const scriptId = config.scriptProps?.id ?? "google-recaptcha-v3";
     const existingScript = document.getElementById(scriptId);
     if (existingScript) {
-      // Script exists - just update state and wait for grecaptcha to be ready
+      // Script exists - check if grecaptcha instance is ready
       const useEnterprise = config.useEnterprise ?? false;
       const instanceOpt = getReCaptchaInstance(useEnterprise);
 
@@ -374,6 +381,28 @@ export const initializeReCaptchaAtom = reCaptchaRuntime.fn(
       };
 
       registry.set(reCaptchaStateAtom, newState);
+
+      // If script exists but instance not ready yet, register a callback
+      // to update state when grecaptcha becomes ready.
+      // The onload callback (set via setWindowCallback) only fires when the script
+      // first loads - on page navigation the script is already in DOM, so we need
+      // to use registerReadyCallback to queue a callback for when grecaptcha.ready()
+      // is invoked by Google's script.
+      if (O.isNone(instanceOpt)) {
+        registerReadyCallback(() => {
+          const readyInstanceOpt = getReCaptchaInstance(useEnterprise);
+
+          if (O.isSome(readyInstanceOpt)) {
+            const stateAtReady = registry.get(reCaptchaStateAtom);
+            registry.set(reCaptchaStateAtom, {
+              ...stateAtReady,
+              isLoaded: true,
+              reCaptchaInstance: readyInstanceOpt,
+            });
+          }
+        });
+      }
+
       return;
     }
 

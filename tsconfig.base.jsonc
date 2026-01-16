@@ -45,6 +45,7 @@
         "diagnosticSeverity": {
           "classSelfMismatch": "off",
           "effectFnOpportunity": "off",
+          "globalErrorInEffectFailure": "off",
           "catchAllToMapError": "off",
           "forbiddenInSchema": "off",
           "unnecessaryYield": "off",

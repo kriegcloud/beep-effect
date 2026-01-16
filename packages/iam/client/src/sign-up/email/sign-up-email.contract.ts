@@ -1,6 +1,6 @@
-import { $IamClientId } from "@beep/identity/packages";
-import { BS } from "@beep/schema";
-import { slice } from "@beep/utils/data/array.utils";
+import {$IamClientId} from "@beep/identity/packages";
+import {BS} from "@beep/schema";
+import {slice} from "@beep/utils/data/array.utils";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
@@ -26,23 +26,28 @@ export class PayloadFrom extends S.Class<PayloadFrom>($I`PayloadFrom`)(
   {
     email: Common.UserEmail,
     rememberMe: Common.RememberMe,
-    redirectTo: S.optionalWith(BS.URLPath, { default: () => BS.URLPath.make("/" as const) }),
+    redirectTo: S.optionalWith(BS.URLPath, {default: () => BS.URLPath.make("/" as const)}),
     password: BS.Password,
     passwordConfirm: BS.Password,
     firstName: BS.NameAttribute,
     lastName: BS.NameAttribute,
   },
-  {
-    [BS.DefaultFormValuesAnnotationId]: {
-      email: "",
-      rememberMe: true,
-      redirectTo: "/",
-      password: "",
-      passwordConfirm: "",
-      firstName: "",
-      lastName: "",
+  // Default form values use Encoded types (plain strings for Redacted fields, etc.)
+  [
+    undefined,
+    {
+      [BS.DefaultFormValuesAnnotationId]: {
+        email: "",
+        rememberMe: true,
+        redirectTo: "/",
+        password: "",
+        passwordConfirm: "",
+        firstName: "",
+        lastName: "",
+      },
+      undefined,
     },
-  }
+  ]
 ) {
   /**
    * Computed full name from firstName and lastName.
@@ -180,4 +185,5 @@ export class Success extends S.Class<Success>($I`Success`)(
   $I.annotations("Success", {
     description: "Success response for sign-up/email - decodes response.data directly",
   })
-) {}
+) {
+}
