@@ -1,5 +1,5 @@
+import { createHandler } from "@beep/iam-client/_common";
 import { client } from "@beep/iam-client/adapters";
-import { createHandler } from "../../_common/handler.factory.ts";
 import * as Contract from "./sign-in-email.contract.ts";
 
 /**

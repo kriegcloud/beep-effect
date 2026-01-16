@@ -1,5 +1,5 @@
 import { beforeAll, beforeEach, describe, expect, mock } from "bun:test";
-import { effect } from "@beep/testkit";
+import { live } from "@beep/testkit";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as S from "effect/Schema";
@@ -49,12 +49,12 @@ let client: {
   signIn: { email: typeof mockSignInEmail };
   $store: { notify: typeof mockNotify };
 };
-let createHandler: typeof import("../handler.factory.ts").createHandler;
+let createHandler: typeof import("../../src/_common/handler.factory.ts").createHandler;
 
 beforeAll(async () => {
   const adapters = await import("@beep/iam-client/adapters");
-  client = adapters.client as typeof client;
-  const handlerFactory = await import("../handler.factory.ts");
+  client = adapters.client as unknown as typeof client;
+  const handlerFactory = await import("../../src/_common/handler.factory.ts");
   createHandler = handlerFactory.createHandler;
 });
 
@@ -84,7 +84,7 @@ describe("createHandler", () => {
   });
 
   describe("without payload", () => {
-    effect(
+    live(
       "executes successfully and decodes response",
       Effect.fn(function* () {
         mockSignOut.mockResolvedValueOnce({
@@ -107,7 +107,7 @@ describe("createHandler", () => {
       })
     );
 
-    effect(
+    live(
       "notifies $sessionSignal when mutatesSession is true",
       Effect.fn(function* () {
         mockSignOut.mockResolvedValueOnce({
@@ -130,7 +130,7 @@ describe("createHandler", () => {
       })
     );
 
-    effect(
+    live(
       "does NOT notify $sessionSignal when mutatesSession is false",
       Effect.fn(function* () {
         mockSignOut.mockResolvedValueOnce({
@@ -152,7 +152,7 @@ describe("createHandler", () => {
       })
     );
 
-    effect(
+    live(
       "fails with BetterAuthResponseError when response.error is present",
       Effect.fn(function* () {
         mockSignOut.mockResolvedValueOnce({
@@ -186,7 +186,7 @@ describe("createHandler", () => {
   // ============================================================================
 
   describe("with payload", () => {
-    effect(
+    live(
       "encodes payload before executing",
       Effect.fn(function* () {
         mockSignInEmail.mockResolvedValueOnce({
@@ -217,7 +217,7 @@ describe("createHandler", () => {
       })
     );
 
-    effect(
+    live(
       "passes fetchOptions to execute function",
       Effect.fn(function* () {
         mockSignInEmail.mockResolvedValueOnce({
@@ -247,7 +247,7 @@ describe("createHandler", () => {
       })
     );
 
-    effect(
+    live(
       "notifies $sessionSignal when mutatesSession is true",
       Effect.fn(function* () {
         mockSignInEmail.mockResolvedValueOnce({
@@ -273,7 +273,7 @@ describe("createHandler", () => {
       })
     );
 
-    effect(
+    live(
       "fails with BetterAuthResponseError when response.error is present",
       Effect.fn(function* () {
         mockSignInEmail.mockResolvedValueOnce({
@@ -312,7 +312,7 @@ describe("createHandler", () => {
   // ============================================================================
 
   describe("error handling", () => {
-    effect(
+    live(
       "wraps promise rejection in IamError",
       Effect.fn(function* () {
         mockSignOut.mockRejectedValueOnce(new Error("Network failure"));
@@ -331,7 +331,7 @@ describe("createHandler", () => {
       })
     );
 
-    effect(
+    live(
       "surfaces BetterAuthResponseError with message, code, status",
       Effect.fn(function* () {
         mockSignOut.mockResolvedValueOnce({
@@ -363,7 +363,7 @@ describe("createHandler", () => {
   // ============================================================================
 
   describe("span naming", () => {
-    effect(
+    live(
       "generates correct span name: domain/feature/handler",
       Effect.fn(function* () {
         mockSignOut.mockResolvedValueOnce({

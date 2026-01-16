@@ -96,151 +96,149 @@ export const DomainWalletAddressFromBetterAuthWalletAddress = S.transformOrFail(
   WalletAddress.Model,
   {
     strict: true,
-    decode: (betterAuthWalletAddress, _options, ast) =>
-      Effect.gen(function* () {
-        // =======================================================================
-        // ID VALIDATION - Must be present from database (via Record extension)
-        // Better Auth's SIWE plugin schema does NOT include id - it comes from DB
-        // =======================================================================
+    decode: Effect.fn(function* (betterAuthWalletAddress, _options, ast) {
+      // =======================================================================
+      // ID VALIDATION - Must be present from database (via Record extension)
+      // Better Auth's SIWE plugin schema does NOT include id - it comes from DB
+      // =======================================================================
 
-        const id = yield* requireString(betterAuthWalletAddress, "id", ast);
-        if (id === null) {
-          return yield* ParseResult.fail(new ParseResult.Type(ast, id, "WalletAddress id is required but was null"));
-        }
+      const id = yield* requireString(betterAuthWalletAddress, "id", ast);
+      if (id === null) {
+        return yield* ParseResult.fail(new ParseResult.Type(ast, id, "WalletAddress id is required but was null"));
+      }
 
-        const isValidWalletAddressId = IamEntityIds.WalletAddressId.is(id);
-        if (!isValidWalletAddressId) {
-          return yield* ParseResult.fail(
-            new ParseResult.Type(
-              ast,
-              id,
-              `Invalid wallet address ID format: expected "iam_wallet_address__<uuid>", got "${id}"`
-            )
-          );
-        }
+      const isValidWalletAddressId = IamEntityIds.WalletAddressId.is(id);
+      if (!isValidWalletAddressId) {
+        return yield* ParseResult.fail(
+          new ParseResult.Type(
+            ast,
+            id,
+            `Invalid wallet address ID format: expected "iam_wallet_address__<uuid>", got "${id}"`
+          )
+        );
+      }
 
-        // =======================================================================
-        // USER ID VALIDATION
-        // =======================================================================
+      // =======================================================================
+      // USER ID VALIDATION
+      // =======================================================================
 
-        const isValidUserId = SharedEntityIds.UserId.is(betterAuthWalletAddress.userId);
-        if (!isValidUserId) {
-          return yield* ParseResult.fail(
-            new ParseResult.Type(
-              ast,
-              betterAuthWalletAddress.userId,
-              `Invalid user ID format: expected "shared_user__<uuid>", got "${betterAuthWalletAddress.userId}"`
-            )
-          );
-        }
+      const isValidUserId = SharedEntityIds.UserId.is(betterAuthWalletAddress.userId);
+      if (!isValidUserId) {
+        return yield* ParseResult.fail(
+          new ParseResult.Type(
+            ast,
+            betterAuthWalletAddress.userId,
+            `Invalid user ID format: expected "shared_user__<uuid>", got "${betterAuthWalletAddress.userId}"`
+          )
+        );
+      }
 
-        // =======================================================================
-        // REQUIRED FIELDS from database (via Record extension)
-        // These use require* helpers that FAIL if the field is missing
-        // =======================================================================
+      // =======================================================================
+      // REQUIRED FIELDS from database (via Record extension)
+      // These use require* helpers that FAIL if the field is missing
+      // =======================================================================
 
-        const _rowId = yield* requireNumber(betterAuthWalletAddress, "_rowId", ast);
-        const version = yield* requireNumber(betterAuthWalletAddress, "version", ast);
-        const source = yield* requireString(betterAuthWalletAddress, "source", ast);
-        const createdAtRaw = betterAuthWalletAddress.createdAt; // From Struct, not Record
-        const updatedAtRaw = yield* requireDate(betterAuthWalletAddress, "updatedAt", ast);
-        const deletedAt = yield* requireDate(betterAuthWalletAddress, "deletedAt", ast);
-        const createdBy = yield* requireString(betterAuthWalletAddress, "createdBy", ast);
-        const updatedBy = yield* requireString(betterAuthWalletAddress, "updatedBy", ast);
-        const deletedBy = yield* requireString(betterAuthWalletAddress, "deletedBy", ast);
+      const _rowId = yield* requireNumber(betterAuthWalletAddress, "_rowId", ast);
+      const version = yield* requireNumber(betterAuthWalletAddress, "version", ast);
+      const source = yield* requireString(betterAuthWalletAddress, "source", ast);
+      const createdAtRaw = betterAuthWalletAddress.createdAt; // From Struct, not Record
+      const updatedAtRaw = yield* requireDate(betterAuthWalletAddress, "updatedAt", ast);
+      const deletedAt = yield* requireDate(betterAuthWalletAddress, "deletedAt", ast);
+      const createdBy = yield* requireString(betterAuthWalletAddress, "createdBy", ast);
+      const updatedBy = yield* requireString(betterAuthWalletAddress, "updatedBy", ast);
+      const deletedBy = yield* requireString(betterAuthWalletAddress, "deletedBy", ast);
 
-        // createdAt is defined in Struct, validate it's present
-        if (createdAtRaw === null || createdAtRaw === undefined) {
-          return yield* ParseResult.fail(
-            new ParseResult.Type(ast, createdAtRaw, "WalletAddress createdAt is required but was null")
-          );
-        }
-        const createdAt = createdAtRaw;
+      // createdAt is defined in Struct, validate it's present
+      if (createdAtRaw === null || createdAtRaw === undefined) {
+        return yield* ParseResult.fail(
+          new ParseResult.Type(ast, createdAtRaw, "WalletAddress createdAt is required but was null")
+        );
+      }
+      const createdAt = createdAtRaw;
 
-        // updatedAt is required (M.Generated), so it must not be null
-        if (updatedAtRaw === null) {
-          return yield* ParseResult.fail(
-            new ParseResult.Type(ast, updatedAtRaw, "WalletAddress updatedAt is required but was null")
-          );
-        }
-        const updatedAt = updatedAtRaw;
+      // updatedAt is required (M.Generated), so it must not be null
+      if (updatedAtRaw === null) {
+        return yield* ParseResult.fail(
+          new ParseResult.Type(ast, updatedAtRaw, "WalletAddress updatedAt is required but was null")
+        );
+      }
+      const updatedAt = updatedAtRaw;
 
-        // =======================================================================
-        // ADDRESS VALIDATION - Must be non-empty for domain model
-        // =======================================================================
+      // =======================================================================
+      // ADDRESS VALIDATION - Must be non-empty for domain model
+      // =======================================================================
 
-        if (betterAuthWalletAddress.address === "") {
-          return yield* ParseResult.fail(
-            new ParseResult.Type(ast, betterAuthWalletAddress.address, "WalletAddress address cannot be empty")
-          );
-        }
+      if (betterAuthWalletAddress.address === "") {
+        return yield* ParseResult.fail(
+          new ParseResult.Type(ast, betterAuthWalletAddress.address, "WalletAddress address cannot be empty")
+        );
+      }
 
-        // Construct the encoded form of WalletAddress.Model
-        // Type annotation ensures proper typing without type assertions
-        // The schema framework will decode this to WalletAddress.Model.Type
-        const encodedWalletAddress: WalletAddressModelEncoded = {
-          // Core identity fields (from database via Record extension)
-          id,
-          _rowId,
-          version,
+      // Construct the encoded form of WalletAddress.Model
+      // Type annotation ensures proper typing without type assertions
+      // The schema framework will decode this to WalletAddress.Model.Type
+      const encodedWalletAddress: WalletAddressModelEncoded = {
+        // Core identity fields (from database via Record extension)
+        id,
+        _rowId,
+        version,
 
-          // Timestamp fields
-          createdAt, // From Struct (Better Auth native field)
-          updatedAt, // From Record extension (database provides this)
+        // Timestamp fields
+        createdAt, // From Struct (Better Auth native field)
+        updatedAt, // From Record extension (database provides this)
 
-          // Better Auth native fields from SIWE plugin
-          userId: betterAuthWalletAddress.userId,
-          address: betterAuthWalletAddress.address,
-          // chainId: S.Int expects encoded form as number
-          // The domain schema will decode this to S.Int (still number, just branded)
-          chainId: betterAuthWalletAddress.chainId,
-          // isPrimary: BS.BoolWithDefault(false) expects boolean
-          isPrimary: betterAuthWalletAddress.isPrimary,
+        // Better Auth native fields from SIWE plugin
+        userId: betterAuthWalletAddress.userId,
+        address: betterAuthWalletAddress.address,
+        // chainId: S.Int expects encoded form as number
+        // The domain schema will decode this to S.Int (still number, just branded)
+        chainId: betterAuthWalletAddress.chainId,
+        // isPrimary: BS.BoolWithDefault(false) expects boolean
+        isPrimary: betterAuthWalletAddress.isPrimary,
 
-          // Audit fields (from database via Record extension)
-          source,
-          deletedAt,
-          createdBy,
-          updatedBy,
-          deletedBy,
-        };
+        // Audit fields (from database via Record extension)
+        source,
+        deletedAt,
+        createdBy,
+        updatedBy,
+        deletedBy,
+      };
 
-        return encodedWalletAddress;
-      }),
+      return encodedWalletAddress;
+    }),
 
-    encode: (walletAddressEncoded, _options, _ast) =>
-      Effect.gen(function* () {
-        // id might be undefined in the encoded form (has default), handle that
-        const id = walletAddressEncoded.id ?? IamEntityIds.WalletAddressId.create();
+    encode: Effect.fn(function* (walletAddressEncoded, _options, _ast) {
+      // id might be undefined in the encoded form (has default), handle that
+      const id = walletAddressEncoded.id ?? IamEntityIds.WalletAddressId.create();
 
-        // Convert dates - these may be DateTime.Utc or Date
-        const createdAt = toDate(walletAddressEncoded.createdAt);
-        const updatedAt = toDate(walletAddressEncoded.updatedAt);
+      // Convert dates - these may be DateTime.Utc or Date
+      const createdAt = toDate(walletAddressEncoded.createdAt);
+      const updatedAt = toDate(walletAddressEncoded.updatedAt);
 
-        // Return BetterAuthWalletAddress form with database fields included via Record
-        // This ensures proper round-trip through the transformation
-        const betterAuthWalletAddress: BetterAuthWalletAddress = {
-          // Better Auth SIWE plugin native fields
-          userId: walletAddressEncoded.userId ?? "",
-          address: walletAddressEncoded.address ?? "",
-          chainId: walletAddressEncoded.chainId ?? 1,
-          isPrimary: walletAddressEncoded.isPrimary ?? false,
-          createdAt: createdAt,
+      // Return BetterAuthWalletAddress form with database fields included via Record
+      // This ensures proper round-trip through the transformation
+      const betterAuthWalletAddress: BetterAuthWalletAddress = {
+        // Better Auth SIWE plugin native fields
+        userId: walletAddressEncoded.userId ?? "",
+        address: walletAddressEncoded.address ?? "",
+        chainId: walletAddressEncoded.chainId ?? 1,
+        isPrimary: walletAddressEncoded.isPrimary ?? false,
+        createdAt: createdAt,
 
-          // Include database fields for round-trip (via Record extension)
-          id,
-          _rowId: walletAddressEncoded._rowId,
-          version: walletAddressEncoded.version,
-          source: walletAddressEncoded.source ?? undefined,
-          updatedAt,
-          deletedAt: walletAddressEncoded.deletedAt ? toDate(walletAddressEncoded.deletedAt) : undefined,
-          createdBy: walletAddressEncoded.createdBy ?? undefined,
-          updatedBy: walletAddressEncoded.updatedBy ?? undefined,
-          deletedBy: walletAddressEncoded.deletedBy ?? undefined,
-        };
+        // Include database fields for round-trip (via Record extension)
+        id,
+        _rowId: walletAddressEncoded._rowId,
+        version: walletAddressEncoded.version,
+        source: walletAddressEncoded.source ?? undefined,
+        updatedAt,
+        deletedAt: walletAddressEncoded.deletedAt ? toDate(walletAddressEncoded.deletedAt) : undefined,
+        createdBy: walletAddressEncoded.createdBy ?? undefined,
+        updatedBy: walletAddressEncoded.updatedBy ?? undefined,
+        deletedBy: walletAddressEncoded.deletedBy ?? undefined,
+      };
 
-        return betterAuthWalletAddress;
-      }),
+      return betterAuthWalletAddress;
+    }),
   }
 ).annotations(
   $I.annotations("DomainWalletAddressFromBetterAuthWalletAddress", {

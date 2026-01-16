@@ -9,6 +9,22 @@
 ### Objective
 Verify Better Auth client methods exist and catalog their response shapes before implementation.
 
+### Better Auth Source Code Reference
+
+**CRITICAL**: Better Auth source code is cloned to `tmp/better-auth/`. This is the **authoritative source** for all method signatures and response shapes.
+
+| What You Need | Where to Find It |
+|---------------|------------------|
+| Response shapes | `tmp/better-auth/packages/better-auth/src/api/routes/{domain}.ts` |
+| Usage examples | `tmp/better-auth/packages/better-auth/src/client/{domain}.test.ts` |
+| Method signatures | `tmp/better-auth/packages/better-auth/src/client/index.ts` |
+| Plugin methods | `tmp/better-auth/packages/better-auth/src/plugins/{plugin}/client.ts` |
+
+**CamelCase Path Conversion Pattern**: Endpoint paths become camelCase client method names:
+- `/request-password-reset` → `client.requestPasswordReset()`
+- `/verify-email` → `client.verifyEmail()`
+- `/get-session` → `client.getSession()`
+
 ### Tasks
 
 #### 0.1: Verify Method Existence (CRITICAL)
@@ -36,25 +52,53 @@ Plugin methods are confirmed via `packages/iam/client/src/adapters/better-auth/c
 | twoFactorClient | `client.twoFactor.*` | getTOTPURI, enable, disable, verifyTOTP, generateBackupCodes, verifyBackupCode |
 | organizationClient | `client.organization.*` | create, update, delete, list, setActive, member operations |
 
-#### 0.3: Document Response Shapes
+#### 0.3: Document Response Shapes (MANDATORY VERIFICATION)
 
-For each verified method:
-1. Call method with TypeScript to get return type
-2. Document `data` structure for Success schema
-3. Document `error` structure for error handling
+**CRITICAL**: Do NOT assume response shapes. ALWAYS verify against Better Auth source code.
+
+For each method, consult Better Auth source:
+
+1. **Find the route implementation**:
+   ```bash
+   # Example for password methods
+   cat tmp/better-auth/packages/better-auth/src/api/routes/password.ts
+   ```
+
+2. **Extract exact response shape from `ctx.json()` calls**:
+   ```typescript
+   // Look for patterns like:
+   return ctx.json({ status: true, message: "Reset email sent" })
+   ```
+
+3. **Verify with test files**:
+   ```bash
+   # Example for password methods
+   cat tmp/better-auth/packages/better-auth/src/client/password.test.ts
+   ```
+   Test assertions show exact field structures and types.
+
+4. **Document ACTUAL response shapes**:
+   - Include ALL fields (don't omit `message`, `token`, nested objects)
+   - Note `null` vs `undefined` distinctions
+   - Note optional fields with `?` or `| undefined`
+
+**Common Mistake**: Assuming `{ status: boolean }` when actual response is `{ status: boolean, message: string }`.
 
 ### Checkpoints
 
 - [ ] All core auth methods verified (or alternatives documented)
 - [ ] All plugin methods cataloged with types
+- [ ] **Response shapes verified against Better Auth source code** (MANDATORY)
+- [ ] **Better Auth test files consulted for exact structures** (MANDATORY)
 - [ ] `outputs/method-inventory.md` created
 - [ ] Phase 0 reflection logged
 
 ### Output
 `outputs/method-inventory.md` containing:
 - Verified method list with namespaces
-- Response shapes for Success schemas
+- **Verified response shapes from Better Auth source** (NOT assumed)
 - Factory vs Manual pattern classification
+- **Better Auth source file references** for each method
 
 ---
 
@@ -330,6 +374,8 @@ bun run --filter @beep/iam-client lint
 
 **CRITICAL**: At the end of each phase, orchestrators MUST create optimized handoff prompts using lessons learned for continuous spec improvement.
 
+**READ FIRST**: [HANDOFF_CREATION_GUIDE.md](./HANDOFF_CREATION_GUIDE.md) documents mandatory requirements for creating handoffs, including Better Auth source verification.
+
 ### After Each Phase Complete:
 
 #### 1. Update REFLECTION_LOG.md
@@ -381,8 +427,29 @@ Use learnings to improve the next handoff:
 - Pattern clarification: [Any new understanding]
 - Gotchas added: [Issues to avoid]
 
+## Better Auth Source Verification (MANDATORY)
+
+**CRITICAL**: All response schemas in this handoff MUST be verified against Better Auth source code:
+
+| Method | Route File | Test File | Verified |
+|--------|-----------|-----------|----------|
+| `methodName` | `tmp/better-auth/packages/better-auth/src/api/routes/{domain}.ts` | `tmp/better-auth/packages/better-auth/src/client/{domain}.test.ts` | ✅ |
+
+**Verification Process**:
+1. Located route implementation in `src/api/routes/{domain}.ts`
+2. Extracted exact response shape from `ctx.json()` calls
+3. Cross-referenced with test assertions in `src/client/{domain}.test.ts`
+4. Documented ALL fields including optional/null fields
+
 ## Methods to Implement
-[Verified methods with confirmed signatures from prior phase]
+[Verified methods with confirmed signatures from Better Auth source]
+
+**Response Shapes** (verified from source):
+```typescript
+// Example:
+// methodName response (verified from password.ts line 42):
+{ status: boolean, message: string }
+```
 
 ## Pattern Decisions
 [Factory vs Manual with reasoning from actual experience]

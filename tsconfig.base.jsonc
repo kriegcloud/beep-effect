@@ -496,6 +496,12 @@
       ],
       "@beep/calendar-ui/*": [
         "./packages/calendar/ui/src/*"
+      ],
+      "@beep/handler-factory-poc": [
+        "./scratchpad/handler-factory-poc/src/index"
+      ],
+      "@beep/handler-factory-poc/*": [
+        "./scratchpad/handler-factory-poc/src/*"
       ]
     }
   }

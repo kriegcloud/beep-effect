@@ -15,7 +15,8 @@
     "apps/*",
     "tooling/*",
     "packages/comms/*",
-    "packages/calendar/*"
+    "packages/calendar/*",
+    "scratchpad/*"
   ],
   "repository": {
     "repository": {
@@ -142,9 +143,9 @@
     ]
   },
   "catalog": {
-    "@ai-sdk/google": "^3.0.9",
-    "@ai-sdk/openai": "^3.0.11",
-    "@ai-sdk/react": "^3.0.39",
+    "@ai-sdk/google": "^3.0.10",
+    "@ai-sdk/openai": "^3.0.12",
+    "@ai-sdk/react": "^3.0.40",
     "@ariakit/react": "^0.4.21",
     "@babel/cli": "^7.28.6",
     "@babel/core": "^7.28.6",
@@ -303,7 +304,7 @@
     "@wojtekmaj/react-recaptcha-v3": "^0.1.4",
     "@zip.js/zip.js": "^2.8.15",
     "accept-language": "^3.0.20",
-    "ai": "^6.0.37",
+    "ai": "^6.0.38",
     "autoprefixer": "^10.4.23",
     "babel-loader": "^10.0.0",
     "babel-plugin-annotate-pure-calls": "^0.5.0",

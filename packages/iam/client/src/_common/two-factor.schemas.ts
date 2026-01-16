@@ -95,149 +95,147 @@ type TwoFactorModelEncoded = S.Schema.Encoded<typeof TwoFactor.Model>;
  */
 export const DomainTwoFactorFromBetterAuthTwoFactor = S.transformOrFail(BetterAuthTwoFactorSchema, TwoFactor.Model, {
   strict: true,
-  decode: (betterAuthTwoFactor, _options, ast) =>
-    Effect.gen(function* () {
-      // Validate the TwoFactor ID format
-      const isValidTwoFactorId = IamEntityIds.TwoFactorId.is(betterAuthTwoFactor.id);
-      if (!isValidTwoFactorId) {
-        return yield* ParseResult.fail(
-          new ParseResult.Type(
-            ast,
-            betterAuthTwoFactor.id,
-            `Invalid TwoFactor ID format: expected "iam_two_factor__<uuid>", got "${betterAuthTwoFactor.id}"`
-          )
-        );
-      }
+  decode: Effect.fn(function* (betterAuthTwoFactor, _options, ast) {
+    // Validate the TwoFactor ID format
+    const isValidTwoFactorId = IamEntityIds.TwoFactorId.is(betterAuthTwoFactor.id);
+    if (!isValidTwoFactorId) {
+      return yield* ParseResult.fail(
+        new ParseResult.Type(
+          ast,
+          betterAuthTwoFactor.id,
+          `Invalid TwoFactor ID format: expected "iam_two_factor__<uuid>", got "${betterAuthTwoFactor.id}"`
+        )
+      );
+    }
 
-      // =======================================================================
-      // SENSITIVE FIELDS - Extracted from Record extension
-      // These have `returned: false` in Better Auth and are only present
-      // when we have full database data (not from API responses)
-      // =======================================================================
+    // =======================================================================
+    // SENSITIVE FIELDS - Extracted from Record extension
+    // These have `returned: false` in Better Auth and are only present
+    // when we have full database data (not from API responses)
+    // =======================================================================
 
-      const secretRaw = yield* requireString(betterAuthTwoFactor, "secret", ast);
-      if (secretRaw === null) {
-        return yield* ParseResult.fail(
-          new ParseResult.Type(
-            ast,
-            secretRaw,
-            "secret is required for TwoFactor but was null (field may have returned: false in API response)"
-          )
-        );
-      }
-      const secret = secretRaw;
+    const secretRaw = yield* requireString(betterAuthTwoFactor, "secret", ast);
+    if (secretRaw === null) {
+      return yield* ParseResult.fail(
+        new ParseResult.Type(
+          ast,
+          secretRaw,
+          "secret is required for TwoFactor but was null (field may have returned: false in API response)"
+        )
+      );
+    }
+    const secret = secretRaw;
 
-      const backupCodesRaw = yield* requireString(betterAuthTwoFactor, "backupCodes", ast);
-      if (backupCodesRaw === null) {
-        return yield* ParseResult.fail(
-          new ParseResult.Type(
-            ast,
-            backupCodesRaw,
-            "backupCodes is required for TwoFactor but was null (field may have returned: false in API response)"
-          )
-        );
-      }
-      const backupCodes = backupCodesRaw;
+    const backupCodesRaw = yield* requireString(betterAuthTwoFactor, "backupCodes", ast);
+    if (backupCodesRaw === null) {
+      return yield* ParseResult.fail(
+        new ParseResult.Type(
+          ast,
+          backupCodesRaw,
+          "backupCodes is required for TwoFactor but was null (field may have returned: false in API response)"
+        )
+      );
+    }
+    const backupCodes = backupCodesRaw;
 
-      // Validate userId is present and has valid format
-      const userIdRaw = yield* requireString(betterAuthTwoFactor, "userId", ast);
-      if (userIdRaw === null) {
-        return yield* ParseResult.fail(
-          new ParseResult.Type(
-            ast,
-            userIdRaw,
-            "userId is required for TwoFactor but was null (field may have returned: false in API response)"
-          )
-        );
-      }
-      const userId = userIdRaw;
+    // Validate userId is present and has valid format
+    const userIdRaw = yield* requireString(betterAuthTwoFactor, "userId", ast);
+    if (userIdRaw === null) {
+      return yield* ParseResult.fail(
+        new ParseResult.Type(
+          ast,
+          userIdRaw,
+          "userId is required for TwoFactor but was null (field may have returned: false in API response)"
+        )
+      );
+    }
+    const userId = userIdRaw;
 
-      const isValidUserId = SharedEntityIds.UserId.is(userId);
-      if (!isValidUserId) {
-        return yield* ParseResult.fail(
-          new ParseResult.Type(ast, userId, `Invalid user ID format: expected "shared_user__<uuid>", got "${userId}"`)
-        );
-      }
+    const isValidUserId = SharedEntityIds.UserId.is(userId);
+    if (!isValidUserId) {
+      return yield* ParseResult.fail(
+        new ParseResult.Type(ast, userId, `Invalid user ID format: expected "shared_user__<uuid>", got "${userId}"`)
+      );
+    }
 
-      // =======================================================================
-      // REQUIRED FIELDS - Must be present in Better Auth response
-      // These use require* helpers that FAIL if the field is missing
-      // =======================================================================
+    // =======================================================================
+    // REQUIRED FIELDS - Must be present in Better Auth response
+    // These use require* helpers that FAIL if the field is missing
+    // =======================================================================
 
-      const _rowId = yield* requireNumber(betterAuthTwoFactor, "_rowId", ast);
-      const version = yield* requireNumber(betterAuthTwoFactor, "version", ast);
-      const source = yield* requireString(betterAuthTwoFactor, "source", ast);
-      const deletedAt = yield* requireDate(betterAuthTwoFactor, "deletedAt", ast);
-      const createdBy = yield* requireString(betterAuthTwoFactor, "createdBy", ast);
-      const updatedBy = yield* requireString(betterAuthTwoFactor, "updatedBy", ast);
-      const deletedBy = yield* requireString(betterAuthTwoFactor, "deletedBy", ast);
+    const _rowId = yield* requireNumber(betterAuthTwoFactor, "_rowId", ast);
+    const version = yield* requireNumber(betterAuthTwoFactor, "version", ast);
+    const source = yield* requireString(betterAuthTwoFactor, "source", ast);
+    const deletedAt = yield* requireDate(betterAuthTwoFactor, "deletedAt", ast);
+    const createdBy = yield* requireString(betterAuthTwoFactor, "createdBy", ast);
+    const updatedBy = yield* requireString(betterAuthTwoFactor, "updatedBy", ast);
+    const deletedBy = yield* requireString(betterAuthTwoFactor, "deletedBy", ast);
 
-      // Construct the encoded form of TwoFactor.Model
-      // Type annotation ensures proper typing without type assertions
-      // The schema framework will decode this to TwoFactor.Model.Type
-      const encodedTwoFactor: TwoFactorModelEncoded = {
-        // Core identity fields
-        id: betterAuthTwoFactor.id,
-        _rowId,
-        version,
+    // Construct the encoded form of TwoFactor.Model
+    // Type annotation ensures proper typing without type assertions
+    // The schema framework will decode this to TwoFactor.Model.Type
+    const encodedTwoFactor: TwoFactorModelEncoded = {
+      // Core identity fields
+      id: betterAuthTwoFactor.id,
+      _rowId,
+      version,
 
-        // Timestamp fields - Date passed to schema, will be converted to DateTime.Utc
-        createdAt: betterAuthTwoFactor.createdAt,
-        updatedAt: betterAuthTwoFactor.updatedAt,
+      // Timestamp fields - Date passed to schema, will be converted to DateTime.Utc
+      createdAt: betterAuthTwoFactor.createdAt,
+      updatedAt: betterAuthTwoFactor.updatedAt,
 
-        // Sensitive fields from Better Auth (extracted from Record extension)
-        // M.Sensitive encoded form is plain string, schema handles Redacted wrapping
-        secret,
-        backupCodes,
+      // Sensitive fields from Better Auth (extracted from Record extension)
+      // M.Sensitive encoded form is plain string, schema handles Redacted wrapping
+      secret,
+      backupCodes,
 
-        // Foreign key reference (validated above)
-        userId,
+      // Foreign key reference (validated above)
+      userId,
 
-        // Audit fields - required, validated above
-        source,
-        deletedAt,
-        createdBy,
-        updatedBy,
-        deletedBy,
-      };
+      // Audit fields - required, validated above
+      source,
+      deletedAt,
+      createdBy,
+      updatedBy,
+      deletedBy,
+    };
 
-      return encodedTwoFactor;
-    }),
+    return encodedTwoFactor;
+  }),
 
-  encode: (twoFactorEncoded, _options, _ast) =>
-    Effect.gen(function* () {
-      // Convert back to BetterAuthTwoFactor's format
-      const createdAt = toDate(twoFactorEncoded.createdAt);
-      const updatedAt = toDate(twoFactorEncoded.updatedAt);
+  encode: Effect.fn(function* (twoFactorEncoded, _options, _ast) {
+    // Convert back to BetterAuthTwoFactor's format
+    const createdAt = toDate(twoFactorEncoded.createdAt);
+    const updatedAt = toDate(twoFactorEncoded.updatedAt);
 
-      // id might be undefined in the encoded form (has default), handle that
-      const id = twoFactorEncoded.id ?? IamEntityIds.TwoFactorId.create();
+    // id might be undefined in the encoded form (has default), handle that
+    const id = twoFactorEncoded.id ?? IamEntityIds.TwoFactorId.create();
 
-      // Return BetterAuthTwoFactor Type form (plain object matching the struct)
-      // Include all fields that might have been set, so they round-trip correctly
-      // Note: secret, backupCodes, userId go into Record extension portion
-      const betterAuthTwoFactor: BetterAuthTwoFactor = {
-        id,
-        createdAt,
-        updatedAt,
-        // Sensitive fields (go into Record extension)
-        // M.Sensitive Type form may be Redacted - if so, would need Redacted.value()
-        // For now, assuming encoded form is plain string
-        secret: twoFactorEncoded.secret,
-        backupCodes: twoFactorEncoded.backupCodes,
-        userId: twoFactorEncoded.userId,
-        // Include required fields for proper round-trip
-        _rowId: twoFactorEncoded._rowId,
-        version: twoFactorEncoded.version,
-        source: twoFactorEncoded.source ?? undefined,
-        deletedAt: twoFactorEncoded.deletedAt ? toDate(twoFactorEncoded.deletedAt) : undefined,
-        createdBy: twoFactorEncoded.createdBy ?? undefined,
-        updatedBy: twoFactorEncoded.updatedBy ?? undefined,
-        deletedBy: twoFactorEncoded.deletedBy ?? undefined,
-      };
+    // Return BetterAuthTwoFactor Type form (plain object matching the struct)
+    // Include all fields that might have been set, so they round-trip correctly
+    // Note: secret, backupCodes, userId go into Record extension portion
+    const betterAuthTwoFactor: BetterAuthTwoFactor = {
+      id,
+      createdAt,
+      updatedAt,
+      // Sensitive fields (go into Record extension)
+      // M.Sensitive Type form may be Redacted - if so, would need Redacted.value()
+      // For now, assuming encoded form is plain string
+      secret: twoFactorEncoded.secret,
+      backupCodes: twoFactorEncoded.backupCodes,
+      userId: twoFactorEncoded.userId,
+      // Include required fields for proper round-trip
+      _rowId: twoFactorEncoded._rowId,
+      version: twoFactorEncoded.version,
+      source: twoFactorEncoded.source ?? undefined,
+      deletedAt: twoFactorEncoded.deletedAt ? toDate(twoFactorEncoded.deletedAt) : undefined,
+      createdBy: twoFactorEncoded.createdBy ?? undefined,
+      updatedBy: twoFactorEncoded.updatedBy ?? undefined,
+      deletedBy: twoFactorEncoded.deletedBy ?? undefined,
+    };
 
-      return betterAuthTwoFactor;
-    }),
+    return betterAuthTwoFactor;
+  }),
 }).annotations(
   $I.annotations("DomainTwoFactorFromBetterAuthTwoFactor", {
     description:

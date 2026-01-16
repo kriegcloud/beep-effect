@@ -13,6 +13,7 @@
  */
 
 import { $SchemaId } from "@beep/identity/packages";
+import { invariant } from "@beep/invariant";
 import type { StringTypes } from "@beep/types";
 import * as A from "effect/Array";
 import type * as B from "effect/Brand";
@@ -106,6 +107,16 @@ export class URLPath extends S.TemplateLiteral("/", S.String)
   ) {
   /** Determines whether the provided input is a branded URL path. */
   static readonly is = S.is(URLPath);
+
+  static override readonly make = (path: string): URLPath.Type => {
+    invariant(Str.startsWith("/")(path), "URLPath must start with `/`", {
+      file: "@beep/schema/primitives/url/urlpath.ts",
+      line: 112,
+      args: [path],
+    });
+
+    return path as URLPath.Type;
+  };
 }
 
 /**

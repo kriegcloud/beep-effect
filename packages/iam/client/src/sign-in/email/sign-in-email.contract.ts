@@ -13,17 +13,20 @@ export class Payload extends S.Class<Payload>($I`Payload`)(
     callbackURL: Common.CallbackURL,
   },
   // Default form values use Encoded types (plain strings for Redacted fields, etc.)
-  Common.withFormAnnotations(
+  [
     $I.annotations("Payload", {
       description: "The payload for signing in with an email and password.",
     }),
     {
+      [BS.DefaultFormValuesAnnotationId]: {
       email: "",
       password: "",
       rememberMe: true,
       callbackURL: "/",
+    },
+      undefined
     }
-  )
+  ],
 ) {}
 
 export class Success extends S.Class<Success>($I`Success`)(

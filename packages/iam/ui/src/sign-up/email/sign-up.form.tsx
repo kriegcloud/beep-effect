@@ -8,16 +8,19 @@ import CircularProgress from "@mui/material/CircularProgress";
 import * as Redacted from "effect/Redacted";
 import { Suspense } from "react";
 import { useSignUp } from "./sign-up-email.atoms.ts";
+
 export const SignUpEmailForm = () => {
   const { executeCaptcha, isReady } = useCaptchaAtom();
   const signUp = useSignUp();
   const form = useAppForm(
     formOptionsWithDefaults({
-      schema: SignUp.Email.Payload,
-      onSubmit: async (value) => {
+      // Use PayloadFrom directly for form binding (has firstName/lastName fields)
+      // The handler internally encodes via Payload transform (computes `name` from parts)
+      schema: SignUp.Email.PayloadFrom,
+      onSubmit: async (payload) => {
         const captchaResponse = await executeCaptcha(paths.auth.signIn);
         await signUp.email({
-          payload: value,
+          payload,
           fetchOptions: {
             headers: {
               "x-captcha-response": Redacted.value(captchaResponse),

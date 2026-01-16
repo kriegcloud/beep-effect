@@ -106,33 +106,53 @@ Phase 7 (Migration) ← depends on all above
 
 ### Phase 4: Relations
 
-**Status**: Not started
+**Status**: COMPLETE (2026-01-15)
 
-**Learnings**: (To be filled during execution)
+**Learnings**:
+- Relations defined in `packages/iam/tables/src/relations.ts` for all 4 OAuth entities
+- Client-to-token relationships properly cascade on delete
+- Consent uses composite unique constraint (client_id, user_id)
 
 ---
 
 ### Phase 5: Type Checks
 
-**Status**: Not started
+**Status**: COMPLETE (2026-01-15)
 
-**Learnings**: (To be filled during execution)
+**Learnings**:
+- Updated `packages/iam/tables/src/_check.ts` with type alignment assertions
+- All 4 OAuth tables pass type verification against domain models
 
 ---
 
 ### Phase 6: Admin DB
 
-**Status**: Not started
+**Status**: COMPLETE (2026-01-15)
 
-**Learnings**: (To be filled during execution)
+**Learnings**:
+- Updated `packages/_internal/db-admin/src/relations.ts` with OAuth entity relations
+- Updated `packages/_internal/db-admin/src/slice-relations.ts` with IAM slice exports
 
 ---
 
 ### Phase 7: Migration
 
-**Status**: Not started
+**Status**: COMPLETE (2026-01-15)
 
-**Learnings**: (To be filled during execution)
+**Learnings**:
+- `bun run db:generate` created migration file `0000_chilly_energizer.sql`
+- Migration includes all 35 tables (not just OAuth - full schema regeneration)
+- Database push with `drizzle-kit push --force` required for existing databases
+- All 4 OAuth tables created successfully:
+  - `iam_oauth_client` (35 columns, 2 indexes, 1 FK)
+  - `iam_oauth_access_token` (18 columns, 3 indexes, 4 FKs)
+  - `iam_oauth_refresh_token` (18 columns, 3 indexes, 3 FKs)
+  - `iam_oauth_consent` (14 columns, 3 indexes, 2 FKs)
+
+**Final Verification Results**:
+- `bun run build`: 52/52 successful
+- `bun run lint`: 102/102 successful
+- `bun run check`: 94/94 successful
 
 ---
 
@@ -168,3 +188,36 @@ Verification commands now explain that failures may come from upstream phases, w
 
 ### 4. Insertion Order Guidance
 Added explicit "append after last entry" guidance to prevent inconsistent placement.
+
+---
+
+## Final Summary (2026-01-15)
+
+### Spec Completion
+
+All 7 phases completed successfully:
+
+| Phase | Description | Status |
+|-------|-------------|--------|
+| 1 | Entity IDs in `@beep/shared-domain` | COMPLETE |
+| 2 | Domain Models in `@beep/iam-domain` | COMPLETE |
+| 3 | Tables in `@beep/iam-tables` | COMPLETE |
+| 4 | Relations definitions | COMPLETE |
+| 5 | Type check alignment | COMPLETE |
+| 6 | Admin DB updates | COMPLETE |
+| 7 | Migration generation & application | COMPLETE |
+
+### Key Deliverables
+
+- 4 new Entity IDs: `OAuthClientId`, `OAuthAccessTokenId`, `OAuthRefreshTokenId`, `OAuthConsentId`
+- 4 new Domain Models with proper sensitive field handling
+- 4 new Database Tables with indexes and foreign keys
+- Complete relation definitions for all OAuth entities
+- Database schema synchronized and verified
+
+### Recommendations for Future Similar Specs
+
+1. **Use `drizzle-kit push --force`** for development databases that already have existing tables
+2. **Pre-flight checks are essential** - always verify prerequisite phases before starting
+3. **Sensitive field consistency** - mark ALL credential fields (tokens, secrets) with sensitive wrappers
+4. **Cross-phase verification** - understand that turborepo cascades through dependencies

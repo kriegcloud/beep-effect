@@ -11,6 +11,8 @@
 ```
 Research the Better Auth client configuration and available methods.
 
+**CRITICAL**: Better Auth source code is cloned to `tmp/better-auth/`. This is the authoritative source for all method signatures and response shapes.
+
 Target: packages/iam/client/src/adapters/better-auth/client.ts
 
 Tasks:
@@ -18,12 +20,25 @@ Tasks:
 2. For each plugin, catalog available methods with their signatures
 3. Identify core auth methods (not from plugins) that are available
 4. Check for: forgetPassword, resetPassword, changePassword, sendVerificationEmail, verifyEmail
-5. Document response types for each method
+5. **MANDATORY**: Verify response types from Better Auth source code (NOT assumptions)
+
+Better Auth Source Reference:
+- Response shapes: `tmp/better-auth/packages/better-auth/src/api/routes/{domain}.ts`
+- Usage examples: `tmp/better-auth/packages/better-auth/src/client/{domain}.test.ts`
+- Method signatures: `tmp/better-auth/packages/better-auth/src/client/index.ts`
+
+Verification Process for Each Method:
+1. Locate route implementation in `src/api/routes/{domain}.ts`
+2. Extract exact response shape from `ctx.json()` calls
+3. Cross-reference with test assertions in `src/client/{domain}.test.ts`
+4. Document ALL fields (don't omit `message`, `token`, nested objects)
+5. Note `null` vs `undefined` distinctions
 
 Output: A comprehensive method inventory including:
 - Method name and namespace (e.g., client.multiSession.listDeviceSessions)
 - Parameter types
-- Return type structure ({ data, error } shape)
+- **Verified response shape from Better Auth source** (with source file reference)
+- Whether response uses `null` or `undefined` for optional fields
 - Whether it mutates session state
 
 Focus on methods listed in the handoff:
@@ -31,6 +46,10 @@ Focus on methods listed in the handoff:
 - Two-factor: getTOTPURI, enable, disable, verifyTOTP, generateBackupCodes, verifyBackupCode
 - Organization: create, update, delete, list, setActive, member operations
 - Team: create, update, delete, list, member operations
+
+**CamelCase Path Conversion**: Note that endpoint paths become camelCase client method names:
+- `/request-password-reset` → `client.requestPasswordReset()`
+- `/verify-email` → `client.verifyEmail()`
 ```
 
 ---
@@ -98,8 +117,23 @@ Pattern decision matrix:
 ```
 Create contract schemas for [METHOD_NAME] in [FEATURE] domain.
 
+**MANDATORY**: Verify response shapes from Better Auth source code BEFORE creating schemas.
+
+Better Auth Source Reference:
+- Response shape: `tmp/better-auth/packages/better-auth/src/api/routes/{domain}.ts`
+- Test examples: `tmp/better-auth/packages/better-auth/src/client/{domain}.test.ts`
+
+Verification Steps:
+1. Locate route implementation in `src/api/routes/{domain}.ts`
+2. Find the `ctx.json()` call that returns the response
+3. Extract exact response shape (include ALL fields)
+4. Cross-reference with test assertions in `src/client/{domain}.test.ts`
+
 Better Auth method signature:
 [PASTE METHOD SIGNATURE FROM INVENTORY]
+
+**Verified Response Shape** (from source):
+[PASTE EXACT RESPONSE SHAPE FROM BETTER AUTH SOURCE]
 
 Create Payload schema:
 - Mirror the parameter types from Better Auth
@@ -108,8 +142,10 @@ Create Payload schema:
 - Use S.UUID for ID fields
 
 Create Success schema:
-- Mirror the response.data structure
-- Use appropriate Effect Schema types
+- **Use the VERIFIED response shape from Better Auth source** (NOT assumptions)
+- Include ALL fields (don't omit `message`, `token`, nested objects)
+- Use `S.NullOr()` for fields that can be `null`
+- Use `S.optional()` for fields that can be `undefined`
 - Handle nested objects with S.Struct
 - Handle arrays with S.Array
 
@@ -129,9 +165,11 @@ export class Payload extends S.Class<Payload>("Payload")({
   field2: S.optional(S.String),
 }) {}
 
+// Success schema MUST match verified response shape from Better Auth source
 export class Success extends S.Class<Success>("Success")({
-  id: S.UUID,
-  status: S.Literal("success"),
+  status: S.Boolean,
+  message: S.String,  // Don't omit fields present in actual response
+  token: S.NullOr(S.String),  // Use NullOr for nullable fields
 }) {}
 ```
 ```

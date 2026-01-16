@@ -1,9 +1,6 @@
+import { createHandler } from "@beep/iam-client/_common";
 import { client } from "@beep/iam-client/adapters";
-import * as Effect from "effect/Effect";
-import * as S from "effect/Schema";
-import { IamError } from "../../_common/errors.ts";
 import * as Contract from "./get-session.contract.ts";
-
 /**
  * Handler for getting the current session.
  *
@@ -17,11 +14,10 @@ import * as Contract from "./get-session.contract.ts";
  * - Does NOT notify $sessionSignal (read-only operation)
  * - Uses consistent span naming: "core/get-session/handler"
  */
-export const Handler = Effect.fn("core/get-session/handler")(function* () {
-  const response = yield* Effect.tryPromise({
-    try: () => client.getSession(),
-    catch: IamError.fromUnknown,
-  });
-
-  return yield* S.decodeUnknown(Contract.Success)(response);
+export const Handler = createHandler({
+  domain: "core",
+  feature: "get-session",
+  execute: () => client.getSession(),
+  successSchema: Contract.Success,
+  mutatesSession: false,
 });

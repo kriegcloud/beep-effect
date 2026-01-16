@@ -83,97 +83,94 @@ export const DomainVerificationFromBetterAuthVerification = S.transformOrFail(
   Verification.Model,
   {
     strict: true,
-    decode: (betterAuthVerification, _options, ast) =>
-      Effect.gen(function* () {
-        // Validate the verification ID format
-        const isValidVerificationId = IamEntityIds.VerificationId.is(betterAuthVerification.id);
-        if (!isValidVerificationId) {
-          return yield* ParseResult.fail(
-            new ParseResult.Type(
-              ast,
-              betterAuthVerification.id,
-              `Invalid verification ID format: expected "iam_verification__<uuid>", got "${betterAuthVerification.id}"`
-            )
-          );
-        }
+    decode: Effect.fn(function* (betterAuthVerification, _options, ast) {
+      // Validate the verification ID format
+      const isValidVerificationId = IamEntityIds.VerificationId.is(betterAuthVerification.id);
+      if (!isValidVerificationId) {
+        return yield* ParseResult.fail(
+          new ParseResult.Type(
+            ast,
+            betterAuthVerification.id,
+            `Invalid verification ID format: expected "iam_verification__<uuid>", got "${betterAuthVerification.id}"`
+          )
+        );
+      }
 
-        // =======================================================================
-        // REQUIRED FIELDS - Must be present in Better Auth response
-        // These use require* helpers that FAIL if the field is missing
-        // =======================================================================
+      // =======================================================================
+      // REQUIRED FIELDS - Must be present in Better Auth response
+      // These use require* helpers that FAIL if the field is missing
+      // =======================================================================
 
-        const _rowId = yield* requireNumber(betterAuthVerification, "_rowId", ast);
-        const version = yield* requireNumber(betterAuthVerification, "version", ast);
-        const source = yield* requireString(betterAuthVerification, "source", ast);
-        const deletedAt = yield* requireDate(betterAuthVerification, "deletedAt", ast);
-        const createdBy = yield* requireString(betterAuthVerification, "createdBy", ast);
-        const updatedBy = yield* requireString(betterAuthVerification, "updatedBy", ast);
-        const deletedBy = yield* requireString(betterAuthVerification, "deletedBy", ast);
+      const _rowId = yield* requireNumber(betterAuthVerification, "_rowId", ast);
+      const version = yield* requireNumber(betterAuthVerification, "version", ast);
+      const source = yield* requireString(betterAuthVerification, "source", ast);
+      const deletedAt = yield* requireDate(betterAuthVerification, "deletedAt", ast);
+      const createdBy = yield* requireString(betterAuthVerification, "createdBy", ast);
+      const updatedBy = yield* requireString(betterAuthVerification, "updatedBy", ast);
+      const deletedBy = yield* requireString(betterAuthVerification, "deletedBy", ast);
 
-        // Construct the encoded form of Verification.Model
-        // Type annotation ensures proper typing without type assertions
-        // The schema framework will decode this to Verification.Model.Type
-        const encodedVerification: VerificationModelEncoded = {
-          // Core identity fields
-          id: betterAuthVerification.id,
-          _rowId,
-          version,
+      // Construct the encoded form of Verification.Model
+      // Type annotation ensures proper typing without type assertions
+      // The schema framework will decode this to Verification.Model.Type
+      const encodedVerification: VerificationModelEncoded = {
+        // Core identity fields
+        id: betterAuthVerification.id,
+        _rowId,
+        version,
 
-          // Timestamp fields - Date passed to schema, will be converted to DateTime.Utc
-          createdAt: betterAuthVerification.createdAt,
-          updatedAt: betterAuthVerification.updatedAt,
+        // Timestamp fields - Date passed to schema, will be converted to DateTime.Utc
+        createdAt: betterAuthVerification.createdAt,
+        updatedAt: betterAuthVerification.updatedAt,
 
-          // Verification-specific fields
-          identifier: betterAuthVerification.identifier,
-          value: betterAuthVerification.value,
+        // Verification-specific fields
+        identifier: betterAuthVerification.identifier,
+        value: betterAuthVerification.value,
 
-          // expiresAt is FieldOptionOmittable so it expects null | Date
-          expiresAt: betterAuthVerification.expiresAt ?? null,
+        // expiresAt is FieldOptionOmittable so it expects null | Date
+        expiresAt: betterAuthVerification.expiresAt ?? null,
 
-          // Audit fields - required, validated above
-          source,
-          deletedAt,
-          createdBy,
-          updatedBy,
-          deletedBy,
-        };
+        // Audit fields - required, validated above
+        source,
+        deletedAt,
+        createdBy,
+        updatedBy,
+        deletedBy,
+      };
 
-        return encodedVerification;
-      }),
+      return encodedVerification;
+    }),
+    encode: Effect.fn(function* (verificationEncoded, _options, _ast) {
+      // Convert back to BetterAuthVerification's format
+      const createdAt = toDate(verificationEncoded.createdAt);
+      const updatedAt = toDate(verificationEncoded.updatedAt);
 
-    encode: (verificationEncoded, _options, _ast) =>
-      Effect.gen(function* () {
-        // Convert back to BetterAuthVerification's format
-        const createdAt = toDate(verificationEncoded.createdAt);
-        const updatedAt = toDate(verificationEncoded.updatedAt);
+      // id might be undefined in the encoded form (has default), handle that
+      const id = verificationEncoded.id ?? IamEntityIds.VerificationId.create();
 
-        // id might be undefined in the encoded form (has default), handle that
-        const id = verificationEncoded.id ?? IamEntityIds.VerificationId.create();
+      // expiresAt may be null/undefined - convert to Date if present
+      const expiresAt = verificationEncoded.expiresAt ? toDate(verificationEncoded.expiresAt) : undefined;
 
-        // expiresAt may be null/undefined - convert to Date if present
-        const expiresAt = verificationEncoded.expiresAt ? toDate(verificationEncoded.expiresAt) : undefined;
+      // Return BetterAuthVerification Type form (plain object matching the struct)
+      // Include all fields that might have been set, so they round-trip correctly
+      const betterAuthVerification: BetterAuthVerification = {
+        id,
+        createdAt,
+        updatedAt,
+        identifier: verificationEncoded.identifier,
+        value: verificationEncoded.value,
+        expiresAt,
+        // Include required fields for proper round-trip
+        _rowId: verificationEncoded._rowId,
+        version: verificationEncoded.version,
+        source: verificationEncoded.source ?? undefined,
+        deletedAt: verificationEncoded.deletedAt ? toDate(verificationEncoded.deletedAt) : undefined,
+        createdBy: verificationEncoded.createdBy ?? undefined,
+        updatedBy: verificationEncoded.updatedBy ?? undefined,
+        deletedBy: verificationEncoded.deletedBy ?? undefined,
+      };
 
-        // Return BetterAuthVerification Type form (plain object matching the struct)
-        // Include all fields that might have been set, so they round-trip correctly
-        const betterAuthVerification: BetterAuthVerification = {
-          id,
-          createdAt,
-          updatedAt,
-          identifier: verificationEncoded.identifier,
-          value: verificationEncoded.value,
-          expiresAt,
-          // Include required fields for proper round-trip
-          _rowId: verificationEncoded._rowId,
-          version: verificationEncoded.version,
-          source: verificationEncoded.source ?? undefined,
-          deletedAt: verificationEncoded.deletedAt ? toDate(verificationEncoded.deletedAt) : undefined,
-          createdBy: verificationEncoded.createdBy ?? undefined,
-          updatedBy: verificationEncoded.updatedBy ?? undefined,
-          deletedBy: verificationEncoded.deletedBy ?? undefined,
-        };
-
-        return betterAuthVerification;
-      }),
+      return betterAuthVerification;
+    }),
   }
 ).annotations(
   $I.annotations("DomainVerificationFromBetterAuthVerification", {

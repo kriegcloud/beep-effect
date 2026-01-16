@@ -22,11 +22,12 @@ import {
   organizationClient,
   phoneNumberClient,
   siweClient,
+  twoFactorClient,
   usernameClient,
 } from "better-auth/client/plugins";
 import { createAuthClient } from "better-auth/react";
 import * as Duration from "effect/Duration";
-import * as P from "effect/Predicate";
+
 export const client = createAuthClient({
   baseURL: clientEnv.authUrl,
   basePath: clientEnv.authPath,
@@ -61,6 +62,7 @@ export const client = createAuthClient({
     phoneNumberClient(),
     siweClient(),
     ssoClient(),
+    twoFactorClient(),
     usernameClient(),
     stripeClient({
       subscription: true,
@@ -73,5 +75,3 @@ export const client = createAuthClient({
 export const { $store, signIn, signUp } = client;
 
 $store.listen("$sessionSignal", asyncNoOp);
-
-export const isClientMethodKey = (u: unknown): u is keyof typeof client.signIn => P.isString(u);

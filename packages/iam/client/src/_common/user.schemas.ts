@@ -79,156 +79,154 @@ type UserModelEncoded = S.Schema.Encoded<typeof User.Model>;
  */
 export const DomainUserFromBetterAuthUser = S.transformOrFail(BetterAuthUserSchema, User.Model, {
   strict: true,
-  decode: (betterAuthUser, _options, ast) =>
-    Effect.gen(function* () {
-      // Validate the ID format - Better Auth IDs should already be in shared_user__${uuid} format
-      // since the database generates them via EntityId.publicId()
-      const isValidId = SharedEntityIds.UserId.is(betterAuthUser.id);
-      if (!isValidId) {
-        return yield* ParseResult.fail(
-          new ParseResult.Type(
-            ast,
-            betterAuthUser.id,
-            `Invalid user ID format: expected "shared_user__<uuid>", got "${betterAuthUser.id}"`
-          )
-        );
-      }
+  decode: Effect.fn(function* (betterAuthUser, _options, ast) {
+    // Validate the ID format - Better Auth IDs should already be in shared_user__${uuid} format
+    // since the database generates them via EntityId.publicId()
+    const isValidId = SharedEntityIds.UserId.is(betterAuthUser.id);
+    if (!isValidId) {
+      return yield* ParseResult.fail(
+        new ParseResult.Type(
+          ast,
+          betterAuthUser.id,
+          `Invalid user ID format: expected "shared_user__<uuid>", got "${betterAuthUser.id}"`
+        )
+      );
+    }
 
-      // Validate name is non-empty
-      if (betterAuthUser.name.length === 0) {
-        return yield* ParseResult.fail(new ParseResult.Type(ast, betterAuthUser.name, "User name cannot be empty"));
-      }
+    // Validate name is non-empty
+    if (betterAuthUser.name.length === 0) {
+      return yield* ParseResult.fail(new ParseResult.Type(ast, betterAuthUser.name, "User name cannot be empty"));
+    }
 
-      // =======================================================================
-      // REQUIRED FIELDS - Must be present in Better Auth response
-      // These use require* helpers that FAIL if the field is missing
-      // =======================================================================
+    // =======================================================================
+    // REQUIRED FIELDS - Must be present in Better Auth response
+    // These use require* helpers that FAIL if the field is missing
+    // =======================================================================
 
-      // Core audit/tracking fields
-      const _rowId = yield* requireNumber(betterAuthUser, "_rowId", ast);
-      const version = yield* requireNumber(betterAuthUser, "version", ast);
-      const source = yield* requireString(betterAuthUser, "source", ast);
-      const deletedAt = yield* requireDate(betterAuthUser, "deletedAt", ast);
-      const createdBy = yield* requireString(betterAuthUser, "createdBy", ast);
-      const updatedBy = yield* requireString(betterAuthUser, "updatedBy", ast);
-      const deletedBy = yield* requireString(betterAuthUser, "deletedBy", ast);
+    // Core audit/tracking fields
+    const _rowId = yield* requireNumber(betterAuthUser, "_rowId", ast);
+    const version = yield* requireNumber(betterAuthUser, "version", ast);
+    const source = yield* requireString(betterAuthUser, "source", ast);
+    const deletedAt = yield* requireDate(betterAuthUser, "deletedAt", ast);
+    const createdBy = yield* requireString(betterAuthUser, "createdBy", ast);
+    const updatedBy = yield* requireString(betterAuthUser, "updatedBy", ast);
+    const deletedBy = yield* requireString(betterAuthUser, "deletedBy", ast);
 
-      // Domain-specific fields - must be present via Better Auth plugins
-      const uploadLimit = yield* requireNumber(betterAuthUser, "uploadLimit", ast);
-      const roleValue = yield* requireField(betterAuthUser, "role", ast);
-      // Validate role is a valid UserRole value before using
-      if (!S.is(User.UserRole)(roleValue)) {
-        return yield* ParseResult.fail(
-          new ParseResult.Type(
-            ast,
-            roleValue,
-            `Invalid role value: expected "admin" or "user", got "${String(roleValue)}"`
-          )
-        );
-      }
-      const role = roleValue;
-      const banned = yield* requireBoolean(betterAuthUser, "banned", ast);
-      const banReason = yield* requireString(betterAuthUser, "banReason", ast);
-      const banExpires = yield* requireDate(betterAuthUser, "banExpires", ast);
-      const isAnonymous = yield* requireBoolean(betterAuthUser, "isAnonymous", ast);
-      const phoneNumber = yield* requireString(betterAuthUser, "phoneNumber", ast);
-      const phoneNumberVerified = yield* requireBoolean(betterAuthUser, "phoneNumberVerified", ast);
-      const twoFactorEnabled = yield* requireBoolean(betterAuthUser, "twoFactorEnabled", ast);
-      const username = yield* requireString(betterAuthUser, "username", ast);
-      const displayUsername = yield* requireString(betterAuthUser, "displayUsername", ast);
-      const stripeCustomerId = yield* requireString(betterAuthUser, "stripeCustomerId", ast);
-      const lastLoginMethod = yield* requireString(betterAuthUser, "lastLoginMethod", ast);
+    // Domain-specific fields - must be present via Better Auth plugins
+    const uploadLimit = yield* requireNumber(betterAuthUser, "uploadLimit", ast);
+    const roleValue = yield* requireField(betterAuthUser, "role", ast);
+    // Validate role is a valid UserRole value before using
+    if (!S.is(User.UserRole)(roleValue)) {
+      return yield* ParseResult.fail(
+        new ParseResult.Type(
+          ast,
+          roleValue,
+          `Invalid role value: expected "admin" or "user", got "${String(roleValue)}"`
+        )
+      );
+    }
+    const role = roleValue;
+    const banned = yield* requireBoolean(betterAuthUser, "banned", ast);
+    const banReason = yield* requireString(betterAuthUser, "banReason", ast);
+    const banExpires = yield* requireDate(betterAuthUser, "banExpires", ast);
+    const isAnonymous = yield* requireBoolean(betterAuthUser, "isAnonymous", ast);
+    const phoneNumber = yield* requireString(betterAuthUser, "phoneNumber", ast);
+    const phoneNumberVerified = yield* requireBoolean(betterAuthUser, "phoneNumberVerified", ast);
+    const twoFactorEnabled = yield* requireBoolean(betterAuthUser, "twoFactorEnabled", ast);
+    const username = yield* requireString(betterAuthUser, "username", ast);
+    const displayUsername = yield* requireString(betterAuthUser, "displayUsername", ast);
+    const stripeCustomerId = yield* requireString(betterAuthUser, "stripeCustomerId", ast);
+    const lastLoginMethod = yield* requireString(betterAuthUser, "lastLoginMethod", ast);
 
-      // Construct the encoded form of User.Model
-      // Type annotation ensures proper typing without type assertions
-      // The schema framework will decode this to User.Model.Type
-      const encodedUser: UserModelEncoded = {
-        // Core identity fields
-        id: betterAuthUser.id,
-        _rowId,
-        version,
+    // Construct the encoded form of User.Model
+    // Type annotation ensures proper typing without type assertions
+    // The schema framework will decode this to User.Model.Type
+    const encodedUser: UserModelEncoded = {
+      // Core identity fields
+      id: betterAuthUser.id,
+      _rowId,
+      version,
 
-        // Timestamp fields - Date passed to schema, will be converted to DateTime.Utc
-        createdAt: betterAuthUser.createdAt,
-        updatedAt: betterAuthUser.updatedAt,
+      // Timestamp fields - Date passed to schema, will be converted to DateTime.Utc
+      createdAt: betterAuthUser.createdAt,
+      updatedAt: betterAuthUser.updatedAt,
 
-        // User data from Better Auth
-        name: betterAuthUser.name,
-        email: betterAuthUser.email,
-        emailVerified: betterAuthUser.emailVerified,
-        image: betterAuthUser.image ?? null,
+      // User data from Better Auth
+      name: betterAuthUser.name,
+      email: betterAuthUser.email,
+      emailVerified: betterAuthUser.emailVerified,
+      image: betterAuthUser.image ?? null,
 
-        // Audit tracking fields - required, validated above
-        source,
-        deletedAt,
-        createdBy,
-        updatedBy,
-        deletedBy,
+      // Audit tracking fields - required, validated above
+      source,
+      deletedAt,
+      createdBy,
+      updatedBy,
+      deletedBy,
 
-        // Domain-specific fields - required, validated above
-        uploadLimit,
-        role,
-        banned,
-        banReason,
-        banExpires,
-        isAnonymous,
-        phoneNumber,
-        phoneNumberVerified,
-        twoFactorEnabled,
-        username,
-        displayUsername,
-        stripeCustomerId,
-        lastLoginMethod,
-      };
+      // Domain-specific fields - required, validated above
+      uploadLimit,
+      role,
+      banned,
+      banReason,
+      banExpires,
+      isAnonymous,
+      phoneNumber,
+      phoneNumberVerified,
+      twoFactorEnabled,
+      username,
+      displayUsername,
+      stripeCustomerId,
+      lastLoginMethod,
+    };
 
-      return encodedUser;
-    }),
+    return encodedUser;
+  }),
 
-  encode: (userEncoded, _options, _ast) =>
-    Effect.gen(function* () {
-      // Convert back to BetterAuthUser's format
-      const createdAt = toDate(userEncoded.createdAt);
-      const updatedAt = toDate(userEncoded.updatedAt);
+  encode: Effect.fn(function* (userEncoded, _options, _ast) {
+    // Convert back to BetterAuthUser's format
+    const createdAt = toDate(userEncoded.createdAt);
+    const updatedAt = toDate(userEncoded.updatedAt);
 
-      // id might be undefined in the encoded form (has default), handle that
-      const id = userEncoded.id ?? SharedEntityIds.UserId.create();
+    // id might be undefined in the encoded form (has default), handle that
+    const id = userEncoded.id ?? SharedEntityIds.UserId.create();
 
-      // Return BetterAuthUser Type form (plain object matching the struct)
-      // Include all fields that might have been set, so they round-trip correctly
-      const betterAuthUser: BetterAuthUser = {
-        id,
-        createdAt,
-        updatedAt,
-        email: userEncoded.email,
-        emailVerified: userEncoded.emailVerified ?? false,
-        name: userEncoded.name,
-        // Convert null to undefined for BetterAuthUser's optional image field
-        image: userEncoded.image ?? undefined,
-        // Include required fields for proper round-trip
-        _rowId: userEncoded._rowId,
-        version: userEncoded.version,
-        source: userEncoded.source ?? undefined,
-        deletedAt: userEncoded.deletedAt ? toDate(userEncoded.deletedAt) : undefined,
-        createdBy: userEncoded.createdBy ?? undefined,
-        updatedBy: userEncoded.updatedBy ?? undefined,
-        deletedBy: userEncoded.deletedBy ?? undefined,
-        uploadLimit: userEncoded.uploadLimit,
-        role: userEncoded.role,
-        banned: userEncoded.banned,
-        banReason: userEncoded.banReason ?? undefined,
-        banExpires: userEncoded.banExpires ? toDate(userEncoded.banExpires) : undefined,
-        isAnonymous: userEncoded.isAnonymous,
-        phoneNumber: userEncoded.phoneNumber ?? undefined,
-        phoneNumberVerified: userEncoded.phoneNumberVerified,
-        twoFactorEnabled: userEncoded.twoFactorEnabled,
-        username: userEncoded.username ?? undefined,
-        displayUsername: userEncoded.displayUsername ?? undefined,
-        stripeCustomerId: userEncoded.stripeCustomerId ?? undefined,
-        lastLoginMethod: userEncoded.lastLoginMethod ?? undefined,
-      };
+    // Return BetterAuthUser Type form (plain object matching the struct)
+    // Include all fields that might have been set, so they round-trip correctly
+    const betterAuthUser: BetterAuthUser = {
+      id,
+      createdAt,
+      updatedAt,
+      email: userEncoded.email,
+      emailVerified: userEncoded.emailVerified ?? false,
+      name: userEncoded.name,
+      // Convert null to undefined for BetterAuthUser's optional image field
+      image: userEncoded.image ?? undefined,
+      // Include required fields for proper round-trip
+      _rowId: userEncoded._rowId,
+      version: userEncoded.version,
+      source: userEncoded.source ?? undefined,
+      deletedAt: userEncoded.deletedAt ? toDate(userEncoded.deletedAt) : undefined,
+      createdBy: userEncoded.createdBy ?? undefined,
+      updatedBy: userEncoded.updatedBy ?? undefined,
+      deletedBy: userEncoded.deletedBy ?? undefined,
+      uploadLimit: userEncoded.uploadLimit,
+      role: userEncoded.role,
+      banned: userEncoded.banned,
+      banReason: userEncoded.banReason ?? undefined,
+      banExpires: userEncoded.banExpires ? toDate(userEncoded.banExpires) : undefined,
+      isAnonymous: userEncoded.isAnonymous,
+      phoneNumber: userEncoded.phoneNumber ?? undefined,
+      phoneNumberVerified: userEncoded.phoneNumberVerified,
+      twoFactorEnabled: userEncoded.twoFactorEnabled,
+      username: userEncoded.username ?? undefined,
+      displayUsername: userEncoded.displayUsername ?? undefined,
+      stripeCustomerId: userEncoded.stripeCustomerId ?? undefined,
+      lastLoginMethod: userEncoded.lastLoginMethod ?? undefined,
+    };
 
-      return betterAuthUser;
-    }),
+    return betterAuthUser;
+  }),
 }).annotations(
   $I.annotations("DomainUserFromBetterAuthUser", {
     description:

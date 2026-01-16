@@ -1,6 +1,8 @@
+import { $IamClientId } from "@beep/identity/packages";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 
+const $I = $IamClientId.create("_common/schema.helpers");
 // ============================================================================
 // Better Auth Response Utilities
 // ============================================================================
@@ -8,13 +10,16 @@ import * as S from "effect/Schema";
 /**
  * Schema for Better Auth error responses
  */
-export const BetterAuthErrorSchema = S.Struct({
-  message: S.optional(S.String),
-  code: S.optional(S.String),
-  status: S.optional(S.Number),
-});
-
-export type BetterAuthErrorShape = S.Schema.Type<typeof BetterAuthErrorSchema>;
+export class BetterAuthErrorSchema extends S.Class<BetterAuthErrorSchema>($I`BetterAuthErrorSchema`)(
+  {
+    message: S.optional(S.String),
+    code: S.optional(S.String),
+    status: S.optional(S.Number),
+  },
+  $I.annotations("BetterAuthError", {
+    description: "An error from the BetterAuth library",
+  })
+) {}
 
 /**
  * Extracts an error message from a Better Auth error object.

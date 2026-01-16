@@ -43,14 +43,31 @@ export const isNonEmptyReadonlyArrayOfGuard =
  *
  * Combines Effect Array's drop and take operations.
  *
- * @param start - Start index (inclusive)
- * @param end - End index (exclusive)
- * @returns Function that slices the array
+ * @example
+ * import { ArrayUtils } from "@beep/utils";
+ * import * as F from "effect/Function";
+ *
+ * // Data-last (pipeable)
+ * F.pipe([1, 2, 3, 4, 5], ArrayUtils.slice(1, 3)); // [2, 3]
+ * F.pipe([1, 2, 3, 4, 5], ArrayUtils.slice(1));    // [2, 3, 4, 5]
+ *
+ * // Data-first
+ * ArrayUtils.slice([1, 2, 3, 4, 5], 1, 3); // [2, 3]
+ * ArrayUtils.slice([1, 2, 3, 4, 5], 1);    // [2, 3, 4, 5]
  *
  * @category Helpers
  * @since 0.1.0
  */
-export const slice = (start: number, end: number) => F.flow(A.drop(start), A.take(end - start));
+export const slice: {
+  (start: number): <A>(self: ReadonlyArray<A>) => Array<A>;
+  (start: number, end: number): <A>(self: ReadonlyArray<A>) => Array<A>;
+  <A>(self: ReadonlyArray<A>, start: number): Array<A>;
+  <A>(self: ReadonlyArray<A>, start: number, end: number): Array<A>;
+} = F.dual(
+  (args: IArguments) => A.isArray(args[0]),
+  <A>(self: ReadonlyArray<A>, start: number, end?: number): Array<A> =>
+    end === undefined ? A.drop(self, start) : F.pipe(self, A.drop(start), A.take(end - start))
+);
 
 export const spliceRemove =
   (start: number, deleteCount: number) =>

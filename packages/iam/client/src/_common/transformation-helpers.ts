@@ -1,6 +1,6 @@
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
-import type * as ParseResult from "effect/ParseResult";
+import * as ParseResult from "effect/ParseResult";
 import * as P from "effect/Predicate";
 import type * as AST from "effect/SchemaAST";
 
@@ -9,24 +9,14 @@ import type * as AST from "effect/SchemaAST";
  * Used internally by require* helpers to construct proper parse failures.
  */
 const createMissingFieldIssue = (ast: AST.AST, obj: object, key: string): ParseResult.Type =>
-  ({
-    _tag: "Type",
-    ast,
-    actual: obj,
-    message: `Missing required field: "${key}"`,
-  }) as ParseResult.Type;
+  new ParseResult.Type(ast, obj, `Missing required field: "${key}"`);
 
 /**
  * Creates a ParseResult.Type issue for type mismatches.
  * Used internally by require* helpers to construct proper parse failures.
  */
 const createTypeIssue = (ast: AST.AST, actual: unknown, message: string): ParseResult.Type =>
-  ({
-    _tag: "Type",
-    ast,
-    actual,
-    message,
-  }) as ParseResult.Type;
+  new ParseResult.Type(ast, actual, message);
 
 /**
  * Converts various date representations to a JavaScript Date object.
@@ -87,18 +77,13 @@ export const requireField = <T extends object>(
  * @param ast - The AST node for proper error context
  * @returns Effect that succeeds with the number or fails with ParseResult.Type
  */
-export const requireNumber = <T extends object>(
-  obj: T,
-  key: string,
-  ast: AST.AST
-): Effect.Effect<number, ParseResult.Type> =>
-  Effect.gen(function* () {
-    const value = yield* requireField(obj, key, ast);
-    if (typeof value !== "number") {
-      return yield* Effect.fail(createTypeIssue(ast, value, `Field "${key}" must be a number, got ${typeof value}`));
-    }
-    return value;
-  });
+export const requireNumber = Effect.fn(function* <T extends object>(obj: T, key: string, ast: AST.AST) {
+  const value = yield* requireField(obj, key, ast);
+  if (typeof value !== "number") {
+    return yield* Effect.fail(createTypeIssue(ast, value, `Field "${key}" must be a number, got ${typeof value}`));
+  }
+  return value;
+});
 
 /**
  * Requires a string field to be present in the Better Auth object.
@@ -110,21 +95,16 @@ export const requireNumber = <T extends object>(
  * @param ast - The AST node for proper error context
  * @returns Effect that succeeds with string | null or fails with ParseResult.Type
  */
-export const requireString = <T extends object>(
-  obj: T,
-  key: string,
-  ast: AST.AST
-): Effect.Effect<string | null, ParseResult.Type> =>
-  Effect.gen(function* () {
-    const value = yield* requireField(obj, key, ast);
-    if (value === null || value === undefined) {
-      return null;
-    }
-    if (typeof value !== "string") {
-      return yield* Effect.fail(createTypeIssue(ast, value, `Field "${key}" must be a string, got ${typeof value}`));
-    }
-    return value;
-  });
+export const requireString = Effect.fn(function* <T extends object>(obj: T, key: string, ast: AST.AST) {
+  const value = yield* requireField(obj, key, ast);
+  if (value === null || value === undefined) {
+    return null;
+  }
+  if (typeof value !== "string") {
+    return yield* Effect.fail(createTypeIssue(ast, value, `Field "${key}" must be a string, got ${typeof value}`));
+  }
+  return value;
+});
 
 /**
  * Requires a Date field to be present in the Better Auth object.
@@ -137,28 +117,23 @@ export const requireString = <T extends object>(
  * @param ast - The AST node for proper error context
  * @returns Effect that succeeds with Date | null or fails with ParseResult.Type
  */
-export const requireDate = <T extends object>(
-  obj: T,
-  key: string,
-  ast: AST.AST
-): Effect.Effect<Date | null, ParseResult.Type> =>
-  Effect.gen(function* () {
-    const value = yield* requireField(obj, key, ast);
-    if (value === null || value === undefined) {
-      return null;
+export const requireDate = Effect.fn(function* <T extends object>(obj: T, key: string, ast: AST.AST) {
+  const value = yield* requireField(obj, key, ast);
+  if (value === null || value === undefined) {
+    return null;
+  }
+  if (value instanceof Date) {
+    return value;
+  }
+  if (typeof value === "string" || typeof value === "number") {
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) {
+      return yield* Effect.fail(createTypeIssue(ast, value, `Field "${key}" is not a valid date: ${value}`));
     }
-    if (value instanceof Date) {
-      return value;
-    }
-    if (typeof value === "string" || typeof value === "number") {
-      const date = new Date(value);
-      if (Number.isNaN(date.getTime())) {
-        return yield* Effect.fail(createTypeIssue(ast, value, `Field "${key}" is not a valid date: ${value}`));
-      }
-      return date;
-    }
-    return yield* Effect.fail(createTypeIssue(ast, value, `Field "${key}" must be a Date, got ${typeof value}`));
-  });
+    return date;
+  }
+  return yield* Effect.fail(createTypeIssue(ast, value, `Field "${key}" must be a Date, got ${typeof value}`));
+});
 
 /**
  * Requires a boolean field to be present in the Better Auth object.
@@ -170,12 +145,7 @@ export const requireDate = <T extends object>(
  * @param ast - The AST node for proper error context
  * @returns Effect that succeeds with boolean or fails with ParseResult.Type
  */
-export const requireBoolean = <T extends object>(
-  obj: T,
-  key: string,
-  ast: AST.AST
-): Effect.Effect<boolean, ParseResult.Type> =>
-  Effect.gen(function* () {
-    const value = yield* requireField(obj, key, ast);
-    return Boolean(value);
-  });
+export const requireBoolean = Effect.fn(function* <T extends object>(obj: T, key: string, ast: AST.AST) {
+  const value = yield* requireField(obj, key, ast);
+  return Boolean(value);
+});

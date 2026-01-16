@@ -1,8 +1,8 @@
 import { describe, expect } from "bun:test";
+import { BetterAuthErrorSchema, extractBetterAuthErrorMessage } from "@beep/iam-client/_common/schema.helpers";
 import { effect } from "@beep/testkit";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
-import { BetterAuthErrorSchema, extractBetterAuthErrorMessage } from "../schema.helpers.ts";
 
 // ============================================================================
 // Tests: BetterAuthErrorSchema

@@ -76,119 +76,117 @@ type RateLimitModelEncoded = S.Schema.Encoded<typeof RateLimit.Model>;
  */
 export const DomainRateLimitFromBetterAuthRateLimit = S.transformOrFail(BetterAuthRateLimitSchema, RateLimit.Model, {
   strict: true,
-  decode: (betterAuthRateLimit, _options, ast) =>
-    Effect.gen(function* () {
-      // =======================================================================
-      // ID VALIDATION - Must be present from database (via Record extension)
-      // Better Auth's RateLimit schema does NOT include id - it comes from DB
-      // =======================================================================
+  decode: Effect.fn(function* (betterAuthRateLimit, _options, ast) {
+    // =======================================================================
+    // ID VALIDATION - Must be present from database (via Record extension)
+    // Better Auth's RateLimit schema does NOT include id - it comes from DB
+    // =======================================================================
 
-      const id = yield* requireString(betterAuthRateLimit, "id", ast);
-      if (id === null) {
-        return yield* ParseResult.fail(new ParseResult.Type(ast, id, "RateLimit id is required but was null"));
-      }
+    const id = yield* requireString(betterAuthRateLimit, "id", ast);
+    if (id === null) {
+      return yield* ParseResult.fail(new ParseResult.Type(ast, id, "RateLimit id is required but was null"));
+    }
 
-      const isValidRateLimitId = IamEntityIds.RateLimitId.is(id);
-      if (!isValidRateLimitId) {
-        return yield* ParseResult.fail(
-          new ParseResult.Type(ast, id, `Invalid rate limit ID format: expected "iam_rate_limit__<uuid>", got "${id}"`)
-        );
-      }
+    const isValidRateLimitId = IamEntityIds.RateLimitId.is(id);
+    if (!isValidRateLimitId) {
+      return yield* ParseResult.fail(
+        new ParseResult.Type(ast, id, `Invalid rate limit ID format: expected "iam_rate_limit__<uuid>", got "${id}"`)
+      );
+    }
 
-      // =======================================================================
-      // REQUIRED FIELDS from database (via Record extension)
-      // These use require* helpers that FAIL if the field is missing
-      // =======================================================================
+    // =======================================================================
+    // REQUIRED FIELDS from database (via Record extension)
+    // These use require* helpers that FAIL if the field is missing
+    // =======================================================================
 
-      const _rowId = yield* requireNumber(betterAuthRateLimit, "_rowId", ast);
-      const version = yield* requireNumber(betterAuthRateLimit, "version", ast);
-      const source = yield* requireString(betterAuthRateLimit, "source", ast);
-      const createdAtRaw = yield* requireDate(betterAuthRateLimit, "createdAt", ast);
-      const updatedAtRaw = yield* requireDate(betterAuthRateLimit, "updatedAt", ast);
-      const deletedAt = yield* requireDate(betterAuthRateLimit, "deletedAt", ast);
-      const createdBy = yield* requireString(betterAuthRateLimit, "createdBy", ast);
-      const updatedBy = yield* requireString(betterAuthRateLimit, "updatedBy", ast);
-      const deletedBy = yield* requireString(betterAuthRateLimit, "deletedBy", ast);
+    const _rowId = yield* requireNumber(betterAuthRateLimit, "_rowId", ast);
+    const version = yield* requireNumber(betterAuthRateLimit, "version", ast);
+    const source = yield* requireString(betterAuthRateLimit, "source", ast);
+    const createdAtRaw = yield* requireDate(betterAuthRateLimit, "createdAt", ast);
+    const updatedAtRaw = yield* requireDate(betterAuthRateLimit, "updatedAt", ast);
+    const deletedAt = yield* requireDate(betterAuthRateLimit, "deletedAt", ast);
+    const createdBy = yield* requireString(betterAuthRateLimit, "createdBy", ast);
+    const updatedBy = yield* requireString(betterAuthRateLimit, "updatedBy", ast);
+    const deletedBy = yield* requireString(betterAuthRateLimit, "deletedBy", ast);
 
-      // createdAt and updatedAt are required (M.Generated), so they must not be null
-      if (createdAtRaw === null) {
-        return yield* ParseResult.fail(
-          new ParseResult.Type(ast, createdAtRaw, "RateLimit createdAt is required but was null")
-        );
-      }
-      if (updatedAtRaw === null) {
-        return yield* ParseResult.fail(
-          new ParseResult.Type(ast, updatedAtRaw, "RateLimit updatedAt is required but was null")
-        );
-      }
-      const createdAt = createdAtRaw;
-      const updatedAt = updatedAtRaw;
+    // createdAt and updatedAt are required (M.Generated), so they must not be null
+    if (createdAtRaw === null) {
+      return yield* ParseResult.fail(
+        new ParseResult.Type(ast, createdAtRaw, "RateLimit createdAt is required but was null")
+      );
+    }
+    if (updatedAtRaw === null) {
+      return yield* ParseResult.fail(
+        new ParseResult.Type(ast, updatedAtRaw, "RateLimit updatedAt is required but was null")
+      );
+    }
+    const createdAt = createdAtRaw;
+    const updatedAt = updatedAtRaw;
 
-      // Construct the encoded form of RateLimit.Model
-      // Type annotation ensures proper typing without type assertions
-      // The schema framework will decode this to RateLimit.Model.Type
-      const encodedRateLimit: RateLimitModelEncoded = {
-        // Core identity fields (from database via Record extension)
-        id,
-        _rowId,
-        version,
+    // Construct the encoded form of RateLimit.Model
+    // Type annotation ensures proper typing without type assertions
+    // The schema framework will decode this to RateLimit.Model.Type
+    const encodedRateLimit: RateLimitModelEncoded = {
+      // Core identity fields (from database via Record extension)
+      id,
+      _rowId,
+      version,
 
-        // Timestamp fields (from database via Record extension)
-        createdAt,
-        updatedAt,
+      // Timestamp fields (from database via Record extension)
+      createdAt,
+      updatedAt,
 
-        // Better Auth native fields
-        // Domain uses FieldOptionOmittable, these map directly
-        key: betterAuthRateLimit.key,
-        count: betterAuthRateLimit.count,
-        // lastRequest: BigIntFromNumber expects encoded form as number
-        // The domain schema will decode this to bigint
-        lastRequest: betterAuthRateLimit.lastRequest,
+      // Better Auth native fields
+      // Domain uses FieldOptionOmittable, these map directly
+      key: betterAuthRateLimit.key,
+      count: betterAuthRateLimit.count,
+      // lastRequest: BigIntFromNumber expects encoded form as number
+      // The domain schema will decode this to bigint
+      lastRequest: betterAuthRateLimit.lastRequest,
 
-        // Audit fields (from database via Record extension)
-        source,
-        deletedAt,
-        createdBy,
-        updatedBy,
-        deletedBy,
-      };
+      // Audit fields (from database via Record extension)
+      source,
+      deletedAt,
+      createdBy,
+      updatedBy,
+      deletedBy,
+    };
 
-      return encodedRateLimit;
-    }),
+    return encodedRateLimit;
+  }),
 
-  encode: (rateLimitEncoded, _options, _ast) =>
-    Effect.gen(function* () {
-      // id might be undefined in the encoded form (has default), handle that
-      const id = rateLimitEncoded.id ?? IamEntityIds.RateLimitId.create();
+  encode: Effect.fn(function* (rateLimitEncoded, _options, _ast) {
+    // id might be undefined in the encoded form (has default), handle that
+    const id = rateLimitEncoded.id ?? IamEntityIds.RateLimitId.create();
 
-      // Convert dates - these may be DateTime.Utc or Date
-      const createdAt = rateLimitEncoded.createdAt ? toDate(rateLimitEncoded.createdAt) : undefined;
-      const updatedAt = rateLimitEncoded.updatedAt ? toDate(rateLimitEncoded.updatedAt) : undefined;
+    // Convert dates - these may be DateTime.Utc or Date
+    const createdAt = rateLimitEncoded.createdAt ? toDate(rateLimitEncoded.createdAt) : undefined;
+    const updatedAt = rateLimitEncoded.updatedAt ? toDate(rateLimitEncoded.updatedAt) : undefined;
 
-      // Return BetterAuthRateLimit form with database fields included via Record
-      // This ensures proper round-trip through the transformation
-      const betterAuthRateLimit: BetterAuthRateLimit = {
-        // Better Auth native fields
-        key: rateLimitEncoded.key ?? "",
-        count: rateLimitEncoded.count ?? 0,
-        // lastRequest: domain model stores as number in encoded form
-        // (BigIntFromNumber encoded type is number)
-        lastRequest: rateLimitEncoded.lastRequest ?? 0,
-        // Include database fields for round-trip (via Record extension)
-        id,
-        _rowId: rateLimitEncoded._rowId,
-        version: rateLimitEncoded.version,
-        source: rateLimitEncoded.source ?? undefined,
-        createdAt,
-        updatedAt,
-        deletedAt: rateLimitEncoded.deletedAt ? toDate(rateLimitEncoded.deletedAt) : undefined,
-        createdBy: rateLimitEncoded.createdBy ?? undefined,
-        updatedBy: rateLimitEncoded.updatedBy ?? undefined,
-        deletedBy: rateLimitEncoded.deletedBy ?? undefined,
-      };
+    // Return BetterAuthRateLimit form with database fields included via Record
+    // This ensures proper round-trip through the transformation
+    const betterAuthRateLimit: BetterAuthRateLimit = {
+      // Better Auth native fields
+      key: rateLimitEncoded.key ?? "",
+      count: rateLimitEncoded.count ?? 0,
+      // lastRequest: domain model stores as number in encoded form
+      // (BigIntFromNumber encoded type is number)
+      lastRequest: rateLimitEncoded.lastRequest ?? 0,
+      // Include database fields for round-trip (via Record extension)
+      id,
+      _rowId: rateLimitEncoded._rowId,
+      version: rateLimitEncoded.version,
+      source: rateLimitEncoded.source ?? undefined,
+      createdAt,
+      updatedAt,
+      deletedAt: rateLimitEncoded.deletedAt ? toDate(rateLimitEncoded.deletedAt) : undefined,
+      createdBy: rateLimitEncoded.createdBy ?? undefined,
+      updatedBy: rateLimitEncoded.updatedBy ?? undefined,
+      deletedBy: rateLimitEncoded.deletedBy ?? undefined,
+    };
 
-      return betterAuthRateLimit;
-    }),
+    return betterAuthRateLimit;
+  }),
 }).annotations(
   $I.annotations("DomainRateLimitFromBetterAuthRateLimit", {
     description:

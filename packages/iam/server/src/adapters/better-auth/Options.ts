@@ -206,6 +206,8 @@ export const makeAuth = ({
     },
     session: {
       modelName: SharedEntityIds.SessionId.tableName,
+      // Required by oauthProvider plugin - ensures sessions are stored in DB
+      storeSessionInDatabase: true,
       additionalFields: {
         ...additionalFieldsCommon,
         // Plugin-managed fields (organization)

@@ -70,6 +70,8 @@ specs/[SPEC_NAME]/
 |------|-------------|--------|
 | [agents](agents/) | Specialized agent specifications | Active |
 | [ai-docs-review](ai-docs-review/) | AI documentation accuracy and integrity review | P0 Ready |
+| [full-iam-client](full-iam-client/) | Better Auth client Effect wrappers (multi-session, password, 2FA, org) | Complete |
+| [iam-client-methods-final](iam-client-methods-final/) | Remaining Better Auth client methods (sign-in variants, admin, API keys) | P0 Ready |
 | [ai-friendliness-audit](ai-friendliness-audit/) | AI collaboration audit methodology | Active |
 | [demo-parity](demo-parity/) | FlexLayout demo feature parity | P0 Ready |
 | [docking-system](docking-system/) | FlexLayout drag-drop docking | Complete |

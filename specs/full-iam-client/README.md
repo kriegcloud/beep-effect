@@ -142,6 +142,7 @@ specs/full-iam-client/
 ├── QUICK_START.md                 # 5-minute triage (start here)
 ├── MASTER_ORCHESTRATION.md        # Phase workflows & checkpoints
 ├── AGENT_PROMPTS.md               # Ready-to-use agent prompts
+├── HANDOFF_CREATION_GUIDE.md      # Mandatory handoff requirements (READ BEFORE CREATING HANDOFFS)
 ├── RUBRICS.md                     # Evaluation criteria
 ├── REFLECTION_LOG.md              # Session learnings
 ├── outputs/
@@ -174,6 +175,9 @@ specs/full-iam-client/
 | `packages/iam/client/src/sign-in/email/` | Factory pattern example |
 | `packages/iam/client/src/sign-up/email/` | Manual pattern example |
 | `packages/iam/client/src/adapters/better-auth/client.ts` | Better Auth client config |
+| **`tmp/better-auth/`** | **Better Auth source code (authoritative for response shapes)** |
+| `tmp/better-auth/packages/better-auth/src/api/routes/{domain}.ts` | Route implementations (response shapes) |
+| `tmp/better-auth/packages/better-auth/src/client/{domain}.test.ts` | Test files (usage examples) |
 
 ## Agents Used
 
@@ -204,6 +208,7 @@ specs/full-iam-client/
 
 ## Related Documentation
 
+- **[HANDOFF_CREATION_GUIDE.md](./HANDOFF_CREATION_GUIDE.md)** - **READ BEFORE CREATING HANDOFFS** (mandatory requirements)
 - [HANDOFF_FROM_IAM_PATTERNS.md](./handoffs/HANDOFF_FROM_IAM_PATTERNS.md)
 - [MASTER_ORCHESTRATION.md](./MASTER_ORCHESTRATION.md)
 - [AGENT_PROMPTS.md](./AGENT_PROMPTS.md)

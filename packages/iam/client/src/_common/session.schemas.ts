@@ -75,170 +75,167 @@ type SessionModelEncoded = S.Schema.Encoded<typeof Session.Model>;
  */
 export const DomainSessionFromBetterAuthSession = S.transformOrFail(BetterAuthSessionSchema, Session.Model, {
   strict: true,
-  decode: (betterAuthSession, _options, ast) =>
-    Effect.gen(function* () {
-      // Validate the session ID format
-      const isValidSessionId = SharedEntityIds.SessionId.is(betterAuthSession.id);
-      if (!isValidSessionId) {
+  decode: Effect.fn(function* (betterAuthSession, _options, ast) {
+    // Validate the session ID format
+    const isValidSessionId = SharedEntityIds.SessionId.is(betterAuthSession.id);
+    if (!isValidSessionId) {
+      return yield* ParseResult.fail(
+        new ParseResult.Type(
+          ast,
+          betterAuthSession.id,
+          `Invalid session ID format: expected "shared_session__<uuid>", got "${betterAuthSession.id}"`
+        )
+      );
+    }
+
+    // Validate the user ID format
+    const isValidUserId = SharedEntityIds.UserId.is(betterAuthSession.userId);
+    if (!isValidUserId) {
+      return yield* ParseResult.fail(
+        new ParseResult.Type(
+          ast,
+          betterAuthSession.userId,
+          `Invalid user ID format: expected "shared_user__<uuid>", got "${betterAuthSession.userId}"`
+        )
+      );
+    }
+
+    // Validate activeOrganizationId is present and valid (REQUIRED field)
+    if (!betterAuthSession.activeOrganizationId) {
+      return yield* ParseResult.fail(
+        new ParseResult.Type(
+          ast,
+          betterAuthSession.activeOrganizationId,
+          "activeOrganizationId is required but was null or undefined"
+        )
+      );
+    }
+
+    const isValidOrgId = SharedEntityIds.OrganizationId.is(betterAuthSession.activeOrganizationId);
+    if (!isValidOrgId) {
+      return yield* ParseResult.fail(
+        new ParseResult.Type(
+          ast,
+          betterAuthSession.activeOrganizationId,
+          `Invalid organization ID format: expected "shared_organization__<uuid>", got "${betterAuthSession.activeOrganizationId}"`
+        )
+      );
+    }
+
+    // Validate activeTeamId if present
+    if (betterAuthSession.activeTeamId) {
+      const isValidTeamId = SharedEntityIds.TeamId.is(betterAuthSession.activeTeamId);
+      if (!isValidTeamId) {
         return yield* ParseResult.fail(
           new ParseResult.Type(
             ast,
-            betterAuthSession.id,
-            `Invalid session ID format: expected "shared_session__<uuid>", got "${betterAuthSession.id}"`
+            betterAuthSession.activeTeamId,
+            `Invalid team ID format: expected "shared_team__<uuid>", got "${betterAuthSession.activeTeamId}"`
           )
         );
       }
+    }
 
-      // Validate the user ID format
-      const isValidUserId = SharedEntityIds.UserId.is(betterAuthSession.userId);
-      if (!isValidUserId) {
+    // Validate impersonatedBy if present
+    if (betterAuthSession.impersonatedBy) {
+      const isValidImpersonatorId = SharedEntityIds.UserId.is(betterAuthSession.impersonatedBy);
+      if (!isValidImpersonatorId) {
         return yield* ParseResult.fail(
           new ParseResult.Type(
             ast,
-            betterAuthSession.userId,
-            `Invalid user ID format: expected "shared_user__<uuid>", got "${betterAuthSession.userId}"`
+            betterAuthSession.impersonatedBy,
+            `Invalid impersonatedBy ID format: expected "shared_user__<uuid>", got "${betterAuthSession.impersonatedBy}"`
           )
         );
       }
+    }
 
-      // Validate activeOrganizationId is present and valid (REQUIRED field)
-      if (!betterAuthSession.activeOrganizationId) {
-        return yield* ParseResult.fail(
-          new ParseResult.Type(
-            ast,
-            betterAuthSession.activeOrganizationId,
-            "activeOrganizationId is required but was null or undefined"
-          )
-        );
-      }
+    // =======================================================================
+    // REQUIRED FIELDS - Must be present in Better Auth response
+    // These use require* helpers that FAIL if the field is missing
+    // =======================================================================
 
-      const isValidOrgId = SharedEntityIds.OrganizationId.is(betterAuthSession.activeOrganizationId);
-      if (!isValidOrgId) {
-        return yield* ParseResult.fail(
-          new ParseResult.Type(
-            ast,
-            betterAuthSession.activeOrganizationId,
-            `Invalid organization ID format: expected "shared_organization__<uuid>", got "${betterAuthSession.activeOrganizationId}"`
-          )
-        );
-      }
+    const _rowId = yield* requireNumber(betterAuthSession, "_rowId", ast);
+    const version = yield* requireNumber(betterAuthSession, "version", ast);
+    const source = yield* requireString(betterAuthSession, "source", ast);
+    const deletedAt = yield* requireDate(betterAuthSession, "deletedAt", ast);
+    const createdBy = yield* requireString(betterAuthSession, "createdBy", ast);
+    const updatedBy = yield* requireString(betterAuthSession, "updatedBy", ast);
+    const deletedBy = yield* requireString(betterAuthSession, "deletedBy", ast);
 
-      // Validate activeTeamId if present
-      if (betterAuthSession.activeTeamId) {
-        const isValidTeamId = SharedEntityIds.TeamId.is(betterAuthSession.activeTeamId);
-        if (!isValidTeamId) {
-          return yield* ParseResult.fail(
-            new ParseResult.Type(
-              ast,
-              betterAuthSession.activeTeamId,
-              `Invalid team ID format: expected "shared_team__<uuid>", got "${betterAuthSession.activeTeamId}"`
-            )
-          );
-        }
-      }
+    // Construct the encoded form of Session.Model
+    // Type annotation ensures proper typing without type assertions
+    // The schema framework will decode this to Session.Model.Type
+    const encodedSession: SessionModelEncoded = {
+      // Core identity fields
+      id: betterAuthSession.id,
+      _rowId,
+      version,
 
-      // Validate impersonatedBy if present
-      if (betterAuthSession.impersonatedBy) {
-        const isValidImpersonatorId = SharedEntityIds.UserId.is(betterAuthSession.impersonatedBy);
-        if (!isValidImpersonatorId) {
-          return yield* ParseResult.fail(
-            new ParseResult.Type(
-              ast,
-              betterAuthSession.impersonatedBy,
-              `Invalid impersonatedBy ID format: expected "shared_user__<uuid>", got "${betterAuthSession.impersonatedBy}"`
-            )
-          );
-        }
-      }
+      // Timestamp fields - Date passed to schema, will be converted to DateTime.Utc
+      createdAt: betterAuthSession.createdAt,
+      updatedAt: betterAuthSession.updatedAt,
+      expiresAt: betterAuthSession.expiresAt,
 
-      // =======================================================================
-      // REQUIRED FIELDS - Must be present in Better Auth response
-      // These use require* helpers that FAIL if the field is missing
-      // =======================================================================
+      // Session data from Better Auth
+      token: betterAuthSession.token,
+      ipAddress: betterAuthSession.ipAddress ?? null,
+      userAgent: betterAuthSession.userAgent ?? null,
 
-      const _rowId = yield* requireNumber(betterAuthSession, "_rowId", ast);
-      const version = yield* requireNumber(betterAuthSession, "version", ast);
-      const source = yield* requireString(betterAuthSession, "source", ast);
-      const deletedAt = yield* requireDate(betterAuthSession, "deletedAt", ast);
-      const createdBy = yield* requireString(betterAuthSession, "createdBy", ast);
-      const updatedBy = yield* requireString(betterAuthSession, "updatedBy", ast);
-      const deletedBy = yield* requireString(betterAuthSession, "deletedBy", ast);
+      // Foreign key references
+      userId: betterAuthSession.userId,
+      activeOrganizationId: betterAuthSession.activeOrganizationId,
 
-      // Construct the encoded form of Session.Model
-      // Type annotation ensures proper typing without type assertions
-      // The schema framework will decode this to Session.Model.Type
-      const encodedSession: SessionModelEncoded = {
-        // Core identity fields
-        id: betterAuthSession.id,
-        _rowId,
-        version,
+      // Optional fields from plugins
+      activeTeamId: betterAuthSession.activeTeamId ?? null,
+      impersonatedBy: betterAuthSession.impersonatedBy ?? null,
 
-        // Timestamp fields - Date passed to schema, will be converted to DateTime.Utc
-        createdAt: betterAuthSession.createdAt,
-        updatedAt: betterAuthSession.updatedAt,
-        expiresAt: betterAuthSession.expiresAt,
+      // Audit fields - required, validated above
+      source,
+      deletedAt,
+      createdBy,
+      updatedBy,
+      deletedBy,
+    };
 
-        // Session data from Better Auth
-        token: betterAuthSession.token,
-        ipAddress: betterAuthSession.ipAddress ?? null,
-        userAgent: betterAuthSession.userAgent ?? null,
+    return encodedSession;
+  }),
+  encode: Effect.fn(function* (sessionEncoded, _options, _ast) {
+    // Convert back to BetterAuthSession's format
+    const createdAt = toDate(sessionEncoded.createdAt);
+    const updatedAt = toDate(sessionEncoded.updatedAt);
+    const expiresAt = toDate(sessionEncoded.expiresAt);
 
-        // Foreign key references
-        userId: betterAuthSession.userId,
-        activeOrganizationId: betterAuthSession.activeOrganizationId,
+    // id might be undefined in the encoded form (has default), handle that
+    const id = sessionEncoded.id ?? SharedEntityIds.SessionId.create();
 
-        // Optional fields from plugins
-        activeTeamId: betterAuthSession.activeTeamId ?? null,
-        impersonatedBy: betterAuthSession.impersonatedBy ?? null,
+    // Return BetterAuthSession Type form (plain object matching the struct)
+    // Include all fields that might have been set, so they round-trip correctly
+    const betterAuthSession: BetterAuthSession = {
+      id,
+      createdAt,
+      updatedAt,
+      userId: sessionEncoded.userId,
+      expiresAt,
+      token: sessionEncoded.token,
+      // Convert null to undefined for BetterAuthSession's optional fields
+      ipAddress: sessionEncoded.ipAddress ?? undefined,
+      userAgent: sessionEncoded.userAgent ?? undefined,
+      activeOrganizationId: sessionEncoded.activeOrganizationId,
+      activeTeamId: sessionEncoded.activeTeamId ?? undefined,
+      impersonatedBy: sessionEncoded.impersonatedBy ?? undefined,
+      // Include required fields for proper round-trip
+      _rowId: sessionEncoded._rowId,
+      version: sessionEncoded.version,
+      source: sessionEncoded.source ?? undefined,
+      deletedAt: sessionEncoded.deletedAt ? toDate(sessionEncoded.deletedAt) : undefined,
+      createdBy: sessionEncoded.createdBy ?? undefined,
+      updatedBy: sessionEncoded.updatedBy ?? undefined,
+      deletedBy: sessionEncoded.deletedBy ?? undefined,
+    };
 
-        // Audit fields - required, validated above
-        source,
-        deletedAt,
-        createdBy,
-        updatedBy,
-        deletedBy,
-      };
-
-      return encodedSession;
-    }),
-
-  encode: (sessionEncoded, _options, _ast) =>
-    Effect.gen(function* () {
-      // Convert back to BetterAuthSession's format
-      const createdAt = toDate(sessionEncoded.createdAt);
-      const updatedAt = toDate(sessionEncoded.updatedAt);
-      const expiresAt = toDate(sessionEncoded.expiresAt);
-
-      // id might be undefined in the encoded form (has default), handle that
-      const id = sessionEncoded.id ?? SharedEntityIds.SessionId.create();
-
-      // Return BetterAuthSession Type form (plain object matching the struct)
-      // Include all fields that might have been set, so they round-trip correctly
-      const betterAuthSession: BetterAuthSession = {
-        id,
-        createdAt,
-        updatedAt,
-        userId: sessionEncoded.userId,
-        expiresAt,
-        token: sessionEncoded.token,
-        // Convert null to undefined for BetterAuthSession's optional fields
-        ipAddress: sessionEncoded.ipAddress ?? undefined,
-        userAgent: sessionEncoded.userAgent ?? undefined,
-        activeOrganizationId: sessionEncoded.activeOrganizationId,
-        activeTeamId: sessionEncoded.activeTeamId ?? undefined,
-        impersonatedBy: sessionEncoded.impersonatedBy ?? undefined,
-        // Include required fields for proper round-trip
-        _rowId: sessionEncoded._rowId,
-        version: sessionEncoded.version,
-        source: sessionEncoded.source ?? undefined,
-        deletedAt: sessionEncoded.deletedAt ? toDate(sessionEncoded.deletedAt) : undefined,
-        createdBy: sessionEncoded.createdBy ?? undefined,
-        updatedBy: sessionEncoded.updatedBy ?? undefined,
-        deletedBy: sessionEncoded.deletedBy ?? undefined,
-      };
-
-      return betterAuthSession;
-    }),
+    return betterAuthSession;
+  }),
 }).annotations(
   $I.annotations("DomainSessionFromBetterAuthSession", {
     description:
