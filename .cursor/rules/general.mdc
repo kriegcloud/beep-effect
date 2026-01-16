@@ -53,6 +53,33 @@ domain -> tables -> infra -> client -> ui
 - `bun run test --filter=@beep/package` — Run tests for specific package
 - Place test files adjacent to source files or in `__tests__/` directories
 
+## Turborepo Verification Behavior
+
+**IMPORTANT**: Turborepo's `--filter` flag cascades through ALL package dependencies.
+
+When running `bun run check --filter @beep/package`:
+1. Turborepo resolves ALL dependencies of `@beep/package`
+2. Type-checks dependencies FIRST (in dependency order)
+3. Type-checks the target package LAST
+4. Reports errors from ANY package in the dependency chain
+
+**Implication**: If `@beep/iam-tables` depends on `@beep/iam-domain`, errors in the domain package will cause tables verification to fail, even if the tables code is correct.
+
+**Debugging Failed Checks**:
+```bash
+# If cascading check fails, isolate the error source:
+
+# 1. Check if error is in upstream dependency
+bun run check --filter @beep/upstream-package
+
+# 2. Or use isolated syntax check (no dependency resolution)
+bun tsc --noEmit path/to/file.ts
+```
+
+**Fix errors in dependency order**: Always resolve upstream package errors before downstream packages.
+
+See [documentation/patterns/database-patterns.md](../../documentation/patterns/database-patterns.md#turborepo-verification-cascading) for detailed debugging workflows.
+
 ## Documentation
 
 | Document                           | Purpose                   |
