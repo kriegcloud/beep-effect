@@ -6,7 +6,8 @@ import * as LogLevel from "effect/LogLevel";
 import * as P from "effect/Predicate";
 
 describe("errors/readEnvLoggerConfig", () => {
-  scoped("defaults to pretty + All in development (no NODE_ENV)",
+  scoped(
+    "defaults to pretty + All in development (no NODE_ENV)",
     Effect.fn(function* () {
       const prev = process.env.NODE_ENV;
       delete process.env.NODE_ENV;

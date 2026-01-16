@@ -3,7 +3,8 @@ import { effect } from "@beep/testkit";
 import { getPath, setPath } from "@beep/utils/object/path";
 import * as Effect from "effect/Effect";
 
-effect("getPath safely reads nested values with defaults",
+effect(
+  "getPath safely reads nested values with defaults",
   Effect.fn(function* () {
     const payload = { user: { profile: { name: "Ada" } }, items: [{ id: 1 }] };
 
@@ -20,7 +21,8 @@ effect("getPath safely reads nested values with defaults",
   })
 );
 
-effect("setPath builds nested objects and arrays while skipping forbidden keys",
+effect(
+  "setPath builds nested objects and arrays while skipping forbidden keys",
   Effect.fn(function* () {
     const target: Record<string, unknown> = {};
 
@@ -40,7 +42,8 @@ effect("setPath builds nested objects and arrays while skipping forbidden keys",
   })
 );
 
-effect("setPath reuses existing objects instead of overwriting them",
+effect(
+  "setPath reuses existing objects instead of overwriting them",
   Effect.fn(function* () {
     const target = { user: { profile: { name: "Ada" } } } as Record<string, unknown>;
 

@@ -116,7 +116,17 @@ export const DomainUserFromBetterAuthUser = S.transformOrFail(BetterAuthUserSche
       // Domain-specific fields - must be present via Better Auth plugins
       const uploadLimit = yield* requireNumber(betterAuthUser, "uploadLimit", ast);
       const roleValue = yield* requireField(betterAuthUser, "role", ast);
-      const role = roleValue as User.UserRole.Type;
+      // Validate role is a valid UserRole value before using
+      if (!S.is(User.UserRole)(roleValue)) {
+        return yield* ParseResult.fail(
+          new ParseResult.Type(
+            ast,
+            roleValue,
+            `Invalid role value: expected "admin" or "user", got "${String(roleValue)}"`
+          )
+        );
+      }
+      const role = roleValue;
       const banned = yield* requireBoolean(betterAuthUser, "banned", ast);
       const banReason = yield* requireString(betterAuthUser, "banReason", ast);
       const banExpires = yield* requireDate(betterAuthUser, "banExpires", ast);

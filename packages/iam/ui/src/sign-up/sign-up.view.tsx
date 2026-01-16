@@ -12,8 +12,6 @@ import { SignUpEmailForm } from "./email";
 const signUpTransitionVariants = varFade("inUp", { distance: 64 });
 
 export const SignUpView = () => {
-
-
   return (
     <RecaptchaV3Atom>
       <AnimatePresence mode={"wait"} initial={false}>
@@ -42,7 +40,6 @@ export const SignUpView = () => {
           <Terms />
           <Box sx={{ gap: 2, display: "flex", flexDirection: "column" }}>
             <FormDivider />
-
           </Box>
         </Box>
       </AnimatePresence>

@@ -3,7 +3,8 @@ import { effect } from "@beep/testkit";
 import { deepEqual } from "@beep/utils/equality/deepEqual";
 import * as Effect from "effect/Effect";
 
-effect("deepEqual compares primitives, arrays, and objects",
+effect(
+  "deepEqual compares primitives, arrays, and objects",
   Effect.fn(function* () {
     expect(deepEqual({ a: 1 }, { a: 1 })).toBe(true);
     expect(deepEqual({ a: 1 }, { a: 2 })).toBe(false);
@@ -16,7 +17,8 @@ effect("deepEqual compares primitives, arrays, and objects",
   })
 );
 
-effect("deepEqual handles dates, symbols, bigints, sets, and maps",
+effect(
+  "deepEqual handles dates, symbols, bigints, sets, and maps",
   Effect.fn(function* () {
     expect(deepEqual(new Date("2024-01-01"), new Date("2024-01-01"))).toBe(true);
     expect(deepEqual(Symbol.for("a"), Symbol.for("a"))).toBe(true);
@@ -47,7 +49,8 @@ effect("deepEqual handles dates, symbols, bigints, sets, and maps",
   })
 );
 
-effect("deepEqual supports ArrayBuffer, DataView, and typed arrays",
+effect(
+  "deepEqual supports ArrayBuffer, DataView, and typed arrays",
   Effect.fn(function* () {
     const bufferA = new Uint8Array([1, 2, 3]).buffer;
     const bufferB = new Uint8Array([1, 2, 3]).buffer;
@@ -72,7 +75,8 @@ effect("deepEqual supports ArrayBuffer, DataView, and typed arrays",
   })
 );
 
-effect("deepEqual detects prototype differences and cycles",
+effect(
+  "deepEqual detects prototype differences and cycles",
   Effect.fn(function* () {
     const base = { value: 1 };
     const withProto = Object.create({ proto: true });
@@ -89,7 +93,8 @@ effect("deepEqual detects prototype differences and cycles",
   })
 );
 
-effect("deepEqual covers mismatch branches across collections",
+effect(
+  "deepEqual covers mismatch branches across collections",
   Effect.fn(function* () {
     expect(deepEqual([1, 2], [1, 3])).toBe(false);
 

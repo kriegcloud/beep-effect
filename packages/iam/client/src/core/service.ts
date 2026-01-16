@@ -5,7 +5,6 @@ import * as Effect from "effect/Effect";
 import * as GetSession from "./get-session";
 import * as SignOut from "./sign-out";
 
-
 const $I = $IamClientId.create("core/service");
 
 export class CoreService extends Effect.Service<CoreService>()($I`CoreService`, {

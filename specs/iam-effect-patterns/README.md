@@ -1,43 +1,70 @@
 # IAM Effect Patterns Specification
 
+**Status**: COMPLETE
+
 ## Purpose
 
 Establish consistent, idiomatic patterns for wrapping Better Auth's promise-based client methods with Effect, creating `@effect-atom/atom-react` atoms, and managing state across IAM packages. This spec serves as the foundation for all future Better Auth method integrations.
 
-## Problem Statement
+## Spec Outcomes
 
-| Issue | Description |
-|-------|-------------|
-| **Inconsistent Handler Signatures** | Handlers vary between optional params, required `{ payload, fetchOptions }`, and no params |
-| **Boilerplate Repetition** | Every handler follows: `Effect.fn -> tryPromise -> decode` (~10 lines each) |
-| **Session Signal Inconsistency** | Only some handlers call `client.$store.notify("$sessionSignal")` |
-| **Schema Annotation Variance** | Mix of `withFormAnnotations` helper and direct annotation |
-| **No State Machine Pattern** | Multi-step flows lack coordinated state management |
-| **Error Handling Gaps** | Better Auth `{ data, error }` responses not consistently checked |
+| Metric | Before | After | Improvement |
+|--------|--------|-------|-------------|
+| Handlers with `$sessionSignal` | 1/3 | 3/3 | 100% coverage |
+| Handlers checking `response.error` | 1/4 | 4/4 | 100% coverage |
+| Handler boilerplate (avg) | 25 lines | 10 lines | 60% reduction |
+| Type assertions (unsafe) | 2 | 0 | Eliminated |
+
+## Next Steps: `full-iam-client` Spec
+
+This spec established foundational patterns. The next spec (`full-iam-client`) will apply these patterns to wrap ALL remaining Better Auth client methods:
+
+- Multi-session management
+- Password recovery
+- Email verification
+- Two-factor authentication
+- Organization management
+- Team management
+
+**See**: [HANDOFF_P11.md](./handoffs/HANDOFF_P11.md) for complete handoff to new spec.
+
+## Problem Statement (Resolved)
+
+| Issue | Description | Resolution |
+|-------|-------------|------------|
+| **Inconsistent Handler Signatures** | Handlers varied between optional/required params | Handler factory standardizes |
+| **Boilerplate Repetition** | Every handler ~10 lines of boilerplate | 60% reduction with factory |
+| **Session Signal Inconsistency** | Only some handlers notified session | All session-mutating handlers now notify |
+| **Error Handling Gaps** | `{ data, error }` not checked | All handlers check before decode |
+| **Schema Annotation Variance** | Mix of helpers and direct annotation | `withFormAnnotations` canonical |
+| **No State Machine Pattern** | Multi-step flows uncoordinated | `Data.TaggedEnum` pattern documented |
 
 ## Success Criteria
 
-- [ ] Define canonical handler factory reducing boilerplate by 50%+
-- [ ] Establish consistent handler signature pattern
-- [ ] Create schema annotation helpers for form defaults
-- [ ] Define session-mutating vs read-only handler classification
-- [ ] Document state machine pattern for multi-step flows
-- [ ] Create atom factory with built-in toast integration
-- [ ] Validate patterns pass all repo rules
-- [ ] Create reference implementation demonstrating all patterns
+- [x] Define canonical handler factory reducing boilerplate by 50%+
+- [x] Establish consistent handler signature pattern
+- [x] Create schema annotation helpers for form defaults
+- [x] Define session-mutating vs read-only handler classification
+- [x] Document state machine pattern for multi-step flows (use Data.TaggedEnum per upload.atom.ts)
+- [ ] ~~Create atom factory with built-in toast integration~~ (Deleted - manual pattern is canonical)
+- [x] Validate patterns pass all repo rules
+- [x] Create reference implementation demonstrating all patterns
+- [x] E2E validation of auth flows
 
 ## Phase Overview
 
 | Phase | Description | Status | Output |
 |-------|-------------|--------|--------|
 | 0 | Scaffold spec structure | Complete | `README.md`, directories |
-| 1 | Deep analysis of current patterns | Pending | `outputs/current-patterns.md` |
-| 2 | Research Effect best practices | Pending | `outputs/effect-research.md` |
-| 3 | Design pattern proposals | Pending | `outputs/pattern-proposals.md` |
-| 4 | Validation & review | Pending | `outputs/pattern-review.md` |
-| 5 | Implementation plan | Pending | `PLAN.md` |
-| 6 | Reference implementation | Pending | Code changes |
-| 7 | Documentation updates | Pending | AGENTS.md updates |
+| 1 | Deep analysis of current patterns | Complete | `outputs/current-patterns.md` |
+| 2 | Research Effect best practices | Complete | `outputs/effect-research.md` |
+| 3 | Design pattern proposals | Complete | `outputs/pattern-proposals.md` |
+| 4 | Validation & review | Complete | `outputs/pattern-review.md` |
+| 5 | Implementation plan | Complete | `PLAN.md` |
+| 6 | Reference implementation | Complete | `errors.ts`, `schema.helpers.ts`, `handler.factory.ts`, sign-out/sign-in migrations |
+| 7 | Documentation & remaining migrations | Complete | AGENTS.md updates, get-session/sign-up handlers |
+| 9 | Type safety audit & remediation | Complete | `outputs/type-safety-audit.md`, deleted atom.factory.ts, fixed user.schemas.ts |
+| 10 | E2E testing & handoff | **Complete** | Manual validation + `HANDOFF_P11.md` |
 
 ## Directory Structure
 
@@ -46,16 +73,21 @@ specs/iam-effect-patterns/
 ├── README.md                      # This overview
 ├── MASTER_ORCHESTRATION.md        # Phase workflows & checkpoints
 ├── AGENT_PROMPTS.md               # Ready-to-use agent prompts
-├── REFLECTION_LOG.md              # Session learnings
+├── REFLECTION_LOG.md              # Session learnings (all 10 phases)
 ├── PLAN.md                        # Implementation plan (Phase 5)
 ├── outputs/
 │   ├── current-patterns.md        # Phase 1 output
 │   ├── effect-research.md         # Phase 2 output
 │   ├── pattern-proposals.md       # Phase 3 output
-│   └── pattern-review.md          # Phase 4 output
+│   ├── pattern-review.md          # Phase 4 output
+│   └── type-safety-audit.md       # Phase 9 output
 ├── handoffs/
 │   ├── HANDOFF_P1.md              # Phase 1 handoff
-│   └── P1_ORCHESTRATOR_PROMPT.md  # Phase 1 prompt
+│   ├── P1_ORCHESTRATOR_PROMPT.md  # Phase 1 prompt
+│   ├── HANDOFF_P3.md              # Phase 3 handoff
+│   ├── P3_ORCHESTRATOR_PROMPT.md  # Phase 3 prompt
+│   ├── HANDOFF_P10.md             # Phase 10 handoff
+│   └── HANDOFF_P11.md             # Handoff to full-iam-client spec
 └── templates/
     ├── TEMPLATES.md               # Template variable guide
     ├── handler.template.ts        # Handler template
@@ -94,15 +126,15 @@ specs/iam-effect-patterns/
 
 ### In Scope
 
-| Component | Location |
-|-----------|----------|
-| Handler Factory | `packages/iam/client/src/_common/handler.factory.ts` |
-| Schema Helpers | `packages/iam/client/src/_common/schema.helpers.ts` |
-| Atom Factory | `packages/iam/client/src/_common/atom.factory.ts` |
-| State Machine Utilities | `packages/iam/client/src/_common/state-machine.ts` |
-| Reference: sign-in/email | Refactor using new patterns |
-| Reference: sign-out | Refactor using new patterns |
-| Documentation | `packages/iam/*/AGENTS.md` |
+| Component | Location | Status |
+|-----------|----------|--------|
+| Handler Factory | `packages/iam/client/src/_common/handler.factory.ts` | Complete |
+| Schema Helpers | `packages/iam/client/src/_common/schema.helpers.ts` | Complete |
+| ~~Atom Factory~~ | ~~`packages/iam/client/src/_common/atom.factory.ts`~~ | Deleted (manual pattern is canonical) |
+| State Machine Utilities | Use `Data.TaggedEnum` per `upload.atom.ts` pattern | Pattern documented |
+| Reference: sign-in/email | Refactor using new patterns | Complete |
+| Reference: sign-out | Refactor using new patterns | Complete |
+| Documentation | `packages/iam/*/AGENTS.md` | Complete |
 
 ### Out of Scope
 
@@ -131,13 +163,21 @@ specs/iam-effect-patterns/
 
 ## Contributor Notes
 
-This spec establishes patterns for ALL future Better Auth integrations:
+This spec established foundational patterns that are now canonical for all Better Auth integrations.
 
+**Patterns Established:**
+- Handler factory (`createHandler`) for standard request/response handlers
+- Manual handler pattern for edge cases (computed fields, different response shapes)
+- Error hierarchy with `Data.TaggedError` for yieldable errors
+- Session signal notification for all session-mutating operations
+- Schema helpers for error message extraction
+
+**Next Implementation:** See `full-iam-client` spec for systematic application to:
 - Passkey authentication
 - Social sign-in providers
 - Two-factor authentication
 - Password recovery
 - Email verification
-- Organization management
+- Organization/team management
 
-Getting these foundational patterns right is critical for long-term maintainability.
+**Handoff:** [HANDOFF_P11.md](./handoffs/HANDOFF_P11.md) contains complete context for creating the new spec.

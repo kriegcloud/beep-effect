@@ -7,7 +7,8 @@ import * as F from "effect/Function";
 import * as O from "effect/Option";
 
 describe("detectFileOption", () => {
-  effect("should detect the file type of an Array<number> as a png file",
+  effect(
+    "should detect the file type of an Array<number> as a png file",
     Effect.fn(function* () {
       const fileArrayNumber: ReadonlyArray<number> = [
         137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 4, 0, 0, 0, 1, 244, 8, 6, 0, 0, 0, 163, 38,
@@ -23,7 +24,8 @@ describe("detectFileOption", () => {
     })
   );
 
-  effect("should detect the file type of an ArrayBuffer as a png file",
+  effect(
+    "should detect the file type of an ArrayBuffer as a png file",
     Effect.fn(function* () {
       const fileArrayBuffer = new Uint8Array([
         137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 4, 0, 0, 0, 1, 244, 8, 6, 0, 0, 0, 163, 38,
@@ -39,7 +41,8 @@ describe("detectFileOption", () => {
     })
   );
 
-  effect("should detect the file type of a fileUint8Array as a png file",
+  effect(
+    "should detect the file type of a fileUint8Array as a png file",
     Effect.fn(function* () {
       const fileUint8Array = new Uint8Array([
         137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 4, 0, 0, 0, 1, 244, 8, 6, 0, 0, 0, 163, 38,
@@ -55,7 +58,8 @@ describe("detectFileOption", () => {
     })
   );
 
-  effect("should return None if no file type is detected",
+  effect(
+    "should return None if no file type is detected",
     Effect.fn(function* () {
       const file = [1, 2, 3, 4, 5];
       const result = fileTypeChecker.detectFileOption(file);
@@ -64,7 +68,8 @@ describe("detectFileOption", () => {
     })
   );
 
-  effect("should return Left with InvalidFileTypeError for invalid file input via Either API",
+  effect(
+    "should return Left with InvalidFileTypeError for invalid file input via Either API",
     Effect.fn(function* () {
       const file: UnsafeTypes.UnsafeAny = "10";
       const result = fileTypeChecker.detectFileEither(file);
@@ -77,7 +82,8 @@ describe("detectFileOption", () => {
     })
   );
 
-  effect("should throw a TypeError when using detectFile with invalid input",
+  effect(
+    "should throw a TypeError when using detectFile with invalid input",
     Effect.fn(function* () {
       const file: UnsafeTypes.UnsafeAny = "10";
 
@@ -87,7 +93,8 @@ describe("detectFileOption", () => {
     })
   );
 
-  effect("should return None if the Array<number> file is empty",
+  effect(
+    "should return None if the Array<number> file is empty",
     Effect.fn(function* () {
       const file: ReadonlyArray<number> = [];
       const result = fileTypeChecker.detectFileOption(file);
@@ -96,7 +103,8 @@ describe("detectFileOption", () => {
     })
   );
 
-  effect("should return None if chunkSize is too short",
+  effect(
+    "should return None if chunkSize is too short",
     Effect.fn(function* () {
       const file: ReadonlyArray<number> = [
         137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 4, 0, 0, 0, 1, 244, 8, 6, 0, 0, 0, 163, 38,
@@ -109,7 +117,8 @@ describe("detectFileOption", () => {
     })
   );
 
-  effect("should return Left with InvalidChunkSizeError when chunkSize is zero via Either API",
+  effect(
+    "should return Left with InvalidChunkSizeError when chunkSize is zero via Either API",
     Effect.fn(function* () {
       const file: ReadonlyArray<number> = [
         137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 4, 0, 0, 0, 1, 244, 8, 6, 0, 0, 0, 163, 38,
@@ -126,7 +135,8 @@ describe("detectFileOption", () => {
     })
   );
 
-  effect("should throw a RangeError when using detectFile with chunkSize zero",
+  effect(
+    "should throw a RangeError when using detectFile with chunkSize zero",
     Effect.fn(function* () {
       const file: ReadonlyArray<number> = [
         137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 4, 0, 0, 0, 1, 244, 8, 6, 0, 0, 0, 163, 38,
@@ -140,7 +150,8 @@ describe("detectFileOption", () => {
     })
   );
 
-  effect("should return Left with InvalidChunkSizeError when chunkSize is negative via Either API",
+  effect(
+    "should return Left with InvalidChunkSizeError when chunkSize is negative via Either API",
     Effect.fn(function* () {
       const file: ReadonlyArray<number> = [
         137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 4, 0, 0, 0, 1, 244, 8, 6, 0, 0, 0, 163, 38,
@@ -157,7 +168,8 @@ describe("detectFileOption", () => {
     })
   );
 
-  effect("should detect the file type of an Array<number> as a png file with chunkSize of 32 bytes",
+  effect(
+    "should detect the file type of an Array<number> as a png file with chunkSize of 32 bytes",
     Effect.fn(function* () {
       const file: ReadonlyArray<number> = [
         137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 4, 0, 0, 0, 1, 244, 8, 6, 0, 0, 0, 163, 38,

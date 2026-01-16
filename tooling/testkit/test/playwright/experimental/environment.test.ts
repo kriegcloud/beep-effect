@@ -1,13 +1,15 @@
+import { describe } from "bun:test";
 import { layer } from "@beep/testkit";
 import { assert } from "@beep/testkit/assert";
-import { Effect } from "effect";
-import { chromium } from "playwright-core";
+import { isPlaywrightAvailable } from "@beep/testkit/playwright";
 import { PlaywrightBrowser } from "@beep/testkit/playwright/browser";
 import {
   layer as layerPlaywrightEnvironment,
   PlaywrightEnvironment,
   withBrowser,
-} from "@beep/testkit/playwright/experimental/environment"
+} from "@beep/testkit/playwright/experimental/environment";
+import { Effect } from "effect";
+import { chromium } from "playwright-core";
 
 const accessFirst = Effect.gen(function* () {
   const browser = yield* PlaywrightBrowser;
@@ -53,69 +55,77 @@ const accessSecond = Effect.gen(function* () {
   assert(url.includes("?test=1"), "Expected ?test=1");
 });
 
-layer(layerPlaywrightEnvironment(chromium))("PlaywrightEnvironment", (it) => {
-  it.scoped("should launch a browser", Effect.fn(function* () {
-      const program = Effect.gen(function* () {
-        const playwright = yield* PlaywrightEnvironment;
-        const browser = yield* playwright.browser;
+describe.skipIf(!isPlaywrightAvailable)("PlaywrightEnvironment", () => {
+  layer(layerPlaywrightEnvironment(chromium))((it) => {
+    it.scoped(
+      "should launch a browser",
+      Effect.fn(function* () {
+        const program = Effect.gen(function* () {
+          const playwright = yield* PlaywrightEnvironment;
+          const browser = yield* playwright.browser;
 
+          yield* browser.newPage({ baseURL: "about:blank" });
+        });
+        const result = yield* Effect.exit(program);
+
+        assert(result._tag === "Success", "Expected success");
+      })
+    );
+
+    it.effect(
+      "withBrowser helper should work",
+      Effect.fn(function* () {
+        const browser = yield* PlaywrightBrowser;
         yield* browser.newPage({ baseURL: "about:blank" });
-      });
-      const result = yield* Effect.exit(program);
+      }, withBrowser)
+    );
 
-      assert(result._tag === "Success", "Expected success");
-    }),
-  );
-
-  it.effect("withBrowser helper should work", Effect.fn(function* () {
-      const browser = yield* PlaywrightBrowser;
-      yield* browser.newPage({ baseURL: "about:blank" });
-    }, withBrowser),
-  );
-
-  it.effect("withBrowser allows shared use",  Effect.fn(function* () {
-      const browser = yield* PlaywrightBrowser;
-
-      yield* browser.newPage({ baseURL: "about:blank" });
-
-      yield* accessFirst;
-      yield* accessSecond;
-    }, withBrowser),
-  );
-
-  it.effect("withBrowser imperative use", () => withBrowser(
-      Effect.gen(function* () {
+    it.effect(
+      "withBrowser allows shared use",
+      Effect.fn(function* () {
         const browser = yield* PlaywrightBrowser;
 
         yield* browser.newPage({ baseURL: "about:blank" });
-      }),
-    ),
-  );
 
-  it.effect("withBrowser scope cleanup",  Effect.fn(function* () {
-      let capturedBrowser: typeof PlaywrightBrowser.Service | undefined;
+        yield* accessFirst;
+        yield* accessSecond;
+      }, withBrowser)
+    );
 
-      yield* withBrowser(
+    it.effect("withBrowser imperative use", () =>
+      withBrowser(
         Effect.gen(function* () {
           const browser = yield* PlaywrightBrowser;
-          capturedBrowser = browser;
 
           yield* browser.newPage({ baseURL: "about:blank" });
+        })
+      )
+    );
 
-          yield* accessFirst;
-          yield* accessSecond;
-        }),
-      );
+    it.effect(
+      "withBrowser scope cleanup",
+      Effect.fn(function* () {
+        let capturedBrowser: typeof PlaywrightBrowser.Service | undefined;
 
-      assert(capturedBrowser, "Expected browser");
-      const contexts = yield* capturedBrowser.contexts;
-      assert(contexts.length === 0, "Expected no contexts");
+        yield* withBrowser(
+          Effect.gen(function* () {
+            const browser = yield* PlaywrightBrowser;
+            capturedBrowser = browser;
 
-      // actually not connected anymore
-      assert(
-        (yield* capturedBrowser.isConnected) === false,
-        "Expected not connected",
-      );
-    }),
-  );
+            yield* browser.newPage({ baseURL: "about:blank" });
+
+            yield* accessFirst;
+            yield* accessSecond;
+          })
+        );
+
+        assert(capturedBrowser, "Expected browser");
+        const contexts = yield* capturedBrowser.contexts;
+        assert(contexts.length === 0, "Expected no contexts");
+
+        // actually not connected anymore
+        assert((yield* capturedBrowser.isConnected) === false, "Expected not connected");
+      })
+    );
+  });
 });

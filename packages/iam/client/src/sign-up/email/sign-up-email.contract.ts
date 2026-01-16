@@ -1,8 +1,7 @@
-import {$IamClientId} from "@beep/identity/packages";
-import {BS} from "@beep/schema";
+import { $IamClientId } from "@beep/identity/packages";
+import { BS } from "@beep/schema";
 import * as Effect from "effect/Effect";
 import * as ParseResult from "effect/ParseResult";
-import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Common from "../../_common";
 
@@ -12,7 +11,7 @@ export class PayloadFrom extends S.Class<PayloadFrom>($I`PayloadFrom`)(
   {
     email: Common.UserEmail,
     rememberMe: Common.RememberMe,
-    redirectTo: S.optionalWith(BS.URLPath, {default: () => BS.URLPath.make("/")}),
+    redirectTo: S.optionalWith(BS.URLPath, { default: () => BS.URLPath.make("/") }),
     password: BS.Password,
     passwordConfirm: BS.Password,
     firstName: BS.NameAttribute,
@@ -29,8 +28,7 @@ export class PayloadFrom extends S.Class<PayloadFrom>($I`PayloadFrom`)(
       lastName: "",
     },
   }
-) {
-}
+) {}
 
 export class Payload extends PayloadFrom.transformOrFailFrom<Payload>($I`Payload`)(
   {
@@ -77,48 +75,22 @@ export class Payload extends PayloadFrom.transformOrFailFrom<Payload>($I`Payload
         lastName: "",
       },
     },
-    undefined
+    undefined,
   ]
-) {
-}
+) {}
 
-export class Response extends S.Class<Response>($I`Response`)(
-  {
-    data: S.NullOr(
-      S.Struct({
-        user: Common.DomainUserFromBetterAuthUser,
-        token: BS.OptionFromNullishOptionalProperty(S.Redacted(S.String), null),
-      })
-    ),
-  },
-  $I.annotations("Response", {
-    description: "Response for sign-up/email",
-  })
-) {
-}
-
-export class Success extends Response.transformOrFail<Success>($I`Success`)(
+/**
+ * Success schema for sign-up/email.
+ *
+ * Directly decodes `response.data` from Better Auth (not the full response wrapper).
+ * This allows the handler factory pattern to work correctly.
+ */
+export class Success extends S.Class<Success>($I`Success`)(
   {
     user: Common.DomainUserFromBetterAuthUser,
     token: BS.OptionFromNullishOptionalProperty(S.Redacted(S.String), null),
   },
-  {
-    decode: (i, _, ast) =>
-      Effect.gen(function* () {
-        const {data} = i;
-        if (P.isNullable(data)) {
-          return yield* Effect.fail(new ParseResult.Type(ast, i, "i.data is null"));
-        }
-        return yield* Effect.succeed({
-          data,
-          user: data.user,
-          token: data.token,
-        });
-      }),
-    encode: (i) => Effect.succeed(i),
-  },
   $I.annotations("Success", {
-    description: "Success response for sign-up/email with non-null data",
+    description: "Success response for sign-up/email - decodes response.data directly",
   })
-) {
-}
+) {}

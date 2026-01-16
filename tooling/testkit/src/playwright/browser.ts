@@ -13,9 +13,7 @@ export type NewContextOptions = Parameters<Browser["newContext"]>[0];
 /**
  * @category tag
  */
-export class PlaywrightBrowser extends Context.Tag(
-  "cehs/backend/lib/playwright/PlaywrightBrowser",
-)<
+export class PlaywrightBrowser extends Context.Tag("cehs/backend/lib/playwright/PlaywrightBrowser")<
   PlaywrightBrowser,
   {
     /**
@@ -30,9 +28,7 @@ export class PlaywrightBrowser extends Context.Tag(
      * @returns An effect that resolves to a `PlaywrightPage` service.
      * @see {@link Browser.newPage}
      */
-    readonly newPage: (
-      options?: NewPageOptions,
-    ) => Effect.Effect<typeof PlaywrightPage.Service, PlaywrightError.Type>;
+    readonly newPage: (options?: NewPageOptions) => Effect.Effect<typeof PlaywrightPage.Service, PlaywrightError.Type>;
     /**
      * A generic utility to execute any promise-based method on the underlying Playwright `Browser`.
      * Can be used to access any Browser functionality not directly exposed by this service.
@@ -46,9 +42,7 @@ export class PlaywrightBrowser extends Context.Tag(
      * @returns An effect that wraps the promise and returns its result.
      * @see {@link Browser}
      */
-    readonly use: <T>(
-      f: (browser: Browser) => Promise<T>,
-    ) => Effect.Effect<T, PlaywrightError.Type>;
+    readonly use: <T>(f: (browser: Browser) => Promise<T>) => Effect.Effect<T, PlaywrightError.Type>;
     /**
      * An Effect that closes the browser and all of its pages.
      * @see {@link Browser.close}
@@ -59,17 +53,11 @@ export class PlaywrightBrowser extends Context.Tag(
      * An Effect that returns the list of all open browser contexts.
      * @see {@link Browser.contexts}
      */
-    readonly contexts: Effect.Effect<
-      Array<typeof PlaywrightBrowserContext.Service>
-    >;
+    readonly contexts: Effect.Effect<Array<typeof PlaywrightBrowserContext.Service>>;
 
     readonly newContext: (
-      options?: NewContextOptions,
-    ) => Effect.Effect<
-      typeof PlaywrightBrowserContext.Service,
-      PlaywrightError.Type,
-      Scope
-    >;
+      options?: NewContextOptions
+    ) => Effect.Effect<typeof PlaywrightBrowserContext.Service, PlaywrightError.Type, Scope>;
 
     /**
      * An Effect that returns the browser type (chromium, firefox or webkit) that the browser belongs to.
@@ -96,18 +84,13 @@ export class PlaywrightBrowser extends Context.Tag(
     const use = useHelper(browser);
 
     return PlaywrightBrowser.of({
-      newPage: (options) =>
-        use((browser) => browser.newPage(options).then(PlaywrightPage.make)),
+      newPage: (options) => use((browser) => browser.newPage(options).then(PlaywrightPage.make)),
       close: use((browser) => browser.close()),
-      contexts: Effect.sync(() =>
-        browser.contexts().map(PlaywrightBrowserContext.make),
-      ),
+      contexts: Effect.sync(() => browser.contexts().map(PlaywrightBrowserContext.make)),
       newContext: (options) =>
         Effect.acquireRelease(
-          use((browser) =>
-            browser.newContext(options).then(PlaywrightBrowserContext.make),
-          ),
-          (context) => context.close.pipe(Effect.ignoreLogged),
+          use((browser) => browser.newContext(options).then(PlaywrightBrowserContext.make)),
+          (context) => context.close.pipe(Effect.ignoreLogged)
         ),
       browserType: Effect.sync(() => browser.browserType()),
       version: Effect.sync(() => browser.version()),

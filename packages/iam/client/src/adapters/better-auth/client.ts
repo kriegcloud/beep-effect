@@ -2,6 +2,7 @@ import type { Auth } from "@beep/iam-server";
 import { clientEnv } from "@beep/shared-env/ClientEnv";
 import { asyncNoOp } from "@beep/utils";
 import type { BetterAuthClientOptions } from "@better-auth/core";
+import { oauthProviderClient } from "@better-auth/oauth-provider/client";
 import { passkeyClient } from "@better-auth/passkey/client";
 import { ssoClient } from "@better-auth/sso/client";
 import { stripeClient } from "@better-auth/stripe/client";
@@ -16,7 +17,6 @@ import {
   jwtClient,
   lastLoginMethodClient,
   multiSessionClient,
-  oidcClient,
   oneTapClient,
   oneTimeTokenClient,
   organizationClient,
@@ -36,9 +36,9 @@ export const client = createAuthClient({
     anonymousClient(),
     jwtClient(),
     apiKeyClient(),
+    oauthProviderClient(),
     genericOAuthClient(),
     multiSessionClient(),
-    oidcClient(),
     oneTapClient({
       clientId: clientEnv.googleClientId,
       promptOptions: {

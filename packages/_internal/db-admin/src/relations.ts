@@ -38,17 +38,14 @@ export const userRelations = d.relations(Tables.user, ({ many }) => ({
   passkeys: many(Tables.passkey, {
     relationName: "passkeys",
   }),
-  oauthApplications: many(Tables.oauthApplication),
   impersonatedSessions: many(Tables.session, {
     relationName: "impersonatedSessions",
   }),
   // Additional IAM relations
   twoFactors: many(Tables.twoFactor),
   deviceCodes: many(Tables.deviceCode),
-  oauthAccessTokens: many(Tables.oauthAccessToken),
   ssoProviders: many(Tables.ssoProvider),
   invitations: many(Tables.invitation),
-  oauthConsents: many(Tables.oauthConsent),
   apiKeys: many(Tables.apiKey),
 
   // === Documents slice relations ===
@@ -76,12 +73,11 @@ export const organizationRelations = d.relations(Tables.organization, ({ many, o
   subscriptions: many(Tables.subscription),
   // Additional IAM relations
   twoFactors: many(Tables.twoFactor),
-  oauthAccessTokens: many(Tables.oauthAccessToken),
   organizationRoles: many(Tables.organizationRole),
   ssoProviders: many(Tables.ssoProvider),
-  oauthApplications: many(Tables.oauthApplication),
+
   invitations: many(Tables.invitation),
-  oauthConsents: many(Tables.oauthConsent),
+
   apiKeys: many(Tables.apiKey),
   teamMembers: many(Tables.teamMember),
   scimProviders: many(Tables.scimProvider),

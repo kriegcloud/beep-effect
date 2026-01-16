@@ -1,23 +1,19 @@
 import { client } from "@beep/iam-client/adapters";
-import * as Effect from "effect/Effect";
-import * as S from "effect/Schema";
-import * as Common from "../../_common";
+import { createHandler } from "../../_common/handler.factory.ts";
 import * as Contract from "./sign-out.contract.ts";
-export const Handler = Effect.fn("core/sign-out/handler")(function* (
-  payload?:
-    | undefined
-    | {
-        readonly fetchOptions?: undefined | Common.ClientFetchOption;
-      }
-) {
-  const response = yield* Effect.tryPromise({
-    try: () =>
-      client.signOut({
-        fetchOptions: payload?.fetchOptions,
-      }),
-    catch: Common.IamError.fromUnknown,
-  });
 
-  return yield* S.decodeUnknown(Contract.Success)(response.data);
+/**
+ * Handler for signing out the current user.
+ *
+ * Features:
+ * - Automatically notifies `$sessionSignal` after successful sign-out
+ * - Properly checks for Better Auth errors before decoding response
+ * - Uses consistent span naming: "core/sign-out/handler"
+ */
+export const Handler = createHandler({
+  domain: "core",
+  feature: "sign-out",
+  execute: () => client.signOut(),
+  successSchema: Contract.Success,
+  mutatesSession: true,
 });
-

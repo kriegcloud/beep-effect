@@ -20,10 +20,7 @@ function NavigationMenu({ className, children, ...props }: NavigationMenuPrimiti
   );
 }
 
-function NavigationMenuList({
-  className,
-  ...props
-}: ComponentPropsWithoutRef<typeof NavigationMenuPrimitive.List>) {
+function NavigationMenuList({ className, ...props }: ComponentPropsWithoutRef<typeof NavigationMenuPrimitive.List>) {
   return (
     <NavigationMenuPrimitive.List
       data-slot="navigation-menu-list"
@@ -33,10 +30,7 @@ function NavigationMenuList({
   );
 }
 
-function NavigationMenuItem({
-  className,
-  ...props
-}: ComponentPropsWithoutRef<typeof NavigationMenuPrimitive.Item>) {
+function NavigationMenuItem({ className, ...props }: ComponentPropsWithoutRef<typeof NavigationMenuPrimitive.Item>) {
   return (
     <NavigationMenuPrimitive.Item data-slot="navigation-menu-item" className={cn("relative", className)} {...props} />
   );

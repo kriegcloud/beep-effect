@@ -1,8 +1,8 @@
 import { withToast } from "@beep/ui/common/with-toast";
-import { useAtomSet, useAtomRefresh, useAtomValue } from "@effect-atom/atom-react";
+import { useAtomRefresh, useAtomSet, useAtomValue } from "@effect-atom/atom-react";
 import * as F from "effect/Function";
-import { CoreService, coreRuntime } from "./service.ts";
 import type * as Common from "../_common";
+import { CoreService, coreRuntime } from "./service.ts";
 
 const signOutAtom = coreRuntime.fn(
   F.flow(

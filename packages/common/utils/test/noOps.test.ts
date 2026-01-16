@@ -5,7 +5,8 @@ import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
 import { asyncNoOp, asyncNullOp, noOp, nullOp, nullOpE } from "../src/noOps";
 
-effect("sync no-op helpers return stable outputs",
+effect(
+  "sync no-op helpers return stable outputs",
   Effect.fn(function* () {
     expect(noOp()).toBeUndefined();
     expect(nullOp()).toBeNull();
@@ -19,7 +20,8 @@ effect("sync no-op helpers return stable outputs",
   })
 );
 
-effect("async no-ops resolve quickly without side effects",
+effect(
+  "async no-ops resolve quickly without side effects",
   Effect.fn(function* () {
     const results = yield* Effect.promise(() =>
       Promise.all(
@@ -34,7 +36,8 @@ effect("async no-ops resolve quickly without side effects",
   })
 );
 
-effect("nullOpE composes in Effect pipelines",
+effect(
+  "nullOpE composes in Effect pipelines",
   Effect.fn(function* () {
     const combined = yield* Effect.gen(function* () {
       const first = yield* nullOpE();
@@ -47,7 +50,8 @@ effect("nullOpE composes in Effect pipelines",
   })
 );
 
-effect("no-op helpers keep references stable and callable",
+effect(
+  "no-op helpers keep references stable and callable",
   Effect.fn(function* () {
     const snapshot = [noOp, nullOp, asyncNoOp, asyncNullOp, nullOpE];
     const again = [noOp, nullOp, asyncNoOp, asyncNullOp, nullOpE];

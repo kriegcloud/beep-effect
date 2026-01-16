@@ -214,8 +214,8 @@ export const DomainWalletAddressFromBetterAuthWalletAddress = S.transformOrFail(
         const id = walletAddressEncoded.id ?? IamEntityIds.WalletAddressId.create();
 
         // Convert dates - these may be DateTime.Utc or Date
-        const createdAt =toDate(walletAddressEncoded.createdAt);
-        const updatedAt =toDate(walletAddressEncoded.updatedAt);
+        const createdAt = toDate(walletAddressEncoded.createdAt);
+        const updatedAt = toDate(walletAddressEncoded.updatedAt);
 
         // Return BetterAuthWalletAddress form with database fields included via Record
         // This ensures proper round-trip through the transformation

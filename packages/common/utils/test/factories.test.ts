@@ -3,7 +3,8 @@ import { effect } from "@beep/testkit";
 import { deriveKeyEnum } from "@beep/utils/factories/enum.factory";
 import * as Effect from "effect/Effect";
 
-effect("deriveKeyEnum builds key-to-key enums",
+effect(
+  "deriveKeyEnum builds key-to-key enums",
   Effect.fn(function* () {
     const Enum = deriveKeyEnum({ pending: {}, active: {} });
 

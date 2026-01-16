@@ -54,6 +54,41 @@ through runtime helpers, while adapters keep raw Better Auth usage isolated to t
 
 ## Quick Recipes
 
+### Create a handler with the factory pattern
+
+The handler factory (`createHandler`) reduces boilerplate and ensures consistent patterns:
+
+```ts
+import { client } from "@beep/iam-client/adapters";
+import { createHandler } from "../../_common/handler.factory.ts";
+import * as Contract from "./my-feature.contract.ts";
+
+// With payload (sign-in, sign-up)
+export const Handler = createHandler({
+  domain: "sign-in",
+  feature: "email",
+  execute: (encoded) => client.signIn.email(encoded),
+  successSchema: Contract.Success,
+  payloadSchema: Contract.Payload,
+  mutatesSession: true,
+});
+
+// Without payload (sign-out, get-session)
+export const Handler = createHandler({
+  domain: "core",
+  feature: "sign-out",
+  execute: () => client.signOut(),
+  successSchema: Contract.Success,
+  mutatesSession: true,
+});
+```
+
+**Benefits:**
+- Auto-generates Effect.fn span name: `"{domain}/{feature}/handler"`
+- Properly checks `response.error` before decoding
+- Notifies `$sessionSignal` when `mutatesSession: true`
+- Reduces handler code from ~20 lines to ~8 lines
+
 ### Wire a sign-out atom with toast feedback
 
 ```ts
@@ -235,3 +270,14 @@ export const resolveCallbackTarget = (raw: string | null | undefined) =>
 - **Symptom**: After sign-in, users redirect to wrong pages or get 404 errors.
 - **Root Cause**: `AuthCallback.privatePrefix` values in this package are out of sync with route middleware in `apps/web`.
 - **Solution**: When adding authenticated routes, update BOTH `packages/iam/client/src/constants.ts` AND the corresponding middleware in `apps/web`. Run `bun run --filter apps/web lint` to catch mismatches.
+
+### Handler Factory Configuration
+- **`mutatesSession` flag**: MUST be `true` for sign-in, sign-out, sign-up, verify, passkey, social. Controls `$sessionSignal` notification.
+- **`execute` function**: Receives encoded payload (not decoded). Do NOT call `S.encode` manually.
+- **Error handling**: Factory automatically checks `response.error`. Do NOT add manual error checks.
+- **Span naming**: Factory generates `"{domain}/{feature}/handler"`. Match your directory structure.
+
+### Handler Factory Limitations
+- **Symptom**: Type errors when using `createHandler` with complex payload schemas.
+- **Root Cause**: Some contracts (like `sign-up/email`) use `transformOrFailFrom` which produces encoded output that lacks computed fields (e.g., `name` computed from `firstName`+`lastName`).
+- **Solution**: For these edge cases, create a manual handler that encodes the payload, manually adds computed fields, checks `response.error`, and notifies `$sessionSignal`. See `sign-up/email/sign-up-email.handler.ts` for an example.

@@ -63,7 +63,8 @@ describe("MD5 Blob Hashing (Bun runtime)", () => {
       );
     });
 
-  live("should hash a small blob",
+  live(
+    "should hash a small blob",
     Effect.fn(function* () {
       const str = "hello";
       const uint8Array = stringToUint8Array(str);
@@ -75,7 +76,8 @@ describe("MD5 Blob Hashing (Bun runtime)", () => {
     })
   );
 
-  live("should hash a large blob with chunk size 16",
+  live(
+    "should hash a large blob with chunk size 16",
     Effect.fn(function* () {
       const uint8Array = stringToUint8Array(largeString);
       const blob = new Blob([uint8Array.buffer as ArrayBuffer]);
@@ -86,7 +88,8 @@ describe("MD5 Blob Hashing (Bun runtime)", () => {
     })
   );
 
-  live("should hash a large blob with chunk size 17 (uneven division)",
+  live(
+    "should hash a large blob with chunk size 17 (uneven division)",
     Effect.fn(function* () {
       const uint8Array = stringToUint8Array(largeString);
       const blob = new Blob([uint8Array.buffer as ArrayBuffer]);
@@ -97,7 +100,8 @@ describe("MD5 Blob Hashing (Bun runtime)", () => {
     })
   );
 
-  live("should hash empty blob",
+  live(
+    "should hash empty blob",
     Effect.fn(function* () {
       const blob = new Blob([]);
 
@@ -108,7 +112,8 @@ describe("MD5 Blob Hashing (Bun runtime)", () => {
     })
   );
 
-  live("should produce consistent results with default chunk size",
+  live(
+    "should produce consistent results with default chunk size",
     Effect.fn(function* () {
       const str = "The quick brown fox jumps over the lazy dog";
       const uint8Array = stringToUint8Array(str);

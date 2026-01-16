@@ -1,11 +1,11 @@
-import {Verification} from "@beep/iam-domain/entities";
-import {$IamClientId} from "@beep/identity/packages";
-import {IamEntityIds} from "@beep/shared-domain";
+import { Verification } from "@beep/iam-domain/entities";
+import { $IamClientId } from "@beep/identity/packages";
+import { IamEntityIds } from "@beep/shared-domain";
 import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
 import * as ParseResult from "effect/ParseResult";
 import * as S from "effect/Schema";
-import {requireDate, requireNumber, requireString, toDate} from "./transformation-helpers.ts";
+import { requireDate, requireNumber, requireString, toDate } from "./transformation-helpers.ts";
 
 const $I = $IamClientId.create("_common/verification.schemas");
 
@@ -34,9 +34,9 @@ export const BetterAuthVerificationSchema = F.pipe(
     // Verification-specific fields
     identifier: S.String,
     value: S.String,
-    expiresAt: S.optionalWith(S.String, { nullable: true}),
+    expiresAt: S.optionalWith(S.String, { nullable: true }),
   }),
-  S.extend(S.Record({key: S.String, value: S.Unknown})),
+  S.extend(S.Record({ key: S.String, value: S.Unknown })),
   S.annotations(
     $I.annotations("BetterAuthVerification", {
       description: "The verification object returned from the BetterAuth library.",

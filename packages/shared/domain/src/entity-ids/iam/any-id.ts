@@ -7,9 +7,6 @@ const $I = $SharedDomainId.create("entity-ids/iam/any-id");
 export class AnyId extends S.Union(
   Ids.JwksId,
   Ids.MemberId,
-  Ids.OAuthAccessTokenId,
-  Ids.OAuthApplicationId,
-  Ids.OAuthConsentId,
   Ids.PasskeyId,
   Ids.RateLimitId,
   Ids.SsoProviderId,

@@ -1,4 +1,3 @@
-
 import { AuthProviderNameValue } from "@beep/constants";
 import { clientEnv } from "@beep/shared-env/ClientEnv";
 import Box, { type BoxProps } from "@mui/material/Box";

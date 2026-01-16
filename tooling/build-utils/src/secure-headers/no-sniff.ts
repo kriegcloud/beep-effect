@@ -64,18 +64,18 @@ export type NosniffHeader = typeof NosniffHeaderSchema.Type;
 
 export const createXContentTypeOptionsHeaderValue: (
   option?: undefined | NosniffOption
-) => Effect.Effect<string | undefined, SecureHeadersError, never> = Effect.fn(
-  "createXContentTypeOptionsHeaderValue"
-)(function* (option?: undefined | NosniffOption) {
-  if (option == undefined) return "nosniff";
-  if (option === false) return undefined;
-  if (option === "nosniff") return option;
+) => Effect.Effect<string | undefined, SecureHeadersError, never> = Effect.fn("createXContentTypeOptionsHeaderValue")(
+  function* (option?: undefined | NosniffOption) {
+    if (option == undefined) return "nosniff";
+    if (option === false) return undefined;
+    if (option === "nosniff") return option;
 
-  return yield* new SecureHeadersError({
-    type: "NO_SNIFF",
-    message: `Invalid value for ${headerName}: ${option}`,
-  });
-});
+    return yield* new SecureHeadersError({
+      type: "NO_SNIFF",
+      message: `Invalid value for ${headerName}: ${option}`,
+    });
+  }
+);
 
 export const createNosniffHeader: (
   option?: undefined | NosniffOption,

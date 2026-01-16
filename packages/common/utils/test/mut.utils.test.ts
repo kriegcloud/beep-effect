@@ -5,7 +5,8 @@ import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
 
-effect("removeReadonly returns a mutable array view",
+effect(
+  "removeReadonly returns a mutable array view",
   Effect.fn(function* () {
     const readonly = [1, 2, 3];
     const mutable = removeReadonly(readonly);
@@ -17,7 +18,8 @@ effect("removeReadonly returns a mutable array view",
   })
 );
 
-effect("removeReadonlyNonEmpty preserves non-empty typing",
+effect(
+  "removeReadonlyNonEmpty preserves non-empty typing",
   Effect.fn(function* () {
     const readonly = [5, 6] as const;
     const mutable = removeReadonlyNonEmpty(readonly);

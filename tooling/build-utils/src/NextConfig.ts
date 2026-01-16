@@ -208,220 +208,214 @@ type BeepNextConfig = Omit<NextConfig, "headers"> & {
   readonly pwaConfig?: PWAConfig;
 };
 
-const withDefaultsImpl = Effect.fn("withDefaults")(function* (
-  packageName: `@beep/${string}`,
-  config?: BeepNextConfig
-) {
+const withDefaultsImpl = Effect.fn("withDefaults")(function* (packageName: `@beep/${string}`, config?: BeepNextConfig) {
   const repoRoot = yield* findRepoRoot;
-    const transpilePackages = yield* TranspilePackages.computeTranspilePackages({
-      target: packageName,
-    });
-    const hostname = yield* Config.url("NEXT_PUBLIC_STATIC_URL").pipe(
-      Config.map((url) => pipe(url.toString(), Str.replace("https://", Str.empty)))
-    );
-    const protocol = "https";
-    const port = Str.empty;
-    const pathname = `/**`;
-
-    const images = pipe(
-      config?.images,
-      O.fromNullable,
-      O.map(
-        (imgConfig) =>
-          ({
-            unoptimized: P.isNotNullable(imgConfig.unoptimized) ? imgConfig.unoptimized : false,
-
-            remotePatterns: [
-              ...pipe(imgConfig.remotePatterns, O.fromNullable, O.getOrElse(A.empty)),
-              {
-                hostname,
-                port,
-                protocol,
-                pathname,
-              },
-              {
-                hostname: "cdn.discordapp.com",
-                protocol: "https",
-              },
-              {
-                hostname: "lh3.googleusercontent.com",
-                protocol: "https",
-              },
-              {
-                hostname: "avatars.githubusercontent.com",
-                protocol: "https",
-              },
-              {
-                hostname: "images.unsplash.com",
-                protocol: "https",
-              },
-              {
-                hostname: "image.tmdb.org",
-                protocol: "https",
-              },
-              {
-                hostname: "res.cloudinary.com",
-                protocol: "https",
-              },
-            ],
-          }) satisfies NextConfig["images"]
-      ),
-      O.getOrElse(
-        () =>
-          ({
-            unoptimized: false,
-            remotePatterns: [
-              {
-                hostname,
-                port,
-                protocol,
-                pathname,
-              },
-              {
-                hostname: "cdn.discordapp.com",
-                protocol: "https",
-              },
-              {
-                hostname: "lh3.googleusercontent.com",
-                protocol: "https",
-              },
-              {
-                hostname: "avatars.githubusercontent.com",
-                protocol: "https",
-              },
-              {
-                hostname: "images.unsplash.com",
-                protocol: "https",
-              },
-              {
-                hostname: "image.tmdb.org",
-                protocol: "https",
-              },
-              {
-                hostname: "res.cloudinary.com",
-                protocol: "https",
-              },
-            ],
-          }) satisfies NextConfig["images"]
-      )
-    );
-
-    const pageExtensions = [
-      "tsx",
-      "ts",
-      "mdx",
-      "md",
-      ...pipe(config?.pageExtensions, O.fromNullable, O.getOrElse(A.empty)),
-    ];
-
-    // const pwaConfig =
-
-    return {
-      reactCompiler: P.isNotNullable(config?.reactCompiler) ? config.reactCompiler : true,
-      trailingSlash: P.isNotNullable(config?.trailingSlash) ? config.trailingSlash : false,
-      images,
-      transpilePackages,
-      pageExtensions,
-      compress: true,
-      productionBrowserSourceMaps: true,
-      staticPageGenerationTimeout: 60,
-      // cacheComponents: true,
-      // TODO enable soon
-      // typedRoutes: P.isNotNullable(config?.typedRoutes) ? config.typedRoutes : true,
-      serverExternalPackages: [
-        ...pipe(config?.serverExternalPackages, O.fromNullable, O.getOrElse(A.empty)),
-        "@node-rs/argon2",
-      ],
-      turbopack: pipe(
-        config?.turbopack,
-        O.fromNullable,
-        O.getOrElse(
-          constant({
-            root: repoRoot,
-            rules: {
-              "*.svg": {
-                loaders: A.make("@svgr/webpack"),
-                as: "*.js",
-              },
-            },
-          })
-        )
-      ),
-      outputFileTracingRoot: pipe(config?.outputFileTracingRoot, O.fromNullable, O.getOrElse(constant(repoRoot))),
-      experimental: O.fromNullable(config?.experimental).pipe((opt) => {
-        const optimizePackageImports = pipe(
-          [
-            ...HashSet.toValues(defaultOptimizeImports),
-            ...pipe(config?.experimental?.optimizePackageImports, O.fromNullable, O.getOrElse(A.empty)),
-          ],
-          HashSet.fromIterable,
-          HashSet.toValues
-        );
-        return pipe(
-          opt,
-          O.match({
-            onNone: () => ({
-              optimizePackageImports,
-              mcpServer: true,
-              turbopackFileSystemCacheForDev: true,
-              browserDebugInfoInTerminal: true,
-            }),
-            onSome: ({ optimizePackageImports: _, ...experimental }) => ({
-              ...experimental,
-              browserDebugInfoInTerminal: true,
-              turbotrace: {
-                contextDirectory: __dirname,
-                loadersToBundle: ["babel-loader"],
-              },
-              // optimisticClientCache: true,
-              ppr: true,
-              optimizePackageImports,
-            }),
-          })
-        );
-      }),
-    } satisfies BeepNextConfig;
+  const transpilePackages = yield* TranspilePackages.computeTranspilePackages({
+    target: packageName,
   });
+  const hostname = yield* Config.url("NEXT_PUBLIC_STATIC_URL").pipe(
+    Config.map((url) => pipe(url.toString(), Str.replace("https://", Str.empty)))
+  );
+  const protocol = "https";
+  const port = Str.empty;
+  const pathname = `/**`;
+
+  const images = pipe(
+    config?.images,
+    O.fromNullable,
+    O.map(
+      (imgConfig) =>
+        ({
+          unoptimized: P.isNotNullable(imgConfig.unoptimized) ? imgConfig.unoptimized : false,
+
+          remotePatterns: [
+            ...pipe(imgConfig.remotePatterns, O.fromNullable, O.getOrElse(A.empty)),
+            {
+              hostname,
+              port,
+              protocol,
+              pathname,
+            },
+            {
+              hostname: "cdn.discordapp.com",
+              protocol: "https",
+            },
+            {
+              hostname: "lh3.googleusercontent.com",
+              protocol: "https",
+            },
+            {
+              hostname: "avatars.githubusercontent.com",
+              protocol: "https",
+            },
+            {
+              hostname: "images.unsplash.com",
+              protocol: "https",
+            },
+            {
+              hostname: "image.tmdb.org",
+              protocol: "https",
+            },
+            {
+              hostname: "res.cloudinary.com",
+              protocol: "https",
+            },
+          ],
+        }) satisfies NextConfig["images"]
+    ),
+    O.getOrElse(
+      () =>
+        ({
+          unoptimized: false,
+          remotePatterns: [
+            {
+              hostname,
+              port,
+              protocol,
+              pathname,
+            },
+            {
+              hostname: "cdn.discordapp.com",
+              protocol: "https",
+            },
+            {
+              hostname: "lh3.googleusercontent.com",
+              protocol: "https",
+            },
+            {
+              hostname: "avatars.githubusercontent.com",
+              protocol: "https",
+            },
+            {
+              hostname: "images.unsplash.com",
+              protocol: "https",
+            },
+            {
+              hostname: "image.tmdb.org",
+              protocol: "https",
+            },
+            {
+              hostname: "res.cloudinary.com",
+              protocol: "https",
+            },
+          ],
+        }) satisfies NextConfig["images"]
+    )
+  );
+
+  const pageExtensions = [
+    "tsx",
+    "ts",
+    "mdx",
+    "md",
+    ...pipe(config?.pageExtensions, O.fromNullable, O.getOrElse(A.empty)),
+  ];
+
+  // const pwaConfig =
+
+  return {
+    reactCompiler: P.isNotNullable(config?.reactCompiler) ? config.reactCompiler : true,
+    trailingSlash: P.isNotNullable(config?.trailingSlash) ? config.trailingSlash : false,
+    images,
+    transpilePackages,
+    pageExtensions,
+    compress: true,
+    productionBrowserSourceMaps: true,
+    staticPageGenerationTimeout: 60,
+    // cacheComponents: true,
+    // TODO enable soon
+    // typedRoutes: P.isNotNullable(config?.typedRoutes) ? config.typedRoutes : true,
+    serverExternalPackages: [
+      ...pipe(config?.serverExternalPackages, O.fromNullable, O.getOrElse(A.empty)),
+      "@node-rs/argon2",
+    ],
+    turbopack: pipe(
+      config?.turbopack,
+      O.fromNullable,
+      O.getOrElse(
+        constant({
+          root: repoRoot,
+          rules: {
+            "*.svg": {
+              loaders: A.make("@svgr/webpack"),
+              as: "*.js",
+            },
+          },
+        })
+      )
+    ),
+    outputFileTracingRoot: pipe(config?.outputFileTracingRoot, O.fromNullable, O.getOrElse(constant(repoRoot))),
+    experimental: O.fromNullable(config?.experimental).pipe((opt) => {
+      const optimizePackageImports = pipe(
+        [
+          ...HashSet.toValues(defaultOptimizeImports),
+          ...pipe(config?.experimental?.optimizePackageImports, O.fromNullable, O.getOrElse(A.empty)),
+        ],
+        HashSet.fromIterable,
+        HashSet.toValues
+      );
+      return pipe(
+        opt,
+        O.match({
+          onNone: () => ({
+            optimizePackageImports,
+            mcpServer: true,
+            turbopackFileSystemCacheForDev: true,
+            browserDebugInfoInTerminal: true,
+          }),
+          onSome: ({ optimizePackageImports: _, ...experimental }) => ({
+            ...experimental,
+            browserDebugInfoInTerminal: true,
+            turbotrace: {
+              contextDirectory: __dirname,
+              loadersToBundle: ["babel-loader"],
+            },
+            // optimisticClientCache: true,
+            ppr: true,
+            optimizePackageImports,
+          }),
+        })
+      );
+    }),
+  } satisfies BeepNextConfig;
+});
 
 const withDefaults = (packageName: `@beep/${string}`, config?: BeepNextConfig) =>
   withDefaultsImpl(packageName, config).pipe(Effect.provide(layer));
 
-const make = Effect.fn("NextConfig.make")(function* (
-  packageName: `@beep/${string}`,
-  config?: BeepNextConfig
-) {
-    const mergedHeaders = mergeSecureHeaders(config?.headers);
-    const secureHeaders = yield* createSecureHeaders(mergedHeaders);
-    const configWithDefaults = yield* withDefaults(packageName, config);
+const make = Effect.fn("NextConfig.make")(function* (packageName: `@beep/${string}`, config?: BeepNextConfig) {
+  const mergedHeaders = mergeSecureHeaders(config?.headers);
+  const secureHeaders = yield* createSecureHeaders(mergedHeaders);
+  const configWithDefaults = yield* withDefaults(packageName, config);
 
-    const pwaConfig = {
-      dest: "public",
-      disable: process.env.NODE_ENV === "development",
-      register: true,
-      skipWaiting: true,
-      runtimeCaching: [...defaultCache],
-      fallbacks: {
-        document: "/_offline",
-      },
-      ...pipe(O.fromNullable(config?.pwaConfig), O.getOrElse(R.empty)),
-    } satisfies PWAConfig;
+  const pwaConfig = {
+    dest: "public",
+    disable: process.env.NODE_ENV === "development",
+    register: true,
+    skipWaiting: true,
+    runtimeCaching: [...defaultCache],
+    fallbacks: {
+      document: "/_offline",
+    },
+    ...pipe(O.fromNullable(config?.pwaConfig), O.getOrElse(R.empty)),
+  } satisfies PWAConfig;
 
-    return yield* pipe(
-      {
-        ...configWithDefaults,
-        allowedDevOrigins: process.env.NODE_ENV === "development" ? ["host.docker.internal"] : [],
-        headers: async () => [
-          {
-            source: "/:path*",
-            headers: secureHeaders,
-          },
-        ],
-      } satisfies NextConfig,
-      withPWA(pwaConfig),
-      withMDX,
-      withBundleAnalyzer(config?.bundleAnalyzerOptions)
-    );
-  });
+  return yield* pipe(
+    {
+      ...configWithDefaults,
+      allowedDevOrigins: process.env.NODE_ENV === "development" ? ["host.docker.internal"] : [],
+      headers: async () => [
+        {
+          source: "/:path*",
+          headers: secureHeaders,
+        },
+      ],
+    } satisfies NextConfig,
+    withPWA(pwaConfig),
+    withMDX,
+    withBundleAnalyzer(config?.bundleAnalyzerOptions)
+  );
+});
 
 export const beepNextConfig = (packageName: `@beep/${string}`, config?: BeepNextConfig): Promise<NextConfig> =>
   Effect.runPromise(pipe(make(packageName, config), Effect.provide(layer), Effect.catchAll(Effect.die)));

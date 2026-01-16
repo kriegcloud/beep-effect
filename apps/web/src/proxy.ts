@@ -16,8 +16,7 @@ import { NextResponse } from "next/server";
 
 const SESSION_COOKIE_NAME = "better-auth.session_token";
 
-const hasSessionCookie = (request: NextRequest): boolean =>
-  request.cookies.has(SESSION_COOKIE_NAME);
+const hasSessionCookie = (request: NextRequest): boolean => request.cookies.has(SESSION_COOKIE_NAME);
 
 const AUTH_ROUTES = [paths.auth.signIn, paths.auth.signUp] as const;
 

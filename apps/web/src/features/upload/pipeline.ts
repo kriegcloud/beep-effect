@@ -12,11 +12,11 @@ import { formatSize } from "@beep/schema/integrations/files/utils/formatSize";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Metric from "effect/Metric";
+import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import * as Errors from "./errors";
-import * as P from "effect/Predicate";
 import { logInfo, logWarning, makeFileAnnotations, UploadMetrics } from "./observability";
 import {
   type BasicMetadataOutput,

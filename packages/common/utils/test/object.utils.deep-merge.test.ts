@@ -6,7 +6,8 @@ import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
 import * as O from "effect/Option";
 
-effect("deepMerge combines nested objects and merges arrays by index",
+effect(
+  "deepMerge combines nested objects and merges arrays by index",
   Effect.fn(function* () {
     const target = {
       meta: { createdBy: "system", tags: ["alpha", "beta"] },
@@ -35,7 +36,8 @@ effect("deepMerge combines nested objects and merges arrays by index",
   })
 );
 
-effect("deepMerge preserves target values when source entries are undefined",
+effect(
+  "deepMerge preserves target values when source entries are undefined",
   Effect.fn(function* () {
     const target = { flags: { archived: false, published: true } };
     const source = { flags: { archived: undefined, featured: true } };
@@ -46,7 +48,8 @@ effect("deepMerge preserves target values when source entries are undefined",
   })
 );
 
-effect("deepMerge merges multiple sources sequentially",
+effect(
+  "deepMerge merges multiple sources sequentially",
   Effect.fn(function* () {
     const base = { level: 1, progress: { completed: 2, total: 5 } };
     const updateOne = { level: 2 };
@@ -58,7 +61,8 @@ effect("deepMerge merges multiple sources sequentially",
   })
 );
 
-effect("deepMerge does not mutate the provided inputs",
+effect(
+  "deepMerge does not mutate the provided inputs",
   Effect.fn(function* () {
     const original = { list: [{ id: 1 }, { id: 2 }] };
     const updates = { list: [{ id: 1, name: "One" }] };
@@ -78,7 +82,8 @@ effect("deepMerge does not mutate the provided inputs",
   })
 );
 
-effect("deepMerge ignores unsafe prototype keys",
+effect(
+  "deepMerge ignores unsafe prototype keys",
   Effect.fn(function* () {
     const target = {} as Record<string, unknown>;
     const result = deepMerge(target, { __proto__: { polluted: true } });
@@ -87,7 +92,8 @@ effect("deepMerge ignores unsafe prototype keys",
   })
 );
 
-effect("deepMerge clones missing array/object branches instead of mutating sources",
+effect(
+  "deepMerge clones missing array/object branches instead of mutating sources",
   Effect.fn(function* () {
     const resultFromArray = deepMerge({ list: [] }, { list: [{ id: 1 }] });
     const resultFromObject = deepMerge({ info: {} }, { info: { flag: true } });
@@ -97,7 +103,8 @@ effect("deepMerge clones missing array/object branches instead of mutating sourc
   })
 );
 
-effect("deepMerge keeps target slot when source array entry is undefined",
+effect(
+  "deepMerge keeps target slot when source array entry is undefined",
   Effect.fn(function* () {
     const merged = deepMerge({ items: [{ id: 1 }] }, { items: [undefined] });
     const mergedWithExtra = deepMerge({ items: [{ id: 1 }] }, { items: [undefined, { id: 2 }] });

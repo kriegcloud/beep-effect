@@ -27,8 +27,8 @@ type SessionState =
   | { readonly _tag: "Error" }
   | { readonly _tag: "Authenticated"; readonly session: Core.GetSession.SessionData };
 
-const AuthGuardContent: React.FC<AuthGuardContentProps> = ({children, router, ...props}) => {
-  const {sessionResult} = Core.useCore();
+const AuthGuardContent: React.FC<AuthGuardContentProps> = ({ children, router, ...props }) => {
+  const { sessionResult } = Core.useCore();
   const isClient = useIsClient();
 
   // Derive session state without side effects
@@ -38,16 +38,17 @@ const AuthGuardContent: React.FC<AuthGuardContentProps> = ({children, router, ..
     }
 
     return Result.builder(sessionResult)
-      .onInitial(() => ({ _tag: "Loading" } as const))
-      .onDefect(() => ({ _tag: "Error" } as const))
-      .onFailure(() => ({ _tag: "Error" } as const))
+      .onInitial(() => ({ _tag: "Loading" }) as const)
+      .onDefect(() => ({ _tag: "Error" }) as const)
+      .onFailure(() => ({ _tag: "Error" }) as const)
       .onSuccess(({ data }: Core.GetSession.Success) =>
         O.match(data, {
-          onNone: () => ({ _tag: "Unauthenticated" } as const),
-          onSome: (sessionData: Core.GetSession.SessionData) => ({
-            _tag: "Authenticated",
-            session: sessionData,
-          } as const),
+          onNone: () => ({ _tag: "Unauthenticated" }) as const,
+          onSome: (sessionData: Core.GetSession.SessionData) =>
+            ({
+              _tag: "Authenticated",
+              session: sessionData,
+            }) as const,
         })
       )
       .render();
@@ -108,11 +109,11 @@ const AuthGuardContent: React.FC<AuthGuardContentProps> = ({children, router, ..
   );
 };
 
-export const AuthGuard: React.FC<AuthGuardProps> = ({children, ...props}) => {
+export const AuthGuard: React.FC<AuthGuardProps> = ({ children, ...props }) => {
   const router = useRouter();
 
   const fallback = React.useCallback(
-    ({reset}: { reset: () => void }) => (
+    ({ reset }: { reset: () => void }) => (
       <GuardErrorFallback
         title="We hit a snag verifying your session"
         description="Please sign in again so we can restore your workspace."

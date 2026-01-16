@@ -4,7 +4,8 @@ import { InvariantViolation } from "@beep/invariant/error";
 import { effect } from "@beep/testkit";
 import * as Effect from "effect/Effect";
 
-effect("invariant formats circular args and BUG messages",
+effect(
+  "invariant formats circular args and BUG messages",
   Effect.fn(function* () {
     const circular: Record<string, unknown> = {};
     circular.self = circular;
@@ -19,7 +20,8 @@ effect("invariant formats circular args and BUG messages",
   })
 );
 
-effect("invariant helpers propagate failures",
+effect(
+  "invariant helpers propagate failures",
   Effect.fn(function* () {
     expect(() =>
       invariant.unreachable("never" as never, "unreachable branch", { file: "file.ts", line: 20, args: [] })

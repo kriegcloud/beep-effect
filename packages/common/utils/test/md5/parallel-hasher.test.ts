@@ -11,11 +11,11 @@
  * @module
  */
 
-import {describe, expect, live} from "@beep/testkit";
-import {WorkerHashError} from "@beep/utils/md5/errors";
-import {appendByteArray, finalize, makeState} from "@beep/utils/md5/md5";
-import {DEFAULT_CHUNK_SIZE, DEFAULT_POOL_SIZE, hashBlob, ParallelHasher} from "@beep/utils/md5/parallel-hasher";
-import {thunkZero} from "@beep/utils/thunk";
+import { describe, expect, live } from "@beep/testkit";
+import { WorkerHashError } from "@beep/utils/md5/errors";
+import { appendByteArray, finalize, makeState } from "@beep/utils/md5/md5";
+import { DEFAULT_CHUNK_SIZE, DEFAULT_POOL_SIZE, hashBlob, ParallelHasher } from "@beep/utils/md5/parallel-hasher";
+import { thunkZero } from "@beep/utils/thunk";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
@@ -52,54 +52,54 @@ const stringToUint8Array = (str: string): Uint8Array => {
  * Hash a blob synchronously using Effect patterns.
  * This is a Bun-compatible implementation that doesn't use FileReader.
  */
-const hashBlobBun =
-  Effect.fn(function* (blob: Blob, chunkSize: number) {
-    const arrayBuffer = yield* Effect.tryPromise({
-      try: () => blob.arrayBuffer(),
-      catch: (cause) =>
-        new WorkerHashError({
-          message: "Failed to read blob as array buffer",
-          cause,
-        }),
-    });
+const hashBlobBun = Effect.fn(function* (blob: Blob, chunkSize: number) {
+  const arrayBuffer = yield* Effect.tryPromise({
+    try: () => blob.arrayBuffer(),
+    catch: (cause) =>
+      new WorkerHashError({
+        message: "Failed to read blob as array buffer",
+        cause,
+      }),
+  });
 
-    const fullArray = new Uint8Array(arrayBuffer);
-    const totalChunks = Math.ceil(fullArray.length / chunkSize);
+  const fullArray = new Uint8Array(arrayBuffer);
+  const totalChunks = Math.ceil(fullArray.length / chunkSize);
 
-    const chunkStream = Stream.range(0, totalChunks - 1).pipe(
-      Stream.map((chunkIndex) => {
-        const start = chunkIndex * chunkSize;
-        const end = Math.min(start + chunkSize, fullArray.length);
-        return fullArray.slice(start, end);
-      })
-    );
+  const chunkStream = Stream.range(0, totalChunks - 1).pipe(
+    Stream.map((chunkIndex) => {
+      const start = chunkIndex * chunkSize;
+      const end = Math.min(start + chunkSize, fullArray.length);
+      return fullArray.slice(start, end);
+    })
+  );
 
-    const initialState = makeState();
+  const initialState = makeState();
 
-    const finalState = yield* chunkStream.pipe(
-      Stream.runFold(initialState, (state, chunk) => F.pipe(state, appendByteArray(chunk)))
-    );
+  const finalState = yield* chunkStream.pipe(
+    Stream.runFold(initialState, (state, chunk) => F.pipe(state, appendByteArray(chunk)))
+  );
 
-    const result = yield* F.pipe(
-      finalState,
-      finalize(false),
-      Effect.mapError((error) =>
+  const result = yield* F.pipe(
+    finalState,
+    finalize(false),
+    Effect.mapError(
+      (error) =>
         new WorkerHashError({
           message: "MD5 computation failed",
           cause: error,
         })
-      )
-    );
+    )
+  );
 
-    if (typeof result === "string") {
-      return result;
-    }
+  if (typeof result === "string") {
+    return result;
+  }
 
-    return yield* new WorkerHashError({
-      message: "Expected string result from MD5 finalize",
-      cause: result,
-    });
+  return yield* new WorkerHashError({
+    message: "Expected string result from MD5 finalize",
+    cause: result,
   });
+});
 
 /**
  * Test layer that implements ParallelHasherService without workers.
@@ -128,7 +128,9 @@ describe("ParallelHasher constants", () => {
 
 describe("ParallelHasher service interface", () => {
   describe("hashBlob via context", () => {
-    live("hashes 'hello' correctly", Effect.fn(function* () {
+    live(
+      "hashes 'hello' correctly",
+      Effect.fn(function* () {
         const hasher = yield* ParallelHasher;
         const blob = new Blob([stringToUint8Array("hello") as BlobPart]);
         const hash = yield* hasher.hashBlob(blob);
@@ -137,7 +139,8 @@ describe("ParallelHasher service interface", () => {
       }, Effect.provide(TestParallelHasher))
     );
 
-    live("hashes empty blob correctly",
+    live(
+      "hashes empty blob correctly",
       Effect.fn(function* () {
         const hasher = yield* ParallelHasher;
         const blob = new Blob([]);
@@ -148,7 +151,9 @@ describe("ParallelHasher service interface", () => {
       }, Effect.provide(TestParallelHasher))
     );
 
-    live("hashes 'The quick brown fox jumps over the lazy dog' correctly", Effect.fn(function* () {
+    live(
+      "hashes 'The quick brown fox jumps over the lazy dog' correctly",
+      Effect.fn(function* () {
         const hasher = yield* ParallelHasher;
         const blob = new Blob([stringToUint8Array("The quick brown fox jumps over the lazy dog") as BlobPart]);
         const hash = yield* hasher.hashBlob(blob);
@@ -183,7 +188,8 @@ describe("ParallelHasher service interface", () => {
     const largeString =
       "5d41402abc4b2a76b9719d911017c5925d41402abc4b2a76b9719d911017c5925d41402abc4b2a765d41402abc4b2a76b9719d911017c5925d41402abc4b2a76b9719d911017c5925d41402abc4b2a76";
 
-    live("produces consistent hash with default chunk size",
+    live(
+      "produces consistent hash with default chunk size",
       Effect.fn(function* () {
         const hasher = yield* ParallelHasher;
         const blob = new Blob([stringToUint8Array(largeString) as BlobPart]);
@@ -193,7 +199,8 @@ describe("ParallelHasher service interface", () => {
       }, Effect.provide(TestParallelHasher))
     );
 
-    live("produces consistent hash with chunk size 16",
+    live(
+      "produces consistent hash with chunk size 16",
       Effect.fn(function* () {
         const hasher = yield* ParallelHasher;
         const blob = new Blob([stringToUint8Array(largeString) as BlobPart]);
@@ -203,7 +210,8 @@ describe("ParallelHasher service interface", () => {
       }, Effect.provide(TestParallelHasher))
     );
 
-    live("produces consistent hash with chunk size 17 (uneven division)",
+    live(
+      "produces consistent hash with chunk size 17 (uneven division)",
       Effect.fn(function* () {
         const hasher = yield* ParallelHasher;
         const blob = new Blob([stringToUint8Array(largeString) as BlobPart]);
@@ -213,7 +221,8 @@ describe("ParallelHasher service interface", () => {
       }, Effect.provide(TestParallelHasher))
     );
 
-    live("produces consistent hash with chunk size 64 (MD5 block size)",
+    live(
+      "produces consistent hash with chunk size 64 (MD5 block size)",
       Effect.fn(function* () {
         const hasher = yield* ParallelHasher;
         const blob = new Blob([stringToUint8Array(largeString) as BlobPart]);
@@ -223,7 +232,8 @@ describe("ParallelHasher service interface", () => {
       }, Effect.provide(TestParallelHasher))
     );
 
-    live("produces consistent hash with very large chunk size",
+    live(
+      "produces consistent hash with very large chunk size",
       Effect.fn(function* () {
         const hasher = yield* ParallelHasher;
         const blob = new Blob([stringToUint8Array(largeString) as BlobPart]);
@@ -235,7 +245,8 @@ describe("ParallelHasher service interface", () => {
   });
 
   describe("large blob handling", () => {
-    live("hashes large blob (10KB) correctly",
+    live(
+      "hashes large blob (10KB) correctly",
       Effect.fn(function* () {
         const hasher = yield* ParallelHasher;
         // Create a 10KB blob of repeated 'a' characters
@@ -254,7 +265,8 @@ describe("ParallelHasher service interface", () => {
       }, Effect.provide(TestParallelHasher))
     );
 
-    live("hashes exact 64-byte boundary correctly",
+    live(
+      "hashes exact 64-byte boundary correctly",
       Effect.fn(function* () {
         const hasher = yield* ParallelHasher;
         const str = "5d41402abc4b2a76b9719d911017c5925d41402abc4b2a76b9719d911017c592";
@@ -265,7 +277,8 @@ describe("ParallelHasher service interface", () => {
       }, Effect.provide(TestParallelHasher))
     );
 
-    live("hashes exact 128-byte boundary correctly",
+    live(
+      "hashes exact 128-byte boundary correctly",
       Effect.fn(function* () {
         const hasher = yield* ParallelHasher;
         const str =
@@ -279,7 +292,8 @@ describe("ParallelHasher service interface", () => {
   });
 
   describe("consistency between calls", () => {
-    live("produces identical hashes for same input",
+    live(
+      "produces identical hashes for same input",
       Effect.fn(function* () {
         const hasher = yield* ParallelHasher;
         const blob = new Blob([stringToUint8Array("consistency test") as BlobPart]);
@@ -302,7 +316,8 @@ describe("ParallelHasher Context.Tag", () => {
     })
   );
 
-  live("can be accessed from Effect context",
+  live(
+    "can be accessed from Effect context",
     Effect.fn(function* () {
       const service = yield* ParallelHasher;
 
@@ -328,7 +343,8 @@ describe("Error handling simulation", () => {
     })
   );
 
-  live("handles WorkerHashError correctly",
+  live(
+    "handles WorkerHashError correctly",
     Effect.fn(function* () {
       const hasher = yield* ParallelHasher;
       const blob = new Blob([stringToUint8Array("test") as BlobPart]);
@@ -336,7 +352,7 @@ describe("Error handling simulation", () => {
       // Use Effect.catchAll to catch the error and check it matches WorkerHashError
       const result = yield* hasher.hashBlob(blob).pipe(
         Effect.catchAll((error) => {
-          if (error._tag === new WorkerHashError({message: "", cause: null})._tag) {
+          if (error._tag === new WorkerHashError({ message: "", cause: null })._tag) {
             return Effect.succeed(`Caught error: ${error.message}`);
           }
           return Effect.fail(error);
@@ -347,7 +363,8 @@ describe("Error handling simulation", () => {
     }, Effect.provide(FailingParallelHasher))
   );
 
-  live("WorkerHashError has correct _tag format",
+  live(
+    "WorkerHashError has correct _tag format",
     Effect.fn(function* () {
       const error = new WorkerHashError({
         message: "Test message",

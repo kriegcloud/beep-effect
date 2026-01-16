@@ -29,18 +29,6 @@ export const Schema = {
   memberRoleEnum: Tables.memberRoleEnum,
   memberStatusEnum: Tables.memberStatusEnum,
 
-  // oauthAccessToken
-  oauthAccessToken: Tables.oauthAccessToken,
-  oauthAccessTokenRelations: Relations.oauthAccessTokenRelations,
-
-  // oauthApplication
-  oauthApplication: Tables.oauthApplication,
-  oauthApplicationRelations: Relations.oauthApplicationRelations,
-
-  // oauthConsent
-  oauthConsent: Tables.oauthConsent,
-  oauthConsentRelations: Relations.oauthConsentRelations,
-
   // organization:
   organization: Tables.organization,
   organizationTypePgEnum: Tables.organizationTypePgEnum,

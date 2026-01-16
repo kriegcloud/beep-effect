@@ -28,8 +28,8 @@ import {
 import * as A from "effect/Array";
 import * as F from "effect/Function";
 import * as Str from "effect/String";
-import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
+import { useTheme } from "next-themes";
 
 export interface User {
   readonly name: string;

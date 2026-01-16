@@ -5,9 +5,6 @@ import type {
   Invitation,
   Jwks,
   Member,
-  OAuthAccessToken,
-  OAuthApplication,
-  OAuthConsent,
   OrganizationRole,
   Passkey,
   RateLimit,
@@ -53,30 +50,6 @@ export const _checkInsertJwks: typeof Jwks.Model.insert.Encoded = {} as InferIns
 export const _memberSelect: typeof Member.Model.select.Encoded = {} as InferSelectModel<typeof tables.member>;
 
 export const _checkInsertMember: typeof Member.Model.insert.Encoded = {} as InferInsertModel<typeof tables.member>;
-
-export const _oauthAccessToken: typeof OAuthAccessToken.Model.select.Encoded = {} as InferSelectModel<
-  typeof tables.oauthAccessToken
->;
-
-export const _checkInsertOAuthAccessToken: typeof OAuthAccessToken.Model.insert.Encoded = {} as InferInsertModel<
-  typeof tables.oauthAccessToken
->;
-
-export const _oauthApplicationSelect: typeof OAuthApplication.Model.select.Encoded = {} as InferSelectModel<
-  typeof tables.oauthApplication
->;
-
-export const _checkInsertOAuthApplication: typeof OAuthApplication.Model.insert.Encoded = {} as InferInsertModel<
-  typeof tables.oauthApplication
->;
-
-export const _oauthConsentSelect: typeof OAuthConsent.Model.select.Encoded = {} as InferSelectModel<
-  typeof tables.oauthConsent
->;
-
-export const _checkInsertOAuthConsent: typeof OAuthConsent.Model.insert.Encoded = {} as InferInsertModel<
-  typeof tables.oauthConsent
->;
 
 export const _organizationRoleSelect: typeof OrganizationRole.Model.select.Encoded = {} as InferSelectModel<
   typeof tables.organizationRole

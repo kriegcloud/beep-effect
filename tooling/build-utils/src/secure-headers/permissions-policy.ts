@@ -200,10 +200,7 @@ export const createPermissionsPolicyHeader: (
   option?: undefined | PermissionsPolicyOption,
   headerValueCreator?: typeof createPermissionsPolicyHeaderValue
 ) => Effect.Effect<O.Option<ResponseHeader>, SecureHeadersError, never> = Effect.fn("createPermissionsPolicyHeader")(
-  function* (
-    option?: undefined | PermissionsPolicyOption,
-    headerValueCreator = createPermissionsPolicyHeaderValue
-  ) {
+  function* (option?: undefined | PermissionsPolicyOption, headerValueCreator = createPermissionsPolicyHeaderValue) {
     const value = yield* headerValueCreator(option);
 
     if (value === undefined) return O.none<ResponseHeader>();

@@ -17,7 +17,8 @@ import {
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 
-effect("date formatting helpers handle valid and invalid inputs",
+effect(
+  "date formatting helpers handle valid and invalid inputs",
   Effect.fn(function* () {
     const now = DateTime.unsafeNow();
     const startOfDay = DateTime.startOf(now, "day");
@@ -33,7 +34,8 @@ effect("date formatting helpers handle valid and invalid inputs",
   })
 );
 
-effect("relative and comparison helpers evaluate ranges correctly",
+effect(
+  "relative and comparison helpers evaluate ranges correctly",
   Effect.fn(function* () {
     const now = DateTime.unsafeNow();
     const past = DateTime.subtract(now, { minutes: 2 });
@@ -51,7 +53,8 @@ effect("relative and comparison helpers evaluate ranges correctly",
   })
 );
 
-effect("fDateRangeShortLabel condenses ranges and guards invalid sequences",
+effect(
+  "fDateRangeShortLabel condenses ranges and guards invalid sequences",
   Effect.fn(function* () {
     const start = "2024-01-01";
     const end = "2024-01-05";
@@ -67,7 +70,8 @@ effect("fDateRangeShortLabel condenses ranges and guards invalid sequences",
   })
 );
 
-effect("fAdd and fSub adjust relative to now",
+effect(
+  "fAdd and fSub adjust relative to now",
   Effect.fn(function* () {
     const now = DateTime.unsafeNow();
     const addedStr = fAdd({ days: 1, hours: 1 });
@@ -81,7 +85,8 @@ effect("fAdd and fSub adjust relative to now",
   })
 );
 
-effect("temporal helpers consistently guard invalid inputs",
+effect(
+  "temporal helpers consistently guard invalid inputs",
   Effect.fn(function* () {
     expect(fDateTime(undefined)).toBe("Invalid date");
     expect(fDate(null)).toBe("Invalid date");

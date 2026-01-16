@@ -1,13 +1,6 @@
 import { Context, Effect, identity, Stream } from "effect";
-import type {
-  ConsoleMessage,
-  Dialog,
-  Download,
-  FileChooser,
-  Frame,
-  Page,
-  WebSocket,
-} from "playwright-core";
+import type { ConsoleMessage, Dialog, Download, FileChooser, Frame, Page, WebSocket } from "playwright-core";
+import { registerPageMaker } from "./_page-registry";
 import {
   PlaywrightDialog,
   PlaywrightDownload,
@@ -33,10 +26,7 @@ export interface PlaywrightPageService {
    * @see {@link Page.goto}
    * @since 0.1.0
    */
-  readonly goto: (
-    url: string,
-    options?: Parameters<Page["goto"]>[1],
-  ) => Effect.Effect<void, PlaywrightError.Type>;
+  readonly goto: (url: string, options?: Parameters<Page["goto"]>[1]) => Effect.Effect<void, PlaywrightError.Type>;
   /**
    * Waits for the page to navigate to the given URL.
    *
@@ -50,7 +40,7 @@ export interface PlaywrightPageService {
    */
   readonly waitForURL: (
     url: Parameters<Page["waitForURL"]>[0],
-    options?: Parameters<Page["waitForURL"]>[1],
+    options?: Parameters<Page["waitForURL"]>[1]
   ) => Effect.Effect<void, PlaywrightError.Type>;
   /**
    * Evaluates a function in the context of the page.
@@ -68,7 +58,7 @@ export interface PlaywrightPageService {
    */
   readonly evaluate: <R, Arg = void>(
     pageFunction: PageFunction<Arg, R>,
-    arg?: Arg,
+    arg?: Arg
   ) => Effect.Effect<R, PlaywrightError.Type>;
   /**
    * Returns the page title.
@@ -94,19 +84,14 @@ export interface PlaywrightPageService {
    * @see {@link Page}
    * @since 0.1.0
    */
-  readonly use: <T>(
-    f: (page: Page) => Promise<T>,
-  ) => Effect.Effect<T, PlaywrightError.Type>;
+  readonly use: <T>(f: (page: Page) => Promise<T>) => Effect.Effect<T, PlaywrightError.Type>;
   /**
    * Returns a locator for the given selector.
    *
    * @see {@link Page.locator}
    * @since 0.1.0
    */
-  readonly locator: (
-    selector: string,
-    options?: Parameters<Page["locator"]>[1],
-  ) => typeof PlaywrightLocator.Service;
+  readonly locator: (selector: string, options?: Parameters<Page["locator"]>[1]) => typeof PlaywrightLocator.Service;
   /**
    * Returns a locator that matches the given role.
    *
@@ -115,7 +100,7 @@ export interface PlaywrightPageService {
    */
   readonly getByRole: (
     role: Parameters<Page["getByRole"]>[0],
-    options?: Parameters<Page["getByRole"]>[1],
+    options?: Parameters<Page["getByRole"]>[1]
   ) => typeof PlaywrightLocator.Service;
   /**
    * Returns a locator that matches the given text.
@@ -125,7 +110,7 @@ export interface PlaywrightPageService {
    */
   readonly getByText: (
     text: Parameters<Page["getByText"]>[0],
-    options?: Parameters<Page["getByText"]>[1],
+    options?: Parameters<Page["getByText"]>[1]
   ) => typeof PlaywrightLocator.Service;
   /**
    * Returns a locator that matches the given label.
@@ -135,7 +120,7 @@ export interface PlaywrightPageService {
    */
   readonly getByLabel: (
     label: Parameters<Page["getByLabel"]>[0],
-    options?: Parameters<Page["getByLabel"]>[1],
+    options?: Parameters<Page["getByLabel"]>[1]
   ) => typeof PlaywrightLocator.Service;
   /**
    * Returns a locator that matches the given test id.
@@ -143,9 +128,7 @@ export interface PlaywrightPageService {
    * @see {@link Page.getByTestId}
    * @since 0.1.0
    */
-  readonly getByTestId: (
-    testId: Parameters<Page["getByTestId"]>[0],
-  ) => typeof PlaywrightLocator.Service;
+  readonly getByTestId: (testId: Parameters<Page["getByTestId"]>[0]) => typeof PlaywrightLocator.Service;
 
   /**
    * Reloads the page.
@@ -187,7 +170,7 @@ export interface PlaywrightPageService {
    * @since 0.1.0
    */
   readonly eventStream: <K extends keyof typeof eventMappings>(
-    event: K,
+    event: K
   ) => Stream.Stream<ReturnType<(typeof eventMappings)[K]>>;
 
   /**
@@ -204,16 +187,17 @@ export interface PlaywrightPageService {
    */
   readonly click: (
     selector: string,
-    options?: Parameters<Page["click"]>[1],
+    options?: Parameters<Page["click"]>[1]
   ) => Effect.Effect<void, PlaywrightError.Type>;
 }
 
 /**
  * @category tag
  */
-export class PlaywrightPage extends Context.Tag(
-  "effect-playwright/PlaywrightPage",
-)<PlaywrightPage, PlaywrightPageService>() {
+export class PlaywrightPage extends Context.Tag("effect-playwright/PlaywrightPage")<
+  PlaywrightPage,
+  PlaywrightPageService
+>() {
   /**
    * Creates a `PlaywrightPage` from a Playwright `Page` instance.
    *
@@ -227,16 +211,11 @@ export class PlaywrightPage extends Context.Tag(
       goto: (url, options) => use((p) => p.goto(url, options)),
       waitForURL: (url, options) => use((p) => p.waitForURL(url, options)),
       title: use((p) => p.title()),
-      evaluate: <R, Arg>(f: PageFunction<Arg, R>, arg?: Arg) =>
-        use((p) => p.evaluate(f, arg as Arg)),
-      locator: (selector, options) =>
-        PlaywrightLocator.make(page.locator(selector, options)),
-      getByRole: (role, options) =>
-        PlaywrightLocator.make(page.getByRole(role, options)),
-      getByText: (text, options) =>
-        PlaywrightLocator.make(page.getByText(text, options)),
-      getByLabel: (label, options) =>
-        PlaywrightLocator.make(page.getByLabel(label, options)),
+      evaluate: <R, Arg>(f: PageFunction<Arg, R>, arg?: Arg) => use((p) => p.evaluate(f, arg as Arg)),
+      locator: (selector, options) => PlaywrightLocator.make(page.locator(selector, options)),
+      getByRole: (role, options) => PlaywrightLocator.make(page.getByRole(role, options)),
+      getByText: (text, options) => PlaywrightLocator.make(page.getByText(text, options)),
+      getByLabel: (label, options) => PlaywrightLocator.make(page.getByLabel(label, options)),
       getByTestId: (testId) => PlaywrightLocator.make(page.getByTestId(testId)),
       url: Effect.sync(() => page.url()),
       reload: use((p) => p.reload()),
@@ -257,15 +236,13 @@ export class PlaywrightPage extends Context.Tag(
               Effect.sync(() => {
                 page.off(event, callback);
                 page.off("close", closeCallback);
-              }),
-          ),
+              })
+          )
         ).pipe(
           Stream.map((e) => {
-            const mapper = eventMappings[event] as (
-              arg: PageEvents[K],
-            ) => ReturnType<(typeof eventMappings)[K]>;
+            const mapper = eventMappings[event] as (arg: PageEvents[K]) => ReturnType<(typeof eventMappings)[K]>;
             return mapper(e);
-          }),
+          })
         ),
       use,
     });
@@ -325,12 +302,9 @@ const eventMappings = {
  * @internal
  */
 interface PageWithPatchedEvents extends Page {
-  on<K extends PageEvent>(
-    event: K,
-    listener: (arg: PageEvents[K]) => void,
-  ): this;
-  off<K extends PageEvent>(
-    event: K,
-    listener: (arg: PageEvents[K]) => void,
-  ): this;
+  on<K extends PageEvent>(event: K, listener: (arg: PageEvents[K]) => void): this;
+  off<K extends PageEvent>(event: K, listener: (arg: PageEvents[K]) => void): this;
 }
+
+// Register the page maker to break circular dependency with common.ts
+registerPageMaker(PlaywrightPage.make);

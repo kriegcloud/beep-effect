@@ -11,10 +11,12 @@ export const SessionData = S.Struct({
 
 export type SessionData = typeof SessionData.Type;
 
-export class Response extends S.Class<Response>($I`Response`)({
-  data: S.NullOr(SessionData),
-}) {}
-
+/**
+ * Success schema for get-session.
+ *
+ * Decodes `{ data: { session, user } | null }` response from Better Auth
+ * and transforms to `{ data: Option<SessionData> }`.
+ */
 export class Success extends S.Class<Success>($I`Success`)({
   data: S.OptionFromNullOr(SessionData),
 }) {}

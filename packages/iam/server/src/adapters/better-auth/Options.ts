@@ -8,17 +8,17 @@ import { IamEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import * as Organization from "@beep/shared-domain/entities/Organization";
 import { serverEnv } from "@beep/shared-env/ServerEnv";
 import { LangValueToAdapterLocale } from "@beep/ui-core/i18n/constants";
-
 import { detectLanguage } from "@beep/ui-core/i18n/server";
+import { oauthProvider } from "@better-auth/oauth-provider";
 import { passkey } from "@better-auth/passkey";
+import { scim } from "@better-auth/scim";
 import { sso } from "@better-auth/sso";
 import { stripe } from "@better-auth/stripe";
-// import {dubAnalytics} from "@dub/better-auth";
-import type { BetterAuthOptions } from "better-auth";
+import type { Auth, BetterAuthOptions, BetterAuthPlugin } from "better-auth";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { nextCookies } from "better-auth/next-js";
-import { apiKey, bearer, lastLoginMethod, oneTap, openAPI } from "better-auth/plugins";
+import { apiKey, bearer, captcha, lastLoginMethod, oneTap, openAPI } from "better-auth/plugins";
 import { admin } from "better-auth/plugins/admin";
 import { anonymous } from "better-auth/plugins/anonymous";
 import { deviceAuthorization } from "better-auth/plugins/device-authorization";
@@ -27,7 +27,6 @@ import { haveIBeenPwned } from "better-auth/plugins/haveibeenpwned";
 import { jwt } from "better-auth/plugins/jwt";
 import { multiSession } from "better-auth/plugins/multi-session";
 import { oAuthProxy } from "better-auth/plugins/oauth-proxy";
-import { oidcProvider } from "better-auth/plugins/oidc-provider";
 import { oneTimeToken } from "better-auth/plugins/one-time-token";
 import { organization } from "better-auth/plugins/organization";
 import { phoneNumber } from "better-auth/plugins/phone-number";
@@ -58,6 +57,7 @@ import {
   SendResetPasswordEmailPayload,
   SendVerificationEmailPayload,
 } from "./Emails";
+
 export class LocalizationError extends Data.TaggedError("LocalizationError")<{
   readonly type: "failed_to_detect_language" | "unknown";
   readonly message: string;
@@ -121,7 +121,6 @@ const additionalFieldsCommon = {
     required: false,
   },
 } as const;
-
 export const makeAuth = ({
   iamDb,
   emailService,
@@ -137,7 +136,7 @@ export const makeAuth = ({
         }
       | undefined
   ) => Promise<A>;
-}) => {
+}): Auth => {
   const { client, execute } = iamDb;
   const { sendResetPassword, sendInvitation, sendVerification, sendChangeEmailVerification } = emailService;
   const isDebug = P.or(Equal.equals(LogLevel.Debug), Equal.equals(LogLevel.All))(serverEnv.app.logLevel);
@@ -168,9 +167,6 @@ export const makeAuth = ({
         iam_rate_limit: IamDbSchema.rateLimit,
         iam_passkey: IamDbSchema.passkey,
         iam_organization_role: IamDbSchema.organizationRole,
-        iam_oauth_consent: IamDbSchema.oauthConsent,
-        iam_oauth_application: IamDbSchema.oauthApplication,
-        iam_oauth_access_token: IamDbSchema.oauthAccessToken,
         iam_member: IamDbSchema.member,
         iam_jwks: IamDbSchema.jwks,
         iam_device_code: IamDbSchema.deviceCode,
@@ -581,6 +577,10 @@ export const makeAuth = ({
         rpID: serverEnv.app.env === EnvValue.Enum.dev ? "localhost" : serverEnv.app.domain,
         rpName: `${serverEnv.app.name} Auth`,
       }),
+      oauthProvider({
+        loginPage: "/sign-in",
+        consentPage: "/consent",
+      }) as BetterAuthPlugin,
       phoneNumber(
         //  {} satisfies PhoneNumberOptions
       ),
@@ -760,41 +760,6 @@ export const makeAuth = ({
           })
         ),
       }),
-      // Schema configuration: PARTIAL support (modelName + fields only)
-      // - additionalFields NOT supported for any of the 3 models (InferOptionSchema)
-      // - OrgTable.make defaults (_rowId, deletedAt, createdAt, updatedAt, createdBy,
-      //   updatedBy, deletedBy, version, source, organizationId) exist in DB but are
-      //   not exposed via Better Auth API for all 3 models.
-      //
-      // oauthApplication:
-      //   - Custom column: metadata (text) - application metadata storage
-      //   - Core fields: name, icon, clientId, clientSecret, redirectURLs, type, disabled, userId
-      //   - See: packages/iam/tables/src/tables/oauthApplication.table.ts
-      //
-      // oauthAccessToken:
-      //   - No custom columns beyond OrgTable.make defaults
-      //   - Core fields: accessToken, refreshToken, accessTokenExpiresAt,
-      //     refreshTokenExpiresAt, clientId, userId, scopes
-      //   - See: packages/iam/tables/src/tables/oauthAccessToken.table.ts
-      //
-      // oauthConsent:
-      //   - No custom columns beyond OrgTable.make defaults
-      //   - Core fields: clientId, userId, scopes, consentGiven
-      //   - See: packages/iam/tables/src/tables/oauthConsent.table.ts
-      oidcProvider({
-        loginPage: "/sign-in",
-        schema: {
-          oauthConsent: {
-            modelName: IamEntityIds.OAuthConsentId.tableName,
-          },
-          oauthAccessToken: {
-            modelName: IamEntityIds.OAuthAccessTokenId.tableName,
-          },
-          oauthApplication: {
-            modelName: IamEntityIds.OAuthApplicationId.tableName,
-          },
-        },
-      }),
       oAuthProxy({
         productionURL: normalizeUrl(productionURL, fallback),
         currentURL: normalizeUrl(currentURL, fallback),
@@ -861,6 +826,7 @@ export const makeAuth = ({
         deviceCodeLength: 40,
         userCodeLength: 8,
       }),
+      scim(),
       bearer(),
       // Schema configuration: PARTIAL support (modelName + fields only)
       // - additionalFields NOT supported by this plugin
@@ -879,6 +845,10 @@ export const makeAuth = ({
       apiKey(),
       anonymous(),
       admin(),
+      captcha({
+        provider: "google-recaptcha", // or google-recaptcha, hcaptcha, captchafox
+        secretKey: Redacted.value(serverEnv.cloud.google.captcha.secretKey),
+      }),
       nextCookies(),
     ],
   } satisfies BetterAuthOptions);

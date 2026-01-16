@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Inter } from "next/font/google";
 import "./globals.css";
-import Script from "next/script";
 
 import { KaServices } from "@beep/runtime-client";
 import { RegistryProvider } from "@effect-atom/atom-react";
+import Script from "next/script";
 import { connection } from "next/server";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
@@ -46,7 +46,10 @@ export default async function RootLayout({
         {isDev && (
           <>
             <Script src="https://unpkg.com/react-grab@0.1.0-beta.5/dist/index.global.js" strategy="beforeInteractive" />
-            <Script src="https://unpkg.com/@react-grab/claude-code@0.1.0-beta.5/dist/client.global.js" strategy="afterInteractive" />
+            <Script
+              src="https://unpkg.com/@react-grab/claude-code@0.1.0-beta.5/dist/client.global.js"
+              strategy="afterInteractive"
+            />
           </>
         )}
       </head>

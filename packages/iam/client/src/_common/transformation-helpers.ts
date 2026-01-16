@@ -46,7 +46,6 @@ export const toDate = (value: string | number | Date | DateTime.Utc): string => 
   if (P.isNumber(value)) return DateTime.unsafeFromDate(new Date(value)).pipe(DateTime.formatIso);
 
   return DateTime.unsafeFromDate(new Date(value)).pipe(DateTime.formatIso);
-
 };
 
 // =============================================================================

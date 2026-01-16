@@ -15,19 +15,14 @@ export interface PlaywrightLocatorService {
    * @see {@link Locator.click}
    * @since 0.1.0
    */
-  readonly click: (
-    options?: Parameters<Locator["click"]>[0],
-  ) => Effect.Effect<void, PlaywrightError.Type>;
+  readonly click: (options?: Parameters<Locator["click"]>[0]) => Effect.Effect<void, PlaywrightError.Type>;
   /**
    * Fills the input field.
    *
    * @see {@link Locator.fill}
    * @since 0.1.0
    */
-  readonly fill: (
-    value: string,
-    options?: Parameters<Locator["fill"]>[1],
-  ) => Effect.Effect<void, PlaywrightError.Type>;
+  readonly fill: (value: string, options?: Parameters<Locator["fill"]>[1]) => Effect.Effect<void, PlaywrightError.Type>;
   /**
    * Gets an attribute value.
    *
@@ -36,7 +31,7 @@ export interface PlaywrightLocatorService {
    */
   readonly getAttribute: (
     name: string,
-    options?: Parameters<Locator["getAttribute"]>[1],
+    options?: Parameters<Locator["getAttribute"]>[1]
   ) => Effect.Effect<string | null, PlaywrightError.Type>;
   /**
    * Gets the inner text.
@@ -44,27 +39,21 @@ export interface PlaywrightLocatorService {
    * @see {@link Locator.innerText}
    * @since 0.1.0
    */
-  readonly innerText: (
-    options?: Parameters<Locator["innerText"]>[0],
-  ) => Effect.Effect<string, PlaywrightError.Type>;
+  readonly innerText: (options?: Parameters<Locator["innerText"]>[0]) => Effect.Effect<string, PlaywrightError.Type>;
   /**
    * Gets the inner HTML.
    *
    * @see {@link Locator.innerHTML}
    * @since 0.1.0
    */
-  readonly innerHTML: (
-    options?: Parameters<Locator["innerHTML"]>[0],
-  ) => Effect.Effect<string, PlaywrightError.Type>;
+  readonly innerHTML: (options?: Parameters<Locator["innerHTML"]>[0]) => Effect.Effect<string, PlaywrightError.Type>;
   /**
    * Gets the input value.
    *
    * @see {@link Locator.inputValue}
    * @since 0.1.0
    */
-  readonly inputValue: (
-    options?: Parameters<Locator["inputValue"]>[0],
-  ) => Effect.Effect<string, PlaywrightError.Type>;
+  readonly inputValue: (options?: Parameters<Locator["inputValue"]>[0]) => Effect.Effect<string, PlaywrightError.Type>;
   /**
    * Gets the text content.
    *
@@ -72,7 +61,7 @@ export interface PlaywrightLocatorService {
    * @since 0.1.0
    */
   readonly textContent: (
-    options?: Parameters<Locator["textContent"]>[0],
+    options?: Parameters<Locator["textContent"]>[0]
   ) => Effect.Effect<string | null, PlaywrightError.Type>;
   /**
    * Counts the number of matched elements.
@@ -122,14 +111,10 @@ export interface PlaywrightLocatorService {
    * @see {@link Locator.evaluate}
    * @since 0.1.0
    */
-  readonly evaluate: <
-    R,
-    Arg = void,
-    E extends SVGElement | HTMLElement = SVGElement | HTMLElement,
-  >(
+  readonly evaluate: <R, Arg = void, E extends SVGElement | HTMLElement = SVGElement | HTMLElement>(
     pageFunction: (element: E, arg: Unboxed<Arg>) => R | Promise<R>,
     arg?: Arg,
-    options?: { timeout?: number },
+    options?: { timeout?: number }
   ) => Effect.Effect<R, PlaywrightError.Type>;
   /**
    * A generic utility to execute any promise-based method on the underlying Playwright `Locator`.
@@ -145,9 +130,7 @@ export interface PlaywrightLocatorService {
    * @see {@link Locator}
    * @since 0.1.0
    */
-  readonly use: <T>(
-    f: (locator: Locator) => Promise<T>,
-  ) => Effect.Effect<T, PlaywrightError.Type>;
+  readonly use: <T>(f: (locator: Locator) => Promise<T>) => Effect.Effect<T, PlaywrightError.Type>;
 }
 
 /**
@@ -156,9 +139,10 @@ export interface PlaywrightLocatorService {
  * @since 0.1.0
  * @category tag
  */
-export class PlaywrightLocator extends Context.Tag(
-  "effect-playwright/PlaywrightLocator",
-)<PlaywrightLocator, PlaywrightLocatorService>() {
+export class PlaywrightLocator extends Context.Tag("effect-playwright/PlaywrightLocator")<
+  PlaywrightLocator,
+  PlaywrightLocatorService
+>() {
   /**
    * Creates a `PlaywrightLocator` from a Playwright `Locator` instance. This is mostly for internal use.
    * But you could use this if you have used `use` or similar to wrap the locator.
@@ -179,8 +163,7 @@ export class PlaywrightLocator extends Context.Tag(
     return PlaywrightLocator.of({
       click: (options) => use((l) => l.click(options)),
       fill: (value, options) => use((l) => l.fill(value, options)),
-      getAttribute: (name, options) =>
-        use((l) => l.getAttribute(name, options)),
+      getAttribute: (name, options) => use((l) => l.getAttribute(name, options)),
       innerText: (options) => use((l) => l.innerText(options)),
       innerHTML: (options) => use((l) => l.innerHTML(options)),
       inputValue: (options) => use((l) => l.inputValue(options)),
@@ -189,14 +172,10 @@ export class PlaywrightLocator extends Context.Tag(
       first: () => PlaywrightLocator.make(locator.first()),
       last: () => PlaywrightLocator.make(locator.last()),
       nth: (index: number) => PlaywrightLocator.make(locator.nth(index)),
-      evaluate: <
-        R,
-        Arg = void,
-        E extends SVGElement | HTMLElement = SVGElement | HTMLElement,
-      >(
+      evaluate: <R, Arg = void, E extends SVGElement | HTMLElement = SVGElement | HTMLElement>(
         pageFunction: (element: E, arg: Unboxed<Arg>) => R | Promise<R>,
         arg?: Arg,
-        options?: { timeout?: number },
+        options?: { timeout?: number }
       ) => use((l) => l.evaluate(pageFunction, arg as Arg, options)),
       use,
     });

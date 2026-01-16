@@ -13,7 +13,8 @@ export class TestError extends Data.TaggedError("TestError")<{
 }
 
 describe("errors/accumulateEffectsAndReport", () => {
-  scoped("collects successes/errors and logs cause",
+  scoped(
+    "collects successes/errors and logs cause",
     Effect.fn(function* () {
       const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
       yield* Effect.addFinalizer(() => Effect.sync(() => errSpy.mockRestore()));

@@ -32,6 +32,4 @@ export type Unboxed<Arg> =
                     ? { [Key in keyof Arg]: Unboxed<Arg[Key]> }
                     : Arg;
 
-export type PageFunction<Arg, R> =
-  | string
-  | ((arg: Unboxed<Arg>) => R | Promise<R>);
+export type PageFunction<Arg, R> = string | ((arg: Unboxed<Arg>) => R | Promise<R>);

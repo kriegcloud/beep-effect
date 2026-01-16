@@ -4,16 +4,11 @@ import type { PlaywrightError } from "./errors";
 import { PlaywrightPage } from "./page";
 import { useHelper } from "./utils";
 
-export class PlaywrightBrowserContext extends Context.Tag(
-  "cehs/backend/lib/playwright/PlaywrightBrowserContext",
-)<
+export class PlaywrightBrowserContext extends Context.Tag("cehs/backend/lib/playwright/PlaywrightBrowserContext")<
   PlaywrightBrowserContext,
   {
     readonly pages: Effect.Effect<Array<typeof PlaywrightPage.Service>>;
-    readonly newPage: Effect.Effect<
-      typeof PlaywrightPage.Service,
-      PlaywrightError.Type
-    >;
+    readonly newPage: Effect.Effect<typeof PlaywrightPage.Service, PlaywrightError.Type>;
     readonly close: Effect.Effect<void, PlaywrightError.Type>;
   }
 >() {

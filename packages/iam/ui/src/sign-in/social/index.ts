@@ -1,1 +1,1 @@
-export * from "./sign-in-social.from.tsx"
+export * from "./sign-in-social.from.tsx";

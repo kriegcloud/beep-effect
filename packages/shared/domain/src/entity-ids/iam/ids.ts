@@ -110,57 +110,6 @@ export declare namespace MemberId {
   }
 }
 
-export const OAuthAccessTokenId = make("oauth_access_token", {
-  brand: "OAuthAccessTokenId",
-}).annotations(
-  $I.annotations("OAuthAccessTokenId", {
-    description: "A unique identifier for an oauth access token",
-  })
-);
-
-export declare namespace OAuthAccessTokenId {
-  export type Type = S.Schema.Type<typeof OAuthAccessTokenId>;
-  export type Encoded = S.Schema.Encoded<typeof OAuthAccessTokenId>;
-  export namespace RowId {
-    export type Type = typeof OAuthAccessTokenId.privateSchema.Type;
-    export type Encoded = typeof OAuthAccessTokenId.privateSchema.Encoded;
-  }
-}
-
-export const OAuthApplicationId = make("oauth_application", {
-  brand: "OAuthApplicationId",
-}).annotations(
-  $I.annotations("OAuthApplicationId", {
-    description: "A unique identifier for an oauth application",
-  })
-);
-
-export declare namespace OAuthApplicationId {
-  export type Type = S.Schema.Type<typeof OAuthApplicationId>;
-  export type Encoded = S.Schema.Encoded<typeof OAuthApplicationId>;
-  export namespace RowId {
-    export type Type = typeof OAuthApplicationId.privateSchema.Type;
-    export type Encoded = typeof OAuthApplicationId.privateSchema.Encoded;
-  }
-}
-
-export const OAuthConsentId = make("oauth_consent", {
-  brand: "OAuthConsentId",
-}).annotations(
-  $I.annotations("OAuthConsentId", {
-    description: "A unique identifier for an oauth consent",
-  })
-);
-
-export declare namespace OAuthConsentId {
-  export type Type = S.Schema.Type<typeof OAuthConsentId>;
-  export type Encoded = S.Schema.Encoded<typeof OAuthConsentId>;
-  export namespace RowId {
-    export type Type = typeof OAuthConsentId.privateSchema.Type;
-    export type Encoded = typeof OAuthConsentId.privateSchema.Encoded;
-  }
-}
-
 export const PasskeyId = make("passkey", {
   brand: "PasskeyId",
 }).annotations(

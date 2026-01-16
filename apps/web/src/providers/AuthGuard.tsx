@@ -22,65 +22,91 @@ type AuthGuardContentProps = AuthGuardProps & {
   readonly router: ReturnType<typeof useRouter>;
 };
 
+type SessionState =
+  | { readonly _tag: "Loading" }
+  | { readonly _tag: "Unauthenticated" }
+  | { readonly _tag: "Error" }
+  | { readonly _tag: "Authenticated"; readonly session: Core.GetSession.SessionData };
+
 const AuthGuardContent: React.FC<AuthGuardContentProps> = ({ children, router, ...props }) => {
   const { sessionResult } = Core.useCore();
   const isClient = useIsClient();
 
-  if (!isClient) {
+  // Derive session state without side effects
+  const sessionState: SessionState = React.useMemo(() => {
+    if (!isClient) {
+      return { _tag: "Loading" };
+    }
+
+    return Result.builder(sessionResult)
+      .onInitial(() => ({ _tag: "Loading" }) as const)
+      .onDefect(() => ({ _tag: "Error" }) as const)
+      .onFailure(() => ({ _tag: "Error" }) as const)
+      .onSuccess(({ data }: Core.GetSession.Success) =>
+        O.match(data, {
+          onNone: () => ({ _tag: "Unauthenticated" }) as const,
+          onSome: (sessionData: Core.GetSession.SessionData) =>
+            ({
+              _tag: "Authenticated",
+              session: sessionData,
+            }) as const,
+        })
+      )
+      .render();
+  }, [isClient, sessionResult]);
+
+  // Handle redirect in useEffect to avoid setState during render
+  React.useEffect(() => {
+    if (sessionState._tag === "Unauthenticated") {
+      void router.replace(paths.auth.signIn);
+    }
+  }, [sessionState._tag, router]);
+
+  // Render based on session state
+  if (sessionState._tag === "Loading" || sessionState._tag === "Unauthenticated") {
     return <SplashScreen />;
   }
 
+  if (sessionState._tag === "Error") {
+    return <div>an error occurred</div>;
+  }
+
+  const { session, user } = sessionState.session;
+
   return (
-    <>
-      {Result.builder(sessionResult)
-        .onInitial(() => <SplashScreen />)
-        .onDefect(() => <div>an error occurred</div>)
-        .onFailure(() => <div>an error occurred</div>)
-        .onSuccess(({ data }: Core.GetSession.Success) =>
-          O.match(data, {
-            onNone: () => {
-              void router.replace(paths.auth.signIn);
-              return <SplashScreen />;
-            },
-            onSome: ({ session, user }: Core.GetSession.SessionData) => (
-              <AuthAdapterProvider
-                {...props}
-                session={{
-                  ...session,
-                  user: {
-                    ...user,
-                    email: Redacted.value(user.email),
-                    phoneNumber: F.pipe(
-                      user.phoneNumber,
-                      O.match({
-                        onNone: thunkNull,
-                        onSome: Redacted.value,
-                      })
-                    ),
-                    username: F.pipe(
-                      user.username,
-                      O.match({
-                        onNone: thunkNull,
-                        onSome: (username) => username,
-                      })
-                    ),
-                    image: F.pipe(
-                      user.image,
-                      O.match({
-                        onNone: thunkNull,
-                        onSome: (image) => image,
-                      })
-                    ),
-                  },
-                }}
-              >
-                <AccountSettingsProvider userInfo={user}>{children}</AccountSettingsProvider>
-              </AuthAdapterProvider>
-            ),
-          })
-        )
-        .render()}
-    </>
+    <AuthAdapterProvider
+      {...props}
+      session={{
+        ...session,
+        user: {
+          ...user,
+          email: Redacted.value(user.email),
+          phoneNumber: F.pipe(
+            user.phoneNumber,
+            O.match({
+              onNone: thunkNull,
+              onSome: Redacted.value,
+            })
+          ),
+          username: F.pipe(
+            user.username,
+            O.match({
+              onNone: thunkNull,
+              onSome: (username) => username,
+            })
+          ),
+          image: F.pipe(
+            user.image,
+            O.match({
+              onNone: thunkNull,
+              onSome: (image) => image,
+            })
+          ),
+        },
+      }}
+    >
+      <AccountSettingsProvider userInfo={user}>{children}</AccountSettingsProvider>
+    </AuthAdapterProvider>
   );
 };
 

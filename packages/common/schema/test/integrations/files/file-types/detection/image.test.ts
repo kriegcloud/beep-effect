@@ -5,7 +5,8 @@ import * as F from "effect/Function";
 import * as O from "effect/Option";
 
 describe("detectFileOption", () => {
-  effect("should detect the file type of an Array<number> as a avif file",
+  effect(
+    "should detect the file type of an Array<number> as a avif file",
     Effect.fn(function* () {
       const file: ReadonlyArray<number> = [0, 0, 0, 20, 102, 116, 121, 112, 97, 118, 105, 102, 0, 0];
       const result = fileTypeChecker.detectFileOption(file);
@@ -18,7 +19,8 @@ describe("detectFileOption", () => {
     })
   );
 
-  effect("should detect the file type of an ArrayBuffer as a avif file",
+  effect(
+    "should detect the file type of an ArrayBuffer as a avif file",
     Effect.fn(function* () {
       const file: ReadonlyArray<number> = [0, 0, 0, 20, 102, 116, 121, 112, 97, 118, 105, 102, 0, 0];
       const buffer: ArrayBuffer = new Uint8Array(file).buffer;
@@ -43,7 +45,8 @@ describe("detectFileOption", () => {
       })
   );
 
-  effect("should not detect a m4v file as a heic file",
+  effect(
+    "should not detect a m4v file as a heic file",
     Effect.fn(function* () {
       // m4v files contain the m4v signature within their own signature
       const file: ReadonlyArray<number> = [
@@ -58,7 +61,8 @@ describe("detectFileOption", () => {
     })
   );
 
-  effect("should detect the file type of an Array<number> as a heic file",
+  effect(
+    "should detect the file type of an Array<number> as a heic file",
     Effect.fn(function* () {
       const file: ReadonlyArray<number> = [
         0, 0, 0, 24, 0x66, 0x74, 0x79, 0x70, 0x6d, 105, 102, 49, 0, 0, 0, 0, 109, 105, 102, 49, 104, 101, 105, 99, 0, 0,

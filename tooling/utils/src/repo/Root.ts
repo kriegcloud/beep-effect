@@ -8,7 +8,7 @@
 import * as FileSystem from "@effect/platform/FileSystem";
 import * as Path from "@effect/platform/Path";
 import * as Effect from "effect/Effect";
-import {NoSuchFileError} from "./Errors.js";
+import { NoSuchFileError } from "./Errors.js";
 
 /**
  * Find the repository root by walking upward from the current working directory.

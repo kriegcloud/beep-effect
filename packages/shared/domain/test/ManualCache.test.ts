@@ -7,7 +7,8 @@ import * as O from "effect/Option";
 import * as TestClock from "effect/TestClock";
 
 describe("ManualCache", () => {
-  scoped("should handle basic set and get operations",
+  scoped(
+    "should handle basic set and get operations",
     Effect.fn(function* () {
       const cache = yield* ManualCache.make<string, string>({
         capacity: 100,
@@ -31,7 +32,8 @@ describe("ManualCache", () => {
     })
   );
 
-  scoped("should respect TTL and expire items",
+  scoped(
+    "should respect TTL and expire items",
     Effect.fn(function* () {
       const cache = yield* ManualCache.make<string, string>({
         capacity: 100,
@@ -46,7 +48,8 @@ describe("ManualCache", () => {
     })
   );
 
-  scoped("should respect capacity limits",
+  scoped(
+    "should respect capacity limits",
     Effect.fn(function* () {
       const cache = yield* ManualCache.make<string, string>({
         capacity: 2,
@@ -75,7 +78,8 @@ describe("ManualCache", () => {
     })
   );
 
-  scoped("should handle invalidation correctly",
+  scoped(
+    "should handle invalidation correctly",
     Effect.fn(function* () {
       const cache = yield* ManualCache.make<string, string>({
         capacity: 100,
@@ -90,7 +94,8 @@ describe("ManualCache", () => {
     })
   );
 
-  scoped("should handle invalidateAll correctly",
+  scoped(
+    "should handle invalidateAll correctly",
     Effect.fn(function* () {
       const cache = yield* ManualCache.make<string, string>({
         capacity: 100,
@@ -106,7 +111,8 @@ describe("ManualCache", () => {
     })
   );
 
-  scoped("should correctly track contains status",
+  scoped(
+    "should correctly track contains status",
     Effect.fn(function* () {
       const cache = yield* ManualCache.make<string, string>({
         capacity: 100,
@@ -123,7 +129,8 @@ describe("ManualCache", () => {
     })
   );
 
-  scoped("should handle keys, values, and entries correctly",
+  scoped(
+    "should handle keys, values, and entries correctly",
     Effect.fn(function* () {
       const cache = yield* ManualCache.make<string, string>({
         capacity: 100,
@@ -147,7 +154,8 @@ describe("ManualCache", () => {
     })
   );
 
-  scoped("should periodically evict items based on TTL",
+  scoped(
+    "should periodically evict items based on TTL",
     Effect.fn(function* () {
       const cache = yield* ManualCache.make<string, string>({
         capacity: 100,

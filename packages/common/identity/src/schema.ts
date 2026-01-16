@@ -210,13 +210,10 @@ export const BaseSegment = S.String.pipe(
  * ```
  * @since 0.1.0
  */
-export class InvalidSegmentError extends S.TaggedError<InvalidSegmentError>()(
-  "InvalidSegmentError",
-  {
-    value: S.String,
-    reason: S.optional(S.String),
-  }
-) {
+export class InvalidSegmentError extends S.TaggedError<InvalidSegmentError>()("InvalidSegmentError", {
+  value: S.String,
+  reason: S.optional(S.String),
+}) {
   override get message(): string {
     return this.reason ?? `Identity segments are invalid: ${this.value}`;
   }
@@ -240,13 +237,10 @@ export class InvalidSegmentError extends S.TaggedError<InvalidSegmentError>()(
  * ```
  * @since 0.1.0
  */
-export class InvalidModuleSegmentError extends S.TaggedError<InvalidModuleSegmentError>()(
-  "InvalidModuleSegmentError",
-  {
-    value: S.String,
-    reason: S.optional(S.String),
-  }
-) {
+export class InvalidModuleSegmentError extends S.TaggedError<InvalidModuleSegmentError>()("InvalidModuleSegmentError", {
+  value: S.String,
+  reason: S.optional(S.String),
+}) {
   override get message(): string {
     return this.reason ?? `Module segments are invalid: ${this.value}`;
   }

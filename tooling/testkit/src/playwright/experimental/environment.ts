@@ -1,8 +1,8 @@
-import {Context, Effect, Layer} from "effect";
-import type {Scope} from "effect/Scope";
-import {Playwright, PlaywrightBrowser} from "@beep/testkit/playwright";
-import type {BrowserType, LaunchOptions} from "playwright-core";
-import type {PlaywrightError} from "../errors";
+import { Playwright, PlaywrightBrowser } from "@beep/testkit/playwright";
+import { Context, Effect, Layer } from "effect";
+import type { Scope } from "effect/Scope";
+import type { BrowserType, LaunchOptions } from "playwright-core";
+import type { PlaywrightError } from "../errors";
 
 /**
  * Most of the time you want to use the same kind of browser and configuration every time you use Playwright.
@@ -15,19 +15,12 @@ import type {PlaywrightError} from "../errors";
  * @since 0.1.0
  * @category tag
  */
-export class PlaywrightEnvironment extends Context.Tag(
-  "effect-playwright/experimental/PlaywrightEnvironment",
-)<
+export class PlaywrightEnvironment extends Context.Tag("effect-playwright/experimental/PlaywrightEnvironment")<
   PlaywrightEnvironment,
   {
-    browser: Effect.Effect<
-      typeof PlaywrightBrowser.Service,
-      PlaywrightError.Type,
-      Scope
-    >;
+    browser: Effect.Effect<typeof PlaywrightBrowser.Service, PlaywrightError.Type, Scope>;
   }
->() {
-}
+>() {}
 
 /**
  * Creates a Layer that initializes the `PlaywrightEnvironment`.
@@ -65,7 +58,7 @@ export const layer = (browser: BrowserType, launchOptions?: LaunchOptions) => {
         });
       }),
       Effect.provide(Playwright.layer)
-    ),
+    )
   );
 };
 
@@ -95,6 +88,6 @@ export const withBrowser = Effect.provide(
   PlaywrightEnvironment.pipe(
     Effect.map((e) => e.browser),
     Effect.flatten,
-    Layer.scoped(PlaywrightBrowser),
-  ),
+    Layer.scoped(PlaywrightBrowser)
+  )
 );

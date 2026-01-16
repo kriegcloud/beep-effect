@@ -544,7 +544,8 @@ describe("MutableHashSet mutation behavior", () => {
 // ─────────────────────────────────────────────────────────────────────────────
 
 describe("MutableHashSet equivalence", () => {
-  effect("empty sets are equivalent",
+  effect(
+    "empty sets are equivalent",
     Effect.fn(function* () {
       const schema = MutableHashSetFromSelf(S.Number);
       const equivalence = S.equivalence(schema);
@@ -554,7 +555,8 @@ describe("MutableHashSet equivalence", () => {
     })
   );
 
-  effect("sets with same values (same order) are equivalent",
+  effect(
+    "sets with same values (same order) are equivalent",
     Effect.fn(function* () {
       const schema = MutableHashSetFromSelf(S.Number);
       const equivalence = S.equivalence(schema);
@@ -564,7 +566,8 @@ describe("MutableHashSet equivalence", () => {
     })
   );
 
-  effect("sets with different values are not equivalent",
+  effect(
+    "sets with different values are not equivalent",
     Effect.fn(function* () {
       const schema = MutableHashSetFromSelf(S.Number);
       const equivalence = S.equivalence(schema);
@@ -574,7 +577,8 @@ describe("MutableHashSet equivalence", () => {
     })
   );
 
-  effect("sets with different sizes are not equivalent",
+  effect(
+    "sets with different sizes are not equivalent",
     Effect.fn(function* () {
       const schema = MutableHashSetFromSelf(S.Number);
       const equivalence = S.equivalence(schema);
@@ -584,7 +588,8 @@ describe("MutableHashSet equivalence", () => {
     })
   );
 
-  effect("equivalence is reflexive",
+  effect(
+    "equivalence is reflexive",
     Effect.fn(function* () {
       const schema = MutableHashSetFromSelf(S.String);
       const equivalence = S.equivalence(schema);
@@ -593,7 +598,8 @@ describe("MutableHashSet equivalence", () => {
     })
   );
 
-  effect("equivalence is symmetric",
+  effect(
+    "equivalence is symmetric",
     Effect.fn(function* () {
       const schema = MutableHashSetFromSelf(S.Number);
       const equivalence = S.equivalence(schema);

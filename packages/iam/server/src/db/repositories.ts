@@ -14,9 +14,6 @@ export type Repos =
   | repos.InvitationRepo
   | repos.JwksRepo
   | repos.MemberRepo
-  | repos.OAuthAccessTokenRepo
-  | repos.OAuthApplicationRepo
-  | repos.OAuthConsentRepo
   | repos.OrganizationRoleRepo
   | repos.PasskeyRepo
   | repos.RateLimitRepo
@@ -39,9 +36,6 @@ export const layer: RepoLayer = Layer.mergeAll(
   repos.InvitationRepo.Default,
   repos.JwksRepo.Default,
   repos.MemberRepo.Default,
-  repos.OAuthAccessTokenRepo.Default,
-  repos.OAuthApplicationRepo.Default,
-  repos.OAuthConsentRepo.Default,
   repos.OrganizationRoleRepo.Default,
   repos.PasskeyRepo.Default,
   repos.RateLimitRepo.Default,

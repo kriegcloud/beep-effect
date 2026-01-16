@@ -7,6 +7,22 @@ CREATE TYPE "public"."device_code_status_enum" AS ENUM('pending', 'approved', 'd
 CREATE TYPE "public"."invitation_status_enum" AS ENUM('pending', 'rejected', 'cancelled', 'accepted');--> statement-breakpoint
 CREATE TYPE "public"."member_role_enum" AS ENUM('admin', 'member', 'owner');--> statement-breakpoint
 CREATE TYPE "public"."member_status_enum" AS ENUM('active', 'inactive', 'offline', 'suspended', 'deleted', 'invited');--> statement-breakpoint
+CREATE TABLE "calendar_placeholder" (
+	"id" text NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"deleted_at" timestamp with time zone,
+	"created_by" text DEFAULT 'app',
+	"updated_by" text DEFAULT 'app',
+	"deleted_by" text,
+	"version" integer DEFAULT 1 NOT NULL,
+	"source" text,
+	"name" text NOT NULL,
+	"description" text,
+	CONSTRAINT "calendar_placeholder_id_unique" UNIQUE("id")
+);
+--> statement-breakpoint
 CREATE TABLE "comms_email_template" (
 	"id" text NOT NULL,
 	"_row_id" serial PRIMARY KEY NOT NULL,
@@ -433,74 +449,6 @@ CREATE TABLE "iam_member" (
 	CONSTRAINT "iam_member_id_unique" UNIQUE("id")
 );
 --> statement-breakpoint
-CREATE TABLE "iam_oauth_access_token" (
-	"id" text NOT NULL,
-	"_row_id" serial PRIMARY KEY NOT NULL,
-	"organization_id" text NOT NULL,
-	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
-	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
-	"deleted_at" timestamp with time zone,
-	"created_by" text DEFAULT 'app',
-	"updated_by" text DEFAULT 'app',
-	"deleted_by" text,
-	"version" integer DEFAULT 1 NOT NULL,
-	"source" text,
-	"access_token" text,
-	"refresh_token" text,
-	"access_token_expires_at" timestamp with time zone,
-	"refresh_token_expires_at" timestamp with time zone,
-	"client_id" text,
-	"user_id" text,
-	"scopes" text,
-	CONSTRAINT "iam_oauth_access_token_id_unique" UNIQUE("id"),
-	CONSTRAINT "iam_oauth_access_token_access_token_unique" UNIQUE("access_token"),
-	CONSTRAINT "iam_oauth_access_token_refresh_token_unique" UNIQUE("refresh_token")
-);
---> statement-breakpoint
-CREATE TABLE "iam_oauth_application" (
-	"id" text NOT NULL,
-	"_row_id" serial PRIMARY KEY NOT NULL,
-	"organization_id" text NOT NULL,
-	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
-	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
-	"deleted_at" timestamp with time zone,
-	"created_by" text DEFAULT 'app',
-	"updated_by" text DEFAULT 'app',
-	"deleted_by" text,
-	"version" integer DEFAULT 1 NOT NULL,
-	"source" text,
-	"name" text,
-	"icon" text,
-	"metadata" text,
-	"client_id" text,
-	"client_secret" text,
-	"redirect_u_r_ls" text,
-	"type" text,
-	"disabled" boolean DEFAULT false NOT NULL,
-	"user_id" text,
-	CONSTRAINT "iam_oauth_application_id_unique" UNIQUE("id"),
-	CONSTRAINT "iam_oauth_application_client_id_unique" UNIQUE("client_id")
-);
---> statement-breakpoint
-CREATE TABLE "iam_oauth_consent" (
-	"id" text NOT NULL,
-	"_row_id" serial PRIMARY KEY NOT NULL,
-	"organization_id" text NOT NULL,
-	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
-	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
-	"deleted_at" timestamp with time zone,
-	"created_by" text DEFAULT 'app',
-	"updated_by" text DEFAULT 'app',
-	"deleted_by" text,
-	"version" integer DEFAULT 1 NOT NULL,
-	"source" text,
-	"client_id" text NOT NULL,
-	"user_id" text,
-	"scopes" text NOT NULL,
-	"consent_given" boolean DEFAULT false NOT NULL,
-	CONSTRAINT "iam_oauth_consent_id_unique" UNIQUE("id")
-);
---> statement-breakpoint
 CREATE TABLE "iam_organization_role" (
 	"id" text NOT NULL,
 	"_row_id" serial PRIMARY KEY NOT NULL,
@@ -766,12 +714,6 @@ ALTER TABLE "iam_invitation" ADD CONSTRAINT "iam_invitation_team_id_shared_team_
 ALTER TABLE "iam_invitation" ADD CONSTRAINT "iam_invitation_inviter_id_shared_user_id_fk" FOREIGN KEY ("inviter_id") REFERENCES "public"."shared_user"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
 ALTER TABLE "iam_invitation" ADD CONSTRAINT "iam_invitation_organization_id_shared_organization_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."shared_organization"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "iam_member" ADD CONSTRAINT "iam_member_organization_id_shared_organization_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."shared_organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
-ALTER TABLE "iam_oauth_access_token" ADD CONSTRAINT "iam_oauth_access_token_organization_id_shared_organization_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."shared_organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
-ALTER TABLE "iam_oauth_access_token" ADD CONSTRAINT "iam_oauth_access_token_user_id_shared_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."shared_user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "iam_oauth_application" ADD CONSTRAINT "iam_oauth_application_organization_id_shared_organization_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."shared_organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
-ALTER TABLE "iam_oauth_application" ADD CONSTRAINT "iam_oauth_application_user_id_shared_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."shared_user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "iam_oauth_consent" ADD CONSTRAINT "iam_oauth_consent_organization_id_shared_organization_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."shared_organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
-ALTER TABLE "iam_oauth_consent" ADD CONSTRAINT "iam_oauth_consent_user_id_shared_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."shared_user"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "iam_organization_role" ADD CONSTRAINT "iam_organization_role_organization_id_shared_organization_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."shared_organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
 ALTER TABLE "iam_passkey" ADD CONSTRAINT "iam_passkey_user_id_shared_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."shared_user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "iam_scim_provider" ADD CONSTRAINT "iam_scim_provider_organization_id_shared_organization_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."shared_organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
@@ -787,6 +729,7 @@ ALTER TABLE "iam_wallet_address" ADD CONSTRAINT "iam_wallet_address_user_id_shar
 ALTER TABLE "shared_folder" ADD CONSTRAINT "shared_folder_organization_id_shared_organization_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."shared_organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
 ALTER TABLE "shared_folder" ADD CONSTRAINT "shared_folder_user_id_shared_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."shared_user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "shared_upload_session" ADD CONSTRAINT "shared_upload_session_organization_id_shared_organization_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."shared_organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+CREATE INDEX "calendar_placeholder_name_idx" ON "calendar_placeholder" USING btree ("name");--> statement-breakpoint
 CREATE INDEX "idx_email_template_user_id" ON "comms_email_template" USING btree ("user_id");--> statement-breakpoint
 CREATE INDEX "idx_org_id" ON "comms_email_template" USING btree ("organization_id");--> statement-breakpoint
 CREATE INDEX "organization_name_idx" ON "shared_organization" USING btree ("name");--> statement-breakpoint

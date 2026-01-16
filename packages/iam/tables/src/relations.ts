@@ -6,9 +6,6 @@ import {
   deviceCode,
   invitation,
   member,
-  oauthAccessToken,
-  oauthApplication,
-  oauthConsent,
   organizationRole,
   passkey,
   scimProvider,
@@ -71,39 +68,6 @@ export const teamMemberRelations = d.relations(teamMember, ({ one }) => ({
   }),
   organization: one(organization, {
     fields: [teamMember.organizationId],
-    references: [organization.id],
-  }),
-}));
-
-export const oauthAccessTokenRelations = d.relations(oauthAccessToken, ({ one }) => ({
-  user: one(user, {
-    fields: [oauthAccessToken.userId],
-    references: [user.id],
-  }),
-  organization: one(organization, {
-    fields: [oauthAccessToken.organizationId],
-    references: [organization.id],
-  }),
-}));
-
-export const oauthApplicationRelations = d.relations(oauthApplication, ({ one }) => ({
-  user: one(user, {
-    fields: [oauthApplication.userId],
-    references: [user.id],
-  }),
-  organization: one(organization, {
-    fields: [oauthApplication.organizationId],
-    references: [organization.id],
-  }),
-}));
-
-export const oauthConsentRelations = d.relations(oauthConsent, ({ one }) => ({
-  user: one(user, {
-    fields: [oauthConsent.userId],
-    references: [user.id],
-  }),
-  organization: one(organization, {
-    fields: [oauthConsent.organizationId],
     references: [organization.id],
   }),
 }));
@@ -212,17 +176,17 @@ export const userRelations = d.relations(user, ({ many }) => ({
   passkeys: many(passkey, {
     relationName: "passkeys",
   }),
-  oauthApplications: many(oauthApplication),
+
   impersonatedSessions: many(session, {
     relationName: "impersonatedSessions",
   }),
   // Additional relations
   twoFactors: many(twoFactor),
   deviceCodes: many(deviceCode),
-  oauthAccessTokens: many(oauthAccessToken),
+
   ssoProviders: many(ssoProvider),
   invitations: many(invitation),
-  oauthConsents: many(oauthConsent),
+
   apiKeys: many(apiKey),
 }));
 
@@ -240,12 +204,11 @@ export const organizationRelations = d.relations(organization, ({ many, one }) =
 
   // Additional relations
   twoFactors: many(twoFactor),
-  oauthAccessTokens: many(oauthAccessToken),
   organizationRoles: many(organizationRole),
   ssoProviders: many(ssoProvider),
-  oauthApplications: many(oauthApplication),
+
   invitations: many(invitation),
-  oauthConsents: many(oauthConsent),
+
   apiKeys: many(apiKey),
   teamMembers: many(teamMember),
   scimProviders: many(scimProvider),
