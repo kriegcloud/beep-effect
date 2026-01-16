@@ -100,6 +100,141 @@ Str.split(string, ",")
 A.filter(array, x => x > 0)
 ```
 
+## Schema Type Selection
+
+ALWAYS choose the correct Effect Schema type based on the runtime value:
+
+| Runtime Value | Effect Schema | Example |
+|---------------|---------------|---------|
+| JavaScript `Date` object | `S.Date` | `createdAt: S.Date` |
+| ISO 8601 string | `S.DateFromString` | `timestamp: S.DateFromString` |
+| `string \| undefined` | `S.optional(S.String)` | `nickname: S.optional(S.String)` |
+| `string \| null \| undefined` | `S.optionalWith(S.String, { nullable: true })` | `ipAddress: S.optionalWith(S.String, { nullable: true })` |
+| User credential (password, API key) | `S.Redacted(S.String)` | `password: S.Redacted(S.String)` |
+| Server-generated token | `S.String` | `sessionToken: S.String` |
+
+**Key Decisions:**
+
+- Use `S.Date` when working with JavaScript Date objects in memory
+- Use `S.DateFromString` when receiving ISO 8601 strings from APIs or JSON
+- Use `S.optional` for values that may be `undefined`
+- Use `S.optionalWith({ nullable: true })` for values that may be `null` OR `undefined`
+- Use `S.Redacted` for user-provided credentials to suppress logging
+- Use plain `S.String` for server-generated tokens (already protected)
+
+## BS Helper Reference (@beep/schema)
+
+The `@beep/schema` package (imported as `BS`) provides specialized helpers for common schema patterns. ALWAYS prefer BS helpers over manual schema composition when available.
+
+### Helper Quick Reference
+
+```typescript
+import { BS } from "@beep/schema";
+
+// Boolean with default value
+BS.BoolWithDefault(false)                    // Defaults to false if undefined
+
+// Optional fields (omitted when undefined)
+BS.FieldOptionOmittable(S.String)            // Optional field, omitted in output when undefined
+
+// Sensitive + Optional (suppresses logging)
+BS.FieldSensitiveOptionOmittable(S.String)   // Optional sensitive field, never logged
+
+// DateTime helpers
+BS.DateTimeUtcFromAllAcceptable              // DateTime accepting multiple input formats
+
+// Validated primitives
+BS.EmailBase                                 // Email validation schema
+BS.NonEmptyString                            // Non-empty string validation
+```
+
+### Helper Selection Guide
+
+| Use Case | BS Helper | Example |
+|----------|-----------|---------|
+| Boolean field with default | `BS.BoolWithDefault(value)` | `isActive: BS.BoolWithDefault(true)` |
+| Optional non-sensitive field | `BS.FieldOptionOmittable(schema)` | `nickname: BS.FieldOptionOmittable(S.String)` |
+| Optional sensitive field | `BS.FieldSensitiveOptionOmittable(schema)` | `apiKey: BS.FieldSensitiveOptionOmittable(S.String)` |
+| DateTime from any format | `BS.DateTimeUtcFromAllAcceptable` | `timestamp: BS.DateTimeUtcFromAllAcceptable` |
+| Email validation | `BS.EmailBase` | `email: BS.EmailBase` |
+| Non-empty string | `BS.NonEmptyString` | `username: BS.NonEmptyString` |
+
+**Common Mistakes:**
+
+```typescript
+// WRONG - Using deprecated pattern
+const Schema = S.Struct({
+  enabled: BS.toOptionalWithDefault(S.Boolean, false)  // Deprecated!
+});
+
+// CORRECT - Using modern BS helper
+const Schema = S.Struct({
+  enabled: BS.BoolWithDefault(false)
+});
+```
+
+## Sensitive Field Guidelines
+
+ALWAYS use sensitive field wrappers for data that could enable impersonation or system compromise if leaked through logs or error messages.
+
+### When to Mark Fields as Sensitive
+
+**ALWAYS mark as sensitive:**
+
+```typescript
+// User credentials
+password: BS.FieldSensitiveOptionOmittable(S.String)
+hashedPassword: BS.FieldSensitiveOptionOmittable(S.String)
+apiKey: BS.FieldSensitiveOptionOmittable(S.String)
+apiSecret: BS.FieldSensitiveOptionOmittable(S.String)
+
+// OAuth tokens
+accessToken: BS.FieldSensitiveOptionOmittable(S.String)
+refreshToken: BS.FieldSensitiveOptionOmittable(S.String)
+idToken: BS.FieldSensitiveOptionOmittable(S.String)
+
+// Session & authentication tokens
+sessionToken: BS.FieldSensitiveOptionOmittable(S.String)
+csrfToken: BS.FieldSensitiveOptionOmittable(S.String)
+
+// Private keys & secrets
+privateKey: BS.FieldSensitiveOptionOmittable(S.String)
+signingSecret: BS.FieldSensitiveOptionOmittable(S.String)
+encryptionKey: BS.FieldSensitiveOptionOmittable(S.String)
+```
+
+**NEVER mark as sensitive (unnecessary overhead):**
+
+```typescript
+// Server-generated UUIDs/IDs - no security value in hiding
+id: S.String
+userId: S.String
+
+// Timestamps - public metadata
+createdAt: S.Date
+updatedAt: S.Date
+
+// Public identifiers - meant to be shared
+email: BS.EmailBase
+username: S.String
+organizationId: S.String
+
+// Non-sensitive enums/literals
+status: S.Literal("active", "inactive")
+role: S.Literal("admin", "member")
+```
+
+### Decision Criteria
+
+Ask: "If this value appeared in application logs, could an attacker use it to:"
+- Impersonate a user or system?
+- Access protected resources?
+- Decrypt sensitive data?
+- Bypass authentication or authorization?
+
+If **YES** to any → Mark as sensitive.
+If **NO** to all → Regular field.
+
 ## FileSystem Service (REQUIRED)
 
 NEVER use Node.js fs module. ALWAYS use Effect FileSystem service from @effect/platform:
@@ -138,3 +273,40 @@ export const MyCommandLive = Layer.mergeAll(
 ```
 
 Reference: `tooling/cli/src/commands/create-slice/handler.ts` for canonical patterns.
+
+## Factory Encoding Behavior
+
+When using `createHandler` factory (or similar factories), understand the encoding/decoding flow:
+
+The factory automatically:
+1. **Encodes** payload using `payloadSchema` (converts Date → ISO string, etc.)
+2. Passes **encoded** value to `execute` function
+3. Checks for `response.error`
+4. **Decodes** `response.data` using `successSchema`
+5. Notifies `$sessionSignal` if `mutatesSession: true`
+
+**Critical Rule**: The `execute` function receives the ENCODED payload, not the original input.
+
+```typescript
+// CORRECT - execute receives encoded payload
+const Handler = createHandler({
+  domain: "sign-in",
+  feature: "email",
+  execute: (encoded) => client.signIn.email(encoded),  // encoded is post-schema-encoding
+  successSchema: Contract.Success,
+  payloadSchema: Contract.Payload,
+  mutatesSession: true,
+});
+
+// WRONG - manual encoding or transformation
+const Handler = createHandler({
+  domain: "sign-in",
+  feature: "email",
+  execute: (encoded) => client.signIn.email({ token: encoded.token }),  // WRONG - redundant field extraction
+  successSchema: Contract.Success,
+  payloadSchema: Contract.Payload,
+  mutatesSession: true,
+});
+```
+
+**Why This Matters**: Schema transformations (like `S.DateFromString`, `S.Redacted`) happen BEFORE `execute` is called. The encoded value is already in the correct wire format.

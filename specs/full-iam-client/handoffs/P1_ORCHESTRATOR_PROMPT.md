@@ -25,6 +25,26 @@ Method names differ from original expectations:
 - `client.multiSession.revoke()` (NOT `revokeDeviceSession`)
 - `client.multiSession.listDeviceSessions({})` - requires empty object parameter
 
+### Pre-flight Verification
+
+Before implementing, verify Better Auth method signatures exist:
+
+```typescript
+// In editor, hover over these to confirm signatures:
+client.multiSession.listDeviceSessions  // (params: {}) => Promise<...>
+client.multiSession.setActive           // (params: { sessionToken: string }) => Promise<...>
+client.multiSession.revoke              // (params: { sessionToken: string }) => Promise<...>
+```
+
+### Schema Type Reference
+
+| Better Auth Returns | Effect Schema |
+|---------------------|---------------|
+| `Date` object | `S.Date` |
+| ISO date string | `S.DateFromString` |
+| `string \| null \| undefined` | `S.optionalWith(S.String, { nullable: true })` |
+| Server-generated token | `S.String` (NOT `S.Redacted`) |
+
 ---
 
 ## Phase 1 Tasks
@@ -52,15 +72,16 @@ export const Payload = S.Struct({});
 export type Payload = S.Schema.Type<typeof Payload>;
 
 // Session schema based on Better Auth response
+// Note: Better Auth client SDK returns Date objects, not ISO strings
 export const Session = S.Struct({
   id: S.String,
   userId: S.String,
   token: S.String,
-  expiresAt: S.DateFromString,
-  ipAddress: S.optional(S.String),
-  userAgent: S.optional(S.String),
-  createdAt: S.DateFromString,
-  updatedAt: S.DateFromString,
+  expiresAt: S.Date,
+  ipAddress: S.optionalWith(S.String, { nullable: true }),
+  userAgent: S.optionalWith(S.String, { nullable: true }),
+  createdAt: S.Date,
+  updatedAt: S.Date,
 });
 export type Session = S.Schema.Type<typeof Session>;
 
@@ -264,12 +285,31 @@ export const Payload = S.Struct({
   sessionToken: S.String,  // Plain string - not a user credential
 });
 
-// In handler - pass encoded directly
+// In handler - pass encoded directly (factory handles encoding)
 execute: (encoded) => client.multiSession.setActive(encoded),
 ```
 
 > **Note**: Reserve `S.Redacted(S.String)` for actual user credentials like passwords and API keys
 > that should never appear in logs. Session tokens are server-generated and safe to log.
+
+### Encoded Payload Behavior
+
+The `execute` function receives the **encoded** payload (after schema encoding), not the decoded type:
+
+```typescript
+// CORRECT - pass encoded directly to Better Auth
+execute: (encoded) => client.multiSession.setActive(encoded)
+
+// WRONG - don't manually extract or re-encode fields
+execute: (encoded) => client.multiSession.setActive({ sessionToken: encoded.sessionToken })
+```
+
+The factory automatically:
+1. Encodes the payload using the schema
+2. Passes encoded value to `execute`
+3. Checks for `response.error`
+4. Decodes `response.data` using success schema
+5. Notifies `$sessionSignal` if `mutatesSession: true`
 
 ---
 

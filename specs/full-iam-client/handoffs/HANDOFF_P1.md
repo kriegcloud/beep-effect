@@ -36,7 +36,7 @@ Phase 0 successfully verified all Better Auth client methods and created a compr
 
 ```
 packages/iam/client/src/multi-session/
-├── index.ts                     # Re-exports all handlers
+├── index.ts                     # Re-exports all handlers (create LAST)
 ├── list-sessions/
 │   ├── index.ts
 │   ├── list-sessions.contract.ts
@@ -50,6 +50,8 @@ packages/iam/client/src/multi-session/
     ├── revoke.contract.ts
     └── revoke.handler.ts
 ```
+
+> **Note**: Create `multi-session/index.ts` as the FINAL step after all 3 handlers are complete. This barrel file re-exports all sub-modules.
 
 ---
 
@@ -115,16 +117,18 @@ export const Payload = S.Struct({});
 export type Payload = S.Schema.Type<typeof Payload>;
 
 // Success schema - array of sessions
+// Note: Better Auth client SDK returns Date objects, not ISO strings
 export const Session = S.Struct({
   id: S.String,
   userId: S.String,
   token: S.String,
-  expiresAt: S.DateFromString,
-  ipAddress: S.optional(S.String),
-  userAgent: S.optional(S.String),
-  createdAt: S.DateFromString,
-  updatedAt: S.DateFromString,
+  expiresAt: S.Date,
+  ipAddress: S.optionalWith(S.String, { nullable: true }),
+  userAgent: S.optionalWith(S.String, { nullable: true }),
+  createdAt: S.Date,
+  updatedAt: S.Date,
 });
+export type Session = S.Schema.Type<typeof Session>;
 
 export const Success = S.Array(Session);
 export type Success = S.Schema.Type<typeof Success>;
@@ -166,11 +170,44 @@ export type Success = S.Schema.Type<typeof Success>;
 
 ---
 
+## Pre-flight Verification
+
+Before implementing, verify Better Auth method signatures exist:
+
+```typescript
+// In editor, hover over these to confirm signatures:
+client.multiSession.listDeviceSessions  // (params: {}) => Promise<...>
+client.multiSession.setActive           // (params: { sessionToken: string }) => Promise<...>
+client.multiSession.revoke              // (params: { sessionToken: string }) => Promise<...>
+```
+
+If any method is missing or has a different signature, consult the [Better Auth Multi-Session Docs](https://www.better-auth.com/docs/plugins/multi-session) and update this handoff.
+
+---
+
+## Schema Type Decision Table
+
+Use this table when defining contract schemas:
+
+| Better Auth Returns | Effect Schema | Example |
+|---------------------|---------------|---------|
+| `Date` object | `S.Date` | `expiresAt: S.Date` |
+| ISO date string | `S.DateFromString` | `createdAt: S.DateFromString` |
+| `string \| undefined` | `S.optional(S.String)` | `name: S.optional(S.String)` |
+| `string \| null \| undefined` | `S.optionalWith(S.String, { nullable: true })` | `ipAddress: S.optionalWith(S.String, { nullable: true })` |
+| Server-generated token | `S.String` (NOT `S.Redacted`) | `sessionToken: S.String` |
+| User credential | `S.Redacted(S.String)` | `password: S.Redacted(S.String)` |
+
+> **Note**: Better Auth client SDK typically returns `Date` objects (not strings) for timestamp fields. Use `S.Date` unless you observe ISO strings at runtime.
+
+---
+
 ## Implementation Order
 
 1. **list-sessions** (easiest - no payload, read-only)
 2. **set-active** (simple payload, mutates session)
 3. **revoke** (simple payload, mutates session)
+4. **multi-session/index.ts** (barrel file - create LAST)
 
 ---
 
@@ -216,6 +253,16 @@ After implementing each handler:
 1. **Empty Object Parameter**: `listDeviceSessions({})` requires empty object, not no args
 2. **Session Token Handling**: Use plain `S.String` for `sessionToken` - it's a server-generated identifier, not a user credential. Reserve `S.Redacted` for passwords and API keys only.
 3. **Response Shape Verification**: Verify exact `response.data` shape before finalizing Success schema (see protocol below)
+4. **Encoded Payload in Factory**: The `execute` function receives the **encoded** payload (after schema encoding), not the decoded type. Pass it directly to Better Auth without manual transformation:
+   ```typescript
+   // Correct - pass encoded directly
+   execute: (encoded) => client.multiSession.setActive(encoded)
+
+   // WRONG - don't re-encode or extract fields manually
+   execute: (encoded) => client.multiSession.setActive({ sessionToken: encoded.sessionToken })
+   ```
+5. **Date Fields**: Better Auth client SDK returns `Date` objects, not ISO strings. Use `S.Date` (not `S.DateFromString`) for timestamp fields.
+6. **Nullable vs Optional**: Better Auth may return `null` for optional fields. Use `S.optionalWith(S.String, { nullable: true })` instead of plain `S.optional(S.String)` for robustness.
 
 ---
 

@@ -52,6 +52,36 @@ through runtime helpers, while adapters keep raw Better Auth usage isolated to t
   Keep atoms narrowly focused on single operations (sign-in, sign-out, password change).
 - Keep `AuthCallback` prefixes aligned with app middleware in `apps/web`. Update both whenever authenticated route trees move.
 
+## Implemented Handler Patterns
+
+This section documents the handler patterns currently implemented in `@beep/iam-client` with example locations for reference.
+
+| Pattern | Example Location | Key Characteristics |
+|---------|------------------|---------------------|
+| No-payload factory | `src/core/sign-out/` | No `payloadSchema`, returns status |
+| With-payload factory | `src/sign-in/email/` | Has `payloadSchema`, validates input |
+| Manual handler | `src/core/get-session/` | Custom execute logic, complex transforms |
+
+### When to Use Factory vs Manual
+
+**Use Factory Pattern** (`createHandler`) when:
+- Standard `{ data, error }` response shape from Better Auth
+- No computed fields needed in payload (fields are 1:1 with API)
+- Simple encode → execute → decode flow
+- Standard error handling (check `response.error`, decode `response.data`)
+
+**Use Manual Handler** when:
+- Response shape differs from Better Auth's standard `{ data, error }`
+- Payload requires computed fields (e.g., hashing password, combining firstName+lastName → name)
+- Custom error transformation needed beyond standard `IamError` mapping
+- Multiple Better Auth calls in sequence (e.g., sign-up → verify → sign-in)
+- Complex validation beyond schema (e.g., password strength, email domain allowlist)
+
+**Examples of When Manual is Required:**
+- `sign-up/email`: Computed `name` field from `firstName` + `lastName`
+- Custom flows with multi-step Better Auth calls
+- Payload transformations that go beyond schema encoding
+
 ## Quick Recipes
 
 ### Create a handler with the factory pattern

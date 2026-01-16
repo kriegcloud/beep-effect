@@ -9,6 +9,22 @@
 
 ---
 
+## Pre-flight Checks
+
+Before starting, verify prerequisites are complete:
+
+```bash
+# Check Phase 1 (Entity IDs)
+grep -q "OAuthClientId" packages/shared/domain/src/entity-ids/iam/ids.ts && echo "✓ Phase 1 complete" || echo "✗ Phase 1 incomplete"
+
+# Check Phase 2 (Domain Models) - optional but recommended
+bun run check --filter @beep/iam-domain 2>&1 | tail -5
+```
+
+If Phase 1 check fails, complete Phase 1 first. Phase 2 errors won't block table creation but will block verification.
+
+---
+
 ## Objective
 
 Create 4 database table definitions using `Table.make` pattern.
@@ -37,12 +53,24 @@ Create 4 database table definitions using `Table.make` pattern.
 
 Use `packages/iam/tables/src/tables/account.table.ts` as reference.
 
+### Import Reference
+
+All table files need these standard imports. The `datetime` helper is only needed for tables with timestamp columns:
+
+```typescript
+import type { SharedEntityIds } from "@beep/shared-domain/entity-ids";
+import { IamEntityIds } from "@beep/shared-domain/entity-ids";
+import { datetime } from "@beep/shared-tables/columns";  // Only if table has datetime columns
+import { user, session } from "@beep/shared-tables/schema";  // Only FK'd tables needed
+import { Table } from "@beep/shared-tables/table";
+import * as pg from "drizzle-orm/pg-core";
+```
+
 ### oauthClient.table.ts
 
 ```typescript
 import type { SharedEntityIds } from "@beep/shared-domain/entity-ids";
 import { IamEntityIds } from "@beep/shared-domain/entity-ids";
-import { datetime } from "@beep/shared-tables/columns";
 import { user } from "@beep/shared-tables/schema";
 import { Table } from "@beep/shared-tables/table";
 import * as pg from "drizzle-orm/pg-core";
@@ -198,6 +226,16 @@ export * from "./oauthConsent.table";
 
 ```bash
 bun run check --filter @beep/iam-tables
+```
+
+### Cross-Phase Verification Note
+
+**IMPORTANT**: The `--filter @beep/iam-tables` check cascades through all dependencies including `@beep/iam-domain`. If verification fails with errors in domain models, those are **Phase 2 issues**, not Phase 3.
+
+To verify ONLY table syntax (without full dependency check):
+```bash
+# Quick syntax check - useful for debugging
+bun tsc --noEmit packages/iam/tables/src/tables/oauth*.ts 2>&1 | head -20
 ```
 
 ---

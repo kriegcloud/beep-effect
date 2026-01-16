@@ -15,6 +15,18 @@ Create 4 domain model entities for OAuth Provider using `M.Class` and `makeField
 
 ---
 
+## Pre-flight Check
+
+Before starting, verify Phase 1 (Entity IDs) is complete:
+
+```bash
+grep -q "OAuthClientId" packages/shared/domain/src/entity-ids/iam/ids.ts && echo "✓ Phase 1 complete" || echo "✗ STOP: Complete Phase 1 first"
+```
+
+If the check fails, do not proceed. Complete Phase 1 first.
+
+---
+
 ## Pre-Execution State
 
 The entity folders already exist but are empty:
@@ -60,6 +72,18 @@ export class Model extends M.Class<Model>($I`OAuthClientModel`)(
 }
 ```
 
+## Design Note: clientId as String
+
+**Why is `clientId` a `S.NonEmptyString` instead of `IamEntityIds.OAuthClientId`?**
+
+OAuth specifications (RFC 6749) define `client_id` as an opaque string identifier for interoperability. The `OAuthClient` entity has both:
+- `id`: Internal database primary key (UUID, branded type)
+- `clientId`: Public OAuth identifier (string, per OAuth spec)
+
+Token entities reference the public `clientId` string, not the internal `id`. This matches better-auth's schema design and OAuth standards.
+
+---
+
 ## Entity Field Specifications
 
 ### OAuthClient
@@ -74,7 +98,7 @@ makeFields(IamEntityIds.OAuthClientId, {
       description: "Hashed client secret",
     })
   ),
-  disabled: BS.toOptionalWithDefault(S.Boolean, false).annotations({
+  disabled: BS.BoolWithDefault(false).annotations({
     description: "Whether client is disabled",
   }),
   skipConsent: BS.FieldOptionOmittable(S.Boolean.annotations({
@@ -183,9 +207,11 @@ makeFields(IamEntityIds.OAuthAccessTokenId, {
 
 ```typescript
 makeFields(IamEntityIds.OAuthRefreshTokenId, {
-  token: S.NonEmptyString.annotations({
-    description: "Refresh token value",
-  }),
+  token: BS.FieldSensitiveOptionOmittable(
+    S.NonEmptyString.annotations({
+      description: "Refresh token value (sensitive credential)",
+    })
+  ),
   clientId: S.NonEmptyString.annotations({
     description: "OAuth client identifier",
   }),

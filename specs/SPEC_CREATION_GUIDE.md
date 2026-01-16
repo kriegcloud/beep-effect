@@ -166,6 +166,83 @@ Log to `REFLECTION_LOG.md`.
 
 ---
 
+## Pre-flight Verification
+
+Before implementing any phase that wraps external APIs (Better Auth, Stripe, etc.), verify the API contract:
+
+### LSP Hover Check
+
+```typescript
+// Pre-flight: Verify method signatures before implementation
+// In editor, hover over: client.somePlugin.someMethod
+// Expected: (params: { field: Type }) => Promise<{ data, error }>
+```
+
+### Runtime Sample (When Docs Are Unclear)
+
+```typescript
+// Temporary debug code - remove after verification
+const response = await client.somePlugin.someMethod({ testParam: "value" });
+console.log("Response shape:", JSON.stringify(response, null, 2));
+```
+
+### Verification Protocol
+
+1. **Check official docs first** - Most accurate source
+2. **LSP hover second** - Confirms TypeScript types
+3. **Runtime sample last** - Ground truth when docs/types diverge
+4. **Update spec immediately** - Document any deviations found
+
+---
+
+## Phase Validation: Dry Runs
+
+Before executing complex phases with multiple sub-agents, perform a validation dry run to test the spec structure and identify issues early.
+
+### When to Use Dry Runs
+
+Use dry runs for:
+- Phases with 3+ parallel sub-agent tasks
+- First-time use of new handler patterns or architectures
+- Specs where prompt clarity is uncertain
+- High-risk changes where rollback is expensive
+
+### Dry Run Protocol
+
+1. **Select Representative Tasks** - Choose 2-3 tasks covering different patterns (e.g., with-payload handler, no-payload handler, complex transformation)
+2. **Spawn Sub-Agents** - Each agent implements their task following the spec and produces a reflection document
+3. **Synthesize Findings** - Combine individual reflections into actionable spec improvements
+4. **Update Spec** - Fix issues discovered during dry run (prompts, examples, decision criteria)
+5. **Rollback Code** - Remove implementation artifacts, keep spec improvements and reflections
+
+### Dry Run Artifacts
+
+Store all dry run outputs in `specs/[name]/dry-run/`:
+
+```
+specs/[name]/dry-run/
+├── REFLECTION_[task-name].md   # Per-agent reflection
+├── SYNTHESIS.md                 # Combined findings
+└── ORCHESTRATOR_REFLECTION.md  # Repository-level improvements
+```
+
+**Artifact Retention**: Keep dry run artifacts in version control. They document validation decisions and prevent regression of spec quality.
+
+### Example Dry Run Flow
+
+```
+1. Orchestrator identifies Phase 2 has 6 parallel handler tasks
+2. Select 3 representative tasks (no-payload, with-payload, complex)
+3. Spawn 3 sub-agents, each produces:
+   - Implementation (to be discarded)
+   - REFLECTION_[task].md (to be kept)
+4. Synthesize → Update spec prompts + examples
+5. Git reset implementation, commit spec improvements
+6. Proceed with full Phase 2 execution
+```
+
+---
+
 ## Phase 2: Evaluation
 
 ### Purpose

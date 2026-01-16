@@ -56,25 +56,51 @@ Phase 7 (Migration) ← depends on all above
 
 ### Phase 1: Entity IDs
 
-**Status**: Not started
+**Status**: DRY RUN COMPLETE (2026-01-15)
 
-**Learnings**: (To be filled during execution)
+**Learnings**:
+- Pattern reference was accurate - `EntityId.builder("iam")` with `.annotations()` worked as documented
+- Existing inconsistency found: `AccountId` and `ApiKeyId` exist in `ids.ts`/`table-name.ts` but missing from `any-id.ts`
+- Insertion order matters for consistency - now documented as "append after last entry"
+- Verification (`bun run check`) handles upstream dependencies automatically
+
+**Spec Improvements Applied**:
+- Added insertion order guidance to P1_ORCHESTRATOR_PROMPT.md
 
 ---
 
 ### Phase 2: Domain Models
 
-**Status**: Not started
+**Status**: DRY RUN COMPLETE (2026-01-15)
 
-**Learnings**: (To be filled during execution)
+**Learnings**:
+- `BS.toOptionalWithDefault(S.Boolean, false)` is deprecated; use `BS.BoolWithDefault(false)`
+- Sensitive field consistency matters: OAuthRefreshToken.token should be marked sensitive like OAuthAccessToken.token
+- `clientId` as string (not FK reference) follows OAuth spec for interoperability - this design decision wasn't documented
+- Pre-flight check for Phase 1 completion prevents confusion
+
+**Spec Improvements Applied**:
+- Fixed BS helper naming in P2_ORCHESTRATOR_PROMPT.md
+- Added pre-flight check section
+- Made OAuthRefreshToken.token sensitive
+- Added "Design Note: clientId as String" section
 
 ---
 
 ### Phase 3: Tables
 
-**Status**: Not started
+**Status**: DRY RUN COMPLETE (2026-01-15)
 
-**Learnings**: (To be filled during execution)
+**Learnings**:
+- Critical FK design (clientId → oauthClient.clientId, not .id) works correctly
+- Cross-phase verification dependency: Phase 3 check fails if Phase 2 has errors
+- Import order matters for circular dependency prevention: oauthClient → oauthRefreshToken → oauthAccessToken
+- `datetime` import only needed for tables with timestamp columns
+
+**Spec Improvements Applied**:
+- Added pre-flight checks to P3_ORCHESTRATOR_PROMPT.md
+- Added cross-phase verification note with isolated syntax check
+- Added import reference section showing which imports are conditional
 
 ---
 
@@ -112,10 +138,33 @@ Phase 7 (Migration) ← depends on all above
 
 ## Anti-Patterns Identified
 
-(To be filled as issues are encountered)
+### 1. Using Deprecated BS Helpers
+**Problem**: Spec used `BS.toOptionalWithDefault(S.Boolean, false)` which caused linter errors.
+**Fix**: Always use `BS.BoolWithDefault(false)` for boolean defaults.
+
+### 2. Inconsistent Sensitive Field Marking
+**Problem**: Access tokens marked sensitive but refresh tokens weren't, despite both being credentials.
+**Fix**: Mark ALL credential fields (tokens, secrets, passwords) with `BS.FieldSensitiveOptionOmittable`.
+
+### 3. Missing Pre-flight Checks
+**Problem**: Agents proceeded without verifying prerequisite phases were complete.
+**Fix**: Every phase prompt now includes verification commands for prerequisites.
 
 ---
 
 ## Pattern Improvements
 
-(To be filled as better approaches are discovered)
+### 1. Pre-flight Verification
+Added to all orchestrator prompts:
+```bash
+grep -q "ExpectedPattern" target-file && echo "✓ Ready" || echo "✗ STOP"
+```
+
+### 2. Design Decision Documentation
+Non-obvious patterns like "clientId is a string for OAuth interoperability" now have explicit design notes.
+
+### 3. Cross-Phase Dependency Notes
+Verification commands now explain that failures may come from upstream phases, with isolated syntax check alternatives.
+
+### 4. Insertion Order Guidance
+Added explicit "append after last entry" guidance to prevent inconsistent placement.

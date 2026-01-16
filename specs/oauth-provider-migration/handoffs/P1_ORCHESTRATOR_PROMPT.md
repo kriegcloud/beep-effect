@@ -24,6 +24,17 @@ Create 4 new entity ID schemas for OAuth Provider entities. These IDs are founda
 
 ---
 
+## Insertion Order Guidance
+
+**IMPORTANT**: Append new entries after the last existing entry in each file:
+- In `ids.ts`: Add after `DeviceCodeId` definition
+- In `table-name.ts`: Add after the last `Ids.*.tableName` entry
+- In `any-id.ts`: Add after the last `Ids.*` entry in the union
+
+This maintains consistency and avoids confusion about where to insert code.
+
+---
+
 ## Implementation Steps
 
 ### Step 1: Read Existing Pattern
