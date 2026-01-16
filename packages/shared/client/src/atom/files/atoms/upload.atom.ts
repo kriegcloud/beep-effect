@@ -172,6 +172,9 @@ const makeUploadStream = (uploadId: string, input: UploadInput) =>
           metadata,
         });
 
+        // metadata schema uses JsonFromString, so we need to pass a JSON string
+        const metadataJson = yield* S.encode(S.parseJson())(metadata);
+
         const payload = yield* S.decodeUnknown(InitiateUpload.Payload)({
           fileName: state.fileToUpload.name,
           fileSize: state.fileToUpload.size,
@@ -180,8 +183,7 @@ const makeUploadStream = (uploadId: string, input: UploadInput) =>
           entityKind: state.input.entityKind,
           entityIdentifier: state.input.entityIdentifier,
           entityAttribute: state.input.entityAttribute,
-          // metadata schema uses JsonFromString, so we need to pass a JSON string
-          metadata: JSON.stringify(metadata),
+          metadata: metadataJson,
           fields: {},
         });
 
@@ -301,7 +303,8 @@ const makeUploadStream = (uploadId: string, input: UploadInput) =>
                 uploadId,
                 error: e,
               });
-              return yield* Effect.dieMessage(`[Unauthorized]: ${JSON.stringify(e)}`);
+              const errorJson = yield* S.encode(S.parseJson())(e);
+              return yield* Effect.dieMessage(`[Unauthorized]: ${errorJson}`);
             }
 
             // Handle S3 errors
@@ -316,7 +319,8 @@ const makeUploadStream = (uploadId: string, input: UploadInput) =>
                 uploadId,
                 error: e,
               });
-              return yield* Effect.dieMessage(`[S3UploadError]: ${JSON.stringify(e)}`);
+              const s3ErrorJson = yield* S.encode(S.parseJson())(e);
+              return yield* Effect.dieMessage(`[S3UploadError]: ${s3ErrorJson}`);
             }
 
             // Handle RpcClientError (from @effect/rpc, uses standard tag)
@@ -327,7 +331,8 @@ const makeUploadStream = (uploadId: string, input: UploadInput) =>
                   uploadId,
                   error: e,
                 });
-                return yield* Effect.dieMessage(`[RpcClientError]: ${JSON.stringify(e)}`);
+                const rpcErrorJson = yield* S.encode(S.parseJson())(e);
+                return yield* Effect.dieMessage(`[RpcClientError]: ${rpcErrorJson}`);
               }
             }
 

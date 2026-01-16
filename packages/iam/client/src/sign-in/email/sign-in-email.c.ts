@@ -1,8 +1,8 @@
+import * as Common from "@beep/iam-client/_common";
 import { Contract, ContractKit } from "@beep/iam-client/_contract";
+import { $IamClientId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
 import * as S from "effect/Schema";
-import * as Common from "@beep/iam-client/_common";
-import { $IamClientId } from "@beep/identity/packages";
 
 const $I = $IamClientId.create("sign-in/email");
 
@@ -18,14 +18,14 @@ export class Payload extends S.Class<Payload>($I`Payload`)(
     undefined,
     {
       [BS.DefaultFormValuesAnnotationId]: {
-      email: "",
-      password: "",
-      rememberMe: true,
-      callbackURL: "/",
+        email: "",
+        password: "",
+        rememberMe: true,
+        callbackURL: "/",
+      },
+      undefined,
     },
-      undefined
-    }
-  ],
+  ]
 ) {}
 
 export class Success extends S.Class<Success>($I`Success`)(
@@ -40,15 +40,10 @@ export class Success extends S.Class<Success>($I`Success`)(
   })
 ) {}
 
-export const C = Contract.make(
-  "Email",
-  {
-    description: "The contract for signing in with an email and password.",
-    parameters: Payload.fields,
-    success: Success
-  }
-)
+export const C = Contract.make("Email", {
+  description: "The contract for signing in with an email and password.",
+  parameters: Payload.fields,
+  success: Success,
+});
 
-export const Kit = ContractKit.make(
-  C,
-)
+export const Kit = ContractKit.make(C);

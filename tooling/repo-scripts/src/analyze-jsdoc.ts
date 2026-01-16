@@ -15,6 +15,7 @@ import * as F from "effect/Function";
 import * as HashSet from "effect/HashSet";
 import * as O from "effect/Option";
 import * as Order from "effect/Order";
+import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import * as Glob from "glob";
 import color from "picocolors";
@@ -173,8 +174,8 @@ const jsdocCommand = Command.make("jsdoc", jsdocOptions, (config) =>
       generatedAt: DateTime.toDate(DateTime.unsafeNow()).toISOString(),
     };
 
-    const summaryContent = `${JSON.stringify(summary, null, 2)}\n`;
-    yield* fs.writeFileString(outputPath, summaryContent);
+    const summaryContent = yield* S.encode(S.parseJson({ space: 2 }))(summary);
+    yield* fs.writeFileString(outputPath, `${summaryContent}\n`);
 
     yield* Console.log(color.cyan(`Analyzed ${filesScanned} files (${exportsChecked} exports).`));
     yield* Console.log(color.cyan(`Results written to ${path.relative(repoRoot, outputPath)}`));

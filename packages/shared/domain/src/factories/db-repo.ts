@@ -89,9 +89,11 @@ const makeBaseRepo = <
         }),
         Effect.tapErrorCause((c) =>
           Effect.gen(function* () {
-            yield* Effect.log("CAUSE: ", JSON.stringify(c, null, 2));
+            const causeJson = yield* S.encode(S.parseJson({ space: 2 }))(c);
+            yield* Effect.log("CAUSE: ", causeJson);
             const failure = yield* Cause.failureOption(c);
-            yield* Effect.log("FAILURE: ", JSON.stringify(failure, null, 2));
+            const failureJson = yield* S.encode(S.parseJson({ space: 2 }))(failure);
+            yield* Effect.log("FAILURE: ", failureJson);
           })
         ),
         Effect.mapError(DatabaseError.$match),

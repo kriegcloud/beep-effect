@@ -16,6 +16,7 @@ import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
 import * as Layer from "effect/Layer";
+import * as S from "effect/Schema";
 import * as Glob from "glob";
 import { DomainError, NoSuchFileError } from "./repo/Errors.js";
 import type { UnsafeAny } from "./types.js";
@@ -338,8 +339,19 @@ const make: Effect.Effect<IFsUtilsEffect, DomainError, FileSystem.FileSystem | P
    * @param json JSON-serializable value
    */
 
+  const JsonStringPretty = S.parseJson({ space: 2 });
+
   const writeJson: WriteJson = Effect.fn("FsUtils.writeJson")(function* (path: string, json: unknown) {
-    return yield* fs.writeFileString(path, `${JSON.stringify(json, null, 2)}`).pipe(DomainError.mapError);
+    const content = yield* S.encode(JsonStringPretty)(json).pipe(
+      Effect.mapError(
+        (e) =>
+          new DomainError({
+            message: `writeJson encoding failed (${path}): ${e}`,
+            cause: e,
+          })
+      )
+    );
+    return yield* fs.writeFileString(path, content).pipe(DomainError.mapError);
   });
 
   return {

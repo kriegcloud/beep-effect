@@ -17,14 +17,14 @@ export class Payload extends S.Class<Payload>($I`Payload`)(
     undefined,
     {
       [BS.DefaultFormValuesAnnotationId]: {
-      email: "",
-      password: "",
-      rememberMe: true,
-      callbackURL: "/",
+        email: "",
+        password: "",
+        rememberMe: true,
+        callbackURL: "/",
+      },
+      undefined,
     },
-      undefined
-    }
-  ],
+  ]
 ) {}
 
 export class Success extends S.Class<Success>($I`Success`)(

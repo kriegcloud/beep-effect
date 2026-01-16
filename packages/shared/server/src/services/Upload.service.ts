@@ -84,7 +84,8 @@ const serviceEffect: UploadServiceEffect = Effect.gen(function* () {
       Bucket,
       Key,
     });
-    yield* Effect.logInfo(`Deleted file successfully from path: ${JSON.stringify(result, null, 2)}`);
+    const resultJson = yield* S.encode(S.parseJson({ space: 2 }))(result);
+    yield* Effect.logInfo(`Deleted file successfully from path: ${resultJson}`);
     return result;
   });
 

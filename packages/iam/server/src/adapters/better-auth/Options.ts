@@ -18,9 +18,14 @@ import type { Auth, BetterAuthOptions, BetterAuthPlugin } from "better-auth";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { nextCookies } from "better-auth/next-js";
-import { apiKey, bearer,
+import {
+  apiKey,
+  bearer,
   // captcha,
-  lastLoginMethod, oneTap, openAPI } from "better-auth/plugins";
+  lastLoginMethod,
+  oneTap,
+  openAPI,
+} from "better-auth/plugins";
 import { admin } from "better-auth/plugins/admin";
 import { anonymous } from "better-auth/plugins/anonymous";
 import { deviceAuthorization } from "better-auth/plugins/device-authorization";

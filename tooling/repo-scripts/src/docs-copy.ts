@@ -9,6 +9,7 @@ import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
+import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import * as Struct from "effect/Struct";
 import color from "picocolors";
@@ -129,7 +130,7 @@ const readPackageName = (
 ): Effect.Effect<string, Error | PlatformError> =>
   Effect.gen(function* () {
     const raw = yield* fs.readFileString(packageJsonPath);
-    const parsed = JSON.parse(raw) as { readonly name?: string };
+    const parsed = (yield* S.decode(S.parseJson())(raw)) as { readonly name?: string };
     if (!parsed.name) {
       return yield* Effect.fail(
         new DomainError({

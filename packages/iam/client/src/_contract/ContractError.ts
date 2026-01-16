@@ -1,16 +1,13 @@
 import type * as HttpClientError from "@effect/platform/HttpClientError";
 import * as Effect from "effect/Effect";
 import * as Inspectable from "effect/Inspectable";
-import type {ParseError} from "effect/ParseResult";
+import type { ParseError } from "effect/ParseResult";
 import * as Predicate from "effect/Predicate";
 import * as Schema from "effect/Schema";
 
-
 export const TypeId = "~@beep/iam-client/ContractError";
 
-
-export type TypeId = typeof TypeId
-
+export type TypeId = typeof TypeId;
 
 export const isContractError = (u: unknown): u is ContractError => Predicate.hasProperty(u, TypeId);
 
@@ -19,8 +16,8 @@ export const HttpRequestDetails = Schema.Struct({
   url: Schema.String,
   urlParams: Schema.Array(Schema.Tuple(Schema.String, Schema.String)),
   hash: Schema.Option(Schema.String),
-  headers: Schema.Record({key: Schema.String, value: Schema.String})
-}).annotations({identifier: "HttpRequestDetails"});
+  headers: Schema.Record({ key: Schema.String, value: Schema.String }),
+}).annotations({ identifier: "HttpRequestDetails" });
 
 export class HttpRequestError extends Schema.TaggedError<HttpRequestError>(
   "@effect/iam-client/ContractError/HttpRequestError"
@@ -30,18 +27,20 @@ export class HttpRequestError extends Schema.TaggedError<HttpRequestError>(
   reason: Schema.Literal("Transport", "Encode", "InvalidUrl"),
   request: HttpRequestDetails,
   description: Schema.optional(Schema.String),
-  cause: Schema.optional(Schema.Defect)
+  cause: Schema.optional(Schema.Defect),
 }) {
   /**
    * @since 1.0.0
    */
   readonly [TypeId]: TypeId = TypeId;
 
-
-  static fromRequestError({error, ...params}: {
-    readonly module: string
-    readonly method: string
-    readonly error: HttpClientError.RequestError
+  static fromRequestError({
+    error,
+    ...params
+  }: {
+    readonly module: string;
+    readonly method: string;
+    readonly error: HttpClientError.RequestError;
   }): HttpRequestError {
     return new HttpRequestError({
       ...params,
@@ -53,8 +52,8 @@ export class HttpRequestError extends Schema.TaggedError<HttpRequestError>(
         headers: Inspectable.redact(error.request.headers) as any,
         method: error.request.method,
         url: error.request.url,
-        urlParams: error.request.urlParams
-      }
+        urlParams: error.request.urlParams,
+      },
     });
   }
 
@@ -94,8 +93,8 @@ export class HttpRequestError extends Schema.TaggedError<HttpRequestError>(
 
 export const HttpResponseDetails = Schema.Struct({
   status: Schema.Number,
-  headers: Schema.Record({key: Schema.String, value: Schema.String})
-}).annotations({identifier: "HttpResponseDetails"});
+  headers: Schema.Record({ key: Schema.String, value: Schema.String }),
+}).annotations({ identifier: "HttpResponseDetails" });
 
 export class HttpResponseError extends Schema.TaggedError<HttpResponseError>(
   "@effect/iam-client/ContractError/HttpResponseError"
@@ -106,18 +105,20 @@ export class HttpResponseError extends Schema.TaggedError<HttpResponseError>(
   response: HttpResponseDetails,
   body: Schema.optional(Schema.String),
   reason: Schema.Literal("StatusCode", "Decode", "EmptyBody"),
-  description: Schema.optional(Schema.String)
+  description: Schema.optional(Schema.String),
 }) {
   /**
    * @since 1.0.0
    */
   readonly [TypeId]: TypeId = TypeId;
 
-
-  static fromResponseError({error, ...params}: {
-    readonly module: string
-    readonly method: string
-    readonly error: HttpClientError.ResponseError
+  static fromResponseError({
+    error,
+    ...params
+  }: {
+    readonly module: string;
+    readonly method: string;
+    readonly error: HttpClientError.ResponseError;
   }): Effect.Effect<never, HttpResponseError> {
     let body: Effect.Effect<unknown, HttpClientError.ResponseError> = Effect.void;
     const contentType = error.response.headers["content-type"] ?? "";
@@ -126,24 +127,27 @@ export class HttpResponseError extends Schema.TaggedError<HttpResponseError>(
     } else if (contentType.includes("text/") || contentType.includes("urlencoded")) {
       body = error.response.text;
     }
-    return Effect.flatMap(Effect.merge(body), (body) =>
-      new HttpResponseError({
-        ...params,
-        description: error.description,
-        reason: error.reason,
-        request: {
-          hash: error.request.hash,
-          headers: Inspectable.redact(error.request.headers) as any,
-          method: error.request.method,
-          url: error.request.url,
-          urlParams: error.request.urlParams
-        },
-        response: {
-          headers: Inspectable.redact(error.response.headers) as any,
-          status: error.response.status
-        },
-        body: Inspectable.format(body)
-      }));
+    return Effect.flatMap(
+      Effect.merge(body),
+      (body) =>
+        new HttpResponseError({
+          ...params,
+          description: error.description,
+          reason: error.reason,
+          request: {
+            hash: error.request.hash,
+            headers: Inspectable.redact(error.request.headers) as any,
+            method: error.request.method,
+            url: error.request.url,
+            urlParams: error.request.urlParams,
+          },
+          response: {
+            headers: Inspectable.redact(error.response.headers) as any,
+            status: error.response.status,
+          },
+          body: Inspectable.format(body),
+        })
+    );
   }
 
   override get message(): string {
@@ -158,13 +162,15 @@ export class HttpResponseError extends Schema.TaggedError<HttpResponseError>(
     let suggestion = "";
     switch (this.reason) {
       case "Decode": {
-        suggestion += "The response format does not match what is expected. " +
+        suggestion +=
+          "The response format does not match what is expected. " +
           "Verify API version compatibility, check response content-type, " +
           "and/or examine if the endpoint schema has changed.";
         break;
       }
       case "EmptyBody": {
-        suggestion += "The response body was empty. This may indicate a server " +
+        suggestion +=
+          "The response body was empty. This may indicate a server " +
           "issue, API version mismatch, or the endpoint may have changed its response format.";
         break;
       }
@@ -190,7 +196,7 @@ export class MalformedInput extends Schema.TaggedError<MalformedInput>(
   module: Schema.String,
   method: Schema.String,
   description: Schema.optional(Schema.String),
-  cause: Schema.optional(Schema.Defect)
+  cause: Schema.optional(Schema.Defect),
 }) {
   /**
    * @since 1.0.0
@@ -204,35 +210,35 @@ export class MalformedOutput extends Schema.TaggedError<MalformedOutput>(
   module: Schema.String,
   method: Schema.String,
   description: Schema.optional(Schema.String),
-  cause: Schema.optional(Schema.Defect)
+  cause: Schema.optional(Schema.Defect),
 }) {
   /**
    * @since 1.0.0
    */
   readonly [TypeId]: TypeId = TypeId;
 
-
-  static fromParseError({error, ...params}: {
-    readonly module: string
-    readonly method: string
-    readonly description?: string
-    readonly error: ParseError
+  static fromParseError({
+    error,
+    ...params
+  }: {
+    readonly module: string;
+    readonly method: string;
+    readonly description?: string;
+    readonly error: ParseError;
   }): MalformedOutput {
     // TODO(Max): enhance
     return new MalformedOutput({
       ...params,
-      cause: error
+      cause: error,
     });
   }
 }
 
-export class UnknownError extends Schema.TaggedError<UnknownError>(
-  "@effect/iam-client/UnknownError"
-)("UnknownError", {
+export class UnknownError extends Schema.TaggedError<UnknownError>("@effect/iam-client/UnknownError")("UnknownError", {
   module: Schema.String,
   method: Schema.String,
   description: Schema.optional(Schema.String),
-  cause: Schema.optional(Schema.Defect)
+  cause: Schema.optional(Schema.Defect),
 }) {
   /**
    * @since 1.0.0
@@ -250,26 +256,17 @@ export class UnknownError extends Schema.TaggedError<UnknownError>(
   }
 }
 
-export type ContractError =
-  | HttpRequestError
-  | HttpResponseError
-  | MalformedInput
-  | MalformedOutput
-  | UnknownError
+export type ContractError = HttpRequestError | HttpResponseError | MalformedInput | MalformedOutput | UnknownError;
 
-export const ContractError: Schema.Union<[
-  typeof HttpRequestError,
-  typeof HttpResponseError,
-  typeof MalformedInput,
-  typeof MalformedOutput,
-  typeof UnknownError
-]> = Schema.Union(
-  HttpRequestError,
-  HttpResponseError,
-  MalformedInput,
-  MalformedOutput,
-  UnknownError
-);
+export const ContractError: Schema.Union<
+  [
+    typeof HttpRequestError,
+    typeof HttpResponseError,
+    typeof MalformedInput,
+    typeof MalformedOutput,
+    typeof UnknownError,
+  ]
+> = Schema.Union(HttpRequestError, HttpResponseError, MalformedInput, MalformedOutput, UnknownError);
 
 // =============================================================================
 // Utilities
@@ -300,5 +297,4 @@ const getStatusCodeSuggestion = (statusCode: number): string => {
     return "Server error - This is likely temporary. Implement retry logic with exponential backoff.";
   }
   return "Check API documentation for this status code.";
-
 };

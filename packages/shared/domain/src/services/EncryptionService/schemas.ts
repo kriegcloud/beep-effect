@@ -547,7 +547,7 @@ export const SignedPayload = <A, I, R>(
     decode: (payload, _, ast) =>
       Effect.gen(function* () {
         const service = yield* _EncryptionService;
-        const payloadString = JSON.stringify(payload);
+        const payloadString = yield* S.encode(S.parseJson())(payload);
         const signature = yield* service.signPayload(payloadString, _secret);
         const signedAt = yield* DateTime.now;
         return { payload, signature, signedAt };
@@ -564,7 +564,7 @@ export const SignedPayload = <A, I, R>(
     encode: (signedPayload, _, ast) =>
       Effect.gen(function* () {
         const service = yield* _EncryptionService;
-        const payloadString = JSON.stringify(signedPayload.payload);
+        const payloadString = yield* S.encode(S.parseJson())(signedPayload.payload);
         const isValid = yield* service.verifySignature(payloadString, signedPayload.signature, _secret);
 
         if (!isValid) {
@@ -663,7 +663,7 @@ export const SignedPayloadWithExpiration = <A, I, R>(
     decode: (input, __, ast) =>
       Effect.gen(function* () {
         const service = yield* _EncryptionService;
-        const payloadString = JSON.stringify(input);
+        const payloadString = yield* S.encode(S.parseJson())(input);
         const signature = yield* service.signPayload(payloadString, _secret);
         const signedAt = yield* DateTime.now;
         const expiresAt = DateTime.addDuration(signedAt, _ttl);
@@ -688,7 +688,7 @@ export const SignedPayloadWithExpiration = <A, I, R>(
 
         // Then verify signature
         const service = yield* _EncryptionService;
-        const payloadString = JSON.stringify(signedPayload.payload);
+        const payloadString = yield* S.encode(S.parseJson())(signedPayload.payload);
         const isValid = yield* service.verifySignature(payloadString, signedPayload.signature, _secret);
 
         if (!isValid) {

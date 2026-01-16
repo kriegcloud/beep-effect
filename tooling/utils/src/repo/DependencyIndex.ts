@@ -72,7 +72,7 @@ export const buildRepoDependencyIndex = Effect.gen(function* () {
 
   for (const [name, pkgJsonPath] of entries) {
     const deps = yield* extractWorkspaceDependencies(pkgJsonPath);
-    const key = S.decodeUnknownSync(WorkspacePkgKey)(name);
+    const key = yield* S.decodeUnknown(WorkspacePkgKey)(name);
     map = HashMap.set(map, key, deps);
   }
 

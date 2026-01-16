@@ -97,7 +97,7 @@ export const collectConvertableFiles = Effect.fn("collectConvertableFiles")(func
   const fsUtils = yield* FsUtils;
   const dir = yield* fsUtils.existsOrThrow(opts.dir);
 
-  return F.pipe(
+  const rawFiles = F.pipe(
     collectFiles(dir),
     A.filter((path) => {
       return F.pipe(
@@ -125,24 +125,25 @@ export const collectConvertableFiles = Effect.fn("collectConvertableFiles")(func
         path,
         _tag: ext,
       };
-    }),
-    S.decodeUnknownSync(ConvertableFiles),
-    (convertableFiles) =>
-      ({
-        modsToLoad: new Set<Pick<Convertable, "modPath" | "_tag">>(
-          A.map(convertableFiles, (e) =>
-            Match.value(e).pipe(
-              Match.tag("jpg", "jpeg", ({ _tag, modPath }) => ({ _tag, modPath })),
-              Match.tagsExhaustive({
-                png: ({ _tag, modPath }) => ({ _tag, modPath }),
-                webp: ({ _tag, modPath }) => ({ _tag, modPath }),
-              })
-            )
-          )
-        ),
-        files: convertableFiles,
-      }) as const
+    })
   );
+
+  const convertableFiles = yield* S.decodeUnknown(ConvertableFiles)(rawFiles);
+
+  return {
+    modsToLoad: new Set<Pick<Convertable, "modPath" | "_tag">>(
+      A.map(convertableFiles, (e) =>
+        Match.value(e).pipe(
+          Match.tag("jpg", "jpeg", ({ _tag, modPath }) => ({ _tag, modPath })),
+          Match.tagsExhaustive({
+            png: ({ _tag, modPath }) => ({ _tag, modPath }),
+            webp: ({ _tag, modPath }) => ({ _tag, modPath }),
+          })
+        )
+      )
+    ),
+    files: convertableFiles,
+  } as const;
 });
 
 type DecoderTag = Convertable["_tag"];

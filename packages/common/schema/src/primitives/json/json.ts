@@ -471,7 +471,7 @@ export const JsonStringToStringArray = S.transformOrFail(S.Union(S.String, S.Arr
         );
       }
 
-      const parsed = yield* Effect.try(() => JSON.parse(input as string)).pipe(
+      const parsed = yield* S.decode(S.parseJson())(input as string).pipe(
         Effect.orElse(() => Effect.succeed(null))
       );
 
@@ -479,7 +479,8 @@ export const JsonStringToStringArray = S.transformOrFail(S.Union(S.String, S.Arr
         Effect.orElse(() => Effect.succeed([] as ReadonlyArray<string>))
       );
     }),
-  encode: (array) => Effect.succeed(JSON.stringify(array)),
+  encode: (array) =>
+    S.encode(S.parseJson())(array).pipe(Effect.mapError((e) => e.issue)),
   strict: true,
 }).annotations(
   $I.annotations("json/JsonStringToStringArray", {
@@ -513,7 +514,7 @@ export const JsonStringToArray = <A>(itemSchema: S.Schema<A, UnsafeTypes.UnsafeA
           );
         }
 
-        const parsed = yield* Effect.try(() => JSON.parse(input as string)).pipe(
+        const parsed = yield* S.decode(S.parseJson())(input as string).pipe(
           Effect.tapError((error) =>
             Effect.logError("Failed to parse JSON string in JsonStringToArray", { error, input })
           ),
@@ -530,7 +531,8 @@ export const JsonStringToArray = <A>(itemSchema: S.Schema<A, UnsafeTypes.UnsafeA
           Effect.orElse(() => Effect.succeed([] as ReadonlyArray<A>))
         );
       }),
-    encode: (array) => Effect.succeed(JSON.stringify(array)),
+    encode: (array) =>
+    S.encode(S.parseJson())(array).pipe(Effect.mapError((e) => e.issue)),
     strict: true,
   }).annotations(
     $I.annotations("json/JsonStringToArray", {
