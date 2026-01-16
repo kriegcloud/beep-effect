@@ -21,7 +21,11 @@ export class TableName extends BS.StringLiteralKit(
   Ids.WalletAddressId.tableName,
   Ids.OrganizationRoleId.tableName,
   Ids.DeviceCodeId.tableName,
-  Ids.ScimProviderId.tableName
+  Ids.ScimProviderId.tableName,
+  Ids.OAuthClientId.tableName,
+  Ids.OAuthAccessTokenId.tableName,
+  Ids.OAuthRefreshTokenId.tableName,
+  Ids.OAuthConsentId.tableName
 ).annotations(
   $I.annotations("IamTableName", {
     description: "A sql table name for an entity within the iam domain context",

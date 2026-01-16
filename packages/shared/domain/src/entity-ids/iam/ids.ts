@@ -279,3 +279,71 @@ export declare namespace DeviceCodeId {
     export type Encoded = typeof DeviceCodeId.privateSchema.Encoded;
   }
 }
+
+export const OAuthClientId = make("oauth_client", {
+  brand: "OAuthClientId",
+}).annotations(
+  $I.annotations("OAuthClientId", {
+    description: "A unique identifier for an OAuth client",
+  })
+);
+
+export declare namespace OAuthClientId {
+  export type Type = S.Schema.Type<typeof OAuthClientId>;
+  export type Encoded = S.Schema.Encoded<typeof OAuthClientId>;
+  export namespace RowId {
+    export type Type = typeof OAuthClientId.privateSchema.Type;
+    export type Encoded = typeof OAuthClientId.privateSchema.Encoded;
+  }
+}
+
+export const OAuthAccessTokenId = make("oauth_access_token", {
+  brand: "OAuthAccessTokenId",
+}).annotations(
+  $I.annotations("OAuthAccessTokenId", {
+    description: "A unique identifier for an OAuth access token",
+  })
+);
+
+export declare namespace OAuthAccessTokenId {
+  export type Type = S.Schema.Type<typeof OAuthAccessTokenId>;
+  export type Encoded = S.Schema.Encoded<typeof OAuthAccessTokenId>;
+  export namespace RowId {
+    export type Type = typeof OAuthAccessTokenId.privateSchema.Type;
+    export type Encoded = typeof OAuthAccessTokenId.privateSchema.Encoded;
+  }
+}
+
+export const OAuthRefreshTokenId = make("oauth_refresh_token", {
+  brand: "OAuthRefreshTokenId",
+}).annotations(
+  $I.annotations("OAuthRefreshTokenId", {
+    description: "A unique identifier for an OAuth refresh token",
+  })
+);
+
+export declare namespace OAuthRefreshTokenId {
+  export type Type = S.Schema.Type<typeof OAuthRefreshTokenId>;
+  export type Encoded = S.Schema.Encoded<typeof OAuthRefreshTokenId>;
+  export namespace RowId {
+    export type Type = typeof OAuthRefreshTokenId.privateSchema.Type;
+    export type Encoded = typeof OAuthRefreshTokenId.privateSchema.Encoded;
+  }
+}
+
+export const OAuthConsentId = make("oauth_consent", {
+  brand: "OAuthConsentId",
+}).annotations(
+  $I.annotations("OAuthConsentId", {
+    description: "A unique identifier for an OAuth consent record",
+  })
+);
+
+export declare namespace OAuthConsentId {
+  export type Type = S.Schema.Type<typeof OAuthConsentId>;
+  export type Encoded = S.Schema.Encoded<typeof OAuthConsentId>;
+  export namespace RowId {
+    export type Type = typeof OAuthConsentId.privateSchema.Type;
+    export type Encoded = typeof OAuthConsentId.privateSchema.Encoded;
+  }
+}

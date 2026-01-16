@@ -17,7 +17,11 @@ export class AnyId extends S.Union(
   Ids.WalletAddressId,
   Ids.OrganizationRoleId,
   Ids.DeviceCodeId,
-  Ids.ScimProviderId
+  Ids.ScimProviderId,
+  Ids.OAuthClientId,
+  Ids.OAuthAccessTokenId,
+  Ids.OAuthRefreshTokenId,
+  Ids.OAuthConsentId
 ).annotations(
   $I.annotations("AnyIamId", {
     description: "Any entity id within the iam domain context",

@@ -6,6 +6,10 @@ import {
   deviceCode,
   invitation,
   member,
+  oauthAccessToken,
+  oauthClient,
+  oauthConsent,
+  oauthRefreshToken,
   organizationRole,
   passkey,
   scimProvider,
@@ -125,7 +129,7 @@ export const passkeyRelations = d.relations(passkey, ({ one }) => ({
   }),
 }));
 
-export const sessionRelations = d.relations(session, ({ one }) => ({
+export const sessionRelations = d.relations(session, ({ one, many }) => ({
   user: one(user, {
     fields: [session.userId],
     references: [user.id],
@@ -140,6 +144,9 @@ export const sessionRelations = d.relations(session, ({ one }) => ({
     references: [user.id],
     relationName: "impersonatedSessions",
   }),
+  // OAuth relations
+  oauthRefreshTokens: many(oauthRefreshToken),
+  oauthAccessTokens: many(oauthAccessToken),
 }));
 
 export const twoFactorRelations = d.relations(twoFactor, ({ one }) => ({
@@ -188,6 +195,12 @@ export const userRelations = d.relations(user, ({ many }) => ({
   invitations: many(invitation),
 
   apiKeys: many(apiKey),
+
+  // OAuth relations
+  oauthClients: many(oauthClient),
+  oauthRefreshTokens: many(oauthRefreshToken),
+  oauthAccessTokens: many(oauthAccessToken),
+  oauthConsents: many(oauthConsent),
 }));
 
 export const organizationRelations = d.relations(organization, ({ many, one }) => ({
@@ -233,5 +246,61 @@ export const scimProviderRelations = d.relations(scimProvider, ({ one }) => ({
   organization: one(organization, {
     fields: [scimProvider.organizationId],
     references: [organization.id],
+  }),
+}));
+
+export const oauthClientRelations = d.relations(oauthClient, ({ one, many }) => ({
+  user: one(user, {
+    fields: [oauthClient.userId],
+    references: [user.id],
+  }),
+  oauthRefreshTokens: many(oauthRefreshToken),
+  oauthAccessTokens: many(oauthAccessToken),
+  oauthConsents: many(oauthConsent),
+}));
+
+export const oauthRefreshTokenRelations = d.relations(oauthRefreshToken, ({ one, many }) => ({
+  oauthClient: one(oauthClient, {
+    fields: [oauthRefreshToken.clientId],
+    references: [oauthClient.clientId],
+  }),
+  session: one(session, {
+    fields: [oauthRefreshToken.sessionId],
+    references: [session.id],
+  }),
+  user: one(user, {
+    fields: [oauthRefreshToken.userId],
+    references: [user.id],
+  }),
+  oauthAccessTokens: many(oauthAccessToken),
+}));
+
+export const oauthAccessTokenRelations = d.relations(oauthAccessToken, ({ one }) => ({
+  oauthClient: one(oauthClient, {
+    fields: [oauthAccessToken.clientId],
+    references: [oauthClient.clientId],
+  }),
+  session: one(session, {
+    fields: [oauthAccessToken.sessionId],
+    references: [session.id],
+  }),
+  user: one(user, {
+    fields: [oauthAccessToken.userId],
+    references: [user.id],
+  }),
+  oauthRefreshToken: one(oauthRefreshToken, {
+    fields: [oauthAccessToken.refreshId],
+    references: [oauthRefreshToken.id],
+  }),
+}));
+
+export const oauthConsentRelations = d.relations(oauthConsent, ({ one }) => ({
+  oauthClient: one(oauthClient, {
+    fields: [oauthConsent.clientId],
+    references: [oauthClient.clientId],
+  }),
+  user: one(user, {
+    fields: [oauthConsent.userId],
+    references: [user.id],
   }),
 }));

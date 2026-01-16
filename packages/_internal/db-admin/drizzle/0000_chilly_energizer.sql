@@ -642,6 +642,109 @@ CREATE TABLE "iam_wallet_address" (
 	CONSTRAINT "iam_wallet_address_id_unique" UNIQUE("id")
 );
 --> statement-breakpoint
+CREATE TABLE "iam_oauth_client" (
+	"id" text NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"deleted_at" timestamp with time zone,
+	"created_by" text DEFAULT 'app',
+	"updated_by" text DEFAULT 'app',
+	"deleted_by" text,
+	"version" integer DEFAULT 1 NOT NULL,
+	"source" text,
+	"client_id" text NOT NULL,
+	"client_secret" text,
+	"disabled" boolean DEFAULT false NOT NULL,
+	"skip_consent" boolean,
+	"enable_end_session" boolean,
+	"scopes" text[],
+	"user_id" text,
+	"name" text,
+	"uri" text,
+	"icon" text,
+	"contacts" text[],
+	"tos" text,
+	"policy" text,
+	"software_id" text,
+	"software_version" text,
+	"software_statement" text,
+	"redirect_uris" text[] NOT NULL,
+	"post_logout_redirect_uris" text[],
+	"token_endpoint_auth_method" text,
+	"grant_types" text[],
+	"response_types" text[],
+	"public" boolean,
+	"type" text,
+	"reference_id" text,
+	"metadata" jsonb,
+	CONSTRAINT "iam_oauth_client_id_unique" UNIQUE("id"),
+	CONSTRAINT "iam_oauth_client_client_id_unique" UNIQUE("client_id")
+);
+--> statement-breakpoint
+CREATE TABLE "iam_oauth_access_token" (
+	"id" text NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"deleted_at" timestamp with time zone,
+	"created_by" text DEFAULT 'app',
+	"updated_by" text DEFAULT 'app',
+	"deleted_by" text,
+	"version" integer DEFAULT 1 NOT NULL,
+	"source" text,
+	"token" text,
+	"client_id" text NOT NULL,
+	"session_id" text,
+	"user_id" text,
+	"reference_id" text,
+	"refresh_id" text,
+	"expires_at" timestamp with time zone,
+	"scopes" text[] NOT NULL,
+	CONSTRAINT "iam_oauth_access_token_id_unique" UNIQUE("id"),
+	CONSTRAINT "iam_oauth_access_token_token_unique" UNIQUE("token")
+);
+--> statement-breakpoint
+CREATE TABLE "iam_oauth_refresh_token" (
+	"id" text NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"deleted_at" timestamp with time zone,
+	"created_by" text DEFAULT 'app',
+	"updated_by" text DEFAULT 'app',
+	"deleted_by" text,
+	"version" integer DEFAULT 1 NOT NULL,
+	"source" text,
+	"token" text NOT NULL,
+	"client_id" text NOT NULL,
+	"session_id" text,
+	"user_id" text NOT NULL,
+	"reference_id" text,
+	"expires_at" timestamp with time zone,
+	"revoked" timestamp with time zone,
+	"scopes" text[] NOT NULL,
+	CONSTRAINT "iam_oauth_refresh_token_id_unique" UNIQUE("id")
+);
+--> statement-breakpoint
+CREATE TABLE "iam_oauth_consent" (
+	"id" text NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"deleted_at" timestamp with time zone,
+	"created_by" text DEFAULT 'app',
+	"updated_by" text DEFAULT 'app',
+	"deleted_by" text,
+	"version" integer DEFAULT 1 NOT NULL,
+	"source" text,
+	"client_id" text NOT NULL,
+	"user_id" text,
+	"reference_id" text,
+	"scopes" text[] NOT NULL,
+	CONSTRAINT "iam_oauth_consent_id_unique" UNIQUE("id")
+);
+--> statement-breakpoint
 CREATE TABLE "shared_folder" (
 	"id" text NOT NULL,
 	"_row_id" serial PRIMARY KEY NOT NULL,
@@ -726,6 +829,16 @@ ALTER TABLE "iam_team_member" ADD CONSTRAINT "iam_team_member_user_id_shared_use
 ALTER TABLE "iam_two_factor" ADD CONSTRAINT "iam_two_factor_organization_id_shared_organization_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."shared_organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
 ALTER TABLE "iam_two_factor" ADD CONSTRAINT "iam_two_factor_user_id_shared_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."shared_user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "iam_wallet_address" ADD CONSTRAINT "iam_wallet_address_user_id_shared_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."shared_user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "iam_oauth_client" ADD CONSTRAINT "iam_oauth_client_user_id_shared_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."shared_user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "iam_oauth_access_token" ADD CONSTRAINT "iam_oauth_access_token_client_id_iam_oauth_client_client_id_fk" FOREIGN KEY ("client_id") REFERENCES "public"."iam_oauth_client"("client_id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "iam_oauth_access_token" ADD CONSTRAINT "iam_oauth_access_token_session_id_shared_session_id_fk" FOREIGN KEY ("session_id") REFERENCES "public"."shared_session"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "iam_oauth_access_token" ADD CONSTRAINT "iam_oauth_access_token_user_id_shared_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."shared_user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "iam_oauth_access_token" ADD CONSTRAINT "iam_oauth_access_token_refresh_id_iam_oauth_refresh_token_id_fk" FOREIGN KEY ("refresh_id") REFERENCES "public"."iam_oauth_refresh_token"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "iam_oauth_refresh_token" ADD CONSTRAINT "iam_oauth_refresh_token_client_id_iam_oauth_client_client_id_fk" FOREIGN KEY ("client_id") REFERENCES "public"."iam_oauth_client"("client_id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "iam_oauth_refresh_token" ADD CONSTRAINT "iam_oauth_refresh_token_session_id_shared_session_id_fk" FOREIGN KEY ("session_id") REFERENCES "public"."shared_session"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "iam_oauth_refresh_token" ADD CONSTRAINT "iam_oauth_refresh_token_user_id_shared_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."shared_user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "iam_oauth_consent" ADD CONSTRAINT "iam_oauth_consent_client_id_iam_oauth_client_client_id_fk" FOREIGN KEY ("client_id") REFERENCES "public"."iam_oauth_client"("client_id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "iam_oauth_consent" ADD CONSTRAINT "iam_oauth_consent_user_id_shared_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."shared_user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "shared_folder" ADD CONSTRAINT "shared_folder_organization_id_shared_organization_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."shared_organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
 ALTER TABLE "shared_folder" ADD CONSTRAINT "shared_folder_user_id_shared_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."shared_user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "shared_upload_session" ADD CONSTRAINT "shared_upload_session_organization_id_shared_organization_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."shared_organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
@@ -806,6 +919,17 @@ CREATE INDEX "verification_identifier_value_idx" ON "iam_verification" USING btr
 CREATE INDEX "verification_expires_at_idx" ON "iam_verification" USING btree ("expires_at");--> statement-breakpoint
 CREATE INDEX "verification_active_idx" ON "iam_verification" USING btree ("identifier","expires_at");--> statement-breakpoint
 CREATE UNIQUE INDEX "wallet_address_user_chain_id_unique_idx" ON "iam_wallet_address" USING btree ("user_id","address","chain_id");--> statement-breakpoint
+CREATE UNIQUE INDEX "oauth_client_client_id_uidx" ON "iam_oauth_client" USING btree ("client_id");--> statement-breakpoint
+CREATE INDEX "oauth_client_user_id_idx" ON "iam_oauth_client" USING btree ("user_id");--> statement-breakpoint
+CREATE INDEX "oauth_access_token_client_id_idx" ON "iam_oauth_access_token" USING btree ("client_id");--> statement-breakpoint
+CREATE INDEX "oauth_access_token_user_id_idx" ON "iam_oauth_access_token" USING btree ("user_id");--> statement-breakpoint
+CREATE INDEX "oauth_access_token_session_id_idx" ON "iam_oauth_access_token" USING btree ("session_id");--> statement-breakpoint
+CREATE INDEX "oauth_refresh_token_client_id_idx" ON "iam_oauth_refresh_token" USING btree ("client_id");--> statement-breakpoint
+CREATE INDEX "oauth_refresh_token_user_id_idx" ON "iam_oauth_refresh_token" USING btree ("user_id");--> statement-breakpoint
+CREATE INDEX "oauth_refresh_token_session_id_idx" ON "iam_oauth_refresh_token" USING btree ("session_id");--> statement-breakpoint
+CREATE INDEX "oauth_consent_client_id_idx" ON "iam_oauth_consent" USING btree ("client_id");--> statement-breakpoint
+CREATE INDEX "oauth_consent_user_id_idx" ON "iam_oauth_consent" USING btree ("user_id");--> statement-breakpoint
+CREATE UNIQUE INDEX "oauth_consent_client_user_uidx" ON "iam_oauth_consent" USING btree ("client_id","user_id");--> statement-breakpoint
 CREATE INDEX "folder_user_idx" ON "shared_folder" USING btree ("user_id");--> statement-breakpoint
 CREATE INDEX "upload_session_expires_at_idx" ON "shared_upload_session" USING btree ("expires_at");--> statement-breakpoint
 CREATE INDEX "upload_session_file_key_idx" ON "shared_upload_session" USING btree ("file_key");

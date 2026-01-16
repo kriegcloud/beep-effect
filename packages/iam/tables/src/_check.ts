@@ -5,6 +5,10 @@ import type {
   Invitation,
   Jwks,
   Member,
+  OAuthAccessToken,
+  OAuthClient,
+  OAuthConsent,
+  OAuthRefreshToken,
   OrganizationRole,
   Passkey,
   RateLimit,
@@ -117,4 +121,40 @@ export const _walletAddressSelect: typeof WalletAddress.Model.select.Encoded = {
 
 export const _checkInsertWalletAddress: typeof WalletAddress.Model.insert.Encoded = {} as InferInsertModel<
   typeof tables.walletAddress
+>;
+
+// OAuth Client
+export const _oauthClientSelect: typeof OAuthClient.Model.select.Encoded = {} as InferSelectModel<
+  typeof tables.oauthClient
+>;
+
+export const _checkInsertOAuthClient: typeof OAuthClient.Model.insert.Encoded = {} as InferInsertModel<
+  typeof tables.oauthClient
+>;
+
+// OAuth Access Token
+export const _oauthAccessTokenSelect: typeof OAuthAccessToken.Model.select.Encoded = {} as InferSelectModel<
+  typeof tables.oauthAccessToken
+>;
+
+export const _checkInsertOAuthAccessToken: typeof OAuthAccessToken.Model.insert.Encoded = {} as InferInsertModel<
+  typeof tables.oauthAccessToken
+>;
+
+// OAuth Refresh Token
+export const _oauthRefreshTokenSelect: typeof OAuthRefreshToken.Model.select.Encoded = {} as InferSelectModel<
+  typeof tables.oauthRefreshToken
+>;
+
+export const _checkInsertOAuthRefreshToken: typeof OAuthRefreshToken.Model.insert.Encoded = {} as InferInsertModel<
+  typeof tables.oauthRefreshToken
+>;
+
+// OAuth Consent
+export const _oauthConsentSelect: typeof OAuthConsent.Model.select.Encoded = {} as InferSelectModel<
+  typeof tables.oauthConsent
+>;
+
+export const _checkInsertOAuthConsent: typeof OAuthConsent.Model.insert.Encoded = {} as InferInsertModel<
+  typeof tables.oauthConsent
 >;

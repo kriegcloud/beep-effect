@@ -55,6 +55,12 @@ export const userRelations = d.relations(Tables.user, ({ many }) => ({
   discussions: many(Tables.discussion),
   comments: many(Tables.comment),
   hotkeys: many(Tables.userHotkey),
+
+  // === OAuth relations ===
+  oauthClients: many(Tables.oauthClient),
+  oauthRefreshTokens: many(Tables.oauthRefreshToken),
+  oauthAccessTokens: many(Tables.oauthAccessToken),
+  oauthConsents: many(Tables.oauthConsent),
 }));
 
 // =============================================================================
