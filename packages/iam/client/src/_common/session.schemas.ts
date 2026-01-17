@@ -2,7 +2,6 @@ import { $IamClientId } from "@beep/identity/packages";
 import { SharedEntityIds } from "@beep/shared-domain";
 import { Session } from "@beep/shared-domain/entities";
 import * as Effect from "effect/Effect";
-import * as F from "effect/Function";
 import * as ParseResult from "effect/ParseResult";
 import * as S from "effect/Schema";
 import { requireDate, requireNumber, requireString, toDate } from "./transformation-helpers.ts";
@@ -18,8 +17,8 @@ const $I = $IamClientId.create("_common/session.schemas");
  * Uses Struct with Record extension to allow unknown properties from Better Auth
  * plugins that may add fields not reflected in TypeScript types.
  */
-export const BetterAuthSessionSchema = F.pipe(
-  S.Struct({
+export const BetterAuthSessionSchema = S.Struct(
+  {
     id: S.String,
     // Better Auth returns JavaScript Date objects, not ISO strings
     createdAt: S.DateFromSelf,
@@ -32,13 +31,10 @@ export const BetterAuthSessionSchema = F.pipe(
     activeOrganizationId: S.optionalWith(S.String, { nullable: true }),
     activeTeamId: S.optionalWith(S.String, { nullable: true }),
     impersonatedBy: S.optionalWith(S.String, { nullable: true }),
-  }),
-  S.extend(S.Record({ key: S.String, value: S.Unknown })),
-  S.annotations(
-    $I.annotations("BetterAuthSession", {
-      description: "The session object returned from the BetterAuth library.",
-    })
-  )
+  },
+  S.Record({ key: S.String, value: S.Unknown })
+).annotations(
+  $I.annotations("BetterAuthSession", { description: "The session object returned from the BetterAuth library." })
 );
 
 export type BetterAuthSession = S.Schema.Type<typeof BetterAuthSessionSchema>;

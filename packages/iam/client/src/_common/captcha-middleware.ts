@@ -5,37 +5,11 @@ import * as W from "@beep/wrap";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Redacted from "effect/Redacted";
-import * as S from "effect/Schema";
 
-const $I = $IamClientId.create("tmp/_common/captcha-middleware");
-
-export class CaptchaFailedError extends S.TaggedError<CaptchaFailedError>($I`CaptchaFailedError`)(
-  "CaptchaFailed",
-  {
-    cause: S.optional(S.Defect),
-    message: S.optionalWith(S.String, {
-      default: () => "Failed to get captcha token.",
-    }),
-  },
-  $I.annotations("CaptchaFailedError", {
-    description: "An error that occured from failing to get a captcha response token.",
-  })
-) {
-  static readonly new = (cause?: undefined | S.Schema.Type<typeof S.Defect>, message?: undefined | string) => {
-    return new CaptchaFailedError({
-      cause,
-      message,
-    });
-  };
-}
+const $I = $IamClientId.create("_common/captcha-middleware");
 
 export class CaptchaMiddleware extends W.WrapperMiddleware.Tag()($I`CaptchaMiddleware`, {
-  failure: S.Union(
-    ReCaptcha.ReCaptchaNotFoundError,
-    ReCaptcha.ReCaptchaNotReadyError,
-    ReCaptcha.ReCaptchaClientNotMountedError,
-    ReCaptcha.ReCaptchaExecutionError
-  ),
+  failure: ReCaptcha.ReCaptchaErrorSchema,
   provides: ReCaptcha.ReCaptchaService,
 }) {
   static readonly provide = () =>
@@ -47,5 +21,5 @@ export class CaptchaMiddleware extends W.WrapperMiddleware.Tag()($I`CaptchaMiddl
 
 export const withCaptchaResponse = Effect.gen(function* () {
   const captchaService = yield* ReCaptcha.ReCaptchaService;
-  return yield* captchaService.execute(Redacted.value(clientEnv.captchaSiteKey), "/auth/sign-up");
+  return yield* captchaService.execute(Redacted.value(clientEnv.captchaSiteKey), "auth");
 });

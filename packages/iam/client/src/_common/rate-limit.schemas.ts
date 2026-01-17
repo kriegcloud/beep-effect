@@ -24,13 +24,15 @@ const $I = $IamClientId.create("_common/rate-limit.schemas");
  * database layer and are accessed via the Record extension.
  */
 export const BetterAuthRateLimitSchema = F.pipe(
-  S.Struct({
-    // Better Auth native fields (these are the ONLY fields Better Auth defines)
-    key: S.String,
-    count: S.Number,
-    lastRequest: S.Number, // Timestamp in milliseconds
-  }),
-  S.extend(S.Record({ key: S.String, value: S.Unknown })),
+  S.Struct(
+    {
+      // Better Auth native fields (these are the ONLY fields Better Auth defines)
+      key: S.String,
+      count: S.Number,
+      lastRequest: S.Number, // Timestamp in milliseconds
+    },
+    S.Record({ key: S.String, value: S.Unknown })
+  ),
   S.annotations(
     $I.annotations("BetterAuthRateLimit", {
       description: "The rate limit object returned from the BetterAuth library.",

@@ -12,7 +12,7 @@ import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import type { BetterAuthResponse } from "./handler.factory.ts";
 
-const $I = $IamClientId.create("tmp/_common/wrap-iam-method");
+const $I = $IamClientId.create("_common/wrap-iam-method");
 
 // ============================================================================
 // Types
