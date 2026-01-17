@@ -30,12 +30,12 @@ const createTypeIssue = (ast: AST.AST, actual: unknown, message: string): ParseR
  * @param value - The date value in any supported format
  * @returns A JavaScript Date object
  */
-export const toDate = (value: string | number | Date | DateTime.Utc): string => {
-  if (value instanceof Date) return DateTime.unsafeFromDate(value).pipe(DateTime.formatIso);
-  if (DateTime.isDateTime(value)) return value.pipe(DateTime.formatIso);
-  if (P.isNumber(value)) return DateTime.unsafeFromDate(new Date(value)).pipe(DateTime.formatIso);
+export const toDate = (value: string | number | Date | DateTime.Utc): Date => {
+  if (value instanceof Date) return DateTime.unsafeFromDate(value).pipe(DateTime.toDateUtc);
+  if (DateTime.isDateTime(value)) return value.pipe(DateTime.toDateUtc);
+  if (P.isNumber(value)) return DateTime.unsafeFromDate(new Date(value)).pipe(DateTime.toDateUtc);
 
-  return DateTime.unsafeFromDate(new Date(value)).pipe(DateTime.formatIso);
+  return DateTime.unsafeFromDate(new Date(value)).pipe(DateTime.toDateUtc);
 };
 
 // =============================================================================

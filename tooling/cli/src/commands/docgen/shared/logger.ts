@@ -189,11 +189,7 @@ const LEVEL_COLORS: Record<LogLevel, (s: string) => string> = {
 
 const formatConsole = (entry: LogEntry): string => {
   const time = F.pipe(entry.timestamp, Str.slice(11, 23)); // HH:MM:SS.mmm
-  const level = F.pipe(
-    F.pipe(entry.level, Str.toUpperCase),
-    (s) => F.pipe(s, (str) => str.padEnd(5)),
-    LEVEL_COLORS[entry.level]
-  );
+  const level = F.pipe(entry.level, Str.toUpperCase, (s) => s.padEnd(5), LEVEL_COLORS[entry.level]);
 
   const contextKeys = F.pipe(entry.context, Struct.keys);
   const contextStr = A.length(contextKeys) > 0 ? ` ${color.gray(JSON.stringify(entry.context))}` : "";

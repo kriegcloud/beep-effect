@@ -112,8 +112,8 @@ const makeService = (
   pool: Worker.SerializedWorkerPool<WorkerRequest>,
   defaultChunkSize: number
 ): ParallelHasherService => ({
-  hashBlob: (blob, chunkSize) =>
-    Effect.gen(function* () {
+  hashBlob: Effect.fn(
+    function* (blob, chunkSize) {
       const buffer = yield* blobToUint8Array(blob);
       const request = new HashRequest({
         buffer,
@@ -123,19 +123,16 @@ const makeService = (
           O.getOrElse(() => defaultChunkSize)
         ),
       });
-
-      const hash = yield* pool.executeEffect(request);
-      return hash;
-    }).pipe(
-      Effect.catchAll((error) =>
-        Effect.fail(
-          new WorkerHashError({
-            message: "Worker execution failed or hashing error occurred",
-            cause: error,
-          })
-        )
-      )
-    ),
+      return yield* pool.executeEffect(request);
+    },
+    Effect.mapError(
+      (error) =>
+        new WorkerHashError({
+          message: "Worker execution failed or hashing error occurred",
+          cause: error,
+        })
+    )
+  ),
 });
 
 /**
@@ -257,14 +254,13 @@ export const makeLayerWithSpawner = (
  * @since 1.0.0
  * @category Hashing
  */
-export const hashBlob = (
+export const hashBlob: (
   blob: Blob,
   chunkSize?: number | undefined
-): Effect.Effect<string, WorkerHashError, ParallelHasher> =>
-  Effect.gen(function* () {
-    const hasher = yield* ParallelHasher;
-    return yield* hasher.hashBlob(blob, chunkSize);
-  });
+) => Effect.Effect<string, WorkerHashError, ParallelHasher> = Effect.fn(function* (blob, chunkSize) {
+  const hasher = yield* ParallelHasher;
+  return yield* hasher.hashBlob(blob, chunkSize);
+});
 
 /**
  * Hash a blob with inline configuration (no context needed)

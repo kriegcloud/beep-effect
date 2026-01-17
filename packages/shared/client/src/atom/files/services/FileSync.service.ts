@@ -31,14 +31,13 @@ export class Service extends Effect.Service<Service>()($I`Service`, {
       ReadonlyArray<ActiveUpload>
     >;
 
-    const waitForFile = (key: File.UploadKey.Type, uploadId: string) =>
-      Effect.gen(function* () {
-        yield* FileCompletionSignals.waitForFile(key, uploadId);
-        registry.set(
-          activeUploadsAtom,
-          A.filter(registry.get(activeUploadsAtom), (u) => u.id !== uploadId)
-        );
-      });
+    const waitForFile = Effect.fnUntraced(function* (key: File.UploadKey.Type, uploadId: string) {
+      yield* FileCompletionSignals.waitForFile(key, uploadId);
+      registry.set(
+        activeUploadsAtom,
+        A.filter(registry.get(activeUploadsAtom), (u) => u.id !== uploadId)
+      );
+    });
 
     yield* Effect.forkScoped(
       Effect.gen(function* () {

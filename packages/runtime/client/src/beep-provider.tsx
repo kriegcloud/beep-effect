@@ -1,4 +1,6 @@
 "use client";
+import { KaServices } from "@beep/runtime-client/services";
+import { RegistryProvider } from "@effect-atom/atom-react";
 import * as ManagedRuntime from "effect/ManagedRuntime";
 import React from "react";
 import { clientRuntimeLayer } from "./layer";
@@ -12,5 +14,10 @@ type BeepProviderProps = {
 export const BeepProvider: React.FC<BeepProviderProps> = ({ children }) => {
   const runtime: LiveManagedRuntime = React.useMemo(() => ManagedRuntime.make(clientRuntimeLayer), []);
 
-  return <RuntimeProvider runtime={runtime}>{children}</RuntimeProvider>;
+  return (
+    <RegistryProvider>
+      <KaServices />
+      <RuntimeProvider runtime={runtime}>{children}</RuntimeProvider>
+    </RegistryProvider>
+  );
 };

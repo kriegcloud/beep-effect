@@ -69,12 +69,10 @@ const program = Effect.gen(function* () {
   const target = PACKAGE_TARGETS[requestedSlug];
 
   if (!target) {
-    return yield* Effect.fail(
-      new DomainError({
-        message: `Unknown docs target "${requestedSlug}". Supported targets: ${A.join(", ")(Struct.keys(PACKAGE_TARGETS))}`,
-        cause: {},
-      })
-    );
+    return yield* new DomainError({
+      message: `Unknown docs target "${requestedSlug}". Supported targets: ${A.join(", ")(Struct.keys(PACKAGE_TARGETS))}`,
+      cause: {},
+    });
   }
 
   const packageRoot = path.join(repoRoot, target.workspacePath);
@@ -84,12 +82,10 @@ const program = Effect.gen(function* () {
 
   const hasDocs = yield* fs.exists(docsSource);
   if (!hasDocs) {
-    return yield* Effect.fail(
-      new DomainError({
-        message: `Missing generated docs at ${docsSource}. Run docgen first.`,
-        cause: {},
-      })
-    );
+    return yield* new DomainError({
+      message: `Missing generated docs at ${docsSource}. Run docgen first.`,
+      cause: {},
+    });
   }
 
   const packageName = yield* readPackageName(fs, packageJsonPath);
@@ -112,44 +108,40 @@ if (docsCopyMeta.main ?? true) {
   run();
 }
 
-const getRequestedSlug = (): Effect.Effect<string, DomainError> =>
-  Effect.gen(function* () {
-    const [, , slug] = process.argv;
-    if (slug && Str.isNonEmpty(slug)) {
-      return slug;
-    }
-    return yield* new DomainError({
-      message: "Docs target argument is required (e.g., `schema`).",
-      cause: {},
-    });
+const getRequestedSlug: () => Effect.Effect<string, DomainError> = Effect.fn(function* () {
+  const [, , slug] = process.argv;
+  if (slug && Str.isNonEmpty(slug)) {
+    return slug;
+  }
+  return yield* new DomainError({
+    message: "Docs target argument is required (e.g., `schema`).",
+    cause: {},
   });
+});
 
-const readPackageName = (
+const readPackageName: (
   fs: FileSystem.FileSystem,
   packageJsonPath: string
-): Effect.Effect<string, Error | PlatformError> =>
-  Effect.gen(function* () {
-    const raw = yield* fs.readFileString(packageJsonPath);
-    const parsed = (yield* S.decode(S.parseJson())(raw)) as { readonly name?: string };
-    if (!parsed.name) {
-      return yield* Effect.fail(
-        new DomainError({
-          message: `Unable to determine package name from ${packageJsonPath}`,
-          cause: parsed,
-        })
-      );
-    }
-    return parsed.name;
-  });
+) => Effect.Effect<string, Error | PlatformError> = Effect.fn(function* (fs, packageJsonPath) {
+  const raw = yield* fs.readFileString(packageJsonPath);
+  const parsed = (yield* S.decode(S.parseJson())(raw)) as { readonly name?: string };
+  if (!parsed.name) {
+    return yield* new DomainError({
+      message: `Unable to determine package name from ${packageJsonPath}`,
+      cause: parsed,
+    });
+  }
+  return parsed.name;
+});
 
-const copyDocsTree = (
+const copyDocsTree: (
   fs: FileSystem.FileSystem,
   path: Path.Path,
   sourceDir: string,
   destinationDir: string,
   packageName: string
-): Effect.Effect<void, PlatformError, never> =>
-  Effect.gen(function* () {
+) => Effect.Effect<void, PlatformError, never> = Effect.fn(
+  function* (fs, path, sourceDir, destinationDir, packageName) {
     const entries = yield* fs.readDirectory(sourceDir);
 
     yield* Effect.forEach(
@@ -172,7 +164,8 @@ const copyDocsTree = (
         }),
       { concurrency: 8, discard: true }
     );
-  });
+  }
+);
 
 const rewriteParentFrontmatter = (content: string, packageName: string): string =>
   F.pipe(content, Str.replace(/^parent:\s*Modules$/m, `parent: "${packageName}"`));

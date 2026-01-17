@@ -12,18 +12,17 @@ export const filesEventStreamAtom = makeEventStreamAtom({
   runtime,
   identifier: "Files",
   predicate: S.is(Events.Event),
-  handler: (event: Events.Event.Type) =>
-    Effect.gen(function* () {
-      const registry = yield* Registry.AtomRegistry;
+  handler: Effect.fnUntraced(function* (event: Events.Event.Type) {
+    const registry = yield* Registry.AtomRegistry;
 
-      FileCompletionSignals.signalFileArrived(event.file.key);
+    FileCompletionSignals.signalFileArrived(event.file.key);
 
-      registry.set(
-        filesAtom,
-        AddFile({
-          file: event.file,
-          folderId: event.file.folderId,
-        })
-      );
-    }),
+    registry.set(
+      filesAtom,
+      AddFile({
+        file: event.file,
+        folderId: event.file.folderId,
+      })
+    );
+  }),
 });

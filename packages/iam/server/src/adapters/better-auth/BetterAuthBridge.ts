@@ -85,26 +85,32 @@ export class BetterAuthBridgeError extends Data.TaggedError("BetterAuthBridgeErr
  *
  * @internal
  */
+const callDynamicMethodImpl = Effect.fnUntraced(function* (
+  api: Record<string, unknown>,
+  methodName: string,
+  args: unknown
+) {
+  const method = api[methodName];
+  if (typeof method !== "function") {
+    return yield* new BetterAuthBridgeError({
+      message: `Dynamic Access Control method '${methodName}' not available. Ensure dynamicAccessControl is enabled.`,
+    });
+  }
+  return yield* Effect.tryPromise({
+    try: () => method(args) as Promise<unknown>,
+    catch: (error) =>
+      new BetterAuthBridgeError({
+        message: `Failed to call ${methodName}: ${String(error)}`,
+      }),
+  });
+});
+
 const callDynamicMethod = <TArgs, TResult>(
   api: Record<string, unknown>,
   methodName: string,
   args: TArgs
 ): Effect.Effect<TResult, BetterAuthBridgeError> =>
-  Effect.gen(function* () {
-    const method = api[methodName];
-    if (typeof method !== "function") {
-      return yield* new BetterAuthBridgeError({
-        message: `Dynamic Access Control method '${methodName}' not available. Ensure dynamicAccessControl is enabled.`,
-      });
-    }
-    return yield* Effect.tryPromise({
-      try: () => method(args) as Promise<TResult>,
-      catch: (error) =>
-        new BetterAuthBridgeError({
-          message: `Failed to call ${methodName}: ${String(error)}`,
-        }),
-    });
-  });
+  callDynamicMethodImpl(api, methodName, args) as Effect.Effect<TResult, BetterAuthBridgeError>;
 
 /**
  * Get an organization role by ID.

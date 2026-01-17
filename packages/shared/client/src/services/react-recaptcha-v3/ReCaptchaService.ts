@@ -9,6 +9,7 @@ import * as HashSet from "effect/HashSet";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
+import * as Runtime from "effect/Runtime";
 import * as Str from "effect/String";
 import * as SynchronizedRef from "effect/SynchronizedRef";
 
@@ -195,9 +196,13 @@ const loadScript = (props: {
 /**
  * Create the live ReCaptcha service implementation.
  */
-const makeLive = Effect.gen(function* () {
+export const makeLive = Effect.gen(function* () {
   const stateRef = yield* SynchronizedRef.make(initialState);
   const callbackName = generateCallbackName();
+
+  // Capture runtime for use in browser callbacks
+  const runtime = yield* Effect.runtime<never>();
+  const runSync = Runtime.runSync(runtime);
 
   // Initialize grecaptcha globals on first use
   const initialize = Effect.sync(() => {
@@ -236,14 +241,15 @@ const makeLive = Effect.gen(function* () {
         onLoadCallbacks: HashSet.empty(),
       };
       // Also update the ref (fire and forget)
-      Effect.runSync(SynchronizedRef.set(stateRef, callbackState));
+      runSync(SynchronizedRef.set(stateRef, callbackState));
     });
   });
 
   // Load the ReCaptcha script
   const loadReCaptchaScript = (config: ReCaptchaConfig): Effect.Effect<void, ReCaptchaError> =>
-    SynchronizedRef.updateEffect(stateRef, (state) =>
-      Effect.gen(function* () {
+    SynchronizedRef.updateEffect(
+      stateRef,
+      Effect.fnUntraced(function* (state) {
         const render = P.isNotUndefined(config.container?.element) ? "explicit" : config.reCaptchaKey;
 
         const src = generateScriptSrc(render, callbackName, {
@@ -283,61 +289,60 @@ const makeLive = Effect.gen(function* () {
     );
 
   const service: ReCaptchaService = {
-    registerInstance: (instanceId, config, onLoadCallback) =>
-      Effect.gen(function* () {
-        const state = yield* SynchronizedRef.get(stateRef);
+    registerInstance: Effect.fnUntraced(function* (instanceId, config, onLoadCallback) {
+      const state = yield* SynchronizedRef.get(stateRef);
 
-        // Initialize on first instance
-        if (HashSet.size(state.instances) === 0) {
-          yield* initialize;
-          yield* setupOnLoadCallback;
+      // Initialize on first instance
+      if (HashSet.size(state.instances) === 0) {
+        yield* initialize;
+        yield* setupOnLoadCallback;
+      }
+
+      // Load script
+      yield* loadReCaptchaScript(config);
+
+      // Register instance and callback
+      yield* SynchronizedRef.update(stateRef, (s) => ({
+        ...s,
+        instances: HashSet.add(s.instances, instanceId),
+        onLoadCallbacks: P.isNotUndefined(onLoadCallback)
+          ? HashSet.add(s.onLoadCallbacks, onLoadCallback)
+          : s.onLoadCallbacks,
+      }));
+
+      // Sync callback state
+      yield* syncCallbackState;
+
+      // If already loaded, call the callback immediately
+      const currentState = yield* SynchronizedRef.get(stateRef);
+      if (currentState.isLoaded && P.isNotUndefined(onLoadCallback)) {
+        yield* Effect.sync(onLoadCallback);
+      }
+
+      // Handle external onload callback name
+      if (P.isNotUndefined(config.scriptProps?.onLoadCallbackName)) {
+        const externalCallbackName = config.scriptProps.onLoadCallbackName;
+        const callExternalCallback = () => {
+          if (!isBrowser) return;
+          F.pipe(
+            getReCaptchaWindow(),
+            O.flatMap((win) => O.fromNullable(win[externalCallbackName])),
+            O.filter(P.isFunction),
+            O.map((cb) => cb())
+          );
+        };
+
+        if (currentState.isLoaded) {
+          yield* Effect.sync(callExternalCallback);
+        } else {
+          yield* SynchronizedRef.update(stateRef, (s) => ({
+            ...s,
+            onLoadCallbacks: HashSet.add(s.onLoadCallbacks, callExternalCallback),
+          }));
+          yield* syncCallbackState;
         }
-
-        // Load script
-        yield* loadReCaptchaScript(config);
-
-        // Register instance and callback
-        yield* SynchronizedRef.update(stateRef, (s) => ({
-          ...s,
-          instances: HashSet.add(s.instances, instanceId),
-          onLoadCallbacks: P.isNotUndefined(onLoadCallback)
-            ? HashSet.add(s.onLoadCallbacks, onLoadCallback)
-            : s.onLoadCallbacks,
-        }));
-
-        // Sync callback state
-        yield* syncCallbackState;
-
-        // If already loaded, call the callback immediately
-        const currentState = yield* SynchronizedRef.get(stateRef);
-        if (currentState.isLoaded && P.isNotUndefined(onLoadCallback)) {
-          yield* Effect.sync(onLoadCallback);
-        }
-
-        // Handle external onload callback name
-        if (P.isNotUndefined(config.scriptProps?.onLoadCallbackName)) {
-          const externalCallbackName = config.scriptProps.onLoadCallbackName;
-          const callExternalCallback = () => {
-            if (!isBrowser) return;
-            F.pipe(
-              getReCaptchaWindow(),
-              O.flatMap((win) => O.fromNullable(win[externalCallbackName])),
-              O.filter(P.isFunction),
-              O.map((cb) => cb())
-            );
-          };
-
-          if (currentState.isLoaded) {
-            yield* Effect.sync(callExternalCallback);
-          } else {
-            yield* SynchronizedRef.update(stateRef, (s) => ({
-              ...s,
-              onLoadCallbacks: HashSet.add(s.onLoadCallbacks, callExternalCallback),
-            }));
-            yield* syncCallbackState;
-          }
-        }
-      }),
+      }
+    }),
 
     unregisterInstance: (instanceId) =>
       SynchronizedRef.updateEffect(stateRef, (state) =>
@@ -368,41 +373,40 @@ const makeLive = Effect.gen(function* () {
         })
       ),
 
-    execute: (clientIdOrKey, action, useEnterprise) =>
-      Effect.gen(function* () {
-        if (!isBrowser) {
-          return yield* new ReCaptchaNotFoundError({
-            message: "ReCaptcha is not available in non-browser environment",
-          });
-        }
-
-        // Get instance using type-safe guard
-        const instanceOpt = getReCaptchaInstance(useEnterprise === true);
-
-        if (O.isNone(instanceOpt)) {
-          return yield* new ReCaptchaNotFoundError({
-            message: "reCAPTCHA not found",
-          });
-        }
-
-        const instance = instanceOpt.value;
-
-        if (!instance.execute) {
-          return yield* new ReCaptchaNotReadyError({
-            message: "reCAPTCHA execute function not available",
-          });
-        }
-
-        return yield* Effect.tryPromise({
-          try: () => instance.execute!(clientIdOrKey, { action }),
-          catch: (cause) =>
-            new ReCaptchaExecutionError({
-              message: `Failed to execute reCAPTCHA for action: ${action ?? "unknown"}`,
-              action,
-              cause,
-            }),
+    execute: Effect.fnUntraced(function* (clientIdOrKey, action, useEnterprise) {
+      if (!isBrowser) {
+        return yield* new ReCaptchaNotFoundError({
+          message: "ReCaptcha is not available in non-browser environment",
         });
-      }),
+      }
+
+      // Get instance using type-safe guard
+      const instanceOpt = getReCaptchaInstance(useEnterprise === true);
+
+      if (O.isNone(instanceOpt)) {
+        return yield* new ReCaptchaNotFoundError({
+          message: "reCAPTCHA not found",
+        });
+      }
+
+      const instance = instanceOpt.value;
+
+      if (!instance.execute) {
+        return yield* new ReCaptchaNotReadyError({
+          message: "reCAPTCHA execute function not available",
+        });
+      }
+
+      return yield* Effect.tryPromise({
+        try: () => instance.execute!(clientIdOrKey, { action }),
+        catch: (cause) =>
+          new ReCaptchaExecutionError({
+            message: `Failed to execute reCAPTCHA for action: ${action ?? "unknown"}`,
+            action,
+            cause,
+          }),
+      });
+    }),
 
     getInstance: (useEnterprise) => Effect.sync(() => getReCaptchaInstance(useEnterprise === true)),
 
@@ -416,35 +420,34 @@ const makeLive = Effect.gen(function* () {
         deleteClient(clientId);
       }),
 
-    render: (container, params, useEnterprise) =>
-      Effect.gen(function* () {
-        const instanceOpt = yield* service.getInstance(useEnterprise);
+    render: Effect.fnUntraced(function* (container, params, useEnterprise) {
+      const instanceOpt = yield* service.getInstance(useEnterprise);
 
-        if (O.isNone(instanceOpt)) {
-          return yield* new ReCaptchaNotFoundError({
-            message: "reCAPTCHA instance not found",
-          });
-        }
+      if (O.isNone(instanceOpt)) {
+        return yield* new ReCaptchaNotFoundError({
+          message: "reCAPTCHA instance not found",
+        });
+      }
 
-        const instance = instanceOpt.value;
+      const instance = instanceOpt.value;
 
-        if (!instance.render) {
-          return yield* new ReCaptchaNotReadyError({
-            message: "reCAPTCHA render function not available",
-          });
-        }
+      if (!instance.render) {
+        return yield* new ReCaptchaNotReadyError({
+          message: "reCAPTCHA render function not available",
+        });
+      }
 
-        const actualContainer = P.isString(container) ? document.getElementById(container) : container;
+      const actualContainer = P.isString(container) ? document.getElementById(container) : container;
 
-        if (!actualContainer) {
-          return yield* new ReCaptchaContainerNotFoundError({
-            message: "reCAPTCHA container element not found",
-            selector: P.isString(container) ? container : "HTMLElement",
-          });
-        }
+      if (!actualContainer) {
+        return yield* new ReCaptchaContainerNotFoundError({
+          message: "reCAPTCHA container element not found",
+          selector: P.isString(container) ? container : "HTMLElement",
+        });
+      }
 
-        return instance.render(actualContainer, params);
-      }),
+      return instance.render(actualContainer, params);
+    }),
   };
 
   return service;

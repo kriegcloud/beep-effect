@@ -45,7 +45,7 @@ type AuthContextHttpMiddlewareService = {
 /**
  * Extracts authentication context from HTTP headers.
  */
-const getAuthContext = ({
+const getAuthContext = Effect.fnUntraced(function* ({
   headers,
   iamDb: { execute },
   auth,
@@ -53,66 +53,62 @@ const getAuthContext = ({
   readonly auth: Auth.Auth;
   readonly iamDb: IamDb.Shape;
   readonly headers: PlatformHeaders.Headers;
-}): Effect.Effect<AuthContextShape, BeepError.Unauthorized, never> =>
-  Effect.gen(function* () {
-    const cookie = PlatformHeaders.get(headers, "cookie");
-    const authorization = PlatformHeaders.get(headers, "authorization");
+}) {
+  const cookie = PlatformHeaders.get(headers, "cookie");
+  const authorization = PlatformHeaders.get(headers, "authorization");
 
-    if (O.isNone(cookie) && O.isNone(authorization)) {
-      return yield* new BeepError.Unauthorized({
-        message: "Missing authentication headers",
+  if (O.isNone(cookie) && O.isNone(authorization)) {
+    return yield* new BeepError.Unauthorized({
+      message: "Missing authentication headers",
+    });
+  }
+
+  // Create browser Headers for Better Auth API
+  const forwardedHeaders = new Headers();
+  if (O.isSome(cookie)) forwardedHeaders.set("cookie", cookie.value);
+  if (O.isSome(authorization)) forwardedHeaders.set("authorization", authorization.value);
+
+  // Get session from Better Auth
+  const { user, session } = yield* Effect.tryPromise({
+    try: async () => {
+      const session = await auth.api.getSession({
+        headers: forwardedHeaders,
       });
-    }
-
-    // Create browser Headers for Better Auth API
-    const forwardedHeaders = new Headers();
-    if (O.isSome(cookie)) forwardedHeaders.set("cookie", cookie.value);
-    if (O.isSome(authorization)) forwardedHeaders.set("authorization", authorization.value);
-
-    // Get session from Better Auth
-    const { user, session } = yield* Effect.tryPromise({
-      try: async () => {
-        const session = await auth.api.getSession({
-          headers: forwardedHeaders,
-        });
-        return O.fromNullable(session).pipe(O.getOrThrow);
-      },
-      catch: (cause) => new BeepError.Unauthorized({ cause }),
-    }).pipe(
-      Effect.flatMap(
-        S.decodeUnknown(
-          S.Struct({
-            user: User.Model,
-            session: Session.Model,
-          })
-        )
-      ),
-      Effect.mapError(() => new BeepError.Unauthorized({ message: "Invalid session" }))
-    );
-
-    // Fetch organization
-    const currentOrg = yield* execute((client) =>
-      client
-        .select()
-        .from(IamDbSchema.organization)
-        .where(eq(IamDbSchema.organization.id, session.activeOrganizationId))
-    ).pipe(
-      Effect.flatMap(A.head),
-      Effect.flatMap(S.decodeUnknown(Organization.Model)),
-      Effect.mapError(
-        () =>
-          new BeepError.Unauthorized({
-            message: "Organization not found",
-          })
+      return O.fromNullable(session).pipe(O.getOrThrow);
+    },
+    catch: (cause) => new BeepError.Unauthorized({ cause }),
+  }).pipe(
+    Effect.flatMap(
+      S.decodeUnknown(
+        S.Struct({
+          user: User.Model,
+          session: Session.Model,
+        })
       )
-    );
+    ),
+    Effect.mapError(() => new BeepError.Unauthorized({ message: "Invalid session" }))
+  );
 
-    return {
-      user,
-      session,
-      organization: currentOrg,
-    };
-  });
+  // Fetch organization
+  const currentOrg = yield* execute((client) =>
+    client.select().from(IamDbSchema.organization).where(eq(IamDbSchema.organization.id, session.activeOrganizationId))
+  ).pipe(
+    Effect.flatMap(A.head),
+    Effect.flatMap(S.decodeUnknown(Organization.Model)),
+    Effect.mapError(
+      () =>
+        new BeepError.Unauthorized({
+          message: "Organization not found",
+        })
+    )
+  );
+
+  return {
+    user,
+    session,
+    organization: currentOrg,
+  };
+});
 
 /**
  * Layer that provides AuthContext per-request.
@@ -159,55 +155,54 @@ export const AuthContextRpcMiddlewaresLayer = Layer.effect(
  * Creates the auth context from a session token.
  * Used by the HTTP middleware to validate cookies.
  */
-const getAuthContextFromToken = (
+const getAuthContextFromToken = Effect.fnUntraced(function* (
   auth: Auth.Auth,
   iamDb: IamDb.Shape,
   token: Redacted.Redacted<string>
-): Effect.Effect<AuthContextShape, BeepError.Unauthorized, never> =>
-  Effect.gen(function* () {
-    // Get session using the extracted token directly
-    const { user, session } = yield* Effect.tryPromise({
-      try: async () => {
-        const result = await auth.api.getSession({
-          headers: new Headers({
-            cookie: `better-auth.session_token=${Redacted.value(token)}`,
-          }),
-        });
-        return O.fromNullable(result).pipe(O.getOrThrow);
-      },
-      catch: (cause) => new BeepError.Unauthorized({ cause }),
-    }).pipe(
-      Effect.flatMap(
-        S.decodeUnknown(
-          S.Struct({
-            user: User.Model,
-            session: Session.Model,
-          })
-        )
-      ),
-      Effect.mapError(() => new BeepError.Unauthorized({ message: "Invalid session" }))
+) {
+  // Get session using the extracted token directly
+  const { user, session } = yield* Effect.tryPromise({
+    try: async () => {
+      const result = await auth.api.getSession({
+        headers: new Headers({
+          cookie: `better-auth.session_token=${Redacted.value(token)}`,
+        }),
+      });
+      return O.fromNullable(result).pipe(O.getOrThrow);
+    },
+    catch: (cause) => new BeepError.Unauthorized({ cause }),
+  }).pipe(
+    Effect.flatMap(
+      S.decodeUnknown(
+        S.Struct({
+          user: User.Model,
+          session: Session.Model,
+        })
+      )
+    ),
+    Effect.mapError(() => new BeepError.Unauthorized({ message: "Invalid session" }))
+  );
+
+  // Fetch organization
+  const currentOrg = yield* iamDb
+    .execute((client) =>
+      client
+        .select()
+        .from(IamDbSchema.organization)
+        .where(eq(IamDbSchema.organization.id, session.activeOrganizationId))
+    )
+    .pipe(
+      Effect.flatMap(A.head),
+      Effect.flatMap(S.decodeUnknown(Organization.Model)),
+      Effect.mapError(() => new BeepError.Unauthorized({ message: "Organization not found" }))
     );
 
-    // Fetch organization
-    const currentOrg = yield* iamDb
-      .execute((client) =>
-        client
-          .select()
-          .from(IamDbSchema.organization)
-          .where(eq(IamDbSchema.organization.id, session.activeOrganizationId))
-      )
-      .pipe(
-        Effect.flatMap(A.head),
-        Effect.flatMap(S.decodeUnknown(Organization.Model)),
-        Effect.mapError(() => new BeepError.Unauthorized({ message: "Organization not found" }))
-      );
-
-    return {
-      user,
-      session,
-      organization: currentOrg,
-    };
-  });
+  return {
+    user,
+    session,
+    organization: currentOrg,
+  };
+});
 
 /**
  * Creates the middleware implementation for HTTP API security.

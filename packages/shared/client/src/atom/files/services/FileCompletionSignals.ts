@@ -26,14 +26,13 @@ export const signalFileArrived = (key: File.UploadKey.Type) => {
   );
 };
 
-export const waitForFile = (key: File.UploadKey.Type, uploadId: string) =>
-  Effect.gen(function* () {
-    const deferred = yield* Deferred.make<void>();
-    MutableHashMap.set(completionSignals, key, {
-      uploadId,
-      deferred,
-      addedAt: yield* DateTime.now,
-    });
-    yield* Deferred.await(deferred);
-    return uploadId;
+export const waitForFile = Effect.fnUntraced(function* (key: File.UploadKey.Type, uploadId: string) {
+  const deferred = yield* Deferred.make<void>();
+  MutableHashMap.set(completionSignals, key, {
+    uploadId,
+    deferred,
+    addedAt: yield* DateTime.now,
   });
+  yield* Deferred.await(deferred);
+  return uploadId;
+});

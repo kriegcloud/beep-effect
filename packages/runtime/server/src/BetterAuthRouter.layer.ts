@@ -30,23 +30,22 @@ export const BetterAuthRouterLive = HttpLayerRouter.use((router) =>
     const auth = yield* Auth.Service;
 
     // Handler that forwards requests to Better Auth's web handler
-    const betterAuthHandler = (request: HttpServerRequest.HttpServerRequest) =>
-      Effect.gen(function* () {
-        // Convert Effect Platform request to Web Request
-        const webRequest = yield* HttpServerRequest.toWeb(request);
+    const betterAuthHandler = Effect.fn(function* (request: HttpServerRequest.HttpServerRequest) {
+      // Convert Effect Platform request to Web Request
+      const webRequest = yield* HttpServerRequest.toWeb(request);
 
-        // Call Better Auth's web handler
-        const webResponse = yield* Effect.tryPromise({
-          try: () => auth.handler(webRequest),
-          catch: (error) =>
-            new BetterAuthHandlerError({
-              message: `Better Auth handler error: ${error}`,
-            }),
-        });
-
-        // Convert Web Response back to Effect Platform response (not an Effect)
-        return HttpServerResponse.fromWeb(webResponse);
+      // Call Better Auth's web handler
+      const webResponse = yield* Effect.tryPromise({
+        try: () => auth.handler(webRequest),
+        catch: (error) =>
+          new BetterAuthHandlerError({
+            message: `Better Auth handler error: ${error}`,
+          }),
       });
+
+      // Convert Web Response back to Effect Platform response (not an Effect)
+      return HttpServerResponse.fromWeb(webResponse);
+    });
 
     // Register wildcard route for all Better Auth endpoints
     yield* router.add("*", "/api/v1/auth/*", betterAuthHandler);

@@ -18,14 +18,7 @@ import type { Auth, BetterAuthOptions, BetterAuthPlugin } from "better-auth";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { nextCookies } from "better-auth/next-js";
-import {
-  apiKey,
-  bearer,
-  // captcha,
-  lastLoginMethod,
-  oneTap,
-  openAPI,
-} from "better-auth/plugins";
+import { apiKey, bearer, lastLoginMethod, oneTap, openAPI } from "better-auth/plugins";
 import { admin } from "better-auth/plugins/admin";
 import { anonymous } from "better-auth/plugins/anonymous";
 import { deviceAuthorization } from "better-auth/plugins/device-authorization";
@@ -858,10 +851,19 @@ export const makeAuth = ({
       apiKey(),
       anonymous(),
       admin(),
-      // captcha({
-      //   provider: "google-recaptcha", // or google-recaptcha, hcaptcha, captchafox
-      //   secretKey: Redacted.value(serverEnv.cloud.google.captcha.secretKey),
-      // }),
+      // Captcha plugin is only enabled when valid credentials are configured.
+      // If CLOUD_GOOGLE_CAPTCHA_SECRET_KEY is not set, serverEnv defaults to "PLACE_HOLDER"
+      // which Google's siteverify API would reject as invalid, causing 403 errors.
+      // ...(isPlaceholder(serverEnv.cloud.google.captcha.secretKey)
+      //   ? []
+      //   : [
+      //       captcha({
+      //         minScore: 0.3,
+      //         provider: "google-recaptcha",
+      //         secretKey: Redacted.value(serverEnv.cloud.google.captcha.secretKey),
+      //         endpoints: ["/api/v1/auth/sign-up/email", "/api/v1/auth/request-password-reset", "/api/v1/auth/sign-in/email"],
+      //       }),
+      //     ]),
       nextCookies(),
     ],
   } satisfies BetterAuthOptions);

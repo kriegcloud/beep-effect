@@ -76,52 +76,51 @@ export class FileRepo extends Effect.Service<FileRepo>()($I`FileRepo`, {
         limit: S.Number,
         hasNext: S.Boolean,
       }),
-      queryFn: (execute, { userId, offset, limit }) =>
-        Effect.gen(function* () {
-          // 1. Count total folders for user
-          const [countResult] = yield* execute((client) =>
-            client.select({ count: d.count() }).from(folder).where(d.eq(folder.userId, userId))
-          );
-          const total = Number(countResult?.count ?? 0);
+      queryFn: Effect.fnUntraced(function* (execute, { userId, offset, limit }) {
+        // 1. Count total folders for user
+        const [countResult] = yield* execute((client) =>
+          client.select({ count: d.count() }).from(folder).where(d.eq(folder.userId, userId))
+        );
+        const total = Number(countResult?.count ?? 0);
 
-          // 2. Fetch folders with files using relational query
-          const foldersWithFiles = yield* execute((client) =>
-            client.query.folder.findMany({
-              where: (t, { eq }) => eq(t.userId, userId),
-              with: { files: true },
-              orderBy: (t, { desc }) => [desc(t.updatedAt)],
-              offset,
-              limit,
-            })
-          );
-
-          // 3. Transform: rename 'files' to 'uploadedFiles' while preserving all folder fields
-          const folders = F.pipe(
-            foldersWithFiles,
-            A.map(({ files, ...folderFields }) => ({
-              ...folderFields,
-              uploadedFiles: files,
-            }))
-          );
-
-          // 4. Fetch root files (no folder)
-          const rootFiles = yield* execute((client) =>
-            client.query.file.findMany({
-              where: (t, { eq, isNull, and }) => and(eq(t.userId, userId), isNull(t.folderId)),
-              orderBy: (t, { desc }) => [desc(t.updatedAt)],
-            })
-          );
-
-          // 5. Return with pagination metadata
-          return {
-            rootFiles,
-            folders,
-            total,
+        // 2. Fetch folders with files using relational query
+        const foldersWithFiles = yield* execute((client) =>
+          client.query.folder.findMany({
+            where: (t, { eq }) => eq(t.userId, userId),
+            with: { files: true },
+            orderBy: (t, { desc }) => [desc(t.updatedAt)],
             offset,
             limit,
-            hasNext: offset + limit < total,
-          };
-        }),
+          })
+        );
+
+        // 3. Transform: rename 'files' to 'uploadedFiles' while preserving all folder fields
+        const folders = F.pipe(
+          foldersWithFiles,
+          A.map(({ files, ...folderFields }) => ({
+            ...folderFields,
+            uploadedFiles: files,
+          }))
+        );
+
+        // 4. Fetch root files (no folder)
+        const rootFiles = yield* execute((client) =>
+          client.query.file.findMany({
+            where: (t, { eq, isNull, and }) => and(eq(t.userId, userId), isNull(t.folderId)),
+            orderBy: (t, { desc }) => [desc(t.updatedAt)],
+          })
+        );
+
+        // 5. Return with pagination metadata
+        return {
+          rootFiles,
+          folders,
+          total,
+          offset,
+          limit,
+          hasNext: offset + limit < total,
+        };
+      }),
     });
 
     const moveFiles = F.flow(
@@ -149,7 +148,7 @@ export class FileRepo extends Effect.Service<FileRepo>()($I`FileRepo`, {
                   updatedAt: d.sql`now()`,
                 })
                 .where(d.and(d.inArray(file.id, fileIds), d.eq(file.userId, userId)))
-            );
+            ).pipe(Effect.asVoid);
           }
 
           // Move to folder (with EXISTS authorization check)
@@ -173,7 +172,7 @@ export class FileRepo extends Effect.Service<FileRepo>()($I`FileRepo`, {
                   )
                 )
               )
-          );
+          ).pipe(Effect.asVoid);
         },
       }),
       Effect.withSpan("FileRepo.moveFiles")
@@ -186,28 +185,27 @@ export class FileRepo extends Effect.Service<FileRepo>()($I`FileRepo`, {
           userId: SharedEntityIds.UserId,
         }),
         outputSchema: S.Array(File.UploadKey),
-        queryFn: (execute, { fileIds, userId }) =>
-          Effect.gen(function* () {
-            // CRITICAL: Empty array check prevents SQL syntax error
-            // d.inArray() with [] generates "WHERE id IN ()" which is invalid SQL
-            if (A.isEmptyReadonlyArray(fileIds)) {
-              return A.empty<File.UploadKey.Type>();
-            }
+        queryFn: Effect.fnUntraced(function* (execute, { fileIds, userId }) {
+          // CRITICAL: Empty array check prevents SQL syntax error
+          // d.inArray() with [] generates "WHERE id IN ()" which is invalid SQL
+          if (A.isEmptyReadonlyArray(fileIds)) {
+            return A.empty<File.UploadKey.Type>();
+          }
 
-            // Delete files and return their keys for S3 cleanup
-            const results = yield* execute((client) =>
-              client
-                .delete(file)
-                .where(d.and(d.inArray(file.id, fileIds), d.eq(file.userId, userId)))
-                .returning({ key: file.key })
-            );
+          // Delete files and return their keys for S3 cleanup
+          const results = yield* execute((client) =>
+            client
+              .delete(file)
+              .where(d.and(d.inArray(file.id, fileIds), d.eq(file.userId, userId)))
+              .returning({ key: file.key })
+          );
 
-            // Extract keys using Effect Array utility
-            return F.pipe(
-              results,
-              A.map((r) => r.key)
-            );
-          }),
+          // Extract keys using Effect Array utility
+          return F.pipe(
+            results,
+            A.map((r) => r.key)
+          );
+        }),
       }),
       Effect.withSpan("FileRepo.deleteFiles")
     );
@@ -219,32 +217,31 @@ export class FileRepo extends Effect.Service<FileRepo>()($I`FileRepo`, {
           userId: SharedEntityIds.UserId,
         }),
         outputSchema: S.Array(S.NullOr(File.Model)),
-        queryFn: (execute, { keys, userId }) =>
-          Effect.gen(function* () {
-            // Handle empty input
-            if (A.isEmptyReadonlyArray(keys)) {
-              return A.empty<File.Model | null>();
-            }
+        queryFn: Effect.fnUntraced(function* (execute, { keys, userId }) {
+          // Handle empty input
+          if (A.isEmptyReadonlyArray(keys)) {
+            return A.empty<File.Model | null>();
+          }
 
-            // Fetch files matching any of the keys
-            const results = yield* execute((client) =>
-              client.query.file.findMany({
-                where: (t, { inArray, eq, and }) => and(inArray(t.key, keys), eq(t.userId, userId)),
-              })
-            );
+          // Fetch files matching any of the keys
+          const results = yield* execute((client) =>
+            client.query.file.findMany({
+              where: (t, { inArray, eq, and }) => and(inArray(t.key, keys), eq(t.userId, userId)),
+            })
+          );
 
-            // Build lookup HashMap: key -> file
-            const resultsByKey = F.pipe(
-              results,
-              A.map((f) => [f.key, f] as const),
-              HashMap.fromIterable
-            );
-            return F.pipe(
-              keys,
-              //
-              A.map((key) => F.pipe(HashMap.get(resultsByKey, key), O.getOrNull))
-            );
-          }),
+          // Build lookup HashMap: key -> file
+          const resultsByKey = F.pipe(
+            results,
+            A.map((f) => [f.key, f] as const),
+            HashMap.fromIterable
+          );
+          return F.pipe(
+            keys,
+            //
+            A.map((key) => F.pipe(HashMap.get(resultsByKey, key), O.getOrNull))
+          );
+        }),
       }),
       Effect.withSpan("FileRepo.getFilesByKeys")
     );

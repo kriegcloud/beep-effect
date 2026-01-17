@@ -1,19 +1,14 @@
 import { $IamClientId } from "@beep/identity/packages";
-import { makeAtomRuntime } from "@beep/runtime-client";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
-
-import * as Email from "./email";
+import * as Common from "../_common";
+import { Group, layer } from "./layer.ts";
 
 const $I = $IamClientId.create("sign-up/service");
 
-export class SignUpService extends Effect.Service<SignUpService>()($I`SignUpService`, {
+export class Service extends Effect.Service<Service>()($I`Service`, {
   accessors: true,
-  effect: Effect.succeed({
-    email: Email.Handler,
-  }),
+  effect: Group.accessHandlers("Email"),
 }) {}
 
-const layer = SignUpService.Default;
-
-export const signUpRuntime = makeAtomRuntime(() => Layer.mergeAll(layer));
+export const runtime = Common.makeAtomRuntime(Service.Default.pipe(Layer.provide(layer)));

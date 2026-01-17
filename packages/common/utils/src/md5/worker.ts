@@ -75,11 +75,10 @@ export const WorkerRequestSchema = S.Union(HashRequest).annotations(
  * @category Launching
  */
 export const launchWorker = Runner.makeSerialized(WorkerRequestSchema, {
-  HashRequest: (req) =>
-    Effect.gen(function* () {
-      const arrayBuffer = req.buffer.buffer as ArrayBuffer;
-      const blob = new Blob([arrayBuffer], { type: "application/octet-stream" });
-      const config = req.chunkSize ? { chunkSize: req.chunkSize } : undefined;
-      return yield* hashBlobSync(blob, config);
-    }),
+  HashRequest: Effect.fn(function* (req) {
+    const arrayBuffer = req.buffer.buffer as ArrayBuffer;
+    const blob = new Blob([arrayBuffer], { type: "application/octet-stream" });
+    const config = req.chunkSize ? { chunkSize: req.chunkSize } : undefined;
+    return yield* hashBlobSync(blob, config);
+  }),
 }).pipe(Effect.provide(BrowserRunner.layer));

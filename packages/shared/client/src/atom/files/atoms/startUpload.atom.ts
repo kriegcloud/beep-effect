@@ -32,8 +32,9 @@ export const startUploadAtom = runtime.fn(
           mimeType: file.type,
         })
       ),
-      Effect.catchTag("NoSuchElementException", () =>
-        Effect.gen(function* () {
+      Effect.catchTag(
+        "NoSuchElementException",
+        Effect.fn(function* () {
           yield* Effect.logWarning(`[Upload] No file selected (user cancelled)`);
           return yield* Effect.interrupt;
         })

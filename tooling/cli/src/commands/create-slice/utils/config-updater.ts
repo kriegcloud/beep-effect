@@ -16,7 +16,7 @@
 
 import * as path from "node:path";
 import { $RepoCliId } from "@beep/identity/packages";
-import { RepoUtils } from "@beep/tooling-utils";
+import { RepoUtils, RepoUtilsLive } from "@beep/tooling-utils";
 import * as FileSystem from "@effect/platform/FileSystem";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
@@ -626,7 +626,6 @@ export const updateAllSliceTsconfigs = (
  * - package.json dependencies in runtime/server and db-admin
  * - tsconfig references in runtime/server and db-admin
  *
- * @effect-leakable-service
  * @example
  * ```ts
  * import { ConfigUpdaterService } from "./config-updater.js"
@@ -642,62 +641,107 @@ export const updateAllSliceTsconfigs = (
  * @category services
  */
 export class ConfigUpdaterService extends Effect.Service<ConfigUpdaterService>()($I`ConfigUpdaterService`, {
+  dependencies: [RepoUtilsLive],
   effect: Effect.gen(function* () {
+    // Collect services to avoid leaking requirements
+    const fs = yield* FileSystem.FileSystem;
+    const repo = yield* RepoUtils;
+
     return {
       /**
        * Updates packages/runtime/server/package.json
        */
-      updateRuntimeServerPackageJson,
+      updateRuntimeServerPackageJson: (sliceName: string) =>
+        updateRuntimeServerPackageJson(sliceName).pipe(
+          Effect.provideService(FileSystem.FileSystem, fs),
+          Effect.provideService(RepoUtils, repo)
+        ),
 
       /**
        * Updates packages/_internal/db-admin/package.json
        */
-      updateDbAdminPackageJson,
+      updateDbAdminPackageJson: (sliceName: string) =>
+        updateDbAdminPackageJson(sliceName).pipe(
+          Effect.provideService(FileSystem.FileSystem, fs),
+          Effect.provideService(RepoUtils, repo)
+        ),
 
       /**
        * Updates root package.json workspaces array
        */
-      updateRootPackageJsonWorkspaces,
+      updateRootPackageJsonWorkspaces: (sliceName: string) =>
+        updateRootPackageJsonWorkspaces(sliceName).pipe(
+          Effect.provideService(FileSystem.FileSystem, fs),
+          Effect.provideService(RepoUtils, repo)
+        ),
 
       /**
        * Updates a tsconfig file with new references
        */
-      updateTsconfigReferences,
+      updateTsconfigReferences: (tsconfigPath: string, references: readonly string[]) =>
+        updateTsconfigReferences(tsconfigPath, references).pipe(
+          Effect.provideService(FileSystem.FileSystem, fs),
+          Effect.provideService(RepoUtils, repo)
+        ),
 
       /**
        * Updates all tsconfigs in packages/runtime/server/
        */
-      updateRuntimeServerTsconfigs,
+      updateRuntimeServerTsconfigs: (sliceName: string) =>
+        updateRuntimeServerTsconfigs(sliceName).pipe(
+          Effect.provideService(FileSystem.FileSystem, fs),
+          Effect.provideService(RepoUtils, repo)
+        ),
 
       /**
        * Updates all tsconfigs in packages/_internal/db-admin/
        */
-      updateDbAdminTsconfigs,
+      updateDbAdminTsconfigs: (sliceName: string) =>
+        updateDbAdminTsconfigs(sliceName).pipe(
+          Effect.provideService(FileSystem.FileSystem, fs),
+          Effect.provideService(RepoUtils, repo)
+        ),
 
       /**
        * Updates apps/web/tsconfig.json with path aliases and references
        */
-      updateWebAppTsconfig,
+      updateWebAppTsconfig: (sliceName: string) =>
+        updateWebAppTsconfig(sliceName).pipe(
+          Effect.provideService(FileSystem.FileSystem, fs),
+          Effect.provideService(RepoUtils, repo)
+        ),
 
       /**
        * Updates all package.json files
        */
-      updateAllPackageJsons,
+      updateAllPackageJsons: (sliceName: string) =>
+        updateAllPackageJsons(sliceName).pipe(
+          Effect.provideService(FileSystem.FileSystem, fs),
+          Effect.provideService(RepoUtils, repo)
+        ),
 
       /**
        * Updates all tsconfig files
        */
-      updateAllSliceTsconfigs,
+      updateAllSliceTsconfigs: (sliceName: string) =>
+        updateAllSliceTsconfigs(sliceName).pipe(
+          Effect.provideService(FileSystem.FileSystem, fs),
+          Effect.provideService(RepoUtils, repo)
+        ),
 
       /**
        * Updates all configuration files for a new slice.
        * This is the main entry point for the handler.
        */
-      updateAllForSlice: (sliceName: string): Effect.Effect<void, FileWriteError, FileSystem.FileSystem | RepoUtils> =>
+      updateAllForSlice: (sliceName: string): Effect.Effect<void, FileWriteError> =>
         Effect.gen(function* () {
           yield* updateAllPackageJsons(sliceName);
           yield* updateAllSliceTsconfigs(sliceName);
-        }).pipe(Effect.withSpan("ConfigUpdaterService.updateAllForSlice")),
+        }).pipe(
+          Effect.provideService(FileSystem.FileSystem, fs),
+          Effect.provideService(RepoUtils, repo),
+          Effect.withSpan("ConfigUpdaterService.updateAllForSlice")
+        ),
     };
   }),
 }) {}

@@ -198,12 +198,10 @@ const jsdocCommand = Command.make("jsdoc", jsdocOptions, (config) =>
     );
 
     yield* Console.log(color.yellow("Run the analyzer again after fixing the missing tags."));
-    return yield* Effect.fail(
-      new DomainError({
-        message: "JSDoc analyzer found missing metadata.",
-        cause: {},
-      })
-    );
+    return yield* new DomainError({
+      message: "JSDoc analyzer found missing metadata.",
+      cause: {},
+    });
   })
 ).pipe(Command.withDescription("Analyze JSDoc blocks for required tags."));
 
@@ -297,24 +295,18 @@ const isTypeScriptSource = (filePath: string): boolean => Str.endsWith(".ts")(fi
 
 const toPosix = (value: string): string => Str.replaceAll("\\", "/")(value);
 
-const analyzeFile = ({
-  absolutePath,
-  repoRoot,
-  fs,
-  path,
-}: {
+const analyzeFile: (params: {
   readonly absolutePath: string;
   readonly repoRoot: string;
   readonly fs: FileSystem.FileSystem;
   readonly path: Path.Path;
-}): Effect.Effect<FileSummary, PlatformError, never> =>
-  Effect.gen(function* () {
-    const contents = yield* fs.readFileString(absolutePath);
-    const sourceFile = ts.createSourceFile(absolutePath, contents, ts.ScriptTarget.Latest, true);
-    const repoRelative = path.relative(repoRoot, absolutePath);
-    const normalized = toPosix(repoRelative);
-    return analyzeSourceFile(sourceFile, normalized);
-  });
+}) => Effect.Effect<FileSummary, PlatformError, never> = Effect.fn(function* ({ absolutePath, repoRoot, fs, path }) {
+  const contents = yield* fs.readFileString(absolutePath);
+  const sourceFile = ts.createSourceFile(absolutePath, contents, ts.ScriptTarget.Latest, true);
+  const repoRelative = path.relative(repoRoot, absolutePath);
+  const normalized = toPosix(repoRelative);
+  return analyzeSourceFile(sourceFile, normalized);
+});
 
 const analyzeSourceFile = (sourceFile: ts.SourceFile, relativePath: string): FileSummary => {
   let exports = 0;

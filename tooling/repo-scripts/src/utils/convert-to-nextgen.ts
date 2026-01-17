@@ -6,6 +6,7 @@ import { removeExt } from "@beep/constants/paths/utils";
 import { BS } from "@beep/schema";
 import { FsUtils } from "@beep/tooling-utils/FsUtils";
 import { DomainError } from "@beep/tooling-utils/repo";
+import type { PlatformError } from "@effect/platform/Error";
 import * as FileSystem from "@effect/platform/FileSystem";
 import * as Path from "@effect/platform/Path";
 import encodeAvif, { init as initAvifEncode } from "@jsquash/avif/encode";
@@ -260,8 +261,11 @@ const toDecodedImage = (file: Convertable, value: unknown): ImageData => {
   return new DecodedImageData({ data: normalised, width: rawWidth, height: rawHeight, colorSpace: derivedColorSpace });
 };
 
-const loadWasmModule = (modulePath: string, label: string) =>
-  Effect.gen(function* () {
+const loadWasmModule: (
+  modulePath: string,
+  label: string
+) => Effect.Effect<WebAssembly.Module, DomainError | PlatformError, FsUtils | FileSystem.FileSystem> = Effect.fn(
+  function* (modulePath, label) {
     const fsUtils = yield* FsUtils;
     const fs = yield* FileSystem.FileSystem;
 
@@ -275,15 +279,20 @@ const loadWasmModule = (modulePath: string, label: string) =>
       try: () => WebAssembly.compile(buffer),
       catch: domainError(`Failed to compile ${label} at ${resolved}`),
     });
-  });
+  }
+);
 
-const loadWasmBinary = (modulePath: string, label: string) =>
-  Effect.gen(function* () {
+const loadWasmBinary: (
+  modulePath: string,
+  label: string
+) => Effect.Effect<Uint8Array, DomainError | PlatformError, FsUtils | FileSystem.FileSystem> = Effect.fn(
+  function* (modulePath, label) {
     const fsUtils = yield* FsUtils;
     const fs = yield* FileSystem.FileSystem;
     const resolved = yield* fsUtils.existsOrThrow(modulePath);
     return yield* fs.readFile(resolved).pipe(Effect.mapError(domainError(`Failed to read ${label} at ${resolved}`)));
-  });
+  }
+);
 
 const initializeDecoders = (mods: ReadonlySet<Pick<Convertable, "_tag" | "modPath">>) => {
   const byPath = new Map<string, { modPath: string; tags: DecoderTag[] }>();
@@ -346,46 +355,50 @@ const encodeImage = (file: Convertable, decoded: ImageData) =>
     catch: domainError(`Failed to encode ${DECODERS[file._tag].label} file buffer ${file.path} to AVIF`),
   });
 
-const convertFile = (file: Convertable, publicDir: string) =>
-  Effect.gen(function* () {
-    const fs = yield* FileSystem.FileSystem;
-    const path = yield* Path.Path;
+const convertFile: (
+  file: Convertable,
+  publicDir: string
+) => Effect.Effect<
+  { readonly source: string; readonly target: string },
+  DomainError | PlatformError,
+  FileSystem.FileSystem | Path.Path
+> = Effect.fn(function* (file, publicDir) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
 
-    const original = yield* fs
-      .readFile(file.path)
-      .pipe(Effect.mapError(domainError(`Failed to read file ${file.path}`)));
+  const original = yield* fs.readFile(file.path).pipe(Effect.mapError(domainError(`Failed to read file ${file.path}`)));
 
-    const decoded = yield* decodeImage(file, toArrayBuffer(original));
-    const encoded = yield* encodeImage(file, decoded);
+  const decoded = yield* decodeImage(file, toArrayBuffer(original));
+  const encoded = yield* encodeImage(file, decoded);
 
-    const relative = path.relative(publicDir, file.path);
-    if (relative.startsWith("..")) {
-      return yield* new DomainError({
-        cause: {},
-        message: `Source file ${file.path} is outside public directory ${publicDir}`,
-      });
-    }
+  const relative = path.relative(publicDir, file.path);
+  if (relative.startsWith("..")) {
+    return yield* new DomainError({
+      cause: {},
+      message: `Source file ${file.path} is outside public directory ${publicDir}`,
+    });
+  }
 
-    const targetPath = path.join(publicDir, `${removeExt(relative)}.avif`);
+  const targetPath = path.join(publicDir, `${removeExt(relative)}.avif`);
 
+  yield* fs
+    .writeFile(targetPath, encoded)
+    .pipe(Effect.mapError(domainError(`Failed to write encoded file ${targetPath}`)));
+
+  if (targetPath !== file.path) {
     yield* fs
-      .writeFile(targetPath, encoded)
-      .pipe(Effect.mapError(domainError(`Failed to write encoded file ${targetPath}`)));
+      .remove(file.path)
+      .pipe(
+        Effect.catchTag("SystemError", (error) =>
+          error.reason === "NotFound"
+            ? Effect.void
+            : Effect.fail(domainError(`Failed to remove original file ${file.path}`)(error))
+        )
+      );
+  }
 
-    if (targetPath !== file.path) {
-      yield* fs
-        .remove(file.path)
-        .pipe(
-          Effect.catchTag("SystemError", (error) =>
-            error.reason === "NotFound"
-              ? Effect.void
-              : Effect.fail(domainError(`Failed to remove original file ${file.path}`)(error))
-          )
-        );
-    }
-
-    return { source: file.path, target: targetPath } as const;
-  });
+  return { source: file.path, target: targetPath } as const;
+});
 
 export const convertDirectoryToNextgen = Effect.fn("convertDirectoryToNextgen")(function* (opts: {
   readonly dir: string;

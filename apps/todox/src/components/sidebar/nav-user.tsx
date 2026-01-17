@@ -48,7 +48,7 @@ export function NavUser({ user }: NavUserProps) {
   const router = useRouter();
 
   const handleSignOut = async () => {
-    await signOut({});
+    await signOut();
     router.push(paths.auth.signIn);
   };
 

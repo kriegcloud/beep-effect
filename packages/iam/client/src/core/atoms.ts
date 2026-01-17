@@ -1,27 +1,22 @@
 import { withToast } from "@beep/ui/common/with-toast";
 import { useAtomRefresh, useAtomSet, useAtomValue } from "@effect-atom/atom-react";
+import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
-import type * as Common from "../_common";
-import { CoreService, coreRuntime } from "./service.ts";
+import { runtime, Service } from "./service.ts";
 
-const signOutAtom = coreRuntime.fn(
+const signOutAtom = runtime.fn(
   F.flow(
-    CoreService.signOut,
+    Service.SignOut,
     withToast({
       onWaiting: "Signing out...",
       onSuccess: "Signed out successfully",
       onFailure: (e) => e.message,
-    })
+    }),
+    Effect.asVoid
   )
 );
 
-const getSessionAtom = coreRuntime.atom(CoreService.getSession());
-
-export type SignOutPayload =
-  | undefined
-  | {
-      readonly fetchOptions?: undefined | Common.ClientFetchOption;
-    };
+const getSessionAtom = runtime.atom(Service.GetSession());
 
 export const useCore = () => {
   const signOutSetter = useAtomSet(signOutAtom, {
@@ -31,8 +26,8 @@ export const useCore = () => {
   const sessionResult = useAtomValue(getSessionAtom);
   const sessionRefresh = useAtomRefresh(getSessionAtom);
 
-  const signOut = async (payload?: SignOutPayload) => {
-    await signOutSetter(payload);
+  const signOut = async () => {
+    await signOutSetter();
     sessionRefresh();
   };
 

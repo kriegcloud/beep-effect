@@ -43,20 +43,7 @@
         "name": "@effect/language-service",
         "transform": "@effect/language-service/transform",
         "diagnosticSeverity": {
-          "classSelfMismatch": "off",
-          "effectFnOpportunity": "off",
-          "globalErrorInEffectFailure": "off",
-          "catchAllToMapError": "off",
-          "forbiddenInSchema": "off",
-          "unnecessaryYield": "off",
-          "missingEffectError": "off",
-          "unnecessaryPipeChain": "off",
-          "unnecessaryFailYieldableError": "off",
-          "redundantSchemaTagIdentifier": "off",
-          "unnecessaryEffectGen": "off",
-          "leakingRequirements": "off",
-          "unnecessaryPipe": "off",
-          "runEffectInsideEffect": "off"
+
         },
         "mermaidProvider": "mermaid.live",
         "namespaceImportPackages": [
@@ -149,6 +136,15 @@
       ],
       "@beep/identity/test/*": [
         "./packages/common/identity/test/*"
+      ],
+      "@beep/wrap": [
+        "./packages/common/wrap/src/index"
+      ],
+      "@beep/wrap/*": [
+        "./packages/common/wrap/src/*"
+      ],
+      "@beep/wrap/test/*": [
+        "./packages/common/wrap/test/*"
       ],
       "@beep/errors/client": [
         "./packages/common/errors/src/client"

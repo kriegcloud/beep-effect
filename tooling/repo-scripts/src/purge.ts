@@ -31,8 +31,8 @@ const WORKSPACE_PATTERNS = [
   "tooling/*/",
 ] as const;
 
-const purge = (removeLock: boolean) =>
-  Effect.gen(function* () {
+const purge = Effect.fn(
+  function* (removeLock: boolean) {
     const fs = yield* FileSystem.FileSystem;
     const repoRoot = yield* findRepoRoot;
     const path = yield* Path.Path;
@@ -69,17 +69,17 @@ const purge = (removeLock: boolean) =>
 
     yield* Console.log(`\n🧹 Removing ${total} paths...`);
     yield* Effect.all(allRemovals, { concurrency: total });
-  }).pipe(
-    Effect.catchAll(
-      Effect.fnUntraced(function* (error) {
-        const msg = String(error);
-        yield* Console.log(`\n💥 Program failed: ${msg}`);
-        const cause = Cause.fail(error);
-        yield* Console.log(`\n🔍 Error details: ${Cause.pretty(cause)}`);
-        return yield* Effect.fail(error);
-      })
-    )
-  );
+  },
+  Effect.catchAll(
+    Effect.fnUntraced(function* (error) {
+      const msg = String(error);
+      yield* Console.log(`\n💥 Program failed: ${msg}`);
+      const cause = Cause.fail(error);
+      yield* Console.log(`\n🔍 Error details: ${Cause.pretty(cause)}`);
+      return yield* error;
+    })
+  )
+);
 
 const lockOption = F.pipe(Options.boolean("lock"), Options.withAlias("l"), Options.withDefault(false));
 

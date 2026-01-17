@@ -1,1 +1,1 @@
-export * from "./sign-out.handler.ts";
+export * as SignOut from "./sign-out.ts";

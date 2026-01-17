@@ -66,8 +66,8 @@ export const DiscussionHandlersLive = Discussion.DiscussionRpcs.Rpcs.toLayer(
             Stream.withSpan("DiscussionHandlers.listByDocument")
           ),
 
-      create: (payload) =>
-        Effect.gen(function* () {
+      create: Effect.fn("DiscussionHandlers.create")(
+        function* (payload) {
           const authContext = yield* AuthContext;
           // Decode to apply defaults from the insert schema
           const insertData = yield* decodeDiscussionInsert({
@@ -78,14 +78,13 @@ export const DiscussionHandlersLive = Discussion.DiscussionRpcs.Rpcs.toLayer(
           });
           const result = yield* discussionRepo.create(insertData);
           return { id: result.id };
-        }).pipe(
-          Effect.catchTag("DatabaseError", Effect.die),
-          Effect.catchTag("ParseError", Effect.die),
-          Effect.withSpan("DiscussionHandlers.create")
-        ),
+        },
+        Effect.catchTag("DatabaseError", Effect.die),
+        Effect.catchTag("ParseError", Effect.die)
+      ),
 
-      createWithComment: (payload) =>
-        Effect.gen(function* () {
+      createWithComment: Effect.fn("DiscussionHandlers.createWithComment")(
+        function* (payload) {
           const authContext = yield* AuthContext;
 
           // Create discussion - decode to apply defaults
@@ -110,11 +109,10 @@ export const DiscussionHandlersLive = Discussion.DiscussionRpcs.Rpcs.toLayer(
           }
 
           return { id: discussion.id };
-        }).pipe(
-          Effect.catchTag("DatabaseError", Effect.die),
-          Effect.catchTag("ParseError", Effect.die),
-          Effect.withSpan("DiscussionHandlers.createWithComment")
-        ),
+        },
+        Effect.catchTag("DatabaseError", Effect.die),
+        Effect.catchTag("ParseError", Effect.die)
+      ),
 
       resolve: (payload) =>
         discussionRepo

@@ -1,6 +1,6 @@
 "use client";
 import { paths } from "@beep/shared-domain";
-import { varFade } from "@beep/ui/animate/index";
+import { varFade } from "@beep/ui/animate";
 import { RouterLink } from "@beep/ui/routing/index";
 import Box from "@mui/material/Box";
 import Link from "@mui/material/Link";

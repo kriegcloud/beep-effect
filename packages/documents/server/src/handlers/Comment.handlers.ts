@@ -42,8 +42,8 @@ export const CommentHandlersLive = Comment.CommentRpcs.Rpcs.toLayer(
             Stream.withSpan("CommentHandlers.listByDiscussion")
           ),
 
-      create: (payload) =>
-        Effect.gen(function* () {
+      create: Effect.fn("CommentHandlers.create")(
+        function* (payload) {
           const authContext = yield* AuthContext;
           // Decode to apply defaults from the insert schema
           const insertData = yield* decodeCommentInsert({
@@ -54,11 +54,10 @@ export const CommentHandlersLive = Comment.CommentRpcs.Rpcs.toLayer(
             contentRich: payload.contentRich,
           });
           return yield* repo.create(insertData);
-        }).pipe(
-          Effect.catchTag("DatabaseError", Effect.die),
-          Effect.catchTag("ParseError", Effect.die),
-          Effect.withSpan("CommentHandlers.create")
-        ),
+        },
+        Effect.catchTag("DatabaseError", Effect.die),
+        Effect.catchTag("ParseError", Effect.die)
+      ),
 
       update: (payload) =>
         Effect.gen(function* () {

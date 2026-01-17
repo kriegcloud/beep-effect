@@ -265,6 +265,8 @@ const createHandlerNoPayload = <SuccessSchema extends S.Schema.Any>(config: Conf
  * ```
  */
 // Overload 1: With payload schema
+
+// @ts-expect-error
 export function createHandler<PayloadSchema extends S.Schema.Any, SuccessSchema extends S.Schema.Any>(config: {
   readonly domain: string;
   readonly feature: string;

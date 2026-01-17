@@ -58,7 +58,7 @@ export class FolderRepo extends Effect.Service<FolderRepo>()($I`FolderRepo`, {
         if (A.isEmptyReadonlyArray(folderIds)) {
           return Effect.void;
         }
-        return execute((client) => client.delete(folder).where(d.inArray(folder.id, folderIds)));
+        return execute((client) => client.delete(folder).where(d.inArray(folder.id, folderIds))).pipe(Effect.asVoid);
       },
     });
 

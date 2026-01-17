@@ -15,12 +15,9 @@ import * as S from "effect/Schema";
 import * as Struct from "effect/Struct";
 
 /** Tagged error for secret generation failures. */
-class SecretGenerationError extends S.TaggedError<SecretGenerationError>("SecretGenerationError")(
-  "SecretGenerationError",
-  {
-    message: S.String,
-  }
-) {}
+class SecretGenerationError extends S.TaggedError<SecretGenerationError>()("SecretGenerationError", {
+  message: S.String,
+}) {}
 
 /**
  * Generate a secure random secret using Effect's Random service
@@ -107,8 +104,8 @@ const readEnvFileRaw = Effect.fn("readEnvFileRaw")(function* (filePath: string) 
 /**
  * Update specific environment variables in the raw .env content while preserving all formatting
  */
-const updateEnvVariablesInContent = (content: string, updates: Record<string, string>): Effect.Effect<string> =>
-  Effect.gen(function* () {
+const updateEnvVariablesInContent: (content: string, updates: Record<string, string>) => Effect.Effect<string> =
+  Effect.fn(function* (content, updates) {
     yield* Effect.log("Updating environment variables in content while preserving formatting");
 
     const lines = content.length === 0 ? [] : content.split("\n");
@@ -198,40 +195,39 @@ const writeEnvFileRaw = Effect.fn("writeEnvFileRaw")(function* (filePath: string
 /**
  * Update or create .env file with generated secrets
  */
-const updateEnvFile = (filePath = ".env") =>
-  Effect.gen(function* () {
-    yield* Console.log(`\n🔄 Updating ${filePath} with generated secrets...`);
+const updateEnvFile = Effect.fn(function* (filePath = ".env") {
+  yield* Console.log(`\n🔄 Updating ${filePath} with generated secrets...`);
 
-    const pathService = yield* Path.Path;
-    const currentDir = process.cwd();
-    const monorepoRoot = yield* findRepoRoot;
-    const resolvedFilePath = pathService.isAbsolute(filePath) ? filePath : pathService.resolve(monorepoRoot, filePath);
+  const pathService = yield* Path.Path;
+  const currentDir = process.cwd();
+  const monorepoRoot = yield* findRepoRoot;
+  const resolvedFilePath = pathService.isAbsolute(filePath) ? filePath : pathService.resolve(monorepoRoot, filePath);
 
-    yield* Console.log(`📍 Current directory: ${currentDir}`);
-    yield* Console.log(`📍 Monorepo root: ${monorepoRoot}`);
-    yield* Console.log(`📍 Resolved path: ${resolvedFilePath}`);
+  yield* Console.log(`📍 Current directory: ${currentDir}`);
+  yield* Console.log(`📍 Monorepo root: ${monorepoRoot}`);
+  yield* Console.log(`📍 Resolved path: ${resolvedFilePath}`);
 
-    // Read existing .env file
-    const existingContent = yield* readEnvFileRaw(resolvedFilePath);
+  // Read existing .env file
+  const existingContent = yield* readEnvFileRaw(resolvedFilePath);
 
-    // Generate new secrets
-    const autoFillValues = yield* generateAutoFillValues;
+  // Generate new secrets
+  const autoFillValues = yield* generateAutoFillValues;
 
-    // Update the environment variables in the content
-    const updatedContent = yield* updateEnvVariablesInContent(existingContent, autoFillValues);
+  // Update the environment variables in the content
+  const updatedContent = yield* updateEnvVariablesInContent(existingContent, autoFillValues);
 
-    // Write back to file
-    yield* writeEnvFileRaw(resolvedFilePath, updatedContent);
+  // Write back to file
+  yield* writeEnvFileRaw(resolvedFilePath, updatedContent);
 
-    yield* Console.log(`\n🎉 Successfully updated ${resolvedFilePath}!`);
-    yield* Console.log(`📊 Total variables: ${Struct.keys(autoFillValues).length}`);
-    yield* Console.log(`🆕 Added/Updated: ${Struct.keys(autoFillValues).length}`);
+  yield* Console.log(`\n🎉 Successfully updated ${resolvedFilePath}!`);
+  yield* Console.log(`📊 Total variables: ${Struct.keys(autoFillValues).length}`);
+  yield* Console.log(`🆕 Added/Updated: ${Struct.keys(autoFillValues).length}`);
 
-    return {
-      totalVariables: Struct.keys(autoFillValues).length,
-      updatedVariables: Struct.keys(autoFillValues).length,
-    };
-  });
+  return {
+    totalVariables: Struct.keys(autoFillValues).length,
+    updatedVariables: Struct.keys(autoFillValues).length,
+  };
+});
 
 const generateEnvSecrets = Effect.gen(function* () {
   yield* Console.log("🐝 BEEP Environment Secrets Generator");

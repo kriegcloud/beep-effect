@@ -27,6 +27,7 @@ const composers = $I.compose(
   "iam-server",
   "repo-scripts",
   "todox",
+  "wrap",
   "documents-tables",
   "ui",
   "invariant",
@@ -806,3 +807,18 @@ export const $CalendarClientId = composers.$CalendarClientId;
  * @since 0.1.0
  */
 export const $CalendarUiId = composers.$CalendarUiId;
+
+/**
+ * Identity composer for the `@beep/wrap` namespace.
+ *
+ * @example
+ * ```typescript
+ * import { $WrapId } from "@beep/identity/packages"
+ *
+ * const componentId = $WrapId.make("EventCard")
+ * ```
+ *
+ * @category symbols
+ * @since 0.1.0
+ */
+export const $WrapId = composers.$WrapId;

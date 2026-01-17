@@ -1,1 +1,1 @@
-export * from "./sign-in-email.form.tsx";
+export * as Email from "./email";

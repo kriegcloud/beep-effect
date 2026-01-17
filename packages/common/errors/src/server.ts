@@ -407,12 +407,13 @@ const loggerForFormat = (format: LogFormat.Type, prettyOverrides?: Partial<Prett
  * @category Documentation/Functions
  * @since 0.1.0
  */
-export const makeEnvLoggerLayerFromEnv = (prettyOverrides?: Partial<PrettyLoggerConfig> | undefined) =>
-  Effect.gen(function* () {
-    const { format } = yield* readEnvLoggerConfig;
-    const logger = loggerForFormat(format, prettyOverrides);
-    return Logger.replace(Logger.defaultLogger, logger);
-  });
+export const makeEnvLoggerLayerFromEnv: (
+  prettyOverrides?: Partial<PrettyLoggerConfig> | undefined
+) => Effect.Effect<Layer.Layer<never>, never, never> = Effect.fn(function* (prettyOverrides) {
+  const { format } = yield* readEnvLoggerConfig;
+  const logger = loggerForFormat(format, prettyOverrides);
+  return Logger.replace(Logger.defaultLogger, logger);
+});
 
 /**
  * Apply the environment-derived logger and minimum level to an Effect.
@@ -439,57 +440,52 @@ export const withEnvLogging =
  * @category Documentation/Functions
  * @since 0.1.0
  */
-export const accumulateEffectsAndReport = <A, E, R>(
+export const accumulateEffectsAndReport: <A, E, R>(
   effects: ReadonlyArray<Effect.Effect<A, E, R>>,
   options?: AccumulateOptions | undefined
-): Effect.Effect<AccumulateResult<A, E>, never, R> =>
-  Effect.gen(function* () {
-    const now = yield* DateTime.now;
-    const res = yield* accumulateEffects(effects, { concurrency: options?.concurrency });
+) => Effect.Effect<AccumulateResult<A, E>, never, R> = Effect.fn(function* (effects, options) {
+  const now = yield* DateTime.now;
+  const res = yield* accumulateEffects(effects, { concurrency: options?.concurrency });
 
-    yield* Effect.logInfo("accumulate summary", {
-      successes: res.successes.length,
-      errors: res.errors.length,
-    });
-
-    for (const [i, cause] of res.errors.entries()) {
-      const getAnn = (key: string): string | undefined => {
-        if (!P.isRecord(options?.annotations)) {
-          return undefined;
-        }
-        return Record.get(key)(options?.annotations).pipe(O.getOrElse(() => undefined));
-      };
-
-      const service = getAnn("service") ?? process.env.APP_NAME;
-      const environment = getAnn("env") ?? getAnn("environment") ?? process.env.APP_ENV ?? process.env.NODE_ENV;
-      const heading = formatCauseHeading(cause, {
-        colors: options?.colors ?? true,
-        date: DateTime.toDateUtc(now),
-        levelLabel: undefined,
-        fiberName: undefined,
-        spansText: undefined,
-        service,
-        environment,
-        hostname: OS.hostname(),
-        pid: process.pid,
-        nodeVersion: process.version,
-        includeCodeFrame: true,
-      });
-      if (heading) yield* Effect.sync(() => console.error(heading));
-      const pretty = formatCausePretty(cause, options?.colors ?? true);
-      yield* Effect.logError(`accumulate error[${i}]`);
-      if (pretty) yield* Effect.sync(() => console.error(pretty));
-    }
-
-    let eff: Effect.Effect<AccumulateResult<A, E>, never, R> = Effect.succeed(res);
-    if (options?.annotations) {
-      eff = eff.pipe(Effect.annotateLogs(options.annotations));
-    }
-    if (options?.spanLabel) {
-      eff = eff.pipe(Effect.withLogSpan(options.spanLabel));
-    }
-    return yield* eff;
+  yield* Effect.logInfo("accumulate summary", {
+    successes: res.successes.length,
+    errors: res.errors.length,
   });
+
+  for (const [i, cause] of res.errors.entries()) {
+    const getAnn = (key: string): string | undefined => {
+      if (!P.isRecord(options?.annotations)) {
+        return undefined;
+      }
+      return Record.get(key)(options?.annotations).pipe(O.getOrElse(() => undefined));
+    };
+
+    const service = getAnn("service") ?? process.env.APP_NAME;
+    const environment = getAnn("env") ?? getAnn("environment") ?? process.env.APP_ENV ?? process.env.NODE_ENV;
+    const heading = formatCauseHeading(cause, {
+      colors: options?.colors ?? true,
+      date: DateTime.toDateUtc(now),
+      levelLabel: undefined,
+      fiberName: undefined,
+      spansText: undefined,
+      service,
+      environment,
+      hostname: OS.hostname(),
+      pid: process.pid,
+      nodeVersion: process.version,
+      includeCodeFrame: true,
+    });
+    if (heading) yield* Effect.sync(() => console.error(heading));
+    const pretty = formatCausePretty(cause, options?.colors ?? true);
+    yield* Effect.logError(`accumulate error[${i}]`);
+    if (pretty) yield* Effect.sync(() => console.error(pretty));
+  }
+
+  return yield* Effect.succeed(res).pipe(
+    options?.annotations ? Effect.annotateLogs(options.annotations) : (eff) => eff,
+    options?.spanLabel ? Effect.withLogSpan(options.spanLabel) : (eff) => eff
+  );
+});
 
 export const withResponseErrorLogging = <E, R>(client: HttpClient.HttpClient.With<E, R>) =>
   client.pipe(

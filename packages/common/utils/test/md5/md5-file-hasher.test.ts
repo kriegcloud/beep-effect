@@ -9,7 +9,7 @@
  */
 
 import { describe, expect, live } from "@beep/testkit";
-import { appendByteArray, finalize, type Md5ComputationError, makeState } from "@beep/utils/md5/md5";
+import { appendByteArray, finalize, makeState } from "@beep/utils/md5/md5";
 import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
 import * as Stream from "effect/Stream";
@@ -30,38 +30,37 @@ describe("MD5 Blob Hashing (Bun runtime)", () => {
    * Hash a blob using Bun's Blob.arrayBuffer() method
    * This tests the core MD5 functionality without browser-specific FileReader
    */
-  const hashBlobBun = (blob: Blob, chunkSize: number): Effect.Effect<string, Md5ComputationError> =>
-    Effect.gen(function* () {
-      const arrayBuffer = yield* Effect.promise(() => blob.arrayBuffer());
-      const fullArray = new Uint8Array(arrayBuffer);
+  const hashBlobBun = Effect.fnUntraced(function* (blob: Blob, chunkSize: number) {
+    const arrayBuffer = yield* Effect.promise(() => blob.arrayBuffer());
+    const fullArray = new Uint8Array(arrayBuffer);
 
-      const totalChunks = Math.ceil(fullArray.length / chunkSize);
+    const totalChunks = Math.ceil(fullArray.length / chunkSize);
 
-      const chunkStream = Stream.range(0, totalChunks - 1).pipe(
-        Stream.map((chunkIndex) => {
-          const start = chunkIndex * chunkSize;
-          const end = Math.min(start + chunkSize, fullArray.length);
-          return fullArray.slice(start, end);
-        })
-      );
+    const chunkStream = Stream.range(0, totalChunks - 1).pipe(
+      Stream.map((chunkIndex) => {
+        const start = chunkIndex * chunkSize;
+        const end = Math.min(start + chunkSize, fullArray.length);
+        return fullArray.slice(start, end);
+      })
+    );
 
-      const initialState = makeState();
+    const initialState = makeState();
 
-      const finalState = yield* chunkStream.pipe(
-        Stream.runFold(initialState, (state, chunk) => F.pipe(state, appendByteArray(chunk)))
-      );
+    const finalState = yield* chunkStream.pipe(
+      Stream.runFold(initialState, (state, chunk) => F.pipe(state, appendByteArray(chunk)))
+    );
 
-      return yield* F.pipe(
-        finalState,
-        finalize(false),
-        Effect.flatMap((result) => {
-          if (typeof result === "string") {
-            return Effect.succeed(result);
-          }
-          return Effect.die(new Error("Expected string result"));
-        })
-      );
-    });
+    return yield* F.pipe(
+      finalState,
+      finalize(false),
+      Effect.flatMap((result) => {
+        if (typeof result === "string") {
+          return Effect.succeed(result);
+        }
+        return Effect.die(new Error("Expected string result"));
+      })
+    );
+  });
 
   live(
     "should hash a small blob",

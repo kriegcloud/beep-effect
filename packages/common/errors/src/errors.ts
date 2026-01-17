@@ -195,7 +195,7 @@ export declare namespace ParseError {
  * @category Errors
  * @since 0.1.0
  */
-export class Unauthorized extends S.TaggedError<Unauthorized>("Unauthorized")(
+export class Unauthorized extends S.TaggedError<Unauthorized>()(
   "Unauthorized",
   {
     message: S.optional(S.String),
@@ -224,7 +224,7 @@ export declare namespace Unauthorized {
  * @category Errors
  * @since 0.1.0
  */
-export class Forbidden extends S.TaggedError<Forbidden>("Forbidden")(
+export class Forbidden extends S.TaggedError<Forbidden>()(
   "Forbidden",
   {
     message: S.optional(S.String),

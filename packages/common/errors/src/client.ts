@@ -52,26 +52,25 @@ export const withEnvLogging = <A, E, R>(self: Effect.Effect<A, E, R>) => self;
  * @category Documentation/Functions
  * @since 0.1.0
  */
-export const accumulateEffectsAndReport = <A, E, R>(
+export const accumulateEffectsAndReport: <A, E, R>(
   effects: ReadonlyArray<Effect.Effect<A, E, R>>,
   options?: AccumulateOptions | undefined
-): Effect.Effect<AccumulateResult<A, E>, never, R> =>
-  Effect.gen(function* () {
-    const res = yield* accumulateEffects(effects, { concurrency: options?.concurrency });
+) => Effect.Effect<AccumulateResult<A, E>, never, R> = Effect.fn(function* (effects, options) {
+  const res = yield* accumulateEffects(effects, { concurrency: options?.concurrency });
 
-    yield* Effect.logInfo("accumulate summary", {
-      successes: res.successes.length,
-      errors: res.errors.length,
-    });
-
-    for (const [i, cause] of res.errors.entries()) {
-      yield* Effect.logError(`accumulate error[${i}]`);
-      // Pretty print cause without server-only extras
-      yield* Effect.sync(() => console.error(Cause.pretty(cause)));
-    }
-
-    let eff: Effect.Effect<AccumulateResult<A, E>, never, R> = Effect.succeed(res);
-    if (options?.annotations) eff = eff.pipe(Effect.annotateLogs(options.annotations));
-    if (options?.spanLabel) eff = eff.pipe(Effect.withLogSpan(options.spanLabel));
-    return yield* eff;
+  yield* Effect.logInfo("accumulate summary", {
+    successes: res.successes.length,
+    errors: res.errors.length,
   });
+
+  for (const [i, cause] of res.errors.entries()) {
+    yield* Effect.logError(`accumulate error[${i}]`);
+    // Pretty print cause without server-only extras
+    yield* Effect.sync(() => console.error(Cause.pretty(cause)));
+  }
+
+  return yield* Effect.succeed(res).pipe(
+    options?.annotations ? Effect.annotateLogs(options.annotations) : (eff) => eff,
+    options?.spanLabel ? Effect.withLogSpan(options.spanLabel) : (eff) => eff
+  );
+});

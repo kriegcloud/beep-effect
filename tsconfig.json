@@ -2,9 +2,7 @@
   "extends": "./tsconfig.base.jsonc",
   "include": [
     "./syncpack.config.ts",
-    "./knip.config.ts",
-    "./sst.config.ts",
-
+    "./knip.config.ts"
   ],
   "exclude": [
     "**/dist/**",
@@ -17,11 +15,6 @@
     "**/.*/"
   ],
   "compilerOptions": {
-    "types": [
-      "node",
-      "bun"
-    ],
-    "disableSourceOfProjectReferenceRedirect": true,
     "disableReferencedProjectLoad": true,
     "disableSolutionSearching": true
   },

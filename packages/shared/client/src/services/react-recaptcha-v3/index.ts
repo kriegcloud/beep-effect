@@ -85,6 +85,7 @@ export {
 } from "./manager";
 // Effect Service
 export {
+  makeLive,
   ReCaptcha as ReCaptchaService,
   ReCaptchaLive,
   type ReCaptchaService as IReCaptchaService,

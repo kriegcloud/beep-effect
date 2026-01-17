@@ -112,122 +112,106 @@ export class ExifToolService extends Effect.Service<ExifToolService>()($I`ExifTo
      * Parse raw EXIF data from ExifTool output.
      * Handles the array format that ExifTool returns.
      */
-    const parseExifOutput = (
-      result: ExifToolOutput<unknown>,
-      file: File | Binaryfile
-    ): Effect.Effect<ExifMetadataValue, MetadataParseError> =>
-      Effect.gen(function* () {
-        if (!result.success) {
-          return yield* Effect.fail(
-            new MetadataParseError({
-              message: result.error || "ExifTool extraction failed",
-              cause: result,
-              fileName: file.name,
-              phase: "parse",
-            })
-          );
-        }
+    const parseExifOutput = Effect.fnUntraced(function* (result: ExifToolOutput<unknown>, file: File | Binaryfile) {
+      if (!result.success) {
+        return yield* new MetadataParseError({
+          message: result.error || "ExifTool extraction failed",
+          cause: result,
+          fileName: file.name,
+          phase: "parse",
+        });
+      }
 
-        // ExifTool returns array when using -json, extract first element
-        const data = result.data;
+      // ExifTool returns array when using -json, extract first element
+      const data = result.data;
 
-        return F.pipe(
-          Match.value(data),
-          Match.when(A.isArray, (arr) =>
-            F.pipe(arr, A.head, O.filter(P.isRecord), O.getOrElse(constEmptyExifMetadata))
-          ),
-          Match.when(P.isRecord, (obj) => obj as ExifMetadataValue),
-          Match.orElse(constEmptyExifMetadata)
-        );
-      });
+      return F.pipe(
+        Match.value(data),
+        Match.when(A.isArray, (arr) => F.pipe(arr, A.head, O.filter(P.isRecord), O.getOrElse(constEmptyExifMetadata))),
+        Match.when(P.isRecord, (obj) => obj as ExifMetadataValue),
+        Match.orElse(constEmptyExifMetadata)
+      );
+    });
 
     /**
      * Check file size before extraction.
      */
-    const checkFileSize = (file: File | Binaryfile): Effect.Effect<void, ExifFileTooLargeError> =>
-      Effect.gen(function* () {
-        const size = getFileSize(file);
-        if (size > MAX_EXIF_FILE_SIZE) {
-          return yield* Effect.fail(
-            new ExifFileTooLargeError({
-              message: `File too large for EXIF extraction: ${size} bytes (max ${MAX_EXIF_FILE_SIZE} bytes)`,
-              fileName: file.name,
-              fileSize: size,
-              maxSize: MAX_EXIF_FILE_SIZE,
-            })
-          );
-        }
-      });
-
-    const extractRaw: ExifToolServiceShape["extractRaw"] = (file) =>
-      Effect.gen(function* () {
-        yield* checkFileSize(file);
-
-        yield* Effect.annotateCurrentSpan("exif.fileName", file.name);
-        yield* Effect.annotateCurrentSpan("exif.fileSize", getFileSize(file));
-
-        const result = yield* Effect.tryPromise({
-          try: () =>
-            parseMetadata(file, {
-              args: ["-json", "-a", "-G"], // JSON output, all tags, group names
-              transform: (data) => JSON.parse(data),
-            }),
-          catch: (e) =>
-            new MetadataParseError({
-              message: "ExifTool extraction failed",
-              cause: e,
-              fileName: file.name,
-              phase: "parse",
-            }),
-        }).pipe(
-          Effect.timeout(DEFAULT_TIMEOUT_MS),
-          Effect.catchTag("TimeoutException", () =>
-            Effect.fail(
-              new ExifTimeoutError({
-                message: `EXIF extraction timed out after ${DEFAULT_TIMEOUT_MS}ms`,
-                fileName: file.name,
-                timeoutMs: DEFAULT_TIMEOUT_MS,
-              })
-            )
-          )
-        );
-
-        return yield* parseExifOutput(result, file);
-      });
-
-    const extractMetadata: ExifToolServiceShape["extractMetadata"] = (file) =>
-      Effect.gen(function* () {
-        const raw = yield* extractRaw(file);
-        return ExifMetadata.fromRaw(raw);
-      });
-
-    const writeMetadataFn: ExifToolServiceShape["writeMetadata"] = (file, tags) =>
-      Effect.gen(function* () {
-        const result = yield* Effect.tryPromise({
-          try: () =>
-            writeMetadata(file, tags as Record<string, string | number | boolean | (string | number | boolean)[]>),
-          catch: (e) =>
-            new MetadataParseError({
-              message: "ExifTool write failed",
-              cause: e,
-              fileName: file.name,
-              phase: "parse",
-            }),
+    const checkFileSize = Effect.fnUntraced(function* (file: File | Binaryfile) {
+      const size = getFileSize(file);
+      if (size > MAX_EXIF_FILE_SIZE) {
+        return yield* new ExifFileTooLargeError({
+          message: `File too large for EXIF extraction: ${size} bytes (max ${MAX_EXIF_FILE_SIZE} bytes)`,
+          fileName: file.name,
+          fileSize: size,
+          maxSize: MAX_EXIF_FILE_SIZE,
         });
+      }
+    });
 
-        if (!result.success) {
-          return yield* Effect.fail(
-            new MetadataParseError({
-              message: result.error || "ExifTool write failed",
-              cause: result,
+    const extractRaw: ExifToolServiceShape["extractRaw"] = Effect.fnUntraced(function* (file) {
+      yield* checkFileSize(file);
+
+      yield* Effect.annotateCurrentSpan("exif.fileName", file.name);
+      yield* Effect.annotateCurrentSpan("exif.fileSize", getFileSize(file));
+
+      const result = yield* Effect.tryPromise({
+        try: () =>
+          parseMetadata(file, {
+            args: ["-json", "-a", "-G"], // JSON output, all tags, group names
+            transform: (data) => JSON.parse(data),
+          }),
+        catch: (e) =>
+          new MetadataParseError({
+            message: "ExifTool extraction failed",
+            cause: e,
+            fileName: file.name,
+            phase: "parse",
+          }),
+      }).pipe(
+        Effect.timeout(DEFAULT_TIMEOUT_MS),
+        Effect.catchTag("TimeoutException", () =>
+          Effect.fail(
+            new ExifTimeoutError({
+              message: `EXIF extraction timed out after ${DEFAULT_TIMEOUT_MS}ms`,
               fileName: file.name,
-              phase: "decode",
+              timeoutMs: DEFAULT_TIMEOUT_MS,
             })
-          );
-        }
+          )
+        )
+      );
 
-        return result.data;
+      return yield* parseExifOutput(result, file);
+    });
+
+    const extractMetadata: ExifToolServiceShape["extractMetadata"] = Effect.fnUntraced(function* (file) {
+      const raw = yield* extractRaw(file);
+      return ExifMetadata.fromRaw(raw);
+    });
+
+    const writeMetadataFn: ExifToolServiceShape["writeMetadata"] = Effect.fnUntraced(function* (file, tags) {
+      const result = yield* Effect.tryPromise({
+        try: () =>
+          writeMetadata(file, tags as Record<string, string | number | boolean | (string | number | boolean)[]>),
+        catch: (e) =>
+          new MetadataParseError({
+            message: "ExifTool write failed",
+            cause: e,
+            fileName: file.name,
+            phase: "parse",
+          }),
       });
+
+      if (!result.success) {
+        return yield* new MetadataParseError({
+          message: result.error || "ExifTool write failed",
+          cause: result,
+          fileName: file.name,
+          phase: "decode",
+        });
+      }
+
+      return result.data;
+    });
 
     return {
       extractRaw,

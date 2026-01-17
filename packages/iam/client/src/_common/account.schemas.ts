@@ -27,8 +27,8 @@ export const BetterAuthAccountSchema = F.pipe(
   S.Struct({
     // Core fields from coreSchema
     id: S.String,
-    createdAt: S.String,
-    updatedAt: S.String,
+    createdAt: S.DateFromSelf,
+    updatedAt: S.DateFromSelf,
 
     // Account identity fields
     providerId: S.String,
@@ -41,8 +41,8 @@ export const BetterAuthAccountSchema = F.pipe(
     idToken: S.optionalWith(S.String, { nullable: true }),
 
     // Token expiry fields (nullable dates)
-    accessTokenExpiresAt: S.optionalWith(S.String, { nullable: true }),
-    refreshTokenExpiresAt: S.optionalWith(S.String, { nullable: true }),
+    accessTokenExpiresAt: S.optionalWith(S.DateFromSelf, { nullable: true }),
+    refreshTokenExpiresAt: S.optionalWith(S.DateFromSelf, { nullable: true }),
 
     // OAuth scope (nullable)
     scope: S.optionalWith(S.String, { nullable: true }),
@@ -91,133 +91,131 @@ type AccountModelEncoded = S.Schema.Encoded<typeof Account.Model>;
  */
 export const DomainAccountFromBetterAuthAccount = S.transformOrFail(BetterAuthAccountSchema, Account.Model, {
   strict: true,
-  decode: (betterAuthAccount, _options, ast) =>
-    Effect.gen(function* () {
-      // Validate the account ID format
-      const isValidAccountId = IamEntityIds.AccountId.is(betterAuthAccount.id);
-      if (!isValidAccountId) {
-        return yield* ParseResult.fail(
-          new ParseResult.Type(
-            ast,
-            betterAuthAccount.id,
-            `Invalid account ID format: expected "iam_account__<uuid>", got "${betterAuthAccount.id}"`
-          )
-        );
-      }
+  decode: Effect.fnUntraced(function* (betterAuthAccount, _options, ast) {
+    // Validate the account ID format
+    const isValidAccountId = IamEntityIds.AccountId.is(betterAuthAccount.id);
+    if (!isValidAccountId) {
+      return yield* ParseResult.fail(
+        new ParseResult.Type(
+          ast,
+          betterAuthAccount.id,
+          `Invalid account ID format: expected "iam_account__<uuid>", got "${betterAuthAccount.id}"`
+        )
+      );
+    }
 
-      // Validate the user ID format
-      const isValidUserId = SharedEntityIds.UserId.is(betterAuthAccount.userId);
-      if (!isValidUserId) {
-        return yield* ParseResult.fail(
-          new ParseResult.Type(
-            ast,
-            betterAuthAccount.userId,
-            `Invalid user ID format: expected "shared_user__<uuid>", got "${betterAuthAccount.userId}"`
-          )
-        );
-      }
+    // Validate the user ID format
+    const isValidUserId = SharedEntityIds.UserId.is(betterAuthAccount.userId);
+    if (!isValidUserId) {
+      return yield* ParseResult.fail(
+        new ParseResult.Type(
+          ast,
+          betterAuthAccount.userId,
+          `Invalid user ID format: expected "shared_user__<uuid>", got "${betterAuthAccount.userId}"`
+        )
+      );
+    }
 
-      // =======================================================================
-      // REQUIRED FIELDS - Must be present in Better Auth response
-      // These use require* helpers that FAIL if the field is missing
-      // =======================================================================
+    // =======================================================================
+    // REQUIRED FIELDS - Must be present in Better Auth response
+    // These use require* helpers that FAIL if the field is missing
+    // =======================================================================
 
-      const _rowId = yield* requireNumber(betterAuthAccount, "_rowId", ast);
-      const version = yield* requireNumber(betterAuthAccount, "version", ast);
-      const source = yield* requireString(betterAuthAccount, "source", ast);
-      const deletedAt = yield* requireDate(betterAuthAccount, "deletedAt", ast);
-      const createdBy = yield* requireString(betterAuthAccount, "createdBy", ast);
-      const updatedBy = yield* requireString(betterAuthAccount, "updatedBy", ast);
-      const deletedBy = yield* requireString(betterAuthAccount, "deletedBy", ast);
+    const _rowId = yield* requireNumber(betterAuthAccount, "_rowId", ast);
+    const version = yield* requireNumber(betterAuthAccount, "version", ast);
+    const source = yield* requireString(betterAuthAccount, "source", ast);
+    const deletedAt = yield* requireDate(betterAuthAccount, "deletedAt", ast);
+    const createdBy = yield* requireString(betterAuthAccount, "createdBy", ast);
+    const updatedBy = yield* requireString(betterAuthAccount, "updatedBy", ast);
+    const deletedBy = yield* requireString(betterAuthAccount, "deletedBy", ast);
 
-      // Construct the encoded form of Account.Model
-      // Type annotation ensures proper typing without type assertions
-      // The schema framework will decode this to Account.Model.Type
-      const encodedAccount: AccountModelEncoded = {
-        // Core identity fields
-        id: betterAuthAccount.id,
-        _rowId,
-        version,
+    // Construct the encoded form of Account.Model
+    // Type annotation ensures proper typing without type assertions
+    // The schema framework will decode this to Account.Model.Type
+    const encodedAccount: AccountModelEncoded = {
+      // Core identity fields
+      id: betterAuthAccount.id,
+      _rowId,
+      version,
 
-        // Timestamp fields - Date passed to schema, will be converted to DateTime.Utc
-        createdAt: betterAuthAccount.createdAt,
-        updatedAt: betterAuthAccount.updatedAt,
+      // Timestamp fields - Date passed to schema, will be converted to DateTime.Utc
+      createdAt: betterAuthAccount.createdAt,
+      updatedAt: betterAuthAccount.updatedAt,
 
-        // Account identity fields from Better Auth
-        providerId: betterAuthAccount.providerId,
-        accountId: betterAuthAccount.accountId,
-        userId: betterAuthAccount.userId,
+      // Account identity fields from Better Auth
+      providerId: betterAuthAccount.providerId,
+      accountId: betterAuthAccount.accountId,
+      userId: betterAuthAccount.userId,
 
-        // OAuth tokens (nullable -> null for Option encoding)
-        // FieldSensitiveOptionOmittable expects null | string for Encoded form
-        accessToken: betterAuthAccount.accessToken ?? null,
-        refreshToken: betterAuthAccount.refreshToken ?? null,
-        idToken: betterAuthAccount.idToken ?? null,
+      // OAuth tokens (nullable -> null for Option encoding)
+      // FieldSensitiveOptionOmittable expects null | string for Encoded form
+      accessToken: betterAuthAccount.accessToken ?? null,
+      refreshToken: betterAuthAccount.refreshToken ?? null,
+      idToken: betterAuthAccount.idToken ?? null,
 
-        // Token expiry dates (nullable -> null for Option encoding)
-        // FieldOptionOmittable with DateTimeUtc expects null | Date
-        accessTokenExpiresAt: betterAuthAccount.accessTokenExpiresAt ?? null,
-        refreshTokenExpiresAt: betterAuthAccount.refreshTokenExpiresAt ?? null,
+      // Token expiry dates (nullable -> null for Option encoding)
+      // FieldOptionOmittable with DateTimeUtc expects null | Date
+      accessTokenExpiresAt: betterAuthAccount.accessTokenExpiresAt ?? null,
+      refreshTokenExpiresAt: betterAuthAccount.refreshTokenExpiresAt ?? null,
 
-        // OAuth scope
-        scope: betterAuthAccount.scope ?? null,
+      // OAuth scope
+      scope: betterAuthAccount.scope ?? null,
 
-        // Password field (typically not returned by Better Auth API)
-        password: betterAuthAccount.password ?? null,
+      // Password field (typically not returned by Better Auth API)
+      password: betterAuthAccount.password ?? null,
 
-        // Audit fields - required, validated above
-        source,
-        deletedAt,
-        createdBy,
-        updatedBy,
-        deletedBy,
-      };
+      // Audit fields - required, validated above
+      source,
+      deletedAt,
+      createdBy,
+      updatedBy,
+      deletedBy,
+    };
 
-      return encodedAccount;
-    }),
+    return encodedAccount;
+  }),
 
-  encode: (accountEncoded, _options, _ast) =>
-    Effect.gen(function* () {
-      // Convert back to BetterAuthAccount's format
-      const createdAt = toDate(accountEncoded.createdAt);
-      const updatedAt = toDate(accountEncoded.updatedAt);
+  encode: Effect.fnUntraced(function* (accountEncoded, _options, _ast) {
+    // Convert back to BetterAuthAccount's format
+    const createdAt = toDate(accountEncoded.createdAt);
+    const updatedAt = toDate(accountEncoded.updatedAt);
 
-      // id might be undefined in the encoded form (has default), handle that
-      const id = accountEncoded.id ?? IamEntityIds.AccountId.create();
+    // id might be undefined in the encoded form (has default), handle that
+    const id = accountEncoded.id ?? IamEntityIds.AccountId.create();
 
-      // Return BetterAuthAccount Type form (plain object matching the struct)
-      // Include all fields that might have been set, so they round-trip correctly
-      const betterAuthAccount: BetterAuthAccount = {
-        id,
-        createdAt,
-        updatedAt,
-        providerId: accountEncoded.providerId,
-        accountId: accountEncoded.accountId,
-        userId: accountEncoded.userId,
-        // Convert null to undefined for BetterAuthAccount's optional fields
-        accessToken: accountEncoded.accessToken ?? undefined,
-        refreshToken: accountEncoded.refreshToken ?? undefined,
-        idToken: accountEncoded.idToken ?? undefined,
-        accessTokenExpiresAt: accountEncoded.accessTokenExpiresAt
-          ? toDate(accountEncoded.accessTokenExpiresAt)
-          : undefined,
-        refreshTokenExpiresAt: accountEncoded.refreshTokenExpiresAt
-          ? toDate(accountEncoded.refreshTokenExpiresAt)
-          : undefined,
-        scope: accountEncoded.scope ?? undefined,
-        password: accountEncoded.password ?? undefined,
-        // Include required fields for proper round-trip
-        _rowId: accountEncoded._rowId,
-        version: accountEncoded.version,
-        source: accountEncoded.source ?? undefined,
-        deletedAt: accountEncoded.deletedAt ? toDate(accountEncoded.deletedAt) : undefined,
-        createdBy: accountEncoded.createdBy ?? undefined,
-        updatedBy: accountEncoded.updatedBy ?? undefined,
-        deletedBy: accountEncoded.deletedBy ?? undefined,
-      };
+    // Return BetterAuthAccount Type form (plain object matching the struct)
+    // Include all fields that might have been set, so they round-trip correctly
+    const betterAuthAccount: BetterAuthAccount = {
+      id,
+      createdAt,
+      updatedAt,
+      providerId: accountEncoded.providerId,
+      accountId: accountEncoded.accountId,
+      userId: accountEncoded.userId,
+      // Convert null to undefined for BetterAuthAccount's optional fields
+      accessToken: accountEncoded.accessToken ?? undefined,
+      refreshToken: accountEncoded.refreshToken ?? undefined,
+      idToken: accountEncoded.idToken ?? undefined,
+      accessTokenExpiresAt: accountEncoded.accessTokenExpiresAt
+        ? toDate(accountEncoded.accessTokenExpiresAt)
+        : undefined,
+      refreshTokenExpiresAt: accountEncoded.refreshTokenExpiresAt
+        ? toDate(accountEncoded.refreshTokenExpiresAt)
+        : undefined,
+      scope: accountEncoded.scope ?? undefined,
+      password: accountEncoded.password ?? undefined,
+      // Include required fields for proper round-trip
+      _rowId: accountEncoded._rowId,
+      version: accountEncoded.version,
+      source: accountEncoded.source ?? undefined,
+      deletedAt: accountEncoded.deletedAt ? toDate(accountEncoded.deletedAt) : undefined,
+      createdBy: accountEncoded.createdBy ?? undefined,
+      updatedBy: accountEncoded.updatedBy ?? undefined,
+      deletedBy: accountEncoded.deletedBy ?? undefined,
+    };
 
-      return betterAuthAccount;
-    }),
+    return betterAuthAccount;
+  }),
 }).annotations(
   $I.annotations("DomainAccountFromBetterAuthAccount", {
     description:

@@ -2,6 +2,8 @@
 import { FsUtilsLive } from "@beep/tooling-utils/FsUtils";
 import { collectTsConfigPaths } from "@beep/tooling-utils/repo/TsConfigIndex";
 import * as Command from "@effect/platform/Command";
+import type * as CommandExecutor from "@effect/platform/CommandExecutor";
+import type * as PlatformError from "@effect/platform/Error";
 import * as BunContext from "@effect/platform-bun/BunContext";
 import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as A from "effect/Array";
@@ -22,8 +24,11 @@ import * as Effect from "effect/Effect";
 const hasFileNamed = (files: ReadonlyArray<string>, name: string): boolean =>
   A.some(files, (p) => p.endsWith(`/${name}`) || p.endsWith(`\\${name}`));
 
-const runStep = (label: string, args: ReadonlyArray<string>) =>
-  Effect.gen(function* () {
+const runStep: (
+  label: string,
+  args: ReadonlyArray<string>
+) => Effect.Effect<void, PlatformError.PlatformError, CommandExecutor.CommandExecutor> = Effect.fn(
+  function* (label, args) {
     const cmd = Command.make("bunx", "update-ts-references", ...args);
 
     yield* Console.log(`\n▶ ${label}`);
@@ -37,7 +42,8 @@ const runStep = (label: string, args: ReadonlyArray<string>) =>
     if (out.trim().length > 0) {
       yield* Console.log(`   output: ${out.slice(0, 400)}${out.length > 400 ? "..." : ""}`);
     }
-  });
+  }
+);
 
 const program = Effect.gen(function* () {
   yield* Console.log("🔧 Syncing TypeScript project references...");
@@ -179,7 +185,7 @@ const main = program.pipe(
       yield* Console.log(`\n💥 Program failed: ${msg}`);
       const cause = Cause.fail(error);
       yield* Console.log(`\n🔍 Error details: ${Cause.pretty(cause)}`);
-      return yield* Effect.fail(error);
+      return yield* error;
     })
   )
 );

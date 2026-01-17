@@ -111,8 +111,8 @@ export const DocumentHandlersLive = Document.DocumentRpcs.Rpcs.toLayer(
             Stream.withSpan("DocumentHandlers.search")
           ),
 
-      create: (payload) =>
-        Effect.gen(function* () {
+      create: Effect.fn("DocumentHandlers.create")(
+        function* (payload) {
           const authContext = yield* AuthContext;
           // Decode to apply defaults from the insert schema
           const insertData = yield* decodeDocumentInsert({
@@ -124,11 +124,10 @@ export const DocumentHandlersLive = Document.DocumentRpcs.Rpcs.toLayer(
             parentDocumentId: payload.parentDocumentId,
           });
           return yield* repo.insert(insertData);
-        }).pipe(
-          Effect.catchTag("DatabaseError", Effect.die),
-          Effect.catchTag("ParseError", Effect.die),
-          Effect.withSpan("DocumentHandlers.create")
-        ),
+        },
+        Effect.catchTag("DatabaseError", Effect.die),
+        Effect.catchTag("ParseError", Effect.die)
+      ),
 
       update: (payload) =>
         repo

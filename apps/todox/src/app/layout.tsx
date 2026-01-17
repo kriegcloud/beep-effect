@@ -1,9 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Inter } from "next/font/google";
 import "./globals.css";
-
-import { KaServices } from "@beep/runtime-client";
-import { RegistryProvider } from "@effect-atom/atom-react";
 import Script from "next/script";
 import { connection } from "next/server";
 
@@ -45,9 +42,12 @@ export default async function RootLayout({
       <head>
         {isDev && (
           <>
-            <Script src="https://unpkg.com/react-grab@0.1.0-beta.5/dist/index.global.js" strategy="beforeInteractive" />
             <Script
-              src="https://unpkg.com/@react-grab/claude-code@0.1.0-beta.5/dist/client.global.js"
+              src="https://unpkg.com/react-grab@0.1.0-beta.10/dist/index.global.js"
+              strategy="beforeInteractive"
+            />
+            <Script
+              src="https://unpkg.com/@react-grab/claude-code@0.1.0-beta.10/dist/client.global.js"
               strategy="afterInteractive"
             />
           </>
@@ -55,12 +55,9 @@ export default async function RootLayout({
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <GlobalProviders appConfig={appConfig}>
-          <RegistryProvider>
-            <KaServices />
-            <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-              {children}
-            </ThemeProvider>
-          </RegistryProvider>
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+            {children}
+          </ThemeProvider>
         </GlobalProviders>
       </body>
     </html>

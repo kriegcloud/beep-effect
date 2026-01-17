@@ -355,16 +355,15 @@ export interface AccumulateOptions {
  * @category Documentation/Functions
  * @since 0.1.0
  */
-export const accumulateEffects = <A, E, R>(
+export const accumulateEffects: <A, E, R>(
   effects: ReadonlyArray<Effect.Effect<A, E, R>>,
   options?: { readonly concurrency?: number | "unbounded" | undefined }
-): Effect.Effect<AccumulateResult<A, E>, never, R> =>
-  Effect.gen(function* () {
-    const [errs, oks] = yield* Effect.partition(effects, (eff) => Effect.sandbox(eff), {
-      concurrency: options?.concurrency ?? "unbounded",
-    });
-    return { successes: oks, errors: errs };
+) => Effect.Effect<AccumulateResult<A, E>, never, R> = Effect.fn(function* (effects, options) {
+  const [errs, oks] = yield* Effect.partition(effects, (eff) => Effect.sandbox(eff), {
+    concurrency: options?.concurrency ?? "unbounded",
   });
+  return { successes: oks, errors: errs };
+});
 
 /**
  * Re-export tagged errors namespace.

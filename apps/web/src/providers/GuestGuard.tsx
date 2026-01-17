@@ -1,11 +1,11 @@
 "use client";
 
-import { AuthCallback } from "@beep/iam-client";
-import { client } from "@beep/iam-client/adapters/better-auth/client";
+import { Core } from "@beep/iam-client";
 import { paths } from "@beep/shared-domain";
 import { useRouter } from "@beep/ui/hooks";
 import { SplashScreen } from "@beep/ui/progress/loading-screen/splash-screen";
-import { useSearchParams } from "next/navigation";
+import { Result } from "@effect-atom/atom-react";
+import * as O from "effect/Option";
 import React from "react";
 import { GuardErrorBoundary } from "@/providers/GuardErrorBoundary";
 import { GuardErrorFallback } from "@/providers/GuardErrorFallback";
@@ -15,52 +15,47 @@ type GuestGuardProps = React.PropsWithChildren<{
   readonly pendingFallback?: React.ReactNode | undefined;
 }>;
 
-type GuestGuardContentProps = GuestGuardProps & {
-  readonly router: ReturnType<typeof useRouter>;
-};
+type GuestGuardContentProps = GuestGuardProps & {};
 
 const GuestGuardContent: React.FC<GuestGuardContentProps> = ({
   children,
-  router,
   redirectTo = paths.dashboard.root,
   pendingFallback = <SplashScreen />,
 }) => {
-  const searchParams = useSearchParams();
-  const callbackTarget = AuthCallback.getURL(searchParams);
-  const redirectTarget = callbackTarget === AuthCallback.defaultTarget ? redirectTo : callbackTarget;
-  const { data: session, isPending, error, refetch } = client.useSession();
-  const [hasRefetched, setHasRefetched] = React.useState(false);
+  const { sessionResult } = Core.useCore();
+  const router = useRouter();
 
-  React.useEffect(() => {
-    client.$store.notify("$sessionSignal");
-  }, []);
+  const Fallback = (
+    <GuardErrorFallback
+      title="We couldn’t confirm your sign-in status"
+      description="Please try again or head back to the dashboard."
+      primaryAction={{
+        label: "Retry",
+        variant: "contained",
+        onClick: () => {
+          router.refresh();
+        },
+      }}
+      secondaryAction={{
+        label: "Go to dashboard",
+        onClick: () => {
+          void router.replace(redirectTo);
+        },
+      }}
+    />
+  );
 
-  React.useEffect(() => {
-    if (!isPending && !session && !hasRefetched) {
-      setHasRefetched(true);
-      void refetch();
-    }
-  }, [hasRefetched, isPending, refetch, session]);
-
-  React.useEffect(() => {
-    if (!isPending && session) {
-      void router.replace(redirectTarget);
-    }
-  }, [isPending, session, redirectTarget, router]);
-
-  if (error) {
-    throw error instanceof Error ? error : new Error("Failed to resolve anonymous session");
-  }
-
-  if (isPending) {
-    return <>{pendingFallback}</>;
-  }
-
-  if (session) {
-    return <>{pendingFallback}</>;
-  }
-
-  return <>{children}</>;
+  return Result.builder(sessionResult)
+    .onInitial(() => pendingFallback)
+    .onFailure(() => Fallback)
+    .onDefect(() => Fallback)
+    .onSuccess(({ data }) =>
+      O.match(data, {
+        onNone: () => pendingFallback,
+        onSome: () => children,
+      })
+    )
+    .render();
 };
 
 export const GuestGuard: React.FC<GuestGuardProps> = (props) => {
@@ -99,7 +94,7 @@ export const GuestGuard: React.FC<GuestGuardProps> = (props) => {
         router.refresh();
       }}
     >
-      <GuestGuardContent router={router} redirectTo={redirectTo} {...rest} />
+      <GuestGuardContent redirectTo={redirectTo} {...rest} />
     </GuardErrorBoundary>
   );
 };

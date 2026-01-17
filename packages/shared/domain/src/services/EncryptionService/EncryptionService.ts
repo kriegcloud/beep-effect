@@ -313,203 +313,196 @@ export const makeEncryptionSubtle = (crypto: Crypto): Effect.Effect<typeof Encry
       // Encryption
       // ------------------------------------------------------------------
 
-      encryptBinary: (plaintext, key) =>
-        Effect.gen(function* () {
-          const data = toBytes(plaintext);
-          const iv = generateIV();
+      encryptBinary: Effect.fn(function* (plaintext, key) {
+        const data = toBytes(plaintext);
+        const iv = generateIV();
 
-          const ciphertext = yield* Effect.tryPromise({
-            try: () => crypto.subtle.encrypt({ name: "AES-GCM", iv, tagLength: TAG_LENGTH }, key, data),
-            catch: (cause) =>
-              new EncryptionError({
-                message: "Failed to encrypt data",
-                cause,
-                algorithm: "AES-GCM",
-                phase: "encrypt",
-              }),
-          });
+        const ciphertext = yield* Effect.tryPromise({
+          try: () => crypto.subtle.encrypt({ name: "AES-GCM", iv, tagLength: TAG_LENGTH }, key, data),
+          catch: (cause) =>
+            new EncryptionError({
+              message: "Failed to encrypt data",
+              cause,
+              algorithm: "AES-GCM",
+              phase: "encrypt",
+            }),
+        });
 
-          return {
-            iv,
-            ciphertext: new Uint8Array(ciphertext),
-            algorithm: "AES-GCM" as const,
-          };
-        }),
+        return {
+          iv,
+          ciphertext: new Uint8Array(ciphertext),
+          algorithm: "AES-GCM" as const,
+        };
+      }),
 
-      encrypt: (plaintext, key) =>
-        Effect.gen(function* () {
-          const data = toBytes(plaintext);
-          const iv = generateIV();
+      encrypt: Effect.fn(function* (plaintext, key) {
+        const data = toBytes(plaintext);
+        const iv = generateIV();
 
-          const ciphertext = yield* Effect.tryPromise({
-            try: () => crypto.subtle.encrypt({ name: "AES-GCM", iv, tagLength: TAG_LENGTH }, key, data),
-            catch: (cause) =>
-              new EncryptionError({
-                message: "Failed to encrypt data",
-                cause,
-                algorithm: "AES-GCM",
-                phase: "encrypt",
-              }),
-          });
+        const ciphertext = yield* Effect.tryPromise({
+          try: () => crypto.subtle.encrypt({ name: "AES-GCM", iv, tagLength: TAG_LENGTH }, key, data),
+          catch: (cause) =>
+            new EncryptionError({
+              message: "Failed to encrypt data",
+              cause,
+              algorithm: "AES-GCM",
+              phase: "encrypt",
+            }),
+        });
 
-          // Encode to Base64 using Effect Encoding
-          const ivBase64 = Encoding.encodeBase64(iv);
-          const ciphertextBase64 = Encoding.encodeBase64(new Uint8Array(ciphertext));
+        // Encode to Base64 using Effect Encoding
+        const ivBase64 = Encoding.encodeBase64(iv);
+        const ciphertextBase64 = Encoding.encodeBase64(new Uint8Array(ciphertext));
 
-          return {
-            iv: ivBase64,
-            ciphertext: ciphertextBase64,
-            algorithm: "AES-GCM" as const,
-          };
-        }),
+        return {
+          iv: ivBase64,
+          ciphertext: ciphertextBase64,
+          algorithm: "AES-GCM" as const,
+        };
+      }),
 
       // ------------------------------------------------------------------
       // Decryption
       // ------------------------------------------------------------------
 
-      decryptBinary: (payload, key) =>
-        Effect.gen(function* () {
-          const iv = toCryptoUint8Array(payload.iv);
-          const ciphertext = toCryptoUint8Array(payload.ciphertext);
+      decryptBinary: Effect.fn(function* (payload, key) {
+        const iv = toCryptoUint8Array(payload.iv);
+        const ciphertext = toCryptoUint8Array(payload.ciphertext);
 
-          const plaintext = yield* Effect.tryPromise({
-            try: () => crypto.subtle.decrypt({ name: "AES-GCM", iv, tagLength: TAG_LENGTH }, key, ciphertext),
-            catch: (cause) =>
-              new DecryptionError({
-                message: "Failed to decrypt data - invalid key or corrupted data",
-                cause,
-                algorithm: "AES-GCM",
-                phase: "decrypt",
-              }),
+        const plaintext = yield* Effect.tryPromise({
+          try: () => crypto.subtle.decrypt({ name: "AES-GCM", iv, tagLength: TAG_LENGTH }, key, ciphertext),
+          catch: (cause) =>
+            new DecryptionError({
+              message: "Failed to decrypt data - invalid key or corrupted data",
+              cause,
+              algorithm: "AES-GCM",
+              phase: "decrypt",
+            }),
+        });
+
+        return new Uint8Array(plaintext);
+      }),
+
+      decrypt: Effect.fn(function* (payload, key) {
+        // Decode from Base64 using Effect Encoding
+        const ivResult = Encoding.decodeBase64(payload.iv);
+        const ciphertextResult = Encoding.decodeBase64(payload.ciphertext);
+
+        if (ivResult._tag === "Left") {
+          return yield* new DecryptionError({
+            message: "Failed to decode IV from Base64",
+            cause: ivResult.left,
+            algorithm: "AES-GCM",
+            phase: "decode",
           });
+        }
 
-          return new Uint8Array(plaintext);
-        }),
-
-      decrypt: (payload, key) =>
-        Effect.gen(function* () {
-          // Decode from Base64 using Effect Encoding
-          const ivResult = Encoding.decodeBase64(payload.iv);
-          const ciphertextResult = Encoding.decodeBase64(payload.ciphertext);
-
-          if (ivResult._tag === "Left") {
-            return yield* new DecryptionError({
-              message: "Failed to decode IV from Base64",
-              cause: ivResult.left,
-              algorithm: "AES-GCM",
-              phase: "decode",
-            });
-          }
-
-          if (ciphertextResult._tag === "Left") {
-            return yield* new DecryptionError({
-              message: "Failed to decode ciphertext from Base64",
-              cause: ciphertextResult.left,
-              algorithm: "AES-GCM",
-              phase: "decode",
-            });
-          }
-
-          const iv = toCryptoUint8Array(ivResult.right);
-          const ciphertext = toCryptoUint8Array(ciphertextResult.right);
-
-          const plaintext = yield* Effect.tryPromise({
-            try: () => crypto.subtle.decrypt({ name: "AES-GCM", iv, tagLength: TAG_LENGTH }, key, ciphertext),
-            catch: (cause) =>
-              new DecryptionError({
-                message: "Failed to decrypt data - invalid key or corrupted data",
-                cause,
-                algorithm: "AES-GCM",
-                phase: "decrypt",
-              }),
+        if (ciphertextResult._tag === "Left") {
+          return yield* new DecryptionError({
+            message: "Failed to decode ciphertext from Base64",
+            cause: ciphertextResult.left,
+            algorithm: "AES-GCM",
+            phase: "decode",
           });
+        }
 
-          return textDecoder.decode(plaintext);
-        }),
+        const iv = toCryptoUint8Array(ivResult.right);
+        const ciphertext = toCryptoUint8Array(ciphertextResult.right);
 
-      decryptToBytes: (payload, key) =>
-        Effect.gen(function* () {
-          // Decode from Base64 using Effect Encoding
-          const ivResult = Encoding.decodeBase64(payload.iv);
-          const ciphertextResult = Encoding.decodeBase64(payload.ciphertext);
-
-          if (ivResult._tag === "Left") {
-            return yield* new DecryptionError({
-              message: "Failed to decode IV from Base64",
-              cause: ivResult.left,
+        const plaintext = yield* Effect.tryPromise({
+          try: () => crypto.subtle.decrypt({ name: "AES-GCM", iv, tagLength: TAG_LENGTH }, key, ciphertext),
+          catch: (cause) =>
+            new DecryptionError({
+              message: "Failed to decrypt data - invalid key or corrupted data",
+              cause,
               algorithm: "AES-GCM",
-              phase: "decode",
-            });
-          }
+              phase: "decrypt",
+            }),
+        });
 
-          if (ciphertextResult._tag === "Left") {
-            return yield* new DecryptionError({
-              message: "Failed to decode ciphertext from Base64",
-              cause: ciphertextResult.left,
-              algorithm: "AES-GCM",
-              phase: "decode",
-            });
-          }
+        return textDecoder.decode(plaintext);
+      }),
 
-          const iv = toCryptoUint8Array(ivResult.right);
-          const ciphertext = toCryptoUint8Array(ciphertextResult.right);
+      decryptToBytes: Effect.fn(function* (payload, key) {
+        // Decode from Base64 using Effect Encoding
+        const ivResult = Encoding.decodeBase64(payload.iv);
+        const ciphertextResult = Encoding.decodeBase64(payload.ciphertext);
 
-          const plaintext = yield* Effect.tryPromise({
-            try: () => crypto.subtle.decrypt({ name: "AES-GCM", iv, tagLength: TAG_LENGTH }, key, ciphertext),
-            catch: (cause) =>
-              new DecryptionError({
-                message: "Failed to decrypt data - invalid key or corrupted data",
-                cause,
-                algorithm: "AES-GCM",
-                phase: "decrypt",
-              }),
+        if (ivResult._tag === "Left") {
+          return yield* new DecryptionError({
+            message: "Failed to decode IV from Base64",
+            cause: ivResult.left,
+            algorithm: "AES-GCM",
+            phase: "decode",
           });
+        }
 
-          return new Uint8Array(plaintext);
-        }),
+        if (ciphertextResult._tag === "Left") {
+          return yield* new DecryptionError({
+            message: "Failed to decode ciphertext from Base64",
+            cause: ciphertextResult.left,
+            algorithm: "AES-GCM",
+            phase: "decode",
+          });
+        }
+
+        const iv = toCryptoUint8Array(ivResult.right);
+        const ciphertext = toCryptoUint8Array(ciphertextResult.right);
+
+        const plaintext = yield* Effect.tryPromise({
+          try: () => crypto.subtle.decrypt({ name: "AES-GCM", iv, tagLength: TAG_LENGTH }, key, ciphertext),
+          catch: (cause) =>
+            new DecryptionError({
+              message: "Failed to decrypt data - invalid key or corrupted data",
+              cause,
+              algorithm: "AES-GCM",
+              phase: "decrypt",
+            }),
+        });
+
+        return new Uint8Array(plaintext);
+      }),
 
       // ------------------------------------------------------------------
       // Key Management
       // ------------------------------------------------------------------
 
-      importKey: (rawKey) =>
-        Effect.gen(function* () {
-          const keyBytes = toCryptoUint8Array(Redacted.value(rawKey));
-          return yield* Effect.tryPromise({
-            try: () => crypto.subtle.importKey("raw", keyBytes, "AES-GCM", true, ["encrypt", "decrypt"]),
-            catch: (cause) =>
-              new KeyDerivationError({
-                message: "Failed to import encryption key",
-                cause,
-                algorithm: "AES-GCM",
-              }),
-          });
-        }),
-
-      importKeyFromBase64: (base64Key) =>
-        Effect.gen(function* () {
-          const keyString = Redacted.value(base64Key);
-          const keyBytesResult = Encoding.decodeBase64(keyString);
-
-          if (keyBytesResult._tag === "Left") {
-            return yield* new KeyDerivationError({
-              message: "Failed to decode key from Base64",
-              cause: keyBytesResult.left,
+      importKey: Effect.fn(function* (rawKey) {
+        const keyBytes = toCryptoUint8Array(Redacted.value(rawKey));
+        return yield* Effect.tryPromise({
+          try: () => crypto.subtle.importKey("raw", keyBytes, "AES-GCM", true, ["encrypt", "decrypt"]),
+          catch: (cause) =>
+            new KeyDerivationError({
+              message: "Failed to import encryption key",
+              cause,
               algorithm: "AES-GCM",
-            });
-          }
+            }),
+        });
+      }),
 
-          const keyBytes = toCryptoUint8Array(keyBytesResult.right);
-          return yield* Effect.tryPromise({
-            try: () => crypto.subtle.importKey("raw", keyBytes, "AES-GCM", true, ["encrypt", "decrypt"]),
-            catch: (cause) =>
-              new KeyDerivationError({
-                message: "Failed to import encryption key",
-                cause,
-                algorithm: "AES-GCM",
-              }),
+      importKeyFromBase64: Effect.fn(function* (base64Key) {
+        const keyString = Redacted.value(base64Key);
+        const keyBytesResult = Encoding.decodeBase64(keyString);
+
+        if (keyBytesResult._tag === "Left") {
+          return yield* new KeyDerivationError({
+            message: "Failed to decode key from Base64",
+            cause: keyBytesResult.left,
+            algorithm: "AES-GCM",
           });
-        }),
+        }
+
+        const keyBytes = toCryptoUint8Array(keyBytesResult.right);
+        return yield* Effect.tryPromise({
+          try: () => crypto.subtle.importKey("raw", keyBytes, "AES-GCM", true, ["encrypt", "decrypt"]),
+          catch: (cause) =>
+            new KeyDerivationError({
+              message: "Failed to import encryption key",
+              cause,
+              algorithm: "AES-GCM",
+            }),
+        });
+      }),
 
       generateKey: () =>
         Effect.tryPromise({
@@ -522,155 +515,148 @@ export const makeEncryptionSubtle = (crypto: Crypto): Effect.Effect<typeof Encry
             }),
         }),
 
-      exportKey: (key) =>
-        Effect.gen(function* () {
-          const raw = yield* Effect.tryPromise({
-            try: () => crypto.subtle.exportKey("raw", key),
-            catch: (cause) =>
-              new KeyDerivationError({
-                message: "Failed to export encryption key",
-                cause,
-                algorithm: "AES-GCM",
-              }),
-          });
-          return new Uint8Array(raw);
-        }),
+      exportKey: Effect.fn(function* (key) {
+        const raw = yield* Effect.tryPromise({
+          try: () => crypto.subtle.exportKey("raw", key),
+          catch: (cause) =>
+            new KeyDerivationError({
+              message: "Failed to export encryption key",
+              cause,
+              algorithm: "AES-GCM",
+            }),
+        });
+        return new Uint8Array(raw);
+      }),
 
-      deriveKey: (masterKey, info, salt) =>
-        Effect.gen(function* () {
-          // Export master key to derive new key material
-          const masterKeyRaw = yield* Effect.tryPromise({
-            try: () => crypto.subtle.exportKey("raw", masterKey),
-            catch: (cause) =>
-              new KeyDerivationError({
-                message: "Failed to export master key for derivation",
-                cause,
-                algorithm: "HKDF",
-              }),
-          });
+      deriveKey: Effect.fn(function* (masterKey, info, salt) {
+        // Export master key to derive new key material
+        const masterKeyRaw = yield* Effect.tryPromise({
+          try: () => crypto.subtle.exportKey("raw", masterKey),
+          catch: (cause) =>
+            new KeyDerivationError({
+              message: "Failed to export master key for derivation",
+              cause,
+              algorithm: "HKDF",
+            }),
+        });
 
-          // Import as HKDF key
-          const hkdfKey = yield* Effect.tryPromise({
-            try: () => crypto.subtle.importKey("raw", masterKeyRaw, "HKDF", false, ["deriveKey"]),
-            catch: (cause) =>
-              new KeyDerivationError({
-                message: "Failed to import key for HKDF derivation",
-                cause,
-                algorithm: "HKDF",
-              }),
-          });
+        // Import as HKDF key
+        const hkdfKey = yield* Effect.tryPromise({
+          try: () => crypto.subtle.importKey("raw", masterKeyRaw, "HKDF", false, ["deriveKey"]),
+          catch: (cause) =>
+            new KeyDerivationError({
+              message: "Failed to import key for HKDF derivation",
+              cause,
+              algorithm: "HKDF",
+            }),
+        });
 
-          // Prepare salt and info with proper ArrayBuffer backing
-          const saltBuffer = new ArrayBuffer(salt ? salt.length : 32);
-          const saltBytes = new Uint8Array(saltBuffer);
-          if (salt) {
-            saltBytes.set(salt);
-          }
+        // Prepare salt and info with proper ArrayBuffer backing
+        const saltBuffer = new ArrayBuffer(salt ? salt.length : 32);
+        const saltBytes = new Uint8Array(saltBuffer);
+        if (salt) {
+          saltBytes.set(salt);
+        }
 
-          const infoBytes = textEncoder.encode(info);
+        const infoBytes = textEncoder.encode(info);
 
-          // Derive the space-specific key
-          return yield* Effect.tryPromise({
-            try: () =>
-              crypto.subtle.deriveKey(
-                {
-                  name: "HKDF",
-                  hash: "SHA-256",
-                  salt: saltBytes,
-                  info: infoBytes,
-                },
-                hkdfKey,
-                { name: "AES-GCM", length: KEY_SIZE },
-                true,
-                ["encrypt", "decrypt"]
-              ),
-            catch: (cause) =>
-              new KeyDerivationError({
-                message: `Failed to derive key for: ${info}`,
-                cause,
-                algorithm: "HKDF",
-              }),
-          });
-        }),
+        // Derive the space-specific key
+        return yield* Effect.tryPromise({
+          try: () =>
+            crypto.subtle.deriveKey(
+              {
+                name: "HKDF",
+                hash: "SHA-256",
+                salt: saltBytes,
+                info: infoBytes,
+              },
+              hkdfKey,
+              { name: "AES-GCM", length: KEY_SIZE },
+              true,
+              ["encrypt", "decrypt"]
+            ),
+          catch: (cause) =>
+            new KeyDerivationError({
+              message: `Failed to derive key for: ${info}`,
+              cause,
+              algorithm: "HKDF",
+            }),
+        });
+      }),
 
       // ------------------------------------------------------------------
       // Hashing
       // ------------------------------------------------------------------
 
-      sha256Bytes: (data) =>
-        Effect.gen(function* () {
-          const bytes = toBytes(data);
+      sha256Bytes: Effect.fn(function* (data) {
+        const bytes = toBytes(data);
 
-          const hash = yield* Effect.tryPromise({
-            try: () => crypto.subtle.digest("SHA-256", bytes),
-            catch: (cause) =>
-              new HashError({
-                message: "Failed to compute SHA-256 hash",
-                cause,
-                algorithm: "SHA-256",
-              }),
-          });
+        const hash = yield* Effect.tryPromise({
+          try: () => crypto.subtle.digest("SHA-256", bytes),
+          catch: (cause) =>
+            new HashError({
+              message: "Failed to compute SHA-256 hash",
+              cause,
+              algorithm: "SHA-256",
+            }),
+        });
 
-          return new Uint8Array(hash);
-        }),
+        return new Uint8Array(hash);
+      }),
 
-      sha256: (data) =>
-        Effect.gen(function* () {
-          const bytes = toBytes(data);
+      sha256: Effect.fn(function* (data) {
+        const bytes = toBytes(data);
 
-          const hash = yield* Effect.tryPromise({
-            try: () => crypto.subtle.digest("SHA-256", bytes),
-            catch: (cause) =>
-              new HashError({
-                message: "Failed to compute SHA-256 hash",
-                cause,
-                algorithm: "SHA-256",
-              }),
-          });
+        const hash = yield* Effect.tryPromise({
+          try: () => crypto.subtle.digest("SHA-256", bytes),
+          catch: (cause) =>
+            new HashError({
+              message: "Failed to compute SHA-256 hash",
+              cause,
+              algorithm: "SHA-256",
+            }),
+        });
 
-          // Convert to hex string using Effect Encoding
-          return Encoding.encodeHex(new Uint8Array(hash));
-        }),
+        // Convert to hex string using Effect Encoding
+        return Encoding.encodeHex(new Uint8Array(hash));
+      }),
 
       // ------------------------------------------------------------------
       // HMAC Signing & Verification
       // ------------------------------------------------------------------
 
-      signPayload: (payload, secret) =>
-        Effect.gen(function* () {
-          const signingKey = yield* Effect.tryPromise({
-            try: () =>
-              crypto.subtle.importKey("raw", hmacEncoder.encode(Redacted.value(secret)), HMAC_ALGORITHM, false, [
-                "sign",
-              ]),
+      signPayload: Effect.fn(function* (payload, secret) {
+        const signingKey = yield* Effect.tryPromise({
+          try: () =>
+            crypto.subtle.importKey("raw", hmacEncoder.encode(Redacted.value(secret)), HMAC_ALGORITHM, false, ["sign"]),
+          catch: (cause) =>
+            new SigningError({
+              message: "Invalid Signing Secret",
+              cause,
+              algorithm: "HMAC-SHA256",
+              phase: "import-key",
+            }),
+        });
+
+        const signature = yield* Effect.map(
+          Effect.tryPromise({
+            try: () => crypto.subtle.sign(HMAC_ALGORITHM, signingKey, hmacEncoder.encode(payload)),
             catch: (cause) =>
               new SigningError({
-                message: "Invalid Signing Secret",
+                message: "Failed to sign payload",
                 cause,
                 algorithm: "HMAC-SHA256",
-                phase: "import-key",
+                phase: "sign",
               }),
-          });
+          }),
+          (arrayBuffer) => Encoding.encodeHex(new Uint8Array(arrayBuffer))
+        );
 
-          const signature = yield* Effect.map(
-            Effect.tryPromise({
-              try: () => crypto.subtle.sign(HMAC_ALGORITHM, signingKey, hmacEncoder.encode(payload)),
-              catch: (cause) =>
-                new SigningError({
-                  message: "Failed to sign payload",
-                  cause,
-                  algorithm: "HMAC-SHA256",
-                  phase: "sign",
-                }),
-            }),
-            (arrayBuffer) => Encoding.encodeHex(new Uint8Array(arrayBuffer))
-          );
+        return `${HMAC_SIGNATURE_PREFIX}${signature}`;
+      }),
 
-          return `${HMAC_SIGNATURE_PREFIX}${signature}`;
-        }),
-
-      verifySignature: (payload, signature, secret) =>
-        Effect.gen(function* () {
+      verifySignature: Effect.fn(
+        function* (payload, signature, secret) {
           const sigOpt = pipe(signature, O.fromNullable, O.map(Str.slice(HMAC_SIGNATURE_PREFIX.length)));
 
           if (O.isNone(sigOpt)) return false;
@@ -686,7 +672,9 @@ export const makeEncryptionSubtle = (crypto: Crypto): Effect.Effect<typeof Encry
           return yield* Effect.promise(() =>
             crypto.subtle.verify(HMAC_ALGORITHM, signingKey, new Uint8Array(sigBytes), payloadBytes)
           );
-        }).pipe(Effect.orElseSucceed(() => false)),
+        },
+        Effect.orElseSucceed(() => false)
+      ),
 
       // ------------------------------------------------------------------
       // File Key Generation & Verification
@@ -723,54 +711,53 @@ export const makeEncryptionSubtle = (crypto: Crypto): Effect.Effect<typeof Encry
       // Signed URL Generation
       // ------------------------------------------------------------------
 
-      generateSignedURL: (url, secretKey, opts) =>
-        Effect.gen(function* () {
-          const parsedURL = new URL(url);
-          const ttl = opts.ttlInSeconds ? Duration.toSeconds(opts.ttlInSeconds) : 60 * 60;
+      generateSignedURL: Effect.fn(function* (url, secretKey, opts) {
+        const parsedURL = new URL(url);
+        const ttl = opts.ttlInSeconds ? Duration.toSeconds(opts.ttlInSeconds) : 60 * 60;
 
-          const expirationTime = Date.now() + ttl * 1000;
-          parsedURL.searchParams.append("expires", expirationTime.toString());
+        const expirationTime = Date.now() + ttl * 1000;
+        parsedURL.searchParams.append("expires", expirationTime.toString());
 
-          if (opts.data) {
-            A.forEach(Struct.entries(opts.data), ([key, value]) => {
-              if (P.isNullable(value)) return;
-              const encoded = encodeURIComponent(value);
-              parsedURL.searchParams.append(key, encoded);
-            });
-          }
+        if (opts.data) {
+          A.forEach(Struct.entries(opts.data), ([key, value]) => {
+            if (P.isNullable(value)) return;
+            const encoded = encodeURIComponent(value);
+            parsedURL.searchParams.append(key, encoded);
+          });
+        }
 
-          const signingKey = yield* Effect.tryPromise({
-            try: () =>
-              crypto.subtle.importKey("raw", hmacEncoder.encode(Redacted.value(secretKey)), HMAC_ALGORITHM, false, [
-                "sign",
-              ]),
+        const signingKey = yield* Effect.tryPromise({
+          try: () =>
+            crypto.subtle.importKey("raw", hmacEncoder.encode(Redacted.value(secretKey)), HMAC_ALGORITHM, false, [
+              "sign",
+            ]),
+          catch: (cause) =>
+            new SigningError({
+              message: "Invalid Signing Secret",
+              cause,
+              algorithm: "HMAC-SHA256",
+              phase: "import-key",
+            }),
+        });
+
+        const signature = yield* Effect.map(
+          Effect.tryPromise({
+            try: () => crypto.subtle.sign(HMAC_ALGORITHM, signingKey, hmacEncoder.encode(parsedURL.toString())),
             catch: (cause) =>
               new SigningError({
-                message: "Invalid Signing Secret",
+                message: "Failed to sign URL",
                 cause,
                 algorithm: "HMAC-SHA256",
-                phase: "import-key",
+                phase: "sign",
               }),
-          });
+          }),
+          (arrayBuffer) => `${HMAC_SIGNATURE_PREFIX}${Encoding.encodeHex(new Uint8Array(arrayBuffer))}`
+        );
 
-          const signature = yield* Effect.map(
-            Effect.tryPromise({
-              try: () => crypto.subtle.sign(HMAC_ALGORITHM, signingKey, hmacEncoder.encode(parsedURL.toString())),
-              catch: (cause) =>
-                new SigningError({
-                  message: "Failed to sign URL",
-                  cause,
-                  algorithm: "HMAC-SHA256",
-                  phase: "sign",
-                }),
-            }),
-            (arrayBuffer) => `${HMAC_SIGNATURE_PREFIX}${Encoding.encodeHex(new Uint8Array(arrayBuffer))}`
-          );
+        parsedURL.searchParams.append("signature", signature);
 
-          parsedURL.searchParams.append("signature", signature);
-
-          return parsedURL.href;
-        }),
+        return parsedURL.href;
+      }),
     });
   });
 

@@ -59,7 +59,7 @@ const program = Effect.gen(function* () {
       yield* Console.log("\n💥 Program failed:", String(error));
       const cause = Cause.fail(error);
       yield* Console.log("\n🔍 Error details:", Cause.pretty(cause));
-      return yield* Effect.fail(error);
+      return yield* error;
     })
   )
 );

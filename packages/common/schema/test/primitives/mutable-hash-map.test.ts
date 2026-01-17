@@ -32,7 +32,7 @@ describe("MutableHashMap", () => {
   describe("decoding", () => {
     effect("decoding - empty array to empty MutableHashMap", () =>
       Effect.gen(function* () {
-        const result = S.decodeUnknownSync(schema)([]);
+        const result = yield* S.decodeUnknown(schema)([]);
         assertTrue(isMutableHashMap(result));
         deepStrictEqual(A.fromIterable(result), []);
       })
@@ -45,7 +45,7 @@ describe("MutableHashMap", () => {
           ["b", 2],
           ["c", 3],
         ];
-        const result = S.decodeUnknownSync(schema)(input);
+        const result = yield* S.decodeUnknown(schema)(input);
         assertTrue(isMutableHashMap(result));
 
         // Compare contents - order may vary in MutableHashMap
@@ -115,7 +115,7 @@ describe("MutableHashMap", () => {
     effect("encoding - empty MutableHashMap to empty array", () =>
       Effect.gen(function* () {
         const map = MutableHashMap.empty<string, number>();
-        const result = S.encodeSync(schema)(map);
+        const result = yield* S.encode(schema)(map);
         deepStrictEqual(result, []);
       })
     );
@@ -126,7 +126,7 @@ describe("MutableHashMap", () => {
           ["a", 1],
           ["b", 2],
         ]);
-        const result = S.encodeSync(schema)(map);
+        const result = yield* S.encode(schema)(map);
 
         // Result is array of tuples - order may vary
         strictEqual(result.length, 2);
@@ -146,8 +146,8 @@ describe("MutableHashMap", () => {
           ["x", 10],
           ["y", 20],
         ];
-        const decoded = S.decodeUnknownSync(schema)(input);
-        const encoded = S.encodeSync(schema)(decoded);
+        const decoded = yield* S.decodeUnknown(schema)(input);
+        const encoded = yield* S.encode(schema)(decoded);
 
         // Convert both to comparable format
         const inputMap = new Map(input);
@@ -172,7 +172,7 @@ describe("MutableHashMap", () => {
           ["1", "true"],
           ["2", 0],
         ];
-        const result = S.decodeUnknownSync(transformingSchema)(input);
+        const result = yield* S.decodeUnknown(transformingSchema)(input);
         assertTrue(isMutableHashMap(result));
 
         // Keys should be transformed to numbers
@@ -187,7 +187,7 @@ describe("MutableHashMap", () => {
           [1, true],
           [2, false],
         ]);
-        const result = S.encodeSync(transformingSchema)(map);
+        const result = yield* S.encode(transformingSchema)(map);
 
         // Keys should be encoded back to strings
         const resultMap = new Map(result);
@@ -209,7 +209,7 @@ describe("MutableHashMapFromSelf", () => {
     effect("decoding - empty MutableHashMap", () =>
       Effect.gen(function* () {
         const map = MutableHashMap.empty<string, number>();
-        const result = S.decodeUnknownSync(schema)(map);
+        const result = yield* S.decodeUnknown(schema)(map);
         assertTrue(isMutableHashMap(result));
         deepStrictEqual(A.fromIterable(result), []);
       })
@@ -221,7 +221,7 @@ describe("MutableHashMapFromSelf", () => {
           ["a", 1],
           ["b", 2],
         ]);
-        const result = S.decodeUnknownSync(schema)(map);
+        const result = yield* S.decodeUnknown(schema)(map);
         assertTrue(isMutableHashMap(result));
         strictEqual(MutableHashMap.get(result, "a")._tag, "Some");
         strictEqual(MutableHashMap.get(result, "b")._tag, "Some");
@@ -270,7 +270,7 @@ describe("MutableHashMapFromSelf", () => {
           ["1", 100],
           ["2", 200],
         ]);
-        const result = S.decodeUnknownSync(transformingSchema)(inputMap);
+        const result = yield* S.decodeUnknown(transformingSchema)(inputMap);
         assertTrue(isMutableHashMap(result));
 
         // After transformation, keys should be numbers
@@ -296,7 +296,7 @@ describe("MutableHashMapFromSelf", () => {
     effect("encoding - empty MutableHashMap", () =>
       Effect.gen(function* () {
         const map = MutableHashMap.empty<string, number>();
-        const result = S.encodeSync(schema)(map);
+        const result = yield* S.encode(schema)(map);
         assertTrue(isMutableHashMap(result));
         deepStrictEqual(A.fromIterable(result), []);
       })
@@ -308,7 +308,7 @@ describe("MutableHashMapFromSelf", () => {
           ["a", 1],
           ["b", 2],
         ]);
-        const result = S.encodeSync(schema)(map);
+        const result = yield* S.encode(schema)(map);
         assertTrue(isMutableHashMap(result));
       })
     );
@@ -327,7 +327,7 @@ describe("MutableHashMapFromSelf", () => {
           [1, 100],
           [2, 200],
         ]);
-        const result = S.encodeSync(transformingSchema)(map);
+        const result = yield* S.encode(transformingSchema)(map);
         assertTrue(isMutableHashMap(result));
 
         // After encoding, keys should be back to strings
@@ -506,13 +506,13 @@ describe("Mutation behavior", () => {
     effect("encode reflects mutations made after decode", () =>
       Effect.gen(function* () {
         const input = [["a", 1]];
-        const decoded = S.decodeUnknownSync(schema)(input);
+        const decoded = yield* S.decodeUnknown(schema)(input);
 
         // Mutate the decoded map
         MutableHashMap.set(decoded, "b", 2);
         MutableHashMap.set(decoded, "a", 100); // update existing
 
-        const encoded = S.encodeSync(schema)(decoded);
+        const encoded = yield* S.encode(schema)(decoded);
         const resultMap = new Map(encoded);
 
         strictEqual(resultMap.size, 2);
@@ -528,12 +528,12 @@ describe("Mutation behavior", () => {
           ["b", 2],
           ["c", 3],
         ];
-        const decoded = S.decodeUnknownSync(schema)(input);
+        const decoded = yield* S.decodeUnknown(schema)(input);
 
         // Remove an entry
         MutableHashMap.remove(decoded, "b");
 
-        const encoded = S.encodeSync(schema)(decoded);
+        const encoded = yield* S.encode(schema)(decoded);
         const resultMap = new Map(encoded);
 
         strictEqual(resultMap.size, 2);
@@ -545,17 +545,17 @@ describe("Mutation behavior", () => {
 
     effect("multiple encodes of same instance reflect current state", () =>
       Effect.gen(function* () {
-        const decoded = S.decodeUnknownSync(schema)([["x", 1]]);
+        const decoded = yield* S.decodeUnknown(schema)([["x", 1]]);
 
         // First encode
-        const encoded1 = S.encodeSync(schema)(decoded);
+        const encoded1 = yield* S.encode(schema)(decoded);
         strictEqual(new Map(encoded1).get("x"), 1);
 
         // Mutate
         MutableHashMap.set(decoded, "x", 999);
 
         // Second encode reflects mutation
-        const encoded2 = S.encodeSync(schema)(decoded);
+        const encoded2 = yield* S.encode(schema)(decoded);
         strictEqual(new Map(encoded2).get("x"), 999);
       })
     );
@@ -567,13 +567,13 @@ describe("Mutation behavior", () => {
     effect("encode reflects mutations", () =>
       Effect.gen(function* () {
         const map = MutableHashMap.fromIterable<string, number>([["key", 1]]);
-        const decoded = S.decodeUnknownSync(schema)(map);
+        const decoded = yield* S.decodeUnknown(schema)(map);
 
         // Mutate
         MutableHashMap.set(decoded, "key", 42);
         MutableHashMap.set(decoded, "new", 100);
 
-        const encoded = S.encodeSync(schema)(decoded);
+        const encoded = yield* S.encode(schema)(decoded);
         strictEqual(MutableHashMap.get(encoded, "key")._tag, "Some");
         strictEqual(MutableHashMap.get(encoded, "new")._tag, "Some");
 
@@ -587,7 +587,7 @@ describe("Mutation behavior", () => {
     effect("mutation to invalid type fails on encode", () =>
       Effect.gen(function* () {
         const map = MutableHashMap.fromIterable<string, number>([["a", 1]]);
-        const decoded = S.decodeUnknownSync(schema)(map);
+        const decoded = yield* S.decodeUnknown(schema)(map);
 
         // Force an invalid mutation (bypass TypeScript)
         MutableHashMap.set(decoded as UnsafeTypes.UnsafeAny, "bad", "not a number");
@@ -726,7 +726,7 @@ describe("Edge cases", () => {
           ["a", 1],
           ["a", 2], // duplicate key
         ];
-        const result = S.decodeUnknownSync(schema)(input);
+        const result = yield* S.decodeUnknown(schema)(input);
 
         // MutableHashMap.fromIterable with duplicate keys - last value should win
         const value = MutableHashMap.get(result, "a");
@@ -745,7 +745,7 @@ describe("Edge cases", () => {
           ["  ", 2], // whitespace
           ["key\nwith\nnewlines", 3],
         ];
-        const result = S.decodeUnknownSync(schema)(input);
+        const result = yield* S.decodeUnknown(schema)(input);
 
         strictEqual(MutableHashMap.get(result, "")._tag, "Some");
         strictEqual(MutableHashMap.get(result, "  ")._tag, "Some");
@@ -763,7 +763,7 @@ describe("Edge cases", () => {
           entries.push([i, `value-${i}`]);
         }
         const map = MutableHashMap.fromIterable(entries);
-        const result = S.decodeUnknownSync(schema)(map);
+        const result = yield* S.decodeUnknown(schema)(map);
 
         strictEqual(MutableHashMap.size(result), 1000);
       })
@@ -779,7 +779,7 @@ describe("Edge cases", () => {
           ["user1", { name: "Alice", age: 30 }],
           ["user2", { name: "Bob", age: 25 }],
         ]);
-        const result = S.decodeUnknownSync(schema)(map);
+        const result = yield* S.decodeUnknown(schema)(map);
 
         assertTrue(isMutableHashMap(result));
         const user1 = MutableHashMap.get(result, "user1");

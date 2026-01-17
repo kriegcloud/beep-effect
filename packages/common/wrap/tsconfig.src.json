@@ -1,0 +1,25 @@
+{
+  "extends": "../../../tsconfig.base.jsonc",
+  "include": ["src"],
+  "references": [
+    {
+      "path": "../types"
+    },
+    {
+      "path": "../schema"
+    },
+    {
+      "path": "../invariant"
+    }
+  ],
+  "compilerOptions": {
+    "types": ["node", "bun"],
+    "outDir": "build/src",
+    "isolatedDeclarations": false,
+    "rootDir": "src",
+    "moduleResolution": "bundler",
+    "incremental": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true
+  }
+}

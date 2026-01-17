@@ -554,23 +554,25 @@ export const finalize =
  * @since 1.0.0
  * @category Hashing
  */
-export const hashStr = (
+export const hashStr: (
   str: string,
+  raw?: boolean
+) => Effect.Effect<string | Int32Array, UnicodeEncodingError | Md5ComputationError> = Effect.fn(function* (
+  str,
   raw = false
-): Effect.Effect<string | Int32Array, UnicodeEncodingError | Md5ComputationError> =>
-  Effect.gen(function* () {
-    const state = makeState();
-    const withStr = yield* F.pipe(state, appendStr(str));
-    return yield* F.pipe(withStr, finalize(raw));
-  });
+) {
+  const state = makeState();
+  const withStr = yield* F.pipe(state, appendStr(str));
+  return yield* F.pipe(withStr, finalize(raw));
+});
 
 /**
  * Hash an ASCII string
  * @since 1.0.0
  * @category Hashing
  */
-export const hashAsciiStr = (str: string, raw = false): Effect.Effect<string | Int32Array, Md5ComputationError> =>
-  Effect.gen(function* () {
+export const hashAsciiStr: (str: string, raw?: boolean) => Effect.Effect<string | Int32Array, Md5ComputationError> =
+  Effect.fn(function* (str, raw = false) {
     const state = makeState();
     const withStr = F.pipe(state, appendAsciiStr(str));
     return yield* F.pipe(withStr, finalize(raw));
@@ -653,17 +655,16 @@ export const setSerializableState = (serializedState: SerializableMd5State): Md5
  * @since 1.0.0
  * @category Testing
  */
-export const selfTest = (): Effect.Effect<void, Md5ComputationError | UnicodeEncodingError> =>
-  Effect.gen(function* () {
-    const result = yield* hashStr("hello");
+export const selfTest: () => Effect.Effect<void, Md5ComputationError | UnicodeEncodingError> = Effect.fn(function* () {
+  const result = yield* hashStr("hello");
 
-    if (result !== "5d41402abc4b2a76b9719d911017c592") {
-      return yield* new Md5ComputationError({
-        message: "MD5 self-test failed",
-        cause: { expected: "5d41402abc4b2a76b9719d911017c592", actual: result },
-      });
-    }
-  });
+  if (result !== "5d41402abc4b2a76b9719d911017c592") {
+    return yield* new Md5ComputationError({
+      message: "MD5 self-test failed",
+      cause: { expected: "5d41402abc4b2a76b9719d911017c592", actual: result },
+    });
+  }
+});
 
 // Run self-test at module initialization
 Effect.runSync(selfTest());

@@ -471,16 +471,13 @@ export const JsonStringToStringArray = S.transformOrFail(S.Union(S.String, S.Arr
         );
       }
 
-      const parsed = yield* S.decode(S.parseJson())(input as string).pipe(
-        Effect.orElse(() => Effect.succeed(null))
-      );
+      const parsed = yield* S.decode(S.parseJson())(input as string).pipe(Effect.orElse(() => Effect.succeed(null)));
 
       return yield* S.decodeUnknown(S.Array(S.String))(parsed).pipe(
         Effect.orElse(() => Effect.succeed([] as ReadonlyArray<string>))
       );
     }),
-  encode: (array) =>
-    S.encode(S.parseJson())(array).pipe(Effect.mapError((e) => e.issue)),
+  encode: (array) => S.encode(S.parseJson())(array).pipe(Effect.mapError((e) => e.issue)),
   strict: true,
 }).annotations(
   $I.annotations("json/JsonStringToStringArray", {
@@ -531,8 +528,7 @@ export const JsonStringToArray = <A>(itemSchema: S.Schema<A, UnsafeTypes.UnsafeA
           Effect.orElse(() => Effect.succeed([] as ReadonlyArray<A>))
         );
       }),
-    encode: (array) =>
-    S.encode(S.parseJson())(array).pipe(Effect.mapError((e) => e.issue)),
+    encode: (array) => S.encode(S.parseJson())(array).pipe(Effect.mapError((e) => e.issue)),
     strict: true,
   }).annotations(
     $I.annotations("json/JsonStringToArray", {

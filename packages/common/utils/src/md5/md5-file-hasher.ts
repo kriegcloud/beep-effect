@@ -150,11 +150,11 @@ const makeBlobChunkStream = (blob: Blob, config: FileHasherConfig): Stream.Strea
  * @since 1.0.0
  * @category Hashing
  */
-export const hashBlobAsync = (
+export const hashBlobAsync: (
   blob: Blob,
   config?: Partial<FileHasherConfig>
-): Effect.Effect<string, FileReadError | BlobSliceError | UnicodeEncodingError | Md5ComputationError> =>
-  Effect.gen(function* () {
+) => Effect.Effect<string, FileReadError | BlobSliceError | UnicodeEncodingError | Md5ComputationError> = Effect.fn(
+  function* (blob, config) {
     const cfg = makeConfig(config);
     const chunkStream = makeBlobChunkStream(blob, cfg);
 
@@ -181,18 +181,19 @@ export const hashBlobAsync = (
       message: "Expected string result but got Int32Array",
       cause: result,
     });
-  });
+  }
+);
 
 /**
  * Hash a blob using sync FileReaderSync (for workers only)
  * @since 1.0.0
  * @category Hashing
  */
-export const hashBlobSync = (
+export const hashBlobSync: (
   blob: Blob,
   config?: Partial<FileHasherConfig>
-): Effect.Effect<string, FileReadError | BlobSliceError | UnicodeEncodingError | Md5ComputationError> =>
-  Effect.gen(function* () {
+) => Effect.Effect<string, FileReadError | BlobSliceError | UnicodeEncodingError | Md5ComputationError> = Effect.fn(
+  function* (blob, config) {
     const cfg = makeConfig(config);
     const chunkStream = makeBlobChunkStream(blob, cfg);
 
@@ -218,7 +219,8 @@ export const hashBlobSync = (
       message: "Expected string result but got Int32Array",
       cause: result,
     });
-  });
+  }
+);
 
 /**
  * Hash a blob - automatically selects async or sync based on environment

@@ -42,10 +42,10 @@ const AuthGuardContent: React.FC<AuthGuardContentProps> = ({ children, router, .
       .onInitial(() => ({ _tag: "Loading" }) as const)
       .onDefect(() => ({ _tag: "Error" }) as const)
       .onFailure(() => ({ _tag: "Error" }) as const)
-      .onSuccess(({ data }: Core.GetSession.Success) =>
+      .onSuccess(({ data }) =>
         O.match(data, {
           onNone: () => ({ _tag: "Unauthenticated" }) as const,
-          onSome: (sessionData: Core.GetSession.SessionData) =>
+          onSome: (sessionData) =>
             ({
               _tag: "Authenticated",
               session: sessionData,

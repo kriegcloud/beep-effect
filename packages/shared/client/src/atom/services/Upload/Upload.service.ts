@@ -224,7 +224,7 @@ const sideEffects = (
   Match.value(action).pipe(
     Match.tag("UpdateProgress", (a) => PubSub.publish(pubSub, a.event)),
     Match.tag("Cancel", (a) =>
-      Effect.gen(function* () {
+      Effect.sync(() => {
         const abortFn = F.pipe(state.abortControllers, HashMap.get(a.uploadId), O.getOrNull);
         if (abortFn) {
           abortFn();
@@ -265,17 +265,16 @@ export class UploadRegistry extends Effect.Service<UploadRegistry>()($I`UploadRe
     /**
      * Dispatch an action through the reducer, apply state changes, and handle side effects.
      */
-    const dispatch = (action: UploadAction) =>
-      Effect.gen(function* () {
-        // Get current state before update (for side effects that need it)
-        const currentState = yield* Ref.get(stateRef);
+    const dispatch = Effect.fnUntraced(function* (action: UploadAction) {
+      // Get current state before update (for side effects that need it)
+      const currentState = yield* Ref.get(stateRef);
 
-        // Apply the reducer to get new state
-        yield* Ref.update(stateRef, (state) => reducer(state, action));
+      // Apply the reducer to get new state
+      yield* Ref.update(stateRef, (state) => reducer(state, action));
 
-        // Execute side effects based on the action
-        yield* sideEffects(currentState, action, progressPubSub);
-      });
+      // Execute side effects based on the action
+      yield* sideEffects(currentState, action, progressPubSub);
+    });
 
     return {
       /**
@@ -339,292 +338,296 @@ export class UploadRegistry extends Effect.Service<UploadRegistry>()($I`UploadRe
  * @param options - Upload configuration
  * @returns Effect that completes when upload is done or fails with UploadError.S3Error.Type
  */
-export const uploadToS3 = (options: UploadOptions): Effect.Effect<void, UploadError.S3Error.Type, UploadRegistry> =>
-  Effect.gen(function* () {
-    yield* Effect.logInfo(`[S3Upload] Starting upload`, {
-      uploadId: options.uploadId,
-      method: options._tag,
-      fileName: options.file.name,
-      fileSize: options.file.size,
-      mimeType: options.file.type,
-      presignedUrl: options.presignedUrl,
-      presignedUrlLength: options.presignedUrl.length,
-      hasPresignedUrl: !!options.presignedUrl,
-    });
-
-    const registry = yield* UploadRegistry;
-    // Extract runtime once to use in XHR callbacks (avoids creating new minimal runtimes)
-    const runtime = yield* Effect.runtime<UploadRegistry>();
-    const runSync = Runtime.runSync(runtime);
-
-    yield* Effect.async<void, UploadError.S3Error.Type>((resume) => {
-      const xhr = new XMLHttpRequest();
-      let previousLoaded = 0;
-
-      runSync(
-        Effect.logDebug(`[S3Upload] Registering abort function`, {
-          uploadId: options.uploadId,
-        })
-      );
-
-      // Register abort function
-      runSync(
-        registry.register(options.uploadId, () => {
-          runSync(
-            Effect.logWarning(`[S3Upload] Abort function called`, {
-              uploadId: options.uploadId,
-            })
-          );
-          xhr.abort();
-        })
-      );
-
-      // Configure request based on type
-      if (P.isTagged(options, "PUT")) {
-        runSync(
-          Effect.logInfo(`[S3Upload] Configuring PUT request`, {
-            uploadId: options.uploadId,
-            url: options.presignedUrl,
-            contentType: options.file.type || "application/octet-stream",
-            rangeStart: options.rangeStart,
-          })
-        );
-
-        xhr.open("PUT", options.presignedUrl, true);
-        xhr.setRequestHeader("Content-Type", options.file.type || "application/octet-stream");
-
-        // Range header for resumable uploads
-        if (options.rangeStart && options.rangeStart > 0) {
-          xhr.setRequestHeader("Range", `bytes=${options.rangeStart}-`);
-        }
-      } else {
-        runSync(
-          Effect.logInfo(`[S3Upload] Configuring POST request`, {
-            uploadId: options.uploadId,
-            url: options.presignedUrl,
-            fields: options.fields,
-            fieldsCount: Struct.keys(options.fields).length,
-          })
-        );
-
-        xhr.open("POST", options.presignedUrl, true);
-        // Content-Type is set automatically by browser for FormData
-      }
-
-      // Track progress
-      xhr.upload.addEventListener("progress", (event) => {
-        if (event.lengthComputable) {
-          const delta = event.loaded - previousLoaded;
-          previousLoaded = event.loaded;
-
-          const progressEvent: UploadProgressEvent = {
-            uploadId: options.uploadId,
-            loaded: event.loaded,
-            total: event.total,
-            delta,
-            percentage: event.total > 0 ? (event.loaded / event.total) * 100 : 0,
-          };
-
-          // Log progress (throttled to every 10%)
-          if (progressEvent.percentage % 10 < 1) {
-            runSync(
-              Effect.logDebug(`[S3Upload] Progress update`, {
-                uploadId: options.uploadId,
-                loaded: progressEvent.loaded,
-                total: progressEvent.total,
-                percentage: progressEvent.percentage.toFixed(1),
-              })
-            );
-          }
-
-          // Update registry
-          runSync(registry.updateProgress(progressEvent));
-
-          // Call optional callback
-          options.onProgress?.(progressEvent);
-        }
+export const uploadToS3: (options: UploadOptions) => Effect.Effect<void, UploadError.S3Error.Type, UploadRegistry> =
+  Effect.fn(
+    function* (options: UploadOptions) {
+      yield* Effect.logInfo(`[S3Upload] Starting upload`, {
+        uploadId: options.uploadId,
+        method: options._tag,
+        fileName: options.file.name,
+        fileSize: options.file.size,
+        mimeType: options.file.type,
+        presignedUrl: options.presignedUrl,
+        presignedUrlLength: options.presignedUrl.length,
+        hasPresignedUrl: !!options.presignedUrl,
       });
 
-      // Handle successful upload
-      xhr.onload = () => {
+      const registry = yield* UploadRegistry;
+      // Extract runtime once to use in XHR callbacks (avoids creating new minimal runtimes)
+      const runtime = yield* Effect.runtime<UploadRegistry>();
+      const runSync = Runtime.runSync(runtime);
+
+      yield* Effect.async<void, UploadError.S3Error.Type>((resume) => {
+        const xhr = new XMLHttpRequest();
+        let previousLoaded = 0;
+
         runSync(
-          Effect.logInfo(`[S3Upload] XHR onload event`, {
+          Effect.logDebug(`[S3Upload] Registering abort function`, {
             uploadId: options.uploadId,
-            status: xhr.status,
-            statusText: xhr.statusText,
-            responseType: xhr.responseType,
-            responseTextLength: xhr.responseText?.length,
           })
         );
 
-        if (xhr.status >= 200 && xhr.status < 300) {
+        // Register abort function
+        runSync(
+          registry.register(options.uploadId, () => {
+            runSync(
+              Effect.logWarning(`[S3Upload] Abort function called`, {
+                uploadId: options.uploadId,
+              })
+            );
+            xhr.abort();
+          })
+        );
+
+        // Configure request based on type
+        if (P.isTagged(options, "PUT")) {
           runSync(
-            Effect.logInfo(`[S3Upload] Upload successful`, {
+            Effect.logInfo(`[S3Upload] Configuring PUT request`, {
               uploadId: options.uploadId,
-              status: xhr.status,
+              url: options.presignedUrl,
+              contentType: options.file.type || "application/octet-stream",
+              rangeStart: options.rangeStart,
             })
           );
-          runSync(registry.complete(options.uploadId));
-          resume(Effect.succeed(undefined));
+
+          xhr.open("PUT", options.presignedUrl, true);
+          xhr.setRequestHeader("Content-Type", options.file.type || "application/octet-stream");
+
+          // Range header for resumable uploads
+          if (options.rangeStart && options.rangeStart > 0) {
+            xhr.setRequestHeader("Range", `bytes=${options.rangeStart}-`);
+          }
         } else {
-          const error = new UploadError.S3UploadFailedError({
-            message: `S3 upload failed with status ${xhr.status}: ${xhr.statusText}`,
-            status: xhr.status,
+          runSync(
+            Effect.logInfo(`[S3Upload] Configuring POST request`, {
+              uploadId: options.uploadId,
+              url: options.presignedUrl,
+              fields: options.fields,
+              fieldsCount: Struct.keys(options.fields).length,
+            })
+          );
+
+          xhr.open("POST", options.presignedUrl, true);
+          // Content-Type is set automatically by browser for FormData
+        }
+
+        // Track progress
+        xhr.upload.addEventListener("progress", (event) => {
+          if (event.lengthComputable) {
+            const delta = event.loaded - previousLoaded;
+            previousLoaded = event.loaded;
+
+            const progressEvent: UploadProgressEvent = {
+              uploadId: options.uploadId,
+              loaded: event.loaded,
+              total: event.total,
+              delta,
+              percentage: event.total > 0 ? (event.loaded / event.total) * 100 : 0,
+            };
+
+            // Log progress (throttled to every 10%)
+            if (progressEvent.percentage % 10 < 1) {
+              runSync(
+                Effect.logDebug(`[S3Upload] Progress update`, {
+                  uploadId: options.uploadId,
+                  loaded: progressEvent.loaded,
+                  total: progressEvent.total,
+                  percentage: progressEvent.percentage.toFixed(1),
+                })
+              );
+            }
+
+            // Update registry
+            runSync(registry.updateProgress(progressEvent));
+
+            // Call optional callback
+            options.onProgress?.(progressEvent);
+          }
+        });
+
+        // Handle successful upload
+        xhr.onload = () => {
+          runSync(
+            Effect.logInfo(`[S3Upload] XHR onload event`, {
+              uploadId: options.uploadId,
+              status: xhr.status,
+              statusText: xhr.statusText,
+              responseType: xhr.responseType,
+              responseTextLength: xhr.responseText?.length,
+            })
+          );
+
+          if (xhr.status >= 200 && xhr.status < 300) {
+            runSync(
+              Effect.logInfo(`[S3Upload] Upload successful`, {
+                uploadId: options.uploadId,
+                status: xhr.status,
+              })
+            );
+            runSync(registry.complete(options.uploadId));
+            resume(Effect.succeed(undefined));
+          } else {
+            const error = new UploadError.S3UploadFailedError({
+              message: `S3 upload failed with status ${xhr.status}: ${xhr.statusText}`,
+              status: xhr.status,
+              uploadId: options.uploadId,
+            });
+
+            runSync(
+              Effect.logError(`[S3Upload] Upload failed with non-2xx status`, {
+                uploadId: options.uploadId,
+                status: xhr.status,
+                statusText: xhr.statusText,
+                responseText: xhr.responseText,
+                error,
+              })
+            );
+
+            runSync(registry.fail(options.uploadId, error));
+            resume(Effect.fail(error));
+          }
+        };
+
+        // Handle network errors
+        xhr.onerror = () => {
+          const error = new UploadError.S3NetworkError({
+            message: "Network error during S3 upload",
             uploadId: options.uploadId,
           });
 
           runSync(
-            Effect.logError(`[S3Upload] Upload failed with non-2xx status`, {
+            Effect.logError(`[S3Upload] Network error`, {
               uploadId: options.uploadId,
+              readyState: xhr.readyState,
               status: xhr.status,
-              statusText: xhr.statusText,
-              responseText: xhr.responseText,
               error,
             })
           );
 
           runSync(registry.fail(options.uploadId, error));
           resume(Effect.fail(error));
-        }
-      };
+        };
 
-      // Handle network errors
-      xhr.onerror = () => {
-        const error = new UploadError.S3NetworkError({
-          message: "Network error during S3 upload",
-          uploadId: options.uploadId,
-        });
-
-        runSync(
-          Effect.logError(`[S3Upload] Network error`, {
+        // Handle timeouts
+        xhr.ontimeout = () => {
+          const error = new UploadError.S3TimeoutError({
+            message: "S3 upload timed out",
             uploadId: options.uploadId,
-            readyState: xhr.readyState,
-            status: xhr.status,
-            error,
-          })
-        );
+          });
 
-        runSync(registry.fail(options.uploadId, error));
-        resume(Effect.fail(error));
-      };
-
-      // Handle timeouts
-      xhr.ontimeout = () => {
-        const error = new UploadError.S3TimeoutError({
-          message: "S3 upload timed out",
-          uploadId: options.uploadId,
-        });
-
-        runSync(
-          Effect.logError(`[S3Upload] Timeout error`, {
-            uploadId: options.uploadId,
-            timeout: xhr.timeout,
-            error,
-          })
-        );
-
-        runSync(registry.fail(options.uploadId, error));
-        resume(Effect.fail(error));
-      };
-
-      // Handle abort
-      xhr.onabort = () => {
-        const error = new UploadError.S3AbortedError({
-          message: "S3 upload was aborted",
-          uploadId: options.uploadId,
-        });
-
-        runSync(
-          Effect.logWarning(`[S3Upload] Upload aborted`, {
-            uploadId: options.uploadId,
-            error,
-          })
-        );
-
-        // Don't update registry here - cancel() already did
-        resume(Effect.fail(error));
-      };
-
-      // Prepare and send the request
-      if (P.isTagged(options, "PUT")) {
-        // Direct file upload
-        const blob =
-          options.rangeStart && options.rangeStart > 0 ? options.file.slice(options.rangeStart) : options.file;
-
-        runSync(
-          Effect.logInfo(`[S3Upload] Sending PUT request`, {
-            uploadId: options.uploadId,
-            blobSize: blob.size,
-            rangeStart: options.rangeStart,
-          })
-        );
-
-        xhr.send(blob);
-      } else {
-        // FormData upload with policy fields
-        const formData = new FormData();
-
-        // Add policy fields first (order matters for S3)
-        const fieldEntries = Struct.entries(options.fields);
-        runSync(
-          Effect.logInfo(`[S3Upload] Building FormData`, {
-            uploadId: options.uploadId,
-            fieldCount: fieldEntries.length,
-            fields: options.fields,
-          })
-        );
-
-        for (const [key, value] of fieldEntries) {
-          formData.append(key, value);
           runSync(
-            Effect.logDebug(`[S3Upload] Added FormData field`, {
+            Effect.logError(`[S3Upload] Timeout error`, {
               uploadId: options.uploadId,
-              key,
-              value,
+              timeout: xhr.timeout,
+              error,
             })
           );
+
+          runSync(registry.fail(options.uploadId, error));
+          resume(Effect.fail(error));
+        };
+
+        // Handle abort
+        xhr.onabort = () => {
+          const error = new UploadError.S3AbortedError({
+            message: "S3 upload was aborted",
+            uploadId: options.uploadId,
+          });
+
+          runSync(
+            Effect.logWarning(`[S3Upload] Upload aborted`, {
+              uploadId: options.uploadId,
+              error,
+            })
+          );
+
+          // Don't update registry here - cancel() already did
+          resume(Effect.fail(error));
+        };
+
+        // Prepare and send the request
+        if (P.isTagged(options, "PUT")) {
+          // Direct file upload
+          const blob =
+            options.rangeStart && options.rangeStart > 0 ? options.file.slice(options.rangeStart) : options.file;
+
+          runSync(
+            Effect.logInfo(`[S3Upload] Sending PUT request`, {
+              uploadId: options.uploadId,
+              blobSize: blob.size,
+              rangeStart: options.rangeStart,
+            })
+          );
+
+          xhr.send(blob);
+        } else {
+          // FormData upload with policy fields
+          const formData = new FormData();
+
+          // Add policy fields first (order matters for S3)
+          const fieldEntries = Struct.entries(options.fields);
+          runSync(
+            Effect.logInfo(`[S3Upload] Building FormData`, {
+              uploadId: options.uploadId,
+              fieldCount: fieldEntries.length,
+              fields: options.fields,
+            })
+          );
+
+          for (const [key, value] of fieldEntries) {
+            formData.append(key, value);
+            runSync(
+              Effect.logDebug(`[S3Upload] Added FormData field`, {
+                uploadId: options.uploadId,
+                key,
+                value,
+              })
+            );
+          }
+
+          // Add file last
+          formData.append("file", options.file);
+
+          runSync(
+            Effect.logInfo(`[S3Upload] Sending POST request with FormData`, {
+              uploadId: options.uploadId,
+              fileName: options.file.name,
+              fileSize: options.file.size,
+              totalFields: fieldEntries.length + 1,
+            })
+          );
+
+          xhr.send(formData);
         }
 
-        // Add file last
-        formData.append("file", options.file);
-
         runSync(
-          Effect.logInfo(`[S3Upload] Sending POST request with FormData`, {
+          Effect.logDebug(`[S3Upload] XHR request sent, waiting for response`, {
             uploadId: options.uploadId,
-            fileName: options.file.name,
-            fileSize: options.file.size,
-            totalFields: fieldEntries.length + 1,
+            readyState: xhr.readyState,
           })
         );
 
-        xhr.send(formData);
-      }
-
-      runSync(
-        Effect.logDebug(`[S3Upload] XHR request sent, waiting for response`, {
-          uploadId: options.uploadId,
-          readyState: xhr.readyState,
-        })
-      );
-
-      // Return finalizer to abort on Effect interruption
-      return Effect.sync(() => {
-        runSync(
-          Effect.logWarning(`[S3Upload] Effect interrupted, aborting XHR`, {
-            uploadId: options.uploadId,
-          })
-        );
-        xhr.abort();
+        // Return finalizer to abort on Effect interruption
+        return Effect.sync(() => {
+          runSync(
+            Effect.logWarning(`[S3Upload] Effect interrupted, aborting XHR`, {
+              uploadId: options.uploadId,
+            })
+          );
+          xhr.abort();
+        });
       });
-    });
-  }).pipe(
-    Effect.tapErrorCause((cause) =>
-      Effect.logError(`[S3Upload] Upload failed with cause`, {
-        uploadId: options.uploadId,
-        cause: Cause.pretty(cause),
-        causeSquash: Cause.squash(cause),
-      })
-    )
+    },
+    (effect, n) =>
+      effect.pipe(
+        Effect.tapErrorCause((cause) =>
+          Effect.logError(`[S3Upload] Upload failed with cause`, {
+            uploadId: n.uploadId,
+            cause: Cause.pretty(cause),
+            causeSquash: Cause.squash(cause),
+          })
+        )
+      )
   );
 
 /**

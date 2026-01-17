@@ -89,7 +89,7 @@ export const publicPaths = ${filesJson} as const;
       yield* Console.log(`\n💥 Program failed: ${msg}`);
       const cause = Cause.fail(error);
       yield* Console.log(`\n🔍 Error details: ${Cause.pretty(cause)}`);
-      return yield* Effect.fail(error);
+      return yield* error;
     })
   )
 );

@@ -21,10 +21,11 @@ const $I = $IamClientId.create("_common/session.schemas");
 export const BetterAuthSessionSchema = F.pipe(
   S.Struct({
     id: S.String,
-    createdAt: S.String,
-    updatedAt: S.String,
+    // Better Auth returns JavaScript Date objects, not ISO strings
+    createdAt: S.DateFromSelf,
+    updatedAt: S.DateFromSelf,
     userId: S.String,
-    expiresAt: S.String,
+    expiresAt: S.DateFromSelf,
     token: S.String,
     ipAddress: S.optionalWith(S.String, { nullable: true }),
     userAgent: S.optionalWith(S.String, { nullable: true }),
@@ -172,10 +173,10 @@ export const DomainSessionFromBetterAuthSession = S.transformOrFail(BetterAuthSe
       _rowId,
       version,
 
-      // Timestamp fields - Date passed to schema, will be converted to DateTime.Utc
-      createdAt: betterAuthSession.createdAt,
-      updatedAt: betterAuthSession.updatedAt,
-      expiresAt: betterAuthSession.expiresAt,
+      // Timestamp fields - Convert Date objects to ISO strings for SessionModelEncoded
+      createdAt: toDate(betterAuthSession.createdAt),
+      updatedAt: toDate(betterAuthSession.updatedAt),
+      expiresAt: toDate(betterAuthSession.expiresAt),
 
       // Session data from Better Auth
       token: betterAuthSession.token,

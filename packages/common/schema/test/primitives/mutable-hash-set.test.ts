@@ -22,7 +22,7 @@ describe("MutableHashSetFromSelf", () => {
       Effect.gen(function* () {
         const schema = MutableHashSetFromSelf(S.Number);
         const input = MutableHashSet.empty<number>();
-        const result = S.decodeUnknownSync(schema)(input);
+        const result = yield* S.decodeUnknown(schema)(input);
         strictEqual(MutableHashSet.size(result), 0);
       })
     );
@@ -31,7 +31,7 @@ describe("MutableHashSetFromSelf", () => {
       Effect.gen(function* () {
         const schema = MutableHashSetFromSelf(S.Number);
         const input = MutableHashSet.fromIterable([1, 2, 3]);
-        const result = S.decodeUnknownSync(schema)(input);
+        const result = yield* S.decodeUnknown(schema)(input);
         strictEqual(MutableHashSet.size(result), 3);
         assertTrue(MutableHashSet.has(result, 1));
         assertTrue(MutableHashSet.has(result, 2));
@@ -43,7 +43,7 @@ describe("MutableHashSetFromSelf", () => {
       Effect.gen(function* () {
         const schema = MutableHashSetFromSelf(S.NumberFromString);
         const input = MutableHashSet.fromIterable(["1", "2", "3"]);
-        const result = S.decodeUnknownSync(schema)(input);
+        const result = yield* S.decodeUnknown(schema)(input);
         strictEqual(MutableHashSet.size(result), 3);
         assertTrue(MutableHashSet.has(result, 1));
         assertTrue(MutableHashSet.has(result, 2));
@@ -107,7 +107,7 @@ describe("MutableHashSetFromSelf", () => {
       Effect.gen(function* () {
         const schema = MutableHashSetFromSelf(S.Number);
         const input = MutableHashSet.empty<number>();
-        const result = S.encodeSync(schema)(input);
+        const result = yield* S.encode(schema)(input);
         strictEqual(MutableHashSet.size(result), 0);
       })
     );
@@ -116,7 +116,7 @@ describe("MutableHashSetFromSelf", () => {
       Effect.gen(function* () {
         const schema = MutableHashSetFromSelf(S.Number);
         const input = MutableHashSet.fromIterable([1, 2, 3]);
-        const result = S.encodeSync(schema)(input);
+        const result = yield* S.encode(schema)(input);
         strictEqual(MutableHashSet.size(result), 3);
         assertTrue(MutableHashSet.has(result, 1));
         assertTrue(MutableHashSet.has(result, 2));
@@ -128,7 +128,7 @@ describe("MutableHashSetFromSelf", () => {
       Effect.gen(function* () {
         const schema = MutableHashSetFromSelf(S.NumberFromString);
         const input = MutableHashSet.fromIterable([1, 2, 3]);
-        const result = S.encodeSync(schema)(input);
+        const result = yield* S.encode(schema)(input);
         strictEqual(MutableHashSet.size(result), 3);
         assertTrue(MutableHashSet.has(result, "1"));
         assertTrue(MutableHashSet.has(result, "2"));
@@ -140,8 +140,8 @@ describe("MutableHashSetFromSelf", () => {
       Effect.gen(function* () {
         const schema = MutableHashSetFromSelf(S.NumberFromString);
         const input = MutableHashSet.fromIterable(["1", "2", "3"]);
-        const decoded = S.decodeUnknownSync(schema)(input);
-        const encoded = S.encodeSync(schema)(decoded);
+        const decoded = yield* S.decodeUnknown(schema)(input);
+        const encoded = yield* S.encode(schema)(decoded);
         strictEqual(MutableHashSet.size(encoded), 3);
         assertTrue(MutableHashSet.has(encoded, "1"));
         assertTrue(MutableHashSet.has(encoded, "2"));
@@ -261,7 +261,7 @@ describe("MutableHashSet", () => {
     effect("succeeds with empty array", () =>
       Effect.gen(function* () {
         const schema = MHS(S.Number);
-        const result = S.decodeUnknownSync(schema)([]);
+        const result = yield* S.decodeUnknown(schema)([]);
         strictEqual(MutableHashSet.size(result), 0);
       })
     );
@@ -269,7 +269,7 @@ describe("MutableHashSet", () => {
     effect("succeeds with populated array", () =>
       Effect.gen(function* () {
         const schema = MHS(S.Number);
-        const result = S.decodeUnknownSync(schema)([1, 2, 3]);
+        const result = yield* S.decodeUnknown(schema)([1, 2, 3]);
         strictEqual(MutableHashSet.size(result), 3);
         assertTrue(MutableHashSet.has(result, 1));
         assertTrue(MutableHashSet.has(result, 2));
@@ -280,7 +280,7 @@ describe("MutableHashSet", () => {
     effect("handles duplicates (set behavior)", () =>
       Effect.gen(function* () {
         const schema = MHS(S.Number);
-        const result = S.decodeUnknownSync(schema)([1, 2, 2, 3, 3, 3]);
+        const result = yield* S.decodeUnknown(schema)([1, 2, 2, 3, 3, 3]);
         strictEqual(MutableHashSet.size(result), 3);
         assertTrue(MutableHashSet.has(result, 1));
         assertTrue(MutableHashSet.has(result, 2));
@@ -315,7 +315,7 @@ describe("MutableHashSet", () => {
     effect("succeeds with string values", () =>
       Effect.gen(function* () {
         const schema = MHS(S.String);
-        const result = S.decodeUnknownSync(schema)(["a", "b", "c"]);
+        const result = yield* S.decodeUnknown(schema)(["a", "b", "c"]);
         strictEqual(MutableHashSet.size(result), 3);
         assertTrue(MutableHashSet.has(result, "a"));
         assertTrue(MutableHashSet.has(result, "b"));
@@ -329,7 +329,7 @@ describe("MutableHashSet", () => {
       Effect.gen(function* () {
         const schema = MHS(S.Number);
         const input = MutableHashSet.empty<number>();
-        const result = S.encodeSync(schema)(input);
+        const result = yield* S.encode(schema)(input);
         deepStrictEqual(result, []);
       })
     );
@@ -338,7 +338,7 @@ describe("MutableHashSet", () => {
       Effect.gen(function* () {
         const schema = MHS(S.Number);
         const input = MutableHashSet.fromIterable([1, 2, 3]);
-        const result = S.encodeSync(schema)(input);
+        const result = yield* S.encode(schema)(input);
         strictEqual(A.length(result), 3);
         assertTrue(A.contains(result, 1));
         assertTrue(A.contains(result, 2));
@@ -350,7 +350,7 @@ describe("MutableHashSet", () => {
       Effect.gen(function* () {
         const schema = MHS(S.String);
         const input = MutableHashSet.fromIterable(["a", "b"]);
-        const result = S.encodeSync(schema)(input);
+        const result = yield* S.encode(schema)(input);
         strictEqual(A.length(result), 2);
         assertTrue(A.contains(result, "a"));
         assertTrue(A.contains(result, "b"));
@@ -361,8 +361,8 @@ describe("MutableHashSet", () => {
       Effect.gen(function* () {
         const schema = MHS(S.Number);
         const originalArray = [1, 2, 3];
-        const decoded = S.decodeUnknownSync(schema)(originalArray);
-        const encoded = S.encodeSync(schema)(decoded);
+        const decoded = yield* S.decodeUnknown(schema)(originalArray);
+        const encoded = yield* S.encode(schema)(decoded);
         strictEqual(A.length(encoded), 3);
         assertTrue(A.contains(encoded, 1));
         assertTrue(A.contains(encoded, 2));
@@ -457,7 +457,7 @@ describe("MutableHashSet mutation behavior", () => {
     effect("add value after decode is preserved", () =>
       Effect.gen(function* () {
         const schema = MHS(S.Number);
-        const decoded = S.decodeUnknownSync(schema)([1, 2]);
+        const decoded = yield* S.decodeUnknown(schema)([1, 2]);
         MutableHashSet.add(decoded, 3);
         assertTrue(MutableHashSet.has(decoded, 3));
         strictEqual(MutableHashSet.size(decoded), 3);
@@ -467,7 +467,7 @@ describe("MutableHashSet mutation behavior", () => {
     effect("remove value after decode is preserved", () =>
       Effect.gen(function* () {
         const schema = MHS(S.Number);
-        const decoded = S.decodeUnknownSync(schema)([1, 2, 3]);
+        const decoded = yield* S.decodeUnknown(schema)([1, 2, 3]);
         MutableHashSet.remove(decoded, 2);
         assertFalse(MutableHashSet.has(decoded, 2));
         strictEqual(MutableHashSet.size(decoded), 2);
@@ -477,9 +477,9 @@ describe("MutableHashSet mutation behavior", () => {
     effect("encode reflects mutations made after decode", () =>
       Effect.gen(function* () {
         const schema = MHS(S.String);
-        const decoded = S.decodeUnknownSync(schema)(["a"]);
+        const decoded = yield* S.decodeUnknown(schema)(["a"]);
         MutableHashSet.add(decoded, "b");
-        const encoded = S.encodeSync(schema)(decoded);
+        const encoded = yield* S.encode(schema)(decoded);
         strictEqual(A.length(encoded), 2);
         assertTrue(A.contains(encoded, "a"));
         assertTrue(A.contains(encoded, "b"));
@@ -492,7 +492,7 @@ describe("MutableHashSet mutation behavior", () => {
       Effect.gen(function* () {
         const schema = MutableHashSetFromSelf(S.Number);
         const input = MutableHashSet.fromIterable([1, 2]);
-        const decoded = S.decodeUnknownSync(schema)(input);
+        const decoded = yield* S.decodeUnknown(schema)(input);
         MutableHashSet.add(decoded, 3);
         assertTrue(MutableHashSet.has(decoded, 3));
       })
@@ -502,9 +502,9 @@ describe("MutableHashSet mutation behavior", () => {
       Effect.gen(function* () {
         const schema = MutableHashSetFromSelf(S.Number);
         const input = MutableHashSet.fromIterable([1]);
-        const decoded = S.decodeUnknownSync(schema)(input);
+        const decoded = yield* S.decodeUnknown(schema)(input);
         MutableHashSet.add(decoded, 2);
-        const encoded = S.encodeSync(schema)(decoded);
+        const encoded = yield* S.encode(schema)(decoded);
         strictEqual(MutableHashSet.size(encoded), 2);
         assertTrue(MutableHashSet.has(encoded, 1));
         assertTrue(MutableHashSet.has(encoded, 2));
@@ -527,7 +527,7 @@ describe("MutableHashSet mutation behavior", () => {
     effect("MutableHashSet transform rejects adding wrong type", () =>
       Effect.gen(function* () {
         const schema = MHS(S.Number);
-        const decoded = S.decodeUnknownSync(schema)([1, 2]);
+        const decoded = yield* S.decodeUnknown(schema)([1, 2]);
         // Attempt to add wrong type (should fail at encode time)
         // biome-ignore lint/suspicious/noExplicitAny: testing type violation
         MutableHashSet.add(decoded as any, "not a number");

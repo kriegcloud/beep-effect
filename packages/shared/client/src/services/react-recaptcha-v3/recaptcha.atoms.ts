@@ -427,86 +427,82 @@ export const initializeReCaptchaAtom = reCaptchaRuntime.fn(
     registry.set(reCaptchaStateAtom, newState);
   })
 );
+export const executeRecaptchaAtomEffect = Effect.fn(function* (action?: string) {
+  const registry = yield* Registry.AtomRegistry;
+  const state = registry.get(reCaptchaStateAtom);
 
+  if (!isBrowser) {
+    return yield* new ReCaptchaNotFoundError({
+      message: "ReCaptcha is not available in non-browser environment",
+    });
+  }
+
+  if (O.isNone(state.reCaptchaInstance)) {
+    return yield* new ReCaptchaNotFoundError({
+      message: "reCAPTCHA instance not found",
+    });
+  }
+
+  const instance = state.reCaptchaInstance.value;
+
+  if (!instance.execute) {
+    return yield* new ReCaptchaNotReadyError({
+      message: "reCAPTCHA execute function not available",
+    });
+  }
+
+  const config = O.getOrNull(state.config);
+  const shouldUseClientId = config?.container?.element !== undefined;
+  const clientIdOrKey: string | number =
+    shouldUseClientId && O.isSome(state.clientId) ? state.clientId.value : (config?.reCaptchaKey ?? "");
+
+  if (shouldUseClientId && O.isNone(state.clientId)) {
+    return yield* new ReCaptchaClientNotMountedError({
+      message: "Client ID not mounted",
+    });
+  }
+
+  // Wrap execute in the GLOBAL grecaptcha.ready() to ensure the API is fully initialized
+  // This prevents "Cannot read properties of undefined (reading 'auto_render_clients')" errors
+  // IMPORTANT: We must use the global grecaptcha.ready(), not the instance's ready method,
+  // because we may have set our own ready function before Google's script loaded.
+  return yield* Effect.tryPromise({
+    try: () =>
+      new Promise<string>((resolve, reject) => {
+        // Get the current global grecaptcha object - it may have been replaced by Google's script
+        const useEnterprise = O.isSome(state.config) && (state.config.value.useEnterprise ?? false);
+        const currentInstanceOpt = getReCaptchaInstance(useEnterprise);
+
+        if (O.isNone(currentInstanceOpt)) {
+          reject(new Error("grecaptcha not available"));
+          return;
+        }
+
+        const currentInstance = currentInstanceOpt.value;
+        const readyFn = currentInstance.ready;
+
+        if (P.isFunction(readyFn)) {
+          readyFn(() => {
+            currentInstance.execute!(clientIdOrKey, { action }).then(resolve).catch(reject);
+          });
+        } else {
+          // Fallback: execute directly if ready is not available
+          currentInstance.execute!(clientIdOrKey, { action }).then(resolve).catch(reject);
+        }
+      }),
+    catch: (cause) =>
+      new ReCaptchaExecutionError({
+        message: `Failed to execute reCAPTCHA for action: ${action ?? "unknown"}`,
+        action,
+        cause,
+      }),
+  });
+});
 /**
  * Execute ReCaptcha verification and get a token.
  * Wraps the execute call in grecaptcha.ready() to ensure the API is fully initialized.
  */
-export const executeReCaptchaAtom = reCaptchaRuntime.fn(
-  Effect.fn(function* (action?: string) {
-    const registry = yield* Registry.AtomRegistry;
-    const state = registry.get(reCaptchaStateAtom);
-
-    if (!isBrowser) {
-      return yield* new ReCaptchaNotFoundError({
-        message: "ReCaptcha is not available in non-browser environment",
-      });
-    }
-
-    if (O.isNone(state.reCaptchaInstance)) {
-      return yield* new ReCaptchaNotFoundError({
-        message: "reCAPTCHA instance not found",
-      });
-    }
-
-    const instance = state.reCaptchaInstance.value;
-
-    if (!instance.execute) {
-      return yield* new ReCaptchaNotReadyError({
-        message: "reCAPTCHA execute function not available",
-      });
-    }
-
-    const config = O.getOrNull(state.config);
-    const shouldUseClientId = config?.container?.element !== undefined;
-    const clientIdOrKey: string | number =
-      shouldUseClientId && O.isSome(state.clientId) ? state.clientId.value : (config?.reCaptchaKey ?? "");
-
-    if (shouldUseClientId && O.isNone(state.clientId)) {
-      return yield* new ReCaptchaClientNotMountedError({
-        message: "Client ID not mounted",
-      });
-    }
-
-    // Wrap execute in the GLOBAL grecaptcha.ready() to ensure the API is fully initialized
-    // This prevents "Cannot read properties of undefined (reading 'auto_render_clients')" errors
-    // IMPORTANT: We must use the global grecaptcha.ready(), not the instance's ready method,
-    // because we may have set our own ready function before Google's script loaded.
-    const token = yield* Effect.tryPromise({
-      try: () =>
-        new Promise<string>((resolve, reject) => {
-          // Get the current global grecaptcha object - it may have been replaced by Google's script
-          const useEnterprise = O.isSome(state.config) && (state.config.value.useEnterprise ?? false);
-          const currentInstanceOpt = getReCaptchaInstance(useEnterprise);
-
-          if (O.isNone(currentInstanceOpt)) {
-            reject(new Error("grecaptcha not available"));
-            return;
-          }
-
-          const currentInstance = currentInstanceOpt.value;
-          const readyFn = currentInstance.ready;
-
-          if (P.isFunction(readyFn)) {
-            readyFn(() => {
-              currentInstance.execute!(clientIdOrKey, { action }).then(resolve).catch(reject);
-            });
-          } else {
-            // Fallback: execute directly if ready is not available
-            currentInstance.execute!(clientIdOrKey, { action }).then(resolve).catch(reject);
-          }
-        }),
-      catch: (cause) =>
-        new ReCaptchaExecutionError({
-          message: `Failed to execute reCAPTCHA for action: ${action ?? "unknown"}`,
-          action,
-          cause,
-        }),
-    });
-
-    return token;
-  })
-);
+export const executeReCaptchaAtom = reCaptchaRuntime.fn(executeRecaptchaAtomEffect);
 
 /**
  * Cleanup ReCaptcha instance.

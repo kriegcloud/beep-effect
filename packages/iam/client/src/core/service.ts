@@ -1,20 +1,14 @@
 import { $IamClientId } from "@beep/identity/packages";
-import { makeAtomRuntime } from "@beep/runtime-client";
 import * as Effect from "effect/Effect";
-
-import * as GetSession from "./get-session";
-import * as SignOut from "./sign-out";
+import * as Layer from "effect/Layer";
+import * as Common from "../_common";
+import { Group, layer } from "./layer.ts";
 
 const $I = $IamClientId.create("core/service");
 
-export class CoreService extends Effect.Service<CoreService>()($I`CoreService`, {
+export class Service extends Effect.Service<Service>()($I`Service`, {
   accessors: true,
-  effect: Effect.succeed({
-    getSession: GetSession.Handler,
-    signOut: SignOut.Handler,
-  }),
+  effect: Group.accessHandlers("SignOut", "GetSession"),
 }) {}
 
-const layer = CoreService.Default;
-
-export const coreRuntime = makeAtomRuntime(() => layer);
+export const runtime = Common.makeAtomRuntime(Service.Default.pipe(Layer.provide(layer)));

@@ -17,7 +17,7 @@ export class IamErrorMetadata extends S.Class<IamErrorMetadata>($I`IamErrorMetad
 }) {}
 
 export class IamError extends S.TaggedError<IamError>($I`IamError`)("IamError", {
-  customMessage: S.String,
+  customMessage: S.optional(S.String),
   cause: S.Unknown,
   code: S.optional(S.String),
   status: S.optional(S.Number),

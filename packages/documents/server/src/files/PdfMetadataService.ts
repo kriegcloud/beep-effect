@@ -48,29 +48,28 @@ const getFileSize = (file: File | Binaryfile): number => {
 /**
  * Convert file data to Uint8Array.
  */
-const toUint8Array = (file: File | Binaryfile): Effect.Effect<Uint8Array, PdfParseError> =>
-  Effect.gen(function* () {
-    if ("arrayBuffer" in file && P.isFunction(file.arrayBuffer)) {
-      // File object
-      const buffer = yield* Effect.tryPromise({
-        try: () => file.arrayBuffer(),
-        catch: (e) =>
-          new PdfParseError({
-            message: "Failed to read file as ArrayBuffer",
-            cause: e,
-            fileName: file.name,
-            phase: "read",
-          }),
-      });
-      return new Uint8Array(buffer);
-    }
-    // Binaryfile
-    const data = (file as Binaryfile).data;
-    if (data instanceof ArrayBuffer) {
-      return new Uint8Array(data);
-    }
-    return data as Uint8Array;
-  });
+const toUint8Array = Effect.fnUntraced(function* (file: File | Binaryfile) {
+  if ("arrayBuffer" in file && P.isFunction(file.arrayBuffer)) {
+    // File object
+    const buffer = yield* Effect.tryPromise({
+      try: () => file.arrayBuffer(),
+      catch: (e) =>
+        new PdfParseError({
+          message: "Failed to read file as ArrayBuffer",
+          cause: e,
+          fileName: file.name,
+          phase: "read",
+        }),
+    });
+    return new Uint8Array(buffer);
+  }
+  // Binaryfile
+  const data = (file as Binaryfile).data;
+  if (data instanceof ArrayBuffer) {
+    return new Uint8Array(data);
+  }
+  return data as Uint8Array;
+});
 
 // Maximum file size for PDF metadata extraction (100MB)
 const MAX_PDF_FILE_SIZE = 100 * 1024 * 1024;
@@ -157,20 +156,17 @@ export const pdfMetadataServiceEffect: PdfMetadataServiceEffect = Effect.gen(fun
   /**
    * Check file size before extraction.
    */
-  const checkFileSize = (file: File | Binaryfile): Effect.Effect<void, PdfFileTooLargeError> =>
-    Effect.gen(function* () {
-      const size = getFileSize(file);
-      if (size > MAX_PDF_FILE_SIZE) {
-        return yield* Effect.fail(
-          new PdfFileTooLargeError({
-            message: `File too large for PDF extraction: ${size} bytes (max ${MAX_PDF_FILE_SIZE} bytes)`,
-            fileName: file.name,
-            fileSize: size,
-            maxSize: MAX_PDF_FILE_SIZE,
-          })
-        );
-      }
-    });
+  const checkFileSize = Effect.fnUntraced(function* (file: File | Binaryfile) {
+    const size = getFileSize(file);
+    if (size > MAX_PDF_FILE_SIZE) {
+      return yield* new PdfFileTooLargeError({
+        message: `File too large for PDF extraction: ${size} bytes (max ${MAX_PDF_FILE_SIZE} bytes)`,
+        fileName: file.name,
+        fileSize: size,
+        maxSize: MAX_PDF_FILE_SIZE,
+      });
+    }
+  });
 
   /**
    * Load PDF document from file data.

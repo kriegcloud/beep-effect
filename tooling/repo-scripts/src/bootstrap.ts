@@ -15,7 +15,7 @@ import color from "picocolors";
 import { generateEnvSecrets } from "./generate-env-secrets";
 
 /** Tagged error for bootstrap script failures. */
-class BootstrapError extends S.TaggedError<BootstrapError>("BootstrapError")("BootstrapError", {
+class BootstrapError extends S.TaggedError<BootstrapError>()("BootstrapError", {
   message: S.String,
 }) {}
 
@@ -114,33 +114,32 @@ const program = Effect.gen(function* () {
   // generate secrets
   yield* generateEnvSecrets;
 
-  const runCommandWithLogs = (
+  const runCommandWithLogs = Effect.fn(function* (
     command: Command.Command,
     description: string,
     commandPreview: string,
     options?: { readonly allowedExitCodes?: ReadonlyArray<number> | undefined } | undefined
-  ) =>
-    Effect.gen(function* () {
-      yield* Console.log(renderStagePanel(description, commandPreview));
+  ) {
+    yield* Console.log(renderStagePanel(description, commandPreview));
 
-      const exitCode = yield* Command.exitCode(command);
-      const numericExitCode = Number(exitCode);
+    const exitCode = yield* Command.exitCode(command);
+    const numericExitCode = Number(exitCode);
 
-      const allowedExitCodes = options?.allowedExitCodes ?? [0];
-      const status: "OK" | "WARN" | "FAIL" = allowedExitCodes.includes(numericExitCode)
-        ? numericExitCode === 0
-          ? "OK"
-          : "WARN"
-        : "FAIL";
+    const allowedExitCodes = options?.allowedExitCodes ?? [0];
+    const status: "OK" | "WARN" | "FAIL" = allowedExitCodes.includes(numericExitCode)
+      ? numericExitCode === 0
+        ? "OK"
+        : "WARN"
+      : "FAIL";
 
-      yield* Console.log(renderStatusLine(status, description, numericExitCode));
+    yield* Console.log(renderStatusLine(status, description, numericExitCode));
 
-      if (status === "FAIL") {
-        return yield* new BootstrapError({
-          message: `${description} failed with exit code ${numericExitCode}.`,
-        });
-      }
-    });
+    if (status === "FAIL") {
+      return yield* new BootstrapError({
+        message: `${description} failed with exit code ${numericExitCode}.`,
+      });
+    }
+  });
 
   const dockerComposeUp = F.pipe(
     Command.make("bunx", "dotenvx", "run", "-f", ".env", "--", "docker", "compose", "up", "-d"),

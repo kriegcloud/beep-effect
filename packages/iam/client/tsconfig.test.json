@@ -21,6 +21,9 @@
       "path": "../../../packages/common/errors"
     },
     {
+      "path": "../../../packages/common/wrap"
+    },
+    {
       "path": "../../../packages/common/constants"
     },
     {
@@ -28,6 +31,9 @@
     },
     {
       "path": "../../../packages/shared/env"
+    },
+    {
+      "path": "../../../packages/shared/client"
     },
     {
       "path": "../../../packages/iam/domain"

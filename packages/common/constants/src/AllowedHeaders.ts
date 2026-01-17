@@ -8,7 +8,8 @@ export class AllowedHeaders extends BS.StringLiteralKit(
   "Authorization",
   "B3",
   "traceparent",
-  "x-captcha-response"
+  "x-captcha-response",
+  "x-captcha-user-remote-ip"
 ).annotations(
   $I.annotations("AllowedHeaders", {
     description: "Allowed headers for API routes",

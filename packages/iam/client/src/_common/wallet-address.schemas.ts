@@ -42,7 +42,7 @@ export const BetterAuthWalletAddressSchema = F.pipe(
     address: S.String,
     chainId: S.Number,
     isPrimary: S.optionalWith(S.Boolean, { default: () => false }),
-    createdAt: S.String,
+    createdAt: S.DateFromSelf,
     // NOTE: id and updatedAt come from Record extension (database layer)
   }),
   S.extend(S.Record({ key: S.String, value: S.Unknown })),

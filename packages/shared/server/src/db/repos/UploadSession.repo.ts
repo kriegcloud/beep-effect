@@ -320,10 +320,9 @@ export class UploadSessionRepo extends Effect.Service<UploadSessionRepo>()($I`Up
      * @returns Effect that succeeds with void
      */
     const deleteByFileKey = (fileKey: File.UploadKey.Type): Effect.Effect<void, UploadSessionRepoError, never> =>
-      Effect.gen(function* () {
-        // Delete using Drizzle - idempotent (no error if not found)
-        yield* execute((client) => client.delete(uploadSession).where(d.eq(uploadSession.fileKey, fileKey)));
-      }).pipe(
+      // Delete using Drizzle - idempotent (no error if not found)
+      execute((client) => client.delete(uploadSession).where(d.eq(uploadSession.fileKey, fileKey))).pipe(
+        Effect.asVoid,
         Effect.mapError(
           (cause) =>
             new UploadSessionRepoError({
@@ -348,8 +347,8 @@ export class UploadSessionRepo extends Effect.Service<UploadSessionRepo>()($I`Up
      *
      * @returns Effect that succeeds with the number of deleted sessions
      */
-    const deleteExpired = (): Effect.Effect<number, UploadSessionRepoError, never> =>
-      Effect.gen(function* () {
+    const deleteExpired = Effect.fn("UploadSessionRepo.deleteExpired")(
+      function* () {
         // Get current timestamp and convert to JS Date
         const now = yield* DateTime.now;
         const nowDate = DateTime.toDate(now);
@@ -361,16 +360,15 @@ export class UploadSessionRepo extends Effect.Service<UploadSessionRepo>()($I`Up
 
         // Return count of deleted sessions
         return A.length(deletedSessions);
-      }).pipe(
-        Effect.mapError(
-          (cause) =>
-            new UploadSessionRepoError({
-              operation: "deleteExpired",
-              cause,
-            })
-        ),
-        Effect.withSpan("UploadSessionRepo.deleteExpired")
-      );
+      },
+      Effect.mapError(
+        (cause) =>
+          new UploadSessionRepoError({
+            operation: "deleteExpired",
+            cause,
+          })
+      )
+    );
 
     // ========================================================================
     // Is Valid (Exists and Not Expired)
@@ -386,25 +384,24 @@ export class UploadSessionRepo extends Effect.Service<UploadSessionRepo>()($I`Up
      * @param fileKey - The S3 object key to check
      * @returns Effect that succeeds with boolean indicating validity
      */
-    const isValid = (fileKey: File.UploadKey.Type): Effect.Effect<boolean, UploadSessionRepoError> =>
-      Effect.gen(function* () {
-        // Get the session from database (already decoded through model)
-        const sessionOpt = yield* findByFileKey(fileKey);
+    const isValid = Effect.fn("UploadSessionRepo.isValid")(function* (fileKey: File.UploadKey.Type) {
+      // Get the session from database (already decoded through model)
+      const sessionOpt = yield* findByFileKey(fileKey);
 
-        // Check if session exists
-        if (O.isNone(sessionOpt)) {
-          return false;
-        }
+      // Check if session exists
+      if (O.isNone(sessionOpt)) {
+        return false;
+      }
 
-        const session = sessionOpt.value;
+      const session = sessionOpt.value;
 
-        // Get current timestamp
-        const now = yield* DateTime.now;
+      // Get current timestamp
+      const now = yield* DateTime.now;
 
-        // session.expiresAt is already DateTime.Utc from the model decode
-        // Session is valid if current time is before or equal to expiration
-        return DateTime.lessThanOrEqualTo(now, session.expiresAt);
-      }).pipe(Effect.withSpan("UploadSessionRepo.isValid"));
+      // session.expiresAt is already DateTime.Utc from the model decode
+      // Session is valid if current time is before or equal to expiration
+      return DateTime.lessThanOrEqualTo(now, session.expiresAt);
+    });
 
     return {
       store,

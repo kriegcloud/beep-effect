@@ -23,7 +23,7 @@ export class UnknownIamError extends S.TaggedError<UnknownIamError>($I`UnknownIa
   }
 }
 
-export class IamError extends S.TaggedError<IamError>($I`IamError`)(
+export class IamBetterAuthError extends S.TaggedError<IamBetterAuthError>($I`IamError`)(
   "IamError",
   {
     cause: BetterAuthError,
@@ -32,10 +32,12 @@ export class IamError extends S.TaggedError<IamError>($I`IamError`)(
   $I.annotations("IamError", {
     description: "An error from the IAM client",
   })
-) {
-  static readonly fromUnknown = (error: unknown) => {
+) {}
+
+export class IamError extends S.Union(IamBetterAuthError, UnknownIamError) {
+  static readonly fromUnknown = (error: unknown): IamError.Type => {
     if (S.is(BetterAuthError)(error)) {
-      return new IamError({
+      return new IamBetterAuthError({
         cause: error,
         message: error.message,
       });
@@ -44,6 +46,10 @@ export class IamError extends S.TaggedError<IamError>($I`IamError`)(
       cause: error,
     });
   };
+}
+
+export declare namespace IamError {
+  export type Type = typeof IamError.Type;
 }
 
 // ============================================================================

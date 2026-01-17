@@ -21,6 +21,9 @@
     },
     {
       "path": "../packages/common/errors/tsconfig.build.json"
+    },
+    {
+      "path": "../packages/common/wrap/tsconfig.build.json"
     }
   ]
 }

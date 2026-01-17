@@ -28,13 +28,13 @@ export const BetterAuthVerificationSchema = F.pipe(
   S.Struct({
     // Core fields from coreSchema
     id: S.String,
-    createdAt: S.String,
-    updatedAt: S.String,
+    createdAt: S.DateFromSelf,
+    updatedAt: S.DateFromSelf,
 
     // Verification-specific fields
     identifier: S.String,
     value: S.String,
-    expiresAt: S.optionalWith(S.String, { nullable: true }),
+    expiresAt: S.optionalWith(S.DateFromSelf, { nullable: true }),
   }),
   S.extend(S.Record({ key: S.String, value: S.Unknown })),
   S.annotations(

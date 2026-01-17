@@ -21,37 +21,35 @@ const Live = WorkerRpc.toLayer(
     yield* Effect.logInfo("Worker started");
 
     return {
-      filterData: (req) =>
-        Effect.gen(function* () {
-          yield* Effect.logInfo(
-            `Worker received request to filter ${req.data.length} items with threshold ${req.threshold}`
-          );
+      filterData: Effect.fnUntraced(function* (req) {
+        yield* Effect.logInfo(
+          `Worker received request to filter ${req.data.length} items with threshold ${req.threshold}`
+        );
 
-          yield* Effect.sleep("3 seconds");
+        yield* Effect.sleep("3 seconds");
 
-          if (req.threshold < 0) {
-            yield* Effect.logError("Worker received invalid threshold");
-            return yield* new FilterError({ message: "Threshold cannot be negative" });
+        if (req.threshold < 0) {
+          yield* Effect.logError("Worker received invalid threshold");
+          return yield* new FilterError({ message: "Threshold cannot be negative" });
+        }
+
+        const filtered = A.filter(req.data, (n) => n > req.threshold);
+        yield* Effect.logInfo(`Worker finished filtering. Returning ${filtered.length} items.`);
+        return filtered;
+      }),
+      calculatePrimes: Effect.fnUntraced(function* ({ upperBound }) {
+        yield* Effect.logInfo(`Worker received request to calculate primes up to ${upperBound}`);
+
+        let count = 0;
+        for (let i = 2; i <= upperBound; i++) {
+          if (isPrime(i)) {
+            count += 1;
           }
+        }
 
-          const filtered = A.filter(req.data, (n) => n > req.threshold);
-          yield* Effect.logInfo(`Worker finished filtering. Returning ${filtered.length} items.`);
-          return filtered;
-        }),
-      calculatePrimes: ({ upperBound }) =>
-        Effect.gen(function* () {
-          yield* Effect.logInfo(`Worker received request to calculate primes up to ${upperBound}`);
-
-          let count = 0;
-          for (let i = 2; i <= upperBound; i++) {
-            if (isPrime(i)) {
-              count += 1;
-            }
-          }
-
-          yield* Effect.logInfo(`Worker finished calculating primes. Found ${count} primes.`);
-          return count;
-        }),
+        yield* Effect.logInfo(`Worker finished calculating primes. Found ${count} primes.`);
+        return count;
+      }),
     };
   })
 );

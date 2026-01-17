@@ -22,10 +22,16 @@
       "path": "../../../packages/common/constants"
     },
     {
+      "path": "../../../packages/common/wrap"
+    },
+    {
       "path": "../../../packages/runtime/client"
     },
     {
       "path": "../../../packages/shared/domain"
+    },
+    {
+      "path": "../../../packages/shared/client"
     },
     {
       "path": "../../../packages/shared/env"

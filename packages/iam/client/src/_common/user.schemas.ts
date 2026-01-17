@@ -31,8 +31,9 @@ const $I = $IamClientId.create("_common/user.schemas");
 export const BetterAuthUserSchema = F.pipe(
   S.Struct({
     id: S.String,
-    createdAt: S.String,
-    updatedAt: S.String,
+    // Better Auth returns JavaScript Date objects, not ISO strings
+    createdAt: S.DateFromSelf,
+    updatedAt: S.DateFromSelf,
     email: S.String,
     emailVerified: S.Boolean,
     name: S.String,
