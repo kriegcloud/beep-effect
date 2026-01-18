@@ -49,6 +49,9 @@
     },
     {
       "path": "../../calendar/server/tsconfig.build.json"
+    },
+    {
+      "path": "../../knowledge/server/tsconfig.build.json"
     }
   ]
 }

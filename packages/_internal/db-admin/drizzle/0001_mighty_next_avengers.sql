@@ -1,1 +1,0 @@
-ALTER TABLE "iam_member" ADD CONSTRAINT "iam_member_invited_by_shared_user_id_fk" FOREIGN KEY ("invited_by") REFERENCES "public"."shared_user"("id") ON DELETE set null ON UPDATE cascade;

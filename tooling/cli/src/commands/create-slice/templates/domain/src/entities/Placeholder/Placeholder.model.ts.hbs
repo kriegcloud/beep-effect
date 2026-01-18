@@ -28,7 +28,7 @@ const $I = ${{SliceName}}DomainId.create("entities/Placeholder");
  * import * as DateTime from "effect/DateTime";
  *
  * const placeholder = Entities.Placeholder.Model.make({
- *   id: {{SliceName}}EntityIds.PlaceholderId.make("placeholder__123"),
+ *   id: {{SliceName}}EntityIds.PlaceholderId.make("{{sliceName}}_placeholder__uuid"),
  *   name: "Example",
  *   createdAt: DateTime.unsafeNow(),
  *   updatedAt: DateTime.unsafeNow(),

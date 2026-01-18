@@ -16,7 +16,7 @@ const $I = $SharedDomainId.create("entity-ids/calendar/any-id");
  * @since 0.1.0
  * @category ids
  */
-export class AnyId extends S.Union(Ids.PlaceholderId).annotations(
+export class AnyId extends S.Union(Ids.CalendarEventId).annotations(
   $I.annotations("AnyCalendarId", {
     description: "Any entity id within the calendar domain context",
   })

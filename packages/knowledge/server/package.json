@@ -1,0 +1,77 @@
+{
+  "name": "@beep/knowledge-server",
+  "version": "0.0.0",
+  "type": "module",
+  "license": "MIT",
+  "description": "Ontology-guided knowledge extraction, entity resolution, and GraphRAG context assembly for intelligent agents - Server infrastructure",
+  "publishConfig": {
+    "access": "public",
+    "provenance": true,
+    "directory": "dist",
+    "linkDirectory": false
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./package.json": "./package.json",
+    "./db": "./src/db.ts",
+    "./*": "./src/*.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:kriegcloud/beep-effect.git",
+    "directory": "packages/knowledge/server"
+  },
+  "scripts": {
+    "build": "bun run build-esm && bun run build-cjs && bun run build-annotate",
+    "dev": "tsc -b tsconfig.build.json --watch",
+    "build-esm": "tsc -b tsconfig.build.json",
+    "build-cjs": "babel build/esm --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --out-dir build/cjs --source-maps",
+    "build-annotate": "babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps",
+    "check": "tsc -b tsconfig.json",
+    "test": "bun test",
+    "coverage": "bun test --coverage",
+    "lint": "biome check .",
+    "lint:fix": "biome check . --write",
+    "lint:circular": "bunx madge -c ."
+  },
+  "peerDependencies": {
+    "@effect/sql": "catalog:",
+    "@effect/sql-drizzle": "catalog:",
+    "@effect/sql-pg": "catalog:",
+    "@beep/shared-server": "workspace:^",
+    "@beep/knowledge-tables": "workspace:^",
+    "@effect/platform": "catalog:",
+    "drizzle-orm": "catalog:",
+    "effect": "catalog:",
+    "@beep/shared-domain": "workspace:^",
+    "@beep/knowledge-domain": "workspace:^",
+    "@beep/schema": "workspace:^"
+  },
+  "devDependencies": {
+    "@effect/docgen": "catalog:",
+    "@effect/sql": "catalog:",
+    "@effect/sql-drizzle": "catalog:",
+    "@effect/sql-pg": "catalog:",
+    "@beep/knowledge-domain": "workspace:^",
+    "@beep/knowledge-tables": "workspace:^",
+    "@effect/platform": "catalog:",
+    "@beep/shared-server": "workspace:^",
+    "drizzle-orm": "catalog:",
+    "effect": "catalog:",
+    "@beep/shared-domain": "workspace:^",
+    "@beep/schema": "workspace:^",
+    "@total-typescript/ts-reset": "catalog:"
+  },
+  "effect": {
+    "generateExports": {
+      "include": [
+        "**/*.ts"
+      ]
+    },
+    "generateIndex": {
+      "include": [
+        "**/*.ts"
+      ]
+    }
+  }
+}

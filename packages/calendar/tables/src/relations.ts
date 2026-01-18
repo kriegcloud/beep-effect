@@ -7,21 +7,21 @@
  * @since 0.1.0
  */
 import * as d from "drizzle-orm";
-import { placeholder } from "./tables/placeholder.table";
+import { calendarEvent } from "./tables/calendar-event.table.ts";
 
 /**
- * Placeholder table relations.
+ * CalendarEvent table relations.
  *
  * Add foreign key relationships here as needed.
  *
  * @since 0.1.0
  * @category relations
  */
-export const placeholderRelations = d.relations(placeholder, (_) => ({
+export const calendarEventRelations = d.relations(calendarEvent, (_) => ({
   // Define foreign key relationships here
   // Example:
   // user: one(user, {
-  //   fields: [placeholder.userId],
+  //   fields: [calendarEvent.userId],
   //   references: [user.id],
   // }),
 }));

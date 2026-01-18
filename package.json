@@ -16,7 +16,8 @@
     "tooling/*",
     "packages/comms/*",
     "packages/calendar/*",
-    "scratchpad/*"
+    "scratchpad/*",
+    "packages/knowledge/*"
   ],
   "repository": {
     "repository": {

@@ -6,6 +6,7 @@ import * as Comms from "./comms";
 import * as Customization from "./customization";
 import * as Documents from "./documents";
 import * as Iam from "./iam";
+import * as Knowledge from "./knowledge";
 import * as Shared from "./shared";
 
 const $I = $SharedDomainId.create("entity-ids/entity-kind");
@@ -16,7 +17,8 @@ export class EntityKind extends BS.StringLiteralKit(
   ...Documents.TableName.Options,
   ...Customization.TableName.Options,
   ...Comms.TableName.Options,
-  ...Calendar.TableName.Options
+  ...Calendar.TableName.Options,
+  ...Knowledge.TableName.Options
 ).annotations(
   $I.annotations("EntityKind", {
     description:

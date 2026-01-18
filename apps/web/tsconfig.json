@@ -26,69 +26,178 @@
     "strict": true,
     "strictNullChecks": true,
     "removeComments": false,
-    "types": ["node", "bun"],
+    "types": [
+      "node",
+      "bun"
+    ],
     "outDir": "build/src",
     "jsx": "preserve",
     "module": "ESNext",
     "target": "ES2024",
-    "lib": ["ES2024", "DOM", "DOM.Iterable"],
+    "lib": [
+      "ES2024",
+      "DOM",
+      "DOM.Iterable"
+    ],
     "moduleResolution": "bundler",
     "incremental": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
     "disableSourceOfProjectReferenceRedirect": true,
     "paths": {
-      "*": ["./*"],
-      "@/*": ["./src/*"],
-      "@beep/types": ["../../packages/common/types/src/index"],
-      "@beep/types/*": ["../../packages/common/types/src/*"],
-      "@beep/invariant": ["../../packages/common/invariant/src/index"],
-      "@beep/invariant/*": ["../../packages/common/invariant/src/*"],
-      "@beep/utils": ["../../packages/common/utils/src/index"],
-      "@beep/utils/*": ["../../packages/common/utils/src/*"],
-      "@beep/schema": ["../../packages/common/schema/src/index"],
-      "@beep/schema/*": ["../../packages/common/schema/src/*"],
-      "@beep/constants": ["../../packages/common/constants/src/index"],
-      "@beep/constants/*": ["../../packages/common/constants/src/*"],
-      "@beep/errors/client": ["../../packages/common/errors/src/client"],
-      "@beep/errors/shared": ["../../packages/common/errors/src/shared"],
-      "@beep/errors/server": ["../../packages/common/errors/src/server"],
-      "@beep/shared-domain": ["../../packages/shared/domain/src/index"],
-      "@beep/shared-domain/*": ["../../packages/shared/domain/src/*"],
-      "@beep/shared-tables": ["../../packages/shared/tables/src/index"],
-      "@beep/shared-tables/*": ["../../packages/shared/tables/src/*"],
-      "@beep/shared-server": ["../../packages/shared/server/src/index"],
-      "@beep/shared-server/*": ["../../packages/shared/server/src/*"],
-      "@beep/shared-client": ["../../packages/shared/client/src/index"],
-      "@beep/shared-client/*": ["../../packages/shared/client/src/*"],
-      "@beep/shared-ui": ["../../packages/shared/ui/src/index"],
-      "@beep/shared-ui/*": ["../../packages/shared/ui/src/*"],
-      "@beep/ui/*": ["../../packages/ui/ui/src/*"],
-      "@beep/ui-core/*": ["../../packages/ui/core/src/*"],
-      "@beep/iam-domain": ["../../packages/iam/domain/src/index"],
-      "@beep/iam-domain/*": ["../../packages/iam/domain/src/*"],
-      "@beep/iam-tables": ["../../packages/iam/tables/src/index"],
-      "@beep/iam-tables/*": ["../../packages/iam/tables/src/*"],
-      "@beep/iam-server": ["../../packages/iam/server/src/index"],
-      "@beep/iam-server/*": ["../../packages/iam/server/src/*"],
-      "@beep/iam-client": ["../../packages/iam/client/src/index"],
-      "@beep/iam-client/*": ["../../packages/iam/client/src/*"],
-      "@beep/iam-ui": ["../../packages/iam/ui/src/index"],
-      "@beep/iam-ui/*": ["../../packages/iam/ui/src/*"],
-      "@beep/documents-domain": ["../../packages/documents/domain/src/index"],
-      "@beep/documents-domain/*": ["../../packages/documents/domain/src/*"],
-      "@beep/documents-tables": ["../../packages/documents/tables/src/index"],
-      "@beep/documents-tables/*": ["../../packages/documents/tables/src/*"],
-      "@beep/documents-server": ["../../packages/documents/server/src/index"],
-      "@beep/documents-server/*": ["../../packages/documents/server/src/*"],
-      "@beep/documents-client": ["../../packages/documents/client/src/index"],
-      "@beep/documents-client/*": ["../../packages/documents/client/src/*"],
-      "@beep/documents-ui": ["../../packages/documents/ui/src/index"],
-      "@beep/documents-ui/*": ["../../packages/documents/ui/src/*"],
-      "@beep/runtime-server": ["../../packages/runtime/server/src/index"],
-      "@beep/runtime-server/*": ["../../packages/runtime/server/src/*"],
-      "@beep/runtime-client": ["../../packages/runtime/client/src/index"],
-      "@beep/runtime-client/*": ["../../packages/runtime/client/src/*"],
+      "*": [
+        "./*"
+      ],
+      "@/*": [
+        "./src/*"
+      ],
+      "@beep/types": [
+        "../../packages/common/types/src/index"
+      ],
+      "@beep/types/*": [
+        "../../packages/common/types/src/*"
+      ],
+      "@beep/invariant": [
+        "../../packages/common/invariant/src/index"
+      ],
+      "@beep/invariant/*": [
+        "../../packages/common/invariant/src/*"
+      ],
+      "@beep/utils": [
+        "../../packages/common/utils/src/index"
+      ],
+      "@beep/utils/*": [
+        "../../packages/common/utils/src/*"
+      ],
+      "@beep/schema": [
+        "../../packages/common/schema/src/index"
+      ],
+      "@beep/schema/*": [
+        "../../packages/common/schema/src/*"
+      ],
+      "@beep/constants": [
+        "../../packages/common/constants/src/index"
+      ],
+      "@beep/constants/*": [
+        "../../packages/common/constants/src/*"
+      ],
+      "@beep/errors/client": [
+        "../../packages/common/errors/src/client"
+      ],
+      "@beep/errors/shared": [
+        "../../packages/common/errors/src/shared"
+      ],
+      "@beep/errors/server": [
+        "../../packages/common/errors/src/server"
+      ],
+      "@beep/shared-domain": [
+        "../../packages/shared/domain/src/index"
+      ],
+      "@beep/shared-domain/*": [
+        "../../packages/shared/domain/src/*"
+      ],
+      "@beep/shared-tables": [
+        "../../packages/shared/tables/src/index"
+      ],
+      "@beep/shared-tables/*": [
+        "../../packages/shared/tables/src/*"
+      ],
+      "@beep/shared-server": [
+        "../../packages/shared/server/src/index"
+      ],
+      "@beep/shared-server/*": [
+        "../../packages/shared/server/src/*"
+      ],
+      "@beep/shared-client": [
+        "../../packages/shared/client/src/index"
+      ],
+      "@beep/shared-client/*": [
+        "../../packages/shared/client/src/*"
+      ],
+      "@beep/shared-ui": [
+        "../../packages/shared/ui/src/index"
+      ],
+      "@beep/shared-ui/*": [
+        "../../packages/shared/ui/src/*"
+      ],
+      "@beep/ui/*": [
+        "../../packages/ui/ui/src/*"
+      ],
+      "@beep/ui-core/*": [
+        "../../packages/ui/core/src/*"
+      ],
+      "@beep/iam-domain": [
+        "../../packages/iam/domain/src/index"
+      ],
+      "@beep/iam-domain/*": [
+        "../../packages/iam/domain/src/*"
+      ],
+      "@beep/iam-tables": [
+        "../../packages/iam/tables/src/index"
+      ],
+      "@beep/iam-tables/*": [
+        "../../packages/iam/tables/src/*"
+      ],
+      "@beep/iam-server": [
+        "../../packages/iam/server/src/index"
+      ],
+      "@beep/iam-server/*": [
+        "../../packages/iam/server/src/*"
+      ],
+      "@beep/iam-client": [
+        "../../packages/iam/client/src/index"
+      ],
+      "@beep/iam-client/*": [
+        "../../packages/iam/client/src/*"
+      ],
+      "@beep/iam-ui": [
+        "../../packages/iam/ui/src/index"
+      ],
+      "@beep/iam-ui/*": [
+        "../../packages/iam/ui/src/*"
+      ],
+      "@beep/documents-domain": [
+        "../../packages/documents/domain/src/index"
+      ],
+      "@beep/documents-domain/*": [
+        "../../packages/documents/domain/src/*"
+      ],
+      "@beep/documents-tables": [
+        "../../packages/documents/tables/src/index"
+      ],
+      "@beep/documents-tables/*": [
+        "../../packages/documents/tables/src/*"
+      ],
+      "@beep/documents-server": [
+        "../../packages/documents/server/src/index"
+      ],
+      "@beep/documents-server/*": [
+        "../../packages/documents/server/src/*"
+      ],
+      "@beep/documents-client": [
+        "../../packages/documents/client/src/index"
+      ],
+      "@beep/documents-client/*": [
+        "../../packages/documents/client/src/*"
+      ],
+      "@beep/documents-ui": [
+        "../../packages/documents/ui/src/index"
+      ],
+      "@beep/documents-ui/*": [
+        "../../packages/documents/ui/src/*"
+      ],
+      "@beep/runtime-server": [
+        "../../packages/runtime/server/src/index"
+      ],
+      "@beep/runtime-server/*": [
+        "../../packages/runtime/server/src/*"
+      ],
+      "@beep/runtime-client": [
+        "../../packages/runtime/client/src/index"
+      ],
+      "@beep/runtime-client/*": [
+        "../../packages/runtime/client/src/*"
+      ],
       "@beep/customization-server": [
         "../../packages/customization/server/src/index"
       ],
@@ -107,26 +216,96 @@
       "@beep/customization-tables/*": [
         "../../packages/customization/tables/src/*"
       ],
-      "@beep/comms-server": ["../../packages/comms/server/src/index"],
-      "@beep/comms-server/*": ["../../packages/comms/server/src/*"],
-      "@beep/comms-domain": ["../../packages/comms/domain/src/index"],
-      "@beep/comms-domain/*": ["../../packages/comms/domain/src/*"],
-      "@beep/comms-tables": ["../../packages/comms/tables/src/index"],
-      "@beep/comms-tables/*": ["../../packages/comms/tables/src/*"],
-      "@beep/comms-client": ["../../packages/comms/client/src/index"],
-      "@beep/comms-client/*": ["../../packages/comms/client/src/*"],
-      "@beep/comms-ui": ["../../packages/comms/ui/src/index"],
-      "@beep/comms-ui/*": ["../../packages/comms/ui/src/*"],
-      "@beep/calendar-server": ["../../packages/calendar/server/src/index"],
-      "@beep/calendar-server/*": ["../../packages/calendar/server/src/*"],
-      "@beep/calendar-domain": ["../../packages/calendar/domain/src/index"],
-      "@beep/calendar-domain/*": ["../../packages/calendar/domain/src/*"],
-      "@beep/calendar-tables": ["../../packages/calendar/tables/src/index"],
-      "@beep/calendar-tables/*": ["../../packages/calendar/tables/src/*"],
-      "@beep/calendar-client": ["../../packages/calendar/client/src/index"],
-      "@beep/calendar-client/*": ["../../packages/calendar/client/src/*"],
-      "@beep/calendar-ui": ["../../packages/calendar/ui/src/index"],
-      "@beep/calendar-ui/*": ["../../packages/calendar/ui/src/*"]
+      "@beep/comms-server": [
+        "../../packages/comms/server/src/index"
+      ],
+      "@beep/comms-server/*": [
+        "../../packages/comms/server/src/*"
+      ],
+      "@beep/comms-domain": [
+        "../../packages/comms/domain/src/index"
+      ],
+      "@beep/comms-domain/*": [
+        "../../packages/comms/domain/src/*"
+      ],
+      "@beep/comms-tables": [
+        "../../packages/comms/tables/src/index"
+      ],
+      "@beep/comms-tables/*": [
+        "../../packages/comms/tables/src/*"
+      ],
+      "@beep/comms-client": [
+        "../../packages/comms/client/src/index"
+      ],
+      "@beep/comms-client/*": [
+        "../../packages/comms/client/src/*"
+      ],
+      "@beep/comms-ui": [
+        "../../packages/comms/ui/src/index"
+      ],
+      "@beep/comms-ui/*": [
+        "../../packages/comms/ui/src/*"
+      ],
+      "@beep/calendar-server": [
+        "../../packages/calendar/server/src/index"
+      ],
+      "@beep/calendar-server/*": [
+        "../../packages/calendar/server/src/*"
+      ],
+      "@beep/calendar-domain": [
+        "../../packages/calendar/domain/src/index"
+      ],
+      "@beep/calendar-domain/*": [
+        "../../packages/calendar/domain/src/*"
+      ],
+      "@beep/calendar-tables": [
+        "../../packages/calendar/tables/src/index"
+      ],
+      "@beep/calendar-tables/*": [
+        "../../packages/calendar/tables/src/*"
+      ],
+      "@beep/calendar-client": [
+        "../../packages/calendar/client/src/index"
+      ],
+      "@beep/calendar-client/*": [
+        "../../packages/calendar/client/src/*"
+      ],
+      "@beep/calendar-ui": [
+        "../../packages/calendar/ui/src/index"
+      ],
+      "@beep/calendar-ui/*": [
+        "../../packages/calendar/ui/src/*"
+      ],
+      "@beep/knowledge-server": [
+        "../../packages/knowledge/server/src/index"
+      ],
+      "@beep/knowledge-server/*": [
+        "../../packages/knowledge/server/src/*"
+      ],
+      "@beep/knowledge-domain": [
+        "../../packages/knowledge/domain/src/index"
+      ],
+      "@beep/knowledge-domain/*": [
+        "../../packages/knowledge/domain/src/*"
+      ],
+      "@beep/knowledge-tables": [
+        "../../packages/knowledge/tables/src/index"
+      ],
+      "@beep/knowledge-tables/*": [
+        "../../packages/knowledge/tables/src/*"
+      ],
+      "@beep/knowledge-client": [
+        "../../packages/knowledge/client/src/index"
+      ],
+      "@beep/knowledge-client/*": [
+        "../../packages/knowledge/client/src/*"
+      ],
+      "@beep/knowledge-ui": [
+        "../../packages/knowledge/ui/src/index"
+      ],
+      "@beep/knowledge-ui/*": [
+        "../../packages/knowledge/ui/src/*"
+      ]
     },
     "plugins": [
       {
@@ -224,6 +403,21 @@
     },
     {
       "path": "../../packages/calendar/ui/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/knowledge/server/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/knowledge/domain/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/knowledge/tables/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/knowledge/client/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/knowledge/ui/tsconfig.build.json"
     }
   ],
   "include": [

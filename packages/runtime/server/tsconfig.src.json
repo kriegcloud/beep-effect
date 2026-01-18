@@ -41,6 +41,10 @@
     },
     {
       "path": "../../calendar/server"
+    },
+
+    {
+      "path": "../../knowledge/server"
     }
   ],
   "compilerOptions": {

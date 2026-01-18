@@ -1427,6 +1427,104 @@
         "react-dom": "catalog:",
       },
     },
+    "packages/knowledge/client": {
+      "name": "@beep/knowledge-client",
+      "version": "0.0.0",
+      "devDependencies": {
+        "@babel/preset-react": "catalog:",
+        "@effect/docgen": "catalog:",
+        "@total-typescript/ts-reset": "catalog:",
+        "babel-plugin-transform-next-use-client": "catalog:",
+        "effect": "catalog:",
+      },
+      "peerDependencies": {
+        "effect": "catalog:",
+      },
+    },
+    "packages/knowledge/domain": {
+      "name": "@beep/knowledge-domain",
+      "version": "0.0.0",
+      "devDependencies": {
+        "@beep/schema": "workspace:^",
+        "@beep/shared-domain": "workspace:^",
+        "@effect/docgen": "catalog:",
+        "@effect/sql": "catalog:",
+        "@total-typescript/ts-reset": "catalog:",
+        "effect": "catalog:",
+      },
+      "peerDependencies": {
+        "@beep/schema": "workspace:^",
+        "@beep/shared-domain": "workspace:^",
+        "@effect/sql": "catalog:",
+        "effect": "catalog:",
+      },
+    },
+    "packages/knowledge/server": {
+      "name": "@beep/knowledge-server",
+      "version": "0.0.0",
+      "devDependencies": {
+        "@beep/knowledge-domain": "workspace:^",
+        "@beep/knowledge-tables": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "@beep/shared-domain": "workspace:^",
+        "@beep/shared-server": "workspace:^",
+        "@effect/docgen": "catalog:",
+        "@effect/platform": "catalog:",
+        "@effect/sql": "catalog:",
+        "@effect/sql-drizzle": "catalog:",
+        "@effect/sql-pg": "catalog:",
+        "@total-typescript/ts-reset": "catalog:",
+        "drizzle-orm": "catalog:",
+        "effect": "catalog:",
+      },
+      "peerDependencies": {
+        "@beep/knowledge-domain": "workspace:^",
+        "@beep/knowledge-tables": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "@beep/shared-domain": "workspace:^",
+        "@beep/shared-server": "workspace:^",
+        "@effect/platform": "catalog:",
+        "@effect/sql": "catalog:",
+        "@effect/sql-drizzle": "catalog:",
+        "@effect/sql-pg": "catalog:",
+        "drizzle-orm": "catalog:",
+        "effect": "catalog:",
+      },
+    },
+    "packages/knowledge/tables": {
+      "name": "@beep/knowledge-tables",
+      "version": "0.0.0",
+      "devDependencies": {
+        "@beep/knowledge-domain": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "@beep/shared-domain": "workspace:^",
+        "@beep/shared-tables": "workspace:^",
+        "@effect/docgen": "catalog:",
+        "@total-typescript/ts-reset": "catalog:",
+        "drizzle-orm": "catalog:",
+      },
+      "peerDependencies": {
+        "@beep/knowledge-domain": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "@beep/shared-domain": "workspace:^",
+        "@beep/shared-tables": "workspace:^",
+        "drizzle-orm": "catalog:",
+      },
+    },
+    "packages/knowledge/ui": {
+      "name": "@beep/knowledge-ui",
+      "version": "0.0.0",
+      "devDependencies": {
+        "@babel/preset-react": "catalog:",
+        "@effect/docgen": "catalog:",
+        "@total-typescript/ts-reset": "catalog:",
+        "babel-plugin-transform-next-use-client": "catalog:",
+        "effect": "catalog:",
+      },
+      "peerDependencies": {
+        "effect": "catalog:",
+      },
+    },
     "packages/runtime/client": {
       "name": "@beep/runtime-client",
       "version": "0.0.0",
@@ -3040,6 +3138,16 @@
     "@beep/identity": ["@beep/identity@workspace:packages/common/identity"],
 
     "@beep/invariant": ["@beep/invariant@workspace:packages/common/invariant"],
+
+    "@beep/knowledge-client": ["@beep/knowledge-client@workspace:packages/knowledge/client"],
+
+    "@beep/knowledge-domain": ["@beep/knowledge-domain@workspace:packages/knowledge/domain"],
+
+    "@beep/knowledge-server": ["@beep/knowledge-server@workspace:packages/knowledge/server"],
+
+    "@beep/knowledge-tables": ["@beep/knowledge-tables@workspace:packages/knowledge/tables"],
+
+    "@beep/knowledge-ui": ["@beep/knowledge-ui@workspace:packages/knowledge/ui"],
 
     "@beep/marketing": ["@beep/marketing@workspace:apps/marketing"],
 

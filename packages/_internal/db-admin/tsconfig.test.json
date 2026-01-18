@@ -49,6 +49,12 @@
     },
     {
       "path": "../../calendar/tables/tsconfig.build.json"
+    },
+    {
+      "path": "../../knowledge/server/tsconfig.build.json"
+    },
+    {
+      "path": "../../knowledge/tables/tsconfig.build.json"
     }
   ],
   "compilerOptions": {

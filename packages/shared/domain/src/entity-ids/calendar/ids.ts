@@ -14,27 +14,27 @@ const make = EntityId.builder("calendar");
 const $I = $SharedDomainId.create("entity-ids/calendar/ids");
 
 /**
- * Placeholder entity ID.
+ * CalendarEvent entity ID.
  *
  * Replace or rename with your actual entity IDs.
  *
  * @since 0.1.0
  * @category ids
  */
-export const PlaceholderId = make("placeholder", {
-  brand: "PlaceholderId",
+export const CalendarEventId = make("calendar_event", {
+  brand: "CalendarEventId",
 }).annotations(
-  $I.annotations("PlaceholderId", {
-    description: "A unique identifier for a Placeholder entity",
+  $I.annotations("CalendarEventId", {
+    description: "A unique identifier for a CalendarEvent entity",
   })
 );
 
-export declare namespace PlaceholderId {
-  export type Type = S.Schema.Type<typeof PlaceholderId>;
-  export type Encoded = S.Schema.Encoded<typeof PlaceholderId>;
+export declare namespace CalendarEventId {
+  export type Type = S.Schema.Type<typeof CalendarEventId>;
+  export type Encoded = S.Schema.Encoded<typeof CalendarEventId>;
 
   export namespace RowId {
-    export type Type = typeof PlaceholderId.privateSchema.Type;
-    export type Encoded = typeof PlaceholderId.privateSchema.Encoded;
+    export type Type = typeof CalendarEventId.privateSchema.Type;
+    export type Encoded = typeof CalendarEventId.privateSchema.Encoded;
   }
 }

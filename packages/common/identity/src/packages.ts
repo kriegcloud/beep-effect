@@ -70,7 +70,12 @@ const composers = $I.compose(
   "calendar-tables",
   "calendar-server",
   "calendar-client",
-  "calendar-ui"
+  "calendar-ui",
+  "knowledge-domain",
+  "knowledge-tables",
+  "knowledge-client",
+  "knowledge-server",
+  "knowledge-ui"
 );
 
 /**
@@ -822,3 +827,79 @@ export const $CalendarUiId = composers.$CalendarUiId;
  * @since 0.1.0
  */
 export const $WrapId = composers.$WrapId;
+
+
+/**
+ * Identity composer for the `@beep/wrap` namespace.
+ *
+ * @example
+ * ```typescript
+ * import { $KnowledgeDomainId } from "@beep/identity/packages"
+ *
+ * const componentId = $KnowledgeDomainId.make("EventCard")
+ * ```
+ *
+ * @category symbols
+ * @since 0.1.0
+ */
+export const $KnowledgeDomainId = composers.$KnowledgeDomainId;
+
+/**
+ * Identity composer for the `@beep/wrap` namespace.
+ *
+ * @example
+ * ```typescript
+ * import { $KnowledgeTablesId } from "@beep/identity/packages"
+ *
+ * const componentId = $KnowledgeTablesId.make("EventCard")
+ * ```
+ *
+ * @category symbols
+ * @since 0.1.0
+ */
+export const $KnowledgeTablesId = composers.$KnowledgeTablesId;
+
+/**
+ * Identity composer for the `@beep/wrap` namespace.
+ *
+ * @example
+ * ```typescript
+ * import { $KnowledgeClientId } from "@beep/identity/packages"
+ *
+ * const componentId = $KnowledgeClientId.make("EventCard")
+ * ```
+ *
+ * @category symbols
+ * @since 0.1.0
+ */
+export const $KnowledgeClientId = composers.$KnowledgeClientId;
+
+/**
+ * Identity composer for the `@beep/wrap` namespace.
+ *
+ * @example
+ * ```typescript
+ * import { $KnowledgeServerId } from "@beep/identity/packages"
+ *
+ * const componentId = $KnowledgeServerId.make("EventCard")
+ * ```
+ *
+ * @category symbols
+ * @since 0.1.0
+ */
+export const $KnowledgeServerId = composers.$KnowledgeServerId;
+
+/**
+ * Identity composer for the `@beep/wrap` namespace.
+ *
+ * @example
+ * ```typescript
+ * import { $KnowledgeUiId } from "@beep/identity/packages"
+ *
+ * const componentId = $KnowledgeUiId.make("EventCard")
+ * ```
+ *
+ * @category symbols
+ * @since 0.1.0
+ */
+export const $KnowledgeUiId = composers.$KnowledgeUiId;

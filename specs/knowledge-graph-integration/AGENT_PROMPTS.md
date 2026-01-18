@@ -244,6 +244,78 @@ Output: EmbeddingProvider interface design and implementation guide
 
 ---
 
+## Phase 4 Agents
+
+### mcp-researcher: Entity Resolution Algorithms
+
+```
+Research entity resolution and deduplication algorithms.
+
+Search topics:
+1. Similarity-based clustering algorithms (DBSCAN, hierarchical)
+2. Threshold-based entity matching
+3. Transitive closure for cluster merging
+4. Confidence-weighted canonical selection
+5. owl:sameAs semantics for provenance
+
+Focus on:
+- Effect-native clustering implementations
+- Scalability to 10K+ entities per organization
+- Incremental resolution (new entities added)
+- Cross-source entity matching
+
+Output: EntityResolution service design with clustering algorithm selection
+```
+
+### test-writer: Entity Resolution Tests
+
+```
+Create Effect-first tests for entity resolution.
+
+Target package: packages/knowledge/server/
+
+Test coverage:
+1. Similarity matrix computation for entity pairs
+2. Threshold-based clustering with configurable threshold
+3. Type consistency enforcement (same-type only)
+4. Canonical entity selection (mention frequency + confidence)
+5. owl:sameAs link generation
+6. Incremental resolution (adding new entities to existing clusters)
+
+Edge cases to test:
+- Empty entity set
+- Single entity (no resolution needed)
+- All entities identical (single cluster)
+- No entities similar (N clusters)
+- Transitive closure scenarios (A~B, B~C, but A!~C)
+
+Use @beep/testkit patterns with mock embedding service.
+
+Output: packages/knowledge/server/src/__tests__/EntityResolution.test.ts
+```
+
+### web-researcher: Entity Resolution State of the Art
+
+```
+Research state-of-the-art entity resolution techniques.
+
+Topics:
+1. Blocking strategies for scalable pairwise comparison
+2. Active learning for threshold tuning
+3. Deep learning approaches vs traditional clustering
+4. Evaluation metrics (precision, recall, F1 for clusters)
+5. Human-in-the-loop correction patterns
+
+Focus on:
+- Techniques that work with LLM-extracted entities
+- Methods that leverage embeddings
+- Approaches for multi-source heterogeneous data
+
+Output: Entity resolution strategy recommendation for knowledge graph
+```
+
+---
+
 ## Phase 5 Agents
 
 ### codebase-researcher: Agent Context Patterns
@@ -283,6 +355,169 @@ Focus on:
 - Context pruning for token limits
 
 Output: GraphRAG service design for agent context assembly
+```
+
+---
+
+## Phase 6 Agents
+
+### codebase-researcher: Email Integration Patterns
+
+```
+Analyze existing email handling patterns in Todox.
+
+Research questions:
+1. How are emails fetched and stored in the documents slice?
+2. What parsing is done on email content (HTML, attachments)?
+3. How is email metadata indexed for search?
+4. What triggers exist for processing new emails?
+
+Examine:
+- packages/documents/server/src/
+- apps/todox/src/features/email/
+- Any IMAP/email client integration
+
+Output: Email-to-extraction pipeline integration points
+```
+
+### mcp-researcher: Streaming Extraction Triggers
+
+```
+Research Effect patterns for reactive/streaming triggers.
+
+Search topics:
+1. Effect.Stream for continuous processing
+2. PubSub patterns with @effect/pubsub
+3. Queue-based extraction with @effect/queue
+4. Webhook trigger patterns
+5. Polling vs event-driven approaches
+
+Focus on:
+- Backpressure handling for high-volume email ingestion
+- Idempotent extraction (prevent re-processing)
+- Progress reporting during extraction
+
+Output: Real-time extraction trigger service design
+```
+
+### test-writer: Todox Integration Tests
+
+```
+Create Effect-first integration tests for Todox.
+
+Target: apps/todox/src/__tests__/
+
+Test coverage:
+1. Email → Extraction trigger flow
+2. Knowledge graph assembly from multiple sources
+3. Agent context injection with GraphRAG
+4. Progress event streaming
+5. Error handling for failed extractions
+
+Mock services:
+- LLM service (deterministic responses)
+- Email service (fixture emails)
+- Embedding service (pre-computed vectors)
+
+Use @beep/testkit patterns with Layer composition.
+
+Output: apps/todox/src/__tests__/knowledge-integration.test.ts
+```
+
+---
+
+## Phase 7 Agents
+
+### codebase-researcher: UI Component Patterns
+
+```
+Analyze existing UI component patterns in Todox.
+
+Research questions:
+1. What component library is used (Radix, Shadcn, custom)?
+2. How are complex visualizations handled (charts, graphs)?
+3. What state management patterns exist (TanStack Query, signals)?
+4. How are real-time updates displayed?
+5. What inspector/panel patterns exist?
+
+Examine:
+- apps/todox/src/components/
+- packages/common/ui/src/
+- Any graph visualization libraries in use
+
+Output: UI implementation patterns for knowledge graph components
+```
+
+### web-researcher: Graph Visualization Libraries
+
+```
+Research graph visualization libraries for React.
+
+Compare:
+1. react-force-graph - Force-directed 2D/3D graphs
+2. vis-network - Network visualization
+3. cytoscape.js - Graph theory visualization
+4. d3-force with React - Low-level control
+5. reactflow - Node-based UI builder
+
+Evaluation criteria:
+- Performance with 1000+ nodes
+- Interactivity (pan, zoom, click handlers)
+- Customization (node shapes, edge styles)
+- React 19 compatibility
+- Bundle size
+
+Focus on:
+- Entity-relation visualization patterns
+- Hierarchical type display
+- Evidence span highlighting
+
+Output: Graph visualization library recommendation
+```
+
+### mcp-researcher: React Query Patterns for Graphs
+
+```
+Research TanStack Query patterns for graph data.
+
+Search topics:
+1. Infinite query for paginated graph traversal
+2. Dependent queries for entity → relations fetching
+3. Optimistic updates for entity editing
+4. Cache invalidation strategies for graph mutations
+5. Streaming/SSE integration for real-time updates
+
+Focus on:
+- Query key design for graph entities
+- Normalization vs denormalization trade-offs
+- Prefetching adjacent nodes
+
+Output: TanStack Query patterns for knowledge graph UI
+```
+
+### test-writer: UI Component Tests
+
+```
+Create tests for knowledge graph UI components.
+
+Target: packages/knowledge/ui/src/__tests__/
+
+Test coverage:
+1. KnowledgeGraphViewer - rendering, interactions, performance
+2. EntityInspector - detail display, editing, evidence spans
+3. RelationExplorer - filtering, traversal, confidence display
+4. ExtractionProgress - status updates, error states
+
+Testing patterns:
+- React Testing Library for component tests
+- Storybook stories for visual documentation
+- Performance tests for large graphs (1000+ nodes)
+
+Use existing patterns from:
+- packages/iam/ui/src/__tests__/
+- apps/todox/src/components/__tests__/
+
+Output: packages/knowledge/ui/src/__tests__/
 ```
 
 ---

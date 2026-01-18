@@ -17,7 +17,7 @@ const $I = $SharedDomainId.create("entity-ids/calendar/table-names");
  * @since 0.1.0
  * @category ids
  */
-export class TableName extends BS.StringLiteralKit(Ids.PlaceholderId.tableName).annotations(
+export class TableName extends BS.StringLiteralKit(Ids.CalendarEventId.tableName).annotations(
   $I.annotations("CalendarTableName", {
     description: "A sql table name for an entity within the calendar domain context",
   })

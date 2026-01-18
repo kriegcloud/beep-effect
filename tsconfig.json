@@ -60,6 +60,9 @@
     },
     {
       "path": "./tsconfig.slices/calendar.json"
+    },
+    {
+      "path": "./tsconfig.slices/knowledge.json"
     }
   ]
 }

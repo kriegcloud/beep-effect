@@ -1,4 +1,3 @@
-/* Calendar */
 export {} from "@beep/calendar-tables/relations";
 export {} from "@beep/comms-tables/relations";
 export { userHotkeyRelations } from "@beep/customization-tables/relations";
@@ -31,3 +30,9 @@ export {
   twoFactorRelations,
   walletAddressRelations,
 } from "@beep/iam-tables/relations";
+
+/* Knowledge */
+export {embeddingRelations} from "@beep/knowledge-tables/relations";
+
+/* Calendar */
+export {calendarEventRelations} from "@beep/calendar-tables/relations";
