@@ -1,5 +1,5 @@
-import { $IamClientId } from "@beep/identity/packages";
 import * as Member from "@beep/iam-domain/entities/Member";
+import { $IamClientId } from "@beep/identity/packages";
 import { IamEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import * as Effect from "effect/Effect";
 import * as ParseResult from "effect/ParseResult";
@@ -26,7 +26,8 @@ export const BetterAuthEmbeddedUserSchema = S.Struct({
   image: S.NullOr(S.String),
 }).annotations(
   $I.annotations("BetterAuthEmbeddedUser", {
-    description: "Minimal embedded user returned by Better Auth for FullMember responses. Display-only, not transformable to User.Model.",
+    description:
+      "Minimal embedded user returned by Better Auth for FullMember responses. Display-only, not transformable to User.Model.",
   })
 );
 
@@ -167,7 +168,11 @@ export const DomainMemberFromBetterAuthMember = S.transformOrFail(BetterAuthMemb
       const isValidUserId = SharedEntityIds.UserId.is(ba.userId);
       if (!isValidUserId) {
         return yield* ParseResult.fail(
-          new ParseResult.Type(ast, ba.userId, `Invalid user ID format: expected "shared_user__<uuid>", got "${ba.userId}"`)
+          new ParseResult.Type(
+            ast,
+            ba.userId,
+            `Invalid user ID format: expected "shared_user__<uuid>", got "${ba.userId}"`
+          )
         );
       }
 

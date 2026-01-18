@@ -16,8 +16,7 @@ export default function SignInLayout({ children }: Props) {
           <SplashScreen />
         </AuthSplitLayout>
       }
-    >
-      <AuthSplitLayout>{children}</AuthSplitLayout>
-    </GuestGuard>
+      render={() => <AuthSplitLayout>{children}</AuthSplitLayout>}
+    />
   );
 }

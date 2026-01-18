@@ -9,19 +9,27 @@ import { Result } from "@effect-atom/atom-react";
 import * as O from "effect/Option";
 import React from "react";
 
-type GuestGuardProps = React.PropsWithChildren<{
+/**
+ * GuestGuard uses a render prop pattern to defer children evaluation.
+ * This is critical because React evaluates children JSX BEFORE the parent decides to render.
+ * Without deferral, hooks in children would be called during pendingFallback states,
+ * causing "Rendered fewer hooks than expected" errors.
+ */
+type GuestGuardProps = {
+  /** Function that returns children - defers evaluation until guard decides to show content */
+  readonly render: () => React.ReactNode;
   readonly redirectTo?: string | undefined;
   readonly pendingFallback?: React.ReactNode | undefined;
-}>;
+};
 
 type GuestGuardContentProps = GuestGuardProps;
 
 /**
  * Inner component that handles session state and renders appropriately.
- * Guests see children, authenticated users are redirected.
+ * Guests see children (via render prop), authenticated users are redirected.
  */
 const GuestGuardContent: React.FC<GuestGuardContentProps> = ({
-  children,
+  render,
   redirectTo = "/",
   pendingFallback = <SplashScreen />,
 }) => {
@@ -54,7 +62,7 @@ const GuestGuardContent: React.FC<GuestGuardContentProps> = ({
     .onDefect(() => Fallback)
     .onSuccess(({ data }) =>
       O.match(data, {
-        onNone: () => children, // Guest (no session) - show content
+        onNone: () => render(), // Guest (no session) - call render to evaluate children
         onSome: () => {
           // Authenticated - redirect away from guest-only page
           void router.replace(redirectTo);

@@ -13,7 +13,7 @@ import { oauthProvider } from "@better-auth/oauth-provider";
 import { passkey } from "@better-auth/passkey";
 import { scim } from "@better-auth/scim";
 import { sso } from "@better-auth/sso";
-import { stripe } from "@better-auth/stripe";
+// import { stripe } from "@better-auth/stripe";
 import type { Auth, BetterAuthOptions, BetterAuthPlugin } from "better-auth";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
@@ -49,7 +49,7 @@ import * as P from "effect/Predicate";
 import * as Redacted from "effect/Redacted";
 import * as Runtime from "effect/Runtime";
 import * as S from "effect/Schema";
-import { Stripe } from "stripe";
+// import { Stripe } from "stripe";
 import {
   AuthEmailService,
   type AuthEmailServiceShape,
@@ -73,15 +73,15 @@ const normalizeUrl = (url: { toString: () => string }, fallback: { toString: () 
   }
 };
 
-const PRO_PRICE_ID = {
-  default: "price_1RoxnRHmTADgihIt4y8c0lVE",
-  annual: "price_1RoxnoHmTADgihItzFvVP8KT",
-} as const;
-
-const PLUS_PRICE_ID = {
-  default: "price_1RoxnJHmTADgihIthZTLmrPn",
-  annual: "price_1Roxo5HmTADgihItEbJu5llL",
-} as const;
+// const PRO_PRICE_ID = {
+//   default: "price_1RoxnRHmTADgihIt4y8c0lVE",
+//   annual: "price_1RoxnoHmTADgihItzFvVP8KT",
+// } as const;
+//
+// const PLUS_PRICE_ID = {
+//   default: "price_1RoxnJHmTADgihIthZTLmrPn",
+//   annual: "price_1Roxo5HmTADgihItEbJu5llL",
+// } as const;
 
 const additionalFieldsCommon = {
   _rowId: {
@@ -351,7 +351,7 @@ export const makeAuth = ({
       },
     },
     emailVerification: {
-      sendOnSignUp: true,
+      sendOnSignUp: false, // TODO: TEMP DISABLED FOR DEBUGGING
       sendVerificationEmail: async (params) =>
         void (await runPromise(
           Effect.flatMap(
@@ -509,31 +509,32 @@ export const makeAuth = ({
       // - Core fields: plan, referenceId, stripeCustomerId, status, periodStart,
       //   periodEnd, cancelAtPeriodEnd, seats
       // See: packages/iam/tables/src/tables/subscription.table.ts
-      stripe({
-        stripeClient: new Stripe(Redacted.value(serverEnv.payment.stripe.key) || "sk_test_"),
-        stripeWebhookSecret: Redacted.value(serverEnv.payment.stripe.webhookSecret),
-        subscription: {
-          enabled: false,
-          plans: [
-            {
-              name: "plus",
-              priceId: PLUS_PRICE_ID.default,
-              annualDiscountPriceId: PLUS_PRICE_ID.annual,
-              freeTrial: {
-                days: 7,
-              },
-            },
-            {
-              name: "pro",
-              priceId: PRO_PRICE_ID.default,
-              annualDiscountPriceId: PRO_PRICE_ID.annual,
-              freeTrial: {
-                days: 7,
-              },
-            },
-          ],
-        },
-      }),
+      // TODO: TEMP DISABLED FOR DEBUGGING - Stripe plugin causing JSON parse error
+      // stripe({
+      //   stripeClient: new Stripe(Redacted.value(serverEnv.payment.stripe.key) || "sk_test_"),
+      //   stripeWebhookSecret: Redacted.value(serverEnv.payment.stripe.webhookSecret),
+      //   subscription: {
+      //     enabled: false,
+      //     plans: [
+      //       {
+      //         name: "plus",
+      //         priceId: PLUS_PRICE_ID.default,
+      //         annualDiscountPriceId: PLUS_PRICE_ID.annual,
+      //         freeTrial: {
+      //           days: 7,
+      //         },
+      //       },
+      //       {
+      //         name: "pro",
+      //         priceId: PRO_PRICE_ID.default,
+      //         annualDiscountPriceId: PRO_PRICE_ID.annual,
+      //         freeTrial: {
+      //           days: 7,
+      //         },
+      //       },
+      //     ],
+      //   },
+      // }),
       // Schema configuration: PARTIAL support (modelName + fields only)
       // - additionalFields NOT supported by this plugin (InferOptionSchema)
       // - Table.make defaults (_rowId, deletedAt, createdAt, updatedAt, createdBy,

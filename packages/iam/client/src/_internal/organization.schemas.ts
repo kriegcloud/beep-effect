@@ -1,5 +1,5 @@
 import { $IamClientId } from "@beep/identity/packages";
-import { BS } from "@beep/schema";
+import type { BS } from "@beep/schema";
 import { SharedEntityIds } from "@beep/shared-domain";
 import { Organization } from "@beep/shared-domain/entities";
 import * as Effect from "effect/Effect";
@@ -195,10 +195,12 @@ export const DomainOrganizationFromBetterAuthOrganization = S.transformOrFail(
 
         // Handle features JSON field - domain model uses FieldOptionOmittable(BS.Json)
         // BS.Json encoded type is the JSON value itself
-        const features: BS.Json.Type = ba.features !== undefined && ba.features !== null ? (ba.features as BS.Json.Type) : {};
+        const features: BS.Json.Type =
+          ba.features !== undefined && ba.features !== null ? (ba.features as BS.Json.Type) : {};
 
         // Handle settings JSON field - domain model uses FieldOptionOmittable(BS.Json)
-        const settings: BS.Json.Type = ba.settings !== undefined && ba.settings !== null ? (ba.settings as BS.Json.Type) : {};
+        const settings: BS.Json.Type =
+          ba.settings !== undefined && ba.settings !== null ? (ba.settings as BS.Json.Type) : {};
 
         // ownerUserId is required in the domain model
         if (!ba.ownerUserId) {

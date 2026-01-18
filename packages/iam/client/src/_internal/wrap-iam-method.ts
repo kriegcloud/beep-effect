@@ -202,7 +202,8 @@ export function wrapIamMethod<
         }
 
         // 6. Transform response if needed, then decode using successSchema
-        const dataToEncode = config.transformResponse !== undefined ? config.transformResponse(response) : response.data;
+        const dataToEncode =
+          config.transformResponse !== undefined ? config.transformResponse(response) : response.data;
         return yield* S.decodeUnknown(config.wrapper.successSchema)(dataToEncode);
       }).pipe(
         // Map ALL errors (ParseError, ReCaptcha errors, etc.) to IamError
