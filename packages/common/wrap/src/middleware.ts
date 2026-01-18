@@ -1,5 +1,5 @@
 /**
- * @since 1.0.0
+ * @since 0.1.0
  */
 
 import { $WrapId } from "@beep/identity/packages";
@@ -16,19 +16,19 @@ import type * as Wrapper from "./wrapper";
 const $I = $WrapId.create("middleware");
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category type ids
  */
 export const TypeId: unique symbol = Symbol.for($I`WrapperMiddleware`);
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category type ids
  */
 export type TypeId = typeof TypeId;
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category models
  */
 export interface WrapperMiddleware<Provides, E> {
@@ -41,7 +41,7 @@ export interface WrapperMiddleware<Provides, E> {
 }
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category models
  */
 export interface WrapperMiddlewareWrap<Provides, E> {
@@ -56,7 +56,7 @@ export interface WrapperMiddlewareWrap<Provides, E> {
 }
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category models
  */
 export interface SuccessValue {
@@ -64,7 +64,7 @@ export interface SuccessValue {
 }
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category models
  */
 export interface WrapperMiddlewareClient<R = never> {
@@ -76,7 +76,7 @@ export interface WrapperMiddlewareClient<R = never> {
 }
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category models
  */
 export interface ForClient<Id> {
@@ -85,7 +85,7 @@ export interface ForClient<Id> {
 }
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category models
  */
 export interface Any {
@@ -98,7 +98,7 @@ export interface Any {
 }
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category models
  */
 export interface TagClass<Self, Name extends string, Options>
@@ -112,12 +112,12 @@ export interface TagClass<Self, Name extends string, Options>
   > {}
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category models
  */
 export declare namespace TagClass {
   /**
-   * @since 1.0.0
+   * @since 0.1.0
    * @category models
    */
   export type Provides<Options> = Options extends {
@@ -128,7 +128,7 @@ export declare namespace TagClass {
     : never;
 
   /**
-   * @since 1.0.0
+   * @since 0.1.0
    * @category models
    */
   export type Service<Options> = Options extends {
@@ -138,7 +138,7 @@ export declare namespace TagClass {
     : void;
 
   /**
-   * @since 1.0.0
+   * @since 0.1.0
    * @category models
    */
   export type FailureSchema<Options> = Options extends { readonly failure: S.Schema.All; readonly optional?: false }
@@ -146,7 +146,7 @@ export declare namespace TagClass {
     : typeof S.Never;
 
   /**
-   * @since 1.0.0
+   * @since 0.1.0
    * @category models
    */
   export type Failure<Options> = Options extends {
@@ -157,37 +157,37 @@ export declare namespace TagClass {
     : never;
 
   /**
-   * @since 1.0.0
+   * @since 0.1.0
    * @category models
    */
   export type FailureContext<Options> = S.Schema.Context<FailureSchema<Options>>;
 
   /**
-   * @since 1.0.0
+   * @since 0.1.0
    * @category models
    */
   export type FailureService<Options> = Optional<Options> extends true ? unknown : Failure<Options>;
 
   /**
-   * @since 1.0.0
+   * @since 0.1.0
    * @category models
    */
   export type Optional<Options> = Options extends { readonly optional: true } ? true : false;
 
   /**
-   * @since 1.0.0
+   * @since 0.1.0
    * @category models
    */
   export type RequiredForClient<Options> = Options extends { readonly requiredForClient: true } ? true : false;
 
   /**
-   * @since 1.0.0
+   * @since 0.1.0
    * @category models
    */
   export type Wrap<Options> = Options extends { readonly wrap: true } ? true : false;
 
   /**
-   * @since 1.0.0
+   * @since 0.1.0
    * @category models
    */
   export interface Base<Self, Name extends string, Options, Service> extends Context.Tag<Self, Service> {
@@ -204,7 +204,7 @@ export declare namespace TagClass {
 }
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category models
  */
 export interface TagClassAny extends Context.Tag<UnsafeTypes.UnsafeAny, UnsafeTypes.UnsafeAny> {
@@ -217,7 +217,7 @@ export interface TagClassAny extends Context.Tag<UnsafeTypes.UnsafeAny, UnsafeTy
 }
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category models
  */
 export interface TagClassAnyWithProps
@@ -235,7 +235,7 @@ export interface TagClassAnyWithProps
 }
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category tags
  */
 export const Tag =
@@ -289,7 +289,7 @@ export const Tag =
   };
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category client
  */
 export const layerClient = <Id, S, R, EX = never, RX = never>(

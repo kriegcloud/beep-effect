@@ -3,7 +3,8 @@
   "include": [],
   "exclude": ["src/**/*.test.ts"],
   "compilerOptions": {
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "tsBuildInfoFile": "./build/tsconfig.tsbuildinfo"
   },
   "references": [
     {

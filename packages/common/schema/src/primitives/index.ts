@@ -42,6 +42,7 @@ export * from "./bool";
  * @since 0.1.0
  */
 export * from "./duration";
+export * from "./effect";
 /**
  * Function type schemas and guards.
  *

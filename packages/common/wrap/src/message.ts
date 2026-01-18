@@ -1,5 +1,5 @@
 /**
- * @since 1.0.0
+ * @since 0.1.0
  */
 
 import { $WrapId } from "@beep/identity/packages";
@@ -14,44 +14,44 @@ import type * as Wrapper from "./wrapper";
 const $I = $WrapId.create("message");
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category request
  */
 export type FromClient<A extends Wrapper.Any> = Request<A> | Ack | Interrupt | Eof;
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category request
  */
 export type FromClientEncoded = RequestEncoded | AckEncoded | InterruptEncoded | Ping | Eof;
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category request
  */
 export const RequestIdTypeId: unique symbol = Symbol.for($I`RequestId`);
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category request
  */
 export type RequestIdTypeId = typeof RequestIdTypeId;
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category request
  */
 export type RequestId = Branded<bigint, RequestIdTypeId>;
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category request
  */
 export const RequestId = (id: bigint | string): RequestId =>
   typeof id === "bigint" ? (id as RequestId) : (BigInt(id) as RequestId);
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category request
  */
 export interface RequestEncoded {
@@ -66,7 +66,7 @@ export interface RequestEncoded {
 }
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category request
  */
 export interface Request<A extends Wrapper.Any> {
@@ -81,7 +81,7 @@ export interface Request<A extends Wrapper.Any> {
 }
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category request
  */
 export interface Ack {
@@ -90,7 +90,7 @@ export interface Ack {
 }
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category request
  */
 export interface Interrupt {
@@ -100,7 +100,7 @@ export interface Interrupt {
 }
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category request
  */
 export interface AckEncoded {
@@ -109,7 +109,7 @@ export interface AckEncoded {
 }
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category request
  */
 export interface InterruptEncoded {
@@ -118,7 +118,7 @@ export interface InterruptEncoded {
 }
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category request
  */
 export interface Eof {
@@ -126,7 +126,7 @@ export interface Eof {
 }
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category request
  */
 export interface Ping {
@@ -134,25 +134,25 @@ export interface Ping {
 }
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category request
  */
 export const constEof: Eof = { _tag: "Eof" };
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category request
  */
 export const constPing: Ping = { _tag: "Ping" };
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category response
  */
 export type FromServer<A extends Wrapper.Any> = ResponseChunk<A> | ResponseExit<A> | ResponseDefect | ClientEnd;
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category response
  */
 export type FromServerEncoded =
@@ -163,25 +163,25 @@ export type FromServerEncoded =
   | ClientProtocolError;
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category response
  */
 export const ResponseIdTypeId: unique symbol = Symbol.for("@effect/rpc/WrapperServer/ResponseId");
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category response
  */
 export type ResponseIdTypeId = typeof ResponseIdTypeId;
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category response
  */
 export type ResponseId = Branded<number, ResponseIdTypeId>;
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category response
  */
 export interface ResponseChunkEncoded {
@@ -191,7 +191,7 @@ export interface ResponseChunkEncoded {
 }
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category response
  */
 export interface ResponseChunk<A extends Wrapper.Any> {
@@ -202,7 +202,7 @@ export interface ResponseChunk<A extends Wrapper.Any> {
 }
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category response
  */
 export interface ResponseExitEncoded {
@@ -212,7 +212,7 @@ export interface ResponseExitEncoded {
 }
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category response
  */
 export interface ClientProtocolError {
@@ -221,7 +221,7 @@ export interface ClientProtocolError {
 }
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category response
  */
 export interface ResponseExit<A extends Wrapper.Any> {
@@ -232,7 +232,7 @@ export interface ResponseExit<A extends Wrapper.Any> {
 }
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category response
  */
 export interface ResponseDefectEncoded {
@@ -243,7 +243,7 @@ export interface ResponseDefectEncoded {
 const encodeDefect = S.encodeSync(S.Defect);
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category response
  */
 export const ResponseDefectEncoded = (input: unknown): ResponseDefectEncoded => ({
@@ -252,7 +252,7 @@ export const ResponseDefectEncoded = (input: unknown): ResponseDefectEncoded => 
 });
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category response
  */
 export interface ResponseDefect {
@@ -262,7 +262,7 @@ export interface ResponseDefect {
 }
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category response
  */
 export interface ClientEnd {
@@ -271,7 +271,7 @@ export interface ClientEnd {
 }
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category response
  */
 export interface Pong {
@@ -279,7 +279,7 @@ export interface Pong {
 }
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category response
  */
 export const constPong: Pong = { _tag: "Pong" };

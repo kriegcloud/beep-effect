@@ -1,2 +1,10 @@
-export * as Contract from "./create.contract.ts";
-export { Handler } from "./create.handler.ts";
+/**
+ * @fileoverview
+ * Public exports for Create organization feature.
+ *
+ * @module @beep/iam-client/organization/crud/create
+ * @category Organization/CRUD
+ * @since 0.1.0
+ */
+
+export * as Create from "./mod.ts";

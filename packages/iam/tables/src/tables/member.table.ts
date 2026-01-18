@@ -1,7 +1,7 @@
 import { Member } from "@beep/iam-domain/entities";
 import type { SharedEntityIds } from "@beep/shared-domain";
 import { IamEntityIds } from "@beep/shared-domain";
-import { datetime, OrgTable } from "@beep/shared-tables";
+import { datetime, OrgTable, SharedDbSchema } from "@beep/shared-tables";
 import * as pg from "drizzle-orm/pg-core";
 
 export const memberRoleEnum = Member.makeMemberRolePgEnum("member_role_enum");
@@ -13,7 +13,13 @@ export const member = OrgTable.make(IamEntityIds.MemberId)(
     // Enhanced member tracking fields
     status: memberStatusEnum("status").notNull().default("active"), // 'active', 'invited', 'suspended', 'inactive'
     // todo make not null
-    invitedBy: pg.text("invited_by"), // User ID who sent the invitation (relation defined in relations.ts)
+    invitedBy: pg
+      .text("invited_by")
+      .references(() => SharedDbSchema.user.id, {
+        onUpdate: "cascade",
+        onDelete: "set null",
+      })
+      .$type<SharedEntityIds.UserId.Type>(), // User ID who sent the invitation (relation defined in relations.ts)
     // todo make not null
     invitedAt: datetime("invited_at"), // When invitation was sent
     // todo make not null

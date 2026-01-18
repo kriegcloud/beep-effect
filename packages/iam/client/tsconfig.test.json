@@ -50,6 +50,7 @@
     "rootDir": "test",
     "tsBuildInfoFile": "./build/tsconfig.test.tsbuildinfo",
     "noEmit": true,
-    "outDir": "build/test"
+    "outDir": "build/test",
+    "plugins": []
   }
 }

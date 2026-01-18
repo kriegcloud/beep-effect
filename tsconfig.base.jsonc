@@ -41,10 +41,6 @@
     "plugins": [
       {
         "name": "@effect/language-service",
-        "transform": "@effect/language-service/transform",
-        "diagnosticSeverity": {
-
-        },
         "mermaidProvider": "mermaid.live",
         "namespaceImportPackages": [
           "effect",

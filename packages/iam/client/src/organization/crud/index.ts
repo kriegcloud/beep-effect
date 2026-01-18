@@ -1,6 +1,10 @@
-export * as Create from "./create/index.ts";
-export * as Delete from "./delete/index.ts";
-export * as GetFull from "./get-full/index.ts";
-export * as List from "./list/index.ts";
-export * as SetActive from "./set-active/index.ts";
-export * as Update from "./update/index.ts";
+/**
+ * @fileoverview
+ * Public exports for Organization CRUD submodule.
+ *
+ * @module @beep/iam-client/organization/crud
+ * @category Organization/CRUD
+ * @since 0.1.0
+ */
+
+export * as Crud from "./mod.ts";

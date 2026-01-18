@@ -2,10 +2,10 @@
 
 ## Purpose & Fit
 
-`@beep/iam-client` is the typed contract layer that bridges Better Auth’s React client with Effect-first flows across the
-repo. The package now centers on contract schemas plus thin Effect implementations—`AuthHandler.make`, keyed semaphores,
-and the old `auth-wrapper` pipeline are gone. UI slices (`packages/iam/ui`, `apps/web`) consume these contracts directly
-through runtime helpers, while adapters keep raw Better Auth usage isolated to this workspace.
+`@beep/iam-client` is the typed contract layer that bridges Better Auth's React client with Effect-first flows across the
+repo. The package centers on contract schemas plus thin Effect implementations using `wrapIamMethod`. UI slices
+(`packages/iam/ui`, `apps/web`) consume these contracts directly through runtime helpers, while adapters keep raw
+Better Auth usage isolated to this workspace.
 
 ## Surface Map
 
@@ -13,18 +13,16 @@ through runtime helpers, while adapters keep raw Better Auth usage isolated to t
 - **Adapters (`src/adapters/better-auth/*`)** — instantiate the Better Auth React client with all required plugins
   (`client.ts`) and wrap provider errors (`errors.ts`). `$store` and client methods are re-exported for guards that need to
   bind to session state.
-- **Errors (`src/errors.ts`)** — wraps `BetterAuthError` into the shared `IamError` class so UI callers always receive
-  consistent metadata (`code`, `status`, `plugin`, `method`).
-- **V1 Modules (`src/v1/*`)** — each domain directory (sign-in, sign-up, passkey, two-factor, etc.) exports schemas,
-  forms, and atoms for reactive state management. These modules integrate with Better Auth via adapters and expose
-  React hooks for form handling (`useSignInEmailForm`, `useSignUpEmailForm`, etc.) and atoms for runtime-powered flows
-  (passkey atoms, password recovery atoms, etc.). Common schemas and helpers live in `src/v1/_common/`.
-- **Atom Layer (`src/atom/*`)** — contains higher-level atoms that compose v1 module primitives with runtime layers,
-  providing ready-to-use reactive state for sign-in, sign-up, and session management.
-- **Constants (`src/constants/AuthCallback/`)** — `AuthCallback` sanitisation helpers to keep callback URLs constrained to known
-  private prefixes.
-- **Tests (`test/`)** — test suites for IAM client functionality. Add focused tests beside new logic to ensure proper
-  integration with Better Auth and Effect runtime.
+- **Core (`src/core/*`)** — session management and sign-out handlers.
+- **Sign-In (`src/sign-in/*`)** — email and username sign-in handlers with contract schemas.
+- **Sign-Up (`src/sign-up/*`)** — email sign-up handler with password confirmation validation.
+- **Password (`src/password/*`)** — change, request-reset, and reset password handlers.
+- **Two-Factor (`src/two-factor/*`)** — enable, disable, TOTP, OTP, and backup code handlers.
+- **Organization (`src/organization/*`)** — CRUD, invitations, and members handlers.
+- **Multi-Session (`src/multi-session/*`)** — list, revoke, and set-active session handlers.
+- **Email Verification (`src/email-verification/*`)** — send verification email handler.
+- **Internal (`src/_internal/*`)** — shared utilities: `wrapIamMethod` factory, error handling, schemas, and runtime helpers.
+- **Tests (`test/`)** — test suites for IAM client functionality.
 
 ## Usage Snapshots
 
@@ -37,6 +35,7 @@ through runtime helpers, while adapters keep raw Better Auth usage isolated to t
 ## Related Documentation
 
 - `/home/elpresidank/YeeBois/projects/beep-effect/packages/common/schema/AGENTS.md` — canonical reference for Effect Schema patterns and primitives used throughout IAM schemas.
+- `/home/elpresidank/YeeBois/projects/beep-effect/documentation/patterns/iam-client-patterns.md` — full pattern reference for contracts, handlers, services, and layers.
 
 ## Authoring Guardrails
 
@@ -45,79 +44,112 @@ through runtime helpers, while adapters keep raw Better Auth usage isolated to t
   `effect/String`.
 - Use Effect Schema (`import * as S from "effect/Schema"`) with PascalCase constructors (`S.Struct`, `S.String`, `S.Number`)
   for all validation schemas in forms and API payloads.
-- When integrating with Better Auth, wrap calls in `Effect.gen` or `Effect.tryPromise` to maintain Effect-first semantics.
-  Use `IamError.match` to normalize Better Auth errors into structured `IamError` instances.
-- Fire `client.$store.notify("$sessionSignal")` after any successful operation that mutates session state (sign-in, sign-out, passkey, social). Guards rely on that signal.
+- When integrating with Better Auth, use `wrapIamMethod` from `@beep/iam-client/_internal` to maintain Effect-first semantics
+  with automatic encoding, error handling, and session notification.
+- Fire `client.$store.notify("$sessionSignal")` after any successful operation that mutates session state (sign-in, sign-out, passkey, social). The `wrapIamMethod` factory handles this when `mutatesSession: true`.
 - Atoms MUST use `withToast` wrapper from `@beep/ui/common/with-toast` for optimistic updates and user feedback.
   Keep atoms narrowly focused on single operations (sign-in, sign-out, password change).
 - Keep `AuthCallback` prefixes aligned with app middleware in `apps/web`. Update both whenever authenticated route trees move.
 
 ## Implemented Handler Patterns
 
-This section documents the handler patterns currently implemented in `@beep/iam-client` with example locations for reference.
+All handlers use the canonical `wrapIamMethod` pattern with `Wrapper.implement()`:
 
 | Pattern | Example Location | Key Characteristics |
 |---------|------------------|---------------------|
-| No-payload factory | `src/core/sign-out/` | No `payloadSchema`, returns status |
-| With-payload factory | `src/sign-in/email/` | Has `payloadSchema`, validates input |
-| Manual handler | `src/core/get-session/` | Custom execute logic, complex transforms |
+| Standard handler | `src/sign-in/email/` | Payload schema + success schema |
+| No-payload handler | `src/core/sign-out/` | No payload, returns status |
+| Transform pattern | `src/sign-up/email/` | `PayloadFrom` + `Payload` transform for computed fields |
+| Query-wrapped handler | `src/organization/members/list/` | Better Auth expects `{ query: payload }` |
 
-### When to Use Factory vs Manual
+### Handler Structure
 
-**Use Factory Pattern** (`createHandler`) when:
-- Standard `{ data, error }` response shape from Better Auth
-- No computed fields needed in payload (fields are 1:1 with API)
-- Simple encode → execute → decode flow
-- Standard error handling (check `response.error`, decode `response.data`)
+Every handler uses the same pattern:
 
-**Use Manual Handler** when:
-- Response shape differs from Better Auth's standard `{ data, error }`
-- Payload requires computed fields (e.g., hashing password, combining firstName+lastName → name)
-- Custom error transformation needed beyond standard `IamError` mapping
-- Multiple Better Auth calls in sequence (e.g., sign-up → verify → sign-in)
-- Complex validation beyond schema (e.g., password strength, email domain allowlist)
+```ts
+import * as Common from "@beep/iam-client/_internal";
+import { client } from "@beep/iam-client/adapters";
+import * as Contract from "./contract.ts";
 
-**Examples of When Manual is Required:**
-- `sign-up/email`: Computed `name` field from `firstName` + `lastName`
-- Custom flows with multi-step Better Auth calls
-- Payload transformations that go beyond schema encoding
+export const Handler = Contract.Wrapper.implement(
+  Common.wrapIamMethod({
+    wrapper: Contract.Wrapper,
+    mutatesSession: true,  // or false
+  })((encodedPayload) => client.someMethod(encodedPayload))
+);
+```
 
 ## Quick Recipes
 
-### Create a handler with the factory pattern
+### Create a handler with wrapIamMethod
 
-The handler factory (`createHandler`) reduces boilerplate and ensures consistent patterns:
+The `wrapIamMethod` factory handles encoding, error checking, and session notification:
 
 ```ts
+import * as Common from "@beep/iam-client/_internal";
 import { client } from "@beep/iam-client/adapters";
-import { createHandler } from "../../_common/handler.factory.ts";
-import * as Contract from "./my-feature.contract.ts";
+import * as Contract from "./contract.ts";
 
 // With payload (sign-in, sign-up)
-export const Handler = createHandler({
-  domain: "sign-in",
-  feature: "email",
-  execute: (encoded) => client.signIn.email(encoded),
-  successSchema: Contract.Success,
-  payloadSchema: Contract.Payload,
-  mutatesSession: true,
-});
+export const Handler = Contract.Wrapper.implement(
+  Common.wrapIamMethod({
+    wrapper: Contract.Wrapper,
+    mutatesSession: true,
+  })((encodedPayload) => client.signIn.email(encodedPayload))
+);
 
-// Without payload (sign-out, get-session)
-export const Handler = createHandler({
-  domain: "core",
-  feature: "sign-out",
-  execute: () => client.signOut(),
-  successSchema: Contract.Success,
-  mutatesSession: true,
-});
+// Without payload (sign-out)
+export const Handler = Contract.Wrapper.implement(
+  Common.wrapIamMethod({
+    wrapper: Contract.Wrapper,
+    mutatesSession: true,
+  })(() => client.signOut())
+);
 ```
 
 **Benefits:**
-- Auto-generates Effect.fn span name: `"{domain}/{feature}/handler"`
-- Properly checks `response.error` before decoding
+- Auto-generates Effect.fn span name from wrapper tag
+- Properly encodes payload using `payloadSchema`
+- Checks `response.error` before decoding
 - Notifies `$sessionSignal` when `mutatesSession: true`
-- Reduces handler code from ~20 lines to ~8 lines
+- Maps all errors to `IamError` type
+
+### Create a contract
+
+Contracts use `W.Wrapper.make()` with `formValuesAnnotation` for form defaults:
+
+```ts
+import * as Common from "@beep/iam-client/_internal";
+import { formValuesAnnotation } from "@beep/iam-client/_internal";
+import { $IamClientId } from "@beep/identity/packages";
+import * as W from "@beep/wrap";
+import * as S from "effect/Schema";
+
+const $I = $IamClientId.create("sign-in/email");
+
+export class Payload extends S.Class<Payload>($I`Payload`)(
+  {
+    email: Common.UserEmail,
+    password: Common.UserPassword,
+  },
+  formValuesAnnotation({
+    email: "",
+    password: "",
+  })
+) {}
+
+export class Success extends S.Class<Success>($I`Success`)(
+  {
+    user: Common.DomainUserFromBetterAuthUser,
+  }
+) {}
+
+export const Wrapper = W.Wrapper.make("Email", {
+  payload: Payload,
+  success: Success,
+  error: Common.IamError,
+});
+```
 
 ### Wire a sign-out atom with toast feedback
 
@@ -153,44 +185,6 @@ export const signOutAtom = runtime.fn(
 );
 ```
 
-### Integrate Better Auth with Effect runtime
-
-```ts
-import * as Effect from "effect/Effect";
-import * as F from "effect/Function";
-import { client } from "@beep/iam-client/adapters";
-import { IamError } from "@beep/iam-client/errors";
-
-export const signInWithProvider = (provider: string, callbackURL?: string) =>
-  Effect.gen(function* () {
-    const result = yield* Effect.tryPromise({
-      try: () =>
-        client.signIn.social({
-          provider,
-          callbackURL,
-        }),
-      catch: (error) =>
-        IamError.match(error, {
-          method: "signInWithProvider",
-          domain: "auth",
-          plugin: "social",
-        }),
-    });
-
-    if (result.error) {
-      return yield* Effect.fail(
-        IamError.new(result.error, "Social sign-in failed", {
-          method: "signInWithProvider",
-          domain: "auth",
-        })
-      );
-    }
-
-    client.$store.notify("$sessionSignal");
-    return result.data;
-  });
-```
-
 ### Sanitize callback targets before redirecting
 
 ```ts
@@ -200,6 +194,26 @@ import { AuthCallback } from "@beep/iam-client";
 
 export const resolveCallbackTarget = (raw: string | null | undefined) =>
   F.pipe(raw ?? AuthCallback.defaultTarget, Str.trim, AuthCallback.sanitizePath);
+```
+
+### Compose WrapperGroups for module layers
+
+```ts
+import { Wrap } from "@beep/wrap";
+import { Email } from "./email";
+import { Username } from "./username";
+
+// Flat module (positional arguments)
+export const Group = Wrap.WrapperGroup.make(Email.Wrapper, Username.Wrapper);
+
+// Nested module (use .merge() instance method)
+export const OrganizationGroup = CrudGroup.merge(InvitationsGroup, MembersGroup);
+
+// Create layer from group
+export const layer = Group.toLayer({
+  Email: Email.Handler,
+  Username: Username.Handler,
+});
 ```
 
 ## Verifications
@@ -215,24 +229,19 @@ export const resolveCallbackTarget = (raw: string | null | undefined) =>
 
 ## Contributor Checklist
 
-- Add new Better Auth flows by creating matching schema/form/atom files in `src/v1/[feature]/` directories.
-  Follow the existing pattern: `*.schema.ts` for Effect Schema definitions, `*.forms.ts` for React hook form helpers,
-  and `*.atoms.ts` for reactive state with runtime integration.
-- Wrap Better Auth calls in `Effect.tryPromise` or `Effect.gen` with proper error handling via `IamError.match`.
-  Ensure error metadata includes `method`, `domain`, and `plugin` fields for structured telemetry.
-- Ensure credential-bearing fields (email, password, tokens) use `S.Redacted(S.String)` in schemas and extract values
-  via `Redacted.value()` before passing to Better Auth.
-- Keep session-mutating implementations notifying `$sessionSignal` via `client.$store.notify("$sessionSignal")`;
-  update usage snapshots if the interaction points move.
-- Update this guide whenever v1 module structure changes or new Better Auth plugins are added so downstream agents
-  stay aligned.
-- Add focused tests in `test/` when modifying adapters or adding new v1 modules; co-locate tests beside
-  the touched module when possible.
+- Add new Better Auth flows by creating matching contract/handler files following the canonical pattern.
+  Use `wrapIamMethod` for all handlers.
+- Ensure all contracts include `formValuesAnnotation` for form default values.
+- Ensure credential-bearing fields (password, tokens) use `S.Redacted(S.String)` in schemas.
+- Set `mutatesSession: true` for operations that change session state (sign-in, sign-out, verify, etc.).
+- Keep session-mutating implementations notifying `$sessionSignal` via the factory's `mutatesSession` flag.
+- Update this guide whenever module structure changes or new Better Auth plugins are added.
+- Add focused tests in `test/` when modifying adapters or adding new modules.
 
 ## Security
 
 ### Credential Handling in Contracts
-- ALWAYS use `Redacted.value` when extracting credential values (email, password, tokens) before passing to Better Auth.
+- ALWAYS use `S.Redacted(S.String)` for credential fields in schemas. The `wrapIamMethod` factory handles encoding which unwraps Redacted values.
 - NEVER log credential payloads—contract implementations MUST NOT include password or token values in telemetry.
 - ALWAYS define credential fields with sensitive schema wrappers in contract definitions.
 - NEVER expose raw credential values in error messages or continuation metadata.
@@ -244,9 +253,9 @@ export const resolveCallbackTarget = (raw: string | null | undefined) =>
 - ALWAYS fire `$sessionSignal` after credential operations to ensure guards react to state changes.
 
 ### Contract Implementation Security
-- ALWAYS use `continuation.run` to wrap Better Auth calls—this ensures proper error boundary handling.
+- ALWAYS use `wrapIamMethod` to wrap Better Auth calls—this ensures proper error boundary handling.
 - NEVER bypass contract encoding/decoding; raw Better Auth responses may contain sensitive data.
-- ALWAYS decode responses via `ContractName.decodeUnknownSuccess` to strip unexpected fields.
+- ALWAYS decode responses via the wrapper's `successSchema` to strip unexpected fields.
 - NEVER expose Better Auth internal error details to UI consumers; map to `IamError` types.
 
 ### Rate Limiting Awareness
@@ -269,45 +278,31 @@ export const resolveCallbackTarget = (raw: string | null | undefined) =>
 ### Contract Schema Mismatches
 - **Symptom**: Runtime decode errors with `ParseError` when calling Better Auth methods.
 - **Root Cause**: Contract success/failure schemas drift from Better Auth's actual response shapes after plugin updates.
-- **Solution**: When upgrading Better Auth, verify response shapes in browser devtools and update contract schemas accordingly. Run `ContractName.decodeUnknownSuccess` in isolation to test.
-
-### Continuation Metadata Must Be Accurate
-- **Symptom**: Telemetry spans show wrong `domain` or `method` values; toast messages display incorrect context.
-- **Root Cause**: `continuation.metadata` is derived from contract annotations at implementation time—if you copy/paste implementations, metadata may be stale.
-- **Solution**: ALWAYS verify that `.annotate(Contract.Domain, ...)` and `.annotate(Contract.Method, ...)` match the actual contract being implemented. Metadata flows through `withToast` and tracing.
+- **Solution**: When upgrading Better Auth, verify response shapes in browser devtools and update contract schemas accordingly.
 
 ### `$sessionSignal` Notification Timing
 - **Symptom**: Auth guards do not react after sign-in/sign-out completes; UI shows stale session state.
-- **Root Cause**: `client.$store.notify("$sessionSignal")` was not called after a session-mutating operation.
-- **Solution**: Every implementation that changes session state (sign-in, sign-out, verify, passkey, social) MUST call `client.$store.notify("$sessionSignal")` after success. Guards subscribe to this signal.
+- **Root Cause**: `mutatesSession: true` was not set in `wrapIamMethod` config.
+- **Solution**: Every handler that changes session state MUST have `mutatesSession: true`. The factory handles calling `client.$store.notify("$sessionSignal")`.
 
-### Better Auth Internal Helpers (`addFetchOptions`, `withFetchOptions`)
-- **Symptom**: Requests fail silently or return unexpected errors when calling Better Auth methods.
-- **Root Cause**: Better Auth methods require specific fetch option shapes that change between versions.
-- **Solution**: Use `_internal` helpers from `@beep/iam-client/clients/_internal` to wrap fetch options. These helpers abstract version-specific option shapes.
+### Better Auth Query Wrapping
+- **Symptom**: List handlers fail with unexpected errors.
+- **Root Cause**: Some Better Auth methods (like `listInvitations`, `listMembers`) expect payload wrapped in `{ query: ... }`.
+- **Solution**: Wrap encoded payload: `(encoded) => client.organization.listMembers({ query: encoded })`.
 
-### `Redacted.value` Must Unwrap Credentials
-- **Symptom**: Better Auth receives `[Redacted]` string instead of actual credential values.
-- **Root Cause**: Schema uses `S.Redacted(S.String)` but implementation forgets to call `Redacted.value()` before passing to Better Auth.
-- **Solution**: ALWAYS extract credential values via `Redacted.value(payload.password)` before calling Better Auth methods. The schema's `Redacted` wrapper is for type safety and logging suppression, not automatic unwrapping.
+### WrapperGroup API
+- **Symptom**: Type errors when composing WrapperGroups.
+- **Root Cause**: Using wrong API for WrapperGroup.
+- **Solution**:
+  - `WrapperGroup.make(W1, W2, W3)` — positional arguments, NOT a labeled object
+  - `group1.merge(group2, group3)` — instance method, NOT static method
 
-### Contract Kit Layer vs Implementation Exports
-- **Symptom**: Type errors when wiring contracts into runtime layers; missing implementations at runtime.
-- **Root Cause**: Confusion between `ContractKit.toLayer()` (creates Layer from implementations) and direct implementation exports.
-- **Solution**: Export both the raw implementation functions (for atoms) AND the ContractKit layer (for runtime composition). See `passkey.service.ts` pattern.
+### Missing formValuesAnnotation
+- **Symptom**: Forms have no default values or validation fails unexpectedly.
+- **Root Cause**: Contract `Payload` class missing `formValuesAnnotation`.
+- **Solution**: ALWAYS include `formValuesAnnotation({ field: defaultValue })` in Payload class definition.
 
 ### AuthCallback Prefix Synchronization
 - **Symptom**: After sign-in, users redirect to wrong pages or get 404 errors.
 - **Root Cause**: `AuthCallback.privatePrefix` values in this package are out of sync with route middleware in `apps/web`.
 - **Solution**: When adding authenticated routes, update BOTH `packages/iam/client/src/constants.ts` AND the corresponding middleware in `apps/web`. Run `bun run --filter apps/web lint` to catch mismatches.
-
-### Handler Factory Configuration
-- **`mutatesSession` flag**: MUST be `true` for sign-in, sign-out, sign-up, verify, passkey, social. Controls `$sessionSignal` notification.
-- **`execute` function**: Receives encoded payload (not decoded). Do NOT call `S.encode` manually.
-- **Error handling**: Factory automatically checks `response.error`. Do NOT add manual error checks.
-- **Span naming**: Factory generates `"{domain}/{feature}/handler"`. Match your directory structure.
-
-### Handler Factory Limitations
-- **Symptom**: Type errors when using `createHandler` with complex payload schemas.
-- **Root Cause**: Some contracts (like `sign-up/email`) use `transformOrFailFrom` which produces encoded output that lacks computed fields (e.g., `name` computed from `firstName`+`lastName`).
-- **Solution**: For these edge cases, create a manual handler that encodes the payload, manually adds computed fields, checks `response.error`, and notifies `$sessionSignal`. See `sign-up/email/sign-up-email.handler.ts` for an example.

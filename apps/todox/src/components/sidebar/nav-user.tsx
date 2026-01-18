@@ -44,7 +44,7 @@ interface NavUserProps {
 export function NavUser({ user }: NavUserProps) {
   const { isMobile } = useSidebar();
   const { theme, setTheme } = useTheme();
-  const { signOut } = Core.useCore();
+  const { signOut } = Core.Atoms.use();
   const router = useRouter();
 
   const handleSignOut = async () => {

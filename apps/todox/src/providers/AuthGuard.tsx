@@ -28,7 +28,7 @@ type SessionState =
   | { readonly _tag: "Authenticated"; readonly session: Core.GetSession.SessionData };
 
 const AuthGuardContent: React.FC<AuthGuardContentProps> = ({ children, router, ...props }) => {
-  const { sessionResult } = Core.useCore();
+  const { sessionResult } = Core.Atoms.use();
   const isClient = useIsClient();
 
   // Derive session state without side effects

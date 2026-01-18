@@ -1,6 +1,6 @@
 "use client";
 import { SignIn } from "@beep/iam-client/sign-in";
-import { useCaptchaAtom } from "@beep/iam-ui/_common";
+import { useCaptcha } from "@beep/iam-ui/_common";
 import { paths } from "@beep/shared-domain";
 import { Iconify } from "@beep/ui/atoms";
 import * as UIForm from "@beep/ui/form";
@@ -13,16 +13,8 @@ import Link from "@mui/material/Link";
 
 export const Form = () => {
   const showPassword = useBoolean();
-  const { isReady } = useCaptchaAtom();
-
-  const signIn = SignIn.useSignIn();
-
-  const form = UIForm.useAppForm(
-    UIForm.formOptionsWithDefaults({
-      schema: SignIn.Email.Payload,
-      onSubmit: signIn.email,
-    })
-  );
+  const { isReady } = useCaptcha();
+  const { emailForm } = SignIn.Form.use();
 
   return (
     <UIForm.Form
@@ -31,9 +23,9 @@ export const Form = () => {
         display: "flex",
         flexDirection: "column",
       }}
-      onSubmit={form.handleSubmit}
+      onSubmit={emailForm.handleSubmit}
     >
-      <form.AppField
+      <emailForm.AppField
         name={"email"}
         children={(field) => (
           <field.Text
@@ -52,7 +44,7 @@ export const Form = () => {
           flexDirection: "column",
         }}
       >
-        <form.AppField
+        <emailForm.AppField
           name={"password"}
           children={(field) => (
             <field.Text
@@ -83,9 +75,9 @@ export const Form = () => {
           Forgot password?
         </Link>
       </Box>
-      <form.AppForm>
-        <form.Submit variant={"contained"} disabled={!isReady} />
-      </form.AppForm>
+      <emailForm.AppForm>
+        <emailForm.Submit variant={"contained"} disabled={!isReady} />
+      </emailForm.AppForm>
     </UIForm.Form>
   );
 };

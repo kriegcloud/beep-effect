@@ -1,5 +1,0 @@
-# Port Progress Reports
-
-This directory contains individual sub-agent reports analyzing the port progress of specific files from the original FlexLayout library.
-
-Each report follows the format: `<filename>-progress.md`

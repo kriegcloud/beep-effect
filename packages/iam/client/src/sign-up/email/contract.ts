@@ -1,3 +1,21 @@
+/**
+ * @fileoverview Email sign-up contract schemas for Better Auth integration.
+ *
+ * This module defines the payload and success schemas for email-based user registration.
+ * The payload schema implements a complex transformation:
+ * - Form layer: firstName/lastName/password/passwordConfirm (user-friendly input)
+ * - Wire layer: name/password/email (Better Auth API format)
+ *
+ * Encoding validates password matching and combines firstName + lastName → name.
+ * Decoding performs lossy name splitting for schema completeness (rarely used in production).
+ *
+ * @module @beep/iam-client/sign-up/email/contract
+ * @category SignUp/Email
+ * @since 0.1.0
+ */
+
+import * as Common from "@beep/iam-client/_internal";
+import { formValuesAnnotation } from "@beep/iam-client/_internal";
 import { $IamClientId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
 import { slice } from "@beep/utils/data/array.utils";
@@ -9,19 +27,48 @@ import * as O from "effect/Option";
 import * as ParseResult from "effect/ParseResult";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import * as Common from "../../_common";
 
-const $I = $IamClientId.create("sign-up/email/contract");
+const $I = $IamClientId.create("sign-up/email");
 
 // ============================================================================
 // Form Input Schema (Decoded Type)
 // ============================================================================
 
 /**
- * Form input schema for sign-up/email.
+ * Form input schema for email sign-up with user-friendly field names.
  *
- * This is what forms bind to - includes firstName, lastName for user-friendly
- * input and passwordConfirm for client-side validation.
+ * This schema represents the decoded form layer that UI components bind to.
+ * It includes firstName/lastName (split name fields) and passwordConfirm
+ * (client-side validation) which are transformed during encoding.
+ *
+ * @remarks
+ * This is the "To" side of the Payload transform schema. Forms collect this
+ * structure, which is then encoded into Better Auth's wire format (name field,
+ * no passwordConfirm) during submission.
+ *
+ * The class includes a computed `name` getter that combines firstName + lastName
+ * for encoding convenience.
+ *
+ * @example
+ * ```typescript
+ * import { Email } from "@beep/iam-client/sign-up"
+ *
+ * const formData = Email.PayloadFrom.make({
+ *   firstName: "Jane",
+ *   lastName: "Doe",
+ *   email: "jane@example.com",
+ *   password: "SecurePass123!",
+ *   passwordConfirm: "SecurePass123!",
+ *   rememberMe: true,
+ *   redirectTo: "/dashboard"
+ * })
+ *
+ * // Access computed name
+ * console.log(formData.name) // "Jane Doe"
+ * ```
+ *
+ * @category SignUp/Email/Schemas
+ * @since 0.1.0
  */
 export class PayloadFrom extends S.Class<PayloadFrom>($I`PayloadFrom`)(
   {
@@ -34,21 +81,15 @@ export class PayloadFrom extends S.Class<PayloadFrom>($I`PayloadFrom`)(
     lastName: BS.NameAttribute,
   },
   // Default form values use Encoded types (plain strings for Redacted fields, etc.)
-  [
-    undefined,
-    {
-      [BS.DefaultFormValuesAnnotationId]: {
-        email: "",
-        rememberMe: true,
-        redirectTo: "/",
-        password: "",
-        passwordConfirm: "",
-        firstName: "",
-        lastName: "",
-      },
-      undefined,
-    },
-  ]
+  formValuesAnnotation({
+    email: "",
+    rememberMe: true,
+    redirectTo: "/",
+    password: "",
+    passwordConfirm: "",
+    firstName: "",
+    lastName: "",
+  })
 ) {
   /**
    * Computed full name from firstName and lastName.
@@ -81,31 +122,58 @@ const PayloadEncodedStruct = S.Struct({
 // ============================================================================
 
 /**
- * Payload schema for sign-up/email with custom encoding.
+ * Transform schema for email sign-up with asymmetric encoding/decoding.
  *
- * - Type (decoded): PayloadFrom - form input with firstName, lastName, passwordConfirm
- * - Encoded: API payload with name field, no passwordConfirm
+ * This schema bridges the gap between user-friendly form input (PayloadFrom)
+ * and Better Auth's wire format (PayloadEncodedStruct). The transformation
+ * is asymmetric:
  *
- * Encoding validates passwords match and combines firstName + lastName → name.
- * This allows the handler factory to pass encoded payload directly to Better Auth.
+ * - **Encode** (Form → API): Validates password matching, combines firstName + lastName → name
+ * - **Decode** (API → Form): Lossy name splitting (rarely used in production)
  *
  * @remarks
- * **Decode Path (API → Form)**: This is a lossy conversion used only for schema
- * completeness. Better Auth's API provides only a `name: string`, so we must
- * heuristically split it. The first space-delimited word becomes firstName,
- * the remainder becomes lastName (or empty if single-word name).
+ * **Encoding Flow (Primary Use Case)**:
+ * 1. Form submits PayloadFrom with firstName/lastName/password/passwordConfirm
+ * 2. Schema validates password === passwordConfirm
+ * 3. Schema combines firstName + lastName → name field
+ * 4. Encoded payload (name/password/email) goes to Better Auth
+ *
+ * **Decoding Flow (Schema Completeness Only)**:
+ * This is a lossy conversion used only for schema bidirectionality.
+ * Better Auth's API provides only `name: string`, so we split heuristically:
+ * - First space-delimited word → firstName
+ * - Remainder → lastName (or empty string for single-word names)
  *
  * In production, the decode path is rarely exercised since:
- * 1. Form submissions use the encode path (Form → API)
+ * 1. Form submissions use the encode path
  * 2. API responses use the Success schema, not Payload decode
  *
- * For names like "Ludwig van Beethoven", decode produces:
- * - firstName: "Ludwig"
- * - lastName: "van Beethoven"
+ * **Name Splitting Examples**:
+ * - "Ludwig van Beethoven" → firstName: "Ludwig", lastName: "van Beethoven"
+ * - "Madonna" → firstName: "Madonna", lastName: ""
  *
- * For single-word names like "Madonna", decode produces:
- * - firstName: "Madonna"
- * - lastName: ""
+ * @example
+ * ```typescript
+ * import * as S from "effect/Schema"
+ * import { Email } from "@beep/iam-client/sign-up"
+ *
+ * // Encode form data to API format
+ * const formData = Email.PayloadFrom.make({
+ *   firstName: "John",
+ *   lastName: "Smith",
+ *   email: "john@example.com",
+ *   password: "Pass123!",
+ *   passwordConfirm: "Pass123!",
+ *   rememberMe: true,
+ *   redirectTo: "/dashboard"
+ * })
+ *
+ * const encoded = S.encodeSync(Email.Payload)(formData)
+ * // { name: "John Smith", email: "john@example.com", password: "Pass123!", ... }
+ * ```
+ *
+ * @category SignUp/Email/Schemas
+ * @since 0.1.0
  */
 export const Payload = S.transformOrFail(PayloadEncodedStruct, PayloadFrom, {
   strict: true,
@@ -162,6 +230,22 @@ export const Payload = S.transformOrFail(PayloadEncodedStruct, PayloadFrom, {
   })
 );
 
+/**
+ * Type utilities for the Payload transform schema.
+ *
+ * Provides access to both decoded (PayloadFrom) and encoded (Better Auth wire format) types.
+ *
+ * @example
+ * ```typescript
+ * import type { Email } from "@beep/iam-client/sign-up"
+ *
+ * type FormInput = Email.Payload.Type      // PayloadFrom with firstName/lastName
+ * type ApiPayload = Email.Payload.Encoded  // Better Auth format with name field
+ * ```
+ *
+ * @category SignUp/Email/Schemas
+ * @since 0.1.0
+ */
 export declare namespace Payload {
   export type Type = S.Schema.Type<typeof Payload>;
   export type Encoded = S.Schema.Encoded<typeof Payload>;
@@ -172,10 +256,30 @@ export declare namespace Payload {
 // ============================================================================
 
 /**
- * Success schema for sign-up/email.
+ * Success response schema for email sign-up.
  *
- * Decodes `response.data` from Better Auth directly (flat structure, no wrapper).
- * This matches the pattern used by sign-in/email and other handlers.
+ * Decodes the response.data from Better Auth's signUp.email endpoint.
+ * Returns the created user object and an optional session token.
+ *
+ * @remarks
+ * The user field is transformed via DomainUserFromBetterAuthUser to align
+ * with the application's User model. The token field is optional and redacted
+ * (suppressed from logs) when present.
+ *
+ * @example
+ * ```typescript
+ * import { Email } from "@beep/iam-client/sign-up"
+ *
+ * // In handler implementation:
+ * const response = yield* client.signUp.email(payload)
+ * const success = yield* S.decodeUnknown(Email.Success)(response.data)
+ *
+ * console.log(success.user.email) // "jane@example.com"
+ * console.log(success.token)      // Option<Redacted<string>>
+ * ```
+ *
+ * @category SignUp/Email/Schemas
+ * @since 0.1.0
  */
 export class Success extends S.Class<Success>($I`Success`)(
   {
@@ -187,6 +291,43 @@ export class Success extends S.Class<Success>($I`Success`)(
   })
 ) {}
 
+/**
+ * Wrapper contract combining payload, success, and error schemas with captcha middleware.
+ *
+ * This wrapper integrates the email sign-up flow with the application's
+ * contract system, enabling type-safe handler implementation and middleware
+ * composition.
+ *
+ * @remarks
+ * The wrapper applies CaptchaMiddleware to validate reCAPTCHA responses
+ * before executing the sign-up handler. This protects against automated
+ * sign-up abuse.
+ *
+ * @example
+ * ```typescript
+ * import * as Common from "@beep/iam-client/_internal"
+ * import { client } from "@beep/iam-client/adapters"
+ * import * as Contract from "./contract.ts"
+ *
+ * export const Handler = Contract.Wrapper.implement(
+ *   Common.wrapIamMethod({
+ *     wrapper: Contract.Wrapper,
+ *     mutatesSession: true,
+ *     before: Common.withCaptchaResponse,
+ *   })((encodedPayload, captchaResponse) =>
+ *     client.signUp.email({
+ *       ...encodedPayload,
+ *       fetchOptions: {
+ *         headers: { "x-captcha-response": captchaResponse }
+ *       }
+ *     })
+ *   )
+ * )
+ * ```
+ *
+ * @category SignUp/Email/Contracts
+ * @since 0.1.0
+ */
 export const Wrapper = W.Wrapper.make("Email", {
   payload: Payload,
   success: Success,

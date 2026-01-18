@@ -1,17 +1,40 @@
+/**
+ * @fileoverview Handler implementation for username-based sign-in with captcha middleware.
+ *
+ * Implements the username sign-in contract using Better Auth's signIn.username client.
+ * Automatically encodes/decodes payloads, applies captcha middleware, checks for
+ * errors, and notifies `$sessionSignal` after successful authentication.
+ *
+ * @module @beep/iam-client/sign-in/username/handler
+ * @category SignIn/Username
+ * @since 0.1.0
+ */
+
+import * as Common from "@beep/iam-client/_internal";
 import { client } from "@beep/iam-client/adapters";
-import * as Common from "../../_common";
 import * as Contract from "./contract.ts";
 
 /**
- * Email sign-in handler using the new wrapIamMethod utility.
+ * Handler for username sign-in operations with integrated captcha verification.
  *
- * The wrapIamMethod handles:
- * 1. Encoding the payload using the wrapper's payloadSchema
- * 2. Running the `before` effect (captcha) and injecting its result
- * 3. Executing the Better Auth client method
- * 4. Checking for errors in the response
- * 5. Decoding the success response using the wrapper's successSchema
- * 6. Notifying $sessionSignal when mutatesSession is true
+ * Automatically encodes payloads, validates captcha responses, checks for Better Auth errors,
+ * and notifies session state after successful authentication.
+ *
+ * @example
+ * ```typescript
+ * import * as Effect from "effect/Effect"
+ * import { Username } from "@beep/iam-client/sign-in"
+ *
+ * const program = Effect.gen(function* () {
+ *   const result = yield* Username.Handler({
+ *     username: "alice",
+ *     password: "secure-password"
+ *   })
+ * })
+ * ```
+ *
+ * @category SignIn/Username/Handlers
+ * @since 0.1.0
  */
 export const Handler = Contract.Wrapper.implement(
   Common.wrapIamMethod({

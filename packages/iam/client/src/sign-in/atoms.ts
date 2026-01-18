@@ -1,10 +1,24 @@
+/**
+ * @fileoverview
+ * Reactive atoms for sign-in flows with toast feedback.
+ *
+ * Provides runtime-powered atoms that wrap sign-in handlers with toast feedback.
+ * Atoms are bound to the sign-in service runtime and expose React hooks for
+ * component integration.
+ *
+ * @module @beep/iam-client/sign-in/atoms
+ * @category SignIn
+ * @since 0.1.0
+ */
+
+import * as Common from "@beep/iam-client/_internal";
 import { withToast } from "@beep/ui/common";
 import { useAtomSet } from "@effect-atom/atom-react";
 import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
 import { runtime, Service } from "./service.ts";
 
-export const signInEmailAtom = runtime.fn(
+const EmailAtom = runtime.fn(
   F.flow(
     Service.Email,
     withToast({
@@ -17,7 +31,7 @@ export const signInEmailAtom = runtime.fn(
   )
 );
 
-export const signInUsernameAtom = runtime.fn(
+const UsernameAtom = runtime.fn(
   F.flow(
     Service.Username,
     withToast({
@@ -30,16 +44,33 @@ export const signInUsernameAtom = runtime.fn(
   )
 );
 
-export const useSignIn = () => {
-  const email = useAtomSet(signInEmailAtom, {
-    mode: "promise" as const,
-  });
-  const username = useAtomSet(signInUsernameAtom, {
-    mode: "promise" as const,
-  });
-
-  return {
-    email,
-    username,
-  };
-};
+/**
+ * React hook providing sign-in atoms for email and username authentication.
+ *
+ * @example
+ * ```tsx
+ * import { SignIn } from "@beep/iam-client"
+ *
+ * function SignInComponent() {
+ *   const { email, username } = SignIn.Atoms.use()
+ *
+ *   return (
+ *     <>
+ *       <button onClick={async () => email({ email: "user@example.com", password: "secret" })}>
+ *         Sign in with Email
+ *       </button>
+ *       <button onClick={async () => username({ username: "johndoe", password: "secret" })}>
+ *         Sign in with Username
+ *       </button>
+ *     </>
+ *   )
+ * }
+ * ```
+ *
+ * @category SignIn/Hooks
+ * @since 0.1.0
+ */
+export const use = () => ({
+  email: useAtomSet(EmailAtom, Common.modePromise),
+  username: useAtomSet(UsernameAtom, Common.modePromise),
+});

@@ -22,7 +22,7 @@ const GuestGuardContent: React.FC<GuestGuardContentProps> = ({
   redirectTo = paths.dashboard.root,
   pendingFallback = <SplashScreen />,
 }) => {
-  const { sessionResult } = Core.useCore();
+  const { sessionResult } = Core.Atoms.use();
   const router = useRouter();
 
   const Fallback = (

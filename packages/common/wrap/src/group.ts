@@ -1,5 +1,5 @@
 /**
- * @since 1.0.0
+ * @since 0.1.0
  */
 
 import { $WrapId } from "@beep/identity/packages";
@@ -19,19 +19,19 @@ import * as Wrapper from "./wrapper";
 
 const $I = $WrapId.create("group");
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category type ids
  */
 export const TypeId: unique symbol = Symbol.for($I`WrapperGroup`);
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category type ids
  */
 export type TypeId = typeof TypeId;
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category groups
  */
 export interface WrapperGroup<in out R extends Wrapper.Any> extends Pipeable {
@@ -136,7 +136,7 @@ export interface WrapperGroup<in out R extends Wrapper.Any> extends Pipeable {
 }
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category groups
  */
 export interface Any {
@@ -144,7 +144,7 @@ export interface Any {
 }
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category groups
  */
 export type HandlersFrom<Wrapper extends Wrapper.Any> = {
@@ -152,7 +152,7 @@ export type HandlersFrom<Wrapper extends Wrapper.Any> = {
 };
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category groups
  */
 export type HandlerFrom<Wrapper extends Wrapper.Any, Tag extends Wrapper["_tag"]> = Extract<
@@ -165,7 +165,7 @@ export type HandlerFrom<Wrapper extends Wrapper.Any, Tag extends Wrapper["_tag"]
   : never;
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category groups
  */
 export type HandlersContext<Wrappers extends Wrapper.Any, Handlers> = keyof Handlers extends infer K
@@ -175,7 +175,7 @@ export type HandlersContext<Wrappers extends Wrapper.Any, Handlers> = keyof Hand
   : never;
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category groups
  */
 export type HandlerContext<Wrappers extends Wrapper.Any, K extends Wrappers["_tag"], Handler> = [
@@ -199,7 +199,7 @@ export type HandlerContext<Wrappers extends Wrapper.Any, K extends Wrappers["_ta
     : never;
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category groups
  */
 export type Wrappers<Group> = Group extends WrapperGroup<infer R> ? (string extends R["_tag"] ? never : R) : never;
@@ -393,7 +393,7 @@ const resolveInput = <Wrappers extends ReadonlyArray<Wrapper.Any>>(
 };
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category groups
  */
 export const make = <const Wrappers extends ReadonlyArray<Wrapper.Any>>(

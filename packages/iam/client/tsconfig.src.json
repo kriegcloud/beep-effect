@@ -54,6 +54,26 @@
     "exactOptionalPropertyTypes": false,
     "incremental": true,
     "skipLibCheck": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "plugins": [
+      {
+        "name": "@effect/language-service",
+        "transform": "@effect/language-service/transform",
+        "diagnosticSeverity": {
+          "classSelfMismatch": "off",
+          "effectFnOpportunity": "off",
+          "catchAllToMapError": "off",
+          "forbiddenInSchema": "off",
+          "unnecessaryYield": "off",
+          "missingEffectError": "off",
+          "unnecessaryPipeChain": "off",
+          "unnecessaryFailYieldableError": "off",
+          "redundantSchemaTagIdentifier": "off",
+          "preferSchemaOverJson": "off"
+        },
+        "mermaidProvider": "mermaid.live",
+        "namespaceImportPackages": ["effect", "@effect/*"]
+      }
+    ]
   }
 }

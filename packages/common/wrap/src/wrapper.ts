@@ -1,5 +1,5 @@
 /**
- * @since 1.0.0
+ * @since 0.1.0
  */
 
 import { $WrapId } from "@beep/identity/packages";
@@ -27,19 +27,19 @@ import {
 
 const $I = $WrapId.create("wrapper");
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category type ids
  */
 export const TypeId: unique symbol = Symbol.for($I`Wrapper`);
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category type ids
  */
 export type TypeId = typeof TypeId;
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category guards
  */
 export const isWrapper = (
@@ -50,7 +50,7 @@ export const isWrapper = (
  * Represents an API endpoint. An API endpoint is mapped to a single route on
  * the underlying `HttpRouter`.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category models
  */
 export interface Wrapper<
@@ -129,7 +129,7 @@ export interface Wrapper<
 /**
  * Represents an implemented rpc.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category models
  */
 export interface Handler<Tag extends string> {
@@ -145,7 +145,7 @@ export interface Handler<Tag extends string> {
 }
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category models
  */
 export interface Any extends Pipeable {
@@ -155,7 +155,7 @@ export interface Any extends Pipeable {
 }
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category models
  */
 export interface AnyWithProps {
@@ -170,21 +170,21 @@ export interface AnyWithProps {
 }
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category models
  */
 export type Tag<R> =
   R extends Wrapper<infer _Tag, infer _Payload, infer _Success, infer _Error, infer _Middleware> ? _Tag : never;
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category models
  */
 export type SuccessSchema<R> =
   R extends Wrapper<infer _Tag, infer _Payload, infer _Success, infer _Error, infer _Middleware> ? _Success : never;
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category models
  */
 export type Success<R> =
@@ -193,7 +193,7 @@ export type Success<R> =
     : never;
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category models
  */
 export type SuccessEncoded<R> =
@@ -202,7 +202,7 @@ export type SuccessEncoded<R> =
     : never;
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category models
  */
 export type SuccessExit<R> =
@@ -213,7 +213,7 @@ export type SuccessExit<R> =
     : never;
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category models
  */
 export type SuccessExitEncoded<R> =
@@ -224,19 +224,19 @@ export type SuccessExitEncoded<R> =
     : never;
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category models
  */
 export type SuccessChunk<R> = Success<R> extends Stream<infer _A, infer _E, infer _Env> ? _A : never;
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category models
  */
 export type SuccessChunkEncoded<R> = SuccessEncoded<R> extends Stream<infer _A, infer _E, infer _Env> ? _A : never;
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category models
  */
 export type ErrorSchema<R> =
@@ -245,44 +245,44 @@ export type ErrorSchema<R> =
     : never;
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category models
  */
 export type Error<R> = S.Schema.Type<ErrorSchema<R>>;
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category models
  */
 export type ErrorEncoded<R> = S.Schema.Encoded<ErrorSchema<R>>;
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category models
  */
 export type ErrorExit<R> =
   SuccessSchema<R> extends WrapperSchema.Stream<infer _A, infer _E> ? _E["Type"] | Error<R> : Error<R>;
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category models
  */
 export type ErrorExitEncoded<R> =
   SuccessSchema<R> extends WrapperSchema.Stream<infer _A, infer _E> ? _E["Encoded"] | ErrorEncoded<R> : ErrorEncoded<R>;
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category models
  */
 export type Exit<R> = Exit_<SuccessExit<R>, ErrorExit<R>>;
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category models
  */
 export type ExitEncoded<R, Defect = unknown> = S.ExitEncoded<SuccessExitEncoded<R>, ErrorExitEncoded<R>, Defect>;
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category models
  */
 export type PayloadConstructor<R> =
@@ -293,7 +293,7 @@ export type PayloadConstructor<R> =
     : never;
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category models
  */
 export type Payload<R> =
@@ -302,7 +302,25 @@ export type Payload<R> =
     : never;
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
+ * @category models
+ */
+export type PayloadEncoded<R> =
+  R extends Wrapper<infer _Tag, infer _Payload, infer _Success, infer _Error, infer _Middleware>
+    ? _Payload["Encoded"]
+    : never;
+
+/**
+ * @since 0.1.0
+ * @category models
+ */
+export type PayloadContext<R> =
+  R extends Wrapper<infer _Tag, infer _Payload, infer _Success, infer _Error, infer _Middleware>
+    ? _Payload["Context"]
+    : never;
+
+/**
+ * @since 0.1.0
  * @category models
  */
 export type Context<R> =
@@ -311,7 +329,7 @@ export type Context<R> =
     : never;
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category models
  */
 export type Middleware<R> =
@@ -320,7 +338,7 @@ export type Middleware<R> =
     : never;
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category models
  */
 export type MiddlewareClient<R> =
@@ -331,7 +349,7 @@ export type MiddlewareClient<R> =
     : never;
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category models
  */
 export type AddError<R extends Any, Error extends S.Schema.All> = R extends Wrapper<
@@ -345,7 +363,7 @@ export type AddError<R extends Any, Error extends S.Schema.All> = R extends Wrap
   : never;
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category models
  */
 export type AddMiddleware<R extends Any, Middleware extends WrapperMiddleware.TagClassAny> = R extends Wrapper<
@@ -359,7 +377,7 @@ export type AddMiddleware<R extends Any, Middleware extends WrapperMiddleware.Ta
   : never;
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category models
  */
 export type ToHandler<R extends Any> =
@@ -368,7 +386,7 @@ export type ToHandler<R extends Any> =
     : never;
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category models
  */
 export type ToHandlerFn<Current extends Any, R = UnsafeTypes.UnsafeAny> = (
@@ -379,7 +397,7 @@ export type ToHandlerFn<Current extends Any, R = UnsafeTypes.UnsafeAny> = (
 ) => ResultFrom<Current, R> | WrapperWrapper<ResultFrom<Current, R>>;
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category models
  */
 export type IsStream<R extends Any, Tag extends string> = R extends Wrapper<
@@ -393,7 +411,7 @@ export type IsStream<R extends Any, Tag extends string> = R extends Wrapper<
   : never;
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category models
  */
 export type ExtractTag<R extends Any, Tag extends string> = R extends Wrapper<
@@ -407,7 +425,7 @@ export type ExtractTag<R extends Any, Tag extends string> = R extends Wrapper<
   : never;
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category models
  */
 export type ExtractProvides<R extends Any, Tag extends string> = R extends Wrapper<
@@ -425,19 +443,19 @@ export type ExtractProvides<R extends Any, Tag extends string> = R extends Wrapp
   : never;
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category models
  */
 export type ExcludeProvides<Env, R extends Any, Tag extends string> = Exclude<Env, ExtractProvides<R, Tag>>;
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category models
  */
 export interface From<S extends AnyTaggedRequestSchema> extends Wrapper<S["_tag"], S, S["success"], S["failure"]> {}
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category models
  */
 export type ResultFrom<R extends Any, Context> = R extends Wrapper<
@@ -459,7 +477,7 @@ export type ResultFrom<R extends Any, Context> = R extends Wrapper<
   : never;
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category models
  */
 export type Prefixed<Wrappers extends Any, Prefix extends string> = Wrappers extends Wrapper<
@@ -578,7 +596,7 @@ const makeProto = <
 };
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category constructors
  */
 export const make = <
@@ -638,7 +656,7 @@ export const make = <
 };
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category constructors
  */
 export const fromTaggedRequest = <S extends AnyTaggedRequestSchema>(schema: S): From<S> =>
@@ -654,7 +672,7 @@ export const fromTaggedRequest = <S extends AnyTaggedRequestSchema>(schema: S): 
 const exitSchemaCache = globalValue($I`exitSchemaCache`, () => new WeakMap<Any, S.Schema.Any>());
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category constructors
  */
 export const exitSchema = <R extends Any>(self: R): S.Schema<Exit<R>, ExitEncoded<R>, Context<R>> => {
@@ -680,19 +698,19 @@ export const exitSchema = <R extends Any>(self: R): S.Schema<Exit<R>, ExitEncode
 };
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category WrapperWrapper
  */
 export const WrapperWrapperTypeId: unique symbol = Symbol.for($I`WrapperWrapper`);
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category WrapperWrapper
  */
 export type WrapperWrapperTypeId = typeof WrapperWrapperTypeId;
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category WrapperWrapper
  */
 export interface WrapperWrapper<A> {
@@ -703,13 +721,13 @@ export interface WrapperWrapper<A> {
 }
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category WrapperWrapper
  */
 export const isWrapperWrapper = (u: object): u is WrapperWrapper<UnsafeTypes.UnsafeAny> => WrapperWrapperTypeId in u;
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category WrapperWrapper
  */
 export const wrapWrapper =
@@ -734,7 +752,7 @@ export const wrapWrapper =
  * response is executed concurrently regardless of the WrapperServer concurrency
  * setting.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category WrapperWrapper
  */
 export const fork: <A extends object>(value: A) => A extends WrapperWrapper<infer _> ? A : WrapperWrapper<A> =
@@ -744,7 +762,7 @@ export const fork: <A extends object>(value: A) => A extends WrapperWrapper<infe
  * You can use `uninterruptible` to wrap a response Effect or Stream, to ensure
  * that it is executed inside an uninterruptible region.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category WrapperWrapper
  */
 export const uninterruptible: <A extends object>(
@@ -752,3 +770,13 @@ export const uninterruptible: <A extends object>(
 ) => A extends WrapperWrapper<infer _> ? A : WrapperWrapper<A> = wrapWrapper({
   uninterruptible: true,
 });
+
+export class WrapperFromSelf extends S.declare((u: unknown): u is AnyWithProps => isWrapper(u)).annotations(
+  $I.annotations("WrapperFromSelf", {
+    description: "A `@beep/wrap` wrapper that is created from a self-referential schema.",
+  })
+) {}
+
+export declare namespace WrapperFromSelf {
+  export type Type = AnyWithProps;
+}

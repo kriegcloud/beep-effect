@@ -26,7 +26,21 @@ export class Model extends M.Class<Model>($I`MemberModel`)(
         description: "The last time the user was active.",
       })
     ),
-    // todo permissions
+    invitedBy: BS.FieldOptionOmittable(
+      SharedEntityIds.UserId.annotations({
+        description: "ID of the user who invited this member",
+      })
+    ),
+    invitedAt: BS.FieldOptionOmittable(
+      BS.DateTimeUtcFromAllAcceptable.annotations({
+        description: "When this member was invited to the organization",
+      })
+    ),
+    joinedAt: BS.FieldOptionOmittable(
+      BS.DateTimeUtcFromAllAcceptable.annotations({
+        description: "When this member accepted the invitation and joined",
+      })
+    ),
     permissions: BS.JsonFromStringOption(
       PolicyRecord.annotations({
         description: "Permissions granted to the member",

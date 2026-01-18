@@ -1,5 +1,5 @@
 /**
- * @since 1.0.0
+ * @since 0.1.0
  */
 
 import { $WrapId } from "@beep/identity/packages";
@@ -16,26 +16,26 @@ import * as Stream_ from "effect/Stream";
 const $I = $WrapId.create("schema/schema");
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category Stream
  */
 export const StreamSchemaId: unique symbol = Symbol.for($I`Stream`);
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category Stream
  */
 export const isStreamSchema = (schema: S.Schema.All): schema is Stream<UnsafeTypes.UnsafeAny, UnsafeTypes.UnsafeAny> =>
   schema.ast.annotations[AST.SchemaIdAnnotationId] === StreamSchemaId;
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category Stream
  */
 export const isStreamSerializable = (schema: S.WithResult.Any): boolean => isStreamSchema(S.successSchema(schema));
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category Stream
  */
 export const getStreamSchemas = (
@@ -46,7 +46,7 @@ export const getStreamSchemas = (
 }> => (ast.annotations[StreamSchemaId] ? O.some(ast.annotations[StreamSchemaId] as UnsafeTypes.UnsafeAny) : O.none());
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category Stream
  */
 export interface Stream<A extends S.Schema.Any, E extends S.Schema.All>
@@ -60,7 +60,7 @@ export interface Stream<A extends S.Schema.Any, E extends S.Schema.All>
 }
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category Stream
  */
 export const Stream = <A extends S.Schema.Any, E extends S.Schema.All>({

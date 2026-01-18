@@ -5,7 +5,7 @@ import { RouterLink } from "@beep/ui/routing/index";
 import Box from "@mui/material/Box";
 import Link from "@mui/material/Link";
 import { AnimatePresence, m } from "framer-motion";
-import { RecaptchaV3Atom } from "../_common";
+import { RecaptchaV3 } from "../_common";
 import { FormDivider, FormHead, Terms } from "../_components";
 import { SignUpEmailForm } from "./email";
 
@@ -13,7 +13,7 @@ const signUpTransitionVariants = varFade("inUp", { distance: 64 });
 
 export const SignUpView = () => {
   return (
-    <RecaptchaV3Atom>
+    <RecaptchaV3>
       <AnimatePresence mode={"wait"} initial={false}>
         <Box
           key={"sign-up-form"}
@@ -43,6 +43,6 @@ export const SignUpView = () => {
           </Box>
         </Box>
       </AnimatePresence>
-    </RecaptchaV3Atom>
+    </RecaptchaV3>
   );
 };

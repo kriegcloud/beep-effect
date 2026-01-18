@@ -39,7 +39,7 @@ interface NavbarUserDropdownProps {
 
 export function NavbarUserDropdown({ user }: NavbarUserDropdownProps) {
   const { theme, setTheme } = useTheme();
-  const { signOut } = Core.useCore();
+  const { signOut } = Core.Atoms.use();
 
   const initials = F.pipe(
     user.name,

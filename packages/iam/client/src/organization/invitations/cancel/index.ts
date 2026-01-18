@@ -1,2 +1,10 @@
-export * as Contract from "./cancel.contract.ts";
-export { Handler } from "./cancel.handler.ts";
+/**
+ * @fileoverview
+ * Public exports for Cancel invitation feature.
+ *
+ * @module @beep/iam-client/organization/invitations/cancel
+ * @category Organization/Invitations
+ * @since 0.1.0
+ */
+
+export * as Cancel from "./mod.ts";

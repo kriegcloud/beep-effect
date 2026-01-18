@@ -1,5 +1,5 @@
 "use client";
-import { IamProvider } from "@beep/iam-ui/IamProvider";
+
 import { BeepProvider } from "@beep/runtime-client";
 import RecaptchaV3Atom from "@beep/shared-client/services/react-recaptcha-v3/recaptcha-v3-atom";
 import type { AppConfig } from "@beep/todox/app-config";
@@ -45,14 +45,12 @@ export function GlobalProviders({ children, appConfig }: GlobalProviders) {
                 <RecaptchaV3Atom>
                   <BreakpointsProvider>
                     <ConfirmProvider>
-                      <IamProvider>
-                        <MotionLazy>
-                          <Snackbar />
-                          <ProgressBar />
-                          <SettingsDrawer defaultSettings={defaultSettings} />
-                          {children}
-                        </MotionLazy>
-                      </IamProvider>
+                      <MotionLazy>
+                        <Snackbar />
+                        <ProgressBar />
+                        <SettingsDrawer defaultSettings={defaultSettings} />
+                        {children}
+                      </MotionLazy>
                     </ConfirmProvider>
                   </BreakpointsProvider>
                 </RecaptchaV3Atom>

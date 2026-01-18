@@ -1,5 +1,5 @@
 /**
- * @since 1.0.0
+ * @since 0.1.0
  */
 
 import { $WrapId } from "@beep/identity/packages";
@@ -7,19 +7,19 @@ import * as S from "effect/Schema";
 
 const $I = $WrapId.create("client-error");
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category Symbols
  */
 export const TypeId: unique symbol = Symbol.for($I`WrapperClientError`);
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category Symbols
  */
 export type TypeId = typeof TypeId;
 
 /**
- * @since 1.0.0
+ * @since 0.1.0
  * @category Errors
  */
 export class WrapperClientError extends S.TaggedError<WrapperClientError>($I`WrapperClientError`)(
@@ -31,7 +31,7 @@ export class WrapperClientError extends S.TaggedError<WrapperClientError>($I`Wra
   }
 ) {
   /**
-   * @since 1.0.0
+   * @since 0.1.0
    */
   readonly [TypeId]: TypeId = TypeId;
 }

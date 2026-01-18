@@ -1,7 +1,6 @@
 "use client";
 
 import type { AccountSettingsTabSearchParamValue } from "@beep/iam-domain";
-import { IamProvider } from "@beep/iam-ui/IamProvider";
 import { BeepProvider } from "@beep/runtime-client";
 import { MotionLazy } from "@beep/ui/animate/motion-lazy";
 import { I18nProvider } from "@beep/ui/i18n/i18n.provider";
@@ -49,14 +48,12 @@ export function GlobalProviders({ children, appConfig }: GlobalProviders) {
                   <ThemeProvider modeStorageKey={themeConfig.modeStorageKey} defaultMode={themeConfig.defaultMode}>
                     <BreakpointsProvider>
                       <ConfirmProvider>
-                        <IamProvider>
-                          <MotionLazy>
-                            <Snackbar />
-                            <ProgressBar />
-                            <SettingsDrawer defaultSettings={defaultSettings} />
-                            {children}
-                          </MotionLazy>
-                        </IamProvider>
+                        <MotionLazy>
+                          <Snackbar />
+                          <ProgressBar />
+                          <SettingsDrawer defaultSettings={defaultSettings} />
+                          {children}
+                        </MotionLazy>
                       </ConfirmProvider>
                     </BreakpointsProvider>
                   </ThemeProvider>

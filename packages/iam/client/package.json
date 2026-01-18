@@ -20,6 +20,7 @@
     "url": "git@github.com:kriegcloud/beep-effect.git",
     "directory": "packages/iam/client"
   },
+  "homepage": "https://github.com/kriegcloud/beep-effect/packages/iam/client",
   "scripts": {
     "build": "bun run build-esm && bun run build-cjs && bun run build-annotate",
     "dev": "tsc -b tsconfig.build.json --watch",

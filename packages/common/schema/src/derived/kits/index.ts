@@ -28,6 +28,13 @@ export * from "./nullables";
  */
 export * from "./string-literal-kit";
 /**
+ * Tagged config kit for literal-to-struct transformations.
+ *
+ * @category Derived/Kits
+ * @since 0.1.0
+ */
+export * from "./tagged-config-kit";
+/**
  * Transformation kits for derived schemas.
  *
  * @category Derived/Kits

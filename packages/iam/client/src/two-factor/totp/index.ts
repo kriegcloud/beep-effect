@@ -1,2 +1,9 @@
-export * as GetUri from "./get-uri";
-export * as Verify from "./verify";
+/**
+ * @fileoverview
+ * TOTP namespace export.
+ *
+ * @module @beep/iam-client/two-factor/totp
+ * @category TwoFactor/TOTP
+ * @since 0.1.0
+ */
+export * as TOTP from "./mod.ts";

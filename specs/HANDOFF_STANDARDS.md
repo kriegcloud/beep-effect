@@ -4,6 +4,19 @@
 
 ---
 
+## Quick Reference
+
+**At the end of EVERY phase, create BOTH files:**
+
+| File | Purpose | Location |
+|------|---------|----------|
+| `HANDOFF_P[N+1].md` | Full context document with verification tables, schema shapes, implementation details | `specs/[spec-name]/handoffs/` |
+| `P[N+1]_ORCHESTRATOR_PROMPT.md` | Copy-paste ready prompt to start the next phase | `specs/[spec-name]/handoffs/` |
+
+**Do NOT consider a phase complete until BOTH files exist and pass their verification checklists.**
+
+---
+
 ## Purpose
 
 Phase handoffs are the **primary context transfer mechanism** for multi-session spec execution. A high-quality handoff can save hours of debugging by providing accurate information upfront.
@@ -14,17 +27,37 @@ This document establishes mandatory requirements based on learnings from complet
 
 ## When to Create Handoffs
 
-| Spec Complexity | Handoff Required | Location |
-|-----------------|------------------|----------|
-| Simple (1 session) | No | N/A |
-| Medium (2-3 sessions) | Yes | `specs/[name]/handoffs/HANDOFF_P[N].md` |
-| Complex (4+ sessions) | Yes | `specs/[name]/handoffs/HANDOFF_P[N].md` |
+| Spec Complexity       | Handoff Required | Location                                |
+|-----------------------|------------------|-----------------------------------------|
+| Simple (1 session)    | No               | N/A                                     |
+| Medium (2-3 sessions) | Yes              | `specs/[name]/handoffs/HANDOFF_P[N].md` |
+| Complex (4+ sessions) | Yes              | `specs/[name]/handoffs/HANDOFF_P[N].md` |
 
 **Rule**: Any spec spanning multiple Claude sessions MUST use handoffs to preserve context.
 
 ---
 
 ## Mandatory Requirements
+
+### 0. Orchestrator Prompt Creation (CRITICAL)
+
+**Rule**: At the end of EVERY phase, you MUST create BOTH handoff documents:
+
+1. **`HANDOFF_P[N+1].md`** - Full context document (this file)
+2. **`P[N+1]_ORCHESTRATOR_PROMPT.md`** - Copy-paste ready prompt to start the next phase
+
+**Why Both?**
+- `HANDOFF_P[N+1].md` provides complete context, verification tables, and detailed specifications
+- `P[N+1]_ORCHESTRATOR_PROMPT.md` is a concise, actionable prompt that can be copied directly into a new chat session
+
+**Location**: Both files go in `specs/[spec-name]/handoffs/`
+
+**Do NOT consider a phase complete until BOTH files exist.**
+
+See the Handoff Template section below for the structure of `HANDOFF_P[N+1].md`.
+See the Orchestrator Prompt Template section for the structure of `P[N+1]_ORCHESTRATOR_PROMPT.md`.
+
+---
 
 ### 1. External API Source Verification (CRITICAL)
 
@@ -41,19 +74,19 @@ For EACH external API method in the handoff:
 
 #### Documentation Format
 
-```markdown
+````markdown
 ## Source Verification (MANDATORY)
 
-| Method | Source File | Line | Test File | Verified |
-|--------|-------------|------|-----------|----------|
-| `methodName` | `path/to/routes.ts` | 42 | `path/to/tests.ts:15` | Y |
+| Method       | Source File         | Line | Test File             | Verified |
+|--------------|---------------------|------|-----------------------|----------|
+| `methodName` | `path/to/routes.ts` | 42   | `path/to/tests.ts:15` | Y        |
 
 **Verification Process**:
 1. Located implementation in `path/to/routes.ts`
 2. Extracted exact response shape from return statements
 3. Cross-referenced with test assertions
 4. Documented ALL fields including optional/null fields
-```
+````
 
 #### Common Mistakes
 
@@ -81,11 +114,11 @@ export class Success extends S.Class<Success>("Success")({
 
 #### Common Patterns
 
-| Pattern | Example | Client Method |
-|---------|---------|---------------|
-| Kebab-case endpoint | `/request-password-reset` | `client.requestPasswordReset()` |
+| Pattern             | Example                   | Client Method                     |
+|---------------------|---------------------------|-----------------------------------|
+| Kebab-case endpoint | `/request-password-reset` | `client.requestPasswordReset()`   |
 | Snake-case endpoint | `/request_password_reset` | `client.request_password_reset()` |
-| Nested plugin | `/plugin/method` | `client.plugin.method()` |
+| Nested plugin       | `/plugin/method`          | `client.plugin.method()`          |
 
 **Always document the conversion pattern** so implementers know how to find correct client methods.
 
@@ -176,11 +209,85 @@ export class Success extends S.Class<Success>("Success")({
 
 ---
 
-## Handoff Template
+## Orchestrator Prompt Template
 
-Use this template for all phase handoffs:
+Use this template for `P[N+1]_ORCHESTRATOR_PROMPT.md` files:
 
-```markdown
+````markdown
+# Phase [N+1] Orchestrator Prompt
+
+Copy-paste this prompt to start Phase [N+1] implementation.
+
+---
+
+## Prompt
+
+You are implementing Phase [N+1] of the [SPEC_NAME] spec.
+
+### Context
+
+[Brief summary of what was completed in previous phases - 2-3 sentences max]
+
+[Key findings or learnings from previous phase that inform this phase]
+
+### Your Mission
+
+[Clear, concise description of what this phase accomplishes]
+
+[Bulleted list of specific work items or files to create/modify]
+
+### Critical Patterns
+
+[Include 2-5 code examples showing key patterns or gotchas]
+
+**Pattern Name**:
+```typescript
+// Example code showing the pattern
+```
+
+### Reference Files
+
+[List of files to consult during implementation, with brief descriptions]
+
+- Pattern: `path/to/reference.ts` - What pattern it demonstrates
+- Domain: `path/to/model.ts` - What to reference
+- Shared: `path/to/shared.ts` - What utilities are available
+
+### Verification
+
+[Commands to run after each step]
+
+```bash
+bun run check --filter @beep/package
+bun run test --filter @beep/package
+```
+
+### Success Criteria
+
+- [ ] [Specific, measurable completion item 1]
+- [ ] [Specific, measurable completion item 2]
+- [ ] Type check passes
+- [ ] Tests pass
+
+### Handoff Document
+
+Read full context in: `specs/[SPEC_NAME]/handoffs/HANDOFF_P[N+1].md`
+
+### Next Phase
+
+After completing Phase [N+1]:
+1. Update `REFLECTION_LOG.md` with learnings
+2. Create `HANDOFF_P[N+2].md` (context document)
+3. Create `P[N+2]_ORCHESTRATOR_PROMPT.md` (copy-paste prompt)
+````
+
+---
+
+## Handoff Document Template
+
+Use this template for `HANDOFF_P[N+1].md` files (full context documents):
+
+````markdown
 # Phase [N] Handoff: [Feature Name]
 
 **Date**: YYYY-MM-DD
@@ -204,9 +311,9 @@ Use this template for all phase handoffs:
 
 **CRITICAL**: All response schemas have been verified against source code.
 
-| Method | Source File | Line | Test File | Verified |
-|--------|-------------|------|-----------|----------|
-| `methodName` | `path/to/source.ts` | N | `path/to/test.ts:N` | Y |
+| Method       | Source File         | Line | Test File           | Verified |
+|--------------|---------------------|------|---------------------|----------|
+| `methodName` | `path/to/source.ts` | N    | `path/to/test.ts:N` | Y        |
 
 **Verification Process**:
 1. Located implementation in source files
@@ -220,9 +327,9 @@ Use this template for all phase handoffs:
 
 ### [Feature Domain]
 
-| Method | Client Call | Parameters | Returns | Pattern |
-|--------|-------------|------------|---------|---------|
-| methodName | `client.methodName()` | `{ field: type }` | `{ data, error }` | Factory/Manual |
+| Method       | Client Call             | Parameters        | Returns           | Pattern        |
+|--------------|-------------------------|-------------------|-------------------|----------------|
+| `methodName` | `client.methodName()`   | `{ field: type }` | `{ data, error }` | Factory/Manual |
 
 **Naming Convention**: [Document endpoint-to-method conversion]
 
@@ -240,7 +347,7 @@ Use this template for all phase handoffs:
   field1: type,
   field2: type | null,
 }
-```
+````
 
 **Contract Implementation**:
 ```typescript
@@ -300,8 +407,24 @@ Phase [N] is complete when:
 
 ## Verification Checklist for Handoff Authors
 
-Before finalizing any handoff:
+Before finalizing any handoff, verify BOTH files are complete:
 
+### Orchestrator Prompt Checklist (`P[N+1]_ORCHESTRATOR_PROMPT.md`)
+
+- [ ] **File exists** in `specs/[spec-name]/handoffs/` directory
+- [ ] **Copy-paste ready** - prompt is self-contained and actionable
+- [ ] **Context section** summarizes previous phase completion
+- [ ] **Mission section** clearly states phase objectives
+- [ ] **Critical patterns** include 2-5 code examples
+- [ ] **Reference files** listed with descriptions
+- [ ] **Verification commands** included
+- [ ] **Success criteria** are specific and measurable
+- [ ] **Links to HANDOFF document** for full context
+- [ ] **Next phase instructions** remind to create next handoff files
+
+### Handoff Document Checklist (`HANDOFF_P[N+1].md`)
+
+- [ ] **File exists** in `specs/[spec-name]/handoffs/` directory
 - [ ] **Every method's response shape verified from source code**
 - [ ] **Source file references included** (file + line numbers)
 - [ ] **ALL response fields documented** (no omissions)
@@ -311,6 +434,10 @@ Before finalizing any handoff:
 - [ ] **Test file references included** for usage examples
 - [ ] **Known gotchas from previous phases included**
 - [ ] **Verification process documented in handoff**
+
+### Critical Rule
+
+**A phase is NOT complete until BOTH files exist and pass their respective checklists.**
 
 ---
 

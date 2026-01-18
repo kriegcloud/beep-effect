@@ -262,9 +262,20 @@ Request: `What changes should we make to CLAUDE.md based on spec learnings?`
 
 ## Integration with Handoff Workflow
 
-**Post-Phase**: After Phase 3 or Phase 4+ handoffs, run reflector to analyze learnings and incorporate into next orchestrator prompt.
+**Post-Phase**: After Phase 3 or Phase 4+ completion, the reflector agent can be used to:
+1. Analyze learnings from `REFLECTION_LOG.md`
+2. Generate meta-reflection reports
+3. Recommend improvements for handoff documents and orchestrator prompts
 
 **Pre-Phase**: Check for existing meta-reflections in `specs/agents/reflector/outputs/` and apply relevant patterns to current planning.
+
+**Important Note**: The reflector agent produces **analysis and recommendations**. It does NOT create the actual handoff files (`HANDOFF_P[N+1].md` and `P[N+1]_ORCHESTRATOR_PROMPT.md`). Those files must be created by the orchestrator at the end of each phase.
+
+**Handoff Creation Responsibility**: The orchestrator (human or AI agent managing the spec execution) is responsible for creating BOTH handoff files at the end of each phase:
+- `handoffs/HANDOFF_P[N+1].md` - Full context document
+- `handoffs/P[N+1]_ORCHESTRATOR_PROMPT.md` - Copy-paste ready prompt
+
+See [specs/HANDOFF_STANDARDS.md](../../specs/HANDOFF_STANDARDS.md) for complete requirements.
 
 ---
 

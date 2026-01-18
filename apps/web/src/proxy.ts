@@ -1,5 +1,5 @@
 import { CSP_HEADER } from "@beep/constants";
-import { AuthCallback } from "@beep/iam-client/constants";
+import { AuthCallback } from "@beep/iam-client";
 import { paths } from "@beep/shared-domain";
 import * as A from "effect/Array";
 import * as Str from "effect/String";
