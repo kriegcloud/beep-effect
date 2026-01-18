@@ -8,6 +8,13 @@
       "when": 1768775458340,
       "tag": "0000_fresh_invisible_woman",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1768776125636,
+      "tag": "0001_clear_maestro",
+      "breakpoints": true
     }
   ]
 }

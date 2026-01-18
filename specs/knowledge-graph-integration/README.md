@@ -1,35 +1,35 @@
-# Knowledge Graph Integration Specification
+import type { EntityId } from "@beep/schema/identity";
+import type { HasDefault, HasRuntimeDefault, NotNull } from "drizzle-orm";
+import type * as pg from "drizzle-orm/pg-core";
+import type * as DateTime from "effect/DateTime";
 
-**Status**: Phase 0 (Foundation)
-**Complexity**: Complex (10+ sessions expected)
-**Reference Implementation**: [effect-ontology](https://github.com/pooks/effect-ontology)
 
----
 
-## Directory Context
 
-This spec is executed within the **beep-effect** repository. The effect-ontology reference implementation is available at `tmp/effect-ontology/`:
+/** Custom datetime column builder type for audit columns */
+type DateTimeColumnBuilder<TName extends string> = pg.PgCustomColumnBuilder<{
+  name: TName;
+  dataType: "custom";
+  columnType: "PgCustomColumn";
+  data: string | number | Date | DateTime.Utc;
+  driverParam: string;
+  enumValues: undefined;
+}>;
 
-```
-beep-effect/                          # Working directory
-├── packages/                         # Your implementation goes here
-│   └── knowledge/                    # New vertical slice
-├── specs/
-│   └── knowledge-graph-integration/  # This spec
-└── tmp/
-    └── effect-ontology/              # Reference patterns
-        └── packages/@core-v2/src/    # Domain, Service, Workflow patterns
-```
+export type DefaultColumns<TableName extends string, Brand extends string> = {
+  id: EntityId.EntityId.PublicIdColumn<TableName>;
+  _rowId: EntityId.EntityId.PrivateIdColumn<Brand>;
+  createdAt: HasRuntimeDefault<HasDefault<NotNull<DateTimeColumnBuilder<"created_at">>>>;
+  updatedAt: HasDefault<NotNull<DateTimeColumnBuilder<"updated_at">>>;
+  deletedAt: DateTimeColumnBuilder<"deleted_at">;
+  createdBy: pg.PgTextBuilderInitial<"created_by", [string, ...string[]]>;
+  updatedBy: pg.PgTextBuilderInitial<"updated_by", [string, ...string[]]>;
+  deletedBy: pg.PgTextBuilderInitial<"deleted_by", [string, ...string[]]>;
+  version: HasDefault<HasDefault<NotNull<pg.PgIntegerBuilderInitial<"version">>>>;
+  source: pg.PgTextBuilderInitial<"source", [string, ...string[]]>;
+};
 
-All paths in this spec referencing `tmp/effect-ontology/...` are relative to the beep-effect repo root.
-
----
-
-## Purpose
-
-Integrate ontology-guided knowledge extraction, semantic data modeling, and GraphRAG capabilities into the beep-effect monorepo. This enables Todox and future applications to:
-
-1. **Extract structured knowledge** from unstructured text (emails, documents, notes)
+export * from "./index";
 2. **Model domain relationships** via formal OWL ontologies
 3. **Provide intelligent agent context** through GraphRAG subgraph retrieval
 4. **Unify multi-source data** via entity resolution and canonical schemas
@@ -37,72 +37,72 @@ Integrate ontology-guided knowledge extraction, semantic data modeling, and Grap
 
 ### Core Concepts from Effect Ontology
 
-| Concept | Description | Beep-Effect Integration |
-|---------|-------------|-------------------------|
-| **Ontology** | OWL/Turtle formal schema defining classes, properties, constraints | New `@beep/ontology-domain` package |
-| **KnowledgeIndex** | HashMap-based monoid for prompt generation | Service in `@beep/knowledge-server` |
-| **Topological Catamorphism** | DAG fold over class hierarchy | Pure function in domain layer |
-| **6-Phase Pipeline** | Chunk → Mention → Entity → Scope → Relation → Ground | Workflow in `@beep/knowledge-server` |
-| **Entity Resolution** | Clustering duplicate entities across sources | Service consuming embeddings |
-| **GraphRAG** | Subgraph retrieval for agent context | Integration with `@beep/agents-*` |
+| Concept                      | Description                                                        | Beep-Effect Integration              |
+|------------------------------|--------------------------------------------------------------------|--------------------------------------|
+| **Ontology**                 | OWL/Turtle formal schema defining classes, properties, constraints | New `@beep/ontology-domain` package  |
+| **KnowledgeIndex**           | HashMap-based monoid for prompt generation                         | Service in `@beep/knowledge-server`  |
+| **Topological Catamorphism** | DAG fold over class hierarchy                                      | Pure function in domain layer        |
+| **6-Phase Pipeline**         | Chunk → Mention → Entity → Scope → Relation → Ground               | Workflow in `@beep/knowledge-server` |
+| **Entity Resolution**        | Clustering duplicate entities across sources                       | Service consuming embeddings         |
+| **GraphRAG**                 | Subgraph retrieval for agent context                               | Integration with `@beep/agents-*`    |
 
 ---
 
 ## Target Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────┐
+┌──────────────────────────────────────────────────────────────────────────────┐
 │                        BEEP-EFFECT + KNOWLEDGE LAYER                         │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                               │
-│  ┌──────────────────┐  ┌──────────────────┐  ┌──────────────────────────┐   │
-│  │ Todox App        │  │ Notes App        │  │ Future Apps              │   │
-│  │ (Email/Clients)  │  │ (Documents)      │  │ (CRM, Integrations)      │   │
-│  └────────┬─────────┘  └────────┬─────────┘  └────────┬─────────────────┘   │
-│           │                     │                     │                       │
-│           ▼                     ▼                     ▼                       │
+├──────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  ┌──────────────────┐                       ┌──────────────────────────┐     │
+│  │ Todox App        │                       │ Future Apps              │     │
+│  │ (Email/Clients)  │                       │ (CRM, Integrations)      │     │
+│  └────────┬─────────┘                       └────────┬─────────────────┘     │
+│           │                                          │                       │
+│           ▼                                          ▼                       │
 │  ┌─────────────────────────────────────────────────────────────────────────┐ │
-│  │                    @beep/knowledge-client                                │ │
+│  │                    @beep/knowledge-client                               │ │
 │  │  RPC contracts: extract, query, resolve, getAgentContext                │ │
 │  └────────────────────────────────────────────────────┬────────────────────┘ │
-│                                                       │                       │
-│           ┌───────────────────────────────────────────┤                       │
-│           │                                           │                       │
-│           ▼                                           ▼                       │
+│                                                       │                      │
+│           ┌───────────────────────────────────────────┤                      │
+│           │                                           │                      │
+│           ▼                                           ▼                      │
 │  ┌─────────────────────────┐              ┌─────────────────────────────────┐│
 │  │ @beep/knowledge-server  │              │ @beep/knowledge-ui              ││
-│  │                         │              │                                  ││
-│  │ Services:               │              │ Components:                      ││
+│  │                         │              │                                 ││
+│  │ Services:               │              │ Components:                     ││
 │  │ - ExtractionPipeline    │              │ - KnowledgeGraphViewer          ││
 │  │ - EntityResolution      │              │ - EntityInspector               ││
 │  │ - GraphRAGService       │              │ - RelationExplorer              ││
 │  │ - OntologyService       │              │ - ExtractionProgress            ││
-│  │ - GroundingService      │              │                                  ││
-│  └─────────┬───────────────┘              └──────────────────────────────────┘│
-│            │                                                                   │
-│            ▼                                                                   │
+│  │ - GroundingService      │              │                                 ││
+│  └─────────┬───────────────┘              └─────────────────────────────────┘│
+│            │                                                                 │
+│            ▼                                                                 │
 │  ┌─────────────────────────────────────────────────────────────────────────┐ │
-│  │                    @beep/knowledge-tables                                │ │
-│  │                                                                          │ │
-│  │  Tables:                                                                 │ │
+│  │                    @beep/knowledge-tables                               │ │
+│  │                                                                         │ │
+│  │  Tables:                                                                │ │
 │  │  - ontologies (id, org_id, name, turtle_content, version)               │ │
 │  │  - entities (id, org_id, types[], attributes, mentions[], confidence)   │ │
 │  │  - relations (id, subject_id, predicate, object, evidence[], confidence)│ │
 │  │  - extractions (id, org_id, source_uri, status, knowledge_graph_id)     │ │
 │  │  - embeddings (id, entity_id, vector, provider, model)                  │ │
-│  │                                                                          │ │
-│  │  + pgvector extension for similarity search                              │ │
+│  │                                                                         │ │
+│  │  + pgvector extension for similarity search                             │ │
 │  └─────────────────────────────────────────────────────────────────────────┘ │
-│                                                                               │
+│                                                                              │
 │  ┌─────────────────────────────────────────────────────────────────────────┐ │
-│  │                    @beep/knowledge-domain                                │ │
-│  │                                                                          │ │
+│  │                    @beep/knowledge-domain                               │ │
+│  │                                                                         │ │
 │  │  Schemas: Entity, Relation, Mention, KnowledgeGraph, OntologyContext    │ │
 │  │  Algebra: knowledgeIndexMonoid, mergeGraphs (associative, identity)     │ │
 │  │  Errors: ExtractionError, OntologyError, GroundingError                 │ │
 │  └─────────────────────────────────────────────────────────────────────────┘ │
-│                                                                               │
-└─────────────────────────────────────────────────────────────────────────────┘
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -133,16 +133,16 @@ Integrate ontology-guided knowledge extraction, semantic data modeling, and Grap
 
 ## Phase Overview
 
-| Phase | Description | Sessions | Status |
-|-------|-------------|----------|--------|
-| **P0** | Foundation: Domain models, table schemas, RLS | 2-3 | Pending |
-| **P1** | Ontology Service: OWL parsing, class hierarchy, property scoping | 2-3 | Pending |
-| **P2** | Extraction Pipeline: 6-phase streaming extraction | 3-4 | Pending |
-| **P3** | Embedding & Grounding: pgvector, similarity scoring | 2-3 | Pending |
-| **P4** | Entity Resolution: Clustering, canonical entity selection | 2-3 | Pending |
-| **P5** | GraphRAG: Subgraph retrieval, agent context assembly | 2-3 | Pending |
-| **P6** | Todox Integration: Email extraction, client knowledge graph | 3-4 | Pending |
-| **P7** | UI Components: Graph viewer, entity inspector | 2-3 | Pending |
+| Phase  | Description                                                      | Sessions | Status  |
+|--------|------------------------------------------------------------------|----------|---------|
+| **P0** | Foundation: Domain models, table schemas, RLS                    | 2-3      | Pending |
+| **P1** | Ontology Service: OWL parsing, class hierarchy, property scoping | 2-3      | Pending |
+| **P2** | Extraction Pipeline: 6-phase streaming extraction                | 3-4      | Pending |
+| **P3** | Embedding & Grounding: pgvector, similarity scoring              | 2-3      | Pending |
+| **P4** | Entity Resolution: Clustering, canonical entity selection        | 2-3      | Pending |
+| **P5** | GraphRAG: Subgraph retrieval, agent context assembly             | 2-3      | Pending |
+| **P6** | Todox Integration: Email extraction, client knowledge graph      | 3-4      | Pending |
+| **P7** | UI Components: Graph viewer, entity inspector                    | 2-3      | Pending |
 
 ---
 
@@ -216,28 +216,28 @@ specs/knowledge-graph-integration/
 
 ### Key Reference Files
 
-| File | Purpose |
-|------|---------|
-| `packages/shared/domain/src/` | Existing domain patterns |
-| `packages/shared/server/src/DbClient/` | Database client patterns |
-| `packages/shared/tables/src/` | Table factory patterns |
-| `packages/iam/server/src/db/Db/` | Slice-scoped Db pattern |
-| `.claude/rules/effect-patterns.md` | Mandatory Effect patterns |
-| `tmp/effect-ontology/packages/@core-v2/src/` | Reference implementation |
+| File                                         | Purpose                   |
+|----------------------------------------------|---------------------------|
+| `packages/shared/domain/src/`                | Existing domain patterns  |
+| `packages/shared/server/src/DbClient/`       | Database client patterns  |
+| `packages/shared/tables/src/`                | Table factory patterns    |
+| `packages/iam/server/src/db/Db/`             | Slice-scoped Db pattern   |
+| `.claude/rules/effect-patterns.md`           | Mandatory Effect patterns |
+| `tmp/effect-ontology/packages/@core-v2/src/` | Reference implementation  |
 
 ---
 
 ## Agents Used
 
-| Agent | Phase | Purpose |
-|-------|-------|---------|
-| `codebase-researcher` | P0, P1 | Explore existing beep-effect patterns |
-| `mcp-researcher` | P1, P2 | Effect/AI, Schema documentation |
-| `web-researcher` | P0 | OWL/RDF best practices |
-| `architecture-pattern-enforcer` | All | Validate layer boundaries |
-| `test-writer` | All | Create test coverage |
-| `doc-writer` | P7 | Final documentation |
-| `reflector` | All | Log and synthesize learnings |
+| Agent                           | Phase  | Purpose                               |
+|---------------------------------|--------|---------------------------------------|
+| `codebase-researcher`           | P0, P1 | Explore existing beep-effect patterns |
+| `mcp-researcher`                | P1, P2 | Effect/AI, Schema documentation       |
+| `web-researcher`                | P0     | OWL/RDF best practices                |
+| `architecture-pattern-enforcer` | All    | Validate layer boundaries             |
+| `test-writer`                   | All    | Create test coverage                  |
+| `doc-writer`                    | P7     | Final documentation                   |
+| `reflector`                     | All    | Log and synthesize learnings          |
 
 ---
 

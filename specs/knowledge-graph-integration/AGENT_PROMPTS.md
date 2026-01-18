@@ -20,12 +20,13 @@ Research questions:
 6. What RLS policy patterns are used for multi-tenancy?
 
 Examine these specific files:
-- packages/iam/domain/src/index.ts
-- packages/iam/tables/src/schema.ts
+- packages/iam/domain/src/entities/Member/Member.model.ts
+- packages/iam/tables/src/tables/member.table.ts
+- packages/iam/tables/src/_check.ts
 - packages/iam/server/src/db/Db/Db.ts
-- packages/iam/server/src/db/repos/UserRepo.ts
+- packages/iam/server/src/db/repos/Member.repo.ts
 - packages/shared/server/src/DbClient/DbClient.ts
-- packages/shared/tables/src/Table.ts
+- packages/shared/tables/src/org-table/OrgTable.ts
 
 Output: Comprehensive pattern summary for replication in @beep/knowledge-*
 ```

@@ -23,15 +23,60 @@ The beep-effect monorepo provides established patterns for vertical slices that 
 | **Documents** | domain, tables, server, client, ui | Multi-tenant file handling |
 | **Shared** | domain, tables, server, env, testkit | Cross-slice utilities |
 
-### Knowledge Slice (To Create)
+### Knowledge Slice (Canonical Structure)
 
 ```
 packages/knowledge/
-├── domain/          # @beep/knowledge-domain
-├── tables/          # @beep/knowledge-tables
-├── server/          # @beep/knowledge-server
-├── client/          # @beep/knowledge-client
-└── ui/              # @beep/knowledge-ui
+├── domain/                          # @beep/knowledge-domain
+│   └── src/
+│       ├── index.ts
+│       ├── entities.ts              # Re-exports Entities namespace
+│       ├── entities/
+│       │   ├── index.ts
+│       │   ├── Entity/
+│       │   │   ├── index.ts
+│       │   │   ├── Entity.model.ts
+│       │   │   └── schemas/
+│       │   │       └── EntityType.ts
+│       │   ├── Relation/
+│       │   │   └── Relation.model.ts
+│       │   ├── Extraction/
+│       │   │   └── Extraction.model.ts
+│       │   ├── Ontology/
+│       │   │   └── Ontology.model.ts
+│       │   └── Embedding/
+│       │       └── Embedding.model.ts
+│       └── value-objects/
+│           └── index.ts
+├── tables/                          # @beep/knowledge-tables
+│   └── src/
+│       ├── index.ts
+│       ├── schema.ts
+│       ├── _check.ts                # Type assertions
+│       ├── relations.ts             # Drizzle relations
+│       └── tables/
+│           ├── index.ts
+│           ├── entity.table.ts
+│           ├── knowledgeRelation.table.ts
+│           ├── extraction.table.ts
+│           ├── ontology.table.ts
+│           └── embedding.table.ts
+├── server/                          # @beep/knowledge-server
+│   └── src/
+│       ├── index.ts
+│       ├── db.ts
+│       └── db/
+│           ├── index.ts
+│           ├── repositories.ts
+│           ├── Db/
+│           │   ├── index.ts
+│           │   └── Db.ts
+│           └── repos/
+│               ├── index.ts
+│               ├── _common.ts
+│               └── {Entity}.repo.ts
+├── client/                          # @beep/knowledge-client
+└── ui/                              # @beep/knowledge-ui
 ```
 
 ---
@@ -59,18 +104,22 @@ For multi-tenant tables, use `OrgTable.make` which:
 3. Inherits `globalColumns`
 
 ```typescript
-// From packages/shared/tables/src/org-table/OrgTable.ts
-import { OrgTable } from "@beep/shared-tables/org-table";
+// packages/knowledge/tables/src/tables/entity.table.ts
+import { KnowledgeEntityIds } from "@beep/shared-domain";
+import { OrgTable } from "@beep/shared-tables";
+import * as pg from "drizzle-orm/pg-core";
 
-export const entities = OrgTable.make(KnowledgeEntityIds.EntityId)(
+export const entity = OrgTable.make(KnowledgeEntityIds.EntityId)(
   {
     types: pg.text("types").array().notNull(),
     mention: pg.text("mention").notNull(),
     attributes: pg.jsonb("attributes").default({}).notNull(),
+    mentions: pg.jsonb("mentions"),
+    groundingConfidence: pg.real("grounding_confidence"),
   },
   (t) => [
-    pg.index("entities_org_idx").on(t.organizationId),
-    pg.index("entities_types_idx").on(t.types),
+    pg.index("entity_org_idx").on(t.organizationId),
+    pg.index("entity_types_idx").on(t.types),
   ]
 );
 ```
@@ -187,31 +236,43 @@ export const KnowledgeRepos = {
 
 ## Repository Pattern
 
-### Source: `packages/iam/server/src/db/repos/*.repo.ts`
+### Source: `packages/iam/server/src/db/repos/Member.repo.ts`
 
 Repositories use `DbRepo.make` factory:
 
 ```typescript
-import { DbRepo } from "@beep/shared-domain/factories";
+// packages/knowledge/server/src/db/repos/Entity.repo.ts
 import { Entities } from "@beep/knowledge-domain";
+import { KnowledgeDb } from "@beep/knowledge-server/db";
+import { dependencies } from "@beep/knowledge-server/db/repos/_common";
+import { $KnowledgeServerId } from "@beep/identity/packages";
 import { KnowledgeEntityIds } from "@beep/shared-domain";
-import { Db } from "../Db/Db";
+import { DbRepo } from "@beep/shared-domain/factories";
+import * as Effect from "effect/Effect";
 
-export class EntityRepo extends Effect.Service<EntityRepo>()(
-  "@beep/knowledge-server/db/repos/EntityRepo",
-  {
-    dependencies: [Db.layer],
-    accessors: true,
-    effect: Effect.gen(function* () {
-      yield* Db; // Ensure Db injected
-      return yield* DbRepo.make(
-        KnowledgeEntityIds.EntityId,
-        Entities.Entity.Model,
-        Effect.succeed({})
-      );
-    }),
-  }
-) {}
+const $I = $KnowledgeServerId.create("db/repos/EntityRepo");
+
+export class EntityRepo extends Effect.Service<EntityRepo>()($I`EntityRepo`, {
+  dependencies,
+  accessors: true,
+  effect: DbRepo.make(
+    KnowledgeEntityIds.EntityId,
+    Entities.Entity.Model,
+    Effect.gen(function* () {
+      yield* KnowledgeDb.Db;
+      return {};
+    })
+  ),
+}) {}
+```
+
+### Common Dependencies (`_common.ts`)
+
+```typescript
+// packages/knowledge/server/src/db/repos/_common.ts
+import { KnowledgeDb } from "@beep/knowledge-server/db/Db";
+
+export const dependencies = [KnowledgeDb.layer];
 ```
 
 ---
@@ -300,12 +361,16 @@ CREATE POLICY tenant_isolation_entities ON entities
 
 | Pattern | File Path |
 |---------|-----------|
-| Slice structure | `packages/iam/` |
-| Table factories | `packages/shared/tables/src/org-table/OrgTable.ts` |
+| Domain model | `packages/iam/domain/src/entities/Member/Member.model.ts` |
+| Domain schemas | `packages/iam/domain/src/entities/Member/schemas/MemberRole.ts` |
+| Table file | `packages/iam/tables/src/tables/member.table.ts` |
+| Table _check | `packages/iam/tables/src/_check.ts` |
+| Table relations | `packages/iam/tables/src/relations.ts` |
 | Db pattern | `packages/iam/server/src/db/Db/Db.ts` |
-| Repository pattern | `packages/iam/server/src/db/repos/UserRepo.ts` |
+| Repository pattern | `packages/iam/server/src/db/repos/Member.repo.ts` |
+| Repo _common | `packages/iam/server/src/db/repos/_common.ts` |
 | Entity IDs | `packages/shared/domain/src/entity-ids/` |
-| Service pattern | `packages/iam/server/src/adapters/` |
+| OrgTable factory | `packages/shared/tables/src/org-table/OrgTable.ts` |
 | Effect patterns | `.claude/rules/effect-patterns.md` |
 | Database patterns | `documentation/patterns/database-patterns.md` |
 
@@ -313,13 +378,38 @@ CREATE POLICY tenant_isolation_entities ON entities
 
 ## Integration Checklist for Phase 0
 
+### Entity IDs
 - [ ] Update `packages/shared/domain/src/entity-ids/knowledge/ids.ts` with real entity IDs
 - [ ] Register knowledge entity IDs in `entity-ids/index.ts` export
-- [ ] Create `packages/knowledge/domain/package.json` and `tsconfig.json`
-- [ ] Create `packages/knowledge/tables/package.json` and `tsconfig.json`
-- [ ] Create `packages/knowledge/server/package.json` and `tsconfig.json`
+
+### Domain Package (`@beep/knowledge-domain`)
+- [ ] Create `package.json` and `tsconfig.json`
+- [ ] Create `entities/` directory structure with `{Entity}/{Entity}.model.ts` files
+- [ ] Create `entities/index.ts` exporting all entity modules
+- [ ] Create `entities.ts` re-exporting as `Entities` namespace
+- [ ] Create `value-objects/index.ts`
+- [ ] Include `static readonly utils = modelKit(Model)` in each model
+
+### Tables Package (`@beep/knowledge-tables`)
+- [ ] Create `package.json` and `tsconfig.json`
+- [ ] Create `tables/` directory with `{entity}.table.ts` files
+- [ ] Create `tables/index.ts` exporting all tables
+- [ ] Create `schema.ts` aggregating tables and relations
+- [ ] Create `_check.ts` with type assertions
+- [ ] Create `relations.ts` with Drizzle relations
+
+### Server Package (`@beep/knowledge-server`)
+- [ ] Create `package.json` and `tsconfig.json`
+- [ ] Create `db/Db/Db.ts` with Context.Tag pattern
+- [ ] Create `db/repos/_common.ts` with shared dependencies
+- [ ] Create `db/repos/{Entity}.repo.ts` for each entity
+- [ ] Create `db/repositories.ts` aggregating repos
+
+### Scaffolds
 - [ ] Scaffold `packages/knowledge/client/` (index.ts only)
 - [ ] Scaffold `packages/knowledge/ui/` (index.ts only)
+
+### Workspace Integration
 - [ ] Register packages in root `turbo.json` (if not auto-detected)
 - [ ] Add path aliases to `tsconfig.base.jsonc`
 - [ ] Run `bun install` to wire workspace dependencies

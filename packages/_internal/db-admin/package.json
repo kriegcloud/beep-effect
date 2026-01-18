@@ -26,7 +26,7 @@
     "test": "dotenvx run -f ../../../.env -- bun test",
     "dotenvx": "dotenvx run -f ../../../.env --",
     "coverage": "bun test --coverage",
-    "db:generate": "TSX_TSCONFIG_PATH=./tsconfig.src.json NODE_OPTIONS='--import tsx' bun run dotenvx -- bunx drizzle-kit generate",
+    "db:generate": "TSX_TSCONFIG_PATH=./tsconfig.src.json NODE_OPTIONS='--import tsx' bun run dotenvx -- bunx drizzle-kit generate && bun run src/scripts/inject-extensions.ts",
     "db:migrate": "TSX_TSCONFIG_PATH=./tsconfig.src.json NODE_OPTIONS='--import tsx' bun run dotenvx -- bunx drizzle-kit migrate",
     "db:push": "TSX_TSCONFIG_PATH=./tsconfig.src.json NODE_OPTIONS='--import tsx' bun run dotenvx -- bunx drizzle-kit push",
     "db:studio": "TSX_TSCONFIG_PATH=./tsconfig.src.json NODE_OPTIONS='--import tsx' bun run dotenvx -- bunx drizzle-kit studio",

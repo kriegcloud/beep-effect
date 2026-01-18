@@ -2,23 +2,21 @@
  * Type verification file for Knowledge tables
  *
  * This file ensures compile-time alignment between domain models
- * and Drizzle table definitions. Add type assertions here when you
- * create real entities to verify model/table schema alignment.
- *
- * @example
- * ```ts
- * import type { MyEntity } from "@beep/knowledge-domain/entities";
- * import type { InferSelectModel, InferInsertModel } from "drizzle-orm";
- * import type * as tables from "./schema";
- *
- * export const _checkSelectMyEntity: typeof MyEntity.Model.select.Encoded =
- *   {} as InferSelectModel<typeof tables.myEntity>;
- * ```
+ * and Drizzle table definitions. Type assertions verify that
+ * Drizzle InferSelectModel/InferInsertModel types match the
+ * corresponding Effect model's Encoded representation.
  *
  * @module knowledge-tables/_check
  * @since 0.1.0
  */
+import type { Embedding } from "@beep/knowledge-domain/entities";
+import type { InferInsertModel, InferSelectModel } from "drizzle-orm";
 
-// Add type verification checks when you create real entities
-// See JSDoc example above for the pattern to use
-export {};
+import type * as tables from "./schema";
+
+// Embedding
+export const _checkSelectEmbedding: typeof Embedding.Model.select.Encoded =
+  {} as InferSelectModel<typeof tables.embedding>;
+
+export const _checkInsertEmbedding: typeof Embedding.Model.insert.Encoded =
+  {} as InferInsertModel<typeof tables.embedding>;

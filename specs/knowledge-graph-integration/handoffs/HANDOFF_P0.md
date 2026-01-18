@@ -102,28 +102,46 @@ mkdir -p packages/knowledge/{domain,tables,server,client,ui}/src
 
 ### Task 0.3: Domain Models
 
-**Target**: `packages/knowledge/domain/src/`
+**Target**: `packages/knowledge/domain/src/entities/`
 
-| File | Schema | Reference |
-|------|--------|-----------|
-| `Entity.ts` | Entity, EntityModel | `tmp/effect-ontology/.../Entity.ts` |
-| `Relation.ts` | Relation, ObjectReference | `tmp/effect-ontology/.../Entity.ts` |
-| `EvidenceSpan.ts` | EvidenceSpan | `tmp/effect-ontology/.../Entity.ts` |
-| `KnowledgeGraph.ts` | KnowledgeGraph, mergeGraphs | `tmp/effect-ontology/.../Merge.ts` |
-| `Ontology.ts` | ClassDefinition, PropertyDefinition | `tmp/effect-ontology/.../Ontology.ts` |
-| `Errors.ts` | ExtractionError, OntologyError, GroundingError | Tagged errors |
+Each entity follows canonical pattern from `packages/iam/domain/src/entities/`:
+
+| Directory | File | Schema | Reference |
+|-----------|------|--------|-----------|
+| `Entity/` | `Entity.model.ts` | Entity Model | IAM Member pattern |
+| `Entity/schemas/` | `EntityType.ts` | Type enums | IAM MemberRole pattern |
+| `Relation/` | `Relation.model.ts` | Relation Model, ObjectReference | IAM pattern |
+| `Extraction/` | `Extraction.model.ts` | Extraction Model | IAM pattern |
+| `Extraction/schemas/` | `ExtractionStatus.ts` | Status enum | IAM MemberStatus pattern |
+| `Ontology/` | `Ontology.model.ts` | ClassDefinition, PropertyDefinition | IAM pattern |
+| `Embedding/` | `Embedding.model.ts` | Embedding Model | Already bootstrapped |
+
+**Supporting files**:
+- `entities/index.ts` - Exports all entity modules
+- `entities.ts` - Re-exports as `Entities` namespace
+- `value-objects/index.ts` - Value objects if needed
 
 ### Task 0.4: Table Schemas
 
-**Target**: `packages/knowledge/tables/src/`
+**Target**: `packages/knowledge/tables/src/tables/`
 
-| Table | Key Columns | Reference |
-|-------|-------------|-----------|
-| `entities` | types[], mention, attributes{}, mentions[], groundingConfidence | OrgTable.make |
-| `relations` | subjectId, predicate, object, evidence[], confidence | OrgTable.make |
-| `extractions` | sourceUri, status, knowledgeGraphId, ontologyId | OrgTable.make |
-| `ontologies` | name, turtleContent, version, namespace | OrgTable.make |
-| `embeddings` | entityId, vector(1024), provider, model, taskType | OrgTable.make |
+Each table follows canonical pattern from `packages/iam/tables/src/tables/`:
+
+| Table File | Table Name | Key Columns | Reference |
+|------------|------------|-------------|-----------|
+| `entity.table.ts` | `entity` | types[], mention, attributes{}, mentions[], groundingConfidence | OrgTable.make |
+| `knowledgeRelation.table.ts` | `knowledgeRelation` | subjectId, predicate, objectId, objectLiteral, evidence[], confidence | OrgTable.make |
+| `extraction.table.ts` | `extraction` | sourceUri, status, knowledgeGraphId, ontologyId | OrgTable.make |
+| `ontology.table.ts` | `ontology` | name, turtleContent, version, namespace | OrgTable.make |
+| `embedding.table.ts` | `embedding` | entityType, entityId, ontologyId, embedding, contentText, model | OrgTable.make |
+
+**Note**: Domain "Relation" uses `knowledgeRelation` prefix to avoid conflict with Drizzle's `relations.ts` file.
+
+**Supporting files**:
+- `tables/index.ts` - Exports all tables
+- `schema.ts` - Aggregates tables and relations
+- `_check.ts` - Compile-time type assertions
+- `relations.ts` - Drizzle relations definitions
 
 ### Task 0.5: RLS Policies
 
@@ -155,8 +173,28 @@ USING hnsw (vector vector_cosine_ops);
 
 ### Task 0.7: Server Db Service
 
-**Target**: `packages/knowledge/server/src/db/Db/Db.ts`
+**Target**: `packages/knowledge/server/src/db/`
 
+Follows canonical pattern from `packages/iam/server/src/db/`:
+
+```
+db/
+├── index.ts           # Exports Db and repos
+├── repositories.ts    # Aggregates all repos as namespace
+├── Db/
+│   ├── index.ts       # Re-exports Db
+│   └── Db.ts          # Context.Tag Db service
+└── repos/
+    ├── index.ts       # Exports all repos
+    ├── _common.ts     # Shared repo utilities (dependencies)
+    ├── Entity.repo.ts
+    ├── KnowledgeRelation.repo.ts
+    ├── Extraction.repo.ts
+    ├── Ontology.repo.ts
+    └── Embedding.repo.ts
+```
+
+**Db service** (`db/Db/Db.ts`):
 ```typescript
 import * as DbSchema from "@beep/knowledge-tables/schema";
 import { DbClient } from "@beep/shared-server";
@@ -171,6 +209,32 @@ export class Db extends Context.Tag("@beep/knowledge-server/Db")<Db, Shape>() {}
 
 export const layer: Layer.Layer<Db, never, DbClient.SliceDbRequirements> =
   Layer.scoped(Db, serviceEffect);
+```
+
+**Repository pattern** (`db/repos/Entity.repo.ts`):
+```typescript
+import { Entities } from "@beep/knowledge-domain";
+import { KnowledgeDb } from "@beep/knowledge-server/db";
+import { dependencies } from "@beep/knowledge-server/db/repos/_common";
+import { $KnowledgeServerId } from "@beep/identity/packages";
+import { KnowledgeEntityIds } from "@beep/shared-domain";
+import { DbRepo } from "@beep/shared-domain/factories";
+import * as Effect from "effect/Effect";
+
+const $I = $KnowledgeServerId.create("db/repos/EntityRepo");
+
+export class EntityRepo extends Effect.Service<EntityRepo>()($I`EntityRepo`, {
+  dependencies,
+  accessors: true,
+  effect: DbRepo.make(
+    KnowledgeEntityIds.EntityId,
+    Entities.Entity.Model,
+    Effect.gen(function* () {
+      yield* KnowledgeDb.Db;
+      return {};
+    })
+  ),
+}) {}
 ```
 
 ### Task 0.8: Scaffold Client/UI
@@ -191,16 +255,24 @@ export const placeholder = "TODO: Implement UI";
 
 ## Schema Shapes
 
+Schema shapes follow canonical pattern using `M.Class` and `makeFields`.
+
 ### Entity Schema
 
 ```typescript
+// packages/knowledge/domain/src/entities/Entity/Entity.model.ts
+import { $KnowledgeDomainId } from "@beep/identity/packages";
+import { BS } from "@beep/schema";
+import { KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
+import { makeFields } from "@beep/shared-domain/common";
+import { modelKit } from "@beep/shared-domain/factories";
+import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
-import { SharedEntityIds, KnowledgeEntityIds } from "@beep/shared-domain";
 
-export const EntityId = KnowledgeEntityIds.EntityId;
-export type EntityId = typeof EntityId.Type;
+const $I = $KnowledgeDomainId.create("entities/Entity");
 
-export class EvidenceSpan extends S.Class<EvidenceSpan>("EvidenceSpan")({
+// Supporting schema for evidence spans
+export class EvidenceSpan extends S.Class<EvidenceSpan>($I`EvidenceSpan`)({
   text: S.String,
   startOffset: S.Number,
   endOffset: S.Number,
@@ -208,55 +280,76 @@ export class EvidenceSpan extends S.Class<EvidenceSpan>("EvidenceSpan")({
   confidence: S.Number,
 }) {}
 
-export class Entity extends S.Class<Entity>("Entity")({
-  id: EntityId,
-  organizationId: SharedEntityIds.OrganizationId,
-  types: S.Array(S.String),
-  mention: S.String,
-  attributes: S.Record({ key: S.String, value: S.Unknown }),
-  mentions: S.optional(S.Array(EvidenceSpan)),
-  groundingConfidence: S.optional(S.Number),
-  createdAt: S.Date,
-  updatedAt: S.Date,
-}) {}
+export class Model extends M.Class<Model>($I`EntityModel`)(
+  makeFields(KnowledgeEntityIds.EntityId, {
+    types: S.Array(S.String),
+    mention: S.String,
+    attributes: BS.JsonFromStringOption(S.Record({ key: S.String, value: S.Unknown })),
+    mentions: BS.JsonFromStringOption(S.Array(EvidenceSpan)),
+    groundingConfidence: BS.FieldOptionOmittable(S.Number),
+    organizationId: SharedEntityIds.OrganizationId,
+  }),
+  $I.annotations("EntityModel", {
+    description: "Knowledge graph entity model",
+  })
+) {
+  static readonly utils = modelKit(Model);
+}
 ```
 
 ### Relation Schema
 
 ```typescript
-export const RelationId = KnowledgeEntityIds.RelationId;
+// packages/knowledge/domain/src/entities/Relation/Relation.model.ts
+import { $KnowledgeDomainId } from "@beep/identity/packages";
+import { BS } from "@beep/schema";
+import { KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
+import { makeFields } from "@beep/shared-domain/common";
+import { modelKit } from "@beep/shared-domain/factories";
+import * as M from "@effect/sql/Model";
+import * as S from "effect/Schema";
 
-export class ObjectReference extends S.Class<ObjectReference>("ObjectReference")({
-  "@id": EntityId,
+const $I = $KnowledgeDomainId.create("entities/Relation");
+
+export class ObjectReference extends S.Class<ObjectReference>($I`ObjectReference`)({
+  "@id": KnowledgeEntityIds.EntityId,
 }) {}
 
-export class Relation extends S.Class<Relation>("Relation")({
-  id: RelationId,
-  organizationId: SharedEntityIds.OrganizationId,
-  subjectId: EntityId,
-  predicate: S.String,
-  object: S.Union(S.String, ObjectReference),
-  evidence: S.Array(EvidenceSpan),
-  confidence: S.Number,
-  createdAt: S.Date,
-}) {}
+// Note: Uses KnowledgeRelationId to avoid conflict with Drizzle relations
+export class Model extends M.Class<Model>($I`RelationModel`)(
+  makeFields(KnowledgeEntityIds.KnowledgeRelationId, {
+    subjectId: KnowledgeEntityIds.EntityId,
+    predicate: S.String,
+    object: S.Union(S.String, ObjectReference),
+    evidence: BS.JsonFromStringOption(S.Array(EvidenceSpan)),
+    confidence: S.Number,
+    organizationId: SharedEntityIds.OrganizationId,
+  }),
+  $I.annotations("RelationModel", {
+    description: "Knowledge graph relation (subject-predicate-object triple)",
+  })
+) {
+  static readonly utils = modelKit(Model);
+}
 ```
 
-### KnowledgeGraph Schema
+### Consuming Entities
 
 ```typescript
-export class KnowledgeGraph extends S.Class<KnowledgeGraph>("KnowledgeGraph")({
-  entities: S.Array(Entity),
-  relations: S.Array(Relation),
-}) {}
+// Usage via namespace import
+import { Entities } from "@beep/knowledge-domain";
 
-// Monoid identity
-export const emptyGraph: KnowledgeGraph = { entities: [], relations: [] };
+// Access models
+const entityModel = Entities.Entity.Model;
+const relationModel = Entities.Relation.Model;
 
-// Monoid combine (associative)
-export const mergeGraphs = (a: KnowledgeGraph, b: KnowledgeGraph): KnowledgeGraph => {
-  // Implementation per tmp/effect-ontology/packages/@core-v2/src/Workflow/Merge.ts
-};
+// Create inserts
+const entity = Entities.Entity.Model.insert.make({
+  id: KnowledgeEntityIds.EntityId.make("knowledge_entity__uuid"),
+  types: ["ex:Person"],
+  mention: "John Doe",
+  // ... audit fields handled by makeFields
+});
 ```
 
 ---

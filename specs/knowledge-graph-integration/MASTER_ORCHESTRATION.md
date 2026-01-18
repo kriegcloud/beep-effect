@@ -27,41 +27,78 @@
 Create the knowledge vertical slice packages:
 
 packages/knowledge/
-├── domain/          # @beep/knowledge-domain
+├── domain/                          # @beep/knowledge-domain
 │   ├── package.json
 │   ├── tsconfig.json
 │   └── src/
-│       ├── index.ts
-│       ├── Entity.ts
-│       ├── Relation.ts
-│       ├── Mention.ts
-│       ├── KnowledgeGraph.ts
-│       ├── OntologyContext.ts
-│       └── Errors.ts
-├── tables/          # @beep/knowledge-tables
+│       ├── index.ts                 # Root export
+│       ├── entities.ts              # Re-exports all entities as namespace
+│       ├── entities/
+│       │   ├── index.ts             # Exports all entity modules
+│       │   ├── Entity/
+│       │   │   ├── index.ts
+│       │   │   ├── Entity.model.ts
+│       │   │   └── schemas/
+│       │   │       ├── index.ts
+│       │   │       └── EntityType.ts
+│       │   ├── Relation/
+│       │   │   ├── index.ts
+│       │   │   └── Relation.model.ts
+│       │   ├── Extraction/
+│       │   │   ├── index.ts
+│       │   │   ├── Extraction.model.ts
+│       │   │   └── schemas/
+│       │   │       ├── index.ts
+│       │   │       └── ExtractionStatus.ts
+│       │   ├── Ontology/
+│       │   │   ├── index.ts
+│       │   │   └── Ontology.model.ts
+│       │   └── Embedding/
+│       │       ├── index.ts
+│       │       └── Embedding.model.ts
+│       └── value-objects/
+│           └── index.ts
+├── tables/                          # @beep/knowledge-tables
 │   ├── package.json
 │   ├── tsconfig.json
 │   └── src/
-│       ├── index.ts
-│       ├── schema.ts
-│       ├── entities.ts
-│       ├── relations.ts
-│       ├── extractions.ts
-│       ├── ontologies.ts
-│       └── embeddings.ts
-├── server/          # @beep/knowledge-server
+│       ├── index.ts                 # Root export (exports schema namespace)
+│       ├── schema.ts                # Aggregates tables/* and relations
+│       ├── _check.ts                # Compile-time type assertions
+│       ├── relations.ts             # Drizzle relations definitions
+│       └── tables/
+│           ├── index.ts             # Exports all tables
+│           ├── entity.table.ts
+│           ├── knowledgeRelation.table.ts  # Prefixed to avoid Drizzle conflict
+│           ├── extraction.table.ts
+│           ├── ontology.table.ts
+│           └── embedding.table.ts
+├── server/                          # @beep/knowledge-server
 │   ├── package.json
 │   ├── tsconfig.json
 │   └── src/
-│       ├── index.ts
+│       ├── index.ts                 # Root export
+│       ├── db.ts                    # Simplified db re-export
 │       └── db/
-│           └── Db/Db.ts
-├── client/          # @beep/knowledge-client
+│           ├── index.ts             # Exports Db and repos
+│           ├── repositories.ts      # Aggregates all repos as namespace
+│           ├── Db/
+│           │   ├── index.ts
+│           │   └── Db.ts            # Context.Tag Db service
+│           └── repos/
+│               ├── index.ts         # Exports all repos
+│               ├── _common.ts       # Shared repo utilities
+│               ├── Entity.repo.ts
+│               ├── KnowledgeRelation.repo.ts
+│               ├── Extraction.repo.ts
+│               ├── Ontology.repo.ts
+│               └── Embedding.repo.ts
+├── client/                          # @beep/knowledge-client
 │   ├── package.json
 │   ├── tsconfig.json
 │   └── src/
 │       └── index.ts
-└── ui/              # @beep/knowledge-ui
+└── ui/                              # @beep/knowledge-ui
     ├── package.json
     ├── tsconfig.json
     └── src/
@@ -74,142 +111,190 @@ Follow patterns from packages/iam/* for structure.
 
 **Agent**: Manual with `mcp-researcher` for Effect Schema patterns
 
+Domain models follow the canonical pattern from `packages/iam/domain/`:
+- Each entity gets its own directory: `entities/{Entity}/{Entity}.model.ts`
+- Use `M.Class` from `@effect/sql/Model` with `makeFields` from `@beep/shared-domain/common`
+- Include `static readonly utils = modelKit(Model);`
+
 ```typescript
-// @beep/knowledge-domain/src/Entity.ts
-import * as S from "effect/Schema";
-import * as M from "@effect/sql/Model";
+// packages/knowledge/domain/src/entities/Entity/Entity.model.ts
+import { $KnowledgeDomainId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
+import { KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
+import { makeFields } from "@beep/shared-domain/common";
+import { modelKit } from "@beep/shared-domain/factories";
+import * as M from "@effect/sql/Model";
+import * as S from "effect/Schema";
 
-// Branded entity ID
-export const EntityId = S.String.pipe(S.brand("EntityId"));
-export type EntityId = S.Schema.Type<typeof EntityId>;
+const $I = $KnowledgeDomainId.create("entities/Entity");
 
-// Evidence span linking fact to source text
-export class EvidenceSpan extends S.Class<EvidenceSpan>("EvidenceSpan")({
-  text: S.String,
-  startOffset: S.Number,
-  endOffset: S.Number,
-  sourceUri: S.String,
-  confidence: S.Number,
-}) {}
-
-// Core entity model
-export class Entity extends S.Class<Entity>("Entity")({
-  id: EntityId,
-  organizationId: SharedEntityIds.OrganizationId,
-  types: S.Array(S.String),  // OWL class IRIs
-  mention: S.String,         // Canonical surface form
-  attributes: S.Record({ key: S.String, value: S.Unknown }),
-  mentions: S.optional(S.Array(EvidenceSpan)),
-  groundingConfidence: S.optional(S.Number),
-  createdAt: S.Date,
-  updatedAt: S.Date,
-}) {}
-
-// SQL Model for repository pattern
-export const EntityModel = M.Class<EntityModel>("EntityModel")({
-  // ... Drizzle-compatible model
-});
+export class Model extends M.Class<Model>($I`EntityModel`)(
+  makeFields(KnowledgeEntityIds.EntityId, {
+    types: S.Array(S.String),  // OWL class IRIs
+    mention: S.String,         // Canonical surface form
+    attributes: BS.JsonFromStringOption(S.Record({ key: S.String, value: S.Unknown })),
+    mentions: BS.JsonFromStringOption(S.Array(EvidenceSpan)), // Evidence spans
+    groundingConfidence: BS.FieldOptionOmittable(S.Number),
+    organizationId: SharedEntityIds.OrganizationId,
+  }),
+  $I.annotations("EntityModel", {
+    description: "Knowledge graph entity model",
+  })
+) {
+  static readonly utils = modelKit(Model);
+}
 ```
 
 ```typescript
-// @beep/knowledge-domain/src/Relation.ts
+// packages/knowledge/domain/src/entities/Relation/Relation.model.ts
+import { $KnowledgeDomainId } from "@beep/identity/packages";
+import { BS } from "@beep/schema";
+import { KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
+import { makeFields } from "@beep/shared-domain/common";
+import { modelKit } from "@beep/shared-domain/factories";
+import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
 
-export const RelationId = S.String.pipe(S.brand("RelationId"));
-export type RelationId = S.Schema.Type<typeof RelationId>;
+const $I = $KnowledgeDomainId.create("entities/Relation");
 
-export class ObjectReference extends S.Class<ObjectReference>("ObjectReference")({
-  "@id": EntityId,
+export class ObjectReference extends S.Class<ObjectReference>($I`ObjectReference`)({
+  "@id": KnowledgeEntityIds.EntityId,
 }) {}
 
-export class Relation extends S.Class<Relation>("Relation")({
-  id: RelationId,
-  organizationId: SharedEntityIds.OrganizationId,
-  subjectId: EntityId,
-  predicate: S.String,  // Property IRI
-  object: S.Union(S.String, ObjectReference),  // Literal or entity ref
-  evidence: S.Array(EvidenceSpan),
-  confidence: S.Number,
-  createdAt: S.Date,
-}) {}
+export class Model extends M.Class<Model>($I`RelationModel`)(
+  makeFields(KnowledgeEntityIds.KnowledgeRelationId, {
+    subjectId: KnowledgeEntityIds.EntityId,
+    predicate: S.String,  // Property IRI
+    object: S.Union(S.String, ObjectReference),  // Literal or entity ref
+    evidence: BS.JsonFromStringOption(S.Array(EvidenceSpan)),
+    confidence: S.Number,
+    organizationId: SharedEntityIds.OrganizationId,
+  }),
+  $I.annotations("RelationModel", {
+    description: "Knowledge graph relation (subject-predicate-object triple)",
+  })
+) {
+  static readonly utils = modelKit(Model);
+}
 ```
 
 ```typescript
-// @beep/knowledge-domain/src/KnowledgeGraph.ts
-import * as S from "effect/Schema";
-import { Entity } from "./Entity.js";
-import { Relation } from "./Relation.js";
+// packages/knowledge/domain/src/entities/index.ts
+export * as Entity from "./Entity/index.js";
+export * as Relation from "./Relation/index.js";
+export * as Extraction from "./Extraction/index.js";
+export * as Ontology from "./Ontology/index.js";
+export * as Embedding from "./Embedding/index.js";
+```
 
-export class KnowledgeGraph extends S.Class<KnowledgeGraph>("KnowledgeGraph")({
-  entities: S.Array(Entity),
-  relations: S.Array(Relation),
-}) {}
-
-// Monoid operation for graph merging
-export const mergeGraphs = (a: KnowledgeGraph, b: KnowledgeGraph): KnowledgeGraph => {
-  // Implementation follows tmp/effect-ontology/packages/@core-v2/src/Workflow/Merge.ts
-  // - Entity merge by ID with type voting
-  // - Relation merge by signature (subjectId, predicate, object)
-  // - Associative and has identity (empty graph)
-};
+```typescript
+// packages/knowledge/domain/src/entities.ts (re-export namespace)
+export * as Entities from "./entities/index.js";
 ```
 
 #### Task 0.3: Table Schemas
 
-**Agent**: Manual following `packages/shared/tables/` patterns
+**Agent**: Manual following `packages/iam/tables/` patterns
+
+Table files follow canonical pattern from `packages/iam/tables/`:
+- Each table in `tables/{entity}.table.ts` (lowercase, singular)
+- Use `OrgTable.make(EntityId)({columns}, (t) => [indexes])`
+- Export from `tables/index.ts`
+- Add relations in `relations.ts`
+- Add type assertions in `_check.ts`
+
+**Note**: The domain "Relation" concept uses `knowledgeRelation` prefix for table to avoid conflict with Drizzle's `relations.ts`.
 
 ```typescript
-// @beep/knowledge-tables/src/entities.ts
+// packages/knowledge/tables/src/tables/entity.table.ts
+import { KnowledgeEntityIds } from "@beep/shared-domain";
 import { OrgTable } from "@beep/shared-tables";
-import { relations } from "drizzle-orm";
-import { text, jsonb, real, index } from "drizzle-orm/pg-core";
+import * as pg from "drizzle-orm/pg-core";
 
-export const entities = OrgTable.make("entities", {
-  types: text("types").array().notNull(),
-  mention: text("mention").notNull(),
-  attributes: jsonb("attributes").default({}).notNull(),
-  mentions: jsonb("mentions"),  // EvidenceSpan[]
-  groundingConfidence: real("grounding_confidence"),
-});
-
-export const entitiesRelations = relations(entities, ({ one, many }) => ({
-  organization: one(organizations, {
-    fields: [entities.organizationId],
-    references: [organizations.id],
-  }),
-  subjectRelations: many(relationsTable, { relationName: "subject" }),
-  objectRelations: many(relationsTable, { relationName: "object" }),
-}));
-
-// Index for type-based queries
-export const entitiesIndexes = {
-  typesIdx: index("idx_entities_types").on(entities.types),
-  orgIdx: index("idx_entities_org_id").on(entities.organizationId),
-};
+export const entity = OrgTable.make(KnowledgeEntityIds.EntityId)(
+  {
+    types: pg.text("types").array().notNull(),
+    mention: pg.text("mention").notNull(),
+    attributes: pg.jsonb("attributes").default({}).notNull(),
+    mentions: pg.jsonb("mentions"),  // EvidenceSpan[]
+    groundingConfidence: pg.real("grounding_confidence"),
+  },
+  (t) => [
+    pg.index("entity_types_idx").on(t.types),
+    pg.index("entity_org_idx").on(t.organizationId),
+  ]
+);
 ```
 
 ```typescript
-// @beep/knowledge-tables/src/embeddings.ts
+// packages/knowledge/tables/src/tables/knowledgeRelation.table.ts
+import { KnowledgeEntityIds } from "@beep/shared-domain";
 import { OrgTable } from "@beep/shared-tables";
-import { text, vector, index } from "drizzle-orm/pg-core";
+import * as pg from "drizzle-orm/pg-core";
+import { entity } from "./entity.table.js";
 
-// Requires: CREATE EXTENSION IF NOT EXISTS vector;
-export const embeddings = OrgTable.make("embeddings", {
-  entityId: text("entity_id").notNull().references(() => entities.id),
-  vector: vector("vector", { dimensions: 1024 }),  // Voyage/Nomic dimension
-  provider: text("provider").notNull(),  // "voyage", "nomic", "openai"
-  model: text("model").notNull(),
-  taskType: text("task_type"),  // "search_query", "search_document"
-});
+export const knowledgeRelation = OrgTable.make(KnowledgeEntityIds.KnowledgeRelationId)(
+  {
+    subjectId: pg.text("subject_id").notNull().references(() => entity.id),
+    predicate: pg.text("predicate").notNull(),  // Property IRI
+    objectId: pg.text("object_id").references(() => entity.id),  // For entity refs
+    objectLiteral: pg.text("object_literal"),  // For literal values
+    evidence: pg.jsonb("evidence"),  // EvidenceSpan[]
+    confidence: pg.real("confidence").notNull(),
+  },
+  (t) => [
+    pg.index("knowledge_relation_subject_idx").on(t.subjectId),
+    pg.index("knowledge_relation_predicate_idx").on(t.predicate),
+  ]
+);
+```
 
-// HNSW index for fast similarity search
-export const embeddingsIndexes = {
-  vectorIdx: index("idx_embeddings_vector").using(
-    "hnsw",
-    embeddings.vector.op("vector_cosine_ops")
-  ),
-};
+```typescript
+// packages/knowledge/tables/src/tables/embedding.table.ts
+import { KnowledgeEntityIds } from "@beep/shared-domain";
+import { OrgTable } from "@beep/shared-tables";
+import { vector768 } from "@beep/shared-tables/columns";
+import * as pg from "drizzle-orm/pg-core";
+
+export const embedding = OrgTable.make(KnowledgeEntityIds.EmbeddingId)(
+  {
+    entityType: pg.text("entity_type").notNull(),  // class | entity | claim
+    entityId: pg.text("entity_id").notNull(),
+    ontologyId: pg.text("ontology_id").notNull().default("default"),
+    embedding: vector768("embedding").notNull(),
+    contentText: pg.text("content_text"),
+    model: pg.text("model").notNull().default("nomic-embed-text-v1.5"),
+  },
+  (t) => [
+    pg.index("embedding_entity_idx").on(t.entityType, t.entityId),
+    pg.index("embedding_ontology_idx").on(t.ontologyId),
+  ]
+);
+```
+
+```typescript
+// packages/knowledge/tables/src/tables/index.ts
+export * from "./entity.table.js";
+export * from "./knowledgeRelation.table.js";
+export * from "./extraction.table.js";
+export * from "./ontology.table.js";
+export * from "./embedding.table.js";
+```
+
+```typescript
+// packages/knowledge/tables/src/_check.ts
+import type { Entities } from "@beep/knowledge-domain";
+import type { InferInsertModel, InferSelectModel } from "drizzle-orm";
+import type * as tables from "./schema.js";
+
+// Type assertions to ensure table/model alignment
+export const _checkSelectEntity: typeof Entities.Entity.Model.select.Encoded =
+  {} as InferSelectModel<typeof tables.entity>;
+
+export const _checkInsertEntity: typeof Entities.Entity.Model.insert.Encoded =
+  {} as InferInsertModel<typeof tables.entity>;
+
+// Repeat for other entities...
 ```
 
 #### Task 0.4: RLS Policies

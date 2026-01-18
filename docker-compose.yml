@@ -8,7 +8,7 @@ services:
       - redis_data:/data
   postgres:
     container_name: beep-db
-    image: postgres:alpine
+    image: pgvector/pgvector:pg17-v0.8.0
     restart: always
     shm_size: 1g
     healthcheck:

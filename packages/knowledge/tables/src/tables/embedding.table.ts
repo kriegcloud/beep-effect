@@ -8,7 +8,7 @@
  * @since 0.1.0
  */
 import {KnowledgeEntityIds} from "@beep/shared-domain";
-import {Table} from "@beep/shared-tables";
+import {OrgTable} from "@beep/shared-tables";
 import {vector768} from "@beep/shared-tables/columns";
 import * as pg from "drizzle-orm/pg-core";
 
@@ -21,7 +21,7 @@ import * as pg from "drizzle-orm/pg-core";
  * @since 0.1.0
  * @category tables
  */
-export const embedding = Table.make(KnowledgeEntityIds.EmbeddingId)(
+export const embedding = OrgTable.make(KnowledgeEntityIds.EmbeddingId)(
   {
 
     // What this embedding represents

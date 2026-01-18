@@ -9,11 +9,12 @@
  */
 import { $KnowledgeDomainId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
-import { KnowledgeEntityIds } from "@beep/shared-domain";
+import { KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import { makeFields } from "@beep/shared-domain/common";
 import { modelKit } from "@beep/shared-domain/factories";
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
+
 
 const $I = $KnowledgeDomainId.create("entities/Embedding");
 
@@ -40,6 +41,7 @@ const $I = $KnowledgeDomainId.create("entities/Embedding");
 export class Model extends M.Class<Model>($I`EmbeddingModel`)(
   makeFields(KnowledgeEntityIds.EmbeddingId, {
     model: BS.toOptionalWithDefault(S.String)("nomic-embed-text-v1.5"),
+    organizationId: SharedEntityIds.OrganizationId,
   }),
   $I.annotations("EmbeddingModel", {
     description: "Embedding model for the knowledge domain context.",

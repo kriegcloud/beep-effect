@@ -27,4 +27,4 @@ export type DefaultColumns<TableName extends string, Brand extends string> = {
   source: pg.PgTextBuilderInitial<"source", [string, ...string[]]>;
 };
 
-export * from "./columns";
+export * from "./columns/index";

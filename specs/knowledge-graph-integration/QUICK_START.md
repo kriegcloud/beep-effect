@@ -29,16 +29,16 @@ This spec integrates **effect-ontology** patterns into **beep-effect** to enable
 
 ## Current Status
 
-| Phase | Description | Status |
-|-------|-------------|--------|
-| **P0** | Foundation: Domain models, table schemas | **Pending** |
-| P1 | Ontology Service: OWL parsing, class hierarchy | Pending |
-| P2 | Extraction Pipeline: 6-phase streaming | Pending |
-| P3 | Embedding & Grounding: pgvector, similarity | Pending |
-| P4 | Entity Resolution: Clustering, deduplication | Pending |
-| P5 | GraphRAG: Subgraph retrieval, agent context | Pending |
-| P6 | Todox Integration: Email extraction | Pending |
-| P7 | UI Components: Graph viewer | Pending |
+| Phase  | Description                                    | Status      |
+|--------|------------------------------------------------|-------------|
+| **P0** | Foundation: Domain models, table schemas       | **Pending** |
+| P1     | Ontology Service: OWL parsing, class hierarchy | Pending     |
+| P2     | Extraction Pipeline: 6-phase streaming         | Pending     |
+| P3     | Embedding & Grounding: pgvector, similarity    | Pending     |
+| P4     | Entity Resolution: Clustering, deduplication   | Pending     |
+| P5     | GraphRAG: Subgraph retrieval, agent context    | Pending     |
+| P6     | Todox Integration: Email extraction            | Pending     |
+| P7     | UI Components: Graph viewer                    | Pending     |
 
 ---
 
@@ -138,13 +138,13 @@ export class Entity extends S.Class<Entity>("Entity")({
 
 The effect-ontology codebase is available at `tmp/effect-ontology/` within the beep-effect repo:
 
-| Pattern | Reference File |
-|---------|----------------|
-| Domain models | `tmp/effect-ontology/packages/@core-v2/src/Domain/Model/Entity.ts` |
-| Ontology service | `tmp/effect-ontology/packages/@core-v2/src/Service/Ontology.ts` |
+| Pattern             | Reference File                                                              |
+|---------------------|-----------------------------------------------------------------------------|
+| Domain models       | `tmp/effect-ontology/packages/@core-v2/src/Domain/Model/Entity.ts`          |
+| Ontology service    | `tmp/effect-ontology/packages/@core-v2/src/Service/Ontology.ts`             |
 | Extraction pipeline | `tmp/effect-ontology/packages/@core-v2/src/Workflow/StreamingExtraction.ts` |
-| Monoid merge | `tmp/effect-ontology/packages/@core-v2/src/Workflow/Merge.ts` |
-| Embedding service | `tmp/effect-ontology/packages/@core-v2/src/Service/Embedding.ts` |
+| Monoid merge        | `tmp/effect-ontology/packages/@core-v2/src/Workflow/Merge.ts`               |
+| Embedding service   | `tmp/effect-ontology/packages/@core-v2/src/Service/Embedding.ts`            |
 
 ---
 
@@ -192,12 +192,12 @@ bun run db:generate
 
 ## Common Pitfalls
 
-| Pitfall | Solution |
-|---------|----------|
-| Using `bun test` | Use `bun run test` (vitest, not Bun's runner) |
-| Missing RLS policy | Every table with `org_id` needs tenant isolation policy |
-| Assuming response shapes | Always verify from source code |
-| Using `S.Any` | Fully type nested structures |
+| Pitfall                  | Solution                                                            |
+|--------------------------|---------------------------------------------------------------------|
+| Using `bun test`         | Use `bun run test` (vitest, not Bun's runner)                       |
+| Missing RLS policy       | Every table with `org_id` needs tenant isolation policy             |
+| Assuming response shapes | Always verify from source code                                      |
+| Using `S.Any`            | Fully type nested structures                                        |
 | Forgetting handoff files | Create BOTH `HANDOFF_P[N+1].md` AND `P[N+1]_ORCHESTRATOR_PROMPT.md` |
 
 ---
