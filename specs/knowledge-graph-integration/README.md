@@ -6,6 +6,25 @@
 
 ---
 
+## Directory Context
+
+This spec is executed within the **beep-effect** repository. The effect-ontology reference implementation is available at `tmp/effect-ontology/`:
+
+```
+beep-effect/                          # Working directory
+├── packages/                         # Your implementation goes here
+│   └── knowledge/                    # New vertical slice
+├── specs/
+│   └── knowledge-graph-integration/  # This spec
+└── tmp/
+    └── effect-ontology/              # Reference patterns
+        └── packages/@core-v2/src/    # Domain, Service, Workflow patterns
+```
+
+All paths in this spec referencing `tmp/effect-ontology/...` are relative to the beep-effect repo root.
+
+---
+
 ## Purpose
 
 Integrate ontology-guided knowledge extraction, semantic data modeling, and GraphRAG capabilities into the beep-effect monorepo. This enables Todox and future applications to:

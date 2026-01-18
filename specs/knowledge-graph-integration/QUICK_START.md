@@ -4,6 +4,19 @@
 
 ---
 
+## Directory Context
+
+You are working in the **beep-effect** repository. The effect-ontology reference implementation is at `tmp/effect-ontology/`:
+
+```
+beep-effect/
+├── packages/knowledge/   # Your work goes here
+├── specs/                # This spec lives here
+└── tmp/effect-ontology/  # Reference patterns
+```
+
+---
+
 ## What is This Spec?
 
 This spec integrates **effect-ontology** patterns into **beep-effect** to enable:
