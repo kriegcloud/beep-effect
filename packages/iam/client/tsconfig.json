@@ -2,7 +2,8 @@
   "extends": "../../../tsconfig.base.jsonc",
   "include": [],
   "compilerOptions": {
-    "tsBuildInfoFile": "./build/tsconfig.tsbuildinfo"
+    "tsBuildInfoFile": "./build/tsconfig.tsbuildinfo",
+    "plugins": []
   },
   "references": [
     {

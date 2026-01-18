@@ -41,5 +41,9 @@ import * as Contract from "./contract.ts";
 export const Handler = Contract.Wrapper.implement(
   Common.wrapIamMethod({
     wrapper: Contract.Wrapper,
+    // GetSession needs custom response transformation because Better Auth returns
+    // { data: sessionData | null } but our Success schema expects { data: Option<SessionData> }
+    // The transform wraps response.data to match the Success schema's encoded shape
+    transformResponse: (response) => ({ data: response.data }),
   })(() => client.getSession())
 );

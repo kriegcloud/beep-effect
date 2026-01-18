@@ -39,6 +39,18 @@ interface WrapConfigNoBefore<W extends Wrapper.AnyWithProps> {
   readonly wrapper: W;
   readonly before?: undefined;
   readonly mutatesSession?: undefined | boolean;
+  /**
+   * Optional transform to reshape response.data before decoding against successSchema.
+   * Useful when Better Auth's response shape differs from the schema's expected encoded shape.
+   *
+   * @example
+   * ```ts
+   * // GetSession: Better Auth returns { session, user } | null
+   * // Success schema expects { data: { session, user } | null }
+   * transformResponse: (response) => ({ data: response.data })
+   * ```
+   */
+  readonly transformResponse?: undefined | ((response: BetterAuthResponse) => unknown);
 }
 
 /**
@@ -48,6 +60,11 @@ interface WrapConfigWithBefore<W extends Wrapper.AnyWithProps, BeforeResult, Bef
   readonly wrapper: W;
   readonly before: Effect.Effect<BeforeResult, BeforeError, BeforeReq>;
   readonly mutatesSession?: undefined | boolean;
+  /**
+   * Optional transform to reshape response.data before decoding against successSchema.
+   * Useful when Better Auth's response shape differs from the schema's expected encoded shape.
+   */
+  readonly transformResponse?: undefined | ((response: BetterAuthResponse) => unknown);
 }
 
 /**
@@ -184,8 +201,9 @@ export function wrapIamMethod<
           client.$store.notify("$sessionSignal");
         }
 
-        // 6. Decode and return success using the wrapper's successSchema
-        return yield* S.decodeUnknown(config.wrapper.successSchema)(response.data);
+        // 6. Transform response if needed, then decode using successSchema
+        const dataToEncode = config.transformResponse !== undefined ? config.transformResponse(response) : response.data;
+        return yield* S.decodeUnknown(config.wrapper.successSchema)(dataToEncode);
       }).pipe(
         // Map ALL errors (ParseError, ReCaptcha errors, etc.) to IamError
         Effect.mapError(IamError.fromUnknown)

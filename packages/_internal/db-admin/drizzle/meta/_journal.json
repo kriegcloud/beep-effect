@@ -8,6 +8,13 @@
       "when": 1768526175669,
       "tag": "0000_chilly_energizer",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1768751920412,
+      "tag": "0001_mighty_next_avengers",
+      "breakpoints": true
     }
   ]
 }

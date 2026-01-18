@@ -1,4 +1,5 @@
 import { $IamClientId } from "@beep/identity/packages";
+import { BS } from "@beep/schema";
 import { SharedEntityIds } from "@beep/shared-domain";
 import { User } from "@beep/shared-domain/entities";
 import * as Effect from "effect/Effect";
@@ -30,9 +31,11 @@ const $I = $IamClientId.create("_common/user.schemas");
 export const BetterAuthUserSchema = S.Struct(
   {
     id: S.String,
-    // Better Auth returns JavaScript Date objects, not ISO strings
-    createdAt: S.DateFromSelf,
-    updatedAt: S.DateFromSelf,
+    // Better Auth returns ISO-like date strings from the API (e.g., "2026-01-18 16:11:25.693+00")
+    // but client-side hooks like useSession() may return JavaScript Date objects.
+    // Use DateFromAllAcceptable to handle both string and Date inputs.
+    createdAt: BS.DateFromAllAcceptable,
+    updatedAt: BS.DateFromAllAcceptable,
     email: S.String,
     emailVerified: S.Boolean,
     name: S.String,
