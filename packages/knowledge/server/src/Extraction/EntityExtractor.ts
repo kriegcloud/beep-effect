@@ -6,12 +6,10 @@
  * @module knowledge-server/Extraction/EntityExtractor
  * @since 0.1.0
  */
-import { Errors } from "@beep/knowledge-domain";
-const { LlmExtractionError } = Errors;
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
-import { AiService, type AiGenerationConfig } from "../Ai/AiService";
+import { AiService, AiExtractionError, type AiGenerationConfig } from "../Ai/AiService";
 import { buildEntityPrompt, buildSystemPrompt } from "../Ai/PromptTemplates";
 import type { OntologyContext } from "../Ontology";
 import type { ExtractedMention } from "./schemas/MentionOutput";
@@ -150,7 +148,7 @@ export class EntityExtractor extends Effect.Service<EntityExtractor>()(
           mentions: readonly ExtractedMention[],
           ontologyContext: OntologyContext,
           config: EntityExtractionConfig = {}
-        ): Effect.Effect<EntityExtractionResult, LlmExtractionError> =>
+        ): Effect.Effect<EntityExtractionResult, AiExtractionError> =>
           Effect.gen(function* () {
             const minConfidence = config.minConfidence ?? 0.5;
             const batchSize = config.batchSize ?? 20;
@@ -170,7 +168,7 @@ export class EntityExtractor extends Effect.Service<EntityExtractor>()(
             });
 
             // Process in batches to avoid token limits
-            const batches = A.chunksOf(mentions, batchSize);
+            const batches = A.chunksOf([...mentions], batchSize);
             const allEntities: ClassifiedEntity[] = [];
             let totalTokens = 0;
 
@@ -198,7 +196,7 @@ export class EntityExtractor extends Effect.Service<EntityExtractor>()(
             // Find mentions that weren't classified
             const classifiedMentions = new Set(allEntities.map((e) => e.mention.toLowerCase()));
             const unclassified = A.filter(
-              mentions,
+              [...mentions],
               (m) => !classifiedMentions.has(m.text.toLowerCase())
             );
 
@@ -227,23 +225,17 @@ export class EntityExtractor extends Effect.Service<EntityExtractor>()(
         enrichEntities: (
           entities: readonly ClassifiedEntity[],
           ontologyContext: OntologyContext
-        ): Effect.Effect<readonly ClassifiedEntity[], never> =>
+        ): Effect.Effect<readonly ClassifiedEntity[]> =>
           Effect.sync(() => {
-            return A.map(entities, (entity) => {
+            return A.map([...entities], (entity) => {
               const classInfo = ontologyContext.findClass(entity.typeIri);
 
               if (O.isNone(classInfo)) {
                 return entity;
               }
 
-              // Get applicable properties for this entity type
-              const applicableProps = ontologyContext.getPropertiesForClass(entity.typeIri);
-
-              // Add metadata about available properties (for downstream processing)
-              return new ClassifiedEntity({
-                ...entity,
-                // Keep existing attributes, could extend with property hints
-              });
+              // Entity exists in ontology - could extend with property metadata
+              return entity;
             });
           }),
 
@@ -258,8 +250,7 @@ export class EntityExtractor extends Effect.Service<EntityExtractor>()(
         resolveEntities: (
           entities: readonly ClassifiedEntity[]
         ): Effect.Effect<
-          ReadonlyMap<string, { canonical: ClassifiedEntity; mentions: readonly ClassifiedEntity[] }>,
-          never
+          ReadonlyMap<string, { canonical: ClassifiedEntity; mentions: readonly ClassifiedEntity[] }>
         > =>
           Effect.sync(() => {
             // Simple resolution by canonical name or mention text

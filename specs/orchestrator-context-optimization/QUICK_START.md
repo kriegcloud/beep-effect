@@ -18,10 +18,10 @@ This spec addresses **orchestrator context exhaustion** in multi-phase specifica
 
 | Phase | Description | Status |
 |-------|-------------|--------|
-| **P0** | Analysis: Research current patterns, identify anti-patterns | **Pending** |
-| P1 | Design: Define delegation rules and constraints | Pending |
-| P2 | Implementation: Update SPEC_CREATION_GUIDE and related docs | Pending |
-| P3 | Validation: Trial run with test spec phase | Pending |
+| P0 | Analysis: Research current patterns, identify anti-patterns | ✅ Complete |
+| P1 | Design: Define delegation rules and constraints | ✅ Complete |
+| P2 | Implementation: Update SPEC_CREATION_GUIDE and related docs | ✅ Complete |
+| **P3** | Validation: Trial run with test spec phase | **In Progress** |
 
 ---
 
@@ -49,6 +49,27 @@ START
 | 2 | Full context | `handoffs/HANDOFF_P[N].md` |
 | 3 | Phase workflow | `MASTER_ORCHESTRATION.md` |
 | 4 | Problem context | `README.md` |
+
+---
+
+## Deep Dive Links
+
+Jump directly to key sections:
+
+### README.md
+- [Success Criteria](README.md#success-criteria) - Behavioral metrics and artifact targets
+- [Anti-Patterns to Eliminate](README.md#anti-patterns-to-eliminate) - Inline research, unbounded phases, late checkpoints
+- [Mandatory Delegation Matrix](README.md#3-mandatory-delegation-matrix) - Which agent for which task
+
+### MASTER_ORCHESTRATION.md
+- [Phase 0 Details](MASTER_ORCHESTRATION.md#phase-0-analysis) - Current pattern research
+- [Phase 1 Details](MASTER_ORCHESTRATION.md#phase-1-design) - Delegation rules design
+- [Phase 2 Details](MASTER_ORCHESTRATION.md#phase-2-implementation) - Documentation updates
+- [Phase 3 Details](MASTER_ORCHESTRATION.md#phase-3-validation) - Trial run validation
+- [Sub-Agent Reflection Protocol](MASTER_ORCHESTRATION.md#sub-agent-reflection-protocol) - Capturing learnings
+
+### RUBRICS.md
+- [Spec Evaluation Criteria](RUBRICS.md#spec-evaluation-rubric) - Scoring guide for quality assessment
 
 ---
 

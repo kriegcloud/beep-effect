@@ -6,11 +6,10 @@
  * @module knowledge-server/Extraction/MentionExtractor
  * @since 0.1.0
  */
-import { Errors } from "@beep/knowledge-domain";
-const { LlmExtractionError } = Errors;
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
-import { AiService, type AiGenerationConfig } from "../Ai/AiService";
+import * as O from "effect/Option";
+import { AiService, AiExtractionError, type AiGenerationConfig } from "../Ai/AiService";
 import { buildMentionPrompt, buildSystemPrompt } from "../Ai/PromptTemplates";
 import type { TextChunk } from "../Nlp/TextChunk";
 import { ExtractedMention, MentionOutput } from "./schemas/MentionOutput";
@@ -94,7 +93,7 @@ export class MentionExtractor extends Effect.Service<MentionExtractor>()(
         extractFromChunk: (
           chunk: TextChunk,
           config: MentionExtractionConfig = {}
-        ): Effect.Effect<MentionExtractionResult, LlmExtractionError> =>
+        ): Effect.Effect<MentionExtractionResult, AiExtractionError> =>
           Effect.gen(function* () {
             const minConfidence = config.minConfidence ?? 0.5;
 
@@ -112,9 +111,9 @@ export class MentionExtractor extends Effect.Service<MentionExtractor>()(
             );
 
             // Filter by confidence and adjust offsets to document level
-            const mentions = A.filterMap(result.data.mentions, (m) => {
+            const mentions = A.filterMap(result.data.mentions, (m): O.Option<ExtractedMention> => {
               if (m.confidence < minConfidence) {
-                return { _tag: "None" } as const;
+                return O.none();
               }
 
               // Adjust character offsets to document level
@@ -127,7 +126,7 @@ export class MentionExtractor extends Effect.Service<MentionExtractor>()(
                 context: m.context,
               });
 
-              return { _tag: "Some", value: adjusted } as const;
+              return O.some(adjusted);
             });
 
             yield* Effect.logDebug("Mention extraction complete", {
@@ -153,52 +152,46 @@ export class MentionExtractor extends Effect.Service<MentionExtractor>()(
         extractFromChunks: (
           chunks: readonly TextChunk[],
           config: MentionExtractionConfig = {}
-        ): Effect.Effect<readonly MentionExtractionResult[], LlmExtractionError> =>
+        ): Effect.Effect<readonly MentionExtractionResult[], AiExtractionError> =>
           Effect.gen(function* () {
             yield* Effect.logInfo("Extracting mentions from chunks", {
               chunkCount: chunks.length,
             });
 
+            const minConfidence = config.minConfidence ?? 0.5;
+
             // Process chunks sequentially to respect rate limits
-            // TODO: Add configurable concurrency with Effect.forEach
             const results: MentionExtractionResult[] = [];
             for (const chunk of chunks) {
-              const result = yield* Effect.gen(function* () {
-                const ai = yield* AiService;
-                const minConfidence = config.minConfidence ?? 0.5;
+              const genResult = yield* ai.generateObjectWithSystem(
+                MentionOutput,
+                buildSystemPrompt(),
+                buildMentionPrompt(chunk.text, chunk.index),
+                config.aiConfig
+              );
 
-                const genResult = yield* ai.generateObjectWithSystem(
-                  MentionOutput,
-                  buildSystemPrompt(),
-                  buildMentionPrompt(chunk.text, chunk.index),
-                  config.aiConfig
-                );
+              const mentions = A.filterMap(genResult.data.mentions, (m): O.Option<ExtractedMention> => {
+                if (m.confidence < minConfidence) {
+                  return O.none();
+                }
 
-                const mentions = A.filterMap(genResult.data.mentions, (m) => {
-                  if (m.confidence < minConfidence) {
-                    return { _tag: "None" } as const;
-                  }
-
-                  const adjusted = new ExtractedMention({
-                    text: m.text,
-                    startChar: m.startChar + chunk.startOffset,
-                    endChar: m.endChar + chunk.startOffset,
-                    confidence: m.confidence,
-                    suggestedType: m.suggestedType,
-                    context: m.context,
-                  });
-
-                  return { _tag: "Some", value: adjusted } as const;
+                const adjusted = new ExtractedMention({
+                  text: m.text,
+                  startChar: m.startChar + chunk.startOffset,
+                  endChar: m.endChar + chunk.startOffset,
+                  confidence: m.confidence,
+                  suggestedType: m.suggestedType,
+                  context: m.context,
                 });
 
-                return {
-                  chunk,
-                  mentions,
-                  tokensUsed: genResult.usage.totalTokens,
-                };
+                return O.some(adjusted);
               });
 
-              results.push(result);
+              results.push({
+                chunk,
+                mentions,
+                tokensUsed: genResult.usage.totalTokens,
+              });
             }
 
             const totalMentions = A.reduce(results, 0, (acc, r) => acc + r.mentions.length);
@@ -223,12 +216,15 @@ export class MentionExtractor extends Effect.Service<MentionExtractor>()(
          */
         mergeMentions: (
           results: readonly MentionExtractionResult[]
-        ): Effect.Effect<readonly ExtractedMention[], never> =>
+        ): Effect.Effect<readonly ExtractedMention[]> =>
           Effect.sync(() => {
-            const allMentions = A.flatMap(results, (r) => r.mentions);
+            const allMentions: ExtractedMention[] = A.flatMap(
+              [...results],
+              (r): ExtractedMention[] => [...r.mentions]
+            );
 
             // Sort by start position, then by confidence (descending)
-            const sorted = A.sort(allMentions, (a, b) => {
+            const sorted = [...allMentions].sort((a, b) => {
               if (a.startChar !== b.startChar) {
                 return a.startChar - b.startChar;
               }

@@ -92,6 +92,72 @@ wc -l specs/HANDOFF_STANDARDS.md    # Should be ~580 lines (was ~495)
 
 ---
 
+## Spec Completion Checklist
+
+When Phase 3 validation passes, use this checklist to close out the spec:
+
+### Deliverable Verification
+
+```bash
+# Verify all 7 output artifacts exist
+ls -la specs/orchestrator-context-optimization/outputs/*.md | wc -l  # Should be 7
+
+# Verify line counts are within target ranges (100-600 lines each)
+wc -l specs/orchestrator-context-optimization/outputs/*.md
+
+# Verify templates exist
+ls specs/orchestrator-context-optimization/templates/ORCHESTRATOR_PROMPT*.md
+
+# Verify SPEC_CREATION_GUIDE updates
+grep -n "## Orchestrator Delegation Rules" specs/SPEC_CREATION_GUIDE.md
+grep -n "## Phase Sizing Constraints" specs/SPEC_CREATION_GUIDE.md
+grep -n "### 11\. Orchestrator Doing Research" specs/SPEC_CREATION_GUIDE.md
+
+# Verify HANDOFF_STANDARDS updates
+grep -n "## Context Budget Protocol" specs/HANDOFF_STANDARDS.md
+grep -n "## Intra-Phase Checkpoints" specs/HANDOFF_STANDARDS.md
+```
+
+- [ ] All 7 output artifacts exist in `outputs/` directory
+- [ ] Outputs reviewed against RUBRICS.md scoring criteria
+- [ ] Templates validated (ORCHESTRATOR_PROMPT.template.md and V2)
+- [ ] SPEC_CREATION_GUIDE.md updates verified with grep commands
+- [ ] HANDOFF_STANDARDS.md updates verified with grep commands
+
+### Documentation Closure
+
+```bash
+# Verify handoff chain completeness
+ls specs/orchestrator-context-optimization/handoffs/HANDOFF_P*.md | wc -l  # Should be 4
+ls specs/orchestrator-context-optimization/handoffs/P*_ORCHESTRATOR_PROMPT.md | wc -l  # Should be 4
+
+# Verify REFLECTION_LOG has substantial content
+wc -l specs/orchestrator-context-optimization/REFLECTION_LOG.md  # Should be 300+ lines
+
+# Verify QUICK_START shows current status
+grep -A4 "## Current Status" specs/orchestrator-context-optimization/QUICK_START.md
+```
+
+- [ ] README.md status updated to "Complete"
+- [ ] REFLECTION_LOG.md includes Phase 3 entry with closure summary
+- [ ] All handoff chain files (P0-P3) finalized
+- [ ] QUICK_START.md reflects final state
+
+### Quality Gates
+
+```bash
+# Run spec-reviewer for final assessment
+# Delegate to: spec-reviewer agent with prompt:
+# "Final review of specs/orchestrator-context-optimization/ - confirm production-ready status"
+```
+
+- [ ] No contradictions between new and existing content
+- [ ] Style consistency across all documents
+- [ ] All success criteria from README.md met
+- [ ] Spec-reviewer confirms production-ready status
+
+---
+
 ## Context Budget Status (End of Phase 2)
 
 | Metric | Value | Limit | Zone |

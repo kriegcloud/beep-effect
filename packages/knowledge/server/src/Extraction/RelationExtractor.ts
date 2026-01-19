@@ -6,12 +6,10 @@
  * @module knowledge-server/Extraction/RelationExtractor
  * @since 0.1.0
  */
-import { Errors } from "@beep/knowledge-domain";
-const { LlmExtractionError } = Errors;
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
-import { AiService, type AiGenerationConfig } from "../Ai/AiService";
+import { AiService, AiExtractionError, type AiGenerationConfig } from "../Ai/AiService";
 import { buildRelationPrompt, buildSystemPrompt } from "../Ai/PromptTemplates";
 import type { OntologyContext } from "../Ontology";
 import type { TextChunk } from "../Nlp/TextChunk";
@@ -149,14 +147,12 @@ export class RelationExtractor extends Effect.Service<RelationExtractor>()(
           chunk: TextChunk,
           ontologyContext: OntologyContext,
           config: RelationExtractionConfig = {}
-        ): Effect.Effect<RelationExtractionResult, LlmExtractionError> =>
+        ): Effect.Effect<RelationExtractionResult, AiExtractionError> =>
           Effect.gen(function* () {
             const minConfidence = config.minConfidence ?? 0.5;
             const shouldValidate = config.validatePredicates ?? true;
 
-            if (entities.length < 2) {
-              // Need at least 2 entities to have relations between them
-              // (though single entity can have datatype properties)
+            if (entities.length < 1) {
               yield* Effect.logDebug("Skipping relation extraction - insufficient entities", {
                 entityCount: entities.length,
               });
@@ -177,7 +173,7 @@ export class RelationExtractor extends Effect.Service<RelationExtractor>()(
             const result = yield* ai.generateObjectWithSystem(
               RelationOutput,
               buildSystemPrompt(),
-              buildRelationPrompt(entities, chunk.text, ontologyContext),
+              buildRelationPrompt([...entities], chunk.text, ontologyContext),
               config.aiConfig
             );
 
@@ -231,11 +227,14 @@ export class RelationExtractor extends Effect.Service<RelationExtractor>()(
           chunks: readonly TextChunk[],
           ontologyContext: OntologyContext,
           config: RelationExtractionConfig = {}
-        ): Effect.Effect<RelationExtractionResult, LlmExtractionError> =>
+        ): Effect.Effect<RelationExtractionResult, AiExtractionError> =>
           Effect.gen(function* () {
             const allTriples: ExtractedTriple[] = [];
             const allInvalid: ExtractedTriple[] = [];
             let totalTokens = 0;
+
+            const minConfidence = config.minConfidence ?? 0.5;
+            const shouldValidate = config.validatePredicates ?? true;
 
             for (const chunk of chunks) {
               const entities = entitiesByChunk.get(chunk.index) ?? [];
@@ -244,45 +243,31 @@ export class RelationExtractor extends Effect.Service<RelationExtractor>()(
                 continue;
               }
 
-              const result = yield* Effect.gen(function* () {
-                const minConfidence = config.minConfidence ?? 0.5;
-                const shouldValidate = config.validatePredicates ?? true;
+              const aiResult = yield* ai.generateObjectWithSystem(
+                RelationOutput,
+                buildSystemPrompt(),
+                buildRelationPrompt([...entities], chunk.text, ontologyContext),
+                config.aiConfig
+              );
 
-                const aiResult = yield* ai.generateObjectWithSystem(
-                  RelationOutput,
-                  buildSystemPrompt(),
-                  buildRelationPrompt(entities, chunk.text, ontologyContext),
-                  config.aiConfig
-                );
+              const confidenceFiltered = A.filter(
+                aiResult.data.triples,
+                (t) => t.confidence >= minConfidence
+              );
 
-                const confidenceFiltered = A.filter(
-                  aiResult.data.triples,
-                  (t) => t.confidence >= minConfidence
-                );
+              const offsetAdjusted = A.map(confidenceFiltered, (t) =>
+                adjustOffsets(t, chunk.startOffset)
+              );
 
-                const offsetAdjusted = A.map(confidenceFiltered, (t) =>
-                  adjustOffsets(t, chunk.startOffset)
-                );
+              if (shouldValidate) {
+                const validation = validatePredicates(offsetAdjusted, ontologyContext);
+                allTriples.push(...validation.valid);
+                allInvalid.push(...validation.invalid);
+              } else {
+                allTriples.push(...offsetAdjusted);
+              }
 
-                if (shouldValidate) {
-                  const validation = validatePredicates(offsetAdjusted, ontologyContext);
-                  return {
-                    valid: validation.valid,
-                    invalid: validation.invalid,
-                    tokens: aiResult.usage.totalTokens,
-                  };
-                }
-
-                return {
-                  valid: [...offsetAdjusted],
-                  invalid: [] as ExtractedTriple[],
-                  tokens: aiResult.usage.totalTokens,
-                };
-              });
-
-              allTriples.push(...result.valid);
-              allInvalid.push(...result.invalid);
-              totalTokens += result.tokens;
+              totalTokens += aiResult.usage.totalTokens;
             }
 
             yield* Effect.logInfo("Relation extraction from chunks complete", {
@@ -309,7 +294,7 @@ export class RelationExtractor extends Effect.Service<RelationExtractor>()(
          */
         deduplicateRelations: (
           triples: readonly ExtractedTriple[]
-        ): Effect.Effect<readonly ExtractedTriple[], never> =>
+        ): Effect.Effect<readonly ExtractedTriple[]> =>
           Effect.sync(() => {
             const seen = new Map<string, ExtractedTriple>();
 

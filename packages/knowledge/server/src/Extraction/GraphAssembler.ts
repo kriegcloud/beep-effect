@@ -6,13 +6,9 @@
  * @module knowledge-server/Extraction/GraphAssembler
  * @since 0.1.0
  */
-import { KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
-import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
-import * as S from "effect/Schema";
 import type { ClassifiedEntity } from "./schemas/EntityOutput";
 import type { ExtractedTriple } from "./schemas/RelationOutput";
-import type { ExtractedMention } from "./schemas/MentionOutput";
 
 /**
  * Assembled entity with generated ID
@@ -20,46 +16,41 @@ import type { ExtractedMention } from "./schemas/MentionOutput";
  * @since 0.1.0
  * @category schemas
  */
-export class AssembledEntity extends S.Class<AssembledEntity>("@beep/knowledge-server/AssembledEntity")({
+export interface AssembledEntity {
   /**
    * Generated entity ID
    */
-  id: KnowledgeEntityIds.KnowledgeEntityId,
+  readonly id: string;
 
   /**
    * Original mention text
    */
-  mention: S.String,
+  readonly mention: string;
 
   /**
    * Primary ontology type IRI
    */
-  primaryType: S.String,
+  readonly primaryType: string;
 
   /**
    * All type IRIs
    */
-  types: S.Array(S.String),
+  readonly types: readonly string[];
 
   /**
    * Entity attributes
    */
-  attributes: S.Record({ key: S.String, value: S.Union(S.String, S.Number, S.Boolean) }),
+  readonly attributes: Record<string, string | number | boolean>;
 
   /**
    * Classification confidence
    */
-  confidence: S.Number,
+  readonly confidence: number;
 
   /**
    * Canonical name for entity resolution
    */
-  canonicalName: S.optional(S.String),
-}) {}
-
-export declare namespace AssembledEntity {
-  export type Type = typeof AssembledEntity.Type;
-  export type Encoded = typeof AssembledEntity.Encoded;
+  readonly canonicalName?: string;
 }
 
 /**
@@ -68,61 +59,56 @@ export declare namespace AssembledEntity {
  * @since 0.1.0
  * @category schemas
  */
-export class AssembledRelation extends S.Class<AssembledRelation>("@beep/knowledge-server/AssembledRelation")({
+export interface AssembledRelation {
   /**
    * Generated relation ID
    */
-  id: KnowledgeEntityIds.RelationId,
+  readonly id: string;
 
   /**
    * Subject entity ID
    */
-  subjectId: KnowledgeEntityIds.KnowledgeEntityId,
+  readonly subjectId: string;
 
   /**
    * Predicate IRI
    */
-  predicate: S.String,
+  readonly predicate: string;
 
   /**
    * Object entity ID (for object properties)
    */
-  objectId: S.optional(KnowledgeEntityIds.KnowledgeEntityId),
+  readonly objectId?: string;
 
   /**
    * Literal value (for datatype properties)
    */
-  literalValue: S.optional(S.String),
+  readonly literalValue?: string;
 
   /**
    * Literal type (XSD datatype or language tag)
    */
-  literalType: S.optional(S.String),
+  readonly literalType?: string;
 
   /**
    * Extraction confidence
    */
-  confidence: S.Number,
+  readonly confidence: number;
 
   /**
    * Evidence text
    */
-  evidence: S.optional(S.String),
+  readonly evidence?: string;
 
   /**
    * Evidence start character offset
    */
-  evidenceStartChar: S.optional(S.Number),
+  readonly evidenceStartChar?: number;
 
   /**
    * Evidence end character offset
    */
-  evidenceEndChar: S.optional(S.Number),
-}) {}
-
-export declare namespace AssembledRelation {
-  export type Type = typeof AssembledRelation.Type;
-  export type Encoded = typeof AssembledRelation.Encoded;
+  readonly evidenceEndChar?: number;
 }
 
 /**
@@ -131,36 +117,31 @@ export declare namespace AssembledRelation {
  * @since 0.1.0
  * @category schemas
  */
-export class KnowledgeGraph extends S.Class<KnowledgeGraph>("@beep/knowledge-server/KnowledgeGraph")({
+export interface KnowledgeGraph {
   /**
    * Assembled entities
    */
-  entities: S.Array(AssembledEntity),
+  readonly entities: readonly AssembledEntity[];
 
   /**
    * Assembled relations
    */
-  relations: S.Array(AssembledRelation),
+  readonly relations: readonly AssembledRelation[];
 
   /**
    * Entity lookup by mention text (lowercase)
    */
-  entityIndex: S.Record({ key: S.String, value: KnowledgeEntityIds.KnowledgeEntityId }),
+  readonly entityIndex: Record<string, string>;
 
   /**
    * Statistics
    */
-  stats: S.Struct({
-    entityCount: S.Number,
-    relationCount: S.Number,
-    unresolvedSubjects: S.Number,
-    unresolvedObjects: S.Number,
-  }),
-}) {}
-
-export declare namespace KnowledgeGraph {
-  export type Type = typeof KnowledgeGraph.Type;
-  export type Encoded = typeof KnowledgeGraph.Encoded;
+  readonly stats: {
+    readonly entityCount: number;
+    readonly relationCount: number;
+    readonly unresolvedSubjects: number;
+    readonly unresolvedObjects: number;
+  };
 }
 
 /**
@@ -173,7 +154,7 @@ export interface GraphAssemblyConfig {
   /**
    * Organization ID for generated entities
    */
-  readonly organizationId: SharedEntityIds.OrganizationId.Type;
+  readonly organizationId: string;
 
   /**
    * Ontology ID for scoping
@@ -199,7 +180,7 @@ export interface GraphAssemblyConfig {
  * const program = Effect.gen(function* () {
  *   const assembler = yield* GraphAssembler;
  *   const graph = yield* assembler.assemble(entities, relations, {
- *     organizationId,
+ *     organizationId: "org-123",
  *     ontologyId: "my-ontology",
  *   });
  *
@@ -227,7 +208,7 @@ export class GraphAssembler extends Effect.Service<GraphAssembler>()(
         entities: readonly ClassifiedEntity[],
         relations: readonly ExtractedTriple[],
         config: GraphAssemblyConfig
-      ): Effect.Effect<KnowledgeGraph, never> =>
+      ): Effect.Effect<KnowledgeGraph> =>
         Effect.gen(function* () {
           yield* Effect.logDebug("Assembling knowledge graph", {
             entityCount: entities.length,
@@ -235,7 +216,7 @@ export class GraphAssembler extends Effect.Service<GraphAssembler>()(
           });
 
           // Generate IDs and create entity index
-          const entityIndex = new Map<string, KnowledgeEntityIds.KnowledgeEntityId.Type>();
+          const entityIndex = new Map<string, string>();
           const assembledEntities: AssembledEntity[] = [];
 
           for (const entity of entities) {
@@ -246,9 +227,7 @@ export class GraphAssembler extends Effect.Service<GraphAssembler>()(
               continue;
             }
 
-            const id = KnowledgeEntityIds.KnowledgeEntityId.make(
-              `knowledge_entity__${crypto.randomUUID()}`
-            );
+            const id = `knowledge_entity__${crypto.randomUUID()}`;
 
             entityIndex.set(key, id);
 
@@ -262,17 +241,16 @@ export class GraphAssembler extends Effect.Service<GraphAssembler>()(
               ? [entity.typeIri, ...entity.additionalTypes]
               : [entity.typeIri];
 
-            assembledEntities.push(
-              new AssembledEntity({
-                id,
-                mention: entity.mention,
-                primaryType: entity.typeIri,
-                types,
-                attributes: entity.attributes ?? {},
-                confidence: entity.confidence,
-                canonicalName: entity.canonicalName,
-              })
-            );
+            const assembledEntity: AssembledEntity = {
+              id,
+              mention: entity.mention,
+              primaryType: entity.typeIri,
+              types,
+              attributes: entity.attributes ?? {},
+              confidence: entity.confidence,
+              ...(entity.canonicalName !== undefined && { canonicalName: entity.canonicalName }),
+            };
+            assembledEntities.push(assembledEntity);
           }
 
           // Assemble relations with entity ID lookups
@@ -293,9 +271,7 @@ export class GraphAssembler extends Effect.Service<GraphAssembler>()(
               continue;
             }
 
-            const relationId = KnowledgeEntityIds.RelationId.make(
-              `knowledge_relation__${crypto.randomUUID()}`
-            );
+            const relationId = `knowledge_relation__${crypto.randomUUID()}`;
 
             if (triple.objectMention) {
               // Object property
@@ -312,43 +288,41 @@ export class GraphAssembler extends Effect.Service<GraphAssembler>()(
                 continue;
               }
 
-              assembledRelations.push(
-                new AssembledRelation({
-                  id: relationId,
-                  subjectId,
-                  predicate: triple.predicateIri,
-                  objectId,
-                  confidence: triple.confidence,
-                  evidence: triple.evidence,
-                  evidenceStartChar: triple.evidenceStartChar,
-                  evidenceEndChar: triple.evidenceEndChar,
-                })
-              );
+              const relation: AssembledRelation = {
+                id: relationId,
+                subjectId,
+                predicate: triple.predicateIri,
+                objectId,
+                confidence: triple.confidence,
+                ...(triple.evidence !== undefined && { evidence: triple.evidence }),
+                ...(triple.evidenceStartChar !== undefined && { evidenceStartChar: triple.evidenceStartChar }),
+                ...(triple.evidenceEndChar !== undefined && { evidenceEndChar: triple.evidenceEndChar }),
+              };
+              assembledRelations.push(relation);
             } else if (triple.literalValue !== undefined) {
               // Datatype property
-              assembledRelations.push(
-                new AssembledRelation({
-                  id: relationId,
-                  subjectId,
-                  predicate: triple.predicateIri,
-                  literalValue: triple.literalValue,
-                  literalType: triple.literalType,
-                  confidence: triple.confidence,
-                  evidence: triple.evidence,
-                  evidenceStartChar: triple.evidenceStartChar,
-                  evidenceEndChar: triple.evidenceEndChar,
-                })
-              );
+              const relation: AssembledRelation = {
+                id: relationId,
+                subjectId,
+                predicate: triple.predicateIri,
+                literalValue: triple.literalValue,
+                confidence: triple.confidence,
+                ...(triple.literalType !== undefined && { literalType: triple.literalType }),
+                ...(triple.evidence !== undefined && { evidence: triple.evidence }),
+                ...(triple.evidenceStartChar !== undefined && { evidenceStartChar: triple.evidenceStartChar }),
+                ...(triple.evidenceEndChar !== undefined && { evidenceEndChar: triple.evidenceEndChar }),
+              };
+              assembledRelations.push(relation);
             }
           }
 
           // Convert entity index to record
-          const entityIndexRecord: Record<string, KnowledgeEntityIds.KnowledgeEntityId.Type> = {};
+          const entityIndexRecord: Record<string, string> = {};
           for (const [key, value] of entityIndex) {
             entityIndexRecord[key] = value;
           }
 
-          const graph = new KnowledgeGraph({
+          const graph: KnowledgeGraph = {
             entities: assembledEntities,
             relations: assembledRelations,
             entityIndex: entityIndexRecord,
@@ -358,7 +332,7 @@ export class GraphAssembler extends Effect.Service<GraphAssembler>()(
               unresolvedSubjects,
               unresolvedObjects,
             },
-          });
+          };
 
           yield* Effect.logInfo("Knowledge graph assembled", graph.stats);
 
@@ -369,16 +343,16 @@ export class GraphAssembler extends Effect.Service<GraphAssembler>()(
        * Merge multiple knowledge graphs
        *
        * @param graphs - Graphs to merge
-       * @param config - Assembly configuration
+       * @param _config - Assembly configuration
        * @returns Merged graph
        */
       merge: (
         graphs: readonly KnowledgeGraph[],
-        config: GraphAssemblyConfig
-      ): Effect.Effect<KnowledgeGraph, never> =>
-        Effect.gen(function* () {
+        _config: GraphAssemblyConfig
+      ): Effect.Effect<KnowledgeGraph> =>
+        Effect.sync(() => {
           if (graphs.length === 0) {
-            return new KnowledgeGraph({
+            return {
               entities: [],
               relations: [],
               entityIndex: {},
@@ -388,16 +362,19 @@ export class GraphAssembler extends Effect.Service<GraphAssembler>()(
                 unresolvedSubjects: 0,
                 unresolvedObjects: 0,
               },
-            });
+            };
           }
 
           if (graphs.length === 1) {
-            return graphs[0];
+            const firstGraph = graphs[0];
+            if (firstGraph !== undefined) {
+              return firstGraph;
+            }
           }
 
           // Collect all entities, deduplicating by canonical name
           const entityIndex = new Map<string, AssembledEntity>();
-          const idMapping = new Map<string, KnowledgeEntityIds.KnowledgeEntityId.Type>();
+          const idMapping = new Map<string, string>();
 
           for (const graph of graphs) {
             for (const entity of graph.entities) {
@@ -430,24 +407,23 @@ export class GraphAssembler extends Effect.Service<GraphAssembler>()(
 
               if (!relationSet.has(key)) {
                 relationSet.add(key);
-                relations.push(
-                  new AssembledRelation({
-                    ...relation,
-                    subjectId: mappedSubjectId,
-                    objectId: mappedObjectId,
-                  })
-                );
+                const mappedRelation: AssembledRelation = {
+                  ...relation,
+                  subjectId: mappedSubjectId,
+                  ...(mappedObjectId !== undefined && { objectId: mappedObjectId }),
+                };
+                relations.push(mappedRelation);
               }
             }
           }
 
           const entities = Array.from(entityIndex.values());
-          const entityIndexRecord: Record<string, KnowledgeEntityIds.KnowledgeEntityId.Type> = {};
+          const entityIndexRecord: Record<string, string> = {};
           for (const [key, entity] of entityIndex) {
             entityIndexRecord[key] = entity.id;
           }
 
-          return new KnowledgeGraph({
+          return {
             entities,
             relations,
             entityIndex: entityIndexRecord,
@@ -457,7 +433,7 @@ export class GraphAssembler extends Effect.Service<GraphAssembler>()(
               unresolvedSubjects: 0,
               unresolvedObjects: 0,
             },
-          });
+          };
         }),
     }),
   }

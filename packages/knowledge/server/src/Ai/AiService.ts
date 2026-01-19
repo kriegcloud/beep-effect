@@ -9,9 +9,8 @@
  */
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
+import * as Layer from "effect/Layer";
 import * as S from "effect/Schema";
-import { Errors } from "@beep/knowledge-domain";
-const { LlmExtractionError } = Errors;
 
 /**
  * Configuration for AI generation
@@ -19,36 +18,37 @@ const { LlmExtractionError } = Errors;
  * @since 0.1.0
  * @category schemas
  */
-export class AiGenerationConfig extends S.Class<AiGenerationConfig>("@beep/knowledge-server/AiGenerationConfig")({
+export interface AiGenerationConfig {
   /**
    * Maximum tokens to generate
    */
-  maxTokens: S.optional(
-    S.Number.pipe(S.int(), S.positive()).annotations({
-      description: "Maximum tokens to generate",
-      default: 4096,
-    })
-  ),
+  readonly maxTokens?: number;
 
   /**
    * Temperature for generation (0-2)
    */
-  temperature: S.optional(
-    S.Number.pipe(S.greaterThanOrEqualTo(0), S.lessThanOrEqualTo(2)).annotations({
-      description: "Generation temperature (0 = deterministic, 2 = creative)",
-      default: 0,
-    })
-  ),
+  readonly temperature?: number;
 
   /**
    * Model identifier to use
    */
-  model: S.optional(
-    S.String.annotations({
-      description: "Model identifier (provider-specific)",
-    })
-  ),
-}) {}
+  readonly model?: string;
+}
+
+/**
+ * LLM extraction error
+ *
+ * @since 0.1.0
+ * @category errors
+ */
+export class AiExtractionError extends S.TaggedError<AiExtractionError>()(
+  "AiExtractionError",
+  {
+    message: S.String,
+    retryable: S.Boolean,
+    cause: S.optional(S.String),
+  }
+) {}
 
 /**
  * Result of an AI generation with usage statistics
@@ -87,7 +87,7 @@ export interface AiService {
     schema: S.Schema<A, I>,
     prompt: string,
     config?: AiGenerationConfig
-  ) => Effect.Effect<AiGenerationResult<A>, LlmExtractionError>;
+  ) => Effect.Effect<AiGenerationResult<A>, AiExtractionError>;
 
   /**
    * Generate structured output with system prompt
@@ -103,7 +103,7 @@ export interface AiService {
     systemPrompt: string,
     userPrompt: string,
     config?: AiGenerationConfig
-  ) => Effect.Effect<AiGenerationResult<A>, LlmExtractionError>;
+  ) => Effect.Effect<AiGenerationResult<A>, AiExtractionError>;
 
   /**
    * Generate raw text completion
@@ -115,7 +115,7 @@ export interface AiService {
   readonly generateText: (
     prompt: string,
     config?: AiGenerationConfig
-  ) => Effect.Effect<AiGenerationResult<string>, LlmExtractionError>;
+  ) => Effect.Effect<AiGenerationResult<string>, AiExtractionError>;
 }
 
 /**
@@ -136,25 +136,25 @@ export const AiService = Context.GenericTag<AiService>("@beep/knowledge-server/A
  */
 export const MockAiService: AiService = {
   generateObject: <A, I>(
-    schema: S.Schema<A, I>,
+    _schema: S.Schema<A, I>,
     _prompt: string,
     _config?: AiGenerationConfig
   ) =>
     Effect.fail(
-      new LlmExtractionError({
+      new AiExtractionError({
         message: "MockAiService: generateObject not implemented",
         retryable: false,
       })
     ),
 
   generateObjectWithSystem: <A, I>(
-    schema: S.Schema<A, I>,
+    _schema: S.Schema<A, I>,
     _systemPrompt: string,
     _userPrompt: string,
     _config?: AiGenerationConfig
   ) =>
     Effect.fail(
-      new LlmExtractionError({
+      new AiExtractionError({
         message: "MockAiService: generateObjectWithSystem not implemented",
         retryable: false,
       })
@@ -162,7 +162,7 @@ export const MockAiService: AiService = {
 
   generateText: (_prompt: string, _config?: AiGenerationConfig) =>
     Effect.fail(
-      new LlmExtractionError({
+      new AiExtractionError({
         message: "MockAiService: generateText not implemented",
         retryable: false,
       })
@@ -175,4 +175,4 @@ export const MockAiService: AiService = {
  * @since 0.1.0
  * @category layers
  */
-export const MockAiServiceLayer = Effect.succeed(MockAiService).pipe(Effect.map((s) => Context.make(AiService, s)));
+export const MockAiServiceLayer = Layer.succeed(AiService, MockAiService);

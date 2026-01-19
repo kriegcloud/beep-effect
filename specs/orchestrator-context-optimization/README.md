@@ -24,12 +24,24 @@ Large specs (e.g., `knowledge-graph-integration`) exhibit orchestrator context e
 
 ## Success Criteria
 
+### Behavioral Metrics
+
 | Criteria | Metric | Target |
 |----------|--------|--------|
 | **Delegation compliance** | % of research/code tasks delegated to sub-agents | > 90% |
 | **Phase completion rate** | % of phases completed without context exhaustion | > 95% |
 | **Orchestrator focus** | Orchestrator actions limited to coordination, not execution | Mandatory |
 | **Context checkpoint triggers** | Explicit rules for when to create handoffs | Defined |
+
+### Artifact Targets
+
+| Deliverable | File Count | Line Range | Quality Gate |
+|-------------|------------|------------|--------------|
+| **Output documents** | 5-7 files | 100-600 lines each | Validated against RUBRICS.md |
+| **Handoff chain** | 8 files (P0-P3 × 2) | 50-200 lines each | Complete chain integrity |
+| **Templates** | 2 files | 50-150 lines each | Usable without modification |
+| **SPEC_CREATION_GUIDE updates** | 3 sections | 50-100 lines added | grep verification passes |
+| **HANDOFF_STANDARDS updates** | 3 sections | 40-80 lines added | grep verification passes |
 
 ---
 

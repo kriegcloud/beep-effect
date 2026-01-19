@@ -100,10 +100,10 @@ const createChunksFromSentences = (
   // Flush remaining sentences
   if (currentChunkSentences.length > 0) {
     const text = currentChunkSentences.join("");
+    const prevChunk = chunks[chunks.length - 1];
     // Check if final chunk is too small and should merge with previous
-    if (text.length < (config.minChunkSize ?? 100) && chunks.length > 0) {
+    if (text.length < (config.minChunkSize ?? 100) && prevChunk !== undefined) {
       // Merge with previous chunk
-      const prevChunk = chunks[chunks.length - 1];
       chunks[chunks.length - 1] = new TextChunk({
         index: prevChunk.index,
         text: prevChunk.text + text,

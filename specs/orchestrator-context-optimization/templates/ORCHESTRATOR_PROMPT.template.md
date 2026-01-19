@@ -190,3 +190,47 @@ Phase [N+1] covers: [Brief description of next phase scope]
 ## Recovery Notes
 [Any important context for resumption]
 ```
+
+---
+
+## Template Usage Guide
+
+### Placeholder Reference
+
+| Placeholder | Description | Example |
+|-------------|-------------|---------|
+| `[N]` | Phase number (0-indexed) | `0`, `1`, `2` |
+| `[SPEC_NAME]` | Specification name (hyphenated) | `knowledge-graph-integration` |
+| `[package]` | Turbo package filter | `@beep/knowledge-domain` |
+| `[agent]` | Agent name from `.claude/agents/` | `codebase-researcher` |
+
+### Quick Fill Example
+
+```markdown
+# Phase 1 Orchestrator Prompt
+
+You are implementing Phase 1 (Design) of the knowledge-graph-integration spec.
+
+### Context
+Phase 0 completed codebase analysis. Key findings: 7 domain models need entity mapping, NLP pipeline pattern exists in @beep/ai-domain.
+
+### Your Mission
+Design entity extraction schemas and service interfaces.
+
+### Work Items (max 7)
+| # | Task | Delegate To | Output |
+|---|------|-------------|--------|
+| 1 | Design entity schemas | effect-code-writer | Entity.model.ts |
+| 2 | Define extraction service interface | effect-code-writer | Extraction.service.ts |
+| 3 | Review NLP patterns | codebase-researcher | outputs/nlp-patterns.md |
+| 4 | Create architecture diagram | doc-writer | outputs/architecture.md |
+```
+
+### Best Practices
+
+1. **Customize agent prompts**: Don't leave `[Copy-paste ready prompt]` - write actual prompts
+2. **Verify package filters**: Run `bun run check --filter @beep/[package]` before adding
+3. **Test reference paths**: Ensure all referenced files exist
+4. **Calculate complexity**: Count tasks × size before committing phase scope
+
+See `ORCHESTRATOR_PROMPT_V2.template.md` for the enhanced template with additional guidance.

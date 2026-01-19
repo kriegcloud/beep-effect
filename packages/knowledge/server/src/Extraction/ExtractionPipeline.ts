@@ -1,28 +1,23 @@
 /**
  * ExtractionPipeline - Orchestration for knowledge extraction
  *
- * Coordinates all extraction stages into a streaming pipeline.
+ * Coordinates all extraction stages into a complete pipeline.
  *
  * @module knowledge-server/Extraction/ExtractionPipeline
  * @since 0.1.0
  */
-import { Errors } from "@beep/knowledge-domain";
-const { LlmExtractionError } = Errors;
-import { KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
+import { OntologyParseError } from "@beep/knowledge-domain/errors";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
-import * as Stream from "effect/Stream";
-import * as S from "effect/Schema";
-import { AiService, type AiGenerationConfig } from "../Ai/AiService";
+import { AiExtractionError, type AiGenerationConfig } from "../Ai/AiService";
 import { NlpService, type ChunkingConfig, defaultChunkingConfig, type TextChunk } from "../Nlp";
-import { OntologyService, type OntologyContext } from "../Ontology";
+import { OntologyService } from "../Ontology";
 import { EntityExtractor } from "./EntityExtractor";
 import { GraphAssembler, type KnowledgeGraph } from "./GraphAssembler";
-import { MentionExtractor, type MentionExtractionResult } from "./MentionExtractor";
+import { MentionExtractor } from "./MentionExtractor";
 import { RelationExtractor } from "./RelationExtractor";
 import type { ClassifiedEntity } from "./schemas/EntityOutput";
 import type { ExtractedMention } from "./schemas/MentionOutput";
-import type { ExtractedTriple } from "./schemas/RelationOutput";
 
 /**
  * Pipeline configuration
@@ -30,90 +25,62 @@ import type { ExtractedTriple } from "./schemas/RelationOutput";
  * @since 0.1.0
  * @category schemas
  */
-export class ExtractionPipelineConfig extends S.Class<ExtractionPipelineConfig>(
-  "@beep/knowledge-server/ExtractionPipelineConfig"
-)({
+export interface ExtractionPipelineConfig {
   /**
    * Organization ID
    */
-  organizationId: SharedEntityIds.OrganizationId,
+  readonly organizationId: string;
 
   /**
    * Ontology ID for type resolution
    */
-  ontologyId: KnowledgeEntityIds.OntologyId,
+  readonly ontologyId: string;
 
   /**
    * Document ID for provenance
    */
-  documentId: S.String,
+  readonly documentId: string;
 
   /**
    * Source URI for provenance
    */
-  sourceUri: S.optional(S.String),
+  readonly sourceUri?: string;
 
   /**
    * Chunking configuration
    */
-  chunkingConfig: S.optional(ChunkingConfig),
+  readonly chunkingConfig?: ChunkingConfig;
 
   /**
    * AI generation configuration
    */
-  aiConfig: S.optional(AiGenerationConfig),
+  readonly aiConfig?: AiGenerationConfig;
 
   /**
    * Minimum confidence for mentions
    */
-  mentionMinConfidence: S.optional(S.Number),
+  readonly mentionMinConfidence?: number;
 
   /**
    * Minimum confidence for entities
    */
-  entityMinConfidence: S.optional(S.Number),
+  readonly entityMinConfidence?: number;
 
   /**
    * Minimum confidence for relations
    */
-  relationMinConfidence: S.optional(S.Number),
+  readonly relationMinConfidence?: number;
 
   /**
    * Batch size for entity classification
    */
-  entityBatchSize: S.optional(S.Number),
+  readonly entityBatchSize?: number;
 
   /**
    * Whether to merge entities with same canonical name
    */
-  mergeEntities: S.optional(S.Boolean),
-}) {}
-
-export declare namespace ExtractionPipelineConfig {
-  export type Type = typeof ExtractionPipelineConfig.Type;
-  export type Encoded = typeof ExtractionPipelineConfig.Encoded;
+  readonly mergeEntities?: boolean;
 }
-
-/**
- * Pipeline progress event
- *
- * @since 0.1.0
- * @category schemas
- */
-export type PipelineEvent =
-  | { readonly _tag: "ChunkingStarted"; readonly totalLength: number }
-  | { readonly _tag: "ChunkCreated"; readonly chunk: TextChunk }
-  | { readonly _tag: "ChunkingComplete"; readonly chunkCount: number }
-  | { readonly _tag: "MentionExtractionStarted"; readonly chunkIndex: number }
-  | { readonly _tag: "MentionsExtracted"; readonly chunkIndex: number; readonly count: number }
-  | { readonly _tag: "MentionExtractionComplete"; readonly totalMentions: number }
-  | { readonly _tag: "EntityClassificationStarted"; readonly mentionCount: number }
-  | { readonly _tag: "EntitiesClassified"; readonly count: number; readonly invalid: number }
-  | { readonly _tag: "RelationExtractionStarted"; readonly entityCount: number }
-  | { readonly _tag: "RelationsExtracted"; readonly count: number }
-  | { readonly _tag: "GraphAssemblyStarted" }
-  | { readonly _tag: "GraphAssembled"; readonly entityCount: number; readonly relationCount: number }
-  | { readonly _tag: "PipelineComplete"; readonly tokensUsed: number };
 
 /**
  * Final extraction result
@@ -159,8 +126,8 @@ export interface ExtractionResult {
  *   const pipeline = yield* ExtractionPipeline;
  *
  *   const result = yield* pipeline.run(documentText, ontologyContent, {
- *     organizationId,
- *     ontologyId,
+ *     organizationId: "org-123",
+ *     ontologyId: "my-ontology",
  *     documentId: "doc-123",
  *   });
  *
@@ -205,7 +172,7 @@ export class ExtractionPipeline extends Effect.Service<ExtractionPipeline>()(
           text: string,
           ontologyContent: string,
           config: ExtractionPipelineConfig
-        ): Effect.Effect<ExtractionResult, LlmExtractionError> =>
+        ): Effect.Effect<ExtractionResult, AiExtractionError | OntologyParseError> =>
           Effect.gen(function* () {
             const startTime = Date.now();
             let totalTokens = 0;
@@ -233,13 +200,16 @@ export class ExtractionPipeline extends Effect.Service<ExtractionPipeline>()(
 
             // Stage 3: Extract mentions from each chunk
             yield* Effect.logDebug("Extracting mentions");
-            const mentionResults = yield* mentionExtractor.extractFromChunks(chunks, {
-              minConfidence: config.mentionMinConfidence,
-              aiConfig: config.aiConfig,
-            });
+            const mentionResults = yield* mentionExtractor.extractFromChunks(
+              [...chunks],
+              filterUndefined({
+                minConfidence: config.mentionMinConfidence,
+                aiConfig: config.aiConfig,
+              })
+            );
 
             const allMentions = yield* mentionExtractor.mergeMentions(mentionResults);
-            totalTokens += A.reduce(mentionResults, 0, (acc, r) => acc + r.tokensUsed);
+            totalTokens += A.reduce([...mentionResults], 0, (acc, r) => acc + r.tokensUsed);
 
             yield* Effect.logInfo("Mentions extracted", {
               totalMentions: allMentions.length,
@@ -247,11 +217,15 @@ export class ExtractionPipeline extends Effect.Service<ExtractionPipeline>()(
 
             // Stage 4: Classify entities
             yield* Effect.logDebug("Classifying entities");
-            const entityResult = yield* entityExtractor.classify(allMentions, ontologyContext, {
-              minConfidence: config.entityMinConfidence,
-              batchSize: config.entityBatchSize,
-              aiConfig: config.aiConfig,
-            });
+            const entityResult = yield* entityExtractor.classify(
+              allMentions,
+              ontologyContext,
+              filterUndefined({
+                minConfidence: config.entityMinConfidence,
+                batchSize: config.entityBatchSize,
+                aiConfig: config.aiConfig,
+              })
+            );
 
             totalTokens += entityResult.tokensUsed;
 
@@ -265,22 +239,21 @@ export class ExtractionPipeline extends Effect.Service<ExtractionPipeline>()(
             yield* Effect.logDebug("Extracting relations");
 
             // Map mentions back to chunks for context
-            const mentionsByChunk = groupMentionsByChunk(mentionResults);
             const entitiesByChunk = mapEntitiesToChunks(
-              entityResult.entities,
-              allMentions,
-              chunks
+              [...entityResult.entities],
+              [...allMentions],
+              [...chunks]
             );
 
             const relationResult = yield* relationExtractor.extractFromChunks(
               entitiesByChunk,
-              chunks,
+              [...chunks],
               ontologyContext,
-              {
+              filterUndefined({
                 minConfidence: config.relationMinConfidence,
                 validatePredicates: true,
                 aiConfig: config.aiConfig,
-              }
+              })
             );
 
             totalTokens += relationResult.tokensUsed;
@@ -296,8 +269,8 @@ export class ExtractionPipeline extends Effect.Service<ExtractionPipeline>()(
             // Stage 6: Assemble graph
             yield* Effect.logDebug("Assembling knowledge graph");
             const graph = yield* graphAssembler.assemble(
-              entityResult.entities,
-              dedupedRelations,
+              [...entityResult.entities],
+              [...dedupedRelations],
               {
                 organizationId: config.organizationId,
                 ontologyId: config.ontologyId,
@@ -327,184 +300,10 @@ export class ExtractionPipeline extends Effect.Service<ExtractionPipeline>()(
               config,
             };
           }),
-
-        /**
-         * Run pipeline as a stream emitting progress events
-         *
-         * @param text - Document text
-         * @param ontologyContent - Ontology content
-         * @param config - Pipeline configuration
-         * @returns Stream of pipeline events, ending with the result
-         */
-        runWithProgress: (
-          text: string,
-          ontologyContent: string,
-          config: ExtractionPipelineConfig
-        ): Stream.Stream<PipelineEvent | { readonly _tag: "Result"; readonly result: ExtractionResult }, LlmExtractionError> =>
-          Stream.gen(function* (emit) {
-            const startTime = Date.now();
-            let totalTokens = 0;
-
-            // Load ontology
-            const ontologyContext = yield* ontologyService.load(
-              config.ontologyId,
-              ontologyContent
-            );
-
-            // Chunking
-            yield* emit.succeed({ _tag: "ChunkingStarted", totalLength: text.length } as const);
-
-            const chunks = yield* nlp.chunkTextAll(
-              text,
-              config.chunkingConfig ?? defaultChunkingConfig
-            );
-
-            for (const chunk of chunks) {
-              yield* emit.succeed({ _tag: "ChunkCreated", chunk } as const);
-            }
-
-            yield* emit.succeed({ _tag: "ChunkingComplete", chunkCount: chunks.length } as const);
-
-            // Mention extraction
-            const mentionResults: MentionExtractionResult[] = [];
-            for (const chunk of chunks) {
-              yield* emit.succeed({ _tag: "MentionExtractionStarted", chunkIndex: chunk.index } as const);
-
-              const result = yield* mentionExtractor.extractFromChunk(chunk, {
-                minConfidence: config.mentionMinConfidence,
-                aiConfig: config.aiConfig,
-              });
-
-              mentionResults.push(result);
-              totalTokens += result.tokensUsed;
-
-              yield* emit.succeed({
-                _tag: "MentionsExtracted",
-                chunkIndex: chunk.index,
-                count: result.mentions.length,
-              } as const);
-            }
-
-            const allMentions = yield* mentionExtractor.mergeMentions(mentionResults);
-            yield* emit.succeed({
-              _tag: "MentionExtractionComplete",
-              totalMentions: allMentions.length,
-            } as const);
-
-            // Entity classification
-            yield* emit.succeed({
-              _tag: "EntityClassificationStarted",
-              mentionCount: allMentions.length,
-            } as const);
-
-            const entityResult = yield* entityExtractor.classify(allMentions, ontologyContext, {
-              minConfidence: config.entityMinConfidence,
-              batchSize: config.entityBatchSize,
-              aiConfig: config.aiConfig,
-            });
-
-            totalTokens += entityResult.tokensUsed;
-
-            yield* emit.succeed({
-              _tag: "EntitiesClassified",
-              count: entityResult.entities.length,
-              invalid: entityResult.invalidTypes.length,
-            } as const);
-
-            // Relation extraction
-            yield* emit.succeed({
-              _tag: "RelationExtractionStarted",
-              entityCount: entityResult.entities.length,
-            } as const);
-
-            const entitiesByChunk = mapEntitiesToChunks(
-              entityResult.entities,
-              allMentions,
-              chunks
-            );
-
-            const relationResult = yield* relationExtractor.extractFromChunks(
-              entitiesByChunk,
-              chunks,
-              ontologyContext,
-              {
-                minConfidence: config.relationMinConfidence,
-                validatePredicates: true,
-                aiConfig: config.aiConfig,
-              }
-            );
-
-            totalTokens += relationResult.tokensUsed;
-
-            const dedupedRelations = yield* relationExtractor.deduplicateRelations(
-              relationResult.triples
-            );
-
-            yield* emit.succeed({
-              _tag: "RelationsExtracted",
-              count: dedupedRelations.length,
-            } as const);
-
-            // Graph assembly
-            yield* emit.succeed({ _tag: "GraphAssemblyStarted" } as const);
-
-            const graph = yield* graphAssembler.assemble(
-              entityResult.entities,
-              dedupedRelations,
-              {
-                organizationId: config.organizationId,
-                ontologyId: config.ontologyId,
-                mergeEntities: config.mergeEntities ?? true,
-              }
-            );
-
-            yield* emit.succeed({
-              _tag: "GraphAssembled",
-              entityCount: graph.stats.entityCount,
-              relationCount: graph.stats.relationCount,
-            } as const);
-
-            yield* emit.succeed({ _tag: "PipelineComplete", tokensUsed: totalTokens } as const);
-
-            const durationMs = Date.now() - startTime;
-
-            yield* emit.succeed({
-              _tag: "Result",
-              result: {
-                graph,
-                stats: {
-                  chunkCount: chunks.length,
-                  mentionCount: allMentions.length,
-                  entityCount: graph.stats.entityCount,
-                  relationCount: graph.stats.relationCount,
-                  tokensUsed: totalTokens,
-                  durationMs,
-                },
-                config,
-              },
-            } as const);
-          }),
       };
     }),
   }
 ) {}
-
-/**
- * Group mentions by their source chunk
- *
- * @internal
- */
-const groupMentionsByChunk = (
-  results: readonly MentionExtractionResult[]
-): ReadonlyMap<number, readonly ExtractedMention[]> => {
-  const map = new Map<number, ExtractedMention[]>();
-
-  for (const result of results) {
-    map.set(result.chunk.index, [...result.mentions]);
-  }
-
-  return map;
-};
 
 /**
  * Map classified entities back to their source chunks
@@ -546,5 +345,23 @@ const mapEntitiesToChunks = (
     }
   }
 
+  return result;
+};
+
+/**
+ * Filter out undefined values from an object
+ *
+ * Handles exactOptionalPropertyTypes by removing keys with undefined values.
+ *
+ * @internal
+ */
+const filterUndefined = <T extends Record<string, unknown>>(obj: T): Partial<T> => {
+  const result: Partial<T> = {};
+  for (const key of Object.keys(obj) as Array<keyof T>) {
+    const value = obj[key];
+    if (value !== undefined) {
+      result[key] = value;
+    }
+  }
   return result;
 };

@@ -150,6 +150,20 @@
 
 ---
 
+## Output Artifacts Cross-Reference
+
+| Output File | Created In | Used By | Key Content |
+|-------------|-----------|---------|-------------|
+| `outputs/orchestrator-audit.md` | Phase 0 | Phase 1, SPEC_CREATION_GUIDE | Current orchestrator patterns and anti-patterns |
+| `outputs/spec-guide-gaps.md` | Phase 0 | Phase 2 | Missing sections in SPEC_CREATION_GUIDE.md |
+| `outputs/agent-matrix.md` | Phase 0 | SPEC_CREATION_GUIDE updates | Task-to-agent mapping with trigger rules |
+| `outputs/kgi-context-analysis.md` | Phase 0 | Phase 1 | Case study of context exhaustion in KGI spec |
+| `outputs/phase-sizing-guidelines.md` | Phase 1 | SPEC_CREATION_GUIDE, Phase 2 | Hard limits and split triggers |
+| `outputs/context-budget-protocol.md` | Phase 1 | HANDOFF_STANDARDS, Phase 2 | Zone system with thresholds |
+| `outputs/delegation-rules-draft.md` | Phase 1 | SPEC_CREATION_GUIDE, Phase 2 | Mandatory delegation matrix |
+
+---
+
 ### 2026-01-18 - Phase 1 (Design) Reflection
 
 #### What Worked
@@ -258,3 +272,54 @@
 1. **Doc-writer tool limitations**: Agent may not have Read tool, preventing Edit operations - consider alternative agents or direct orchestrator edits
 2. **Verification is cheap**: grep -n commands cost minimal context but provide high confidence
 3. **Section insertion points matter**: Using unique anchor text ("---\n\n## Section") ensures precise placement
+
+---
+
+## Retrospective: What Would I Do Differently?
+
+> Meta-learnings about the spec creation and execution process itself.
+
+### Spec Design
+
+1. **Start with AGENT_PROMPTS.md and RUBRICS.md**: These files are required for complex specs - create them in parallel with README.md, not as an afterthought.
+
+2. **Define artifact targets upfront**: Specify expected file counts and line ranges in README.md success criteria. This makes completion assessment objective.
+
+3. **Include navigation aids from the start**: Deep dive links in QUICK_START.md help readers navigate complex specs - add these during initial creation, not after review.
+
+### Phase Execution
+
+4. **Verify agent tool access before delegation**: The doc-writer Edit failure could have been avoided by checking agent capabilities first. Consider adding tool verification to delegation prompts.
+
+5. **Track context budget from first tool call**: Starting the tracker at phase beginning (not mid-phase) provides better visibility into budget consumption patterns.
+
+6. **Create checkpoint template early**: Having the checkpoint format ready before needing it reduces cognitive load when context pressure increases.
+
+### Documentation
+
+7. **Write examples alongside rules**: Every delegation rule should have an immediate example. The template usage guide in V2 demonstrates this pattern.
+
+8. **Tag reflection entries by type**: Using `[PATTERN]`, `[DECISION]`, `[ISSUE]`, `[LEARNING]` prefixes would enable faster scanning of reflection entries.
+
+9. **Cross-reference map**: Creating CROSS_REFERENCES.md mapping outputs to their usage points would help future orchestrators navigate dependencies.
+
+### Process Improvements Applied
+
+- [x] Added completion checklist to HANDOFF_P3.md
+- [x] Quantified artifact targets in README.md success criteria
+- [x] Added deep dive navigation links to QUICK_START.md
+- [x] Added usage examples to V1 template
+- [ ] Consider creating agent tool capability matrix
+- [ ] Consider automated spec structure verification script
+
+---
+
+## Future Spec Creation Recommendations
+
+Based on this spec's execution, future specs should:
+
+1. **Use the V2 template**: Includes all required sections and guidance
+2. **Define 3 artifact types in success criteria**: Behavioral metrics, artifact targets, quality gates
+3. **Create QUICK_START.md with navigation links**: Reduces onboarding friction
+4. **Include retrospective section in REFLECTION_LOG template**: Captures meta-learnings automatically
+5. **Verify agent capabilities match delegated tasks**: Prevents runtime delegation failures
