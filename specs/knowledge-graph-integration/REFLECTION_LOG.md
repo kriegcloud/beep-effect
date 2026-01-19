@@ -225,7 +225,95 @@ After completing each phase:
 
 ## Phase 2: Extraction Pipeline
 
-*(To be completed after Phase 2)*
+### Session 1
+
+**Date**: 2026-01-18
+**Duration**: ~2 hours
+
+#### What Worked
+
+- **Effect.Service with Context.GenericTag**: Using `Context.GenericTag<AiService>` for the interface-based AiService allows pluggable implementations (mock for testing, real for production)
+- **Structured LLM output with S.Class**: The `MentionOutput`, `EntityOutput`, and `RelationOutput` schemas define clear contracts for LLM responses that validate automatically
+- **OntologyContext integration**: Passing the loaded `OntologyContext` to extractors enables type validation without additional database queries
+- **Stream-based chunking**: Using `Stream.fromIterable` for `NlpService.chunkText` enables processing large documents without loading everything into memory
+- **Offset adjustment pattern**: Tracking character offsets through the pipeline by adjusting relative offsets (chunk-level) to absolute offsets (document-level)
+- **Pipeline orchestration with Effect.gen**: The `ExtractionPipeline.run` method cleanly sequences all stages with proper error handling and logging
+- **Deduplication helpers**: Both `MentionExtractor.mergeMentions` and `RelationExtractor.deduplicateRelations` handle overlapping extractions across chunk boundaries
+
+#### What Didn't Work
+
+- **Initial circular import**: First attempt had `PromptTemplates.ts` importing from `Extraction/schemas/*` which imported from `Nlp/`, creating a circular dependency. Fixed by moving schema types to standalone files
+- **Batch size tuning**: Default batch size of 20 for entity classification may exceed token limits for ontologies with many classes. Made configurable via `config.entityBatchSize`
+- **Entity-to-chunk mapping complexity**: The `mapEntitiesToChunks` helper needed careful offset comparison to correctly associate entities back to their source chunks for relation extraction
+
+#### Learnings
+
+1. **Interface + GenericTag for pluggable services**: When a service needs multiple implementations (mock, test, production), use an interface with `Context.GenericTag` instead of `Effect.Service`:
+   ```typescript
+   export interface AiService {
+     readonly generateObject: <A, I>(schema: S.Schema<A, I>, prompt: string) => Effect.Effect<...>;
+   }
+   export const AiService = Context.GenericTag<AiService>("@beep/knowledge-server/AiService");
+   ```
+
+2. **LLM output validation**: Always define Effect Schema classes for LLM structured output. The schema acts as both documentation and runtime validation:
+   ```typescript
+   export class MentionOutput extends S.Class<MentionOutput>("...")({
+     mentions: S.Array(ExtractedMention),
+     reasoning: S.optional(S.String),
+   }) {}
+   ```
+
+3. **Offset tracking through pipeline**: Maintain character offsets through all stages for evidence linking:
+   - Chunks have `startOffset`/`endOffset` relative to document
+   - Mentions have `startChar`/`endChar` relative to chunk, adjusted to document level
+   - Evidence spans carry absolute document offsets for UI highlighting
+
+4. **Entity resolution keying**: Use lowercase canonical name (or mention text if no canonical name) as the grouping key:
+   ```typescript
+   const key = (entity.canonicalName ?? entity.mention).toLowerCase();
+   ```
+
+5. **Confidence threshold propagation**: Each stage can have its own `minConfidence` threshold, allowing progressive filtering from mentions → entities → relations
+
+6. **Graph assembly ID generation**: Use `crypto.randomUUID()` for entity/relation IDs during assembly, with proper branded ID formatting:
+   ```typescript
+   const id = `knowledge_entity__${crypto.randomUUID()}`;
+   ```
+
+#### Files Created
+
+| File | Purpose |
+|------|---------|
+| `packages/knowledge/server/src/Nlp/TextChunk.ts` | TextChunk and ChunkingConfig schemas |
+| `packages/knowledge/server/src/Nlp/NlpService.ts` | Sentence-aware text chunking service |
+| `packages/knowledge/server/src/Ai/AiService.ts` | AI provider abstraction interface |
+| `packages/knowledge/server/src/Ai/PromptTemplates.ts` | Mention/entity/relation extraction prompts |
+| `packages/knowledge/server/src/Extraction/schemas/MentionOutput.ts` | LLM output schema for mentions |
+| `packages/knowledge/server/src/Extraction/schemas/EntityOutput.ts` | LLM output schema for entities |
+| `packages/knowledge/server/src/Extraction/schemas/RelationOutput.ts` | LLM output schema for relations |
+| `packages/knowledge/server/src/Extraction/MentionExtractor.ts` | Stage 2: mention detection |
+| `packages/knowledge/server/src/Extraction/EntityExtractor.ts` | Stage 3: entity classification |
+| `packages/knowledge/server/src/Extraction/RelationExtractor.ts` | Stage 4: triple extraction |
+| `packages/knowledge/server/src/Extraction/GraphAssembler.ts` | Stage 5: graph construction |
+| `packages/knowledge/server/src/Extraction/ExtractionPipeline.ts` | Full pipeline orchestration |
+
+#### Key Design Decisions
+
+| Decision | Choice | Rationale |
+|----------|--------|-----------|
+| Chunking strategy | Sentence-aware with overlap | Preserves context across boundaries, avoids mid-sentence splits |
+| Mention detection | LLM-powered | More robust than NER for domain-specific entities |
+| Type validation | Against OntologyContext | Runtime validation ensures only ontology types are used |
+| Relation filtering | Predicate IRI validation | Rejects hallucinated predicates not in ontology |
+| Graph assembly | In-memory with entity index | Fast lookup for relation resolution, merges duplicates |
+| AI interface | Interface + GenericTag | Supports mock for testing, real implementation for production |
+
+#### Spec Updates Made
+
+- Updated REFLECTION_LOG.md with Phase 2 learnings
+- Created HANDOFF_P3.md for next phase context
+- Created P3_ORCHESTRATOR_PROMPT.md for next implementer
 
 ---
 

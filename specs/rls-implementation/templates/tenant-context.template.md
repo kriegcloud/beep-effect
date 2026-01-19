@@ -1,3 +1,4 @@
+````ts
 /**
  * TenantContext Effect Service Template
  *
@@ -263,3 +264,5 @@ export const withTenantContext =
  *    - `set_config(name, value, true)` - transaction-local, resets on commit/rollback
  *    - For RLS, prefer session-level (false) with explicit cleanup
  */
+
+````

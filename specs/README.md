@@ -72,6 +72,10 @@ specs/[SPEC_NAME]/
 | [ai-docs-review](ai-docs-review/)                       | AI documentation accuracy and integrity review                           | P0 Ready |
 | [full-iam-client](full-iam-client/)                     | Better Auth client Effect wrappers (multi-session, password, 2FA, org)   | Complete |
 | [iam-client-methods-final](iam-client-methods-final/)   | Remaining Better Auth client methods (sign-in variants, admin, API keys) | P0 Ready |
+| [knowledge-graph-integration](knowledge-graph-integration/) | Knowledge graph extraction pipeline for documents                      | Active   |
+| [legacy-spec-alignment](legacy-spec-alignment/)           | Retrofit specs to canonical patterns (phase sizing, handoffs)           | P0 Ready |
+| [orchestrator-context-optimization](orchestrator-context-optimization/) | Spec orchestration delegation rules and context budget protocol | Complete |
+| [rls-implementation](rls-implementation/)                 | Row-level security implementation for multi-tenant data access          | Active   |
 | [ai-friendliness-audit](ai-friendliness-audit/)         | AI collaboration audit methodology                                       | Active   |
 | [demo-parity](demo-parity/)                             | FlexLayout demo feature parity                                           | P0 Ready |
 | [docking-system](docking-system/)                       | FlexLayout drag-drop docking                                             | Complete |

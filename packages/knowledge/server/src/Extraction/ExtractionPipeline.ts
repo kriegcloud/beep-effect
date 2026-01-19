@@ -6,7 +6,8 @@
  * @module knowledge-server/Extraction/ExtractionPipeline
  * @since 0.1.0
  */
-import { OntologyParseError } from "@beep/knowledge-domain/errors";
+import { Errors } from "@beep/knowledge-domain";
+const { OntologyParseError } = Errors;
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import { AiExtractionError, type AiGenerationConfig } from "../Ai/AiService";
