@@ -7,15 +7,11 @@
  * @module knowledge-server/Embedding/providers/MockProvider
  * @since 0.1.0
  */
+
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
-import * as A from "effect/Array";
-import {
-  EmbeddingProvider,
-  type EmbeddingConfig,
-  type EmbeddingResult,
-  type TaskType,
-} from "../EmbeddingProvider";
+import { type EmbeddingConfig, EmbeddingProvider, type EmbeddingResult, type TaskType } from "../EmbeddingProvider";
 
 /**
  * Mock embedding configuration
@@ -102,25 +98,23 @@ export const makeMockProvider = (options: MockProviderOptions = {}): EmbeddingPr
       provider: "mock",
     },
 
-    embed: (text: string, _taskType: TaskType): Effect.Effect<EmbeddingResult> =>
-      Effect.gen(function* () {
-        yield* Effect.logDebug("MockProvider.embed", { textLength: text.length });
-        return {
-          vector: createVector(text),
-          model: "mock-embedding-model",
-          usage: { totalTokens: Math.ceil(text.length / 4) },
-        };
-      }),
+    embed: Effect.fnUntraced(function* (text: string, _taskType: TaskType) {
+      yield* Effect.logDebug("MockProvider.embed", { textLength: text.length });
+      return {
+        vector: createVector(text),
+        model: "mock-embedding-model",
+        usage: { totalTokens: Math.ceil(text.length / 4) },
+      } as EmbeddingResult;
+    }),
 
-    embedBatch: (texts: ReadonlyArray<string>, _taskType: TaskType): Effect.Effect<ReadonlyArray<EmbeddingResult>> =>
-      Effect.gen(function* () {
-        yield* Effect.logDebug("MockProvider.embedBatch", { count: texts.length });
-        return A.map(texts, (text) => ({
-          vector: createVector(text),
-          model: "mock-embedding-model",
-          usage: { totalTokens: Math.ceil(text.length / 4) },
-        }));
-      }),
+    embedBatch: Effect.fnUntraced(function* (texts: ReadonlyArray<string>, _taskType: TaskType) {
+      yield* Effect.logDebug("MockProvider.embedBatch", { count: texts.length });
+      return A.map(texts, (text) => ({
+        vector: createVector(text),
+        model: "mock-embedding-model",
+        usage: { totalTokens: Math.ceil(text.length / 4) },
+      })) as ReadonlyArray<EmbeddingResult>;
+    }),
   };
 };
 

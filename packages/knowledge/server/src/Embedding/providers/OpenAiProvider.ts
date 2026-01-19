@@ -6,17 +6,19 @@
  * @module knowledge-server/Embedding/providers/OpenAiProvider
  * @since 0.1.0
  */
+
+import * as A from "effect/Array";
 import * as Config from "effect/Config";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
-import * as Layer from "effect/Layer";
-import * as A from "effect/Array";
-import * as Str from "effect/String";
 import { pipe } from "effect/Function";
+import * as Layer from "effect/Layer";
+import * as Order from "effect/Order";
+import * as Str from "effect/String";
 import {
-  EmbeddingProvider,
-  EmbeddingError,
   type EmbeddingConfig,
+  EmbeddingError,
+  EmbeddingProvider,
   type EmbeddingResult,
   type TaskType,
 } from "../EmbeddingProvider";
@@ -129,8 +131,8 @@ export const OpenAiClientService = Context.GenericTag<OpenAiClientService>(
 /**
  * Create OpenAI client from options
  */
-const createOpenAiClient = (options: OpenAiProviderOptions): Effect.Effect<OpenAiClient, EmbeddingError> =>
-  Effect.gen(function* () {
+const createOpenAiClient: (options: OpenAiProviderOptions) => Effect.Effect<OpenAiClient, EmbeddingError> = Effect.fn(
+  function* (options: OpenAiProviderOptions) {
     // Dynamic import to avoid bundling issues when openai is not installed
     const { default: OpenAI } = yield* Effect.tryPromise({
       try: () => import("openai"),
@@ -145,8 +147,9 @@ const createOpenAiClient = (options: OpenAiProviderOptions): Effect.Effect<OpenA
     return new OpenAI({
       apiKey: options.apiKey,
       ...(options.baseUrl && { baseURL: options.baseUrl }),
-    });
-  });
+    }) as unknown as OpenAiClient;
+  }
+);
 
 // =============================================================================
 // Provider Implementation
@@ -158,137 +161,127 @@ const createOpenAiClient = (options: OpenAiProviderOptions): Effect.Effect<OpenA
  * @since 0.1.0
  * @category constructors
  */
-export const makeOpenAiProvider = (options: OpenAiProviderOptions): Effect.Effect<EmbeddingProvider, EmbeddingError> =>
-  Effect.gen(function* () {
-    const client = yield* createOpenAiClient(options);
+export const makeOpenAiProvider = Effect.fnUntraced(function* (options: OpenAiProviderOptions) {
+  const client = yield* createOpenAiClient(options);
 
-    const model = options.model ?? DEFAULT_MODEL;
-    const dimensions = options.dimensions ?? DEFAULT_DIMENSIONS;
-    const maxBatchSize = options.maxBatchSize ?? DEFAULT_MAX_BATCH_SIZE;
+  const model = options.model ?? DEFAULT_MODEL;
+  const dimensions = options.dimensions ?? DEFAULT_DIMENSIONS;
+  const maxBatchSize = options.maxBatchSize ?? DEFAULT_MAX_BATCH_SIZE;
 
-    const config: EmbeddingConfig = {
-      model,
-      dimensions,
-      provider: "openai",
-    };
+  const config: EmbeddingConfig = {
+    model,
+    dimensions,
+    provider: "openai",
+  };
 
-    /**
-     * Prepare text for embedding (add task type prefix for asymmetric search)
-     */
-    const prepareText = (text: string, taskType: TaskType): string => {
-      // OpenAI doesn't require prefixes like Nomic, but we trim and normalize
-      const normalized = pipe(text, Str.trim);
-      // Return as-is for OpenAI (model handles both query and document)
-      return taskType === "search_query" ? normalized : normalized;
-    };
+  /**
+   * Prepare text for embedding (add task type prefix for asymmetric search)
+   */
+  const prepareText = (text: string, taskType: TaskType): string => {
+    // OpenAI doesn't require prefixes like Nomic, but we trim and normalize
+    const normalized = pipe(text, Str.trim);
+    // Return as-is for OpenAI (model handles both query and document)
+    return taskType === "search_query" ? normalized : normalized;
+  };
 
-    /**
-     * Call OpenAI embeddings API
-     */
-    const callApi = (
-      input: string | ReadonlyArray<string>
-    ): Effect.Effect<OpenAiEmbeddingsResponse, EmbeddingError> =>
-      Effect.tryPromise({
-        try: () =>
-          client.embeddings.create({
-            model,
-            input,
-            dimensions,
-          }),
-        catch: (error) => {
-          const message = error instanceof Error ? error.message : String(error);
-          const isRateLimit = message.includes("rate_limit") || message.includes("429");
-          const isTimeout = message.includes("timeout") || message.includes("ETIMEDOUT");
+  /**
+   * Call OpenAI embeddings API
+   */
+  const callApi = (input: string | ReadonlyArray<string>): Effect.Effect<OpenAiEmbeddingsResponse, EmbeddingError> =>
+    Effect.tryPromise({
+      try: () =>
+        client.embeddings.create({
+          model,
+          input,
+          dimensions,
+        }),
+      catch: (error) => {
+        const message = error instanceof Error ? error.message : String(error);
+        const isRateLimit = message.includes("rate_limit") || message.includes("429");
+        const isTimeout = message.includes("timeout") || message.includes("ETIMEDOUT");
 
-          return new EmbeddingError({
-            message: `OpenAI API error: ${message}`,
-            provider: "openai",
-            retryable: isRateLimit || isTimeout,
-            cause: String(error),
-          });
-        },
+        return new EmbeddingError({
+          message: `OpenAI API error: ${message}`,
+          provider: "openai",
+          retryable: isRateLimit || isTimeout,
+          cause: String(error),
+        });
+      },
+    });
+
+  const embed: (text: string, taskType: TaskType) => Effect.Effect<EmbeddingResult, EmbeddingError> = Effect.fnUntraced(
+    function* (text: string, taskType: TaskType) {
+      const preparedText = prepareText(text, taskType);
+
+      yield* Effect.logDebug("OpenAiProvider.embed", {
+        textLength: preparedText.length,
+        taskType,
       });
 
-    const embed = (text: string, taskType: TaskType): Effect.Effect<EmbeddingResult, EmbeddingError> =>
-      Effect.gen(function* () {
-        const preparedText = prepareText(text, taskType);
+      const response = yield* callApi(preparedText);
+      const firstEmbedding = response.data[0];
 
-        yield* Effect.logDebug("OpenAiProvider.embed", {
-          textLength: preparedText.length,
-          taskType,
+      if (!firstEmbedding) {
+        return yield* new EmbeddingError({
+          message: "OpenAI returned empty embedding response",
+          provider: "openai",
+          retryable: false,
         });
+      }
 
-        const response = yield* callApi(preparedText);
-        const firstEmbedding = response.data[0];
+      return {
+        vector: firstEmbedding.embedding,
+        model: response.model,
+        usage: {
+          totalTokens: response.usage.total_tokens,
+        },
+      };
+    }
+  );
 
-        if (!firstEmbedding) {
-          return yield* Effect.fail(
-            new EmbeddingError({
-              message: "OpenAI returned empty embedding response",
-              provider: "openai",
-              retryable: false,
-            })
-          );
-        }
+  const embedBatch = Effect.fnUntraced(function* (texts: ReadonlyArray<string>, taskType: TaskType) {
+    if (texts.length === 0) {
+      return [];
+    }
 
-        return {
-          vector: firstEmbedding.embedding,
+    yield* Effect.logDebug("OpenAiProvider.embedBatch", {
+      count: texts.length,
+      taskType,
+    });
+
+    const preparedTexts = A.map(texts, (text) => prepareText(text, taskType));
+
+    // Process in batches if needed
+    const batches = A.chunksOf(preparedTexts, maxBatchSize);
+    const results: EmbeddingResult[] = [];
+
+    for (const batch of batches) {
+      const response = yield* callApi(batch);
+
+      // Sort by index to maintain order
+      const indexOrder = Order.mapInput(Order.number, (item: (typeof response.data)[number]) => item.index);
+      const sortedData = A.sort(response.data, indexOrder);
+
+      for (const item of sortedData) {
+        results.push({
+          vector: item.embedding,
           model: response.model,
           usage: {
-            totalTokens: response.usage.total_tokens,
+            totalTokens: Math.floor(response.usage.total_tokens / batch.length),
           },
-        };
-      });
-
-    const embedBatch = (
-      texts: ReadonlyArray<string>,
-      taskType: TaskType
-    ): Effect.Effect<ReadonlyArray<EmbeddingResult>, EmbeddingError> =>
-      Effect.gen(function* () {
-        if (texts.length === 0) {
-          return [];
-        }
-
-        yield* Effect.logDebug("OpenAiProvider.embedBatch", {
-          count: texts.length,
-          taskType,
         });
+      }
+    }
 
-        const preparedTexts = A.map(texts, (text) => prepareText(text, taskType));
-
-        // Process in batches if needed
-        const batches = A.chunksOf(preparedTexts, maxBatchSize);
-        const results: EmbeddingResult[] = [];
-
-        for (const batch of batches) {
-          const response = yield* callApi(batch);
-
-          // Sort by index to maintain order
-          const sortedData = pipe(
-            response.data,
-            A.sortBy((a, b) => a.index - b.index)
-          );
-
-          for (const item of sortedData) {
-            results.push({
-              vector: item.embedding,
-              model: response.model,
-              usage: {
-                totalTokens: Math.floor(response.usage.total_tokens / batch.length),
-              },
-            });
-          }
-        }
-
-        return results;
-      });
-
-    return {
-      config,
-      embed,
-      embedBatch,
-    };
+    return results;
   });
+
+  return {
+    config,
+    embed,
+    embedBatch,
+  };
+});
 
 // =============================================================================
 // Layers

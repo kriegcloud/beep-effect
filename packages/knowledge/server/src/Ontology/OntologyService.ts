@@ -8,13 +8,18 @@
  * @since 0.1.0
  */
 import { Entities } from "@beep/knowledge-domain";
-import { KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
+import { KnowledgeEntityIds, type SharedEntityIds } from "@beep/shared-domain";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import { OntologyCache } from "./OntologyCache";
-import { OntologyParser, type ParsedClassDefinition, type ParsedOntology, type ParsedPropertyDefinition } from "./OntologyParser";
+import {
+  OntologyParser,
+  type ParsedClassDefinition,
+  type ParsedOntology,
+  type ParsedPropertyDefinition,
+} from "./OntologyParser";
 
 /**
  * OntologyContext represents a fully loaded ontology with lookup capabilities
@@ -179,7 +184,7 @@ export class OntologyService extends Effect.Service<OntologyService>()("@beep/kn
        * @param content - Turtle/RDF content
        * @returns OntologyContext with lookup methods
        */
-      load: (key: string, content: string) =>
+      load: Effect.fn((key: string, content: string) =>
         Effect.gen(function* () {
           // Check cache first
           const cached = yield* cache.getIfValid(key, content);
@@ -201,7 +206,8 @@ export class OntologyService extends Effect.Service<OntologyService>()("@beep/kn
           });
 
           return createOntologyContext(parsed);
-        }),
+        })
+      ),
 
       /**
        * Parse ontology with external vocabulary content
@@ -211,7 +217,7 @@ export class OntologyService extends Effect.Service<OntologyService>()("@beep/kn
        * @param externalContent - External vocabulary content to merge
        * @returns OntologyContext with merged vocabularies
        */
-      loadWithExternal: (key: string, content: string, externalContent: string) =>
+      loadWithExternal: Effect.fn((key: string, content: string, externalContent: string) =>
         Effect.gen(function* () {
           const combinedKey = `${key}:with-external`;
 
@@ -235,7 +241,8 @@ export class OntologyService extends Effect.Service<OntologyService>()("@beep/kn
           });
 
           return createOntologyContext(parsed);
-        }),
+        })
+      ),
 
       /**
        * Convert parsed class to domain model insert data
@@ -251,9 +258,7 @@ export class OntologyService extends Effect.Service<OntologyService>()("@beep/kn
         parsed: ParsedClassDefinition
       ) =>
         Effect.sync(() => {
-          const id = KnowledgeEntityIds.ClassDefinitionId.make(
-            `knowledge_class_definition__${crypto.randomUUID()}`
-          );
+          const id = KnowledgeEntityIds.ClassDefinitionId.make(`knowledge_class_definition__${crypto.randomUUID()}`);
 
           return Entities.ClassDefinition.Model.insert.make({
             id,
@@ -332,7 +337,7 @@ export class OntologyService extends Effect.Service<OntologyService>()("@beep/kn
        * @param limit - Max results
        * @returns Matching classes
        */
-      searchClasses: (context: OntologyContext, query: string, limit: number = 10) =>
+      searchClasses: (context: OntologyContext, query: string, limit = 10) =>
         Effect.sync(() => {
           const lowerQuery = query.toLowerCase();
 
@@ -356,7 +361,7 @@ export class OntologyService extends Effect.Service<OntologyService>()("@beep/kn
        * @param limit - Max results
        * @returns Matching properties
        */
-      searchProperties: (context: OntologyContext, query: string, limit: number = 10) =>
+      searchProperties: (context: OntologyContext, query: string, limit = 10) =>
         Effect.sync(() => {
           const lowerQuery = query.toLowerCase();
 

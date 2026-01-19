@@ -75,28 +75,26 @@ layer(PgTest, { timeout: Duration.seconds(60) })("RLS Admin Bypass", (it) => {
   it.effect(
     "documents bypass role usage pattern",
     () =>
-      Effect.gen(function* () {
-        // Document the pattern for production use
-        yield* Effect.logInfo("Admin Bypass Pattern", {
-          usage: `
+      // Document the pattern for production use
+      Effect.logInfo("Admin Bypass Pattern", {
+        usage: `
 -- For migrations or admin operations:
 SET ROLE rls_bypass_admin;
 -- Perform operations that need to see all data
 -- ... migration queries ...
 RESET ROLE;
           `,
-          notes: [
-            "Use for migrations that need cross-tenant access",
-            "Use for admin dashboards showing all organizations",
-            "Always RESET ROLE after operations",
-            "Requires current user to be member of rls_bypass_admin",
-          ],
-          securityConsiderations: [
-            "Grant bypass role membership sparingly",
-            "Audit all bypass role usage",
-            "Never use bypass role for normal application queries",
-          ],
-        });
+        notes: [
+          "Use for migrations that need cross-tenant access",
+          "Use for admin dashboards showing all organizations",
+          "Always RESET ROLE after operations",
+          "Requires current user to be member of rls_bypass_admin",
+        ],
+        securityConsiderations: [
+          "Grant bypass role membership sparingly",
+          "Audit all bypass role usage",
+          "Never use bypass role for normal application queries",
+        ],
       }),
     TEST_TIMEOUT
   );

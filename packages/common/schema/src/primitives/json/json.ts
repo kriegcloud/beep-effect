@@ -463,20 +463,19 @@ export declare namespace JsonProp {
  * @since 0.1.0
  */
 export const JsonStringToStringArray = S.transformOrFail(S.Union(S.String, S.Array(S.String)), S.Array(S.String), {
-  decode: (input) =>
-    Effect.gen(function* () {
-      if (A.isArray(input)) {
-        return yield* S.decodeUnknown(S.Array(S.String))(input).pipe(
-          Effect.orElse(() => Effect.succeed([] as ReadonlyArray<string>))
-        );
-      }
-
-      const parsed = yield* S.decode(S.parseJson())(input as string).pipe(Effect.orElse(() => Effect.succeed(null)));
-
-      return yield* S.decodeUnknown(S.Array(S.String))(parsed).pipe(
+  decode: Effect.fnUntraced(function* (input) {
+    if (A.isArray(input)) {
+      return yield* S.decodeUnknown(S.Array(S.String))(input).pipe(
         Effect.orElse(() => Effect.succeed([] as ReadonlyArray<string>))
       );
-    }),
+    }
+
+    const parsed = yield* S.decode(S.parseJson())(input as string).pipe(Effect.orElse(() => Effect.succeed(null)));
+
+    return yield* S.decodeUnknown(S.Array(S.String))(parsed).pipe(
+      Effect.orElse(() => Effect.succeed([] as ReadonlyArray<string>))
+    );
+  }),
   encode: (array) => S.encode(S.parseJson())(array).pipe(Effect.mapError((e) => e.issue)),
   strict: true,
 }).annotations(
@@ -500,34 +499,33 @@ export const JsonStringToStringArray = S.transformOrFail(S.Union(S.String, S.Arr
  */
 export const JsonStringToArray = <A>(itemSchema: S.Schema<A, UnsafeTypes.UnsafeAny, never>) =>
   S.transformOrFail(S.Union(S.String, S.Array(S.Unknown)), S.Array(itemSchema), {
-    decode: (input) =>
-      Effect.gen(function* () {
-        if (A.isArray(input)) {
-          return yield* S.decodeUnknown(S.Array(itemSchema))(input).pipe(
-            Effect.tapError((error) =>
-              Effect.logError("Failed to validate array in JsonStringToArray", { error, input })
-            ),
-            Effect.orElse(() => Effect.succeed([] as ReadonlyArray<A>))
-          );
-        }
-
-        const parsed = yield* S.decode(S.parseJson())(input as string).pipe(
+    decode: Effect.fnUntraced(function* (input) {
+      if (A.isArray(input)) {
+        return yield* S.decodeUnknown(S.Array(itemSchema))(input).pipe(
           Effect.tapError((error) =>
-            Effect.logError("Failed to parse JSON string in JsonStringToArray", { error, input })
-          ),
-          Effect.orElse(() => Effect.succeed(null))
-        );
-
-        return yield* S.decodeUnknown(S.Array(itemSchema))(parsed).pipe(
-          Effect.tapError((error) =>
-            Effect.logError("Failed to validate parsed JSON in JsonStringToArray", {
-              error,
-              parsed,
-            })
+            Effect.logError("Failed to validate array in JsonStringToArray", { error, input })
           ),
           Effect.orElse(() => Effect.succeed([] as ReadonlyArray<A>))
         );
-      }),
+      }
+
+      const parsed = yield* S.decode(S.parseJson())(input as string).pipe(
+        Effect.tapError((error) =>
+          Effect.logError("Failed to parse JSON string in JsonStringToArray", { error, input })
+        ),
+        Effect.orElse(() => Effect.succeed(null))
+      );
+
+      return yield* S.decodeUnknown(S.Array(itemSchema))(parsed).pipe(
+        Effect.tapError((error) =>
+          Effect.logError("Failed to validate parsed JSON in JsonStringToArray", {
+            error,
+            parsed,
+          })
+        ),
+        Effect.orElse(() => Effect.succeed([] as ReadonlyArray<A>))
+      );
+    }),
     encode: (array) => S.encode(S.parseJson())(array).pipe(Effect.mapError((e) => e.issue)),
     strict: true,
   }).annotations(

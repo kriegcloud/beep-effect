@@ -6,12 +6,10 @@
  * @module knowledge-server/Extraction/ExtractionPipeline
  * @since 0.1.0
  */
-import { Errors } from "@beep/knowledge-domain";
-const { OntologyParseError } = Errors;
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
-import { AiExtractionError, type AiGenerationConfig } from "../Ai/AiService";
-import { NlpService, type ChunkingConfig, defaultChunkingConfig, type TextChunk } from "../Nlp";
+import type { AiGenerationConfig } from "../Ai/AiService";
+import { type ChunkingConfig, defaultChunkingConfig, NlpService, type TextChunk } from "../Nlp";
 import { OntologyService } from "../Ontology";
 import { EntityExtractor } from "./EntityExtractor";
 import { GraphAssembler, type KnowledgeGraph } from "./GraphAssembler";
@@ -169,138 +167,117 @@ export class ExtractionPipeline extends Effect.Service<ExtractionPipeline>()(
          * @param config - Pipeline configuration
          * @returns Extraction result
          */
-        run: (
-          text: string,
-          ontologyContent: string,
-          config: ExtractionPipelineConfig
-        ): Effect.Effect<ExtractionResult, AiExtractionError | OntologyParseError> =>
-          Effect.gen(function* () {
-            const startTime = Date.now();
-            let totalTokens = 0;
+        run: Effect.fnUntraced(function* (text: string, ontologyContent: string, config: ExtractionPipelineConfig) {
+          const startTime = Date.now();
+          let totalTokens = 0;
 
-            yield* Effect.logInfo("Starting extraction pipeline", {
-              documentId: config.documentId,
-              textLength: text.length,
-            });
+          yield* Effect.logInfo("Starting extraction pipeline", {
+            documentId: config.documentId,
+            textLength: text.length,
+          });
 
-            // Stage 1: Load ontology
-            yield* Effect.logDebug("Loading ontology");
-            const ontologyContext = yield* ontologyService.load(
-              config.ontologyId,
-              ontologyContent
-            );
+          // Stage 1: Load ontology
+          yield* Effect.logDebug("Loading ontology");
+          const ontologyContext = yield* ontologyService.load(config.ontologyId, ontologyContent);
 
-            // Stage 2: Chunk text
-            yield* Effect.logDebug("Chunking text");
-            const chunks = yield* nlp.chunkTextAll(
-              text,
-              config.chunkingConfig ?? defaultChunkingConfig
-            );
+          // Stage 2: Chunk text
+          yield* Effect.logDebug("Chunking text");
+          const chunks = yield* nlp.chunkTextAll(text, config.chunkingConfig ?? defaultChunkingConfig);
 
-            yield* Effect.logInfo("Text chunked", { chunkCount: chunks.length });
+          yield* Effect.logInfo("Text chunked", { chunkCount: chunks.length });
 
-            // Stage 3: Extract mentions from each chunk
-            yield* Effect.logDebug("Extracting mentions");
-            const mentionResults = yield* mentionExtractor.extractFromChunks(
-              [...chunks],
-              filterUndefined({
-                minConfidence: config.mentionMinConfidence,
-                aiConfig: config.aiConfig,
-              })
-            );
+          // Stage 3: Extract mentions from each chunk
+          yield* Effect.logDebug("Extracting mentions");
+          const mentionResults = yield* mentionExtractor.extractFromChunks(
+            [...chunks],
+            filterUndefined({
+              minConfidence: config.mentionMinConfidence,
+              aiConfig: config.aiConfig,
+            })
+          );
 
-            const allMentions = yield* mentionExtractor.mergeMentions(mentionResults);
-            totalTokens += A.reduce([...mentionResults], 0, (acc, r) => acc + r.tokensUsed);
+          const allMentions = yield* mentionExtractor.mergeMentions(mentionResults);
+          totalTokens += A.reduce([...mentionResults], 0, (acc, r) => acc + r.tokensUsed);
 
-            yield* Effect.logInfo("Mentions extracted", {
-              totalMentions: allMentions.length,
-            });
+          yield* Effect.logInfo("Mentions extracted", {
+            totalMentions: allMentions.length,
+          });
 
-            // Stage 4: Classify entities
-            yield* Effect.logDebug("Classifying entities");
-            const entityResult = yield* entityExtractor.classify(
-              allMentions,
-              ontologyContext,
-              filterUndefined({
-                minConfidence: config.entityMinConfidence,
-                batchSize: config.entityBatchSize,
-                aiConfig: config.aiConfig,
-              })
-            );
+          // Stage 4: Classify entities
+          yield* Effect.logDebug("Classifying entities");
+          const entityResult = yield* entityExtractor.classify(
+            allMentions,
+            ontologyContext,
+            filterUndefined({
+              minConfidence: config.entityMinConfidence,
+              batchSize: config.entityBatchSize,
+              aiConfig: config.aiConfig,
+            })
+          );
 
-            totalTokens += entityResult.tokensUsed;
+          totalTokens += entityResult.tokensUsed;
 
-            yield* Effect.logInfo("Entities classified", {
-              validEntities: entityResult.entities.length,
-              invalidTypes: entityResult.invalidTypes.length,
-            });
+          yield* Effect.logInfo("Entities classified", {
+            validEntities: entityResult.entities.length,
+            invalidTypes: entityResult.invalidTypes.length,
+          });
 
-            // Stage 5: Extract relations
-            // Group entities by chunk for relation extraction
-            yield* Effect.logDebug("Extracting relations");
+          // Stage 5: Extract relations
+          // Group entities by chunk for relation extraction
+          yield* Effect.logDebug("Extracting relations");
 
-            // Map mentions back to chunks for context
-            const entitiesByChunk = mapEntitiesToChunks(
-              [...entityResult.entities],
-              [...allMentions],
-              [...chunks]
-            );
+          // Map mentions back to chunks for context
+          const entitiesByChunk = mapEntitiesToChunks([...entityResult.entities], [...allMentions], [...chunks]);
 
-            const relationResult = yield* relationExtractor.extractFromChunks(
-              entitiesByChunk,
-              [...chunks],
-              ontologyContext,
-              filterUndefined({
-                minConfidence: config.relationMinConfidence,
-                validatePredicates: true,
-                aiConfig: config.aiConfig,
-              })
-            );
+          const relationResult = yield* relationExtractor.extractFromChunks(
+            entitiesByChunk,
+            [...chunks],
+            ontologyContext,
+            filterUndefined({
+              minConfidence: config.relationMinConfidence,
+              validatePredicates: true,
+              aiConfig: config.aiConfig,
+            })
+          );
 
-            totalTokens += relationResult.tokensUsed;
+          totalTokens += relationResult.tokensUsed;
 
-            const dedupedRelations = yield* relationExtractor.deduplicateRelations(
-              relationResult.triples
-            );
+          const dedupedRelations = yield* relationExtractor.deduplicateRelations(relationResult.triples);
 
-            yield* Effect.logInfo("Relations extracted", {
-              totalRelations: dedupedRelations.length,
-            });
+          yield* Effect.logInfo("Relations extracted", {
+            totalRelations: dedupedRelations.length,
+          });
 
-            // Stage 6: Assemble graph
-            yield* Effect.logDebug("Assembling knowledge graph");
-            const graph = yield* graphAssembler.assemble(
-              [...entityResult.entities],
-              [...dedupedRelations],
-              {
-                organizationId: config.organizationId,
-                ontologyId: config.ontologyId,
-                mergeEntities: config.mergeEntities ?? true,
-              }
-            );
+          // Stage 6: Assemble graph
+          yield* Effect.logDebug("Assembling knowledge graph");
+          const graph = yield* graphAssembler.assemble([...entityResult.entities], [...dedupedRelations], {
+            organizationId: config.organizationId,
+            ontologyId: config.ontologyId,
+            mergeEntities: config.mergeEntities ?? true,
+          });
 
-            const durationMs = Date.now() - startTime;
+          const durationMs = Date.now() - startTime;
 
-            yield* Effect.logInfo("Extraction pipeline complete", {
+          yield* Effect.logInfo("Extraction pipeline complete", {
+            entityCount: graph.stats.entityCount,
+            relationCount: graph.stats.relationCount,
+            tokensUsed: totalTokens,
+            durationMs,
+          });
+
+          return {
+            graph,
+            stats: {
+              chunkCount: chunks.length,
+              mentionCount: allMentions.length,
               entityCount: graph.stats.entityCount,
               relationCount: graph.stats.relationCount,
               tokensUsed: totalTokens,
               durationMs,
-            });
-
-            return {
-              graph,
-              stats: {
-                chunkCount: chunks.length,
-                mentionCount: allMentions.length,
-                entityCount: graph.stats.entityCount,
-                relationCount: graph.stats.relationCount,
-                tokensUsed: totalTokens,
-                durationMs,
-              },
-              config,
-            };
-          }),
+            },
+            config,
+          };
+        }),
       };
     }),
   }

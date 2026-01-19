@@ -141,11 +141,7 @@ layer(PgTest, { timeout: Duration.seconds(60) })("RLS Edge Cases", (it) => {
 
         yield* Effect.logInfo("RLS Enabled Tables", { count });
 
-        strictEqual(
-          count >= 20,
-          true,
-          `Expected at least 20 tables with RLS enabled, got ${count}`
-        );
+        strictEqual(count >= 20, true, `Expected at least 20 tables with RLS enabled, got ${count}`);
       }),
     TEST_TIMEOUT
   );
@@ -288,11 +284,7 @@ layer(PgTest, { timeout: Duration.seconds(60) })("RLS Edge Cases", (it) => {
         strictEqual(policy.length, 1, "Should have exactly one tenant_isolation policy for iam_member");
 
         // polcmd = '*' means FOR ALL (applies to all commands)
-        strictEqual(
-          policy[0]?.polcmd,
-          "*",
-          "Policy should apply to all operations (FOR ALL)"
-        );
+        strictEqual(policy[0]?.polcmd, "*", "Policy should apply to all operations (FOR ALL)");
       }),
     TEST_TIMEOUT
   );
@@ -383,11 +375,7 @@ layer(PgTest, { timeout: Duration.seconds(60) })("RLS Edge Cases", (it) => {
 
         // Verify all expected tables are present
         for (const table of expectedTables) {
-          strictEqual(
-            actualTables.includes(table),
-            true,
-            `Expected table ${table} to have RLS enabled`
-          );
+          strictEqual(actualTables.includes(table), true, `Expected table ${table} to have RLS enabled`);
         }
       }),
     TEST_TIMEOUT

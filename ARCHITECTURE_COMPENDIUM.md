@@ -1118,14 +1118,14 @@ bun run beep bootstrap-spec -n name -d "desc" --dry-run        # Preview only
 
 This codebase makes **deliberate trade-offs**:
 
-| Trade-off | Cost | Benefit |
-|-----------|------|---------|
-| Effect-first | Learning curve | Type-safe errors, tracing, DI |
-| Namespace imports | More verbose | Grep-friendly, no conflicts |
-| Native method ban | Initial friction | Zero null-reference errors |
-| BS helpers | Custom DSL | Consistent patterns, less boilerplate |
-| Agent documentation | 5,500 lines | Self-documenting codebase |
-| Spec system | Initial setup | 25% productivity gains measured |
+| Trade-off           | Cost             | Benefit                               |
+|---------------------|------------------|---------------------------------------|
+| Effect-first        | Learning curve   | Type-safe errors, tracing, DI         |
+| Namespace imports   | More verbose     | Grep-friendly, no conflicts           |
+| Native method ban   | Initial friction | Zero null-reference errors            |
+| BS helpers          | Custom DSL       | Consistent patterns, less boilerplate |
+| Agent documentation | 5,500 lines      | Self-documenting codebase             |
+| Spec system         | Initial setup    | 25% productivity gains measured       |
 
 The external critique's recommendation to "freeze the infrastructure" misses the point: **the infrastructure enables shipping features faster**, not slower.
 

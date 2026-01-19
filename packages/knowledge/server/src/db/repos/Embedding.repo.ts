@@ -8,14 +8,13 @@
  */
 import { $KnowledgeServerId } from "@beep/identity/packages";
 import { Entities } from "@beep/knowledge-domain";
-import { KnowledgeDb } from "@beep/knowledge-server/db";
-import { KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
+import { KnowledgeEntityIds, type SharedEntityIds } from "@beep/shared-domain";
 import { DatabaseError } from "@beep/shared-domain/errors";
 import { DbRepo } from "@beep/shared-domain/factories";
 import * as SqlClient from "@effect/sql/SqlClient";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
-import * as O from "effect/Option";
+import type * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { dependencies } from "./_common";
 
@@ -52,9 +51,9 @@ const makeEmbeddingExtensions = Effect.gen(function* () {
   const findByCacheKey = (
     cacheKey: string,
     organizationId: SharedEntityIds.OrganizationId.Type
-  ): Effect.Effect<O.Option<Entities.Embedding.Model.Type>, DatabaseError> =>
+  ): Effect.Effect<O.Option<Entities.Embedding.Model>, DatabaseError> =>
     Effect.gen(function* () {
-      const result = yield* sql<Entities.Embedding.Model.Type>`
+      const result = yield* sql<Entities.Embedding.Model>`
         SELECT *
         FROM ${sql(tableName)}
         WHERE entity_id = ${cacheKey}
@@ -62,13 +61,11 @@ const makeEmbeddingExtensions = Effect.gen(function* () {
         LIMIT 1
       `.pipe(
         Effect.map(A.head),
-        Effect.catchAll((error) =>
-          Effect.fail(
-            DatabaseError.$match({
-              message: `Failed to find embedding by cache key: ${String(error)}`,
-              _tag: "DatabaseError",
-            })
-          )
+        Effect.mapError((error) =>
+          DatabaseError.$match({
+            message: `Failed to find embedding by cache key: ${String(error)}`,
+            _tag: "DatabaseError",
+          })
         )
       );
       return result;
@@ -93,7 +90,7 @@ const makeEmbeddingExtensions = Effect.gen(function* () {
     organizationId: SharedEntityIds.OrganizationId.Type,
     limit = 10,
     threshold = 0.7
-  ): Effect.Effect<ReadonlyArray<SimilarityResult.Type>, DatabaseError> =>
+  ): Effect.Effect<ReadonlyArray<SimilarityResult>, DatabaseError> =>
     Effect.gen(function* () {
       // Format vector for pgvector: "[0.1,0.2,...]"
       const vectorString = `[${A.join(queryVector.map(String), ",")}]`;
@@ -117,13 +114,11 @@ const makeEmbeddingExtensions = Effect.gen(function* () {
         ORDER BY embedding <=> ${vectorString}::vector
         LIMIT ${limit}
       `.pipe(
-        Effect.catchAll((error) =>
-          Effect.fail(
-            DatabaseError.$match({
-              message: `Failed to find similar embeddings: ${String(error)}`,
-              _tag: "DatabaseError",
-            })
-          )
+        Effect.mapError((error) =>
+          DatabaseError.$match({
+            message: `Failed to find similar embeddings: ${String(error)}`,
+            _tag: "DatabaseError",
+          })
         )
       );
 
@@ -154,22 +149,20 @@ const makeEmbeddingExtensions = Effect.gen(function* () {
     entityType: Entities.Embedding.EntityType.Type,
     organizationId: SharedEntityIds.OrganizationId.Type,
     limit = 100
-  ): Effect.Effect<ReadonlyArray<Entities.Embedding.Model.Type>, DatabaseError> =>
+  ): Effect.Effect<ReadonlyArray<Entities.Embedding.Model>, DatabaseError> =>
     Effect.gen(function* () {
-      const results = yield* sql<Entities.Embedding.Model.Type>`
+      const results = yield* sql<Entities.Embedding.Model>`
         SELECT *
         FROM ${sql(tableName)}
         WHERE organization_id = ${organizationId}
         AND entity_type = ${entityType}
         LIMIT ${limit}
       `.pipe(
-        Effect.catchAll((error) =>
-          Effect.fail(
-            DatabaseError.$match({
-              message: `Failed to find embeddings by type: ${String(error)}`,
-              _tag: "DatabaseError",
-            })
-          )
+        Effect.mapError((error) =>
+          DatabaseError.$match({
+            message: `Failed to find embeddings by type: ${String(error)}`,
+            _tag: "DatabaseError",
+          })
         )
       );
       return results;
@@ -200,13 +193,11 @@ const makeEmbeddingExtensions = Effect.gen(function* () {
         WHERE organization_id = ${organizationId}
         AND entity_id LIKE ${`${entityIdPrefix}%`}
       `.pipe(
-        Effect.catchAll((error) =>
-          Effect.fail(
-            DatabaseError.$match({
-              message: `Failed to delete embeddings by prefix: ${String(error)}`,
-              _tag: "DatabaseError",
-            })
-          )
+        Effect.mapError((error) =>
+          DatabaseError.$match({
+            message: `Failed to delete embeddings by prefix: ${String(error)}`,
+            _tag: "DatabaseError",
+          })
         )
       );
       return result.length;
@@ -237,9 +228,5 @@ const makeEmbeddingExtensions = Effect.gen(function* () {
 export class EmbeddingRepo extends Effect.Service<EmbeddingRepo>()($I`EmbeddingRepo`, {
   dependencies,
   accessors: true,
-  effect: Effect.gen(function* () {
-    yield* KnowledgeDb.Db;
-
-    return yield* DbRepo.make(KnowledgeEntityIds.EmbeddingId, Entities.Embedding.Model, makeEmbeddingExtensions);
-  }),
+  effect: DbRepo.make(KnowledgeEntityIds.EmbeddingId, Entities.Embedding.Model, makeEmbeddingExtensions),
 }) {}

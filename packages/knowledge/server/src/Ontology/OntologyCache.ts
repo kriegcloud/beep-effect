@@ -63,7 +63,8 @@ export class OntologyCache extends Effect.Service<OntologyCache>()("@beep/knowle
        * @param key - Cache key (typically ontology IRI or path)
        * @returns Option of cached ontology
        */
-      get: Effect.fn(function* (key: string) {
+      get: Effect.fn((key: string) =>
+        Effect.gen(function* () {
           const cache = yield* Ref.get(cacheRef);
           const entry = HashMap.get(cache, key);
 
@@ -79,7 +80,8 @@ export class OntologyCache extends Effect.Service<OntologyCache>()("@beep/knowle
           }
 
           return O.some(entry.value.data);
-        }),
+        })
+      ),
 
       /**
        * Get cached ontology if content hash matches
@@ -88,7 +90,7 @@ export class OntologyCache extends Effect.Service<OntologyCache>()("@beep/knowle
        * @param content - Current content to check hash against
        * @returns Option of cached ontology if hash matches
        */
-      getIfValid: (key: string, content: string) =>
+      getIfValid: Effect.fn((key: string, content: string) =>
         Effect.gen(function* () {
           const cache = yield* Ref.get(cacheRef);
           const entry = HashMap.get(cache, key);
@@ -107,7 +109,8 @@ export class OntologyCache extends Effect.Service<OntologyCache>()("@beep/knowle
           }
 
           return O.some(entry.value.data);
-        }),
+        })
+      ),
 
       /**
        * Store ontology in cache
@@ -116,57 +119,54 @@ export class OntologyCache extends Effect.Service<OntologyCache>()("@beep/knowle
        * @param ontology - Parsed ontology to cache
        * @param content - Original content (for hash calculation)
        */
-      set: (key: string, ontology: ParsedOntology, content: string) =>
-        Effect.gen(function* () {
+      set: Effect.fn((key: string, ontology: ParsedOntology, content: string) =>
+        Effect.sync(() => {
           const entry: CachedOntology = {
             data: ontology,
             loadedAt: Date.now(),
             contentHash: hashContent(content),
           };
-          yield* Ref.update(cacheRef, HashMap.set(key, entry));
-        }),
+          return entry;
+        }).pipe(Effect.tap((entry) => Ref.update(cacheRef, HashMap.set(key, entry))))
+      ),
 
       /**
        * Remove entry from cache
        *
        * @param key - Cache key to remove
        */
-      invalidate: (key: string) =>
-        Effect.gen(function* () {
-          yield* Ref.update(cacheRef, HashMap.remove(key));
-        }),
+      invalidate: Effect.fn((key: string) => Ref.update(cacheRef, HashMap.remove(key))),
 
       /**
        * Clear all cached entries
        */
-      clear: () =>
-        Effect.gen(function* () {
-          yield* Ref.set(cacheRef, HashMap.empty<string, CachedOntology>());
-        }),
+      clear: Effect.fn(() => Ref.set(cacheRef, HashMap.empty<string, CachedOntology>())),
 
       /**
        * Get cache statistics
        */
-      stats: () =>
-        Effect.gen(function* () {
-          const cache = yield* Ref.get(cacheRef);
-          const now = Date.now();
-          let total = 0;
-          let expired = 0;
+      stats: Effect.fn(() =>
+        Ref.get(cacheRef).pipe(
+          Effect.map((cache) => {
+            const now = Date.now();
+            let total = 0;
+            let expired = 0;
 
-          for (const [_, entry] of cache) {
-            total++;
-            if (now - entry.loadedAt > ttlMs) {
-              expired++;
+            for (const [_, entry] of cache) {
+              total++;
+              if (now - entry.loadedAt > ttlMs) {
+                expired++;
+              }
             }
-          }
 
-          return {
-            total,
-            active: total - expired,
-            expired,
-          };
-        }),
+            return {
+              total,
+              active: total - expired,
+              expired,
+            };
+          })
+        )
+      ),
     };
   }),
   accessors: true,

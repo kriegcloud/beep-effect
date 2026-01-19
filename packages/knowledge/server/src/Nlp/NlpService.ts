@@ -10,7 +10,7 @@
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Stream from "effect/Stream";
-import { ChunkingConfig, defaultChunkingConfig, TextChunk } from "./TextChunk";
+import { type ChunkingConfig, defaultChunkingConfig, TextChunk } from "./TextChunk";
 
 /**
  * Sentence boundary patterns

@@ -41,14 +41,11 @@ export interface AiGenerationConfig {
  * @since 0.1.0
  * @category errors
  */
-export class AiExtractionError extends S.TaggedError<AiExtractionError>()(
-  "AiExtractionError",
-  {
-    message: S.String,
-    retryable: S.Boolean,
-    cause: S.optional(S.String),
-  }
-) {}
+export class AiExtractionError extends S.TaggedError<AiExtractionError>()("AiExtractionError", {
+  message: S.String,
+  retryable: S.Boolean,
+  cause: S.optional(S.String),
+}) {}
 
 /**
  * Result of an AI generation with usage statistics
@@ -135,11 +132,7 @@ export const AiService = Context.GenericTag<AiService>("@beep/knowledge-server/A
  * @category testing
  */
 export const MockAiService: AiService = {
-  generateObject: <A, I>(
-    _schema: S.Schema<A, I>,
-    _prompt: string,
-    _config?: AiGenerationConfig
-  ) =>
+  generateObject: <A, I>(_schema: S.Schema<A, I>, _prompt: string, _config?: AiGenerationConfig) =>
     Effect.fail(
       new AiExtractionError({
         message: "MockAiService: generateObject not implemented",

@@ -142,10 +142,7 @@ export class OntologyParser extends Effect.Service<OntologyParser>()("@beep/know
     /**
      * Get first value for a predicate (for single-valued predicates)
      */
-    const getFirstValue = (
-      map: Map<string, string[]>,
-      subject: string
-    ): O.Option<string> => {
+    const getFirstValue = (map: Map<string, string[]>, subject: string): O.Option<string> => {
       const values = map.get(subject);
       const first = values?.[0];
       return first !== undefined ? O.some(first) : O.none();
@@ -154,10 +151,7 @@ export class OntologyParser extends Effect.Service<OntologyParser>()("@beep/know
     /**
      * Get all values for a predicate (for multi-valued predicates)
      */
-    const getAllValues = (
-      map: Map<string, string[]>,
-      subject: string
-    ): ReadonlyArray<string> => {
+    const getAllValues = (map: Map<string, string[]>, subject: string): ReadonlyArray<string> => {
       return map.get(subject) ?? [];
     };
 
@@ -188,21 +182,13 @@ export class OntologyParser extends Effect.Service<OntologyParser>()("@beep/know
 
       // Find all OWL classes
       const classIris = new Set<string>();
-      for (const quad of store.match(
-        null,
-        N3.DataFactory.namedNode(RDF.type),
-        N3.DataFactory.namedNode(OWL.Class)
-      )) {
+      for (const quad of store.match(null, N3.DataFactory.namedNode(RDF.type), N3.DataFactory.namedNode(OWL.Class))) {
         if (!quad.subject.value.startsWith("_:")) {
           classIris.add(quad.subject.value);
         }
       }
       // Also check rdfs:Class
-      for (const quad of store.match(
-        null,
-        N3.DataFactory.namedNode(RDF.type),
-        N3.DataFactory.namedNode(RDFS.Class)
-      )) {
+      for (const quad of store.match(null, N3.DataFactory.namedNode(RDF.type), N3.DataFactory.namedNode(RDFS.Class))) {
         if (!quad.subject.value.startsWith("_:")) {
           classIris.add(quad.subject.value);
         }
@@ -271,10 +257,9 @@ export class OntologyParser extends Effect.Service<OntologyParser>()("@beep/know
       const classes: ParsedClassDefinition[] = [];
       for (const iri of classIris) {
         // Must have a label or prefLabel to be included
-        const label =
-          getFirstValue(labels, iri).pipe(O.getOrElse(() =>
-            getFirstValue(prefLabels, iri).pipe(O.getOrElse(() => ""))
-          ));
+        const label = getFirstValue(labels, iri).pipe(
+          O.getOrElse(() => getFirstValue(prefLabels, iri).pipe(O.getOrElse(() => "")))
+        );
 
         if (label) {
           classes.push({
@@ -302,10 +287,9 @@ export class OntologyParser extends Effect.Service<OntologyParser>()("@beep/know
       // Build property definitions
       const properties: ParsedPropertyDefinition[] = [];
       for (const iri of objectPropertyIris) {
-        const label =
-          getFirstValue(labels, iri).pipe(O.getOrElse(() =>
-            getFirstValue(prefLabels, iri).pipe(O.getOrElse(() => ""))
-          ));
+        const label = getFirstValue(labels, iri).pipe(
+          O.getOrElse(() => getFirstValue(prefLabels, iri).pipe(O.getOrElse(() => "")))
+        );
 
         if (label) {
           properties.push({
@@ -337,10 +321,9 @@ export class OntologyParser extends Effect.Service<OntologyParser>()("@beep/know
         // Skip if already added as object property (shouldn't happen but defensive)
         if (objectPropertyIris.has(iri)) continue;
 
-        const label =
-          getFirstValue(labels, iri).pipe(O.getOrElse(() =>
-            getFirstValue(prefLabels, iri).pipe(O.getOrElse(() => ""))
-          ));
+        const label = getFirstValue(labels, iri).pipe(
+          O.getOrElse(() => getFirstValue(prefLabels, iri).pipe(O.getOrElse(() => "")))
+        );
 
         if (label) {
           properties.push({
@@ -389,11 +372,7 @@ export class OntologyParser extends Effect.Service<OntologyParser>()("@beep/know
        * console.log(ontology.classes.length);
        * ```
        */
-      parse: (content: string) =>
-        Effect.gen(function* () {
-          const store = yield* parseTurtle(content);
-          return parseFromStore(store);
-        }),
+      parse: Effect.fn((content: string) => parseTurtle(content).pipe(Effect.map((store) => parseFromStore(store)))),
 
       /**
        * Parse Turtle content and merge with additional vocabulary content
@@ -402,7 +381,7 @@ export class OntologyParser extends Effect.Service<OntologyParser>()("@beep/know
        * @param externalContent - External vocabulary content to merge
        * @returns Parsed ontology with merged vocabularies
        */
-      parseWithExternal: (content: string, externalContent: string) =>
+      parseWithExternal: Effect.fn((content: string, externalContent: string) =>
         Effect.gen(function* () {
           const mainStore = yield* parseTurtle(content);
           const externalStore = yield* parseTurtle(externalContent).pipe(
@@ -422,7 +401,8 @@ export class OntologyParser extends Effect.Service<OntologyParser>()("@beep/know
           }
 
           return parseFromStore(mainStore);
-        }),
+        })
+      ),
     };
   }),
   accessors: true,

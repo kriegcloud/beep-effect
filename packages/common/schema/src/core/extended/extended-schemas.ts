@@ -925,17 +925,16 @@ export const deriveAndAttachProperty =
     const extendedSchema = S.extend(S.typeSchema(self), derivedSchema);
 
     return S.transformOrFail(self, S.typeSchema(extendedSchema), {
-      decode: (input) =>
-        Effect.gen(function* () {
-          const result = args.decode(input);
-          const attach = (value: ToA) => R.set(input, args.key, value) as FromA & { readonly [K in Key]: ToA };
+      decode: Effect.fnUntraced(function* (input) {
+        const result = args.decode(input);
+        const attach = (value: ToA) => R.set(input, args.key, value) as FromA & { readonly [K in Key]: ToA };
 
-          if (Effect.isEffect(result)) {
-            return yield* result.pipe(Effect.map(attach));
-          }
+        if (Effect.isEffect(result)) {
+          return yield* result.pipe(Effect.map(attach));
+        }
 
-          return attach(result);
-        }),
+        return attach(result);
+      }),
       encode: (struct) => ParseResult.succeed(_Struct.omit(args.key)(struct)),
       strict: false,
     });

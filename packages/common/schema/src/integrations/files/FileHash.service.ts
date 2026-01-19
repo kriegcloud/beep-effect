@@ -47,18 +47,15 @@ export class FileHashService extends Effect.Service<FileHashService>()($I`FileHa
        * const fileWithNewHash = yield* service.recomputeHash(file);
        * ```
        */
-      recomputeHash: <T extends NormalizedFile.Type>(
-        file: T
-      ): Effect.Effect<T, WorkerHashError | ParseResult.ParseError> =>
-        Effect.gen(function* () {
-          const hashString = yield* hasher.hashBlob(file.file);
-          const md5Hash = yield* S.decode(Md5Hash)(hashString);
+      recomputeHash: Effect.fnUntraced(function* <T extends NormalizedFile.Type>(file: T) {
+        const hashString = yield* hasher.hashBlob(file.file);
+        const md5Hash = yield* S.decode(Md5Hash)(hashString);
 
-          return {
-            ...file,
-            md5Hash,
-          } as T;
-        }),
+        return {
+          ...file,
+          md5Hash,
+        } as T;
+      }),
 
       /**
        * Batch recompute hashes for multiple files in parallel.
@@ -102,11 +99,10 @@ export class FileHashService extends Effect.Service<FileHashService>()($I`FileHa
        * }
        * ```
        */
-      verifyHash: (file: NormalizedFile.Type): Effect.Effect<boolean, WorkerHashError> =>
-        Effect.gen(function* () {
-          const computedHash = yield* hasher.hashBlob(file.file);
-          return computedHash === file.md5Hash;
-        }),
+      verifyHash: Effect.fnUntraced(function* (file: NormalizedFile.Type) {
+        const computedHash = yield* hasher.hashBlob(file.file);
+        return computedHash === file.md5Hash;
+      }),
 
       /**
        * Verify hashes for multiple files in parallel.

@@ -194,25 +194,24 @@ export declare namespace DateFromAllAcceptable {
  * @since 0.1.0
  */
 export const DateTimeUtcFromAllAcceptable = S.transformOrFail(DateFromAllAcceptable, DateTimeUtcByInstant, {
-  decode: (input, _options, ast) =>
-    Effect.gen(function* () {
-      if (DateTime.isDateTime(input)) {
-        return DateTime.toUtc(input);
-      }
-      const date = yield* F.pipe(
-        S.decodeUnknown(S.ValidDateFromSelf)(input),
-        Effect.mapError(() => new ParseResult.Type(ast, input, "Invalid date"))
-      );
-      return yield* F.pipe(
-        date,
-        DateTime.make,
-        O.map(DateTime.toUtc),
-        O.match({
-          onNone: () => Effect.fail(new ParseResult.Type(ast, input, "Invalid date")),
-          onSome: Effect.succeed,
-        })
-      );
-    }),
+  decode: Effect.fnUntraced(function* (input, _options, ast) {
+    if (DateTime.isDateTime(input)) {
+      return DateTime.toUtc(input);
+    }
+    const date = yield* F.pipe(
+      S.decodeUnknown(S.ValidDateFromSelf)(input),
+      Effect.mapError(() => new ParseResult.Type(ast, input, "Invalid date"))
+    );
+    return yield* F.pipe(
+      date,
+      DateTime.make,
+      O.map(DateTime.toUtc),
+      O.match({
+        onNone: () => Effect.fail(new ParseResult.Type(ast, input, "Invalid date")),
+        onSome: Effect.succeed,
+      })
+    );
+  }),
   encode: (input) => Effect.succeed(DateTime.toDateUtc(input)),
   strict: true,
 }).annotations(

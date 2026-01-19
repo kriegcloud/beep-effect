@@ -50,12 +50,7 @@ export const SliceReposLive: SliceReposLive = Layer.mergeAll(
 /**
  * Layer that maps TenantContext.TenantContext to TenantContextTag for test helpers.
  */
-const TenantContextTagLayer = Layer.effect(
-  TenantContextTag,
-  Effect.gen(function* () {
-    return yield* TenantContext.TenantContext;
-  })
-);
+const TenantContextTagLayer = Layer.effect(TenantContextTag, TenantContext.TenantContext);
 
 export type CoreSliceServices =
   | SqlClient.SqlClient

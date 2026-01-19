@@ -6,11 +6,12 @@
  * @module knowledge-server/Ai/PromptTemplates
  * @since 0.1.0
  */
-import type { OntologyContext } from "../Ontology";
-import type { ExtractedMention } from "../Extraction/schemas/MentionOutput";
-import type { ClassifiedEntity } from "../Extraction/schemas/EntityOutput";
+
 import * as A from "effect/Array";
 import * as O from "effect/Option";
+import type { ClassifiedEntity } from "../Extraction/schemas/EntityOutput";
+import type { ExtractedMention } from "../Extraction/schemas/MentionOutput";
+import type { OntologyContext } from "../Ontology";
 
 /**
  * Build prompt for mention extraction
@@ -57,10 +58,7 @@ Be precise with character offsets. Count from the beginning of the text provided
  * @since 0.1.0
  * @category prompts
  */
-export const buildEntityPrompt = (
-  mentions: readonly ExtractedMention[],
-  ontologyContext: OntologyContext
-): string => {
+export const buildEntityPrompt = (mentions: readonly ExtractedMention[], ontologyContext: OntologyContext): string => {
   // Build type options from ontology classes
   const typeOptions = A.map(ontologyContext.classes, (cls) => {
     const comment = O.getOrElse(cls.comment, () => "");
@@ -120,12 +118,8 @@ export const buildRelationPrompt = (
   // Build property options from ontology
   const propertyOptions = A.map(ontologyContext.properties, (prop) => {
     const comment = O.getOrElse(prop.comment, () => "");
-    const domainLabels = A.filterMap(prop.domain, (d) =>
-      O.map(ontologyContext.findClass(d), (c) => c.label)
-    );
-    const rangeLabels = A.filterMap(prop.range, (r) =>
-      O.map(ontologyContext.findClass(r), (c) => c.label)
-    );
+    const domainLabels = A.filterMap(prop.domain, (d) => O.map(ontologyContext.findClass(d), (c) => c.label));
+    const rangeLabels = A.filterMap(prop.range, (r) => O.map(ontologyContext.findClass(r), (c) => c.label));
     const domainStr = domainLabels.length > 0 ? `domain: ${domainLabels.join(", ")}` : "";
     const rangeStr = rangeLabels.length > 0 ? `range: ${rangeLabels.join(", ")}` : "";
     const constraints = [domainStr, rangeStr].filter(Boolean).join("; ");
@@ -133,9 +127,7 @@ export const buildRelationPrompt = (
   }).join("\n");
 
   const entityList = A.map(entities, (e) => {
-    const types = e.additionalTypes
-      ? `[${e.typeIri}, ${e.additionalTypes.join(", ")}]`
-      : e.typeIri;
+    const types = e.additionalTypes ? `[${e.typeIri}, ${e.additionalTypes.join(", ")}]` : e.typeIri;
     return `- "${e.mention}" (type: ${types})`;
   }).join("\n");
 

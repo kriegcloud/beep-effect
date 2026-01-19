@@ -11,7 +11,7 @@
 
 import { TenantContext } from "@beep/shared-server";
 import { layer, strictEqual } from "@beep/testkit";
-import { assertNoRowsWithoutContext, setTestTenant, clearTestTenant, withTestTenant } from "@beep/testkit/rls";
+import { assertNoRowsWithoutContext, clearTestTenant, setTestTenant, withTestTenant } from "@beep/testkit/rls";
 import * as SqlClient from "@effect/sql/SqlClient";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";

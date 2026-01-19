@@ -9,23 +9,44 @@
  * - NLP text processing
  * - AI-powered extraction pipeline
  * - Knowledge graph assembly
+ * - Embedding generation and similarity search
+ * - Relation grounding and verification
+ * - Entity resolution and deduplication
  *
  * @module knowledge-server
  * @since 0.1.0
  */
-export * from "./db";
 
 /**
  * AI service exports
  * @since 0.1.0
  */
 export * as Ai from "./Ai";
+export * from "./db";
+
+/**
+ * Embedding service exports
+ * @since 0.1.0
+ */
+export * as Embedding from "./Embedding";
+
+/**
+ * Entity resolution exports
+ * @since 0.1.0
+ */
+export * as EntityResolution from "./EntityResolution";
 
 /**
  * Extraction pipeline exports
  * @since 0.1.0
  */
 export * as Extraction from "./Extraction";
+
+/**
+ * Grounding service exports
+ * @since 0.1.0
+ */
+export * as Grounding from "./Grounding";
 
 /**
  * NLP text processing exports

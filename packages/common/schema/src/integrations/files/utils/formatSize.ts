@@ -232,101 +232,97 @@ const floor = (n: number): number => Math.floor(n);
  * @category Utils
  * @since 0.1.0
  */
-export function formatSizeEffect<O extends PrettyBytesOptions | undefined = undefined>(
+export const formatSizeEffect = Effect.fnUntraced(function* <O extends PrettyBytesOptions | undefined = undefined>(
   value: number | bigint,
   options?: O | undefined
-): Effect.Effect<PrettyBytesString<O>, InvalidFileSizeInput> {
-  return Effect.gen(function* () {
-    // Validate input: must be finite number or BigInt
-    if (F.pipe(value, P.not(BI.isBigInt)) && !Number.isFinite(value)) {
-      return yield* Effect.fail(
-        new InvalidFileSizeInput({
-          value,
-          message: `Expected a finite number, got ${typeof value}: ${value}`,
-        })
-      );
-    }
+) {
+  // Validate input: must be finite number or BigInt
+  if (F.pipe(value, P.not(BI.isBigInt)) && !Number.isFinite(value)) {
+    return yield* new InvalidFileSizeInput({
+      value,
+      message: `Expected a finite number, got ${typeof value}: ${value}`,
+    });
+  }
 
-    const opts: Required<Pick<PrettyBytesOptions, "bits" | "binary" | "space">> &
-      Omit<PrettyBytesOptions, "bits" | "binary" | "space"> = {
-      bits: false,
-      binary: false,
-      space: true,
-      ...options,
-    };
+  const opts: Required<Pick<PrettyBytesOptions, "bits" | "binary" | "space">> &
+    Omit<PrettyBytesOptions, "bits" | "binary" | "space"> = {
+    bits: false,
+    binary: false,
+    space: true,
+    ...options,
+  };
 
-    const UNITS = opts.bits
-      ? opts.binary
-        ? BiBitUnit.Options
-        : BitUnit.Options
-      : opts.binary
-        ? BiByteUnit.Options
-        : ByteUnit.Options;
+  const UNITS = opts.bits
+    ? opts.binary
+      ? BiBitUnit.Options
+      : BitUnit.Options
+    : opts.binary
+      ? BiByteUnit.Options
+      : ByteUnit.Options;
 
-    const separator = opts.space ? " " : Str.empty;
-    const unitsLastIndex = F.pipe(A.length(UNITS), Num.subtract(1));
+  const separator = opts.space ? " " : Str.empty;
+  const unitsLastIndex = F.pipe(A.length(UNITS), Num.subtract(1));
 
-    // Special aligned zero when signed is true
-    if (opts.signed && (P.isNumber(value) ? value === 0 : value === 0n)) {
-      return ` 0${separator}${UNITS[0]}` as PrettyBytesString<O>;
-    }
+  // Special aligned zero when signed is true
+  if (opts.signed && (P.isNumber(value) ? value === 0 : value === 0n)) {
+    return ` 0${separator}${UNITS[0]}` as PrettyBytesString<O>;
+  }
 
-    const isNegative = P.isNumber(value) ? Num.lessThan(value, 0) : BI.lessThan(value, 0n);
-    const prefix = isNegative ? "-" : opts.signed ? "+" : Str.empty;
+  const isNegative = P.isNumber(value) ? Num.lessThan(value, 0) : BI.lessThan(value, 0n);
+  const prefix = isNegative ? "-" : opts.signed ? "+" : Str.empty;
 
-    const absValue = isNegative ? (P.isNumber(value) ? Num.negate(value) : BI.abs(value)) : value;
+  const absValue = isNegative ? (P.isNumber(value) ? Num.negate(value) : BI.abs(value)) : value;
 
-    const localeOptions: Intl.NumberFormatOptions | undefined =
-      opts.minimumFractionDigits !== undefined || opts.maximumFractionDigits !== undefined
-        ? {
-            ...(opts.minimumFractionDigits !== undefined && { minimumFractionDigits: opts.minimumFractionDigits }),
-            ...(opts.maximumFractionDigits !== undefined && { maximumFractionDigits: opts.maximumFractionDigits }),
-          }
-        : undefined;
+  const localeOptions: Intl.NumberFormatOptions | undefined =
+    opts.minimumFractionDigits !== undefined || opts.maximumFractionDigits !== undefined
+      ? {
+          ...(opts.minimumFractionDigits !== undefined && { minimumFractionDigits: opts.minimumFractionDigits }),
+          ...(opts.maximumFractionDigits !== undefined && { maximumFractionDigits: opts.maximumFractionDigits }),
+        }
+      : undefined;
 
-    // For magnitudes < 1, don't scale - just attach the base unit.
-    if (P.isNumber(absValue) ? Num.lessThan(absValue, 1) : BI.lessThan(absValue, 1n)) {
-      const numberString = toLocaleStr(P.isNumber(absValue) ? absValue : Number(absValue), opts.locale, localeOptions);
-      return (prefix + numberString + separator + UNITS[0]) as PrettyBytesString<O>;
-    }
+  // For magnitudes < 1, don't scale - just attach the base unit.
+  if (P.isNumber(absValue) ? Num.lessThan(absValue, 1) : BI.lessThan(absValue, 1n)) {
+    const numberString = toLocaleStr(P.isNumber(absValue) ? absValue : Number(absValue), opts.locale, localeOptions);
+    return (prefix + numberString + separator + UNITS[0]) as PrettyBytesString<O>;
+  }
 
-    // Compute exponent for either base 1000 (SI) or 1024 (IEC)
-    const base = opts.binary ? 1024 : 1000;
-    const rawExp = opts.binary
-      ? F.pipe(ln(absValue), Num.unsafeDivide(LN_1024))
-      : F.pipe(log10(absValue), Num.unsafeDivide(3));
-    const exp = F.pipe(rawExp, floor, (n) => Num.min(n, unitsLastIndex));
+  // Compute exponent for either base 1000 (SI) or 1024 (IEC)
+  const base = opts.binary ? 1024 : 1000;
+  const rawExp = opts.binary
+    ? F.pipe(ln(absValue), Num.unsafeDivide(LN_1024))
+    : F.pipe(log10(absValue), Num.unsafeDivide(3));
+  const exp = F.pipe(rawExp, floor, (n) => Num.min(n, unitsLastIndex));
 
-    const divisor = base ** exp;
-    const scaledRaw = P.isNumber(absValue)
-      ? Num.unsafeDivide(absValue, divisor)
-      : (() => {
-          const bigDivisor = BigInt(base) ** BigInt(exp);
-          const intPart = BI.unsafeDivide(absValue, bigDivisor);
-          const remainder = absValue % bigDivisor;
-          return F.pipe(Number(intPart), Num.sum(Num.unsafeDivide(Number(remainder), divisor)));
-        })();
+  const divisor = base ** exp;
+  const scaledRaw = P.isNumber(absValue)
+    ? Num.unsafeDivide(absValue, divisor)
+    : (() => {
+        const bigDivisor = BigInt(base) ** BigInt(exp);
+        const intPart = BI.unsafeDivide(absValue, bigDivisor);
+        const remainder = absValue % bigDivisor;
+        return F.pipe(Number(intPart), Num.sum(Num.unsafeDivide(Number(remainder), divisor)));
+      })();
 
-    // Default behavior: round to 3 significant digits if no explicit fraction-digit policy
-    const scaled = localeOptions
-      ? scaledRaw
-      : (() => {
-          const intPartStr = F.pipe(
-            Num.parse(F.pipe(scaledRaw, floor, (n) => `${n}`)),
-            O.getOrElse(thunkZero),
-            (n) => `${n}`
-          );
-          const intLen = Str.length(intPartStr);
-          const minPrecision = Num.max(3, intLen);
-          return Number(scaledRaw.toPrecision(minPrecision));
-        })();
+  // Default behavior: round to 3 significant digits if no explicit fraction-digit policy
+  const scaled = localeOptions
+    ? scaledRaw
+    : (() => {
+        const intPartStr = F.pipe(
+          Num.parse(F.pipe(scaledRaw, floor, (n) => `${n}`)),
+          O.getOrElse(thunkZero),
+          (n) => `${n}`
+        );
+        const intLen = Str.length(intPartStr);
+        const minPrecision = Num.max(3, intLen);
+        return Number(scaledRaw.toPrecision(minPrecision));
+      })();
 
-    const numberString = toLocaleStr(Number(scaled), opts.locale, localeOptions);
-    const unit = UNITS[exp];
+  const numberString = toLocaleStr(Number(scaled), opts.locale, localeOptions);
+  const unit = UNITS[exp];
 
-    return (prefix + numberString + separator + unit) as PrettyBytesString<O>;
-  });
-}
+  return (prefix + numberString + separator + unit) as PrettyBytesString<O>;
+});
 
 /**
  * Synchronous version that throws on error (for compatibility with legacy code).

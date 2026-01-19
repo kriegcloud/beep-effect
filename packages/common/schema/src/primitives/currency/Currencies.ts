@@ -3550,8 +3550,10 @@ export class Currency extends StringLiteralKit(...codes) {
     readonly amount: BigDecimal.BigDecimal;
     readonly currency?: Currency.Type | undefined;
   }) =>
-    F.pipe(options.amount.pipe(BigDecimal.unsafeToNumber), (amount) =>
-      O.fromNullable(options.currency).pipe(
+    F.pipe(options.amount, BigDecimal.unsafeToNumber, (amount) =>
+      F.pipe(
+        options.currency,
+        O.fromNullable,
         O.match({
           onNone: () => `$${amount}` as const,
           onSome: (currency) => `$${amount}${currency}` as const,

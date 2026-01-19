@@ -13,7 +13,7 @@ const $I = $CustomizationDomainId.create("entities/UserHotKey");
 export class Model extends M.Class<Model>($I`UserHotkeyModel`)(
   makeFields(CustomizationEntityIds.UserHotkeyId, {
     userId: SharedEntityIds.UserId,
-    // todo make better
+    // todo make better/w
     shortcuts: M.JsonFromString(S.Record({ key: S.String, value: S.String })),
   }),
   $I.annotations("UserHotkeyModel", {

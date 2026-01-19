@@ -4,9 +4,6 @@
   "exclude": ["build"],
   "references": [
     {
-      "path": "tsconfig.src.json"
-    },
-    {
       "path": "../ui"
     },
     {

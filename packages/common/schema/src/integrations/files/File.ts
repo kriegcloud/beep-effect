@@ -490,63 +490,61 @@ export const extractMetadata = Effect.fn("extractMetadata")(function* (file: Fil
             })
           )
         ),
-      audio: (fp) =>
-        Effect.gen(function* () {
-          const audioMetadata = yield* metadataService.audio.parseBlob(fp.file);
-          const duration = pipe(audioMetadata.format.duration, O.flatMap(S.decodeOption(DurationFromSeconds)));
-          return NormalizedAudioFile.make(
-            withExifAndHash({
-              file: fp.file,
-              name: fp.name,
-              size: fp.size,
-              mimeType: fp.mimeType,
-              extension: fp.extension,
-              fileSizeSI: fp.fileSizeSI,
-              fileSizeIEC: fp.fileSizeIEC,
-              fileSizeBitsSI: fp.fileSizeBitsSI,
-              fileSizeBitsIEC: fp.fileSizeBitsIEC,
-              lastModified: fp.lastModified,
-              webkitRelativePath: fp.webkitRelativePath,
-              audioMetadata: O.some(audioMetadata),
-              width: O.none(),
-              height: O.none(),
-              aspectRatio: O.none(),
-              duration,
-            })
-          );
-        }),
-      image: (fp) =>
-        Effect.gen(function* () {
-          const width = pipe(exifMetadata.imageWidth, O.fromNullable, O.flatMap(S.decodeOption(S.NonNegativeInt)));
-          const height = pipe(exifMetadata.imageHeight, O.fromNullable, O.flatMap(S.decodeOption(S.NonNegativeInt)));
-          const aspectRatio = pipe(
-            O.all({
-              width,
-              height,
-            }),
-            O.flatMap(S.decodeOption(AspectRatio))
-          );
-          return NormalizedImageFile.make(
-            withExifAndHash({
-              file: fp.file,
-              name: fp.name,
-              size: fp.size,
-              mimeType: fp.mimeType,
-              extension: fp.extension,
-              fileSizeSI: fp.fileSizeSI,
-              fileSizeIEC: fp.fileSizeIEC,
-              fileSizeBitsSI: fp.fileSizeBitsSI,
-              fileSizeBitsIEC: fp.fileSizeBitsIEC,
-              lastModified: fp.lastModified,
-              webkitRelativePath: fp.webkitRelativePath,
-              audioMetadata: O.none(),
-              width,
-              height,
-              aspectRatio,
-              duration: O.none(),
-            })
-          );
-        }),
+      audio: Effect.fnUntraced(function* (fp) {
+        const audioMetadata = yield* metadataService.audio.parseBlob(fp.file);
+        const duration = pipe(audioMetadata.format.duration, O.flatMap(S.decodeOption(DurationFromSeconds)));
+        return NormalizedAudioFile.make(
+          withExifAndHash({
+            file: fp.file,
+            name: fp.name,
+            size: fp.size,
+            mimeType: fp.mimeType,
+            extension: fp.extension,
+            fileSizeSI: fp.fileSizeSI,
+            fileSizeIEC: fp.fileSizeIEC,
+            fileSizeBitsSI: fp.fileSizeBitsSI,
+            fileSizeBitsIEC: fp.fileSizeBitsIEC,
+            lastModified: fp.lastModified,
+            webkitRelativePath: fp.webkitRelativePath,
+            audioMetadata: O.some(audioMetadata),
+            width: O.none(),
+            height: O.none(),
+            aspectRatio: O.none(),
+            duration,
+          })
+        );
+      }),
+      image: Effect.fnUntraced(function* (fp) {
+        const width = pipe(exifMetadata.imageWidth, O.fromNullable, O.flatMap(S.decodeOption(S.NonNegativeInt)));
+        const height = pipe(exifMetadata.imageHeight, O.fromNullable, O.flatMap(S.decodeOption(S.NonNegativeInt)));
+        const aspectRatio = pipe(
+          O.all({
+            width,
+            height,
+          }),
+          O.flatMap(S.decodeOption(AspectRatio))
+        );
+        return NormalizedImageFile.make(
+          withExifAndHash({
+            file: fp.file,
+            name: fp.name,
+            size: fp.size,
+            mimeType: fp.mimeType,
+            extension: fp.extension,
+            fileSizeSI: fp.fileSizeSI,
+            fileSizeIEC: fp.fileSizeIEC,
+            fileSizeBitsSI: fp.fileSizeBitsSI,
+            fileSizeBitsIEC: fp.fileSizeBitsIEC,
+            lastModified: fp.lastModified,
+            webkitRelativePath: fp.webkitRelativePath,
+            audioMetadata: O.none(),
+            width,
+            height,
+            aspectRatio,
+            duration: O.none(),
+          })
+        );
+      }),
       text: (fp) =>
         Effect.succeed(
           NormalizedTextFile.make(
@@ -570,40 +568,39 @@ export const extractMetadata = Effect.fn("extractMetadata")(function* (file: Fil
             })
           )
         ),
-      video: (fp) =>
-        Effect.gen(function* () {
-          const audioMetadata = yield* metadataService.audio.parseBlob(fp.file);
-          const duration = pipe(audioMetadata.format.duration, O.flatMap(S.decodeOption(DurationFromSeconds)));
-          const width = pipe(exifMetadata.imageWidth, O.fromNullable, O.flatMap(S.decodeOption(S.NonNegativeInt)));
-          const height = pipe(exifMetadata.imageHeight, O.fromNullable, O.flatMap(S.decodeOption(S.NonNegativeInt)));
-          const aspectRatio = pipe(
-            O.all({
-              width,
-              height,
-            }),
-            O.flatMap(S.decodeOption(AspectRatio))
-          );
-          return NormalizedVideoFile.make(
-            withExifAndHash({
-              file: fp.file,
-              name: fp.name,
-              size: fp.size,
-              mimeType: fp.mimeType,
-              extension: fp.extension,
-              fileSizeSI: fp.fileSizeSI,
-              fileSizeIEC: fp.fileSizeIEC,
-              fileSizeBitsSI: fp.fileSizeBitsSI,
-              fileSizeBitsIEC: fp.fileSizeBitsIEC,
-              lastModified: fp.lastModified,
-              webkitRelativePath: fp.webkitRelativePath,
-              audioMetadata: O.some(audioMetadata),
-              width,
-              height,
-              aspectRatio,
-              duration,
-            })
-          );
-        }),
+      video: Effect.fnUntraced(function* (fp) {
+        const audioMetadata = yield* metadataService.audio.parseBlob(fp.file);
+        const duration = pipe(audioMetadata.format.duration, O.flatMap(S.decodeOption(DurationFromSeconds)));
+        const width = pipe(exifMetadata.imageWidth, O.fromNullable, O.flatMap(S.decodeOption(S.NonNegativeInt)));
+        const height = pipe(exifMetadata.imageHeight, O.fromNullable, O.flatMap(S.decodeOption(S.NonNegativeInt)));
+        const aspectRatio = pipe(
+          O.all({
+            width,
+            height,
+          }),
+          O.flatMap(S.decodeOption(AspectRatio))
+        );
+        return NormalizedVideoFile.make(
+          withExifAndHash({
+            file: fp.file,
+            name: fp.name,
+            size: fp.size,
+            mimeType: fp.mimeType,
+            extension: fp.extension,
+            fileSizeSI: fp.fileSizeSI,
+            fileSizeIEC: fp.fileSizeIEC,
+            fileSizeBitsSI: fp.fileSizeBitsSI,
+            fileSizeBitsIEC: fp.fileSizeBitsIEC,
+            lastModified: fp.lastModified,
+            webkitRelativePath: fp.webkitRelativePath,
+            audioMetadata: O.some(audioMetadata),
+            width,
+            height,
+            aspectRatio,
+            duration,
+          })
+        );
+      }),
       misc: (fp) =>
         Effect.succeed(
           NormalizedMiscFile.make(
@@ -633,81 +630,76 @@ export const extractMetadata = Effect.fn("extractMetadata")(function* (file: Fil
 
 export class NormalizedFileFromSelf extends S.transformOrFail(FileFromSelf, NormalizedFile, {
   strict: false,
-  decode: (file, _options, ast) =>
-    Effect.gen(function* () {
-      // 1. Read file buffer for validation
-      const buffer = yield* Effect.tryPromise({
-        try: () => file.arrayBuffer(),
-        catch: (error) => new ParseResult.Type(ast, file, `Failed to read file buffer: ${error}`),
-      });
+  decode: Effect.fnUntraced(function* (file, _options, ast) {
+    // 1. Read file buffer for validation
+    const buffer = yield* Effect.tryPromise({
+      try: () => file.arrayBuffer(),
+      catch: (error) => new ParseResult.Type(ast, file, `Failed to read file buffer: ${error}`),
+    });
 
-      // 2. Extract file extension from filename
-      const extensionOpt = pipe(file.name, Str.split("."), A.tail, O.flatMap(A.last));
+    // 2. Extract file extension from filename
+    const extensionOpt = pipe(file.name, Str.split("."), A.tail, O.flatMap(A.last));
 
-      // 3. Validate file type signature matches the file's own extension
-      // Only validate if we can extract an extension; skip validation otherwise
-      // Effect.try wraps errors in UnknownException, then orElseSucceed converts any failure to true
-      const isValidType = yield* pipe(
-        extensionOpt,
-        O.match({
-          // No extension found - skip validation
-          onNone: () => Effect.succeed(true),
-          // Extension found - validate with fallback for unsupported extensions
-          onSome: (ext) =>
-            Effect.try(() => fileTypeChecker.validateFileType(buffer, [ext])).pipe(Effect.orElseSucceed(F.constTrue)),
-        })
+    // 3. Validate file type signature matches the file's own extension
+    // Only validate if we can extract an extension; skip validation otherwise
+    // Effect.try wraps errors in UnknownException, then orElseSucceed converts any failure to true
+    const isValidType = yield* pipe(
+      extensionOpt,
+      O.match({
+        // No extension found - skip validation
+        onNone: () => Effect.succeed(true),
+        // Extension found - validate with fallback for unsupported extensions
+        onSome: (ext) =>
+          Effect.try(() => fileTypeChecker.validateFileType(buffer, [ext])).pipe(Effect.orElseSucceed(F.constTrue)),
+      })
+    );
+
+    if (!isValidType) {
+      return yield* Effect.fail(
+        new ParseResult.Type(ast, file, "Invalid file type - signature does not match extension")
       );
+    }
 
-      if (!isValidType) {
-        return yield* Effect.fail(
-          new ParseResult.Type(ast, file, "Invalid file type - signature does not match extension")
-        );
-      }
+    // 3. Extract metadata and compute MD5 hash (requires MetadataService and ParallelHasher from context)
+    // Transform errors into ParseResult issues with specific messages
+    return yield* extractMetadata(file).pipe(
+      Effect.mapError((error): ParseResult.ParseIssue => {
+        // Match on _tag identity strings for tagged errors
+        const tag = (error as { _tag?: string })._tag;
 
-      // 3. Extract metadata and compute MD5 hash (requires MetadataService and ParallelHasher from context)
-      // Transform errors into ParseResult issues with specific messages
-      return yield* extractMetadata(file).pipe(
-        Effect.mapError((error): ParseResult.ParseIssue => {
-          // Match on _tag identity strings for tagged errors
-          const tag = (error as { _tag?: string })._tag;
+        if (tag === METADATA_PARSE_ERROR_TAG) {
+          const e = error as MetadataParseError;
+          return new ParseResult.Type(
+            ast,
+            file,
+            `Metadata parse error: ${e.message}${e.phase ? ` (phase: ${e.phase})` : ""}`
+          );
+        }
 
-          if (tag === METADATA_PARSE_ERROR_TAG) {
-            const e = error as MetadataParseError;
-            return new ParseResult.Type(
-              ast,
-              file,
-              `Metadata parse error: ${e.message}${e.phase ? ` (phase: ${e.phase})` : ""}`
-            );
-          }
+        if (tag === EXIF_FILE_TOO_LARGE_ERROR_TAG) {
+          const e = error as ExifFileTooLargeError;
+          return new ParseResult.Type(ast, file, `File too large: ${e.fileSize} bytes exceeds max ${e.maxSize} bytes`);
+        }
 
-          if (tag === EXIF_FILE_TOO_LARGE_ERROR_TAG) {
-            const e = error as ExifFileTooLargeError;
-            return new ParseResult.Type(
-              ast,
-              file,
-              `File too large: ${e.fileSize} bytes exceeds max ${e.maxSize} bytes`
-            );
-          }
+        if (tag === EXIF_TIMEOUT_ERROR_TAG) {
+          const e = error as ExifTimeoutError;
+          return new ParseResult.Type(ast, file, `EXIF extraction timed out after ${e.timeoutMs}ms`);
+        }
 
-          if (tag === EXIF_TIMEOUT_ERROR_TAG) {
-            const e = error as ExifTimeoutError;
-            return new ParseResult.Type(ast, file, `EXIF extraction timed out after ${e.timeoutMs}ms`);
-          }
+        if (tag === WORKER_HASH_ERROR_TAG) {
+          const e = error as WorkerHashError;
+          return new ParseResult.Type(ast, file, `MD5 hash computation failed: ${e.message}`);
+        }
 
-          if (tag === WORKER_HASH_ERROR_TAG) {
-            const e = error as WorkerHashError;
-            return new ParseResult.Type(ast, file, `MD5 hash computation failed: ${e.message}`);
-          }
+        if (tag === "ParseError") {
+          const e = error as ParseResult.ParseError;
+          return e.issue;
+        }
 
-          if (tag === "ParseError") {
-            const e = error as ParseResult.ParseError;
-            return e.issue;
-          }
-
-          return new ParseResult.Type(ast, file, `Unexpected error: ${String(error)}`);
-        })
-      );
-    }),
+        return new ParseResult.Type(ast, file, `Unexpected error: ${String(error)}`);
+      })
+    );
+  }),
 
   encode: (normalizedFile, _options, _ast) => Effect.succeed(normalizedFile.file),
 }) {}

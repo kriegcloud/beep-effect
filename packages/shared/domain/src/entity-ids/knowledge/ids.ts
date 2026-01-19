@@ -220,3 +220,55 @@ export declare namespace PropertyDefinitionId {
     export type Encoded = typeof PropertyDefinitionId.privateSchema.Encoded;
   }
 }
+
+/**
+ * EntityCluster ID for entity resolution clusters.
+ *
+ * Identifier for clusters of entities identified as referring to the same real-world entity.
+ *
+ * @since 0.1.0
+ * @category ids
+ */
+export const EntityClusterId = make("entity_cluster", {
+  brand: "EntityClusterId",
+}).annotations(
+  $I.annotations("EntityClusterId", {
+    description: "A unique identifier for an entity resolution cluster",
+  })
+);
+
+export declare namespace EntityClusterId {
+  export type Type = S.Schema.Type<typeof EntityClusterId>;
+  export type Encoded = S.Schema.Encoded<typeof EntityClusterId>;
+
+  export namespace RowId {
+    export type Type = typeof EntityClusterId.privateSchema.Type;
+    export type Encoded = typeof EntityClusterId.privateSchema.Encoded;
+  }
+}
+
+/**
+ * SameAsLink ID for owl:sameAs provenance links.
+ *
+ * Identifier for links between entities that refer to the same real-world entity.
+ *
+ * @since 0.1.0
+ * @category ids
+ */
+export const SameAsLinkId = make("same_as_link", {
+  brand: "SameAsLinkId",
+}).annotations(
+  $I.annotations("SameAsLinkId", {
+    description: "A unique identifier for an owl:sameAs provenance link",
+  })
+);
+
+export declare namespace SameAsLinkId {
+  export type Type = S.Schema.Type<typeof SameAsLinkId>;
+  export type Encoded = S.Schema.Encoded<typeof SameAsLinkId>;
+
+  export namespace RowId {
+    export type Type = typeof SameAsLinkId.privateSchema.Type;
+    export type Encoded = typeof SameAsLinkId.privateSchema.Encoded;
+  }
+}

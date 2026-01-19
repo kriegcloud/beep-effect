@@ -496,7 +496,10 @@ export const make = <const Variants extends ReadonlyArray<string>, const Default
         isDefault: true,
       });
 
-      class Base extends S.Class<UnsafeTypes.UnsafeAny>(identifier)(schema.fields, annotations) {
+      class Base extends S.Class<Base>(identifier)(
+        schema.fields,
+        annotations as unknown as S.Annotations.Schema<Base>
+      ) {
         static [TypeId] = fields;
       }
       for (const variant of options.variants) {

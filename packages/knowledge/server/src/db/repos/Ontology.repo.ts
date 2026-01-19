@@ -8,7 +8,6 @@
  */
 import { $KnowledgeServerId } from "@beep/identity/packages";
 import { Entities } from "@beep/knowledge-domain";
-import { KnowledgeDb } from "@beep/knowledge-server/db";
 import { KnowledgeEntityIds } from "@beep/shared-domain";
 import { DbRepo } from "@beep/shared-domain/factories";
 import * as Effect from "effect/Effect";
@@ -27,9 +26,5 @@ const $I = $KnowledgeServerId.create("db/repos/OntologyRepo");
 export class OntologyRepo extends Effect.Service<OntologyRepo>()($I`OntologyRepo`, {
   dependencies,
   accessors: true,
-  effect: Effect.gen(function* () {
-    yield* KnowledgeDb.Db;
-
-    return yield* DbRepo.make(KnowledgeEntityIds.OntologyId, Entities.Ontology.Model, Effect.succeed({}));
-  }),
+  effect: DbRepo.make(KnowledgeEntityIds.OntologyId, Entities.Ontology.Model, Effect.succeed({})),
 }) {}
