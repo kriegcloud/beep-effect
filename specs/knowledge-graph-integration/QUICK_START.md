@@ -29,9 +29,11 @@ This spec integrates **effect-ontology** patterns into **beep-effect** to enable
 
 ## Current Status
 
+**Note**: The `packages/knowledge/*` slice has been bootstrapped with starter patterns (Embedding entity/table).
+
 | Phase  | Description                                    | Status      |
 |--------|------------------------------------------------|-------------|
-| **P0** | Foundation: Domain models, table schemas       | **Pending** |
+| **P0** | Foundation: Domain models, table schemas       | **Pending** (bootstrapped) |
 | P1     | Ontology Service: OWL parsing, class hierarchy | Pending     |
 | P2     | Extraction Pipeline: 6-phase streaming         | Pending     |
 | P3     | Embedding & Grounding: pgvector, similarity    | Pending     |
@@ -49,13 +51,16 @@ This spec integrates **effect-ontology** patterns into **beep-effect** to enable
 ```
 START
   │
-  ├─ Is @beep/knowledge-domain package created?
-  │   ├─ NO → Start Phase 0 (Foundation)
+  ├─ Does @beep/knowledge-domain have Entity, Relation, KnowledgeGraph models?
+  │   ├─ NO → Start Phase 0 (Foundation) - extend bootstrapped slice
   │   └─ YES → Does OntologyService exist?
   │       ├─ NO → Start Phase 1 (Ontology)
   │       └─ YES → Does ExtractionPipeline exist?
   │           ├─ NO → Start Phase 2 (Extraction)
   │           └─ YES → Continue from HANDOFF_P[N].md
+
+Note: The knowledge slice packages are bootstrapped with Embedding as a starter pattern.
+Phase 0 extends the slice with actual knowledge graph models, not creates it from scratch.
 ```
 
 ### "What files do I read first?"
@@ -170,13 +175,16 @@ bun run db:generate
 
 ### For Phase 0 (Foundation)
 
+**Note**: Packages are bootstrapped - extend existing structure, don't create from scratch.
+
 1. Read `handoffs/P0_ORCHESTRATOR_PROMPT.md`
-2. Create package structure in `packages/knowledge/*`
-3. Define domain models in `@beep/knowledge-domain`
-4. Create table schemas in `@beep/knowledge-tables`
-5. Run verification commands
-6. Update `REFLECTION_LOG.md`
-7. Create `handoffs/HANDOFF_P1.md` and `P1_ORCHESTRATOR_PROMPT.md`
+2. Review existing Embedding model/table patterns in `packages/knowledge/`
+3. Add Entity, Relation, Extraction, Ontology domain models (following Embedding pattern)
+4. Add entity, knowledgeRelation, extraction, ontology table schemas (following embedding table pattern)
+5. Create RLS policies and pgvector migration
+6. Run verification commands
+7. Update `REFLECTION_LOG.md`
+8. Create `handoffs/HANDOFF_P1.md` and `P1_ORCHESTRATOR_PROMPT.md`
 
 ### For Subsequent Phases
 

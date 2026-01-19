@@ -20,6 +20,10 @@ export const documentVersion = OrgTable.make(DocumentsEntityIds.DocumentVersionI
     contentRich: pg.jsonb("content_rich"),
   },
   (t) => [
+    // Organization ID index for RLS filtering
+    pg
+      .index("document_version_org_id_idx")
+      .on(t.organizationId),
     pg.index("document_version_document_idx").on(t.documentId),
     pg.index("document_version_user_idx").on(t.userId),
   ]

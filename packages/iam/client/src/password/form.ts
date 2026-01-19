@@ -1,3 +1,4 @@
+"use client";
 /**
  * @fileoverview
  * React Hook Form integration for password flows.

@@ -1,6 +1,8 @@
 /**
  * Value objects for the knowledge domain.
  *
- * Add value objects here as needed.
+ * @module knowledge-domain/value-objects
+ * @since 0.1.0
  */
-export {};
+export * from "./Attributes";
+export * from "./EvidenceSpan";

@@ -11,11 +11,23 @@
 - `OrgTable.make` (`src/org-table/OrgTable.ts`) — extends `Table.make` with `organizationId` foreign key wiring to `organization.id`.
 - `Common` namespace (`src/common.ts`): `globalColumns`, `auditColumns`, `userTrackingColumns`, `utcNow` helper.
 - `DefaultColumns` types (`src/columns.ts`) — structural types describing the default column builders.
-- Custom columns (`src/columns/index.ts`): `bytea` (Uint8Array), `byteaBase64` (Base64 string interface for binary data), `datetime` custom column builder.
+- Custom columns (`src/columns/index.ts`): see Custom Column Types table below.
 - `SharedDbSchema` namespace (`src/tables/index.ts`) — re-exports concrete tables: `organization`, `team`, `user`, `file`, `folder`, `uploadSession`, `session`.
 - `schema.ts` — re-exports all tables for convenience import (`@beep/shared-tables/schema`).
 - `_check.ts` — compile-time assertions that Drizzle `Infer*Model` matches domain codecs.
 - Package scripts (`package.json`) — build, lint, type, and test orchestration wired to Bun/TS.
+
+### Custom Column Types (`src/columns/`)
+
+| Column Type | TypeScript Type | Postgres Type | Use Case |
+|-------------|-----------------|---------------|----------|
+| `bytea` | `Uint8Array` | `bytea` | Raw binary data |
+| `byteaBase64` | `string` (Base64) | `bytea` | Binary with Base64 interface |
+| `datetime` | `DateTime.Utc` | `timestamptz` | Effect DateTime column |
+| `vector256` | `ReadonlyArray<number>` | `vector(256)` | 256-dim embeddings (Matryoshka) |
+| `vector512` | `ReadonlyArray<number>` | `vector(512)` | 512-dim embeddings (Voyage-3-lite) |
+| `vector768` | `ReadonlyArray<number>` | `vector(768)` | 768-dim embeddings (Nomic v1.5) |
+| `vector1024` | `ReadonlyArray<number>` | `vector(1024)` | 1024-dim embeddings (Voyage-3) |
 
 ## Usage Snapshots
 - `packages/shared/tables/src/tables/session.table.ts:11` uses `Table.make(SharedEntityIds.SessionId)` to define session storage with shared audit columns and org/team references.
@@ -117,6 +129,7 @@ const indexNames = (descriptors: ReadonlyArray<IndexDescriptor>) =>
 
 ### Integration with Domain Entities
 - **`_check.ts` import order matters**: TypeScript's structural typing may pass checks even when field order differs. Use strict mode and ensure `_check.ts` is included in the build to catch subtle mismatches.
+- **`_check.ts` type assertion asymmetry** (CRITICAL): The pattern `{} as InferSelectModel<typeof table>` only validates that Drizzle table types satisfy domain model encoded types (table → domain direction). It does NOT check that the domain model has all fields from the table (domain → table completeness). If a table has 6 fields and the domain only defines 3, `_check.ts` will still pass. **Best Practice**: Always verify domain models are complete BEFORE creating the table, then use `_check.ts` as a drift detector, not a completeness validator.
 - **`globalColumns` vs domain `BaseModel`**: The columns defined in `globalColumns` must exactly match `BaseModel` from `@beep/shared-domain`. Misalignment causes repository type errors that are hard to trace.
 - **Optimistic locking via `version` column**: The `version` column in `globalColumns` enables optimistic locking, but repositories must implement the increment and check logic—Drizzle does not do this automatically.
 

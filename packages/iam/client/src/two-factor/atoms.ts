@@ -1,3 +1,4 @@
+"use client";
 /**
  * @fileoverview
  * Reactive atoms for two-factor flows with toast feedback.

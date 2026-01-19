@@ -8,12 +8,14 @@ import { SharedRepos } from "@beep/shared-server";
 import * as Layer from "effect/Layer";
 import * as Persistence from "./Persistence.layer";
 
-type SliceRepos = | IamRepos.Repos
+type SliceRepos =
+  | IamRepos.Repos
   | DocumentsRepos.Repos
   | SharedRepos.Repos
   | CustomizationRepos.Repos
   | CommsRepos.Repos
-  | CalendarRepos.Repos | KnowledgeRepos.Repos;
+  | CalendarRepos.Repos
+  | KnowledgeRepos.Repos;
 
 const sliceReposLayer: Layer.Layer<SliceRepos, never, Persistence.Services> = Layer.mergeAll(
   IamRepos.layer,
@@ -22,7 +24,8 @@ const sliceReposLayer: Layer.Layer<SliceRepos, never, Persistence.Services> = La
   CustomizationRepos.layer,
   CommsRepos.layer,
   CalendarRepos.layer,
-  KnowledgeRepos.layer);
+  KnowledgeRepos.layer
+);
 
 export type Services = SliceRepos | Persistence.Services;
 

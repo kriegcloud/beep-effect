@@ -1,3 +1,4 @@
+"use client";
 /**
  * @fileoverview
  * Reactive atoms for email verification flows with toast feedback.

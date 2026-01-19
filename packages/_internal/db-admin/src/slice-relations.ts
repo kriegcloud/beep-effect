@@ -1,4 +1,5 @@
-export {} from "@beep/calendar-tables/relations";
+/* Calendar */
+export { calendarEventRelations } from "@beep/calendar-tables/relations";
 export {} from "@beep/comms-tables/relations";
 export { userHotkeyRelations } from "@beep/customization-tables/relations";
 /* Documents */
@@ -30,9 +31,12 @@ export {
   twoFactorRelations,
   walletAddressRelations,
 } from "@beep/iam-tables/relations";
-
 /* Knowledge */
-export {embeddingRelations} from "@beep/knowledge-tables/relations";
-
-/* Calendar */
-export {calendarEventRelations} from "@beep/calendar-tables/relations";
+export {
+  embeddingRelations,
+  entityRelations,
+  extractionRelations,
+  mentionRelations,
+  ontologyRelations,
+  relationRelations,
+} from "@beep/knowledge-tables/relations";

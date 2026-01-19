@@ -1,3 +1,4 @@
+"use client";
 /**
  * @fileoverview
  * React Hook Form integration for sign-in flows with automatic validation.

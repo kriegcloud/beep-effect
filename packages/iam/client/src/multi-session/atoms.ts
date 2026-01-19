@@ -1,3 +1,4 @@
+"use client";
 /**
  * @fileoverview
  * Reactive atoms for multi-session flows with toast feedback.

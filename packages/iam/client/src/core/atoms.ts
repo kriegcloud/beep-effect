@@ -1,3 +1,4 @@
+"use client";
 /**
  * @fileoverview Core authentication atoms for React integration.
  *

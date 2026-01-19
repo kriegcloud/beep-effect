@@ -1,2 +1,0 @@
-ALTER TABLE "knowledge_embedding" ADD COLUMN "organization_id" text NOT NULL;--> statement-breakpoint
-ALTER TABLE "knowledge_embedding" ADD CONSTRAINT "knowledge_embedding_organization_id_shared_organization_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."shared_organization"("id") ON DELETE cascade ON UPDATE cascade;

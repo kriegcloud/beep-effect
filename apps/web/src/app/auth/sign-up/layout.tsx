@@ -17,9 +17,8 @@ const SignUpLayout: React.FC<Props> = ({ children }) => {
           <SplashScreen portal={false} />
         </AuthSplitLayout>
       }
-    >
-      <AuthSplitLayout>{children}</AuthSplitLayout>
-    </GuestGuard>
+      render={() => <AuthSplitLayout>{children}</AuthSplitLayout>}
+    />
   );
 };
 

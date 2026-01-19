@@ -199,6 +199,15 @@
       "@beep/shared-ui/test/*": [
         "./packages/shared/ui/test/*"
       ],
+      "@beep/ui-editor": [
+        "./packages/ui/editor/src/index"
+      ],
+      "@beep/ui-editor/*": [
+        "./packages/ui/editor/src/*"
+      ],
+      "@beep/ui-editor/test/*": [
+        "./packages/ui/editor/test/*"
+      ],
       "@beep/shared-env": [
         "./packages/shared/env/src/index"
       ],
@@ -525,6 +534,15 @@
       ],
       "@beep/knowledge-ui/*": [
         "./packages/knowledge/ui/src/*"
+      ],
+      "@beep/wm-domain": [
+        "./packages/wealth-management/domain/src/index"
+      ],
+      "@beep/wm-domain/*": [
+        "./packages/wealth-management/domain/src/*"
+      ],
+      "@beep/wm-domain/test/*": [
+        "./packages/wealth-management/domain/test/*"
       ]
     }
   }

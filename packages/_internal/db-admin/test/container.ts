@@ -3,7 +3,8 @@ import { DocumentsRepos } from "@beep/documents-server";
 import { DocumentsDb } from "@beep/documents-server/db";
 import { IamRepos } from "@beep/iam-server";
 import { IamDb } from "@beep/iam-server/db";
-import { DbClient, SharedDb, SharedRepos } from "@beep/shared-server";
+import { DbClient, SharedDb, SharedRepos, TenantContext } from "@beep/shared-server";
+import { TenantContextTag } from "@beep/testkit/rls";
 import * as FileSystem from "@effect/platform/FileSystem";
 import * as Path from "@effect/platform/Path";
 import * as BunContext from "@effect/platform-bun/BunContext";
@@ -46,12 +47,32 @@ export const SliceReposLive: SliceReposLive = Layer.mergeAll(
   SharedRepos.layer
 ).pipe(Layer.orDie);
 
-export type CoreSliceServices = SqlClient.SqlClient | SliceDatabaseClients | SliceRepositories;
+/**
+ * Layer that maps TenantContext.TenantContext to TenantContextTag for test helpers.
+ */
+const TenantContextTagLayer = Layer.effect(
+  TenantContextTag,
+  Effect.gen(function* () {
+    return yield* TenantContext.TenantContext;
+  })
+);
+
+export type CoreSliceServices =
+  | SqlClient.SqlClient
+  | SliceDatabaseClients
+  | SliceRepositories
+  | TenantContext.TenantContext
+  | TenantContextTag;
 
 export type CoreSliceServicesLive = Layer.Layer<CoreSliceServices, ConfigError.ConfigError | SqlError.SqlError, never>;
 
 export const CoreSliceServicesLive = (layer: typeof DbClient.layer): CoreSliceServicesLive =>
-  SliceReposLive.pipe(Layer.provideMerge(Layer.provideMerge(SliceDatabaseClientsLive, layer)));
+  SliceReposLive.pipe(
+    Layer.provideMerge(TenantContextTagLayer),
+    Layer.provideMerge(TenantContext.TenantContext.layer),
+    Layer.provideMerge(SliceDatabaseClientsLive),
+    Layer.provideMerge(layer)
+  );
 
 export class PgContainerError extends Data.TaggedError("PgContainerError")<{
   readonly message: string;
@@ -98,7 +119,7 @@ const setupDocker = Effect.gen(function* () {
 
   const container = yield* Effect.tryPromise({
     try: () =>
-      new PostgreSqlContainer("postgres:alpine")
+      new PostgreSqlContainer("pgvector/pgvector:pg17")
         .withEnvironment({
           POSTGRES_USER: POSTGRES_USER,
           POSTGRES_PASSWORD: POSTGRES_PASSWORD,

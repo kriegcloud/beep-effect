@@ -33,6 +33,11 @@ export type Transaction = <T, E, R>(
   txExecute: (tx: TransactionContextShape) => Effect.Effect<T, E, R>
 ) => Effect.Effect<T, DatabaseError | E, R>;
 
+export type TransactionWithTenant = <T, E, R>(
+  orgId: string,
+  txExecute: (tx: TransactionContextShape) => Effect.Effect<T, E, R>
+) => Effect.Effect<T, DatabaseError | E, R>;
+
 export type MakeQuery<TFullSchema extends DbSchema = DbSchema> = <A, E, R, Input>(
   queryFn: (execute: ExecuteFn<TFullSchema>, input: Input) => Effect.Effect<A, E, R>
 ) => (...args: [Input] extends [never] ? [] : [input: Input]) => Effect.Effect<A, E, R>;

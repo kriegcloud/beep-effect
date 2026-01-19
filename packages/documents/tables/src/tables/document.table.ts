@@ -33,6 +33,10 @@ export const document = OrgTable.make(DocumentsEntityIds.DocumentId)(
     toc: pg.boolean("toc").notNull().default(true),
   },
   (t) => [
+    // Organization ID index for RLS filtering
+    pg
+      .index("document_organization_id_idx")
+      .on(t.organizationId),
     pg.uniqueIndex("document_user_template_idx").on(t.userId, t.templateId),
     pg.index("document_user_idx").on(t.userId),
     pg.index("document_parent_idx").on(t.parentDocumentId),

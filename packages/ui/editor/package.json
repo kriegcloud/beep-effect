@@ -1,0 +1,91 @@
+{
+  "name": "@beep/ui-editor",
+  "version": "0.0.0",
+  "type": "module",
+  "license": "MIT",
+  "description": "The editor ui for beep-effect",
+  "publishConfig": {
+    "access": "public",
+    "provenance": true,
+    "directory": "dist",
+    "linkDirectory": false
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./package.json": "./package.json",
+    "./*": "./src/*.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:kriegcloud/beep-effect.git",
+    "directory": "packages/ui/editor"
+  },
+  "scripts": {
+    "dev": "bun run dotenvx -- bunx tsc -b tsconfig.build.json --watch",
+    "build": "bun run build-esm && bun run build-cjs && bun run build-annotate",
+    "build-esm": "tsc -b tsconfig.build.json",
+    "build-cjs": "babel build/esm --plugins babel-plugin-transform-next-use-client --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --presets @babel/preset-react --out-dir build/cjs --source-maps ",
+    "build-annotate": "babel build/esm --plugins babel-plugin-transform-next-use-client --plugins annotate-pure-calls --presets @babel/preset-react --out-dir build/esm --source-maps",
+    "check": "tsc -b tsconfig.json",
+    "test": "bun test",
+    "coverage": "bun test --coverage",
+    "lint": "biome check .",
+    "lint:fix": "biome check . --write",
+    "lint:circular": "bunx madge -c ./src",
+    "dotenvx": "dotenvx run -f ../../../.env --",
+    "execute": "TSX_TSCONFIG_PATH=./tsconfig.src.json NODE_OPTIONS='--import tsx' bun run dotenvx -- bunx tsx ./src/execute.ts"
+  },
+  "peerDependencies": {
+    "@tanstack/react-form": "catalog:",
+    "@beep/ui": "workspace:^",
+    "@beep/ui-core": "workspace:^",
+    "@effect-atom/atom-react": "catalog:",
+    "next": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "@mui/material": "catalog:",
+    "effect": "catalog:",
+    "lexical": "catalog:",
+    "@lexical/clipboard": "catalog:",
+    "@lexical/code": "catalog:",
+    "@lexical/code-shiki": "catalog:",
+    "@lexical/file": "catalog:",
+    "@lexical/hashtag": "catalog:",
+    "@lexical/link": "catalog:",
+    "@lexical/list": "catalog:",
+    "@lexical/mark": "catalog:",
+    "@lexical/overflow": "catalog:",
+    "@lexical/plain-text": "catalog:",
+    "@lexical/react": "catalog:",
+    "@lexical/rich-text": "catalog:",
+    "@lexical/selection": "catalog:",
+    "@lexical/table": "catalog:",
+    "@lexical/utils": "catalog:"
+  },
+  "devDependencies": {
+    "@wojtekmaj/react-recaptcha-v3": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "@tanstack/react-form": "catalog:",
+    "@beep/ui": "workspace:^",
+    "@beep/ui-core": "workspace:^",
+    "@effect-atom/atom-react": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "@mui/material": "catalog:",
+    "effect": "catalog:",
+    "@total-typescript/ts-reset": "catalog:"
+  },
+  "effect": {
+    "generateExports": {
+      "include": [
+        "**/*.ts"
+      ]
+    },
+    "generateIndex": {
+      "include": [
+        "**/*.ts"
+      ]
+    }
+  }
+}

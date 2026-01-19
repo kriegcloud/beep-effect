@@ -25,19 +25,28 @@ All paths in this spec referencing `tmp/effect-ontology/...` are relative to you
 
 ### Context
 
-This is the initial phase - no previous phases completed. You are creating the foundational packages and schemas for integrating ontology-guided knowledge extraction into beep-effect.
+This is the initial phase - no previous phases completed. The `packages/knowledge/*` vertical slice has been **bootstrapped with boilerplate** but needs the actual domain models and tables for knowledge graph integration.
 
 The goal is to enable structured knowledge graphs from unstructured text (emails, documents) using patterns from the effect-ontology reference implementation.
 
+### Current State (Already Exists)
+
+The following structure is already in place:
+
+- **5 packages**: domain, tables, server, client, ui (scaffolded with package.json, tsconfig.json)
+- **Starter entity**: `Embedding` model in domain as a pattern reference
+- **Starter table**: `embedding.table.ts` in tables
+- **Db service**: Basic structure in server/src/db/
+- **Repository pattern**: `Embedding.repo.ts` as reference
+
 ### Your Mission
 
-Create the `packages/knowledge/*` vertical slice with:
+Extend the existing `packages/knowledge/*` slice with the actual knowledge graph models:
 
-1. **5 packages**: domain, tables, server, client, ui
-2. **Domain models**: Entity, Relation, Mention, KnowledgeGraph, EvidenceSpan
-3. **Table schemas**: entities, relations, extractions, ontologies, embeddings
-4. **RLS policies**: Tenant isolation on all tables
-5. **pgvector setup**: Extension and HNSW index for embeddings
+1. **Domain models**: Entity, Relation, Mention, KnowledgeGraph, EvidenceSpan (add alongside existing Embedding)
+2. **Table schemas**: entities, relations, extractions, ontologies (add alongside existing embeddings table)
+3. **RLS policies**: Tenant isolation on all tables
+4. **pgvector setup**: Extension and HNSW index for embeddings
 
 ### Critical Patterns
 
@@ -131,12 +140,18 @@ bun run db:generate
 
 ### Success Criteria
 
-- [ ] `packages/knowledge/domain/` package created with Entity, Relation, KnowledgeGraph schemas
-- [ ] `packages/knowledge/tables/` package created with all 5 table schemas
-- [ ] `packages/knowledge/server/` package created with Db service
-- [ ] `packages/knowledge/client/` package scaffolded
-- [ ] `packages/knowledge/ui/` package scaffolded
-- [ ] All packages use `@beep/knowledge-*` path aliases
+**Already Complete (from bootstrapping):**
+- [x] `packages/knowledge/domain/` package scaffolded with Embedding starter entity
+- [x] `packages/knowledge/tables/` package scaffolded with embedding table
+- [x] `packages/knowledge/server/` package scaffolded with Db service structure
+- [x] `packages/knowledge/client/` package scaffolded
+- [x] `packages/knowledge/ui/` package scaffolded
+- [x] All packages use `@beep/knowledge-*` path aliases
+
+**Phase 0 Deliverables:**
+- [ ] Entity, Relation, Mention, KnowledgeGraph, EvidenceSpan domain models added
+- [ ] entities, relations, extractions, ontologies table schemas added
+- [ ] Error types created (ExtractionError, OntologyError, GroundingError)
 - [ ] RLS policies defined for all tables with org_id
 - [ ] pgvector extension migration created
 - [ ] `bun run check --filter @beep/knowledge-*` passes
@@ -146,16 +161,17 @@ bun run db:generate
 
 ### Implementation Order
 
-1. Create directory structure for all 5 packages
-2. Set up package.json and tsconfig.json for each
-3. Create domain schemas (Entity, Relation, EvidenceSpan, KnowledgeGraph)
-4. Create error types (ExtractionError, OntologyError, GroundingError)
-5. Create table schemas (entities, relations, extractions, ontologies, embeddings)
+**Note:** Package structure already exists. Focus on adding domain models and tables.
+
+1. Review existing Embedding model pattern in `domain/src/entities/Embedding/`
+2. Create domain schemas (Entity, Relation, EvidenceSpan, Mention, KnowledgeGraph) following Embedding pattern
+3. Create error types (ExtractionError, OntologyError, GroundingError)
+4. Review existing embedding table pattern in `tables/src/tables/`
+5. Create table schemas (entities, relations, extractions, ontologies) following embedding table pattern
 6. Create migration for pgvector extension
-7. Create RLS policy migration
-8. Create server Db service
-9. Scaffold client and ui packages (index.ts only)
-10. Verify with `bun run check`
+7. Create RLS policy migration for all tables
+8. Update Db service to include new repositories
+9. Verify with `bun run check`
 
 ### Handoff Document
 

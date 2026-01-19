@@ -310,3 +310,94 @@ const Handler = createHandler({
 ```
 
 **Why This Matters**: Schema transformations (like `S.DateFromString`, `S.Redacted`) happen BEFORE `execute` is called. The encoded value is already in the correct wire format.
+
+## Testing (REQUIRED)
+
+ALWAYS use `@beep/testkit` for Effect-based tests. NEVER use raw `bun:test` with manual `Effect.runPromise`.
+
+### Test Runner Selection
+
+| Runner | Use Case | Example |
+|--------|----------|---------|
+| `effect()` | Standard Effect tests with TestClock/TestRandom | Unit tests, time-dependent tests |
+| `scoped()` | Tests with resource management (acquireRelease) | Tests with cleanup, spies, temp files |
+| `live()` | Pure logic without test services | Tests needing real Clock/Random |
+| `layer()` | Shared expensive resources across tests | Database tests, integration tests |
+
+### Correct Pattern (REQUIRED)
+
+```typescript
+import { effect, layer, strictEqual } from "@beep/testkit";
+import * as Effect from "effect/Effect";
+import * as Duration from "effect/Duration";
+
+// Unit test
+effect("computes result", () =>
+  Effect.gen(function* () {
+    const result = yield* someEffect();
+    strictEqual(result, expected);
+  })
+);
+
+// Integration test with shared Layer
+layer(TestLayer, { timeout: Duration.seconds(60) })("suite name", (it) => {
+  it.effect("test name", () =>
+    Effect.gen(function* () {
+      const repo = yield* MemberRepo;
+      const result = yield* repo.findAll();
+      strictEqual(result.length, 0);
+    })
+  );
+});
+```
+
+### FORBIDDEN Pattern
+
+```typescript
+// NEVER use bun:test with Effect.runPromise
+import { test } from "bun:test";
+
+test("wrong", async () => {
+  await Effect.gen(function* () {
+    const result = yield* someEffect();
+  }).pipe(Effect.provide(TestLayer), Effect.runPromise);  // FORBIDDEN!
+});
+
+// NEVER use Effect.runSync in tests
+test("also wrong", () => {
+  const result = Effect.runSync(myEffect);  // FORBIDDEN!
+});
+```
+
+### Test File Organization
+
+- Tests MUST be in `./test` directory, NEVER inline with source files
+- Mirror source structure: `src/foo/Bar.ts` → `test/foo/Bar.test.ts`
+- Use path aliases: `@beep/package-name/module` (NOT `../src/module`)
+
+### Documentation References
+
+- **Quick Reference**: This section
+- **Comprehensive Patterns**: `.claude/commands/patterns/effect-testing-patterns.md`
+- **API Reference**: `tooling/testkit/README.md`
+- **Usage Examples**: `tooling/testkit/AGENTS.md`
+
+---
+
+## Reference Documentation
+
+For comprehensive patterns beyond this quick reference, consult these detailed guides:
+
+| Topic | Detailed Documentation | Purpose |
+|-------|------------------------|---------|
+| **Testing** | `.claude/commands/patterns/effect-testing-patterns.md` | Comprehensive test patterns, runner selection, Layer management |
+| **Testing API** | `tooling/testkit/README.md` | Complete testkit API reference with examples |
+| **Database** | `documentation/patterns/database-patterns.md` | Slice creation, foreign keys, table patterns, verification |
+| **Services** | `documentation/patterns/service-patterns.md` | Service design, Layer composition, dependency injection |
+| **Effect Docs** | Use `mcp-researcher` agent | Official Effect documentation via MCP |
+
+**Usage**: When rules provide quick syntax reference, these documents provide:
+- Complete worked examples
+- Decision frameworks (when to use X vs Y)
+- Common pitfalls and anti-patterns
+- Integration patterns with other systems

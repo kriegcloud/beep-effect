@@ -1,3 +1,4 @@
+"use client";
 /**
  * @fileoverview
  * Reactive atoms for password flows with toast feedback.

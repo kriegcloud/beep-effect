@@ -64,13 +64,36 @@ export const EmbeddingId = make("embedding", {
 
 ---
 
+## Current State (Bootstrapped)
+
+The `packages/knowledge/*` slice has been bootstrapped with the following structure:
+
+```
+packages/knowledge/
+├── domain/           # Scaffolded with Embedding starter entity
+├── tables/           # Scaffolded with embedding table
+├── server/           # Scaffolded with Db service structure
+├── client/           # Scaffolded (index.ts only)
+└── ui/               # Scaffolded (index.ts only)
+```
+
+**Already implemented:**
+- All 5 package directories with package.json, tsconfig.json
+- `@beep/knowledge-*` path aliases
+- Embedding entity model (starter pattern)
+- Embedding table (starter pattern)
+- Basic Db service structure
+- Embedding.repo.ts (starter pattern)
+
+---
+
 ## Phase 0 Tasks
 
 ### Task 0.1: Update Entity IDs
 
 **Location**: `packages/shared/domain/src/entity-ids/knowledge/ids.ts`
 
-Replace placeholder with:
+Add missing entity IDs (EmbeddingId already exists):
 
 ```typescript
 import { EntityId } from "@beep/schema/identity";
@@ -79,9 +102,10 @@ const make = EntityId.builder("knowledge");
 
 export const EntityId = make("entity", { brand: "EntityId" });
 export const RelationId = make("relation", { brand: "RelationId" });
+export const KnowledgeRelationId = make("knowledge_relation", { brand: "KnowledgeRelationId" });
 export const ExtractionId = make("extraction", { brand: "ExtractionId" });
 export const OntologyId = make("ontology", { brand: "OntologyId" });
-export const EmbeddingId = make("embedding", { brand: "EmbeddingId" });
+export const EmbeddingId = make("embedding", { brand: "EmbeddingId" });  // Already exists
 ```
 
 Export namespaces in `packages/shared/domain/src/entity-ids/knowledge/index.ts`:
@@ -90,34 +114,32 @@ Export namespaces in `packages/shared/domain/src/entity-ids/knowledge/index.ts`:
 export * as KnowledgeEntityIds from "./ids.js";
 ```
 
-### Task 0.2: Create Package Structure
+### Task 0.2: Package Structure (ALREADY COMPLETE)
 
-```bash
-# Create directories
-mkdir -p packages/knowledge/{domain,tables,server,client,ui}/src
+**Status**: ✅ Bootstrapped
 
-# Create package.json files (use IAM as template)
-# Create tsconfig.json files (use IAM as template)
-```
+All 5 packages exist with proper configuration. No action required.
 
 ### Task 0.3: Domain Models
 
 **Target**: `packages/knowledge/domain/src/entities/`
 
-Each entity follows canonical pattern from `packages/iam/domain/src/entities/`:
+**Already exists**: Embedding model at `Embedding/Embedding.model.ts` (use as pattern reference)
+
+Add these entities following the Embedding pattern:
 
 | Directory | File | Schema | Reference |
 |-----------|------|--------|-----------|
-| `Entity/` | `Entity.model.ts` | Entity Model | IAM Member pattern |
+| `Entity/` | `Entity.model.ts` | Entity Model | Use Embedding pattern |
 | `Entity/schemas/` | `EntityType.ts` | Type enums | IAM MemberRole pattern |
-| `Relation/` | `Relation.model.ts` | Relation Model, ObjectReference | IAM pattern |
-| `Extraction/` | `Extraction.model.ts` | Extraction Model | IAM pattern |
+| `Relation/` | `Relation.model.ts` | Relation Model, ObjectReference | Use Embedding pattern |
+| `Extraction/` | `Extraction.model.ts` | Extraction Model | Use Embedding pattern |
 | `Extraction/schemas/` | `ExtractionStatus.ts` | Status enum | IAM MemberStatus pattern |
-| `Ontology/` | `Ontology.model.ts` | ClassDefinition, PropertyDefinition | IAM pattern |
-| `Embedding/` | `Embedding.model.ts` | Embedding Model | Already bootstrapped |
+| `Ontology/` | `Ontology.model.ts` | ClassDefinition, PropertyDefinition | Use Embedding pattern |
+| `Embedding/` | `Embedding.model.ts` | Embedding Model | ✅ Already exists |
 
-**Supporting files**:
-- `entities/index.ts` - Exports all entity modules
+**Supporting files (already exist, update as needed)**:
+- `entities/index.ts` - Exports all entity modules (update to include new entities)
 - `entities.ts` - Re-exports as `Entities` namespace
 - `value-objects/index.ts` - Value objects if needed
 
@@ -125,23 +147,25 @@ Each entity follows canonical pattern from `packages/iam/domain/src/entities/`:
 
 **Target**: `packages/knowledge/tables/src/tables/`
 
-Each table follows canonical pattern from `packages/iam/tables/src/tables/`:
+**Already exists**: Embedding table at `embedding.table.ts` (use as pattern reference)
 
-| Table File | Table Name | Key Columns | Reference |
-|------------|------------|-------------|-----------|
-| `entity.table.ts` | `entity` | types[], mention, attributes{}, mentions[], groundingConfidence | OrgTable.make |
-| `knowledgeRelation.table.ts` | `knowledgeRelation` | subjectId, predicate, objectId, objectLiteral, evidence[], confidence | OrgTable.make |
-| `extraction.table.ts` | `extraction` | sourceUri, status, knowledgeGraphId, ontologyId | OrgTable.make |
-| `ontology.table.ts` | `ontology` | name, turtleContent, version, namespace | OrgTable.make |
-| `embedding.table.ts` | `embedding` | entityType, entityId, ontologyId, embedding, contentText, model | OrgTable.make |
+Add these tables following the embedding table pattern:
+
+| Table File | Table Name | Key Columns | Status |
+|------------|------------|-------------|--------|
+| `entity.table.ts` | `entity` | types[], mention, attributes{}, mentions[], groundingConfidence | Add |
+| `knowledgeRelation.table.ts` | `knowledgeRelation` | subjectId, predicate, objectId, objectLiteral, evidence[], confidence | Add |
+| `extraction.table.ts` | `extraction` | sourceUri, status, knowledgeGraphId, ontologyId | Add |
+| `ontology.table.ts` | `ontology` | name, turtleContent, version, namespace | Add |
+| `embedding.table.ts` | `embedding` | entityType, entityId, ontologyId, embedding, contentText, model | ✅ Exists |
 
 **Note**: Domain "Relation" uses `knowledgeRelation` prefix to avoid conflict with Drizzle's `relations.ts` file.
 
-**Supporting files**:
-- `tables/index.ts` - Exports all tables
+**Supporting files (already exist, update as needed)**:
+- `tables/index.ts` - Exports all tables (update to include new tables)
 - `schema.ts` - Aggregates tables and relations
 - `_check.ts` - Compile-time type assertions
-- `relations.ts` - Drizzle relations definitions
+- `relations.ts` - Drizzle relations definitions (update for new tables)
 
 ### Task 0.5: RLS Policies
 
@@ -175,40 +199,30 @@ USING hnsw (vector vector_cosine_ops);
 
 **Target**: `packages/knowledge/server/src/db/`
 
-Follows canonical pattern from `packages/iam/server/src/db/`:
+**Already exists**: Basic structure with Db service and Embedding.repo.ts
 
+Existing structure:
 ```
 db/
-├── index.ts           # Exports Db and repos
-├── repositories.ts    # Aggregates all repos as namespace
+├── index.ts           # ✅ Exists
+├── repositories.ts    # ✅ Exists
 ├── Db/
-│   ├── index.ts       # Re-exports Db
-│   └── Db.ts          # Context.Tag Db service
+│   ├── index.ts       # ✅ Exists
+│   └── Db.ts          # ✅ Exists
 └── repos/
-    ├── index.ts       # Exports all repos
-    ├── _common.ts     # Shared repo utilities (dependencies)
-    ├── Entity.repo.ts
-    ├── KnowledgeRelation.repo.ts
-    ├── Extraction.repo.ts
-    ├── Ontology.repo.ts
-    └── Embedding.repo.ts
+    ├── index.ts       # ✅ Exists
+    ├── _common.ts     # ✅ Exists
+    └── Embedding.repo.ts  # ✅ Exists (use as pattern)
 ```
 
-**Db service** (`db/Db/Db.ts`):
-```typescript
-import * as DbSchema from "@beep/knowledge-tables/schema";
-import { DbClient } from "@beep/shared-server";
-import * as Context from "effect/Context";
-import * as Layer from "effect/Layer";
+Add these repositories following Embedding.repo.ts pattern:
 
-const serviceEffect = DbClient.make({ schema: DbSchema });
-
-export type Shape = DbClient.Shape<typeof DbSchema>;
-
-export class Db extends Context.Tag("@beep/knowledge-server/Db")<Db, Shape>() {}
-
-export const layer: Layer.Layer<Db, never, DbClient.SliceDbRequirements> =
-  Layer.scoped(Db, serviceEffect);
+```
+repos/
+├── Entity.repo.ts           # Add
+├── KnowledgeRelation.repo.ts  # Add
+├── Extraction.repo.ts       # Add
+└── Ontology.repo.ts         # Add
 ```
 
 **Repository pattern** (`db/repos/Entity.repo.ts`):
@@ -237,19 +251,11 @@ export class EntityRepo extends Effect.Service<EntityRepo>()($I`EntityRepo`, {
 }) {}
 ```
 
-### Task 0.8: Scaffold Client/UI
+### Task 0.8: Scaffold Client/UI (ALREADY COMPLETE)
 
-**Target**: `packages/knowledge/{client,ui}/src/index.ts`
+**Status**: ✅ Bootstrapped
 
-Minimal scaffolds with placeholder exports:
-
-```typescript
-// packages/knowledge/client/src/index.ts
-export const placeholder = "TODO: Implement client";
-
-// packages/knowledge/ui/src/index.ts
-export const placeholder = "TODO: Implement UI";
-```
+Both client and ui packages are scaffolded with index.ts exports.
 
 ---
 
@@ -356,14 +362,14 @@ const entity = Entities.Entity.Model.insert.make({
 
 ## Implementation Order
 
-1. **Entity IDs** (Task 0.1) - Foundation for all other schemas
-2. **Package structure** (Task 0.2) - Directories and configs
-3. **Domain schemas** (Task 0.3) - Types for tables
-4. **Table schemas** (Task 0.4) - Drizzle definitions
-5. **Migrations** (Task 0.5, 0.6) - RLS + pgvector
-6. **Server Db** (Task 0.7) - Database service
-7. **Scaffolds** (Task 0.8) - Client/UI placeholders
-8. **Verification** - Type check all packages
+**Note**: Package structure (Task 0.2) and scaffolds (Task 0.8) are already complete.
+
+1. **Entity IDs** (Task 0.1) - Add missing IDs to shared-domain
+2. **Domain schemas** (Task 0.3) - Add Entity, Relation, Extraction, Ontology models
+3. **Table schemas** (Task 0.4) - Add entity, knowledgeRelation, extraction, ontology tables
+4. **Migrations** (Task 0.5, 0.6) - RLS + pgvector
+5. **Server Db** (Task 0.7) - Add repositories for new entities
+6. **Verification** - Type check all packages
 
 ---
 
@@ -389,6 +395,14 @@ bun run db:generate
 
 ## Known Issues & Gotchas
 
+### Bootstrapped State
+
+1. **Packages already exist**: Don't create new package.json or tsconfig.json files - update existing ones if needed
+
+2. **Embedding patterns**: Use existing `Embedding.model.ts` and `embedding.table.ts` as reference patterns for new entities/tables
+
+3. **Export files exist**: Update `index.ts` files to export new modules rather than creating new export files
+
 ### From Pre-Research
 
 1. **Entity ID already exists**: Don't create new file, UPDATE `packages/shared/domain/src/entity-ids/knowledge/ids.ts`
@@ -413,14 +427,18 @@ bun run db:generate
 
 Phase 0 is complete when:
 
-- [ ] Knowledge entity IDs updated in shared-domain
-- [ ] All 5 packages created (domain, tables, server, client, ui)
-- [ ] Domain schemas compile without errors
-- [ ] Table schemas defined with OrgTable.make
+**Already Complete (Bootstrapped):**
+- [x] All 5 packages created (domain, tables, server, client, ui)
+- [x] Client/UI scaffolds created
+- [x] Server Db service structure created
+
+**Phase 0 Deliverables:**
+- [ ] Knowledge entity IDs updated in shared-domain (EntityId, RelationId, KnowledgeRelationId, ExtractionId, OntologyId)
+- [ ] Domain schemas added (Entity, Relation, Extraction, Ontology) alongside existing Embedding
+- [ ] Table schemas added (entity, knowledgeRelation, extraction, ontology) alongside existing embedding
 - [ ] RLS policies migration created
 - [ ] pgvector extension migration created
-- [ ] Server Db service created
-- [ ] Client/UI scaffolds created
+- [ ] Server repositories added for new entities
 - [ ] `bun run check --filter @beep/knowledge-*` passes
 - [ ] `bun run db:generate` succeeds
 - [ ] REFLECTION_LOG.md updated with Phase 0 learnings

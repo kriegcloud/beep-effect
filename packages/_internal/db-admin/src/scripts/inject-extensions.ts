@@ -58,6 +58,4 @@ const program = Effect.gen(function* () {
   yield* Effect.log(`Injected pgvector extension into ${firstMigration}`);
 });
 
-BunRuntime.runMain(
-  program.pipe(Effect.provide(BunContext.layer))
-);
+BunRuntime.runMain(program.pipe(Effect.provide(BunContext.layer)));

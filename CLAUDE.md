@@ -70,13 +70,52 @@ See [documentation/EFFECT_PATTERNS.md](documentation/EFFECT_PATTERNS.md) for det
 
 - NEVER use `any`, `@ts-ignore`, or unchecked casts. ALWAYS validate external data with `@beep/schema`.
 - Biome formatting: run `bun run lint:fix` before committing.
-- Effect testing utilities in `@beep/testkit`. Use `Effect.log*` with structured objects.
+- Use `Effect.log*` with structured objects for logging.
 
 ## Testing
 
+ALWAYS use `@beep/testkit` for Effect-based tests. NEVER use raw `bun:test` with manual `Effect.runPromise`.
+
+### Quick Reference
+
+```typescript
+// REQUIRED - @beep/testkit
+import { effect, layer, strictEqual } from "@beep/testkit";
+import * as Effect from "effect/Effect";
+import * as Duration from "effect/Duration";
+
+// Unit test
+effect("test name", () =>
+  Effect.gen(function* () {
+    const result = yield* someEffect();
+    strictEqual(result, expected);
+  })
+);
+
+// Integration test with shared Layer
+layer(TestLayer, { timeout: Duration.seconds(60) })("suite name", (it) => {
+  it.effect("test name", () =>
+    Effect.gen(function* () {
+      const repo = yield* MemberRepo;
+      const result = yield* repo.findAll();
+      strictEqual(result.length, 0);
+    })
+  );
+});
+```
+
+### Test Commands
+
 - `bun run test` — Run all tests
 - `bun run test --filter=@beep/package` — Run tests for specific package
-- Place test files adjacent to source files or in `__tests__/` directories
+
+### Test Organization
+
+- Place test files in `./test` directory mirroring `./src` structure
+- NEVER place tests inline with source files
+- Use path aliases (`@beep/*`) instead of relative imports in tests
+
+See `.claude/rules/effect-patterns.md` Testing section and `.claude/commands/patterns/effect-testing-patterns.md` for comprehensive patterns.
 
 ## Workflow for AI Agents
 

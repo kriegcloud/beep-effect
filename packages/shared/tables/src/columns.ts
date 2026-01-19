@@ -1,8 +1,7 @@
-import type {EntityId} from "@beep/schema/identity";
-import type {HasDefault, HasRuntimeDefault, NotNull} from "drizzle-orm";
+import type { EntityId } from "@beep/schema/identity";
+import type { HasDefault, HasRuntimeDefault, NotNull } from "drizzle-orm";
 import type * as pg from "drizzle-orm/pg-core";
 import type * as DateTime from "effect/DateTime";
-
 
 /** Custom datetime column builder type for audit columns */
 type DateTimeColumnBuilder<TName extends string> = pg.PgCustomColumnBuilder<{

@@ -44,9 +44,50 @@ domain -> tables -> infra -> client -> ui
 
 ## Testing
 
+### Test Commands
+
 - `bun run test` — Run all tests
 - `bun run test --filter=@beep/package` — Run tests for specific package
-- Place test files adjacent to source files or in `__tests__/` directories
+
+### Test Framework - MANDATORY
+
+ALWAYS use `@beep/testkit` for all Effect-based tests. NEVER use raw `bun:test` with manual `Effect.runPromise`.
+
+```typescript
+// REQUIRED - @beep/testkit
+import { effect, layer, strictEqual } from "@beep/testkit";
+import * as Effect from "effect/Effect";
+
+effect("test name", () =>
+  Effect.gen(function* () {
+    const result = yield* someEffect();
+    strictEqual(result, expected);
+  })
+);
+
+// FORBIDDEN - bun:test with Effect.runPromise
+import { test } from "bun:test";
+test("test name", async () => {
+  await Effect.runPromise(Effect.gen(...)); // WRONG!
+});
+```
+
+See `.claude/rules/effect-patterns.md` Testing section for complete patterns.
+
+### Test File Organization
+
+- Place test files in `./test` directory mirroring `./src` structure
+- NEVER place tests inline with source files
+- Use path aliases (`@beep/*`) instead of relative imports in tests
+
+**Example**:
+```
+packages/example/
+├── src/services/UserService.ts
+└── test/services/UserService.test.ts  # Mirrors src structure
+```
+
+See `.claude/commands/patterns/effect-testing-patterns.md` for comprehensive testing patterns.
 
 ## Turborepo Verification Behavior
 
@@ -72,6 +113,27 @@ bun tsc --noEmit path/to/file.ts
 ```
 
 **Fix errors in dependency order**: Always resolve upstream package errors before downstream packages.
+
+### Isolating Changes from Pre-existing Errors
+
+When `bun run check --filter @beep/package` fails due to upstream package errors unrelated to your changes:
+
+**1. Identify the actual error source:**
+```bash
+# Errors in upstream dependencies appear FIRST in output
+# Look for package path in error messages:
+# packages/upstream/domain/src/file.ts(42,5): error TS2322
+#          ^^^^^^^^ This is the failing package
+```
+
+**2. Verify your changes in isolation:**
+```bash
+# Syntax-only check (no dependency resolution or type checking)
+bun tsc --noEmit --isolatedModules path/to/your/file.ts
+```
+
+**3. Document known issues:**
+If upstream errors are pre-existing/unrelated to your changes, note this in your PR description and proceed with local isolated verification. Focus on ensuring your new code is syntactically correct and logically sound.
 
 See [documentation/patterns/database-patterns.md](../../documentation/patterns/database-patterns.md#turborepo-verification-cascading) for detailed debugging workflows.
 

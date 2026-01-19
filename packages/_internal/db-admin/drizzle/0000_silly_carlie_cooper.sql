@@ -746,6 +746,27 @@ CREATE TABLE "iam_wallet_address" (
 	CONSTRAINT "iam_wallet_address_id_unique" UNIQUE("id")
 );
 --> statement-breakpoint
+CREATE TABLE "knowledge_embedding" (
+	"id" text NOT NULL,
+	"_row_id" serial PRIMARY KEY NOT NULL,
+	"organization_id" text NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"deleted_at" timestamp with time zone,
+	"created_by" text DEFAULT 'app',
+	"updated_by" text DEFAULT 'app',
+	"deleted_by" text,
+	"version" integer DEFAULT 1 NOT NULL,
+	"source" text,
+	"entity_type" text NOT NULL,
+	"entity_id" text NOT NULL,
+	"ontology_id" text DEFAULT 'default' NOT NULL,
+	"embedding" vector(768) NOT NULL,
+	"content_text" text,
+	"model" text DEFAULT 'nomic-embed-text-v1.5' NOT NULL,
+	CONSTRAINT "knowledge_embedding_id_unique" UNIQUE("id")
+);
+--> statement-breakpoint
 CREATE TABLE "shared_folder" (
 	"id" text NOT NULL,
 	"_row_id" serial PRIMARY KEY NOT NULL,
@@ -781,26 +802,6 @@ CREATE TABLE "shared_upload_session" (
 	"expires_at" timestamp with time zone NOT NULL,
 	CONSTRAINT "shared_upload_session_id_unique" UNIQUE("id"),
 	CONSTRAINT "shared_upload_session_file_key_unique" UNIQUE("file_key")
-);
---> statement-breakpoint
-CREATE TABLE "knowledge_embedding" (
-	"id" text NOT NULL,
-	"_row_id" serial PRIMARY KEY NOT NULL,
-	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
-	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
-	"deleted_at" timestamp with time zone,
-	"created_by" text DEFAULT 'app',
-	"updated_by" text DEFAULT 'app',
-	"deleted_by" text,
-	"version" integer DEFAULT 1 NOT NULL,
-	"source" text,
-	"entity_type" text NOT NULL,
-	"entity_id" text NOT NULL,
-	"ontology_id" text DEFAULT 'default' NOT NULL,
-	"embedding" vector(768) NOT NULL,
-	"content_text" text,
-	"model" text DEFAULT 'nomic-embed-text-v1.5' NOT NULL,
-	CONSTRAINT "knowledge_embedding_id_unique" UNIQUE("id")
 );
 --> statement-breakpoint
 ALTER TABLE "comms_email_template" ADD CONSTRAINT "comms_email_template_organization_id_shared_organization_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."shared_organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
@@ -861,6 +862,7 @@ ALTER TABLE "iam_team_member" ADD CONSTRAINT "iam_team_member_user_id_shared_use
 ALTER TABLE "iam_two_factor" ADD CONSTRAINT "iam_two_factor_organization_id_shared_organization_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."shared_organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
 ALTER TABLE "iam_two_factor" ADD CONSTRAINT "iam_two_factor_user_id_shared_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."shared_user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "iam_wallet_address" ADD CONSTRAINT "iam_wallet_address_user_id_shared_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."shared_user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "knowledge_embedding" ADD CONSTRAINT "knowledge_embedding_organization_id_shared_organization_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."shared_organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
 ALTER TABLE "shared_folder" ADD CONSTRAINT "shared_folder_organization_id_shared_organization_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."shared_organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
 ALTER TABLE "shared_folder" ADD CONSTRAINT "shared_folder_user_id_shared_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."shared_user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "shared_upload_session" ADD CONSTRAINT "shared_upload_session_organization_id_shared_organization_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."shared_organization"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
@@ -882,11 +884,14 @@ CREATE INDEX "user_role_idx" ON "shared_user" USING btree ("role") WHERE "shared
 CREATE INDEX "user_banned_expires_idx" ON "shared_user" USING btree ("ban_expires") WHERE "shared_user"."banned" = true AND "shared_user"."ban_expires" IS NOT NULL;--> statement-breakpoint
 CREATE INDEX "user_2fa_enabled_idx" ON "shared_user" USING btree ("two_factor_enabled") WHERE "shared_user"."two_factor_enabled" = true;--> statement-breakpoint
 CREATE INDEX "user_hotkeys_shortcuts_idx" ON "customization_user_hotkey" USING btree ("shortcuts");--> statement-breakpoint
+CREATE INDEX "comment_organization_id_idx" ON "documents_comment" USING btree ("organization_id");--> statement-breakpoint
 CREATE INDEX "comment_discussion_idx" ON "documents_comment" USING btree ("discussion_id");--> statement-breakpoint
 CREATE INDEX "comment_user_idx" ON "documents_comment" USING btree ("user_id");--> statement-breakpoint
+CREATE INDEX "discussion_org_id_idx" ON "documents_discussion" USING btree ("organization_id");--> statement-breakpoint
 CREATE INDEX "discussion_document_idx" ON "documents_discussion" USING btree ("document_id");--> statement-breakpoint
 CREATE INDEX "discussion_user_idx" ON "documents_discussion" USING btree ("user_id");--> statement-breakpoint
 CREATE INDEX "discussion_is_resolved_idx" ON "documents_discussion" USING btree ("is_resolved");--> statement-breakpoint
+CREATE INDEX "document_organization_id_idx" ON "documents_document" USING btree ("organization_id");--> statement-breakpoint
 CREATE UNIQUE INDEX "document_user_template_idx" ON "documents_document" USING btree ("user_id","template_id");--> statement-breakpoint
 CREATE INDEX "document_user_idx" ON "documents_document" USING btree ("user_id");--> statement-breakpoint
 CREATE INDEX "document_parent_idx" ON "documents_document" USING btree ("parent_document_id");--> statement-breakpoint
@@ -896,11 +901,14 @@ CREATE INDEX "document_search_idx" ON "documents_document" USING gin ((
         setweight(to_tsvector('english', coalesce("title", '')), 'A') ||
         setweight(to_tsvector('english', coalesce("content", '')), 'B')
       ));--> statement-breakpoint
+CREATE INDEX "document_file_org_id_idx" ON "documents_document_file" USING btree ("organization_id");--> statement-breakpoint
 CREATE INDEX "document_file_user_idx" ON "documents_document_file" USING btree ("user_id");--> statement-breakpoint
 CREATE INDEX "document_file_document_idx" ON "documents_document_file" USING btree ("document_id");--> statement-breakpoint
 CREATE INDEX "document_file_type_idx" ON "documents_document_file" USING btree ("type");--> statement-breakpoint
+CREATE INDEX "document_version_org_id_idx" ON "documents_document_version" USING btree ("organization_id");--> statement-breakpoint
 CREATE INDEX "document_version_document_idx" ON "documents_document_version" USING btree ("document_id");--> statement-breakpoint
 CREATE INDEX "document_version_user_idx" ON "documents_document_version" USING btree ("user_id");--> statement-breakpoint
+CREATE INDEX "file_organization_id_idx" ON "shared_file" USING btree ("organization_id");--> statement-breakpoint
 CREATE INDEX "session_token_idx" ON "shared_session" USING btree ("token");--> statement-breakpoint
 CREATE INDEX "session_user_id_idx" ON "shared_session" USING btree ("user_id");--> statement-breakpoint
 CREATE INDEX "session_expires_at_idx" ON "shared_session" USING btree ("expires_at");--> statement-breakpoint
@@ -915,6 +923,7 @@ CREATE INDEX "account_provider_id_idx" ON "iam_account" USING btree ("provider_i
 CREATE INDEX "account_user_provider_idx" ON "iam_account" USING btree ("user_id","provider_id");--> statement-breakpoint
 CREATE INDEX "account_access_token_expires_idx" ON "iam_account" USING btree ("access_token_expires_at") WHERE "iam_account"."access_token_expires_at" IS NOT NULL;--> statement-breakpoint
 CREATE INDEX "account_refresh_token_expires_idx" ON "iam_account" USING btree ("refresh_token_expires_at") WHERE "iam_account"."refresh_token_expires_at" IS NOT NULL;--> statement-breakpoint
+CREATE INDEX "api_key_organization_id_idx" ON "iam_apikey" USING btree ("organization_id");--> statement-breakpoint
 CREATE INDEX "invitation_organization_id_idx" ON "iam_invitation" USING btree ("organization_id");--> statement-breakpoint
 CREATE INDEX "invitation_inviter_id_idx" ON "iam_invitation" USING btree ("inviter_id");--> statement-breakpoint
 CREATE INDEX "invitation_email_idx" ON "iam_invitation" USING btree ("email");--> statement-breakpoint
@@ -943,15 +952,24 @@ CREATE UNIQUE INDEX "oauth_consent_client_user_uidx" ON "iam_oauth_consent" USIN
 CREATE INDEX "oauth_refresh_token_client_id_idx" ON "iam_oauth_refresh_token" USING btree ("client_id");--> statement-breakpoint
 CREATE INDEX "oauth_refresh_token_user_id_idx" ON "iam_oauth_refresh_token" USING btree ("user_id");--> statement-breakpoint
 CREATE INDEX "oauth_refresh_token_session_id_idx" ON "iam_oauth_refresh_token" USING btree ("session_id");--> statement-breakpoint
+CREATE INDEX "organization_role_org_id_idx" ON "iam_organization_role" USING btree ("organization_id");--> statement-breakpoint
+CREATE INDEX "scim_provider_org_id_idx" ON "iam_scim_provider" USING btree ("organization_id");--> statement-breakpoint
+CREATE INDEX "sso_provider_org_id_idx" ON "iam_sso_provider" USING btree ("organization_id");--> statement-breakpoint
+CREATE INDEX "subscription_organization_id_idx" ON "iam_subscription" USING btree ("organization_id");--> statement-breakpoint
+CREATE INDEX "team_member_organization_id_idx" ON "iam_team_member" USING btree ("organization_id");--> statement-breakpoint
 CREATE INDEX "team_member_team_id_idx" ON "iam_team_member" USING btree ("team_id");--> statement-breakpoint
 CREATE INDEX "team_member_user_id_idx" ON "iam_team_member" USING btree ("user_id");--> statement-breakpoint
 CREATE UNIQUE INDEX "team_member_team_user_unique_idx" ON "iam_team_member" USING btree ("team_id","user_id");--> statement-breakpoint
 CREATE INDEX "team_member_team_user_idx" ON "iam_team_member" USING btree ("team_id","user_id");--> statement-breakpoint
+CREATE INDEX "two_factor_organization_id_idx" ON "iam_two_factor" USING btree ("organization_id");--> statement-breakpoint
 CREATE INDEX "verification_identifier_idx" ON "iam_verification" USING btree ("identifier");--> statement-breakpoint
 CREATE INDEX "verification_identifier_value_idx" ON "iam_verification" USING btree ("identifier","value");--> statement-breakpoint
 CREATE INDEX "verification_expires_at_idx" ON "iam_verification" USING btree ("expires_at");--> statement-breakpoint
 CREATE INDEX "verification_active_idx" ON "iam_verification" USING btree ("identifier","expires_at");--> statement-breakpoint
 CREATE UNIQUE INDEX "wallet_address_user_chain_id_unique_idx" ON "iam_wallet_address" USING btree ("user_id","address","chain_id");--> statement-breakpoint
+CREATE INDEX "embedding_organization_id_idx" ON "knowledge_embedding" USING btree ("organization_id");--> statement-breakpoint
+CREATE INDEX "folder_organization_id_idx" ON "shared_folder" USING btree ("organization_id");--> statement-breakpoint
 CREATE INDEX "folder_user_idx" ON "shared_folder" USING btree ("user_id");--> statement-breakpoint
+CREATE INDEX "upload_session_org_id_idx" ON "shared_upload_session" USING btree ("organization_id");--> statement-breakpoint
 CREATE INDEX "upload_session_expires_at_idx" ON "shared_upload_session" USING btree ("expires_at");--> statement-breakpoint
 CREATE INDEX "upload_session_file_key_idx" ON "shared_upload_session" USING btree ("file_key");

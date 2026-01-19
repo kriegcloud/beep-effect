@@ -12,6 +12,7 @@ import { SqlError } from "@effect/sql/SqlError";
 import type { Custom, Fragment } from "@effect/sql/Statement";
 import * as Statement from "@effect/sql/Statement";
 import * as PgDrizzle from "@effect/sql-drizzle/Pg";
+import { sql as drizzleSql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/node-postgres";
 import * as Arr from "effect/Array";
 import * as Cause from "effect/Cause";
@@ -53,6 +54,7 @@ import type {
   Transaction,
   TransactionClient,
   TransactionContextShape,
+  TransactionWithTenant,
 } from "./types";
 
 const ATTR_DB_SYSTEM_NAME = "db.system.name";
@@ -476,6 +478,7 @@ export interface Shape<TFullSchema extends DbSchema = DbSchema> {
   readonly client: Client<TFullSchema>;
   readonly execute: ExecuteFn<TFullSchema>;
   readonly transaction: Transaction;
+  readonly transactionWithTenant: TransactionWithTenant;
   readonly makeQuery: MakeQuery<TFullSchema>;
   readonly makeQueryWithSchema: MakeQueryWithSchema<TFullSchema>;
   readonly effectClient: Effect.Effect.Success<ReturnType<typeof PgDrizzle.make<TFullSchema>>>;
@@ -551,6 +554,44 @@ export const make: MakeServiceEffect = <const TFullSchema extends DbSchema = DbS
         )
     );
 
+    const transactionWithTenant: TransactionWithTenant = Effect.fn("Database.transactionWithTenant")(
+      <T, E, R>(orgId: string, txExecute: (tx: TransactionContextShape) => Effect.Effect<T, E, R>) =>
+        Effect.runtime<R>().pipe(
+          Effect.map((runtime) => Runtime.runPromiseExit(runtime)),
+          Effect.flatMap((runPromiseExit) =>
+            Effect.async<T, DatabaseError | E, R>((resume) => {
+              client
+                .transaction(async (tx: TransactionClient<TFullSchema>) => {
+                  // Set the tenant context at the start of the transaction
+                  // SET LOCAL ensures the setting is scoped to this transaction only
+                  await tx.execute(drizzleSql`SET LOCAL app.current_org_id = ${orgId}`);
+
+                  const txWrapper = (fn: (client: TransactionClient<TFullSchema>) => Promise<UnsafeTypes.UnsafeAny>) =>
+                    Effect.tryPromise({
+                      try: () => fn(tx),
+                      catch: logOrThrowError,
+                    });
+
+                  const result = await runPromiseExit(txExecute(txWrapper));
+                  Exit.match(result, {
+                    onSuccess: (value) => {
+                      resume(Effect.succeed(value));
+                    },
+                    onFailure: (cause) => {
+                      if (Cause.isFailure(cause)) {
+                        resume(Effect.fail(Cause.originalError(cause) as E));
+                      } else {
+                        resume(Effect.die(cause));
+                      }
+                    },
+                  });
+                })
+                .catch(logOrThrowError);
+            })
+          )
+        )
+    );
+
     const makeQuery: MakeQuery<TFullSchema> =
       <A, E, R, Input = never>(queryFn: (execute: ExecuteFn<TFullSchema>, input: Input) => Effect.Effect<A, E, R>) =>
       (...args: [Input] extends [never] ? [] : [input: Input]): Effect.Effect<A, E, R> => {
@@ -597,6 +638,7 @@ export const make: MakeServiceEffect = <const TFullSchema extends DbSchema = DbS
       client,
       execute,
       transaction,
+      transactionWithTenant,
       makeQuery,
       makeQueryWithSchema,
       effectClient,

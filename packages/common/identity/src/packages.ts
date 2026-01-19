@@ -75,7 +75,12 @@ const composers = $I.compose(
   "knowledge-tables",
   "knowledge-client",
   "knowledge-server",
-  "knowledge-ui"
+  "knowledge-ui",
+  "wm-domain",
+  "wm-tables",
+  "wm-server",
+  "wm-client",
+  "wm-ui"
 );
 
 /**
@@ -828,7 +833,6 @@ export const $CalendarUiId = composers.$CalendarUiId;
  */
 export const $WrapId = composers.$WrapId;
 
-
 /**
  * Identity composer for the `@beep/wrap` namespace.
  *
@@ -903,3 +907,78 @@ export const $KnowledgeServerId = composers.$KnowledgeServerId;
  * @since 0.1.0
  */
 export const $KnowledgeUiId = composers.$KnowledgeUiId;
+
+/**
+ * Identity composer for the `@beep/wm-domain` namespace.
+ *
+ * @example
+ * ```typescript
+ * import { $WmDomainId } from "@beep/identity/packages"
+ *
+ * const entityId = $WmDomainId.make("Client")
+ * ```
+ *
+ * @category symbols
+ * @since 0.1.0
+ */
+export const $WmDomainId = composers.$WmDomainId;
+
+/**
+ * Identity composer for the `@beep/wm-tables` namespace.
+ *
+ * @example
+ * ```typescript
+ * import { $WmTablesId } from "@beep/identity/packages"
+ *
+ * const tableId = $WmTablesId.make("ClientsTable")
+ * ```
+ *
+ * @category symbols
+ * @since 0.1.0
+ */
+export const $WmTablesId = composers.$WmTablesId;
+
+/**
+ * Identity composer for the `@beep/wm-server` namespace.
+ *
+ * @example
+ * ```typescript
+ * import { $WmServerId } from "@beep/identity/packages"
+ *
+ * const serviceId = $WmServerId.make("ClientService")
+ * ```
+ *
+ * @category symbols
+ * @since 0.1.0
+ */
+export const $WmServerId = composers.$WmServerId;
+
+/**
+ * Identity composer for the `@beep/wm-client` namespace.
+ *
+ * @example
+ * ```typescript
+ * import { $WmClientId } from "@beep/identity/packages"
+ *
+ * const clientId = $WmClientId.make("WmClient")
+ * ```
+ *
+ * @category symbols
+ * @since 0.1.0
+ */
+export const $WmClientId = composers.$WmClientId;
+
+/**
+ * Identity composer for the `@beep/wm-ui` namespace.
+ *
+ * @example
+ * ```typescript
+ * import { $WmUiId } from "@beep/identity/packages"
+ *
+ * const componentId = $WmUiId.make("ClientCard")
+ * ```
+ *
+ * @category symbols
+ * @since 0.1.0
+ */
+export const $WmUiId = composers.$WmUiId;

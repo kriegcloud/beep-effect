@@ -7,11 +7,12 @@
  * @module knowledge-tables/tables/embedding
  * @since 0.1.0
  */
-import {KnowledgeEntityIds} from "@beep/shared-domain";
-import {OrgTable} from "@beep/shared-tables";
-import {vector768} from "@beep/shared-tables/columns";
-import * as pg from "drizzle-orm/pg-core";
 
+import type { Embedding } from "@beep/knowledge-domain/entities";
+import { KnowledgeEntityIds } from "@beep/shared-domain";
+import { OrgTable } from "@beep/shared-tables";
+import { vector768 } from "@beep/shared-tables/columns";
+import * as pg from "drizzle-orm/pg-core";
 /**
  * Embedding table for the knowledge slice.
  *
@@ -23,9 +24,8 @@ import * as pg from "drizzle-orm/pg-core";
  */
 export const embedding = OrgTable.make(KnowledgeEntityIds.EmbeddingId)(
   {
-
     // What this embedding represents
-    entityType: pg.text("entity_type").notNull(), // class | entity | claim | example
+    entityType: pg.text("entity_type").notNull().$type<Embedding.EntityType.Type>(), // class | entity | claim | example
     entityId: pg.text("entity_id").notNull(),
 
     // Ontology scoping
@@ -41,18 +41,19 @@ export const embedding = OrgTable.make(KnowledgeEntityIds.EmbeddingId)(
     // Model provenance
     model: pg.text("model").notNull().default("nomic-embed-text-v1.5"),
   },
-  (
-    // t
-  ) =>
-    [
-      // Unique per (ontology, type, id) - enables upsert
-      // pg.uniqueIndex("idx_embeddings_ontology_entity_unique").on(
-      //   table.ontologyId,
-      //   table.entityType,
-      //   table.entityId
-      // ),
-      // pg.index("idx_embeddings_entity_type_idx").on(table.entityType),
-      // pg.index("idx_embeddings_ontology_type_idx").on(table.ontologyId, table.entityType)
-      // Note: IVFFlat and GIN indexes are created in migration SQL
-    ]
+  (t) => [
+    // Organization ID index for RLS filtering
+    pg
+      .index("embedding_organization_id_idx")
+      .on(t.organizationId),
+    // Unique per (ontology, type, id) - enables upsert
+    // pg.uniqueIndex("idx_embeddings_ontology_entity_unique").on(
+    //   table.ontologyId,
+    //   table.entityType,
+    //   table.entityId
+    // ),
+    // pg.index("idx_embeddings_entity_type_idx").on(table.entityType),
+    // pg.index("idx_embeddings_ontology_type_idx").on(table.ontologyId, table.entityType)
+    // Note: IVFFlat and GIN indexes are created in migration SQL
+  ]
 );

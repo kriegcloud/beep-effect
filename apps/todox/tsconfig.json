@@ -131,7 +131,17 @@
       "@beep/calendar-client": ["../../packages/calendar/client/src/index"],
       "@beep/calendar-client/*": ["../../packages/calendar/client/src/*"],
       "@beep/calendar-ui": ["../../packages/calendar/ui/src/index"],
-      "@beep/calendar-ui/*": ["../../packages/calendar/ui/src/*"]
+      "@beep/calendar-ui/*": ["../../packages/calendar/ui/src/*"],
+      "@beep/knowledge-domain": ["../../packages/knowledge/domain/src/index"],
+      "@beep/knowledge-domain/*": ["../../packages/knowledge/domain/src/*"],
+      "@beep/knowledge-tables": ["../../packages/knowledge/tables/src/index"],
+      "@beep/knowledge-tables/*": ["../../packages/knowledge/tables/src/*"],
+      "@beep/knowledge-server": ["../../packages/knowledge/server/src/index"],
+      "@beep/knowledge-server/*": ["../../packages/knowledge/server/src/*"],
+      "@beep/knowledge-client": ["../../packages/knowledge/client/src/index"],
+      "@beep/knowledge-client/*": ["../../packages/knowledge/client/src/*"],
+      "@beep/knowledge-ui": ["../../packages/knowledge/ui/src/index"],
+      "@beep/knowledge-ui/*": ["../../packages/knowledge/ui/src/*"]
     }
   },
   "include": [
@@ -238,6 +248,21 @@
     },
     {
       "path": "../../packages/documents/ui/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/knowledge/domain/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/knowledge/tables/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/knowledge/server/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/knowledge/client/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/knowledge/ui/tsconfig.build.json"
     }
   ],
   "exclude": ["node_modules"]

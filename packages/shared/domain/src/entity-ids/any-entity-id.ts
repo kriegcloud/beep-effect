@@ -16,7 +16,9 @@ export class AnyEntityId extends S.Union(
   Documents.AnyId,
   Customization.AnyId,
   Comms.AnyId,
-  Calendar.AnyId, Knowledge.AnyId).annotations(
+  Calendar.AnyId,
+  Knowledge.AnyId
+).annotations(
   $I.annotations("AnyEntityId", {
     description: "An entity id for any entity accross all domain contexts.",
   })

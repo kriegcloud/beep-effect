@@ -4,11 +4,244 @@ Comprehensive guide to database design patterns in the beep-effect codebase.
 
 ## Table of Contents
 
+- [Vertical Slice Creation](#vertical-slice-creation)
 - [Foreign Key Design](#foreign-key-design)
 - [Table.make vs OrgTable.make](#tablemake-vs-orgtablemake)
 - [Index Naming Conventions](#index-naming-conventions)
 - [Pre-flight Verification Patterns](#pre-flight-verification-patterns)
 - [Turborepo Verification Cascading](#turborepo-verification-cascading)
+
+---
+
+## Vertical Slice Creation
+
+When creating a new vertical slice (e.g., `packages/knowledge/*`), follow this strict order to ensure domain completeness before database schema creation.
+
+### Creation Order
+
+```
+1. Entity IDs
+   ↓
+2. Domain Models (complete with ALL fields)
+   ↓
+3. Table Definitions
+   ↓
+4. Type Verification (_check.ts)
+   ↓
+5. Repository Implementation
+```
+
+### Step-by-Step Guide
+
+#### 1. Entity IDs (`domain/src/entity-ids/`)
+
+Create branded IDs for each entity using `EntityId.make`.
+
+```typescript
+// packages/knowledge/domain/src/entity-ids/KnowledgeEntityIds.ts
+import { EntityId } from "@beep/shared-domain";
+
+export const KnowledgeEntityIds = {
+  EmbeddingId: EntityId.make("embedding"),
+  DocumentChunkId: EntityId.make("document_chunk"),
+} as const;
+```
+
+Export from barrel file:
+```typescript
+// packages/knowledge/domain/src/entity-ids.ts
+export { KnowledgeEntityIds } from "./entity-ids/KnowledgeEntityIds";
+```
+
+#### 2. Domain Models (`domain/src/entities/`)
+
+Define `M.Class` schemas with **ALL fields the table will have**. This is critical because `_check.ts` only validates table → domain alignment, NOT domain → table completeness.
+
+```typescript
+// packages/knowledge/domain/src/entities/Embedding/Embedding.model.ts
+import * as M from "@effect/sql/Model";
+import * as S from "effect/Schema";
+import { BS } from "@beep/schema";
+import { makeFields } from "@beep/shared-domain";
+import { KnowledgeEntityIds } from "../../entity-ids";
+
+export class Embedding extends M.Class<Embedding>("Embedding")({
+  ...makeFields(KnowledgeEntityIds.EmbeddingId, {
+    // Custom fields - define ALL columns the table will have
+    documentChunkId: KnowledgeEntityIds.DocumentChunkId,
+    embedding: S.Array(S.Number),  // Maps to vector(768) column
+    model: S.String,
+
+    // Optional fields with defaults
+    metadata: BS.FieldOptionOmittable(S.Record({ key: S.String, value: S.Unknown })),
+  }),
+}) {}
+```
+
+**Critical:** If you forget a field here, `_check.ts` will NOT catch it. The table may have 6 columns but the domain only 3, and verification will pass.
+
+#### 3. Table Definitions (`tables/src/tables/`)
+
+Use `Table.make` or `OrgTable.make` with the entity ID from step 1.
+
+```typescript
+// packages/knowledge/tables/src/tables/embedding.table.ts
+import { Table } from "@beep/shared-tables/table";
+import { KnowledgeEntityIds } from "@beep/knowledge-domain";
+import { vector768 } from "@beep/shared-tables/columns";
+import * as pg from "drizzle-orm/pg-core";
+
+export const embeddingTable = Table.make(KnowledgeEntityIds.EmbeddingId)(
+  {
+    // Column names use snake_case, TypeScript uses camelCase
+    document_chunk_id: KnowledgeEntityIds.DocumentChunkId,
+    embedding: vector768("embedding").notNull(),
+    model: pg.text("model").notNull(),
+    metadata: pg.jsonb("metadata"),
+  },
+  (t) => [
+    pg.index("idx_embedding_chunk").on(t.document_chunk_id),
+  ]
+);
+```
+
+**Naming convention:** Column names are `snake_case` in Postgres, `camelCase` in TypeScript.
+
+### Domain Model Field Mapping Reference
+
+When defining `M.Class` domain models for database tables, choose the correct schema type based on the database column and desired TypeScript type:
+
+| Database Column | Domain Schema | Example |
+|-----------------|---------------|---------|
+| `text NOT NULL` | `S.String` | `name: S.String` |
+| `boolean DEFAULT false` | `BS.BoolWithDefault(false)` | `isActive: BS.BoolWithDefault(true)` |
+| `text` (nullable) | `BS.FieldOptionOmittable(S.String)` | `notes: BS.FieldOptionOmittable(S.String)` |
+| `vector(768)` | `S.Array(S.Number)` | `embedding: S.Array(S.Number)` |
+| `text CHECK (...)` (enum) | `BS.StringLiteralKit(...)` | `class Status extends BS.StringLiteralKit("active", "inactive") {}` |
+| `text` (email) | `BS.EmailBase` | `email: BS.EmailBase` |
+| `timestamptz` | `BS.DateTimeUtcFromAllAcceptable` | `timestamp: BS.DateTimeUtcFromAllAcceptable` |
+| `bytea` | `S.Uint8Array` | `data: S.Uint8Array` |
+| `jsonb` | `S.Record({ key: S.String, value: S.Unknown })` | `metadata: S.Record(...)` |
+
+**Common mistakes:**
+
+```typescript
+// WRONG - Using internal implementation
+const Schema = S.Struct({
+  enabled: BS.toOptionalWithDefault(S.Boolean, false)  // Don't use internal helper!
+});
+
+// CORRECT - Using public BS helper
+const Schema = S.Struct({
+  enabled: BS.BoolWithDefault(false)
+});
+
+// WRONG - Vector column with wrong type
+class Embedding extends M.Class<Embedding>("Embedding")({
+  ...makeFields(EmbeddingId, {
+    embedding: S.String,  // Wrong! Vectors are arrays, not strings
+  }),
+}) {}
+
+// CORRECT - Vector column with ReadonlyArray<number>
+class Embedding extends M.Class<Embedding>("Embedding")({
+  ...makeFields(EmbeddingId, {
+    embedding: S.Array(S.Number),  // Maps to vector(N) column type
+  }),
+}) {}
+```
+
+#### 4. Type Verification (`tables/src/_check.ts`)
+
+Add select/insert type assertions to ensure table-domain alignment.
+
+```typescript
+// packages/knowledge/tables/src/_check.ts
+import type { InferInsertModel, InferSelectModel } from "drizzle-orm";
+import type { Embedding } from "@beep/knowledge-domain/entities";
+import type { embeddingTable } from "./tables/embedding.table";
+
+// Select type assertion (table → domain)
+({}) as InferSelectModel<typeof embeddingTable> satisfies Embedding.Encoded;
+
+// Insert type assertion (ensures required fields match)
+({}) as InferInsertModel<typeof embeddingTable> satisfies Embedding.Encoded;
+```
+
+Run verification:
+```bash
+bun run check --filter @beep/knowledge-tables
+```
+
+**Limitation:** This only validates that table types satisfy domain types (table → domain). It does NOT check if the domain has all table fields. See [`_check.ts` Type Assertion Asymmetry](../../packages/shared/tables/CLAUDE.md#integration-with-domain-entities) for details.
+
+#### 5. Repository (`server/src/db/repos/`)
+
+Create repository using table and domain model.
+
+```typescript
+// packages/knowledge/server/src/db/repos/EmbeddingRepo.ts
+import { Embedding } from "@beep/knowledge-domain/entities";
+import { embeddingTable } from "@beep/knowledge-tables";
+import { makeRepo } from "@beep/shared-tables/repo";
+
+export class EmbeddingRepo extends makeRepo(embeddingTable, Embedding) {}
+```
+
+### Verification Checklist
+
+Before considering slice creation complete:
+
+- [ ] Entity IDs registered in `domain/src/entity-ids/`
+- [ ] Domain models define ALL fields (not just subset)
+- [ ] Tables use correct entity IDs
+- [ ] `_check.ts` assertions added for all tables
+- [ ] `bun run check --filter @beep/slice-domain` passes
+- [ ] `bun run check --filter @beep/slice-tables` passes
+- [ ] Migration generated: `bun run db:generate`
+- [ ] Migration applied successfully: `bun run db:migrate`
+
+### Common Mistakes
+
+**1. Incomplete Domain Models**
+```typescript
+// WRONG - Domain missing fields
+class Embedding extends M.Class<Embedding>("Embedding")({
+  ...makeFields(KnowledgeEntityIds.EmbeddingId, {
+    embedding: S.Array(S.Number),  // Missing documentChunkId, model, metadata
+  }),
+}) {}
+
+// Table has more fields than domain
+export const embeddingTable = Table.make(KnowledgeEntityIds.EmbeddingId)({
+  document_chunk_id: KnowledgeEntityIds.DocumentChunkId,  // Not in domain!
+  embedding: vector768("embedding").notNull(),
+  model: pg.text("model").notNull(),  // Not in domain!
+});
+
+// _check.ts PASSES but domain is incomplete!
+({}) as InferSelectModel<typeof embeddingTable> satisfies Embedding.Encoded;  // ✅ No error
+```
+
+**2. Creating Table Before Domain**
+```typescript
+// WRONG - Creates table first, domain model is incomplete placeholder
+// Problem: _check.ts can't validate completeness, only compatibility
+```
+
+**3. Forgetting Entity ID**
+```typescript
+// WRONG - Trying to use Table.make without entity ID
+export const embeddingTable = Table.make("embedding")({  // Type error!
+  // ...
+});
+
+// CORRECT - Entity ID must exist first
+import { KnowledgeEntityIds } from "@beep/knowledge-domain";
+export const embeddingTable = Table.make(KnowledgeEntityIds.EmbeddingId)({
+  // ...
+});
+```
 
 ---
 

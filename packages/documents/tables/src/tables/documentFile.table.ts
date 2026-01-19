@@ -21,6 +21,10 @@ export const documentFile = OrgTable.make(DocumentsEntityIds.DocumentFileId)(
     type: pg.text("type").notNull(),
   },
   (t) => [
+    // Organization ID index for RLS filtering
+    pg
+      .index("document_file_org_id_idx")
+      .on(t.organizationId),
     pg.index("document_file_user_idx").on(t.userId),
     pg.index("document_file_document_idx").on(t.documentId),
     pg.index("document_file_type_idx").on(t.type),

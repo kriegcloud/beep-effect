@@ -12,5 +12,11 @@ export const folder = OrgTable.make(SharedEntityIds.FolderId)(
       .$type<SharedEntityIds.UserId.Type>(),
     name: pg.text("name").notNull(),
   },
-  (t) => [pg.index("folder_user_idx").on(t.userId)]
+  (t) => [
+    // Organization ID index for RLS filtering
+    pg
+      .index("folder_organization_id_idx")
+      .on(t.organizationId),
+    pg.index("folder_user_idx").on(t.userId),
+  ]
 );

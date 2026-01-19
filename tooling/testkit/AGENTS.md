@@ -16,6 +16,48 @@
   - `layer` builds memoised runtimes (`Layer.toRuntimeWithMemoMap`) while optionally injecting `TestContext`.
   - `flakyTest` uses `Effect.retry` + `Schedule` combinators to stabilize intermittently failing specs.
   - `makeMethods` is the template for callers constructing bespoke `it` facades.
+- `tooling/testkit/src/rls/` houses RLS (Row-Level Security) test helpers for tenant isolation testing.
+
+### RLS Test Helpers
+
+The `@beep/testkit/rls` module provides helpers for testing RLS tenant isolation:
+
+```typescript
+import { withTestTenant, assertNoRowsWithoutContext, TenantContextTag } from "@beep/testkit/rls";
+import { TenantContext } from "@beep/shared-server";
+import * as Effect from "effect/Effect";
+import * as Layer from "effect/Layer";
+
+// Map TenantContext to TenantContextTag in test layer
+const TestLayer = BaseLayer.pipe(
+  Layer.provideMerge(
+    Layer.effect(TenantContextTag, Effect.gen(function* () {
+      return yield* TenantContext.TenantContext;
+    }))
+  )
+);
+
+// Use in tests
+it.effect("enforces tenant isolation", () =>
+  withTestTenant("org-a", Effect.gen(function* () {
+    const sql = yield* SqlClient.SqlClient;
+    const result = yield* sql`SELECT * FROM iam_member`;
+    // Only returns rows for org-a
+  }))
+);
+```
+
+**Available Helpers**:
+| Helper | Purpose |
+|--------|---------|
+| `withTestTenant(orgId, effect)` | Execute effect with tenant context |
+| `setTestTenant(orgId)` | Set tenant context |
+| `clearTestTenant()` | Clear tenant context |
+| `assertNoRowsWithoutContext(query)` | Verify RLS blocks without context |
+| `assertTenantIsolation(orgA, orgB, query)` | Verify cross-tenant isolation |
+| `assertTenantIsolationForSession(orgA, orgB, query)` | For session table (uses `activeOrganizationId`) |
+
+**Critical**: The helpers require `TenantContextTag` to be provided in your test Layer. See `documentation/patterns/rls-patterns.md` for comprehensive RLS patterns.
 
 ## Usage Snapshots
 - `test/Dummy.test.ts` — Basic smoke test demonstrating the test infrastructure works.

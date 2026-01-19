@@ -16,7 +16,14 @@ const $I = $SharedDomainId.create("entity-ids/knowledge/any-id");
  * @since 0.1.0
  * @category ids
  */
-export class AnyId extends S.Union(Ids.EmbeddingId).annotations(
+export class AnyId extends S.Union(
+  Ids.EmbeddingId,
+  Ids.KnowledgeEntityId,
+  Ids.RelationId,
+  Ids.OntologyId,
+  Ids.ExtractionId,
+  Ids.MentionId
+).annotations(
   $I.annotations("AnyKnowledgeId", {
     description: "Any entity id within the knowledge domain context",
   })

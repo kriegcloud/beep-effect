@@ -21,15 +21,16 @@ const SignInLayout: React.FC<Props> = ({ children }) => {
           <SplashScreen portal={false} />
         </AuthSplitLayout>
       }
-    >
-      <AuthSplitLayout
-        slotProps={{
-          section: { title: "Hey there! Welcome back." },
-        }}
-      >
-        {children}
-      </AuthSplitLayout>
-    </GuestGuard>
+      render={() => (
+        <AuthSplitLayout
+          slotProps={{
+            section: { title: "Hey there! Welcome back." },
+          }}
+        >
+          {children}
+        </AuthSplitLayout>
+      )}
+    />
   );
 };
 

@@ -16,6 +16,11 @@ export const teamMember = OrgTable.make(IamEntityIds.TeamMemberId)(
       .references(() => user.id, { onDelete: "cascade", onUpdate: "cascade" }),
   },
   (t) => [
+    // Organization ID index for RLS filtering
+    pg
+      .index("team_member_organization_id_idx")
+      .on(t.organizationId),
+
     // Foreign key indexes for join performance
     pg
       .index("team_member_team_id_idx")

@@ -18,6 +18,12 @@ export * from "bun:test";
 export * from "./assert";
 
 /**
+ * RLS (Row-Level Security) test helpers namespace export
+ * @since 1.0.0
+ */
+export * as RLS from "./rls";
+
+/**
  * @since 0.1.0
  */
 export declare namespace BunTest {

@@ -58,6 +58,13 @@ export * from "./function";
  */
 export * from "./geo";
 /**
+ * Graph schemas for Effect's Graph module (nodes, edges, directed/undirected graphs).
+ *
+ * @category Surface/Primitives
+ * @since 0.1.0
+ */
+export * from "./graph";
+/**
  * JSON-safe schema helpers.
  *
  * @category Surface/Primitives

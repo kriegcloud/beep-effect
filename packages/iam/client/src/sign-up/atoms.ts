@@ -1,3 +1,4 @@
+"use client";
 /**
  * @fileoverview Sign-up atoms for reactive email registration.
  *

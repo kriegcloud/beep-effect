@@ -5,9 +5,36 @@
  * This module contains:
  * - Database client (KnowledgeDb)
  * - Repositories
- * - Server-side services
+ * - Ontology parsing and management
+ * - NLP text processing
+ * - AI-powered extraction pipeline
+ * - Knowledge graph assembly
  *
  * @module knowledge-server
  * @since 0.1.0
  */
 export * from "./db";
+
+/**
+ * AI service exports
+ * @since 0.1.0
+ */
+export * as Ai from "./Ai";
+
+/**
+ * Extraction pipeline exports
+ * @since 0.1.0
+ */
+export * as Extraction from "./Extraction";
+
+/**
+ * NLP text processing exports
+ * @since 0.1.0
+ */
+export * as Nlp from "./Nlp";
+
+/**
+ * Ontology service exports
+ * @since 0.1.0
+ */
+export * as Ontology from "./Ontology";

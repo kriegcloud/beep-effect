@@ -1,7 +1,7 @@
 import * as pg from "drizzle-orm/pg-core";
-import * as Str from "effect/String";
 import * as A from "effect/Array";
 import { pipe } from "effect/Function";
+import * as Str from "effect/String";
 // =============================================================================
 // Custom Types
 // =============================================================================
@@ -18,17 +18,17 @@ import { pipe } from "effect/Function";
 export const vectorN = (dimension: number) =>
   pg.customType<{ data: ReadonlyArray<number>; driverData: string }>({
     dataType() {
-      return `vector(${dimension})`
+      return `vector(${dimension})`;
     },
     toDriver(value: ReadonlyArray<number>): string {
-      return `[${value.join(",")}]`
+      return `[${value.join(",")}]`;
     },
     fromDriver(value: string): ReadonlyArray<number> {
       // Parse "[0.1,0.2,...]" format from PostgreSQL
-      const cleaned = Str.replace(/^\[|]$/g, "")(value)
-      return pipe(cleaned, Str.split(","), A.map(Number))
-    }
-  })
+      const cleaned = Str.replace(/^\[|]$/g, "")(value);
+      return pipe(cleaned, Str.split(","), A.map(Number));
+    },
+  });
 
 /**
  * Custom type for pgvector embedding columns (768-dimensional).
@@ -37,7 +37,7 @@ export const vectorN = (dimension: number) =>
  * @since 2.0.0
  * @category Custom Types
  */
-export const vector768 = vectorN(768)
+export const vector768 = vectorN(768);
 
 /**
  * Custom type for pgvector embedding columns (512-dimensional).
@@ -46,7 +46,7 @@ export const vector768 = vectorN(768)
  * @since 2.0.0
  * @category Custom Types
  */
-export const vector512 = vectorN(512)
+export const vector512 = vectorN(512);
 
 /**
  * Custom type for pgvector embedding columns (1024-dimensional).
@@ -55,7 +55,7 @@ export const vector512 = vectorN(512)
  * @since 2.0.0
  * @category Custom Types
  */
-export const vector1024 = vectorN(1024)
+export const vector1024 = vectorN(1024);
 
 /**
  * Custom type for pgvector embedding columns (256-dimensional).
@@ -64,4 +64,4 @@ export const vector1024 = vectorN(1024)
  * @since 2.0.0
  * @category Custom Types
  */
-export const vector256 = vectorN(256)
+export const vector256 = vectorN(256);

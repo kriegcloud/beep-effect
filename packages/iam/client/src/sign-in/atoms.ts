@@ -1,3 +1,4 @@
+"use client";
 /**
  * @fileoverview
  * Reactive atoms for sign-in flows with toast feedback.

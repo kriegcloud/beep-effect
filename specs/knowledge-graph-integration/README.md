@@ -1,39 +1,28 @@
-import type { EntityId } from "@beep/schema/identity";
-import type { HasDefault, HasRuntimeDefault, NotNull } from "drizzle-orm";
-import type * as pg from "drizzle-orm/pg-core";
-import type * as DateTime from "effect/DateTime";
+# Knowledge Graph Integration
 
+> Integrate effect-ontology patterns into beep-effect for structured knowledge extraction, ontology-guided reasoning, and GraphRAG context assembly.
 
+---
 
+## Overview
 
-/** Custom datetime column builder type for audit columns */
-type DateTimeColumnBuilder<TName extends string> = pg.PgCustomColumnBuilder<{
-  name: TName;
-  dataType: "custom";
-  columnType: "PgCustomColumn";
-  data: string | number | Date | DateTime.Utc;
-  driverParam: string;
-  enumValues: undefined;
-}>;
+This specification integrates **effect-ontology** patterns into the **beep-effect** monorepo to enable:
 
-export type DefaultColumns<TableName extends string, Brand extends string> = {
-  id: EntityId.EntityId.PublicIdColumn<TableName>;
-  _rowId: EntityId.EntityId.PrivateIdColumn<Brand>;
-  createdAt: HasRuntimeDefault<HasDefault<NotNull<DateTimeColumnBuilder<"created_at">>>>;
-  updatedAt: HasDefault<NotNull<DateTimeColumnBuilder<"updated_at">>>;
-  deletedAt: DateTimeColumnBuilder<"deleted_at">;
-  createdBy: pg.PgTextBuilderInitial<"created_by", [string, ...string[]]>;
-  updatedBy: pg.PgTextBuilderInitial<"updated_by", [string, ...string[]]>;
-  deletedBy: pg.PgTextBuilderInitial<"deleted_by", [string, ...string[]]>;
-  version: HasDefault<HasDefault<NotNull<pg.PgIntegerBuilderInitial<"version">>>>;
-  source: pg.PgTextBuilderInitial<"source", [string, ...string[]]>;
-};
-
-export * from "./index";
+1. **Extract structured knowledge** from unstructured text (emails, documents)
 2. **Model domain relationships** via formal OWL ontologies
 3. **Provide intelligent agent context** through GraphRAG subgraph retrieval
 4. **Unify multi-source data** via entity resolution and canonical schemas
 5. **Maintain compliance audit trails** with evidence-linked provenance
+
+### Current State
+
+The `packages/knowledge/*` vertical slice has been **bootstrapped** with:
+- All 5 packages (domain, tables, server, client, ui) scaffolded
+- `Embedding` entity model as a starter pattern
+- `embedding` table as a starter pattern
+- Basic Db service structure with `Embedding.repo.ts`
+
+**Phase 0** extends this bootstrapped structure with the actual knowledge graph models (Entity, Relation, Extraction, Ontology) rather than creating from scratch.
 
 ### Core Concepts from Effect Ontology
 

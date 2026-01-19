@@ -48,19 +48,20 @@
     "@beep/schema": "workspace:^"
   },
   "devDependencies": {
+    "@beep/knowledge-domain": "workspace:^",
+    "@beep/knowledge-tables": "workspace:^",
+    "@beep/schema": "workspace:^",
+    "@beep/shared-domain": "workspace:^",
+    "@beep/shared-server": "workspace:^",
     "@effect/docgen": "catalog:",
+    "@effect/platform": "catalog:",
     "@effect/sql": "catalog:",
     "@effect/sql-drizzle": "catalog:",
     "@effect/sql-pg": "catalog:",
-    "@beep/knowledge-domain": "workspace:^",
-    "@beep/knowledge-tables": "workspace:^",
-    "@effect/platform": "catalog:",
-    "@beep/shared-server": "workspace:^",
+    "@total-typescript/ts-reset": "catalog:",
+    "@types/n3": "^1.26.1",
     "drizzle-orm": "catalog:",
-    "effect": "catalog:",
-    "@beep/shared-domain": "workspace:^",
-    "@beep/schema": "workspace:^",
-    "@total-typescript/ts-reset": "catalog:"
+    "effect": "catalog:"
   },
   "effect": {
     "generateExports": {
@@ -73,5 +74,8 @@
         "**/*.ts"
       ]
     }
+  },
+  "dependencies": {
+    "n3": "^2.0.1"
   }
 }

@@ -1,93 +1,52 @@
 # Effect Testing Patterns Reference
 
-Comprehensive patterns and examples for testing Effect-based code in the beep-effect monorepo.
+Comprehensive patterns for testing Effect-based code in the beep-effect monorepo using `@beep/testkit`.
 
 ---
 
-## Test Runner Selection Guide
+## Test Runner Selection
 
-### `effect` - Standard Effect Tests
-Use for most Effect-based tests. Provides TestClock, TestRandom, TestConsole.
+| Runner | Use Case | TestServices |
+|--------|----------|--------------|
+| `effect()` | Standard Effect tests | Yes (TestClock, TestRandom) |
+| `scoped()` | Resource management (acquireRelease) | Yes + Scope |
+| `live()` | Pure logic without mocked services | No |
+| `scopedLive()` | Resources with real Clock/Random | No + Scope |
+| `layer()` | Shared expensive resources (DB, services) | Configurable |
+
+### Basic Examples
 
 ```typescript
-import { effect, strictEqual } from "@beep/testkit"
+import { effect, scoped, live, layer, strictEqual } from "@beep/testkit"
 import * as Effect from "effect/Effect"
+import * as Duration from "effect/Duration"
 
-effect("creates resource successfully", () =>
+// Standard test
+effect("creates resource", () =>
   Effect.gen(function* () {
-    const resource = yield* createResource({ name: "test" })
-    strictEqual(resource.name, "test")
+    const result = yield* createResource({ name: "test" })
+    strictEqual(result.name, "test")
   })
 )
-```
 
-### `scoped` - Tests with Resource Management
-Use when testing code that acquires/releases resources (Effect.acquireRelease, Scope).
-
-```typescript
-import { scoped, strictEqual } from "@beep/testkit"
-import * as Effect from "effect/Effect"
-
-scoped("cleans up resources on completion", () =>
+// Resource cleanup
+scoped("cleans up on completion", () =>
   Effect.gen(function* () {
     const resource = yield* acquireResource()
     yield* useResource(resource)
-    // Finalizers run automatically after test
+    // Finalizers run automatically
   })
 )
-```
 
-### `live` - Tests Without Test Services
-Use for pure logic that shouldn't use TestClock/TestRandom.
-
-```typescript
-import { live, strictEqual } from "@beep/testkit"
-
-live("computes value without mocked services", () =>
-  Effect.gen(function* () {
-    const result = yield* pureComputation(42)
-    strictEqual(result, 84)
-  })
-)
-```
-
-### `scopedLive` - Scoped Tests Without Test Services
-Use for resource management with real clock/random.
-
-```typescript
-import { scopedLive } from "@beep/testkit"
-
-scopedLive("manages real resources", () =>
-  Effect.gen(function* () {
-    const conn = yield* acquireConnection()
-    // Real timing, real random
-  })
-)
-```
-
-### `layer` - Shared Layer Across Tests
-Use to share expensive resources (database connections, service layers).
-
-```typescript
-import { describe } from "bun:test"
-import { layer } from "@beep/testkit"
-import * as Duration from "effect/Duration"
-
-layer(MyDbLayer, { timeout: Duration.seconds(30) })(
+// Shared layer
+layer(DbLayer, { timeout: Duration.seconds(30) })(
   "database operations",
   (it) => {
     it.effect("queries data", () =>
       Effect.gen(function* () {
-        const db = yield* MyDbService
+        const db = yield* Database
         const result = yield* db.query("SELECT 1")
         strictEqual(result.length, 1)
-      })
-    )
-
-    it.scoped("handles transactions", () =>
-      Effect.gen(function* () {
-        const db = yield* MyDbService
-        yield* db.transaction(/* ... */)
       })
     )
   }
@@ -96,62 +55,23 @@ layer(MyDbLayer, { timeout: Duration.seconds(30) })(
 
 ---
 
-## Assertion Methods
+## Assertions
 
-### From @beep/testkit - Use These
-
-```typescript
-import {
-  strictEqual,        // toBe - reference equality
-  deepStrictEqual,    // toEqual - deep structural equality
-  notDeepStrictEqual, // not.toEqual
-  assertEquals,       // Effect's Equal.equals trait
-  assertTrue,         // value is true
-  assertFalse,        // value is false
-  assertNone,         // Option is None
-  assertSome,         // Option is Some(expected)
-  assertLeft,         // Either is Left(expected)
-  assertRight,        // Either is Right(expected)
-  assertSuccess,      // Exit is Success(expected)
-  assertFailure,      // Exit is Failure(cause)
-  assertInclude,      // string contains substring
-  assertMatch,        // string matches regex
-  assertInstanceOf,   // value instanceof Constructor
-  fail,               // throw assertion error
-  doesNotThrow,       // function doesn't throw
-  throws,             // function throws (with optional matcher)
-  throwsAsync,        // async function throws
-} from "@beep/testkit"
-```
-
-### Usage Examples
-
-```typescript
-// Primitive assertions
-strictEqual(actual, expected)
-deepStrictEqual(actualObject, expectedObject)
-assertTrue(condition)
-assertFalse(condition)
-
-// Option assertions
-const maybeValue = yield* findById(id)
-assertNone(maybeValue)  // or
-assertSome(maybeValue, expectedValue)
-
-// Either assertions
-const result = yield* Effect.either(parseInput(data))
-assertRight(result, expectedParsed)  // or
-assertLeft(result, expectedError)
-
-// Exit assertions - for error testing
-const exit = yield* Effect.exit(riskyOperation())
-assertSuccess(exit, expectedValue)  // or
-assertFailure(exit, expectedCause)
-
-// String assertions
-assertInclude(logOutput, "expected message")
-assertMatch(formatted, /pattern/)
-```
+| Function | Purpose | Example |
+|----------|---------|---------|
+| `strictEqual(a, b)` | Reference equality (toBe) | `strictEqual(result, 42)` |
+| `deepStrictEqual(a, b)` | Deep structural equality | `deepStrictEqual(obj, expected)` |
+| `assertTrue(val)` | Assert truthy | `assertTrue(isValid)` |
+| `assertFalse(val)` | Assert falsy | `assertFalse(isEmpty)` |
+| `assertNone(opt)` | Option is None | `assertNone(maybeValue)` |
+| `assertSome(opt, val)` | Option is Some | `assertSome(result, expected)` |
+| `assertLeft(either, val)` | Either is Left | `assertLeft(result, error)` |
+| `assertRight(either, val)` | Either is Right | `assertRight(result, value)` |
+| `assertSuccess(exit, val)` | Exit is Success | `assertSuccess(exit, result)` |
+| `assertFailure(exit, cause)` | Exit is Failure | `assertFailure(exit, cause)` |
+| `assertInclude(str, sub)` | String contains | `assertInclude(log, "message")` |
+| `assertMatch(str, regex)` | String matches | `assertMatch(fmt, /pattern/)` |
+| `fail(msg)` | Force failure | `fail("Should not reach here")` |
 
 ---
 
@@ -160,199 +80,112 @@ assertMatch(formatted, /pattern/)
 **CRITICAL**: Any code with timing MUST use TestClock to avoid flaky tests.
 
 ### When to Use TestClock
-- `Effect.sleep()`, `Effect.delay()`
-- `Effect.timeout()`, `Effect.race()` with timeouts
+
+- `Effect.sleep()`, `Effect.delay()`, `Effect.timeout()`
 - `Effect.schedule()`, `Effect.retry()` with schedules
 - Cache TTL, rate limiting, debouncing
 - Any concurrent operations with timing dependencies
 
-### TestClock Patterns
+### Fork → Adjust → Join Pattern
 
 ```typescript
-import { describe } from "bun:test"
-import { effect, scoped, strictEqual } from "@beep/testkit"
-import * as Effect from "effect/Effect"
 import * as TestClock from "effect/TestClock"
 import * as Duration from "effect/Duration"
 
-describe("time-dependent operations", () => {
-  effect("completes after delay", () =>
-    Effect.gen(function* () {
-      const fiber = yield* Effect.fork(
-        Effect.gen(function* () {
-          yield* Effect.sleep(Duration.seconds(5))
-          return "completed"
-        })
-      )
-
-      // Advance virtual time
-      yield* TestClock.adjust(Duration.seconds(5))
-
-      const result = yield* Effect.join(fiber)
-      strictEqual(result, "completed")
-    })
-  )
-
-  scoped("expires cache after TTL", () =>
-    Effect.gen(function* () {
-      const cache = yield* ManualCache.make<string, string>({
-        capacity: 100,
-        timeToLive: "1 second",
-      })
-
-      yield* cache.set("key", "value")
-
-      // Value exists before expiry
-      const before = yield* cache.get("key")
-      strictEqual(before._tag, "Some")
-
-      // Advance past TTL
-      yield* TestClock.adjust("2 seconds")
-
-      // Value expired
-      const after = yield* cache.get("key")
-      strictEqual(after._tag, "None")
-    })
-  )
-
-  effect("times out when deadline exceeded", () =>
-    Effect.gen(function* () {
-      const slowOperation = Effect.sleep(Duration.seconds(10))
-
-      const fiber = yield* Effect.fork(
-        Effect.timeout(slowOperation, Duration.seconds(5))
-      )
-
-      // Advance to trigger timeout
-      yield* TestClock.adjust(Duration.seconds(5))
-
-      const result = yield* Effect.exit(Effect.join(fiber))
-      strictEqual(result._tag, "Failure")
-    })
-  )
-
-  scoped("respects scheduled retry delays", () =>
-    Effect.gen(function* () {
-      let attempts = 0
-      const failingEffect = Effect.gen(function* () {
-        attempts++
-        if (attempts < 3) {
-          return yield* Effect.fail("not ready")
-        }
-        return "success"
-      })
-
-      const retried = failingEffect.pipe(
-        Effect.retry({
-          times: 3,
-          schedule: Schedule.spaced(Duration.seconds(1))
-        })
-      )
-
-      const fiber = yield* Effect.fork(retried)
-
-      // Advance through retry delays
-      yield* TestClock.adjust(Duration.seconds(1))  // First retry
-      yield* TestClock.adjust(Duration.seconds(1))  // Second retry
-
-      const result = yield* Effect.join(fiber)
-      strictEqual(result, "success")
-      strictEqual(attempts, 3)
-    })
-  )
-})
-```
-
-### TestClock + Effect.yieldNow()
-Use `Effect.yieldNow()` when scheduled effects need to run:
-
-```typescript
-scoped("handles periodic cleanup", () =>
+effect("completes after delay", () =>
   Effect.gen(function* () {
-    const cache = yield* createCacheWithPeriodicEviction()
+    // 1. Fork the time-dependent operation
+    const fiber = yield* Effect.fork(
+      Effect.gen(function* () {
+        yield* Effect.sleep(Duration.seconds(5))
+        return "completed"
+      })
+    )
 
-    yield* TestClock.adjust("31 seconds")
-    yield* Effect.yieldNow()  // Allow scheduled eviction to run
+    // 2. Advance virtual time
+    yield* TestClock.adjust(Duration.seconds(5))
 
-    const size = yield* cache.size
-    strictEqual(size, 0)
+    // 3. Join and verify
+    const result = yield* Fiber.join(fiber)
+    strictEqual(result, "completed")
   })
 )
 ```
 
----
-
-## Error Handling Tests
-
-### Testing Expected Failures
+### Cache TTL Pattern
 
 ```typescript
-import { effect, strictEqual, assertTrue, deepStrictEqual } from "@beep/testkit"
-import * as Effect from "effect/Effect"
-import * as Exit from "effect/Exit"
-import * as Cause from "effect/Cause"
-
-describe("error handling", () => {
-  effect("fails with validation error for invalid input", () =>
-    Effect.gen(function* () {
-      const exit = yield* Effect.exit(
-        validateUser({ name: "", age: -1 })
-      )
-
-      strictEqual(exit._tag, "Failure")
-
-      if (Exit.isFailure(exit)) {
-        const error = Cause.failureOption(exit.cause)
-        assertTrue(error._tag === "Some")
-        strictEqual(error.value._tag, "ValidationError")
-      }
+scoped("expires cache after TTL", () =>
+  Effect.gen(function* () {
+    const cache = yield* ManualCache.make<string, string>({
+      capacity: 100,
+      timeToLive: "1 second",
     })
-  )
 
-  effect("captures error details correctly", () =>
-    Effect.gen(function* () {
-      const result = yield* Effect.either(
-        fetchUser("nonexistent-id")
-      )
+    yield* cache.set("key", "value")
+    assertSome(yield* cache.get("key"), "value")
 
-      if (result._tag === "Left") {
-        strictEqual(result.left._tag, "NotFoundError")
-        assertInclude(result.left.message, "nonexistent-id")
-      } else {
-        fail("Expected operation to fail")
-      }
-    })
-  )
-
-  effect("recovers from transient errors", () =>
-    Effect.gen(function* () {
-      let callCount = 0
-      const flakyOperation = Effect.gen(function* () {
-        callCount++
-        if (callCount < 3) {
-          return yield* Effect.fail(new TransientError())
-        }
-        return "success"
-      })
-
-      const result = yield* flakyOperation.pipe(
-        Effect.retry({ times: 3 })
-      )
-
-      strictEqual(result, "success")
-      strictEqual(callCount, 3)
-    })
-  )
-})
+    yield* TestClock.adjust("2 seconds")
+    assertNone(yield* cache.get("key"))
+  })
+)
 ```
 
-### Testing Schema Validation Errors
+### With Effect.yieldNow()
+
+Use when scheduled effects need to run:
 
 ```typescript
-import { effect, strictEqual } from "@beep/testkit"
-import * as Effect from "effect/Effect"
-import * as S from "effect/Schema"
+yield* TestClock.adjust("31 seconds")
+yield* Effect.yieldNow()  // Allow scheduled effect to run
+```
 
+---
+
+## Error Testing
+
+### Using Effect.exit
+
+```typescript
+effect("fails with validation error", () =>
+  Effect.gen(function* () {
+    const exit = yield* Effect.exit(
+      validateUser({ name: "", age: -1 })
+    )
+
+    strictEqual(exit._tag, "Failure")
+
+    if (Exit.isFailure(exit)) {
+      const error = Cause.failureOption(exit.cause)
+      assertTrue(error._tag === "Some")
+      strictEqual(error.value._tag, "ValidationError")
+    }
+  })
+)
+```
+
+### Using Effect.either
+
+```typescript
+effect("captures error details", () =>
+  Effect.gen(function* () {
+    const result = yield* Effect.either(
+      fetchUser("nonexistent-id")
+    )
+
+    if (result._tag === "Left") {
+      strictEqual(result.left._tag, "NotFoundError")
+      assertInclude(result.left.message, "nonexistent-id")
+    } else {
+      fail("Expected operation to fail")
+    }
+  })
+)
+```
+
+### Schema Validation
+
+```typescript
 effect("rejects invalid schema input", () =>
   Effect.gen(function* () {
     const UserSchema = S.Struct({
@@ -371,69 +204,32 @@ effect("rejects invalid schema input", () =>
 
 ---
 
-## Service and Layer Testing
+## Service Mocking
 
-### Mocking Services
+### Inline Layer
 
 ```typescript
-import { effect, strictEqual, deepStrictEqual } from "@beep/testkit"
-import * as Effect from "effect/Effect"
-import * as Layer from "effect/Layer"
-import * as Context from "effect/Context"
+effect("uses mock repository", () =>
+  Effect.gen(function* () {
+    const mockUser = { id: "1", name: "Test" }
 
-// Service definition
-class UserRepository extends Context.Tag("UserRepository")<
-  UserRepository,
-  {
-    readonly findById: (id: string) => Effect.Effect<User | null>
-    readonly save: (user: User) => Effect.Effect<User>
-  }
->() {}
-
-describe("UserService", () => {
-  effect("fetches user from repository", () =>
-    Effect.gen(function* () {
-      const mockUser = { id: "1", name: "Test User" }
-
-      const result = yield* UserService.getUser("1").pipe(
-        Effect.provide(
-          Layer.succeed(UserRepository, {
-            findById: (id) => Effect.succeed(id === "1" ? mockUser : null),
-            save: (user) => Effect.succeed(user)
-          })
-        )
+    const result = yield* UserService.getUser("1").pipe(
+      Effect.provide(
+        Layer.succeed(UserRepository, {
+          findById: (id) => Effect.succeed(id === "1" ? mockUser : null),
+          save: (user) => Effect.succeed(user)
+        })
       )
+    )
 
-      deepStrictEqual(result, mockUser)
-    })
-  )
-
-  effect("handles repository errors", () =>
-    Effect.gen(function* () {
-      const exit = yield* Effect.exit(
-        UserService.getUser("1").pipe(
-          Effect.provide(
-            Layer.succeed(UserRepository, {
-              findById: () => Effect.fail(new DatabaseError("connection lost")),
-              save: () => Effect.fail(new DatabaseError("connection lost"))
-            })
-          )
-        )
-      )
-
-      strictEqual(exit._tag, "Failure")
-    })
-  )
-})
+    deepStrictEqual(result, mockUser)
+  })
+)
 ```
 
-### Using layer() for Shared Services
+### Shared Test Layer
 
 ```typescript
-import { describe } from "bun:test"
-import { layer, strictEqual } from "@beep/testkit"
-import * as Duration from "effect/Duration"
-
 const TestDbLayer = Layer.mergeAll(
   DbConnectionLive,
   MigrationLayer,
@@ -441,35 +237,14 @@ const TestDbLayer = Layer.mergeAll(
 )
 
 layer(TestDbLayer, { timeout: Duration.seconds(60) })(
-  "database integration tests",
+  "database integration",
   (it) => {
     it.effect("creates and retrieves user", () =>
       Effect.gen(function* () {
         const repo = yield* UserRepository
-
-        const created = yield* repo.save({
-          name: "New User",
-          email: "new@example.com"
-        })
-
+        const created = yield* repo.save({ name: "Alice", email: "a@test.com" })
         const found = yield* repo.findById(created.id)
         deepStrictEqual(found, created)
-      })
-    )
-
-    it.scoped("handles transaction rollback", () =>
-      Effect.gen(function* () {
-        const db = yield* Database
-
-        yield* db.transaction(
-          Effect.gen(function* () {
-            yield* db.insert("users", { name: "temp" })
-            return yield* Effect.fail("rollback!")
-          })
-        ).pipe(Effect.ignore)
-
-        const count = yield* db.count("users")
-        strictEqual(count, 0)  // Transaction rolled back
       })
     )
   }
@@ -478,20 +253,15 @@ layer(TestDbLayer, { timeout: Duration.seconds(60) })(
 
 ---
 
-## Resource Management Tests
+## Resource Management
 
 ```typescript
-import { scoped, strictEqual, assertTrue } from "@beep/testkit"
-import * as Effect from "effect/Effect"
-import * as Ref from "effect/Ref"
-
-scoped("properly acquires and releases resources", () =>
+scoped("properly acquires and releases", () =>
   Effect.gen(function* () {
-    const acquired = yield* Ref.make(false)
     const released = yield* Ref.make(false)
 
     const resource = Effect.acquireRelease(
-      Ref.set(acquired, true).pipe(Effect.as("resource")),
+      Effect.succeed("resource"),
       () => Ref.set(released, true)
     )
 
@@ -499,16 +269,14 @@ scoped("properly acquires and releases resources", () =>
       Effect.gen(function* () {
         const r = yield* resource
         strictEqual(r, "resource")
-        assertTrue(yield* Ref.get(acquired))
       })
     )
 
-    // After scope closes
     assertTrue(yield* Ref.get(released))
   })
 )
 
-scoped("releases resources even on failure", () =>
+scoped("releases on failure", () =>
   Effect.gen(function* () {
     const released = yield* Ref.make(false)
 
@@ -521,111 +289,45 @@ scoped("releases resources even on failure", () =>
       Effect.scoped(
         Effect.gen(function* () {
           yield* resource
-          return yield* Effect.fail("intentional failure")
+          return yield* Effect.fail("intentional")
         })
       )
     )
 
     strictEqual(exit._tag, "Failure")
-    assertTrue(yield* Ref.get(released))  // Still released!
+    assertTrue(yield* Ref.get(released))
   })
 )
 ```
 
 ---
 
-## Concurrent Operations Tests
+## Concurrent Operations
 
 ```typescript
-import { effect, scoped, strictEqual } from "@beep/testkit"
-import * as Effect from "effect/Effect"
-import * as TestClock from "effect/TestClock"
-import * as Duration from "effect/Duration"
-import * as Ref from "effect/Ref"
+effect("executes in parallel", () =>
+  Effect.gen(function* () {
+    const order = yield* Ref.make<string[]>([])
 
-describe("concurrent operations", () => {
-  effect("executes operations in parallel", () =>
-    Effect.gen(function* () {
-      const order = yield* Ref.make<string[]>([])
-
-      const op = (id: string) =>
-        Effect.gen(function* () {
-          yield* Ref.update(order, (arr) => [...arr, `start-${id}`])
-          yield* Effect.sleep(Duration.millis(100))
-          yield* Ref.update(order, (arr) => [...arr, `end-${id}`])
-          return id
-        })
-
-      const fiber = yield* Effect.fork(
-        Effect.all([op("A"), op("B"), op("C")], { concurrency: "unbounded" })
-      )
-
-      yield* TestClock.adjust(Duration.millis(100))
-      yield* Effect.join(fiber)
-
-      const sequence = yield* Ref.get(order)
-      // All started before any ended (parallel execution)
-      strictEqual(sequence.slice(0, 3).every(s => s.startsWith("start")), true)
-    })
-  )
-
-  scoped("respects concurrency limits", () =>
-    Effect.gen(function* () {
-      const activeCount = yield* Ref.make(0)
-      const maxActive = yield* Ref.make(0)
-
-      const op = Effect.gen(function* () {
-        yield* Ref.update(activeCount, (n) => n + 1)
-        yield* Ref.update(maxActive, (max) =>
-          Effect.sync(() => Ref.get(activeCount)).pipe(
-            Effect.flatMap((current) => Math.max(max, current))
-          )
-        )
-        yield* Effect.sleep(Duration.millis(50))
-        yield* Ref.update(activeCount, (n) => n - 1)
+    const op = (id: string) =>
+      Effect.gen(function* () {
+        yield* Ref.update(order, (arr) => [...arr, `start-${id}`])
+        yield* Effect.sleep(Duration.millis(100))
+        yield* Ref.update(order, (arr) => [...arr, `end-${id}`])
       })
 
-      const fiber = yield* Effect.fork(
-        Effect.all(
-          Array.from({ length: 10 }, () => op),
-          { concurrency: 3 }
-        )
-      )
+    const fiber = yield* Effect.fork(
+      Effect.all([op("A"), op("B"), op("C")], { concurrency: "unbounded" })
+    )
 
-      yield* TestClock.adjust(Duration.millis(500))
-      yield* Effect.join(fiber)
+    yield* TestClock.adjust(Duration.millis(100))
+    yield* Effect.join(fiber)
 
-      const max = yield* Ref.get(maxActive)
-      strictEqual(max <= 3, true)
-    })
-  )
-})
-```
-
----
-
-## Spy and Mock Patterns
-
-```typescript
-import { describe, vi } from "bun:test"
-import { scoped, deepStrictEqual } from "@beep/testkit"
-import * as Effect from "effect/Effect"
-
-describe("console output", () => {
-  scoped("logs expected messages", () =>
-    Effect.gen(function* () {
-      // Set up spy with automatic cleanup
-      const logSpy = vi.spyOn(console, "log").mockImplementation(() => {})
-      yield* Effect.addFinalizer(() => Effect.sync(() => logSpy.mockRestore()))
-
-      yield* performOperation()
-
-      const calls = logSpy.mock.calls.map((c) => String(c[0]))
-      deepStrictEqual(calls.includes("Operation started"), true)
-      deepStrictEqual(calls.includes("Operation completed"), true)
-    })
-  )
-})
+    const sequence = yield* Ref.get(order)
+    // All started before any ended (parallel execution)
+    strictEqual(sequence.slice(0, 3).every(s => s.startsWith("start")), true)
+  })
+)
 ```
 
 ---
@@ -634,139 +336,81 @@ describe("console output", () => {
 
 ### File Location - CRITICAL
 
-**Tests MUST be placed in the package's `./test` folder, NEVER inline with source files.**
+**Tests MUST be in `./test` folder, NEVER inline with source files.**
 
 ```
-packages/example-package/
+packages/example/
 ├── src/
-│   ├── services/
-│   │   └── UserService.ts
-│   ├── utils/
-│   │   └── validation.ts
-│   └── index.ts
-└── test/                          # All tests go here
-    ├── services/
-    │   └── UserService.test.ts    # Mirrors src/services/
-    ├── utils/
-    │   └── validation.test.ts     # Mirrors src/utils/
-    └── index.test.ts              # Mirrors src/index.ts
+│   ├── services/UserService.ts
+│   └── utils/validation.ts
+└── test/                         # All tests here
+    ├── services/UserService.test.ts
+    └── utils/validation.test.ts
 ```
 
-**Rules:**
-1. **NEVER** create `.test.ts` files alongside source files in `src/`
-2. **ALWAYS** place tests in the package's `./test` directory
-3. **MIRROR** the source directory structure exactly within `./test`
-4. If testing `src/foo/bar/Baz.ts`, create `test/foo/bar/Baz.test.ts`
-
-### Import Paths in Tests - NO RELATIVE IMPORTS
-
-**Use `@beep/<package-name>/*` path aliases instead of relative imports.** The tsconfig is configured to resolve these aliases in test folders.
+### Import Paths - NO RELATIVE IMPORTS
 
 ```typescript
-// FORBIDDEN - relative imports
+// FORBIDDEN
 import { UserService } from "../src/services/UserService"
-import { validate } from "../../src/utils/validation"
-import { Config } from "../../../src/config"
 
-// REQUIRED - path alias imports
+// REQUIRED - path aliases
 import { UserService } from "@beep/iam-server/services/UserService"
-import { validate } from "@beep/utils/validation"
-import { Config } from "@beep/shared-server/config"
 ```
-
-**Why path aliases:**
-- Consistent with production code imports
-- No fragile `../../../` chains that break when files move
-- Tests validate the same import paths consumers use
-- tsconfig path mappings ensure correct resolution
 
 ### File Naming
-- Name test files `{module-name}.test.ts` matching the source file name
-- Create `Dummy.test.ts` as placeholder in new packages when no tests exist yet
 
-### Test Structure
-
-```typescript
-import { describe } from "bun:test"
-import { effect, scoped, strictEqual } from "@beep/testkit"
-
-describe("ModuleName", () => {
-  describe("constructors", () => {
-    effect("creates with default values", () => /* ... */)
-    effect("creates with custom config", () => /* ... */)
-  })
-
-  describe("combinators", () => {
-    effect("transforms values correctly", () => /* ... */)
-    effect("composes with other operations", () => /* ... */)
-  })
-
-  describe("predicates", () => {
-    effect("identifies valid instances", () => /* ... */)
-    effect("rejects invalid inputs", () => /* ... */)
-  })
-
-  describe("error handling", () => {
-    effect("fails with expected error type", () => /* ... */)
-    effect("recovers from transient errors", () => /* ... */)
-  })
-
-  describe("integration", () => {
-    scoped("works with external services", () => /* ... */)
-  })
-})
-```
+- Test files: `{module-name}.test.ts`
+- Placeholder: `Dummy.test.ts` for new packages
 
 ---
 
 ## Import Conventions
 
-Always use these Effect import patterns:
-
 ```typescript
-// Namespace imports
+// Effect namespace imports
 import * as Effect from "effect/Effect"
 import * as Layer from "effect/Layer"
 import * as Context from "effect/Context"
 import * as Duration from "effect/Duration"
 import * as TestClock from "effect/TestClock"
-import * as Schedule from "effect/Schedule"
-import * as Ref from "effect/Ref"
 import * as Exit from "effect/Exit"
 import * as Cause from "effect/Cause"
 import * as Fiber from "effect/Fiber"
+import * as Ref from "effect/Ref"
 
-// Short aliases (per AGENTS.md)
+// Short aliases
 import * as A from "effect/Array"
 import * as F from "effect/Function"
 import * as O from "effect/Option"
 import * as S from "effect/Schema"
-import * as Str from "effect/String"
-import * as R from "effect/Record"
-import * as P from "effect/Predicate"
-import * as Match from "effect/Match"
-import * as DateTime from "effect/DateTime"
 
-// @beep/testkit
-import { describe } from "bun:test"  // Just for describe block
+// Testkit
+import { describe } from "bun:test"
 import {
   effect,
   scoped,
   live,
-  scopedLive,
   layer,
   strictEqual,
   deepStrictEqual,
   assertTrue,
-  assertFalse,
   assertNone,
   assertSome,
-  assertLeft,
-  assertRight,
-  assertSuccess,
-  assertFailure,
-  assertInclude,
-  assertMatch,
   fail
 } from "@beep/testkit"
 ```
+
+---
+
+## Quick Reference
+
+| Pattern | Runner | Key Import |
+|---------|--------|------------|
+| Unit test | `effect()` | - |
+| Resource cleanup | `scoped()` | - |
+| Time-dependent | `effect()` | `TestClock` |
+| Error testing | `effect()` | `Effect.exit`, `Effect.either` |
+| Integration (DB) | `layer()` | Test layer with timeout |
+| Mock service | `effect()` | `Layer.succeed` |
+| Concurrency | `effect()` | `Effect.fork`, `Ref` |

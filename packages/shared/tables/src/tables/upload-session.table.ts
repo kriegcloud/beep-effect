@@ -71,6 +71,13 @@ export const uploadSession = OrgTable.make(SharedEntityIds.UploadSessionId)(
   },
   (t) => [
     /**
+     * Organization ID index for RLS filtering.
+     */
+    pg
+      .index("upload_session_org_id_idx")
+      .on(t.organizationId),
+
+    /**
      * Index for efficient cleanup queries.
      *
      * @remarks

@@ -3,7 +3,7 @@
 import { Core } from "@beep/iam-client";
 import { GuardErrorBoundary } from "@beep/todox/providers/GuardErrorBoundary";
 import { GuardErrorFallback } from "@beep/todox/providers/GuardErrorFallback";
-import { useRouter } from "@beep/ui/hooks";
+import { useIsClient, useRouter } from "@beep/ui/hooks";
 import { SplashScreen } from "@beep/ui/progress/loading-screen/splash-screen";
 import { Result } from "@effect-atom/atom-react";
 import * as O from "effect/Option";
@@ -22,7 +22,15 @@ type GuestGuardProps = {
   readonly pendingFallback?: React.ReactNode | undefined;
 };
 
-type GuestGuardContentProps = GuestGuardProps;
+type GuestGuardContentProps = GuestGuardProps & {
+  readonly router: ReturnType<typeof useRouter>;
+};
+
+type GuestState =
+  | { readonly _tag: "Loading" }
+  | { readonly _tag: "Guest" }
+  | { readonly _tag: "Authenticated" }
+  | { readonly _tag: "Error" };
 
 /**
  * Inner component that handles session state and renders appropriately.
@@ -30,47 +38,68 @@ type GuestGuardContentProps = GuestGuardProps;
  */
 const GuestGuardContent: React.FC<GuestGuardContentProps> = ({
   render,
+  router,
   redirectTo = "/",
   pendingFallback = <SplashScreen />,
 }) => {
   const { sessionResult } = Core.Atoms.use();
-  const router = useRouter();
+  const isClient = useIsClient();
 
-  const Fallback = (
-    <GuardErrorFallback
-      title="We couldn't confirm your sign-in status"
-      description="Please try again or head back to the app."
-      primaryAction={{
-        label: "Retry",
-        variant: "contained",
-        onClick: () => {
-          router.refresh();
-        },
-      }}
-      secondaryAction={{
-        label: "Go to app",
-        onClick: () => {
-          void router.replace(redirectTo);
-        },
-      }}
-    />
-  );
+  // Derive guest state without side effects
+  const guestState: GuestState = React.useMemo(() => {
+    if (!isClient) {
+      return { _tag: "Loading" };
+    }
 
-  return Result.builder(sessionResult)
-    .onInitial(() => pendingFallback)
-    .onFailure(() => Fallback)
-    .onDefect(() => Fallback)
-    .onSuccess(({ data }) =>
-      O.match(data, {
-        onNone: () => render(), // Guest (no session) - call render to evaluate children
-        onSome: () => {
-          // Authenticated - redirect away from guest-only page
-          void router.replace(redirectTo);
-          return pendingFallback;
-        },
-      })
-    )
-    .render();
+    return Result.builder(sessionResult)
+      .onInitial(() => ({ _tag: "Loading" }) as const)
+      .onDefect(() => ({ _tag: "Error" }) as const)
+      .onFailure(() => ({ _tag: "Error" }) as const)
+      .onSuccess(({ data }) =>
+        O.match(data, {
+          onNone: () => ({ _tag: "Guest" }) as const,
+          onSome: () => ({ _tag: "Authenticated" }) as const,
+        })
+      )
+      .render();
+  }, [isClient, sessionResult]);
+
+  // Handle redirect in useEffect to avoid setState during render
+  React.useEffect(() => {
+    if (guestState._tag === "Authenticated") {
+      void router.replace(redirectTo);
+    }
+  }, [guestState._tag, router, redirectTo]);
+
+  // Render based on guest state
+  if (guestState._tag === "Loading" || guestState._tag === "Authenticated") {
+    return pendingFallback;
+  }
+
+  if (guestState._tag === "Error") {
+    return (
+      <GuardErrorFallback
+        title="We couldn't confirm your sign-in status"
+        description="Please try again or head back to the app."
+        primaryAction={{
+          label: "Retry",
+          variant: "contained",
+          onClick: () => {
+            router.refresh();
+          },
+        }}
+        secondaryAction={{
+          label: "Go to app",
+          onClick: () => {
+            void router.replace(redirectTo);
+          },
+        }}
+      />
+    );
+  }
+
+  // Guest state - render children via render prop
+  return render();
 };
 
 export const GuestGuard: React.FC<GuestGuardProps> = (props) => {
@@ -109,7 +138,7 @@ export const GuestGuard: React.FC<GuestGuardProps> = (props) => {
         router.refresh();
       }}
     >
-      <GuestGuardContent redirectTo={redirectTo} {...rest} />
+      <GuestGuardContent router={router} redirectTo={redirectTo} {...rest} />
     </GuardErrorBoundary>
   );
 };

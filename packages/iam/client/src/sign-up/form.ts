@@ -1,3 +1,4 @@
+"use client";
 /**
  * @fileoverview Sign-up form hooks.
  *

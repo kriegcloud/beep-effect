@@ -10,21 +10,28 @@
 **Status**: Pending
 **Agents**: `codebase-researcher`, `architecture-pattern-enforcer`
 
+### Current State (Bootstrapped)
+
+The `packages/knowledge/*` slice has been bootstrapped with:
+- All 5 packages (domain, tables, server, client, ui) scaffolded
+- Embedding entity model as a starter pattern
+- Embedding table as a starter pattern
+- Basic Db service structure with Embedding.repo.ts
+
 ### Objectives
 
-1. Create `packages/knowledge/*` vertical slice structure
-2. Define core domain models (Entity, Relation, Mention, KnowledgeGraph)
-3. Create table schemas with RLS policies
-4. Set up pgvector extension for embeddings
+1. **Extend** the bootstrapped slice with knowledge graph domain models
+2. Define core domain models (Entity, Relation, Mention, KnowledgeGraph) alongside existing Embedding
+3. Create table schemas (entity, knowledgeRelation, extraction, ontology) alongside existing embedding
+4. Add RLS policies and pgvector setup
 
 ### Tasks
 
-#### Task 0.1: Slice Scaffolding
+#### Task 0.1: Slice Scaffolding (ALREADY COMPLETE)
 
-**Agent**: Manual (Orchestrator)
+**Status**: ✅ Bootstrapped
 
-```
-Create the knowledge vertical slice packages:
+The knowledge vertical slice structure already exists:
 
 packages/knowledge/
 ├── domain/                          # @beep/knowledge-domain
@@ -104,14 +111,16 @@ packages/knowledge/
     └── src/
         └── index.ts
 
-Follow patterns from packages/iam/* for structure.
+Use existing packages/knowledge/* structure. No new packages needed.
 ```
 
 #### Task 0.2: Domain Models
 
 **Agent**: Manual with `mcp-researcher` for Effect Schema patterns
 
-Domain models follow the canonical pattern from `packages/iam/domain/`:
+**Already exists**: `Embedding/Embedding.model.ts` - use as pattern reference for new entities.
+
+Add these models following the existing Embedding pattern from `packages/knowledge/domain/src/entities/Embedding/`:
 - Each entity gets its own directory: `entities/{Entity}/{Entity}.model.ts`
 - Use `M.Class` from `@effect/sql/Model` with `makeFields` from `@beep/shared-domain/common`
 - Include `static readonly utils = modelKit(Model);`
@@ -196,12 +205,14 @@ export * as Entities from "./entities/index.js";
 
 **Agent**: Manual following `packages/iam/tables/` patterns
 
-Table files follow canonical pattern from `packages/iam/tables/`:
+**Already exists**: `embedding.table.ts` - use as pattern reference for new tables.
+
+Add these tables following the existing embedding table pattern from `packages/knowledge/tables/src/tables/`:
 - Each table in `tables/{entity}.table.ts` (lowercase, singular)
 - Use `OrgTable.make(EntityId)({columns}, (t) => [indexes])`
-- Export from `tables/index.ts`
-- Add relations in `relations.ts`
-- Add type assertions in `_check.ts`
+- Export from `tables/index.ts` (update existing file)
+- Add relations in `relations.ts` (update existing file)
+- Add type assertions in `_check.ts` (update existing file)
 
 **Note**: The domain "Relation" concept uses `knowledgeRelation` prefix for table to avoid conflict with Drizzle's `relations.ts`.
 
@@ -336,7 +347,16 @@ CREATE POLICY tenant_isolation_embeddings ON embeddings
 ### Checkpoint
 
 Before proceeding to P1:
-- [ ] All 5 packages created with correct structure
+
+**Already Complete (Bootstrapped):**
+- [x] All 5 packages created with correct structure
+- [x] Embedding entity model exists as pattern reference
+- [x] Embedding table exists as pattern reference
+- [x] Db service structure exists with Embedding.repo.ts
+
+**Phase 0 Deliverables:**
+- [ ] Entity, Relation, Extraction, Ontology domain models added
+- [ ] entity, knowledgeRelation, extraction, ontology table schemas added
 - [ ] Domain models compile without errors
 - [ ] Table schemas migrate successfully
 - [ ] RLS policies applied to all tables

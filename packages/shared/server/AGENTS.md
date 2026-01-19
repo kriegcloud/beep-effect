@@ -2,7 +2,7 @@
 
 ## Purpose & Fit
 - Provides foundational infrastructure services consumed by all vertical slices: database clients, configuration management, email delivery, file uploads, Redis, and rate limiting.
-- Consolidates primitives previously scattered across `@beep/core-db`, `@beep/core-env`, and `@beep/core-email` into a unified, Effect-first service layer.
+- Consolidates primitives that were historically in separate packages (now deleted: `@beep/core-db`, `@beep/core-env`, `@beep/core-email`) into this unified, Effect-first service layer.
 - Exposes ready-to-merge Layers (`Live`, `Db.layer`, `Email.ResendService.layer`, `UploadService.layer`) that applications compose into runtime environments without touching raw clients.
 - Centralizes Effect Config-based environment variable parsing (`serverEnv`, `clientEnv`) so downstream packages reference a single source of truth for secrets, URLs, and cloud credentials.
 - Establishes repository contracts via `Repo.make` that auto-generate CRUD operations with telemetry, error mapping, and transaction support.
@@ -34,6 +34,40 @@
 
 ### RPC Handlers
 - **File Management RPC** (`src/rpc/v1/files/`) — Server-side RPC handlers for file operations, including upload session management.
+
+### Row-Level Security (TenantContext)
+- **`TenantContext`** (`src/TenantContext/TenantContext.ts`) — Effect service managing PostgreSQL session variables for RLS-based multi-tenant isolation.
+
+**Methods**:
+- `setOrganizationId(orgId)` — Set tenant context for subsequent queries
+- `clearContext()` — Clear tenant context (blocks all RLS-filtered rows)
+- `withOrganization(orgId, effect)` — Execute effect within organization context
+
+**Usage**:
+```ts
+import { TenantContext } from "@beep/shared-server";
+import * as Effect from "effect/Effect";
+
+const handler = Effect.gen(function* () {
+  const ctx = yield* TenantContext.TenantContext;
+  yield* ctx.setOrganizationId("org-123");
+  // Subsequent queries scoped to org-123 via RLS
+  const members = yield* MemberRepo.findAll();
+});
+```
+
+**Layer composition**:
+```ts
+import { TenantContext } from "@beep/shared-server";
+import { DbClient } from "@beep/shared-server/factories";
+import * as Layer from "effect/Layer";
+
+const TenantContextLive = TenantContext.TenantContext.layer.pipe(
+  Layer.provide(DbClient.layer)
+);
+```
+
+**Critical**: Uses session-level `SET` (not `SET LOCAL`) due to connection pooling. See `documentation/patterns/rls-patterns.md` for comprehensive RLS documentation.
 
 ## Usage Snapshots
 - `packages/runtime/server/src/DataAccess.layer.ts` — Composes database and repository layers for the core server runtime.
@@ -239,7 +273,7 @@ const updateWithTx = Effect.gen(function* () {
 - [ ] Email templates: place in `src/internal/email/components/`, export via barrel, document schema in template props.
 - [ ] Upload/storage: extend `UploadService` with new S3 operations (list, copy, etc.), keep all S3 concerns inside this service.
 - [ ] Redis/YJS/RateLimit: populate stub exports when implementing; create `src/internal/*/index.ts` with service class and Layer.
-- [ ] Migration from `@beep/core-*`: ensure all references in slice packages updated to `@beep/shared-server`, remove old package imports from `package.json`.
+- [ ] Legacy references: if any `@beep/core-*` imports remain in slice packages, update them to `@beep/shared-server` (those packages have been deleted).
 - [ ] Layer graphs: verify wiring with `bun run check --filter @beep/shared-server` and inspect for missing service requirements or circular deps.
 - [ ] Tests: add or extend `test/` suites when touching core logic; prefer testcontainers for Postgres/Redis integration tests.
 - [ ] Observability: instrument new methods with `Effect.withSpan`, structured `Effect.log*`, and redact secrets in attributes.

@@ -17,7 +17,14 @@ const $I = $SharedDomainId.create("entity-ids/knowledge/table-names");
  * @since 0.1.0
  * @category ids
  */
-export class TableName extends BS.StringLiteralKit(Ids.EmbeddingId.tableName).annotations(
+export class TableName extends BS.StringLiteralKit(
+  Ids.EmbeddingId.tableName,
+  Ids.KnowledgeEntityId.tableName,
+  Ids.RelationId.tableName,
+  Ids.OntologyId.tableName,
+  Ids.ExtractionId.tableName,
+  Ids.MentionId.tableName
+).annotations(
   $I.annotations("KnowledgeTableName", {
     description: "A sql table name for an entity within the knowledge domain context",
   })

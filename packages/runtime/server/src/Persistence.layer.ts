@@ -10,7 +10,14 @@ import { Upload } from "@beep/shared-server/services";
 import { S3Service } from "@effect-aws/client-s3/S3Service";
 import * as Layer from "effect/Layer";
 
-export type DbClients = SharedDb.Db | IamDb.Db | DocumentsDb.Db | CustomizationDb.Db | CommsDb.Db | CalendarDb.Db | KnowledgeDb.Db;
+export type DbClients =
+  | SharedDb.Db
+  | IamDb.Db
+  | DocumentsDb.Db
+  | CustomizationDb.Db
+  | CommsDb.Db
+  | CalendarDb.Db
+  | KnowledgeDb.Db;
 
 const sliceClientsLayer: Layer.Layer<DbClients | Upload.Service, never, DbClient.SliceDbRequirements | S3Service> =
   Layer.mergeAll(
@@ -21,7 +28,7 @@ const sliceClientsLayer: Layer.Layer<DbClients | Upload.Service, never, DbClient
     CustomizationDb.layer,
     CommsDb.layer,
     CalendarDb.layer,
-    KnowledgeDb.layer,
+    KnowledgeDb.layer
   );
 
 const persistenceInfraLayer: Layer.Layer<DbClient.SliceDbRequirements | S3Service, never, never> = Layer.mergeAll(
