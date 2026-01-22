@@ -4,6 +4,28 @@ Copy-paste this prompt to start Phase 2 execution.
 
 ---
 
+## Pre-Flight Checklist
+
+Before executing this phase, verify HANDOFF_P1.md context is preserved:
+
+**Phase 0 Artifacts (Required for synthesis):**
+- [ ] `outputs/existing-patterns-audit.md` exists
+- [ ] `outputs/file-category-inventory.md` exists
+- [ ] `outputs/inconsistency-report.md` exists
+
+**Phase 1 Artifacts (Required for synthesis):**
+- [ ] `outputs/industry-best-practices.md` exists (with ≥3 citations)
+- [ ] `outputs/fp-repo-conventions.md` exists (with ≥3 citations)
+- [ ] `outputs/academic-research.md` exists (with ≥3 citations)
+- [ ] `outputs/llms-txt-patterns.md` exists (with ≥3 citations)
+
+**Reflection State:**
+- [ ] `REFLECTION_LOG.md` contains Phase 0 and Phase 1 learnings
+
+If any artifacts are missing or citations are insufficient, request completion of the missing phase work before proceeding.
+
+---
+
 ## Prompt
 
 You are executing Phase 2 (Synthesis & Standards Definition) of the Canonical Naming Conventions spec.
@@ -152,5 +174,5 @@ Full context: `specs/canonical-naming-conventions/handoffs/HANDOFF_P2.md`
 After completing Phase 2:
 1. This spec's research phase is COMPLETE
 2. Create separate `specs/naming-conventions-refactor/` for implementation
-3. Consider JetBrains MCP tools for large-scale refactoring
+3. Use `mcp-refactor-typescript` MCP tools for refactoring (see `.claude/skills/mcp-refactor-typescript.md`)
 4. Draft automated linting rules

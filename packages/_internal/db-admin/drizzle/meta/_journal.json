@@ -5,22 +5,15 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1768784949116,
-      "tag": "0000_silly_carlie_cooper",
+      "when": 1769060867629,
+      "tag": "0000_far_sleepwalker",
       "breakpoints": true
     },
     {
       "idx": 1,
       "version": "7",
-      "when": 1768804559122,
-      "tag": "0002_sparkling_moondragon",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1768867200000,
-      "tag": "0001_enable_rls_policies",
+      "when": 1769060900000,
+      "tag": "0001_custom_rls_extensions",
       "breakpoints": true
     }
   ]

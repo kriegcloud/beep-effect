@@ -177,4 +177,4 @@ The agent specs are complete when:
 
 - [new-specialized-agents](../new-specialized-agents/README.md) - Parent spec
 - [ai-friendliness-audit](../ai-friendliness-audit/README.md) - META_SPEC_TEMPLATE reference
-- [SPEC_CREATION_GUIDE](../SPEC_CREATION_GUIDE.md) - Agent-assisted spec workflow
+- [Spec Guide](../_guide/README.md) - Agent-assisted spec workflow

@@ -2,6 +2,31 @@
 name: codebase-researcher
 description: Systematic codebase exploration agent for mapping dependencies, identifying patterns, and providing architectural context in the beep-effect monorepo
 tools: [Glob, Grep, Read]
+signature:
+  input:
+    question:
+      type: string
+      description: Research question to investigate (e.g., "How does session management work?")
+      required: true
+    scope:
+      type: string[]
+      description: Package paths or slices to explore (e.g., ["packages/iam/", "packages/shared/"])
+      required: false
+    depth:
+      type: shallow|deep
+      description: Exploration depth - shallow for surface patterns, deep for full dependency analysis
+      required: false
+  output:
+    findings:
+      type: object
+      description: "{ files: string[], patterns: Pattern[], dependencies: string[], boundaries: LayerInfo[] }"
+    gaps:
+      type: string[]
+      description: Unanswered questions requiring additional research
+    recommendations:
+      type: object
+      description: "{ patternsToFollow: string[], antiPatterns: string[] }"
+  sideEffects: none
 ---
 
 # Codebase Researcher Agent

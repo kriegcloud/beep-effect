@@ -1,0 +1,91 @@
+{
+  "name": "@beep/shared-ai",
+  "version": "0.0.0",
+  "type": "module",
+  "license": "MIT",
+  "description": "Shared AI utilities",
+  "homepage": "https://github.com/kriegcloud/beep-effect/tree/main/packages/shared/ai",
+  "publishConfig": {
+    "access": "public",
+    "provenance": true,
+    "directory": "dist",
+    "linkDirectory": false
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./package.json": "./package.json",
+    "./*": "./src/*.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:kriegcloud/beep-effect.git",
+    "directory": "packages/shared/ai"
+  },
+  "scripts": {
+    "build": "bun run build-esm && bun run build-cjs && bun run build-annotate",
+    "dev": "tsc -b tsconfig.build.json --watch",
+    "build-esm": "tsc -b tsconfig.build.json",
+    "build-cjs": "babel build/esm --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --out-dir build/cjs --source-maps",
+    "build-annotate": "babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps",
+    "check": "tsc -b tsconfig.json",
+    "test": "bun test",
+    "lint": "biome check .",
+    "lint:fix": "biome check . --write",
+    "coverage": "bun test --coverage",
+    "lint:circular": "bunx madge -c ."
+  },
+  "peerDependencies": {
+    "@effect/ai": "catalog:",
+    "@effect/ai-openai": "catalog:",
+    "@effect/ai-anthropic": "catalog:",
+    "@effect/ai-google": "catalog:",
+    "@effect/ai-openrouter": "catalog:",
+    "@effect/ai-amazon-bedrock": "catalog:",
+    "@effect/platform": "catalog:",
+    "@effect/experimental": "catalog:",
+    "effect": "catalog:",
+    "@beep/identity": "workspace:^",
+    "@beep/utils": "workspace:^",
+    "@beep/invariant": "workspace:^",
+    "@beep/constants": "workspace:^",
+    "@beep/errors": "workspace:^",
+    "@beep/schema": "workspace:^",
+    "@beep/shared-domain": "workspace:^",
+    "@beep/shared-env": "workspace:^",
+    "@beep/shared-tables": "workspace:^"
+  },
+  "devDependencies": {
+    "@effect/ai": "catalog:",
+    "@effect/ai-openai": "catalog:",
+    "@effect/ai-anthropic": "catalog:",
+    "@effect/ai-google": "catalog:",
+    "@effect/ai-openrouter": "catalog:",
+    "@effect/ai-amazon-bedrock": "catalog:",
+    "@effect/docgen": "catalog:",
+    "@effect/experimental": "catalog:",
+    "effect": "catalog:",
+    "@effect/platform": "catalog:",
+    "@beep/identity": "workspace:^",
+    "@beep/utils": "workspace:^",
+    "@beep/invariant": "workspace:^",
+    "@beep/constants": "workspace:^",
+    "@beep/errors": "workspace:^",
+    "@beep/schema": "workspace:^",
+    "@beep/shared-domain": "workspace:^",
+    "@beep/shared-env": "workspace:^",
+    "@beep/shared-tables": "workspace:^",
+    "@total-typescript/ts-reset": "catalog:"
+  },
+  "effect": {
+    "generateExports": {
+      "include": [
+        "**/*.ts"
+      ]
+    },
+    "generateIndex": {
+      "include": [
+        "**/*.ts"
+      ]
+    }
+  }
+}

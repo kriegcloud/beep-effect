@@ -3,6 +3,31 @@ name: code-reviewer
 description: Review code against Effect patterns, architecture constraints, and type safety rules.
 model: sonnet
 tools: [Read, Grep, Glob]
+signature:
+  input:
+    target:
+      type: string|string[]
+      description: File path, package name, or glob pattern to review
+      required: true
+    categories:
+      type: string[]
+      description: Violation categories to check (effect-patterns, architecture, type-safety)
+      required: false
+    excludePatterns:
+      type: string[]
+      description: File patterns to exclude (e.g., "*.test.ts", "*.d.ts")
+      required: false
+  output:
+    report:
+      type: object
+      description: "{ summary: CategoryCounts, issues: Issue[], status: PASS|NEEDS_WORK|CRITICAL }"
+    violations:
+      type: array
+      description: "Violation[] with { severity: HIGH|MEDIUM|LOW, location: string, problem: string, fix: string }"
+    statistics:
+      type: object
+      description: "{ high: number, medium: number, low: number, filesScanned: number }"
+  sideEffects: write-reports
 ---
 
 # Code Reviewer

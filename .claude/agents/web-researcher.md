@@ -1,6 +1,35 @@
 ---
+name: web-researcher
 description: Web research agent for searching, validating, and synthesizing information from the web
 tools: [WebSearch, WebFetch]
+signature:
+  input:
+    questions:
+      type: string[]
+      description: Research questions to investigate
+      required: true
+    yearFilter:
+      type: string
+      description: Year to include in queries for time-sensitive topics (e.g., "2026")
+      required: false
+    domainFilters:
+      type: object
+      description: "{ allowed?: string[], blocked?: string[] }"
+      required: false
+  output:
+    findings:
+      type: array
+      description: "Finding[] with { source: string, credibility: HIGH|MEDIUM|LOW, summary: string, relevance: string }"
+    crossReference:
+      type: object
+      description: "{ agreements: string[], conflicts: string[], gaps: string[] }"
+    recommendations:
+      type: object
+      description: "{ actions: string[], confidence: HIGH|MEDIUM|LOW, caveats: string[] }"
+    sources:
+      type: object
+      description: "{ high: Source[], medium: Source[], low: Source[] }"
+  sideEffects: none
 ---
 
 # Web Researcher Agent

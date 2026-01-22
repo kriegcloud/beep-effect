@@ -42,6 +42,34 @@ description: |
   <Task tool call to reflector agent>
   </example>
 model: sonnet
+signature:
+  input:
+    specName:
+      type: string
+      description: Name of the spec to analyze (e.g., "ai-friendliness-audit")
+      required: false
+    scope:
+      type: single-spec|cross-spec
+      description: Whether to analyze one spec or all specs
+      required: false
+    focusArea:
+      type: string
+      description: Specific documentation file to generate recommendations for
+      required: false
+  output:
+    patterns:
+      type: object
+      description: "{ successes: Pattern[], failures: Pattern[], emerging: Pattern[] }"
+    promptRefinements:
+      type: array
+      description: "Refinement[] with { original: string, problem: string, refined: string }"
+    documentationUpdates:
+      type: array
+      description: "Update[] with { file: string, recommendation: string, rationale: string }"
+    cumulativeLearnings:
+      type: object
+      description: "{ universal: string[], specSpecific: string[] }"
+  sideEffects: write-reports
 ---
 
 # Reflector Agent

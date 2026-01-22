@@ -8,7 +8,7 @@
 
 ## Surface Map
 - `Table.make` (`src/table/Table.ts`) — builds a pg table with default id/audit columns using an `EntityIdSchemaInstance`.
-- `OrgTable.make` (`src/org-table/OrgTable.ts`) — extends `Table.make` with `organizationId` foreign key wiring to `organization.id`.
+- `OrgTable.make` (`src/org-table/OrgTable.ts`) — extends `Table.make` with `organizationId` foreign key wiring to `organization.id`. Accepts optional `RlsOptions` parameter to control automatic RLS policy generation (see Auto-RLS Behavior section).
 - `Common` namespace (`src/common.ts`): `globalColumns`, `auditColumns`, `userTrackingColumns`, `utcNow` helper.
 - `DefaultColumns` types (`src/columns.ts`) — structural types describing the default column builders.
 - Custom columns (`src/columns/index.ts`): see Custom Column Types table below.
@@ -37,6 +37,51 @@
 - `packages/shared/tables/src/tables/file.table.ts` demonstrates `OrgTable.make(SharedEntityIds.FileId)` for multi-tenant file metadata with organization relations.
 - `packages/documents/tables/src/tables/document.table.ts` imports `bytea` custom column type for storing binary snapshots efficiently.
 
+## Auto-RLS Behavior
+
+`OrgTable.make` automatically generates PostgreSQL Row-Level Security (RLS) policies for tenant isolation. This ensures that queries are scoped to the current organization without manual policy definitions.
+
+### RlsOptions Parameter
+
+```typescript
+export type RlsOptions = {
+  readonly rlsPolicy?: "standard" | "nullable" | "none";
+};
+```
+
+### Policy Options
+
+| `rlsPolicy` Value | Behavior | Use Case |
+|-------------------|----------|----------|
+| `undefined` (default) | Generates standard policy requiring exact `organizationId` match; calls `.enableRLS()` | Most tenant-scoped tables (95% of cases) |
+| `'standard'` | Same as default—explicit opt-in for clarity | When you want to document the policy choice explicitly |
+| `'nullable'` | Generates policy allowing `NULL` or matching `organizationId`; calls `.enableRLS()` | Tables with optional organization ownership |
+| `'none'` | No auto-policy, no `.enableRLS()` call | Tables requiring custom policies (rare) |
+
+### Generated SQL
+
+**Standard Policy** (for NOT NULL `organizationId`):
+```sql
+CREATE POLICY tenant_isolation_${tableName} ON ${tableName}
+  AS PERMISSIVE FOR ALL
+  USING (organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text)
+  WITH CHECK (organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text);
+```
+
+**Nullable Policy** (for OPTIONAL `organizationId`):
+```sql
+CREATE POLICY tenant_isolation_${tableName} ON ${tableName}
+  AS PERMISSIVE FOR ALL
+  USING (organization_id IS NULL OR organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text)
+  WITH CHECK (organization_id IS NULL OR organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text);
+```
+
+### Tables That Cannot Use OrgTable.make
+
+**`shared_session`**: Uses `active_organization_id` column for RLS instead of `organization_id`. This is intentional—sessions track the user's currently active organization context, not a fixed ownership relationship. RLS policy is defined in custom migration `0001_custom_rls_extensions.sql`.
+
+**Tables using `Table.make` with nullable `organizationId`**: Some tables (e.g., `iam_invitation`, `iam_sso_provider`, `iam_scim_provider`) use `Table.make` because they have nullable `organizationId` columns. These require custom RLS policies in migration files.
+
 ## Authoring Guardrails
 - ALWAYS import Effect modules via namespaces (`import * as F from "effect/Function";`) and NEVER use native array/string/object APIs; rely on `effect/Array`, `effect/String`, `effect/Record`, and friends.
 - `Table.make` expects an `EntityId.EntityId.SchemaInstance`; ALWAYS create or update the matching entity id in `@beep/shared-domain` before adding a table.
@@ -45,6 +90,12 @@
 - NEVER bypass `_check.ts`; ALWAYS extend it whenever new shared tables should align with domain codecs to catch drift at build time.
 - Guard enums with domain factories (`Organization.makeSubscriptionTierPgEnum`) so Postgres enum names stay canonical.
 - Prefer Drizzle index helpers rather than raw SQL, except when expressing computed checks (see session expiry check in `packages/shared/tables/src/tables/session.table.ts`).
+
+### RLS Policy Guardrails
+- NEVER add manual `pgPolicy()` for standard tenant isolation—`OrgTable.make` generates this automatically with the default `rlsPolicy` setting.
+- NEVER call `.enableRLS()` manually on `OrgTable`-based tables—the factory handles this automatically unless `rlsPolicy: 'none'`.
+- Use `rlsPolicy: 'none'` ONLY when non-standard policies are required (e.g., admin-only access, cross-tenant visibility). ALWAYS document the reason in a comment.
+- NEVER duplicate auto-generated policy names (`tenant_isolation_${tableName}`) in custom policies—this causes Drizzle-kit to crash during `db:generate`.
 
 ## Quick Recipes
 
@@ -79,6 +130,51 @@ export const document = OrgTable.make(SharedEntityIds.DocumentId)(
   (t) => [
     pg.uniqueIndex("document_org_title_idx").on(t.organizationId, t.title),
     pg.index("document_owner_idx").on(t.ownerUserId),
+  ]
+);
+```
+
+### Using RLS options with OrgTable.make
+
+```ts
+import { SharedEntityIds } from "@beep/shared-domain";
+import { OrgTable } from "@beep/shared-tables/org-table";
+import { sql } from "drizzle-orm";
+import * as pg from "drizzle-orm/pg-core";
+
+// Default: standard tenant isolation (most common - 95% of cases)
+// Auto-generates: tenant_isolation_documents_document policy
+export const document = OrgTable.make(SharedEntityIds.DocumentId)(
+  { title: pg.text("title").notNull() }
+);
+
+// Explicit standard: same as default, for documentation clarity
+export const report = OrgTable.make(SharedEntityIds.ReportId, {
+  rlsPolicy: "standard"
+})(
+  { name: pg.text("name").notNull() }
+);
+
+// Nullable: allows NULL organizationId (for shared/global resources)
+// Use when: table has rows that belong to "no organization" (NULL)
+export const sharedResource = OrgTable.make(SharedEntityIds.SharedResourceId, {
+  rlsPolicy: "nullable"
+})(
+  { name: pg.text("name").notNull() }
+);
+
+// None: custom policy required (rare - document the reason!)
+// Use when: non-standard access patterns (admin-only, cross-tenant, etc.)
+export const auditLog = OrgTable.make(SharedEntityIds.AuditLogId, {
+  rlsPolicy: "none"
+})(
+  { action: pg.text("action").notNull() },
+  (t) => [
+    // Custom policy: admin-only read access
+    pg.pgPolicy("audit_log_admin_only", {
+      for: "select",
+      using: sql`current_setting('app.is_admin', TRUE) = 'true'`,
+    }),
   ]
 );
 ```
@@ -132,6 +228,12 @@ const indexNames = (descriptors: ReadonlyArray<IndexDescriptor>) =>
 - **`_check.ts` type assertion asymmetry** (CRITICAL): The pattern `{} as InferSelectModel<typeof table>` only validates that Drizzle table types satisfy domain model encoded types (table → domain direction). It does NOT check that the domain model has all fields from the table (domain → table completeness). If a table has 6 fields and the domain only defines 3, `_check.ts` will still pass. **Best Practice**: Always verify domain models are complete BEFORE creating the table, then use `_check.ts` as a drift detector, not a completeness validator.
 - **`globalColumns` vs domain `BaseModel`**: The columns defined in `globalColumns` must exactly match `BaseModel` from `@beep/shared-domain`. Misalignment causes repository type errors that are hard to trace.
 - **Optimistic locking via `version` column**: The `version` column in `globalColumns` enables optimistic locking, but repositories must implement the increment and check logic—Drizzle does not do this automatically.
+
+### Auto-RLS Migration Conflicts
+- **Duplicate policy error**: If a table already has a manual `tenant_isolation_*` policy in an existing migration, enabling auto-RLS in code creates a duplicate. Drizzle-kit crashes with `ReferenceError: Cannot access 'tableKey2' before initialization` during `db:generate`. **Resolution**: Remove the manual policy and `.enableRLS()` call from the table code (keep the migration as-is for databases that already applied it), OR remove the policy from the migration if the database is being recreated.
+- **New tables**: Tables created after auto-RLS implementation will have policies generated in their creation migration—no conflict.
+- **Custom migration maintenance**: Tables using `Table.make` with `organizationId` (e.g., `iam_invitation`, `iam_sso_provider`) need manual RLS policies in custom migrations (`0001_custom_rls_extensions.sql`). These are NOT covered by `OrgTable.make` auto-RLS.
+- **Session table exception**: `shared_session` uses `active_organization_id` (not `organization_id`) and cannot use `OrgTable.make`. Its RLS policy is manually defined in `0001_custom_rls_extensions.sql`.
 
 ## Contributor Checklist
 - [ ] Updated or added `SharedEntityIds` and matching domain schemas before wiring a new table.

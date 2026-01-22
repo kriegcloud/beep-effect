@@ -222,6 +222,15 @@
       "@beep/shared-env/test/*": [
         "./packages/shared/env/test/*"
       ],
+       "@beep/shared-ai": [
+        "./packages/shared/ai/src/index"
+      ],
+      "@beep/shared-ai/*": [
+        "./packages/shared/ai/src/*"
+      ],
+      "@beep/shared-ai/test/*": [
+        "./packages/shared/ai/test/*"
+      ],
       "@beep/ui-core/*": [
         "./packages/ui/core/src/*"
       ],

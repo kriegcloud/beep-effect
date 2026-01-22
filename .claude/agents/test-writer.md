@@ -1,6 +1,39 @@
 ---
+name: test-writer
 description: Effect-first test writer using @beep/testkit for unit and integration testing
 tools: [Read, Write, Edit, Glob, Grep, mcp__effect_docs__effect_docs_search, mcp__effect_docs__get_effect_doc]
+signature:
+  input:
+    sourceFiles:
+      type: string[]
+      description: Source files to write tests for
+      required: true
+    testType:
+      type: unit|integration|property
+      description: Type of tests to generate
+      required: false
+    context:
+      type: string
+      description: Additional context about requirements or edge cases
+      required: false
+    layerDependencies:
+      type: string[]
+      description: Service tags or layers needed for test setup
+      required: false
+  output:
+    filesCreated:
+      type: string[]
+      description: Test file paths created
+    filesModified:
+      type: string[]
+      description: Test file paths modified
+    testCases:
+      type: array
+      description: "TestCase[] with { name: string, type: string, coverage: string }"
+    layerSetup:
+      type: string
+      description: Generated test layer composition code
+  sideEffects: write-files
 ---
 
 # Test Writer Agent

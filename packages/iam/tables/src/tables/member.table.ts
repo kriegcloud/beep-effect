@@ -2,7 +2,6 @@ import { Member } from "@beep/iam-domain/entities";
 import type { SharedEntityIds } from "@beep/shared-domain";
 import { IamEntityIds } from "@beep/shared-domain";
 import { datetime, OrgTable, SharedDbSchema } from "@beep/shared-tables";
-import { sql } from "drizzle-orm";
 import * as pg from "drizzle-orm/pg-core";
 
 export const memberRoleEnum = Member.makeMemberRolePgEnum("member_role_enum");
@@ -58,14 +57,5 @@ export const member = OrgTable.make(IamEntityIds.MemberId)(
     pg.index("member_org_status_idx").on(t.organizationId, t.status),
     pg.index("member_invited_by_idx").on(t.invitedBy),
     pg.index("member_last_active_idx").on(t.lastActiveAt),
-
-    // RLS Policy for multi-tenant isolation
-    // Uses PostgreSQL session variable `app.current_org_id` set via `SET LOCAL` within transactions
-    pg.pgPolicy("tenant_isolation_iam_member", {
-      as: "permissive",
-      for: "all",
-      using: sql`organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text`,
-      withCheck: sql`organization_id = NULLIF(current_setting('app.current_org_id', TRUE), '')::text`,
-    }),
   ]
-).enableRLS();
+);

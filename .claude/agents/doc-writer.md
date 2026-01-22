@@ -3,6 +3,38 @@ name: doc-writer
 description: Write JSDoc, README.md, and AGENTS.md following Effect patterns and repository standards.
 model: sonnet
 tools: [Read, Write, Edit, Glob, Grep, Bash]
+signature:
+  input:
+    targetFiles:
+      type: string[]
+      description: File paths to create or modify (e.g., ["packages/iam/server/README.md"])
+      required: true
+    contentType:
+      type: readme|agents|jsdoc
+      description: Type of documentation to write
+      required: true
+    context:
+      type: string
+      description: Background information, research findings, or requirements
+      required: false
+    packagePath:
+      type: string
+      description: Root path of package for JSDoc analysis
+      required: false
+  output:
+    filesCreated:
+      type: string[]
+      description: Paths of newly created files
+    filesModified:
+      type: string[]
+      description: Paths of modified files
+    summary:
+      type: string
+      description: Description of documentation changes made
+    validationResults:
+      type: object
+      description: "{ jsdocValid: boolean, examplesCompile: boolean, errors: string[] }"
+  sideEffects: write-files
 ---
 
 # Documentation Writer

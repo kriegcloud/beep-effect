@@ -29,24 +29,45 @@ These inconsistencies force AI agents to read file contents to understand purpos
 
 ### Research Questions
 
-| Question | Phase | Agent |
-|----------|-------|-------|
-| What file categories exist in this codebase? | 0 | codebase-researcher |
-| What naming conventions do leading Effect/FP repos use? | 1 | ai-trends-researcher |
-| What academic/industry standards exist for AI-friendly codebases? | 1 | ai-trends-researcher |
-| How do llms.txt and CLAUDE.md patterns inform file naming? | 1 | ai-trends-researcher |
-| What naming conventions maximize grep/glob efficiency? | 1 | codebase-researcher |
-| How should category postfixes map to architectural layers? | 2 | reflector |
+| Question                                                          | Phase | Agent                |
+|-------------------------------------------------------------------|-------|----------------------|
+| What file categories exist in this codebase?                      | 0     | codebase-researcher  |
+| What naming conventions do leading Effect/FP repos use?           | 1     | ai-trends-researcher |
+| What academic/industry standards exist for AI-friendly codebases? | 1     | ai-trends-researcher |
+| How do llms.txt and CLAUDE.md patterns inform file naming?        | 1     | ai-trends-researcher |
+| What naming conventions maximize grep/glob efficiency?            | 1     | codebase-researcher  |
+| How should category postfixes map to architectural layers?        | 2     | reflector            |
 
 ## Success Criteria
 
-- [ ] Complete inventory of existing file naming patterns
+### Quantifiable Metrics
+
+| Metric | Target | Verification Command |
+|--------|--------|---------------------|
+| File patterns documented | 100% of unique postfixes | `find packages -name "*.ts" \| grep -oE '\.[a-z-]+\.tsx?$' \| sort -u` |
+| Folder casing documented | 100% of entity/feature folders | `find packages -type d -name "[A-Z]*"` |
+| Barrel export adoption | % calculated for mod.ts vs index.ts | `find packages -name "mod.ts" \| wc -l` |
+| Inconsistencies identified | All casing/postfix violations listed | Manual review of audit |
+| External sources cited | ≥3 sources per research topic | Citation count in outputs |
+| Category coverage | All file types have assigned postfix | Taxonomy completeness check |
+
+### Deliverable Checklist
+
+- [ ] Complete inventory of existing file naming patterns (with counts)
 - [ ] Exhaustive `.category.ts` postfix taxonomy with rationale
-- [ ] Casing convention decision matrix
-- [ ] `mod.ts`/`index.ts` pattern documentation
-- [ ] External research synthesis with citations
+- [ ] Casing convention decision matrix (with examples)
+- [ ] `mod.ts`/`index.ts` pattern documentation (with adoption %)
+- [ ] External research synthesis with ≥10 citations
 - [ ] Decision framework for future file categorization
 - [ ] Draft rules for `.claude/rules/naming-conventions.md`
+
+### Phase Completion Gates
+
+| Phase | Gate Criteria |
+|-------|---------------|
+| P0 → P1 | All 3 audit outputs exist; pattern counts verifiable via grep |
+| P1 → P2 | All 4 research outputs exist; ≥3 citations per topic |
+| P2 → Complete | Taxonomy covers all discovered patterns; rules draft ready for review |
 
 ## Non-Goals
 
@@ -102,27 +123,27 @@ These inconsistencies force AI agents to read file contents to understand purpos
 
 Based on initial codebase observation:
 
-| Category | Postfix | Purpose | Layer |
-|----------|---------|---------|-------|
-| Domain Model | `.model.ts` | Entity schemas and business logic | domain |
-| Type Definitions | `.types.ts` | Type-only modules (no runtime) | any |
-| Service Interface | `.service.ts` | Effect service definitions | infra |
-| Service Implementation | `.impl.ts` | Service implementations | infra |
-| Layer Composition | `.layer.ts` | Effect Layer definitions | infra |
-| Database Table | `.table.ts` | Drizzle table schemas | tables |
-| Repository Interface | `.repo.ts` | Data access interfaces | infra |
-| Contract Schema | `.contract.ts` | API/RPC contract definitions | client |
-| Handler Implementation | `.handler.ts` | Request/command handlers | client/server |
-| React Provider | `.provider.tsx` | React context providers | ui |
-| React Hook | `.hook.ts` | Custom React hooks | ui |
-| React Component | `.component.tsx` | Presentational components | ui |
-| Test Suite | `.test.ts` | Unit/integration tests | test |
-| Configuration | `.config.ts` | Config schemas and defaults | any |
-| Constants | `.const.ts` | Constant definitions | any |
-| Utilities | `.util.ts` | Pure utility functions | common |
-| Error Definitions | `.error.ts` | Tagged error classes | any |
-| Barrel Export | `mod.ts` | Namespace re-exports | any |
-| Module Index | `index.ts` | Public API surface | any |
+| Category               | Postfix          | Purpose                           | Layer         |
+|------------------------|------------------|-----------------------------------|---------------|
+| Domain Model           | `.model.ts`      | Entity schemas and business logic | domain        |
+| Type Definitions       | `.types.ts`      | Type-only modules (no runtime)    | any           |
+| Service Interface      | `.service.ts`    | Effect service definitions        | infra         |
+| Service Implementation | `.impl.ts`       | Service implementations           | infra         |
+| Layer Composition      | `.layer.ts`      | Effect Layer definitions          | infra         |
+| Database Table         | `.table.ts`      | Drizzle table schemas             | tables        |
+| Repository Interface   | `.repo.ts`       | Data access interfaces            | infra         |
+| Contract Schema        | `.contract.ts`   | API/RPC contract definitions      | client        |
+| Handler Implementation | `.handler.ts`    | Request/command handlers          | client/server |
+| React Provider         | `.provider.tsx`  | React context providers           | ui            |
+| React Hook             | `.hook.ts`       | Custom React hooks                | ui            |
+| React Component        | `.component.tsx` | Presentational components         | ui            |
+| Test Suite             | `.test.ts`       | Unit/integration tests            | test          |
+| Configuration          | `.config.ts`     | Config schemas and defaults       | any           |
+| Constants              | `.const.ts`      | Constant definitions              | any           |
+| Utilities              | `.util.ts`       | Pure utility functions            | common        |
+| Error Definitions      | `.error.ts`      | Tagged error classes              | any           |
+| Barrel Export          | `mod.ts`         | Namespace re-exports              | any           |
+| Module Index           | `index.ts`       | Public API surface                | any           |
 
 ### Research-Dependent Categories
 
@@ -219,21 +240,33 @@ sign-in/
 
 ## Related Specifications
 
-- `specs/jetbrains-mcp-skill/` - May use JetBrains MCP for refactoring
+- `.claude/skills/mcp-refactor-typescript.md` - TypeScript-aware refactoring (file renames, import updates, symbol renames)
 - `specs/ai-friendliness-audit/` - Related AI-friendliness patterns
 
 ---
 
 ## Handoff Sequence
 
-| Phase | Input | Output | Next |
-|-------|-------|--------|------|
-| 0 | This README | Codebase audit artifacts | Phase 1 |
-| 1 | Phase 0 outputs | External research synthesis | Phase 2 |
-| 2 | Phase 0+1 outputs | Standards documents | Implementation Spec |
+| Phase | Input             | Output                      | Next                |
+|-------|-------------------|-----------------------------|---------------------|
+| 0     | This README       | Codebase audit artifacts    | Phase 1             |
+| 1     | Phase 0 outputs   | External research synthesis | Phase 2             |
+| 2     | Phase 0+1 outputs | Standards documents         | Implementation Spec |
 
 ---
 
 ## Execution
 
 Start with: `handoffs/P0_ORCHESTRATOR_PROMPT.md`
+
+---
+
+## Quick Links
+
+| Document | Purpose |
+|----------|---------|
+| [QUICK_START.md](./QUICK_START.md) | 5-minute orientation |
+| [MASTER_ORCHESTRATION.md](./MASTER_ORCHESTRATION.md) | Complete phase workflows |
+| [AGENT_PROMPTS.md](./AGENT_PROMPTS.md) | Ready-to-use agent prompts |
+| [RUBRICS.md](./RUBRICS.md) | Evaluation criteria |
+| [REFLECTION_LOG.md](./REFLECTION_LOG.md) | Cumulative learnings |

@@ -87,15 +87,15 @@ Agent-assisted, self-improving specification workflow for complex, multi-phase t
 
 | Action            | Location                                                                                          |
 |-------------------|---------------------------------------------------------------------------------------------------|
-| Create new spec   | `specs/[name]/` following [SPEC_CREATION_GUIDE](specs/SPEC_CREATION_GUIDE.md)                     |
-| Pattern reference | [META_SPEC_TEMPLATE](specs/ai-friendliness-audit/META_SPEC_TEMPLATE.md)                           |
+| Create new spec   | `specs/[name]/` following [Spec Guide](specs/_guide/README.md)                                    |
+| Pattern reference | [PATTERN_REGISTRY](specs/_guide/PATTERN_REGISTRY.md)                                              |
 | View all specs    | [specs/README.md](specs/README.md)                                                                |
 | Agent specs       | [specs/agents/](specs/agents/README.md)                                                           |
 
 Key patterns:
 - **Agent-phase mapping**: Match agents to Discovery → Evaluation → Synthesis → Iteration
 - **Self-reflection**: Capture learnings in `REFLECTION_LOG.md` after each phase
-- **Multi-session handoffs**: Use `HANDOFF_P[N].md` to preserve context between sessions
+- **Multi-session handoffs**: Use `HANDOFF_P[N].md` AND `P[N]_ORCHESTRATOR_PROMPT.md` (both required) to preserve context
 - **Skills vs Specs**: `.claude/skills/` for single-session, `specs/` for multi-session orchestration
 
 ## Key References

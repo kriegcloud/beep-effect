@@ -4,6 +4,19 @@ Copy-paste this prompt to start Phase 1 execution.
 
 ---
 
+## Pre-Flight Checklist
+
+Before executing this phase, verify HANDOFF_P0.md context is preserved:
+- [ ] `outputs/existing-patterns-audit.md` exists (Phase 0 artifact)
+- [ ] `outputs/file-category-inventory.md` exists (Phase 0 artifact)
+- [ ] `outputs/inconsistency-report.md` exists (Phase 0 artifact)
+- [ ] `REFLECTION_LOG.md` contains Phase 0 learnings
+- [ ] Pattern counts from Phase 0 are verifiable via grep
+
+If Phase 0 artifacts are missing or incomplete, request regeneration before proceeding.
+
+---
+
 ## Prompt
 
 You are executing Phase 1 (External Research) of the Canonical Naming Conventions spec.

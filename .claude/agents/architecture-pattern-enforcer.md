@@ -3,6 +3,30 @@ name: architecture-pattern-enforcer
 description: Audit packages for layer dependencies, cross-slice boundaries, and structural patterns in the beep-effect monorepo.
 model: sonnet
 tools: [Read, Glob, Grep]
+signature:
+  input:
+    scope:
+      type: package|slice|monorepo
+      description: Audit scope level
+      required: true
+    target:
+      type: string
+      description: Package name (e.g., "@beep/iam-server"), slice name (e.g., "iam"), or "monorepo"
+      required: true
+  output:
+    report:
+      type: object
+      description: "{ scope: string, target: string, violations: Violation[], statistics: Stats }"
+    layerViolations:
+      type: array
+      description: "LayerViolation[] with { file: string, layer: string, invalidImport: string, problem: string }"
+    crossSliceViolations:
+      type: array
+      description: "SliceViolation[] with { file: string, sourceSlice: string, invalidImport: string }"
+    structureIssues:
+      type: array
+      description: "StructureIssue[] with { package: string, missing: string[], naming: string[] }"
+  sideEffects: write-reports
 ---
 
 # Architecture Pattern Enforcer

@@ -1,6 +1,35 @@
 ---
+name: code-observability-writer
 description: Observability instrumentation agent for logging, tracing, metrics, and error tracking using Effect patterns
 tools: [Read, Edit, Write, Grep, Glob, mcp__effect_docs__effect_docs_search, mcp__MCP_DOCKER__mcp-find, mcp__MCP_DOCKER__mcp-add, mcp__MCP_DOCKER__mcp-exec]
+signature:
+  input:
+    sourceFiles:
+      type: string[]
+      description: Files to add observability instrumentation to
+      required: true
+    instrumentationType:
+      type: string[]
+      description: Types to add (logging, tracing, metrics, errors)
+      required: false
+    context:
+      type: string
+      description: Domain context for meaningful span/metric names
+      required: false
+  output:
+    filesModified:
+      type: string[]
+      description: Paths of files with added instrumentation
+    errorsCreated:
+      type: array
+      description: "TaggedError[] with { name: string, fields: string[], httpStatus?: number }"
+    metricsAdded:
+      type: array
+      description: "Metric[] with { name: string, type: counter|histogram|gauge }"
+    spansAdded:
+      type: array
+      description: "Span[] with { name: string, attributes: string[] }"
+  sideEffects: write-files
 ---
 
 # Code Observability Writer Agent

@@ -23,6 +23,55 @@ Phase 1 deliverables:
 
 ## Context
 
+### Phase 1 Research Summary (2026-01-21)
+
+#### Key Finding 1: Effect-TS Uses kebab-case Files
+**Source**: Official Effect-TS repository (HIGH credibility)
+- File names: `http-client.ts`, `sql-client.ts`, `file-system.ts`
+- Namespace exports: `export * as HttpClient from "./http-client.js"`
+- Internal separation: `internal/` directory for implementation details
+
+**Implication**: beep-effect could align with Effect ecosystem by adopting kebab-case.
+
+#### Key Finding 2: FP Tradition Uses PascalCase
+**Source**: Haskell, Elm, OCaml, F# official docs (HIGH credibility)
+- All surveyed FP languages use PascalCase for module identifiers
+- Effect-TS is an outlier, prioritizing JavaScript ecosystem familiarity
+
+**Implication**: Effect diverges from FP tradition; beep-effect must choose alignment.
+
+#### Key Finding 3: DDD Pattern Suffixes Are Convention, Not Requirement
+**Source**: Evans, Vernon, Fowler (HIGH credibility)
+- Pattern suffixes (`UserRepository.ts`) emerged from community practice
+- DDD focuses on conceptual boundaries, not file naming
+- Ubiquitous language suggests domain terms over technical jargon
+
+**Implication**: Suffix vs semantic naming is a design choice, not a mandate.
+
+#### Key Finding 4: Clean Architecture Prioritizes Features Over Layers
+**Source**: Uncle Bob Martin (HIGH credibility)
+- Organize by feature/use-case, not technical layer
+- Dependency direction matters more than file naming
+
+**Implication**: Feature-first organization is a valid alternative to current structure.
+
+#### Key Finding 5: AI Agents Rely on Greppability
+**Source**: llms.txt spec, CLAUDE.md patterns (HIGH credibility)
+- Unique file names over generic ones (`EFFECT_PATTERNS.md` vs `patterns.md`)
+- Consistent suffixes/prefixes for related files (`HANDOFF_P0.md`, `HANDOFF_P1.md`)
+- Discovery files complement naming conventions
+
+**Implication**: Whatever convention chosen, uniqueness and searchability matter.
+
+#### Key Tensions Identified
+
+| Tension | Options | Trade-offs |
+|---------|---------|------------|
+| **File casing** | Effect (kebab-case) vs FP (PascalCase) | Ecosystem vs tradition |
+| **Pattern suffixes** | OOP (`UserRepository.ts`) vs FP (`Users.ts`) | Explicit vs concise |
+| **Organization** | Layer-first vs Feature-first | Technical vs domain cohesion |
+| **Barrel exports** | Heavy namespace vs selective vs none | Convenience vs tree-shaking |
+
 ### Synthesis Goals
 
 1. **Category Taxonomy**: Finalize exhaustive `.category.ts` postfix list
@@ -203,5 +252,5 @@ This spec's research phase is complete after Phase 2.
 
 **Future Work**:
 1. Create `specs/naming-conventions-refactor/` for implementation
-2. Use JetBrains MCP tools for large-scale refactoring
+2. Use `mcp-refactor-typescript` MCP tools for large-scale refactoring (see `.claude/skills/mcp-refactor-typescript.md`)
 3. Create automated linting rules

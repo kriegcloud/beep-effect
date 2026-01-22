@@ -4,6 +4,18 @@ Copy-paste this prompt to start Phase 0 execution.
 
 ---
 
+## Pre-Flight Checklist
+
+Before executing this phase, verify:
+- [ ] `specs/canonical-naming-conventions/README.md` exists (spec entry point)
+- [ ] `specs/canonical-naming-conventions/MASTER_ORCHESTRATION.md` exists (workflow reference)
+- [ ] `specs/canonical-naming-conventions/outputs/` directory exists
+- [ ] No pre-existing Phase 0 outputs (clean slate)
+
+If any items are missing, request clarification before proceeding.
+
+---
+
 ## Prompt
 
 You are executing Phase 0 (Codebase Inventory) of the Canonical Naming Conventions spec.

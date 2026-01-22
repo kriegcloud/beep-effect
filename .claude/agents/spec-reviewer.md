@@ -1,6 +1,6 @@
 ---
 name: spec-reviewer
-description: Validate spec structure, handoff protocol, and context engineering quality against SPEC_CREATION_GUIDE.md.
+description: Validate spec structure, handoff protocol, and context engineering quality against specs/_guide/README.md.
 model: sonnet
 tools: [Read, Glob, Grep]
 ---
@@ -37,19 +37,30 @@ specs/[NAME]/
 ├── README.md, REFLECTION_LOG.md   # Required
 ├── QUICK_START.md, MASTER_ORCHESTRATION.md, AGENT_PROMPTS.md, RUBRICS.md  # Complex
 ├── templates/                      # Output templates
-├── outputs/                        # Phase artifacts (codebase-context.md, evaluation.md)
-└── handoffs/                       # HANDOFF_P[N].md, P[N]_ORCHESTRATOR_PROMPT.md
+├── outputs/                        # Phase artifacts (guideline-review.md, architecture-review.md)
+└── handoffs/                       # HANDOFF_P[N].md AND P[N]_ORCHESTRATOR_PROMPT.md (BOTH required)
 ```
+
+### Dual Handoff File Requirement (CRITICAL)
+
+Multi-session specs MUST have BOTH files for each phase transition:
+
+| File | Purpose | Required |
+|------|---------|----------|
+| `HANDOFF_P[N].md` | Full context document with verification tables, schema shapes | Yes |
+| `P[N]_ORCHESTRATOR_PROMPT.md` | Copy-paste ready prompt to start phase | Yes |
+
+**A phase is NOT complete until BOTH files exist.**
 
 ### Phase Progression
 
-| Phase | Purpose | Key Output |
-|-------|---------|------------|
-| 0 | Scaffolding | README, REFLECTION_LOG |
-| 1 | Discovery | outputs/codebase-context.md |
-| 2 | Evaluation | outputs/evaluation.md |
-| 3 | Synthesis | outputs/remediation-plan.md, HANDOFF_P1.md |
-| 4+ | Iteration | HANDOFF_P[N+1].md |
+| Phase | Purpose | Key Outputs |
+|-------|---------|-------------|
+| 0: Scaffolding | Structure | README.md, REFLECTION_LOG.md |
+| 1: Discovery | Context gathering | outputs/codebase-context.md |
+| 2: Evaluation | Apply rubrics | outputs/guideline-review.md, outputs/architecture-review.md |
+| 3: Synthesis | Generate plans | outputs/remediation-plan.md, handoffs/HANDOFF_P1.md, handoffs/P1_ORCHESTRATOR_PROMPT.md |
+| 4+: Iteration | Execute & handoff | Implementation + dual handoff files |
 
 ---
 
@@ -57,11 +68,25 @@ specs/[NAME]/
 
 | Dimension | Weight | Good Pattern | Anti-Pattern |
 |-----------|--------|--------------|--------------|
-| Hierarchical Structure | 20% | System → Task → Tool → Memory layers | Flat structure |
-| Progressive Disclosure | 20% | README → links → details | Everything in one document |
-| KV-Cache Friendliness | 15% | Stable prefixes, append-only | Timestamps at prompt start |
-| Context Rot Prevention | 25% | Focused docs (100-600 lines) | 2000+ line single document |
-| Self-Improving Loops | 20% | Prompt refinements per phase | No reflection entries |
+| Hierarchical Structure | 15% | System → Task → Tool → Memory layers | Flat structure |
+| Progressive Disclosure | 15% | README → links → details | Everything in one document |
+| KV-Cache Friendliness | 10% | Stable prefixes, append-only | Timestamps at prompt start |
+| Context Rot Prevention | 20% | Focused docs (100-600 lines) | 800+ line single document |
+| Self-Improving Loops | 15% | Prompt refinements per phase | No reflection entries |
+| Context Budget Compliance | 15% | Working ≤2K, Episodic ≤1K, Total ≤4K tokens | Unbounded context, no budget tracking |
+| Orchestrator Delegation | 10% | Delegates >3 file reads to sub-agents | Sequential Glob/Read/Grep by orchestrator |
+
+### Context Budget Limits
+
+Per `specs/_guide/HANDOFF_STANDARDS.md`:
+
+| Memory Type | Token Budget | Content Type |
+|-------------|--------------|--------------|
+| Working | ≤2,000 | Current tasks, success criteria, blocking issues |
+| Episodic | ≤1,000 | Previous phase summaries, key decisions |
+| Semantic | ≤500 | Project constants, tech stack |
+| Procedural | Links only | Documentation references |
+| **Total per handoff** | **≤4,000** | Well under degradation threshold |
 
 ---
 
@@ -69,17 +94,39 @@ specs/[NAME]/
 
 ### Step 1: Classify Complexity
 
+Use the weighted formula from `specs/_guide/README.md`:
+
+```
+Complexity = (Phases × 2) + (Agents × 3) + (CrossPkg × 4) + (ExtDeps × 3) + (Uncertainty × 5) + (Research × 2)
+```
+
+| Score | Complexity | Required Structure |
+|-------|------------|-------------------|
+| 0-20 | Simple | README + REFLECTION_LOG |
+| 21-40 | Medium | + QUICK_START, outputs/, handoffs/ |
+| 41-60 | High | + MASTER_ORCHESTRATION, AGENT_PROMPTS |
+| 61+ | Critical | + RUBRICS, extensive templates |
+
+**Simplified heuristic** (when full calculation not feasible):
+
 | Complexity | Files | Phases | Handoffs |
 |------------|-------|--------|----------|
 | Simple | <5 | 1-2 | No |
-| Medium | 5-10 | 3 | Optional |
-| Complex | 10+ | 4+ | Required |
+| Medium | 5-10 | 3 | Required (dual files) |
+| Complex | 10+ | 4+ | Required (dual files) |
 
 ### Step 2: Validate Files
 
 ```bash
-ls specs/[NAME]/README.md specs/[NAME]/REFLECTION_LOG.md  # Required
-ls specs/[NAME]/QUICK_START.md specs/[NAME]/MASTER_ORCHESTRATION.md  # Complex
+# Required files
+ls specs/[NAME]/README.md specs/[NAME]/REFLECTION_LOG.md
+
+# Complex spec files
+ls specs/[NAME]/QUICK_START.md specs/[NAME]/MASTER_ORCHESTRATION.md
+
+# Dual handoff validation (CRITICAL)
+ls specs/[NAME]/handoffs/HANDOFF_P*.md
+ls specs/[NAME]/handoffs/P*_ORCHESTRATOR_PROMPT.md
 ```
 
 ### Step 3: Evaluate Dimensions
@@ -89,8 +136,9 @@ ls specs/[NAME]/QUICK_START.md specs/[NAME]/MASTER_ORCHESTRATION.md  # Complex
 | Structure | All files present, standard layout | Minimal/stub structure |
 | README | Purpose, scope, measurable criteria | Stub or missing |
 | Reflection | Rich entries, prompt refinements per phase | Empty or missing |
-| Handoff (complex) | Complete chain, ready-to-use prompts | No handoffs despite multi-session |
-| Context Engineering | Excellent hierarchy, disclosure, focused docs | No context engineering |
+| Dual Handoff (multi-session) | BOTH HANDOFF_P[N].md AND P[N]_ORCHESTRATOR_PROMPT.md | Missing either file |
+| Context Engineering | Budget compliance, hierarchy, focused docs | No budget tracking, giant docs |
+| Orchestrator Delegation | Sub-agents used for research (>3 files) | Orchestrator does sequential reads |
 
 ### Step 4: Check Anti-Patterns
 
@@ -98,17 +146,22 @@ ls specs/[NAME]/QUICK_START.md specs/[NAME]/MASTER_ORCHESTRATION.md  # Complex
 |--------------|-----------|----------|
 | No REFLECTION_LOG | File missing | HIGH |
 | Empty REFLECTION_LOG | <10 lines | MEDIUM |
-| Giant document | >800 lines | MEDIUM |
-| No handoffs (multi-session) | Missing handoffs/ | HIGH |
-| Static prompts | No refinements | MEDIUM |
-| Unbounded scope | "Fix all" | LOW |
+| Giant document | >600 lines (warn), >800 lines (fail) | MEDIUM/HIGH |
+| Missing handoff file | HANDOFF_P[N].md missing | HIGH |
+| Missing orchestrator prompt | P[N]_ORCHESTRATOR_PROMPT.md missing | HIGH |
+| Single handoff file only | Has one but not both | HIGH |
+| Static prompts | No refinements across phases | MEDIUM |
+| Unbounded scope | "Fix all" without prioritization | LOW |
 | No success criteria | README lacks measurables | MEDIUM |
+| Context budget exceeded | Handoff >4K tokens | MEDIUM |
+| Orchestrator research | Orchestrator does >3 sequential file reads | MEDIUM |
+| Phase too large | >7 work items per phase | MEDIUM |
 
 ### Step 5: Calculate Grade
 
 **Simple Specs**: `(Structure + README + Reflection + Context) / 4`
 
-**Complex Specs**: `(Structure + README + Reflection + Handoff + Context) / 5`
+**Complex Specs**: `(Structure + README + Reflection + DualHandoff + Context + Delegation) / 6`
 
 | Score | Grade |
 |-------|-------|
@@ -129,7 +182,7 @@ ls specs/[NAME]/QUICK_START.md specs/[NAME]/MASTER_ORCHESTRATION.md  # Complex
 | Field | Value |
 |-------|-------|
 | Location | specs/[NAME]/ |
-| Complexity | [Simple/Medium/Complex] |
+| Complexity | [Simple/Medium/High/Critical] (Score: X) |
 | Overall Grade | [Score] - [Grade] |
 
 ## Dimension Scores
@@ -139,14 +192,28 @@ ls specs/[NAME]/QUICK_START.md specs/[NAME]/MASTER_ORCHESTRATION.md  # Complex
 | Structure | X/5 | [brief evidence] |
 | README | X/5 | [brief evidence] |
 | Reflection | X/5 | [brief evidence] |
-| Handoff | X/5 | [brief evidence] (complex only) |
-| Context | X/5 | [brief evidence] |
+| Dual Handoff | X/5 | [brief evidence] (multi-session only) |
+| Context Engineering | X/5 | [brief evidence] |
+| Orchestrator Delegation | X/5 | [brief evidence] (complex only) |
 
 ## Anti-Pattern Status
 
 | Anti-Pattern | Status |
 |--------------|--------|
 | [pattern] | PASS/WARN/FAIL |
+
+## Dual Handoff Audit (Multi-Session Specs)
+
+| Phase | HANDOFF_P[N].md | P[N]_ORCHESTRATOR_PROMPT.md | Status |
+|-------|-----------------|----------------------------|--------|
+| P1 | Present/Missing | Present/Missing | OK/FAIL |
+| P2 | Present/Missing | Present/Missing | OK/FAIL |
+
+## Context Budget Audit
+
+| Handoff File | Est. Tokens | Budget | Status |
+|--------------|-------------|--------|--------|
+| HANDOFF_P1.md | ~X,XXX | ≤4,000 | OK/OVER |
 
 ## Recommendations
 
@@ -164,10 +231,10 @@ ls specs/[NAME]/QUICK_START.md specs/[NAME]/MASTER_ORCHESTRATION.md  # Complex
 ```markdown
 # Spec Library Audit
 
-| Spec | Files | Complexity | Score | Grade |
-|------|-------|------------|-------|-------|
-| ai-friendliness-audit | 17 | Complex | 4.8 | Excellent |
-| flexlayout-type-safety | 12 | Complex | 4.4 | Good |
+| Spec | Files | Complexity | Dual Handoffs | Score | Grade |
+|------|-------|------------|---------------|-------|-------|
+| canonical-naming-conventions | 17 | High | Complete | 4.8 | Excellent |
+| spec-creation-improvements | 12 | High | Complete | 4.4 | Good |
 ```
 
 ---
@@ -183,6 +250,13 @@ wc -l specs/[NAME]/*.md
 
 # Count reflection entries
 grep -c "^###" specs/[NAME]/REFLECTION_LOG.md
+
+# Verify dual handoff files exist
+ls specs/[NAME]/handoffs/HANDOFF_P*.md 2>/dev/null | wc -l
+ls specs/[NAME]/handoffs/P*_ORCHESTRATOR_PROMPT.md 2>/dev/null | wc -l
+
+# Estimate token count (rough: ~4 tokens/word)
+wc -w specs/[NAME]/handoffs/HANDOFF_P1.md | awk '{print $1 * 4 " estimated tokens"}'
 ```
 
 ---
@@ -191,6 +265,17 @@ grep -c "^###" specs/[NAME]/REFLECTION_LOG.md
 
 1. **Agent specs differ** - `specs/agents/` uses agent-specific patterns
 2. **Living documents** - Static specs across phases = stalled learning
-3. **Handoff priority** - Multi-session specs REQUIRE handoffs for context preservation
-4. **Gold standard** - Compare against `specs/ai-friendliness-audit/` when uncertain
+3. **Dual handoff priority** - Multi-session specs REQUIRE BOTH handoff files for context preservation
+4. **Gold standard** - Compare against `specs/canonical-naming-conventions/` when uncertain
 5. **Scores need evidence** - Never score without citing specific findings
+6. **Context budgets matter** - Handoffs exceeding 4K tokens risk context degradation
+7. **Orchestrators delegate** - Orchestrators coordinate; they do NOT do sequential file reads
+
+---
+
+## Reference Documentation
+
+- [Spec Guide](../../specs/_guide/README.md) - Full spec creation workflow
+- [Handoff Standards](../../specs/_guide/HANDOFF_STANDARDS.md) - Context transfer requirements
+- [Anti-Patterns](../../specs/_guide/patterns/anti-patterns.md) - 14 anti-patterns to avoid
+- [Reflection System](../../specs/_guide/patterns/reflection-system.md) - Quality scoring

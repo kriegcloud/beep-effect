@@ -40,6 +40,27 @@ tools:
   - Read
   - Glob
   - Grep
+signature:
+  input:
+    query:
+      type: string
+      description: Effect API or pattern to research (e.g., "Effect.retry", "Layer composition")
+      required: true
+    adaptToCodebase:
+      type: boolean
+      description: Whether to transform examples to beep-effect conventions
+      required: false
+  output:
+    documentation:
+      type: object
+      description: "{ apis: ApiDoc[], examples: CodeExample[], relatedApis: string[] }"
+    codebaseAdaptation:
+      type: object
+      description: "{ transformedExamples: CodeExample[], imports: string[] }"
+    sources:
+      type: string[]
+      description: Document IDs and URLs referenced
+  sideEffects: none
 ---
 
 # MCP Researcher Agent

@@ -1,0 +1,23 @@
+# Outputs Directory
+
+This directory contains phase artifacts generated during spec execution.
+
+## Expected Files
+
+### Phase 0 Outputs
+- existing-patterns-audit.md
+- file-category-inventory.md
+- inconsistency-report.md
+
+### Phase 1 Outputs
+- fp-repo-conventions.md
+- ai-codebase-standards.md
+- industry-best-practices.md
+- category-theory-naming.md
+
+### Phase 2 Outputs
+- category-taxonomy.md
+- casing-decision-matrix.md
+- module-structure-patterns.md
+- naming-rules-draft.md
+- validation-report.md
