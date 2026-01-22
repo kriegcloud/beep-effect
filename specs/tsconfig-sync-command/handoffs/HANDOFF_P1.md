@@ -252,10 +252,11 @@ bun run repo-cli tsconfig-sync --dry-run
 
 ## Success Criteria
 
-### P0b Prerequisite (verify first)
+### P0b Prerequisite ✅ VERIFIED
 
-- [ ] `bun run check --filter @beep/tooling-utils` passes
-- [ ] `bun run repo-cli topo-sort` still works (topologicalSort extracted)
+- [x] `bun run check --filter @beep/tooling-utils` passes
+- [x] `bun run test --filter @beep/tooling-utils` passes (41 tests)
+- [x] `bun run repo-cli topo-sort` still works (topologicalSort extracted)
 
 ### P1 Success
 
