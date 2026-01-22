@@ -128,7 +128,7 @@ When defining `M.Class` domain models for database tables, choose the correct sc
 ```typescript
 // WRONG - Using internal implementation
 const Schema = S.Struct({
-  enabled: BS.toOptionalWithDefault(S.Boolean, false)  // Don't use internal helper!
+  enabled: BS.toOptionalWithDefault(S.Boolean, false)  // DEPRECATED - use BS.BoolWithDefault
 });
 
 // CORRECT - Using public BS helper
