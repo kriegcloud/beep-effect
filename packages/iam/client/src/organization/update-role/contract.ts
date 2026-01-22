@@ -16,19 +16,19 @@ const UpdateData = S.Struct({
 });
 
 export class Payload extends S.Class<Payload>($I`Payload`)(
-	{
-		organizationId: S.optional(S.String),
-		data: UpdateData,
-		/** Either roleName or roleId to identify the role */
-		roleName: S.optional(S.String),
-		roleId: S.optional(S.String),
-	},
-	formValuesAnnotation({
-		organizationId: undefined,
-		data: { permission: undefined, roleName: undefined },
-		roleName: undefined,
-		roleId: undefined,
-	}),
+  {
+    organizationId: S.optional(S.String),
+    data: UpdateData,
+    /** Either roleName or roleId to identify the role */
+    roleName: S.optional(S.String),
+    roleId: S.optional(S.String),
+  },
+  formValuesAnnotation({
+    organizationId: undefined,
+    data: { permission: undefined, roleName: undefined },
+    roleName: undefined,
+    roleId: undefined,
+  })
 ) {}
 
 // =============================================================================

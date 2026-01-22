@@ -28,9 +28,9 @@ import * as Contract from "./contract.ts";
  * @since 0.1.0
  */
 export const Handler = Contract.Wrapper.implement(
-	Common.wrapIamMethod({
-		wrapper: Contract.Wrapper,
-		mutatesSession: true,
-		// Better Auth type requires additional fields in data, but runtime accepts our payload
-	})((encoded) => client.organization.updateRole(encoded as Parameters<typeof client.organization.updateRole>[0])),
+  Common.wrapIamMethod({
+    wrapper: Contract.Wrapper,
+    mutatesSession: true,
+    // Better Auth type requires additional fields in data, but runtime accepts our payload
+  })((encoded) => client.organization.updateRole(encoded as Parameters<typeof client.organization.updateRole>[0]))
 );

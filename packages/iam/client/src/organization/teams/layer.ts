@@ -24,14 +24,14 @@ import * as Update from "../update-team/mod.ts";
  * @since 0.1.0
  */
 export const OrganizationTeamsGroup = Wrap.WrapperGroup.make(
-	Create.Contract.Wrapper,
-	List.Contract.Wrapper,
-	Update.Contract.Wrapper,
-	Remove.Contract.Wrapper,
-	SetActive.Contract.Wrapper,
-	ListUserTeams.Contract.Wrapper,
-	AddMember.Contract.Wrapper,
-	RemoveMember.Contract.Wrapper,
+  Create.Contract.Wrapper,
+  List.Contract.Wrapper,
+  Update.Contract.Wrapper,
+  Remove.Contract.Wrapper,
+  SetActive.Contract.Wrapper,
+  ListUserTeams.Contract.Wrapper,
+  AddMember.Contract.Wrapper,
+  RemoveMember.Contract.Wrapper
 );
 
 /**
@@ -41,12 +41,12 @@ export const OrganizationTeamsGroup = Wrap.WrapperGroup.make(
  * @since 0.1.0
  */
 export const layer = OrganizationTeamsGroup.toLayer({
-	CreateTeam: Create.Handler,
-	ListTeams: List.Handler,
-	UpdateTeam: Update.Handler,
-	RemoveTeam: Remove.Handler,
-	SetActiveTeam: SetActive.Handler,
-	ListUserTeams: ListUserTeams.Handler,
-	AddTeamMember: AddMember.Handler,
-	RemoveTeamMember: RemoveMember.Handler,
+  CreateTeam: Create.Handler,
+  ListTeams: List.Handler,
+  UpdateTeam: Update.Handler,
+  RemoveTeam: Remove.Handler,
+  SetActiveTeam: SetActive.Handler,
+  ListUserTeams: ListUserTeams.Handler,
+  AddTeamMember: AddMember.Handler,
+  RemoveTeamMember: RemoveMember.Handler,
 });

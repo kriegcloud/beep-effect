@@ -31,13 +31,13 @@ import * as ListUserInvitations from "../list-user-invitations/mod.ts";
  * @since 0.1.0
  */
 export const OrganizationAccessGroup = Wrap.WrapperGroup.make(
-	CheckSlug.Contract.Wrapper,
-	GetInvitation.Contract.Wrapper,
-	ListUserInvitations.Contract.Wrapper,
-	GetActiveMember.Contract.Wrapper,
-	GetActiveMemberRole.Contract.Wrapper,
-	Leave.Contract.Wrapper,
-	HasPermission.Contract.Wrapper,
+  CheckSlug.Contract.Wrapper,
+  GetInvitation.Contract.Wrapper,
+  ListUserInvitations.Contract.Wrapper,
+  GetActiveMember.Contract.Wrapper,
+  GetActiveMemberRole.Contract.Wrapper,
+  Leave.Contract.Wrapper,
+  HasPermission.Contract.Wrapper
 );
 
 /**
@@ -47,11 +47,11 @@ export const OrganizationAccessGroup = Wrap.WrapperGroup.make(
  * @since 0.1.0
  */
 export const layer = OrganizationAccessGroup.toLayer({
-	CheckSlug: CheckSlug.Handler,
-	GetInvitation: GetInvitation.Handler,
-	ListUserInvitations: ListUserInvitations.Handler,
-	GetActiveMember: GetActiveMember.Handler,
-	GetActiveMemberRole: GetActiveMemberRole.Handler,
-	Leave: Leave.Handler,
-	HasPermission: HasPermission.Handler,
+  CheckSlug: CheckSlug.Handler,
+  GetInvitation: GetInvitation.Handler,
+  ListUserInvitations: ListUserInvitations.Handler,
+  GetActiveMember: GetActiveMember.Handler,
+  GetActiveMemberRole: GetActiveMemberRole.Handler,
+  Leave: Leave.Handler,
+  HasPermission: HasPermission.Handler,
 });

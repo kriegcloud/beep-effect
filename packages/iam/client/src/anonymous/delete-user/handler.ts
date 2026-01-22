@@ -26,8 +26,8 @@ import * as Contract from "./contract.ts";
  * @since 0.1.0
  */
 export const Handler = Contract.Wrapper.implement(
-	Common.wrapIamMethod({
-		wrapper: Contract.Wrapper,
-		mutatesSession: true,
-	})(() => client.deleteAnonymousUser()),
+  Common.wrapIamMethod({
+    wrapper: Contract.Wrapper,
+    mutatesSession: true,
+  })(() => client.deleteAnonymousUser())
 );

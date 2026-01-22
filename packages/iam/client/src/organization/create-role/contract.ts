@@ -11,16 +11,16 @@ const $I = $IamClientId.create("organization/create-role");
 // =============================================================================
 
 export class Payload extends S.Class<Payload>($I`Payload`)(
-	{
-		organizationId: S.optional(S.String),
-		role: S.String,
-		permission: Common.Permission,
-	},
-	formValuesAnnotation({
-		organizationId: undefined,
-		role: "",
-		permission: {},
-	}),
+  {
+    organizationId: S.optional(S.String),
+    role: S.String,
+    permission: Common.Permission,
+  },
+  formValuesAnnotation({
+    organizationId: undefined,
+    role: "",
+    permission: {},
+  })
 ) {}
 
 // =============================================================================

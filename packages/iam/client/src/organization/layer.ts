@@ -21,11 +21,11 @@ import { OrganizationTeamsGroup } from "./teams/layer.ts";
  * @since 0.1.0
  */
 export const OrganizationGroup = OrganizationCrudGroup.merge(
-	OrganizationInvitationsGroup,
-	OrganizationMembersGroup,
-	OrganizationAccessGroup,
-	OrganizationRolesGroup,
-	OrganizationTeamsGroup,
+  OrganizationInvitationsGroup,
+  OrganizationMembersGroup,
+  OrganizationAccessGroup,
+  OrganizationRolesGroup,
+  OrganizationTeamsGroup
 );
 
 // Re-export submodule groups for granular access

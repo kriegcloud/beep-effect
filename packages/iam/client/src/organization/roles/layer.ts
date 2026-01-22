@@ -21,11 +21,11 @@ import * as Update from "../update-role/mod.ts";
  * @since 0.1.0
  */
 export const OrganizationRolesGroup = Wrap.WrapperGroup.make(
-	Create.Contract.Wrapper,
-	Delete.Contract.Wrapper,
-	Get.Contract.Wrapper,
-	List.Contract.Wrapper,
-	Update.Contract.Wrapper,
+  Create.Contract.Wrapper,
+  Delete.Contract.Wrapper,
+  Get.Contract.Wrapper,
+  List.Contract.Wrapper,
+  Update.Contract.Wrapper
 );
 
 /**
@@ -35,9 +35,9 @@ export const OrganizationRolesGroup = Wrap.WrapperGroup.make(
  * @since 0.1.0
  */
 export const layer = OrganizationRolesGroup.toLayer({
-	CreateRole: Create.Handler,
-	DeleteRole: Delete.Handler,
-	GetRole: Get.Handler,
-	ListRoles: List.Handler,
-	UpdateRole: Update.Handler,
+  CreateRole: Create.Handler,
+  DeleteRole: Delete.Handler,
+  GetRole: Get.Handler,
+  ListRoles: List.Handler,
+  UpdateRole: Update.Handler,
 });

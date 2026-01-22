@@ -11,12 +11,12 @@ const $I = $IamClientId.create("organization/get-invitation");
 // =============================================================================
 
 export class Payload extends S.Class<Payload>($I`Payload`)(
-	{
-		id: S.String,
-	},
-	formValuesAnnotation({
-		id: "",
-	}),
+  {
+    id: S.String,
+  },
+  formValuesAnnotation({
+    id: "",
+  })
 ) {}
 
 // =============================================================================

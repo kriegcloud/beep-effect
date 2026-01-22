@@ -25,5 +25,5 @@ export const AnonymousGroup = Wrap.WrapperGroup.make(DeleteUser.Contract.Wrapper
  * @since 0.1.0
  */
 export const layer = AnonymousGroup.toLayer({
-	DeleteAnonymousUser: DeleteUser.Handler,
+  DeleteAnonymousUser: DeleteUser.Handler,
 });
