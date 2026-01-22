@@ -122,7 +122,7 @@
     "mdi-material-ui": "catalog:",
     "mutative": "catalog:",
     "next": "catalog:",
-    "next-themes": "^0.4.6",
+    "next-themes": "catalog:",
     "nprogress": "catalog:",
     "pdf-lib": "catalog:",
     "picocolors": "catalog:",

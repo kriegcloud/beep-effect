@@ -58,7 +58,24 @@ export const WorkspacePkgKey = S.TemplateLiteral(WorkspacePkgKeyPrefix, S.String
  * @category Schemas/Dependencies
  * @since 0.1.0
  */
-export const WorkspacePkgValue = S.Literal("workspace:^", "workspace:^");
+export const WorkspacePkgValue = S.Literal("workspace:^");
+
+/**
+ * Catalog specifier for external packages managed by pnpm/bun catalog.
+ *
+ * @example
+ * ```typescript
+ * import { CatalogValue } from "@beep/tooling-utils"
+ * import * as S from "effect/Schema"
+ *
+ * const decode = S.decodeUnknownSync(CatalogValue)
+ * decode("catalog:")  // => "catalog:"
+ * ```
+ *
+ * @category Schemas/Dependencies
+ * @since 0.1.0
+ */
+export const CatalogValue = S.Literal("catalog:");
 
 /**
  * Tuple containing a workspace package name and its version specifier.
@@ -110,6 +127,25 @@ export const NpmDepValuePrefix = S.Literal("^");
  * @since 0.1.0
  */
 export const NpmDepValue = S.TemplateLiteral(NpmDepValuePrefix, S.String);
+
+/**
+ * Union of all valid version specifiers for dependencies.
+ *
+ * @example
+ * ```typescript
+ * import { VersionSpecifier } from "@beep/tooling-utils"
+ * import * as S from "effect/Schema"
+ *
+ * const decode = S.decodeUnknownSync(VersionSpecifier)
+ * decode("workspace:^")  // => "workspace:^"
+ * decode("catalog:")     // => "catalog:"
+ * decode("^3.0.0")       // => "^3.0.0"
+ * ```
+ *
+ * @category Schemas/Dependencies
+ * @since 0.1.0
+ */
+export const VersionSpecifier = S.Union(WorkspacePkgValue, CatalogValue, NpmDepValue);
 
 /**
  * Tuple containing an npm package name and its version specifier.

@@ -1,91 +1,111 @@
-import { describe } from "bun:test";
 import { assert, layer } from "@beep/testkit";
-import { isPlaywrightAvailable, Playwright } from "@beep/testkit/playwright";
-import { Effect } from "effect";
+import { Playwright } from "@beep/testkit/playwright";
+import { Duration, Effect, Schedule } from "effect";
 import { chromium } from "playwright-core";
 
-describe.skipIf(!isPlaywrightAvailable)("Playwright", () => {
-  layer(Playwright.layer)((it) => {
-    it.scoped(
-      "should launch a browser",
-      Effect.fn(function* () {
-        const program = Effect.gen(function* () {
-          const playwright = yield* Playwright;
-          const browser = yield* playwright.launchScoped(chromium);
+// Helper to retry CDP connection until the endpoint is ready
+const connectCDPWithRetry = (
+  playwright: typeof Playwright.Service,
+  url: string,
+  maxRetries = 10,
+  delayMs = 100
+) =>
+  playwright.connectCDP(url).pipe(
+    Effect.retry(
+      Schedule.recurs(maxRetries).pipe(Schedule.intersect(Schedule.spaced(Duration.millis(delayMs))))
+    )
+  );
 
-          yield* browser.newPage({ baseURL: "about:blank" });
-        });
-        const result = yield* Effect.exit(program);
+// Helper to retry scoped CDP connection until the endpoint is ready
+const connectCDPScopedWithRetry = (
+  playwright: typeof Playwright.Service,
+  url: string,
+  maxRetries = 10,
+  delayMs = 100
+) =>
+  playwright.connectCDPScoped(url).pipe(
+    Effect.retry(
+      Schedule.recurs(maxRetries).pipe(Schedule.intersect(Schedule.spaced(Duration.millis(delayMs))))
+    )
+  );
 
-        assert(result._tag === "Success", "Expected success");
-      })
-    );
-
-    it.scoped(
-      "should launch and run some commands",
-      Effect.fn(function* () {
-        const program = Effect.gen(function* () {
-          const playwright = yield* Playwright;
-          const browser = yield* playwright.launchScoped(chromium);
-
-          const page = yield* browser.newPage({ baseURL: "about:blank" });
-
-          const addition = yield* page.evaluate(() => {
-            return 1 + 1;
-          });
-
-          assert(addition === 2, "Expected addition to be 2");
-        });
-        const result = yield* Effect.exit(program);
-
-        assert(result._tag === "Success", "Expected success");
-      })
-    );
-
-    it.scoped(
-      "should fail to launch a browser with invalid path",
-      Effect.fn(function* () {
+layer(Playwright.layer)("Playwright", (it) => {
+  it.scoped("should launch a browser", () =>
+    Effect.gen(function* () {
+      const program = Effect.gen(function* () {
         const playwright = yield* Playwright;
-        const result = yield* playwright
-          .launchScoped(chromium, {
-            executablePath: "/invalid/path",
-          })
-          .pipe(Effect.flip);
-        assert(
-          result._tag === "TimeoutError" || result._tag === "UnknownError",
-          "Expected PlaywrightError with invalid path"
-        );
-      })
-    );
+        const browser = yield* playwright.launchScoped(chromium);
 
-    it.scoped(
-      "should fail with timeout 1",
-      Effect.fn(function* () {
+        yield* browser.newPage({ baseURL: "about:blank" });
+      });
+      const result = yield* Effect.exit(program);
+
+      assert(result._tag === "Success", "Expected success");
+    })
+  );
+
+  it.scoped("should launch and run some commands", () =>
+    Effect.gen(function* () {
+      const program = Effect.gen(function* () {
         const playwright = yield* Playwright;
-        const result = yield* playwright
-          .launchScoped(chromium, {
-            timeout: 1,
-            executablePath: "/bin/cat",
-          })
-          .pipe(Effect.flip);
-        assert(result._tag === "TimeoutError", "Expected TimeoutError with timeout 0");
-      })
-    );
+        const browser = yield* playwright.launchScoped(chromium);
 
-    // NOTE: CDP tests are flaky and require full system dependencies
-    // Run `sudo npx playwright install-deps` to install missing deps
-    it.scoped.skip(
-      "should connect via CDP (confirm browser.close only closes CDP connection)",
-      Effect.fn(function* () {
+        const page = yield* browser.newPage({ baseURL: "about:blank" });
+
+        const addition = yield* page.evaluate(() => {
+          return 1 + 1;
+        });
+
+        assert(addition === 2, "Expected addition to be 2");
+      });
+      const result = yield* Effect.exit(program);
+
+      assert(result._tag === "Success", "Expected success");
+    })
+  );
+
+  it.scoped("should fail to launch a browser with invalid path", () =>
+    Effect.gen(function* () {
+      const playwright = yield* Playwright;
+      const result = yield* playwright
+        .launchScoped(chromium, {
+          executablePath: "/invalid/path",
+        })
+        .pipe(Effect.flip);
+      assert(result._tag === "PlaywrightError", "Expected failure with invalid path");
+    })
+  );
+
+  it.scoped("should fail with timeout 1", () =>
+    Effect.gen(function* () {
+      const playwright = yield* Playwright;
+      const result = yield* playwright
+        .launchScoped(chromium, {
+          timeout: 1,
+          executablePath: "/bin/cat",
+        })
+        .pipe(Effect.flip);
+      assert(result._tag === "PlaywrightError", "Expected failure with timeout 0");
+      assert(result.reason === "Timeout", "Expected reason to be timeout");
+    })
+  );
+
+  it.scoped(
+    "should connect via CDP (confirm browser.close only closes CDP connection)",
+    () =>
+      Effect.gen(function* () {
         const playwright = yield* Playwright;
 
         // 1. Launch a browser that exposes CDP
         const directBrowser = yield* playwright.launchScoped(chromium, {
-          args: ["--remote-debugging-port=9222", "--remote-debugging-address=127.0.0.1"],
+          args: ["--remote-debugging-port=9224", "--remote-debugging-address=127.0.0.1"],
         });
 
-        // 2. Connect to it via CDP
-        const browser = yield* playwright.connectCDP("http://127.0.0.1:9222");
+        // Wait for browser to fully initialize its CDP endpoint
+        yield* Effect.sleep(Duration.millis(500));
+
+        // 2. Connect to it via CDP (with retry to wait for CDP endpoint)
+        const browser = yield* connectCDPWithRetry(playwright, "http://127.0.0.1:9224");
 
         // 3. Cleanup connection now
         yield* browser.close;
@@ -96,24 +116,26 @@ describe.skipIf(!isPlaywrightAvailable)("Playwright", () => {
         const content = yield* page.evaluate(() => "eval works");
         assert(content === "eval works", "Expected content to be eval works");
       }),
-      { timeout: 30_000 }
-    );
+    { timeout: 20000 }
+  );
 
-    // NOTE: CDP tests are flaky and require full system dependencies
-    // Run `sudo npx playwright install-deps` to install missing deps
-    it.scoped.skip(
-      "should connect via CDP and close automatically with scope",
-      Effect.fn(function* () {
+  it.scoped(
+    "should connect via CDP and close automatically with scope",
+    () =>
+      Effect.gen(function* () {
         const playwright = yield* Playwright;
 
         // 1. Launch a browser that exposes CDP
         const directBrowser = yield* playwright.launchScoped(chromium, {
-          args: ["--remote-debugging-port=9223", "--remote-debugging-address=127.0.0.1"],
+          args: ["--remote-debugging-port=9225", "--remote-debugging-address=127.0.0.1"],
         });
 
-        // 2. Connect to it via CDP using connectCDPScoped
+        // Wait for browser to fully initialize its CDP endpoint
+        yield* Effect.sleep(Duration.millis(500));
+
+        // 2. Connect to it via CDP using connectCDPScoped (with retry to wait for CDP endpoint)
         yield* Effect.gen(function* () {
-          const browser = yield* playwright.connectCDPScoped("http://127.0.0.1:9223");
+          const browser = yield* connectCDPScopedWithRetry(playwright, "http://127.0.0.1:9225");
           const isConnected = yield* browser.isConnected;
           assert(isConnected === true, "Expected connected true");
         }).pipe(Effect.scoped);
@@ -127,7 +149,6 @@ describe.skipIf(!isPlaywrightAvailable)("Playwright", () => {
         const content = yield* page.evaluate(() => "eval after cdp closed");
         assert(content === "eval after cdp closed", "Expected content to be correct");
       }),
-      { timeout: 30_000 }
-    );
-  });
+    { timeout: 20000 }
+  );
 });

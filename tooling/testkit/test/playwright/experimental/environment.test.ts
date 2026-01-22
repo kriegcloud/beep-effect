@@ -1,7 +1,5 @@
-import { describe } from "bun:test";
 import { layer } from "@beep/testkit";
 import { assert } from "@beep/testkit/assert";
-import { isPlaywrightAvailable } from "@beep/testkit/playwright";
 import { PlaywrightBrowser } from "@beep/testkit/playwright/browser";
 import {
   layer as layerPlaywrightEnvironment,
@@ -26,11 +24,8 @@ const accessFirst = Effect.gen(function* () {
   const pages = yield* first.pages;
   assert(pages.length > 0, "Expected pages");
 
-  const firstPage = pages[0];
-  assert(firstPage, "Expected first page");
-
   // append ?test=1 to the first page
-  yield* firstPage.goto("about:blank?test=1");
+  yield* pages[0]!.goto("about:blank?test=1");
 });
 
 const accessSecond = Effect.gen(function* () {
@@ -49,83 +44,77 @@ const accessSecond = Effect.gen(function* () {
   assert(pages.length > 0, "Expected pages");
 
   // page should have ?test=1
-  const page = pages[0];
-  assert(page, "Expected page");
+  const page = pages[0]!;
   const url = yield* page.url;
   assert(url.includes("?test=1"), "Expected ?test=1");
 });
 
-describe.skipIf(!isPlaywrightAvailable)("PlaywrightEnvironment", () => {
-  layer(layerPlaywrightEnvironment(chromium))((it) => {
-    it.scoped(
-      "should launch a browser",
-      Effect.fn(function* () {
-        const program = Effect.gen(function* () {
-          const playwright = yield* PlaywrightEnvironment;
-          const browser = yield* playwright.browser;
+layer(layerPlaywrightEnvironment(chromium))("PlaywrightEnvironment", (it) => {
+  it.scoped("should launch a browser", () =>
+    Effect.gen(function* () {
+      const program = Effect.gen(function* () {
+        const playwright = yield* PlaywrightEnvironment;
+        const browser = yield* playwright.browser;
 
-          yield* browser.newPage({ baseURL: "about:blank" });
-        });
-        const result = yield* Effect.exit(program);
+        yield* browser.newPage({ baseURL: "about:blank" });
+      });
+      const result = yield* Effect.exit(program);
 
-        assert(result._tag === "Success", "Expected success");
+      assert(result._tag === "Success", "Expected success");
+    })
+  );
+
+  it.effect("withBrowser helper should work", () =>
+    Effect.gen(function* () {
+      const browser = yield* PlaywrightBrowser;
+
+      yield* browser.newPage({ baseURL: "about:blank" });
+    }).pipe(withBrowser)
+  );
+
+  it.effect("withBrowser allows shared use", () =>
+    Effect.gen(function* () {
+      const browser = yield* PlaywrightBrowser;
+
+      yield* browser.newPage({ baseURL: "about:blank" });
+
+      yield* accessFirst;
+      yield* accessSecond;
+    }).pipe(withBrowser)
+  );
+
+  it.effect("withBrowser imperative use", () =>
+    withBrowser(
+      Effect.gen(function* () {
+        const browser = yield* PlaywrightBrowser;
+
+        yield* browser.newPage({ baseURL: "about:blank" });
       })
-    );
+    )
+  );
 
-    it.effect(
-      "withBrowser helper should work",
-      Effect.fn(function* () {
-        const browser = yield* PlaywrightBrowser;
-        yield* browser.newPage({ baseURL: "about:blank" });
-      }, withBrowser)
-    );
+  it.effect("withBrowser scope cleanup", () =>
+    Effect.gen(function* () {
+      let capturedBrowser: typeof PlaywrightBrowser.Service | undefined;
 
-    it.effect(
-      "withBrowser allows shared use",
-      Effect.fn(function* () {
-        const browser = yield* PlaywrightBrowser;
-
-        yield* browser.newPage({ baseURL: "about:blank" });
-
-        yield* accessFirst;
-        yield* accessSecond;
-      }, withBrowser)
-    );
-
-    it.effect("withBrowser imperative use", () =>
-      withBrowser(
+      yield* withBrowser(
         Effect.gen(function* () {
           const browser = yield* PlaywrightBrowser;
+          capturedBrowser = browser;
 
           yield* browser.newPage({ baseURL: "about:blank" });
+
+          yield* accessFirst;
+          yield* accessSecond;
         })
-      )
-    );
+      );
 
-    it.effect(
-      "withBrowser scope cleanup",
-      Effect.fn(function* () {
-        let capturedBrowser: typeof PlaywrightBrowser.Service | undefined;
+      assert(capturedBrowser, "Expected browser");
+      const contexts = yield* capturedBrowser.contexts;
+      assert(contexts.length === 0, "Expected no contexts");
 
-        yield* withBrowser(
-          Effect.gen(function* () {
-            const browser = yield* PlaywrightBrowser;
-            capturedBrowser = browser;
-
-            yield* browser.newPage({ baseURL: "about:blank" });
-
-            yield* accessFirst;
-            yield* accessSecond;
-          })
-        );
-
-        assert(capturedBrowser, "Expected browser");
-        const contexts = yield* capturedBrowser.contexts;
-        assert(contexts.length === 0, "Expected no contexts");
-
-        // actually not connected anymore
-        assert((yield* capturedBrowser.isConnected) === false, "Expected not connected");
-      })
-    );
-  });
+      // actually not connected anymore
+      assert((yield* capturedBrowser.isConnected) === false, "Expected not connected");
+    })
+  );
 });

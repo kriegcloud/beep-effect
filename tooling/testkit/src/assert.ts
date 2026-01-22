@@ -51,6 +51,8 @@ export interface Assert {
   isNumber: (value: unknown, message?: string) => asserts value is number;
   isNotEmpty: (value: string | unknown[], message?: string) => void;
   strictEqual: <A>(actual: A, expected: A, message?: string) => void;
+  ok: (value: unknown, message?: string) => asserts value;
+  isOk: (value: unknown, message?: string) => asserts value;
 }
 
 function assertBase(condition: unknown, message?: string): asserts condition {
@@ -97,6 +99,15 @@ function isNotEmpty(value: string | unknown[], message?: string): void {
   }
 }
 
+function ok(value: unknown, message?: string): asserts value {
+  if (!value) {
+    fail(message ?? "Expected value to be truthy");
+  }
+}
+
+// isOk is an alias for ok (Chai compatibility)
+const isOk = ok;
+
 /**
  * Chai-style assertion object that can be called directly or with methods.
  *
@@ -111,6 +122,8 @@ export const assert: Assert = Object.assign(assertBase, {
   isNumber,
   isNotEmpty,
   strictEqual,
+  ok,
+  isOk,
 });
 
 /**

@@ -3,15 +3,19 @@
  */
 
 import { describe, it } from "bun:test";
+import * as Arbitrary from "effect/Arbitrary";
 import * as Cause from "effect/Cause";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
+import * as fc from "effect/FastCheck";
 import * as Fiber from "effect/Fiber";
 import { identity, pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as Logger from "effect/Logger";
+import { isObject } from "effect/Predicate";
 import * as Schedule from "effect/Schedule";
+import * as Schema from "effect/Schema";
 import * as Scope from "effect/Scope";
 import * as TestEnvironment from "effect/TestContext";
 import type * as TestServices from "effect/TestServices";
@@ -110,15 +114,45 @@ const makeTester = <R>(mapEffect: <A, E>(self: Effect.Effect<A, E, R>) => Effect
       testOptions(timeout)
     );
 
-  // Simplified prop without FastCheck for now
   const prop = (
     name: string,
-    _arbitraries: UnsafeAny,
+    arbitraries: UnsafeAny,
     self: (...args: Array<UnsafeAny>) => Effect.Effect<UnsafeAny, UnsafeAny, R>,
     timeout?: UnsafeAny
   ) => {
-    // For now, just run the test once with empty properties
-    return it(name, run(self), testOptions(timeout));
+    if (Array.isArray(arbitraries)) {
+      const arbs = arbitraries.map((arbitrary) => (Schema.isSchema(arbitrary) ? Arbitrary.make(arbitrary) : arbitrary));
+      return it(
+        name,
+        () =>
+          fc.assert(
+            // @ts-expect-error - FastCheck spread typing
+            fc.asyncProperty(...arbs, (...as: Array<UnsafeAny>) => run(self)(as)),
+            isObject(timeout) ? (timeout as UnsafeAny)?.fastCheck : {}
+          ),
+        testOptions(timeout)
+      );
+    }
+
+    const arbs = fc.record(
+      Object.keys(arbitraries).reduce(
+        (result, key) => {
+          result[key] = Schema.isSchema(arbitraries[key]) ? Arbitrary.make(arbitraries[key]) : arbitraries[key];
+          return result;
+        },
+        {} as Record<string, fc.Arbitrary<UnsafeAny>>
+      )
+    );
+
+    return it(
+      name,
+      () =>
+        fc.assert(
+          fc.asyncProperty(arbs, (as) => run(self)(as)),
+          isObject(timeout) ? (timeout as UnsafeAny)?.fastCheck : {}
+        ),
+      testOptions(timeout)
+    );
   };
 
   return Object.assign(f, { each, fails, only, prop, runIf, skip, skipIf });
@@ -126,12 +160,43 @@ const makeTester = <R>(mapEffect: <A, E>(self: Effect.Effect<A, E, R>) => Effect
 
 export const prop = (
   name: string,
-  _arbitraries: UnsafeAny,
+  arbitraries: UnsafeAny,
   self: (properties: UnsafeAny, ctx: UnsafeAny) => void,
   timeout?: UnsafeAny
 ) => {
-  // Simplified prop without FastCheck for now
-  return it(name, () => self({}, {}), testOptions(timeout));
+  if (Array.isArray(arbitraries)) {
+    const arbs = arbitraries.map((arbitrary) => (Schema.isSchema(arbitrary) ? Arbitrary.make(arbitrary) : arbitrary));
+    return it(
+      name,
+      () =>
+        fc.assert(
+          // @ts-expect-error - FastCheck spread typing
+          fc.property(...arbs, (...as: Array<UnsafeAny>) => self(as, {})),
+          isObject(timeout) ? (timeout as UnsafeAny)?.fastCheck : {}
+        ),
+      testOptions(timeout)
+    );
+  }
+
+  const arbs = fc.record(
+    Object.keys(arbitraries).reduce(
+      (result, key) => {
+        result[key] = Schema.isSchema(arbitraries[key]) ? Arbitrary.make(arbitraries[key]) : arbitraries[key];
+        return result;
+      },
+      {} as Record<string, fc.Arbitrary<UnsafeAny>>
+    )
+  );
+
+  return it(
+    name,
+    () =>
+      fc.assert(
+        fc.property(arbs, (as) => self(as, {})),
+        isObject(timeout) ? (timeout as UnsafeAny)?.fastCheck : {}
+      ),
+    testOptions(timeout)
+  );
 };
 
 export const layer = <R, E>(

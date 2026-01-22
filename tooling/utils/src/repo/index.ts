@@ -45,7 +45,18 @@ export * from "./Dependencies.js";
  * @since 0.1.0
  */
 export * from "./DependencyIndex.js";
-
+/**
+ * Re-exports dependency sorting utilities.
+ *
+ * @example
+ * ```typescript
+ * import { sortDependencies, mergeSortedDeps, enforceVersionSpecifiers } from "@beep/tooling-utils"
+ * ```
+ *
+ * @category exports
+ * @since 0.1.0
+ */
+export * from "./DepSorter.js";
 /**
  * Re-exports repository error types.
  *
@@ -58,7 +69,18 @@ export * from "./DependencyIndex.js";
  * @since 0.1.0
  */
 export * from "./Errors.js";
-
+/**
+ * Re-exports graph utilities for dependency analysis.
+ *
+ * @example
+ * ```typescript
+ * import { topologicalSort, detectCycles, computeTransitiveClosure, CyclicDependencyError } from "@beep/tooling-utils"
+ * ```
+ *
+ * @category exports
+ * @since 0.1.0
+ */
+export * from "./Graph.js";
 /**
  * Re-exports nearest package.json discovery utilities.
  *
@@ -71,7 +93,6 @@ export * from "./Errors.js";
  * @since 0.1.0
  */
 export * from "./NearestPackageJson.js";
-
 /**
  * Re-exports package file path mapping utilities.
  *
@@ -84,7 +105,6 @@ export * from "./NearestPackageJson.js";
  * @since 0.1.0
  */
 export * from "./PackageFileMap.js";
-
 /**
  * Re-exports package.json mapping utilities.
  *
@@ -97,7 +117,18 @@ export * from "./PackageFileMap.js";
  * @since 0.1.0
  */
 export * from "./PackageJsonMap.js";
-
+/**
+ * Re-exports path utilities for tsconfig references.
+ *
+ * @example
+ * ```typescript
+ * import { buildRootRelativePath, calculateDepth } from "@beep/tooling-utils"
+ * ```
+ *
+ * @category exports
+ * @since 0.1.0
+ */
+export * from "./Paths.js";
 /**
  * Re-exports repository root discovery utilities.
  *
@@ -110,7 +141,6 @@ export * from "./PackageJsonMap.js";
  * @since 0.1.0
  */
 export * from "./Root.js";
-
 /**
  * Re-exports tsconfig index for TypeScript configuration lookup.
  *
@@ -123,7 +153,6 @@ export * from "./Root.js";
  * @since 0.1.0
  */
 export * from "./TsConfigIndex.js";
-
 /**
  * Re-exports unique dependency collection utilities.
  *
@@ -136,7 +165,6 @@ export * from "./TsConfigIndex.js";
  * @since 0.1.0
  */
 export * from "./UniqueDependencies.js";
-
 /**
  * Re-exports workspace resolution utilities.
  *

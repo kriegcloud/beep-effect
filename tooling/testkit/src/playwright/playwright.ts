@@ -2,8 +2,12 @@ import { Context, Effect, Layer, type Scope } from "effect";
 import { type BrowserType, type ConnectOverCDPOptions, chromium } from "playwright-core";
 
 import { type LaunchOptions, PlaywrightBrowser } from "./browser";
-import { PlaywrightError } from "./errors";
+import { type PlaywrightError, wrapError } from "./errors";
 
+/**
+ * @category model
+ * @since 0.1.0
+ */
 export interface PlaywrightService {
   /**
    * Launches a new browser instance.
@@ -33,7 +37,7 @@ export interface PlaywrightService {
   launch: (
     browserType: BrowserType,
     options?: LaunchOptions
-  ) => Effect.Effect<typeof PlaywrightBrowser.Service, PlaywrightError.Type>;
+  ) => Effect.Effect<typeof PlaywrightBrowser.Service, PlaywrightError>;
   /**
    * Launches a new browser instance managed by a Scope.
    *
@@ -59,7 +63,7 @@ export interface PlaywrightService {
   launchScoped: (
     browserType: BrowserType,
     options?: LaunchOptions
-  ) => Effect.Effect<typeof PlaywrightBrowser.Service, PlaywrightError.Type, Scope.Scope>;
+  ) => Effect.Effect<typeof PlaywrightBrowser.Service, PlaywrightError, Scope.Scope>;
   /**
    * Connects to a browser instance via Chrome DevTools Protocol (CDP).
    *
@@ -89,7 +93,7 @@ export interface PlaywrightService {
   connectCDP: (
     cdpUrl: string,
     options?: ConnectOverCDPOptions
-  ) => Effect.Effect<typeof PlaywrightBrowser.Service, PlaywrightError.Type>;
+  ) => Effect.Effect<typeof PlaywrightBrowser.Service, PlaywrightError>;
   /**
    * Connects to a browser instance via Chrome DevTools Protocol (CDP) managed by a Scope.
    *
@@ -118,22 +122,19 @@ export interface PlaywrightService {
   connectCDPScoped: (
     cdpUrl: string,
     options?: ConnectOverCDPOptions
-  ) => Effect.Effect<typeof PlaywrightBrowser.Service, PlaywrightError.Type, Scope.Scope>;
+  ) => Effect.Effect<typeof PlaywrightBrowser.Service, PlaywrightError, Scope.Scope>;
 }
-// : (
-//   browserType: BrowserType,
-//   options?: LaunchOptions,
-// ) => Effect.Effect<typeof PlaywrightBrowser.Service, PlaywrightError.Type>
+
 const launch: (
   browserType: BrowserType,
   options?: LaunchOptions
-) => Effect.Effect<typeof PlaywrightBrowser.Service, PlaywrightError.Type> = Effect.fn(function* (
+) => Effect.Effect<typeof PlaywrightBrowser.Service, PlaywrightError> = Effect.fn(function* (
   browserType: BrowserType,
-  options?: undefined | LaunchOptions
+  options?: LaunchOptions
 ) {
   const rawBrowser = yield* Effect.tryPromise({
     try: () => browserType.launch(options),
-    catch: PlaywrightError.wrap,
+    catch: wrapError,
   });
 
   return PlaywrightBrowser.make(rawBrowser);
@@ -142,18 +143,22 @@ const launch: (
 const connectCDP: (
   cdpUrl: string,
   options?: ConnectOverCDPOptions
-) => Effect.Effect<typeof PlaywrightBrowser.Service, PlaywrightError.Type> = Effect.fn(function* (
+) => Effect.Effect<typeof PlaywrightBrowser.Service, PlaywrightError> = Effect.fn(function* (
   cdpUrl: string,
   options?: ConnectOverCDPOptions
 ) {
   const browser = yield* Effect.tryPromise({
     try: () => chromium.connectOverCDP(cdpUrl, options),
-    catch: PlaywrightError.wrap,
+    catch: wrapError,
   });
 
   return PlaywrightBrowser.make(browser);
 });
 
+/**
+ * @category tag
+ * @since 0.1.0
+ */
 export class Playwright extends Context.Tag("effect-playwright/index/Playwright")<Playwright, PlaywrightService>() {
   /**
    * @category layer

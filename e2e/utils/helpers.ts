@@ -1,70 +1,129 @@
-import { expect, type Locator, type Page } from "@playwright/test";
+import { assert } from "@beep/testkit";
+import type { PlaywrightLocatorService } from "@beep/testkit/playwright/locator";
+import type { PlaywrightPageService } from "@beep/testkit/playwright/page";
+import * as Effect from "effect/Effect";
 
-export const findAllTabSets = (page: Page) => {
+// -----------------------------------------------------------------------------
+// Locator Helpers (Synchronous - return locator services)
+// -----------------------------------------------------------------------------
+
+export const findAllTabSets = (page: PlaywrightPageService) => {
   return page.locator(".flexlayout__tabset");
 };
 
-export const findPath = (page: Page, path: string) => {
+export const findPath = (page: PlaywrightPageService, path: string) => {
   return page.locator(`[data-layout-path="${path}"]`);
 };
 
-export const findTabButton = (page: Page, path: string, index: number) => {
+export const findTabButton = (page: PlaywrightPageService, path: string, index: number) => {
   return findPath(page, `${path}/tb${index}`);
 };
 
-export const checkTab = async (
-  page: Page,
+// -----------------------------------------------------------------------------
+// Check Helpers (Effect-returning)
+// -----------------------------------------------------------------------------
+
+export const checkTab = (
+  page: PlaywrightPageService,
   path: string,
   index: number,
   selected: boolean,
   text: string
-) => {
-  const tabButton = findTabButton(page, path, index);
-  const tabContent = findPath(page, `${path}/t${index}`);
+): Effect.Effect<void> =>
+  Effect.gen(function* () {
+    const tabButton = findTabButton(page, path, index);
+    const tabContent = findPath(page, `${path}/t${index}`);
 
-  await expect(tabButton).toBeVisible();
-  await expect(tabButton).toHaveClass(
-    new RegExp(
-      selected
-        ? "flexlayout__tab_button--selected"
-        : "flexlayout__tab_button--unselected"
-    )
-  );
-  await expect(
-    tabButton.locator(".flexlayout__tab_button_content")
-  ).toContainText(text);
+    // Check tab button visibility
+    const isVisible = yield* tabButton.use((l) => l.isVisible());
+    assert(isVisible, `Tab button at ${path}/tb${index} should be visible`);
 
-  await expect(tabContent).toBeVisible({ visible: selected });
-  await expect(tabContent).toContainText(text);
-};
+    // Check selected/unselected class
+    const className = yield* tabButton.use((l) => l.getAttribute("class"));
+    const expectedClass = selected
+      ? "flexlayout__tab_button--selected"
+      : "flexlayout__tab_button--unselected";
+    assert(
+      className?.includes(expectedClass),
+      `Tab button should have class ${expectedClass}`
+    );
 
-export const checkBorderTab = async (
-  page: Page,
+    // Check button text content
+    const buttonContentLocator = tabButton
+      .locator(".flexlayout__tab_button_content")
+      .first();
+    const buttonText = yield* buttonContentLocator.textContent();
+    assert(
+      buttonText?.includes(text),
+      `Tab button content should contain "${text}"`
+    );
+
+    // Check tab content visibility (visible only when selected)
+    const contentVisible = yield* tabContent.use((l) => l.isVisible());
+    assert(
+      contentVisible === selected,
+      `Tab content visibility should be ${selected}`
+    );
+
+    // Check tab content text
+    const contentText = yield* tabContent.textContent();
+    assert(
+      contentText?.includes(text),
+      `Tab content should contain "${text}"`
+    );
+  });
+
+export const checkBorderTab = (
+  page: PlaywrightPageService,
   path: string,
   index: number,
   selected: boolean,
   text: string
-) => {
-  const tabButton = findTabButton(page, path, index);
-  const tabContent = findPath(page, `${path}/t${index}`);
+): Effect.Effect<void> =>
+  Effect.gen(function* () {
+    const tabButton = findTabButton(page, path, index);
+    const tabContent = findPath(page, `${path}/t${index}`);
 
-  await expect(tabButton).toBeVisible();
-  await expect(tabButton).toHaveClass(
-    new RegExp(
-      selected
-        ? "flexlayout__border_button--selected"
-        : "flexlayout__border_button--unselected"
-    )
-  );
-  await expect(
-    tabButton.locator(".flexlayout__border_button_content")
-  ).toContainText(text);
+    // Check tab button visibility
+    const isVisible = yield* tabButton.use((l) => l.isVisible());
+    assert(isVisible, `Border tab button at ${path}/tb${index} should be visible`);
 
-  if (selected) {
-    await expect(tabContent).toBeVisible();
-    await expect(tabContent).toContainText(text);
-  }
-};
+    // Check selected/unselected class
+    const className = yield* tabButton.use((l) => l.getAttribute("class"));
+    const expectedClass = selected
+      ? "flexlayout__border_button--selected"
+      : "flexlayout__border_button--unselected";
+    assert(
+      className?.includes(expectedClass),
+      `Border tab button should have class ${expectedClass}`
+    );
+
+    // Check button text content
+    const buttonContentLocator = tabButton
+      .locator(".flexlayout__border_button_content")
+      .first();
+    const buttonText = yield* buttonContentLocator.textContent();
+    assert(
+      buttonText?.includes(text),
+      `Border tab button content should contain "${text}"`
+    );
+
+    // Check tab content (only visible when selected)
+    if (selected) {
+      const contentVisible = yield* tabContent.use((l) => l.isVisible());
+      assert(contentVisible, `Selected border tab content should be visible`);
+
+      const contentText = yield* tabContent.textContent();
+      assert(
+        contentText?.includes(text),
+        `Border tab content should contain "${text}"`
+      );
+    }
+  });
+
+// -----------------------------------------------------------------------------
+// Location Constants
+// -----------------------------------------------------------------------------
 
 export const Location = {
   CENTER: 0,
@@ -99,67 +158,100 @@ function getLocation(
   }
 }
 
-export async function drag(
-  page: Page,
-  from: Locator,
-  to: Locator,
+// -----------------------------------------------------------------------------
+// Drag Helpers (Effect-returning with escape hatch for mouse operations)
+// -----------------------------------------------------------------------------
+
+export const drag = (
+  page: PlaywrightPageService,
+  from: PlaywrightLocatorService,
+  to: PlaywrightLocatorService,
   loc: LocationValue
-) {
-  const fr = await from.boundingBox();
-  const tr = await to.boundingBox();
+): Effect.Effect<void> =>
+  Effect.gen(function* () {
+    // Get bounding boxes using escape hatch
+    const fr = yield* from.use((l) => l.boundingBox());
+    const tr = yield* to.use((l) => l.boundingBox());
 
-  if (!fr || !tr) throw new Error("Could not get bounding boxes");
+    if (!fr || !tr) {
+      return yield* Effect.fail(new Error("Could not get bounding boxes"));
+    }
 
-  const cf = getLocation(fr, Location.CENTER);
-  const ct = getLocation(tr, loc);
+    const cf = getLocation(fr, Location.CENTER);
+    const ct = getLocation(tr, loc);
 
-  await page.mouse.move(cf.x, cf.y);
-  await page.mouse.down();
-  await page.mouse.move(ct.x, ct.y, { steps: 10 });
-  await page.mouse.up();
-}
+    // Mouse operations MUST use page.use() escape hatch
+    yield* page.use(async (p) => {
+      await p.mouse.move(cf.x, cf.y);
+      await p.mouse.down();
+      await p.mouse.move(ct.x, ct.y, { steps: 10 });
+      await p.mouse.up();
+    });
+  });
 
-export async function dragToEdge(
-  page: Page,
-  from: Locator,
+export const dragToEdge = (
+  page: PlaywrightPageService,
+  from: PlaywrightLocatorService,
   edgeIndex: number
-) {
-  const fr = await from.boundingBox();
-  if (!fr) throw new Error("Could not get bounding box for source");
+): Effect.Effect<void> =>
+  Effect.gen(function* () {
+    const fr = yield* from.use((l) => l.boundingBox());
+    if (!fr) {
+      return yield* Effect.fail(new Error("Could not get bounding box for source"));
+    }
 
-  const cf = { x: fr.x + fr.width / 2, y: fr.y + fr.height / 2 };
+    const cf = { x: fr.x + fr.width / 2, y: fr.y + fr.height / 2 };
 
-  await page.mouse.move(cf.x, cf.y);
-  await page.mouse.down();
-  await page.mouse.move(cf.x + 10, cf.y + 10); // start move to make edges show
-  const edgeRects = page.locator(".flexlayout__edge_rect");
-  const edge = edgeRects.nth(edgeIndex);
-  const tr = await edge.boundingBox();
-  if (!tr) throw new Error("Could not get bounding box for edge");
+    // Start move and get edge rect
+    yield* page.use(async (p) => {
+      await p.mouse.move(cf.x, cf.y);
+      await p.mouse.down();
+      await p.mouse.move(cf.x + 10, cf.y + 10); // start move to make edges show
+    });
 
-  const ct = { x: tr.x + tr.width / 2, y: tr.y + tr.height / 2 };
+    // Get edge locator and bounding box
+    const edgeRects = page.locator(".flexlayout__edge_rect");
+    const edge = edgeRects.nth(edgeIndex);
+    const tr = yield* edge.use((l) => l.boundingBox());
 
-  await page.mouse.move(ct.x, ct.y, { steps: 10 });
-  await page.mouse.up();
-}
+    if (!tr) {
+      // Clean up mouse state
+      yield* page.use(async (p) => {
+        await p.mouse.up();
+      });
+      return yield* Effect.fail(new Error("Could not get bounding box for edge"));
+    }
 
-export async function dragSplitter(
-  page: Page,
-  from: Locator,
+    const ct = { x: tr.x + tr.width / 2, y: tr.y + tr.height / 2 };
+
+    yield* page.use(async (p) => {
+      await p.mouse.move(ct.x, ct.y, { steps: 10 });
+      await p.mouse.up();
+    });
+  });
+
+export const dragSplitter = (
+  page: PlaywrightPageService,
+  from: PlaywrightLocatorService,
   upDown: boolean,
   distance: number
-) {
-  const fr = await from.boundingBox();
-  if (!fr) throw new Error("Could not get bounding box for splitter");
+): Effect.Effect<void> =>
+  Effect.gen(function* () {
+    const fr = yield* from.use((l) => l.boundingBox());
+    if (!fr) {
+      return yield* Effect.fail(new Error("Could not get bounding box for splitter"));
+    }
 
-  const cf = { x: fr.x + fr.width / 2, y: fr.y + fr.height / 2 };
-  const ct = {
-    x: cf.x + (upDown ? 0 : distance),
-    y: cf.y + (upDown ? distance : 0),
-  };
+    const cf = { x: fr.x + fr.width / 2, y: fr.y + fr.height / 2 };
+    const ct = {
+      x: cf.x + (upDown ? 0 : distance),
+      y: cf.y + (upDown ? distance : 0),
+    };
 
-  await page.mouse.move(cf.x, cf.y);
-  await page.mouse.down();
-  await page.mouse.move(ct.x, ct.y, { steps: 10 });
-  await page.mouse.up();
-}
+    yield* page.use(async (p) => {
+      await p.mouse.move(cf.x, cf.y);
+      await p.mouse.down();
+      await p.mouse.move(ct.x, ct.y, { steps: 10 });
+      await p.mouse.up();
+    });
+  });

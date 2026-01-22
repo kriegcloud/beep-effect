@@ -1,45 +1,39 @@
-import * as F from "effect/Function";
-import * as O from "effect/Option";
-import * as S from "effect/Schema";
+import { Data } from "effect";
 import { errors } from "playwright-core";
 
-export class PlaywrightCoreTimoutError extends S.instanceOf(errors.TimeoutError) {}
+/**
+ * Playwright does not provide detailed error information but there is
+ * a distinction between timeout and other errors.
+ *
+ * @category error
+ * @since 0.1.0
+ */
+export type PlaywrightErrorReason = "Timeout" | "Unknown";
 
-export declare namespace PlaywrightCoreTimoutError {
-  export type Type = S.Schema.Type<typeof PlaywrightCoreTimoutError>;
-}
+/**
+ * Error type that is returned when a Playwright error occurs.
+ * Reason can either be "Timeout" or "Unknown".
+ *
+ * Timeout errors occur when a timeout is reached. All other errors are
+ * grouped under "Unknown".
+ *
+ * @category error
+ * @since 0.1.0
+ */
+export class PlaywrightError extends Data.TaggedError("PlaywrightError")<{
+  reason: PlaywrightErrorReason;
+  cause: unknown;
+}> {}
 
-export class PlaywrightTimeoutError extends S.TaggedError<PlaywrightTimeoutError>()("TimeoutError", {
-  reason: S.tag("Timeout"),
-  cause: PlaywrightCoreTimoutError,
-}) {
-  static readonly new = (cause: PlaywrightCoreTimoutError.Type) => new PlaywrightTimeoutError({ cause: cause });
-  static readonly $is = S.is(PlaywrightTimeoutError);
-}
-
-export class PlaywrightUnknownError extends S.TaggedError<PlaywrightUnknownError>()("UnknownError", {
-  reason: S.tag("Unknown"),
-  cause: S.Defect,
-}) {
-  static readonly new = (cause: S.Schema.Type<typeof S.Defect>) => new PlaywrightUnknownError({ cause: cause });
-  static readonly $is = S.is(PlaywrightUnknownError);
-}
-
-export declare namespace PlaywrightError {
-  export type Type = PlaywrightTimeoutError | PlaywrightUnknownError;
-  export type Encoded = S.Schema.Encoded<typeof PlaywrightError>;
-}
-
-export class PlaywrightError extends S.Union(PlaywrightTimeoutError, PlaywrightUnknownError) {
-  static readonly wrap = (cause: unknown) =>
-    F.pipe(
-      cause,
-      O.liftPredicate(S.is(S.instanceOf(errors.TimeoutError))),
-      O.map(PlaywrightTimeoutError.new),
-      O.flatMap(S.decodeOption(PlaywrightError)),
-      O.match({
-        onNone: () => PlaywrightUnknownError.new(cause),
-        onSome: (cause) => cause,
-      })
-    );
+export function wrapError(error: unknown): PlaywrightError {
+  if (error instanceof errors.TimeoutError) {
+    return new PlaywrightError({
+      reason: "Timeout",
+      cause: error,
+    });
+  }
+  return new PlaywrightError({
+    reason: "Unknown",
+    cause: error,
+  });
 }

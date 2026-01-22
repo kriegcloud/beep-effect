@@ -33,3 +33,18 @@ export type Unboxed<Arg> =
                     : Arg;
 
 export type PageFunction<Arg, R> = string | ((arg: Unboxed<Arg>) => R | Promise<R>);
+
+/**
+ * A type helper to patch the `on`, `off`, and `once` methods of a Playwright object
+ * to support a specific set of events with correctly typed listeners.
+ *
+ * This is useful because Playwright's event methods are often overloaded,
+ * making them difficult to use in generic contexts or with custom event maps.
+ *
+ * @internal
+ */
+export type PatchedEvents<Original, Events> = Original & {
+  on<K extends keyof Events>(event: K, listener: (arg: Events[K]) => void): PatchedEvents<Original, Events>;
+  off<K extends keyof Events>(event: K, listener: (arg: Events[K]) => void): PatchedEvents<Original, Events>;
+  once<K extends keyof Events>(event: K, listener: (arg: Events[K]) => void): PatchedEvents<Original, Events>;
+};

@@ -53,9 +53,89 @@ This manual process is:
 
 ### Out of Scope
 
-- Version conflict resolution (uses existing specifier)
 - Runtime module resolution changes
 - Build order optimization (use `topo-sort` for that)
+
+---
+
+## Design Decisions
+
+| Decision | Choice | Rationale |
+|----------|--------|-----------|
+| **Hoisting depth** | Fully recursive | A→B→C means A gets all C's deps. Matches TypeScript project references. |
+| **Dependency type mapping** | Both peer AND dev | peerDeps for runtime, devDeps for development. Both need complete visibility. |
+| **Third-party handling** | Include all | Hoist both `@beep/*` and third-party. TypeScript needs all type definitions. |
+| **Version specifiers** | Enforced format | `workspace:^` for internal, `catalog:` for external. No explicit versions. |
+| **Reference paths** | Root-relative | All paths traverse up to repo root, then use full path. Consistent and explicit. |
+| **Reference sorting** | Topological | Dependencies appear before dependents in references array. |
+
+### Version Specifier Enforcement
+
+The command enforces consistent version specifiers:
+
+```
+@beep/*  packages → "workspace:^"
+external packages → "catalog:"
+```
+
+If a package has explicit versions (e.g., `"effect": "^3.0.0"`), the command will:
+1. Report in `--check` mode
+2. Fix to `catalog:` in sync mode
+
+### Root-Relative Reference Paths
+
+All tsconfig `references` use root-relative paths for consistency:
+
+**Example**: `packages/calendar/server/tsconfig.build.json`
+
+```json
+{
+  "references": [
+    { "path": "../../../packages/shared/domain/tsconfig.build.json" },
+    { "path": "../../../packages/common/schema/tsconfig.build.json" },
+    { "path": "../../../packages/calendar/domain/tsconfig.build.json" },
+    { "path": "../../../packages/calendar/tables/tsconfig.build.json" },
+    { "path": "../../../packages/shared/server/tsconfig.build.json" }
+  ]
+}
+```
+
+**Why root-relative?**
+- Consistent pattern regardless of package nesting depth
+- Easy to understand: always `../` up to root, then full path from root
+- Avoids confusion with minimal relative paths like `../domain`
+
+**Path calculation**:
+```
+From: packages/calendar/server/tsconfig.build.json
+To:   packages/calendar/domain/tsconfig.build.json
+
+1. Count depth from root: packages/calendar/server = 3 levels
+2. Prepend "../" × 3 = "../../../"
+3. Append target from root: "packages/calendar/domain/tsconfig.build.json"
+4. Result: "../../../packages/calendar/domain/tsconfig.build.json"
+```
+
+### Topologically Sorted References
+
+tsconfig `references` arrays are sorted topologically (deps before dependents):
+
+```json
+{
+  "references": [
+    // Dependencies first (leaf packages)
+    { "path": "../../../packages/common/schema/tsconfig.build.json" },
+    { "path": "../../../packages/shared/domain/tsconfig.build.json" },
+    // Then packages that depend on the above
+    { "path": "../../../packages/calendar/domain/tsconfig.build.json" },
+    { "path": "../../../packages/calendar/tables/tsconfig.build.json" },
+    // Then higher-level packages
+    { "path": "../../../packages/shared/server/tsconfig.build.json" }
+  ]
+}
+```
+
+This ensures TypeScript processes references in correct dependency order during builds.
 
 ---
 
@@ -90,12 +170,19 @@ bun run repo-cli tsconfig-sync --verbose
 - [ ] Command updates `tsconfig.base.jsonc` path aliases for new packages
 - [ ] Circular dependencies detected and reported
 - [ ] Preserves comments/formatting in tsconfig files (using jsonc-parser)
+- [ ] References use root-relative paths (`../../../packages/...`)
+- [ ] References are topologically sorted (deps before dependents)
 
 ### Transitive Dependency Hoisting
 - [ ] All `@beep/*` transitive peer deps are added to consumer's peer/dev deps
 - [ ] All third-party transitive peer deps are added to consumer's peer/dev deps
 - [ ] Hoisting is fully recursive (A→B→C means A gets C's deps)
-- [ ] Version specifiers preserved (`workspace:^`, `catalog:`)
+
+### Version Specifier Enforcement
+- [ ] All `@beep/*` packages use `workspace:^`
+- [ ] All third-party packages use `catalog:`
+- [ ] Explicit versions (e.g., `"^3.0.0"`) are corrected automatically
+- [ ] `--check` mode reports specifier violations
 
 ### Dependency Sorting
 - [ ] Workspace packages (`@beep/*`) sorted topologically (deps before dependents)
@@ -111,6 +198,51 @@ bun run repo-cli tsconfig-sync --verbose
 ### Quality
 - [ ] Tests cover add/remove/circular/hoisting scenarios
 - [ ] CLAUDE.md updated with command documentation
+- [ ] Command completes full repo sync in <10 seconds
+
+---
+
+## Verification
+
+### Pre-Implementation Discovery
+
+```bash
+# Count packages in workspace
+find packages -name "package.json" -not -path "*/node_modules/*" | wc -l
+
+# Check current tsconfig state
+find packages -name "tsconfig.build.json" -exec grep -l "references" {} \; | head -5
+
+# Verify CLI package builds
+bun run check --filter @beep/repo-cli
+```
+
+### Post-Implementation Verification
+
+```bash
+# Command exists and shows help
+bun run repo-cli tsconfig-sync --help
+
+# Dry-run succeeds
+bun run repo-cli tsconfig-sync --dry-run
+
+# Check mode validates (should exit 0 if in sync)
+bun run repo-cli tsconfig-sync --check
+
+# Full sync (if needed)
+bun run repo-cli tsconfig-sync
+
+# Verify types still pass after sync
+bun run check
+```
+
+### CI Integration
+
+```yaml
+# Add to CI workflow
+- name: Validate tsconfig sync
+  run: bun run repo-cli tsconfig-sync --check
+```
 
 ---
 
@@ -217,6 +349,30 @@ packages/[slice]/[layer]/tsconfig.src.json
 
 ### Reusable Components
 
+> **See [EXISTING_UTILITIES.md](./EXISTING_UTILITIES.md) for detailed analysis (~78% boilerplate reduction).**
+
+#### @beep/tooling-utils/repo (High-Value)
+
+| Utility | Location | Replaces Planned |
+|---------|----------|------------------|
+| `resolveWorkspaceDirs` | `repo/Workspaces.ts` | `workspace-parser.ts` |
+| `buildRepoDependencyIndex` | `repo/DependencyIndex.ts` | Dependency graph building |
+| `extractWorkspaceDependencies` | `repo/Dependencies.ts` | Dependency extraction |
+| `collectTsConfigPaths` | `repo/TsConfigIndex.ts` | `reference-resolver.ts` |
+| `findRepoRoot` | `repo/Root.ts` | Root discovery |
+| `mapWorkspaceToPackageJsonPath` | `repo/PackageJsonMap.ts` | Package.json mapping |
+
+#### @beep/tooling-utils Schemas
+
+| Schema | Purpose |
+|--------|---------|
+| `PackageJson` | Typed package.json with dependencies |
+| `TsConfigJson` | Typed tsconfig with references |
+| `WorkspacePkgKey` | `@beep/*` template literal type |
+| `RepoDepMapValue` | Dependencies split into workspace/npm |
+
+#### CLI Patterns
+
 | Existing | Location | Purpose |
 |----------|----------|---------|
 | `ConfigUpdaterService` | `create-slice/utils/config-updater.ts` | jsonc-parser modifications |
@@ -227,52 +383,104 @@ packages/[slice]/[layer]/tsconfig.src.json
 
 ## Phase Plan
 
-| Phase | Agents | Deliverables |
-|-------|--------|--------------|
-| **P0: Scaffolding** | orchestrator | README.md (this file), structure |
-| **P1: Design** | orchestrator | Detailed algorithm, file structure |
-| **P2: Implement Core** | `effect-code-writer` | Command + tsconfig sync |
-| **P3: Implement Hoisting** | `effect-code-writer` | Transitive deps + sorting |
-| **P4: Test** | `test-writer` | Effect-based tests |
-| **P5: Integrate** | orchestrator | Register command, update docs |
+| Phase | Agents | Deliverables | Status |
+|-------|--------|--------------|--------|
+| **P0a: Scaffolding** | orchestrator | README.md, spec structure | Complete |
+| **P0b: Utility Improvements** | `effect-code-writer` | Graph.ts, DepSorter.ts, Paths.ts in @beep/tooling-utils | **Pending** |
+| **P1: Implement Core** | `effect-code-writer` | Command definition + handler (using P0b utilities) | Blocked by P0b |
+| **P2: Test** | `test-writer` | Effect-based tests | Blocked by P1 |
+| **P3: Integrate** | orchestrator | Register command, update docs | Blocked by P2 |
+
+### P0b: Utility Improvements (Pre-requisite)
+
+Before P1 implementation, enhance `@beep/tooling-utils` with reusable utilities:
+
+| Utility | File | Purpose |
+|---------|------|---------|
+| `topologicalSort` | `repo/Graph.ts` | Extract from topo-sort.ts |
+| `computeTransitiveClosure` | `repo/Graph.ts` | Recursive dep collection |
+| `detectCycles` | `repo/Graph.ts` | Return cycle paths |
+| `sortDependencies` | `repo/DepSorter.ts` | Topo + alpha sorting |
+| `buildRootRelativePath` | `repo/Paths.ts` | Root-relative path calculation |
+
+**Handoff**: [P0_ORCHESTRATOR_PROMPT.md](./handoffs/P0_ORCHESTRATOR_PROMPT.md)
+
+**Impact**: Reduces P1 scope by ~65% (440 LOC → 155 LOC)
 
 ---
 
-## File Structure (Planned)
+## File Structure (Revised - After P0b)
+
+> Uses `@beep/tooling-utils` for workspace/dependency discovery AND graph/sorting utilities.
+> See [EXISTING_UTILITIES.md](./EXISTING_UTILITIES.md) and [P0_UTILITY_IMPROVEMENTS.md](./handoffs/P0_UTILITY_IMPROVEMENTS.md).
+
+### P0b Additions to @beep/tooling-utils
+
+```
+tooling/utils/src/repo/
+├── Graph.ts              # NEW: topologicalSort, computeTransitiveClosure, detectCycles
+├── DepSorter.ts          # NEW: sortDependencies, enforceVersionSpecifiers
+└── Paths.ts              # NEW: buildRootRelativePath, calculateDepth
+```
+
+### P1 Command Implementation (Minimal)
 
 ```
 tooling/cli/src/commands/tsconfig-sync/
-├── index.ts              # Command definition
-├── handler.ts            # Main orchestration
-├── schemas.ts            # Input validation
-├── errors.ts             # Error types
-└── utils/
-    ├── workspace-parser.ts     # Discover all packages
-    ├── dependency-graph.ts     # Build graph + transitive closure
-    ├── dep-sorter.ts           # Topological + alphabetical sorting
-    ├── package-json-updater.ts # Update deps in package.json
-    ├── reference-resolver.ts   # Resolve @beep/* to tsconfig paths
-    ├── tsconfig-updater.ts     # Apply changes via jsonc-parser
-    └── cycle-detector.ts       # DFS cycle detection
+├── index.ts              # Command definition (~40 LOC)
+├── handler.ts            # Orchestration using utilities (~80 LOC)
+├── schemas.ts            # Input validation (~20 LOC)
+└── errors.ts             # Command-specific errors (~15 LOC)
 ```
+
+**Total P1 scope**: ~155 LOC (down from ~440 LOC)
+
+**Replaced by @beep/tooling-utils (existing)**:
+- ~~workspace-parser.ts~~ → `resolveWorkspaceDirs`
+- ~~dependency-graph.ts~~ → `buildRepoDependencyIndex`
+- ~~reference-resolver.ts~~ → `collectTsConfigPaths`
+
+**Replaced by @beep/tooling-utils (P0b additions)**:
+- ~~transitive-closure.ts~~ → `computeTransitiveClosure`
+- ~~dep-sorter.ts~~ → `sortDependencies`
+- ~~reference-path-builder.ts~~ → `buildRootRelativePath`
+- ~~cycle-detector.ts~~ → `detectCycles`
 
 ---
 
-## Estimated Effort (Updated)
+## Estimated Effort (Revised After P0b)
 
-| Component | Lines | Complexity |
-|-----------|-------|------------|
-| CLI boilerplate | ~300 | Standard pattern |
-| Handler | ~500 | Orchestration (more complex) |
-| workspace-parser.ts | ~150 | Package discovery |
-| dependency-graph.ts | ~350 | Graph + transitive closure |
-| dep-sorter.ts | ~200 | Topo + alpha sorting |
-| package-json-updater.ts | ~300 | JSON manipulation |
-| reference-resolver.ts | ~300 | Path resolution |
-| tsconfig-updater.ts | ~350 | jsonc-parser integration |
-| cycle-detector.ts | ~150 | Graph algorithm |
-| Tests | ~800 | @beep/testkit |
-| **Total** | **~3,400** | |
+### P0b: Utility Improvements (@beep/tooling-utils)
+
+| Component | Lines | Notes |
+|-----------|-------|-------|
+| Schema fixes | ~10 | Fix bug, add CatalogValue |
+| Graph.ts | ~170 | topologicalSort (extract), transitiveClosure, detectCycles |
+| DepSorter.ts | ~80 | sortDependencies, enforceVersionSpecifiers |
+| Paths.ts | ~30 | buildRootRelativePath, calculateDepth |
+| Tests | ~200 | @beep/testkit |
+| **P0b Total** | **~490** | |
+
+### P1: Command Implementation
+
+| Component | Lines | Notes |
+|-----------|-------|-------|
+| index.ts | ~40 | Command definition |
+| handler.ts | ~80 | Orchestration (utility calls) |
+| schemas.ts | ~20 | Input validation |
+| errors.ts | ~15 | Command-specific errors |
+| Tests | ~150 | @beep/testkit |
+| **P1 Total** | **~305** | |
+
+### Summary
+
+| Phase | Estimate | Notes |
+|-------|----------|-------|
+| Original (monolithic) | ~3,600 LOC | No reusable utilities |
+| With existing utils | ~1,810 LOC | 50% reduction |
+| **With P0b utilities** | **~795 LOC** | 78% reduction |
+
+**P0b investment** (~490 LOC) creates reusable utilities for future commands.
 
 ---
 
@@ -283,9 +491,19 @@ tooling/cli/src/commands/tsconfig-sync/
 | Scenario | Behavior |
 |----------|----------|
 | **Circular workspace deps** | Report error, don't hoist |
-| **Conflicting versions** | Preserve consumer's existing specifier |
-| **Missing transitive** | Add with source package's specifier |
+| **Explicit version found** | Fix to `catalog:` (external) or `workspace:^` (internal) |
+| **Missing transitive** | Add with correct specifier format |
 | **Self-reference** | Skip (package can't depend on itself) |
+| **Deep recursion** | Full transitive closure (A→B→C→D means A gets all) |
+
+### Version Specifier Edge Cases
+
+| Scenario | Behavior |
+|----------|----------|
+| **`effect: "^3.0.0"`** | Fix to `effect: "catalog:"` |
+| **`@beep/schema: "1.0.0"`** | Fix to `@beep/schema: "workspace:^"` |
+| **`catalog:` already** | Preserve |
+| **`workspace:^` already** | Preserve |
 
 ### Sorting Edge Cases
 
@@ -295,11 +513,36 @@ tooling/cli/src/commands/tsconfig-sync/
 | **Unknown workspace dep** | Treat as external (alphabetical) |
 | **Mixed case names** | Case-insensitive alphabetical sort |
 
+### Reference Path Edge Cases
+
+| Scenario | Behavior |
+|----------|----------|
+| **Existing minimal path** (`../domain`) | Convert to root-relative |
+| **Already root-relative** | Preserve as-is |
+| **Incorrect depth** | Recalculate based on file location |
+| **Non-existent target** | Report error, skip reference |
+
 ---
 
 ## Related
 
-- [Spec Guide](../_guide/README.md)
-- [CLI AGENTS.md](../../tooling/cli/CLAUDE.md)
+### Spec Files
+- [QUICK_START.md](./QUICK_START.md) - 5-minute entry point
+- [EXISTING_UTILITIES.md](./EXISTING_UTILITIES.md) - **@beep/tooling-utils analysis**
+- [MASTER_ORCHESTRATION.md](./MASTER_ORCHESTRATION.md) - Full workflow orchestration
+- [AGENT_PROMPTS.md](./AGENT_PROMPTS.md) - Sub-agent delegation prompts
+- [REFLECTION_LOG.md](./REFLECTION_LOG.md) - Phase learnings and decisions
+- [templates/](./templates/) - Handler and test templates
+
+### Handoff Documents
+- [handoffs/P0_UTILITY_IMPROVEMENTS.md](./handoffs/P0_UTILITY_IMPROVEMENTS.md) - **P0b utility analysis (START HERE)**
+- [handoffs/P0_ORCHESTRATOR_PROMPT.md](./handoffs/P0_ORCHESTRATOR_PROMPT.md) - **P0b execution prompt**
+- [handoffs/HANDOFF_P1.md](./handoffs/HANDOFF_P1.md) - Phase 1 context (blocked by P0b)
+- [handoffs/P1_ORCHESTRATOR_PROMPT.md](./handoffs/P1_ORCHESTRATOR_PROMPT.md) - Phase 1 start prompt
+
+### Reference Documentation
+- [Spec Guide](../_guide/README.md) - Spec creation standards
+- [tooling/utils/AGENTS.md](../../tooling/utils/AGENTS.md) - @beep/tooling-utils patterns
+- [CLI AGENTS.md](../../tooling/cli/AGENTS.md) - CLI patterns & registration
 - [create-slice command](../../tooling/cli/src/commands/create-slice/) - Reference implementation
 - [topo-sort command](../../tooling/cli/src/commands/topo-sort.ts) - Cycle detection reference

@@ -64,7 +64,7 @@
     "@effect/platform": "catalog:",
     "@effect/platform-bun": "catalog:",
     "effect": "catalog:",
-    "glob": "^11.0.3",
+    "glob": "catalog:",
     "@effect/cluster": "catalog:"
   },
   "devDependencies": {
@@ -72,7 +72,7 @@
     "@effect/platform": "catalog:",
     "@effect/platform-bun": "catalog:",
     "effect": "catalog:",
-    "glob": "^11.0.3",
+    "glob": "catalog:",
     "@effect/cluster": "catalog:",
     "@total-typescript/ts-reset": "catalog:"
   },

@@ -43,7 +43,8 @@ All spec-creation infrastructure lives in [`_guide/`](_guide/):
 | [rls-implementation](rls-implementation/) | Row-level security | Active |
 | [spec-creation-improvements](spec-creation-improvements/) | Spec workflow enhancements | Complete |
 | [todox-design](todox-design/) | Todox application design | Active |
-| [tsconfig-sync-command](tsconfig-sync-command/) | CLI for tsconfig/package.json sync | P0 Complete |
+| [tsconfig-sync-command](tsconfig-sync-command/) | CLI for tsconfig/package.json sync with transitive hoisting | P0 Complete |
+| [vitest-testkit-parity](vitest-testkit-parity/) | Port @effect/vitest exports to @beep/testkit | New |
 
 ---
 

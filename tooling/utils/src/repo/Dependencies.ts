@@ -10,6 +10,7 @@ import * as FileSystem from "@effect/platform/FileSystem";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as HashSet from "effect/HashSet";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { FsUtils } from "../FsUtils.js";
 import {
@@ -19,7 +20,6 @@ import {
   RepoDepMapValue,
   WorkspaceDepTuple,
 } from "../schemas/index.js";
-
 /**
  * Extract typed sets of workspace and npm dependencies from a package.json.
  *
@@ -69,9 +69,9 @@ export const extractWorkspaceDependencies = Effect.fn("extractWorkspaceDependenc
       npm: HashSet.fromIterable(A.map(A.filter(entries, isNpmDep), ([k]) => k)),
     });
 
-  const devEntries = Object.entries(devMap) as ReadonlyArray<readonly [string, string]>;
-  const prodEntries = Object.entries(prodMap) as ReadonlyArray<readonly [string, string]>;
-  const peerEntries = Object.entries(peerMap) as ReadonlyArray<readonly [string, string]>;
+  const devEntries = R.toEntries(devMap) as ReadonlyArray<readonly [string, string]>;
+  const prodEntries = R.toEntries(prodMap) as ReadonlyArray<readonly [string, string]>;
+  const peerEntries = R.toEntries(peerMap) as ReadonlyArray<readonly [string, string]>;
 
   return yield* S.decode(RepoDepMapValue)({
     devDependencies: toDeps(devEntries),

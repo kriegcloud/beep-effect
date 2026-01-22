@@ -1,43 +1,38 @@
+import { Readable } from "node:stream";
 import { Data, Effect, Option, Stream } from "effect";
-import type { Dialog, Download, ElementHandle, FileChooser, Frame, Request, Response, Worker } from "playwright-core";
+import type { Dialog, Download, ElementHandle, FileChooser, Request, Response, Worker } from "playwright-core";
 import { makePage } from "./_page-registry";
-import type { PlaywrightError } from "./errors";
+import { type PlaywrightError, wrapError } from "./errors";
+import { PlaywrightFrame, type PlaywrightFrameService } from "./frame";
 import type { PlaywrightPageService } from "./page";
 import type { PageFunction } from "./playwright-types";
 import { useHelper } from "./utils";
 
-// TODO: wrap frame methods
-export class PlaywrightFrame extends Data.TaggedClass("PlaywrightFrame")<{
-  use: <A>(f: (frame: Frame) => Promise<A>) => Effect.Effect<A, PlaywrightError.Type>;
-}> {
-  static make(frame: Frame): PlaywrightFrame {
-    const use = useHelper(frame);
-
-    return new PlaywrightFrame({ use });
-  }
-}
-
+/**
+ * @category model
+ * @since 0.1.2
+ */
 export class PlaywrightRequest extends Data.TaggedClass("PlaywrightRequest")<{
-  allHeaders: Effect.Effect<Awaited<ReturnType<Request["allHeaders"]>>, PlaywrightError.Type>;
+  allHeaders: Effect.Effect<Awaited<ReturnType<Request["allHeaders"]>>, PlaywrightError>;
   failure: () => Option.Option<NonNullable<ReturnType<Request["failure"]>>>;
-  frame: Effect.Effect<PlaywrightFrame>;
-  headerValue: (name: string) => Effect.Effect<Option.Option<string>, PlaywrightError.Type>;
+  frame: Effect.Effect<PlaywrightFrameService>;
+  headerValue: (name: string) => Effect.Effect<Option.Option<string>, PlaywrightError>;
   headers: Effect.Effect<ReturnType<Request["headers"]>>;
-  headersArray: Effect.Effect<Awaited<ReturnType<Request["headersArray"]>>, PlaywrightError.Type>;
+  headersArray: Effect.Effect<Awaited<ReturnType<Request["headersArray"]>>, PlaywrightError>;
   isNavigationRequest: Effect.Effect<boolean>;
   method: Effect.Effect<string>;
   postData: () => Option.Option<string>;
   postDataBuffer: () => Option.Option<NonNullable<ReturnType<Request["postDataBuffer"]>>>;
   postDataJSON: Effect.Effect<
     Option.Option<NonNullable<Awaited<ReturnType<Request["postDataJSON"]>>>>,
-    PlaywrightError.Type
+    PlaywrightError
   >;
   redirectedFrom: () => Option.Option<PlaywrightRequest>;
   redirectedTo: () => Option.Option<PlaywrightRequest>;
   resourceType: Effect.Effect<ReturnType<Request["resourceType"]>>;
-  response: Effect.Effect<Option.Option<PlaywrightResponse>, PlaywrightError.Type>;
+  response: Effect.Effect<Option.Option<PlaywrightResponse>, PlaywrightError>;
   serviceWorker: () => Option.Option<PlaywrightWorker>;
-  sizes: Effect.Effect<Awaited<ReturnType<Request["sizes"]>>, PlaywrightError.Type>;
+  sizes: Effect.Effect<Awaited<ReturnType<Request["sizes"]>>, PlaywrightError>;
   timing: Effect.Effect<ReturnType<Request["timing"]>>;
   url: Effect.Effect<string>;
 }> {
@@ -73,30 +68,31 @@ export class PlaywrightRequest extends Data.TaggedClass("PlaywrightRequest")<{
   }
 }
 
+/**
+ * @category model
+ * @since 0.1.2
+ */
 export class PlaywrightResponse extends Data.TaggedClass("PlaywrightResponse")<{
-  allHeaders: Effect.Effect<Awaited<ReturnType<Response["allHeaders"]>>, PlaywrightError.Type>;
-  body: Effect.Effect<Awaited<ReturnType<Response["body"]>>, PlaywrightError.Type>;
-  finished: Effect.Effect<Awaited<ReturnType<Response["finished"]>>, PlaywrightError.Type>;
-  frame: Effect.Effect<PlaywrightFrame>;
+  allHeaders: Effect.Effect<Awaited<ReturnType<Response["allHeaders"]>>, PlaywrightError>;
+  body: Effect.Effect<Awaited<ReturnType<Response["body"]>>, PlaywrightError>;
+  finished: Effect.Effect<Awaited<ReturnType<Response["finished"]>>, PlaywrightError>;
+  frame: Effect.Effect<PlaywrightFrameService>;
   fromServiceWorker: Effect.Effect<boolean>;
   headers: Effect.Effect<ReturnType<Response["headers"]>>;
-  headersArray: Effect.Effect<Awaited<ReturnType<Response["headersArray"]>>, PlaywrightError.Type>;
-  headerValue: (name: string) => Effect.Effect<Option.Option<string>, PlaywrightError.Type>;
-  headerValues: (name: string) => Effect.Effect<Awaited<ReturnType<Response["headerValues"]>>, PlaywrightError.Type>;
-  json: Effect.Effect<Awaited<ReturnType<Response["json"]>>, PlaywrightError.Type>;
+  headersArray: Effect.Effect<Awaited<ReturnType<Response["headersArray"]>>, PlaywrightError>;
+  headerValue: (name: string) => Effect.Effect<Option.Option<string>, PlaywrightError>;
+  headerValues: (name: string) => Effect.Effect<Awaited<ReturnType<Response["headerValues"]>>, PlaywrightError>;
+  json: Effect.Effect<Awaited<ReturnType<Response["json"]>>, PlaywrightError>;
   ok: Effect.Effect<boolean>;
   request: () => PlaywrightRequest;
   securityDetails: Effect.Effect<
     Option.Option<NonNullable<Awaited<ReturnType<Response["securityDetails"]>>>>,
-    PlaywrightError.Type
+    PlaywrightError
   >;
-  serverAddr: Effect.Effect<
-    Option.Option<NonNullable<Awaited<ReturnType<Response["serverAddr"]>>>>,
-    PlaywrightError.Type
-  >;
+  serverAddr: Effect.Effect<Option.Option<NonNullable<Awaited<ReturnType<Response["serverAddr"]>>>>, PlaywrightError>;
   status: Effect.Effect<number>;
   statusText: Effect.Effect<string>;
-  text: Effect.Effect<Awaited<ReturnType<Response["text"]>>, PlaywrightError.Type>;
+  text: Effect.Effect<Awaited<ReturnType<Response["text"]>>, PlaywrightError>;
   url: Effect.Effect<string>;
 }> {
   static make(response: Response) {
@@ -125,8 +121,12 @@ export class PlaywrightResponse extends Data.TaggedClass("PlaywrightResponse")<{
   }
 }
 
+/**
+ * @category model
+ * @since 0.1.2
+ */
 export class PlaywrightWorker extends Data.TaggedClass("PlaywrightWorker")<{
-  evaluate: <R, Arg = void>(pageFunction: PageFunction<Arg, R>, arg?: Arg) => Effect.Effect<R, PlaywrightError.Type>;
+  evaluate: <R, Arg = void>(pageFunction: PageFunction<Arg, R>, arg?: Arg) => Effect.Effect<R, PlaywrightError>;
   url: Effect.Effect<string>;
 }> {
   static make(worker: Worker) {
@@ -140,10 +140,14 @@ export class PlaywrightWorker extends Data.TaggedClass("PlaywrightWorker")<{
   }
 }
 
+/**
+ * @category model
+ * @since 0.1.2
+ */
 export class PlaywrightDialog extends Data.TaggedClass("PlaywrightDialog")<{
-  accept: (promptText?: string) => Effect.Effect<void, PlaywrightError.Type>;
+  accept: (promptText?: string) => Effect.Effect<void, PlaywrightError>;
   defaultValue: Effect.Effect<string>;
-  dismiss: Effect.Effect<void, PlaywrightError.Type>;
+  dismiss: Effect.Effect<void, PlaywrightError>;
   message: Effect.Effect<string>;
   page: () => Option.Option<PlaywrightPageService>;
   type: Effect.Effect<string>;
@@ -156,12 +160,16 @@ export class PlaywrightDialog extends Data.TaggedClass("PlaywrightDialog")<{
       defaultValue: Effect.sync(() => dialog.defaultValue()),
       dismiss: use(() => dialog.dismiss()),
       message: Effect.sync(() => dialog.message()),
-      page: () => Option.fromNullable(dialog.page()).pipe(Option.map((p) => makePage<PlaywrightPageService>(p))),
+      page: () => Option.fromNullable(dialog.page()).pipe(Option.map(makePage<PlaywrightPageService>)),
       type: Effect.sync(() => dialog.type()),
     });
   }
 }
 
+/**
+ * @category model
+ * @since 0.1.2
+ */
 export class PlaywrightFileChooser extends Data.TaggedClass("PlaywrightFileChooser")<{
   element: () => ElementHandle;
   isMultiple: Effect.Effect<boolean>;
@@ -169,7 +177,7 @@ export class PlaywrightFileChooser extends Data.TaggedClass("PlaywrightFileChoos
   setFiles: (
     files: Parameters<FileChooser["setFiles"]>[0],
     options?: Parameters<FileChooser["setFiles"]>[1]
-  ) => Effect.Effect<void, PlaywrightError.Type>;
+  ) => Effect.Effect<void, PlaywrightError>;
 }> {
   static make(fileChooser: FileChooser) {
     const use = useHelper(fileChooser);
@@ -183,25 +191,36 @@ export class PlaywrightFileChooser extends Data.TaggedClass("PlaywrightFileChoos
   }
 }
 
+/**
+ * @category model
+ * @since 0.1.2
+ */
 export class PlaywrightDownload extends Data.TaggedClass("PlaywrightDownload")<{
-  cancel: Effect.Effect<void, PlaywrightError.Type>;
-  createReadStream: Stream.Stream<Uint8Array, PlaywrightError.Type>;
-  delete: Effect.Effect<void, PlaywrightError.Type>;
-  failure: Effect.Effect<Option.Option<string | null>, PlaywrightError.Type>;
+  cancel: Effect.Effect<void, PlaywrightError>;
+  /**
+   * Creates a stream of the download data.
+   * @category custom
+   * @since 0.2.0
+   */
+  stream: Stream.Stream<Uint8Array, PlaywrightError>;
+  delete: Effect.Effect<void, PlaywrightError>;
+  failure: Effect.Effect<Option.Option<string | null>, PlaywrightError>;
   page: () => PlaywrightPageService;
-  path: Effect.Effect<Option.Option<string | null>, PlaywrightError.Type>;
-  saveAs: (path: string) => Effect.Effect<void, PlaywrightError.Type>;
+  path: Effect.Effect<Option.Option<string | null>, PlaywrightError>;
+  saveAs: (path: string) => Effect.Effect<void, PlaywrightError>;
   suggestedFilename: Effect.Effect<string>;
   url: Effect.Effect<string>;
-  use: <R>(f: (download: Download) => Promise<R>) => Effect.Effect<R, PlaywrightError.Type>;
+  use: <R>(f: (download: Download) => Promise<R>) => Effect.Effect<R, PlaywrightError>;
 }> {
   static make(download: Download) {
     const use = useHelper(download);
 
     return new PlaywrightDownload({
       cancel: use(() => download.cancel()),
-      /** TODO: implement createReadStream / effect wrapper for it */
-      createReadStream: Stream.empty,
+      stream: use(() => download.createReadStream().then((s) => Readable.toWeb(s))).pipe(
+        Effect.map((s) => Stream.fromReadableStream(() => s as unknown as ReadableStream<Uint8Array>, wrapError)),
+        Stream.unwrap
+      ),
       delete: use(() => download.delete()),
       failure: use(() => download.failure()).pipe(Effect.map(Option.fromNullable)),
       page: () => makePage<PlaywrightPageService>(download.page()),

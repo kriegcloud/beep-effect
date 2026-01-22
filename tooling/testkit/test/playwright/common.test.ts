@@ -1,135 +1,130 @@
-import { describe } from "bun:test";
 import { assert, layer } from "@beep/testkit";
-import { isPlaywrightAvailable } from "@beep/testkit/playwright";
 import { PlaywrightBrowser } from "@beep/testkit/playwright/browser";
 import { PlaywrightEnvironment } from "@beep/testkit/playwright/experimental";
-import { Effect, Fiber, Option, Stream } from "effect";
-import * as F from "effect/Function";
+import { Chunk, Effect, Fiber, Option, pipe, Stream } from "effect";
+
 import { chromium } from "playwright-core";
 
-describe.skipIf(!isPlaywrightAvailable)("PlaywrightCommon", () => {
-  layer(PlaywrightEnvironment.layer(chromium))((it) => {
-    it.scoped(
-      "PlaywrightRequest and PlaywrightResponse",
-      Effect.fn(function* () {
-        const browser = yield* PlaywrightBrowser;
-        const page = yield* browser.newPage();
+layer(PlaywrightEnvironment.layer(chromium))("PlaywrightCommon", (it) => {
+  it.scoped("PlaywrightRequest and PlaywrightResponse", () =>
+    Effect.gen(function* () {
+      const browser = yield* PlaywrightBrowser;
+      const page = yield* browser.newPage();
 
-        const requestFiber = yield* F.pipe(page.eventStream("request"), Stream.runHead, Effect.fork);
+      const requestFiber = yield* pipe(page.eventStream("request"), Stream.runHead, Effect.fork);
 
-        const responseFiber = yield* F.pipe(page.eventStream("response"), Stream.runHead, Effect.fork);
+      const responseFiber = yield* pipe(page.eventStream("response"), Stream.runHead, Effect.fork);
 
-        yield* page.goto("http://example.com");
+      yield* page.goto("http://example.com");
 
-        const request = yield* Fiber.join(requestFiber).pipe(Effect.flatten);
-        const response = yield* Fiber.join(responseFiber).pipe(Effect.flatten);
+      const request = yield* Fiber.join(requestFiber).pipe(Effect.flatten);
+      const response = yield* Fiber.join(responseFiber).pipe(Effect.flatten);
 
-        assert((yield* request.url).includes("example.com"));
-        assert((yield* request.method) === "GET");
-        assert((yield* request.isNavigationRequest) === true);
+      assert((yield* request.url).includes("example.com"));
+      assert((yield* request.method) === "GET");
+      assert((yield* request.isNavigationRequest) === true);
 
-        assert((yield* response.url).includes("example.com"));
-        assert((yield* response.ok) === true);
-        assert((yield* response.status) === 200);
+      assert((yield* response.url).includes("example.com"));
+      assert((yield* response.ok) === true);
+      assert((yield* response.status) === 200);
 
-        const headers = yield* response.headers;
-        assert(headers["content-type"] !== undefined);
+      const headers = yield* response.headers;
+      assert(headers["content-type"] !== undefined);
 
-        const respRequest = response.request();
-        assert((yield* respRequest.url).includes("example.com"));
+      const respRequest = response.request();
+      assert((yield* respRequest.url).includes("example.com"));
 
-        const requestResponse = yield* request.response;
-        assert(Option.isSome(requestResponse));
-        assert((yield* requestResponse.value.url) === (yield* response.url));
-      }, PlaywrightEnvironment.withBrowser)
-    );
+      const requestResponse = yield* request.response;
+      assert(Option.isSome(requestResponse));
+      assert((yield* requestResponse.value.url) === (yield* response.url));
+    }).pipe(PlaywrightEnvironment.withBrowser)
+  );
 
-    it.scoped(
-      "PlaywrightWorker",
-      Effect.fn(function* () {
-        const browser = yield* PlaywrightBrowser;
-        const page = yield* browser.newPage();
+  it.scoped("PlaywrightWorker", () =>
+    Effect.gen(function* () {
+      const browser = yield* PlaywrightBrowser;
+      const page = yield* browser.newPage();
 
-        const workerFiber = yield* F.pipe(page.eventStream("worker"), Stream.runHead, Effect.fork);
+      const workerFiber = yield* pipe(page.eventStream("worker"), Stream.runHead, Effect.fork);
 
-        yield* page.evaluate(() => {
-          const blob = new Blob(['console.log("worker")'], {
-            type: "application/javascript",
-          });
-          new Worker(URL.createObjectURL(blob));
+      yield* page.evaluate(() => {
+        const blob = new Blob(['console.log("worker")'], {
+          type: "application/javascript",
         });
+        new Worker(URL.createObjectURL(blob));
+      });
 
-        const worker = yield* Fiber.join(workerFiber).pipe(Effect.flatten);
+      const worker = yield* Fiber.join(workerFiber).pipe(Effect.flatten);
 
-        assert((yield* worker.url).startsWith("blob:"));
-        const result = yield* worker.evaluate(() => 1 + 1);
-        assert(result === 2);
-      }, PlaywrightEnvironment.withBrowser)
-    );
+      assert((yield* worker.url).startsWith("blob:"));
+      const result = yield* worker.evaluate(() => 1 + 1);
+      assert(result === 2);
+    }).pipe(PlaywrightEnvironment.withBrowser)
+  );
 
-    it.scoped(
-      "PlaywrightDialog",
-      Effect.fn(function* () {
-        const browser = yield* PlaywrightBrowser;
-        const page = yield* browser.newPage();
+  it.scoped("PlaywrightDialog", () =>
+    Effect.gen(function* () {
+      const browser = yield* PlaywrightBrowser;
+      const page = yield* browser.newPage();
 
-        const dialogFiber = yield* F.pipe(page.eventStream("dialog"), Stream.runHead, Effect.fork);
+      const dialogFiber = yield* pipe(page.eventStream("dialog"), Stream.runHead, Effect.fork);
 
-        yield* page.evaluate(() => {
-          setTimeout(() => alert("hello world"), 10);
-        });
+      yield* page.evaluate(() => {
+        setTimeout(() => alert("hello world"), 10);
+      });
 
-        const dialog = yield* Fiber.join(dialogFiber).pipe(Effect.flatten);
+      const dialog = yield* Fiber.join(dialogFiber).pipe(Effect.flatten);
 
-        assert((yield* dialog.message) === "hello world");
-        assert((yield* dialog.type) === "alert");
+      assert((yield* dialog.message) === "hello world");
+      assert((yield* dialog.type) === "alert");
 
-        yield* dialog.accept();
-      }, PlaywrightEnvironment.withBrowser)
-    );
+      yield* dialog.accept();
+    }).pipe(PlaywrightEnvironment.withBrowser)
+  );
 
-    it.scoped(
-      "PlaywrightFileChooser",
-      Effect.fn(function* () {
-        const browser = yield* PlaywrightBrowser;
-        const page = yield* browser.newPage();
+  it.scoped("PlaywrightFileChooser", () =>
+    Effect.gen(function* () {
+      const browser = yield* PlaywrightBrowser;
+      const page = yield* browser.newPage();
 
-        yield* page.evaluate(() => {
-          document.body.innerHTML = '<input type="file" id="fileinput" />';
-        });
+      yield* page.evaluate(() => {
+        document.body.innerHTML = '<input type="file" id="fileinput" />';
+      });
 
-        const fileChooserFiber = yield* F.pipe(page.eventStream("filechooser"), Stream.runHead, Effect.fork);
+      const fileChooserFiber = yield* pipe(page.eventStream("filechooser"), Stream.runHead, Effect.fork);
 
-        yield* page.locator("#fileinput").click();
+      yield* page.locator("#fileinput").click();
 
-        const fileChooser = yield* Fiber.join(fileChooserFiber).pipe(Effect.flatten);
+      const fileChooser = yield* Fiber.join(fileChooserFiber).pipe(Effect.flatten);
 
-        assert((yield* fileChooser.isMultiple) === false);
-        assert(fileChooser.element() !== null);
-      }, PlaywrightEnvironment.withBrowser)
-    );
+      assert((yield* fileChooser.isMultiple) === false);
+      assert(fileChooser.element() !== null);
+    }).pipe(PlaywrightEnvironment.withBrowser)
+  );
 
-    it.scoped(
-      "PlaywrightDownload",
-      Effect.fn(function* () {
-        const browser = yield* PlaywrightBrowser;
-        const page = yield* browser.newPage();
+  it.scoped("PlaywrightDownload", () =>
+    Effect.gen(function* () {
+      const browser = yield* PlaywrightBrowser;
+      const page = yield* browser.newPage();
 
-        yield* page.evaluate(() => {
-          document.body.innerHTML =
-            '<a text="Download" id="download" href="data:application/octet-stream,hello world" download="test.txt">Download</a>';
-        });
+      yield* page.evaluate(() => {
+        document.body.innerHTML =
+          '<a text="Download" id="download" href="data:application/octet-stream,hello world" download="test.txt">Download</a>';
+      });
 
-        const downloadFiber = yield* F.pipe(page.eventStream("download"), Stream.runHead, Effect.fork);
+      const downloadFiber = yield* pipe(page.eventStream("download"), Stream.runHead, Effect.fork);
 
-        yield* page.locator("#download").click();
+      yield* page.locator("#download").click();
 
-        const download = yield* Fiber.join(downloadFiber).pipe(Effect.flatten);
+      const download = yield* Fiber.join(downloadFiber).pipe(Effect.flatten);
 
-        assert((yield* download.suggestedFilename) === "test.txt");
-        const url = yield* download.url;
-        assert(url.startsWith("data:"));
-      }, PlaywrightEnvironment.withBrowser)
-    );
-  });
+      assert((yield* download.suggestedFilename) === "test.txt");
+      const url = yield* download.url;
+      assert(url.startsWith("data:"));
+
+      const text = yield* download.stream.pipe(Stream.decodeText(), Stream.runCollect, Effect.map(Chunk.join("")));
+
+      assert.strictEqual(text, "hello world");
+    }).pipe(PlaywrightEnvironment.withBrowser)
+  );
 });

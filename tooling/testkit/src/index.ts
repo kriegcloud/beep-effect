@@ -69,6 +69,36 @@ export declare namespace BunTest {
   }
 
   /**
+   * Methods available within a layer() context (excludes live/scopedLive).
+   * @since 0.1.0
+   */
+  export interface MethodsNonLive<R, ExcludeTestServices extends boolean = false> {
+    readonly effect: BunTest.Tester<ExcludeTestServices extends true ? R : TestServices.TestServices | R>;
+    readonly flakyTest: <A, E, R2>(
+      self: Effect.Effect<A, E, R2>,
+      timeout?: Duration.DurationInput
+    ) => Effect.Effect<A, never, R2>;
+    readonly scoped: BunTest.Tester<
+      ExcludeTestServices extends true ? Scope.Scope | R : TestServices.TestServices | Scope.Scope | R
+    >;
+    readonly layer: <R2, E2>(
+      layer: Layer.Layer<R2, E2, R>,
+      options?: {
+        readonly timeout?: Duration.DurationInput;
+      }
+    ) => {
+      (f: (it: MethodsNonLive<R2, ExcludeTestServices>) => void): void;
+      (name: string, f: (it: MethodsNonLive<R2, ExcludeTestServices>) => void): void;
+    };
+    readonly prop: <const Arbs extends Arbitraries>(
+      name: string,
+      arbitraries: Arbs,
+      self: (properties: UnsafeAny, ctx: UnsafeAny) => void,
+      timeout?: number | { timeout?: number; fastCheck?: UnsafeAny }
+    ) => void;
+  }
+
+  /**
    * @since 0.1.0
    */
   export interface Methods {
@@ -80,14 +110,16 @@ export declare namespace BunTest {
     readonly scoped: BunTest.Tester<TestServices.TestServices | Scope.Scope>;
     readonly live: BunTest.Tester<never>;
     readonly scopedLive: BunTest.Tester<Scope.Scope>;
-    readonly layer: <R, E>(
+    readonly layer: <R, E, const ExcludeTestServices extends boolean = false>(
       layer: Layer.Layer<R, E>,
       options?: {
+        readonly memoMap?: Layer.MemoMap;
         readonly timeout?: Duration.DurationInput;
+        readonly excludeTestServices?: ExcludeTestServices;
       }
     ) => {
-      (f: (it: UnsafeAny) => void): void;
-      (name: string, f: (it: UnsafeAny) => void): void;
+      (f: (it: MethodsNonLive<R, ExcludeTestServices>) => void): void;
+      (name: string, f: (it: MethodsNonLive<R, ExcludeTestServices>) => void): void;
     };
     readonly prop: <const Arbs extends Arbitraries>(
       name: string,
@@ -129,16 +161,16 @@ export const scopedLive: BunTest.Tester<Scope.Scope> = internal.scopedLive;
  *
  * @since 0.1.0
  */
-export const layer: <R, E>(
+export const layer: <R, E, const ExcludeTestServices extends boolean = false>(
   layer_: Layer.Layer<R, E>,
   options?: {
     readonly memoMap?: Layer.MemoMap;
     readonly timeout?: Duration.DurationInput;
-    readonly excludeTestServices?: boolean;
+    readonly excludeTestServices?: ExcludeTestServices;
   }
 ) => {
-  (f: (it: UnsafeAny) => void): void;
-  (name: string, f: (it: UnsafeAny) => void): void;
+  (f: (it: BunTest.MethodsNonLive<R, ExcludeTestServices>) => void): void;
+  (name: string, f: (it: BunTest.MethodsNonLive<R, ExcludeTestServices>) => void): void;
 } = internal.layer;
 
 /**

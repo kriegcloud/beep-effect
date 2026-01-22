@@ -59,7 +59,7 @@
     "@effect/sql-drizzle": "catalog:",
     "@effect/sql-pg": "catalog:",
     "@total-typescript/ts-reset": "catalog:",
-    "@types/n3": "^1.26.1",
+    "@types/n3": "catalog:",
     "drizzle-orm": "catalog:",
     "effect": "catalog:"
   },
@@ -76,7 +76,7 @@
     }
   },
   "dependencies": {
-    "n3": "^2.0.1",
-    "openai": "^4.77.3"
+    "n3": "catalog:",
+    "openai": "catalog:"
   }
 }

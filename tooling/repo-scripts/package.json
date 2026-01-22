@@ -49,7 +49,7 @@
     "@effect/cluster": "catalog:",
     "@effect/workflow": "catalog:",
     "@effect/platform-bun": "catalog:",
-    "glob": "^11.0.3",
+    "glob": "catalog:",
     "effect": "catalog:",
     "picocolors": "catalog:",
     "@jsquash/webp": "catalog:",

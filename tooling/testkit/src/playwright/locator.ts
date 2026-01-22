@@ -15,14 +15,14 @@ export interface PlaywrightLocatorService {
    * @see {@link Locator.click}
    * @since 0.1.0
    */
-  readonly click: (options?: Parameters<Locator["click"]>[0]) => Effect.Effect<void, PlaywrightError.Type>;
+  readonly click: (options?: Parameters<Locator["click"]>[0]) => Effect.Effect<void, PlaywrightError>;
   /**
    * Fills the input field.
    *
    * @see {@link Locator.fill}
    * @since 0.1.0
    */
-  readonly fill: (value: string, options?: Parameters<Locator["fill"]>[1]) => Effect.Effect<void, PlaywrightError.Type>;
+  readonly fill: (value: string, options?: Parameters<Locator["fill"]>[1]) => Effect.Effect<void, PlaywrightError>;
   /**
    * Gets an attribute value.
    *
@@ -32,28 +32,28 @@ export interface PlaywrightLocatorService {
   readonly getAttribute: (
     name: string,
     options?: Parameters<Locator["getAttribute"]>[1]
-  ) => Effect.Effect<string | null, PlaywrightError.Type>;
+  ) => Effect.Effect<string | null, PlaywrightError>;
   /**
    * Gets the inner text.
    *
    * @see {@link Locator.innerText}
    * @since 0.1.0
    */
-  readonly innerText: (options?: Parameters<Locator["innerText"]>[0]) => Effect.Effect<string, PlaywrightError.Type>;
+  readonly innerText: (options?: Parameters<Locator["innerText"]>[0]) => Effect.Effect<string, PlaywrightError>;
   /**
    * Gets the inner HTML.
    *
    * @see {@link Locator.innerHTML}
    * @since 0.1.0
    */
-  readonly innerHTML: (options?: Parameters<Locator["innerHTML"]>[0]) => Effect.Effect<string, PlaywrightError.Type>;
+  readonly innerHTML: (options?: Parameters<Locator["innerHTML"]>[0]) => Effect.Effect<string, PlaywrightError>;
   /**
    * Gets the input value.
    *
    * @see {@link Locator.inputValue}
    * @since 0.1.0
    */
-  readonly inputValue: (options?: Parameters<Locator["inputValue"]>[0]) => Effect.Effect<string, PlaywrightError.Type>;
+  readonly inputValue: (options?: Parameters<Locator["inputValue"]>[0]) => Effect.Effect<string, PlaywrightError>;
   /**
    * Gets the text content.
    *
@@ -62,14 +62,14 @@ export interface PlaywrightLocatorService {
    */
   readonly textContent: (
     options?: Parameters<Locator["textContent"]>[0]
-  ) => Effect.Effect<string | null, PlaywrightError.Type>;
+  ) => Effect.Effect<string | null, PlaywrightError>;
   /**
    * Counts the number of matched elements.
    *
    * @see {@link Locator.count}
    * @since 0.1.0
    */
-  readonly count: Effect.Effect<number, PlaywrightError.Type>;
+  readonly count: Effect.Effect<number, PlaywrightError>;
   /**
    * Returns a locator that points to the first matched element.
    * @see {@link Locator.first}
@@ -115,7 +115,7 @@ export interface PlaywrightLocatorService {
     pageFunction: (element: E, arg: Unboxed<Arg>) => R | Promise<R>,
     arg?: Arg,
     options?: { timeout?: number }
-  ) => Effect.Effect<R, PlaywrightError.Type>;
+  ) => Effect.Effect<R, PlaywrightError>;
   /**
    * A generic utility to execute any promise-based method on the underlying Playwright `Locator`.
    * Can be used to access any Locator functionality not directly exposed by this service.
@@ -130,7 +130,7 @@ export interface PlaywrightLocatorService {
    * @see {@link Locator}
    * @since 0.1.0
    */
-  readonly use: <T>(f: (locator: Locator) => Promise<T>) => Effect.Effect<T, PlaywrightError.Type>;
+  readonly use: <T>(f: (locator: Locator) => Promise<T>) => Effect.Effect<T, PlaywrightError>;
 }
 
 /**

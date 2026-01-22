@@ -61,7 +61,7 @@
     "@beep/identity": "workspace:^",
     "effect": "catalog:",
     "@effect/cluster": "catalog:",
-    "glob": "^11.0.3",
+    "glob": "catalog:",
     "handlebars": "catalog:",
     "jsonc-parser": "catalog:"
   },
@@ -82,7 +82,7 @@
     "@beep/identity": "workspace:^",
     "effect": "catalog:",
     "ts-morph": "catalog:",
-    "glob": "^11.0.3",
+    "glob": "catalog:",
     "@beep/testkit": "workspace:^",
     "@effect/cluster": "catalog:",
     "@total-typescript/ts-reset": "catalog:"

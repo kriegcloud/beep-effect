@@ -3,9 +3,11 @@
   "compilerOptions": {
     "composite": false,
     "noEmit": true,
-    "types": ["node"],
+    "types": ["node", "bun-types"],
     "baseUrl": "..",
     "paths": {
+      "@beep/testkit": ["./tooling/testkit/src/index"],
+      "@beep/testkit/*": ["./tooling/testkit/src/*"],
       "@beep/schema": ["./packages/common/schema/src/index"],
       "@beep/schema/*": ["./packages/common/schema/src/*"],
       "@beep/ui/*": ["./packages/ui/ui/src/*"],
