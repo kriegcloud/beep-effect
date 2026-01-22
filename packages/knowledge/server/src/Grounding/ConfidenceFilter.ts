@@ -167,7 +167,6 @@ export const filterGraph = (graph: KnowledgeGraph, config: FilterConfig = {}): F
       return false;
     }
     return !(relation.objectId && !validEntityIds.has(relation.objectId));
-
   });
 
   // Optionally remove orphan entities
