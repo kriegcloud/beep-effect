@@ -44,22 +44,22 @@
   - Useful for sequential processing pipelines
 
 ## Usage Snapshots
-- Root `package.json` exposes CLI via `bun run beep <command>`
-- `bun run beep agents-validate` — Validate agents-manifest.yaml sync with .claude/agents/
-- `bun run beep docgen init -p packages/common/schema` — Initialize docgen configuration
-- `bun run beep docgen analyze -p packages/common/schema` — Analyze JSDoc coverage
-- `bun run beep docgen generate --parallel 8` — Generate docs with 8 parallel workers
-- `bun run beep docgen aggregate --clean` — Aggregate docs and clean target directory
-- `bun run beep env` — Interactive environment setup
-- `bun run beep prune-unused-deps --dry-run` — Check for unused dependencies without removing
-- `bun run beep prune-unused-deps --filter @beep/iam-server` — Prune deps from specific package
-- `bun run beep sync` — Synchronize workspace configurations
-- `bun run beep bootstrap-spec -n my-feature -d "Feature description"` — Create new spec (medium complexity)
-- `bun run beep bootstrap-spec -n api-redesign -d "API improvements" -c complex` — Create complex spec
-- `bun run beep bootstrap-spec -n quick-fix -d "Bug fix" -c simple --dry-run` — Preview simple spec
-- `bun run beep create-slice -n notifications -d "User notification system"` — Create new slice
-- `bun run beep create-slice --name billing --description "Billing" --dry-run` — Preview slice creation
-- `bun run beep topo-sort` — Output packages in topological order
+- Root `package.json` exposes CLI via `bun run repo-cli <command>`
+- `bun run repo-cli agents-validate` — Validate agents-manifest.yaml sync with .claude/agents/
+- `bun run repo-cli docgen init -p packages/common/schema` — Initialize docgen configuration
+- `bun run repo-cli docgen analyze -p packages/common/schema` — Analyze JSDoc coverage
+- `bun run repo-cli docgen generate --parallel 8` — Generate docs with 8 parallel workers
+- `bun run repo-cli docgen aggregate --clean` — Aggregate docs and clean target directory
+- `bun run repo-cli env` — Interactive environment setup
+- `bun run repo-cli prune-unused-deps --dry-run` — Check for unused dependencies without removing
+- `bun run repo-cli prune-unused-deps --filter @beep/iam-server` — Prune deps from specific package
+- `bun run repo-cli sync` — Synchronize workspace configurations
+- `bun run repo-cli bootstrap-spec -n my-feature -d "Feature description"` — Create new spec (medium complexity)
+- `bun run repo-cli bootstrap-spec -n api-redesign -d "API improvements" -c complex` — Create complex spec
+- `bun run repo-cli bootstrap-spec -n quick-fix -d "Bug fix" -c simple --dry-run` — Preview simple spec
+- `bun run repo-cli create-slice -n notifications -d "User notification system"` — Create new slice
+- `bun run repo-cli create-slice --name billing --description "Billing" --dry-run` — Preview slice creation
+- `bun run repo-cli topo-sort` — Output packages in topological order
 
 ## Authoring Guardrails
 - All commands must be Effect-based using `@effect/cli/Command`
@@ -166,7 +166,7 @@ const getSortedPackages = Effect.gen(function* () {
 - `bun run lint --filter @beep/repo-cli`
 - `bun run check --filter @beep/repo-cli`
 - `bun run test --filter @beep/repo-cli`
-- Test CLI commands: `bun run beep --help`
+- Test CLI commands: `bun run repo-cli --help`
 
 ## Contributor Checklist
 - [ ] All commands use Effect-based control flow (no async/await)

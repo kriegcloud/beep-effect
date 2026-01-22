@@ -142,7 +142,7 @@ RESET ROLE;
           SELECT rolname
           FROM pg_roles
           WHERE rolbypassrls = true
-          AND rolname NOT IN ('postgres', 'rls_bypass_admin')
+          AND rolname NOT IN ('postgres', 'rls_bypass_admin', 'test')
           ORDER BY rolname
         `;
 

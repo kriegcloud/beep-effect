@@ -3,40 +3,85 @@
   "include": ["drizzle.config.ts"],
   "references": [
     {
-      "path": "../../../tooling/testkit/tsconfig.build.json"
+      "path": "../../../packages/common/identity"
     },
     {
-      "path": "../../common/schema/tsconfig.src.json"
+      "path": "../../../packages/common/invariant"
     },
     {
-      "path": "../../shared/domain"
+      "path": "../../../tooling/testkit"
     },
     {
-      "path": "../../shared/tables"
+      "path": "../../../packages/common/types"
     },
     {
-      "path": "../../shared/server"
+      "path": "../../../packages/common/utils"
     },
     {
-      "path": "../../iam/domain"
+      "path": "../../../packages/common/schema"
     },
     {
-      "path": "../../iam/ui"
+      "path": "../../../packages/common/constants"
     },
     {
-      "path": "../../iam/tables"
+      "path": "../../../packages/ui/core"
     },
     {
-      "path": "../../ui"
+      "path": "../../../packages/common/errors"
     },
     {
-      "path": "../../documents/server"
+      "path": "../../../packages/shared/domain"
     },
     {
-      "path": "../../documents/tables"
+      "path": "../../../packages/customization/domain"
     },
     {
-      "path": "../../customization/tables"
+      "path": "../../../packages/documents/domain"
+    },
+    {
+      "path": "../../../packages/iam/domain"
+    },
+    {
+      "path": "../../../packages/shared/env"
+    },
+    {
+      "path": "../../../packages/shared/server"
+    },
+    {
+      "path": "../../../packages/shared/tables"
+    },
+    {
+      "path": "../../../packages/customization/tables"
+    },
+    {
+      "path": "../../../packages/documents/tables"
+    },
+    {
+      "path": "../../../packages/iam/tables"
+    },
+    {
+      "path": "../../../packages/documents/server"
+    },
+    {
+      "path": "../../../packages/iam/server"
+    },
+    {
+      "path": "../../../packages/calendar/tables"
+    },
+    {
+      "path": "../../../packages/knowledge/tables"
+    },
+    {
+      "path": "../../../packages/comms/server"
+    },
+    {
+      "path": "../../../packages/calendar/server"
+    },
+    {
+      "path": "../../../packages/knowledge/server"
+    },
+    {
+      "path": "../../../packages/comms/tables"
     }
   ],
   "compilerOptions": {

@@ -1,4 +1,3 @@
-import crypto from "node:crypto";
 import { Registry } from "@effect-atom/atom-react";
 import { Effect } from "effect";
 import * as A from "effect/Array";
@@ -41,7 +40,7 @@ export const startUploadAtom = runtime.fn(
       )
     );
 
-    const uploadId = crypto.randomUUID();
+    const uploadId = globalThis.crypto.randomUUID();
     const folderId = P.isTagged(payload, "Folder") ? payload.id : null;
 
     yield* Effect.logInfo(`[Upload] Generated upload ID`, {

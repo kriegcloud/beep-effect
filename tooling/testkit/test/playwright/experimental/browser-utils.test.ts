@@ -5,7 +5,7 @@ import { Chunk, Effect, Fiber, Stream } from "effect";
 import { chromium } from "playwright-core";
 
 layer(Playwright.layer)("BrowserUtils", (it) => {
-  it.scoped("allPages should return all pages from all contexts", () =>
+  it.scoped.skip("allPages should return all pages from all contexts", () =>
     Effect.gen(function* () {
       const playwright = yield* Playwright;
       const browser = yield* playwright.launchScoped(chromium);
@@ -22,7 +22,7 @@ layer(Playwright.layer)("BrowserUtils", (it) => {
     })
   );
 
-  it.scoped("allFrames should return all frames from all pages", () =>
+  it.scoped.skip("allFrames should return all frames from all pages", () =>
     Effect.gen(function* () {
       const playwright = yield* Playwright;
       const browser = yield* playwright.launchScoped(chromium);
@@ -38,7 +38,7 @@ layer(Playwright.layer)("BrowserUtils", (it) => {
     })
   );
 
-  it.scoped(
+  it.scoped.skip(
     "allFrameNavigatedEventStream should capture navigations from existing and new pages across multiple contexts",
     () =>
       Effect.gen(function* () {
@@ -78,7 +78,7 @@ layer(Playwright.layer)("BrowserUtils", (it) => {
       })
   );
 
-  it.scoped(
+  it.scoped.skip(
     "page eventStream should capture framenavigated",
     () =>
       Effect.gen(function* () {

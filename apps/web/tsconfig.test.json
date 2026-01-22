@@ -3,52 +3,97 @@
   "include": ["test", "test/**/*.json", "test/*.*.json"],
   "references": [
     {
-      "path": "../../packages/common/types/tsconfig.build.json"
+      "path": "tsconfig.src.json"
     },
     {
-      "path": "../../packages/common/invariant/tsconfig.build.json"
+      "path": "../../packages/common/identity"
     },
     {
-      "path": "../../packages/common/utils/tsconfig.build.json"
+      "path": "../../packages/common/invariant"
     },
     {
-      "path": "../../packages/common/schema/tsconfig.build.json"
+      "path": "../../tooling/testkit"
     },
     {
-      "path": "../../packages/common/constants/tsconfig.build.json"
+      "path": "../../packages/common/types"
     },
     {
-      "path": "../../packages/common/errors/tsconfig.build.json"
+      "path": "../../packages/common/utils"
     },
     {
-      "path": "../../packages/shared/domain/tsconfig.build.json"
+      "path": "../../packages/common/schema"
+    },
+    {
+      "path": "../../packages/common/constants"
+    },
+    {
+      "path": "../../packages/ui/core"
+    },
+    {
+      "path": "../../packages/common/wrap"
+    },
+    {
+      "path": "../../packages/common/errors"
+    },
+    {
+      "path": "../../packages/shared/domain"
+    },
+    {
+      "path": "../../packages/customization/domain"
+    },
+    {
+      "path": "../../packages/documents/domain"
+    },
+    {
+      "path": "../../packages/iam/domain"
     },
     {
       "path": "../../packages/shared/env"
     },
     {
-      "path": "../../packages/shared/ui/tsconfig.build.json"
+      "path": "../../packages/shared/server"
     },
     {
-      "path": "../../packages/iam/client/tsconfig.build.json"
+      "path": "../../packages/shared/tables"
     },
     {
-      "path": "../../packages/iam/domain/tsconfig.build.json"
+      "path": "../../packages/ui/ui"
     },
     {
-      "path": "../../packages/iam/ui/tsconfig.build.json"
+      "path": "../../packages/customization/tables"
     },
     {
-      "path": "../../packages/ui/ui/tsconfig.build.json"
+      "path": "../../packages/documents/tables"
     },
     {
-      "path": "../../packages/ui/core/tsconfig.build.json"
+      "path": "../../packages/iam/tables"
     },
     {
-      "path": "../../packages/runtime/server/tsconfig.build.json"
+      "path": "../../packages/runtime/client"
     },
     {
-      "path": "../../packages/runtime/client/tsconfig.build.json"
+      "path": "../../packages/customization/server"
+    },
+    {
+      "path": "../../packages/documents/server"
+    },
+    {
+      "path": "../../packages/iam/server"
+    },
+    {
+      "path": "../../packages/shared/client"
+    },
+    {
+      "path": "../../packages/runtime/server"
+    },
+    {
+      "path": "../../packages/iam/client"
+    },
+    {
+      "path": "../../packages/shared/ui"
+    },
+    {
+      "path": "../../packages/iam/ui"
     }
   ],
   "compilerOptions": {

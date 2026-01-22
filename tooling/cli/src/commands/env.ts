@@ -42,6 +42,7 @@ import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import color from "picocolors";
+import { MissingRequiredFileError } from "./errors.js";
 
 type EnvMap = HashMap.HashMap<EnvironmentVariableName.Type, string>;
 
@@ -68,7 +69,7 @@ const readEnvMap = (fs: FileSystem.FileSystem, targetPath: string, options: { re
       if (options.allowMissing) {
         return emptyEnvMap;
       }
-      return yield* Effect.fail(new Error(`Missing required file: ${targetPath}`));
+      return yield* Effect.fail(new MissingRequiredFileError({ filePath: targetPath }));
     }
 
     const content = yield* fs.readFileString(targetPath);

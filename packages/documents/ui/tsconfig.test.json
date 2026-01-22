@@ -4,6 +4,9 @@
   "references": [
     {
       "path": "tsconfig.src.json"
+    },
+    {
+      "path": "../../../tooling/testkit/tsconfig.build.json"
     }
   ],
   "compilerOptions": {

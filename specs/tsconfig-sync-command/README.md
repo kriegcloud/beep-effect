@@ -3,7 +3,7 @@
 > CLI command to automate tsconfig reference, path alias, and dependency maintenance
 
 **Complexity Score**: 48 (High) - updated to include transitive dependency hoisting
-**Status**: Phase 0 - Scaffolding
+**Status**: Phase 1 Complete → Ready for Phase 2
 
 ---
 
@@ -385,27 +385,59 @@ packages/[slice]/[layer]/tsconfig.src.json
 
 | Phase | Agents | Deliverables | Status |
 |-------|--------|--------------|--------|
-| **P0a: Scaffolding** | orchestrator | README.md, spec structure | Complete |
-| **P0b: Utility Improvements** | `effect-code-writer` | Graph.ts, DepSorter.ts, Paths.ts in @beep/tooling-utils | **Pending** |
-| **P1: Implement Core** | `effect-code-writer` | Command definition + handler (using P0b utilities) | Blocked by P0b |
-| **P2: Test** | `test-writer` | Effect-based tests | Blocked by P1 |
-| **P3: Integrate** | orchestrator | Register command, update docs | Blocked by P2 |
+| **P0a: Scaffolding** | orchestrator | README.md, spec structure | ✅ Complete |
+| **P0b: Utility Improvements** | `effect-code-writer` | Graph.ts, DepSorter.ts, Paths.ts in @beep/tooling-utils | ✅ Complete |
+| **P1: Implement Core** | `effect-code-writer` | Command definition + handler (using P0b utilities) | ✅ Complete |
+| **P2: File Writing** | `effect-code-writer` | tsconfig-writer.ts, order-aware diff | ✅ Complete |
+| **P3: Exhaustive Verification** | orchestrator | Verify ALL packages, document issues, create fix handoffs | **Ready** |
+| **P4: Bug Fixes** | `effect-code-writer` | Fix issues identified in P3 | Blocked by P3 |
+| **P5: Integration** | orchestrator | Update docs, CI integration | Blocked by P4 |
 
-### P0b: Utility Improvements (Pre-requisite)
+### P0b: Utility Improvements ✅ COMPLETE
 
-Before P1 implementation, enhance `@beep/tooling-utils` with reusable utilities:
+Enhanced `@beep/tooling-utils` with reusable utilities (2026-01-22):
 
-| Utility | File | Purpose |
-|---------|------|---------|
-| `topologicalSort` | `repo/Graph.ts` | Extract from topo-sort.ts |
-| `computeTransitiveClosure` | `repo/Graph.ts` | Recursive dep collection |
-| `detectCycles` | `repo/Graph.ts` | Return cycle paths |
-| `sortDependencies` | `repo/DepSorter.ts` | Topo + alpha sorting |
-| `buildRootRelativePath` | `repo/Paths.ts` | Root-relative path calculation |
+| Utility | File | Purpose | Status |
+|---------|------|---------|--------|
+| `topologicalSort` | `repo/Graph.ts` | Kahn's algorithm (extracted from topo-sort.ts) | ✅ |
+| `computeTransitiveClosure` | `repo/Graph.ts` | Recursive dep collection | ✅ |
+| `detectCycles` | `repo/Graph.ts` | Return cycle paths | ✅ |
+| `CyclicDependencyError` | `repo/Graph.ts` | Enhanced with cycles array | ✅ |
+| `sortDependencies` | `repo/DepSorter.ts` | Topo + alpha sorting | ✅ |
+| `mergeSortedDeps` | `repo/DepSorter.ts` | Combine sorted deps to Record | ✅ |
+| `enforceVersionSpecifiers` | `repo/DepSorter.ts` | Ensure workspace:^ / catalog: | ✅ |
+| `buildRootRelativePath` | `repo/Paths.ts` | Root-relative path calculation | ✅ |
+| `calculateDepth` | `repo/Paths.ts` | Directory depth from root | ✅ |
+| `normalizePath` | `repo/Paths.ts` | Remove leading ./ and trailing / | ✅ |
+| `getDirectory` | `repo/Paths.ts` | Get directory containing file | ✅ |
 
-**Handoff**: [P0_ORCHESTRATOR_PROMPT.md](./handoffs/P0_ORCHESTRATOR_PROMPT.md)
+**Results**:
+- ✅ 41 tests passing
+- ✅ Type checks passing
+- ✅ `topo-sort` command works with extracted utilities
 
-**Impact**: Reduces P1 scope by ~65% (440 LOC → 155 LOC)
+**Impact**: Reduced P1 scope by ~65% (440 LOC → 155 LOC)
+
+### P1: Command Implementation ✅ COMPLETE
+
+Implemented command structure and orchestration (2026-01-22):
+
+| File | Purpose | LOC |
+|------|---------|-----|
+| `index.ts` | Command definition with 5 options | ~82 |
+| `handler.ts` | Orchestration using P0b utilities | ~166 |
+| `schemas.ts` | `TsconfigSyncInput`, `getSyncMode` | ~30 |
+| `errors.ts` | `DriftDetectedError`, `TsconfigSyncError` | ~25 |
+
+**Results**:
+- ✅ `bun run repo-cli tsconfig-sync --help` shows all options
+- ✅ `bun run repo-cli tsconfig-sync --dry-run` reports 44 packages
+- ✅ Handler uses all P0b utilities (no inline implementations)
+- ✅ Lint passes for tsconfig-sync files
+
+**Current limitations** (Phase 2 scope):
+- Handler computes expected state but does NOT write files
+- No tests exist yet
 
 ---
 
@@ -535,10 +567,14 @@ tooling/cli/src/commands/tsconfig-sync/
 - [templates/](./templates/) - Handler and test templates
 
 ### Handoff Documents
-- [handoffs/P0_UTILITY_IMPROVEMENTS.md](./handoffs/P0_UTILITY_IMPROVEMENTS.md) - **P0b utility analysis (START HERE)**
-- [handoffs/P0_ORCHESTRATOR_PROMPT.md](./handoffs/P0_ORCHESTRATOR_PROMPT.md) - **P0b execution prompt**
-- [handoffs/HANDOFF_P1.md](./handoffs/HANDOFF_P1.md) - Phase 1 context (blocked by P0b)
-- [handoffs/P1_ORCHESTRATOR_PROMPT.md](./handoffs/P1_ORCHESTRATOR_PROMPT.md) - Phase 1 start prompt
+- [handoffs/P0_UTILITY_IMPROVEMENTS.md](./handoffs/P0_UTILITY_IMPROVEMENTS.md) - P0b utility analysis (✅ Complete)
+- [handoffs/P0_ORCHESTRATOR_PROMPT.md](./handoffs/P0_ORCHESTRATOR_PROMPT.md) - P0b execution prompt (✅ Complete)
+- [handoffs/HANDOFF_P1.md](./handoffs/HANDOFF_P1.md) - Phase 1 completion details (✅ Complete)
+- [handoffs/P1_ORCHESTRATOR_PROMPT.md](./handoffs/P1_ORCHESTRATOR_PROMPT.md) - Phase 1 start prompt (✅ Complete)
+- [handoffs/HANDOFF_P2.md](./handoffs/HANDOFF_P2.md) - Phase 2 context (✅ Complete)
+- [handoffs/P2_ORCHESTRATOR_PROMPT.md](./handoffs/P2_ORCHESTRATOR_PROMPT.md) - Phase 2 start prompt (✅ Complete)
+- [handoffs/HANDOFF_P3.md](./handoffs/HANDOFF_P3.md) - **Phase 3 verification context (READY)**
+- [handoffs/P3_ORCHESTRATOR_PROMPT.md](./handoffs/P3_ORCHESTRATOR_PROMPT.md) - **Phase 3 loop prompt (uses ralph-wiggum)**
 
 ### Reference Documentation
 - [Spec Guide](../_guide/README.md) - Spec creation standards

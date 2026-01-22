@@ -3,10 +3,11 @@
  *
  * @module @beep/tooling-utils/test/repo/Paths
  */
-import { buildRootRelativePath, calculateDepth, getDirectory, normalizePath } from "@beep/tooling-utils";
-import { effect, strictEqual } from "@beep/testkit";
-import * as Effect from "effect/Effect";
+
 import { describe } from "bun:test";
+import { effect, strictEqual } from "@beep/testkit";
+import { buildRootRelativePath, calculateDepth, getDirectory, normalizePath } from "@beep/tooling-utils";
+import * as Effect from "effect/Effect";
 
 describe("Paths", () => {
   describe("calculateDepth", () => {
@@ -69,10 +70,7 @@ describe("Paths", () => {
 
     effect("handles root-level source file", () =>
       Effect.gen(function* () {
-        const result = buildRootRelativePath(
-          "tsconfig.json",
-          "packages/common/schema/tsconfig.build.json"
-        );
+        const result = buildRootRelativePath("tsconfig.json", "packages/common/schema/tsconfig.build.json");
         strictEqual(result, "packages/common/schema/tsconfig.build.json");
       })
     );

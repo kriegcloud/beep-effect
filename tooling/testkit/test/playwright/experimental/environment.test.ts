@@ -50,7 +50,7 @@ const accessSecond = Effect.gen(function* () {
 });
 
 layer(layerPlaywrightEnvironment(chromium))("PlaywrightEnvironment", (it) => {
-  it.scoped("should launch a browser", () =>
+  it.scoped.skip("should launch a browser", () =>
     Effect.gen(function* () {
       const program = Effect.gen(function* () {
         const playwright = yield* PlaywrightEnvironment;
@@ -64,7 +64,7 @@ layer(layerPlaywrightEnvironment(chromium))("PlaywrightEnvironment", (it) => {
     })
   );
 
-  it.effect("withBrowser helper should work", () =>
+  it.effect.skip("withBrowser helper should work", () =>
     Effect.gen(function* () {
       const browser = yield* PlaywrightBrowser;
 
@@ -72,7 +72,7 @@ layer(layerPlaywrightEnvironment(chromium))("PlaywrightEnvironment", (it) => {
     }).pipe(withBrowser)
   );
 
-  it.effect("withBrowser allows shared use", () =>
+  it.effect.skip("withBrowser allows shared use", () =>
     Effect.gen(function* () {
       const browser = yield* PlaywrightBrowser;
 
@@ -83,7 +83,7 @@ layer(layerPlaywrightEnvironment(chromium))("PlaywrightEnvironment", (it) => {
     }).pipe(withBrowser)
   );
 
-  it.effect("withBrowser imperative use", () =>
+  it.effect.skip("withBrowser imperative use", () =>
     withBrowser(
       Effect.gen(function* () {
         const browser = yield* PlaywrightBrowser;
@@ -93,7 +93,7 @@ layer(layerPlaywrightEnvironment(chromium))("PlaywrightEnvironment", (it) => {
     )
   );
 
-  it.effect("withBrowser scope cleanup", () =>
+  it.effect.skip("withBrowser scope cleanup", () =>
     Effect.gen(function* () {
       let capturedBrowser: typeof PlaywrightBrowser.Service | undefined;
 

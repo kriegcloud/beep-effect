@@ -40,8 +40,6 @@ const DiscussionWithCommentsSchema = S.Struct({
   })
 );
 
-export type DiscussionWithComments = typeof DiscussionWithCommentsSchema.Type;
-
 export class DiscussionRepo extends Effect.Service<DiscussionRepo>()($I`DiscussionRepo`, {
   dependencies,
   accessors: true,

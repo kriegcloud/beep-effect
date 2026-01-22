@@ -4,6 +4,75 @@
   "references": [
     {
       "path": "tsconfig.src.json"
+    },
+    {
+      "path": "../../packages/common/identity"
+    },
+    {
+      "path": "../../packages/common/invariant"
+    },
+    {
+      "path": "../../tooling/testkit"
+    },
+    {
+      "path": "../../packages/common/types"
+    },
+    {
+      "path": "../../packages/common/utils"
+    },
+    {
+      "path": "../../packages/common/schema"
+    },
+    {
+      "path": "../../packages/common/constants"
+    },
+    {
+      "path": "../../packages/ui/core"
+    },
+    {
+      "path": "../../packages/common/errors"
+    },
+    {
+      "path": "../../packages/shared/domain"
+    },
+    {
+      "path": "../../packages/customization/domain"
+    },
+    {
+      "path": "../../packages/documents/domain"
+    },
+    {
+      "path": "../../packages/iam/domain"
+    },
+    {
+      "path": "../../packages/shared/env"
+    },
+    {
+      "path": "../../packages/shared/server"
+    },
+    {
+      "path": "../../packages/shared/tables"
+    },
+    {
+      "path": "../../packages/customization/tables"
+    },
+    {
+      "path": "../../packages/documents/tables"
+    },
+    {
+      "path": "../../packages/iam/tables"
+    },
+    {
+      "path": "../../packages/customization/server"
+    },
+    {
+      "path": "../../packages/documents/server"
+    },
+    {
+      "path": "../../packages/iam/server"
+    },
+    {
+      "path": "../../packages/runtime/server"
     }
   ],
   "compilerOptions": {

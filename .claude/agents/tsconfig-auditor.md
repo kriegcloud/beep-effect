@@ -274,7 +274,7 @@ This agent is designed to be deployed by an orchestrator in topological order.
 **Use the `topo-sort` CLI command to get packages in the correct processing order:**
 
 ```bash
-bun run beep topo-sort
+bun run repo-cli topo-sort
 ```
 
 This outputs all `@beep/*` packages with dependencies listed first (leaf packages appear at the top). Example output:
@@ -298,7 +298,7 @@ This outputs all `@beep/*` packages with dependencies listed first (leaf package
 ### Orchestrator Workflow
 
 The orchestrator should:
-1. Run `bun run beep topo-sort` to get the ordered package list
+1. Run `bun run repo-cli topo-sort` to get the ordered package list
 2. Deploy this agent sequentially for each package in that order
 3. Collect results and continue to next package
 4. Report overall summary when complete

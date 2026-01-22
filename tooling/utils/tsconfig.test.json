@@ -6,7 +6,7 @@
       "path": "tsconfig.src.json"
     },
     {
-      "path": "../testkit/tsconfig.build.json"
+      "path": "../../tooling/testkit/tsconfig.build.json"
     }
   ],
   "compilerOptions": {

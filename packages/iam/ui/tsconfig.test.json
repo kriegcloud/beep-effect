@@ -6,28 +6,67 @@
       "path": "tsconfig.src.json"
     },
     {
-      "path": "../../ui/ui"
+      "path": "../../../packages/common/identity"
     },
     {
-      "path": "../../ui/core"
+      "path": "../../../packages/common/invariant"
     },
     {
-      "path": "../../shared/domain"
+      "path": "../../../tooling/testkit"
     },
     {
-      "path": "../../shared/env"
+      "path": "../../../packages/common/types"
     },
     {
-      "path": "../../shared/client"
+      "path": "../../../packages/common/utils"
     },
     {
-      "path": "../client"
+      "path": "../../../packages/common/schema"
     },
     {
-      "path": "../../common/constants"
+      "path": "../../../packages/common/constants"
     },
     {
-      "path": "../../runtime/client"
+      "path": "../../../packages/ui/core"
+    },
+    {
+      "path": "../../../packages/common/wrap"
+    },
+    {
+      "path": "../../../packages/common/errors"
+    },
+    {
+      "path": "../../../packages/shared/domain"
+    },
+    {
+      "path": "../../../packages/iam/domain"
+    },
+    {
+      "path": "../../../packages/shared/env"
+    },
+    {
+      "path": "../../../packages/shared/server"
+    },
+    {
+      "path": "../../../packages/shared/tables"
+    },
+    {
+      "path": "../../../packages/ui/ui"
+    },
+    {
+      "path": "../../../packages/iam/tables"
+    },
+    {
+      "path": "../../../packages/runtime/client"
+    },
+    {
+      "path": "../../../packages/iam/server"
+    },
+    {
+      "path": "../../../packages/shared/client"
+    },
+    {
+      "path": "../../../packages/iam/client"
     }
   ],
   "compilerOptions": {

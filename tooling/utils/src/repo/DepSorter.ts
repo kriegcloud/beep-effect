@@ -18,7 +18,7 @@ import * as Order from "effect/Order";
 import * as R from "effect/Record";
 import * as Str from "effect/String";
 
-import { CyclicDependencyError, topologicalSort } from "./Graph.js";
+import { type CyclicDependencyError, topologicalSort } from "./Graph.js";
 
 /**
  * Sorted dependencies split into workspace and external packages.
@@ -42,7 +42,7 @@ export interface SortedDeps {
 /**
  * Alphabetical ordering for dependency tuples by package name.
  */
-const tupleOrder = Order.mapInput(Order.string, (t: readonly [string, string]) => t[0]);
+const tupleOrder = Order.mapInput(Order.string, (t: readonly [string, string]) => A.headNonEmpty(t));
 
 /**
  * Check if a package name is a workspace package.
@@ -124,7 +124,7 @@ export const sortDependencies = (
     );
 
     // Topologically sort if we have workspace deps
-    let sortedWorkspaceNames: Array<string> = [];
+    let sortedWorkspaceNames = A.empty<string>();
     if (A.isNonEmptyArray(workspaceNames)) {
       sortedWorkspaceNames = yield* topologicalSort(subgraph);
     }
@@ -136,7 +136,7 @@ export const sortDependencies = (
       A.filterMap((name) =>
         F.pipe(
           HashMap.get(depsMap, name),
-          O.map((version): readonly [string, string] => [name, version])
+          O.map((version): readonly [string, string] => [name, version] as const)
         )
       )
     );
@@ -174,7 +174,7 @@ export const sortDependencies = (
  * @since 0.1.0
  */
 export const mergeSortedDeps = (sorted: SortedDeps): Record<string, string> => {
-  const result: Record<string, string> = {};
+  const result = R.empty<string, string>();
 
   // Add workspace deps first (in topological order)
   for (const [name, version] of sorted.workspace) {
@@ -223,13 +223,13 @@ export const enforceVersionSpecifiers = (
   workspacePackages: HashSet.HashSet<string>,
   useCatalogForExternal = false
 ): Record<string, string> => {
-  const result: Record<string, string> = {};
+  const result = R.empty<string, string>();
 
   for (const [name, version] of R.toEntries(deps)) {
     if (HashSet.has(workspacePackages, name)) {
       // Workspace packages must use workspace:^
       result[name] = "workspace:^";
-    } else if (useCatalogForExternal && !Str.startsWith( "catalog:")(version)) {
+    } else if (useCatalogForExternal && !Str.startsWith("catalog:")(version)) {
       // Convert external deps to catalog: if requested
       result[name] = "catalog:";
     } else {

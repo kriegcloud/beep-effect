@@ -11,6 +11,7 @@
 import { KnowledgeEntityIds } from "@beep/shared-domain";
 import { OrgTable } from "@beep/shared-tables";
 import * as pg from "drizzle-orm/pg-core";
+import { foreignKey } from "drizzle-orm/pg-core";
 import { entity } from "./entity.table.ts";
 
 /**
@@ -25,10 +26,8 @@ import { entity } from "./entity.table.ts";
 export const entityCluster = OrgTable.make(KnowledgeEntityIds.EntityClusterId)(
   {
     // Canonical entity ID (the representative of this cluster)
-    canonicalEntityId: pg
-      .text("canonical_entity_id")
-      .notNull()
-      .references(() => entity.id),
+    // Note: FK constraint is added via foreignKey() in extraConfig to use custom short name
+    canonicalEntityId: pg.text("canonical_entity_id").notNull(),
 
     // Member entity IDs in this cluster (JSON array)
     memberIds: pg.jsonb("member_ids").notNull().$type<ReadonlyArray<string>>(),
@@ -55,5 +54,11 @@ export const entityCluster = OrgTable.make(KnowledgeEntityIds.EntityClusterId)(
     pg
       .index("entity_cluster_ontology_idx")
       .on(t.ontologyId),
+    // FK with short custom name to avoid PostgreSQL 63-char limit
+    foreignKey({
+      name: "entity_cluster_canonical_fk",
+      columns: [t.canonicalEntityId],
+      foreignColumns: [entity.id],
+    }),
   ]
 );

@@ -747,13 +747,13 @@ specs/[SPEC_NAME]/
 
 ```bash
 # Simple spec (1 session, < 5 files)
-bun run beep bootstrap-spec -n quick-fix -d "Bug fix" -c simple
+bun run repo-cli bootstrap-spec -n quick-fix -d "Bug fix" -c simple
 
 # Medium spec (2-3 sessions, 5-15 files)
-bun run beep bootstrap-spec -n my-feature -d "Feature description"
+bun run repo-cli bootstrap-spec -n my-feature -d "Feature description"
 
 # Complex spec (4+ sessions, 15+ files)
-bun run beep bootstrap-spec -n major-refactor -d "API redesign" -c complex
+bun run repo-cli bootstrap-spec -n major-refactor -d "API redesign" -c complex
 ```
 
 ---
@@ -1106,10 +1106,10 @@ bun run lint:fix --filter @beep/schema        # Lint single package
 ### Specifications
 
 ```bash
-bun run beep bootstrap-spec -n name -d "description"           # Medium spec
-bun run beep bootstrap-spec -n name -d "desc" -c simple        # Simple spec
-bun run beep bootstrap-spec -n name -d "desc" -c complex       # Complex spec
-bun run beep bootstrap-spec -n name -d "desc" --dry-run        # Preview only
+bun run repo-cli bootstrap-spec -n name -d "description"           # Medium spec
+bun run repo-cli bootstrap-spec -n name -d "desc" -c simple        # Simple spec
+bun run repo-cli bootstrap-spec -n name -d "desc" -c complex       # Complex spec
+bun run repo-cli bootstrap-spec -n name -d "desc" --dry-run        # Preview only
 ```
 
 ---

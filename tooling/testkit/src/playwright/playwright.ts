@@ -1,8 +1,46 @@
-import { Context, Effect, Layer, type Scope } from "effect";
+import { Context, Duration, Effect, Layer, Schedule, type Scope } from "effect";
 import { type BrowserType, type ConnectOverCDPOptions, chromium } from "playwright-core";
 
 import { type LaunchOptions, PlaywrightBrowser } from "./browser";
 import { type PlaywrightError, wrapError } from "./errors";
+
+// Check if an error is a transient error that can be retried
+const isTransientError = (error: PlaywrightError): boolean => {
+  if (error.reason !== "Unknown") return false;
+  const cause = error.cause;
+  if (!cause) return false;
+
+  // Handle various error structures from Playwright
+  const errorObj = cause instanceof Error ? cause : null;
+  if (errorObj) {
+    // Check for ENOENT directly on the error
+    if ("code" in errorObj && (errorObj as Error & { code: string }).code === "ENOENT") {
+      return true;
+    }
+    // Check nested cause for ENOENT
+    if ("cause" in errorObj && errorObj.cause && typeof errorObj.cause === "object") {
+      const nestedCause = errorObj.cause as { code?: string };
+      if (nestedCause.code === "ENOENT") {
+        return true;
+      }
+    }
+    // Check message for ENOENT indication
+    if (errorObj.message?.includes("ENOENT")) {
+      return true;
+    }
+  }
+
+  // Also retry on string errors containing ENOENT
+  if (typeof cause === "string" && cause.includes("ENOENT")) {
+    return true;
+  }
+
+  return false;
+};
+
+// Retry schedule for browser launch - handles transient failures during concurrent execution
+// Uses exponential backoff to reduce contention
+const launchRetrySchedule = Schedule.intersect(Schedule.recurs(5), Schedule.exponential(Duration.millis(50), 2));
 
 /**
  * @category model
@@ -135,7 +173,12 @@ const launch: (
   const rawBrowser = yield* Effect.tryPromise({
     try: () => browserType.launch(options),
     catch: wrapError,
-  });
+  }).pipe(
+    Effect.retry({
+      schedule: launchRetrySchedule,
+      while: isTransientError,
+    })
+  );
 
   return PlaywrightBrowser.make(rawBrowser);
 });

@@ -3,19 +3,31 @@
   "include": ["src"],
   "references": [
     {
-      "path": "../../shared/domain"
+      "path": "../../../packages/common/identity"
     },
     {
-      "path": "../../common/schema/tsconfig.src.json"
+      "path": "../../../packages/common/invariant"
     },
     {
-      "path": "../../common/identity"
+      "path": "../../../tooling/testkit"
     },
     {
-      "path": "../../common/constants"
+      "path": "../../../packages/common/types"
     },
     {
-      "path": "../../common/errors"
+      "path": "../../../packages/common/utils"
+    },
+    {
+      "path": "../../../packages/common/schema"
+    },
+    {
+      "path": "../../../packages/common/constants"
+    },
+    {
+      "path": "../../../packages/common/errors"
+    },
+    {
+      "path": "../../../packages/shared/domain"
     }
   ],
   "compilerOptions": {

@@ -3,25 +3,28 @@
   "include": ["src"],
   "references": [
     {
-      "path": "../../common/schema/tsconfig.src.json"
+      "path": "../../../packages/common/identity"
     },
     {
-      "path": "../../common/types"
+      "path": "../../../packages/common/invariant"
     },
     {
-      "path": "../../common/utils"
+      "path": "../../../tooling/testkit"
     },
     {
-      "path": "../../common/invariant"
+      "path": "../../../packages/common/types"
     },
     {
-      "path": "../../common/constants"
+      "path": "../../../packages/common/utils"
     },
     {
-      "path": "../../common/errors"
+      "path": "../../../packages/common/schema"
     },
     {
-      "path": "../../common/identity"
+      "path": "../../../packages/common/constants"
+    },
+    {
+      "path": "../../../packages/common/errors"
     }
   ],
   "compilerOptions": {

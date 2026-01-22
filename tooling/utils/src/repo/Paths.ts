@@ -38,11 +38,7 @@ import * as Str from "effect/String";
  */
 export const calculateDepth = (path: string): number => {
   // Split by "/" and filter out the filename (last segment) and empty strings
-  const segments = F.pipe(
-    path,
-    Str.split("/"),
-    A.filter((s) => Str.isNonEmpty(s))
-  );
+  const segments = F.pipe(path, Str.split("/"), A.filter(Str.isNonEmpty));
 
   // Depth is number of directory segments (exclude the filename)
   return Math.max(0, A.length(segments) - 1);
@@ -117,34 +113,28 @@ export const normalizePath = (path: string): string => {
   const chars = F.pipe(path, Str.split(""), A.fromIterable);
 
   // Remove leading "./"
-  const withoutLeadingDotSlash = F.pipe(
-    chars,
-    (arr) => {
-      if (A.length(arr) >= 2) {
-        const first = A.get(arr, 0);
-        const second = A.get(arr, 1);
-        if (O.isSome(first) && O.isSome(second) && first.value === "." && second.value === "/") {
-          return A.drop(arr, 2);
-        }
+  const withoutLeadingDotSlash = F.pipe(chars, (arr) => {
+    if (A.length(arr) >= 2) {
+      const first = A.get(arr, 0);
+      const second = A.get(arr, 1);
+      if (O.isSome(first) && O.isSome(second) && first.value === "." && second.value === "/") {
+        return A.drop(arr, 2);
       }
-      return arr;
     }
-  );
+    return arr;
+  });
 
   // Remove trailing "/"
-  const withoutTrailingSlash = F.pipe(
-    withoutLeadingDotSlash,
-    (arr) => {
-      const len = A.length(arr);
-      if (len > 0) {
-        const last = A.get(arr, len - 1);
-        if (O.isSome(last) && last.value === "/") {
-          return A.dropRight(arr, 1);
-        }
+  const withoutTrailingSlash = F.pipe(withoutLeadingDotSlash, (arr) => {
+    const len = A.length(arr);
+    if (len > 0) {
+      const last = A.get(arr, len - 1);
+      if (O.isSome(last) && last.value === "/") {
+        return A.dropRight(arr, 1);
       }
-      return arr;
     }
-  );
+    return arr;
+  });
 
   return A.join(withoutTrailingSlash, "");
 };

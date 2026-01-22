@@ -4,19 +4,40 @@
   "exclude": ["build"],
   "references": [
     {
-      "path": "../../common/types"
+      "path": "../../../packages/common/identity"
     },
     {
-      "path": "../../common/utils"
+      "path": "../../../packages/common/invariant"
     },
     {
-      "path": "../../common/constants"
+      "path": "../../../tooling/testkit"
     },
     {
-      "path": "../../shared/env"
+      "path": "../../../packages/common/types"
     },
     {
-      "path": "../../ui/ui"
+      "path": "../../../packages/common/utils"
+    },
+    {
+      "path": "../../../packages/common/schema"
+    },
+    {
+      "path": "../../../packages/common/constants"
+    },
+    {
+      "path": "../../../packages/ui/core"
+    },
+    {
+      "path": "../../../packages/common/errors"
+    },
+    {
+      "path": "../../../packages/shared/domain"
+    },
+    {
+      "path": "../../../packages/shared/env"
+    },
+    {
+      "path": "../../../packages/ui/ui"
     }
   ],
   "compilerOptions": {

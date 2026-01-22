@@ -6,19 +6,19 @@
       "path": "tsconfig.src.json"
     },
     {
-      "path": "../types/tsconfig.build.json"
+      "path": "../../../packages/common/identity"
     },
     {
-      "path": "../invariant/tsconfig.build.json"
+      "path": "../../../packages/common/invariant"
     },
     {
-      "path": "../utils/tsconfig.build.json"
+      "path": "../../../tooling/testkit"
     },
     {
-      "path": "../identity/tsconfig.build.json"
+      "path": "../../../packages/common/types"
     },
     {
-      "path": "../../../tooling/testkit/tsconfig.build.json"
+      "path": "../../../packages/common/utils"
     }
   ],
   "compilerOptions": {

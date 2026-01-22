@@ -3,46 +3,82 @@
   "include": ["test"],
   "references": [
     {
-      "path": "../../common/schema/tsconfig.src.json"
+      "path": "tsconfig.src.json"
     },
     {
-      "path": "../../common/constants"
+      "path": "../../../packages/common/identity"
     },
     {
-      "path": "../../common/errors"
+      "path": "../../../packages/common/invariant"
     },
     {
-      "path": "../../shared/domain"
+      "path": "../../../tooling/testkit"
     },
     {
-      "path": "../../shared/env"
+      "path": "../../../packages/common/types"
     },
     {
-      "path": "../../shared/server"
+      "path": "../../../packages/common/utils"
     },
     {
-      "path": "../../iam/server"
+      "path": "../../../packages/common/schema"
     },
     {
-      "path": "../../iam/domain"
+      "path": "../../../packages/common/constants"
     },
     {
-      "path": "../../iam/tables"
+      "path": "../../../packages/ui/core"
     },
     {
-      "path": "../../documents/server"
+      "path": "../../../packages/common/errors"
     },
     {
-      "path": "../../customization/server"
+      "path": "../../../packages/shared/domain"
     },
     {
-      "path": "../../comms/server"
+      "path": "../../../packages/customization/domain"
     },
     {
-      "path": "../../calendar/server"
+      "path": "../../../packages/documents/domain"
     },
     {
-      "path": "../../knowledge/server"
+      "path": "../../../packages/iam/domain"
+    },
+    {
+      "path": "../../../packages/shared/env"
+    },
+    {
+      "path": "../../../packages/shared/server"
+    },
+    {
+      "path": "../../../packages/shared/tables"
+    },
+    {
+      "path": "../../../packages/customization/tables"
+    },
+    {
+      "path": "../../../packages/documents/tables"
+    },
+    {
+      "path": "../../../packages/iam/tables"
+    },
+    {
+      "path": "../../../packages/customization/server"
+    },
+    {
+      "path": "../../../packages/documents/server"
+    },
+    {
+      "path": "../../../packages/iam/server"
+    },
+    {
+      "path": "../../../packages/comms/server"
+    },
+    {
+      "path": "../../../packages/calendar/server"
+    },
+    {
+      "path": "../../../packages/knowledge/server"
     }
   ],
   "compilerOptions": {

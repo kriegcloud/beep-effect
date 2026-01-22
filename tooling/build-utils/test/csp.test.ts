@@ -10,7 +10,6 @@ import {
 } from "@beep/build-utils/secure-headers/content-security-policy";
 import { wrapArray } from "@beep/build-utils/secure-headers/helpers";
 import { beforeEach, describe, expect, it, mock } from "@beep/testkit";
-import type { UnsafeTypes } from "@beep/types";
 import { Effect, Option } from "effect";
 
 const runEffect = <A, E>(effect: Effect.Effect<A, E, never>): Promise<A> => Effect.runPromise(effect);
@@ -521,7 +520,8 @@ describe("convertFetchDirectiveToString", () => {
           childSrc: "'self'",
           styleSrc: "'self'",
           reportTo: "foobar",
-        } as UnsafeTypes.UnsafeAny)
+          // biome-ignore lint/suspicious/noExplicitAny: not required to type this
+        } as any)
       ).toBe("child-src 'self'; style-src 'self'");
 
       expect(
@@ -529,7 +529,8 @@ describe("convertFetchDirectiveToString", () => {
           "child-src": "'self'",
           "style-src": "'self'",
           "report-to": "foobar",
-        } as UnsafeTypes.UnsafeAny)
+          // biome-ignore lint/suspicious/noExplicitAny: not required to type this
+        } as any)
       ).toBe("child-src 'self'; style-src 'self'");
     });
   });

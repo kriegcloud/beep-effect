@@ -3,13 +3,28 @@
   "include": ["src"],
   "references": [
     {
-      "path": "../utils"
+      "path": "../../packages/common/identity"
     },
     {
-      "path": "../../packages/common/constants"
+      "path": "../../packages/common/invariant"
+    },
+    {
+      "path": "../../tooling/testkit"
+    },
+    {
+      "path": "../../tooling/utils"
+    },
+    {
+      "path": "../../packages/common/types"
+    },
+    {
+      "path": "../../packages/common/utils"
     },
     {
       "path": "../../packages/common/schema"
+    },
+    {
+      "path": "../../packages/common/constants"
     }
   ],
   "compilerOptions": {

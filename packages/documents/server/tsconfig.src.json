@@ -3,22 +3,46 @@
   "include": ["src"],
   "references": [
     {
-      "path": "../../shared/domain"
+      "path": "../../../packages/common/identity"
     },
     {
-      "path": "../../shared/server"
+      "path": "../../../packages/common/invariant"
     },
     {
-      "path": "../../shared/env"
+      "path": "../../../tooling/testkit"
     },
     {
-      "path": "../../common/schema/tsconfig.src.json"
+      "path": "../../../packages/common/types"
     },
     {
-      "path": "../domain"
+      "path": "../../../packages/common/utils"
     },
     {
-      "path": "../tables"
+      "path": "../../../packages/common/schema"
+    },
+    {
+      "path": "../../../packages/common/constants"
+    },
+    {
+      "path": "../../../packages/common/errors"
+    },
+    {
+      "path": "../../../packages/shared/domain"
+    },
+    {
+      "path": "../../../packages/documents/domain"
+    },
+    {
+      "path": "../../../packages/shared/env"
+    },
+    {
+      "path": "../../../packages/shared/server"
+    },
+    {
+      "path": "../../../packages/shared/tables"
+    },
+    {
+      "path": "../../../packages/documents/tables"
     }
   ],
   "compilerOptions": {

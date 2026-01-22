@@ -11,55 +11,85 @@
   },
   "references": [
     {
+      "path": "../../../packages/common/identity/tsconfig.build.json"
+    },
+    {
+      "path": "../../../packages/common/invariant/tsconfig.build.json"
+    },
+    {
       "path": "../../../tooling/testkit/tsconfig.build.json"
     },
     {
-      "path": "../../common/schema/tsconfig.build.json"
+      "path": "../../../packages/common/types/tsconfig.build.json"
     },
     {
-      "path": "../../shared/domain/tsconfig.build.json"
+      "path": "../../../packages/common/utils/tsconfig.build.json"
     },
     {
-      "path": "../../shared/tables/tsconfig.build.json"
+      "path": "../../../packages/common/schema/tsconfig.build.json"
     },
     {
-      "path": "../../shared/server/tsconfig.build.json"
+      "path": "../../../packages/common/constants/tsconfig.build.json"
     },
     {
-      "path": "../../iam/server/tsconfig.build.json"
+      "path": "../../../packages/ui/core/tsconfig.build.json"
     },
     {
-      "path": "../../iam/domain/tsconfig.build.json"
+      "path": "../../../packages/common/errors/tsconfig.build.json"
     },
     {
-      "path": "../../iam/tables/tsconfig.build.json"
+      "path": "../../../packages/shared/domain/tsconfig.build.json"
     },
     {
-      "path": "../../documents/server/tsconfig.build.json"
+      "path": "../../../packages/customization/domain/tsconfig.build.json"
     },
     {
-      "path": "../../documents/tables/tsconfig.build.json"
+      "path": "../../../packages/documents/domain/tsconfig.build.json"
     },
     {
-      "path": "../../customization/tables/tsconfig.build.json"
+      "path": "../../../packages/iam/domain/tsconfig.build.json"
     },
     {
-      "path": "../../comms/server/tsconfig.build.json"
+      "path": "../../../packages/shared/env/tsconfig.build.json"
     },
     {
-      "path": "../../comms/tables/tsconfig.build.json"
+      "path": "../../../packages/shared/server/tsconfig.build.json"
     },
     {
-      "path": "../../calendar/server/tsconfig.build.json"
+      "path": "../../../packages/shared/tables/tsconfig.build.json"
     },
     {
-      "path": "../../calendar/tables/tsconfig.build.json"
+      "path": "../../../packages/customization/tables/tsconfig.build.json"
     },
     {
-      "path": "../../knowledge/server/tsconfig.build.json"
+      "path": "../../../packages/documents/tables/tsconfig.build.json"
     },
     {
-      "path": "../../knowledge/tables/tsconfig.build.json"
+      "path": "../../../packages/iam/tables/tsconfig.build.json"
+    },
+    {
+      "path": "../../../packages/documents/server/tsconfig.build.json"
+    },
+    {
+      "path": "../../../packages/iam/server/tsconfig.build.json"
+    },
+    {
+      "path": "../../../packages/calendar/tables/tsconfig.build.json"
+    },
+    {
+      "path": "../../../packages/knowledge/tables/tsconfig.build.json"
+    },
+    {
+      "path": "../../../packages/comms/server/tsconfig.build.json"
+    },
+    {
+      "path": "../../../packages/calendar/server/tsconfig.build.json"
+    },
+    {
+      "path": "../../../packages/knowledge/server/tsconfig.build.json"
+    },
+    {
+      "path": "../../../packages/comms/tables/tsconfig.build.json"
     }
   ]
 }

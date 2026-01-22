@@ -3,10 +3,7 @@
   "include": ["src"],
   "references": [
     {
-      "path": "../utils"
-    },
-    {
-      "path": "../../packages/common/types"
+      "path": "../../tooling/utils"
     }
   ],
   "exclude": [],

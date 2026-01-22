@@ -1,0 +1,8 @@
+# Phase artifacts will be placed here as phases are completed.
+#
+# Expected artifacts:
+# - VERIFICATION_REPORT_P0.md (after P0)
+# - VERIFICATION_REPORT_P1.md (after P1)
+# - VERIFICATION_REPORT_P2.md (after P2)
+# - VERIFICATION_REPORT_P3.md (after P3)
+# - VERIFICATION_REPORT_FINAL.md (after P4)

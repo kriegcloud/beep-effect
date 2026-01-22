@@ -9,8 +9,8 @@
 | Resource | Purpose |
 |----------|---------|
 | [QUICK_START.md](QUICK_START.md) | 5-minute orientation |
-| [Current Phase Prompt](handoffs/P0_ORCHESTRATOR_PROMPT.md) | Copy-paste to begin |
-| [Phase Outputs](outputs/) | Completed research artifacts |
+| [Drizzle API Analysis](outputs/drizzle-api-analysis.md) | P0 research findings |
+| [Design Decisions](outputs/design-decisions.md) | P1 design document |
 | [MASTER_ORCHESTRATION.md](MASTER_ORCHESTRATION.md) | Full workflow details |
 | [REFLECTION_LOG.md](REFLECTION_LOG.md) | Session learnings |
 
@@ -20,14 +20,14 @@
 
 | Phase | Status | Blockers | Last Updated |
 |-------|--------|----------|--------------|
-| P0: Research | Not Started | None | 2026-01-21 |
-| P1: Design | Not Started | - | - |
-| P2: Implementation | Not Started | - | - |
-| P3: Cleanup | Not Started | - | - |
-| P4: Documentation | Not Started | - | - |
+| P0: Research | COMPLETE | None | 2026-01-22 |
+| P1: Design | COMPLETE | None | 2026-01-22 |
+| P2: Implementation | COMPLETE | None | 2026-01-22 |
+| P3: Cleanup | COMPLETE | None | 2026-01-22 |
+| P4: Documentation | COMPLETE | None | 2026-01-22 |
 
-**Current Phase**: P0 - Research & API Analysis
-**Next Action**: Run `handoffs/P0_ORCHESTRATOR_PROMPT.md`
+**Status**: COMPLETE
+**All tests passing**: 55 pass, 0 fail in `@beep/db-admin`
 
 ---
 
@@ -102,21 +102,21 @@ By embedding RLS into the factory, every `OrgTable.make()` call automatically ge
 
 ### Quantitative
 
-- [ ] `OrgTable.make` accepts optional `{ rlsPolicy }` parameter
-- [ ] Default `'standard'` generates automatic RLS policy
-- [ ] `'nullable'` generates policy handling `NULL` organizationId
-- [ ] `'none'` disables automatic RLS generation
-- [ ] All 20 existing org-scoped tables compile without changes
-- [ ] `bun run db:generate` produces valid migration
-- [ ] `bun run check` passes across all affected packages
-- [ ] Existing tests continue to pass
+- [x] `OrgTable.make` accepts optional `{ rlsPolicy }` parameter
+- [x] Default `'standard'` generates automatic RLS policy
+- [x] `'nullable'` generates policy handling `NULL` organizationId
+- [x] `'none'` disables automatic RLS generation
+- [x] All 26 existing org-scoped tables compile without changes
+- [x] `bun run db:generate` produces valid migration
+- [x] `bun run check` passes across all affected packages
+- [x] All 55 tests pass in `@beep/db-admin`
 
 ### Qualitative
 
-- [ ] API remains backward-compatible (no required changes to existing tables)
-- [ ] Type inference preserved for custom columns
-- [ ] Clear documentation of options and behavior
-- [ ] Migration shows correct RLS policy SQL
+- [x] API remains backward-compatible (no required changes to existing tables)
+- [x] Type inference preserved for custom columns
+- [x] Clear documentation of options and behavior in `CLAUDE.md`
+- [x] Migration shows correct RLS policy SQL (30 tables with RLS)
 
 ---
 
@@ -124,11 +124,11 @@ By embedding RLS into the factory, every `OrgTable.make()` call automatically ge
 
 | Phase  | Description                                          | Sessions | Status      |
 |--------|------------------------------------------------------|----------|-------------|
-| **P0** | Research: Drizzle API, policy merging, type impact   | 1        | Not Started |
-| **P1** | Design: API signature, policy templates, edge cases  | 1        | Not Started |
-| **P2** | Implement: Modify factory, test migration generation | 1        | Not Started |
-| **P3** | Cleanup: Remove manual policies, verify all tables   | 1        | Not Started |
-| **P4** | Document: Update AGENTS.md, add usage examples       | 1        | Not Started |
+| **P0** | Research: Drizzle API, policy merging, type impact   | 1        | COMPLETE    |
+| **P1** | Design: API signature, policy templates, edge cases  | 1        | COMPLETE    |
+| **P2** | Implement: Modify factory, test migration generation | 1        | COMPLETE    |
+| **P3** | Cleanup: Remove manual policies, verify all tables   | 1        | COMPLETE    |
+| **P4** | Document: Update AGENTS.md, add usage examples       | 1        | COMPLETE    |
 
 ---
 

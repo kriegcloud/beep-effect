@@ -17,10 +17,37 @@
   },
   "references": [
     {
-      "path": "../ui/tsconfig.build.json"
+      "path": "../../../packages/common/identity/tsconfig.build.json"
     },
     {
-      "path": "../core/tsconfig.build.json"
+      "path": "../../../packages/common/invariant/tsconfig.build.json"
+    },
+    {
+      "path": "../../../tooling/testkit/tsconfig.build.json"
+    },
+    {
+      "path": "../../../packages/common/types/tsconfig.build.json"
+    },
+    {
+      "path": "../../../packages/common/utils/tsconfig.build.json"
+    },
+    {
+      "path": "../../../packages/common/schema/tsconfig.build.json"
+    },
+    {
+      "path": "../../../packages/common/constants/tsconfig.build.json"
+    },
+    {
+      "path": "../../../packages/ui/core/tsconfig.build.json"
+    },
+    {
+      "path": "../../../packages/common/errors/tsconfig.build.json"
+    },
+    {
+      "path": "../../../packages/shared/domain/tsconfig.build.json"
+    },
+    {
+      "path": "../../../packages/ui/ui/tsconfig.build.json"
     }
   ],
   "include": ["src"]

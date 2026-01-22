@@ -4,6 +4,15 @@
   "exclude": ["src/**/__tests__/**", "src/**/*.test.ts"],
   "references": [
     {
+      "path": "../../../packages/common/identity"
+    },
+    {
+      "path": "../../../packages/common/invariant"
+    },
+    {
+      "path": "../../../tooling/testkit"
+    },
+    {
       "path": "../../../packages/common/types"
     },
     {
@@ -13,37 +22,46 @@
       "path": "../../../packages/common/schema"
     },
     {
-      "path": "../../../packages/common/identity"
-    },
-    {
-      "path": "../../../packages/common/errors"
-    },
-    {
       "path": "../../../packages/common/constants"
+    },
+    {
+      "path": "../../../packages/ui/core"
     },
     {
       "path": "../../../packages/common/wrap"
     },
     {
-      "path": "../../../packages/runtime/client"
+      "path": "../../../packages/common/errors"
     },
     {
       "path": "../../../packages/shared/domain"
     },
     {
-      "path": "../../../packages/shared/client"
+      "path": "../../../packages/iam/domain"
     },
     {
       "path": "../../../packages/shared/env"
     },
     {
-      "path": "../../../packages/iam/domain"
+      "path": "../../../packages/shared/server"
+    },
+    {
+      "path": "../../../packages/shared/tables"
+    },
+    {
+      "path": "../../../packages/ui/ui"
+    },
+    {
+      "path": "../../../packages/iam/tables"
+    },
+    {
+      "path": "../../../packages/runtime/client"
     },
     {
       "path": "../../../packages/iam/server"
     },
     {
-      "path": "../../../packages/ui/ui"
+      "path": "../../../packages/shared/client"
     }
   ],
   "compilerOptions": {

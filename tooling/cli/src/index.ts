@@ -39,6 +39,7 @@ import { envCommand } from "./commands/env.js";
 import { pruneUnusedDepsCommand } from "./commands/prune-unused-deps.js";
 import { syncCommand } from "./commands/sync.js";
 import { topoSortCommand } from "./commands/topo-sort.js";
+import { tsconfigSyncCommand } from "./commands/tsconfig-sync/index.js";
 
 const repoCommand = CliCommand.make("beep").pipe(
   CliCommand.withDescription("Beep repository maintenance CLI."),
@@ -51,6 +52,7 @@ const repoCommand = CliCommand.make("beep").pipe(
     pruneUnusedDepsCommand,
     syncCommand,
     topoSortCommand,
+    tsconfigSyncCommand,
   ])
 );
 

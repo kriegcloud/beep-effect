@@ -6,34 +6,49 @@
       "path": "tsconfig.src.json"
     },
     {
-      "path": "../tables"
+      "path": "../../../packages/common/identity"
     },
     {
-      "path": "../domain"
+      "path": "../../../packages/common/invariant"
     },
     {
-      "path": "../../common/identity"
+      "path": "../../../tooling/testkit"
     },
     {
-      "path": "../../shared/env"
+      "path": "../../../packages/common/types"
     },
     {
-      "path": "../../shared/domain"
+      "path": "../../../packages/common/utils"
     },
     {
-      "path": "../../shared/server"
+      "path": "../../../packages/common/schema"
     },
     {
-      "path": "../../common/schema/tsconfig.src.json"
+      "path": "../../../packages/common/constants"
     },
     {
-      "path": "../../common/utils"
+      "path": "../../../packages/ui/core"
     },
     {
-      "path": "../../common/constants"
+      "path": "../../../packages/common/errors"
     },
     {
-      "path": "../../ui/core"
+      "path": "../../../packages/shared/domain"
+    },
+    {
+      "path": "../../../packages/iam/domain"
+    },
+    {
+      "path": "../../../packages/shared/env"
+    },
+    {
+      "path": "../../../packages/shared/server"
+    },
+    {
+      "path": "../../../packages/shared/tables"
+    },
+    {
+      "path": "../../../packages/iam/tables"
     }
   ],
   "compilerOptions": {

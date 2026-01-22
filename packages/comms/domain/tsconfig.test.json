@@ -6,7 +6,31 @@
       "path": "tsconfig.src.json"
     },
     {
-      "path": "../../shared/domain"
+      "path": "../../../packages/common/identity"
+    },
+    {
+      "path": "../../../packages/common/invariant"
+    },
+    {
+      "path": "../../../tooling/testkit"
+    },
+    {
+      "path": "../../../packages/common/types"
+    },
+    {
+      "path": "../../../packages/common/utils"
+    },
+    {
+      "path": "../../../packages/common/schema"
+    },
+    {
+      "path": "../../../packages/common/constants"
+    },
+    {
+      "path": "../../../packages/common/errors"
+    },
+    {
+      "path": "../../../packages/shared/domain"
     }
   ],
   "compilerOptions": {

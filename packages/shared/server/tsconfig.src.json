@@ -3,19 +3,34 @@
   "include": ["src"],
   "references": [
     {
-      "path": "../../common/types"
+      "path": "../../../packages/common/identity"
     },
     {
-      "path": "../../common/constants"
+      "path": "../../../packages/common/invariant"
     },
     {
-      "path": "../../common/identity"
+      "path": "../../../tooling/testkit"
     },
     {
-      "path": "../domain"
+      "path": "../../../packages/common/types"
     },
     {
-      "path": "../tables"
+      "path": "../../../packages/common/utils"
+    },
+    {
+      "path": "../../../packages/common/schema"
+    },
+    {
+      "path": "../../../packages/common/constants"
+    },
+    {
+      "path": "../../../packages/common/errors"
+    },
+    {
+      "path": "../../../packages/shared/domain"
+    },
+    {
+      "path": "../../../packages/shared/tables"
     }
   ],
   "compilerOptions": {

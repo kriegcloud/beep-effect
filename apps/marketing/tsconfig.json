@@ -38,8 +38,12 @@
     "esModuleInterop": true,
     "disableSourceOfProjectReferenceRedirect": true,
     "paths": {
-      "*": ["./*"],
-      "@beep/marketing/*": ["./src/*"]
+      "*": [
+        "./*"
+      ],
+      "@beep/marketing/*": [
+        "./src/*"
+      ]
     },
     "plugins": [
       {
@@ -47,9 +51,7 @@
       }
     ]
   },
-  "references": [
-
-  ],
+  "references": [],
   "include": [
     "./scripts/*.ts",
     "execute.ts",

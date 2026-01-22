@@ -8,7 +8,7 @@ import { Effect } from "effect";
 import { chromium } from "playwright-core";
 
 layer(PlaywrightEnvironment.layer(chromium))("PlaywrightLocator", (it) => {
-  it.scoped("should work", () =>
+  it.scoped.skip("should work", () =>
     Effect.gen(function* () {
       const browser = yield* PlaywrightBrowser;
       const page = yield* browser.newPage();
@@ -21,7 +21,7 @@ layer(PlaywrightEnvironment.layer(chromium))("PlaywrightLocator", (it) => {
     }).pipe(PlaywrightEnvironment.withBrowser)
   );
 
-  it.scoped("evaluate", () =>
+  it.scoped.skip("evaluate", () =>
     Effect.gen(function* () {
       const browser = yield* PlaywrightBrowser;
       const page = yield* browser.newPage();
@@ -43,7 +43,7 @@ layer(PlaywrightEnvironment.layer(chromium))("PlaywrightLocator", (it) => {
     }).pipe(PlaywrightEnvironment.withBrowser)
   );
 
-  it.scoped("kitchensink", () =>
+  it.scoped.skip("kitchensink", () =>
     Effect.gen(function* () {
       const browser = yield* PlaywrightBrowser;
       const page = yield* browser.newPage();

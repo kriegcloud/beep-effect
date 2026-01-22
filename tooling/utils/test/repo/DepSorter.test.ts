@@ -20,8 +20,8 @@ describe("DepSorter", () => {
         const deps = {
           "@beep/utils": "workspace:^",
           "@beep/schema": "workspace:^",
-          "zod": "^3.0.0",
-          "effect": "^3.0.0",
+          zod: "^3.0.0",
+          effect: "^3.0.0",
         };
 
         // schema has no deps, utils depends on schema
@@ -66,8 +66,8 @@ describe("DepSorter", () => {
     effect("handles only external deps", () =>
       Effect.gen(function* () {
         const deps = {
-          "zod": "^3.0.0",
-          "effect": "^3.0.0",
+          zod: "^3.0.0",
+          effect: "^3.0.0",
         };
 
         const graph = HashMap.empty<string, HashSet.HashSet<string>>();
@@ -98,14 +98,8 @@ describe("DepSorter", () => {
     effect("merges workspace and external deps preserving order", () =>
       Effect.gen(function* () {
         const sorted = {
-          workspace: [
-            ["@beep/schema", "workspace:^"] as const,
-            ["@beep/utils", "workspace:^"] as const,
-          ],
-          external: [
-            ["effect", "^3.0.0"] as const,
-            ["zod", "^3.0.0"] as const,
-          ],
+          workspace: [["@beep/schema", "workspace:^"] as const, ["@beep/utils", "workspace:^"] as const],
+          external: [["effect", "^3.0.0"] as const, ["zod", "^3.0.0"] as const],
         };
 
         const merged = mergeSortedDeps(sorted);
@@ -142,7 +136,7 @@ describe("DepSorter", () => {
         const deps = {
           "@beep/schema": "^1.0.0",
           "@beep/utils": "latest",
-          "effect": "^3.0.0",
+          effect: "^3.0.0",
         };
 
         const workspaces = HashSet.make("@beep/schema", "@beep/utils");
@@ -159,7 +153,7 @@ describe("DepSorter", () => {
       Effect.gen(function* () {
         const deps = {
           "@beep/schema": "workspace:^",
-          "effect": "^3.0.0",
+          effect: "^3.0.0",
         };
 
         const workspaces = HashSet.make("@beep/schema");
@@ -174,7 +168,7 @@ describe("DepSorter", () => {
     effect("preserves existing catalog: specifiers", () =>
       Effect.gen(function* () {
         const deps = {
-          "effect": "catalog:",
+          effect: "catalog:",
         };
 
         const workspaces = HashSet.empty<string>();

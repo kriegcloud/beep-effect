@@ -10,9 +10,20 @@
     "sourceMap": true
   },
   "references": [
-    { "path": "../types/tsconfig.build.json" },
-    { "path": "../identity/tsconfig.build.json" },
-    { "path": "../invariant/tsconfig.build.json" },
-    { "path": "../utils/tsconfig.build.json" }
+    {
+      "path": "../../../packages/common/identity/tsconfig.build.json"
+    },
+    {
+      "path": "../../../packages/common/invariant/tsconfig.build.json"
+    },
+    {
+      "path": "../../../tooling/testkit/tsconfig.build.json"
+    },
+    {
+      "path": "../../../packages/common/types/tsconfig.build.json"
+    },
+    {
+      "path": "../../../packages/common/utils/tsconfig.build.json"
+    }
   ]
 }

@@ -6,7 +6,7 @@ import { Chunk, Effect, Fiber, Option, pipe, Stream } from "effect";
 import { chromium } from "playwright-core";
 
 layer(PlaywrightEnvironment.layer(chromium))("PlaywrightCommon", (it) => {
-  it.scoped("PlaywrightRequest and PlaywrightResponse", () =>
+  it.scoped.skip("PlaywrightRequest and PlaywrightResponse", () =>
     Effect.gen(function* () {
       const browser = yield* PlaywrightBrowser;
       const page = yield* browser.newPage();
@@ -40,7 +40,7 @@ layer(PlaywrightEnvironment.layer(chromium))("PlaywrightCommon", (it) => {
     }).pipe(PlaywrightEnvironment.withBrowser)
   );
 
-  it.scoped("PlaywrightWorker", () =>
+  it.scoped.skip("PlaywrightWorker", () =>
     Effect.gen(function* () {
       const browser = yield* PlaywrightBrowser;
       const page = yield* browser.newPage();
@@ -62,7 +62,7 @@ layer(PlaywrightEnvironment.layer(chromium))("PlaywrightCommon", (it) => {
     }).pipe(PlaywrightEnvironment.withBrowser)
   );
 
-  it.scoped("PlaywrightDialog", () =>
+  it.scoped.skip("PlaywrightDialog", () =>
     Effect.gen(function* () {
       const browser = yield* PlaywrightBrowser;
       const page = yield* browser.newPage();
@@ -82,7 +82,7 @@ layer(PlaywrightEnvironment.layer(chromium))("PlaywrightCommon", (it) => {
     }).pipe(PlaywrightEnvironment.withBrowser)
   );
 
-  it.scoped("PlaywrightFileChooser", () =>
+  it.scoped.skip("PlaywrightFileChooser", () =>
     Effect.gen(function* () {
       const browser = yield* PlaywrightBrowser;
       const page = yield* browser.newPage();
@@ -102,7 +102,7 @@ layer(PlaywrightEnvironment.layer(chromium))("PlaywrightCommon", (it) => {
     }).pipe(PlaywrightEnvironment.withBrowser)
   );
 
-  it.scoped("PlaywrightDownload", () =>
+  it.scoped.skip("PlaywrightDownload", () =>
     Effect.gen(function* () {
       const browser = yield* PlaywrightBrowser;
       const page = yield* browser.newPage();

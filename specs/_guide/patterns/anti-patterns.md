@@ -73,7 +73,7 @@ This document catalogs 14 anti-patterns discovered during spec execution. Each e
 - **When interactive guidance needed** → Skill
 
 **Example**: The `spec-bootstrapper` spec delivers both:
-- CLI: `bun run beep bootstrap-spec -n name -d desc` (file generation)
+- CLI: `bun run repo-cli bootstrap-spec -n name -d desc` (file generation)
 - Skill: `/new-spec` (gathers context, validates, recommends complexity, invokes CLI, suggests next steps)
 
 ---

@@ -94,16 +94,16 @@ Use the CLI command to scaffold the spec:
 
 ```bash
 # Simple spec (score 0-20)
-bun run beep bootstrap-spec -n SPEC_NAME -d "Description" -c simple
+bun run repo-cli bootstrap-spec -n SPEC_NAME -d "Description" -c simple
 
 # Medium spec (score 21-40)
-bun run beep bootstrap-spec -n SPEC_NAME -d "Description" -c medium
+bun run repo-cli bootstrap-spec -n SPEC_NAME -d "Description" -c medium
 
 # Complex spec (score 41+)
-bun run beep bootstrap-spec -n SPEC_NAME -d "Description" -c complex
+bun run repo-cli bootstrap-spec -n SPEC_NAME -d "Description" -c complex
 
 # Preview without creating files
-bun run beep bootstrap-spec -n SPEC_NAME -d "Description" --dry-run
+bun run repo-cli bootstrap-spec -n SPEC_NAME -d "Description" --dry-run
 ```
 
 ### Structure by Complexity
@@ -212,7 +212,7 @@ At the end of EVERY phase, ask:
 
 2. **Scaffold**:
    ```bash
-   bun run beep bootstrap-spec -n multi-org-iam -d "Multi-organization support for IAM system" -c complex
+   bun run repo-cli bootstrap-spec -n multi-org-iam -d "Multi-organization support for IAM system" -c complex
    ```
 
 3. **Plan phases**:

@@ -16,13 +16,22 @@
   },
   "references": [
     {
-      "path": "../../common/types/tsconfig.build.json"
+      "path": "../../../packages/common/identity/tsconfig.build.json"
     },
     {
-      "path": "../../common/utils/tsconfig.build.json"
+      "path": "../../../packages/common/invariant/tsconfig.build.json"
     },
     {
-      "path": "../../common/schema/tsconfig.build.json"
+      "path": "../../../tooling/testkit/tsconfig.build.json"
+    },
+    {
+      "path": "../../../packages/common/types/tsconfig.build.json"
+    },
+    {
+      "path": "../../../packages/common/utils/tsconfig.build.json"
+    },
+    {
+      "path": "../../../packages/common/schema/tsconfig.build.json"
     }
   ],
   "include": [

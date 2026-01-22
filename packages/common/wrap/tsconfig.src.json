@@ -3,13 +3,22 @@
   "include": ["src"],
   "references": [
     {
-      "path": "../types"
+      "path": "../../../packages/common/identity"
     },
     {
-      "path": "../schema"
+      "path": "../../../packages/common/invariant"
     },
     {
-      "path": "../invariant"
+      "path": "../../../tooling/testkit"
+    },
+    {
+      "path": "../../../packages/common/types"
+    },
+    {
+      "path": "../../../packages/common/utils"
+    },
+    {
+      "path": "../../../packages/common/schema"
     }
   ],
   "compilerOptions": {

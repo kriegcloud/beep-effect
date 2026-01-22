@@ -1,4 +1,4 @@
-import { Label as CommsLabel } from "@beep/comms-domain/value-objects/mail.values";
+import { Label as CommsLabel } from "@beep/comms-domain/value-objects/mail.value";
 import { BS } from "@beep/schema";
 import { type IMailLabel, MailLabel } from "@beep/todox/types/mail";
 import * as Arbitrary from "effect/Arbitrary";

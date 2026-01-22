@@ -3,13 +3,13 @@
   "include": ["src"],
   "references": [
     {
-      "path": "../../shared/domain"
+      "path": "../../../packages/shared/domain"
     },
     {
-      "path": "../../common/schema/tsconfig.src.json"
+      "path": "../../../packages/comms/domain"
     },
     {
-      "path": "../domain"
+      "path": "../../../packages/common/schema"
     }
   ],
   "compilerOptions": {

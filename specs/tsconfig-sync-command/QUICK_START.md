@@ -6,40 +6,73 @@
 
 ## Current Status
 
-**Phase 0a: Scaffolding** - Complete
+**Phase 0a: Scaffolding** - ✅ Complete
 - README.md with full command design including transitive hoisting
 - Research on existing CLI patterns complete
 - Templates created for handler and tests
 
-**Phase 0b: Utility Improvements** - **NEXT**
-- Add reusable utilities to `@beep/tooling-utils`
-- Reduces P1 scope by ~65%
+**Phase 0b: Utility Improvements** - ✅ Complete (2026-01-22)
+- Added reusable utilities to `@beep/tooling-utils`
+- Reduced P1 scope by ~65%
+- 41 tests passing
 
-**Phase 1: Core Implementation** - Blocked by P0b
+**Phase 1: Core Implementation** - ✅ Complete (2026-01-22)
+- Command definition with all 5 options
+- Handler orchestration using P0b utilities
+- Command registered in CLI
+
+**Phase 2: Tests & File Writing** - **READY TO START**
 
 ---
 
 ## Immediate Next Steps
 
-### Start Phase 0b (Recommended)
+### Start Phase 2 (READY)
 
 Copy-paste the orchestrator prompt:
 ```
-specs/tsconfig-sync-command/handoffs/P0_ORCHESTRATOR_PROMPT.md
+specs/tsconfig-sync-command/handoffs/P2_ORCHESTRATOR_PROMPT.md
 ```
 
-This adds reusable utilities to `@beep/tooling-utils`:
-- `Graph.ts` - topologicalSort, computeTransitiveClosure, detectCycles
-- `DepSorter.ts` - sortDependencies, enforceVersionSpecifiers
-- `Paths.ts` - buildRootRelativePath
+Phase 2 scope:
+- Add file writing (tsconfig references, package.json deps)
+- Add Effect-based tests using `@beep/testkit`
+- Use `jsonc-parser` to preserve comments
 
-**Estimated time**: 1.5-2 hours
+**Estimated time**: 1-2 hours
 
-### After P0b Completes
+---
 
-Then execute P1 using:
+## What's Already Done
+
+### Command Working (Phase 1)
+
+```bash
+# All options available
+bun run repo-cli tsconfig-sync --help
+
+# Dry-run works (44 packages detected)
+bun run repo-cli tsconfig-sync --dry-run
+
+# Verbose output shows per-package counts
+bun run repo-cli tsconfig-sync --verbose
 ```
-specs/tsconfig-sync-command/handoffs/P1_ORCHESTRATOR_PROMPT.md
+
+### P0b Utilities Available
+
+All utilities in `@beep/tooling-utils`:
+- ✅ `Graph.ts` - topologicalSort, computeTransitiveClosure, detectCycles, CyclicDependencyError
+- ✅ `DepSorter.ts` - sortDependencies, mergeSortedDeps, enforceVersionSpecifiers
+- ✅ `Paths.ts` - buildRootRelativePath, calculateDepth, normalizePath, getDirectory
+
+### Phase 1 Files Created
+
+```
+tooling/cli/src/commands/tsconfig-sync/
+├── index.ts      # Command definition (~82 LOC)
+├── handler.ts    # Orchestration (~166 LOC)
+├── schemas.ts    # Input validation (~30 LOC)
+└── errors.ts     # Error classes (~25 LOC)
 ```
 
 ---
@@ -92,27 +125,22 @@ tsconfig `references` arrays sorted with deps before dependents.
 
 ---
 
-## Files to Create (After P0b)
+## Phase 2 Files to Create
 
-> **CRITICAL**: P0b adds utilities to `@beep/tooling-utils` that handle most complexity.
-
-### P1 Command (Minimal)
+### Writer Utilities
 
 ```
-tooling/cli/src/commands/tsconfig-sync/
-├── index.ts          # Command definition (~40 LOC)
-├── handler.ts        # Orchestration using utilities (~80 LOC)
-├── schemas.ts        # Input validation (~20 LOC)
-└── errors.ts         # Command-specific errors (~15 LOC)
+tooling/cli/src/commands/tsconfig-sync/utils/
+├── tsconfig-writer.ts     # Write tsconfig.build.json references
+└── package-json-writer.ts # Write sorted package.json deps
 ```
 
-### P0b Utilities (in @beep/tooling-utils)
+### Tests
 
 ```
-tooling/utils/src/repo/
-├── Graph.ts          # topologicalSort, computeTransitiveClosure, detectCycles
-├── DepSorter.ts      # sortDependencies, enforceVersionSpecifiers
-└── Paths.ts          # buildRootRelativePath, calculateDepth
+tooling/cli/test/commands/tsconfig-sync/
+├── handler.test.ts  # Integration tests
+└── utils.test.ts    # Unit tests for writers
 ```
 
 ---
@@ -121,8 +149,8 @@ tooling/utils/src/repo/
 
 | Pattern | Location | Purpose |
 |---------|----------|---------|
-| ConfigUpdaterService | `tooling/cli/src/commands/create-slice/utils/config-updater.ts` | jsonc-parser modifications |
-| topo-sort.ts | `tooling/cli/src/commands/topo-sort.ts` | Source for Graph.ts extraction |
+| jsonc-parser | `tooling/cli/src/commands/create-slice/utils/config-updater.ts` | Preserve comments in tsconfig |
+| Test patterns | `tooling/testkit/AGENTS.md` | Effect-based testing |
 | Command pattern | `tooling/cli/src/commands/create-slice/index.ts` | CLI structure |
 
 ---
@@ -130,67 +158,52 @@ tooling/utils/src/repo/
 ## Verification Commands
 
 ```bash
-# Check current tsconfig state (discovery)
-find packages -name "tsconfig.build.json" -exec grep -l "references" {} \; | head -5
-
-# Count packages needing sync
-find packages -name "package.json" -not -path "*/node_modules/*" | wc -l
-
 # Type check CLI package
 bun run check --filter @beep/repo-cli
 
 # Lint CLI package
 bun run lint --filter @beep/repo-cli
 
-# Test command (after implementation)
+# Test (after Phase 2)
+bun run test --filter @beep/repo-cli
+
+# Command verification (Phase 1 complete)
 bun run repo-cli tsconfig-sync --help
 bun run repo-cli tsconfig-sync --dry-run
+bun run repo-cli tsconfig-sync --verbose
 ```
 
 ---
 
 ## Success Criteria Checklist
 
-### P0b: Utility Improvements
-- [ ] Fix WorkspacePkgValue duplicate literal bug
-- [ ] Add CatalogValue schema
-- [ ] Extract topologicalSort to Graph.ts
-- [ ] Add computeTransitiveClosure to Graph.ts
-- [ ] Add detectCycles to Graph.ts
-- [ ] Add sortDependencies to DepSorter.ts
-- [ ] Add buildRootRelativePath to Paths.ts
-- [ ] `bun run repo-cli topo-sort` still works
+### P0b: Utility Improvements ✅ COMPLETE
+- [x] All graph utilities implemented
+- [x] All sorting utilities implemented
+- [x] All path utilities implemented
+- [x] 41 tests passing
+- [x] `bun run repo-cli topo-sort` outputs 60 packages
 
-### P1: Command Implementation
-- [ ] Command definition with all options
-- [ ] Handler using P0b utilities
-- [ ] `--check` mode (exit code 1 on drift)
-- [ ] `--dry-run` mode
-- [ ] `--filter` scope
-- [ ] `--no-hoist` flag
+### P1: Command Implementation ✅ COMPLETE
+- [x] Command definition with all options
+- [x] Handler using P0b utilities
+- [x] `--check` mode
+- [x] `--dry-run` mode
+- [x] `--filter` scope
+- [x] `--no-hoist` flag
+- [x] Command registered in CLI
 
-### Integration
-- [ ] package.json deps → tsconfig references
-- [ ] tsconfig.base.jsonc path alias updates
-- [ ] Root-relative reference paths
-- [ ] Topologically sorted references
-- [ ] Transitive dependency hoisting
+### P2: Tests & File Writing
+- [ ] `TsconfigWriter` utility
+- [ ] `PackageJsonWriter` utility
+- [ ] Handler writes files in sync mode
+- [ ] Effect-based tests
+- [ ] `bun run test --filter @beep/repo-cli` passes
 
----
-
-## Anti-Pattern Awareness
-
-This spec actively avoids common pitfalls documented in the spec guide:
-
-| Anti-Pattern | Status | Evidence |
-|--------------|--------|----------|
-| Giant documents | Avoided | All files <500 lines |
-| Unbounded scope | Avoided | Explicit out-of-scope list in README |
-| Static prompts | Avoided | 5 prompt iteration entries in REFLECTION_LOG |
-| Missing handoffs | Avoided | Both HANDOFF_P1.md AND P1_ORCHESTRATOR_PROMPT.md present |
-| Context budget exceeded | Avoided | ~3,200 tokens (under 4K limit) |
-
-See [Anti-Patterns Guide](../_guide/patterns/anti-patterns.md) for complete list.
+### Integration (P3)
+- [ ] Update CLAUDE.md with command docs
+- [ ] CI integration (`--check` in workflow)
+- [ ] Full sync working end-to-end
 
 ---
 
@@ -201,17 +214,14 @@ See [Anti-Patterns Guide](../_guide/patterns/anti-patterns.md) for complete list
 | [README.md](./README.md) | Full design document |
 | [EXISTING_UTILITIES.md](./EXISTING_UTILITIES.md) | @beep/tooling-utils analysis |
 | [REFLECTION_LOG.md](./REFLECTION_LOG.md) | Phase learnings and decisions |
-| **P0b Handoffs (Start Here)** | |
-| [handoffs/P0_UTILITY_IMPROVEMENTS.md](./handoffs/P0_UTILITY_IMPROVEMENTS.md) | P0b detailed analysis |
-| [handoffs/P0_ORCHESTRATOR_PROMPT.md](./handoffs/P0_ORCHESTRATOR_PROMPT.md) | **P0b execution prompt** |
-| **P1 Handoffs (After P0b)** | |
-| [handoffs/HANDOFF_P1.md](./handoffs/HANDOFF_P1.md) | Phase 1 full context |
+| **P1 Handoffs (Complete)** | |
+| [handoffs/HANDOFF_P1.md](./handoffs/HANDOFF_P1.md) | Phase 1 completion details |
 | [handoffs/P1_ORCHESTRATOR_PROMPT.md](./handoffs/P1_ORCHESTRATOR_PROMPT.md) | Phase 1 execution prompt |
-| **Templates** | |
-| [templates/command-handler.template.ts](./templates/command-handler.template.ts) | Handler structure template |
-| [templates/command.test.template.ts](./templates/command.test.template.ts) | Test structure template |
+| **P2 Handoffs (Start Here)** | |
+| [handoffs/HANDOFF_P2.md](./handoffs/HANDOFF_P2.md) | **Phase 2 full context** |
+| [handoffs/P2_ORCHESTRATOR_PROMPT.md](./handoffs/P2_ORCHESTRATOR_PROMPT.md) | **Phase 2 execution prompt** |
 | **Reference** | |
 | [tooling/utils/AGENTS.md](../../tooling/utils/AGENTS.md) | @beep/tooling-utils patterns |
-| [topo-sort.ts](../../tooling/cli/src/commands/topo-sort.ts) | Source for Graph.ts extraction |
+| [tooling/testkit/AGENTS.md](../../tooling/testkit/AGENTS.md) | Test patterns |
 | [create-slice](../../tooling/cli/src/commands/create-slice/) | Reference CLI implementation |
 | [CLI AGENTS.md](../../tooling/cli/AGENTS.md) | CLI patterns & registration |

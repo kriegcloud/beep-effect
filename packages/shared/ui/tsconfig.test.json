@@ -6,22 +6,46 @@
       "path": "tsconfig.src.json"
     },
     {
-      "path": "../../ui/ui"
+      "path": "../../../packages/common/identity"
     },
     {
-      "path": "../../ui/core"
+      "path": "../../../packages/common/invariant"
     },
     {
-      "path": "../domain"
+      "path": "../../../tooling/testkit"
     },
     {
-      "path": "../client"
+      "path": "../../../packages/common/types"
     },
     {
-      "path": "../client"
+      "path": "../../../packages/common/utils"
     },
     {
-      "path": "../../common/schema/tsconfig.src.json"
+      "path": "../../../packages/common/schema"
+    },
+    {
+      "path": "../../../packages/common/constants"
+    },
+    {
+      "path": "../../../packages/ui/core"
+    },
+    {
+      "path": "../../../packages/common/errors"
+    },
+    {
+      "path": "../../../packages/shared/domain"
+    },
+    {
+      "path": "../../../packages/shared/env"
+    },
+    {
+      "path": "../../../packages/ui/ui"
+    },
+    {
+      "path": "../../../packages/runtime/client"
+    },
+    {
+      "path": "../../../packages/shared/client"
     }
   ],
   "compilerOptions": {

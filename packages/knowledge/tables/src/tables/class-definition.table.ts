@@ -10,6 +10,7 @@
 import { KnowledgeEntityIds } from "@beep/shared-domain";
 import { OrgTable } from "@beep/shared-tables";
 import * as pg from "drizzle-orm/pg-core";
+import { foreignKey } from "drizzle-orm/pg-core";
 import { ontology } from "./ontology.table";
 
 /**
@@ -23,10 +24,8 @@ import { ontology } from "./ontology.table";
 export const classDefinition = OrgTable.make(KnowledgeEntityIds.ClassDefinitionId)(
   {
     // Reference to parent ontology
-    ontologyId: pg
-      .text("ontology_id")
-      .notNull()
-      .references(() => ontology.id, { onDelete: "cascade" }),
+    // Note: FK constraint is added via foreignKey() in extraConfig to use custom short name
+    ontologyId: pg.text("ontology_id").notNull(),
 
     // Full IRI of the class
     iri: pg.text("iri").notNull(),
@@ -100,5 +99,11 @@ export const classDefinition = OrgTable.make(KnowledgeEntityIds.ClassDefinitionI
     pg
       .uniqueIndex("class_definition_ontology_iri_idx")
       .on(t.ontologyId, t.iri),
+    // FK with short custom name to avoid PostgreSQL 63-char limit
+    foreignKey({
+      name: "class_def_ontology_fk",
+      columns: [t.ontologyId],
+      foreignColumns: [ontology.id],
+    }).onDelete("cascade"),
   ]
 );

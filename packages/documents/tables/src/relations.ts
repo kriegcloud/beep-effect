@@ -1,15 +1,35 @@
 import * as d from "drizzle-orm";
 import { comment, discussion, document, documentFile, documentVersion, organization, user } from "./tables";
 
+// User relations (redefined for bounded context integrity)
+export const userRelations = d.relations(user, ({ many }) => ({
+  documents: many(document, { relationName: "documentOwner" }),
+  documentVersions: many(documentVersion, { relationName: "documentVersionAuthor" }),
+  discussions: many(discussion, { relationName: "discussionAuthor" }),
+  comments: many(comment, { relationName: "commentAuthor" }),
+  documentFiles: many(documentFile, { relationName: "documentFileOwner" }),
+}));
+
+// Organization relations (redefined for bounded context integrity)
+export const organizationRelations = d.relations(organization, ({ many }) => ({
+  documents: many(document, { relationName: "documentOrganization" }),
+  documentVersions: many(documentVersion, { relationName: "documentVersionOrganization" }),
+  discussions: many(discussion, { relationName: "discussionOrganization" }),
+  comments: many(comment, { relationName: "commentOrganization" }),
+  documentFiles: many(documentFile, { relationName: "documentFileOrganization" }),
+}));
+
 // Document relations
 export const documentRelations = d.relations(document, ({ one, many }) => ({
   organization: one(organization, {
     fields: [document.organizationId],
     references: [organization.id],
+    relationName: "documentOrganization",
   }),
   owner: one(user, {
     fields: [document.userId],
     references: [user.id],
+    relationName: "documentOwner",
   }),
   parentDocument: one(document, {
     fields: [document.parentDocumentId],
@@ -29,6 +49,7 @@ export const documentVersionRelations = d.relations(documentVersion, ({ one }) =
   organization: one(organization, {
     fields: [documentVersion.organizationId],
     references: [organization.id],
+    relationName: "documentVersionOrganization",
   }),
   document: one(document, {
     fields: [documentVersion.documentId],
@@ -37,6 +58,7 @@ export const documentVersionRelations = d.relations(documentVersion, ({ one }) =
   author: one(user, {
     fields: [documentVersion.userId],
     references: [user.id],
+    relationName: "documentVersionAuthor",
   }),
 }));
 
@@ -45,6 +67,7 @@ export const discussionRelations = d.relations(discussion, ({ one, many }) => ({
   organization: one(organization, {
     fields: [discussion.organizationId],
     references: [organization.id],
+    relationName: "discussionOrganization",
   }),
   document: one(document, {
     fields: [discussion.documentId],
@@ -53,8 +76,11 @@ export const discussionRelations = d.relations(discussion, ({ one, many }) => ({
   author: one(user, {
     fields: [discussion.userId],
     references: [user.id],
+    relationName: "discussionAuthor",
   }),
-  comments: many(comment),
+  comments: many(comment, {
+    relationName: "discussionComments",
+  }),
 }));
 
 // Comment relations
@@ -62,6 +88,7 @@ export const commentRelations = d.relations(comment, ({ one }) => ({
   organization: one(organization, {
     fields: [comment.organizationId],
     references: [organization.id],
+    relationName: "commentOrganization",
   }),
   discussion: one(discussion, {
     fields: [comment.discussionId],
@@ -70,6 +97,7 @@ export const commentRelations = d.relations(comment, ({ one }) => ({
   author: one(user, {
     fields: [comment.userId],
     references: [user.id],
+    relationName: "commentAuthor",
   }),
 }));
 
@@ -78,10 +106,12 @@ export const documentFileRelations = d.relations(documentFile, ({ one }) => ({
   organization: one(organization, {
     fields: [documentFile.organizationId],
     references: [organization.id],
+    relationName: "documentFileOrganization",
   }),
   owner: one(user, {
     fields: [documentFile.userId],
     references: [user.id],
+    relationName: "documentFileOwner",
   }),
   document: one(document, {
     fields: [documentFile.documentId],

@@ -108,18 +108,15 @@ export const make = <const TableName extends string, const Brand extends string>
 ) => PgTableWithMergedColumns<TableName, OrgAllColumns<TableName, Brand, TColumnsMap>>) => {
   const rlsPolicy = options?.rlsPolicy ?? "standard";
 
+  // Short FK name to avoid PostgreSQL 63-char identifier limit
+  // Format: {table_name}_org_fk (instead of auto-generated {table}_organization_id_shared_organization_id_fk)
+  const orgFkName = `${entityId.tableName}_org_fk`;
+
   const defaultColumns: OrgDefaultColumns<TableName, Brand> = {
     id: entityId.publicId(),
     _rowId: entityId.privateId(),
-    organizationId: pg
-      .text("organization_id")
-      .notNull()
-      .references(() => organization.id, {
-        onDelete: "cascade",
-        onUpdate: "cascade",
-      })
-      .notNull()
-      .$type<SharedEntityIds.OrganizationId.Type>(),
+    // Note: FK constraint is added via foreignKey() in extraConfig to use custom short name
+    organizationId: pg.text("organization_id").notNull().$type<SharedEntityIds.OrganizationId.Type>(),
     ...globalColumns,
   };
 
@@ -139,15 +136,36 @@ export const make = <const TableName extends string, const Brand extends string>
         ...columns,
       };
 
-      // Create merged config that combines user's extraConfig with auto-generated RLS policy
+      // Create merged config that combines user's extraConfig with auto-generated FK and RLS policy
       const mergedConfig =
         rlsPolicy === "none"
-          ? extraConfig
+          ? (self: OrgExtraConfigColumns<TableName, Brand, TColumnsMap>): PgTableExtraConfigValue[] => {
+              const userConfigs = extraConfig?.(self) ?? [];
+              // Create the organization_id FK with short custom name to avoid PostgreSQL 63-char limit
+              const orgFk = pg
+                .foreignKey({
+                  name: orgFkName,
+                  columns: [self.organizationId],
+                  foreignColumns: [organization.id],
+                })
+                .onDelete("cascade")
+                .onUpdate("cascade");
+              return [...userConfigs, orgFk];
+            }
           : (self: OrgExtraConfigColumns<TableName, Brand, TColumnsMap>): PgTableExtraConfigValue[] => {
               const userConfigs = extraConfig?.(self) ?? [];
+              // Create the organization_id FK with short custom name to avoid PostgreSQL 63-char limit
+              const orgFk = pg
+                .foreignKey({
+                  name: orgFkName,
+                  columns: [self.organizationId],
+                  foreignColumns: [organization.id],
+                })
+                .onDelete("cascade")
+                .onUpdate("cascade");
               const policy =
                 rlsPolicy === "nullable" ? nullablePolicy(entityId.tableName) : standardPolicy(entityId.tableName);
-              return [...userConfigs, policy];
+              return [...userConfigs, orgFk, policy];
             };
 
       const table = pg.pgTable<TableName, OrgAllColumns<TableName, Brand, TColumnsMap>>(

@@ -1,7 +1,16 @@
 import { assert } from "@beep/testkit";
 import type { PlaywrightLocatorService } from "@beep/testkit/playwright/locator";
 import type { PlaywrightPageService } from "@beep/testkit/playwright/page";
+import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
+
+// -----------------------------------------------------------------------------
+// Tagged Errors
+// -----------------------------------------------------------------------------
+
+export class BoundingBoxError extends Data.TaggedError("BoundingBoxError")<{
+  readonly message: string;
+}> {}
 
 // -----------------------------------------------------------------------------
 // Locator Helpers (Synchronous - return locator services)
@@ -29,7 +38,7 @@ export const checkTab = (
   index: number,
   selected: boolean,
   text: string
-): Effect.Effect<void> =>
+) =>
   Effect.gen(function* () {
     const tabButton = findTabButton(page, path, index);
     const tabContent = findPath(page, `${path}/t${index}`);
@@ -48,11 +57,10 @@ export const checkTab = (
       `Tab button should have class ${expectedClass}`
     );
 
-    // Check button text content
-    const buttonContentLocator = tabButton
-      .locator(".flexlayout__tab_button_content")
-      .first();
-    const buttonText = yield* buttonContentLocator.textContent();
+    // Check button text content (use escape hatch for child locator)
+    const buttonText = yield* tabButton.use((l) =>
+      l.locator(".flexlayout__tab_button_content").first().textContent()
+    );
     assert(
       buttonText?.includes(text),
       `Tab button content should contain "${text}"`
@@ -79,7 +87,7 @@ export const checkBorderTab = (
   index: number,
   selected: boolean,
   text: string
-): Effect.Effect<void> =>
+) =>
   Effect.gen(function* () {
     const tabButton = findTabButton(page, path, index);
     const tabContent = findPath(page, `${path}/t${index}`);
@@ -98,11 +106,10 @@ export const checkBorderTab = (
       `Border tab button should have class ${expectedClass}`
     );
 
-    // Check button text content
-    const buttonContentLocator = tabButton
-      .locator(".flexlayout__border_button_content")
-      .first();
-    const buttonText = yield* buttonContentLocator.textContent();
+    // Check button text content (use escape hatch for child locator)
+    const buttonText = yield* tabButton.use((l) =>
+      l.locator(".flexlayout__border_button_content").first().textContent()
+    );
     assert(
       buttonText?.includes(text),
       `Border tab button content should contain "${text}"`
@@ -167,14 +174,14 @@ export const drag = (
   from: PlaywrightLocatorService,
   to: PlaywrightLocatorService,
   loc: LocationValue
-): Effect.Effect<void> =>
+) =>
   Effect.gen(function* () {
     // Get bounding boxes using escape hatch
     const fr = yield* from.use((l) => l.boundingBox());
     const tr = yield* to.use((l) => l.boundingBox());
 
     if (!fr || !tr) {
-      return yield* Effect.fail(new Error("Could not get bounding boxes"));
+      return yield* new BoundingBoxError({ message: "Could not get bounding boxes" });
     }
 
     const cf = getLocation(fr, Location.CENTER);
@@ -193,11 +200,11 @@ export const dragToEdge = (
   page: PlaywrightPageService,
   from: PlaywrightLocatorService,
   edgeIndex: number
-): Effect.Effect<void> =>
+) =>
   Effect.gen(function* () {
     const fr = yield* from.use((l) => l.boundingBox());
     if (!fr) {
-      return yield* Effect.fail(new Error("Could not get bounding box for source"));
+      return yield* new BoundingBoxError({ message: "Could not get bounding box for source" });
     }
 
     const cf = { x: fr.x + fr.width / 2, y: fr.y + fr.height / 2 };
@@ -219,7 +226,7 @@ export const dragToEdge = (
       yield* page.use(async (p) => {
         await p.mouse.up();
       });
-      return yield* Effect.fail(new Error("Could not get bounding box for edge"));
+      return yield* new BoundingBoxError({ message: "Could not get bounding box for edge" });
     }
 
     const ct = { x: tr.x + tr.width / 2, y: tr.y + tr.height / 2 };
@@ -235,11 +242,11 @@ export const dragSplitter = (
   from: PlaywrightLocatorService,
   upDown: boolean,
   distance: number
-): Effect.Effect<void> =>
+) =>
   Effect.gen(function* () {
     const fr = yield* from.use((l) => l.boundingBox());
     if (!fr) {
-      return yield* Effect.fail(new Error("Could not get bounding box for splitter"));
+      return yield* new BoundingBoxError({ message: "Could not get bounding box for splitter" });
     }
 
     const cf = { x: fr.x + fr.width / 2, y: fr.y + fr.height / 2 };

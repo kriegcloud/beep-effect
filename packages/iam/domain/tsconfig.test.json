@@ -6,25 +6,31 @@
       "path": "tsconfig.src.json"
     },
     {
-      "path": "../../shared/domain"
+      "path": "../../../packages/common/identity"
     },
     {
-      "path": "../../common/schema/tsconfig.src.json"
+      "path": "../../../packages/common/invariant"
     },
     {
-      "path": "../../shared/domain"
+      "path": "../../../tooling/testkit"
     },
     {
-      "path": "../../common/schema/tsconfig.src.json"
+      "path": "../../../packages/common/types"
     },
     {
-      "path": "../../common/identity"
+      "path": "../../../packages/common/utils"
     },
     {
-      "path": "../../common/constants"
+      "path": "../../../packages/common/schema"
     },
     {
-      "path": "../../common/errors"
+      "path": "../../../packages/common/constants"
+    },
+    {
+      "path": "../../../packages/common/errors"
+    },
+    {
+      "path": "../../../packages/shared/domain"
     }
   ],
   "compilerOptions": {

@@ -3,19 +3,43 @@
   "include": ["test"],
   "references": [
     {
-      "path": "../../common/types"
+      "path": "tsconfig.src.json"
     },
     {
-      "path": "../../common/utils"
+      "path": "../../../packages/common/identity"
     },
     {
-      "path": "../../common/constants"
+      "path": "../../../packages/common/invariant"
     },
     {
-      "path": "../../shared/env"
+      "path": "../../../tooling/testkit"
     },
     {
-      "path": "../../ui/ui"
+      "path": "../../../packages/common/types"
+    },
+    {
+      "path": "../../../packages/common/utils"
+    },
+    {
+      "path": "../../../packages/common/schema"
+    },
+    {
+      "path": "../../../packages/common/constants"
+    },
+    {
+      "path": "../../../packages/ui/core"
+    },
+    {
+      "path": "../../../packages/common/errors"
+    },
+    {
+      "path": "../../../packages/shared/domain"
+    },
+    {
+      "path": "../../../packages/shared/env"
+    },
+    {
+      "path": "../../../packages/ui/ui"
     }
   ],
   "compilerOptions": {

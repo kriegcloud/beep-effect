@@ -111,10 +111,7 @@ export const topologicalSort = (
           HashSet.toValues(deps),
           A.filter((dep) => HashMap.has(adjacencyList, dep)),
           A.reduce(acc, (innerAcc, dep) => {
-            const existing = F.pipe(
-              HashMap.get(innerAcc, dep),
-              O.getOrElse(HashSet.empty<string>)
-            );
+            const existing = F.pipe(HashMap.get(innerAcc, dep), O.getOrElse(HashSet.empty<string>));
             return HashMap.set(innerAcc, dep, HashSet.add(existing, pkg));
           })
         )
@@ -155,10 +152,7 @@ export const topologicalSort = (
       yield* Ref.update(resultRef, A.append(node));
 
       // Get packages that depend on this node (their dependency on `node` is now satisfied)
-      const dependents = F.pipe(
-        HashMap.get(reverseDeps, node),
-        O.getOrElse(HashSet.empty<string>)
-      );
+      const dependents = F.pipe(HashMap.get(reverseDeps, node), O.getOrElse(HashSet.empty<string>));
 
       // Decrement in-degrees of dependents and collect newly zero-degree nodes
       const newZeroDegree: Array<string> = [];
@@ -282,13 +276,13 @@ export const detectCycles = (
         yield* Ref.update(pathSetRef, HashSet.add(node));
 
         // Visit dependencies
-        const deps = F.pipe(
-          HashMap.get(adjacencyList, node),
-          O.getOrElse(HashSet.empty<string>)
-        );
+        const deps = F.pipe(HashMap.get(adjacencyList, node), O.getOrElse(HashSet.empty<string>));
 
         yield* Effect.forEach(
-          F.pipe(HashSet.toValues(deps), A.filter((d) => HashMap.has(adjacencyList, d))),
+          F.pipe(
+            HashSet.toValues(deps),
+            A.filter((d) => HashMap.has(adjacencyList, d))
+          ),
           dfs,
           { discard: true }
         );
@@ -354,10 +348,7 @@ export const computeTransitiveClosure = (
 
         yield* Ref.update(visitedRef, HashSet.add(pkg));
 
-        const deps = F.pipe(
-          HashMap.get(adjacencyList, pkg),
-          O.getOrElse(HashSet.empty<string>)
-        );
+        const deps = F.pipe(HashMap.get(adjacencyList, pkg), O.getOrElse(HashSet.empty<string>));
 
         // Add all direct deps to result and recurse
         yield* Effect.forEach(
@@ -378,12 +369,7 @@ export const computeTransitiveClosure = (
     const cycles = yield* detectCycles(adjacencyList);
     if (A.isNonEmptyArray(cycles)) {
       // Find packages involved in cycles
-      const cycleParticipants = F.pipe(
-        cycles,
-        A.flatMap(F.identity),
-        A.dedupe,
-        A.sort(stringOrder)
-      );
+      const cycleParticipants = F.pipe(cycles, A.flatMap(F.identity), A.dedupe, A.sort(stringOrder));
       return yield* new CyclicDependencyError({ packages: cycleParticipants, cycles });
     }
 

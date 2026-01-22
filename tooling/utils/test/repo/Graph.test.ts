@@ -3,25 +3,22 @@
  *
  * @module @beep/tooling-utils/test/repo/Graph
  */
-import { computeTransitiveClosure, detectCycles, topologicalSort } from "@beep/tooling-utils";
+
+import { describe, expect } from "bun:test";
 import { effect, strictEqual } from "@beep/testkit";
+import { computeTransitiveClosure, detectCycles, topologicalSort } from "@beep/tooling-utils";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as HashMap from "effect/HashMap";
 import * as HashSet from "effect/HashSet";
-import { describe, expect } from "bun:test";
 
 describe("Graph", () => {
   describe("topologicalSort", () => {
     effect("sorts simple linear dependencies", () =>
       Effect.gen(function* () {
         // a -> b -> c (c depends on b, b depends on a)
-        const graph = HashMap.make(
-          ["a", HashSet.empty<string>()],
-          ["b", HashSet.make("a")],
-          ["c", HashSet.make("b")]
-        );
+        const graph = HashMap.make(["a", HashSet.empty<string>()], ["b", HashSet.make("a")], ["c", HashSet.make("b")]);
 
         const result = yield* topologicalSort(graph);
 
@@ -64,12 +61,7 @@ describe("Graph", () => {
         const cIdx = A.findFirstIndex(result, (x) => x === "c");
         const dIdx = A.findFirstIndex(result, (x) => x === "d");
 
-        if (
-          aIdx._tag === "Some" &&
-          bIdx._tag === "Some" &&
-          cIdx._tag === "Some" &&
-          dIdx._tag === "Some"
-        ) {
+        if (aIdx._tag === "Some" && bIdx._tag === "Some" && cIdx._tag === "Some" && dIdx._tag === "Some") {
           expect(aIdx.value < bIdx.value).toBe(true);
           expect(aIdx.value < cIdx.value).toBe(true);
           expect(bIdx.value < dIdx.value).toBe(true);
@@ -114,11 +106,7 @@ describe("Graph", () => {
   describe("detectCycles", () => {
     effect("returns empty for acyclic graph", () =>
       Effect.gen(function* () {
-        const graph = HashMap.make(
-          ["a", HashSet.empty<string>()],
-          ["b", HashSet.make("a")],
-          ["c", HashSet.make("b")]
-        );
+        const graph = HashMap.make(["a", HashSet.empty<string>()], ["b", HashSet.make("a")], ["c", HashSet.make("b")]);
 
         const cycles = yield* detectCycles(graph);
         strictEqual(A.length(cycles), 0);
@@ -149,11 +137,7 @@ describe("Graph", () => {
   describe("computeTransitiveClosure", () => {
     effect("computes direct dependencies", () =>
       Effect.gen(function* () {
-        const graph = HashMap.make(
-          ["a", HashSet.empty<string>()],
-          ["b", HashSet.make("a")],
-          ["c", HashSet.make("b")]
-        );
+        const graph = HashMap.make(["a", HashSet.empty<string>()], ["b", HashSet.make("a")], ["c", HashSet.make("b")]);
 
         const deps = yield* computeTransitiveClosure(graph, "b");
 
@@ -165,11 +149,7 @@ describe("Graph", () => {
 
     effect("computes transitive dependencies", () =>
       Effect.gen(function* () {
-        const graph = HashMap.make(
-          ["a", HashSet.empty<string>()],
-          ["b", HashSet.make("a")],
-          ["c", HashSet.make("b")]
-        );
+        const graph = HashMap.make(["a", HashSet.empty<string>()], ["b", HashSet.make("a")], ["c", HashSet.make("b")]);
 
         const deps = yield* computeTransitiveClosure(graph, "c");
 
@@ -181,10 +161,7 @@ describe("Graph", () => {
 
     effect("handles no dependencies", () =>
       Effect.gen(function* () {
-        const graph = HashMap.make(
-          ["a", HashSet.empty<string>()],
-          ["b", HashSet.empty<string>()]
-        );
+        const graph = HashMap.make(["a", HashSet.empty<string>()], ["b", HashSet.empty<string>()]);
 
         const deps = yield* computeTransitiveClosure(graph, "a");
         strictEqual(HashSet.size(deps), 0);

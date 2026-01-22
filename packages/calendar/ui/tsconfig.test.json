@@ -6,13 +6,16 @@
       "path": "tsconfig.src.json"
     },
     {
-      "path": "../../shared/domain"
+      "path": "../../../packages/shared/domain"
     },
     {
-      "path": "../../common/schema/tsconfig.src.json"
+      "path": "../../../packages/common/schema"
     },
     {
-      "path": "../domain"
+      "path": "../../../packages/calendar/domain"
+    },
+    {
+      "path": "../../../tooling/testkit/tsconfig.build.json"
     }
   ],
   "compilerOptions": {

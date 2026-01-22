@@ -39,6 +39,7 @@ import * as F from "effect/Function";
 import * as O from "effect/Option";
 import { discoverConfiguredPackages, resolvePackagePath } from "../shared/discovery.js";
 import * as Output from "../shared/output.js";
+import { PackageNotFoundError } from "./errors.js";
 import { DocgenAgentService, DocgenAgentServiceLive, type TokenStats } from "./service.js";
 
 const { FsUtilsLive } = ToolingUtils;
@@ -162,7 +163,9 @@ export const agentsCommand = CliCommand.make("agents", agentsOptions, (options) 
         const pkg = yield* resolvePackagePath(options.package.value).pipe(
           Effect.catchAll((_) =>
             Effect.fail(
-              new Error(`Package not found: ${O.isSome(options.package) ? options.package.value : "<unknown>"}`)
+              new PackageNotFoundError({
+                packageName: O.isSome(options.package) ? options.package.value : "<unknown>",
+              })
             )
           )
         );

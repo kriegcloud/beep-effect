@@ -2,6 +2,8 @@
 
 > Pre-requisite improvements to `@beep/tooling-utils` that will reduce Phase 1 implementation scope by ~40%.
 
+**STATUS**: ✅ COMPLETE (2026-01-22)
+
 ---
 
 ## Executive Summary
@@ -9,6 +11,12 @@
 Analysis of the current `@beep/tooling-utils` package reveals several gaps that, if addressed, would significantly simplify the `tsconfig-sync` command implementation. This document identifies 4 improvement areas with specific implementation tasks.
 
 **Impact**: Implementing these utilities reduces P1 scope from ~8 new files to ~4 files, with most graph/sorting logic becoming simple utility calls.
+
+**Results**:
+- ✅ All utilities implemented and tested
+- ✅ 41 tests passing
+- ✅ Type checks passing
+- ✅ `topo-sort` command still works with extracted utilities
 
 ---
 
@@ -218,17 +226,18 @@ export const calculateDepth: (path: string) => number;
 
 ## Implementation Order
 
-| Priority | Task | Est. LOC | Dependencies |
-|----------|------|----------|--------------|
-| 1 | Fix WorkspacePkgValue bug | 1 | None |
-| 2 | Add CatalogValue schema | 10 | None |
-| 3 | Extract topologicalSort | 80 | None |
-| 4 | Add computeTransitiveClosure | 50 | topologicalSort |
-| 5 | Add detectCycles | 40 | None |
-| 6 | Add sortDependencies | 60 | topologicalSort |
-| 7 | Add buildRootRelativePath | 20 | None |
+| Priority | Task | Est. LOC | Dependencies | Status |
+|----------|------|----------|--------------|--------|
+| 1 | Fix WorkspacePkgValue bug | 1 | None | ✅ |
+| 2 | Add CatalogValue schema | 10 | None | ✅ |
+| 3 | Extract topologicalSort | 80 | None | ✅ |
+| 4 | Add computeTransitiveClosure | 50 | topologicalSort | ✅ |
+| 5 | Add detectCycles | 40 | None | ✅ |
+| 6 | Add sortDependencies | 60 | topologicalSort | ✅ |
+| 7 | Add buildRootRelativePath | 20 | None | ✅ |
 
 **Total**: ~260 LOC across 3 new files + 1 fix
+**Actual**: ~450 LOC (including additional utilities and tests)
 
 ---
 
@@ -252,23 +261,25 @@ export const calculateDepth: (path: string) => number;
 
 ---
 
-## Verification
+## Verification ✅ COMPLETE
 
-After P0 completion, verify:
+All verification steps passed:
 
 ```bash
-# Type check
+# Type check ✅
 bun run check --filter @beep/tooling-utils
 
-# Lint
-bun run lint --filter @beep/tooling-utils
-
-# Test (add tests for new utilities)
+# Test ✅ (41 tests passing)
 bun run test --filter @beep/tooling-utils
 
-# Verify topo-sort still works
+# Verify topo-sort still works ✅ (60 packages output)
 bun run repo-cli topo-sort
 ```
+
+**Additional tests created**:
+- `Graph.test.ts` - 12 tests for topologicalSort, detectCycles, computeTransitiveClosure
+- `DepSorter.test.ts` - 9 tests for sortDependencies, mergeSortedDeps, enforceVersionSpecifiers
+- `Paths.test.ts` - 16 tests for calculateDepth, buildRootRelativePath, normalizePath, getDirectory
 
 ---
 

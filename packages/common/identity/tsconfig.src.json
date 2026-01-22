@@ -2,8 +2,12 @@
   "extends": "../../../tsconfig.base.jsonc",
   "include": ["src"],
   "references": [
-    { "path": "../types/tsconfig.build.json" },
-    { "path": "../invariant/tsconfig.build.json" }
+    {
+      "path": "../../../packages/common/types"
+    },
+    {
+      "path": "../../../packages/common/invariant"
+    }
   ],
   "compilerOptions": {
     "types": ["bun", "node"],

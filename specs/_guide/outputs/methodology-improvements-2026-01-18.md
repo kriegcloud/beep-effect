@@ -427,7 +427,7 @@ Separate bootstrapped completions from new deliverables:
 
 If `packages/[SLICE_NAME]/` does not exist, proceed with standard creation workflow:
 
-1. Use CLI: `bun run beep create-slice -n [SLICE_NAME]`
+1. Use CLI: `bun run repo-cli create-slice -n [SLICE_NAME]`
 2. Or manually create packages following `documentation/PACKAGE_STRUCTURE.md`
 3. Follow Phase 0 scaffolding steps in SPEC_CREATION_GUIDE
 4. No "Current State" section needed (everything is new)

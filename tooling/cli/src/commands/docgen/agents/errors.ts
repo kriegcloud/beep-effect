@@ -223,3 +223,28 @@ export class AnalysisError extends S.TaggedError<AnalysisError>()("AnalysisError
     return `Analysis error at ${this.path}: ${this.message}`;
   }
 }
+
+/**
+ * Error when a package cannot be found or resolved.
+ *
+ * @example
+ * ```ts
+ * import { PackageNotFoundError } from "@beep/repo-cli/commands/docgen/agents/errors"
+ *
+ * const error = new PackageNotFoundError({
+ *   packageName: "@beep/schema",
+ * })
+ * ```
+ *
+ * @category errors
+ * @since 0.1.0
+ */
+export class PackageNotFoundError extends S.TaggedError<PackageNotFoundError>()("PackageNotFoundError", {
+  packageName: S.String,
+  ...CauseFields,
+}) {
+  /** Format for display */
+  get displayMessage(): string {
+    return `Package not found: ${this.packageName}`;
+  }
+}

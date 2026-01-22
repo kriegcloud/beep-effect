@@ -3,16 +3,46 @@
   "include": ["test"],
   "references": [
     {
-      "path": "../../shared/domain"
+      "path": "tsconfig.src.json"
     },
     {
-      "path": "../../shared/server"
+      "path": "../../../packages/common/identity"
     },
     {
-      "path": "../domain"
+      "path": "../../../packages/common/invariant"
     },
     {
-      "path": "../tables"
+      "path": "../../../tooling/testkit"
+    },
+    {
+      "path": "../../../packages/common/types"
+    },
+    {
+      "path": "../../../packages/common/utils"
+    },
+    {
+      "path": "../../../packages/common/schema"
+    },
+    {
+      "path": "../../../packages/common/constants"
+    },
+    {
+      "path": "../../../packages/common/errors"
+    },
+    {
+      "path": "../../../packages/shared/domain"
+    },
+    {
+      "path": "../../../packages/customization/domain"
+    },
+    {
+      "path": "../../../packages/shared/server"
+    },
+    {
+      "path": "../../../packages/shared/tables"
+    },
+    {
+      "path": "../../../packages/customization/tables"
     }
   ],
   "compilerOptions": {

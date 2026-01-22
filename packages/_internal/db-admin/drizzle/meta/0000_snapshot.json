@@ -1,5 +1,5 @@
 {
-  "id": "8c794cbf-f9c1-45ab-8ed7-cb2c14a676a0",
+  "id": "10cc1ae3-4dcc-48b5-a9d6-f60d31bd10bd",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -267,21 +267,21 @@
         }
       },
       "foreignKeys": {
-        "comms_email_template_organization_id_shared_organization_id_fk": {
-          "name": "comms_email_template_organization_id_shared_organization_id_fk",
-          "tableFrom": "comms_email_template",
-          "tableTo": "shared_organization",
-          "columnsFrom": ["organization_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
-        },
         "comms_email_template_user_id_shared_user__row_id_fk": {
           "name": "comms_email_template_user_id_shared_user__row_id_fk",
           "tableFrom": "comms_email_template",
           "tableTo": "shared_user",
           "columnsFrom": ["user_id"],
           "columnsTo": ["_row_id"],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        },
+        "comms_email_template_org_fk": {
+          "name": "comms_email_template_org_fk",
+          "tableFrom": "comms_email_template",
+          "tableTo": "shared_organization",
+          "columnsFrom": ["organization_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         }
@@ -748,8 +748,8 @@
         }
       },
       "foreignKeys": {
-        "shared_team_organization_id_shared_organization_id_fk": {
-          "name": "shared_team_organization_id_shared_organization_id_fk",
+        "shared_team_org_fk": {
+          "name": "shared_team_org_fk",
           "tableFrom": "shared_team",
           "tableTo": "shared_organization",
           "columnsFrom": ["organization_id"],
@@ -1356,15 +1356,6 @@
         }
       },
       "foreignKeys": {
-        "documents_comment_organization_id_shared_organization_id_fk": {
-          "name": "documents_comment_organization_id_shared_organization_id_fk",
-          "tableFrom": "documents_comment",
-          "tableTo": "shared_organization",
-          "columnsFrom": ["organization_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
-        },
         "documents_comment_discussion_id_documents_discussion_id_fk": {
           "name": "documents_comment_discussion_id_documents_discussion_id_fk",
           "tableFrom": "documents_comment",
@@ -1382,6 +1373,15 @@
           "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
+        },
+        "documents_comment_org_fk": {
+          "name": "documents_comment_org_fk",
+          "tableFrom": "documents_comment",
+          "tableTo": "shared_organization",
+          "columnsFrom": ["organization_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
         }
       },
       "compositePrimaryKeys": {},
@@ -1575,15 +1575,6 @@
         }
       },
       "foreignKeys": {
-        "documents_discussion_organization_id_shared_organization_id_fk": {
-          "name": "documents_discussion_organization_id_shared_organization_id_fk",
-          "tableFrom": "documents_discussion",
-          "tableTo": "shared_organization",
-          "columnsFrom": ["organization_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
-        },
         "documents_discussion_document_id_documents_document_id_fk": {
           "name": "documents_discussion_document_id_documents_document_id_fk",
           "tableFrom": "documents_discussion",
@@ -1601,6 +1592,15 @@
           "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
+        },
+        "documents_discussion_org_fk": {
+          "name": "documents_discussion_org_fk",
+          "tableFrom": "documents_discussion",
+          "tableTo": "shared_organization",
+          "columnsFrom": ["organization_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
         }
       },
       "compositePrimaryKeys": {},
@@ -1918,15 +1918,6 @@
         }
       },
       "foreignKeys": {
-        "documents_document_organization_id_shared_organization_id_fk": {
-          "name": "documents_document_organization_id_shared_organization_id_fk",
-          "tableFrom": "documents_document",
-          "tableTo": "shared_organization",
-          "columnsFrom": ["organization_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
-        },
         "documents_document_user_id_shared_user_id_fk": {
           "name": "documents_document_user_id_shared_user_id_fk",
           "tableFrom": "documents_document",
@@ -1935,6 +1926,15 @@
           "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
+        },
+        "documents_document_org_fk": {
+          "name": "documents_document_org_fk",
+          "tableFrom": "documents_document",
+          "tableTo": "shared_organization",
+          "columnsFrom": ["organization_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
         }
       },
       "compositePrimaryKeys": {},
@@ -2133,15 +2133,6 @@
         }
       },
       "foreignKeys": {
-        "documents_document_file_organization_id_shared_organization_id_fk": {
-          "name": "documents_document_file_organization_id_shared_organization_id_fk",
-          "tableFrom": "documents_document_file",
-          "tableTo": "shared_organization",
-          "columnsFrom": ["organization_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
-        },
         "documents_document_file_user_id_shared_user_id_fk": {
           "name": "documents_document_file_user_id_shared_user_id_fk",
           "tableFrom": "documents_document_file",
@@ -2159,6 +2150,15 @@
           "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
+        },
+        "documents_document_file_org_fk": {
+          "name": "documents_document_file_org_fk",
+          "tableFrom": "documents_document_file",
+          "tableTo": "shared_organization",
+          "columnsFrom": ["organization_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
         }
       },
       "compositePrimaryKeys": {},
@@ -2330,15 +2330,6 @@
         }
       },
       "foreignKeys": {
-        "documents_document_version_organization_id_shared_organization_id_fk": {
-          "name": "documents_document_version_organization_id_shared_organization_id_fk",
-          "tableFrom": "documents_document_version",
-          "tableTo": "shared_organization",
-          "columnsFrom": ["organization_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
-        },
         "documents_document_version_document_id_documents_document_id_fk": {
           "name": "documents_document_version_document_id_documents_document_id_fk",
           "tableFrom": "documents_document_version",
@@ -2356,6 +2347,15 @@
           "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
+        },
+        "documents_document_version_org_fk": {
+          "name": "documents_document_version_org_fk",
+          "tableFrom": "documents_document_version",
+          "tableTo": "shared_organization",
+          "columnsFrom": ["organization_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
         }
       },
       "compositePrimaryKeys": {},
@@ -2527,15 +2527,6 @@
         }
       },
       "foreignKeys": {
-        "shared_file_organization_id_shared_organization_id_fk": {
-          "name": "shared_file_organization_id_shared_organization_id_fk",
-          "tableFrom": "shared_file",
-          "tableTo": "shared_organization",
-          "columnsFrom": ["organization_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
-        },
         "shared_file_user_id_shared_user_id_fk": {
           "name": "shared_file_user_id_shared_user_id_fk",
           "tableFrom": "shared_file",
@@ -2562,6 +2553,15 @@
           "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
+        },
+        "shared_file_org_fk": {
+          "name": "shared_file_org_fk",
+          "tableFrom": "shared_file",
+          "tableTo": "shared_organization",
+          "columnsFrom": ["organization_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
         }
       },
       "compositePrimaryKeys": {},
@@ -3368,15 +3368,6 @@
         }
       },
       "foreignKeys": {
-        "iam_apikey_organization_id_shared_organization_id_fk": {
-          "name": "iam_apikey_organization_id_shared_organization_id_fk",
-          "tableFrom": "iam_apikey",
-          "tableTo": "shared_organization",
-          "columnsFrom": ["organization_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
-        },
         "iam_apikey_user_id_shared_user_id_fk": {
           "name": "iam_apikey_user_id_shared_user_id_fk",
           "tableFrom": "iam_apikey",
@@ -3385,6 +3376,15 @@
           "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
+        },
+        "iam_apikey_org_fk": {
+          "name": "iam_apikey_org_fk",
+          "tableFrom": "iam_apikey",
+          "tableTo": "shared_organization",
+          "columnsFrom": ["organization_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
         }
       },
       "compositePrimaryKeys": {},
@@ -4263,15 +4263,6 @@
         }
       },
       "foreignKeys": {
-        "iam_member_organization_id_shared_organization_id_fk": {
-          "name": "iam_member_organization_id_shared_organization_id_fk",
-          "tableFrom": "iam_member",
-          "tableTo": "shared_organization",
-          "columnsFrom": ["organization_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
-        },
         "iam_member_invited_by_shared_user_id_fk": {
           "name": "iam_member_invited_by_shared_user_id_fk",
           "tableFrom": "iam_member",
@@ -4279,6 +4270,15 @@
           "columnsFrom": ["invited_by"],
           "columnsTo": ["id"],
           "onDelete": "set null",
+          "onUpdate": "cascade"
+        },
+        "iam_member_org_fk": {
+          "name": "iam_member_org_fk",
+          "tableFrom": "iam_member",
+          "tableTo": "shared_organization",
+          "columnsFrom": ["organization_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
           "onUpdate": "cascade"
         }
       },
@@ -5295,8 +5295,8 @@
         }
       },
       "foreignKeys": {
-        "iam_organization_role_organization_id_shared_organization_id_fk": {
-          "name": "iam_organization_role_organization_id_shared_organization_id_fk",
+        "iam_organization_role_org_fk": {
+          "name": "iam_organization_role_org_fk",
           "tableFrom": "iam_organization_role",
           "tableTo": "shared_organization",
           "columnsFrom": ["organization_id"],
@@ -6036,8 +6036,8 @@
         }
       },
       "foreignKeys": {
-        "iam_subscription_organization_id_shared_organization_id_fk": {
-          "name": "iam_subscription_organization_id_shared_organization_id_fk",
+        "iam_subscription_org_fk": {
+          "name": "iam_subscription_org_fk",
           "tableFrom": "iam_subscription",
           "tableTo": "shared_organization",
           "columnsFrom": ["organization_id"],
@@ -6245,15 +6245,6 @@
         }
       },
       "foreignKeys": {
-        "iam_team_member_organization_id_shared_organization_id_fk": {
-          "name": "iam_team_member_organization_id_shared_organization_id_fk",
-          "tableFrom": "iam_team_member",
-          "tableTo": "shared_organization",
-          "columnsFrom": ["organization_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
-        },
         "iam_team_member_team_id_shared_team_id_fk": {
           "name": "iam_team_member_team_id_shared_team_id_fk",
           "tableFrom": "iam_team_member",
@@ -6268,6 +6259,15 @@
           "tableFrom": "iam_team_member",
           "tableTo": "shared_user",
           "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        },
+        "iam_team_member_org_fk": {
+          "name": "iam_team_member_org_fk",
+          "tableFrom": "iam_team_member",
+          "tableTo": "shared_organization",
+          "columnsFrom": ["organization_id"],
           "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
@@ -6406,15 +6406,6 @@
         }
       },
       "foreignKeys": {
-        "iam_two_factor_organization_id_shared_organization_id_fk": {
-          "name": "iam_two_factor_organization_id_shared_organization_id_fk",
-          "tableFrom": "iam_two_factor",
-          "tableTo": "shared_organization",
-          "columnsFrom": ["organization_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
-        },
         "iam_two_factor_user_id_shared_user_id_fk": {
           "name": "iam_two_factor_user_id_shared_user_id_fk",
           "tableFrom": "iam_two_factor",
@@ -6423,6 +6414,15 @@
           "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
+        },
+        "iam_two_factor_org_fk": {
+          "name": "iam_two_factor_org_fk",
+          "tableFrom": "iam_two_factor",
+          "tableTo": "shared_organization",
+          "columnsFrom": ["organization_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
         }
       },
       "compositePrimaryKeys": {},
@@ -7036,23 +7036,23 @@
         }
       },
       "foreignKeys": {
-        "knowledge_class_definition_organization_id_shared_organization_id_fk": {
-          "name": "knowledge_class_definition_organization_id_shared_organization_id_fk",
-          "tableFrom": "knowledge_class_definition",
-          "tableTo": "shared_organization",
-          "columnsFrom": ["organization_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
-        },
-        "knowledge_class_definition_ontology_id_knowledge_ontology_id_fk": {
-          "name": "knowledge_class_definition_ontology_id_knowledge_ontology_id_fk",
+        "class_def_ontology_fk": {
+          "name": "class_def_ontology_fk",
           "tableFrom": "knowledge_class_definition",
           "tableTo": "knowledge_ontology",
           "columnsFrom": ["ontology_id"],
           "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
+        },
+        "knowledge_class_definition_org_fk": {
+          "name": "knowledge_class_definition_org_fk",
+          "tableFrom": "knowledge_class_definition",
+          "tableTo": "shared_organization",
+          "columnsFrom": ["organization_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
         }
       },
       "compositePrimaryKeys": {},
@@ -7208,8 +7208,8 @@
         }
       },
       "foreignKeys": {
-        "knowledge_embedding_organization_id_shared_organization_id_fk": {
-          "name": "knowledge_embedding_organization_id_shared_organization_id_fk",
+        "knowledge_embedding_org_fk": {
+          "name": "knowledge_embedding_org_fk",
           "tableFrom": "knowledge_embedding",
           "tableTo": "shared_organization",
           "columnsFrom": ["organization_id"],
@@ -7434,8 +7434,8 @@
         }
       },
       "foreignKeys": {
-        "knowledge_entity_organization_id_shared_organization_id_fk": {
-          "name": "knowledge_entity_organization_id_shared_organization_id_fk",
+        "knowledge_entity_org_fk": {
+          "name": "knowledge_entity_org_fk",
           "tableFrom": "knowledge_entity",
           "tableTo": "shared_organization",
           "columnsFrom": ["organization_id"],
@@ -7619,23 +7619,23 @@
         }
       },
       "foreignKeys": {
-        "knowledge_entity_cluster_organization_id_shared_organization_id_fk": {
-          "name": "knowledge_entity_cluster_organization_id_shared_organization_id_fk",
-          "tableFrom": "knowledge_entity_cluster",
-          "tableTo": "shared_organization",
-          "columnsFrom": ["organization_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
-        },
-        "knowledge_entity_cluster_canonical_entity_id_knowledge_entity_id_fk": {
-          "name": "knowledge_entity_cluster_canonical_entity_id_knowledge_entity_id_fk",
+        "entity_cluster_canonical_fk": {
+          "name": "entity_cluster_canonical_fk",
           "tableFrom": "knowledge_entity_cluster",
           "tableTo": "knowledge_entity",
           "columnsFrom": ["canonical_entity_id"],
           "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
+        },
+        "knowledge_entity_cluster_org_fk": {
+          "name": "knowledge_entity_cluster_org_fk",
+          "tableFrom": "knowledge_entity_cluster",
+          "tableTo": "shared_organization",
+          "columnsFrom": ["organization_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
         }
       },
       "compositePrimaryKeys": {},
@@ -7892,8 +7892,8 @@
         }
       },
       "foreignKeys": {
-        "knowledge_extraction_organization_id_shared_organization_id_fk": {
-          "name": "knowledge_extraction_organization_id_shared_organization_id_fk",
+        "knowledge_extraction_org_fk": {
+          "name": "knowledge_extraction_org_fk",
           "tableFrom": "knowledge_extraction",
           "tableTo": "shared_organization",
           "columnsFrom": ["organization_id"],
@@ -8171,8 +8171,8 @@
         }
       },
       "foreignKeys": {
-        "knowledge_mention_organization_id_shared_organization_id_fk": {
-          "name": "knowledge_mention_organization_id_shared_organization_id_fk",
+        "knowledge_mention_org_fk": {
+          "name": "knowledge_mention_org_fk",
           "tableFrom": "knowledge_mention",
           "tableTo": "shared_organization",
           "columnsFrom": ["organization_id"],
@@ -8443,8 +8443,8 @@
         }
       },
       "foreignKeys": {
-        "knowledge_ontology_organization_id_shared_organization_id_fk": {
-          "name": "knowledge_ontology_organization_id_shared_organization_id_fk",
+        "knowledge_ontology_org_fk": {
+          "name": "knowledge_ontology_org_fk",
           "tableFrom": "knowledge_ontology",
           "tableTo": "shared_organization",
           "columnsFrom": ["organization_id"],
@@ -8777,23 +8777,23 @@
         }
       },
       "foreignKeys": {
-        "knowledge_property_definition_organization_id_shared_organization_id_fk": {
-          "name": "knowledge_property_definition_organization_id_shared_organization_id_fk",
-          "tableFrom": "knowledge_property_definition",
-          "tableTo": "shared_organization",
-          "columnsFrom": ["organization_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
-        },
-        "knowledge_property_definition_ontology_id_knowledge_ontology_id_fk": {
-          "name": "knowledge_property_definition_ontology_id_knowledge_ontology_id_fk",
+        "prop_def_ontology_fk": {
+          "name": "prop_def_ontology_fk",
           "tableFrom": "knowledge_property_definition",
           "tableTo": "knowledge_ontology",
           "columnsFrom": ["ontology_id"],
           "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
+        },
+        "knowledge_property_definition_org_fk": {
+          "name": "knowledge_property_definition_org_fk",
+          "tableFrom": "knowledge_property_definition",
+          "tableTo": "shared_organization",
+          "columnsFrom": ["organization_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
         }
       },
       "compositePrimaryKeys": {},
@@ -9068,8 +9068,8 @@
         }
       },
       "foreignKeys": {
-        "knowledge_relation_organization_id_shared_organization_id_fk": {
-          "name": "knowledge_relation_organization_id_shared_organization_id_fk",
+        "knowledge_relation_org_fk": {
+          "name": "knowledge_relation_org_fk",
           "tableFrom": "knowledge_relation",
           "tableTo": "shared_organization",
           "columnsFrom": ["organization_id"],
@@ -9247,15 +9247,6 @@
         }
       },
       "foreignKeys": {
-        "knowledge_same_as_link_organization_id_shared_organization_id_fk": {
-          "name": "knowledge_same_as_link_organization_id_shared_organization_id_fk",
-          "tableFrom": "knowledge_same_as_link",
-          "tableTo": "shared_organization",
-          "columnsFrom": ["organization_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
-        },
         "knowledge_same_as_link_canonical_id_knowledge_entity_id_fk": {
           "name": "knowledge_same_as_link_canonical_id_knowledge_entity_id_fk",
           "tableFrom": "knowledge_same_as_link",
@@ -9273,6 +9264,15 @@
           "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
+        },
+        "knowledge_same_as_link_org_fk": {
+          "name": "knowledge_same_as_link_org_fk",
+          "tableFrom": "knowledge_same_as_link",
+          "tableTo": "shared_organization",
+          "columnsFrom": ["organization_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
         }
       },
       "compositePrimaryKeys": {},
@@ -9422,15 +9422,6 @@
         }
       },
       "foreignKeys": {
-        "shared_folder_organization_id_shared_organization_id_fk": {
-          "name": "shared_folder_organization_id_shared_organization_id_fk",
-          "tableFrom": "shared_folder",
-          "tableTo": "shared_organization",
-          "columnsFrom": ["organization_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
-        },
         "shared_folder_user_id_shared_user_id_fk": {
           "name": "shared_folder_user_id_shared_user_id_fk",
           "tableFrom": "shared_folder",
@@ -9439,6 +9430,15 @@
           "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
+        },
+        "shared_folder_org_fk": {
+          "name": "shared_folder_org_fk",
+          "tableFrom": "shared_folder",
+          "tableTo": "shared_organization",
+          "columnsFrom": ["organization_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
         }
       },
       "compositePrimaryKeys": {},
@@ -9610,8 +9610,8 @@
         }
       },
       "foreignKeys": {
-        "shared_upload_session_organization_id_shared_organization_id_fk": {
-          "name": "shared_upload_session_organization_id_shared_organization_id_fk",
+        "shared_upload_session_org_fk": {
+          "name": "shared_upload_session_org_fk",
           "tableFrom": "shared_upload_session",
           "tableTo": "shared_organization",
           "columnsFrom": ["organization_id"],

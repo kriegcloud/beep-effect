@@ -8,7 +8,7 @@
 
 | Action | Resource |
 |--------|----------|
-| **Create new spec** | `/new-spec` skill or `bun run beep bootstrap-spec` |
+| **Create new spec** | `/new-spec` skill or `bun run repo-cli bootstrap-spec` |
 | **Learn the workflow** | [_guide/README.md](_guide/README.md) |
 | **Find patterns** | [_guide/PATTERN_REGISTRY.md](_guide/PATTERN_REGISTRY.md) |
 
@@ -35,6 +35,7 @@ All spec-creation infrastructure lives in [`_guide/`](_guide/):
 | [agent-config-optimization](agent-config-optimization/) | Agent configuration tuning | Active |
 | [agents-md-audit](agents-md-audit/) | AGENTS.md file standardization | New |
 | [agents](agents/) | Specialized agent creation specs | Active |
+| [better-auth-client-wrappers](better-auth-client-wrappers/) | Wrap 90+ better-auth client methods for @beep/iam-clients | P1 Ready |
 | [canonical-naming-conventions](canonical-naming-conventions/) | AI-native naming standards | P0 Ready |
 | [e2e-testkit-migration](e2e-testkit-migration/) | Migrate e2e tests to @beep/testkit/playwright | Planning |
 | [knowledge-graph-integration](knowledge-graph-integration/) | Document knowledge extraction | Active |
@@ -70,13 +71,13 @@ specs/[name]/
 
 ```bash
 # Quick start (medium complexity)
-bun run beep bootstrap-spec -n my-feature -d "Description"
+bun run repo-cli bootstrap-spec -n my-feature -d "Description"
 
 # Simple (single session)
-bun run beep bootstrap-spec -n quick-fix -d "Bug fix" -c simple
+bun run repo-cli bootstrap-spec -n quick-fix -d "Bug fix" -c simple
 
 # Complex (multi-session with orchestration)
-bun run beep bootstrap-spec -n major-refactor -d "API redesign" -c complex
+bun run repo-cli bootstrap-spec -n major-refactor -d "API redesign" -c complex
 ```
 
 See [_guide/README.md](_guide/README.md) for the full agent-assisted workflow.

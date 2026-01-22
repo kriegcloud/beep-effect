@@ -14,7 +14,7 @@
  *
  * @example
  * ```bash
- * bun run beep topo-sort
+ * bun run repo-cli topo-sort
  * # Output:
  * # @beep/types
  * # @beep/invariant
@@ -27,9 +27,9 @@
 
 import {
   buildRepoDependencyIndex,
-  CyclicDependencyError,
-  topologicalSort,
+  type CyclicDependencyError,
   type RepoDepMapValue,
+  topologicalSort,
   type WorkspacePkgKey,
 } from "@beep/tooling-utils";
 import * as CliCommand from "@effect/cli/Command";
@@ -39,8 +39,9 @@ import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
 import * as HashMap from "effect/HashMap";
 import * as HashSet from "effect/HashSet";
-import * as S from "effect/Schema";
+import type * as S from "effect/Schema";
 import color from "picocolors";
+import { CircularDependencyError } from "./errors.js";
 
 /**
  * Builds an adjacency list from the dependency index.
@@ -115,7 +116,7 @@ const handleTopoSortCommand = Effect.gen(function* () {
         yield* Console.log(
           color.yellow("\nUnable to determine topological order. Please resolve the circular dependency.")
         );
-        return yield* Effect.fail(new Error("Circular dependency detected"));
+        return yield* Effect.fail(new CircularDependencyError({}));
       })
     )
   );
@@ -133,7 +134,7 @@ const handleTopoSortCommand = Effect.gen(function* () {
  *
  * @example
  * ```bash
- * bun run beep topo-sort
+ * bun run repo-cli topo-sort
  * ```
  *
  * @since 0.1.0

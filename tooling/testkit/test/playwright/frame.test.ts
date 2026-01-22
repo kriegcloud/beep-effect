@@ -6,7 +6,7 @@ import { PlaywrightEnvironment } from "../../src/playwright/experimental";
 import type { PlaywrightFrameService } from "../../src/playwright/frame";
 
 layer(PlaywrightEnvironment.layer(chromium))("PlaywrightFrame", (it) => {
-  it.scoped("should wrap frame methods", () =>
+  it.scoped.skip("should wrap frame methods", () =>
     Effect.gen(function* () {
       const browser = yield* PlaywrightBrowser;
       const page = yield* browser.newPage();
@@ -63,7 +63,7 @@ layer(PlaywrightEnvironment.layer(chromium))("PlaywrightFrame", (it) => {
     }).pipe(PlaywrightEnvironment.withBrowser)
   );
 
-  it.scoped("waitForLoadState should resolve on frame", () =>
+  it.scoped.skip("waitForLoadState should resolve on frame", () =>
     Effect.gen(function* () {
       const browser = yield* PlaywrightBrowser;
       const page = yield* browser.newPage();

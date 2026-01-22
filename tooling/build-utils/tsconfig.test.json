@@ -6,10 +6,13 @@
       "path": "tsconfig.src.json"
     },
     {
-      "path": "../../packages/common/types"
+      "path": "../../tooling/utils"
     },
     {
-      "path": "../utils"
+      "path": "../../tooling/testkit/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/common/types/tsconfig.build.json"
     }
   ],
   "compilerOptions": {

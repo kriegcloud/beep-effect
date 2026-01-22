@@ -768,16 +768,16 @@ The fastest way to create a new spec is using the `bootstrap-spec` CLI command:
 
 ```bash
 # Create medium-complexity spec (default)
-bun run beep bootstrap-spec -n my-feature -d "Feature description"
+bun run repo-cli bootstrap-spec -n my-feature -d "Feature description"
 
 # Create simple spec (README + REFLECTION_LOG only)
-bun run beep bootstrap-spec -n quick-fix -d "Bug fix" -c simple
+bun run repo-cli bootstrap-spec -n quick-fix -d "Bug fix" -c simple
 
 # Create complex spec (full orchestration structure)
-bun run beep bootstrap-spec -n major-refactor -d "API redesign" -c complex
+bun run repo-cli bootstrap-spec -n major-refactor -d "API redesign" -c complex
 
 # Preview changes without creating files
-bun run beep bootstrap-spec -n my-feature -d "Feature description" --dry-run
+bun run repo-cli bootstrap-spec -n my-feature -d "Feature description" --dry-run
 ```
 
 **Complexity Levels:**

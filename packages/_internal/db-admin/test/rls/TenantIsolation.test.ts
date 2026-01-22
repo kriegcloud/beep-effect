@@ -204,7 +204,7 @@ layer(PgTest, { timeout: Duration.seconds(60) })("RLS Tenant Isolation", (it) =>
   // ==========================================================================
 
   /**
-   * Test: Verify RLS is enabled on all expected tables.
+   * Test: Verify RLS is enabled on expected tables.
    * This is a meta-test to ensure policies exist.
    */
   it.effect(
@@ -224,26 +224,38 @@ layer(PgTest, { timeout: Duration.seconds(60) })("RLS Tenant Isolation", (it) =>
           ORDER BY tablename
         `;
 
-        // We expect 20 policies based on the migration
+        // Tables with RLS policies from migrations:
+        // - 0000_oval_amphibian.sql: OrgTable.make auto-generated policies (26 tables)
+        // - 0001_custom_rls_extensions.sql: Custom policies for special tables (4 tables)
         const expectedTables = [
+          "comms_email_template",
           "documents_comment",
           "documents_discussion",
           "documents_document",
           "documents_document_file",
           "documents_document_version",
           "iam_apikey",
-          "iam_invitation",
+          "iam_invitation", // Custom migration
           "iam_member",
           "iam_organization_role",
-          "iam_scim_provider",
-          "iam_sso_provider",
+          "iam_scim_provider", // Custom migration
+          "iam_sso_provider", // Custom migration
           "iam_subscription",
           "iam_team_member",
           "iam_two_factor",
+          "knowledge_class_definition",
           "knowledge_embedding",
+          "knowledge_entity",
+          "knowledge_entity_cluster",
+          "knowledge_extraction",
+          "knowledge_mention",
+          "knowledge_ontology",
+          "knowledge_property_definition",
+          "knowledge_relation",
+          "knowledge_same_as_link",
           "shared_file",
           "shared_folder",
-          "shared_session",
+          "shared_session", // Custom migration (uses active_organization_id)
           "shared_team",
           "shared_upload_session",
         ];

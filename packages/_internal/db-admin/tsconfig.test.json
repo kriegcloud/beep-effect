@@ -6,55 +6,85 @@
       "path": "tsconfig.src.json"
     },
     {
-      "path": "../../common/schema/tsconfig.build.json"
+      "path": "../../../packages/common/identity"
     },
     {
-      "path": "../../shared/domain/tsconfig.build.json"
+      "path": "../../../packages/common/invariant"
     },
     {
-      "path": "../../shared/tables/tsconfig.build.json"
+      "path": "../../../tooling/testkit"
     },
     {
-      "path": "../../shared/server/tsconfig.build.json"
+      "path": "../../../packages/common/types"
     },
     {
-      "path": "../../iam/server/tsconfig.build.json"
+      "path": "../../../packages/common/utils"
     },
     {
-      "path": "../../iam/domain/tsconfig.build.json"
+      "path": "../../../packages/common/schema"
     },
     {
-      "path": "../../iam/tables/tsconfig.build.json"
+      "path": "../../../packages/common/constants"
     },
     {
-      "path": "../../documents/server/tsconfig.build.json"
+      "path": "../../../packages/ui/core"
     },
     {
-      "path": "../../documents/tables/tsconfig.build.json"
+      "path": "../../../packages/common/errors"
     },
     {
-      "path": "../../../tooling/testkit/tsconfig.build.json"
+      "path": "../../../packages/shared/domain"
     },
     {
-      "path": "../../customization/tables/tsconfig.build.json"
+      "path": "../../../packages/customization/domain"
     },
     {
-      "path": "../../comms/server/tsconfig.build.json"
+      "path": "../../../packages/documents/domain"
     },
     {
-      "path": "../../comms/tables/tsconfig.build.json"
+      "path": "../../../packages/iam/domain"
     },
     {
-      "path": "../../calendar/server/tsconfig.build.json"
+      "path": "../../../packages/shared/env"
     },
     {
-      "path": "../../calendar/tables/tsconfig.build.json"
+      "path": "../../../packages/shared/server"
     },
     {
-      "path": "../../knowledge/server/tsconfig.build.json"
+      "path": "../../../packages/shared/tables"
     },
     {
-      "path": "../../knowledge/tables/tsconfig.build.json"
+      "path": "../../../packages/customization/tables"
+    },
+    {
+      "path": "../../../packages/documents/tables"
+    },
+    {
+      "path": "../../../packages/iam/tables"
+    },
+    {
+      "path": "../../../packages/documents/server"
+    },
+    {
+      "path": "../../../packages/iam/server"
+    },
+    {
+      "path": "../../../packages/calendar/tables"
+    },
+    {
+      "path": "../../../packages/knowledge/tables"
+    },
+    {
+      "path": "../../../packages/comms/server"
+    },
+    {
+      "path": "../../../packages/calendar/server"
+    },
+    {
+      "path": "../../../packages/knowledge/server"
+    },
+    {
+      "path": "../../../packages/comms/tables"
     }
   ],
   "compilerOptions": {

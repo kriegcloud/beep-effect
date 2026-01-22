@@ -2,9 +2,18 @@
   "extends": "../../../tsconfig.base.jsonc",
   "include": ["src"],
   "references": [
-    { "path": "../types/tsconfig.build.json" },
-    { "path": "../invariant/tsconfig.build.json" },
-    { "path": "../identity/tsconfig.build.json" }
+    {
+      "path": "../../../packages/common/identity"
+    },
+    {
+      "path": "../../../packages/common/invariant"
+    },
+    {
+      "path": "../../../tooling/testkit"
+    },
+    {
+      "path": "../../../packages/common/types"
+    }
   ],
   "compilerOptions": {
     "types": ["bun", "node"],

@@ -10,7 +10,7 @@ import {
   LabelColor,
   MailUser,
   Sender,
-} from "@beep/comms-domain/value-objects/mail.values";
+} from "@beep/comms-domain/value-objects/mail.value";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 

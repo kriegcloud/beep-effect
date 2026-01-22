@@ -30,6 +30,7 @@ import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
 import color from "picocolors";
+import { MissingEnvFileError, TypesGenerationError } from "./errors.js";
 
 const envCopies = ["apps/mail/.dev.vars", "apps/mail/.env", "apps/server/.dev.vars"] as const;
 
@@ -65,7 +66,7 @@ const runTypesCommand = (path: Path.Path, repoRoot: string, relativeDir: string)
     );
     const exitCode = Number(yield* ProcessCommand.exitCode(command));
     if (exitCode !== 0) {
-      return yield* Effect.fail(new Error(`Types generation failed in ${relativeDir} (exit ${exitCode}).`));
+      return yield* Effect.fail(new TypesGenerationError({ directory: relativeDir, exitCode }));
     }
   });
 
@@ -78,7 +79,7 @@ const handleSyncCommand = Effect.gen(function* () {
   const envExists = yield* fs.exists(envPath);
   if (!envExists) {
     yield* Console.log(color.red("No .env file exists. Run `beep env` before syncing."));
-    return yield* Effect.fail(new Error("Missing .env file."));
+    return yield* Effect.fail(new MissingEnvFileError({}));
   }
 
   yield* Effect.forEach(envCopies, (destination) => copyEnvFile(fs, path, envPath, repoRoot, destination), {

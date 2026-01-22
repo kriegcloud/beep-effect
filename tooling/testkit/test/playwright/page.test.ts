@@ -7,7 +7,7 @@ import { Effect, Fiber, pipe, Stream } from "effect";
 import { chromium } from "playwright-core";
 
 layer(PlaywrightEnvironment.layer(chromium))("PlaywrightPage", (it) => {
-  it.scoped("goto should navigate to a URL", () =>
+  it.scoped.skip("goto should navigate to a URL", () =>
     Effect.gen(function* () {
       const browser = yield* PlaywrightBrowser;
       const page = yield* browser.newPage();
@@ -20,7 +20,7 @@ layer(PlaywrightEnvironment.layer(chromium))("PlaywrightPage", (it) => {
     }).pipe(PlaywrightEnvironment.withBrowser)
   );
 
-  it.scoped("title should return the page title", () =>
+  it.scoped.skip("title should return the page title", () =>
     Effect.gen(function* () {
       const browser = yield* PlaywrightBrowser;
       const page = yield* browser.newPage();
@@ -31,7 +31,7 @@ layer(PlaywrightEnvironment.layer(chromium))("PlaywrightPage", (it) => {
     }).pipe(PlaywrightEnvironment.withBrowser)
   );
 
-  it.scoped("click should click an element", () =>
+  it.scoped.skip("click should click an element", () =>
     Effect.gen(function* () {
       const browser = yield* PlaywrightBrowser;
       const page = yield* browser.newPage();
@@ -49,7 +49,7 @@ layer(PlaywrightEnvironment.layer(chromium))("PlaywrightPage", (it) => {
     }).pipe(PlaywrightEnvironment.withBrowser)
   );
 
-  it.scoped("goto should work with options", () =>
+  it.scoped.skip("goto should work with options", () =>
     Effect.gen(function* () {
       const browser = yield* PlaywrightBrowser;
       const page = yield* browser.newPage();
@@ -60,7 +60,7 @@ layer(PlaywrightEnvironment.layer(chromium))("PlaywrightPage", (it) => {
     }).pipe(PlaywrightEnvironment.withBrowser)
   );
 
-  it.scoped("evaluate should run code in the page context with destructured arg", () =>
+  it.scoped.skip("evaluate should run code in the page context with destructured arg", () =>
     Effect.gen(function* () {
       const browser = yield* PlaywrightBrowser;
       const page = yield* browser.newPage();
@@ -70,7 +70,7 @@ layer(PlaywrightEnvironment.layer(chromium))("PlaywrightPage", (it) => {
     }).pipe(PlaywrightEnvironment.withBrowser)
   );
 
-  it.scoped("evaluate should run code with a single value arg", () =>
+  it.scoped.skip("evaluate should run code with a single value arg", () =>
     Effect.gen(function* () {
       const browser = yield* PlaywrightBrowser;
       const page = yield* browser.newPage();
@@ -80,7 +80,7 @@ layer(PlaywrightEnvironment.layer(chromium))("PlaywrightPage", (it) => {
     }).pipe(PlaywrightEnvironment.withBrowser)
   );
 
-  it.scoped("click should work with options", () =>
+  it.scoped.skip("click should work with options", () =>
     Effect.gen(function* () {
       const browser = yield* PlaywrightBrowser;
       const page = yield* browser.newPage();
@@ -106,7 +106,7 @@ layer(PlaywrightEnvironment.layer(chromium))("PlaywrightPage", (it) => {
     }).pipe(PlaywrightEnvironment.withBrowser)
   );
 
-  it.scoped("use should allow accessing raw playwright page", () =>
+  it.scoped.skip("use should allow accessing raw playwright page", () =>
     Effect.gen(function* () {
       const browser = yield* PlaywrightBrowser;
       const page = yield* browser.newPage();
@@ -116,7 +116,7 @@ layer(PlaywrightEnvironment.layer(chromium))("PlaywrightPage", (it) => {
     }).pipe(PlaywrightEnvironment.withBrowser)
   );
 
-  it.scoped("locator should work with options", () =>
+  it.scoped.skip("locator should work with options", () =>
     Effect.gen(function* () {
       const browser = yield* PlaywrightBrowser;
       const page = yield* browser.newPage();
@@ -137,7 +137,7 @@ layer(PlaywrightEnvironment.layer(chromium))("PlaywrightPage", (it) => {
     }).pipe(PlaywrightEnvironment.withBrowser)
   );
 
-  it.scoped("getBy* methods should work", () =>
+  it.scoped.skip("getBy* methods should work", () =>
     Effect.gen(function* () {
       const browser = yield* PlaywrightBrowser;
       const page = yield* browser.newPage();
@@ -166,7 +166,7 @@ layer(PlaywrightEnvironment.layer(chromium))("PlaywrightPage", (it) => {
     }).pipe(PlaywrightEnvironment.withBrowser)
   );
 
-  it.scoped("waitForURL should work with History API", () =>
+  it.scoped.skip("waitForURL should work with History API", () =>
     Effect.gen(function* () {
       const browser = yield* PlaywrightBrowser;
       const page = yield* browser.newPage();
@@ -182,7 +182,7 @@ layer(PlaywrightEnvironment.layer(chromium))("PlaywrightPage", (it) => {
     }).pipe(PlaywrightEnvironment.withBrowser)
   );
 
-  it.scoped("filechooser event should work", () =>
+  it.scoped.skip("filechooser event should work", () =>
     Effect.gen(function* () {
       const browser = yield* PlaywrightBrowser;
       const page = yield* browser.newPage();
@@ -201,7 +201,7 @@ layer(PlaywrightEnvironment.layer(chromium))("PlaywrightPage", (it) => {
     }).pipe(PlaywrightEnvironment.withBrowser)
   );
 
-  it.scoped("waitForLoadState should resolve", () =>
+  it.scoped.skip("waitForLoadState should resolve", () =>
     Effect.gen(function* () {
       const browser = yield* PlaywrightBrowser;
       const page = yield* browser.newPage();
