@@ -10,6 +10,22 @@
 |--------|-------|
 | Methods | 9 (core: 8, username: 1) |
 | Workflow | 3-stage batched approach |
+| Predecessor | Phase 0 (COMPLETED) |
+
+---
+
+## P0 Deliverables (Reference Materials)
+
+| Document | Purpose |
+|----------|---------|
+| `outputs/phase-0-pattern-analysis.md` | Handler patterns, file structure, JSDoc templates |
+| `outputs/method-implementation-guide.md` | Per-method specs with payload/response schemas |
+| `outputs/OPTIMIZED_WORKFLOW.md` | 3-stage batched workflow details |
+
+**Key P0 Findings:**
+- 4 handler patterns: Standard, No-payload, Query-wrapped, Array
+- Boilerplate files (mod.ts, index.ts) are 100% identical
+- Existing `_internal/` infrastructure is sufficient (no new shared schemas needed)
 
 ---
 
@@ -37,18 +53,19 @@ git checkout -b feat/iam-client-wrappers-p1
 
 ## Methods to Implement
 
-| # | Method | mutatesSession | Notes |
-|---|--------|----------------|-------|
-| 1 | updateUser | true | `client.updateUser(encoded)` |
-| 2 | deleteUser | true | No payload |
-| 3 | revokeSession | true | `client.revokeSession({ token })` |
-| 4 | revokeOtherSessions | true | No payload |
-| 5 | revokeSessions | true | No payload |
-| 6 | linkSocial | true | `client.linkSocial({ provider, callbackURL })` |
-| 7 | listAccounts | **false** | No payload, array response |
-| 8 | unlinkAccount | true | `client.unlinkAccount({ providerId })` |
-| 9 | isUsernameAvailable | **false** | `client.isUsernameAvailable({ username })` |
+| # | Method | Pattern | mutatesSession | Notes |
+|---|--------|---------|----------------|-------|
+| 1 | updateUser | Standard | `true` | `client.updateUser(encoded)` |
+| 2 | deleteUser | **No-payload** | `true` | `client.deleteUser()` |
+| 3 | revokeSession | Standard | `true` | `client.revokeSession({ token })` |
+| 4 | revokeOtherSessions | **No-payload** | `true` | `client.revokeOtherSessions()` |
+| 5 | revokeSessions | **No-payload** | `true` | `client.revokeSessions()` |
+| 6 | linkSocial | Standard | `true` | `client.linkSocial({ provider, callbackURL })` |
+| 7 | listAccounts | **No-payload + Array** | `false` | `client.listAccounts()` |
+| 8 | unlinkAccount | Standard | `true` | `client.unlinkAccount({ providerId })` |
+| 9 | isUsernameAvailable | Standard | `false` | `client.username.isUsernameAvailable({ username })` |
 
+**Detailed schemas**: See `outputs/method-implementation-guide.md` (Methods 1-9).
 **Doc Links**: See `AGENT_PROMPTS.md` for Better Auth documentation URLs.
 
 ---
@@ -92,21 +109,35 @@ bun run check --filter @beep/iam-client
 
 ## Pattern Reference
 
+**Full Templates**: See `outputs/phase-0-pattern-analysis.md`
+
 **Standard contract**: See `packages/iam/client/src/sign-in/email/contract.ts`
 
 **Standard handler**: See `packages/iam/client/src/sign-in/email/handler.ts`
 
 **No-payload pattern**: See `packages/iam/client/src/core/sign-out/`
 
-**mod.ts** (boilerplate):
+**mod.ts** (100% boilerplate - copy verbatim):
 ```typescript
+/**
+ * @fileoverview [Operation] module exports.
+ * @module @beep/iam-client/[category]/[operation]/mod
+ * @category [Category]/[Operation]
+ * @since 0.1.0
+ */
 export * from "./contract.ts";
 export * from "./handler.ts";
 ```
 
-**index.ts** (namespace varies):
+**index.ts** (only namespace varies):
 ```typescript
-export * as UpdateUser from "./mod.ts";
+/**
+ * @fileoverview [Operation] namespace export.
+ * @module @beep/iam-client/[category]/[operation]
+ * @category [Category]/[Operation]
+ * @since 0.1.0
+ */
+export * as [OperationPascalCase] from "./mod.ts";
 ```
 
 ---

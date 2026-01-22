@@ -298,11 +298,94 @@ Each phase MUST produce:
 
 | Phase | Status | Methods | Verified |
 |-------|--------|---------|----------|
-| P0 | Not Started | N/A (infra) | No |
-| P1 | Not Started | 0/9 | No |
-| P2 | Not Started | 0/7 | No |
-| P3 | Not Started | 0/13 | No |
-| P4 | Not Started | 0/10 | No |
-| P5 | Not Started | 0/22 | No |
+| P0 | **COMPLETED** | N/A (infra) | Yes |
+| P1 | **COMPLETED** | 9/9 | Yes |
+| P2 | **COMPLETED** | 7/7 | Yes |
+| P3 | **COMPLETED** | 11/13* | Yes |
+| P4 | **COMPLETED** | 10/10 | Yes |
+| P5 | **COMPLETED** | 22/22 | Yes |
 | P6 | Not Started | 0/29 | No |
-| **Total** | - | **0/90** | - |
+| **Total** | - | **59/90** | - |
+
+*P3 Note: 11 handlers implemented. 2 SSO methods (verifyDomain, requestDomainVerification) are server-side only - contracts kept for future server-side use.
+
+---
+
+## P0 Outputs
+
+| Output | Purpose |
+|--------|---------|
+| `outputs/phase-0-pattern-analysis.md` | Handler patterns, file structure, JSDoc templates |
+| `outputs/method-implementation-guide.md` | Per-method specs for all 90 methods |
+| `outputs/OPTIMIZED_WORKFLOW.md` | 3-stage batched workflow details |
+
+## P2 Outputs
+
+| Output | Purpose |
+|--------|---------|
+| `outputs/phase-2-research.md` | Admin method schemas and implementation notes |
+| `handoffs/HANDOFF_P2.md` | Phase 2 context and reference |
+| `handoffs/HANDOFF_P3.md` | Phase 3 handoff document |
+| `handoffs/P3_ORCHESTRATOR_PROMPT.md` | Phase 3 orchestrator prompt |
+
+### P2 Learnings
+
+- **Role arrays**: Use `S.mutable(S.Array(...))` to match Better Auth's mutable types
+- **listUsers**: Uses query-wrapped pattern `{ query: encoded }`
+- **listUserSessions**: Does NOT use query wrapping - passes `encoded` directly
+- **Password in createUser**: Use `S.optional(S.String)` - Better Auth expects plain string
+
+## P3 Outputs
+
+| Output | Purpose |
+|--------|---------|
+| `outputs/phase-3-research.md` | Admin/SSO/Sign-in method schemas and implementation notes |
+| `handoffs/HANDOFF_P3.md` | Phase 3 context and reference |
+| `handoffs/HANDOFF_P4.md` | Phase 4 handoff document |
+| `handoffs/P4_ORCHESTRATOR_PROMPT.md` | Phase 4 orchestrator prompt |
+
+### P3 Learnings
+
+- **Mutable arrays**: ALL arrays passed to Better Auth need `S.mutable()` wrapper
+- **Literal types**: `role` in hasPermission must be `S.Literal("user", "admin")` not `S.String`
+- **Server-side only methods**: SSO `verifyDomain` and `requestDomainVerification` don't exist on browser client - contracts kept for potential server-side use
+- **SAML config**: Requires `spMetadata` object (not optional)
+- **Passkey sign-in**: Minimal payload - only `autoFill: S.optional(S.Boolean)`
+- **No-payload pattern**: `stopImpersonating` uses `() => client.admin.stopImpersonating()` (no encodedPayload)
+
+## P4 Outputs
+
+| Output | Purpose |
+|--------|---------|
+| `outputs/phase-4-research.md` | Passkey/Phone-number/OneTimeToken schemas and implementation notes |
+| `handoffs/HANDOFF_P4.md` | Phase 4 context and reference |
+| `handoffs/HANDOFF_P5.md` | Phase 5 handoff document |
+| `handoffs/P5_ORCHESTRATOR_PROMPT.md` | Phase 5 orchestrator prompt |
+
+### P4 Learnings
+
+- **Query-wrapped**: `oneTimeToken.generate` uses `{ query: encodedPayload }` pattern
+- **Field naming**: `phoneNumber.resetPassword` uses `otp` field (not `code`)
+- **No-payload handler**: `listUserPasskeys` uses `() => client.passkey.listUserPasskeys()` pattern
+- **Session mutation**: Only `oneTimeToken.verify` mutates session in Phase 4
+- **Passkey schema**: All passkey methods share similar response schema with id, name, publicKey, etc.
+- **3 new categories**: passkey, phone-number, one-time-token all created with full layer/mod/index setup
+
+## P5 Outputs
+
+| Output | Purpose |
+|--------|---------|
+| `outputs/phase-5-research.md` | OAuth2/Device/JWT/Sign-in schemas and implementation notes |
+| `handoffs/HANDOFF_P5.md` | Phase 5 context and reference |
+| `handoffs/HANDOFF_P6.md` | Phase 6 handoff document |
+
+### P5 Learnings
+
+- **Snake_case field names**: Better Auth uses snake_case for many API fields (client_id, device_code, grant_type, redirect_uris, oauth_query). Contracts match this exactly.
+- **Nested update structures**: `updateClient` and `updateConsent` use `{ client_id/id, update: {...} }` structure
+- **Mutable arrays**: Schema arrays passed to Better Auth must use `S.mutable(S.Array(...))` to avoid readonly array incompatibility
+- **Device token**: Requires `grant_type: "urn:ietf:params:oauth:grant-type:device_code"` literal
+- **OAuth2 consent**: Uses `accept` boolean, `scope` string, `oauth_query` string (not clientId/scopes array)
+- **OAuth2 continue**: All optional fields (selected, created, postLogin, oauth_query)
+- **3 new categories**: oauth2, device, jwt all created with full layer/mod/index setup
+- **Sign-in extensions**: social, oauth2, anonymous added to existing sign-in layer

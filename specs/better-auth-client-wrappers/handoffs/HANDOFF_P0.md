@@ -1,6 +1,6 @@
-# Handoff: Phase 0 - Infrastructure & Scope Reduction
+# Handoff: Phase 0 - Infrastructure & Scope Reduction (COMPLETED)
 
-> Identify and create scope-reducing infrastructure for P1-P6
+> Pattern analysis and scope-reducing infrastructure for P1-P6
 
 ---
 
@@ -9,111 +9,177 @@
 | Metric | Value |
 |--------|-------|
 | Purpose | Reduce scope through analysis and shared utilities |
-| Methods to analyze | 90 |
-| Workflow | Analysis → Implementation → Documentation |
+| Methods analyzed | 90 |
+| Status | **COMPLETED** |
+| Branch | `feat/iam-client-wrappers-p0` |
 
 ---
 
-## Pre-Flight (DO FIRST)
+## Deliverables Created
+
+| Deliverable | Location | Purpose |
+|-------------|----------|---------|
+| Pattern Analysis | `outputs/phase-0-pattern-analysis.md` | Handler patterns, file structure, JSDoc templates |
+| Method Guide | `outputs/method-implementation-guide.md` | Per-method specs for all 90 methods |
+| Updated Workflow | `outputs/OPTIMIZED_WORKFLOW.md` | 3-stage batched approach |
+
+---
+
+## Key Findings
+
+### Handler Patterns Identified
+
+| Pattern | Count | Description |
+|---------|-------|-------------|
+| **Standard** | ~55 | Has payload, returns object |
+| **No-payload** | ~15 | No input required |
+| **Query-wrapped** | ~12 | Expects `{ query: payload }` |
+| **Array response** | ~10 | Returns `Array<Item>` |
+| **With Captcha** | ~6 | Public auth endpoints only |
+
+### Boilerplate Savings
+
+| File | Savings | Action |
+|------|---------|--------|
+| `mod.ts` | 100% | Copy template (identical for all) |
+| `index.ts` | 95% | Only namespace name varies |
+| Handler | 80% | Fill in method name |
+| JSDoc | 70% | Fill in placeholders |
+
+### Scope Reduction Decision
+
+**Decision**: Do NOT create new shared response schemas.
+
+**Rationale**:
+1. Existing `_internal/` infrastructure is sufficient
+2. Response shapes have subtle variations between methods
+3. Over-abstracting would make contracts less clear
+4. Better to copy patterns than maintain shared code
+
+---
+
+## Pattern Reference (Quick Lookup)
+
+### Standard Handler Template
+
+```typescript
+// contract.ts
+import * as Common from "@beep/iam-client/_internal";
+import { formValuesAnnotation } from "@beep/iam-client/_internal";
+import { $IamClientId } from "@beep/identity/packages";
+import * as W from "@beep/wrap";
+import * as S from "effect/Schema";
+
+const $I = $IamClientId.create("[category]/[operation]");
+
+export class Payload extends S.Class<Payload>($I`Payload`)({...}) {}
+export class Success extends S.Class<Success>($I`Success`)({...}) {}
+export const Wrapper = W.Wrapper.make("[Operation]", {
+  payload: Payload,
+  success: Success,
+  error: Common.IamError,
+});
+
+// handler.ts
+import * as Common from "@beep/iam-client/_internal";
+import { client } from "@beep/iam-client/adapters";
+import * as Contract from "./contract.ts";
+
+export const Handler = Contract.Wrapper.implement(
+  Common.wrapIamMethod({
+    wrapper: Contract.Wrapper,
+    mutatesSession: [true|false],
+  })((encoded) => client.[method](encoded))
+);
+```
+
+### No-Payload Template
+
+```typescript
+// contract.ts - No Payload class, Wrapper omits payload field
+export const Wrapper = W.Wrapper.make("[Operation]", {
+  success: Success,
+  error: Common.IamError,
+});
+
+// handler.ts - Callback takes no arguments
+export const Handler = Contract.Wrapper.implement(
+  Common.wrapIamMethod({
+    wrapper: Contract.Wrapper,
+    mutatesSession: [true|false],
+  })(() => client.[method]())
+);
+```
+
+### Query-Wrapped Template
+
+```typescript
+// handler.ts - Wrap payload in { query: encoded }
+export const Handler = Contract.Wrapper.implement(
+  Common.wrapIamMethod({
+    wrapper: Contract.Wrapper,
+    mutatesSession: false,
+  })((encoded) => client.[method]({ query: encoded }))
+);
+```
+
+---
+
+## Existing Infrastructure (Reuse, Don't Recreate)
+
+### From `@beep/iam-client/_internal`
+
+| Export | Purpose |
+|--------|---------|
+| `wrapIamMethod` | Core factory for all handlers |
+| `IamError` | Error type |
+| `CaptchaMiddleware` | For public auth endpoints |
+| `withCaptchaResponse` | Before hook for captcha |
+| `formValuesAnnotation` | Form default values |
+| `DomainUserFromBetterAuthUser` | User transform |
+| `DomainSessionFromBetterAuthSession` | Session transform |
+| `UserEmail`, `UserPassword` | Common field schemas |
+
+---
+
+## Phase 1 Recommendations
+
+Based on P0 analysis:
+
+1. **Use the 3-stage workflow** from `OPTIMIZED_WORKFLOW.md`:
+   - Stage 1: Research all methods (document schemas)
+   - Stage 2: Create all contracts (batch verify)
+   - Stage 3: Create handlers + wire up (single layer update)
+
+2. **Start with core methods** that use existing schemas:
+   - `updateUser` → Uses `DomainUserFromBetterAuthUser`
+   - `deleteUser` → Simple `{ success: boolean }`
+   - `revokeSession` → Simple `{ success: boolean }`
+
+3. **Defer complex methods** to later in phase:
+   - `linkSocial` → OAuth redirect flow
+   - `listAccounts` → New `AccountSchema` needed
+
+4. **Copy boilerplate files verbatim** - don't try to optimize further
+
+---
+
+## Verification
 
 ```bash
+# P0 made no code changes, so verification should pass unchanged:
 bun run check --filter @beep/iam-client
-git checkout -b feat/iam-client-wrappers-p0
-```
 
-**If pre-flight fails**: Fix existing issues before proceeding.
-
----
-
-## Analysis Tasks
-
-### Task 1: Pattern Audit
-
-Examine existing handlers to identify what varies vs. constant:
-
-**Reference directories:**
-- `packages/iam/client/src/sign-in/email/` - Standard pattern
-- `packages/iam/client/src/core/sign-out/` - No-payload
-- `packages/iam/client/src/organization/members/list/` - Query-wrapped
-
-**Answer:**
-1. What parts of contract.ts are constant?
-2. What parts of handler.ts are constant?
-3. Which response schemas are reused?
-
-### Task 2: Method Categorization
-
-Categorize all 90 methods from MASTER_ORCHESTRATION.md:
-
-| Pattern | Characteristics | Est. Count |
-|---------|-----------------|------------|
-| **Standard** | Has payload, returns object | ~50 |
-| **No-payload** | No input | ~15 |
-| **Array response** | Returns array | ~10 |
-| **Query-wrapped** | Expects `{ query: payload }` | ~10 |
-
-### Task 3: Common Schema Identification
-
-Identify response shapes appearing 3+ times:
-
-| Response Shape | Methods |
-|----------------|---------|
-| `{ status: boolean }` | ban, unban, delete, revoke |
-| `{ user: User }` | update, create |
-| `Session[]` | listSessions, listUserSessions |
-
----
-
-## Implementation Tasks
-
-### Task 4: Create Shared Response Schemas (if beneficial)
-
-Only create if 5+ methods share identical response shape.
-
-**Location**: `packages/iam/client/src/_internal/common.schemas.ts`
-
-### Task 5: Create Method Reference
-
-Create `outputs/method-implementation-guide.md` with per-method specs.
-
-### Task 6: Document Templates
-
-**mod.ts** (100% identical):
-```typescript
-export * from "./contract.ts";
-export * from "./handler.ts";
-```
-
-**index.ts** (namespace varies):
-```typescript
-export * as [OperationPascalCase] from "./mod.ts";
+# Files created in specs/ directory only
 ```
 
 ---
 
-## Success Criteria
+## Next Phase
 
-- [ ] All 90 methods categorized by pattern
-- [ ] `outputs/phase-0-pattern-analysis.md` created
-- [ ] `outputs/method-implementation-guide.md` created
-- [ ] Templates documented
-- [ ] `bun run check --filter @beep/iam-client` passes
-- [ ] HANDOFF_P1.md updated with P0 findings
+**Phase 1: Core + Username**
 
----
-
-## Rollback Strategy
-
-```bash
-git checkout -- packages/iam/client/
-```
-
----
-
-## Reference Files
-
-| Purpose | File |
-|---------|------|
-| Method list | `MASTER_ORCHESTRATION.md` |
-| Internal utils | `packages/iam/client/src/_internal/` |
-| Existing handlers | `packages/iam/client/src/*/` |
+- Methods: 9
+- Estimated effort: 1 session
+- See: `handoffs/HANDOFF_P1.md`
+- Prompt: `handoffs/P1_ORCHESTRATOR_PROMPT.md`
