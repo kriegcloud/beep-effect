@@ -347,7 +347,7 @@ bun run --filter @beep/iam-domain lint:circular
 
 - **Use `makeFields`**: All entities must inherit audit fields (id, version, timestamps, source, createdBy, updatedBy)
 - **Symbol.for identifiers**: Use `Symbol.for("@beep/iam-domain/<Entity>Model")` for stable schema metadata
-- **BS helpers**: Use `BS.FieldOptionOmittable`, `BS.FieldSensitiveOptionOmittable`, `BS.toOptionalWithDefault` for field optionality
+- **BS helpers**: Use `BS.FieldOptionOmittable`, `BS.FieldSensitiveOptionOmittable`, `BS.BoolWithDefault` for field optionality
 - **Model utilities**: Attach `static readonly utils = modelKit(Model)` for consistent helper methods
 - **Schema kits**: For enums, create StringLiteralKit classes with `.Options`, `.Enum`, and Postgres helpers
 - **Effect patterns**: Use `F.pipe`, Effect Array/String utilities (`A.*`, `Str.*`), never native methods

@@ -16,7 +16,7 @@ description: |
 
   <example>
   Context: User completed a spec and wants to extract learnings.
-  user: "Analyze the reflection log from ai-friendliness-audit"
+  user: "Analyze the reflection log from canonical-naming-conventions"
   assistant: "I'll use the reflector agent to extract patterns and generate improvements."
   <Task tool call to reflector agent with spec name>
   </example>
@@ -46,7 +46,7 @@ signature:
   input:
     specName:
       type: string
-      description: Name of the spec to analyze (e.g., "ai-friendliness-audit")
+      description: Name of the spec to analyze (e.g., "canonical-naming-conventions")
       required: false
     scope:
       type: single-spec|cross-spec
@@ -108,7 +108,7 @@ You analyze the "Process Learning" artifacts (REFLECTION_LOG.md files) to:
 3. Report findings to user:
    ```
    Found N REFLECTION_LOG files:
-   - specs/ai-friendliness-audit/REFLECTION_LOG.md (K entries)
+   - specs/canonical-naming-conventions/REFLECTION_LOG.md (K entries)
    - specs/another-spec/REFLECTION_LOG.md (M entries)
    ```
 
@@ -217,7 +217,7 @@ Each entry follows this pattern:
 | Path Pattern | Content |
 |--------------|---------|
 | `specs/*/REFLECTION_LOG.md` | Reflection entries with learnings |
-| `specs/*/META_SPEC_TEMPLATE.md` | Self-improving pattern template (if exists) |
+| `specs/_guide/PATTERN_REGISTRY.md` | Reusable patterns extracted from specs |
 | `specs/*/outputs/*.md` | Phase outputs for context |
 
 ### Documentation Files for Update Recommendations
@@ -234,7 +234,7 @@ Each entry follows this pattern:
 
 | Path | Purpose |
 |------|---------|
-| `specs/ai-friendliness-audit/META_SPEC_TEMPLATE.md` | Self-improving spec pattern reference |
+| `specs/_guide/PATTERN_REGISTRY.md` | Reusable patterns library |
 | `.claude/agents/templates/agents-md-template.md` | Agent definition template |
 
 ---
@@ -270,10 +270,10 @@ Save meta-reflection files to:
 ## Examples
 
 ### Single Spec Analysis
-Request: `Analyze the reflection log from ai-friendliness-audit`
-→ Glob for `specs/ai-friendliness-audit/REFLECTION_LOG.md`
+Request: `Analyze the reflection log from canonical-naming-conventions`
+→ Glob for `specs/canonical-naming-conventions/REFLECTION_LOG.md`
 → Parse 6 entries, identify patterns (parallel agent deployment: 3x, bash glob issues: 2x resolved)
-→ Extract 4 prompt refinements, write to `specs/agents/reflector/outputs/meta-reflection-ai-friendliness-audit.md`
+→ Extract 4 prompt refinements, write to `specs/agents/reflector/outputs/meta-reflection-canonical-naming-conventions.md`
 
 ### Cross-Spec Pattern Analysis
 Request: `What patterns appear across all our spec executions?`
@@ -303,7 +303,7 @@ Request: `What changes should we make to CLAUDE.md based on spec learnings?`
 - `handoffs/HANDOFF_P[N+1].md` - Full context document
 - `handoffs/P[N+1]_ORCHESTRATOR_PROMPT.md` - Copy-paste ready prompt
 
-See [specs/HANDOFF_STANDARDS.md](../../specs/HANDOFF_STANDARDS.md) for complete requirements.
+See [specs/_guide/HANDOFF_STANDARDS.md](../../specs/_guide/HANDOFF_STANDARDS.md) for complete requirements.
 
 ---
 

@@ -2,7 +2,7 @@
 name: effect-predicate-master
 description: Transform imperative conditionals (if, switch, typeof, instanceof) into Effect predicates, Match, and type-narrowing patterns.
 model: sonnet
-tools: [mcp__effect_docs__effect_docs_search, mcp__effect_docs__get_effect_doc, Read, Glob, Grep]
+tools: [Read, Glob, Grep]
 ---
 
 # Effect Predicate Master
@@ -340,13 +340,10 @@ if (isNotString(x)) {
 
 ## API Reference
 
-For complete function signatures and additional predicates, use Effect docs MCP:
-
-```
-mcp__effect_docs__effect_docs_search({ query: "Predicate isString" })
-mcp__effect_docs__effect_docs_search({ query: "Match exhaustive" })
-mcp__effect_docs__effect_docs_search({ query: "Number between" })
-```
+For complete function signatures and additional predicates, use Effect docs MCP tools to search:
+- Search "Predicate isString" for predicate functions
+- Search "Match exhaustive" for pattern matching
+- Search "Number between" for numeric comparisons
 
 Or read source directly:
 - `node_modules/effect/src/Predicate.ts`

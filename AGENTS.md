@@ -42,7 +42,7 @@ Configuration and guardrails for AI collaborators working in the `beep-effect` m
 
 ## Project Overview
 
-`beep-effect` is a Bun-managed monorepo delivering a full-stack Effect application with Next.js 16 frontend, Effect Platform backend, and vertical slices in `packages/iam/*` and `packages/documents/*`. See [documentation/PACKAGE_STRUCTURE.md](documentation/PACKAGE_STRUCTURE.md) for full package layout.
+`beep-effect` is a Bun-managed monorepo delivering a full-stack Effect application with Next.js 16 frontend, Effect Platform backend, and vertical slices in `packages/{iam,documents,calendar,knowledge,comms,customization}/*`. See [documentation/PACKAGE_STRUCTURE.md](documentation/PACKAGE_STRUCTURE.md) for full package layout.
 
 ## Technology Stack
 

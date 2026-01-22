@@ -49,7 +49,7 @@
 - ALWAYS import Effect modules with namespaces (`Effect`, `A`, `F`, `O`, `Str`, `S`, `M`) and rely on Effect collections/utilities instead of native helpers (see global repo guardrails).
 - Use `makeFields` so every entity inherits the audit + tracking columns and typed IDs; NEVER redefine `id`, `_rowId`, `version`, or timestamps manually.
 - Maintain `Symbol.for("@beep/comms-domain/<Entity>Model")` naming via `$CommsDomainId` to keep schema metadata stable across database migrations and clients.
-- Prefer shared schema helpers (`FieldOptionOmittable`, `FieldSensitiveOptionOmittable`, `toOptionalWithDefault`, `BoolWithDefault`) to describe optionality and defaults.
+- Prefer shared schema helpers (`FieldOptionOmittable`, `FieldSensitiveOptionOmittable`, `BoolWithDefault`) to describe optionality and defaults.
 - When adding new entities, extend entity ID factories in `@beep/shared-domain` (e.g., `CommsEntityIds`) and propagate matching tables in `@beep/comms-tables`.
 - Apply `modelKit(Model)` to expose standardized utilities (`.utils`) on each model class.
 

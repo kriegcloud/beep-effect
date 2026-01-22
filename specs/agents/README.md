@@ -6,7 +6,7 @@
 
 ## Overview
 
-This directory contains individual specs for each agent to be created as part of the [new-specialized-agents](../new-specialized-agents/README.md) initiative. Breaking the original combined spec into individual agent specs reduces scope, increases alignment, and enables parallel development.
+This directory contains individual specs for specialized agents in the beep-effect monorepo. Breaking agent specs into individual files reduces scope, increases alignment, and enables parallel development.
 
 ---
 
@@ -79,7 +79,7 @@ Each handoff includes:
 
 ## Spec Structure
 
-Each agent spec follows the META_SPEC_TEMPLATE pattern with simplified structure:
+Each agent spec follows the standard spec template with simplified structure:
 
 ```
 specs/agents/[agent-name]/
@@ -138,9 +138,9 @@ specs/agents/handoffs/
 All agent specs share these dependencies:
 
 ### Required Reading
-- `/home/elpresidank/YeeBois/projects/beep-effect/.claude/agents/templates/agents-md-template.md`
-- `/home/elpresidank/YeeBois/projects/beep-effect/documentation/EFFECT_PATTERNS.md`
-- `/home/elpresidank/YeeBois/projects/beep-effect/CLAUDE.md`
+- `.claude/agents/templates/agents-md-template.md`
+- `documentation/EFFECT_PATTERNS.md`
+- `CLAUDE.md`
 
 ### Effect Patterns (CRITICAL)
 All code examples must use:
@@ -175,6 +175,4 @@ The agent specs are complete when:
 
 ## Related Documentation
 
-- [new-specialized-agents](../new-specialized-agents/README.md) - Parent spec
-- [ai-friendliness-audit](../ai-friendliness-audit/README.md) - META_SPEC_TEMPLATE reference
 - [Spec Guide](../_guide/README.md) - Agent-assisted spec workflow

@@ -1,7 +1,7 @@
 ---
 name: test-writer
 description: Effect-first test writer using @beep/testkit for unit and integration testing
-tools: [Read, Write, Edit, Glob, Grep, mcp__effect_docs__effect_docs_search, mcp__effect_docs__get_effect_doc]
+tools: [Read, Write, Edit, Glob, Grep]
 signature:
   input:
     sourceFiles:
@@ -116,8 +116,7 @@ effect("validates email format", () =>
 ## Core Pattern: Integration Test with Layer
 
 ```typescript
-import { describe } from "bun:test"
-import { layer, strictEqual, deepStrictEqual } from "@beep/testkit"
+import { layer, strictEqual, deepStrictEqual, describe } from "@beep/testkit"
 import * as Effect from "effect/Effect"
 import * as Layer from "effect/Layer"
 import * as Duration from "effect/Duration"

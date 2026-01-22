@@ -167,7 +167,7 @@ Required files:
 - templates/ directory - If output templates needed
 - outputs/ directory - For phase artifacts
 
-Follow META_SPEC_TEMPLATE structure from specs/ai-friendliness-audit/META_SPEC_TEMPLATE.md
+Follow the Standard Spec Structure defined in this guide
 ```
 
 #### Task 0.2: Validate Structure (architecture-pattern-enforcer)
@@ -178,7 +178,7 @@ Use the architecture-pattern-enforcer agent to validate spec structure.
 Check:
 - README.md exists and follows template
 - REFLECTION_LOG.md exists
-- Directory structure matches META_SPEC_TEMPLATE
+- Directory structure matches spec template from this guide
 - No orphaned files outside standard structure
 ```
 
@@ -699,7 +699,7 @@ The reflection system enables pattern extraction and skill promotion from spec e
 | Score | Status | Destination |
 |-------|--------|-------------|
 | 90-102 | Production-ready | `.claude/skills/` |
-| 75-89 | Validated | `specs/PATTERN_REGISTRY.md` |
+| 75-89 | Validated | `specs/_guide/PATTERN_REGISTRY.md` |
 | 50-74 | Promising | Spec-local REFLECTION_LOG |
 | 0-49 | Needs work | Iterate in spec |
 
@@ -808,7 +808,7 @@ touch specs/[SPEC_NAME]/REFLECTION_LOG.md
 ```
 Launch doc-writer agent:
 
-"Create initial README.md for specs/[SPEC_NAME]/ following META_SPEC_TEMPLATE.
+"Create initial README.md for specs/[SPEC_NAME]/ following the spec template.
 Include:
 - Purpose and scope
 - Success criteria
@@ -821,7 +821,7 @@ Include:
 ```
 Launch architecture-pattern-enforcer agent:
 
-"Validate specs/[SPEC_NAME]/ structure against META_SPEC_TEMPLATE.
+"Validate specs/[SPEC_NAME]/ structure against the spec template.
 Check all required files exist and follow conventions."
 ```
 
@@ -856,7 +856,7 @@ For specs missing required files:
 Launch doc-writer agent:
 
 "Create missing files for specs/[SPEC_NAME]/:
-- README.md if missing (use META_SPEC_TEMPLATE)
+- README.md if missing (use spec template)
 - REFLECTION_LOG.md if missing (empty template)
 - QUICK_START.md if medium+ complexity"
 ```

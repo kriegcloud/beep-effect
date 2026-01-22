@@ -316,7 +316,7 @@ export class Model extends M.Class<Model>(`DocumentModel`)(
 ### Key Pattern Features
 - **makeFields** — Standardized field construction with audit fields (`id`, `createdAt`, `updatedAt`) automatically included
 - **modelKit** — Utility factory providing common model operations (decode, encode, insert, update helpers)
-- **BS helpers** — `FieldOptionOmittable`, `toOptionalWithDefault` for nullable fields with defaults
+- **BS helpers** — `FieldOptionOmittable`, `BoolWithDefault` for nullable fields with defaults
 - **Entity IDs** — Branded types from `@beep/shared-domain` for compile-time type safety and runtime validation
 - **Effect SQL Model** — Seamless integration with repository layer using `@effect/sql`
 
@@ -435,7 +435,7 @@ This package is the **domain layer** in the documents vertical slice, sitting at
 - Export all entity artifacts through namespace modules for clean imports (`export * as Entity from "./Entity"`)
 - Use `makeFields` from `@beep/shared-domain/common` for consistent field construction with audit fields
 - Use `modelKit` from `@beep/shared-domain/factories` for standard model utilities
-- Use `@beep/schema` helpers (`BS.FieldOptionOmittable`, `BS.toOptionalWithDefault`, `BS.StringLiteralKit`) for schemas
+- Use `@beep/schema` helpers (`BS.FieldOptionOmittable`, `BS.BoolWithDefault`, `BS.StringLiteralKit`) for schemas
 - Document all models with JSDoc comments explaining their purpose and usage
 
 ### Type Safety
