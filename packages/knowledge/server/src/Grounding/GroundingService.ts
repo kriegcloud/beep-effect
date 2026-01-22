@@ -9,11 +9,12 @@
  */
 import type { SharedEntityIds } from "@beep/shared-domain";
 import * as Effect from "effect/Effect";
+import * as F from "effect/Function";
 import * as Layer from "effect/Layer";
+import * as Str from "effect/String";
 import type { EmbeddingError } from "../Embedding/EmbeddingProvider";
 import { EmbeddingService } from "../Embedding/EmbeddingService";
 import type { AssembledEntity, AssembledRelation, KnowledgeGraph } from "../Extraction/GraphAssembler";
-
 // =============================================================================
 // Types
 // =============================================================================
@@ -98,10 +99,7 @@ const relationToStatement = (relation: AssembledRelation, subjectMention: string
   const predicateLabel = extractLocalName(relation.predicate);
 
   // Make predicate more readable (convert camelCase to spaces)
-  const readablePredicate = predicateLabel
-    .replace(/([A-Z])/g, " $1")
-    .toLowerCase()
-    .trim();
+  const readablePredicate = F.pipe(predicateLabel, Str.replace(/([A-Z])/g, " $1"), Str.toLowerCase, Str.trim);
 
   if (relation.literalValue !== undefined) {
     return `${subjectMention} ${readablePredicate} ${relation.literalValue}`;

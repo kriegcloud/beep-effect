@@ -8,8 +8,11 @@
  * @since 0.1.0
  */
 import type { SharedEntityIds } from "@beep/shared-domain";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import * as F from "effect/Function";
 import * as Layer from "effect/Layer";
+import * as R from "effect/Record";
 import type { AssembledEntity, AssembledRelation, KnowledgeGraph } from "../Extraction/GraphAssembler";
 import { CanonicalSelector, type CanonicalSelectorConfig } from "./CanonicalSelector";
 import { type ClusterConfig, type EntityCluster, EntityClusterer } from "./EntityClusterer";
@@ -32,12 +35,12 @@ export interface ResolutionConfig {
   /**
    * Clustering configuration
    */
-  readonly clustering?: ClusterConfig;
+  readonly clustering?: undefined | ClusterConfig;
 
   /**
    * Canonical selection configuration
    */
-  readonly canonical?: CanonicalSelectorConfig;
+  readonly canonical?: undefined | CanonicalSelectorConfig;
 }
 
 // =============================================================================
@@ -108,7 +111,7 @@ const buildResolvedGraph = (
 
   // Collect and remap relations
   const relationSet = new Set<string>();
-  const resolvedRelations: AssembledRelation[] = [];
+  const resolvedRelations = A.empty<AssembledRelation>();
 
   for (const graph of graphs) {
     for (const relation of graph.relations) {
@@ -135,7 +138,7 @@ const buildResolvedGraph = (
   }
 
   // Build entity index
-  const entityIndex: Record<string, string> = {};
+  const entityIndex = R.empty<string, string>();
   for (const entity of canonicalEntities) {
     const key = (entity.canonicalName ?? entity.mention).toLowerCase();
     entityIndex[key] = entity.id;
@@ -267,13 +270,15 @@ export class EntityResolutionService extends Effect.Service<EntityResolutionServ
             }
 
             // Step 3: Select canonical entity for each cluster and merge attributes
-            const canonicalEntities: AssembledEntity[] = [];
-            const updatedClusters: EntityCluster[] = [];
+            const canonicalEntities = A.empty<AssembledEntity>();
+            const updatedClusters = A.empty<EntityCluster>();
 
             for (const cluster of clusters) {
-              const members = cluster.memberIds
-                .map((id) => entityById.get(id))
-                .filter((e): e is AssembledEntity => e !== undefined);
+              const members = F.pipe(
+                cluster.memberIds,
+                A.map((id) => entityById.get(id)),
+                A.filter((e): e is AssembledEntity => e !== undefined)
+              );
 
               if (members.length === 0) continue;
 
@@ -305,8 +310,8 @@ export class EntityResolutionService extends Effect.Service<EntityResolutionServ
             const resolvedGraph = buildResolvedGraph(graphs, canonicalEntities, updatedClusters);
 
             // Calculate statistics
-            const maxClusterSize = Math.max(...updatedClusters.map((c) => c.memberIds.length), 0);
-            const totalMembers = updatedClusters.reduce((sum, c) => sum + c.memberIds.length, 0);
+            const maxClusterSize = Math.max(...A.map(updatedClusters, (c) => c.memberIds.length), 0);
+            const totalMembers = A.reduce(updatedClusters, 0, (sum, c) => sum + c.memberIds.length);
             const averageClusterSize = updatedClusters.length > 0 ? totalMembers / updatedClusters.length : 0;
 
             const result: ResolutionResult = {

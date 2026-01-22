@@ -22,17 +22,17 @@ export interface AiGenerationConfig {
   /**
    * Maximum tokens to generate
    */
-  readonly maxTokens?: number;
+  readonly maxTokens?: undefined | number;
 
   /**
    * Temperature for generation (0-2)
    */
-  readonly temperature?: number;
+  readonly temperature?: undefined | number;
 
   /**
    * Model identifier to use
    */
-  readonly model?: string;
+  readonly model?: undefined | string;
 }
 
 /**
@@ -99,7 +99,7 @@ export interface AiService {
     schema: S.Schema<A, I>,
     systemPrompt: string,
     userPrompt: string,
-    config?: AiGenerationConfig
+    config?: undefined | AiGenerationConfig
   ) => Effect.Effect<AiGenerationResult<A>, AiExtractionError>;
 
   /**
@@ -111,7 +111,7 @@ export interface AiService {
    */
   readonly generateText: (
     prompt: string,
-    config?: AiGenerationConfig
+    config?: undefined | AiGenerationConfig
   ) => Effect.Effect<AiGenerationResult<string>, AiExtractionError>;
 }
 
@@ -132,7 +132,7 @@ export const AiService = Context.GenericTag<AiService>("@beep/knowledge-server/A
  * @category testing
  */
 export const MockAiService: AiService = {
-  generateObject: <A, I>(_schema: S.Schema<A, I>, _prompt: string, _config?: AiGenerationConfig) =>
+  generateObject: <A, I>(_schema: S.Schema<A, I>, _prompt: string, _config?: undefined | AiGenerationConfig) =>
     Effect.fail(
       new AiExtractionError({
         message: "MockAiService: generateObject not implemented",
@@ -144,7 +144,7 @@ export const MockAiService: AiService = {
     _schema: S.Schema<A, I>,
     _systemPrompt: string,
     _userPrompt: string,
-    _config?: AiGenerationConfig
+    _config?: undefined | AiGenerationConfig
   ) =>
     Effect.fail(
       new AiExtractionError({

@@ -36,7 +36,6 @@ import { bootstrapSpecCommand } from "./commands/bootstrap-spec/index.js";
 import { createSliceCommand } from "./commands/create-slice/index.js";
 import { docgenCommand } from "./commands/docgen.js";
 import { envCommand } from "./commands/env.js";
-import { pruneUnusedDepsCommand } from "./commands/prune-unused-deps.js";
 import { syncCommand } from "./commands/sync.js";
 import { topoSortCommand } from "./commands/topo-sort.js";
 import { tsconfigSyncCommand } from "./commands/tsconfig-sync/index.js";
@@ -49,7 +48,6 @@ const repoCommand = CliCommand.make("beep").pipe(
     createSliceCommand,
     docgenCommand,
     envCommand,
-    pruneUnusedDepsCommand,
     syncCommand,
     topoSortCommand,
     tsconfigSyncCommand,

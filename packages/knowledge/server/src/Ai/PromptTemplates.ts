@@ -7,7 +7,9 @@
  * @since 0.1.0
  */
 
+import { thunkEmptyStr } from "@beep/utils";
 import * as A from "effect/Array";
+import * as F from "effect/Function";
 import * as O from "effect/Option";
 import type { ClassifiedEntity } from "../Extraction/schemas/entity-output.schema";
 import type { ExtractedMention } from "../Extraction/schemas/mention-output.schema";
@@ -60,16 +62,25 @@ Be precise with character offsets. Count from the beginning of the text provided
  */
 export const buildEntityPrompt = (mentions: readonly ExtractedMention[], ontologyContext: OntologyContext): string => {
   // Build type options from ontology classes
-  const typeOptions = A.map(ontologyContext.classes, (cls) => {
-    const comment = O.getOrElse(cls.comment, () => "");
-    const altLabels = cls.altLabels.length > 0 ? ` (also: ${cls.altLabels.join(", ")})` : "";
-    return `- ${cls.iri}: ${cls.label}${altLabels}${comment ? ` - ${comment}` : ""}`;
-  }).join("\n");
 
-  const mentionList = A.map(mentions, (m) => {
-    const type = m.suggestedType ?? "unknown";
-    return `- "${m.text}" (suggested: ${type}, confidence: ${m.confidence.toFixed(2)})`;
-  }).join("\n");
+  const typeOptions = F.pipe(
+    ontologyContext.classes,
+    A.map((cls) => {
+      const comment = O.getOrElse(cls.comment, thunkEmptyStr);
+      const altLabels = cls.altLabels.length > 0 ? ` (also: ${A.join(", ")(cls.altLabels)})` : "";
+      return `- ${cls.iri}: ${cls.label}${altLabels}${comment ? ` - ${comment}` : ""}`;
+    }),
+    A.join("\n")
+  );
+
+  const mentionList = F.pipe(
+    mentions,
+    A.map((m) => {
+      const type = m.suggestedType ?? "unknown";
+      return `- "${m.text}" (suggested: ${type}, confidence: ${m.confidence.toFixed(2)})`;
+    }),
+    A.join("\n")
+  );
 
   return `You are an expert entity classifier. Your task is to classify each entity mention using the provided ontology.
 
@@ -116,20 +127,28 @@ export const buildRelationPrompt = (
   ontologyContext: OntologyContext
 ): string => {
   // Build property options from ontology
-  const propertyOptions = A.map(ontologyContext.properties, (prop) => {
-    const comment = O.getOrElse(prop.comment, () => "");
-    const domainLabels = A.filterMap(prop.domain, (d) => O.map(ontologyContext.findClass(d), (c) => c.label));
-    const rangeLabels = A.filterMap(prop.range, (r) => O.map(ontologyContext.findClass(r), (c) => c.label));
-    const domainStr = domainLabels.length > 0 ? `domain: ${domainLabels.join(", ")}` : "";
-    const rangeStr = rangeLabels.length > 0 ? `range: ${rangeLabels.join(", ")}` : "";
-    const constraints = [domainStr, rangeStr].filter(Boolean).join("; ");
-    return `- ${prop.iri}: ${prop.label} (${prop.rangeType}${constraints ? ` | ${constraints}` : ""})${comment ? ` - ${comment}` : ""}`;
-  }).join("\n");
+  const propertyOptions = F.pipe(
+    ontologyContext.properties,
+    A.map((prop) => {
+      const comment = O.getOrElse(prop.comment, () => "");
+      const domainLabels = A.filterMap(prop.domain, (d) => O.map(ontologyContext.findClass(d), (c) => c.label));
+      const rangeLabels = A.filterMap(prop.range, (r) => O.map(ontologyContext.findClass(r), (c) => c.label));
+      const domainStr = domainLabels.length > 0 ? `domain: ${A.join(", ")(domainLabels)}` : "";
+      const rangeStr = rangeLabels.length > 0 ? `range: ${A.join(", ")(rangeLabels)}` : "";
+      const constraints = F.pipe(A.make(domainStr, rangeStr), A.filter(Boolean), A.join("; "));
+      return `- ${prop.iri}: ${prop.label} (${prop.rangeType}${constraints ? ` | ${constraints}` : ""})${comment ? ` - ${comment}` : ""}`;
+    }),
+    A.join("\n")
+  );
 
-  const entityList = A.map(entities, (e) => {
-    const types = e.additionalTypes ? `[${e.typeIri}, ${e.additionalTypes.join(", ")}]` : e.typeIri;
-    return `- "${e.mention}" (type: ${types})`;
-  }).join("\n");
+  const entityList = F.pipe(
+    entities,
+    A.map((e) => {
+      const types = e.additionalTypes ? `[${e.typeIri}, ${A.join(", ")(e.additionalTypes)}]` : e.typeIri;
+      return `- "${e.mention}" (type: ${types})`;
+    }),
+    A.join("\n")
+  );
 
   return `You are an expert relation extractor. Your task is to identify relationships between entities in the text.
 

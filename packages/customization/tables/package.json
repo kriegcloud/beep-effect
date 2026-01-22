@@ -34,18 +34,18 @@
     "lint:circular": "bunx madge -c ."
   },
   "peerDependencies": {
-    "@beep/shared-tables": "workspace:^",
     "@beep/shared-domain": "workspace:^",
     "@beep/customization-domain": "workspace:^",
+    "@beep/shared-tables": "workspace:^",
     "drizzle-orm": "catalog:"
   },
   "devDependencies": {
-    "@effect/docgen": "catalog:",
-    "@beep/shared-tables": "workspace:^",
     "@beep/shared-domain": "workspace:^",
     "@beep/customization-domain": "workspace:^",
-    "drizzle-orm": "catalog:",
-    "@total-typescript/ts-reset": "catalog:"
+    "@beep/shared-tables": "workspace:^",
+    "@effect/docgen": "catalog:",
+    "@total-typescript/ts-reset": "catalog:",
+    "drizzle-orm": "catalog:"
   },
   "effect": {
     "generateExports": {

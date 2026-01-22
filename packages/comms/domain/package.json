@@ -39,15 +39,15 @@
   },
   "peerDependencies": {
     "@beep/shared-domain": "workspace:^",
-    "effect": "catalog:",
-    "@effect/sql": "catalog:"
+    "@effect/sql": "catalog:",
+    "effect": "catalog:"
   },
   "devDependencies": {
-    "@effect/docgen": "catalog:",
     "@beep/shared-domain": "workspace:^",
-    "effect": "catalog:",
+    "@effect/docgen": "catalog:",
     "@effect/sql": "catalog:",
-    "@total-typescript/ts-reset": "catalog:"
+    "@total-typescript/ts-reset": "catalog:",
+    "effect": "catalog:"
   },
   "effect": {
     "generateExports": {

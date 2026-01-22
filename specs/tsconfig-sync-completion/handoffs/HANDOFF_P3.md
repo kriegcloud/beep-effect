@@ -184,7 +184,7 @@ effect("computePackageReferences returns root-relative paths", () =>
     const refs = yield* computePackageReferences("@beep/schema", deps, closure, context);
     // All refs should start with ../../../
     refs.forEach(ref => {
-      strictEqual(ref.startsWith("../../../"), true);
+      strictEqual(Str.startsWith("../../../")(ref), true);
     });
   })
 );

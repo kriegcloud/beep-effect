@@ -7,9 +7,10 @@
  * @module knowledge-server/EntityResolution/SameAsLinker
  * @since 0.1.0
  */
+
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import type { EntityCluster } from "./EntityClusterer";
-
 // =============================================================================
 // Types
 // =============================================================================
@@ -44,7 +45,7 @@ export interface SameAsLink {
   /**
    * Source of the member entity (extraction/document ID)
    */
-  readonly sourceId?: string;
+  readonly sourceId?: undefined | string;
 }
 
 /**
@@ -98,7 +99,7 @@ export class SameAsLinker extends Effect.Service<SameAsLinker>()("@beep/knowledg
       entityConfidences: Map<string, number>
     ): Effect.Effect<readonly SameAsLink[]> =>
       Effect.gen(function* () {
-        const links: SameAsLink[] = [];
+        const links = A.empty<SameAsLink>();
 
         yield* Effect.logDebug("SameAsLinker.generateLinks: starting", {
           clusterCount: clusters.length,
@@ -151,7 +152,7 @@ export class SameAsLinker extends Effect.Service<SameAsLinker>()("@beep/knowledg
       entitySources: Map<string, string>
     ): Effect.Effect<readonly SameAsLink[]> =>
       Effect.gen(function* () {
-        const links: SameAsLink[] = [];
+        const links = A.empty<SameAsLink>();
 
         for (const cluster of clusters) {
           if (cluster.memberIds.length <= 1) continue;
@@ -302,7 +303,7 @@ export class SameAsLinker extends Effect.Service<SameAsLinker>()("@beep/knowledg
      */
     validateLinks: (links: readonly SameAsLink[]): Effect.Effect<{ valid: boolean; issues: readonly string[] }> =>
       Effect.sync(() => {
-        const issues: string[] = [];
+        const issues = A.empty<string>();
 
         // Check for self-links
         for (const link of links) {

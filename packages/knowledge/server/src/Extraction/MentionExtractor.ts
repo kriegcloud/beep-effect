@@ -154,7 +154,7 @@ export class MentionExtractor extends Effect.Service<MentionExtractor>()("@beep/
         const minConfidence = config.minConfidence ?? 0.5;
 
         // Process chunks sequentially to respect rate limits
-        const results: MentionExtractionResult[] = [];
+        const results = A.empty<MentionExtractionResult>();
         for (const chunk of chunks) {
           const genResult = yield* ai.generateObjectWithSystem(
             MentionOutput,
@@ -222,7 +222,7 @@ export class MentionExtractor extends Effect.Service<MentionExtractor>()("@beep/
           });
 
           // Remove overlapping mentions (keep higher confidence)
-          const merged: ExtractedMention[] = [];
+          const merged = A.empty<ExtractedMention>();
           let lastEndChar = -1;
 
           for (const mention of sorted) {

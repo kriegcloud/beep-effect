@@ -37,12 +37,14 @@
     "docgen": "bunx docgen"
   },
   "peerDependencies": {
-    "effect": "catalog:",
+    "@beep/identity": "workspace:^",
     "@beep/invariant": "workspace:^",
+    "@effect/platform": "catalog:",
+    "@effect/platform-browser": "catalog:",
     "@faker-js/faker": "catalog:",
+    "effect": "catalog:",
     "mutative": "catalog:",
-    "next": "catalog:",
-    "@beep/identity": "workspace:^"
+    "next": "catalog:"
   },
   "devDependencies": {
     "@beep/identity": "workspace:^",

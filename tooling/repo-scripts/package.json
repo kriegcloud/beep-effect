@@ -41,30 +41,30 @@
     "docs:lint:file": "bunx tsx ./src/run-docs-lint.ts --file"
   },
   "dependencies": {
-    "jscodeshift": "catalog:",
-    "@beep/constants": "workspace:^",
     "@beep/schema": "workspace:^",
     "@beep/tooling-utils": "workspace:^",
-    "@effect/platform": "catalog:",
+    "@beep/constants": "workspace:^",
+    "@effect/cli": "catalog:",
     "@effect/cluster": "catalog:",
-    "@effect/workflow": "catalog:",
+    "@effect/platform": "catalog:",
     "@effect/platform-bun": "catalog:",
-    "glob": "catalog:",
-    "effect": "catalog:",
-    "picocolors": "catalog:",
-    "@jsquash/webp": "catalog:",
+    "@effect/workflow": "catalog:",
     "@jsquash/avif": "catalog:",
     "@jsquash/jpeg": "catalog:",
     "@jsquash/jxl": "catalog:",
     "@jsquash/png": "catalog:",
-    "@effect/cli": "catalog:",
+    "@jsquash/webp": "catalog:",
+    "effect": "catalog:",
+    "glob": "catalog:",
+    "jscodeshift": "catalog:",
+    "picocolors": "catalog:",
     "ts-morph": "catalog:",
     "typescript": "catalog:"
   },
   "devDependencies": {
+    "@total-typescript/ts-reset": "catalog:",
     "@types/jscodeshift": "catalog:",
-    "typescript": "catalog:",
-    "@total-typescript/ts-reset": "catalog:"
+    "typescript": "catalog:"
   },
   "effect": {
     "generateExports": {

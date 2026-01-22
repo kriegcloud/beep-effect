@@ -8,6 +8,7 @@
  */
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import * as Struct from "effect/Struct";
 import type { AiGenerationConfig } from "../Ai/AiService";
 import { type ChunkingConfig, defaultChunkingConfig, NlpService, type TextChunk } from "../Nlp";
 import { OntologyService } from "../Ontology";
@@ -17,7 +18,6 @@ import { MentionExtractor } from "./MentionExtractor";
 import { RelationExtractor } from "./RelationExtractor";
 import type { ClassifiedEntity } from "./schemas/entity-output.schema";
 import type { ExtractedMention } from "./schemas/mention-output.schema";
-
 /**
  * Pipeline configuration
  *
@@ -43,12 +43,12 @@ export interface ExtractionPipelineConfig {
   /**
    * Source URI for provenance
    */
-  readonly sourceUri?: string;
+  readonly sourceUri?: undefined | string;
 
   /**
    * Chunking configuration
    */
-  readonly chunkingConfig?: ChunkingConfig;
+  readonly chunkingConfig?: undefined | ChunkingConfig;
 
   /**
    * AI generation configuration
@@ -335,7 +335,7 @@ const mapEntitiesToChunks = (
  */
 const filterUndefined = <T extends Record<string, unknown>>(obj: T): Partial<T> => {
   const result: Partial<T> = {};
-  for (const key of Object.keys(obj) as Array<keyof T>) {
+  for (const key of Struct.keys(obj)) {
     const value = obj[key];
     if (value !== undefined) {
       result[key] = value;

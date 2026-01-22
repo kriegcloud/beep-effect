@@ -42,6 +42,12 @@
   - Outputs workspace packages in dependency order (fewest dependencies first)
   - Uses Kahn's algorithm to detect cycles
   - Useful for sequential processing pipelines
+- **`src/commands/tsconfig-sync/`** — TypeScript configuration synchronization
+  - Syncs tsconfig `references` arrays to match `package.json` dependencies
+  - Generates `paths` aliases and `references` for Next.js apps (including transitive deps)
+  - Sorts package.json dependencies: workspace (topological) + external (alphabetical)
+  - Supports `--check` mode for CI validation, `--dry-run` for previews
+  - Detects and reports circular dependencies
 
 ## Usage Snapshots
 - Root `package.json` exposes CLI via `bun run repo-cli <command>`
@@ -60,6 +66,12 @@
 - `bun run repo-cli create-slice -n notifications -d "User notification system"` — Create new slice
 - `bun run repo-cli create-slice --name billing --description "Billing" --dry-run` — Preview slice creation
 - `bun run repo-cli topo-sort` — Output packages in topological order
+- `bun run repo-cli tsconfig-sync` — Sync all tsconfig files and package.json dependencies
+- `bun run repo-cli tsconfig-sync --check` — Validate configs without modifying (CI mode)
+- `bun run repo-cli tsconfig-sync --dry-run --verbose` — Preview changes
+- `bun run repo-cli tsconfig-sync --filter @beep/schema` — Sync specific package
+- `bun run repo-cli tsconfig-sync --packages-only` — Skip Next.js apps
+- `bun run repo-cli tsconfig-sync --apps-only` — Only sync Next.js apps
 
 ## Authoring Guardrails
 - All commands must be Effect-based using `@effect/cli/Command`

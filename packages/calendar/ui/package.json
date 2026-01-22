@@ -37,11 +37,11 @@
     "effect": "catalog:"
   },
   "devDependencies": {
-    "@effect/docgen": "catalog:",
-    "babel-plugin-transform-next-use-client": "catalog:",
     "@babel/preset-react": "catalog:",
-    "effect": "catalog:",
-    "@total-typescript/ts-reset": "catalog:"
+    "@effect/docgen": "catalog:",
+    "@total-typescript/ts-reset": "catalog:",
+    "babel-plugin-transform-next-use-client": "catalog:",
+    "effect": "catalog:"
   },
   "effect": {
     "generateExports": {

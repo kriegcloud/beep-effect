@@ -6,16 +6,31 @@
       "path": "tsconfig.src.json"
     },
     {
+      "path": "../../packages/documents/client"
+    },
+    {
       "path": "../../packages/common/identity"
     },
     {
       "path": "../../packages/common/invariant"
     },
     {
+      "path": "../../packages/knowledge/client"
+    },
+    {
+      "path": "../../packages/knowledge/ui"
+    },
+    {
       "path": "../../tooling/testkit"
     },
     {
+      "path": "../../tooling/utils"
+    },
+    {
       "path": "../../packages/common/types"
+    },
+    {
+      "path": "../../tooling/build-utils"
     },
     {
       "path": "../../packages/common/utils"
@@ -39,6 +54,12 @@
       "path": "../../packages/shared/domain"
     },
     {
+      "path": "../../packages/calendar/domain"
+    },
+    {
+      "path": "../../packages/comms/domain"
+    },
+    {
       "path": "../../packages/customization/domain"
     },
     {
@@ -46,6 +67,9 @@
     },
     {
       "path": "../../packages/iam/domain"
+    },
+    {
+      "path": "../../packages/knowledge/domain"
     },
     {
       "path": "../../packages/shared/env"
@@ -60,6 +84,12 @@
       "path": "../../packages/ui/ui"
     },
     {
+      "path": "../../packages/calendar/tables"
+    },
+    {
+      "path": "../../packages/comms/tables"
+    },
+    {
       "path": "../../packages/customization/tables"
     },
     {
@@ -69,7 +99,16 @@
       "path": "../../packages/iam/tables"
     },
     {
+      "path": "../../packages/knowledge/tables"
+    },
+    {
       "path": "../../packages/runtime/client"
+    },
+    {
+      "path": "../../packages/calendar/server"
+    },
+    {
+      "path": "../../packages/comms/server"
     },
     {
       "path": "../../packages/customization/server"
@@ -79,6 +118,9 @@
     },
     {
       "path": "../../packages/iam/server"
+    },
+    {
+      "path": "../../packages/knowledge/server"
     },
     {
       "path": "../../packages/shared/client"

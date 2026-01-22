@@ -9,8 +9,8 @@
  */
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import * as Struct from "effect/Struct";
 import type { AssembledEntity } from "../Extraction/GraphAssembler";
-
 // =============================================================================
 // Configuration Types
 // =============================================================================
@@ -34,16 +34,18 @@ export interface CanonicalSelectorConfig {
    * Selection strategy
    * @default "hybrid"
    */
-  readonly strategy?: SelectionStrategy;
+  readonly strategy?: undefined | SelectionStrategy;
 
   /**
    * Weights for hybrid strategy
    */
-  readonly weights?: {
-    readonly confidence?: number;
-    readonly attributeCount?: number;
-    readonly mentionLength?: number;
-  };
+  readonly weights?:
+    | undefined
+    | {
+        readonly confidence?: undefined | number;
+        readonly attributeCount?: undefined | number;
+        readonly mentionLength?: undefined | number;
+      };
 }
 
 // =============================================================================
@@ -62,7 +64,7 @@ const countAttributes = (entity: AssembledEntity): number => {
  */
 const computeHybridScore = (
   entity: AssembledEntity,
-  weights: { confidence: number; attributeCount: number; mentionLength: number }
+  weights: { readonly confidence: number; readonly attributeCount: number; readonly mentionLength: number }
 ): number => {
   const confidenceScore = entity.confidence * weights.confidence;
   const attributeScore = Math.min(countAttributes(entity) / 10, 1) * weights.attributeCount;
@@ -245,8 +247,8 @@ export class CanonicalSelector extends Effect.Service<CanonicalSelector>()("@bee
         };
 
         yield* Effect.logDebug("CanonicalSelector.mergeAttributes: complete", {
-          originalAttributeCount: Object.keys(canonical.attributes).length,
-          mergedAttributeCount: Object.keys(mergedAttributes).length,
+          originalAttributeCount: Struct.keys(canonical.attributes).length,
+          mergedAttributeCount: Struct.keys(mergedAttributes).length,
           originalTypeCount: canonical.types.length,
           mergedTypeCount: merged.types.length,
         });

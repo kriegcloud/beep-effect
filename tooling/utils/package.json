@@ -61,20 +61,20 @@
     "coverage": "bun test --coverage"
   },
   "dependencies": {
+    "@effect/cluster": "catalog:",
     "@effect/platform": "catalog:",
     "@effect/platform-bun": "catalog:",
     "effect": "catalog:",
-    "glob": "catalog:",
-    "@effect/cluster": "catalog:"
+    "glob": "catalog:"
   },
   "devDependencies": {
-    "typescript": "catalog:",
+    "@effect/cluster": "catalog:",
     "@effect/platform": "catalog:",
     "@effect/platform-bun": "catalog:",
+    "@total-typescript/ts-reset": "catalog:",
     "effect": "catalog:",
     "glob": "catalog:",
-    "@effect/cluster": "catalog:",
-    "@total-typescript/ts-reset": "catalog:"
+    "typescript": "catalog:"
   },
   "effect": {
     "generateExports": {

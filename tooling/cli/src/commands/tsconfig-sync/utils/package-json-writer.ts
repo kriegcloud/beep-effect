@@ -238,3 +238,187 @@ export const checkPackageJsonDeps = (
     const diff = computeDependencyDiff(currentDeps, sortedDeps);
     return !diff.hasChanges;
   }).pipe(Effect.withSpan($I`checkPackageJsonDeps`));
+
+// -----------------------------------------------------------------------------
+// All Dependencies API (Records-based)
+// -----------------------------------------------------------------------------
+
+/**
+ * Input for writing all dependency types at once.
+ *
+ * @since 0.1.0
+ * @category models
+ */
+export interface AllPackageJsonDeps {
+  readonly dependencies?: undefined | Record<string, string>;
+  readonly devDependencies?: undefined | Record<string, string>;
+  readonly peerDependencies?: undefined | Record<string, string>;
+}
+
+/**
+ * Result of comparing all dependency types.
+ *
+ * @since 0.1.0
+ * @category models
+ */
+export interface AllDependenciesDiff {
+  readonly hasChanges: boolean;
+  readonly dependencies: DependencyFieldDiff;
+  readonly devDependencies: DependencyFieldDiff;
+  readonly peerDependencies: DependencyFieldDiff;
+}
+
+/**
+ * Diff for a single dependency field.
+ *
+ * @since 0.1.0
+ * @category models
+ */
+export interface DependencyFieldDiff {
+  readonly hasChanges: boolean;
+  readonly reordered: boolean;
+}
+
+/**
+ * Computes diff between current and expected dependency order for a single field.
+ *
+ * @since 0.1.0
+ * @category functions
+ */
+export const computeRecordDiff = (
+  current: Record<string, string>,
+  expected: Record<string, string>
+): DependencyFieldDiff => {
+  const currentKeys = F.pipe(R.keys(current), A.fromIterable);
+  const expectedKeys = F.pipe(R.keys(expected), A.fromIterable);
+
+  // Check if order or content matches
+  const keysMatch =
+    A.length(currentKeys) === A.length(expectedKeys) &&
+    F.pipe(
+      A.zip(currentKeys, expectedKeys),
+      A.every(([c, e]) => c === e)
+    );
+
+  // Also check if values match
+  const valuesMatch = F.pipe(
+    expectedKeys,
+    A.every((key) => {
+      const currentVal = R.get(current, key);
+      const expectedVal = R.get(expected, key);
+      return O.isSome(currentVal) && O.isSome(expectedVal) && currentVal.value === expectedVal.value;
+    })
+  );
+
+  return {
+    hasChanges: !keysMatch || !valuesMatch,
+    reordered: !keysMatch,
+  };
+};
+
+/**
+ * Computes diff between current and expected dependencies for all fields.
+ *
+ * @since 0.1.0
+ * @category functions
+ */
+export const computeAllDependenciesDiff = (
+  current: PackageJsonDeps,
+  expected: AllPackageJsonDeps
+): AllDependenciesDiff => {
+  const depsDiff = computeRecordDiff(current.dependencies ?? {}, expected.dependencies ?? {});
+  const devDepsDiff = computeRecordDiff(current.devDependencies ?? {}, expected.devDependencies ?? {});
+  const peerDepsDiff = computeRecordDiff(current.peerDependencies ?? {}, expected.peerDependencies ?? {});
+
+  return {
+    hasChanges: depsDiff.hasChanges || devDepsDiff.hasChanges || peerDepsDiff.hasChanges,
+    dependencies: depsDiff,
+    devDependencies: devDepsDiff,
+    peerDependencies: peerDepsDiff,
+  };
+};
+
+/**
+ * Writes all sorted dependencies to a package.json file.
+ * Only updates fields that have expected values (non-undefined).
+ *
+ * @param filePath - Absolute path to the package.json file
+ * @param deps - Sorted dependencies for each field (as Records)
+ * @returns Effect that yields true if changes were made
+ *
+ * @example
+ * ```ts
+ * import { writeAllPackageJsonDeps } from "./package-json-writer.js"
+ * import * as Effect from "effect/Effect"
+ *
+ * const program = writeAllPackageJsonDeps("/path/to/package.json", {
+ *   dependencies: { "@beep/schema": "workspace:^", "effect": "catalog:" },
+ *   devDependencies: { "@beep/testkit": "workspace:^" },
+ * })
+ * ```
+ *
+ * @since 0.1.0
+ * @category functions
+ */
+export const writeAllPackageJsonDeps = (
+  filePath: string,
+  deps: AllPackageJsonDeps
+): Effect.Effect<boolean, TsconfigSyncError, FileSystem.FileSystem> =>
+  Effect.gen(function* () {
+    const fs = yield* FileSystem.FileSystem;
+
+    // Read current content
+    const pkg = yield* readPackageJson(filePath);
+
+    // Compute diff
+    const diff = computeAllDependenciesDiff(pkg, deps);
+
+    // Skip if no changes needed
+    if (!diff.hasChanges) {
+      return false;
+    }
+
+    // Build updated package.json preserving field order
+    const updated: Record<string, unknown> = {};
+
+    // Copy fields in order, replacing dependency fields with sorted versions
+    for (const key of Object.keys(pkg)) {
+      if (key === "dependencies" && deps.dependencies !== undefined) {
+        updated[key] = deps.dependencies;
+      } else if (key === "devDependencies" && deps.devDependencies !== undefined) {
+        updated[key] = deps.devDependencies;
+      } else if (key === "peerDependencies" && deps.peerDependencies !== undefined) {
+        updated[key] = deps.peerDependencies;
+      } else {
+        updated[key] = pkg[key];
+      }
+    }
+
+    // Write back with consistent formatting
+    const newContent = `${JSON.stringify(updated, null, 2)}\n`;
+
+    yield* fs
+      .writeFileString(filePath, newContent)
+      .pipe(Effect.mapError((cause) => new TsconfigSyncError({ filePath, operation: "write", cause })));
+
+    return true;
+  }).pipe(Effect.withSpan($I`writeAllPackageJsonDeps`));
+
+/**
+ * Checks if all package.json dependencies match expected order (for check mode).
+ *
+ * @param filePath - Absolute path to the package.json file
+ * @param expected - Expected sorted dependencies for each field
+ * @returns Effect that yields diff info
+ *
+ * @since 0.1.0
+ * @category functions
+ */
+export const checkAllPackageJsonDeps = (
+  filePath: string,
+  expected: AllPackageJsonDeps
+): Effect.Effect<AllDependenciesDiff, TsconfigSyncError, FileSystem.FileSystem> =>
+  Effect.gen(function* () {
+    const pkg = yield* readPackageJson(filePath);
+    return computeAllDependenciesDiff(pkg, expected);
+  }).pipe(Effect.withSpan($I`checkAllPackageJsonDeps`));

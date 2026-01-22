@@ -37,22 +37,18 @@ const makeSameAsLinkExtensions = Effect.gen(function* () {
     canonicalId: KnowledgeEntityIds.KnowledgeEntityId.Type,
     organizationId: SharedEntityIds.OrganizationId.Type
   ): Effect.Effect<ReadonlyArray<Entities.SameAsLink.Model>, DatabaseError> =>
-    Effect.gen(function* () {
-      const results = yield* sql<Entities.SameAsLink.Model>`
+    sql<Entities.SameAsLink.Model>`
         SELECT *
         FROM ${sql(tableName)}
         WHERE canonical_id = ${canonicalId}
-        AND organization_id = ${organizationId}
-      `.pipe(
-        Effect.mapError((error) =>
-          DatabaseError.$match({
-            message: `Failed to find links by canonical: ${String(error)}`,
-            _tag: "DatabaseError",
-          })
-        )
-      );
-      return results;
-    }).pipe(
+          AND organization_id = ${organizationId}
+    `.pipe(
+      Effect.mapError((error) =>
+        DatabaseError.$match({
+          message: `Failed to find links by canonical: ${String(error)}`,
+          _tag: "DatabaseError",
+        })
+      ),
       Effect.withSpan("SameAsLinkRepo.findByCanonical", {
         captureStackTrace: false,
         attributes: { canonicalId, organizationId },
@@ -70,24 +66,19 @@ const makeSameAsLinkExtensions = Effect.gen(function* () {
     memberId: KnowledgeEntityIds.KnowledgeEntityId.Type,
     organizationId: SharedEntityIds.OrganizationId.Type
   ): Effect.Effect<O.Option<Entities.SameAsLink.Model>, DatabaseError> =>
-    Effect.gen(function* () {
-      const result = yield* sql<Entities.SameAsLink.Model>`
+    sql<Entities.SameAsLink.Model>`
         SELECT *
         FROM ${sql(tableName)}
         WHERE member_id = ${memberId}
-        AND organization_id = ${organizationId}
-        LIMIT 1
-      `.pipe(
-        Effect.map(A.head),
-        Effect.mapError((error) =>
-          DatabaseError.$match({
-            message: `Failed to find link by member: ${String(error)}`,
-            _tag: "DatabaseError",
-          })
-        )
-      );
-      return result;
-    }).pipe(
+          AND organization_id = ${organizationId} LIMIT 1
+    `.pipe(
+      Effect.map(A.head),
+      Effect.mapError((error) =>
+        DatabaseError.$match({
+          message: `Failed to find link by member: ${String(error)}`,
+          _tag: "DatabaseError",
+        })
+      ),
       Effect.withSpan("SameAsLinkRepo.findByMember", {
         captureStackTrace: false,
         attributes: { memberId, organizationId },
@@ -108,22 +99,20 @@ const makeSameAsLinkExtensions = Effect.gen(function* () {
     Effect.gen(function* () {
       // Use recursive CTE to follow sameAs chain
       const result = yield* sql<{ canonical_id: string }>`
-        WITH RECURSIVE chain AS (
-          SELECT member_id, canonical_id
-          FROM ${sql(tableName)}
-          WHERE member_id = ${entityId}
-          AND organization_id = ${organizationId}
+          WITH RECURSIVE chain AS (SELECT member_id, canonical_id
+                                   FROM ${sql(tableName)}
+                                   WHERE member_id = ${entityId}
+                                     AND organization_id = ${organizationId}
 
-          UNION
+                                   UNION
 
-          SELECT l.member_id, l.canonical_id
-          FROM ${sql(tableName)} l
-          INNER JOIN chain c ON l.member_id = c.canonical_id
-          WHERE l.organization_id = ${organizationId}
-        )
-        SELECT canonical_id FROM chain
-        ORDER BY canonical_id
-        LIMIT 1
+                                   SELECT l.member_id, l.canonical_id
+                                   FROM ${sql(tableName)} l
+                                            INNER JOIN chain c ON l.member_id = c.canonical_id
+                                   WHERE l.organization_id = ${organizationId})
+          SELECT canonical_id
+          FROM chain
+          ORDER BY canonical_id LIMIT 1
       `.pipe(
         Effect.mapError((error) =>
           DatabaseError.$match({
@@ -159,24 +148,20 @@ const makeSameAsLinkExtensions = Effect.gen(function* () {
     organizationId: SharedEntityIds.OrganizationId.Type,
     limit = 100
   ): Effect.Effect<ReadonlyArray<Entities.SameAsLink.Model>, DatabaseError> =>
-    Effect.gen(function* () {
-      const results = yield* sql<Entities.SameAsLink.Model>`
-        SELECT *
-        FROM ${sql(tableName)}
-        WHERE organization_id = ${organizationId}
-        AND confidence >= ${minConfidence}
-        ORDER BY confidence DESC
-        LIMIT ${limit}
+    sql<Entities.SameAsLink.Model>`
+          SELECT *
+          FROM ${sql(tableName)}
+          WHERE organization_id = ${organizationId}
+            AND confidence >= ${minConfidence}
+          ORDER BY confidence DESC
+              LIMIT ${limit}
       `.pipe(
-        Effect.mapError((error) =>
-          DatabaseError.$match({
-            message: `Failed to find high confidence links: ${String(error)}`,
-            _tag: "DatabaseError",
-          })
-        )
-      );
-      return results;
-    }).pipe(
+      Effect.mapError((error) =>
+        DatabaseError.$match({
+          message: `Failed to find high confidence links: ${String(error)}`,
+          _tag: "DatabaseError",
+        })
+      ),
       Effect.withSpan("SameAsLinkRepo.findHighConfidence", {
         captureStackTrace: false,
         attributes: { minConfidence, organizationId, limit },
@@ -194,22 +179,18 @@ const makeSameAsLinkExtensions = Effect.gen(function* () {
     sourceId: string,
     organizationId: SharedEntityIds.OrganizationId.Type
   ): Effect.Effect<ReadonlyArray<Entities.SameAsLink.Model>, DatabaseError> =>
-    Effect.gen(function* () {
-      const results = yield* sql<Entities.SameAsLink.Model>`
-        SELECT *
-        FROM ${sql(tableName)}
-        WHERE organization_id = ${organizationId}
-        AND source_id = ${sourceId}
+    sql<Entities.SameAsLink.Model>`
+          SELECT *
+          FROM ${sql(tableName)}
+          WHERE organization_id = ${organizationId}
+            AND source_id = ${sourceId}
       `.pipe(
-        Effect.mapError((error) =>
-          DatabaseError.$match({
-            message: `Failed to find links by source: ${String(error)}`,
-            _tag: "DatabaseError",
-          })
-        )
-      );
-      return results;
-    }).pipe(
+      Effect.mapError((error) =>
+        DatabaseError.$match({
+          message: `Failed to find links by source: ${String(error)}`,
+          _tag: "DatabaseError",
+        })
+      ),
       Effect.withSpan("SameAsLinkRepo.findBySource", {
         captureStackTrace: false,
         attributes: { sourceId, organizationId },
@@ -229,9 +210,10 @@ const makeSameAsLinkExtensions = Effect.gen(function* () {
   ): Effect.Effect<number, DatabaseError> =>
     Effect.gen(function* () {
       const result = yield* sql`
-        DELETE FROM ${sql(tableName)}
-        WHERE organization_id = ${organizationId}
-        AND canonical_id = ${canonicalId}
+          DELETE
+          FROM ${sql(tableName)}
+          WHERE organization_id = ${organizationId}
+            AND canonical_id = ${canonicalId}
       `.pipe(
         Effect.mapError((error) =>
           DatabaseError.$match({
@@ -261,10 +243,10 @@ const makeSameAsLinkExtensions = Effect.gen(function* () {
   ): Effect.Effect<number, DatabaseError> =>
     Effect.gen(function* () {
       const result = yield* sql<{ count: number }>`
-        SELECT COUNT(*) as count
-        FROM ${sql(tableName)}
-        WHERE organization_id = ${organizationId}
-        AND canonical_id = ${canonicalId}
+          SELECT COUNT(*) as count
+          FROM ${sql(tableName)}
+          WHERE organization_id = ${organizationId}
+            AND canonical_id = ${canonicalId}
       `.pipe(
         Effect.mapError((error) =>
           DatabaseError.$match({

@@ -6,10 +6,13 @@
  * @module knowledge-server/Extraction/GraphAssembler
  * @since 0.1.0
  */
+
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import * as R from "effect/Record";
+import * as Str from "effect/String";
 import type { ClassifiedEntity } from "./schemas/entity-output.schema";
 import type { ExtractedTriple } from "./schemas/relation-output.schema";
-
 /**
  * Assembled entity with generated ID
  *
@@ -78,17 +81,17 @@ export interface AssembledRelation {
   /**
    * Object entity ID (for object properties)
    */
-  readonly objectId?: string;
+  readonly objectId?: undefined | string;
 
   /**
    * Literal value (for datatype properties)
    */
-  readonly literalValue?: string;
+  readonly literalValue?: undefined | string;
 
   /**
    * Literal type (XSD datatype or language tag)
    */
-  readonly literalType?: string;
+  readonly literalType?: undefined | string;
 
   /**
    * Extraction confidence
@@ -98,17 +101,17 @@ export interface AssembledRelation {
   /**
    * Evidence text
    */
-  readonly evidence?: string;
+  readonly evidence?: undefined | string;
 
   /**
    * Evidence start character offset
    */
-  readonly evidenceStartChar?: number;
+  readonly evidenceStartChar?: undefined | number;
 
   /**
    * Evidence end character offset
    */
-  readonly evidenceEndChar?: number;
+  readonly evidenceEndChar?: undefined | number;
 }
 
 /**
@@ -164,7 +167,7 @@ export interface GraphAssemblyConfig {
   /**
    * Whether to merge entities with same canonical name
    */
-  readonly mergeEntities?: boolean;
+  readonly mergeEntities?: undefined | boolean;
 }
 
 /**
@@ -214,7 +217,7 @@ export class GraphAssembler extends Effect.Service<GraphAssembler>()("@beep/know
 
       // Generate IDs and create entity index
       const entityIndex = new Map<string, string>();
-      const assembledEntities: AssembledEntity[] = [];
+      const assembledEntities = A.empty<AssembledEntity>();
 
       for (const entity of entities) {
         const key = (entity.canonicalName ?? entity.mention).toLowerCase();
@@ -249,12 +252,12 @@ export class GraphAssembler extends Effect.Service<GraphAssembler>()("@beep/know
       }
 
       // Assemble relations with entity ID lookups
-      const assembledRelations: AssembledRelation[] = [];
+      const assembledRelations = A.empty<AssembledRelation>();
       let unresolvedSubjects = 0;
       let unresolvedObjects = 0;
 
       for (const triple of relations) {
-        const subjectKey = triple.subjectMention.toLowerCase();
+        const subjectKey = Str.toLowerCase(triple.subjectMention);
         const subjectId = entityIndex.get(subjectKey);
 
         if (!subjectId) {
@@ -270,7 +273,7 @@ export class GraphAssembler extends Effect.Service<GraphAssembler>()("@beep/know
 
         if (triple.objectMention) {
           // Object property
-          const objectKey = triple.objectMention.toLowerCase();
+          const objectKey = Str.toLowerCase(triple.objectMention);
           const objectId = entityIndex.get(objectKey);
 
           if (!objectId) {
@@ -312,7 +315,7 @@ export class GraphAssembler extends Effect.Service<GraphAssembler>()("@beep/know
       }
 
       // Convert entity index to record
-      const entityIndexRecord: Record<string, string> = {};
+      const entityIndexRecord = R.empty<string, string>();
       for (const [key, value] of entityIndex) {
         entityIndexRecord[key] = value;
       }
@@ -385,7 +388,7 @@ export class GraphAssembler extends Effect.Service<GraphAssembler>()("@beep/know
 
         // Collect relations, updating IDs
         const relationSet = new Set<string>();
-        const relations: AssembledRelation[] = [];
+        const relations = A.empty<AssembledRelation>();
 
         for (const graph of graphs) {
           for (const relation of graph.relations) {
@@ -410,7 +413,7 @@ export class GraphAssembler extends Effect.Service<GraphAssembler>()("@beep/know
         }
 
         const entities = Array.from(entityIndex.values());
-        const entityIndexRecord: Record<string, string> = {};
+        const entityIndexRecord = R.empty<string, string>();
         for (const [key, entity] of entityIndex) {
           entityIndexRecord[key] = entity.id;
         }

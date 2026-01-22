@@ -25,7 +25,7 @@ const SENTENCE_END_PATTERN = /(?<=[.!?])\s+(?=[A-Z])|(?<=[.!?])$/g;
  */
 const splitIntoSentences = (text: string): readonly string[] => {
   // Simple sentence splitting - preserves original text exactly
-  const parts: string[] = [];
+  const parts = A.empty<string>();
   let lastEnd = 0;
   const matches = text.matchAll(SENTENCE_END_PATTERN);
 
@@ -54,8 +54,8 @@ const createChunksFromSentences = (
   config: ChunkingConfig,
   documentOffset: number
 ): readonly TextChunk[] => {
-  const chunks: TextChunk[] = [];
-  let currentChunkSentences: string[] = [];
+  const chunks = A.empty<TextChunk>();
+  let currentChunkSentences = A.empty<string>();
   let currentChunkStart = documentOffset;
   let chunkIndex = 0;
   let currentCharPos = documentOffset;
@@ -63,7 +63,7 @@ const createChunksFromSentences = (
   const flushChunk = () => {
     if (currentChunkSentences.length === 0) return;
 
-    const text = currentChunkSentences.join("");
+    const text = A.join("")(currentChunkSentences);
     const chunk = new TextChunk({
       index: chunkIndex,
       text,
@@ -76,7 +76,7 @@ const createChunksFromSentences = (
     // Handle overlap: keep last N sentences for next chunk
     if (config.overlapSentences > 0 && currentChunkSentences.length > config.overlapSentences) {
       const overlapSentences = A.takeRight(currentChunkSentences, config.overlapSentences);
-      const overlapText = overlapSentences.join("");
+      const overlapText = A.join("")(overlapSentences);
       currentChunkStart = currentChunkStart + text.length - overlapText.length;
       currentChunkSentences = [...overlapSentences];
     } else {
@@ -86,7 +86,7 @@ const createChunksFromSentences = (
   };
 
   for (const sentence of sentences) {
-    const currentLength = currentChunkSentences.join("").length;
+    const currentLength = A.join("")(currentChunkSentences).length;
 
     // If adding this sentence would exceed max size, flush current chunk
     if (currentLength + sentence.length > config.maxChunkSize && currentChunkSentences.length > 0) {
@@ -99,7 +99,7 @@ const createChunksFromSentences = (
 
   // Flush remaining sentences
   if (currentChunkSentences.length > 0) {
-    const text = currentChunkSentences.join("");
+    const text = A.join("")(currentChunkSentences);
     const prevChunk = chunks[chunks.length - 1];
     // Check if final chunk is too small and should merge with previous
     if (text.length < (config.minChunkSize ?? 100) && prevChunk !== undefined) {
@@ -124,7 +124,7 @@ const createChunksFromSentences = (
  * @internal
  */
 const createRawChunks = (text: string, config: ChunkingConfig): readonly TextChunk[] => {
-  const chunks: TextChunk[] = [];
+  const chunks = A.empty<TextChunk>();
   let offset = 0;
   let index = 0;
 

@@ -39,8 +39,8 @@
     "docgen": "bunx docgen"
   },
   "peerDependencies": {
-    "effect": "catalog:",
-    "@effect/experimental": "catalog:"
+    "@effect/experimental": "catalog:",
+    "effect": "catalog:"
   },
   "devDependencies": {
     "@effect/build-utils": "catalog:",

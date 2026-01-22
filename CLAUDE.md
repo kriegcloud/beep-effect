@@ -39,6 +39,7 @@ Configuration and guardrails for AI collaborators working in the `beep-effect` m
 | **Test**     | `bun run test`                                                   |
 | **DB**       | `bun run db:generate` / `bun run db:migrate` / `bun run db:push` |
 | **Services** | `bun run services:up`                                            |
+| **Sync**     | `bun run repo-cli tsconfig-sync`                                 |
 
 ## Project Overview
 

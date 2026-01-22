@@ -8,11 +8,14 @@
  * @since 0.1.0
  */
 import { OntologyParseError } from "@beep/knowledge-domain/errors";
+import { thunkEmptyStr } from "@beep/utils";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
+import * as R from "effect/Record";
+import * as Str from "effect/String";
 import * as N3 from "n3";
 import { extractLocalName, OWL, RDF, RDFS, SKOS } from "./constants";
-
 /**
  * Parsed class definition (pre-database)
  *
@@ -127,7 +130,7 @@ export class OntologyParser extends Effect.Service<OntologyParser>()("@beep/know
       for (const quad of store.match(null, N3.DataFactory.namedNode(predicate), null)) {
         const subject = quad.subject.value;
         // Skip blank nodes
-        if (subject.startsWith("_:")) continue;
+        if (Str.startsWith("_:")(subject)) continue;
 
         const value = quad.object.termType === "Literal" ? quad.object.value : quad.object.value;
 
@@ -183,13 +186,13 @@ export class OntologyParser extends Effect.Service<OntologyParser>()("@beep/know
       // Find all OWL classes
       const classIris = new Set<string>();
       for (const quad of store.match(null, N3.DataFactory.namedNode(RDF.type), N3.DataFactory.namedNode(OWL.Class))) {
-        if (!quad.subject.value.startsWith("_:")) {
+        if (!Str.startsWith("_:")(quad.subject.value)) {
           classIris.add(quad.subject.value);
         }
       }
       // Also check rdfs:Class
       for (const quad of store.match(null, N3.DataFactory.namedNode(RDF.type), N3.DataFactory.namedNode(RDFS.Class))) {
-        if (!quad.subject.value.startsWith("_:")) {
+        if (!Str.startsWith("_:")(quad.subject.value)) {
           classIris.add(quad.subject.value);
         }
       }
@@ -204,7 +207,7 @@ export class OntologyParser extends Effect.Service<OntologyParser>()("@beep/know
         N3.DataFactory.namedNode(RDF.type),
         N3.DataFactory.namedNode(OWL.ObjectProperty)
       )) {
-        if (!quad.subject.value.startsWith("_:")) {
+        if (!Str.startsWith("_:")(quad.subject.value)) {
           objectPropertyIris.add(quad.subject.value);
         }
       }
@@ -214,7 +217,7 @@ export class OntologyParser extends Effect.Service<OntologyParser>()("@beep/know
         N3.DataFactory.namedNode(RDF.type),
         N3.DataFactory.namedNode(OWL.DatatypeProperty)
       )) {
-        if (!quad.subject.value.startsWith("_:")) {
+        if (!Str.startsWith("_:")(quad.subject.value)) {
           datatypePropertyIris.add(quad.subject.value);
         }
       }
@@ -224,7 +227,7 @@ export class OntologyParser extends Effect.Service<OntologyParser>()("@beep/know
         N3.DataFactory.namedNode(RDF.type),
         N3.DataFactory.namedNode(OWL.FunctionalProperty)
       )) {
-        if (!quad.subject.value.startsWith("_:")) {
+        if (!Str.startsWith("_:")(quad.subject.value)) {
           functionalPropertyIris.add(quad.subject.value);
         }
       }
@@ -242,23 +245,23 @@ export class OntologyParser extends Effect.Service<OntologyParser>()("@beep/know
       }
 
       // Build class hierarchy
-      const classHierarchy: Record<string, ReadonlyArray<string>> = {};
+      const classHierarchy = R.empty<string, ReadonlyArray<string>>();
       for (const [childIri, parentIris] of subClassOf.entries()) {
         classHierarchy[childIri] = parentIris;
       }
 
       // Build property hierarchy
-      const propertyHierarchy: Record<string, ReadonlyArray<string>> = {};
+      const propertyHierarchy = R.empty<string, ReadonlyArray<string>>();
       for (const [childIri, parentIris] of subPropertyOf.entries()) {
         propertyHierarchy[childIri] = parentIris;
       }
 
       // Build class definitions
-      const classes: ParsedClassDefinition[] = [];
+      const classes = A.empty<ParsedClassDefinition>();
       for (const iri of classIris) {
         // Must have a label or prefLabel to be included
         const label = getFirstValue(labels, iri).pipe(
-          O.getOrElse(() => getFirstValue(prefLabels, iri).pipe(O.getOrElse(() => "")))
+          O.getOrElse(() => getFirstValue(prefLabels, iri).pipe(O.getOrElse(thunkEmptyStr)))
         );
 
         if (label) {
@@ -285,10 +288,10 @@ export class OntologyParser extends Effect.Service<OntologyParser>()("@beep/know
       }
 
       // Build property definitions
-      const properties: ParsedPropertyDefinition[] = [];
+      const properties = A.empty<ParsedPropertyDefinition>();
       for (const iri of objectPropertyIris) {
         const label = getFirstValue(labels, iri).pipe(
-          O.getOrElse(() => getFirstValue(prefLabels, iri).pipe(O.getOrElse(() => "")))
+          O.getOrElse(() => getFirstValue(prefLabels, iri).pipe(O.getOrElse(thunkEmptyStr)))
         );
 
         if (label) {
@@ -322,7 +325,7 @@ export class OntologyParser extends Effect.Service<OntologyParser>()("@beep/know
         if (objectPropertyIris.has(iri)) continue;
 
         const label = getFirstValue(labels, iri).pipe(
-          O.getOrElse(() => getFirstValue(prefLabels, iri).pipe(O.getOrElse(() => "")))
+          O.getOrElse(() => getFirstValue(prefLabels, iri).pipe(O.getOrElse(thunkEmptyStr)))
         );
 
         if (label) {
@@ -372,7 +375,7 @@ export class OntologyParser extends Effect.Service<OntologyParser>()("@beep/know
        * console.log(ontology.classes.length);
        * ```
        */
-      parse: Effect.fn((content: string) => parseTurtle(content).pipe(Effect.map((store) => parseFromStore(store)))),
+      parse: Effect.fn((content: string) => parseTurtle(content).pipe(Effect.map(parseFromStore))),
 
       /**
        * Parse Turtle content and merge with additional vocabulary content

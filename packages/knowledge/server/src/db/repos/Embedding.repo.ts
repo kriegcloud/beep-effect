@@ -52,24 +52,19 @@ const makeEmbeddingExtensions = Effect.gen(function* () {
     cacheKey: string,
     organizationId: SharedEntityIds.OrganizationId.Type
   ): Effect.Effect<O.Option<Entities.Embedding.Model>, DatabaseError> =>
-    Effect.gen(function* () {
-      const result = yield* sql<Entities.Embedding.Model>`
+    sql<Entities.Embedding.Model>`
         SELECT *
         FROM ${sql(tableName)}
         WHERE entity_id = ${cacheKey}
-        AND organization_id = ${organizationId}
-        LIMIT 1
-      `.pipe(
-        Effect.map(A.head),
-        Effect.mapError((error) =>
-          DatabaseError.$match({
-            message: `Failed to find embedding by cache key: ${String(error)}`,
-            _tag: "DatabaseError",
-          })
-        )
-      );
-      return result;
-    }).pipe(
+          AND organization_id = ${organizationId} LIMIT 1
+    `.pipe(
+      Effect.map(A.head),
+      Effect.mapError((error) =>
+        DatabaseError.$match({
+          message: `Failed to find embedding by cache key: ${String(error)}`,
+          _tag: "DatabaseError",
+        })
+      ),
       Effect.withSpan("EmbeddingRepo.findByCacheKey", {
         captureStackTrace: false,
         attributes: { cacheKey, organizationId },
@@ -102,17 +97,16 @@ const makeEmbeddingExtensions = Effect.gen(function* () {
         content_text: string | null;
         similarity: number;
       }>`
-        SELECT
-          id,
-          entity_type,
-          entity_id,
-          content_text,
-          1 - (embedding <=> ${vectorString}::vector) as similarity
-        FROM ${sql(tableName)}
-        WHERE organization_id = ${organizationId}
-        AND 1 - (embedding <=> ${vectorString}::vector) >= ${threshold}
-        ORDER BY embedding <=> ${vectorString}::vector
-        LIMIT ${limit}
+          SELECT id,
+                 entity_type,
+                 entity_id,
+                 content_text,
+                 1 - (embedding <=> ${vectorString}::vector) as similarity
+          FROM ${sql(tableName)}
+          WHERE organization_id = ${organizationId}
+            AND 1 - (embedding <=> ${vectorString}::vector) >= ${threshold}
+          ORDER BY embedding <=> ${vectorString}::vector
+              LIMIT ${limit}
       `.pipe(
         Effect.mapError((error) =>
           DatabaseError.$match({
@@ -150,23 +144,18 @@ const makeEmbeddingExtensions = Effect.gen(function* () {
     organizationId: SharedEntityIds.OrganizationId.Type,
     limit = 100
   ): Effect.Effect<ReadonlyArray<Entities.Embedding.Model>, DatabaseError> =>
-    Effect.gen(function* () {
-      const results = yield* sql<Entities.Embedding.Model>`
-        SELECT *
-        FROM ${sql(tableName)}
-        WHERE organization_id = ${organizationId}
-        AND entity_type = ${entityType}
-        LIMIT ${limit}
+    sql<Entities.Embedding.Model>`
+          SELECT *
+          FROM ${sql(tableName)}
+          WHERE organization_id = ${organizationId}
+            AND entity_type = ${entityType} LIMIT ${limit}
       `.pipe(
-        Effect.mapError((error) =>
-          DatabaseError.$match({
-            message: `Failed to find embeddings by type: ${String(error)}`,
-            _tag: "DatabaseError",
-          })
-        )
-      );
-      return results;
-    }).pipe(
+      Effect.mapError((error) =>
+        DatabaseError.$match({
+          message: `Failed to find embeddings by type: ${String(error)}`,
+          _tag: "DatabaseError",
+        })
+      ),
       Effect.withSpan("EmbeddingRepo.findByEntityType", {
         captureStackTrace: false,
         attributes: { entityType, organizationId, limit },
@@ -189,9 +178,10 @@ const makeEmbeddingExtensions = Effect.gen(function* () {
   ): Effect.Effect<number, DatabaseError> =>
     Effect.gen(function* () {
       const result = yield* sql`
-        DELETE FROM ${sql(tableName)}
-        WHERE organization_id = ${organizationId}
-        AND entity_id LIKE ${`${entityIdPrefix}%`}
+          DELETE
+          FROM ${sql(tableName)}
+          WHERE organization_id = ${organizationId}
+            AND entity_id LIKE ${`${entityIdPrefix}%`}
       `.pipe(
         Effect.mapError((error) =>
           DatabaseError.$match({

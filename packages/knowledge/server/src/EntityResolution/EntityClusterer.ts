@@ -28,19 +28,19 @@ export interface ClusterConfig {
    * Minimum similarity to consider entities as potential matches
    * @default 0.85
    */
-  readonly similarityThreshold?: number;
+  readonly similarityThreshold?: undefined | number;
 
   /**
    * Maximum cluster size before splitting
    * @default 50
    */
-  readonly maxClusterSize?: number;
+  readonly maxClusterSize?: undefined | number;
 
   /**
    * Whether to use type compatibility as constraint
    * @default true
    */
-  readonly requireTypeCompatibility?: boolean;
+  readonly requireTypeCompatibility?: undefined | boolean;
 }
 
 // =============================================================================
@@ -219,7 +219,7 @@ export class EntityClusterer extends Effect.Service<EntityClusterer>()("@beep/kn
       threshold: number,
       requireTypeCompatibility: boolean
     ): readonly EntitySimilarity[] => {
-      const similarities: EntitySimilarity[] = [];
+      const similarities = A.empty<EntitySimilarity>();
 
       for (let i = 0; i < entities.length; i++) {
         const entityA = entities[i];
@@ -505,7 +505,7 @@ export class EntityClusterer extends Effect.Service<EntityClusterer>()("@beep/kn
             ontologyId
           );
 
-          const results: { entity: AssembledEntity; similarity: number }[] = [];
+          const results = A.empty<{ readonly entity: AssembledEntity; readonly similarity: number }>();
 
           for (const candidate of candidateEntities) {
             if (candidate.id === queryEntity.id) continue;

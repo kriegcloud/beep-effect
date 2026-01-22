@@ -102,6 +102,9 @@
       "@beep/documents-tables/*": ["../../packages/documents/tables/src/*"],
       "@beep/documents-ui": ["../../packages/documents/ui/src/index"],
       "@beep/documents-ui/*": ["../../packages/documents/ui/src/*"],
+      "@beep/errors/client": ["../../packages/common/errors/src/client"],
+      "@beep/errors/server": ["../../packages/common/errors/src/server"],
+      "@beep/errors/shared": ["../../packages/common/errors/src/shared"],
       "@beep/iam-client": ["../../packages/iam/client/src/index"],
       "@beep/iam-client/*": ["../../packages/iam/client/src/*"],
       "@beep/iam-domain": ["../../packages/iam/domain/src/index"],
@@ -116,6 +119,16 @@
       "@beep/identity/*": ["../../packages/common/identity/src/*"],
       "@beep/invariant": ["../../packages/common/invariant/src/index"],
       "@beep/invariant/*": ["../../packages/common/invariant/src/*"],
+      "@beep/knowledge-client": ["../../packages/knowledge/client/src/index"],
+      "@beep/knowledge-client/*": ["../../packages/knowledge/client/src/*"],
+      "@beep/knowledge-domain": ["../../packages/knowledge/domain/src/index"],
+      "@beep/knowledge-domain/*": ["../../packages/knowledge/domain/src/*"],
+      "@beep/knowledge-server": ["../../packages/knowledge/server/src/index"],
+      "@beep/knowledge-server/*": ["../../packages/knowledge/server/src/*"],
+      "@beep/knowledge-tables": ["../../packages/knowledge/tables/src/index"],
+      "@beep/knowledge-tables/*": ["../../packages/knowledge/tables/src/*"],
+      "@beep/knowledge-ui": ["../../packages/knowledge/ui/src/index"],
+      "@beep/knowledge-ui/*": ["../../packages/knowledge/ui/src/*"],
       "@beep/runtime-client": ["../../packages/runtime/client/src/index"],
       "@beep/runtime-client/*": ["../../packages/runtime/client/src/*"],
       "@beep/runtime-server": ["../../packages/runtime/server/src/index"],
@@ -132,19 +145,17 @@
       "@beep/shared-server/*": ["../../packages/shared/server/src/*"],
       "@beep/shared-tables": ["../../packages/shared/tables/src/index"],
       "@beep/shared-tables/*": ["../../packages/shared/tables/src/*"],
+      "@beep/testkit": ["../../tooling/testkit/src/index"],
+      "@beep/testkit/*": ["../../tooling/testkit/src/*"],
+      "@beep/todox/*": ["./src/*"],
       "@beep/types": ["../../packages/common/types/src/index"],
       "@beep/types/*": ["../../packages/common/types/src/*"],
-      "@beep/knowledge-domain": ["../../packages/knowledge/domain/src/index"],
-      "@beep/knowledge-domain/*": ["../../packages/knowledge/domain/src/*"],
-      "@beep/knowledge-server": ["../../packages/knowledge/server/src/index"],
-      "@beep/knowledge-server/*": ["../../packages/knowledge/server/src/*"],
-      "@beep/knowledge-tables": ["../../packages/knowledge/tables/src/index"],
-      "@beep/knowledge-tables/*": ["../../packages/knowledge/tables/src/*"],
-      "@beep/todox/*": ["./src/*"],
       "@beep/ui-core/*": ["../../packages/ui/core/src/*"],
       "@beep/ui/*": ["../../packages/ui/ui/src/*"],
       "@beep/utils": ["../../packages/common/utils/src/index"],
-      "@beep/utils/*": ["../../packages/common/utils/src/*"]
+      "@beep/utils/*": ["../../packages/common/utils/src/*"],
+      "@beep/wrap": ["../../packages/common/wrap/src/index"],
+      "@beep/wrap/*": ["../../packages/common/wrap/src/*"]
     }
   },
   "include": [
@@ -174,6 +185,9 @@
       "path": "../../packages/common/constants/tsconfig.build.json"
     },
     {
+      "path": "../../packages/common/errors/tsconfig.build.json"
+    },
+    {
       "path": "../../packages/common/identity/tsconfig.build.json"
     },
     {
@@ -183,10 +197,13 @@
       "path": "../../packages/common/schema/tsconfig.build.json"
     },
     {
+      "path": "../../packages/common/types/tsconfig.build.json"
+    },
+    {
       "path": "../../packages/common/utils/tsconfig.build.json"
     },
     {
-      "path": "../../packages/common/types/tsconfig.build.json"
+      "path": "../../packages/common/wrap/tsconfig.build.json"
     },
     {
       "path": "../../packages/comms/client/tsconfig.build.json"
@@ -249,6 +266,21 @@
       "path": "../../packages/iam/ui/tsconfig.build.json"
     },
     {
+      "path": "../../packages/knowledge/client/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/knowledge/domain/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/knowledge/server/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/knowledge/tables/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/knowledge/ui/tsconfig.build.json"
+    },
+    {
       "path": "../../packages/runtime/client/tsconfig.build.json"
     },
     {
@@ -270,19 +302,13 @@
       "path": "../../packages/shared/tables/tsconfig.build.json"
     },
     {
-      "path": "../../packages/knowledge/domain/tsconfig.build.json"
-    },
-    {
-      "path": "../../packages/knowledge/server/tsconfig.build.json"
-    },
-    {
-      "path": "../../packages/knowledge/tables/tsconfig.build.json"
-    },
-    {
       "path": "../../packages/ui/core/tsconfig.build.json"
     },
     {
       "path": "../../packages/ui/ui/tsconfig.build.json"
+    },
+    {
+      "path": "../../tooling/testkit/tsconfig.build.json"
     }
   ],
   "exclude": ["node_modules"]

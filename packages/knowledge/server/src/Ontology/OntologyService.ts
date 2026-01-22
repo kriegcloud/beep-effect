@@ -11,8 +11,10 @@ import { Entities } from "@beep/knowledge-domain";
 import { KnowledgeEntityIds, type SharedEntityIds } from "@beep/shared-domain";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import * as F from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
+import * as Str from "effect/String";
 import { OntologyCache } from "./OntologyCache";
 import {
   OntologyParser,
@@ -124,7 +126,7 @@ const createOntologyContext = (parsed: ParsedOntology): OntologyContext => {
 
       // Include properties from ancestor classes
       const ancestors = getAncestorsSet(classIri);
-      const inheritedProps: ParsedPropertyDefinition[] = [];
+      const inheritedProps = A.empty<ParsedPropertyDefinition>();
       for (const ancestorIri of ancestors) {
         const ancestorProps = classPropertiesMap.get(ancestorIri) ?? [];
         inheritedProps.push(...ancestorProps);
@@ -268,19 +270,19 @@ export class OntologyService extends Effect.Service<OntologyService>()("@beep/kn
             label: parsed.label,
             localName: O.some(parsed.localName),
             comment: parsed.comment,
-            properties: O.some(parsed.properties as string[]),
-            prefLabels: O.some(parsed.prefLabels as string[]),
-            altLabels: O.some(parsed.altLabels as string[]),
-            hiddenLabels: O.some(parsed.hiddenLabels as string[]),
+            properties: O.some(parsed.properties),
+            prefLabels: O.some(parsed.prefLabels),
+            altLabels: O.some(parsed.altLabels),
+            hiddenLabels: O.some(parsed.hiddenLabels),
             definition: parsed.definition,
             scopeNote: parsed.scopeNote,
             example: parsed.example,
-            broader: O.some(parsed.broader as string[]),
-            narrower: O.some(parsed.narrower as string[]),
-            related: O.some(parsed.related as string[]),
-            equivalentClass: O.some(parsed.equivalentClass as string[]),
-            exactMatch: O.some(parsed.exactMatch as string[]),
-            closeMatch: O.some(parsed.closeMatch as string[]),
+            broader: O.some(parsed.broader),
+            narrower: O.some(parsed.narrower),
+            related: O.some(parsed.related),
+            equivalentClass: O.some(parsed.equivalentClass),
+            exactMatch: O.some(parsed.exactMatch),
+            closeMatch: O.some(parsed.closeMatch),
           });
         }),
 
@@ -310,22 +312,22 @@ export class OntologyService extends Effect.Service<OntologyService>()("@beep/kn
             label: parsed.label,
             localName: O.some(parsed.localName),
             comment: parsed.comment,
-            domain: O.some(parsed.domain as string[]),
-            range: O.some(parsed.range as string[]),
+            domain: O.some(parsed.domain),
+            range: O.some(parsed.range),
             rangeType: parsed.rangeType,
             isFunctional: parsed.isFunctional,
-            inverseOf: O.some(parsed.inverseOf as string[]),
-            prefLabels: O.some(parsed.prefLabels as string[]),
-            altLabels: O.some(parsed.altLabels as string[]),
-            hiddenLabels: O.some(parsed.hiddenLabels as string[]),
+            inverseOf: O.some(parsed.inverseOf),
+            prefLabels: O.some(parsed.prefLabels),
+            altLabels: O.some(parsed.altLabels),
+            hiddenLabels: O.some(parsed.hiddenLabels),
             definition: parsed.definition,
             scopeNote: parsed.scopeNote,
             example: parsed.example,
-            broader: O.some(parsed.broader as string[]),
-            narrower: O.some(parsed.narrower as string[]),
-            related: O.some(parsed.related as string[]),
-            exactMatch: O.some(parsed.exactMatch as string[]),
-            closeMatch: O.some(parsed.closeMatch as string[]),
+            broader: O.some(parsed.broader),
+            narrower: O.some(parsed.narrower),
+            related: O.some(parsed.related),
+            exactMatch: O.some(parsed.exactMatch),
+            closeMatch: O.some(parsed.closeMatch),
           });
         }),
 
@@ -339,15 +341,14 @@ export class OntologyService extends Effect.Service<OntologyService>()("@beep/kn
        */
       searchClasses: (context: OntologyContext, query: string, limit = 10) =>
         Effect.sync(() => {
-          const lowerQuery = query.toLowerCase();
+          const lowerQuery = Str.toLowerCase(query);
 
           return A.take(
             A.filter(context.classes, (cls) => {
               // Search in label, prefLabels, altLabels
-              if (cls.label.toLowerCase().includes(lowerQuery)) return true;
-              if (A.some(cls.prefLabels, (l) => l.toLowerCase().includes(lowerQuery))) return true;
-              if (A.some(cls.altLabels, (l) => l.toLowerCase().includes(lowerQuery))) return true;
-              return false;
+              if (F.pipe(cls.label, Str.toLowerCase, Str.includes(lowerQuery))) return true;
+              if (A.some(cls.prefLabels, (l) => F.pipe(l, Str.toLowerCase, Str.includes(lowerQuery)))) return true;
+              return !!A.some(cls.altLabels, (l) => F.pipe(l, Str.toLowerCase, Str.includes(lowerQuery)));
             }),
             limit
           );
@@ -368,10 +369,9 @@ export class OntologyService extends Effect.Service<OntologyService>()("@beep/kn
           return A.take(
             A.filter(context.properties, (prop) => {
               // Search in label, prefLabels, altLabels
-              if (prop.label.toLowerCase().includes(lowerQuery)) return true;
-              if (A.some(prop.prefLabels, (l) => l.toLowerCase().includes(lowerQuery))) return true;
-              if (A.some(prop.altLabels, (l) => l.toLowerCase().includes(lowerQuery))) return true;
-              return false;
+              if (F.pipe(prop.label, Str.toLowerCase, Str.includes(lowerQuery))) return true;
+              if (A.some(prop.prefLabels, (l) => F.pipe(l, Str.toLowerCase, Str.includes(lowerQuery)))) return true;
+              return !!A.some(prop.altLabels, (l) => F.pipe(l, Str.toLowerCase, Str.includes(lowerQuery)));
             }),
             limit
           );

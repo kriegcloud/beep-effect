@@ -3,6 +3,20 @@
 **From**: P0 (Next.js Transitive Fix)
 **To**: P1 Implementation
 **Date**: 2026-01-22
+**Status**: ✅ COMPLETED (2026-01-22)
+
+## Completion Summary
+
+P1 implementation is complete:
+- ✅ `void mergeSortedDeps(...)` replaced with actual package.json sync logic
+- ✅ `--check` mode detects unsorted package.json dependencies
+- ✅ `--dry-run` mode shows what would change in package.json
+- ✅ Sync mode writes sorted dependencies to package.json
+- ✅ Version specifiers enforced (`workspace:^` for @beep/* packages)
+- ✅ All 433 existing tests pass
+- ✅ tsconfig sync behavior unchanged
+
+**Note**: Build failures for @beep/web and @beep/todox are pre-existing (missing `OntologyParseError` export), unrelated to P1 changes.
 
 ---
 
@@ -155,7 +169,7 @@ if (syncMode === "check") {
   // Report what would change
   const diff = computeDependencyDiff(currentPkgJson.dependencies ?? {}, mergedDeps);
   if (diff.hasChanges) {
-    yield* Console.log(color.yellow(`  ${pkg} package.json: would reorder ${Object.keys(mergedDeps).length} dependencies`));
+    yield* Console.log(color.yellow(`  ${pkg} package.json: would reorder ${Struct.keys(mergedDeps).length} dependencies`));
   }
 } else {
   // Sync mode - write changes

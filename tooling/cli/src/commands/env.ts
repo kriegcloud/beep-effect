@@ -53,7 +53,7 @@ const manualKeys = [
   "OAUTH_PROVIDER_MICROSOFT_CLIENT_SECRET",
 ] as const;
 const emptyEnvMap: EnvMap = HashMap.empty<EnvironmentVariableName.Type, string>();
-
+const thunkEmptyStr = () => "";
 const formatKey = (key: EnvironmentVariableName.Type): string => color.yellow(key);
 
 const formatMessage = (prefix: string, key: EnvironmentVariableName.Type): string =>
@@ -81,7 +81,7 @@ const getValueWithFallback = (primary: EnvMap, fallback: EnvMap, key: Environmen
     primary,
     HashMap.get(key),
     O.orElse(() => F.pipe(fallback, HashMap.get(key))),
-    O.getOrElse(() => "")
+    O.getOrElse(thunkEmptyStr)
   );
 
 const runValuePrompt = (
@@ -169,11 +169,7 @@ const logMissingSummary = (keys: ReadonlyArray<EnvironmentVariableName.Type>, re
     yield* Effect.forEach(
       keys,
       (key) => {
-        const preview = F.pipe(
-          reference,
-          HashMap.get(key),
-          O.getOrElse(() => "")
-        );
+        const preview = F.pipe(reference, HashMap.get(key), O.getOrElse(thunkEmptyStr));
         const valueLabel = Str.isEmpty(preview) ? color.gray("<empty>") : preview;
         return Console.log(`${key}=${valueLabel}`);
       },

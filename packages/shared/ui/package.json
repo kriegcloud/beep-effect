@@ -34,21 +34,30 @@
     "lint:circular": "bunx madge -c ."
   },
   "peerDependencies": {
-    "@beep/ui": "workspace:^",
-    "@beep/shared-domain": "workspace:^",
+    "@beep/identity": "workspace:^",
     "@beep/schema": "workspace:^",
-    "effect": "catalog:"
+    "@beep/shared-domain": "workspace:^",
+    "@beep/ui-core": "workspace:^",
+    "@beep/shared-client": "workspace:^",
+    "@beep/ui": "workspace:^",
+    "@effect-atom/atom-react": "catalog:",
+    "effect": "catalog:",
+    "lucide-react": "catalog:"
   },
   "devDependencies": {
-    "@effect/docgen": "catalog:",
-    "babel-plugin-transform-next-use-client": "catalog:",
-    "@babel/preset-react": "catalog:",
-    "@beep/ui": "workspace:^",
-    "@beep/shared-domain": "workspace:^",
+    "@beep/identity": "workspace:^",
     "@beep/schema": "workspace:^",
+    "@beep/shared-domain": "workspace:^",
+    "@beep/ui-core": "workspace:^",
     "@beep/shared-client": "workspace:^",
+    "@beep/ui": "workspace:^",
+    "@babel/preset-react": "catalog:",
+    "@effect-atom/atom-react": "catalog:",
+    "@effect/docgen": "catalog:",
+    "@total-typescript/ts-reset": "catalog:",
+    "babel-plugin-transform-next-use-client": "catalog:",
     "effect": "catalog:",
-    "@total-typescript/ts-reset": "catalog:"
+    "lucide-react": "catalog:"
   },
   "effect": {
     "generateExports": {

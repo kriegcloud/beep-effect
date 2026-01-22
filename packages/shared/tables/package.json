@@ -35,24 +35,24 @@
     "lint:circular": "bunx madge -c ."
   },
   "peerDependencies": {
-    "@effect/sql": "catalog:",
-    "@effect/experimental": "catalog:",
-    "@beep/shared-domain": "workspace:^",
     "@beep/schema": "workspace:^",
+    "@beep/shared-domain": "workspace:^",
+    "@effect/experimental": "catalog:",
+    "@effect/sql": "catalog:",
     "drizzle-orm": "catalog:",
     "effect": "catalog:",
     "mutative": "catalog:"
   },
   "devDependencies": {
-    "@effect/docgen": "catalog:",
-    "@effect/sql": "catalog:",
-    "@effect/experimental": "catalog:",
-    "@beep/shared-domain": "workspace:^",
     "@beep/schema": "workspace:^",
+    "@beep/shared-domain": "workspace:^",
+    "@effect/docgen": "catalog:",
+    "@effect/experimental": "catalog:",
+    "@effect/sql": "catalog:",
+    "@total-typescript/ts-reset": "catalog:",
     "drizzle-orm": "catalog:",
     "effect": "catalog:",
-    "mutative": "catalog:",
-    "@total-typescript/ts-reset": "catalog:"
+    "mutative": "catalog:"
   },
   "effect": {
     "generateExports": {

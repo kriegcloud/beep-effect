@@ -10,8 +10,8 @@
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Order from "effect/Order";
+import * as R from "effect/Record";
 import type { AssembledEntity, AssembledRelation, KnowledgeGraph } from "../Extraction/GraphAssembler";
-
 // =============================================================================
 // Types
 // =============================================================================
@@ -181,7 +181,7 @@ export const filterGraph = (graph: KnowledgeGraph, config: FilterConfig = {}): F
   }
 
   // Rebuild entity index
-  const entityIndex: Record<string, string> = {};
+  const entityIndex = R.empty<string, string>();
   for (const entity of filteredEntities) {
     const key = (entity.canonicalName ?? entity.mention).toLowerCase();
     entityIndex[key] = entity.id;

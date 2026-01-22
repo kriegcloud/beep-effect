@@ -25,17 +25,17 @@ export interface EntityExtractionConfig {
   /**
    * Minimum confidence threshold for classifications
    */
-  readonly minConfidence?: number;
+  readonly minConfidence?: undefined | number;
 
   /**
    * Maximum mentions to process in single LLM call
    */
-  readonly batchSize?: number;
+  readonly batchSize?: undefined | number;
 
   /**
    * AI generation configuration
    */
-  readonly aiConfig?: AiGenerationConfig;
+  readonly aiConfig?: undefined | AiGenerationConfig;
 }
 
 /**
@@ -103,8 +103,8 @@ export class EntityExtractor extends Effect.Service<EntityExtractor>()("@beep/kn
       entities: readonly ClassifiedEntity[],
       ontologyContext: OntologyContext
     ): { valid: ClassifiedEntity[]; invalid: ClassifiedEntity[] } => {
-      const valid: ClassifiedEntity[] = [];
-      const invalid: ClassifiedEntity[] = [];
+      const valid = A.empty<ClassifiedEntity>();
+      const invalid = A.empty<ClassifiedEntity>();
 
       for (const entity of entities) {
         const typeExists = O.isSome(ontologyContext.findClass(entity.typeIri));
@@ -164,7 +164,7 @@ export class EntityExtractor extends Effect.Service<EntityExtractor>()("@beep/kn
 
         // Process in batches to avoid token limits
         const batches = A.chunksOf([...mentions], batchSize);
-        const allEntities: ClassifiedEntity[] = [];
+        const allEntities = A.empty<ClassifiedEntity>();
         let totalTokens = 0;
 
         for (const batch of batches) {

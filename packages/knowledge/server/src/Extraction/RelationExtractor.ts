@@ -99,8 +99,8 @@ export class RelationExtractor extends Effect.Service<RelationExtractor>()("@bee
       triples: readonly ExtractedTriple[],
       ontologyContext: OntologyContext
     ): { valid: ExtractedTriple[]; invalid: ExtractedTriple[] } => {
-      const valid: ExtractedTriple[] = [];
-      const invalid: ExtractedTriple[] = [];
+      const valid = A.empty<ExtractedTriple>();
+      const invalid = A.empty<ExtractedTriple>();
 
       for (const triple of triples) {
         const propertyExists = O.isSome(ontologyContext.findProperty(triple.predicateIri));
@@ -180,8 +180,8 @@ export class RelationExtractor extends Effect.Service<RelationExtractor>()("@bee
         const offsetAdjusted = A.map(confidenceFiltered, (t) => adjustOffsets(t, chunk.startOffset));
 
         // Validate predicates if enabled
-        let valid: ExtractedTriple[];
-        let invalid: ExtractedTriple[];
+        let valid = A.empty<ExtractedTriple>();
+        let invalid = A.empty<ExtractedTriple>();
 
         if (shouldValidate) {
           const validation = validatePredicates(offsetAdjusted, ontologyContext);
@@ -220,8 +220,8 @@ export class RelationExtractor extends Effect.Service<RelationExtractor>()("@bee
         ontologyContext: OntologyContext,
         config: RelationExtractionConfig = {}
       ) {
-        const allTriples: ExtractedTriple[] = [];
-        const allInvalid: ExtractedTriple[] = [];
+        const allTriples = A.empty<ExtractedTriple>();
+        const allInvalid = A.empty<ExtractedTriple>();
         let totalTokens = 0;
 
         const minConfidence = config.minConfidence ?? 0.5;

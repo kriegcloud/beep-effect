@@ -69,31 +69,31 @@
     "docs:lint:file": "bunx tsx ./src/run-docs-lint.ts --file"
   },
   "dependencies": {
-    "@next/mdx": "catalog:",
     "@beep/tooling-utils": "workspace:^",
-    "workbox-core": "catalog:",
-    "workbox-window": "catalog:",
-    "workbox-webpack-plugin": "catalog:",
-    "workbox-build": "catalog:",
-    "clean-webpack-plugin": "catalog:",
-    "globby": "catalog:",
-    "terser-webpack-plugin": "catalog:",
-    "babel-loader": "catalog:",
-    "webpack": "catalog:",
-    "typescript": "catalog:",
     "@effect/platform": "catalog:",
     "@effect/platform-node": "catalog:",
+    "@next/bundle-analyzer": "catalog:",
+    "@next/mdx": "catalog:",
+    "babel-loader": "catalog:",
+    "clean-webpack-plugin": "catalog:",
     "effect": "catalog:",
+    "globby": "catalog:",
     "next": "catalog:",
-    "@next/bundle-analyzer": "catalog:"
+    "terser-webpack-plugin": "catalog:",
+    "typescript": "catalog:",
+    "webpack": "catalog:",
+    "workbox-build": "catalog:",
+    "workbox-core": "catalog:",
+    "workbox-webpack-plugin": "catalog:",
+    "workbox-window": "catalog:"
   },
   "devDependencies": {
-    "@types/babel__core": "catalog:",
-    "typescript": "catalog:",
     "@effect/platform": "catalog:",
     "@effect/platform-node": "catalog:",
+    "@total-typescript/ts-reset": "catalog:",
+    "@types/babel__core": "catalog:",
     "effect": "catalog:",
-    "@total-typescript/ts-reset": "catalog:"
+    "typescript": "catalog:"
   },
   "effect": {
     "generateExports": {

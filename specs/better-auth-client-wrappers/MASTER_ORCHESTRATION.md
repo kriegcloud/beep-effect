@@ -10,6 +10,8 @@
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                         PHASE PROGRESSION                                    │
 ├─────────────────────────────────────────────────────────────────────────────┤
+│  P0: Infrastructure & Scope Reduction (analysis only)                       │
+│      ↓                                                                      │
 │  P1: Core + Username (9 methods)                                            │
 │      ↓                                                                      │
 │  P2: Admin Part 1 (7 methods)                                               │
@@ -23,6 +25,49 @@
 │  P6: Organization + API-key + Remaining (30 methods)                        │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
+
+---
+
+## Phase 0: Infrastructure & Scope Reduction
+
+**Methods**: 0 (analysis and documentation only)
+**Duration**: 1 session
+**Agents**: codebase-researcher, doc-writer
+
+### Purpose
+
+Identify and create scope-reducing infrastructure before main implementation:
+- Pattern analysis to categorize all 90 methods
+- Shared response schemas for repeated patterns
+- Copy-paste templates for boilerplate files
+- Method implementation guide with per-method specs
+
+### Deliverables
+
+| Deliverable | Location |
+|-------------|----------|
+| Pattern analysis | `outputs/phase-0-pattern-analysis.md` |
+| Method guide | `outputs/method-implementation-guide.md` |
+| Shared schemas | `_internal/common.schemas.ts` (if beneficial) |
+| Templates | Documented in handoff |
+
+### Workflow
+
+1. **Audit**: Examine existing handlers for patterns
+2. **Categorize**: Classify all 90 methods by handler pattern
+3. **Identify**: Find response schemas used 5+ times
+4. **Implement**: Create shared utilities (if beneficial)
+5. **Document**: Update handoffs with templates and guide
+6. **Handoff**: Create `HANDOFF_P0.md` and update `HANDOFF_P1.md`
+
+### Expected Scope Reduction
+
+| Area | Savings |
+|------|---------|
+| mod.ts/index.ts | 100% (copy template) |
+| Research time | 80% (use method guide) |
+| Handler pattern | 90% (use pattern template) |
+| **Total per-method** | **~35% reduction** |
 
 ---
 
@@ -253,6 +298,7 @@ Each phase MUST produce:
 
 | Phase | Status | Methods | Verified |
 |-------|--------|---------|----------|
+| P0 | Not Started | N/A (infra) | No |
 | P1 | Not Started | 0/9 | No |
 | P2 | Not Started | 0/7 | No |
 | P3 | Not Started | 0/13 | No |

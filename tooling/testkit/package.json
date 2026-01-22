@@ -33,27 +33,27 @@
   },
   "dependencies": {
     "@effect/platform": "catalog:",
-    "effect": "catalog:",
     "@effect/sql": "catalog:",
-    "@effect/sql-pg": "catalog:",
     "@effect/sql-drizzle": "catalog:",
+    "@effect/sql-pg": "catalog:",
     "@testcontainers/postgresql": "catalog:",
     "drizzle-orm": "catalog:",
+    "effect": "catalog:",
     "playwright-core": "catalog:"
   },
   "devDependencies": {
-    "playwright": "catalog:",
-    "@effect/platform-bun": "catalog:",
-    "@testcontainers/postgresql": "catalog:",
-    "testcontainers": "catalog:",
     "@effect/platform": "catalog:",
-    "effect": "catalog:",
+    "@effect/platform-bun": "catalog:",
     "@effect/sql": "catalog:",
-    "@effect/sql-pg": "catalog:",
     "@effect/sql-drizzle": "catalog:",
+    "@effect/sql-pg": "catalog:",
+    "@testcontainers/postgresql": "catalog:",
+    "@total-typescript/ts-reset": "catalog:",
     "drizzle-orm": "catalog:",
+    "effect": "catalog:",
     "pg": "catalog:",
-    "@total-typescript/ts-reset": "catalog:"
+    "playwright": "catalog:",
+    "testcontainers": "catalog:"
   },
   "effect": {
     "generateExports": {

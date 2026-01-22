@@ -3,7 +3,18 @@
 > CLI command to automate tsconfig reference, path alias, and dependency maintenance
 
 **Complexity Score**: 48 (High) - updated to include transitive dependency hoisting
-**Status**: Phase 1 Complete → Ready for Phase 2
+**Status**: ARCHIVED
+
+---
+
+## Status: ARCHIVED
+
+This spec was completed through Phase 5. Additional completion work is documented in:
+- [tsconfig-sync-completion](../tsconfig-sync-completion/README.md)
+
+The command is now feature-complete and production-ready.
+
+---
 
 ---
 

@@ -36,24 +36,20 @@
     "lint:circular": "bunx madge -c ."
   },
   "peerDependencies": {
-    "effect": "catalog:",
-    "@beep/schema": "workspace:^",
-    "@effect/cluster": "catalog:",
-    "@effect/workflow": "catalog:",
+    "@beep/identity": "workspace:^",
     "@beep/invariant": "workspace:^",
-    "uuid": "catalog:"
+    "@beep/schema": "workspace:^",
+    "effect": "catalog:"
   },
   "devDependencies": {
+    "@beep/identity": "workspace:^",
+    "@beep/invariant": "workspace:^",
+    "@beep/types": "workspace:^",
+    "@beep/schema": "workspace:^",
     "@effect/build-utils": "catalog:",
     "@effect/docgen": "catalog:",
-    "effect": "catalog:",
-    "@beep/schema": "workspace:^",
-    "@effect/cluster": "catalog:",
-    "@effect/workflow": "catalog:",
-    "@beep/invariant": "workspace:^",
-    "uuid": "catalog:",
-    "@beep/types": "workspace:^",
-    "@total-typescript/ts-reset": "catalog:"
+    "@total-typescript/ts-reset": "catalog:",
+    "effect": "catalog:"
   },
   "effect": {
     "generateExports": {
