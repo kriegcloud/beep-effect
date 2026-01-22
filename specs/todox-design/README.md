@@ -204,5 +204,5 @@ specs/todox-design/
 - [RUBRICS.md](./RUBRICS.md)
 - [Effect Patterns](../../.claude/rules/effect-patterns.md)
 - [Existing Todox App](../../apps/todox/)
-- [SPEC_CREATION_GUIDE](../SPEC_CREATION_GUIDE.md)
-- [HANDOFF_STANDARDS](../HANDOFF_STANDARDS.md)
+- [Spec Guide](../_guide/README.md)
+- [HANDOFF_STANDARDS](../_guide/HANDOFF_STANDARDS.md)

@@ -1,7 +1,7 @@
 ---
 name: code-observability-writer
 description: Observability instrumentation agent for logging, tracing, metrics, and error tracking using Effect patterns
-tools: [Read, Edit, Write, Grep, Glob, mcp__effect_docs__effect_docs_search, mcp__MCP_DOCKER__mcp-find, mcp__MCP_DOCKER__mcp-add, mcp__MCP_DOCKER__mcp-exec]
+tools: [Read, Edit, Write, Grep, Glob]
 signature:
   input:
     sourceFiles:

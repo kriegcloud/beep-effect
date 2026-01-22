@@ -342,5 +342,5 @@ Before creating an Effect wrapper for an external API:
 ## Related Documentation
 
 - [Effect Patterns](../../.claude/rules/effect-patterns.md) - Schema type selection guide
-- [Handoff Standards](../../specs/HANDOFF_STANDARDS.md) - Multi-phase handoff requirements
+- [Handoff Standards](../../specs/_guide/HANDOFF_STANDARDS.md) - Multi-phase handoff requirements
 - [IAM Client AGENTS.md](../../packages/iam/client/AGENTS.md) - Better Auth integration patterns

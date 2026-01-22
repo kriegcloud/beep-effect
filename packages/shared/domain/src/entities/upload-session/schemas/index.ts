@@ -1,1 +1,1 @@
-export * from "./UploadSessionMetadata";
+export * from "./upload-session-metadata.schema";

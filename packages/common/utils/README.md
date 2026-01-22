@@ -487,6 +487,5 @@ Before submitting changes, verify:
 ## See Also
 
 - [AGENTS.md](./AGENTS.md) — Detailed authoring guardrails and module map
-- [AUDIT_REPORT.md](./AUDIT_REPORT.md) — Recent audit results and verification
 - [Root CLAUDE.md](/CLAUDE.md) — Project-wide Effect patterns and conventions
 - [Root AGENTS.md](/AGENTS.md) — Monorepo structure and development workflow

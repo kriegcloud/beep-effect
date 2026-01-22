@@ -36,13 +36,14 @@ All spec-creation infrastructure lives in [`_guide/`](_guide/):
 | [agents-md-audit](agents-md-audit/) | AGENTS.md file standardization | New |
 | [agents](agents/) | Specialized agent creation specs | Active |
 | [canonical-naming-conventions](canonical-naming-conventions/) | AI-native naming standards | P0 Ready |
-| [iam-client-method-wrappers](iam-client-method-wrappers/) | Better Auth client wrappers | Active |
+| [e2e-testkit-migration](e2e-testkit-migration/) | Migrate e2e tests to @beep/testkit/playwright | Planning |
 | [knowledge-graph-integration](knowledge-graph-integration/) | Document knowledge extraction | Active |
 | [naming-conventions-refactor](naming-conventions-refactor/) | Naming standards implementation | Active |
 | [orgtable-auto-rls](orgtable-auto-rls/) | Automatic RLS for org tables | Active |
 | [rls-implementation](rls-implementation/) | Row-level security | Active |
 | [spec-creation-improvements](spec-creation-improvements/) | Spec workflow enhancements | Complete |
 | [todox-design](todox-design/) | Todox application design | Active |
+| [tsconfig-sync-command](tsconfig-sync-command/) | CLI for tsconfig/package.json sync | P0 Complete |
 
 ---
 

@@ -66,7 +66,7 @@ During review of the RLS implementation spec's MASTER_ORCHESTRATION.md, a critic
 #### PENDING (for future consideration)
 
 - [ ] Create `documentation/patterns/testing-patterns.md` as canonical testing reference
-- [ ] Update SPEC_CREATION_GUIDE.md to include testing pattern requirements
+- [ ] Update specs/_guide/README.md to include testing pattern requirements
 - [ ] Add testing pattern checklist to spec templates
 - [ ] Create automated linting rule to catch `Effect.runPromise` in test files
 - [ ] Update all existing specs to use correct testing patterns

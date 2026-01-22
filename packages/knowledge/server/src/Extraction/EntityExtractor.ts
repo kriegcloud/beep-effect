@@ -12,8 +12,8 @@ import * as O from "effect/Option";
 import { type AiGenerationConfig, AiService } from "../Ai/AiService";
 import { buildEntityPrompt, buildSystemPrompt } from "../Ai/PromptTemplates";
 import type { OntologyContext } from "../Ontology";
-import { ClassifiedEntity, EntityOutput } from "./schemas/EntityOutput";
-import type { ExtractedMention } from "./schemas/MentionOutput";
+import { ClassifiedEntity, EntityOutput } from "./schemas/entity-output.schema";
+import type { ExtractedMention } from "./schemas/mention-output.schema";
 
 /**
  * Configuration for entity classification

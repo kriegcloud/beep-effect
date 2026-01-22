@@ -1,2 +1,2 @@
-export * from "./EntitySource";
-export * from "./paths";
+export * from "./entity-source.value";
+export * from "./paths.value";

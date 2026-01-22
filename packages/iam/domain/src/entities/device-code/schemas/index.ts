@@ -1,1 +1,1 @@
-export * from "./device-code-status";
+export * from "./device-code-status.schema";

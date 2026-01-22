@@ -34,8 +34,8 @@ Better Auth usage isolated to this workspace.
 
 ## Related Documentation
 
-- `/home/elpresidank/YeeBois/projects/beep-effect/packages/common/schema/AGENTS.md` — canonical reference for Effect Schema patterns and primitives used throughout IAM schemas.
-- `/home/elpresidank/YeeBois/projects/beep-effect/documentation/patterns/iam-client-patterns.md` — full pattern reference for contracts, handlers, services, and layers.
+- `packages/common/schema/AGENTS.md` — canonical reference for Effect Schema patterns and primitives used throughout IAM schemas.
+- `documentation/patterns/iam-client-patterns.md` — full pattern reference for contracts, handlers, services, and layers.
 
 ## Authoring Guardrails
 

@@ -9,8 +9,8 @@
 
 import * as A from "effect/Array";
 import * as O from "effect/Option";
-import type { ClassifiedEntity } from "../Extraction/schemas/EntityOutput";
-import type { ExtractedMention } from "../Extraction/schemas/MentionOutput";
+import type { ClassifiedEntity } from "../Extraction/schemas/entity-output.schema";
+import type { ExtractedMention } from "../Extraction/schemas/mention-output.schema";
 import type { OntologyContext } from "../Ontology";
 
 /**

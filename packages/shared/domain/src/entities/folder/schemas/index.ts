@@ -1,1 +1,1 @@
-export * from "./WithUploadedFiles";
+export * from "./with-uploaded-files.schema";

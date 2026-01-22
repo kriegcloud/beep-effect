@@ -141,7 +141,7 @@ Confidence: HIGH (5 sources, cross-validated)
 # Project Specifications
 
 ## Guides and Templates
-- [Creation Guide](./SPEC_CREATION_GUIDE.md): How to create specs
+- [Creation Guide](./README.md): How to create specs
 
 ## Domain: IAM
 - [full-iam-client](./full-iam-client/README.md): Auth wrappers
@@ -152,7 +152,7 @@ Confidence: HIGH (5 sources, cross-validated)
 
 **Validation**:
 - Derived from Cloudflare's production llms.txt
-- Tested in beep-effect specs/llms.txt
+- Tested in beep-effect specs/_guide/llms.txt
 - Improves AI navigation efficiency
 
 ---
@@ -183,7 +183,7 @@ stateDiagram-v2
 ```
 
 **Validation**:
-- Implemented in SPEC_CREATION_GUIDE.md
+- Implemented in README.md
 - Based on LangGraph and ADK documentation patterns
 - Renders in GitHub, GitLab, and most markdown viewers
 
@@ -356,7 +356,7 @@ Complexity = (Phases × 2) + (Agents × 3) + (CrossPkg × 4) + (ExtDeps × 3) + 
 ```
 
 **Validation**:
-- Schema implemented in SPEC_CREATION_GUIDE.md
+- Schema implemented in README.md
 - Derived from Agent Skills standard (Anthropic/OpenAI)
 - Enables automated pattern extraction from logs
 
@@ -510,5 +510,5 @@ Candidate → Validated (75+) → Established (multi-spec use) → Deprecated (s
 
 ## Related Documents
 
-- [SPEC_CREATION_GUIDE.md](./SPEC_CREATION_GUIDE.md): Workflow using these patterns
+- [README.md](./README.md): Workflow using these patterns
 - [REFLECTION_LOG.md](./spec-creation-improvements/REFLECTION_LOG.md): Pattern discovery source

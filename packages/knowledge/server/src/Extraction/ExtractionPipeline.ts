@@ -15,8 +15,8 @@ import { EntityExtractor } from "./EntityExtractor";
 import { GraphAssembler, type KnowledgeGraph } from "./GraphAssembler";
 import { MentionExtractor } from "./MentionExtractor";
 import { RelationExtractor } from "./RelationExtractor";
-import type { ClassifiedEntity } from "./schemas/EntityOutput";
-import type { ExtractedMention } from "./schemas/MentionOutput";
+import type { ClassifiedEntity } from "./schemas/entity-output.schema";
+import type { ExtractedMention } from "./schemas/mention-output.schema";
 
 /**
  * Pipeline configuration

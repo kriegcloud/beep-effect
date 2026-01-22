@@ -241,7 +241,6 @@ sign-in/
 ## Related Specifications
 
 - `.claude/skills/mcp-refactor-typescript.md` - TypeScript-aware refactoring (file renames, import updates, symbol renames)
-- `specs/ai-friendliness-audit/` - Related AI-friendliness patterns
 
 ---
 

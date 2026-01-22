@@ -222,7 +222,7 @@ The quality scoring rubric provides objective assessment of reflection entries a
 | Score Range | Status | Destination |
 |-------------|--------|-------------|
 | **90-102** | Production-ready | Create SKILL.md file in `.claude/skills/` |
-| **75-89** | Validated | Add to `specs/PATTERN_REGISTRY.md` |
+| **75-89** | Validated | Add to `specs/_guide/PATTERN_REGISTRY.md` |
 | **50-74** | Promising | Keep in spec-local REFLECTION_LOG |
 | **0-49** | Needs work | Do not promote; iterate in spec |
 
@@ -293,7 +293,7 @@ if (score >= 90) {
   destination = ".claude/skills/"
 } else if (score >= 75) {
   // Validated: Add to pattern registry
-  destination = "specs/PATTERN_REGISTRY.md"
+  destination = "specs/_guide/PATTERN_REGISTRY.md"
 } else {
   // Keep in spec-local reflection log
   destination = "specs/{SPEC_NAME}/REFLECTION_LOG.md"
@@ -304,7 +304,7 @@ if (score >= 90) {
 
 **For Pattern Registry (75-89 points)**:
 
-Add entry to `specs/PATTERN_REGISTRY.md`:
+Add entry to `specs/_guide/PATTERN_REGISTRY.md`:
 
 ```markdown
 ### {{pattern-name}}
@@ -375,7 +375,7 @@ Scoring:
   ↓
 Threshold check: 85 >= 75 → Eligible for registry
   ↓
-Added to specs/PATTERN_REGISTRY.md
+Added to specs/_guide/PATTERN_REGISTRY.md
   ↓
 Validation: Used successfully in 3+ subsequent specs
   ↓

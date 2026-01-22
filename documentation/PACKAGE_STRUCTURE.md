@@ -45,6 +45,18 @@ beep-effect/
 │   │   ├── server/       # Better Auth, IAM repos
 │   │   ├── tables/       # Drizzle schemas
 │   │   └── ui/           # Auth UI flows
+│   ├── calendar/
+│   │   ├── client/       # Calendar client contracts
+│   │   ├── domain/       # Calendar domain models
+│   │   ├── server/       # Calendar server infrastructure
+│   │   ├── tables/       # Calendar Drizzle schemas
+│   │   └── ui/           # Calendar React components
+│   ├── knowledge/
+│   │   ├── client/       # Knowledge client contracts
+│   │   ├── domain/       # Knowledge domain models
+│   │   ├── server/       # Knowledge server infrastructure
+│   │   ├── tables/       # Knowledge Drizzle schemas
+│   │   └── ui/           # Knowledge React components
 │   ├── runtime/
 │   │   ├── client/       # Browser ManagedRuntime
 │   │   └── server/       # Server ManagedRuntime
@@ -122,6 +134,20 @@ Each package may have its own `AGENTS.md` with specific guidance:
 - `packages/iam/server/AGENTS.md` - Better Auth wiring, IAM repo bundle
 - `packages/iam/tables/AGENTS.md` - Tenant-aware Drizzle schemas
 - `packages/iam/ui/AGENTS.md` - IAM React flows, recaptcha, social providers
+
+#### Calendar
+- `packages/calendar/client/AGENTS.md` - Calendar client contracts
+- `packages/calendar/domain/AGENTS.md` - Calendar domain models
+- `packages/calendar/server/AGENTS.md` - Calendar server infrastructure
+- `packages/calendar/tables/AGENTS.md` - Calendar Drizzle schemas
+- `packages/calendar/ui/AGENTS.md` - Calendar React components
+
+#### Knowledge
+- `packages/knowledge/client/AGENTS.md` - Knowledge client contracts
+- `packages/knowledge/domain/AGENTS.md` - Knowledge domain models
+- `packages/knowledge/server/AGENTS.md` - Knowledge server infrastructure
+- `packages/knowledge/tables/AGENTS.md` - Knowledge Drizzle schemas
+- `packages/knowledge/ui/AGENTS.md` - Knowledge React components
 
 ### Runtime Layer
 - `packages/runtime/client/AGENTS.md` - Client ManagedRuntime, TanStack Query

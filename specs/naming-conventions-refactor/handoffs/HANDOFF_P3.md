@@ -23,15 +23,15 @@ Handle edge cases and miscellaneous file renames that don't fit into the previou
 
 ### Server Job Files
 
-Located in `packages/*/server/src/`:
+Located in `packages/shared/server/src/jobs/`:
 
-| Package | Current Name | Target Name | Notes |
+| Package | Current Path | Target Name | Notes |
 |---------|--------------|-------------|-------|
-| documents-server | `cleanup-upload-sessions.ts` | `cleanup-upload-sessions.job.ts` | If not already postfixed |
+| shared-server | `packages/shared/server/src/jobs/cleanup-upload-sessions.ts` | `cleanup-upload-sessions.job.ts` | Add `.job.ts` postfix |
 
 **Note**: Verify actual job files exist and their current naming:
 ```bash
-find packages -path "*/server/*" -name "*job*" -o -name "*cleanup*" | grep -v node_modules
+find packages -path "*/jobs/*" -name "*.ts" -not -name "index.ts" | grep -v node_modules | grep -v build
 ```
 
 ---
@@ -45,11 +45,11 @@ Before executing Phase 3:
    # No camelCase table files
    find packages -name "*.table.ts" | xargs basename -a 2>/dev/null | grep -E '[A-Z]'
 
-   # No value objects without .value.ts
-   find packages -path "*/value-objects/*" -name "*.ts" -not -name "index.ts" -not -name "*.value.ts"
+   # No value objects without .value.ts (excludes build/)
+   find packages -path "*/src/value-objects/*" -name "*.ts" -not -name "index.ts" -not -name "*.value.ts"
 
-   # No schemas without .schema.ts
-   find packages -path "*/schemas/*" -name "*.ts" -not -name "index.ts" -not -name "*.schema.ts"
+   # No schemas without .schema.ts (excludes build/ and knowledge-server)
+   find packages -path "*/src/*/schemas/*" -name "*.ts" -not -name "index.ts" -not -name "*.schema.ts" | grep -v "knowledge/server"
    ```
 
 2. **Enumerate remaining files to rename**
@@ -95,11 +95,11 @@ bun run check
 # No camelCase table files
 find packages -name "*.table.ts" | xargs basename -a 2>/dev/null | grep -E '[A-Z]'
 
-# No value objects without .value.ts
-find packages -path "*/value-objects/*" -name "*.ts" -not -name "index.ts" -not -name "*.value.ts"
+# No value objects without .value.ts (excludes build/)
+find packages -path "*/src/value-objects/*" -name "*.ts" -not -name "index.ts" -not -name "*.value.ts"
 
-# No schemas without .schema.ts
-find packages -path "*/schemas/*" -name "*.ts" -not -name "index.ts" -not -name "*.schema.ts"
+# No schemas without .schema.ts (excludes build/ and knowledge-server)
+find packages -path "*/src/*/schemas/*" -name "*.ts" -not -name "index.ts" -not -name "*.schema.ts" | grep -v "knowledge/server"
 ```
 
 ---
@@ -132,8 +132,13 @@ After Phase 3:
 
 1. **Update REFLECTION_LOG.md** with final summary
 2. **Update naming rules** in `.claude/rules/naming-conventions.md` (create if not exists)
-3. **Consider creating PR** with the refactored files
-4. **Archive this spec** as complete
+3. **Update `@beep/repo-cli` templates** in `tooling/cli/src/commands/create-slice/`:
+   - Update Handlebars templates to use new naming conventions
+   - Ensure generated table files use kebab-case (e.g., `{{kebab-case name}}.table.ts`)
+   - Ensure generated schema files include `.schema.ts` postfix
+   - Ensure generated value object files include `.value.ts` postfix
+4. **Consider creating PR** with the refactored files
+5. **Archive this spec** as complete
 
 ---
 
@@ -141,8 +146,8 @@ After Phase 3:
 
 | Phase | Files Renamed | Packages Affected |
 |-------|---------------|-------------------|
-| P0: Tables | 19 | 3 |
-| P1: Value Objects | 17 | 6 |
-| P2: Schemas | ~15 | 1 |
-| P3: Miscellaneous | ~2 | 1 |
-| **Total** | **~53** | **~11** |
+| P0: Tables | 19 | 3 (iam-tables, documents-tables, knowledge-tables) |
+| P1: Value Objects | 18 | 6 (knowledge-domain, shared-domain, iam-domain, documents-domain, calendar-domain, comms-domain) |
+| P2: Schemas | 9 | 2 (iam-domain, shared-domain) |
+| P3: Miscellaneous | 1 | 1 (shared-server) |
+| **Total** | **47** | **~12** |

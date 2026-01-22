@@ -168,7 +168,7 @@ At the end of EVERY phase, create BOTH:
 
 **A phase is NOT complete until BOTH files exist.**
 
-See [HANDOFF_STANDARDS.md](../../specs/HANDOFF_STANDARDS.md) for templates.
+See [HANDOFF_STANDARDS.md](../../specs/_guide/HANDOFF_STANDARDS.md) for templates.
 
 ---
 
@@ -187,7 +187,7 @@ At the end of EVERY phase, ask:
 | Score | Destination |
 |-------|-------------|
 | 90-102 | Create skill in `.claude/skills/` |
-| 75-89 | Add to `specs/PATTERN_REGISTRY.md` |
+| 75-89 | Add to `specs/_guide/PATTERN_REGISTRY.md` |
 | 50-74 | Keep in spec-local REFLECTION_LOG |
 | 0-49 | Iterate in spec |
 
@@ -225,7 +225,7 @@ At the end of EVERY phase, ask:
 4. **Begin Phase 0**:
    ```
    Use doc-writer agent to create README.md for specs/multi-org-iam/
-   following the Standard Spec Structure from SPEC_CREATION_GUIDE.md.
+   following the Standard Spec Structure from specs/_guide/README.md.
    ```
 
 ---
@@ -234,10 +234,10 @@ At the end of EVERY phase, ask:
 
 | Document | Purpose |
 |----------|---------|
-| [SPEC_CREATION_GUIDE](../../specs/SPEC_CREATION_GUIDE.md) | Complete workflow reference with structure template |
-| [HANDOFF_STANDARDS](../../specs/HANDOFF_STANDARDS.md) | Handoff file requirements |
-| [PATTERN_REGISTRY](../../specs/PATTERN_REGISTRY.md) | Reusable patterns extracted from specs |
-| [llms.txt](../../specs/llms.txt) | AI-readable spec index |
+| [Spec Guide](../../specs/_guide/README.md) | Complete workflow reference with structure template |
+| [HANDOFF_STANDARDS](../../specs/_guide/HANDOFF_STANDARDS.md) | Handoff file requirements |
+| [PATTERN_REGISTRY](../../specs/_guide/PATTERN_REGISTRY.md) | Reusable patterns extracted from specs |
+| [llms.txt](../../specs/_guide/llms.txt) | AI-readable spec index |
 | [agents/README.md](../../specs/agents/README.md) | Specialized agent specifications |
 
 ---
@@ -272,7 +272,7 @@ After creating a new spec:
 
 - [ ] Complexity score calculated and documented
 - [ ] CLI command executed with correct complexity flag
-- [ ] README.md follows META_SPEC_TEMPLATE structure
+- [ ] README.md follows specs/_guide/README.md structure
 - [ ] REFLECTION_LOG.md exists (even if empty)
 - [ ] Phase plan created with agent assignments
 - [ ] For medium+ specs: handoffs/ directory exists

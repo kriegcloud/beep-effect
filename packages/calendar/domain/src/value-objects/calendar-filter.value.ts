@@ -1,6 +1,6 @@
 import { $CalendarDomainId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
-import { DatePickerControl } from "./date-picker-control";
+import { DatePickerControl } from "./date-picker-control.value";
 
 const $I = $CalendarDomainId.create("value-objects/calendar-filter");
 

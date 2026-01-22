@@ -5,7 +5,7 @@
  * - FsUtils / FsUtilsLive: Effect-based filesystem/glob helpers
  * - RepoUtils / RepoUtilsLive: repository utility service layer
  * - Repo: repository utilities namespace (workspaces, dependencies, tsconfig)
- * - getUniqueDeps: compatibility alias for unique dependency collection
+ * - collectUniqueNpmDependencies: unique dependency collection
  * - schemas: Effect schemas used by the tooling
  *
  * @since 0.1.0
@@ -56,7 +56,7 @@ export * from "./RepoUtils.js";
  *
  * @example
  * ```typescript
- * import { getUniqueDeps } from "@beep/tooling-utils"
+ * import { collectUniqueNpmDependencies } from "@beep/tooling-utils"
  * ```
  *
  * @category exports

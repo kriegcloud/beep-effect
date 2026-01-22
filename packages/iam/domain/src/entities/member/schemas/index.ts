@@ -1,2 +1,2 @@
-export * from "./member-role";
-export * from "./member-status";
+export * from "./member-role.schema";
+export * from "./member-status.schema";

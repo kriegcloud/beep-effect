@@ -172,23 +172,6 @@ export interface PlaywrightPageService {
   readonly eventStream: <K extends keyof typeof eventMappings>(
     event: K
   ) => Stream.Stream<ReturnType<(typeof eventMappings)[K]>>;
-
-  /**
-   * Clicks an element matching the given selector.
-   *
-   * @example
-   * ```ts
-   * yield* page.click("button#submit");
-   * ```
-   * @deprecated Use {@link PlaywrightPageService.locator} to create a locator and then call `click` on it instead.
-   * @see {@link Page.click}
-   * @since 0.1.0
-   * @category deprecated
-   */
-  readonly click: (
-    selector: string,
-    options?: Parameters<Page["click"]>[1]
-  ) => Effect.Effect<void, PlaywrightError.Type>;
 }
 
 /**
@@ -220,7 +203,6 @@ export class PlaywrightPage extends Context.Tag("effect-playwright/PlaywrightPag
       url: Effect.sync(() => page.url()),
       reload: use((p) => p.reload()),
       close: use((p) => p.close()),
-      click: (selector, options) => use((p) => p.click(selector, options)),
       eventStream: <K extends PageEvent>(event: K) =>
         Stream.asyncPush<PageEvents[K]>((emit) =>
           Effect.acquireRelease(

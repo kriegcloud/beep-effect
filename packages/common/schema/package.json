@@ -38,7 +38,6 @@
     "lint:circular": "bunx madge -c ."
   },
   "peerDependencies": {
-    "effect": "catalog:",
     "@beep/invariant": "workspace:^",
     "@beep/identity": "workspace:^",
     "@beep/utils": "workspace:^",
@@ -49,15 +48,18 @@
     "mutative": "catalog:",
     "uuid": "catalog:",
     "randexp-ts": "catalog:",
-    "music-metadata": "catalog:"
+    "music-metadata": "catalog:",
+    "effect": "catalog:",
+    "next": "catalog:"
   },
   "devDependencies": {
-    "music-metadata": "catalog:",
+    "@beep/testkit": "workspace:^",
     "@beep/types": "workspace:^",
-    "@beep/identity": "workspace:^",
-    "effect": "catalog:",
     "@beep/invariant": "workspace:^",
+    "@beep/identity": "workspace:^",
     "@beep/utils": "workspace:^",
+    "music-metadata": "catalog:",
+    "effect": "catalog:",
     "@faker-js/faker": "catalog:",
     "@effect/sql": "catalog:",
     "drizzle-orm": "catalog:",
@@ -65,8 +67,8 @@
     "mutative": "catalog:",
     "uuid": "catalog:",
     "randexp-ts": "catalog:",
-    "@beep/testkit": "workspace:^",
-    "@total-typescript/ts-reset": "catalog:"
+    "@total-typescript/ts-reset": "catalog:",
+    "next": "catalog:"
   },
   "effect": {
     "generateExports": {

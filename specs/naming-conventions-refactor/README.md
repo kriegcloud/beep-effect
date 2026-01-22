@@ -1,6 +1,6 @@
 # Naming Conventions Refactor Spec
 
-> Execute the ~53 file renames defined in `specs/canonical-naming-conventions/`.
+> Execute the ~48 file renames defined in `specs/canonical-naming-conventions/`.
 
 ---
 
@@ -16,8 +16,8 @@ This specification orchestrates the execution of file renames to align the codeb
 ## Goals
 
 1. Rename all 19 table files from camelCase to kebab-case
-2. Add `.value.ts` postfix to all 17 value object files
-3. Add `.schema.ts` postfix to all ~15 schema files
+2. Add `.value.ts` postfix to all 18 value object files
+3. Add `.schema.ts` postfix to all 9 schema files (excludes knowledge-server LLM schemas)
 4. Rename miscellaneous files (job files, edge cases)
 5. Ensure all import paths are updated automatically via MCP tooling
 6. Verify no build or type errors after each phase
@@ -29,8 +29,8 @@ This specification orchestrates the execution of file renames to align the codeb
 | Phase | Scope | File Count | Risk Level | Description |
 |-------|-------|------------|------------|-------------|
 | P0 | Table files | 19 | Low | camelCase to kebab-case (e.g., `apiKey.table.ts` → `api-key.table.ts`) |
-| P1 | Value objects | 17 | Medium | Add `.value.ts` postfix (e.g., `Attributes.ts` → `attributes.value.ts`) |
-| P2 | Schema files | ~15 | Medium | Add `.schema.ts` postfix (e.g., `member-status.ts` → `member-status.schema.ts`) |
+| P1 | Value objects | 18 | Medium | Add `.value.ts` postfix (e.g., `Attributes.ts` → `attributes.value.ts`) |
+| P2 | Schema files | 9 | Medium | Add `.schema.ts` postfix (e.g., `member-status.ts` → `member-status.schema.ts`) |
 | P3 | Miscellaneous | ~2 | Low | Job files, edge cases, consolidation |
 
 ---
@@ -75,11 +75,11 @@ Phase completion requires ALL of the following:
 # Verify no remaining camelCase table files
 find packages -name "*.table.ts" | xargs basename -a 2>/dev/null | grep -E '[A-Z]'
 
-# Verify all value objects have .value.ts postfix
-find packages -path "*/value-objects/*" -name "*.ts" -not -name "index.ts" -not -name "*.value.ts"
+# Verify all value objects have .value.ts postfix (excludes build/)
+find packages -path "*/src/value-objects/*" -name "*.ts" -not -name "index.ts" -not -name "*.value.ts"
 
-# Verify all schemas have .schema.ts postfix
-find packages -path "*/schemas/*" -name "*.ts" -not -name "index.ts" -not -name "*.schema.ts"
+# Verify all schemas have .schema.ts postfix (excludes build/ and knowledge-server)
+find packages -path "*/src/*/schemas/*" -name "*.ts" -not -name "index.ts" -not -name "*.schema.ts" | grep -v "knowledge/server"
 
 # Verify build passes
 bun run check
@@ -116,8 +116,8 @@ git reset --hard HEAD~1
 | Category | Total Files | Package Distribution |
 |----------|-------------|---------------------|
 | Table files | 19 | IAM (13), Documents (2), Knowledge (4) |
-| Value objects | 17 | Knowledge (2), Shared (1), IAM (1), Documents (2), Calendar (9), Comms (2) |
-| Schema files | ~15 | IAM domain entity schemas |
+| Value objects | 18 | Knowledge (2), Shared (2), IAM (1), Documents (2), Calendar (9), Comms (2) |
+| Schema files | 9 | IAM domain (5), Shared domain (4) |
 | Miscellaneous | ~2 | Server job files |
 
 ---
@@ -128,6 +128,19 @@ git reset --hard HEAD~1
 - [MCP Refactor Tool](.claude/skills/mcp-refactor-typescript.md) - Tool documentation
 - [Naming Rules Draft](../canonical-naming-conventions/outputs/naming-rules-draft.md) - Complete file lists
 - [Implementation Readiness](../canonical-naming-conventions/outputs/implementation-readiness-review.md) - Pre-flight review
+
+## Post-Refactor: CLI Template Update
+
+After completing the refactor, update the `@beep/repo-cli` create-slice templates:
+
+**Location**: `tooling/cli/src/commands/create-slice/`
+
+Templates must be updated to generate files following the new conventions:
+- Table files: `kebab-case.table.ts`
+- Schema files: `kebab-case.schema.ts`
+- Value object files: `kebab-case.value.ts`
+
+This ensures new slices automatically follow the canonical naming conventions.
 
 ---
 

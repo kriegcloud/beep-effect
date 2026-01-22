@@ -1,1 +1,1 @@
-export * from "./UserRole";
+export * from "./user-role.schema";

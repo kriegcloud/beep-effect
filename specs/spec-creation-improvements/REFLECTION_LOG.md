@@ -1,5 +1,10 @@
 # Reflection Log: Spec Creation Improvements
 
+> **Note**: This reflection log references old paths. The spec creation guide has moved:
+> - `specs/SPEC_CREATION_GUIDE.md` → `specs/_guide/README.md`
+> - `specs/HANDOFF_STANDARDS.md` → `specs/_guide/HANDOFF_STANDARDS.md`
+> - `specs/PATTERN_REGISTRY.md` → `specs/_guide/PATTERN_REGISTRY.md`
+
 > Cumulative learnings from implementing spec creation workflow enhancements.
 
 ---

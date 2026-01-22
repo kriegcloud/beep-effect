@@ -9,7 +9,7 @@
 
 ## Phase 1 Summary
 
-Add `.value.ts` postfix to all 17 value object files across 6 packages.
+Add `.value.ts` postfix to all 18 value object files across 6 packages.
 
 ### Key Context
 
@@ -20,7 +20,7 @@ Add `.value.ts` postfix to all 17 value object files across 6 packages.
 
 ---
 
-## Files to Rename (17 total)
+## Files to Rename (18 total)
 
 ### Package: @beep/knowledge-domain (2 files)
 
@@ -31,13 +31,14 @@ Located in `packages/knowledge/domain/src/value-objects/`:
 | `Attributes.ts` | `attributes.value.ts` | Pending |
 | `EvidenceSpan.ts` | `evidence-span.value.ts` | Pending |
 
-### Package: @beep/shared-domain (1 file)
+### Package: @beep/shared-domain (2 files)
 
 Located in `packages/shared/domain/src/value-objects/`:
 
 | Current Name | Target Name | Status |
 |--------------|-------------|--------|
 | `EntitySource.ts` | `entity-source.value.ts` | Pending |
+| `paths.ts` | `paths.value.ts` | Pending |
 
 ### Package: @beep/iam-domain (1 file)
 
@@ -83,12 +84,31 @@ Located in `packages/comms/domain/src/value-objects/`:
 
 ---
 
+## Tool Availability Check
+
+Before starting, verify MCP refactor tool availability:
+
+```bash
+# Check if MCP tools are configured (look for mcp-refactor-typescript in output)
+# In Claude Code, MCP tools appear as mcp__<server>__<tool> functions
+```
+
+**If MCP tool unavailable**, use fallback workflow:
+1. `git mv <old> <new>` for each file
+2. Manually update import paths in:
+   - `index.ts` barrel exports in the value-objects directory
+   - Any cross-file imports within the same directory
+   - Root-level `src/index.ts` if it re-exports value objects directly
+3. Run `bun run check` to catch missed imports
+
+---
+
 ## Implementation Order
 
 Complete one package at a time:
 
 1. **@beep/knowledge-domain** (2 files)
-2. **@beep/shared-domain** (1 file)
+2. **@beep/shared-domain** (2 files)
 3. **@beep/iam-domain** (1 file)
 4. **@beep/documents-domain** (2 files)
 5. **@beep/calendar-domain** (9 files)
@@ -139,8 +159,8 @@ bun run check --filter @beep/documents-domain
 bun run check --filter @beep/calendar-domain
 bun run check --filter @beep/comms-domain
 
-# After all packages - verify no files missing .value.ts
-find packages -path "*/value-objects/*" -name "*.ts" -not -name "index.ts" -not -name "*.value.ts"
+# After all packages - verify no source files missing .value.ts (excludes build/)
+find packages -path "*/src/value-objects/*" -name "*.ts" -not -name "index.ts" -not -name "*.value.ts"
 # Expected: no output (all have .value.ts postfix)
 ```
 
@@ -162,7 +182,7 @@ find packages -path "*/value-objects/*" -name "*.ts" -not -name "index.ts" -not 
 
 Phase 1 is complete when:
 
-- [ ] All 17 value object files renamed with `.value.ts` postfix
+- [ ] All 18 value object files renamed with `.value.ts` postfix
 - [ ] All import paths updated automatically
 - [ ] `bun run check --filter @beep/knowledge-domain` passes
 - [ ] `bun run check --filter @beep/shared-domain` passes

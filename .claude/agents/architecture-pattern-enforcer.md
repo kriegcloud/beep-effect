@@ -51,6 +51,8 @@ Audit packages, slices, or the monorepo for structural violations, layer boundar
 | `documents` | `packages/documents/*` | Document management |
 | `comms` | `packages/comms/*` | Communications |
 | `customization` | `packages/customization/*` | User customization |
+| `calendar` | `packages/calendar/*` | Calendar/scheduling domain |
+| `knowledge` | `packages/knowledge/*` | Knowledge base domain |
 
 ### Layer Order (Dependencies Flow Down)
 
@@ -160,10 +162,12 @@ Naming: files `kebab-case.ts`, types `PascalCase`.
 
 | From Slice | Forbidden Pattern |
 |------------|-------------------|
-| iam | `@beep/(documents\|comms\|customization)` |
-| documents | `@beep/(iam\|comms\|customization)` |
-| comms | `@beep/(iam\|documents\|customization)` |
-| customization | `@beep/(iam\|documents\|comms)` |
+| iam | `@beep/(documents\|comms\|customization\|calendar\|knowledge)` |
+| documents | `@beep/(iam\|comms\|customization\|calendar\|knowledge)` |
+| comms | `@beep/(iam\|documents\|customization\|calendar\|knowledge)` |
+| customization | `@beep/(iam\|documents\|comms\|calendar\|knowledge)` |
+| calendar | `@beep/(iam\|documents\|comms\|customization\|knowledge)` |
+| knowledge | `@beep/(iam\|documents\|comms\|customization\|calendar)` |
 
 ---
 
@@ -255,7 +259,7 @@ import { UserId } from "@beep/shared-domain"
 ```
 LAYER (within slice): domain ← tables ← server ← client ← ui
 
-CROSS-SLICE: iam ✗ documents ✗ comms ✗ customization
+CROSS-SLICE: iam ✗ documents ✗ comms ✗ customization ✗ calendar ✗ knowledge
 
 BRIDGE: All slices ← shared-* ← common/*
 ```

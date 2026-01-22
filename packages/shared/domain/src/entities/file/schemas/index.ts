@@ -1,1 +1,1 @@
-export * from "./UploadKey";
+export * from "./upload-key.schema";

@@ -45,3 +45,6 @@ trace
 e2e/.auth/
 playwright-report/
 test-results/
+
+# Claude plugin state files (ralph-wiggum loop state)
+.claude/ralph-loop.local.md

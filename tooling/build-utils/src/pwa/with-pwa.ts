@@ -186,7 +186,6 @@ export const withPWA =
         reloadOnOnline = true,
         scope = basePath,
         customWorkerDir = "worker",
-        subdomainPrefix,
         ...workbox
       } = pluginOptions;
 
@@ -200,13 +199,6 @@ export const withPWA =
           console.log("> [PWA] PWA support is disabled");
         }
         return modifiedConfig;
-      }
-
-      // Warn about deprecated option
-      if (subdomainPrefix) {
-        console.error(
-          "> [PWA] subdomainPrefix is deprecated, use basePath in next.config.js instead: https://nextjs.org/docs/api-reference/next.config.js/basepath"
-        );
       }
 
       console.log(`> [PWA] Compile ${isServer ? "server" : "client (static)"}`);

@@ -2,7 +2,7 @@
 name: effect-schema-expert
 description: Expert guidance on Effect Schema patterns, validation, encoding/decoding, branded types, and schema composition.
 model: sonnet
-tools: [mcp__effect_docs__effect_docs_search, mcp__effect_docs__get_effect_doc, Read, Write, Edit, Glob, Grep]
+tools: [Read, Write, Edit, Glob, Grep]
 ---
 
 # Effect Schema Expert

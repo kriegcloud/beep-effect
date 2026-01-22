@@ -13,8 +13,8 @@ import { type AiGenerationConfig, AiService } from "../Ai/AiService";
 import { buildRelationPrompt, buildSystemPrompt } from "../Ai/PromptTemplates";
 import type { TextChunk } from "../Nlp/TextChunk";
 import type { OntologyContext } from "../Ontology";
-import type { ClassifiedEntity } from "./schemas/EntityOutput";
-import { ExtractedTriple, RelationOutput } from "./schemas/RelationOutput";
+import type { ClassifiedEntity } from "./schemas/entity-output.schema";
+import { ExtractedTriple, RelationOutput } from "./schemas/relation-output.schema";
 
 /**
  * Configuration for relation extraction

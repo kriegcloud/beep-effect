@@ -379,7 +379,7 @@ packages/shared/server/
 │   │       ├── event-stream-hub.ts  # SSE hub
 │   │       └── files/        # File management RPCs
 │   ├── jobs/
-│   │   └── cleanup-upload-sessions.ts  # Scheduled cleanup
+│   │   └── cleanup-upload-sessions.job.ts  # Scheduled cleanup
 │   └── factories/
 │       ├── index.ts                  # Factory barrel
 │       └── db-client/

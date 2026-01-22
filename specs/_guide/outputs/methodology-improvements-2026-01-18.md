@@ -1,5 +1,7 @@
 # Methodology Improvements Report
 
+> **Historical Document**: Written before path consolidation. References to `specs/SPEC_CREATION_GUIDE.md` now point to `specs/_guide/README.md`.
+
 **Date**: 2026-01-18
 **Scope**: Documentation and configuration gaps discovered during RLS Implementation and Knowledge Graph Integration spec work
 **Goal**: Prevent these issues from recurring in future spec implementations

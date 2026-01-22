@@ -32,11 +32,6 @@ description: |
   </example>
 model: sonnet
 tools:
-  - mcp__effect_docs__effect_docs_search
-  - mcp__effect_docs__get_effect_doc
-  - mcp__MCP_DOCKER__mcp-find
-  - mcp__MCP_DOCKER__mcp-add
-  - mcp__MCP_DOCKER__mcp-exec
   - Read
   - Glob
   - Grep

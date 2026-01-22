@@ -4,8 +4,8 @@ import { datetime } from "@beep/shared-tables/columns";
 import { session, user } from "@beep/shared-tables/schema";
 import { Table } from "@beep/shared-tables/table";
 import * as pg from "drizzle-orm/pg-core";
-import { oauthClient } from "./oauthClient.table";
-import { oauthRefreshToken } from "./oauthRefreshToken.table";
+import { oauthClient } from "./oauth-client.table";
+import { oauthRefreshToken } from "./oauth-refresh-token.table";
 
 export const oauthAccessToken = Table.make(IamEntityIds.OAuthAccessTokenId)(
   {

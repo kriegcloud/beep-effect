@@ -3,7 +3,7 @@ import { IamEntityIds } from "@beep/shared-domain/entity-ids";
 import { user } from "@beep/shared-tables/schema";
 import { Table } from "@beep/shared-tables/table";
 import * as pg from "drizzle-orm/pg-core";
-import { oauthClient } from "./oauthClient.table";
+import { oauthClient } from "./oauth-client.table";
 
 export const oauthConsent = Table.make(IamEntityIds.OAuthConsentId)(
   {

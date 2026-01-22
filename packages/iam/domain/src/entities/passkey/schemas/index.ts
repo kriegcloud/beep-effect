@@ -1,1 +1,1 @@
-export * from "./authenticator-attachment";
+export * from "./authenticator-attachment.schema";

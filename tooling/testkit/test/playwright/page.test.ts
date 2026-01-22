@@ -47,7 +47,7 @@ describe.skipIf(!isPlaywrightAvailable)("PlaywrightPage", () => {
           win.clicked = false;
         });
 
-        yield* page.click("#mybutton");
+        yield* page.locator("#mybutton").click();
 
         const clicked = yield* page.evaluate(() => (window as Window & { clicked?: boolean }).clicked);
         assert(clicked === true);
@@ -106,7 +106,7 @@ describe.skipIf(!isPlaywrightAvailable)("PlaywrightPage", () => {
         });
 
         // Click at a specific position relative to the element
-        yield* page.click("#mybutton", { position: { x: 10, y: 10 } });
+        yield* page.locator("#mybutton").click({ position: { x: 10, y: 10 } });
 
         const coords = yield* page.evaluate(
           () => (window as Window & { clickCoords?: { x: number; y: number } | null }).clickCoords

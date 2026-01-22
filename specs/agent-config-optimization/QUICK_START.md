@@ -98,7 +98,7 @@ CLAUDE.md                    # Root config (symlink to AGENTS.md)
 
 ### Spec Infrastructure
 ```
-specs/SPEC_CREATION_GUIDE.md # Spec patterns
+specs/_guide/README.md       # Spec patterns
 specs/agents/README.md       # Agent documentation
 ```
 

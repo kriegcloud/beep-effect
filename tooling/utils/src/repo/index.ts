@@ -129,7 +129,7 @@ export * from "./TsConfigIndex.js";
  *
  * @example
  * ```typescript
- * import { getUniqueDeps } from "@beep/tooling-utils"
+ * import { collectUniqueNpmDependencies } from "@beep/tooling-utils"
  * ```
  *
  * @category exports

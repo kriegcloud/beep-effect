@@ -520,7 +520,6 @@ This spec is complete when:
 ## Related Specifications
 
 - **Implementation Spec** (future): Will handle actual file renaming/refactoring
-- `specs/ai-friendliness-audit/`: Related AI-friendliness patterns
 - `.claude/skills/mcp-refactor-typescript.md`: TypeScript-aware refactoring (file renames, import updates)
 
 ---

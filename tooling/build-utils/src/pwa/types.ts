@@ -237,11 +237,6 @@ export interface PWAConfig extends Partial<WebpackConfigOptions> {
    * @default "worker"
    */
   readonly customWorkerDir?: undefined | string;
-
-  /**
-   * @deprecated Use `basePath` in next.config.js instead.
-   */
-  readonly subdomainPrefix?: undefined | string;
 }
 
 // ============================================================================

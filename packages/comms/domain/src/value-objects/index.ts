@@ -2,5 +2,5 @@
  * Value objects for the comms domain.
  */
 
-export * from "./logging.values";
-export * from "./mail.values";
+export * from "./logging.value";
+export * from "./mail.value";

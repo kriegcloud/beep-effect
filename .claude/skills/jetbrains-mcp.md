@@ -236,7 +236,4 @@ JetBrains execution tools (`execute_terminal_command`, `execute_run_configuratio
 
 ## Related
 
-- Full tool documentation: `specs/jetbrains-mcp-skill/outputs/tool-inventory.md`
-- Detailed workflows: `specs/jetbrains-mcp-skill/outputs/workflow-analysis.md`
-- Decision tree: `specs/jetbrains-mcp-skill/outputs/decision-tree.md`
-- Comparison matrix: `specs/jetbrains-mcp-skill/outputs/comparison-matrix.md`
+- [JetBrains MCP Server Documentation](https://plugins.jetbrains.com/plugin/26071-mcp-host)

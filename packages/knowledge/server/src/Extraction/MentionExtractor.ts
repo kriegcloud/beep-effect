@@ -12,7 +12,7 @@ import * as O from "effect/Option";
 import { type AiGenerationConfig, AiService } from "../Ai/AiService";
 import { buildMentionPrompt, buildSystemPrompt } from "../Ai/PromptTemplates";
 import type { TextChunk } from "../Nlp/TextChunk";
-import { ExtractedMention, MentionOutput } from "./schemas/MentionOutput";
+import { ExtractedMention, MentionOutput } from "./schemas/mention-output.schema";
 
 /**
  * Configuration for mention extraction

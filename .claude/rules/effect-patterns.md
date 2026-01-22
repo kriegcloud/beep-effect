@@ -393,7 +393,6 @@ For comprehensive patterns beyond this quick reference, consult these detailed g
 | **Testing** | `.claude/commands/patterns/effect-testing-patterns.md` | Comprehensive test patterns, runner selection, Layer management |
 | **Testing API** | `tooling/testkit/README.md` | Complete testkit API reference with examples |
 | **Database** | `documentation/patterns/database-patterns.md` | Slice creation, foreign keys, table patterns, verification |
-| **Services** | `documentation/patterns/service-patterns.md` | Service design, Layer composition, dependency injection |
 | **Effect Docs** | Use `mcp-researcher` agent | Official Effect documentation via MCP |
 
 **Usage**: When rules provide quick syntax reference, these documents provide:

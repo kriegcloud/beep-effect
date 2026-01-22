@@ -7,8 +7,8 @@
  * @since 0.1.0
  */
 import * as Effect from "effect/Effect";
-import type { ClassifiedEntity } from "./schemas/EntityOutput";
-import type { ExtractedTriple } from "./schemas/RelationOutput";
+import type { ClassifiedEntity } from "./schemas/entity-output.schema";
+import type { ExtractedTriple } from "./schemas/relation-output.schema";
 
 /**
  * Assembled entity with generated ID

@@ -290,4 +290,4 @@ Before executing a composed pipeline:
 
 - [Agent Signature Template](../specs/spec-creation-improvements/templates/AGENT_SIGNATURE.template.md)
 - [DSPy Signatures Research](../specs/spec-creation-improvements/outputs/dspy-signatures-research.md)
-- [SPEC_CREATION_GUIDE.md](../specs/SPEC_CREATION_GUIDE.md)
+- [Spec Guide](../specs/_guide/README.md)
