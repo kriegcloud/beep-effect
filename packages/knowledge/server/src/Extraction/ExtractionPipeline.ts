@@ -9,7 +9,6 @@
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Struct from "effect/Struct";
-import type { AiGenerationConfig } from "../Ai/AiService";
 import { type ChunkingConfig, defaultChunkingConfig, NlpService, type TextChunk } from "../Nlp";
 import { OntologyService } from "../Ontology";
 import { EntityExtractor } from "./EntityExtractor";
@@ -49,11 +48,6 @@ export interface ExtractionPipelineConfig {
    * Chunking configuration
    */
   readonly chunkingConfig?: undefined | ChunkingConfig;
-
-  /**
-   * AI generation configuration
-   */
-  readonly aiConfig?: AiGenerationConfig;
 
   /**
    * Minimum confidence for mentions
@@ -192,7 +186,6 @@ export class ExtractionPipeline extends Effect.Service<ExtractionPipeline>()(
             [...chunks],
             filterUndefined({
               minConfidence: config.mentionMinConfidence,
-              aiConfig: config.aiConfig,
             })
           );
 
@@ -211,7 +204,6 @@ export class ExtractionPipeline extends Effect.Service<ExtractionPipeline>()(
             filterUndefined({
               minConfidence: config.entityMinConfidence,
               batchSize: config.entityBatchSize,
-              aiConfig: config.aiConfig,
             })
           );
 
@@ -236,7 +228,6 @@ export class ExtractionPipeline extends Effect.Service<ExtractionPipeline>()(
             filterUndefined({
               minConfidence: config.relationMinConfidence,
               validatePredicates: true,
-              aiConfig: config.aiConfig,
             })
           );
 

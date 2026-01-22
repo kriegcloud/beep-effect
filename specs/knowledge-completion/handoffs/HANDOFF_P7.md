@@ -4,12 +4,45 @@
 
 ---
 
+## ⚠️ STATUS: DEFERRED
+
+**Reason**: Phase 7 requires integration with an email processing pipeline in the comms package. Currently, the comms package only has email templates (`packages/comms/domain/src/entities/email-template/`), not email reception/processing infrastructure.
+
+**Blocking Dependencies**:
+1. Email receive handler in comms package (does not exist)
+2. Email-to-text extraction interface (does not exist)
+3. Event emission system for extraction completion (partially exists)
+
+**Recommendation**: Proceed to Phase 8 (Finalization) and defer Phase 7 until comms email pipeline is implemented.
+
+---
+
 ## Prerequisites
 
-Phase 6 (GraphRAG Implementation) must be complete with:
-- [ ] `GraphRAGService` implemented and tested
-- [ ] k-NN search and N-hop traversal working
-- [ ] Context formatting functional
+Phase 6 (GraphRAG Implementation) ✅ COMPLETE with:
+- [x] `GraphRAGService` implemented and tested
+- [x] k-NN search via `EmbeddingService.findSimilar`
+- [x] N-hop traversal via `RelationRepo.findBySourceIds/findByTargetIds`
+- [x] RRF scoring via `RrfScorer.fuseRankings`
+- [x] Context formatting via `ContextFormatter.formatContext`
+- [x] 55 tests passing, 100% pass rate across 8 files
+
+### P6 Key Findings
+
+**New Files Created**:
+- `src/db/repos/Entity.repo.ts` - Entity CRUD + graph queries
+- `src/db/repos/Relation.repo.ts` - Relation CRUD + traversal queries
+- `src/GraphRAG/RrfScorer.ts` - RRF scoring utilities
+- `src/GraphRAG/ContextFormatter.ts` - LLM context formatting
+- `src/GraphRAG/GraphRAGService.ts` - Main GraphRAG service
+- `src/GraphRAG/index.ts` - Module exports
+- `test/GraphRAG/RrfScorer.test.ts` - 7 tests
+- `test/GraphRAG/ContextFormatter.test.ts` - 12 tests
+
+**Key Patterns**:
+- `Order.mapInput(Num.Order, fn)` for Effect sorting with custom comparator
+- `BS.toOptionalWithDefault(schema)(value)` for schema optional with default
+- BFS traversal with bidirectional edge collection for N-hop graph expansion
 
 ---
 

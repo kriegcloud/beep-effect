@@ -1489,6 +1489,9 @@
       "name": "@beep/knowledge-server",
       "version": "0.0.0",
       "dependencies": {
+        "@effect/ai": "^0.33.2",
+        "@effect/ai-anthropic": "^0.23.0",
+        "@effect/ai-openai": "^0.37.2",
         "n3": "catalog:",
         "openai": "catalog:",
       },

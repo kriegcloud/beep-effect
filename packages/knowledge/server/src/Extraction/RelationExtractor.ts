@@ -6,10 +6,10 @@
  * @module knowledge-server/Extraction/RelationExtractor
  * @since 0.1.0
  */
+import { LanguageModel, Prompt } from "@effect/ai";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
-import { type AiGenerationConfig, AiService } from "../Ai/AiService";
 import { buildRelationPrompt, buildSystemPrompt } from "../Ai/PromptTemplates";
 import type { TextChunk } from "../Nlp/TextChunk";
 import type { OntologyContext } from "../Ontology";
@@ -32,11 +32,6 @@ export interface RelationExtractionConfig {
    * Whether to validate predicate IRIs against ontology
    */
   readonly validatePredicates?: boolean;
-
-  /**
-   * AI generation configuration
-   */
-  readonly aiConfig?: AiGenerationConfig;
 }
 
 /**
@@ -90,7 +85,7 @@ export interface RelationExtractionResult {
 export class RelationExtractor extends Effect.Service<RelationExtractor>()("@beep/knowledge-server/RelationExtractor", {
   accessors: true,
   effect: Effect.gen(function* () {
-    const ai = yield* AiService;
+    const model = yield* LanguageModel.LanguageModel;
 
     /**
      * Validate predicate IRIs against ontology
@@ -167,15 +162,21 @@ export class RelationExtractor extends Effect.Service<RelationExtractor>()("@bee
           propertyCount: ontologyContext.properties.length,
         });
 
-        const result = yield* ai.generateObjectWithSystem(
-          RelationOutput,
-          buildSystemPrompt(),
-          buildRelationPrompt([...entities], chunk.text, ontologyContext),
-          config.aiConfig
-        );
+        const prompt = Prompt.make([
+          { role: "system" as const, content: buildSystemPrompt() },
+          { role: "user" as const, content: buildRelationPrompt([...entities], chunk.text, ontologyContext) },
+        ]);
+
+        const result = yield* model.generateObject({
+          prompt,
+          schema: RelationOutput,
+          objectName: "RelationOutput",
+        });
+
+        const tokensUsed = (result.usage.inputTokens ?? 0) + (result.usage.outputTokens ?? 0);
 
         // Filter by confidence and adjust offsets
-        const confidenceFiltered = A.filter(result.data.triples, (t) => t.confidence >= minConfidence);
+        const confidenceFiltered = A.filter(result.value.triples, (t) => t.confidence >= minConfidence);
 
         const offsetAdjusted = A.map(confidenceFiltered, (t) => adjustOffsets(t, chunk.startOffset));
 
@@ -195,13 +196,13 @@ export class RelationExtractor extends Effect.Service<RelationExtractor>()("@bee
         yield* Effect.logDebug("Relation extraction complete", {
           validTriples: valid.length,
           invalidTriples: invalid.length,
-          tokensUsed: result.usage.totalTokens,
+          tokensUsed,
         });
 
         return {
           triples: valid,
           invalidTriples: invalid,
-          tokensUsed: result.usage.totalTokens,
+          tokensUsed,
         };
       }),
 
@@ -234,14 +235,18 @@ export class RelationExtractor extends Effect.Service<RelationExtractor>()("@bee
             continue;
           }
 
-          const aiResult = yield* ai.generateObjectWithSystem(
-            RelationOutput,
-            buildSystemPrompt(),
-            buildRelationPrompt([...entities], chunk.text, ontologyContext),
-            config.aiConfig
-          );
+          const prompt = Prompt.make([
+            { role: "system" as const, content: buildSystemPrompt() },
+            { role: "user" as const, content: buildRelationPrompt([...entities], chunk.text, ontologyContext) },
+          ]);
 
-          const confidenceFiltered = A.filter(aiResult.data.triples, (t) => t.confidence >= minConfidence);
+          const aiResult = yield* model.generateObject({
+            prompt,
+            schema: RelationOutput,
+            objectName: "RelationOutput",
+          });
+
+          const confidenceFiltered = A.filter(aiResult.value.triples, (t) => t.confidence >= minConfidence);
 
           const offsetAdjusted = A.map(confidenceFiltered, (t) => adjustOffsets(t, chunk.startOffset));
 
@@ -253,7 +258,7 @@ export class RelationExtractor extends Effect.Service<RelationExtractor>()("@bee
             allTriples.push(...offsetAdjusted);
           }
 
-          totalTokens += aiResult.usage.totalTokens;
+          totalTokens += (aiResult.usage.inputTokens ?? 0) + (aiResult.usage.outputTokens ?? 0);
         }
 
         yield* Effect.logInfo("Relation extraction from chunks complete", {
