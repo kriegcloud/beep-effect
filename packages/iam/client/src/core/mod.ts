@@ -22,6 +22,14 @@
 export * as Atoms from "./atoms";
 
 /**
+ * Re-exports DeleteUser feature namespace.
+ *
+ * @category Core/Exports
+ * @since 0.1.0
+ */
+export { DeleteUser } from "./delete-user";
+
+/**
  * Re-exports GetSession feature namespace.
  *
  * @example
@@ -59,6 +67,46 @@ export { GetSession } from "./get-session";
 export { Group, layer } from "./layer";
 
 /**
+ * Re-exports LinkSocial feature namespace.
+ *
+ * @category Core/Exports
+ * @since 0.1.0
+ */
+export { LinkSocial } from "./link-social";
+
+/**
+ * Re-exports ListAccounts feature namespace.
+ *
+ * @category Core/Exports
+ * @since 0.1.0
+ */
+export { ListAccounts } from "./list-accounts";
+
+/**
+ * Re-exports RevokeOtherSessions feature namespace.
+ *
+ * @category Core/Exports
+ * @since 0.1.0
+ */
+export { RevokeOtherSessions } from "./revoke-other-sessions";
+
+/**
+ * Re-exports RevokeSession feature namespace.
+ *
+ * @category Core/Exports
+ * @since 0.1.0
+ */
+export { RevokeSession } from "./revoke-session";
+
+/**
+ * Re-exports RevokeSessions feature namespace.
+ *
+ * @category Core/Exports
+ * @since 0.1.0
+ */
+export { RevokeSessions } from "./revoke-sessions";
+
+/**
  * Re-exports Effect service and runtime for core operations.
  *
  * @example
@@ -94,3 +142,19 @@ export { runtime, Service } from "./service";
  * @since 0.1.0
  */
 export { SignOut } from "./sign-out";
+
+/**
+ * Re-exports UnlinkAccount feature namespace.
+ *
+ * @category Core/Exports
+ * @since 0.1.0
+ */
+export { UnlinkAccount } from "./unlink-account";
+
+/**
+ * Re-exports UpdateUser feature namespace.
+ *
+ * @category Core/Exports
+ * @since 0.1.0
+ */
+export { UpdateUser } from "./update-user";

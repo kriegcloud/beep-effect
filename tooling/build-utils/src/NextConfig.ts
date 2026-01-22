@@ -361,11 +361,11 @@ const withDefaultsImpl = Effect.fn("withDefaults")(function* (packageName: `@bee
             optimizePackageImports,
             mcpServer: true,
             turbopackFileSystemCacheForDev: true,
-            browserDebugInfoInTerminal: true,
+            logging: { browserToTerminal: true },
           }),
           onSome: ({ optimizePackageImports: _, ...experimental }) => ({
             ...experimental,
-            browserDebugInfoInTerminal: true,
+            logging: { browserToTerminal: true },
             turbotrace: {
               contextDirectory: __dirname,
               loadersToBundle: ["babel-loader"],

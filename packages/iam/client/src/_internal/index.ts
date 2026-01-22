@@ -1,3 +1,4 @@
+export * from "./api-key.schemas.ts";
 export * from "./captcha-middleware.ts";
 export * from "./common.atom.ts";
 export * from "./common.schemas.ts";
@@ -7,8 +8,10 @@ export * from "./errors.ts";
 export * from "./invitation.schemas.ts";
 export * from "./member.schemas.ts";
 export * from "./organization.schemas.ts";
+export * from "./role.schemas.ts";
 export * from "./runtime";
 export * from "./schema.helpers.ts";
 export * from "./session.schemas.ts";
+export * from "./team.schemas.ts";
 export * from "./user.schemas.ts";
 export * from "./wrap-iam-method.ts";
