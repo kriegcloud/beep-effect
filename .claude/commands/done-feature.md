@@ -25,7 +25,7 @@ bun run test <test-files>
 bun run build
 
 # 6. Verify JSDoc coverage improvements (if applicable)
-node scripts/analyze-jsdoc.mjs --file=<modified-files>
+bun run docs:lint
 ```
 
 **🚨 CRITICAL**: All checks must pass with ZERO errors before proceeding.
