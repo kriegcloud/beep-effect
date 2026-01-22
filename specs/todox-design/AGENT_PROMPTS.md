@@ -202,7 +202,7 @@ Follow existing patterns from:
 Review the todox-design spec for quality and completeness.
 
 Check:
-1. README.md follows META_SPEC_TEMPLATE structure
+1. README.md follows spec template structure
 2. REFLECTION_LOG.md exists and has entries
 3. MASTER_ORCHESTRATION.md has all phases defined
 4. Handoff documents follow HANDOFF_STANDARDS.md

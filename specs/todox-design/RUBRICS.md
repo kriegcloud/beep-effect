@@ -10,7 +10,7 @@
 
 | Score | Criteria |
 |-------|----------|
-| 100 | All required files present, follows META_SPEC_TEMPLATE exactly |
+| 100 | All required files present, follows spec template exactly |
 | 80 | All required files present, minor deviations |
 | 60 | Missing optional files, structure mostly correct |
 | 40 | Missing required files or significant deviations |

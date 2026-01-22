@@ -22,8 +22,9 @@ You are working in the **beep-effect** repository:
 beep-effect/                          # You are here
 ├── packages/                         # Future implementation location
 ├── specs/
-│   ├── SPEC_CREATION_GUIDE.md        # Spec standards reference
-│   ├── HANDOFF_STANDARDS.md          # Handoff document standards
+│   ├── _guide/                       # Spec standards and guides
+│   │   ├── README.md                 # Spec creation workflow
+│   │   ├── HANDOFF_STANDARDS.md      # Handoff document standards
 │   └── knowledge-graph-integration/  # The spec to review
 │       ├── README.md
 │       ├── QUICK_START.md
@@ -54,7 +55,7 @@ Review the knowledge-graph-integration spec for quality and completeness.
 Target: specs/knowledge-graph-integration/
 
 Check:
-1. README.md follows META_SPEC_TEMPLATE structure
+1. README.md follows spec template structure
 2. REFLECTION_LOG.md exists (can be empty template)
 3. MASTER_ORCHESTRATION.md has all 8 phases defined (P0-P7)
 4. AGENT_PROMPTS.md has prompts for all phases
@@ -96,8 +97,8 @@ Once the spec passes review:
 
 | Purpose | Path |
 |---------|------|
-| Spec standards | `specs/SPEC_CREATION_GUIDE.md` |
-| Handoff standards | `specs/HANDOFF_STANDARDS.md` |
+| Spec standards | `specs/_guide/README.md` |
+| Handoff standards | `specs/_guide/HANDOFF_STANDARDS.md` |
 | Effect patterns | `.claude/rules/effect-patterns.md` |
 | The spec to review | `specs/knowledge-graph-integration/` |
 

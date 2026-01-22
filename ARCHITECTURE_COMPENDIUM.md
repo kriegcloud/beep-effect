@@ -341,9 +341,9 @@ export class Model extends M.Class<Model>($I`UserModel`)(
       S.String.pipe(S.pattern(/^https?:\/\/.+/))
     ),
 
-    uploadLimit: BS.toOptionalWithDefault(S.Int)(USER_UPLOAD_LIMIT),
+    uploadLimit: BS.FieldOptionOmittable(S.Int),
 
-    role: BS.toOptionalWithDefault(UserRole)(UserRole.Enum.user),
+    role: S.optionalWith(UserRole, { default: () => UserRole.Enum.user }),
 
     banned: BS.BoolWithDefault(false),
 
