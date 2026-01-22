@@ -1,8 +1,8 @@
-import { sql } from "drizzle-orm";
 import { Member } from "@beep/iam-domain/entities";
 import type { SharedEntityIds } from "@beep/shared-domain";
 import { IamEntityIds } from "@beep/shared-domain";
 import { datetime, OrgTable, SharedDbSchema } from "@beep/shared-tables";
+import { sql } from "drizzle-orm";
 import * as pg from "drizzle-orm/pg-core";
 
 export const memberRoleEnum = Member.makeMemberRolePgEnum("member_role_enum");

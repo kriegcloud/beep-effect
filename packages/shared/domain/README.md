@@ -370,7 +370,7 @@ paths.auth.routes.signIn.withCallbackAndMethod(
 ```typescript
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
-import * as File from "@beep/shared-domain/entities/File";
+import * as File from "@beep/shared-domain/entities/file";
 import { SharedEntityIds } from "@beep/shared-domain";
 import type { EnvValue } from "@beep/constants";
 
@@ -398,7 +398,7 @@ Folders organize files and provide hierarchical structure for file management.
 
 ```typescript
 import * as S from "effect/Schema";
-import * as Folder from "@beep/shared-domain/entities/Folder";
+import * as Folder from "@beep/shared-domain/entities/folder";
 import { SharedEntityIds } from "@beep/shared-domain";
 
 // Folder.Model includes:

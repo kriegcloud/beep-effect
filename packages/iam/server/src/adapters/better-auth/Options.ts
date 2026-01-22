@@ -1,11 +1,11 @@
 import { AuthProviderNameValue, EnvValue } from "@beep/constants";
 import * as IamEntities from "@beep/iam-domain/entities";
-import * as Member from "@beep/iam-domain/entities/Member";
+import * as Member from "@beep/iam-domain/entities/member";
 import { IamDb } from "@beep/iam-server/db/Db";
 import { IamDbSchema } from "@beep/iam-tables";
 import { BS } from "@beep/schema";
 import { IamEntityIds, SharedEntityIds } from "@beep/shared-domain";
-import * as Organization from "@beep/shared-domain/entities/Organization";
+import * as Organization from "@beep/shared-domain/entities/organization";
 import { serverEnv } from "@beep/shared-env/ServerEnv";
 import { LangValueToAdapterLocale } from "@beep/ui-core/i18n/constants";
 import { detectLanguage } from "@beep/ui-core/i18n/server";

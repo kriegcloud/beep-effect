@@ -1,4 +1,4 @@
-import * as Invitation from "@beep/iam-domain/entities/Invitation";
+import * as Invitation from "@beep/iam-domain/entities/invitation";
 import { $IamClientId } from "@beep/identity/packages";
 import { IamEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import * as Effect from "effect/Effect";

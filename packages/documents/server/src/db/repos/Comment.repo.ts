@@ -1,5 +1,5 @@
 import { Entities } from "@beep/documents-domain";
-import { CommentNotFoundError } from "@beep/documents-domain/entities/Comment/Comment.errors";
+import { CommentNotFoundError } from "@beep/documents-domain/entities/comment/comment.errors";
 import { DocumentsDb } from "@beep/documents-server/db";
 import { $DocumentsServerId } from "@beep/identity/packages";
 import { DocumentsEntityIds } from "@beep/shared-domain";

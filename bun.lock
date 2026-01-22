@@ -2307,25 +2307,6 @@
         "zod": "catalog:",
       },
     },
-    "packages/wealth-management/domain": {
-      "name": "@beep/wm-domain",
-      "version": "0.0.0",
-      "devDependencies": {
-        "@beep/schema": "workspace:^",
-        "@beep/shared-domain": "workspace:^",
-        "@beep/testkit": "workspace:^",
-        "@effect/docgen": "catalog:",
-        "@effect/sql": "catalog:",
-        "@total-typescript/ts-reset": "catalog:",
-        "effect": "catalog:",
-      },
-      "peerDependencies": {
-        "@beep/schema": "workspace:^",
-        "@beep/shared-domain": "workspace:^",
-        "@effect/sql": "catalog:",
-        "effect": "catalog:",
-      },
-    },
     "tooling/build-utils": {
       "name": "@beep/build-utils",
       "version": "0.0.0",
@@ -3267,8 +3248,6 @@
     "@beep/utils": ["@beep/utils@workspace:packages/common/utils"],
 
     "@beep/web": ["@beep/web@workspace:apps/web"],
-
-    "@beep/wm-domain": ["@beep/wm-domain@workspace:packages/wealth-management/domain"],
 
     "@beep/wrap": ["@beep/wrap@workspace:packages/common/wrap"],
 

@@ -1,5 +1,5 @@
-export * as Comment from "./Comment";
-export * as Discussion from "./Discussion";
-export * as Document from "./Document";
-export * as DocumentFile from "./DocumentFile";
-export * as DocumentVersion from "./DocumentVersion";
+export * as Comment from "./comment";
+export * as Discussion from "./discussion";
+export * as Document from "./document";
+export * as DocumentFile from "./document-file";
+export * as DocumentVersion from "./document-version";

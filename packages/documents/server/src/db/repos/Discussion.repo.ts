@@ -1,5 +1,5 @@
 import { Entities } from "@beep/documents-domain";
-import { DiscussionNotFoundError } from "@beep/documents-domain/entities/Discussion/Discussion.errors";
+import { DiscussionNotFoundError } from "@beep/documents-domain/entities/discussion/discussion.errors";
 import { DocumentsDb } from "@beep/documents-server/db";
 import { $DocumentsServerId } from "@beep/identity/packages";
 import { DocumentsEntityIds } from "@beep/shared-domain";

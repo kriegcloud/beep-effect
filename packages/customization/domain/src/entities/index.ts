@@ -1,1 +1,1 @@
-export * as UserHotkey from "./UserHotkey";
+export * as UserHotkey from "./user-hotkey";
