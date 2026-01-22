@@ -174,8 +174,17 @@ paths:
 
 | Phase | Document | Status |
 |-------|----------|--------|
-| P0 | [handoffs/HANDOFF_P0.md](./handoffs/HANDOFF_P0.md) | Ready to start |
-| P0 | [handoffs/P0_ORCHESTRATOR_PROMPT.md](./handoffs/P0_ORCHESTRATOR_PROMPT.md) | Copy-paste prompt |
+| P0 | [handoffs/HANDOFF_P0.md](./handoffs/HANDOFF_P0.md) | **Complete** |
+| P0 | [handoffs/P0_ORCHESTRATOR_PROMPT.md](./handoffs/P0_ORCHESTRATOR_PROMPT.md) | **Complete** |
+| P1 | [handoffs/HANDOFF_P1.md](./handoffs/HANDOFF_P1.md) | Ready to start |
+| P1 | [handoffs/P1_ORCHESTRATOR_PROMPT.md](./handoffs/P1_ORCHESTRATOR_PROMPT.md) | Copy-paste prompt |
+
+## Phase 0 Outputs
+
+| Artifact | Description |
+|----------|-------------|
+| [outputs/tool-inventory.md](./outputs/tool-inventory.md) | All 20 JetBrains MCP tools documented |
+| [outputs/tool-dependencies.md](./outputs/tool-dependencies.md) | Common parameters and tool relationships |
 
 ## Key Agents Used
 
