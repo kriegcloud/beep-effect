@@ -69,7 +69,7 @@ apps/
 ├── web/           # Next.js 16 (yes, 16, not 15, because I keep up)
 ├── server/        # Effect Platform backend
 ├── marketing/     # Marketing site for the ideas I'll actually ship
-└── todox/         # Proof that I can finish something
+└── todox/         # Proof that I can finish something (soon)
 
 packages/
 ├── iam/           # Identity & access (the first thing every app needs)
@@ -92,20 +92,12 @@ tooling/
 
 Every slice follows the same dependency structure:
 
-```
-                    ┌─────────┐
-                    │  client │
-                    └────┬────┘
-                         │
-                         ▼
-       ┌────────┐    ┌────────┐    ┌────────┐
-       │ tables │───▶│ domain │◀───│ server │
-       └────────┘    └────────┘    └────────┘
-                         ▲
-                         │
-                    ┌────┴────┐
-                    │   ui    │
-                    └─────────┘
+```mermaid
+flowchart TB
+    client --> domain
+    tables --> domain
+    server --> domain
+    ui --> domain
 ```
 
 Domain is the sun. Everything else orbits. Nothing in `domain` imports from infrastructure. This isn't a suggestion. It's constitutional law.
