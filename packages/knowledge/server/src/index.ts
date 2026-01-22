@@ -43,6 +43,12 @@ export * as EntityResolution from "./EntityResolution";
 export * as Extraction from "./Extraction";
 
 /**
+ * GraphRAG service exports
+ * @since 0.1.0
+ */
+export * as GraphRAG from "./GraphRAG";
+
+/**
  * Grounding service exports
  * @since 0.1.0
  */

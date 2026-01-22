@@ -6,12 +6,34 @@
 
 ## Prerequisites
 
-Phase 1 (Discovery & Research) must be complete with:
-- [ ] `outputs/current-impl-analysis.md` populated
-- [ ] `outputs/effect-ai-research.md` populated
-- [ ] `outputs/reference-patterns.md` populated
-- [ ] `outputs/gap-analysis.md` populated
-- [ ] Quality gate: ≥3.5 average score
+Phase 1 (Discovery & Research) is **COMPLETE** with:
+- [x] `outputs/current-impl-analysis.md` populated
+- [x] `outputs/effect-ai-research.md` populated
+- [x] `outputs/reference-patterns.md` populated
+- [x] `outputs/gap-analysis.md` populated
+- [x] Quality gate: ≥3.5 average score
+
+---
+
+## Phase 1 Summary
+
+### Key Findings
+
+1. **All 5 LLM calls use `generateObjectWithSystem`** - The other two methods (`generateObject`, `generateText`) are never called and can be removed.
+
+2. **System prompts ARE supported in @effect/ai** via `Prompt.make([{role: "system", ...}, {role: "user", ...}])`.
+
+3. **Mock Layer pattern confirmed**: `Layer.succeed(LanguageModel.LanguageModel, LanguageModel.LanguageModel.of({...}))`.
+
+4. **No production provider exists** - Only mock implementation. New provider layers need to be created.
+
+5. **Migration complexity is LOW** - 5 files to modify, 2 to delete, 3 to create.
+
+### Critical Issues Found
+
+- **3 instances of `Context.GenericTag`**: AiService.ts, EmbeddingProvider.ts, OpenAiProvider.ts
+- **ExtractionPipeline missing AiService dependency** - Pre-existing bug
+- **0% test coverage** - Only placeholder test exists
 
 ---
 
@@ -128,10 +150,15 @@ Phase 2 is complete when:
 
 ## Known Issues from P1
 
-Document any issues discovered in Phase 1 that affect architecture review:
+Issues discovered in Phase 1 that affect architecture review:
 
-1. **AiService uses `Context.GenericTag`** - This is a known legacy pattern, will be deleted in P4
-2. **EntityExtractor uses `generateObjectWithSystem`** - Migration strategy needed
+1. **AiService uses `Context.GenericTag`** (line 124) - Legacy pattern, will be deleted in P4
+2. **EmbeddingProvider uses `Context.GenericTag`** (line 134) - Legacy pattern, needs modern migration
+3. **OpenAiProvider uses `Context.GenericTag`** (line 127) - Legacy pattern, needs modern migration
+4. **All 5 LLM calls use `generateObjectWithSystem`** - Migration to `Prompt.make()` + `generateObject` is straightforward
+5. **ExtractionPipeline missing AiService in dependencies array** - Pre-existing bug, will fail at runtime
+6. **0% test coverage** - Only placeholder test (Dummy.test.ts) exists
+7. **No production LLM provider** - Only mock that fails with errors exists
 
 ---
 

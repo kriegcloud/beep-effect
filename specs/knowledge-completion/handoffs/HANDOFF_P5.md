@@ -6,10 +6,30 @@
 
 ## Prerequisites
 
-Phase 4 (LLM Refactoring) must be complete with:
-- [ ] `bun run check --filter @beep/knowledge-server` passes
-- [ ] `AiService.ts` deleted
-- [ ] All extractors using `LanguageModel.LanguageModel`
+Phase 4 (LLM Refactoring) ✅ COMPLETE with:
+- [x] `@effect/ai`, `@effect/ai-anthropic`, `@effect/ai-openai` dependencies added
+- [x] `Runtime/LlmLayers.ts` created with config-driven provider selection
+- [x] `Runtime/index.ts` created with exports
+- [x] `MentionExtractor.ts` migrated to @effect/ai
+- [x] `RelationExtractor.ts` migrated to @effect/ai
+- [x] `EntityExtractor.ts` migrated to @effect/ai
+- [x] `ExtractionPipeline.ts` updated (aiConfig removed)
+- [x] `AiService.ts` deleted
+- [x] `Ai/index.ts` updated (AiService export removed)
+- [x] `bun run check --filter @beep/knowledge-server` passes
+- [x] `grep -r "AiService" packages/knowledge/server/src/` returns no results
+
+### P4 Key Findings
+
+**Critical Implementation Details**:
+
+1. **Redacted API key**: `Config.redacted("LLM_API_KEY")` returns `Redacted<string>`, required by provider clients.
+
+2. **Token counting changed**: `result.usage.totalTokens` → `(result.usage.inputTokens ?? 0) + (result.usage.outputTokens ?? 0)`
+
+3. **Result access changed**: `result.data` → `result.value`
+
+4. **FetchHttpClient required**: LlmLayers composition requires `FetchHttpClient.layer` from `@effect/platform`.
 
 ---
 

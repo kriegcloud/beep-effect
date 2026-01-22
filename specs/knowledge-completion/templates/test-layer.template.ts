@@ -4,37 +4,44 @@
  * This template demonstrates how to create mock Layers
  * for testing services that depend on @effect/ai LanguageModel.
  *
- * STATUS: TEMPLATE - DO NOT IMPORT DIRECTLY
- * This file will be verified during Phase 3.
+ * VERIFIED: Phase 3 - Patterns match actual @effect/ai v0.33 API
+ * Reference: tmp/effect-ontology/packages/@core-v2/test/Service/OntologyAgent.test.ts
+ *
+ * STATUS: TEMPLATE - Copy and adapt for your test setup
+ *
+ * NOTE: Due to @effect/ai's complex type signatures, these mocks use
+ * type assertions (`as unknown as LanguageModel.Service`). This is the
+ * standard pattern from the reference implementation.
  */
 
+import { LanguageModel } from "@effect/ai"
 import * as Effect from "effect/Effect"
 import * as Layer from "effect/Layer"
-import * as S from "effect/Schema"
-import { LanguageModel, Prompt } from "@effect/ai"
 
 // =============================================================================
 // Mock Response Registry
 // =============================================================================
 
 /**
- * Registry for mock responses keyed by objectName
+ * Registry for mock responses keyed by prompt content or objectName
  *
- * This allows tests to set up specific responses for different schemas.
+ * This allows tests to set up specific responses for different calls.
  */
 const mockResponses = new Map<string, unknown>()
 
 /**
- * Set a mock response for a specific objectName
+ * Set a mock response for a specific key (objectName or schema identifier)
  *
  * @example
+ * ```typescript
  * setMockResponse("ExtractionResult", {
  *   entities: [{ name: "Test", type: "Person", confidence: 0.9 }],
  *   relations: []
  * })
+ * ```
  */
-export const setMockResponse = (objectName: string, response: unknown): void => {
-  mockResponses.set(objectName, response)
+export const setMockResponse = (key: string, response: unknown): void => {
+  mockResponses.set(key, response)
 }
 
 /**
@@ -49,71 +56,62 @@ export const clearMockResponses = (): void => {
 // =============================================================================
 
 /**
- * Create a mock LanguageModel that returns predefined responses
+ * Create a mock LanguageModel service
  *
- * NOTE: The exact shape of LanguageModel.LanguageModel interface
- * should be verified during P1 research. This is a best-guess template.
+ * CRITICAL PATTERN: The reference implementation uses:
+ * - `Layer.succeed(LanguageModel.LanguageModel, { ... } as unknown as LanguageModel.Service)`
+ *
+ * The `as unknown as LanguageModel.Service` cast is necessary because @effect/ai
+ * has complex generic signatures that are difficult to satisfy exactly.
  */
 const createMockLanguageModel = () => ({
   /**
    * Mock generateObject implementation
    *
    * Returns predefined response from mockResponses registry,
-   * or generates a default response based on schema.
+   * or empty object with mock metadata.
    */
-  generateObject: <A>({
-    schema,
-    objectName,
-  }: {
-    prompt: Prompt.Prompt
-    schema: S.Schema<A, unknown>
-    objectName: string
-  }) =>
-    Effect.gen(function* () {
-      // Check for predefined mock response
-      const mockResponse = mockResponses.get(objectName)
-      if (mockResponse) {
-        return {
-          value: mockResponse as A,
-          usage: { inputTokens: 100, outputTokens: 50 },
-        }
-      }
-
-      // Generate default response from schema
-      // This is a simple fallback - tests should use setMockResponse
-      const defaultValue = yield* Effect.try(() =>
-        generateDefaultFromSchema(schema)
-      ).pipe(
-        Effect.orElseSucceed(() => ({} as A))
-      )
-
-      return {
-        value: defaultValue,
-        usage: { inputTokens: 100, outputTokens: 50 },
-      }
-    }),
+  generateObject: (options: { prompt: unknown; schema: unknown; objectName?: string }) =>
+    Effect.succeed({
+      value: options.objectName && mockResponses.has(options.objectName)
+        ? mockResponses.get(options.objectName)
+        : mockResponses.size > 0
+          ? mockResponses.values().next().value
+          : {},
+      // GenerateTextResponse fields
+      content: [],
+      text: "",
+      reasoning: null,
+      reasoningText: "",
+      toolCalls: [],
+      toolCallResults: [],
+      finishReason: "stop",
+      usage: { inputTokens: 100, outputTokens: 50, totalTokens: 150 },
+    } as unknown),
 
   /**
    * Mock generateText implementation
    */
-  generateText: ({ prompt }: { prompt: Prompt.Prompt }) =>
+  generateText: () =>
     Effect.succeed({
-      text: "Mock generated text response",
-      usage: { inputTokens: 50, outputTokens: 20 },
-    }),
-})
+      text: "Mock generated text",
+      content: [],
+      reasoning: null,
+      reasoningText: "",
+      toolCalls: [],
+      toolCallResults: [],
+      finishReason: "stop",
+      usage: { inputTokens: 0, outputTokens: 0, totalTokens: 0 },
+    } as unknown),
 
-/**
- * Generate a default value from a schema
- *
- * This is a simple implementation - complex schemas may need
- * explicit mock responses via setMockResponse.
- */
-const generateDefaultFromSchema = <A>(schema: S.Schema<A, unknown>): A => {
-  // This is a placeholder - real implementation would inspect schema AST
-  // For testing, always use setMockResponse with explicit values
-  return {} as A
-}
+  /**
+   * Mock streamText implementation
+   */
+  streamText: () =>
+    Effect.succeed({
+      stream: Effect.succeed([]),
+    } as unknown),
+})
 
 // =============================================================================
 // Mock Layer
@@ -124,13 +122,19 @@ const generateDefaultFromSchema = <A>(schema: S.Schema<A, unknown>): A => {
  *
  * Use this Layer in tests to avoid real LLM API calls.
  *
+ * CRITICAL PATTERN from reference implementation:
+ * ```typescript
+ * Layer.succeed(LanguageModel.LanguageModel, { ... } as unknown as LanguageModel.Service)
+ * ```
+ *
  * @example
+ * ```typescript
  * import { effect, strictEqual } from "@beep/testkit"
- * import { MockLlmLive, setMockResponse } from "../_shared/TestLayers"
+ * import { MockLlmLive, setMockResponse, clearMockResponses } from "../_shared/TestLayers"
  *
  * effect("extracts entities", () =>
  *   Effect.gen(function* () {
- *     // Set up mock response
+ *     // Set up mock response BEFORE running the effect
  *     setMockResponse("ExtractionResult", {
  *       entities: [{ name: "John", type: "Person", confidence: 0.95 }],
  *       relations: []
@@ -146,53 +150,176 @@ const generateDefaultFromSchema = <A>(schema: S.Schema<A, unknown>): A => {
  *     Effect.provide(MockLlmLive)
  *   )
  * )
+ * ```
  */
 export const MockLlmLive = Layer.succeed(
   LanguageModel.LanguageModel,
-  createMockLanguageModel()
+  createMockLanguageModel() as unknown as LanguageModel.Service
 )
 
 // =============================================================================
-// Test Utilities
+// Parameterized Mock Factories
 // =============================================================================
 
 /**
- * Create a custom mock Layer with specific behavior
+ * Create a custom mock Layer with specific fixed response
  *
- * Use this for tests that need custom mock logic beyond simple responses.
+ * Use this for tests that need a specific response regardless of input.
+ *
+ * @example
+ * ```typescript
+ * const CustomMock = createMockLlmWithResponse({
+ *   entities: [{ name: "Alice", type: "Person", confidence: 0.8 }],
+ *   relations: []
+ * })
+ *
+ * effect("test with custom response", () =>
+ *   program.pipe(Effect.provide(CustomMock))
+ * )
+ * ```
  */
-export const createCustomMockLlm = (
-  overrides: Partial<ReturnType<typeof createMockLanguageModel>>
-) =>
-  Layer.succeed(LanguageModel.LanguageModel, {
-    ...createMockLanguageModel(),
-    ...overrides,
-  })
+export const createMockLlmWithResponse = <A>(response: A) =>
+  Layer.succeed(
+    LanguageModel.LanguageModel,
+    {
+      generateObject: () =>
+        Effect.succeed({
+          value: response,
+          content: [],
+          text: "",
+          reasoning: null,
+          reasoningText: "",
+          toolCalls: [],
+          toolCallResults: [],
+          finishReason: "stop",
+          usage: { inputTokens: 100, outputTokens: 50, totalTokens: 150 },
+        } as unknown),
+      generateText: () =>
+        Effect.succeed({
+          text: "",
+          content: [],
+          reasoning: null,
+          reasoningText: "",
+          toolCalls: [],
+          toolCallResults: [],
+          finishReason: "stop",
+          usage: { inputTokens: 0, outputTokens: 0, totalTokens: 0 },
+        } as unknown),
+      streamText: () =>
+        Effect.succeed({
+          stream: Effect.succeed([]),
+        } as unknown),
+    } as unknown as LanguageModel.Service
+  )
 
 /**
  * Create a failing mock Layer for error testing
  *
+ * Use this to test error handling paths.
+ *
  * @example
+ * ```typescript
+ * import * as Either from "effect/Either"
+ *
  * const FailingLlm = createFailingMockLlm(new Error("API timeout"))
  *
  * effect("handles LLM failure", () =>
  *   Effect.gen(function* () {
  *     const extractor = yield* ExampleExtractor
- *     const result = yield* extractor.extract("test").pipe(
- *       Effect.either
- *     )
+ *     const result = yield* extractor.extract("test").pipe(Effect.either)
+ *
  *     strictEqual(Either.isLeft(result), true)
  *   }).pipe(
  *     Effect.provide(ExampleExtractor.Default),
  *     Effect.provide(FailingLlm)
  *   )
  * )
+ * ```
  */
 export const createFailingMockLlm = (error: Error) =>
-  Layer.succeed(LanguageModel.LanguageModel, {
-    generateObject: () => Effect.fail(error),
-    generateText: () => Effect.fail(error),
-  })
+  Layer.succeed(
+    LanguageModel.LanguageModel,
+    {
+      generateObject: () => Effect.fail(error),
+      generateText: () => Effect.fail(error),
+      streamText: () => Effect.fail(error),
+    } as unknown as LanguageModel.Service
+  )
+
+/**
+ * Create a mock that tracks calls for verification
+ *
+ * Use this to verify that the LLM was called with expected parameters.
+ *
+ * @example
+ * ```typescript
+ * const { layer, getCalls } = createTrackingMockLlm({
+ *   entities: [],
+ *   relations: []
+ * })
+ *
+ * effect("tracks LLM calls", () =>
+ *   Effect.gen(function* () {
+ *     const extractor = yield* ExampleExtractor
+ *     yield* extractor.extract("Test input")
+ *
+ *     const calls = getCalls()
+ *     strictEqual(calls.length, 1)
+ *   }).pipe(
+ *     Effect.provide(ExampleExtractor.Default),
+ *     Effect.provide(layer)
+ *   )
+ * )
+ * ```
+ */
+export const createTrackingMockLlm = <A>(response: A) => {
+  const calls: Array<{ options: unknown }> = []
+
+  const layer = Layer.succeed(
+    LanguageModel.LanguageModel,
+    {
+      generateObject: (options: unknown) => {
+        calls.push({ options })
+        return Effect.succeed({
+          value: response,
+          content: [],
+          text: "",
+          reasoning: null,
+          reasoningText: "",
+          toolCalls: [],
+          toolCallResults: [],
+          finishReason: "stop",
+          usage: { inputTokens: 100, outputTokens: 50, totalTokens: 150 },
+        } as unknown)
+      },
+      generateText: (options: unknown) => {
+        calls.push({ options })
+        return Effect.succeed({
+          text: "",
+          content: [],
+          reasoning: null,
+          reasoningText: "",
+          toolCalls: [],
+          toolCallResults: [],
+          finishReason: "stop",
+          usage: { inputTokens: 0, outputTokens: 0, totalTokens: 0 },
+        } as unknown)
+      },
+      streamText: () =>
+        Effect.succeed({
+          stream: Effect.succeed([]),
+        } as unknown),
+    } as unknown as LanguageModel.Service
+  )
+
+  return {
+    layer,
+    getCalls: () => [...calls],
+    clearCalls: () => {
+      calls.length = 0
+    },
+  }
+}
 
 // =============================================================================
 // Composite Test Layers
@@ -202,10 +329,97 @@ export const createFailingMockLlm = (error: Error) =>
  * Full test Layer combining MockLlm with other test dependencies
  *
  * Extend this pattern for services with multiple dependencies.
+ *
+ * @example
+ * ```typescript
+ * // In test/_shared/TestLayers.ts
+ * export const TestKnowledgeLive = Layer.mergeAll(
+ *   MockLlmLive,
+ *   MockEmbeddingLive,
+ *   MockOntologyLive,
+ * )
+ *
+ * // In test file
+ * layer(TestKnowledgeLive)("ExtractionPipeline", (it) => {
+ *   it.effect("runs full pipeline", () => ...)
+ * })
+ * ```
  */
-export const TestKnowledgeLayer = Layer.mergeAll(
-  MockLlmLive,
+export const TestKnowledgeLive = Layer.mergeAll(
+  MockLlmLive
   // Add other mock layers as needed:
   // MockEmbeddingLive,
   // MockOntologyLive,
 )
+
+// =============================================================================
+// Test Utilities
+// =============================================================================
+
+/**
+ * Helper to set up mock responses before a test
+ *
+ * Clears previous responses and sets new ones.
+ *
+ * @example
+ * ```typescript
+ * effect("test with setup", () =>
+ *   Effect.gen(function* () {
+ *     setupMockResponses({
+ *       MentionOutput: { mentions: [{ text: "John", startChar: 0, endChar: 4 }] },
+ *       EntityOutput: { entities: [{ name: "John", type: "Person" }] }
+ *     })
+ *
+ *     // Run test...
+ *   })
+ * )
+ * ```
+ */
+export const setupMockResponses = (
+  responses: Record<string, unknown>
+): void => {
+  clearMockResponses()
+  for (const [key, value] of Object.entries(responses)) {
+    setMockResponse(key, value)
+  }
+}
+
+// =============================================================================
+// Usage Notes
+// =============================================================================
+
+/**
+ * RECOMMENDED TEST PATTERNS:
+ *
+ * 1. Simple response mock (by objectName):
+ *    ```typescript
+ *    setMockResponse("EntityOutput", expectedResponse)
+ *    // model.generateObject({ prompt, schema, objectName: "EntityOutput" })
+ *    // returns expectedResponse
+ *    ```
+ *
+ * 2. Fixed response for entire test:
+ *    ```typescript
+ *    Effect.provide(createMockLlmWithResponse(fixedResponse))
+ *    ```
+ *
+ * 3. Error testing:
+ *    ```typescript
+ *    Effect.provide(createFailingMockLlm(new Error("...")))
+ *    ```
+ *
+ * 4. Call verification:
+ *    ```typescript
+ *    const { layer, getCalls } = createTrackingMockLlm(response)
+ *    // ... run test
+ *    const calls = getCalls()
+ *    strictEqual(calls.length, expected)
+ *    ```
+ *
+ * CLEANUP: Always call clearMockResponses() in beforeEach or use
+ * setupMockResponses() which clears automatically.
+ *
+ * TYPE ASSERTIONS: The `as unknown as LanguageModel.Service` casts are
+ * the standard pattern from the reference implementation. This is necessary
+ * because @effect/ai uses complex generic signatures.
+ */

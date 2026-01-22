@@ -6,10 +6,10 @@
  * @module knowledge-server/Extraction/MentionExtractor
  * @since 0.1.0
  */
+import { LanguageModel, Prompt } from "@effect/ai";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
-import { type AiGenerationConfig, AiService } from "../Ai/AiService";
 import { buildMentionPrompt, buildSystemPrompt } from "../Ai/PromptTemplates";
 import type { TextChunk } from "../Nlp/TextChunk";
 import { ExtractedMention, MentionOutput } from "./schemas/mention-output.schema";
@@ -25,11 +25,6 @@ export interface MentionExtractionConfig {
    * Minimum confidence threshold for mentions
    */
   readonly minConfidence?: number;
-
-  /**
-   * AI generation configuration
-   */
-  readonly aiConfig?: AiGenerationConfig;
 }
 
 /**
@@ -78,7 +73,7 @@ export interface MentionExtractionResult {
 export class MentionExtractor extends Effect.Service<MentionExtractor>()("@beep/knowledge-server/MentionExtractor", {
   accessors: true,
   effect: Effect.gen(function* () {
-    const ai = yield* AiService;
+    const model = yield* LanguageModel.LanguageModel;
 
     return {
       /**
@@ -96,16 +91,23 @@ export class MentionExtractor extends Effect.Service<MentionExtractor>()("@beep/
           textLength: chunk.text.length,
         });
 
+        // Create prompt with system and user messages
+        const prompt = Prompt.make([
+          { role: "system" as const, content: buildSystemPrompt() },
+          { role: "user" as const, content: buildMentionPrompt(chunk.text, chunk.index) },
+        ]);
+
         // Call AI to extract mentions
-        const result = yield* ai.generateObjectWithSystem(
-          MentionOutput,
-          buildSystemPrompt(),
-          buildMentionPrompt(chunk.text, chunk.index),
-          config.aiConfig
-        );
+        const result = yield* model.generateObject({
+          prompt,
+          schema: MentionOutput,
+          objectName: "MentionOutput",
+        });
+
+        const tokensUsed = (result.usage.inputTokens ?? 0) + (result.usage.outputTokens ?? 0);
 
         // Filter by confidence and adjust offsets to document level
-        const mentions = A.filterMap(result.data.mentions, (m): O.Option<ExtractedMention> => {
+        const mentions = A.filterMap(result.value.mentions, (m): O.Option<ExtractedMention> => {
           if (m.confidence < minConfidence) {
             return O.none();
           }
@@ -126,13 +128,13 @@ export class MentionExtractor extends Effect.Service<MentionExtractor>()("@beep/
         yield* Effect.logDebug("Mention extraction complete", {
           chunkIndex: chunk.index,
           mentionsFound: mentions.length,
-          tokensUsed: result.usage.totalTokens,
+          tokensUsed,
         });
 
         return {
           chunk,
           mentions,
-          tokensUsed: result.usage.totalTokens,
+          tokensUsed,
         };
       }),
 
@@ -156,14 +158,20 @@ export class MentionExtractor extends Effect.Service<MentionExtractor>()("@beep/
         // Process chunks sequentially to respect rate limits
         const results = A.empty<MentionExtractionResult>();
         for (const chunk of chunks) {
-          const genResult = yield* ai.generateObjectWithSystem(
-            MentionOutput,
-            buildSystemPrompt(),
-            buildMentionPrompt(chunk.text, chunk.index),
-            config.aiConfig
-          );
+          const prompt = Prompt.make([
+            { role: "system" as const, content: buildSystemPrompt() },
+            { role: "user" as const, content: buildMentionPrompt(chunk.text, chunk.index) },
+          ]);
 
-          const mentions = A.filterMap(genResult.data.mentions, (m): O.Option<ExtractedMention> => {
+          const genResult = yield* model.generateObject({
+            prompt,
+            schema: MentionOutput,
+            objectName: "MentionOutput",
+          });
+
+          const tokensUsed = (genResult.usage.inputTokens ?? 0) + (genResult.usage.outputTokens ?? 0);
+
+          const mentions = A.filterMap(genResult.value.mentions, (m): O.Option<ExtractedMention> => {
             if (m.confidence < minConfidence) {
               return O.none();
             }
@@ -183,7 +191,7 @@ export class MentionExtractor extends Effect.Service<MentionExtractor>()("@beep/
           results.push({
             chunk,
             mentions,
-            tokensUsed: genResult.usage.totalTokens,
+            tokensUsed,
           });
         }
 
