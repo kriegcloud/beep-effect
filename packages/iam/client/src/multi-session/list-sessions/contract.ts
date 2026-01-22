@@ -12,7 +12,7 @@
 
 import * as Common from "@beep/iam-client/_internal";
 import { $IamClientId } from "@beep/identity/packages";
-import {Wrap} from "@beep/wrap";
+import { Wrap } from "@beep/wrap";
 import * as S from "effect/Schema";
 
 const $I = $IamClientId.create("multi-session/list-sessions");

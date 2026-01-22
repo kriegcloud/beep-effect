@@ -6,7 +6,7 @@
     "dev": "NODE_OPTIONS='--inspect=9231' bunx @react-grab/claude-code@latest && bun run dotenvx -- next dev --turbopack",
     "dev:https": "bun run dotenvx -- bunx next dev --turbopack --experimental-https",
     "start": "bun run dotenvx -- next start",
-    "build": "NODE_ENV=production bun run dotenvx next build --turbopack",
+    "build": "NODE_ENV=production NODE_OPTIONS='--max-old-space-size=8192' bun run dotenvx next build --turbopack",
     "build:turbo": "next build --turbopack",
     "lint": "biome check .",
     "test": "bun test",
