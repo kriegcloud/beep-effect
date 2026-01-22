@@ -2,6 +2,10 @@
 
 > Research-validated enhancements to the beep-effect specification creation workflow based on 2025 industry trends.
 
+**Status**: ✅ COMPLETED — Files consolidated to `specs/_guide/`
+
+> **Historical Note**: References to `specs/SPEC_CREATION_GUIDE.md`, `specs/HANDOFF_STANDARDS.md`, `specs/PATTERN_REGISTRY.md`, and `specs/llms.txt` in this document refer to their original locations. These files now live in `specs/_guide/`.
+
 ---
 
 ## Purpose
@@ -221,5 +225,4 @@ Start with: `handoffs/P0_ORCHESTRATOR_PROMPT.md`
 
 ## Related Specifications
 
-- `specs/ai-friendliness-audit/` - Related AI-friendliness patterns
 - `specs/canonical-naming-conventions/` - Uses ai-trends-researcher for research
