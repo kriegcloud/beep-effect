@@ -27,6 +27,7 @@ type SomeOptional = SetOptional<Foo, 'b' | 'c'>;
 
 @category Object
 */
+// biome-ignore lint/suspicious/noExplicitAny: Required for matching function types in type utilities
 export type SetOptional<BaseType, Keys extends keyof BaseType> = (BaseType extends (...arguments_: never) => any
   ? (...arguments_: Parameters<BaseType>) => ReturnType<BaseType>
   : unknown) &

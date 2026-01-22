@@ -57,6 +57,7 @@ export type PartialOnUndefinedDeep<T, Options extends PartialOnUndefinedDeepOpti
   ApplyDefaultOptions<PartialOnUndefinedDeepOptions, DefaultPartialOnUndefinedDeepOptions, Options>
 >;
 
+// biome-ignore lint/suspicious/noExplicitAny: Required for type-level record matching in conditional types
 type _PartialOnUndefinedDeep<T, Options extends Required<PartialOnUndefinedDeepOptions>> = T extends
   | Record<any, any>
   | undefined
@@ -80,6 +81,7 @@ type _PartialOnUndefinedDeep<T, Options extends Required<PartialOnUndefinedDeepO
 /**
 Utility type to get the value type by key and recursively call `PartialOnUndefinedDeep` to transform sub-objects.
 */
+// biome-ignore lint/suspicious/noExplicitAny: Required for matching arbitrary function signatures in type utilities
 type PartialOnUndefinedDeepValue<T, Options extends Required<PartialOnUndefinedDeepOptions>> = T extends
   | BuiltIns
   | ((...arguments_: any[]) => unknown)
@@ -92,6 +94,7 @@ type PartialOnUndefinedDeepValue<T, Options extends Required<PartialOnUndefinedD
           : Array<_PartialOnUndefinedDeep<U, Options>> // Mutable array treatment
         : _PartialOnUndefinedDeep<{ [Key in keyof T]: _PartialOnUndefinedDeep<T[Key], Options> }, Options> // Tuple treatment
       : T
-    : T extends Record<any, any> | undefined
+    : // biome-ignore lint/suspicious/noExplicitAny: Required for type-level record matching
+      T extends Record<any, any> | undefined
       ? _PartialOnUndefinedDeep<T, Options>
       : unknown;

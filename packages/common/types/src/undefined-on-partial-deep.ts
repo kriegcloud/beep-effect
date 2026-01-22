@@ -59,6 +59,7 @@ export type UndefinedOnPartialDeep<T> =
             : T extends ReadonlySet<infer K>
               ? ReadonlySet<UndefinedOnPartialDeep<K>>
               : // Handle object
+                // biome-ignore lint/suspicious/noExplicitAny: Required for matching arbitrary record types
                 T extends Record<any, any>
                 ? {
                     [KeyType in keyof T]: undefined extends T[KeyType]

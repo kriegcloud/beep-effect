@@ -38,6 +38,7 @@ type Example6 = TupleToObject<[x: number, y: number]>;
 
 @category Array
 */
+// biome-ignore lint/suspicious/noExplicitAny: Required for returning any when input is any type
 export type TupleToObject<TArray extends UnknownArray> = If<
   IsAny<TArray>,
   any,

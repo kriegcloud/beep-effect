@@ -17,6 +17,7 @@ type MyWrappedFunction = SetReturnType<MyFunctionThatCanThrow, ReturnType<MyFunc
 
 @category Function
 */
+// biome-ignore lint/suspicious/noExplicitAny: Required for matching arbitrary function signatures in type utilities
 export type SetReturnType<Function_ extends (...arguments_: any[]) => any, TypeToReturn> = Function_ extends (
   // Just using `Parameters<Fn>` isn't ideal because it doesn't handle the `this` fake parameter.
   this: infer ThisArgument,

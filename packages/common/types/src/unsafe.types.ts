@@ -31,7 +31,7 @@ import type * as R from "effect/Record";
  * @category Types/Unsafe
  * @since 0.1.0
  */
-
+// biome-ignore lint/suspicious/noExplicitAny: This file intentionally exports `any` escape hatches
 export type UnsafeAny = any;
 
 /**

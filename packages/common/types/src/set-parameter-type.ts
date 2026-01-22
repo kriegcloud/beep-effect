@@ -115,6 +115,7 @@ type HandleLog2 = SetParameterType<HandleMessage, {2: string}>;
 
 @category Function
 */
+// biome-ignore lint/suspicious/noExplicitAny: Required for matching arbitrary function signatures
 export type SetParameterType<
   Function_ extends (...arguments_: any[]) => unknown,
   P extends Record<number, unknown>,

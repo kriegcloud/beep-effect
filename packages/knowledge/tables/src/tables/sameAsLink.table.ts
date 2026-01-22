@@ -11,7 +11,7 @@
 import { KnowledgeEntityIds } from "@beep/shared-domain";
 import { OrgTable } from "@beep/shared-tables";
 import * as pg from "drizzle-orm/pg-core";
-import { entity } from "./entity.table.js";
+import { entity } from "./entity.table.ts";
 
 /**
  * SameAsLink table for the knowledge slice.

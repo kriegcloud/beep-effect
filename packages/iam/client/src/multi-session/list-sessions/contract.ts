@@ -12,7 +12,7 @@
 
 import * as Common from "@beep/iam-client/_internal";
 import { $IamClientId } from "@beep/identity/packages";
-import * as W from "@beep/wrap";
+import {Wrap} from "@beep/wrap";
 import * as S from "effect/Schema";
 
 const $I = $IamClientId.create("multi-session/list-sessions");
@@ -76,7 +76,7 @@ export type Success = S.Schema.Type<typeof Success>;
  * @category MultiSession/ListSessions/Contracts
  * @since 0.1.0
  */
-export const Wrapper = W.Wrapper.make("ListSessions", {
+export const Wrapper = Wrap.Wrapper.make("ListSessions", {
   success: Success,
   error: Common.IamError,
 });
