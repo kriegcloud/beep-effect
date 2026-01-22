@@ -166,10 +166,8 @@ export const filterGraph = (graph: KnowledgeGraph, config: FilterConfig = {}): F
     if (!validEntityIds.has(relation.subjectId)) {
       return false;
     }
-    if (relation.objectId && !validEntityIds.has(relation.objectId)) {
-      return false;
-    }
-    return true;
+    return !(relation.objectId && !validEntityIds.has(relation.objectId));
+
   });
 
   // Optionally remove orphan entities

@@ -122,7 +122,7 @@ const extractLocalName = (iri: string): string => {
  */
 const hasTypeOverlap = (entityA: AssembledEntity, entityB: AssembledEntity): boolean => {
   const typesA = new Set(entityA.types);
-  return entityB.types.some((t) => typesA.has(t));
+  return A.some(entityB.types, typesA.has);
 };
 
 /**

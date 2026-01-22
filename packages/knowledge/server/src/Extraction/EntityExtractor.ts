@@ -6,10 +6,10 @@
  * @module knowledge-server/Extraction/EntityExtractor
  * @since 0.1.0
  */
+import { LanguageModel, Prompt } from "@effect/ai";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
-import { type AiGenerationConfig, AiService } from "../Ai/AiService";
 import { buildEntityPrompt, buildSystemPrompt } from "../Ai/PromptTemplates";
 import type { OntologyContext } from "../Ontology";
 import { ClassifiedEntity, EntityOutput } from "./schemas/entity-output.schema";
@@ -31,11 +31,6 @@ export interface EntityExtractionConfig {
    * Maximum mentions to process in single LLM call
    */
   readonly batchSize?: undefined | number;
-
-  /**
-   * AI generation configuration
-   */
-  readonly aiConfig?: undefined | AiGenerationConfig;
 }
 
 /**
@@ -94,7 +89,7 @@ export interface EntityExtractionResult {
 export class EntityExtractor extends Effect.Service<EntityExtractor>()("@beep/knowledge-server/EntityExtractor", {
   accessors: true,
   effect: Effect.gen(function* () {
-    const ai = yield* AiService;
+    const model = yield* LanguageModel.LanguageModel;
 
     /**
      * Validate entity types against ontology
@@ -168,18 +163,22 @@ export class EntityExtractor extends Effect.Service<EntityExtractor>()("@beep/kn
         let totalTokens = 0;
 
         for (const batch of batches) {
-          const result = yield* ai.generateObjectWithSystem(
-            EntityOutput,
-            buildSystemPrompt(),
-            buildEntityPrompt(batch, ontologyContext),
-            config.aiConfig
-          );
+          const prompt = Prompt.make([
+            { role: "system" as const, content: buildSystemPrompt() },
+            { role: "user" as const, content: buildEntityPrompt(batch, ontologyContext) },
+          ]);
+
+          const result = yield* model.generateObject({
+            prompt,
+            schema: EntityOutput,
+            objectName: "EntityOutput",
+          });
 
           // Filter by confidence
-          const confidenceFiltered = A.filter(result.data.entities, (e) => e.confidence >= minConfidence);
+          const confidenceFiltered = A.filter(result.value.entities, (e) => e.confidence >= minConfidence);
 
           allEntities.push(...confidenceFiltered);
-          totalTokens += result.usage.totalTokens;
+          totalTokens += (result.usage.inputTokens ?? 0) + (result.usage.outputTokens ?? 0);
         }
 
         // Validate types against ontology
