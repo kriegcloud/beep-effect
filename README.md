@@ -1,280 +1,358 @@
 # beep-effect
+
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/kriegcloud/beep-effect)
 
-**TL;DR:** This repo is my spite-powered starter kit for every future startup idea. It contains:
+This repository is a trauma response with dependency injection.
 
-- Contracts that floss third-party CLIENTs before they talk to the rest of the codebase.
-- A theming stack where MUI, Tailwind, and shadcn high-five instead of fistfighting.
-- Upload flows that treat S3 keys like sacred geometry, not `/misc/bucket-of-tears`.
-- Slice-scoped DB/API clients so IntelliSense doesn’t enter a fugue state.
-
-Sup, beeps. Welcome to the Beep Cathedral, where I cope with monorepo PTSD by over-engineering on purpose. Imagine spending two years in a repo where IntelliSense plays dead and tech debt compounds faster than BNPL fees. This project is the opposite: a vertical-slice Effect playground meant to keep me shipping fast *without* sacrificing dignity.
-
-What follows is equal parts therapy session, deeply technical roast, and launchpad docs for future ideas. Grab a snack.
+Every factory is a scar. Every type constraint is a promise that you will not repeat my mistakes because I have made them impossible to compile.
 
 ---
 
-“Well if you hate every codebase you touch, why build another one?” Because my brain spawns SaaS ideas like a broken soda fountain, and every time I start fresh I spend three weeks rewiring auth, uploads, and settings before writing the first feature. I get impatient, I cut corners, and I end up polluting my own dreams with duct tape. Not this time.
+## Why Another Codebase
 
-Every idea, no matter how cursed, needs the same checklist:
+"Well if you hate every codebase you touch, why build another one?"
 
-- **Access control** — There is *always* some nosy user trying to see someone else’s data.
-- **Authentication** — Even Web3 ponzis need login screens.
-- **Library churn** — Today’s hype SDK is tomorrow’s “we shipped a breaking change lol good luck.”
-- **File uploads** — If humans are involved, someone is uploading a PDF.
-- **Debug/test/observe** — Eventually you have to answer “why did prod catch fire?”
-- **Tech debt management** — Ignoring it doesn’t make it disappear; it sends invoices with interest.
-- **Coping with TypeScript** — “tsserver has crashed due to running out of memory.” Same, tsserver. Same.
-- **More** - There is more here but it's a readme so shove it.
+Because my brain spawns SaaS ideas like a broken soda fountain, and every time I start fresh I spend three weeks rewiring auth, uploads, and settings before writing the first feature. I get impatient, I cut corners, and I end up polluting my own dreams with duct tape. Not this time.
 
-Therefore, I proclaim—nay, I yell into the abyss—I’m making a codebase I can be happy in for the rest of my LIFE. If anyone even coughs the phrase “over-engineered,” I will annotate their existence with Contract.Domain = "Clownery" and raise a ContractError enriched with telemetry, logs, and a PDF of their crimes. This repo is my temple. Future me will launch ridiculous ideas from here without crying, and if that means another 500 schemas, so be it.
-
+This time, the duct tape gets replaced with type constraints. The corners don't exist to cut. The auth is already done.
 
 ---
 
-## Problem #1 — Slow Clients & God Objects
+## Origin Story
 
-**Symptoms**
+I used to work on a Warehouse Management System. Fortune 500 clients. Healthcare. Pharmaceuticals. The VA. Regulated industries where data integrity isn't a nice-to-have—it's a legal requirement.
 
-- Type inference files a union grievance when one TRPC client knows every endpoint.
-- IntelliSense responds between “now” and “heat death of the sun.”
-- Changing IAM sets `apps/files` on fire because “shared client” meant “global mutable state.”
+The codebase had no foreign keys.
 
-**Fix: slice-scoped clients**
+Not "some tables were missing foreign keys." No. *None of them had foreign keys.*
 
-- [`Db.make`](https://github.com/kriegcloud/beep-effect/blob/main/packages/shared/server/src/internal/db/pg/PgClient.ts) builds per-slice Drizzle clients so TS only reasons about relevant tables. Examples: [IamDb](https://github.com/kriegcloud/beep-effect/blob/main/packages/iam/server/src/db/Db/Db.ts), [DocumentsDb](https://github.com/kriegcloud/beep-effect/blob/main/packages/documents/server/src/db/Db/Db.ts).
-- API surfaces (TRPC or `@effect/platform`) will be generated per slice too. God clients are cancelled.
+`t_transaction`—a table receiving 10,000 rows per hour—had no constraints. `tenant_id` was a vibes-based suggestion. Multi-tenant data isolation was enforced by "we trust the application layer" and "QA will catch it."
+
+The POC became production because someone showed it to a stakeholder.
+
+The hardening phase? It's in the backlog. It will always be in the backlog.
 
 ---
 
-## Problem #2 — String Mayhem (paths, enums, constants)
+## The Sprint Review Theater
 
-If you let URL fragments and enums spawn wherever someone shouts `router.push("/stuff")`, you eventually become a meat-based `grep`. Hard pass.
+I sat in sprint reviews for two years.
 
-### PathBuilder: typed router paths without sadness
+Every two weeks, we'd stand in front of a board. We'd point at the same tech debt items. We'd watch them not move. In the retro, everyone would agree: "We should really address that technical debt." Then we'd walk out. Nothing would change.
 
-[`PathBuilder`](https://github.com/kriegcloud/beep-effect/blob/main/packages/shared/domain/src/factories/path-builder/PathBuilder/PathBuilder.ts) lives in `@beep/shared-domain` so every slice composes literal-safe routes and keeps autocompletion happy.
+The backlog is a graveyard. Every item has a headstone that reads "Not A Business Priority."
 
-```ts
-import { PathBuilder } from "@beep/shared-domain/factories";
+Story points are astrology for project managers. Velocity is a number we made up to make everyone feel like we're measuring something. The deadline was set before the requirements were written—your manager asked for a timeline, you didn't know what the project even was, but you felt the pressure, so you said "two weeks."
 
-const dashboard = PathBuilder.createRoot("/dashboard");
-const user = dashboard.child("user");
-const userProfile = user.child("profile");
+You lied.
 
-const paths = PathBuilder.collection({
-  user: {
-    root: user.root,
-    profile: {
-      root: userProfile.root,
-      socialConnections: userProfile("social-connections"),
-    },
-    accountSettings: PathBuilder.dynamicQueries(user.root),
-  },
-});
+In two months, when the thing is smoking in the corner, that lie is on you.
 
-export const rootPath = paths.user.root;
-export const childPath = paths.user.profile.socialConnections;
-export const dynamicPath = paths.user.accountSettings({ settingsTab: "beep" });
+Giving a deadline for something you don't understand is suicide. People burn out and projects implode because you said two weeks. Pressure code has 15 times more bugs. You aren't saving time. You're borrowing it with interest.
+
+---
+
+## This Repo Has No Backlog
+
+It has compile errors.
+
+If something needs to be fixed, it doesn't build. If a table needs a foreign key, the type system rejects it. If a third-party contract is violated, the schema throws. The backlog is empty because bad code doesn't merge.
+
+This is not agile. This is spite.
+
+---
+
+## What's In The Box
+
+```
+apps/
+├── web/           # Next.js 16 (yes, 16, not 15, because I keep up)
+├── server/        # Effect Platform backend
+├── marketing/     # Marketing site for the ideas I'll actually ship
+└── todox/         # Proof that I can finish something
+
+packages/
+├── iam/           # Identity & access (the first thing every app needs)
+├── documents/     # File management (with proper upload keys, not /misc/)
+├── calendar/      # Scheduling (someone always needs scheduling)
+├── knowledge/     # Knowledge base (transform OWL ontologies into LLM prompts via a topological catamorphism over a DAG...Bite me. G = (V, E))
+├── comms/         # Communications (notifications, emails, etc.)
+├── customization/ # Tenant customization (themes, settings, preferences)
+├── common/        # constants, errors, identity, invariant, schema, types, utils, wrap
+├── shared/        # ai, client, domain, env, server, tables, ui
+├── ui/            # core, editor, ui (where MUI, Tailwind, and shadcn coexist peacefully)
+└── runtime/       # client, server
+
+tooling/
+├── cli/           # Commands that automate the things I'd forget
+├── testkit/       # Effect-first testing, because Effect.runPromise in tests is a war crime
+├── build-utils/   # Build configuration
+└── repo-scripts/  # The scripts that keep this thing coherent
 ```
 
-### Asset paths that never rot (or make Lighthouse cry)
+Every slice follows the same dependency structure:
 
-- [`assetPaths`](https://github.com/kriegcloud/beep-effect/blob/main/packages/common/constants/src/paths/asset-paths.ts) + `bun run gen:beep-paths` converts `apps/web/public` assets to `.avif` and emits typed accessors (`assetPaths.logos.windows` etc.).
-- Implementation receipts: [public-paths-to-record.ts](https://github.com/kriegcloud/beep-effect/blob/main/packages/common/constants/src/paths/utils/public-paths-to-record.ts) + [generate-asset-paths.ts](https://github.com/kriegcloud/beep-effect/blob/main/tooling/repo-scripts/src/generate-asset-paths.ts).
+```
+                    ┌─────────┐
+                    │  client │
+                    └────┬────┘
+                         │
+                         ▼
+       ┌────────┐    ┌────────┐    ┌────────┐
+       │ tables │───▶│ domain │◀───│ server │
+       └────────┘    └────────┘    └────────┘
+                         ▲
+                         │
+                    ┌────┴────┐
+                    │   ui    │
+                    └─────────┘
+```
 
-### Literal kits instead of feral enums
-
-[`stringLiteralKit`](https://github.com/kriegcloud/beep-effect/blob/main/packages/common/schema/src/kits/stringLiteralKit.ts) builds Schema + Enum + Options + tagged unions in one go so dropdowns, DTOs, and invariants stay in sync.
-
----
-
-## Problem #3 — “DB-first domain models” collapse at scale
-
-Letting table schemas define your business sounds efficient until the business changes. Then it’s chaos: every column rename ripples through domain, controllers, UI, and you end up shipping accidental PII because generated types leaked `hashed_password`.
-
-Solution: keep domain + persistence in sync without fusing them.
-
-### EntityId / makeFields / Table.make / OrgTable.make
-
-- [`EntityId`](https://github.com/kriegcloud/beep-effect/blob/main/packages/common/schema/src/EntityId/EntityId.ts) emits branded schemas + Drizzle column builders for every ID so domain + DB speak the same language.
-- [`makeFields`](https://github.com/kriegcloud/beep-effect/blob/main/packages/shared/domain/src/common.ts) composes audit columns (`createdBy`, `version`, etc.) into every domain model.
-- [`Table.make`](https://github.com/kriegcloud/beep-effect/blob/main/packages/shared/tables/src/Table/Table.ts) mirrors those defaults in Drizzle so persistence never drifts.
-- [`OrgTable.make`](https://github.com/kriegcloud/beep-effect/blob/main/packages/shared/tables/src/OrgTable/OrgTable.ts) bakes tenancy rules into every org-scoped table.
-
-Result: extend a factory once, both layers inherit it instantly.
+Domain is the sun. Everything else orbits. Nothing in `domain` imports from infrastructure. This isn't a suggestion. It's constitutional law.
 
 ---
 
-## Problem #5 — “Please don’t put uploads in `misc/`”
+## The Factories (née Scars)
 
-[`UploadKey`](https://github.com/kriegcloud/beep-effect/blob/main/packages/shared/domain/src/entities/File/schemas/UploadKey.ts) treats file keys like sacred geometry:
+### `OrgTable.make`
 
-- `/env/tenants/{shard}/{orgType}/{orgId}/{entityKind}/{entityId}/{attribute}/{year}/{month}/{fileId}.{ext}`
-- `ShardPrefix` hashes `FileId` into a 2-char hex to avoid S3 hotspotting.
-- Bidirectional transforms: encode structured payloads → keys (injecting shard + timestamps) and decode keys → payloads.
-- Tests live in [`UploadKey.test.ts`](https://github.com/kriegcloud/beep-effect/blob/main/packages/shared/domain/test/entities/File/schemas/UploadKey.test.ts).
+I have mass psychic damage from tables without tenant isolation.
 
-Quick taste:
+`OrgTable.make` exists because a junior developer will never create a tenant-unaware table in this codebase again. NOT ON MY WATCH.
 
-```ts
+```typescript
+// This compiles
+const ValidTable = OrgTable.make({
+  name: "documents",
+  columns: (t) => ({
+    title: t.varchar("title", { length: 255 }).notNull(),
+  }),
+});
+
+// This does not compile
+// Because organizationId is MANDATORY
+// Because I have mass psychic damage
+// Because the VA deserves better
+```
+
+The foreign key is not optional. The relation is not optional. The tenant isolation is not optional. The compiler will reject you. I will not.
+
+### `Table.make`
+
+The non-org-scoped version. Still has audit columns. Still has `createdAt`, `updatedAt`, `createdBy`, `version`. Because I don't trust anyone to remember, including myself.
+
+### `EntityId`
+
+Every ID is branded. `UserId` is not `string`. `OrganizationId` is not `string`. You cannot accidentally pass one where the other is expected.
+
+```typescript
+const userId: UserId = "user_123";           // Compile error
+const userId = UserId.make("user_123");      // Correct
+```
+
+The type system remembers what you will forget.
+
+### `makeFields`
+
+Domain models get audit fields automatically. Because someone will forget `createdBy`. Because someone will forget `version`. Because that someone is me at 2am.
+
+---
+
+## The Third-Party Containment Protocol
+
+Treat every third-party dependency like it's trying to kill you.
+
+Because it is.
+
+They ship breaking changes on Tuesdays. They deprecate endpoints via blog post. They return `{ data: null, error: null }` and call it a success. The SDK that was "the future" 18 months ago is now "legacy" and "we recommend migrating to v4" where v4 rewrote everything.
+
+`@beep/wrap` exists to contain the blast radius.
+
+When—not if—they betray you, your domain doesn't know. Your domain doesn't care. The adapter burns. You write a new adapter. Life continues.
+
+The alternative is letting Stripe's type definitions leak into your core business logic. The alternative is coupling your domain to AWS's SDK versioning. The alternative is crying.
+
+---
+
+## Upload Keys Are Sacred Geometry
+
+```
+/{env}/tenants/{shard}/{orgType}/{orgId}/{entityKind}/{entityId}/{attribute}/{year}/{month}/{fileId}.{ext}
+```
+
+This is not `/uploads/misc/file_final_v2_USE_THIS_ONE.pdf`.
+
+Every file has:
+- A shard prefix (2-char hex hash) to avoid S3 hotspotting
+- Tenant isolation baked in
+- Temporal organization
+- Entity association
+
+You can reconstruct metadata from the path. You can find all files for an entity. You can audit by tenant. You can do these things because the path *means something*.
+
+---
+
+## Effect-First, Cry-Never
+
+This codebase uses Effect. All of it.
+
+- No `async/await` in domain code
+- No `try/catch` anywhere
+- Dependency injection via Layers
+- Errors as values, typed and tracked
+- Telemetry built in, not bolted on
+
+```typescript
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
-import { File } from "@beep/shared-domain/entities";
-import { SharedEntityIds } from "@beep/shared-domain/entity-ids";
 
-const payload: File.UploadKeyDecoded.Type = {
-  env: "dev",
-  fileId: SharedEntityIds.FileId.make("shared_file__12345678-1234-1234-1234-123456789012"),
-  organizationType: "individual",
-  organizationId: SharedEntityIds.OrganizationId.make("shared_organization__..."),
-  entityKind: "shared_user",
-  entityIdentifier: SharedEntityIds.UserId.make("shared_user__..."),
-  entityAttribute: "avatar",
-  extension: "jpg",
-};
-
+// This is how we do things here
 const program = Effect.gen(function* () {
-  const encoded = yield* S.decode(File.UploadKey)(payload);
-  const decoded = yield* S.encode(File.UploadKey)(encoded);
-  return { encoded, decoded };
+  const config = yield* Config;
+  const db = yield* Database;
+  const result = yield* db.query(/* ... */);
+  return yield* S.decode(ResponseSchema)(result);
 });
 
-Effect.runPromise(program);
+// NOT this
+// async function program() {
+//   try {
+//     const result = await db.query(/* ... */);
+//     return result; // hope it's valid lol
+//   } catch (e) {
+//     console.log(e); // cool, very helpful
+//   }
+// }
 ```
 
-ASCII cheat sheet:
+The Effect version tells you:
+- What services it needs
+- What errors it can produce
+- What type it returns
 
-```
-/env/tenants/aa/orgType/orgId/entityKind/entityId/attribute/YYYY/MM/fileId.ext
-```
+The async version tells you nothing. It *hopes*. I'm done hoping.
 
 ---
 
-## Problem #6 — Theme chaos and remembering 47 Tailwind classes
+## Tech Stack
 
-- `@beep/ui-core`: exports `createTheme`, settings pipelines, CSS vars, and component overrides (see [`packages/ui/core/src/theme/create-theme.ts`](https://github.com/kriegcloud/beep-effect/blob/main/packages/ui/core/src/theme/create-theme.ts)).
-- `@beep/ui`: wires those tokens into Next.js via [`theme-provider.tsx`](https://github.com/kriegcloud/beep-effect/blob/main/packages/ui/ui/src/theme/theme-provider.tsx), uses Atomic Design-ish directories (`atoms` → `sections`), and keeps shadcn + Tailwind pointed at the same globals ([`components.json`](https://github.com/kriegcloud/beep-effect/blob/main/packages/ui/ui/components.json)).
-- Copy/paste a component, flip a settings toggle, never memorize `text-muted-foreground` again.
-
----
-
-## Problem #7 — Existential dread and the “forever repo”
-
-Every idea inevitably needs:
-
-- Access control (“can user X see Y?”)
-- Authentication (even Web3 rugs need logins)
-- Library churn coping (“breaking change lol good luck”)
-- File uploads (humans cannot resist PDFs)
-- Debug/test/observe surfaces (prod fire drills happen)
-- Tech debt management (entropy invoices daily)
-- TypeScript therapy (“tsserver ran out of memory.” Same, tsserver.)
-
-So I weaponized the neuroses: deterministic uploads, slice-scoped clients, theme pipelines. Idea #37 should start with “ship,” not “rebuild auth again.”
-
-If anyone whispers “over-engineered,” I will annotate their existence with `Contract.Domain = "Clownery"` and raise a `ContractError` enriched with telemetry + PDF evidence.
-
-### Roadmap-ish promises
-
-
-2. **Documents slice** — run `UploadKey` against real S3/R2 with quotas + lifecycle rules.
-3. **Debug surfaces** — land Effect-powered observability (logs/traces/metrics) by default.
-4. **Starter kit mode** — turn this repo into a “press play” template for new ideas.
-5. **More trolling** — every new pattern gets documented with equal parts rigor and sarcasm.
+| What | Why |
+|------|-----|
+| **Bun 1.3.2** | Fast. Actually works. |
+| **Node 22** | For the things Bun can't do yet. |
+| **Effect 3** | Because I want my errors typed and my dependencies explicit. |
+| **Next.js 16** | App Router. RSC. The future or whatever. |
+| **React 19** | The latest because I actually update dependencies. |
+| **PostgreSQL** | The database that won't gaslight you. |
+| **Drizzle** | ORM that doesn't pretend SQL doesn't exist. |
+| **better-auth** | Auth that isn't a 47-step configuration nightmare. |
+| **MUI + Tailwind + shadcn** | They get along if you make them. |
+| **Biome** | Linting without the existential dread of ESLint configs. |
+| **TanStack Query** | Client state that doesn't require a PhD. |
 
 ---
 
-## Architecture (serious bits)
+## Quick Start
 
-- Vertical-slice architecture with hexagonal flavor: domain → application → infra.
-- Cross-slice sharing only via `packages/shared/*` and `packages/common/*`.
-- Path aliases in [`tsconfig.base.json`](tsconfig.base.jsonc) are the law (`@beep/iam-domain`, `@beep/documents-services`, `@/*` for `apps/web`).
-- Task graph orchestrated via [`turbo.json`](turbo.json).
-- Effect-first, dependency injection via Layers. No sneaky IO in domain code.
-
-## Monorepo layout
-
-- `apps/` — Next.js app (`web`), Effect server (`server`), MCP tooling (`mcp`).
-- `packages/` — slices (`iam/*`, `files/*`), shared foundations (`shared/*`, `common/*`, `core/*`), UI libraries (`ui/*`).
-- `tooling/` — repo scripts, testkit, automation.
-
-## Tech stack
-
-- Language: TypeScript (strict), runtime: Bun + Node 22 for leftovers.
-- Core: Effect 3 + `@effect/platform`.
-- DB: Postgres + Drizzle + `@effect/sql*`.
-- UI: React 19 + Next.js 16 App Router + MUI + Tailwind + shadcn + TanStack Query.
-- State machines: XState 5.
-- Quality: Biome, Vitest.
-- Infra: Docker + dotenvx.
-
-## Quick start
-
-Prereqs: Bun ≥ 1.2.4 (see [`.bun-version`](.bun-version)), Node 22 LTS, Docker, optional `direnv`.
+Prerequisites: Bun 1.3.2+, Node 22, Docker, and a willingness to read documentation.
 
 ```bash
-bun install            # deps
-bun run bootstrap      # spins up Docker + applies migrations
-bun run dev            # orchestrated Turbo dev
-
-# or targeted
-bunx turbo run dev --filter=@beep/web
+bun install              # Install dependencies (yes, all of them)
+bun run services:up      # Start Postgres, Redis, Jaeger
+bun run db:migrate       # Apply migrations
+bun run dev              # Start everything
 ```
 
-Scripts live in root `package.json` and already pipe through dotenvx. Prefer them over ad-hoc commands.
-
-## Tasks & pipelines
-
-- Lint/format: `bun run lint`, `bun run lint:fix`
-- Typecheck: `bun run check`
-- Circular deps: `bun run lint:circular`
-- Build: `bun run build`
-- Dev: `bun run dev`
-- Bootstrap infra: `bun run bootstrap`
-- DB lifecycle: `bun run db:generate`, `db:migrate`, `db:push`, `db:studio`
-
-See [`turbo.json`](turbo.json) for the canonical task graph.
-
-## Local services
-
-[`docker-compose.yml`](docker-compose.yml) spins up Postgres, Redis, and Jaeger:
-
-- `bun run db:up` — start services
-- Ports default to `DB_PG_PORT=5432`, `REDIS_PORT=6379`, `JAEGER_PORT=16686`, `OTLP_TRACE_EXPORTER_PORT=4318`
-
-## Layering refresher
-
-- `S/domain` → entities, value objects, pure logic.
-- `S/application` → use cases, ports (depends on domain only).
-- `S/server` → adapters (DB, auth, email, storage).
-- `S/tables` → Drizzle schema definitions.
-- `S/ui` / `apps/*` → React/Next surfaces.
-
-Imports must respect path aliases enforced in `tsconfig.base.json`.
-
-## Current slices
-
-- **IAM (`packages/iam/*`)** — domain, application/services, infra, tables, UI, CLIENT.
-- **Documents (`packages/documents/*`)** — same layering, plus upload schemas/test harness.
-- **Shared foundations** — `packages/shared/*` and `packages/common/*`.
-
-## Applications
-
-- `apps/web` — Next.js 16 App Router surface (uses `@/*` alias).
-- `apps/server` — Effect runtime host.
-- `apps/mcp` — Model Context Protocol tooling.
-
-CI: see [.github/workflows/check.yml](.github/workflows/check.yml) for lint + typecheck + tests.
-
-## Production defaults
-
-Reference [documentation/PRODUCTION_CHECKLIST.md](documentation/PRODUCTION_CHECKLIST.md). Highlights:
-
-- `APP_LOG_FORMAT=json`
-- `APP_LOG_LEVEL=error`
-- `NODE_ENV=production`
+If something doesn't work, it's probably Docker. It's always Docker.
 
 ---
 
-If any of this feels extra, remember the alternative: arguing with IntelliSense while your boss ships bugs at Mach 3. I’ll take sarcastic documentation and typed contracts any day.
+## Commands
+
+| What | How |
+|------|-----|
+| Start dev | `bun run dev` |
+| Build | `bun run build` |
+| Type check | `bun run check` |
+| Lint | `bun run lint` / `bun run lint:fix` |
+| Test | `bun run test` |
+| E2E | `bun run e2e` |
+| Database | `bun run db:generate` / `db:migrate` / `db:push` / `db:studio` |
+| Infrastructure | `bun run services:up` |
+| Nuke everything | `bun run nuke` (when Docker has wronged you) |
+
+---
+
+## The Recursion
+
+There's a `specs/` directory with 20+ specifications.
+
+Each spec is a multi-phase, self-improving document that orchestrates specialized AI agents to research, evaluate, implement, and reflect on changes to this codebase.
+
+I use Claude to write specs for Claude to implement.
+
+The agent researches the codebase. The agent writes the plan. The agent executes the plan. The agent reflects on what worked. The reflection improves the next spec. The next spec spawns more agents.
+
+We are in the recursion now.
+
+```
+specs/
+├── better-auth-client-wrappers/    # Claude figured out the auth integration
+├── e2e-testkit-migration/          # Claude migrated the test infrastructure
+├── knowledge-graph-integration/    # Claude is building the knowledge system
+├── orgtable-auto-rls/              # Claude is implementing row-level security
+├── readme-troll-variants/          # Claude wrote this README
+└── ... 15 more specifications
+```
+
+The specs have phases. The phases have agents. The agents have tools. The tools modify the codebase. The codebase spawns new specs.
+
+If this concerns you, remember: the alternative was me doing it manually at 2am. The agents don't get tired. The agents don't cut corners when they're frustrated. The agents write reflection logs.
+
+I trust the recursion more than I trust myself after midnight.
+
+---
+
+## The Rules
+
+1. **Make `any` painful.** Sometimes you need it for structural typing. Fine. But it should be ugly. `UnsafeTypes.UnsafeAny` exists to make you feel the shame. If you bypass that, Biome will scream at you. The friction is the point.
+
+2. **Tests use `@beep/testkit`.** Not raw `bun:test`. Not `Effect.runPromise` in a `test()` block. We have proper Effect test runners. Use them.
+
+3. **Slices don't import from other slices.** If you need something from `iam` in `documents`, it goes through `shared`. Cross-slice coupling is how god objects are born.
+
+4. **The compiler is the first reviewer.** If it compiles with warnings, it doesn't compile. If it type-checks with `any`, it doesn't type-check.
+
+---
+
+## The Promise
+
+This codebase exists so that Idea #37 starts with "ship," not "rebuild auth again."
+
+I will never again:
+- Forget a foreign key
+- Trust a third-party SDK
+- Let tenant data leak
+- Ship untyped errors
+- Argue with IntelliSense about whether a type exists
+- Attend a sprint review where tech debt doesn't move
+
+If you call this over-engineered, I will:
+1. Annotate your existence with `Contract.Domain = "Clownery"`
+2. Raise a `ContractError` enriched with telemetry
+3. Attach a PDF of your architectural crimes
+4. Route the error to a dashboard you have to look at every morning
+
+This is not documentation. This is a restraining order against bad decisions, signed by the TypeScript compiler.
+
+---
+
+## License
+
+Private. This is my therapy. You're just reading the session notes.
+
+---
+
+*"It's not a business priority."*
+
+— Everyone who has ever created a production incident that was absolutely their fault
