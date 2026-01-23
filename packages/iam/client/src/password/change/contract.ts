@@ -13,6 +13,8 @@
 import * as Common from "@beep/iam-client/_internal";
 import { formValuesAnnotation } from "@beep/iam-client/_internal";
 import { $IamClientId } from "@beep/identity/packages";
+import { BS } from "@beep/schema";
+import { SharedEntityIds } from "@beep/shared-domain";
 import * as W from "@beep/wrap";
 import * as S from "effect/Schema";
 
@@ -38,8 +40,8 @@ const $I = $IamClientId.create("password/change");
  */
 export class Payload extends S.Class<Payload>($I`Payload`)(
   {
-    currentPassword: S.Redacted(S.String),
-    newPassword: S.Redacted(S.String),
+    currentPassword: BS.Password,
+    newPassword: BS.Password,
     revokeOtherSessions: S.optional(S.Boolean),
   },
   formValuesAnnotation({
@@ -57,8 +59,8 @@ export class Payload extends S.Class<Payload>($I`Payload`)(
  */
 export class User extends S.Class<User>($I`User`)(
   {
-    id: S.String,
-    email: S.String,
+    id: SharedEntityIds.UserId,
+    email: BS.Email,
     name: S.String,
     image: S.NullOr(S.String),
     emailVerified: S.Boolean,
@@ -96,7 +98,7 @@ export class User extends S.Class<User>($I`User`)(
  */
 export class Success extends S.Class<Success>($I`Success`)(
   {
-    token: S.NullOr(S.String),
+    token: S.NullOr(S.Redacted(S.String)),
     user: User,
   },
   $I.annotations("Success", {

@@ -13,6 +13,7 @@ import * as Common from "@beep/iam-client/_internal";
 import { formValuesAnnotation } from "@beep/iam-client/_internal";
 import { $IamClientId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
+import { IamEntityIds } from "@beep/shared-domain";
 import * as W from "@beep/wrap";
 import * as S from "effect/Schema";
 
@@ -65,7 +66,7 @@ export class UpdateFields extends S.Class<UpdateFields>($I`UpdateFields`)(
  */
 export class Payload extends S.Class<Payload>($I`Payload`)(
   {
-    client_id: S.String,
+    client_id: IamEntityIds.OAuthClientId,
     update: UpdateFields,
   },
   formValuesAnnotation({
@@ -82,8 +83,8 @@ export class Payload extends S.Class<Payload>($I`Payload`)(
  */
 export class Success extends S.Class<Success>($I`Success`)(
   {
-    id: S.String,
-    clientId: S.String,
+    id: IamEntityIds.OAuthClientId,
+    clientId: IamEntityIds.OAuthClientId,
     name: S.String,
     icon: S.NullOr(S.String),
     metadata: S.NullOr(S.Record({ key: S.String, value: S.Unknown })),

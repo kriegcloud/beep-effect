@@ -11,6 +11,7 @@
 import * as Common from "@beep/iam-client/_internal";
 import { formValuesAnnotation } from "@beep/iam-client/_internal";
 import { $IamClientId } from "@beep/identity/packages";
+import { BS } from "@beep/schema";
 import * as W from "@beep/wrap";
 import * as S from "effect/Schema";
 
@@ -34,8 +35,8 @@ const $I = $IamClientId.create("phone-number/verify");
  */
 export class Payload extends S.Class<Payload>($I`Payload`)(
   {
-    phoneNumber: S.String,
-    code: S.String,
+    phoneNumber: BS.Phone,
+    code: S.Redacted(S.String),
     disableSession: S.optional(S.Boolean),
     updatePhoneNumber: S.optional(S.Boolean),
   },

@@ -28,7 +28,7 @@ export class DatabaseError extends S.TaggedError<DatabaseError>($I`DatabaseError
   "DatabaseError",
   {
     type: S.optional(PgErrorCodeFromKey.From),
-    pgError: S.optional(S.NullOr(RawPgError)),
+    pgError: S.optionalWith(RawPgError, { nullable: true }),
     cause: S.Defect,
   },
   $I.annotations("DatabaseError", {
@@ -117,7 +117,6 @@ export class DatabaseError extends S.TaggedError<DatabaseError>($I`DatabaseError
       );
     }
     return new DatabaseError({
-      pgError: null,
       cause: error,
     });
   };

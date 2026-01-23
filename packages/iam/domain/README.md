@@ -297,7 +297,7 @@ Re-exported from `@beep/shared-domain` for unified IAM context:
 
 - **No I/O or side effects**: no database queries, network calls, or file system operations
 - **No infrastructure**: no Drizzle clients, repositories, or Better Auth runtime
-- **No HTTP handlers, routes, or API contracts**: implement these in `@beep/iam-server` or infra layers
+- **No HTTP handlers, routes, or API contracts**: implement these in `@beep/iam-server` or server layers
 - **No application logic**: keep orchestration in `@beep/iam-server` or application layers
 - **No framework dependencies**: avoid Next.js, React, or platform-specific code
 - **No cross-slice domain imports**: only depend on `@beep/shared-domain` and `@beep/common/*`

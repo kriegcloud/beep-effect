@@ -6,12 +6,19 @@
  * @module knowledge-server/EntityResolution/EntityClusterer
  * @since 0.1.0
  */
-import type { SharedEntityIds } from "@beep/shared-domain";
+import { KnowledgeEntityIds, type SharedEntityIds } from "@beep/shared-domain";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import * as Iterable from "effect/Iterable";
+import * as MutableHashMap from "effect/MutableHashMap";
+import * as MutableHashSet from "effect/MutableHashSet";
+import * as O from "effect/Option";
+import * as Order from "effect/Order";
 import type { EmbeddingError } from "../Embedding/EmbeddingProvider";
 import { EmbeddingService } from "../Embedding/EmbeddingService";
 import type { AssembledEntity, KnowledgeGraph } from "../Extraction/GraphAssembler";
+import { formatEntityForEmbedding } from "../utils/formatting";
+import { cosineSimilarity } from "../utils/vector";
 
 // =============================================================================
 // Configuration Types
@@ -94,84 +101,42 @@ interface EntitySimilarity {
 // =============================================================================
 
 /**
- * Format entity text for embedding
- */
-const formatEntityText = (entity: AssembledEntity): string => {
-  const name = entity.canonicalName ?? entity.mention;
-  const typeLabel = extractLocalName(entity.primaryType);
-  return `${name} is a ${typeLabel}`;
-};
-
-/**
- * Extract local name from IRI
- */
-const extractLocalName = (iri: string): string => {
-  const hashIndex = iri.lastIndexOf("#");
-  if (hashIndex !== -1) {
-    return iri.slice(hashIndex + 1);
-  }
-  const slashIndex = iri.lastIndexOf("/");
-  if (slashIndex !== -1) {
-    return iri.slice(slashIndex + 1);
-  }
-  return iri;
-};
-
-/**
  * Check if two entities have compatible types
  */
 const hasTypeOverlap = (entityA: AssembledEntity, entityB: AssembledEntity): boolean => {
-  const typesA = new Set(entityA.types);
-  return A.some(entityB.types, typesA.has);
+  const typesA = MutableHashSet.fromIterable(entityA.types);
+  return A.some(entityB.types, (t) => MutableHashSet.has(typesA, t));
 };
 
 /**
  * Find shared types between entities
  */
 const findSharedTypes = (entities: readonly AssembledEntity[]): readonly string[] => {
-  if (entities.length === 0) return [];
+  if (A.isEmptyReadonlyArray(entities)) return [];
   if (entities.length === 1) return entities[0]?.types ?? [];
 
   const firstEntity = entities[0];
   if (!firstEntity) return [];
 
-  const sharedSet = new Set(firstEntity.types);
+  const sharedSet = MutableHashSet.fromIterable(firstEntity.types);
 
   for (let i = 1; i < entities.length; i++) {
     const entity = entities[i];
     if (!entity) continue;
 
-    const entityTypes = new Set(entity.types);
-    for (const type of sharedSet) {
-      if (!entityTypes.has(type)) {
-        sharedSet.delete(type);
+    const entityTypes = MutableHashSet.fromIterable(entity.types);
+    const toRemove = A.empty<string>();
+    Iterable.forEach(sharedSet, (type) => {
+      if (!MutableHashSet.has(entityTypes, type)) {
+        toRemove.push(type);
       }
+    });
+    for (const type of toRemove) {
+      MutableHashSet.remove(sharedSet, type);
     }
   }
 
-  return Array.from(sharedSet);
-};
-
-/**
- * Compute cosine similarity between two vectors
- */
-const cosineSimilarity = (a: readonly number[], b: readonly number[]): number => {
-  if (a.length !== b.length) return 0;
-
-  let dotProduct = 0;
-  let normA = 0;
-  let normB = 0;
-
-  for (let i = 0; i < a.length; i++) {
-    const valA = a[i] ?? 0;
-    const valB = b[i] ?? 0;
-    dotProduct += valA * valB;
-    normA += valA * valA;
-    normB += valB * valB;
-  }
-
-  const magnitude = Math.sqrt(normA) * Math.sqrt(normB);
-  return magnitude === 0 ? 0 : dotProduct / magnitude;
+  return A.fromIterable(sharedSet);
 };
 
 // =============================================================================
@@ -215,7 +180,7 @@ export class EntityClusterer extends Effect.Service<EntityClusterer>()("@beep/kn
      */
     const computeSimilarities = (
       entities: readonly AssembledEntity[],
-      embeddings: Map<string, readonly number[]>,
+      embeddings: MutableHashMap.MutableHashMap<string, readonly number[]>,
       threshold: number,
       requireTypeCompatibility: boolean
     ): readonly EntitySimilarity[] => {
@@ -225,8 +190,9 @@ export class EntityClusterer extends Effect.Service<EntityClusterer>()("@beep/kn
         const entityA = entities[i];
         if (!entityA) continue;
 
-        const embeddingA = embeddings.get(entityA.id);
-        if (!embeddingA) continue;
+        const embeddingAOpt = MutableHashMap.get(embeddings, entityA.id);
+        if (O.isNone(embeddingAOpt)) continue;
+        const embeddingA = embeddingAOpt.value;
 
         for (let j = i + 1; j < entities.length; j++) {
           const entityB = entities[j];
@@ -237,8 +203,9 @@ export class EntityClusterer extends Effect.Service<EntityClusterer>()("@beep/kn
             continue;
           }
 
-          const embeddingB = embeddings.get(entityB.id);
-          if (!embeddingB) continue;
+          const embeddingBOpt = MutableHashMap.get(embeddings, entityB.id);
+          if (O.isNone(embeddingBOpt)) continue;
+          const embeddingB = embeddingBOpt.value;
 
           const similarity = cosineSimilarity(embeddingA, embeddingB);
 
@@ -264,21 +231,22 @@ export class EntityClusterer extends Effect.Service<EntityClusterer>()("@beep/kn
       maxClusterSize: number
     ): readonly EntityCluster[] => {
       // Initialize union-find structure
-      const parent = new Map<string, string>();
-      const rank = new Map<string, number>();
+      const parent = MutableHashMap.empty<string, string>();
+      const rank = MutableHashMap.empty<string, number>();
 
       for (const entity of entities) {
-        parent.set(entity.id, entity.id);
-        rank.set(entity.id, 0);
+        MutableHashMap.set(parent, entity.id, entity.id);
+        MutableHashMap.set(rank, entity.id, 0);
       }
 
       // Find with path compression
       const find = (x: string): string => {
-        const p = parent.get(x);
-        if (p === undefined) return x;
+        const pOpt = MutableHashMap.get(parent, x);
+        if (O.isNone(pOpt)) return x;
+        const p = pOpt.value;
         if (p !== x) {
           const root = find(p);
-          parent.set(x, root);
+          MutableHashMap.set(parent, x, root);
           return root;
         }
         return x;
@@ -291,26 +259,29 @@ export class EntityClusterer extends Effect.Service<EntityClusterer>()("@beep/kn
 
         if (rootX === rootY) return;
 
-        const rankX = rank.get(rootX) ?? 0;
-        const rankY = rank.get(rootY) ?? 0;
+        const rankX = O.getOrElse(MutableHashMap.get(rank, rootX), () => 0);
+        const rankY = O.getOrElse(MutableHashMap.get(rank, rootY), () => 0);
 
         if (rankX < rankY) {
-          parent.set(rootX, rootY);
+          MutableHashMap.set(parent, rootX, rootY);
         } else if (rankX > rankY) {
-          parent.set(rootY, rootX);
+          MutableHashMap.set(parent, rootY, rootX);
         } else {
-          parent.set(rootY, rootX);
-          rank.set(rootX, rankX + 1);
+          MutableHashMap.set(parent, rootY, rootX);
+          MutableHashMap.set(rank, rootX, rankX + 1);
         }
       };
 
       // Sort similarities by descending similarity
-      const sortedSimilarities = [...similarities].sort((a, b) => b.similarity - a.similarity);
+      const sortedSimilarities = A.sort(
+        similarities,
+        Order.reverse(Order.mapInput(Order.number, (s: EntitySimilarity) => s.similarity))
+      );
 
       // Track cluster sizes
-      const clusterSizes = new Map<string, number>();
+      const clusterSizes = MutableHashMap.empty<string, number>();
       for (const entity of entities) {
-        clusterSizes.set(entity.id, 1);
+        MutableHashMap.set(clusterSizes, entity.id, 1);
       }
 
       // Merge similar entities
@@ -320,8 +291,8 @@ export class EntityClusterer extends Effect.Service<EntityClusterer>()("@beep/kn
 
         if (rootA === rootB) continue;
 
-        const sizeA = clusterSizes.get(rootA) ?? 1;
-        const sizeB = clusterSizes.get(rootB) ?? 1;
+        const sizeA = O.getOrElse(MutableHashMap.get(clusterSizes, rootA), () => 1);
+        const sizeB = O.getOrElse(MutableHashMap.get(clusterSizes, rootB), () => 1);
 
         // Check cluster size constraint
         if (sizeA + sizeB > maxClusterSize) continue;
@@ -330,31 +301,31 @@ export class EntityClusterer extends Effect.Service<EntityClusterer>()("@beep/kn
 
         // Update cluster size
         const newRoot = find(sim.entityA);
-        clusterSizes.set(newRoot, sizeA + sizeB);
+        MutableHashMap.set(clusterSizes, newRoot, sizeA + sizeB);
       }
 
       // Build clusters from union-find
-      const clusterMap = new Map<string, string[]>();
+      const clusterMap = MutableHashMap.empty<string, string[]>();
       for (const entity of entities) {
         const root = find(entity.id);
-        const cluster = clusterMap.get(root) ?? [];
+        const cluster = O.getOrElse(MutableHashMap.get(clusterMap, root), () => [] as string[]);
         cluster.push(entity.id);
-        clusterMap.set(root, cluster);
+        MutableHashMap.set(clusterMap, root, cluster);
       }
 
       // Create entity lookup
-      const entityById = new Map<string, AssembledEntity>();
+      const entityById = MutableHashMap.empty<string, AssembledEntity>();
       for (const entity of entities) {
-        entityById.set(entity.id, entity);
+        MutableHashMap.set(entityById, entity.id, entity);
       }
 
       // Convert to EntityCluster format
       const clusters: EntityCluster[] = [];
 
-      for (const [_root, memberIds] of clusterMap) {
-        const members = memberIds.map((id) => entityById.get(id)).filter((e): e is AssembledEntity => e !== undefined);
+      MutableHashMap.forEach(clusterMap, (memberIds, _root) => {
+        const members = A.filterMap(memberIds, (id) => MutableHashMap.get(entityById, id));
 
-        if (members.length === 0) continue;
+        if (A.isEmptyReadonlyArray(members)) return;
 
         // Compute cohesion (average pairwise similarity within cluster)
         let cohesion = 1.0;
@@ -365,7 +336,7 @@ export class EntityClusterer extends Effect.Service<EntityClusterer>()("@beep/kn
           for (const sim of similarities) {
             const rootA = find(sim.entityA);
             const rootB = find(sim.entityB);
-            if (rootA === rootB && memberIds.includes(sim.entityA) && memberIds.includes(sim.entityB)) {
+            if (rootA === rootB && A.contains(memberIds, sim.entityA) && A.contains(memberIds, sim.entityB)) {
               totalSimilarity += sim.similarity;
               pairCount++;
             }
@@ -379,16 +350,16 @@ export class EntityClusterer extends Effect.Service<EntityClusterer>()("@beep/kn
 
         // Select first member as initial canonical (will be refined by CanonicalSelector)
         const canonical = members[0];
-        if (!canonical) continue;
+        if (!canonical) return;
 
         clusters.push({
-          id: `knowledge_entity_cluster__${crypto.randomUUID()}`,
+          id: KnowledgeEntityIds.EntityClusterId.create(),
           canonicalEntityId: canonical.id,
           memberIds,
           cohesion,
           sharedTypes,
         });
-      }
+      });
 
       return clusters;
     };
@@ -422,7 +393,7 @@ export class EntityClusterer extends Effect.Service<EntityClusterer>()("@beep/kn
             }
           }
 
-          if (allEntities.length === 0) {
+          if (A.isEmptyReadonlyArray(allEntities)) {
             yield* Effect.logDebug("EntityClusterer.cluster: no entities to cluster");
             return [];
           }
@@ -435,21 +406,21 @@ export class EntityClusterer extends Effect.Service<EntityClusterer>()("@beep/kn
           });
 
           // Generate embeddings for all entities
-          const embeddings = new Map<string, readonly number[]>();
+          const embeddings = MutableHashMap.empty<string, readonly number[]>();
 
           for (const entity of allEntities) {
-            const text = formatEntityText(entity);
+            const text = formatEntityForEmbedding(entity);
             const embedding = yield* embeddingService
               .getOrCreate(text, "clustering", organizationId, ontologyId)
               .pipe(Effect.catchAll(() => Effect.succeed([] as readonly number[])));
 
-            if (embedding.length > 0) {
-              embeddings.set(entity.id, embedding);
+            if (A.isNonEmptyReadonlyArray(embedding)) {
+              MutableHashMap.set(embeddings, entity.id, embedding);
             }
           }
 
           yield* Effect.logDebug("EntityClusterer.cluster: embeddings generated", {
-            embeddedCount: embeddings.size,
+            embeddedCount: MutableHashMap.size(embeddings),
           });
 
           // Compute similarity matrix
@@ -497,7 +468,7 @@ export class EntityClusterer extends Effect.Service<EntityClusterer>()("@beep/kn
         threshold = 0.8
       ): Effect.Effect<readonly { entity: AssembledEntity; similarity: number }[], EmbeddingError> =>
         Effect.gen(function* () {
-          const queryText = formatEntityText(queryEntity);
+          const queryText = formatEntityForEmbedding(queryEntity);
           const queryEmbedding = yield* embeddingService.getOrCreate(
             queryText,
             "search_query",
@@ -510,12 +481,12 @@ export class EntityClusterer extends Effect.Service<EntityClusterer>()("@beep/kn
           for (const candidate of candidateEntities) {
             if (candidate.id === queryEntity.id) continue;
 
-            const candidateText = formatEntityText(candidate);
+            const candidateText = formatEntityForEmbedding(candidate);
             const candidateEmbedding = yield* embeddingService
               .getOrCreate(candidateText, "search_document", organizationId, ontologyId)
               .pipe(Effect.catchAll(() => Effect.succeed([] as readonly number[])));
 
-            if (candidateEmbedding.length === 0) continue;
+            if (A.isEmptyReadonlyArray(candidateEmbedding)) continue;
 
             const similarity = cosineSimilarity(queryEmbedding, candidateEmbedding);
 
@@ -525,7 +496,15 @@ export class EntityClusterer extends Effect.Service<EntityClusterer>()("@beep/kn
           }
 
           // Sort by similarity descending
-          return results.sort((a, b) => b.similarity - a.similarity);
+          return A.sort(
+            results,
+            Order.reverse(
+              Order.mapInput(
+                Order.number,
+                (r: { readonly entity: AssembledEntity; readonly similarity: number }) => r.similarity
+              )
+            )
+          );
         }),
     };
   }),

@@ -176,7 +176,7 @@ Categorize ALL file types by architectural layer and semantic purpose.
 - Table types
 - Migration helpers
 
-### Infrastructure Layer (packages/*/infra/src/ or server/src/)
+### Infrastructure Layer (packages/*/server/src/ or server/src/)
 - Services
 - Repositories
 - Layers

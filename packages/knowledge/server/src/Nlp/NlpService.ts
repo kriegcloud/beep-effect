@@ -10,6 +10,7 @@
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Stream from "effect/Stream";
+import * as Str from "effect/String";
 import { type ChunkingConfig, defaultChunkingConfig, TextChunk } from "./TextChunk";
 
 /**
@@ -31,17 +32,17 @@ const splitIntoSentences = (text: string): readonly string[] => {
 
   for (const match of matches) {
     if (match.index !== undefined) {
-      parts.push(text.slice(lastEnd, match.index));
+      parts.push(Str.slice(lastEnd, match.index)(text));
       lastEnd = match.index;
     }
   }
 
   // Add remaining text
   if (lastEnd < text.length) {
-    parts.push(text.slice(lastEnd));
+    parts.push(Str.slice(lastEnd)(text));
   }
 
-  return parts.length > 0 ? parts : [text];
+  return A.isNonEmptyReadonlyArray(parts) ? parts : [text];
 };
 
 /**
@@ -61,7 +62,7 @@ const createChunksFromSentences = (
   let currentCharPos = documentOffset;
 
   const flushChunk = () => {
-    if (currentChunkSentences.length === 0) return;
+    if (A.isEmptyReadonlyArray(currentChunkSentences)) return;
 
     const text = A.join("")(currentChunkSentences);
     const chunk = new TextChunk({
@@ -89,7 +90,7 @@ const createChunksFromSentences = (
     const currentLength = A.join("")(currentChunkSentences).length;
 
     // If adding this sentence would exceed max size, flush current chunk
-    if (currentLength + sentence.length > config.maxChunkSize && currentChunkSentences.length > 0) {
+    if (currentLength + sentence.length > config.maxChunkSize && A.isNonEmptyReadonlyArray(currentChunkSentences)) {
       flushChunk();
     }
 
@@ -98,7 +99,7 @@ const createChunksFromSentences = (
   }
 
   // Flush remaining sentences
-  if (currentChunkSentences.length > 0) {
+  if (A.isNonEmptyReadonlyArray(currentChunkSentences)) {
     const text = A.join("")(currentChunkSentences);
     const prevChunk = chunks[chunks.length - 1];
     // Check if final chunk is too small and should merge with previous
@@ -130,7 +131,7 @@ const createRawChunks = (text: string, config: ChunkingConfig): readonly TextChu
 
   while (offset < text.length) {
     const endOffset = Math.min(offset + config.maxChunkSize, text.length);
-    const chunkText = text.slice(offset, endOffset);
+    const chunkText = Str.slice(offset, endOffset)(text);
 
     chunks.push(
       new TextChunk({

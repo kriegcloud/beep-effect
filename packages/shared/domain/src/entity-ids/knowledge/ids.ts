@@ -56,8 +56,8 @@ export const KnowledgeEntityId = make("entity", {
 );
 
 export declare namespace KnowledgeEntityId {
-  export type Type = S.Schema.Type<typeof KnowledgeEntityId>;
-  export type Encoded = S.Schema.Encoded<typeof KnowledgeEntityId>;
+  export type Type = typeof KnowledgeEntityId.Type;
+  export type Encoded = typeof KnowledgeEntityId.Encoded;
 
   export namespace RowId {
     export type Type = typeof KnowledgeEntityId.privateSchema.Type;

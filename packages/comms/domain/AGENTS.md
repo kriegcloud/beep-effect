@@ -1,7 +1,7 @@
 # @beep/comms-domain — Agent Guide
 
 ## Purpose & Fit
-- Centralizes communications domain models via `M.Class` definitions that merge shared audit fields through `makeFields`, giving infra and tables a single source of truth for schema variants.
+- Centralizes communications domain models via `M.Class` definitions that merge shared audit fields through `makeFields`, giving server and tables a single source of truth for schema variants.
 - Re-exports the comms entity inventory to consumers through the package root so repos, tables, and runtimes can import `Entities.*` without piercing folder structure.
 - Provides domain entities for email templates, email value objects, and logging value objects for the communications slice.
 - Contains pure business logic with no side effects — all I/O belongs in the server layer.

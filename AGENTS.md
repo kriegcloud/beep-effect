@@ -79,7 +79,7 @@ See [documentation/EFFECT_PATTERNS.md](documentation/EFFECT_PATTERNS.md) for det
 3. **Verify Changes**: Request `bun run check` after modifications
 4. **Respect Tooling**: Use root scripts with `dotenvx`
 5. **Keep Docs Updated**: Align with `documentation/patterns/` when introducing new patterns
-6. **Do Not Auto-Start**: Never launch long-running dev or infra commands without confirmation
+6. **Do Not Auto-Start**: Never launch long-running dev or server commands without confirmation
 
 ## Specifications
 

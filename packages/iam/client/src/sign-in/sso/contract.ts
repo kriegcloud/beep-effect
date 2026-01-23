@@ -11,6 +11,7 @@
 import * as Common from "@beep/iam-client/_internal";
 import { formValuesAnnotation } from "@beep/iam-client/_internal";
 import { $IamClientId } from "@beep/identity/packages";
+import { BS } from "@beep/schema";
 import * as W from "@beep/wrap";
 import * as S from "effect/Schema";
 
@@ -41,13 +42,13 @@ const $I = $IamClientId.create("sign-in/sso");
  */
 export class Payload extends S.Class<Payload>($I`Payload`)(
   {
-    email: S.optional(S.String),
-    organizationSlug: S.optional(S.String),
+    email: S.optional(BS.Email),
+    organizationSlug: S.optional(BS.Slug),
     providerId: S.optional(S.String),
-    domain: S.optional(S.String),
-    callbackURL: S.String,
-    errorCallbackURL: S.optional(S.String),
-    newUserCallbackURL: S.optional(S.String),
+    domain: S.optional(BS.DomainName),
+    callbackURL: BS.URLString,
+    errorCallbackURL: S.optional(BS.URLString),
+    newUserCallbackURL: S.optional(BS.URLString),
     scopes: S.optional(S.mutable(S.Array(S.String))),
     loginHint: S.optional(S.String),
     requestSignUp: S.optional(S.Boolean),

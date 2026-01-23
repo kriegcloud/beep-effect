@@ -25,7 +25,7 @@ export const propertyDefinition = OrgTable.make(KnowledgeEntityIds.PropertyDefin
   {
     // Reference to parent ontology
     // Note: FK constraint is added via foreignKey() in extraConfig to use custom short name
-    ontologyId: pg.text("ontology_id").notNull(),
+    ontologyId: pg.text("ontology_id").notNull().$type<KnowledgeEntityIds.OntologyId.Type>(),
 
     // Full IRI of the property
     iri: pg.text("iri").notNull(),

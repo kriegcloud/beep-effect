@@ -11,6 +11,7 @@
 import * as Common from "@beep/iam-client/_internal";
 import { formValuesAnnotation } from "@beep/iam-client/_internal";
 import { $IamClientId } from "@beep/identity/packages";
+import { BS } from "@beep/schema";
 import * as W from "@beep/wrap";
 import * as S from "effect/Schema";
 
@@ -44,7 +45,7 @@ export const UserRole = S.Union(S.Literal("user", "admin"), S.mutable(S.Array(S.
 
 export class Payload extends S.Class<Payload>($I`Payload`)(
   {
-    email: S.String,
+    email: BS.Email,
     password: S.optional(S.String),
     name: S.String,
     role: S.optional(UserRole),

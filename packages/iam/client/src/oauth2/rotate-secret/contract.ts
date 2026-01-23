@@ -12,6 +12,7 @@
 import * as Common from "@beep/iam-client/_internal";
 import { formValuesAnnotation } from "@beep/iam-client/_internal";
 import { $IamClientId } from "@beep/identity/packages";
+import { IamEntityIds } from "@beep/shared-domain";
 import * as W from "@beep/wrap";
 import * as S from "effect/Schema";
 
@@ -34,7 +35,7 @@ const $I = $IamClientId.create("oauth2/rotate-secret");
  */
 export class Payload extends S.Class<Payload>($I`Payload`)(
   {
-    client_id: S.String,
+    client_id: IamEntityIds.OAuthClientId,
   },
   formValuesAnnotation({
     client_id: "",
@@ -51,7 +52,7 @@ export class Payload extends S.Class<Payload>($I`Payload`)(
  */
 export class Success extends S.Class<Success>($I`Success`)(
   {
-    clientId: S.String,
+    clientId: IamEntityIds.OAuthClientId,
     clientSecret: S.Redacted(S.String),
   },
   $I.annotations("Success", {

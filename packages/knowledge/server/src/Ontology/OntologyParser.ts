@@ -11,6 +11,9 @@ import { OntologyParseError } from "@beep/knowledge-domain/errors";
 import { thunkEmptyStr } from "@beep/utils";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import * as Iterable from "effect/Iterable";
+import * as MutableHashMap from "effect/MutableHashMap";
+import * as MutableHashSet from "effect/MutableHashSet";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as Str from "effect/String";
@@ -125,8 +128,11 @@ export class OntologyParser extends Effect.Service<OntologyParser>()("@beep/know
     /**
      * Get all values for a predicate from the store
      */
-    const getPredicateValues = (store: N3.Store, predicate: string): Map<string, string[]> => {
-      const map = new Map<string, string[]>();
+    const getPredicateValues = (
+      store: N3.Store,
+      predicate: string
+    ): MutableHashMap.MutableHashMap<string, string[]> => {
+      const map = MutableHashMap.empty<string, string[]>();
       for (const quad of store.match(null, N3.DataFactory.namedNode(predicate), null)) {
         const subject = quad.subject.value;
         // Skip blank nodes
@@ -134,10 +140,10 @@ export class OntologyParser extends Effect.Service<OntologyParser>()("@beep/know
 
         const value = quad.object.termType === "Literal" ? quad.object.value : quad.object.value;
 
-        if (!map.has(subject)) {
-          map.set(subject, []);
+        if (!MutableHashMap.has(map, subject)) {
+          MutableHashMap.set(map, subject, []);
         }
-        map.get(subject)!.push(value);
+        O.getOrThrow(MutableHashMap.get(map, subject)).push(value);
       }
       return map;
     };
@@ -145,17 +151,21 @@ export class OntologyParser extends Effect.Service<OntologyParser>()("@beep/know
     /**
      * Get first value for a predicate (for single-valued predicates)
      */
-    const getFirstValue = (map: Map<string, string[]>, subject: string): O.Option<string> => {
-      const values = map.get(subject);
-      const first = values?.[0];
+    const getFirstValue = (map: MutableHashMap.MutableHashMap<string, string[]>, subject: string): O.Option<string> => {
+      const valuesOpt = MutableHashMap.get(map, subject);
+      if (O.isNone(valuesOpt)) return O.none();
+      const first = valuesOpt.value[0];
       return first !== undefined ? O.some(first) : O.none();
     };
 
     /**
      * Get all values for a predicate (for multi-valued predicates)
      */
-    const getAllValues = (map: Map<string, string[]>, subject: string): ReadonlyArray<string> => {
-      return map.get(subject) ?? [];
+    const getAllValues = (
+      map: MutableHashMap.MutableHashMap<string, string[]>,
+      subject: string
+    ): ReadonlyArray<string> => {
+      return O.getOrElse(MutableHashMap.get(map, subject), () => A.empty<string>());
     };
 
     /**
@@ -184,23 +194,23 @@ export class OntologyParser extends Effect.Service<OntologyParser>()("@beep/know
       const equivalentClasses = getPredicateValues(store, OWL.equivalentClass);
 
       // Find all OWL classes
-      const classIris = new Set<string>();
+      const classIris = MutableHashSet.empty<string>();
       for (const quad of store.match(null, N3.DataFactory.namedNode(RDF.type), N3.DataFactory.namedNode(OWL.Class))) {
         if (!Str.startsWith("_:")(quad.subject.value)) {
-          classIris.add(quad.subject.value);
+          MutableHashSet.add(classIris, quad.subject.value);
         }
       }
       // Also check rdfs:Class
       for (const quad of store.match(null, N3.DataFactory.namedNode(RDF.type), N3.DataFactory.namedNode(RDFS.Class))) {
         if (!Str.startsWith("_:")(quad.subject.value)) {
-          classIris.add(quad.subject.value);
+          MutableHashSet.add(classIris, quad.subject.value);
         }
       }
 
       // Find all OWL properties
-      const objectPropertyIris = new Set<string>();
-      const datatypePropertyIris = new Set<string>();
-      const functionalPropertyIris = new Set<string>();
+      const objectPropertyIris = MutableHashSet.empty<string>();
+      const datatypePropertyIris = MutableHashSet.empty<string>();
+      const functionalPropertyIris = MutableHashSet.empty<string>();
 
       for (const quad of store.match(
         null,
@@ -208,7 +218,7 @@ export class OntologyParser extends Effect.Service<OntologyParser>()("@beep/know
         N3.DataFactory.namedNode(OWL.ObjectProperty)
       )) {
         if (!Str.startsWith("_:")(quad.subject.value)) {
-          objectPropertyIris.add(quad.subject.value);
+          MutableHashSet.add(objectPropertyIris, quad.subject.value);
         }
       }
 
@@ -218,7 +228,7 @@ export class OntologyParser extends Effect.Service<OntologyParser>()("@beep/know
         N3.DataFactory.namedNode(OWL.DatatypeProperty)
       )) {
         if (!Str.startsWith("_:")(quad.subject.value)) {
-          datatypePropertyIris.add(quad.subject.value);
+          MutableHashSet.add(datatypePropertyIris, quad.subject.value);
         }
       }
 
@@ -228,37 +238,38 @@ export class OntologyParser extends Effect.Service<OntologyParser>()("@beep/know
         N3.DataFactory.namedNode(OWL.FunctionalProperty)
       )) {
         if (!Str.startsWith("_:")(quad.subject.value)) {
-          functionalPropertyIris.add(quad.subject.value);
+          MutableHashSet.add(functionalPropertyIris, quad.subject.value);
         }
       }
 
       // Build class -> properties mapping
-      const classProperties = new Map<string, string[]>();
-      for (const propIri of [...objectPropertyIris, ...datatypePropertyIris]) {
-        const propDomains = domains.get(propIri) ?? [];
+      const classProperties = MutableHashMap.empty<string, string[]>();
+      const allPropertyIris = A.appendAll(A.fromIterable(objectPropertyIris), A.fromIterable(datatypePropertyIris));
+      for (const propIri of allPropertyIris) {
+        const propDomains = O.getOrElse(MutableHashMap.get(domains, propIri), () => A.empty<string>());
         for (const domainIri of propDomains) {
-          if (!classProperties.has(domainIri)) {
-            classProperties.set(domainIri, []);
+          if (!MutableHashMap.has(classProperties, domainIri)) {
+            MutableHashMap.set(classProperties, domainIri, []);
           }
-          classProperties.get(domainIri)!.push(propIri);
+          O.getOrThrow(MutableHashMap.get(classProperties, domainIri)).push(propIri);
         }
       }
 
       // Build class hierarchy
       const classHierarchy = R.empty<string, ReadonlyArray<string>>();
-      for (const [childIri, parentIris] of subClassOf.entries()) {
+      MutableHashMap.forEach(subClassOf, (parentIris, childIri) => {
         classHierarchy[childIri] = parentIris;
-      }
+      });
 
       // Build property hierarchy
       const propertyHierarchy = R.empty<string, ReadonlyArray<string>>();
-      for (const [childIri, parentIris] of subPropertyOf.entries()) {
+      MutableHashMap.forEach(subPropertyOf, (parentIris, childIri) => {
         propertyHierarchy[childIri] = parentIris;
-      }
+      });
 
       // Build class definitions
       const classes = A.empty<ParsedClassDefinition>();
-      for (const iri of classIris) {
+      Iterable.forEach(classIris, (iri) => {
         // Must have a label or prefLabel to be included
         const label = getFirstValue(labels, iri).pipe(
           O.getOrElse(() => getFirstValue(prefLabels, iri).pipe(O.getOrElse(thunkEmptyStr)))
@@ -270,7 +281,7 @@ export class OntologyParser extends Effect.Service<OntologyParser>()("@beep/know
             label,
             localName: extractLocalName(iri),
             comment: getFirstValue(comments, iri),
-            properties: classProperties.get(iri) ?? [],
+            properties: O.getOrElse(MutableHashMap.get(classProperties, iri), () => A.empty<string>()),
             prefLabels: getAllValues(prefLabels, iri),
             altLabels: getAllValues(altLabels, iri),
             hiddenLabels: getAllValues(hiddenLabels, iri),
@@ -285,11 +296,11 @@ export class OntologyParser extends Effect.Service<OntologyParser>()("@beep/know
             closeMatch: getAllValues(closeMatches, iri),
           });
         }
-      }
+      });
 
       // Build property definitions
       const properties = A.empty<ParsedPropertyDefinition>();
-      for (const iri of objectPropertyIris) {
+      Iterable.forEach(objectPropertyIris, (iri) => {
         const label = getFirstValue(labels, iri).pipe(
           O.getOrElse(() => getFirstValue(prefLabels, iri).pipe(O.getOrElse(thunkEmptyStr)))
         );
@@ -303,7 +314,7 @@ export class OntologyParser extends Effect.Service<OntologyParser>()("@beep/know
             domain: getAllValues(domains, iri),
             range: getAllValues(ranges, iri),
             rangeType: "object",
-            isFunctional: functionalPropertyIris.has(iri),
+            isFunctional: MutableHashSet.has(functionalPropertyIris, iri),
             inverseOf: getAllValues(inverseOfs, iri),
             prefLabels: getAllValues(prefLabels, iri),
             altLabels: getAllValues(altLabels, iri),
@@ -318,11 +329,11 @@ export class OntologyParser extends Effect.Service<OntologyParser>()("@beep/know
             closeMatch: getAllValues(closeMatches, iri),
           });
         }
-      }
+      });
 
-      for (const iri of datatypePropertyIris) {
+      Iterable.forEach(datatypePropertyIris, (iri) => {
         // Skip if already added as object property (shouldn't happen but defensive)
-        if (objectPropertyIris.has(iri)) continue;
+        if (MutableHashSet.has(objectPropertyIris, iri)) return;
 
         const label = getFirstValue(labels, iri).pipe(
           O.getOrElse(() => getFirstValue(prefLabels, iri).pipe(O.getOrElse(thunkEmptyStr)))
@@ -337,7 +348,7 @@ export class OntologyParser extends Effect.Service<OntologyParser>()("@beep/know
             domain: getAllValues(domains, iri),
             range: getAllValues(ranges, iri),
             rangeType: "datatype",
-            isFunctional: functionalPropertyIris.has(iri),
+            isFunctional: MutableHashSet.has(functionalPropertyIris, iri),
             inverseOf: getAllValues(inverseOfs, iri),
             prefLabels: getAllValues(prefLabels, iri),
             altLabels: getAllValues(altLabels, iri),
@@ -352,7 +363,7 @@ export class OntologyParser extends Effect.Service<OntologyParser>()("@beep/know
             closeMatch: getAllValues(closeMatches, iri),
           });
         }
-      }
+      });
 
       return {
         classes,

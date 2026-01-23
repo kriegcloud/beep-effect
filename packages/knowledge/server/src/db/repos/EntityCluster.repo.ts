@@ -8,23 +8,117 @@
  */
 import { $KnowledgeServerId } from "@beep/identity/packages";
 import { Entities } from "@beep/knowledge-domain";
-import { KnowledgeEntityIds, type SharedEntityIds } from "@beep/shared-domain";
+import { KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import { DatabaseError } from "@beep/shared-domain/errors";
 import { DbRepo } from "@beep/shared-domain/factories";
 import * as SqlClient from "@effect/sql/SqlClient";
-import * as A from "effect/Array";
+import * as SqlSchema from "@effect/sql/SqlSchema";
 import * as Effect from "effect/Effect";
 import type * as O from "effect/Option";
+import * as S from "effect/Schema";
 import { dependencies } from "./_common";
 
 const $I = $KnowledgeServerId.create("db/repos/EntityClusterRepo");
+
+const tableName = KnowledgeEntityIds.EntityClusterId.tableName;
+
+// --- Request Schemas ---
+
+class FindByCanonicalEntityRequest extends S.Class<FindByCanonicalEntityRequest>("FindByCanonicalEntityRequest")({
+  canonicalEntityId: KnowledgeEntityIds.KnowledgeEntityId,
+  organizationId: SharedEntityIds.OrganizationId,
+}) {}
+
+class FindByMemberRequest extends S.Class<FindByMemberRequest>("FindByMemberRequest")({
+  memberId: S.String,
+  organizationId: SharedEntityIds.OrganizationId,
+}) {}
+
+class FindClustersByOntologyRequest extends S.Class<FindClustersByOntologyRequest>("FindClustersByOntologyRequest")({
+  ontologyId: S.String,
+  organizationId: SharedEntityIds.OrganizationId,
+  limit: S.Number,
+}) {}
+
+class FindHighCohesionRequest extends S.Class<FindHighCohesionRequest>("FindHighCohesionRequest")({
+  minCohesion: S.Number,
+  organizationId: SharedEntityIds.OrganizationId,
+  limit: S.Number,
+}) {}
+
+class DeleteByOntologyRequest extends S.Class<DeleteByOntologyRequest>("DeleteByOntologyRequest")({
+  ontologyId: S.String,
+  organizationId: SharedEntityIds.OrganizationId,
+}) {}
 
 /**
  * Custom repo operations for entity clusters
  */
 const makeEntityClusterExtensions = Effect.gen(function* () {
   const sql = yield* SqlClient.SqlClient;
-  const tableName = "knowledge_entity_cluster";
+
+  // --- SqlSchemas ---
+
+  const findByCanonicalEntitySchema = SqlSchema.findOne({
+    Request: FindByCanonicalEntityRequest,
+    Result: Entities.EntityCluster.Model,
+    execute: (req) => sql`
+      SELECT *
+      FROM ${sql(tableName)}
+      WHERE canonical_entity_id = ${req.canonicalEntityId}
+        AND organization_id = ${req.organizationId}
+      LIMIT 1
+    `,
+  });
+
+  const findByMemberSchema = SqlSchema.findOne({
+    Request: FindByMemberRequest,
+    Result: Entities.EntityCluster.Model,
+    execute: (req) => sql`
+      SELECT *
+      FROM ${sql(tableName)}
+      WHERE organization_id = ${req.organizationId}
+        AND member_ids @> ${JSON.stringify([req.memberId])}::jsonb
+      LIMIT 1
+    `,
+  });
+
+  const findByOntologySchema = SqlSchema.findAll({
+    Request: FindClustersByOntologyRequest,
+    Result: Entities.EntityCluster.Model,
+    execute: (req) => sql`
+      SELECT *
+      FROM ${sql(tableName)}
+      WHERE organization_id = ${req.organizationId}
+        AND ontology_id = ${req.ontologyId}
+      LIMIT ${req.limit}
+    `,
+  });
+
+  const findHighCohesionSchema = SqlSchema.findAll({
+    Request: FindHighCohesionRequest,
+    Result: Entities.EntityCluster.Model,
+    execute: (req) => sql`
+      SELECT *
+      FROM ${sql(tableName)}
+      WHERE organization_id = ${req.organizationId}
+        AND cohesion >= ${req.minCohesion}
+      ORDER BY cohesion DESC
+      LIMIT ${req.limit}
+    `,
+  });
+
+  const deleteByOntologySchema = SqlSchema.void({
+    Request: DeleteByOntologyRequest,
+    execute: (req) => sql`
+      DELETE
+      FROM ${sql(tableName)}
+      WHERE organization_id = ${req.organizationId}
+        AND ontology_id = ${req.ontologyId}
+    `,
+  });
+
+  // --- Methods ---
 
   /**
    * Find cluster by canonical entity ID
@@ -37,24 +131,15 @@ const makeEntityClusterExtensions = Effect.gen(function* () {
     canonicalEntityId: KnowledgeEntityIds.KnowledgeEntityId.Type,
     organizationId: SharedEntityIds.OrganizationId.Type
   ): Effect.Effect<O.Option<Entities.EntityCluster.Model>, DatabaseError> =>
-    sql<Entities.EntityCluster.Model>`
-        SELECT *
-        FROM ${sql(tableName)}
-        WHERE canonical_entity_id = ${canonicalEntityId}
-          AND organization_id = ${organizationId} LIMIT 1
-    `.pipe(
-      Effect.map(A.head),
-      Effect.mapError((error) =>
-        DatabaseError.$match({
-          message: `Failed to find cluster by canonical entity: ${String(error)}`,
-          _tag: "DatabaseError",
-        })
-      ),
+    findByCanonicalEntitySchema({ canonicalEntityId, organizationId }).pipe(
+      Effect.catchTag("ParseError", (e) => Effect.die(e)),
+      Effect.mapError(DatabaseError.$match),
       Effect.withSpan("EntityClusterRepo.findByCanonicalEntity", {
         captureStackTrace: false,
         attributes: { canonicalEntityId, organizationId },
       })
     );
+
   /**
    * Find cluster containing a specific member entity
    *
@@ -66,20 +151,9 @@ const makeEntityClusterExtensions = Effect.gen(function* () {
     memberId: string,
     organizationId: SharedEntityIds.OrganizationId.Type
   ): Effect.Effect<O.Option<Entities.EntityCluster.Model>, DatabaseError> =>
-    sql<Entities.EntityCluster.Model>`
-        SELECT *
-        FROM ${sql(tableName)}
-        WHERE organization_id = ${organizationId}
-          AND member_ids @ > ${JSON.stringify([memberId])}::jsonb
-        LIMIT 1
-    `.pipe(
-      Effect.map(A.head),
-      Effect.mapError((error) =>
-        DatabaseError.$match({
-          message: `Failed to find cluster by member: ${String(error)}`,
-          _tag: "DatabaseError",
-        })
-      ),
+    findByMemberSchema({ memberId, organizationId }).pipe(
+      Effect.catchTag("ParseError", (e) => Effect.die(e)),
+      Effect.mapError(DatabaseError.$match),
       Effect.withSpan("EntityClusterRepo.findByMember", {
         captureStackTrace: false,
         attributes: { memberId, organizationId },
@@ -99,18 +173,9 @@ const makeEntityClusterExtensions = Effect.gen(function* () {
     organizationId: SharedEntityIds.OrganizationId.Type,
     limit = 100
   ): Effect.Effect<ReadonlyArray<Entities.EntityCluster.Model>, DatabaseError> =>
-    sql<Entities.EntityCluster.Model>`
-        SELECT *
-        FROM ${sql(tableName)}
-        WHERE organization_id = ${organizationId}
-          AND ontology_id = ${ontologyId} LIMIT ${limit}
-    `.pipe(
-      Effect.mapError((error) =>
-        DatabaseError.$match({
-          message: `Failed to find clusters by ontology: ${String(error)}`,
-          _tag: "DatabaseError",
-        })
-      ),
+    findByOntologySchema({ ontologyId, organizationId, limit }).pipe(
+      Effect.catchTag("ParseError", (e) => Effect.die(e)),
+      Effect.mapError(DatabaseError.$match),
       Effect.withSpan("EntityClusterRepo.findByOntology", {
         captureStackTrace: false,
         attributes: { ontologyId, organizationId, limit },
@@ -130,20 +195,9 @@ const makeEntityClusterExtensions = Effect.gen(function* () {
     organizationId: SharedEntityIds.OrganizationId.Type,
     limit = 100
   ): Effect.Effect<ReadonlyArray<Entities.EntityCluster.Model>, DatabaseError> =>
-    sql<Entities.EntityCluster.Model>`
-        SELECT *
-        FROM ${sql(tableName)}
-        WHERE organization_id = ${organizationId}
-          AND cohesion >= ${minCohesion}
-        ORDER BY cohesion DESC
-            LIMIT ${limit}
-    `.pipe(
-      Effect.mapError((error) =>
-        DatabaseError.$match({
-          message: `Failed to find high cohesion clusters: ${String(error)}`,
-          _tag: "DatabaseError",
-        })
-      ),
+    findHighCohesionSchema({ minCohesion, organizationId, limit }).pipe(
+      Effect.catchTag("ParseError", (e) => Effect.die(e)),
+      Effect.mapError(DatabaseError.$match),
       Effect.withSpan("EntityClusterRepo.findHighCohesion", {
         captureStackTrace: false,
         attributes: { minCohesion, organizationId, limit },
@@ -155,28 +209,14 @@ const makeEntityClusterExtensions = Effect.gen(function* () {
    *
    * @param ontologyId - The ontology ID
    * @param organizationId - Organization ID for scoping
-   * @returns Number of deleted rows
    */
   const deleteByOntology = (
     ontologyId: string,
     organizationId: SharedEntityIds.OrganizationId.Type
-  ): Effect.Effect<number, DatabaseError> =>
-    Effect.gen(function* () {
-      const result = yield* sql`
-          DELETE
-          FROM ${sql(tableName)}
-          WHERE organization_id = ${organizationId}
-            AND ontology_id = ${ontologyId}
-      `.pipe(
-        Effect.mapError((error) =>
-          DatabaseError.$match({
-            message: `Failed to delete clusters by ontology: ${String(error)}`,
-            _tag: "DatabaseError",
-          })
-        )
-      );
-      return result.length;
-    }).pipe(
+  ): Effect.Effect<void, DatabaseError> =>
+    deleteByOntologySchema({ ontologyId, organizationId }).pipe(
+      Effect.catchTag("ParseError", (e) => Effect.die(e)),
+      Effect.mapError(DatabaseError.$match),
       Effect.withSpan("EntityClusterRepo.deleteByOntology", {
         captureStackTrace: false,
         attributes: { ontologyId, organizationId },

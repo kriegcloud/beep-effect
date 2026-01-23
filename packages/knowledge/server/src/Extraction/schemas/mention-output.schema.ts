@@ -25,9 +25,7 @@ export class ExtractedMention extends S.Class<ExtractedMention>("@beep/knowledge
   /**
    * Character offset where mention starts (0-indexed)
    */
-  startChar: S.Number.pipe(
-    S.int(),
-    S.nonNegative(),
+  startChar: S.NonNegativeInt.pipe(
     S.annotations({
       description: "Character offset start (0-indexed relative to chunk)",
     })
@@ -36,9 +34,7 @@ export class ExtractedMention extends S.Class<ExtractedMention>("@beep/knowledge
   /**
    * Character offset where mention ends (exclusive)
    */
-  endChar: S.Number.pipe(
-    S.int(),
-    S.nonNegative(),
+  endChar: S.NonNegativeInt.pipe(
     S.annotations({
       description: "Character offset end (exclusive, relative to chunk)",
     })

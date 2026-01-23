@@ -12,6 +12,7 @@
 import * as Common from "@beep/iam-client/_internal";
 import { formValuesAnnotation } from "@beep/iam-client/_internal";
 import { $IamClientId } from "@beep/identity/packages";
+import { BS } from "@beep/schema";
 import * as W from "@beep/wrap";
 import * as S from "effect/Schema";
 
@@ -35,7 +36,7 @@ const $I = $IamClientId.create("password/request-reset");
  */
 export class Payload extends S.Class<Payload>($I`Payload`)(
   {
-    email: S.String,
+    email: BS.Email,
     redirectTo: S.optional(S.String),
   },
   formValuesAnnotation({

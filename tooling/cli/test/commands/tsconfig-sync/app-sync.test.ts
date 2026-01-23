@@ -216,7 +216,7 @@ describe("Path Alias Generation", () => {
     // Path should include the relative path and package directory
     const schemaPath = paths["@beep/schema/*"];
     expect(schemaPath).toBeDefined();
-    if (schemaPath && schemaPath[0]) {
+    if (schemaPath?.[0]) {
       strictEqual(schemaPath[0].includes("packages/common/schema"), true);
     }
   });
@@ -309,7 +309,7 @@ describe("buildSinglePathAlias", () => {
 
     const basePath = aliasMap.get("@beep/schema");
     expect(basePath).toBeDefined();
-    if (basePath && basePath[0]) {
+    if (basePath?.[0]) {
       strictEqual(basePath[0].includes("packages/common/schema"), true);
       strictEqual(basePath[0].includes("../.."), true);
     }
@@ -321,7 +321,7 @@ describe("buildSinglePathAlias", () => {
 
     const wildcardPath = aliasMap.get("@beep/types/*");
     expect(wildcardPath).toBeDefined();
-    if (wildcardPath && wildcardPath[0]) {
+    if (wildcardPath?.[0]) {
       strictEqual(wildcardPath[0].includes("../../.."), true);
     }
   });

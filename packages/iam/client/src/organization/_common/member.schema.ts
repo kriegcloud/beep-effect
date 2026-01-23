@@ -1,4 +1,6 @@
 import { $IamClientId } from "@beep/identity/packages";
+import { BS } from "@beep/schema";
+import { IamEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import * as S from "effect/Schema";
 import { EmbeddedUser } from "./organization.schema.ts";
 
@@ -12,11 +14,11 @@ const $I = $IamClientId.create("organization/_common/member");
  */
 export class Member extends S.Class<Member>($I`Member`)(
   {
-    id: S.String,
-    organizationId: S.String,
-    userId: S.String,
+    id: IamEntityIds.MemberId,
+    organizationId: SharedEntityIds.OrganizationId,
+    userId: SharedEntityIds.UserId,
     role: S.String,
-    createdAt: S.DateFromString,
+    createdAt: BS.DateTimeUtcFromAllAcceptable,
   },
   $I.annotations("Member", {
     description: "Organization member entity from Better Auth organization plugin.",
@@ -31,11 +33,11 @@ export class Member extends S.Class<Member>($I`Member`)(
  */
 export class FullMember extends S.Class<FullMember>($I`FullMember`)(
   {
-    id: S.String,
-    organizationId: S.String,
-    userId: S.String,
+    id: IamEntityIds.MemberId,
+    organizationId: SharedEntityIds.OrganizationId,
+    userId: SharedEntityIds.UserId,
     role: S.String,
-    createdAt: S.DateFromString,
+    createdAt: BS.DateTimeUtcFromAllAcceptable,
     user: EmbeddedUser,
   },
   $I.annotations("FullMember", {

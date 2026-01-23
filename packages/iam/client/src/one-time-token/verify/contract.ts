@@ -33,7 +33,7 @@ const $I = $IamClientId.create("one-time-token/verify");
  */
 export class Payload extends S.Class<Payload>($I`Payload`)(
   {
-    token: S.String,
+    token: S.Redacted(S.String),
   },
   formValuesAnnotation({
     token: "",

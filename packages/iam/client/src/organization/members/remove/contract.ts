@@ -10,6 +10,7 @@
 import * as Common from "@beep/iam-client/_internal";
 import { formValuesAnnotation } from "@beep/iam-client/_internal";
 import { $IamClientId } from "@beep/identity/packages";
+import { SharedEntityIds } from "@beep/shared-domain";
 import * as W from "@beep/wrap";
 import * as S from "effect/Schema";
 import { Member } from "../../_common/index.ts";
@@ -24,8 +25,8 @@ const $I = $IamClientId.create("organization/members/remove");
  */
 export class Payload extends S.Class<Payload>($I`Payload`)(
   {
-    organizationId: S.optional(S.String), // Uses active org if omitted
-    memberIdOrEmail: S.String, // Can use either member ID or email
+    organizationId: S.optional(SharedEntityIds.OrganizationId), // Uses active org if omitted
+    memberIdOrEmail: S.String, // Can use either member ID or email - keep as string
   },
   formValuesAnnotation({
     organizationId: undefined,

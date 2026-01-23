@@ -1,6 +1,7 @@
 import * as Common from "@beep/iam-client/_internal";
 import { formValuesAnnotation } from "@beep/iam-client/_internal";
 import { $IamClientId } from "@beep/identity/packages";
+import { IamEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import * as W from "@beep/wrap";
 import * as S from "effect/Schema";
 
@@ -12,8 +13,8 @@ const $I = $IamClientId.create("api-key/update");
 
 export class Payload extends S.Class<Payload>($I`Payload`)(
   {
-    keyId: S.String,
-    userId: S.optional(S.String),
+    keyId: IamEntityIds.ApiKeyId,
+    userId: S.optional(SharedEntityIds.UserId),
     name: S.optional(S.String),
     enabled: S.optional(S.Boolean),
     remaining: S.optional(S.Number),

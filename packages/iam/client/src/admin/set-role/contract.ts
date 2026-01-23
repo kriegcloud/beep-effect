@@ -11,6 +11,7 @@
 import * as Common from "@beep/iam-client/_internal";
 import { formValuesAnnotation } from "@beep/iam-client/_internal";
 import { $IamClientId } from "@beep/identity/packages";
+import { SharedEntityIds } from "@beep/shared-domain";
 import * as W from "@beep/wrap";
 import * as S from "effect/Schema";
 
@@ -42,7 +43,7 @@ export const UserRole = S.Union(S.Literal("user", "admin"), S.mutable(S.Array(S.
 
 export class Payload extends S.Class<Payload>($I`Payload`)(
   {
-    userId: S.String,
+    userId: SharedEntityIds.UserId,
     role: UserRole,
   },
   formValuesAnnotation({

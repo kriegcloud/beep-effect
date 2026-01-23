@@ -23,13 +23,13 @@ import * as pg from "drizzle-orm/pg-core";
 export const relation = OrgTable.make(KnowledgeEntityIds.RelationId)(
   {
     // Subject entity ID (required)
-    subjectId: pg.text("subject_id").notNull(),
+    subjectId: pg.text("subject_id").notNull().$type<KnowledgeEntityIds.KnowledgeEntityId.Type>(),
 
     // Predicate (ontology property URI)
     predicate: pg.text("predicate").notNull(),
 
     // Object entity ID (for object properties, mutually exclusive with literalValue)
-    objectId: pg.text("object_id"),
+    objectId: pg.text("object_id").$type<KnowledgeEntityIds.KnowledgeEntityId.Type>(),
 
     // Literal value (for datatype properties, mutually exclusive with objectId)
     literalValue: pg.text("literal_value"),
@@ -38,10 +38,10 @@ export const relation = OrgTable.make(KnowledgeEntityIds.RelationId)(
     literalType: pg.text("literal_type"),
 
     // Ontology scoping
-    ontologyId: pg.text("ontology_id").notNull().default("default"),
+    ontologyId: pg.text("ontology_id").notNull().default("default").$type<KnowledgeEntityIds.OntologyId.Type>(),
 
     // Extraction run ID that created this relation
-    extractionId: pg.text("extraction_id"),
+    extractionId: pg.text("extraction_id").$type<KnowledgeEntityIds.ExtractionId.Type>(),
 
     // Evidence span (JSON object with text and offsets)
     evidence: pg.jsonb("evidence").$type<{

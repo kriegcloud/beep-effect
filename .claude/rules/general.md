@@ -19,7 +19,7 @@
 
 Each vertical slice follows this dependency order:
 ```
-domain -> tables -> infra -> client -> ui
+domain -> tables -> server -> client -> ui
 ```
 
 ## Commands Reference

@@ -7,10 +7,16 @@
  * @module knowledge-server/Grounding/ConfidenceFilter
  * @since 0.1.0
  */
+
+import { thunkZero } from "@beep/utils";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import * as F from "effect/Function";
+import * as MutableHashSet from "effect/MutableHashSet";
+import * as O from "effect/Option";
 import * as Order from "effect/Order";
 import * as R from "effect/Record";
+import * as Str from "effect/String";
 import type { AssembledEntity, AssembledRelation, KnowledgeGraph } from "../Extraction/GraphAssembler";
 // =============================================================================
 // Types
@@ -27,19 +33,19 @@ export interface FilterConfig {
    * Minimum confidence for entities (0-1)
    * @default 0.5
    */
-  readonly entityThreshold?: number;
+  readonly entityThreshold?: undefined | number;
 
   /**
    * Minimum confidence for relations (0-1)
    * @default 0.5
    */
-  readonly relationThreshold?: number;
+  readonly relationThreshold?: undefined | number;
 
   /**
    * Remove entities that have no relations after filtering
    * @default true
    */
-  readonly removeOrphanEntities?: boolean;
+  readonly removeOrphanEntities?: undefined | boolean;
 }
 
 /**
@@ -123,16 +129,16 @@ export const removeOrphanEntities = (
   relations: readonly AssembledRelation[]
 ): readonly AssembledEntity[] => {
   // Build set of entity IDs that are referenced in relations
-  const referencedIds = new Set<string>();
+  const referencedIds = MutableHashSet.empty<string>();
   for (const relation of relations) {
-    referencedIds.add(relation.subjectId);
+    MutableHashSet.add(referencedIds, relation.subjectId);
     if (relation.objectId) {
-      referencedIds.add(relation.objectId);
+      MutableHashSet.add(referencedIds, relation.objectId);
     }
   }
 
   // Filter to only referenced entities
-  return A.filter(entities, (entity) => referencedIds.has(entity.id));
+  return A.filter(entities, (entity) => MutableHashSet.has(referencedIds, entity.id));
 };
 
 /**
@@ -156,17 +162,17 @@ export const filterGraph = (graph: KnowledgeGraph, config: FilterConfig = {}): F
   let filteredEntities = filterEntities(graph.entities, entityThreshold);
 
   // Build set of valid entity IDs for relation filtering
-  const validEntityIds = new Set(A.map(filteredEntities, (e) => e.id));
+  const validEntityIds = MutableHashSet.fromIterable(A.map(filteredEntities, (e) => e.id));
 
   // Filter relations by confidence AND ensure both ends exist
   const filteredRelations = A.filter(graph.relations, (relation) => {
     if (relation.confidence < relationThreshold) {
       return false;
     }
-    if (!validEntityIds.has(relation.subjectId)) {
+    if (!MutableHashSet.has(validEntityIds, relation.subjectId)) {
       return false;
     }
-    return !(relation.objectId && !validEntityIds.has(relation.objectId));
+    return !(relation.objectId && !MutableHashSet.has(validEntityIds, relation.objectId));
   });
 
   // Optionally remove orphan entities
@@ -180,7 +186,7 @@ export const filterGraph = (graph: KnowledgeGraph, config: FilterConfig = {}): F
   // Rebuild entity index
   const entityIndex = R.empty<string, string>();
   for (const entity of filteredEntities) {
-    const key = (entity.canonicalName ?? entity.mention).toLowerCase();
+    const key = Str.toLowerCase(entity.canonicalName ?? entity.mention);
     entityIndex[key] = entity.id;
   }
 
@@ -283,16 +289,23 @@ export const computeConfidenceStats = (
   readonly mean: number;
   readonly median: number;
 } => {
-  if (values.length === 0) {
+  if (A.isEmptyReadonlyArray(values)) {
     return { min: 0, max: 0, mean: 0, median: 0 };
   }
 
   const sorted = A.sort(values, Order.number);
-  const min = sorted[0]!;
-  const max = sorted[sorted.length - 1]!;
+  const min = O.getOrElse(A.head(sorted), thunkZero);
+  const max = O.getOrElse(A.last(sorted), thunkZero);
   const mean = A.reduce(values, 0, (acc, v) => acc + v) / values.length;
   const midIndex = Math.floor(sorted.length / 2);
-  const median = sorted.length % 2 === 0 ? (sorted[midIndex - 1]! + sorted[midIndex]!) / 2 : sorted[midIndex]!;
+  const median =
+    sorted.length % 2 === 0
+      ? F.pipe(
+          O.all([A.get(sorted, midIndex - 1), A.get(sorted, midIndex)]),
+          O.map(([a, b]) => (a + b) / 2),
+          O.getOrElse(thunkZero)
+        )
+      : O.getOrElse(A.get(sorted, midIndex), thunkZero);
 
   return { min, max, mean, median };
 };

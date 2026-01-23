@@ -1,35 +1,36 @@
 /**
  * MockProvider - Mock embedding provider for testing
  *
- * Returns deterministic zero vectors for testing pipeline structure
- * without requiring API calls.
+ * Returns deterministic zero vectors or hash-based vectors for testing
+ * pipeline structure without requiring API calls.
+ *
+ * Implements @effect/ai EmbeddingModel.Service interface.
  *
  * @module knowledge-server/Embedding/providers/MockProvider
  * @since 0.1.0
  */
-
+import * as EmbeddingModel from "@effect/ai/EmbeddingModel";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
-import { type EmbeddingConfig, EmbeddingProvider, type EmbeddingResult, type TaskType } from "../EmbeddingProvider";
+
+// =============================================================================
+// Constants
+// =============================================================================
 
 /**
- * Mock embedding configuration
- *
- * @since 0.1.0
- * @category configuration
+ * Default mock embedding dimensions
  */
-export const MockConfig: EmbeddingConfig = {
-  model: "mock-embedding-model",
-  dimensions: 768,
-  provider: "mock",
-};
+const MOCK_DIMENSIONS = 768;
+
+// =============================================================================
+// Vector Generation
+// =============================================================================
 
 /**
  * Create a zero vector of specified dimensions
  */
-const createZeroVector = (dimensions: number): ReadonlyArray<number> =>
-  A.replicate(0, dimensions) as ReadonlyArray<number>;
+const createZeroVector = (dimensions: number): Array<number> => A.replicate(0, dimensions);
 
 /**
  * Create a deterministic mock vector based on text hash
@@ -37,7 +38,7 @@ const createZeroVector = (dimensions: number): ReadonlyArray<number> =>
  * Uses a simple hash to generate reproducible vectors for testing
  * entity similarity without relying on real embeddings.
  */
-const createDeterministicVector = (text: string, dimensions: number): ReadonlyArray<number> => {
+const createDeterministicVector = (text: string, dimensions: number): Array<number> => {
   // Simple hash function for deterministic output
   let hash = 0;
   for (let i = 0; i < text.length; i++) {
@@ -47,7 +48,7 @@ const createDeterministicVector = (text: string, dimensions: number): ReadonlyAr
   }
 
   // Generate vector from hash
-  const vector: number[] = [];
+  const vector = A.empty<number>();
   for (let i = 0; i < dimensions; i++) {
     // Use hash + index to generate each dimension
     const seed = hash + i * 7919; // Prime number for better distribution
@@ -58,6 +59,10 @@ const createDeterministicVector = (text: string, dimensions: number): ReadonlyAr
 
   return vector;
 };
+
+// =============================================================================
+// Configuration
+// =============================================================================
 
 /**
  * MockProvider configuration options
@@ -70,84 +75,119 @@ export interface MockProviderOptions {
    * Use deterministic vectors based on text hash (for testing similarity)
    * @default false
    */
-  readonly deterministic?: boolean;
+  readonly deterministic?: undefined | boolean;
 
   /**
    * Custom dimensions (default 768)
    */
-  readonly dimensions?: number;
+  readonly dimensions?: undefined | number;
 }
 
+// =============================================================================
+// Service Implementation
+// =============================================================================
+
 /**
- * Create a MockProvider with custom options
+ * Create a mock EmbeddingModel.Service with custom options
+ *
+ * @param options - Optional configuration
+ * @returns EmbeddingModel.Service implementation
  *
  * @since 0.1.0
  * @category constructors
  */
-export const makeMockProvider = (options: MockProviderOptions = {}): EmbeddingProvider => {
-  const dimensions = options.dimensions ?? 768;
+export const makeMockService = (options: MockProviderOptions = {}): EmbeddingModel.Service => {
+  const dimensions = options.dimensions ?? MOCK_DIMENSIONS;
   const deterministic = options.deterministic ?? false;
 
-  const createVector = (text: string): ReadonlyArray<number> =>
+  const createVector = (text: string): Array<number> =>
     deterministic ? createDeterministicVector(text, dimensions) : createZeroVector(dimensions);
 
   return {
-    config: {
-      model: "mock-embedding-model",
-      dimensions,
-      provider: "mock",
-    },
+    embed: (input: string) =>
+      Effect.gen(function* () {
+        yield* Effect.logDebug("MockEmbeddingModel.embed", { textLength: input.length });
+        return createVector(input);
+      }),
 
-    embed: Effect.fnUntraced(function* (text: string, _taskType: TaskType) {
-      yield* Effect.logDebug("MockProvider.embed", { textLength: text.length });
-      return {
-        vector: createVector(text),
-        model: "mock-embedding-model",
-        usage: { totalTokens: Math.ceil(text.length / 4) },
-      } as EmbeddingResult;
-    }),
-
-    embedBatch: Effect.fnUntraced(function* (texts: ReadonlyArray<string>, _taskType: TaskType) {
-      yield* Effect.logDebug("MockProvider.embedBatch", { count: texts.length });
-      return A.map(texts, (text) => ({
-        vector: createVector(text),
-        model: "mock-embedding-model",
-        usage: { totalTokens: Math.ceil(text.length / 4) },
-      })) as ReadonlyArray<EmbeddingResult>;
-    }),
+    embedMany: (inputs: ReadonlyArray<string>) =>
+      Effect.gen(function* () {
+        yield* Effect.logDebug("MockEmbeddingModel.embedMany", { count: inputs.length });
+        return A.map(inputs, createVector);
+      }),
   };
 };
 
-/**
- * Default MockProvider (zero vectors)
- *
- * @since 0.1.0
- * @category instances
- */
-export const MockProviderInstance = makeMockProvider();
+// =============================================================================
+// Layers
+// =============================================================================
 
 /**
- * Deterministic MockProvider (hash-based vectors)
+ * Layer providing mock EmbeddingModel for tests
  *
- * Useful for testing similarity computations.
+ * Returns zero vectors - useful for testing pipeline structure.
  *
- * @since 0.1.0
- * @category instances
- */
-export const DeterministicMockProvider = makeMockProvider({ deterministic: true });
-
-/**
- * Layer providing MockProvider
+ * @example
+ * ```ts
+ * import { EmbeddingServiceLive, MockEmbeddingModelLayer } from "@beep/knowledge-server/Embedding";
+ * import { layer } from "@beep/testkit";
+ * import * as Layer from "effect/Layer";
+ *
+ * const TestLayer = EmbeddingServiceLive.pipe(
+ *   Layer.provide(MockEmbeddingModelLayer)
+ * );
+ *
+ * layer(TestLayer)("EmbeddingService", (it) => {
+ *   it.effect("embeds text", () => ...);
+ * });
+ * ```
  *
  * @since 0.1.0
  * @category layers
  */
-export const MockProviderLayer = Layer.succeed(EmbeddingProvider, MockProviderInstance);
+export const MockEmbeddingModelLayer: Layer.Layer<EmbeddingModel.EmbeddingModel> = Layer.succeed(
+  EmbeddingModel.EmbeddingModel,
+  makeMockService()
+);
 
 /**
- * Layer providing DeterministicMockProvider
+ * Layer providing deterministic mock EmbeddingModel for tests
+ *
+ * Returns hash-based vectors - useful for testing similarity computations.
  *
  * @since 0.1.0
  * @category layers
  */
-export const DeterministicMockProviderLayer = Layer.succeed(EmbeddingProvider, DeterministicMockProvider);
+export const DeterministicMockEmbeddingModelLayer: Layer.Layer<EmbeddingModel.EmbeddingModel> = Layer.succeed(
+  EmbeddingModel.EmbeddingModel,
+  makeMockService({ deterministic: true })
+);
+
+/**
+ * Create a mock EmbeddingModel layer with custom options
+ *
+ * @param options - Configuration options
+ * @returns Layer providing EmbeddingModel.EmbeddingModel
+ *
+ * @since 0.1.0
+ * @category constructors
+ */
+export const makeMockEmbeddingModelLayer = (options: MockProviderOptions): Layer.Layer<EmbeddingModel.EmbeddingModel> =>
+  Layer.succeed(EmbeddingModel.EmbeddingModel, makeMockService(options));
+
+// =============================================================================
+// Deprecated Exports (backward compatibility)
+// =============================================================================
+
+/**
+ * Mock embedding configuration (deprecated)
+ *
+ * @deprecated Use MockEmbeddingModelLayer instead
+ * @since 0.1.0
+ * @category configuration
+ */
+export const MockConfig = {
+  model: "mock-embedding-model",
+  dimensions: MOCK_DIMENSIONS,
+  provider: "mock",
+};

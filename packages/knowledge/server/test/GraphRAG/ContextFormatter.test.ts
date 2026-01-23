@@ -8,15 +8,17 @@
  */
 import { describe } from "bun:test";
 import { assertTrue, effect, strictEqual } from "@beep/testkit";
+import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
+import * as MutableHashMap from "effect/MutableHashMap";
 import {
   estimateTokens,
-  extractLocalName,
   formatContext,
   formatContextWithScores,
   formatEntity,
   truncateToTokenBudget,
 } from "../../src/GraphRAG/ContextFormatter";
+import { extractLocalName } from "../../src/Ontology/constants";
 
 // Mock entity factory
 const createMockEntity = (id: string, mention: string, types: string[], attributes: Record<string, string> = {}) =>
@@ -27,8 +29,8 @@ const createMockEntity = (id: string, mention: string, types: string[], attribut
     attributes,
     organizationId: "org-1",
     ontologyId: "ont-1",
-    createdAt: new Date(),
-    updatedAt: new Date(),
+    createdAt: DateTime.unsafeNow(),
+    updatedAt: DateTime.unsafeNow(),
   }) as any;
 
 // Mock relation factory
@@ -48,8 +50,8 @@ const createMockRelation = (
     literalType,
     organizationId: "org-1",
     ontologyId: "ont-1",
-    createdAt: new Date(),
-    updatedAt: new Date(),
+    createdAt: DateTime.unsafeNow(),
+    updatedAt: DateTime.unsafeNow(),
   }) as any;
 
 describe("ContextFormatter", () => {
@@ -132,7 +134,7 @@ describe("ContextFormatter", () => {
   effect("formats context with scores", () =>
     Effect.gen(function* () {
       const entities = [createMockEntity("e1", "John", ["http://schema.org/Person"])];
-      const scores = new Map([["e1", 0.0312]]);
+      const scores = MutableHashMap.fromIterable([["e1", 0.0312]]);
 
       const context = formatContextWithScores(entities, [], scores);
 

@@ -1,5 +1,7 @@
 import * as Common from "@beep/iam-client/_internal";
 import { $IamClientId } from "@beep/identity/packages";
+import { BS } from "@beep/schema";
+import { IamEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import * as W from "@beep/wrap";
 import * as S from "effect/Schema";
 
@@ -16,9 +18,9 @@ export class Payload extends S.Class<Payload>($I`Payload`)({}) {}
 // =============================================================================
 
 const EmbeddedUser = S.Struct({
-  id: S.String,
+  id: SharedEntityIds.UserId,
   name: S.String,
-  email: S.String,
+  email: BS.Email,
   image: S.NullOr(S.String),
 });
 
@@ -27,12 +29,12 @@ const EmbeddedUser = S.Struct({
 // =============================================================================
 
 const ActiveMember = S.Struct({
-  id: S.String,
-  organizationId: S.String,
-  userId: S.String,
+  id: IamEntityIds.MemberId,
+  organizationId: SharedEntityIds.OrganizationId,
+  userId: SharedEntityIds.UserId,
   role: S.String,
-  createdAt: S.DateFromString,
-  teamId: S.optional(S.String),
+  createdAt: BS.DateTimeUtcFromAllAcceptable,
+  teamId: S.optional(SharedEntityIds.TeamId),
   user: EmbeddedUser,
 });
 

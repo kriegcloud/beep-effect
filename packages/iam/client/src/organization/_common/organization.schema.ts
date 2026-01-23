@@ -1,4 +1,6 @@
 import { $IamClientId } from "@beep/identity/packages";
+import { BS } from "@beep/schema";
+import { SharedEntityIds } from "@beep/shared-domain";
 import * as S from "effect/Schema";
 
 const $I = $IamClientId.create("organization/_common/organization");
@@ -11,9 +13,9 @@ const $I = $IamClientId.create("organization/_common/organization");
  */
 export class EmbeddedUser extends S.Class<EmbeddedUser>($I`EmbeddedUser`)(
   {
-    id: S.String,
+    id: SharedEntityIds.UserId,
     name: S.String,
-    email: S.String,
+    email: BS.Email,
     image: S.NullOr(S.String),
   },
   $I.annotations("EmbeddedUser", {
@@ -29,12 +31,12 @@ export class EmbeddedUser extends S.Class<EmbeddedUser>($I`EmbeddedUser`)(
  */
 export class Organization extends S.Class<Organization>($I`Organization`)(
   {
-    id: S.String,
+    id: SharedEntityIds.OrganizationId,
     name: S.String,
     slug: S.String,
     logo: S.NullOr(S.String),
     metadata: S.optional(S.Unknown),
-    createdAt: S.DateFromString,
+    createdAt: BS.DateTimeUtcFromAllAcceptable,
   },
   $I.annotations("Organization", {
     description: "Organization entity from Better Auth organization plugin.",

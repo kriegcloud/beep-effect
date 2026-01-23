@@ -11,6 +11,7 @@
 import * as Common from "@beep/iam-client/_internal";
 import { formValuesAnnotation } from "@beep/iam-client/_internal";
 import { $IamClientId } from "@beep/identity/packages";
+import { SharedEntityIds } from "@beep/shared-domain";
 import * as W from "@beep/wrap";
 import * as S from "effect/Schema";
 
@@ -35,7 +36,7 @@ const $I = $IamClientId.create("admin/set-user-password");
  */
 export class Payload extends S.Class<Payload>($I`Payload`)(
   {
-    userId: S.String,
+    userId: SharedEntityIds.UserId,
     newPassword: S.Redacted(S.String),
   },
   formValuesAnnotation({

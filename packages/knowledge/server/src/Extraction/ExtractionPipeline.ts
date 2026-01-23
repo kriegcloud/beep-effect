@@ -8,6 +8,9 @@
  */
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import * as MutableHashMap from "effect/MutableHashMap";
+import * as O from "effect/Option";
+import * as Str from "effect/String";
 import * as Struct from "effect/Struct";
 import { type ChunkingConfig, defaultChunkingConfig, NlpService, type TextChunk } from "../Nlp";
 import { OntologyService } from "../Ontology";
@@ -283,31 +286,33 @@ const mapEntitiesToChunks = (
   entities: readonly ClassifiedEntity[],
   mentions: readonly ExtractedMention[],
   chunks: readonly TextChunk[]
-): ReadonlyMap<number, readonly ClassifiedEntity[]> => {
+): MutableHashMap.MutableHashMap<number, readonly ClassifiedEntity[]> => {
   // Build mention text -> entity mapping
-  const entityByMention = new Map<string, ClassifiedEntity>();
+  const entityByMention = MutableHashMap.empty<string, ClassifiedEntity>();
   for (const entity of entities) {
-    entityByMention.set(entity.mention.toLowerCase(), entity);
+    MutableHashMap.set(entityByMention, Str.toLowerCase(entity.mention), entity);
   }
 
   // Group by chunk
-  const result = new Map<number, ClassifiedEntity[]>();
+  const result = MutableHashMap.empty<number, ClassifiedEntity[]>();
 
   for (const chunk of chunks) {
-    result.set(chunk.index, []);
+    MutableHashMap.set(result, chunk.index, []);
   }
 
   for (const mention of mentions) {
-    const entity = entityByMention.get(mention.text.toLowerCase());
-    if (!entity) continue;
+    const entityOpt = MutableHashMap.get(entityByMention, Str.toLowerCase(mention.text));
+    if (O.isNone(entityOpt)) continue;
+    const entity = entityOpt.value;
 
     // Find which chunk this mention belongs to
     for (const chunk of chunks) {
       if (mention.startChar >= chunk.startOffset && mention.endChar <= chunk.endOffset) {
-        const existing = result.get(chunk.index) ?? [];
-        if (!existing.some((e) => e.mention.toLowerCase() === entity.mention.toLowerCase())) {
+        const existingOpt = MutableHashMap.get(result, chunk.index);
+        const existing = O.getOrElse(existingOpt, () => A.empty<ClassifiedEntity>());
+        if (!existing.some((e) => Str.toLowerCase(e.mention) === Str.toLowerCase(entity.mention))) {
           existing.push(entity);
-          result.set(chunk.index, existing);
+          MutableHashMap.set(result, chunk.index, existing);
         }
         break;
       }

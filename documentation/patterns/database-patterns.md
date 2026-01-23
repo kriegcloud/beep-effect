@@ -123,6 +123,68 @@ When defining `M.Class` domain models for database tables, choose the correct sc
 | `bytea` | `S.Uint8Array` | `data: S.Uint8Array` |
 | `jsonb` | `S.Record({ key: S.String, value: S.Unknown })` | `metadata: S.Record(...)` |
 
+### EntityId Type Safety (CRITICAL)
+
+ALWAYS add `.$type<EntityId.Type>()` to table columns referencing entity IDs to ensure compile-time type safety.
+
+**Why This Matters:**
+
+Without `.$type<>()`, TypeScript cannot distinguish between different entity ID types, leading to silent runtime bugs:
+
+```typescript
+// WITHOUT .$type<>() - compiles but WRONG
+db.select()
+  .from(relationTable)
+  .where(eq(relationTable.subjectId, documentId))  // Should reject DocumentId!
+// TypeScript accepts any string, including wrong ID types
+
+// WITH .$type<>() - TypeScript error
+db.select()
+  .from(relationTable)
+  .where(eq(relationTable.subjectId, documentId))  // ❌ Type error: KnowledgeEntityId ≠ DocumentId
+```
+
+**Required Pattern:**
+
+```typescript
+// REQUIRED - Add .$type<>() to ALL ID columns
+import { KnowledgeEntityIds, DocumentsEntityIds } from "@beep/shared-domain";
+
+export const entityTable = Table.make(KnowledgeEntityIds.EntityId)({
+  // Same-slice ID reference
+  ontologyId: pg.text("ontology_id").notNull()
+    .$type<KnowledgeEntityIds.OntologyId.Type>(),
+
+  // Cross-slice ID reference
+  documentId: pg.text("document_id")
+    .$type<DocumentsEntityIds.DocumentId.Type>(),
+
+  // Shared entity ID reference
+  userId: pg.text("user_id").notNull()
+    .$type<SharedEntityIds.UserId.Type>(),
+});
+```
+
+**Forbidden Pattern:**
+
+```typescript
+// FORBIDDEN - Missing .$type<>() causes type-unsafe joins
+export const entityTable = Table.make(KnowledgeEntityIds.EntityId)({
+  ontologyId: pg.text("ontology_id").notNull(),  // ❌ Missing .$type<>()
+  documentId: pg.text("document_id"),            // ❌ Missing .$type<>()
+  userId: pg.text("user_id").notNull(),          // ❌ Missing .$type<>()
+});
+```
+
+**Verification:**
+
+```bash
+# Check for table columns missing .$type<>() for ID fields
+grep -r "pg.text.*notNull()" packages/*/tables/src/tables/ | grep -iE "(id|Id)" | grep -v "\.$type<"
+```
+
+If this command returns results, those columns need `.$type<>()` added.
+
 **Common mistakes:**
 
 ```typescript

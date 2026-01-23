@@ -92,6 +92,7 @@
   },
   "devDependencies": {
     "@beep/identity": "workspace:^",
+    "@beep/testkit": "workspace:^",
     "@beep/types": "workspace:^",
     "@beep/utils": "workspace:^",
     "@beep/schema": "workspace:^",

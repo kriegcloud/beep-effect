@@ -9,7 +9,9 @@
 import { LanguageModel, Prompt } from "@effect/ai";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import * as MutableHashMap from "effect/MutableHashMap";
 import * as O from "effect/Option";
+import * as Str from "effect/String";
 import { buildRelationPrompt, buildSystemPrompt } from "../Ai/PromptTemplates";
 import type { TextChunk } from "../Nlp/TextChunk";
 import type { OntologyContext } from "../Ontology";
@@ -150,8 +152,8 @@ export class RelationExtractor extends Effect.Service<RelationExtractor>()("@bee
           });
 
           return {
-            triples: [],
-            invalidTriples: [],
+            triples: A.empty<ExtractedTriple>(),
+            invalidTriples: A.empty<ExtractedTriple>(),
             tokensUsed: 0,
           };
         }
@@ -216,7 +218,7 @@ export class RelationExtractor extends Effect.Service<RelationExtractor>()("@bee
        * @returns Combined extraction results
        */
       extractFromChunks: Effect.fnUntraced(function* (
-        entitiesByChunk: ReadonlyMap<number, readonly ClassifiedEntity[]>,
+        entitiesByChunk: MutableHashMap.MutableHashMap<number, readonly ClassifiedEntity[]>,
         chunks: readonly TextChunk[],
         ontologyContext: OntologyContext,
         config: RelationExtractionConfig = {}
@@ -229,7 +231,8 @@ export class RelationExtractor extends Effect.Service<RelationExtractor>()("@bee
         const shouldValidate = config.validatePredicates ?? true;
 
         for (const chunk of chunks) {
-          const entities = entitiesByChunk.get(chunk.index) ?? [];
+          const entitiesOpt = MutableHashMap.get(entitiesByChunk, chunk.index);
+          const entities = O.getOrElse(entitiesOpt, () => A.empty<ClassifiedEntity>());
 
           if (entities.length < 1) {
             continue;
@@ -285,20 +288,24 @@ export class RelationExtractor extends Effect.Service<RelationExtractor>()("@bee
        */
       deduplicateRelations: (triples: readonly ExtractedTriple[]): Effect.Effect<readonly ExtractedTriple[], never> => {
         return Effect.sync(() => {
-          const seen = new Map<string, ExtractedTriple>();
+          const seen = MutableHashMap.empty<string, ExtractedTriple>();
 
           for (const triple of triples) {
             // Create unique key for triple
             const objectPart = triple.objectMention ?? triple.literalValue ?? "";
-            const key = `${triple.subjectMention}|${triple.predicateIri}|${objectPart}`.toLowerCase();
+            const key = Str.toLowerCase(`${triple.subjectMention}|${triple.predicateIri}|${objectPart}`);
 
-            const existing = seen.get(key);
-            if (!existing || triple.confidence > existing.confidence) {
-              seen.set(key, triple);
+            const existingOpt = MutableHashMap.get(seen, key);
+            if (O.isNone(existingOpt) || triple.confidence > existingOpt.value.confidence) {
+              MutableHashMap.set(seen, key, triple);
             }
           }
 
-          return Array.from(seen.values());
+          const result: ExtractedTriple[] = [];
+          MutableHashMap.forEach(seen, (triple) => {
+            result.push(triple);
+          });
+          return result;
         });
       },
     };

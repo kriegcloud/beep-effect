@@ -17,7 +17,7 @@ Server infrastructure for the knowledge graph vertical slice:
 | `Runtime/` | LLM provider layers | `AnthropicLlmLive`, `OpenAiLlmLive` |
 | `Extraction/` | Entity/relation extraction | `ExtractionPipeline`, `MentionExtractor`, `EntityExtractor`, `RelationExtractor` |
 | `GraphRAG/` | Subgraph retrieval | `GraphRAGService`, `RrfScorer`, `ContextFormatter` |
-| `Embedding/` | Vector embeddings | `EmbeddingService`, `EmbeddingProvider` |
+| `Embedding/` | Vector embeddings | `EmbeddingService`, `MockEmbeddingModelLayer`, `OpenAiEmbeddingLayerConfig` |
 | `Ontology/` | OWL parsing | `OntologyService`, `OntologyParser`, `OntologyCache` |
 | `EntityResolution/` | Clustering/dedup | `EntityResolutionService`, `EntityClusterer` |
 | `Grounding/` | Confidence filtering | `GroundingService`, `ConfidenceFilter` |
@@ -33,6 +33,60 @@ Server infrastructure for the knowledge graph vertical slice:
 | `OntologyRepo` | Ontology metadata | Standard CRUD |
 | `ClassDefinitionRepo` | OWL classes | `findByOntology` |
 | `PropertyDefinitionRepo` | OWL properties | `findByOntology` |
+
+## Embedding Layer Composition
+
+The `EmbeddingService` uses `@effect/ai`'s `EmbeddingModel.EmbeddingModel` for vector embeddings.
+
+### Production Usage
+
+```typescript
+import { EmbeddingServiceLive, OpenAiEmbeddingLayerConfig } from "@beep/knowledge-server/Embedding";
+import * as Layer from "effect/Layer";
+
+const KnowledgeLive = EmbeddingServiceLive.pipe(
+  Layer.provide(OpenAiEmbeddingLayerConfig)
+);
+```
+
+### Custom Configuration
+
+```typescript
+import { EmbeddingServiceLive, makeOpenAiEmbeddingLayer } from "@beep/knowledge-server/Embedding";
+import * as Redacted from "effect/Redacted";
+import * as Layer from "effect/Layer";
+
+const CustomEmbeddingLayer = makeOpenAiEmbeddingLayer({
+  apiKey: Redacted.make(process.env.OPENAI_API_KEY!),
+  model: "text-embedding-3-large",
+  dimensions: 1024,
+});
+
+const KnowledgeLive = EmbeddingServiceLive.pipe(
+  Layer.provide(CustomEmbeddingLayer)
+);
+```
+
+### Testing Usage
+
+```typescript
+import { EmbeddingServiceLive, MockEmbeddingModelLayer } from "@beep/knowledge-server/Embedding";
+import * as Layer from "effect/Layer";
+
+const TestLayer = EmbeddingServiceLive.pipe(
+  Layer.provide(MockEmbeddingModelLayer)
+);
+```
+
+### Environment Variables
+
+| Variable | Required | Default | Description |
+|----------|----------|---------|-------------|
+| `OPENAI_API_KEY` | Yes | - | API key for OpenAI embeddings |
+| `OPENAI_EMBEDDING_MODEL` | No | `text-embedding-3-small` | Model to use |
+| `OPENAI_EMBEDDING_DIMENSIONS` | No | `768` | Vector dimensions |
+
+**Note**: `OpenAiEmbeddingLayerConfig` reads from Effect Config which uses environment variables.
 
 ## Authoring Guardrails
 

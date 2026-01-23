@@ -7,7 +7,9 @@
  * @since 0.1.0
  */
 import * as A from "effect/Array";
+import * as MutableHashMap from "effect/MutableHashMap";
 import * as Num from "effect/Number";
+import * as O from "effect/Option";
 import * as Order from "effect/Order";
 
 /**
@@ -95,23 +97,22 @@ export const fuseRankings = <T extends string>(
   k = RRF_K
 ): ReadonlyArray<RankedItem<T>> => {
   // Accumulate scores by ID
-  const scoreMap = new Map<T, number>();
+  const scoreMap = MutableHashMap.empty<T, number>();
 
   for (const rankedList of rankedLists) {
-    for (let i = 0; i < rankedList.length; i++) {
-      const id = rankedList[i]!;
+    A.forEach(rankedList, (id, i) => {
       const rank = i + 1; // 1-indexed
       const component = rrfComponent(rank, k);
-      const currentScore = scoreMap.get(id) ?? 0;
-      scoreMap.set(id, currentScore + component);
-    }
+      const currentScore = O.getOrElse(MutableHashMap.get(scoreMap, id), () => 0);
+      MutableHashMap.set(scoreMap, id, currentScore + component);
+    });
   }
 
   // Convert to array and sort by descending score
   const items: Array<RankedItem<T>> = [];
-  for (const [id, score] of scoreMap) {
+  MutableHashMap.forEach(scoreMap, (score, id) => {
     items.push({ id, score });
-  }
+  });
 
   return A.sort(
     items,
@@ -131,25 +132,33 @@ export const fuseRankings = <T extends string>(
  * @since 0.1.0
  * @category scoring
  */
-export const assignGraphRanks = <T extends string>(entityHops: ReadonlyMap<T, number>): ReadonlyMap<T, number> => {
+export const assignGraphRanks = <T extends string>(
+  entityHops: MutableHashMap.MutableHashMap<T, number>
+): MutableHashMap.MutableHashMap<T, number> => {
   // Group entities by hop count
-  const hopGroups = new Map<number, Array<T>>();
+  const hopGroups = MutableHashMap.empty<number, Array<T>>();
 
-  for (const [id, hops] of entityHops) {
-    const group = hopGroups.get(hops) ?? [];
+  MutableHashMap.forEach(entityHops, (hops, id) => {
+    const groupOpt = MutableHashMap.get(hopGroups, hops);
+    const group = O.getOrElse(groupOpt, () => A.empty<T>());
     group.push(id);
-    hopGroups.set(hops, group);
-  }
+    MutableHashMap.set(hopGroups, hops, group);
+  });
 
   // Sort hop levels and assign ranks
-  const hopLevels = A.sort(Array.from(hopGroups.keys()), Num.Order);
-  const rankMap = new Map<T, number>();
+  const hopLevels = A.empty<number>();
+  MutableHashMap.forEach(hopGroups, (_, hop) => {
+    hopLevels.push(hop);
+  });
+  const sortedHopLevels = A.sort(hopLevels, Num.Order);
+  const rankMap = MutableHashMap.empty<T, number>();
 
   let currentRank = 1;
-  for (const hop of hopLevels) {
-    const entities = hopGroups.get(hop) ?? [];
+  for (const hop of sortedHopLevels) {
+    const entitiesOpt = MutableHashMap.get(hopGroups, hop);
+    const entities = O.getOrElse(entitiesOpt, () => A.empty<T>());
     for (const id of entities) {
-      rankMap.set(id, currentRank);
+      MutableHashMap.set(rankMap, id, currentRank);
     }
     currentRank += entities.length;
   }

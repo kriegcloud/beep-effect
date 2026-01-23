@@ -12,6 +12,7 @@
 import * as Common from "@beep/iam-client/_internal";
 import { formValuesAnnotation } from "@beep/iam-client/_internal";
 import { $IamClientId } from "@beep/identity/packages";
+import { IamEntityIds } from "@beep/shared-domain";
 import * as W from "@beep/wrap";
 import * as S from "effect/Schema";
 
@@ -38,7 +39,7 @@ export class Payload extends S.Class<Payload>($I`Payload`)(
   {
     grant_type: S.Literal("urn:ietf:params:oauth:grant-type:device_code"),
     device_code: S.String,
-    client_id: S.String,
+    client_id: IamEntityIds.OAuthClientId,
   },
   formValuesAnnotation({
     grant_type: "urn:ietf:params:oauth:grant-type:device_code",

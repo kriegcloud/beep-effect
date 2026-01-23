@@ -7,12 +7,15 @@
  * @module knowledge-server/Ontology/OntologyService
  * @since 0.1.0
  */
-import { Entities } from "@beep/knowledge-domain";
+import { Entities, ValueObjects } from "@beep/knowledge-domain";
 import { KnowledgeEntityIds, type SharedEntityIds } from "@beep/shared-domain";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
+import * as Iterable from "effect/Iterable";
 import * as Layer from "effect/Layer";
+import * as MutableHashMap from "effect/MutableHashMap";
+import * as MutableHashSet from "effect/MutableHashSet";
 import * as O from "effect/Option";
 import * as Str from "effect/String";
 import { OntologyCache } from "./OntologyCache";
@@ -66,52 +69,56 @@ export interface OntologyContext {
  */
 const createOntologyContext = (parsed: ParsedOntology): OntologyContext => {
   // Build lookup maps
-  const classMap = new Map<string, ParsedClassDefinition>();
+  const classMap = MutableHashMap.empty<string, ParsedClassDefinition>();
   for (const cls of parsed.classes) {
-    classMap.set(cls.iri, cls);
+    MutableHashMap.set(classMap, cls.iri, cls);
   }
 
-  const propertyMap = new Map<string, ParsedPropertyDefinition>();
+  const propertyMap = MutableHashMap.empty<string, ParsedPropertyDefinition>();
   for (const prop of parsed.properties) {
-    propertyMap.set(prop.iri, prop);
+    MutableHashMap.set(propertyMap, prop.iri, prop);
   }
 
   // Build class -> properties index
-  const classPropertiesMap = new Map<string, ParsedPropertyDefinition[]>();
+  const classPropertiesMap = MutableHashMap.empty<string, ParsedPropertyDefinition[]>();
   for (const prop of parsed.properties) {
     for (const domainIri of prop.domain) {
-      if (!classPropertiesMap.has(domainIri)) {
-        classPropertiesMap.set(domainIri, []);
+      if (!MutableHashMap.has(classPropertiesMap, domainIri)) {
+        MutableHashMap.set(classPropertiesMap, domainIri, []);
       }
-      classPropertiesMap.get(domainIri)!.push(prop);
+      O.getOrThrow(MutableHashMap.get(classPropertiesMap, domainIri)).push(prop);
     }
   }
 
   // Memoized ancestor computation
-  const ancestorCache = new Map<string, Set<string>>();
+  const ancestorCache = MutableHashMap.empty<string, MutableHashSet.MutableHashSet<string>>();
 
-  const getAncestorsSet = (classIri: string, visited: Set<string> = new Set()): Set<string> => {
-    if (ancestorCache.has(classIri)) {
-      return ancestorCache.get(classIri)!;
+  const getAncestorsSet = (
+    classIri: string,
+    visited: MutableHashSet.MutableHashSet<string> = MutableHashSet.empty<string>()
+  ): MutableHashSet.MutableHashSet<string> => {
+    const cachedOpt = MutableHashMap.get(ancestorCache, classIri);
+    if (O.isSome(cachedOpt)) {
+      return cachedOpt.value;
     }
 
-    if (visited.has(classIri)) {
-      return new Set(); // Cycle detection
+    if (MutableHashSet.has(visited, classIri)) {
+      return MutableHashSet.empty<string>(); // Cycle detection
     }
 
-    visited.add(classIri);
-    const ancestors = new Set<string>();
+    MutableHashSet.add(visited, classIri);
+    const ancestors = MutableHashSet.empty<string>();
     const parents = parsed.classHierarchy[classIri] ?? [];
 
     for (const parentIri of parents) {
-      ancestors.add(parentIri);
+      MutableHashSet.add(ancestors, parentIri);
       const parentAncestors = getAncestorsSet(parentIri, visited);
-      for (const ancestor of parentAncestors) {
-        ancestors.add(ancestor);
-      }
+      Iterable.forEach(parentAncestors, (ancestor) => {
+        MutableHashSet.add(ancestors, ancestor);
+      });
     }
 
-    ancestorCache.set(classIri, ancestors);
+    MutableHashMap.set(ancestorCache, classIri, ancestors);
     return ancestors;
   };
 
@@ -122,43 +129,51 @@ const createOntologyContext = (parsed: ParsedOntology): OntologyContext => {
     propertyHierarchy: parsed.propertyHierarchy,
 
     getPropertiesForClass(classIri: string): ReadonlyArray<ParsedPropertyDefinition> {
-      const directProps = classPropertiesMap.get(classIri) ?? [];
+      const directProps = O.getOrElse(
+        MutableHashMap.get(classPropertiesMap, classIri),
+        () => [] as ParsedPropertyDefinition[]
+      );
 
       // Include properties from ancestor classes
       const ancestors = getAncestorsSet(classIri);
       const inheritedProps = A.empty<ParsedPropertyDefinition>();
-      for (const ancestorIri of ancestors) {
-        const ancestorProps = classPropertiesMap.get(ancestorIri) ?? [];
+      Iterable.forEach(ancestors, (ancestorIri) => {
+        const ancestorProps = O.getOrElse(
+          MutableHashMap.get(classPropertiesMap, ancestorIri),
+          () => [] as ParsedPropertyDefinition[]
+        );
         inheritedProps.push(...ancestorProps);
-      }
+      });
 
       // Deduplicate by IRI
-      const allPropsMap = new Map<string, ParsedPropertyDefinition>();
+      const allPropsMap = MutableHashMap.empty<string, ParsedPropertyDefinition>();
       for (const prop of [...directProps, ...inheritedProps]) {
-        allPropsMap.set(prop.iri, prop);
+        MutableHashMap.set(allPropsMap, prop.iri, prop);
       }
 
-      return Array.from(allPropsMap.values());
+      const result = A.empty<ParsedPropertyDefinition>();
+      MutableHashMap.forEach(allPropsMap, (prop) => {
+        result.push(prop);
+      });
+      return result;
     },
 
     isSubClassOf(childIri: string, parentIri: string): boolean {
       if (childIri === parentIri) return true;
       const ancestors = getAncestorsSet(childIri);
-      return ancestors.has(parentIri);
+      return MutableHashSet.has(ancestors, parentIri);
     },
 
     getAncestors(classIri: string): ReadonlyArray<string> {
-      return Array.from(getAncestorsSet(classIri));
+      return A.fromIterable(getAncestorsSet(classIri));
     },
 
     findClass(iri: string): O.Option<ParsedClassDefinition> {
-      const cls = classMap.get(iri);
-      return cls ? O.some(cls) : O.none();
+      return MutableHashMap.get(classMap, iri);
     },
 
     findProperty(iri: string): O.Option<ParsedPropertyDefinition> {
-      const prop = propertyMap.get(iri);
-      return prop ? O.some(prop) : O.none();
+      return MutableHashMap.get(propertyMap, iri);
     },
   };
 };
@@ -260,13 +275,13 @@ export class OntologyService extends Effect.Service<OntologyService>()("@beep/kn
         parsed: ParsedClassDefinition
       ) =>
         Effect.sync(() => {
-          const id = KnowledgeEntityIds.ClassDefinitionId.make(`knowledge_class_definition__${crypto.randomUUID()}`);
+          const id = KnowledgeEntityIds.ClassDefinitionId.create();
 
           return Entities.ClassDefinition.Model.insert.make({
             id,
             organizationId,
             ontologyId,
-            iri: parsed.iri,
+            iri: ValueObjects.makeClassIri(parsed.iri),
             label: parsed.label,
             localName: O.some(parsed.localName),
             comment: parsed.comment,
@@ -300,15 +315,13 @@ export class OntologyService extends Effect.Service<OntologyService>()("@beep/kn
         parsed: ParsedPropertyDefinition
       ) =>
         Effect.sync(() => {
-          const id = KnowledgeEntityIds.PropertyDefinitionId.make(
-            `knowledge_property_definition__${crypto.randomUUID()}`
-          );
+          const id = KnowledgeEntityIds.PropertyDefinitionId.create();
 
           return Entities.PropertyDefinition.Model.insert.make({
             id,
             organizationId,
             ontologyId,
-            iri: parsed.iri,
+            iri: ValueObjects.makeClassIri(parsed.iri),
             label: parsed.label,
             localName: O.some(parsed.localName),
             comment: parsed.comment,
@@ -364,7 +377,7 @@ export class OntologyService extends Effect.Service<OntologyService>()("@beep/kn
        */
       searchProperties: (context: OntologyContext, query: string, limit = 10) =>
         Effect.sync(() => {
-          const lowerQuery = query.toLowerCase();
+          const lowerQuery = Str.toLowerCase(query);
 
           return A.take(
             A.filter(context.properties, (prop) => {

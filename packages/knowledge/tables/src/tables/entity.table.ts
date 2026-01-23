@@ -8,7 +8,7 @@
  * @since 0.1.0
  */
 
-import { KnowledgeEntityIds } from "@beep/shared-domain";
+import { type DocumentsEntityIds, KnowledgeEntityIds } from "@beep/shared-domain";
 import { OrgTable } from "@beep/shared-tables";
 import * as pg from "drizzle-orm/pg-core";
 
@@ -32,17 +32,17 @@ export const entity = OrgTable.make(KnowledgeEntityIds.KnowledgeEntityId)(
     // Entity attributes as property-value pairs (JSON object)
     attributes: pg.jsonb("attributes").notNull().default({}).$type<Record<string, string | number | boolean>>(),
 
-    // Ontology scoping
-    ontologyId: pg.text("ontology_id").notNull().default("default"),
+    // Ontology scoping (optional - null means default ontology)
+    ontologyId: pg.text("ontology_id").$type<KnowledgeEntityIds.OntologyId.Type>(),
 
     // Source document ID for provenance
-    documentId: pg.text("document_id"),
+    documentId: pg.text("document_id").$type<DocumentsEntityIds.DocumentId.Type>(),
 
     // Source URI where document was loaded from
     sourceUri: pg.text("source_uri"),
 
     // Extraction run ID that created this entity
-    extractionId: pg.text("extraction_id"),
+    extractionId: pg.text("extraction_id").$type<KnowledgeEntityIds.ExtractionId.Type>(),
 
     // System-generated grounding confidence (0-1)
     groundingConfidence: pg.real("grounding_confidence"),

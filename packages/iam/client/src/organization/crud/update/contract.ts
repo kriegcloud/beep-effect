@@ -10,6 +10,7 @@
 import * as Common from "@beep/iam-client/_internal";
 import { formValuesAnnotation } from "@beep/iam-client/_internal";
 import { $IamClientId } from "@beep/identity/packages";
+import { SharedEntityIds } from "@beep/shared-domain";
 import * as W from "@beep/wrap";
 import * as S from "effect/Schema";
 import { Metadata, Organization } from "../../_common/index.ts";
@@ -24,7 +25,7 @@ const $I = $IamClientId.create("organization/crud/update");
  */
 export class Payload extends S.Class<Payload>($I`Payload`)(
   {
-    organizationId: S.optional(S.String),
+    organizationId: S.optional(SharedEntityIds.OrganizationId),
     data: S.Struct({
       name: S.optional(S.String),
       slug: S.optional(S.String),

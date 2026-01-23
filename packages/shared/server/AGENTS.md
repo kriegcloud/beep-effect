@@ -84,7 +84,7 @@ const TenantContextLive = TenantContext.TenantContext.layer.pipe(
 - **Secret handling**: Wrap sensitive config in `Config.redacted` and `Redacted` from Effect. Use `Redacted.value` only at trust boundaries. NEVER log or serialize redacted values unwrapped.
 - **Telemetry**: Attach `Effect.withSpan`, `Effect.annotateLogs` to service methods. Use span attributes for request payloads; keep PII out of logs.
 - **Collections & strings**: Follow repo-wide rule—ALWAYS use `A.*`, `Str.*`, `F.pipe` instead of native array/string methods. Legacy native usages exist in early code; NEVER replicate them.
-- **Error mapping**: Use `DatabaseError.$match` for Postgres errors, `ResendError` for email errors. ALWAYS `catchTag("ParseError", Effect.die)` for schema decode failures in infra code.
+- **Error mapping**: Use `DatabaseError.$match` for Postgres errors, `ResendError` for email errors. ALWAYS `catchTag("ParseError", Effect.die)` for schema decode failures in server code.
 - **Config validation**: Effect Config failures surface as `ConfigError`. Handle appropriately or allow to propagate if invalid configuration should prevent application startup.
 
 ## Quick Recipes

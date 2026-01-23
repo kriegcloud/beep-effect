@@ -1,6 +1,7 @@
 import * as Common from "@beep/iam-client/_internal";
 import { formValuesAnnotation } from "@beep/iam-client/_internal";
 import { $IamClientId } from "@beep/identity/packages";
+import { IamEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import * as W from "@beep/wrap";
 import * as S from "effect/Schema";
 
@@ -17,11 +18,11 @@ const UpdateData = S.Struct({
 
 export class Payload extends S.Class<Payload>($I`Payload`)(
   {
-    organizationId: S.optional(S.String),
+    organizationId: S.optional(SharedEntityIds.OrganizationId),
     data: UpdateData,
     /** Either roleName or roleId to identify the role */
     roleName: S.optional(S.String),
-    roleId: S.optional(S.String),
+    roleId: S.optional(IamEntityIds.OrganizationRoleId),
   },
   formValuesAnnotation({
     organizationId: undefined,

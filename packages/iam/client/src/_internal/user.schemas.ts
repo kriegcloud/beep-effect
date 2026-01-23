@@ -36,7 +36,7 @@ export const BetterAuthUserSchema = S.Struct(
     // Use DateFromAllAcceptable to handle both string and Date inputs.
     createdAt: BS.DateFromAllAcceptable,
     updatedAt: BS.DateFromAllAcceptable,
-    email: S.String,
+    email: BS.EmailEncoded,
     emailVerified: S.Boolean,
     name: S.String,
     image: S.optionalWith(S.String, { nullable: true }),

@@ -8,7 +8,7 @@
  * @since 0.1.0
  */
 
-import { KnowledgeEntityIds } from "@beep/shared-domain";
+import { type DocumentsEntityIds, KnowledgeEntityIds } from "@beep/shared-domain";
 import { OrgTable } from "@beep/shared-tables";
 import * as pg from "drizzle-orm/pg-core";
 
@@ -24,7 +24,7 @@ import * as pg from "drizzle-orm/pg-core";
 export const mention = OrgTable.make(KnowledgeEntityIds.MentionId)(
   {
     // Entity this mention refers to
-    entityId: pg.text("entity_id").notNull(),
+    entityId: pg.text("entity_id").notNull().$type<KnowledgeEntityIds.KnowledgeEntityId.Type>(),
 
     // Exact text span from source document
     text: pg.text("text").notNull(),
@@ -36,13 +36,13 @@ export const mention = OrgTable.make(KnowledgeEntityIds.MentionId)(
     endChar: pg.integer("end_char").notNull(),
 
     // Source document ID
-    documentId: pg.text("document_id").notNull(),
+    documentId: pg.text("document_id").notNull().$type<DocumentsEntityIds.DocumentId.Type>(),
 
     // Chunk index within the document
     chunkIndex: pg.integer("chunk_index"),
 
     // Extraction run ID that created this mention
-    extractionId: pg.text("extraction_id"),
+    extractionId: pg.text("extraction_id").$type<KnowledgeEntityIds.ExtractionId.Type>(),
 
     // Extraction confidence (0-1)
     confidence: pg.real("confidence"),

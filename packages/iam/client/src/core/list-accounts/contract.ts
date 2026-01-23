@@ -12,6 +12,7 @@
 import * as Common from "@beep/iam-client/_internal";
 import { $IamClientId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
+import { IamEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import * as W from "@beep/wrap";
 import * as S from "effect/Schema";
 
@@ -41,18 +42,18 @@ const $I = $IamClientId.create("core/list-accounts");
  */
 export const Account = S.Struct(
   {
-    id: S.String,
-    providerId: S.String,
-    accountId: S.String,
-    userId: S.String,
-    accessToken: S.optionalWith(S.String, { nullable: true }),
-    refreshToken: S.optionalWith(S.String, { nullable: true }),
+    id: IamEntityIds.AccountId,
+    providerId: S.String, // External provider ID (e.g., "google", "github") - intentionally S.String
+    accountId: S.String, // External account ID from provider - intentionally S.String
+    userId: SharedEntityIds.UserId,
+    accessToken: S.optionalWith(S.Redacted(S.String), { nullable: true }),
+    refreshToken: S.optionalWith(S.Redacted(S.String), { nullable: true }),
     accessTokenExpiresAt: S.optionalWith(BS.DateFromAllAcceptable, { nullable: true }),
     refreshTokenExpiresAt: S.optionalWith(BS.DateFromAllAcceptable, { nullable: true }),
     scope: S.optionalWith(S.String, { nullable: true }),
-    idToken: S.optionalWith(S.String, { nullable: true }),
+    idToken: S.optionalWith(S.Redacted(S.String), { nullable: true }),
     expiresAt: S.optionalWith(BS.DateFromAllAcceptable, { nullable: true }),
-    password: S.optionalWith(S.String, { nullable: true }),
+    password: S.optionalWith(S.Redacted(S.String), { nullable: true }),
     createdAt: BS.DateFromAllAcceptable,
     updatedAt: BS.DateFromAllAcceptable,
   },

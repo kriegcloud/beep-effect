@@ -7,8 +7,12 @@
  * @since 0.1.0
  */
 
+import { KnowledgeEntityIds } from "@beep/shared-domain";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import * as MutableHashMap from "effect/MutableHashMap";
+import * as MutableHashSet from "effect/MutableHashSet";
+import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as Str from "effect/String";
 import type { ClassifiedEntity } from "./schemas/entity-output.schema";
@@ -216,25 +220,25 @@ export class GraphAssembler extends Effect.Service<GraphAssembler>()("@beep/know
       });
 
       // Generate IDs and create entity index
-      const entityIndex = new Map<string, string>();
+      const entityIndex = MutableHashMap.empty<string, string>();
       const assembledEntities = A.empty<AssembledEntity>();
 
       for (const entity of entities) {
-        const key = (entity.canonicalName ?? entity.mention).toLowerCase();
+        const key = Str.toLowerCase(entity.canonicalName ?? entity.mention);
 
         // Check if entity already exists (for merging)
-        if (config.mergeEntities && entityIndex.has(key)) {
+        if (config.mergeEntities && MutableHashMap.has(entityIndex, key)) {
           continue;
         }
 
-        const id = `knowledge_entity__${crypto.randomUUID()}`;
+        const id = KnowledgeEntityIds.KnowledgeEntityId.create();
 
-        entityIndex.set(key, id);
+        MutableHashMap.set(entityIndex, key, id);
 
         // Also index by raw mention
-        const mentionKey = entity.mention.toLowerCase();
-        if (!entityIndex.has(mentionKey)) {
-          entityIndex.set(mentionKey, id);
+        const mentionKey = Str.toLowerCase(entity.mention);
+        if (!MutableHashMap.has(entityIndex, mentionKey)) {
+          MutableHashMap.set(entityIndex, mentionKey, id);
         }
 
         const types = entity.additionalTypes ? [entity.typeIri, ...entity.additionalTypes] : [entity.typeIri];
@@ -258,9 +262,9 @@ export class GraphAssembler extends Effect.Service<GraphAssembler>()("@beep/know
 
       for (const triple of relations) {
         const subjectKey = Str.toLowerCase(triple.subjectMention);
-        const subjectId = entityIndex.get(subjectKey);
+        const subjectIdOpt = MutableHashMap.get(entityIndex, subjectKey);
 
-        if (!subjectId) {
+        if (O.isNone(subjectIdOpt)) {
           unresolvedSubjects++;
           yield* Effect.logDebug("Unresolved subject in relation", {
             subject: triple.subjectMention,
@@ -268,15 +272,16 @@ export class GraphAssembler extends Effect.Service<GraphAssembler>()("@beep/know
           });
           continue;
         }
+        const subjectId = subjectIdOpt.value;
 
-        const relationId = `knowledge_relation__${crypto.randomUUID()}`;
+        const relationId = KnowledgeEntityIds.RelationId.create();
 
         if (triple.objectMention) {
           // Object property
           const objectKey = Str.toLowerCase(triple.objectMention);
-          const objectId = entityIndex.get(objectKey);
+          const objectIdOpt = MutableHashMap.get(entityIndex, objectKey);
 
-          if (!objectId) {
+          if (O.isNone(objectIdOpt)) {
             unresolvedObjects++;
             yield* Effect.logDebug("Unresolved object in relation", {
               subject: triple.subjectMention,
@@ -285,6 +290,7 @@ export class GraphAssembler extends Effect.Service<GraphAssembler>()("@beep/know
             });
             continue;
           }
+          const objectId = objectIdOpt.value;
 
           const relation: AssembledRelation = {
             id: relationId,
@@ -316,9 +322,9 @@ export class GraphAssembler extends Effect.Service<GraphAssembler>()("@beep/know
 
       // Convert entity index to record
       const entityIndexRecord = R.empty<string, string>();
-      for (const [key, value] of entityIndex) {
+      MutableHashMap.forEach(entityIndex, (value, key) => {
         entityIndexRecord[key] = value;
-      }
+      });
 
       const graph: KnowledgeGraph = {
         entities: assembledEntities,
@@ -346,10 +352,10 @@ export class GraphAssembler extends Effect.Service<GraphAssembler>()("@beep/know
      */
     merge: (graphs: readonly KnowledgeGraph[], _config: GraphAssemblyConfig): Effect.Effect<KnowledgeGraph, never> => {
       return Effect.sync(() => {
-        if (graphs.length === 0) {
+        if (A.isEmptyReadonlyArray(graphs)) {
           return {
-            entities: [],
-            relations: [],
+            entities: A.empty<AssembledEntity>(),
+            relations: A.empty<AssembledRelation>(),
             entityIndex: {},
             stats: {
               entityCount: 0,
@@ -368,40 +374,43 @@ export class GraphAssembler extends Effect.Service<GraphAssembler>()("@beep/know
         }
 
         // Collect all entities, deduplicating by canonical name
-        const entityIndex = new Map<string, AssembledEntity>();
-        const idMapping = new Map<string, string>();
+        const entityIndex = MutableHashMap.empty<string, AssembledEntity>();
+        const idMapping = MutableHashMap.empty<string, string>();
 
         for (const graph of graphs) {
           for (const entity of graph.entities) {
-            const key = (entity.canonicalName ?? entity.mention).toLowerCase();
+            const key = Str.toLowerCase(entity.canonicalName ?? entity.mention);
 
-            if (!entityIndex.has(key)) {
-              entityIndex.set(key, entity);
-              idMapping.set(entity.id, entity.id);
+            if (!MutableHashMap.has(entityIndex, key)) {
+              MutableHashMap.set(entityIndex, key, entity);
+              MutableHashMap.set(idMapping, entity.id, entity.id);
             } else {
               // Map old ID to existing entity's ID
-              const existing = entityIndex.get(key)!;
-              idMapping.set(entity.id, existing.id);
+              const existing = O.getOrThrow(MutableHashMap.get(entityIndex, key));
+              MutableHashMap.set(idMapping, entity.id, existing.id);
             }
           }
         }
 
         // Collect relations, updating IDs
-        const relationSet = new Set<string>();
+        const relationSet = MutableHashSet.empty<string>();
         const relations = A.empty<AssembledRelation>();
 
         for (const graph of graphs) {
           for (const relation of graph.relations) {
-            const mappedSubjectId = idMapping.get(relation.subjectId) ?? relation.subjectId;
+            const mappedSubjectId = O.getOrElse(
+              MutableHashMap.get(idMapping, relation.subjectId),
+              () => relation.subjectId
+            );
             const mappedObjectId = relation.objectId
-              ? (idMapping.get(relation.objectId) ?? relation.objectId)
+              ? O.getOrElse(MutableHashMap.get(idMapping, relation.objectId), () => relation.objectId)
               : undefined;
 
             // Create dedup key
             const key = `${mappedSubjectId}|${relation.predicate}|${mappedObjectId ?? relation.literalValue ?? ""}`;
 
-            if (!relationSet.has(key)) {
-              relationSet.add(key);
+            if (!MutableHashSet.has(relationSet, key)) {
+              MutableHashSet.add(relationSet, key);
               const mappedRelation: AssembledRelation = {
                 ...relation,
                 subjectId: mappedSubjectId,
@@ -412,11 +421,14 @@ export class GraphAssembler extends Effect.Service<GraphAssembler>()("@beep/know
           }
         }
 
-        const entities = Array.from(entityIndex.values());
+        const entities: AssembledEntity[] = [];
+        MutableHashMap.forEach(entityIndex, (entity) => {
+          entities.push(entity);
+        });
         const entityIndexRecord = R.empty<string, string>();
-        for (const [key, entity] of entityIndex) {
+        MutableHashMap.forEach(entityIndex, (entity, key) => {
           entityIndexRecord[key] = entity.id;
-        }
+        });
 
         return {
           entities,

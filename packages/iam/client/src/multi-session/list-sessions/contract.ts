@@ -12,6 +12,7 @@
 
 import * as Common from "@beep/iam-client/_internal";
 import { $IamClientId } from "@beep/identity/packages";
+import { SharedEntityIds } from "@beep/shared-domain";
 import { Wrap } from "@beep/wrap";
 import * as S from "effect/Schema";
 
@@ -27,9 +28,9 @@ const $I = $IamClientId.create("multi-session/list-sessions");
  */
 export class Session extends S.Class<Session>($I`Session`)(
   {
-    id: S.String,
-    userId: S.String,
-    token: S.String,
+    id: SharedEntityIds.SessionId,
+    userId: SharedEntityIds.UserId,
+    token: S.Redacted(S.String),
     expiresAt: S.Date,
     ipAddress: S.optionalWith(S.String, { nullable: true }),
     userAgent: S.optionalWith(S.String, { nullable: true }),

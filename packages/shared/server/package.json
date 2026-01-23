@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "type": "module",
   "license": "MIT",
-  "description": "A package which contains cross cutting infra services",
+  "description": "A package which contains cross cutting server services",
   "homepage": "https://github.com/kriegcloud/beep-effect/tree/main/packages/shared/server",
   "publishConfig": {
     "access": "public",

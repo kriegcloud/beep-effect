@@ -8,9 +8,12 @@
  * @category SignIn/Social
  * @since 0.1.0
  */
+
+import { AuthProviderNameValue } from "@beep/constants";
 import * as Common from "@beep/iam-client/_internal";
 import { formValuesAnnotation } from "@beep/iam-client/_internal";
 import { $IamClientId } from "@beep/identity/packages";
+import { BS } from "@beep/schema";
 import * as W from "@beep/wrap";
 import * as S from "effect/Schema";
 
@@ -34,10 +37,10 @@ const $I = $IamClientId.create("sign-in/social");
  */
 export class Payload extends S.Class<Payload>($I`Payload`)(
   {
-    provider: S.String,
-    callbackURL: S.optional(S.String),
-    errorCallbackURL: S.optional(S.String),
-    newUserCallbackURL: S.optional(S.String),
+    provider: AuthProviderNameValue,
+    callbackURL: S.optional(BS.URLString),
+    errorCallbackURL: S.optional(BS.URLString),
+    newUserCallbackURL: S.optional(BS.URLString),
     disableRedirect: S.optional(S.Boolean),
   },
   formValuesAnnotation({

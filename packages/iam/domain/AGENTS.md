@@ -1,7 +1,7 @@
 # @beep/iam-domain — Agent Guide
 
 ## Purpose & Fit
-- Centralizes IAM domain models via `M.Class` definitions that merge shared audit fields through `makeFields`, giving infra and tables a single source of truth for schema variants (see `src/entities/Account/Account.model.ts` and `@beep/shared-domain` common utilities).
+- Centralizes IAM domain models via `M.Class` definitions that merge shared audit fields through `makeFields`, giving server and tables a single source of truth for schema variants (see `src/entities/Account/Account.model.ts` and `@beep/shared-domain` common utilities).
 - Re-exports the IAM entity inventory to consumers through the package root so repos, tables, and runtimes can import `Entities.*` without piercing folder structure.
 - **Note**: This package contains ONLY domain entities and schemas. Error types are defined in `@beep/iam-client` (for client operations) and infrastructure packages (for server operations).
 - Bridges shared-kernel entities (Organization, Team, User, Session) into the IAM slice so cross-slice consumers can stay on the IAM namespace without re-import juggling.
@@ -24,13 +24,76 @@
 - Integration tests build insert payloads with `Entities.*.Model.insert.make` to validate repo flows end-to-end.
 - Test harness seeds IAM fixtures directly from `Entities.*` model variants when spinning Postgres containers.
 
+## EntityId Usage (MANDATORY)
+
+EntityIds defined in this package MUST be used consistently across the entire IAM vertical slice:
+
+| Package | Purpose | EntityId Import |
+|---------|---------|-----------------|
+| `@beep/iam-domain` | Domain models | `IamEntityIds` from `@beep/shared-domain` |
+| `@beep/iam-tables` | Table columns with `.$type<>()` | Same EntityIds |
+| `@beep/iam-client` | Contract schemas | Same EntityIds |
+
+### Cross-Package Alignment
+
+When domain models define an EntityId field, ALL downstream packages MUST use the same branded type:
+
+```typescript
+// Domain model (packages/iam/domain/src/entities/Member/Member.model.ts)
+export class Member extends M.Class<Member>("Member")({
+  id: IamEntityIds.MemberId,
+  userId: SharedEntityIds.UserId,
+  organizationId: SharedEntityIds.OrganizationId,
+  // ...
+}) {}
+
+// Table definition (packages/iam/tables/src/tables/member.table.ts)
+export const memberTable = OrgTable.make(IamEntityIds.MemberId)({
+  userId: pg.text("user_id").notNull()
+    .$type<SharedEntityIds.UserId.Type>(),  // MUST match domain
+  // ...
+});
+
+// Client schema (packages/iam/client/src/organization/_common/member.schema.ts)
+export class Member extends S.Class<Member>($I`Member`)({
+  id: IamEntityIds.MemberId,  // MUST match domain
+  userId: SharedEntityIds.UserId,  // MUST match domain
+  organizationId: SharedEntityIds.OrganizationId,  // MUST match domain
+}) {}
+```
+
+### Client Schema Alignment
+
+Client schemas in `@beep/iam-client` MUST align with domain entities defined here. See `packages/iam/client/AGENTS.md` for:
+- Contract payload EntityId patterns
+- Transformation schema requirements (`DomainEntityFromBetterAuthEntity`)
+- EntityId creation and validation methods (`.create()`, `.make()`, `.is()`)
+
+### Verification
+
+When updating domain models, verify downstream alignment:
+
+```bash
+# Domain compiles
+bun run check --filter @beep/iam-domain
+
+# Tables match domain EntityIds
+bun run check --filter @beep/iam-tables
+
+# Client schemas match domain EntityIds
+bun run check --filter @beep/iam-client
+
+# Check no plain S.String IDs in client
+grep -r ": S.String" packages/iam/client/src/ | grep -iE "(id|Id):"
+```
+
 ## Authoring Guardrails
 - ALWAYS import Effect modules with namespaces (`Effect`, `A`, `F`, `O`, `Str`, `S`, `M`) and rely on Effect collections/utilities instead of native helpers (see global repo guardrails).
 - Use `makeFields` so every entity inherits the audit + tracking columns and typed IDs; NEVER redefine `id`, `_rowId`, `version`, or timestamps manually.
 - Maintain `Symbol.for("@beep/iam-domain/<Entity>Model")` naming to keep schema metadata stable across database migrations and clients.
 - Prefer `BS` helpers (`FieldOptionOmittable`, `FieldSensitiveOptionOmittable`, `BoolWithDefault`) to describe optionality and defaults; this keeps insert/update variants aligned with `Model.Class` expectations.
 - When updating schema kits, extend literals in the kit file **and** propagate matching enums via `make*PgEnum` within `@beep/iam-tables` to avoid PG drift.
-- NEVER define error types in this package; IAM-specific errors belong in `@beep/iam-client` (for client-side operations) or downstream infra packages. This package focuses purely on domain entities and schema definitions.
+- NEVER define error types in this package; IAM-specific errors belong in `@beep/iam-client` (for client-side operations) or downstream server packages. This package focuses purely on domain entities and schema definitions.
 
 ## Quick Recipes
 - **Compose an invitation insert payload with audit metadata**
@@ -119,7 +182,7 @@ export const parseSessionPayload = (payload: unknown) =>
 - NEVER create entities representing credentials without explicit expiry semantics.
 
 ### Error Information Disclosure
-- Domain models should focus on data validation, not error handling; error types belong in client/infra layers.
+- Domain models should focus on data validation, not error handling; error types belong in client/server layers.
 - NEVER include credential values, token fragments, or user-identifiable data in schema validation error messages.
 - Schema validation failures should provide minimal context to prevent information leakage.
 

@@ -48,6 +48,14 @@
   - Sorts package.json dependencies: workspace (topological) + external (alphabetical)
   - Supports `--check` mode for CI validation, `--dry-run` for previews
   - Detects and reports circular dependencies
+- **`src/commands/verify/`** — Codebase verification command group
+  - `verify entityids` — Detect EntityId pattern violations (plain S.String IDs, missing .$type<>())
+  - `verify patterns` — Detect Effect pattern violations (native Set, Map, Error, Date usage)
+  - `verify all` — Run all verification checks
+  - Supports `--filter` to scope to specific packages (e.g., @beep/iam-*)
+  - Supports `--format` for output: table (default), json, summary
+  - Supports `--severity` to filter: critical, warning, all
+  - Supports `--ci` mode for non-zero exit on violations
 
 ## Usage Snapshots
 - Root `package.json` exposes CLI via `bun run repo-cli <command>`
@@ -72,6 +80,12 @@
 - `bun run repo-cli tsconfig-sync --filter @beep/schema` — Sync specific package
 - `bun run repo-cli tsconfig-sync --packages-only` — Skip Next.js apps
 - `bun run repo-cli tsconfig-sync --apps-only` — Only sync Next.js apps
+- `bun run repo-cli verify all` — Run all verification checks
+- `bun run repo-cli verify entityids` — Check EntityId patterns only
+- `bun run repo-cli verify patterns` — Check Effect patterns only
+- `bun run repo-cli verify all --filter @beep/iam-*` — Verify specific package(s)
+- `bun run repo-cli verify all --format summary --ci` — CI-friendly output with exit code
+- `bun run repo-cli verify patterns --severity critical` — Show only critical violations
 
 ## Authoring Guardrails
 - All commands must be Effect-based using `@effect/cli/Command`
@@ -173,6 +187,7 @@ const getSortedPackages = Effect.gen(function* () {
 | `ts-morph` | TypeScript AST manipulation for code analysis and generation |
 | `handlebars` | Template engine for slice scaffolding |
 | `picocolors` | Terminal color formatting |
+| `glob` | File pattern matching for verification commands |
 
 ## Verifications
 - `bun run lint --filter @beep/repo-cli`

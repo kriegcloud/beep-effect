@@ -8,10 +8,11 @@
  */
 import { $KnowledgeServerId } from "@beep/identity/packages";
 import { Entities } from "@beep/knowledge-domain";
-import { KnowledgeEntityIds, type SharedEntityIds } from "@beep/shared-domain";
+import { KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import { DatabaseError } from "@beep/shared-domain/errors";
 import { DbRepo } from "@beep/shared-domain/factories";
 import * as SqlClient from "@effect/sql/SqlClient";
+import * as SqlSchema from "@effect/sql/SqlSchema";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import type * as O from "effect/Option";
@@ -34,12 +35,82 @@ export class SimilarityResult extends S.Class<SimilarityResult>("SimilarityResul
   similarity: S.Number,
 }) {}
 
+const tableName = KnowledgeEntityIds.EmbeddingId.tableName;
+
+// --- Request Schemas ---
+
+class FindByCacheKeyRequest extends S.Class<FindByCacheKeyRequest>("FindByCacheKeyRequest")({
+  cacheKey: S.String,
+  organizationId: SharedEntityIds.OrganizationId,
+}) {}
+
+class FindSimilarRequest extends S.Class<FindSimilarRequest>("FindSimilarRequest")({
+  queryVector: S.Array(S.Number),
+  organizationId: SharedEntityIds.OrganizationId,
+  limit: S.Number,
+  threshold: S.Number,
+}) {}
+
+class FindByEntityTypeRequest extends S.Class<FindByEntityTypeRequest>("FindByEntityTypeRequest")({
+  entityType: Entities.Embedding.EntityType,
+  organizationId: SharedEntityIds.OrganizationId,
+  limit: S.Number,
+}) {}
+
 /**
  * Custom repo operations for embeddings
  */
 const makeEmbeddingExtensions = Effect.gen(function* () {
   const sql = yield* SqlClient.SqlClient;
-  const tableName = "knowledge_embedding";
+
+  // --- SqlSchemas ---
+
+  const findByCacheKeySchema = SqlSchema.findOne({
+    Request: FindByCacheKeyRequest,
+    Result: Entities.Embedding.Model,
+    execute: (req) => sql`
+      SELECT *
+      FROM ${sql(tableName)}
+      WHERE entity_id = ${req.cacheKey}
+        AND organization_id = ${req.organizationId}
+      LIMIT 1
+    `,
+  });
+
+  const findSimilarSchema = SqlSchema.findAll({
+    Request: FindSimilarRequest,
+    Result: SimilarityResult,
+    execute: (req) => {
+      // Format vector for pgvector: "[0.1,0.2,...]"
+      const vectorString = `[${A.join(A.map(req.queryVector, String), ",")}]`;
+      return sql`
+        SELECT id,
+               entity_type,
+               entity_id,
+               content_text,
+               1 - (embedding <=> ${vectorString}::vector) as similarity
+        FROM ${sql(tableName)}
+        WHERE organization_id = ${req.organizationId}
+          AND 1 - (embedding <=> ${vectorString}::vector) >= ${req.threshold}
+        ORDER BY embedding <=> ${vectorString}::vector
+        LIMIT ${req.limit}
+      `;
+    },
+  });
+
+  const findByEntityTypeSchema = SqlSchema.findAll({
+    Request: FindByEntityTypeRequest,
+    Result: Entities.Embedding.Model,
+    execute: (req) => sql`
+      SELECT *
+      FROM ${sql(tableName)}
+      WHERE organization_id = ${req.organizationId}
+        AND entity_type = ${req.entityType}
+      LIMIT ${req.limit}
+    `,
+  });
+
+  // --- Methods ---
 
   /**
    * Find embedding by cache key (entityId) and organization
@@ -52,19 +123,9 @@ const makeEmbeddingExtensions = Effect.gen(function* () {
     cacheKey: string,
     organizationId: SharedEntityIds.OrganizationId.Type
   ): Effect.Effect<O.Option<Entities.Embedding.Model>, DatabaseError> =>
-    sql<Entities.Embedding.Model>`
-        SELECT *
-        FROM ${sql(tableName)}
-        WHERE entity_id = ${cacheKey}
-          AND organization_id = ${organizationId} LIMIT 1
-    `.pipe(
-      Effect.map(A.head),
-      Effect.mapError((error) =>
-        DatabaseError.$match({
-          message: `Failed to find embedding by cache key: ${String(error)}`,
-          _tag: "DatabaseError",
-        })
-      ),
+    findByCacheKeySchema({ cacheKey, organizationId }).pipe(
+      Effect.catchTag("ParseError", (e) => Effect.die(e)),
+      Effect.mapError(DatabaseError.$match),
       Effect.withSpan("EmbeddingRepo.findByCacheKey", {
         captureStackTrace: false,
         attributes: { cacheKey, organizationId },
@@ -86,45 +147,9 @@ const makeEmbeddingExtensions = Effect.gen(function* () {
     limit = 10,
     threshold = 0.7
   ): Effect.Effect<ReadonlyArray<SimilarityResult>, DatabaseError> =>
-    Effect.gen(function* () {
-      // Format vector for pgvector: "[0.1,0.2,...]"
-      const vectorString = `[${A.join(queryVector.map(String), ",")}]`;
-
-      const results = yield* sql<{
-        id: string;
-        entity_type: string;
-        entity_id: string;
-        content_text: string | null;
-        similarity: number;
-      }>`
-          SELECT id,
-                 entity_type,
-                 entity_id,
-                 content_text,
-                 1 - (embedding <=> ${vectorString}::vector) as similarity
-          FROM ${sql(tableName)}
-          WHERE organization_id = ${organizationId}
-            AND 1 - (embedding <=> ${vectorString}::vector) >= ${threshold}
-          ORDER BY embedding <=> ${vectorString}::vector
-              LIMIT ${limit}
-      `.pipe(
-        Effect.mapError((error) =>
-          DatabaseError.$match({
-            message: `Failed to find similar embeddings: ${String(error)}`,
-            _tag: "DatabaseError",
-          })
-        )
-      );
-
-      // Map to SimilarityResult
-      return A.map(results, (row) => ({
-        id: row.id as KnowledgeEntityIds.EmbeddingId.Type,
-        entityType: row.entity_type as Entities.Embedding.EntityType.Type,
-        entityId: row.entity_id,
-        contentText: row.content_text ?? undefined,
-        similarity: row.similarity,
-      }));
-    }).pipe(
+    findSimilarSchema({ queryVector: [...queryVector], organizationId, limit, threshold }).pipe(
+      Effect.catchTag("ParseError", (e) => Effect.die(e)),
+      Effect.mapError(DatabaseError.$match),
       Effect.withSpan("EmbeddingRepo.findSimilar", {
         captureStackTrace: false,
         attributes: { organizationId, limit, threshold },
@@ -144,18 +169,9 @@ const makeEmbeddingExtensions = Effect.gen(function* () {
     organizationId: SharedEntityIds.OrganizationId.Type,
     limit = 100
   ): Effect.Effect<ReadonlyArray<Entities.Embedding.Model>, DatabaseError> =>
-    sql<Entities.Embedding.Model>`
-          SELECT *
-          FROM ${sql(tableName)}
-          WHERE organization_id = ${organizationId}
-            AND entity_type = ${entityType} LIMIT ${limit}
-      `.pipe(
-      Effect.mapError((error) =>
-        DatabaseError.$match({
-          message: `Failed to find embeddings by type: ${String(error)}`,
-          _tag: "DatabaseError",
-        })
-      ),
+    findByEntityTypeSchema({ entityType, organizationId, limit }).pipe(
+      Effect.catchTag("ParseError", (e) => Effect.die(e)),
+      Effect.mapError(DatabaseError.$match),
       Effect.withSpan("EmbeddingRepo.findByEntityType", {
         captureStackTrace: false,
         attributes: { entityType, organizationId, limit },
@@ -179,7 +195,7 @@ const makeEmbeddingExtensions = Effect.gen(function* () {
     Effect.gen(function* () {
       const result = yield* sql`
           DELETE
-          FROM ${sql(tableName)}
+          FROM ${sql(KnowledgeEntityIds.EmbeddingId.tableName)}
           WHERE organization_id = ${organizationId}
             AND entity_id LIKE ${`${entityIdPrefix}%`}
       `.pipe(

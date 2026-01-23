@@ -9,7 +9,6 @@
  * @since 0.1.0
  */
 import * as Common from "@beep/iam-client/_internal";
-import { formValuesAnnotation } from "@beep/iam-client/_internal";
 import { $IamClientId } from "@beep/identity/packages";
 import * as W from "@beep/wrap";
 import * as S from "effect/Schema";
@@ -31,14 +30,9 @@ const $I = $IamClientId.create("core/revoke-session");
  * @category Core/RevokeSession/Schemas
  * @since 0.1.0
  */
-export class Payload extends S.Class<Payload>($I`Payload`)(
-  {
-    token: S.String,
-  },
-  formValuesAnnotation({
-    token: "",
-  })
-) {}
+export class Payload extends S.Class<Payload>($I`Payload`)({
+  token: S.Redacted(S.String),
+}) {}
 
 /**
  * Success response for revoking a session.

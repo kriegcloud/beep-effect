@@ -8,7 +8,7 @@
  */
 
 import type { Extraction } from "@beep/knowledge-domain/entities";
-import { KnowledgeEntityIds } from "@beep/shared-domain";
+import { type DocumentsEntityIds, KnowledgeEntityIds } from "@beep/shared-domain";
 import { OrgTable } from "@beep/shared-tables";
 import { datetime } from "@beep/shared-tables/columns";
 import * as pg from "drizzle-orm/pg-core";
@@ -24,13 +24,13 @@ import * as pg from "drizzle-orm/pg-core";
 export const extraction = OrgTable.make(KnowledgeEntityIds.ExtractionId)(
   {
     // Source document ID
-    documentId: pg.text("document_id").notNull(),
+    documentId: pg.text("document_id").notNull().$type<DocumentsEntityIds.DocumentId.Type>(),
 
     // Source document URI
     sourceUri: pg.text("source_uri"),
 
     // Ontology used for extraction
-    ontologyId: pg.text("ontology_id").notNull(),
+    ontologyId: pg.text("ontology_id").notNull().$type<KnowledgeEntityIds.OntologyId.Type>(),
 
     // Extraction status
     status: pg.text("status").notNull().default("pending").$type<Extraction.ExtractionStatus.Type>(),

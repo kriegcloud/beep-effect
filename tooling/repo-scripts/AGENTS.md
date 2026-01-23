@@ -6,7 +6,7 @@
 - Hosts shared schemas and helpers (`utils/asset-path.schema.ts`, `utils/convert-to-nextgen.ts`) that gatekeep file-system outputs before they reach user-facing bundles.
 
 ## Surface Map
-- `src/bootstrap.ts` – interactive infra bootstrapper (Docker, migrations, `.env` copy) showcasing multi-stage terminal UX.
+- `src/bootstrap.ts` – interactive server bootstrapper (Docker, migrations, `.env` copy) showcasing multi-stage terminal UX.
 - `src/generate-env-secrets.ts` – secure secret hydrator; uses Effect `Random`, encoding, and `.env` preservation helpers.
 - `src/generate-asset-paths.ts` & `src/utils/convert-to-nextgen.ts` – public asset crawler + AVIF converter enforcing schema compliance via `AssetPaths`.
 - `src/generate-locales.ts` & `src/i18n/cldr.ts` – CLDR fetch + generator producing `packages/common/schema/src/custom/locales/ALL_LOCALES.generated.ts`.

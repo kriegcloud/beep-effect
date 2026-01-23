@@ -9,6 +9,8 @@
 import { describe } from "bun:test";
 import { assertTrue, effect, strictEqual } from "@beep/testkit";
 import * as Effect from "effect/Effect";
+import * as MutableHashMap from "effect/MutableHashMap";
+import * as O from "effect/Option";
 import {
   assignGraphRanks,
   combineEmbeddingAndGraphRanks,
@@ -85,7 +87,7 @@ describe("RrfScorer", () => {
 
   effect("assigns graph ranks based on hop distance", () =>
     Effect.gen(function* () {
-      const entityHops = new Map<string, number>([
+      const entityHops = MutableHashMap.fromIterable<string, number>([
         ["e1", 0], // seed
         ["e2", 0], // seed
         ["e3", 1], // 1-hop
@@ -95,14 +97,14 @@ describe("RrfScorer", () => {
       const ranks = assignGraphRanks(entityHops);
 
       // Seeds at hop 0 should have rank 1
-      strictEqual(ranks.get("e1"), 1);
-      strictEqual(ranks.get("e2"), 1);
+      strictEqual(O.getOrThrow(MutableHashMap.get(ranks, "e1")), 1);
+      strictEqual(O.getOrThrow(MutableHashMap.get(ranks, "e2")), 1);
 
       // Entity at hop 1 should have rank 3 (after 2 seeds)
-      strictEqual(ranks.get("e3"), 3);
+      strictEqual(O.getOrThrow(MutableHashMap.get(ranks, "e3")), 3);
 
       // Entity at hop 2 should have rank 4
-      strictEqual(ranks.get("e4"), 4);
+      strictEqual(O.getOrThrow(MutableHashMap.get(ranks, "e4")), 4);
     })
   );
 

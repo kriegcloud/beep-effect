@@ -8,8 +8,13 @@
  * @since 0.1.0
  */
 
+import { KnowledgeEntityIds } from "@beep/shared-domain";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import * as Iterable from "effect/Iterable";
+import * as MutableHashMap from "effect/MutableHashMap";
+import * as MutableHashSet from "effect/MutableHashSet";
+import * as O from "effect/Option";
 import type { EntityCluster } from "./EntityClusterer";
 // =============================================================================
 // Types
@@ -96,7 +101,7 @@ export class SameAsLinker extends Effect.Service<SameAsLinker>()("@beep/knowledg
      */
     generateLinks: (
       clusters: readonly EntityCluster[],
-      entityConfidences: Map<string, number>
+      entityConfidences: MutableHashMap.MutableHashMap<string, number>
     ): Effect.Effect<readonly SameAsLink[]> =>
       Effect.gen(function* () {
         const links = A.empty<SameAsLink>();
@@ -117,10 +122,10 @@ export class SameAsLinker extends Effect.Service<SameAsLinker>()("@beep/knowledg
               continue;
             }
 
-            const confidence = entityConfidences.get(memberId) ?? cluster.cohesion;
+            const confidence = O.getOrElse(MutableHashMap.get(entityConfidences, memberId), () => cluster.cohesion);
 
             links.push({
-              id: `knowledge_same_as_link__${crypto.randomUUID()}`,
+              id: KnowledgeEntityIds.SameAsLinkId.create(),
               canonicalId: cluster.canonicalEntityId,
               memberId,
               confidence,
@@ -148,8 +153,8 @@ export class SameAsLinker extends Effect.Service<SameAsLinker>()("@beep/knowledg
      */
     generateLinksWithProvenance: (
       clusters: readonly EntityCluster[],
-      entityConfidences: Map<string, number>,
-      entitySources: Map<string, string>
+      entityConfidences: MutableHashMap.MutableHashMap<string, number>,
+      entitySources: MutableHashMap.MutableHashMap<string, string>
     ): Effect.Effect<readonly SameAsLink[]> =>
       Effect.gen(function* () {
         const links = A.empty<SameAsLink>();
@@ -160,15 +165,15 @@ export class SameAsLinker extends Effect.Service<SameAsLinker>()("@beep/knowledg
           for (const memberId of cluster.memberIds) {
             if (memberId === cluster.canonicalEntityId) continue;
 
-            const confidence = entityConfidences.get(memberId) ?? cluster.cohesion;
-            const sourceId = entitySources.get(memberId);
+            const confidence = O.getOrElse(MutableHashMap.get(entityConfidences, memberId), () => cluster.cohesion);
+            const sourceIdOpt = MutableHashMap.get(entitySources, memberId);
 
             links.push({
-              id: `knowledge_same_as_link__${crypto.randomUUID()}`,
+              id: KnowledgeEntityIds.SameAsLinkId.create(),
               canonicalId: cluster.canonicalEntityId,
               memberId,
               confidence,
-              ...(sourceId !== undefined && { sourceId }),
+              ...(O.isSome(sourceIdOpt) && { sourceId: sourceIdOpt.value }),
             });
           }
         }
@@ -191,19 +196,19 @@ export class SameAsLinker extends Effect.Service<SameAsLinker>()("@beep/knowledg
         if (entityA === entityB) return true;
 
         // Build canonical mapping (member -> canonical)
-        const canonicalMap = new Map<string, string>();
+        const canonicalMap = MutableHashMap.empty<string, string>();
         for (const link of links) {
-          canonicalMap.set(link.memberId, link.canonicalId);
+          MutableHashMap.set(canonicalMap, link.memberId, link.canonicalId);
         }
 
         // Find canonical for each entity
         const getCanonical = (id: string): string => {
           let current = id;
-          const visited = new Set<string>();
+          const visited = MutableHashSet.empty<string>();
 
-          while (canonicalMap.has(current) && !visited.has(current)) {
-            visited.add(current);
-            current = canonicalMap.get(current)!;
+          while (MutableHashMap.has(canonicalMap, current) && !MutableHashSet.has(visited, current)) {
+            MutableHashSet.add(visited, current);
+            current = O.getOrThrow(MutableHashMap.get(canonicalMap, current));
           }
 
           return current;
@@ -223,17 +228,17 @@ export class SameAsLinker extends Effect.Service<SameAsLinker>()("@beep/knowledg
      */
     getCanonical: (entityId: string, links: readonly SameAsLink[]): Effect.Effect<string> =>
       Effect.sync(() => {
-        const canonicalMap = new Map<string, string>();
+        const canonicalMap = MutableHashMap.empty<string, string>();
         for (const link of links) {
-          canonicalMap.set(link.memberId, link.canonicalId);
+          MutableHashMap.set(canonicalMap, link.memberId, link.canonicalId);
         }
 
         let current = entityId;
-        const visited = new Set<string>();
+        const visited = MutableHashSet.empty<string>();
 
-        while (canonicalMap.has(current) && !visited.has(current)) {
-          visited.add(current);
-          current = canonicalMap.get(current)!;
+        while (MutableHashMap.has(canonicalMap, current) && !MutableHashSet.has(visited, current)) {
+          MutableHashSet.add(visited, current);
+          current = O.getOrThrow(MutableHashMap.get(canonicalMap, current));
         }
 
         return current;
@@ -250,47 +255,48 @@ export class SameAsLinker extends Effect.Service<SameAsLinker>()("@beep/knowledg
     computeTransitiveClosure: (links: readonly SameAsLink[]): Effect.Effect<readonly TransitiveClosure[]> =>
       Effect.sync(() => {
         // Build canonical mapping
-        const canonicalMap = new Map<string, string>();
+        const canonicalMap = MutableHashMap.empty<string, string>();
         for (const link of links) {
-          canonicalMap.set(link.memberId, link.canonicalId);
+          MutableHashMap.set(canonicalMap, link.memberId, link.canonicalId);
         }
 
         // Find root canonical for each entity
         const getCanonical = (id: string): string => {
           let current = id;
-          const visited = new Set<string>();
+          const visited = MutableHashSet.empty<string>();
 
-          while (canonicalMap.has(current) && !visited.has(current)) {
-            visited.add(current);
-            current = canonicalMap.get(current)!;
+          while (MutableHashMap.has(canonicalMap, current) && !MutableHashSet.has(visited, current)) {
+            MutableHashSet.add(visited, current);
+            current = O.getOrThrow(MutableHashMap.get(canonicalMap, current));
           }
 
           return current;
         };
 
         // Group by canonical
-        const groups = new Map<string, string[]>();
+        const groups = MutableHashMap.empty<string, string[]>();
 
         // Collect all entity IDs
-        const allEntities = new Set<string>();
+        const allEntities = MutableHashSet.empty<string>();
         for (const link of links) {
-          allEntities.add(link.canonicalId);
-          allEntities.add(link.memberId);
+          MutableHashSet.add(allEntities, link.canonicalId);
+          MutableHashSet.add(allEntities, link.memberId);
         }
 
-        for (const entityId of allEntities) {
+        Iterable.forEach(allEntities, (entityId) => {
           const canonical = getCanonical(entityId);
-          const group = groups.get(canonical) ?? [];
-          if (!group.includes(entityId)) {
+          const group = O.getOrElse(MutableHashMap.get(groups, canonical), () => [] as string[]);
+          if (!A.contains(group, entityId)) {
             group.push(entityId);
           }
-          groups.set(canonical, group);
-        }
+          MutableHashMap.set(groups, canonical, group);
+        });
 
-        return Array.from(groups.entries()).map(([canonical, members]) => ({
-          canonical,
-          members,
-        }));
+        const result: TransitiveClosure[] = [];
+        MutableHashMap.forEach(groups, (members, canonical) => {
+          result.push({ canonical, members });
+        });
+        return result;
       }),
 
     /**
@@ -313,37 +319,37 @@ export class SameAsLinker extends Effect.Service<SameAsLinker>()("@beep/knowledg
         }
 
         // Check for cycles
-        const canonicalMap = new Map<string, string>();
+        const canonicalMap = MutableHashMap.empty<string, string>();
         for (const link of links) {
-          canonicalMap.set(link.memberId, link.canonicalId);
+          MutableHashMap.set(canonicalMap, link.memberId, link.canonicalId);
         }
 
         for (const link of links) {
-          const visited = new Set<string>();
+          const visited = MutableHashSet.empty<string>();
           let current = link.canonicalId;
 
-          while (canonicalMap.has(current)) {
-            if (visited.has(current)) {
+          while (MutableHashMap.has(canonicalMap, current)) {
+            if (MutableHashSet.has(visited, current)) {
               issues.push(`Cycle detected involving: ${current}`);
               break;
             }
-            visited.add(current);
-            current = canonicalMap.get(current)!;
+            MutableHashSet.add(visited, current);
+            current = O.getOrThrow(MutableHashMap.get(canonicalMap, current));
           }
         }
 
         // Check for duplicate links
-        const linkKeys = new Set<string>();
+        const linkKeys = MutableHashSet.empty<string>();
         for (const link of links) {
           const key = `${link.canonicalId}:${link.memberId}`;
-          if (linkKeys.has(key)) {
+          if (MutableHashSet.has(linkKeys, key)) {
             issues.push(`Duplicate link: ${link.canonicalId} -> ${link.memberId}`);
           }
-          linkKeys.add(key);
+          MutableHashSet.add(linkKeys, key);
         }
 
         return {
-          valid: issues.length === 0,
+          valid: A.isEmptyReadonlyArray(issues),
           issues,
         };
       }),

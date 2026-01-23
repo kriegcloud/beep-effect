@@ -8,23 +8,168 @@
  */
 import { $KnowledgeServerId } from "@beep/identity/packages";
 import { Entities } from "@beep/knowledge-domain";
-import { KnowledgeEntityIds, type SharedEntityIds } from "@beep/shared-domain";
+import { KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import { DatabaseError } from "@beep/shared-domain/errors";
 import { DbRepo } from "@beep/shared-domain/factories";
 import * as SqlClient from "@effect/sql/SqlClient";
+import * as SqlSchema from "@effect/sql/SqlSchema";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
-import type * as O from "effect/Option";
+import * as O from "effect/Option";
+import * as S from "effect/Schema";
 import { dependencies } from "./_common";
 
 const $I = $KnowledgeServerId.create("db/repos/SameAsLinkRepo");
+
+const tableName = KnowledgeEntityIds.SameAsLinkId.tableName;
+
+// --- Request Schemas ---
+
+class FindByCanonicalRequest extends S.Class<FindByCanonicalRequest>("FindByCanonicalRequest")({
+  canonicalId: KnowledgeEntityIds.KnowledgeEntityId,
+  organizationId: SharedEntityIds.OrganizationId,
+}) {}
+
+class FindByMemberRequest extends S.Class<FindByMemberRequest>("FindByMemberRequest")({
+  memberId: KnowledgeEntityIds.KnowledgeEntityId,
+  organizationId: SharedEntityIds.OrganizationId,
+}) {}
+
+class ResolveCanonicalRequest extends S.Class<ResolveCanonicalRequest>("ResolveCanonicalRequest")({
+  entityId: KnowledgeEntityIds.KnowledgeEntityId,
+  organizationId: SharedEntityIds.OrganizationId,
+}) {}
+
+class ResolveCanonicalResult extends S.Class<ResolveCanonicalResult>("ResolveCanonicalResult")({
+  canonical_id: S.String,
+}) {}
+
+class FindHighConfidenceRequest extends S.Class<FindHighConfidenceRequest>("FindHighConfidenceRequest")({
+  minConfidence: S.Number,
+  organizationId: SharedEntityIds.OrganizationId,
+  limit: S.Number,
+}) {}
+
+class FindBySourceRequest extends S.Class<FindBySourceRequest>("FindBySourceRequest")({
+  sourceId: S.String,
+  organizationId: SharedEntityIds.OrganizationId,
+}) {}
+
+class CountMembersRequest extends S.Class<CountMembersRequest>("CountMembersRequest")({
+  canonicalId: KnowledgeEntityIds.KnowledgeEntityId,
+  organizationId: SharedEntityIds.OrganizationId,
+}) {}
+
+class DeleteByCanonicalRequest extends S.Class<DeleteByCanonicalRequest>("DeleteByCanonicalRequest")({
+  canonicalId: KnowledgeEntityIds.KnowledgeEntityId,
+  organizationId: SharedEntityIds.OrganizationId,
+}) {}
+
+class CountResult extends S.Class<CountResult>("CountResult")({
+  count: S.String,
+}) {}
 
 /**
  * Custom repo operations for same-as links
  */
 const makeSameAsLinkExtensions = Effect.gen(function* () {
   const sql = yield* SqlClient.SqlClient;
-  const tableName = "knowledge_same_as_link";
+
+  // --- SqlSchemas ---
+
+  const findByCanonicalSchema = SqlSchema.findAll({
+    Request: FindByCanonicalRequest,
+    Result: Entities.SameAsLink.Model,
+    execute: (req) => sql`
+      SELECT *
+      FROM ${sql(tableName)}
+      WHERE canonical_id = ${req.canonicalId}
+        AND organization_id = ${req.organizationId}
+    `,
+  });
+
+  const findByMemberSchema = SqlSchema.findOne({
+    Request: FindByMemberRequest,
+    Result: Entities.SameAsLink.Model,
+    execute: (req) => sql`
+      SELECT *
+      FROM ${sql(tableName)}
+      WHERE member_id = ${req.memberId}
+        AND organization_id = ${req.organizationId}
+      LIMIT 1
+    `,
+  });
+
+  const resolveCanonicalSchema = SqlSchema.findAll({
+    Request: ResolveCanonicalRequest,
+    Result: ResolveCanonicalResult,
+    execute: (req) => sql`
+      WITH RECURSIVE chain AS (
+        SELECT member_id, canonical_id
+        FROM ${sql(tableName)}
+        WHERE member_id = ${req.entityId}
+          AND organization_id = ${req.organizationId}
+
+        UNION
+
+        SELECT l.member_id, l.canonical_id
+        FROM ${sql(tableName)} l
+        INNER JOIN chain c ON l.member_id = c.canonical_id
+        WHERE l.organization_id = ${req.organizationId}
+      )
+      SELECT canonical_id
+      FROM chain
+      ORDER BY canonical_id
+      LIMIT 1
+    `,
+  });
+
+  const findHighConfidenceSchema = SqlSchema.findAll({
+    Request: FindHighConfidenceRequest,
+    Result: Entities.SameAsLink.Model,
+    execute: (req) => sql`
+      SELECT *
+      FROM ${sql(tableName)}
+      WHERE organization_id = ${req.organizationId}
+        AND confidence >= ${req.minConfidence}
+      ORDER BY confidence DESC
+      LIMIT ${req.limit}
+    `,
+  });
+
+  const findBySourceSchema = SqlSchema.findAll({
+    Request: FindBySourceRequest,
+    Result: Entities.SameAsLink.Model,
+    execute: (req) => sql`
+      SELECT *
+      FROM ${sql(tableName)}
+      WHERE organization_id = ${req.organizationId}
+        AND source_id = ${req.sourceId}
+    `,
+  });
+
+  const countMembersSchema = SqlSchema.findAll({
+    Request: CountMembersRequest,
+    Result: CountResult,
+    execute: (req) => sql`
+      SELECT COUNT(*) as count
+      FROM ${sql(tableName)}
+      WHERE organization_id = ${req.organizationId}
+        AND canonical_id = ${req.canonicalId}
+    `,
+  });
+
+  const deleteByCanonicalSchema = SqlSchema.void({
+    Request: DeleteByCanonicalRequest,
+    execute: (req) => sql`
+      DELETE
+      FROM ${sql(tableName)}
+      WHERE organization_id = ${req.organizationId}
+        AND canonical_id = ${req.canonicalId}
+    `,
+  });
+
+  // --- Methods ---
 
   /**
    * Find links by canonical entity
@@ -37,18 +182,9 @@ const makeSameAsLinkExtensions = Effect.gen(function* () {
     canonicalId: KnowledgeEntityIds.KnowledgeEntityId.Type,
     organizationId: SharedEntityIds.OrganizationId.Type
   ): Effect.Effect<ReadonlyArray<Entities.SameAsLink.Model>, DatabaseError> =>
-    sql<Entities.SameAsLink.Model>`
-        SELECT *
-        FROM ${sql(tableName)}
-        WHERE canonical_id = ${canonicalId}
-          AND organization_id = ${organizationId}
-    `.pipe(
-      Effect.mapError((error) =>
-        DatabaseError.$match({
-          message: `Failed to find links by canonical: ${String(error)}`,
-          _tag: "DatabaseError",
-        })
-      ),
+    findByCanonicalSchema({ canonicalId, organizationId }).pipe(
+      Effect.catchTag("ParseError", (e) => Effect.die(e)),
+      Effect.mapError(DatabaseError.$match),
       Effect.withSpan("SameAsLinkRepo.findByCanonical", {
         captureStackTrace: false,
         attributes: { canonicalId, organizationId },
@@ -66,19 +202,9 @@ const makeSameAsLinkExtensions = Effect.gen(function* () {
     memberId: KnowledgeEntityIds.KnowledgeEntityId.Type,
     organizationId: SharedEntityIds.OrganizationId.Type
   ): Effect.Effect<O.Option<Entities.SameAsLink.Model>, DatabaseError> =>
-    sql<Entities.SameAsLink.Model>`
-        SELECT *
-        FROM ${sql(tableName)}
-        WHERE member_id = ${memberId}
-          AND organization_id = ${organizationId} LIMIT 1
-    `.pipe(
-      Effect.map(A.head),
-      Effect.mapError((error) =>
-        DatabaseError.$match({
-          message: `Failed to find link by member: ${String(error)}`,
-          _tag: "DatabaseError",
-        })
-      ),
+    findByMemberSchema({ memberId, organizationId }).pipe(
+      Effect.catchTag("ParseError", (e) => Effect.die(e)),
+      Effect.mapError(DatabaseError.$match),
       Effect.withSpan("SameAsLinkRepo.findByMember", {
         captureStackTrace: false,
         attributes: { memberId, organizationId },
@@ -97,38 +223,17 @@ const makeSameAsLinkExtensions = Effect.gen(function* () {
     organizationId: SharedEntityIds.OrganizationId.Type
   ): Effect.Effect<KnowledgeEntityIds.KnowledgeEntityId.Type, DatabaseError> =>
     Effect.gen(function* () {
-      // Use recursive CTE to follow sameAs chain
-      const result = yield* sql<{ canonical_id: string }>`
-          WITH RECURSIVE chain AS (SELECT member_id, canonical_id
-                                   FROM ${sql(tableName)}
-                                   WHERE member_id = ${entityId}
-                                     AND organization_id = ${organizationId}
-
-                                   UNION
-
-                                   SELECT l.member_id, l.canonical_id
-                                   FROM ${sql(tableName)} l
-                                            INNER JOIN chain c ON l.member_id = c.canonical_id
-                                   WHERE l.organization_id = ${organizationId})
-          SELECT canonical_id
-          FROM chain
-          ORDER BY canonical_id LIMIT 1
-      `.pipe(
-        Effect.mapError((error) =>
-          DatabaseError.$match({
-            message: `Failed to resolve canonical: ${String(error)}`,
-            _tag: "DatabaseError",
-          })
-        )
-      );
+      const result = yield* resolveCanonicalSchema({ entityId, organizationId });
 
       // If no link found, return the original entity ID
       const first = A.head(result);
-      if (first._tag === "Some") {
+      if (O.isSome(first)) {
         return first.value.canonical_id as KnowledgeEntityIds.KnowledgeEntityId.Type;
       }
       return entityId;
     }).pipe(
+      Effect.catchTag("ParseError", (e) => Effect.die(e)),
+      Effect.mapError(DatabaseError.$match),
       Effect.withSpan("SameAsLinkRepo.resolveCanonical", {
         captureStackTrace: false,
         attributes: { entityId, organizationId },
@@ -148,20 +253,9 @@ const makeSameAsLinkExtensions = Effect.gen(function* () {
     organizationId: SharedEntityIds.OrganizationId.Type,
     limit = 100
   ): Effect.Effect<ReadonlyArray<Entities.SameAsLink.Model>, DatabaseError> =>
-    sql<Entities.SameAsLink.Model>`
-          SELECT *
-          FROM ${sql(tableName)}
-          WHERE organization_id = ${organizationId}
-            AND confidence >= ${minConfidence}
-          ORDER BY confidence DESC
-              LIMIT ${limit}
-      `.pipe(
-      Effect.mapError((error) =>
-        DatabaseError.$match({
-          message: `Failed to find high confidence links: ${String(error)}`,
-          _tag: "DatabaseError",
-        })
-      ),
+    findHighConfidenceSchema({ minConfidence, organizationId, limit }).pipe(
+      Effect.catchTag("ParseError", (e) => Effect.die(e)),
+      Effect.mapError(DatabaseError.$match),
       Effect.withSpan("SameAsLinkRepo.findHighConfidence", {
         captureStackTrace: false,
         attributes: { minConfidence, organizationId, limit },
@@ -179,18 +273,9 @@ const makeSameAsLinkExtensions = Effect.gen(function* () {
     sourceId: string,
     organizationId: SharedEntityIds.OrganizationId.Type
   ): Effect.Effect<ReadonlyArray<Entities.SameAsLink.Model>, DatabaseError> =>
-    sql<Entities.SameAsLink.Model>`
-          SELECT *
-          FROM ${sql(tableName)}
-          WHERE organization_id = ${organizationId}
-            AND source_id = ${sourceId}
-      `.pipe(
-      Effect.mapError((error) =>
-        DatabaseError.$match({
-          message: `Failed to find links by source: ${String(error)}`,
-          _tag: "DatabaseError",
-        })
-      ),
+    findBySourceSchema({ sourceId, organizationId }).pipe(
+      Effect.catchTag("ParseError", (e) => Effect.die(e)),
+      Effect.mapError(DatabaseError.$match),
       Effect.withSpan("SameAsLinkRepo.findBySource", {
         captureStackTrace: false,
         attributes: { sourceId, organizationId },
@@ -202,28 +287,14 @@ const makeSameAsLinkExtensions = Effect.gen(function* () {
    *
    * @param canonicalId - The canonical entity ID
    * @param organizationId - Organization ID for scoping
-   * @returns Number of deleted rows
    */
   const deleteByCanonical = (
     canonicalId: KnowledgeEntityIds.KnowledgeEntityId.Type,
     organizationId: SharedEntityIds.OrganizationId.Type
-  ): Effect.Effect<number, DatabaseError> =>
-    Effect.gen(function* () {
-      const result = yield* sql`
-          DELETE
-          FROM ${sql(tableName)}
-          WHERE organization_id = ${organizationId}
-            AND canonical_id = ${canonicalId}
-      `.pipe(
-        Effect.mapError((error) =>
-          DatabaseError.$match({
-            message: `Failed to delete links by canonical: ${String(error)}`,
-            _tag: "DatabaseError",
-          })
-        )
-      );
-      return result.length;
-    }).pipe(
+  ): Effect.Effect<void, DatabaseError> =>
+    deleteByCanonicalSchema({ canonicalId, organizationId }).pipe(
+      Effect.catchTag("ParseError", (e) => Effect.die(e)),
+      Effect.mapError(DatabaseError.$match),
       Effect.withSpan("SameAsLinkRepo.deleteByCanonical", {
         captureStackTrace: false,
         attributes: { canonicalId, organizationId },
@@ -242,23 +313,12 @@ const makeSameAsLinkExtensions = Effect.gen(function* () {
     organizationId: SharedEntityIds.OrganizationId.Type
   ): Effect.Effect<number, DatabaseError> =>
     Effect.gen(function* () {
-      const result = yield* sql<{ count: number }>`
-          SELECT COUNT(*) as count
-          FROM ${sql(tableName)}
-          WHERE organization_id = ${organizationId}
-            AND canonical_id = ${canonicalId}
-      `.pipe(
-        Effect.mapError((error) =>
-          DatabaseError.$match({
-            message: `Failed to count members: ${String(error)}`,
-            _tag: "DatabaseError",
-          })
-        )
-      );
-
+      const result = yield* countMembersSchema({ canonicalId, organizationId });
       const first = A.head(result);
-      return first._tag === "Some" ? Number(first.value.count) : 0;
+      return O.isSome(first) ? Number.parseInt(first.value.count, 10) : 0;
     }).pipe(
+      Effect.catchTag("ParseError", (e) => Effect.die(e)),
+      Effect.mapError(DatabaseError.$match),
       Effect.withSpan("SameAsLinkRepo.countMembers", {
         captureStackTrace: false,
         attributes: { canonicalId, organizationId },

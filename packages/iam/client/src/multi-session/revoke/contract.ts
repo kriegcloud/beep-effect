@@ -33,7 +33,7 @@ const $I = $IamClientId.create("multi-session/revoke");
  */
 export class Payload extends S.Class<Payload>($I`Payload`)(
   {
-    sessionToken: S.String,
+    sessionToken: S.Redacted(S.String),
   },
   $I.annotations("Payload", {
     description: "The payload for revoking a session.",

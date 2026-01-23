@@ -9,8 +9,8 @@
  * @since 0.1.0
  */
 import * as Common from "@beep/iam-client/_internal";
-import { formValuesAnnotation } from "@beep/iam-client/_internal";
 import { $IamClientId } from "@beep/identity/packages";
+import { SharedEntityIds } from "@beep/shared-domain";
 import * as W from "@beep/wrap";
 import * as S from "effect/Schema";
 
@@ -31,14 +31,9 @@ const $I = $IamClientId.create("admin/impersonate-user");
  * @category Admin/ImpersonateUser/Schemas
  * @since 0.1.0
  */
-export class Payload extends S.Class<Payload>($I`Payload`)(
-  {
-    userId: S.String,
-  },
-  formValuesAnnotation({
-    userId: "",
-  })
-) {}
+export class Payload extends S.Class<Payload>($I`Payload`)({
+  userId: SharedEntityIds.UserId,
+}) {}
 
 /**
  * Success response containing the impersonated user's session.

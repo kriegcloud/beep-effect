@@ -551,7 +551,7 @@ export const users = pgTable(
 The `@beep/identity` package is a foundational dependency consumed across the entire monorepo:
 
 - **Schema Packages** (`@beep/schema`, slice domain packages): Use `.annotations()` for Effect Schema class decorators with stable TypeIds
-- **Server Packages** (slice infra/server): Use `.symbol()` for service tokens in Effect Context.Tag definitions
+- **Server Packages** (slice server/server): Use `.symbol()` for service tokens in Effect Context.Tag definitions
 - **Table Packages** (slice tables): Use `.make()` for consistent table naming in Drizzle schemas
 - **Client Packages** (slice client): Use for contract identifiers and handler naming
 - **UI Packages**: Use for component keys and stable element identifiers

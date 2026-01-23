@@ -10,6 +10,7 @@ import { LanguageModel, Prompt } from "@effect/ai";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
+import * as Order from "effect/Order";
 import { buildMentionPrompt, buildSystemPrompt } from "../Ai/PromptTemplates";
 import type { TextChunk } from "../Nlp/TextChunk";
 import { ExtractedMention, MentionOutput } from "./schemas/mention-output.schema";
@@ -222,12 +223,13 @@ export class MentionExtractor extends Effect.Service<MentionExtractor>()("@beep/
           const allMentions: ExtractedMention[] = A.flatMap([...results], (r): ExtractedMention[] => [...r.mentions]);
 
           // Sort by start position, then by confidence (descending)
-          const sorted = [...allMentions].sort((a, b) => {
-            if (a.startChar !== b.startChar) {
-              return a.startChar - b.startChar;
-            }
-            return b.confidence - a.confidence;
-          });
+          const sorted = A.sort(
+            allMentions,
+            Order.combine(
+              Order.mapInput(Order.number, (m: ExtractedMention) => m.startChar),
+              Order.reverse(Order.mapInput(Order.number, (m: ExtractedMention) => m.confidence))
+            )
+          );
 
           // Remove overlapping mentions (keep higher confidence)
           const merged = A.empty<ExtractedMention>();

@@ -11,6 +11,7 @@
 import * as Common from "@beep/iam-client/_internal";
 import { formValuesAnnotation } from "@beep/iam-client/_internal";
 import { $IamClientId } from "@beep/identity/packages";
+import { BS } from "@beep/schema";
 import * as W from "@beep/wrap";
 import * as S from "effect/Schema";
 
@@ -34,8 +35,8 @@ const $I = $IamClientId.create("sign-in/oauth2");
  */
 export class Payload extends S.Class<Payload>($I`Payload`)(
   {
-    providerId: S.String,
-    callbackURL: S.optional(S.String),
+    providerId: S.NonEmptyTrimmedString, // External OAuth provider ID (e.g., "google", "github") - intentionally S.String
+    callbackURL: S.optional(BS.URLString),
     errorCallbackURL: S.optional(S.String),
     newUserCallbackURL: S.optional(S.String),
     disableRedirect: S.optional(S.Boolean),

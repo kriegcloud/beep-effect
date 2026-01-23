@@ -12,6 +12,7 @@ import * as Common from "@beep/iam-client/_internal";
 import { formValuesAnnotation } from "@beep/iam-client/_internal";
 import { $IamClientId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
+import { IamEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import * as W from "@beep/wrap";
 import * as S from "effect/Schema";
 
@@ -34,7 +35,7 @@ const $I = $IamClientId.create("oauth2/get-consent");
  */
 export class Payload extends S.Class<Payload>($I`Payload`)(
   {
-    id: S.String,
+    id: IamEntityIds.OAuthConsentId,
   },
   formValuesAnnotation({
     id: "",
@@ -49,9 +50,9 @@ export class Payload extends S.Class<Payload>($I`Payload`)(
  */
 export class Success extends S.Class<Success>($I`Success`)(
   {
-    id: S.String,
-    userId: S.String,
-    clientId: S.String,
+    id: IamEntityIds.OAuthConsentId,
+    userId: SharedEntityIds.UserId,
+    clientId: IamEntityIds.OAuthClientId,
     scopes: S.Array(S.String),
     createdAt: BS.DateFromAllAcceptable,
     consentGiven: S.Boolean,

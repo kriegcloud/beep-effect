@@ -57,7 +57,7 @@ Analyze folder naming casing conventions in packages/.
 Questions to answer:
 1. What casing do entity folders use? (ApiKey vs api-key)
 2. What casing do feature modules use?
-3. Map casing patterns to architectural layers (domain/tables/infra/client/ui)
+3. Map casing patterns to architectural layers (domain/tables/server/client/ui)
 
 Output: Casing pattern distribution by layer with examples.
 ```
@@ -81,7 +81,7 @@ Delegate to `codebase-researcher`:
 ```
 For each architectural layer, catalog typical file types:
 
-Layers: domain, tables, infra/server, client, ui
+Layers: domain, tables, server/server, client, ui
 
 Questions to answer:
 1. What file types are common in each layer?

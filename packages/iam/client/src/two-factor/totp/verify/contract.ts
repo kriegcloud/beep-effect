@@ -44,7 +44,7 @@ export class Payload extends S.Class<Payload>($I`Payload`)(
  */
 export class Success extends S.Class<Success>($I`Success`)(
   {
-    token: S.String,
+    token: S.Redacted(S.String),
     user: TwoFactorUser,
   },
   $I.annotations("Success", {

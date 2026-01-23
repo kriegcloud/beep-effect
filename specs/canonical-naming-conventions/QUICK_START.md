@@ -53,7 +53,7 @@ This spec guides establishing **AI-native file/folder naming standards** for the
 |----------|---------|-------|
 | Domain Model | `.model.ts` | domain |
 | Type Definitions | `.types.ts` | any |
-| Service Interface | `.service.ts` | infra |
+| Service Interface | `.service.ts` | server |
 | Database Table | `.table.ts` | tables |
 | Contract Schema | `.contract.ts` | client |
 | Handler | `.handler.ts` | client/server |

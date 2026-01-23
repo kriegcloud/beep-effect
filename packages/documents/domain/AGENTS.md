@@ -4,7 +4,7 @@
 - Domain layer for the documents vertical: entities, value objects, and business logic for document management and collaboration.
 - Supplies strongly-typed domain models for documents, versions, file attachments, discussions, and comments.
 - Provides Effect-first RPC schemas for remote operations consumed by `packages/documents/server` and application runtimes.
-- Owns document structure value objects (text styles, link types) while delegating persistence to infra/tables layers.
+- Owns document structure value objects (text styles, link types) while delegating persistence to server/tables layers.
 
 ## Surface Map
 - **Errors (`src/errors.ts`)** — Tagged domain errors for document operations: `MetadataParseError` and `FileReadError` for file processing failures.
@@ -94,4 +94,4 @@ export const handleDocumentRpc = (request: Document.RpcRequest) =>
 - [ ] New HTTP contracts are added to `DomainApi` and documented here.
 - [ ] Domain models MUST remain pure and infrastructure-agnostic.
 - [ ] Re-ran lint/check/test targets above and regenerated Effect indices when touching exports.
-- [ ] Updated downstream references in infra adapters when expanding entity surfaces.
+- [ ] Updated downstream references in server adapters when expanding entity surfaces.

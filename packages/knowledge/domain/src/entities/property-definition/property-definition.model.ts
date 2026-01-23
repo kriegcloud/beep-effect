@@ -14,6 +14,7 @@ import { makeFields } from "@beep/shared-domain/common";
 import { modelKit } from "@beep/shared-domain/factories";
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
+import { ClassIri } from "../../value-objects";
 
 const $I = $KnowledgeDomainId.create("entities/PropertyDefinition");
 
@@ -75,7 +76,7 @@ export class Model extends M.Class<Model>($I`PropertyDefinitionModel`)(
      *
      * @example "http://schema.org/memberOf"
      */
-    iri: S.String.annotations({
+    iri: ClassIri.annotations({
       description: "Full IRI of the OWL/RDFS property",
     }),
 

@@ -1,5 +1,6 @@
 import * as Invitation from "@beep/iam-domain/entities/invitation";
 import { $IamClientId } from "@beep/identity/packages";
+import { BS } from "@beep/schema";
 import { IamEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import * as Effect from "effect/Effect";
 import * as ParseResult from "effect/ParseResult";
@@ -25,7 +26,7 @@ export const BetterAuthInvitationSchema = S.Struct(
   {
     id: S.String,
     organizationId: S.String,
-    email: S.String,
+    email: BS.EmailEncoded,
     role: S.String,
     status: S.String,
     teamId: S.optionalWith(S.String, { nullable: true }),
@@ -36,12 +37,12 @@ export const BetterAuthInvitationSchema = S.Struct(
     // additionalFieldsCommon (audit columns, all entities)
     _rowId: S.optional(S.Number),
     version: S.optional(S.Number),
-    source: S.optional(S.NullOr(S.String)),
-    createdBy: S.optional(S.NullOr(S.String)),
-    updatedBy: S.optional(S.NullOr(S.String)),
+    source: S.optionalWith(S.String, { nullable: true }),
+    createdBy: S.optionalWith(S.String, { nullable: true }),
+    updatedBy: S.optionalWith(S.String, { nullable: true }),
     updatedAt: S.optional(S.DateFromSelf),
     deletedAt: S.optional(S.DateFromSelf),
-    deletedBy: S.optional(S.NullOr(S.String)),
+    deletedBy: S.optionalWith(S.String, { nullable: true }),
   },
   S.Record({ key: S.String, value: S.Unknown })
 ).annotations(

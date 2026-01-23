@@ -23,7 +23,7 @@ const $I = $KnowledgeDomainId.create("entities/Embedding");
  * @since 0.1.0
  * @category schemas
  */
-export class EntityType extends BS.StringLiteralKit("class", "entity", "claim", "example").annotations({
+export class EntityType extends BS.StringLiteralKit("class", "entity", "relation").annotations({
   identifier: "EmbeddingEntityType",
   description: "Type of entity this embedding represents",
 }) {}
@@ -33,15 +33,50 @@ export declare namespace EntityType {
 }
 
 /**
- * Schema for 768-dimensional embedding vectors (Nomic embed text v1.5).
+ * Union of embeddable entity IDs.
+ *
+ * Maps to EntityType:
+ * - "class" → ClassDefinitionId
+ * - "entity" → KnowledgeEntityId
+ * - "relation" → RelationId
  *
  * @since 0.1.0
  * @category schemas
  */
-export const EmbeddingVector = S.Array(S.Number).annotations({
-  identifier: "EmbeddingVector",
-  description: "768-dimensional embedding vector for semantic search",
+export const EmbeddableEntityId = S.Union(
+  KnowledgeEntityIds.ClassDefinitionId,
+  KnowledgeEntityIds.KnowledgeEntityId,
+  KnowledgeEntityIds.RelationId
+).annotations({
+  identifier: "EmbeddableEntityId",
+  description: "ID of a class definition, knowledge entity, or relation that can have embeddings",
 });
+
+/**
+ * Embedding dimension for Nomic embed text v1.5 model.
+ *
+ * @since 0.1.0
+ * @category constants
+ */
+export const EMBEDDING_DIMENSION = 768 as const;
+
+/**
+ * Schema for 768-dimensional embedding vectors (Nomic embed text v1.5).
+ *
+ * Enforces:
+ * - Exactly 768 dimensions
+ * - Finite numbers only (no NaN/Infinity)
+ *
+ * @since 0.1.0
+ * @category schemas
+ */
+export const EmbeddingVector = S.Array(S.Number.pipe(S.finite())).pipe(
+  S.itemsCount(EMBEDDING_DIMENSION),
+  S.annotations({
+    identifier: "EmbeddingVector",
+    description: `${EMBEDDING_DIMENSION}-dimensional embedding vector for semantic search`,
+  })
+);
 
 /**
  * Embedding model for the knowledge slice.
@@ -58,7 +93,7 @@ export const EmbeddingVector = S.Array(S.Number).annotations({
  *   id: KnowledgeEntityIds.EmbeddingId.make("knowledge_embedding__uuid"),
  *   organizationId: SharedEntityIds.OrganizationId.make("shared_organization__uuid"),
  *   entityType: "class",
- *   entityId: "my-entity-id",
+ *   entityId: KnowledgeEntityIds.ClassDefinitionId.make("knowledge_class_definition__uuid"),
  *   embedding: new Array(768).fill(0),
  *   createdAt: DateTime.unsafeNow(),
  *   updatedAt: DateTime.unsafeNow(),
@@ -74,14 +109,16 @@ export class Model extends M.Class<Model>($I`EmbeddingModel`)(
 
     // What this embedding represents
     entityType: EntityType,
-    entityId: S.String.annotations({
-      description: "ID of the entity this embedding represents",
+    entityId: EmbeddableEntityId.annotations({
+      description: "ID of the entity this embedding represents (class, entity, or relation)",
     }),
 
     // Ontology scoping
-    ontologyId: BS.toOptionalWithDefault(S.String)("default").annotations({
-      description: "Ontology scope for this embedding",
-    }),
+    ontologyId: BS.FieldOptionOmittable(
+      KnowledgeEntityIds.OntologyId.annotations({
+        description: "Ontology scope for this embedding (omit for default ontology)",
+      })
+    ),
 
     // The embedding vector (768-dim for Nomic)
     embedding: EmbeddingVector,

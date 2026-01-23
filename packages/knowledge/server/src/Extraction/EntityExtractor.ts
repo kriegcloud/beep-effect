@@ -9,7 +9,10 @@
 import { LanguageModel, Prompt } from "@effect/ai";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import * as MutableHashMap from "effect/MutableHashMap";
+import * as MutableHashSet from "effect/MutableHashSet";
 import * as O from "effect/Option";
+import * as Str from "effect/String";
 import { buildEntityPrompt, buildSystemPrompt } from "../Ai/PromptTemplates";
 import type { OntologyContext } from "../Ontology";
 import { ClassifiedEntity, EntityOutput } from "./schemas/entity-output.schema";
@@ -112,7 +115,7 @@ export class EntityExtractor extends Effect.Service<EntityExtractor>()("@beep/kn
             valid.push(
               new ClassifiedEntity({
                 ...entity,
-                additionalTypes: validAdditional.length > 0 ? validAdditional : undefined,
+                additionalTypes: A.isNonEmptyReadonlyArray(validAdditional) ? validAdditional : undefined,
               })
             );
           } else {
@@ -143,11 +146,11 @@ export class EntityExtractor extends Effect.Service<EntityExtractor>()("@beep/kn
         const minConfidence = config.minConfidence ?? 0.5;
         const batchSize = config.batchSize ?? 20;
 
-        if (mentions.length === 0) {
+        if (A.isEmptyReadonlyArray(mentions)) {
           return {
-            entities: [],
-            unclassified: [],
-            invalidTypes: [],
+            entities: A.empty<ClassifiedEntity>(),
+            unclassified: A.empty<ExtractedMention>(),
+            invalidTypes: A.empty<ClassifiedEntity>(),
             tokensUsed: 0,
           };
         }
@@ -185,8 +188,14 @@ export class EntityExtractor extends Effect.Service<EntityExtractor>()("@beep/kn
         const { valid, invalid } = validateEntityTypes(allEntities, ontologyContext);
 
         // Find mentions that weren't classified
-        const classifiedMentions = new Set(allEntities.map((e) => e.mention.toLowerCase()));
-        const unclassified = A.filter([...mentions], (m) => !classifiedMentions.has(m.text.toLowerCase()));
+        const classifiedMentions = MutableHashSet.empty<string>();
+        for (const e of allEntities) {
+          MutableHashSet.add(classifiedMentions, Str.toLowerCase(e.mention));
+        }
+        const unclassified = A.filter(
+          [...mentions],
+          (m) => !MutableHashSet.has(classifiedMentions, Str.toLowerCase(m.text))
+        );
 
         yield* Effect.logDebug("Entity classification complete", {
           validEntities: valid.length,
@@ -243,13 +252,14 @@ export class EntityExtractor extends Effect.Service<EntityExtractor>()("@beep/kn
       > =>
         Effect.sync(() => {
           // Simple resolution by canonical name or mention text
-          const groups = new Map<string, { canonical: ClassifiedEntity; mentions: ClassifiedEntity[] }>();
+          const groups = MutableHashMap.empty<string, { canonical: ClassifiedEntity; mentions: ClassifiedEntity[] }>();
 
           for (const entity of entities) {
-            const key = (entity.canonicalName ?? entity.mention).toLowerCase();
+            const key = Str.toLowerCase(entity.canonicalName ?? entity.mention);
+            const existingOpt = MutableHashMap.get(groups, key);
 
-            if (groups.has(key)) {
-              const group = groups.get(key)!;
+            if (O.isSome(existingOpt)) {
+              const group = existingOpt.value;
               group.mentions.push(entity);
 
               // Update canonical if this one has higher confidence
@@ -257,14 +267,19 @@ export class EntityExtractor extends Effect.Service<EntityExtractor>()("@beep/kn
                 group.canonical = entity;
               }
             } else {
-              groups.set(key, {
+              MutableHashMap.set(groups, key, {
                 canonical: entity,
                 mentions: [entity],
               });
             }
           }
 
-          return groups;
+          // Convert to native Map for return type compatibility
+          const result = new Map<string, { canonical: ClassifiedEntity; mentions: readonly ClassifiedEntity[] }>();
+          MutableHashMap.forEach(groups, (value, key) => {
+            result.set(key, value);
+          });
+          return result;
         }),
     };
   }),

@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "type": "module",
   "license": "MIT",
-  "description": "The package which contains the infra layer for the documents slice",
+  "description": "The package which contains the server layer for the documents slice",
   "publishConfig": {
     "access": "public",
     "provenance": true,

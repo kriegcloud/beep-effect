@@ -25,7 +25,7 @@ export const classDefinition = OrgTable.make(KnowledgeEntityIds.ClassDefinitionI
   {
     // Reference to parent ontology
     // Note: FK constraint is added via foreignKey() in extraConfig to use custom short name
-    ontologyId: pg.text("ontology_id").notNull(),
+    ontologyId: pg.text("ontology_id").notNull().$type<KnowledgeEntityIds.OntologyId.Type>(),
 
     // Full IRI of the class
     iri: pg.text("iri").notNull(),

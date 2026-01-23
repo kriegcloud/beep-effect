@@ -35,7 +35,105 @@ Better Auth usage isolated to this workspace.
 ## Related Documentation
 
 - `packages/common/schema/AGENTS.md` — canonical reference for Effect Schema patterns and primitives used throughout IAM schemas.
+- `packages/iam/domain/AGENTS.md` — canonical reference for IAM domain entities that client schemas MUST align with.
 - `documentation/patterns/iam-client-patterns.md` — full pattern reference for contracts, handlers, services, and layers.
+
+## EntityId Alignment (MANDATORY)
+
+**CRITICAL**: All IAM client schemas MUST use branded EntityIds from `@beep/shared-domain` and align with domain entities in `@beep/iam-domain`.
+
+### Common Schemas (`_common/*.schema.ts`)
+
+```typescript
+// REQUIRED - Use branded EntityIds
+import { IamEntityIds, SharedEntityIds } from "@beep/shared-domain";
+
+export class Member extends S.Class<Member>($I`Member`)({
+  id: IamEntityIds.MemberId,
+  organizationId: SharedEntityIds.OrganizationId,
+  userId: SharedEntityIds.UserId,
+  roleId: IamEntityIds.RoleId,
+  // ...
+}) {}
+```
+
+```typescript
+// FORBIDDEN - Plain string IDs break type safety
+export class Member extends S.Class<Member>($I`Member`)({
+  id: S.String,  // ❌ Missing branded EntityId!
+  organizationId: S.String,  // ❌ Missing branded EntityId!
+}) {}
+```
+
+### Contract Payloads with EntityIds
+
+Contract payloads MUST use branded EntityIds:
+
+```typescript
+export class Payload extends S.Class<Payload>($I`Payload`)(
+  {
+    userId: SharedEntityIds.UserId,
+    teamId: SharedEntityIds.TeamId,
+  },
+  formValuesAnnotation({
+    userId: "",
+    teamId: "",
+  })
+) {}
+```
+
+### EntityId Creation and Validation
+
+Use EntityId schema methods - NEVER use type casting:
+
+```typescript
+// Create a new ID
+const memberId = IamEntityIds.MemberId.create();
+
+// Validate a plain string
+const validatedId = SharedEntityIds.UserId.make(rawString);
+
+// Check if value is valid EntityId
+if (IamEntityIds.MemberId.is(value)) { ... }
+```
+
+### Transformation Schemas (REQUIRED)
+
+When mapping Better Auth responses to domain entities, ALWAYS create transformation schemas in `_internal/*.schemas.ts`:
+
+**Pattern**: `Domain<Entity>FromBetterAuth<Entity>`
+
+**Canonical Example**: See `_internal/user.schemas.ts` for `DomainUserFromBetterAuthUser`.
+
+#### Transformation Schema Coverage
+
+| Entity | Better Auth Schema | Transformation Schema | Domain Model | File |
+|--------|-------------------|----------------------|--------------|------|
+| User | `BetterAuthUserSchema` | `DomainUserFromBetterAuthUser` | `User.Model` | `_internal/user.schemas.ts` |
+| Session | `BetterAuthSessionSchema` | `DomainSessionFromBetterAuthSession` | `Session.Model` | `_internal/session.schemas.ts` |
+| Member | `BetterAuthMemberSchema` | `DomainMemberFromBetterAuthMember` | `Member.Model` | `_internal/member.schemas.ts` |
+| Organization | `BetterAuthOrganizationSchema` | `DomainOrganizationFromBetterAuthOrganization` | `Organization.Model` | `_internal/organization.schemas.ts` |
+| Invitation | `BetterAuthInvitationSchema` | `DomainInvitationFromBetterAuthInvitation` | `Invitation.Model` | `_internal/invitation.schemas.ts` |
+| Team | `BetterAuthTeamSchema` | `DomainTeamFromBetterAuthTeam` | `Team.Model` | `_internal/team.schemas.ts` |
+| TeamMember | `BetterAuthTeamMemberSchema` | `DomainTeamMemberFromBetterAuthTeamMember` | `TeamMember.Model` | `_internal/team.schemas.ts` |
+| ApiKey | `BetterAuthApiKeySchema` | `DomainApiKeyFromBetterAuthApiKey` | `ApiKey.Model` | `_internal/api-key.schemas.ts` |
+| OrganizationRole | `BetterAuthOrganizationRoleSchema` | `DomainOrganizationRoleFromBetterAuthOrganizationRole` | `OrganizationRole.Model` | `_internal/role.schemas.ts` |
+
+**Note**: All transformation schemas:
+- Validate branded EntityId formats using `.is()` checks
+- Require audit fields (`_rowId`, `version`, `source`, `createdBy`, `updatedBy`) from Better Auth responses
+- Fail with `ParseResult.Type` errors if validation fails
+- Return the domain model's encoded representation for schema framework decoding
+
+### Verification
+
+```bash
+# Check for plain string IDs in client schemas (should return 0)
+grep -r ": S.String" packages/iam/client/src/ | grep -iE "(id|Id):" | wc -l
+
+# Verify alignment with domain entities
+bun run check --filter @beep/iam-client
+```
 
 ## Authoring Guardrails
 

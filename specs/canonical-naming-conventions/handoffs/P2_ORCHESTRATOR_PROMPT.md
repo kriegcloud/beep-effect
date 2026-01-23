@@ -61,7 +61,7 @@ Inputs:
 
 Questions to answer:
 1. What category postfixes should we standardize?
-2. How do categories map to architectural layers (domain/tables/infra/client/ui)?
+2. How do categories map to architectural layers (domain/tables/server/client/ui)?
 3. What categories are missing based on external research?
 4. What postfixes need renaming for precision?
 

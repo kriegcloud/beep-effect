@@ -8,6 +8,7 @@
  * @since 0.1.0
  */
 import { $KnowledgeDomainId } from "@beep/identity/packages";
+import { BS } from "@beep/schema";
 import { KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import { makeFields } from "@beep/shared-domain/common";
 import { modelKit } from "@beep/shared-domain/factories";
@@ -32,10 +33,12 @@ const $I = $KnowledgeDomainId.create("entities/EntityCluster");
  *   id: KnowledgeEntityIds.EntityClusterId.make("knowledge_entity_cluster__uuid"),
  *   organizationId: SharedEntityIds.OrganizationId.make("shared_organization__uuid"),
  *   canonicalEntityId: KnowledgeEntityIds.KnowledgeEntityId.make("knowledge_entity__uuid"),
- *   memberIds: ["knowledge_entity__uuid1", "knowledge_entity__uuid2"],
+ *   memberIds: [
+ *     KnowledgeEntityIds.KnowledgeEntityId.make("knowledge_entity__uuid1"),
+ *     KnowledgeEntityIds.KnowledgeEntityId.make("knowledge_entity__uuid2"),
+ *   ],
  *   cohesion: 0.92,
  *   sharedTypes: ["http://schema.org/Person"],
- *   ontologyId: "default",
  *   createdAt: DateTime.unsafeNow(),
  *   updatedAt: DateTime.unsafeNow(),
  * });
@@ -58,7 +61,7 @@ export class Model extends M.Class<Model>($I`EntityClusterModel`)(
     /**
      * Member entity IDs - all entities in this cluster (including canonical)
      */
-    memberIds: S.Array(S.String).pipe(
+    memberIds: S.Array(KnowledgeEntityIds.KnowledgeEntityId).pipe(
       S.minItems(1),
       S.annotations({
         description: "IDs of all member entities in this cluster",
@@ -86,9 +89,11 @@ export class Model extends M.Class<Model>($I`EntityClusterModel`)(
     /**
      * Ontology scoping - which ontology context this cluster belongs to
      */
-    ontologyId: S.String.annotations({
-      description: "Ontology scope for this cluster",
-    }),
+    ontologyId: BS.FieldOptionOmittable(
+      KnowledgeEntityIds.OntologyId.annotations({
+        description: "Ontology scope for this cluster (omit for default ontology)",
+      })
+    ),
   }),
   $I.annotations("EntityClusterModel", {
     description: "Entity resolution cluster grouping same-entity references",

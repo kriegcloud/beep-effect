@@ -43,12 +43,12 @@ export const BetterAuthOrganizationSchema = S.Struct(
     // additionalFieldsCommon (audit columns, all entities)
     _rowId: S.optional(S.Number),
     version: S.optional(S.Number),
-    source: S.optional(S.NullOr(S.String)),
-    createdBy: S.optional(S.NullOr(S.String)),
-    updatedBy: S.optional(S.NullOr(S.String)),
+    source: S.optionalWith(S.String, { nullable: true }),
+    createdBy: S.optionalWith(S.String, { nullable: true }),
+    updatedBy: S.optionalWith(S.String, { nullable: true }),
     updatedAt: S.optional(S.DateFromSelf),
     deletedAt: S.optional(S.DateFromSelf),
-    deletedBy: S.optional(S.NullOr(S.String)),
+    deletedBy: S.optionalWith(S.String, { nullable: true }),
   },
   S.Record({ key: S.String, value: S.Unknown })
 ).annotations(

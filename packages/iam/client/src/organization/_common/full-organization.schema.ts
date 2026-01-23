@@ -1,4 +1,6 @@
 import { $IamClientId } from "@beep/identity/packages";
+import { BS } from "@beep/schema";
+import { SharedEntityIds } from "@beep/shared-domain";
 import * as S from "effect/Schema";
 import { Invitation } from "./invitation.schema.ts";
 import { FullMember } from "./member.schema.ts";
@@ -16,12 +18,12 @@ const $I = $IamClientId.create("organization/_common/full-organization");
  */
 export class FullOrganization extends S.Class<FullOrganization>($I`FullOrganization`)(
   {
-    id: S.String,
+    id: SharedEntityIds.OrganizationId,
     name: S.String,
     slug: S.String,
     logo: S.NullOr(S.String),
     metadata: S.optional(S.Unknown),
-    createdAt: S.DateFromString,
+    createdAt: BS.DateTimeUtcFromAllAcceptable,
     members: S.Array(FullMember),
     invitations: S.Array(Invitation),
   },

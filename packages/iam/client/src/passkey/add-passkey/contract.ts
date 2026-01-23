@@ -12,6 +12,7 @@ import * as Common from "@beep/iam-client/_internal";
 import { formValuesAnnotation } from "@beep/iam-client/_internal";
 import { $IamClientId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
+import { IamEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import * as W from "@beep/wrap";
 import * as S from "effect/Schema";
 
@@ -59,11 +60,11 @@ export class Payload extends S.Class<Payload>($I`Payload`)(
  * @since 0.1.0
  */
 export const Passkey = S.Struct({
-  id: S.String,
+  id: IamEntityIds.PasskeyId,
   name: S.optionalWith(S.String, { nullable: true }),
   publicKey: S.String,
-  userId: S.String,
-  webauthnUserID: S.String,
+  userId: SharedEntityIds.UserId,
+  webauthnUserID: S.String, // WebAuthn spec user handle - intentionally S.String per W3C spec
   counter: S.Number,
   deviceType: S.String,
   backedUp: S.Boolean,

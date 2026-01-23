@@ -32,7 +32,7 @@
 
 2. **Grep Efficiency**: A core goal is enabling AI agents to understand file purpose from name alone. Postfixes must be unique and greppable.
 
-3. **Layer Alignment**: Categories must map cleanly to architectural layers (domain → tables → infra → client → ui).
+3. **Layer Alignment**: Categories must map cleanly to architectural layers (domain → tables → server → client → ui).
 
 ### Preliminary Observations
 

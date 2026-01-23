@@ -40,7 +40,7 @@ export const sameAsLink = OrgTable.make(KnowledgeEntityIds.SameAsLinkId)(
     confidence: pg.real("confidence").notNull(),
 
     // Source extraction/document ID that produced the member entity
-    sourceId: pg.text("source_id"),
+    sourceId: pg.text("source_id").$type<KnowledgeEntityIds.ExtractionId.Type>(),
   },
   (t) => [
     // Index for looking up links by canonical entity

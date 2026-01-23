@@ -25,11 +25,18 @@ import * as pg from "drizzle-orm/pg-core";
 export const embedding = OrgTable.make(KnowledgeEntityIds.EmbeddingId)(
   {
     // What this embedding represents
-    entityType: pg.text("entity_type").notNull().$type<Embedding.EntityType.Type>(), // class | entity | claim | example
-    entityId: pg.text("entity_id").notNull(),
+    entityType: pg.text("entity_type").notNull().$type<Embedding.EntityType.Type>(), // class | entity | relation
+    entityId: pg
+      .text("entity_id")
+      .notNull()
+      .$type<
+        | KnowledgeEntityIds.ClassDefinitionId.Type
+        | KnowledgeEntityIds.KnowledgeEntityId.Type
+        | KnowledgeEntityIds.RelationId.Type
+      >(),
 
-    // Ontology scoping
-    ontologyId: pg.text("ontology_id").notNull().default("default"),
+    // Ontology scoping (optional - null means default ontology)
+    ontologyId: pg.text("ontology_id").$type<KnowledgeEntityIds.OntologyId.Type>(),
 
     // The embedding vector (768-dim for Nomic)
     embedding: vector768("embedding").notNull(),

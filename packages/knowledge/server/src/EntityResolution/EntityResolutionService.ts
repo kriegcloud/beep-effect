@@ -7,12 +7,16 @@
  * @module knowledge-server/EntityResolution/EntityResolutionService
  * @since 0.1.0
  */
+import type { CanonicalSelectionError } from "@beep/knowledge-domain/errors";
 import type { SharedEntityIds } from "@beep/shared-domain";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
-import * as F from "effect/Function";
 import * as Layer from "effect/Layer";
+import * as MutableHashMap from "effect/MutableHashMap";
+import * as MutableHashSet from "effect/MutableHashSet";
+import * as O from "effect/Option";
 import * as R from "effect/Record";
+import * as Str from "effect/String";
 import type { AssembledEntity, AssembledRelation, KnowledgeGraph } from "../Extraction/GraphAssembler";
 import { CanonicalSelector, type CanonicalSelectorConfig } from "./CanonicalSelector";
 import { type ClusterConfig, type EntityCluster, EntityClusterer } from "./EntityClusterer";
@@ -96,38 +100,40 @@ const buildResolvedGraph = (
   clusters: readonly EntityCluster[]
 ): KnowledgeGraph => {
   // Build entity ID mapping (member ID -> canonical ID)
-  const idMapping = new Map<string, string>();
+  const idMapping = MutableHashMap.empty<string, string>();
   for (const cluster of clusters) {
     for (const memberId of cluster.memberIds) {
-      idMapping.set(memberId, cluster.canonicalEntityId);
+      MutableHashMap.set(idMapping, memberId, cluster.canonicalEntityId);
     }
   }
 
   // Build canonical entity lookup
-  const canonicalById = new Map<string, AssembledEntity>();
+  const canonicalById = MutableHashMap.empty<string, AssembledEntity>();
   for (const entity of canonicalEntities) {
-    canonicalById.set(entity.id, entity);
+    MutableHashMap.set(canonicalById, entity.id, entity);
   }
 
   // Collect and remap relations
-  const relationSet = new Set<string>();
+  const relationSet = MutableHashSet.empty<string>();
   const resolvedRelations = A.empty<AssembledRelation>();
 
   for (const graph of graphs) {
     for (const relation of graph.relations) {
       // Remap subject and object IDs to canonical entities
-      const mappedSubjectId = idMapping.get(relation.subjectId) ?? relation.subjectId;
-      const mappedObjectId = relation.objectId ? (idMapping.get(relation.objectId) ?? relation.objectId) : undefined;
+      const mappedSubjectId = O.getOrElse(MutableHashMap.get(idMapping, relation.subjectId), () => relation.subjectId);
+      const mappedObjectId = relation.objectId
+        ? O.getOrElse(MutableHashMap.get(idMapping, relation.objectId), () => relation.objectId)
+        : undefined;
 
       // Skip relations where subject or object doesn't exist
-      if (!canonicalById.has(mappedSubjectId)) continue;
-      if (mappedObjectId && !canonicalById.has(mappedObjectId)) continue;
+      if (!MutableHashMap.has(canonicalById, mappedSubjectId)) continue;
+      if (mappedObjectId && !MutableHashMap.has(canonicalById, mappedObjectId)) continue;
 
       // Deduplicate relations by key
       const key = `${mappedSubjectId}|${relation.predicate}|${mappedObjectId ?? relation.literalValue ?? ""}`;
 
-      if (!relationSet.has(key)) {
-        relationSet.add(key);
+      if (!MutableHashSet.has(relationSet, key)) {
+        MutableHashSet.add(relationSet, key);
         resolvedRelations.push({
           ...relation,
           subjectId: mappedSubjectId,
@@ -140,11 +146,11 @@ const buildResolvedGraph = (
   // Build entity index
   const entityIndex = R.empty<string, string>();
   for (const entity of canonicalEntities) {
-    const key = (entity.canonicalName ?? entity.mention).toLowerCase();
+    const key = Str.toLowerCase(entity.canonicalName ?? entity.mention);
     entityIndex[key] = entity.id;
 
     // Also index by raw mention
-    const mentionKey = entity.mention.toLowerCase();
+    const mentionKey = Str.toLowerCase(entity.mention);
     if (!(mentionKey in entityIndex)) {
       entityIndex[mentionKey] = entity.id;
     }
@@ -220,7 +226,7 @@ export class EntityResolutionService extends Effect.Service<EntityResolutionServ
           organizationId: SharedEntityIds.OrganizationId.Type,
           ontologyId: string,
           config: ResolutionConfig = {}
-        ): Effect.Effect<ResolutionResult> =>
+        ): Effect.Effect<ResolutionResult, CanonicalSelectionError> =>
           Effect.gen(function* () {
             // Calculate original entity count
             const originalCount = graphs.reduce((sum, g) => sum + g.entities.length, 0);
@@ -229,8 +235,8 @@ export class EntityResolutionService extends Effect.Service<EntityResolutionServ
               yield* Effect.logDebug("EntityResolutionService.resolve: no entities to resolve");
               return {
                 graph: {
-                  entities: [],
-                  relations: [],
+                  entities: A.empty<AssembledEntity>(),
+                  relations: A.empty<AssembledRelation>(),
                   entityIndex: {},
                   stats: {
                     entityCount: 0,
@@ -239,8 +245,8 @@ export class EntityResolutionService extends Effect.Service<EntityResolutionServ
                     unresolvedObjects: 0,
                   },
                 },
-                clusters: [],
-                sameAsLinks: [],
+                clusters: A.empty<EntityCluster>(),
+                sameAsLinks: A.empty<SameAsLink>(),
                 stats: {
                   originalEntityCount: 0,
                   resolvedEntityCount: 0,
@@ -262,10 +268,10 @@ export class EntityResolutionService extends Effect.Service<EntityResolutionServ
             const clusters = yield* clusterer.cluster(graphs, organizationId, ontologyId, config.clustering);
 
             // Step 2: Build entity lookup
-            const entityById = new Map<string, AssembledEntity>();
+            const entityById = MutableHashMap.empty<string, AssembledEntity>();
             for (const graph of graphs) {
               for (const entity of graph.entities) {
-                entityById.set(entity.id, entity);
+                MutableHashMap.set(entityById, entity.id, entity);
               }
             }
 
@@ -274,13 +280,9 @@ export class EntityResolutionService extends Effect.Service<EntityResolutionServ
             const updatedClusters = A.empty<EntityCluster>();
 
             for (const cluster of clusters) {
-              const members = F.pipe(
-                cluster.memberIds,
-                A.map((id) => entityById.get(id)),
-                A.filter((e): e is AssembledEntity => e !== undefined)
-              );
+              const members = A.filterMap(cluster.memberIds, (id) => MutableHashMap.get(entityById, id));
 
-              if (members.length === 0) continue;
+              if (A.isEmptyReadonlyArray(members)) continue;
 
               // Select canonical
               const canonical = yield* canonicalSelector.selectCanonical(members, config.canonical);
@@ -299,10 +301,10 @@ export class EntityResolutionService extends Effect.Service<EntityResolutionServ
             }
 
             // Step 4: Generate same-as links
-            const confidenceMap = new Map<string, number>();
-            for (const entity of entityById.values()) {
-              confidenceMap.set(entity.id, entity.confidence);
-            }
+            const confidenceMap = MutableHashMap.empty<string, number>();
+            MutableHashMap.forEach(entityById, (entity) => {
+              MutableHashMap.set(confidenceMap, entity.id, entity.confidence);
+            });
 
             const sameAsLinks = yield* sameAsLinker.generateLinks(updatedClusters, confidenceMap);
 
@@ -312,7 +314,9 @@ export class EntityResolutionService extends Effect.Service<EntityResolutionServ
             // Calculate statistics
             const maxClusterSize = Math.max(...A.map(updatedClusters, (c) => c.memberIds.length), 0);
             const totalMembers = A.reduce(updatedClusters, 0, (sum, c) => sum + c.memberIds.length);
-            const averageClusterSize = updatedClusters.length > 0 ? totalMembers / updatedClusters.length : 0;
+            const averageClusterSize = A.isNonEmptyReadonlyArray(updatedClusters)
+              ? totalMembers / updatedClusters.length
+              : 0;
 
             const result: ResolutionResult = {
               graph: resolvedGraph,

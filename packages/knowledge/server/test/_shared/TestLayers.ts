@@ -11,6 +11,7 @@ import { LanguageModel } from "@effect/ai";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
+import * as Struct from "effect/Struct";
 import type { OntologyContext } from "../../src/Ontology/OntologyService";
 
 // =============================================================================
@@ -48,7 +49,7 @@ export const clearMockResponses = (): void => {
  */
 export const setupMockResponses = (responses: Record<string, unknown>): void => {
   clearMockResponses();
-  for (const [key, value] of Object.entries(responses)) {
+  for (const [key, value] of Struct.entries(responses)) {
     setMockResponse(key, value);
   }
 };

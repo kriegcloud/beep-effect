@@ -21,7 +21,7 @@
 - Align column types with domain schemas and `@beep/shared-domain` entity IDs (e.g., `DocumentsEntityIds.DocumentId`, `DocumentsEntityIds.CommentId`, `DocumentsEntityIds.DiscussionId`).
 - Generate enums through domain kits rather than raw strings.
 - Update `_check.ts` file whenever schemas change to assert Drizzle `Infer*Model` shapes match domain models.
-- Keep exports centralized via `src/schema.ts` and `src/index.ts` so infra layers can import `DocumentsDbSchema` without reaching into `tables/`.
+- Keep exports centralized via `src/schema.ts` and `src/index.ts` so server layers can import `DocumentsDbSchema` without reaching into `tables/`.
 - NEVER use direct `process.env` access or runtime config—this package MUST remain pure schema.
 - Observe repository-wide Effect guardrails when adding helper code (namespace imports, no native array/string/object helpers).
 

@@ -7,6 +7,7 @@
  * @module knowledge-server/Ontology/OntologyCache
  * @since 0.1.0
  */
+import * as DateTime from "effect/DateTime";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as HashMap from "effect/HashMap";
@@ -22,7 +23,7 @@ import type { ParsedOntology } from "./OntologyParser";
  */
 interface CachedOntology {
   readonly data: ParsedOntology;
-  readonly loadedAt: number;
+  readonly loadedAt: DateTime.Utc;
   readonly contentHash: string;
 }
 
@@ -38,10 +39,17 @@ export class OntologyCache extends Effect.Service<OntologyCache>()("@beep/knowle
   effect: Effect.gen(function* () {
     // Default TTL of 5 minutes
     const defaultTtl = Duration.minutes(5);
-    const ttlMs = Duration.toMillis(defaultTtl);
 
     // Cache storage
     const cacheRef = yield* Ref.make(HashMap.empty<string, CachedOntology>());
+
+    /**
+     * Check if a cached entry has expired
+     */
+    const isExpired = (loadedAt: DateTime.Utc, now: DateTime.Utc): boolean => {
+      const expiresAt = DateTime.addDuration(loadedAt, defaultTtl);
+      return DateTime.lessThan(expiresAt, now);
+    };
 
     /**
      * Simple hash function for content
@@ -72,8 +80,8 @@ export class OntologyCache extends Effect.Service<OntologyCache>()("@beep/knowle
             return O.none<ParsedOntology>();
           }
 
-          const now = Date.now();
-          if (now - entry.value.loadedAt > ttlMs) {
+          const now = yield* DateTime.now;
+          if (isExpired(entry.value.loadedAt, now)) {
             // Expired, remove from cache
             yield* Ref.update(cacheRef, HashMap.remove(key));
             return O.none<ParsedOntology>();
@@ -99,11 +107,11 @@ export class OntologyCache extends Effect.Service<OntologyCache>()("@beep/knowle
             return O.none<ParsedOntology>();
           }
 
-          const now = Date.now();
+          const now = yield* DateTime.now;
           const currentHash = hashContent(content);
 
           // Check both TTL and content hash
-          if (now - entry.value.loadedAt > ttlMs || entry.value.contentHash !== currentHash) {
+          if (isExpired(entry.value.loadedAt, now) || entry.value.contentHash !== currentHash) {
             yield* Ref.update(cacheRef, HashMap.remove(key));
             return O.none<ParsedOntology>();
           }
@@ -120,14 +128,16 @@ export class OntologyCache extends Effect.Service<OntologyCache>()("@beep/knowle
        * @param content - Original content (for hash calculation)
        */
       set: Effect.fn((key: string, ontology: ParsedOntology, content: string) =>
-        Effect.sync(() => {
+        Effect.gen(function* () {
+          const now = yield* DateTime.now;
           const entry: CachedOntology = {
             data: ontology,
-            loadedAt: Date.now(),
+            loadedAt: now,
             contentHash: hashContent(content),
           };
+          yield* Ref.update(cacheRef, HashMap.set(key, entry));
           return entry;
-        }).pipe(Effect.tap((entry) => Ref.update(cacheRef, HashMap.set(key, entry))))
+        })
       ),
 
       /**
@@ -146,26 +156,25 @@ export class OntologyCache extends Effect.Service<OntologyCache>()("@beep/knowle
        * Get cache statistics
        */
       stats: Effect.fn(() =>
-        Ref.get(cacheRef).pipe(
-          Effect.map((cache) => {
-            const now = Date.now();
-            let total = 0;
-            let expired = 0;
+        Effect.gen(function* () {
+          const cache = yield* Ref.get(cacheRef);
+          const now = yield* DateTime.now;
+          let total = 0;
+          let expired = 0;
 
-            for (const [_, entry] of cache) {
-              total++;
-              if (now - entry.loadedAt > ttlMs) {
-                expired++;
-              }
+          for (const [_, entry] of cache) {
+            total++;
+            if (isExpired(entry.loadedAt, now)) {
+              expired++;
             }
+          }
 
-            return {
-              total,
-              active: total - expired,
-              expired,
-            };
-          })
-        )
+          return {
+            total,
+            active: total - expired,
+            expired,
+          };
+        })
       ),
     };
   }),

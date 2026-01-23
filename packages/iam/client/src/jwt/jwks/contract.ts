@@ -24,7 +24,7 @@ const $I = $IamClientId.create("jwt/jwks");
  */
 export const JsonWebKey = S.Struct({
   kty: S.String,
-  kid: S.String,
+  kid: S.String, // RFC 7517 Key ID - intentionally S.String per IETF spec
   use: S.String,
   alg: S.String,
   // RSA key parameters

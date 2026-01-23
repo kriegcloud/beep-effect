@@ -47,8 +47,11 @@
     {
       "path": "packages/shared/env/tsconfig.build.json"
     },
-        {
+    {
       "path": "packages/shared/ai/tsconfig.build.json"
+    },
+    {
+      "path": "packages/shared/integrations/tsconfig.build.json"
     },
     {
       "path": "packages/iam/client/tsconfig.build.json"
@@ -71,7 +74,7 @@
     {
       "path": "packages/ui/core/tsconfig.build.json"
     },
-        {
+    {
       "path": "packages/ui/editor/tsconfig.build.json"
     },
     {

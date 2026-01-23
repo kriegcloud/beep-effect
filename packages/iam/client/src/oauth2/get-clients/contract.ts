@@ -12,6 +12,7 @@
 import * as Common from "@beep/iam-client/_internal";
 import { $IamClientId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
+import { IamEntityIds } from "@beep/shared-domain";
 import * as W from "@beep/wrap";
 import * as S from "effect/Schema";
 
@@ -24,8 +25,8 @@ const $I = $IamClientId.create("oauth2/get-clients");
  * @since 0.1.0
  */
 export const OAuth2Client = S.Struct({
-  id: S.String,
-  clientId: S.String,
+  id: IamEntityIds.OAuthClientId,
+  clientId: IamEntityIds.OAuthClientId,
   name: S.String,
   icon: S.NullOr(S.String),
   metadata: S.NullOr(S.Record({ key: S.String, value: S.Unknown })),

@@ -78,9 +78,11 @@ export class Model extends M.Class<Model>($I`EntityModel`)(
     /**
      * Ontology scoping - which ontology was used for extraction
      */
-    ontologyId: BS.toOptionalWithDefault(S.String)("default").annotations({
-      description: "Ontology scope for this entity",
-    }),
+    ontologyId: BS.FieldOptionOmittable(
+      KnowledgeEntityIds.OntologyId.annotations({
+        description: "Ontology scope for this entity (omit for default ontology)",
+      })
+    ),
 
     /**
      * Source document ID for provenance tracking

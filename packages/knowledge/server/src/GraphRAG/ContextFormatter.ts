@@ -8,28 +8,10 @@
  */
 import type { Entities } from "@beep/knowledge-domain";
 import * as A from "effect/Array";
+import * as MutableHashMap from "effect/MutableHashMap";
 import * as O from "effect/Option";
 import * as Struct from "effect/Struct";
-/**
- * Extract local name from IRI (e.g., "http://schema.org/Person" -> "Person")
- *
- * @param iri - Full IRI
- * @returns Local name portion
- *
- * @since 0.1.0
- * @category utilities
- */
-export const extractLocalName = (iri: string): string => {
-  const hashIndex = iri.lastIndexOf("#");
-  if (hashIndex !== -1) {
-    return iri.slice(hashIndex + 1);
-  }
-  const slashIndex = iri.lastIndexOf("/");
-  if (slashIndex !== -1) {
-    return iri.slice(slashIndex + 1);
-  }
-  return iri;
-};
+import { extractLocalName } from "../Ontology/constants";
 
 /**
  * Format entity for LLM context
@@ -42,13 +24,12 @@ export const extractLocalName = (iri: string): string => {
  */
 export const formatEntity = (entity: Entities.Entity.Model): string => {
   const types = A.map(entity.types, extractLocalName);
-  const typeStr = types.length > 0 ? A.join(types, ", ") : "Unknown";
+  const typeStr = A.isNonEmptyReadonlyArray(types) ? A.join(types, ", ") : "Unknown";
 
   const attrEntries = Struct.entries(entity.attributes);
-  const attrStr =
-    attrEntries.length > 0
-      ? ` (${A.map(attrEntries, ([k, v]) => `${extractLocalName(k)}: ${String(v)}`).join(", ")})`
-      : "";
+  const attrStr = A.isNonEmptyReadonlyArray(attrEntries)
+    ? ` (${A.map(attrEntries, ([k, v]) => `${extractLocalName(k)}: ${String(v)}`).join(", ")})`
+    : "";
 
   return `- ${entity.mention} [${typeStr}]${attrStr}`;
 };
@@ -67,10 +48,10 @@ export const formatEntity = (entity: Entities.Entity.Model): string => {
  */
 export const formatRelation = (
   relation: Entities.Relation.Model,
-  entityLookup: ReadonlyMap<string, Entities.Entity.Model>
+  entityLookup: MutableHashMap.MutableHashMap<string, Entities.Entity.Model>
 ): string => {
-  const subjectEntity = entityLookup.get(relation.subjectId);
-  const subjectName = subjectEntity?.mention ?? relation.subjectId;
+  const subjectEntityOpt = MutableHashMap.get(entityLookup, relation.subjectId);
+  const subjectName = O.isSome(subjectEntityOpt) ? subjectEntityOpt.value.mention : relation.subjectId;
   const predicate = extractLocalName(relation.predicate);
 
   if (relation.literalValue !== undefined) {
@@ -86,8 +67,8 @@ export const formatRelation = (
     const objectIdStr =
       typeof objectIdVal === "string" ? objectIdVal : O.isSome(objectIdVal) ? objectIdVal.value : null;
     if (objectIdStr !== null) {
-      const objectEntity = entityLookup.get(objectIdStr);
-      const objectName = objectEntity?.mention ?? objectIdStr;
+      const objectEntityOpt = MutableHashMap.get(entityLookup, objectIdStr);
+      const objectName = O.isSome(objectEntityOpt) ? objectEntityOpt.value.mention : objectIdStr;
       return `- ${subjectName} --[${predicate}]--> ${objectName}`;
     }
   }
@@ -110,21 +91,21 @@ export const formatContext = (
   relations: ReadonlyArray<Entities.Relation.Model>
 ): string => {
   // Build entity lookup
-  const entityLookup = new Map<string, Entities.Entity.Model>();
+  const entityLookup = MutableHashMap.empty<string, Entities.Entity.Model>();
   for (const entity of entities) {
-    entityLookup.set(entity.id, entity);
+    MutableHashMap.set(entityLookup, entity.id, entity);
   }
 
   const sections: Array<string> = [];
 
   // Entities section
-  if (entities.length > 0) {
+  if (A.isNonEmptyReadonlyArray(entities)) {
     const entityLines = A.map(entities, formatEntity);
     sections.push(`## Entities\n${A.join(entityLines, "\n")}`);
   }
 
   // Relations section
-  if (relations.length > 0) {
+  if (A.isNonEmptyReadonlyArray(relations)) {
     const relationLines = A.map(relations, (r) => formatRelation(r, entityLookup));
     sections.push(`## Relations\n${A.join(relationLines, "\n")}`);
   }
@@ -146,28 +127,28 @@ export const formatContext = (
 export const formatContextWithScores = (
   entities: ReadonlyArray<Entities.Entity.Model>,
   relations: ReadonlyArray<Entities.Relation.Model>,
-  scores: ReadonlyMap<string, number>
+  scores: MutableHashMap.MutableHashMap<string, number>
 ): string => {
   // Build entity lookup
-  const entityLookup = new Map<string, Entities.Entity.Model>();
+  const entityLookup = MutableHashMap.empty<string, Entities.Entity.Model>();
   for (const entity of entities) {
-    entityLookup.set(entity.id, entity);
+    MutableHashMap.set(entityLookup, entity.id, entity);
   }
 
-  const sections: Array<string> = [];
+  const sections = A.empty<string>();
 
   // Entities section with scores
-  if (entities.length > 0) {
+  if (A.isNonEmptyReadonlyArray(entities)) {
     const entityLines = A.map(entities, (e) => {
-      const score = scores.get(e.id);
-      const scoreStr = score !== undefined ? ` [score: ${score.toFixed(4)}]` : "";
+      const scoreOpt = MutableHashMap.get(scores, e.id);
+      const scoreStr = O.isSome(scoreOpt) ? ` [score: ${scoreOpt.value.toFixed(4)}]` : "";
       return `${formatEntity(e)}${scoreStr}`;
     });
     sections.push(`## Entities\n${A.join(entityLines, "\n")}`);
   }
 
   // Relations section
-  if (relations.length > 0) {
+  if (A.isNonEmptyReadonlyArray(relations)) {
     const relationLines = A.map(relations, (r) => formatRelation(r, entityLookup));
     sections.push(`## Relations\n${A.join(relationLines, "\n")}`);
   }
@@ -207,7 +188,7 @@ export const truncateToTokenBudget = (
   entities: ReadonlyArray<Entities.Entity.Model>,
   relations: ReadonlyArray<Entities.Relation.Model>,
   maxTokens: number
-): { context: string; entityCount: number; relationCount: number } => {
+): { readonly context: string; readonly entityCount: number; readonly relationCount: number } => {
   // Start with all entities
   let includedEntities = entities;
   let includedRelations = relations;
@@ -226,7 +207,7 @@ export const truncateToTokenBudget = (
   }
 
   // First, remove relations until we fit
-  while (tokens > maxTokens && includedRelations.length > 0) {
+  while (tokens > maxTokens && A.isNonEmptyReadonlyArray(includedRelations)) {
     includedRelations = A.take(includedRelations, includedRelations.length - 1);
     context = formatContext(includedEntities, includedRelations);
     tokens = estimateTokens(context);

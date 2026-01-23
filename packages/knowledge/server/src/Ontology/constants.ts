@@ -6,6 +6,9 @@
  * @module knowledge-server/Ontology/constants
  * @since 0.1.0
  */
+import * as F from "effect/Function";
+import * as O from "effect/Option";
+import * as Str from "effect/String";
 
 /**
  * RDF Namespace
@@ -83,14 +86,10 @@ export const SKOS = {
  * @since 0.1.0
  * @category utils
  */
-export const extractLocalName = (iri: string): string => {
-  const hashIndex = iri.lastIndexOf("#");
-  if (hashIndex !== -1) {
-    return iri.slice(hashIndex + 1);
-  }
-  const slashIndex = iri.lastIndexOf("/");
-  if (slashIndex !== -1) {
-    return iri.slice(slashIndex + 1);
-  }
-  return iri;
-};
+export const extractLocalName = (iri: string): string =>
+  F.pipe(
+    Str.lastIndexOf("#")(iri),
+    O.orElse(() => Str.lastIndexOf("/")(iri)),
+    O.map((idx) => Str.slice(idx + 1)(iri)),
+    O.getOrElse(() => iri)
+  );

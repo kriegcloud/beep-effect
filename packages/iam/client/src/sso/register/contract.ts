@@ -11,6 +11,7 @@
 import * as Common from "@beep/iam-client/_internal";
 import { formValuesAnnotation } from "@beep/iam-client/_internal";
 import { $IamClientId } from "@beep/identity/packages";
+import { IamEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import * as W from "@beep/wrap";
 import * as S from "effect/Schema";
 
@@ -24,7 +25,7 @@ const $I = $IamClientId.create("sso/register");
  */
 export class OidcConfig extends S.Class<OidcConfig>($I`OidcConfig`)(
   {
-    clientId: S.String,
+    clientId: S.String, // External IdP OAuth client ID - intentionally S.String
     clientSecret: S.Redacted(S.String),
     authorizationEndpoint: S.optional(S.String),
     tokenEndpoint: S.optional(S.String),
@@ -106,12 +107,12 @@ export class SamlConfig extends S.Class<SamlConfig>($I`SamlConfig`)(
  */
 export class Payload extends S.Class<Payload>($I`Payload`)(
   {
-    providerId: S.String,
+    providerId: IamEntityIds.SsoProviderId,
     issuer: S.String,
     domain: S.String,
     oidcConfig: S.optional(OidcConfig),
     samlConfig: S.optional(SamlConfig),
-    organizationId: S.optional(S.String),
+    organizationId: S.optional(SharedEntityIds.OrganizationId),
   },
   formValuesAnnotation({
     providerId: "",
@@ -143,9 +144,9 @@ export class Payload extends S.Class<Payload>($I`Payload`)(
  */
 export class Success extends S.Class<Success>($I`Success`)(
   {
-    providerId: S.String,
+    providerId: IamEntityIds.SsoProviderId,
     domain: S.String,
-    verificationToken: S.optional(S.String),
+    verificationToken: S.optional(S.Redacted(S.String)),
   },
   $I.annotations("Success", {
     description: "Success response containing the registered provider details.",

@@ -14,6 +14,7 @@ import { makeFields } from "@beep/shared-domain/common";
 import { modelKit } from "@beep/shared-domain/factories";
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
+import { ClassIri } from "../../value-objects/class-iri.value";
 
 const $I = $KnowledgeDomainId.create("entities/ClassDefinition");
 
@@ -57,11 +58,11 @@ export class Model extends M.Class<Model>($I`ClassDefinitionModel`)(
     /**
      * Full IRI of the OWL/RDFS class
      *
+     * Validated to be an absolute IRI with valid scheme (http, https, urn, file).
+     *
      * @example "http://schema.org/Person"
      */
-    iri: S.String.annotations({
-      description: "Full IRI of the OWL/RDFS class",
-    }),
+    iri: ClassIri,
 
     /**
      * Human-readable label (rdfs:label)

@@ -7,8 +7,13 @@
  * @module knowledge-server/EntityResolution/CanonicalSelector
  * @since 0.1.0
  */
+import { CanonicalSelectionError } from "@beep/knowledge-domain/errors";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import * as F from "effect/Function";
+import * as Match from "effect/Match";
+import * as MutableHashSet from "effect/MutableHashSet";
+import * as O from "effect/Option";
 import * as Struct from "effect/Struct";
 import type { AssembledEntity } from "../Extraction/GraphAssembler";
 // =============================================================================
@@ -114,16 +119,24 @@ export class CanonicalSelector extends Effect.Service<CanonicalSelector>()("@bee
     selectCanonical: (
       cluster: readonly AssembledEntity[],
       config: CanonicalSelectorConfig = {}
-    ): Effect.Effect<AssembledEntity> =>
+    ): Effect.Effect<AssembledEntity, CanonicalSelectionError> =>
       Effect.gen(function* () {
-        if (cluster.length === 0) {
-          return yield* Effect.die(new Error("Cannot select canonical from empty cluster"));
+        if (A.isEmptyReadonlyArray(cluster)) {
+          return yield* new CanonicalSelectionError({
+            message: "Cannot select canonical from empty cluster",
+            reason: "empty_cluster",
+            clusterSize: 0,
+          });
         }
 
         if (cluster.length === 1) {
           const single = cluster[0];
           if (!single) {
-            return yield* Effect.die(new Error("Cannot select canonical from empty cluster"));
+            return yield* new CanonicalSelectionError({
+              message: "Cannot select canonical from empty cluster",
+              reason: "empty_cluster",
+              clusterSize: 0,
+            });
           }
           return single;
         }
@@ -135,34 +148,42 @@ export class CanonicalSelector extends Effect.Service<CanonicalSelector>()("@bee
           clusterSize: cluster.length,
         });
 
-        let selected: AssembledEntity | undefined;
-
-        switch (strategy) {
-          case "highest_confidence": {
+        const selected = Match.value(strategy).pipe(
+          Match.when("highest_confidence", () =>
             // Select entity with highest confidence
-            selected = A.reduce(cluster, cluster[0]!, (best, current) =>
-              current.confidence > best.confidence ? current : best
-            );
-            break;
-          }
-
-          case "most_attributes": {
+            F.pipe(
+              A.head(cluster),
+              O.map((first) =>
+                A.reduce(cluster, first, (best, current) => (current.confidence > best.confidence ? current : best))
+              ),
+              O.getOrUndefined
+            )
+          ),
+          Match.when("most_attributes", () =>
             // Select entity with most attributes
-            selected = A.reduce(cluster, cluster[0]!, (best, current) =>
-              countAttributes(current) > countAttributes(best) ? current : best
-            );
-            break;
-          }
-
-          case "most_mentions": {
+            F.pipe(
+              A.head(cluster),
+              O.map((first) =>
+                A.reduce(cluster, first, (best, current) =>
+                  countAttributes(current) > countAttributes(best) ? current : best
+                )
+              ),
+              O.getOrUndefined
+            )
+          ),
+          Match.when("most_mentions", () =>
             // Select entity with longest mention (proxy for specificity)
-            selected = A.reduce(cluster, cluster[0]!, (best, current) =>
-              current.mention.length > best.mention.length ? current : best
-            );
-            break;
-          }
-
-          default: {
+            F.pipe(
+              A.head(cluster),
+              O.map((first) =>
+                A.reduce(cluster, first, (best, current) =>
+                  current.mention.length > best.mention.length ? current : best
+                )
+              ),
+              O.getOrUndefined
+            )
+          ),
+          Match.orElse(() => {
             // "hybrid" strategy (default): Combine all factors with weights
             const weights = {
               confidence: config.weights?.confidence ?? 0.5,
@@ -170,15 +191,24 @@ export class CanonicalSelector extends Effect.Service<CanonicalSelector>()("@bee
               mentionLength: config.weights?.mentionLength ?? 0.2,
             };
 
-            selected = A.reduce(cluster, cluster[0]!, (best, current) =>
-              computeHybridScore(current, weights) > computeHybridScore(best, weights) ? current : best
+            return F.pipe(
+              A.head(cluster),
+              O.map((first) =>
+                A.reduce(cluster, first, (best, current) =>
+                  computeHybridScore(current, weights) > computeHybridScore(best, weights) ? current : best
+                )
+              ),
+              O.getOrUndefined
             );
-            break;
-          }
-        }
+          })
+        );
 
         if (!selected) {
-          return yield* Effect.die(new Error("Failed to select canonical entity"));
+          return yield* new CanonicalSelectionError({
+            message: "Failed to select canonical entity",
+            reason: "selection_failed",
+            clusterSize: cluster.length,
+          });
         }
 
         yield* Effect.logDebug("CanonicalSelector.selectCanonical: selected", {
@@ -205,7 +235,7 @@ export class CanonicalSelector extends Effect.Service<CanonicalSelector>()("@bee
       members: readonly AssembledEntity[]
     ): Effect.Effect<AssembledEntity> =>
       Effect.gen(function* () {
-        if (members.length === 0) {
+        if (A.isEmptyReadonlyArray(members)) {
           return canonical;
         }
 
@@ -221,7 +251,7 @@ export class CanonicalSelector extends Effect.Service<CanonicalSelector>()("@bee
 
         // Add attributes from members that canonical doesn't have
         for (const member of members) {
-          for (const [key, value] of Object.entries(member.attributes)) {
+          for (const [key, value] of Struct.entries(member.attributes)) {
             if (!(key in mergedAttributes)) {
               mergedAttributes[key] = value;
             }
@@ -229,19 +259,19 @@ export class CanonicalSelector extends Effect.Service<CanonicalSelector>()("@bee
         }
 
         // Merge all types (union)
-        const allTypes = new Set(canonical.types);
+        const allTypes = MutableHashSet.fromIterable(canonical.types);
         for (const member of members) {
           for (const type of member.types) {
-            allTypes.add(type);
+            MutableHashSet.add(allTypes, type);
           }
         }
 
         // Update confidence to max across cluster
-        const maxConfidence = Math.max(canonical.confidence, ...members.map((m) => m.confidence));
+        const maxConfidence = Math.max(canonical.confidence, ...A.map(members, (m) => m.confidence));
 
         const merged: AssembledEntity = {
           ...canonical,
-          types: Array.from(allTypes),
+          types: A.fromIterable(allTypes),
           attributes: mergedAttributes,
           confidence: maxConfidence,
         };

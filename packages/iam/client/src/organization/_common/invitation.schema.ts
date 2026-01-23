@@ -1,4 +1,6 @@
 import { $IamClientId } from "@beep/identity/packages";
+import { BS } from "@beep/schema";
+import { IamEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import * as S from "effect/Schema";
 
 const $I = $IamClientId.create("organization/_common/invitation");
@@ -24,13 +26,13 @@ export type InvitationStatus = S.Schema.Type<typeof InvitationStatus>;
  */
 export class Invitation extends S.Class<Invitation>($I`Invitation`)(
   {
-    id: S.String,
-    organizationId: S.String,
-    email: S.String,
+    id: IamEntityIds.InvitationId,
+    organizationId: SharedEntityIds.OrganizationId,
+    email: BS.Email,
     role: S.String,
     status: InvitationStatus,
     expiresAt: S.DateFromString,
-    inviterId: S.String,
+    inviterId: SharedEntityIds.UserId,
   },
   $I.annotations("Invitation", {
     description: "Organization invitation entity from Better Auth organization plugin.",

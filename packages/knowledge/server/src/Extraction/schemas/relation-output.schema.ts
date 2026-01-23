@@ -94,9 +94,7 @@ export class ExtractedTriple extends S.Class<ExtractedTriple>("@beep/knowledge-s
    * Character offset of evidence start
    */
   evidenceStartChar: S.optional(
-    S.Number.pipe(
-      S.int(),
-      S.nonNegative(),
+    S.NonNegativeInt.pipe(
       S.annotations({
         description: "Character offset start for evidence span",
       })
@@ -107,9 +105,7 @@ export class ExtractedTriple extends S.Class<ExtractedTriple>("@beep/knowledge-s
    * Character offset of evidence end
    */
   evidenceEndChar: S.optional(
-    S.Number.pipe(
-      S.int(),
-      S.nonNegative(),
+    S.NonNegativeInt.pipe(
       S.annotations({
         description: "Character offset end for evidence span (exclusive)",
       })

@@ -8,7 +8,7 @@ Supplies IAM-specific Drizzle tables, enums, and relations layered on top of sha
 
 - Bridges `@beep/iam-domain` entity codecs to persistent storage
 - Ensures IAM tables are multi-tenant aware via `OrgTable.make` and `Table.make` factories
-- Re-exports shared tables (`organization`, `team`, `user`, `session`) to keep infra consumers on a single schema namespace
+- Re-exports shared tables (`organization`, `team`, `user`, `session`) to keep server consumers on a single schema namespace
 - Provides compile-time alignment checks between Drizzle models and Effect schemas
 - Partners with `@beep/shared-server`'s `Db.make` to wire up typed `SqlClient` layers
 
@@ -40,7 +40,7 @@ Supplies IAM-specific Drizzle tables, enums, and relations layered on top of sha
 
 ## Architecture Fit
 
-- **Vertical Slice Layer**: Tables layer sits between `domain` and `infra`, defining persistence schema
+- **Vertical Slice Layer**: Tables layer sits between `domain` and `server`, defining persistence schema
 - **Better Auth Integration**: Schema designed to work with better-auth adapter requirements
 - **Multi-Tenant**: Uses `OrgTable.make` for tenant-scoped resources, `Table.make` for global artifacts
 - **Type Safety**: `_check.ts` ensures Drizzle `InferSelectModel` / `InferInsertModel` match domain schemas
@@ -237,7 +237,7 @@ export const _checkInsertAuditLog: typeof AuditLog.Model.insert.Encoded =
 - **Drizzle relations** mapping foreign keys to logical relationships
 - **Type alignment checks** in `_check.ts` for Drizzle ↔ Effect schema compatibility
 - **Index definitions** for query performance optimization
-- **Shared table re-exports** for IAM infra convenience
+- **Shared table re-exports** for IAM server convenience
 
 ## What Must NOT Go Here
 
@@ -392,7 +392,7 @@ The `account`, `session`, `user`, and other tables follow better-auth's expected
 - For breaking schema changes:
   - Update domain schemas first
   - Coordinate migrations with SQL changes
-  - Update infra repositories in same PR
+  - Update server repositories in same PR
   - Test with Testcontainers before merging
 
 ## Further Reading

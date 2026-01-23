@@ -52,4 +52,4 @@ to move failure handling up to the caller.
 3. **Verify Changes**: Request `bun run check` after modifications
 4. **Respect Tooling**: ALWAYS run commands via `bun run <script>` from project root
 5. **Keep Docs Updated**: Align with `documentation/patterns/` when introducing new patterns
-6. **Do Not Auto-Start**: NEVER launch long-running dev or infra commands without confirmation
+6. **Do Not Auto-Start**: NEVER launch long-running dev or server commands without confirmation

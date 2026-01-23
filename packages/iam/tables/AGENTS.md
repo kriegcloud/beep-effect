@@ -3,7 +3,7 @@
 ## Purpose & Fit
 - Supplies IAM-specific Drizzle tables, enums, and relations layered on top of the shared table factories so the authentication slice stays multi-tenant aware.
 - Bridges `@beep/iam-domain` entity codecs to persistent storage; `_check.ts` keeps Drizzle `Infer*Model` outputs aligned with Effect models.
-- Re-exports shared organization/team/user tables to keep infra consumers on a single schema namespace (`IamDbSchema`) when wiring adapters (e.g. Better Auth).
+- Re-exports shared organization/team/user tables to keep server consumers on a single schema namespace (`IamDbSchema`) when wiring adapters (e.g. Better Auth).
 - Partners with `@beep/shared-server`'s `Db.make` by providing the schema object required to spin up `SqlClient` layers inside IAM infrastructure.
 
 ## Surface Map
@@ -33,7 +33,7 @@
 - Keep `_check.ts` synchronized whenever you add or rename columns; failure to extend the file will silently erode type alignment between Drizzle models and `@beep/iam-domain`.
 - Shared tables (`organization`, `team`, `user`) are re-exported from `@beep/shared-tables`. Edits belong in the shared package, not here; note cross-package implications before touching them.
 - When introducing relations ensure Drizzle relation definitions mirror cascade rules declared in table builders and avoid circular dependencies. Group by resource area (members, OAuth, sessions) to keep the file readable.
-- Coordinate schema updates with migrations under `packages/_internal/db-admin`; IAM infra expects both schema and SQL migrations to ship together.
+- Coordinate schema updates with migrations under `packages/_internal/db-admin`; IAM server expects both schema and SQL migrations to ship together.
 
 ## Quick Recipes
 
@@ -108,7 +108,7 @@ export const _checkInsertNotificationPreference: typeof NotificationPreference.M
 ## Verifications
 - `bun run lint` — Biome sweep for formatting and Effect import discipline.
 - `bun run check` — Type build that executes `_check.ts` assertions.
-- `bun run build` — Produces ESM/CJS artifacts consumed by infra packages.
+- `bun run build` — Produces ESM/CJS artifacts consumed by server packages.
 - `bun run test` (or `bun run coverage`) — Executes Bun test suite (currently placeholder; expand alongside meaningful table tests).
 - `bun run db:generate` (root) — Regenerate Drizzle types after schema adjustments and confirm migrations stay coherent.
 

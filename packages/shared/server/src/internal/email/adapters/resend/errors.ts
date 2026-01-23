@@ -41,7 +41,7 @@ export class ResendError extends S.TaggedError<ResendError>($I`ResendError`)("Re
   cause: S.Defect,
   message: S.optional(S.String),
   name: S.optional(ResendErrorCode),
-  statusCode: S.optional(S.NullOr(S.Number)),
+  statusCode: S.optionalWith(S.Number, { nullable: true }),
   payload: S.Unknown,
 }) {
   // biome-ignore lint/suspicious/noExplicitAny: error payload can be any type

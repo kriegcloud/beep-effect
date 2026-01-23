@@ -1,13 +1,13 @@
 # AGENTS.md — `@beep/documents-client`
 
 ## Purpose & Fit
-- Host Effect-first client helpers for the documents slice so apps and CLIs do not talk to infra endpoints directly.
+- Host Effect-first client helpers for the documents slice so apps and CLIs do not talk to server endpoints directly.
 - Provide a thin layer over `@beep/documents-domain` entities and HTTP contracts exported by server runtimes.
 - Keep network concerns injectable (fetch or RPC clients passed in) to support Bun, browsers, and tests.
 
 ## Current State
 - Package is a stub; only `beep` is exported (`src/index.ts`).
-- Treat this as the staging area for the first real client once infra routes and HTTP handlers are finalized.
+- Treat this as the staging area for the first real client once server routes and HTTP handlers are finalized.
 - Once HTTP API implementation is complete in `@beep/documents-server`, this package will expose client-side wrappers.
 
 ## Planned Architecture
@@ -91,6 +91,6 @@ export class DocumentsClient extends Effect.Service<DocumentsClient>()("@beep/do
 ## Contributor Checklist
 - [ ] NEVER use native array/string helpers; ALWAYS rely on Effect utilities.
 - [ ] All network responses MUST be decoded through schemas before returning data.
-- [ ] Exposed surface aligns with infra/server contract names and is documented in this file once shipped.
+- [ ] Exposed surface aligns with server/server contract names and is documented in this file once shipped.
 - [ ] Added or updated tests under `packages/documents/client/test/`.
 - [ ] Client service MUST provide proper Layer-based dependency injection.

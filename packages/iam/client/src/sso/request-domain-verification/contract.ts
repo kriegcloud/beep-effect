@@ -11,6 +11,7 @@
 import * as Common from "@beep/iam-client/_internal";
 import { formValuesAnnotation } from "@beep/iam-client/_internal";
 import { $IamClientId } from "@beep/identity/packages";
+import { IamEntityIds } from "@beep/shared-domain";
 import * as W from "@beep/wrap";
 import * as S from "effect/Schema";
 
@@ -33,7 +34,7 @@ const $I = $IamClientId.create("sso/request-domain-verification");
  */
 export class Payload extends S.Class<Payload>($I`Payload`)(
   {
-    providerId: S.String,
+    providerId: IamEntityIds.SsoProviderId,
   },
   formValuesAnnotation({
     providerId: "",
@@ -62,7 +63,7 @@ export class Payload extends S.Class<Payload>($I`Payload`)(
  */
 export class Success extends S.Class<Success>($I`Success`)(
   {
-    verificationToken: S.String,
+    verificationToken: S.Redacted(S.String),
     txtRecord: S.String,
   },
   $I.annotations("Success", {

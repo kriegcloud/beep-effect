@@ -1,0 +1,10 @@
+export { BatchModify } from "./batch-modify";
+export { CreateLabel } from "./create-label";
+export { DeleteEmail } from "./delete-email";
+export { DeleteLabel } from "./delete-label";
+export { GetEmail } from "./get-email";
+export { ListEmails } from "./list-emails";
+export { ListLabels } from "./list-labels";
+export { SearchEmails } from "./search-emails";
+export { TrashEmail } from "./trash-email";
+export { UpdateLabel } from "./update-label";

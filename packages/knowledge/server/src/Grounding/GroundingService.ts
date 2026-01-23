@@ -8,13 +8,18 @@
  * @since 0.1.0
  */
 import type { SharedEntityIds } from "@beep/shared-domain";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
 import * as Layer from "effect/Layer";
+import * as MutableHashMap from "effect/MutableHashMap";
+import * as O from "effect/Option";
 import * as Str from "effect/String";
 import type { EmbeddingError } from "../Embedding/EmbeddingProvider";
 import { EmbeddingService } from "../Embedding/EmbeddingService";
 import type { AssembledEntity, AssembledRelation, KnowledgeGraph } from "../Extraction/GraphAssembler";
+import { extractLocalName } from "../Ontology/constants";
+import { cosineSimilarity } from "../utils/vector";
 // =============================================================================
 // Types
 // =============================================================================
@@ -30,13 +35,13 @@ export interface GroundingConfig {
    * Minimum similarity for a relation to be considered grounded
    * @default 0.8
    */
-  readonly confidenceThreshold?: number;
+  readonly confidenceThreshold?: undefined | number;
 
   /**
    * Whether to include ungrounded relations in result
    * @default false
    */
-  readonly keepUngrounded?: boolean;
+  readonly keepUngrounded?: undefined | boolean;
 }
 
 /**
@@ -78,24 +83,13 @@ const DEFAULT_CONFIDENCE_THRESHOLD = 0.8;
 // =============================================================================
 
 /**
- * Extract local name from IRI
- */
-const extractLocalName = (iri: string): string => {
-  const hashIndex = iri.lastIndexOf("#");
-  if (hashIndex !== -1) {
-    return iri.slice(hashIndex + 1);
-  }
-  const slashIndex = iri.lastIndexOf("/");
-  if (slashIndex !== -1) {
-    return iri.slice(slashIndex + 1);
-  }
-  return iri;
-};
-
-/**
  * Convert relation to natural language statement
  */
-const relationToStatement = (relation: AssembledRelation, subjectMention: string, objectMention?: string): string => {
+const relationToStatement = (
+  relation: AssembledRelation,
+  subjectMention: string,
+  objectMention?: undefined | string
+): string => {
   const predicateLabel = extractLocalName(relation.predicate);
 
   // Make predicate more readable (convert camelCase to spaces)
@@ -110,34 +104,6 @@ const relationToStatement = (relation: AssembledRelation, subjectMention: string
   }
 
   return `${subjectMention} has property ${readablePredicate}`;
-};
-
-/**
- * Compute cosine similarity between two vectors
- */
-const cosineSimilarity = (a: ReadonlyArray<number>, b: ReadonlyArray<number>): number => {
-  if (a.length !== b.length || a.length === 0) {
-    return 0;
-  }
-
-  let dotProduct = 0;
-  let normA = 0;
-  let normB = 0;
-
-  for (let i = 0; i < a.length; i++) {
-    const aVal = a[i]!;
-    const bVal = b[i]!;
-    dotProduct += aVal * bVal;
-    normA += aVal * aVal;
-    normB += bVal * bVal;
-  }
-
-  const denominator = Math.sqrt(normA) * Math.sqrt(normB);
-  if (denominator === 0) {
-    return 0;
-  }
-
-  return dotProduct / denominator;
 };
 
 // =============================================================================
@@ -207,10 +173,10 @@ export class GroundingService extends Effect.Service<GroundingService>()("@beep/
           threshold,
         });
 
-        if (graph.relations.length === 0) {
+        if (A.isEmptyReadonlyArray(graph.relations)) {
           return {
-            groundedRelations: [],
-            ungroundedRelations: [],
+            groundedRelations: A.empty<AssembledRelation>(),
+            ungroundedRelations: A.empty<AssembledRelation>(),
             stats: {
               total: 0,
               grounded: 0,
@@ -224,19 +190,19 @@ export class GroundingService extends Effect.Service<GroundingService>()("@beep/
         const sourceEmbedding = yield* embedding.embed(sourceText, "search_document", organizationId, ontologyId);
 
         // Build entity lookup by ID
-        const entityById = new Map<string, AssembledEntity>();
+        const entityById = MutableHashMap.empty<string, AssembledEntity>();
         for (const entity of graph.entities) {
-          entityById.set(entity.id, entity);
+          MutableHashMap.set(entityById, entity.id, entity);
         }
 
-        const grounded: AssembledRelation[] = [];
-        const ungrounded: AssembledRelation[] = [];
+        const grounded = A.empty<AssembledRelation>();
+        const ungrounded = A.empty<AssembledRelation>();
         let totalConfidence = 0;
 
         for (const relation of graph.relations) {
-          const subject = entityById.get(relation.subjectId);
+          const subjectOpt = MutableHashMap.get(entityById, relation.subjectId);
 
-          if (!subject) {
+          if (O.isNone(subjectOpt)) {
             yield* Effect.logDebug("GroundingService: missing subject entity", {
               relationId: relation.id,
               subjectId: relation.subjectId,
@@ -246,8 +212,10 @@ export class GroundingService extends Effect.Service<GroundingService>()("@beep/
             }
             continue;
           }
+          const subject = subjectOpt.value;
 
-          const object = relation.objectId ? entityById.get(relation.objectId) : undefined;
+          const objectOpt = relation.objectId ? MutableHashMap.get(entityById, relation.objectId) : O.none();
+          const object = O.isSome(objectOpt) ? objectOpt.value : undefined;
 
           // Convert relation to natural language statement
           const statement = relationToStatement(relation, subject.mention, object?.mention);
@@ -287,7 +255,7 @@ export class GroundingService extends Effect.Service<GroundingService>()("@beep/
             total: graph.relations.length,
             grounded: grounded.length,
             ungrounded: ungrounded.length,
-            averageConfidence: grounded.length > 0 ? totalConfidence / grounded.length : 0,
+            averageConfidence: A.isNonEmptyReadonlyArray(grounded) ? totalConfidence / grounded.length : 0,
           },
         };
 

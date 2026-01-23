@@ -27,10 +27,10 @@ export const entityCluster = OrgTable.make(KnowledgeEntityIds.EntityClusterId)(
   {
     // Canonical entity ID (the representative of this cluster)
     // Note: FK constraint is added via foreignKey() in extraConfig to use custom short name
-    canonicalEntityId: pg.text("canonical_entity_id").notNull(),
+    canonicalEntityId: pg.text("canonical_entity_id").notNull().$type<KnowledgeEntityIds.KnowledgeEntityId.Type>(),
 
     // Member entity IDs in this cluster (JSON array)
-    memberIds: pg.jsonb("member_ids").notNull().$type<ReadonlyArray<string>>(),
+    memberIds: pg.jsonb("member_ids").notNull().$type<ReadonlyArray<KnowledgeEntityIds.KnowledgeEntityId.Type>>(),
 
     // Internal cluster cohesion score (average pairwise similarity)
     cohesion: pg.real("cohesion").notNull(),
@@ -38,8 +38,8 @@ export const entityCluster = OrgTable.make(KnowledgeEntityIds.EntityClusterId)(
     // Shared type IRIs across cluster members (JSON array)
     sharedTypes: pg.jsonb("shared_types").notNull().$type<ReadonlyArray<string>>(),
 
-    // Ontology scoping
-    ontologyId: pg.text("ontology_id").notNull(),
+    // Ontology scoping (optional - null means default ontology)
+    ontologyId: pg.text("ontology_id").$type<KnowledgeEntityIds.OntologyId.Type>(),
   },
   (t) => [
     // Index for looking up clusters by canonical entity

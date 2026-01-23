@@ -7,12 +7,12 @@
  * @since 0.1.0
  */
 
+import type { ClassifiedEntity } from "@beep/knowledge-server/Extraction/schemas/entity-output.schema";
+import type { ExtractedMention } from "@beep/knowledge-server/Extraction/schemas/mention-output.schema";
 import { thunkEmptyStr } from "@beep/utils";
 import * as A from "effect/Array";
 import * as F from "effect/Function";
 import * as O from "effect/Option";
-import type { ClassifiedEntity } from "../Extraction/schemas/entity-output.schema";
-import type { ExtractedMention } from "../Extraction/schemas/mention-output.schema";
 import type { OntologyContext } from "../Ontology";
 
 /**
@@ -67,7 +67,7 @@ export const buildEntityPrompt = (mentions: readonly ExtractedMention[], ontolog
     ontologyContext.classes,
     A.map((cls) => {
       const comment = O.getOrElse(cls.comment, thunkEmptyStr);
-      const altLabels = cls.altLabels.length > 0 ? ` (also: ${A.join(", ")(cls.altLabels)})` : "";
+      const altLabels = A.isNonEmptyReadonlyArray(cls.altLabels) ? ` (also: ${A.join(", ")(cls.altLabels)})` : "";
       return `- ${cls.iri}: ${cls.label}${altLabels}${comment ? ` - ${comment}` : ""}`;
     }),
     A.join("\n")
@@ -133,8 +133,8 @@ export const buildRelationPrompt = (
       const comment = O.getOrElse(prop.comment, () => "");
       const domainLabels = A.filterMap(prop.domain, (d) => O.map(ontologyContext.findClass(d), (c) => c.label));
       const rangeLabels = A.filterMap(prop.range, (r) => O.map(ontologyContext.findClass(r), (c) => c.label));
-      const domainStr = domainLabels.length > 0 ? `domain: ${A.join(", ")(domainLabels)}` : "";
-      const rangeStr = rangeLabels.length > 0 ? `range: ${A.join(", ")(rangeLabels)}` : "";
+      const domainStr = A.isNonEmptyReadonlyArray(domainLabels) ? `domain: ${A.join(", ")(domainLabels)}` : "";
+      const rangeStr = A.isNonEmptyReadonlyArray(rangeLabels) ? `range: ${A.join(", ")(rangeLabels)}` : "";
       const constraints = F.pipe(A.make(domainStr, rangeStr), A.filter(Boolean), A.join("; "));
       return `- ${prop.iri}: ${prop.label} (${prop.rangeType}${constraints ? ` | ${constraints}` : ""})${comment ? ` - ${comment}` : ""}`;
     }),

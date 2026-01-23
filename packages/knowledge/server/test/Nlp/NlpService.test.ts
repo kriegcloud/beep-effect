@@ -10,6 +10,7 @@ import { describe } from "bun:test";
 import { assertTrue, effect, strictEqual } from "@beep/testkit";
 import * as Effect from "effect/Effect";
 import * as Stream from "effect/Stream";
+import * as Str from "effect/String";
 import { NlpService } from "../../src/Nlp/NlpService";
 
 describe("NlpService", () => {
@@ -64,8 +65,9 @@ describe("NlpService", () => {
       // Each chunk should contain complete sentences
       for (const chunk of chunks) {
         // Should not end mid-word (rough check)
-        const lastChar = chunk.text.trim().slice(-1);
-        assertTrue(lastChar === "." || lastChar === "!" || lastChar === "?" || chunk.text.trim().length === 0);
+        const trimmed = Str.trim(chunk.text);
+        const lastChar = Str.takeRight(1)(trimmed);
+        assertTrue(lastChar === "." || lastChar === "!" || lastChar === "?" || Str.isEmpty(trimmed));
       }
     }).pipe(Effect.provide(NlpService.Default))
   );

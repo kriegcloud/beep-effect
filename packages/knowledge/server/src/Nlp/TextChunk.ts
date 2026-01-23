@@ -21,9 +21,7 @@ export class TextChunk extends S.Class<TextChunk>("@beep/knowledge-server/TextCh
   /**
    * Chunk index (0-indexed position in document)
    */
-  index: S.Number.pipe(
-    S.int(),
-    S.nonNegative(),
+  index: S.NonNegativeInt.pipe(
     S.annotations({
       description: "Chunk index (0-indexed position in document)",
     })
@@ -39,9 +37,7 @@ export class TextChunk extends S.Class<TextChunk>("@beep/knowledge-server/TextCh
   /**
    * Character offset where this chunk starts in the original document
    */
-  startOffset: S.Number.pipe(
-    S.int(),
-    S.nonNegative(),
+  startOffset: S.NonNegativeInt.pipe(
     S.annotations({
       description: "Character offset where chunk starts in document",
     })
@@ -50,9 +46,7 @@ export class TextChunk extends S.Class<TextChunk>("@beep/knowledge-server/TextCh
   /**
    * Character offset where this chunk ends (exclusive)
    */
-  endOffset: S.Number.pipe(
-    S.int(),
-    S.nonNegative(),
+  endOffset: S.NonNegativeInt.pipe(
     S.annotations({
       description: "Character offset where chunk ends (exclusive)",
     })
@@ -83,9 +77,7 @@ export class ChunkingConfig extends S.Class<ChunkingConfig>("@beep/knowledge-ser
   /**
    * Maximum character count per chunk
    */
-  maxChunkSize: S.Number.pipe(
-    S.int(),
-    S.positive(),
+  maxChunkSize: S.NonNegativeInt.pipe(
     S.annotations({
       description: "Maximum characters per chunk",
       default: 2000,
@@ -103,9 +95,7 @@ export class ChunkingConfig extends S.Class<ChunkingConfig>("@beep/knowledge-ser
   /**
    * Number of sentences to overlap between chunks
    */
-  overlapSentences: S.Number.pipe(
-    S.int(),
-    S.nonNegative(),
+  overlapSentences: S.NonNegativeInt.pipe(
     S.annotations({
       description: "Number of sentences to overlap between chunks",
       default: 1,
@@ -116,9 +106,7 @@ export class ChunkingConfig extends S.Class<ChunkingConfig>("@beep/knowledge-ser
    * Minimum chunk size (to avoid tiny final chunks)
    */
   minChunkSize: S.optional(
-    S.Number.pipe(
-      S.int(),
-      S.positive(),
+    S.NonNegativeInt.pipe(
       S.annotations({
         description: "Minimum chunk size - smaller remnants merge with previous chunk",
         default: 100,

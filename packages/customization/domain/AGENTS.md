@@ -1,7 +1,7 @@
 # @beep/customization-domain — Agent Guide
 
 ## Purpose & Fit
-- Centralizes customization domain models via `M.Class` definitions that merge shared audit fields through `makeFields`, giving infra and tables a single source of truth for schema variants.
+- Centralizes customization domain models via `M.Class` definitions that merge shared audit fields through `makeFields`, giving server and tables a single source of truth for schema variants.
 - Re-exports the customization entity inventory to consumers through the package root so repos, tables, and runtimes can import `Entities.*` without piercing folder structure.
 - Provides customization-specific entities for user preferences, hotkeys, and personalization settings.
 - Bridges shared-kernel entities into the customization slice so cross-slice consumers can stay on the customization namespace without re-import juggling.

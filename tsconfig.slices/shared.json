@@ -7,6 +7,7 @@
     { "path": "../packages/shared/client/tsconfig.build.json" },
     { "path": "../packages/shared/ui/tsconfig.build.json" },
     { "path": "../packages/shared/env/tsconfig.build.json" },
-    { "path": "../packages/shared/ai/tsconfig.build.json" }
+    { "path": "../packages/shared/ai/tsconfig.build.json" },
+    { "path": "../packages/shared/integrations/tsconfig.build.json" }
   ]
 }

@@ -127,11 +127,11 @@ Based on initial codebase observation:
 |------------------------|------------------|-----------------------------------|---------------|
 | Domain Model           | `.model.ts`      | Entity schemas and business logic | domain        |
 | Type Definitions       | `.types.ts`      | Type-only modules (no runtime)    | any           |
-| Service Interface      | `.service.ts`    | Effect service definitions        | infra         |
-| Service Implementation | `.impl.ts`       | Service implementations           | infra         |
-| Layer Composition      | `.layer.ts`      | Effect Layer definitions          | infra         |
+| Service Interface      | `.service.ts`    | Effect service definitions        | server         |
+| Service Implementation | `.impl.ts`       | Service implementations           | server         |
+| Layer Composition      | `.layer.ts`      | Effect Layer definitions          | server         |
 | Database Table         | `.table.ts`      | Drizzle table schemas             | tables        |
-| Repository Interface   | `.repo.ts`       | Data access interfaces            | infra         |
+| Repository Interface   | `.repo.ts`       | Data access interfaces            | server         |
 | Contract Schema        | `.contract.ts`   | API/RPC contract definitions      | client        |
 | Handler Implementation | `.handler.ts`    | Request/command handlers          | client/server |
 | React Provider         | `.provider.tsx`  | React context providers           | ui            |

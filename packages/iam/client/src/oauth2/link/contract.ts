@@ -34,7 +34,7 @@ const $I = $IamClientId.create("oauth2/link");
  */
 export class Payload extends S.Class<Payload>($I`Payload`)(
   {
-    providerId: S.String,
+    providerId: S.String, // External OAuth provider ID (e.g., "google", "github") - intentionally S.String
     callbackURL: S.String,
     scopes: S.optional(S.mutable(S.Array(S.String))),
     errorCallbackURL: S.optional(S.String),

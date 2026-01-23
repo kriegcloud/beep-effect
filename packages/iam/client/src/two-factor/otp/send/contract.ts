@@ -8,7 +8,6 @@
  */
 
 import * as Common from "@beep/iam-client/_internal";
-import { formValuesAnnotation } from "@beep/iam-client/_internal";
 import { $IamClientId } from "@beep/identity/packages";
 import * as W from "@beep/wrap";
 import * as S from "effect/Schema";
@@ -23,14 +22,9 @@ const $I = $IamClientId.create("two-factor/otp/send");
  * @category TwoFactor/OTP/Send
  * @since 0.1.0
  */
-export class Payload extends S.Class<Payload>($I`Payload`)(
-  {
-    trustDevice: S.optional(S.Boolean),
-  },
-  formValuesAnnotation({
-    trustDevice: false,
-  })
-) {}
+export class Payload extends S.Class<Payload>($I`Payload`)({
+  trustDevice: S.optional(S.Boolean),
+}) {}
 
 /**
  * Success response - OTP sent.

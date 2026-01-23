@@ -1,7 +1,8 @@
 import * as Common from "@beep/iam-client/_internal";
 import { formValuesAnnotation } from "@beep/iam-client/_internal";
 import { $IamClientId } from "@beep/identity/packages";
-import * as W from "@beep/wrap";
+import { SharedEntityIds } from "@beep/shared-domain";
+import { Wrap } from "@beep/wrap";
 import * as S from "effect/Schema";
 
 const $I = $IamClientId.create("organization/add-team-member");
@@ -12,8 +13,8 @@ const $I = $IamClientId.create("organization/add-team-member");
 
 export class Payload extends S.Class<Payload>($I`Payload`)(
   {
-    teamId: S.String,
-    userId: S.String,
+    teamId: SharedEntityIds.TeamId,
+    userId: SharedEntityIds.UserId,
   },
   formValuesAnnotation({
     teamId: "",
@@ -33,7 +34,7 @@ export class Success extends S.Class<Success>($I`Success`)({
 // WRAPPER
 // =============================================================================
 
-export const Wrapper = W.Wrapper.make("AddTeamMember", {
+export const Wrapper = Wrap.Wrapper.make("AddTeamMember", {
   payload: Payload,
   success: Success,
   error: Common.IamError,

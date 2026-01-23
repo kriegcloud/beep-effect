@@ -8,18 +8,22 @@
  * @since 0.1.0
  */
 import { $KnowledgeServerId } from "@beep/identity/packages";
-import type { Entities } from "@beep/knowledge-domain";
+import { Entities } from "@beep/knowledge-domain";
 import { EntityRepo, RelationRepo } from "@beep/knowledge-server/db";
 import { BS } from "@beep/schema";
-import type { KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
+import { KnowledgeEntityIds, type SharedEntityIds } from "@beep/shared-domain";
 import type { DatabaseError } from "@beep/shared-domain/errors";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
+import * as MutableHashMap from "effect/MutableHashMap";
+import * as MutableHashSet from "effect/MutableHashSet";
 import * as Num from "effect/Number";
 import * as O from "effect/Option";
 import * as Order from "effect/Order";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import * as Struct from "effect/Struct";
 import { type EmbeddingError, EmbeddingService } from "../Embedding";
 import { formatContextWithScores, truncateToTokenBudget } from "./ContextFormatter";
 import { assignGraphRanks, fuseRankings } from "./RrfScorer";
@@ -106,12 +110,12 @@ export class GraphRAGResult extends S.Class<GraphRAGResult>("GraphRAGResult")({
   /**
    * Retrieved entities
    */
-  entities: S.Array(S.Any), // Entities.Entity.Model not directly usable as schema
+  entities: S.Array(Entities.Entity.Model), // Entities.Entity.Model not directly usable as schema
 
   /**
    * Retrieved relations
    */
-  relations: S.Array(S.Any), // Entities.Relation.Model not directly usable as schema
+  relations: S.Array(Entities.Relation.Model), // Entities.Relation.Model not directly usable as schema
 
   /**
    * Entity relevance scores (id -> score)
@@ -226,10 +230,10 @@ export class GraphRAGService extends Effect.Service<GraphRAGService>()($I`GraphR
           count: similarResults.length,
         });
 
-        if (similarResults.length === 0) {
+        if (A.isEmptyReadonlyArray(similarResults)) {
           return new GraphRAGResult({
-            entities: [],
-            relations: [],
+            entities: A.empty<Entities.Entity.Model>(),
+            relations: A.empty<Entities.Relation.Model>(),
             scores: {},
             context: "",
             stats: {
@@ -247,8 +251,8 @@ export class GraphRAGService extends Effect.Service<GraphRAGService>()($I`GraphR
         // Embeddings store entityId field that maps to the entity
         const seedEntityIds = A.filterMap(similarResults, (r) => {
           // Embedding entityId should be a knowledge_entity__ ID
-          if (r.entityId.startsWith("knowledge_entity__")) {
-            return O.some(r.entityId as KnowledgeEntityIds.KnowledgeEntityId.Type);
+          if (KnowledgeEntityIds.KnowledgeEntityId.is(r.entityId)) {
+            return O.some(r.entityId);
           }
           return O.none();
         });
@@ -277,15 +281,15 @@ export class GraphRAGService extends Effect.Service<GraphRAGService>()($I`GraphR
 
         // 6. RRF scoring
         const graphRanks = assignGraphRanks(entityHops);
-        const graphRankList: Array<string> = [];
-        for (const [id] of graphRanks) {
+        const graphRankList = A.empty<string>();
+        MutableHashMap.forEach(graphRanks, (_, id) => {
           graphRankList.push(id);
-        }
+        });
 
         const fusedRanking = fuseRankings([embeddingRanks, graphRankList]);
 
         // Build score map
-        const scores: Record<string, number> = {};
+        const scores = R.empty<string, number>();
         for (const item of fusedRanking) {
           scores[item.id] = item.score;
         }
@@ -297,7 +301,7 @@ export class GraphRAGService extends Effect.Service<GraphRAGService>()($I`GraphR
         );
 
         // 8. Format context
-        const scoreMap = new Map<string, number>(Object.entries(scores));
+        const scoreMap = MutableHashMap.fromIterable(Struct.entries(scores));
         const { context, entityCount, relationCount } = truncateToTokenBudget(
           sortedEntities,
           relations,
@@ -340,16 +344,16 @@ export class GraphRAGService extends Effect.Service<GraphRAGService>()($I`GraphR
       seedEntityIds: ReadonlyArray<KnowledgeEntityIds.KnowledgeEntityId.Type>,
       hops: number,
       organizationId: SharedEntityIds.OrganizationId.Type,
-      options: { maxTokens?: number; includeScores?: boolean } = {}
+      options: { readonly maxTokens?: undefined | number; readonly includeScores?: undefined | boolean } = {}
     ): Effect.Effect<GraphRAGResult, GraphRAGError | DatabaseError> =>
       Effect.gen(function* () {
         const maxTokens = options.maxTokens ?? 4000;
         const includeScores = options.includeScores ?? false;
 
-        if (seedEntityIds.length === 0) {
+        if (A.isEmptyReadonlyArray(seedEntityIds)) {
           return new GraphRAGResult({
-            entities: [],
-            relations: [],
+            entities: A.empty<Entities.Entity.Model>(),
+            relations: A.empty<Entities.Relation.Model>(),
             scores: {},
             context: "",
             stats: {
@@ -372,10 +376,10 @@ export class GraphRAGService extends Effect.Service<GraphRAGService>()($I`GraphR
 
         // Score by graph distance only (no embedding ranking)
         const graphRanks = assignGraphRanks(entityHops);
-        const scores: Record<string, number> = {};
-        for (const [id, rank] of graphRanks) {
+        const scores = R.empty<string, number>();
+        MutableHashMap.forEach(graphRanks, (rank, id) => {
           scores[id] = 1 / (60 + rank); // Simple RRF from graph rank
-        }
+        });
 
         // Sort and format (descending by score)
         const sortedEntities = A.sort(
@@ -383,7 +387,7 @@ export class GraphRAGService extends Effect.Service<GraphRAGService>()($I`GraphR
           Order.mapInput(Num.Order, (e: Entities.Entity.Model) => -(scores[e.id] ?? 0))
         );
 
-        const scoreMap = new Map<string, number>(Object.entries(scores));
+        const scoreMap = MutableHashMap.fromIterable(Struct.entries(scores));
         const { context, entityCount, relationCount } = truncateToTokenBudget(sortedEntities, relations, maxTokens);
 
         return new GraphRAGResult({
@@ -431,23 +435,23 @@ const traverseGraph = (
 ): Effect.Effect<
   {
     allEntityIds: ReadonlyArray<KnowledgeEntityIds.KnowledgeEntityId.Type>;
-    entityHops: ReadonlyMap<KnowledgeEntityIds.KnowledgeEntityId.Type, number>;
+    entityHops: MutableHashMap.MutableHashMap<KnowledgeEntityIds.KnowledgeEntityId.Type, number>;
   },
   DatabaseError
 > =>
   Effect.gen(function* () {
-    const visited = new Set<string>();
-    const entityHops = new Map<KnowledgeEntityIds.KnowledgeEntityId.Type, number>();
+    const visited = MutableHashSet.empty<string>();
+    const entityHops = MutableHashMap.empty<KnowledgeEntityIds.KnowledgeEntityId.Type, number>();
 
     // Initialize with seeds at hop 0
     let frontier: Array<KnowledgeEntityIds.KnowledgeEntityId.Type> = [...seedIds];
     for (const id of seedIds) {
-      visited.add(id);
-      entityHops.set(id, 0);
+      MutableHashSet.add(visited, id);
+      MutableHashMap.set(entityHops, id, 0);
     }
 
     // BFS traversal
-    for (let hop = 1; hop <= maxHops && frontier.length > 0; hop++) {
+    for (let hop = 1; hop <= maxHops && A.isNonEmptyReadonlyArray(frontier); hop++) {
       // Get outgoing relations from frontier
       const relations = yield* relationRepo.findBySourceIds(frontier, organizationId);
 
@@ -455,24 +459,24 @@ const traverseGraph = (
       const incomingRelations = yield* relationRepo.findByTargetIds(frontier, organizationId);
 
       // Collect new entity IDs
-      const newFrontier: Array<KnowledgeEntityIds.KnowledgeEntityId.Type> = [];
+      const newFrontier = A.empty<KnowledgeEntityIds.KnowledgeEntityId.Type>();
 
       for (const rel of relations) {
         const objectIdOpt = rel.objectId;
-        if (objectIdOpt !== undefined) {
-          const objectId = objectIdOpt as KnowledgeEntityIds.KnowledgeEntityId.Type;
-          if (!visited.has(objectId)) {
-            visited.add(objectId);
-            entityHops.set(objectId, hop);
+        if (O.isSome(objectIdOpt)) {
+          const objectId = objectIdOpt.value;
+          if (!MutableHashSet.has(visited, objectId)) {
+            MutableHashSet.add(visited, objectId);
+            MutableHashMap.set(entityHops, objectId, hop);
             newFrontier.push(objectId);
           }
         }
       }
 
       for (const rel of incomingRelations) {
-        if (!visited.has(rel.subjectId)) {
-          visited.add(rel.subjectId);
-          entityHops.set(rel.subjectId, hop);
+        if (!MutableHashSet.has(visited, rel.subjectId)) {
+          MutableHashSet.add(visited, rel.subjectId);
+          MutableHashMap.set(entityHops, rel.subjectId, hop);
           newFrontier.push(rel.subjectId);
         }
       }
@@ -480,8 +484,14 @@ const traverseGraph = (
       frontier = newFrontier;
     }
 
+    // Collect all entity IDs from the entityHops map
+    const allEntityIds = A.empty<KnowledgeEntityIds.KnowledgeEntityId.Type>();
+    MutableHashMap.forEach(entityHops, (_, id) => {
+      allEntityIds.push(id);
+    });
+
     return {
-      allEntityIds: Array.from(entityHops.keys()),
+      allEntityIds,
       entityHops,
     };
   });

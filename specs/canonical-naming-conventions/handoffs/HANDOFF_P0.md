@@ -17,7 +17,7 @@ This is a research spec, NOT implementation. The goal is to understand the curre
 1. **File Postfixes**: What `.category.ts` patterns exist?
 2. **Folder Casing**: PascalCase vs lowercase vs kebab-case
 3. **Barrel Exports**: `mod.ts` vs `index.ts` patterns
-4. **Architectural Layers**: domain → tables → infra → client → ui
+4. **Architectural Layers**: domain → tables → server → client → ui
 
 ### Known Patterns (from README)
 

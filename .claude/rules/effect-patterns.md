@@ -122,6 +122,277 @@ ALWAYS choose the correct Effect Schema type based on the runtime value:
 - Use `S.Redacted` for user-provided credentials to suppress logging
 - Use plain `S.String` for server-generated tokens (already protected)
 
+## EntityId Usage (MANDATORY)
+
+ALWAYS use branded EntityIds from `@beep/shared-domain` for ID fields. NEVER use plain `S.String`.
+
+### Domain Models
+
+```typescript
+// REQUIRED
+import { IamEntityIds, SharedEntityIds } from "@beep/shared-domain";
+
+export class Member extends M.Class<Member>("Member")({
+  id: IamEntityIds.MemberId,
+  userId: SharedEntityIds.UserId,
+  organizationId: SharedEntityIds.OrganizationId,
+  // ...
+}) {}
+```
+
+```typescript
+// FORBIDDEN
+export class Member extends M.Class<Member>("Member")({
+  id: S.String,  // Missing branded EntityId!
+  userId: S.String,  // Missing branded EntityId!
+}) {}
+```
+
+### Table Columns
+
+ALWAYS add `.$type<EntityId.Type>()` to table columns referencing entity IDs:
+
+```typescript
+// REQUIRED
+import { KnowledgeEntityIds } from "@beep/knowledge-domain";
+
+export const entityTable = Table.make(KnowledgeEntityIds.EntityId)({
+  ontologyId: pg.text("ontology_id").notNull()
+    .$type<KnowledgeEntityIds.OntologyId.Type>(),
+  documentId: pg.text("document_id")
+    .$type<DocumentsEntityIds.DocumentId.Type>(),
+});
+```
+
+```typescript
+// FORBIDDEN - Missing .$type<>() causes type-unsafe joins
+ontologyId: pg.text("ontology_id").notNull(),
+documentId: pg.text("document_id"),
+```
+
+**Why**: Without `.$type<>()`, TypeScript cannot prevent mixing different entity ID types in joins, leading to runtime bugs.
+
+### Client Schemas
+
+ALWAYS use branded EntityIds in client contract schemas:
+
+```typescript
+// REQUIRED
+export class Payload extends S.Class<Payload>($I`Payload`)(
+  {
+    userId: SharedEntityIds.UserId,
+    organizationId: SharedEntityIds.OrganizationId,
+  },
+  formValuesAnnotation({
+    userId: "",
+    organizationId: "",
+  })
+) {}
+```
+
+### EntityId Creation and Validation
+
+Use EntityId schema methods for creation and validation:
+
+```typescript
+import { SharedEntityIds, IamEntityIds } from "@beep/shared-domain";
+
+// Create a new ID (generates UUID with proper prefix)
+const newOrgId = SharedEntityIds.OrganizationId.create();
+// Result: "shared_organization__<uuid>"
+
+// Validate a plain string as an entity ID
+const validatedId = SharedEntityIds.OrganizationId.make("shared_organization__abc123");
+// Throws if format is invalid
+
+// Check if a value is a valid EntityId
+if (SharedEntityIds.OrganizationId.is(someString)) {
+  // someString is typed as OrganizationId.Type
+}
+```
+
+**NEVER use type casting for EntityIds:**
+
+```typescript
+// FORBIDDEN - Type casting bypasses validation
+const badId = "" as SharedEntityIds.UserId.Type;
+
+// REQUIRED - Use schema methods
+const goodId = SharedEntityIds.UserId.make(stringValue);
+```
+
+### Transformation Schemas
+
+When mapping external API responses (Better Auth, third-party APIs) to domain entities, ALWAYS create transformation schemas:
+
+```typescript
+// REQUIRED - Transform external API response to domain entity
+export const DomainMemberFromBetterAuthMember = S.transformOrFail(
+  BetterAuthMemberSchema,
+  DomainMember.Model,
+  {
+    strict: true,
+    decode: Effect.fn(function* (betterAuthMember, _options, ast) {
+      if (!IamEntityIds.MemberId.is(betterAuthMember.id)) {
+        return yield* ParseResult.fail(
+          new ParseResult.Type(ast, betterAuthMember.id, "Invalid member ID format")
+        );
+      }
+      // ... rest of transformation
+    }),
+  }
+);
+```
+
+**Why**: External APIs return plain strings. Transformation schemas validate format before accepting into domain layer.
+
+### EntityId Quick Reference
+
+| Slice | Import | Available IDs |
+|-------|--------|---------------|
+| Shared | `SharedEntityIds` from `@beep/shared-domain` | `UserId`, `OrganizationId`, `TeamId`, `SessionId`, `FileId`, `FolderId` |
+| IAM | `IamEntityIds` from `@beep/shared-domain` | `MemberId`, `RoleId`, `PermissionId`, `InvitationId`, `ApiKeyId` |
+| Documents | `DocumentsEntityIds` from `@beep/shared-domain` | `DocumentId`, `DocumentVersionId`, `CommentId` |
+| Knowledge | `KnowledgeEntityIds` from `@beep/knowledge-domain` | `EntityId`, `OntologyId`, `RelationId`, `SameAsLinkId` |
+| Calendar | `CalendarEntityIds` from `@beep/shared-domain` | `EventId`, `AvailabilityId`, `RecurrenceId` |
+
+## NEVER Patterns (FORBIDDEN)
+
+These patterns are FORBIDDEN and will cause remediation work:
+
+### 1. NEVER use native JavaScript collections/methods
+
+```typescript
+// FORBIDDEN - Native methods
+array.map(x => x + 1)
+array.filter(x => x > 0)
+array.sort()
+array.reduce((acc, x) => acc + x, 0)
+array.length === 0
+string.toLowerCase()
+string.toUpperCase()
+string.slice(0, 5)
+string.split(",")
+Object.entries(obj)
+Object.keys(obj)
+new Set([1, 2, 3])
+new Map([["a", 1]])
+new Date()
+Date.now()
+
+// REQUIRED - Effect utilities
+import * as A from "effect/Array";
+import * as Str from "effect/String";
+import * as Struct from "effect/Struct";
+import * as MutableHashSet from "effect/MutableHashSet";
+import * as MutableHashMap from "effect/MutableHashMap";
+import * as DateTime from "effect/DateTime";
+import * as Order from "effect/Order";
+
+A.map(array, x => x + 1)
+A.filter(array, x => x > 0)
+A.sort(array, Order.number)
+A.reduce(array, 0, (acc, x) => acc + x)
+A.isEmptyReadonlyArray(array)
+Str.toLowerCase(string)
+Str.toUpperCase(string)
+Str.slice(string, 0, 5)
+Str.split(string, ",")
+Struct.entries(obj)
+Struct.keys(obj)
+MutableHashSet.make(1, 2, 3)
+MutableHashMap.make(["a", 1])
+DateTime.now
+DateTime.unsafeNow()
+```
+
+### 2. NEVER use native Error constructors
+
+```typescript
+// FORBIDDEN
+new Error("Something went wrong")
+Effect.die(new Error("Fatal"))
+throw new Error("Bad input")
+
+// REQUIRED - Use tagged errors
+export class MyError extends S.TaggedError<MyError>()("MyError", {
+  message: S.String,
+}) {}
+
+Effect.fail(new MyError({ message: "Something went wrong" }))
+```
+
+### 3. NEVER use non-null assertions
+
+```typescript
+// FORBIDDEN
+const value = map.get(key)!
+const first = array[0]!
+const element = document.getElementById("foo")!
+
+// REQUIRED - Use Option
+import * as O from "effect/Option";
+
+const value = O.fromNullable(map.get(key))
+const first = A.head(array)  // Returns Option<T>
+```
+
+### 4. NEVER use switch statements
+
+```typescript
+// FORBIDDEN
+switch (status) {
+  case "active": return "✓";
+  case "inactive": return "✗";
+  default: return "?";
+}
+
+// REQUIRED - Use Match
+import * as Match from "effect/Match";
+
+Match.value(status).pipe(
+  Match.when("active", () => "✓"),
+  Match.when("inactive", () => "✗"),
+  Match.orElse(() => "?")
+)
+```
+
+### 5. NEVER use plain strings for entity IDs
+
+```typescript
+// FORBIDDEN - Domain models
+id: S.String
+userId: S.String
+organizationId: S.String
+
+// FORBIDDEN - Table columns
+pg.text("user_id").notNull()
+pg.text("organization_id")
+
+// REQUIRED - Domain models
+id: SharedEntityIds.UserId
+userId: SharedEntityIds.UserId
+organizationId: SharedEntityIds.OrganizationId
+
+// REQUIRED - Table columns
+pg.text("user_id").notNull().$type<SharedEntityIds.UserId.Type>()
+pg.text("organization_id").$type<SharedEntityIds.OrganizationId.Type>()
+```
+
+### 6. NEVER use typeof/instanceof for type narrowing
+
+```typescript
+// FORBIDDEN
+if (typeof value === "string") { ... }
+if (value instanceof Date) { ... }
+
+// REQUIRED - Use Effect predicates
+import * as P from "effect/Predicate";
+
+if (P.isString(value)) { ... }
+if (P.isDate(value)) { ... }
+```
+
 ## BS Helper Reference (@beep/schema)
 
 The `@beep/schema` package (imported as `BS`) provides specialized helpers for common schema patterns. ALWAYS prefer BS helpers over manual schema composition when available.

@@ -61,7 +61,7 @@ Configuration and guardrails for AI collaborators working in the `beep-effect` m
 
 ## Architecture & Boundaries
 
-Each slice follows `domain -> tables -> infra -> client -> ui`. Cross-slice imports only through `packages/shared/*` or `packages/common/*`. ALWAYS use `@beep/*` path aliases. NEVER use direct cross-slice imports or relative `../../../` paths.
+Each slice follows `domain -> tables -> server -> client -> ui`. Cross-slice imports only through `packages/shared/*` or `packages/common/*`. ALWAYS use `@beep/*` path aliases. NEVER use direct cross-slice imports or relative `../../../` paths.
 
 ## Effect Patterns
 
@@ -72,6 +72,25 @@ See [documentation/EFFECT_PATTERNS.md](documentation/EFFECT_PATTERNS.md) for det
 - NEVER use `any`, `@ts-ignore`, or unchecked casts. ALWAYS validate external data with `@beep/schema`.
 - Biome formatting: run `bun run lint:fix` before committing.
 - Use `Effect.log*` with structured objects for logging.
+
+## Effect Collections Quick Reference
+
+NEVER use native JavaScript collections/methods. ALWAYS use Effect utilities:
+
+| Native | Effect | Import |
+|--------|--------|--------|
+| `array.map()` | `A.map(array, fn)` | `import * as A from "effect/Array"` |
+| `array.filter()` | `A.filter(array, pred)` | `import * as A from "effect/Array"` |
+| `array.sort()` | `A.sort(array, Order.number)` | `import * as Order from "effect/Order"` |
+| `array.length === 0` | `A.isEmptyReadonlyArray(array)` | `import * as A from "effect/Array"` |
+| `new Set()` | `MutableHashSet.make()` | `import * as MutableHashSet from "effect/MutableHashSet"` |
+| `new Map()` | `MutableHashMap.make()` | `import * as MutableHashMap from "effect/MutableHashMap"` |
+| `Object.entries()` | `Struct.entries()` | `import * as Struct from "effect/Struct"` |
+| `string.toLowerCase()` | `Str.toLowerCase(string)` | `import * as Str from "effect/String"` |
+| `new Date()` | `DateTime.now` | `import * as DateTime from "effect/DateTime"` |
+| `new Error()` | `S.TaggedError` | See `.claude/rules/effect-patterns.md` |
+
+See [Effect Collections Guide](documentation/patterns/effect-collections.md) for migration examples.
 
 ## Testing
 
@@ -125,7 +144,7 @@ See `.claude/rules/effect-patterns.md` Testing section and `.claude/commands/pat
 3. **Verify Changes**: Request `bun run check` after modifications
 4. **Respect Tooling**: ALWAYS run commands via `bun run <script>` from project root
 5. **Keep Docs Updated**: Align with `documentation/patterns/` when introducing new patterns
-6. **Do Not Auto-Start**: NEVER launch long-running dev or infra commands without confirmation
+6. **Do Not Auto-Start**: NEVER launch long-running dev or server commands without confirmation
 
 ## Specifications
 

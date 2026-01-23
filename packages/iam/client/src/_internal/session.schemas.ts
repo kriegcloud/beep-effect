@@ -29,7 +29,7 @@ export const BetterAuthSessionSchema = S.Struct(
     userId: S.String,
     expiresAt: BS.DateFromAllAcceptable,
     token: S.String,
-    ipAddress: S.optionalWith(S.String, { nullable: true }),
+    ipAddress: S.optionalWith(S.encodedSchema(BS.IP), { nullable: true }),
     userAgent: S.optionalWith(S.String, { nullable: true }),
     activeOrganizationId: S.optionalWith(S.String, { nullable: true }),
     activeTeamId: S.optionalWith(S.String, { nullable: true }),
