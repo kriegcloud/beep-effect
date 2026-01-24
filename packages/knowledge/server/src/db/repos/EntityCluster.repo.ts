@@ -132,7 +132,7 @@ const makeEntityClusterExtensions = Effect.gen(function* () {
     organizationId: SharedEntityIds.OrganizationId.Type
   ): Effect.Effect<O.Option<Entities.EntityCluster.Model>, DatabaseError> =>
     findByCanonicalEntitySchema({ canonicalEntityId, organizationId }).pipe(
-      Effect.catchTag("ParseError", (e) => Effect.die(e)),
+      Effect.catchTag("ParseError", Effect.die),
       Effect.mapError(DatabaseError.$match),
       Effect.withSpan("EntityClusterRepo.findByCanonicalEntity", {
         captureStackTrace: false,
@@ -152,7 +152,7 @@ const makeEntityClusterExtensions = Effect.gen(function* () {
     organizationId: SharedEntityIds.OrganizationId.Type
   ): Effect.Effect<O.Option<Entities.EntityCluster.Model>, DatabaseError> =>
     findByMemberSchema({ memberId, organizationId }).pipe(
-      Effect.catchTag("ParseError", (e) => Effect.die(e)),
+      Effect.catchTag("ParseError", Effect.die),
       Effect.mapError(DatabaseError.$match),
       Effect.withSpan("EntityClusterRepo.findByMember", {
         captureStackTrace: false,
@@ -174,7 +174,7 @@ const makeEntityClusterExtensions = Effect.gen(function* () {
     limit = 100
   ): Effect.Effect<ReadonlyArray<Entities.EntityCluster.Model>, DatabaseError> =>
     findByOntologySchema({ ontologyId, organizationId, limit }).pipe(
-      Effect.catchTag("ParseError", (e) => Effect.die(e)),
+      Effect.catchTag("ParseError", Effect.die),
       Effect.mapError(DatabaseError.$match),
       Effect.withSpan("EntityClusterRepo.findByOntology", {
         captureStackTrace: false,
@@ -196,7 +196,7 @@ const makeEntityClusterExtensions = Effect.gen(function* () {
     limit = 100
   ): Effect.Effect<ReadonlyArray<Entities.EntityCluster.Model>, DatabaseError> =>
     findHighCohesionSchema({ minCohesion, organizationId, limit }).pipe(
-      Effect.catchTag("ParseError", (e) => Effect.die(e)),
+      Effect.catchTag("ParseError", Effect.die),
       Effect.mapError(DatabaseError.$match),
       Effect.withSpan("EntityClusterRepo.findHighCohesion", {
         captureStackTrace: false,
@@ -215,7 +215,7 @@ const makeEntityClusterExtensions = Effect.gen(function* () {
     organizationId: SharedEntityIds.OrganizationId.Type
   ): Effect.Effect<void, DatabaseError> =>
     deleteByOntologySchema({ ontologyId, organizationId }).pipe(
-      Effect.catchTag("ParseError", (e) => Effect.die(e)),
+      Effect.catchTag("ParseError", Effect.die),
       Effect.mapError(DatabaseError.$match),
       Effect.withSpan("EntityClusterRepo.deleteByOntology", {
         captureStackTrace: false,

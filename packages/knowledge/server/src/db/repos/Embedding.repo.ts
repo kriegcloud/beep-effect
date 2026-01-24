@@ -148,7 +148,7 @@ const makeEmbeddingExtensions = Effect.gen(function* () {
     threshold = 0.7
   ): Effect.Effect<ReadonlyArray<SimilarityResult>, DatabaseError> =>
     findSimilarSchema({ queryVector: [...queryVector], organizationId, limit, threshold }).pipe(
-      Effect.catchTag("ParseError", (e) => Effect.die(e)),
+      Effect.catchTag("ParseError", Effect.die),
       Effect.mapError(DatabaseError.$match),
       Effect.withSpan("EmbeddingRepo.findSimilar", {
         captureStackTrace: false,
@@ -170,7 +170,7 @@ const makeEmbeddingExtensions = Effect.gen(function* () {
     limit = 100
   ): Effect.Effect<ReadonlyArray<Entities.Embedding.Model>, DatabaseError> =>
     findByEntityTypeSchema({ entityType, organizationId, limit }).pipe(
-      Effect.catchTag("ParseError", (e) => Effect.die(e)),
+      Effect.catchTag("ParseError", Effect.die),
       Effect.mapError(DatabaseError.$match),
       Effect.withSpan("EmbeddingRepo.findByEntityType", {
         captureStackTrace: false,
@@ -200,10 +200,7 @@ const makeEmbeddingExtensions = Effect.gen(function* () {
             AND entity_id LIKE ${`${entityIdPrefix}%`}
       `.pipe(
         Effect.mapError((error) =>
-          DatabaseError.$match({
-            message: `Failed to delete embeddings by prefix: ${String(error)}`,
-            _tag: "DatabaseError",
-          })
+          DatabaseError.$match(error, `Failed to delete embeddings by prefix: ${String(error)}`)
         )
       );
       return result.length;

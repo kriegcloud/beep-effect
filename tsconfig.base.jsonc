@@ -45,12 +45,7 @@
         "namespaceImportPackages": [
           "effect",
           "@effect/*"
-        ],
-        "includeSuggestionsInTsc": false,
-        "diagnosticSeverity": {
-          "effectFnOpportunity": "off",
-          "preferSchemaOverJson": "off"
-        }
+        ]
       }
     ],
     "lib": [

@@ -8,7 +8,7 @@ import * as Effect from "effect/Effect";
 const waitFor = (ms: number) =>
   // @ts-expect-error
   Effect.async<void>((resume) => {
-    const timer = setTimeout(() => resume(Effect.succeed(undefined)), ms);
+    const timer = setTimeout(() => resume(Effect.void), ms);
     return () => {
       clearTimeout(timer);
     };

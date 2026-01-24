@@ -26,11 +26,11 @@ export const entity = OrgTable.make(KnowledgeEntityIds.KnowledgeEntityId)(
     // Original text mention from source
     mention: pg.text("mention").notNull(),
 
-    // Ontology class URIs this entity instantiates (JSON array)
-    types: pg.jsonb("types").notNull().$type<ReadonlyArray<string>>(),
+    // Ontology class URIs this entity instantiates (JSON array, NonEmptyArray)
+    types: pg.jsonb("types").notNull().$type<readonly [string, ...string[]]>(),
 
     // Entity attributes as property-value pairs (JSON object)
-    attributes: pg.jsonb("attributes").notNull().default({}).$type<Record<string, string | number | boolean>>(),
+    attributes: pg.jsonb("attributes").notNull().$type<Record<string, string | number | boolean>>(),
 
     // Ontology scoping (optional - null means default ontology)
     ontologyId: pg.text("ontology_id").$type<KnowledgeEntityIds.OntologyId.Type>(),

@@ -7,6 +7,8 @@
  * @module knowledge-server/Extraction/schemas/EntityOutput
  * @since 0.1.0
  */
+
+import { Confidence } from "@beep/knowledge-domain/value-objects";
 import * as S from "effect/Schema";
 
 /**
@@ -44,13 +46,9 @@ export class ClassifiedEntity extends S.Class<ClassifiedEntity>("@beep/knowledge
   /**
    * Confidence in the type classification (0-1)
    */
-  confidence: S.Number.pipe(
-    S.greaterThanOrEqualTo(0),
-    S.lessThanOrEqualTo(1),
-    S.annotations({
-      description: "Type classification confidence (0-1)",
-    })
-  ),
+  confidence: Confidence.annotations({
+    description: "Type classification confidence (0-1)",
+  }),
 
   /**
    * Evidence text supporting the classification

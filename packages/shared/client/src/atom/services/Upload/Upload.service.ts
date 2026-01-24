@@ -465,7 +465,7 @@ export const uploadToS3: (options: UploadOptions) => Effect.Effect<void, UploadE
               })
             );
             runSync(registry.complete(options.uploadId));
-            resume(Effect.succeed(undefined));
+            resume(Effect.void);
           } else {
             const error = new UploadError.S3UploadFailedError({
               message: `S3 upload failed with status ${xhr.status}: ${xhr.statusText}`,

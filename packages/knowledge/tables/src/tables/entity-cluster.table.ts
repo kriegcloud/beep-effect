@@ -29,8 +29,11 @@ export const entityCluster = OrgTable.make(KnowledgeEntityIds.EntityClusterId)(
     // Note: FK constraint is added via foreignKey() in extraConfig to use custom short name
     canonicalEntityId: pg.text("canonical_entity_id").notNull().$type<KnowledgeEntityIds.KnowledgeEntityId.Type>(),
 
-    // Member entity IDs in this cluster (JSON array)
-    memberIds: pg.jsonb("member_ids").notNull().$type<ReadonlyArray<KnowledgeEntityIds.KnowledgeEntityId.Type>>(),
+    // Member entity IDs in this cluster (JSON array, NonEmptyArray)
+    memberIds: pg
+      .jsonb("member_ids")
+      .notNull()
+      .$type<readonly [KnowledgeEntityIds.KnowledgeEntityId.Type, ...KnowledgeEntityIds.KnowledgeEntityId.Type[]]>(),
 
     // Internal cluster cohesion score (average pairwise similarity)
     cohesion: pg.real("cohesion").notNull(),

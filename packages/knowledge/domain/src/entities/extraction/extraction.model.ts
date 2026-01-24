@@ -110,52 +110,36 @@ export class Model extends M.Class<Model>($I`ExtractionModel`)(
      * Number of entities extracted
      */
     entityCount: BS.FieldOptionOmittable(
-      S.Number.pipe(
-        S.int(),
-        S.nonNegative(),
-        S.annotations({
-          description: "Number of entities extracted",
-        })
-      )
+      S.NonNegativeInt.annotations({
+        description: "Number of entities extracted",
+      })
     ),
 
     /**
      * Number of relations extracted
      */
     relationCount: BS.FieldOptionOmittable(
-      S.Number.pipe(
-        S.int(),
-        S.nonNegative(),
-        S.annotations({
-          description: "Number of relations extracted",
-        })
-      )
+      S.NonNegativeInt.annotations({
+        description: "Number of relations extracted",
+      })
     ),
 
     /**
      * Number of chunks processed
      */
     chunkCount: BS.FieldOptionOmittable(
-      S.Number.pipe(
-        S.int(),
-        S.nonNegative(),
-        S.annotations({
-          description: "Number of text chunks processed",
-        })
-      )
+      S.NonNegativeInt.annotations({
+        description: "Number of text chunks processed",
+      })
     ),
 
     /**
      * Total tokens consumed by LLM
      */
     totalTokens: BS.FieldOptionOmittable(
-      S.Number.pipe(
-        S.int(),
-        S.nonNegative(),
-        S.annotations({
-          description: "Total LLM tokens consumed",
-        })
-      )
+      S.NonNegativeInt.annotations({
+        description: "Total LLM tokens consumed",
+      })
     ),
 
     /**
@@ -186,13 +170,13 @@ export class Model extends M.Class<Model>($I`ExtractionModel`)(
    * Check if extraction is complete
    */
   get isComplete(): boolean {
-    return this.status === "completed" || this.status === "failed" || this.status === "cancelled";
+    return S.is(ExtractionStatus.derive("completed", "failed", "cancelled"))(this.status);
   }
 
   /**
    * Check if extraction is running
    */
   get isRunning(): boolean {
-    return this.status === "running";
+    return ExtractionStatus.is.running(this.status);
   }
 }

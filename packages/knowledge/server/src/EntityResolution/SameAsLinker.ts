@@ -8,6 +8,8 @@
  * @since 0.1.0
  */
 
+import { $KnowledgeServerId } from "@beep/identity/packages";
+import { Entities } from "@beep/knowledge-domain";
 import { KnowledgeEntityIds } from "@beep/shared-domain";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
@@ -15,7 +17,10 @@ import * as Iterable from "effect/Iterable";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as MutableHashSet from "effect/MutableHashSet";
 import * as O from "effect/Option";
+import * as S from "effect/Schema";
 import type { EntityCluster } from "./EntityClusterer";
+
+const $I = $KnowledgeServerId.create("EntityResolution/SameAsLinker");
 // =============================================================================
 // Types
 // =============================================================================
@@ -26,32 +31,10 @@ import type { EntityCluster } from "./EntityClusterer";
  * @since 0.1.0
  * @category types
  */
-export interface SameAsLink {
-  /**
-   * Link ID
-   */
-  readonly id: string;
-
-  /**
-   * Canonical entity IRI/ID
-   */
-  readonly canonicalId: string;
-
-  /**
-   * Member entity IRI/ID that is "same as" canonical
-   */
-  readonly memberId: string;
-
-  /**
-   * Confidence score for this link (0-1)
-   */
-  readonly confidence: number;
-
-  /**
-   * Source of the member entity (extraction/document ID)
-   */
-  readonly sourceId?: undefined | string;
-}
+export class SameAsLink extends S.Class<SameAsLink>($I`SameAsLink`)({
+  ...Entities.SameAsLink.Model.select.pick("id", "canonicalId", "memberId", "confidence").fields,
+  sourceId: S.optional(S.String),
+}) {}
 
 /**
  * Result of transitive closure computation
@@ -292,7 +275,7 @@ export class SameAsLinker extends Effect.Service<SameAsLinker>()("@beep/knowledg
           MutableHashMap.set(groups, canonical, group);
         });
 
-        const result: TransitiveClosure[] = [];
+        const result = A.empty<TransitiveClosure>();
         MutableHashMap.forEach(groups, (members, canonical) => {
           result.push({ canonical, members });
         });

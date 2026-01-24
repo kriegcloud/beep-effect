@@ -79,7 +79,13 @@ layer(PlaywrightEnvironment.layer(chromium))("PlaywrightFrame", (it) => {
       // Get the frame - it should be there now
       // Get the frame - it should be there now
       const frames = yield* page.frames;
-      const frameService = frames.find((f) => Effect.runSync(f.name.pipe(Effect.map((n) => n === "test-frame"))));
+      const isTestFrame = (f: PlaywrightFrameService) => f.name.pipe(Effect.map((n) => n === "test-frame"));
+      const frameService = yield* Effect.findFirst(frames, isTestFrame).pipe(
+        Effect.flatten,
+        Effect.retry({
+          times: 3,
+        })
+      );
 
       assert.isOk(frameService, "Frame not found");
 

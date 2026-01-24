@@ -6,32 +6,16 @@
  * @module knowledge-server/test/Extraction/EntityExtractor.test
  * @since 0.1.0
  */
-import { describe } from "bun:test";
-import { assertTrue, effect, strictEqual } from "@beep/testkit";
+import { EntityExtractor } from "@beep/knowledge-server/Extraction/EntityExtractor";
+import { ClassifiedEntity } from "@beep/knowledge-server/Extraction/schemas/entity-output.schema";
+import { ExtractedMention } from "@beep/knowledge-server/Extraction/schemas/mention-output.schema";
+import { assertTrue, describe, effect, strictEqual } from "@beep/testkit";
 import * as Effect from "effect/Effect";
-import * as Layer from "effect/Layer";
-import { EntityExtractor } from "../../src/Extraction/EntityExtractor";
-import { ClassifiedEntity } from "../../src/Extraction/schemas/entity-output.schema";
-import { ExtractedMention } from "../../src/Extraction/schemas/mention-output.schema";
-import { clearMockResponses, createMockOntologyContext, MockLlmLive, setMockResponse } from "../_shared/TestLayers";
-
-// Build the test layer with mock LLM
-const TestEntityExtractorLayer = Layer.provide(EntityExtractor.Default, MockLlmLive);
+import { createMockOntologyContext, withLanguageModel } from "../_shared/TestLayers";
 
 describe("EntityExtractor", () => {
   effect("classifies entities from mentions", () =>
     Effect.gen(function* () {
-      clearMockResponses();
-      setMockResponse("EntityOutput", {
-        entities: [
-          {
-            mention: "John Smith",
-            typeIri: "http://schema.org/Person",
-            confidence: 0.95,
-          },
-        ],
-      });
-
       const extractor = yield* EntityExtractor;
       const ontologyContext = createMockOntologyContext({
         classes: [{ iri: "http://schema.org/Person", label: "Person" }],
@@ -52,19 +36,27 @@ describe("EntityExtractor", () => {
       strictEqual(result.entities[0]?.mention, "John Smith");
       strictEqual(result.entities[0]?.typeIri, "http://schema.org/Person");
       strictEqual(result.invalidTypes.length, 0);
-    }).pipe(Effect.provide(TestEntityExtractorLayer))
+    }).pipe(
+      Effect.provide(EntityExtractor.Default),
+      withLanguageModel({
+        generateObject: (objectName: string | undefined) =>
+          objectName === "EntityOutput"
+            ? {
+                entities: [
+                  {
+                    mention: "John Smith",
+                    typeIri: "http://schema.org/Person",
+                    confidence: 0.95,
+                  },
+                ],
+              }
+            : {},
+      })
+    )
   );
 
   effect("filters entities below confidence threshold", () =>
     Effect.gen(function* () {
-      clearMockResponses();
-      setMockResponse("EntityOutput", {
-        entities: [
-          { mention: "John", typeIri: "http://schema.org/Person", confidence: 0.9 },
-          { mention: "maybe-entity", typeIri: "http://schema.org/Thing", confidence: 0.3 },
-        ],
-      });
-
       const extractor = yield* EntityExtractor;
       const ontologyContext = createMockOntologyContext({
         classes: [
@@ -82,16 +74,24 @@ describe("EntityExtractor", () => {
 
       strictEqual(result.entities.length, 1);
       strictEqual(result.entities[0]?.mention, "John");
-    }).pipe(Effect.provide(TestEntityExtractorLayer))
+    }).pipe(
+      Effect.provide(EntityExtractor.Default),
+      withLanguageModel({
+        generateObject: (objectName: string | undefined) =>
+          objectName === "EntityOutput"
+            ? {
+                entities: [
+                  { mention: "John", typeIri: "http://schema.org/Person", confidence: 0.9 },
+                  { mention: "maybe-entity", typeIri: "http://schema.org/Thing", confidence: 0.3 },
+                ],
+              }
+            : {},
+      })
+    )
   );
 
   effect("identifies invalid types not in ontology", () =>
     Effect.gen(function* () {
-      clearMockResponses();
-      setMockResponse("EntityOutput", {
-        entities: [{ mention: "Widget", typeIri: "http://invalid.org/UnknownType", confidence: 0.9 }],
-      });
-
       const extractor = yield* EntityExtractor;
       const ontologyContext = createMockOntologyContext({
         classes: [{ iri: "http://schema.org/Person", label: "Person" }],
@@ -104,7 +104,15 @@ describe("EntityExtractor", () => {
       strictEqual(result.entities.length, 0);
       strictEqual(result.invalidTypes.length, 1);
       strictEqual(result.invalidTypes[0]?.typeIri, "http://invalid.org/UnknownType");
-    }).pipe(Effect.provide(TestEntityExtractorLayer))
+    }).pipe(
+      Effect.provide(EntityExtractor.Default),
+      withLanguageModel({
+        generateObject: (objectName: string | undefined) =>
+          objectName === "EntityOutput"
+            ? { entities: [{ mention: "Widget", typeIri: "http://invalid.org/UnknownType", confidence: 0.9 }] }
+            : {},
+      })
+    )
   );
 
   effect("handles empty input", () =>
@@ -117,16 +125,11 @@ describe("EntityExtractor", () => {
       strictEqual(result.entities.length, 0);
       strictEqual(result.unclassified.length, 0);
       strictEqual(result.tokensUsed, 0);
-    }).pipe(Effect.provide(TestEntityExtractorLayer))
+    }).pipe(Effect.provide(EntityExtractor.Default), withLanguageModel({}))
   );
 
   effect("tracks unclassified mentions", () =>
     Effect.gen(function* () {
-      clearMockResponses();
-      setMockResponse("EntityOutput", {
-        entities: [{ mention: "John", typeIri: "http://schema.org/Person", confidence: 0.9 }],
-      });
-
       const extractor = yield* EntityExtractor;
       const ontologyContext = createMockOntologyContext({
         classes: [{ iri: "http://schema.org/Person", label: "Person" }],
@@ -142,7 +145,15 @@ describe("EntityExtractor", () => {
       strictEqual(result.entities.length, 1);
       strictEqual(result.unclassified.length, 1);
       strictEqual(result.unclassified[0]?.text, "Unknown");
-    }).pipe(Effect.provide(TestEntityExtractorLayer))
+    }).pipe(
+      Effect.provide(EntityExtractor.Default),
+      withLanguageModel({
+        generateObject: (objectName: string | undefined) =>
+          objectName === "EntityOutput"
+            ? { entities: [{ mention: "John", typeIri: "http://schema.org/Person", confidence: 0.9 }] }
+            : {},
+      })
+    )
   );
 
   effect("resolves entities by canonical name", () =>
@@ -171,6 +182,6 @@ describe("EntityExtractor", () => {
       assertTrue(group !== undefined);
       strictEqual(group.mentions.length, 2);
       strictEqual(group.canonical.confidence, 0.95);
-    }).pipe(Effect.provide(TestEntityExtractorLayer))
+    }).pipe(Effect.provide(EntityExtractor.Default), withLanguageModel({}))
   );
 });

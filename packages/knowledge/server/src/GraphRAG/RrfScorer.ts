@@ -6,6 +6,8 @@
  * @module knowledge-server/GraphRAG/RrfScorer
  * @since 0.1.0
  */
+
+import { thunkZero } from "@beep/utils";
 import * as A from "effect/Array";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as Num from "effect/Number";
@@ -103,13 +105,13 @@ export const fuseRankings = <T extends string>(
     A.forEach(rankedList, (id, i) => {
       const rank = i + 1; // 1-indexed
       const component = rrfComponent(rank, k);
-      const currentScore = O.getOrElse(MutableHashMap.get(scoreMap, id), () => 0);
+      const currentScore = O.getOrElse(MutableHashMap.get(scoreMap, id), thunkZero);
       MutableHashMap.set(scoreMap, id, currentScore + component);
     });
   }
 
   // Convert to array and sort by descending score
-  const items: Array<RankedItem<T>> = [];
+  const items = A.empty<RankedItem<T>>();
   MutableHashMap.forEach(scoreMap, (score, id) => {
     items.push({ id, score });
   });
@@ -140,7 +142,7 @@ export const assignGraphRanks = <T extends string>(
 
   MutableHashMap.forEach(entityHops, (hops, id) => {
     const groupOpt = MutableHashMap.get(hopGroups, hops);
-    const group = O.getOrElse(groupOpt, () => A.empty<T>());
+    const group = O.getOrElse(groupOpt, A.empty<T>);
     group.push(id);
     MutableHashMap.set(hopGroups, hops, group);
   });
@@ -156,7 +158,7 @@ export const assignGraphRanks = <T extends string>(
   let currentRank = 1;
   for (const hop of sortedHopLevels) {
     const entitiesOpt = MutableHashMap.get(hopGroups, hop);
-    const entities = O.getOrElse(entitiesOpt, () => A.empty<T>());
+    const entities = O.getOrElse(entitiesOpt, A.empty<T>);
     for (const id of entities) {
       MutableHashMap.set(rankMap, id, currentRank);
     }

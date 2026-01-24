@@ -13,7 +13,7 @@ import { makeFields } from "@beep/shared-domain/common";
 import { modelKit } from "@beep/shared-domain/factories";
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
-import { EvidenceSpan } from "../../value-objects";
+import { Confidence, EvidenceSpan } from "../../value-objects";
 
 const $I = $KnowledgeDomainId.create("entities/Relation");
 
@@ -117,13 +117,9 @@ export class Model extends M.Class<Model>($I`RelationModel`)(
      * System-generated grounding confidence (0-1)
      */
     groundingConfidence: BS.FieldOptionOmittable(
-      S.Number.pipe(
-        S.greaterThanOrEqualTo(0),
-        S.lessThanOrEqualTo(1),
-        S.annotations({
-          description: "System-verified confidence that relation is grounded in source text (0-1)",
-        })
-      )
+      Confidence.annotations({
+        description: "System-verified confidence that relation is grounded in source text (0-1)",
+      })
     ),
   }),
   $I.annotations("RelationModel", {

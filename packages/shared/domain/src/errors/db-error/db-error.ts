@@ -30,6 +30,7 @@ export class DatabaseError extends S.TaggedError<DatabaseError>($I`DatabaseError
     type: S.optional(PgErrorCodeFromKey.From),
     pgError: S.optionalWith(RawPgError, { nullable: true }),
     cause: S.Defect,
+    customMessage: S.optional(S.String),
   },
   $I.annotations("DatabaseError", {
     description: "Error that occurs when a database operation fails.",
@@ -57,7 +58,7 @@ export class DatabaseError extends S.TaggedError<DatabaseError>($I`DatabaseError
     return null;
   };
 
-  static readonly $match = (error: unknown) => {
+  static readonly $match = (error: unknown, customMessage?: undefined | string) => {
     const pgError = DatabaseError.extractPgError(error);
     if (pgError !== null) {
       return Match.value(pgError).pipe(
@@ -68,6 +69,7 @@ export class DatabaseError extends S.TaggedError<DatabaseError>($I`DatabaseError
               type: PgErrorCodeFromKey.EnumReverse[err.code],
               pgError: err,
               cause: error,
+              customMessage: customMessage,
             })
         ),
         Match.when(
@@ -77,6 +79,7 @@ export class DatabaseError extends S.TaggedError<DatabaseError>($I`DatabaseError
               type: PgErrorCodeFromKey.EnumReverse[err.code],
               pgError: err,
               cause: error,
+              customMessage: customMessage,
             })
         ),
         Match.when(
@@ -86,6 +89,7 @@ export class DatabaseError extends S.TaggedError<DatabaseError>($I`DatabaseError
               type: PgErrorCodeFromKey.EnumReverse[err.code],
               pgError: err,
               cause: error,
+              customMessage: customMessage,
             })
         ),
         Match.when(
@@ -95,6 +99,7 @@ export class DatabaseError extends S.TaggedError<DatabaseError>($I`DatabaseError
               type: PgErrorCodeFromKey.EnumReverse[err.code],
               pgError: err,
               cause: error,
+              customMessage: customMessage,
             })
         ),
         Match.when(
@@ -104,6 +109,7 @@ export class DatabaseError extends S.TaggedError<DatabaseError>($I`DatabaseError
               type: PgErrorCodeFromKey.EnumReverse[err.code],
               pgError: err,
               cause: error,
+              customMessage: customMessage,
             })
         ),
         Match.orElse(
@@ -112,12 +118,14 @@ export class DatabaseError extends S.TaggedError<DatabaseError>($I`DatabaseError
               type: PgErrorCodeFromKey.EnumReverse[pgError.code as typeof PgErrorCodeFromKey.Type],
               pgError,
               cause: error,
+              customMessage: customMessage,
             })
         )
       );
     }
     return new DatabaseError({
       cause: error,
+      customMessage: customMessage,
     });
   };
 

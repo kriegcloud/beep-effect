@@ -7,10 +7,10 @@
  * @since 0.1.0
  */
 
+import type { BS } from "@beep/schema";
 import { KnowledgeEntityIds } from "@beep/shared-domain";
 import { OrgTable } from "@beep/shared-tables";
 import * as pg from "drizzle-orm/pg-core";
-
 /**
  * Ontology table for the knowledge slice.
  *
@@ -28,7 +28,7 @@ export const ontology = OrgTable.make(KnowledgeEntityIds.OntologyId)(
     namespace: pg.text("namespace").notNull(),
 
     // Semantic version (ontologyVersion to avoid conflict with audit version)
-    ontologyVersion: pg.text("ontology_version").notNull().default("1.0.0"),
+    ontologyVersion: pg.text("ontology_version").notNull().default("1.0.0").$type<BS.SemanticVersion.Encoded>(),
 
     // Human-readable description
     description: pg.text("description"),

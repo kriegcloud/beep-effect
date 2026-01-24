@@ -6,18 +6,18 @@
  * @module knowledge-server/test/GraphRAG/RrfScorer.test
  * @since 0.1.0
  */
-import { describe } from "bun:test";
-import { assertTrue, effect, strictEqual } from "@beep/testkit";
-import * as Effect from "effect/Effect";
-import * as MutableHashMap from "effect/MutableHashMap";
-import * as O from "effect/Option";
+
 import {
   assignGraphRanks,
   combineEmbeddingAndGraphRanks,
   fuseRankings,
   rrfComponent,
   rrfScore,
-} from "../../src/GraphRAG/RrfScorer";
+} from "@beep/knowledge-server/GraphRAG/RrfScorer";
+import { assertTrue, describe, effect, strictEqual } from "@beep/testkit";
+import * as Effect from "effect/Effect";
+import * as MutableHashMap from "effect/MutableHashMap";
+import * as O from "effect/Option";
 
 describe("RrfScorer", () => {
   effect("calculates rrfComponent correctly", () =>

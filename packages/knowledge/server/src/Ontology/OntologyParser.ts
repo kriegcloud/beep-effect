@@ -151,12 +151,8 @@ export class OntologyParser extends Effect.Service<OntologyParser>()("@beep/know
     /**
      * Get first value for a predicate (for single-valued predicates)
      */
-    const getFirstValue = (map: MutableHashMap.MutableHashMap<string, string[]>, subject: string): O.Option<string> => {
-      const valuesOpt = MutableHashMap.get(map, subject);
-      if (O.isNone(valuesOpt)) return O.none();
-      const first = valuesOpt.value[0];
-      return first !== undefined ? O.some(first) : O.none();
-    };
+    const getFirstValue = (map: MutableHashMap.MutableHashMap<string, string[]>, subject: string): O.Option<string> =>
+      O.flatMap(MutableHashMap.get(map, subject), A.head);
 
     /**
      * Get all values for a predicate (for multi-valued predicates)
@@ -165,7 +161,7 @@ export class OntologyParser extends Effect.Service<OntologyParser>()("@beep/know
       map: MutableHashMap.MutableHashMap<string, string[]>,
       subject: string
     ): ReadonlyArray<string> => {
-      return O.getOrElse(MutableHashMap.get(map, subject), () => A.empty<string>());
+      return O.getOrElse(MutableHashMap.get(map, subject), A.empty<string>);
     };
 
     /**
@@ -246,7 +242,7 @@ export class OntologyParser extends Effect.Service<OntologyParser>()("@beep/know
       const classProperties = MutableHashMap.empty<string, string[]>();
       const allPropertyIris = A.appendAll(A.fromIterable(objectPropertyIris), A.fromIterable(datatypePropertyIris));
       for (const propIri of allPropertyIris) {
-        const propDomains = O.getOrElse(MutableHashMap.get(domains, propIri), () => A.empty<string>());
+        const propDomains = O.getOrElse(MutableHashMap.get(domains, propIri), A.empty<string>);
         for (const domainIri of propDomains) {
           if (!MutableHashMap.has(classProperties, domainIri)) {
             MutableHashMap.set(classProperties, domainIri, []);
@@ -281,7 +277,7 @@ export class OntologyParser extends Effect.Service<OntologyParser>()("@beep/know
             label,
             localName: extractLocalName(iri),
             comment: getFirstValue(comments, iri),
-            properties: O.getOrElse(MutableHashMap.get(classProperties, iri), () => A.empty<string>()),
+            properties: O.getOrElse(MutableHashMap.get(classProperties, iri), A.empty<string>),
             prefLabels: getAllValues(prefLabels, iri),
             altLabels: getAllValues(altLabels, iri),
             hiddenLabels: getAllValues(hiddenLabels, iri),

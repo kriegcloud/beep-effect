@@ -8,6 +8,7 @@
  * @since 0.1.0
  */
 import { $KnowledgeDomainId } from "@beep/identity/packages";
+import { Confidence } from "@beep/knowledge-domain/value-objects";
 import { BS } from "@beep/schema";
 import { KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import { makeFields } from "@beep/shared-domain/common";
@@ -64,13 +65,9 @@ export class Model extends M.Class<Model>($I`SameAsLinkModel`)(
     /**
      * Confidence score for this sameAs link (0-1)
      */
-    confidence: S.Number.pipe(
-      S.greaterThanOrEqualTo(0),
-      S.lessThanOrEqualTo(1),
-      S.annotations({
-        description: "Confidence score for this same-as determination (0-1)",
-      })
-    ),
+    confidence: Confidence.annotations({
+      description: "Confidence score for this same-as determination (0-1)",
+    }),
 
     /**
      * Source extraction/document ID that produced the member entity

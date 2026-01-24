@@ -15,9 +15,14 @@
  * @since 0.1.0
  */
 import { $KnowledgeDomainId } from "@beep/identity/packages";
+import { BS } from "@beep/schema";
+import { thunkFalse } from "@beep/utils";
+import * as A from "effect/Array";
 import * as Either from "effect/Either";
 import * as F from "effect/Function";
+import * as Match from "effect/Match";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 
@@ -30,9 +35,14 @@ const $I = $KnowledgeDomainId.create("value-objects/ClassIri");
  * - urn: Namespace-based identifiers (UUID, ISBN)
  * - file: Local file references
  */
-export const CLASS_IRI_VALID_SCHEMES = ["http", "https", "urn", "file"] as const;
-type ValidScheme = (typeof CLASS_IRI_VALID_SCHEMES)[number];
-
+export class ClassIRIScheme extends BS.StringLiteralKit("http", "https", "urn", "file").annotations(
+  $I.annotations("ClassIRIScheme", {
+    description: "Valid IRI scheme for OWL/RDFS ontologies",
+    documentation:
+      "- http/https: Web-based ontologies (W3C, schema.org)\n- urn: Namespace-based identifiers (UUID, ISBN)\n- file: Local file references",
+  })
+) {}
+export type ValidSchema = typeof ClassIRIScheme.Type;
 /**
  * Characters disallowed in IRIs per RFC 3987.
  * Includes control characters and delimiter conflicts.
@@ -54,7 +64,7 @@ export const CLASS_IRI_MAX_LENGTH = 2048;
  * URN format validation per RFC 2141.
  * Pattern: urn:<NID>:<NSS>
  */
-const URN_PATTERN = /^urn:[a-zA-Z0-9][a-zA-Z0-9-]{0,31}:[^\s]+$/;
+const URN_PATTERN = /^urn:[a-zA-Z0-9][a-zA-Z0-9-]{0,31}:\S+$/;
 
 /**
  * Extracts the scheme from an IRI string.
@@ -76,10 +86,29 @@ const extractScheme = (iri: string): O.Option<string> =>
 const isValidHttpIri = (iri: string): boolean =>
   Either.try(() => new URL(iri)).pipe(
     Either.match({
-      onLeft: () => false,
+      onLeft: thunkFalse,
       onRight: (url) => url.protocol === "http:" || url.protocol === "https:",
     })
   );
+
+export class HttpIRI extends S.declare(
+  (u: unknown): u is string =>
+    P.or(P.isString, S.is(BS.CustomURL))(u) &&
+    Match.value(u).pipe(
+      Match.when(S.is(BS.CustomURL), (u) => isValidHttpIri(u.toString())),
+      Match.when(P.isString, isValidHttpIri),
+      Match.orElse(thunkFalse)
+    )
+).annotations(
+  $I.annotations("HttpIRI", {
+    description: "A valid HTTP/HTTPS IRI",
+  })
+) {}
+
+export declare namespace HttpIRI {
+  export type Type = typeof HttpIRI.Type;
+  export type Encoded = typeof HttpIRI.Encoded;
+}
 
 /**
  * Validates a URN according to RFC 2141.
@@ -96,7 +125,7 @@ const isValidUrn = (iri: string): boolean => URN_PATTERN.test(iri);
 const isValidFileIri = (iri: string): boolean =>
   Either.try(() => new URL(iri)).pipe(
     Either.match({
-      onLeft: () => false,
+      onLeft: thunkFalse,
       onRight: (url) => url.protocol === "file:",
     })
   );
@@ -142,22 +171,17 @@ const isValidClassIri = (value: string): boolean => {
   }
 
   const scheme = Str.toLowerCase(schemeOpt.value);
-  if (!CLASS_IRI_VALID_SCHEMES.includes(scheme as ValidScheme)) {
+  if (!S.is(ClassIRIScheme)(scheme)) {
     return false;
   }
 
   // Scheme-specific validation
-  switch (scheme) {
-    case "http":
-    case "https":
-      return isValidHttpIri(value);
-    case "urn":
-      return isValidUrn(value);
-    case "file":
-      return isValidFileIri(value);
-    default:
-      return false;
-  }
+  return Match.value(scheme).pipe(
+    Match.whenOr("http", "https", () => isValidHttpIri(value)),
+    Match.when("urn", () => isValidUrn(value)),
+    Match.when("file", () => isValidFileIri(value)),
+    Match.orElse(thunkFalse)
+  );
 };
 
 /**
@@ -199,7 +223,7 @@ export class ClassIri extends S.Trimmed.pipe(
   }),
   S.filter(isValidClassIri, {
     message: () =>
-      `Invalid OWL/RDFS class IRI: must be an absolute IRI with scheme (${CLASS_IRI_VALID_SCHEMES.join(", ")})`,
+      `Invalid OWL/RDFS class IRI: must be an absolute IRI with scheme (${A.join(", ")(ClassIRIScheme.Options)})`,
   }),
   S.brand("ClassIri")
 ).annotations(

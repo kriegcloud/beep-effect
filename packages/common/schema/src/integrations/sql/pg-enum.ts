@@ -14,11 +14,11 @@
  * @since 0.1.0
  */
 
+import type { ILiteralKit } from "@beep/schema/derived/kits/string-literal-kit";
 import type { StringTypes } from "@beep/types";
 import type { SnakeTag } from "@beep/types/tag.types";
 import { pgEnum } from "drizzle-orm/pg-core";
 import type * as A from "effect/Array";
-import type { ILiteralKit } from "../../derived/kits/string-literal-kit";
 
 /**
  * Creates a Drizzle `pgEnum` definition from a string literal kit.

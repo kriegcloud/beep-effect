@@ -14,6 +14,7 @@ import { makeFields } from "@beep/shared-domain/common";
 import { modelKit } from "@beep/shared-domain/factories";
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
+import { Confidence } from "../../value-objects";
 
 const $I = $KnowledgeDomainId.create("entities/EntityCluster");
 
@@ -61,23 +62,16 @@ export class Model extends M.Class<Model>($I`EntityClusterModel`)(
     /**
      * Member entity IDs - all entities in this cluster (including canonical)
      */
-    memberIds: S.Array(KnowledgeEntityIds.KnowledgeEntityId).pipe(
-      S.minItems(1),
-      S.annotations({
-        description: "IDs of all member entities in this cluster",
-      })
-    ),
+    memberIds: S.NonEmptyArray(KnowledgeEntityIds.KnowledgeEntityId).annotations({
+      description: "IDs of all member entities in this cluster",
+    }),
 
     /**
      * Internal cluster cohesion score (average pairwise similarity)
      */
-    cohesion: S.Number.pipe(
-      S.greaterThanOrEqualTo(0),
-      S.lessThanOrEqualTo(1),
-      S.annotations({
-        description: "Average pairwise similarity within the cluster (0-1)",
-      })
-    ),
+    cohesion: Confidence.annotations({
+      description: "Average pairwise similarity within the cluster (0-1)",
+    }),
 
     /**
      * Shared type IRIs across all cluster members

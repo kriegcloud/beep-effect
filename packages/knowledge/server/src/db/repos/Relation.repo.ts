@@ -11,11 +11,12 @@ import { Entities } from "@beep/knowledge-domain";
 import { KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import { DatabaseError } from "@beep/shared-domain/errors";
 import { DbRepo } from "@beep/shared-domain/factories";
-import { thunkZero } from "@beep/utils";
+import { thunkSucceedEffect, thunkZero } from "@beep/utils";
 import * as SqlClient from "@effect/sql/SqlClient";
 import * as SqlSchema from "@effect/sql/SqlSchema";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import * as F from "effect/Function";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { dependencies } from "./_common";
@@ -67,10 +68,10 @@ const makeRelationExtensions = Effect.gen(function* () {
     Request: FindBySourceIdsRequest,
     Result: Entities.Relation.Model,
     execute: (req) => sql`
-      SELECT *
-      FROM ${sql(tableName)}
-      WHERE organization_id = ${req.organizationId}
-        AND subject_id IN ${sql.in(req.sourceIds)}
+        SELECT *
+        FROM ${sql(tableName)}
+        WHERE organization_id = ${req.organizationId}
+          AND subject_id IN ${sql.in(req.sourceIds)}
     `,
   });
 
@@ -78,10 +79,10 @@ const makeRelationExtensions = Effect.gen(function* () {
     Request: FindByTargetIdsRequest,
     Result: Entities.Relation.Model,
     execute: (req) => sql`
-      SELECT *
-      FROM ${sql(tableName)}
-      WHERE organization_id = ${req.organizationId}
-        AND object_id IN ${sql.in(req.targetIds)}
+        SELECT *
+        FROM ${sql(tableName)}
+        WHERE organization_id = ${req.organizationId}
+          AND object_id IN ${sql.in(req.targetIds)}
     `,
   });
 
@@ -89,10 +90,10 @@ const makeRelationExtensions = Effect.gen(function* () {
     Request: FindByEntityIdsRequest,
     Result: Entities.Relation.Model,
     execute: (req) => sql`
-      SELECT *
-      FROM ${sql(tableName)}
-      WHERE organization_id = ${req.organizationId}
-        AND (subject_id IN ${sql.in(req.entityIds)} OR object_id IN ${sql.in(req.entityIds)})
+        SELECT *
+        FROM ${sql(tableName)}
+        WHERE organization_id = ${req.organizationId}
+          AND (subject_id IN ${sql.in(req.entityIds)} OR object_id IN ${sql.in(req.entityIds)})
     `,
   });
 
@@ -100,12 +101,12 @@ const makeRelationExtensions = Effect.gen(function* () {
     Request: FindByPredicateRequest,
     Result: Entities.Relation.Model,
     execute: (req) => sql`
-      SELECT *
-      FROM ${sql(tableName)}
-      WHERE organization_id = ${req.organizationId}
-        AND predicate = ${req.predicateIri}
-      ORDER BY created_at DESC
-      LIMIT ${req.limit}
+        SELECT *
+        FROM ${sql(tableName)}
+        WHERE organization_id = ${req.organizationId}
+          AND predicate = ${req.predicateIri}
+        ORDER BY created_at DESC
+            LIMIT ${req.limit}
     `,
   });
 
@@ -113,9 +114,9 @@ const makeRelationExtensions = Effect.gen(function* () {
     Request: CountByOrganizationRequest,
     Result: CountResult,
     execute: (req) => sql`
-      SELECT COUNT(*) as count
-      FROM ${sql(tableName)}
-      WHERE organization_id = ${req.organizationId}
+        SELECT COUNT(*) as count
+        FROM ${sql(tableName)}
+        WHERE organization_id = ${req.organizationId}
     `,
   });
 
@@ -133,11 +134,13 @@ const makeRelationExtensions = Effect.gen(function* () {
     sourceIds: ReadonlyArray<KnowledgeEntityIds.KnowledgeEntityId.Type>,
     organizationId: SharedEntityIds.OrganizationId.Type
   ): Effect.Effect<readonly Entities.Relation.Model[], DatabaseError> =>
-    Effect.gen(function* () {
-      if (A.isEmptyReadonlyArray(sourceIds)) return [];
-      return yield* findBySourceIdsSchema({ sourceIds: [...sourceIds], organizationId });
-    }).pipe(
-      Effect.catchTag("ParseError", (e) => Effect.die(e)),
+    F.pipe(
+      A.isEmptyReadonlyArray(sourceIds),
+      Effect.if({
+        onFalse: thunkSucceedEffect([]),
+        onTrue: () => findBySourceIdsSchema({ sourceIds: [...sourceIds], organizationId }),
+      }),
+      Effect.catchTag("ParseError", Effect.die),
       Effect.mapError(DatabaseError.$match),
       Effect.withSpan("RelationRepo.findBySourceIds", {
         captureStackTrace: false,
@@ -157,11 +160,13 @@ const makeRelationExtensions = Effect.gen(function* () {
     targetIds: ReadonlyArray<KnowledgeEntityIds.KnowledgeEntityId.Type>,
     organizationId: SharedEntityIds.OrganizationId.Type
   ): Effect.Effect<ReadonlyArray<Entities.Relation.Model>, DatabaseError> =>
-    Effect.gen(function* () {
-      if (A.isEmptyReadonlyArray(targetIds)) return [];
-      return yield* findByTargetIdsSchema({ targetIds: [...targetIds], organizationId });
-    }).pipe(
-      Effect.catchTag("ParseError", (e) => Effect.die(e)),
+    F.pipe(
+      A.isEmptyReadonlyArray(targetIds),
+      Effect.if({
+        onFalse: thunkSucceedEffect([]),
+        onTrue: () => findByTargetIdsSchema({ targetIds: [...targetIds], organizationId }),
+      }),
+      Effect.catchTag("ParseError", Effect.die),
       Effect.mapError(DatabaseError.$match),
       Effect.withSpan("RelationRepo.findByTargetIds", {
         captureStackTrace: false,
@@ -181,11 +186,13 @@ const makeRelationExtensions = Effect.gen(function* () {
     entityIds: ReadonlyArray<KnowledgeEntityIds.KnowledgeEntityId.Type>,
     organizationId: SharedEntityIds.OrganizationId.Type
   ): Effect.Effect<ReadonlyArray<Entities.Relation.Model>, DatabaseError> =>
-    Effect.gen(function* () {
-      if (A.isEmptyReadonlyArray(entityIds)) return [];
-      return yield* findByEntityIdsSchema({ entityIds: [...entityIds], organizationId });
-    }).pipe(
-      Effect.catchTag("ParseError", (e) => Effect.die(e)),
+    F.pipe(
+      A.isEmptyReadonlyArray(entityIds),
+      Effect.if({
+        onFalse: thunkSucceedEffect([]),
+        onTrue: () => findByEntityIdsSchema({ entityIds: [...entityIds], organizationId }),
+      }),
+      Effect.catchTag("ParseError", Effect.die),
       Effect.mapError(DatabaseError.$match),
       Effect.withSpan("RelationRepo.findByEntityIds", {
         captureStackTrace: false,
@@ -207,7 +214,7 @@ const makeRelationExtensions = Effect.gen(function* () {
     limit = 100
   ): Effect.Effect<ReadonlyArray<Entities.Relation.Model>, DatabaseError> =>
     findByPredicateSchema({ predicateIri, organizationId, limit }).pipe(
-      Effect.catchTag("ParseError", (e) => Effect.die(e)),
+      Effect.catchTag("ParseError", Effect.die),
       Effect.mapError(DatabaseError.$match),
       Effect.withSpan("RelationRepo.findByPredicate", {
         captureStackTrace: false,
@@ -231,7 +238,7 @@ const makeRelationExtensions = Effect.gen(function* () {
         onSome: (row) => Number.parseInt(row.count, 10),
       });
     }).pipe(
-      Effect.catchTag("ParseError", (e) => Effect.die(e)),
+      Effect.catchTag("ParseError", Effect.die),
       Effect.mapError(DatabaseError.$match),
       Effect.withSpan("RelationRepo.countByOrganization", {
         captureStackTrace: false,

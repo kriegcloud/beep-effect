@@ -6,12 +6,12 @@
  * @module knowledge-server/test/Extraction/GraphAssembler.test
  * @since 0.1.0
  */
-import { describe } from "bun:test";
-import { assertTrue, effect, strictEqual } from "@beep/testkit";
+
+import { GraphAssembler } from "@beep/knowledge-server/Extraction/GraphAssembler";
+import { ClassifiedEntity } from "@beep/knowledge-server/Extraction/schemas/entity-output.schema";
+import { ExtractedTriple } from "@beep/knowledge-server/Extraction/schemas/relation-output.schema";
+import { assertTrue, describe, effect, strictEqual } from "@beep/testkit";
 import * as Effect from "effect/Effect";
-import { GraphAssembler } from "../../src/Extraction/GraphAssembler";
-import { ClassifiedEntity } from "../../src/Extraction/schemas/entity-output.schema";
-import { ExtractedTriple } from "../../src/Extraction/schemas/relation-output.schema";
 
 describe("GraphAssembler", () => {
   effect("assembles entities into graph", () =>

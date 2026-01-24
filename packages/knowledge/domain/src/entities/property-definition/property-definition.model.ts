@@ -261,13 +261,13 @@ export class Model extends M.Class<Model>($I`PropertyDefinitionModel`)(
    * Check if property is an ObjectProperty (links entities)
    */
   get isObjectProperty(): boolean {
-    return this.rangeType === "object";
+    return PropertyRangeType.is.object(this.rangeType);
   }
 
   /**
    * Check if property is a DatatypeProperty (literal values)
    */
   get isDatatypeProperty(): boolean {
-    return this.rangeType === "datatype";
+    return PropertyRangeType.is.datatype(this.rangeType);
   }
 }

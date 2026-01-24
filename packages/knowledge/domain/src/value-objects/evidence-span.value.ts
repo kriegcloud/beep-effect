@@ -45,26 +45,18 @@ export class EvidenceSpan extends S.Class<EvidenceSpan>($I`EvidenceSpan`)({
   /**
    * Character offset start (0-indexed)
    */
-  startChar: S.Number.pipe(
-    S.int(),
-    S.nonNegative(),
-    S.annotations({
-      title: "Start Character",
-      description: "Character offset start (0-indexed)",
-    })
-  ),
+  startChar: S.NonNegativeInt.annotations({
+    title: "Start Character",
+    description: "Character offset start (0-indexed)",
+  }),
 
   /**
    * Character offset end (exclusive)
    */
-  endChar: S.Number.pipe(
-    S.int(),
-    S.nonNegative(),
-    S.annotations({
-      title: "End Character",
-      description: "Character offset end (exclusive)",
-    })
-  ),
+  endChar: S.NonNegativeInt.annotations({
+    title: "End Character",
+    description: "Character offset end (exclusive)",
+  }),
 
   /**
    * Extraction confidence (0-1)

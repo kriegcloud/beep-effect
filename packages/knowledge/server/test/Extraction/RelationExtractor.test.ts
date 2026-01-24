@@ -6,34 +6,17 @@
  * @module knowledge-server/test/Extraction/RelationExtractor.test
  * @since 0.1.0
  */
-import { describe } from "bun:test";
-import { effect, strictEqual } from "@beep/testkit";
+import { RelationExtractor } from "@beep/knowledge-server/Extraction/RelationExtractor";
+import { ClassifiedEntity } from "@beep/knowledge-server/Extraction/schemas/entity-output.schema";
+import { ExtractedTriple } from "@beep/knowledge-server/Extraction/schemas/relation-output.schema";
+import { TextChunk } from "@beep/knowledge-server/Nlp/TextChunk";
+import { describe, effect, strictEqual } from "@beep/testkit";
 import * as Effect from "effect/Effect";
-import * as Layer from "effect/Layer";
-import { RelationExtractor } from "../../src/Extraction/RelationExtractor";
-import { ClassifiedEntity } from "../../src/Extraction/schemas/entity-output.schema";
-import { ExtractedTriple } from "../../src/Extraction/schemas/relation-output.schema";
-import { TextChunk } from "../../src/Nlp/TextChunk";
-import { clearMockResponses, createMockOntologyContext, MockLlmLive, setMockResponse } from "../_shared/TestLayers";
-
-// Build the test layer with mock LLM
-const TestRelationExtractorLayer = Layer.provide(RelationExtractor.Default, MockLlmLive);
+import { createMockOntologyContext, withLanguageModel } from "../_shared/TestLayers";
 
 describe("RelationExtractor", () => {
   effect("extracts relations between entities", () =>
     Effect.gen(function* () {
-      clearMockResponses();
-      setMockResponse("RelationOutput", {
-        triples: [
-          {
-            subjectMention: "John Smith",
-            predicateIri: "http://schema.org/worksFor",
-            objectMention: "Acme Corp",
-            confidence: 0.9,
-          },
-        ],
-      });
-
       const extractor = yield* RelationExtractor;
       const ontologyContext = createMockOntologyContext({
         classes: [
@@ -62,19 +45,28 @@ describe("RelationExtractor", () => {
       strictEqual(result.triples[0]?.predicateIri, "http://schema.org/worksFor");
       strictEqual(result.triples[0]?.objectMention, "Acme Corp");
       strictEqual(result.invalidTriples.length, 0);
-    }).pipe(Effect.provide(TestRelationExtractorLayer))
+    }).pipe(
+      Effect.provide(RelationExtractor.Default),
+      withLanguageModel({
+        generateObject: (objectName: string | undefined) =>
+          objectName === "RelationOutput"
+            ? {
+                triples: [
+                  {
+                    subjectMention: "John Smith",
+                    predicateIri: "http://schema.org/worksFor",
+                    objectMention: "Acme Corp",
+                    confidence: 0.9,
+                  },
+                ],
+              }
+            : {},
+      })
+    )
   );
 
   effect("filters relations below confidence threshold", () =>
     Effect.gen(function* () {
-      clearMockResponses();
-      setMockResponse("RelationOutput", {
-        triples: [
-          { subjectMention: "John", predicateIri: "http://schema.org/knows", objectMention: "Jane", confidence: 0.9 },
-          { subjectMention: "John", predicateIri: "http://schema.org/likes", objectMention: "Pizza", confidence: 0.3 },
-        ],
-      });
-
       const extractor = yield* RelationExtractor;
       const ontologyContext = createMockOntologyContext({
         properties: [
@@ -99,23 +91,34 @@ describe("RelationExtractor", () => {
 
       strictEqual(result.triples.length, 1);
       strictEqual(result.triples[0]?.predicateIri, "http://schema.org/knows");
-    }).pipe(Effect.provide(TestRelationExtractorLayer))
+    }).pipe(
+      Effect.provide(RelationExtractor.Default),
+      withLanguageModel({
+        generateObject: (objectName: string | undefined) =>
+          objectName === "RelationOutput"
+            ? {
+                triples: [
+                  {
+                    subjectMention: "John",
+                    predicateIri: "http://schema.org/knows",
+                    objectMention: "Jane",
+                    confidence: 0.9,
+                  },
+                  {
+                    subjectMention: "John",
+                    predicateIri: "http://schema.org/likes",
+                    objectMention: "Pizza",
+                    confidence: 0.3,
+                  },
+                ],
+              }
+            : {},
+      })
+    )
   );
 
   effect("identifies invalid predicates not in ontology", () =>
     Effect.gen(function* () {
-      clearMockResponses();
-      setMockResponse("RelationOutput", {
-        triples: [
-          {
-            subjectMention: "John",
-            predicateIri: "http://invalid.org/unknownPredicate",
-            objectMention: "Jane",
-            confidence: 0.9,
-          },
-        ],
-      });
-
       const extractor = yield* RelationExtractor;
       const ontologyContext = createMockOntologyContext({
         properties: [{ iri: "http://schema.org/knows", label: "knows" }],
@@ -132,7 +135,24 @@ describe("RelationExtractor", () => {
 
       strictEqual(result.triples.length, 0);
       strictEqual(result.invalidTriples.length, 1);
-    }).pipe(Effect.provide(TestRelationExtractorLayer))
+    }).pipe(
+      Effect.provide(RelationExtractor.Default),
+      withLanguageModel({
+        generateObject: (objectName: string | undefined) =>
+          objectName === "RelationOutput"
+            ? {
+                triples: [
+                  {
+                    subjectMention: "John",
+                    predicateIri: "http://invalid.org/unknownPredicate",
+                    objectMention: "Jane",
+                    confidence: 0.9,
+                  },
+                ],
+              }
+            : {},
+      })
+    )
   );
 
   effect("skips extraction when insufficient entities", () =>
@@ -147,7 +167,7 @@ describe("RelationExtractor", () => {
 
       strictEqual(result.triples.length, 0);
       strictEqual(result.tokensUsed, 0);
-    }).pipe(Effect.provide(TestRelationExtractorLayer))
+    }).pipe(Effect.provide(RelationExtractor.Default), withLanguageModel({}))
   );
 
   effect("deduplicates relations keeping highest confidence", () =>
@@ -173,24 +193,11 @@ describe("RelationExtractor", () => {
 
       strictEqual(deduped.length, 1);
       strictEqual(deduped[0]?.confidence, 0.95);
-    }).pipe(Effect.provide(TestRelationExtractorLayer))
+    }).pipe(Effect.provide(RelationExtractor.Default), withLanguageModel({}))
   );
 
   effect("handles literal values", () =>
     Effect.gen(function* () {
-      clearMockResponses();
-      setMockResponse("RelationOutput", {
-        triples: [
-          {
-            subjectMention: "John",
-            predicateIri: "http://schema.org/age",
-            literalValue: "30",
-            literalType: "xsd:integer",
-            confidence: 0.9,
-          },
-        ],
-      });
-
       const extractor = yield* RelationExtractor;
       const ontologyContext = createMockOntologyContext({
         properties: [{ iri: "http://schema.org/age", label: "age" }],
@@ -207,26 +214,29 @@ describe("RelationExtractor", () => {
       strictEqual(result.triples.length, 1);
       strictEqual(result.triples[0]?.literalValue, "30");
       strictEqual(result.triples[0]?.objectMention, undefined);
-    }).pipe(Effect.provide(TestRelationExtractorLayer))
+    }).pipe(
+      Effect.provide(RelationExtractor.Default),
+      withLanguageModel({
+        generateObject: (objectName: string | undefined) =>
+          objectName === "RelationOutput"
+            ? {
+                triples: [
+                  {
+                    subjectMention: "John",
+                    predicateIri: "http://schema.org/age",
+                    literalValue: "30",
+                    literalType: "xsd:integer",
+                    confidence: 0.9,
+                  },
+                ],
+              }
+            : {},
+      })
+    )
   );
 
   effect("adjusts evidence offsets to document level", () =>
     Effect.gen(function* () {
-      clearMockResponses();
-      setMockResponse("RelationOutput", {
-        triples: [
-          {
-            subjectMention: "John",
-            predicateIri: "http://schema.org/knows",
-            objectMention: "Jane",
-            confidence: 0.9,
-            evidence: "John knows Jane",
-            evidenceStartChar: 0,
-            evidenceEndChar: 15,
-          },
-        ],
-      });
-
       const extractor = yield* RelationExtractor;
       const ontologyContext = createMockOntologyContext({
         properties: [{ iri: "http://schema.org/knows", label: "knows" }],
@@ -244,6 +254,26 @@ describe("RelationExtractor", () => {
       strictEqual(result.triples.length, 1);
       strictEqual(result.triples[0]?.evidenceStartChar, 100);
       strictEqual(result.triples[0]?.evidenceEndChar, 115);
-    }).pipe(Effect.provide(TestRelationExtractorLayer))
+    }).pipe(
+      Effect.provide(RelationExtractor.Default),
+      withLanguageModel({
+        generateObject: (objectName: string | undefined) =>
+          objectName === "RelationOutput"
+            ? {
+                triples: [
+                  {
+                    subjectMention: "John",
+                    predicateIri: "http://schema.org/knows",
+                    objectMention: "Jane",
+                    confidence: 0.9,
+                    evidence: "John knows Jane",
+                    evidenceStartChar: 0,
+                    evidenceEndChar: 15,
+                  },
+                ],
+              }
+            : {},
+      })
+    )
   );
 });

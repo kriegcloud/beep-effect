@@ -11,11 +11,12 @@ import { Entities } from "@beep/knowledge-domain";
 import { KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import { DatabaseError } from "@beep/shared-domain/errors";
 import { DbRepo } from "@beep/shared-domain/factories";
-import { thunkZero } from "@beep/utils";
+import { thunkSucceedEffect, thunkZero } from "@beep/utils";
 import * as SqlClient from "@effect/sql/SqlClient";
 import * as SqlSchema from "@effect/sql/SqlSchema";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import * as F from "effect/Function";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { dependencies } from "./_common";
@@ -63,10 +64,10 @@ const makeEntityExtensions = Effect.gen(function* () {
     Request: FindByIdsRequest,
     Result: Entities.Entity.Model,
     execute: (req) => sql`
-      SELECT *
-      FROM ${sql(tableName)}
-      WHERE organization_id = ${req.organizationId}
-        AND id IN ${sql.in(req.ids)}
+        SELECT *
+        FROM ${sql(tableName)}
+        WHERE organization_id = ${req.organizationId}
+          AND id IN ${sql.in(req.ids)}
     `,
   });
 
@@ -74,12 +75,12 @@ const makeEntityExtensions = Effect.gen(function* () {
     Request: FindByOntologyRequest,
     Result: Entities.Entity.Model,
     execute: (req) => sql`
-      SELECT *
-      FROM ${sql(tableName)}
-      WHERE organization_id = ${req.organizationId}
-        AND ontology_id = ${req.ontologyId}
-      ORDER BY created_at DESC
-      LIMIT ${req.limit}
+        SELECT *
+        FROM ${sql(tableName)}
+        WHERE organization_id = ${req.organizationId}
+          AND ontology_id = ${req.ontologyId}
+        ORDER BY created_at DESC
+            LIMIT ${req.limit}
     `,
   });
 
@@ -87,12 +88,12 @@ const makeEntityExtensions = Effect.gen(function* () {
     Request: FindByTypeRequest,
     Result: Entities.Entity.Model,
     execute: (req) => sql`
-      SELECT *
-      FROM ${sql(tableName)}
-      WHERE organization_id = ${req.organizationId}
-        AND types @> ${JSON.stringify([req.typeIri])}::jsonb
-      ORDER BY created_at DESC
-      LIMIT ${req.limit}
+        SELECT *
+        FROM ${sql(tableName)}
+        WHERE organization_id = ${req.organizationId}
+          AND types @ > ${JSON.stringify([req.typeIri])}::jsonb
+        ORDER BY created_at DESC
+            LIMIT ${req.limit}
     `,
   });
 
@@ -100,9 +101,9 @@ const makeEntityExtensions = Effect.gen(function* () {
     Request: CountByOrganizationRequest,
     Result: CountResult,
     execute: (req) => sql`
-      SELECT COUNT(*) as count
-      FROM ${sql(tableName)}
-      WHERE organization_id = ${req.organizationId}
+        SELECT COUNT(*) as count
+        FROM ${sql(tableName)}
+        WHERE organization_id = ${req.organizationId}
     `,
   });
 
@@ -119,10 +120,12 @@ const makeEntityExtensions = Effect.gen(function* () {
     ids: ReadonlyArray<KnowledgeEntityIds.KnowledgeEntityId.Type>,
     organizationId: SharedEntityIds.OrganizationId.Type
   ): Effect.Effect<ReadonlyArray<Entities.Entity.Model>, DatabaseError> =>
-    Effect.gen(function* () {
-      if (A.isEmptyReadonlyArray(ids)) return [];
-      return yield* findByIdsSchema({ ids: [...ids], organizationId });
-    }).pipe(
+    F.pipe(
+      A.isNonEmptyReadonlyArray(ids),
+      Effect.if({
+        onTrue: thunkSucceedEffect(A.empty<Entities.Entity.Model>()),
+        onFalse: () => findByIdsSchema({ ids: [...ids], organizationId }),
+      }),
       Effect.catchTag("ParseError", (e) => Effect.die(e)),
       Effect.mapError(DatabaseError.$match),
       Effect.withSpan("EntityRepo.findByIds", {
@@ -145,7 +148,7 @@ const makeEntityExtensions = Effect.gen(function* () {
     limit = 100
   ): Effect.Effect<ReadonlyArray<Entities.Entity.Model>, DatabaseError> =>
     findByOntologySchema({ ontologyId, organizationId, limit }).pipe(
-      Effect.catchTag("ParseError", (e) => Effect.die(e)),
+      Effect.catchTag("ParseError", Effect.die),
       Effect.mapError(DatabaseError.$match),
       Effect.withSpan("EntityRepo.findByOntology", {
         captureStackTrace: false,

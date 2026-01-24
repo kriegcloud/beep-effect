@@ -96,7 +96,7 @@ export const formatContext = (
     MutableHashMap.set(entityLookup, entity.id, entity);
   }
 
-  const sections: Array<string> = [];
+  const sections = A.empty<string>();
 
   // Entities section
   if (A.isNonEmptyReadonlyArray(entities)) {

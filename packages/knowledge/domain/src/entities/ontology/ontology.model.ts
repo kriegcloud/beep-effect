@@ -95,7 +95,7 @@ export class Model extends M.Class<Model>($I`OntologyModel`)(
     /**
      * Ontology version string (semantic versioning recommended)
      */
-    ontologyVersion: BS.toOptionalWithDefault(S.String)("1.0.0").annotations({
+    ontologyVersion: BS.toOptionalWithDefault(BS.SemanticVersion)(BS.SemanticVersion.make("1.0.0")).annotations({
       description: "Semantic version of the ontology",
     }),
 
@@ -144,26 +144,18 @@ export class Model extends M.Class<Model>($I`OntologyModel`)(
      * Number of classes defined in the ontology
      */
     classCount: BS.FieldOptionOmittable(
-      S.Number.pipe(
-        S.int(),
-        S.nonNegative(),
-        S.annotations({
-          description: "Number of OWL/RDFS classes defined",
-        })
-      )
+      S.NonNegativeInt.annotations({
+        description: "Number of OWL/RDFS classes defined",
+      })
     ),
 
     /**
      * Number of properties defined in the ontology
      */
     propertyCount: BS.FieldOptionOmittable(
-      S.Number.pipe(
-        S.int(),
-        S.nonNegative(),
-        S.annotations({
-          description: "Number of OWL/RDFS properties defined",
-        })
-      )
+      S.NonNegativeInt.annotations({
+        description: "Number of OWL/RDFS properties defined",
+      })
     ),
 
     /**

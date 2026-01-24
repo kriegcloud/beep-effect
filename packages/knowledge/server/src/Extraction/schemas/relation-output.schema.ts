@@ -7,6 +7,8 @@
  * @module knowledge-server/Extraction/schemas/RelationOutput
  * @since 0.1.0
  */
+
+import { Confidence } from "@beep/knowledge-domain/value-objects";
 import * as S from "effect/Schema";
 
 /**
@@ -73,13 +75,9 @@ export class ExtractedTriple extends S.Class<ExtractedTriple>("@beep/knowledge-s
   /**
    * Confidence in this relation extraction (0-1)
    */
-  confidence: S.Number.pipe(
-    S.greaterThanOrEqualTo(0),
-    S.lessThanOrEqualTo(1),
-    S.annotations({
-      description: "Relation extraction confidence (0-1)",
-    })
-  ),
+  confidence: Confidence.annotations({
+    description: "Relation extraction confidence (0-1)",
+  }),
 
   /**
    * Evidence text where relation was expressed

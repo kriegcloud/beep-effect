@@ -6,6 +6,8 @@
  * @module knowledge-server/Extraction/schemas/MentionOutput
  * @since 0.1.0
  */
+
+import { Confidence } from "@beep/knowledge-domain/value-objects";
 import * as S from "effect/Schema";
 
 /**
@@ -43,13 +45,9 @@ export class ExtractedMention extends S.Class<ExtractedMention>("@beep/knowledge
   /**
    * LLM confidence in this mention detection (0-1)
    */
-  confidence: S.Number.pipe(
-    S.greaterThanOrEqualTo(0),
-    S.lessThanOrEqualTo(1),
-    S.annotations({
-      description: "Extraction confidence score (0-1)",
-    })
-  ),
+  confidence: Confidence.annotations({
+    description: "Extraction confidence score (0-1)",
+  }),
 
   /**
    * Suggested entity type based on context (will be refined by EntityExtractor)

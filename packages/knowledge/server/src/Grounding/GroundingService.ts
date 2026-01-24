@@ -308,10 +308,13 @@ export class GroundingService extends Effect.Service<GroundingService>()("@beep/
     ) {
       const statement = relationToStatement(relation, subjectMention, objectMention);
 
-      const [sourceEmbed, statementEmbed] = yield* Effect.all([
-        embedding.embed(sourceText, "search_document", organizationId, ontologyId),
-        embedding.embed(statement, "search_query", organizationId, ontologyId),
-      ]);
+      const [sourceEmbed, statementEmbed] = yield* Effect.all(
+        [
+          embedding.embed(sourceText, "search_document", organizationId, ontologyId),
+          embedding.embed(statement, "search_query", organizationId, ontologyId),
+        ],
+        { concurrency: 2 }
+      );
 
       return cosineSimilarity(sourceEmbed, statementEmbed);
     });

@@ -131,7 +131,7 @@ const createOntologyContext = (parsed: ParsedOntology): OntologyContext => {
     getPropertiesForClass(classIri: string): ReadonlyArray<ParsedPropertyDefinition> {
       const directProps = O.getOrElse(
         MutableHashMap.get(classPropertiesMap, classIri),
-        () => [] as ParsedPropertyDefinition[]
+        A.empty<ParsedPropertyDefinition>
       );
 
       // Include properties from ancestor classes
@@ -140,7 +140,7 @@ const createOntologyContext = (parsed: ParsedOntology): OntologyContext => {
       Iterable.forEach(ancestors, (ancestorIri) => {
         const ancestorProps = O.getOrElse(
           MutableHashMap.get(classPropertiesMap, ancestorIri),
-          () => [] as ParsedPropertyDefinition[]
+          A.empty<ParsedPropertyDefinition>
         );
         inheritedProps.push(...ancestorProps);
       });
@@ -395,17 +395,17 @@ export class OntologyService extends Effect.Service<OntologyService>()("@beep/kn
        *
        * @param key - Cache key to invalidate
        */
-      invalidateCache: (key: string) => cache.invalidate(key),
+      invalidateCache: cache.invalidate,
 
       /**
        * Clear all cached ontologies
        */
-      clearCache: () => cache.clear(),
+      clearCache: cache.clear,
 
       /**
        * Get cache statistics
        */
-      getCacheStats: () => cache.stats(),
+      getCacheStats: cache.stats,
     };
   }),
   dependencies: [OntologyParser.Default, OntologyCache.Default],

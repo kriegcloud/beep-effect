@@ -8,6 +8,7 @@
  * @since 0.1.0
  */
 import { $KnowledgeDomainId } from "@beep/identity/packages";
+import { Confidence } from "@beep/knowledge-domain/value-objects";
 import { BS } from "@beep/schema";
 import { KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import { makeFields } from "@beep/shared-domain/common";
@@ -67,24 +68,16 @@ export class Model extends M.Class<Model>($I`MentionModel`)(
     /**
      * Character offset start (0-indexed)
      */
-    startChar: S.Number.pipe(
-      S.int(),
-      S.nonNegative(),
-      S.annotations({
-        description: "Character offset start (0-indexed)",
-      })
-    ),
+    startChar: S.NonNegativeInt.annotations({
+      description: "Character offset start (0-indexed)",
+    }),
 
     /**
      * Character offset end (exclusive)
      */
-    endChar: S.Number.pipe(
-      S.int(),
-      S.nonNegative(),
-      S.annotations({
-        description: "Character offset end (exclusive)",
-      })
-    ),
+    endChar: S.NonNegativeInt.annotations({
+      description: "Character offset end (exclusive)",
+    }),
 
     /**
      * Source document ID
@@ -97,13 +90,9 @@ export class Model extends M.Class<Model>($I`MentionModel`)(
      * Chunk index within the document
      */
     chunkIndex: BS.FieldOptionOmittable(
-      S.Number.pipe(
-        S.int(),
-        S.nonNegative(),
-        S.annotations({
-          description: "Chunk index within the document",
-        })
-      )
+      S.NonNegativeInt.annotations({
+        description: "Chunk index within the document",
+      })
     ),
 
     /**
@@ -115,13 +104,9 @@ export class Model extends M.Class<Model>($I`MentionModel`)(
      * Extraction confidence (0-1)
      */
     confidence: BS.FieldOptionOmittable(
-      S.Number.pipe(
-        S.greaterThanOrEqualTo(0),
-        S.lessThanOrEqualTo(1),
-        S.annotations({
-          description: "Extraction confidence score (0-1)",
-        })
-      )
+      Confidence.annotations({
+        description: "Extraction confidence score (0-1)",
+      })
     ),
 
     /**

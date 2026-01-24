@@ -11,10 +11,12 @@
 import type { Entities } from "@beep/knowledge-domain";
 import { EmbeddingRepo } from "@beep/knowledge-server/db";
 import { KnowledgeEntityIds, type SharedEntityIds } from "@beep/shared-domain";
+import { thunkEmptyStr, thunkFalse, thunkTrue } from "@beep/utils";
 import type * as AiError from "@effect/ai/AiError";
 import * as EmbeddingModel from "@effect/ai/EmbeddingModel";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import * as Either from "effect/Either";
 import * as Layer from "effect/Layer";
 import * as Match from "effect/Match";
 import * as MutableHashMap from "effect/MutableHashMap";
@@ -53,11 +55,11 @@ const mapAiError = (error: AiError.AiError): EmbeddingError =>
     message: error.message,
     provider: "openai",
     retryable: Match.value(error._tag).pipe(
-      Match.when("HttpRequestError", () => true),
-      Match.when("HttpResponseError", () => true),
-      Match.orElse(() => false)
+      Match.when("HttpRequestError", thunkTrue),
+      Match.when("HttpResponseError", thunkTrue),
+      Match.orElse(thunkFalse)
     ),
-    cause: JSON.stringify({ _tag: error._tag }),
+    cause: Either.try(() => JSON.stringify({ _tag: error._tag })).pipe(Either.getOrElse(thunkEmptyStr)),
   });
 
 // =============================================================================
@@ -138,7 +140,7 @@ export class EmbeddingService extends Effect.Service<EmbeddingService>()("@beep/
       text: string,
       _taskType: TaskType,
       organizationId: SharedEntityIds.OrganizationId.Type,
-      ontologyId?: KnowledgeEntityIds.OntologyId.Type
+      ontologyId?: undefined | KnowledgeEntityIds.OntologyId.Type
     ) =>
       Effect.gen(function* () {
         const cacheKey = computeCacheKey(text, DEFAULT_EMBEDDING_MODEL);
@@ -190,7 +192,7 @@ export class EmbeddingService extends Effect.Service<EmbeddingService>()("@beep/
     const embedEntities = (
       entities: ReadonlyArray<AssembledEntity>,
       organizationId: SharedEntityIds.OrganizationId.Type,
-      ontologyId?: KnowledgeEntityIds.OntologyId.Type
+      ontologyId?: undefined | KnowledgeEntityIds.OntologyId.Type
     ) =>
       Effect.gen(function* () {
         if (A.isEmptyReadonlyArray(entities)) {

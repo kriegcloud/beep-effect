@@ -28,12 +28,12 @@ export interface RelationExtractionConfig {
   /**
    * Minimum confidence threshold for relations
    */
-  readonly minConfidence?: number;
+  readonly minConfidence?: undefined | number;
 
   /**
    * Whether to validate predicate IRIs against ontology
    */
-  readonly validatePredicates?: boolean;
+  readonly validatePredicates?: undefined | boolean;
 }
 
 /**
@@ -234,7 +234,7 @@ export class RelationExtractor extends Effect.Service<RelationExtractor>()("@bee
           const entitiesOpt = MutableHashMap.get(entitiesByChunk, chunk.index);
           const entities = O.getOrElse(entitiesOpt, () => A.empty<ClassifiedEntity>());
 
-          if (entities.length < 1) {
+          if (A.isEmptyReadonlyArray(entities)) {
             continue;
           }
 
@@ -301,7 +301,7 @@ export class RelationExtractor extends Effect.Service<RelationExtractor>()("@bee
             }
           }
 
-          const result: ExtractedTriple[] = [];
+          const result = A.empty<ExtractedTriple>();
           MutableHashMap.forEach(seen, (triple) => {
             result.push(triple);
           });

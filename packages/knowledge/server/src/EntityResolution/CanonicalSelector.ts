@@ -61,7 +61,7 @@ export interface CanonicalSelectorConfig {
  * Count attributes in an entity
  */
 const countAttributes = (entity: AssembledEntity): number => {
-  return Object.keys(entity.attributes).length;
+  return Struct.keys(entity.attributes).length;
 };
 
 /**

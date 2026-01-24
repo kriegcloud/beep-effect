@@ -258,7 +258,7 @@ export class GraphRAGService extends Effect.Service<GraphRAGService>()($I`GraphR
         });
 
         // Build embedding similarity ranks (1-indexed)
-        const embeddingRanks: Array<string> = A.map(seedEntityIds, (id) => id);
+        const embeddingRanks = A.map(seedEntityIds, (id) => id);
 
         // 3. N-hop traversal
         const { allEntityIds, entityHops } = yield* traverseGraph(

@@ -183,7 +183,7 @@ const makeSameAsLinkExtensions = Effect.gen(function* () {
     organizationId: SharedEntityIds.OrganizationId.Type
   ): Effect.Effect<ReadonlyArray<Entities.SameAsLink.Model>, DatabaseError> =>
     findByCanonicalSchema({ canonicalId, organizationId }).pipe(
-      Effect.catchTag("ParseError", (e) => Effect.die(e)),
+      Effect.catchTag("ParseError", Effect.die),
       Effect.mapError(DatabaseError.$match),
       Effect.withSpan("SameAsLinkRepo.findByCanonical", {
         captureStackTrace: false,
@@ -203,7 +203,7 @@ const makeSameAsLinkExtensions = Effect.gen(function* () {
     organizationId: SharedEntityIds.OrganizationId.Type
   ): Effect.Effect<O.Option<Entities.SameAsLink.Model>, DatabaseError> =>
     findByMemberSchema({ memberId, organizationId }).pipe(
-      Effect.catchTag("ParseError", (e) => Effect.die(e)),
+      Effect.catchTag("ParseError", Effect.die),
       Effect.mapError(DatabaseError.$match),
       Effect.withSpan("SameAsLinkRepo.findByMember", {
         captureStackTrace: false,
@@ -228,11 +228,11 @@ const makeSameAsLinkExtensions = Effect.gen(function* () {
       // If no link found, return the original entity ID
       const first = A.head(result);
       if (O.isSome(first)) {
-        return first.value.canonical_id as KnowledgeEntityIds.KnowledgeEntityId.Type;
+        return KnowledgeEntityIds.KnowledgeEntityId.make(first.value.canonical_id);
       }
       return entityId;
     }).pipe(
-      Effect.catchTag("ParseError", (e) => Effect.die(e)),
+      Effect.catchTag("ParseError", Effect.die),
       Effect.mapError(DatabaseError.$match),
       Effect.withSpan("SameAsLinkRepo.resolveCanonical", {
         captureStackTrace: false,
@@ -254,7 +254,7 @@ const makeSameAsLinkExtensions = Effect.gen(function* () {
     limit = 100
   ): Effect.Effect<ReadonlyArray<Entities.SameAsLink.Model>, DatabaseError> =>
     findHighConfidenceSchema({ minConfidence, organizationId, limit }).pipe(
-      Effect.catchTag("ParseError", (e) => Effect.die(e)),
+      Effect.catchTag("ParseError", Effect.die),
       Effect.mapError(DatabaseError.$match),
       Effect.withSpan("SameAsLinkRepo.findHighConfidence", {
         captureStackTrace: false,
@@ -274,7 +274,7 @@ const makeSameAsLinkExtensions = Effect.gen(function* () {
     organizationId: SharedEntityIds.OrganizationId.Type
   ): Effect.Effect<ReadonlyArray<Entities.SameAsLink.Model>, DatabaseError> =>
     findBySourceSchema({ sourceId, organizationId }).pipe(
-      Effect.catchTag("ParseError", (e) => Effect.die(e)),
+      Effect.catchTag("ParseError", Effect.die),
       Effect.mapError(DatabaseError.$match),
       Effect.withSpan("SameAsLinkRepo.findBySource", {
         captureStackTrace: false,
@@ -293,7 +293,7 @@ const makeSameAsLinkExtensions = Effect.gen(function* () {
     organizationId: SharedEntityIds.OrganizationId.Type
   ): Effect.Effect<void, DatabaseError> =>
     deleteByCanonicalSchema({ canonicalId, organizationId }).pipe(
-      Effect.catchTag("ParseError", (e) => Effect.die(e)),
+      Effect.catchTag("ParseError", Effect.die),
       Effect.mapError(DatabaseError.$match),
       Effect.withSpan("SameAsLinkRepo.deleteByCanonical", {
         captureStackTrace: false,
@@ -317,7 +317,7 @@ const makeSameAsLinkExtensions = Effect.gen(function* () {
       const first = A.head(result);
       return O.isSome(first) ? Number.parseInt(first.value.count, 10) : 0;
     }).pipe(
-      Effect.catchTag("ParseError", (e) => Effect.die(e)),
+      Effect.catchTag("ParseError", Effect.die),
       Effect.mapError(DatabaseError.$match),
       Effect.withSpan("SameAsLinkRepo.countMembers", {
         captureStackTrace: false,

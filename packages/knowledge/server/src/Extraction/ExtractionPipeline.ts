@@ -7,6 +7,8 @@
  * @since 0.1.0
  */
 import * as A from "effect/Array";
+import * as DateTime from "effect/DateTime";
+import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as O from "effect/Option";
@@ -55,27 +57,27 @@ export interface ExtractionPipelineConfig {
   /**
    * Minimum confidence for mentions
    */
-  readonly mentionMinConfidence?: number;
+  readonly mentionMinConfidence?: undefined | number;
 
   /**
    * Minimum confidence for entities
    */
-  readonly entityMinConfidence?: number;
+  readonly entityMinConfidence?: undefined | number;
 
   /**
    * Minimum confidence for relations
    */
-  readonly relationMinConfidence?: number;
+  readonly relationMinConfidence?: undefined | number;
 
   /**
    * Batch size for entity classification
    */
-  readonly entityBatchSize?: number;
+  readonly entityBatchSize?: undefined | number;
 
   /**
    * Whether to merge entities with same canonical name
    */
-  readonly mergeEntities?: boolean;
+  readonly mergeEntities?: undefined | boolean;
 }
 
 /**
@@ -165,7 +167,7 @@ export class ExtractionPipeline extends Effect.Service<ExtractionPipeline>()(
          * @returns Extraction result
          */
         run: Effect.fnUntraced(function* (text: string, ontologyContent: string, config: ExtractionPipelineConfig) {
-          const startTime = Date.now();
+          const startTime = yield* DateTime.now;
           let totalTokens = 0;
 
           yield* Effect.logInfo("Starting extraction pipeline", {
@@ -185,6 +187,7 @@ export class ExtractionPipeline extends Effect.Service<ExtractionPipeline>()(
 
           // Stage 3: Extract mentions from each chunk
           yield* Effect.logDebug("Extracting mentions");
+
           const mentionResults = yield* mentionExtractor.extractFromChunks(
             [...chunks],
             filterUndefined({
@@ -250,7 +253,8 @@ export class ExtractionPipeline extends Effect.Service<ExtractionPipeline>()(
             mergeEntities: config.mergeEntities ?? true,
           });
 
-          const durationMs = Date.now() - startTime;
+          const endTime = yield* DateTime.now;
+          const durationMs = Duration.toMillis(DateTime.distance(startTime, endTime));
 
           yield* Effect.logInfo("Extraction pipeline complete", {
             entityCount: graph.stats.entityCount,

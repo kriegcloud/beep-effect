@@ -6,12 +6,12 @@
  * @module knowledge-server/test/Nlp/NlpService.test
  * @since 0.1.0
  */
-import { describe } from "bun:test";
-import { assertTrue, effect, strictEqual } from "@beep/testkit";
+
+import { NlpService } from "@beep/knowledge-server/Nlp/NlpService";
+import { assertTrue, describe, effect, strictEqual } from "@beep/testkit";
 import * as Effect from "effect/Effect";
 import * as Stream from "effect/Stream";
 import * as Str from "effect/String";
-import { NlpService } from "../../src/Nlp/NlpService";
 
 describe("NlpService", () => {
   effect("chunks short text into single chunk", () =>

@@ -57,7 +57,7 @@ export interface AssembledEntity {
   /**
    * Canonical name for entity resolution
    */
-  readonly canonicalName?: string;
+  readonly canonicalName?: undefined | string;
 }
 
 /**
@@ -366,11 +366,8 @@ export class GraphAssembler extends Effect.Service<GraphAssembler>()("@beep/know
           };
         }
 
-        if (graphs.length === 1) {
-          const firstGraph = graphs[0];
-          if (firstGraph !== undefined) {
-            return firstGraph;
-          }
+        if (A.isNonEmptyReadonlyArray(graphs)) {
+          return graphs[0];
         }
 
         // Collect all entities, deduplicating by canonical name

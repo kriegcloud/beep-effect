@@ -30,7 +30,7 @@ describe("createFrameGuardHeader", () => {
   });
 
   it("should return None when value creator returns undefined", async () => {
-    headerValueCreatorMock.mockReturnValue(Effect.succeed(undefined));
+    headerValueCreatorMock.mockReturnValue(Effect.void.pipe(Effect.as(undefined)));
 
     const result = await runEffect(createFrameGuardHeader(false, headerValueCreatorMock));
 

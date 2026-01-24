@@ -25,7 +25,7 @@ export interface MentionExtractionConfig {
   /**
    * Minimum confidence threshold for mentions
    */
-  readonly minConfidence?: number;
+  readonly minConfidence?: undefined | number;
 }
 
 /**

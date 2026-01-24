@@ -6,19 +6,19 @@
  * @module knowledge-server/test/GraphRAG/ContextFormatter.test
  * @since 0.1.0
  */
-import { describe } from "bun:test";
-import { assertTrue, effect, strictEqual } from "@beep/testkit";
-import * as DateTime from "effect/DateTime";
-import * as Effect from "effect/Effect";
-import * as MutableHashMap from "effect/MutableHashMap";
+
 import {
   estimateTokens,
   formatContext,
   formatContextWithScores,
   formatEntity,
   truncateToTokenBudget,
-} from "../../src/GraphRAG/ContextFormatter";
-import { extractLocalName } from "../../src/Ontology/constants";
+} from "@beep/knowledge-server/GraphRAG/ContextFormatter";
+import { extractLocalName } from "@beep/knowledge-server/Ontology/constants";
+import { assertTrue, describe, effect, strictEqual } from "@beep/testkit";
+import * as DateTime from "effect/DateTime";
+import * as Effect from "effect/Effect";
+import * as MutableHashMap from "effect/MutableHashMap";
 
 // Mock entity factory
 const createMockEntity = (id: string, mention: string, types: string[], attributes: Record<string, string> = {}) =>

@@ -14,7 +14,7 @@ import { makeFields } from "@beep/shared-domain/common";
 import { modelKit } from "@beep/shared-domain/factories";
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
-import { Attributes, EvidenceSpan } from "../../value-objects";
+import { Attributes, Confidence, EvidenceSpan } from "../../value-objects";
 
 const $I = $KnowledgeDomainId.create("entities/Entity");
 
@@ -61,12 +61,9 @@ export class Model extends M.Class<Model>($I`EntityModel`)(
      *
      * @example ["http://schema.org/Person", "http://schema.org/Athlete"]
      */
-    types: S.Array(S.String).pipe(
-      S.minItems(1),
-      S.annotations({
-        description: "Ontology class URIs (at least one required)",
-      })
-    ),
+    types: S.NonEmptyArray(S.String).annotations({
+      description: "Ontology class URIs (at least one required)",
+    }),
 
     /**
      * Entity attributes as property-value pairs
@@ -111,13 +108,9 @@ export class Model extends M.Class<Model>($I`EntityModel`)(
      * System-generated grounding confidence (0-1)
      */
     groundingConfidence: BS.FieldOptionOmittable(
-      S.Number.pipe(
-        S.greaterThanOrEqualTo(0),
-        S.lessThanOrEqualTo(1),
-        S.annotations({
-          description: "System-verified confidence that entity is grounded in source text (0-1)",
-        })
-      )
+      Confidence.annotations({
+        description: "System-verified confidence that entity is grounded in source text (0-1)",
+      })
     ),
 
     /**
