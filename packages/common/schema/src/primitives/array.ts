@@ -68,3 +68,6 @@ export const arrayToCommaSeparatedString = <A extends string | number | boolean>
       description: "Converts an array to a comma separated string",
     })
   );
+
+export const EmptyArrayOf = <A, E, R>(schema: S.Schema<A, E, R>) =>
+  S.Array(schema).pipe(S.filter((i) => i.length === 0 || "must be empty array"));

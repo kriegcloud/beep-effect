@@ -8,6 +8,7 @@ import { ListEmails } from "./list-emails";
 import { ListLabels } from "./list-labels";
 import { ModifyEmail } from "./modify-email";
 import { SearchEmails } from "./search-emails";
+import { SendEmail } from "./send-email";
 import { TrashEmail } from "./trash-email";
 import { UpdateLabel } from "./update-label";
 
@@ -20,9 +21,8 @@ export const Group = Wrap.WrapperGroup.make(
   ListEmails.Wrapper,
   ListLabels.Wrapper,
   ModifyEmail.Wrapper,
-
+  SendEmail.Wrapper,
   SearchEmails.Wrapper,
-
   TrashEmail.Wrapper,
   UpdateLabel.Wrapper
 );
@@ -36,6 +36,7 @@ export const layer = Group.toLayer({
   ListLabels: ListLabels.Handler,
   ModifyEmail: ModifyEmail.Handler,
   SearchEmails: SearchEmails.Handler,
+  SendEmail: SendEmail.Handler,
   UpdateLabel: UpdateLabel.Handler,
   GetEmail: GetEmail.Handler,
   TrashEmail: TrashEmail.Handler,

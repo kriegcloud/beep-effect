@@ -115,3 +115,31 @@ export class CalendarEventReminder extends S.Class<CalendarEventReminder>($I`Cal
     description: "CalendarEventReminder",
   })
 ) {}
+
+export class CalendarEventAttendee extends S.Class<CalendarEventAttendee>($I`CalendarEventAttendee`)(
+  {
+    email: BS.Email,
+    displayName: BS.OptionalAsOption(S.String),
+    organizer: BS.OptionalAsOption(S.String),
+    self: BS.OptionalAsOption(S.Boolean),
+    resource: BS.OptionalAsOption(S.String),
+    optional: BS.OptionalAsOption(S.Boolean),
+    responseStatus: BS.OptionalAsOption(ResponseStatus),
+    comment: BS.OptionalAsOption(S.String),
+    additionalGuests: BS.OptionalAsOption(S.Number),
+  },
+  $I.annotations("CalendarEventAttendee", {
+    description: "Calendar event attendee",
+  })
+) {}
+
+export class CalendarEventDateTime extends S.Class<CalendarEventDateTime>($I`CalendarEventDateTime`)(
+  {
+    dateTime: BS.OptionalAsOption(BS.DateTimeUtcFromAllAcceptable),
+    date: BS.OptionalAsOption(BS.CalendarDate),
+    // timeZone:
+  },
+  $I.annotations("CalendarEventDateTime", {
+    description: "Calendar event date time",
+  })
+) {}

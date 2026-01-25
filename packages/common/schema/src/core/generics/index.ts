@@ -14,7 +14,7 @@
  */
 
 export * as DiscriminatedStruct from "./discriminated-struct";
-export * from "./nullish";
+
 /**
  * Option field helpers for transforming nullish values to Option types.
  *
@@ -31,6 +31,7 @@ export * from "./nullish";
  * @since 0.1.0
  */
 export * from "./option-fields";
+export * from "./optional";
 export * from "./optional-options";
 export * from "./struct-record";
 export * from "./tagged-class";

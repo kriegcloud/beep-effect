@@ -15,10 +15,11 @@
 
 import { $SchemaId } from "@beep/identity/packages";
 import { invariant } from "@beep/invariant";
+import * as OptionalSchemas from "@beep/schema/core/generics/optional";
+import { toOptionalWithDefault } from "@beep/schema/core/utils/to-optional-with";
 import type { TagTypes } from "@beep/types";
 import * as A from "effect/Array";
 import * as S from "effect/Schema";
-import { toOptionalWithDefault } from "../../core/utils/to-optional-with";
 import * as regexes from "../../internal/regex/regexes";
 
 const $I = $SchemaId.create("primitives/string/string");
@@ -188,3 +189,23 @@ export declare namespace StringWithDefault {
    */
   export type Encoded = S.Schema.Encoded<ReturnType<typeof StringWithDefault>>;
 }
+
+// Optional
+
+export const OptStr = S.optional(S.String).annotations(
+  $I.annotations("string/OptionalString", {
+    description: "An optional string",
+  })
+);
+
+export const OptStrAsOption = OptionalSchemas.NullableOptionalAsOption(S.String).annotations(
+  $I.annotations("string/NullableOptionalString", {
+    description: "An optional string that can be null",
+  })
+);
+
+export const OptNullishStrAsOption = OptionalSchemas.NullableOptionalAsOption(S.String).annotations(
+  $I.annotations("string/NullableOptionalString", {
+    description: "An optional string that can be null",
+  })
+);

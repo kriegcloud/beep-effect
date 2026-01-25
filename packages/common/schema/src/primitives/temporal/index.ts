@@ -19,6 +19,7 @@ export * from "./dates/month";
  * @since 0.1.0
  */
 export * from "./dates/timestamp";
+export * from "./timezones.ts";
 /**
  * Year schemas for calendar years.
  *

@@ -890,13 +890,13 @@ export class IFooter extends S.Class<IFooter>($I`IFooter`)(
 export class IChapter extends S.Class<IChapter>($I`IChapter`)(
   {
     title: S.String.annotations({ description: "Chapter title" }),
-    sampleOffset: S.Number.annotations({
+    sampleOffset: S.optional(S.Number).annotations({
       description: "Audio offset in sample number - duration offset is sampleOffset / format.sampleRate",
     }),
     start: S.Number.annotations({
       description: "Timestamp where chapter starts - chapter timestamp is start/timeScale in seconds",
     }),
-    timeScale: S.Number.annotations({
+    timeScale: S.optional(S.Number).annotations({
       description: "Time scale for chapter tracks - number of time units per second",
     }),
   },

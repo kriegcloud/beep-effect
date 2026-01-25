@@ -35,6 +35,7 @@ export * from "./array-buffer";
  * @since 0.1.0
  */
 export * from "./bool";
+export * from "./buffer";
 /**
  * Duration schemas and tagged representations.
  *

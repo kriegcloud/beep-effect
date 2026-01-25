@@ -7,6 +7,7 @@
  * @since 0.1.0
  */
 
+import { $KnowledgeServerId } from "@beep/identity/packages";
 import { KnowledgeEntityIds } from "@beep/shared-domain";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
@@ -17,6 +18,9 @@ import * as R from "effect/Record";
 import * as Str from "effect/String";
 import type { ClassifiedEntity } from "./schemas/entity-output.schema";
 import type { ExtractedTriple } from "./schemas/relation-output.schema";
+
+const $I = $KnowledgeServerId.create("knowledge-server/Extraction/GraphAssembler");
+
 /**
  * Assembled entity with generated ID
  *
@@ -198,7 +202,7 @@ export interface GraphAssemblyConfig {
  * @since 0.1.0
  * @category services
  */
-export class GraphAssembler extends Effect.Service<GraphAssembler>()("@beep/knowledge-server/GraphAssembler", {
+export class GraphAssembler extends Effect.Service<GraphAssembler>()($I`GraphAssembler`, {
   accessors: true,
   effect: Effect.succeed({
     /**
@@ -366,7 +370,7 @@ export class GraphAssembler extends Effect.Service<GraphAssembler>()("@beep/know
           };
         }
 
-        if (A.isNonEmptyReadonlyArray(graphs)) {
+        if (A.isNonEmptyReadonlyArray(graphs) && graphs.length === 1) {
           return graphs[0];
         }
 
@@ -418,7 +422,7 @@ export class GraphAssembler extends Effect.Service<GraphAssembler>()("@beep/know
           }
         }
 
-        const entities: AssembledEntity[] = [];
+        const entities = A.empty<AssembledEntity>();
         MutableHashMap.forEach(entityIndex, (entity) => {
           entities.push(entity);
         });

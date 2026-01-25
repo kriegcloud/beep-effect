@@ -1,13 +1,16 @@
 import { $SharedIntegrationsId } from "@beep/identity/packages";
 import { Wrap } from "@beep/wrap";
+import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
+import * as ParseResult from "effect/ParseResult";
 import * as S from "effect/Schema";
+import * as GmailSchemas from "../../common/gmail.schemas.ts";
 import { GmailMethodError } from "../../errors.ts";
 import { Models } from "../../models";
 
 const $I = $SharedIntegrationsId.create("google/gmail/actions/update-label/contract");
 
-export class Payload extends S.Class<Payload>($I`Payload`)(
+export class PayloadFrom extends S.Class<PayloadFrom>($I`PayloadFrom`)(
   {
     labelId: S.String,
     updates: S.Struct({
@@ -17,22 +20,51 @@ export class Payload extends S.Class<Payload>($I`Payload`)(
       color: S.optionalWith(Models.LabelColor, { as: "Option" }),
     }),
   },
-  $I.annotations("Payload", {
-    description: "UpdateLabel payload.",
+  $I.annotations("PayloadFrom", {
+    description: "UpdateLabel payload input.",
   })
-) {
-  /**
-   * Converts the payload to the format expected by the Gmail API.
-   */
-  toRequestBody() {
-    return {
-      name: O.getOrUndefined(this.updates.name),
-      labelListVisibility: O.getOrUndefined(this.updates.labelListVisibility),
-      messageListVisibility: O.getOrUndefined(this.updates.messageListVisibility),
-      color: O.getOrUndefined(this.updates.color),
-    };
-  }
-}
+) {}
+
+/**
+ * Transforms user-friendly update label payload into Gmail API parameters.
+ */
+export const Payload = S.transformOrFail(PayloadFrom, GmailSchemas.GmailParamsResourceUsersLabelsUpdate, {
+  strict: true,
+  decode: Effect.fnUntraced(function* (from) {
+    return GmailSchemas.GmailParamsResourceUsersLabelsUpdate.make({
+      userId: "me",
+      id: from.labelId,
+      requestBody: GmailSchemas.GmailLabel.make({
+        ...(O.isSome(from.updates.name) ? { name: from.updates.name.value } : {}),
+        ...(O.isSome(from.updates.labelListVisibility)
+          ? { labelListVisibility: from.updates.labelListVisibility.value }
+          : {}),
+        ...(O.isSome(from.updates.messageListVisibility)
+          ? { messageListVisibility: from.updates.messageListVisibility.value }
+          : {}),
+        ...(O.isSome(from.updates.color)
+          ? {
+              color: GmailSchemas.GmailLabelColor.make({
+                ...(O.isSome(from.updates.color.value.textColor)
+                  ? { textColor: from.updates.color.value.textColor.value }
+                  : {}),
+                ...(O.isSome(from.updates.color.value.backgroundColor)
+                  ? { backgroundColor: from.updates.color.value.backgroundColor.value }
+                  : {}),
+              }),
+            }
+          : {}),
+      }),
+    });
+  }),
+  encode: Effect.fnUntraced(function* (_to, _options, ast) {
+    return yield* Effect.fail(
+      new ParseResult.Type(ast, _to, "Encoding from Gmail API params to PayloadFrom is not supported")
+    );
+  }),
+});
+
+export type Payload = S.Schema.Type<typeof Payload>;
 
 export class Success extends Models.Label.extend<Success>($I`Success`)(
   {},

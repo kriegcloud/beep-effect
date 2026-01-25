@@ -3,6 +3,7 @@ export { CreateLabel } from "./create-label";
 export { DeleteEmail } from "./delete-email";
 export { DeleteLabel } from "./delete-label";
 export { GetEmail } from "./get-email";
+export * from "./layer";
 export { ListEmails } from "./list-emails";
 export { ListLabels } from "./list-labels";
 export { SearchEmails } from "./search-emails";

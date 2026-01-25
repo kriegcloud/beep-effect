@@ -1,9 +1,10 @@
 import { $SharedIntegrationsId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
-import { noOp } from "@beep/utils";
+import { noOp, thunkEmptyStr } from "@beep/utils";
 import type * as Gmail from "@googleapis/gmail";
 import * as A from "effect/Array";
 import * as DateTime from "effect/DateTime";
+import * as Encoding from "effect/Encoding";
 import * as F from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -77,4 +78,32 @@ export class Email extends S.Class<Email>($I`Email`)(
   $I.annotations("Email", {
     description: "Email",
   })
-) {}
+) {
+  readonly toRaw = () =>
+    F.pipe(
+      A.make(
+        `To: ${A.join(", ")(this.to)}`,
+        this.cc.pipe(
+          O.flatMap(O.liftPredicate(A.isNonEmptyReadonlyArray)),
+          O.map(A.join(", ")),
+          O.map((ccStr) => `Cc: ${ccStr}`),
+          O.getOrNull
+        ),
+        this.bcc.pipe(
+          O.flatMap(O.liftPredicate(A.isNonEmptyReadonlyArray)),
+          O.map(A.join(", ")),
+          O.map((bccStr) => `Cc: ${bccStr}`),
+          O.getOrNull
+        ),
+        `Subject: ${this.subject}`,
+        "MIME-Version: 1.0",
+        "Content-Type: text/plain; charset=utf-8",
+        "Content-Transfer-Encoding: 7bit",
+        "",
+        O.getOrElse(this.body, thunkEmptyStr)
+      ),
+      A.filter(P.isNotNullable),
+      A.join("\r\n"),
+      Encoding.encodeBase64Url
+    );
+}

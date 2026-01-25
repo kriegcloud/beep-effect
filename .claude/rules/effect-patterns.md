@@ -1,7 +1,7 @@
 ---
-paths:
-  - "**/*.ts"
-  - "**/*.tsx"
+trigger: manual
+description: 
+globs: 
 ---
 
 # Effect Patterns

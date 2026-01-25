@@ -7,14 +7,7 @@ export const Handler = Wrapper.implement(
   Effect.fn(
     function* (payload) {
       const response = yield* wrapGmailCall({
-        operation: (client) =>
-          client.users.labels.create({
-            userId: "me",
-            requestBody: {
-              name: payload.name,
-              ...payload.requestBody,
-            },
-          }),
+        operation: (client) => client.users.labels.create(payload),
         failureMessage: "Failed to create label",
       });
 

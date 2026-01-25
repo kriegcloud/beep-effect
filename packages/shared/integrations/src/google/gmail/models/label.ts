@@ -36,10 +36,13 @@ export class Label extends S.Class<Label>($I`Label`)(
       threadsTotal: O.fromNullable(raw.threadsTotal),
       threadsUnread: O.fromNullable(raw.threadsUnread),
       color: O.fromNullable(raw.color).pipe(
-        O.map((color) => ({
-          textColor: color.textColor || "#000000",
-          backgroundColor: color.backgroundColor || "#ffffff",
-        }))
+        O.map(
+          (color) =>
+            new LabelColor({
+              textColor: O.fromNullable(color.textColor),
+              backgroundColor: O.fromNullable(color.backgroundColor),
+            })
+        )
       ),
       labelListVisibility: S.decodeUnknownOption(LabelListVisibility)(raw.labelListVisibility),
       messageListVisibility: S.decodeUnknownOption(MessageListVisibility)(raw.messageListVisibility),

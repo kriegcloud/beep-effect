@@ -3,11 +3,7 @@ import { Wrapper } from "./contract";
 
 export const Handler = Wrapper.implement((payload) =>
   wrapGmailCall({
-    operation: (client) =>
-      client.users.messages.delete({
-        userId: "me",
-        id: payload.emailId,
-      }),
+    operation: (client) => client.users.messages.delete(payload),
     failureMessage: "Failed to delete email",
   })
 );

@@ -16,6 +16,7 @@
  */
 
 import { $SchemaId } from "@beep/identity/packages";
+import * as A from "effect/Array";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
@@ -24,6 +25,7 @@ import * as ParseResult from "effect/ParseResult";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
+import { destructiveTransform } from "../../../core/extended/extended-schemas";
 
 const $I = $SchemaId.create("primitives/temporal/dates/date-time");
 
@@ -456,4 +458,122 @@ export declare namespace EpochMillisFromAllAcceptable {
    * @since 0.1.0
    */
   export type Encoded = S.Schema.Encoded<typeof EpochMillisFromAllAcceptable>;
+}
+const CalendarDateFrom = S.TemplateLiteral(S.String, "-", S.String, "-", S.String);
+const CalendarDateTo = S.String.pipe(S.brand("CalendarDate"));
+
+const isValidYear = (s: string): boolean => Str.length(s) === 4 && S.is(S.NonNegativeInt)(Number.parseInt(s, 10));
+
+const isValidMonth = (s: string): boolean => {
+  if (Str.length(s) !== 2) return false;
+  const n = Number.parseInt(s, 10);
+  return S.is(S.NonNegativeInt)(n) && n >= 1 && n <= 12;
+};
+
+const isValidDay = (s: string): boolean => {
+  if (Str.length(s) !== 2) return false;
+  const n = Number.parseInt(s, 10);
+  return S.is(S.NonNegativeInt)(n) && n >= 1 && n <= 31;
+};
+
+/**
+ * ISO 8601 - Calendar Date format (YYYY-MM-DD)
+ *
+ * @example
+ * import * as S from "effect/Schema";
+ * import { CalendarDate } from "@beep/schema/primitives/temporal/dates/date-time";
+ *
+ * const decode = S.decodeSync(CalendarDate);
+ * const date = decode("2024-01-15"); // "2024-01-15" branded as CalendarDate
+ *
+ * @category Primitives/Temporal/Dates
+ * @since 0.1.0
+ */
+export class CalendarDate extends S.transformOrFail(CalendarDateFrom, CalendarDateTo, {
+  strict: true,
+  decode: Effect.fnUntraced(function* (input, _options, ast) {
+    const parts = Str.split("-")(input);
+
+    const validated = O.all({
+      year: F.pipe(A.head(parts), O.flatMap(O.liftPredicate(isValidYear))),
+      month: F.pipe(A.get(1)(parts), O.flatMap(O.liftPredicate(isValidMonth))),
+      day: F.pipe(A.get(2)(parts), O.flatMap(O.liftPredicate(isValidDay))),
+    });
+
+    if (O.isNone(validated)) {
+      return yield* Effect.fail(new ParseResult.Type(ast, input, "Invalid CalendarDate"));
+    }
+
+    return input;
+  }),
+  encode: Effect.fnUntraced(function* (input) {
+    return input as `${string}-${string}-${string}`;
+  }),
+}) {}
+
+/**
+ * Pads a number to the specified width with leading zeros.
+ * @internal
+ */
+const padStart = (n: number, width: number): string => Str.padStart(width, "0")(String(n));
+
+/**
+ * Formats a DateTime.Utc as a CalendarDate string (YYYY-MM-DD).
+ * @internal
+ */
+const formatDateTimeToCalendarDate = (dt: DateTime.Utc): S.Schema.Type<typeof CalendarDate> => {
+  const parts = DateTime.toPartsUtc(dt);
+  return `${padStart(parts.year, 4)}-${padStart(parts.month, 2)}-${padStart(parts.day, 2)}` as S.Schema.Type<
+    typeof CalendarDate
+  >;
+};
+
+/**
+ * Destructively transforms a `DateTime.Utc` into a `CalendarDate` (YYYY-MM-DD).
+ *
+ * This is a one-way transformation - the time component is discarded.
+ * Use when you only need the date portion of a DateTime.
+ *
+ * @example
+ * import * as S from "effect/Schema";
+ * import * as DateTime from "effect/DateTime";
+ * import { CalendarDateFromDateTimeUtc } from "@beep/schema/primitives/temporal/dates/date-time";
+ *
+ * const toCalendarDate = S.decodeSync(CalendarDateFromDateTimeUtc);
+ * const dt = DateTime.unsafeMake("2024-06-15T14:30:00Z");
+ * const date = toCalendarDate(dt); // "2024-06-15" branded as CalendarDate
+ *
+ * @category Primitives/Temporal/Dates
+ * @since 0.1.0
+ */
+export const CalendarDateFromDateTimeUtc = S.DateTimeUtcFromSelf.pipe(
+  destructiveTransform(formatDateTimeToCalendarDate)
+).annotations(
+  $I.annotations("dates/CalendarDateFromDateTimeUtc", {
+    title: "CalendarDate from DateTime.Utc",
+    description: "Transforms a DateTime.Utc to CalendarDate (YYYY-MM-DD), discarding time",
+    jsonSchema: {
+      type: "string",
+      format: "date",
+      pattern: "^\\d{4}-\\d{2}-\\d{2}$",
+    },
+  })
+);
+
+export namespace CalendarDateFromDateTimeUtc {
+  /**
+   * Runtime type produced by {@link CalendarDateFromDateTimeUtc}.
+   *
+   * @category Primitives/Temporal/Dates
+   * @since 0.1.0
+   */
+  export type Type = S.Schema.Type<typeof CalendarDateFromDateTimeUtc>;
+
+  /**
+   * Encoded representation accepted by {@link CalendarDateFromDateTimeUtc}.
+   *
+   * @category Primitives/Temporal/Dates
+   * @since 0.1.0
+   */
+  export type Encoded = S.Schema.Encoded<typeof CalendarDateFromDateTimeUtc>;
 }

@@ -6,6 +6,8 @@
  * @module knowledge-server/Extraction/EntityExtractor
  * @since 0.1.0
  */
+
+import { $KnowledgeServerId } from "@beep/identity/packages";
 import { LanguageModel, Prompt } from "@effect/ai";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
@@ -18,6 +20,7 @@ import type { OntologyContext } from "../Ontology";
 import { ClassifiedEntity, EntityOutput } from "./schemas/entity-output.schema";
 import type { ExtractedMention } from "./schemas/mention-output.schema";
 
+const $I = $KnowledgeServerId.create("knowledge-server/Extraction/EntityExtractor");
 /**
  * Configuration for entity classification
  *
@@ -89,7 +92,7 @@ export interface EntityExtractionResult {
  * @since 0.1.0
  * @category services
  */
-export class EntityExtractor extends Effect.Service<EntityExtractor>()("@beep/knowledge-server/EntityExtractor", {
+export class EntityExtractor extends Effect.Service<EntityExtractor>()($I`EntityExtractor`, {
   accessors: true,
   effect: Effect.gen(function* () {
     const model = yield* LanguageModel.LanguageModel;

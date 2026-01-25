@@ -14,7 +14,7 @@ export const wrapGmailCall = Effect.fn("wrapGmailCall")(
   function* <A>(params: WrapGmailCallParams<A>) {
     const { client } = yield* GmailClient;
     return yield* Effect.tryPromise({
-      try: async () => params.operation(client),
+      try: () => params.operation(client),
       catch: GmailMethodError.fromUnknown(params.failureMessage),
     });
   },
