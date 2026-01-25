@@ -23,6 +23,7 @@
  */
 export * from "./config";
 export * from "./files";
+export * from "./html";
 export * from "./http";
 export * from "./keyboard";
 /**

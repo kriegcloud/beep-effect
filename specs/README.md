@@ -44,6 +44,7 @@ All spec-creation infrastructure lives in [`_guide/`](_guide/):
 | [orgtable-auto-rls](orgtable-auto-rls/) | Automatic RLS for org tables | Active |
 | [repo-cli-verify-commands](repo-cli-verify-commands/) | Convert verification shell scripts to Effect-based repo-cli commands | New |
 | [rls-implementation](rls-implementation/) | Row-level security | Active |
+| [sanitize-html-schema](sanitize-html-schema/) | Schema-driven HTML sanitization with S.TaggedClass unions | P1 Ready |
 | [spec-creation-improvements](spec-creation-improvements/) | Spec workflow enhancements | Complete |
 | [todox-design](todox-design/) | Todox application design | Active |
 | [tsconfig-sync-command](tsconfig-sync-command/) | CLI for tsconfig/package.json sync with transitive hoisting | P0 Complete |

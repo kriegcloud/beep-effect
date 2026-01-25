@@ -422,6 +422,21 @@ export * from "./random-hex-string";
  * @since 0.1.0
  */
 export * as RemoveAccents from "./remove-accents/remove-accents";
+/**
+ * Re-exports HTML sanitization utilities.
+ *
+ * @example
+ * ```typescript
+ * import { SanitizeHtml } from "@beep/utils"
+ *
+ * const safe = SanitizeHtml.sanitizeHtml("<script>alert('XSS')</script><p>Hello</p>")
+ * // => "<p>Hello</p>"
+ * ```
+ *
+ * @category exports
+ * @since 0.1.0
+ */
+export * as SanitizeHtml from "./sanitize-html";
 export * from "./sqids";
 export { default as Sqids } from "./sqids";
 export * from "./thunk";

@@ -129,6 +129,7 @@
     "tsx": "catalog:",
     "turbo": "catalog:",
     "typescript": "catalog:"
+
   },
   "lint-staged": {
     "*": [
@@ -271,6 +272,7 @@
     "@radix-ui/react-tabs": "^1.1.13",
     "@radix-ui/react-toast": "^1.2.15",
     "@radix-ui/react-toggle": "^1.1.10",
+    "cheerio": "^1.2.0",
     "@radix-ui/react-toggle-group": "^1.1.11",
     "@radix-ui/react-toolbar": "^1.1.11",
     "@radix-ui/react-tooltip": "^1.2.8",

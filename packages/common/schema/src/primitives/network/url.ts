@@ -16,6 +16,7 @@
 import { $SchemaId } from "@beep/identity/packages";
 import { faker } from "@faker-js/faker";
 import * as Either from "effect/Either";
+import * as ParseResult from "effect/ParseResult";
 import * as S from "effect/Schema";
 
 const $I = $SchemaId.create("primitives/network/url");
@@ -93,31 +94,39 @@ export declare namespace CustomURL {
 }
 
 /**
- * Schema that parses arbitrary strings into `URL` instances.
+ * Schema that transforms arbitrary strings into `URL` instances.
+ *
+ * Decoding: Parses a string into a `URL` instance, failing if the string is not a valid URL.
+ * Encoding: Converts a `URL` instance back to its string representation via `toString()`.
  *
  * @example
  * import * as S from "effect/Schema";
  * import { URLFromString } from "@beep/schema/primitives/network/url";
  *
  * const parsed = S.decodeSync(URLFromString)("https://effect.website");
+ * // parsed is a URL instance
+ *
+ * const encoded = S.encodeSync(URLFromString)(parsed);
+ * // encoded is "https://effect.website/"
  *
  * @category Primitives/Network
  * @since 0.1.0
  */
-export class URLFromString extends S.instanceOf(URL)
-  .pipe(
-    S.filter((a) => Either.try(() => new URL(a)).pipe(Either.isRight)),
-    S.annotations({
-      arbitrary: () => (fc) => fc.constant(null).map(() => new URL(faker.internet.url())),
+export const URLFromString = S.transformOrFail(S.String, CustomURL, {
+  strict: true,
+  decode: (s, _, ast) =>
+    ParseResult.try({
+      try: () => new URL(s) as CustomURL.Type,
+      catch: () => new ParseResult.Type(ast, s, "Invalid URL string"),
     }),
-    S.brand("URLFromString")
-  )
-  .annotations(
-    $I.annotations("URLFromString", {
-      description: "A URL from a string.",
-      jsonSchema: { type: "string", format: "url" },
-    })
-  ) {}
+  encode: (url) => ParseResult.succeed(url.toString()),
+}).annotations({
+  ...$I.annotations("URLFromString", {
+    description: "A URL from a string.",
+    jsonSchema: { type: "string", format: "url" },
+  }),
+  arbitrary: () => (fc) => fc.constant(null).map(() => new URL(faker.internet.url()) as CustomURL.Type),
+});
 
 /**
  * Namespace exposing helper types for the `URLFromString` schema.
@@ -132,7 +141,7 @@ export class URLFromString extends S.instanceOf(URL)
  */
 export declare namespace URLFromString {
   /**
-   * Runtime type for the `URLFromString` schema.
+   * Runtime type for the `URLFromString` schema (URL instance).
    *
    * @example
    * import type { URLFromString } from "@beep/schema/primitives/network/url";
