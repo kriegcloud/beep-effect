@@ -11,7 +11,7 @@
 import { dual, pipe } from "effect/Function";
 import * as Match from "effect/Match";
 import * as P from "effect/Predicate";
-import type { Attributes } from "../types.js";
+import type { Attributes } from "../types";
 
 /**
  * Token tag literal types for exhaustive matching.

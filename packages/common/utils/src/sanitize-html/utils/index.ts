@@ -5,6 +5,6 @@
  * @module
  */
 
-export * from "./escape-regex.js";
-export * from "./glob-matcher.js";
-export * from "./is-plain-object.js";
+export * from "./escape-regex";
+export * from "./glob-matcher";
+export * from "./is-plain-object";

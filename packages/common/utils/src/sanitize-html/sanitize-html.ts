@@ -12,24 +12,24 @@ import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as Str from "effect/String";
 
-import { filterStyles } from "./css/css-filter.js";
-import { defaultAllowedEmptyAttributes, defaultParserOptions, defaults } from "./defaults.js";
-import { filterAttributes, isValidAttributeName } from "./filters/attribute-filter.js";
-import { filterClasses } from "./filters/class-filter.js";
+import { filterStyles } from "./css/css-filter";
+import { defaultAllowedEmptyAttributes, defaultParserOptions, defaults } from "./defaults";
+import { filterAttributes, isValidAttributeName } from "./filters/attribute-filter";
+import { filterClasses } from "./filters/class-filter";
 import {
   isMediaTag,
   isNonTextTag,
   isSelfClosingTag,
   isTagAllowed,
   warnAboutVulnerableTags,
-} from "./filters/tag-filter.js";
-import { encodeHtml } from "./parser/entities.js";
-import { parseHtml } from "./parser/html-parser.js";
-import { matchToken, type StartTagToken } from "./parser/token.js";
-import { applyTransform, simpleTransform } from "./transform/tag-transform.js";
-import type { Attributes, Frame, SanitizeOptions } from "./types.js";
-import { filterSrcset } from "./url/srcset-parser.js";
-import { isNaughtyHref, validateIframeSrc, validateScriptSrc } from "./url/url-validator.js";
+} from "./filters/tag-filter";
+import { encodeHtml } from "./parser/entities";
+import { parseHtml } from "./parser/html-parser";
+import { matchToken, type StartTagToken } from "./parser/token";
+import { applyTransform, simpleTransform } from "./transform/tag-transform";
+import type { Attributes, Frame, MergedSanitizeOptions, SanitizeOptions } from "./types";
+import { filterSrcset } from "./url/srcset-parser";
+import { isNaughtyHref, validateIframeSrc, validateScriptSrc } from "./url/url-validator";
 
 /**
  * Internal frame for tracking parser state.
@@ -47,7 +47,7 @@ interface InternalFrame {
 /**
  * Merge options with defaults.
  */
-const mergeOptions = (options: SanitizeOptions | undefined): Required<SanitizeOptions> => {
+const mergeOptions = (options: SanitizeOptions | undefined): MergedSanitizeOptions => {
   const opts = options ?? {};
 
   return {
@@ -122,11 +122,7 @@ void _escapeTag;
 /**
  * Get allowed schemes for a tag/attribute.
  */
-const getAllowedSchemes = (
-  tagName: string,
-  _attrName: string,
-  options: Required<SanitizeOptions>
-): readonly string[] => {
+const getAllowedSchemes = (tagName: string, _attrName: string, options: MergedSanitizeOptions): readonly string[] => {
   // Check tag-specific schemes using Option pattern
   const tagSchemes = F.pipe(
     O.fromNullable(options.allowedSchemesByTag),

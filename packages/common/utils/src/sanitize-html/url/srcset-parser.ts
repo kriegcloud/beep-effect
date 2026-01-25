@@ -14,7 +14,7 @@ import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as Str from "effect/String";
 
-import { isNaughtyHref, type UrlValidationOptions } from "./url-validator.js";
+import { isNaughtyHref, type UrlValidationOptions } from "./url-validator";
 
 /**
  * A single entry in a srcset attribute.

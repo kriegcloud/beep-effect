@@ -12,7 +12,7 @@ import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as Str from "effect/String";
 
-import { createGlobMatcher, isGlobPattern } from "../utils/glob-matcher.js";
+import { createGlobMatcher, isGlobPattern } from "../utils/glob-matcher";
 
 /**
  * Allowed classes configuration.

@@ -5,4 +5,4 @@
  * @module
  */
 
-export * from "./tag-transform.js";
+export * from "./tag-transform";

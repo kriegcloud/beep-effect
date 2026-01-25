@@ -12,9 +12,9 @@ import * as P from "effect/Predicate";
 import * as Str from "effect/String";
 import * as Struct from "effect/Struct";
 
-import type { AllowedAttribute, Attributes } from "../types.js";
-import { createGlobMatcher, isGlobPattern } from "../utils/glob-matcher.js";
-import { isPlainObject } from "../utils/is-plain-object.js";
+import type { AllowedAttribute, Attributes } from "../types";
+import { createGlobMatcher, isGlobPattern } from "../utils/glob-matcher";
+import { isPlainObject } from "../utils/is-plain-object";
 
 /**
  * A valid HTML attribute name pattern.

@@ -5,5 +5,5 @@
  * @module
  */
 
-export * from "./srcset-parser.js";
-export * from "./url-validator.js";
+export * from "./srcset-parser";
+export * from "./url-validator";

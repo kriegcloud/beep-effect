@@ -5,7 +5,7 @@
  * @module
  */
 
-export * from "./css-filter.js";
-export * from "./css-parser.js";
-export * from "./css-stylesheet-sanitizer.js";
-export * from "./css-stylesheet-sanitizer-config.js";
+export * from "./css-filter";
+export * from "./css-parser";
+export * from "./css-stylesheet-sanitizer";
+export * from "./css-stylesheet-sanitizer-config";

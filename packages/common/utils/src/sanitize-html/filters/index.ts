@@ -5,6 +5,6 @@
  * @module
  */
 
-export * from "./attribute-filter.js";
-export * from "./class-filter.js";
-export * from "./tag-filter.js";
+export * from "./attribute-filter";
+export * from "./class-filter";
+export * from "./tag-filter";

@@ -441,7 +441,7 @@ describe("createCssConfig", () => {
         },
       });
 
-      const result = sanitizeCss(".bg { background: url('https://example.com/img.png'); }", config);
+      sanitizeCss(".bg { background: url('https://example.com/img.png'); }", config);
 
       expect(validatorCalled).toBe(true);
     })

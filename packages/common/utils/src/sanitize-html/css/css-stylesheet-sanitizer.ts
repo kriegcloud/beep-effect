@@ -39,16 +39,16 @@ import {
   type CssStylesheetSanitizerConfigInput,
   createConfig,
   defaultConfig,
-} from "./css-stylesheet-sanitizer-config.js";
+} from "./css-stylesheet-sanitizer-config";
 
 export type {
   CssStylesheetSanitizerConfig,
   CssStylesheetSanitizerConfigInput,
   UrlSanitizer,
   UrlValidator,
-} from "./css-stylesheet-sanitizer-config.js";
+} from "./css-stylesheet-sanitizer-config";
 // Re-export config creation
-export { createConfig } from "./css-stylesheet-sanitizer-config.js";
+export { createConfig } from "./css-stylesheet-sanitizer-config";
 
 /**
  * Parser state for tracking CSS structure.
@@ -414,4 +414,4 @@ export {
   defaultAllowedPseudoClasses,
   defaultConfig,
   defaultMaxCssLength,
-} from "./css-stylesheet-sanitizer-config.js";
+} from "./css-stylesheet-sanitizer-config";

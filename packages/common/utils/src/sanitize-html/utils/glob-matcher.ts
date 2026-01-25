@@ -12,7 +12,7 @@ import * as A from "effect/Array";
 import * as F from "effect/Function";
 import type * as P from "effect/Predicate";
 import * as Str from "effect/String";
-import { escapeRegex } from "./escape-regex.js";
+import { escapeRegex } from "./escape-regex";
 
 /**
  * The wildcard character used in glob patterns.

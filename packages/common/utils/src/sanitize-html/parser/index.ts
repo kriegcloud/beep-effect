@@ -5,6 +5,6 @@
  * @module
  */
 
-export * from "./entities.js";
-export * from "./html-parser.js";
-export * from "./token.js";
+export * from "./entities";
+export * from "./html-parser";
+export * from "./token";

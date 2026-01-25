@@ -12,7 +12,7 @@ import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as Str from "effect/String";
 
-import type { Attributes, TransformedTag, Transformer } from "../types.js";
+import type { Attributes, TransformedTag, Transformer } from "../types";
 
 /**
  * Transform configuration.

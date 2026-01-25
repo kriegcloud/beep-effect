@@ -31,22 +31,22 @@
  * @module
  */
 
-export type { AllowedStyles } from "./css/css-filter.js";
-export { filterStyles, hasAllowedStyles } from "./css/css-filter.js";
+export type { AllowedStyles } from "./css/css-filter";
+export { filterStyles, hasAllowedStyles } from "./css/css-filter";
 // CSS utilities
-export type { CssDeclaration } from "./css/css-parser.js";
+export type { CssDeclaration } from "./css/css-parser";
 export {
   isDangerousCssValue,
   parseStyleAttribute,
   stringifyDeclarations,
-} from "./css/css-parser.js";
+} from "./css/css-parser";
 // CSS stylesheet sanitizer
 export type {
   CssStylesheetSanitizerConfig,
   CssStylesheetSanitizerConfigInput,
   UrlSanitizer,
   UrlValidator,
-} from "./css/css-stylesheet-sanitizer.js";
+} from "./css/css-stylesheet-sanitizer";
 export {
   createConfig as createCssConfig,
   createCssSanitizer,
@@ -58,7 +58,7 @@ export {
   defaultMaxCssLength,
   isPropertyAllowed,
   sanitizeCss,
-} from "./css/css-stylesheet-sanitizer.js";
+} from "./css/css-stylesheet-sanitizer";
 // Defaults
 export {
   defaultAllowedEmptyAttributes,
@@ -66,18 +66,18 @@ export {
   defaults,
   mediaTags,
   vulnerableTags,
-} from "./defaults.js";
+} from "./defaults";
 export {
   buildAttributeGlobMatchers,
   filterAttributes,
   isValidAttributeName,
-} from "./filters/attribute-filter.js";
-export type { AllowedClasses } from "./filters/class-filter.js";
+} from "./filters/attribute-filter";
+export type { AllowedClasses } from "./filters/class-filter";
 export {
   filterClasses,
   hasAllowedClasses,
   wouldAnyClassMatch,
-} from "./filters/class-filter.js";
+} from "./filters/class-filter";
 // Filter utilities
 export {
   isMediaTag,
@@ -86,7 +86,7 @@ export {
   isTagAllowed,
   isVulnerableTag,
   warnAboutVulnerableTags,
-} from "./filters/tag-filter.js";
+} from "./filters/tag-filter";
 // Parser utilities (for advanced use cases)
 export {
   decodeEntities,
@@ -94,9 +94,9 @@ export {
   encodeHtml,
   prepareForUrlValidation,
   stripControlChars,
-} from "./parser/entities.js";
-export { parseHtml, parseHtmlWithCallbacks } from "./parser/html-parser.js";
-export type { CommentToken, DoctypeToken, EndTagToken, StartTagToken, TextToken, Token } from "./parser/token.js";
+} from "./parser/entities";
+export { parseHtml, parseHtmlWithCallbacks } from "./parser/html-parser";
+export type { CommentToken, DoctypeToken, EndTagToken, StartTagToken, TextToken, Token } from "./parser/token";
 export {
   comment,
   doctype,
@@ -108,44 +108,45 @@ export {
   isText,
   startTag,
   text,
-} from "./parser/token.js";
+} from "./parser/token";
 // Main sanitization function
-export { sanitizeHtml, simpleTransform } from "./sanitize-html.js";
+export { sanitizeHtml, simpleTransform } from "./sanitize-html";
 // Transform utilities
-export type { TransformTags } from "./transform/tag-transform.js";
-export { applyTransform, transformTag } from "./transform/tag-transform.js";
+export type { TransformTags } from "./transform/tag-transform";
+export { applyTransform, transformTag } from "./transform/tag-transform";
 // Types
 export type {
   AllowedAttribute,
   Attributes,
   DisallowedTagsMode,
   Frame,
+  MergedSanitizeOptions,
   ParserOptions,
   SanitizeOptions,
   TransformedTag,
   Transformer,
-} from "./types.js";
-export type { SrcsetEntry } from "./url/srcset-parser.js";
+} from "./types";
+export type { SrcsetEntry } from "./url/srcset-parser";
 export {
   filterSrcset,
   parseSrcset,
   stringifySrcset,
-} from "./url/srcset-parser.js";
+} from "./url/srcset-parser";
 // URL utilities
-export type { ParsedUrl, UrlValidationOptions } from "./url/url-validator.js";
+export type { ParsedUrl, UrlValidationOptions } from "./url/url-validator";
 export {
   isNaughtyHref,
   parseUrl,
   validateIframeSrc,
   validateScriptSrc,
-} from "./url/url-validator.js";
+} from "./url/url-validator";
 
 // Utility functions
-export { escapeRegex } from "./utils/escape-regex.js";
+export { escapeRegex } from "./utils/escape-regex";
 export {
   createGlobMatcher,
   globToRegex,
   isGlobPattern,
   matchGlob,
-} from "./utils/glob-matcher.js";
-export { isPlainObject } from "./utils/is-plain-object.js";
+} from "./utils/glob-matcher";
+export { isPlainObject } from "./utils/is-plain-object";

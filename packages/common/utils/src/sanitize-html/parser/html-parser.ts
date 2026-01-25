@@ -13,10 +13,10 @@ import { pipe } from "effect/Function";
 import * as Match from "effect/Match";
 import * as Str from "effect/String";
 import * as Struct from "effect/Struct";
-import type { Attributes, ParserOptions } from "../types.js";
-import { decodeEntities } from "./entities.js";
-import type { Token } from "./token.js";
-import * as T from "./token.js";
+import type { Attributes, ParserOptions } from "../types";
+import { decodeEntities } from "./entities";
+import type { Token } from "./token";
+import * as T from "./token";
 
 /**
  * Parser states following HTML5 spec.

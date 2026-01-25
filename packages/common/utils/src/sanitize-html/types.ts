@@ -124,6 +124,37 @@ export interface Defaults {
 }
 
 /**
+ * Properties of SanitizeOptions that have defaults and will always be defined after merging.
+ */
+type PropertiesWithDefaults =
+  | "allowedTags"
+  | "allowedAttributes"
+  | "allowedSchemes"
+  | "allowedSchemesByTag"
+  | "allowedSchemesAppliedToAttributes"
+  | "allowProtocolRelative"
+  | "allowVulnerableTags"
+  | "nonTextTags"
+  | "parseStyleAttributes"
+  | "selfClosing"
+  | "parser"
+  | "disallowedTagsMode"
+  | "enforceHtmlBoundary"
+  | "nonBooleanAttributes"
+  | "allowedEmptyAttributes"
+  | "preserveEscapedAttributes";
+
+/**
+ * Merged sanitization options after defaults are applied.
+ * Properties with defaults are required; others remain optional.
+ *
+ * @since 0.1.0
+ * @category types
+ */
+export type MergedSanitizeOptions = Required<Pick<SanitizeOptions, PropertiesWithDefaults>> &
+  Omit<SanitizeOptions, PropertiesWithDefaults>;
+
+/**
  * Sanitization options.
  *
  * @since 0.1.0
@@ -150,7 +181,7 @@ export interface SanitizeOptions {
    * Classes allowed for each tag. Use `*` for all tags.
    * Can include glob patterns and RegExp.
    */
-  readonly allowedClasses?: undefined | undefined | Record<string, false | readonly (string | RegExp)[]>;
+  readonly allowedClasses?: undefined | Record<string, false | readonly (string | RegExp)[]>;
 
   /**
    * Allowed iframe source hostnames.

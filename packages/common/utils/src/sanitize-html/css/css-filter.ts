@@ -12,8 +12,8 @@ import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as Str from "effect/String";
 import * as Struct from "effect/Struct";
-import type { CssDeclaration } from "./css-parser.js";
-import { isDangerousCssValue, parseStyleAttribute, stringifyDeclarations } from "./css-parser.js";
+import type { CssDeclaration } from "./css-parser";
+import { isDangerousCssValue, parseStyleAttribute, stringifyDeclarations } from "./css-parser";
 
 /**
  * Allowed styles configuration.

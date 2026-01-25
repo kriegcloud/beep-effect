@@ -5,7 +5,7 @@
  * @module
  */
 
-import type { Defaults, ParserOptions } from "./types.js";
+import type { Defaults, ParserOptions } from "./types";
 
 /**
  * Default parser options.

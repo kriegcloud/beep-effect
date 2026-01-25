@@ -14,7 +14,7 @@ import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as Str from "effect/String";
 
-import { prepareForUrlValidation } from "../parser/entities.js";
+import { prepareForUrlValidation } from "../parser/entities";
 
 /**
  * URL validation options.
@@ -165,7 +165,7 @@ const extractHostname = (url: string): O.Option<string> => {
  * parseUrl("https://example.com/path")
  * // { scheme: Some("https"), hostname: Some("example.com"), isRelative: false, isProtocolRelative: false }
  *
- * parseUrl("//cdn.example.com/file.js")
+ * parseUrl("//cdn.example.com/file")
  * // { scheme: None, hostname: Some("cdn.example.com"), isRelative: false, isProtocolRelative: true }
  *
  * parseUrl("/path/to/file")
