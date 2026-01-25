@@ -42,9 +42,9 @@
     "@effect/platform": "catalog:",
     "@effect/platform-browser": "catalog:",
     "@faker-js/faker": "catalog:",
+    "cheerio": "catalog:",
     "effect": "catalog:",
     "mutative": "catalog:",
-    "cheerio": "catalog:",
     "next": "catalog:"
   },
   "devDependencies": {

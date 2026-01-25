@@ -134,10 +134,7 @@ describe("sanitizeCss - property filtering", () => {
       const config = createCssConfig({
         allowedProperties: ["grid", "gap", "grid-template-columns"],
       });
-      const result = sanitizeCss(
-        ".grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }",
-        config
-      );
+      const result = sanitizeCss(".grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }", config);
       expect(result).toContain("display: grid");
       expect(result).toContain("grid-template-columns: 1fr 1fr");
       expect(result).toContain("gap: 10px");
@@ -257,10 +254,7 @@ describe("sanitizeCss - URL handling", () => {
       const config = createCssConfig({
         allowedDomains: ["cdn.example.com"],
       });
-      const result = sanitizeCss(
-        ".bg { background: url('https://cdn.example.com/img.png'); }",
-        config
-      );
+      const result = sanitizeCss(".bg { background: url('https://cdn.example.com/img.png'); }", config);
       expect(result).toContain("cdn.example.com");
     })
   );
@@ -447,10 +441,7 @@ describe("createCssConfig", () => {
         },
       });
 
-      const result = sanitizeCss(
-        ".bg { background: url('https://example.com/img.png'); }",
-        config
-      );
+      const result = sanitizeCss(".bg { background: url('https://example.com/img.png'); }", config);
 
       expect(validatorCalled).toBe(true);
     })

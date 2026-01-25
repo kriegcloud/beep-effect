@@ -129,7 +129,6 @@
     "tsx": "catalog:",
     "turbo": "catalog:",
     "typescript": "catalog:"
-
   },
   "lint-staged": {
     "*": [
