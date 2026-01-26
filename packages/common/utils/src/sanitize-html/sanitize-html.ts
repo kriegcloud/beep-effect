@@ -5,13 +5,13 @@
  * @module
  */
 
+import { thunkFalse, thunkTrue } from "@beep/utils/thunk";
 import * as A from "effect/Array";
 import * as F from "effect/Function";
 import * as Match from "effect/Match";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as Str from "effect/String";
-
 import { filterStyles } from "./css/css-filter";
 import { defaultAllowedEmptyAttributes, defaultParserOptions, defaults } from "./defaults";
 import { filterAttributes, isValidAttributeName } from "./filters/attribute-filter";
@@ -154,9 +154,9 @@ const isDiscardMode = (mode: string | undefined): boolean =>
   F.pipe(
     mode ?? "discard",
     Match.value,
-    Match.when("discard", () => true),
-    Match.when("completelyDiscard", () => true),
-    Match.orElse(() => false)
+    Match.when("discard", thunkTrue),
+    Match.when("completelyDiscard", thunkTrue),
+    Match.orElse(thunkFalse)
   );
 
 /**
@@ -166,9 +166,9 @@ const isEscapeMode = (mode: string | undefined): boolean =>
   F.pipe(
     mode ?? "discard",
     Match.value,
-    Match.when("escape", () => true),
-    Match.when("recursiveEscape", () => true),
-    Match.orElse(() => false)
+    Match.when("escape", thunkTrue),
+    Match.when("recursiveEscape", thunkTrue),
+    Match.orElse(thunkFalse)
   );
 
 /**
@@ -309,7 +309,7 @@ export const sanitizeHtml = (
     const exceedsNestingLimit = F.pipe(
       O.fromNullable(opts.nestingLimit),
       O.map((limit) => depth >= limit),
-      O.getOrElse(() => false)
+      O.getOrElse(thunkFalse)
     );
 
     if (!tagAllowed || exceedsNestingLimit) {

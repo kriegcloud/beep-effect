@@ -155,7 +155,7 @@ const parseEntityCodePoint = (decimal: string | undefined, hex: string | undefin
   Match.value({ decimal, hex }).pipe(
     Match.when({ decimal: P.isString }, ({ decimal }) => parseIntSafe(decimal, 10)),
     Match.when({ hex: P.isString }, ({ hex }) => parseIntSafe(hex, 16)),
-    Match.orElse(() => O.none())
+    Match.orElse(O.none<number>)
   );
 
 /**
@@ -187,28 +187,17 @@ type EntityMatch = {
 /**
  * Resolves an entity match to its decoded character.
  */
-const resolveEntity = (entity: EntityMatch): string =>
-  Match.value(entity).pipe(
-    Match.when({ decimal: P.isString }, ({ match, decimal }) =>
-      F.pipe(
-        decodeNumericEntity(decimal, undefined),
-        O.getOrElse(() => match)
-      )
+const resolveEntity = (entity: EntityMatch): string => {
+  const thunkMatch = () => entity.match;
+  return Match.value(entity).pipe(
+    Match.when({ decimal: P.isString }, ({ decimal }) =>
+      F.pipe(decodeNumericEntity(decimal, undefined), O.getOrElse(thunkMatch))
     ),
-    Match.when({ hex: P.isString }, ({ match, hex }) =>
-      F.pipe(
-        decodeNumericEntity(undefined, hex),
-        O.getOrElse(() => match)
-      )
-    ),
-    Match.when({ named: P.isString }, ({ match, named }) =>
-      F.pipe(
-        decodeNamedEntity(named),
-        O.getOrElse(() => match)
-      )
-    ),
-    Match.orElse(({ match }) => match)
+    Match.when({ hex: P.isString }, ({ hex }) => F.pipe(decodeNumericEntity(undefined, hex), O.getOrElse(thunkMatch))),
+    Match.when({ named: P.isString }, ({ named }) => F.pipe(decodeNamedEntity(named), O.getOrElse(thunkMatch))),
+    Match.orElse(thunkMatch)
   );
+};
 
 /**
  * Decodes HTML entities in a string.
@@ -248,9 +237,7 @@ export const decodeEntities = (str: string): string =>
  * @since 0.1.0
  * @category sanitization
  */
-export const stripControlChars = (str: string): string =>
-  // eslint-disable-next-line no-control-regex
-  Str.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, "")(str);
+export const stripControlChars = (str: string): string => Str.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, "")(str);
 
 /**
  * Decodes entities and strips control characters for URL validation.

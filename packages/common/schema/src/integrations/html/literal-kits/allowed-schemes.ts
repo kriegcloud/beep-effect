@@ -3,7 +3,7 @@ import { StringLiteralKit } from "@beep/schema/derived";
 
 const $I = $SchemaId.create("integrations/html/literal-kits/allowed-schemes");
 
-export class AllowedScheme extends StringLiteralKit("http", "data", "cid", "https", "mailto", "ftp", "tel")
+export class AllowedScheme extends StringLiteralKit("http", "data", "cid", "https", "mailto", "ftp", "tel", "blob")
   .annotations(
     $I.annotations("AllowedScheme", {
       description: "Allowed scheme",

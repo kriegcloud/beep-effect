@@ -7,13 +7,13 @@
  * @module
  */
 
+import { thunkFalse } from "@beep/utils";
 import * as A from "effect/Array";
 import * as F from "effect/Function";
 import * as Match from "effect/Match";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as Str from "effect/String";
-
 import { prepareForUrlValidation } from "../parser/entities";
 
 /**
@@ -108,7 +108,7 @@ const isRelativeUrl = (url: string): boolean =>
     extractScheme(url),
     O.match({
       onNone: () => !isProtocolRelativeUrl(url),
-      onSome: () => false,
+      onSome: thunkFalse,
     })
   );
 
@@ -228,12 +228,12 @@ const determineNaughtyStatus = (parsed: ParsedUrl, options: UrlValidationOptions
   F.pipe(
     Match.value(parsed),
     Match.when({ isProtocolRelative: true }, () => !options.allowProtocolRelative),
-    Match.when({ isRelative: true }, () => false),
+    Match.when({ isRelative: true }, thunkFalse),
     Match.orElse(({ scheme }) =>
       F.pipe(
         scheme,
         O.map((s) => !isSchemeAllowed(s, options.allowedSchemes)),
-        O.getOrElse(() => false)
+        O.getOrElse(thunkFalse)
       )
     )
   );
@@ -307,13 +307,13 @@ const validateHostnameAgainstAllowlist = (
   const matchesAllowedHostname = F.pipe(
     O.fromNullable(allowedHostnames),
     O.map((hostnames) => matchesHostname(hostname, hostnames)),
-    O.getOrElse(() => false)
+    O.getOrElse(thunkFalse)
   );
 
   const matchesAllowedDomain = F.pipe(
     O.fromNullable(allowedDomains),
     O.map((domains) => matchesDomain(hostname, domains)),
-    O.getOrElse(() => false)
+    O.getOrElse(thunkFalse)
   );
 
   return matchesAllowedHostname || matchesAllowedDomain;
@@ -330,7 +330,7 @@ const validateHostnameOption = (
   F.pipe(
     hostnameOpt,
     O.map((h) => validateHostnameAgainstAllowlist(h, allowedHostnames, allowedDomains)),
-    O.getOrElse(() => false)
+    O.getOrElse(thunkFalse)
   );
 
 /**

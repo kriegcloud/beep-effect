@@ -5,13 +5,13 @@
  * @module
  */
 
+import { thunkFalse, thunkTrue } from "@beep/utils/thunk";
 import * as A from "effect/Array";
 import * as F from "effect/Function";
 import * as Match from "effect/Match";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as Str from "effect/String";
-
 import { createGlobMatcher, isGlobPattern } from "../utils/glob-matcher";
 
 /**
@@ -32,12 +32,9 @@ const isRegExpPattern: P.Refinement<string | RegExp, RegExp> = (pattern): patter
 const matchesStringPattern = (normalizedClass: string, pattern: string): boolean =>
   F.pipe(
     Match.value(pattern),
-    Match.when(
-      (p) => p === normalizedClass,
-      () => true
-    ),
+    Match.when((p) => p === normalizedClass, thunkTrue),
     Match.when(isGlobPattern, (p) => createGlobMatcher([p])(normalizedClass)),
-    Match.orElse(() => false)
+    Match.orElse(thunkFalse)
   );
 
 /**
@@ -72,8 +69,8 @@ const isClassAllowed = (
 ): boolean =>
   F.pipe(
     Match.value(allowedPatterns),
-    Match.when(false, () => true), // false means allow all classes
-    Match.when(P.isUndefined, () => false), // undefined means no classes allowed
+    Match.when(false, thunkTrue), // false means allow all classes
+    Match.when(P.isUndefined, thunkFalse), // undefined means no classes allowed
     Match.orElse((patterns) => isClassAllowedByPatterns(className, patterns))
   );
 
@@ -107,12 +104,12 @@ const mergeClassPatterns = (tagName: string, allowedClasses: AllowedClasses): fa
   const global = F.pipe(
     globalPatterns,
     O.filter((p): p is readonly (string | RegExp)[] => p !== false),
-    O.getOrElse(() => [] as readonly (string | RegExp)[])
+    O.getOrElse(A.empty<string | RegExp>)
   );
   const tag = F.pipe(
     tagPatterns,
     O.filter((p): p is readonly (string | RegExp)[] => p !== false),
-    O.getOrElse(() => [] as readonly (string | RegExp)[])
+    O.getOrElse(A.empty<string | RegExp>)
   );
 
   return [...global, ...tag];
@@ -165,7 +162,7 @@ export const hasAllowedClasses = (tagName: string, allowedClasses: AllowedClasse
 
   return F.pipe(
     Match.value(patterns),
-    Match.when(false, () => true),
+    Match.when(false, thunkTrue),
     Match.orElse((p) => !A.isEmptyReadonlyArray(p))
   );
 };

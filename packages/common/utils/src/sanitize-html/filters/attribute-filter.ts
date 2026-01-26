@@ -4,6 +4,8 @@
  * @since 0.1.0
  * @module
  */
+
+import { thunkFalse, thunkTrue } from "@beep/utils/thunk";
 import * as A from "effect/Array";
 import * as F from "effect/Function";
 import * as Match from "effect/Match";
@@ -11,7 +13,6 @@ import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as Str from "effect/String";
 import * as Struct from "effect/Struct";
-
 import type { AllowedAttribute, Attributes } from "../types";
 import { createGlobMatcher, isGlobPattern } from "../utils/glob-matcher";
 import { isPlainObject } from "../utils/is-plain-object";
@@ -53,12 +54,9 @@ const isObjectAllowedAttribute = (
 const matchesStringAttribute = (attr: string, normalizedAttr: string): boolean =>
   F.pipe(
     Match.value(attr),
-    Match.when(
-      (a) => Str.toLowerCase(a) === normalizedAttr,
-      () => true
-    ),
+    Match.when((a) => Str.toLowerCase(a) === normalizedAttr, thunkTrue),
     Match.when(isGlobPattern, (a) => createGlobMatcher([a])(normalizedAttr)),
-    Match.orElse(() => false)
+    Match.orElse(thunkFalse)
   );
 
 /**
@@ -69,7 +67,7 @@ const matchesAllowedAttribute = (attr: AllowedAttribute, normalizedAttr: string)
     Match.value(attr),
     Match.when(P.isString, (a) => matchesStringAttribute(a, normalizedAttr)),
     Match.when(isObjectAllowedAttribute, (a) => Str.toLowerCase(a.name) === normalizedAttr),
-    Match.orElse(() => false)
+    Match.orElse(thunkFalse)
   );
 
 /**
@@ -160,7 +158,7 @@ const isBooleanAttribute = (attrName: string, nonBooleanAttributes: readonly str
 
   return F.pipe(
     Match.value(hasWildcard),
-    Match.when(true, () => false),
+    Match.when(true, thunkFalse),
     Match.orElse(
       () =>
         // Check if attribute is explicitly marked as non-boolean
@@ -214,7 +212,7 @@ const processAttribute = (
                 // Empty allowed attributes should be preserved
                 Match.when({ preserveEmpty: true }, () => O.some([Str.toLowerCase(name), ""] as const)),
                 // Non-boolean empty attributes should be removed
-                Match.orElse(() => O.none())
+                Match.orElse(O.none<readonly [string, string]>)
               );
             }),
             Match.orElse(() => O.some([Str.toLowerCase(name), filteredValue] as const))
@@ -278,7 +276,7 @@ export const buildAttributeGlobMatchers = (
 
           return F.pipe(
             Match.value(A.isEmptyReadonlyArray(globPatterns)),
-            Match.when(true, () => O.none()),
+            Match.when(true, O.none<readonly [string, P.Predicate<string>]>),
             Match.orElse(() => O.some([tag, createGlobMatcher(globPatterns)] as const))
           );
         }),

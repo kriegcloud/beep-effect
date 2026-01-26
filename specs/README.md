@@ -38,6 +38,7 @@ All spec-creation infrastructure lives in [`_guide/`](_guide/):
 | [better-auth-client-wrappers](better-auth-client-wrappers/) | Wrap 90+ better-auth client methods for @beep/iam-clients | P1 Ready |
 | [canonical-naming-conventions](canonical-naming-conventions/) | AI-native naming standards | P0 Ready |
 | [e2e-testkit-migration](e2e-testkit-migration/) | Migrate e2e tests to @beep/testkit/playwright | Planning |
+| [html-sanitize-schema-test-parity](html-sanitize-schema-test-parity/) | Test parity between schema and utils HTML sanitization | Phase 0 |
 | [knowledge-effect-ai-migration](knowledge-effect-ai-migration/) | Migrate EmbeddingService to @effect/ai | **Complete** |
 | [knowledge-graph-integration](knowledge-graph-integration/) | Document knowledge extraction | Active |
 | [naming-conventions-refactor](naming-conventions-refactor/) | Naming standards implementation | Active |

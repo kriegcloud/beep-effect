@@ -35,6 +35,13 @@ export * from "./string-literal-kit";
  */
 export * from "./tagged-config-kit";
 /**
+ * Tagged values kit for literal-to-values-array transformations.
+ *
+ * @category Derived/Kits
+ * @since 0.1.0
+ */
+export * from "./tagged-values-kit";
+/**
  * Transformation kits for derived schemas.
  *
  * @category Derived/Kits

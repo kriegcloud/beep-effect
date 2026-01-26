@@ -51,6 +51,8 @@ export interface SanitizeOptions {
   readonly enforceHtmlBoundary?: boolean;
   readonly nonBooleanAttributes?: readonly string[];
   readonly allowedEmptyAttributes?: readonly string[];
+  readonly nestingLimit?: number;
+  readonly preserveEscapedAttributes?: boolean;
 }
 
 // ============================================================================
@@ -151,6 +153,13 @@ export const toSanitizeOptions = (config: SanitizeConfig): SanitizeOptions => {
   // -------------------------------------------------------------------------
   if (config.disallowedTagsMode !== undefined) {
     options.disallowedTagsMode = config.disallowedTagsMode;
+  }
+
+  // -------------------------------------------------------------------------
+  // nestingLimit
+  // -------------------------------------------------------------------------
+  if (config.nestingLimit !== undefined) {
+    options.nestingLimit = config.nestingLimit;
   }
 
   // -------------------------------------------------------------------------
@@ -261,6 +270,13 @@ export const toSanitizeOptions = (config: SanitizeConfig): SanitizeOptions => {
   // -------------------------------------------------------------------------
   if (config.allowVulnerableTags !== undefined) {
     options.allowVulnerableTags = config.allowVulnerableTags;
+  }
+
+  // -------------------------------------------------------------------------
+  // Escape behavior
+  // -------------------------------------------------------------------------
+  if (config.preserveEscapedAttributes !== undefined) {
+    options.preserveEscapedAttributes = config.preserveEscapedAttributes;
   }
 
   return options as SanitizeOptions;

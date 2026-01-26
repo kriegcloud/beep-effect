@@ -15,6 +15,13 @@
       "when": 1769090100000,
       "tag": "0001_custom_rls_extensions",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1769408534477,
+      "tag": "0002_windy_johnny_storm",
+      "breakpoints": true
     }
   ]
 }

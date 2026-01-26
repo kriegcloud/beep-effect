@@ -113,6 +113,13 @@ export const SanitizeConfig = S.Struct({
       'How to handle disallowed tags: "discard" removes tag but keeps content, "escape" HTML-encodes tag, "recursiveEscape" encodes recursively, "completelyDiscard" removes tag and content',
   }),
 
+  /**
+   * Maximum nesting depth for tags
+   */
+  nestingLimit: S.optional(S.Number).annotations({
+    description: "Maximum nesting depth for tags. Tags nested beyond this limit will be flattened.",
+  }),
+
   // -------------------------------------------------------------------------
   // URL Scheme Filtering
   // -------------------------------------------------------------------------
@@ -268,6 +275,14 @@ export const SanitizeConfig = S.Struct({
   allowVulnerableTags: S.optional(S.Boolean).annotations({
     description:
       "Whether to allow potentially dangerous tags like <script>, <style>, <iframe> even if in allowedTags. Default: false (safer)",
+  }),
+
+  /**
+   * Whether to preserve attributes on escaped tags
+   */
+  preserveEscapedAttributes: S.optional(S.Boolean).annotations({
+    description:
+      "Whether to preserve attributes on escaped tags when disallowedTagsMode is 'escape' or 'recursiveEscape'. Default: false",
   }),
 }).annotations(
   $I.annotations("SanitizeConfig", {

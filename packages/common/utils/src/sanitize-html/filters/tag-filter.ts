@@ -5,6 +5,7 @@
  * @module
  */
 
+import { thunkFalse, thunkTrue, thunkUndefined } from "@beep/utils/thunk";
 import * as A from "effect/Array";
 import * as Match from "effect/Match";
 import * as P from "effect/Predicate";
@@ -47,16 +48,16 @@ const tagExistsIn = (normalizedTag: string, tags: readonly string[]): boolean =>
 export const isTagAllowed = (tagName: string, allowedTags: false | readonly string[] | undefined): boolean =>
   Match.value(allowedTags).pipe(
     // false means allow all tags
-    Match.when(false, () => true),
+    Match.when(false, thunkTrue),
     // undefined means allow nothing
-    Match.when(P.isUndefined, () => false),
+    Match.when(P.isUndefined, thunkFalse),
     // Array means check if tag is in the list
     Match.when(A.isArray, (tags) => {
       const normalizedTag = Str.toLowerCase(tagName);
       return tagExistsIn(normalizedTag, tags);
     }),
     // Any other value (non-array, non-false, non-undefined) means disallow
-    Match.orElse(() => false)
+    Match.orElse(thunkFalse)
   );
 
 /**
@@ -149,14 +150,11 @@ export const warnAboutVulnerableTags = (
 ): void =>
   Match.value({ allowedTags, allowVulnerableTags }).pipe(
     // If vulnerable tags are explicitly allowed, do nothing
-    Match.when({ allowVulnerableTags: true }, () => undefined),
+    Match.when({ allowVulnerableTags: true }, thunkUndefined),
     // If all tags allowed (false), user is responsible
-    Match.when({ allowedTags: false }, () => undefined),
+    Match.when({ allowedTags: false }, thunkUndefined),
     // If undefined or not an array, do nothing
-    Match.when(
-      ({ allowedTags }) => P.isUndefined(allowedTags) || !A.isArray(allowedTags),
-      () => undefined
-    ),
+    Match.when(({ allowedTags }) => P.isUndefined(allowedTags) || !A.isArray(allowedTags), thunkUndefined),
     // Check for vulnerable tags in the allowed list
     Match.orElse(({ allowedTags }) => {
       // At this point, allowedTags is guaranteed to be a readonly string array
@@ -171,7 +169,7 @@ export const warnAboutVulnerableTags = (
                 `and ensure you are accounting for this risk.\n\n`
             );
           }),
-          Match.orElse(() => undefined)
+          Match.orElse(thunkUndefined)
         );
       });
     })

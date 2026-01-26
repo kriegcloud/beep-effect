@@ -54,7 +54,7 @@ const getDescriptorType = (desc: string): O.Option<DescriptorSuffix> =>
     Match.when(Str.endsWith("w"), () => O.some("w" as const)),
     Match.when(Str.endsWith("h"), () => O.some("h" as const)),
     Match.when(Str.endsWith("x"), () => O.some("x" as const)),
-    Match.orElse(() => O.none())
+    Match.orElse(O.none<DescriptorSuffix>)
   );
 
 /**

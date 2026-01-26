@@ -337,8 +337,8 @@ describe("DatabaseError.$match", () => {
           strictEqual(matchedError._tag, "DatabaseError");
           // type should be undefined for non-pg errors (S.optional)
           strictEqual(matchedError.type, undefined);
-          // pgError should be null for non-pg errors
-          strictEqual(matchedError.pgError, null);
+          // pgError should be undefined for non-pg errors (S.optionalWith - not provided)
+          strictEqual(matchedError.pgError, undefined);
         }),
       TEST_TIMEOUT
     );
