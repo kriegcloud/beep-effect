@@ -24,7 +24,6 @@
     "noImplicitThis": true,
     "resolveJsonModule": true,
     "strict": true,
-    "strictNullChecks": true,
     "removeComments": false,
     "types": ["node", "bun"],
     "outDir": "build/src",

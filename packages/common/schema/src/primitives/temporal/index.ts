@@ -18,7 +18,8 @@ export * from "./dates/month";
  * @category Primitives/Temporal
  * @since 0.1.0
  */
-export * from "./dates/timestamp";
+export * as Timestamp from "./dates/timestamp";
+export * as LocalDate from "./LocalDate.ts";
 export * from "./timezones.ts";
 /**
  * Year schemas for calendar years.
