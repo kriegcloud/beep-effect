@@ -3,6 +3,7 @@ import type { DefaultColumns } from "@beep/shared-tables/columns";
 import type { BuildExtraConfigColumns } from "drizzle-orm";
 import type { PgTableExtraConfigValue } from "drizzle-orm/pg-core";
 import * as pg from "drizzle-orm/pg-core";
+import type * as A from "effect/Array";
 import { globalColumns } from "../common";
 import type { MergedColumns, PgTableWithMergedColumns, Prettify } from "./types";
 
@@ -39,8 +40,12 @@ type AllColumns<TableName extends string, Brand extends string, TColumnsMap exte
   MergedColumns<DefaultColumns<TableName, Brand>, TColumnsMap>
 >;
 
-export const make = <const TableName extends string, const Brand extends string>(
-  entityId: EntityId.EntityId<TableName, Brand>
+export const make = <
+  const TableName extends string,
+  const Brand extends string,
+  const LinkedActions extends A.NonEmptyReadonlyArray<string>,
+>(
+  entityId: EntityId.EntityId<TableName, Brand, LinkedActions>
 ): (<TColumnsMap extends ColumnsMap>(
   columns: NoDefaultKeys<TColumnsMap>,
   extraConfig?: ExtraConfig<TableName, Brand, TColumnsMap>

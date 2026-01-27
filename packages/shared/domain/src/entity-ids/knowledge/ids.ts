@@ -23,6 +23,7 @@ const $I = $SharedDomainId.create("entity-ids/knowledge/ids");
  */
 export const EmbeddingId = make("embedding", {
   brand: "EmbeddingId",
+  actions: ["create", "read", "update", "delete", "*"],
 }).annotations(
   $I.annotations("EmbeddingId", {
     description: "A unique identifier for an Embedding entity",
@@ -49,6 +50,7 @@ export declare namespace EmbeddingId {
  */
 export const KnowledgeEntityId = make("entity", {
   brand: "KnowledgeEntityId",
+  actions: ["create", "read", "update", "delete", "*"],
 }).annotations(
   $I.annotations("KnowledgeEntityId", {
     description: "A unique identifier for a knowledge graph entity",
@@ -75,6 +77,7 @@ export declare namespace KnowledgeEntityId {
  */
 export const RelationId = make("relation", {
   brand: "RelationId",
+  actions: ["create", "read", "update", "delete", "*"],
 }).annotations(
   $I.annotations("RelationId", {
     description: "A unique identifier for a knowledge graph relation",
@@ -101,6 +104,7 @@ export declare namespace RelationId {
  */
 export const OntologyId = make("ontology", {
   brand: "OntologyId",
+  actions: ["create", "read", "update", "delete", "*"],
 }).annotations(
   $I.annotations("OntologyId", {
     description: "A unique identifier for an ontology definition",
@@ -127,6 +131,7 @@ export declare namespace OntologyId {
  */
 export const ExtractionId = make("extraction", {
   brand: "ExtractionId",
+  actions: ["create", "read", "update", "delete", "*"],
 }).annotations(
   $I.annotations("ExtractionId", {
     description: "A unique identifier for a knowledge extraction run",
@@ -153,6 +158,7 @@ export declare namespace ExtractionId {
  */
 export const MentionId = make("mention", {
   brand: "MentionId",
+  actions: ["create", "read", "update", "delete", "*"],
 }).annotations(
   $I.annotations("MentionId", {
     description: "A unique identifier for an entity mention in source text",
@@ -179,6 +185,7 @@ export declare namespace MentionId {
  */
 export const ClassDefinitionId = make("class_definition", {
   brand: "ClassDefinitionId",
+  actions: ["create", "read", "update", "delete", "*"],
 }).annotations(
   $I.annotations("ClassDefinitionId", {
     description: "A unique identifier for an OWL/RDFS class definition",
@@ -205,6 +212,7 @@ export declare namespace ClassDefinitionId {
  */
 export const PropertyDefinitionId = make("property_definition", {
   brand: "PropertyDefinitionId",
+  actions: ["create", "read", "update", "delete", "*"],
 }).annotations(
   $I.annotations("PropertyDefinitionId", {
     description: "A unique identifier for an OWL/RDFS property definition",
@@ -231,6 +239,7 @@ export declare namespace PropertyDefinitionId {
  */
 export const EntityClusterId = make("entity_cluster", {
   brand: "EntityClusterId",
+  actions: ["create", "read", "update", "delete", "*"],
 }).annotations(
   $I.annotations("EntityClusterId", {
     description: "A unique identifier for an entity resolution cluster",
@@ -257,6 +266,7 @@ export declare namespace EntityClusterId {
  */
 export const SameAsLinkId = make("same_as_link", {
   brand: "SameAsLinkId",
+  actions: ["create", "read", "update", "delete", "*"],
 }).annotations(
   $I.annotations("SameAsLinkId", {
     description: "A unique identifier for an owl:sameAs provenance link",
@@ -272,3 +282,16 @@ export declare namespace SameAsLinkId {
     export type Encoded = typeof SameAsLinkId.privateSchema.Encoded;
   }
 }
+
+export const Ids = {
+  EmbeddingId,
+  KnowledgeEntityId,
+  RelationId,
+  OntologyId,
+  ExtractionId,
+  MentionId,
+  ClassDefinitionId,
+  PropertyDefinitionId,
+  EntityClusterId,
+  SameAsLinkId,
+} as const;

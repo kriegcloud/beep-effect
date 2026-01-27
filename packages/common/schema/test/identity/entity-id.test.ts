@@ -12,7 +12,7 @@ import * as S from "effect/Schema";
 
 describe("EntityId Schema Factory", () => {
   test("Type resolves to template literal string, not class properties", () => {
-    const TestId = EntityId.make("test_entity", { brand: "TestId" });
+    const TestId = EntityId.make("test_entity", { brand: "TestId", actions: ["read"] });
 
     // Should be just a string, not include static properties
     type IdType = typeof TestId.Type;
@@ -24,7 +24,7 @@ describe("EntityId Schema Factory", () => {
   });
 
   test("create() returns the data type, not the class", () => {
-    const TestId = EntityId.make("test_entity", { brand: "TestId" });
+    const TestId = EntityId.make("test_entity", { brand: "TestId", actions: ["read"] });
 
     const id = TestId.create();
 
@@ -35,7 +35,7 @@ describe("EntityId Schema Factory", () => {
   });
 
   test("annotations chaining returns SchemaInstance", () => {
-    const TestId = EntityId.make("test_entity", { brand: "TestId" }).annotations({
+    const TestId = EntityId.make("test_entity", { brand: "TestId", actions: ["read"] }).annotations({
       description: "Custom description",
     });
 
@@ -47,7 +47,7 @@ describe("EntityId Schema Factory", () => {
   });
 
   test("is() type guard works correctly", () => {
-    const TestId = EntityId.make("test_entity", { brand: "TestId" });
+    const TestId = EntityId.make("test_entity", { brand: "TestId", actions: ["read"] });
 
     const validId = TestId.create();
     const invalidId = "not-an-id";
@@ -64,7 +64,7 @@ describe("EntityId Schema Factory", () => {
   });
 
   test("works in Effect context without type pollution", async () => {
-    const TestId = EntityId.make("test_entity", { brand: "TestId" });
+    const TestId = EntityId.make("test_entity", { brand: "TestId", actions: ["read"] });
 
     // This should compile - return type is Effect<Type, never, never>
     const program = Effect.gen(function* () {
@@ -82,7 +82,7 @@ describe("EntityId Schema Factory", () => {
   });
 
   test("modelIdSchema has correct type and default", () => {
-    const TestId = EntityId.make("test_entity", { brand: "TestId" });
+    const TestId = EntityId.make("test_entity", { brand: "TestId", actions: ["read"] });
 
     const withId = { id: TestId.create() };
     const withoutId = {}; // id will default on decode
@@ -100,8 +100,8 @@ describe("EntityId Schema Factory", () => {
   });
 
   test("separate instances don't interfere", () => {
-    const UserId = EntityId.make("user", { brand: "UserId" });
-    const OrgId = EntityId.make("organization", { brand: "OrganizationId" });
+    const UserId = EntityId.make("user", { brand: "UserId", actions: ["read"] });
+    const OrgId = EntityId.make("organization", { brand: "OrganizationId", actions: ["read"] });
 
     const userId = UserId.create();
     const orgId = OrgId.create();
@@ -116,7 +116,7 @@ describe("EntityId Schema Factory", () => {
   });
 
   test("Type extraction from class works", () => {
-    class UserId extends EntityId.make("user", { brand: "UserId" }) {}
+    class UserId extends EntityId.make("user", { brand: "UserId", actions: ["read"] }) {}
 
     // Should be the template literal string
     type UserIdType = typeof UserId.Type;

@@ -2,6 +2,7 @@ import { invariant } from "@beep/invariant";
 import type { DefaultAnnotations } from "@beep/schema/core";
 import { mergeSchemaAnnotations } from "@beep/schema/core/annotations/built-in-annotations";
 import { variance } from "@beep/schema/core/variance";
+import * as StringLiteralKit from "@beep/schema/derived/kits/string-literal-kit";
 import { SnakeTag } from "@beep/schema/primitives/string/string";
 import { exact } from "@beep/utils/struct";
 import * as M from "@effect/sql/Model";
@@ -15,6 +16,7 @@ import * as S from "effect/Schema";
 import { TypeId } from "effect/Schema";
 import type * as AST from "effect/SchemaAST";
 import * as Str from "effect/String";
+import * as LinkedAction from "./linked-action";
 import { UUIDLiteralEncoded } from "./uuid";
 
 export type AppendType<Template extends string, Next> = Next extends AST.LiteralValue
@@ -22,6 +24,24 @@ export type AppendType<Template extends string, Next> = Next extends AST.Literal
   : Next extends S.Schema<infer A extends AST.LiteralValue, infer _I, infer _R>
     ? `${Template}${A}`
     : never;
+
+export interface AnyEntityId {
+  readonly [TypeId]: typeof variance;
+  readonly create: PublicIdCreate<string>;
+  readonly tableName: SnakeTag.Literal<string>;
+  readonly brand: string;
+  readonly is: (
+    u: unknown,
+    overrideOptions?: AST.ParseOptions | number
+  ) => u is S.Schema.Type<EntityId.PublicIdSchema<string>>;
+  readonly publicId: () => EntityId.PublicIdColumn<string>;
+  readonly privateId: () => EntityId.PrivateIdColumn<string>;
+  readonly privateSchema: EntityId.PrivateIdSchema<string>;
+  readonly modelRowIdSchema: EntityId.ModelRowIdSchema<string>;
+  readonly modelIdSchema: EntityId.ModelIdSchema<string>;
+  readonly make: (id: string, options?: undefined | AST.ParseOptions) => S.Schema.Type<EntityId.PublicIdSchema<string>>;
+  readonly linkedActions: () => EntityId.LinkedActions<string, A.NonEmptyReadonlyArray<string>>;
+}
 
 export declare namespace EntityId {
   export type Type<TableName extends string> =
@@ -47,11 +67,24 @@ export declare namespace EntityId {
       default: () => `${SnakeTag.Literal<TableName>}__${string}-${string}-${string}-${string}-${string}`;
     }
   >;
+  export type LinkedActions<
+    TableName extends string,
+    LinkedActions extends A.NonEmptyReadonlyArray<string>,
+  > = StringLiteralKit.ILiteralKit<
+    readonly [
+      `${Lowercase<SnakeTag.Literal<TableName>>}:${Lowercase<[...LinkedActions][number]>}`,
+      ...`${Lowercase<SnakeTag.Literal<TableName>>}:${Lowercase<[...LinkedActions][number]>}`[],
+    ],
+    undefined
+  >;
 }
 
-export interface EntityId<TableName extends string, Brand extends string>
-  extends S.AnnotableClass<
-    EntityId<TableName, Brand>,
+export interface EntityId<
+  TableName extends string,
+  Brand extends string,
+  LinkedActions extends A.NonEmptyReadonlyArray<string>,
+> extends S.AnnotableClass<
+    EntityId<TableName, Brand, LinkedActions>,
     S.Schema.Type<EntityId.PublicIdSchema<TableName>>,
     S.Schema.Type<EntityId.PublicIdSchema<TableName>>
   > {
@@ -72,6 +105,7 @@ export interface EntityId<TableName extends string, Brand extends string>
     id: string,
     options?: undefined | AST.ParseOptions
   ) => S.Schema.Type<EntityId.PublicIdSchema<TableName>>;
+  readonly linkedActions: () => EntityId.LinkedActions<TableName, LinkedActions>;
 }
 
 export const makeBaseSchemas = <const TableName extends string, const Brand extends string>(
@@ -150,12 +184,17 @@ export const tableNameIsSnakeCase = <const TableName extends string>(tableName: 
   });
 };
 
-export function makeEntityIdSchema<const TableName extends string, const Brand extends string>(
+export function makeEntityIdSchema<
+  const TableName extends string,
+  const Brand extends string,
+  const LinkedActions extends A.NonEmptyReadonlyArray<string>,
+>(
   tableName: SnakeTag.Literal<TableName>,
   brand: Brand,
+  actions: LinkedActions,
   annotations?: S.Annotations.Schema<EntityId.Type<TableName>>,
   ast?: AST.AST | undefined
-): EntityId<TableName, Brand> {
+): EntityId<TableName, Brand, LinkedActions> {
   tableNameIsSnakeCase(tableName);
 
   const create = () => `${tableName}__${UUIDLiteralEncoded.create()}` as const;
@@ -191,6 +230,7 @@ export function makeEntityIdSchema<const TableName extends string, const Brand e
       return makeEntityIdSchema(
         tableName,
         brand,
+        actions,
         mergedAnnotations,
         mergeSchemaAnnotations(defaultAST, mergedAnnotations)
       );
@@ -225,33 +265,50 @@ export function makeEntityIdSchema<const TableName extends string, const Brand e
       });
       return input;
     };
+    static readonly linkedActions = (): EntityId.LinkedActions<TableName, LinkedActions> => {
+      const appliedActions = LinkedAction.applyActions(tableName)(...actions);
+      return StringLiteralKit.StringLiteralKit(...appliedActions);
+    };
   }
 
   return BaseClass;
 }
 
-export const make = <const TableName extends string, const Brand extends string>(
-  tableName: SnakeTag.Literal<TableName>,
-  opts: {
-    readonly brand: Brand;
-    readonly annotations?: Omit<DefaultAnnotations<EntityId.Type<TableName>>, "title" | "identifier">;
-  }
-): EntityId<TableName, Brand> => makeEntityIdSchema(tableName, opts.brand, opts.annotations);
+// export const COMMON_ACTIONS = [
+//   "create",
+//   "read",
+//   "update",
+//   "delete",
+//   "manage"
+// ] as const;
 
-export const builder = <const SliceName extends string>(
-  sliceName: SnakeTag.Literal<SliceName>
-): (<const TableName extends string, const Brand extends string>(
+export const make = <
+  const TableName extends string,
+  const Brand extends string,
+  const LinkedActions extends A.NonEmptyReadonlyArray<string>,
+>(
   tableName: SnakeTag.Literal<TableName>,
   opts: {
     readonly brand: Brand;
     readonly annotations?: Omit<DefaultAnnotations<EntityId.Type<TableName>>, "title" | "identifier">;
+    readonly actions: LinkedActions;
   }
-) => EntityId<`${SliceName}_${TableName}`, Brand>) => {
-  return <const TableName extends string, const Brand extends string>(
+): EntityId<TableName, Brand, LinkedActions> => {
+  return makeEntityIdSchema(tableName, opts.brand, opts.actions, opts.annotations);
+};
+
+export const builder = <const SliceName extends string>(sliceName: SnakeTag.Literal<SliceName>) => {
+  return <
+    const TableName extends string,
+    const Brand extends string,
+    const LinkedActions extends A.NonEmptyReadonlyArray<string>,
+  >(
     tableName: SnakeTag.Literal<TableName>,
     opts: {
       readonly brand: Brand;
+      readonly actions: LinkedActions;
       readonly annotations?: Omit<DefaultAnnotations<EntityId.Type<TableName>>, "title" | "identifier">;
     }
-  ): EntityId<`${SliceName}_${TableName}`, Brand> => make(`${sliceName}_${tableName}` as const, opts);
+  ): EntityId<`${SliceName}_${TableName}`, Brand, LinkedActions> =>
+    make<`${SliceName}_${TableName}`, Brand, LinkedActions>(`${sliceName}_${tableName}` as const, opts);
 };

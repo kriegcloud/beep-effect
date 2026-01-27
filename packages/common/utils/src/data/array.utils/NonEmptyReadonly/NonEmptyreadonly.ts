@@ -199,3 +199,12 @@ export const assertNonEmpty = <A extends Array<UnsafeTypes.UnsafeAny>>(arr: A): 
 
   return arr;
 };
+
+export type Flatten<T extends A.NonEmptyReadonlyArray<A.NonEmptyReadonlyArray<UnsafeTypes.UnsafeAny>>> =
+  A.NonEmptyReadonlyArray<T[number][number]>;
+
+export const flatten = <T extends A.NonEmptyReadonlyArray<A.NonEmptyReadonlyArray<UnsafeTypes.UnsafeAny>>>(
+  arr: T
+): Flatten<T> => {
+  return A.flatten(arr);
+};

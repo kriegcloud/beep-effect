@@ -6,6 +6,7 @@ import type { $Type, BuildExtraConfigColumns, NotNull } from "drizzle-orm";
 import { sql } from "drizzle-orm";
 import type { PgTableExtraConfigValue } from "drizzle-orm/pg-core";
 import * as pg from "drizzle-orm/pg-core";
+import type * as A from "effect/Array";
 import { globalColumns } from "../common";
 import type { MergedColumns, PgTableWithMergedColumns, Prettify } from "../table/types";
 
@@ -99,8 +100,12 @@ type OrgAllColumns<TableName extends string, Brand extends string, TColumnsMap e
   MergedColumns<OrgDefaultColumns<TableName, Brand>, TColumnsMap>
 >;
 
-export const make = <const TableName extends string, const Brand extends string>(
-  entityId: EntityId.EntityId<TableName, Brand>,
+export const make = <
+  const TableName extends string,
+  const Brand extends string,
+  const LinkedActions extends A.NonEmptyReadonlyArray<string>,
+>(
+  entityId: EntityId.EntityId<TableName, Brand, LinkedActions>,
   options?: RlsOptions
 ): (<TColumnsMap extends OrgColumnsMap>(
   columns: NoOrgDefaultKeys<TColumnsMap>,

@@ -8,6 +8,7 @@ const make = EntityId.builder("shared");
 
 export const OrganizationId = make("organization", {
   brand: "OrganizationId",
+  actions: ["manage_settings", "manage_members", "delete", "transfer_ownership"],
 }).annotations(
   $I.annotations("OrganizationId", {
     description: "A unique identifier for an organization",
@@ -26,6 +27,7 @@ export declare namespace OrganizationId {
 
 export const TeamId = make("team", {
   brand: "TeamId",
+  actions: ["create", "read", "update", "delete", "*"],
 }).annotations(
   $I.annotations("TeamId", {
     description: "A unique identifier for a team",
@@ -44,6 +46,7 @@ export declare namespace TeamId {
 
 export const FileId = make("file", {
   brand: "FileId",
+  actions: ["create", "read", "update", "delete", "*"],
 }).annotations(
   $I.annotations("FileId", {
     description: "A unique identifier for a file",
@@ -62,6 +65,7 @@ export declare namespace FileId {
 
 export const AuditLogId = make("audit_log", {
   brand: "AuditLogId",
+  actions: ["create", "read", "update", "delete", "*"],
 }).annotations(
   $I.annotations("AuditLogId", {
     description: "A unique identifier for an audit log",
@@ -80,6 +84,7 @@ export declare namespace AuditLogId {
 
 export const UserId = make("user", {
   brand: "UserId",
+  actions: ["create", "read", "update", "delete", "*"],
 }).annotations(
   $I.annotations("UserId", {
     description: "A unique identifier for a user",
@@ -98,6 +103,7 @@ export declare namespace UserId {
 
 export const SessionId = make("session", {
   brand: "SessionId",
+  actions: ["create", "read", "update", "delete", "*"],
 }).annotations(
   $I.annotations("SessionId", {
     description: "A unique identifier for a session",
@@ -116,6 +122,7 @@ export declare namespace SessionId {
 
 export const FolderId = make("folder", {
   brand: "FolderId",
+  actions: ["create", "read", "update", "delete", "*"],
 }).annotations(
   $I.annotations("FolderId", {
     description: "A unique identifier for a Folder",
@@ -134,6 +141,7 @@ export declare namespace FolderId {
 
 export const UploadSessionId = make("upload_session", {
   brand: "UploadSessionId",
+  actions: ["create", "read", "update", "delete", "*"],
 }).annotations(
   $I.annotations("UploadSessionId", {
     description: "A unique identifier for an upload session",
@@ -152,6 +160,7 @@ export declare namespace UploadSessionId {
 
 export const AgentId = make("agent", {
   brand: "AgentId",
+  actions: ["create", "read", "update", "delete", "*"],
 }).annotations(
   $I.annotations("AgentId", {
     description: "A unique identifier for an Agent",
@@ -166,3 +175,15 @@ export declare namespace AgentId {
     export type Encoded = typeof AgentId.privateSchema.Encoded;
   }
 }
+
+export const Ids = {
+  OrganizationId,
+  TeamId,
+  FileId,
+  AuditLogId,
+  UserId,
+  SessionId,
+  FolderId,
+  UploadSessionId,
+  AgentId,
+} as const;

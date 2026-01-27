@@ -58,12 +58,13 @@ type MakeBaseRepoEffect<
 const makeBaseRepo = <
   TableName extends string,
   Brand extends string,
+  const LinkedActions extends A.NonEmptyReadonlyArray<string>,
   Model extends M.Any,
   Id extends keyof Model["Type"] & keyof Model["update"]["Type"] & keyof Model["fields"],
 >(
   model: Model,
   options: {
-    idSchema: EntityId.EntityId<TableName, Brand>;
+    idSchema: EntityId.EntityId<TableName, Brand, LinkedActions>;
     idColumn: Id;
   }
 ): MakeBaseRepoEffect<Model, Id> =>
@@ -281,12 +282,13 @@ export type DbRepo<
 export const make = <
   TableName extends string,
   Brand extends string,
+  const LinkedActions extends A.NonEmptyReadonlyArray<string>,
   Model extends M.Any,
   SE,
   SR,
   TExtra extends Record<string, UnsafeTypes.UnsafeAny> = NonNullable<unknown>,
 >(
-  idSchema: EntityId.EntityId<TableName, Brand>,
+  idSchema: EntityId.EntityId<TableName, Brand, LinkedActions>,
   model: Model,
   maker?: Effect.Effect<TExtra, SE, SR> | undefined
 ): DbRepo<Model, SE, SR, TExtra> =>

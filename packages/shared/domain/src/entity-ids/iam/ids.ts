@@ -6,6 +6,7 @@ const $I = $SharedDomainId.create("entity-ids/iam/ids");
 const make = EntityId.builder("iam");
 export const AccountId = make("account", {
   brand: "AccountId",
+  actions: ["create", "read", "update", "delete", "*"],
 }).annotations(
   $I.annotations("AccountId", {
     description: "A unique identifier for an account",
@@ -24,6 +25,7 @@ export declare namespace AccountId {
 
 export const ScimProviderId = make("scim_provider", {
   brand: "ScimProviderId",
+  actions: ["create", "read", "update", "delete", "*"],
 }).annotations(
   $I.annotations("ScimProviderId", {
     description: "A unique identifier for an ScimProvider",
@@ -42,6 +44,7 @@ export declare namespace ScimProviderId {
 
 export const ApiKeyId = make("apikey", {
   brand: "ApiKeyId",
+  actions: ["create", "read", "update", "delete", "*"],
 }).annotations(
   $I.annotations("ApiKeyId", {
     description: "A unique identifier for an api key",
@@ -60,6 +63,7 @@ export declare namespace ApiKeyId {
 
 export const InvitationId = make("invitation", {
   brand: "InvitationId",
+  actions: ["create", "read", "update", "delete", "*"],
 }).annotations(
   $I.annotations("InvitationId", {
     description: "A unique identifier for an invitation",
@@ -78,6 +82,7 @@ export declare namespace InvitationId {
 
 export const JwksId = make("jwks", {
   brand: "JwksId",
+  actions: ["create", "read", "update", "delete", "*"],
 }).annotations(
   $I.annotations("JwksId", {
     description: "A unique identifier for a jwks",
@@ -95,6 +100,7 @@ export declare namespace JwksId {
 
 export const MemberId = make("member", {
   brand: "MemberId",
+  actions: ["create", "read", "update", "delete", "*"],
 }).annotations(
   $I.annotations("MemberId", {
     description: "A unique identifier for a member",
@@ -112,6 +118,7 @@ export declare namespace MemberId {
 
 export const PasskeyId = make("passkey", {
   brand: "PasskeyId",
+  actions: ["create", "read", "update", "delete", "*"],
 }).annotations(
   $I.annotations("PasskeyId", {
     description: "A unique identifier for a passkey",
@@ -129,6 +136,7 @@ export declare namespace PasskeyId {
 
 export const RateLimitId = make("rate_limit", {
   brand: "RateLimitId",
+  actions: ["create", "read", "update", "delete", "*"],
 }).annotations(
   $I.annotations("RateLimitId", {
     description: "A unique identifier for a rate limit",
@@ -146,6 +154,7 @@ export declare namespace RateLimitId {
 
 export const SsoProviderId = make("sso_provider", {
   brand: "SsoProviderId",
+  actions: ["create", "read", "update", "delete", "*"],
 }).annotations(
   $I.annotations("SsoProviderId", {
     description: "A unique identifier for an sso provider",
@@ -163,6 +172,7 @@ export declare namespace SsoProviderId {
 
 export const SubscriptionId = make("subscription", {
   brand: "SubscriptionId",
+  actions: ["create", "read", "update", "delete", "*"],
 }).annotations(
   $I.annotations("SubscriptionId", {
     description: "A unique identifier for a subscription",
@@ -180,6 +190,7 @@ export declare namespace SubscriptionId {
 
 export const TeamMemberId = make("team_member", {
   brand: "TeamMemberId",
+  actions: ["create", "read", "update", "delete", "*"],
 }).annotations(
   $I.annotations("TeamMemberId", {
     description: "A unique identifier for a team member",
@@ -197,6 +208,7 @@ export declare namespace TeamMemberId {
 
 export const TwoFactorId = make("two_factor", {
   brand: "TwoFactorId",
+  actions: ["create", "read", "update", "delete", "*"],
 }).annotations(
   $I.annotations("TwoFactorId", {
     description: "A unique identifier for a two factor",
@@ -214,6 +226,7 @@ export declare namespace TwoFactorId {
 
 export const VerificationId = make("verification", {
   brand: "VerificationId",
+  actions: ["create", "read", "update", "delete", "*"],
 }).annotations(
   $I.annotations("VerificationId", {
     description: "A unique identifier for a verification",
@@ -231,6 +244,7 @@ export declare namespace VerificationId {
 
 export const WalletAddressId = make("wallet_address", {
   brand: "WalletAddressId",
+  actions: ["create", "read", "update", "delete", "*"],
 }).annotations(
   $I.annotations("WalletAddressId", {
     description: "A unique identifier for a wallet address",
@@ -248,6 +262,7 @@ export declare namespace WalletAddressId {
 
 export const OrganizationRoleId = make("organization_role", {
   brand: "OrganizationRoleId",
+  actions: ["create", "read", "update", "delete", "*"],
 }).annotations(
   $I.annotations("OrganizationRoleId", {
     description: "A unique identifier for an organization role",
@@ -265,6 +280,7 @@ export declare namespace OrganizationRoleId {
 
 export const DeviceCodeId = make("device_code", {
   brand: "DeviceCodeId",
+  actions: ["create", "read", "update", "delete", "*"],
 }).annotations(
   $I.annotations("DeviceCodeId", {
     description: "A unique identifier for a device code",
@@ -282,6 +298,7 @@ export declare namespace DeviceCodeId {
 
 export const OAuthClientId = make("oauth_client", {
   brand: "OAuthClientId",
+  actions: ["create", "read", "update", "delete", "*"],
 }).annotations(
   $I.annotations("OAuthClientId", {
     description: "A unique identifier for an OAuth client",
@@ -299,6 +316,7 @@ export declare namespace OAuthClientId {
 
 export const OAuthAccessTokenId = make("oauth_access_token", {
   brand: "OAuthAccessTokenId",
+  actions: ["create", "read", "update", "delete", "*"],
 }).annotations(
   $I.annotations("OAuthAccessTokenId", {
     description: "A unique identifier for an OAuth access token",
@@ -316,6 +334,7 @@ export declare namespace OAuthAccessTokenId {
 
 export const OAuthRefreshTokenId = make("oauth_refresh_token", {
   brand: "OAuthRefreshTokenId",
+  actions: ["create", "read", "update", "delete", "*"],
 }).annotations(
   $I.annotations("OAuthRefreshTokenId", {
     description: "A unique identifier for an OAuth refresh token",
@@ -333,6 +352,7 @@ export declare namespace OAuthRefreshTokenId {
 
 export const OAuthConsentId = make("oauth_consent", {
   brand: "OAuthConsentId",
+  actions: ["create", "read", "update", "delete", "*"],
 }).annotations(
   $I.annotations("OAuthConsentId", {
     description: "A unique identifier for an OAuth consent record",
@@ -347,3 +367,26 @@ export declare namespace OAuthConsentId {
     export type Encoded = typeof OAuthConsentId.privateSchema.Encoded;
   }
 }
+
+export const Ids = {
+  AccountId,
+  ScimProviderId,
+  ApiKeyId,
+  InvitationId,
+  JwksId,
+  MemberId,
+  PasskeyId,
+  RateLimitId,
+  SsoProviderId,
+  SubscriptionId,
+  TeamMemberId,
+  TwoFactorId,
+  VerificationId,
+  WalletAddressId,
+  OrganizationRoleId,
+  DeviceCodeId,
+  OAuthClientId,
+  OAuthAccessTokenId,
+  OAuthRefreshTokenId,
+  OAuthConsentId,
+} as const;

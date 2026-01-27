@@ -11,7 +11,6 @@ import * as BunContext from "@effect/platform-bun/BunContext";
 import type * as SqlClient from "@effect/sql/SqlClient";
 import type * as SqlError from "@effect/sql/SqlError";
 import * as PgClient from "@effect/sql-pg/PgClient";
-import { PostgreSqlContainer } from "@testcontainers/postgresql";
 import { sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/postgres-js";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
@@ -28,6 +27,11 @@ import * as Str from "effect/String";
 import * as PgConnString from "pg-connection-string";
 import postgres from "postgres";
 import { Wait } from "testcontainers";
+
+export class DevContainerError extends Data.TaggedError("DevContainerError")<{
+  message: string;
+  cause?: unknown;
+}> {}
 
 export type SliceDatabaseClients = DocumentsDb.Db | IamDb.Db | SharedDb.Db;
 export type SliceDatabaseClientsLive = Layer.Layer<SliceDatabaseClients, never, DbClient.PgClientServices>;
@@ -111,7 +115,10 @@ const setupDocker = Effect.gen(function* () {
   // Ensure you have the pg_uuidv7 docker image locally
   // You may need to modify pg_uuid's dockerfile to install the extension or build a new image from its base
   // https://github.com/fboulnois/pg_uuidv7
-
+  const { PostgreSqlContainer } = yield* Effect.tryPromise({
+    try: () => import("@testcontainers/postgresql"),
+    catch: (cause) => new DevContainerError({ message: "Failed to load testcontainers", cause }),
+  });
   const container = yield* Effect.tryPromise({
     try: () =>
       new PostgreSqlContainer("pgvector/pgvector:pg17")

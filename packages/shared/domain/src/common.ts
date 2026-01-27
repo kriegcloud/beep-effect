@@ -2,6 +2,7 @@ import { BS } from "@beep/schema";
 import type { EntityId } from "@beep/schema/identity";
 import type * as VariantSchema from "@effect/experimental/VariantSchema";
 import * as M from "@effect/sql/Model";
+import type * as A from "effect/Array";
 import * as S from "effect/Schema";
 import type * as Types from "effect/Types";
 
@@ -29,9 +30,10 @@ type MakeFieldsReturn<
 export const makeFields = <
   const TableName extends string,
   const Brand extends string,
+  const LinkedActions extends A.NonEmptyReadonlyArray<string>,
   const Fields extends VariantSchema.Field.Fields,
 >(
-  entityId: EntityId.EntityId<TableName, Brand>,
+  entityId: EntityId.EntityId<TableName, Brand, LinkedActions>,
   fields: NoConflictingKeys<Fields>
 ): MakeFieldsReturn<TableName, Brand, Fields> => ({
   id: entityId.modelIdSchema,

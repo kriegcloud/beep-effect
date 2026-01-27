@@ -6,6 +6,7 @@ const make = EntityId.builder("documents");
 
 export class DocumentId extends make("document", {
   brand: "DocumentId",
+  actions: ["create", "read", "update", "delete", "*"],
 }).annotations(
   $I.annotations("DocumentId", {
     description: "A unique identifier for a Document",
@@ -23,6 +24,7 @@ export declare namespace DocumentId {
 
 export const DocumentVersionId = make("document_version", {
   brand: "DocumentVersionId",
+  actions: ["create", "read", "update", "delete", "*"],
 }).annotations(
   $I.annotations("DocumentVersionId", {
     description: "A unique identifier for a Document Version",
@@ -40,6 +42,7 @@ export declare namespace DocumentVersionId {
 
 export const DiscussionId = make("discussion", {
   brand: "DiscussionId",
+  actions: ["create", "read", "update", "delete", "*"],
 }).annotations(
   $I.annotations("DiscussionId", {
     description: "A unique identifier for a Discussion",
@@ -57,6 +60,7 @@ export declare namespace DiscussionId {
 
 export const CommentId = make("comment", {
   brand: "CommentId",
+  actions: ["create", "read", "update", "delete", "*"],
 }).annotations(
   $I.annotations("CommentId", {
     description: "A unique identifier for a Comment",
@@ -74,6 +78,7 @@ export declare namespace CommentId {
 
 export const DocumentFileId = make("document_file", {
   brand: "DocumentFileId",
+  actions: ["create", "read", "update", "delete", "*"],
 }).annotations(
   $I.annotations("DocumentFileId", {
     description: "A unique identifier for a Document File",
@@ -88,3 +93,11 @@ export declare namespace DocumentFileId {
     export type Encoded = typeof DocumentFileId.privateSchema.Encoded;
   }
 }
+
+export const Ids = {
+  DocumentId,
+  DocumentVersionId,
+  DiscussionId,
+  CommentId,
+  DocumentFileId,
+} as const;

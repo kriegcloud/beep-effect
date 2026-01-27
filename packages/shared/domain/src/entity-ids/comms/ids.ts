@@ -24,6 +24,7 @@ const make = EntityId.builder("comms");
  */
 export const EmailTemplateId = make("email_template", {
   brand: "EmailTemplateId",
+  actions: ["create", "read", "update", "delete", "*"],
 }).annotations(
   $I.annotations("EmailTemplateId", {
     description: "A unique identifier for a EmailTemplate entity",
@@ -39,3 +40,7 @@ export declare namespace EmailTemplateId {
     export type Encoded = typeof EmailTemplateId.privateSchema.Encoded;
   }
 }
+
+export const Ids = {
+  EmailTemplateId,
+} as const;

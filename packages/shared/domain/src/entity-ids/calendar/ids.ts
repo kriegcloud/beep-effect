@@ -23,6 +23,7 @@ const $I = $SharedDomainId.create("entity-ids/calendar/ids");
  */
 export const CalendarEventId = make("calendar_event", {
   brand: "CalendarEventId",
+  actions: ["create", "read", "update", "delete", "*"],
 }).annotations(
   $I.annotations("CalendarEventId", {
     description: "A unique identifier for a CalendarEvent entity",
@@ -38,3 +39,7 @@ export declare namespace CalendarEventId {
     export type Encoded = typeof CalendarEventId.privateSchema.Encoded;
   }
 }
+
+export const Ids = {
+  CalendarEventId,
+} as const;

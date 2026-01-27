@@ -6,6 +6,7 @@ const $I = $SharedDomainId.create("entity-ids/customization/ids");
 const make = EntityId.builder("customization");
 export const UserHotkeyId = make("user_hotkey", {
   brand: "UserHotkeyId",
+  actions: ["create", "read", "update", "delete", "*"],
 }).annotations(
   $I.annotations("UserHotkeyId", {
     description: "A unique identifier for an UserHotkey",
@@ -21,3 +22,7 @@ export declare namespace UserHotkeyId {
     export type Encoded = typeof UserHotkeyId.privateSchema.Encoded;
   }
 }
+
+export const Ids = {
+  UserHotkeyId,
+} as const;
