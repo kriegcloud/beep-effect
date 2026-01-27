@@ -139,9 +139,14 @@
     ]
   },
   "catalog": {
+        "katex": "^0.16.28",
+    "y-websocket": "^3.0.0",
+    "react-error-boundary": "^6.1.0",
+    "@excalidraw/excalidraw": "^0.18.0",
     "@ai-sdk/google": "^3.0.13",
     "@ai-sdk/openai": "^3.0.19",
     "@ai-sdk/react": "^3.0.52",
+    "yjs": "^13.6.29",
     "@ariakit/react": "^0.4.21",
     "@babel/cli": "^7.28.6",
     "@babel/core": "^7.28.6",

@@ -205,7 +205,12 @@
     "use-stick-to-bottom": "catalog:",
     "uuid": "catalog:",
     "vaul": "catalog:",
-    "zod": "catalog:"
+    "zod": "catalog:",
+    "katex": "catalog:",
+    "y-websocket": "catalog:",
+    "react-error-boundary": "catalog:",
+    "@excalidraw/excalidraw": "catalog:",
+    "yjs": "catalog:"
   },
   "devDependencies": {
     "@beep/build-utils": "workspace:^",

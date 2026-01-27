@@ -27,7 +27,7 @@ export class Model extends M.Class<Model>($I`SessionModel`)(
     ),
 
     /** IP address where session was created */
-    ipAddress: BS.FieldSensitiveOptionOmittable(BS.IP),
+    ipAddress: BS.FieldSensitiveOptionOmittable(S.String),
 
     /** User agent string */
     userAgent: BS.FieldSensitiveOptionOmittable(
