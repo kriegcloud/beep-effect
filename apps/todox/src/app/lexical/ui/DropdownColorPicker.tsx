@@ -1,7 +1,5 @@
 "use client";
 
-import * as React from "react";
-
 import ColorPicker from "./ColorPicker";
 import DropDown from "./DropDown";
 
@@ -25,7 +23,12 @@ export default function DropdownColorPicker({
   ...rest
 }: Props) {
   return (
-    <DropDown {...rest} disabled={disabled} stopCloseOnClickSelf={stopCloseOnClickSelf}>
+    <DropDown
+      {...rest}
+      disabled={disabled}
+      stopCloseOnClickSelf={stopCloseOnClickSelf}
+      contentClassName="max-h-none overflow-visible !bg-white"
+    >
       <ColorPicker color={color} onChange={onChange} />
     </DropDown>
   );

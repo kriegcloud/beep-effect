@@ -17,10 +17,7 @@ export default function DragDropPaste(): null {
       DRAG_DROP_PASTE,
       (files) => {
         (async () => {
-          const filesResult = await mediaFileReader(
-            files,
-            [ACCEPTABLE_IMAGE_TYPES].flatMap((x) => x)
-          );
+          const filesResult = await mediaFileReader(files, [ACCEPTABLE_IMAGE_TYPES].flat());
           for (const { file, result } of filesResult) {
             if (isMimeType(file, ACCEPTABLE_IMAGE_TYPES)) {
               editor.dispatchCommand(INSERT_IMAGE_COMMAND, {

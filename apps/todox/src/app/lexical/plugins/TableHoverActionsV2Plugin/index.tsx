@@ -1,7 +1,4 @@
 "use client";
-import type { JSX } from "react";
-
-import "./index.css";
 
 import { autoUpdate, offset, shift, useFloating, type VirtualElement } from "@floating-ui/react";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
@@ -22,6 +19,7 @@ import {
   type EditorThemeClasses,
   isHTMLElement,
 } from "lexical";
+import type { JSX } from "react";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
@@ -130,9 +128,6 @@ function TableHoverActionsV2({ anchorElem }: { readonly anchorElem: HTMLElement 
   const handleMouseLeaveRef = useRef<((event: MouseEvent) => void) | null>(null);
 
   const { refs, floatingStyles, update } = useFloating({
-    elements: {
-      reference: virtualRef.current as unknown as Element,
-    },
     middleware: [
       offset({ mainAxis: -TOP_BUTTON_OVERHANG }),
       shift({
@@ -149,9 +144,6 @@ function TableHoverActionsV2({ anchorElem }: { readonly anchorElem: HTMLElement 
     floatingStyles: leftFloatingStyles,
     update: updateLeft,
   } = useFloating({
-    elements: {
-      reference: leftVirtualRef.current as unknown as Element,
-    },
     middleware: [
       offset({ mainAxis: -LEFT_BUTTON_OVERHANG }),
       shift({
@@ -346,11 +338,14 @@ function TableHoverActionsV2({ anchorElem }: { readonly anchorElem: HTMLElement 
         return direction === "asc" ? -result : result;
       });
 
-      const insertionCaret = shouldSkipTopRow ? $getSiblingCaret(rows[0], "next") : $getChildCaret(tableNode, "next");
+      const insertionCaret = shouldSkipTopRow ? $getSiblingCaret(rows[0]!, "next") : $getChildCaret(tableNode, "next");
 
       insertionCaret?.splice(0, sortableRows);
     });
   };
+
+  const indicatorClass =
+    "bg-background bg-center bg-no-repeat bg-[length:12px_12px] border border-border rounded-sm shadow-sm box-border h-[18px] pointer-events-auto transition-opacity duration-75 w-[18px] z-10 cursor-pointer hover:bg-muted";
 
   return (
     <>
@@ -363,9 +358,14 @@ function TableHoverActionsV2({ anchorElem }: { readonly anchorElem: HTMLElement 
           ...floatingStyles,
           opacity: isVisible ? 1 : 0,
         }}
-        className="floating-top-actions"
+        className="flex items-center gap-1 relative"
       >
-        <DropDown buttonAriaLabel="Sort column" buttonClassName="floating-filter-indicator" hideChevron={true}>
+        <DropDown
+          buttonAriaLabel="Sort column"
+          buttonClassName={indicatorClass}
+          buttonIconClassName="bg-[url(/lexical/images/icons/filter-left.svg)] bg-center bg-no-repeat bg-[length:12px_12px] w-[12px] h-[12px]"
+          hideChevron={true}
+        >
           <DropDownItem className="item" onClick={() => handleSortColumn("desc")}>
             Sort Ascending
           </DropDownItem>
@@ -373,7 +373,13 @@ function TableHoverActionsV2({ anchorElem }: { readonly anchorElem: HTMLElement 
             Sort Descending
           </DropDownItem>
         </DropDown>
-        <button className="floating-add-indicator" aria-label="Add column" type="button" onClick={handleAddColumn} />
+        <button
+          className={indicatorClass}
+          style={{ backgroundImage: "url(/lexical/images/icons/plus.svg)" }}
+          aria-label="Add column"
+          type="button"
+          onClick={handleAddColumn}
+        />
       </div>
       <button
         ref={(node) => {
@@ -383,8 +389,9 @@ function TableHoverActionsV2({ anchorElem }: { readonly anchorElem: HTMLElement 
         style={{
           ...leftFloatingStyles,
           opacity: isLeftVisible ? 1 : 0,
+          backgroundImage: "url(/lexical/images/icons/plus.svg)",
         }}
-        className="floating-add-indicator"
+        className={indicatorClass}
         aria-label="Add row"
         type="button"
         onClick={handleAddRow}

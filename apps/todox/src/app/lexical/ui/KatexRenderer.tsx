@@ -2,7 +2,6 @@
 
 import katex from "katex";
 import type { JSX } from "react";
-import * as React from "react";
 import { useEffect, useRef } from "react";
 
 export default function KatexRenderer({

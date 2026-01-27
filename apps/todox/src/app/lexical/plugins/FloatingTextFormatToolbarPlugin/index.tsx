@@ -1,8 +1,6 @@
 "use client";
 
-import type { JSX } from "react";
-
-import "./index.css";
+import { cn } from "@beep/todox/lib/utils";
 
 import { $isCodeHighlightNode } from "@lexical/code";
 import { $isLinkNode, TOGGLE_LINK_COMMAND } from "@lexical/link";
@@ -19,10 +17,9 @@ import {
   type LexicalEditor,
   SELECTION_CHANGE_COMMAND,
 } from "lexical";
-import * as React from "react";
+import type { JSX } from "react";
 import { type Dispatch, useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-
 import { getDOMRangeRect } from "../../utils/getDOMRangeRect";
 import { getSelectedNode } from "../../utils/getSelectedNode";
 import { setFloatingElemPosition } from "../../utils/setFloatingElemPosition";
@@ -177,8 +174,16 @@ function TextFormatFloatingToolbar({
     );
   }, [editor, $updateTextFormatFloatingToolbar]);
 
+  const popupItemBase =
+    "border-0 flex bg-transparent rounded-lg p-2 cursor-pointer align-middle disabled:cursor-not-allowed hover:not-disabled:bg-muted";
+  const popupItemSpaced = "mr-0.5";
+  const formatIconBase = "format bg-contain h-[18px] w-[18px] mt-0.5 flex opacity-60";
+
   return (
-    <div ref={popupCharStylesEditorRef} className="floating-text-format-popup">
+    <div
+      ref={popupCharStylesEditorRef}
+      className="floating-text-format-popup flex bg-background p-1 align-middle absolute top-0 left-0 z-10 opacity-0 shadow-lg rounded-lg transition-opacity duration-500 h-[35px] will-change-transform"
+    >
       {editor.isEditable() && (
         <>
           <button
@@ -186,130 +191,130 @@ function TextFormatFloatingToolbar({
             onClick={() => {
               editor.dispatchCommand(FORMAT_TEXT_COMMAND, "bold");
             }}
-            className={"popup-item spaced " + (isBold ? "active" : "")}
+            className={cn(popupItemBase, popupItemSpaced, isBold && "bg-accent/30 [&>i]:opacity-100")}
             title="Bold"
             aria-label="Format text as bold"
           >
-            <i className="format bold" />
+            <i className={cn(formatIconBase, "bold")} />
           </button>
           <button
             type="button"
             onClick={() => {
               editor.dispatchCommand(FORMAT_TEXT_COMMAND, "italic");
             }}
-            className={"popup-item spaced " + (isItalic ? "active" : "")}
+            className={cn(popupItemBase, popupItemSpaced, isItalic && "bg-accent/30 [&>i]:opacity-100")}
             title="Italic"
             aria-label="Format text as italics"
           >
-            <i className="format italic" />
+            <i className={cn(formatIconBase, "italic")} />
           </button>
           <button
             type="button"
             onClick={() => {
               editor.dispatchCommand(FORMAT_TEXT_COMMAND, "underline");
             }}
-            className={"popup-item spaced " + (isUnderline ? "active" : "")}
+            className={cn(popupItemBase, popupItemSpaced, isUnderline && "bg-accent/30 [&>i]:opacity-100")}
             title="Underline"
             aria-label="Format text to underlined"
           >
-            <i className="format underline" />
+            <i className={cn(formatIconBase, "underline")} />
           </button>
           <button
             type="button"
             onClick={() => {
               editor.dispatchCommand(FORMAT_TEXT_COMMAND, "strikethrough");
             }}
-            className={"popup-item spaced " + (isStrikethrough ? "active" : "")}
+            className={cn(popupItemBase, popupItemSpaced, isStrikethrough && "bg-accent/30 [&>i]:opacity-100")}
             title="Strikethrough"
             aria-label="Format text with a strikethrough"
           >
-            <i className="format strikethrough" />
+            <i className={cn(formatIconBase, "strikethrough")} />
           </button>
           <button
             type="button"
             onClick={() => {
               editor.dispatchCommand(FORMAT_TEXT_COMMAND, "subscript");
             }}
-            className={"popup-item spaced " + (isSubscript ? "active" : "")}
+            className={cn(popupItemBase, popupItemSpaced, isSubscript && "bg-accent/30 [&>i]:opacity-100")}
             title="Subscript"
             aria-label="Format Subscript"
           >
-            <i className="format subscript" />
+            <i className={cn(formatIconBase, "subscript")} />
           </button>
           <button
             type="button"
             onClick={() => {
               editor.dispatchCommand(FORMAT_TEXT_COMMAND, "superscript");
             }}
-            className={"popup-item spaced " + (isSuperscript ? "active" : "")}
+            className={cn(popupItemBase, popupItemSpaced, isSuperscript && "bg-accent/30 [&>i]:opacity-100")}
             title="Superscript"
             aria-label="Format Superscript"
           >
-            <i className="format superscript" />
+            <i className={cn(formatIconBase, "superscript")} />
           </button>
           <button
             type="button"
             onClick={() => {
               editor.dispatchCommand(FORMAT_TEXT_COMMAND, "uppercase");
             }}
-            className={"popup-item spaced " + (isUppercase ? "active" : "")}
+            className={cn(popupItemBase, popupItemSpaced, isUppercase && "bg-accent/30 [&>i]:opacity-100")}
             title="Uppercase"
             aria-label="Format text to uppercase"
           >
-            <i className="format uppercase" />
+            <i className={cn(formatIconBase, "uppercase")} />
           </button>
           <button
             type="button"
             onClick={() => {
               editor.dispatchCommand(FORMAT_TEXT_COMMAND, "lowercase");
             }}
-            className={"popup-item spaced " + (isLowercase ? "active" : "")}
+            className={cn(popupItemBase, popupItemSpaced, isLowercase && "bg-accent/30 [&>i]:opacity-100")}
             title="Lowercase"
             aria-label="Format text to lowercase"
           >
-            <i className="format lowercase" />
+            <i className={cn(formatIconBase, "lowercase")} />
           </button>
           <button
             type="button"
             onClick={() => {
               editor.dispatchCommand(FORMAT_TEXT_COMMAND, "capitalize");
             }}
-            className={"popup-item spaced " + (isCapitalize ? "active" : "")}
+            className={cn(popupItemBase, popupItemSpaced, isCapitalize && "bg-accent/30 [&>i]:opacity-100")}
             title="Capitalize"
             aria-label="Format text to capitalize"
           >
-            <i className="format capitalize" />
+            <i className={cn(formatIconBase, "capitalize")} />
           </button>
           <button
             type="button"
             onClick={() => {
               editor.dispatchCommand(FORMAT_TEXT_COMMAND, "code");
             }}
-            className={"popup-item spaced " + (isCode ? "active" : "")}
+            className={cn(popupItemBase, popupItemSpaced, isCode && "bg-accent/30 [&>i]:opacity-100")}
             title="Insert code block"
             aria-label="Insert code block"
           >
-            <i className="format code" />
+            <i className={cn(formatIconBase, "code")} />
           </button>
           <button
             type="button"
             onClick={insertLink}
-            className={"popup-item spaced " + (isLink ? "active" : "")}
+            className={cn(popupItemBase, popupItemSpaced, isLink && "bg-accent/30 [&>i]:opacity-100")}
             title="Insert link"
             aria-label="Insert link"
           >
-            <i className="format link" />
+            <i className={cn(formatIconBase, "link")} />
           </button>
         </>
       )}
       <button
         type="button"
         onClick={insertComment}
-        className={"popup-item spaced insert-comment"}
+        className={cn(popupItemBase, popupItemSpaced, "lg:flex hidden")}
         title="Insert comment"
         aria-label="Insert comment"
       >
-        <i className="format add-comment" />
+        <i className={cn(formatIconBase, "add-comment")} />
       </button>
     </div>
   );

@@ -15,7 +15,7 @@ import {
   type LexicalCommand,
   type LexicalEditor,
 } from "lexical";
-import * as React from "react";
+
 import { useCallback, useEffect } from "react";
 
 import { $createEquationNode, EquationNode } from "../../nodes/EquationNode";

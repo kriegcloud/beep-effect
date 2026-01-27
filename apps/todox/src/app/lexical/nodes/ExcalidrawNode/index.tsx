@@ -50,15 +50,15 @@ export class ExcalidrawNode extends DecoratorNode<JSX.Element> {
   __width: Dimension;
   __height: Dimension;
 
-  static getType(): string {
+  static override getType(): string {
     return "excalidraw";
   }
 
-  static clone(node: ExcalidrawNode): ExcalidrawNode {
+  static override clone(node: ExcalidrawNode): ExcalidrawNode {
     return new ExcalidrawNode(node.__data, node.__width, node.__height, node.__key);
   }
 
-  static importJSON(serializedNode: SerializedExcalidrawNode): ExcalidrawNode {
+  static override importJSON(serializedNode: SerializedExcalidrawNode): ExcalidrawNode {
     return new ExcalidrawNode(
       serializedNode.data,
       serializedNode.width ?? "inherit",
@@ -66,7 +66,7 @@ export class ExcalidrawNode extends DecoratorNode<JSX.Element> {
     ).updateFromJSON(serializedNode);
   }
 
-  exportJSON(): SerializedExcalidrawNode {
+  override exportJSON(): SerializedExcalidrawNode {
     return {
       ...super.exportJSON(),
       data: this.__data,
@@ -83,7 +83,7 @@ export class ExcalidrawNode extends DecoratorNode<JSX.Element> {
   }
 
   // View
-  createDOM(config: EditorConfig): HTMLElement {
+  override createDOM(config: EditorConfig): HTMLElement {
     const span = document.createElement("span");
     const theme = config.theme;
     const className = theme.image;
@@ -93,11 +93,11 @@ export class ExcalidrawNode extends DecoratorNode<JSX.Element> {
     return span;
   }
 
-  updateDOM(): false {
+  override updateDOM(): false {
     return false;
   }
 
-  static importDOM(): DOMConversionMap<HTMLSpanElement> | null {
+  static override importDOM(): DOMConversionMap<HTMLSpanElement> | null {
     return {
       span: (domNode: HTMLSpanElement) => {
         if (!domNode.hasAttribute("data-lexical-excalidraw-json")) {
@@ -111,7 +111,7 @@ export class ExcalidrawNode extends DecoratorNode<JSX.Element> {
     };
   }
 
-  exportDOM(editor: LexicalEditor): DOMExportOutput {
+  override exportDOM(editor: LexicalEditor): DOMExportOutput {
     const element = document.createElement("span");
 
     element.style.display = "inline-block";
@@ -154,7 +154,7 @@ export class ExcalidrawNode extends DecoratorNode<JSX.Element> {
     self.__height = height;
   }
 
-  decorate(editor: LexicalEditor, config: EditorConfig): JSX.Element {
+  override decorate(editor: LexicalEditor, config: EditorConfig): JSX.Element {
     return (
       <ExcalidrawComponent nodeKey={this.getKey()} data={this.__data} width={this.__width} height={this.__height} />
     );

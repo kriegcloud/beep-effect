@@ -8,7 +8,6 @@ import { mergeRegister } from "@lexical/utils";
 import type { NodeKey } from "lexical";
 import { $getNodeByKey, CLICK_COMMAND, COMMAND_PRIORITY_LOW, isDOMNode } from "lexical";
 import type { JSX } from "react";
-import * as React from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { ExcalidrawInitialElements } from "../../ui/ExcalidrawModal";
 
@@ -158,7 +157,7 @@ export default function ExcalidrawComponent({
         />
       )}
       {elements.length > 0 && (
-        <button ref={buttonRef} className={`excalidraw-button ${isSelected ? "selected" : ""}`}>
+        <button type={"button"} ref={buttonRef} className={`excalidraw-button ${isSelected ? "selected" : ""}`}>
           <ExcalidrawImage
             imageContainerRef={imageContainerRef}
             className="image"

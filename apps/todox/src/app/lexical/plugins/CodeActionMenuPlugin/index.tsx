@@ -1,13 +1,10 @@
 "use client";
 
-import type { JSX } from "react";
-
-import "./index.css";
-
 import { $isCodeNode, CodeNode, getLanguageFriendlyName, normalizeCodeLang } from "@lexical/code";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { $getNearestNodeFromDOMNode, isHTMLElement } from "lexical";
 import type * as React from "react";
+import type { JSX } from "react";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
@@ -126,8 +123,11 @@ function CodeActionMenuContainer({ anchorElem }: { readonly anchorElem: HTMLElem
   return (
     <>
       {isShown ? (
-        <div className="code-action-menu-container" style={{ ...position }}>
-          <div className="code-highlight-language">{codeFriendlyName}</div>
+        <div
+          className="code-action-menu-container h-9 text-[10px] text-foreground/50 absolute flex items-center flex-row select-none"
+          style={{ ...position }}
+        >
+          <div className="mr-1">{codeFriendlyName}</div>
           <CopyButton editor={editor} getCodeDOMNode={getCodeDOMNode} />
           {canBePrettier(normalizedLang) ? (
             <PrettierButton editor={editor} getCodeDOMNode={getCodeDOMNode} lang={normalizedLang} />

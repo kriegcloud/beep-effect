@@ -8,21 +8,25 @@ import { useEffect } from "react";
 
 import { $createSpecialTextNode, SpecialTextNode } from "../../nodes/SpecialTextNode";
 
-const BRACKETED_TEXT_REGEX = /\[([^[\]]+)\]/; // eslint-disable-line
+const BRACKETED_TEXT_REGEX = /\[([^[\]]+)\]/;
 
 function $findAndTransformText(node: TextNode): null | TextNode {
   const text = node.getTextContent();
 
   const match = BRACKETED_TEXT_REGEX.exec(text);
   if (match) {
-    const matchedText = match[1];
+    const matchedText = match[1]!;
     const startIndex = match.index;
 
-    let targetNode;
+    let targetNode: TextNode | undefined;
     if (startIndex === 0) {
-      [targetNode] = node.splitText(startIndex + match[0].length);
+      [targetNode] = node.splitText(startIndex + match[0]!.length);
     } else {
-      [, targetNode] = node.splitText(startIndex, startIndex + match[0].length);
+      [, targetNode] = node.splitText(startIndex, startIndex + match[0]!.length);
+    }
+
+    if (targetNode === undefined) {
+      return null;
     }
 
     const specialTextNode = $createSpecialTextNode(matchedText);

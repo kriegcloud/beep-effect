@@ -1,7 +1,5 @@
 "use client";
 
-import "./Collapsible.css";
-
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { $findMatchingParent, $insertNodeToNearestRoot, mergeRegister } from "@lexical/utils";
 import {

@@ -7,15 +7,12 @@ import { LexicalExtensionComposer } from "@lexical/react/LexicalExtensionCompose
 import { $createHeadingNode, $createQuoteNode } from "@lexical/rich-text";
 import { $createParagraphNode, $createTextNode, $getRoot, defineExtension } from "lexical";
 import { type JSX, useMemo } from "react";
-
-import { isDevPlayground } from "./appSettings";
 import { buildHTMLConfig } from "./buildHTMLConfig";
 import { FlashMessageContext } from "./context/FlashMessageContext";
 import { SettingsContext, useSettings } from "./context/SettingsContext";
 import { SharedHistoryContext } from "./context/SharedHistoryContext";
 import { ToolbarContext } from "./context/ToolbarContext";
 import Editor from "./Editor";
-import logo from "./images/logo.svg";
 import PlaygroundNodes from "./nodes/PlaygroundNodes";
 import DocsPlugin from "./plugins/DocsPlugin";
 import PasteLogPlugin from "./plugins/PasteLogPlugin";
@@ -23,6 +20,7 @@ import { TableContext } from "./plugins/TablePlugin";
 import TestRecorderPlugin from "./plugins/TestRecorderPlugin";
 import TypingPerfPlugin from "./plugins/TypingPerfPlugin";
 import Settings from "./Settings";
+import { isDevPlayground } from "./settings";
 import PlaygroundEditorTheme from "./themes/PlaygroundEditorTheme";
 
 console.warn(
@@ -127,7 +125,7 @@ function App(): JSX.Element {
             <ToolbarContext>
               <header>
                 <a href="https://lexical.dev" target="_blank" rel="noreferrer">
-                  <img src={logo} alt="Lexical Logo" />
+                  <img src="/lexical/images/logo.svg" alt="Lexical Logo" />
                 </a>
               </header>
               <div className="editor-shell">
@@ -153,11 +151,8 @@ export default function PlaygroundApp(): JSX.Element {
       <FlashMessageContext>
         <App />
       </FlashMessageContext>
-      <a
-        href="https://github.com/facebook/lexical/tree/main/packages/lexical-playground"
-        className="github-corner"
-        aria-label="View source on GitHub"
-      >
+      <a href="https://github.com/facebook/lexical/tree/main/packages/lexical-playground" className="github-corner">
+        <span className="sr-only">View source on GitHub</span>
         <svg
           width="80"
           height="80"

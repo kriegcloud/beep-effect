@@ -71,9 +71,9 @@ export const IMAGE: TextMatchTransformer = {
   replace: (textNode, match) => {
     const [, altText, src] = match;
     const imageNode = $createImageNode({
-      altText,
+      altText: altText!,
       maxWidth: 800,
-      src,
+      src: src!,
     });
     textNode.replace(imageNode);
   },
@@ -87,7 +87,7 @@ export const EMOJI: TextMatchTransformer = {
   importRegExp: /:([a-z0-9_]+):/,
   regExp: /:([a-z0-9_]+):$/,
   replace: (textNode, [, name]) => {
-    const emoji = emojiList.find((e) => e.aliases.includes(name))?.emoji;
+    const emoji = emojiList.find((e) => e.aliases.includes(name!))?.emoji;
     if (emoji) {
       textNode.replace($createTextNode(emoji));
     }
@@ -128,7 +128,7 @@ export const TWEET: ElementTransformer = {
   regExp: /<tweet id="([^"]+?)"\s?\/>\s?$/,
   replace: (textNode, _1, match) => {
     const [, id] = match;
-    const tweetNode = $createTweetNode(id);
+    const tweetNode = $createTweetNode(id!);
     textNode.replace(tweetNode);
   },
   type: "element",
@@ -175,7 +175,7 @@ export const TABLE: ElementTransformer = {
   regExp: TABLE_ROW_REG_EXP,
   replace: (parentNode, _1, match) => {
     // Header row
-    if (TABLE_ROW_DIVIDER_REG_EXP.test(match[0])) {
+    if (TABLE_ROW_DIVIDER_REG_EXP.test(match[0]!)) {
       const table = parentNode.getPreviousSibling();
       if (!table || !$isTableNode(table)) {
         return;
@@ -200,7 +200,7 @@ export const TABLE: ElementTransformer = {
       return;
     }
 
-    const matchCells = mapToTableCells(match[0]);
+    const matchCells = mapToTableCells(match[0]!);
 
     if (matchCells == null) {
       return;
@@ -245,7 +245,7 @@ export const TABLE: ElementTransformer = {
       table.append(tableRow);
 
       for (let i = 0; i < maxCells; i++) {
-        tableRow.append(i < cells.length ? cells[i] : $createTableCell(""));
+        tableRow.append(i < cells.length ? cells[i]! : $createTableCell(""));
       }
     }
 

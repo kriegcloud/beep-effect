@@ -18,7 +18,7 @@ export class NetworkMonitor extends Effect.Service<NetworkMonitor>()($I`NetworkM
       window.addEventListener("offline", offlineHandler);
     }).pipe(
       Stream.tap((isOnline) =>
-        (isOnline ? latch.open : latch.close).pipe(Effect.zipRight(SubscriptionRef.update(ref, () => isOnline)))
+        (isOnline ? latch.open : latch.close).pipe(Effect.andThen(SubscriptionRef.update(ref, () => isOnline)))
       ),
       Stream.runDrain,
       Effect.forkScoped

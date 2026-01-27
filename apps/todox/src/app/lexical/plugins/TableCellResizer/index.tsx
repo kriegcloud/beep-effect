@@ -1,4 +1,7 @@
 "use client";
+
+import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
+import { useLexicalEditable } from "@lexical/react/useLexicalEditable";
 import type { TableCellNode, TableDOMCell, TableMapType } from "@lexical/table";
 import {
   $computeTableMapSkipCellCheck,
@@ -10,10 +13,10 @@ import {
   getTableElement,
   TableNode,
 } from "@lexical/table";
+import { calculateZoomLevel, mergeRegister } from "@lexical/utils";
 import type { LexicalEditor, NodeKey } from "lexical";
 import { $getNearestNodeFromDOMNode, isHTMLElement, SKIP_SCROLL_INTO_VIEW_TAG } from "lexical";
 import type { JSX } from "react";
-import * as React from "react";
 import {
   type CSSProperties,
   type PointerEventHandler,
@@ -24,12 +27,6 @@ import {
   useRef,
   useState,
 } from "react";
-
-import "./index.css";
-
-import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
-import { useLexicalEditable } from "@lexical/react/useLexicalEditable";
-import { calculateZoomLevel, mergeRegister } from "@lexical/utils";
 import { createPortal } from "react-dom";
 
 type PointerPosition = {
@@ -110,7 +107,7 @@ function TableCellResizer({ editor }: { readonly editor: LexicalEditor }): JSX.E
         });
         return;
       }
-      if (resizerRef.current && resizerRef.current.contains(target)) {
+      if (resizerRef.current?.contains(target)) {
         return;
       }
 
@@ -232,8 +229,8 @@ function TableCellResizer({ editor }: { readonly editor: LexicalEditor }): JSX.E
 
   const getCellColumnIndex = (tableCellNode: TableCellNode, tableMap: TableMapType) => {
     for (let row = 0; row < tableMap.length; row++) {
-      for (let column = 0; column < tableMap[row].length; column++) {
-        if (tableMap[row][column].cell === tableCellNode) {
+      for (let column = 0; column < tableMap[row]!.length; column++) {
+        if (tableMap[row]![column]!.cell === tableCellNode) {
           return column;
         }
       }
@@ -363,30 +360,30 @@ function TableCellResizer({ editor }: { readonly editor: LexicalEditor }): JSX.E
 
       if (draggingDirection && pointerCurrentPos && tableRect) {
         if (isHeightChanging(draggingDirection)) {
-          styles[draggingDirection].left = `${window.scrollX + tableRect.left}px`;
-          styles[draggingDirection].top = `${window.scrollY + pointerCurrentPos.y / zoom}px`;
-          styles[draggingDirection].height = "3px";
-          styles[draggingDirection].width = `${tableRect.width}px`;
+          styles[draggingDirection]!.left = `${window.scrollX + tableRect.left}px`;
+          styles[draggingDirection]!.top = `${window.scrollY + pointerCurrentPos.y / zoom}px`;
+          styles[draggingDirection]!.height = "3px";
+          styles[draggingDirection]!.width = `${tableRect.width}px`;
         } else {
-          styles[draggingDirection].top = `${window.scrollY + tableRect.top}px`;
-          styles[draggingDirection].left = `${window.scrollX + pointerCurrentPos.x / zoom}px`;
-          styles[draggingDirection].width = "3px";
-          styles[draggingDirection].height = `${tableRect.height}px`;
+          styles[draggingDirection]!.top = `${window.scrollY + tableRect.top}px`;
+          styles[draggingDirection]!.left = `${window.scrollX + pointerCurrentPos.x / zoom}px`;
+          styles[draggingDirection]!.width = "3px";
+          styles[draggingDirection]!.height = `${tableRect.height}px`;
         }
 
-        styles[draggingDirection].backgroundColor = "#adf";
-        styles[draggingDirection].mixBlendMode = "unset";
+        styles[draggingDirection]!.backgroundColor = "#adf";
+        styles[draggingDirection]!.mixBlendMode = "unset";
       } else if (!draggingDirection && hoveredDirection === "right") {
         const halfZoneWidth = zoneWidth / 2;
         const highlightWidth = 2;
         const highlightStart = halfZoneWidth - highlightWidth / 2;
-        styles.right.background = `linear-gradient(90deg, transparent ${highlightStart}px, ${ACTIVE_RESIZER_COLOR} ${highlightStart}px, ${ACTIVE_RESIZER_COLOR} ${
+        styles.right!.background = `linear-gradient(90deg, transparent ${highlightStart}px, ${ACTIVE_RESIZER_COLOR} ${highlightStart}px, ${ACTIVE_RESIZER_COLOR} ${
           highlightStart + highlightWidth
         }px, transparent ${highlightStart + highlightWidth}px)`;
-        styles.right.mixBlendMode = "unset";
+        styles.right!.mixBlendMode = "unset";
         if (tableRect) {
-          styles.right.top = `${window.scrollY + tableRect.top}px`;
-          styles.right.height = `${tableRect.height}px`;
+          styles.right!.top = `${window.scrollY + tableRect.top}px`;
+          styles.right!.height = `${tableRect.height}px`;
         }
       }
 
@@ -424,14 +421,14 @@ function TableCellResizer({ editor }: { readonly editor: LexicalEditor }): JSX.E
       {activeCell != null && (
         <>
           <div
-            className="TableCellResizer__resizer TableCellResizer__ui"
+            className="absolute touch-none pointer-coarse:bg-[#adf] pointer-coarse:mix-blend-color"
             style={resizerStyles.right || undefined}
             onPointerEnter={handlePointerEnter("right")}
             onPointerLeave={handlePointerLeave}
             onPointerDown={toggleResize("right")}
           />
           <div
-            className="TableCellResizer__resizer TableCellResizer__ui"
+            className="absolute touch-none pointer-coarse:bg-[#adf] pointer-coarse:mix-blend-color"
             style={resizerStyles.bottom || undefined}
             onPointerDown={toggleResize("bottom")}
           />

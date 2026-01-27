@@ -1,13 +1,8 @@
 "use client";
 
-import type { JSX } from "react";
-
-import "./Button.css";
-
-import type { ReactNode } from "react";
-import * as React from "react";
-
-import joinClasses from "../utils/joinClasses";
+import { Button as ShadcnButton } from "@beep/todox/components/ui/button";
+import { cn } from "@beep/todox/lib/utils";
+import type { JSX, ReactNode } from "react";
 
 export default function Button({
   "data-test-id": dataTestId,
@@ -27,15 +22,17 @@ export default function Button({
   readonly title?: undefined | string;
 }): JSX.Element {
   return (
-    <button
+    <ShadcnButton
+      variant="outline"
+      size={small ? "sm" : "default"}
       disabled={disabled}
-      className={joinClasses("Button__root", disabled && "Button__disabled", small && "Button__small", className)}
+      className={cn(className)}
       onClick={onClick}
       title={title}
       aria-label={title}
       {...(dataTestId && { "data-test-id": dataTestId })}
     >
       {children}
-    </button>
+    </ShadcnButton>
   );
 }

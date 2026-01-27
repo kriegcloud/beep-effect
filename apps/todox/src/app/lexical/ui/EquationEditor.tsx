@@ -1,10 +1,7 @@
 "use client";
 
-import type { JSX, Ref, RefObject } from "react";
-
-import "./EquationEditor.css";
-
 import { isHTMLElement } from "lexical";
+import type { JSX, Ref, RefObject } from "react";
 import { type ChangeEvent, forwardRef } from "react";
 
 type BaseEquationEditorProps = {
@@ -22,27 +19,26 @@ function EquationEditor(
   };
 
   return inline && isHTMLElement(forwardedRef) ? (
-    <span className="EquationEditor_inputBackground">
-      <span className="EquationEditor_dollarSign">$</span>
+    <span className="bg-muted">
+      <span className="text-left text-muted-foreground">$</span>
       <input
-        className="EquationEditor_inlineEditor"
+        className="p-0 m-0 border-0 outline-none text-purple-700 bg-inherit resize-none"
         value={equation}
         onChange={onChange}
-        autoFocus={true}
         ref={forwardedRef as RefObject<HTMLInputElement>}
       />
-      <span className="EquationEditor_dollarSign">$</span>
+      <span className="text-left text-muted-foreground">$</span>
     </span>
   ) : (
-    <div className="EquationEditor_inputBackground">
-      <span className="EquationEditor_dollarSign">{"$$\n"}</span>
+    <div className="bg-muted">
+      <span className="text-left text-muted-foreground">{"$$\n"}</span>
       <textarea
-        className="EquationEditor_blockEditor"
+        className="p-0 m-0 border-0 outline-none text-purple-700 bg-inherit resize-none w-full"
         value={equation}
         onChange={onChange}
         ref={forwardedRef as RefObject<HTMLTextAreaElement>}
       />
-      <span className="EquationEditor_dollarSign">{"\n$$"}</span>
+      <span className="text-left text-muted-foreground">{"\n$$"}</span>
     </div>
   );
 }

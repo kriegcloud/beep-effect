@@ -13,7 +13,7 @@ import {
   SELECTION_CHANGE_COMMAND,
 } from "lexical";
 import type { JSX } from "react";
-import * as React from "react";
+
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 
@@ -105,7 +105,7 @@ export default function EquationComponent({ equation, inline, nodeKey }: Equatio
       {showEquationEditor && isEditable ? (
         <EquationEditor equation={equationValue} setEquation={setEquationValue} inline={inline} ref={inputRef} />
       ) : (
-        <ErrorBoundary onError={(e) => editor._onError(e)} fallback={null}>
+        <ErrorBoundary onError={(e) => editor._onError(e instanceof Error ? e : new Error(String(e)))} fallback={null}>
           <KatexRenderer
             equation={equationValue}
             inline={inline}

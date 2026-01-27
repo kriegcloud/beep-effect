@@ -19,15 +19,15 @@ export function $isEmptyLayoutItemNode(node: LexicalNode): boolean {
 }
 
 export class LayoutItemNode extends ElementNode {
-  static getType(): string {
+  static override getType(): string {
     return "layout-item";
   }
 
-  static clone(node: LayoutItemNode): LayoutItemNode {
+  static override clone(node: LayoutItemNode): LayoutItemNode {
     return new LayoutItemNode(node.__key);
   }
 
-  createDOM(config: EditorConfig): HTMLElement {
+  override createDOM(config: EditorConfig): HTMLElement {
     const dom = document.createElement("div");
     dom.setAttribute("data-lexical-layout-item", "true");
     if (typeof config.theme.layoutItem === "string") {
@@ -36,11 +36,11 @@ export class LayoutItemNode extends ElementNode {
     return dom;
   }
 
-  updateDOM(): boolean {
+  override updateDOM(): boolean {
     return false;
   }
 
-  collapseAtStart(): boolean {
+  override collapseAtStart(): boolean {
     const parent = this.getParentOrThrow();
     if (this.is(parent.getFirstChild()) && parent.getChildren().every($isEmptyLayoutItemNode)) {
       parent.remove();
@@ -49,7 +49,7 @@ export class LayoutItemNode extends ElementNode {
     return false;
   }
 
-  static importDOM(): DOMConversionMap | null {
+  static override importDOM(): DOMConversionMap | null {
     return {
       div: (domNode: HTMLElement) => {
         if (!domNode.hasAttribute("data-lexical-layout-item")) {
@@ -63,11 +63,11 @@ export class LayoutItemNode extends ElementNode {
     };
   }
 
-  static importJSON(serializedNode: SerializedLayoutItemNode): LayoutItemNode {
+  static override importJSON(serializedNode: SerializedLayoutItemNode): LayoutItemNode {
     return $createLayoutItemNode().updateFromJSON(serializedNode);
   }
 
-  isShadowRoot(): boolean {
+  override isShadowRoot(): boolean {
     return true;
   }
 }

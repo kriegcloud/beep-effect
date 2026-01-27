@@ -26,7 +26,7 @@ export function $convertSummaryElement(domNode: HTMLElement): DOMConversionOutpu
 /** @noInheritDoc */
 export class CollapsibleTitleNode extends ElementNode {
   /** @internal */
-  $config() {
+  override $config() {
     return this.config("collapsible-title", {
       $transform(node: CollapsibleTitleNode) {
         if (node.isEmpty()) {
@@ -43,7 +43,7 @@ export class CollapsibleTitleNode extends ElementNode {
     });
   }
 
-  createDOM(config: EditorConfig, editor: LexicalEditor): HTMLElement {
+  override createDOM(config: EditorConfig, editor: LexicalEditor): HTMLElement {
     const dom = document.createElement("summary");
     dom.classList.add("Collapsible__title");
     if (IS_CHROME) {
@@ -60,11 +60,11 @@ export class CollapsibleTitleNode extends ElementNode {
     return dom;
   }
 
-  updateDOM(prevNode: this, dom: HTMLElement): boolean {
+  override updateDOM(prevNode: this, dom: HTMLElement): boolean {
     return false;
   }
 
-  insertNewAfter(_: RangeSelection, restoreSelection = true): ElementNode {
+  override insertNewAfter(_: RangeSelection, restoreSelection = true): ElementNode {
     const containerNode = this.getParentOrThrow();
 
     if (!$isCollapsibleContainerNode(containerNode)) {

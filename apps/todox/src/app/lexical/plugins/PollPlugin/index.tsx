@@ -12,7 +12,6 @@ import {
   type LexicalEditor,
 } from "lexical";
 import type { JSX } from "react";
-import * as React from "react";
 import { useEffect, useState } from "react";
 
 import { $createPollNode, createPollOption, PollNode } from "../../nodes/PollNode";

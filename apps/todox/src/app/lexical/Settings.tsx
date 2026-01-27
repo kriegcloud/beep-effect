@@ -3,9 +3,8 @@
 import { CAN_USE_BEFORE_INPUT } from "@lexical/utils";
 import type { JSX } from "react";
 import { useEffect, useMemo, useState } from "react";
-
-import { INITIAL_SETTINGS, isDevPlayground } from "./appSettings";
 import { useSettings } from "./context/SettingsContext";
+import { INITIAL_SETTINGS, isDevPlayground } from "./settings";
 import Switch from "./ui/Switch";
 
 export default function Settings(): JSX.Element {
@@ -51,6 +50,7 @@ export default function Settings(): JSX.Element {
   return (
     <>
       <button
+        type="button"
         id="options-button"
         data-test-id="options-button"
         className={`editor-dev-button ${showSettings ? "active" : ""}`}

@@ -46,15 +46,15 @@ import { KeywordNode } from "./KeywordNode";
 const ImageComponent = React.lazy(() => import("./ImageComponent"));
 
 export interface ImagePayload {
-  readonly altText: string;
-  readonly caption?: undefined | LexicalEditor;
-  readonly height?: undefined | number;
-  readonly key?: undefined | NodeKey;
-  readonly maxWidth?: undefined | number;
-  readonly showCaption?: undefined | boolean;
-  readonly src: string;
-  readonly width?: undefined | number;
-  readonly captionsEnabled?: undefined | boolean;
+  altText: string;
+  caption?: undefined | LexicalEditor;
+  height?: undefined | number;
+  key?: undefined | NodeKey;
+  maxWidth?: undefined | number;
+  showCaption?: undefined | boolean;
+  src: string;
+  width?: undefined | number;
+  captionsEnabled?: undefined | boolean;
 }
 
 function isGoogleDocCheckboxImg(img: HTMLImageElement): boolean {
@@ -112,11 +112,11 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
   // Captions cannot yet be used within editor cells
   __captionsEnabled: boolean;
 
-  static getType(): string {
+  static override getType(): string {
     return "image";
   }
 
-  static clone(node: ImageNode): ImageNode {
+  static override clone(node: ImageNode): ImageNode {
     return new ImageNode(
       node.__src,
       node.__altText,
@@ -130,7 +130,7 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     );
   }
 
-  static importJSON(serializedNode: SerializedImageNode): ImageNode {
+  static override importJSON(serializedNode: SerializedImageNode): ImageNode {
     const { altText, height, width, maxWidth, src, showCaption } = serializedNode;
     return $createImageNode({
       altText,
@@ -142,7 +142,7 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     }).updateFromJSON(serializedNode);
   }
 
-  updateFromJSON(serializedNode: LexicalUpdateJSON<SerializedImageNode>): this {
+  override updateFromJSON(serializedNode: LexicalUpdateJSON<SerializedImageNode>): this {
     const node = super.updateFromJSON(serializedNode);
     const { caption } = serializedNode;
 
@@ -154,7 +154,7 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     return node;
   }
 
-  exportDOM(): DOMExportOutput {
+  override exportDOM(): DOMExportOutput {
     const imgElement = document.createElement("img");
     imgElement.setAttribute("src", this.__src);
     imgElement.setAttribute("alt", this.__altText);
@@ -192,7 +192,7 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     return { element: imgElement };
   }
 
-  static importDOM(): DOMConversionMap | null {
+  static override importDOM(): DOMConversionMap | null {
     return {
       figcaption: () => ({
         conversion: () => ({ node: null }),
@@ -258,7 +258,7 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     this.__captionsEnabled = captionsEnabled || captionsEnabled === undefined;
   }
 
-  exportJSON(): SerializedImageNode {
+  override exportJSON(): SerializedImageNode {
     return {
       ...super.exportJSON(),
       altText: this.getAltText(),
@@ -284,7 +284,7 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
 
   // View
 
-  createDOM(config: EditorConfig): HTMLElement {
+  override createDOM(config: EditorConfig): HTMLElement {
     const span = document.createElement("span");
     const theme = config.theme;
     const className = theme.image;
@@ -294,7 +294,7 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     return span;
   }
 
-  updateDOM(): false {
+  override updateDOM(): false {
     return false;
   }
 
@@ -306,7 +306,7 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     return this.__altText;
   }
 
-  decorate(): JSX.Element {
+  override decorate(): JSX.Element {
     return (
       <ImageComponent
         src={this.__src}

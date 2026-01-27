@@ -1,10 +1,6 @@
 "use client";
 
-import type { JSX } from "react";
-import type { Option, Options, PollNode } from "./PollNode";
-
-import "./PollNode.css";
-
+import { cn } from "@beep/todox/lib/utils";
 import { useCollaborationContext } from "@lexical/react/LexicalCollaborationContext";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { useLexicalNodeSelection } from "@lexical/react/useLexicalNodeSelection";
@@ -18,10 +14,10 @@ import {
   COMMAND_PRIORITY_LOW,
   type NodeKey,
 } from "lexical";
+import type { JSX } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
-
 import Button from "../ui/Button";
-import joinClasses from "../utils/joinClasses";
+import type { Option, Options, PollNode } from "./PollNode";
 import { $isPollNode, createPollOption } from "./PollNode";
 
 function getTotalVotes(options: Options): number {
@@ -52,11 +48,17 @@ function PollOptionComponent({
   const text = option.text;
 
   return (
-    <div className="PollNode__optionContainer">
-      <div className={joinClasses("PollNode__optionCheckboxWrapper", checked && "PollNode__optionCheckboxChecked")}>
+    <div className="flex flex-row mb-2.5 items-center">
+      <div
+        className={cn(
+          "relative flex w-[22px] h-[22px] border border-[#999] mr-2.5 rounded",
+          checked &&
+            "border-[rgb(61,135,245)] bg-[rgb(61,135,245)] after:content-[''] after:cursor-pointer after:border-white after:border-solid after:absolute after:block after:top-1 after:w-[5px] after:left-2 after:h-[9px] after:m-0 after:rotate-45 after:border-[0_2px_2px_0] after:pointer-events-none"
+        )}
+      >
         <input
           ref={checkboxRef}
-          className="PollNode__optionCheckbox"
+          className="border-0 absolute block w-full h-full opacity-0 cursor-pointer"
           type="checkbox"
           onChange={(e) => {
             withPollNode((node) => {
@@ -66,16 +68,16 @@ function PollOptionComponent({
           checked={checked}
         />
       </div>
-      <div className="PollNode__optionInputWrapper">
+      <div className="flex flex-[10px] border border-[rgb(61,135,245)] rounded relative overflow-hidden cursor-pointer">
         <div
-          className="PollNode__optionInputVotes"
+          className="bg-[rgb(236,243,254)] h-full absolute top-0 left-0 transition-[width] duration-1000 ease-out z-0"
           style={{ width: `${votes === 0 ? 0 : (votes / totalVotes) * 100}%` }}
         />
-        <span className="PollNode__optionInputVotesCount">
+        <span className="text-[rgb(61,135,245)] absolute right-[15px] text-xs top-[5px]">
           {votes > 0 && (votes === 1 ? "1 vote" : `${votes} votes`)}
         </span>
         <input
-          className="PollNode__optionInput"
+          className="flex flex-[1px] border-0 p-[7px] text-[rgb(61,135,245)] bg-transparent font-bold outline-0 z-0 placeholder:font-normal placeholder:text-[#999]"
           type="text"
           value={text}
           onChange={(e) => {
@@ -97,8 +99,15 @@ function PollOptionComponent({
         />
       </div>
       <button
+        type={"button"}
         disabled={options.length < 3}
-        className={joinClasses("PollNode__optionDelete", options.length < 3 && "PollNode__optionDeleteDisabled")}
+        className={cn(
+          "relative flex w-7 h-7 ml-1.5 border-0 bg-transparent bg-[6px_6px] bg-no-repeat z-0 cursor-pointer rounded opacity-30",
+          "before:absolute before:block before:content-[''] before:bg-[#999] before:w-0.5 before:h-[15px] before:top-1.5 before:left-[13px] before:-rotate-45",
+          "after:absolute after:block after:content-[''] after:bg-[#999] after:w-0.5 after:h-[15px] after:top-1.5 after:left-[13px] after:rotate-45",
+          "hover:opacity-100 hover:bg-[#eee]",
+          options.length < 3 && "cursor-not-allowed hover:opacity-30 hover:bg-transparent"
+        )}
         aria-label="Remove"
         onClick={() => {
           withPollNode((node) => {
@@ -171,9 +180,15 @@ export default function PollComponent({
   const isFocused = $isNodeSelection(selection) && isSelected;
 
   return (
-    <div className={`PollNode__container ${isFocused ? "focused" : ""}`} ref={ref}>
-      <div className="PollNode__inner">
-        <h2 className="PollNode__heading">{question}</h2>
+    <div
+      className={cn(
+        "border border-[#eee] bg-[#fcfcfc] rounded-[10px] max-w-[600px] min-w-[400px] cursor-pointer select-none",
+        isFocused && "outline outline-2 outline-[rgb(60,132,244)]"
+      )}
+      ref={ref}
+    >
+      <div className="m-[15px] cursor-default">
+        <h2 className="ml-0 mt-0 mr-0 mb-[15px] text-[#444] text-center text-lg">{question}</h2>
         {options.map((option, index) => {
           const key = option.uid;
           return (
@@ -187,7 +202,7 @@ export default function PollComponent({
             />
           );
         })}
-        <div className="PollNode__footer">
+        <div className="flex justify-center">
           <Button onClick={addOption} small={true}>
             Add Option
           </Button>

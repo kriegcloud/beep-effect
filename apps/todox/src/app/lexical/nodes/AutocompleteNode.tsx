@@ -24,24 +24,24 @@ export class AutocompleteNode extends TextNode {
    */
   readonly __uuid: string;
 
-  static clone(node: AutocompleteNode): AutocompleteNode {
+  static override clone(node: AutocompleteNode): AutocompleteNode {
     return new AutocompleteNode(node.__text, node.__uuid, node.__key);
   }
 
-  static getType(): "autocomplete" {
+  static override getType(): "autocomplete" {
     return "autocomplete";
   }
 
-  static importDOM() {
+  static override importDOM() {
     // Never import from DOM
     return null;
   }
 
-  static importJSON(serializedNode: SerializedAutocompleteNode): AutocompleteNode {
+  static override importJSON(serializedNode: SerializedAutocompleteNode): AutocompleteNode {
     return $createAutocompleteNode(serializedNode.text, serializedNode.uuid).updateFromJSON(serializedNode);
   }
 
-  exportJSON(): SerializedAutocompleteNode {
+  override exportJSON(): SerializedAutocompleteNode {
     return {
       ...super.exportJSON(),
       uuid: this.__uuid,
@@ -53,11 +53,11 @@ export class AutocompleteNode extends TextNode {
     this.__uuid = uuid;
   }
 
-  updateDOM(prevNode: this, dom: HTMLElement, config: EditorConfig): boolean {
+  override updateDOM(prevNode: this, dom: HTMLElement, config: EditorConfig): boolean {
     return false;
   }
 
-  exportDOM(_: LexicalEditor): DOMExportOutput {
+  override exportDOM(_: LexicalEditor): DOMExportOutput {
     return { element: null };
   }
 
@@ -65,7 +65,7 @@ export class AutocompleteNode extends TextNode {
     return true;
   }
 
-  createDOM(config: EditorConfig): HTMLElement {
+  override createDOM(config: EditorConfig): HTMLElement {
     const dom = super.createDOM(config);
     dom.classList.add(config.theme.autocomplete);
     if (this.__uuid !== UUID) {

@@ -25,15 +25,15 @@ export function $convertCollapsibleContentElement(domNode: HTMLElement): DOMConv
 }
 
 export class CollapsibleContentNode extends ElementNode {
-  static getType(): string {
+  static override getType(): string {
     return "collapsible-content";
   }
 
-  static clone(node: CollapsibleContentNode): CollapsibleContentNode {
+  static override clone(node: CollapsibleContentNode): CollapsibleContentNode {
     return new CollapsibleContentNode(node.__key);
   }
 
-  createDOM(config: EditorConfig, editor: LexicalEditor): HTMLElement {
+  override createDOM(config: EditorConfig, editor: LexicalEditor): HTMLElement {
     const dom = document.createElement("div");
     dom.classList.add("Collapsible__content");
     if (IS_CHROME) {
@@ -61,11 +61,11 @@ export class CollapsibleContentNode extends ElementNode {
     return dom;
   }
 
-  updateDOM(prevNode: this, dom: HTMLElement): boolean {
+  override updateDOM(prevNode: this, dom: HTMLElement): boolean {
     return false;
   }
 
-  static importDOM(): DOMConversionMap | null {
+  static override importDOM(): DOMConversionMap | null {
     return {
       div: (domNode: HTMLElement) => {
         if (!domNode.hasAttribute("data-lexical-collapsible-content")) {
@@ -79,18 +79,18 @@ export class CollapsibleContentNode extends ElementNode {
     };
   }
 
-  exportDOM(): DOMExportOutput {
+  override exportDOM(): DOMExportOutput {
     const element = document.createElement("div");
     element.classList.add("Collapsible__content");
     element.setAttribute("data-lexical-collapsible-content", "true");
     return { element };
   }
 
-  static importJSON(serializedNode: SerializedCollapsibleContentNode): CollapsibleContentNode {
+  static override importJSON(serializedNode: SerializedCollapsibleContentNode): CollapsibleContentNode {
     return $createCollapsibleContentNode().updateFromJSON(serializedNode);
   }
 
-  isShadowRoot(): boolean {
+  override isShadowRoot(): boolean {
     return true;
   }
 }

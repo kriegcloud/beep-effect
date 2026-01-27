@@ -1,13 +1,11 @@
 "use client";
 
-import type { JSX } from "react";
-
-import "./ColorPicker.css";
+import { cn } from "@beep/todox/lib/utils";
 
 import { calculateZoomLevel } from "@lexical/utils";
 import type * as React from "react";
+import type { JSX } from "react";
 import { useMemo, useRef, useState } from "react";
-
 import { isKeyboardInput } from "../utils/focusUtils";
 import TextInput from "./TextInput";
 
@@ -109,12 +107,16 @@ export default function ColorPicker({ color, onChange }: Readonly<ColorPickerPro
   };
 
   return (
-    <div className="color-picker-wrapper" style={{ width: WIDTH }} ref={innerDivRef}>
+    <div className="p-5 bg-white text-black" style={{ width: WIDTH }} ref={innerDivRef}>
       <TextInput label="Hex" onChange={onSetHex} value={inputColor} />
-      <div className="color-picker-basic-color">
+      <div className="flex flex-wrap gap-2.5 m-0 p-0">
         {basicColors.map((basicColor) => (
           <button
-            className={basicColor === selfColor.hex ? " active" : ""}
+            type="button"
+            className={cn(
+              "border border-gray-300 rounded h-4 w-4 cursor-pointer",
+              basicColor === selfColor.hex && "shadow-[0px_0px_2px_2px_rgba(0,0,0,0.3)]"
+            )}
             key={basicColor}
             style={{ backgroundColor: basicColor }}
             onClick={(e) => onBasicColorClick(e, basicColor)}
@@ -122,12 +124,15 @@ export default function ColorPicker({ color, onChange }: Readonly<ColorPickerPro
         ))}
       </div>
       <MoveWrapper
-        className="color-picker-saturation"
-        style={{ backgroundColor: `hsl(${selfColor.hsv.h}, 100%, 50%)` }}
+        className="w-full relative mt-4 h-[150px] select-none"
+        style={{
+          backgroundColor: `hsl(${selfColor.hsv.h}, 100%, 50%)`,
+          backgroundImage: "linear-gradient(transparent, black), linear-gradient(to right, white, transparent)",
+        }}
         onChange={onMoveSaturation}
       >
         <div
-          className="color-picker-saturation_cursor"
+          className="absolute w-5 h-5 border-2 border-white rounded-full shadow-[0_0_15px_rgba(0,0,0,0.15)] box-border -translate-x-2.5 -translate-y-2.5"
           style={{
             backgroundColor: selfColor.hex,
             left: saturationPosition.x,
@@ -135,16 +140,23 @@ export default function ColorPicker({ color, onChange }: Readonly<ColorPickerPro
           }}
         />
       </MoveWrapper>
-      <MoveWrapper className="color-picker-hue" onChange={onMoveHue}>
+      <MoveWrapper
+        className="w-full relative mt-4 h-3 select-none rounded-xl"
+        style={{
+          backgroundImage:
+            "linear-gradient(to right, rgb(255, 0, 0), rgb(255, 255, 0), rgb(0, 255, 0), rgb(0, 255, 255), rgb(0, 0, 255), rgb(255, 0, 255), rgb(255, 0, 0))",
+        }}
+        onChange={onMoveHue}
+      >
         <div
-          className="color-picker-hue_cursor"
+          className="absolute w-5 h-5 border-2 border-white rounded-full shadow-[0_0_0_0.5px_rgba(0,0,0,0.2)] box-border -translate-x-2.5 -translate-y-1"
           style={{
             backgroundColor: `hsl(${selfColor.hsv.h}, 100%, 50%)`,
             left: huePosition.x,
           }}
         />
       </MoveWrapper>
-      <div className="color-picker-color" style={{ backgroundColor: selfColor.hex }} />
+      <div className="border border-gray-300 mt-4 w-full h-5" style={{ backgroundColor: selfColor.hex }} />
     </div>
   );
 }
@@ -263,15 +275,15 @@ export function toHex(value: string): string {
 function hex2rgb(hex: string): RGB {
   const rbgArr = (
     hex
-      .replace(/^#?([a-f\d])([a-f\d])([a-f\d])$/i, (m, r, g, b) => "#" + r + r + g + g + b + b)
+      .replace(/^#?([a-f\d])([a-f\d])([a-f\d])$/i, (m, r, g, b) => `#${r}${r}${g}${g}${b}${b}`)
       .substring(1)
       .match(/.{2}/g) || []
   ).map((x) => Number.parseInt(x, 16));
 
   return {
-    b: rbgArr[2],
-    g: rbgArr[1],
-    r: rbgArr[0],
+    b: rbgArr[2]!,
+    g: rbgArr[1]!,
+    r: rbgArr[0]!,
   };
 }
 
@@ -301,15 +313,15 @@ function hsv2rgb({ h, s, v }: HSV): RGB {
   const t = v * (1 - s * (1 - f));
   const index = i % 6;
 
-  const r = Math.round([v, q, p, p, t, v][index] * 255);
-  const g = Math.round([t, v, v, q, p, p][index] * 255);
-  const b = Math.round([p, p, t, v, v, q][index] * 255);
+  const r = Math.round([v, q, p, p, t, v][index]! * 255);
+  const g = Math.round([t, v, v, q, p, p][index]! * 255);
+  const b = Math.round([p, p, t, v, v, q][index]! * 255);
 
   return { b, g, r };
 }
 
 function rgb2hex({ b, g, r }: RGB): string {
-  return "#" + [r, g, b].map((x) => x.toString(16).padStart(2, "0")).join("");
+  return `#${[r, g, b].map((x) => x.toString(16).padStart(2, "0")).join("")}`;
 }
 
 function transformColor<M extends keyof Color, C extends Color[M]>(format: M, color: C): Color {

@@ -1,10 +1,6 @@
 "use client";
 
-import type { JSX } from "react";
-
-import "./FlashMessage.css";
-
-import type { ReactNode } from "react";
+import type { JSX, ReactNode } from "react";
 import { createPortal } from "react-dom";
 
 export interface FlashMessageProps {
@@ -13,8 +9,8 @@ export interface FlashMessageProps {
 
 export default function FlashMessage({ children }: FlashMessageProps): JSX.Element {
   return createPortal(
-    <div className="FlashMessage__overlay" role="dialog">
-      <p className="FlashMessage__alert" role="alert">
+    <div className="flex justify-center items-center fixed inset-0 pointer-events-none z-50" role="dialog">
+      <p className="bg-black/80 text-white text-2xl rounded-2xl py-2 px-6" role="alert">
         {children}
       </p>
     </div>,

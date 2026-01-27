@@ -70,7 +70,7 @@ export const urlSearchParamSSR = <A = never, I extends string = never>(
           name,
           O.getOrElse(encoded, () => "")
         );
-        value = O.zipRight(encoded, value);
+        value = O.andThen(encoded, value);
       } else {
         searchParamState.updates.set(name, value);
       }

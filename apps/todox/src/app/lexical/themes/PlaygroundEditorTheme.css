@@ -350,7 +350,7 @@
   cursor: pointer;
 }
 .PlaygroundEditorTheme__tableAddColumns:after {
-  background-image: url(../images/icons/plus.svg);
+  background-image: url(/lexical/images/icons/plus.svg);
   background-size: contain;
   background-position: center;
   background-repeat: no-repeat;
@@ -376,7 +376,7 @@
   cursor: pointer;
 }
 .PlaygroundEditorTheme__tableAddRows:after {
-  background-image: url(../images/icons/plus.svg);
+  background-image: url(/lexical/images/icons/plus.svg);
   background-size: contain;
   background-position: center;
   background-repeat: no-repeat;
@@ -691,4 +691,105 @@
   margin-right: 8px;
   background-repeat: no-repeat;
   background-size: contain;
+}
+
+/* Collapsible Node Styles */
+.Collapsible__container {
+  background: #fcfcfc;
+  border: 1px solid #eee;
+  border-radius: 10px;
+  margin-bottom: 8px;
+}
+
+.Collapsible__title {
+  cursor: pointer;
+  padding: 5px 5px 5px 20px;
+  position: relative;
+  font-weight: bold;
+  list-style: none;
+  outline: none;
+}
+
+.Collapsible__title::marker,
+.Collapsible__title::-webkit-details-marker {
+  display: none;
+}
+
+.Collapsible__title:before {
+  border-style: solid;
+  border-color: transparent;
+  border-width: 4px 6px 4px 6px;
+  border-left-color: #000;
+  display: block;
+  content: '';
+  position: absolute;
+  left: 7px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.Collapsible__container[open] > .Collapsible__title:before {
+  border-color: transparent;
+  border-width: 6px 4px 0 4px;
+  border-top-color: #000;
+}
+
+.Collapsible__content {
+  padding: 0 5px 5px 20px;
+}
+
+.Collapsible__collapsed .Collapsible__content {
+  display: none;
+  user-select: none;
+}
+
+/* Page Break Node Styles */
+[type='page-break'] {
+  position: relative;
+  display: block;
+  width: calc(100% + var(--editor-input-padding, 28px) * 2);
+  overflow: unset;
+  margin-left: calc(var(--editor-input-padding, 28px) * -1);
+  margin-top: var(--editor-input-padding, 28px);
+  margin-bottom: var(--editor-input-padding, 28px);
+  border: none;
+  border-top: 1px dashed var(--editor-color-secondary, #eeeeee);
+  border-bottom: 1px dashed var(--editor-color-secondary, #eeeeee);
+  background-color: var(--editor-color-secondary, #eeeeee);
+}
+
+[type='page-break']::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: calc(var(--editor-input-padding, 28px) + 12px);
+  transform: translateY(-50%);
+  opacity: 0.5;
+  background-size: cover;
+  background-image: url(/lexical/images/icons/scissors.svg);
+  width: 16px;
+  height: 16px;
+}
+
+[type='page-break']::after {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: block;
+  padding: 2px 6px;
+  border: 1px solid #ccc;
+  background-color: #fff;
+  content: 'PAGE BREAK';
+  font-size: 12px;
+  color: #000;
+  font-weight: 600;
+}
+
+.selected[type='page-break'] {
+  border-color: var(--editor-color-primary, #4766cb);
+}
+
+.selected[type='page-break']::before {
+  opacity: 1;
 }

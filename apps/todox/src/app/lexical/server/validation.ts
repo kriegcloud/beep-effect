@@ -1,8 +1,8 @@
+import * as http from "node:http";
+import * as url from "node:url";
 import { createHeadlessEditor } from "@lexical/headless";
 import { $isMarkNode, $unwrapMarkNode } from "@lexical/mark";
-import * as http from "http";
 import { $getRoot, $isElementNode, type LexicalNode } from "lexical";
-import * as url from "url";
 
 import PlaygroundNodes from "../nodes/PlaygroundNodes";
 
@@ -11,10 +11,12 @@ const port = 1235;
 
 let stringifiedEditorStateJSON = "";
 
-global.__DEV__ = true;
+(globalThis as { __DEV__?: boolean }).__DEV__ = true;
 
+// @ts-expect-error - Type incompatibility between lexical and @lexical/headless due to nested dependencies
 const editor = createHeadlessEditor({
   namespace: "validation",
+  // @ts-expect-error - PlaygroundNodes array type incompatible with headless editor's node config type
   nodes: [...PlaygroundNodes],
   onError: (error) => {
     console.error(error);
@@ -32,7 +34,6 @@ const getJSONData = (req: http.IncomingMessage): Promise<string> => {
         resolve(Buffer.concat(body).toString());
       })
       .on("error", (error: Error) => {
-        // eslint-disable-next-line no-console
         console.log(error);
       });
   });
@@ -67,12 +68,10 @@ const validateEditorState = async (stringifiedJSON: string): Promise<boolean> =>
   const assertion = JSON.stringify(editor.getEditorState().toJSON());
   const success = assertion === stringifiedEditorStateJSON;
   if (success) {
-    // eslint-disable-next-line no-console
     console.log("Editor state updated successfully.");
     editor.setEditorState(nextEditorState);
     stringifiedEditorStateJSON = assertion;
   } else {
-    // eslint-disable-next-line no-console
     console.log("Editor state was rejected!");
     editor.setEditorState(prevEditorState);
   }
@@ -115,6 +114,5 @@ const server = http.createServer(async (req, res) => {
 });
 
 server.listen(port, hostname, () => {
-  // eslint-disable-next-line no-console
   console.log(`Read-only validation server running at http://${hostname}:${port}/`);
 });

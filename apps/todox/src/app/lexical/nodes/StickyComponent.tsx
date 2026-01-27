@@ -1,10 +1,5 @@
 "use client";
 
-import type { LexicalEditor, NodeKey } from "lexical";
-import type { JSX } from "react";
-
-import "./StickyNode.css";
-
 import { useCollaborationContext } from "@lexical/react/LexicalCollaborationContext";
 import { CollaborationPlugin } from "@lexical/react/LexicalCollaborationPlugin";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
@@ -13,8 +8,10 @@ import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
 import { LexicalNestedComposer } from "@lexical/react/LexicalNestedComposer";
 import { PlainTextPlugin } from "@lexical/react/LexicalPlainTextPlugin";
 import { calculateZoomLevel } from "@lexical/utils";
+import type { LexicalEditor, NodeKey } from "lexical";
 import { $getNodeByKey } from "lexical";
-import * as React from "react";
+import type { JSX } from "react";
+
 import { useEffect, useLayoutEffect, useRef } from "react";
 
 import { createWebsocketProvider } from "../collaboration";
@@ -24,12 +21,12 @@ import ContentEditable from "../ui/ContentEditable";
 import { $isStickyNode } from "./StickyNode";
 
 type Positioning = {
-  readonly isDragging: boolean;
-  readonly offsetX: number;
-  readonly offsetY: number;
-  readonly rootElementRect: null | ClientRect;
-  readonly x: number;
-  readonly y: number;
+  isDragging: boolean;
+  offsetX: number;
+  offsetY: number;
+  rootElementRect: null | ClientRect;
+  x: number;
+  y: number;
 };
 
 function positionSticky(stickyElem: HTMLElement, positioning: Positioning): void {
@@ -37,8 +34,8 @@ function positionSticky(stickyElem: HTMLElement, positioning: Positioning): void
   const rootElementRect = positioning.rootElementRect;
   const rectLeft = rootElementRect !== null ? rootElementRect.left : 0;
   const rectTop = rootElementRect !== null ? rootElementRect.top : 0;
-  style.top = rectTop + positioning.y + "px";
-  style.left = rectLeft + positioning.x + "px";
+  style.top = `${rectTop + positioning.y}px`;
+  style.left = `${rectLeft + positioning.x}px`;
 }
 
 export default function StickyComponent({
@@ -81,7 +78,7 @@ export default function StickyComponent({
     const position = positioningRef.current;
     const resizeObserver = new ResizeObserver((entries) => {
       for (let i = 0; i < entries.length; i++) {
-        const entry = entries[i];
+        const entry = entries[i]!;
         const { target } = entry;
         position.rootElementRect = target.getBoundingClientRect();
         const stickyContainer = stickyContainerRef.current;
@@ -202,10 +199,16 @@ export default function StickyComponent({
           }
         }}
       >
-        <button onClick={handleDelete} className="delete" aria-label="Delete sticky note" title="Delete">
+        <button type="button" onClick={handleDelete} className="delete" aria-label="Delete sticky note" title="Delete">
           X
         </button>
-        <button onClick={handleColorChange} className="color" aria-label="Change sticky note color" title="Color">
+        <button
+          type="button"
+          onClick={handleColorChange}
+          className="color"
+          aria-label="Change sticky note color"
+          title="Color"
+        >
           <i className="bucket" />
         </button>
         <LexicalNestedComposer initialEditor={caption} initialTheme={StickyEditorTheme}>
@@ -222,8 +225,8 @@ export default function StickyComponent({
             contentEditable={
               <ContentEditable
                 placeholder="What's up?"
-                placeholderClassName="StickyNode__placeholder"
-                className="StickyNode__contentEditable"
+                placeholderClassName="text-2xl text-[#999] overflow-hidden absolute text-ellipsis top-[30px] left-5 w-[120px] select-none whitespace-nowrap inline-block pointer-events-none"
+                className="min-h-5 border-0 resize-none cursor-text text-2xl caret-[rgb(5,5,5)] block relative outline-0 p-2.5 select-text whitespace-pre-wrap break-words"
               />
             }
             ErrorBoundary={LexicalErrorBoundary}

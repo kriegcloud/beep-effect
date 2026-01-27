@@ -60,8 +60,8 @@ function $search(selection: null | BaseSelection): [boolean, string] {
   const word = [];
   const text = node.getTextContent();
   let i = node.getTextContentSize();
-  let c;
-  while (i-- && i >= 0 && (c = text[i]) !== " ") {
+  let c: string | undefined;
+  while (i-- && i >= 0 && (c = text[i]) !== undefined && c !== " ") {
     word.push(c);
   }
   if (word.length === 0) {
@@ -102,7 +102,7 @@ export default function AutocompletePlugin(): JSX.Element | null {
     let prevNodeFormat = 0;
     function $clearSuggestion() {
       const autocompleteNode = autocompleteNodeKey !== null ? $getNodeByKey(autocompleteNodeKey) : null;
-      if (autocompleteNode !== null && autocompleteNode.isAttached()) {
+      if (autocompleteNode?.isAttached()) {
         autocompleteNode.remove();
         autocompleteNodeKey = null;
       }

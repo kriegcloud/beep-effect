@@ -1,23 +1,18 @@
 "use client";
 
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@beep/todox/components/ui/dialog";
+import { Excalidraw } from "@excalidraw/excalidraw";
 import type {
   AppState,
   BinaryFiles,
   ExcalidrawImperativeAPI,
   ExcalidrawInitialDataState,
 } from "@excalidraw/excalidraw/types";
-import type { JSX } from "react";
-
-import "./ExcalidrawModal.css";
-
-import { Excalidraw } from "@excalidraw/excalidraw";
 import { isDOMNode } from "lexical";
-import * as React from "react";
+import type { JSX } from "react";
 import { type ReactPortal, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-
 import Button from "./Button";
-import Modal from "./Modal";
 
 export type ExcalidrawInitialElements = ExcalidrawInitialDataState["elements"];
 
@@ -149,32 +144,31 @@ export default function ExcalidrawModal({
 
   function ShowDiscardDialog(): JSX.Element {
     return (
-      <Modal
-        title="Discard"
-        onClose={() => {
-          setDiscardModalOpen(false);
-        }}
-        closeOnClickOutside={false}
-      >
-        Are you sure you want to discard the changes?
-        <div className="ExcalidrawModal__discardModal">
-          <Button
-            onClick={() => {
-              setDiscardModalOpen(false);
-              onClose();
-            }}
-          >
-            Discard
-          </Button>{" "}
-          <Button
-            onClick={() => {
-              setDiscardModalOpen(false);
-            }}
-          >
-            Cancel
-          </Button>
-        </div>
-      </Modal>
+      <Dialog open onOpenChange={(open) => !open && setDiscardModalOpen(false)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Discard</DialogTitle>
+          </DialogHeader>
+          <p>Are you sure you want to discard the changes?</p>
+          <div className="mt-[60px] text-center flex gap-2 justify-center">
+            <Button
+              onClick={() => {
+                setDiscardModalOpen(false);
+                onClose();
+              }}
+            >
+              Discard
+            </Button>
+            <Button
+              onClick={() => {
+                setDiscardModalOpen(false);
+              }}
+            >
+              Cancel
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     );
   }
 
@@ -188,9 +182,13 @@ export default function ExcalidrawModal({
   };
 
   return createPortal(
-    <div className="ExcalidrawModal__overlay" role="dialog">
-      <div className="ExcalidrawModal__modal" ref={excaliDrawModelRef} tabIndex={-1}>
-        <div className="ExcalidrawModal__row">
+    <div className="flex items-center fixed inset-0 flex-col shrink z-[100] bg-black/60" role="dialog">
+      <div
+        className="relative z-10 top-[50px] w-auto left-0 flex justify-center items-center rounded-lg bg-muted overflow-visible"
+        ref={excaliDrawModelRef}
+        tabIndex={-1}
+      >
+        <div className="relative p-[40px_5px_5px] w-[70vw] h-[70vh] rounded-lg shadow-xl [&>div]:rounded overflow-visible">
           {discardModalOpen && <ShowDiscardDialog />}
           <Excalidraw
             onChange={onChange}
@@ -201,11 +199,11 @@ export default function ExcalidrawModal({
               files: initialFiles,
             }}
           />
-          <div className="ExcalidrawModal__actions">
-            <button className="action-button" onClick={discard}>
+          <div className="text-end absolute right-1.5 top-1.5 z-[1] [&>button]:bg-background [&>button]:rounded [&>button]:px-2 [&>button]:py-1 [&>button]:mx-1">
+            <button type="button" onClick={discard}>
               Discard
             </button>
-            <button className="action-button" onClick={save}>
+            <button type="button" onClick={save}>
               Save
             </button>
           </div>

@@ -39,15 +39,15 @@ export class LayoutContainerNode extends ElementNode {
     this.__templateColumns = templateColumns;
   }
 
-  static getType(): string {
+  static override getType(): string {
     return "layout-container";
   }
 
-  static clone(node: LayoutContainerNode): LayoutContainerNode {
+  static override clone(node: LayoutContainerNode): LayoutContainerNode {
     return new LayoutContainerNode(node.__templateColumns, node.__key);
   }
 
-  createDOM(config: EditorConfig): HTMLElement {
+  override createDOM(config: EditorConfig): HTMLElement {
     const dom = document.createElement("div");
     dom.style.gridTemplateColumns = this.__templateColumns;
     if (typeof config.theme.layoutContainer === "string") {
@@ -56,21 +56,21 @@ export class LayoutContainerNode extends ElementNode {
     return dom;
   }
 
-  exportDOM(): DOMExportOutput {
+  override exportDOM(): DOMExportOutput {
     const element = document.createElement("div");
     element.style.gridTemplateColumns = this.__templateColumns;
     element.setAttribute("data-lexical-layout-container", "true");
     return { element };
   }
 
-  updateDOM(prevNode: this, dom: HTMLElement): boolean {
+  override updateDOM(prevNode: this, dom: HTMLElement): boolean {
     if (prevNode.__templateColumns !== this.__templateColumns) {
       dom.style.gridTemplateColumns = this.__templateColumns;
     }
     return false;
   }
 
-  static importDOM(): DOMConversionMap | null {
+  static override importDOM(): DOMConversionMap | null {
     return {
       div: (domNode: HTMLElement) => {
         if (!domNode.hasAttribute("data-lexical-layout-container")) {
@@ -84,23 +84,23 @@ export class LayoutContainerNode extends ElementNode {
     };
   }
 
-  static importJSON(json: SerializedLayoutContainerNode): LayoutContainerNode {
+  static override importJSON(json: SerializedLayoutContainerNode): LayoutContainerNode {
     return $createLayoutContainerNode().updateFromJSON(json);
   }
 
-  updateFromJSON(serializedNode: LexicalUpdateJSON<SerializedLayoutContainerNode>): this {
+  override updateFromJSON(serializedNode: LexicalUpdateJSON<SerializedLayoutContainerNode>): this {
     return super.updateFromJSON(serializedNode).setTemplateColumns(serializedNode.templateColumns);
   }
 
-  isShadowRoot(): boolean {
+  override isShadowRoot(): boolean {
     return true;
   }
 
-  canBeEmpty(): boolean {
+  override canBeEmpty(): boolean {
     return false;
   }
 
-  exportJSON(): SerializedLayoutContainerNode {
+  override exportJSON(): SerializedLayoutContainerNode {
     return {
       ...super.exportJSON(),
       templateColumns: this.__templateColumns,

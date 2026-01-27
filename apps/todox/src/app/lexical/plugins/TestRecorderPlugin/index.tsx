@@ -5,7 +5,6 @@ import { IS_APPLE } from "@lexical/utils";
 import type { BaseSelection, LexicalEditor } from "lexical";
 import { $createParagraphNode, $createTextNode, $getRoot, getDOMSelection } from "lexical";
 import type { JSX } from "react";
-import * as React from "react";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 
 const copy = (text: string | null) => {
@@ -18,7 +17,7 @@ const copy = (text: string | null) => {
   textArea.select();
   try {
     const result = document.execCommand("copy");
-    // eslint-disable-next-line no-console
+
     console.log(result);
   } catch (error) {
     console.error(error);
@@ -28,7 +27,7 @@ const copy = (text: string | null) => {
 
 const download = (filename: string, text: string | null) => {
   const a = document.createElement("a");
-  a.setAttribute("href", "data:text/plain;charset=utf-8," + encodeURIComponent(text || ""));
+  a.setAttribute("href", `data:text/plain;charset=utf-8,${encodeURIComponent(text || "")}`);
   a.setAttribute("download", filename);
   a.style.display = "none";
   document.body?.appendChild(a);
@@ -125,7 +124,7 @@ const keyPresses = new Set([
 ]);
 
 type Step = {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // biome-ignore lint/suspicious/noExplicitAny: Step values can be any type from editor events
   readonly value: any;
   readonly count: number;
   readonly name: string;
@@ -338,11 +337,11 @@ ${steps.map(formatStep).join(`\n`)}
     }
     const { anchorNode, anchorOffset, focusNode, focusOffset } = sanitizeSelection(browserSelection);
     const rootElement = getCurrentEditor().getRootElement();
-    let anchorPath;
+    let anchorPath: number[] = [];
     if (anchorNode !== null) {
       anchorPath = getPathFromNodeToEditor(anchorNode, rootElement);
     }
-    let focusPath;
+    let focusPath: number[] = [];
     if (focusNode !== null) {
       focusPath = getPathFromNodeToEditor(focusNode, rootElement);
     }
@@ -366,6 +365,7 @@ ${steps.map(formatStep).join(`\n`)}
 
   const button = (
     <button
+      type="button"
       id="test-recorder-button"
       className={`editor-dev-button ${isRecording ? "active" : ""}`}
       onClick={() => toggleEditorSelection(getCurrentEditor())}
@@ -376,18 +376,21 @@ ${steps.map(formatStep).join(`\n`)}
     <div className="test-recorder-output">
       <div className="test-recorder-toolbar">
         <button
+          type="button"
           className="test-recorder-button"
           id="test-recorder-button-snapshot"
           title="Insert snapshot"
           onClick={onSnapshotClick}
         />
         <button
+          type="button"
           className="test-recorder-button"
           id="test-recorder-button-copy"
           title="Copy to clipboard"
           onClick={onCopyClick}
         />
         <button
+          type="button"
           className="test-recorder-button"
           id="test-recorder-button-download"
           title="Download as a file"

@@ -7,7 +7,7 @@ import {
   useBasicTypeaheadTriggerMatch,
 } from "@lexical/react/LexicalTypeaheadMenuPlugin";
 import { $createTextNode, $getSelection, $isRangeSelection, type TextNode } from "lexical";
-import * as React from "react";
+
 import { useCallback, useEffect, useMemo, useState } from "react";
 import * as ReactDOM from "react-dom";
 
@@ -47,14 +47,14 @@ function EmojiMenuItem({
     className += " selected";
   }
   return (
+    // biome-ignore lint/a11y/useAriaPropsSupportedByRole: aria-selected valid in listbox context
     <li
       key={option.key}
       tabIndex={-1}
       className={className}
       ref={option.setRefElement}
-      role="option"
       aria-selected={isSelected}
-      id={"typeahead-item-" + index}
+      id={`typeahead-item-${index}`}
       onMouseEnter={onMouseEnter}
       onClick={onClick}
     >
@@ -92,7 +92,7 @@ export default function EmojiPickerPlugin() {
       emojis != null
         ? emojis.map(
             ({ emoji, aliases, tags }) =>
-              new EmojiOption(aliases[0], emoji, {
+              new EmojiOption(aliases[0]!, emoji, {
                 keywords: [...aliases, ...tags],
               })
           )

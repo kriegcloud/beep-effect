@@ -2,13 +2,12 @@
 
 import type { ElementFormatType } from "lexical";
 import type { JSX } from "react";
-import React, { createContext, type ReactNode, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, type ReactNode, useCallback, useContext, useEffect, useMemo, useState } from "react";
 
 export const MIN_ALLOWED_FONT_SIZE = 8;
 export const MAX_ALLOWED_FONT_SIZE = 72;
 export const DEFAULT_FONT_SIZE = 15;
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const rootTypeToRootName = {
   root: "Root",
   table: "Table",
@@ -29,8 +28,6 @@ export const blockTypeToBlockName = {
   quote: "Quote",
 };
 
-//disable eslint sorting rule for quick reference to toolbar state
-/* eslint-disable sort-keys-fix/sort-keys-fix */
 const INITIAL_TOOLBAR_STATE = {
   bgColor: "#fff",
   blockType: "paragraph" as keyof typeof blockTypeToBlockName,

@@ -1,8 +1,10 @@
 "use client";
 
+import { Label } from "@beep/todox/components/ui/label";
+import { Switch as ShadcnSwitch } from "@beep/todox/components/ui/switch";
 import type * as React from "react";
 import type { JSX } from "react";
-import { useMemo } from "react";
+import { useId } from "react";
 
 export default function Switch({
   checked,
@@ -15,13 +17,22 @@ export default function Switch({
   readonly onClick: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
   readonly text: string;
 }>): JSX.Element {
-  const buttonId = useMemo(() => "id_" + Math.floor(Math.random() * 10000), []);
+  const generatedId = useId();
+  const buttonId = id || generatedId;
+
   return (
-    <div className="switch" id={id}>
-      <label htmlFor={buttonId}>{text}</label>
-      <button role="switch" aria-checked={checked} id={buttonId} onClick={onClick}>
-        <span />
-      </button>
+    <div className="flex items-center justify-between gap-3 py-1">
+      <Label htmlFor={buttonId} className="text-sm cursor-pointer">
+        {text}
+      </Label>
+      <ShadcnSwitch
+        id={buttonId}
+        checked={checked}
+        onCheckedChange={() => {
+          // Create a synthetic mouse event to maintain API compatibility
+          onClick({} as React.MouseEvent<HTMLButtonElement, MouseEvent>);
+        }}
+      />
     </div>
   );
 }

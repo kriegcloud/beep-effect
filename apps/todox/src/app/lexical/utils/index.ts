@@ -19,8 +19,6 @@ export { getDOMRangeRect } from "./getDOMRangeRect";
 export { getSelectedNode } from "./getSelectedNode";
 // Theme utilities
 export { getThemeSelector } from "./getThemeSelector";
-// Class joining
-export { default as joinClasses } from "./joinClasses";
 export { setFloatingElemPosition } from "./setFloatingElemPosition";
 export { setFloatingElemPositionForLinkEditor } from "./setFloatingElemPositionForLinkEditor";
 // Swipe gesture listeners

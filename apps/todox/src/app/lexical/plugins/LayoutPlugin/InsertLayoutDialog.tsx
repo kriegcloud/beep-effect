@@ -1,31 +1,13 @@
-/ **adelnory * Copyright(c);
-Meta;
-Platforms, Inc.and;
-affiliates.
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
- * This
-source;
-code;
-is;
-licensed;
-under;
-the;
-MIT;
-license;
-found in the * LICENSE;
-file in the;
-root;
-directory;
-of;
-this;
-source;
-tree.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  *
  */
 
 import type { LexicalEditor } from "lexical";
 import type { JSX } from "react";
-import * as React from "react";
 import { useState } from "react";
 
 import Button from "../../ui/Button";
@@ -47,8 +29,8 @@ export default function InsertLayoutDialog({
   readonly activeEditor: LexicalEditor;
   readonly onClose: () => void;
 }): JSX.Element {
-  const [layout, setLayout] = useState(LAYOUTS[0].value);
-  const buttonLabel = LAYOUTS.find((item) => item.value === layout)?.label;
+  const [layout, setLayout] = useState(LAYOUTS[0]!.value);
+  const buttonLabel = LAYOUTS.find((item) => item.value === layout)?.label ?? "Select Layout";
 
   const onClick = () => {
     activeEditor.dispatchCommand(INSERT_LAYOUT_COMMAND, layout);

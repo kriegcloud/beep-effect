@@ -1,6 +1,7 @@
 "use client";
-import "./index.css";
 
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@beep/todox/components/ui/dialog";
+import { cn } from "@beep/todox/lib/utils";
 import { useCollaborationContext } from "@lexical/react/LexicalCollaborationContext";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { mergeRegister } from "@lexical/utils";
@@ -17,12 +18,9 @@ import {
   type LexicalCommand,
   TextNode,
 } from "lexical";
-import _ from "lodash";
 import { useCallback, useEffect, useState } from "react";
 import { snapshot as createSnapshot, PermanentUserData, type Snapshot, XmlElement } from "yjs";
-
 import Button from "../../ui/Button";
-import Modal from "../../ui/Modal";
 
 interface Version {
   readonly name: string;
@@ -116,7 +114,7 @@ export function VersionsPlugin({ id }: { id: string }) {
           if (userToColor.has(user)) {
             return userToColor.get(user)!;
           }
-          const color = COLORS[userToColor.size % COLORS.length];
+          const color = COLORS[userToColor.size % COLORS.length]!;
           userToColor.set(user, color);
           return color;
         };
@@ -199,57 +197,71 @@ function VersionsModal({
   const [selectedVersion, setSelectedVersion] = useState<number | null>(null);
 
   return (
-    <Modal onClose={onClose} title="Version History">
-      <div className="VersionsPlugin_Container">
-        <div className="VersionsPlugin_Header">
-          <Button onClick={onAddVersion}>+ Add snapshot</Button>
-          {isDiffMode && (
-            <Button
-              onClick={() => {
-                editor.dispatchCommand(CLEAR_DIFF_VERSIONS_COMMAND__EXPERIMENTAL, undefined);
-                onClose();
-              }}
-            >
-              Exit compare view
-            </Button>
-          )}
-        </div>
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle>Version History</DialogTitle>
+        </DialogHeader>
+        <div className="flex flex-col gap-4 min-w-[320px]">
+          <div className="flex items-center justify-between">
+            <Button onClick={onAddVersion}>+ Add snapshot</Button>
+            {isDiffMode && (
+              <Button
+                onClick={() => {
+                  editor.dispatchCommand(CLEAR_DIFF_VERSIONS_COMMAND__EXPERIMENTAL, undefined);
+                  onClose();
+                }}
+              >
+                Exit compare view
+              </Button>
+            )}
+          </div>
 
-        {/* Version list */}
-        <div className="VersionsPlugin_VersionList">
-          {versions.length === 0 ? (
-            <button className="VersionsPlugin_VersionItem" disabled={true}>
-              Add a snapshot to get started
-            </button>
-          ) : (
-            versions.map((version, idx) => {
-              const isSelected = selectedVersion === idx;
+          {/* Version list */}
+          <div className="border border-border rounded max-h-[300px] overflow-y-auto">
+            {versions.length === 0 ? (
+              <button
+                type="button"
+                className="flex items-center justify-between bg-background border-none border-b border-border cursor-default text-muted-foreground italic py-3 px-4 w-full"
+                disabled={true}
+              >
+                Add a snapshot to get started
+              </button>
+            ) : (
+              versions.map((version, idx) => {
+                const isSelected = selectedVersion === idx;
 
-              return (
-                <button
-                  key={version.name}
-                  onClick={() => setSelectedVersion(idx)}
-                  className={`VersionsPlugin_VersionItem ${isSelected ? "VersionsPlugin_VersionItem--selected" : ""}`}
-                >
-                  Snapshot at {new Date(version.timestamp).toLocaleString()}
-                </button>
-              );
-            })
-          )}
+                return (
+                  <button
+                    type="button"
+                    key={version.name}
+                    onClick={() => setSelectedVersion(idx)}
+                    className={cn(
+                      "flex items-center justify-between bg-background border-none border-b border-border cursor-pointer py-3 px-4 w-full",
+                      "hover:bg-muted disabled:text-muted-foreground disabled:italic disabled:cursor-default",
+                      isSelected && "bg-blue-100 dark:bg-blue-900/30"
+                    )}
+                  >
+                    Snapshot at {new Date(version.timestamp).toLocaleString()}
+                  </button>
+                );
+              })
+            )}
+          </div>
+          <Button
+            onClick={() => {
+              editor.dispatchCommand(DIFF_VERSIONS_COMMAND__EXPERIMENTAL, {
+                prevSnapshot: versions[selectedVersion!]!.snapshot,
+              });
+              onClose();
+            }}
+            disabled={selectedVersion === null}
+            className="self-center"
+          >
+            Show changes since selected version
+          </Button>
         </div>
-        <Button
-          onClick={() => {
-            editor.dispatchCommand(DIFF_VERSIONS_COMMAND__EXPERIMENTAL, {
-              prevSnapshot: versions[selectedVersion!].snapshot,
-            });
-            onClose();
-          }}
-          disabled={selectedVersion === null}
-          className="VersionsPlugin_CompareButton"
-        >
-          Show changes since selected version
-        </Button>
-      </div>
-    </Modal>
+      </DialogContent>
+    </Dialog>
   );
 }

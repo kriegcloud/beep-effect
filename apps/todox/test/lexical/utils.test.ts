@@ -1,7 +1,7 @@
 import { effect, strictEqual } from "@beep/testkit";
 import * as Effect from "effect/Effect";
 
-import { docFromHash, docToHash, joinClasses, sanitizeUrl, validateUrl } from "../../src/app/lexical/utils";
+import { docFromHash, docToHash, sanitizeUrl, validateUrl } from "../../src/app/lexical/utils";
 
 // ============================================
 // docSerialization tests
@@ -84,30 +84,5 @@ effect("validateUrl returns true for https:// placeholder", () =>
 effect("validateUrl returns false for invalid URL", () =>
   Effect.sync(() => {
     strictEqual(validateUrl("not a url"), false);
-  })
-);
-
-// ============================================
-// joinClasses tests
-// ============================================
-
-effect("joinClasses filters out falsy values", () =>
-  Effect.sync(() => {
-    const result = joinClasses("a", false, "b", null, "c", undefined);
-    strictEqual(result, "a b c");
-  })
-);
-
-effect("joinClasses returns empty string for all falsy", () =>
-  Effect.sync(() => {
-    const result = joinClasses(false, null, undefined);
-    strictEqual(result, "");
-  })
-);
-
-effect("joinClasses handles single class", () =>
-  Effect.sync(() => {
-    const result = joinClasses("single");
-    strictEqual(result, "single");
   })
 );

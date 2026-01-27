@@ -3,7 +3,6 @@
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { COMMAND_PRIORITY_NORMAL, PASTE_COMMAND } from "lexical";
 import type { JSX } from "react";
-import * as React from "react";
 import { useEffect, useState } from "react";
 
 export default function PasteLogPlugin(): JSX.Element {
@@ -17,7 +16,7 @@ export default function PasteLogPlugin(): JSX.Element {
         (e: ClipboardEvent) => {
           const { clipboardData } = e;
           const allData: string[] = [];
-          if (clipboardData && clipboardData.types) {
+          if (clipboardData?.types) {
             clipboardData.types.forEach((type) => {
               allData.push(type.toUpperCase(), clipboardData.getData(type));
             });
@@ -32,6 +31,7 @@ export default function PasteLogPlugin(): JSX.Element {
   return (
     <>
       <button
+        type="button"
         id="paste-log-button"
         className={`editor-dev-button ${isActive ? "active" : ""}`}
         onClick={() => {

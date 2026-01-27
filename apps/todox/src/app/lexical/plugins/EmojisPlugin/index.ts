@@ -19,16 +19,20 @@ function $findAndTransformEmoji(node: TextNode): null | TextNode {
   const text = node.getTextContent();
 
   for (let i = 0; i < text.length; i++) {
-    const emojiData = emojis.get(text[i]) || emojis.get(text.slice(i, i + 2));
+    const emojiData = emojis.get(text[i]!) || emojis.get(text.slice(i, i + 2));
 
     if (emojiData !== undefined) {
       const [emojiStyle, emojiText] = emojiData;
-      let targetNode;
+      let targetNode: TextNode | undefined;
 
       if (i === 0) {
         [targetNode] = node.splitText(i + 2);
       } else {
         [, targetNode] = node.splitText(i, i + 2);
+      }
+
+      if (targetNode === undefined) {
+        return null;
       }
 
       const emojiNode = $createEmojiNode(emojiStyle, emojiText);

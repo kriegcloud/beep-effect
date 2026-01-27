@@ -10,7 +10,7 @@ import {
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import type { LexicalEditor } from "lexical";
 import type { JSX } from "react";
-import * as React from "react";
+
 import { useMemo, useState } from "react";
 import * as ReactDOM from "react-dom";
 
@@ -56,7 +56,7 @@ export const YoutubeEmbedConfig: PlaygroundEmbedConfig = {
   parseUrl: async (url: string) => {
     const match = /^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/.exec(url);
 
-    const id = match ? (match?.[2].length === 11 ? match[2] : null) : null;
+    const id = match ? (match?.[2]?.length === 11 ? match[2] : null) : null;
 
     if (id != null) {
       return {
@@ -94,8 +94,8 @@ export const TwitterEmbedConfig: PlaygroundEmbedConfig = {
 
     if (match != null) {
       return {
-        id: match[5],
-        url: match[1],
+        id: match[5]!,
+        url: match[1]!,
       };
     }
 
@@ -124,8 +124,8 @@ export const FigmaEmbedConfig: PlaygroundEmbedConfig = {
 
     if (match != null) {
       return {
-        id: match[3],
-        url: match[0],
+        id: match[3]!,
+        url: match[0]!,
       };
     }
 
@@ -155,14 +155,14 @@ function AutoEmbedMenuItem({
     className += " selected";
   }
   return (
+    // biome-ignore lint/a11y/useAriaPropsSupportedByRole: aria-selected valid in listbox context
     <li
       key={option.key}
       tabIndex={-1}
       className={className}
       ref={option.setRefElement}
-      role="option"
       aria-selected={isSelected}
-      id={"typeahead-item-" + index}
+      id={`typeahead-item-${index}`}
       onMouseEnter={onMouseEnter}
       onClick={onClick}
     >

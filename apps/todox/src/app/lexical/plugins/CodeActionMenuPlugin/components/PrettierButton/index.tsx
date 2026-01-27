@@ -1,5 +1,4 @@
 "use client";
-import "./index.css";
 
 import { $isCodeNode } from "@lexical/code";
 import { $getNearestNodeFromDOMNode, type LexicalEditor } from "lexical";
@@ -119,17 +118,24 @@ export function PrettierButton({ lang, editor, getCodeDOMNode }: Props) {
   }
 
   return (
-    <div className="prettier-wrapper">
+    <div className="relative">
       <button
-        className="menu-item"
+        type="button"
+        className="border border-transparent rounded p-1 bg-transparent cursor-pointer shrink-0 flex items-center text-foreground/50 uppercase hover:border-foreground/30 hover:opacity-90 active:bg-accent/30 active:border-foreground/45"
         onClick={handleClick}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
         aria-label="prettier"
       >
-        {syntaxError ? <i className="format prettier-error" /> : <i className="format prettier" />}
+        {syntaxError ? (
+          <i className="format prettier-error h-4 w-4 opacity-60 flex text-foreground/50 bg-contain" />
+        ) : (
+          <i className="format prettier h-4 w-4 opacity-60 flex text-foreground/50 bg-contain" />
+        )}
       </button>
-      {tipsVisible ? <pre className="code-error-tips">{syntaxError}</pre> : null}
+      {tipsVisible ? (
+        <pre className="p-1.5 rounded text-white bg-zinc-800 mt-1 absolute top-[26px] right-0">{syntaxError}</pre>
+      ) : null}
     </div>
   );
 }

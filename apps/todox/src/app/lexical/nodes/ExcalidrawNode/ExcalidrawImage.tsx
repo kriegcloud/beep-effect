@@ -60,8 +60,8 @@ const removeStyleFromSvg_HACK = (svg: SVGElement) => {
   const viewBox = svg.getAttribute("viewBox");
   if (viewBox != null) {
     const viewBoxDimensions = viewBox.split(" ");
-    svg.setAttribute("width", viewBoxDimensions[2]);
-    svg.setAttribute("height", viewBoxDimensions[3]);
+    svg.setAttribute("width", viewBoxDimensions[2]!);
+    svg.setAttribute("height", viewBoxDimensions[3]!);
   }
 
   if (styleTag && styleTag.tagName === "style") {

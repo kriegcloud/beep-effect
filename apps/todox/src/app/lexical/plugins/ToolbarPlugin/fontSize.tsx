@@ -1,10 +1,8 @@
 "use client";
 
-import "./fontSize.css";
-
+import { cn } from "@beep/todox/lib/utils";
 import type { LexicalEditor } from "lexical";
 import * as React from "react";
-
 import { MAX_ALLOWED_FONT_SIZE, MIN_ALLOWED_FONT_SIZE } from "../../context/ToolbarContext";
 import { isKeyboardInput } from "../../utils/focusUtils";
 import { SHORTCUTS } from "../ShortcutsPlugin/shortcuts";
@@ -12,7 +10,7 @@ import { UpdateFontSizeType, updateFontSize, updateFontSizeInSelection } from ".
 
 function parseFontSize(input: string): [number, string] | null {
   const match = input.match(/^(\d+(?:\.\d+)?)(px|pt)$/);
-  return match ? [Number(match[1]), match[2]] : null;
+  return match ? [Number(match[1]), match[2]!] : null;
 }
 
 function normalizeToPx(fontSize: number, unit: string): number {
@@ -64,7 +62,7 @@ export default function FontSize({
     if (e.key === "Tab") {
       return;
     }
-    if (["e", "E", "+", "-"].includes(e.key) || isNaN(inputValueNumber)) {
+    if (["e", "E", "+", "-"].includes(e.key) || Number.isNaN(inputValueNumber)) {
       e.preventDefault();
       setInputValue("");
       return;
@@ -99,7 +97,7 @@ export default function FontSize({
     }
 
     setInputValue(String(updatedFontSize));
-    updateFontSizeInSelection(editor, String(updatedFontSize) + "px", null, skipRefocus);
+    updateFontSizeInSelection(editor, `${String(updatedFontSize)}px`, null, skipRefocus);
     setInputChangeFlag(false);
   };
 
@@ -115,11 +113,14 @@ export default function FontSize({
         onClick={(e) => {
           updateFontSize(editor, UpdateFontSizeType.decrement, inputValue, isKeyboardInput(e));
         }}
-        className="toolbar-item font-decrement"
+        className="toolbar-item p-0 mr-0.5"
         aria-label="Decrease font size"
         title={`Decrease font size (${SHORTCUTS.DECREASE_FONT_SIZE})`}
       >
-        <i className="format minus-icon" />
+        <i
+          className="format bg-no-repeat bg-center"
+          style={{ backgroundImage: "url(/lexical/images/icons/minus-sign.svg)" }}
+        />
       </button>
 
       <input
@@ -127,7 +128,12 @@ export default function FontSize({
         title="Font size"
         value={inputValue}
         disabled={disabled}
-        className="toolbar-item font-size-input"
+        className={cn(
+          "toolbar-item font-bold text-xs rounded border border-border",
+          "h-6 px-1 py-0.5 text-center w-8 self-center",
+          "[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none",
+          "disabled:opacity-20 disabled:cursor-not-allowed"
+        )}
         min={MIN_ALLOWED_FONT_SIZE}
         max={MAX_ALLOWED_FONT_SIZE}
         onChange={(e) => setInputValue(e.target.value)}
@@ -142,11 +148,14 @@ export default function FontSize({
         onClick={(e) => {
           updateFontSize(editor, UpdateFontSizeType.increment, inputValue, isKeyboardInput(e));
         }}
-        className="toolbar-item font-increment"
+        className="toolbar-item p-0 ml-0.5"
         aria-label="Increase font size"
         title={`Increase font size (${SHORTCUTS.INCREASE_FONT_SIZE})`}
       >
-        <i className="format add-icon" />
+        <i
+          className="format bg-no-repeat bg-center"
+          style={{ backgroundImage: "url(/lexical/images/icons/add-sign.svg)" }}
+        />
       </button>
     </>
   );

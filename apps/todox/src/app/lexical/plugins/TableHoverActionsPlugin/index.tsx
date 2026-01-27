@@ -100,7 +100,7 @@ function TableHoverActionsContainer({ anchorElem }: { readonly anchorElem: HTMLE
         // Adjust for using the scrollable table container
         const parentElement = (tableDOMElement as HTMLTableElement).parentElement;
         let tableHasScroll = false;
-        if (parentElement && parentElement.classList.contains("PlaygroundEditorTheme__tableScrollableWrapper")) {
+        if (parentElement?.classList.contains("PlaygroundEditorTheme__tableScrollableWrapper")) {
           tableHasScroll = parentElement.scrollWidth > parentElement.clientWidth;
         }
         const { y: editorElemY, left: editorElemLeft } = anchorElem.getBoundingClientRect();
@@ -221,10 +221,16 @@ function TableHoverActionsContainer({ anchorElem }: { readonly anchorElem: HTMLE
   return (
     <>
       {isShownRow && (
-        <button className={`${getTheme()?.tableAddRows}`} style={{ ...position }} onClick={() => insertAction(true)} />
+        <button
+          type="button"
+          className={`${getTheme()?.tableAddRows}`}
+          style={{ ...position }}
+          onClick={() => insertAction(true)}
+        />
       )}
       {isShownColumn && (
         <button
+          type="button"
           className={`${getTheme()?.tableAddColumns}`}
           style={{ ...position }}
           onClick={() => insertAction(false)}

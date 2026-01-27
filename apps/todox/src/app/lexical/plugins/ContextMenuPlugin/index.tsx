@@ -56,7 +56,7 @@ export default function ContextMenuPlugin(): JSX.Element {
             const data = new DataTransfer();
 
             const readClipboardItems = await navigator.clipboard.read();
-            const item = readClipboardItems[0];
+            const item = readClipboardItems[0]!;
 
             const permission = await navigator.permissions.query({
               // @ts-expect-error These types are incorrect.

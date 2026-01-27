@@ -176,7 +176,7 @@ const make: Effect.Effect<IFsUtilsEffect, DomainError, FileSystem.FileSystem | P
       .remove(to, { recursive: true })
       .pipe(
         Effect.ignore,
-        Effect.zipRight(fs.copy(from, to)),
+        Effect.andThen(fs.copy(from, to)),
         Effect.withSpan("FsUtils.rmAndCopy", { attributes: { from, to } }),
         DomainError.mapError
       );
@@ -224,8 +224,8 @@ const make: Effect.Effect<IFsUtilsEffect, DomainError, FileSystem.FileSystem | P
 
   const copyIfExists: CopyIfExists = Effect.fn("FsUtils.copyIfExists")(function* (from: string, to: string) {
     return yield* fs.access(from).pipe(
-      Effect.zipRight(Effect.ignore(fs.remove(to, { recursive: true }))),
-      Effect.zipRight(fs.copy(from, to)),
+      Effect.andThen(Effect.ignore(fs.remove(to, { recursive: true }))),
+      Effect.andThen(fs.copy(from, to)),
       Effect.catchTag("SystemError", (e) => (e.reason === "NotFound" ? Effect.void : Effect.fail(e))),
       Effect.withSpan("FsUtils.copyIfExists", { attributes: { from, to } }),
       DomainError.mapError
@@ -267,7 +267,7 @@ const make: Effect.Effect<IFsUtilsEffect, DomainError, FileSystem.FileSystem | P
           (path) => {
             const dest = path_.join(to, path_.relative(baseDir, path));
             const destDir = path_.dirname(dest);
-            return mkdirCached(destDir).pipe(Effect.zipRight(fs.copyFile(path, dest)));
+            return mkdirCached(destDir).pipe(Effect.andThen(fs.copyFile(path, dest)));
           },
           { concurrency: "inherit", discard: true }
         )
@@ -290,7 +290,7 @@ const make: Effect.Effect<IFsUtilsEffect, DomainError, FileSystem.FileSystem | P
       .remove(path, { recursive: true })
       .pipe(
         Effect.ignore,
-        Effect.zipRight(mkdirCached(path)),
+        Effect.andThen(mkdirCached(path)),
         Effect.withSpan("FsUtils.rmAndMkdir", { attributes: { path } })
       );
   });

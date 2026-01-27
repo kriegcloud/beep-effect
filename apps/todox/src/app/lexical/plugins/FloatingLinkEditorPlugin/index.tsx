@@ -1,7 +1,4 @@
 "use client";
-import type { JSX } from "react";
-
-import "./index.css";
 
 import { $createLinkNode, $isAutoLinkNode, $isLinkNode, TOGGLE_LINK_COMMAND } from "@lexical/link";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
@@ -22,6 +19,7 @@ import {
   SELECTION_CHANGE_COMMAND,
 } from "lexical";
 import type * as React from "react";
+import type { JSX } from "react";
 import { type Dispatch, useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
@@ -73,7 +71,7 @@ function FloatingLinkEditor({
     } else if ($isNodeSelection(selection)) {
       const nodes = selection.getNodes();
       if (nodes.length > 0) {
-        const node = nodes[0];
+        const node = nodes[0]!;
         const parent = node.getParent();
         if ($isLinkNode(parent)) {
           setLinkUrl(parent.getURL());
@@ -104,7 +102,7 @@ function FloatingLinkEditor({
       if ($isNodeSelection(selection)) {
         const nodes = selection.getNodes();
         if (nodes.length > 0) {
-          const element = editor.getElementByKey(nodes[0].getKey());
+          const element = editor.getElementByKey(nodes[0]!.getKey());
           if (element) {
             domRect = element.getBoundingClientRect();
           }
@@ -248,7 +246,10 @@ function FloatingLinkEditor({
   };
 
   return (
-    <div ref={editorRef} className="link-editor">
+    <div
+      ref={editorRef}
+      className="link-editor flex absolute top-0 left-0 z-10 max-w-[400px] w-full opacity-0 bg-background shadow-lg rounded-b-lg transition-opacity duration-500 will-change-transform"
+    >
       {!isLink ? null : isLinkEditMode ? (
         <>
           <input
@@ -357,7 +358,7 @@ function useFloatingLinkEditorToolbar(
           setIsLink(false);
           return;
         }
-        const node = nodes[0];
+        const node = nodes[0]!;
         const parent = node.getParent();
         if ($isLinkNode(parent) || $isLinkNode(node)) {
           setIsLink(true);

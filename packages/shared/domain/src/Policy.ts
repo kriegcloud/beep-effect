@@ -155,7 +155,7 @@ export const policy = <E, R>(
 export const withPolicy =
   <E, R>(policy: Policy<E, R>) =>
   <A, E2, R2>(self: Effect.Effect<A, E2, R2>) =>
-    Effect.zipRight(policy, self);
+    Effect.andThen(policy, self);
 
 /**
  * Composes multiple policies with AND semantics - all policies must pass.

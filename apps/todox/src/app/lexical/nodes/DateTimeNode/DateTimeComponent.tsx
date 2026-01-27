@@ -3,8 +3,8 @@
 import type { JSX } from "react";
 
 import "react-day-picker/style.css";
-import "./DateTimeNode.css";
 
+import { cn } from "@beep/todox/lib/utils";
 import {
   autoUpdate,
   FloatingFocusManager,
@@ -60,8 +60,8 @@ export default function DateTimeComponent({
     }
     return "00:00";
   });
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [isNodeSelected, setNodeSelected, clearNodeSelection] = useLexicalNodeSelection(nodeKey);
+
+  const [isNodeSelected, _setNodeSelected, _clearNodeSelection] = useLexicalNodeSelection(nodeKey);
 
   const { refs, floatingStyles, context } = useFloating({
     elements: {
@@ -138,7 +138,7 @@ export default function DateTimeComponent({
         setTimeValue(time);
         return;
       }
-      const [hours, minutes] = time.split(":").map((str: string) => Number.parseInt(str, 10));
+      const [hours = 0, minutes = 0] = time.split(":").map((str: string) => Number.parseInt(str, 10));
       const newSelectedDate = setHours(setMinutes(selected, minutes), hours);
       setSelected(newSelectedDate);
       node.setDateTime(newSelectedDate);
@@ -161,16 +161,23 @@ export default function DateTimeComponent({
 
   return (
     <div
-      className={`dateTimePill ${isNodeSelected ? "selected" : ""}`}
+      className={cn(
+        "bg-muted border border-border rounded-lg px-1 cursor-pointer w-fit hover:bg-muted/50",
+        isNodeSelected && "outline outline-2 outline-blue-400"
+      )}
       ref={ref}
-      style={{ cursor: "pointer", width: "fit-content" }}
     >
-      {dateTime?.toDateString() + (includeTime ? " " + timeValue : "") || "Invalid Date"}
+      {dateTime?.toDateString() + (includeTime ? ` ${timeValue}` : "") || "Invalid Date"}
       {isOpen && (
         <FloatingPortal>
           <FloatingOverlay lockScroll={true}>
             <FloatingFocusManager context={context} initialFocus={-1}>
-              <div className={"dateTimePicker"} ref={refs.setFloating} style={floatingStyles} {...getFloatingProps()}>
+              <div
+                className="bg-background border border-border shadow-lg rounded-lg py-0 px-1.5 pr-2.5"
+                ref={refs.setFloating}
+                style={floatingStyles}
+                {...getFloatingProps()}
+              >
                 <DayPicker
                   captionLayout="dropdown"
                   navLayout="after"

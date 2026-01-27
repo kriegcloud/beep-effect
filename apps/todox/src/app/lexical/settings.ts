@@ -4,7 +4,7 @@ export const isDevPlayground: boolean =
 
 export const DEFAULT_SETTINGS = {
   disableBeforeInput: false,
-  emptyEditor: isDevPlayground,
+  emptyEditor: false, // Show prepopulated content by default (matches production)
   hasLinkAttributes: false,
   hasNestedTables: false,
   isAutocomplete: false,

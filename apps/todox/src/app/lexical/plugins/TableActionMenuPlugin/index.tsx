@@ -38,7 +38,6 @@ import {
   SELECTION_CHANGE_COMMAND,
 } from "lexical";
 import type { JSX } from "react";
-import * as React from "react";
 import { type ReactPortal, useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
@@ -307,8 +306,8 @@ function TableActionMenu({
 
       const newStyle = tableCellNode.getHeaderStyles() ^ TableCellHeaderStates.ROW;
 
-      for (let col = 0; col < gridMap[tableRowIndex].length; col++) {
-        const mapCell = gridMap[tableRowIndex][col];
+      for (let col = 0; col < gridMap[tableRowIndex]!.length; col++) {
+        const mapCell = gridMap[tableRowIndex]![col];
 
         if (!mapCell?.cell) {
           continue;
@@ -336,7 +335,7 @@ function TableActionMenu({
       const newStyle = tableCellNode.getHeaderStyles() ^ TableCellHeaderStates.COLUMN;
 
       for (let row = 0; row < gridMap.length; row++) {
-        const mapCell = gridMap[row][tableColumnIndex];
+        const mapCell = gridMap[row]?.[tableColumnIndex];
 
         if (!mapCell?.cell) {
           continue;
@@ -468,7 +467,6 @@ function TableActionMenu({
   }
 
   return createPortal(
-    // eslint-disable-next-line jsx-a11y/no-static-element-interactions
     <div
       className="dropdown"
       ref={dropDownRef}

@@ -75,6 +75,7 @@
     "@emotion/cache": "catalog:",
     "@emotion/react": "catalog:",
     "@emotion/styled": "catalog:",
+    "@excalidraw/excalidraw": "catalog:",
     "@faker-js/faker": "catalog:",
     "@floating-ui/react-dom": "catalog:",
     "@fontsource-variable/dm-sans": "catalog:",
@@ -161,6 +162,7 @@
     "immutability-helper": "catalog:",
     "input-otp": "catalog:",
     "jose": "catalog:",
+    "katex": "catalog:",
     "lexical": "catalog:",
     "lowlight": "catalog:",
     "lucide-react": "catalog:",
@@ -185,6 +187,7 @@
     "react-dnd-multi-backend": "catalog:",
     "react-dom": "catalog:",
     "react-dropzone": "catalog:",
+    "react-error-boundary": "catalog:",
     "react-i18next": "catalog:",
     "react-markdown": "catalog:",
     "react-phone-number-input": "catalog:",
@@ -205,12 +208,9 @@
     "use-stick-to-bottom": "catalog:",
     "uuid": "catalog:",
     "vaul": "catalog:",
-    "zod": "catalog:",
-    "katex": "catalog:",
     "y-websocket": "catalog:",
-    "react-error-boundary": "catalog:",
-    "@excalidraw/excalidraw": "catalog:",
-    "yjs": "catalog:"
+    "yjs": "catalog:",
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@beep/build-utils": "workspace:^",

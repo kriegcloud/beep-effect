@@ -20,7 +20,7 @@ export const httpLogger = HttpMiddleware.make((httpApp) => {
           if (response.status === 404) {
             return exit;
           }
-          return Effect.zipRight(
+          return Effect.andThen(
             Effect.annotateLogs(
               pipe(
                 cause,
@@ -40,7 +40,7 @@ export const httpLogger = HttpMiddleware.make((httpApp) => {
             exit
           );
         }
-        return Effect.zipRight(
+        return Effect.andThen(
           Effect.annotateLogs(Effect.log("Sent HTTP response"), {
             "http.method": request.method,
             "http.url": request.url,

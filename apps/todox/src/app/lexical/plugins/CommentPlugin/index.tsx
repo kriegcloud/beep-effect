@@ -1,12 +1,10 @@
 "use client";
 
-import type { Provider } from "@lexical/yjs";
 import type { EditorState, LexicalCommand, LexicalEditor, NodeKey, RangeSelection } from "lexical";
 import type { JSX } from "react";
 import type { Doc } from "yjs";
 
 import "./index.css";
-
 import {
   $createMarkNode,
   $getMarkIDs,
@@ -28,6 +26,7 @@ import { PlainTextPlugin } from "@lexical/react/LexicalPlainTextPlugin";
 import { createDOMRange, createRectsFromDOMRange } from "@lexical/selection";
 import { $isRootTextContentEmpty, $rootTextContent } from "@lexical/text";
 import { mergeRegister, registerNestedElementResolver } from "@lexical/utils";
+import * as O from "effect/Option";
 import {
   $getNodeByKey,
   $getSelection,
@@ -41,19 +40,10 @@ import {
   getDOMSelection,
   KEY_ESCAPE_COMMAND,
 } from "lexical";
-import * as React from "react";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
-import {
-  type Comment,
-  CommentStore,
-  type Comments,
-  createComment,
-  createThread,
-  type Thread,
-  useCommentStore,
-} from "../../commenting";
+import { Comment, CommentStore, type Comments, type ProviderWithDoc, Thread, useCommentStore } from "../../commenting";
 import useModal from "../../hooks/useModal";
 import CommentEditorTheme from "../../themes/CommentEditorTheme";
 import Button from "../../ui/Button";
@@ -99,14 +89,14 @@ function AddCommentBox({
 
   return (
     <div className="CommentPlugin_AddCommentBox" ref={boxRef}>
-      <button className="CommentPlugin_AddCommentBox_button" onClick={onAddComment}>
+      <button type="button" className="CommentPlugin_AddCommentBox_button" onClick={onAddComment}>
         <i className="icon add-comment" />
       </button>
     </div>
   );
 }
 
-function EscapeHandlerPlugin({ onEscape }: { readonly readonly; onEscape: (e: KeyboardEvent) => boolean }): null {
+function EscapeHandlerPlugin({ onEscape }: { readonly onEscape: (e: KeyboardEvent) => boolean }): null {
   const [editor] = useLexicalComposerContext();
 
   useEffect(() => {
@@ -228,8 +218,8 @@ function CommentInputBox({
           const elementsLength = elements.length;
 
           for (let i = 0; i < selectionRectsLength; i++) {
-            const selectionRect = selectionRects[i];
-            let elem: HTMLSpanElement = elements[i];
+            const selectionRect = selectionRects[i]!;
+            let elem: HTMLSpanElement = elements[i]!;
             if (elem === undefined) {
               elem = document.createElement("span");
               elements[i] = elem;
@@ -244,7 +234,7 @@ function CommentInputBox({
             elem.style.cssText = style;
           }
           for (let i = elementsLength - 1; i >= selectionRectsLength; i--) {
-            const elem = elements[i];
+            const elem = elements[i]!;
             container.removeChild(elem);
             elements.pop();
           }
@@ -286,9 +276,14 @@ function CommentInputBox({
         return selection ? selection.getTextContent() : "";
       });
       if (quote.length > 100) {
-        quote = quote.slice(0, 99) + "…";
+        quote = `${quote.slice(0, 99)}…`;
       }
-      submitAddComment(createThread(quote, [createComment(content, author)]), true, undefined, selectionRef.current);
+      submitAddComment(
+        Thread.create({ quote, comments: [Comment.create({ content, author })] }),
+        true,
+        undefined,
+        selectionRef.current
+      );
       selectionRef.current = null;
     }
   };
@@ -316,12 +311,7 @@ function CommentsComposer({
   placeholder,
 }: {
   readonly placeholder?: undefined | string;
-  readonly submitAddComment: (
-    commentOrThread: Comment,
-    isInlineComment: boolean,
-    // eslint-disable-next-line no-shadow
-    thread?: undefined | Thread
-  ) => void;
+  readonly submitAddComment: (commentOrThread: Comment, isInlineComment: boolean, thread?: undefined | Thread) => void;
   readonly thread?: undefined | Thread;
 }) {
   const [content, setContent] = useState("");
@@ -333,7 +323,7 @@ function CommentsComposer({
 
   const submitComment = () => {
     if (canSubmit) {
-      submitAddComment(createComment(content, author), false, thread);
+      submitAddComment(Comment.create({ content, author }), false, thread);
       const editor = editorRef.current;
       if (editor !== null) {
         editor.dispatchCommand(CLEAR_EDITOR_COMMAND, undefined);
@@ -368,11 +358,7 @@ function ShowDeleteCommentOrThreadDialog({
 }: {
   readonly commentOrThread: Comment | Thread;
 
-  readonly deleteCommentOrThread: (
-    comment: Comment | Thread,
-    // eslint-disable-next-line no-shadow
-    thread?: undefined | Thread
-  ) => void;
+  readonly deleteCommentOrThread: (comment: Comment | Thread, thread?: undefined | Thread) => void;
   readonly onClose: () => void;
   readonly thread?: undefined | Thread;
 }): JSX.Element {
@@ -407,15 +393,11 @@ function CommentsPanelListComment({
   rtf,
 }: {
   readonly comment: Comment;
-  readonly deleteComment: (
-    commentOrThread: Comment | Thread,
-    // eslint-disable-next-line no-shadow
-    thread?: undefined | Thread
-  ) => void;
+  readonly deleteComment: (commentOrThread: Comment | Thread, thread?: undefined | Thread) => void;
   readonly rtf: Intl.RelativeTimeFormat;
   readonly thread?: undefined | Thread;
 }): JSX.Element {
-  const seconds = Math.round((comment.timeStamp - (performance.timeOrigin + performance.now())) / 1000);
+  const seconds = Math.round((comment.timeStamp.epochMillis - (performance.timeOrigin + performance.now())) / 1000);
   const minutes = Math.round(seconds / 60);
   const [modal, showModal] = useModal();
 
@@ -461,7 +443,7 @@ function CommentsPanelList({
   markNodeMap,
 }: {
   readonly activeIDs: Array<string>;
-  readonly comments: Comments;
+  readonly comments: Comments.Type;
   readonly deleteCommentOrThread: (commentOrThread: Comment | Thread, thread?: undefined | Thread) => void;
   readonly listRef: { readonly current: null | HTMLUListElement };
   readonly markNodeMap: Map<string, Set<NodeKey>>;
@@ -508,7 +490,7 @@ function CommentsPanelList({
               // update the UI with the selected thread.
               editor.update(
                 () => {
-                  const markNodeKey = Array.from(markNodeKeys)[0];
+                  const markNodeKey = Array.from(markNodeKeys)[0]!;
                   const markNode = $getNodeByKey<MarkNode>(markNodeKey);
                   if ($isMarkNode(markNode)) {
                     markNode.selectStart();
@@ -527,7 +509,6 @@ function CommentsPanelList({
           };
 
           return (
-            // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
             <li
               key={id}
               onClick={handleClickThread}
@@ -599,7 +580,7 @@ function CommentsPanel({
   markNodeMap,
 }: {
   readonly activeIDs: Array<string>;
-  readonly comments: Comments;
+  readonly comments: Comments.Type;
   readonly deleteCommentOrThread: (commentOrThread: Comment | Thread, thread?: undefined | Thread) => void;
   readonly markNodeMap: Map<string, Set<NodeKey>>;
   readonly submitAddComment: (
@@ -639,7 +620,7 @@ function useCollabAuthorName(): string {
 export default function CommentPlugin({
   providerFactory,
 }: {
-  readonly providerFactory?: undefined | ((id: string, yjsDocMap: Map<string, Doc>) => Provider);
+  readonly providerFactory?: undefined | ((id: string, yjsDocMap: Map<string, Doc>) => ProviderWithDoc.Type);
 }): JSX.Element {
   const collabContext = useCollaborationContext();
   const [editor] = useLexicalComposerContext();
@@ -676,11 +657,15 @@ export default function CommentPlugin({
     (comment: Comment | Thread, thread?: undefined | Thread) => {
       if (comment.type === "comment") {
         const deletionInfo = commentStore.deleteCommentOrThread(comment, thread);
-        if (!deletionInfo) {
+        if (O.isNone(deletionInfo)) {
           return;
         }
-        const { markedComment, index } = deletionInfo;
-        commentStore.addComment(markedComment, thread, index);
+        const { markedComment, index } = deletionInfo.value;
+        commentStore.addComment({
+          commentOrThread: markedComment,
+          thread,
+          offset: index,
+        });
       } else {
         commentStore.deleteCommentOrThread(comment);
         // Remove ids from associated marks
@@ -714,7 +699,7 @@ export default function CommentPlugin({
       thread?: undefined | Thread,
       selection?: undefined | RangeSelection | null
     ) => {
-      commentStore.addComment(commentOrThread, thread);
+      commentStore.addComment({ commentOrThread, thread });
       if (isInlineComment) {
         editor.update(() => {
           if ($isRangeSelection(selection)) {
@@ -735,6 +720,7 @@ export default function CommentPlugin({
     const changedElems: Array<HTMLElement> = [];
     for (let i = 0; i < activeIDs.length; i++) {
       const id = activeIDs[i];
+      if (id === undefined) continue;
       const keys = markNodeMap.get(id);
       if (keys !== undefined) {
         for (const key of keys) {
@@ -750,7 +736,9 @@ export default function CommentPlugin({
     return () => {
       for (let i = 0; i < changedElems.length; i++) {
         const changedElem = changedElems[i];
-        changedElem.classList.remove("selected");
+        if (changedElem) {
+          changedElem.classList.remove("selected");
+        }
       }
     };
   }, [activeIDs, editor, markNodeMap]);
@@ -788,7 +776,7 @@ export default function CommentPlugin({
               }
 
               for (let i = 0; i < ids.length; i++) {
-                const id = ids[i];
+                const id = ids[i]!;
                 let markNodeKeys = markNodeMap.get(id);
                 markNodeKeysToIDs.set(key, ids);
 

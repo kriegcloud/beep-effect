@@ -4,7 +4,6 @@ import { BlockWithAlignableContents } from "@lexical/react/LexicalBlockWithAlign
 import { DecoratorBlockNode, type SerializedDecoratorBlockNode } from "@lexical/react/LexicalDecoratorBlockNode";
 import type { EditorConfig, ElementFormatType, LexicalEditor, LexicalNode, NodeKey, Spread } from "lexical";
 import type { JSX } from "react";
-import * as React from "react";
 
 type FigmaComponentProps = Readonly<{
   className: Readonly<{
@@ -20,6 +19,7 @@ function FigmaComponent({ className, format, nodeKey, documentID }: FigmaCompone
   return (
     <BlockWithAlignableContents className={className} format={format} nodeKey={nodeKey}>
       <iframe
+        title="Figma Embed"
         width="560"
         height="315"
         src={`https://www.figma.com/embed?embed_host=lexical&url=\
@@ -40,19 +40,19 @@ export type SerializedFigmaNode = Spread<
 export class FigmaNode extends DecoratorBlockNode {
   __id: string;
 
-  static getType(): string {
+  static override getType(): string {
     return "figma";
   }
 
-  static clone(node: FigmaNode): FigmaNode {
+  static override clone(node: FigmaNode): FigmaNode {
     return new FigmaNode(node.__id, node.__format, node.__key);
   }
 
-  static importJSON(serializedNode: SerializedFigmaNode): FigmaNode {
+  static override importJSON(serializedNode: SerializedFigmaNode): FigmaNode {
     return $createFigmaNode(serializedNode.documentID).updateFromJSON(serializedNode);
   }
 
-  exportJSON(): SerializedFigmaNode {
+  override exportJSON(): SerializedFigmaNode {
     return {
       ...super.exportJSON(),
       documentID: this.__id,
@@ -64,7 +64,7 @@ export class FigmaNode extends DecoratorBlockNode {
     this.__id = id;
   }
 
-  updateDOM(): false {
+  override updateDOM(): false {
     return false;
   }
 
@@ -72,11 +72,11 @@ export class FigmaNode extends DecoratorBlockNode {
     return this.__id;
   }
 
-  getTextContent(_includeInert?: boolean | undefined, _includeDirectionless?: false | undefined): string {
+  override getTextContent(_includeInert?: boolean | undefined, _includeDirectionless?: false | undefined): string {
     return `https://www.figma.com/file/${this.__id}`;
   }
 
-  decorate(_editor: LexicalEditor, config: EditorConfig): JSX.Element {
+  override decorate(_editor: LexicalEditor, config: EditorConfig): JSX.Element {
     const embedBlockTheme = config.theme.embedBlock || {};
     const className = {
       base: embedBlockTheme.base || "",

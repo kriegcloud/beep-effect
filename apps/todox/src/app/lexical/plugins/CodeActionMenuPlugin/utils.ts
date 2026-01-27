@@ -1,6 +1,6 @@
 "use client";
 
-import { debounce } from "lodash-es";
+import { debounce } from "@beep/utils";
 import { useMemo, useRef } from "react";
 
 export function useDebounce<T extends (...args: never[]) => void>(fn: T, ms: number, maxWait?: undefined | number) {

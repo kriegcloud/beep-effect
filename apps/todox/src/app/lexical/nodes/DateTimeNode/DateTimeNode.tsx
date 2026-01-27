@@ -50,7 +50,7 @@ function $convertDateTimeElement(domNode: HTMLElement): DOMConversionOutput | nu
   }
   const parsed = JSON.parse(gDocsDateTimePayload);
   const parsedDate = Date.parse(parsed?.dat_df?.dfie_dt || "");
-  if (isNaN(parsedDate)) {
+  if (Number.isNaN(parsedDate)) {
     return null;
   }
   const node = $createDateTimeNode(new Date(parsedDate));
@@ -63,7 +63,7 @@ const dateTimeState = createState("dateTime", {
 });
 
 export class DateTimeNode extends DecoratorNode<JSX.Element> {
-  $config() {
+  override $config() {
     return this.config("datetime", {
       extends: DecoratorNode,
       importDOM: buildImportMap({
@@ -90,34 +90,34 @@ export class DateTimeNode extends DecoratorNode<JSX.Element> {
     return $setState(this, dateTimeState, valueOrUpdater);
   }
 
-  getTextContent(): string {
+  override getTextContent(): string {
     const dateTime = this.getDateTime();
     return getDateTimeText(dateTime);
   }
 
-  exportDOM(): DOMExportOutput {
+  override exportDOM(): DOMExportOutput {
     const element = document.createElement("span");
     element.textContent = getDateTimeText(this.getDateTime());
     element.setAttribute("data-lexical-datetime", this.getDateTime()?.toString() || "");
     return { element };
   }
 
-  createDOM(): HTMLElement {
+  override createDOM(): HTMLElement {
     const element = document.createElement("span");
     element.setAttribute("data-lexical-datetime", this.getDateTime()?.toString() || "");
     element.style.display = "inline-block";
     return element;
   }
 
-  updateDOM(): false {
+  override updateDOM(): false {
     return false;
   }
 
-  isInline(): boolean {
+  override isInline(): boolean {
     return true;
   }
 
-  decorate(): JSX.Element {
+  override decorate(): JSX.Element {
     return <DateTimeComponent dateTime={this.getDateTime()} nodeKey={this.__key} />;
   }
 }

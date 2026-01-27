@@ -1,11 +1,8 @@
 "use client";
-import type { NodeKey } from "lexical";
-import type { JSX } from "react";
-
-import "./index.css";
 
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { DraggableBlockPlugin_EXPERIMENTAL } from "@lexical/react/LexicalDraggableBlockPlugin";
+import type { NodeKey } from "lexical";
 import {
   $createParagraphNode,
   $createTextNode,
@@ -14,6 +11,7 @@ import {
   $isParagraphNode,
   $isTextNode,
 } from "lexical";
+import type { JSX } from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import * as ReactDOM from "react-dom";
 
@@ -92,10 +90,7 @@ export default function DraggableBlockPlugin({
     }
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Node | null;
-      if (
-        (pickerRef.current && pickerRef.current.contains(target)) ||
-        (menuRef.current && menuRef.current.contains(target))
-      ) {
+      if (pickerRef.current?.contains(target) || menuRef.current?.contains(target)) {
         return;
       }
       setIsPickerOpen(false);
@@ -216,7 +211,7 @@ export default function DraggableBlockPlugin({
       {isPickerOpen && pickerPosition
         ? ReactDOM.createPortal(
             <div
-              className="typeahead-popover component-picker-menu draggable-block-component-picker"
+              className="typeahead-popover component-picker-menu max-w-[260px]"
               ref={pickerRef}
               style={{
                 left: pickerPosition.left,
@@ -226,7 +221,7 @@ export default function DraggableBlockPlugin({
               }}
             >
               <input
-                className="component-picker-search"
+                className="component-picker-search w-full box-border py-2 px-2.5 border-0 outline-none text-sm rounded-t-lg"
                 placeholder="Filter blocks..."
                 value={queryString}
                 ref={searchInputRef}
@@ -256,12 +251,35 @@ export default function DraggableBlockPlugin({
         menuRef={menuRef}
         targetLineRef={targetLineRef}
         menuComponent={
-          <div ref={menuRef} className="icon draggable-block-menu">
-            <button title="Click to add below" className="icon icon-plus" onClick={openComponentPicker} />
-            <div className="icon" />
+          <div
+            ref={menuRef}
+            className="draggable-block-menu rounded p-0.5 cursor-grab opacity-0 absolute left-0 top-0 will-change-[transform,opacity] flex gap-0.5 transition-[transform,opacity] duration-150 ease-in-out active:cursor-grabbing"
+          >
+            <button
+              type="button"
+              title="Click to add below"
+              className="w-4 h-4 inline-block border-none cursor-pointer bg-transparent bg-no-repeat bg-center hover:bg-gray-200 rounded"
+              style={{
+                backgroundImage: "url(/lexical/images/icons/plus.svg)",
+                filter: "brightness(0) saturate(100%)",
+              }}
+              onClick={openComponentPicker}
+            />
+            <div
+              className="w-4 h-4 opacity-50 bg-no-repeat bg-center hover:bg-gray-200 rounded"
+              style={{
+                backgroundImage: "url(/lexical/images/icons/draggable-block-menu.svg)",
+                filter: "brightness(0) saturate(100%)",
+              }}
+            />
           </div>
         }
-        targetLineComponent={<div ref={targetLineRef} className="draggable-block-target-line" />}
+        targetLineComponent={
+          <div
+            ref={targetLineRef}
+            className="pointer-events-none bg-sky-500 h-1 absolute left-0 top-0 opacity-0 will-change-transform"
+          />
+        }
         isOnMenu={isOnMenu}
         onElementChanged={setDraggableElement}
       />

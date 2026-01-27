@@ -35,20 +35,20 @@ export class StickyNode extends DecoratorNode<JSX.Element> {
   __color: StickyNoteColor;
   __caption: LexicalEditor;
 
-  static getType(): string {
+  static override getType(): string {
     return "sticky";
   }
 
-  static clone(node: StickyNode): StickyNode {
+  static override clone(node: StickyNode): StickyNode {
     return new StickyNode(node.__x, node.__y, node.__color, node.__caption, node.__key);
   }
-  static importJSON(serializedNode: SerializedStickyNode): StickyNode {
+  static override importJSON(serializedNode: SerializedStickyNode): StickyNode {
     return new StickyNode(serializedNode.xOffset, serializedNode.yOffset, serializedNode.color).updateFromJSON(
       serializedNode
     );
   }
 
-  updateFromJSON(serializedNode: LexicalUpdateJSON<SerializedStickyNode>): this {
+  override updateFromJSON(serializedNode: LexicalUpdateJSON<SerializedStickyNode>): this {
     const stickyNode = super.updateFromJSON(serializedNode);
     const caption = serializedNode.caption;
     const nestedEditor = stickyNode.__caption;
@@ -73,7 +73,7 @@ export class StickyNode extends DecoratorNode<JSX.Element> {
     this.__color = color;
   }
 
-  exportJSON(): SerializedStickyNode {
+  override exportJSON(): SerializedStickyNode {
     return {
       ...super.exportJSON(),
       caption: this.__caption.toJSON(),
@@ -83,13 +83,13 @@ export class StickyNode extends DecoratorNode<JSX.Element> {
     };
   }
 
-  createDOM(config: EditorConfig): HTMLElement {
+  override createDOM(config: EditorConfig): HTMLElement {
     const div = document.createElement("div");
     div.style.display = "contents";
     return div;
   }
 
-  updateDOM(): false {
+  override updateDOM(): false {
     return false;
   }
 
@@ -105,7 +105,7 @@ export class StickyNode extends DecoratorNode<JSX.Element> {
     writable.__color = writable.__color === "pink" ? "yellow" : "pink";
   }
 
-  decorate(editor: LexicalEditor, config: EditorConfig): JSX.Element {
+  override decorate(editor: LexicalEditor, config: EditorConfig): JSX.Element {
     return createPortal(
       <StickyComponent
         color={this.__color}
@@ -118,7 +118,7 @@ export class StickyNode extends DecoratorNode<JSX.Element> {
     );
   }
 
-  isIsolated(): true {
+  override isIsolated(): true {
     return true;
   }
 }

@@ -74,9 +74,13 @@ import ContentEditable from "./ui/ContentEditable";
 
 const COLLAB_DOC_ID = "main";
 
+// Safely check if we're in an iframe context (for embedded editors)
+// This is evaluated client-side only since the component is dynamically imported with ssr: false
 const skipCollaborationInit =
-  // @ts-expect-error
-  window.parent != null && window.parent.frames.right === window;
+  typeof window !== "undefined" &&
+  window.parent != null &&
+  // @ts-expect-error - frames.right is used in the Lexical playground iframe setup
+  window.parent.frames.right === window;
 
 export default function Editor(): JSX.Element {
   const { historyState } = useSharedHistoryContext();
@@ -167,7 +171,17 @@ export default function Editor(): JSX.Element {
         <AutoLinkPlugin />
         <DateTimePlugin />
         {!(isCollab && useCollabV2) && (
-          <CommentPlugin providerFactory={isCollab ? createWebsocketProvider : undefined} />
+          <CommentPlugin
+            providerFactory={
+              isCollab
+                ? (id, yjsDocMap) => {
+                    const doc = yjsDocMap.get(id) || new Doc();
+                    const provider = createWebsocketProviderWithDoc(id, doc);
+                    return Object.assign(provider, { doc });
+                  }
+                : undefined
+            }
+          />
         )}
         {isRichText ? (
           <>

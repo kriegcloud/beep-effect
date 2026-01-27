@@ -14,7 +14,6 @@ import type {
   Spread,
 } from "lexical";
 import type { JSX } from "react";
-import * as React from "react";
 
 type YouTubeComponentProps = Readonly<{
   className: Readonly<{
@@ -61,19 +60,19 @@ function $convertYoutubeElement(domNode: HTMLElement): null | DOMConversionOutpu
 export class YouTubeNode extends DecoratorBlockNode {
   __id: string;
 
-  static getType(): string {
+  static override getType(): string {
     return "youtube";
   }
 
-  static clone(node: YouTubeNode): YouTubeNode {
+  static override clone(node: YouTubeNode): YouTubeNode {
     return new YouTubeNode(node.__id, node.__format, node.__key);
   }
 
-  static importJSON(serializedNode: SerializedYouTubeNode): YouTubeNode {
+  static override importJSON(serializedNode: SerializedYouTubeNode): YouTubeNode {
     return $createYouTubeNode(serializedNode.videoID).updateFromJSON(serializedNode);
   }
 
-  exportJSON(): SerializedYouTubeNode {
+  override exportJSON(): SerializedYouTubeNode {
     return {
       ...super.exportJSON(),
       videoID: this.__id,
@@ -85,7 +84,7 @@ export class YouTubeNode extends DecoratorBlockNode {
     this.__id = id;
   }
 
-  exportDOM(): DOMExportOutput {
+  override exportDOM(): DOMExportOutput {
     const element = document.createElement("iframe");
     element.setAttribute("data-lexical-youtube", this.__id);
     element.setAttribute("width", "560");
@@ -101,7 +100,7 @@ export class YouTubeNode extends DecoratorBlockNode {
     return { element };
   }
 
-  static importDOM(): DOMConversionMap | null {
+  static override importDOM(): DOMConversionMap | null {
     return {
       iframe: (domNode: HTMLElement) => {
         if (!domNode.hasAttribute("data-lexical-youtube")) {
@@ -115,7 +114,7 @@ export class YouTubeNode extends DecoratorBlockNode {
     };
   }
 
-  updateDOM(): false {
+  override updateDOM(): false {
     return false;
   }
 
@@ -123,11 +122,11 @@ export class YouTubeNode extends DecoratorBlockNode {
     return this.__id;
   }
 
-  getTextContent(_includeInert?: boolean | undefined, _includeDirectionless?: false | undefined): string {
+  override getTextContent(_includeInert?: boolean | undefined, _includeDirectionless?: false | undefined): string {
     return `https://www.youtube.com/watch?v=${this.__id}`;
   }
 
-  decorate(_editor: LexicalEditor, config: EditorConfig): JSX.Element {
+  override decorate(_editor: LexicalEditor, config: EditorConfig): JSX.Element {
     const embedBlockTheme = config.theme.embedBlock || {};
     const className = {
       base: embedBlockTheme.base || "",

@@ -6,22 +6,22 @@ import { $applyNodeReplacement, TextNode } from "lexical";
 
 /** @noInheritDoc */
 export class SpecialTextNode extends TextNode {
-  static getType(): string {
+  static override getType(): string {
     return "specialText";
   }
 
-  static clone(node: SpecialTextNode): SpecialTextNode {
+  static override clone(node: SpecialTextNode): SpecialTextNode {
     return new SpecialTextNode(node.__text, node.__key);
   }
 
-  createDOM(config: EditorConfig): HTMLElement {
+  override createDOM(config: EditorConfig): HTMLElement {
     const dom = document.createElement("span");
     addClassNamesToElement(dom, config.theme.specialText);
     dom.textContent = this.getTextContent();
     return dom;
   }
 
-  updateDOM(prevNode: this, dom: HTMLElement, config: EditorConfig): boolean {
+  override updateDOM(prevNode: this, dom: HTMLElement, config: EditorConfig): boolean {
     if (prevNode.__text.startsWith("[") && prevNode.__text.endsWith("]")) {
       // Strip brackets again
       dom.textContent = this.__text.substring(1, this.__text.length - 1); // Update the text content
@@ -32,14 +32,14 @@ export class SpecialTextNode extends TextNode {
     return false;
   }
 
-  static importJSON(serializedNode: SerializedTextNode): SpecialTextNode {
+  static override importJSON(serializedNode: SerializedTextNode): SpecialTextNode {
     return $createSpecialTextNode().updateFromJSON(serializedNode);
   }
 
-  isTextEntity(): true {
+  override isTextEntity(): true {
     return true;
   }
-  canInsertTextAfter(): boolean {
+  override canInsertTextAfter(): boolean {
     return false; // Prevents appending text to this node
   }
 }

@@ -24,7 +24,7 @@ import {
   type LexicalEditor,
 } from "lexical";
 import type { JSX } from "react";
-import * as React from "react";
+
 import { useEffect, useRef, useState } from "react";
 
 import landscapeImage from "../../images/landscape.jpg";
@@ -73,8 +73,7 @@ export function InsertImageUriDialogBody({ onClick }: { readonly onClick: (paylo
 export function InsertImageUploadedDialogBody({
   onClick,
 }: {
-  readonly readonly;
-  onClick: (payload: InsertImagePayload) => void;
+  readonly onClick: (payload: InsertImagePayload) => void;
 }) {
   const [src, setSrc] = useState("");
   const [altText, setAltText] = useState("");
@@ -90,7 +89,7 @@ export function InsertImageUploadedDialogBody({
       return "";
     };
     if (files !== null) {
-      reader.readAsDataURL(files[0]);
+      reader.readAsDataURL(files[0]!);
     }
   };
 
@@ -154,11 +153,11 @@ export function InsertImageDialog({
                 hasModifier.current
                   ? {
                       altText: "Daylight fir trees forest glacier green high ice landscape",
-                      src: landscapeImage,
+                      src: landscapeImage.src,
                     }
                   : {
                       altText: "Yellow flower in tilt shift lens",
-                      src: yellowFlowerImage,
+                      src: yellowFlowerImage.src,
                     }
               )
             }
@@ -182,7 +181,7 @@ export function InsertImageDialog({
 export default function ImagesPlugin({
   captionsEnabled,
 }: {
-  readonly captionsEnabled?: undefined | readonly boolean;
+  readonly captionsEnabled?: undefined | boolean;
 }): JSX.Element | null {
   const [editor] = useLexicalComposerContext();
 
@@ -349,7 +348,7 @@ function canDropImage(event: DragEvent): boolean {
 }
 
 function getDragSelection(event: DragEvent): Range | null | undefined {
-  let range;
+  let range: Range | null;
   const domSelection = getDOMSelectionFromTarget(event.target);
   if (document.caretRangeFromPoint) {
     range = document.caretRangeFromPoint(event.clientX, event.clientY);

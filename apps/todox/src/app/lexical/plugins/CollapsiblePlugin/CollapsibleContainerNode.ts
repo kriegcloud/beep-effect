@@ -44,19 +44,19 @@ export class CollapsibleContainerNode extends ElementNode {
     this.__open = open;
   }
 
-  static getType(): string {
+  static override getType(): string {
     return "collapsible-container";
   }
 
-  static clone(node: CollapsibleContainerNode): CollapsibleContainerNode {
+  static override clone(node: CollapsibleContainerNode): CollapsibleContainerNode {
     return new CollapsibleContainerNode(node.__open, node.__key);
   }
 
-  isShadowRoot(): boolean {
+  override isShadowRoot(): boolean {
     return true;
   }
 
-  collapseAtStart(selection: RangeSelection): boolean {
+  override collapseAtStart(selection: RangeSelection): boolean {
     // Unwrap the CollapsibleContainerNode by replacing it with the children
     // of its children (CollapsibleTitleNode, CollapsibleContentNode)
     const nodesToInsert: LexicalNode[] = [];
@@ -76,7 +76,7 @@ export class CollapsibleContainerNode extends ElementNode {
     return true;
   }
 
-  createDOM(config: EditorConfig, editor: LexicalEditor): HTMLElement {
+  override createDOM(config: EditorConfig, editor: LexicalEditor): HTMLElement {
     // details is not well supported in Chrome #5582
     let dom: HTMLElement;
     if (IS_CHROME) {
@@ -98,7 +98,7 @@ export class CollapsibleContainerNode extends ElementNode {
     return dom;
   }
 
-  updateDOM(prevNode: this, dom: HTMLDetailsElement): boolean {
+  override updateDOM(prevNode: this, dom: HTMLDetailsElement): boolean {
     const currentOpen = this.__open;
     if (prevNode.__open !== currentOpen) {
       // details is not well supported in Chrome #5582
@@ -122,7 +122,7 @@ export class CollapsibleContainerNode extends ElementNode {
     return false;
   }
 
-  static importDOM(): DOMConversionMap<HTMLDetailsElement> | null {
+  static override importDOM(): DOMConversionMap<HTMLDetailsElement> | null {
     return {
       details: (domNode: HTMLDetailsElement) => {
         return {
@@ -133,18 +133,18 @@ export class CollapsibleContainerNode extends ElementNode {
     };
   }
 
-  static importJSON(serializedNode: SerializedCollapsibleContainerNode): CollapsibleContainerNode {
+  static override importJSON(serializedNode: SerializedCollapsibleContainerNode): CollapsibleContainerNode {
     return $createCollapsibleContainerNode(serializedNode.open).updateFromJSON(serializedNode);
   }
 
-  exportDOM(): DOMExportOutput {
+  override exportDOM(): DOMExportOutput {
     const element = document.createElement("details");
     element.classList.add("Collapsible__container");
     element.setAttribute("open", this.__open.toString());
     return { element };
   }
 
-  exportJSON(): SerializedCollapsibleContainerNode {
+  override exportJSON(): SerializedCollapsibleContainerNode {
     return {
       ...super.exportJSON(),
       open: this.__open,

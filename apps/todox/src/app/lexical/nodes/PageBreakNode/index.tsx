@@ -1,9 +1,5 @@
 "use client";
 
-import type { JSX } from "react";
-
-import "./index.css";
-
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { useLexicalNodeSelection } from "@lexical/react/useLexicalNodeSelection";
 import { mergeRegister } from "@lexical/utils";
@@ -18,7 +14,8 @@ import {
   type NodeKey,
   type SerializedLexicalNode,
 } from "lexical";
-import * as React from "react";
+import type { JSX } from "react";
+
 import { useEffect } from "react";
 
 export type SerializedPageBreakNode = SerializedLexicalNode;
@@ -60,19 +57,19 @@ function PageBreakComponent({ nodeKey }: { nodeKey: NodeKey }) {
 }
 
 export class PageBreakNode extends DecoratorNode<JSX.Element> {
-  static getType(): string {
+  static override getType(): string {
     return "page-break";
   }
 
-  static clone(node: PageBreakNode): PageBreakNode {
+  static override clone(node: PageBreakNode): PageBreakNode {
     return new PageBreakNode(node.__key);
   }
 
-  static importJSON(serializedNode: SerializedPageBreakNode): PageBreakNode {
+  static override importJSON(serializedNode: SerializedPageBreakNode): PageBreakNode {
     return $createPageBreakNode().updateFromJSON(serializedNode);
   }
 
-  static importDOM(): DOMConversionMap | null {
+  static override importDOM(): DOMConversionMap | null {
     return {
       figure: (domNode: HTMLElement) => {
         const tp = domNode.getAttribute("type");
@@ -88,26 +85,26 @@ export class PageBreakNode extends DecoratorNode<JSX.Element> {
     };
   }
 
-  createDOM(): HTMLElement {
+  override createDOM(): HTMLElement {
     const el = document.createElement("figure");
     el.style.pageBreakAfter = "always";
     el.setAttribute("type", this.getType());
     return el;
   }
 
-  getTextContent(): string {
+  override getTextContent(): string {
     return "\n";
   }
 
-  isInline(): false {
+  override isInline(): false {
     return false;
   }
 
-  updateDOM(): boolean {
+  override updateDOM(): boolean {
     return false;
   }
 
-  decorate(): JSX.Element {
+  override decorate(): JSX.Element {
     return <PageBreakComponent nodeKey={this.__key} />;
   }
 }

@@ -93,7 +93,7 @@ const optionsState = createState("options", {
 });
 
 export class PollNode extends DecoratorNode<JSX.Element> {
-  $config() {
+  override $config() {
     return this.config("poll", {
       extends: DecoratorNode,
       importDOM: buildImportMap({
@@ -172,24 +172,24 @@ export class PollNode extends DecoratorNode<JSX.Element> {
     });
   }
 
-  exportDOM(): DOMExportOutput {
+  override exportDOM(): DOMExportOutput {
     const element = document.createElement("span");
     element.setAttribute("data-lexical-poll-question", this.getQuestion());
     element.setAttribute("data-lexical-poll-options", JSON.stringify(this.getOptions()));
     return { element };
   }
 
-  createDOM(): HTMLElement {
+  override createDOM(): HTMLElement {
     const elem = document.createElement("span");
     elem.style.display = "inline-block";
     return elem;
   }
 
-  updateDOM(): false {
+  override updateDOM(): false {
     return false;
   }
 
-  decorate(): JSX.Element {
+  override decorate(): JSX.Element {
     return <PollComponent question={this.getQuestion()} options={this.getOptions()} nodeKey={this.__key} />;
   }
 }

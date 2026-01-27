@@ -38,14 +38,14 @@ const mentionStyle = "background-color: rgba(24, 119, 232, 0.2)";
 export class MentionNode extends TextNode {
   __mention: string;
 
-  static getType(): string {
+  static override getType(): string {
     return "mention";
   }
 
-  static clone(node: MentionNode): MentionNode {
+  static override clone(node: MentionNode): MentionNode {
     return new MentionNode(node.__mention, node.__text, node.__key);
   }
-  static importJSON(serializedNode: SerializedMentionNode): MentionNode {
+  static override importJSON(serializedNode: SerializedMentionNode): MentionNode {
     return $createMentionNode(serializedNode.mentionName).updateFromJSON(serializedNode);
   }
 
@@ -54,14 +54,14 @@ export class MentionNode extends TextNode {
     this.__mention = mentionName;
   }
 
-  exportJSON(): SerializedMentionNode {
+  override exportJSON(): SerializedMentionNode {
     return {
       ...super.exportJSON(),
       mentionName: this.__mention,
     };
   }
 
-  createDOM(config: EditorConfig): HTMLElement {
+  override createDOM(config: EditorConfig): HTMLElement {
     const dom = super.createDOM(config);
     dom.style.cssText = mentionStyle;
     dom.className = "mention";
@@ -70,7 +70,7 @@ export class MentionNode extends TextNode {
     return dom;
   }
 
-  exportDOM(): DOMExportOutput {
+  override exportDOM(): DOMExportOutput {
     const element = document.createElement("span");
     element.setAttribute("data-lexical-mention", "true");
     if (this.__text !== this.__mention) {
@@ -80,7 +80,7 @@ export class MentionNode extends TextNode {
     return { element };
   }
 
-  static importDOM(): DOMConversionMap | null {
+  static override importDOM(): DOMConversionMap | null {
     return {
       span: (domNode: HTMLElement) => {
         if (!domNode.hasAttribute("data-lexical-mention")) {
@@ -94,15 +94,15 @@ export class MentionNode extends TextNode {
     };
   }
 
-  isTextEntity(): true {
+  override isTextEntity(): true {
     return true;
   }
 
-  canInsertTextBefore(): boolean {
+  override canInsertTextBefore(): boolean {
     return false;
   }
 
-  canInsertTextAfter(): boolean {
+  override canInsertTextAfter(): boolean {
     return false;
   }
 }

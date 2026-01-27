@@ -26,12 +26,11 @@ import {
 } from "lexical";
 import type { JSX } from "react";
 import { useCallback, useEffect, useState } from "react";
-
-import { INITIAL_SETTINGS } from "../../appSettings";
 import useFlashMessage from "../../hooks/useFlashMessage";
 import useModal from "../../hooks/useModal";
+import { INITIAL_SETTINGS } from "../../settings";
 import Button from "../../ui/Button";
-import { docFromHash, docToHash } from "../../utils/docSerialization";
+import { docFromHashPromise, docToHashPromise } from "../../utils/docSerialization";
 import { PLAYGROUND_TRANSFORMERS } from "../MarkdownTransformers";
 import { SPEECH_TO_TEXT_COMMAND, SUPPORT_SPEECH_RECOGNITION } from "../SpeechToTextPlugin";
 import { SHOW_VERSIONS_COMMAND } from "../VersionsPlugin";
@@ -39,7 +38,7 @@ import { SHOW_VERSIONS_COMMAND } from "../VersionsPlugin";
 async function sendEditorState(editor: LexicalEditor): Promise<void> {
   const stringifiedEditorState = JSON.stringify(editor.getEditorState());
   try {
-    await fetch("http://localhost:1235/setEditorState", {
+    await fetch("/api/lexical/set-state", {
       body: stringifiedEditorState,
       headers: {
         Accept: "application/json",
@@ -56,7 +55,7 @@ async function validateEditorState(editor: LexicalEditor): Promise<void> {
   const stringifiedEditorState = JSON.stringify(editor.getEditorState());
   let response = null;
   try {
-    response = await fetch("http://localhost:1235/validateEditorState", {
+    response = await fetch("/api/lexical/validate", {
       body: stringifiedEditorState,
       headers: {
         Accept: "application/json",
@@ -74,7 +73,7 @@ async function validateEditorState(editor: LexicalEditor): Promise<void> {
 
 async function shareDoc(doc: SerializedDocument): Promise<void> {
   const url = new URL(window.location.toString());
-  url.hash = await docToHash(doc);
+  url.hash = await docToHashPromise(doc);
   const newUrl = url.toString();
   window.history.replaceState({}, "", newUrl);
   await window.navigator.clipboard.writeText(newUrl);
@@ -99,7 +98,7 @@ export default function ActionsPlugin({
     if (INITIAL_SETTINGS.isCollab) {
       return;
     }
-    docFromHash(window.location.hash).then((doc) => {
+    docFromHashPromise(window.location.hash).then((doc) => {
       if (doc && doc.source === "Playground") {
         editor.setEditorState(editorStateFromSerializedDocument(editor, doc));
         editor.dispatchCommand(CLEAR_HISTORY_COMMAND, undefined);
@@ -114,8 +113,7 @@ export default function ActionsPlugin({
       editor.registerCommand<boolean>(
         CONNECTED_COMMAND,
         (payload) => {
-          const isConnected = payload;
-          setConnected(isConnected);
+          setConnected(payload);
           return false;
         },
         COMMAND_PRIORITY_EDITOR
@@ -179,11 +177,12 @@ export default function ActionsPlugin({
     <div className="actions">
       {SUPPORT_SPEECH_RECOGNITION && (
         <button
+          type={"button"}
           onClick={() => {
             editor.dispatchCommand(SPEECH_TO_TEXT_COMMAND, !isSpeechToText);
             setIsSpeechToText(!isSpeechToText);
           }}
-          className={"action-button action-button-mic " + (isSpeechToText ? "active" : "")}
+          className={`action-button action-button-mic ${isSpeechToText ? "active" : ""}`}
           title="Speech To Text"
           aria-label={`${isSpeechToText ? "Enable" : "Disable"} speech to text`}
         >
@@ -191,6 +190,7 @@ export default function ActionsPlugin({
         </button>
       )}
       <button
+        type="button"
         className="action-button import"
         onClick={() => importFile(editor)}
         title="Import"
@@ -200,6 +200,7 @@ export default function ActionsPlugin({
       </button>
 
       <button
+        type="button"
         className="action-button export"
         onClick={() =>
           exportFile(editor, {
@@ -213,6 +214,7 @@ export default function ActionsPlugin({
         <i className="export" />
       </button>
       <button
+        type="button"
         className="action-button share"
         disabled={isCollabActive || INITIAL_SETTINGS.isCollab}
         onClick={() =>
@@ -231,6 +233,7 @@ export default function ActionsPlugin({
         <i className="share" />
       </button>
       <button
+        type="button"
         className="action-button clear"
         disabled={isEditorEmpty}
         onClick={() => {
@@ -242,6 +245,7 @@ export default function ActionsPlugin({
         <i className="clear" />
       </button>
       <button
+        type="button"
         className={`action-button ${!isEditable ? "unlock" : "lock"}`}
         onClick={() => {
           // Send latest editor state to commenting validation server
@@ -256,6 +260,7 @@ export default function ActionsPlugin({
         <i className={!isEditable ? "unlock" : "lock"} />
       </button>
       <button
+        type="button"
         className="action-button"
         onClick={handleMarkdownToggle}
         title="Convert From Markdown"
@@ -266,6 +271,7 @@ export default function ActionsPlugin({
       {isCollabActive && (
         <>
           <button
+            type="button"
             className="action-button connect"
             onClick={() => {
               editor.dispatchCommand(TOGGLE_CONNECT_COMMAND, !connected);
@@ -277,6 +283,7 @@ export default function ActionsPlugin({
           </button>
           {useCollabV2 && (
             <button
+              type="button"
               className="action-button versions"
               onClick={() => {
                 editor.dispatchCommand(SHOW_VERSIONS_COMMAND, undefined);

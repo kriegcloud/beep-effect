@@ -25,7 +25,6 @@ import {
 
 import { DEFAULT_FONT_SIZE, MAX_ALLOWED_FONT_SIZE, MIN_ALLOWED_FONT_SIZE } from "../../context/ToolbarContext";
 
-// eslint-disable-next-line no-shadow
 export const UpdateFontSizeType = {
   increment: 1,
   decrement: 2,
@@ -137,7 +136,7 @@ export const updateFontSize = (
 ) => {
   if (inputValue !== "") {
     const nextFontSize = calculateNextFontSize(Number(inputValue), updateType);
-    updateFontSizeInSelection(editor, String(nextFontSize) + "px", null, skipRefocus);
+    updateFontSizeInSelection(editor, `${String(nextFontSize)}px`, null, skipRefocus);
   } else {
     updateFontSizeInSelection(editor, null, updateType, skipRefocus);
   }

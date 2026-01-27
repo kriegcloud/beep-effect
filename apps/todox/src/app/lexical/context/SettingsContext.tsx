@@ -3,9 +3,9 @@
 import type * as React from "react";
 import type { JSX } from "react";
 import { createContext, type ReactNode, useCallback, useContext, useMemo, useState } from "react";
-import type { SettingName } from "../appSettings";
+import type { SettingName } from "../settings";
 
-import { DEFAULT_SETTINGS, INITIAL_SETTINGS } from "../appSettings";
+import { DEFAULT_SETTINGS, INITIAL_SETTINGS } from "../settings";
 
 type SettingsContextShape = {
   readonly setOption: (name: SettingName, value: boolean) => void;

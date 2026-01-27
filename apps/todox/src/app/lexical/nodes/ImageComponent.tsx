@@ -1,10 +1,5 @@
 "use client";
 
-import type { LexicalCommand, LexicalEditor, NodeKey } from "lexical";
-import type { JSX } from "react";
-
-import "./ImageNode.css";
-
 import { useCollaborationContext } from "@lexical/react/LexicalCollaborationContext";
 import { CollaborationPlugin } from "@lexical/react/LexicalCollaborationPlugin";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
@@ -16,6 +11,7 @@ import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
 import { useLexicalEditable } from "@lexical/react/useLexicalEditable";
 import { useLexicalNodeSelection } from "@lexical/react/useLexicalNodeSelection";
 import { mergeRegister } from "@lexical/utils";
+import type { LexicalCommand, LexicalEditor, NodeKey } from "lexical";
 import {
   $getNodeByKey,
   $getRoot,
@@ -33,7 +29,7 @@ import {
   KEY_ESCAPE_COMMAND,
   SELECTION_CHANGE_COMMAND,
 } from "lexical";
-import * as React from "react";
+import type { JSX } from "react";
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { createWebsocketProvider } from "../collaboration";
@@ -200,7 +196,7 @@ function BrokenImage(): JSX.Element {
         width: 200,
       }}
       draggable="false"
-      alt="Broken image"
+      alt="Failed to load"
     />
   );
 }
@@ -460,8 +456,8 @@ export default function ImageComponent({
                 contentEditable={
                   <ContentEditable
                     placeholder="Enter a caption..."
-                    placeholderClassName="ImageNode__placeholder"
-                    className="ImageNode__contentEditable"
+                    placeholderClassName="text-xs text-[#888] overflow-hidden absolute text-ellipsis top-2.5 left-2.5 select-none whitespace-nowrap inline-block pointer-events-none"
+                    className="min-h-5 border-0 resize-none cursor-text caret-[rgb(5,5,5)] block relative outline-0 p-2.5 select-text text-xs w-full whitespace-pre-wrap break-words overflow-wrap-break-word box-border"
                   />
                 }
                 ErrorBoundary={LexicalErrorBoundary}

@@ -132,7 +132,7 @@ export default function ImageResizer({
       setStartCursor(direction);
       onResizeStart();
 
-      controlWrapper.classList.add("image-control-wrapper--resizing");
+      controlWrapper.style.touchAction = "none";
       image.style.height = `${height}px`;
       image.style.width = `${width}px`;
 
@@ -196,7 +196,7 @@ export default function ImageResizer({
       positioning.currentHeight = 0;
       positioning.isResizing = false;
 
-      controlWrapper.classList.remove("image-control-wrapper--resizing");
+      controlWrapper.style.touchAction = "";
 
       setEndCursor();
       onResizeEnd(width, height);
@@ -209,6 +209,7 @@ export default function ImageResizer({
     <div ref={controlWrapperRef}>
       {!showCaption && captionsEnabled && (
         <button
+          type="button"
           className="image-caption-button"
           ref={buttonRef}
           onClick={() => {
