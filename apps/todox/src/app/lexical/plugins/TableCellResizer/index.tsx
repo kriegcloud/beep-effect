@@ -240,20 +240,20 @@ function TableCellResizer({ editor }: { readonly editor: LexicalEditor }): JSX.E
   const updateColumnWidth = useCallback(
     (widthChange: number) => {
       if (!activeCell) {
-        throw new Error("TableCellResizer: Expected active cell.");
+        return;
       }
       editor.update(
         () => {
           const tableCellNode = $getNearestNodeFromDOMNode(activeCell.elem);
           if (!$isTableCellNode(tableCellNode)) {
-            throw new Error("TableCellResizer: Table cell node not found.");
+            return;
           }
 
           const tableNode = $getTableNodeFromLexicalNodeOrThrow(tableCellNode);
           const [tableMap] = $computeTableMapSkipCellCheck(tableNode, null, null);
           const columnIndex = getCellColumnIndex(tableCellNode, tableMap);
           if (columnIndex === undefined) {
-            throw new Error("TableCellResizer: Table column not found.");
+            return;
           }
 
           const colWidths = tableNode.getColWidths();
@@ -282,7 +282,7 @@ function TableCellResizer({ editor }: { readonly editor: LexicalEditor }): JSX.E
         event.stopPropagation();
 
         if (!activeCell) {
-          throw new Error("TableCellResizer: Expected active cell.");
+          return;
         }
 
         if (pointerStartPosRef.current) {
