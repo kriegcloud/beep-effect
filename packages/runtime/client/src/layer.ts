@@ -20,6 +20,7 @@ import * as Logger from "effect/Logger";
 import * as LogLevel from "effect/LogLevel";
 import { NetworkMonitor } from "./services/network-monitor";
 import { WorkerClient } from "./workers/worker-client";
+import * as Clipboard from "@effect/platform-browser/Clipboard";
 
 const configProvider = ConfigProvider.fromJson(process.env);
 // ============================================================================
@@ -77,7 +78,7 @@ export const WorkerClientLive = WorkerClient.Default;
 // Runtime assembly
 // ============================================================================
 
-type ClientRuntimeServices = HttpClient | ToasterService | NetworkMonitor | WorkerClient | KeyValueStore.KeyValueStore;
+type ClientRuntimeServices = Clipboard.Clipboard | HttpClient | ToasterService | NetworkMonitor | WorkerClient | KeyValueStore.KeyValueStore;
 
 export type ClientRuntimeLayer = Layer.Layer<ClientRuntimeServices, never, never>;
 
@@ -88,5 +89,6 @@ export const clientRuntimeLayer = Layer.mergeAll(
   NetworkMonitorLive,
   WorkerClientLive,
   BrowserKeyValueStore.layerLocalStorage,
-  GeoLocationLive
+  GeoLocationLive,
+  Clipboard.layer,
 ).pipe(Layer.provide(LogLevelLive), Layer.provideMerge(Layer.setConfigProvider(configProvider)));

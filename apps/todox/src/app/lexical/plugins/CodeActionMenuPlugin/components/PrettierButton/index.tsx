@@ -3,7 +3,10 @@
 import { $isCodeNode } from "@lexical/code";
 import { $getNearestNodeFromDOMNode, type LexicalEditor } from "lexical";
 import type { Options } from "prettier";
-import { useState } from "react";
+import { useState, useCallback } from "react";
+import * as Effect from "effect/Effect";
+import { makeRunClientPromise, useRuntime } from "@beep/runtime-client";
+import { PrettierError, UnsupportedLanguageError } from "../../../../schema/errors";
 
 interface Props {
   readonly lang: string;
@@ -21,15 +24,31 @@ const PRETTIER_PARSER_MODULES = {
 
 type LanguagesType = keyof typeof PRETTIER_PARSER_MODULES;
 
-async function loadPrettierParserByLang(lang: string) {
+const loadPrettierParserByLang = Effect.fn("loadPrettierParserByLang")(function* (lang: string) {
   const dynamicImports = PRETTIER_PARSER_MODULES[lang as LanguagesType];
-  return await Promise.all(dynamicImports.map((dynamicImport) => dynamicImport()));
-}
+  return yield* Effect.tryPromise({
+    try: () => Promise.all(dynamicImports.map((dynamicImport) => dynamicImport())),
+    catch: (cause) =>
+      new PrettierError({
+        message: `Failed to load Prettier parser for ${lang}`,
+        cause,
+      }),
+  });
+});
 
-async function loadPrettierFormat() {
-  const { format } = await import("prettier/standalone");
-  return format;
-}
+const loadPrettierFormat = Effect.fn("loadPrettierFormat")(function* () {
+  return yield* Effect.tryPromise({
+    try: async () => {
+      const { format } = await import("prettier/standalone");
+      return format;
+    },
+    catch: (cause) =>
+      new PrettierError({
+        message: "Failed to load Prettier format function",
+        cause,
+      }),
+  });
+});
 
 const PRETTIER_OPTIONS_BY_LANG: Record<string, Options> = {
   css: { parser: "css" },
@@ -45,20 +64,45 @@ export function canBePrettier(lang: string): boolean {
   return LANG_CAN_BE_PRETTIER.includes(lang);
 }
 
-function getPrettierOptions(lang: string): Options {
+const getPrettierOptions = Effect.fn("getPrettierOptions")(function* (lang: string) {
   const options = PRETTIER_OPTIONS_BY_LANG[lang];
   if (!options) {
-    throw new Error(`CodeActionMenuPlugin: Prettier does not support this language: ${lang}`);
+    return yield* Effect.fail(
+      new UnsupportedLanguageError({
+        message: `Prettier does not support this language: ${lang}`,
+        lang,
+      })
+    );
   }
-
   return options;
-}
+});
+
+const formatWithPrettier = Effect.fn("formatWithPrettier")(function* (content: string, lang: string) {
+  const format = yield* loadPrettierFormat();
+  const options = yield* getPrettierOptions(lang);
+  const prettierParsers = yield* loadPrettierParserByLang(lang);
+  const optionsWithPlugins = {
+    ...options,
+    plugins: prettierParsers.map((parser) => parser.default || parser),
+  };
+
+  return yield* Effect.tryPromise({
+    try: () => format(content, optionsWithPlugins),
+    catch: (cause) =>
+      new PrettierError({
+        message: "Prettier formatting failed",
+        cause,
+      }),
+  });
+});
 
 export function PrettierButton({ lang, editor, getCodeDOMNode }: Props) {
   const [syntaxError, setSyntaxError] = useState<string>("");
   const [tipsVisible, setTipsVisible] = useState<boolean>(false);
+  const runtime = useRuntime();
+  const runPromise = makeRunClientPromise(runtime);
 
-  async function handleClick(): Promise<void> {
+  const handleClick = useCallback(async (): Promise<void> => {
     const codeDOMNode = getCodeDOMNode();
     if (!codeDOMNode) {
       return;
@@ -75,35 +119,30 @@ export function PrettierButton({ lang, editor, getCodeDOMNode }: Props) {
       return;
     }
 
-    try {
-      const format = await loadPrettierFormat();
-      const options = getPrettierOptions(lang);
-      const prettierParsers = await loadPrettierParserByLang(lang);
-      options.plugins = prettierParsers.map((parser) => parser.default || parser);
-      const formattedCode = await format(content, options);
-
-      editor.update(() => {
-        const codeNode = $getNearestNodeFromDOMNode(codeDOMNode);
-        if ($isCodeNode(codeNode)) {
-          const selection = codeNode.select(0);
-          selection.insertText(formattedCode);
-          setSyntaxError("");
-          setTipsVisible(false);
-        }
-      });
-    } catch (error: unknown) {
-      setError(error);
-    }
-  }
-
-  function setError(error: unknown) {
-    if (error instanceof Error) {
-      setSyntaxError(error.message);
-      setTipsVisible(true);
-    } else {
-      console.error("Unexpected error: ", error);
-    }
-  }
+    await runPromise(
+      formatWithPrettier(content, lang).pipe(
+        Effect.tap((formattedCode) =>
+          Effect.sync(() => {
+            editor.update(() => {
+              const codeNode = $getNearestNodeFromDOMNode(codeDOMNode);
+              if ($isCodeNode(codeNode)) {
+                const selection = codeNode.select(0);
+                selection.insertText(formattedCode);
+                setSyntaxError("");
+                setTipsVisible(false);
+              }
+            });
+          })
+        ),
+        Effect.catchAll((error) =>
+          Effect.sync(() => {
+            setSyntaxError(error.message);
+            setTipsVisible(true);
+          })
+        )
+      )
+    );
+  }, [editor, getCodeDOMNode, lang, runPromise]);
 
   function handleMouseEnter() {
     if (syntaxError !== "") {

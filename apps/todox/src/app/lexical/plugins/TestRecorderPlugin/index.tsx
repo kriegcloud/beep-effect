@@ -2,6 +2,7 @@
 
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { IS_APPLE } from "@lexical/utils";
+import * as Either from "effect/Either";
 import type { BaseSelection, LexicalEditor } from "lexical";
 import { $createParagraphNode, $createTextNode, $getRoot, getDOMSelection } from "lexical";
 import type { JSX } from "react";
@@ -15,13 +16,12 @@ const copy = (text: string | null) => {
   document.body?.appendChild(textArea);
   textArea.focus();
   textArea.select();
-  try {
-    const result = document.execCommand("copy");
-
-    console.log(result);
-  } catch (error) {
-    console.error(error);
-  }
+  Either.try(() => document.execCommand("copy")).pipe(
+    Either.match({
+      onLeft: (error) => console.error(error),
+      onRight: (result) => console.log(result),
+    })
+  );
   document.body?.removeChild(textArea);
 };
 

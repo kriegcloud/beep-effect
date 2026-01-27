@@ -9,7 +9,6 @@
 import type { SerializedDocument } from "@lexical/file";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
-import { pipe } from "effect/Function";
 import * as O from "effect/Option";
 
 import { CompressionError, InvalidDocumentHashError, ParseError } from "../schema/errors";
@@ -93,17 +92,15 @@ export const docToHash = (doc: SerializedDocument): Effect.Effect<string, Compre
  *
  * @since 0.1.0
  */
-export const docToHashPromise = (doc: SerializedDocument): Promise<string> => Effect.runPromise(docToHash(doc));
+
 
 /**
  * Decompresses a hash string back to a SerializedDocument.
  *
  * @since 0.1.0
  */
-export const docFromHash = (
-  hash: string
-): Effect.Effect<SerializedDocument, InvalidDocumentHashError | ParseError | CompressionError> =>
-  Effect.gen(function* () {
+export const docFromHash =
+  Effect.fn(function* (hash: string) {
     const m = /^#doc=(.*)$/.exec(hash);
     if (!m || m[1] === undefined) {
       return yield* Effect.fail(
@@ -164,13 +161,6 @@ export const docFromHash = (
           input: jsonString,
         }),
     });
-  });
+  }, Effect.option, Effect.map(O.getOrNull));
 
-/**
- * Backward-compatible Promise wrapper for docFromHash.
- * Returns null instead of throwing on error.
- *
- * @since 0.1.0
- */
-export const docFromHashPromise = (hash: string): Promise<SerializedDocument | null> =>
-  pipe(docFromHash(hash), Effect.option, Effect.map(O.getOrNull), Effect.runPromise);
+

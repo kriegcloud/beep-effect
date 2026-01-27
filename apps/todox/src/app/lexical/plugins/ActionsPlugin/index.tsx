@@ -1,6 +1,6 @@
 "use client";
 
-import { $createCodeNode, $isCodeNode } from "@lexical/code";
+import {$createCodeNode, $isCodeNode} from "@lexical/code";
 import {
   editorStateFromSerializedDocument,
   exportFile,
@@ -8,12 +8,13 @@ import {
   type SerializedDocument,
   serializedDocumentFromEditorState,
 } from "@lexical/file";
-import { $convertFromMarkdownString, $convertToMarkdownString } from "@lexical/markdown";
-import { useCollaborationContext } from "@lexical/react/LexicalCollaborationContext";
-import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
-import { mergeRegister } from "@lexical/utils";
-import { CONNECTED_COMMAND, TOGGLE_CONNECT_COMMAND } from "@lexical/yjs";
-import type { LexicalEditor } from "lexical";
+import {$convertFromMarkdownString, $convertToMarkdownString} from "@lexical/markdown";
+import {useCollaborationContext} from "@lexical/react/LexicalCollaborationContext";
+import {useLexicalComposerContext} from "@lexical/react/LexicalComposerContext";
+import {mergeRegister} from "@lexical/utils";
+import {CONNECTED_COMMAND, TOGGLE_CONNECT_COMMAND} from "@lexical/yjs";
+import type {LexicalEditor} from "lexical";
+import * as P from "effect/Predicate";
 import {
   $createTextNode,
   $getRoot,
@@ -24,68 +25,154 @@ import {
   COMMAND_PRIORITY_EDITOR,
   HISTORIC_TAG,
 } from "lexical";
-import type { JSX } from "react";
-import { useCallback, useEffect, useState } from "react";
+import type {JSX} from "react";
+import {useCallback, useEffect, useState} from "react";
 import useFlashMessage from "../../hooks/useFlashMessage";
 import useModal from "../../hooks/useModal";
-import { INITIAL_SETTINGS } from "../../settings";
+import {INITIAL_SETTINGS} from "../../settings";
 import Button from "../../ui/Button";
-import { docFromHashPromise, docToHashPromise } from "../../utils/docSerialization";
-import { PLAYGROUND_TRANSFORMERS } from "../MarkdownTransformers";
-import { SPEECH_TO_TEXT_COMMAND, SUPPORT_SPEECH_RECOGNITION } from "../SpeechToTextPlugin";
-import { SHOW_VERSIONS_COMMAND } from "../VersionsPlugin";
+import {docToHash, docFromHash} from "../../utils/docSerialization";
+import {PLAYGROUND_TRANSFORMERS} from "../MarkdownTransformers";
+import {SPEECH_TO_TEXT_COMMAND, SUPPORT_SPEECH_RECOGNITION} from "../SpeechToTextPlugin";
+import {SHOW_VERSIONS_COMMAND} from "../VersionsPlugin";
+import {makeRunClientPromise, useRuntime} from "@beep/runtime-client";
+import * as Effect from "effect/Effect";
+import * as S from "effect/Schema";
+import {$TodoxId} from "@beep/identity/packages";
+import {SerializedEditorState} from "@beep/todox/app/lexical/schema";
+import * as HttpClient from "@effect/platform/HttpClient";
+import * as HttpClientRequest from "@effect/platform/HttpClientRequest";
+import * as HttpClientResponse from "@effect/platform/HttpClientResponse";
+import {makeAtomRuntime} from "@beep/runtime-client";
+import {useAtomSet} from "@effect-atom/atom-react";
+import * as Layer from "effect/Layer";
+import * as FetchHttpClient from "@effect/platform/FetchHttpClient";
+import * as F from "effect/Function";
+import {withToast} from "@beep/ui/common";
+import * as Clipboard from "@effect/platform-browser/Clipboard";
 
-async function sendEditorState(editor: LexicalEditor): Promise<void> {
-  const stringifiedEditorState = JSON.stringify(editor.getEditorState());
-  try {
-    await fetch("/api/lexical/set-state", {
-      body: stringifiedEditorState,
-      headers: {
-        Accept: "application/json",
-        "Content-type": "application/json",
-      },
-      method: "POST",
-    });
-  } catch {
-    // NO-OP
-  }
+const $I = $TodoxId.create("app/lexical/index");
+
+export class SendEditoryStateError extends S.TaggedError<SendEditoryStateError>($I`SendEditoryStateError`)(
+  "SendEditoryStateError",
+  {
+    cause: S.Defect,
+  },
+  $I.annotations("SendEditoryStateError", {
+    description: "An error which occurred while sending the editor state to the server.",
+  })
+) {
 }
 
-async function validateEditorState(editor: LexicalEditor): Promise<void> {
-  const stringifiedEditorState = JSON.stringify(editor.getEditorState());
-  let response = null;
-  try {
-    response = await fetch("/api/lexical/validate", {
-      body: stringifiedEditorState,
-      headers: {
-        Accept: "application/json",
-        "Content-type": "application/json",
-      },
-      method: "POST",
-    });
-  } catch {
-    // NO-OP
+
+export class EditorHttpClient extends Effect.Service<EditorHttpClient>()(
+  $I`EditorHttpClient`,
+  {
+    accessors: true,
+    dependencies: [],
+    effect: Effect.gen(function* () {
+      const httpClient = yield* HttpClient.HttpClient;
+
+      const sendEditorState = Effect.fn("EditorHttpClient.sendEditorState")(function* (editor: LexicalEditor) {
+        const state = yield* S.decode(SerializedEditorState)(editor.getEditorState().toJSON());
+        const request = yield* HttpClientRequest.post("/api/lexical/set-state").pipe(
+          HttpClientRequest.setHeaders({
+            Accept: "application/json",
+            "Content-type": "application/json",
+          }),
+          HttpClientRequest.schemaBodyJson(SerializedEditorState)(state),
+        );
+
+        yield* httpClient.execute(request);
+      }, Effect.tapError(Effect.logError), Effect.catchTags({
+        ParseError: Effect.die,
+        HttpBodyError: Effect.die,
+      }));
+
+      const validateEditorState = Effect.fn("EditorHttpClient.validateEditorState")(function* (editor: LexicalEditor) {
+        const state = yield* S.decode(SerializedEditorState)(editor.getEditorState().toJSON());
+        yield* HttpClientRequest.post("/api/lexical/validate").pipe(
+          HttpClientRequest.setHeaders({
+            Accept: "application/json",
+            "Content-type": "application/json",
+          }),
+          HttpClientRequest.schemaBodyJson(SerializedEditorState)(state),
+          Effect.flatMap(httpClient.execute),
+          Effect.flatMap(HttpClientResponse.filterStatusOk),
+          Effect.flatMap(HttpClientResponse.schemaBodyJson(S.Boolean)),
+          Effect.tapError(Effect.logError),
+          Effect.catchTags({
+            ParseError: Effect.die,
+            HttpBodyError: Effect.die,
+          })
+        );
+      });
+
+      return {
+        sendEditorState,
+        validateEditorState,
+      };
+    })
   }
-  if (response !== null && response.status === 403) {
-    throw new Error("Editor state validation failed! Server did not accept changes.");
-  }
+) {
 }
 
-async function shareDoc(doc: SerializedDocument): Promise<void> {
-  const url = new URL(window.location.toString());
-  url.hash = await docToHashPromise(doc);
+
+const atomRuntime = makeAtomRuntime(
+  () => EditorHttpClient.Default.pipe(
+    Layer.provide(FetchHttpClient.layer)
+  )
+);
+
+const sendEditorStateAtom = atomRuntime.fn(
+  F.flow(EditorHttpClient.sendEditorState, withToast({
+    onFailure: (error) => error.message,
+    onDefect: () => "An unknown error occurred while sending the editor state to the server.",
+    onSuccess: () => "Editor state sent successfully.",
+    onWaiting: () => "Sending editor state...",
+  }))
+);
+
+const validateEditorStateAtom = atomRuntime.fn(
+  F.flow(EditorHttpClient.validateEditorState, withToast({
+    onFailure: (error) => error.message,
+    onDefect: () => "An unknown error occurred while validating the editor state.",
+    onSuccess: () => "Editor state validated successfully.",
+    onWaiting: () => "Validating editor state...",
+  }))
+);
+
+const useEditorClient = () => {
+  const sendEditorState = useAtomSet(sendEditorStateAtom);
+  const validateEditorState = useAtomSet(validateEditorStateAtom);
+  return {
+    sendEditorState,
+    validateEditorState
+  };
+};
+
+const shareDoc = Effect.fn("shareDoc")(function* (doc: SerializedDocument) {
+  const url = yield* S.decode(S.URL)(window.location.toString());
+  const clipboard = yield* Clipboard.Clipboard;
+  url.hash = yield* docToHash(doc);
   const newUrl = url.toString();
   window.history.replaceState({}, "", newUrl);
-  await window.navigator.clipboard.writeText(newUrl);
-}
+  yield* clipboard.writeString(newUrl);
+});
+
 
 export default function ActionsPlugin({
-  shouldPreserveNewLinesInMarkdown,
-  useCollabV2,
-}: {
+                                        shouldPreserveNewLinesInMarkdown,
+                                        useCollabV2,
+                                      }: {
   readonly shouldPreserveNewLinesInMarkdown: boolean;
   readonly useCollabV2: boolean;
 }): JSX.Element {
+
+  const runtime = useRuntime();
+
+  const runClientPromise = makeRunClientPromise(runtime);
+  const {sendEditorState, validateEditorState} = useEditorClient();
   const [editor] = useLexicalComposerContext();
   const [isEditable, setIsEditable] = useState(() => editor.isEditable());
   const [isSpeechToText, setIsSpeechToText] = useState(false);
@@ -93,12 +180,12 @@ export default function ActionsPlugin({
   const [isEditorEmpty, setIsEditorEmpty] = useState(true);
   const [modal, showModal] = useModal();
   const showFlashMessage = useFlashMessage();
-  const { isCollabActive } = useCollaborationContext();
+  const {isCollabActive} = useCollaborationContext();
   useEffect(() => {
     if (INITIAL_SETTINGS.isCollab) {
       return;
     }
-    docFromHashPromise(window.location.hash).then((doc) => {
+    runClientPromise(docFromHash(window.location.hash)).then((doc) => {
       if (doc && doc.source === "Playground") {
         editor.setEditorState(editorStateFromSerializedDocument(editor, doc));
         editor.dispatchCommand(CLEAR_HISTORY_COMMAND, undefined);
@@ -122,7 +209,7 @@ export default function ActionsPlugin({
   }, [editor]);
 
   useEffect(() => {
-    return editor.registerUpdateListener(({ dirtyElements, prevEditorState, tags }) => {
+    return editor.registerUpdateListener(({dirtyElements, prevEditorState, tags}) => {
       // If we are in read only mode, send the editor state
       // to server and ask for validation if possible.
       if (!isEditable && dirtyElements.size > 0 && !tags.has(HISTORIC_TAG) && !tags.has(COLLABORATION_TAG)) {
@@ -186,7 +273,7 @@ export default function ActionsPlugin({
           title="Speech To Text"
           aria-label={`${isSpeechToText ? "Enable" : "Disable"} speech to text`}
         >
-          <i className="mic" />
+          <i className="mic"/>
         </button>
       )}
       <button
@@ -196,7 +283,7 @@ export default function ActionsPlugin({
         title="Import"
         aria-label="Import editor state from JSON"
       >
-        <i className="import" />
+        <i className="import"/>
       </button>
 
       <button
@@ -211,38 +298,38 @@ export default function ActionsPlugin({
         title="Export"
         aria-label="Export editor state to JSON"
       >
-        <i className="export" />
+        <i className="export"/>
       </button>
       <button
         type="button"
         className="action-button share"
         disabled={isCollabActive || INITIAL_SETTINGS.isCollab}
         onClick={() =>
-          shareDoc(
-            serializedDocumentFromEditorState(editor.getEditorState(), {
+          runClientPromise(
+            shareDoc(serializedDocumentFromEditorState(editor.getEditorState(), {
               source: "Playground",
-            })
-          ).then(
-            () => showFlashMessage("URL copied to clipboard"),
-            () => showFlashMessage("URL could not be copied to clipboard")
+            })).pipe(
+              Effect.tap(() => Effect.succeed(showFlashMessage("URL copied to clipboard"))),
+              Effect.mapError((e) => P.isTagged("ClipboardError")(e) ? Effect.sync(() => showFlashMessage("URL could not be copied to clipboard")) : Effect.die(e)),
+            )
           )
         }
         title="Share"
         aria-label="Share Playground link to current editor state"
       >
-        <i className="share" />
+        <i className="share"/>
       </button>
       <button
         type="button"
         className="action-button clear"
         disabled={isEditorEmpty}
         onClick={() => {
-          showModal("Clear editor", (onClose) => <ShowClearDialog editor={editor} onClose={onClose} />);
+          showModal("Clear editor", (onClose) => <ShowClearDialog editor={editor} onClose={onClose}/>);
         }}
         title="Clear"
         aria-label="Clear editor contents"
       >
-        <i className="clear" />
+        <i className="clear"/>
       </button>
       <button
         type="button"
@@ -250,14 +337,14 @@ export default function ActionsPlugin({
         onClick={() => {
           // Send latest editor state to commenting validation server
           if (isEditable) {
-            void sendEditorState(editor);
+            sendEditorState(editor);
           }
           editor.setEditable(!editor.isEditable());
         }}
         title="Read-Only Mode"
         aria-label={`${!isEditable ? "Unlock" : "Lock"} read-only mode`}
       >
-        <i className={!isEditable ? "unlock" : "lock"} />
+        <i className={!isEditable ? "unlock" : "lock"}/>
       </button>
       <button
         type="button"
@@ -266,7 +353,7 @@ export default function ActionsPlugin({
         title="Convert From Markdown"
         aria-label="Convert from markdown"
       >
-        <i className="markdown" />
+        <i className="markdown"/>
       </button>
       {isCollabActive && (
         <>
@@ -279,7 +366,7 @@ export default function ActionsPlugin({
             title={`${connected ? "Disconnect" : "Connect"} Collaborative Editing`}
             aria-label={`${connected ? "Disconnect from" : "Connect to"} a collaborative editing server`}
           >
-            <i className={connected ? "disconnect" : "connect"} />
+            <i className={connected ? "disconnect" : "connect"}/>
           </button>
           {useCollabV2 && (
             <button
@@ -289,7 +376,7 @@ export default function ActionsPlugin({
                 editor.dispatchCommand(SHOW_VERSIONS_COMMAND, undefined);
               }}
             >
-              <i className="versions" />
+              <i className="versions"/>
             </button>
           )}
         </>
@@ -299,7 +386,7 @@ export default function ActionsPlugin({
   );
 }
 
-function ShowClearDialog({ editor, onClose }: { editor: LexicalEditor; onClose: () => void }): JSX.Element {
+function ShowClearDialog({editor, onClose}: { editor: LexicalEditor; onClose: () => void }): JSX.Element {
   return (
     <>
       Are you sure you want to clear the editor?

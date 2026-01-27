@@ -15,6 +15,9 @@ import type {
 } from "lexical";
 import type { JSX } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import * as Effect from "effect/Effect";
+import { makeRunClientPromise, useRuntime } from "@beep/runtime-client";
+import { TwitterError } from "../schema/errors";
 
 const WIDGET_SCRIPT_URL = "https://platform.twitter.com/widgets.js";
 
@@ -42,6 +45,39 @@ function $convertTweetElement(domNode: HTMLDivElement): DOMConversionOutput | nu
 
 let isTwitterScriptLoading = true;
 
+// Twitter widget types
+declare global {
+  interface Window {
+    twttr?: {
+      widgets: {
+        createTweet: (tweetId: string, container: HTMLElement | null) => Promise<unknown>;
+      };
+    };
+  }
+}
+
+const createTweetWidget = Effect.fn("createTweetWidget")(function* (
+  tweetID: string,
+  container: HTMLElement | null
+) {
+  if (!window.twttr) {
+    return yield* Effect.fail(
+      new TwitterError({
+        message: "Twitter widgets not loaded",
+      })
+    );
+  }
+  return yield* Effect.tryPromise({
+    // @ts-expect-error Twitter is attached to the window.
+    try: () => window.twttr.widgets.createTweet(tweetID, container),
+    catch: (cause) =>
+      new TwitterError({
+        message: "Failed to create tweet widget",
+        cause,
+      }),
+  });
+});
+
 function TweetComponent({
   className,
   format,
@@ -52,27 +88,33 @@ function TweetComponent({
   tweetID,
 }: TweetComponentProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
-
   const previousTweetIDRef = useRef<string>("");
   const [isTweetLoading, setIsTweetLoading] = useState(false);
+  const runtime = useRuntime();
+  const runPromise = makeRunClientPromise(runtime);
 
   const createTweet = useCallback(async () => {
-    try {
-      // @ts-expect-error Twitter is attached to the window.
-      await window.twttr.widgets.createTweet(tweetID, containerRef.current);
-
-      setIsTweetLoading(false);
-      isTwitterScriptLoading = false;
-
-      if (onLoad) {
-        onLoad();
-      }
-    } catch (error) {
-      if (onError) {
-        onError(String(error));
-      }
-    }
-  }, [onError, onLoad, tweetID]);
+    await runPromise(
+      createTweetWidget(tweetID, containerRef.current).pipe(
+        Effect.tap(() =>
+          Effect.sync(() => {
+            setIsTweetLoading(false);
+            isTwitterScriptLoading = false;
+            if (onLoad) {
+              onLoad();
+            }
+          })
+        ),
+        Effect.catchAll((error) =>
+          Effect.sync(() => {
+            if (onError) {
+              onError(error.message);
+            }
+          })
+        )
+      )
+    );
+  }, [onError, onLoad, tweetID, runPromise]);
 
   useEffect(() => {
     if (tweetID !== previousTweetIDRef.current) {

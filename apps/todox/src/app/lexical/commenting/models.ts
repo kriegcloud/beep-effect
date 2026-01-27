@@ -10,6 +10,7 @@ import {
 import * as A from "effect/Array";
 import * as Data from "effect/Data";
 import * as DateTime from "effect/DateTime";
+import * as Either from "effect/Either";
 import * as F from "effect/Function";
 import * as Match from "effect/Match";
 import * as MutableHashSet from "effect/MutableHashSet";
@@ -413,12 +414,12 @@ export class CommentStore extends Data.Class {
     };
 
     const disconnect = () => {
-      try {
-        provider.disconnect();
-      } catch (_e) {
-        console.error("Comments disconnect failed!", _e);
-        // Do nothing
-      }
+      Either.try(() => provider.disconnect()).pipe(
+        Either.match({
+          onLeft: (error) => console.error("Comments disconnect failed!", error),
+          onRight: noOp,
+        })
+      );
     };
 
     const unsubscribe = this._editor.registerCommand(

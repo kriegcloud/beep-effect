@@ -14,6 +14,8 @@ import {
 } from "lexical";
 import type { JSX } from "react";
 import * as React from "react";
+import * as Either from "effect/Either";
+import * as O from "effect/Option";
 
 export type Options = ReadonlyArray<Option>;
 
@@ -57,13 +59,17 @@ export type SerializedPollNode = Spread<
 >;
 
 function $convertPollElement(domNode: HTMLSpanElement): DOMConversionOutput | null {
-  const question = domNode.getAttribute("data-lexical-poll-question");
-  const options = domNode.getAttribute("data-lexical-poll-options");
-  if (question !== null && options !== null) {
-    const node = $createPollNode(question, JSON.parse(options));
-    return { node };
-  }
-  return null;
+  const question = O.fromNullable(domNode.getAttribute("data-lexical-poll-question"));
+  const optionsAttr = O.fromNullable(domNode.getAttribute("data-lexical-poll-options"));
+
+  return O.getOrNull(
+    O.flatMap(O.all([question, optionsAttr]), ([q, opts]) =>
+      O.map(
+        Either.getRight(Either.try(() => JSON.parse(opts))),
+        (parsed) => ({ node: $createPollNode(q, parseOptions(parsed)) })
+      )
+    )
+  );
 }
 
 function parseOptions(json: unknown): Options {

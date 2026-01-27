@@ -24,6 +24,9 @@ import {
   type LexicalEditor,
 } from "lexical";
 import type { JSX } from "react";
+import * as Either from "effect/Either";
+import * as O from "effect/Option";
+import * as S from "effect/Schema";
 
 import { useEffect, useRef, useState } from "react";
 
@@ -317,17 +320,26 @@ function $getImageNodeInSelection(): ImageNode | null {
   return $isImageNode(node) ? node : null;
 }
 
+const DragDataSchema = S.Struct({
+  type: S.String,
+  data: S.Unknown,
+});
+
 function getDragImageData(event: DragEvent): null | InsertImagePayload {
   const dragData = event.dataTransfer?.getData("application/x-lexical-drag");
-  if (!dragData) {
-    return null;
-  }
-  const { type, data } = JSON.parse(dragData);
-  if (type !== "image") {
-    return null;
-  }
 
-  return data;
+  return O.getOrNull(
+    O.flatMap(O.fromNullable(dragData), (data) =>
+      Either.getRight(
+        Either.try(() => JSON.parse(data)).pipe(
+          Either.flatMap(S.decodeUnknownEither(DragDataSchema)),
+          Either.flatMap(({ type, data }) =>
+            type === "image" ? Either.right(data as InsertImagePayload) : Either.left("not image")
+          )
+        )
+      )
+    )
+  );
 }
 
 declare global {

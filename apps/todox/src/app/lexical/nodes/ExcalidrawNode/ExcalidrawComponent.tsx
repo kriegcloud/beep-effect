@@ -9,6 +9,7 @@ import type { NodeKey } from "lexical";
 import { $getNodeByKey, CLICK_COMMAND, COMMAND_PRIORITY_LOW, isDOMNode } from "lexical";
 import type { JSX } from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import * as Either from "effect/Either";
 import type { ExcalidrawInitialElements } from "../../ui/ExcalidrawModal";
 
 import ExcalidrawModal from "../../ui/ExcalidrawModal";
@@ -125,7 +126,10 @@ export default function ExcalidrawComponent({
     setModalOpen(true);
   }, []);
 
-  const { elements = [], files = {}, appState = {} } = useMemo(() => JSON.parse(data), [data]);
+  const { elements = [], files = {}, appState = {} } = useMemo(
+    () => Either.getOrElse(Either.try(() => JSON.parse(data)), () => ({ elements: [], files: {}, appState: {} })),
+    [data]
+  );
 
   const closeModal = useCallback(() => {
     setModalOpen(false);

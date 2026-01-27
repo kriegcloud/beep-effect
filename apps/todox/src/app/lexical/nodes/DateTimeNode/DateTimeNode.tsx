@@ -16,6 +16,8 @@ import {
 } from "lexical";
 import type { JSX } from "react";
 import * as React from "react";
+import * as Either from "effect/Either";
+import * as O from "effect/Option";
 
 const DateTimeComponent = React.lazy(() => import("./DateTimeComponent"));
 
@@ -44,17 +46,17 @@ function $convertDateTimeElement(domNode: HTMLElement): DOMConversionOutput | nu
     const node = $createDateTimeNode(new Date(Date.parse(dateTimeValue)));
     return { node };
   }
-  const gDocsDateTimePayload = domNode.getAttribute("data-rich-links");
-  if (!gDocsDateTimePayload) {
-    return null;
-  }
-  const parsed = JSON.parse(gDocsDateTimePayload);
-  const parsedDate = Date.parse(parsed?.dat_df?.dfie_dt || "");
-  if (Number.isNaN(parsedDate)) {
-    return null;
-  }
-  const node = $createDateTimeNode(new Date(parsedDate));
-  return { node };
+
+  return O.getOrNull(
+    O.flatMap(O.fromNullable(domNode.getAttribute("data-rich-links")), (payload) =>
+      O.flatMap(Either.getRight(Either.try(() => JSON.parse(payload))), (parsed) => {
+        const parsedDate = Date.parse(parsed?.dat_df?.dfie_dt || "");
+        return Number.isNaN(parsedDate)
+          ? O.none()
+          : O.some({ node: $createDateTimeNode(new Date(parsedDate)) });
+      })
+    )
+  );
 }
 
 const dateTimeState = createState("dateTime", {
@@ -62,16 +64,21 @@ const dateTimeState = createState("dateTime", {
   unparse: (v) => v.toISOString(),
 });
 
+const isGDocsDateType = (domNode: HTMLElement): boolean =>
+  O.getOrElse(
+    O.flatMap(O.fromNullable(domNode.getAttribute("data-rich-links")), (attr) =>
+      O.map(Either.getRight(Either.try(() => JSON.parse(attr))), (parsed) => parsed.type === "date")
+    ),
+    () => false
+  );
+
 export class DateTimeNode extends DecoratorNode<JSX.Element> {
   override $config() {
     return this.config("datetime", {
       extends: DecoratorNode,
       importDOM: buildImportMap({
         span: (domNode) =>
-          domNode.getAttribute("data-lexical-datetime") !== null ||
-          // GDocs Support
-          (domNode.getAttribute("data-rich-links") !== null &&
-            JSON.parse(domNode.getAttribute("data-rich-links") || "{}").type === "date")
+          domNode.getAttribute("data-lexical-datetime") !== null || isGDocsDateType(domNode)
             ? {
                 conversion: $convertDateTimeElement,
                 priority: 2,

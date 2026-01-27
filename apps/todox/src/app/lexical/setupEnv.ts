@@ -6,6 +6,7 @@
  *
  */
 
+import * as Either from "effect/Either";
 import * as Struct from "effect/Struct";
 import { INITIAL_SETTINGS, type Settings } from "./settings";
 // Export a function so this is not tree-shaken,
@@ -17,12 +18,14 @@ export default (() => {
 
   for (const param of Struct.keys(INITIAL_SETTINGS)) {
     if (urlSearchParams.has(param)) {
-      try {
-        const value = JSON.parse(urlSearchParams.get(param) ?? "true");
-        INITIAL_SETTINGS[param as keyof Settings] = Boolean(value);
-      } catch (_error) {
-        console.warn(`Unable to parse query parameter "${param}"`);
-      }
+      Either.try(() => JSON.parse(urlSearchParams.get(param) ?? "true")).pipe(
+        Either.match({
+          onLeft: () => console.warn(`Unable to parse query parameter "${param}"`),
+          onRight: (value) => {
+            INITIAL_SETTINGS[param as keyof Settings] = Boolean(value);
+          },
+        })
+      );
     }
   }
 

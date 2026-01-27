@@ -120,14 +120,14 @@ function TableCellResizer({ editor }: { readonly editor: LexicalEditor }): JSX.E
             () => {
               const tableCellNode = $getNearestNodeFromDOMNode(cell.elem);
               if (!tableCellNode) {
-                throw new Error("TableCellResizer: Table cell node not found.");
+                return;
               }
 
               const tableNode = $getTableNodeFromLexicalNodeOrThrow(tableCellNode);
               const tableElement = getTableElement(tableNode, editor.getElementByKey(tableNode.getKey()));
 
               if (!tableElement) {
-                throw new Error("TableCellResizer: Table element not found.");
+                return;
               }
 
               targetRef.current = target;
@@ -177,14 +177,14 @@ function TableCellResizer({ editor }: { readonly editor: LexicalEditor }): JSX.E
   const updateRowHeight = useCallback(
     (heightChange: number) => {
       if (!activeCell) {
-        throw new Error("TableCellResizer: Expected active cell.");
+        return;
       }
 
       editor.update(
         () => {
           const tableCellNode = $getNearestNodeFromDOMNode(activeCell.elem);
           if (!$isTableCellNode(tableCellNode)) {
-            throw new Error("TableCellResizer: Table cell node not found.");
+            return;
           }
 
           const tableNode = $getTableNodeFromLexicalNodeOrThrow(tableCellNode);
@@ -198,13 +198,13 @@ function TableCellResizer({ editor }: { readonly editor: LexicalEditor }): JSX.E
           const tableRowIndex = isFullRowMerge ? baseRowIndex : baseRowIndex + tableCellNode.getRowSpan() - 1;
 
           if (tableRowIndex >= tableRows.length || tableRowIndex < 0) {
-            throw new Error("Expected table cell to be inside of table row.");
+            return;
           }
 
           const tableRow = tableRows[tableRowIndex];
 
           if (!$isTableRowNode(tableRow)) {
-            throw new Error("Expected table row");
+            return;
           }
 
           let height = tableRow.getHeight();
