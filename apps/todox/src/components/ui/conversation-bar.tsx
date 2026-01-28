@@ -119,7 +119,7 @@ export const ConversationBar = React.forwardRef<HTMLDivElement, ConversationBarP
     }, [conversation, getMicStream, agentId, onError]);
 
     const handleEndSession = React.useCallback(() => {
-      conversation.endSession();
+      void conversation.endSession();
       setAgentState("disconnected");
 
       if (mediaStreamRef.current) {
@@ -136,7 +136,7 @@ export const ConversationBar = React.forwardRef<HTMLDivElement, ConversationBarP
       if (agentState === "connected" || agentState === "connecting") {
         handleEndSession();
       } else if (agentState === "disconnected") {
-        startConversation();
+        void startConversation();
       }
     }, [agentState, handleEndSession, startConversation]);
 

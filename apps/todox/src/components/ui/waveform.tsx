@@ -6,6 +6,7 @@ import * as A from "effect/Array";
 import * as DateTime from "effect/DateTime";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
+import type React from "react";
 import { type HTMLAttributes, useCallback, useEffect, useMemo, useRef, useState } from "react";
 export type WaveformProps = HTMLAttributes<HTMLDivElement> & {
   readonly data?: undefined | number[];
@@ -554,7 +555,7 @@ export const MicrophoneWaveform = ({
         A.forEach(streamRef.current.getTracks(), (track) => track.stop());
       }
       if (P.isNotNullable(audioContextRef.current) && audioContextRef.current.state !== "closed") {
-        audioContextRef.current.close();
+        void audioContextRef.current.close();
       }
       if (animationIdRef.current) {
         cancelAnimationFrame(animationIdRef.current);
@@ -627,7 +628,7 @@ export const MicrophoneWaveform = ({
         A.forEach(streamRef.current.getTracks(), (track) => track.stop());
       }
       if (audioContextRef.current && audioContextRef.current.state !== "closed") {
-        audioContextRef.current.close();
+        void audioContextRef.current.close();
       }
       if (animationIdRef.current) {
         cancelAnimationFrame(animationIdRef.current);
@@ -1246,7 +1247,7 @@ export const RecordingWaveform = ({
         A.forEach(streamRef.current.getTracks(), (track) => track.stop());
       }
       if (audioContextRef.current && audioContextRef.current.state !== "closed") {
-        audioContextRef.current.close();
+        void audioContextRef.current.close();
       }
 
       if (A.isNonEmptyArray(recordingDataRef.current)) {
@@ -1293,7 +1294,7 @@ export const RecordingWaveform = ({
         A.forEach(streamRef.current.getTracks(), (track) => track.stop());
       }
       if (audioContextRef.current && audioContextRef.current.state !== "closed") {
-        audioContextRef.current.close();
+        void audioContextRef.current.close();
       }
     };
   }, [recording, fftSize, smoothingTimeConstant, onError, onRecordingComplete]);

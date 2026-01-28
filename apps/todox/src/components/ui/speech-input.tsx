@@ -299,7 +299,7 @@ const SpeechInputRecordButton = forwardRef<HTMLButtonElement, SpeechInputRecordB
           if (speechInput.isConnected) {
             speechInput.stop();
           } else {
-            speechInput.start();
+            void speechInput.start();
           }
           onClick?.(e);
         }}

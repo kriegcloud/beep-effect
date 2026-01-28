@@ -208,7 +208,7 @@ export const LiveWaveform = ({
         onStreamEnd?.();
       }
       if (audioContextRef.current && audioContextRef.current.state !== "closed") {
-        audioContextRef.current.close();
+        void audioContextRef.current.close();
         audioContextRef.current = null;
       }
       if (animationRef.current) {
@@ -266,7 +266,7 @@ export const LiveWaveform = ({
         onStreamEnd?.();
       }
       if (audioContextRef.current && audioContextRef.current.state !== "closed") {
-        audioContextRef.current.close();
+        void audioContextRef.current.close();
         audioContextRef.current = null;
       }
       if (animationRef.current) {
