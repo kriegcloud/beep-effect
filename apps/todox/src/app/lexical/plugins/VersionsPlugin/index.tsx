@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@beep/todox/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@beep/todox/components/ui/dialog";
 import { cn } from "@beep/todox/lib/utils";
 import { useCollaborationContext } from "@lexical/react/LexicalCollaborationContext";
@@ -20,7 +21,6 @@ import {
 } from "lexical";
 import { useCallback, useEffect, useState } from "react";
 import { snapshot as createSnapshot, PermanentUserData, type Snapshot, XmlElement } from "yjs";
-import Button from "../../ui/Button";
 
 interface Version {
   readonly name: string;
@@ -204,9 +204,12 @@ function VersionsModal({
         </DialogHeader>
         <div className="flex flex-col gap-4 min-w-[320px]">
           <div className="flex items-center justify-between">
-            <Button onClick={onAddVersion}>+ Add snapshot</Button>
+            <Button variant="outline" onClick={onAddVersion}>
+              + Add snapshot
+            </Button>
             {isDiffMode && (
               <Button
+                variant="outline"
                 onClick={() => {
                   editor.dispatchCommand(CLEAR_DIFF_VERSIONS_COMMAND__EXPERIMENTAL, undefined);
                   onClose();
@@ -249,6 +252,7 @@ function VersionsModal({
             )}
           </div>
           <Button
+            variant="outline"
             onClick={() => {
               editor.dispatchCommand(DIFF_VERSIONS_COMMAND__EXPERIMENTAL, {
                 prevSnapshot: versions[selectedVersion!]!.snapshot,

@@ -1,5 +1,7 @@
 "use client";
 
+import * as Either from "effect/Either";
+import * as O from "effect/Option";
 import {
   $getState,
   $setState,
@@ -16,8 +18,6 @@ import {
 } from "lexical";
 import type { JSX } from "react";
 import * as React from "react";
-import * as Either from "effect/Either";
-import * as O from "effect/Option";
 
 const DateTimeComponent = React.lazy(() => import("./DateTimeComponent"));
 
@@ -51,9 +51,7 @@ function $convertDateTimeElement(domNode: HTMLElement): DOMConversionOutput | nu
     O.flatMap(O.fromNullable(domNode.getAttribute("data-rich-links")), (payload) =>
       O.flatMap(Either.getRight(Either.try(() => JSON.parse(payload))), (parsed) => {
         const parsedDate = Date.parse(parsed?.dat_df?.dfie_dt || "");
-        return Number.isNaN(parsedDate)
-          ? O.none()
-          : O.some({ node: $createDateTimeNode(new Date(parsedDate)) });
+        return Number.isNaN(parsedDate) ? O.none() : O.some({ node: $createDateTimeNode(new Date(parsedDate)) });
       })
     )
   );

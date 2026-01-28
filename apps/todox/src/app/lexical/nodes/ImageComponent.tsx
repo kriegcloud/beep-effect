@@ -316,8 +316,9 @@ export default function ImageComponent({
     (event: MouseEvent): void => {
       editor.getEditorState().read(() => {
         const latestSelection = $getSelection();
-        const domElement = event.target as HTMLElement;
+        const domElement = event.target;
         if (
+          domElement instanceof HTMLElement &&
           domElement.tagName === "IMG" &&
           $isRangeSelection(latestSelection) &&
           latestSelection.getNodes().length === 1

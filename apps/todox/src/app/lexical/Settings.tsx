@@ -1,11 +1,32 @@
 "use client";
 
+import { Label } from "@beep/todox/components/ui/label";
+import { Switch } from "@beep/todox/components/ui/switch";
 import { CAN_USE_BEFORE_INPUT } from "@lexical/utils";
 import type { JSX } from "react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useId, useMemo, useState } from "react";
 import { useSettings } from "./context/SettingsContext";
 import { INITIAL_SETTINGS, isDevPlayground } from "./settings";
-import Switch from "./ui/Switch";
+
+function SettingSwitch({
+  checked,
+  onToggle,
+  text,
+}: Readonly<{
+  readonly checked: boolean;
+  readonly onToggle: () => void;
+  readonly text: string;
+}>): JSX.Element {
+  const id = useId();
+  return (
+    <div className="flex items-center justify-between gap-3 py-1">
+      <Label htmlFor={id} className="text-sm cursor-pointer">
+        {text}
+      </Label>
+      <Switch id={id} checked={checked} onCheckedChange={onToggle} />
+    </div>
+  );
+}
 
 export default function Settings(): JSX.Element {
   const windowLocation = window.location;
@@ -59,8 +80,8 @@ export default function Settings(): JSX.Element {
       {showSettings ? (
         <div className="switches">
           {isRichText && isDevPlayground && (
-            <Switch
-              onClick={() => {
+            <SettingSwitch
+              onToggle={() => {
                 setOption("isCollab", !isCollab);
                 window.location.reload();
               }}
@@ -69,8 +90,8 @@ export default function Settings(): JSX.Element {
             />
           )}
           {isDevPlayground && (
-            <Switch
-              onClick={() => {
+            <SettingSwitch
+              onToggle={() => {
                 if (isSplitScreen) {
                   window.parent.location.href = `/${search}`;
                 } else {
@@ -81,111 +102,120 @@ export default function Settings(): JSX.Element {
               text="Split Screen"
             />
           )}
-          <Switch
-            onClick={() => setOption("measureTypingPerf", !measureTypingPerf)}
+          <SettingSwitch
+            onToggle={() => setOption("measureTypingPerf", !measureTypingPerf)}
             checked={measureTypingPerf}
             text="Measure Perf"
           />
-          <Switch onClick={() => setOption("showTreeView", !showTreeView)} checked={showTreeView} text="Debug View" />
-          <Switch
-            onClick={() => setOption("showNestedEditorTreeView", !showNestedEditorTreeView)}
+          <SettingSwitch
+            onToggle={() => setOption("showTreeView", !showTreeView)}
+            checked={showTreeView}
+            text="Debug View"
+          />
+          <SettingSwitch
+            onToggle={() => setOption("showNestedEditorTreeView", !showNestedEditorTreeView)}
             checked={showNestedEditorTreeView}
             text="Nested Editors Debug View"
           />
-          <Switch
-            onClick={() => {
+          <SettingSwitch
+            onToggle={() => {
               setOption("isRichText", !isRichText);
               setOption("isCollab", false);
             }}
             checked={isRichText}
             text="Rich Text"
           />
-          <Switch
-            onClick={() => {
+          <SettingSwitch
+            onToggle={() => {
               setOption("hasNestedTables", !hasNestedTables);
             }}
             checked={hasNestedTables}
             text="Nested Tables"
           />
-          <Switch onClick={() => setOption("isCharLimit", !isCharLimit)} checked={isCharLimit} text="Char Limit" />
-          <Switch
-            onClick={() => setOption("isCharLimitUtf8", !isCharLimitUtf8)}
+          <SettingSwitch
+            onToggle={() => setOption("isCharLimit", !isCharLimit)}
+            checked={isCharLimit}
+            text="Char Limit"
+          />
+          <SettingSwitch
+            onToggle={() => setOption("isCharLimitUtf8", !isCharLimitUtf8)}
             checked={isCharLimitUtf8}
             text="Char Limit (UTF-8)"
           />
-          <Switch
-            onClick={() => setOption("hasLinkAttributes", !hasLinkAttributes)}
+          <SettingSwitch
+            onToggle={() => setOption("hasLinkAttributes", !hasLinkAttributes)}
             checked={hasLinkAttributes}
             text="Link Attributes"
           />
-          <Switch onClick={() => setOption("isMaxLength", !isMaxLength)} checked={isMaxLength} text="Max Length" />
-          <Switch
-            onClick={() => setOption("isAutocomplete", !isAutocomplete)}
+          <SettingSwitch
+            onToggle={() => setOption("isMaxLength", !isMaxLength)}
+            checked={isMaxLength}
+            text="Max Length"
+          />
+          <SettingSwitch
+            onToggle={() => setOption("isAutocomplete", !isAutocomplete)}
             checked={isAutocomplete}
             text="Autocomplete"
           />
-          {/* <Switch
-            onClick={() => {
+          {/* <SettingSwitch
+            onToggle={() => {
               setOption('disableBeforeInput', !disableBeforeInput);
               setTimeout(() => window.location.reload(), 500);
             }}
             checked={disableBeforeInput}
             text="Legacy Events"
           /> */}
-          <Switch
-            onClick={() => {
+          <SettingSwitch
+            onToggle={() => {
               setOption("showTableOfContents", !showTableOfContents);
             }}
             checked={showTableOfContents}
             text="Table Of Contents"
           />
-          <Switch
-            onClick={() => {
+          <SettingSwitch
+            onToggle={() => {
               setOption("shouldUseLexicalContextMenu", !shouldUseLexicalContextMenu);
             }}
             checked={shouldUseLexicalContextMenu}
             text="Use Lexical Context Menu"
           />
-          <Switch
-            onClick={() => {
+          <SettingSwitch
+            onToggle={() => {
               setOption("shouldPreserveNewLinesInMarkdown", !shouldPreserveNewLinesInMarkdown);
             }}
             checked={shouldPreserveNewLinesInMarkdown}
             text="Preserve newlines in Markdown"
           />
-          {/* <Switch
-            onClick={() => {
+          {/* <SettingSwitch
+            onToggle={() => {
               setOption('tableHorizontalScroll', !tableHorizontalScroll);
             }}
             checked={tableHorizontalScroll}
             text="Tables have horizontal scroll"
           /> */}
-          <Switch
-            onClick={() => {
+          <SettingSwitch
+            onToggle={() => {
               setOption("shouldAllowHighlightingWithBrackets", !shouldAllowHighlightingWithBrackets);
             }}
             checked={shouldAllowHighlightingWithBrackets}
             text="Use Brackets for Highlighting"
           />
-
-          <Switch
-            onClick={() => {
+          <SettingSwitch
+            onToggle={() => {
               setOption("selectionAlwaysOnDisplay", !selectionAlwaysOnDisplay);
             }}
             checked={selectionAlwaysOnDisplay}
             text="Retain selection"
           />
-
-          <Switch
-            onClick={() => {
+          <SettingSwitch
+            onToggle={() => {
               setOption("isCodeHighlighted", !isCodeHighlighted);
             }}
             checked={isCodeHighlighted}
             text="Enable Code Highlighting"
           />
-
-          <Switch
-            onClick={() => {
+          <SettingSwitch
+            onToggle={() => {
               setOption("isCodeShiki", !isCodeShiki);
             }}
             checked={isCodeShiki}

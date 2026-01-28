@@ -1,17 +1,18 @@
-/**
- * Copyright (c) Meta Platforms, Inc. and affiliates.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- *
- */
+"use client";
 
+import { Button } from "@beep/todox/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@beep/todox/components/ui/dropdown-menu";
+import { cn } from "@beep/todox/lib/utils";
+import { CaretDownIcon } from "@phosphor-icons/react";
 import type { LexicalEditor } from "lexical";
 import type { JSX } from "react";
 import { useState } from "react";
 
-import Button from "../../ui/Button";
-import DropDown, { DropDownItem } from "../../ui/DropDown";
 import { INSERT_LAYOUT_COMMAND } from "./LayoutPlugin";
 
 const LAYOUTS = [
@@ -39,14 +40,24 @@ export default function InsertLayoutDialog({
 
   return (
     <>
-      <DropDown buttonClassName="toolbar-item dialog-dropdown" buttonLabel={buttonLabel}>
-        {LAYOUTS.map(({ label, value }) => (
-          <DropDownItem key={value} className="item" onClick={() => setLayout(value)}>
-            <span className="text">{label}</span>
-          </DropDownItem>
-        ))}
-      </DropDown>
-      <Button onClick={onClick}>Insert</Button>
+      <DropdownMenu>
+        <DropdownMenuTrigger
+          render={<Button variant="ghost" size="sm" className={cn("gap-1", "toolbar-item dialog-dropdown")} />}
+        >
+          <span className="text dropdown-button-text">{buttonLabel}</span>
+          <CaretDownIcon className="size-3 opacity-50" />
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="start" sideOffset={4} className="min-w-40 !bg-white !text-black">
+          {LAYOUTS.map(({ label, value }) => (
+            <DropdownMenuItem key={value} className={cn("cursor-pointer", "item")} onClick={() => setLayout(value)}>
+              <span className="text">{label}</span>
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
+      <Button variant="outline" onClick={onClick}>
+        Insert
+      </Button>
     </>
   );
 }

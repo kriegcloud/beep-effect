@@ -1,13 +1,6 @@
-/**
- * Copyright (c) Meta Platforms, Inc. and affiliates.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- *
- */
-
 import * as MutableHashSet from "effect/MutableHashSet";
-
+import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import type { Force } from "../schema/swipe.schema";
 
 type Listener = (force: Force.Type, e: TouchEvent) => void;
@@ -21,36 +14,32 @@ type ElementValues = {
 // WeakMap is kept as native - no Effect equivalent, serves GC purposes
 const elements = new WeakMap<HTMLElement, ElementValues>();
 
-function readTouch(e: TouchEvent): [number, number] | null {
-  const touch = e.changedTouches[0];
-  if (touch === undefined) {
-    return null;
-  }
-  return [touch.clientX, touch.clientY];
+function readTouch(e: TouchEvent): O.Option<[number, number]> {
+  return O.fromNullable(e.changedTouches[0]).pipe(O.map((touch) => [touch.clientX, touch.clientY] as const));
 }
 
 function addListener(element: HTMLElement, cb: Listener): () => void {
   let elementValues = elements.get(element);
-  if (elementValues === undefined) {
+  if (P.isUndefined(elementValues)) {
     const listeners = MutableHashSet.empty<Listener>();
     const handleTouchstart = (e: TouchEvent) => {
-      if (elementValues !== undefined) {
-        elementValues.start = readTouch(e);
+      if (P.isNotUndefined(elementValues)) {
+        elementValues.start = readTouch(e).pipe(O.getOrNull);
       }
     };
     const handleTouchend = (e: TouchEvent) => {
-      if (elementValues === undefined) {
+      if (P.isUndefined(elementValues)) {
         return;
       }
       const start = elementValues.start;
-      if (start === null) {
+      if (P.isNull(start)) {
         return;
       }
-      const end = readTouch(e);
+      const endOpt = readTouch(e);
       // Use native iteration - MutableHashSet implements iterable protocol
       for (const listener of listeners) {
-        if (end !== null) {
-          listener([end[0] - start[0], end[1] - start[1]], e);
+        if (O.isSome(endOpt)) {
+          listener([endOpt.value[0] - start[0], endOpt.value[1] - start[1]], e);
         }
       }
     };
@@ -71,7 +60,7 @@ function addListener(element: HTMLElement, cb: Listener): () => void {
 
 function deleteListener(element: HTMLElement, cb: Listener): void {
   const elementValues = elements.get(element);
-  if (elementValues === undefined) {
+  if (P.isUndefined(elementValues)) {
     return;
   }
   const listeners = elementValues.listeners;

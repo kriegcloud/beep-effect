@@ -1,12 +1,11 @@
+import { Button } from "@beep/todox/components/ui/button";
+import { Input } from "@beep/todox/components/ui/input";
+import { Label } from "@beep/todox/components/ui/label";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { INSERT_TABLE_COMMAND, TableCellNode, TableNode, TableRowNode } from "@lexical/table";
 import type { EditorThemeClasses, Klass, LexicalEditor, LexicalNode } from "lexical";
 import type { JSX } from "react";
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
-
-import Button from "../ui/Button";
-import { DialogActions } from "../ui/Dialog";
-import TextInput from "../ui/TextInput";
+import { createContext, useContext, useEffect, useId, useMemo, useState } from "react";
 
 export type InsertTableCommandPayload = Readonly<{
   columns: string;
@@ -75,6 +74,8 @@ export function InsertTableDialog({
   const [rows, setRows] = useState("5");
   const [columns, setColumns] = useState("5");
   const [isDisabled, setIsDisabled] = useState(true);
+  const rowsId = useId();
+  const columnsId = useId();
 
   useEffect(() => {
     const row = Number(rows);
@@ -97,27 +98,39 @@ export function InsertTableDialog({
 
   return (
     <>
-      <TextInput
-        placeholder={"# of rows (1-500)"}
-        label="Rows"
-        onChange={setRows}
-        value={rows}
-        data-test-id="table-modal-rows"
-        type="number"
-      />
-      <TextInput
-        placeholder={"# of columns (1-50)"}
-        label="Columns"
-        onChange={setColumns}
-        value={columns}
-        data-test-id="table-modal-columns"
-        type="number"
-      />
-      <DialogActions data-test-id="table-model-confirm-insert">
-        <Button disabled={isDisabled} onClick={onClick}>
+      <div className="flex flex-row items-center mb-2.5 gap-3">
+        <Label className="flex flex-1 text-muted-foreground text-sm" htmlFor={rowsId}>
+          Rows
+        </Label>
+        <Input
+          id={rowsId}
+          type="number"
+          className="flex flex-[2]"
+          placeholder="# of rows (1-500)"
+          value={rows}
+          onChange={(e) => setRows(e.target.value)}
+          data-testid="table-modal-rows"
+        />
+      </div>
+      <div className="flex flex-row items-center mb-2.5 gap-3">
+        <Label className="flex flex-1 text-muted-foreground text-sm" htmlFor={columnsId}>
+          Columns
+        </Label>
+        <Input
+          id={columnsId}
+          type="number"
+          className="flex flex-[2]"
+          placeholder="# of columns (1-50)"
+          value={columns}
+          onChange={(e) => setColumns(e.target.value)}
+          data-testid="table-modal-columns"
+        />
+      </div>
+      <div className="flex flex-row justify-end mt-5 gap-2" data-test-id="table-model-confirm-insert">
+        <Button variant="outline" disabled={isDisabled} onClick={onClick}>
           Confirm
         </Button>
-      </DialogActions>
+      </div>
     </>
   );
 }

@@ -1,13 +1,14 @@
 "use client";
 
+import { Input } from "@beep/todox/components/ui/input";
+import { Label } from "@beep/todox/components/ui/label";
 import { cn } from "@beep/todox/lib/utils";
 
 import { calculateZoomLevel } from "@lexical/utils";
 import type * as React from "react";
 import type { JSX } from "react";
-import { useMemo, useRef, useState } from "react";
+import { useId, useMemo, useRef, useState } from "react";
 import { isKeyboardInput } from "../utils/focusUtils";
-import TextInput from "./TextInput";
 
 let skipAddingToHistoryStack = false;
 
@@ -45,6 +46,7 @@ export default function ColorPicker({ color, onChange }: Readonly<ColorPickerPro
   const [selfColor, setSelfColor] = useState(transformColor("hex", color));
   const [inputColor, setInputColor] = useState(transformColor("hex", color).hex);
   const innerDivRef = useRef(null);
+  const hexId = useId();
 
   const saturationPosition = useMemo(
     () => ({
@@ -108,7 +110,12 @@ export default function ColorPicker({ color, onChange }: Readonly<ColorPickerPro
 
   return (
     <div className="p-5 bg-white text-black" style={{ width: WIDTH }} ref={innerDivRef}>
-      <TextInput label="Hex" onChange={onSetHex} value={inputColor} />
+      <div className="flex flex-row items-center mb-2.5 gap-3">
+        <Label className="flex flex-1 text-muted-foreground text-sm" htmlFor={hexId}>
+          Hex
+        </Label>
+        <Input id={hexId} className="flex flex-[2]" value={inputColor} onChange={(e) => onSetHex(e.target.value)} />
+      </div>
       <div className="flex flex-wrap gap-2.5 m-0 p-0">
         {basicColors.map((basicColor) => (
           <button
@@ -250,7 +257,7 @@ export function toHex(value: string): string {
     const ctx = document.createElement("canvas").getContext("2d");
 
     if (!ctx) {
-      throw new Error("2d context not supported or canvas already initialized");
+      return value; // Return original value if canvas not available
     }
 
     ctx.fillStyle = value;

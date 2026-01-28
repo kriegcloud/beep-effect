@@ -10,10 +10,10 @@ import {
   $insertTableRowAtSelection,
   $isTableCellNode,
   $isTableNode,
+  $isTableRowNode,
   getTableElement,
   type TableCellNode,
   TableNode,
-  type TableRowNode,
 } from "@lexical/table";
 import { $findMatchingParent, mergeRegister } from "@lexical/utils";
 import { $getNearestNodeFromDOMNode, type EditorThemeClasses, isHTMLElement, type NodeKey } from "lexical";
@@ -71,7 +71,11 @@ function TableHoverActionsContainer({ anchorElem }: { readonly anchorElem: HTMLE
 
             if (tableDOMElement) {
               const rowCount = table.getChildrenSize();
-              const colCount = (table.getChildAtIndex(0) as TableRowNode)?.getChildrenSize();
+              const firstRow = table.getChildAtIndex(0);
+              if (!$isTableRowNode(firstRow)) {
+                return;
+              }
+              const colCount = firstRow.getChildrenSize();
 
               const rowIndex = $getTableRowIndexFromTableCellNode(maybeTableCell);
               const colIndex = $getTableColumnIndexFromTableCellNode(maybeTableCell);
@@ -87,7 +91,10 @@ function TableHoverActionsContainer({ anchorElem }: { readonly anchorElem: HTMLE
         { editor }
       );
 
-      if (tableDOMElement) {
+      // Note: tableDOMElement is assigned synchronously in editor.getEditorState().read() above,
+      // but TypeScript can't infer this. The cast is safe because getTableElement returns HTMLElement | null.
+      const tableElement = tableDOMElement as HTMLElement | null;
+      if (tableElement) {
         const {
           width: tableElemWidth,
           y: tableElemY,
@@ -95,10 +102,10 @@ function TableHoverActionsContainer({ anchorElem }: { readonly anchorElem: HTMLE
           left: tableElemLeft,
           bottom: tableElemBottom,
           height: tableElemHeight,
-        } = (tableDOMElement as HTMLTableElement).getBoundingClientRect();
+        } = tableElement.getBoundingClientRect();
 
         // Adjust for using the scrollable table container
-        const parentElement = (tableDOMElement as HTMLTableElement).parentElement;
+        const parentElement = tableElement.parentElement;
         let tableHasScroll = false;
         if (parentElement?.classList.contains("PlaygroundEditorTheme__tableScrollableWrapper")) {
           tableHasScroll = parentElement.scrollWidth > parentElement.clientWidth;

@@ -1,11 +1,10 @@
 "use client";
 
+import { Button } from "@beep/todox/components/ui/button";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import type { JSX } from "react";
 import { useCallback, useState } from "react";
 import { ErrorBoundary } from "react-error-boundary";
-
-import Button from "../ui/Button";
 import KatexRenderer from "./KatexRenderer";
 
 type Props = {

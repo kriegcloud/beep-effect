@@ -1,9 +1,9 @@
-import {Atom} from "@effect-atom/atom-react";
+import { Atom } from "@effect-atom/atom-react";
 import * as Effect from "effect/Effect";
 import type * as Layer from "effect/Layer";
 import * as ManagedRuntime from "effect/ManagedRuntime";
-import type {ClientRuntimeLayer} from "./layer";
-import {clientRuntimeLayer} from "./layer";
+import type { ClientRuntimeLayer } from "./layer";
+import { clientRuntimeLayer } from "./layer";
 
 export const makeAtomRuntime = Atom.context({
   memoMap: Atom.defaultMemoMap,
@@ -43,22 +43,20 @@ export const runClientSyncExit = <A, E>(runtime: LiveManagedRuntime, effect: Eff
  */
 export const makeRunClientSync =
   (runtime: LiveManagedRuntime) =>
-    <A, E>(effect: Effect.Effect<A, E, ClientRuntimeEnv>) =>
-      runClientSync(runtime, effect);
+  <A, E>(effect: Effect.Effect<A, E, ClientRuntimeEnv>) =>
+    runClientSync(runtime, effect);
 
 export const makeRunClientSyncExit =
   (runtime: LiveManagedRuntime) =>
-    <A, E>(effect: Effect.Effect<A, E, ClientRuntimeEnv>) =>
-      runClientSyncExit(runtime, effect);
+  <A, E>(effect: Effect.Effect<A, E, ClientRuntimeEnv>) =>
+    runClientSyncExit(runtime, effect);
 /**
  * Returns a helper function bound to a specific runtime for repeated invocations.
  */
 export const makeRunClientPromise =
   (runtime: LiveManagedRuntime, spanName = "clientRuntime.runPromise", options?: RunPromiseOptions | undefined) =>
-    <A, E>(effect: Effect.Effect<A, E, ClientRuntimeEnv>) =>
-      runClientPromise(runtime, effect, spanName, options);
-
-
+  <A, E>(effect: Effect.Effect<A, E, ClientRuntimeEnv>) =>
+    runClientPromise(runtime, effect, spanName, options);
 
 /**
  * Runs an Effect within the client runtime and returns its Exit value.
@@ -79,5 +77,5 @@ export const makeRunClientPromiseExit =
     spanName = "clientRuntime.runPromiseExit",
     options?: RunPromiseExitOptions | undefined
   ) =>
-    <A, E>(effect: Effect.Effect<A, E, ClientRuntimeEnv>) =>
-      runClientPromiseExit(runtime, effect, spanName, options);
+  <A, E>(effect: Effect.Effect<A, E, ClientRuntimeEnv>) =>
+    runClientPromiseExit(runtime, effect, spanName, options);

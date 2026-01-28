@@ -40,7 +40,7 @@ export class CollapsibleContentNode extends ElementNode {
       editor.getEditorState().read(() => {
         const containerNode = this.getParentOrThrow();
         if (!$isCollapsibleContainerNode(containerNode)) {
-          throw new Error("Expected parent node to be a CollapsibleContainerNode");
+          return;
         }
         if (!containerNode.__open) {
           setDomHiddenUntilFound(dom);
@@ -50,7 +50,7 @@ export class CollapsibleContentNode extends ElementNode {
         editor.update(() => {
           const containerNode = this.getParentOrThrow().getLatest();
           if (!$isCollapsibleContainerNode(containerNode)) {
-            throw new Error("Expected parent node to be a CollapsibleContainerNode");
+            return;
           }
           if (!containerNode.__open) {
             containerNode.toggleOpen();

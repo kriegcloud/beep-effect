@@ -1,5 +1,8 @@
 "use client";
 
+import { Button } from "@beep/todox/components/ui/button";
+import { Input } from "@beep/todox/components/ui/input";
+import { Label } from "@beep/todox/components/ui/label";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { $wrapNodeInElement } from "@lexical/utils";
 import {
@@ -12,12 +15,9 @@ import {
   type LexicalEditor,
 } from "lexical";
 import type { JSX } from "react";
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 
 import { $createPollNode, createPollOption, PollNode } from "../../nodes/PollNode";
-import Button from "../../ui/Button";
-import { DialogActions } from "../../ui/Dialog";
-import TextInput from "../../ui/TextInput";
 
 export const INSERT_POLL_COMMAND: LexicalCommand<string> = createCommand("INSERT_POLL_COMMAND");
 
@@ -29,6 +29,7 @@ export function InsertPollDialog({
   readonly onClose: () => void;
 }): JSX.Element {
   const [question, setQuestion] = useState("");
+  const questionId = useId();
 
   const onClick = () => {
     activeEditor.dispatchCommand(INSERT_POLL_COMMAND, question);
@@ -37,12 +38,22 @@ export function InsertPollDialog({
 
   return (
     <>
-      <TextInput label="Question" onChange={setQuestion} value={question} />
-      <DialogActions>
-        <Button disabled={question.trim() === ""} onClick={onClick}>
+      <div className="flex flex-row items-center mb-2.5 gap-3">
+        <Label className="flex flex-1 text-muted-foreground text-sm" htmlFor={questionId}>
+          Question
+        </Label>
+        <Input
+          id={questionId}
+          className="flex flex-[2]"
+          value={question}
+          onChange={(e) => setQuestion(e.target.value)}
+        />
+      </div>
+      <div className="flex flex-row justify-end mt-5 gap-2">
+        <Button variant="outline" disabled={question.trim() === ""} onClick={onClick}>
           Confirm
         </Button>
-      </DialogActions>
+      </div>
     </>
   );
 }

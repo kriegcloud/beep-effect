@@ -1,3 +1,4 @@
+import * as Str from "effect/String";
 import {
   $isTextNode,
   type DOMConversionMap,
@@ -8,7 +9,6 @@ import {
   ParagraphNode,
   TextNode,
 } from "lexical";
-
 import { parseAllowedFontSize } from "./plugins/ToolbarPlugin/fontSize";
 import { parseAllowedColor } from "./ui/ColorPicker";
 
@@ -25,7 +25,7 @@ function getExtraStyles(element: HTMLElement): string {
   if (backgroundColor !== "" && backgroundColor !== "rgb(255, 255, 255)") {
     extraStyles += `background-color: ${backgroundColor};`;
   }
-  if (color !== "" && color !== "rgb(0, 0, 0)") {
+  if (!Str.isEmpty(color) && color !== "rgb(0, 0, 0)") {
     extraStyles += `color: ${color};`;
   }
   return extraStyles;

@@ -1,7 +1,9 @@
 "use client";
 
+import { makeRunClientPromise, useRuntime } from "@beep/runtime-client";
 import { BlockWithAlignableContents } from "@lexical/react/LexicalBlockWithAlignableContents";
 import { DecoratorBlockNode, type SerializedDecoratorBlockNode } from "@lexical/react/LexicalDecoratorBlockNode";
+import * as Effect from "effect/Effect";
 import type {
   DOMConversionMap,
   DOMConversionOutput,
@@ -15,8 +17,6 @@ import type {
 } from "lexical";
 import type { JSX } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import * as Effect from "effect/Effect";
-import { makeRunClientPromise, useRuntime } from "@beep/runtime-client";
 import { TwitterError } from "../schema/errors";
 
 const WIDGET_SCRIPT_URL = "https://platform.twitter.com/widgets.js";
@@ -56,10 +56,7 @@ declare global {
   }
 }
 
-const createTweetWidget = Effect.fn("createTweetWidget")(function* (
-  tweetID: string,
-  container: HTMLElement | null
-) {
+const createTweetWidget = Effect.fn("createTweetWidget")(function* (tweetID: string, container: HTMLElement | null) {
   if (!window.twttr) {
     return yield* Effect.fail(
       new TwitterError({

@@ -1,3 +1,5 @@
+import * as Either from "effect/Either";
+import * as O from "effect/Option";
 import {
   $getState,
   $setState,
@@ -14,8 +16,6 @@ import {
 } from "lexical";
 import type { JSX } from "react";
 import * as React from "react";
-import * as Either from "effect/Either";
-import * as O from "effect/Option";
 
 export type Options = ReadonlyArray<Option>;
 
@@ -64,10 +64,9 @@ function $convertPollElement(domNode: HTMLSpanElement): DOMConversionOutput | nu
 
   return O.getOrNull(
     O.flatMap(O.all([question, optionsAttr]), ([q, opts]) =>
-      O.map(
-        Either.getRight(Either.try(() => JSON.parse(opts))),
-        (parsed) => ({ node: $createPollNode(q, parseOptions(parsed)) })
-      )
+      O.map(Either.getRight(Either.try(() => JSON.parse(opts))), (parsed) => ({
+        node: $createPollNode(q, parseOptions(parsed)),
+      }))
     )
   );
 }

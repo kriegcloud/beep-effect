@@ -1,8 +1,14 @@
 "use client";
 
+import { Button } from "@beep/todox/components/ui/button";
+import { Input } from "@beep/todox/components/ui/input";
+import { Label } from "@beep/todox/components/ui/label";
 import { $isAutoLinkNode, $isLinkNode, type LinkNode, TOGGLE_LINK_COMMAND } from "@lexical/link";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { $findMatchingParent, $wrapNodeInElement, mergeRegister } from "@lexical/utils";
+import * as Either from "effect/Either";
+import * as O from "effect/Option";
+import * as S from "effect/Schema";
 import {
   $createParagraphNode,
   $createRangeSelection,
@@ -24,19 +30,13 @@ import {
   type LexicalEditor,
 } from "lexical";
 import type { JSX } from "react";
-import * as Either from "effect/Either";
-import * as O from "effect/Option";
-import * as S from "effect/Schema";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 
 import landscapeImage from "../../images/landscape.jpg";
 import yellowFlowerImage from "../../images/yellow-flower.jpg";
 import { $createImageNode, $isImageNode, ImageNode, type ImagePayload } from "../../nodes/ImageNode";
-import Button from "../../ui/Button";
-import { DialogActions, DialogButtonsList } from "../../ui/Dialog";
 import FileInput from "../../ui/FileInput";
-import TextInput from "../../ui/TextInput";
 
 export type InsertImagePayload = Readonly<ImagePayload>;
 
@@ -45,30 +45,49 @@ export const INSERT_IMAGE_COMMAND: LexicalCommand<InsertImagePayload> = createCo
 export function InsertImageUriDialogBody({ onClick }: { readonly onClick: (payload: InsertImagePayload) => void }) {
   const [src, setSrc] = useState("");
   const [altText, setAltText] = useState("");
+  const srcId = useId();
+  const altTextId = useId();
 
   const isDisabled = src === "";
 
   return (
     <>
-      <TextInput
-        label="Image URL"
-        placeholder="i.e. https://source.unsplash.com/random"
-        onChange={setSrc}
-        value={src}
-        data-test-id="image-modal-url-input"
-      />
-      <TextInput
-        label="Alt Text"
-        placeholder="Random unsplash image"
-        onChange={setAltText}
-        value={altText}
-        data-test-id="image-modal-alt-text-input"
-      />
-      <DialogActions>
-        <Button data-test-id="image-modal-confirm-btn" disabled={isDisabled} onClick={() => onClick({ altText, src })}>
+      <div className="flex flex-row items-center mb-2.5 gap-3">
+        <Label className="flex flex-1 text-muted-foreground text-sm" htmlFor={srcId}>
+          Image URL
+        </Label>
+        <Input
+          id={srcId}
+          className="flex flex-[2]"
+          placeholder="i.e. https://source.unsplash.com/random"
+          value={src}
+          onChange={(e) => setSrc(e.target.value)}
+          data-testid="image-modal-url-input"
+        />
+      </div>
+      <div className="flex flex-row items-center mb-2.5 gap-3">
+        <Label className="flex flex-1 text-muted-foreground text-sm" htmlFor={altTextId}>
+          Alt Text
+        </Label>
+        <Input
+          id={altTextId}
+          className="flex flex-[2]"
+          placeholder="Random unsplash image"
+          value={altText}
+          onChange={(e) => setAltText(e.target.value)}
+          data-testid="image-modal-alt-text-input"
+        />
+      </div>
+      <div className="flex flex-row justify-end mt-5 gap-2">
+        <Button
+          variant="outline"
+          data-test-id="image-modal-confirm-btn"
+          disabled={isDisabled}
+          onClick={() => onClick({ altText, src })}
+        >
           Confirm
         </Button>
-      </DialogActions>
+      </div>
     </>
   );
 }
@@ -80,6 +99,7 @@ export function InsertImageUploadedDialogBody({
 }) {
   const [src, setSrc] = useState("");
   const [altText, setAltText] = useState("");
+  const altTextId = useId();
 
   const isDisabled = src === "";
 
@@ -99,22 +119,29 @@ export function InsertImageUploadedDialogBody({
   return (
     <>
       <FileInput label="Image Upload" onChange={loadImage} accept="image/*" data-test-id="image-modal-file-upload" />
-      <TextInput
-        label="Alt Text"
-        placeholder="Descriptive alternative text"
-        onChange={setAltText}
-        value={altText}
-        data-test-id="image-modal-alt-text-input"
-      />
-      <DialogActions>
+      <div className="flex flex-row items-center mb-2.5 gap-3">
+        <Label className="flex flex-1 text-muted-foreground text-sm" htmlFor={altTextId}>
+          Alt Text
+        </Label>
+        <Input
+          id={altTextId}
+          className="flex flex-[2]"
+          placeholder="Descriptive alternative text"
+          value={altText}
+          onChange={(e) => setAltText(e.target.value)}
+          data-testid="image-modal-alt-text-input"
+        />
+      </div>
+      <div className="flex flex-row justify-end mt-5 gap-2">
         <Button
+          variant="outline"
           data-test-id="image-modal-file-upload-btn"
           disabled={isDisabled}
           onClick={() => onClick({ altText, src })}
         >
           Confirm
         </Button>
-      </DialogActions>
+      </div>
     </>
   );
 }
@@ -148,8 +175,9 @@ export function InsertImageDialog({
   return (
     <>
       {!mode && (
-        <DialogButtonsList>
+        <div className="flex flex-col justify-end mt-5 [&>button]:mb-5">
           <Button
+            variant="outline"
             data-test-id="image-modal-option-sample"
             onClick={() =>
               onClick(
@@ -167,13 +195,13 @@ export function InsertImageDialog({
           >
             Sample
           </Button>
-          <Button data-test-id="image-modal-option-url" onClick={() => setMode("url")}>
+          <Button variant="outline" data-test-id="image-modal-option-url" onClick={() => setMode("url")}>
             URL
           </Button>
-          <Button data-test-id="image-modal-option-file" onClick={() => setMode("file")}>
+          <Button variant="outline" data-test-id="image-modal-option-file" onClick={() => setMode("file")}>
             File
           </Button>
-        </DialogButtonsList>
+        </div>
       )}
       {mode === "url" && <InsertImageUriDialogBody onClick={onClick} />}
       {mode === "file" && <InsertImageUploadedDialogBody onClick={onClick} />}

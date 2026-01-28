@@ -38,10 +38,11 @@ export class EmojiNode extends TextNode {
 
   override updateDOM(prevNode: this, dom: HTMLElement, config: EditorConfig): boolean {
     const inner = dom.firstChild;
-    if (inner === null) {
+    if (!(inner instanceof HTMLElement)) {
+      // If inner is null or not an HTMLElement, signal that DOM needs recreation
       return true;
     }
-    super.updateDOM(prevNode, inner as HTMLElement, config);
+    super.updateDOM(prevNode, inner, config);
     return false;
   }
 

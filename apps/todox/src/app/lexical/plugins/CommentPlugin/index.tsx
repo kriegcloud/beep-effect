@@ -5,6 +5,7 @@ import type { JSX } from "react";
 import type { Doc } from "yjs";
 
 import "./index.css";
+import { Button } from "@beep/todox/components/ui/button";
 import {
   $createMarkNode,
   $getMarkIDs,
@@ -42,11 +43,9 @@ import {
 } from "lexical";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-
 import { Comment, CommentStore, type Comments, type ProviderWithDoc, Thread, useCommentStore } from "../../commenting";
 import useModal from "../../hooks/useModal";
 import CommentEditorTheme from "../../themes/CommentEditorTheme";
-import Button from "../../ui/Button";
 import ContentEditable from "../../ui/ContentEditable";
 
 export const INSERT_INLINE_COMMAND: LexicalCommand<void> = createCommand("INSERT_INLINE_COMMAND");
@@ -294,10 +293,15 @@ function CommentInputBox({
     <div className="CommentPlugin_CommentInputBox" ref={boxRef}>
       <PlainTextEditor className="CommentPlugin_CommentInputBox_Editor" onEscape={onEscape} onChange={onChange} />
       <div className="CommentPlugin_CommentInputBox_Buttons">
-        <Button onClick={cancelAddComment} className="CommentPlugin_CommentInputBox_Button">
+        <Button variant="outline" onClick={cancelAddComment} className="CommentPlugin_CommentInputBox_Button">
           Cancel
         </Button>
-        <Button onClick={submitComment} disabled={!canSubmit} className="CommentPlugin_CommentInputBox_Button primary">
+        <Button
+          variant="outline"
+          onClick={submitComment}
+          disabled={!canSubmit}
+          className="CommentPlugin_CommentInputBox_Button primary"
+        >
           Comment
         </Button>
       </div>
@@ -343,7 +347,12 @@ function CommentsComposer({
         editorRef={editorRef}
         placeholder={placeholder}
       />
-      <Button className="CommentPlugin_CommentsPanel_SendButton" onClick={submitComment} disabled={!canSubmit}>
+      <Button
+        variant="outline"
+        className="CommentPlugin_CommentsPanel_SendButton"
+        onClick={submitComment}
+        disabled={!canSubmit}
+      >
         <i className="send" />
       </Button>
     </>
@@ -367,6 +376,7 @@ function ShowDeleteCommentOrThreadDialog({
       Are you sure you want to delete this {commentOrThread.type}?
       <div className="Modal__content">
         <Button
+          variant="outline"
           onClick={() => {
             deleteCommentOrThread(commentOrThread, thread);
             onClose();
@@ -375,6 +385,7 @@ function ShowDeleteCommentOrThreadDialog({
           Delete
         </Button>{" "}
         <Button
+          variant="outline"
           onClick={() => {
             onClose();
           }}
@@ -413,6 +424,7 @@ function CommentsPanelListComment({
       {!comment.deleted && (
         <>
           <Button
+            variant="outline"
             onClick={() => {
               showModal("Delete Comment", (onClose) => (
                 <ShowDeleteCommentOrThreadDialog
@@ -499,8 +511,8 @@ function CommentsPanelList({
                 {
                   onUpdate() {
                     // Restore selection to the previous element
-                    if (activeElement !== null) {
-                      (activeElement as HTMLElement).focus();
+                    if (activeElement instanceof HTMLElement) {
+                      activeElement.focus();
                     }
                   },
                 }
@@ -523,6 +535,7 @@ function CommentsPanelList({
                 </blockquote>
                 {/* INTRODUCE DELETE THREAD HERE*/}
                 <Button
+                  variant="outline"
                   onClick={() => {
                     showModal("Delete Thread", (onClose) => (
                       <ShowDeleteCommentOrThreadDialog
@@ -869,6 +882,7 @@ export default function CommentPlugin({
         )}
       {createPortal(
         <Button
+          variant="outline"
           className={`CommentPlugin_ShowCommentsButton ${showComments ? "active" : ""}`}
           onClick={() => setShowComments(!showComments)}
           title={showComments ? "Hide Comments" : "Show Comments"}

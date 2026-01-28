@@ -3,7 +3,7 @@
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { $isAtNodeEnd } from "@lexical/selection";
 import { mergeRegister } from "@lexical/utils";
-import type { BaseSelection, NodeKey, TextNode } from "lexical";
+import type { BaseSelection, NodeKey } from "lexical";
 import {
   $addUpdateTag,
   $createTextNode,
@@ -127,7 +127,11 @@ export default function AutocompletePlugin(): JSX.Element | null {
           return;
         }
         const selectionCopy = selection.clone();
-        const prevNode = selection.getNodes()[0] as TextNode;
+        const nodes = selection.getNodes();
+        const prevNode = nodes[0];
+        if (!$isTextNode(prevNode)) {
+          return;
+        }
         prevNodeFormat = prevNode.getFormat();
         const node = $createAutocompleteNode(formatSuggestionText(newSuggestion), uuid)
           .setFormat(prevNodeFormat)

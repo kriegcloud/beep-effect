@@ -6,7 +6,9 @@ import { FetchHttpClient } from "@effect/platform";
 import type { HttpClient } from "@effect/platform/HttpClient";
 import type * as KeyValueStore from "@effect/platform/KeyValueStore";
 import { BrowserKeyValueStore } from "@effect/platform-browser";
+import * as Clipboard from "@effect/platform-browser/Clipboard";
 import * as Geolocation from "@effect/platform-browser/Geolocation";
+import * as Permissions from "@effect/platform-browser/Permissions";
 import { Registry } from "@effect-atom/atom-react";
 import { OTLPLogExporter } from "@opentelemetry/exporter-logs-otlp-http";
 import { OTLPMetricExporter } from "@opentelemetry/exporter-metrics-otlp-proto";
@@ -20,7 +22,6 @@ import * as Logger from "effect/Logger";
 import * as LogLevel from "effect/LogLevel";
 import { NetworkMonitor } from "./services/network-monitor";
 import { WorkerClient } from "./workers/worker-client";
-import * as Clipboard from "@effect/platform-browser/Clipboard";
 
 const configProvider = ConfigProvider.fromJson(process.env);
 // ============================================================================
@@ -78,7 +79,14 @@ export const WorkerClientLive = WorkerClient.Default;
 // Runtime assembly
 // ============================================================================
 
-type ClientRuntimeServices = Clipboard.Clipboard | HttpClient | ToasterService | NetworkMonitor | WorkerClient | KeyValueStore.KeyValueStore;
+type ClientRuntimeServices =
+  | Permissions.Permissions
+  | Clipboard.Clipboard
+  | HttpClient
+  | ToasterService
+  | NetworkMonitor
+  | WorkerClient
+  | KeyValueStore.KeyValueStore;
 
 export type ClientRuntimeLayer = Layer.Layer<ClientRuntimeServices, never, never>;
 
@@ -91,4 +99,5 @@ export const clientRuntimeLayer = Layer.mergeAll(
   BrowserKeyValueStore.layerLocalStorage,
   GeoLocationLive,
   Clipboard.layer,
+  Permissions.layer
 ).pipe(Layer.provide(LogLevelLive), Layer.provideMerge(Layer.setConfigProvider(configProvider)));

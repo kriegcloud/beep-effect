@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@beep/todox/components/ui/button";
 import { cn } from "@beep/todox/lib/utils";
 import { useCollaborationContext } from "@lexical/react/LexicalCollaborationContext";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
@@ -16,7 +17,6 @@ import {
 } from "lexical";
 import type { JSX } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
-import Button from "../ui/Button";
 import type { Option, Options, PollNode } from "./PollNode";
 import { $isPollNode, createPollOption } from "./PollNode";
 
@@ -203,7 +203,7 @@ export default function PollComponent({
           );
         })}
         <div className="flex justify-center">
-          <Button onClick={addOption} small={true}>
+          <Button variant="outline" size="sm" onClick={addOption}>
             Add Option
           </Button>
         </div>

@@ -1,11 +1,11 @@
 "use client";
 
+import { makeRunClientPromise, useRuntime } from "@beep/runtime-client";
 import { $isCodeNode } from "@lexical/code";
+import * as Effect from "effect/Effect";
 import { $getNearestNodeFromDOMNode, type LexicalEditor } from "lexical";
 import type { Options } from "prettier";
-import { useState, useCallback } from "react";
-import * as Effect from "effect/Effect";
-import { makeRunClientPromise, useRuntime } from "@beep/runtime-client";
+import { useCallback, useState } from "react";
 import { PrettierError, UnsupportedLanguageError } from "../../../../schema/errors";
 
 interface Props {

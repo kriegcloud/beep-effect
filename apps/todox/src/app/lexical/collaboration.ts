@@ -1,6 +1,7 @@
 "use client";
 
 import type { Provider } from "@lexical/yjs";
+import * as P from "effect/Predicate";
 import { WebsocketProvider } from "y-websocket";
 import { Doc } from "yjs";
 
@@ -14,7 +15,7 @@ const WEBSOCKET_ID = params.get("collabId") || "0";
 export function createWebsocketProvider(id: string, yjsDocMap: Map<string, Doc>): Provider {
   let doc = yjsDocMap.get(id);
 
-  if (doc === undefined) {
+  if (P.isUndefined(doc)) {
     doc = new Doc();
     yjsDocMap.set(id, doc);
   } else {

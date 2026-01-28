@@ -291,7 +291,8 @@ function TableCellResizer({ editor }: { readonly editor: LexicalEditor }): JSX.E
           if (activeCell === null) {
             return;
           }
-          const zoom = calculateZoomLevel(event.target as Element);
+          const targetElement = event.target instanceof Element ? event.target : activeCell.elem;
+          const zoom = calculateZoomLevel(targetElement);
 
           if (isHeightChanging(direction)) {
             const heightChange = (event.clientY - y) / zoom;
@@ -317,7 +318,7 @@ function TableCellResizer({ editor }: { readonly editor: LexicalEditor }): JSX.E
         event.stopPropagation();
 
         if (!activeCell) {
-          throw new Error("TableCellResizer: Expected active cell.");
+          return;
         }
 
         pointerStartPosRef.current = {

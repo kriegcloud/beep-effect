@@ -1,10 +1,5 @@
-/**
- * Copyright (c) Meta Platforms, Inc. and affiliates.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- *
- */
+import * as P from "effect/Predicate";
+
 const VERTICAL_GAP = 10;
 const HORIZONTAL_OFFSET = 5;
 
@@ -18,7 +13,7 @@ export function setFloatingElemPosition(
 ): void {
   const scrollerElem = anchorElem.parentElement;
 
-  if (targetRect === null || !scrollerElem) {
+  if (P.isNull(targetRect) || !scrollerElem) {
     floatingElem.style.opacity = "0";
     floatingElem.style.transform = "translate(-10000px, -10000px)";
     return;
@@ -36,9 +31,8 @@ export function setFloatingElemPosition(
   if (selection && selection.rangeCount > 0) {
     const range = selection.getRangeAt(0);
     const textNode = range.startContainer;
-    if (textNode.nodeType === Node.ELEMENT_NODE || textNode.parentElement) {
-      const textElement =
-        textNode.nodeType === Node.ELEMENT_NODE ? (textNode as Element) : (textNode.parentElement as Element);
+    const textElement = textNode instanceof Element ? textNode : textNode.parentElement;
+    if (textElement) {
       const textAlign = window.getComputedStyle(textElement).textAlign;
 
       if (textAlign === "right" || textAlign === "end") {

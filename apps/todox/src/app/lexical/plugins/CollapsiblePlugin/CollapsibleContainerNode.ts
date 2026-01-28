@@ -105,7 +105,7 @@ export class CollapsibleContainerNode extends ElementNode {
       if (IS_CHROME) {
         const contentDom = dom.children[1];
         if (!isHTMLElement(contentDom)) {
-          throw new Error("Expected contentDom to be an HTMLElement");
+          return false;
         }
         if (currentOpen) {
           dom.setAttribute("open", "");

@@ -1,5 +1,13 @@
 "use client";
 
+import { Button } from "@beep/todox/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@beep/todox/components/ui/dropdown-menu";
+import { cn } from "@beep/todox/lib/utils";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { useLexicalEditable } from "@lexical/react/useLexicalEditable";
 import {
@@ -25,6 +33,7 @@ import {
   type TableSelection,
 } from "@lexical/table";
 import { mergeRegister } from "@lexical/utils";
+import { CaretDownIcon } from "@phosphor-icons/react";
 import type { ElementNode, LexicalEditor } from "lexical";
 import {
   $getSelection,
@@ -43,7 +52,6 @@ import { createPortal } from "react-dom";
 
 import useModal from "../../hooks/useModal";
 import ColorPicker from "../../ui/ColorPicker";
-import DropDown, { DropDownItem } from "../../ui/DropDown";
 
 function computeSelectionCount(selection: TableSelection): {
   readonly columns: number;
@@ -207,7 +215,7 @@ function TableActionMenu({
         const tableElement = getTableElement(tableNode, editor.getElementByKey(tableNode.getKey()));
 
         if (tableElement === null) {
-          throw new Error("TableActionMenu: Expected to find tableElement in DOM");
+          return;
         }
 
         const tableObserver = getTableObserverFromTableElement(tableElement);
@@ -490,45 +498,56 @@ function TableActionMenu({
       <button type="button" className="item" onClick={() => toggleRowStriping()} data-test-id="table-row-striping">
         <span className="text">Toggle Row Striping</span>
       </button>
-      <DropDown
-        buttonLabel="Vertical Align"
-        buttonClassName="item"
-        buttonAriaLabel="Formatting options for vertical alignment"
-      >
-        <DropDownItem
-          onClick={() => {
-            formatVerticalAlign("top");
-          }}
-          className="item wide"
+      <DropdownMenu>
+        <DropdownMenuTrigger
+          render={
+            <Button
+              variant="ghost"
+              size="sm"
+              aria-label="Formatting options for vertical alignment"
+              className={cn("gap-1", "item")}
+            />
+          }
         >
-          <div className="icon-text-container">
-            <i className="icon vertical-top" />
-            <span className="text">Top Align</span>
-          </div>
-        </DropDownItem>
-        <DropDownItem
-          onClick={() => {
-            formatVerticalAlign("middle");
-          }}
-          className="item wide"
-        >
-          <div className="icon-text-container">
-            <i className="icon vertical-middle" />
-            <span className="text">Middle Align</span>
-          </div>
-        </DropDownItem>
-        <DropDownItem
-          onClick={() => {
-            formatVerticalAlign("bottom");
-          }}
-          className="item wide"
-        >
-          <div className="icon-text-container">
-            <i className="icon vertical-bottom" />
-            <span className="text">Bottom Align</span>
-          </div>
-        </DropDownItem>
-      </DropDown>
+          <span className="text dropdown-button-text">Vertical Align</span>
+          <CaretDownIcon className="size-3 opacity-50" />
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="start" sideOffset={4} className="min-w-40 !bg-white !text-black">
+          <DropdownMenuItem
+            onClick={() => {
+              formatVerticalAlign("top");
+            }}
+            className={cn("cursor-pointer", "item wide")}
+          >
+            <div className="icon-text-container">
+              <i className="icon vertical-top" />
+              <span className="text">Top Align</span>
+            </div>
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => {
+              formatVerticalAlign("middle");
+            }}
+            className={cn("cursor-pointer", "item wide")}
+          >
+            <div className="icon-text-container">
+              <i className="icon vertical-middle" />
+              <span className="text">Middle Align</span>
+            </div>
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => {
+              formatVerticalAlign("bottom");
+            }}
+            className={cn("cursor-pointer", "item wide")}
+          >
+            <div className="icon-text-container">
+              <i className="icon vertical-bottom" />
+              <span className="text">Bottom Align</span>
+            </div>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
       <button
         type="button"
         className="item"
@@ -647,8 +666,8 @@ function TableCellActionMenuContainer({
 
   const checkTableCellOverflow = useCallback((tableCellParentNodeDOM: HTMLElement): boolean => {
     const scrollableContainer = tableCellParentNodeDOM.closest(".PlaygroundEditorTheme__tableScrollableWrapper");
-    if (scrollableContainer) {
-      const containerRect = (scrollableContainer as HTMLElement).getBoundingClientRect();
+    if (scrollableContainer instanceof HTMLElement) {
+      const containerRect = scrollableContainer.getBoundingClientRect();
       const cellRect = tableCellParentNodeDOM.getBoundingClientRect();
 
       // Calculate where the action button would be positioned (5px from right edge of cell)
@@ -711,7 +730,7 @@ function TableCellActionMenuContainer({
       const tableElement = getTableElement(tableNode, editor.getElementByKey(tableNode.getKey()));
 
       if (tableElement === null) {
-        throw new Error("TableActionMenu: Expected to find tableElement in DOM");
+        return disable();
       }
 
       tableObserver = getTableObserverFromTableElement(tableElement);
@@ -719,12 +738,12 @@ function TableCellActionMenuContainer({
     } else if ($isTableSelection(selection)) {
       const anchorNode = $getTableCellNodeFromLexicalNode(selection.anchor.getNode());
       if (!$isTableCellNode(anchorNode)) {
-        throw new Error("TableSelection anchorNode must be a TableCellNode");
+        return disable();
       }
       const tableNode = $getTableNodeFromLexicalNodeOrThrow(anchorNode);
       const tableElement = getTableElement(tableNode, editor.getElementByKey(tableNode.getKey()));
       if (tableElement === null) {
-        throw new Error("TableActionMenu: Expected to find tableElement in DOM");
+        return disable();
       }
       tableObserver = getTableObserverFromTableElement(tableElement);
       tableCellParentNodeDOM = editor.getElementByKey(anchorNode.getKey());

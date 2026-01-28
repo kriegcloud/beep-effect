@@ -19,13 +19,10 @@ effect("docToHash produces hash string starting with #doc=", () =>
   })
 );
 
-effect("docFromHash returns InvalidDocumentHashError for invalid hash", () =>
+effect("docFromHash returns null for invalid hash", () =>
   Effect.gen(function* () {
-    const result = yield* Effect.either(docFromHash("invalid"));
-    strictEqual(result._tag, "Left");
-    if (result._tag === "Left") {
-      strictEqual(result.left._tag.endsWith("InvalidDocumentHashError"), true);
-    }
+    const result = yield* docFromHash("invalid");
+    strictEqual(result, null);
   })
 );
 
@@ -38,8 +35,11 @@ effect("docToHash and docFromHash round-trip preserves data", () =>
     };
     const hash = yield* docToHash(original as any);
     const restored = yield* docFromHash(hash);
-    strictEqual(restored.lastSaved, original.lastSaved);
-    strictEqual(restored.source, original.source);
+    strictEqual(restored !== null, true);
+    if (restored !== null) {
+      strictEqual(restored.lastSaved, original.lastSaved);
+      strictEqual(restored.source, original.source);
+    }
   })
 );
 

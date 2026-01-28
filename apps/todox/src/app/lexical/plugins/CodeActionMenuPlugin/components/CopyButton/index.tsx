@@ -1,12 +1,12 @@
 "use client";
-import { $isCodeNode } from "@lexical/code";
-import { $getNearestNodeFromDOMNode, $getSelection, $setSelection, type LexicalEditor } from "lexical";
-import * as Clipboard from "@effect/platform-browser/Clipboard";
-import * as Effect from "effect/Effect";
 import { makeRunClientPromise, useRuntime } from "@beep/runtime-client";
-import { useState, useCallback } from "react";
-import { useDebounce } from "../../utils";
+import * as Clipboard from "@effect/platform-browser/Clipboard";
+import { $isCodeNode } from "@lexical/code";
+import * as Effect from "effect/Effect";
+import { $getNearestNodeFromDOMNode, $getSelection, $setSelection, type LexicalEditor } from "lexical";
+import { useCallback, useState } from "react";
 import { ClipboardError } from "../../../../schema/errors";
+import { useDebounce } from "../../utils";
 
 interface Props {
   readonly editor: LexicalEditor;
@@ -15,14 +15,15 @@ interface Props {
 
 const copyToClipboard = Effect.fn("copyToClipboard")(function* (content: string) {
   const clipboard = yield* Clipboard.Clipboard;
-  yield* Effect.tryPromise({
-    try: () => clipboard.writeString(content),
-    catch: (cause) =>
-      new ClipboardError({
-        message: "Failed to copy to clipboard",
-        cause,
-      }),
-  }).pipe(Effect.flatten);
+  yield* clipboard.writeString(content).pipe(
+    Effect.mapError(
+      (cause) =>
+        new ClipboardError({
+          message: "Failed to copy to clipboard",
+          cause,
+        })
+    )
+  );
 });
 
 export function CopyButton({ editor, getCodeDOMNode }: Props) {
@@ -64,7 +65,7 @@ export function CopyButton({ editor, getCodeDOMNode }: Props) {
         ),
         Effect.catchAll((error) =>
           Effect.sync(() => {
-            console.error("Failed to copy: ", error.message);
+            console.error("Failed to copy: ", error);
           })
         )
       )

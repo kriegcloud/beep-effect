@@ -1,11 +1,3 @@
-/**
- * Copyright (c) Meta Platforms, Inc. and affiliates.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- *
- */
-
 import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";
 import * as HashSet from "effect/HashSet";
@@ -28,7 +20,6 @@ const sanitizeUrlEffect = (url: string): Effect.Effect<string, InvalidUrlError> 
     }),
     Effect.map((parsedUrl) => (HashSet.has(SUPPORTED_URL_PROTOCOLS, parsedUrl.protocol) ? url : "about:blank"))
   );
-
 /**
  * Sanitizes a URL by validating its protocol against a list of supported protocols.
  * Returns "about:blank" for unsupported protocols, or the original URL if parsing fails.

@@ -1,5 +1,13 @@
 "use client";
 
+import { Button } from "@beep/todox/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@beep/todox/components/ui/dropdown-menu";
+import { cn } from "@beep/todox/lib/utils";
 import { autoUpdate, offset, shift, useFloating, type VirtualElement } from "@floating-ui/react";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { useLexicalEditable } from "@lexical/react/useLexicalEditable";
@@ -23,7 +31,6 @@ import type { JSX } from "react";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
-import DropDown, { DropDownItem } from "../../ui/DropDown";
 import { getThemeSelector } from "../../utils/getThemeSelector";
 
 const INDICATOR_SIZE_PX = 18;
@@ -360,19 +367,23 @@ function TableHoverActionsV2({ anchorElem }: { readonly anchorElem: HTMLElement 
         }}
         className="flex items-center gap-1 relative"
       >
-        <DropDown
-          buttonAriaLabel="Sort column"
-          buttonClassName={indicatorClass}
-          buttonIconClassName="bg-[url(/lexical/images/icons/filter-left.svg)] bg-center bg-no-repeat bg-[length:12px_12px] w-[12px] h-[12px]"
-          hideChevron={true}
-        >
-          <DropDownItem className="item" onClick={() => handleSortColumn("desc")}>
-            Sort Ascending
-          </DropDownItem>
-          <DropDownItem className="item" onClick={() => handleSortColumn("asc")}>
-            Sort Descending
-          </DropDownItem>
-        </DropDown>
+        <DropdownMenu>
+          <DropdownMenuTrigger
+            render={
+              <Button variant="ghost" size="sm" aria-label="Sort column" className={cn("gap-0 p-0", indicatorClass)} />
+            }
+          >
+            <span className="bg-[url(/lexical/images/icons/filter-left.svg)] bg-center bg-no-repeat bg-[length:12px_12px] w-[12px] h-[12px]" />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start" sideOffset={4} className="min-w-40 !bg-white !text-black">
+            <DropdownMenuItem className={cn("cursor-pointer", "item")} onClick={() => handleSortColumn("desc")}>
+              Sort Ascending
+            </DropdownMenuItem>
+            <DropdownMenuItem className={cn("cursor-pointer", "item")} onClick={() => handleSortColumn("asc")}>
+              Sort Descending
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
         <button
           className={indicatorClass}
           style={{ backgroundImage: "url(/lexical/images/icons/plus.svg)" }}

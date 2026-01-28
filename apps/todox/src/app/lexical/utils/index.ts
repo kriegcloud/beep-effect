@@ -7,9 +7,7 @@
 // Document serialization (Effect-based)
 export {
   docFromHash,
-  docFromHashPromise,
   docToHash,
-  docToHashPromise,
 } from "./docSerialization";
 // Focus utilities
 export * from "./focusUtils";

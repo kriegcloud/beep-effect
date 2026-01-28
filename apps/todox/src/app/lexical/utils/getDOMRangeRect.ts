@@ -1,19 +1,17 @@
-/**
- * Copyright (c) Meta Platforms, Inc. and affiliates.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- *
- */
 export function getDOMRangeRect(nativeSelection: Selection, rootElement: HTMLElement): DOMRect {
   const domRange = nativeSelection.getRangeAt(0);
 
   let rect: DOMRect;
 
   if (nativeSelection.anchorNode === rootElement) {
-    let inner = rootElement;
+    let inner: HTMLElement = rootElement;
     while (inner.firstElementChild != null) {
-      inner = inner.firstElementChild as HTMLElement;
+      const firstChild = inner.firstElementChild;
+      if (!(firstChild instanceof HTMLElement)) {
+        // Stop traversal if child is not an HTMLElement (e.g., SVGElement)
+        break;
+      }
+      inner = firstChild;
     }
     rect = inner.getBoundingClientRect();
   } else {

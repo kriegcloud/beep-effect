@@ -1,21 +1,23 @@
-/**
- * Copyright (c) Meta Platforms, Inc. and affiliates.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- *
- */
+import * as F from "effect/Function";
+import * as O from "effect/Option";
+import * as S from "effect/Schema";
 
-export const findFirstFocusableDescendant = (startElement: HTMLElement): HTMLElement | null => {
+export const findFirstFocusableDescendant = (startElement: HTMLElement): O.Option<HTMLElement> => {
   const focusableSelector = "button, a[href], input, select, textarea, details, summary [tabindex], [contenteditable]";
 
-  return startElement.querySelector(focusableSelector) as HTMLElement;
+  const element = startElement.querySelector(focusableSelector);
+  return F.pipe(element, O.liftPredicate(S.is(S.instanceOf(HTMLElement))));
 };
 
-export const focusNearestDescendant = (startElement: HTMLElement): HTMLElement | null => {
+export const focusNearestDescendant = (startElement: HTMLElement): O.Option<HTMLElement> => {
   const el = findFirstFocusableDescendant(startElement);
-  el?.focus();
-  return el;
+
+  return el.pipe(
+    O.tap((el) => {
+      el.focus();
+      return O.some(el);
+    })
+  );
 };
 
 export const isKeyboardInput = (event: MouseEvent | PointerEvent | React.MouseEvent): boolean => {

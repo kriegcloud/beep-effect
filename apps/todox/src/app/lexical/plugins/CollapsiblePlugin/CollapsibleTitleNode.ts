@@ -51,7 +51,7 @@ export class CollapsibleTitleNode extends ElementNode {
         editor.update(() => {
           const collapsibleContainer = this.getLatest().getParentOrThrow();
           if (!$isCollapsibleContainerNode(collapsibleContainer)) {
-            throw new Error("Expected parent node to be a CollapsibleContainerNode");
+            return;
           }
           collapsibleContainer.toggleOpen();
         });
@@ -68,13 +68,17 @@ export class CollapsibleTitleNode extends ElementNode {
     const containerNode = this.getParentOrThrow();
 
     if (!$isCollapsibleContainerNode(containerNode)) {
-      throw new Error("CollapsibleTitleNode expects to be child of CollapsibleContainerNode");
+      const paragraph = $createParagraphNode();
+      this.insertAfter(paragraph, restoreSelection);
+      return paragraph;
     }
 
     if (containerNode.getOpen()) {
       const contentNode = this.getNextSibling();
       if (!$isCollapsibleContentNode(contentNode)) {
-        throw new Error("CollapsibleTitleNode expects to have CollapsibleContentNode sibling");
+        const paragraph = $createParagraphNode();
+        this.insertAfter(paragraph, restoreSelection);
+        return paragraph;
       }
 
       const firstChild = contentNode.getFirstChild();

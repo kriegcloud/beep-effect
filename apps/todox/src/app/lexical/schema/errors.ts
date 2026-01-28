@@ -25,22 +25,6 @@ export class InvalidUrlError extends S.TaggedError<InvalidUrlError>()(
 ) {}
 
 /**
- * Error thrown when JSON parsing fails.
- *
- * @since 0.1.0
- */
-export class ParseError extends S.TaggedError<ParseError>()(
-  $I`ParseError`,
-  {
-    message: S.String,
-    input: S.String,
-  },
-  $I.annotations("ParseError", {
-    description: "Error thrown when JSON parsing fails",
-  })
-) {}
-
-/**
  * Error thrown when document hash validation fails.
  *
  * @since 0.1.0

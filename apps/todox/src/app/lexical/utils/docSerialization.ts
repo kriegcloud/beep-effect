@@ -1,17 +1,13 @@
-/**
- * Copyright (c) Meta Platforms, Inc. and affiliates.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- *
- */
-
-import type { SerializedDocument } from "@lexical/file";
+import { SerializedDocument } from "@beep/todox/app/lexical/schema";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import * as F from "effect/Function";
 import * as O from "effect/Option";
-
-import { CompressionError, InvalidDocumentHashError, ParseError } from "../schema/errors";
+import type * as ParseResult from "effect/ParseResult";
+import * as P from "effect/Predicate";
+import * as S from "effect/Schema";
+import * as Str from "effect/String";
+import { CompressionError, InvalidDocumentHashError } from "../schema/errors";
 
 /**
  * Reads chunks from a ReadableStreamDefaultReader.
@@ -19,7 +15,7 @@ import { CompressionError, InvalidDocumentHashError, ParseError } from "../schem
  */
 const readChunks = <T>(reader: ReadableStreamDefaultReader<T>): Effect.Effect<readonly T[], CompressionError> =>
   Effect.gen(function* () {
-    const chunks: T[] = [];
+    const chunks = A.empty<T>();
     let done = false;
 
     while (!done) {
@@ -32,7 +28,7 @@ const readChunks = <T>(reader: ReadableStreamDefaultReader<T>): Effect.Effect<re
           }),
       });
 
-      if (result.value !== undefined) {
+      if (P.isNotUndefined(result.value)) {
         chunks.push(result.value);
       }
       done = result.done;
@@ -48,7 +44,7 @@ const readChunks = <T>(reader: ReadableStreamDefaultReader<T>): Effect.Effect<re
 const readBytesToString = (reader: ReadableStreamDefaultReader<Uint8Array>): Effect.Effect<string, CompressionError> =>
   Effect.gen(function* () {
     const chunks = yield* readChunks(reader);
-    const output: string[] = [];
+    const output = A.empty<string>();
     const chunkSize = 0x8000;
 
     for (const value of chunks) {
@@ -65,26 +61,44 @@ const readBytesToString = (reader: ReadableStreamDefaultReader<Uint8Array>): Eff
  *
  * @since 0.1.0
  */
-export const docToHash = (doc: SerializedDocument): Effect.Effect<string, CompressionError> =>
+export const docToHash = (doc: SerializedDocument): Effect.Effect<string, CompressionError | ParseResult.ParseError> =>
   Effect.gen(function* () {
     const cs = new CompressionStream("gzip");
     const writer = cs.writable.getWriter();
 
-    const writeAndClose = Effect.tryPromise({
-      try: async () => {
-        await writer.write(new TextEncoder().encode(JSON.stringify(doc)));
-        await writer.close();
-      },
-      catch: (e) =>
-        new CompressionError({
-          message: "Failed to write to compression stream",
-          cause: String(e),
-        }),
+    const encoder = new TextEncoder();
+    const writeAndClose = F.pipe(
+      doc,
+      S.encode(S.parseJson(SerializedDocument)),
+      Effect.andThen((serialized) =>
+        Effect.tryPromise({
+          try: () => writer.write(encoder.encode(serialized)),
+          catch: (e) =>
+            new CompressionError({
+              message: "Failed to write to compression stream",
+              cause: String(e),
+            }),
+        })
+      ),
+      Effect.andThen(() =>
+        Effect.tryPromise({
+          try: () => writer.close(),
+          catch: (e) =>
+            new CompressionError({
+              message: "Failed to close compression stream",
+              cause: String(e),
+            }),
+        })
+      )
+    );
+
+    const [, output] = yield* Effect.all([writeAndClose, readBytesToString(cs.readable.getReader())], {
+      concurrency: 2,
     });
 
-    const [, output] = yield* Effect.all([writeAndClose, readBytesToString(cs.readable.getReader())]);
+    const docVal = F.pipe(output, btoa, Str.replace(/\//g, "_"), Str.replace(/\+/g, "-"), Str.replace(/=+$/, ""));
 
-    return `#doc=${btoa(output).replace(/\//g, "_").replace(/\+/g, "-").replace(/=+$/, "")}`;
+    return `#doc=${docVal}`;
   });
 
 /**
@@ -93,14 +107,13 @@ export const docToHash = (doc: SerializedDocument): Effect.Effect<string, Compre
  * @since 0.1.0
  */
 
-
 /**
  * Decompresses a hash string back to a SerializedDocument.
  *
  * @since 0.1.0
  */
-export const docFromHash =
-  Effect.fn(function* (hash: string) {
+export const docFromHash = Effect.fn(
+  function* (hash: string) {
     const m = /^#doc=(.*)$/.exec(hash);
     if (!m || m[1] === undefined) {
       return yield* Effect.fail(
@@ -116,7 +129,7 @@ export const docFromHash =
     const writer = ds.writable.getWriter();
 
     const b64 = yield* Effect.try({
-      try: () => atob(encodedData.replace(/_/g, "/").replace(/-/g, "+")),
+      try: () => F.pipe(encodedData, Str.replace(/_/g, "/"), Str.replace(/-/g, "+"), atob),
       catch: (e) =>
         new InvalidDocumentHashError({
           message: `Invalid base64 encoding: ${String(e)}`,
@@ -141,7 +154,7 @@ export const docFromHash =
         }),
     });
 
-    const output: string[] = [];
+    const output = A.empty<string>();
     const readOutput = Effect.gen(function* () {
       const textStream = ds.readable.pipeThrough(new TextDecoderStream());
       const chunks = yield* readChunks(textStream.getReader());
@@ -150,17 +163,13 @@ export const docFromHash =
       }
     });
 
-    yield* Effect.all([writeAndClose, readOutput]);
+    yield* Effect.all([writeAndClose, readOutput], {
+      concurrency: 2,
+    });
 
     const jsonString = A.join(output, "");
-    return yield* Effect.try({
-      try: () => JSON.parse(jsonString) as SerializedDocument,
-      catch: (e) =>
-        new ParseError({
-          message: `Failed to parse document JSON: ${String(e)}`,
-          input: jsonString,
-        }),
-    });
-  }, Effect.option, Effect.map(O.getOrNull));
-
-
+    return yield* S.decode(S.parseJson(SerializedDocument))(jsonString);
+  },
+  Effect.option,
+  Effect.map(O.getOrNull)
+);
