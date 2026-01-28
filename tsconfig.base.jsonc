@@ -208,6 +208,17 @@
       "@beep/ui-editor/test/*": [
         "./packages/ui/editor/test/*"
       ],
+      
+      "@beep/ui-spreadsheet": [
+        "./packages/ui/spreadsheet/src/index"
+      ],
+      "@beep/ui-spreadsheet/*": [
+        "./packages/ui/spreadsheet/src/*"
+      ],
+      "@beep/ui-spreadsheet/test/*": [
+        "./packages/ui/spreadsheet/test/*"
+      ],
+      
       "@beep/shared-env": [
         "./packages/shared/env/src/index"
       ],

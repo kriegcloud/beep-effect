@@ -1,18 +1,16 @@
-import { useState } from "react"
-import { LexicalErrorBoundary } from "@lexical/react/LexicalErrorBoundary"
-import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin"
-
-import { ContentEditable } from "@beep/todox/components/editor/editor-ui/content-editable"
+import { ContentEditable } from "@beep/todox/components/editor/editor-ui/content-editable";
+import { LexicalErrorBoundary } from "@lexical/react/LexicalErrorBoundary";
+import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
+import { useState } from "react";
 
 export function Plugins() {
-  const [floatingAnchorElem, setFloatingAnchorElem] =
-    useState<HTMLDivElement | null>(null)
+  const [_floatingAnchorElem, setFloatingAnchorElem] = useState<HTMLDivElement | null>(null);
 
   const onRef = (_floatingAnchorElem: HTMLDivElement) => {
     if (_floatingAnchorElem !== null) {
-      setFloatingAnchorElem(_floatingAnchorElem)
+      setFloatingAnchorElem(_floatingAnchorElem);
     }
-  }
+  };
 
   return (
     <div className="relative">
@@ -32,5 +30,5 @@ export function Plugins() {
       </div>
       {/* actions plugins */}
     </div>
-  )
+  );
 }
