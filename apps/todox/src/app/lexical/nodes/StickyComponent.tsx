@@ -16,9 +16,9 @@ import { useEffect, useLayoutEffect, useRef } from "react";
 
 import { createWebsocketProvider } from "../collaboration";
 import { useSharedHistoryContext } from "../context/SharedHistoryContext";
-import StickyEditorTheme from "../themes/StickyEditorTheme";
+import { stickyEditorTheme } from "../themes/editor-theme";
 import ContentEditable from "../ui/ContentEditable";
-import { $isStickyNode } from "./StickyNode";
+import { $isStickyNode } from "./sticky-utils";
 
 type Positioning = {
   isDragging: boolean;
@@ -211,7 +211,7 @@ export default function StickyComponent({
         >
           <i className="bucket" />
         </button>
-        <LexicalNestedComposer initialEditor={caption} initialTheme={StickyEditorTheme}>
+        <LexicalNestedComposer initialEditor={caption} initialTheme={stickyEditorTheme}>
           {isCollabActive ? (
             <CollaborationPlugin
               id={caption.getKey()}

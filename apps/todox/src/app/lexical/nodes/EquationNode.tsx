@@ -5,7 +5,6 @@ import type {
   DOMConversionMap,
   DOMConversionOutput,
   EditorConfig,
-  LexicalNode,
   NodeKey,
   SerializedLexicalNode,
   Spread,
@@ -142,6 +141,5 @@ export function $createEquationNode(equation = "", inline = false): EquationNode
   return $applyNodeReplacement(equationNode);
 }
 
-export function $isEquationNode(node: LexicalNode | null | undefined): node is EquationNode {
-  return node instanceof EquationNode;
-}
+// Re-export from utils to maintain backwards compatibility
+export { $isEquationNode } from "./equation-utils";

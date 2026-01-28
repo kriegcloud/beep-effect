@@ -1,6 +1,6 @@
-import { EditorThemeClasses } from "lexical"
+import type { EditorThemeClasses } from "lexical";
 
-import "./editor-theme.css"
+import "./editor-theme.css";
 
 export const editorTheme: EditorThemeClasses = {
   ltr: "text-left",
@@ -55,8 +55,7 @@ export const editorTheme: EditorThemeClasses = {
     underlineStrikethrough: "[text-decoration:underline_line-through]",
   },
   image: "relative inline-block user-select-none cursor-default editor-image",
-  inlineImage:
-    "relative inline-block user-select-none cursor-default inline-editor-image",
+  inlineImage: "relative inline-block user-select-none cursor-default inline-editor-image",
   keyword: "text-purple-900 font-bold",
   code: "EditorTheme__code",
   codeHighlight: {
@@ -104,15 +103,12 @@ export const editorTheme: EditorThemeClasses = {
     "EditorTheme__tableCellHeader bg-muted border px-4 py-2 text-left font-bold [&[align=center]]:text-center [&[align=right]]:text-right",
   tableCellPrimarySelected:
     "EditorTheme__tableCellPrimarySelected border border-primary border-solid block h-[calc(100%-2px)] w-[calc(100%-2px)] absolute -left-[1px] -top-[1px] z-10 ",
-  tableCellResizer:
-    "EditorTheme__tableCellResizer absolute -right-1 h-full w-2 cursor-ew-resize z-10 top-0",
+  tableCellResizer: "EditorTheme__tableCellResizer absolute -right-1 h-full w-2 cursor-ew-resize z-10 top-0",
   tableCellSelected: "EditorTheme__tableCellSelected bg-muted",
   tableCellSortedIndicator:
     "EditorTheme__tableCellSortedIndicator block opacity-50 bsolute bottom-0 left-0 w-full h-1 bg-muted",
-  tableResizeRuler:
-    "EditorTheme__tableCellResizeRuler block absolute w-[1px] h-full bg-primary top-0",
-  tableRowStriping:
-    "EditorTheme__tableRowStriping m-0 border-t p-0 even:bg-muted",
+  tableResizeRuler: "EditorTheme__tableCellResizeRuler block absolute w-[1px] h-full bg-primary top-0",
+  tableRowStriping: "EditorTheme__tableRowStriping m-0 border-t p-0 even:bg-muted",
   tableSelected: "EditorTheme__tableSelected ring-2 ring-primary ring-offset-2",
   tableSelection: "EditorTheme__tableSelection bg-transparent",
   layoutItem: "border border-dashed px-4 py-2",
@@ -127,4 +123,4 @@ export const editorTheme: EditorThemeClasses = {
   indent: "[--lexical-indent-base-value:40px]",
   mark: "",
   markOverlap: "",
-}
+};

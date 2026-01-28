@@ -104,6 +104,8 @@ export class LayoutContainerNode extends ElementNode {
     return {
       ...super.exportJSON(),
       templateColumns: this.__templateColumns,
+      type: "layout-container",
+      version: 1,
     };
   }
 

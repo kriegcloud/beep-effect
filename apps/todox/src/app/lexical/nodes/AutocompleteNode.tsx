@@ -4,7 +4,7 @@ import type { DOMExportOutput, EditorConfig, LexicalEditor, NodeKey, SerializedT
 
 import { TextNode } from "lexical";
 
-import { uuid as UUID } from "../plugins/AutocompletePlugin";
+import { uuid as UUID } from "./autocomplete-utils";
 
 export type SerializedAutocompleteNode = Spread<
   {
@@ -44,7 +44,9 @@ export class AutocompleteNode extends TextNode {
   override exportJSON(): SerializedAutocompleteNode {
     return {
       ...super.exportJSON(),
+      type: "autocomplete",
       uuid: this.__uuid,
+      version: 1,
     };
   }
 

@@ -1,8 +1,8 @@
 "use client";
 
-import { Input } from "@beep/todox/components/ui/input";
-import { Label } from "@beep/todox/components/ui/label";
 import { cn } from "@beep/todox/lib/utils";
+import { Input } from "@beep/ui/components/input";
+import { Label } from "@beep/ui/components/label";
 
 import { calculateZoomLevel } from "@lexical/utils";
 import type * as React from "react";

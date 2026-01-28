@@ -1,13 +1,13 @@
 "use client";
 
-import { Button } from "@beep/todox/components/ui/button";
+import { cn } from "@beep/todox/lib/utils";
+import { Button } from "@beep/ui/components/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@beep/todox/components/ui/dropdown-menu";
-import { cn } from "@beep/todox/lib/utils";
+} from "@beep/ui/components/dropdown-menu";
 import { CaretDownIcon } from "@phosphor-icons/react";
 import type { LexicalEditor } from "lexical";
 import type { JSX } from "react";
@@ -41,11 +41,11 @@ export default function InsertLayoutDialog({
   return (
     <>
       <DropdownMenu>
-        <DropdownMenuTrigger
-          render={<Button variant="ghost" size="sm" className={cn("gap-1", "toolbar-item dialog-dropdown")} />}
-        >
-          <span className="text dropdown-button-text">{buttonLabel}</span>
-          <CaretDownIcon className="size-3 opacity-50" />
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" size="sm" className={cn("gap-1", "toolbar-item dialog-dropdown")}>
+            <span className="text dropdown-button-text">{buttonLabel}</span>
+            <CaretDownIcon className="size-3 opacity-50" />
+          </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" sideOffset={4} className="min-w-40 !bg-white !text-black">
           {LAYOUTS.map(({ label, value }) => (

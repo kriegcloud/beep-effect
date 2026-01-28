@@ -19,7 +19,7 @@ import { ErrorBoundary } from "react-error-boundary";
 
 import EquationEditor from "../ui/EquationEditor";
 import KatexRenderer from "../ui/KatexRenderer";
-import { $isEquationNode } from "./EquationNode";
+import { $isEquationNode } from "./equation-utils";
 
 type EquationComponentProps = {
   readonly equation: string;

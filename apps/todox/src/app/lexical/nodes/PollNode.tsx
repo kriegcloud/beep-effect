@@ -8,7 +8,6 @@ import {
   DecoratorNode,
   type DOMConversionOutput,
   type DOMExportOutput,
-  type LexicalNode,
   type SerializedLexicalNode,
   type Spread,
   type StateConfigValue,
@@ -17,30 +16,13 @@ import {
 import type { JSX } from "react";
 import * as React from "react";
 
-export type Options = ReadonlyArray<Option>;
+import type { Option, Options } from "./poll-utils";
 
-export type Option = Readonly<{
-  text: string;
-  uid: string;
-  votes: Array<string>;
-}>;
+// Re-export types and functions from utils for backwards compatibility
+export type { Option, Options } from "./poll-utils";
+export { createPollOption } from "./poll-utils";
 
 const PollComponent = React.lazy(() => import("./PollComponent"));
-
-function createUID(): string {
-  return Math.random()
-    .toString(36)
-    .replace(/[^a-z]+/g, "")
-    .substring(0, 5);
-}
-
-export function createPollOption(text = ""): Option {
-  return {
-    text,
-    uid: createUID(),
-    votes: [],
-  };
-}
 
 function cloneOption(option: Option, text: string, votes?: undefined | Array<string>): Option {
   return {
@@ -203,6 +185,5 @@ export function $createPollNode(question: string, options: Options): PollNode {
   return new PollNode().setQuestion(question).setOptions(options);
 }
 
-export function $isPollNode(node: LexicalNode | null | undefined): node is PollNode {
-  return node instanceof PollNode;
-}
+// Re-export from utils to maintain backwards compatibility
+export { $isPollNode } from "./poll-utils";

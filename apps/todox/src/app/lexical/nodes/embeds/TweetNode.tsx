@@ -17,7 +17,7 @@ import type {
 } from "lexical";
 import type { JSX } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { TwitterError } from "../schema/errors";
+import { TwitterError } from "../../schema/errors";
 
 const WIDGET_SCRIPT_URL = "https://platform.twitter.com/widgets.js";
 
@@ -170,6 +170,8 @@ export class TweetNode extends DecoratorBlockNode {
     return {
       ...super.exportJSON(),
       id: this.getId(),
+      type: "tweet",
+      version: 1,
     };
   }
 

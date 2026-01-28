@@ -1,6 +1,6 @@
-import { Button } from "@beep/todox/components/ui/button";
-import { Input } from "@beep/todox/components/ui/input";
-import { Label } from "@beep/todox/components/ui/label";
+import { Button } from "@beep/ui/components/button";
+import { Input } from "@beep/ui/components/input";
+import { Label } from "@beep/ui/components/label";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { INSERT_TABLE_COMMAND, TableCellNode, TableNode, TableRowNode } from "@lexical/table";
 import type { EditorThemeClasses, Klass, LexicalEditor, LexicalNode } from "lexical";

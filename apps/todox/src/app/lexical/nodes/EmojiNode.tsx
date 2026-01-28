@@ -54,6 +54,8 @@ export class EmojiNode extends TextNode {
     return {
       ...super.exportJSON(),
       className: this.getClassName(),
+      type: "emoji",
+      version: 1,
     };
   }
 

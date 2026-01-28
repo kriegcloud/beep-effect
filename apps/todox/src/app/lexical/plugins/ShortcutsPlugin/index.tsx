@@ -12,7 +12,7 @@ import {
 } from "lexical";
 import { type Dispatch, useEffect } from "react";
 
-import { useToolbarState } from "../../context/ToolbarContext";
+import { useToolbarState } from "../../context/toolbar-context";
 import { sanitizeUrl } from "../../utils/url";
 import { INSERT_INLINE_COMMAND } from "../CommentPlugin";
 import {

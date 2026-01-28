@@ -1,11 +1,6 @@
 "use client";
 
-import type { EditorState, LexicalCommand, LexicalEditor, NodeKey, RangeSelection } from "lexical";
-import type { JSX } from "react";
-import type { Doc } from "yjs";
-
-import "./index.css";
-import { Button } from "@beep/todox/components/ui/button";
+import { Button } from "@beep/ui/components/button";
 import {
   $createMarkNode,
   $getMarkIDs,
@@ -28,6 +23,7 @@ import { createDOMRange, createRectsFromDOMRange } from "@lexical/selection";
 import { $isRootTextContentEmpty, $rootTextContent } from "@lexical/text";
 import { mergeRegister, registerNestedElementResolver } from "@lexical/utils";
 import * as O from "effect/Option";
+import type { EditorState, LexicalCommand, LexicalEditor, NodeKey, RangeSelection } from "lexical";
 import {
   $getNodeByKey,
   $getSelection,
@@ -41,11 +37,13 @@ import {
   getDOMSelection,
   KEY_ESCAPE_COMMAND,
 } from "lexical";
+import type { JSX } from "react";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import type { Doc } from "yjs";
 import { Comment, CommentStore, type Comments, type ProviderWithDoc, Thread, useCommentStore } from "../../commenting";
 import useModal from "../../hooks/useModal";
-import CommentEditorTheme from "../../themes/CommentEditorTheme";
+import { commentEditorTheme } from "../../themes/editor-theme";
 import ContentEditable from "../../ui/ContentEditable";
 
 export const INSERT_INLINE_COMMAND: LexicalCommand<void> = createCommand("INSERT_INLINE_COMMAND");
@@ -132,7 +130,7 @@ function PlainTextEditor({
     onError: (error: Error) => {
       throw error;
     },
-    theme: CommentEditorTheme,
+    theme: commentEditorTheme,
   };
 
   return (

@@ -58,6 +58,8 @@ export class MentionNode extends TextNode {
     return {
       ...super.exportJSON(),
       mentionName: this.__mention,
+      type: "mention",
+      version: 1,
     };
   }
 

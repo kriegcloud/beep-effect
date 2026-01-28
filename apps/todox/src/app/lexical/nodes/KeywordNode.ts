@@ -16,13 +16,22 @@ export class KeywordNode extends TextNode {
   }
 
   static override importJSON(serializedNode: SerializedKeywordNode): KeywordNode {
-    return $createKeywordNode().updateFromJSON(serializedNode);
+    return $createKeywordNode(serializedNode.text).updateFromJSON(serializedNode);
+  }
+
+  override exportJSON(): SerializedKeywordNode {
+    return {
+      ...super.exportJSON(),
+      type: "keyword",
+      version: 1,
+    };
   }
 
   override createDOM(config: EditorConfig): HTMLElement {
     const dom = super.createDOM(config);
     dom.style.cursor = "default";
-    dom.className = "keyword";
+    // Use theme class if available, fallback to keyword class with Tailwind styling
+    dom.className = config.theme.keyword ?? "keyword text-purple-900 font-bold";
     return dom;
   }
 
@@ -43,6 +52,6 @@ export function $createKeywordNode(keyword = ""): KeywordNode {
   return $applyNodeReplacement(new KeywordNode(keyword));
 }
 
-export function $isKeywordNode(node: LexicalNode | null | undefined): boolean {
+export function $isKeywordNode(node: LexicalNode | null | undefined): node is KeywordNode {
   return node instanceof KeywordNode;
 }

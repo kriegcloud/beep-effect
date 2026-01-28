@@ -6,7 +6,6 @@ import type {
   DOMExportOutput,
   EditorConfig,
   LexicalEditor,
-  LexicalNode,
   NodeKey,
   SerializedLexicalNode,
   Spread,
@@ -169,6 +168,5 @@ export function $createExcalidrawNode(
   return new ExcalidrawNode(data, width, height);
 }
 
-export function $isExcalidrawNode(node: LexicalNode | null | undefined): node is ExcalidrawNode {
-  return node instanceof ExcalidrawNode;
-}
+// Re-export from utils to maintain backwards compatibility
+export { $isExcalidrawNode } from "./excalidraw-utils";

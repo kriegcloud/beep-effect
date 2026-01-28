@@ -70,6 +70,14 @@ export class LayoutItemNode extends ElementNode {
   override isShadowRoot(): boolean {
     return true;
   }
+
+  override exportJSON(): SerializedLayoutItemNode {
+    return {
+      ...super.exportJSON(),
+      type: "layout-item",
+      version: 1,
+    };
+  }
 }
 
 export function $createLayoutItemNode(): LayoutItemNode {

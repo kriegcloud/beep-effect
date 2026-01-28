@@ -23,7 +23,7 @@ import {
   SKIP_SELECTION_FOCUS_TAG,
 } from "lexical";
 
-import { DEFAULT_FONT_SIZE, MAX_ALLOWED_FONT_SIZE, MIN_ALLOWED_FONT_SIZE } from "../../context/ToolbarContext";
+import { DEFAULT_FONT_SIZE, MAX_ALLOWED_FONT_SIZE, MIN_ALLOWED_FONT_SIZE } from "../../context/toolbar-context";
 
 export const UpdateFontSizeType = {
   increment: 1,

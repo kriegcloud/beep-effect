@@ -17,6 +17,8 @@ import { DateTimeNode } from "./DateTimeNode/DateTimeNode";
 import { EmojiNode } from "./EmojiNode";
 import { EquationNode } from "./EquationNode";
 import { ExcalidrawNode } from "./ExcalidrawNode";
+import { TweetNode } from "./embeds/TweetNode";
+import { YouTubeNode } from "./embeds/YouTubeNode";
 import { FigmaNode } from "./FigmaNode";
 import { ImageNode } from "./ImageNode";
 import { KeywordNode } from "./KeywordNode";
@@ -25,10 +27,7 @@ import { LayoutItemNode } from "./LayoutItemNode";
 import { MentionNode } from "./MentionNode";
 import { PageBreakNode } from "./PageBreakNode";
 import { PollNode } from "./PollNode";
-import { SpecialTextNode } from "./SpecialTextNode";
 import { StickyNode } from "./StickyNode";
-import { TweetNode } from "./TweetNode";
-import { YouTubeNode } from "./YouTubeNode";
 
 const PlaygroundNodes: Array<Klass<LexicalNode>> = [
   HeadingNode,
@@ -64,7 +63,6 @@ const PlaygroundNodes: Array<Klass<LexicalNode>> = [
   PageBreakNode,
   LayoutContainerNode,
   LayoutItemNode,
-  SpecialTextNode,
   DateTimeNode,
 ];
 

@@ -11,7 +11,7 @@ import { buildHTMLConfig } from "./buildHTMLConfig";
 import { FlashMessageContext } from "./context/FlashMessageContext";
 import { SettingsContext, useSettings } from "./context/SettingsContext";
 import { SharedHistoryContext } from "./context/SharedHistoryContext";
-import { ToolbarContext } from "./context/ToolbarContext";
+import { ToolbarContext } from "./context/toolbar-context";
 import Editor from "./Editor";
 import PlaygroundNodes from "./nodes/PlaygroundNodes";
 import DocsPlugin from "./plugins/DocsPlugin";
@@ -21,7 +21,7 @@ import TestRecorderPlugin from "./plugins/TestRecorderPlugin";
 import TypingPerfPlugin from "./plugins/TypingPerfPlugin";
 import Settings from "./Settings";
 import { isDevPlayground } from "./settings";
-import PlaygroundEditorTheme from "./themes/PlaygroundEditorTheme";
+import { editorTheme } from "./themes/editor-theme";
 
 console.warn(
   "If you are profiling the playground app, please ensure you turn off the debug view. You can disable it by pressing on the settings control in the bottom-left of your screen and toggling the debug view setting."
@@ -112,7 +112,7 @@ function App(): JSX.Element {
         name: "@lexical/playground",
         namespace: "Playground",
         nodes: PlaygroundNodes,
-        theme: PlaygroundEditorTheme,
+        theme: editorTheme,
       }),
     [emptyEditor, isCollab]
   );

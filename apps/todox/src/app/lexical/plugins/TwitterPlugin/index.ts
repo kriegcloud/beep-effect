@@ -6,7 +6,7 @@ import { COMMAND_PRIORITY_EDITOR, createCommand, type LexicalCommand } from "lex
 import type { JSX } from "react";
 import { useEffect } from "react";
 
-import { $createTweetNode, TweetNode } from "../../nodes/TweetNode";
+import { $createTweetNode, TweetNode } from "../../nodes/embeds/TweetNode";
 
 export const INSERT_TWEET_COMMAND: LexicalCommand<string> = createCommand("INSERT_TWEET_COMMAND");
 

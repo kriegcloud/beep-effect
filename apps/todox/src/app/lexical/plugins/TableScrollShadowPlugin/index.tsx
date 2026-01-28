@@ -3,10 +3,10 @@
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { useEffect } from "react";
 
-const SCROLLABLE_WRAPPER_CLASS = "PlaygroundEditorTheme__tableScrollableWrapper";
-const HAS_SCROLL_RIGHT_CLASS = "PlaygroundEditorTheme__tableScrollRight";
-const HAS_SCROLL_LEFT_CLASS = "PlaygroundEditorTheme__tableScrollLeft";
-const HAS_SCROLL_MIDDLE_CLASS = "PlaygroundEditorTheme__tableScrollMiddle";
+const SCROLLABLE_WRAPPER_CLASS = "EditorTheme__tableScrollableWrapper";
+const HAS_SCROLL_RIGHT_CLASS = "EditorTheme__tableScrollRight";
+const HAS_SCROLL_LEFT_CLASS = "EditorTheme__tableScrollLeft";
+const HAS_SCROLL_MIDDLE_CLASS = "EditorTheme__tableScrollMiddle";
 
 function updateTableScrollState(element: HTMLElement): void {
   const hasScroll = element.scrollWidth > element.clientWidth;

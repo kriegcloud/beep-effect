@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@beep/todox/components/ui/button";
+import { Button } from "@beep/ui/components/button";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import type { JSX } from "react";
 import { useCallback, useState } from "react";

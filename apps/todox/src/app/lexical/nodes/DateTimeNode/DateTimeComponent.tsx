@@ -26,7 +26,7 @@ import type * as React from "react";
 import { useEffect, useRef, useState } from "react";
 import { DayPicker } from "react-day-picker";
 
-import { $isDateTimeNode, type DateTimeNode } from "./DateTimeNode";
+import { $isDateTimeNode, type DateTimeNodeInterface } from "./datetime-utils";
 
 const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
@@ -104,7 +104,7 @@ export default function DateTimeComponent({
     };
   }, [refs, editor]);
 
-  const withDateTimeNode = (cb: (node: DateTimeNode) => void, onUpdate?: () => void): void => {
+  const withDateTimeNode = (cb: (node: DateTimeNodeInterface) => void, onUpdate?: () => void): void => {
     editor.update(
       () => {
         const node = $getNodeByKey(nodeKey);

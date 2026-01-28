@@ -6,7 +6,7 @@ import { COMMAND_PRIORITY_EDITOR, createCommand, type LexicalCommand } from "lex
 import type { JSX } from "react";
 import { useEffect } from "react";
 
-import { $createYouTubeNode, YouTubeNode } from "../../nodes/YouTubeNode";
+import { $createYouTubeNode, YouTubeNode } from "../../nodes/embeds/YouTubeNode";
 
 export const INSERT_YOUTUBE_COMMAND: LexicalCommand<string> = createCommand("INSERT_YOUTUBE_COMMAND");
 

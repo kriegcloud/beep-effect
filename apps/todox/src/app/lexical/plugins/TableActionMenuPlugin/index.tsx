@@ -1,13 +1,13 @@
 "use client";
 
-import { Button } from "@beep/todox/components/ui/button";
+import { cn } from "@beep/todox/lib/utils";
+import { Button } from "@beep/ui/components/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@beep/todox/components/ui/dropdown-menu";
-import { cn } from "@beep/todox/lib/utils";
+} from "@beep/ui/components/dropdown-menu";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { useLexicalEditable } from "@lexical/react/useLexicalEditable";
 import {
@@ -499,18 +499,16 @@ function TableActionMenu({
         <span className="text">Toggle Row Striping</span>
       </button>
       <DropdownMenu>
-        <DropdownMenuTrigger
-          render={
-            <Button
-              variant="ghost"
-              size="sm"
-              aria-label="Formatting options for vertical alignment"
-              className={cn("gap-1", "item")}
-            />
-          }
-        >
-          <span className="text dropdown-button-text">Vertical Align</span>
-          <CaretDownIcon className="size-3 opacity-50" />
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="ghost"
+            size="sm"
+            aria-label="Formatting options for vertical alignment"
+            className={cn("gap-1", "item")}
+          >
+            <span className="text dropdown-button-text">Vertical Align</span>
+            <CaretDownIcon className="size-3 opacity-50" />
+          </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" sideOffset={4} className="min-w-40 !bg-white !text-black">
           <DropdownMenuItem
@@ -665,7 +663,7 @@ function TableCellActionMenuContainer({
   const [colorPickerModal, showColorPickerModal] = useModal();
 
   const checkTableCellOverflow = useCallback((tableCellParentNodeDOM: HTMLElement): boolean => {
-    const scrollableContainer = tableCellParentNodeDOM.closest(".PlaygroundEditorTheme__tableScrollableWrapper");
+    const scrollableContainer = tableCellParentNodeDOM.closest(".EditorTheme__tableScrollableWrapper");
     if (scrollableContainer instanceof HTMLElement) {
       const containerRect = scrollableContainer.getBoundingClientRect();
       const cellRect = tableCellParentNodeDOM.getBoundingClientRect();

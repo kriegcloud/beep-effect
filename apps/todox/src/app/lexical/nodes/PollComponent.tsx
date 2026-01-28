@@ -1,7 +1,7 @@
 "use client";
 
-import { Button } from "@beep/todox/components/ui/button";
 import { cn } from "@beep/todox/lib/utils";
+import { Button } from "@beep/ui/components/button";
 import { useCollaborationContext } from "@lexical/react/LexicalCollaborationContext";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { useLexicalNodeSelection } from "@lexical/react/useLexicalNodeSelection";
@@ -17,8 +17,8 @@ import {
 } from "lexical";
 import type { JSX } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { Option, Options, PollNode } from "./PollNode";
-import { $isPollNode, createPollOption } from "./PollNode";
+
+import { $isPollNode, createPollOption, type Option, type Options, type PollNodeInterface } from "./poll-utils";
 
 function getTotalVotes(options: Options): number {
   return options.reduce((totalVotes, next) => {
@@ -37,7 +37,7 @@ function PollOptionComponent({
   readonly option: Option;
   readonly options: Options;
   readonly totalVotes: number;
-  readonly withPollNode: (cb: (pollNode: PollNode) => void, onSelect?: undefined | (() => void)) => void;
+  readonly withPollNode: (cb: (pollNode: PollNodeInterface) => void, onSelect?: undefined | (() => void)) => void;
 }): JSX.Element {
   const { name: username } = useCollaborationContext();
   const checkboxRef = useRef(null);
@@ -159,7 +159,7 @@ export default function PollComponent({
     );
   }, [clearSelection, editor, isSelected, nodeKey, setSelected]);
 
-  const withPollNode = (cb: (node: PollNode) => void, onUpdate?: undefined | (() => void)): void => {
+  const withPollNode = (cb: (node: PollNodeInterface) => void, onUpdate?: undefined | (() => void)): void => {
     editor.update(
       () => {
         const node = $getNodeByKey(nodeKey);

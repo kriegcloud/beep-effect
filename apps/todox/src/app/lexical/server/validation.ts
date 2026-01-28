@@ -13,11 +13,11 @@ let stringifiedEditorStateJSON = "";
 
 (globalThis as { __DEV__?: boolean }).__DEV__ = true;
 
-// @ts-expect-error - Type incompatibility between lexical and @lexical/headless due to nested dependencies
+// Cast required due to @lexical/headless having nested lexical dependency causing type incompatibility
 const editor = createHeadlessEditor({
   namespace: "validation",
-  // @ts-expect-error - PlaygroundNodes array type incompatible with headless editor's node config type
-  nodes: [...PlaygroundNodes],
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  nodes: [...PlaygroundNodes] as any,
   onError: (error) => {
     console.error(error);
   },

@@ -1,8 +1,8 @@
 "use client";
 
-import { Button } from "@beep/todox/components/ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@beep/todox/components/ui/dropdown-menu";
 import { cn } from "@beep/todox/lib/utils";
+import { Button } from "@beep/ui/components/button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@beep/ui/components/dropdown-menu";
 import { CaretDownIcon } from "@phosphor-icons/react";
 
 import ColorPicker from "./ColorPicker";
@@ -31,20 +31,18 @@ export default function DropdownColorPicker({
 }: Props) {
   return (
     <DropdownMenu modal={!stopCloseOnClickSelf}>
-      <DropdownMenuTrigger
-        render={
-          <Button
-            variant="ghost"
-            size="sm"
-            disabled={disabled}
-            aria-label={buttonAriaLabel || buttonLabel}
-            className={cn("gap-1", buttonClassName)}
-          />
-        }
-      >
-        {buttonIconClassName && <span className={buttonIconClassName} />}
-        {buttonLabel && <span className="text dropdown-button-text">{buttonLabel}</span>}
-        <CaretDownIcon className="size-3 opacity-50" />
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant="ghost"
+          size="sm"
+          disabled={disabled}
+          aria-label={buttonAriaLabel || buttonLabel}
+          className={cn("gap-1", buttonClassName)}
+        >
+          {buttonIconClassName && <span className={buttonIconClassName} />}
+          {buttonLabel && <span className="text dropdown-button-text">{buttonLabel}</span>}
+          <CaretDownIcon className="size-3 opacity-50" />
+        </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" sideOffset={4} className="max-h-none overflow-visible !bg-white !text-black">
         <ColorPicker color={color} onChange={onChange} />

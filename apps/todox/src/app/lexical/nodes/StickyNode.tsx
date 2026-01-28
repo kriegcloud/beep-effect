@@ -3,7 +3,6 @@
 import type {
   EditorConfig,
   LexicalEditor,
-  LexicalNode,
   LexicalUpdateJSON,
   NodeKey,
   SerializedEditor,
@@ -123,9 +122,8 @@ export class StickyNode extends DecoratorNode<JSX.Element> {
   }
 }
 
-export function $isStickyNode(node: LexicalNode | null | undefined): node is StickyNode {
-  return node instanceof StickyNode;
-}
+// Re-export from utils to maintain backwards compatibility
+export { $isStickyNode } from "./sticky-utils";
 
 export function $createStickyNode(xOffset: number, yOffset: number): StickyNode {
   return new StickyNode(xOffset, yOffset, "yellow");

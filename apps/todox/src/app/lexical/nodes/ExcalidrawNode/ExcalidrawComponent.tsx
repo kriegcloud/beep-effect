@@ -14,8 +14,8 @@ import type { ExcalidrawInitialElements } from "../../ui/ExcalidrawModal";
 
 import ExcalidrawModal from "../../ui/ExcalidrawModal";
 import ImageResizer from "../../ui/ImageResizer";
-import { $isExcalidrawNode } from ".";
 import ExcalidrawImage from "./ExcalidrawImage";
+import { $isExcalidrawNode } from "./excalidraw-utils";
 
 export default function ExcalidrawComponent({
   nodeKey,

@@ -32,7 +32,7 @@ function YouTubeComponent({ className, format, nodeKey, videoID }: YouTubeCompon
         width="560"
         height="315"
         src={`https://www.youtube-nocookie.com/embed/${videoID}`}
-        frameBorder="0"
+        border="0"
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
         allowFullScreen={true}
         title="YouTube video"
@@ -75,6 +75,8 @@ export class YouTubeNode extends DecoratorBlockNode {
   override exportJSON(): SerializedYouTubeNode {
     return {
       ...super.exportJSON(),
+      type: "youtube",
+      version: 1,
       videoID: this.__id,
     };
   }

@@ -1,0 +1,689 @@
+/**
+ * Lexical Editor Theme CSS
+ *
+ * This file contains styles that cannot be expressed as Tailwind classes:
+ * - Code block line numbers (::before pseudo-element with attr())
+ * - Syntax highlighting token colors
+ * - Complex checkbox styling with ::before/::after
+ * - Table cell selection states
+ * - Collapsible node disclosure markers
+ * - Page break styling
+ */
+
+/* =============================================================================
+   Code Blocks
+   ============================================================================= */
+
+.EditorTheme__code {
+  background-color: var(--muted);
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, Monaco, "Liberation Mono", "Courier New", monospace;
+  display: block;
+  line-height: 1.53;
+  font-size: 13px;
+  padding-top: 8px;
+  margin: 8px 0;
+  overflow-x: auto;
+  position: relative;
+  tab-size: 2;
+  white-space: pre;
+  max-width: 100%;
+  box-sizing: border-box;
+  border-radius: var(--radius);
+}
+
+.EditorTheme__code::before {
+  content: attr(data-gutter);
+  position: sticky;
+  background-color: var(--muted);
+  left: 0;
+  float: left;
+  top: 0;
+  z-index: 3;
+  min-height: 100%;
+  border-right: 1px solid var(--border);
+  padding: 8px;
+  color: var(--muted-foreground);
+  white-space: pre-wrap;
+  text-align: right;
+  min-width: 25px;
+  margin-right: 10px;
+  margin-top: -8px;
+}
+
+/* =============================================================================
+   Syntax Highlighting Tokens
+   ============================================================================= */
+
+.EditorTheme__tokenComment {
+  color: slategray;
+}
+
+.EditorTheme__tokenPunctuation {
+  color: #999;
+}
+
+.EditorTheme__tokenProperty {
+  color: #905;
+}
+
+.EditorTheme__tokenSelector {
+  color: #690;
+}
+
+.EditorTheme__tokenOperator {
+  color: #9a6e3a;
+}
+
+.EditorTheme__tokenAttr {
+  color: #07a;
+}
+
+.EditorTheme__tokenVariable {
+  color: #e90;
+}
+
+.EditorTheme__tokenFunction {
+  color: #dd4a68;
+}
+
+/* Diff highlighting */
+.EditorTheme__tokenDeleted {
+  border-image: linear-gradient(to right, #ffcecb 50%, #ffebe9 50%) fill 0/0/0 100vw;
+}
+
+.EditorTheme__tokenInserted {
+  border-image: linear-gradient(to right, #aceebb 50%, #dafbe1 50%) fill 0/0/0 100vw;
+}
+
+.EditorTheme__tokenUnchanged {
+  border-image: linear-gradient(to right, #ddd 50%, #f0f2f5 50%) fill 0/0/0 100vw;
+}
+
+/* Dark mode token adjustments */
+.dark .EditorTheme__tokenComment {
+  color: #6a9955;
+}
+
+.dark .EditorTheme__tokenProperty {
+  color: #ce9178;
+}
+
+.dark .EditorTheme__tokenSelector {
+  color: #b5cea8;
+}
+
+.dark .EditorTheme__tokenOperator {
+  color: #d4d4d4;
+}
+
+.dark .EditorTheme__tokenAttr {
+  color: #9cdcfe;
+}
+
+.dark .EditorTheme__tokenVariable {
+  color: #dcdcaa;
+}
+
+.dark .EditorTheme__tokenFunction {
+  color: #dcdcaa;
+}
+
+/* =============================================================================
+   Text Highlight
+   ============================================================================= */
+
+.EditorTheme__textHighlight {
+  background: rgba(255, 212, 0, 0.14);
+  border-bottom: 2px solid rgba(255, 212, 0, 0.3);
+}
+
+.dark .EditorTheme__textHighlight {
+  background: rgba(255, 212, 0, 0.25);
+  border-bottom-color: rgba(255, 212, 0, 0.5);
+}
+
+/* =============================================================================
+   Checklist Items
+   ============================================================================= */
+
+.EditorTheme__listItemChecked,
+.EditorTheme__listItemUnchecked {
+  position: relative;
+  margin-left: 0.5em;
+  margin-right: 0.5em;
+  padding-left: 1.5em;
+  padding-right: 1.5em;
+  list-style-type: none;
+  outline: none;
+  display: block;
+  min-height: 1.5em;
+}
+
+.EditorTheme__listItemChecked > *,
+.EditorTheme__listItemUnchecked > * {
+  margin-left: 0.01em;
+}
+
+.EditorTheme__listItemUnchecked::before,
+.EditorTheme__listItemChecked::before {
+  content: "\200B";
+  width: 0.9em;
+  height: 0.9em;
+  top: 50%;
+  left: 0;
+  cursor: pointer;
+  display: block;
+  background-size: cover;
+  position: absolute;
+  transform: translateY(-50%);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+}
+
+.EditorTheme__listItemChecked {
+  text-decoration: line-through;
+  color: var(--muted-foreground);
+}
+
+.EditorTheme__listItemChecked::before {
+  border-color: var(--primary);
+  background-color: var(--primary);
+}
+
+.EditorTheme__listItemChecked::after {
+  content: "";
+  cursor: pointer;
+  border-color: var(--primary-foreground);
+  border-style: solid;
+  position: absolute;
+  display: block;
+  top: 45%;
+  width: 0.2em;
+  left: 0.35em;
+  height: 0.4em;
+  transform: translateY(-50%) rotate(45deg);
+  border-width: 0 0.1em 0.1em 0;
+}
+
+.EditorTheme__listItemUnchecked:focus::before,
+.EditorTheme__listItemChecked:focus::before {
+  box-shadow: 0 0 0 2px var(--ring);
+}
+
+/* =============================================================================
+   Table Styles
+   ============================================================================= */
+
+/* Table cell selection highlight */
+.EditorTheme__tableCellSelected {
+  caret-color: transparent;
+}
+
+.EditorTheme__tableCellSelected::after {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: 0;
+  background-color: var(--primary);
+  opacity: 0.15;
+  content: "";
+  pointer-events: none;
+}
+
+/* Table add controls */
+.EditorTheme__tableAddColumns {
+  position: absolute;
+  background-color: var(--muted);
+  height: 100%;
+  animation: table-controls 0.2s ease;
+  border: 0;
+  cursor: pointer;
+}
+
+.EditorTheme__tableAddColumns::after {
+  background-image: url(/lexical/images/icons/plus.svg);
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  display: block;
+  content: " ";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.4;
+}
+
+.EditorTheme__tableAddRows {
+  position: absolute;
+  width: calc(100% - 25px);
+  background-color: var(--muted);
+  animation: table-controls 0.2s ease;
+  border: 0;
+  cursor: pointer;
+}
+
+.EditorTheme__tableAddRows::after {
+  background-image: url(/lexical/images/icons/plus.svg);
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  display: block;
+  content: " ";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.4;
+}
+
+.EditorTheme__tableAddColumns:hover,
+.EditorTheme__tableAddRows:hover {
+  background-color: var(--accent);
+}
+
+@keyframes table-controls {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* Table scrollable wrapper */
+.EditorTheme__tableScrollableWrapper {
+  overflow-x: auto;
+  margin: 0px 25px 30px 0px;
+}
+
+.EditorTheme__tableScrollRight {
+  box-shadow: inset -10px 0 10px rgba(0, 0, 0, 0.15);
+}
+
+.EditorTheme__tableScrollLeft {
+  box-shadow: inset 10px 0 10px rgba(0, 0, 0, 0.15);
+}
+
+.EditorTheme__tableScrollMiddle {
+  box-shadow:
+    inset 10px 0 10px rgba(0, 0, 0, 0.15),
+    inset -10px 0 10px rgba(0, 0, 0, 0.15);
+}
+
+.EditorTheme__tableScrollableWrapper > .EditorTheme__table {
+  /* Remove the table's vertical margin and put it on the wrapper */
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+/* Frozen rows/columns */
+.EditorTheme__tableScrollableWrapper.EditorTheme__tableFrozenRow {
+  overflow-x: clip;
+}
+
+.EditorTheme__tableFrozenRow tr:nth-of-type(1) > td {
+  overflow: clip;
+  background-color: var(--background);
+  position: sticky;
+  z-index: 2;
+  top: 44px;
+}
+
+.EditorTheme__tableFrozenRow tr:nth-of-type(1) > th {
+  overflow: clip;
+  background-color: var(--muted);
+  position: sticky;
+  z-index: 2;
+  top: 44px;
+}
+
+.EditorTheme__tableFrozenRow tr:nth-of-type(1) > th::after,
+.EditorTheme__tableFrozenRow tr:nth-of-type(1) > td::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  border-bottom: 1px solid var(--border);
+}
+
+.EditorTheme__tableFrozenColumn tr > td:first-child {
+  background-color: var(--background);
+  position: sticky;
+  z-index: 2;
+  left: 0;
+}
+
+.EditorTheme__tableFrozenColumn tr > th:first-child {
+  background-color: var(--muted);
+  position: sticky;
+  z-index: 2;
+  left: 0;
+}
+
+.EditorTheme__tableFrozenColumn tr > :first-child::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  height: 100%;
+  border-right: 1px solid var(--border);
+}
+
+/* =============================================================================
+   Block Cursor
+   ============================================================================= */
+
+.EditorTheme__blockCursor {
+  display: block;
+  pointer-events: none;
+  position: absolute;
+}
+
+.EditorTheme__blockCursor::after {
+  content: "";
+  display: block;
+  position: absolute;
+  top: -2px;
+  width: 20px;
+  border-top: 1px solid var(--foreground);
+  animation: CursorBlink 1.1s steps(2, start) infinite;
+}
+
+@keyframes CursorBlink {
+  to {
+    visibility: hidden;
+  }
+}
+
+/* =============================================================================
+   Horizontal Rule
+   ============================================================================= */
+
+.EditorTheme__hr {
+  padding: 2px 2px;
+  border: none;
+  margin: 1em 0;
+  cursor: pointer;
+}
+
+.EditorTheme__hr::after {
+  content: "";
+  display: block;
+  height: 2px;
+  background-color: var(--border);
+  line-height: 2px;
+}
+
+.EditorTheme__hr.EditorTheme__hrSelected,
+.EditorTheme__hrSelected {
+  outline: 2px solid var(--primary);
+  user-select: none;
+}
+
+/* =============================================================================
+   Comment Marks
+   ============================================================================= */
+
+.EditorTheme__mark {
+  background: rgba(255, 212, 0, 0.14);
+  border-bottom: 2px solid rgba(255, 212, 0, 0.3);
+  padding-bottom: 2px;
+}
+
+.EditorTheme__markOverlap {
+  background: rgba(255, 212, 0, 0.3);
+  border-bottom: 2px solid rgba(255, 212, 0, 0.7);
+}
+
+.EditorTheme__mark.selected {
+  background: rgba(255, 212, 0, 0.5);
+  border-bottom: 2px solid rgba(255, 212, 0, 1);
+}
+
+.EditorTheme__markOverlap.selected {
+  background: rgba(255, 212, 0, 0.7);
+  border-bottom: 2px solid rgba(255, 212, 0, 0.7);
+}
+
+/* =============================================================================
+   Tab Node (underline/strikethrough for tabs)
+   ============================================================================= */
+
+.EditorTheme__tabNode {
+  position: relative;
+  text-decoration: none;
+}
+
+.EditorTheme__tabNode.EditorTheme__textUnderline::after,
+.EditorTheme__tabNode.underline::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0.15em;
+  border-bottom: 0.1em solid currentColor;
+}
+
+.EditorTheme__tabNode.EditorTheme__textStrikethrough::before,
+.EditorTheme__tabNode.line-through::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0.69em;
+  border-top: 0.1em solid currentColor;
+}
+
+/* =============================================================================
+   Collapsible Nodes
+   ============================================================================= */
+
+.Collapsible__container {
+  background-color: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 8px;
+}
+
+.Collapsible__title {
+  cursor: pointer;
+  padding: 5px 5px 5px 20px;
+  position: relative;
+  font-weight: bold;
+  list-style: none;
+  outline: none;
+}
+
+.Collapsible__title::marker,
+.Collapsible__title::-webkit-details-marker {
+  display: none;
+}
+
+.Collapsible__title::before {
+  border-style: solid;
+  border-color: transparent;
+  border-width: 4px 6px 4px 6px;
+  border-left-color: var(--foreground);
+  display: block;
+  content: "";
+  position: absolute;
+  left: 7px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.Collapsible__container[open] > .Collapsible__title::before {
+  border-color: transparent;
+  border-width: 6px 4px 0 4px;
+  border-top-color: var(--foreground);
+}
+
+.Collapsible__content {
+  padding: 0 5px 5px 20px;
+}
+
+.Collapsible__collapsed .Collapsible__content {
+  display: none;
+  user-select: none;
+}
+
+/* =============================================================================
+   Page Break
+   ============================================================================= */
+
+[type="page-break"] {
+  position: relative;
+  display: block;
+  width: calc(100% + var(--editor-input-padding, 28px) * 2);
+  overflow: unset;
+  margin-left: calc(var(--editor-input-padding, 28px) * -1);
+  margin-top: var(--editor-input-padding, 28px);
+  margin-bottom: var(--editor-input-padding, 28px);
+  border: none;
+  border-top: 1px dashed var(--border);
+  border-bottom: 1px dashed var(--border);
+  background-color: var(--muted);
+}
+
+[type="page-break"]::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: calc(var(--editor-input-padding, 28px) + 12px);
+  transform: translateY(-50%);
+  opacity: 0.5;
+  background-size: cover;
+  background-image: url(/lexical/images/icons/scissors.svg);
+  width: 16px;
+  height: 16px;
+}
+
+[type="page-break"]::after {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: block;
+  padding: 2px 6px;
+  border: 1px solid var(--border);
+  background-color: var(--background);
+  content: "PAGE BREAK";
+  font-size: 12px;
+  color: var(--foreground);
+  font-weight: 600;
+}
+
+.selected[type="page-break"] {
+  border-color: var(--primary);
+}
+
+.selected[type="page-break"]::before {
+  opacity: 1;
+}
+
+/* =============================================================================
+   Image Selection
+   ============================================================================= */
+
+.editor-image {
+  cursor: default;
+  display: inline-block;
+  position: relative;
+  user-select: none;
+}
+
+.editor-image img {
+  max-width: 100%;
+  cursor: default;
+}
+
+.editor-image img.focused {
+  outline: 2px solid var(--primary);
+  user-select: none;
+}
+
+.editor-image img.focused.draggable {
+  cursor: grab;
+}
+
+.editor-image img.focused.draggable:active {
+  cursor: grabbing;
+}
+
+.inline-editor-image {
+  cursor: default;
+  display: inline-block;
+  position: relative;
+  user-select: none;
+  z-index: 1;
+}
+
+/* =============================================================================
+   Context Menu
+   ============================================================================= */
+
+.EditorTheme__contextMenu {
+  outline: 0;
+  background: var(--background);
+  border: 1px solid var(--border);
+  box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.3);
+  border-radius: var(--radius);
+}
+
+.EditorTheme__contextMenu button:first-child {
+  border-radius: var(--radius) var(--radius) 0 0;
+}
+
+.EditorTheme__contextMenu button:last-child {
+  border-radius: 0 0 var(--radius) var(--radius);
+}
+
+.EditorTheme__contextMenuItem {
+  display: flex;
+  justify-content: left;
+  width: 100%;
+  background-color: var(--background);
+  color: var(--foreground);
+  border: 0;
+  border-radius: 0;
+  font-size: 15px;
+  text-align: left;
+  line-height: 20px;
+  padding: 8px;
+  padding-right: 14px;
+  outline: 0;
+  cursor: pointer;
+}
+
+.EditorTheme__contextMenuItem.open {
+  background: var(--accent);
+}
+
+.EditorTheme__contextMenuItem:focus,
+.EditorTheme__contextMenuItem:not([disabled]):active {
+  background: var(--accent);
+}
+
+.EditorTheme__contextMenuItem:disabled {
+  background: var(--background);
+  color: var(--muted-foreground);
+  cursor: not-allowed;
+}
+
+.EditorTheme__contextMenuItemIcon {
+  width: 20px;
+  margin-right: 8px;
+  background-repeat: no-repeat;
+  background-size: contain;
+}
+
+.EditorTheme__contextMenuSeparator {
+  height: 1px;
+  background-color: var(--border);
+}

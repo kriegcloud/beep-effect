@@ -107,7 +107,7 @@ function TableHoverActionsContainer({ anchorElem }: { readonly anchorElem: HTMLE
         // Adjust for using the scrollable table container
         const parentElement = tableElement.parentElement;
         let tableHasScroll = false;
-        if (parentElement?.classList.contains("PlaygroundEditorTheme__tableScrollableWrapper")) {
+        if (parentElement?.classList.contains("EditorTheme__tableScrollableWrapper")) {
           tableHasScroll = parentElement.scrollWidth > parentElement.clientWidth;
         }
         const { y: editorElemY, left: editorElemLeft } = anchorElem.getBoundingClientRect();

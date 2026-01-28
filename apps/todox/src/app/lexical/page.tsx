@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import "./index.css";
+import "./themes/editor-theme.css";
 
 // Dynamic import to avoid SSR issues with Lexical
 // Lexical requires browser APIs and must be rendered client-side only

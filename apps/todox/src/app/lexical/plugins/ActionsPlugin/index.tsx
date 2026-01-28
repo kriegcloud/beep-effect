@@ -3,8 +3,8 @@
 import { $TodoxId } from "@beep/identity/packages";
 import { makeAtomRuntime, makeRunClientPromise, useRuntime } from "@beep/runtime-client";
 import { SerializedDocument, SerializedEditorState } from "@beep/todox/app/lexical/schema";
-import { Button } from "@beep/todox/components/ui/button";
 import { withToast } from "@beep/ui/common";
+import { Button } from "@beep/ui/components/button";
 import * as FetchHttpClient from "@effect/platform/FetchHttpClient";
 import * as HttpClient from "@effect/platform/HttpClient";
 import * as HttpClientRequest from "@effect/platform/HttpClientRequest";

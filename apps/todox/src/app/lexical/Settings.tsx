@@ -1,7 +1,7 @@
 "use client";
 
-import { Label } from "@beep/todox/components/ui/label";
-import { Switch } from "@beep/todox/components/ui/switch";
+import { Label } from "@beep/ui/components/label";
+import { Switch } from "@beep/ui/components/switch";
 import { CAN_USE_BEFORE_INPUT } from "@lexical/utils";
 import type { JSX } from "react";
 import { useEffect, useId, useMemo, useState } from "react";
@@ -48,7 +48,6 @@ export default function Settings(): JSX.Element {
       showTableOfContents,
       shouldUseLexicalContextMenu,
       shouldPreserveNewLinesInMarkdown,
-      shouldAllowHighlightingWithBrackets,
       // tableHorizontalScroll,
       selectionAlwaysOnDisplay,
       isCodeHighlighted,
@@ -193,13 +192,6 @@ export default function Settings(): JSX.Element {
             checked={tableHorizontalScroll}
             text="Tables have horizontal scroll"
           /> */}
-          <SettingSwitch
-            onToggle={() => {
-              setOption("shouldAllowHighlightingWithBrackets", !shouldAllowHighlightingWithBrackets);
-            }}
-            checked={shouldAllowHighlightingWithBrackets}
-            text="Use Brackets for Highlighting"
-          />
           <SettingSwitch
             onToggle={() => {
               setOption("selectionAlwaysOnDisplay", !selectionAlwaysOnDisplay);

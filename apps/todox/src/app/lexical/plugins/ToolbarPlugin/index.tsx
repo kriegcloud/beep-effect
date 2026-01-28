@@ -1,14 +1,14 @@
 "use client";
 
-import { Button } from "@beep/todox/components/ui/button";
+import { cn } from "@beep/todox/lib/utils";
+import { Button } from "@beep/ui/components/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@beep/todox/components/ui/dropdown-menu";
-import { cn } from "@beep/todox/lib/utils";
+} from "@beep/ui/components/dropdown-menu";
 import {
   $isCodeNode,
   getCodeLanguageOptions as getCodeLanguageOptionsPrism,
@@ -26,13 +26,7 @@ import { INSERT_HORIZONTAL_RULE_COMMAND } from "@lexical/react/LexicalHorizontal
 import { $isHeadingNode } from "@lexical/rich-text";
 import { $getSelectionStyleValueForProperty, $isParentElementRTL, $patchStyleText } from "@lexical/selection";
 import { $isTableNode, $isTableSelection } from "@lexical/table";
-import {
-  $findMatchingParent,
-  $getNearestNodeOfType,
-  $isEditorIsNestedEditor,
-  IS_APPLE,
-  mergeRegister,
-} from "@lexical/utils";
+import { $findMatchingParent, $getNearestNodeOfType, $isEditorIsNestedEditor, mergeRegister } from "@lexical/utils";
 import { CaretDownIcon } from "@phosphor-icons/react";
 import {
   $addUpdateTag,
@@ -49,7 +43,6 @@ import {
   type CommandPayloadType,
   type ElementFormatType,
   FORMAT_ELEMENT_COMMAND,
-  FORMAT_TEXT_COMMAND,
   HISTORIC_TAG,
   INDENT_CONTENT_COMMAND,
   type LexicalCommand,
@@ -57,23 +50,17 @@ import {
   type LexicalNode,
   type NodeKey,
   OUTDENT_CONTENT_COMMAND,
-  REDO_COMMAND,
   SELECTION_CHANGE_COMMAND,
   SKIP_DOM_SELECTION_TAG,
   SKIP_SELECTION_FOCUS_TAG,
-  type TextFormatType,
-  UNDO_COMMAND,
 } from "lexical";
 import type { JSX } from "react";
 import { type Dispatch, useCallback, useEffect, useState } from "react";
 import { useSettings } from "../../context/SettingsContext";
-import { blockTypeToBlockName, useToolbarState } from "../../context/ToolbarContext";
+import { blockTypeToBlockName, useToolbarState } from "../../context/toolbar-context";
 import useModal from "../../hooks/useModal";
-import catTypingGif from "../../images/cat-typing.gif";
 import { $createStickyNode } from "../../nodes/StickyNode";
 
-import DropdownColorPicker from "../../ui/DropdownColorPicker";
-import { isKeyboardInput } from "../../utils/focusUtils";
 import { getSelectedNode } from "../../utils/getSelectedNode";
 import { sanitizeUrl } from "../../utils/url";
 import { EmbedConfigs } from "../AutoEmbedPlugin";
@@ -81,15 +68,20 @@ import { INSERT_COLLAPSIBLE_COMMAND } from "../CollapsiblePlugin";
 import { INSERT_DATETIME_COMMAND } from "../DateTimePlugin";
 import { InsertEquationDialog } from "../EquationsPlugin";
 import { INSERT_EXCALIDRAW_COMMAND } from "../ExcalidrawPlugin";
-import { INSERT_IMAGE_COMMAND, InsertImageDialog, type InsertImagePayload } from "../ImagesPlugin";
+import { InsertImageDialog } from "../ImagesPlugin";
 import InsertLayoutDialog from "../LayoutPlugin/InsertLayoutDialog";
 import { INSERT_PAGE_BREAK } from "../PageBreakPlugin";
 import { InsertPollDialog } from "../PollPlugin";
 import { SHORTCUTS } from "../ShortcutsPlugin/shortcuts";
 import { InsertTableDialog } from "../TablePlugin";
-import FontSize, { parseFontSizeForToolbar } from "./fontSize";
 import {
-  clearFormatting,
+  AdvancedTextFormattingMenu,
+  ColorPickerGroup,
+  FontControls,
+  TextFormatButtonGroup,
+  UndoRedoControls,
+} from "./components";
+import {
   formatBulletList,
   formatCheckList,
   formatCode,
@@ -173,29 +165,6 @@ const CODE_THEME_OPTIONS_SHIKI: [string, string][] = getCodeThemeOptionsShiki().
   ].includes(option[0])
 );
 
-const FONT_FAMILY_OPTIONS: [string, string][] = [
-  ["Arial", "Arial"],
-  ["Courier New", "Courier New"],
-  ["Georgia", "Georgia"],
-  ["Times New Roman", "Times New Roman"],
-  ["Trebuchet MS", "Trebuchet MS"],
-  ["Verdana", "Verdana"],
-];
-
-const FONT_SIZE_OPTIONS: [string, string][] = [
-  ["10px", "10px"],
-  ["11px", "11px"],
-  ["12px", "12px"],
-  ["13px", "13px"],
-  ["14px", "14px"],
-  ["15px", "15px"],
-  ["16px", "16px"],
-  ["17px", "17px"],
-  ["18px", "18px"],
-  ["19px", "19px"],
-  ["20px", "20px"],
-];
-
 const ELEMENT_FORMAT_OPTIONS: {
   [key in Exclude<ElementFormatType, "">]: {
     icon: string;
@@ -255,20 +224,18 @@ function BlockFormatDropDown({
 }): JSX.Element {
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger
-        render={
-          <Button
-            variant="ghost"
-            size="sm"
-            disabled={disabled}
-            aria-label="Formatting options for text style"
-            className={cn("gap-1", "toolbar-item block-controls")}
-          />
-        }
-      >
-        <span className={`icon block-type ${blockType}`} />
-        <span className="text dropdown-button-text">{blockTypeToBlockName[blockType]}</span>
-        <CaretDownIcon className="size-3 opacity-50" />
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant="ghost"
+          size="sm"
+          disabled={disabled}
+          aria-label="Formatting options for text style"
+          className={cn("gap-1", "toolbar-item block-controls")}
+        >
+          <span className={`icon block-type ${blockType}`} />
+          <span className="text dropdown-button-text">{blockTypeToBlockName[blockType]}</span>
+          <CaretDownIcon className="size-3 opacity-50" />
+        </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" sideOffset={4} className="min-w-40 !bg-white !text-black">
         <DropdownMenuItem
@@ -370,70 +337,6 @@ function Divider(): JSX.Element {
   return <div className="divider" />;
 }
 
-function FontDropDown({
-  editor,
-  value,
-  style,
-  disabled = false,
-}: {
-  editor: LexicalEditor;
-  value: string;
-  style: string;
-  disabled?: boolean;
-}): JSX.Element {
-  const handleClick = useCallback(
-    (option: string) => {
-      editor.update(() => {
-        $addUpdateTag(SKIP_SELECTION_FOCUS_TAG);
-        const selection = $getSelection();
-        if (selection !== null) {
-          $patchStyleText(selection, {
-            [style]: option,
-          });
-        }
-      });
-    },
-    [editor, style]
-  );
-
-  const buttonAriaLabel =
-    style === "font-family" ? "Formatting options for font family" : "Formatting options for font size";
-
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger
-        render={
-          <Button
-            variant="ghost"
-            size="sm"
-            disabled={disabled}
-            aria-label={buttonAriaLabel}
-            className={cn("gap-1", `toolbar-item ${style}`)}
-          />
-        }
-      >
-        {style === "font-family" && <span className="icon block-type font-family" />}
-        <span className="text dropdown-button-text">{value}</span>
-        <CaretDownIcon className="size-3 opacity-50" />
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" sideOffset={4} className="min-w-40 !bg-white !text-black">
-        {(style === "font-family" ? FONT_FAMILY_OPTIONS : FONT_SIZE_OPTIONS).map(([option, text]) => (
-          <DropdownMenuItem
-            className={cn(
-              "cursor-pointer",
-              `item ${dropDownActiveClass(value === option)} ${style === "font-size" ? "fontsize-item" : ""}`
-            )}
-            onClick={() => handleClick(option)}
-            key={option}
-          >
-            <span className="text">{text}</span>
-          </DropdownMenuItem>
-        ))}
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
-}
-
 function ElementFormatDropdown({
   editor,
   value,
@@ -449,20 +352,18 @@ function ElementFormatDropdown({
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger
-        render={
-          <Button
-            variant="ghost"
-            size="sm"
-            disabled={disabled}
-            aria-label="Formatting options for text alignment"
-            className={cn("gap-1", "toolbar-item spaced alignment")}
-          />
-        }
-      >
-        <span className={`icon ${isRTL ? formatOption.iconRTL : formatOption.icon}`} />
-        <span className="text dropdown-button-text">{formatOption.name}</span>
-        <CaretDownIcon className="size-3 opacity-50" />
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant="ghost"
+          size="sm"
+          disabled={disabled}
+          aria-label="Formatting options for text alignment"
+          className={cn("gap-1", "toolbar-item spaced alignment")}
+        >
+          <span className={`icon ${isRTL ? formatOption.iconRTL : formatOption.icon}`} />
+          <span className="text dropdown-button-text">{formatOption.name}</span>
+          <CaretDownIcon className="size-3 opacity-50" />
+        </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" sideOffset={4} className="min-w-40 !bg-white !text-black">
         <DropdownMenuItem
@@ -606,9 +507,6 @@ export default function ToolbarPlugin({
       activeEditor.dispatchCommand(command, payload as CommandPayloadType<T>);
     });
   };
-
-  const dispatchFormatTextCommand = (payload: TextFormatType, skipRefocus = false) =>
-    dispatchToolbarCommand(FORMAT_TEXT_COMMAND, payload, skipRefocus);
 
   const $handleHeadingNode = useCallback(
     (selectedElement: LexicalNode) => {
@@ -820,20 +718,6 @@ export default function ToolbarPlugin({
     [activeEditor]
   );
 
-  const onFontColorSelect = useCallback(
-    (value: string, skipHistoryStack: boolean, skipRefocus: boolean) => {
-      applyStyleText({ color: value }, skipHistoryStack, skipRefocus);
-    },
-    [applyStyleText]
-  );
-
-  const onBgColorSelect = useCallback(
-    (value: string, skipHistoryStack: boolean, skipRefocus: boolean) => {
-      applyStyleText({ "background-color": value }, skipHistoryStack, skipRefocus);
-    },
-    [applyStyleText]
-  );
-
   const insertLink = useCallback(() => {
     if (!toolbarState.isLink) {
       setIsLinkEditMode(true);
@@ -871,35 +755,12 @@ export default function ToolbarPlugin({
     },
     [activeEditor, selectedElementKey]
   );
-  const insertGifOnClick = (payload: InsertImagePayload) => {
-    activeEditor.dispatchCommand(INSERT_IMAGE_COMMAND, payload);
-  };
-
   const canViewerSeeInsertDropdown = !toolbarState.isImageCaption;
   const canViewerSeeInsertCodeButton = !toolbarState.isImageCaption;
 
   return (
     <div className="toolbar">
-      <button
-        disabled={!toolbarState.canUndo || !isEditable}
-        onClick={(e) => dispatchToolbarCommand(UNDO_COMMAND, undefined, isKeyboardInput(e))}
-        title={IS_APPLE ? "Undo (⌘Z)" : "Undo (Ctrl+Z)"}
-        type="button"
-        className="toolbar-item spaced"
-        aria-label="Undo"
-      >
-        <i className="format undo" />
-      </button>
-      <button
-        disabled={!toolbarState.canRedo || !isEditable}
-        onClick={(e) => dispatchToolbarCommand(REDO_COMMAND, undefined, isKeyboardInput(e))}
-        title={IS_APPLE ? "Redo (⇧⌘Z)" : "Redo (Ctrl+Y)"}
-        type="button"
-        className="toolbar-item"
-        aria-label="Redo"
-      >
-        <i className="format redo" />
-      </button>
+      <UndoRedoControls editor={activeEditor} />
       <Divider />
       {toolbarState.blockType in blockTypeToBlockName && activeEditor === editor && (
         <>
@@ -916,25 +777,23 @@ export default function ToolbarPlugin({
         <>
           {!isCodeShiki && (
             <DropdownMenu>
-              <DropdownMenuTrigger
-                render={
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    disabled={!isEditable}
-                    aria-label="Select language"
-                    className={cn("gap-1", "toolbar-item code-language")}
-                  />
-                }
-              >
-                <span className="text dropdown-button-text">
-                  {
-                    (CODE_LANGUAGE_OPTIONS_PRISM.find(
-                      (opt) => opt[0] === normalizeCodeLanguagePrism(toolbarState.codeLanguage)
-                    ) || ["", ""])[1]
-                  }
-                </span>
-                <CaretDownIcon className="size-3 opacity-50" />
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  disabled={!isEditable}
+                  aria-label="Select language"
+                  className={cn("gap-1", "toolbar-item code-language")}
+                >
+                  <span className="text dropdown-button-text">
+                    {
+                      (CODE_LANGUAGE_OPTIONS_PRISM.find(
+                        (opt) => opt[0] === normalizeCodeLanguagePrism(toolbarState.codeLanguage)
+                      ) || ["", ""])[1]
+                    }
+                  </span>
+                  <CaretDownIcon className="size-3 opacity-50" />
+                </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="start" sideOffset={4} className="min-w-40 !bg-white !text-black">
                 {CODE_LANGUAGE_OPTIONS_PRISM.map(([value, name]) => {
@@ -957,25 +816,23 @@ export default function ToolbarPlugin({
           {isCodeShiki && (
             <>
               <DropdownMenu>
-                <DropdownMenuTrigger
-                  render={
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      disabled={!isEditable}
-                      aria-label="Select language"
-                      className={cn("gap-1", "toolbar-item code-language")}
-                    />
-                  }
-                >
-                  <span className="text dropdown-button-text">
-                    {
-                      (CODE_LANGUAGE_OPTIONS_SHIKI.find(
-                        (opt) => opt[0] === normalizeCodeLanguageShiki(toolbarState.codeLanguage)
-                      ) || ["", ""])[1]
-                    }
-                  </span>
-                  <CaretDownIcon className="size-3 opacity-50" />
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    disabled={!isEditable}
+                    aria-label="Select language"
+                    className={cn("gap-1", "toolbar-item code-language")}
+                  >
+                    <span className="text dropdown-button-text">
+                      {
+                        (CODE_LANGUAGE_OPTIONS_SHIKI.find(
+                          (opt) => opt[0] === normalizeCodeLanguageShiki(toolbarState.codeLanguage)
+                        ) || ["", ""])[1]
+                      }
+                    </span>
+                    <CaretDownIcon className="size-3 opacity-50" />
+                  </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start" sideOffset={4} className="min-w-40 !bg-white !text-black">
                   {CODE_LANGUAGE_OPTIONS_SHIKI.map(([value, name]) => {
@@ -995,21 +852,19 @@ export default function ToolbarPlugin({
                 </DropdownMenuContent>
               </DropdownMenu>
               <DropdownMenu>
-                <DropdownMenuTrigger
-                  render={
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      disabled={!isEditable}
-                      aria-label="Select theme"
-                      className={cn("gap-1", "toolbar-item code-language")}
-                    />
-                  }
-                >
-                  <span className="text dropdown-button-text">
-                    {(CODE_THEME_OPTIONS_SHIKI.find((opt) => opt[0] === toolbarState.codeTheme) || ["", ""])[1]}
-                  </span>
-                  <CaretDownIcon className="size-3 opacity-50" />
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    disabled={!isEditable}
+                    aria-label="Select theme"
+                    className={cn("gap-1", "toolbar-item code-language")}
+                  >
+                    <span className="text dropdown-button-text">
+                      {(CODE_THEME_OPTIONS_SHIKI.find((opt) => opt[0] === toolbarState.codeTheme) || ["", ""])[1]}
+                    </span>
+                    <CaretDownIcon className="size-3 opacity-50" />
+                  </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start" sideOffset={4} className="min-w-40 !bg-white !text-black">
                   {CODE_THEME_OPTIONS_SHIKI.map(([value, name]) => {
@@ -1033,61 +888,9 @@ export default function ToolbarPlugin({
         </>
       ) : (
         <>
-          <FontDropDown
-            disabled={!isEditable}
-            style={"font-family"}
-            value={toolbarState.fontFamily}
-            editor={activeEditor}
-          />
+          <FontControls editor={activeEditor} disabled={!isEditable} />
           <Divider />
-          <FontSize
-            selectionFontSize={parseFontSizeForToolbar(toolbarState.fontSize).slice(0, -2)}
-            editor={activeEditor}
-            disabled={!isEditable}
-          />
-          <Divider />
-          <button
-            disabled={!isEditable}
-            onClick={(e) => dispatchFormatTextCommand("bold", isKeyboardInput(e))}
-            className={`toolbar-item spaced ${toolbarState.isBold ? "active" : ""}`}
-            title={`Bold (${SHORTCUTS.BOLD})`}
-            type="button"
-            aria-label={`Format text as bold. Shortcut: ${SHORTCUTS.BOLD}`}
-          >
-            <i className="format bold" />
-          </button>
-          <button
-            disabled={!isEditable}
-            onClick={(e) => dispatchFormatTextCommand("italic", isKeyboardInput(e))}
-            className={`toolbar-item spaced ${toolbarState.isItalic ? "active" : ""}`}
-            title={`Italic (${SHORTCUTS.ITALIC})`}
-            type="button"
-            aria-label={`Format text as italics. Shortcut: ${SHORTCUTS.ITALIC}`}
-          >
-            <i className="format italic" />
-          </button>
-          <button
-            disabled={!isEditable}
-            onClick={(e) => dispatchFormatTextCommand("underline", isKeyboardInput(e))}
-            className={`toolbar-item spaced ${toolbarState.isUnderline ? "active" : ""}`}
-            title={`Underline (${SHORTCUTS.UNDERLINE})`}
-            type="button"
-            aria-label={`Format text to underlined. Shortcut: ${SHORTCUTS.UNDERLINE}`}
-          >
-            <i className="format underline" />
-          </button>
-          {canViewerSeeInsertCodeButton && (
-            <button
-              disabled={!isEditable}
-              onClick={(e) => dispatchFormatTextCommand("code", isKeyboardInput(e))}
-              className={`toolbar-item spaced ${toolbarState.isCode ? "active" : ""}`}
-              title={`Insert code block (${SHORTCUTS.INSERT_CODE_BLOCK})`}
-              type="button"
-              aria-label="Insert code block"
-            >
-              <i className="format code" />
-            </button>
-          )}
+          <TextFormatButtonGroup editor={activeEditor} showCodeButton={canViewerSeeInsertCodeButton} />
           <button
             disabled={!isEditable}
             onClick={insertLink}
@@ -1098,154 +901,24 @@ export default function ToolbarPlugin({
           >
             <i className="format link" />
           </button>
-          <DropdownColorPicker
-            disabled={!isEditable}
-            buttonClassName="toolbar-item color-picker"
-            buttonAriaLabel="Formatting text color"
-            buttonIconClassName="icon font-color"
-            color={toolbarState.fontColor}
-            onChange={onFontColorSelect}
-            title="text color"
-          />
-          <DropdownColorPicker
-            disabled={!isEditable}
-            buttonClassName="toolbar-item color-picker"
-            buttonAriaLabel="Formatting background color"
-            buttonIconClassName="icon bg-color"
-            color={toolbarState.bgColor}
-            onChange={onBgColorSelect}
-            title="bg color"
-          />
-          <DropdownMenu>
-            <DropdownMenuTrigger
-              render={
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  disabled={!isEditable}
-                  aria-label="Formatting options for additional text styles"
-                  className={cn("gap-1", "toolbar-item spaced")}
-                />
-              }
-            >
-              <span className="icon dropdown-more" />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" sideOffset={4} className="min-w-40 !bg-white !text-black">
-              <DropdownMenuItem
-                onClick={(e) => dispatchFormatTextCommand("lowercase", isKeyboardInput(e))}
-                className={cn("cursor-pointer", `item wide ${dropDownActiveClass(toolbarState.isLowercase)}`)}
-                title="Lowercase"
-                aria-label="Format text to lowercase"
-              >
-                <div className="icon-text-container">
-                  <i className="icon lowercase" />
-                  <span className="text">Lowercase</span>
-                </div>
-                <span className="shortcut">{SHORTCUTS.LOWERCASE}</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={(e) => dispatchFormatTextCommand("uppercase", isKeyboardInput(e))}
-                className={cn("cursor-pointer", `item wide ${dropDownActiveClass(toolbarState.isUppercase)}`)}
-                title="Uppercase"
-                aria-label="Format text to uppercase"
-              >
-                <div className="icon-text-container">
-                  <i className="icon uppercase" />
-                  <span className="text">Uppercase</span>
-                </div>
-                <span className="shortcut">{SHORTCUTS.UPPERCASE}</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={(e) => dispatchFormatTextCommand("capitalize", isKeyboardInput(e))}
-                className={cn("cursor-pointer", `item wide ${dropDownActiveClass(toolbarState.isCapitalize)}`)}
-                title="Capitalize"
-                aria-label="Format text to capitalize"
-              >
-                <div className="icon-text-container">
-                  <i className="icon capitalize" />
-                  <span className="text">Capitalize</span>
-                </div>
-                <span className="shortcut">{SHORTCUTS.CAPITALIZE}</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={(e) => dispatchFormatTextCommand("strikethrough", isKeyboardInput(e))}
-                className={cn("cursor-pointer", `item wide ${dropDownActiveClass(toolbarState.isStrikethrough)}`)}
-                title="Strikethrough"
-                aria-label="Format text with a strikethrough"
-              >
-                <div className="icon-text-container">
-                  <i className="icon strikethrough" />
-                  <span className="text">Strikethrough</span>
-                </div>
-                <span className="shortcut">{SHORTCUTS.STRIKETHROUGH}</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={(e) => dispatchFormatTextCommand("subscript", isKeyboardInput(e))}
-                className={cn("cursor-pointer", `item wide ${dropDownActiveClass(toolbarState.isSubscript)}`)}
-                title="Subscript"
-                aria-label="Format text with a subscript"
-              >
-                <div className="icon-text-container">
-                  <i className="icon subscript" />
-                  <span className="text">Subscript</span>
-                </div>
-                <span className="shortcut">{SHORTCUTS.SUBSCRIPT}</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={(e) => dispatchFormatTextCommand("superscript", isKeyboardInput(e))}
-                className={cn("cursor-pointer", `item wide ${dropDownActiveClass(toolbarState.isSuperscript)}`)}
-                title="Superscript"
-                aria-label="Format text with a superscript"
-              >
-                <div className="icon-text-container">
-                  <i className="icon superscript" />
-                  <span className="text">Superscript</span>
-                </div>
-                <span className="shortcut">{SHORTCUTS.SUPERSCRIPT}</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={(e) => dispatchFormatTextCommand("highlight", isKeyboardInput(e))}
-                className={cn("cursor-pointer", `item wide ${dropDownActiveClass(toolbarState.isHighlight)}`)}
-                title="Highlight"
-                aria-label="Format text with a highlight"
-              >
-                <div className="icon-text-container">
-                  <i className="icon highlight" />
-                  <span className="text">Highlight</span>
-                </div>
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={(e) => clearFormatting(activeEditor, isKeyboardInput(e))}
-                className={cn("cursor-pointer", "item wide")}
-                title="Clear text formatting"
-                aria-label="Clear all text formatting"
-              >
-                <div className="icon-text-container">
-                  <i className="icon clear" />
-                  <span className="text">Clear Formatting</span>
-                </div>
-                <span className="shortcut">{SHORTCUTS.CLEAR_FORMATTING}</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <ColorPickerGroup applyStyleText={applyStyleText} disabled={!isEditable} />
+          <AdvancedTextFormattingMenu editor={activeEditor} disabled={!isEditable} />
           {canViewerSeeInsertDropdown && (
             <>
               <Divider />
               <DropdownMenu>
-                <DropdownMenuTrigger
-                  render={
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      disabled={!isEditable}
-                      aria-label="Insert specialized editor node"
-                      className={cn("gap-1", "toolbar-item spaced")}
-                    />
-                  }
-                >
-                  <span className="icon plus" />
-                  <span className="text dropdown-button-text">Insert</span>
-                  <CaretDownIcon className="size-3 opacity-50" />
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    disabled={!isEditable}
+                    aria-label="Insert specialized editor node"
+                    className={cn("gap-1", "toolbar-item spaced")}
+                  >
+                    <span className="icon plus" />
+                    <span className="text dropdown-button-text">Insert</span>
+                    <CaretDownIcon className="size-3 opacity-50" />
+                  </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start" sideOffset={4} className="min-w-40 !bg-white !text-black">
                   <DropdownMenuItem
@@ -1272,18 +945,6 @@ export default function ToolbarPlugin({
                   >
                     <i className="icon image" />
                     <span className="text">Image</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() =>
-                      insertGifOnClick({
-                        altText: "Cat typing on a laptop",
-                        src: catTypingGif.src,
-                      })
-                    }
-                    className={cn("cursor-pointer", "item")}
-                  >
-                    <i className="icon gif" />
-                    <span className="text">GIF</span>
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={() => dispatchToolbarCommand(INSERT_EXCALIDRAW_COMMAND)}

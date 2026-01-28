@@ -10,7 +10,6 @@ import {
   DecoratorNode,
   type DOMConversionOutput,
   type DOMExportOutput,
-  type LexicalNode,
   type SerializedLexicalNode,
   type Spread,
   type StateConfigValue,
@@ -131,6 +130,5 @@ export function $createDateTimeNode(dateTime: Date): DateTimeNode {
   return new DateTimeNode().setDateTime(dateTime);
 }
 
-export function $isDateTimeNode(node: LexicalNode | null | undefined): node is DateTimeNode {
-  return node instanceof DateTimeNode;
-}
+// Re-export from utils to maintain backwards compatibility
+export { $isDateTimeNode } from "./datetime-utils";

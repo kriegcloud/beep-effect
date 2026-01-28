@@ -3,7 +3,7 @@
 import { cn } from "@beep/todox/lib/utils";
 import type { LexicalEditor } from "lexical";
 import * as React from "react";
-import { MAX_ALLOWED_FONT_SIZE, MIN_ALLOWED_FONT_SIZE } from "../../context/ToolbarContext";
+import { MAX_ALLOWED_FONT_SIZE, MIN_ALLOWED_FONT_SIZE } from "../../context/toolbar-context";
 import { isKeyboardInput } from "../../utils/focusUtils";
 import { SHORTCUTS } from "../ShortcutsPlugin/shortcuts";
 import { UpdateFontSizeType, updateFontSize, updateFontSizeInSelection } from "./utils";

@@ -10,7 +10,6 @@ import type {
   DOMExportOutput,
   EditorConfig,
   LexicalEditor,
-  LexicalNode,
   LexicalUpdateJSON,
   NodeKey,
   RangeSelection,
@@ -21,11 +20,8 @@ import type {
 import {
   $applyNodeReplacement,
   $createRangeSelection,
-  $extendCaretToRange,
-  $getChildCaret,
   $getEditor,
   $getRoot,
-  $isElementNode,
   $isParagraphNode,
   $selectAll,
   $setSelection,
@@ -77,16 +73,8 @@ function $convertImageElement(domNode: Node): null | DOMConversionOutput {
   return { node };
 }
 
-export function $isCaptionEditorEmpty(): boolean {
-  // Search the document for any non-element node
-  // to determine if it's empty or not
-  for (const { origin } of $extendCaretToRange($getChildCaret($getRoot(), "next"))) {
-    if (!$isElementNode(origin)) {
-      return false;
-    }
-  }
-  return true;
-}
+// Re-export from utils to maintain backwards compatibility
+export { $isCaptionEditorEmpty } from "./image-utils";
 
 export type SerializedImageNode = Spread<
   {
@@ -340,6 +328,5 @@ export function $createImageNode({
   );
 }
 
-export function $isImageNode(node: LexicalNode | null | undefined): node is ImageNode {
-  return node instanceof ImageNode;
-}
+// Re-export from utils to maintain backwards compatibility
+export { $isImageNode } from "./image-utils";
