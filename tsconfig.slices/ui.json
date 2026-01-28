@@ -3,6 +3,7 @@
   "references": [
     { "path": "../packages/ui/ui/tsconfig.build.json" },
     { "path": "../packages/ui/core/tsconfig.build.json" },
-    { "path": "../packages/editor/core/tsconfig.build.json" }
+    { "path": "../packages/ui/spreadsheet/tsconfig.build.json" },
+    { "path": "../packages/ui/editor/tsconfig.build.json" }
   ]
 }

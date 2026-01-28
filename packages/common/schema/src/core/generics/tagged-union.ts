@@ -13,6 +13,7 @@
  */
 import type { StructTypes, UnsafeTypes } from "@beep/types";
 import * as S from "effect/Schema";
+import type * as AST from "effect/SchemaAST";
 import { Struct } from "../extended/extended-schemas";
 import type { OptionalWithDefault } from "../types";
 /**
@@ -36,7 +37,7 @@ export declare namespace TaggedUnion {
    */
   export type Schema<
     Discriminator extends string,
-    Literal extends string,
+    Literal extends AST.LiteralValue,
     Fields extends StructTypes.StructFieldsWithStringKeys,
   > = Literal extends UnsafeTypes.UnsafeAny
     ? S.Struct<
@@ -54,7 +55,7 @@ export declare namespace TaggedUnion {
    */
   export type Type<
     Discriminator extends string,
-    Literal extends string,
+    Literal extends AST.LiteralValue,
     Fields extends StructTypes.StructFieldsWithStringKeys,
   > = S.Schema.Type<Schema<Discriminator, Literal, Fields>>;
 }
@@ -75,7 +76,7 @@ export declare namespace TaggedUnion {
 export const TaggedUnion =
   <
     const Discriminator extends string,
-    const Literal extends string,
+    const Literal extends AST.LiteralValue,
     const Fields extends StructTypes.StructFieldsWithStringKeys,
   >(
     discriminator: Discriminator

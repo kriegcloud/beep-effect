@@ -32,6 +32,7 @@ const composers = $I.compose(
   "ui",
   "invariant",
   "build-utils",
+  "ui-spreadsheet",
   "server",
   "web",
   "schema",
@@ -934,3 +935,18 @@ export const $SharedAiId = composers.$SharedAiId;
  * @since 0.1.0
  */
 export const $SharedIntegrationsId = composers.$SharedIntegrationsId;
+
+/**
+ * Identity composer for the `@beep/wrap` namespace.
+ *
+ * @example
+ * ```typescript
+ * import { $UiSpreadsheetId } from "@beep/identity/packages"
+ *
+ * const componentId = $UiSpreadsheetId.make("EventCard")
+ * ```
+ *
+ * @category symbols
+ * @since 0.1.0
+ */
+export const $UISpreadsheetId = composers.$UiSpreadsheetId;
