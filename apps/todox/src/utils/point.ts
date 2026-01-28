@@ -15,8 +15,10 @@ export class Point extends S.Class<Point>($I`Point`)({
     return this._y;
   }
 
-  public readonly equals = ({ x, y }: Point): boolean => {
-    return this.x === x && this.y === y;
+  public readonly equivalence = S.equivalence(Point);
+
+  public readonly equals = (point: Point): boolean => {
+    return this.equivalence(this, point);
   };
   public calcDeltaXTo = ({ x }: Point) => {
     return this.x - x;

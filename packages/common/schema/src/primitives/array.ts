@@ -72,14 +72,13 @@ export const arrayToCommaSeparatedString = <A extends string | number | boolean>
 export const EmptyArrayOf = <A, E, R>(schema: S.Schema<A, E, R>) =>
   S.Array(schema).pipe(S.filter((i) => i.length === 0 || "must be empty array"));
 
-
-export declare class EmptyArray extends S.declare((u: unknown): u is [] => A.isArray(u) && A.isNonEmptyReadonlyArray(u)).annotations(
+export class EmptyArray extends S.declare(
+  (u: unknown): u is [] => A.isArray(u) && A.isNonEmptyReadonlyArray(u)
+).annotations(
   $I.annotations("EmptyArrayOfUnknown", {
     description: "Empty array of unknown",
   })
-) {
-
-}
+) {}
 
 export declare namespace EmptyArray {
   export type Type = S.Schema.Type<typeof EmptyArray>;
