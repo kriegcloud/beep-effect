@@ -4,6 +4,7 @@ import "./globals.css";
 import { Agentation } from "agentation";
 import Script from "next/script";
 import { connection } from "next/server";
+import React from "react";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -57,11 +58,13 @@ export default async function RootLayout({
           )}
         </head>
         <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-          <GlobalProviders appConfig={appConfig}>
-            <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-              {children}
-            </ThemeProvider>
-          </GlobalProviders>
+          <React.Suspense>
+            <GlobalProviders appConfig={appConfig}>
+              <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+                {children}
+              </ThemeProvider>
+            </GlobalProviders>
+          </React.Suspense>
         </body>
       </html>
     </>

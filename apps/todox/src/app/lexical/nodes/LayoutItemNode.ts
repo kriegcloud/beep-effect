@@ -1,9 +1,9 @@
 "use client";
 
 import { addClassNamesToElement } from "@lexical/utils";
+import * as S from "effect/Schema";
 import type { DOMConversionMap, DOMConversionOutput, EditorConfig, LexicalNode, SerializedElementNode } from "lexical";
 import { $isParagraphNode, ElementNode } from "lexical";
-
 export type SerializedLayoutItemNode = SerializedElementNode;
 
 function $convertLayoutItemElement(): DOMConversionOutput | null {
@@ -85,5 +85,5 @@ export function $createLayoutItemNode(): LayoutItemNode {
 }
 
 export function $isLayoutItemNode(node: LexicalNode | null | undefined): node is LayoutItemNode {
-  return node instanceof LayoutItemNode;
+  return S.is(S.instanceOf(LayoutItemNode))(node);
 }

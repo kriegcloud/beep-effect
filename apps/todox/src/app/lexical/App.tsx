@@ -8,7 +8,9 @@ import { $createHeadingNode, $createQuoteNode } from "@lexical/rich-text";
 import { $createParagraphNode, $createTextNode, $getRoot, defineExtension } from "lexical";
 import { type JSX, useMemo } from "react";
 import { buildHTMLConfig } from "./buildHTMLConfig";
+import { AiContextProvider } from "./context/AiContext";
 import { FlashMessageContext } from "./context/FlashMessageContext";
+import { LiveblocksProvider } from "./context/LiveblocksProvider";
 import { SettingsContext, useSettings } from "./context/SettingsContext";
 import { SharedHistoryContext } from "./context/SharedHistoryContext";
 import { ToolbarContext } from "./context/toolbar-context";
@@ -22,6 +24,9 @@ import TypingPerfPlugin from "./plugins/TypingPerfPlugin";
 import Settings from "./Settings";
 import { isDevPlayground } from "./settings";
 import { editorTheme } from "./themes/editor-theme";
+
+/** Default room ID for the playground - could be made dynamic per document */
+const LIVEBLOCKS_ROOM_ID = "playground-default";
 
 console.warn(
   "If you are profiling the playground app, please ensure you turn off the debug view. You can disable it by pressing on the settings control in the bottom-left of your screen and toggling the debug view setting."
@@ -123,20 +128,20 @@ function App(): JSX.Element {
         <SharedHistoryContext>
           <TableContext>
             <ToolbarContext>
-              <header>
-                <a href="https://lexical.dev" target="_blank" rel="noreferrer">
-                  <img src="/lexical/images/logo.svg" alt="Lexical Logo" />
-                </a>
-              </header>
-              <div className="editor-shell">
-                <Editor />
-              </div>
-              <Settings />
-              {isDevPlayground ? <DocsPlugin /> : null}
-              {isDevPlayground ? <PasteLogPlugin /> : null}
-              {isDevPlayground ? <TestRecorderPlugin /> : null}
+              <AiContextProvider>
+                {/* LiveblocksProvider enables presence for AI collaboration awareness */}
+                <LiveblocksProvider isCollab={isCollab} roomId={LIVEBLOCKS_ROOM_ID}>
+                  <div className="editor-shell">
+                    <Editor />
+                  </div>
+                  <Settings />
+                  {isDevPlayground ? <DocsPlugin /> : null}
+                  {isDevPlayground ? <PasteLogPlugin /> : null}
+                  {isDevPlayground ? <TestRecorderPlugin /> : null}
 
-              {measureTypingPerf ? <TypingPerfPlugin /> : null}
+                  {measureTypingPerf ? <TypingPerfPlugin /> : null}
+                </LiveblocksProvider>
+              </AiContextProvider>
             </ToolbarContext>
           </TableContext>
         </SharedHistoryContext>

@@ -5,13 +5,13 @@ import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext
 import { useLexicalEditable } from "@lexical/react/useLexicalEditable";
 import { useLexicalNodeSelection } from "@lexical/react/useLexicalNodeSelection";
 import { mergeRegister } from "@lexical/utils";
+import * as A from "effect/Array";
 import * as Either from "effect/Either";
 import type { NodeKey } from "lexical";
 import { $getNodeByKey, CLICK_COMMAND, COMMAND_PRIORITY_LOW, isDOMNode } from "lexical";
 import type { JSX } from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { ExcalidrawInitialElements } from "../../ui/ExcalidrawModal";
-
 import ExcalidrawModal from "../../ui/ExcalidrawModal";
 import ImageResizer from "../../ui/ImageResizer";
 import ExcalidrawImage from "./ExcalidrawImage";
@@ -141,7 +141,7 @@ export default function ExcalidrawComponent({
 
   const closeModal = useCallback(() => {
     setModalOpen(false);
-    if (elements.length === 0) {
+    if (A.isEmptyReadonlyArray(elements)) {
       editor.update(() => {
         const node = $getNodeByKey(nodeKey);
         if (node) {

@@ -3,6 +3,7 @@
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { useLexicalNodeSelection } from "@lexical/react/useLexicalNodeSelection";
 import { mergeRegister } from "@lexical/utils";
+import * as S from "effect/Schema";
 import {
   CLICK_COMMAND,
   COMMAND_PRIORITY_HIGH,
@@ -20,7 +21,7 @@ import { useEffect } from "react";
 
 export type SerializedPageBreakNode = SerializedLexicalNode;
 
-function PageBreakComponent({ nodeKey }: { nodeKey: NodeKey }) {
+function PageBreakComponent({ nodeKey }: { readonly nodeKey: NodeKey }) {
   const [editor] = useLexicalComposerContext();
   const [isSelected, setSelected, clearSelection] = useLexicalNodeSelection(nodeKey);
 
@@ -87,7 +88,7 @@ export class PageBreakNode extends DecoratorNode<JSX.Element> {
 
   override createDOM(): HTMLElement {
     const el = document.createElement("figure");
-    el.style.pageBreakAfter = "always";
+    el.style.breakAfter = "always";
     el.setAttribute("type", this.getType());
     return el;
   }
@@ -118,5 +119,5 @@ export function $createPageBreakNode(): PageBreakNode {
 }
 
 export function $isPageBreakNode(node: LexicalNode | null | undefined): node is PageBreakNode {
-  return node instanceof PageBreakNode;
+  return S.is(S.instanceOf(PageBreakNode))(node);
 }

@@ -238,7 +238,7 @@ function TableHoverActionsV2({ anchorElem }: { readonly anchorElem: HTMLElement 
   }, [anchorElem, getTheme, isEditable, leftRefs, refs, update, updateLeft]);
 
   useEffect(() => {
-    const handleMouseLeave = (event: MouseEvent) => {
+    handleMouseLeaveRef.current = (event: MouseEvent) => {
       const nextTarget = event.relatedTarget;
       if (nextTarget && floatingElemRef.current && floatingElemRef.current.contains(nextTarget as Node)) {
         return;
@@ -249,7 +249,6 @@ function TableHoverActionsV2({ anchorElem }: { readonly anchorElem: HTMLElement 
       setIsVisible(false);
       setIsLeftVisible(false);
     };
-    handleMouseLeaveRef.current = handleMouseLeave;
 
     return editor.registerRootListener((rootElement, prevRootElement) => {
       if (prevRootElement && handleMouseLeaveRef.current) {
@@ -373,7 +372,7 @@ function TableHoverActionsV2({ anchorElem }: { readonly anchorElem: HTMLElement 
               <span className="bg-[url(/lexical/images/icons/filter-left.svg)] bg-center bg-no-repeat bg-[length:12px_12px] w-[12px] h-[12px]" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="start" sideOffset={4} className="min-w-40 !bg-white !text-black">
+          <DropdownMenuContent align="start" sideOffset={4} className="min-w-40">
             <DropdownMenuItem className={cn("cursor-pointer", "item")} onClick={() => handleSortColumn("desc")}>
               Sort Ascending
             </DropdownMenuItem>

@@ -7,6 +7,7 @@ import {
   type MenuTextMatch,
   useBasicTypeaheadTriggerMatch,
 } from "@lexical/react/LexicalTypeaheadMenuPlugin";
+import { UserIcon } from "@phosphor-icons/react";
 import type { TextNode } from "lexical";
 import type { JSX } from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -590,7 +591,7 @@ export default function NewMentionsPlugin(): JSX.Element | null {
   const options = useMemo(
     () =>
       results
-        .map((result) => new MentionTypeaheadOption(result, <i className="icon user" />))
+        .map((result) => new MentionTypeaheadOption(result, <UserIcon className="size-4" />))
         .slice(0, SUGGESTION_LIST_LENGTH_LIMIT),
     [results]
   );

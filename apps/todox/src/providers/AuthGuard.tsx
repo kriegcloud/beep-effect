@@ -1,5 +1,6 @@
 "use client";
 import { Core } from "@beep/iam-client";
+import { $store } from "@beep/iam-client/adapters";
 import { paths } from "@beep/shared-domain";
 import { GuardErrorBoundary } from "@beep/todox/providers/GuardErrorBoundary";
 import { GuardErrorFallback } from "@beep/todox/providers/GuardErrorFallback";
@@ -27,16 +28,50 @@ type SessionState =
   | { readonly _tag: "Error" }
   | { readonly _tag: "Authenticated"; readonly session: Core.GetSession.SessionData };
 
+/**
+ * Wrapper component that ensures we only render the client-side content after hydration.
+ *
+ * IMPORTANT: The isClient check must come BEFORE Core.Atoms.use() to ensure
+ * the atom hooks only run after hydration. The @effect-atom/atom-react hooks
+ * use useSyncExternalStore which behaves differently during SSR, and calling
+ * them before hydration can cause "Rendered fewer hooks than expected" errors.
+ */
 const AuthGuardContent: React.FC<AuthGuardContentProps> = ({ children, router, ...props }) => {
-  const { sessionResult } = Core.Atoms.use();
   const isClient = useIsClient();
+
+  // Show loading state during SSR and initial hydration
+  // This ensures atom hooks are only called after the client is ready
+  if (!isClient) {
+    return <SplashScreen />;
+  }
+
+  return (
+    <AuthGuardClientContent router={router} {...props}>
+      {children}
+    </AuthGuardClientContent>
+  );
+};
+
+/**
+ * Client-only component that accesses atom state.
+ * This component is only rendered after hydration, ensuring consistent hook behavior.
+ */
+const AuthGuardClientContent: React.FC<AuthGuardContentProps> = ({ children, router, ...props }) => {
+  const { sessionResult, sessionRefresh } = Core.Atoms.use();
+
+  // Subscribe to Better Auth's $sessionSignal to trigger session refresh.
+  // This ensures the guard re-evaluates after sign-in/sign-out completes.
+  // We use useEffect because $store.listen doesn't integrate with effect-atom's
+  // lifecycle, and React's cleanup mechanism properly handles unsubscription.
+  React.useEffect(() => {
+    const unsubscribe = $store.listen("$sessionSignal", () => {
+      sessionRefresh();
+    });
+    return unsubscribe;
+  }, [sessionRefresh]);
 
   // Derive session state without side effects
   const sessionState: SessionState = React.useMemo(() => {
-    if (!isClient) {
-      return { _tag: "Loading" };
-    }
-
     return Result.builder(sessionResult)
       .onInitial(() => ({ _tag: "Loading" }) as const)
       .onDefect(() => ({ _tag: "Error" }) as const)
@@ -52,7 +87,7 @@ const AuthGuardContent: React.FC<AuthGuardContentProps> = ({ children, router, .
         })
       )
       .render();
-  }, [isClient, sessionResult]);
+  }, [sessionResult]);
 
   // Handle redirect in useEffect to avoid setState during render
   React.useEffect(() => {

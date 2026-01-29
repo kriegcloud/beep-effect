@@ -1,5 +1,5 @@
 "use client";
-
+import * as S from "effect/Schema";
 import type { EditorConfig, LexicalNode, SerializedTextNode } from "lexical";
 
 import { $applyNodeReplacement, TextNode } from "lexical";
@@ -53,5 +53,5 @@ export function $createKeywordNode(keyword = ""): KeywordNode {
 }
 
 export function $isKeywordNode(node: LexicalNode | null | undefined): node is KeywordNode {
-  return node instanceof KeywordNode;
+  return S.is(S.instanceOf(KeywordNode))(node);
 }

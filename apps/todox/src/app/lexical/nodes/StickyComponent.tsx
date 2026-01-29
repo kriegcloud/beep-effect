@@ -24,7 +24,7 @@ type Positioning = {
   isDragging: boolean;
   offsetX: number;
   offsetY: number;
-  rootElementRect: null | ClientRect;
+  rootElementRect: null | DOMRect;
   x: number;
   y: number;
 };
@@ -137,7 +137,7 @@ export default function StickyComponent({
     }
   };
 
-  const handlePointerUp = (event: PointerEvent) => {
+  const handlePointerUp = (_: PointerEvent) => {
     const stickyContainer = stickyContainerRef.current;
     const positioning = positioningRef.current;
     if (stickyContainer !== null) {

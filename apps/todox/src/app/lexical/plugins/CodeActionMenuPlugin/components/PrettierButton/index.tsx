@@ -2,7 +2,9 @@
 
 import { makeRunClientPromise, useRuntime } from "@beep/runtime-client";
 import { $isCodeNode } from "@lexical/code";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import * as F from "effect/Function";
 import { $getNearestNodeFromDOMNode, type LexicalEditor } from "lexical";
 import type { Options } from "prettier";
 import { useCallback, useState } from "react";
@@ -26,14 +28,22 @@ type LanguagesType = keyof typeof PRETTIER_PARSER_MODULES;
 
 const loadPrettierParserByLang = Effect.fn("loadPrettierParserByLang")(function* (lang: string) {
   const dynamicImports = PRETTIER_PARSER_MODULES[lang as LanguagesType];
-  return yield* Effect.tryPromise({
-    try: () => Promise.all(dynamicImports.map((dynamicImport) => dynamicImport())),
-    catch: (cause) =>
-      new PrettierError({
-        message: `Failed to load Prettier parser for ${lang}`,
-        cause,
-      }),
-  });
+
+  const dynamicImportEffects = F.pipe(
+    dynamicImports,
+    A.map((dynamicImport) =>
+      Effect.tryPromise({
+        try: () => dynamicImport(),
+        catch: (cause) =>
+          new PrettierError({
+            message: `Failed to load Prettier parser for ${lang}`,
+            cause,
+          }),
+      })
+    )
+  );
+
+  return yield* Effect.all(dynamicImportEffects, { concurrency: dynamicImports.length });
 });
 
 const loadPrettierFormat = Effect.fn("loadPrettierFormat")(function* () {

@@ -1,6 +1,7 @@
 "use client";
 
 import { IS_CHROME } from "@lexical/utils";
+import * as S from "effect/Schema";
 import {
   $createParagraphNode,
   $isElementNode,
@@ -16,7 +17,7 @@ import {
 import { $isCollapsibleContainerNode } from "./CollapsibleContainerNode";
 import { $isCollapsibleContentNode } from "./CollapsibleContentNode";
 
-export function $convertSummaryElement(domNode: HTMLElement): DOMConversionOutput | null {
+export function $convertSummaryElement(_: HTMLElement): DOMConversionOutput | null {
   const node = $createCollapsibleTitleNode();
   return {
     node,
@@ -43,7 +44,7 @@ export class CollapsibleTitleNode extends ElementNode {
     });
   }
 
-  override createDOM(config: EditorConfig, editor: LexicalEditor): HTMLElement {
+  override createDOM(_: EditorConfig, editor: LexicalEditor): HTMLElement {
     const dom = document.createElement("summary");
     dom.classList.add("Collapsible__title");
     if (IS_CHROME) {
@@ -60,7 +61,7 @@ export class CollapsibleTitleNode extends ElementNode {
     return dom;
   }
 
-  override updateDOM(prevNode: this, dom: HTMLElement): boolean {
+  override updateDOM(_prevNode: this, _dom: HTMLElement): boolean {
     return false;
   }
 
@@ -100,5 +101,5 @@ export function $createCollapsibleTitleNode(): CollapsibleTitleNode {
 }
 
 export function $isCollapsibleTitleNode(node: LexicalNode | null | undefined): node is CollapsibleTitleNode {
-  return node instanceof CollapsibleTitleNode;
+  return S.is(S.instanceOf(CollapsibleTitleNode))(node);
 }

@@ -1,7 +1,7 @@
 "use client";
 
+import * as S from "effect/Schema";
 import type { EditorConfig, LexicalNode, NodeKey, SerializedTextNode, Spread } from "lexical";
-
 import { $applyNodeReplacement, TextNode } from "lexical";
 
 export type SerializedEmojiNode = Spread<
@@ -66,7 +66,7 @@ export class EmojiNode extends TextNode {
 }
 
 export function $isEmojiNode(node: LexicalNode | null | undefined): node is EmojiNode {
-  return node instanceof EmojiNode;
+  return S.is(S.instanceOf(EmojiNode))(node);
 }
 
 export function $createEmojiNode(className: string, emojiText: string): EmojiNode {

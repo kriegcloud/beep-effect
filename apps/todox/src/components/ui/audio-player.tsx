@@ -1,6 +1,7 @@
 "use client";
 import { BS } from "@beep/schema";
 import { cn } from "@beep/todox/lib/utils";
+import { CheckIcon, GearIcon, PauseIcon, PlayIcon } from "@phosphor-icons/react";
 import * as SliderPrimitive from "@radix-ui/react-slider";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
@@ -9,7 +10,6 @@ import * as P from "effect/Predicate";
 // import * as F from "effect/Function";
 //
 import * as Str from "effect/String";
-import { Check, PauseIcon, PlayIcon, Settings } from "lucide-react";
 import type * as React from "react";
 import type { ComponentProps, HTMLProps, ReactNode, RefObject } from "react";
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
@@ -481,7 +481,7 @@ export function AudioPlayerSpeed({
           <Button variant={variant} size={size} className={cn(className)} aria-label="Playback speed" {...props} />
         }
       >
-        <Settings className="size-4" />
+        <GearIcon className="size-4" />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="min-w-[120px]">
         {A.map(speeds, (speed) => (
@@ -491,7 +491,7 @@ export function AudioPlayerSpeed({
             className="flex items-center justify-between"
           >
             <span className={speed === 1 ? Str.empty : "font-mono"}>{speed === 1 ? "Normal" : `${speed}x`}</span>
-            {currentSpeed === speed && <Check className="size-4" />}
+            {currentSpeed === speed && <CheckIcon className="size-4" />}
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>

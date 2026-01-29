@@ -4,6 +4,10 @@ import * as P from "effect/Predicate";
 import * as Str from "effect/String";
 import type { EditorThemeClasses } from "lexical";
 
+/**
+ * Builds a CSS selector from theme class names.
+ * Escapes special characters (like Tailwind's `w-[75px]`) using CSS.escape.
+ */
 export function getThemeSelector(
   getTheme: () => EditorThemeClasses | null | undefined,
   name: keyof EditorThemeClasses
@@ -16,7 +20,7 @@ export function getThemeSelector(
   const classes = Str.split(/\s+/g)(className);
   return pipe(
     classes,
-    A.map((cls) => `.${cls}` as const),
+    A.map((cls) => `.${CSS.escape(cls)}`),
     A.join("")
   );
 }

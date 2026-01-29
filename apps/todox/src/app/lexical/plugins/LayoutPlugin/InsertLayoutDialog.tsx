@@ -47,7 +47,7 @@ export default function InsertLayoutDialog({
             <CaretDownIcon className="size-3 opacity-50" />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="start" sideOffset={4} className="min-w-40 !bg-white !text-black">
+        <DropdownMenuContent align="start" sideOffset={4} className="min-w-40">
           {LAYOUTS.map(({ label, value }) => (
             <DropdownMenuItem key={value} className={cn("cursor-pointer", "item")} onClick={() => setLayout(value)}>
               <span className="text">{label}</span>

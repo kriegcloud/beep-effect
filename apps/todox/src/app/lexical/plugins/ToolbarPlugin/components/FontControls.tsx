@@ -2,6 +2,7 @@
 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@beep/ui/components/select";
 import { $patchStyleText } from "@lexical/selection";
+import { TextAaIcon } from "@phosphor-icons/react";
 import { $addUpdateTag, $getSelection, type LexicalEditor, SKIP_SELECTION_FOCUS_TAG } from "lexical";
 import type { JSX } from "react";
 import { useCallback } from "react";
@@ -81,7 +82,7 @@ export function FontControls({ editor, disabled = false }: FontControlsProps): J
       {/* Font Family Dropdown */}
       <Select value={fontFamily} onValueChange={handleFontFamilyChange} disabled={disabled}>
         <SelectTrigger className="h-8 w-[120px] text-xs" aria-label="Formatting options for font family">
-          <span className="icon block-type font-family mr-1" />
+          <TextAaIcon className="size-4 mr-1" />
           <SelectValue placeholder="Font" />
         </SelectTrigger>
         <SelectContent>

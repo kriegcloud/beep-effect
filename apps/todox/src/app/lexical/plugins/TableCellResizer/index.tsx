@@ -14,6 +14,7 @@ import {
   TableNode,
 } from "@lexical/table";
 import { calculateZoomLevel, mergeRegister } from "@lexical/utils";
+import * as P from "effect/Predicate";
 import type { LexicalEditor, NodeKey } from "lexical";
 import { $getNearestNodeFromDOMNode, isHTMLElement, SKIP_SCROLL_INTO_VIEW_TAG } from "lexical";
 import type { JSX } from "react";
@@ -43,7 +44,7 @@ const ACTIVE_RESIZER_COLOR = "#76b6ff";
 function TableCellResizer({ editor }: { readonly editor: LexicalEditor }): JSX.Element {
   const targetRef = useRef<HTMLElement | null>(null);
   const resizerRef = useRef<HTMLDivElement | null>(null);
-  const tableRectRef = useRef<ClientRect | null>(null);
+  const tableRectRef = useRef<DOMRect | null>(null);
   const [hasTable, setHasTable] = useState(false);
 
   const pointerStartPosRef = useRef<PointerPosition | null>(null);
@@ -168,10 +169,7 @@ function TableCellResizer({ editor }: { readonly editor: LexicalEditor }): JSX.E
   }, [activeCell, draggingDirection, editor, resetState, hasTable]);
 
   const isHeightChanging = (direction: PointerDraggingDirection) => {
-    if (direction === "bottom") {
-      return true;
-    }
-    return false;
+    return direction === "bottom";
   };
 
   const updateRowHeight = useCallback(
@@ -265,8 +263,7 @@ function TableCellResizer({ editor }: { readonly editor: LexicalEditor }): JSX.E
             return;
           }
           const newColWidths = [...colWidths];
-          const newWidth = Math.max(width + widthChange, MIN_COLUMN_WIDTH);
-          newColWidths[columnIndex] = newWidth;
+          newColWidths[columnIndex] = Math.max(width + widthChange, MIN_COLUMN_WIDTH);
           tableNode.setColWidths(newColWidths);
         },
         { tag: SKIP_SCROLL_INTO_VIEW_TAG }
@@ -288,7 +285,7 @@ function TableCellResizer({ editor }: { readonly editor: LexicalEditor }): JSX.E
         if (pointerStartPosRef.current) {
           const { x, y } = pointerStartPosRef.current;
 
-          if (activeCell === null) {
+          if (P.isNull(activeCell)) {
             return;
           }
           const targetElement = event.target instanceof Element ? event.target : activeCell.elem;

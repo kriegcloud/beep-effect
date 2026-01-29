@@ -2,6 +2,7 @@
 
 import { BlockWithAlignableContents } from "@lexical/react/LexicalBlockWithAlignableContents";
 import { DecoratorBlockNode, type SerializedDecoratorBlockNode } from "@lexical/react/LexicalDecoratorBlockNode";
+import * as S from "effect/Schema";
 import type { EditorConfig, ElementFormatType, LexicalEditor, LexicalNode, NodeKey, Spread } from "lexical";
 import type { JSX } from "react";
 
@@ -93,5 +94,5 @@ export function $createFigmaNode(documentID: string): FigmaNode {
 }
 
 export function $isFigmaNode(node: FigmaNode | LexicalNode | null | undefined): node is FigmaNode {
-  return node instanceof FigmaNode;
+  return S.is(S.instanceOf(FigmaNode))(node);
 }

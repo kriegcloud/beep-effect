@@ -1,10 +1,10 @@
 "use client";
 
 import { $createCodeNode } from "@lexical/code";
+import { INSERT_HORIZONTAL_RULE_COMMAND } from "@lexical/extension";
 import { INSERT_CHECK_LIST_COMMAND, INSERT_ORDERED_LIST_COMMAND, INSERT_UNORDERED_LIST_COMMAND } from "@lexical/list";
 import { INSERT_EMBED_COMMAND } from "@lexical/react/LexicalAutoEmbedPlugin";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
-import { INSERT_HORIZONTAL_RULE_COMMAND } from "@lexical/react/LexicalHorizontalRuleNode";
 import {
   LexicalTypeaheadMenuPlugin,
   MenuOption,
@@ -13,6 +13,32 @@ import {
 import { $createHeadingNode, $createQuoteNode } from "@lexical/rich-text";
 import { $setBlocksType } from "@lexical/selection";
 import { INSERT_TABLE_COMMAND } from "@lexical/table";
+import {
+  CalendarBlankIcon,
+  CaretRightIcon,
+  ChartBarIcon,
+  CodeIcon,
+  ColumnsIcon,
+  GifIcon,
+  ImageIcon,
+  ListBulletsIcon,
+  ListChecksIcon,
+  ListNumbersIcon,
+  MathOperationsIcon,
+  MinusIcon,
+  PencilIcon,
+  QuotesIcon,
+  SplitHorizontalIcon,
+  TableIcon,
+  TextAlignCenterIcon,
+  TextAlignJustifyIcon,
+  TextAlignLeftIcon,
+  TextAlignRightIcon,
+  TextHOneIcon,
+  TextHThreeIcon,
+  TextHTwoIcon,
+  TextTIcon,
+} from "@phosphor-icons/react";
 import {
   $createParagraphNode,
   $getSelection,
@@ -120,7 +146,7 @@ export function getDynamicOptions(editor: LexicalEditor, queryString: string) {
       ...colOptions.map(
         (columns) =>
           new ComponentPickerOption(`${rows}x${columns} Table`, {
-            icon: <i className="icon table" />,
+            icon: <TableIcon className="size-4" />,
             keywords: ["table"],
             onSelect: () => editor.dispatchCommand(INSERT_TABLE_COMMAND, { columns, rows }),
           })
@@ -136,7 +162,7 @@ export type ShowModal = ReturnType<typeof useModal>[1];
 export function getBaseOptions(editor: LexicalEditor, showModal: ShowModal) {
   return [
     new ComponentPickerOption("Paragraph", {
-      icon: <i className="icon paragraph" />,
+      icon: <TextTIcon className="size-4" />,
       keywords: ["normal", "paragraph", "p", "text"],
       onSelect: () =>
         editor.update(() => {
@@ -146,43 +172,62 @@ export function getBaseOptions(editor: LexicalEditor, showModal: ShowModal) {
           }
         }),
     }),
-    ...([1, 2, 3] as const).map(
-      (n) =>
-        new ComponentPickerOption(`Heading ${n}`, {
-          icon: <i className={`icon h${n}`} />,
-          keywords: ["heading", "header", `h${n}`],
-          onSelect: () =>
-            editor.update(() => {
-              const selection = $getSelection();
-              if ($isRangeSelection(selection)) {
-                $setBlocksType(selection, () => $createHeadingNode(`h${n}`));
-              }
-            }),
-        })
-    ),
+    new ComponentPickerOption("Heading 1", {
+      icon: <TextHOneIcon className="size-4" />,
+      keywords: ["heading", "header", "h1"],
+      onSelect: () =>
+        editor.update(() => {
+          const selection = $getSelection();
+          if ($isRangeSelection(selection)) {
+            $setBlocksType(selection, () => $createHeadingNode("h1"));
+          }
+        }),
+    }),
+    new ComponentPickerOption("Heading 2", {
+      icon: <TextHTwoIcon className="size-4" />,
+      keywords: ["heading", "header", "h2"],
+      onSelect: () =>
+        editor.update(() => {
+          const selection = $getSelection();
+          if ($isRangeSelection(selection)) {
+            $setBlocksType(selection, () => $createHeadingNode("h2"));
+          }
+        }),
+    }),
+    new ComponentPickerOption("Heading 3", {
+      icon: <TextHThreeIcon className="size-4" />,
+      keywords: ["heading", "header", "h3"],
+      onSelect: () =>
+        editor.update(() => {
+          const selection = $getSelection();
+          if ($isRangeSelection(selection)) {
+            $setBlocksType(selection, () => $createHeadingNode("h3"));
+          }
+        }),
+    }),
     new ComponentPickerOption("Table", {
-      icon: <i className="icon table" />,
+      icon: <TableIcon className="size-4" />,
       keywords: ["table", "grid", "spreadsheet", "rows", "columns"],
       onSelect: () =>
         showModal("Insert Table", (onClose) => <InsertTableDialog activeEditor={editor} onClose={onClose} />),
     }),
     new ComponentPickerOption("Numbered List", {
-      icon: <i className="icon number" />,
+      icon: <ListNumbersIcon className="size-4" />,
       keywords: ["numbered list", "ordered list", "ol"],
       onSelect: () => editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND, undefined),
     }),
     new ComponentPickerOption("Bulleted List", {
-      icon: <i className="icon bullet" />,
+      icon: <ListBulletsIcon className="size-4" />,
       keywords: ["bulleted list", "unordered list", "ul"],
       onSelect: () => editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined),
     }),
     new ComponentPickerOption("Check List", {
-      icon: <i className="icon check" />,
+      icon: <ListChecksIcon className="size-4" />,
       keywords: ["check list", "todo list"],
       onSelect: () => editor.dispatchCommand(INSERT_CHECK_LIST_COMMAND, undefined),
     }),
     new ComponentPickerOption("Quote", {
-      icon: <i className="icon quote" />,
+      icon: <QuotesIcon className="size-4" />,
       keywords: ["block quote"],
       onSelect: () =>
         editor.update(() => {
@@ -193,7 +238,7 @@ export function getBaseOptions(editor: LexicalEditor, showModal: ShowModal) {
         }),
     }),
     new ComponentPickerOption("Code", {
-      icon: <i className="icon code" />,
+      icon: <CodeIcon className="size-4" />,
       keywords: ["javascript", "python", "js", "codeblock"],
       onSelect: () =>
         editor.update(() => {
@@ -213,22 +258,22 @@ export function getBaseOptions(editor: LexicalEditor, showModal: ShowModal) {
         }),
     }),
     new ComponentPickerOption("Divider", {
-      icon: <i className="icon horizontal-rule" />,
+      icon: <MinusIcon className="size-4" />,
       keywords: ["horizontal rule", "divider", "hr"],
       onSelect: () => editor.dispatchCommand(INSERT_HORIZONTAL_RULE_COMMAND, undefined),
     }),
     new ComponentPickerOption("Page Break", {
-      icon: <i className="icon page-break" />,
+      icon: <SplitHorizontalIcon className="size-4" />,
       keywords: ["page break", "divider"],
       onSelect: () => editor.dispatchCommand(INSERT_PAGE_BREAK, undefined),
     }),
     new ComponentPickerOption("Excalidraw", {
-      icon: <i className="icon diagram-2" />,
+      icon: <PencilIcon className="size-4" />,
       keywords: ["excalidraw", "diagram", "drawing"],
       onSelect: () => editor.dispatchCommand(INSERT_EXCALIDRAW_COMMAND, undefined),
     }),
     new ComponentPickerOption("Poll", {
-      icon: <i className="icon poll" />,
+      icon: <ChartBarIcon className="size-4" />,
       keywords: ["poll", "vote"],
       onSelect: () =>
         showModal("Insert Poll", (onClose) => <InsertPollDialog activeEditor={editor} onClose={onClose} />),
@@ -242,7 +287,7 @@ export function getBaseOptions(editor: LexicalEditor, showModal: ShowModal) {
         })
     ),
     new ComponentPickerOption("Date", {
-      icon: <i className="icon calendar" />,
+      icon: <CalendarBlankIcon className="size-4" />,
       keywords: ["date", "calendar", "time"],
       onSelect: () => {
         const dateTime = new Date();
@@ -251,7 +296,7 @@ export function getBaseOptions(editor: LexicalEditor, showModal: ShowModal) {
       },
     }),
     new ComponentPickerOption("Today", {
-      icon: <i className="icon calendar" />,
+      icon: <CalendarBlankIcon className="size-4" />,
       keywords: ["date", "calendar", "time", "today"],
       onSelect: () => {
         const dateTime = new Date();
@@ -260,7 +305,7 @@ export function getBaseOptions(editor: LexicalEditor, showModal: ShowModal) {
       },
     }),
     new ComponentPickerOption("Tomorrow", {
-      icon: <i className="icon calendar" />,
+      icon: <CalendarBlankIcon className="size-4" />,
       keywords: ["date", "calendar", "time", "tomorrow"],
       onSelect: () => {
         const dateTime = new Date();
@@ -270,7 +315,7 @@ export function getBaseOptions(editor: LexicalEditor, showModal: ShowModal) {
       },
     }),
     new ComponentPickerOption("Yesterday", {
-      icon: <i className="icon calendar" />,
+      icon: <CalendarBlankIcon className="size-4" />,
       keywords: ["date", "calendar", "time", "yesterday"],
       onSelect: () => {
         const dateTime = new Date();
@@ -280,13 +325,13 @@ export function getBaseOptions(editor: LexicalEditor, showModal: ShowModal) {
       },
     }),
     new ComponentPickerOption("Equation", {
-      icon: <i className="icon equation" />,
+      icon: <MathOperationsIcon className="size-4" />,
       keywords: ["equation", "latex", "math"],
       onSelect: () =>
         showModal("Insert Equation", (onClose) => <InsertEquationDialog activeEditor={editor} onClose={onClose} />),
     }),
     new ComponentPickerOption("GIF", {
-      icon: <i className="icon gif" />,
+      icon: <GifIcon className="size-4" />,
       keywords: ["gif", "animate", "image", "file"],
       onSelect: () =>
         editor.dispatchCommand(INSERT_IMAGE_COMMAND, {
@@ -295,30 +340,42 @@ export function getBaseOptions(editor: LexicalEditor, showModal: ShowModal) {
         }),
     }),
     new ComponentPickerOption("Image", {
-      icon: <i className="icon image" />,
+      icon: <ImageIcon className="size-4" />,
       keywords: ["image", "photo", "picture", "file"],
       onSelect: () =>
         showModal("Insert Image", (onClose) => <InsertImageDialog activeEditor={editor} onClose={onClose} />),
     }),
     new ComponentPickerOption("Collapsible", {
-      icon: <i className="icon caret-right" />,
+      icon: <CaretRightIcon className="size-4" />,
       keywords: ["collapse", "collapsible", "toggle"],
       onSelect: () => editor.dispatchCommand(INSERT_COLLAPSIBLE_COMMAND, undefined),
     }),
     new ComponentPickerOption("Columns Layout", {
-      icon: <i className="icon columns" />,
+      icon: <ColumnsIcon className="size-4" />,
       keywords: ["columns", "layout", "grid"],
       onSelect: () =>
         showModal("Insert Columns Layout", (onClose) => <InsertLayoutDialog activeEditor={editor} onClose={onClose} />),
     }),
-    ...(["left", "center", "right", "justify"] as const).map(
-      (alignment) =>
-        new ComponentPickerOption(`Align ${alignment}`, {
-          icon: <i className={`icon ${alignment}-align`} />,
-          keywords: ["align", "justify", alignment],
-          onSelect: () => editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, alignment),
-        })
-    ),
+    new ComponentPickerOption("Align left", {
+      icon: <TextAlignLeftIcon className="size-4" />,
+      keywords: ["align", "justify", "left"],
+      onSelect: () => editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, "left"),
+    }),
+    new ComponentPickerOption("Align center", {
+      icon: <TextAlignCenterIcon className="size-4" />,
+      keywords: ["align", "justify", "center"],
+      onSelect: () => editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, "center"),
+    }),
+    new ComponentPickerOption("Align right", {
+      icon: <TextAlignRightIcon className="size-4" />,
+      keywords: ["align", "justify", "right"],
+      onSelect: () => editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, "right"),
+    }),
+    new ComponentPickerOption("Align justify", {
+      icon: <TextAlignJustifyIcon className="size-4" />,
+      keywords: ["align", "justify", "justify"],
+      onSelect: () => editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, "justify"),
+    }),
   ];
 }
 

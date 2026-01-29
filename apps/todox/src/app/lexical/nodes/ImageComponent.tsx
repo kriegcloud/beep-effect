@@ -1,5 +1,6 @@
 "use client";
 
+import { $TodoxId } from "@beep/identity/packages";
 import { useCollaborationContext } from "@lexical/react/LexicalCollaborationContext";
 import { CollaborationPlugin } from "@lexical/react/LexicalCollaborationPlugin";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
@@ -11,6 +12,13 @@ import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
 import { useLexicalEditable } from "@lexical/react/useLexicalEditable";
 import { useLexicalNodeSelection } from "@lexical/react/useLexicalNodeSelection";
 import { mergeRegister } from "@lexical/utils";
+import * as Effect from "effect/Effect";
+import * as F from "effect/Function";
+import * as MutableHashMap from "effect/MutableHashMap";
+import * as O from "effect/Option";
+import * as P from "effect/Predicate";
+import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import type { LexicalCommand, LexicalEditor, NodeKey } from "lexical";
 import {
   $getNodeByKey,
@@ -45,11 +53,44 @@ import ContentEditable from "../ui/ContentEditable";
 import ImageResizer from "../ui/ImageResizer";
 import { $isCaptionEditorEmpty, $isImageNode } from "./image-utils";
 
+const $I = $TodoxId.create("app/lexical/nodes/ImageComponent");
+
+// Tagged error for image loading failures
+class ImageLoadError extends S.TaggedError<ImageLoadError>($I`ImageLoadError`)(
+  "ImageLoadError",
+  {
+    src: S.String,
+    cause: S.optional(S.Defect),
+  },
+  $I.annotations("ImageLoadError", {
+    description: "An error which occurred while loading an image",
+  })
+) {}
+
 type ImageStatus =
   | { readonly error: true }
   | { readonly error: false; readonly width: number; readonly height: number };
 
-const imageCache = new Map<string, Promise<ImageStatus> | ImageStatus>();
+// Use MutableHashMap instead of native Map
+const imageCache = MutableHashMap.empty<string, Promise<ImageStatus> | ImageStatus>();
+
+/**
+ * Effect-based image loader that wraps the browser Image API
+ */
+const loadImage = (src: string): Effect.Effect<ImageStatus, ImageLoadError> =>
+  Effect.async<ImageStatus, ImageLoadError>((resume) => {
+    const img = new Image();
+    img.src = src;
+    img.onload = () =>
+      resume(
+        Effect.succeed({
+          error: false as const,
+          height: img.naturalHeight,
+          width: img.naturalWidth,
+        })
+      );
+    img.onerror = () => resume(Effect.fail(new ImageLoadError({ src })));
+  });
 
 export const RIGHT_CLICK_IMAGE_COMMAND: LexicalCommand<MouseEvent> = createCommand("RIGHT_CLICK_IMAGE_COMMAND");
 
@@ -70,34 +111,56 @@ function DisableCaptionOnBlur({ setShowCaption }: { setShowCaption: (show: boole
   return null;
 }
 
+/**
+ * Check if cached value is a resolved ImageStatus (not a Promise)
+ */
+const isResolvedStatus = (value: Promise<ImageStatus> | ImageStatus): value is ImageStatus =>
+  P.hasProperty("error")(value) && P.isBoolean(value.error);
+
+/**
+ * React Suspense hook for loading images with Effect-based internals
+ * Throws a Promise when loading (React Suspense pattern)
+ */
 function useSuspenseImage(src: string): ImageStatus {
-  let cached = imageCache.get(src);
-  if (cached && "error" in cached && typeof cached.error === "boolean") {
-    return cached;
-  }
-  if (!cached) {
-    cached = new Promise<ImageStatus>((resolve) => {
-      const img = new Image();
-      img.src = src;
-      img.onload = () =>
-        resolve({
-          error: false,
-          height: img.naturalHeight,
-          width: img.naturalWidth,
+  const cachedOpt = MutableHashMap.get(imageCache, src);
+
+  return F.pipe(
+    cachedOpt,
+    O.match({
+      onNone: () => {
+        // Not cached - create loading Promise using Effect
+        const loadingPromise = F.pipe(
+          loadImage(src),
+          Effect.match({
+            onFailure: (): ImageStatus => ({ error: true }),
+            onSuccess: (status): ImageStatus => status,
+          }),
+          Effect.runPromise
+        ).then((resolvedStatus) => {
+          MutableHashMap.set(imageCache, src, resolvedStatus);
+          return resolvedStatus;
         });
-      img.onerror = () => resolve({ error: true });
-    }).then((rval) => {
-      imageCache.set(src, rval);
-      return rval;
-    });
-    imageCache.set(src, cached);
-    throw cached;
-  }
-  throw cached;
+
+        MutableHashMap.set(imageCache, src, loadingPromise);
+        // Throw for React Suspense
+        throw loadingPromise;
+      },
+      onSome: (cached) => {
+        if (isResolvedStatus(cached)) {
+          return cached;
+        }
+        // Still loading - throw Promise for React Suspense
+        throw cached;
+      },
+    })
+  );
 }
 
+/**
+ * Check if URL points to an SVG file
+ */
 function isSVG(src: string): boolean {
-  return src.toLowerCase().endsWith(".svg");
+  return F.pipe(src, Str.toLowerCase, Str.endsWith(".svg"));
 }
 
 function LazyImage({
@@ -463,7 +526,7 @@ export default function ImageComponent({
                 }
                 ErrorBoundary={LexicalErrorBoundary}
               />
-              {showNestedEditorTreeView === true ? <TreeViewPlugin /> : null}
+              {showNestedEditorTreeView ? <TreeViewPlugin /> : null}
             </LexicalNestedComposer>
           </div>
         )}

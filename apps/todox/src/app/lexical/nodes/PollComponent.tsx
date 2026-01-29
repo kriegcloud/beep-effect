@@ -6,6 +6,8 @@ import { useCollaborationContext } from "@lexical/react/LexicalCollaborationCont
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { useLexicalNodeSelection } from "@lexical/react/useLexicalNodeSelection";
 import { mergeRegister } from "@lexical/utils";
+import * as A from "effect/Array";
+import * as O from "effect/Option";
 import {
   $getNodeByKey,
   $getSelection,
@@ -17,13 +19,12 @@ import {
 } from "lexical";
 import type { JSX } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
-
 import { $isPollNode, createPollOption, type Option, type Options, type PollNodeInterface } from "./poll-utils";
 
 function getTotalVotes(options: Options): number {
-  return options.reduce((totalVotes, next) => {
+  return A.reduce(options, 0, (totalVotes, next) => {
     return totalVotes + next.votes.length;
-  }, 0);
+  });
 }
 
 function PollOptionComponent({
@@ -42,9 +43,9 @@ function PollOptionComponent({
   const { name: username } = useCollaborationContext();
   const checkboxRef = useRef(null);
   const votesArray = option.votes;
-  const checkedIndex = votesArray.indexOf(username);
-  const checked = checkedIndex !== -1;
-  const votes = votesArray.length;
+  const checkedIndex = A.findFirstIndex(votesArray, (v) => v === username);
+  const checked = O.isSome(checkedIndex);
+  const votes = A.length(votesArray);
   const text = option.text;
 
   return (
@@ -60,7 +61,7 @@ function PollOptionComponent({
           ref={checkboxRef}
           className="border-0 absolute block w-full h-full opacity-0 cursor-pointer"
           type="checkbox"
-          onChange={(e) => {
+          onChange={() => {
             withPollNode((node) => {
               node.toggleVote(option, username);
             });
@@ -189,7 +190,7 @@ export default function PollComponent({
     >
       <div className="m-[15px] cursor-default">
         <h2 className="ml-0 mt-0 mr-0 mb-[15px] text-[#444] text-center text-lg">{question}</h2>
-        {options.map((option, index) => {
+        {A.map(options, (option, index) => {
           const key = option.uid;
           return (
             <PollOptionComponent

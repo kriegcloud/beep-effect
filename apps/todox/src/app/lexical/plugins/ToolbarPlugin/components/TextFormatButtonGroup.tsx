@@ -1,8 +1,8 @@
 "use client";
 
 import { Toggle } from "@beep/ui/components/toggle";
+import { CodeIcon, TextBIcon, TextItalicIcon, TextUnderlineIcon } from "@phosphor-icons/react";
 import { $addUpdateTag, FORMAT_TEXT_COMMAND, type LexicalEditor, SKIP_DOM_SELECTION_TAG } from "lexical";
-import { Bold, Code, Italic, Underline } from "lucide-react";
 import type { JSX, MouseEvent } from "react";
 import { useToolbarState } from "../../../context/toolbar-context";
 import { isKeyboardInput } from "../../../utils/focusUtils";
@@ -81,7 +81,7 @@ export function TextFormatButtonGroup({ editor, showCodeButton = true }: TextFor
         aria-label={`Format text as bold. Shortcut: ${SHORTCUTS.BOLD}`}
         title={`Bold (${SHORTCUTS.BOLD})`}
       >
-        <Bold className="size-4" />
+        <TextBIcon className="size-4" />
       </Toggle>
 
       {/* Italic */}
@@ -96,7 +96,7 @@ export function TextFormatButtonGroup({ editor, showCodeButton = true }: TextFor
         aria-label={`Format text as italics. Shortcut: ${SHORTCUTS.ITALIC}`}
         title={`Italic (${SHORTCUTS.ITALIC})`}
       >
-        <Italic className="size-4" />
+        <TextItalicIcon className="size-4" />
       </Toggle>
 
       {/* Underline */}
@@ -111,7 +111,7 @@ export function TextFormatButtonGroup({ editor, showCodeButton = true }: TextFor
         aria-label={`Format text to underlined. Shortcut: ${SHORTCUTS.UNDERLINE}`}
         title={`Underline (${SHORTCUTS.UNDERLINE})`}
       >
-        <Underline className="size-4" />
+        <TextUnderlineIcon className="size-4" />
       </Toggle>
 
       {/* Code (inline) */}
@@ -127,7 +127,7 @@ export function TextFormatButtonGroup({ editor, showCodeButton = true }: TextFor
           aria-label={`Insert code block. Shortcut: ${SHORTCUTS.INSERT_CODE_BLOCK}`}
           title={`Insert code block (${SHORTCUTS.INSERT_CODE_BLOCK})`}
         >
-          <Code className="size-4" />
+          <CodeIcon className="size-4" />
         </Toggle>
       )}
     </div>

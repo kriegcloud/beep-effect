@@ -1,17 +1,17 @@
 "use client";
 
-import {
-  $applyNodeReplacement,
-  type DOMConversionMap,
-  type DOMConversionOutput,
-  type DOMExportOutput,
-  type EditorConfig,
-  type LexicalNode,
-  type NodeKey,
-  type SerializedTextNode,
-  type Spread,
-  TextNode,
+import * as S from "effect/Schema";
+import type {
+  DOMConversionMap,
+  DOMConversionOutput,
+  DOMExportOutput,
+  EditorConfig,
+  LexicalNode,
+  NodeKey,
+  SerializedTextNode,
+  Spread,
 } from "lexical";
+import { $applyNodeReplacement, TextNode } from "lexical";
 
 export type SerializedMentionNode = Spread<
   {
@@ -35,6 +35,7 @@ function $convertMentionElement(domNode: HTMLElement): DOMConversionOutput | nul
 }
 
 const mentionStyle = "background-color: rgba(24, 119, 232, 0.2)";
+
 export class MentionNode extends TextNode {
   __mention: string;
 
@@ -45,6 +46,7 @@ export class MentionNode extends TextNode {
   static override clone(node: MentionNode): MentionNode {
     return new MentionNode(node.__mention, node.__text, node.__key);
   }
+
   static override importJSON(serializedNode: SerializedMentionNode): MentionNode {
     return $createMentionNode(serializedNode.mentionName).updateFromJSON(serializedNode);
   }
@@ -109,12 +111,12 @@ export class MentionNode extends TextNode {
   }
 }
 
-export function $createMentionNode(mentionName: string, textContent?: undefined | string): MentionNode {
-  const mentionNode = new MentionNode(mentionName, (textContent = mentionName));
+export function $createMentionNode(mentionName: string, _textContent?: undefined | string): MentionNode {
+  const mentionNode = new MentionNode(mentionName, (_textContent = mentionName));
   mentionNode.setMode("segmented").toggleDirectionless();
   return $applyNodeReplacement(mentionNode);
 }
 
 export function $isMentionNode(node: LexicalNode | null | undefined): node is MentionNode {
-  return node instanceof MentionNode;
+  return S.is(S.instanceOf(MentionNode))(node);
 }

@@ -44,7 +44,7 @@ export default function DropdownColorPicker({
           <CaretDownIcon className="size-3 opacity-50" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" sideOffset={4} className="max-h-none overflow-visible !bg-white !text-black">
+      <DropdownMenuContent align="start" sideOffset={4} className="max-h-none overflow-visible">
         <ColorPicker color={color} onChange={onChange} />
       </DropdownMenuContent>
     </DropdownMenu>

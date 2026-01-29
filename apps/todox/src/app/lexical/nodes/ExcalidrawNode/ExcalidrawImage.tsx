@@ -1,11 +1,32 @@
 "use client";
 
+import { $TodoxId } from "@beep/identity/packages";
+import { makeRunClientPromise, useRuntime } from "@beep/runtime-client";
+import { noOp } from "@beep/utils";
 import { exportToSvg } from "@excalidraw/excalidraw";
 import type { ExcalidrawElement, NonDeleted } from "@excalidraw/excalidraw/element/types";
 import type { AppState, BinaryFiles } from "@excalidraw/excalidraw/types";
+import * as A from "effect/Array";
+import * as Effect from "effect/Effect";
+import * as F from "effect/Function";
+import * as O from "effect/Option";
+import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import type * as React from "react";
 import type { JSX } from "react";
 import { useEffect, useState } from "react";
+
+const $I = $TodoxId.create("app/lexical/nodes/ExcalidrawNode/ExcalidrawImage");
+
+class ExportToSvgError extends S.TaggedError<ExportToSvgError>($I`ExportToSvgError`)(
+  "ExportToSvgError",
+  {
+    cause: S.Defect,
+  },
+  $I.annotations("ExportToSvgError", {
+    description: "An error which occurred while trying to export an svg in excalidraw",
+  })
+) {}
 
 type ImageType = "svg" | "canvas";
 
@@ -59,12 +80,29 @@ const removeStyleFromSvg_HACK = (svg: SVGElement) => {
   // We want to match the real size of the SVG element
   const viewBox = svg.getAttribute("viewBox");
   if (viewBox != null) {
-    const viewBoxDimensions = viewBox.split(" ");
-    svg.setAttribute("width", viewBoxDimensions[2]!);
-    svg.setAttribute("height", viewBoxDimensions[3]!);
+    const viewBoxDimensions = Str.split(" ")(viewBox);
+    const widthOpt = A.get(2)(viewBoxDimensions);
+    const heightOpt = A.get(3)(viewBoxDimensions);
+
+    widthOpt.pipe(
+      O.match({
+        onNone: noOp,
+        onSome: (width) => {
+          svg.setAttribute("width", width);
+        },
+      })
+    );
+    heightOpt.pipe(
+      O.match({
+        onNone: noOp,
+        onSome: (height) => {
+          svg.setAttribute("height", height);
+        },
+      })
+    );
   }
 
-  if (styleTag && styleTag.tagName === "style") {
+  if (styleTag?.tagName === "style") {
     styleTag.remove();
   }
 };
@@ -82,23 +120,41 @@ export default function ExcalidrawImage({
   width = "inherit",
   height = "inherit",
 }: Props): JSX.Element {
+  const runtime = useRuntime();
+  const runPromise = makeRunClientPromise(runtime);
+
+  const exportToSvgEffect = F.pipe(
+    Effect.tryPromise({
+      try: () =>
+        exportToSvg({
+          appState,
+          elements,
+          files,
+        }),
+      catch: (cause) =>
+        new ExportToSvgError({
+          cause,
+        }),
+    }),
+    Effect.flatMap(S.decodeUnknown(S.instanceOf(SVGElement))),
+    Effect.andThen((svg) =>
+      Effect.gen(function* () {
+        removeStyleFromSvg_HACK(svg);
+        svg.setAttribute("width", "100%");
+        svg.setAttribute("height", "100%");
+        svg.setAttribute("display", "block");
+        setSvg(svg);
+      })
+    ),
+    Effect.tapError((e) => Effect.logWarning(`Failed to export svg for excalidraw image: ${e}`)),
+    Effect.catchTags({
+      ParseError: Effect.die,
+    })
+  );
   const [Svg, setSvg] = useState<SVGElement | null>(null);
 
   useEffect(() => {
-    const setContent = async () => {
-      const svg: SVGElement = await exportToSvg({
-        appState,
-        elements,
-        files,
-      });
-      removeStyleFromSvg_HACK(svg);
-
-      svg.setAttribute("width", "100%");
-      svg.setAttribute("height", "100%");
-      svg.setAttribute("display", "block");
-
-      setSvg(svg);
-    };
+    const setContent = async () => runPromise(exportToSvgEffect);
     void setContent();
   }, [elements, files, appState]);
 

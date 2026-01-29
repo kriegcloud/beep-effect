@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@beep/todox/lib/utils";
-import { ArrowDownIcon } from "lucide-react";
+import { ArrowDownIcon } from "@phosphor-icons/react";
 import type { ComponentProps } from "react";
 import { useCallback } from "react";
 import { StickToBottom, useStickToBottomContext } from "use-stick-to-bottom";

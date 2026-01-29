@@ -19,15 +19,48 @@ import {
   getCodeThemeOptions as getCodeThemeOptionsShiki,
   normalizeCodeLanguage as normalizeCodeLanguageShiki,
 } from "@lexical/code-shiki";
+import { INSERT_HORIZONTAL_RULE_COMMAND } from "@lexical/extension";
 import { $isLinkNode, TOGGLE_LINK_COMMAND } from "@lexical/link";
 import { $isListNode, ListNode } from "@lexical/list";
 import { INSERT_EMBED_COMMAND } from "@lexical/react/LexicalAutoEmbedPlugin";
-import { INSERT_HORIZONTAL_RULE_COMMAND } from "@lexical/react/LexicalHorizontalRuleNode";
 import { $isHeadingNode } from "@lexical/rich-text";
 import { $getSelectionStyleValueForProperty, $isParentElementRTL, $patchStyleText } from "@lexical/selection";
 import { $isTableNode, $isTableSelection } from "@lexical/table";
 import { $findMatchingParent, $getNearestNodeOfType, $isEditorIsNestedEditor, mergeRegister } from "@lexical/utils";
-import { CaretDownIcon } from "@phosphor-icons/react";
+import {
+  CalendarIcon,
+  CaretDownIcon,
+  CaretRightIcon,
+  ChartBarIcon,
+  CodeIcon,
+  ColumnsIcon,
+  ImageIcon,
+  LinkIcon,
+  ListBulletsIcon,
+  ListChecksIcon,
+  ListNumbersIcon,
+  MathOperationsIcon,
+  MinusIcon,
+  NoteIcon,
+  PencilIcon,
+  PlusIcon,
+  QuotesIcon,
+  SplitHorizontalIcon,
+  TableIcon,
+  TextAlignCenterIcon,
+  TextAlignJustifyIcon,
+  TextAlignLeftIcon,
+  TextAlignRightIcon,
+  TextHFiveIcon,
+  TextHFourIcon,
+  TextHOneIcon,
+  TextHSixIcon,
+  TextHThreeIcon,
+  TextHTwoIcon,
+  TextIndentIcon,
+  TextOutdentIcon,
+  TextTIcon,
+} from "@phosphor-icons/react";
 import {
   $addUpdateTag,
   $getNodeByKey,
@@ -63,6 +96,7 @@ import { $createStickyNode } from "../../nodes/StickyNode";
 
 import { getSelectedNode } from "../../utils/getSelectedNode";
 import { sanitizeUrl } from "../../utils/url";
+import { AiToolbarButton } from "../AiAssistantPlugin/components/AiToolbarButton";
 import { EmbedConfigs } from "../AutoEmbedPlugin";
 import { INSERT_COLLAPSIBLE_COMMAND } from "../CollapsiblePlugin";
 import { INSERT_DATETIME_COMMAND } from "../DateTimePlugin";
@@ -94,6 +128,22 @@ import {
 const rootTypeToRootName = {
   root: "Root",
   table: "Table",
+};
+
+// Map block types to Phosphor icons
+const blockTypeToIcon: Record<string, JSX.Element> = {
+  paragraph: <TextTIcon className="size-4" />,
+  h1: <TextHOneIcon className="size-4" />,
+  h2: <TextHTwoIcon className="size-4" />,
+  h3: <TextHThreeIcon className="size-4" />,
+  h4: <TextHFourIcon className="size-4" />,
+  h5: <TextHFiveIcon className="size-4" />,
+  h6: <TextHSixIcon className="size-4" />,
+  number: <ListNumbersIcon className="size-4" />,
+  bullet: <ListBulletsIcon className="size-4" />,
+  check: <ListChecksIcon className="size-4" />,
+  quote: <QuotesIcon className="size-4" />,
+  code: <CodeIcon className="size-4" />,
 };
 
 const CODE_LANGUAGE_OPTIONS_PRISM: [string, string][] = getCodeLanguageOptionsPrism().filter((option) =>
@@ -167,39 +217,39 @@ const CODE_THEME_OPTIONS_SHIKI: [string, string][] = getCodeThemeOptionsShiki().
 
 const ELEMENT_FORMAT_OPTIONS: {
   [key in Exclude<ElementFormatType, "">]: {
-    icon: string;
-    iconRTL: string;
+    icon: JSX.Element;
+    iconRTL: JSX.Element;
     name: string;
   };
 } = {
   center: {
-    icon: "center-align",
-    iconRTL: "center-align",
+    icon: <TextAlignCenterIcon className="size-4" />,
+    iconRTL: <TextAlignCenterIcon className="size-4" />,
     name: "Center Align",
   },
   end: {
-    icon: "right-align",
-    iconRTL: "left-align",
+    icon: <TextAlignRightIcon className="size-4" />,
+    iconRTL: <TextAlignLeftIcon className="size-4" />,
     name: "End Align",
   },
   justify: {
-    icon: "justify-align",
-    iconRTL: "justify-align",
+    icon: <TextAlignJustifyIcon className="size-4" />,
+    iconRTL: <TextAlignJustifyIcon className="size-4" />,
     name: "Justify Align",
   },
   left: {
-    icon: "left-align",
-    iconRTL: "left-align",
+    icon: <TextAlignLeftIcon className="size-4" />,
+    iconRTL: <TextAlignLeftIcon className="size-4" />,
     name: "Left Align",
   },
   right: {
-    icon: "right-align",
-    iconRTL: "right-align",
+    icon: <TextAlignRightIcon className="size-4" />,
+    iconRTL: <TextAlignRightIcon className="size-4" />,
     name: "Right Align",
   },
   start: {
-    icon: "left-align",
-    iconRTL: "right-align",
+    icon: <TextAlignLeftIcon className="size-4" />,
+    iconRTL: <TextAlignRightIcon className="size-4" />,
     name: "Start Align",
   },
 };
@@ -214,7 +264,6 @@ function dropDownActiveClass(active: boolean) {
 function BlockFormatDropDown({
   editor,
   blockType,
-  rootType,
   disabled = false,
 }: {
   blockType: keyof typeof blockTypeToBlockName;
@@ -232,18 +281,18 @@ function BlockFormatDropDown({
           aria-label="Formatting options for text style"
           className={cn("gap-1", "toolbar-item block-controls")}
         >
-          <span className={`icon block-type ${blockType}`} />
+          {blockTypeToIcon[blockType] || <TextTIcon className="size-4" />}
           <span className="text dropdown-button-text">{blockTypeToBlockName[blockType]}</span>
           <CaretDownIcon className="size-3 opacity-50" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" sideOffset={4} className="min-w-40 !bg-white !text-black">
+      <DropdownMenuContent align="start" sideOffset={4} className="min-w-40">
         <DropdownMenuItem
           className={cn("cursor-pointer", `item wide ${dropDownActiveClass(blockType === "paragraph")}`)}
           onClick={() => formatParagraph(editor)}
         >
           <div className="icon-text-container">
-            <i className="icon paragraph" />
+            <TextTIcon className="size-4" />
             <span className="text">Normal</span>
           </div>
           <span className="shortcut">{SHORTCUTS.NORMAL}</span>
@@ -253,7 +302,7 @@ function BlockFormatDropDown({
           onClick={() => formatHeading(editor, blockType, "h1")}
         >
           <div className="icon-text-container">
-            <i className="icon h1" />
+            <TextHOneIcon className="size-4" />
             <span className="text">Heading 1</span>
           </div>
           <span className="shortcut">{SHORTCUTS.HEADING1}</span>
@@ -263,7 +312,7 @@ function BlockFormatDropDown({
           onClick={() => formatHeading(editor, blockType, "h2")}
         >
           <div className="icon-text-container">
-            <i className="icon h2" />
+            <TextHTwoIcon className="size-4" />
             <span className="text">Heading 2</span>
           </div>
           <span className="shortcut">{SHORTCUTS.HEADING2}</span>
@@ -273,7 +322,7 @@ function BlockFormatDropDown({
           onClick={() => formatHeading(editor, blockType, "h3")}
         >
           <div className="icon-text-container">
-            <i className="icon h3" />
+            <TextHThreeIcon className="size-4" />
             <span className="text">Heading 3</span>
           </div>
           <span className="shortcut">{SHORTCUTS.HEADING3}</span>
@@ -283,7 +332,7 @@ function BlockFormatDropDown({
           onClick={() => formatNumberedList(editor, blockType)}
         >
           <div className="icon-text-container">
-            <i className="icon numbered-list" />
+            <ListNumbersIcon className="size-4" />
             <span className="text">Numbered List</span>
           </div>
           <span className="shortcut">{SHORTCUTS.NUMBERED_LIST}</span>
@@ -293,7 +342,7 @@ function BlockFormatDropDown({
           onClick={() => formatBulletList(editor, blockType)}
         >
           <div className="icon-text-container">
-            <i className="icon bullet-list" />
+            <ListBulletsIcon className="size-4" />
             <span className="text">Bullet List</span>
           </div>
           <span className="shortcut">{SHORTCUTS.BULLET_LIST}</span>
@@ -303,7 +352,7 @@ function BlockFormatDropDown({
           onClick={() => formatCheckList(editor, blockType)}
         >
           <div className="icon-text-container">
-            <i className="icon check-list" />
+            <ListChecksIcon className="size-4" />
             <span className="text">Check List</span>
           </div>
           <span className="shortcut">{SHORTCUTS.CHECK_LIST}</span>
@@ -313,7 +362,7 @@ function BlockFormatDropDown({
           onClick={() => formatQuote(editor, blockType)}
         >
           <div className="icon-text-container">
-            <i className="icon quote" />
+            <QuotesIcon className="size-4" />
             <span className="text">Quote</span>
           </div>
           <span className="shortcut">{SHORTCUTS.QUOTE}</span>
@@ -323,7 +372,7 @@ function BlockFormatDropDown({
           onClick={() => formatCode(editor, blockType)}
         >
           <div className="icon-text-container">
-            <i className="icon code" />
+            <CodeIcon className="size-4" />
             <span className="text">Code Block</span>
           </div>
           <span className="shortcut">{SHORTCUTS.CODE_BLOCK}</span>
@@ -360,12 +409,12 @@ function ElementFormatDropdown({
           aria-label="Formatting options for text alignment"
           className={cn("gap-1", "toolbar-item spaced alignment")}
         >
-          <span className={`icon ${isRTL ? formatOption.iconRTL : formatOption.icon}`} />
+          {isRTL ? formatOption.iconRTL : formatOption.icon}
           <span className="text dropdown-button-text">{formatOption.name}</span>
           <CaretDownIcon className="size-3 opacity-50" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" sideOffset={4} className="min-w-40 !bg-white !text-black">
+      <DropdownMenuContent align="start" sideOffset={4} className="min-w-40">
         <DropdownMenuItem
           onClick={() => {
             editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, "left");
@@ -373,7 +422,7 @@ function ElementFormatDropdown({
           className={cn("cursor-pointer", "item wide")}
         >
           <div className="icon-text-container">
-            <i className="icon left-align" />
+            <TextAlignLeftIcon className="size-4" />
             <span className="text">Left Align</span>
           </div>
           <span className="shortcut">{SHORTCUTS.LEFT_ALIGN}</span>
@@ -385,7 +434,7 @@ function ElementFormatDropdown({
           className={cn("cursor-pointer", "item wide")}
         >
           <div className="icon-text-container">
-            <i className="icon center-align" />
+            <TextAlignCenterIcon className="size-4" />
             <span className="text">Center Align</span>
           </div>
           <span className="shortcut">{SHORTCUTS.CENTER_ALIGN}</span>
@@ -397,7 +446,7 @@ function ElementFormatDropdown({
           className={cn("cursor-pointer", "item wide")}
         >
           <div className="icon-text-container">
-            <i className="icon right-align" />
+            <TextAlignRightIcon className="size-4" />
             <span className="text">Right Align</span>
           </div>
           <span className="shortcut">{SHORTCUTS.RIGHT_ALIGN}</span>
@@ -409,7 +458,7 @@ function ElementFormatDropdown({
           className={cn("cursor-pointer", "item wide")}
         >
           <div className="icon-text-container">
-            <i className="icon justify-align" />
+            <TextAlignJustifyIcon className="size-4" />
             <span className="text">Justify Align</span>
           </div>
           <span className="shortcut">{SHORTCUTS.JUSTIFY_ALIGN}</span>
@@ -420,7 +469,7 @@ function ElementFormatDropdown({
           }}
           className={cn("cursor-pointer", "item wide")}
         >
-          <i className={`icon ${isRTL ? ELEMENT_FORMAT_OPTIONS.start.iconRTL : ELEMENT_FORMAT_OPTIONS.start.icon}`} />
+          {isRTL ? ELEMENT_FORMAT_OPTIONS.start.iconRTL : ELEMENT_FORMAT_OPTIONS.start.icon}
           <span className="text">Start Align</span>
         </DropdownMenuItem>
         <DropdownMenuItem
@@ -429,7 +478,7 @@ function ElementFormatDropdown({
           }}
           className={cn("cursor-pointer", "item wide")}
         >
-          <i className={`icon ${isRTL ? ELEMENT_FORMAT_OPTIONS.end.iconRTL : ELEMENT_FORMAT_OPTIONS.end.icon}`} />
+          {isRTL ? ELEMENT_FORMAT_OPTIONS.end.iconRTL : ELEMENT_FORMAT_OPTIONS.end.icon}
           <span className="text">End Align</span>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
@@ -440,7 +489,7 @@ function ElementFormatDropdown({
           className={cn("cursor-pointer", "item wide")}
         >
           <div className="icon-text-container">
-            <i className={`icon ${isRTL ? "indent" : "outdent"}`} />
+            {isRTL ? <TextIndentIcon className="size-4" /> : <TextOutdentIcon className="size-4" />}
             <span className="text">Outdent</span>
           </div>
           <span className="shortcut">{SHORTCUTS.OUTDENT}</span>
@@ -452,7 +501,7 @@ function ElementFormatDropdown({
           className={cn("cursor-pointer", "item wide")}
         >
           <div className="icon-text-container">
-            <i className={`icon ${isRTL ? "outdent" : "indent"}`} />
+            {isRTL ? <TextOutdentIcon className="size-4" /> : <TextIndentIcon className="size-4" />}
             <span className="text">Indent</span>
           </div>
           <span className="shortcut">{SHORTCUTS.INDENT}</span>
@@ -606,7 +655,7 @@ export default function ToolbarPlugin({
       updateToolbarState(
         "elementFormat",
         $isElementNode(matchingParent)
-          ? matchingParent.getFormatType()
+          ? matchingParent?.getFormatType()
           : $isElementNode(node)
             ? node.getFormatType()
             : parent?.getFormatType() || "left"
@@ -760,7 +809,7 @@ export default function ToolbarPlugin({
 
   return (
     <div className="toolbar">
-      <UndoRedoControls editor={activeEditor} />
+      <UndoRedoControls editor={activeEditor} canUndo={toolbarState.canUndo} canRedo={toolbarState.canRedo} />
       <Divider />
       {toolbarState.blockType in blockTypeToBlockName && activeEditor === editor && (
         <>
@@ -795,7 +844,7 @@ export default function ToolbarPlugin({
                   <CaretDownIcon className="size-3 opacity-50" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" sideOffset={4} className="min-w-40 !bg-white !text-black">
+              <DropdownMenuContent align="start" sideOffset={4} className="min-w-40">
                 {CODE_LANGUAGE_OPTIONS_PRISM.map(([value, name]) => {
                   return (
                     <DropdownMenuItem
@@ -834,7 +883,7 @@ export default function ToolbarPlugin({
                     <CaretDownIcon className="size-3 opacity-50" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" sideOffset={4} className="min-w-40 !bg-white !text-black">
+                <DropdownMenuContent align="start" sideOffset={4} className="min-w-40">
                   {CODE_LANGUAGE_OPTIONS_SHIKI.map(([value, name]) => {
                     return (
                       <DropdownMenuItem
@@ -866,7 +915,7 @@ export default function ToolbarPlugin({
                     <CaretDownIcon className="size-3 opacity-50" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" sideOffset={4} className="min-w-40 !bg-white !text-black">
+                <DropdownMenuContent align="start" sideOffset={4} className="min-w-40">
                   {CODE_THEME_OPTIONS_SHIKI.map(([value, name]) => {
                     return (
                       <DropdownMenuItem
@@ -899,7 +948,7 @@ export default function ToolbarPlugin({
             title={`Insert link (${SHORTCUTS.INSERT_LINK})`}
             type="button"
           >
-            <i className="format link" />
+            <LinkIcon className="size-4" />
           </button>
           <ColorPickerGroup applyStyleText={applyStyleText} disabled={!isEditable} />
           <AdvancedTextFormattingMenu editor={activeEditor} disabled={!isEditable} />
@@ -915,24 +964,24 @@ export default function ToolbarPlugin({
                     aria-label="Insert specialized editor node"
                     className={cn("gap-1", "toolbar-item spaced")}
                   >
-                    <span className="icon plus" />
+                    <PlusIcon className="size-4" />
                     <span className="text dropdown-button-text">Insert</span>
                     <CaretDownIcon className="size-3 opacity-50" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" sideOffset={4} className="min-w-40 !bg-white !text-black">
+                <DropdownMenuContent align="start" sideOffset={4} className="min-w-40">
                   <DropdownMenuItem
                     onClick={() => dispatchToolbarCommand(INSERT_HORIZONTAL_RULE_COMMAND)}
                     className={cn("cursor-pointer", "item")}
                   >
-                    <i className="icon horizontal-rule" />
+                    <MinusIcon className="size-4" />
                     <span className="text">Horizontal Rule</span>
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={() => dispatchToolbarCommand(INSERT_PAGE_BREAK)}
                     className={cn("cursor-pointer", "item")}
                   >
-                    <i className="icon page-break" />
+                    <SplitHorizontalIcon className="size-4" />
                     <span className="text">Page Break</span>
                   </DropdownMenuItem>
                   <DropdownMenuItem
@@ -943,14 +992,14 @@ export default function ToolbarPlugin({
                     }}
                     className={cn("cursor-pointer", "item")}
                   >
-                    <i className="icon image" />
+                    <ImageIcon className="size-4" />
                     <span className="text">Image</span>
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={() => dispatchToolbarCommand(INSERT_EXCALIDRAW_COMMAND)}
                     className={cn("cursor-pointer", "item")}
                   >
-                    <i className="icon diagram-2" />
+                    <PencilIcon className="size-4" />
                     <span className="text">Excalidraw</span>
                   </DropdownMenuItem>
                   <DropdownMenuItem
@@ -961,7 +1010,7 @@ export default function ToolbarPlugin({
                     }}
                     className={cn("cursor-pointer", "item")}
                   >
-                    <i className="icon table" />
+                    <TableIcon className="size-4" />
                     <span className="text">Table</span>
                   </DropdownMenuItem>
                   <DropdownMenuItem
@@ -972,7 +1021,7 @@ export default function ToolbarPlugin({
                     }}
                     className={cn("cursor-pointer", "item")}
                   >
-                    <i className="icon poll" />
+                    <ChartBarIcon className="size-4" />
                     <span className="text">Poll</span>
                   </DropdownMenuItem>
                   <DropdownMenuItem
@@ -983,7 +1032,7 @@ export default function ToolbarPlugin({
                     }}
                     className={cn("cursor-pointer", "item")}
                   >
-                    <i className="icon columns" />
+                    <ColumnsIcon className="size-4" />
                     <span className="text">Columns Layout</span>
                   </DropdownMenuItem>
                   <DropdownMenuItem
@@ -994,7 +1043,7 @@ export default function ToolbarPlugin({
                     }}
                     className={cn("cursor-pointer", "item")}
                   >
-                    <i className="icon equation" />
+                    <MathOperationsIcon className="size-4" />
                     <span className="text">Equation</span>
                   </DropdownMenuItem>
                   <DropdownMenuItem
@@ -1008,14 +1057,14 @@ export default function ToolbarPlugin({
                     }}
                     className={cn("cursor-pointer", "item")}
                   >
-                    <i className="icon sticky" />
+                    <NoteIcon className="size-4" />
                     <span className="text">Sticky Note</span>
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={() => dispatchToolbarCommand(INSERT_COLLAPSIBLE_COMMAND)}
                     className={cn("cursor-pointer", "item")}
                   >
-                    <i className="icon caret-right" />
+                    <CaretRightIcon className="size-4" />
                     <span className="text">Collapsible container</span>
                   </DropdownMenuItem>
                   <DropdownMenuItem
@@ -1026,7 +1075,7 @@ export default function ToolbarPlugin({
                     }}
                     className={cn("cursor-pointer", "item")}
                   >
-                    <i className="icon calendar" />
+                    <CalendarIcon className="size-4" />
                     <span className="text">Date</span>
                   </DropdownMenuItem>
                   {EmbedConfigs.map((embedConfig) => (
@@ -1052,6 +1101,8 @@ export default function ToolbarPlugin({
         editor={activeEditor}
         isRTL={toolbarState.isRTL}
       />
+      <Divider />
+      <AiToolbarButton disabled={!isEditable} />
 
       {modal}
     </div>

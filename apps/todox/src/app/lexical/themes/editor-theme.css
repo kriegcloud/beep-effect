@@ -11,6 +11,244 @@
  */
 
 /* =============================================================================
+   Lexical Editor Wrapper
+
+   Inherits global theme variables - no overrides needed.
+   ============================================================================= */
+
+.lexical-editor-wrapper {
+  /* Inherit global theme variables */
+  background-color: var(--background);
+  color: var(--foreground);
+  overflow-x: hidden;
+  width: 100%;
+  max-width: 100vw;
+}
+
+/* =============================================================================
+   App Layout Styles
+   ============================================================================= */
+
+.editor-shell {
+  margin: 20px auto 20px auto;
+  border-radius: 2px;
+  max-width: 1100px;
+  color: var(--foreground);
+  position: relative;
+  line-height: 1.7;
+  font-weight: 400;
+}
+
+.editor-container {
+  background: var(--card);
+  position: relative;
+  display: block;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+}
+
+.editor-container.tree-view {
+  border-radius: 0;
+}
+
+.editor-container.plain-text {
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+}
+
+.editor-scroller {
+  min-height: 150px;
+  border: 0;
+  display: flex;
+  position: relative;
+  outline: 0;
+  z-index: 0;
+  resize: vertical;
+  overflow: auto;
+}
+
+.editor {
+  flex: auto;
+  position: relative;
+  resize: vertical;
+  z-index: -1;
+}
+
+/* =============================================================================
+   TreeView Debug Panel
+   ============================================================================= */
+
+.tree-view-output {
+  display: block;
+  background: #222;
+  color: #fff;
+  padding: 5px;
+  font-size: 12px;
+  white-space: pre-wrap;
+  margin: 1px auto 10px auto;
+  max-height: 250px;
+  position: relative;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+  overflow-x: auto;
+  overflow-y: auto;
+  line-height: 14px;
+}
+
+.debug-timetravel-panel {
+  overflow: hidden;
+  padding: 0 0 10px 0;
+  margin: auto;
+  display: flex;
+}
+
+.debug-timetravel-panel-slider {
+  padding: 0;
+  flex: 8;
+}
+
+.debug-timetravel-panel-button {
+  padding: 0;
+  border: 0;
+  background: none;
+  flex: 1;
+  color: #fff;
+  font-size: 12px;
+}
+
+.debug-timetravel-panel-button:hover {
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.debug-timetravel-button {
+  border: 0;
+  padding: 0;
+  font-size: 12px;
+  top: 10px;
+  right: 15px;
+  position: absolute;
+  background: none;
+  color: #fff;
+}
+
+.debug-timetravel-button:hover {
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.debug-treetype-button {
+  border: 0;
+  padding: 0;
+  font-size: 12px;
+  top: 10px;
+  right: 85px;
+  position: absolute;
+  background: none;
+  color: #fff;
+}
+
+.debug-treetype-button:hover {
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* =============================================================================
+   GitHub Corner
+   ============================================================================= */
+
+.github-corner {
+  border: 0;
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 200;
+}
+
+/* =============================================================================
+   Header
+   ============================================================================= */
+
+header {
+  max-width: 580px;
+  margin: auto;
+  position: relative;
+  display: flex;
+  justify-content: center;
+}
+
+header a {
+  max-width: 220px;
+}
+
+header img {
+  display: block;
+  height: 100%;
+  width: 100%;
+}
+
+/* =============================================================================
+   Toolbar
+   ============================================================================= */
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px;
+  padding: 4px 8px;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  vertical-align: middle;
+  background: var(--muted);
+  border-bottom: 1px solid var(--border);
+}
+
+.toolbar .divider {
+  width: 1px;
+  height: 24px;
+  background-color: var(--border);
+  margin: 0 4px;
+}
+
+.toolbar button.toolbar-item {
+  border: 0;
+  display: flex;
+  background: none;
+  border-radius: 6px;
+  padding: 6px;
+  cursor: pointer;
+  vertical-align: middle;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+}
+
+.toolbar button.toolbar-item:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.toolbar button.toolbar-item.active {
+  background-color: var(--accent);
+}
+
+.toolbar button.toolbar-item:hover:not(:disabled) {
+  background-color: var(--accent);
+}
+
+.toolbar .dropdown-button-text {
+  display: flex;
+  line-height: 20px;
+  flex-grow: 1;
+  min-width: 84px;
+}
+
+.toolbar .code-language {
+  min-width: 100px;
+}
+
+/* =============================================================================
    Code Blocks
    ============================================================================= */
 

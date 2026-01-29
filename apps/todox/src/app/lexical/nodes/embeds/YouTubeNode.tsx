@@ -32,7 +32,12 @@ function YouTubeComponent({ className, format, nodeKey, videoID }: YouTubeCompon
         width="560"
         height="315"
         src={`https://www.youtube-nocookie.com/embed/${videoID}`}
-        border="0"
+        style={{
+          border: "none",
+          overflow: "hidden",
+          padding: 0,
+          margin: 0,
+        }}
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
         allowFullScreen={true}
         title="YouTube video"

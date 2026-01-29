@@ -1,5 +1,9 @@
+import * as A from "effect/Array";
 import * as Either from "effect/Either";
+import * as Eq from "effect/Equal";
+import * as F from "effect/Function";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import {
   $getState,
   $setState,
@@ -15,7 +19,6 @@ import {
 } from "lexical";
 import type { JSX } from "react";
 import * as React from "react";
-
 import type { Option, Options } from "./poll-utils";
 
 // Re-export types and functions from utils for backwards compatibility
@@ -34,8 +37,8 @@ function cloneOption(option: Option, text: string, votes?: undefined | Array<str
 
 export type SerializedPollNode = Spread<
   {
-    question: string;
-    options: Options;
+    readonly question: string;
+    readonly options: Options;
   },
   SerializedLexicalNode
 >;
@@ -59,10 +62,10 @@ function parseOptions(json: unknown): Options {
     for (const row of json) {
       if (
         row &&
-        typeof row.text === "string" &&
-        typeof row.uid === "string" &&
-        Array.isArray(row.votes) &&
-        row.votes.every((v: unknown) => typeof v === "string")
+        P.isString(row.text) &&
+        P.isString(row.uid) &&
+        A.isArray(row.votes) &&
+        A.every(row.votes, P.isString)
       ) {
         options.push(row);
       }
@@ -72,10 +75,18 @@ function parseOptions(json: unknown): Options {
 }
 
 const questionState = createState("question", {
-  parse: (v) => (typeof v === "string" ? v : ""),
+  parse: F.flow(
+    O.liftPredicate(P.isString),
+    O.getOrElse(() => "")
+  ),
 });
 const optionsState = createState("options", {
-  isEqual: (a, b) => a.length === b.length && JSON.stringify(a) === JSON.stringify(b),
+  isEqual: (a, b) =>
+    Eq.equals(A.length(a))(A.length(b)) &&
+    Either.try({
+      try: () => JSON.stringify(a) === JSON.stringify(b),
+      catch: () => false,
+    }).pipe(Either.isRight),
   parse: parseOptions,
 });
 

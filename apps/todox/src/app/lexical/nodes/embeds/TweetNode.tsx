@@ -4,6 +4,7 @@ import { makeRunClientPromise, useRuntime } from "@beep/runtime-client";
 import { BlockWithAlignableContents } from "@lexical/react/LexicalBlockWithAlignableContents";
 import { DecoratorBlockNode, type SerializedDecoratorBlockNode } from "@lexical/react/LexicalDecoratorBlockNode";
 import * as Effect from "effect/Effect";
+import * as O from "effect/Option";
 import type {
   DOMConversionMap,
   DOMConversionOutput,
@@ -45,28 +46,17 @@ function $convertTweetElement(domNode: HTMLDivElement): DOMConversionOutput | nu
 
 let isTwitterScriptLoading = true;
 
-// Twitter widget types
-declare global {
-  interface Window {
-    twttr?: {
-      widgets: {
-        createTweet: (tweetId: string, container: HTMLElement | null) => Promise<unknown>;
-      };
-    };
-  }
-}
-
 const createTweetWidget = Effect.fn("createTweetWidget")(function* (tweetID: string, container: HTMLElement | null) {
-  if (!window.twttr) {
-    return yield* Effect.fail(
-      new TwitterError({
-        message: "Twitter widgets not loaded",
-      })
-    );
-  }
+  const twttr = O.fromNullable(window.twttr).pipe(
+    O.getOrThrowWith(
+      () =>
+        new TwitterError({
+          message: "Twitter widgets not loaded",
+        })
+    )
+  );
   return yield* Effect.tryPromise({
-    // @ts-expect-error Twitter is attached to the window.
-    try: () => window.twttr.widgets.createTweet(tweetID, container),
+    try: () => twttr.widgets.createTweet(tweetID, container),
     catch: (cause) =>
       new TwitterError({
         message: "Failed to create tweet widget",
@@ -210,7 +200,7 @@ export class TweetNode extends DecoratorBlockNode {
     return `https://x.com/i/web/status/${this.__id}`;
   }
 
-  override decorate(editor: LexicalEditor, config: EditorConfig): JSX.Element {
+  override decorate(_editor: LexicalEditor, config: EditorConfig): JSX.Element {
     const embedBlockTheme = config.theme.embedBlock || {};
     const className = {
       base: embedBlockTheme.base || "",

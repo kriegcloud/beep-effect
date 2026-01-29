@@ -1,10 +1,11 @@
 "use client";
 
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
+import * as A from "effect/Array";
+import * as Str from "effect/String";
 import { COMMAND_PRIORITY_NORMAL, PASTE_COMMAND } from "lexical";
 import type { JSX } from "react";
 import { useEffect, useState } from "react";
-
 export default function PasteLogPlugin(): JSX.Element {
   const [editor] = useLexicalComposerContext();
   const [isActive, setIsActive] = useState(false);
@@ -15,13 +16,13 @@ export default function PasteLogPlugin(): JSX.Element {
         PASTE_COMMAND,
         (e: ClipboardEvent) => {
           const { clipboardData } = e;
-          const allData: string[] = [];
+          const allData = A.empty<string>();
           if (clipboardData?.types) {
-            clipboardData.types.forEach((type) => {
-              allData.push(type.toUpperCase(), clipboardData.getData(type));
+            A.forEach(clipboardData.types, (type) => {
+              allData.push(Str.toUpperCase(type), clipboardData.getData(type));
             });
           }
-          setLastClipboardData(allData.join("\n\n"));
+          setLastClipboardData(A.join("\n\n")(allData));
           return false;
         },
         COMMAND_PRIORITY_NORMAL

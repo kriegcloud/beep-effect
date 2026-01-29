@@ -33,7 +33,8 @@ import {
   type TableSelection,
 } from "@lexical/table";
 import { mergeRegister } from "@lexical/utils";
-import { CaretDownIcon } from "@phosphor-icons/react";
+import { ArrowLineDownIcon, ArrowLineUpIcon, ArrowsVerticalIcon, CaretDownIcon } from "@phosphor-icons/react";
+import * as P from "effect/Predicate";
 import type { ElementNode, LexicalEditor } from "lexical";
 import {
   $getSelection,
@@ -49,7 +50,6 @@ import {
 import type { JSX } from "react";
 import { type ReactPortal, useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-
 import useModal from "../../hooks/useModal";
 import ColorPicker from "../../ui/ColorPicker";
 
@@ -83,7 +83,7 @@ function $selectLastDescendant(node: ElementNode): void {
     lastDescendant.select();
   } else if ($isElementNode(lastDescendant)) {
     lastDescendant.selectEnd();
-  } else if (lastDescendant !== null) {
+  } else if (P.isNotNull(lastDescendant)) {
     lastDescendant.selectNext();
   }
 }
@@ -165,7 +165,7 @@ function TableActionMenu({
     const dropDownElement = dropDownRef.current;
     const rootElement = editor.getRootElement();
 
-    if (menuButtonElement != null && dropDownElement != null && rootElement != null) {
+    if (P.isNotNullable(menuButtonElement) && P.isNotNullable(dropDownElement) && P.isNotNullable(rootElement)) {
       const rootEleRect = rootElement.getBoundingClientRect();
       const menuButtonRect = menuButtonElement.getBoundingClientRect();
       dropDownElement.style.opacity = "1";
@@ -193,8 +193,8 @@ function TableActionMenu({
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (
-        dropDownRef.current != null &&
-        contextRef.current != null &&
+        P.isNotNullable(dropDownRef.current) &&
+        P.isNotNullable(contextRef.current) &&
         isDOMNode(event.target) &&
         !dropDownRef.current.contains(event.target) &&
         !contextRef.current.contains(event.target)
@@ -214,12 +214,12 @@ function TableActionMenu({
         const tableNode = $getTableNodeFromLexicalNodeOrThrow(tableCellNode);
         const tableElement = getTableElement(tableNode, editor.getElementByKey(tableNode.getKey()));
 
-        if (tableElement === null) {
+        if (P.isNull(tableElement)) {
           return;
         }
 
         const tableObserver = getTableObserverFromTableElement(tableElement);
-        if (tableObserver !== null) {
+        if (P.isNotNull(tableObserver)) {
           tableObserver.$clearHighlight();
         }
 
@@ -510,7 +510,7 @@ function TableActionMenu({
             <CaretDownIcon className="size-3 opacity-50" />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="start" sideOffset={4} className="min-w-40 !bg-white !text-black">
+        <DropdownMenuContent align="start" sideOffset={4} className="min-w-40">
           <DropdownMenuItem
             onClick={() => {
               formatVerticalAlign("top");
@@ -518,7 +518,7 @@ function TableActionMenu({
             className={cn("cursor-pointer", "item wide")}
           >
             <div className="icon-text-container">
-              <i className="icon vertical-top" />
+              <ArrowLineUpIcon className="size-4" />
               <span className="text">Top Align</span>
             </div>
           </DropdownMenuItem>
@@ -529,7 +529,7 @@ function TableActionMenu({
             className={cn("cursor-pointer", "item wide")}
           >
             <div className="icon-text-container">
-              <i className="icon vertical-middle" />
+              <ArrowsVerticalIcon className="size-4" />
               <span className="text">Middle Align</span>
             </div>
           </DropdownMenuItem>
@@ -540,7 +540,7 @@ function TableActionMenu({
             className={cn("cursor-pointer", "item wide")}
           >
             <div className="icon-text-container">
-              <i className="icon vertical-bottom" />
+              <ArrowLineDownIcon className="size-4" />
               <span className="text">Bottom Align</span>
             </div>
           </DropdownMenuItem>

@@ -1,6 +1,7 @@
 "use client";
 
 import { addClassNamesToElement } from "@lexical/utils";
+import * as S from "effect/Schema";
 import type {
   DOMConversionMap,
   DOMConversionOutput,
@@ -13,7 +14,6 @@ import type {
   Spread,
 } from "lexical";
 import { ElementNode } from "lexical";
-
 export type SerializedLayoutContainerNode = Spread<
   {
     readonly templateColumns: string;
@@ -125,5 +125,5 @@ export function $createLayoutContainerNode(templateColumns = ""): LayoutContaine
 }
 
 export function $isLayoutContainerNode(node: LexicalNode | null | undefined): node is LayoutContainerNode {
-  return node instanceof LayoutContainerNode;
+  return S.is(S.instanceOf(LayoutContainerNode))(node);
 }

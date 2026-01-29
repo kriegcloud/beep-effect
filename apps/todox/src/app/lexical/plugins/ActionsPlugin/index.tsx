@@ -3,8 +3,11 @@
 import { $TodoxId } from "@beep/identity/packages";
 import { makeAtomRuntime, makeRunClientPromise, useRuntime } from "@beep/runtime-client";
 import { SerializedDocument, SerializedEditorState } from "@beep/todox/app/lexical/schema";
+import { Button } from "@beep/todox/components/ui/button";
+import { Toggle } from "@beep/todox/components/ui/toggle";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@beep/todox/components/ui/tooltip";
+import { cn } from "@beep/todox/lib/utils";
 import { withToast } from "@beep/ui/common";
-import { Button } from "@beep/ui/components/button";
 import * as FetchHttpClient from "@effect/platform/FetchHttpClient";
 import * as HttpClient from "@effect/platform/HttpClient";
 import * as HttpClientRequest from "@effect/platform/HttpClientRequest";
@@ -23,6 +26,20 @@ import { useCollaborationContext } from "@lexical/react/LexicalCollaborationCont
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { mergeRegister } from "@lexical/utils";
 import { CONNECTED_COMMAND, TOGGLE_CONNECT_COMMAND } from "@lexical/yjs";
+import {
+  ClockCounterClockwiseIcon,
+  DownloadSimpleIcon,
+  LockIcon,
+  LockOpenIcon,
+  MarkdownLogoIcon,
+  MicrophoneIcon,
+  PlugIcon,
+  PlugsConnectedIcon,
+  ShareIcon,
+  TrashIcon,
+  UploadSimpleIcon,
+} from "@phosphor-icons/react";
+import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
 import * as Layer from "effect/Layer";
@@ -212,7 +229,7 @@ export default function ActionsPlugin({
   }, [editor]);
 
   useEffect(() => {
-    return editor.registerUpdateListener(({ dirtyElements, prevEditorState, tags }) => {
+    return editor.registerUpdateListener(({ dirtyElements, tags }) => {
       // If we are in read only mode, send the editor state
       // to server and ask for validation if possible.
       if (!isEditable && dirtyElements.size > 0 && !tags.has(HISTORIC_TAG) && !tags.has(COLLABORATION_TAG)) {
@@ -264,129 +281,197 @@ export default function ActionsPlugin({
   }, [editor, shouldPreserveNewLinesInMarkdown]);
 
   return (
-    <div className="actions">
+    <div className="absolute bottom-0 right-0 m-2.5 flex items-center gap-1">
+      {/* Speech-to-Text Toggle */}
       {SUPPORT_SPEECH_RECOGNITION && (
-        <button
-          type={"button"}
-          onClick={() => {
-            editor.dispatchCommand(SPEECH_TO_TEXT_COMMAND, !isSpeechToText);
-            setIsSpeechToText(!isSpeechToText);
-          }}
-          className={`action-button action-button-mic ${isSpeechToText ? "active" : ""}`}
-          title="Speech To Text"
-          aria-label={`${isSpeechToText ? "Enable" : "Disable"} speech to text`}
-        >
-          <i className="mic" />
-        </button>
+        <Tooltip>
+          <TooltipTrigger
+            render={
+              <Toggle
+                pressed={isSpeechToText}
+                onPressedChange={(pressed) => {
+                  editor.dispatchCommand(SPEECH_TO_TEXT_COMMAND, pressed);
+                  setIsSpeechToText(pressed);
+                }}
+                size="sm"
+                aria-label={`${isSpeechToText ? "Disable" : "Enable"} speech to text`}
+                className={cn(
+                  isSpeechToText && "animate-pulse bg-red-200 text-red-700 dark:bg-red-900/50 dark:text-red-300"
+                )}
+              >
+                <MicrophoneIcon className="size-4" />
+              </Toggle>
+            }
+          />
+          <TooltipContent>Speech to Text</TooltipContent>
+        </Tooltip>
       )}
-      <button
-        type="button"
-        className="action-button import"
-        onClick={() => importFile(editor)}
-        title="Import"
-        aria-label="Import editor state from JSON"
-      >
-        <i className="import" />
-      </button>
 
-      <button
-        type="button"
-        className="action-button export"
-        onClick={() =>
-          exportFile(editor, {
-            fileName: `Playground ${new Date().toISOString()}`,
-            source: "Playground",
-          })
-        }
-        title="Export"
-        aria-label="Export editor state to JSON"
-      >
-        <i className="export" />
-      </button>
-      <button
-        type="button"
-        className="action-button share"
-        disabled={isCollabActive || INITIAL_SETTINGS.isCollab}
-        onClick={() =>
-          runClientPromise(
-            shareDoc(
-              serializedDocumentFromEditorState(editor.getEditorState(), {
-                source: "Playground",
-              })
-            ).pipe(
-              Effect.tap(() => Effect.succeed(showFlashMessage("URL copied to clipboard"))),
-              Effect.mapError((e) =>
-                P.isTagged("ClipboardError")(e)
-                  ? Effect.sync(() => showFlashMessage("URL could not be copied to clipboard"))
-                  : Effect.die(e)
-              )
-            )
-          )
-        }
-        title="Share"
-        aria-label="Share Playground link to current editor state"
-      >
-        <i className="share" />
-      </button>
-      <button
-        type="button"
-        className="action-button clear"
-        disabled={isEditorEmpty}
-        onClick={() => {
-          showModal("Clear editor", (onClose) => <ShowClearDialog editor={editor} onClose={onClose} />);
-        }}
-        title="Clear"
-        aria-label="Clear editor contents"
-      >
-        <i className="clear" />
-      </button>
-      <button
-        type="button"
-        className={`action-button ${!isEditable ? "unlock" : "lock"}`}
-        onClick={() => {
-          // Send latest editor state to commenting validation server
-          if (isEditable) {
-            sendEditorState(editor);
+      {/* Import */}
+      <Tooltip>
+        <TooltipTrigger
+          render={
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              onClick={() => importFile(editor)}
+              aria-label="Import editor state from JSON"
+            >
+              <UploadSimpleIcon className="size-4" />
+            </Button>
           }
-          editor.setEditable(!editor.isEditable());
-        }}
-        title="Read-Only Mode"
-        aria-label={`${!isEditable ? "Unlock" : "Lock"} read-only mode`}
-      >
-        <i className={!isEditable ? "unlock" : "lock"} />
-      </button>
-      <button
-        type="button"
-        className="action-button"
-        onClick={handleMarkdownToggle}
-        title="Convert From Markdown"
-        aria-label="Convert from markdown"
-      >
-        <i className="markdown" />
-      </button>
+        />
+        <TooltipContent>Import</TooltipContent>
+      </Tooltip>
+
+      {/* Export */}
+      <Tooltip>
+        <TooltipTrigger
+          render={
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              onClick={() =>
+                exportFile(editor, {
+                  fileName: `Playground ${DateTime.unsafeNow().pipe(DateTime.formatIso)}`,
+                  source: "Playground",
+                })
+              }
+              aria-label="Export editor state to JSON"
+            >
+              <DownloadSimpleIcon className="size-4" />
+            </Button>
+          }
+        />
+        <TooltipContent>Export</TooltipContent>
+      </Tooltip>
+
+      {/* Share */}
+      <Tooltip>
+        <TooltipTrigger
+          render={
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              disabled={isCollabActive || INITIAL_SETTINGS.isCollab}
+              onClick={() =>
+                runClientPromise(
+                  shareDoc(
+                    serializedDocumentFromEditorState(editor.getEditorState(), {
+                      source: "Playground",
+                    })
+                  ).pipe(
+                    Effect.tap(() => Effect.succeed(showFlashMessage("URL copied to clipboard"))),
+                    Effect.mapError((e) =>
+                      P.isTagged("ClipboardError")(e)
+                        ? Effect.sync(() => showFlashMessage("URL could not be copied to clipboard"))
+                        : Effect.die(e)
+                    )
+                  )
+                )
+              }
+              aria-label="Share Playground link to current editor state"
+            >
+              <ShareIcon className="size-4" />
+            </Button>
+          }
+        />
+        <TooltipContent>Share</TooltipContent>
+      </Tooltip>
+
+      {/* Clear */}
+      <Tooltip>
+        <TooltipTrigger
+          render={
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              disabled={isEditorEmpty}
+              onClick={() => {
+                showModal("Clear editor", (onClose) => <ShowClearDialog editor={editor} onClose={onClose} />);
+              }}
+              aria-label="Clear editor contents"
+            >
+              <TrashIcon className="size-4" />
+            </Button>
+          }
+        />
+        <TooltipContent>Clear</TooltipContent>
+      </Tooltip>
+
+      {/* Lock/Unlock (Read-Only Mode) */}
+      <Tooltip>
+        <TooltipTrigger
+          render={
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              onClick={() => {
+                if (isEditable) {
+                  sendEditorState(editor);
+                }
+                editor.setEditable(!editor.isEditable());
+              }}
+              aria-label={`${!isEditable ? "Unlock" : "Lock"} read-only mode`}
+            >
+              {!isEditable ? <LockOpenIcon className="size-4" /> : <LockIcon className="size-4" />}
+            </Button>
+          }
+        />
+        <TooltipContent>{!isEditable ? "Unlock Editor" : "Lock Editor"}</TooltipContent>
+      </Tooltip>
+
+      {/* Markdown Toggle */}
+      <Tooltip>
+        <TooltipTrigger
+          render={
+            <Button variant="ghost" size="icon-sm" onClick={handleMarkdownToggle} aria-label="Convert from markdown">
+              <MarkdownLogoIcon className="size-4" />
+            </Button>
+          }
+        />
+        <TooltipContent>Markdown</TooltipContent>
+      </Tooltip>
+
+      {/* Collaboration Controls */}
       {isCollabActive && (
         <>
-          <button
-            type="button"
-            className="action-button connect"
-            onClick={() => {
-              editor.dispatchCommand(TOGGLE_CONNECT_COMMAND, !connected);
-            }}
-            title={`${connected ? "Disconnect" : "Connect"} Collaborative Editing`}
-            aria-label={`${connected ? "Disconnect from" : "Connect to"} a collaborative editing server`}
-          >
-            <i className={connected ? "disconnect" : "connect"} />
-          </button>
+          <Tooltip>
+            <TooltipTrigger
+              render={
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  onClick={() => {
+                    editor.dispatchCommand(TOGGLE_CONNECT_COMMAND, !connected);
+                  }}
+                  aria-label={`${connected ? "Disconnect from" : "Connect to"} a collaborative editing server`}
+                >
+                  {connected ? <PlugsConnectedIcon className="size-4" /> : <PlugIcon className="size-4" />}
+                </Button>
+              }
+            />
+            <TooltipContent>{connected ? "Disconnect" : "Connect"}</TooltipContent>
+          </Tooltip>
+
           {useCollabV2 && (
-            <button
-              type="button"
-              className="action-button versions"
-              onClick={() => {
-                editor.dispatchCommand(SHOW_VERSIONS_COMMAND, undefined);
-              }}
-            >
-              <i className="versions" />
-            </button>
+            <Tooltip>
+              <TooltipTrigger
+                render={
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    onClick={() => {
+                      editor.dispatchCommand(SHOW_VERSIONS_COMMAND, undefined);
+                    }}
+                    aria-label="View versions"
+                  >
+                    <ClockCounterClockwiseIcon className="size-4" />
+                  </Button>
+                }
+              />
+              <TooltipContent>Versions</TooltipContent>
+            </Tooltip>
           )}
         </>
       )}
@@ -399,9 +484,9 @@ function ShowClearDialog({ editor, onClose }: { editor: LexicalEditor; onClose: 
   return (
     <>
       Are you sure you want to clear the editor?
-      <div className="Modal__content">
+      <div className="flex gap-2 mt-4">
         <Button
-          variant="outline"
+          variant="destructive"
           onClick={() => {
             editor.dispatchCommand(CLEAR_EDITOR_COMMAND, undefined);
             editor.focus();
@@ -409,7 +494,7 @@ function ShowClearDialog({ editor, onClose }: { editor: LexicalEditor; onClose: 
           }}
         >
           Clear
-        </Button>{" "}
+        </Button>
         <Button
           variant="outline"
           onClick={() => {

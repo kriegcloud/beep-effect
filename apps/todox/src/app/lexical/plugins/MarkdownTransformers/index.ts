@@ -1,5 +1,6 @@
 "use client";
 
+import { $createHorizontalRuleNode, $isHorizontalRuleNode, HorizontalRuleNode } from "@lexical/extension";
 import {
   $convertFromMarkdownString,
   $convertToMarkdownString,
@@ -12,11 +13,6 @@ import {
   type TextMatchTransformer,
   type Transformer,
 } from "@lexical/markdown";
-import {
-  $createHorizontalRuleNode,
-  $isHorizontalRuleNode,
-  HorizontalRuleNode,
-} from "@lexical/react/LexicalHorizontalRuleNode";
 import {
   $createTableCellNode,
   $createTableNode,
@@ -66,8 +62,8 @@ export const IMAGE: TextMatchTransformer = {
 
     return `![${node.getAltText()}](${node.getSrc()})`;
   },
-  importRegExp: /!(?:\[([^[]*)\])(?:\(([^(]+)\))/,
-  regExp: /!(?:\[([^[]*)\])(?:\(([^(]+)\))$/,
+  importRegExp: /!\[([^[]*)]\(([^(]+)\)/,
+  regExp: /!\[([^[]*)]\(([^(]+)\)$/,
   replace: (textNode, match) => {
     const [, altText, src] = match;
     const imageNode = $createImageNode({
@@ -135,7 +131,7 @@ export const TWEET: ElementTransformer = {
 };
 
 // Very primitive table setup
-const TABLE_ROW_REG_EXP = /^(?:\|)(.+)(?:\|)\s?$/;
+const TABLE_ROW_REG_EXP = /^\|(.+)\|\s?$/;
 const TABLE_ROW_DIVIDER_REG_EXP = /^(\| ?:?-*:? ?)+\|\s?$/;
 
 export const TABLE: ElementTransformer = {

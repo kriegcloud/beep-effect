@@ -10,7 +10,6 @@ import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext
 import { LexicalErrorBoundary } from "@lexical/react/LexicalErrorBoundary";
 import { HashtagPlugin } from "@lexical/react/LexicalHashtagPlugin";
 import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
-import { HorizontalRulePlugin } from "@lexical/react/LexicalHorizontalRulePlugin";
 import { ListPlugin } from "@lexical/react/LexicalListPlugin";
 import { PlainTextPlugin } from "@lexical/react/LexicalPlainTextPlugin";
 import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
@@ -27,6 +26,7 @@ import { createWebsocketProvider, createWebsocketProviderWithDoc } from "./colla
 import { useSettings } from "./context/SettingsContext";
 import { useSharedHistoryContext } from "./context/SharedHistoryContext";
 import ActionsPlugin from "./plugins/ActionsPlugin";
+import { AiAssistantPlugin } from "./plugins/AiAssistantPlugin";
 import AutocompletePlugin from "./plugins/AutocompletePlugin";
 import AutoEmbedPlugin from "./plugins/AutoEmbedPlugin";
 import AutoLinkPlugin from "./plugins/AutoLinkPlugin";
@@ -56,6 +56,7 @@ import { MaxLengthPlugin } from "./plugins/MaxLengthPlugin";
 import MentionsPlugin from "./plugins/MentionsPlugin";
 import PageBreakPlugin from "./plugins/PageBreakPlugin";
 import PollPlugin from "./plugins/PollPlugin";
+import { PreserveSelectionPlugin } from "./plugins/PreserveSelectionPlugin";
 import ShortcutsPlugin from "./plugins/ShortcutsPlugin";
 import SpeechToTextPlugin from "./plugins/SpeechToTextPlugin";
 import TabFocusPlugin from "./plugins/TabFocusPlugin";
@@ -168,6 +169,8 @@ export default function Editor(): JSX.Element {
         <SpeechToTextPlugin />
         <AutoLinkPlugin />
         <DateTimePlugin />
+        <PreserveSelectionPlugin />
+        <AiAssistantPlugin />
         {!(isCollab && useCollabV2) && (
           <CommentPlugin
             providerFactory={
@@ -228,7 +231,6 @@ export default function Editor(): JSX.Element {
             <YouTubePlugin />
             <FigmaPlugin />
             <ClickableLinkPlugin disabled={isEditable} />
-            <HorizontalRulePlugin />
             <EquationsPlugin />
             <ExcalidrawPlugin />
             <TabFocusPlugin />

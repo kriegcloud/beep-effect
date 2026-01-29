@@ -1,6 +1,8 @@
 "use client";
 
 import { IS_CHROME } from "@lexical/utils";
+import * as A from "effect/Array";
+import * as S from "effect/Schema";
 import {
   $getSiblingCaret,
   $isElementNode,
@@ -18,7 +20,6 @@ import {
   type SerializedElementNode,
   type Spread,
 } from "lexical";
-
 import { setDomHiddenUntilFound } from "./CollapsibleUtils";
 
 type SerializedCollapsibleContainerNode = Spread<
@@ -56,10 +57,10 @@ export class CollapsibleContainerNode extends ElementNode {
     return true;
   }
 
-  override collapseAtStart(selection: RangeSelection): boolean {
+  override collapseAtStart(_selection: RangeSelection): boolean {
     // Unwrap the CollapsibleContainerNode by replacing it with the children
     // of its children (CollapsibleTitleNode, CollapsibleContentNode)
-    const nodesToInsert: LexicalNode[] = [];
+    const nodesToInsert = A.empty<LexicalNode>();
     for (const child of this.getChildren()) {
       if ($isElementNode(child)) {
         nodesToInsert.push(...child.getChildren());
@@ -76,7 +77,7 @@ export class CollapsibleContainerNode extends ElementNode {
     return true;
   }
 
-  override createDOM(config: EditorConfig, editor: LexicalEditor): HTMLElement {
+  override createDOM(_: EditorConfig, editor: LexicalEditor): HTMLElement {
     // details is not well supported in Chrome #5582
     let dom: HTMLElement;
     if (IS_CHROME) {
@@ -124,7 +125,7 @@ export class CollapsibleContainerNode extends ElementNode {
 
   static override importDOM(): DOMConversionMap<HTMLDetailsElement> | null {
     return {
-      details: (domNode: HTMLDetailsElement) => {
+      details: (_: HTMLDetailsElement) => {
         return {
           conversion: $convertDetailsElement,
           priority: 1,
@@ -170,5 +171,5 @@ export function $createCollapsibleContainerNode(isOpen: boolean): CollapsibleCon
 }
 
 export function $isCollapsibleContainerNode(node: LexicalNode | null | undefined): node is CollapsibleContainerNode {
-  return node instanceof CollapsibleContainerNode;
+  return S.is(S.instanceOf(CollapsibleContainerNode))(node);
 }

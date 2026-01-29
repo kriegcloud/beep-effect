@@ -1,5 +1,6 @@
+import * as F from "effect/Function";
+import * as Str from "effect/String";
 import type { LexicalNode } from "lexical";
-
 export type Options = ReadonlyArray<Option>;
 
 export type Option = Readonly<{
@@ -9,10 +10,7 @@ export type Option = Readonly<{
 }>;
 
 function createUID(): string {
-  return Math.random()
-    .toString(36)
-    .replace(/[^a-z]+/g, "")
-    .substring(0, 5);
+  return F.pipe(Math.random().toString(36), Str.replace(/[^a-z]+/g, ""), Str.substring(0, 5));
 }
 
 export function createPollOption(text = ""): Option {

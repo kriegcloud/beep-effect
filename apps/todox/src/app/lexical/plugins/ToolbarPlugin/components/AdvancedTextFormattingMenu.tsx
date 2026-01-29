@@ -12,23 +12,21 @@ import {
   DropdownMenuTrigger,
 } from "@beep/ui/components/dropdown-menu";
 import {
+  DotsThreeIcon,
+  EraserIcon,
+  HighlighterIcon,
+  TextAaIcon,
+  TextStrikethroughIcon,
+  TextSubscriptIcon,
+  TextSuperscriptIcon,
+} from "@phosphor-icons/react";
+import {
   $addUpdateTag,
   FORMAT_TEXT_COMMAND,
   type LexicalEditor,
   SKIP_DOM_SELECTION_TAG,
   type TextFormatType,
 } from "lexical";
-import {
-  ALargeSmall,
-  CaseLower,
-  CaseUpper,
-  Eraser,
-  Highlighter,
-  MoreHorizontal,
-  Strikethrough,
-  Subscript,
-  Superscript,
-} from "lucide-react";
 import type { JSX, MouseEvent } from "react";
 import { useToolbarState } from "../../../context/toolbar-context";
 import { isKeyboardInput } from "../../../utils/focusUtils";
@@ -107,7 +105,7 @@ export function AdvancedTextFormattingMenu({ editor, disabled = false }: Advance
           aria-label="Formatting options for additional text styles"
           className={cn("gap-1", "toolbar-item spaced")}
         >
-          <MoreHorizontal className="size-4" />
+          <DotsThreeIcon className="size-4" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" sideOffset={4} className="min-w-52">
@@ -116,7 +114,7 @@ export function AdvancedTextFormattingMenu({ editor, disabled = false }: Advance
           onClick={(e) => handleFormatClick("lowercase", e)}
           className={cn("cursor-pointer", isLowercase && "bg-accent")}
         >
-          <CaseLower className="size-4" />
+          <TextAaIcon className="size-4" />
           <span>Lowercase</span>
           <DropdownMenuShortcut>{SHORTCUTS.LOWERCASE}</DropdownMenuShortcut>
         </DropdownMenuItem>
@@ -124,7 +122,7 @@ export function AdvancedTextFormattingMenu({ editor, disabled = false }: Advance
           onClick={(e) => handleFormatClick("uppercase", e)}
           className={cn("cursor-pointer", isUppercase && "bg-accent")}
         >
-          <CaseUpper className="size-4" />
+          <TextAaIcon className="size-4" />
           <span>Uppercase</span>
           <DropdownMenuShortcut>{SHORTCUTS.UPPERCASE}</DropdownMenuShortcut>
         </DropdownMenuItem>
@@ -132,7 +130,7 @@ export function AdvancedTextFormattingMenu({ editor, disabled = false }: Advance
           onClick={(e) => handleFormatClick("capitalize", e)}
           className={cn("cursor-pointer", isCapitalize && "bg-accent")}
         >
-          <ALargeSmall className="size-4" />
+          <TextAaIcon className="size-4" />
           <span>Capitalize</span>
           <DropdownMenuShortcut>{SHORTCUTS.CAPITALIZE}</DropdownMenuShortcut>
         </DropdownMenuItem>
@@ -145,7 +143,7 @@ export function AdvancedTextFormattingMenu({ editor, disabled = false }: Advance
           onClick={(e) => handleFormatClick("strikethrough", e)}
           className="cursor-pointer"
         >
-          <Strikethrough className="size-4" />
+          <TextStrikethroughIcon className="size-4" />
           <span>Strikethrough</span>
           <DropdownMenuShortcut>{SHORTCUTS.STRIKETHROUGH}</DropdownMenuShortcut>
         </DropdownMenuCheckboxItem>
@@ -154,7 +152,7 @@ export function AdvancedTextFormattingMenu({ editor, disabled = false }: Advance
           onClick={(e) => handleFormatClick("subscript", e)}
           className="cursor-pointer"
         >
-          <Subscript className="size-4" />
+          <TextSubscriptIcon className="size-4" />
           <span>Subscript</span>
           <DropdownMenuShortcut>{SHORTCUTS.SUBSCRIPT}</DropdownMenuShortcut>
         </DropdownMenuCheckboxItem>
@@ -163,7 +161,7 @@ export function AdvancedTextFormattingMenu({ editor, disabled = false }: Advance
           onClick={(e) => handleFormatClick("superscript", e)}
           className="cursor-pointer"
         >
-          <Superscript className="size-4" />
+          <TextSuperscriptIcon className="size-4" />
           <span>Superscript</span>
           <DropdownMenuShortcut>{SHORTCUTS.SUPERSCRIPT}</DropdownMenuShortcut>
         </DropdownMenuCheckboxItem>
@@ -172,7 +170,7 @@ export function AdvancedTextFormattingMenu({ editor, disabled = false }: Advance
           onClick={(e) => handleFormatClick("highlight", e)}
           className="cursor-pointer"
         >
-          <Highlighter className="size-4" />
+          <HighlighterIcon className="size-4" />
           <span>Highlight</span>
         </DropdownMenuCheckboxItem>
 
@@ -180,7 +178,7 @@ export function AdvancedTextFormattingMenu({ editor, disabled = false }: Advance
 
         {/* Clear Formatting */}
         <DropdownMenuItem onClick={handleClearFormatting} className="cursor-pointer">
-          <Eraser className="size-4" />
+          <EraserIcon className="size-4" />
           <span>Clear Formatting</span>
           <DropdownMenuShortcut>{SHORTCUTS.CLEAR_FORMATTING}</DropdownMenuShortcut>
         </DropdownMenuItem>

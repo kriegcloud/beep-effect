@@ -2,10 +2,18 @@
 
 import { cn } from "@beep/todox/lib/utils";
 import { useConversation } from "@elevenlabs/react";
+import {
+  ArrowUpIcon,
+  CaretDownIcon,
+  KeyboardIcon,
+  MicrophoneIcon,
+  MicrophoneSlashIcon,
+  PhoneIcon,
+  XIcon,
+} from "@phosphor-icons/react";
 import * as A from "effect/Array";
 import * as P from "effect/Predicate";
 import * as Str from "effect/String";
-import { ArrowUpIcon, ChevronDown, Keyboard, Mic, MicOff, PhoneIcon, XIcon } from "lucide-react";
 import * as React from "react";
 import { Button } from "./button";
 import { Card } from "./card";
@@ -238,7 +246,7 @@ export const ConversationBar = React.forwardRef<HTMLDivElement, ConversationBarP
                     className={cn(isMuted ? "bg-foreground/5" : Str.empty)}
                     disabled={!isConnected}
                   >
-                    {isMuted ? <MicOff /> : <Mic />}
+                    {isMuted ? <MicrophoneSlashIcon /> : <MicrophoneIcon />}
                   </Button>
                   <Button
                     variant="ghost"
@@ -248,13 +256,13 @@ export const ConversationBar = React.forwardRef<HTMLDivElement, ConversationBarP
                     className="relative"
                     disabled={!isConnected}
                   >
-                    <Keyboard
+                    <KeyboardIcon
                       className={
                         "h-5 w-5 transform-gpu transition-all duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] " +
                         (keyboardOpen ? "scale-75 opacity-0" : "scale-100 opacity-100")
                       }
                     />
-                    <ChevronDown
+                    <CaretDownIcon
                       className={
                         "absolute inset-0 m-auto h-5 w-5 transform-gpu transition-all delay-50 duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] " +
                         (keyboardOpen ? "scale-100 opacity-100" : "scale-75 opacity-0")

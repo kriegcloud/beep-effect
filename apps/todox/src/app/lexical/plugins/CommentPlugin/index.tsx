@@ -22,6 +22,7 @@ import { PlainTextPlugin } from "@lexical/react/LexicalPlainTextPlugin";
 import { createDOMRange, createRectsFromDOMRange } from "@lexical/selection";
 import { $isRootTextContentEmpty, $rootTextContent } from "@lexical/text";
 import { mergeRegister, registerNestedElementResolver } from "@lexical/utils";
+import { ChatTextIcon } from "@phosphor-icons/react";
 import * as O from "effect/Option";
 import type { EditorState, LexicalCommand, LexicalEditor, NodeKey, RangeSelection } from "lexical";
 import {
@@ -87,7 +88,7 @@ function AddCommentBox({
   return (
     <div className="CommentPlugin_AddCommentBox" ref={boxRef}>
       <button type="button" className="CommentPlugin_AddCommentBox_button" onClick={onAddComment}>
-        <i className="icon add-comment" />
+        <ChatTextIcon className="size-4" />
       </button>
     </div>
   );
@@ -223,12 +224,11 @@ function CommentInputBox({
               container.appendChild(elem);
             }
             const color = "255, 212, 0";
-            const style = `position:absolute;top:${
+            elem.style.cssText = `position:absolute;top:${
               selectionRect.top + (window.pageYOffset || document.documentElement.scrollTop)
             }px;left:${selectionRect.left}px;height:${selectionRect.height}px;width:${
               selectionRect.width
             }px;background-color:rgba(${color}, 0.3);pointer-events:none;z-index:5;`;
-            elem.style.cssText = style;
           }
           for (let i = elementsLength - 1; i >= selectionRectsLength; i--) {
             const elem = elements[i]!;

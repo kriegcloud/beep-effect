@@ -1,6 +1,7 @@
 "use client";
 
 import { IS_CHROME } from "@lexical/utils";
+import * as S from "effect/Schema";
 import {
   type DOMConversionMap,
   type DOMConversionOutput,
@@ -11,13 +12,12 @@ import {
   type LexicalNode,
   type SerializedElementNode,
 } from "lexical";
-
 import { $isCollapsibleContainerNode } from "./CollapsibleContainerNode";
 import { domOnBeforeMatch, setDomHiddenUntilFound } from "./CollapsibleUtils";
 
 type SerializedCollapsibleContentNode = SerializedElementNode;
 
-export function $convertCollapsibleContentElement(domNode: HTMLElement): DOMConversionOutput | null {
+export function $convertCollapsibleContentElement(_: HTMLElement): DOMConversionOutput | null {
   const node = $createCollapsibleContentNode();
   return {
     node,
@@ -33,7 +33,7 @@ export class CollapsibleContentNode extends ElementNode {
     return new CollapsibleContentNode(node.__key);
   }
 
-  override createDOM(config: EditorConfig, editor: LexicalEditor): HTMLElement {
+  override createDOM(_: EditorConfig, editor: LexicalEditor): HTMLElement {
     const dom = document.createElement("div");
     dom.classList.add("Collapsible__content");
     if (IS_CHROME) {
@@ -61,7 +61,7 @@ export class CollapsibleContentNode extends ElementNode {
     return dom;
   }
 
-  override updateDOM(prevNode: this, dom: HTMLElement): boolean {
+  override updateDOM(_prevNode: this, _dom: HTMLElement): boolean {
     return false;
   }
 
@@ -100,5 +100,5 @@ export function $createCollapsibleContentNode(): CollapsibleContentNode {
 }
 
 export function $isCollapsibleContentNode(node: LexicalNode | null | undefined): node is CollapsibleContentNode {
-  return node instanceof CollapsibleContentNode;
+  return S.is(S.instanceOf(CollapsibleContentNode))(node);
 }

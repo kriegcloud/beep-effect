@@ -2,10 +2,9 @@
 
 import { Button } from "@beep/ui/components/button";
 import { IS_APPLE } from "@lexical/utils";
+import { ArrowClockwiseIcon, ArrowCounterClockwiseIcon } from "@phosphor-icons/react";
 import { $addUpdateTag, type LexicalEditor, REDO_COMMAND, SKIP_DOM_SELECTION_TAG, UNDO_COMMAND } from "lexical";
-import { Redo2, Undo2 } from "lucide-react";
 import type { JSX } from "react";
-import { useToolbarContext } from "../../../context/toolbar-context";
 import { isKeyboardInput } from "../../../utils/focusUtils";
 
 // ============================================================================
@@ -14,6 +13,8 @@ import { isKeyboardInput } from "../../../utils/focusUtils";
 
 interface UndoRedoControlsProps {
   readonly editor: LexicalEditor;
+  readonly canUndo: boolean;
+  readonly canRedo: boolean;
 }
 
 // ============================================================================
@@ -22,26 +23,22 @@ interface UndoRedoControlsProps {
 
 /**
  * Undo/Redo control buttons for the toolbar.
- * Uses toolbar context for state (canUndo, canRedo) and dispatches
- * UNDO_COMMAND/REDO_COMMAND to the provided editor.
+ * Dispatches UNDO_COMMAND/REDO_COMMAND to the provided editor.
  */
-export function UndoRedoControls({ editor }: UndoRedoControlsProps): JSX.Element {
-  const { toolbarState, activeEditor } = useToolbarContext();
-  const { canUndo, canRedo } = toolbarState;
-
+export function UndoRedoControls({ editor, canUndo, canRedo }: UndoRedoControlsProps): JSX.Element {
   // Check if the editor is editable
   const isEditable = editor.isEditable();
 
   /**
-   * Dispatch an undo/redo command to the active editor.
+   * Dispatch an undo/redo command to the editor.
    * Optionally skips DOM selection refocus for keyboard-triggered actions.
    */
   const dispatchCommand = (command: typeof UNDO_COMMAND | typeof REDO_COMMAND, skipRefocus: boolean) => {
-    activeEditor.update(() => {
+    editor.update(() => {
       if (skipRefocus) {
         $addUpdateTag(SKIP_DOM_SELECTION_TAG);
       }
-      activeEditor.dispatchCommand(command, undefined);
+      editor.dispatchCommand(command, undefined);
     });
   };
 
@@ -56,7 +53,7 @@ export function UndoRedoControls({ editor }: UndoRedoControlsProps): JSX.Element
         title={IS_APPLE ? "Undo (⌘Z)" : "Undo (Ctrl+Z)"}
         aria-label={IS_APPLE ? "Undo (⌘Z)" : "Undo (Ctrl+Z)"}
       >
-        <Undo2 className="h-4 w-4" />
+        <ArrowCounterClockwiseIcon className="h-4 w-4" />
       </Button>
       <Button
         variant="ghost"
@@ -67,7 +64,7 @@ export function UndoRedoControls({ editor }: UndoRedoControlsProps): JSX.Element
         title={IS_APPLE ? "Redo (⇧⌘Z)" : "Redo (Ctrl+Y)"}
         aria-label={IS_APPLE ? "Redo (⇧⌘Z)" : "Redo (Ctrl+Y)"}
       >
-        <Redo2 className="h-4 w-4" />
+        <ArrowClockwiseIcon className="h-4 w-4" />
       </Button>
     </>
   );

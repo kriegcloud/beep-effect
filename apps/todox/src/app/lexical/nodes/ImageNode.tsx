@@ -1,9 +1,16 @@
 "use client";
 
+import { thunkNull } from "@beep/utils";
 import { $insertGeneratedNodes } from "@lexical/clipboard";
 import { HashtagNode } from "@lexical/hashtag";
 import { $generateHtmlFromNodes, $generateNodesFromDOM } from "@lexical/html";
 import { LinkNode } from "@lexical/link";
+import * as Eq from "effect/Equal";
+import * as F from "effect/Function";
+import * as O from "effect/Option";
+import * as P from "effect/Predicate";
+import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import type {
   DOMConversionMap,
   DOMConversionOutput,
@@ -35,8 +42,8 @@ import {
 } from "lexical";
 import type { JSX } from "react";
 import * as React from "react";
-
 import { EmojiNode } from "./EmojiNode";
+import { $isCaptionEditorEmpty, $isImageNode } from "./image-utils";
 import { KeywordNode } from "./KeywordNode";
 
 const ImageComponent = React.lazy(() => import("./ImageComponent"));
@@ -53,28 +60,40 @@ export interface ImagePayload {
   captionsEnabled?: undefined | boolean;
 }
 
-function isGoogleDocCheckboxImg(img: HTMLImageElement): boolean {
-  return (
-    img.parentElement != null &&
-    img.parentElement.tagName === "LI" &&
-    img.previousSibling === null &&
-    img.getAttribute("aria-roledescription") === "checkbox"
+const isGoogleDocCheckboxImg = (img: HTMLImageElement) =>
+  P.isNotNullable(img.parentElement) &&
+  Eq.equals(img.parentElement.tagName, "LI") &&
+  P.isNull(img.previousSibling) &&
+  Eq.equals(img.getAttribute("aria-roledescription"))("checkbox");
+
+const isHTMLImageElement = S.is(S.instanceOf(HTMLImageElement));
+
+function $convertImageElement(domNode: Node): null | DOMConversionOutput {
+  return F.pipe(
+    domNode,
+    O.liftPredicate(isHTMLImageElement),
+    O.map((img) => [img, img.getAttribute("src")] as const),
+    O.flatMap(
+      O.liftPredicate(([img, src]) => !(!src || Str.startsWith("file:///")(src) || isGoogleDocCheckboxImg(img)))
+    ),
+    O.match({
+      onNone: thunkNull,
+      onSome: ([{ alt, width, height }, src]) =>
+        F.pipe(
+          src,
+          O.fromNullable,
+          O.map((src) => $createImageNode({ altText: alt, height, src, width })),
+          O.match({
+            onNone: thunkNull,
+            onSome: (node) => ({ node }),
+          })
+        ),
+    })
   );
 }
 
-function $convertImageElement(domNode: Node): null | DOMConversionOutput {
-  const img = domNode as HTMLImageElement;
-  const src = img.getAttribute("src");
-  if (!src || src.startsWith("file:///") || isGoogleDocCheckboxImg(img)) {
-    return null;
-  }
-  const { alt: altText, width, height } = img;
-  const node = $createImageNode({ altText, height, src, width });
-  return { node };
-}
-
 // Re-export from utils to maintain backwards compatibility
-export { $isCaptionEditorEmpty } from "./image-utils";
+export { $isCaptionEditorEmpty };
 
 export type SerializedImageNode = Spread<
   {
@@ -276,7 +295,7 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     const span = document.createElement("span");
     const theme = config.theme;
     const className = theme.image;
-    if (className !== undefined) {
+    if (P.isNotUndefined(className)) {
       span.className = className;
     }
     return span;
