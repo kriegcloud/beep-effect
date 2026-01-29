@@ -1,8 +1,11 @@
 "use client";
 
+import * as Str from "effect/String";
 import type { ElementFormatType, LexicalEditor } from "lexical";
 import type { JSX, ReactNode } from "react";
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+
+import { MissingContextError } from "../schema/errors";
 
 // ============================================================================
 // Constants
@@ -173,7 +176,7 @@ export function ToolbarContextProvider({
 
   // Sync font size input value when font size changes
   useEffect(() => {
-    updateToolbarState("fontSizeInputValue", selectionFontSize.slice(0, -2));
+    updateToolbarState("fontSizeInputValue", Str.slice(0, -2)(selectionFontSize));
   }, [selectionFontSize, updateToolbarState]);
 
   // Toolbar update callback
@@ -218,7 +221,7 @@ export function ToolbarContext({ children }: { readonly children: ReactNode }): 
   }, []);
 
   useEffect(() => {
-    updateToolbarState("fontSizeInputValue", selectionFontSize.slice(0, -2));
+    updateToolbarState("fontSizeInputValue", Str.slice(0, -2)(selectionFontSize));
   }, [selectionFontSize, updateToolbarState]);
 
   // Create a minimal context value for legacy usage
@@ -256,7 +259,10 @@ export function useToolbarContext(): ToolbarContextShape {
   const context = useContext(ToolbarStateContext);
 
   if (context === undefined) {
-    throw new Error("useToolbarContext must be used within a ToolbarContextProvider");
+    throw new MissingContextError({
+      message: "useToolbarContext must be used within a ToolbarContextProvider",
+      contextName: "ToolbarContext",
+    });
   }
 
   return context;
@@ -284,5 +290,8 @@ export function useToolbarState(): LegacyContextShape {
     return legacyContext;
   }
 
-  throw new Error("useToolbarState must be used within a ToolbarProvider");
+  throw new MissingContextError({
+    message: "useToolbarState must be used within a ToolbarProvider",
+    contextName: "ToolbarProvider",
+  });
 }

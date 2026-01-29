@@ -41,12 +41,16 @@ All spec-creation infrastructure lives in [`_guide/`](_guide/):
 | [html-sanitize-schema-test-parity](html-sanitize-schema-test-parity/) | Test parity between schema and utils HTML sanitization | Phase 0 |
 | [knowledge-effect-ai-migration](knowledge-effect-ai-migration/) | Migrate EmbeddingService to @effect/ai | **Complete** |
 | [knowledge-graph-integration](knowledge-graph-integration/) | Document knowledge extraction | Active |
+| [lexical-editor-ai-features](lexical-editor-ai-features/) | AI features for Lexical editor | **Complete** |
+| [lexical-effect-alignment](lexical-effect-alignment/) | Effect-align lexical playground code (170+ files) | **P1 Ready** |
+| [lexical-playground-port](lexical-playground-port/) | Port Lexical playground to todox | **Complete** |
 | [naming-conventions-refactor](naming-conventions-refactor/) | Naming standards implementation | Active |
 | [orgtable-auto-rls](orgtable-auto-rls/) | Automatic RLS for org tables | Active |
 | [repo-cli-verify-commands](repo-cli-verify-commands/) | Convert verification shell scripts to Effect-based repo-cli commands | New |
 | [rls-implementation](rls-implementation/) | Row-level security | Active |
 | [sanitize-html-schema](sanitize-html-schema/) | Schema-driven HTML sanitization with S.TaggedClass unions | P1 Ready |
 | [spec-creation-improvements](spec-creation-improvements/) | Spec workflow enhancements | Complete |
+| [storybook-implementation](storybook-implementation/) | Storybook for @beep/ui and @beep/ui-editor with MUI + Tailwind | **P1 Ready** |
 | [todox-design](todox-design/) | Todox application design | Active |
 | [tsconfig-sync-command](tsconfig-sync-command/) | CLI for tsconfig/package.json sync with transitive hoisting | P0 Complete |
 | [vitest-testkit-parity](vitest-testkit-parity/) | Port @effect/vitest exports to @beep/testkit | New |

@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@beep/ui/components/button";
+import { Button } from "@beep/todox/components/ui/button";
 import { IS_APPLE } from "@lexical/utils";
 import { ArrowClockwiseIcon, ArrowCounterClockwiseIcon } from "@phosphor-icons/react";
 import { $addUpdateTag, type LexicalEditor, REDO_COMMAND, SKIP_DOM_SELECTION_TAG, UNDO_COMMAND } from "lexical";

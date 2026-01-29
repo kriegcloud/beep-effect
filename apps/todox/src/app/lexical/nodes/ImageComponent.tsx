@@ -135,11 +135,9 @@ function useSuspenseImage(src: string): ImageStatus {
             onFailure: (): ImageStatus => ({ error: true }),
             onSuccess: (status): ImageStatus => status,
           }),
+          Effect.tap((resolvedStatus) => Effect.sync(() => MutableHashMap.set(imageCache, src, resolvedStatus))),
           Effect.runPromise
-        ).then((resolvedStatus) => {
-          MutableHashMap.set(imageCache, src, resolvedStatus);
-          return resolvedStatus;
-        });
+        );
 
         MutableHashMap.set(imageCache, src, loadingPromise);
         // Throw for React Suspense

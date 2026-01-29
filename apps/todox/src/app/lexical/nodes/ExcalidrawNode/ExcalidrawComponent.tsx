@@ -1,5 +1,6 @@
 "use client";
 
+import type { ExcalidrawElement, NonDeleted } from "@excalidraw/excalidraw/element/types";
 import type { AppState, BinaryFiles } from "@excalidraw/excalidraw/types";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { useLexicalEditable } from "@lexical/react/useLexicalEditable";
@@ -7,6 +8,8 @@ import { useLexicalNodeSelection } from "@lexical/react/useLexicalNodeSelection"
 import { mergeRegister } from "@lexical/utils";
 import * as A from "effect/Array";
 import * as Either from "effect/Either";
+import * as S from "effect/Schema";
+import * as Struct from "effect/Struct";
 import type { NodeKey } from "lexical";
 import { $getNodeByKey, CLICK_COMMAND, COMMAND_PRIORITY_LOW, isDOMNode } from "lexical";
 import type { JSX } from "react";
@@ -16,6 +19,25 @@ import ExcalidrawModal from "../../ui/ExcalidrawModal";
 import ImageResizer from "../../ui/ImageResizer";
 import ExcalidrawImage from "./ExcalidrawImage";
 import { $isExcalidrawNode } from "./excalidraw-utils";
+
+// Type for Excalidraw data after decoding from JSON storage
+// Uses the actual Excalidraw types for type safety after schema validation
+interface ExcalidrawDecodedData {
+  readonly appState: AppState;
+  readonly elements: NonDeleted<ExcalidrawElement>[];
+  readonly files: BinaryFiles;
+}
+
+// Schema for Excalidraw data serialization/deserialization
+// Uses S.Unknown for complex Excalidraw types from external library
+const ExcalidrawDataSchema = S.Struct({
+  appState: S.Unknown,
+  elements: S.Unknown,
+  files: S.Unknown,
+});
+
+const encodeExcalidrawData = S.encodeUnknownSync(S.parseJson(ExcalidrawDataSchema));
+const decodeExcalidrawData = S.decodeUnknownEither(S.parseJson(ExcalidrawDataSchema));
 
 export default function ExcalidrawComponent({
   nodeKey,
@@ -87,9 +109,9 @@ export default function ExcalidrawComponent({
     return editor.update(() => {
       const node = $getNodeByKey(nodeKey);
       if ($isExcalidrawNode(node)) {
-        if ((els && els.length > 0) || Object.keys(fls).length > 0) {
+        if ((els && !A.isEmptyReadonlyArray(els)) || !A.isEmptyReadonlyArray(Struct.keys(fls))) {
           node.setData(
-            JSON.stringify({
+            encodeExcalidrawData({
               appState: aps,
               elements: els,
               files: fls,
@@ -126,18 +148,24 @@ export default function ExcalidrawComponent({
     setModalOpen(true);
   }, []);
 
-  const {
-    elements = [],
-    files = {},
-    appState = {},
-  } = useMemo(
-    () =>
-      Either.getOrElse(
-        Either.try(() => JSON.parse(data)),
-        () => ({ elements: [], files: {}, appState: {} })
-      ),
-    [data]
-  );
+  // Decode Excalidraw data from JSON string with proper type assertions
+  // The schema validates structure, then we assert to Excalidraw's external types
+  const { elements, files, appState } = useMemo((): ExcalidrawDecodedData => {
+    const defaultData: ExcalidrawDecodedData = {
+      elements: [] as NonDeleted<ExcalidrawElement>[],
+      files: {} as BinaryFiles,
+      appState: { isLoading: false } as AppState,
+    };
+
+    return Either.match(decodeExcalidrawData(data), {
+      onLeft: () => defaultData,
+      onRight: (decoded) => ({
+        elements: (decoded.elements ?? []) as NonDeleted<ExcalidrawElement>[],
+        files: (decoded.files ?? {}) as BinaryFiles,
+        appState: (decoded.appState ?? { isLoading: false }) as AppState,
+      }),
+    });
+  }, [data]);
 
   const closeModal = useCallback(() => {
     setModalOpen(false);
@@ -168,7 +196,7 @@ export default function ExcalidrawComponent({
           closeOnClickOutside={false}
         />
       )}
-      {elements.length > 0 && (
+      {!A.isEmptyReadonlyArray(elements) && (
         <button type={"button"} ref={buttonRef} className={`excalidraw-button ${isSelected ? "selected" : ""}`}>
           <ExcalidrawImage
             imageContainerRef={imageContainerRef}

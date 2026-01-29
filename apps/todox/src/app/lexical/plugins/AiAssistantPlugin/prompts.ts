@@ -101,14 +101,12 @@ export const PREDEFINED_PROMPTS = [
   },
 ] as const satisfies readonly AiPromptTemplate[];
 
-export type PredefinedPromptId = (typeof PREDEFINED_PROMPTS)[number]["id"];
-
-/**
- * Retrieves a prompt template by its unique identifier.
- *
- * @param id - The prompt template identifier
- * @returns The matching prompt template, or undefined if not found
- */
-export function getPromptById(id: string): AiPromptTemplate | undefined {
-  return PREDEFINED_PROMPTS.find((prompt) => prompt.id === id);
-}
+// /**
+//  * Retrieves a prompt template by its unique identifier.
+//  *
+//  * @param id - The prompt template identifier
+//  * @returns The matching prompt template, or undefined if not found
+//  */
+// export function getPromptById(id: string): AiPromptTemplate | undefined {
+//   return PREDEFINED_PROMPTS.find((prompt) => prompt.id === id);
+// }

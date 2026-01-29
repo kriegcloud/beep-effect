@@ -1,8 +1,8 @@
 "use client";
 
+import { Button } from "@beep/todox/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@beep/todox/components/ui/dialog";
 import { cn } from "@beep/todox/lib/utils";
-import { Button } from "@beep/ui/components/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@beep/ui/components/dialog";
 import { useCollaborationContext } from "@lexical/react/LexicalCollaborationContext";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { mergeRegister } from "@lexical/utils";
@@ -11,6 +11,10 @@ import {
   CLEAR_DIFF_VERSIONS_COMMAND__EXPERIMENTAL,
   DIFF_VERSIONS_COMMAND__EXPERIMENTAL,
 } from "@lexical/yjs";
+import * as DateTime from "effect/DateTime";
+import * as Match from "effect/Match";
+import * as MutableHashMap from "effect/MutableHashMap";
+import * as O from "effect/Option";
 import {
   $getNodeByKeyOrThrow,
   COMMAND_PRIORITY_CRITICAL,
@@ -109,13 +113,14 @@ export function VersionsPlugin({ id }: { id: string }) {
     return editor.registerMutationListener(
       TextNode,
       (nodes) => {
-        const userToColor = new Map<User, string>();
+        const userToColor = MutableHashMap.empty<User, string>();
         const getUserColor = (user: User): string => {
-          if (userToColor.has(user)) {
-            return userToColor.get(user)!;
+          const existing = MutableHashMap.get(userToColor, user);
+          if (O.isSome(existing)) {
+            return existing.value;
           }
-          const color = COLORS[userToColor.size % COLORS.length]!;
-          userToColor.set(user, color);
+          const color = COLORS[MutableHashMap.size(userToColor) % COLORS.length]!;
+          MutableHashMap.set(userToColor, user, color);
           return color;
         };
         editor.getEditorState().read(() => {
@@ -134,17 +139,18 @@ export function VersionsPlugin({ id }: { id: string }) {
               continue;
             }
             const color = getUserColor(changeUser);
-            switch (type) {
-              case "removed":
+            Match.value(type).pipe(
+              Match.when("removed", () => {
                 element.style.color = color;
                 element.style.textDecoration = "line-through";
-                break;
-              case "added":
+              }),
+              Match.when("added", () => {
                 element.style.backgroundColor = color;
-                break;
-              default:
-              // no change
-            }
+              }),
+              Match.orElse(() => {
+                // no change
+              })
+            );
           }
         });
       },
@@ -157,13 +163,14 @@ export function VersionsPlugin({ id }: { id: string }) {
       return;
     }
 
-    const now = Date.now();
+    const now = DateTime.unsafeNow();
+    const nowMillis = DateTime.toEpochMillis(now);
     setVersions((prevVersions) => [
       ...prevVersions,
       {
-        name: `Snapshot ${new Date(now).toLocaleString()}`,
+        name: `Snapshot ${DateTime.formatLocal(now)}`,
         snapshot: createSnapshot(yDoc),
-        timestamp: now,
+        timestamp: nowMillis,
       },
     ]);
   }, [setVersions, yDoc]);
@@ -245,7 +252,8 @@ function VersionsModal({
                       isSelected && "bg-blue-100 dark:bg-blue-900/30"
                     )}
                   >
-                    Snapshot at {new Date(version.timestamp).toLocaleString()}
+                    Snapshot at{" "}
+                    {O.getOrElse(O.map(DateTime.make(version.timestamp), DateTime.formatLocal), () => "Unknown")}
                   </button>
                 );
               })

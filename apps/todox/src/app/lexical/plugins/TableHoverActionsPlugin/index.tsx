@@ -16,6 +16,10 @@ import {
   TableNode,
 } from "@lexical/table";
 import { $findMatchingParent, mergeRegister } from "@lexical/utils";
+import * as Match from "effect/Match";
+import * as MutableHashSet from "effect/MutableHashSet";
+import * as O from "effect/Option";
+import * as Str from "effect/String";
 import { $getNearestNodeFromDOMNode, type EditorThemeClasses, isHTMLElement, type NodeKey } from "lexical";
 import type * as React from "react";
 import type { JSX } from "react";
@@ -34,7 +38,7 @@ function TableHoverActionsContainer({ anchorElem }: { readonly anchorElem: HTMLE
   const [isShownColumn, setShownColumn] = useState<boolean>(false);
   const [shouldListenMouseMove, setShouldListenMouseMove] = useState<boolean>(false);
   const [position, setPosition] = useState({});
-  const tableSetRef = useRef<Set<NodeKey>>(new Set());
+  const tableSetRef = useRef(MutableHashSet.empty<NodeKey>());
   const tableCellDOMNodeRef = useRef<HTMLElement | null>(null);
 
   const debouncedOnMouseMove = useDebounce(
@@ -113,7 +117,7 @@ function TableHoverActionsContainer({ anchorElem }: { readonly anchorElem: HTMLE
         const { y: editorElemY, left: editorElemLeft } = anchorElem.getBoundingClientRect();
 
         if (hoveredRowNode) {
-          const isMac = /^mac/i.test(navigator.platform);
+          const isMac = O.isSome(Str.match(/^mac/i)(navigator.platform));
 
           setShownColumn(false);
           setShownRow(true);
@@ -172,20 +176,17 @@ function TableHoverActionsContainer({ anchorElem }: { readonly anchorElem: HTMLE
             () => {
               let resetObserver = false;
               for (const [key, type] of mutations) {
-                switch (type) {
-                  case "created": {
-                    tableSetRef.current.add(key);
+                Match.value(type).pipe(
+                  Match.when("created", () => {
+                    MutableHashSet.add(tableSetRef.current, key);
                     resetObserver = true;
-                    break;
-                  }
-                  case "destroyed": {
-                    tableSetRef.current.delete(key);
+                  }),
+                  Match.when("destroyed", () => {
+                    MutableHashSet.remove(tableSetRef.current, key);
                     resetObserver = true;
-                    break;
-                  }
-                  default:
-                    break;
-                }
+                  }),
+                  Match.orElse(() => {})
+                );
               }
               if (resetObserver) {
                 // Reset resize observers
@@ -194,7 +195,7 @@ function TableHoverActionsContainer({ anchorElem }: { readonly anchorElem: HTMLE
                   const { tableElement } = $getTableAndElementByKey(tableKey);
                   tableResizeObserver.observe(tableElement);
                 }
-                setShouldListenMouseMove(tableSetRef.current.size > 0);
+                setShouldListenMouseMove(MutableHashSet.size(tableSetRef.current) > 0);
               }
             },
             { editor }

@@ -1,7 +1,6 @@
 "use client";
 
-import { cn } from "@beep/todox/lib/utils";
-import { Button } from "@beep/ui/components/button";
+import { Button } from "@beep/todox/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -10,7 +9,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuShortcut,
   DropdownMenuTrigger,
-} from "@beep/ui/components/dropdown-menu";
+} from "@beep/todox/components/ui/dropdown-menu";
+import { cn } from "@beep/todox/lib/utils";
 import {
   DotsThreeIcon,
   EraserIcon,
@@ -76,7 +76,7 @@ export function AdvancedTextFormattingMenu({ editor, disabled = false }: Advance
    * Handles keyboard-triggered events by skipping DOM selection updates
    * to prevent focus issues.
    */
-  const handleFormatClick = (format: TextFormatType, event: MouseEvent<HTMLDivElement>) => {
+  const handleFormatClick = (format: TextFormatType, event: MouseEvent<HTMLElement>) => {
     const skipRefocus = isKeyboardInput(event);
 
     editor.update(() => {
@@ -90,24 +90,26 @@ export function AdvancedTextFormattingMenu({ editor, disabled = false }: Advance
   /**
    * Clears all text formatting from the current selection.
    */
-  const handleClearFormatting = (event: MouseEvent<HTMLDivElement>) => {
+  const handleClearFormatting = (event: MouseEvent<HTMLElement>) => {
     const skipRefocus = isKeyboardInput(event);
     clearFormatting(editor, skipRefocus);
   };
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button
-          variant="ghost"
-          size="sm"
-          disabled={disabled}
-          aria-label="Formatting options for additional text styles"
-          className={cn("gap-1", "toolbar-item spaced")}
-        >
-          <DotsThreeIcon className="size-4" />
-        </Button>
-      </DropdownMenuTrigger>
+      <DropdownMenuTrigger
+        render={
+          <Button
+            variant="ghost"
+            size="sm"
+            disabled={disabled}
+            aria-label="Formatting options for additional text styles"
+            className={cn("gap-1", "toolbar-item spaced")}
+          >
+            <DotsThreeIcon className="size-4" />
+          </Button>
+        }
+      />
       <DropdownMenuContent align="start" sideOffset={4} className="min-w-52">
         {/* Text Case Transforms */}
         <DropdownMenuItem

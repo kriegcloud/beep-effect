@@ -2,6 +2,7 @@
 
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { $wrapNodeInElement, mergeRegister } from "@lexical/utils";
+import type * as DateTime from "effect/DateTime";
 import {
   $createParagraphNode,
   $insertNodes,
@@ -16,7 +17,7 @@ import { useEffect } from "react";
 import { $createDateTimeNode, DateTimeNode } from "../../nodes/DateTimeNode/DateTimeNode";
 
 type CommandPayload = {
-  readonly dateTime: Date;
+  readonly dateTime: DateTime.Utc;
 };
 
 export const INSERT_DATETIME_COMMAND: LexicalCommand<CommandPayload> = createCommand("INSERT_DATETIME_COMMAND");

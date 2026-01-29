@@ -1,11 +1,12 @@
 "use client";
 
-import { cn } from "@beep/todox/lib/utils";
-
+import { Toggle } from "@beep/todox/components/ui/toggle";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@beep/todox/components/ui/tooltip";
 import { $isCodeHighlightNode } from "@lexical/code";
 import { $isLinkNode, TOGGLE_LINK_COMMAND } from "@lexical/link";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { mergeRegister } from "@lexical/utils";
+import * as Str from "effect/String";
 import {
   $getSelection,
   $isParagraphNode,
@@ -17,6 +18,20 @@ import {
   type LexicalEditor,
   SELECTION_CHANGE_COMMAND,
 } from "lexical";
+import {
+  Bold,
+  CaseLower,
+  CaseSensitive,
+  CaseUpper,
+  Code,
+  Italic,
+  Link,
+  MessageSquarePlus,
+  Strikethrough,
+  Subscript,
+  Superscript,
+  Underline,
+} from "lucide-react";
 import type { JSX } from "react";
 import { type Dispatch, useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
@@ -174,148 +189,219 @@ function TextFormatFloatingToolbar({
     );
   }, [editor, $updateTextFormatFloatingToolbar]);
 
-  const popupItemBase =
-    "border-0 flex bg-transparent rounded-lg p-2 cursor-pointer align-middle disabled:cursor-not-allowed hover:not-disabled:bg-muted";
-  const popupItemSpaced = "mr-0.5";
-  const formatIconBase = "format bg-contain h-[18px] w-[18px] mt-0.5 flex opacity-60";
+  const iconSize = 16;
 
   return (
     <div
       ref={popupCharStylesEditorRef}
-      className="floating-text-format-popup flex bg-background p-1 align-middle absolute top-0 left-0 z-10 opacity-0 shadow-lg rounded-lg transition-opacity duration-500 h-[35px] will-change-transform"
+      className="floating-text-format-popup flex items-center gap-0.5 bg-popover text-popover-foreground p-1 absolute top-0 left-0 z-10 opacity-0 shadow-lg border border-border rounded-lg transition-opacity duration-300 will-change-transform"
     >
       {editor.isEditable() && (
         <>
-          <button
-            type="button"
-            onClick={() => {
-              editor.dispatchCommand(FORMAT_TEXT_COMMAND, "bold");
-            }}
-            className={cn(popupItemBase, popupItemSpaced, isBold && "bg-accent/30 [&>i]:opacity-100")}
-            title="Bold"
-            aria-label="Format text as bold"
-          >
-            <i className={cn(formatIconBase, "bold")} />
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              editor.dispatchCommand(FORMAT_TEXT_COMMAND, "italic");
-            }}
-            className={cn(popupItemBase, popupItemSpaced, isItalic && "bg-accent/30 [&>i]:opacity-100")}
-            title="Italic"
-            aria-label="Format text as italics"
-          >
-            <i className={cn(formatIconBase, "italic")} />
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              editor.dispatchCommand(FORMAT_TEXT_COMMAND, "underline");
-            }}
-            className={cn(popupItemBase, popupItemSpaced, isUnderline && "bg-accent/30 [&>i]:opacity-100")}
-            title="Underline"
-            aria-label="Format text to underlined"
-          >
-            <i className={cn(formatIconBase, "underline")} />
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              editor.dispatchCommand(FORMAT_TEXT_COMMAND, "strikethrough");
-            }}
-            className={cn(popupItemBase, popupItemSpaced, isStrikethrough && "bg-accent/30 [&>i]:opacity-100")}
-            title="Strikethrough"
-            aria-label="Format text with a strikethrough"
-          >
-            <i className={cn(formatIconBase, "strikethrough")} />
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              editor.dispatchCommand(FORMAT_TEXT_COMMAND, "subscript");
-            }}
-            className={cn(popupItemBase, popupItemSpaced, isSubscript && "bg-accent/30 [&>i]:opacity-100")}
-            title="Subscript"
-            aria-label="Format Subscript"
-          >
-            <i className={cn(formatIconBase, "subscript")} />
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              editor.dispatchCommand(FORMAT_TEXT_COMMAND, "superscript");
-            }}
-            className={cn(popupItemBase, popupItemSpaced, isSuperscript && "bg-accent/30 [&>i]:opacity-100")}
-            title="Superscript"
-            aria-label="Format Superscript"
-          >
-            <i className={cn(formatIconBase, "superscript")} />
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              editor.dispatchCommand(FORMAT_TEXT_COMMAND, "uppercase");
-            }}
-            className={cn(popupItemBase, popupItemSpaced, isUppercase && "bg-accent/30 [&>i]:opacity-100")}
-            title="Uppercase"
-            aria-label="Format text to uppercase"
-          >
-            <i className={cn(formatIconBase, "uppercase")} />
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              editor.dispatchCommand(FORMAT_TEXT_COMMAND, "lowercase");
-            }}
-            className={cn(popupItemBase, popupItemSpaced, isLowercase && "bg-accent/30 [&>i]:opacity-100")}
-            title="Lowercase"
-            aria-label="Format text to lowercase"
-          >
-            <i className={cn(formatIconBase, "lowercase")} />
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              editor.dispatchCommand(FORMAT_TEXT_COMMAND, "capitalize");
-            }}
-            className={cn(popupItemBase, popupItemSpaced, isCapitalize && "bg-accent/30 [&>i]:opacity-100")}
-            title="Capitalize"
-            aria-label="Format text to capitalize"
-          >
-            <i className={cn(formatIconBase, "capitalize")} />
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              editor.dispatchCommand(FORMAT_TEXT_COMMAND, "code");
-            }}
-            className={cn(popupItemBase, popupItemSpaced, isCode && "bg-accent/30 [&>i]:opacity-100")}
-            title="Insert code block"
-            aria-label="Insert code block"
-          >
-            <i className={cn(formatIconBase, "code")} />
-          </button>
-          <button
-            type="button"
-            onClick={insertLink}
-            className={cn(popupItemBase, popupItemSpaced, isLink && "bg-accent/30 [&>i]:opacity-100")}
-            title="Insert link"
-            aria-label="Insert link"
-          >
-            <i className={cn(formatIconBase, "link")} />
-          </button>
+          <Tooltip>
+            <TooltipTrigger
+              render={
+                <Toggle
+                  size="sm"
+                  pressed={isBold}
+                  onPressedChange={() => editor.dispatchCommand(FORMAT_TEXT_COMMAND, "bold")}
+                  aria-label="Bold"
+                >
+                  <Bold size={iconSize} />
+                </Toggle>
+              }
+            />
+            <TooltipContent side="top" sideOffset={8}>
+              Bold (⌘B)
+            </TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger
+              render={
+                <Toggle
+                  size="sm"
+                  pressed={isItalic}
+                  onPressedChange={() => editor.dispatchCommand(FORMAT_TEXT_COMMAND, "italic")}
+                  aria-label="Italic"
+                >
+                  <Italic size={iconSize} />
+                </Toggle>
+              }
+            />
+            <TooltipContent side="top" sideOffset={8}>
+              Italic (⌘I)
+            </TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger
+              render={
+                <Toggle
+                  size="sm"
+                  pressed={isUnderline}
+                  onPressedChange={() => editor.dispatchCommand(FORMAT_TEXT_COMMAND, "underline")}
+                  aria-label="Underline"
+                >
+                  <Underline size={iconSize} />
+                </Toggle>
+              }
+            />
+            <TooltipContent side="top" sideOffset={8}>
+              Underline (⌘U)
+            </TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger
+              render={
+                <Toggle
+                  size="sm"
+                  pressed={isStrikethrough}
+                  onPressedChange={() => editor.dispatchCommand(FORMAT_TEXT_COMMAND, "strikethrough")}
+                  aria-label="Strikethrough"
+                >
+                  <Strikethrough size={iconSize} />
+                </Toggle>
+              }
+            />
+            <TooltipContent side="top" sideOffset={8}>
+              Strikethrough
+            </TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger
+              render={
+                <Toggle
+                  size="sm"
+                  pressed={isSubscript}
+                  onPressedChange={() => editor.dispatchCommand(FORMAT_TEXT_COMMAND, "subscript")}
+                  aria-label="Subscript"
+                >
+                  <Subscript size={iconSize} />
+                </Toggle>
+              }
+            />
+            <TooltipContent side="top" sideOffset={8}>
+              Subscript
+            </TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger
+              render={
+                <Toggle
+                  size="sm"
+                  pressed={isSuperscript}
+                  onPressedChange={() => editor.dispatchCommand(FORMAT_TEXT_COMMAND, "superscript")}
+                  aria-label="Superscript"
+                >
+                  <Superscript size={iconSize} />
+                </Toggle>
+              }
+            />
+            <TooltipContent side="top" sideOffset={8}>
+              Superscript
+            </TooltipContent>
+          </Tooltip>
+          <div className="w-px h-5 bg-border mx-1" />
+          <Tooltip>
+            <TooltipTrigger
+              render={
+                <Toggle
+                  size="sm"
+                  pressed={isUppercase}
+                  onPressedChange={() => editor.dispatchCommand(FORMAT_TEXT_COMMAND, "uppercase")}
+                  aria-label="Uppercase"
+                >
+                  <CaseUpper size={iconSize} />
+                </Toggle>
+              }
+            />
+            <TooltipContent side="top" sideOffset={8}>
+              Uppercase
+            </TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger
+              render={
+                <Toggle
+                  size="sm"
+                  pressed={isLowercase}
+                  onPressedChange={() => editor.dispatchCommand(FORMAT_TEXT_COMMAND, "lowercase")}
+                  aria-label="Lowercase"
+                >
+                  <CaseLower size={iconSize} />
+                </Toggle>
+              }
+            />
+            <TooltipContent side="top" sideOffset={8}>
+              Lowercase
+            </TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger
+              render={
+                <Toggle
+                  size="sm"
+                  pressed={isCapitalize}
+                  onPressedChange={() => editor.dispatchCommand(FORMAT_TEXT_COMMAND, "capitalize")}
+                  aria-label="Capitalize"
+                >
+                  <CaseSensitive size={iconSize} />
+                </Toggle>
+              }
+            />
+            <TooltipContent side="top" sideOffset={8}>
+              Capitalize
+            </TooltipContent>
+          </Tooltip>
+          <div className="w-px h-5 bg-border mx-1" />
+          <Tooltip>
+            <TooltipTrigger
+              render={
+                <Toggle
+                  size="sm"
+                  pressed={isCode}
+                  onPressedChange={() => editor.dispatchCommand(FORMAT_TEXT_COMMAND, "code")}
+                  aria-label="Code"
+                >
+                  <Code size={iconSize} />
+                </Toggle>
+              }
+            />
+            <TooltipContent side="top" sideOffset={8}>
+              Inline Code
+            </TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger
+              render={
+                <Toggle size="sm" pressed={isLink} onPressedChange={insertLink} aria-label="Link">
+                  <Link size={iconSize} />
+                </Toggle>
+              }
+            />
+            <TooltipContent side="top" sideOffset={8}>
+              Insert Link
+            </TooltipContent>
+          </Tooltip>
         </>
       )}
-      <button
-        type="button"
-        onClick={insertComment}
-        className={cn(popupItemBase, popupItemSpaced, "lg:flex hidden")}
-        title="Insert comment"
-        aria-label="Insert comment"
-      >
-        <i className={cn(formatIconBase, "add-comment")} />
-      </button>
+      <Tooltip>
+        <TooltipTrigger
+          render={
+            <Toggle
+              size="sm"
+              pressed={false}
+              onPressedChange={insertComment}
+              aria-label="Comment"
+              className="hidden lg:flex"
+            >
+              <MessageSquarePlus size={iconSize} />
+            </Toggle>
+          }
+        />
+        <TooltipContent side="top" sideOffset={8}>
+          Add Comment
+        </TooltipContent>
+      </Tooltip>
     </div>
   );
 }
@@ -388,7 +474,7 @@ function useFloatingTextFormatToolbar(
         setIsText(false);
       }
 
-      const rawTextContent = selection.getTextContent().replace(/\n/g, "");
+      const rawTextContent = Str.replace(/\n/g, "")(selection.getTextContent());
       if (!selection.isCollapsed() && rawTextContent === "") {
         setIsText(false);
         return;

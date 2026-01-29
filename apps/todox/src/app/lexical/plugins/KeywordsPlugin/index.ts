@@ -2,6 +2,8 @@
 
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { useLexicalTextEntity } from "@lexical/react/useLexicalTextEntity";
+import * as O from "effect/Option";
+import * as Str from "effect/String";
 import type { TextNode } from "lexical";
 import type { JSX } from "react";
 import { useCallback, useEffect } from "react";
@@ -25,19 +27,20 @@ export default function KeywordsPlugin(): JSX.Element | null {
   }, []);
 
   const getKeywordMatch = useCallback((text: string) => {
-    const matchArr = KEYWORDS_REGEX.exec(text);
+    const matchOption = Str.match(KEYWORDS_REGEX)(text);
 
-    if (matchArr === null) {
-      return null;
-    }
-
-    const hashtagLength = matchArr[2]!.length;
-    const startOffset = matchArr.index + matchArr[1]!.length;
-    const endOffset = startOffset + hashtagLength;
-    return {
-      end: endOffset,
-      start: startOffset,
-    };
+    return O.match(matchOption, {
+      onNone: () => null,
+      onSome: (matchArr) => {
+        const hashtagLength = Str.length(matchArr[2]!);
+        const startOffset = (matchArr.index ?? 0) + Str.length(matchArr[1]!);
+        const endOffset = startOffset + hashtagLength;
+        return {
+          end: endOffset,
+          start: startOffset,
+        };
+      },
+    });
   }, []);
 
   useLexicalTextEntity<KeywordNode>(getKeywordMatch, KeywordNode, $createKeywordNode_);

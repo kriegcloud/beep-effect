@@ -1,14 +1,15 @@
 "use client";
 
-import { cn } from "@beep/todox/lib/utils";
-import { Button } from "@beep/ui/components/button";
+import { Button } from "@beep/todox/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
+  DropdownMenuShortcut,
   DropdownMenuTrigger,
-} from "@beep/ui/components/dropdown-menu";
+} from "@beep/todox/components/ui/dropdown-menu";
+import { cn } from "@beep/todox/lib/utils";
 import {
   $isCodeNode,
   getCodeLanguageOptions as getCodeLanguageOptionsPrism,
@@ -61,6 +62,9 @@ import {
   TextOutdentIcon,
   TextTIcon,
 } from "@phosphor-icons/react";
+import * as A from "effect/Array";
+import * as DateTime from "effect/DateTime";
+import * as O from "effect/Option";
 import {
   $addUpdateTag,
   $getNodeByKey,
@@ -146,73 +150,57 @@ const blockTypeToIcon: Record<string, JSX.Element> = {
   code: <CodeIcon className="size-4" />,
 };
 
-const CODE_LANGUAGE_OPTIONS_PRISM: [string, string][] = getCodeLanguageOptionsPrism().filter((option) =>
-  [
-    "c",
-    "clike",
-    "cpp",
-    "css",
-    "html",
-    "java",
-    "js",
-    "javascript",
-    "markdown",
-    "objc",
-    "objective-c",
-    "plain",
-    "powershell",
-    "py",
-    "python",
-    "rust",
-    "sql",
-    "swift",
-    "typescript",
-    "xml",
-  ].includes(option[0])
+const ALLOWED_LANGUAGES = [
+  "c",
+  "clike",
+  "cpp",
+  "css",
+  "html",
+  "java",
+  "js",
+  "javascript",
+  "markdown",
+  "objc",
+  "objective-c",
+  "plain",
+  "powershell",
+  "py",
+  "python",
+  "rust",
+  "sql",
+  "swift",
+  "typescript",
+  "xml",
+];
+
+const CODE_LANGUAGE_OPTIONS_PRISM: [string, string][] = A.filter(getCodeLanguageOptionsPrism(), (option) =>
+  ALLOWED_LANGUAGES.includes(option[0])
 );
 
-const CODE_LANGUAGE_OPTIONS_SHIKI: [string, string][] = getCodeLanguageOptionsShiki().filter((option) =>
-  [
-    "c",
-    "clike",
-    "cpp",
-    "css",
-    "html",
-    "java",
-    "js",
-    "javascript",
-    "markdown",
-    "objc",
-    "objective-c",
-    "plain",
-    "powershell",
-    "py",
-    "python",
-    "rust",
-    "sql",
-    "typescript",
-    "xml",
-  ].includes(option[0])
+const CODE_LANGUAGE_OPTIONS_SHIKI: [string, string][] = A.filter(getCodeLanguageOptionsShiki(), (option) =>
+  ALLOWED_LANGUAGES.includes(option[0])
 );
 
-const CODE_THEME_OPTIONS_SHIKI: [string, string][] = getCodeThemeOptionsShiki().filter((option) =>
-  [
-    "catppuccin-latte",
-    "everforest-light",
-    "github-light",
-    "gruvbox-light-medium",
-    "kanagawa-lotus",
-    "dark-plus",
-    "light-plus",
-    "material-theme-lighter",
-    "min-light",
-    "one-light",
-    "rose-pine-dawn",
-    "slack-ochin",
-    "snazzy-light",
-    "solarized-light",
-    "vitesse-light",
-  ].includes(option[0])
+const ALLOWED_THEMES = [
+  "catppuccin-latte",
+  "everforest-light",
+  "github-light",
+  "gruvbox-light-medium",
+  "kanagawa-lotus",
+  "dark-plus",
+  "light-plus",
+  "material-theme-lighter",
+  "min-light",
+  "one-light",
+  "rose-pine-dawn",
+  "slack-ochin",
+  "snazzy-light",
+  "solarized-light",
+  "vitesse-light",
+];
+
+const CODE_THEME_OPTIONS_SHIKI: [string, string][] = A.filter(getCodeThemeOptionsShiki(), (option) =>
+  ALLOWED_THEMES.includes(option[0])
 );
 
 const ELEMENT_FORMAT_OPTIONS: {
@@ -254,13 +242,6 @@ const ELEMENT_FORMAT_OPTIONS: {
   },
 };
 
-function dropDownActiveClass(active: boolean) {
-  if (active) {
-    return "active dropdown-item-active";
-  }
-  return "";
-}
-
 function BlockFormatDropDown({
   editor,
   blockType,
@@ -273,109 +254,90 @@ function BlockFormatDropDown({
 }): JSX.Element {
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button
-          variant="ghost"
-          size="sm"
-          disabled={disabled}
-          aria-label="Formatting options for text style"
-          className={cn("gap-1", "toolbar-item block-controls")}
-        >
-          {blockTypeToIcon[blockType] || <TextTIcon className="size-4" />}
-          <span className="text dropdown-button-text">{blockTypeToBlockName[blockType]}</span>
-          <CaretDownIcon className="size-3 opacity-50" />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" sideOffset={4} className="min-w-40">
+      <DropdownMenuTrigger
+        render={
+          <Button
+            variant="ghost"
+            size="sm"
+            disabled={disabled}
+            aria-label={`Block type: ${blockTypeToBlockName[blockType]}`}
+            title={blockTypeToBlockName[blockType]}
+            className="gap-0.5 px-1.5 toolbar-item block-controls"
+          >
+            {blockTypeToIcon[blockType] || <TextTIcon className="size-4" />}
+            <CaretDownIcon className="size-3 opacity-50" />
+          </Button>
+        }
+      />
+      <DropdownMenuContent align="start" sideOffset={4} className="w-56">
         <DropdownMenuItem
-          className={cn("cursor-pointer", `item wide ${dropDownActiveClass(blockType === "paragraph")}`)}
+          className={cn(blockType === "paragraph" && "bg-accent")}
           onClick={() => formatParagraph(editor)}
         >
-          <div className="icon-text-container">
-            <TextTIcon className="size-4" />
-            <span className="text">Normal</span>
-          </div>
-          <span className="shortcut">{SHORTCUTS.NORMAL}</span>
+          <TextTIcon />
+          Normal
+          <DropdownMenuShortcut>{SHORTCUTS.NORMAL}</DropdownMenuShortcut>
         </DropdownMenuItem>
         <DropdownMenuItem
-          className={cn("cursor-pointer", `item wide ${dropDownActiveClass(blockType === "h1")}`)}
+          className={cn(blockType === "h1" && "bg-accent")}
           onClick={() => formatHeading(editor, blockType, "h1")}
         >
-          <div className="icon-text-container">
-            <TextHOneIcon className="size-4" />
-            <span className="text">Heading 1</span>
-          </div>
-          <span className="shortcut">{SHORTCUTS.HEADING1}</span>
+          <TextHOneIcon />
+          Heading 1<DropdownMenuShortcut>{SHORTCUTS.HEADING1}</DropdownMenuShortcut>
         </DropdownMenuItem>
         <DropdownMenuItem
-          className={cn("cursor-pointer", `item wide ${dropDownActiveClass(blockType === "h2")}`)}
+          className={cn(blockType === "h2" && "bg-accent")}
           onClick={() => formatHeading(editor, blockType, "h2")}
         >
-          <div className="icon-text-container">
-            <TextHTwoIcon className="size-4" />
-            <span className="text">Heading 2</span>
-          </div>
-          <span className="shortcut">{SHORTCUTS.HEADING2}</span>
+          <TextHTwoIcon />
+          Heading 2<DropdownMenuShortcut>{SHORTCUTS.HEADING2}</DropdownMenuShortcut>
         </DropdownMenuItem>
         <DropdownMenuItem
-          className={cn("cursor-pointer", `item wide ${dropDownActiveClass(blockType === "h3")}`)}
+          className={cn(blockType === "h3" && "bg-accent")}
           onClick={() => formatHeading(editor, blockType, "h3")}
         >
-          <div className="icon-text-container">
-            <TextHThreeIcon className="size-4" />
-            <span className="text">Heading 3</span>
-          </div>
-          <span className="shortcut">{SHORTCUTS.HEADING3}</span>
+          <TextHThreeIcon />
+          Heading 3<DropdownMenuShortcut>{SHORTCUTS.HEADING3}</DropdownMenuShortcut>
         </DropdownMenuItem>
         <DropdownMenuItem
-          className={cn("cursor-pointer", `item wide ${dropDownActiveClass(blockType === "number")}`)}
+          className={cn(blockType === "number" && "bg-accent")}
           onClick={() => formatNumberedList(editor, blockType)}
         >
-          <div className="icon-text-container">
-            <ListNumbersIcon className="size-4" />
-            <span className="text">Numbered List</span>
-          </div>
-          <span className="shortcut">{SHORTCUTS.NUMBERED_LIST}</span>
+          <ListNumbersIcon />
+          Numbered List
+          <DropdownMenuShortcut>{SHORTCUTS.NUMBERED_LIST}</DropdownMenuShortcut>
         </DropdownMenuItem>
         <DropdownMenuItem
-          className={cn("cursor-pointer", `item wide ${dropDownActiveClass(blockType === "bullet")}`)}
+          className={cn(blockType === "bullet" && "bg-accent")}
           onClick={() => formatBulletList(editor, blockType)}
         >
-          <div className="icon-text-container">
-            <ListBulletsIcon className="size-4" />
-            <span className="text">Bullet List</span>
-          </div>
-          <span className="shortcut">{SHORTCUTS.BULLET_LIST}</span>
+          <ListBulletsIcon />
+          Bullet List
+          <DropdownMenuShortcut>{SHORTCUTS.BULLET_LIST}</DropdownMenuShortcut>
         </DropdownMenuItem>
         <DropdownMenuItem
-          className={cn("cursor-pointer", `item wide ${dropDownActiveClass(blockType === "check")}`)}
+          className={cn(blockType === "check" && "bg-accent")}
           onClick={() => formatCheckList(editor, blockType)}
         >
-          <div className="icon-text-container">
-            <ListChecksIcon className="size-4" />
-            <span className="text">Check List</span>
-          </div>
-          <span className="shortcut">{SHORTCUTS.CHECK_LIST}</span>
+          <ListChecksIcon />
+          Check List
+          <DropdownMenuShortcut>{SHORTCUTS.CHECK_LIST}</DropdownMenuShortcut>
         </DropdownMenuItem>
         <DropdownMenuItem
-          className={cn("cursor-pointer", `item wide ${dropDownActiveClass(blockType === "quote")}`)}
+          className={cn(blockType === "quote" && "bg-accent")}
           onClick={() => formatQuote(editor, blockType)}
         >
-          <div className="icon-text-container">
-            <QuotesIcon className="size-4" />
-            <span className="text">Quote</span>
-          </div>
-          <span className="shortcut">{SHORTCUTS.QUOTE}</span>
+          <QuotesIcon />
+          Quote
+          <DropdownMenuShortcut>{SHORTCUTS.QUOTE}</DropdownMenuShortcut>
         </DropdownMenuItem>
         <DropdownMenuItem
-          className={cn("cursor-pointer", `item wide ${dropDownActiveClass(blockType === "code")}`)}
+          className={cn(blockType === "code" && "bg-accent")}
           onClick={() => formatCode(editor, blockType)}
         >
-          <div className="icon-text-container">
-            <CodeIcon className="size-4" />
-            <span className="text">Code Block</span>
-          </div>
-          <span className="shortcut">{SHORTCUTS.CODE_BLOCK}</span>
+          <CodeIcon />
+          Code Block
+          <DropdownMenuShortcut>{SHORTCUTS.CODE_BLOCK}</DropdownMenuShortcut>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
@@ -384,6 +346,10 @@ function BlockFormatDropDown({
 
 function Divider(): JSX.Element {
   return <div className="divider" />;
+}
+
+function Spacer(): JSX.Element {
+  return <div className="spacer" />;
 }
 
 function ElementFormatDropdown({
@@ -401,110 +367,92 @@ function ElementFormatDropdown({
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button
-          variant="ghost"
-          size="sm"
-          disabled={disabled}
-          aria-label="Formatting options for text alignment"
-          className={cn("gap-1", "toolbar-item spaced alignment")}
-        >
-          {isRTL ? formatOption.iconRTL : formatOption.icon}
-          <span className="text dropdown-button-text">{formatOption.name}</span>
-          <CaretDownIcon className="size-3 opacity-50" />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" sideOffset={4} className="min-w-40">
+      <DropdownMenuTrigger
+        render={
+          <Button
+            variant="ghost"
+            size="sm"
+            disabled={disabled}
+            aria-label={`Alignment: ${formatOption.name}`}
+            title={formatOption.name}
+            className="gap-0.5 px-1.5 toolbar-item spaced alignment"
+          >
+            {isRTL ? formatOption.iconRTL : formatOption.icon}
+            <CaretDownIcon className="size-3 opacity-50" />
+          </Button>
+        }
+      />
+      <DropdownMenuContent align="start" sideOffset={4} className="w-56">
         <DropdownMenuItem
           onClick={() => {
             editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, "left");
           }}
-          className={cn("cursor-pointer", "item wide")}
         >
-          <div className="icon-text-container">
-            <TextAlignLeftIcon className="size-4" />
-            <span className="text">Left Align</span>
-          </div>
-          <span className="shortcut">{SHORTCUTS.LEFT_ALIGN}</span>
+          <TextAlignLeftIcon />
+          Left Align
+          <DropdownMenuShortcut>{SHORTCUTS.LEFT_ALIGN}</DropdownMenuShortcut>
         </DropdownMenuItem>
         <DropdownMenuItem
           onClick={() => {
             editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, "center");
           }}
-          className={cn("cursor-pointer", "item wide")}
         >
-          <div className="icon-text-container">
-            <TextAlignCenterIcon className="size-4" />
-            <span className="text">Center Align</span>
-          </div>
-          <span className="shortcut">{SHORTCUTS.CENTER_ALIGN}</span>
+          <TextAlignCenterIcon />
+          Center Align
+          <DropdownMenuShortcut>{SHORTCUTS.CENTER_ALIGN}</DropdownMenuShortcut>
         </DropdownMenuItem>
         <DropdownMenuItem
           onClick={() => {
             editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, "right");
           }}
-          className={cn("cursor-pointer", "item wide")}
         >
-          <div className="icon-text-container">
-            <TextAlignRightIcon className="size-4" />
-            <span className="text">Right Align</span>
-          </div>
-          <span className="shortcut">{SHORTCUTS.RIGHT_ALIGN}</span>
+          <TextAlignRightIcon />
+          Right Align
+          <DropdownMenuShortcut>{SHORTCUTS.RIGHT_ALIGN}</DropdownMenuShortcut>
         </DropdownMenuItem>
         <DropdownMenuItem
           onClick={() => {
             editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, "justify");
           }}
-          className={cn("cursor-pointer", "item wide")}
         >
-          <div className="icon-text-container">
-            <TextAlignJustifyIcon className="size-4" />
-            <span className="text">Justify Align</span>
-          </div>
-          <span className="shortcut">{SHORTCUTS.JUSTIFY_ALIGN}</span>
+          <TextAlignJustifyIcon />
+          Justify Align
+          <DropdownMenuShortcut>{SHORTCUTS.JUSTIFY_ALIGN}</DropdownMenuShortcut>
         </DropdownMenuItem>
         <DropdownMenuItem
           onClick={() => {
             editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, "start");
           }}
-          className={cn("cursor-pointer", "item wide")}
         >
           {isRTL ? ELEMENT_FORMAT_OPTIONS.start.iconRTL : ELEMENT_FORMAT_OPTIONS.start.icon}
-          <span className="text">Start Align</span>
+          Start Align
         </DropdownMenuItem>
         <DropdownMenuItem
           onClick={() => {
             editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, "end");
           }}
-          className={cn("cursor-pointer", "item wide")}
         >
           {isRTL ? ELEMENT_FORMAT_OPTIONS.end.iconRTL : ELEMENT_FORMAT_OPTIONS.end.icon}
-          <span className="text">End Align</span>
+          End Align
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem
           onClick={() => {
             editor.dispatchCommand(OUTDENT_CONTENT_COMMAND, undefined);
           }}
-          className={cn("cursor-pointer", "item wide")}
         >
-          <div className="icon-text-container">
-            {isRTL ? <TextIndentIcon className="size-4" /> : <TextOutdentIcon className="size-4" />}
-            <span className="text">Outdent</span>
-          </div>
-          <span className="shortcut">{SHORTCUTS.OUTDENT}</span>
+          {isRTL ? <TextIndentIcon /> : <TextOutdentIcon />}
+          Outdent
+          <DropdownMenuShortcut>{SHORTCUTS.OUTDENT}</DropdownMenuShortcut>
         </DropdownMenuItem>
         <DropdownMenuItem
           onClick={() => {
             editor.dispatchCommand(INDENT_CONTENT_COMMAND, undefined);
           }}
-          className={cn("cursor-pointer", "item wide")}
         >
-          <div className="icon-text-container">
-            {isRTL ? <TextOutdentIcon className="size-4" /> : <TextIndentIcon className="size-4" />}
-            <span className="text">Indent</span>
-          </div>
-          <span className="shortcut">{SHORTCUTS.INDENT}</span>
+          {isRTL ? <TextOutdentIcon /> : <TextIndentIcon />}
+          Indent
+          <DropdownMenuShortcut>{SHORTCUTS.INDENT}</DropdownMenuShortcut>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
@@ -826,110 +774,116 @@ export default function ToolbarPlugin({
         <>
           {!isCodeShiki && (
             <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  disabled={!isEditable}
-                  aria-label="Select language"
-                  className={cn("gap-1", "toolbar-item code-language")}
-                >
-                  <span className="text dropdown-button-text">
-                    {
-                      (CODE_LANGUAGE_OPTIONS_PRISM.find(
-                        (opt) => opt[0] === normalizeCodeLanguagePrism(toolbarState.codeLanguage)
-                      ) || ["", ""])[1]
-                    }
-                  </span>
-                  <CaretDownIcon className="size-3 opacity-50" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" sideOffset={4} className="min-w-40">
-                {CODE_LANGUAGE_OPTIONS_PRISM.map(([value, name]) => {
-                  return (
-                    <DropdownMenuItem
-                      className={cn(
-                        "cursor-pointer",
-                        `item ${dropDownActiveClass(value === toolbarState.codeLanguage)}`
-                      )}
-                      onClick={() => onCodeLanguageSelect(value)}
-                      key={value}
-                    >
-                      <span className="text">{name}</span>
-                    </DropdownMenuItem>
-                  );
-                })}
+              <DropdownMenuTrigger
+                render={
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    disabled={!isEditable}
+                    aria-label="Select language"
+                    className="gap-1 px-2 toolbar-item code-language"
+                  >
+                    <CodeIcon className="size-4" />
+                    <span className="text-xs">
+                      {
+                        O.getOrElse(
+                          A.findFirst(
+                            CODE_LANGUAGE_OPTIONS_PRISM,
+                            (opt) => opt[0] === normalizeCodeLanguagePrism(toolbarState.codeLanguage)
+                          ),
+                          () => ["", ""] as [string, string]
+                        )[1]
+                      }
+                    </span>
+                    <CaretDownIcon className="size-3 opacity-50" />
+                  </Button>
+                }
+              />
+              <DropdownMenuContent align="start" sideOffset={4} className="w-48 max-h-80 overflow-y-auto">
+                {A.map(CODE_LANGUAGE_OPTIONS_PRISM, ([value, name]) => (
+                  <DropdownMenuItem
+                    className={cn(value === toolbarState.codeLanguage && "bg-accent")}
+                    onClick={() => onCodeLanguageSelect(value)}
+                    key={value}
+                  >
+                    {name}
+                  </DropdownMenuItem>
+                ))}
               </DropdownMenuContent>
             </DropdownMenu>
           )}
           {isCodeShiki && (
             <>
               <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    disabled={!isEditable}
-                    aria-label="Select language"
-                    className={cn("gap-1", "toolbar-item code-language")}
-                  >
-                    <span className="text dropdown-button-text">
-                      {
-                        (CODE_LANGUAGE_OPTIONS_SHIKI.find(
-                          (opt) => opt[0] === normalizeCodeLanguageShiki(toolbarState.codeLanguage)
-                        ) || ["", ""])[1]
-                      }
-                    </span>
-                    <CaretDownIcon className="size-3 opacity-50" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" sideOffset={4} className="min-w-40">
-                  {CODE_LANGUAGE_OPTIONS_SHIKI.map(([value, name]) => {
-                    return (
-                      <DropdownMenuItem
-                        className={cn(
-                          "cursor-pointer",
-                          `item ${dropDownActiveClass(value === toolbarState.codeLanguage)}`
-                        )}
-                        onClick={() => onCodeLanguageSelect(value)}
-                        key={value}
-                      >
-                        <span className="text">{name}</span>
-                      </DropdownMenuItem>
-                    );
-                  })}
+                <DropdownMenuTrigger
+                  render={
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      disabled={!isEditable}
+                      aria-label="Select language"
+                      className="gap-1 px-2 toolbar-item code-language"
+                    >
+                      <CodeIcon className="size-4" />
+                      <span className="text-xs">
+                        {
+                          O.getOrElse(
+                            A.findFirst(
+                              CODE_LANGUAGE_OPTIONS_SHIKI,
+                              (opt) => opt[0] === normalizeCodeLanguageShiki(toolbarState.codeLanguage)
+                            ),
+                            () => ["", ""] as [string, string]
+                          )[1]
+                        }
+                      </span>
+                      <CaretDownIcon className="size-3 opacity-50" />
+                    </Button>
+                  }
+                />
+                <DropdownMenuContent align="start" sideOffset={4} className="w-48 max-h-80 overflow-y-auto">
+                  {A.map(CODE_LANGUAGE_OPTIONS_SHIKI, ([value, name]) => (
+                    <DropdownMenuItem
+                      className={cn(value === toolbarState.codeLanguage && "bg-accent")}
+                      onClick={() => onCodeLanguageSelect(value)}
+                      key={value}
+                    >
+                      {name}
+                    </DropdownMenuItem>
+                  ))}
                 </DropdownMenuContent>
               </DropdownMenu>
               <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    disabled={!isEditable}
-                    aria-label="Select theme"
-                    className={cn("gap-1", "toolbar-item code-language")}
-                  >
-                    <span className="text dropdown-button-text">
-                      {(CODE_THEME_OPTIONS_SHIKI.find((opt) => opt[0] === toolbarState.codeTheme) || ["", ""])[1]}
-                    </span>
-                    <CaretDownIcon className="size-3 opacity-50" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" sideOffset={4} className="min-w-40">
-                  {CODE_THEME_OPTIONS_SHIKI.map(([value, name]) => {
-                    return (
-                      <DropdownMenuItem
-                        className={cn(
-                          "cursor-pointer",
-                          `item ${dropDownActiveClass(value === toolbarState.codeTheme)}`
-                        )}
-                        onClick={() => onCodeThemeSelect(value)}
-                        key={value}
-                      >
-                        <span className="text">{name}</span>
-                      </DropdownMenuItem>
-                    );
-                  })}
+                <DropdownMenuTrigger
+                  render={
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      disabled={!isEditable}
+                      aria-label="Select theme"
+                      className="gap-1 px-2 toolbar-item code-language"
+                    >
+                      <span className="text-xs">
+                        {
+                          O.getOrElse(
+                            A.findFirst(CODE_THEME_OPTIONS_SHIKI, (opt) => opt[0] === toolbarState.codeTheme),
+                            () => ["", ""] as [string, string]
+                          )[1]
+                        }
+                      </span>
+                      <CaretDownIcon className="size-3 opacity-50" />
+                    </Button>
+                  }
+                />
+                <DropdownMenuContent align="start" sideOffset={4} className="w-48 max-h-80 overflow-y-auto">
+                  {A.map(CODE_THEME_OPTIONS_SHIKI, ([value, name]) => (
+                    <DropdownMenuItem
+                      className={cn(value === toolbarState.codeTheme && "bg-accent")}
+                      onClick={() => onCodeThemeSelect(value)}
+                      key={value}
+                    >
+                      {name}
+                    </DropdownMenuItem>
+                  ))}
                 </DropdownMenuContent>
               </DropdownMenu>
             </>
@@ -956,19 +910,21 @@ export default function ToolbarPlugin({
             <>
               <Divider />
               <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    disabled={!isEditable}
-                    aria-label="Insert specialized editor node"
-                    className={cn("gap-1", "toolbar-item spaced")}
-                  >
-                    <PlusIcon className="size-4" />
-                    <span className="text dropdown-button-text">Insert</span>
-                    <CaretDownIcon className="size-3 opacity-50" />
-                  </Button>
-                </DropdownMenuTrigger>
+                <DropdownMenuTrigger
+                  render={
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      disabled={!isEditable}
+                      aria-label="Insert"
+                      title="Insert"
+                      className="gap-0.5 px-1.5 toolbar-item spaced"
+                    >
+                      <PlusIcon className="size-4" />
+                      <CaretDownIcon className="size-3 opacity-50" />
+                    </Button>
+                  }
+                />
                 <DropdownMenuContent align="start" sideOffset={4} className="min-w-40">
                   <DropdownMenuItem
                     onClick={() => dispatchToolbarCommand(INSERT_HORIZONTAL_RULE_COMMAND)}
@@ -1069,8 +1025,7 @@ export default function ToolbarPlugin({
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={() => {
-                      const dateTime = new Date();
-                      dateTime.setHours(0, 0, 0, 0);
+                      const dateTime = DateTime.startOf("day")(DateTime.unsafeNow());
                       dispatchToolbarCommand(INSERT_DATETIME_COMMAND, { dateTime });
                     }}
                     className={cn("cursor-pointer", "item")}
@@ -1078,7 +1033,7 @@ export default function ToolbarPlugin({
                     <CalendarIcon className="size-4" />
                     <span className="text">Date</span>
                   </DropdownMenuItem>
-                  {EmbedConfigs.map((embedConfig) => (
+                  {A.map(EmbedConfigs, (embedConfig) => (
                     <DropdownMenuItem
                       key={embedConfig.type}
                       onClick={() => dispatchToolbarCommand(INSERT_EMBED_COMMAND, embedConfig.type)}
@@ -1094,7 +1049,7 @@ export default function ToolbarPlugin({
           )}
         </>
       )}
-      <Divider />
+      <Spacer />
       <ElementFormatDropdown
         disabled={!isEditable}
         value={toolbarState.elementFormat}

@@ -106,7 +106,7 @@ export const editorTheme: EditorThemeClasses = {
   tableCellResizer: "EditorTheme__tableCellResizer absolute -right-1 h-full w-2 cursor-ew-resize z-10 top-0",
   tableCellSelected: "EditorTheme__tableCellSelected bg-muted",
   tableCellSortedIndicator:
-    "EditorTheme__tableCellSortedIndicator block opacity-50 bsolute bottom-0 left-0 w-full h-1 bg-muted",
+    "EditorTheme__tableCellSortedIndicator block opacity-50 bsolute bottom-0 lefzt-0 w-full h-1 bg-muted",
   tableResizeRuler: "EditorTheme__tableCellResizeRuler block absolute w-[1px] h-full bg-primary top-0",
   tableRowStriping: "EditorTheme__tableRowStriping m-0 border-t p-0 even:bg-muted",
   tableSelected: "EditorTheme__tableSelected ring-2 ring-primary ring-offset-2",

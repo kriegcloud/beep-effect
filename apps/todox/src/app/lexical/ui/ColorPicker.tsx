@@ -1,10 +1,12 @@
 "use client";
 
+import { Input } from "@beep/todox/components/ui/input";
+import { Label } from "@beep/todox/components/ui/label";
 import { cn } from "@beep/todox/lib/utils";
-import { Input } from "@beep/ui/components/input";
-import { Label } from "@beep/ui/components/label";
-
 import { calculateZoomLevel } from "@lexical/utils";
+import * as A from "effect/Array";
+import * as O from "effect/Option";
+import * as Str from "effect/String";
 import type * as React from "react";
 import type { JSX } from "react";
 import { useId, useMemo, useRef, useState } from "react";
@@ -18,7 +20,7 @@ interface ColorPickerProps {
 }
 
 export function parseAllowedColor(input: string) {
-  return /^rgb\(\d+, \d+, \d+\)$/.test(input) ? input : "";
+  return O.isSome(Str.match(/^rgb\(\d+, \d+, \d+\)$/)(input)) ? input : "";
 }
 
 const basicColors = [
@@ -72,7 +74,7 @@ export default function ColorPicker({ color, onChange }: Readonly<ColorPickerPro
 
   const onSetHex = (hex: string) => {
     setInputColor(hex);
-    if (/^#[0-9A-Fa-f]{6}$/i.test(hex)) {
+    if (O.isSome(Str.match(/^#[0-9A-Fa-f]{6}$/i)(hex))) {
       const newColor = transformColor("hex", hex);
       setSelfColor(newColor);
       emitOnChange(newColor.hex);
@@ -109,20 +111,25 @@ export default function ColorPicker({ color, onChange }: Readonly<ColorPickerPro
   };
 
   return (
-    <div className="p-5 bg-white text-black" style={{ width: WIDTH }} ref={innerDivRef}>
-      <div className="flex flex-row items-center mb-2.5 gap-3">
-        <Label className="flex flex-1 text-muted-foreground text-sm" htmlFor={hexId}>
+    <div className="w-[214px]" ref={innerDivRef}>
+      <div className="flex flex-row items-center mb-3 gap-3">
+        <Label className="text-sm font-medium" htmlFor={hexId}>
           Hex
         </Label>
-        <Input id={hexId} className="flex flex-[2]" value={inputColor} onChange={(e) => onSetHex(e.target.value)} />
+        <Input
+          id={hexId}
+          className="flex-1 h-8 font-mono text-sm"
+          value={inputColor}
+          onChange={(e) => onSetHex(e.target.value)}
+        />
       </div>
-      <div className="flex flex-wrap gap-2.5 m-0 p-0">
-        {basicColors.map((basicColor) => (
+      <div className="flex flex-wrap gap-1.5 mb-3">
+        {A.map(basicColors, (basicColor) => (
           <button
             type="button"
             className={cn(
-              "border border-gray-300 rounded h-4 w-4 cursor-pointer",
-              basicColor === selfColor.hex && "shadow-[0px_0px_2px_2px_rgba(0,0,0,0.3)]"
+              "rounded size-5 cursor-pointer border border-border transition-shadow hover:scale-110",
+              basicColor === selfColor.hex && "ring-2 ring-primary ring-offset-1 ring-offset-background"
             )}
             key={basicColor}
             style={{ backgroundColor: basicColor }}
@@ -131,7 +138,7 @@ export default function ColorPicker({ color, onChange }: Readonly<ColorPickerPro
         ))}
       </div>
       <MoveWrapper
-        className="w-full relative mt-4 h-[150px] select-none"
+        className="w-full relative h-[150px] select-none rounded-md"
         style={{
           backgroundColor: `hsl(${selfColor.hsv.h}, 100%, 50%)`,
           backgroundImage: "linear-gradient(transparent, black), linear-gradient(to right, white, transparent)",
@@ -139,7 +146,7 @@ export default function ColorPicker({ color, onChange }: Readonly<ColorPickerPro
         onChange={onMoveSaturation}
       >
         <div
-          className="absolute w-5 h-5 border-2 border-white rounded-full shadow-[0_0_15px_rgba(0,0,0,0.15)] box-border -translate-x-2.5 -translate-y-2.5"
+          className="absolute size-5 border-2 border-white rounded-full shadow-md box-border -translate-x-2.5 -translate-y-2.5 pointer-events-none"
           style={{
             backgroundColor: selfColor.hex,
             left: saturationPosition.x,
@@ -148,7 +155,7 @@ export default function ColorPicker({ color, onChange }: Readonly<ColorPickerPro
         />
       </MoveWrapper>
       <MoveWrapper
-        className="w-full relative mt-4 h-3 select-none rounded-xl"
+        className="w-full relative mt-3 h-3 select-none rounded-full"
         style={{
           backgroundImage:
             "linear-gradient(to right, rgb(255, 0, 0), rgb(255, 255, 0), rgb(0, 255, 0), rgb(0, 255, 255), rgb(0, 0, 255), rgb(255, 0, 255), rgb(255, 0, 0))",
@@ -156,14 +163,14 @@ export default function ColorPicker({ color, onChange }: Readonly<ColorPickerPro
         onChange={onMoveHue}
       >
         <div
-          className="absolute w-5 h-5 border-2 border-white rounded-full shadow-[0_0_0_0.5px_rgba(0,0,0,0.2)] box-border -translate-x-2.5 -translate-y-1"
+          className="absolute size-5 border-2 border-white rounded-full shadow-md box-border -translate-x-2.5 -translate-y-1 pointer-events-none"
           style={{
             backgroundColor: `hsl(${selfColor.hsv.h}, 100%, 50%)`,
             left: huePosition.x,
           }}
         />
       </MoveWrapper>
-      <div className="border border-gray-300 mt-4 w-full h-5" style={{ backgroundColor: selfColor.hex }} />
+      <div className="border border-border mt-3 w-full h-6 rounded-md" style={{ backgroundColor: selfColor.hex }} />
     </div>
   );
 }
@@ -253,7 +260,7 @@ interface Color {
 }
 
 export function toHex(value: string): string {
-  if (!value.startsWith("#")) {
+  if (!Str.startsWith("#")(value)) {
     const ctx = document.createElement("canvas").getContext("2d");
 
     if (!ctx) {
@@ -265,10 +272,7 @@ export function toHex(value: string): string {
     return ctx.fillStyle;
   }
   if (value.length === 4 || value.length === 5) {
-    value = value
-      .split("")
-      .map((v, i) => (i ? v + v : "#"))
-      .join("");
+    value = A.map(Str.split(value, ""), (v, i) => (i ? v + v : "#")).join("");
 
     return value;
   }
@@ -280,12 +284,10 @@ export function toHex(value: string): string {
 }
 
 function hex2rgb(hex: string): RGB {
-  const rbgArr = (
-    hex
-      .replace(/^#?([a-f\d])([a-f\d])([a-f\d])$/i, (m, r, g, b) => `#${r}${r}${g}${g}${b}${b}`)
-      .substring(1)
-      .match(/.{2}/g) || []
-  ).map((x) => Number.parseInt(x, 16));
+  const expanded = Str.replace(/^#?([a-f\d])([a-f\d])([a-f\d])$/i, "#$1$1$2$2$3$3")(hex);
+  const hexPart = Str.slice(1, Str.length(expanded))(expanded);
+  const matches = Str.matchAll(/.{2}/g)(hexPart);
+  const rbgArr = A.map(A.fromIterable(matches), (match) => Number.parseInt(match[0], 16));
 
   return {
     b: rbgArr[2]!,
@@ -328,7 +330,7 @@ function hsv2rgb({ h, s, v }: HSV): RGB {
 }
 
 function rgb2hex({ b, g, r }: RGB): string {
-  return `#${[r, g, b].map((x) => x.toString(16).padStart(2, "0")).join("")}`;
+  return `#${A.map([r, g, b], (x) => Str.padStart(2, "0")(x.toString(16))).join("")}`;
 }
 
 function transformColor<M extends keyof Color, C extends Color[M]>(format: M, color: C): Color {

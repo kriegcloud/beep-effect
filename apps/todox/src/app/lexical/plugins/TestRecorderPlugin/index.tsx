@@ -3,6 +3,9 @@
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { IS_APPLE } from "@lexical/utils";
 import * as Either from "effect/Either";
+import * as HashSet from "effect/HashSet";
+import * as Match from "effect/Match";
+import * as Str from "effect/String";
 import type { BaseSelection, LexicalEditor } from "lexical";
 import { $createParagraphNode, $createTextNode, $getRoot, getDOMSelection } from "lexical";
 import type { JSX } from "react";
@@ -36,55 +39,43 @@ const download = (filename: string, text: string | null) => {
 };
 
 const formatStep = (step: Step) => {
-  const formatOneStep = (name: string, value: Step["value"]) => {
-    switch (name) {
-      case "click": {
-        return `      await page.mouse.click(${value.x}, ${value.y});`;
-      }
-      case "press": {
-        return `      await page.keyboard.press('${value}');`;
-      }
-      case "keydown": {
-        return `      await page.keyboard.keydown('${value}');`;
-      }
-      case "keyup": {
-        return `      await page.keyboard.keyup('${value}');`;
-      }
-      case "type": {
-        return `      await page.keyboard.type('${value}');`;
-      }
-      case "selectAll": {
-        return `      await selectAll(page);`;
-      }
-      case "snapshot": {
-        return `      await assertHTMLSnapshot(page);
+  const formatOneStep = (name: string, value: Step["value"]) =>
+    Match.value(name).pipe(
+      Match.when("click", () => `      await page.mouse.click(${value.x}, ${value.y});`),
+      Match.when("press", () => `      await page.keyboard.press('${value}');`),
+      Match.when("keydown", () => `      await page.keyboard.keydown('${value}');`),
+      Match.when("keyup", () => `      await page.keyboard.keyup('${value}');`),
+      Match.when("type", () => `      await page.keyboard.type('${value}');`),
+      Match.when("selectAll", () => `      await selectAll(page);`),
+      Match.when(
+        "snapshot",
+        () => `      await assertHTMLSnapshot(page);
       await assertSelection(page, {
         anchorPath: [${value.anchorPath.toString()}],
         anchorOffset: ${value.anchorOffset},
         focusPath: [${value.focusPath.toString()}],
         focusOffset: ${value.focusOffset},
       });
-`;
-      }
-      default:
-        return ``;
-    }
-  };
+`
+      ),
+      Match.orElse(() => ``)
+    );
+
   const formattedStep = formatOneStep(step.name, step.value);
-  switch (step.count) {
-    case 1:
-      return formattedStep;
-    case 2:
-      return [formattedStep, formattedStep].join(`\n`);
-    default:
-      return `      await repeat(${step.count}, async () => {
+
+  return Match.value(step.count).pipe(
+    Match.when(1, () => formattedStep),
+    Match.when(2, () => [formattedStep, formattedStep].join(`\n`)),
+    Match.orElse(
+      () => `      await repeat(${step.count}, async () => {
   ${formattedStep}
-      );`;
-  }
+      );`
+    )
+  );
 };
 
 export function isSelectAll(event: KeyboardEvent): boolean {
-  return event.key.toLowerCase() === "a" && (IS_APPLE ? event.metaKey : event.ctrlKey);
+  return Str.toLowerCase(event.key) === "a" && (IS_APPLE ? event.metaKey : event.ctrlKey);
 }
 
 // stolen from LexicalSelection-test
@@ -112,7 +103,7 @@ function getPathFromNodeToEditor(node: Node, rootElement: HTMLElement | null) {
   return path;
 }
 
-const keyPresses = new Set([
+const keyPresses = HashSet.make(
   "Enter",
   "Backspace",
   "Delete",
@@ -120,8 +111,8 @@ const keyPresses = new Set([
   "ArrowLeft",
   "ArrowRight",
   "ArrowUp",
-  "ArrowDown",
-]);
+  "ArrowDown"
+);
 
 type Step = {
   // biome-ignore lint/suspicious/noExplicitAny: Step values can be any type from editor events
@@ -220,7 +211,7 @@ ${steps.map(formatStep).join(`\n`)}
       const key = event.key;
       if (isSelectAll(event)) {
         pushStep("selectAll", "");
-      } else if (keyPresses.has(key)) {
+      } else if (HashSet.has(keyPresses, key)) {
         pushStep("press", event.key);
       } else if ([...key].length > 1) {
         pushStep("keydown", event.key);
@@ -234,7 +225,7 @@ ${steps.map(formatStep).join(`\n`)}
         return;
       }
       const key = event.key;
-      if (!keyPresses.has(key) && [...key].length > 1) {
+      if (!HashSet.has(keyPresses, key) && [...key].length > 1) {
         pushStep("keyup", event.key);
       }
     };

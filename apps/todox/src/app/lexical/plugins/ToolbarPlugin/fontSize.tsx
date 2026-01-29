@@ -1,6 +1,10 @@
 "use client";
 
 import { cn } from "@beep/todox/lib/utils";
+import { MinusIcon, PlusIcon } from "@phosphor-icons/react";
+import * as F from "effect/Function";
+import * as O from "effect/Option";
+import * as Str from "effect/String";
 import type { LexicalEditor } from "lexical";
 import * as React from "react";
 import { MAX_ALLOWED_FONT_SIZE, MIN_ALLOWED_FONT_SIZE } from "../../context/toolbar-context";
@@ -9,8 +13,18 @@ import { SHORTCUTS } from "../ShortcutsPlugin/shortcuts";
 import { UpdateFontSizeType, updateFontSize, updateFontSizeInSelection } from "./utils";
 
 function parseFontSize(input: string): [number, string] | null {
-  const match = input.match(/^(\d+(?:\.\d+)?)(px|pt)$/);
-  return match ? [Number(match[1]), match[2]!] : null;
+  return F.pipe(
+    input,
+    Str.match(/^(\d+(?:\.\d+)?)(px|pt)$/),
+    O.flatMap((match) =>
+      O.fromNullable(match[1]).pipe(
+        O.flatMap((numStr) =>
+          O.fromNullable(match[2]).pipe(O.map((unit) => [Number(numStr), unit] as [number, string]))
+        )
+      )
+    ),
+    O.getOrNull
+  );
 }
 
 function normalizeToPx(fontSize: number, unit: string): number {
@@ -113,14 +127,11 @@ export default function FontSize({
         onClick={(e) => {
           updateFontSize(editor, UpdateFontSizeType.decrement, inputValue, isKeyboardInput(e));
         }}
-        className="toolbar-item p-0 mr-0.5"
+        className="toolbar-item"
         aria-label="Decrease font size"
         title={`Decrease font size (${SHORTCUTS.DECREASE_FONT_SIZE})`}
       >
-        <i
-          className="format bg-no-repeat bg-center"
-          style={{ backgroundImage: "url(/lexical/images/icons/minus-sign.svg)" }}
-        />
+        <MinusIcon className="size-4" />
       </button>
 
       <input
@@ -148,14 +159,11 @@ export default function FontSize({
         onClick={(e) => {
           updateFontSize(editor, UpdateFontSizeType.increment, inputValue, isKeyboardInput(e));
         }}
-        className="toolbar-item p-0 ml-0.5"
+        className="toolbar-item"
         aria-label="Increase font size"
         title={`Increase font size (${SHORTCUTS.INCREASE_FONT_SIZE})`}
       >
-        <i
-          className="format bg-no-repeat bg-center"
-          style={{ backgroundImage: "url(/lexical/images/icons/add-sign.svg)" }}
-        />
+        <PlusIcon className="size-4" />
       </button>
     </>
   );

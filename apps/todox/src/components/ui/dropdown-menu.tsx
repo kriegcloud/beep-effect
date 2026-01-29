@@ -4,6 +4,7 @@ import { Menu as MenuPrimitive } from "@base-ui/react/menu";
 import { cn } from "@beep/todox/lib/utils";
 import { CaretRightIcon, CheckIcon } from "@phosphor-icons/react";
 import type * as React from "react";
+import { Kbd } from "./kbd";
 
 function DropdownMenu({ ...props }: MenuPrimitive.Root.Props) {
   return <MenuPrimitive.Root data-slot="dropdown-menu" {...props} />;
@@ -204,12 +205,12 @@ function DropdownMenuSeparator({ className, ...props }: MenuPrimitive.Separator.
   );
 }
 
-function DropdownMenuShortcut({ className, ...props }: React.ComponentProps<"span">) {
+function DropdownMenuShortcut({ className, ...props }: React.ComponentProps<"kbd">) {
   return (
-    <span
+    <Kbd
       data-slot="dropdown-menu-shortcut"
       className={cn(
-        "text-muted-foreground group-focus/dropdown-menu-item:text-accent-foreground ml-auto text-xs tracking-widest",
+        "group-focus/dropdown-menu-item:bg-accent-foreground/20 group-focus/dropdown-menu-item:text-accent-foreground ml-auto tracking-widest",
         className
       )}
       {...props}

@@ -58,17 +58,19 @@
 
 .editor-scroller {
   min-height: 150px;
+  max-width: 100%;
   border: 0;
   display: flex;
   position: relative;
   outline: 0;
   z-index: 0;
   resize: vertical;
-  overflow: auto;
+  overflow-y: auto;
 }
 
 .editor {
   flex: auto;
+  max-width: 100%;
   position: relative;
   resize: vertical;
   z-index: -1;
@@ -193,7 +195,7 @@ header img {
 
 .toolbar {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
   gap: 2px;
   padding: 4px 8px;
@@ -202,6 +204,8 @@ header img {
   vertical-align: middle;
   background: var(--muted);
   border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+  scrollbar-width: thin;
 }
 
 .toolbar .divider {
@@ -209,6 +213,10 @@ header img {
   height: 24px;
   background-color: var(--border);
   margin: 0 4px;
+}
+
+.toolbar .spacer {
+  flex: 1;
 }
 
 .toolbar button.toolbar-item {
@@ -240,12 +248,11 @@ header img {
 .toolbar .dropdown-button-text {
   display: flex;
   line-height: 20px;
-  flex-grow: 1;
-  min-width: 84px;
+  white-space: nowrap;
 }
 
 .toolbar .code-language {
-  min-width: 100px;
+  white-space: nowrap;
 }
 
 /* =============================================================================
@@ -737,7 +744,7 @@ header img {
   list-style: none;
   outline: none;
 }
-
+z
 .Collapsible__title::marker,
 .Collapsible__title::-webkit-details-marker {
   display: none;
@@ -924,4 +931,120 @@ header img {
 .EditorTheme__contextMenuSeparator {
   height: 1px;
   background-color: var(--border);
+}
+
+/* =============================================================================
+   Typeahead Popover (Component Picker, Emoji Picker, Mentions, etc.)
+   ============================================================================= */
+
+.typeahead-popover {
+  background-color: var(--popover);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  max-height: 300px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  position: absolute;
+  z-index: 50;
+}
+
+.typeahead-popover ul {
+  list-style: none;
+  margin: 0;
+  padding: 4px;
+}
+
+.typeahead-popover li.item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  margin: 2px 0;
+  border-radius: calc(var(--radius) - 2px);
+  cursor: pointer;
+  color: var(--popover-foreground);
+  font-size: 14px;
+  line-height: 1.4;
+  transition: background-color 0.15s ease;
+}
+
+.typeahead-popover li.item:hover {
+  background-color: var(--accent);
+}
+
+.typeahead-popover li.item.selected {
+  background-color: var(--accent);
+}
+
+.typeahead-popover li.item .text {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.typeahead-popover li.item svg {
+  flex-shrink: 0;
+  color: var(--muted-foreground);
+}
+
+.typeahead-popover li.item.selected svg,
+.typeahead-popover li.item:hover svg {
+  color: var(--popover-foreground);
+}
+
+/* Component Picker Menu specific styles */
+.component-picker-menu {
+  min-width: 200px;
+}
+
+.component-picker-menu .component-picker-search {
+  background-color: var(--popover);
+  color: var(--popover-foreground);
+  border-bottom: 1px solid var(--border);
+}
+
+.component-picker-menu .component-picker-search::placeholder {
+  color: var(--muted-foreground);
+}
+
+.component-picker-menu .component-picker-search:focus {
+  background-color: var(--popover);
+}
+
+/* Emoji Menu specific styles */
+.emoji-menu {
+  min-width: 180px;
+}
+
+/* Mentions Menu specific styles */
+.mentions-menu {
+  min-width: 200px;
+}
+
+/* Auto Embed Menu specific styles */
+.auto-embed-menu {
+  min-width: 180px;
+}
+
+/* =============================================================================
+   Draggable Block Menu
+   ============================================================================= */
+
+.draggable-block-menu {
+  background-color: var(--popover);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.draggable-block-menu .draggable-block-button,
+.draggable-block-menu .draggable-block-handle {
+  color: var(--muted-foreground);
+  transition: color 0.15s ease, background-color 0.15s ease;
+}
+
+.draggable-block-menu .draggable-block-button:hover,
+.draggable-block-menu .draggable-block-handle:hover {
+  color: var(--foreground);
 }

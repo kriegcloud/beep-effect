@@ -1,6 +1,6 @@
 "use client";
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@beep/ui/components/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@beep/todox/components/ui/dialog";
 import type { JSX } from "react";
 import { useCallback, useMemo, useState } from "react";
 
@@ -25,7 +25,7 @@ export default function useModal(): [
     const { title, content } = modalContent;
     return (
       <Dialog open onOpenChange={(open) => !open && onClose()}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>{title}</DialogTitle>
           </DialogHeader>

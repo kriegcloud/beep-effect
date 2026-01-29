@@ -7,6 +7,8 @@ import "@excalidraw/excalidraw/index.css";
 
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { $wrapNodeInElement } from "@lexical/utils";
+import * as Either from "effect/Either";
+import * as S from "effect/Schema";
 import {
   $createParagraphNode,
   $insertNodes,
@@ -19,6 +21,16 @@ import { useEffect, useState } from "react";
 
 import { $createExcalidrawNode, ExcalidrawNode } from "../../nodes/ExcalidrawNode";
 import ExcalidrawModal from "../../ui/ExcalidrawModal";
+
+// Schema for Excalidraw data serialization
+// Using S.Unknown for complex Excalidraw types from external library
+const ExcalidrawDataSchema = S.Struct({
+  appState: S.Unknown, // Partial<AppState> from Excalidraw
+  elements: S.Unknown, // ExcalidrawInitialElements from Excalidraw
+  files: S.Unknown, // BinaryFiles from Excalidraw
+});
+
+const encodeExcalidrawData = S.encodeUnknownEither(S.parseJson(ExcalidrawDataSchema));
 
 export const INSERT_EXCALIDRAW_COMMAND: LexicalCommand<void> = createCommand("INSERT_EXCALIDRAW_COMMAND");
 
@@ -52,13 +64,9 @@ export default function ExcalidrawPlugin(): JSX.Element | null {
   const onSave = (elements: ExcalidrawInitialElements, appState: Partial<AppState>, files: BinaryFiles) => {
     editor.update(() => {
       const excalidrawNode = $createExcalidrawNode();
-      excalidrawNode.setData(
-        JSON.stringify({
-          appState,
-          elements,
-          files,
-        })
-      );
+      const data = { appState, elements, files };
+      const encoded = Either.getOrElse(encodeExcalidrawData(data), () => "{}");
+      excalidrawNode.setData(encoded);
       $insertNodes([excalidrawNode]);
       if ($isRootOrShadowRoot(excalidrawNode.getParentOrThrow())) {
         $wrapNodeInElement(excalidrawNode, $createParagraphNode).selectEnd();

@@ -80,8 +80,8 @@ function TweetComponent({
   const runtime = useRuntime();
   const runPromise = makeRunClientPromise(runtime);
 
-  const createTweet = useCallback(async () => {
-    await runPromise(
+  const createTweet = useCallback(() => {
+    runPromise(
       createTweetWidget(tweetID, containerRef.current).pipe(
         Effect.tap(() =>
           Effect.sync(() => {

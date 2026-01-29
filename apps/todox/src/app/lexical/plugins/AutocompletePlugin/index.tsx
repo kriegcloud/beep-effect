@@ -3,6 +3,11 @@
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { $isAtNodeEnd } from "@lexical/selection";
 import { mergeRegister } from "@lexical/utils";
+import * as A from "effect/Array";
+import * as Effect from "effect/Effect";
+import * as F from "effect/Function";
+import * as O from "effect/Option";
+import * as Str from "effect/String";
 import type { BaseSelection, NodeKey } from "lexical";
 import {
   $addUpdateTag,
@@ -55,17 +60,17 @@ function $search(selection: null | BaseSelection): [boolean, string] {
   if (!$isTextNode(node) || !node.isSimpleText() || !$isAtNodeEnd(anchor)) {
     return [false, ""];
   }
-  const word = [];
+  const word: string[] = [];
   const text = node.getTextContent();
   let i = node.getTextContentSize();
   let c: string | undefined;
   while (i-- && i >= 0 && (c = text[i]) !== undefined && c !== " ") {
     word.push(c);
   }
-  if (word.length === 0) {
+  if (A.isEmptyReadonlyArray(word)) {
     return [false, ""];
   }
-  return [true, word.reverse().join("")];
+  return [true, A.join(A.reverse(word), "")];
 }
 
 // TODO query should be custom
@@ -161,17 +166,21 @@ export default function AutocompletePlugin(): JSX.Element | null {
         }
         $clearSuggestion();
         searchPromise = query(match);
-        searchPromise.promise
-          .then((newSuggestion) => {
-            if (searchPromise !== null) {
-              updateAsyncSuggestion(searchPromise, newSuggestion);
-            }
-          })
-          .catch((e) => {
-            if (e !== "Dismissed") {
-              console.error(e);
-            }
-          });
+        F.pipe(
+          Effect.tryPromise({
+            try: () => searchPromise!.promise,
+            catch: (e) => e,
+          }),
+          Effect.tap((newSuggestion) =>
+            Effect.sync(() => {
+              if (searchPromise !== null) {
+                updateAsyncSuggestion(searchPromise, newSuggestion);
+              }
+            })
+          ),
+          Effect.catchAll((e) => (e !== "Dismissed" ? Effect.sync(() => console.error(e)) : Effect.void)),
+          Effect.runPromise
+        );
         lastMatch = match;
       }, HISTORY_MERGE);
     }
@@ -242,37 +251,53 @@ class AutocompleteServer {
     const dismiss = () => {
       isDismissed = true;
     };
-    const promise: Promise<null | string> = new Promise((resolve, reject) => {
-      setTimeout(() => {
+
+    const effect = Effect.async<string | null, string>((resume) => {
+      const timeoutId = setTimeout(() => {
         if (isDismissed) {
           // TODO cache result
-          return reject("Dismissed");
+          resume(Effect.fail("Dismissed"));
+          return;
         }
         const searchTextLength = searchText.length;
         if (searchText === "" || searchTextLength < 4) {
-          return resolve(null);
+          resume(Effect.succeed(null));
+          return;
         }
-        const char0 = searchText.charCodeAt(0);
+        const char0 = O.getOrElse(Str.charCodeAt(0)(searchText), () => 0);
         const isCapitalized = char0 >= 65 && char0 <= 90;
         const caseInsensitiveSearchText = isCapitalized
-          ? String.fromCharCode(char0 + 32) + searchText.substring(1)
+          ? String.fromCharCode(char0 + 32) + Str.slice(1)(searchText)
           : searchText;
-        const match = this.DATABASE.find(
-          (dictionaryWord) => dictionaryWord.startsWith(caseInsensitiveSearchText) ?? null
+        const matchOption = A.findFirst(this.DATABASE, (dictionaryWord) =>
+          Str.startsWith(caseInsensitiveSearchText)(dictionaryWord)
         );
-        if (match === undefined) {
-          return resolve(null);
+        if (O.isNone(matchOption)) {
+          resume(Effect.succeed(null));
+          return;
         }
+        const match = matchOption.value;
         const matchCapitalized = isCapitalized
-          ? String.fromCharCode(match.charCodeAt(0) - 32) + match.substring(1)
+          ? String.fromCharCode(O.getOrElse(Str.charCodeAt(0)(match), () => 0) - 32) + Str.slice(1)(match)
           : match;
-        const autocompleteChunk = matchCapitalized.substring(searchTextLength);
+        const autocompleteChunk = Str.slice(searchTextLength)(matchCapitalized);
         if (autocompleteChunk === "") {
-          return resolve(null);
+          resume(Effect.succeed(null));
+          return;
         }
-        return resolve(autocompleteChunk);
+        resume(Effect.succeed(autocompleteChunk));
       }, this.LATENCY);
+
+      // Cleanup function - clears timeout if Effect is interrupted
+      return Effect.sync(() => clearTimeout(timeoutId));
     });
+
+    // Convert Effect to Promise, mapping failures to rejections
+    const promise = F.pipe(
+      effect,
+      Effect.mapError((e) => e),
+      Effect.runPromise
+    ).catch((e) => Promise.reject(e));
 
     return {
       dismiss,

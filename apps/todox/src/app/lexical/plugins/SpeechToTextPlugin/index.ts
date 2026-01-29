@@ -1,6 +1,8 @@
 "use client";
 
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
+import * as O from "effect/Option";
+import * as Str from "effect/String";
 import type { LexicalCommand, LexicalEditor, RangeSelection } from "lexical";
 import {
   $getSelection,
@@ -59,14 +61,14 @@ function SpeechToTextPlugin(): null {
           const selection = $getSelection();
 
           if ($isRangeSelection(selection)) {
-            const command = VOICE_COMMANDS[transcript.toLowerCase().trim()];
+            const command = VOICE_COMMANDS[Str.trim(Str.toLowerCase(transcript))];
 
             if (command) {
               command({
                 editor,
                 selection,
               });
-            } else if (transcript.match(/\s*\n\s*/)) {
+            } else if (O.isSome(Str.match(/\s*\n\s*/)(transcript))) {
               selection.insertParagraph();
             } else {
               selection.insertText(transcript);

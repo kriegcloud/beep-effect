@@ -1,12 +1,12 @@
 "use client";
 
+import * as HashSet from "effect/HashSet";
 import type { JSX } from "react";
-
 import { useEffect } from "react";
 
 import useReport from "../../hooks/useReport";
 
-const validInputTypes = new Set([
+const validInputTypes = HashSet.make(
   "insertText",
   "insertCompositionText",
   "insertFromComposition",
@@ -22,8 +22,8 @@ const validInputTypes = new Set([
   "deleteHardLineBackward",
   "deleteSoftLineBackward",
   "deleteHardLineForward",
-  "deleteSoftLineForward",
-]);
+  "deleteSoftLineForward"
+);
 
 export default function TypingPerfPlugin(): JSX.Element | null {
   const report = useReport();
@@ -69,7 +69,7 @@ export default function TypingPerfPlugin(): JSX.Element | null {
     };
 
     const beforeInputHandler = function beforeInputHandler(event: InputEvent) {
-      if (!validInputTypes.has(event.inputType) || invalidatingEvent) {
+      if (!HashSet.has(validInputTypes, event.inputType) || invalidatingEvent) {
         invalidatingEvent = false;
         return;
       }

@@ -18,11 +18,6 @@ interface CollaborativeFloatingAiPanelProps {
   readonly anchorElem?: HTMLElement;
 }
 
-interface PanelPosition {
-  readonly top: number;
-  readonly left: number;
-}
-
 /**
  * Get serialized range from current Lexical selection.
  * Returns null if no valid range selection exists.
@@ -75,7 +70,6 @@ export function CollaborativeFloatingAiPanel({ anchorElem }: CollaborativeFloati
 
   const { streamedContent, operationState, error, streamResponse, abort, reset: resetStreaming } = useAiStreaming();
 
-  const [position, setPosition] = useState<PanelPosition>({ top: 0, left: 0 });
   const [lastInstruction, setLastInstruction] = useState<string>("");
   const [lastPromptLabel, setLastPromptLabel] = useState<string>("");
 
@@ -103,22 +97,6 @@ export function CollaborativeFloatingAiPanel({ anchorElem }: CollaborativeFloati
       clearAiActivity();
     };
   }, [clearAiActivity]);
-
-  // Calculate position based on selection
-  useEffect(() => {
-    if (!isAiPanelOpen) return;
-
-    const selection = window.getSelection();
-    if (!selection || selection.rangeCount === 0) return;
-
-    const range = selection.getRangeAt(0);
-    const rect = range.getBoundingClientRect();
-
-    setPosition({
-      top: rect.bottom + window.scrollY + 8,
-      left: rect.left + window.scrollX,
-    });
-  }, [isAiPanelOpen, selectedText]);
 
   const handlePromptSelect = useCallback(
     (promptId: string, instruction: string) => {
@@ -167,15 +145,12 @@ export function CollaborativeFloatingAiPanel({ anchorElem }: CollaborativeFloati
   const panelContent = (
     <div
       className={cn(
-        "absolute z-[100] max-w-md rounded-xl border p-4 shadow-xl",
+        "fixed z-[100] max-w-md rounded-xl border p-4 shadow-xl",
         "bg-white dark:bg-zinc-900",
         "text-gray-900 dark:text-gray-100",
-        "animate-in fade-in-0 zoom-in-95"
+        "animate-in fade-in-0 zoom-in-95",
+        "top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
       )}
-      style={{
-        top: position.top,
-        left: position.left,
-      }}
     >
       {/* Conflict Warning Banner */}
       {hasConflict && (

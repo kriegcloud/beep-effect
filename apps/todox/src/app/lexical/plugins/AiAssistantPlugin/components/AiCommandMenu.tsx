@@ -8,6 +8,7 @@ import {
   CommandItem,
   CommandList,
 } from "@beep/todox/components/ui/command";
+import * as Str from "effect/String";
 import { type KeyboardEvent, useCallback, useState } from "react";
 import { type AiPromptTemplate, PREDEFINED_PROMPTS } from "../prompts";
 
@@ -33,7 +34,7 @@ export function AiCommandMenu({ onSelect }: AiCommandMenuProps) {
   );
 
   const handleCustomSubmit = useCallback(() => {
-    const trimmed = customInstruction.trim();
+    const trimmed = Str.trim(customInstruction);
     if (trimmed.length > 0) {
       onSelect("custom", trimmed);
       setCustomInstruction("");

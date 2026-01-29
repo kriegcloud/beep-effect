@@ -12,6 +12,8 @@ import {
 import { $patchStyleText, $setBlocksType } from "@lexical/selection";
 import { $isTableSelection } from "@lexical/table";
 import { $getNearestBlockElementAncestorOrThrow } from "@lexical/utils";
+import * as Match from "effect/Match";
+import * as Str from "effect/String";
 import {
   $addUpdateTag,
   $createParagraphNode,
@@ -36,63 +38,64 @@ type UpdateFontSizeType = (typeof UpdateFontSizeType)[keyof typeof UpdateFontSiz
  * @param updateType - The type of change, either increment or decrement
  * @returns the next font size
  */
-export const calculateNextFontSize = (currentFontSize: number, updateType: UpdateFontSizeType | null) => {
+export const calculateNextFontSize = (currentFontSize: number, updateType: UpdateFontSizeType | null): number => {
   if (!updateType) {
     return currentFontSize;
   }
 
-  let updatedFontSize: number = currentFontSize;
-  switch (updateType) {
-    case UpdateFontSizeType.decrement:
-      switch (true) {
-        case currentFontSize > MAX_ALLOWED_FONT_SIZE:
-          updatedFontSize = MAX_ALLOWED_FONT_SIZE;
-          break;
-        case currentFontSize >= 48:
-          updatedFontSize -= 12;
-          break;
-        case currentFontSize >= 24:
-          updatedFontSize -= 4;
-          break;
-        case currentFontSize >= 14:
-          updatedFontSize -= 2;
-          break;
-        case currentFontSize >= 9:
-          updatedFontSize -= 1;
-          break;
-        default:
-          updatedFontSize = MIN_ALLOWED_FONT_SIZE;
-          break;
-      }
-      break;
-
-    case UpdateFontSizeType.increment:
-      switch (true) {
-        case currentFontSize < MIN_ALLOWED_FONT_SIZE:
-          updatedFontSize = MIN_ALLOWED_FONT_SIZE;
-          break;
-        case currentFontSize < 12:
-          updatedFontSize += 1;
-          break;
-        case currentFontSize < 20:
-          updatedFontSize += 2;
-          break;
-        case currentFontSize < 36:
-          updatedFontSize += 4;
-          break;
-        case currentFontSize <= 60:
-          updatedFontSize += 12;
-          break;
-        default:
-          updatedFontSize = MAX_ALLOWED_FONT_SIZE;
-          break;
-      }
-      break;
-
-    default:
-      break;
-  }
-  return updatedFontSize;
+  return Match.value(updateType).pipe(
+    Match.when(UpdateFontSizeType.decrement, () =>
+      Match.value(currentFontSize).pipe(
+        Match.when(
+          (size) => size > MAX_ALLOWED_FONT_SIZE,
+          () => MAX_ALLOWED_FONT_SIZE
+        ),
+        Match.when(
+          (size) => size >= 48,
+          () => currentFontSize - 12
+        ),
+        Match.when(
+          (size) => size >= 24,
+          () => currentFontSize - 4
+        ),
+        Match.when(
+          (size) => size >= 14,
+          () => currentFontSize - 2
+        ),
+        Match.when(
+          (size) => size >= 9,
+          () => currentFontSize - 1
+        ),
+        Match.orElse(() => MIN_ALLOWED_FONT_SIZE)
+      )
+    ),
+    Match.when(UpdateFontSizeType.increment, () =>
+      Match.value(currentFontSize).pipe(
+        Match.when(
+          (size) => size < MIN_ALLOWED_FONT_SIZE,
+          () => MIN_ALLOWED_FONT_SIZE
+        ),
+        Match.when(
+          (size) => size < 12,
+          () => currentFontSize + 1
+        ),
+        Match.when(
+          (size) => size < 20,
+          () => currentFontSize + 2
+        ),
+        Match.when(
+          (size) => size < 36,
+          () => currentFontSize + 4
+        ),
+        Match.when(
+          (size) => size <= 60,
+          () => currentFontSize + 12
+        ),
+        Match.orElse(() => MAX_ALLOWED_FONT_SIZE)
+      )
+    ),
+    Match.orElse(() => currentFontSize)
+  );
 };
 
 /**
@@ -108,7 +111,7 @@ export const updateFontSizeInSelection = (
     if (!prevFontSize) {
       prevFontSize = `${DEFAULT_FONT_SIZE}px`;
     }
-    prevFontSize = prevFontSize.slice(0, -2);
+    prevFontSize = Str.slice(0, -2)(prevFontSize);
     const nextFontSize = calculateNextFontSize(Number(prevFontSize), updateType);
     return `${nextFontSize}px`;
   };

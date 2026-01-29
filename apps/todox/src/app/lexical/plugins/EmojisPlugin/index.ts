@@ -1,28 +1,39 @@
 "use client";
 
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
+import * as HashMap from "effect/HashMap";
+import * as O from "effect/Option";
+import * as Str from "effect/String";
 import type { LexicalEditor } from "lexical";
 import { TextNode } from "lexical";
 import type { JSX } from "react";
 import { useEffect } from "react";
 
 import { $createEmojiNode, EmojiNode } from "../../nodes/EmojiNode";
+import { NodeNotRegisteredError } from "../../schema/errors";
 
-const emojis: Map<string, [string, string]> = new Map([
-  [":)", ["emoji happysmile", "🙂"]],
-  [":D", ["emoji veryhappysmile", "😀"]],
-  [":(", ["emoji unhappysmile", "🙁"]],
-  ["<3", ["emoji heart", "❤"]],
-]);
+const emojiEntries: ReadonlyArray<readonly [string, readonly [string, string]]> = [
+  [":)", ["emoji happysmile", "🙂"]] as const,
+  [":D", ["emoji veryhappysmile", "😀"]] as const,
+  [":(", ["emoji unhappysmile", "🙁"]] as const,
+  ["<3", ["emoji heart", "❤"]] as const,
+];
+
+const emojis: HashMap.HashMap<string, readonly [string, string]> = HashMap.fromIterable(emojiEntries);
 
 function $findAndTransformEmoji(node: TextNode): null | TextNode {
   const text = node.getTextContent();
 
   for (let i = 0; i < text.length; i++) {
-    const emojiData = emojis.get(text[i]!) || emojis.get(text.slice(i, i + 2));
+    const singleChar = text[i];
+    const twoChars = Str.slice(i, i + 2)(text);
 
-    if (emojiData !== undefined) {
-      const [emojiStyle, emojiText] = emojiData;
+    // Try single character first, then two characters
+    const singleCharResult = singleChar !== undefined ? HashMap.get(emojis, singleChar) : O.none();
+    const emojiDataOption = O.isSome(singleCharResult) ? singleCharResult : HashMap.get(emojis, twoChars);
+
+    if (O.isSome(emojiDataOption)) {
+      const [emojiStyle, emojiText] = emojiDataOption.value;
       let targetNode: TextNode | undefined;
 
       if (i === 0) {
@@ -59,7 +70,11 @@ function $textNodeTransform(node: TextNode): void {
 function useEmojis(editor: LexicalEditor): void {
   useEffect(() => {
     if (!editor.hasNodes([EmojiNode])) {
-      throw new Error("EmojisPlugin: EmojiNode not registered on editor");
+      throw new NodeNotRegisteredError({
+        message: "EmojisPlugin: EmojiNode not registered on editor",
+        plugin: "EmojisPlugin",
+        nodeType: "EmojiNode",
+      });
     }
 
     return editor.registerNodeTransform(TextNode, $textNodeTransform);

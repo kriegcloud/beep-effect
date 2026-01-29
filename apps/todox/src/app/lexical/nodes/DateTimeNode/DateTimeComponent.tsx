@@ -1,32 +1,32 @@
 "use client";
 
-import type { JSX } from "react";
-
-import "react-day-picker/style.css";
-
+import { Button } from "@beep/todox/components/ui/button";
+import { Calendar } from "@beep/todox/components/ui/calendar";
+import { Checkbox } from "@beep/todox/components/ui/checkbox";
+import { Input } from "@beep/todox/components/ui/input";
+import { Label } from "@beep/todox/components/ui/label";
+import { Popover, PopoverContent, PopoverTrigger } from "@beep/todox/components/ui/popover";
 import { cn } from "@beep/todox/lib/utils";
-import {
-  autoUpdate,
-  FloatingFocusManager,
-  FloatingOverlay,
-  FloatingPortal,
-  flip,
-  offset,
-  shift,
-  useDismiss,
-  useFloating,
-  useInteractions,
-  useRole,
-} from "@floating-ui/react";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { useLexicalNodeSelection } from "@lexical/react/useLexicalNodeSelection";
-import { setHours, setMinutes } from "date-fns";
+import { CalendarBlankIcon } from "@phosphor-icons/react";
+import { format } from "date-fns";
+import * as A from "effect/Array";
+import * as DateTime from "effect/DateTime";
+import * as O from "effect/Option";
+import * as Str from "effect/String";
 import { $getNodeByKey, type NodeKey } from "lexical";
 import type * as React from "react";
-import { useEffect, useRef, useState } from "react";
-import { DayPicker } from "react-day-picker";
+import type { JSX } from "react";
+import { useState } from "react";
 
 import { $isDateTimeNode, type DateTimeNodeInterface } from "./datetime-utils";
+
+// Helper to convert DateTime.Utc to JS Date for react-day-picker
+const toJsDate = (dt: DateTime.Utc): Date => new Date(DateTime.toEpochMillis(dt));
+
+// Helper to convert JS Date to DateTime.Utc
+const fromJsDate = (date: Date): DateTime.Utc => O.getOrThrow(O.map(DateTime.make(date.toISOString()), DateTime.toUtc));
 
 const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
@@ -34,75 +34,33 @@ export default function DateTimeComponent({
   dateTime,
   nodeKey,
 }: {
-  readonly dateTime: Date | undefined;
+  readonly dateTime: DateTime.Utc | undefined;
   readonly nodeKey: NodeKey;
 }): JSX.Element {
   const [editor] = useLexicalComposerContext();
   const [isOpen, setIsOpen] = useState(false);
-  const ref = useRef(null);
   const [selected, setSelected] = useState(dateTime);
   const [includeTime, setIncludeTime] = useState(() => {
     if (dateTime === undefined) {
       return false;
     }
-    const hours = dateTime?.getHours();
-    const minutes = dateTime?.getMinutes();
+    const hours = DateTime.getPartUtc(dateTime, "hours");
+    const minutes = DateTime.getPartUtc(dateTime, "minutes");
     return hours !== 0 || minutes !== 0;
   });
   const [timeValue, setTimeValue] = useState(() => {
     if (dateTime === undefined) {
       return "00:00";
     }
-    const hours = dateTime?.getHours();
-    const minutes = dateTime?.getMinutes();
+    const hours = DateTime.getPartUtc(dateTime, "hours");
+    const minutes = DateTime.getPartUtc(dateTime, "minutes");
     if (hours !== 0 || minutes !== 0) {
-      return `${hours?.toString().padStart(2, "0")}:${minutes?.toString().padStart(2, "0")}`;
+      return `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}`;
     }
     return "00:00";
   });
 
-  const [isNodeSelected, _setNodeSelected, _clearNodeSelection] = useLexicalNodeSelection(nodeKey);
-
-  const { refs, floatingStyles, context } = useFloating({
-    elements: {
-      reference: ref.current,
-    },
-    middleware: [
-      offset(5),
-      flip({
-        fallbackPlacements: ["top-start"],
-      }),
-      shift({ padding: 10 }),
-    ],
-    onOpenChange: setIsOpen,
-    open: isOpen,
-    placement: "bottom-start",
-    strategy: "fixed",
-    whileElementsMounted: autoUpdate,
-  });
-
-  const role = useRole(context, { role: "dialog" });
-  const dismiss = useDismiss(context);
-
-  const { getFloatingProps } = useInteractions([role, dismiss]);
-
-  useEffect(() => {
-    const dateTimePillRef = ref.current as HTMLElement | null;
-    function onClick(e: MouseEvent) {
-      e.preventDefault();
-      setIsOpen(true);
-    }
-
-    if (dateTimePillRef) {
-      dateTimePillRef.addEventListener("click", onClick);
-    }
-
-    return () => {
-      if (dateTimePillRef) {
-        dateTimePillRef.removeEventListener("click", onClick);
-      }
-    };
-  }, [refs, editor]);
+  const [isNodeSelected] = useLexicalNodeSelection(nodeKey);
 
   const withDateTimeNode = (cb: (node: DateTimeNodeInterface) => void, onUpdate?: () => void): void => {
     editor.update(
@@ -116,14 +74,16 @@ export default function DateTimeComponent({
     );
   };
 
-  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleCheckboxChange = (checked: boolean) => {
     withDateTimeNode((node) => {
-      if (e.target.checked) {
+      if (checked) {
         setIncludeTime(true);
       } else {
         if (selected) {
-          const newSelectedDate = setHours(setMinutes(selected, 0), 0);
+          // Reset to start of day (midnight)
+          const newSelectedDate = DateTime.startOf("day")(selected);
           node.setDateTime(newSelectedDate);
+          setSelected(newSelectedDate);
         }
         setIncludeTime(false);
         setTimeValue("00:00");
@@ -138,8 +98,11 @@ export default function DateTimeComponent({
         setTimeValue(time);
         return;
       }
-      const [hours = 0, minutes = 0] = time.split(":").map((str: string) => Number.parseInt(str, 10));
-      const newSelectedDate = setHours(setMinutes(selected, minutes), hours);
+      const [hours = 0, minutes = 0] = A.map(Str.split(time, ":"), (str: string) => Number.parseInt(str, 10));
+      // Create new DateTime with updated hours and minutes
+      const newSelectedDate = DateTime.mutate(selected, (d) => {
+        d.setUTCHours(hours, minutes, 0, 0);
+      });
       setSelected(newSelectedDate);
       node.setDateTime(newSelectedDate);
       setTimeValue(time);
@@ -149,76 +112,84 @@ export default function DateTimeComponent({
   const handleDaySelect = (date: Date | undefined) => {
     withDateTimeNode((node) => {
       if (!timeValue || !date) {
-        setSelected(date);
+        if (date) {
+          const dt = fromJsDate(date);
+          setSelected(dt);
+        } else {
+          setSelected(undefined);
+        }
         return;
       }
-      const [hours, minutes] = timeValue.split(":").map((str) => Number.parseInt(str, 10));
-      const newDate = new Date(date.getFullYear(), date.getMonth(), date.getDate(), hours, minutes);
-      node.setDateTime(newDate);
-      setSelected(newDate);
+      const [hours = 0, minutes = 0] = A.map(Str.split(timeValue, ":"), (str) => Number.parseInt(str, 10));
+      // Convert JS Date to DateTime, then set hours/minutes
+      const baseDt = fromJsDate(date);
+      const newDt = DateTime.mutate(DateTime.startOf("day")(baseDt), (d) => {
+        d.setUTCHours(hours, minutes, 0, 0);
+      });
+      node.setDateTime(newDt);
+      setSelected(newDt);
     });
   };
 
+  // Convert DateTime to JS Date for display with date-fns format
+  const displayText = dateTime
+    ? includeTime
+      ? format(toJsDate(dateTime), "PPP") + ` ${timeValue}`
+      : format(toJsDate(dateTime), "PPP")
+    : "Pick a date";
+
+  // Convert DateTime to JS Date for Calendar component
+  const selectedJsDate = selected ? toJsDate(selected) : undefined;
+
+  // Static date range bounds
+  const startMonthDate = O.getOrThrow(O.map(DateTime.make({ year: 1925, month: 1, day: 1 }), DateTime.toUtc));
+  const endMonthDate = O.getOrThrow(O.map(DateTime.make({ year: 2042, month: 8, day: 1 }), DateTime.toUtc));
+
   return (
-    <div
-      className={cn(
-        "bg-muted border border-border rounded-lg px-1 cursor-pointer w-fit hover:bg-muted/50",
-        isNodeSelected && "outline outline-2 outline-blue-400"
-      )}
-      ref={ref}
-    >
-      {dateTime?.toDateString() + (includeTime ? ` ${timeValue}` : "") || "Invalid Date"}
-      {isOpen && (
-        <FloatingPortal>
-          <FloatingOverlay lockScroll={true}>
-            <FloatingFocusManager context={context} initialFocus={-1}>
-              <div
-                className="bg-background border border-border shadow-lg rounded-lg py-0 px-1.5 pr-2.5"
-                ref={refs.setFloating}
-                style={floatingStyles}
-                {...getFloatingProps()}
-              >
-                <DayPicker
-                  captionLayout="dropdown"
-                  navLayout="after"
-                  fixedWeeks={false}
-                  showOutsideDays={false}
-                  mode="single"
-                  selected={selected}
-                  required={true}
-                  // timeZone="BST" TODO: Support time zone selection
-                  onSelect={handleDaySelect}
-                  startMonth={new Date(1925, 0)}
-                  endMonth={new Date(2042, 7)}
-                />
-                <form style={{ marginBlockEnd: "1em" }}>
-                  <div
-                    style={{
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      whiteSpace: "nowrap",
-                      width: "300px",
-                    }}
-                  >
-                    <input
-                      type="checkbox"
-                      id="option1"
-                      name="option1"
-                      value="value1"
-                      checked={includeTime}
-                      onChange={handleCheckboxChange}
-                    />
-                    <label>
-                      <input type="time" value={timeValue} onChange={handleTimeChange} disabled={!includeTime} />
-                    </label>
-                    <span> {userTimeZone}</span>
-                  </div>
-                </form>
-              </div>
-            </FloatingFocusManager>
-          </FloatingOverlay>
-        </FloatingPortal>
-      )}
-    </div>
+    <Popover open={isOpen} onOpenChange={setIsOpen}>
+      <PopoverTrigger
+        render={
+          <Button
+            variant="outline"
+            className={cn(
+              "w-fit justify-start text-left font-normal",
+              !dateTime && "text-muted-foreground",
+              isNodeSelected && "ring-2 ring-primary"
+            )}
+          >
+            <CalendarBlankIcon className="mr-2 size-4" />
+            {displayText}
+          </Button>
+        }
+      />
+      <PopoverContent className="w-auto p-0" align="start">
+        <Calendar
+          captionLayout="dropdown"
+          showOutsideDays={false}
+          mode="single"
+          selected={selectedJsDate}
+          required={true}
+          onSelect={handleDaySelect}
+          startMonth={toJsDate(startMonthDate)}
+          endMonth={toJsDate(endMonthDate)}
+        />
+        <div className="flex items-center gap-3 p-3 border-t border-border">
+          <div className="flex items-center gap-2">
+            <Checkbox id="include-time" checked={includeTime} onCheckedChange={handleCheckboxChange} />
+            <Label htmlFor="include-time" className="text-sm cursor-pointer">
+              Time
+            </Label>
+          </div>
+          <Input
+            type="time"
+            value={timeValue}
+            onChange={handleTimeChange}
+            disabled={!includeTime}
+            className="w-auto h-8 text-sm"
+          />
+          <span className="text-xs text-muted-foreground">{userTimeZone}</span>
+        </div>
+      </PopoverContent>
+    </Popover>
   );
 }

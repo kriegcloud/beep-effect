@@ -27,4 +27,4 @@ export const INSERT_AI_TEXT_COMMAND: LexicalCommand<InsertAiTextPayload> = creat
 /**
  * Cancel ongoing AI operation
  */
-export const CANCEL_AI_OPERATION_COMMAND: LexicalCommand<null> = createCommand("CANCEL_AI_OPERATION");
+// export const CANCEL_AI_OPERATION_COMMAND: LexicalCommand<null> = createCommand("CANCEL_AI_OPERATION");

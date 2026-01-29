@@ -1,10 +1,11 @@
 "use client";
 
-import { Button } from "@beep/ui/components/button";
-import { Input } from "@beep/ui/components/input";
-import { Label } from "@beep/ui/components/label";
+import { Button } from "@beep/todox/components/ui/button";
+import { Input } from "@beep/todox/components/ui/input";
+import { Label } from "@beep/todox/components/ui/label";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { $wrapNodeInElement } from "@lexical/utils";
+import * as Str from "effect/String";
 import {
   $createParagraphNode,
   $insertNodes,
@@ -18,6 +19,7 @@ import type { JSX } from "react";
 import { useEffect, useId, useState } from "react";
 
 import { $createPollNode, createPollOption, PollNode } from "../../nodes/PollNode";
+import { NodeNotRegisteredError } from "../../schema/errors";
 
 export const INSERT_POLL_COMMAND: LexicalCommand<string> = createCommand("INSERT_POLL_COMMAND");
 
@@ -37,24 +39,22 @@ export function InsertPollDialog({
   };
 
   return (
-    <>
-      <div className="flex flex-row items-center mb-2.5 gap-3">
-        <Label className="flex flex-1 text-muted-foreground text-sm" htmlFor={questionId}>
-          Question
-        </Label>
+    <div className="grid gap-4 py-2">
+      <div className="grid gap-2">
+        <Label htmlFor={questionId}>Poll question</Label>
         <Input
           id={questionId}
-          className="flex flex-[2]"
+          placeholder="What would you like to ask?"
           value={question}
           onChange={(e) => setQuestion(e.target.value)}
         />
       </div>
-      <div className="flex flex-row justify-end mt-5 gap-2">
-        <Button variant="outline" disabled={question.trim() === ""} onClick={onClick}>
+      <div className="flex justify-end pt-2">
+        <Button variant="outline" disabled={Str.trim(question) === ""} onClick={onClick}>
           Confirm
         </Button>
       </div>
-    </>
+    </div>
   );
 }
 
@@ -62,7 +62,11 @@ export default function PollPlugin(): JSX.Element | null {
   const [editor] = useLexicalComposerContext();
   useEffect(() => {
     if (!editor.hasNodes([PollNode])) {
-      throw new Error("PollPlugin: PollNode not registered on editor");
+      throw new NodeNotRegisteredError({
+        message: "PollPlugin: PollNode not registered on editor",
+        plugin: "PollPlugin",
+        nodeType: "PollNode",
+      });
     }
 
     return editor.registerCommand<string>(

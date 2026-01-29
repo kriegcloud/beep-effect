@@ -1,6 +1,8 @@
 "use client";
 
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
+import * as MutableHashMap from "effect/MutableHashMap";
+import * as O from "effect/Option";
 import { useEffect } from "react";
 
 const SCROLLABLE_WRAPPER_CLASS = "EditorTheme__tableScrollableWrapper";
@@ -67,17 +69,17 @@ export default function TableScrollShadowPlugin(): null {
       updateAllTableScrollStates();
     });
 
-    const scrollHandlers = new Map<HTMLElement, () => void>();
+    let scrollHandlers = MutableHashMap.empty<HTMLElement, () => void>();
 
     const addScrollListener = (wrapper: HTMLElement) => {
-      if (scrollHandlers.has(wrapper)) {
+      if (O.isSome(MutableHashMap.get(scrollHandlers, wrapper))) {
         return; // Already has a listener
       }
       const handler = () => {
         updateTableScrollState(wrapper);
       };
       wrapper.addEventListener("scroll", handler, { passive: true });
-      scrollHandlers.set(wrapper, handler);
+      MutableHashMap.set(scrollHandlers, wrapper, handler);
     };
 
     const wrappers = editorElement.querySelectorAll<HTMLElement>(`.${SCROLLABLE_WRAPPER_CLASS}`);
@@ -118,10 +120,10 @@ export default function TableScrollShadowPlugin(): null {
       resizeObserver.disconnect();
       wrapperObserver.disconnect();
 
-      scrollHandlers.forEach((handler, wrapper) => {
+      for (const [wrapper, handler] of scrollHandlers) {
         wrapper.removeEventListener("scroll", handler);
-      });
-      scrollHandlers.clear();
+      }
+      scrollHandlers = MutableHashMap.empty<HTMLElement, () => void>();
     };
   }, [editor]);
 

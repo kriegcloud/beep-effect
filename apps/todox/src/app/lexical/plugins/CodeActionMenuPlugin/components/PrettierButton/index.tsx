@@ -112,7 +112,9 @@ export function PrettierButton({ lang, editor, getCodeDOMNode }: Props) {
   const runtime = useRuntime();
   const runPromise = makeRunClientPromise(runtime);
 
-  const handleClick = useCallback(async (): Promise<void> => {
+  // Fire-and-forget: onClick doesn't need the Promise result, and all
+  // success/error handling is done inside the Effect pipeline.
+  const handleClick = useCallback((): void => {
     const codeDOMNode = getCodeDOMNode();
     if (!codeDOMNode) {
       return;
@@ -129,7 +131,7 @@ export function PrettierButton({ lang, editor, getCodeDOMNode }: Props) {
       return;
     }
 
-    await runPromise(
+    runPromise(
       formatWithPrettier(content, lang).pipe(
         Effect.tap((formattedCode) =>
           Effect.sync(() => {

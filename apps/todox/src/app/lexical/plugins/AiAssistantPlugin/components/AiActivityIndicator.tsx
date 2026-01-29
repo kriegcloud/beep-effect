@@ -2,6 +2,8 @@
 
 import { cn } from "@beep/todox/lib/utils";
 import { useOthers } from "@liveblocks/react/suspense";
+import * as A from "effect/Array";
+import * as O from "effect/Option";
 
 /**
  * Visual indicator showing when a collaborator is using AI features.
@@ -31,14 +33,18 @@ interface AiActivityIndicatorProps {
  */
 export function AiActivityIndicator({ userId, className }: AiActivityIndicatorProps) {
   const others = useOthers();
-  const other = others.find((o) => o.id === userId);
+  const otherOption = A.findFirst(others, (o) => o.id === userId);
 
   // Don't render if user not found or not generating
-  if (!other?.presence?.aiActivity?.isGenerating) {
+  if (O.isNone(otherOption) || !otherOption.value.presence?.aiActivity?.isGenerating) {
     return null;
   }
 
-  const { promptLabel } = other.presence.aiActivity;
+  const other = otherOption.value;
+  // Safe to assert non-null since we checked isGenerating above
+  const aiActivity = other.presence!.aiActivity!;
+
+  const { promptLabel } = aiActivity;
   const userColor = other.info?.color ?? "#9333ea"; // Default purple
 
   return (
@@ -75,15 +81,15 @@ export function AiActivityIndicator({ userId, className }: AiActivityIndicatorPr
 export function AiActivityOverlay() {
   const others = useOthers();
 
-  const activeAiUsers = others.filter((other) => other.presence?.aiActivity?.isGenerating === true);
+  const activeAiUsers = A.filter(others, (other) => other.presence?.aiActivity?.isGenerating === true);
 
-  if (activeAiUsers.length === 0) {
+  if (A.isEmptyReadonlyArray(activeAiUsers)) {
     return null;
   }
 
   return (
     <div className="fixed top-4 right-4 z-50 flex flex-col gap-2">
-      {activeAiUsers.map((user) => (
+      {A.map(activeAiUsers, (user) => (
         <div
           key={user.id}
           className={cn(

@@ -1,3 +1,4 @@
+import type * as DateTime from "effect/DateTime";
 import type { LexicalNode } from "lexical";
 
 /**
@@ -5,7 +6,7 @@ import type { LexicalNode } from "lexical";
  * This avoids circular imports by defining the contract separately.
  */
 export interface DateTimeNodeInterface {
-  setDateTime(date: Date): this;
+  setDateTime(date: DateTime.Utc): this;
 }
 
 export function $isDateTimeNode(node: LexicalNode | null | undefined): node is LexicalNode & DateTimeNodeInterface {

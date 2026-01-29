@@ -2,6 +2,8 @@
 
 import { $isCodeNode, CodeNode, getLanguageFriendlyName, normalizeCodeLang } from "@lexical/code";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
+import * as Match from "effect/Match";
+import * as MutableHashSet from "effect/MutableHashSet";
 import { $getNearestNodeFromDOMNode, isHTMLElement } from "lexical";
 import type * as React from "react";
 import type { JSX } from "react";
@@ -29,7 +31,7 @@ function CodeActionMenuContainer({ anchorElem }: { readonly anchorElem: HTMLElem
     right: "0",
     top: "0",
   });
-  const codeSetRef = useRef<Set<string>>(new Set());
+  const codeSetRef = useRef(MutableHashSet.empty<string>());
   const codeDOMNodeRef = useRef<HTMLElement | null>(null);
 
   function getCodeDOMNode(): HTMLElement | null {
@@ -97,21 +99,18 @@ function CodeActionMenuContainer({ anchorElem }: { readonly anchorElem: HTMLElem
       (mutations) => {
         editor.getEditorState().read(() => {
           for (const [key, type] of mutations) {
-            switch (type) {
-              case "created":
-                codeSetRef.current.add(key);
-                break;
-
-              case "destroyed":
-                codeSetRef.current.delete(key);
-                break;
-
-              default:
-                break;
-            }
+            Match.value(type).pipe(
+              Match.when("created", () => {
+                MutableHashSet.add(codeSetRef.current, key);
+              }),
+              Match.when("destroyed", () => {
+                MutableHashSet.remove(codeSetRef.current, key);
+              }),
+              Match.orElse(() => {})
+            );
           }
         });
-        setShouldListenMouseMove(codeSetRef.current.size > 0);
+        setShouldListenMouseMove(MutableHashSet.size(codeSetRef.current) > 0);
       },
       { skipInitialization: false }
     );

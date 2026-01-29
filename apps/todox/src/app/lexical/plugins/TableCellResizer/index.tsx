@@ -14,6 +14,7 @@ import {
   TableNode,
 } from "@lexical/table";
 import { calculateZoomLevel, mergeRegister } from "@lexical/utils";
+import * as MutableHashSet from "effect/MutableHashSet";
 import * as P from "effect/Predicate";
 import type { LexicalEditor, NodeKey } from "lexical";
 import { $getNearestNodeFromDOMNode, isHTMLElement, SKIP_SCROLL_INTO_VIEW_TAG } from "lexical";
@@ -64,17 +65,17 @@ function TableCellResizer({ editor }: { readonly editor: LexicalEditor }): JSX.E
   }, []);
 
   useEffect(() => {
-    const tableKeys = new Set<NodeKey>();
+    const tableKeys = MutableHashSet.empty<NodeKey>();
     return mergeRegister(
       editor.registerMutationListener(TableNode, (nodeMutations) => {
         for (const [nodeKey, mutation] of nodeMutations) {
           if (mutation === "destroyed") {
-            tableKeys.delete(nodeKey);
+            MutableHashSet.remove(tableKeys, nodeKey);
           } else {
-            tableKeys.add(nodeKey);
+            MutableHashSet.add(tableKeys, nodeKey);
           }
         }
-        setHasTable(tableKeys.size > 0);
+        setHasTable(MutableHashSet.size(tableKeys) > 0);
       }),
       editor.registerNodeTransform(TableNode, (tableNode) => {
         if (tableNode.getColWidths()) {

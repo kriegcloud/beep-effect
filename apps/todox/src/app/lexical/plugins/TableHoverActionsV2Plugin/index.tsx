@@ -1,13 +1,13 @@
 "use client";
 
-import { cn } from "@beep/todox/lib/utils";
-import { Button } from "@beep/ui/components/button";
+import { Button } from "@beep/todox/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@beep/ui/components/dropdown-menu";
+} from "@beep/todox/components/ui/dropdown-menu";
+import { cn } from "@beep/todox/lib/utils";
 import { autoUpdate, offset, shift, useFloating, type VirtualElement } from "@floating-ui/react";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { useLexicalEditable } from "@lexical/react/useLexicalEditable";
@@ -367,11 +367,13 @@ function TableHoverActionsV2({ anchorElem }: { readonly anchorElem: HTMLElement 
         className="flex items-center gap-1 relative"
       >
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm" aria-label="Sort column" className={cn("gap-0 p-0", indicatorClass)}>
-              <span className="bg-[url(/lexical/images/icons/filter-left.svg)] bg-center bg-no-repeat bg-[length:12px_12px] w-[12px] h-[12px]" />
-            </Button>
-          </DropdownMenuTrigger>
+          <DropdownMenuTrigger
+            render={
+              <Button variant="ghost" size="sm" aria-label="Sort column" className={cn("gap-0 p-0", indicatorClass)}>
+                <span className="bg-[url(/lexical/images/icons/filter-left.svg)] bg-center bg-no-repeat bg-[length:12px_12px] w-[12px] h-[12px]" />
+              </Button>
+            }
+          />
           <DropdownMenuContent align="start" sideOffset={4} className="min-w-40">
             <DropdownMenuItem className={cn("cursor-pointer", "item")} onClick={() => handleSortColumn("desc")}>
               Sort Ascending

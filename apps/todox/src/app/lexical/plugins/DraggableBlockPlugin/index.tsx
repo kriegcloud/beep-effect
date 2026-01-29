@@ -1,7 +1,10 @@
 "use client";
 
+import { Button } from "@beep/todox/components/ui/button";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { DraggableBlockPlugin_EXPERIMENTAL } from "@lexical/react/LexicalDraggableBlockPlugin";
+import * as O from "effect/Option";
+import * as Str from "effect/String";
 import type { NodeKey } from "lexical";
 import {
   $createParagraphNode,
@@ -11,6 +14,7 @@ import {
   $isParagraphNode,
   $isTextNode,
 } from "lexical";
+import { GripVertical, Plus } from "lucide-react";
 import type { JSX } from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import * as ReactDOM from "react-dom";
@@ -63,11 +67,10 @@ export default function DraggableBlockPlugin({
     }
 
     const regex = new RegExp(queryString, "i");
+    const matchesRegex = (str: string): boolean => O.isSome(Str.match(regex)(str));
     return [
       ...getDynamicOptions(editor, queryString),
-      ...baseOptions.filter(
-        (option) => regex.test(option.title) || option.keywords.some((keyword) => regex.test(keyword))
-      ),
+      ...baseOptions.filter((option) => matchesRegex(option.title) || option.keywords.some(matchesRegex)),
     ];
   }, [editor, queryString, showModal]);
 
@@ -255,23 +258,22 @@ export default function DraggableBlockPlugin({
             ref={menuRef}
             className="draggable-block-menu rounded p-0.5 cursor-grab opacity-0 absolute left-0 top-0 will-change-[transform,opacity] flex gap-0.5 transition-[transform,opacity] duration-150 ease-in-out active:cursor-grabbing"
           >
-            <button
+            <Button
               type="button"
               title="Click to add below"
-              className="w-4 h-4 inline-block border-none cursor-pointer bg-transparent bg-no-repeat bg-center hover:bg-gray-200 rounded"
-              style={{
-                backgroundImage: "url(/lexical/images/icons/plus.svg)",
-                filter: "brightness(0) saturate(100%)",
-              }}
+              variant="ghost"
+              size="icon-xs"
+              className="draggable-block-button"
               onClick={openComponentPicker}
-            />
+            >
+              <Plus className="size-3.5" />
+            </Button>
             <div
-              className="w-4 h-4 opacity-50 bg-no-repeat bg-center hover:bg-gray-200 rounded"
-              style={{
-                backgroundImage: "url(/lexical/images/icons/draggable-block-menu.svg)",
-                filter: "brightness(0) saturate(100%)",
-              }}
-            />
+              className="draggable-block-handle flex items-center justify-center w-6 h-6 rounded hover:bg-muted text-muted-foreground cursor-grab"
+              title="Drag to move"
+            >
+              <GripVertical className="size-3.5" />
+            </div>
           </div>
         }
         targetLineComponent={

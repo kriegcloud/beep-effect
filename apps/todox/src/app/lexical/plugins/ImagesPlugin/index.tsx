@@ -1,8 +1,9 @@
 "use client";
 
-import { Button } from "@beep/ui/components/button";
-import { Input } from "@beep/ui/components/input";
-import { Label } from "@beep/ui/components/label";
+import { Button } from "@beep/todox/components/ui/button";
+import { Input } from "@beep/todox/components/ui/input";
+import { Label } from "@beep/todox/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@beep/todox/components/ui/tabs";
 import { $isAutoLinkNode, $isLinkNode, type LinkNode, TOGGLE_LINK_COMMAND } from "@lexical/link";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { $findMatchingParent, $wrapNodeInElement, mergeRegister } from "@lexical/utils";
@@ -33,9 +34,8 @@ import type { JSX } from "react";
 
 import { useEffect, useId, useRef, useState } from "react";
 
-import landscapeImage from "../../images/landscape.jpg";
-import yellowFlowerImage from "../../images/yellow-flower.jpg";
 import { $createImageNode, $isImageNode, ImageNode, type ImagePayload } from "../../nodes/ImageNode";
+import { DragSelectionError, NodeNotRegisteredError } from "../../schema/errors";
 import FileInput from "../../ui/FileInput";
 
 export type InsertImagePayload = Readonly<ImagePayload>;
@@ -51,34 +51,28 @@ export function InsertImageUriDialogBody({ onClick }: { readonly onClick: (paylo
   const isDisabled = src === "";
 
   return (
-    <>
-      <div className="flex flex-row items-center mb-2.5 gap-3">
-        <Label className="flex flex-1 text-muted-foreground text-sm" htmlFor={srcId}>
-          Image URL
-        </Label>
+    <div className="grid gap-4">
+      <div className="grid gap-2">
+        <Label htmlFor={srcId}>Image URL</Label>
         <Input
           id={srcId}
-          className="flex flex-[2]"
           placeholder="i.e. https://source.unsplash.com/random"
           value={src}
           onChange={(e) => setSrc(e.target.value)}
           data-testid="image-modal-url-input"
         />
       </div>
-      <div className="flex flex-row items-center mb-2.5 gap-3">
-        <Label className="flex flex-1 text-muted-foreground text-sm" htmlFor={altTextId}>
-          Alt Text
-        </Label>
+      <div className="grid gap-2">
+        <Label htmlFor={altTextId}>Alt Text</Label>
         <Input
           id={altTextId}
-          className="flex flex-[2]"
           placeholder="Random unsplash image"
           value={altText}
           onChange={(e) => setAltText(e.target.value)}
           data-testid="image-modal-alt-text-input"
         />
       </div>
-      <div className="flex flex-row justify-end mt-5 gap-2">
+      <div className="flex justify-end pt-2">
         <Button
           variant="outline"
           data-test-id="image-modal-confirm-btn"
@@ -88,7 +82,7 @@ export function InsertImageUriDialogBody({ onClick }: { readonly onClick: (paylo
           Confirm
         </Button>
       </div>
-    </>
+    </div>
   );
 }
 
@@ -117,22 +111,19 @@ export function InsertImageUploadedDialogBody({
   };
 
   return (
-    <>
+    <div className="grid gap-4">
       <FileInput label="Image Upload" onChange={loadImage} accept="image/*" data-test-id="image-modal-file-upload" />
-      <div className="flex flex-row items-center mb-2.5 gap-3">
-        <Label className="flex flex-1 text-muted-foreground text-sm" htmlFor={altTextId}>
-          Alt Text
-        </Label>
+      <div className="grid gap-2">
+        <Label htmlFor={altTextId}>Alt Text</Label>
         <Input
           id={altTextId}
-          className="flex flex-[2]"
           placeholder="Descriptive alternative text"
           value={altText}
           onChange={(e) => setAltText(e.target.value)}
           data-testid="image-modal-alt-text-input"
         />
       </div>
-      <div className="flex flex-row justify-end mt-5 gap-2">
+      <div className="flex justify-end pt-2">
         <Button
           variant="outline"
           data-test-id="image-modal-file-upload-btn"
@@ -142,7 +133,7 @@ export function InsertImageUploadedDialogBody({
           Confirm
         </Button>
       </div>
-    </>
+    </div>
   );
 }
 
@@ -153,7 +144,6 @@ export function InsertImageDialog({
   readonly activeEditor: LexicalEditor;
   readonly onClose: () => void;
 }): JSX.Element {
-  const [mode, setMode] = useState<null | "url" | "file">(null);
   const hasModifier = useRef(false);
 
   useEffect(() => {
@@ -173,39 +163,20 @@ export function InsertImageDialog({
   };
 
   return (
-    <>
-      {!mode && (
-        <div className="flex flex-col justify-end mt-5 [&>button]:mb-5">
-          <Button
-            variant="outline"
-            data-test-id="image-modal-option-sample"
-            onClick={() =>
-              onClick(
-                hasModifier.current
-                  ? {
-                      altText: "Daylight fir trees forest glacier green high ice landscape",
-                      src: landscapeImage.src,
-                    }
-                  : {
-                      altText: "Yellow flower in tilt shift lens",
-                      src: yellowFlowerImage.src,
-                    }
-              )
-            }
-          >
-            Sample
-          </Button>
-          <Button variant="outline" data-test-id="image-modal-option-url" onClick={() => setMode("url")}>
-            URL
-          </Button>
-          <Button variant="outline" data-test-id="image-modal-option-file" onClick={() => setMode("file")}>
-            File
-          </Button>
-        </div>
-      )}
-      {mode === "url" && <InsertImageUriDialogBody onClick={onClick} />}
-      {mode === "file" && <InsertImageUploadedDialogBody onClick={onClick} />}
-    </>
+    <div className="py-2">
+      <Tabs defaultValue="url" className="w-full">
+        <TabsList className="grid w-full grid-cols-2 mb-4">
+          <TabsTrigger value="url">URL</TabsTrigger>
+          <TabsTrigger value="file">File</TabsTrigger>
+        </TabsList>
+        <TabsContent value="url">
+          <InsertImageUriDialogBody onClick={onClick} />
+        </TabsContent>
+        <TabsContent value="file">
+          <InsertImageUploadedDialogBody onClick={onClick} />
+        </TabsContent>
+      </Tabs>
+    </div>
   );
 }
 
@@ -218,7 +189,11 @@ export default function ImagesPlugin({
 
   useEffect(() => {
     if (!editor.hasNodes([ImageNode])) {
-      throw new Error("ImagesPlugin: ImageNode not registered on editor");
+      throw new NodeNotRegisteredError({
+        message: "ImagesPlugin: ImageNode not registered on editor",
+        plugin: "ImagesPlugin",
+        nodeType: "ImageNode",
+      });
     }
 
     return mergeRegister(
@@ -277,22 +252,21 @@ function $onDragStart(event: DragEvent): boolean {
   }
   dataTransfer.setData("text/plain", "_");
   dataTransfer.setDragImage(img, 0, 0);
-  dataTransfer.setData(
-    "application/x-lexical-drag",
-    JSON.stringify({
-      data: {
-        altText: node.__altText,
-        caption: node.__caption,
-        height: node.__height,
-        key: node.getKey(),
-        maxWidth: node.__maxWidth,
-        showCaption: node.__showCaption,
-        src: node.__src,
-        width: node.__width,
-      },
-      type: "image",
-    })
-  );
+  const dragPayload = {
+    type: "image" as const,
+    data: {
+      altText: node.__altText,
+      caption: node.__caption,
+      height: node.__height,
+      key: node.getKey(),
+      maxWidth: node.__maxWidth,
+      showCaption: node.__showCaption,
+      src: node.__src,
+      width: node.__width,
+    },
+  };
+  const encodedPayload = Either.getOrElse(encodeImageDragPayload(dragPayload), () => "{}");
+  dataTransfer.setData("application/x-lexical-drag", encodedPayload);
 
   return true;
 }
@@ -348,10 +322,28 @@ function $getImageNodeInSelection(): ImageNode | null {
   return $isImageNode(node) ? node : null;
 }
 
-const DragDataSchema = S.Struct({
-  type: S.String,
-  data: S.Unknown,
+// Schema for image drag data payload
+const ImageDragDataSchema = S.Struct({
+  altText: S.String,
+  caption: S.Unknown, // LexicalEditor serializes to object, but we pass through as-is
+  height: S.Union(S.Number, S.Literal("inherit")),
+  key: S.String,
+  maxWidth: S.Number,
+  showCaption: S.Boolean,
+  src: S.String,
+  width: S.Union(S.Number, S.Literal("inherit")),
 });
+
+const ImageDragPayloadSchema = S.Struct({
+  type: S.Literal("image"),
+  data: ImageDragDataSchema,
+});
+
+// Combined schema for parsing JSON and decoding image drag payload
+const ImageDragPayloadFromJson = S.parseJson(ImageDragPayloadSchema);
+
+// Encoder for stringifying image drag payload
+const encodeImageDragPayload = S.encodeUnknownEither(ImageDragPayloadFromJson);
 
 function getDragImageData(event: DragEvent): null | InsertImagePayload {
   const dragData = event.dataTransfer?.getData("application/x-lexical-drag");
@@ -359,12 +351,7 @@ function getDragImageData(event: DragEvent): null | InsertImagePayload {
   return O.getOrNull(
     O.flatMap(O.fromNullable(dragData), (data) =>
       Either.getRight(
-        Either.try(() => JSON.parse(data)).pipe(
-          Either.flatMap(S.decodeUnknownEither(DragDataSchema)),
-          Either.flatMap(({ type, data }) =>
-            type === "image" ? Either.right(data as InsertImagePayload) : Either.left("not image")
-          )
-        )
+        S.decodeUnknownEither(ImageDragPayloadFromJson)(data).pipe(Either.map(({ data }) => data as InsertImagePayload))
       )
     )
   );
@@ -396,7 +383,9 @@ function getDragSelection(event: DragEvent): Range | null | undefined {
     domSelection.collapse(event.rangeParent, event.rangeOffset || 0);
     range = domSelection.getRangeAt(0);
   } else {
-    throw Error(`Cannot get the selection when dragging`);
+    throw new DragSelectionError({
+      message: "Cannot get the selection when dragging",
+    });
   }
 
   return range;

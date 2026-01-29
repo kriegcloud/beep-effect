@@ -1,6 +1,12 @@
 import * as Either from "effect/Either";
+import * as S from "effect/Schema";
 import * as Struct from "effect/Struct";
 import { INITIAL_SETTINGS, type Settings } from "./settings";
+
+// Schema for parsing JSON values from query parameters
+// Accepts any valid JSON and decodes it to unknown
+const JsonValueSchema = S.parseJson(S.Unknown);
+const decodeJsonValue = S.decodeUnknownEither(JsonValueSchema);
 // Export a function so this is not tree-shaken,
 // but evaluate it immediately so it executes before
 // lexical computes CAN_USE_BEFORE_INPUT
@@ -10,7 +16,7 @@ export default (() => {
 
   for (const param of Struct.keys(INITIAL_SETTINGS)) {
     if (urlSearchParams.has(param)) {
-      Either.try(() => JSON.parse(urlSearchParams.get(param) ?? "true")).pipe(
+      decodeJsonValue(urlSearchParams.get(param) ?? "true").pipe(
         Either.match({
           onLeft: () => console.warn(`Unable to parse query parameter "${param}"`),
           onRight: (value) => {

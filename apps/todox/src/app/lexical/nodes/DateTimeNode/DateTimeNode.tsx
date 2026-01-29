@@ -1,7 +1,11 @@
 "use client";
 
+import * as DateTime from "effect/DateTime";
 import * as Either from "effect/Either";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
+import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import {
   $getState,
   $setState,
@@ -18,17 +22,36 @@ import {
 import type { JSX } from "react";
 import * as React from "react";
 
+// Schema for Google Docs rich link date data
+const GoogleRichLinkDateSchema = S.Struct({
+  dat_df: S.Struct({
+    dfie_dt: S.String,
+  }),
+});
+
+// Schema for rich link type check
+const RichLinkTypeSchema = S.Struct({
+  type: S.String,
+});
+
+// Decoders using parseJson for combined JSON parsing + schema validation
+const decodeGoogleRichLinkDate = S.decodeUnknownEither(S.parseJson(GoogleRichLinkDateSchema));
+const decodeRichLinkType = S.decodeUnknownEither(S.parseJson(RichLinkTypeSchema));
+
 const DateTimeComponent = React.lazy(() => import("./DateTimeComponent"));
 
-const getDateTimeText = (dateTime: Date) => {
+const getDateTimeText = (dateTime: DateTime.Utc) => {
   if (dateTime === undefined) {
     return "";
   }
-  const hours = dateTime?.getHours();
-  const minutes = dateTime?.getMinutes();
+  const hours = DateTime.getPartUtc(dateTime, "hours");
+  const minutes = DateTime.getPartUtc(dateTime, "minutes");
+  const dateStr = DateTime.formatLocal(dateTime, { dateStyle: "medium" });
   return (
-    dateTime.toDateString() +
-    (hours === 0 && minutes === 0 ? "" : ` ${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}`)
+    dateStr +
+    (hours === 0 && minutes === 0
+      ? ""
+      : ` ${Str.padStart(2, "0")(hours.toString())}:${Str.padStart(2, "0")(minutes.toString())}`)
   );
 };
 
@@ -42,29 +65,37 @@ export type SerializedDateTimeNode = Spread<
 function $convertDateTimeElement(domNode: HTMLElement): DOMConversionOutput | null {
   const dateTimeValue = domNode.getAttribute("data-lexical-datetime");
   if (dateTimeValue) {
-    const node = $createDateTimeNode(new Date(Date.parse(dateTimeValue)));
-    return { node };
+    return O.getOrNull(
+      O.map(DateTime.make(dateTimeValue), (dt) => ({
+        node: $createDateTimeNode(DateTime.toUtc(dt)),
+      }))
+    );
   }
 
   return O.getOrNull(
     O.flatMap(O.fromNullable(domNode.getAttribute("data-rich-links")), (payload) =>
-      O.flatMap(Either.getRight(Either.try(() => JSON.parse(payload))), (parsed) => {
-        const parsedDate = Date.parse(parsed?.dat_df?.dfie_dt || "");
-        return Number.isNaN(parsedDate) ? O.none() : O.some({ node: $createDateTimeNode(new Date(parsedDate)) });
-      })
+      O.flatMap(Either.getRight(decodeGoogleRichLinkDate(payload)), (parsed) =>
+        O.map(DateTime.make(parsed.dat_df.dfie_dt), (dt) => ({
+          node: $createDateTimeNode(DateTime.toUtc(dt)),
+        }))
+      )
     )
   );
 }
 
 const dateTimeState = createState("dateTime", {
-  parse: (v) => new Date(v as string),
-  unparse: (v) => v.toISOString(),
+  parse: (v) =>
+    O.getOrElse(
+      O.flatMap(O.filter(O.some(v), P.isString), (s) => O.map(DateTime.make(s), (dt) => DateTime.toUtc(dt))),
+      () => DateTime.toUtc(DateTime.unsafeNow())
+    ),
+  unparse: (v) => DateTime.formatIso(v),
 });
 
 const isGDocsDateType = (domNode: HTMLElement): boolean =>
   O.getOrElse(
     O.flatMap(O.fromNullable(domNode.getAttribute("data-rich-links")), (attr) =>
-      O.map(Either.getRight(Either.try(() => JSON.parse(attr))), (parsed) => parsed.type === "date")
+      O.map(Either.getRight(decodeRichLinkType(attr)), (parsed) => parsed.type === "date")
     ),
     () => false
   );
@@ -101,14 +132,16 @@ export class DateTimeNode extends DecoratorNode<JSX.Element> {
 
   override exportDOM(): DOMExportOutput {
     const element = document.createElement("span");
-    element.textContent = getDateTimeText(this.getDateTime());
-    element.setAttribute("data-lexical-datetime", this.getDateTime()?.toString() || "");
+    const dt = this.getDateTime();
+    element.textContent = getDateTimeText(dt);
+    element.setAttribute("data-lexical-datetime", dt ? DateTime.formatIso(dt) : "");
     return { element };
   }
 
   override createDOM(): HTMLElement {
     const element = document.createElement("span");
-    element.setAttribute("data-lexical-datetime", this.getDateTime()?.toString() || "");
+    const dt = this.getDateTime();
+    element.setAttribute("data-lexical-datetime", dt ? DateTime.formatIso(dt) : "");
     element.style.display = "inline-block";
     return element;
   }
@@ -126,7 +159,7 @@ export class DateTimeNode extends DecoratorNode<JSX.Element> {
   }
 }
 
-export function $createDateTimeNode(dateTime: Date): DateTimeNode {
+export function $createDateTimeNode(dateTime: DateTime.Utc): DateTimeNode {
   return new DateTimeNode().setDateTime(dateTime);
 }
 

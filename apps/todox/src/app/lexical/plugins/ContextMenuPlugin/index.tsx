@@ -7,6 +7,10 @@ import {
   NodeContextMenuPlugin,
   NodeContextMenuSeparator,
 } from "@lexical/react/LexicalNodeContextMenuPlugin";
+import * as A from "effect/Array";
+import * as Effect from "effect/Effect";
+import * as F from "effect/Function";
+import * as O from "effect/Option";
 import {
   $getSelection,
   $isDecoratorNode,
@@ -52,58 +56,79 @@ export default function ContextMenuPlugin(): JSX.Element {
       }),
       new NodeContextMenuOption(`Paste`, {
         $onSelect: () => {
-          navigator.clipboard.read().then(async (..._) => {
-            const data = new DataTransfer();
+          F.pipe(
+            Effect.tryPromise(() => navigator.clipboard.read()),
+            Effect.flatMap((clipboardItems) =>
+              Effect.gen(function* () {
+                const maybeItem = A.head(clipboardItems);
+                if (O.isNone(maybeItem)) {
+                  return;
+                }
+                const item = maybeItem.value;
 
-            const readClipboardItems = await navigator.clipboard.read();
-            const item = readClipboardItems[0]!;
+                const permission = yield* Effect.tryPromise(() =>
+                  navigator.permissions.query({
+                    // @ts-expect-error These types are incorrect.
+                    name: "clipboard-read",
+                  })
+                );
 
-            const permission = await navigator.permissions.query({
-              // @ts-expect-error These types are incorrect.
-              name: "clipboard-read",
-            });
-            if (permission.state === "denied") {
-              alert("Not allowed to paste from clipboard.");
-              return;
-            }
+                if (permission.state === "denied") {
+                  alert("Not allowed to paste from clipboard.");
+                  return;
+                }
 
-            for (const type of item.types) {
-              const dataString = await (await item.getType(type)).text();
-              data.setData(type, dataString);
-            }
+                const data = new DataTransfer();
+                for (const type of item.types) {
+                  const blob = yield* Effect.tryPromise(() => item.getType(type));
+                  const dataString = yield* Effect.tryPromise(() => blob.text());
+                  data.setData(type, dataString);
+                }
 
-            const event = new ClipboardEvent("paste", {
-              clipboardData: data,
-            });
+                const event = new ClipboardEvent("paste", {
+                  clipboardData: data,
+                });
 
-            editor.dispatchCommand(PASTE_COMMAND, event);
-          });
+                editor.dispatchCommand(PASTE_COMMAND, event);
+              })
+            ),
+            Effect.catchAll((error) => Effect.sync(() => console.error("Clipboard paste error:", error))),
+            Effect.runPromise
+          );
         },
         disabled: false,
         icon: <i className="EditorTheme__contextMenuItemIcon paste" />,
       }),
       new NodeContextMenuOption(`Paste as Plain Text`, {
         $onSelect: () => {
-          navigator.clipboard.read().then(async (..._) => {
-            const permission = await navigator.permissions.query({
-              // @ts-expect-error These types are incorrect.
-              name: "clipboard-read",
-            });
+          F.pipe(
+            Effect.tryPromise(() =>
+              navigator.permissions.query({
+                // @ts-expect-error These types are incorrect.
+                name: "clipboard-read",
+              })
+            ),
+            Effect.flatMap((permission) =>
+              Effect.gen(function* () {
+                if (permission.state === "denied") {
+                  alert("Not allowed to paste from clipboard.");
+                  return;
+                }
 
-            if (permission.state === "denied") {
-              alert("Not allowed to paste from clipboard.");
-              return;
-            }
+                const clipboardText = yield* Effect.tryPromise(() => navigator.clipboard.readText());
 
-            const data = new DataTransfer();
-            const clipboardText = await navigator.clipboard.readText();
-            data.setData("text/plain", clipboardText);
+                const data = new DataTransfer();
+                data.setData("text/plain", clipboardText);
 
-            const event = new ClipboardEvent("paste", {
-              clipboardData: data,
-            });
-            editor.dispatchCommand(PASTE_COMMAND, event);
-          });
+                const event = new ClipboardEvent("paste", {
+                  clipboardData: data,
+                });
+                editor.dispatchCommand(PASTE_COMMAND, event);
+              })
+            ),
+            Effect.catchAll((error) => Effect.sync(() => console.error("Clipboard paste as plain text error:", error))),
+            Effect.runPromise
+          );
         },
         disabled: false,
         icon: <i className="EditorTheme__contextMenuItemIcon" />,
@@ -114,12 +139,15 @@ export default function ContextMenuPlugin(): JSX.Element {
           const selection = $getSelection();
           if ($isRangeSelection(selection)) {
             const currentNode = selection.anchor.getNode();
-            const ancestorNodeWithRootAsParent = currentNode.getParents().at(-2);
+            const parents = currentNode.getParents();
+            const maybeAncestor = A.get(parents, parents.length - 2);
 
-            ancestorNodeWithRootAsParent?.remove();
+            if (O.isSome(maybeAncestor)) {
+              maybeAncestor.value.remove();
+            }
           } else if ($isNodeSelection(selection)) {
             const selectedNodes = selection.getNodes();
-            selectedNodes.forEach((node) => {
+            A.forEach(selectedNodes, (node) => {
               if ($isDecoratorNode(node)) {
                 node.remove();
               }

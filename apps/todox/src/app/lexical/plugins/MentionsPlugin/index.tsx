@@ -8,6 +8,9 @@ import {
   useBasicTypeaheadTriggerMatch,
 } from "@lexical/react/LexicalTypeaheadMenuPlugin";
 import { UserIcon } from "@phosphor-icons/react";
+import * as MutableHashMap from "effect/MutableHashMap";
+import * as O from "effect/Option";
+import * as Str from "effect/String";
 import type { TextNode } from "lexical";
 import type { JSX } from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -58,7 +61,7 @@ const AtSignMentionsRegexAliasRegex = new RegExp(
 // At most, 5 suggestions are shown in the popup.
 const SUGGESTION_LIST_LENGTH_LIMIT = 5;
 
-const mentionsCache = new Map();
+const mentionsCache = MutableHashMap.empty<string, Array<string> | null>();
 
 const dummyMentionsData = [
   "Aayla Secura",
@@ -469,7 +472,9 @@ const dummyMentionsData = [
 const dummyLookupService = {
   search(string: string, callback: (results: Array<string>) => void): void {
     setTimeout(() => {
-      const results = dummyMentionsData.filter((mention) => mention.toLowerCase().includes(string.toLowerCase()));
+      const results = dummyMentionsData.filter((mention) =>
+        Str.includes(Str.toLowerCase(string))(Str.toLowerCase(mention))
+      );
       callback(results);
     }, 500);
   },
@@ -479,24 +484,28 @@ function useMentionLookupService(mentionString: string | null) {
   const [results, setResults] = useState<Array<string>>([]);
 
   useEffect(() => {
-    const cachedResults = mentionsCache.get(mentionString);
-
     if (mentionString == null) {
       setResults([]);
       return;
     }
 
-    if (cachedResults === null) {
+    const cachedOption = MutableHashMap.get(mentionsCache, mentionString);
+    const cachedResults = O.getOrUndefined(cachedOption);
+
+    // cachedResults is undefined if not in cache, null if lookup in progress, or Array<string> if ready
+    if (O.isSome(cachedOption) && cachedResults === null) {
+      // Lookup in progress
       return;
     }
-    if (cachedResults !== undefined) {
+    if (cachedResults !== undefined && cachedResults !== null) {
       setResults(cachedResults);
       return;
     }
 
-    mentionsCache.set(mentionString, null);
+    // Mark as in-progress
+    MutableHashMap.set(mentionsCache, mentionString, null);
     dummyLookupService.search(mentionString, (newResults) => {
-      mentionsCache.set(mentionString, newResults);
+      MutableHashMap.set(mentionsCache, mentionString, newResults);
       setResults(newResults);
     });
   }, [mentionString]);
@@ -505,26 +514,29 @@ function useMentionLookupService(mentionString: string | null) {
 }
 
 function checkForAtSignMentions(text: string, minMatchLength: number): MenuTextMatch | null {
-  let match = AtSignMentionsRegex.exec(text);
+  // Try primary regex first, fall back to alias regex
+  const matchOption = O.orElse(Str.match(AtSignMentionsRegex)(text), () =>
+    Str.match(AtSignMentionsRegexAliasRegex)(text)
+  );
 
-  if (match === null) {
-    match = AtSignMentionsRegexAliasRegex.exec(text);
-  }
-  if (match !== null) {
-    // The strategy ignores leading whitespace but we need to know it's
-    // length to add it to the leadOffset
-    const maybeLeadingWhitespace = match[1]!;
+  return O.match(matchOption, {
+    onNone: () => null,
+    onSome: (match) => {
+      // The strategy ignores leading whitespace but we need to know its
+      // length to add it to the leadOffset
+      const maybeLeadingWhitespace = match[1] ?? "";
+      const matchingString = match[3] ?? "";
 
-    const matchingString = match[3]!;
-    if (matchingString.length >= minMatchLength) {
-      return {
-        leadOffset: match.index + maybeLeadingWhitespace.length,
-        matchingString,
-        replaceableString: match[2]!,
-      };
-    }
-  }
-  return null;
+      if (Str.length(matchingString) >= minMatchLength) {
+        return {
+          leadOffset: (match.index ?? 0) + Str.length(maybeLeadingWhitespace),
+          matchingString,
+          replaceableString: match[2] ?? "",
+        };
+      }
+      return null;
+    },
+  });
 }
 
 function getPossibleQueryMatch(text: string): MenuTextMatch | null {

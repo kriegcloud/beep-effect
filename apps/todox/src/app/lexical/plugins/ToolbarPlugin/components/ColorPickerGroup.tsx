@@ -1,5 +1,6 @@
 "use client";
 
+import { HighlighterCircleIcon, TextAaIcon } from "@phosphor-icons/react";
 import { useToolbarState } from "../../../context/toolbar-context";
 import DropdownColorPicker from "../../../ui/DropdownColorPicker";
 
@@ -29,23 +30,21 @@ export function ColorPickerGroup({ applyStyleText, disabled = false }: ColorPick
     <>
       <DropdownColorPicker
         disabled={disabled}
-        buttonClassName="toolbar-item color-picker"
-        buttonAriaLabel="Formatting text color"
-        buttonIconClassName="icon font-color"
+        buttonAriaLabel="Text color"
+        icon={<TextAaIcon className="size-4" />}
         color={toolbarState.fontColor}
         onChange={(color, skipHistoryStack, skipRefocus) => applyStyleText({ color }, skipHistoryStack, skipRefocus)}
-        title="text color"
+        title="Text color"
       />
       <DropdownColorPicker
         disabled={disabled}
-        buttonClassName="toolbar-item color-picker"
-        buttonAriaLabel="Formatting background color"
-        buttonIconClassName="icon bg-color"
+        buttonAriaLabel="Background color"
+        icon={<HighlighterCircleIcon className="size-4" />}
         color={toolbarState.bgColor}
         onChange={(color, skipHistoryStack, skipRefocus) =>
           applyStyleText({ "background-color": color }, skipHistoryStack, skipRefocus)
         }
-        title="bg color"
+        title="Background color"
       />
     </>
   );

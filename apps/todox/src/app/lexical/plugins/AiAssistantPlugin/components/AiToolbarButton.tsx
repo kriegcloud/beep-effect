@@ -1,15 +1,15 @@
 "use client";
 
-import { cn } from "@beep/todox/lib/utils";
-import { Button } from "@beep/ui/components/button";
+import { Button } from "@beep/todox/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@beep/ui/components/dropdown-menu";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@beep/ui/components/tooltip";
+} from "@beep/todox/components/ui/dropdown-menu";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@beep/todox/components/ui/tooltip";
+import { cn } from "@beep/todox/lib/utils";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { CaretDownIcon, CircleNotchIcon, SparkleIcon } from "@phosphor-icons/react";
 import { useAiContext } from "../../../context/AiContext";
@@ -36,20 +36,26 @@ export function AiToolbarButton({ disabled }: AiToolbarButtonProps) {
   return (
     <DropdownMenu>
       <Tooltip>
-        <TooltipTrigger asChild>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              size="sm"
-              disabled={disabled || isLoading}
-              aria-label="AI Assistant"
-              className={cn("gap-1", "toolbar-item")}
-            >
-              {isLoading ? <CircleNotchIcon className="size-4 animate-spin" /> : <SparkleIcon className="size-4" />}
-              <CaretDownIcon className="size-3 opacity-50" />
-            </Button>
-          </DropdownMenuTrigger>
-        </TooltipTrigger>
+        <TooltipTrigger
+          render={(props) => (
+            <DropdownMenuTrigger
+              {...props}
+              render={(props) => (
+                <Button
+                  {...props}
+                  variant="ghost"
+                  size="sm"
+                  disabled={disabled || isLoading}
+                  aria-label="AI Assistant"
+                  className={cn("gap-1", "toolbar-item")}
+                >
+                  {isLoading ? <CircleNotchIcon className="size-4 animate-spin" /> : <SparkleIcon className="size-4" />}
+                  <CaretDownIcon className="size-3 opacity-50" />
+                </Button>
+              )}
+            />
+          )}
+        />
         <TooltipContent side="bottom" sideOffset={4}>
           AI Assistant (Cmd+Shift+I)
         </TooltipContent>

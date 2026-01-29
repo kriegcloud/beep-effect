@@ -1,17 +1,11 @@
 "use client";
 
-import { cn } from "@beep/todox/lib/utils";
-import { Button } from "@beep/ui/components/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@beep/ui/components/dropdown-menu";
-import { CaretDownIcon } from "@phosphor-icons/react";
+import { Button } from "@beep/todox/components/ui/button";
+import { Label } from "@beep/todox/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@beep/todox/components/ui/select";
 import type { LexicalEditor } from "lexical";
 import type { JSX } from "react";
-import { useState } from "react";
+import { useId, useState } from "react";
 
 import { INSERT_LAYOUT_COMMAND } from "./LayoutPlugin";
 
@@ -31,7 +25,7 @@ export default function InsertLayoutDialog({
   readonly onClose: () => void;
 }): JSX.Element {
   const [layout, setLayout] = useState(LAYOUTS[0]!.value);
-  const buttonLabel = LAYOUTS.find((item) => item.value === layout)?.label ?? "Select Layout";
+  const layoutId = useId();
 
   const onClick = () => {
     activeEditor.dispatchCommand(INSERT_LAYOUT_COMMAND, layout);
@@ -39,25 +33,27 @@ export default function InsertLayoutDialog({
   };
 
   return (
-    <>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="sm" className={cn("gap-1", "toolbar-item dialog-dropdown")}>
-            <span className="text dropdown-button-text">{buttonLabel}</span>
-            <CaretDownIcon className="size-3 opacity-50" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="start" sideOffset={4} className="min-w-40">
-          {LAYOUTS.map(({ label, value }) => (
-            <DropdownMenuItem key={value} className={cn("cursor-pointer", "item")} onClick={() => setLayout(value)}>
-              <span className="text">{label}</span>
-            </DropdownMenuItem>
-          ))}
-        </DropdownMenuContent>
-      </DropdownMenu>
-      <Button variant="outline" onClick={onClick}>
-        Insert
-      </Button>
-    </>
+    <div className="grid gap-4 py-2">
+      <div className="grid gap-2">
+        <Label htmlFor={layoutId}>Column layout</Label>
+        <Select value={layout} onValueChange={(value) => value != null && setLayout(value)}>
+          <SelectTrigger id={layoutId}>
+            <SelectValue placeholder="Select a layout" />
+          </SelectTrigger>
+          <SelectContent>
+            {LAYOUTS.map(({ label, value }) => (
+              <SelectItem key={value} value={value}>
+                {label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+      <div className="flex justify-end pt-2">
+        <Button variant="outline" onClick={onClick}>
+          Confirm
+        </Button>
+      </div>
+    </div>
   );
 }

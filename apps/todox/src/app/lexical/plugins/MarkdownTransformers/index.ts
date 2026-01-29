@@ -25,6 +25,10 @@ import {
   TableNode,
   TableRowNode,
 } from "@lexical/table";
+import * as A from "effect/Array";
+import { pipe } from "effect/Function";
+import * as O from "effect/Option";
+import * as Str from "effect/String";
 import { $createTextNode, $isParagraphNode, $isTextNode, type LexicalNode } from "lexical";
 
 import { $createEquationNode, $isEquationNode, EquationNode } from "../../nodes/EquationNode";
@@ -83,7 +87,11 @@ export const EMOJI: TextMatchTransformer = {
   importRegExp: /:([a-z0-9_]+):/,
   regExp: /:([a-z0-9_]+):$/,
   replace: (textNode, [, name]) => {
-    const emoji = emojiList.find((e) => e.aliases.includes(name!))?.emoji;
+    const emoji = pipe(
+      A.findFirst(emojiList, (e) => A.contains(e.aliases, name!)),
+      O.map((e) => e.emoji),
+      O.getOrUndefined
+    );
     if (emoji) {
       textNode.replace($createTextNode(emoji));
     }
@@ -153,25 +161,32 @@ export const TABLE: ElementTransformer = {
       for (const cell of row.getChildren()) {
         // It's TableCellNode so it's just to make flow happy
         if ($isTableCellNode(cell)) {
-          rowOutput.push($convertToMarkdownString(PLAYGROUND_TRANSFORMERS, cell).replace(/\n/g, "\\n").trim());
+          rowOutput.push(
+            pipe($convertToMarkdownString(PLAYGROUND_TRANSFORMERS, cell), Str.replaceAll(/\n/g, "\\n"), Str.trim)
+          );
           if (cell.__headerState === TableCellHeaderStates.ROW) {
             isHeaderRow = true;
           }
         }
       }
 
-      output.push(`| ${rowOutput.join(" | ")} |`);
+      output.push(`| ${A.join(rowOutput, " | ")} |`);
       if (isHeaderRow) {
-        output.push(`| ${rowOutput.map((_) => "---").join(" | ")} |`);
+        output.push(
+          `| ${A.join(
+            A.map(rowOutput, (_) => "---"),
+            " | "
+          )} |`
+        );
       }
     }
 
-    return output.join("\n");
+    return A.join(output, "\n");
   },
   regExp: TABLE_ROW_REG_EXP,
   replace: (parentNode, _1, match) => {
     // Header row
-    if (TABLE_ROW_DIVIDER_REG_EXP.test(match[0]!)) {
+    if (O.isSome(Str.match(TABLE_ROW_DIVIDER_REG_EXP)(match[0]!))) {
       const table = parentNode.getPreviousSibling();
       if (!table || !$isTableNode(table)) {
         return;
@@ -184,7 +199,7 @@ export const TABLE: ElementTransformer = {
       }
 
       // Add header state to row cells
-      lastRow.getChildren().forEach((cell) => {
+      A.forEach(lastRow.getChildren(), (cell) => {
         if (!$isTableCellNode(cell)) {
           return;
         }
@@ -202,7 +217,7 @@ export const TABLE: ElementTransformer = {
       return;
     }
 
-    const rows = [matchCells];
+    let rows: Array<Array<TableCellNode>> = [matchCells];
     let sibling = parentNode.getPreviousSibling();
     let maxCells = matchCells.length;
 
@@ -228,7 +243,7 @@ export const TABLE: ElementTransformer = {
       }
 
       maxCells = Math.max(maxCells, cells.length);
-      rows.unshift(cells);
+      rows = A.prepend(rows, cells);
       const previousSibling = sibling.getPreviousSibling();
       sibling.remove();
       sibling = previousSibling;
@@ -264,18 +279,19 @@ function getTableColumnsSize(table: TableNode) {
 }
 
 const $createTableCell = (textContent: string): TableCellNode => {
-  textContent = textContent.replace(/\\n/g, "\n");
+  textContent = Str.replaceAll(/\\n/g, "\n")(textContent);
   const cell = $createTableCellNode(TableCellHeaderStates.NO_STATUS);
   $convertFromMarkdownString(textContent, PLAYGROUND_TRANSFORMERS, cell);
   return cell;
 };
 
 const mapToTableCells = (textContent: string): Array<TableCellNode> | null => {
-  const match = textContent.match(TABLE_ROW_REG_EXP);
-  if (!match || !match[1]) {
-    return null;
-  }
-  return match[1].split("|").map((text) => $createTableCell(text));
+  return pipe(
+    Str.match(TABLE_ROW_REG_EXP)(textContent),
+    O.flatMap((match) => O.fromNullable(match[1])),
+    O.map((captured) => A.map(Str.split(captured, "|"), (text) => $createTableCell(text))),
+    O.getOrNull
+  );
 };
 
 export const PLAYGROUND_TRANSFORMERS: Array<Transformer> = [

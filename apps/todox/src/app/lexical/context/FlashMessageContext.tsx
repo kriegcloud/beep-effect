@@ -1,6 +1,7 @@
 import type React from "react";
 import type { JSX } from "react";
 import { createContext, type ReactNode, useCallback, useContext, useEffect, useState } from "react";
+import { MissingContextError } from "../schema/errors";
 import FlashMessage from "../ui/FlashMessage";
 
 export type ShowFlashMessage = (message?: undefined | React.ReactNode, duration?: undefined | number) => void;
@@ -37,7 +38,10 @@ export const FlashMessageContext = ({ children }: { readonly children: ReactNode
 export const useFlashMessageContext = (): ShowFlashMessage => {
   const ctx = useContext(Context);
   if (!ctx) {
-    throw new Error("Missing FlashMessageContext");
+    throw new MissingContextError({
+      message: "Missing FlashMessageContext",
+      contextName: "FlashMessageContext",
+    });
   }
   return ctx;
 };

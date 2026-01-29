@@ -35,7 +35,9 @@ export function CopyButton({ editor, getCodeDOMNode }: Props) {
     setCopyCompleted(false);
   }, 1000);
 
-  const handleClick = useCallback(async (): Promise<void> => {
+  // Fire-and-forget: onClick doesn't need the Promise result, and all
+  // success/error handling is done inside the Effect pipeline.
+  const handleClick = useCallback((): void => {
     const codeDOMNode = getCodeDOMNode();
 
     if (!codeDOMNode) {
@@ -55,7 +57,7 @@ export function CopyButton({ editor, getCodeDOMNode }: Props) {
       $setSelection(selection);
     });
 
-    await runPromise(
+    runPromise(
       copyToClipboard(content).pipe(
         Effect.tap(() =>
           Effect.sync(() => {

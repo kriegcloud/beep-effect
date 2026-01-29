@@ -1,8 +1,7 @@
 "use client";
 
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@beep/ui/components/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@beep/todox/components/ui/select";
 import { $patchStyleText } from "@lexical/selection";
-import { TextAaIcon } from "@phosphor-icons/react";
 import { $addUpdateTag, $getSelection, type LexicalEditor, SKIP_SELECTION_FOCUS_TAG } from "lexical";
 import type { JSX } from "react";
 import { useCallback } from "react";
@@ -60,7 +59,8 @@ export function FontControls({ editor, disabled = false }: FontControlsProps): J
    * Updates the selection's font-family style property.
    */
   const handleFontFamilyChange = useCallback(
-    (value: string) => {
+    (value: string | null) => {
+      if (value == null) return;
       editor.update(() => {
         $addUpdateTag(SKIP_SELECTION_FOCUS_TAG);
         const selection = $getSelection();
@@ -81,8 +81,7 @@ export function FontControls({ editor, disabled = false }: FontControlsProps): J
     <div className="flex items-center gap-1" role="group" aria-label="Font controls">
       {/* Font Family Dropdown */}
       <Select value={fontFamily} onValueChange={handleFontFamilyChange} disabled={disabled}>
-        <SelectTrigger className="h-8 w-[120px] text-xs" aria-label="Formatting options for font family">
-          <TextAaIcon className="size-4 mr-1" />
+        <SelectTrigger className="h-8 w-[90px] text-xs px-2" aria-label="Formatting options for font family">
           <SelectValue placeholder="Font" />
         </SelectTrigger>
         <SelectContent>

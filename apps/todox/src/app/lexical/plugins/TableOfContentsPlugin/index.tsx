@@ -4,6 +4,7 @@ import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext
 import type { TableOfContentsEntry } from "@lexical/react/LexicalTableOfContentsPlugin";
 import { TableOfContentsPlugin as LexicalTableOfContentsPlugin } from "@lexical/react/LexicalTableOfContentsPlugin";
 import type { HeadingTagType } from "@lexical/rich-text";
+import * as Str from "effect/String";
 import type { NodeKey } from "lexical";
 import type { JSX } from "react";
 import { useEffect, useRef, useState } from "react";
@@ -131,7 +132,7 @@ function TableOfContentsList({
                   role="button"
                   tabIndex={0}
                 >
-                  {`${text}`.length > 20 ? `${text.substring(0, 20)}...` : text}
+                  {`${text}`.length > 20 ? `${Str.slice(0, 20)(text)}...` : text}
                 </div>
                 <br />
               </div>
@@ -150,7 +151,7 @@ function TableOfContentsList({
                 <li
                   className={cn("cursor-pointer leading-5 text-base", selectedKey === key && "text-blue-500 relative")}
                 >
-                  {`${text}`.length > 27 ? `${text.substring(0, 27)}...` : text}
+                  {`${text}`.length > 27 ? `${Str.slice(0, 27)(text)}...` : text}
                 </li>
               </div>
             </div>

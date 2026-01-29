@@ -114,8 +114,13 @@ export const docToHash = (doc: SerializedDocument): Effect.Effect<string, Compre
  */
 export const docFromHash = Effect.fn(
   function* (hash: string) {
-    const m = /^#doc=(.*)$/.exec(hash);
-    if (!m || m[1] === undefined) {
+    const encodedData = F.pipe(
+      hash,
+      Str.match(/^#doc=(.*)$/),
+      O.flatMap((m) => O.fromNullable(m[1]))
+    );
+
+    if (O.isNone(encodedData)) {
       return yield* Effect.fail(
         new InvalidDocumentHashError({
           message: "Hash does not match expected format #doc=...",
@@ -124,12 +129,12 @@ export const docFromHash = Effect.fn(
       );
     }
 
-    const encodedData = m[1];
+    const encodedDataValue = encodedData.value;
     const ds = new DecompressionStream("gzip");
     const writer = ds.writable.getWriter();
 
     const b64 = yield* Effect.try({
-      try: () => F.pipe(encodedData, Str.replace(/_/g, "/"), Str.replace(/-/g, "+"), atob),
+      try: () => F.pipe(encodedDataValue, Str.replace(/_/g, "/"), Str.replace(/-/g, "+"), atob),
       catch: (e) =>
         new InvalidDocumentHashError({
           message: `Invalid base64 encoding: ${String(e)}`,
@@ -139,7 +144,7 @@ export const docFromHash = Effect.fn(
 
     const array = new Uint8Array(b64.length);
     for (let i = 0; i < b64.length; i++) {
-      array[i] = b64.charCodeAt(i);
+      array[i] = O.getOrElse(Str.charCodeAt(b64, i), () => 0);
     }
 
     const writeAndClose = Effect.tryPromise({

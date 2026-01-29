@@ -2,7 +2,7 @@
 
 import { cn } from "@beep/todox/lib/utils";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { createPortal } from "react-dom";
 
 import { useAiContext } from "../../../context/AiContext";
@@ -14,11 +14,6 @@ import { StreamingPreview } from "./StreamingPreview";
 
 interface FloatingAiPanelProps {
   readonly anchorElem?: HTMLElement;
-}
-
-interface PanelPosition {
-  readonly top: number;
-  readonly left: number;
 }
 
 /**
@@ -37,24 +32,7 @@ export function FloatingAiPanel({ anchorElem }: FloatingAiPanelProps) {
 
   const { streamedContent, operationState, error, streamResponse, abort, reset: resetStreaming } = useAiStreaming();
 
-  const [position, setPosition] = useState<PanelPosition>({ top: 0, left: 0 });
   const [lastInstruction, setLastInstruction] = useState<string>("");
-
-  // Calculate position based on selection
-  useEffect(() => {
-    if (!isAiPanelOpen) return;
-
-    const selection = window.getSelection();
-    if (!selection || selection.rangeCount === 0) return;
-
-    const range = selection.getRangeAt(0);
-    const rect = range.getBoundingClientRect();
-
-    setPosition({
-      top: rect.bottom + window.scrollY + 8,
-      left: rect.left + window.scrollX,
-    });
-  }, [isAiPanelOpen, selectedText]);
 
   const handlePromptSelect = useCallback(
     (_promptId: string, instruction: string) => {
@@ -102,15 +80,12 @@ export function FloatingAiPanel({ anchorElem }: FloatingAiPanelProps) {
   const panelContent = (
     <div
       className={cn(
-        "absolute z-[100] max-w-md rounded-xl border p-4 shadow-xl",
+        "fixed z-[100] max-w-md rounded-xl border p-4 shadow-xl",
         "bg-white dark:bg-zinc-900",
         "text-gray-900 dark:text-gray-100",
-        "animate-in fade-in-0 zoom-in-95"
+        "animate-in fade-in-0 zoom-in-95",
+        "top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
       )}
-      style={{
-        top: position.top,
-        left: position.left,
-      }}
     >
       {/* State: idle - Show command menu */}
       {operationState === "idle" && <AiCommandMenu onSelect={handlePromptSelect} />}

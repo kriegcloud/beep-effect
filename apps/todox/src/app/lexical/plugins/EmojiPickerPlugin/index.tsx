@@ -6,6 +6,11 @@ import {
   MenuOption,
   useBasicTypeaheadTriggerMatch,
 } from "@lexical/react/LexicalTypeaheadMenuPlugin";
+import * as A from "effect/Array";
+import * as Effect from "effect/Effect";
+import * as F from "effect/Function";
+import * as O from "effect/Option";
+import * as Str from "effect/String";
 import { $createTextNode, $getSelection, $isRangeSelection, type TextNode } from "lexical";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -84,7 +89,21 @@ export default function EmojiPickerPlugin() {
   const [emojis, setEmojis] = useState<Array<Emoji>>([]);
 
   useEffect(() => {
-    import("../../utils/emoji-list").then((file) => setEmojis(file.default));
+    let mounted = true;
+    F.pipe(
+      Effect.tryPromise(() => import("../../utils/emoji-list")),
+      Effect.tap((file) =>
+        Effect.sync(() => {
+          if (mounted) {
+            setEmojis(file.default);
+          }
+        })
+      ),
+      Effect.runPromise
+    );
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   const emojiOptions = useMemo(
@@ -106,15 +125,26 @@ export default function EmojiPickerPlugin() {
   });
 
   const options: Array<EmojiOption> = useMemo(() => {
-    return emojiOptions
-      .filter((option: EmojiOption) => {
-        return queryString != null
-          ? new RegExp(queryString, "gi").exec(option.title) || option.keywords != null
-            ? option.keywords.some((keyword: string) => new RegExp(queryString, "gi").exec(keyword))
-            : false
-          : emojiOptions;
-      })
-      .slice(0, MAX_EMOJI_SUGGESTION_COUNT);
+    // When no query string, return all options (limited)
+    if (queryString == null) {
+      return A.take(emojiOptions, MAX_EMOJI_SUGGESTION_COUNT);
+    }
+
+    // Cache the regex for performance (used multiple times in filter loop)
+    const pattern = new RegExp(queryString, "gi");
+
+    return F.pipe(
+      emojiOptions,
+      A.filter((option: EmojiOption) => {
+        // Check if title matches
+        const titleMatch = O.isSome(Str.match(pattern)(option.title));
+        if (titleMatch) return true;
+
+        // Check if any keyword matches
+        return A.some(option.keywords, (keyword: string) => O.isSome(Str.match(pattern)(keyword)));
+      }),
+      A.take(MAX_EMOJI_SUGGESTION_COUNT)
+    );
   }, [emojiOptions, queryString]);
 
   const onSelectOption = useCallback(

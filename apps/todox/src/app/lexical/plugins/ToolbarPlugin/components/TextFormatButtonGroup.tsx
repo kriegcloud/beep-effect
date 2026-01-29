@@ -1,11 +1,12 @@
 "use client";
 
-import { Toggle } from "@beep/ui/components/toggle";
+import { ToggleGroup, ToggleGroupItem } from "@beep/todox/components/ui/toggle-group";
 import { CodeIcon, TextBIcon, TextItalicIcon, TextUnderlineIcon } from "@phosphor-icons/react";
-import { $addUpdateTag, FORMAT_TEXT_COMMAND, type LexicalEditor, SKIP_DOM_SELECTION_TAG } from "lexical";
-import type { JSX, MouseEvent } from "react";
+import * as A from "effect/Array";
+import { FORMAT_TEXT_COMMAND, type LexicalEditor } from "lexical";
+import type { JSX } from "react";
+import { useMemo } from "react";
 import { useToolbarState } from "../../../context/toolbar-context";
-import { isKeyboardInput } from "../../../utils/focusUtils";
 import { SHORTCUTS } from "../../ShortcutsPlugin/shortcuts";
 
 // ============================================================================
@@ -32,8 +33,9 @@ interface TextFormatButtonGroupProps {
 /**
  * A button group for basic text formatting operations: Bold, Italic, Underline, and Code.
  *
- * Uses Toggle components from @beep/ui to show pressed/active state for each format.
- * Dispatches FORMAT_TEXT_COMMAND to the Lexical editor when clicked.
+ * Uses ToggleGroup from @beep/ui to show pressed/active state for each format.
+ * Supports multiple simultaneous selections (e.g., bold AND italic).
+ * Dispatches FORMAT_TEXT_COMMAND to the Lexical editor when toggled.
  *
  * Keyboard shortcuts are displayed in tooltips:
  * - Bold: Cmd/Ctrl+B
@@ -48,88 +50,77 @@ export function TextFormatButtonGroup({ editor, showCodeButton = true }: TextFor
   // Check if editor is editable
   const isEditable = editor.isEditable();
 
-  /**
-   * Dispatches a text format command to the editor.
-   * Handles keyboard-triggered events by skipping DOM selection updates
-   * to prevent focus issues.
-   */
-  const handleFormatClick = (
-    format: "bold" | "italic" | "underline" | "code",
-    event: MouseEvent<HTMLButtonElement>
-  ) => {
-    const skipRefocus = isKeyboardInput(event);
+  // Build the current value array from toolbar state
+  const currentValue = useMemo(() => {
+    const values: string[] = [];
+    if (isBold) values.push("bold");
+    if (isItalic) values.push("italic");
+    if (isUnderline) values.push("underline");
+    if (isCode) values.push("code");
+    return values;
+  }, [isBold, isItalic, isUnderline, isCode]);
 
-    editor.update(() => {
-      if (skipRefocus) {
-        $addUpdateTag(SKIP_DOM_SELECTION_TAG);
-      }
-      editor.dispatchCommand(FORMAT_TEXT_COMMAND, format);
-    });
+  /**
+   * Handle value changes from the toggle group.
+   * Compares new values with current to determine which format to toggle.
+   */
+  const handleValueChange = (newValue: string[]) => {
+    // Find added formats (in newValue but not in currentValue)
+    const added = A.filter(newValue, (v) => !A.contains(currentValue, v));
+    // Find removed formats (in currentValue but not in newValue)
+    const removed = A.filter(currentValue, (v) => !A.contains(newValue, v));
+
+    // Dispatch command for each toggled format
+    for (const format of [...added, ...removed]) {
+      editor.dispatchCommand(FORMAT_TEXT_COMMAND, format as "bold" | "italic" | "underline" | "code");
+    }
   };
 
   return (
-    <div className="flex gap-0.5" role="group" aria-label="Text formatting">
-      {/* Bold */}
-      <Toggle
-        size="sm"
-        pressed={isBold}
-        onPressedChange={() => {
-          editor.dispatchCommand(FORMAT_TEXT_COMMAND, "bold");
-        }}
-        onClick={(e) => handleFormatClick("bold", e)}
+    <ToggleGroup
+      value={currentValue}
+      onValueChange={handleValueChange}
+      size="sm"
+      variant="outline"
+      aria-label="Text formatting"
+    >
+      <ToggleGroupItem
+        value="bold"
         disabled={!isEditable}
         aria-label={`Format text as bold. Shortcut: ${SHORTCUTS.BOLD}`}
         title={`Bold (${SHORTCUTS.BOLD})`}
       >
         <TextBIcon className="size-4" />
-      </Toggle>
+      </ToggleGroupItem>
 
-      {/* Italic */}
-      <Toggle
-        size="sm"
-        pressed={isItalic}
-        onPressedChange={() => {
-          editor.dispatchCommand(FORMAT_TEXT_COMMAND, "italic");
-        }}
-        onClick={(e) => handleFormatClick("italic", e)}
+      <ToggleGroupItem
+        value="italic"
         disabled={!isEditable}
         aria-label={`Format text as italics. Shortcut: ${SHORTCUTS.ITALIC}`}
         title={`Italic (${SHORTCUTS.ITALIC})`}
       >
         <TextItalicIcon className="size-4" />
-      </Toggle>
+      </ToggleGroupItem>
 
-      {/* Underline */}
-      <Toggle
-        size="sm"
-        pressed={isUnderline}
-        onPressedChange={() => {
-          editor.dispatchCommand(FORMAT_TEXT_COMMAND, "underline");
-        }}
-        onClick={(e) => handleFormatClick("underline", e)}
+      <ToggleGroupItem
+        value="underline"
         disabled={!isEditable}
         aria-label={`Format text to underlined. Shortcut: ${SHORTCUTS.UNDERLINE}`}
         title={`Underline (${SHORTCUTS.UNDERLINE})`}
       >
         <TextUnderlineIcon className="size-4" />
-      </Toggle>
+      </ToggleGroupItem>
 
-      {/* Code (inline) */}
       {showCodeButton && (
-        <Toggle
-          size="sm"
-          pressed={isCode}
-          onPressedChange={() => {
-            editor.dispatchCommand(FORMAT_TEXT_COMMAND, "code");
-          }}
-          onClick={(e) => handleFormatClick("code", e)}
+        <ToggleGroupItem
+          value="code"
           disabled={!isEditable}
           aria-label={`Insert code block. Shortcut: ${SHORTCUTS.INSERT_CODE_BLOCK}`}
           title={`Insert code block (${SHORTCUTS.INSERT_CODE_BLOCK})`}
         >
           <CodeIcon className="size-4" />
-        </Toggle>
+        </ToggleGroupItem>
       )}
-    </div>
+    </ToggleGroup>
   );
 }

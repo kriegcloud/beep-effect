@@ -41,6 +41,10 @@
   ],
   "compilerOptions": {
     "types": ["node", "bun"],
+    "jsx": "react-jsx",
+    "module": "ESNext",
+    "target": "ES2024",
+    "lib": ["ES2024", "DOM", "DOM.Iterable"],
     "tsBuildInfoFile": "./build/tsconfig.test.tsbuildinfo",
     "rootDir": "test",
     "noEmit": true,

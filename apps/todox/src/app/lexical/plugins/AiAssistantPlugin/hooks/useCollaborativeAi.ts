@@ -1,6 +1,8 @@
 "use client";
 
 import { useOthers, useUpdateMyPresence } from "@liveblocks/react/suspense";
+import * as A from "effect/Array";
+import { pipe } from "effect/Function";
 import { useCallback, useMemo } from "react";
 import type { AiActivityPresence, SerializedRange } from "../../../context/LiveblocksProvider";
 
@@ -73,30 +75,34 @@ export function useCollaborativeAi(mySelectionRange: SerializedRange | null): Co
   const conflictingUsers = useMemo<readonly ConflictingUser[]>(() => {
     if (!mySelectionRange) return [];
 
-    return others
-      .filter((other) => {
+    return pipe(
+      others,
+      A.filter((other) => {
         const otherAi = other.presence?.aiActivity;
         if (!otherAi?.isGenerating || !otherAi.selectionRange) return false;
 
         // Check if their AI operation range overlaps with my selection
         return rangesOverlap(mySelectionRange, otherAi.selectionRange);
-      })
-      .map((other) => ({
+      }),
+      A.map((other) => ({
         id: other.id,
         name: other.info?.name ?? "Unknown user",
         color: other.info?.color ?? "#888888",
-      }));
+      }))
+    );
   }, [mySelectionRange, others]);
 
   // Find all users currently using AI (regardless of overlap)
   const usersUsingAi = useMemo<readonly ConflictingUser[]>(() => {
-    return others
-      .filter((other) => other.presence?.aiActivity?.isGenerating === true)
-      .map((other) => ({
+    return pipe(
+      others,
+      A.filter((other) => other.presence?.aiActivity?.isGenerating === true),
+      A.map((other) => ({
         id: other.id,
         name: other.info?.name ?? "Unknown user",
         color: other.info?.color ?? "#888888",
-      }));
+      }))
+    );
   }, [others]);
 
   // Broadcast AI activity to other users
@@ -115,9 +121,9 @@ export function useCollaborativeAi(mySelectionRange: SerializedRange | null): Co
   }, [updateMyPresence]);
 
   return {
-    hasConflict: conflictingUsers.length > 0,
+    hasConflict: A.isNonEmptyReadonlyArray(conflictingUsers),
     conflictingUsers,
-    canProceed: conflictingUsers.length === 0,
+    canProceed: A.isEmptyReadonlyArray(conflictingUsers),
     usersUsingAi,
     broadcastAiActivity,
     clearAiActivity,

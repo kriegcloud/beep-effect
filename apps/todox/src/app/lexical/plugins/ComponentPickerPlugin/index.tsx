@@ -39,6 +39,9 @@ import {
   TextHTwoIcon,
   TextTIcon,
 } from "@phosphor-icons/react";
+import * as DateTime from "effect/DateTime";
+import * as O from "effect/Option";
+import * as Str from "effect/String";
 import {
   $createParagraphNode,
   $getSelection,
@@ -136,9 +139,10 @@ export function getDynamicOptions(editor: LexicalEditor, queryString: string) {
     return options;
   }
 
-  const tableMatch = queryString.match(/^([1-9]\d?)(?:x([1-9]\d?)?)?$/);
+  const tableMatchOption = Str.match(/^([1-9]\d?)(?:x([1-9]\d?)?)?$/)(queryString);
 
-  if (tableMatch !== null) {
+  if (O.isSome(tableMatchOption)) {
+    const tableMatch = tableMatchOption.value;
     const rows = tableMatch[1]!;
     const colOptions = tableMatch[2] ? [tableMatch[2]] : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(String);
 
@@ -290,8 +294,7 @@ export function getBaseOptions(editor: LexicalEditor, showModal: ShowModal) {
       icon: <CalendarBlankIcon className="size-4" />,
       keywords: ["date", "calendar", "time"],
       onSelect: () => {
-        const dateTime = new Date();
-        dateTime.setHours(0, 0, 0, 0); // Set time to midnight
+        const dateTime = DateTime.startOf("day")(DateTime.unsafeNow());
         editor.dispatchCommand(INSERT_DATETIME_COMMAND, { dateTime });
       },
     }),
@@ -299,8 +302,7 @@ export function getBaseOptions(editor: LexicalEditor, showModal: ShowModal) {
       icon: <CalendarBlankIcon className="size-4" />,
       keywords: ["date", "calendar", "time", "today"],
       onSelect: () => {
-        const dateTime = new Date();
-        dateTime.setHours(0, 0, 0, 0); // Set time to midnight
+        const dateTime = DateTime.startOf("day")(DateTime.unsafeNow());
         editor.dispatchCommand(INSERT_DATETIME_COMMAND, { dateTime });
       },
     }),
@@ -308,9 +310,7 @@ export function getBaseOptions(editor: LexicalEditor, showModal: ShowModal) {
       icon: <CalendarBlankIcon className="size-4" />,
       keywords: ["date", "calendar", "time", "tomorrow"],
       onSelect: () => {
-        const dateTime = new Date();
-        dateTime.setDate(dateTime.getDate() + 1);
-        dateTime.setHours(0, 0, 0, 0); // Set time to midnight
+        const dateTime = DateTime.startOf("day")(DateTime.add(DateTime.unsafeNow(), { days: 1 }));
         editor.dispatchCommand(INSERT_DATETIME_COMMAND, { dateTime });
       },
     }),
@@ -318,9 +318,7 @@ export function getBaseOptions(editor: LexicalEditor, showModal: ShowModal) {
       icon: <CalendarBlankIcon className="size-4" />,
       keywords: ["date", "calendar", "time", "yesterday"],
       onSelect: () => {
-        const dateTime = new Date();
-        dateTime.setDate(dateTime.getDate() - 1);
-        dateTime.setHours(0, 0, 0, 0); // Set time to midnight
+        const dateTime = DateTime.startOf("day")(DateTime.subtract(DateTime.unsafeNow(), { days: 1 }));
         editor.dispatchCommand(INSERT_DATETIME_COMMAND, { dateTime });
       },
     }),
@@ -401,7 +399,9 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
     return [
       ...getDynamicOptions(editor, queryString),
       ...baseOptions.filter(
-        (option) => regex.test(option.title) || option.keywords.some((keyword) => regex.test(keyword))
+        (option) =>
+          O.isSome(Str.match(regex)(option.title)) ||
+          option.keywords.some((keyword) => O.isSome(Str.match(regex)(keyword)))
       ),
     ];
   }, [editor, queryString, showModal]);

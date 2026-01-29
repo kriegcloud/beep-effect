@@ -1,13 +1,13 @@
 "use client";
 
-import { cn } from "@beep/todox/lib/utils";
-import { Button } from "@beep/ui/components/button";
+import { Button } from "@beep/todox/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@beep/ui/components/dropdown-menu";
+} from "@beep/todox/components/ui/dropdown-menu";
+import { cn } from "@beep/todox/lib/utils";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { useLexicalEditable } from "@lexical/react/useLexicalEditable";
 import {
@@ -34,6 +34,7 @@ import {
 } from "@lexical/table";
 import { mergeRegister } from "@lexical/utils";
 import { ArrowLineDownIcon, ArrowLineUpIcon, ArrowsVerticalIcon, CaretDownIcon } from "@phosphor-icons/react";
+import * as MutableHashSet from "effect/MutableHashSet";
 import * as P from "effect/Predicate";
 import type { ElementNode, LexicalEditor } from "lexical";
 import {
@@ -310,7 +311,7 @@ function TableActionMenu({
 
       const [gridMap] = $computeTableMapSkipCellCheck(tableNode, null, null);
 
-      const rowCells = new Set<TableCellNode>();
+      const rowCells = MutableHashSet.empty<TableCellNode>();
 
       const newStyle = tableCellNode.getHeaderStyles() ^ TableCellHeaderStates.ROW;
 
@@ -321,8 +322,8 @@ function TableActionMenu({
           continue;
         }
 
-        if (!rowCells.has(mapCell.cell)) {
-          rowCells.add(mapCell.cell);
+        if (!MutableHashSet.has(rowCells, mapCell.cell)) {
+          MutableHashSet.add(rowCells, mapCell.cell);
           mapCell.cell.setHeaderStyles(newStyle, TableCellHeaderStates.ROW);
         }
       }
@@ -339,7 +340,7 @@ function TableActionMenu({
 
       const [gridMap] = $computeTableMapSkipCellCheck(tableNode, null, null);
 
-      const columnCells = new Set<TableCellNode>();
+      const columnCells = MutableHashSet.empty<TableCellNode>();
       const newStyle = tableCellNode.getHeaderStyles() ^ TableCellHeaderStates.COLUMN;
 
       for (let row = 0; row < gridMap.length; row++) {
@@ -349,8 +350,8 @@ function TableActionMenu({
           continue;
         }
 
-        if (!columnCells.has(mapCell.cell)) {
-          columnCells.add(mapCell.cell);
+        if (!MutableHashSet.has(columnCells, mapCell.cell)) {
+          MutableHashSet.add(columnCells, mapCell.cell);
           mapCell.cell.setHeaderStyles(newStyle, TableCellHeaderStates.COLUMN);
         }
       }
@@ -499,17 +500,19 @@ function TableActionMenu({
         <span className="text">Toggle Row Striping</span>
       </button>
       <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant="ghost"
-            size="sm"
-            aria-label="Formatting options for vertical alignment"
-            className={cn("gap-1", "item")}
-          >
-            <span className="text dropdown-button-text">Vertical Align</span>
-            <CaretDownIcon className="size-3 opacity-50" />
-          </Button>
-        </DropdownMenuTrigger>
+        <DropdownMenuTrigger
+          render={
+            <Button
+              variant="ghost"
+              size="sm"
+              aria-label="Formatting options for vertical alignment"
+              className={cn("gap-1", "item")}
+            >
+              <span className="text dropdown-button-text">Vertical Align</span>
+              <CaretDownIcon className="size-3 opacity-50" />
+            </Button>
+          }
+        />
         <DropdownMenuContent align="start" sideOffset={4} className="min-w-40">
           <DropdownMenuItem
             onClick={() => {

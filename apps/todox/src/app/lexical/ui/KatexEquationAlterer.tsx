@@ -1,10 +1,15 @@
 "use client";
 
-import { Button } from "@beep/ui/components/button";
+import { Button } from "@beep/todox/components/ui/button";
+import { Checkbox } from "@beep/todox/components/ui/checkbox";
+import { Input } from "@beep/todox/components/ui/input";
+import { Label } from "@beep/todox/components/ui/label";
+import { Textarea } from "@beep/todox/components/ui/textarea";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import type { JSX } from "react";
-import { useCallback, useState } from "react";
+import { useCallback, useId, useState } from "react";
 import { ErrorBoundary } from "react-error-boundary";
+import { EquationRenderError } from "../schema/errors";
 import KatexRenderer from "./KatexRenderer";
 
 type Props = {
@@ -16,50 +21,58 @@ export default function KatexEquationAlterer({ onConfirm, initialEquation = "" }
   const [editor] = useLexicalComposerContext();
   const [equation, setEquation] = useState<string>(initialEquation);
   const [inline, setInline] = useState<boolean>(true);
+  const inlineId = useId();
+  const equationId = useId();
 
   const onClick = useCallback(() => {
     onConfirm(equation, inline);
   }, [onConfirm, equation, inline]);
 
-  const onCheckboxChange = useCallback(() => {
-    setInline(!inline);
-  }, [setInline, inline]);
-
   return (
-    <>
-      <div className="flex flex-row my-2.5 justify-between overflow-hidden">
-        Inline
-        <input type="checkbox" checked={inline} onChange={onCheckboxChange} />
+    <div className="grid gap-4 py-2">
+      <div className="flex items-center gap-2">
+        <Checkbox id={inlineId} checked={inline} onCheckedChange={(checked) => setInline(checked === true)} />
+        <Label htmlFor={inlineId}>Inline equation</Label>
       </div>
-      <div className="flex flex-row my-2.5 justify-between overflow-hidden">Equation </div>
-      <div className="flex flex-row my-2.5 justify-center overflow-hidden">
+      <div className="grid gap-2">
+        <Label htmlFor={equationId}>Equation</Label>
         {inline ? (
-          <input
-            onChange={(event) => {
-              setEquation(event.target.value);
-            }}
+          <Input
+            id={equationId}
             value={equation}
-            className="w-full resize-none p-1.5 border border-border rounded bg-background"
+            onChange={(event) => setEquation(event.target.value)}
+            placeholder="E = mc^2"
           />
         ) : (
-          <textarea
-            onChange={(event) => {
-              setEquation(event.target.value);
-            }}
+          <Textarea
+            id={equationId}
             value={equation}
-            className="w-full resize-none p-1.5 border border-border rounded bg-background"
+            onChange={(event) => setEquation(event.target.value)}
+            placeholder="Enter your equation..."
+            rows={4}
           />
         )}
       </div>
-      <div className="flex flex-row my-2.5 justify-between overflow-hidden">Visualization </div>
-      <div className="flex flex-row my-2.5 justify-center overflow-hidden">
-        <ErrorBoundary onError={(e) => editor._onError(e instanceof Error ? e : new Error(String(e)))} fallback={null}>
-          <KatexRenderer equation={equation} inline={false} onDoubleClick={() => null} />
-        </ErrorBoundary>
+      <div className="grid gap-2">
+        <Label>Preview</Label>
+        <div className="min-h-[3rem] p-3 border border-border rounded-md bg-muted/50 flex items-center justify-center">
+          <ErrorBoundary
+            onError={(e) =>
+              editor._onError(
+                e instanceof EquationRenderError ? e : new EquationRenderError({ message: String(e), cause: e })
+              )
+            }
+            fallback={null}
+          >
+            <KatexRenderer equation={equation} inline={false} onDoubleClick={() => null} />
+          </ErrorBoundary>
+        </div>
       </div>
-      <div className="flex flex-row overflow-hidden mt-5 mb-0 justify-end gap-2">
-        <Button onClick={onClick}>Confirm</Button>
+      <div className="flex justify-end pt-2">
+        <Button variant="outline" onClick={onClick}>
+          Confirm
+        </Button>
       </div>
-    </>
+    </div>
   );
 }

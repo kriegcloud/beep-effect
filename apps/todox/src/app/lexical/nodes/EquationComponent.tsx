@@ -17,6 +17,7 @@ import type { JSX } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 
+import { EquationRenderError } from "../schema/errors";
 import EquationEditor from "../ui/EquationEditor";
 import KatexRenderer from "../ui/KatexRenderer";
 import { $isEquationNode } from "./equation-utils";
@@ -105,7 +106,12 @@ export default function EquationComponent({ equation, inline, nodeKey }: Equatio
       {showEquationEditor && isEditable ? (
         <EquationEditor equation={equationValue} setEquation={setEquationValue} inline={inline} ref={inputRef} />
       ) : (
-        <ErrorBoundary onError={(e) => editor._onError(e instanceof Error ? e : new Error(String(e)))} fallback={null}>
+        <ErrorBoundary
+          onError={(e) =>
+            editor._onError(e instanceof Error ? e : new EquationRenderError({ message: String(e), cause: e }))
+          }
+          fallback={null}
+        >
           <KatexRenderer
             equation={equationValue}
             inline={inline}

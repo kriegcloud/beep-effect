@@ -1,3 +1,4 @@
+import * as Match from "effect/Match";
 import type { RangeSelection } from "lexical";
 import { $createParagraphNode, $createTextNode } from "lexical";
 import type { InsertionMode } from "../types";
@@ -11,20 +12,18 @@ import type { InsertionMode } from "../types";
  * @param mode - Insertion mode (replace/inline/below)
  */
 export function $insertAiText(selection: RangeSelection, content: string, mode: InsertionMode): void {
-  switch (mode) {
-    case "replace":
+  Match.value(mode).pipe(
+    Match.when("replace", () => {
       // Replace selected text with AI content
       selection.insertText(content);
-      break;
-
-    case "inline":
+    }),
+    Match.when("inline", () => {
       // Move cursor to end of selection by setting anchor to focus position
       const { focus } = selection;
       selection.anchor.set(focus.key, focus.offset, focus.type);
       selection.insertText(` ${content}`);
-      break;
-
-    case "below":
+    }),
+    Match.when("below", () => {
       // Insert content in a new paragraph below selection's block
       const paragraphNode = $createParagraphNode();
       const textNode = $createTextNode(content);
@@ -34,6 +33,7 @@ export function $insertAiText(selection: RangeSelection, content: string, mode: 
       const anchorNode = selection.anchor.getNode();
       const topLevelElement = anchorNode.getTopLevelElementOrThrow();
       topLevelElement.insertAfter(paragraphNode);
-      break;
-  }
+    }),
+    Match.exhaustive
+  );
 }

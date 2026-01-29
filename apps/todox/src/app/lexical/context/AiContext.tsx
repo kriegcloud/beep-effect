@@ -2,6 +2,7 @@
 
 import { createContext, type ReactNode, useCallback, useContext, useMemo, useState } from "react";
 import type { AiOperationState, InsertionMode } from "../plugins/AiAssistantPlugin/types";
+import { MissingContextError } from "../schema/errors";
 
 interface AiContextValue {
   // Panel state
@@ -74,7 +75,10 @@ export function AiContextProvider({ children }: { readonly children: ReactNode }
 export function useAiContext(): AiContextValue {
   const context = useContext(AiContext);
   if (context === null) {
-    throw new Error("useAiContext must be used within AiContextProvider");
+    throw new MissingContextError({
+      message: "useAiContext must be used within AiContextProvider",
+      contextName: "AiContext",
+    });
   }
   return context;
 }

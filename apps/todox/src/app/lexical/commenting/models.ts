@@ -23,7 +23,7 @@ import { COMMAND_PRIORITY_LOW } from "lexical";
 import React from "react";
 import { Doc as _Doc, type Transaction, Array as YArray, YArrayEvent, type YEvent, Map as YMap } from "yjs";
 
-const createUID = () => F.pipe(Math.random().toString(36), Str.replace(/[^a-z]+/g, ""), Str.substring(0, 5));
+const createUID = () => F.pipe(Math.random().toString(36), Str.replace(/[^a-z]+/g, ""), Str.slice(0, 5));
 
 const $I = $TodoxId.create("lexical/commenting/models");
 
@@ -175,7 +175,7 @@ export class Thread extends S.Class<Thread>($I`Thread`)(
 
   static readonly clone = (thread: Thread) =>
     new Thread({
-      comments: Array.from(thread.comments),
+      comments: A.fromIterable(thread.comments),
       id: thread.id,
       quote: thread.quote,
     });
@@ -286,7 +286,7 @@ export class CommentStore extends Data.Class {
     commentOrThread: CommentOrThread.Type,
     thread?: undefined | Thread
   ): O.Option<{ markedComment: Comment; index: number }> {
-    const nextComments = Array.from(this._comments);
+    const nextComments = A.fromIterable(this._comments);
     // The YJS types explicitly use `any` as well.
     const sharedCommentsArrayOpt: O.Option<YArray<UnsafeTypes.UnsafeAny>> = this._getCollabComments();
     let commentIndex: number | null = null;
@@ -295,17 +295,16 @@ export class CommentStore extends Data.Class {
     threadOpt.pipe(
       O.match({
         onNone: () => {
-          commentIndex = nextComments.indexOf(commentOrThread);
-          if (this.isCollaborative() && O.isSome(sharedCommentsArrayOpt)) {
-            this._withRemoteTransaction(() => {
-              if (P.isNumber(commentIndex)) {
-                sharedCommentsArrayOpt.value.delete(commentIndex);
-              }
-            });
-          }
-          if (P.isNumber(commentIndex)) {
-            nextComments.splice(commentIndex, 1);
-          }
+          const indexOpt = A.findFirstIndex(nextComments, (c) => c === commentOrThread);
+          O.map(indexOpt, (idx) => {
+            commentIndex = idx;
+            if (this.isCollaborative() && O.isSome(sharedCommentsArrayOpt)) {
+              this._withRemoteTransaction(() => {
+                sharedCommentsArrayOpt.value.delete(idx);
+              });
+            }
+            nextComments.splice(idx, 1);
+          });
         },
         onSome: (thread) => {
           for (let i = 0; i < nextComments.length; i++) {
@@ -314,14 +313,17 @@ export class CommentStore extends Data.Class {
               const newThread = Thread.clone(nextComment);
               nextComments.splice(i, 1, newThread);
               const threadComments = newThread.comments;
-              commentIndex = threadComments.indexOf(commentOrThread as Comment);
-              if (this.isCollaborative() && O.isSome(sharedCommentsArrayOpt)) {
-                const parentSharedArray = sharedCommentsArrayOpt.value.get(i).get("comments");
-                this._withRemoteTransaction(() => {
-                  parentSharedArray.delete(commentIndex);
-                });
-              }
-              threadComments.splice(commentIndex, 1);
+              const threadIndexOpt = A.findFirstIndex(threadComments, (c) => c === commentOrThread);
+              O.map(threadIndexOpt, (idx) => {
+                commentIndex = idx;
+                if (this.isCollaborative() && O.isSome(sharedCommentsArrayOpt)) {
+                  const parentSharedArray = sharedCommentsArrayOpt.value.get(i).get("comments");
+                  this._withRemoteTransaction(() => {
+                    parentSharedArray.delete(idx);
+                  });
+                }
+                threadComments.splice(idx, 1);
+              });
               break;
             }
           }
@@ -375,7 +377,7 @@ export class CommentStore extends Data.Class {
         thread: (thread) => {
           sharedMap.set("quote", thread.quote);
           const commentsArray = new YArray();
-          thread.comments.forEach((comment, i) => {
+          A.forEach(thread.comments, (comment, i) => {
             const sharedChildComment = this._createCollabSharedMap(comment);
             commentsArray.insert(i, [sharedChildComment]);
           });
@@ -465,51 +467,51 @@ export class CommentStore extends Data.Class {
                 O.isSome(sharedCommentsArray) && target === sharedCommentsArray.value
                   ? undefined
                   : parent instanceof YMap &&
-                    (this._comments.find((t) => t.id === parent.get("id")) as Thread | undefined);
+                    (F.pipe(
+                      A.findFirst(this._comments, (t) => t.id === parent.get("id")),
+                      O.getOrUndefined
+                    ) as Thread | undefined);
 
               if (Array.isArray(insert)) {
-                insert
-                  .slice()
-                  .reverse()
-                  .forEach((map: YMap<UnsafeTypes.UnsafeAny>) => {
-                    const id = map.get("id");
-                    const type = map.get("type");
+                const insertItems = A.reverse(A.copy(insert as Array<YMap<UnsafeTypes.UnsafeAny>>));
+                A.forEach(insertItems, (map) => {
+                  const id = map.get("id");
+                  const type = map.get("type");
 
-                    const commentOrThread =
-                      type === "thread"
-                        ? Thread.create({
-                            quote: map.get("quote"),
-                            comments: map
-                              .get("comments")
-                              .toArray()
-                              .map((innerComment: Map<string, string | number | boolean>) =>
-                                Comment.create({
-                                  content: innerComment.get("content") as string,
-                                  author: innerComment.get("author") as string,
-                                  id: innerComment.get("id") as string,
-                                  timeStamp: S.decodeUnknownSync(BS.DateTimeUtcFromAllAcceptable)(
-                                    innerComment.get("timeStamp")
-                                  ),
-                                  deleted: innerComment.get("deleted") as boolean,
-                                })
-                              ),
-                            id,
-                          })
-                        : Comment.create({
-                            content: map.get("content"),
-                            author: map.get("author"),
-                            id,
-                            timeStamp: S.decodeUnknownSync(BS.DateTimeUtcFromAllAcceptable)(map.get("timeStamp")),
-                            deleted: map.get("deleted"),
-                          });
-                    this._withLocalTransaction(() => {
-                      this.addComment({
-                        commentOrThread,
-                        thread: P.isBoolean(parentThread) ? undefined : parentThread,
-                        offset,
-                      });
+                  const commentOrThread =
+                    type === "thread"
+                      ? Thread.create({
+                          quote: map.get("quote"),
+                          comments: A.map(
+                            map.get("comments").toArray() as Array<Map<string, string | number | boolean>>,
+                            (innerComment) =>
+                              Comment.create({
+                                content: innerComment.get("content") as string,
+                                author: innerComment.get("author") as string,
+                                id: innerComment.get("id") as string,
+                                timeStamp: S.decodeUnknownSync(BS.DateTimeUtcFromAllAcceptable)(
+                                  innerComment.get("timeStamp")
+                                ),
+                                deleted: innerComment.get("deleted") as boolean,
+                              })
+                          ),
+                          id,
+                        })
+                      : Comment.create({
+                          content: map.get("content"),
+                          author: map.get("author"),
+                          id,
+                          timeStamp: S.decodeUnknownSync(BS.DateTimeUtcFromAllAcceptable)(map.get("timeStamp")),
+                          deleted: map.get("deleted"),
+                        });
+                  this._withLocalTransaction(() => {
+                    this.addComment({
+                      commentOrThread,
+                      thread: P.isBoolean(parentThread) ? undefined : parentThread,
+                      offset,
                     });
                   });
+                });
               } else if (P.isNumber(retain)) {
                 offset += retain;
               } else if (P.isNumber(del)) {

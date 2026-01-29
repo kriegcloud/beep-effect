@@ -3,6 +3,17 @@
 import { $TodoxId } from "@beep/identity/packages";
 import { makeAtomRuntime, makeRunClientPromise, useRuntime } from "@beep/runtime-client";
 import { SerializedDocument, SerializedEditorState } from "@beep/todox/app/lexical/schema";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@beep/todox/components/ui/alert-dialog";
 import { Button } from "@beep/todox/components/ui/button";
 import { Toggle } from "@beep/todox/components/ui/toggle";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@beep/todox/components/ui/tooltip";
@@ -59,7 +70,6 @@ import {
 import type { JSX } from "react";
 import { useCallback, useEffect, useState } from "react";
 import useFlashMessage from "../../hooks/useFlashMessage";
-import useModal from "../../hooks/useModal";
 import { INITIAL_SETTINGS } from "../../settings";
 import { docFromHash, docToHash } from "../../utils/docSerialization";
 import { PLAYGROUND_TRANSFORMERS } from "../MarkdownTransformers";
@@ -190,7 +200,6 @@ export default function ActionsPlugin({
   const [isSpeechToText, setIsSpeechToText] = useState(false);
   const [connected, setConnected] = useState(false);
   const [isEditorEmpty, setIsEditorEmpty] = useState(true);
-  const [modal, showModal] = useModal();
   const showFlashMessage = useFlashMessage();
   const { isCollabActive } = useCollaborationContext();
   useEffect(() => {
@@ -200,17 +209,15 @@ export default function ActionsPlugin({
     runClientPromise(
       Effect.gen(function* () {
         const doc = yield* docFromHash(window.location.hash);
-        if (P.isString(doc)) {
-          return yield* S.decode(S.parseJson(SerializedDocument))(doc);
+        const parsedDoc = P.isString(doc) ? yield* S.decode(S.parseJson(SerializedDocument))(doc) : doc;
+
+        if (parsedDoc && parsedDoc.source === "Playground") {
+          editor.setEditorState(editorStateFromSerializedDocument(editor, parsedDoc));
+          editor.dispatchCommand(CLEAR_HISTORY_COMMAND, undefined);
         }
-        return doc;
+        return parsedDoc;
       })
-    ).then((doc) => {
-      if (doc && doc.source === "Playground") {
-        editor.setEditorState(editorStateFromSerializedDocument(editor, doc));
-        editor.dispatchCommand(CLEAR_HISTORY_COMMAND, undefined);
-      }
-    });
+    );
   }, [editor]);
   useEffect(() => {
     return mergeRegister(
@@ -380,24 +387,42 @@ export default function ActionsPlugin({
       </Tooltip>
 
       {/* Clear */}
-      <Tooltip>
-        <TooltipTrigger
-          render={
-            <Button
-              variant="ghost"
-              size="icon-sm"
-              disabled={isEditorEmpty}
+      <AlertDialog>
+        <Tooltip>
+          <TooltipTrigger
+            render={
+              <AlertDialogTrigger
+                render={
+                  <Button variant="ghost" size="icon-sm" disabled={isEditorEmpty} aria-label="Clear editor contents">
+                    <TrashIcon className="size-4" />
+                  </Button>
+                }
+              />
+            }
+          />
+          <TooltipContent>Clear</TooltipContent>
+        </Tooltip>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Clear editor</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to clear the editor? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              variant="destructive"
               onClick={() => {
-                showModal("Clear editor", (onClose) => <ShowClearDialog editor={editor} onClose={onClose} />);
+                editor.dispatchCommand(CLEAR_EDITOR_COMMAND, undefined);
+                editor.focus();
               }}
-              aria-label="Clear editor contents"
             >
-              <TrashIcon className="size-4" />
-            </Button>
-          }
-        />
-        <TooltipContent>Clear</TooltipContent>
-      </Tooltip>
+              Clear
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Lock/Unlock (Read-Only Mode) */}
       <Tooltip>
@@ -475,36 +500,6 @@ export default function ActionsPlugin({
           )}
         </>
       )}
-      {modal}
     </div>
-  );
-}
-
-function ShowClearDialog({ editor, onClose }: { editor: LexicalEditor; onClose: () => void }): JSX.Element {
-  return (
-    <>
-      Are you sure you want to clear the editor?
-      <div className="flex gap-2 mt-4">
-        <Button
-          variant="destructive"
-          onClick={() => {
-            editor.dispatchCommand(CLEAR_EDITOR_COMMAND, undefined);
-            editor.focus();
-            onClose();
-          }}
-        >
-          Clear
-        </Button>
-        <Button
-          variant="outline"
-          onClick={() => {
-            editor.focus();
-            onClose();
-          }}
-        >
-          Cancel
-        </Button>
-      </div>
-    </>
   );
 }

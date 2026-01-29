@@ -2,6 +2,7 @@
 
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { $findMatchingParent, $insertNodeToNearestRoot, mergeRegister } from "@lexical/utils";
+import * as Str from "effect/String";
 import type { ElementNode, LexicalCommand, LexicalNode, NodeKey } from "lexical";
 import {
   $createParagraphNode,
@@ -24,6 +25,7 @@ import {
   LayoutContainerNode,
 } from "../../nodes/LayoutContainerNode";
 import { $createLayoutItemNode, $isLayoutItemNode, LayoutItemNode } from "../../nodes/LayoutItemNode";
+import { NodeNotRegisteredError } from "../../schema/errors";
 
 export const INSERT_LAYOUT_COMMAND: LexicalCommand<string> = createCommand<string>();
 
@@ -36,7 +38,11 @@ export function LayoutPlugin(): null {
   const [editor] = useLexicalComposerContext();
   useEffect(() => {
     if (!editor.hasNodes([LayoutContainerNode, LayoutItemNode])) {
-      throw new Error("LayoutPlugin: LayoutContainerNode, or LayoutItemNode not registered on editor");
+      throw new NodeNotRegisteredError({
+        message: "LayoutPlugin: LayoutContainerNode, or LayoutItemNode not registered on editor",
+        plugin: "LayoutPlugin",
+        nodeType: "LayoutContainerNode, LayoutItemNode",
+      });
     }
 
     const $onEscape = (before: boolean) => {
@@ -179,5 +185,5 @@ export function LayoutPlugin(): null {
 }
 
 function getItemsCountFromTemplate(template: string): number {
-  return template.trim().split(/\s+/).length;
+  return Str.split(Str.trim(template), /\s+/).length;
 }

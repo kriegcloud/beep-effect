@@ -1,7 +1,8 @@
 "use client";
 
 import { $TodoxId } from "@beep/identity/packages";
-import { Button } from "@beep/ui/components/button";
+import { Button } from "@beep/todox/components/ui/button";
+import { Input } from "@beep/todox/components/ui/input";
 import { thunkNull } from "@beep/utils";
 import {
   AutoEmbedOption,
@@ -45,7 +46,8 @@ class UrlParseError extends S.TaggedError<UrlParseError>($I`UrlParseError`)(
 ) {}
 
 /**
- * Effect-based URL parsing that wraps both sync and async parseUrl implementations
+ * Effect-based URL parsing that wraps both sync and async parseUrl implementations.
+ * The parseUrl function can return either a Promise or a direct result, so we handle both cases.
  */
 const parseUrlEffect = (config: EmbedConfig, url: string): Effect.Effect<EmbedMatchResult | null, UrlParseError> =>
   F.pipe(
@@ -53,7 +55,14 @@ const parseUrlEffect = (config: EmbedConfig, url: string): Effect.Effect<EmbedMa
       try: () => config.parseUrl(url),
       catch: (error) => new UrlParseError({ url, cause: error }),
     }),
-    Effect.flatMap((result) => Effect.promise(() => Promise.resolve(result))),
+    Effect.flatMap((result) =>
+      result instanceof Promise
+        ? Effect.tryPromise({
+            try: () => result,
+            catch: (error) => new UrlParseError({ url, cause: error }),
+          })
+        : Effect.succeed(result)
+    ),
     Effect.catchAll((error) =>
       error instanceof UrlParseError ? Effect.fail(error) : Effect.fail(new UrlParseError({ url, cause: error }))
     )
@@ -261,8 +270,8 @@ export function AutoEmbedDialog({
   const validateText = useMemo(
     () =>
       debounce((inputText: string) => {
-        const urlMatch = URL_MATCHER.exec(inputText);
-        if (embedConfig != null && inputText != null && urlMatch != null) {
+        const urlMatch = Str.match(URL_MATCHER)(inputText);
+        if (embedConfig != null && inputText != null && O.isSome(urlMatch)) {
           F.pipe(
             parseUrlEffect(embedConfig, inputText),
             Effect.match({
@@ -286,11 +295,14 @@ export function AutoEmbedDialog({
   };
 
   return (
-    <div style={{ width: "600px" }}>
-      <div className="Input__wrapper">
-        <input
+    <div className="w-full space-y-4">
+      <div className="space-y-2">
+        <label htmlFor="embed-url" className="text-sm font-medium text-foreground">
+          URL
+        </label>
+        <Input
+          id="embed-url"
           type="text"
-          className="Input__input"
           placeholder={embedConfig.exampleUrl}
           value={text}
           data-test-id={`${embedConfig.type}-embed-modal-url`}
@@ -300,8 +312,9 @@ export function AutoEmbedDialog({
             validateText(value);
           }}
         />
+        <p className="text-xs text-muted-foreground">Paste a {embedConfig.contentName} URL to embed</p>
       </div>
-      <div className="flex flex-row justify-end mt-5 gap-2">
+      <div className="flex flex-row justify-end gap-2">
         <Button
           variant="outline"
           disabled={!embedResult}

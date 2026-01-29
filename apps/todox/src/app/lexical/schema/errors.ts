@@ -231,3 +231,34 @@ export class CollapsibleError extends S.TaggedError<CollapsibleError>()(
     description: "Error thrown when collapsible plugin operations fail",
   })
 ) {}
+
+/**
+ * Error thrown when equation rendering (KaTeX) fails.
+ *
+ * @since 0.1.0
+ */
+export class EquationRenderError extends S.TaggedError<EquationRenderError>()(
+  $I`EquationRenderError`,
+  {
+    message: S.String,
+    cause: S.optional(S.Unknown),
+  },
+  $I.annotations("EquationRenderError", {
+    description: "Error thrown when equation rendering (KaTeX) fails",
+  })
+) {}
+
+/**
+ * Error thrown when drag selection cannot be obtained.
+ *
+ * @since 0.1.0
+ */
+export class DragSelectionError extends S.TaggedError<DragSelectionError>()(
+  $I`DragSelectionError`,
+  {
+    message: S.String,
+  },
+  $I.annotations("DragSelectionError", {
+    description: "Error thrown when drag selection cannot be obtained",
+  })
+) {}

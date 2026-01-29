@@ -1,6 +1,7 @@
 "use client";
 
 import { addClassNamesToElement } from "@lexical/utils";
+import * as A from "effect/Array";
 import * as S from "effect/Schema";
 import type { DOMConversionMap, DOMConversionOutput, EditorConfig, LexicalNode, SerializedElementNode } from "lexical";
 import { $isParagraphNode, ElementNode } from "lexical";
@@ -42,7 +43,7 @@ export class LayoutItemNode extends ElementNode {
 
   override collapseAtStart(): boolean {
     const parent = this.getParentOrThrow();
-    if (this.is(parent.getFirstChild()) && parent.getChildren().every($isEmptyLayoutItemNode)) {
+    if (this.is(parent.getFirstChild()) && A.every(parent.getChildren(), $isEmptyLayoutItemNode)) {
       parent.remove();
       return true;
     }

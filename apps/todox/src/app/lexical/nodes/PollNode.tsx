@@ -1,9 +1,9 @@
 import * as A from "effect/Array";
 import * as Either from "effect/Either";
-import * as Eq from "effect/Equal";
 import * as F from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
+import * as S from "effect/Schema";
 import {
   $getState,
   $setState,
@@ -27,11 +27,23 @@ export { createPollOption } from "./poll-utils";
 
 const PollComponent = React.lazy(() => import("./PollComponent"));
 
+// Effect Schema for poll options - used for JSON parsing/encoding
+// Wrapped with S.mutable() to return mutable arrays compatible with Options type
+const PollOptionSchema = S.mutable(
+  S.Struct({
+    text: S.String,
+    uid: S.String,
+    votes: S.mutable(S.Array(S.String)),
+  })
+);
+const PollOptionsSchema = S.mutable(S.Array(PollOptionSchema));
+const PollOptionsJsonSchema = S.parseJson(PollOptionsSchema);
+
 function cloneOption(option: Option, text: string, votes?: undefined | Array<string>): Option {
   return {
     text,
     uid: option.uid,
-    votes: votes || Array.from(option.votes),
+    votes: votes || A.copy(option.votes),
   };
 }
 
@@ -49,29 +61,18 @@ function $convertPollElement(domNode: HTMLSpanElement): DOMConversionOutput | nu
 
   return O.getOrNull(
     O.flatMap(O.all([question, optionsAttr]), ([q, opts]) =>
-      O.map(Either.getRight(Either.try(() => JSON.parse(opts))), (parsed) => ({
-        node: $createPollNode(q, parseOptions(parsed)),
+      O.map(Either.getRight(S.decodeUnknownEither(PollOptionsJsonSchema)(opts)), (parsed) => ({
+        node: $createPollNode(q, parsed),
       }))
     )
   );
 }
 
 function parseOptions(json: unknown): Options {
-  const options = [];
-  if (Array.isArray(json)) {
-    for (const row of json) {
-      if (
-        row &&
-        P.isString(row.text) &&
-        P.isString(row.uid) &&
-        A.isArray(row.votes) &&
-        A.every(row.votes, P.isString)
-      ) {
-        options.push(row);
-      }
-    }
-  }
-  return options;
+  return F.pipe(
+    S.decodeUnknownEither(PollOptionsSchema)(json),
+    Either.getOrElse(() => [] as Options)
+  );
 }
 
 const questionState = createState("question", {
@@ -82,11 +83,15 @@ const questionState = createState("question", {
 });
 const optionsState = createState("options", {
   isEqual: (a, b) =>
-    Eq.equals(A.length(a))(A.length(b)) &&
-    Either.try({
-      try: () => JSON.stringify(a) === JSON.stringify(b),
-      catch: () => false,
-    }).pipe(Either.isRight),
+    A.length(a) === A.length(b) &&
+    A.every(
+      A.zip(a, b),
+      ([optA, optB]) =>
+        optA.uid === optB.uid &&
+        optA.text === optB.text &&
+        A.length(optA.votes) === A.length(optB.votes) &&
+        A.every(A.zip(optA.votes, optB.votes), ([vA, vB]) => vA === vB)
+    ),
   parse: parseOptions,
 });
 
@@ -128,52 +133,48 @@ export class PollNode extends DecoratorNode<JSX.Element> {
   }
 
   deleteOption(option: Option): this {
-    return this.setOptions((prevOptions) => {
-      const index = prevOptions.indexOf(option);
-      if (index === -1) {
-        return prevOptions;
-      }
-      const options = Array.from(prevOptions);
-      options.splice(index, 1);
-      return options;
-    });
+    return this.setOptions((prevOptions) =>
+      F.pipe(
+        A.findFirstIndex(prevOptions, (o) => o === option),
+        O.map((index) => A.remove(prevOptions, index)),
+        O.getOrElse(() => prevOptions)
+      )
+    );
   }
 
   setOptionText(option: Option, text: string): this {
-    return this.setOptions((prevOptions) => {
-      const clonedOption = cloneOption(option, text);
-      const options = Array.from(prevOptions);
-      const index = options.indexOf(option);
-      options[index] = clonedOption;
-      return options;
-    });
+    return this.setOptions((prevOptions) => A.map(prevOptions, (o) => (o === option ? cloneOption(option, text) : o)));
   }
 
   toggleVote(option: Option, username: string): this {
-    return this.setOptions((prevOptions) => {
-      const index = prevOptions.indexOf(option);
-      if (index === -1) {
-        return prevOptions;
-      }
-      const votes = option.votes;
-      const votesClone = Array.from(votes);
-      const voteIndex = votes.indexOf(username);
-      if (voteIndex === -1) {
-        votesClone.push(username);
-      } else {
-        votesClone.splice(voteIndex, 1);
-      }
-      const clonedOption = cloneOption(option, option.text, votesClone);
-      const options = Array.from(prevOptions);
-      options[index] = clonedOption;
-      return options;
-    });
+    return this.setOptions((prevOptions) =>
+      F.pipe(
+        A.findFirstIndex(prevOptions, (o) => o === option),
+        O.map((index) => {
+          const votes = option.votes;
+          const updatedVotes = F.pipe(
+            A.findFirstIndex(votes, (v) => v === username),
+            O.match({
+              onNone: () => A.append(votes, username),
+              onSome: (voteIndex) => A.remove(votes, voteIndex),
+            })
+          );
+          const clonedOption = cloneOption(option, option.text, updatedVotes);
+          return A.modify(prevOptions, index, () => clonedOption);
+        }),
+        O.getOrElse(() => prevOptions)
+      )
+    );
   }
 
   override exportDOM(): DOMExportOutput {
     const element = document.createElement("span");
     element.setAttribute("data-lexical-poll-question", this.getQuestion());
-    element.setAttribute("data-lexical-poll-options", JSON.stringify(this.getOptions()));
+    const encodedOptions = F.pipe(
+      S.encodeUnknownEither(PollOptionsJsonSchema)(this.getOptions()),
+      Either.getOrElse(() => "[]")
+    );
+    element.setAttribute("data-lexical-poll-options", encodedOptions);
     return { element };
   }
 
