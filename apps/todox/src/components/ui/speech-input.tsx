@@ -3,11 +3,11 @@
 import { Button } from "@beep/todox/components/ui/button";
 import { type AudioFormat, type CommitStrategy, useScribe } from "@beep/todox/hooks/use-scribe";
 import { cn } from "@beep/todox/lib/utils";
+import { MicrophoneIcon, SquareIcon, XIcon } from "@phosphor-icons/react";
 import { cva, type VariantProps } from "class-variance-authority";
 import * as A from "effect/Array";
 import * as Str from "effect/String";
 import { motion } from "framer-motion";
-import { MicIcon, SquareIcon, XIcon } from "lucide-react";
 import {
   type ComponentPropsWithoutRef,
   createContext,
@@ -299,7 +299,7 @@ const SpeechInputRecordButton = forwardRef<HTMLButtonElement, SpeechInputRecordB
           if (speechInput.isConnected) {
             speechInput.stop();
           } else {
-            speechInput.start();
+            void speechInput.start();
           }
           onClick?.(e);
         }}
@@ -325,7 +325,7 @@ const SpeechInputRecordButton = forwardRef<HTMLButtonElement, SpeechInputRecordB
             !speechInput.isConnecting && speechInput.isConnected ? "scale-100 opacity-100" : "scale-[60%] opacity-0"
           )}
         />
-        <MicIcon
+        <MicrophoneIcon
           className={cn(
             "absolute h-4 w-4 transition-all duration-200",
             !speechInput.isConnecting && !speechInput.isConnected ? "scale-100 opacity-100" : "scale-[60%] opacity-0"

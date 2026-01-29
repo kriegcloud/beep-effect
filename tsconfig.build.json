@@ -78,6 +78,9 @@
       "path": "packages/ui/editor/tsconfig.build.json"
     },
     {
+      "path": "packages/ui/spreadsheet/tsconfig.build.json"
+    },
+    {
       "path": "packages/documents/client/tsconfig.build.json"
     },
     {

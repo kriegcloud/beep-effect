@@ -1,20 +1,36 @@
 "use client";
+import { $TodoxId } from "@beep/identity/packages";
+import { makeRunClientPromise, useRuntime } from "@beep/runtime-client";
 import { BS } from "@beep/schema";
 import { cn } from "@beep/todox/lib/utils";
+import { CheckIcon, GearIcon, PauseIcon, PlayIcon } from "@phosphor-icons/react";
 import * as SliderPrimitive from "@radix-ui/react-slider";
 import * as A from "effect/Array";
+import * as Effect from "effect/Effect";
+import * as F from "effect/Function";
 import * as O from "effect/Option";
-// import * as Match from "effect/Match";
 import * as P from "effect/Predicate";
-// import * as F from "effect/Function";
-//
+import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import { Check, PauseIcon, PlayIcon, Settings } from "lucide-react";
 import type * as React from "react";
 import type { ComponentProps, HTMLProps, ReactNode, RefObject } from "react";
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "./button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./dropdown-menu";
+
+const $I = $TodoxId.create("components/ui/audio-player");
+
+class PlayPromiseRefError extends S.TaggedError<PlayPromiseRefError>($I`PlayPromiseRefError`)(
+  "PlayPromiseRefError",
+  {
+    cause: S.Defect,
+  },
+  $I.annotations("PlayPromiseRefError", {
+    description: "An error which occured while attempting to play an audio file ref",
+  })
+) {
+  static readonly new = (cause: unknown) => new PlayPromiseRefError({ cause });
+}
 
 export class ReadyState extends BS.MappedLiteralKit(
   ["HAVE_NOTHING", 0],
@@ -89,6 +105,8 @@ export const useAudioPlayerTime = () => {
 };
 
 export function AudioPlayerProvider<TData = unknown>({ children }: { readonly children: ReactNode }) {
+  const runtime = useRuntime();
+  const runPromise = makeRunClientPromise(runtime);
   const audioRef = useRef<HTMLAudioElement>(null);
   const itemRef = useRef<AudioPlayerItem<TData> | null>(null);
   const playPromiseRef = useRef<Promise<void> | null>(null);
@@ -120,47 +138,52 @@ export function AudioPlayerProvider<TData = unknown>({ children }: { readonly ch
     audioRef.current.playbackRate = currentRate;
   }, A.empty());
 
-  const play = useCallback(
-    async (item?: AudioPlayerItem<TData> | null) => {
-      if (P.isNullable(audioRef.current)) return;
+  const playEffect = Effect.fnUntraced(function* (item?: undefined | AudioPlayerItem<TData> | null) {
+    if (P.isNullable(audioRef.current)) return;
+    if (P.isNotNullable(playPromiseRef.current)) {
+      yield* F.pipe(
+        Effect.tryPromise({
+          try: async () => {
+            await playPromiseRef.current;
+          },
+          catch: PlayPromiseRefError.new,
+        }),
+        Effect.tapError((e) => Effect.logError(`Play promise error: ${e}`))
+      );
+    }
 
-      if (P.isNotNullable(playPromiseRef.current)) {
-        try {
-          await playPromiseRef.current;
-        } catch (error) {
-          console.error("Play promise error:", error);
-        }
-      }
-
-      if (P.isUndefined(item)) {
-        const playPromise = audioRef.current.play();
-        playPromiseRef.current = playPromise;
-        return playPromise;
-      }
-      if (item?.id === activeItem?.id) {
-        const playPromise = audioRef.current.play();
-        playPromiseRef.current = playPromise;
-        return playPromise;
-      }
-
-      itemRef.current = item;
-      const currentRate = audioRef.current.playbackRate;
-      if (!audioRef.current.paused) {
-        audioRef.current.pause();
-      }
-      audioRef.current.currentTime = 0;
-      if (P.isNull(item)) {
-        audioRef.current.removeAttribute("src");
-      } else {
-        audioRef.current.src = item.src;
-      }
-      audioRef.current.load();
-      audioRef.current.playbackRate = currentRate;
+    if (P.isUndefined(item)) {
       const playPromise = audioRef.current.play();
       playPromiseRef.current = playPromise;
       return playPromise;
-    },
-    [activeItem]
+    }
+    if (item?.id === activeItem?.id) {
+      const playPromise = audioRef.current.play();
+      playPromiseRef.current = playPromise;
+      return playPromise;
+    }
+
+    itemRef.current = item;
+    const currentRate = audioRef.current.playbackRate;
+    if (!audioRef.current.paused) {
+      audioRef.current.pause();
+    }
+    audioRef.current.currentTime = 0;
+    if (P.isNull(item)) {
+      audioRef.current.removeAttribute("src");
+    } else {
+      audioRef.current.src = item.src;
+    }
+    audioRef.current.load();
+    audioRef.current.playbackRate = currentRate;
+    const playPromise = audioRef.current.play();
+    playPromiseRef.current = playPromise;
+    return playPromise;
+  });
+
+  const play = useCallback(
+    async (item?: undefined | AudioPlayerItem<TData> | null) => runPromise(playEffect(item)),
+    [activeItem, playEffect]
   );
 
   const pause = useCallback(async () => {
@@ -481,7 +504,7 @@ export function AudioPlayerSpeed({
           <Button variant={variant} size={size} className={cn(className)} aria-label="Playback speed" {...props} />
         }
       >
-        <Settings className="size-4" />
+        <GearIcon className="size-4" />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="min-w-[120px]">
         {A.map(speeds, (speed) => (
@@ -491,7 +514,7 @@ export function AudioPlayerSpeed({
             className="flex items-center justify-between"
           >
             <span className={speed === 1 ? Str.empty : "font-mono"}>{speed === 1 ? "Normal" : `${speed}x`}</span>
-            {currentSpeed === speed && <Check className="size-4" />}
+            {currentSpeed === speed && <CheckIcon className="size-4" />}
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>

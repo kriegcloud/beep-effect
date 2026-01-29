@@ -1,0 +1,33 @@
+"use client";
+
+import type { Provider } from "@lexical/yjs";
+import * as P from "effect/Predicate";
+import { WebsocketProvider } from "y-websocket";
+import { Doc } from "yjs";
+
+const url = new URL(window.location.href);
+const params = new URLSearchParams(url.search);
+const WEBSOCKET_ENDPOINT = params.get("collabEndpoint") || "ws://localhost:1234";
+const WEBSOCKET_SLUG = "playground";
+const WEBSOCKET_ID = params.get("collabId") || "0";
+
+// parent dom -> child doc
+export function createWebsocketProvider(id: string, yjsDocMap: Map<string, Doc>): Provider {
+  let doc = yjsDocMap.get(id);
+
+  if (P.isUndefined(doc)) {
+    doc = new Doc();
+    yjsDocMap.set(id, doc);
+  } else {
+    doc.load();
+  }
+
+  return createWebsocketProviderWithDoc(id, doc);
+}
+
+export function createWebsocketProviderWithDoc(id: string, doc: Doc): Provider {
+  // @ts-expect-error
+  return new WebsocketProvider(WEBSOCKET_ENDPOINT, `${WEBSOCKET_SLUG}/${WEBSOCKET_ID}/${id}`, doc, {
+    connect: false,
+  });
+}

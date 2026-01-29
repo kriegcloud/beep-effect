@@ -32,6 +32,24 @@ export const runClientPromise = <A, E>(
   options?: RunPromiseOptions | undefined
 ) => runtime.runPromise(Effect.withSpan(effect, spanName), options);
 
+export const runClientSync = <A, E>(runtime: LiveManagedRuntime, effect: Effect.Effect<A, E, ClientRuntimeEnv>) =>
+  runtime.runSync(effect);
+
+export const runClientSyncExit = <A, E>(runtime: LiveManagedRuntime, effect: Effect.Effect<A, E, ClientRuntimeEnv>) =>
+  runtime.runSyncExit(effect);
+
+/**
+ * Returns a helper function bound to a specific runtime for repeated invocations.
+ */
+export const makeRunClientSync =
+  (runtime: LiveManagedRuntime) =>
+  <A, E>(effect: Effect.Effect<A, E, ClientRuntimeEnv>) =>
+    runClientSync(runtime, effect);
+
+export const makeRunClientSyncExit =
+  (runtime: LiveManagedRuntime) =>
+  <A, E>(effect: Effect.Effect<A, E, ClientRuntimeEnv>) =>
+    runClientSyncExit(runtime, effect);
 /**
  * Returns a helper function bound to a specific runtime for repeated invocations.
  */

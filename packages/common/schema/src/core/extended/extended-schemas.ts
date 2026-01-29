@@ -662,7 +662,7 @@ export const ArrayFromFallible = <A, I, R>(
   S.Array(
     S.NullOr(schema).annotations({
       decodingFallback: (issue) =>
-        Effect.zipRight(
+        Effect.andThen(
           Effect.logWarning(`[ArrayFromFallible] ${ParseResult.TreeFormatter.formatIssueSync(issue)}`),
           Effect.succeed(null)
         ),

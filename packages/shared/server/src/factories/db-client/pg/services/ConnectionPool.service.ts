@@ -58,7 +58,7 @@ const serviceEffect: ServiceEffect = Effect.gen(function* () {
     })
   );
 
-  const setupConnectionListeners: Shape["setupConnectionListeners"] = Effect.zipRight(
+  const setupConnectionListeners: Shape["setupConnectionListeners"] = Effect.andThen(
     Effect.async<void, DatabaseConnectionLostError>((resume) => {
       pool.on("error", (error) => {
         resume(
@@ -75,10 +75,7 @@ const serviceEffect: ServiceEffect = Effect.gen(function* () {
         pool.removeAllListeners("error");
       });
     }),
-    Effect.logInfo("[Database client]: Connection error listeners initialized."),
-    {
-      concurrent: true,
-    }
+    Effect.logInfo("[Database client]: Connection error listeners initialized.")
   );
 
   return {

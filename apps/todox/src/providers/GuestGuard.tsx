@@ -1,6 +1,7 @@
 "use client";
 
 import { Core } from "@beep/iam-client";
+import { $store } from "@beep/iam-client/adapters";
 import { GuardErrorBoundary } from "@beep/todox/providers/GuardErrorBoundary";
 import { GuardErrorFallback } from "@beep/todox/providers/GuardErrorFallback";
 import { useIsClient, useRouter } from "@beep/ui/hooks";
@@ -35,6 +36,11 @@ type GuestState =
 /**
  * Inner component that handles session state and renders appropriately.
  * Guests see children (via render prop), authenticated users are redirected.
+ *
+ * IMPORTANT: The isClient check must come BEFORE Core.Atoms.use() to ensure
+ * the atom hooks only run after hydration. The @effect-atom/atom-react hooks
+ * use useSyncExternalStore which behaves differently during SSR, and calling
+ * them before hydration can cause "Rendered fewer hooks than expected" errors.
  */
 const GuestGuardContent: React.FC<GuestGuardContentProps> = ({
   render,
@@ -42,15 +48,49 @@ const GuestGuardContent: React.FC<GuestGuardContentProps> = ({
   redirectTo = "/",
   pendingFallback = <SplashScreen />,
 }) => {
-  const { sessionResult } = Core.Atoms.use();
   const isClient = useIsClient();
+
+  // Show loading state during SSR and initial hydration
+  // This ensures atom hooks are only called after the client is ready
+  if (!isClient) {
+    return pendingFallback;
+  }
+
+  return (
+    <GuestGuardClientContent
+      render={render}
+      router={router}
+      redirectTo={redirectTo}
+      pendingFallback={pendingFallback}
+    />
+  );
+};
+
+/**
+ * Client-only component that accesses atom state.
+ * This component is only rendered after hydration, ensuring consistent hook behavior.
+ */
+const GuestGuardClientContent: React.FC<GuestGuardContentProps> = ({
+  render,
+  router,
+  redirectTo = "/",
+  pendingFallback = <SplashScreen />,
+}) => {
+  const { sessionResult, sessionRefresh } = Core.Atoms.use();
+
+  // Subscribe to Better Auth's $sessionSignal to trigger session refresh.
+  // This ensures the guard re-evaluates after sign-in/sign-out completes.
+  // We use useEffect because $store.listen doesn't integrate with effect-atom's
+  // lifecycle, and React's cleanup mechanism properly handles unsubscription.
+  React.useEffect(() => {
+    const unsubscribe = $store.listen("$sessionSignal", () => {
+      sessionRefresh();
+    });
+    return unsubscribe;
+  }, [sessionRefresh]);
 
   // Derive guest state without side effects
   const guestState: GuestState = React.useMemo(() => {
-    if (!isClient) {
-      return { _tag: "Loading" };
-    }
-
     return Result.builder(sessionResult)
       .onInitial(() => ({ _tag: "Loading" }) as const)
       .onDefect(() => ({ _tag: "Error" }) as const)
@@ -62,7 +102,7 @@ const GuestGuardContent: React.FC<GuestGuardContentProps> = ({
         })
       )
       .render();
-  }, [isClient, sessionResult]);
+  }, [sessionResult]);
 
   // Handle redirect in useEffect to avoid setState during render
   React.useEffect(() => {

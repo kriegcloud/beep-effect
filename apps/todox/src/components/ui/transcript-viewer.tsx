@@ -9,8 +9,8 @@ import {
 } from "@beep/todox/hooks/use-transcript-viewer";
 import { cn } from "@beep/todox/lib/utils";
 import type { CharacterAlignmentResponseModel } from "@elevenlabs/elevenlabs-js/api/types/CharacterAlignmentResponseModel";
+import { PauseIcon, PlayIcon } from "@phosphor-icons/react";
 import * as A from "effect/Array";
-import { Pause, Play } from "lucide-react";
 import {
   type ComponentPropsWithoutRef,
   type ComponentPropsWithRef,
@@ -255,7 +255,7 @@ type TranscriptViewerPlayPauseButtonProps = Omit<ComponentPropsWithoutRef<typeof
 
 function TranscriptViewerPlayPauseButton({ className, children, ...props }: TranscriptViewerPlayPauseButtonProps) {
   const { isPlaying, play, pause } = useTranscriptViewerContext();
-  const Icon = isPlaying ? Pause : Play;
+  const Icon = isPlaying ? PauseIcon : PlayIcon;
 
   const handleClick = () => {
     if (isPlaying) pause();

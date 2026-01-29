@@ -1,0 +1,134 @@
+"use client";
+
+import * as Either from "effect/Either";
+import * as O from "effect/Option";
+import {
+  $getState,
+  $setState,
+  buildImportMap,
+  createState,
+  DecoratorNode,
+  type DOMConversionOutput,
+  type DOMExportOutput,
+  type SerializedLexicalNode,
+  type Spread,
+  type StateConfigValue,
+  type StateValueOrUpdater,
+} from "lexical";
+import type { JSX } from "react";
+import * as React from "react";
+
+const DateTimeComponent = React.lazy(() => import("./DateTimeComponent"));
+
+const getDateTimeText = (dateTime: Date) => {
+  if (dateTime === undefined) {
+    return "";
+  }
+  const hours = dateTime?.getHours();
+  const minutes = dateTime?.getMinutes();
+  return (
+    dateTime.toDateString() +
+    (hours === 0 && minutes === 0 ? "" : ` ${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}`)
+  );
+};
+
+export type SerializedDateTimeNode = Spread<
+  {
+    readonly dateTime?: undefined | string;
+  },
+  SerializedLexicalNode
+>;
+
+function $convertDateTimeElement(domNode: HTMLElement): DOMConversionOutput | null {
+  const dateTimeValue = domNode.getAttribute("data-lexical-datetime");
+  if (dateTimeValue) {
+    const node = $createDateTimeNode(new Date(Date.parse(dateTimeValue)));
+    return { node };
+  }
+
+  return O.getOrNull(
+    O.flatMap(O.fromNullable(domNode.getAttribute("data-rich-links")), (payload) =>
+      O.flatMap(Either.getRight(Either.try(() => JSON.parse(payload))), (parsed) => {
+        const parsedDate = Date.parse(parsed?.dat_df?.dfie_dt || "");
+        return Number.isNaN(parsedDate) ? O.none() : O.some({ node: $createDateTimeNode(new Date(parsedDate)) });
+      })
+    )
+  );
+}
+
+const dateTimeState = createState("dateTime", {
+  parse: (v) => new Date(v as string),
+  unparse: (v) => v.toISOString(),
+});
+
+const isGDocsDateType = (domNode: HTMLElement): boolean =>
+  O.getOrElse(
+    O.flatMap(O.fromNullable(domNode.getAttribute("data-rich-links")), (attr) =>
+      O.map(Either.getRight(Either.try(() => JSON.parse(attr))), (parsed) => parsed.type === "date")
+    ),
+    () => false
+  );
+
+export class DateTimeNode extends DecoratorNode<JSX.Element> {
+  override $config() {
+    return this.config("datetime", {
+      extends: DecoratorNode,
+      importDOM: buildImportMap({
+        span: (domNode) =>
+          domNode.getAttribute("data-lexical-datetime") !== null || isGDocsDateType(domNode)
+            ? {
+                conversion: $convertDateTimeElement,
+                priority: 2,
+              }
+            : null,
+      }),
+      stateConfigs: [{ flat: true, stateConfig: dateTimeState }],
+    });
+  }
+
+  getDateTime(): StateConfigValue<typeof dateTimeState> {
+    return $getState(this, dateTimeState);
+  }
+
+  setDateTime(valueOrUpdater: StateValueOrUpdater<typeof dateTimeState>): this {
+    return $setState(this, dateTimeState, valueOrUpdater);
+  }
+
+  override getTextContent(): string {
+    const dateTime = this.getDateTime();
+    return getDateTimeText(dateTime);
+  }
+
+  override exportDOM(): DOMExportOutput {
+    const element = document.createElement("span");
+    element.textContent = getDateTimeText(this.getDateTime());
+    element.setAttribute("data-lexical-datetime", this.getDateTime()?.toString() || "");
+    return { element };
+  }
+
+  override createDOM(): HTMLElement {
+    const element = document.createElement("span");
+    element.setAttribute("data-lexical-datetime", this.getDateTime()?.toString() || "");
+    element.style.display = "inline-block";
+    return element;
+  }
+
+  override updateDOM(): false {
+    return false;
+  }
+
+  override isInline(): boolean {
+    return true;
+  }
+
+  override decorate(): JSX.Element {
+    return <DateTimeComponent dateTime={this.getDateTime()} nodeKey={this.__key} />;
+  }
+}
+
+export function $createDateTimeNode(dateTime: Date): DateTimeNode {
+  return new DateTimeNode().setDateTime(dateTime);
+}
+
+// Re-export from utils to maintain backwards compatibility
+export { $isDateTimeNode } from "./datetime-utils";
