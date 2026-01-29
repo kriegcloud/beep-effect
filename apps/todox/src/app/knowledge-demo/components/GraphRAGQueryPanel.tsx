@@ -9,7 +9,7 @@ import QueryInput from "./QueryInput";
 import { QueryResultDisplay } from "./QueryResultDisplay";
 
 interface GraphRAGQueryPanelProps {
-  readonly onEntitySelect?:  undefined | ((entityId: string) => void);
+  readonly onEntitySelect?: undefined | ((entityId: string) => void);
 }
 
 export default function GraphRAGQueryPanel({ onEntitySelect }: GraphRAGQueryPanelProps) {

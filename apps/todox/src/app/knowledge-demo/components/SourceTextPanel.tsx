@@ -11,14 +11,14 @@ import type { EvidenceSpan } from "../types";
 
 interface SourceTextPanelProps {
   sourceText: string;
-  highlightedSpans?:  undefined | readonly EvidenceSpan[];
-  activeSpanIndex?:  undefined | number;
+  highlightedSpans?: undefined | readonly EvidenceSpan[];
+  activeSpanIndex?: undefined | number;
 }
 
 interface TextSegment {
   text: string;
   isHighlighted: boolean;
-  spanIndex?:  undefined | number;
+  spanIndex?: undefined | number;
 }
 
 const segmentText = (text: string, spans: readonly EvidenceSpan[]): TextSegment[] => {

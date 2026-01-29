@@ -9,7 +9,7 @@ interface QueryInputProps {
   readonly onChange: (value: string) => void;
   readonly onSubmit: () => void;
   readonly isLoading: boolean;
-  readonly placeholder?: undefined |  string;
+  readonly placeholder?: undefined | string;
 }
 
 export default function QueryInput({

@@ -17,7 +17,7 @@ import type { AssembledEntity, GraphRAGResult, Relation } from "../types";
 
 interface QueryResultDisplayProps {
   readonly result: GraphRAGResult | null;
-  readonly onEntitySelect?:  undefined | ((entityId: string) => void);
+  readonly onEntitySelect?: undefined | ((entityId: string) => void);
 }
 
 function getSimpleType(typeUri: string): string {

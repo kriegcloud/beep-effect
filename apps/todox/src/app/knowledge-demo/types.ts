@@ -2,17 +2,17 @@ export interface EvidenceSpan {
   text: string;
   startChar: number;
   endChar: number;
-  confidence?: undefined |  number;
+  confidence?: undefined | number;
 }
 
 export interface Relation {
   id: string;
   subjectId: string;
   predicate: string;
-  objectId?: undefined |  string;
-  literalValue?: undefined |  string;
-  evidence?: undefined |  EvidenceSpan;
-  groundingConfidence?:  undefined | number;
+  objectId?: undefined | string;
+  literalValue?: undefined | string;
+  evidence?: undefined | EvidenceSpan;
+  groundingConfidence?: undefined | number;
 }
 
 export interface AssembledEntity {
@@ -22,7 +22,7 @@ export interface AssembledEntity {
   types: readonly string[];
   attributes: Record<string, string | number | boolean>;
   confidence: number;
-  canonicalName?: undefined |  string;
+  canonicalName?: undefined | string;
 }
 
 export interface ExtractionResult {
@@ -77,7 +77,7 @@ export interface SameAsLink {
   readonly memberId: string;
   readonly confidence: number;
   readonly reason: string; // "name_similarity", "attribute_match", etc.
-  readonly sourceId?: undefined |  string;
+  readonly sourceId?: undefined | string;
 }
 
 // Resolution result

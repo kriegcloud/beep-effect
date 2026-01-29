@@ -5,7 +5,7 @@ import { Skeleton } from "@beep/todox/components/ui/skeleton";
 import * as A from "effect/Array";
 
 interface EntityCardSkeletonProps {
-  readonly showAttributes?: undefined |  boolean;
+  readonly showAttributes?: undefined | boolean;
 }
 
 export function EntityCardSkeleton({ showAttributes = true }: EntityCardSkeletonProps) {
@@ -32,8 +32,8 @@ export function EntityCardSkeleton({ showAttributes = true }: EntityCardSkeleton
 }
 
 interface EntityCardListSkeletonProps {
-  readonly count?:  undefined | number;
-  readonly showAttributes?:  undefined | boolean;
+  readonly count?: undefined | number;
+  readonly showAttributes?: undefined | boolean;
 }
 
 export function EntityCardListSkeleton({ count = 6, showAttributes = true }: EntityCardListSkeletonProps) {
@@ -52,7 +52,7 @@ export function EntityCardListSkeleton({ count = 6, showAttributes = true }: Ent
 }
 
 interface RelationTableSkeletonProps {
-  readonly rows?: undefined |  number;
+  readonly rows?: undefined | number;
 }
 
 export function RelationTableSkeleton({ rows = 5 }: RelationTableSkeletonProps) {
@@ -128,7 +128,7 @@ export function ClusterCardSkeleton() {
 }
 
 interface ClusterListSkeletonProps {
-  readonly count?:  undefined | number;
+  readonly count?: undefined | number;
 }
 
 export function ClusterListSkeleton({ count = 4 }: ClusterListSkeletonProps) {

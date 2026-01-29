@@ -16,10 +16,10 @@ import { RelationTableSkeleton } from "./Skeletons";
 interface RelationTableProps {
   relations: readonly Relation[];
   entities: readonly AssembledEntity[];
-  onRelationSelect?:  undefined | ((relationId: string) => void);
-  onEvidenceClick?:  undefined | ((span: EvidenceSpan) => void);
-  selectedRelationId?:  undefined | string;
-  isLoading?:  undefined | boolean;
+  onRelationSelect?: undefined | ((relationId: string) => void);
+  onEvidenceClick?: undefined | ((span: EvidenceSpan) => void);
+  selectedRelationId?: undefined | string;
+  isLoading?: undefined | boolean;
 }
 
 const ALL_PREDICATES = "__all__";

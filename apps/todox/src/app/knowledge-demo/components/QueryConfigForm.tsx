@@ -12,7 +12,7 @@ interface QueryConfigFormProps {
   readonly maxHops: number;
   readonly onTopKChange: (value: number) => void;
   readonly onMaxHopsChange: (value: number) => void;
-  readonly disabled?:  undefined | boolean;
+  readonly disabled?: undefined | boolean;
 }
 
 const MAX_HOPS_OPTIONS = [

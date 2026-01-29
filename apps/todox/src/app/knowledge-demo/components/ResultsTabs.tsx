@@ -11,11 +11,11 @@ interface ResultsTabsProps {
   readonly entities: readonly AssembledEntity[];
   readonly relations: readonly Relation[];
   readonly sourceText: string;
-  readonly onEntitySelect?:  undefined | ((entityId: string) => void);
-  readonly selectedEntityId?:  undefined | string;
-  readonly highlightedSpans?: undefined |  readonly EvidenceSpan[];
-  readonly activeSpanIndex?:  undefined | number;
-  readonly onEvidenceClick?:  undefined | ((span: EvidenceSpan) => void);
+  readonly onEntitySelect?: undefined | ((entityId: string) => void);
+  readonly selectedEntityId?: undefined | string;
+  readonly highlightedSpans?: undefined | readonly EvidenceSpan[];
+  readonly activeSpanIndex?: undefined | number;
+  readonly onEvidenceClick?: undefined | ((span: EvidenceSpan) => void);
 }
 
 export function ResultsTabs({
