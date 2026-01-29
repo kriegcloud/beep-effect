@@ -1,9 +1,8 @@
 "use client";
 
 import { readStreamableValue } from "@ai-sdk/rsc";
+import { improveText } from "@beep/todox/actions/ai";
 import { useCallback, useRef, useState } from "react";
-
-import { improveText } from "src/actions/ai";
 
 import type { AiOperationState } from "../types";
 
@@ -30,9 +29,16 @@ export function useAiStreaming(): UseAiStreamingReturn {
     setError(null);
 
     try {
-      const stream = await improveText(selectedText, instruction);
+      const result = await improveText(selectedText, instruction);
 
-      for await (const chunk of readStreamableValue(stream)) {
+      // Handle typed error response from server action
+      if (!result.success) {
+        setOperationState("error");
+        setError(result.error.message);
+        return;
+      }
+
+      for await (const chunk of readStreamableValue(result.stream)) {
         if (abortRef.current) {
           setOperationState("idle");
           return;
@@ -47,8 +53,10 @@ export function useAiStreaming(): UseAiStreamingReturn {
         setOperationState("complete");
       }
     } catch (err) {
+      // Fallback for unexpected errors (network issues during streaming, etc.)
       setOperationState("error");
-      setError(err instanceof Error ? err.message : "An unexpected error occurred");
+      const message = err instanceof Error ? err.message : "An unexpected error occurred";
+      setError(message);
     }
   }, []);
 

@@ -1,21 +1,21 @@
 "use client";
 
-import * as A from "effect/Array";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@beep/todox/components/ui/tabs";
+import * as A from "effect/Array";
+import type { AssembledEntity, EvidenceSpan, Relation } from "../types";
 import { EntityCardList } from "./EntityCardList";
 import { RelationTable } from "./RelationTable";
 import { SourceTextPanel } from "./SourceTextPanel";
-import type { AssembledEntity, EvidenceSpan, Relation } from "../types";
 
 interface ResultsTabsProps {
   readonly entities: readonly AssembledEntity[];
   readonly relations: readonly Relation[];
   readonly sourceText: string;
-  readonly onEntitySelect?: (entityId: string) => void;
-  readonly selectedEntityId?: string;
-  readonly highlightedSpans?: readonly EvidenceSpan[];
-  readonly activeSpanIndex?: number;
-  readonly onEvidenceClick?: (span: EvidenceSpan) => void;
+  readonly onEntitySelect?:  undefined | ((entityId: string) => void);
+  readonly selectedEntityId?:  undefined | string;
+  readonly highlightedSpans?: undefined |  readonly EvidenceSpan[];
+  readonly activeSpanIndex?:  undefined | number;
+  readonly onEvidenceClick?:  undefined | ((span: EvidenceSpan) => void);
 }
 
 export function ResultsTabs({
@@ -39,11 +39,7 @@ export function ResultsTabs({
         <EntityCardList entities={entities} onEntityClick={onEntitySelect} />
       </TabsContent>
       <TabsContent value="relations" className="mt-4">
-        <RelationTable
-          relations={relations}
-          entities={entities}
-          onEvidenceClick={onEvidenceClick}
-        />
+        <RelationTable relations={relations} entities={entities} onEvidenceClick={onEvidenceClick} />
       </TabsContent>
       <TabsContent value="source" className="mt-4">
         <SourceTextPanel

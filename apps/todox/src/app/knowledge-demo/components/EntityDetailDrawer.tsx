@@ -1,26 +1,16 @@
 "use client";
 
+import { Badge } from "@beep/todox/components/ui/badge";
+import { Button } from "@beep/todox/components/ui/button";
+import { ScrollArea } from "@beep/todox/components/ui/scroll-area";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@beep/todox/components/ui/sheet";
+import { Table, TableBody, TableCell, TableRow } from "@beep/todox/components/ui/table";
+import { ArrowSquareOutIcon } from "@phosphor-icons/react";
 import * as A from "effect/Array";
 import * as F from "effect/Function";
 import * as O from "effect/Option";
 import * as Str from "effect/String";
 import * as Struct from "effect/Struct";
-import { Badge } from "@beep/todox/components/ui/badge";
-import { Button } from "@beep/todox/components/ui/button";
-import { ScrollArea } from "@beep/todox/components/ui/scroll-area";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "@beep/todox/components/ui/sheet";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableRow,
-} from "@beep/todox/components/ui/table";
-import { ArrowSquareOutIcon } from "@phosphor-icons/react";
 import type { AssembledEntity, EvidenceSpan, Relation } from "../types";
 
 interface EntityDetailDrawerProps {
@@ -41,9 +31,7 @@ function getSimpleType(typeUri: string): string {
   );
 }
 
-function getTypeBadgeVariant(
-  type: string
-): "default" | "secondary" | "outline" {
+function getTypeBadgeVariant(type: string): "default" | "secondary" | "outline" {
   if (type === "Person") return "default";
   if (type === "Organization") return "secondary";
   return "outline";
@@ -109,9 +97,7 @@ export function EntityDetailDrawer({
         <SheetHeader>
           <SheetTitle className="text-lg">{displayName}</SheetTitle>
           {entity.canonicalName && entity.mention !== entity.canonicalName && (
-            <p className="text-muted-foreground text-sm">
-              Mentioned as: "{entity.mention}"
-            </p>
+            <p className="text-muted-foreground text-sm">Mentioned as: "{entity.mention}"</p>
           )}
         </SheetHeader>
 
@@ -142,9 +128,7 @@ export function EntityDetailDrawer({
                     style={{ width: `${confidencePercent}%` }}
                   />
                 </div>
-                <span className="text-muted-foreground w-12 text-right text-sm tabular-nums">
-                  {confidencePercent}%
-                </span>
+                <span className="text-muted-foreground w-12 text-right text-sm tabular-nums">{confidencePercent}%</span>
               </div>
             </section>
 
@@ -156,12 +140,8 @@ export function EntityDetailDrawer({
                   <TableBody>
                     {A.map(attributeEntries, ([key, value]) => (
                       <TableRow key={key}>
-                        <TableCell className="text-muted-foreground w-1/3 py-1.5 pl-0 font-medium">
-                          {key}
-                        </TableCell>
-                        <TableCell className="py-1.5 pr-0">
-                          {String(value)}
-                        </TableCell>
+                        <TableCell className="text-muted-foreground w-1/3 py-1.5 pl-0 font-medium">{key}</TableCell>
+                        <TableCell className="py-1.5 pr-0">{String(value)}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -172,9 +152,7 @@ export function EntityDetailDrawer({
             {/* Relations as Subject Section */}
             {A.isNonEmptyArray(subjectRelations) && (
               <section className="space-y-2">
-                <h4 className="text-sm font-medium">
-                  Relations (as subject)
-                </h4>
+                <h4 className="text-sm font-medium">Relations (as subject)</h4>
                 <div className="space-y-2">
                   {A.map(subjectRelations, (relation) => (
                     <div
@@ -183,19 +161,16 @@ export function EntityDetailDrawer({
                     >
                       <div className="space-y-0.5">
                         <div className="text-sm">
-                          <span className="text-muted-foreground">
-                            {getPredicateLabel(relation.predicate)}
-                          </span>{" "}
+                          <span className="text-muted-foreground">{getPredicateLabel(relation.predicate)}</span>{" "}
                           <span className="font-medium">
                             {relation.objectId
                               ? getEntityName(relation.objectId)
-                              : relation.literalValue ?? "Unknown"}
+                              : (relation.literalValue ?? "Unknown")}
                           </span>
                         </div>
                         {relation.groundingConfidence !== undefined && (
                           <p className="text-muted-foreground text-xs">
-                            Confidence:{" "}
-                            {Math.round(relation.groundingConfidence * 100)}%
+                            Confidence: {Math.round(relation.groundingConfidence * 100)}%
                           </p>
                         )}
                       </div>
@@ -218,9 +193,7 @@ export function EntityDetailDrawer({
             {/* Relations as Object Section */}
             {A.isNonEmptyArray(objectRelations) && (
               <section className="space-y-2">
-                <h4 className="text-sm font-medium">
-                  Relations (as object)
-                </h4>
+                <h4 className="text-sm font-medium">Relations (as object)</h4>
                 <div className="space-y-2">
                   {A.map(objectRelations, (relation) => (
                     <div
@@ -229,18 +202,13 @@ export function EntityDetailDrawer({
                     >
                       <div className="space-y-0.5">
                         <div className="text-sm">
-                          <span className="font-medium">
-                            {getEntityName(relation.subjectId)}
-                          </span>{" "}
-                          <span className="text-muted-foreground">
-                            {getPredicateLabel(relation.predicate)}
-                          </span>{" "}
+                          <span className="font-medium">{getEntityName(relation.subjectId)}</span>{" "}
+                          <span className="text-muted-foreground">{getPredicateLabel(relation.predicate)}</span>{" "}
                           <span className="font-medium">{displayName}</span>
                         </div>
                         {relation.groundingConfidence !== undefined && (
                           <p className="text-muted-foreground text-xs">
-                            Confidence:{" "}
-                            {Math.round(relation.groundingConfidence * 100)}%
+                            Confidence: {Math.round(relation.groundingConfidence * 100)}%
                           </p>
                         )}
                       </div>
@@ -271,9 +239,7 @@ export function EntityDetailDrawer({
                       className="border-border bg-background flex items-start justify-between gap-2 rounded-md border p-2"
                     >
                       <div className="min-w-0 flex-1 space-y-1">
-                        <p className="text-sm leading-relaxed break-words">
-                          "{span.text}"
-                        </p>
+                        <p className="text-sm leading-relaxed break-words">"{span.text}"</p>
                         <div className="text-muted-foreground flex items-center gap-2 text-xs">
                           <span>
                             Chars {span.startChar}-{span.endChar}
@@ -281,9 +247,7 @@ export function EntityDetailDrawer({
                           {span.confidence !== undefined && (
                             <>
                               <span>|</span>
-                              <span>
-                                Confidence: {Math.round(span.confidence * 100)}%
-                              </span>
+                              <span>Confidence: {Math.round(span.confidence * 100)}%</span>
                             </>
                           )}
                         </div>
@@ -309,9 +273,7 @@ export function EntityDetailDrawer({
             {A.isEmptyReadonlyArray(relatedRelations) && (
               <section className="space-y-2">
                 <h4 className="text-sm font-medium">Relations</h4>
-                <p className="text-muted-foreground py-4 text-center text-sm">
-                  No relations found for this entity.
-                </p>
+                <p className="text-muted-foreground py-4 text-center text-sm">No relations found for this entity.</p>
               </section>
             )}
           </div>

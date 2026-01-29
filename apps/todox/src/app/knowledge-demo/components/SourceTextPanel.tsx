@@ -1,24 +1,24 @@
 "use client";
 
-import * as React from "react";
-import * as A from "effect/Array";
-import * as F from "effect/Function";
-import * as Order from "effect/Order";
 import { Card, CardContent, CardHeader, CardTitle } from "@beep/todox/components/ui/card";
 import { ScrollArea } from "@beep/todox/components/ui/scroll-area";
 import { cn } from "@beep/todox/lib/utils";
+import * as A from "effect/Array";
+import * as F from "effect/Function";
+import * as Order from "effect/Order";
+import * as React from "react";
 import type { EvidenceSpan } from "../types";
 
 interface SourceTextPanelProps {
   sourceText: string;
-  highlightedSpans?: readonly EvidenceSpan[];
-  activeSpanIndex?: number;
+  highlightedSpans?:  undefined | readonly EvidenceSpan[];
+  activeSpanIndex?:  undefined | number;
 }
 
 interface TextSegment {
   text: string;
   isHighlighted: boolean;
-  spanIndex?: number;
+  spanIndex?:  undefined | number;
 }
 
 const segmentText = (text: string, spans: readonly EvidenceSpan[]): TextSegment[] => {
@@ -26,10 +26,7 @@ const segmentText = (text: string, spans: readonly EvidenceSpan[]): TextSegment[
     return [{ text, isHighlighted: false }];
   }
 
-  const sortedSpans = F.pipe(
-    spans,
-    A.sortBy(Order.mapInput(Order.number, (s: EvidenceSpan) => s.startChar))
-  );
+  const sortedSpans = F.pipe(spans, A.sortBy(Order.mapInput(Order.number, (s: EvidenceSpan) => s.startChar)));
 
   const segments: TextSegment[] = [];
   let currentPos = 0;
@@ -71,15 +68,12 @@ export function SourceTextPanel({ sourceText, highlightedSpans, activeSpanIndex 
     }
   }, [activeSpanIndex]);
 
-  const segments = React.useMemo(
-    () => segmentText(sourceText, highlightedSpans ?? []),
-    [sourceText, highlightedSpans]
-  );
+  const segments = React.useMemo(() => segmentText(sourceText, highlightedSpans ?? []), [sourceText, highlightedSpans]);
 
   return (
     <Card className="h-full">
       <CardHeader>
-        <CardTitle className="text-sm">Source Text</CardTitle>
+        <CardTitle>Source Text</CardTitle>
       </CardHeader>
       <CardContent>
         <ScrollArea className="h-[400px]">

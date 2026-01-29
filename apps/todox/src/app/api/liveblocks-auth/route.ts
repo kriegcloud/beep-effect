@@ -1,8 +1,16 @@
-import { Liveblocks } from "@liveblocks/node";
-import type { NextRequest } from "next/server";
-import * as Redacted from "effect/Redacted";
+import { Auth } from "@beep/iam-server";
+import { runServerPromise } from "@beep/runtime-server";
 import { serverEnv } from "@beep/shared-env/ServerEnv";
-import { getSession } from "./_example";
+import { Liveblocks } from "@liveblocks/node";
+import * as A from "effect/Array";
+import * as Data from "effect/Data";
+import * as Effect from "effect/Effect";
+import * as F from "effect/Function";
+import * as Match from "effect/Match";
+import * as O from "effect/Option";
+import * as Redacted from "effect/Redacted";
+import * as Str from "effect/String";
+import type { NextRequest } from "next/server";
 
 const liveblocks = new Liveblocks({
   secret: Redacted.value(serverEnv.liveblocks.secretKey),
@@ -10,20 +18,130 @@ const liveblocks = new Liveblocks({
 
 export const dynamic = "force-dynamic";
 
+class SessionRetrievalError extends Data.TaggedError("SessionRetrievalError")<{
+  readonly cause?: unknown;
+}> {}
+
+class LiveblocksAuthError extends Data.TaggedError("LiveblocksAuthError")<{
+  readonly cause?: unknown;
+}> {}
+
+type AuthResult = Data.TaggedEnum<{
+  readonly Unauthorized: {};
+  readonly Success: { readonly body: string; readonly status: number };
+}>;
+
+const AuthResult = Data.taggedEnum<AuthResult>();
+
+const AVATAR_COLORS = ["#D583F0", "#F08385", "#F0D885", "#85EED6", "#85BBF0", "#8594F0", "#85DBF0", "#87EE85"] as const;
+
+// Generate consistent hash from string
+function hashString(str: string): number {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = (hash << 5) - hash + str.charCodeAt(i);
+    hash = hash & hash;
+  }
+  return Math.abs(hash);
+}
+
+// Generate consistent color from user ID using hash
+function generateUserColor(userId: string): string {
+  const index = hashString(userId) % AVATAR_COLORS.length;
+  return F.pipe(
+    A.get(AVATAR_COLORS, index),
+    O.getOrElse(() => AVATAR_COLORS[0])
+  );
+}
+
+// Get avatar URL with fallback
+function getAvatarUrl(image: string | null | undefined, userId: string): string {
+  return F.pipe(
+    O.fromNullable(image),
+    O.getOrElse(() => {
+      const avatarNum = (hashString(userId) % 8) + 1;
+      return `https://liveblocks.io/avatars/avatar-${avatarNum}.png`;
+    })
+  );
+}
+
+// Derive display name from user, with fallback chain
+function getDisplayName(user: { name?: string | null; email?: string | null }): string {
+  return F.pipe(
+    O.fromNullable(user.name),
+    O.orElse(() =>
+      F.pipe(
+        O.fromNullable(user.email),
+        O.flatMap((email) => A.head(Str.split(email, "@")))
+      )
+    ),
+    O.getOrElse(() => "Anonymous")
+  );
+}
+
 export async function POST(request: NextRequest) {
-  // Get the current user's unique id and info from your database
-  const user = await getSession(request);
+  const cookie = request.headers.get("cookie");
 
-  // Create a Liveblocks session for the current user
-  // userInfo is made available in Liveblocks presence hooks, e.g. useOthers
-  const session = liveblocks.prepareSession(`${user.id}`, {
-    userInfo: user.info,
-  });
+  // Early check for session cookie presence
+  if (!cookie || !cookie.includes("better-auth.session_token")) {
+    return new Response("Unauthorized", { status: 401 });
+  }
 
-  // Use a naming pattern to allow access to rooms with a wildcard
-  session.allow(`liveblocks:playground:*`, session.FULL_ACCESS);
+  const result = await runServerPromise(
+    Effect.gen(function* () {
+      const auth = yield* Auth.Service;
 
-  // Authorize the user and return the result
-  const { body, status } = await session.authorize();
-  return new Response(body, { status });
+      // Forward headers for cookie-based auth
+      const forwardedHeaders = new Headers();
+      forwardedHeaders.set("cookie", cookie);
+
+      // Get session from Better Auth
+      const sessionData = yield* Effect.tryPromise({
+        try: () => auth.api.getSession({ headers: forwardedHeaders }),
+        catch: (cause) => new SessionRetrievalError({ cause }),
+      });
+
+      if (!sessionData || !sessionData.user) {
+        return AuthResult.Unauthorized();
+      }
+
+      const { user } = sessionData;
+
+      // Map to Liveblocks UserMeta
+      const userMeta = {
+        id: user.id,
+        info: {
+          name: getDisplayName(user),
+          avatar: getAvatarUrl(user.image, user.id),
+          color: generateUserColor(user.id),
+        },
+      };
+
+      // Create Liveblocks session
+      const liveblocksSession = liveblocks.prepareSession(userMeta.id, {
+        userInfo: userMeta.info,
+      });
+
+      liveblocksSession.allow("liveblocks:playground:*", liveblocksSession.FULL_ACCESS);
+
+      const { body, status } = yield* Effect.tryPromise({
+        try: () => liveblocksSession.authorize(),
+        catch: (cause) => new LiveblocksAuthError({ cause }),
+      });
+
+      return AuthResult.Success({ body, status });
+    }).pipe(
+      Effect.catchTag("SessionRetrievalError", () => Effect.succeed(AuthResult.Unauthorized())),
+      Effect.catchTag("LiveblocksAuthError", () => Effect.succeed(AuthResult.Unauthorized()))
+    ),
+    "api.liveblocks-auth.post"
+  );
+
+  return F.pipe(
+    result,
+    Match.value,
+    Match.tag("Unauthorized", () => new Response("Unauthorized", { status: 401 })),
+    Match.tag("Success", ({ body, status }) => new Response(body, { status })),
+    Match.exhaustive
+  );
 }
