@@ -76,7 +76,6 @@
     "react-dom": "catalog:"
   },
   "devDependencies": {
-    "@testing-library/react": "catalog:",
     "@beep/identity": "workspace:^",
     "@beep/testkit": "workspace:^",
     "@beep/utils": "workspace:^",
@@ -101,6 +100,7 @@
     "@lexical/utils": "catalog:",
     "@mui/material": "catalog:",
     "@tanstack/react-form": "catalog:",
+    "@testing-library/react": "catalog:",
     "@total-typescript/ts-reset": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",

@@ -64,10 +64,9 @@ const AuthGuardClientContent: React.FC<AuthGuardContentProps> = ({ children, rou
   // We use useEffect because $store.listen doesn't integrate with effect-atom's
   // lifecycle, and React's cleanup mechanism properly handles unsubscription.
   React.useEffect(() => {
-    const unsubscribe = $store.listen("$sessionSignal", () => {
+    return $store.listen("$sessionSignal", () => {
       sessionRefresh();
     });
-    return unsubscribe;
   }, [sessionRefresh]);
 
   // Derive session state without side effects

@@ -3,10 +3,8 @@
 import { MiniSidebarPanel } from "@beep/todox/components/mini-sidebar";
 import { useSidePanel } from "@beep/todox/components/side-panel";
 import { Button } from "@beep/todox/components/ui/button";
-
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@beep/todox/components/ui/tooltip";
 import { cn } from "@beep/todox/lib/utils";
-
 import {
   ArrowLineLeftIcon,
   ArrowUpIcon,
@@ -15,6 +13,7 @@ import {
   PencilSimpleIcon,
   SparkleIcon,
 } from "@phosphor-icons/react";
+import * as Str from "effect/String";
 import * as React from "react";
 
 const AI_CHAT_WIDTH = "368px"; // 320px content + 48px for mini sidebar
@@ -163,7 +162,7 @@ function AIChatPanel({ className }: AIChatPanelProps) {
               <Button
                 size="icon"
                 className="size-7 rounded-full bg-primary text-primary-foreground hover:bg-primary/90"
-                disabled={!inputValue.trim()}
+                disabled={!Str.trim(inputValue)}
               >
                 <ArrowUpIcon className="size-4" />
               </Button>
