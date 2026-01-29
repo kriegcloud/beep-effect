@@ -1,16 +1,9 @@
 "use client";
 
-import { thunkNull } from "@beep/utils";
-import { $insertGeneratedNodes } from "@lexical/clipboard";
-import { HashtagNode } from "@lexical/hashtag";
-import { $generateHtmlFromNodes, $generateNodesFromDOM } from "@lexical/html";
-import { LinkNode } from "@lexical/link";
-import * as Eq from "effect/Equal";
-import * as F from "effect/Function";
-import * as O from "effect/Option";
-import * as P from "effect/Predicate";
-import * as S from "effect/Schema";
-import * as Str from "effect/String";
+import {$insertGeneratedNodes} from "@lexical/clipboard";
+import {HashtagNode} from "@lexical/hashtag";
+import {$generateHtmlFromNodes, $generateNodesFromDOM} from "@lexical/html";
+import {LinkNode} from "@lexical/link";
 import type {
   DOMConversionMap,
   DOMConversionOutput,
@@ -40,11 +33,12 @@ import {
   SKIP_DOM_SELECTION_TAG,
   TextNode,
 } from "lexical";
-import type { JSX } from "react";
+import type {JSX} from "react";
 import * as React from "react";
-import { EmojiNode } from "./EmojiNode";
-import { $isCaptionEditorEmpty, $isImageNode } from "./image-utils";
-import { KeywordNode } from "./KeywordNode";
+import {$isCaptionEditorEmpty} from "./image-utils";
+import {EmojiNode} from "./EmojiNode";
+import {KeywordNode} from "./KeywordNode";
+import {$isImageNode} from "./image-utils";
 
 const ImageComponent = React.lazy(() => import("./ImageComponent"));
 
@@ -60,40 +54,28 @@ export interface ImagePayload {
   captionsEnabled?: undefined | boolean;
 }
 
-const isGoogleDocCheckboxImg = (img: HTMLImageElement) =>
-  P.isNotNullable(img.parentElement) &&
-  Eq.equals(img.parentElement.tagName, "LI") &&
-  P.isNull(img.previousSibling) &&
-  Eq.equals(img.getAttribute("aria-roledescription"))("checkbox");
-
-const isHTMLImageElement = S.is(S.instanceOf(HTMLImageElement));
-
-function $convertImageElement(domNode: Node): null | DOMConversionOutput {
-  return F.pipe(
-    domNode,
-    O.liftPredicate(isHTMLImageElement),
-    O.map((img) => [img, img.getAttribute("src")] as const),
-    O.flatMap(
-      O.liftPredicate(([img, src]) => !(!src || Str.startsWith("file:///")(src) || isGoogleDocCheckboxImg(img)))
-    ),
-    O.match({
-      onNone: thunkNull,
-      onSome: ([{ alt, width, height }, src]) =>
-        F.pipe(
-          src,
-          O.fromNullable,
-          O.map((src) => $createImageNode({ altText: alt, height, src, width })),
-          O.match({
-            onNone: thunkNull,
-            onSome: (node) => ({ node }),
-          })
-        ),
-    })
+function isGoogleDocCheckboxImg(img: HTMLImageElement): boolean {
+  return (
+    img.parentElement != null &&
+    img.parentElement.tagName === "LI" &&
+    img.previousSibling === null &&
+    img.getAttribute("aria-roledescription") === "checkbox"
   );
 }
 
+function $convertImageElement(domNode: Node): null | DOMConversionOutput {
+  const img = domNode as HTMLImageElement;
+  const src = img.getAttribute("src");
+  if (!src || src.startsWith("file:///") || isGoogleDocCheckboxImg(img)) {
+    return null;
+  }
+  const {alt: altText, width, height} = img;
+  const node = $createImageNode({altText, height, src, width});
+  return {node};
+}
+
 // Re-export from utils to maintain backwards compatibility
-export { $isCaptionEditorEmpty };
+
 
 export type SerializedImageNode = Spread<
   {
@@ -138,7 +120,7 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
   }
 
   static override importJSON(serializedNode: SerializedImageNode): ImageNode {
-    const { altText, height, width, maxWidth, src, showCaption } = serializedNode;
+    const {altText, height, width, maxWidth, src, showCaption} = serializedNode;
     return $createImageNode({
       altText,
       height,
@@ -151,7 +133,7 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
 
   override updateFromJSON(serializedNode: LexicalUpdateJSON<SerializedImageNode>): this {
     const node = super.updateFromJSON(serializedNode);
-    const { caption } = serializedNode;
+    const {caption} = serializedNode;
 
     const nestedEditor = node.__caption;
     const editorState = nestedEditor.parseEditorState(caption.editorState);
@@ -192,17 +174,17 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
         figureElement.appendChild(imgElement);
         figureElement.appendChild(figcaptionElement);
 
-        return { element: figureElement };
+        return {element: figureElement};
       }
     }
 
-    return { element: imgElement };
+    return {element: imgElement};
   }
 
   static override importDOM(): DOMConversionMap | null {
     return {
       figcaption: () => ({
-        conversion: () => ({ node: null }),
+        conversion: () => ({node: null}),
         priority: 0,
       }),
       figure: () => ({
@@ -220,7 +202,7 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
                       $insertGeneratedNodes(editor, $generateNodesFromDOM(editor, figcaption), $selectAll());
                       $setSelection(null);
                     },
-                    { tag: SKIP_DOM_SELECTION_TAG }
+                    {tag: SKIP_DOM_SELECTION_TAG}
                   );
                 }
               }
@@ -295,7 +277,7 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     const span = document.createElement("span");
     const theme = config.theme;
     const className = theme.image;
-    if (P.isNotUndefined(className)) {
+    if (className !== undefined) {
       span.className = className;
     }
     return span;
@@ -332,20 +314,21 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
 }
 
 export function $createImageNode({
-  altText,
-  height,
-  maxWidth = 500,
-  captionsEnabled,
-  src,
-  width,
-  showCaption,
-  caption,
-  key,
-}: ImagePayload): ImageNode {
+                                   altText,
+                                   height,
+                                   maxWidth = 500,
+                                   captionsEnabled,
+                                   src,
+                                   width,
+                                   showCaption,
+                                   caption,
+                                   key,
+                                 }: ImagePayload): ImageNode {
   return $applyNodeReplacement(
     new ImageNode(src, altText, maxWidth, width, height, showCaption, caption, captionsEnabled, key)
   );
 }
 
 // Re-export from utils to maintain backwards compatibility
-export { $isImageNode } from "./image-utils";
+export {$isImageNode};
+export {$isCaptionEditorEmpty};

@@ -17,9 +17,7 @@ export interface AudioAnalyserOptions {
 }
 
 function createAudioAnalyser(mediaStream: MediaStream, options: AudioAnalyserOptions = {}) {
-  const audioContext = new (
-    window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext
-  )();
+  const audioContext = new (window.AudioContext || window.webkitAudioContext)();
   const source = audioContext.createMediaStreamSource(mediaStream);
   const analyser = audioContext.createAnalyser();
 

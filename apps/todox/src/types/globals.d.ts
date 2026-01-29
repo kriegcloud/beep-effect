@@ -10,6 +10,7 @@ declare global {
             readonly createTweet: (tweetId: string, container: HTMLElement | null) => Promise<unknown>;
           };
         };
+    readonly webkitAudioContext: typeof AudioContext;
   }
 }
 export {};
