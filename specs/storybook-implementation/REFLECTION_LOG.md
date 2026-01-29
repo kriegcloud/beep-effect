@@ -131,7 +131,7 @@ Effective reflection requires the "observation → insight → action" triad to 
 | P1 | 1 | 2 | 2 |
 | P2 | 1 | 1 | 1 |
 | P3 | 1 | 1 | 2 |
-| P4 | - | - | - |
+| P4 | 1 | 2 | 3 |
 | P5 | - | - | - |
 
 ---
@@ -358,3 +358,96 @@ Phase 4 must:
 - Maximum 5 direct tool calls per phase (not counting sub-agent launches)
 
 **Score**: 92/100 (context budget preserved, outputs validate constraints)
+
+---
+
+### Phase 4: Implementation
+
+**Date**: 2026-01-29
+**Category**: implementation
+**Score**: 78/100
+
+#### Observation
+
+Implementation phase completed with 4 sub-phases:
+- **P4a**: Foundation setup (7 files) - package.json, tsconfig.json, main.ts, preview.tsx, ThemeDecorator.tsx, turbo.json, AGENTS.md
+- **P4b**: 14 UI stories created (button, input, textarea, label, checkbox, switch, select, dialog, card, badge, tabs, dropdown-menu, tooltip, accordion)
+- **P4c**: Blocked status documented in `packages/ui/editor/STORYBOOK_PENDING.md`
+- **P4d**: 4 theme verification stories (theme-bridge, color-palette, typography, spacing-tokens)
+
+Key results:
+1. **Dev server starts successfully** on port 6006
+2. **Theme decorator uses correct pattern** (`withThemeByDataAttribute` with `data-color-scheme`)
+3. **Framework changed**: `@storybook/nextjs` → `@storybook/react-vite` due to Next.js 16 canary incompatibility
+4. **Build fails** due to monorepo dependency resolution issues
+
+#### Insight
+
+**Framework Compatibility Issue**: `@storybook/nextjs` fails with Next.js 16 canary because it tries to resolve `next/config` which has been deprecated/moved. The fix was switching to `@storybook/react-vite` which works for UI component documentation.
+
+**Monorepo Resolution Complexity**: The production build hits deep dependency chains (`@beep/utils` → `@beep/identity/packages`, etc.) that fail Vite's rollup resolution. The dev server works because it uses lazy loading.
+
+**CSS Tailwind v4 Warnings**: The `@import` statements in globals.css are not first (after `@plugin` and `@layer`) which Tailwind v4's PostCSS plugin warns about. These are warnings, not errors.
+
+#### Action
+
+Phase 5 must address:
+1. **Build configuration**: Add remaining `@beep/*` aliases or configure external modules
+2. **Tailwind CSS order**: Consider reordering globals.css imports (low priority)
+3. **Verify theme toggle**: Manual verification in browser DevTools
+4. **Story interaction tests**: Optional enhancement if build stabilizes
+
+#### Prompt Refinements Applied
+
+1. Changed framework from `@storybook/nextjs` to `@storybook/react-vite` in all documentation
+2. Added `rollupOptions.external` for Node.js modules
+3. Documented that dev server is the primary workflow (build is optional for CI)
+
+---
+
+### Pattern: Framework Fallback for Next.js Canary
+
+**Context**: Storybook integration with Next.js 16 canary version
+
+**Problem**: `@storybook/nextjs` depends on `next/config` which was deprecated/moved in Next.js 15+
+
+**Solution**:
+```typescript
+// Use @storybook/react-vite instead of @storybook/nextjs
+framework: {
+  name: "@storybook/react-vite",
+  options: {},
+}
+```
+
+**Trade-off**: Loses Next.js-specific features (Image optimization, App Router mocking), but UI component documentation doesn't need these.
+
+**Score**: 85/100 (functional workaround, not ideal long-term)
+
+---
+
+### Pattern: Monorepo Storybook Aliasing
+
+**Context**: Turborepo monorepo with workspace: protocol dependencies
+
+**Problem**: Vite in Storybook can't resolve workspace package paths during build
+
+**Solution**:
+```typescript
+viteFinal: async (config) => {
+  config.resolve = {
+    ...config.resolve,
+    alias: {
+      "@beep/ui": join(rootDir, "packages/ui/ui/src"),
+      "@beep/ui-core": join(rootDir, "packages/ui/core/src"),
+      "@beep/utils": join(rootDir, "packages/common/utils/src"),
+      // ... more aliases
+    },
+  };
+  return config;
+}
+```
+
+**Note**: Deep transitive dependencies may still fail; externalize problematic modules.
+
+**Score**: 70/100 (works for dev, build needs more work)

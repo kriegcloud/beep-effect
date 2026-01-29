@@ -1,0 +1,18 @@
+{
+  "extends": "../../tsconfig.base.jsonc",
+  "compilerOptions": {
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "noEmit": true,
+    "paths": {
+      "@beep/ui/*": ["../../packages/ui/ui/src/*"],
+      "@beep/ui-core/*": ["../../packages/ui/core/src/*"]
+    }
+  },
+  "include": [
+    ".storybook/**/*.ts",
+    ".storybook/**/*.tsx",
+    "../../packages/ui/ui/src/**/*.stories.tsx"
+  ]
+}

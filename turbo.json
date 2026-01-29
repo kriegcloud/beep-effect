@@ -278,6 +278,21 @@
         ".claude/agents/**/*.md",
         ".claude/agents-manifest.yaml"
       ]
+    },
+    "storybook:dev": {
+      "cache": false,
+      "persistent": true,
+      "dependsOn": ["^build"]
+    },
+    "storybook:build": {
+      "cache": true,
+      "dependsOn": ["^build"],
+      "outputs": ["tooling/storybook/dist/**"],
+      "inputs": [
+        "tooling/storybook/.storybook/**",
+        "packages/ui/ui/src/**/*.stories.tsx",
+        "packages/ui/ui/src/styles/**"
+      ]
     }
   }
 }

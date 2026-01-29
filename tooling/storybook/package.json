@@ -1,0 +1,32 @@
+{
+  "name": "@beep/storybook",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "storybook dev -p 6006",
+    "build": "storybook build -o dist",
+    "check": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@beep/ui": "workspace:^",
+    "@beep/ui-core": "workspace:^",
+    "@emotion/cache": "^11.14.0",
+    "@emotion/react": "^11.14.0",
+    "@mui/material": "^7.0.0",
+    "@storybook/addon-a11y": "^8.6.0",
+    "@storybook/addon-essentials": "^8.6.0",
+    "@storybook/addon-interactions": "^8.6.0",
+    "@storybook/addon-themes": "^8.6.0",
+    "@storybook/blocks": "^8.6.0",
+    "@storybook/react": "^8.6.0",
+    "@storybook/react-vite": "^8.6.0",
+    "@storybook/test": "^8.6.0",
+    "@vitejs/plugin-react": "^4.4.0",
+    "buffer": "^6.0.3",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "storybook": "^8.6.0",
+    "storybook-addon-pseudo-states": "^4.0.2",
+    "vite": "^6.3.0"
+  }
+}
