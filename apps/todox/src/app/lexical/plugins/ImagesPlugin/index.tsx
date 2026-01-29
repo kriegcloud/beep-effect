@@ -242,84 +242,90 @@ const img = document.createElement("img");
 img.src = TRANSPARENT_IMAGE;
 
 function $onDragStart(event: DragEvent): boolean {
-  const node = $getImageNodeInSelection();
-  if (!node) {
-    return false;
-  }
-  const dataTransfer = event.dataTransfer;
-  if (!dataTransfer) {
-    return false;
-  }
-  dataTransfer.setData("text/plain", "_");
-  dataTransfer.setDragImage(img, 0, 0);
-  const dragPayload = {
-    type: "image" as const,
-    data: {
-      altText: node.__altText,
-      caption: node.__caption,
-      height: node.__height,
-      key: node.getKey(),
-      maxWidth: node.__maxWidth,
-      showCaption: node.__showCaption,
-      src: node.__src,
-      width: node.__width,
-    },
-  };
-  const encodedPayload = Either.getOrElse(encodeImageDragPayload(dragPayload), () => "{}");
-  dataTransfer.setData("application/x-lexical-drag", encodedPayload);
+  return O.match($getImageNodeInSelection(), {
+    onNone: () => false,
+    onSome: (node) => {
+      const dataTransfer = event.dataTransfer;
+      if (!dataTransfer) {
+        return false;
+      }
+      dataTransfer.setData("text/plain", "_");
+      dataTransfer.setDragImage(img, 0, 0);
+      const dragPayload = {
+        type: "image" as const,
+        data: {
+          altText: node.__altText,
+          caption: node.__caption,
+          height: node.__height,
+          key: node.getKey(),
+          maxWidth: node.__maxWidth,
+          showCaption: node.__showCaption,
+          src: node.__src,
+          width: node.__width,
+        },
+      };
+      const encodedPayload = Either.getOrElse(encodeImageDragPayload(dragPayload), () => "{}");
+      dataTransfer.setData("application/x-lexical-drag", encodedPayload);
 
-  return true;
+      return true;
+    },
+  });
 }
 
 function $onDragover(event: DragEvent): boolean {
-  const node = $getImageNodeInSelection();
-  if (!node) {
-    return false;
-  }
-  if (!canDropImage(event)) {
-    event.preventDefault();
-  }
-  return false;
+  return O.match($getImageNodeInSelection(), {
+    onNone: () => false,
+    onSome: () => {
+      if (!canDropImage(event)) {
+        event.preventDefault();
+      }
+      return false;
+    },
+  });
 }
 
 function $onDrop(event: DragEvent, editor: LexicalEditor): boolean {
-  const node = $getImageNodeInSelection();
-  if (!node) {
-    return false;
-  }
-  const data = getDragImageData(event);
-  if (!data) {
-    return false;
-  }
-  const existingLink = $findMatchingParent(
-    node,
-    (parent): parent is LinkNode => !$isAutoLinkNode(parent) && $isLinkNode(parent)
-  );
-  event.preventDefault();
-  if (canDropImage(event)) {
-    const range = getDragSelection(event);
-    node.remove();
-    const rangeSelection = $createRangeSelection();
-    if (range !== null && range !== undefined) {
-      rangeSelection.applyDOMRange(range);
-    }
-    $setSelection(rangeSelection);
-    editor.dispatchCommand(INSERT_IMAGE_COMMAND, data);
-    if (existingLink) {
-      editor.dispatchCommand(TOGGLE_LINK_COMMAND, existingLink.getURL());
-    }
-  }
-  return true;
+  return O.match($getImageNodeInSelection(), {
+    onNone: () => false,
+    onSome: (node) => {
+      const data = getDragImageData(event);
+      if (!data) {
+        return false;
+      }
+      const existingLink = $findMatchingParent(
+        node,
+        (parent): parent is LinkNode => !$isAutoLinkNode(parent) && $isLinkNode(parent)
+      );
+      event.preventDefault();
+      if (canDropImage(event)) {
+        const rangeOption = getDragSelection(event);
+        node.remove();
+        const rangeSelection = $createRangeSelection();
+        O.match(rangeOption, {
+          onNone: () => {},
+          onSome: (range) => {
+            rangeSelection.applyDOMRange(range);
+          },
+        });
+        $setSelection(rangeSelection);
+        editor.dispatchCommand(INSERT_IMAGE_COMMAND, data);
+        if (existingLink) {
+          editor.dispatchCommand(TOGGLE_LINK_COMMAND, existingLink.getURL());
+        }
+      }
+      return true;
+    },
+  });
 }
 
-function $getImageNodeInSelection(): ImageNode | null {
+function $getImageNodeInSelection(): O.Option<ImageNode> {
   const selection = $getSelection();
   if (!$isNodeSelection(selection)) {
-    return null;
+    return O.none();
   }
   const nodes = selection.getNodes();
   const node = nodes[0];
-  return $isImageNode(node) ? node : null;
+  return node !== undefined && $isImageNode(node) ? O.some(node) : O.none();
 }
 
 // Schema for image drag data payload
@@ -374,19 +380,16 @@ function canDropImage(event: DragEvent): boolean {
   );
 }
 
-function getDragSelection(event: DragEvent): Range | null | undefined {
-  let range: Range | null;
+function getDragSelection(event: DragEvent): O.Option<Range> {
   const domSelection = getDOMSelectionFromTarget(event.target);
   if (document.caretRangeFromPoint) {
-    range = document.caretRangeFromPoint(event.clientX, event.clientY);
-  } else if (event.rangeParent && domSelection !== null) {
-    domSelection.collapse(event.rangeParent, event.rangeOffset || 0);
-    range = domSelection.getRangeAt(0);
-  } else {
-    throw new DragSelectionError({
-      message: "Cannot get the selection when dragging",
-    });
+    return O.fromNullable(document.caretRangeFromPoint(event.clientX, event.clientY));
   }
-
-  return range;
+  if (event.rangeParent && domSelection !== null) {
+    domSelection.collapse(event.rangeParent, event.rangeOffset || 0);
+    return O.some(domSelection.getRangeAt(0));
+  }
+  throw new DragSelectionError({
+    message: "Cannot get the selection when dragging",
+  });
 }

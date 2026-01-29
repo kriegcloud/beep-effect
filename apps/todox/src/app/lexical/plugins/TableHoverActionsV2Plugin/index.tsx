@@ -20,6 +20,7 @@ import {
   $isTableRowNode,
   type TableNode,
 } from "@lexical/table";
+import * as O from "effect/Option";
 import {
   $getChildCaret,
   $getNearestNodeFromDOMNode,
@@ -91,10 +92,10 @@ function getTableFromMouseEvent(
 function getClosestTopCellPosition(
   tableElement: HTMLTableElement,
   clientX: number
-): { readonly centerX: number; readonly top: number; readonly cell: HTMLTableCellElement } | null {
+): O.Option<{ readonly centerX: number; readonly top: number; readonly cell: HTMLTableCellElement }> {
   const firstRow = tableElement.rows[0];
   if (!firstRow) {
-    return null;
+    return O.none();
   }
 
   let closest: {
@@ -114,7 +115,7 @@ function getClosestTopCellPosition(
     }
   }
 
-  return closest;
+  return O.fromNullable(closest);
 }
 
 function TableHoverActionsV2({ anchorElem }: { readonly anchorElem: HTMLElement }): JSX.Element | null {
@@ -200,18 +201,27 @@ function TableHoverActionsV2({ anchorElem }: { readonly anchorElem: HTMLElement 
         hoveredCell.parentElement instanceof HTMLTableRowElement ? hoveredCell.parentElement.rowIndex : -1;
       const colIndex = hoveredCell.cellIndex ?? -1;
 
-      const closestTopCell = getClosestTopCellPosition(tableElement, event.clientX);
+      const closestTopCellOption = getClosestTopCellPosition(tableElement, event.clientX);
 
-      if (!closestTopCell || rowIndex !== 0) {
-        setIsVisible(false);
-        hoveredTopCellRef.current = null;
-      } else {
-        hoveredTopCellRef.current = closestTopCell.cell;
-        virtualRef.current.getBoundingClientRect = () => new DOMRect(closestTopCell.centerX, closestTopCell.top, 0, 0);
-        refs.setReference(virtualRef.current as unknown as Element);
-        setIsVisible(true);
-        update?.();
-      }
+      O.match(closestTopCellOption, {
+        onNone: () => {
+          setIsVisible(false);
+          hoveredTopCellRef.current = null;
+        },
+        onSome: (closestTopCell) => {
+          if (rowIndex !== 0) {
+            setIsVisible(false);
+            hoveredTopCellRef.current = null;
+          } else {
+            hoveredTopCellRef.current = closestTopCell.cell;
+            virtualRef.current.getBoundingClientRect = () =>
+              new DOMRect(closestTopCell.centerX, closestTopCell.top, 0, 0);
+            refs.setReference(virtualRef.current as unknown as Element);
+            setIsVisible(true);
+            update?.();
+          }
+        },
+      });
 
       const tableRect = tableElement.getBoundingClientRect();
       if (colIndex !== 0) {

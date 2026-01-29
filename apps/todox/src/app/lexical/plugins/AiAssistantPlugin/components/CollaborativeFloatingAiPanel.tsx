@@ -2,6 +2,7 @@
 
 import { cn } from "@beep/todox/lib/utils";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
+import * as O from "effect/Option";
 import { $getSelection, $isRangeSelection } from "lexical";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
@@ -85,7 +86,7 @@ export function CollaborativeFloatingAiPanel({ anchorElem }: CollaborativeFloati
   // Broadcast AI activity when operation state changes
   useEffect(() => {
     if (operationState === "streaming") {
-      broadcastAiActivity(true, lastPromptLabel, selectionRange);
+      broadcastAiActivity(true, O.fromNullable(lastPromptLabel || null), O.fromNullable(selectionRange));
     } else {
       clearAiActivity();
     }

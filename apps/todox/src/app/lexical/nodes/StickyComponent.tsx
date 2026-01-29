@@ -14,6 +14,8 @@ import type { JSX } from "react";
 
 import { useEffect, useLayoutEffect, useRef } from "react";
 
+import "./StickyNode.css";
+
 import { createWebsocketProvider } from "../collaboration";
 import { useSharedHistoryContext } from "../context/SharedHistoryContext";
 import { stickyEditorTheme } from "../themes/editor-theme";
@@ -225,7 +227,7 @@ export default function StickyComponent({
             contentEditable={
               <ContentEditable
                 placeholder="What's up?"
-                placeholderClassName="text-2xl text-[#999] overflow-hidden absolute text-ellipsis top-[30px] left-5 w-[120px] select-none whitespace-nowrap inline-block pointer-events-none"
+                placeholderClassName="sticky-note-placeholder"
                 className="min-h-5 border-0 resize-none cursor-text text-2xl caret-[rgb(5,5,5)] block relative outline-0 p-2.5 select-text whitespace-pre-wrap break-words"
               />
             }

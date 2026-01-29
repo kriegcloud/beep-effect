@@ -116,7 +116,7 @@ export function useEditorModal(
     O.fromNullable(options?.key),
     O.match({
       onNone: () => defaultModalAtom,
-      onSome: (key) => modalAtomFamily(key),
+      onSome: modalAtomFamily,
     })
   );
 
@@ -161,14 +161,9 @@ export function useEditorModal(
               onClose();
             }
           }}
+          disablePointerDismissal={!closeOnClickOutside}
         >
-          <DialogContent
-            onInteractOutside={(event) => {
-              if (!closeOnClickOutside) {
-                event.preventDefault();
-              }
-            }}
-          >
+          <DialogContent>
             <DialogHeader>
               <DialogTitle>{title}</DialogTitle>
             </DialogHeader>

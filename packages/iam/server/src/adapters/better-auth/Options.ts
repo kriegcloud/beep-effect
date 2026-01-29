@@ -229,7 +229,6 @@ export const makeAuth = ({
         enabled: true,
         maxAge: Duration.days(7).pipe(Duration.toSeconds),
         strategy: "jwe", // can be "jwt" or "compact"
-        refreshCache: true,
       },
       expiresIn: Duration.days(30).pipe(Duration.toSeconds),
       updateAge: Duration.days(1).pipe(Duration.toSeconds),

@@ -1,12 +1,11 @@
 import { Liveblocks } from "@liveblocks/node";
 import type { NextRequest } from "next/server";
+import * as Redacted from "effect/Redacted";
+import { serverEnv } from "@beep/shared-env/ServerEnv";
 import { getSession } from "./_example";
 
-// Authenticating your Liveblocks application
-// https://liveblocks.io/docs/authentication
-
 const liveblocks = new Liveblocks({
-  secret: process.env.LIVEBLOCKS_SECRET_KEY as string,
+  secret: Redacted.value(serverEnv.liveblocks.secretKey),
 });
 
 export const dynamic = "force-dynamic";
@@ -22,7 +21,7 @@ export async function POST(request: NextRequest) {
   });
 
   // Use a naming pattern to allow access to rooms with a wildcard
-  session.allow(`liveblocks:examples:*`, session.FULL_ACCESS);
+  session.allow(`liveblocks:playground:*`, session.FULL_ACCESS);
 
   // Authorize the user and return the result
   const { body, status } = await session.authorize();

@@ -13,6 +13,7 @@ import { $patchStyleText, $setBlocksType } from "@lexical/selection";
 import { $isTableSelection } from "@lexical/table";
 import { $getNearestBlockElementAncestorOrThrow } from "@lexical/utils";
 import * as Match from "effect/Match";
+import * as O from "effect/Option";
 import * as Str from "effect/String";
 import {
   $addUpdateTag,
@@ -38,81 +39,78 @@ type UpdateFontSizeType = (typeof UpdateFontSizeType)[keyof typeof UpdateFontSiz
  * @param updateType - The type of change, either increment or decrement
  * @returns the next font size
  */
-export const calculateNextFontSize = (currentFontSize: number, updateType: UpdateFontSizeType | null): number => {
-  if (!updateType) {
-    return currentFontSize;
-  }
-
-  return Match.value(updateType).pipe(
-    Match.when(UpdateFontSizeType.decrement, () =>
-      Match.value(currentFontSize).pipe(
-        Match.when(
-          (size) => size > MAX_ALLOWED_FONT_SIZE,
-          () => MAX_ALLOWED_FONT_SIZE
+export const calculateNextFontSize = (currentFontSize: number, updateType: O.Option<UpdateFontSizeType>): number =>
+  O.match(updateType, {
+    onNone: () => currentFontSize,
+    onSome: (type) =>
+      Match.value(type).pipe(
+        Match.when(UpdateFontSizeType.decrement, () =>
+          Match.value(currentFontSize).pipe(
+            Match.when(
+              (size) => size > MAX_ALLOWED_FONT_SIZE,
+              () => MAX_ALLOWED_FONT_SIZE
+            ),
+            Match.when(
+              (size) => size >= 48,
+              () => currentFontSize - 12
+            ),
+            Match.when(
+              (size) => size >= 24,
+              () => currentFontSize - 4
+            ),
+            Match.when(
+              (size) => size >= 14,
+              () => currentFontSize - 2
+            ),
+            Match.when(
+              (size) => size >= 9,
+              () => currentFontSize - 1
+            ),
+            Match.orElse(() => MIN_ALLOWED_FONT_SIZE)
+          )
         ),
-        Match.when(
-          (size) => size >= 48,
-          () => currentFontSize - 12
+        Match.when(UpdateFontSizeType.increment, () =>
+          Match.value(currentFontSize).pipe(
+            Match.when(
+              (size) => size < MIN_ALLOWED_FONT_SIZE,
+              () => MIN_ALLOWED_FONT_SIZE
+            ),
+            Match.when(
+              (size) => size < 12,
+              () => currentFontSize + 1
+            ),
+            Match.when(
+              (size) => size < 20,
+              () => currentFontSize + 2
+            ),
+            Match.when(
+              (size) => size < 36,
+              () => currentFontSize + 4
+            ),
+            Match.when(
+              (size) => size <= 60,
+              () => currentFontSize + 12
+            ),
+            Match.orElse(() => MAX_ALLOWED_FONT_SIZE)
+          )
         ),
-        Match.when(
-          (size) => size >= 24,
-          () => currentFontSize - 4
-        ),
-        Match.when(
-          (size) => size >= 14,
-          () => currentFontSize - 2
-        ),
-        Match.when(
-          (size) => size >= 9,
-          () => currentFontSize - 1
-        ),
-        Match.orElse(() => MIN_ALLOWED_FONT_SIZE)
-      )
-    ),
-    Match.when(UpdateFontSizeType.increment, () =>
-      Match.value(currentFontSize).pipe(
-        Match.when(
-          (size) => size < MIN_ALLOWED_FONT_SIZE,
-          () => MIN_ALLOWED_FONT_SIZE
-        ),
-        Match.when(
-          (size) => size < 12,
-          () => currentFontSize + 1
-        ),
-        Match.when(
-          (size) => size < 20,
-          () => currentFontSize + 2
-        ),
-        Match.when(
-          (size) => size < 36,
-          () => currentFontSize + 4
-        ),
-        Match.when(
-          (size) => size <= 60,
-          () => currentFontSize + 12
-        ),
-        Match.orElse(() => MAX_ALLOWED_FONT_SIZE)
-      )
-    ),
-    Match.orElse(() => currentFontSize)
-  );
-};
+        Match.orElse(() => currentFontSize)
+      ),
+  });
 
 /**
  * Patches the selection with the updated font size.
  */
 export const updateFontSizeInSelection = (
   editor: LexicalEditor,
-  newFontSize: string | null,
-  updateType: UpdateFontSizeType | null,
+  newFontSize: O.Option<string>,
+  updateType: O.Option<UpdateFontSizeType>,
   skipRefocus: boolean
 ) => {
   const getNextFontSize = (prevFontSize: string | null): string => {
-    if (!prevFontSize) {
-      prevFontSize = `${DEFAULT_FONT_SIZE}px`;
-    }
-    prevFontSize = Str.slice(0, -2)(prevFontSize);
-    const nextFontSize = calculateNextFontSize(Number(prevFontSize), updateType);
+    const normalizedPrev = prevFontSize ?? `${DEFAULT_FONT_SIZE}px`;
+    const numericPrev = Str.slice(0, -2)(normalizedPrev);
+    const nextFontSize = calculateNextFontSize(Number(numericPrev), updateType);
     return `${nextFontSize}px`;
   };
 
@@ -124,7 +122,7 @@ export const updateFontSizeInSelection = (
       const selection = $getSelection();
       if (selection !== null) {
         $patchStyleText(selection, {
-          "font-size": newFontSize || getNextFontSize,
+          "font-size": O.getOrElse(newFontSize, () => getNextFontSize),
         });
       }
     }
@@ -138,10 +136,10 @@ export const updateFontSize = (
   skipRefocus = false
 ) => {
   if (inputValue !== "") {
-    const nextFontSize = calculateNextFontSize(Number(inputValue), updateType);
-    updateFontSizeInSelection(editor, `${String(nextFontSize)}px`, null, skipRefocus);
+    const nextFontSize = calculateNextFontSize(Number(inputValue), O.some(updateType));
+    updateFontSizeInSelection(editor, O.some(`${String(nextFontSize)}px`), O.none(), skipRefocus);
   } else {
-    updateFontSizeInSelection(editor, null, updateType, skipRefocus);
+    updateFontSizeInSelection(editor, O.none(), O.some(updateType), skipRefocus);
   }
 };
 

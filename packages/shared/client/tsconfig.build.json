@@ -38,9 +38,6 @@
       "path": "../../../packages/common/constants/tsconfig.build.json"
     },
     {
-      "path": "../../../packages/ui/core/tsconfig.build.json"
-    },
-    {
       "path": "../../../packages/common/errors/tsconfig.build.json"
     },
     {
@@ -50,10 +47,13 @@
       "path": "../../../packages/shared/env/tsconfig.build.json"
     },
     {
-      "path": "../../../packages/ui/ui/tsconfig.build.json"
+      "path": "../../../packages/runtime/client/tsconfig.build.json"
     },
     {
-      "path": "../../../packages/runtime/client/tsconfig.build.json"
+      "path": "../../../packages/ui/core/tsconfig.build.json"
+    },
+    {
+      "path": "../../../packages/ui/ui/tsconfig.build.json"
     }
   ],
   "include": ["src"]

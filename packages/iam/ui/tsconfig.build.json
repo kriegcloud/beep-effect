@@ -62,19 +62,19 @@
       "path": "../../../packages/shared/tables/tsconfig.build.json"
     },
     {
-      "path": "../../../packages/ui/ui/tsconfig.build.json"
+      "path": "../../../packages/runtime/client/tsconfig.build.json"
     },
     {
       "path": "../../../packages/iam/tables/tsconfig.build.json"
     },
     {
-      "path": "../../../packages/runtime/client/tsconfig.build.json"
+      "path": "../../../packages/shared/client/tsconfig.build.json"
+    },
+    {
+      "path": "../../../packages/ui/ui/tsconfig.build.json"
     },
     {
       "path": "../../../packages/iam/server/tsconfig.build.json"
-    },
-    {
-      "path": "../../../packages/shared/client/tsconfig.build.json"
     },
     {
       "path": "../../../packages/iam/client/tsconfig.build.json"

@@ -78,7 +78,7 @@
       "path": "../../packages/shared/tables/tsconfig.build.json"
     },
     {
-      "path": "../../packages/ui/ui/tsconfig.build.json"
+      "path": "../../packages/runtime/client/tsconfig.build.json"
     },
     {
       "path": "../../packages/calendar/tables/tsconfig.build.json"
@@ -99,7 +99,10 @@
       "path": "../../packages/knowledge/tables/tsconfig.build.json"
     },
     {
-      "path": "../../packages/runtime/client/tsconfig.build.json"
+      "path": "../../packages/shared/client/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/ui/ui/tsconfig.build.json"
     },
     {
       "path": "../../packages/calendar/server/tsconfig.build.json"
@@ -120,16 +123,13 @@
       "path": "../../packages/knowledge/server/tsconfig.build.json"
     },
     {
-      "path": "../../packages/shared/client/tsconfig.build.json"
-    },
-    {
-      "path": "../../packages/runtime/server/tsconfig.build.json"
+      "path": "../../packages/shared/ui/tsconfig.build.json"
     },
     {
       "path": "../../packages/iam/client/tsconfig.build.json"
     },
     {
-      "path": "../../packages/shared/ui/tsconfig.build.json"
+      "path": "../../packages/runtime/server/tsconfig.build.json"
     },
     {
       "path": "../../packages/iam/ui/tsconfig.build.json"

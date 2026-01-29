@@ -1,6 +1,7 @@
 "use client";
 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@beep/todox/components/ui/select";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@beep/todox/components/ui/tooltip";
 import { $patchStyleText } from "@lexical/selection";
 import { $addUpdateTag, $getSelection, type LexicalEditor, SKIP_SELECTION_FOCUS_TAG } from "lexical";
 import type { JSX } from "react";
@@ -80,18 +81,29 @@ export function FontControls({ editor, disabled = false }: FontControlsProps): J
   return (
     <div className="flex items-center gap-1" role="group" aria-label="Font controls">
       {/* Font Family Dropdown */}
-      <Select value={fontFamily} onValueChange={handleFontFamilyChange} disabled={disabled}>
-        <SelectTrigger className="h-8 w-[90px] text-xs px-2" aria-label="Formatting options for font family">
-          <SelectValue placeholder="Font" />
-        </SelectTrigger>
-        <SelectContent>
-          {FONT_FAMILY_OPTIONS.map(([value, label]) => (
-            <SelectItem key={value} value={value} className="text-xs">
-              <span style={{ fontFamily: value }}>{label}</span>
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+      <Tooltip>
+        <TooltipTrigger
+          render={(props) => (
+            <span {...props}>
+              <Select value={fontFamily} onValueChange={handleFontFamilyChange} disabled={disabled}>
+                <SelectTrigger className="h-8 w-[90px] text-xs px-2" aria-label="Formatting options for font family">
+                  <SelectValue placeholder="Font" />
+                </SelectTrigger>
+                <SelectContent>
+                  {FONT_FAMILY_OPTIONS.map(([value, label]) => (
+                    <SelectItem key={value} value={value} className="text-xs">
+                      <span style={{ fontFamily: value }}>{label}</span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </span>
+          )}
+        />
+        <TooltipContent side="bottom" sideOffset={4}>
+          Font family
+        </TooltipContent>
+      </Tooltip>
 
       {/* Font Size Controls */}
       <FontSize selectionFontSize={parsedFontSize} editor={editor} disabled={disabled} />

@@ -74,6 +74,14 @@
   position: relative;
   resize: vertical;
   z-index: -1;
+  overflow: visible;
+}
+
+/* On lg+ screens, add left padding to create space for draggable block menu */
+@media (min-width: 1024px) {
+  .editor {
+    padding-left: 46px;
+  }
 }
 
 /* =============================================================================
@@ -1036,6 +1044,8 @@ z
   background-color: var(--popover);
   border: 1px solid var(--border);
   border-radius: var(--radius);
+  /* Menu is positioned absolutely by Lexical at left edge of content area.
+     With left padding on .editor (lg+ screens), the menu sits in the gutter naturally. */
 }
 
 .draggable-block-menu .draggable-block-button,

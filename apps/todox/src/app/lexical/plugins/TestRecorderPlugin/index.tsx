@@ -5,6 +5,7 @@ import { IS_APPLE } from "@lexical/utils";
 import * as Either from "effect/Either";
 import * as HashSet from "effect/HashSet";
 import * as Match from "effect/Match";
+import * as O from "effect/Option";
 import * as Str from "effect/String";
 import type { BaseSelection, LexicalEditor } from "lexical";
 import { $createParagraphNode, $createTextNode, $getRoot, getDOMSelection } from "lexical";
@@ -91,10 +92,11 @@ function sanitizeSelection(selection: Selection) {
   return { anchorNode, anchorOffset, focusNode, focusOffset };
 }
 
-function getPathFromNodeToEditor(node: Node, rootElement: HTMLElement | null) {
+function getPathFromNodeToEditor(node: Node, rootElement: O.Option<HTMLElement>) {
+  const root = O.getOrNull(rootElement);
   let currentNode: Node | null | undefined = node;
-  const path = [];
-  while (currentNode !== rootElement) {
+  const path: number[] = [];
+  while (currentNode !== root) {
     if (currentNode !== null && currentNode !== undefined) {
       path.unshift(Array.from(currentNode?.parentNode?.childNodes ?? []).indexOf(currentNode as ChildNode));
     }
@@ -327,7 +329,7 @@ ${steps.map(formatStep).join(`\n`)}
       return;
     }
     const { anchorNode, anchorOffset, focusNode, focusOffset } = sanitizeSelection(browserSelection);
-    const rootElement = getCurrentEditor().getRootElement();
+    const rootElement = O.fromNullable(getCurrentEditor().getRootElement());
     let anchorPath: number[] = [];
     if (anchorNode !== null) {
       anchorPath = getPathFromNodeToEditor(anchorNode, rootElement);

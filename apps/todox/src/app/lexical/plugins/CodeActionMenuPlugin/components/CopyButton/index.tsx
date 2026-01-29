@@ -3,6 +3,7 @@ import { makeRunClientPromise, useRuntime } from "@beep/runtime-client";
 import * as Clipboard from "@effect/platform-browser/Clipboard";
 import { $isCodeNode } from "@lexical/code";
 import * as Effect from "effect/Effect";
+import * as O from "effect/Option";
 import { $getNearestNodeFromDOMNode, $getSelection, $setSelection, type LexicalEditor } from "lexical";
 import { useCallback, useState } from "react";
 import { ClipboardError } from "../../../../schema/errors";
@@ -10,7 +11,7 @@ import { useDebounce } from "../../utils";
 
 interface Props {
   readonly editor: LexicalEditor;
-  readonly getCodeDOMNode: () => HTMLElement | null;
+  readonly getCodeDOMNode: () => O.Option<HTMLElement>;
 }
 
 const copyToClipboard = Effect.fn("copyToClipboard")(function* (content: string) {
@@ -38,12 +39,13 @@ export function CopyButton({ editor, getCodeDOMNode }: Props) {
   // Fire-and-forget: onClick doesn't need the Promise result, and all
   // success/error handling is done inside the Effect pipeline.
   const handleClick = useCallback((): void => {
-    const codeDOMNode = getCodeDOMNode();
+    const codeDOMNodeOption = getCodeDOMNode();
 
-    if (!codeDOMNode) {
+    if (O.isNone(codeDOMNodeOption)) {
       return;
     }
 
+    const codeDOMNode = codeDOMNodeOption.value;
     let content = "";
 
     editor.update(() => {

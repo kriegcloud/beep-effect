@@ -5,6 +5,7 @@ import { $isCodeNode } from "@lexical/code";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
+import * as O from "effect/Option";
 import { $getNearestNodeFromDOMNode, type LexicalEditor } from "lexical";
 import type { Options } from "prettier";
 import { useCallback, useState } from "react";
@@ -13,7 +14,7 @@ import { PrettierError, UnsupportedLanguageError } from "../../../../schema/erro
 interface Props {
   readonly lang: string;
   readonly editor: LexicalEditor;
-  readonly getCodeDOMNode: () => HTMLElement | null;
+  readonly getCodeDOMNode: () => O.Option<HTMLElement>;
 }
 
 const PRETTIER_PARSER_MODULES = {
@@ -115,11 +116,12 @@ export function PrettierButton({ lang, editor, getCodeDOMNode }: Props) {
   // Fire-and-forget: onClick doesn't need the Promise result, and all
   // success/error handling is done inside the Effect pipeline.
   const handleClick = useCallback((): void => {
-    const codeDOMNode = getCodeDOMNode();
-    if (!codeDOMNode) {
+    const codeDOMNodeOption = getCodeDOMNode();
+    if (O.isNone(codeDOMNodeOption)) {
       return;
     }
 
+    const codeDOMNode = codeDOMNodeOption.value;
     let content = "";
     editor.update(() => {
       const codeNode = $getNearestNodeFromDOMNode(codeDOMNode);

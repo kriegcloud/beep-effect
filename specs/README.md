@@ -41,8 +41,10 @@ All spec-creation infrastructure lives in [`_guide/`](_guide/):
 | [html-sanitize-schema-test-parity](html-sanitize-schema-test-parity/) | Test parity between schema and utils HTML sanitization | Phase 0 |
 | [knowledge-effect-ai-migration](knowledge-effect-ai-migration/) | Migrate EmbeddingService to @effect/ai | **Complete** |
 | [knowledge-graph-integration](knowledge-graph-integration/) | Document knowledge extraction | Active |
+| [knowledge-graph-poc-demo](knowledge-graph-poc-demo/) | Demo page showcasing knowledge graph extraction | **P1 Ready** |
 | [lexical-editor-ai-features](lexical-editor-ai-features/) | AI features for Lexical editor | **Complete** |
 | [lexical-effect-alignment](lexical-effect-alignment/) | Effect-align lexical playground code (170+ files) | **P1 Ready** |
+| [liveblocks-lexical-ai-integration](liveblocks-lexical-ai-integration/) | Complete Liveblocks + Lexical AI integration with real APIs | **P1 Ready** |
 | [lexical-playground-port](lexical-playground-port/) | Port Lexical playground to todox | **Complete** |
 | [naming-conventions-refactor](naming-conventions-refactor/) | Naming standards implementation | Active |
 | [orgtable-auto-rls](orgtable-auto-rls/) | Automatic RLS for org tables | Active |

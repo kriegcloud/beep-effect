@@ -39,13 +39,13 @@
       "path": "../../../packages/shared/env"
     },
     {
-      "path": "../../../packages/ui/ui"
-    },
-    {
       "path": "../../../packages/runtime/client"
     },
     {
       "path": "../../../packages/shared/client"
+    },
+    {
+      "path": "../../../packages/ui/ui"
     }
   ],
   "compilerOptions": {

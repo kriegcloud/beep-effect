@@ -9,6 +9,7 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@beep/todox/components/ui/dropdown-menu";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@beep/todox/components/ui/tooltip";
 import { cn } from "@beep/todox/lib/utils";
 import {
   $isCodeNode,
@@ -254,21 +255,30 @@ function BlockFormatDropDown({
 }): JSX.Element {
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger
-        render={
-          <Button
-            variant="ghost"
-            size="sm"
-            disabled={disabled}
-            aria-label={`Block type: ${blockTypeToBlockName[blockType]}`}
-            title={blockTypeToBlockName[blockType]}
-            className="gap-0.5 px-1.5 toolbar-item block-controls"
-          >
-            {blockTypeToIcon[blockType] || <TextTIcon className="size-4" />}
-            <CaretDownIcon className="size-3 opacity-50" />
-          </Button>
-        }
-      />
+      <Tooltip>
+        <TooltipTrigger
+          render={(props) => (
+            <DropdownMenuTrigger
+              {...props}
+              render={
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  disabled={disabled}
+                  aria-label={`Block type: ${blockTypeToBlockName[blockType]}`}
+                  className="gap-0.5 px-1.5 toolbar-item block-controls"
+                >
+                  {blockTypeToIcon[blockType] || <TextTIcon className="size-4" />}
+                  <CaretDownIcon className="size-3 opacity-50" />
+                </Button>
+              }
+            />
+          )}
+        />
+        <TooltipContent side="bottom" sideOffset={4}>
+          {blockTypeToBlockName[blockType]}
+        </TooltipContent>
+      </Tooltip>
       <DropdownMenuContent align="start" sideOffset={4} className="w-56">
         <DropdownMenuItem
           className={cn(blockType === "paragraph" && "bg-accent")}
@@ -367,21 +377,30 @@ function ElementFormatDropdown({
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger
-        render={
-          <Button
-            variant="ghost"
-            size="sm"
-            disabled={disabled}
-            aria-label={`Alignment: ${formatOption.name}`}
-            title={formatOption.name}
-            className="gap-0.5 px-1.5 toolbar-item spaced alignment"
-          >
-            {isRTL ? formatOption.iconRTL : formatOption.icon}
-            <CaretDownIcon className="size-3 opacity-50" />
-          </Button>
-        }
-      />
+      <Tooltip>
+        <TooltipTrigger
+          render={(props) => (
+            <DropdownMenuTrigger
+              {...props}
+              render={
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  disabled={disabled}
+                  aria-label={`Alignment: ${formatOption.name}`}
+                  className="gap-0.5 px-1.5 toolbar-item spaced alignment"
+                >
+                  {isRTL ? formatOption.iconRTL : formatOption.icon}
+                  <CaretDownIcon className="size-3 opacity-50" />
+                </Button>
+              }
+            />
+          )}
+        />
+        <TooltipContent side="bottom" sideOffset={4}>
+          {formatOption.name}
+        </TooltipContent>
+      </Tooltip>
       <DropdownMenuContent align="start" sideOffset={4} className="w-56">
         <DropdownMenuItem
           onClick={() => {
@@ -894,37 +913,55 @@ export default function ToolbarPlugin({
           <FontControls editor={activeEditor} disabled={!isEditable} />
           <Divider />
           <TextFormatButtonGroup editor={activeEditor} showCodeButton={canViewerSeeInsertCodeButton} />
-          <button
-            disabled={!isEditable}
-            onClick={insertLink}
-            className={`toolbar-item spaced ${toolbarState.isLink ? "active" : ""}`}
-            aria-label="Insert link"
-            title={`Insert link (${SHORTCUTS.INSERT_LINK})`}
-            type="button"
-          >
-            <LinkIcon className="size-4" />
-          </button>
+          <Tooltip>
+            <TooltipTrigger
+              render={(props) => (
+                <button
+                  {...props}
+                  disabled={!isEditable}
+                  onClick={insertLink}
+                  className={`toolbar-item spaced ${toolbarState.isLink ? "active" : ""}`}
+                  aria-label="Insert link"
+                  type="button"
+                >
+                  <LinkIcon className="size-4" />
+                </button>
+              )}
+            />
+            <TooltipContent side="bottom" sideOffset={4}>
+              Insert link ({SHORTCUTS.INSERT_LINK})
+            </TooltipContent>
+          </Tooltip>
           <ColorPickerGroup applyStyleText={applyStyleText} disabled={!isEditable} />
           <AdvancedTextFormattingMenu editor={activeEditor} disabled={!isEditable} />
           {canViewerSeeInsertDropdown && (
             <>
               <Divider />
               <DropdownMenu>
-                <DropdownMenuTrigger
-                  render={
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      disabled={!isEditable}
-                      aria-label="Insert"
-                      title="Insert"
-                      className="gap-0.5 px-1.5 toolbar-item spaced"
-                    >
-                      <PlusIcon className="size-4" />
-                      <CaretDownIcon className="size-3 opacity-50" />
-                    </Button>
-                  }
-                />
+                <Tooltip>
+                  <TooltipTrigger
+                    render={(props) => (
+                      <DropdownMenuTrigger
+                        {...props}
+                        render={
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            disabled={!isEditable}
+                            aria-label="Insert"
+                            className="gap-0.5 px-1.5 toolbar-item spaced"
+                          >
+                            <PlusIcon className="size-4" />
+                            <CaretDownIcon className="size-3 opacity-50" />
+                          </Button>
+                        }
+                      />
+                    )}
+                  />
+                  <TooltipContent side="bottom" sideOffset={4}>
+                    Insert
+                  </TooltipContent>
+                </Tooltip>
                 <DropdownMenuContent align="start" sideOffset={4} className="min-w-40">
                   <DropdownMenuItem
                     onClick={() => dispatchToolbarCommand(INSERT_HORIZONTAL_RULE_COMMAND)}

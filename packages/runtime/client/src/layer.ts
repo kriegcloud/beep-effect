@@ -1,6 +1,5 @@
 import { EnvValue } from "@beep/constants";
 import { clientEnv } from "@beep/shared-env/ClientEnv";
-import { ToasterService } from "@beep/ui/services/toaster.service";
 import { WebSdk } from "@effect/opentelemetry";
 import { FetchHttpClient } from "@effect/platform";
 import type { HttpClient } from "@effect/platform/HttpClient";
@@ -83,7 +82,6 @@ type ClientRuntimeServices =
   | Permissions.Permissions
   | Clipboard.Clipboard
   | HttpClient
-  | ToasterService
   | NetworkMonitor
   | WorkerClient
   | KeyValueStore.KeyValueStore;
@@ -91,7 +89,7 @@ type ClientRuntimeServices =
 export type ClientRuntimeLayer = Layer.Layer<ClientRuntimeServices, never, never>;
 
 export const clientRuntimeLayer = Layer.mergeAll(
-  Layer.provideMerge(ToasterService.Default, Registry.layer),
+  Registry.layer,
   HttpClientLive,
   ObservabilityLive,
   NetworkMonitorLive,

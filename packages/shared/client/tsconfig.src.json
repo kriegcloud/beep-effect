@@ -25,9 +25,6 @@
       "path": "../../../packages/common/constants"
     },
     {
-      "path": "../../../packages/ui/core"
-    },
-    {
       "path": "../../../packages/common/errors"
     },
     {
@@ -37,10 +34,13 @@
       "path": "../../../packages/shared/env"
     },
     {
-      "path": "../../../packages/ui/ui"
+      "path": "../../../packages/runtime/client"
     },
     {
-      "path": "../../../packages/runtime/client"
+      "path": "../../../packages/ui/core"
+    },
+    {
+      "path": "../../../packages/ui/ui"
     }
   ],
   "compilerOptions": {

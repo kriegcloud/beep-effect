@@ -211,12 +211,13 @@ export const TABLE: ElementTransformer = {
       return;
     }
 
-    const matchCells = mapToTableCells(match[0]!);
+    const matchCellsOption = mapToTableCells(match[0]!);
 
-    if (matchCells == null) {
+    if (O.isNone(matchCellsOption)) {
       return;
     }
 
+    const matchCells = matchCellsOption.value;
     let rows: Array<Array<TableCellNode>> = [matchCells];
     let sibling = parentNode.getPreviousSibling();
     let maxCells = matchCells.length;
@@ -236,12 +237,13 @@ export const TABLE: ElementTransformer = {
         break;
       }
 
-      const cells = mapToTableCells(firstChild.getTextContent());
+      const cellsOption = mapToTableCells(firstChild.getTextContent());
 
-      if (cells == null) {
+      if (O.isNone(cellsOption)) {
         break;
       }
 
+      const cells = cellsOption.value;
       maxCells = Math.max(maxCells, cells.length);
       rows = A.prepend(rows, cells);
       const previousSibling = sibling.getPreviousSibling();
@@ -285,12 +287,11 @@ const $createTableCell = (textContent: string): TableCellNode => {
   return cell;
 };
 
-const mapToTableCells = (textContent: string): Array<TableCellNode> | null => {
+const mapToTableCells = (textContent: string): O.Option<Array<TableCellNode>> => {
   return pipe(
     Str.match(TABLE_ROW_REG_EXP)(textContent),
     O.flatMap((match) => O.fromNullable(match[1])),
-    O.map((captured) => A.map(Str.split(captured, "|"), (text) => $createTableCell(text))),
-    O.getOrNull
+    O.map((captured) => A.map(Str.split(captured, "|"), (text) => $createTableCell(text)))
   );
 };
 

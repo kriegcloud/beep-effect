@@ -34,6 +34,12 @@
       "path": "../../../packages/shared/domain"
     },
     {
+      "path": "../../../packages/shared/env"
+    },
+    {
+      "path": "../../../packages/runtime/client"
+    },
+    {
       "path": "../../../packages/ui/ui"
     }
   ],

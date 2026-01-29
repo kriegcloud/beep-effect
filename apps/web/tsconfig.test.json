@@ -81,7 +81,7 @@
       "path": "../../packages/shared/tables"
     },
     {
-      "path": "../../packages/ui/ui"
+      "path": "../../packages/runtime/client"
     },
     {
       "path": "../../packages/calendar/tables"
@@ -102,7 +102,10 @@
       "path": "../../packages/knowledge/tables"
     },
     {
-      "path": "../../packages/runtime/client"
+      "path": "../../packages/shared/client"
+    },
+    {
+      "path": "../../packages/ui/ui"
     },
     {
       "path": "../../packages/calendar/server"
@@ -123,16 +126,13 @@
       "path": "../../packages/knowledge/server"
     },
     {
-      "path": "../../packages/shared/client"
-    },
-    {
-      "path": "../../packages/runtime/server"
+      "path": "../../packages/shared/ui"
     },
     {
       "path": "../../packages/iam/client"
     },
     {
-      "path": "../../packages/shared/ui"
+      "path": "../../packages/runtime/server"
     },
     {
       "path": "../../packages/iam/ui"

@@ -10,6 +10,7 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@beep/todox/components/ui/dropdown-menu";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@beep/todox/components/ui/tooltip";
 import { cn } from "@beep/todox/lib/utils";
 import {
   DotsThreeIcon,
@@ -97,19 +98,29 @@ export function AdvancedTextFormattingMenu({ editor, disabled = false }: Advance
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger
-        render={
-          <Button
-            variant="ghost"
-            size="sm"
-            disabled={disabled}
-            aria-label="Formatting options for additional text styles"
-            className={cn("gap-1", "toolbar-item spaced")}
-          >
-            <DotsThreeIcon className="size-4" />
-          </Button>
-        }
-      />
+      <Tooltip>
+        <TooltipTrigger
+          render={(props) => (
+            <DropdownMenuTrigger
+              {...props}
+              render={
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  disabled={disabled}
+                  aria-label="Formatting options for additional text styles"
+                  className={cn("gap-1", "toolbar-item spaced")}
+                >
+                  <DotsThreeIcon className="size-4" />
+                </Button>
+              }
+            />
+          )}
+        />
+        <TooltipContent side="bottom" sideOffset={4}>
+          More formatting
+        </TooltipContent>
+      </Tooltip>
       <DropdownMenuContent align="start" sideOffset={4} className="min-w-52">
         {/* Text Case Transforms */}
         <DropdownMenuItem

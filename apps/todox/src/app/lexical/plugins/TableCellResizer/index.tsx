@@ -14,7 +14,9 @@ import {
   TableNode,
 } from "@lexical/table";
 import { calculateZoomLevel, mergeRegister } from "@lexical/utils";
+import { pipe } from "effect/Function";
 import * as MutableHashSet from "effect/MutableHashSet";
+import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import type { LexicalEditor, NodeKey } from "lexical";
 import { $getNearestNodeFromDOMNode, isHTMLElement, SKIP_SCROLL_INTO_VIEW_TAG } from "lexical";
@@ -209,7 +211,14 @@ function TableCellResizer({ editor }: { readonly editor: LexicalEditor }): JSX.E
           let height = tableRow.getHeight();
           if (height === undefined) {
             const rowCells = tableRow.getChildren<TableCellNode>();
-            height = Math.min(...rowCells.map((cell) => getCellNodeHeight(cell, editor) ?? Number.POSITIVE_INFINITY));
+            height = Math.min(
+              ...rowCells.map((cell) =>
+                pipe(
+                  getCellNodeHeight(cell, editor),
+                  O.getOrElse(() => Number.POSITIVE_INFINITY)
+                )
+              )
+            );
           }
 
           const newHeight = Math.max(height + heightChange, MIN_ROW_HEIGHT);
@@ -221,9 +230,12 @@ function TableCellResizer({ editor }: { readonly editor: LexicalEditor }): JSX.E
     [activeCell, editor]
   );
 
-  const getCellNodeHeight = (cell: TableCellNode, activeEditor: LexicalEditor): number | undefined => {
+  const getCellNodeHeight = (cell: TableCellNode, activeEditor: LexicalEditor): O.Option<number> => {
     const domCellNode = activeEditor.getElementByKey(cell.getKey());
-    return domCellNode?.clientHeight;
+    return pipe(
+      O.fromNullable(domCellNode),
+      O.map((el) => el.clientHeight)
+    );
   };
 
   const getCellColumnIndex = (tableCellNode: TableCellNode, tableMap: TableMapType) => {

@@ -1,6 +1,7 @@
 "use client";
 
 import { ToggleGroup, ToggleGroupItem } from "@beep/todox/components/ui/toggle-group";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@beep/todox/components/ui/tooltip";
 import { CodeIcon, TextBIcon, TextItalicIcon, TextUnderlineIcon } from "@phosphor-icons/react";
 import * as A from "effect/Array";
 import { FORMAT_TEXT_COMMAND, type LexicalEditor } from "lexical";
@@ -84,42 +85,78 @@ export function TextFormatButtonGroup({ editor, showCodeButton = true }: TextFor
       variant="outline"
       aria-label="Text formatting"
     >
-      <ToggleGroupItem
-        value="bold"
-        disabled={!isEditable}
-        aria-label={`Format text as bold. Shortcut: ${SHORTCUTS.BOLD}`}
-        title={`Bold (${SHORTCUTS.BOLD})`}
-      >
-        <TextBIcon className="size-4" />
-      </ToggleGroupItem>
+      <Tooltip>
+        <TooltipTrigger
+          render={(props) => (
+            <ToggleGroupItem
+              {...props}
+              value="bold"
+              disabled={!isEditable}
+              aria-label={`Format text as bold. Shortcut: ${SHORTCUTS.BOLD}`}
+            >
+              <TextBIcon className="size-4" />
+            </ToggleGroupItem>
+          )}
+        />
+        <TooltipContent side="bottom" sideOffset={4}>
+          Bold ({SHORTCUTS.BOLD})
+        </TooltipContent>
+      </Tooltip>
 
-      <ToggleGroupItem
-        value="italic"
-        disabled={!isEditable}
-        aria-label={`Format text as italics. Shortcut: ${SHORTCUTS.ITALIC}`}
-        title={`Italic (${SHORTCUTS.ITALIC})`}
-      >
-        <TextItalicIcon className="size-4" />
-      </ToggleGroupItem>
+      <Tooltip>
+        <TooltipTrigger
+          render={(props) => (
+            <ToggleGroupItem
+              {...props}
+              value="italic"
+              disabled={!isEditable}
+              aria-label={`Format text as italics. Shortcut: ${SHORTCUTS.ITALIC}`}
+            >
+              <TextItalicIcon className="size-4" />
+            </ToggleGroupItem>
+          )}
+        />
+        <TooltipContent side="bottom" sideOffset={4}>
+          Italic ({SHORTCUTS.ITALIC})
+        </TooltipContent>
+      </Tooltip>
 
-      <ToggleGroupItem
-        value="underline"
-        disabled={!isEditable}
-        aria-label={`Format text to underlined. Shortcut: ${SHORTCUTS.UNDERLINE}`}
-        title={`Underline (${SHORTCUTS.UNDERLINE})`}
-      >
-        <TextUnderlineIcon className="size-4" />
-      </ToggleGroupItem>
+      <Tooltip>
+        <TooltipTrigger
+          render={(props) => (
+            <ToggleGroupItem
+              {...props}
+              value="underline"
+              disabled={!isEditable}
+              aria-label={`Format text to underlined. Shortcut: ${SHORTCUTS.UNDERLINE}`}
+            >
+              <TextUnderlineIcon className="size-4" />
+            </ToggleGroupItem>
+          )}
+        />
+        <TooltipContent side="bottom" sideOffset={4}>
+          Underline ({SHORTCUTS.UNDERLINE})
+        </TooltipContent>
+      </Tooltip>
 
       {showCodeButton && (
-        <ToggleGroupItem
-          value="code"
-          disabled={!isEditable}
-          aria-label={`Insert code block. Shortcut: ${SHORTCUTS.INSERT_CODE_BLOCK}`}
-          title={`Insert code block (${SHORTCUTS.INSERT_CODE_BLOCK})`}
-        >
-          <CodeIcon className="size-4" />
-        </ToggleGroupItem>
+        <Tooltip>
+          <TooltipTrigger
+            render={(props) => (
+              <ToggleGroupItem
+                {...props}
+                value="code"
+                disabled={!isEditable}
+                aria-label={`Insert code block. Shortcut: ${SHORTCUTS.INSERT_CODE_BLOCK}`}
+              >
+                <CodeIcon className="size-4" />
+              </ToggleGroupItem>
+            )}
+          />
+          <TooltipContent side="bottom" sideOffset={4}>
+            Code ({SHORTCUTS.INSERT_CODE_BLOCK})
+          </TooltipContent>
+        </Tooltip>
       )}
     </ToggleGroup>
   );

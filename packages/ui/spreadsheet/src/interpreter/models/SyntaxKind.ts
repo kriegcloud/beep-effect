@@ -16,14 +16,13 @@ export class UnknkownCharachterError extends S.TaggedError<UnknkownCharachterErr
   static readonly new = (char: string) => new UnknkownCharachterError({ char });
 }
 
-export class Kind extends BS.StringLiteralKit(
+export class SyntaxKind extends BS.StringLiteralKit(
   "asterisk",
   "caret",
   "cell",
   "close-parenthesis",
   "colon",
   "equal",
-  "function",
   "minus",
   "mod",
   "number",
@@ -39,7 +38,6 @@ export class Kind extends BS.StringLiteralKit(
       ["close-parenthesis", "CloseParenthesis"],
       ["colon", "ColonToken"],
       ["equal", "EqualToken"],
-      ["function", "FunctionToken"],
       ["minus", "MinusToken"],
       ["mod", "ModToken"],
       ["number", "NumberLiteral"],
@@ -55,13 +53,15 @@ export class Kind extends BS.StringLiteralKit(
   })
 ) {}
 
-export declare namespace Kind {
-  export type Type = typeof Kind.Type;
-  export type Encoded = typeof Kind.Encoded;
-  export type Enum = typeof Kind.Enum;
+export const SyntaxKindEnum = SyntaxKind.Enum;
+
+export declare namespace SyntaxKind {
+  export type Type = S.Schema.Type<typeof SyntaxKind>;
+  export type Encoded = S.Schema.Encoded<typeof SyntaxKind>;
+  export type Enum = typeof SyntaxKindEnum;
 }
 
-export const makeTokenKind = Kind.toTagged("kind").composer({});
+export const makeTokenKind = SyntaxKind.toTagged("kind").composer({});
 
 export class NumberToken extends S.Class<NumberToken>($I`NumberToken`)(
   makeTokenKind.number({
@@ -91,7 +91,7 @@ export class RefToken extends S.Class<RefToken>($I`RefToken`)(
 ) {}
 
 export class SimpleCharTokenKind extends BS.StringLiteralKit(
-  ...Kind.pickOptions(
+  ...SyntaxKind.pickOptions(
     "asterisk",
     "caret",
     "colon",
@@ -123,9 +123,12 @@ export class SimpleCharTokenKind extends BS.StringLiteralKit(
   })
 ) {}
 
+export const SimpleCharTokenKindEnum = SimpleCharTokenKind.Enum;
+
 export declare namespace SimpleCharTokenKind {
-  export type Type = typeof SimpleCharTokenKind.Type;
-  export type Encoded = typeof SimpleCharTokenKind.Encoded;
+  export type Type = S.Schema.Type<typeof SimpleCharTokenKind>;
+  export type Encoded = S.Schema.Encoded<typeof SimpleCharTokenKind>;
+  export type Enum = typeof SimpleCharTokenKindEnum;
 }
 
 export const makeSimpleCharToken = SimpleCharTokenKind.toTagged("kind").composer({});

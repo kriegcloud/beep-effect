@@ -153,7 +153,7 @@ export interface MinimalEditor {
     listener: (payload: unknown, editor: unknown) => boolean,
     priority: number
   ) => () => void;
-  readonly getEditorState: () => { read: (callback: () => void) => void };
+  readonly getEditorState: () => { readonly read: (callback: () => void) => void };
 }
 
 /**

@@ -3,6 +3,7 @@
 import { useOthers, useUpdateMyPresence } from "@liveblocks/react/suspense";
 import * as A from "effect/Array";
 import { pipe } from "effect/Function";
+import * as O from "effect/Option";
 import { useCallback, useMemo } from "react";
 import type { AiActivityPresence, SerializedRange } from "../../../context/LiveblocksProvider";
 
@@ -30,8 +31,8 @@ interface CollaborativeAiState {
   /** Broadcast AI activity to other users */
   readonly broadcastAiActivity: (
     isGenerating: boolean,
-    promptLabel: string | null,
-    selectionRange: SerializedRange | null
+    promptLabel: O.Option<string>,
+    selectionRange: O.Option<SerializedRange>
   ) => void;
   /** Clear AI activity presence */
   readonly clearAiActivity: () => void;
@@ -107,8 +108,10 @@ export function useCollaborativeAi(mySelectionRange: SerializedRange | null): Co
 
   // Broadcast AI activity to other users
   const broadcastAiActivity = useCallback(
-    (isGenerating: boolean, promptLabel: string | null, selectionRange: SerializedRange | null) => {
-      const aiActivity: AiActivityPresence | null = isGenerating ? { isGenerating, promptLabel, selectionRange } : null;
+    (isGenerating: boolean, promptLabel: O.Option<string>, selectionRange: O.Option<SerializedRange>) => {
+      const aiActivity: AiActivityPresence | null = isGenerating
+        ? { isGenerating, promptLabel: O.getOrNull(promptLabel), selectionRange: O.getOrNull(selectionRange) }
+        : null;
 
       updateMyPresence({ aiActivity });
     },

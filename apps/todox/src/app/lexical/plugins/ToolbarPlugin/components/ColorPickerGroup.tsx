@@ -1,5 +1,6 @@
 "use client";
 
+import { Tooltip, TooltipContent, TooltipTrigger } from "@beep/todox/components/ui/tooltip";
 import { HighlighterCircleIcon, TextAaIcon } from "@phosphor-icons/react";
 import { useToolbarState } from "../../../context/toolbar-context";
 import DropdownColorPicker from "../../../ui/DropdownColorPicker";
@@ -28,24 +29,46 @@ export function ColorPickerGroup({ applyStyleText, disabled = false }: ColorPick
 
   return (
     <>
-      <DropdownColorPicker
-        disabled={disabled}
-        buttonAriaLabel="Text color"
-        icon={<TextAaIcon className="size-4" />}
-        color={toolbarState.fontColor}
-        onChange={(color, skipHistoryStack, skipRefocus) => applyStyleText({ color }, skipHistoryStack, skipRefocus)}
-        title="Text color"
-      />
-      <DropdownColorPicker
-        disabled={disabled}
-        buttonAriaLabel="Background color"
-        icon={<HighlighterCircleIcon className="size-4" />}
-        color={toolbarState.bgColor}
-        onChange={(color, skipHistoryStack, skipRefocus) =>
-          applyStyleText({ "background-color": color }, skipHistoryStack, skipRefocus)
-        }
-        title="Background color"
-      />
+      <Tooltip>
+        <TooltipTrigger
+          render={(props) => (
+            <div {...props}>
+              <DropdownColorPicker
+                disabled={disabled}
+                buttonAriaLabel="Text color"
+                icon={<TextAaIcon className="size-4" />}
+                color={toolbarState.fontColor}
+                onChange={(color, skipHistoryStack, skipRefocus) =>
+                  applyStyleText({ color }, skipHistoryStack, skipRefocus)
+                }
+              />
+            </div>
+          )}
+        />
+        <TooltipContent side="bottom" sideOffset={4}>
+          Text color
+        </TooltipContent>
+      </Tooltip>
+      <Tooltip>
+        <TooltipTrigger
+          render={(props) => (
+            <div {...props}>
+              <DropdownColorPicker
+                disabled={disabled}
+                buttonAriaLabel="Background color"
+                icon={<HighlighterCircleIcon className="size-4" />}
+                color={toolbarState.bgColor}
+                onChange={(color, skipHistoryStack, skipRefocus) =>
+                  applyStyleText({ "background-color": color }, skipHistoryStack, skipRefocus)
+                }
+              />
+            </div>
+          )}
+        />
+        <TooltipContent side="bottom" sideOffset={4}>
+          Background color
+        </TooltipContent>
+      </Tooltip>
     </>
   );
 }

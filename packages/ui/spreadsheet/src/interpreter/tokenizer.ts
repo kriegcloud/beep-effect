@@ -6,7 +6,7 @@ import * as Match from "effect/Match";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 
-import { Kind, SimpleCharToken, SyntaxKindFromSimpleChar, type Token } from "./models/SyntaxKind";
+import { SimpleCharToken, SyntaxKind, SyntaxKindFromSimpleChar, type Token } from "./models/SyntaxKind";
 
 export const isDigit = S.is(S.String.pipe(S.pattern(/\d/)));
 
@@ -43,11 +43,11 @@ function extractWord(input: string, current: number): string {
 
 function extractCell(input: string, current: number): string {
   if (!isCapLetter(input[current])) {
-    throw new Error("Expected cap letter but got " + input[current]);
+    throw new Error(`Expected cap letter but got ${input[current]}`);
   }
 
   if (!isDigit(input[current + 1])) {
-    throw new Error("Expected digit but got " + input[current + 1] + " " + input);
+    throw new Error(`Expected digit but got ${input[current + 1]} ${input}`);
   }
 
   return `${input[current]}${input[current + 1]}`;
@@ -85,7 +85,7 @@ export default function tokenizer(input: string): Token.Type[] {
               const numberAsString = extractNum(input, current);
               current += numberAsString.length;
               tokens.push({
-                kind: Kind.Enum.NumberLiteral,
+                kind: SyntaxKind.Enum.NumberLiteral,
                 value: numberAsString,
               });
             }),
@@ -99,7 +99,7 @@ export default function tokenizer(input: string): Token.Type[] {
                     const cell = extractCell(input, current);
                     current += cell.length;
                     tokens.push({
-                      kind: Kind.Enum.CellToken,
+                      kind: SyntaxKind.Enum.CellToken,
                       cell,
                     });
                   },
@@ -107,7 +107,7 @@ export default function tokenizer(input: string): Token.Type[] {
                     const ref = extractCellRef(input, current);
                     current += ref.length + 5;
                     tokens.push({
-                      kind: Kind.Enum.RefToken,
+                      kind: SyntaxKind.Enum.RefToken,
                       ref,
                     });
                   },
@@ -125,16 +125,16 @@ export default function tokenizer(input: string): Token.Type[] {
 
 export const toString = Match.type<Token.Type>().pipe(
   Match.discriminator("kind")(
-    Kind.Enum.AsteriskToken,
-    Kind.Enum.CaretToken,
-    Kind.Enum.CloseParenthesis,
-    Kind.Enum.EqualToken,
-    Kind.Enum.MinusToken,
-    Kind.Enum.ModToken,
-    Kind.Enum.OpenParenthesis,
-    Kind.Enum.PlusToken,
-    Kind.Enum.SlashToken,
-    Kind.Enum.ColonToken,
+    SyntaxKind.Enum.AsteriskToken,
+    SyntaxKind.Enum.CaretToken,
+    SyntaxKind.Enum.CloseParenthesis,
+    SyntaxKind.Enum.EqualToken,
+    SyntaxKind.Enum.MinusToken,
+    SyntaxKind.Enum.ModToken,
+    SyntaxKind.Enum.OpenParenthesis,
+    SyntaxKind.Enum.PlusToken,
+    SyntaxKind.Enum.SlashToken,
+    SyntaxKind.Enum.ColonToken,
     ({ kind }) => SyntaxKindFromSimpleChar.EncodedEnum[kind]
   ),
   Match.discriminatorsExhaustive("kind")({

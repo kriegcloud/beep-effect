@@ -513,33 +513,30 @@ function useMentionLookupService(mentionString: string | null) {
   return results;
 }
 
-function checkForAtSignMentions(text: string, minMatchLength: number): MenuTextMatch | null {
+function checkForAtSignMentions(text: string, minMatchLength: number): O.Option<MenuTextMatch> {
   // Try primary regex first, fall back to alias regex
   const matchOption = O.orElse(Str.match(AtSignMentionsRegex)(text), () =>
     Str.match(AtSignMentionsRegexAliasRegex)(text)
   );
 
-  return O.match(matchOption, {
-    onNone: () => null,
-    onSome: (match) => {
-      // The strategy ignores leading whitespace but we need to know its
-      // length to add it to the leadOffset
-      const maybeLeadingWhitespace = match[1] ?? "";
-      const matchingString = match[3] ?? "";
+  return O.flatMap(matchOption, (match) => {
+    // The strategy ignores leading whitespace but we need to know its
+    // length to add it to the leadOffset
+    const maybeLeadingWhitespace = match[1] ?? "";
+    const matchingString = match[3] ?? "";
 
-      if (Str.length(matchingString) >= minMatchLength) {
-        return {
-          leadOffset: (match.index ?? 0) + Str.length(maybeLeadingWhitespace),
-          matchingString,
-          replaceableString: match[2] ?? "",
-        };
-      }
-      return null;
-    },
+    if (Str.length(matchingString) >= minMatchLength) {
+      return O.some({
+        leadOffset: (match.index ?? 0) + Str.length(maybeLeadingWhitespace),
+        matchingString,
+        replaceableString: match[2] ?? "",
+      });
+    }
+    return O.none();
   });
 }
 
-function getPossibleQueryMatch(text: string): MenuTextMatch | null {
+function getPossibleQueryMatch(text: string): O.Option<MenuTextMatch> {
   return checkForAtSignMentions(text, 1);
 }
 
@@ -623,12 +620,12 @@ export default function NewMentionsPlugin(): JSX.Element | null {
   );
 
   const checkForMentionMatch = useCallback(
-    (text: string) => {
+    (text: string): MenuTextMatch | null => {
       const slashMatch = checkForSlashTriggerMatch(text, editor);
       if (slashMatch !== null) {
         return null;
       }
-      return getPossibleQueryMatch(text);
+      return O.getOrNull(getPossibleQueryMatch(text));
     },
     [checkForSlashTriggerMatch, editor]
   );

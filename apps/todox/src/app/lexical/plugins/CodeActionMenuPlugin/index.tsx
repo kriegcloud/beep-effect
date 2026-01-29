@@ -4,6 +4,7 @@ import { $isCodeNode, CodeNode, getLanguageFriendlyName, normalizeCodeLang } fro
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import * as Match from "effect/Match";
 import * as MutableHashSet from "effect/MutableHashSet";
+import * as O from "effect/Option";
 import { $getNearestNodeFromDOMNode, isHTMLElement } from "lexical";
 import type * as React from "react";
 import type { JSX } from "react";
@@ -34,8 +35,8 @@ function CodeActionMenuContainer({ anchorElem }: { readonly anchorElem: HTMLElem
   const codeSetRef = useRef(MutableHashSet.empty<string>());
   const codeDOMNodeRef = useRef<HTMLElement | null>(null);
 
-  function getCodeDOMNode(): HTMLElement | null {
-    return codeDOMNodeRef.current;
+  function getCodeDOMNode(): O.Option<HTMLElement> {
+    return O.fromNullable(codeDOMNodeRef.current);
   }
 
   const debouncedOnMouseMove = useDebounce(
@@ -46,17 +47,18 @@ function CodeActionMenuContainer({ anchorElem }: { readonly anchorElem: HTMLElem
         return;
       }
 
-      if (!codeDOMNode) {
+      if (O.isNone(codeDOMNode)) {
         return;
       }
 
-      codeDOMNodeRef.current = codeDOMNode;
+      const domNode = codeDOMNode.value;
+      codeDOMNodeRef.current = domNode;
 
       let codeNode: CodeNode | null = null;
       let _lang = "";
 
       editor.update(() => {
-        const maybeCodeNode = $getNearestNodeFromDOMNode(codeDOMNode);
+        const maybeCodeNode = $getNearestNodeFromDOMNode(domNode);
 
         if ($isCodeNode(maybeCodeNode)) {
           codeNode = maybeCodeNode;
@@ -66,7 +68,7 @@ function CodeActionMenuContainer({ anchorElem }: { readonly anchorElem: HTMLElem
 
       if (codeNode) {
         const { y: editorElemY, right: editorElemRight } = anchorElem.getBoundingClientRect();
-        const { y, right } = codeDOMNode.getBoundingClientRect();
+        const { y, right } = domNode.getBoundingClientRect();
         setLang(_lang);
         setShown(true);
         setPosition({
@@ -138,7 +140,7 @@ function CodeActionMenuContainer({ anchorElem }: { readonly anchorElem: HTMLElem
 }
 
 function getMouseInfo(event: MouseEvent): {
-  readonly codeDOMNode: HTMLElement | null;
+  readonly codeDOMNode: O.Option<HTMLElement>;
   readonly isOutside: boolean;
 } {
   const target = event.target;
@@ -147,9 +149,9 @@ function getMouseInfo(event: MouseEvent): {
     const codeDOMNode = target.closest<HTMLElement>("code.EditorTheme__code");
     const isOutside = !(codeDOMNode || target.closest<HTMLElement>("div.code-action-menu-container"));
 
-    return { codeDOMNode, isOutside };
+    return { codeDOMNode: O.fromNullable(codeDOMNode), isOutside };
   }
-  return { codeDOMNode: null, isOutside: true };
+  return { codeDOMNode: O.none(), isOutside: true };
 }
 
 export default function CodeActionMenuPlugin({

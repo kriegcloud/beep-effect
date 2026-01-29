@@ -62,12 +62,14 @@ export const FilesLayout: React.FC<React.PropsWithChildren> = ({ children }) => 
             ) : null}
 
             <DropdownMenu>
-              <DropdownMenu.Trigger asChild>
-                <Button variant="outlined" size="small">
-                  <Plus className="h-4 w-4" />
-                  New
-                </Button>
-              </DropdownMenu.Trigger>
+              <DropdownMenu.Trigger
+                render={() => (
+                  <Button variant="outlined" size="small">
+                    <Plus className="h-4 w-4" />
+                    New
+                  </Button>
+                )}
+              />
 
               <DropdownMenu.Content align="end">
                 <DropdownMenu.Item

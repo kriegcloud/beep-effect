@@ -26,12 +26,11 @@ export default function KeywordsPlugin(): JSX.Element | null {
     return $createKeywordNode(textNode.getTextContent());
   }, []);
 
-  const getKeywordMatch = useCallback((text: string) => {
+  const getKeywordMatch = useCallback((text: string): { end: number; start: number } | null => {
     const matchOption = Str.match(KEYWORDS_REGEX)(text);
 
-    return O.match(matchOption, {
-      onNone: () => null,
-      onSome: (matchArr) => {
+    return O.getOrNull(
+      O.map(matchOption, (matchArr) => {
         const hashtagLength = Str.length(matchArr[2]!);
         const startOffset = (matchArr.index ?? 0) + Str.length(matchArr[1]!);
         const endOffset = startOffset + hashtagLength;
@@ -39,8 +38,8 @@ export default function KeywordsPlugin(): JSX.Element | null {
           end: endOffset,
           start: startOffset,
         };
-      },
-    });
+      })
+    );
   }, []);
 
   useLexicalTextEntity<KeywordNode>(getKeywordMatch, KeywordNode, $createKeywordNode_);

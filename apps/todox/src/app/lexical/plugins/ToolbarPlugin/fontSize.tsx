@@ -1,5 +1,6 @@
 "use client";
 
+import { Tooltip, TooltipContent, TooltipTrigger } from "@beep/todox/components/ui/tooltip";
 import { cn } from "@beep/todox/lib/utils";
 import { MinusIcon, PlusIcon } from "@phosphor-icons/react";
 import * as F from "effect/Function";
@@ -111,7 +112,7 @@ export default function FontSize({
     }
 
     setInputValue(String(updatedFontSize));
-    updateFontSizeInSelection(editor, `${String(updatedFontSize)}px`, null, skipRefocus);
+    updateFontSizeInSelection(editor, O.some(`${String(updatedFontSize)}px`), O.none(), skipRefocus);
     setInputChangeFlag(false);
   };
 
@@ -121,50 +122,77 @@ export default function FontSize({
 
   return (
     <>
-      <button
-        type="button"
-        disabled={disabled || (selectionFontSize !== "" && Number(inputValue) <= MIN_ALLOWED_FONT_SIZE)}
-        onClick={(e) => {
-          updateFontSize(editor, UpdateFontSizeType.decrement, inputValue, isKeyboardInput(e));
-        }}
-        className="toolbar-item"
-        aria-label="Decrease font size"
-        title={`Decrease font size (${SHORTCUTS.DECREASE_FONT_SIZE})`}
-      >
-        <MinusIcon className="size-4" />
-      </button>
+      <Tooltip>
+        <TooltipTrigger
+          render={(props) => (
+            <button
+              {...props}
+              type="button"
+              disabled={disabled || (selectionFontSize !== "" && Number(inputValue) <= MIN_ALLOWED_FONT_SIZE)}
+              onClick={(e) => {
+                updateFontSize(editor, UpdateFontSizeType.decrement, inputValue, isKeyboardInput(e));
+              }}
+              className="toolbar-item"
+              aria-label="Decrease font size"
+            >
+              <MinusIcon className="size-4" />
+            </button>
+          )}
+        />
+        <TooltipContent side="bottom" sideOffset={4}>
+          Decrease font size ({SHORTCUTS.DECREASE_FONT_SIZE})
+        </TooltipContent>
+      </Tooltip>
 
-      <input
-        type="number"
-        title="Font size"
-        value={inputValue}
-        disabled={disabled}
-        className={cn(
-          "toolbar-item font-bold text-xs rounded border border-border",
-          "h-6 px-1 py-0.5 text-center w-8 self-center",
-          "[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none",
-          "disabled:opacity-20 disabled:cursor-not-allowed"
-        )}
-        min={MIN_ALLOWED_FONT_SIZE}
-        max={MAX_ALLOWED_FONT_SIZE}
-        onChange={(e) => setInputValue(e.target.value)}
-        onClick={handleClick}
-        onKeyDown={handleKeyPress}
-        onBlur={handleInputBlur}
-      />
+      <Tooltip>
+        <TooltipTrigger
+          render={(props) => (
+            <input
+              {...props}
+              type="number"
+              value={inputValue}
+              disabled={disabled}
+              className={cn(
+                "toolbar-item font-bold text-xs rounded border border-border",
+                "h-6 px-1 py-0.5 text-center w-8 self-center",
+                "[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none",
+                "disabled:opacity-20 disabled:cursor-not-allowed"
+              )}
+              min={MIN_ALLOWED_FONT_SIZE}
+              max={MAX_ALLOWED_FONT_SIZE}
+              onChange={(e) => setInputValue(e.target.value)}
+              onClick={handleClick}
+              onKeyDown={handleKeyPress}
+              onBlur={handleInputBlur}
+            />
+          )}
+        />
+        <TooltipContent side="bottom" sideOffset={4}>
+          Font size
+        </TooltipContent>
+      </Tooltip>
 
-      <button
-        type="button"
-        disabled={disabled || (selectionFontSize !== "" && Number(inputValue) >= MAX_ALLOWED_FONT_SIZE)}
-        onClick={(e) => {
-          updateFontSize(editor, UpdateFontSizeType.increment, inputValue, isKeyboardInput(e));
-        }}
-        className="toolbar-item"
-        aria-label="Increase font size"
-        title={`Increase font size (${SHORTCUTS.INCREASE_FONT_SIZE})`}
-      >
-        <PlusIcon className="size-4" />
-      </button>
+      <Tooltip>
+        <TooltipTrigger
+          render={(props) => (
+            <button
+              {...props}
+              type="button"
+              disabled={disabled || (selectionFontSize !== "" && Number(inputValue) >= MAX_ALLOWED_FONT_SIZE)}
+              onClick={(e) => {
+                updateFontSize(editor, UpdateFontSizeType.increment, inputValue, isKeyboardInput(e));
+              }}
+              className="toolbar-item"
+              aria-label="Increase font size"
+            >
+              <PlusIcon className="size-4" />
+            </button>
+          )}
+        />
+        <TooltipContent side="bottom" sideOffset={4}>
+          Increase font size ({SHORTCUTS.INCREASE_FONT_SIZE})
+        </TooltipContent>
+      </Tooltip>
     </>
   );
 }

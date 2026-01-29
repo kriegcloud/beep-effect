@@ -18,7 +18,7 @@ export const CreateFolderDialog: React.FC<CreateFolderDialogProps> = ({ open, on
   const [folderName, setFolderName] = React.useState("");
   const [createResult, createFolder] = useAtom(createFolderAtom, { mode: "promiseExit" });
 
-  const handleSubmit = (event: React.FormEvent) => {
+  const handleSubmit = (event: React.SubmitEvent) => {
     event.preventDefault();
     if (!folderName.trim()) return;
 

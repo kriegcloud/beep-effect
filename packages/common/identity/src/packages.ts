@@ -39,6 +39,7 @@ const composers = $I.compose(
   "documents-domain",
   "runtime-server",
   "iam-client",
+  "ui-editor",
   "iam-ui",
   "shared-ai",
   "shared-integrations",
@@ -950,3 +951,18 @@ export const $SharedIntegrationsId = composers.$SharedIntegrationsId;
  * @since 0.1.0
  */
 export const $UISpreadsheetId = composers.$UiSpreadsheetId;
+
+/**
+ * Identity composer for the `@beep/wrap` namespace.
+ *
+ * @example
+ * ```typescript
+ * import { $UiEditorId } from "@beep/identity/packages"
+ *
+ * const componentId = $UiEditorId.make("EventCard")
+ * ```
+ *
+ * @category symbols
+ * @since 0.1.0
+ */
+export const $UiEditorId = composers.$UiEditorId;

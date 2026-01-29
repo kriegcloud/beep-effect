@@ -7,14 +7,15 @@
  * @since 1.0.0
  */
 
+import { Slider as SliderPrimitive } from "@base-ui/react/slider";
+import { $UiEditorId } from "@beep/identity/packages";
+import { BS } from "@beep/schema";
 import { Button } from "@beep/ui/components/button";
 import { Input } from "@beep/ui/components/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@beep/ui/components/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@beep/ui/components/select";
 import { cn } from "@beep/ui-core/utils";
 import { Atom, AtomRef, useAtomMount, useAtomRef, useAtomValue } from "@effect-atom/atom-react";
-import * as SliderPrimitive from "@radix-ui/react-slider";
-import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
 import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
@@ -29,9 +30,17 @@ import { useId } from "react";
 // ============================================================================
 // Types & Constants
 // ============================================================================
+const $I = $UiEditorId.create("ui/color-picker");
 
-const colorFormats = ["hex", "rgb", "hsl", "hsb"] as const;
-type ColorFormat = (typeof colorFormats)[number];
+export class ColorFormat extends BS.StringLiteralKit("hex", "rgb", "hsl", "hsb").annotations(
+  $I.annotations("ColorFormat", {
+    description: "Color format",
+  })
+) {}
+
+export declare namespace ColorFormat {
+  export type Type = typeof ColorFormat.Type;
+}
 
 interface ColorValue {
   readonly r: number;
@@ -111,12 +120,10 @@ function rgbToHsv(color: ColorValue): HSVColorValue {
   if (h < 0) h += 360;
 
   const s = max === 0 ? 0 : diff / max;
-  const v = max;
-
   return {
     h,
     s: Math.round(s * 100),
-    v: Math.round(v * 100),
+    v: Math.round(max * 100),
     a: color.a,
   };
 }
@@ -238,17 +245,17 @@ function hslToRgb(hsl: HSLColorValue, alpha = 1): ColorValue {
  * Converts a color value to string based on the format.
  * Uses Match for format selection instead of switch.
  */
-function colorToString(color: ColorValue, format: ColorFormat = "hex"): string {
-  return Match.value(format).pipe(
-    Match.when("hex", () => rgbToHex(color)),
-    Match.when("rgb", () =>
+function colorToString(color: ColorValue, format?: undefined | ColorFormat.Type): string {
+  return Match.value(format ?? ColorFormat.Enum.hex).pipe(
+    Match.when(ColorFormat.Enum.hex, () => rgbToHex(color)),
+    Match.when(ColorFormat.Enum.rgb, () =>
       color.a < 1 ? `rgba(${color.r}, ${color.g}, ${color.b}, ${color.a})` : `rgb(${color.r}, ${color.g}, ${color.b})`
     ),
-    Match.when("hsl", () => {
+    Match.when(ColorFormat.Enum.hsl, () => {
       const hsl = rgbToHsl(color);
       return color.a < 1 ? `hsla(${hsl.h}, ${hsl.s}%, ${hsl.l}%, ${color.a})` : `hsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)`;
     }),
-    Match.when("hsb", () => {
+    Match.when(ColorFormat.Enum.hsb, () => {
       const hsv = rgbToHsv(color);
       return color.a < 1 ? `hsba(${hsv.h}, ${hsv.s}%, ${hsv.v}%, ${color.a})` : `hsb(${hsv.h}, ${hsv.s}%, ${hsv.v}%)`;
     }),
@@ -341,7 +348,7 @@ interface ColorPickerState {
   readonly color: ColorValue;
   readonly hsv: HSVColorValue;
   readonly open: boolean;
-  readonly format: ColorFormat;
+  readonly format: ColorFormat.Type;
 }
 
 /**
@@ -400,7 +407,7 @@ const colorPickerStateFamily = Atom.family((_key: string) =>
       color: { r: 0, g: 0, b: 0, a: 1 },
       hsv: { h: 0, s: 0, v: 0, a: 1 },
       open: false,
-      format: "hex",
+      format: ColorFormat.Enum.hex,
     })
   )
 );
@@ -510,7 +517,7 @@ const ColorPickerIdContext = React.createContext<string | null>(null);
 interface ColorPickerCallbacks {
   readonly onValueChange?: ((value: string) => void) | undefined;
   readonly onOpenChange?: ((open: boolean) => void) | undefined;
-  readonly onFormatChange?: ((format: ColorFormat) => void) | undefined;
+  readonly onFormatChange?: ((format: ColorFormat.Type) => void) | undefined;
 }
 
 const ColorPickerCallbacksContext = React.createContext<ColorPickerCallbacks>({});
@@ -674,16 +681,16 @@ declare global {
 
 interface ColorPickerRootProps
   extends Omit<React.ComponentProps<"div">, "onValueChange">,
-    Pick<React.ComponentProps<typeof Popover>, "defaultOpen" | "open" | "onOpenChange" | "modal"> {
+    Pick<React.ComponentProps<typeof Popover>, "defaultOpen" | "open" | "modal"> {
   readonly value?: string;
   readonly defaultValue?: string;
   readonly onValueChange?: (value: string) => void;
+  readonly onOpenChange?: (open: boolean) => void;
   readonly dir?: Direction;
-  readonly format?: ColorFormat;
-  readonly defaultFormat?: ColorFormat;
-  readonly onFormatChange?: (format: ColorFormat) => void;
+  readonly format?: ColorFormat.Type;
+  readonly defaultFormat?: ColorFormat.Type;
+  readonly onFormatChange?: (format: ColorFormat.Type) => void;
   readonly name?: string;
-  readonly asChild?: boolean;
   readonly disabled?: boolean;
   readonly inline?: boolean;
   readonly readOnly?: boolean;
@@ -700,7 +707,7 @@ function ColorPickerRoot(props: ColorPickerRootProps): React.JSX.Element {
     defaultValue = "#000000",
     onValueChange,
     format: formatProp,
-    defaultFormat = "hex",
+    defaultFormat = ColorFormat.Enum.hex,
     onFormatChange,
     defaultOpen,
     open: openProp,
@@ -713,7 +720,6 @@ function ColorPickerRoot(props: ColorPickerRootProps): React.JSX.Element {
     dir: dirProp,
     modal,
     ref,
-    asChild,
     children,
     ...rootProps
   } = props;
@@ -731,7 +737,11 @@ function ColorPickerRoot(props: ColorPickerRootProps): React.JSX.Element {
   // Initialize state from props on first render (when color is default black)
   // This is synchronous state setting, not a side effect, so no Atom.make needed
   const isDefaultState =
-    state.color.r === 0 && state.color.g === 0 && state.color.b === 0 && state.format === "hex" && !state.open;
+    state.color.r === 0 &&
+    state.color.g === 0 &&
+    state.color.b === 0 &&
+    state.format === ColorFormat.Enum.hex &&
+    !state.open;
 
   if (isDefaultState) {
     const colorString = valueProp ?? defaultValue;
@@ -791,14 +801,12 @@ function ColorPickerRoot(props: ColorPickerRootProps): React.JSX.Element {
 
   const hexValue = rgbToHex(state.color);
 
-  const RootPrimitive = asChild ? Slot : "div";
-
   if (inline) {
     return (
       <ColorPickerIdContext.Provider value={id}>
         <ColorPickerConfigContext.Provider value={config}>
           <ColorPickerCallbacksContext.Provider value={callbacks}>
-            <RootPrimitive
+            <div
               {...rootProps}
               ref={(el: HTMLDivElement | null) => {
                 refs.formTriggerRef.set(O.fromNullable(el));
@@ -810,7 +818,7 @@ function ColorPickerRoot(props: ColorPickerRootProps): React.JSX.Element {
               }}
             >
               {children}
-            </RootPrimitive>
+            </div>
             {isFormControl && (
               <VisuallyHiddenInput
                 type="hidden"
@@ -829,9 +837,10 @@ function ColorPickerRoot(props: ColorPickerRootProps): React.JSX.Element {
   }
 
   // Build popover props conditionally to satisfy exactOptionalPropertyTypes
+  // Adapt onOpenChange to base-ui's signature: (open: boolean, eventDetails: PopoverRootChangeEventDetails) => void
   const popoverProps = {
     open: state.open,
-    onOpenChange: (newOpen: boolean) => {
+    onOpenChange: (newOpen: boolean, _eventDetails: unknown) => {
       stateRef.update((s) => ({ ...s, open: newOpen }));
       onOpenChange?.(newOpen);
     },
@@ -844,7 +853,7 @@ function ColorPickerRoot(props: ColorPickerRootProps): React.JSX.Element {
       <ColorPickerConfigContext.Provider value={config}>
         <ColorPickerCallbacksContext.Provider value={callbacks}>
           <Popover {...popoverProps}>
-            <RootPrimitive
+            <div
               {...rootProps}
               ref={(el: HTMLDivElement | null) => {
                 refs.formTriggerRef.set(O.fromNullable(el));
@@ -856,7 +865,7 @@ function ColorPickerRoot(props: ColorPickerRootProps): React.JSX.Element {
               }}
             >
               {children}
-            </RootPrimitive>
+            </div>
             {isFormControl && (
               <VisuallyHiddenInput
                 type="hidden"
@@ -875,44 +884,38 @@ function ColorPickerRoot(props: ColorPickerRootProps): React.JSX.Element {
   );
 }
 
-interface ColorPickerTriggerProps extends React.ComponentProps<typeof PopoverTrigger> {}
+interface ColorPickerTriggerProps extends Omit<React.ComponentProps<typeof Button>, "asChild"> {}
 
 /**
  * Trigger button for ColorPicker popover.
  */
 function ColorPickerTrigger(props: ColorPickerTriggerProps): React.JSX.Element {
-  const { asChild, ...triggerProps } = props;
+  const { ...triggerProps } = props;
   const config = useColorPickerConfig();
 
-  const TriggerPrimitive = asChild ? Slot : Button;
-
   return (
-    <PopoverTrigger asChild disabled={config.disabled}>
-      <TriggerPrimitive data-slot="color-picker-trigger" {...triggerProps} />
-    </PopoverTrigger>
+    <PopoverTrigger disabled={config.disabled} render={<Button data-slot="color-picker-trigger" {...triggerProps} />} />
   );
 }
 
-interface ColorPickerContentProps extends React.ComponentProps<typeof PopoverContent> {}
+interface ColorPickerContentProps extends Omit<React.ComponentProps<typeof PopoverContent>, "asChild"> {}
 
 /**
  * Content container for ColorPicker.
  */
 function ColorPickerContent(props: ColorPickerContentProps): React.JSX.Element {
-  const { asChild, className, children, ...popoverContentProps } = props;
+  const { className, children, ...popoverContentProps } = props;
   const config = useColorPickerConfig();
 
   if (config.inline) {
-    const ContentPrimitive = asChild ? Slot : "div";
-
     return (
-      <ContentPrimitive
+      <div
         data-slot="color-picker-content"
         {...popoverContentProps}
         className={cn("flex w-[340px] flex-col gap-4 p-4", className)}
       >
         {children}
-      </ContentPrimitive>
+      </div>
     );
   }
 
@@ -920,22 +923,19 @@ function ColorPickerContent(props: ColorPickerContentProps): React.JSX.Element {
   const contentProps = {
     "data-slot": "color-picker-content",
     className: cn("flex w-[340px] flex-col gap-4 p-4", className),
-    ...(asChild !== undefined && { asChild }),
     ...popoverContentProps,
   };
 
   return <PopoverContent {...contentProps}>{children}</PopoverContent>;
 }
 
-interface ColorPickerAreaProps extends React.ComponentProps<"div"> {
-  readonly asChild?: boolean;
-}
+interface ColorPickerAreaProps extends React.ComponentProps<"div"> {}
 
 /**
  * Color saturation/brightness picking area.
  */
 function ColorPickerArea(props: ColorPickerAreaProps): React.JSX.Element {
-  const { asChild, className, ref, ...areaProps } = props;
+  const { className, ref, ...areaProps } = props;
   const config = useColorPickerConfig();
   const stateRef = useColorPickerStateRef();
   const state = useColorPickerState();
@@ -971,10 +971,8 @@ function ColorPickerArea(props: ColorPickerAreaProps): React.JSX.Element {
   const hue = state.hsv.h;
   const backgroundHue = hsvToRgb({ h: hue, s: 100, v: 100, a: 1 });
 
-  const AreaPrimitive = asChild ? Slot : "div";
-
   return (
-    <AreaPrimitive
+    <div
       data-slot="color-picker-area"
       {...areaProps}
       className={cn(
@@ -1036,17 +1034,17 @@ function ColorPickerArea(props: ColorPickerAreaProps): React.JSX.Element {
           top: `${100 - state.hsv.v}%`,
         }}
       />
-    </AreaPrimitive>
+    </div>
   );
 }
 
-interface ColorPickerHueSliderProps extends React.ComponentProps<typeof SliderPrimitive.Root> {}
+interface ColorPickerHueSliderProps extends SliderPrimitive.Root.Props {}
 
 /**
  * Hue slider component.
  */
 function ColorPickerHueSlider(props: ColorPickerHueSliderProps): React.JSX.Element {
-  const { className, ...sliderProps } = props;
+  const { className, ref, ...sliderProps } = props;
   const config = useColorPickerConfig();
   const stateRef = useColorPickerStateRef();
   const state = useColorPickerState();
@@ -1056,11 +1054,12 @@ function ColorPickerHueSlider(props: ColorPickerHueSliderProps): React.JSX.Eleme
     <SliderPrimitive.Root
       data-slot="color-picker-hue-slider"
       {...sliderProps}
+      {...(ref !== undefined ? { ref } : {})}
       max={360}
       step={1}
-      className={cn("relative flex w-full touch-none items-center select-none", className)}
       value={[state.hsv.h]}
-      onValueChange={(values: number[]) => {
+      onValueChange={(value: number | readonly number[], _eventDetails: unknown) => {
+        const values = Array.isArray(value) ? value : [value];
         const newHsv: HSVColorValue = {
           h: values[0] ?? 0,
           s: state.hsv.s,
@@ -1073,21 +1072,23 @@ function ColorPickerHueSlider(props: ColorPickerHueSliderProps): React.JSX.Eleme
       }}
       disabled={config.disabled}
     >
-      <SliderPrimitive.Track className="relative h-3 w-full grow overflow-hidden rounded-full bg-[linear-gradient(to_right,#ff0000_0%,#ffff00_16.66%,#00ff00_33.33%,#00ffff_50%,#0000ff_66.66%,#ff00ff_83.33%,#ff0000_100%)]">
-        <SliderPrimitive.Range className="absolute h-full" />
-      </SliderPrimitive.Track>
-      <SliderPrimitive.Thumb className="border-primary/50 bg-background focus-visible:ring-ring block size-4 rounded-full border shadow transition-colors focus-visible:ring-1 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50" />
+      <SliderPrimitive.Control className={cn("relative flex w-full touch-none items-center select-none", className)}>
+        <SliderPrimitive.Track className="relative h-3 w-full grow overflow-hidden rounded-full bg-[linear-gradient(to_right,#ff0000_0%,#ffff00_16.66%,#00ff00_33.33%,#00ffff_50%,#0000ff_66.66%,#ff00ff_83.33%,#ff0000_100%)]">
+          <SliderPrimitive.Indicator className="absolute h-full" />
+        </SliderPrimitive.Track>
+        <SliderPrimitive.Thumb className="border-primary/50 bg-background focus-visible:ring-ring block size-4 rounded-full border shadow transition-colors focus-visible:ring-1 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50" />
+      </SliderPrimitive.Control>
     </SliderPrimitive.Root>
   );
 }
 
-interface ColorPickerAlphaSliderProps extends React.ComponentProps<typeof SliderPrimitive.Root> {}
+interface ColorPickerAlphaSliderProps extends SliderPrimitive.Root.Props {}
 
 /**
  * Alpha/transparency slider component.
  */
 function ColorPickerAlphaSlider(props: ColorPickerAlphaSliderProps): React.JSX.Element {
-  const { className, ...sliderProps } = props;
+  const { className, ref, ...sliderProps } = props;
   const config = useColorPickerConfig();
   const stateRef = useColorPickerStateRef();
   const state = useColorPickerState();
@@ -1099,12 +1100,13 @@ function ColorPickerAlphaSlider(props: ColorPickerAlphaSliderProps): React.JSX.E
     <SliderPrimitive.Root
       data-slot="color-picker-alpha-slider"
       {...sliderProps}
+      {...(ref !== undefined ? { ref } : {})}
       max={100}
       step={1}
       disabled={config.disabled}
-      className={cn("relative flex w-full touch-none items-center select-none", className)}
       value={[Math.round(state.color.a * 100)]}
-      onValueChange={(values: number[]) => {
+      onValueChange={(value: number | readonly number[], _eventDetails: unknown) => {
+        const values = Array.isArray(value) ? value : [value];
         const alpha = (values[0] ?? 0) / 100;
         const newColor = { ...state.color, a: alpha };
         const newHsv = { ...state.hsv, a: alpha };
@@ -1112,37 +1114,37 @@ function ColorPickerAlphaSlider(props: ColorPickerAlphaSliderProps): React.JSX.E
         callbacks.onValueChange?.(colorToString(newColor, state.format));
       }}
     >
-      <SliderPrimitive.Track
-        className="relative h-3 w-full grow overflow-hidden rounded-full"
-        style={{
-          background:
-            "linear-gradient(45deg, #ccc 25%, transparent 25%), linear-gradient(-45deg, #ccc 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #ccc 75%), linear-gradient(-45deg, transparent 75%, #ccc 75%)",
-          backgroundSize: "8px 8px",
-          backgroundPosition: "0 0, 0 4px, 4px -4px, -4px 0px",
-        }}
-      >
-        <div
-          className="absolute inset-0 rounded-full"
+      <SliderPrimitive.Control className={cn("relative flex w-full touch-none items-center select-none", className)}>
+        <SliderPrimitive.Track
+          className="relative h-3 w-full grow overflow-hidden rounded-full"
           style={{
-            background: `linear-gradient(to right, transparent, ${gradientColor})`,
+            background:
+              "linear-gradient(45deg, #ccc 25%, transparent 25%), linear-gradient(-45deg, #ccc 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #ccc 75%), linear-gradient(-45deg, transparent 75%, #ccc 75%)",
+            backgroundSize: "8px 8px",
+            backgroundPosition: "0 0, 0 4px, 4px -4px, -4px 0px",
           }}
-        />
-        <SliderPrimitive.Range className="absolute h-full" />
-      </SliderPrimitive.Track>
-      <SliderPrimitive.Thumb className="border-primary/50 bg-background focus-visible:ring-ring block size-4 rounded-full border shadow transition-colors focus-visible:ring-1 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50" />
+        >
+          <div
+            className="absolute inset-0 rounded-full"
+            style={{
+              background: `linear-gradient(to right, transparent, ${gradientColor})`,
+            }}
+          />
+          <SliderPrimitive.Indicator className="absolute h-full" />
+        </SliderPrimitive.Track>
+        <SliderPrimitive.Thumb className="border-primary/50 bg-background focus-visible:ring-ring block size-4 rounded-full border shadow transition-colors focus-visible:ring-1 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50" />
+      </SliderPrimitive.Control>
     </SliderPrimitive.Root>
   );
 }
 
-interface ColorPickerSwatchProps extends React.ComponentProps<"div"> {
-  readonly asChild?: boolean;
-}
+interface ColorPickerSwatchProps extends React.ComponentProps<"div"> {}
 
 /**
  * Color swatch preview component.
  */
 function ColorPickerSwatch(props: ColorPickerSwatchProps): React.JSX.Element {
-  const { asChild, className, ...swatchProps } = props;
+  const { className, ...swatchProps } = props;
   const config = useColorPickerConfig();
   const state = useColorPickerState();
 
@@ -1171,10 +1173,8 @@ function ColorPickerSwatch(props: ColorPickerSwatchProps): React.JSX.Element {
 
   const ariaLabel = `Current color: ${colorToString(color, state.format)}`;
 
-  const SwatchPrimitive = asChild ? Slot : "div";
-
   return (
-    <SwatchPrimitive
+    <div
       role="img"
       aria-label={ariaLabel}
       data-slot="color-picker-swatch"
@@ -1196,7 +1196,7 @@ interface ColorPickerEyeDropperProps extends React.ComponentProps<typeof Button>
 const openEyeDropperEffect = (
   stateRef: AtomRef.AtomRef<ColorPickerState>,
   currentAlpha: number,
-  format: ColorFormat,
+  format: ColorFormat.Type,
   onValueChange?: ((value: string) => void) | undefined
 ): Effect.Effect<void, EyeDropperError> =>
   F.pipe(
@@ -1307,8 +1307,8 @@ function ColorPickerFormatSelect(props: ColorPickerFormatSelectProps): React.JSX
       data-slot="color-picker-format-select"
       {...selectProps}
       value={state.format}
-      onValueChange={(value: string) => {
-        const format = value as ColorFormat;
+      onValueChange={(value: unknown, _eventDetails: unknown) => {
+        const format = value as ColorFormat.Type;
         stateRef.update((s) => ({ ...s, format }));
         callbacks.onFormatChange?.(format);
       }}
@@ -1318,7 +1318,7 @@ function ColorPickerFormatSelect(props: ColorPickerFormatSelectProps): React.JSX
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
-        {colorFormats.map((format) => (
+        {ColorFormat.Options.map((format) => (
           <SelectItem key={format} value={format}>
             {Str.toUpperCase(format)}
           </SelectItem>
@@ -1343,10 +1343,10 @@ function ColorPickerInput(props: ColorPickerInputProps): React.JSX.Element | nul
   const state = useColorPickerState();
 
   return Match.value(state.format).pipe(
-    Match.when("hex", () => <HexInput {...props} />),
-    Match.when("rgb", () => <RgbInput {...props} />),
-    Match.when("hsl", () => <HslInput {...props} />),
-    Match.when("hsb", () => <HsbInput {...props} />),
+    Match.when(ColorFormat.Enum.hex, () => <HexInput {...props} />),
+    Match.when(ColorFormat.Enum.rgb, () => <RgbInput {...props} />),
+    Match.when(ColorFormat.Enum.hsl, () => <HslInput {...props} />),
+    Match.when(ColorFormat.Enum.hsb, () => <HsbInput {...props} />),
     Match.exhaustive
   );
 }
@@ -1791,6 +1791,5 @@ export {
   type ColorValue,
   type HSVColorValue,
   type HSLColorValue,
-  type ColorFormat,
   type ColorPickerState,
 };

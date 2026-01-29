@@ -72,7 +72,7 @@ const reportAtom = Atom.make<ReportFunction>((get) => {
       MutableRef.get(timerRef),
       O.match({
         onNone: noOp,
-        onSome: (timerId) => clearTimeout(timerId),
+        onSome: clearTimeout,
       })
     );
     MutableRef.set(timerRef, O.none());
@@ -101,7 +101,7 @@ const reportAtom = Atom.make<ReportFunction>((get) => {
       MutableRef.get(timerRef),
       O.match({
         onNone: noOp,
-        onSome: (timerId) => clearTimeout(timerId),
+        onSome: clearTimeout,
       })
     );
 
