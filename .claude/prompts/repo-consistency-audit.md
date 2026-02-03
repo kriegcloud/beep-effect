@@ -32,16 +32,16 @@ Execute ALL categories below. Capture output for each.
 
 ```bash
 # A1. Old spec guide paths
-grep -rn "specs/SPEC_CREATION_GUIDE\|specs/HANDOFF_STANDARDS[^/]\|specs/PATTERN_REGISTRY\.md\|specs/llms\.txt" --include="*.md" . 2>/dev/null | grep -v "outputs/\|REFLECTION_LOG\|RALPH_AUDIT"
+grep -rn "specs/SPEC_CREATION_GUIDE\|specs/HANDOFF_STANDARDS[^/]\|specs/PATTERN_REGISTRY\.md\|specs/llms\.txt" --include="*.md" . 2>/dev/null | grep -v "outputs/\|REFLECTION_LOG\|RALPH_AUDIT\|specs/"
 
-# A2. Deleted spec references
-grep -rn "ai-friendliness-audit\|jetbrains-mcp-skill\|new-specialized-agents" --include="*.md" . 2>/dev/null | grep -v "outputs/\|RALPH_AUDIT"
+# A2. Deleted spec references (excludes: audit prompt migration tables, anti-pattern docs)
+grep -rn "ai-friendliness-audit\|jetbrains-mcp-skill\|new-specialized-agents" --include="*.md" . 2>/dev/null | grep -v "outputs/\|RALPH_AUDIT\|specs/\|repo-consistency-audit"
 
-# A3. META_SPEC_TEMPLATE references
-grep -rn "META_SPEC_TEMPLATE" --include="*.md" . 2>/dev/null | grep -v "outputs/\|RALPH_AUDIT"
+# A3. META_SPEC_TEMPLATE references (excludes: audit prompt itself)
+grep -rn "META_SPEC_TEMPLATE" --include="*.md" . 2>/dev/null | grep -v "outputs/\|RALPH_AUDIT\|specs/\|repo-consistency-audit"
 
-# A4. Stale @beep/core-* package references
-grep -rn "@beep/core-" --include="*.md" . 2>/dev/null | grep -v "outputs/\|RALPH_AUDIT\|historical\|deleted\|consolidated"
+# A4. Stale @beep/core-* package references (excludes: anti-pattern docs, migration tables)
+grep -rn "@beep/core-" --include="*.md" . 2>/dev/null | grep -v "outputs/\|RALPH_AUDIT\|historical\|deleted\|consolidated\|specs/\|Stale Package\|FORBIDDEN\|Anti-Pattern"
 ```
 
 ### Category B: Agent Configuration Issues
@@ -260,7 +260,7 @@ vertical slices in `packages/{iam,documents,calendar,knowledge,comms,customizati
 1. **Max 10 fixes per iteration** - Keeps commits reviewable
 2. **Always lint after edits** - Run `bun run lint:fix`
 3. **Commit after fixes** - Create audit trail
-4. **Skip outputs/ directory** - Historical records
+4. **Skip outputs/ and specs/ directories** - Historical records documenting past migrations and what paths existed before changes; these contain old paths BY DESIGN
 5. **Skip RALPH_AUDIT_PROMPT.md** - Don't modify self
 6. **Prefer removal over update** for truly stale content
 
