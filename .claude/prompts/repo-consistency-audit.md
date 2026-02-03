@@ -53,8 +53,8 @@ grep -rn "mcp__effect_docs__\|mcp__MCP_DOCKER__\|mcp__jetbrains__\|mcp__context7
 # B2. Forbidden bun:test imports in agent examples (should use @beep/testkit)
 grep -rn "from \"bun:test\"\|from 'bun:test'" .claude/agents/ --include="*.md" 2>/dev/null | grep -v "NEVER\|forbidden\|re-exported"
 
-# B3. Lowercase Schema constructors (should be PascalCase) - excludes anti-pattern docs
-grep -rn "S\.struct\|S\.string\|S\.number\|S\.boolean\|S\.array" --include="*.md" .claude/ 2>/dev/null | grep -vi "wrong\|forbidden\|bad\|anti-pattern\|not S\.\|NEVER"
+# B3. Lowercase Schema constructors (should be PascalCase) - excludes pattern documentation files
+grep -rn "S\.struct\|S\.string\|S\.number\|S\.boolean\|S\.array" --include="*.md" .claude/ 2>/dev/null | grep -vi "wrong\|forbidden\|bad\|anti-pattern\|not S\.\|NEVER\|Lowercase\|Violation\|CORRECT\|Suggested\|effect-check\|code-reviewer\|mcp-researcher\|port\.md\|PROMPT_TEMPLATE\|documentation\.md"
 ```
 
 ### Category C: README.md Accuracy
@@ -66,7 +66,7 @@ find packages -maxdepth 3 -name "package.json" -exec dirname {} \; 2>/dev/null |
 done
 
 # C2. Deprecated API references (BS.toOptionalWithDefault is deprecated)
-grep -rn "toOptionalWithDefault" --include="*.md" . 2>/dev/null | grep -vi "RALPH_AUDIT\|deprecated\|WRONG\|NEVER\|specs/"
+grep -rn "toOptionalWithDefault" --include="*.md" . 2>/dev/null | grep -vi "RALPH_AUDIT\|deprecated\|WRONG\|NEVER\|specs/\|repo-consistency-audit"
 
 # C3. Outdated version references (excludes: node_modules, .agents, tmp, specs)
 grep -rn "Next\.js 1[0-5]\|React 1[0-8]\|Effect 2\.[0-9]\|Bun 1\.[0-2]\." --include="*.md" . 2>/dev/null | grep -v "outputs/\|node_modules\|\.agents/\|tmp/\|specs/"
@@ -105,8 +105,8 @@ done
 ### Category F: Structural Requirements
 
 ```bash
-# F1. Specs missing REFLECTION_LOG.md
-find specs -maxdepth 2 -type d -name "specs" -prune -o -type d -print 2>/dev/null | while read dir; do
+# F1. Specs missing REFLECTION_LOG.md (excludes _guide, outputs directories)
+find specs -maxdepth 2 -type d -not -path "*/outputs*" 2>/dev/null | while read dir; do
   if [ -f "$dir/README.md" ] && [ "$dir" != "specs/_guide" ] && [ "$dir" != "specs" ]; then
     test -f "$dir/REFLECTION_LOG.md" || echo "MISSING REFLECTION_LOG: $dir"
   fi
@@ -262,6 +262,7 @@ vertical slices in `packages/{iam,documents,calendar,knowledge,comms,customizati
 4. **Skip outputs/ and specs/ directories** - Historical records documenting past migrations and what paths existed before changes; these contain old paths BY DESIGN
 5. **Skip RALPH_AUDIT_PROMPT.md** - Don't modify self
 6. **Prefer removal over update** for truly stale content
+7. **Category F is specs-internal** - F1/F2 issues are structural requirements within specs and may be handled separately from the main repo audit
 
 ---
 
