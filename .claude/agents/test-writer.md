@@ -12,11 +12,12 @@ Related skills: effect-testing, react-vm, atom-state
 Test :: Arrange → Act → Assert
 Effect.Test :: Effect.gen(function*() { arrange; act; assert })
 
-@beep/testkit  := Effect code (services, layers, reactive)
-bun:test          := pure functions (Data, Schema, utils)
+@beep/testkit  := ALL tests (Effect and pure)
+  effect()     := tests with TestClock/TestRandom
+  live()       := pure logic without test services
+  scoped()     := tests with resource management
 
-assert.*        := Effect tests (strictEqual, isTrue, deepEqual)
-expect()        := bun:test tests (toBe, toEqual, toMatchObject)
+assertions      := @beep/testkit exports (strictEqual, isTrue, deepEqual)
 
 <agent>
 
@@ -24,9 +25,9 @@ expect()        := bun:test tests (toBe, toEqual, toMatchObject)
 knowledge-first       := ∀ p. act(p) requires gather(skills(p)) ∧ gather(context(p))
 no-assumption         := assume(k) → invalid; ensure(k) → valid
 completeness          := solution(p) requires ∀ s ∈ skills(p). invoked(s)
-beep-testkit-for-effect  := hasEffect(code) → import { it } from "@beep/testkit"
-bun:test-for-pure           := isPure(code) → import { it } from "bun:test"
-assert-not-expect         := isEffectTest → assert.* ∧ ¬expect()
+beep-testkit-always      := ∀ test. import { effect, live, scoped, strictEqual } from "@beep/testkit"
+runner-selection         := hasEffect(code) → effect() | isPure(code) → live() | hasResources(code) → scoped()
+assert-always            := ∀ test. strictEqual, isTrue, deepEqual from @beep/testkit
 layer-mock                := mock(Service) → Layer.succeed(Service.Tag, implementation)
 test-layer-compose        := TestLayer → Layer.mergeAll(Mock₁, Mock₂, ..., Mockₙ)
 registry-pattern          := testVM → Registry.make() ▹ Layer.build ▹ Effect.runSync
@@ -37,7 +38,8 @@ fresh-vm-per-test         := ∀ test. makeVM() → isolation
 </laws>
 
 <acquire>
-framework     := hasEffect(targetCode) ? "@beep/testkit" : "bun:test"
+framework     := "@beep/testkit" (always)
+runner        := hasEffect → effect() | isPure → live() | hasResources → scoped()
 dependencies  := extractServices(targetCode) → Layer requirements
 testCases     := { happyPath, errorCases, edgeCases, stateTransitions }
 patterns      := { registry?, timeDependent?, eventDriven?, reactive? }
@@ -53,15 +55,15 @@ assert        → verify(expected)
 </loop>
 
 <transforms>
-Effect.gen           ⊳ yield* operation; assert.*(result)
+Effect.gen           ⊳ yield* operation; strictEqual(result, expected)
 Layer.provide        ⊳ Effect.provide(TestLayer)
 Service.mock         ⊳ Layer.succeed(Tag, { method: () => Effect.succeed(v) })
 VM.test              ⊳ Registry.make() ▹ Layer.build(VM.layerTest) ▹ Effect.runSync
 time.test            ⊳ Effect.fork(delayed) ▹ TestClock.adjust ▹ Fiber.join
-error.test           ⊳ Effect.flip(failing) ▹ assert.isTrue(instanceof)
+error.test           ⊳ Effect.flip(failing) ▹ isTrue(error instanceof ErrorType)
 reactive.test        ⊳ SubscriptionRef.set ▹ Effect.yieldNow() ▹ registry.get
 event.test           ⊳ PubSub.publish ▹ TestClock.adjust ▹ registry.get
-sequence.test        ⊳ event₁ ▹ adjust ▹ assert₁ ▹ event₂ ▹ adjust ▹ assert₂
+sequence.test        ⊳ event₁ ▹ adjust ▹ strictEqual₁ ▹ event₂ ▹ adjust ▹ strictEqual₂
 </transforms>
 
 <skills>
@@ -71,8 +73,8 @@ atom-state        → SubscriptionRef updates, derived atoms, yieldNow sync
 </skills>
 
 <invariants>
-∀ effect-test. import { assert, it } from "@beep/testkit"
-∀ pure-test. import { expect, it } from "bun:test"
+∀ test. import { effect, live, scoped, strictEqual } from "@beep/testkit"
+∀ test. NEVER import from "bun:test"
 ∀ SubscriptionRef.set(r, v). Effect.yieldNow() follows
 ∀ PubSub.publish(h, e). TestClock.adjust follows
 ∀ vm-test. fresh Registry.make() per test
@@ -85,46 +87,67 @@ gate-delegation:  gates(typecheck, test) SHALL be delegated(agent) ^ not(run-dir
 
 <framework-selection>
 
-framework(code) = match code with
-  | hasEffect     → @beep/testkit, assert.*
-  | isPure        → bun:test, expect()
+framework := @beep/testkit (always)
 
-<beep-testkit>
+runner(code) = match code with
+  | hasEffect ∧ needsTestServices  → effect()
+  | hasEffect ∧ needsResources     → scoped()
+  | isPure ∨ needsRealClock        → live()
 
-@beep/testkit for Effect code:
+<beep-testkit-effect>
 
-```typescript
-import { assert, describe, it } from "@beep/testkit"
-import { Effect } from "effect"
-
-describe("Service", () => {
-  it.effect("should perform operation", () =>
-    Effect.gen(function* () {
-      const result = yield* operation()
-      assert.strictEqual(result, expected)
-    })
-  )
-})
-```
-
-</beep-testkit>
-
-<bun-test-pure>
-
-bun:test for pure functions:
+@beep/testkit effect() for tests with TestClock/TestRandom:
 
 ```typescript
-import { describe, expect, it } from "bun:test"
+import { effect, strictEqual } from "@beep/testkit"
+import * as Effect from "effect/Effect"
 
-describe("Domain", () => {
-  it("should compute correctly", () => {
-    const result = pureFunction(input)
-    expect(result).toBe(expected)
+effect("should perform operation", () =>
+  Effect.gen(function* () {
+    const result = yield* operation()
+    strictEqual(result, expected)
   })
-})
+)
 ```
 
-</bun-test-pure>
+</beep-testkit-effect>
+
+<beep-testkit-live>
+
+@beep/testkit live() for pure logic tests:
+
+```typescript
+import { live, strictEqual } from "@beep/testkit"
+import * as Effect from "effect/Effect"
+
+live("should compute correctly", () =>
+  Effect.gen(function* () {
+    const result = yield* pureEffect(input)
+    strictEqual(result, expected)
+  })
+)
+```
+
+</beep-testkit-live>
+
+<beep-testkit-scoped>
+
+@beep/testkit scoped() for tests with resource management:
+
+```typescript
+import { scoped, strictEqual } from "@beep/testkit"
+import * as Effect from "effect/Effect"
+
+scoped("should manage resources", () =>
+  Effect.gen(function* () {
+    const resource = yield* acquireResource()
+    const result = yield* useResource(resource)
+    strictEqual(result, expected)
+  })
+)
+```
+
+</beep-testkit-scoped>
 
 </framework-selection>
 
@@ -134,14 +157,18 @@ MockService := Layer.succeed(Tag, { methods })
 TestLayer   := Layer.mergeAll(Mock₁, Mock₂, ..., Mockₙ)
 
 ```typescript
+import { effect, strictEqual } from "@beep/testkit"
+import * as Effect from "effect/Effect"
+import * as Layer from "effect/Layer"
+
 const MockService = Layer.succeed(Service.Tag, {
   method: () => Effect.succeed(testValue)
 })
 
-it.effect("with mocked dependency", () =>
+effect("with mocked dependency", () =>
   Effect.gen(function* () {
     const result = yield* Service.method()
-    assert.strictEqual(result, testValue)
+    strictEqual(result, testValue)
   }).pipe(Effect.provide(MockService))
 )
 ```
@@ -154,6 +181,10 @@ makeVM := Registry.make() ▹ Layer.build(VM.layerTest) ▹ Effect.runSync
 testVM := { registry, vm } → registry.get(vm.atom$)
 
 ```typescript
+import { live, strictEqual } from "@beep/testkit"
+import * as Effect from "effect/Effect"
+import * as Context from "effect/Context"
+
 const makeVM = () => {
   const r = Registry.make()
   const vm = Layer.build(VM.layerTest).pipe(
@@ -166,10 +197,12 @@ const makeVM = () => {
   return { r, vm }
 }
 
-it("should have initial state", () => {
-  const { r, vm } = makeVM()
-  expect(r.get(vm.state$)).toBe("initial")
-})
+live("should have initial state", () =>
+  Effect.gen(function* () {
+    const { r, vm } = makeVM()
+    strictEqual(r.get(vm.state$), "initial")
+  })
+)
 ```
 
 </vm-testing>
@@ -179,7 +212,11 @@ it("should have initial state", () => {
 SubscriptionRef.set(ref, v) ▹ Effect.yieldNow() → atom updated
 
 ```typescript
-it.effect("should react to state changes", () =>
+import { effect, strictEqual } from "@beep/testkit"
+import * as Effect from "effect/Effect"
+import * as SubscriptionRef from "effect/SubscriptionRef"
+
+effect("should react to state changes", () =>
   Effect.gen(function* () {
     const registry = yield* Registry.AtomRegistry
     const session = yield* Session.tag
@@ -189,7 +226,7 @@ it.effect("should react to state changes", () =>
     yield* Effect.yieldNow()
 
     const result = registry.get(vm.derived$)
-    assert.strictEqual(result.length, expected)
+    strictEqual(result.length, expected)
   }).pipe(Effect.provide(TestLayer))
 )
 ```
@@ -201,7 +238,12 @@ it.effect("should react to state changes", () =>
 PubSub.publish(hub, event) ▹ TestClock.adjust("100 millis") → event processed
 
 ```typescript
-it.effect("should handle event", () =>
+import { effect, strictEqual } from "@beep/testkit"
+import * as Effect from "effect/Effect"
+import * as PubSub from "effect/PubSub"
+import * as TestClock from "effect/TestClock"
+
+effect("should handle event", () =>
   Effect.gen(function* () {
     const session = yield* Session.tag
     const registry = yield* Registry.AtomRegistry
@@ -211,7 +253,7 @@ it.effect("should handle event", () =>
     yield* TestClock.adjust("100 millis")
 
     const state = registry.get(vm.state$)
-    assert.strictEqual(state.status, "active")
+    strictEqual(state.status, "active")
   }).pipe(Effect.provide(TestLayer))
 )
 ```
@@ -223,14 +265,19 @@ it.effect("should handle event", () =>
 Effect.fork(delayed) ▹ TestClock.adjust(duration) ▹ Fiber.join
 
 ```typescript
-it.effect("should handle delays", () =>
+import { effect, strictEqual } from "@beep/testkit"
+import * as Effect from "effect/Effect"
+import * as Fiber from "effect/Fiber"
+import * as TestClock from "effect/TestClock"
+
+effect("should handle delays", () =>
   Effect.gen(function* () {
     const fiber = yield* Effect.fork(
       Effect.sleep("5 seconds").pipe(Effect.as("done"))
     )
     yield* TestClock.adjust("5 seconds")
     const result = yield* Fiber.join(fiber)
-    assert.strictEqual(result, "done")
+    strictEqual(result, "done")
   })
 )
 ```
@@ -239,13 +286,16 @@ it.effect("should handle delays", () =>
 
 <error-testing>
 
-Effect.flip(failing) ▹ assert.isTrue(result instanceof ErrorType)
+Effect.flip(failing) ▹ isTrue(result instanceof ErrorType)
 
 ```typescript
-it.effect("should fail with typed error", () =>
+import { effect, isTrue } from "@beep/testkit"
+import * as Effect from "effect/Effect"
+
+effect("should fail with typed error", () =>
   Effect.gen(function* () {
     const error = yield* Effect.flip(failingOperation())
-    assert.isTrue(error instanceof NotFoundError)
+    isTrue(error instanceof NotFoundError)
   })
 )
 ```
@@ -261,7 +311,10 @@ $match    := exhaustive pattern matching over discriminated unions
 $is       := type guard for single variant
 
 ```typescript
-import { Data, Match } from "effect"
+import { live, effect, strictEqual, isTrue } from "@beep/testkit"
+import * as Effect from "effect/Effect"
+import * as Data from "effect/Data"
+import * as Match from "effect/Match"
 
 const Status = Data.TaggedEnum<{
   Idle: {}
@@ -272,8 +325,8 @@ const Status = Data.TaggedEnum<{
 
 const { Idle, Loading, Success, Failed, $match, $is } = Status
 
-describe("Status ADT", () => {
-  it("should match Idle", () => {
+live("should match Idle", () =>
+  Effect.gen(function* () {
     const status = Idle()
     const result = $match(status, {
       Idle: () => "idle",
@@ -281,16 +334,20 @@ describe("Status ADT", () => {
       Success: ({ data }) => data,
       Failed: ({ error }) => error.message
     })
-    expect(result).toBe("idle")
+    strictEqual(result, "idle")
   })
+)
 
-  it("should guard with $is", () => {
+live("should guard with $is", () =>
+  Effect.gen(function* () {
     const status = Loading({ progress: 50 })
-    expect($is("Loading")(status)).toBe(true)
-    expect($is("Idle")(status)).toBe(false)
+    isTrue($is("Loading")(status))
+    isTrue(!$is("Idle")(status))
   })
+)
 
-  it("should test all variants exhaustively", () => {
+live("should test all variants exhaustively", () =>
+  Effect.gen(function* () {
     const variants = [
       Idle(),
       Loading({ progress: 50 }),
@@ -298,23 +355,25 @@ describe("Status ADT", () => {
       Failed({ error: new Error("fail") })
     ]
 
-    variants.forEach(status => {
+    for (const status of variants) {
       const result = $match(status, {
         Idle: () => "idle",
         Loading: () => "loading",
         Success: () => "success",
         Failed: () => "failed"
       })
-      expect(typeof result).toBe("string")
-    })
+      strictEqual(typeof result, "string")
+    }
   })
-})
+)
 ```
 
 Match.typeTags for external ADT matching:
 
 ```typescript
-import { Match } from "effect"
+import { effect, strictEqual } from "@beep/testkit"
+import * as Effect from "effect/Effect"
+import * as Match from "effect/Match"
 
 const handleStatus = Match.typeTags<Status>()({
   Idle: () => Effect.succeed("waiting"),
@@ -323,10 +382,10 @@ const handleStatus = Match.typeTags<Status>()({
   Failed: ({ error }) => Effect.fail(error)
 })
 
-it.effect("should handle status with Match.typeTags", () =>
+effect("should handle status with Match.typeTags", () =>
   Effect.gen(function* () {
     const result = yield* handleStatus(Success({ data: "done" }))
-    assert.strictEqual(result, "done")
+    strictEqual(result, "done")
   })
 )
 ```
@@ -335,8 +394,9 @@ it.effect("should handle status with Match.typeTags", () =>
 
 <checklist>
 
-framework     := effect? → @beep/testkit : bun:test
-effect-test   := assert.* ∧ ¬expect()
+framework     := @beep/testkit (always, NEVER bun:test)
+runner        := effect() | live() | scoped() based on test needs
+assertions    := strictEqual, isTrue, deepEqual from @beep/testkit
 coverage      := { happyPath, errorCases, edgeCases }
 vm-test       := fresh makeVM() per test
 reactive      := SubscriptionRef.set ▹ Effect.yieldNow()
