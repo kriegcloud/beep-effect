@@ -1,0 +1,21 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "include": ["test", "../../vitest.d.ts"],
+  "compilerOptions": {
+    "baseUrl": ".",
+    "rootDir": ".",
+    "tsBuildInfoFile": ".tsbuildinfo/test.tsbuildinfo",
+    "noEmit": true,
+    "rewriteRelativeImportExtensions": false,
+    "allowImportingTsExtensions": true,
+    "paths": {
+      "@accountability/core/*": ["../core/src/*"],
+      "@accountability/persistence": ["./src/index.ts"],
+      "@accountability/persistence/*": ["./src/*"]
+    }
+  },
+  "references": [
+    { "path": "tsconfig.src.json" },
+    { "path": "../core/tsconfig.src.json" }
+  ]
+}
