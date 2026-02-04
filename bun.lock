@@ -1443,6 +1443,58 @@
         "react-dom": "catalog:",
       },
     },
+    "packages/integrations/google-workspace/client": {
+      "name": "@beep/google-workspace-client",
+      "version": "0.0.0",
+      "devDependencies": {
+        "@beep/google-workspace-domain": "workspace:^",
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "effect": "catalog:",
+      },
+      "peerDependencies": {
+        "@beep/google-workspace-domain": "workspace:^",
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "effect": "catalog:",
+      },
+    },
+    "packages/integrations/google-workspace/domain": {
+      "name": "@beep/google-workspace-domain",
+      "version": "0.0.0",
+      "devDependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "effect": "catalog:",
+      },
+      "peerDependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "effect": "catalog:",
+      },
+    },
+    "packages/integrations/google-workspace/server": {
+      "name": "@beep/google-workspace-server",
+      "version": "0.0.0",
+      "devDependencies": {
+        "@beep/google-workspace-client": "workspace:^",
+        "@beep/google-workspace-domain": "workspace:^",
+        "@beep/iam-client": "workspace:^",
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "@effect/platform": "catalog:",
+        "effect": "catalog:",
+      },
+      "peerDependencies": {
+        "@beep/google-workspace-client": "workspace:^",
+        "@beep/google-workspace-domain": "workspace:^",
+        "@beep/iam-client": "workspace:^",
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "@effect/platform": "catalog:",
+        "effect": "catalog:",
+      },
+    },
     "packages/knowledge/client": {
       "name": "@beep/knowledge-client",
       "version": "0.0.0",
@@ -3353,6 +3405,12 @@
     "@beep/documents-ui": ["@beep/documents-ui@workspace:packages/documents/ui"],
 
     "@beep/errors": ["@beep/errors@workspace:packages/common/errors"],
+
+    "@beep/google-workspace-client": ["@beep/google-workspace-client@workspace:packages/integrations/google-workspace/client"],
+
+    "@beep/google-workspace-domain": ["@beep/google-workspace-domain@workspace:packages/integrations/google-workspace/domain"],
+
+    "@beep/google-workspace-server": ["@beep/google-workspace-server@workspace:packages/integrations/google-workspace/server"],
 
     "@beep/iam-client": ["@beep/iam-client@workspace:packages/iam/client"],
 

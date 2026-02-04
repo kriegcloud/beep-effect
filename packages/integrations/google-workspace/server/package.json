@@ -1,0 +1,41 @@
+{
+  "name": "@beep/google-workspace-server",
+  "version": "0.0.0",
+  "type": "module",
+  "license": "MIT",
+  "description": "Google Workspace server layer implementations",
+  "exports": {
+    ".": "./src/index.ts",
+    "./package.json": "./package.json",
+    "./*": "./src/*.ts"
+  },
+  "scripts": {
+    "build": "bun run build-esm && bun run build-cjs && bun run build-annotate",
+    "dev": "tsc -b tsconfig.build.json --watch",
+    "build-esm": "tsc -b tsconfig.build.json",
+    "build-cjs": "babel build/esm --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --out-dir build/cjs --source-maps",
+    "build-annotate": "babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps",
+    "check": "tsc -b tsconfig.json",
+    "test": "bun test",
+    "lint": "biome check .",
+    "lint:fix": "biome check . --write"
+  },
+  "peerDependencies": {
+    "@beep/identity": "workspace:^",
+    "@beep/schema": "workspace:^",
+    "@beep/google-workspace-domain": "workspace:^",
+    "@beep/google-workspace-client": "workspace:^",
+    "@beep/iam-client": "workspace:^",
+    "@effect/platform": "catalog:",
+    "effect": "catalog:"
+  },
+  "devDependencies": {
+    "@beep/identity": "workspace:^",
+    "@beep/schema": "workspace:^",
+    "@beep/google-workspace-domain": "workspace:^",
+    "@beep/google-workspace-client": "workspace:^",
+    "@beep/iam-client": "workspace:^",
+    "@effect/platform": "catalog:",
+    "effect": "catalog:"
+  }
+}

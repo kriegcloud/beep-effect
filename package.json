@@ -18,7 +18,7 @@
     "packages/calendar/*",
     "scratchpad/*",
     "packages/knowledge/*",
-    "packages/wealth-management/*"
+    "packages/integrations/google-workspace/*"
   ],
   "repository": {
     "repository": {

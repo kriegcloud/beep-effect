@@ -564,14 +564,33 @@
       "@beep/knowledge-ui/*": [
         "./packages/knowledge/ui/src/*"
       ],
-      "@beep/wm-domain": [
-        "./packages/wealth-management/domain/src/index"
+
+      "@beep/google-workspace-domain": [
+        "./packages/integrations/google-workspace/domain/src/index"
       ],
-      "@beep/wm-domain/*": [
-        "./packages/wealth-management/domain/src/*"
+      "@beep/google-workspace-domain/*": [
+        "./packages/integrations/google-workspace/domain/src/*"
       ],
-      "@beep/wm-domain/test/*": [
-        "./packages/wealth-management/domain/test/*"
+      "@beep/google-workspace-domain/test/*": [
+        "./packages/integrations/google-workspace/domain/test/*"
+      ],
+      "@beep/google-workspace-client": [
+        "./packages/integrations/google-workspace/client/src/index"
+      ],
+      "@beep/google-workspace-client/*": [
+        "./packages/integrations/google-workspace/client/src/*"
+      ],
+      "@beep/google-workspace-client/test/*": [
+        "./packages/integrations/google-workspace/client/test/*"
+      ],
+      "@beep/google-workspace-server": [
+        "./packages/integrations/google-workspace/server/src/index"
+      ],
+      "@beep/google-workspace-server/*": [
+        "./packages/integrations/google-workspace/server/src/*"
+      ],
+      "@beep/google-workspace-server/test/*": [
+        "./packages/integrations/google-workspace/server/test/*"
       ]
     }
   }

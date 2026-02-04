@@ -79,7 +79,10 @@ const composers = $I.compose(
   "knowledge-tables",
   "knowledge-client",
   "knowledge-server",
-  "knowledge-ui"
+  "knowledge-ui",
+  "google-workspace-domain",
+  "google-workspace-client",
+  "google-workspace-server"
 );
 
 /**
@@ -966,3 +969,48 @@ export const $UISpreadsheetId = composers.$UiSpreadsheetId;
  * @since 0.1.0
  */
 export const $UiEditorId = composers.$UiEditorId;
+
+/**
+ * Identity composer for the `@beep/google-workspace-domain` namespace.
+ *
+ * @example
+ * ```typescript
+ * import { $GoogleWorkspaceDomainId } from "@beep/identity/packages"
+ *
+ * const errorId = $GoogleWorkspaceDomainId.make("GoogleApiError")
+ * ```
+ *
+ * @category symbols
+ * @since 0.1.0
+ */
+export const $GoogleWorkspaceDomainId = composers.$GoogleWorkspaceDomainId;
+
+/**
+ * Identity composer for the `@beep/google-workspace-client` namespace.
+ *
+ * @example
+ * ```typescript
+ * import { $GoogleWorkspaceClientId } from "@beep/identity/packages"
+ *
+ * const clientId = $GoogleWorkspaceClientId.make("GmailClient")
+ * ```
+ *
+ * @category symbols
+ * @since 0.1.0
+ */
+export const $GoogleWorkspaceClientId = composers.$GoogleWorkspaceClientId;
+
+/**
+ * Identity composer for the `@beep/google-workspace-server` namespace.
+ *
+ * @example
+ * ```typescript
+ * import { $GoogleWorkspaceServerId } from "@beep/identity/packages"
+ *
+ * const serviceId = $GoogleWorkspaceServerId.make("GmailService")
+ * ```
+ *
+ * @category symbols
+ * @since 0.1.0
+ */
+export const $GoogleWorkspaceServerId = composers.$GoogleWorkspaceServerId;

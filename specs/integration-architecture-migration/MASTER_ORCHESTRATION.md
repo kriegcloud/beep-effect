@@ -220,7 +220,7 @@ packages/knowledge/server/
 ## Phase 1a: Package Structure + Domain Layer
 
 **Duration**: 1 session
-**Status**: Pending
+**Status**: ✅ Complete
 **Agents**: `effect-code-writer`
 
 ### Objectives
@@ -401,7 +401,7 @@ Create `handoffs/HANDOFF_P1b.md` with:
 ## Phase 1b: Client + Server Layers
 
 **Duration**: 1-2 sessions
-**Status**: Pending
+**Status**: ✅ Complete
 **Agents**: `effect-code-writer`, `codebase-researcher`
 
 ### Objectives
