@@ -69,7 +69,83 @@ export class CalendarEventRepo extends Effect.Service<CalendarEventRepo>()(
 - `bun run lint --filter @beep/calendar-server`
 - `bun run test --filter @beep/calendar-server`
 
+## Google Calendar Integration
+
+The `GoogleCalendarAdapter` provides Effect-based integration with Google Calendar API for bidirectional calendar synchronization.
+
+### Required Scopes
+
+```typescript
+import { CalendarScopes } from "@beep/google-workspace-domain";
+
+export const REQUIRED_SCOPES = [CalendarScopes.events] as const;
+```
+
+Scope: `https://www.googleapis.com/auth/calendar.events` - Full CRUD operations on calendar events.
+
+### Key Operations
+
+| Method | Purpose | Returns |
+|--------|---------|---------|
+| `listEvents` | Fetch events in date range | `ReadonlyArray<CalendarEvent>` |
+| `createEvent` | Create new calendar event | `CalendarEvent` |
+| `updateEvent` | Patch existing event | `CalendarEvent` |
+| `deleteEvent` | Delete event by ID | `void` |
+
+### Usage Pattern
+
+The `GoogleCalendarAdapter` requires `AuthContext` at layer construction time, so it must be provided within the request context where `AuthContext` is available (not at router level).
+
+```typescript
+import { GoogleCalendarAdapter } from "@beep/calendar-server/adapters";
+import * as GoogleWorkspace from "@beep/runtime-server/GoogleWorkspace.layer";
+import * as Effect from "effect/Effect";
+import * as DateTime from "effect/DateTime";
+
+// In a handler with AuthContext available:
+const listCalendarEvents = Effect.gen(function* () {
+  const calendar = yield* GoogleCalendarAdapter;
+
+  const timeMin = DateTime.unsafeNow();
+  const timeMax = DateTime.addDuration(timeMin, { days: 7 });
+
+  const events = yield* calendar.listEvents("primary", timeMin, timeMax);
+  return events;
+}).pipe(
+  Effect.provide(GoogleWorkspace.layer)  // Provides AuthContext-dependent layer
+);
+```
+
+### Error Handling
+
+The adapter emits these tagged errors:
+- `GoogleApiError` - HTTP/API failures (network, invalid response)
+- `GoogleAuthenticationError` - OAuth token failures
+- `GoogleScopeExpansionRequiredError` - User lacks required OAuth scopes (triggers incremental consent flow)
+
+```typescript
+import { GoogleScopeExpansionRequiredError } from "@beep/google-workspace-domain";
+
+const program = listCalendarEvents.pipe(
+  Effect.catchTag("GoogleScopeExpansionRequiredError", (error) =>
+    // Redirect user to OAuth consent screen with expanded scopes
+    redirectToOAuthConsent(error.requiredScopes)
+  )
+);
+```
+
+### ACL Translation
+
+The adapter handles bidirectional translation between domain models and Google Calendar API format:
+
+- **Input**: `CreateEventInput` / `UpdateEventInput` (domain types with `DateTime.Utc`)
+- **Google API**: RFC 3339 ISO strings with timezone metadata
+- **Output**: `CalendarEvent` (normalized domain type)
+
+This Anti-Corruption Layer ensures the domain remains independent of Google Calendar API changes.
+
 ## Contributor Checklist
 - [ ] Repositories use `DbRepo.make` with proper ID schemas.
 - [ ] Date range queries use proper timezone handling.
 - [ ] Telemetry spans added for observability.
+- [ ] Google Calendar operations check for scope expansion errors.

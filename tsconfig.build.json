@@ -51,9 +51,6 @@
       "path": "packages/shared/ai/tsconfig.build.json"
     },
     {
-      "path": "packages/shared/integrations/tsconfig.build.json"
-    },
-    {
       "path": "packages/iam/client/tsconfig.build.json"
     },
     {

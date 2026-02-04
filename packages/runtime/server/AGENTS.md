@@ -223,6 +223,123 @@ ALWAYS ensure `.env` is loaded before any `@beep/runtime-server` imports.
 
 Effect streams (`Stream<A, E, R>`) must be consumed (via `Stream.runCollect`, `Stream.runForEach`) or they produce no output. When streaming database results, ensure the stream is consumed within the same transaction scope if consistency is required.
 
+## Google Workspace Integration
+
+The `GoogleWorkspace.layer` composes all Google Workspace adapters (Calendar, Gmail, Gmail Extraction) into a unified layer.
+
+### Architecture Constraint (CRITICAL)
+
+The `GoogleWorkspace.layer` requires `AuthContext` at layer construction time because `GoogleAuthClientLive` captures the user's OAuth context during initialization. This means:
+
+- **CANNOT** be composed at router-level (before requests exist)
+- **MUST** be provided within handlers where `AuthContext` is available in the request context
+- Each request provides the layer with its own `AuthContext`
+
+### Provided Services
+
+| Service | Package | Purpose |
+|---------|---------|---------|
+| `GoogleCalendarAdapter` | `@beep/calendar-server` | Calendar event CRUD operations |
+| `GmailAdapter` | `@beep/comms-server` | Email send/receive operations |
+| `GmailExtractionAdapter` | `@beep/knowledge-server` | Read-only email extraction for knowledge graph |
+
+### Usage Pattern
+
+```typescript
+import * as GoogleWorkspace from "@beep/runtime-server/GoogleWorkspace.layer";
+import { GoogleCalendarAdapter } from "@beep/calendar-server/adapters";
+import { GmailAdapter } from "@beep/comms-server/adapters";
+import * as Effect from "effect/Effect";
+
+// In a handler with AuthContext available in the request context:
+const syncCalendarAndSendEmail = Effect.gen(function* () {
+  const calendar = yield* GoogleCalendarAdapter;
+  const gmail = yield* GmailAdapter;
+
+  // Both adapters share the same OAuth context from AuthContext
+  const events = yield* calendar.listEvents("primary", timeMin, timeMax);
+  yield* gmail.sendMessage(to, "Calendar Update", "Your events...");
+
+  return { eventCount: events.length };
+}).pipe(
+  Effect.provide(GoogleWorkspace.layer)  // Provides all Google Workspace services
+);
+```
+
+### Scope Management
+
+Each adapter declares its own required OAuth scopes following the principle of least privilege:
+
+| Adapter | Required Scopes |
+|---------|-----------------|
+| `GoogleCalendarAdapter` | `calendar.events` (read/write events) |
+| `GmailAdapter` | `gmail.readonly`, `gmail.send` (read + send emails) |
+| `GmailExtractionAdapter` | `gmail.readonly` (read-only for extraction) |
+
+When an operation requires scopes the user hasn't granted, the adapter emits `GoogleScopeExpansionRequiredError`, triggering incremental OAuth consent.
+
+### Error Handling
+
+All adapters emit these tagged errors:
+
+```typescript
+import { GoogleScopeExpansionRequiredError } from "@beep/google-workspace-domain";
+
+const program = syncCalendarAndSendEmail.pipe(
+  Effect.catchTag("GoogleScopeExpansionRequiredError", (error) =>
+    // Redirect user to OAuth consent screen with expanded scopes
+    Effect.gen(function* () {
+      yield* Effect.logWarning("Scope expansion required", {
+        requiredScopes: error.requiredScopes,
+      });
+      return redirectToOAuthConsent(error.requiredScopes);
+    })
+  ),
+  Effect.catchTag("GoogleApiError", (error) =>
+    // Handle API-level failures (network, rate limits, etc.)
+    Effect.logError("Google API error", { error })
+  )
+);
+```
+
+### Layer Dependencies
+
+```
+GoogleWorkspace.layer
+├─ GoogleCalendarAdapterLive
+│  ├─ GoogleAuthClientLive (requires AuthContext)
+│  └─ FetchHttpClient.layer
+├─ GmailAdapterLive
+│  ├─ GoogleAuthClientLive (requires AuthContext)
+│  └─ FetchHttpClient.layer
+└─ GmailExtractionAdapterLive
+   ├─ GoogleAuthClientLive (requires AuthContext)
+   └─ FetchHttpClient.layer
+```
+
+The `GoogleAuthClientLive` captures `AuthContext` at layer construction, binding OAuth tokens to the current user's session.
+
+### Integration with Runtime
+
+The `GoogleWorkspace.layer` is NOT part of the base `serverRuntime` because:
+
+1. It requires per-request `AuthContext` (not available at runtime initialization)
+2. Not all requests need Google Workspace access
+3. Provides per-request OAuth isolation
+
+Instead, handlers opt-in by providing the layer where `AuthContext` is available:
+
+```typescript
+// In RPC handler or HTTP route:
+export const listCalendarEventsHandler = Effect.gen(function* () {
+  // AuthContext is available here (injected by router middleware)
+  const calendar = yield* GoogleCalendarAdapter;
+  return yield* calendar.listEvents("primary", timeMin, timeMax);
+}).pipe(
+  Effect.provide(GoogleWorkspace.layer)  // Composes with request AuthContext
+);
+```
+
 ## Contributor Checklist
 
 - [ ] Align new environment variables with `@beep/shared-env` exports
@@ -230,3 +347,5 @@ Effect streams (`Stream<A, E, R>`) must be consumed (via `Stream.runCollect`, `S
 - [ ] Add usage examples for new runtime entry points or helpers
 - [ ] Re-run verification scripts (check, lint, test) before committing
 - [ ] Update line number references if modifying layer structure
+- [ ] Google Workspace integrations provide layer within handlers (not at router level)
+- [ ] Handle `GoogleScopeExpansionRequiredError` with incremental OAuth consent

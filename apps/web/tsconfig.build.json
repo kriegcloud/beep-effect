@@ -69,6 +69,9 @@
       "path": "../../packages/documents/domain/tsconfig.build.json"
     },
     {
+      "path": "../../packages/integrations/google-workspace/server/tsconfig.build.json"
+    },
+    {
       "path": "../../packages/iam/domain/tsconfig.build.json"
     },
     {

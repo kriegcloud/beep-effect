@@ -378,7 +378,7 @@
     "stylis": "^4.3.6",
     "stylis-plugin-rtl": "^2.1.1",
     "superjson": "^2.2.6",
-    "syncpack": "^14.0.0-alpha.40",
+    "syncpack": "14.0.0-alpha.40",
     "tailwind-merge": "^3.4.0",
     "tailwind-scrollbar-hide": "^4.0.0",
     "tailwindcss": "^4.1.18",

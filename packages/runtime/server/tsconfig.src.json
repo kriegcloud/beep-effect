@@ -52,6 +52,9 @@
       "path": "../../../packages/documents/domain"
     },
     {
+      "path": "../../../packages/integrations/google-workspace/server"
+    },
+    {
       "path": "../../../packages/iam/domain"
     },
     {

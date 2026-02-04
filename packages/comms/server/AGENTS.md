@@ -120,6 +120,92 @@
 - ALWAYS use parameterized queries (Drizzle ORM handles this) — NEVER concatenate user input into queries.
 - Repository methods MUST validate entity ownership before returning notification data.
 
+## Gmail Integration
+
+The `GmailAdapter` provides Effect-based integration with Gmail API for email operations (list, get, send, thread management).
+
+### Required Scopes
+
+```typescript
+import { GmailScopes } from "@beep/google-workspace-domain";
+
+export const REQUIRED_SCOPES = [GmailScopes.read, GmailScopes.send] as const;
+```
+
+- `GmailScopes.read` - `https://www.googleapis.com/auth/gmail.readonly` (read emails)
+- `GmailScopes.send` - `https://www.googleapis.com/auth/gmail.send` (send emails)
+
+### Key Operations
+
+| Method | Purpose | Returns |
+|--------|---------|---------|
+| `listMessages` | Search messages by query | `ReadonlyArray<GmailMessage>` |
+| `getMessage` | Fetch single message by ID | `GmailMessage` |
+| `sendMessage` | Send email via Gmail | `GmailMessage` |
+| `getThread` | Fetch conversation thread | `GmailThread` |
+
+### Usage Pattern
+
+The `GmailAdapter` requires `AuthContext` at layer construction time, so it must be provided within the request context where `AuthContext` is available.
+
+```typescript
+import { GmailAdapter } from "@beep/comms-server/adapters";
+import * as GoogleWorkspace from "@beep/runtime-server/GoogleWorkspace.layer";
+import * as Effect from "effect/Effect";
+
+// In a handler with AuthContext available:
+const sendEmail = (to: string, subject: string, body: string) =>
+  Effect.gen(function* () {
+    const gmail = yield* GmailAdapter;
+    const sentMessage = yield* gmail.sendMessage(to, subject, body);
+    return sentMessage;
+  }).pipe(
+    Effect.provide(GoogleWorkspace.layer)
+  );
+```
+
+### Error Handling
+
+The adapter emits these tagged errors:
+- `GoogleApiError` - HTTP/API failures (network, invalid response)
+- `GoogleAuthenticationError` - OAuth token failures
+- `GoogleScopeExpansionRequiredError` - User lacks required OAuth scopes (triggers incremental consent)
+
+```typescript
+import { GoogleScopeExpansionRequiredError } from "@beep/google-workspace-domain";
+
+const program = sendEmail(to, subject, body).pipe(
+  Effect.catchTag("GoogleScopeExpansionRequiredError", (error) =>
+    // Redirect user to OAuth consent with expanded scopes
+    redirectToOAuthConsent(error.requiredScopes)
+  )
+);
+```
+
+### ACL Translation
+
+The adapter translates between Gmail API wire format and domain models:
+
+- **Base64 URL encoding**: Email content is base64url-encoded in Gmail API
+- **RFC 2822 format**: Outgoing emails constructed using RFC 2822 message format
+- **Multipart parsing**: Handles MIME multipart messages, extracting text/plain and text/html parts
+- **Header extraction**: Parses `From`, `To`, `Subject`, `Date` headers into structured fields
+
+This Anti-Corruption Layer ensures the domain remains independent of Gmail API format changes.
+
+### Message Format
+
+```typescript
+export interface GmailMessage {
+  readonly id: string;
+  readonly threadId: string;
+  readonly labelIds: ReadonlyArray<string>;
+  readonly snippet: string;
+  readonly payload: O.Option<MessagePayload>;  // Headers + body + parts
+  readonly internalDate: O.Option<DateTime.Utc>;
+}
+```
+
 ## Contributor Checklist
 - [ ] Ensure repository methods align with domain entity schemas from `@beep/comms-domain`.
 - [ ] Use `DbRepo.make` from `@beep/shared-domain/factories` for all repository implementations.
@@ -129,4 +215,5 @@
 - [ ] Export new repository classes from `src/db/repos/index.ts`.
 - [ ] Validate email addresses before any sending operation using schemas from `@beep/schema`.
 - [ ] Verify rate limiting is in place for communication endpoints.
+- [ ] Gmail operations check for scope expansion errors and handle incremental OAuth consent.
 - [ ] Re-run verification commands above before handing work off.
