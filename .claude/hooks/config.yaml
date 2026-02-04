@@ -1,0 +1,90 @@
+# Claude Code Hooks Configuration
+# ================================
+#
+# This file configures the self-healing hooks system for the beep-effect codebase.
+# CRITICAL PRINCIPLE: NEVER auto-fix anything that could change runtime behavior.
+
+version: "1.0"
+
+# Self-Healing Hooks Configuration
+self_healing:
+  # Enable/disable the entire self-healing system
+  enabled: true
+
+  # Safe Fixes (auto-applied, no runtime behavior change)
+  safe_fixes:
+    namespace_imports:
+      enabled: true
+      description: "Convert named Effect imports to namespace imports"
+      pattern_id: IMP_001
+
+    pascalcase_schema:
+      enabled: true
+      description: "Convert lowercase Schema constructors to PascalCase"
+      pattern_id: SCH_001
+
+    import_sorting:
+      enabled: true  # Note: Only detects, doesn't auto-fix
+      description: "Suggest import sorting by group and alphabetically"
+      pattern_id: IMP_003
+
+  # Suggestions (require human review, may change runtime behavior)
+  suggestions:
+    entityid_reminder:
+      enabled: true
+      description: "Remind to use branded EntityIds instead of plain S.String"
+      pattern_id: EID_001
+
+    schema_date_type:
+      enabled: true
+      description: "Verify correct date schema type based on data source"
+      pattern_id: SCH_002
+
+# Pattern Categories
+categories:
+  imports:
+    description: "Import statement patterns and conventions"
+    severity: warning
+
+  schema:
+    description: "Effect Schema usage patterns"
+    severity: warning
+
+  entityid:
+    description: "Branded EntityId usage patterns"
+    severity: info
+
+# File Filtering
+file_filters:
+  # Extensions to process
+  include_extensions:
+    - ".ts"
+    - ".tsx"
+    - ".mts"
+
+  # Paths to exclude
+  exclude_patterns:
+    - "node_modules/**"
+    - "dist/**"
+    - ".git/**"
+    - "**/*.test.ts"
+    - "**/*.spec.ts"
+    - "**/__snapshots__/**"
+
+# Output Configuration
+output:
+  # Format for suggestions in additional context
+  format: "markdown"
+
+  # Maximum suggestions per file
+  max_suggestions_per_file: 10
+
+  # Show line numbers in output
+  show_line_numbers: true
+
+# Hook Metadata
+metadata:
+  author: "AI Friendliness Spec P4"
+  spec: "ai-friendliness-10-of-10"
+  created: "2026-02-04"
+  last_updated: "2026-02-04"
