@@ -288,6 +288,16 @@ Complete prompt for an agent to create all necessary specs, including:
 - Priority ordering
 - Dependency graph
 
+### D9: DOMAIN_ADAPTATION_GUIDE.md
+
+Wealth management-specific guidance including:
+- Entity type mappings (effect-ontology generic → todox financial domain)
+- Compliance metadata requirements (provenance, audit trails)
+- Multi-source integration patterns (CRM, custodian, email, calendar)
+- Household relationship modeling approach
+- GraphRAG optimization for advisor queries
+- Schema adaptations for financial entities (accounts, holdings, transactions)
+
 ---
 
 ## Audit Scope
