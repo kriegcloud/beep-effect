@@ -14,7 +14,23 @@ Reference repositories are integrated as git subtrees in `.repos/` to provide AI
 | drizzle-orm | `.repos/drizzle-orm/` | `git@github.com:drizzle-team/drizzle-orm.git` | ORM patterns and SQL generation |
 | effect-claude-agent-sdk | `.repos/effect-claude-agent-sdk/` | `git@github.com:mepuka/effect-claude-agent-sdk.git` | Effect-based Claude agent SDK |
 
-## Key Packages
+## Adding a New Subtree
+
+```bash
+# Add a new repository as a subtree
+git subtree add --prefix=.repos/<name> <git-url> <branch> --squash
+
+# Example:
+git subtree add --prefix=.repos/example git@github.com:org/example.git main --squash
+```
+
+**ALWAYS use `--squash`** to avoid importing the entire git history of the upstream repo.
+
+---
+
+## Effect Repository
+
+### Key Packages
 
 | Package | Path | Purpose |
 |---------|------|---------|

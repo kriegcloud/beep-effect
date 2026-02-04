@@ -397,7 +397,7 @@ describe("ForwardChainer", () => {
           onLeft: (err: unknown) => assertTrue(err instanceof MaxDepthExceededError),
           onRight: () => assertTrue(false),
         });
-      })
+      }) as Effect.Effect<void>
     );
 
     live("succeeds within depth limit when fixed-point reached", () =>
@@ -420,7 +420,7 @@ describe("ForwardChainer", () => {
 
         assertTrue(result.stats.iterations <= 5);
         assertTrue(A.length(result.derivedTriples) >= 1);
-      })
+      }) as Effect.Effect<void>
     );
   });
 
