@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "type": "module",
   "license": "MIT",
-  "description": "Communications module - Database tables",
+  "description": "Table definitions for the comms context",
   "publishConfig": {
     "access": "public",
     "provenance": true,
@@ -13,7 +13,6 @@
   "exports": {
     ".": "./src/index.ts",
     "./package.json": "./package.json",
-    "./schema": "./src/schema.ts",
     "./*": "./src/*.ts"
   },
   "repository": {
@@ -38,26 +37,28 @@
     "@beep/shared-domain": "workspace:^",
     "@beep/comms-domain": "workspace:^",
     "@beep/shared-tables": "workspace:^",
-    "drizzle-orm": "catalog:"
+    "@effect/experimental": "catalog:",
+    "@effect/sql": "catalog:",
+    "drizzle-orm": "catalog:",
+    "effect": "catalog:"
   },
   "devDependencies": {
     "@beep/shared-domain": "workspace:^",
     "@beep/comms-domain": "workspace:^",
     "@beep/shared-tables": "workspace:^",
     "@effect/docgen": "catalog:",
+    "@effect/experimental": "catalog:",
+    "@effect/sql": "catalog:",
     "@total-typescript/ts-reset": "catalog:",
-    "drizzle-orm": "catalog:"
+    "drizzle-orm": "catalog:",
+    "effect": "catalog:"
   },
   "effect": {
     "generateExports": {
-      "include": [
-        "**/*.ts"
-      ]
+      "include": ["**/*.ts"]
     },
     "generateIndex": {
-      "include": [
-        "**/*.ts"
-      ]
+      "include": ["**/*.ts"]
     }
   }
 }

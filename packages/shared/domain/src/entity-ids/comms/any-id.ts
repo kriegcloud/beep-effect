@@ -16,7 +16,14 @@ const $I = $SharedDomainId.create("entity-ids/comms/any-id");
  * @since 0.1.0
  * @category ids
  */
-export class AnyId extends S.Union(Ids.EmailTemplateId).annotations(
+export class AnyId extends S.Union(
+  Ids.EmailTemplateId,
+  Ids.ConnectionId,
+  Ids.ThreadSummaryId,
+  Ids.NoteId,
+  Ids.UserSettingsId,
+  Ids.UserHotkeysId
+).annotations(
   $I.annotations("AnyCommsId", {
     description: "Any entity id within the comms domain context",
   })

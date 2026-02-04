@@ -1,10 +1,6 @@
-/**
- * Comms table exports
- *
- * @module comms-tables/tables
- * @since 0.1.0
- */
-export * from "./email-template.table.ts";
-
-// Export table definitions here
-// Example: export * from "./my-entity.table";
+export * from "./connection.table";
+export * from "./email-template.table";
+export * from "./note.table";
+export * from "./thread-summary.table";
+export * from "./user-hotkeys.table";
+export * from "./user-settings.table";

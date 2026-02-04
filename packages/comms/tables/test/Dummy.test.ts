@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
 
-describe("@beep/comms-tables", () => {
-  it("should be defined", () => {
+describe("Dummy", () => {
+  it("should pass", () => {
     expect(true).toBe(true);
   });
 });
