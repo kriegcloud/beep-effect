@@ -1,7 +1,7 @@
 {
-  "lastCallMs": 1770232660749,
+  "lastCallMs": 1770234501864,
   "skillIndex": {
-    "loadedAt": 1770232660956,
+    "loadedAt": 1770234501965,
     "directoryMtime": 1770216677404,
     "skills": [
       {
@@ -1537,5 +1537,8 @@
         "filePath": "/home/elpresidank/YeeBois/projects/beep-effect2/.claude/patterns/code-smells/use-console-service.md"
       }
     ]
+  },
+  "telemetry": {
+    "activeAgents": {}
   }
 }

@@ -137,3 +137,12 @@
 {"eventType":"stop","timestamp":"2026-02-04T15:02:43.918Z","sessionId":"9cb0b00d-93ce-43f9-9c56-d320b49e2d19","agentType":"unknown","durationMs":0,"outcome":"success"}
 {"eventType":"stop","timestamp":"2026-02-04T15:20:52.434Z","sessionId":"8162f5df-8d9b-4c62-8f79-8aa138699e5a","agentType":"unknown","durationMs":0,"outcome":"success"}
 {"eventType":"start","timestamp":"2026-02-04T15:21:55.734Z","sessionId":"8162f5df-8d9b-4c62-8f79-8aa138699e5a","agentType":"effect-code-writer","triggeredBy":"auto"}
+{"eventType":"start","timestamp":"2026-02-04T19:32:42.975Z","sessionId":"788c0a6d-47b1-4f81-a2ab-b8c6645c6576","agentType":"doc-writer","triggeredBy":"auto"}
+{"eventType":"start","timestamp":"2026-02-04T19:32:58.037Z","sessionId":"788c0a6d-47b1-4f81-a2ab-b8c6645c6576","agentType":"doc-writer","triggeredBy":"auto"}
+{"eventType":"start","timestamp":"2026-02-04T19:33:19.067Z","sessionId":"788c0a6d-47b1-4f81-a2ab-b8c6645c6576","agentType":"doc-writer","triggeredBy":"auto"}
+{"eventType":"start","timestamp":"2026-02-04T19:33:36.237Z","sessionId":"788c0a6d-47b1-4f81-a2ab-b8c6645c6576","agentType":"spec-reviewer","triggeredBy":"auto"}
+{"eventType":"stop","timestamp":"2026-02-04T19:34:19.258Z","sessionId":"788c0a6d-47b1-4f81-a2ab-b8c6645c6576","agentType":"spec-reviewer","durationMs":43021,"outcome":"success"}
+{"eventType":"stop","timestamp":"2026-02-04T19:34:48.041Z","sessionId":"788c0a6d-47b1-4f81-a2ab-b8c6645c6576","agentType":"unknown","durationMs":0,"outcome":"success"}
+{"eventType":"stop","timestamp":"2026-02-04T19:35:06.799Z","sessionId":"788c0a6d-47b1-4f81-a2ab-b8c6645c6576","agentType":"unknown","durationMs":0,"outcome":"success"}
+{"eventType":"start","timestamp":"2026-02-04T19:48:41.441Z","sessionId":"273ce6ea-db20-4dd5-b580-29c65769f91e","agentType":"codebase-researcher","triggeredBy":"auto"}
+{"eventType":"stop","timestamp":"2026-02-04T19:50:55.594Z","sessionId":"273ce6ea-db20-4dd5-b580-29c65769f91e","agentType":"codebase-researcher","durationMs":134153,"outcome":"success"}
