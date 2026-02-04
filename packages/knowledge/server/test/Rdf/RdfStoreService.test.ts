@@ -7,7 +7,7 @@
  * @since 0.1.0
  */
 
-import { Literal, makeBlankNode, makeIRI, Quad, QuadPattern } from "@beep/knowledge-domain/value-objects";
+import { IRI, Literal, makeBlankNode, Quad, QuadPattern } from "@beep/knowledge-domain/value-objects";
 import { RdfStore } from "@beep/knowledge-server/Rdf/RdfStoreService";
 import { assertTrue, describe, effect, layer, strictEqual } from "@beep/testkit";
 import * as A from "effect/Array";
@@ -31,18 +31,18 @@ const EX = "http://example.org/";
  * Test fixture helpers
  */
 const fixtures = {
-  alice: makeIRI(`${EX}alice`),
-  bob: makeIRI(`${EX}bob`),
-  carol: makeIRI(`${EX}carol`),
-  foafName: makeIRI(`${FOAF}name`),
-  foafKnows: makeIRI(`${FOAF}knows`),
-  foafAge: makeIRI(`${FOAF}age`),
-  schemaName: makeIRI(`${SCHEMA}name`),
-  schemaWorksFor: makeIRI(`${SCHEMA}worksFor`),
-  acmeCorp: makeIRI(`${EX}acme-corp`),
-  graph1: makeIRI(`${EX}graph1`),
-  graph2: makeIRI(`${EX}graph2`),
-  xsdInteger: makeIRI(`${XSD}integer`),
+  alice: IRI.make(`${EX}alice`),
+  bob: IRI.make(`${EX}bob`),
+  carol: IRI.make(`${EX}carol`),
+  foafName: IRI.make(`${FOAF}name`),
+  foafKnows: IRI.make(`${FOAF}knows`),
+  foafAge: IRI.make(`${FOAF}age`),
+  schemaName: IRI.make(`${SCHEMA}name`),
+  schemaWorksFor: IRI.make(`${SCHEMA}worksFor`),
+  acmeCorp: IRI.make(`${EX}acme-corp`),
+  graph1: IRI.make(`${EX}graph1`),
+  graph2: IRI.make(`${EX}graph2`),
+  xsdInteger: IRI.make(`${XSD}integer`),
   blankB1: makeBlankNode("_:b1"),
   blankB2: makeBlankNode("_:b2"),
 };
@@ -592,7 +592,7 @@ describe("RdfStore", () => {
 
         strictEqual(results.length, 1);
         const resultObject = results[0]?.object;
-        assertTrue(resultObject instanceof Literal);
+        assertTrue(Literal.is(resultObject));
         strictEqual(resultObject.value, "Alice Smith");
         strictEqual(resultObject.language, undefined);
         strictEqual(resultObject.datatype, undefined);
@@ -618,7 +618,7 @@ describe("RdfStore", () => {
 
         strictEqual(results.length, 1);
         const resultObject = results[0]?.object;
-        assertTrue(resultObject instanceof Literal);
+        assertTrue(Literal.is(resultObject));
         strictEqual(resultObject.value, "Alice");
         strictEqual(resultObject.language, "en");
       }),
@@ -643,7 +643,7 @@ describe("RdfStore", () => {
 
         strictEqual(results.length, 1);
         const resultObject = results[0]?.object;
-        assertTrue(resultObject instanceof Literal);
+        assertTrue(Literal.is(resultObject));
         strictEqual(resultObject.value, "42");
         strictEqual(resultObject.datatype, fixtures.xsdInteger);
       }),

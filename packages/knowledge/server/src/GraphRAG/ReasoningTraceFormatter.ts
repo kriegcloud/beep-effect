@@ -229,7 +229,7 @@ const collectInferenceSteps = (
  */
 export class ReasoningTraceFormatter extends Effect.Service<ReasoningTraceFormatter>()($I`ReasoningTraceFormatter`, {
   accessors: true,
-  effect: Effect.gen(function* () {
+  effect: Effect.succeed({
     /**
      * Format a reasoning trace for a specific inferred triple.
      *
@@ -240,25 +240,19 @@ export class ReasoningTraceFormatter extends Effect.Service<ReasoningTraceFormat
      * @param tripleId - The ID of the triple to get the trace for
      * @returns Some(ReasoningTrace) if the triple was inferred, None if explicit
      */
-    const formatReasoningTrace = (result: InferenceResult, tripleId: string): O.Option<ReasoningTrace> => {
+    formatReasoningTrace: (result: InferenceResult, tripleId: string): O.Option<ReasoningTrace> => {
       const maybeProvenance = R.get(result.provenance, tripleId);
 
       return O.match(maybeProvenance, {
-        // Not in provenance map - explicit fact, no trace
         onNone: () => O.none(),
         onSome: (_provenance) => {
-          // Collect all steps in the inference chain
           const inferenceSteps = collectInferenceSteps(result.provenance, tripleId);
 
-          // Must have at least one step for a valid trace
           if (A.isEmptyReadonlyArray(inferenceSteps)) {
             return O.none();
           }
 
-          // Calculate depth for this triple
           const depth = calculateDepth(result.provenance, tripleId);
-
-          // Depth must be >= 1 for an inferred triple
           const validDepth = Math.max(1, depth);
 
           return O.some(
@@ -269,7 +263,7 @@ export class ReasoningTraceFormatter extends Effect.Service<ReasoningTraceFormat
           );
         },
       });
-    };
+    },
 
     /**
      * Generate a human-readable summary of a reasoning trace.
@@ -282,7 +276,7 @@ export class ReasoningTraceFormatter extends Effect.Service<ReasoningTraceFormat
      * @example
      * "Inferred via 3 steps: sameAs transitivity -> knows direct -> sameAs transitivity"
      */
-    const summarizeTrace = (trace: ReasoningTrace): string => {
+    summarizeTrace: (trace: ReasoningTrace): string => {
       const stepCount = A.length(trace.inferenceSteps);
 
       if (stepCount === 0) {
@@ -297,7 +291,7 @@ export class ReasoningTraceFormatter extends Effect.Service<ReasoningTraceFormat
 
       const stepLabel = stepCount === 1 ? "step" : "steps";
       return `Inferred via ${stepCount} ${stepLabel}: ${ruleNames}`;
-    };
+    },
 
     /**
      * Calculate the inference depth for a triple.
@@ -308,13 +302,7 @@ export class ReasoningTraceFormatter extends Effect.Service<ReasoningTraceFormat
      * @param tripleId - The triple ID to calculate depth for
      * @returns The inference depth (0 if explicit, >= 1 if inferred)
      */
-    const getDepth = (provenanceMap: Record<string, InferenceProvenance>, tripleId: string): number =>
-      calculateDepth(provenanceMap, tripleId, MutableHashSet.empty());
-
-    return {
-      formatReasoningTrace,
-      summarizeTrace,
-      calculateDepth: getDepth,
-    };
+    calculateDepth: (provenanceMap: Record<string, InferenceProvenance>, tripleId: string): number =>
+      calculateDepth(provenanceMap, tripleId, MutableHashSet.empty()),
   }),
 }) {}

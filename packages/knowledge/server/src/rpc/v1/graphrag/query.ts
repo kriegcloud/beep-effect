@@ -8,7 +8,7 @@
  */
 
 import { Errors } from "@beep/knowledge-domain";
-import { GraphRAG } from "@beep/knowledge-server";
+import * as GraphRAG from "../../../GraphRAG";
 import type { KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import { Policy } from "@beep/shared-domain";
 import * as Effect from "effect/Effect";

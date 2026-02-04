@@ -9,7 +9,7 @@
  * @module knowledge-server/test/Rdf/benchmark.test
  * @since 0.1.0
  */
-import { Literal, makeIRI, Quad, QuadPattern } from "@beep/knowledge-domain/value-objects";
+import { IRI, Literal, Quad, QuadPattern } from "@beep/knowledge-domain/value-objects";
 import { RdfBuilder } from "@beep/knowledge-server/Rdf/RdfBuilder";
 import { RdfStore } from "@beep/knowledge-server/Rdf/RdfStoreService";
 import { Serializer } from "@beep/knowledge-server/Rdf/Serializer";
@@ -42,8 +42,8 @@ const generateTestQuads = (n: number): ReadonlyArray<Quad> =>
     n,
     (i) =>
       new Quad({
-        subject: makeIRI(`${EX}entity/${i}`),
-        predicate: makeIRI(`${EX}value`),
+        subject: IRI.make(`${EX}entity/${i}`),
+        predicate: IRI.make(`${EX}value`),
         object: new Literal({ value: `Value ${i}` }),
       })
   );
@@ -132,7 +132,7 @@ describe("Rdf Performance Benchmarks", () => {
 
         // Measure match by subject pattern
         const subjectPattern = new QuadPattern({
-          subject: makeIRI(`${EX}entity/500`),
+          subject: IRI.make(`${EX}entity/500`),
         });
 
         const matchDuration = yield* measureMs(store.match(subjectPattern));
@@ -147,7 +147,7 @@ describe("Rdf Performance Benchmarks", () => {
 
         // Measure match by predicate (matches all quads)
         const predicatePattern = new QuadPattern({
-          predicate: makeIRI(`${EX}value`),
+          predicate: IRI.make(`${EX}value`),
         });
 
         const matchAllDuration = yield* measureMs(store.match(predicatePattern));

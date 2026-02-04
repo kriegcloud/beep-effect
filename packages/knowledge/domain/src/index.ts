@@ -7,6 +7,7 @@
  * - Value objects
  * - Error types
  * - RPC contracts
+ * - Service contracts
  * - Business rules (NO side effects)
  *
  * @module knowledge-domain
@@ -15,4 +16,5 @@
 export * as Entities from "./entities";
 export * as Errors from "./errors";
 export * as Rpc from "./rpc";
+export * as Services from "./services";
 export * as ValueObjects from "./value-objects";

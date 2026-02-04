@@ -8,7 +8,7 @@
  * @since 0.1.0
  */
 
-import { type KnowledgeEntityIds, type SharedEntityIds } from "@beep/shared-domain";
+import { KnowledgeEntityIds, type SharedEntityIds } from "@beep/shared-domain";
 import { OrgTable } from "@beep/shared-tables";
 import { datetime } from "@beep/shared-tables/columns";
 import * as pg from "drizzle-orm/pg-core";
@@ -26,12 +26,10 @@ import { sql } from "drizzle-orm/sql";
 export const mergeHistory = OrgTable.make(KnowledgeEntityIds.MergeHistoryId)(
   {
     // Source entity being merged
-    sourceEntityId: pg.text("source_entity_id").notNull()
-      .$type<KnowledgeEntityIds.KnowledgeEntityId.Type>(),
+    sourceEntityId: pg.text("source_entity_id").notNull().$type<KnowledgeEntityIds.KnowledgeEntityId.Type>(),
 
     // Target canonical entity
-    targetEntityId: pg.text("target_entity_id").notNull()
-      .$type<KnowledgeEntityIds.KnowledgeEntityId.Type>(),
+    targetEntityId: pg.text("target_entity_id").notNull().$type<KnowledgeEntityIds.KnowledgeEntityId.Type>(),
 
     // Merge reason: "embedding_similarity" | "manual_override" | "text_exact_match"
     mergeReason: pg.text("merge_reason").notNull(),

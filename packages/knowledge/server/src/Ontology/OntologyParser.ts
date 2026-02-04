@@ -7,6 +7,7 @@
  * @module knowledge-server/Ontology/OntologyParser
  * @since 0.1.0
  */
+import { $KnowledgeServerId } from "@beep/identity/packages";
 import { OntologyParseError } from "@beep/knowledge-domain/errors";
 import { thunkEmptyStr } from "@beep/utils";
 import * as A from "effect/Array";
@@ -19,6 +20,8 @@ import * as R from "effect/Record";
 import * as Str from "effect/String";
 import * as N3 from "n3";
 import { extractLocalName, OWL, RDF, RDFS, SKOS } from "./constants";
+
+const $I = $KnowledgeServerId.create("Ontology/OntologyParser");
 /**
  * Parsed class definition (pre-database)
  *
@@ -95,7 +98,7 @@ export interface ParsedOntology {
  * @since 0.1.0
  * @category services
  */
-export class OntologyParser extends Effect.Service<OntologyParser>()("@beep/knowledge-server/OntologyParser", {
+export class OntologyParser extends Effect.Service<OntologyParser>()($I`OntologyParser`, {
   effect: Effect.gen(function* () {
     /**
      * Parse Turtle content into N3.Store

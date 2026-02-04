@@ -367,7 +367,7 @@ export const GmailExtractionAdapterLive = Layer.effect(
         const token = yield* auth.getValidToken(REQUIRED_SCOPES);
         const accessToken = O.getOrThrow(token.accessToken);
 
-        const response = yield* http.execute(request.pipe(HttpClientRequest.bearerToken(accessToken))).pipe(
+        return yield* http.execute(request.pipe(HttpClientRequest.bearerToken(accessToken))).pipe(
           Effect.flatMap(HttpClientResponse.schemaBodyJson(schema)),
           Effect.mapError(
             (error) =>
@@ -379,8 +379,6 @@ export const GmailExtractionAdapterLive = Layer.effect(
           ),
           Effect.scoped
         );
-
-        return response;
       });
 
     const fetchMessage = (messageId: string) =>

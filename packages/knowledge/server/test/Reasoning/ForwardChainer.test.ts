@@ -7,27 +7,27 @@
  * @since 0.1.0
  */
 import { MaxDepthExceededError, MaxInferencesExceededError } from "@beep/knowledge-domain/errors";
-import { type InferenceProvenance, makeIRI, Quad, ReasoningConfig } from "@beep/knowledge-domain/value-objects";
+import { type InferenceProvenance, IRI, Quad, ReasoningConfig } from "@beep/knowledge-domain/value-objects";
 import { forwardChain } from "@beep/knowledge-server/Reasoning/ForwardChainer";
 import { assertTrue, describe, live, strictEqual } from "@beep/testkit";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Either from "effect/Either";
 
-const RDF_TYPE = makeIRI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
-const RDFS_DOMAIN = makeIRI("http://www.w3.org/2000/01/rdf-schema#domain");
-const RDFS_SUBCLASS_OF = makeIRI("http://www.w3.org/2000/01/rdf-schema#subClassOf");
+const RDF_TYPE = IRI.make("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
+const RDFS_DOMAIN = IRI.make("http://www.w3.org/2000/01/rdf-schema#domain");
+const RDFS_SUBCLASS_OF = IRI.make("http://www.w3.org/2000/01/rdf-schema#subClassOf");
 
 const EX = "http://example.org/";
 
 const fixtures = {
-  alice: makeIRI(`${EX}alice`),
-  bob: makeIRI(`${EX}bob`),
-  enrolledIn: makeIRI(`${EX}enrolledIn`),
-  CS101: makeIRI(`${EX}CS101`),
-  Student: makeIRI(`${EX}Student`),
-  Person: makeIRI(`${EX}Person`),
-  Agent: makeIRI(`${EX}Agent`),
+  alice: IRI.make(`${EX}alice`),
+  bob: IRI.make(`${EX}bob`),
+  enrolledIn: IRI.make(`${EX}enrolledIn`),
+  CS101: IRI.make(`${EX}CS101`),
+  Student: IRI.make(`${EX}Student`),
+  Person: IRI.make(`${EX}Person`),
+  Agent: IRI.make(`${EX}Agent`),
 };
 
 describe("ForwardChainer", () => {
@@ -161,7 +161,7 @@ describe("ForwardChainer", () => {
           const quads = [
             new Quad({
               subject: fixtures.alice,
-              predicate: makeIRI(`${EX}likes`),
+              predicate: IRI.make(`${EX}likes`),
               object: fixtures.bob,
             }),
           ];
@@ -370,9 +370,9 @@ describe("ForwardChainer", () => {
             A.range(0, 19),
             (i) =>
               new Quad({
-                subject: makeIRI(`${EX}Class${i}`),
+                subject: IRI.make(`${EX}Class${i}`),
                 predicate: RDFS_SUBCLASS_OF,
-                object: makeIRI(`${EX}Class${i + 1}`),
+                object: IRI.make(`${EX}Class${i + 1}`),
               })
           );
           const classes = A.append(
@@ -380,7 +380,7 @@ describe("ForwardChainer", () => {
             new Quad({
               subject: fixtures.alice,
               predicate: RDF_TYPE,
-              object: makeIRI(`${EX}Class0`),
+              object: IRI.make(`${EX}Class0`),
             })
           );
 
@@ -430,7 +430,7 @@ describe("ForwardChainer", () => {
             A.range(0, 9),
             (i) =>
               new Quad({
-                subject: makeIRI(`${EX}instance${i}`),
+                subject: IRI.make(`${EX}instance${i}`),
                 predicate: RDF_TYPE,
                 object: fixtures.Student,
               })

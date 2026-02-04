@@ -7,7 +7,7 @@
  * @since 0.1.0
  */
 
-import { EntityRepo } from "@beep/knowledge-server/db";
+import { EntityRepo } from "../../../db/repos/Entity.repo";
 import type { KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import { Policy } from "@beep/shared-domain";
 import * as Effect from "effect/Effect";

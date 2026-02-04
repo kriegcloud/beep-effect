@@ -7,7 +7,7 @@
  * @module knowledge-server/Reasoning/RdfsRules
  * @since 0.1.0
  */
-import { type BlankNode, type IRI, isIRI, Literal, makeIRI, Quad } from "@beep/knowledge-domain/value-objects";
+import { type BlankNode, IRI, Literal, Quad } from "@beep/knowledge-domain/value-objects";
 import * as A from "effect/Array";
 import * as F from "effect/Function";
 import * as O from "effect/Option";
@@ -22,11 +22,11 @@ import * as O from "effect/Option";
  * @since 0.1.0
  * @category constants
  */
-const RDF_TYPE = makeIRI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
-const RDFS_DOMAIN = makeIRI("http://www.w3.org/2000/01/rdf-schema#domain");
-const RDFS_RANGE = makeIRI("http://www.w3.org/2000/01/rdf-schema#range");
-const RDFS_SUBCLASS_OF = makeIRI("http://www.w3.org/2000/01/rdf-schema#subClassOf");
-const RDFS_SUBPROPERTY_OF = makeIRI("http://www.w3.org/2000/01/rdf-schema#subPropertyOf");
+const RDF_TYPE = IRI.make("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
+const RDFS_DOMAIN = IRI.make("http://www.w3.org/2000/01/rdf-schema#domain");
+const RDFS_RANGE = IRI.make("http://www.w3.org/2000/01/rdf-schema#range");
+const RDFS_SUBCLASS_OF = IRI.make("http://www.w3.org/2000/01/rdf-schema#subClassOf");
+const RDFS_SUBPROPERTY_OF = IRI.make("http://www.w3.org/2000/01/rdf-schema#subPropertyOf");
 
 // ============================================================================
 // Type Definitions
@@ -66,7 +66,7 @@ export interface RdfsRule {
  * @since 0.1.0
  * @category guards
  */
-const isLiteral = (term: IRI.Type | BlankNode.Type | Literal): term is Literal => term instanceof Literal;
+const isLiteral = (term: IRI.Type | BlankNode.Type | Literal): term is Literal => Literal.is(term);
 
 /**
  * Generate a deterministic ID for a quad (for deduplication and provenance)
@@ -257,7 +257,7 @@ export const rdfs7: RdfsRule = {
       const superProp = subPropDecl.object;
 
       // Skip if superproperty is not an IRI (invalid RDFS - properties must be IRIs)
-      if (!isIRI(superProp)) {
+      if (!IRI.is(superProp)) {
         continue;
       }
 

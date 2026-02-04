@@ -233,28 +233,38 @@ export const ExtractionWorkflow = Workflow.make({
 })
 ```
 
-### 2. Durable Activity Pattern
+### 2. Durable Activity Pattern (CORRECT API)
 
 ```typescript
 import { Activity } from "@effect/workflow"
-import { Schema } from "effect"
+import { Effect, Schedule, Schema } from "effect"
 
-// Activities are automatically journaled for crash recovery
-const extractEntitiesActivity = Activity.make({
-  name: "extract-entities",
-  input: Schema.Struct({ text: Schema.String, ontologyId: Schema.String }),
-  output: Schema.Array(EntitySchema),
-  error: Schema.String
-})
+// Activity factory function - input captured in closure, NOT passed to execute
+export const makeExtractEntitiesActivity = (input: { text: string; ontologyId: string }) =>
+  Activity.make({
+    name: `extract-entities-${input.ontologyId}`,  // Unique per invocation
+    success: Schema.Array(EntitySchema),            // Schema (not "output")
+    error: ActivityErrorSchema,                     // Schema (not just Schema.String)
+    execute: Effect.gen(function*() {
+      // input is captured in closure - NOT passed as parameter
+      const extractor = yield* EntityExtractor
+      return yield* extractor.extract(input.text, input.ontologyId)
+    }),
+    interruptRetryPolicy: Schedule.exponential("1 second").pipe(
+      Schedule.jittered,
+      Schedule.compose(Schedule.recurs(3))
+    )
+  })
 
-// Usage in workflow
-const entities = yield* extractEntitiesActivity.execute({ text, ontologyId })
+// Usage in workflow: factory(input).execute
+const entities = yield* makeExtractEntitiesActivity({ text, ontologyId }).execute
 ```
 
 ### 3. Workflow Orchestrator Pattern
 
 ```typescript
 import { WorkflowEngine } from "@effect/workflow"
+import { Effect } from "effect"
 
 export const makeWorkflowOrchestrator = Effect.gen(function*() {
   const engine = yield* WorkflowEngine.WorkflowEngine
@@ -269,10 +279,13 @@ export const makeWorkflowOrchestrator = Effect.gen(function*() {
       })
     }),
 
-    startAndWait: (payload) => engine.execute(ExtractionWorkflow, {
-      executionId: yield* ExtractionWorkflow.executionId(payload),
-      payload,
-      discard: false
+    startAndWait: (payload) => Effect.gen(function*() {
+      const executionId = yield* ExtractionWorkflow.executionId(payload)
+      return yield* engine.execute(ExtractionWorkflow, {
+        executionId,
+        payload,
+        discard: false
+      })
     }),
 
     poll: (executionId) => engine.poll(ExtractionWorkflow, executionId),

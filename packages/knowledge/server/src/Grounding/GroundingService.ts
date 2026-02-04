@@ -7,6 +7,7 @@
  * @module knowledge-server/Grounding/GroundingService
  * @since 0.1.0
  */
+import { $KnowledgeServerId } from "@beep/identity/packages";
 import type { SharedEntityIds } from "@beep/shared-domain";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
@@ -20,6 +21,9 @@ import { EmbeddingService } from "../Embedding/EmbeddingService";
 import type { AssembledEntity, AssembledRelation, KnowledgeGraph } from "../Extraction/GraphAssembler";
 import { extractLocalName } from "../Ontology/constants";
 import { cosineSimilarity } from "../utils/vector";
+
+const $I = $KnowledgeServerId.create("Grounding/GroundingService");
+
 // =============================================================================
 // Types
 // =============================================================================
@@ -143,7 +147,7 @@ const relationToStatement = (
  * @since 0.1.0
  * @category services
  */
-export class GroundingService extends Effect.Service<GroundingService>()("@beep/knowledge-server/GroundingService", {
+export class GroundingService extends Effect.Service<GroundingService>()($I`GroundingService`, {
   accessors: true,
   effect: Effect.gen(function* () {
     const embedding = yield* EmbeddingService;
@@ -158,116 +162,118 @@ export class GroundingService extends Effect.Service<GroundingService>()("@beep/
      * @param config - Grounding configuration
      * @returns Grounding result with verified relations
      */
-    const verifyRelations = (
-      graph: KnowledgeGraph,
-      sourceText: string,
-      organizationId: SharedEntityIds.OrganizationId.Type,
-      ontologyId: string,
-      config: GroundingConfig = {}
-    ): Effect.Effect<GroundingResult, EmbeddingError> =>
-      Effect.gen(function* () {
-        const threshold = config.confidenceThreshold ?? DEFAULT_CONFIDENCE_THRESHOLD;
+    const verifyRelations = Effect.fn("GroundingService.verifyRelations")(
+      (
+        graph: KnowledgeGraph,
+        sourceText: string,
+        organizationId: SharedEntityIds.OrganizationId.Type,
+        ontologyId: string,
+        config: GroundingConfig = {}
+      ): Effect.Effect<GroundingResult, EmbeddingError> =>
+        Effect.gen(function* () {
+          const threshold = config.confidenceThreshold ?? DEFAULT_CONFIDENCE_THRESHOLD;
 
-        yield* Effect.logInfo("GroundingService.verifyRelations: starting", {
-          relationCount: graph.relations.length,
-          threshold,
-        });
+          yield* Effect.logInfo("GroundingService.verifyRelations: starting", {
+            relationCount: graph.relations.length,
+            threshold,
+          });
 
-        if (A.isEmptyReadonlyArray(graph.relations)) {
-          return {
-            groundedRelations: A.empty<AssembledRelation>(),
-            ungroundedRelations: A.empty<AssembledRelation>(),
+          if (A.isEmptyReadonlyArray(graph.relations)) {
+            return {
+              groundedRelations: A.empty<AssembledRelation>(),
+              ungroundedRelations: A.empty<AssembledRelation>(),
+              stats: {
+                total: 0,
+                grounded: 0,
+                ungrounded: 0,
+                averageConfidence: 0,
+              },
+            };
+          }
+
+          // Embed source text as document
+          const sourceEmbedding = yield* embedding.embed(sourceText, "search_document", organizationId, ontologyId);
+
+          // Build entity lookup by ID
+          const entityById = MutableHashMap.empty<string, AssembledEntity>();
+          for (const entity of graph.entities) {
+            MutableHashMap.set(entityById, entity.id, entity);
+          }
+
+          const grounded = A.empty<AssembledRelation>();
+          const ungrounded = A.empty<AssembledRelation>();
+          let totalConfidence = 0;
+
+          for (const relation of graph.relations) {
+            const subjectOpt = MutableHashMap.get(entityById, relation.subjectId);
+
+            if (O.isNone(subjectOpt)) {
+              yield* Effect.logDebug("GroundingService: missing subject entity", {
+                relationId: relation.id,
+                subjectId: relation.subjectId,
+              });
+              if (config.keepUngrounded) {
+                ungrounded.push(relation);
+              }
+              continue;
+            }
+            const subject = subjectOpt.value;
+
+            const objectOpt = relation.objectId ? MutableHashMap.get(entityById, relation.objectId) : O.none();
+            const object = O.isSome(objectOpt) ? objectOpt.value : undefined;
+
+            // Convert relation to natural language statement
+            const statement = relationToStatement(relation, subject.mention, object?.mention);
+
+            // Embed statement as query
+            const statementEmbedding = yield* embedding.embed(statement, "search_query", organizationId, ontologyId);
+
+            // Compute similarity
+            const similarity = cosineSimilarity(sourceEmbedding, statementEmbedding);
+
+            // Update relation with grounded confidence
+            const updatedRelation: AssembledRelation = {
+              ...relation,
+              confidence: similarity,
+            };
+
+            if (similarity >= threshold) {
+              grounded.push(updatedRelation);
+              totalConfidence += similarity;
+            } else {
+              if (config.keepUngrounded) {
+                ungrounded.push(updatedRelation);
+              }
+              yield* Effect.logDebug("GroundingService: relation below threshold", {
+                relationId: relation.id,
+                statement,
+                similarity,
+                threshold,
+              });
+            }
+          }
+
+          const result: GroundingResult = {
+            groundedRelations: grounded,
+            ungroundedRelations: ungrounded,
             stats: {
-              total: 0,
-              grounded: 0,
-              ungrounded: 0,
-              averageConfidence: 0,
+              total: graph.relations.length,
+              grounded: grounded.length,
+              ungrounded: ungrounded.length,
+              averageConfidence: A.isNonEmptyReadonlyArray(grounded) ? totalConfidence / grounded.length : 0,
             },
           };
-        }
 
-        // Embed source text as document
-        const sourceEmbedding = yield* embedding.embed(sourceText, "search_document", organizationId, ontologyId);
+          yield* Effect.logInfo("GroundingService.verifyRelations: complete", result.stats);
 
-        // Build entity lookup by ID
-        const entityById = MutableHashMap.empty<string, AssembledEntity>();
-        for (const entity of graph.entities) {
-          MutableHashMap.set(entityById, entity.id, entity);
-        }
-
-        const grounded = A.empty<AssembledRelation>();
-        const ungrounded = A.empty<AssembledRelation>();
-        let totalConfidence = 0;
-
-        for (const relation of graph.relations) {
-          const subjectOpt = MutableHashMap.get(entityById, relation.subjectId);
-
-          if (O.isNone(subjectOpt)) {
-            yield* Effect.logDebug("GroundingService: missing subject entity", {
-              relationId: relation.id,
-              subjectId: relation.subjectId,
-            });
-            if (config.keepUngrounded) {
-              ungrounded.push(relation);
-            }
-            continue;
-          }
-          const subject = subjectOpt.value;
-
-          const objectOpt = relation.objectId ? MutableHashMap.get(entityById, relation.objectId) : O.none();
-          const object = O.isSome(objectOpt) ? objectOpt.value : undefined;
-
-          // Convert relation to natural language statement
-          const statement = relationToStatement(relation, subject.mention, object?.mention);
-
-          // Embed statement as query
-          const statementEmbedding = yield* embedding.embed(statement, "search_query", organizationId, ontologyId);
-
-          // Compute similarity
-          const similarity = cosineSimilarity(sourceEmbedding, statementEmbedding);
-
-          // Update relation with grounded confidence
-          const updatedRelation: AssembledRelation = {
-            ...relation,
-            confidence: similarity,
-          };
-
-          if (similarity >= threshold) {
-            grounded.push(updatedRelation);
-            totalConfidence += similarity;
-          } else {
-            if (config.keepUngrounded) {
-              ungrounded.push(updatedRelation);
-            }
-            yield* Effect.logDebug("GroundingService: relation below threshold", {
-              relationId: relation.id,
-              statement,
-              similarity,
-              threshold,
-            });
-          }
-        }
-
-        const result: GroundingResult = {
-          groundedRelations: grounded,
-          ungroundedRelations: ungrounded,
-          stats: {
-            total: graph.relations.length,
-            grounded: grounded.length,
-            ungrounded: ungrounded.length,
-            averageConfidence: A.isNonEmptyReadonlyArray(grounded) ? totalConfidence / grounded.length : 0,
-          },
-        };
-
-        yield* Effect.logInfo("GroundingService.verifyRelations: complete", result.stats);
-
-        return result;
-      }).pipe(
-        Effect.withSpan("GroundingService.verifyRelations", {
-          captureStackTrace: false,
-          attributes: { relationCount: graph.relations.length, organizationId, ontologyId },
-        })
-      );
+          return result;
+        }).pipe(
+          Effect.withSpan("GroundingService.verifyRelations", {
+            captureStackTrace: false,
+            attributes: { relationCount: graph.relations.length, organizationId, ontologyId },
+          })
+        )
+    );
 
     /**
      * Apply grounding results to knowledge graph
@@ -298,7 +304,7 @@ export class GroundingService extends Effect.Service<GroundingService>()("@beep/
      * @param ontologyId - Ontology ID
      * @returns Confidence score (0-1)
      */
-    const verifyRelation = Effect.fnUntraced(function* (
+    const verifyRelation = Effect.fn("GroundingService.verifyRelation")(function* (
       relation: AssembledRelation,
       subjectMention: string,
       objectMention: string | undefined,

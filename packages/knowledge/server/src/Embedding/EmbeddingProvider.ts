@@ -7,7 +7,12 @@
  * @module knowledge-server/Embedding/EmbeddingProvider
  * @since 0.1.0
  */
+
+import { $KnowledgeServerId } from "@beep/identity/packages";
+import { BS } from "@beep/schema";
 import * as S from "effect/Schema";
+
+const $I = $KnowledgeServerId.create("Embedding/EmbeddingProvider");
 
 /**
  * Task type for embedding generation
@@ -18,10 +23,20 @@ import * as S from "effect/Schema";
  * @since 0.1.0
  * @category schemas
  */
-export type TaskType =
-  | "search_document" // For document storage (asymmetric search)
-  | "search_query" // For queries (asymmetric search)
-  | "clustering"; // For entity clustering
+
+export class TaskType extends BS.StringLiteralKit(
+  "search_document", // For document storage (asymmetric search)
+  "search_query", // For queries (asymmetric search)
+  "clustering" // For entity clustering
+).annotations(
+  $I.annotations("TaskType", {
+    description: "Task type for embedding generation",
+  })
+) {}
+
+export declare namespace TaskType {
+  export type Type = typeof TaskType.Type;
+}
 
 /**
  * Configuration for embedding provider

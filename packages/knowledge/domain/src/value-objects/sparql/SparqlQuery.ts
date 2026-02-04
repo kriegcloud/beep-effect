@@ -7,6 +7,7 @@
  * @since 0.1.0
  */
 import { $KnowledgeDomainId } from "@beep/identity/packages";
+import { BS } from "@beep/schema";
 import * as S from "effect/Schema";
 
 const $I = $KnowledgeDomainId.create("value-objects/sparql/SparqlQuery");
@@ -17,13 +18,18 @@ const $I = $KnowledgeDomainId.create("value-objects/sparql/SparqlQuery");
  * @since 0.1.0
  * @category value-objects
  */
-export const SparqlQueryType = S.Literal("SELECT", "CONSTRUCT", "ASK", "DESCRIBE").annotations(
+export class SparqlQueryType extends BS.StringLiteralKit("SELECT", "CONSTRUCT", "ASK", "DESCRIBE").annotations(
   $I.annotations("SparqlQueryType", {
     title: "SPARQL Query Type",
     description: "Type of SPARQL query operation",
   })
-);
-export type SparqlQueryType = typeof SparqlQueryType.Type;
+) {
+  static readonly make = S.decodeUnknownSync(this);
+}
+export declare namespace SparqlQueryType {
+  export type Type = typeof SparqlQueryType.Type;
+  export type Encoded = typeof SparqlQueryType.Encoded;
+}
 
 /**
  * PREFIX declarations mapping (prefix -> full IRI)
@@ -37,7 +43,10 @@ export const PrefixMap = S.Record({ key: S.String, value: S.String }).annotation
     description: "PREFIX declarations (prefix -> IRI expansion)",
   })
 );
-export type PrefixMap = typeof PrefixMap.Type;
+export declare namespace PrefixMap {
+  export type Type = typeof PrefixMap.Type;
+  export type Encoded = typeof PrefixMap.Encoded;
+}
 
 /**
  * SparqlQuery - Immutable value object representing a parsed SPARQL query

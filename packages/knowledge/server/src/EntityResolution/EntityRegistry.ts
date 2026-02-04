@@ -13,7 +13,7 @@
  * @since 0.1.0
  */
 import { $KnowledgeServerId } from "@beep/identity/packages";
-import { Entities, Errors, ValueObjects } from "@beep/knowledge-domain";
+import { type Entities, Errors, type ValueObjects } from "@beep/knowledge-domain";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Str from "effect/String";
@@ -79,9 +79,7 @@ export class EntityRegistry extends Effect.Service<EntityRegistry>()($I`EntityRe
        * @param mention - MentionRecord to resolve
        * @returns Array of EntityCandidates ranked by similarity
        */
-      findCandidates: (
-        mention: Entities.MentionRecord.Model
-      ): Effect.Effect<ReadonlyArray<ValueObjects.EntityCandidate>, Errors.RegistryError> =>
+      findCandidates: Effect.fn((mention: Entities.MentionRecord.Model) =>
         Effect.gen(function* () {
           // STUB: Phase 3 will implement full search flow
           // For now, return empty array
@@ -102,7 +100,8 @@ export class EntityRegistry extends Effect.Service<EntityRegistry>()($I`EntityRe
                 cause: error,
               })
           )
-        ),
+        )
+      ),
 
       /**
        * Bloom filter check (quick negative test)
@@ -112,7 +111,7 @@ export class EntityRegistry extends Effect.Service<EntityRegistry>()($I`EntityRe
        * @param normalizedText - Normalized text to check
        * @returns true if entity may exist, false if definitely doesn't exist
        */
-      bloomFilterCheck: (normalizedText: string): Effect.Effect<boolean, Errors.RegistryError> =>
+      bloomFilterCheck: Effect.fn((normalizedText: string) =>
         Effect.gen(function* () {
           // STUB: Always return true (assume may exist)
           yield* Effect.logDebug("EntityRegistry.bloomFilterCheck: stub implementation", {
@@ -124,7 +123,8 @@ export class EntityRegistry extends Effect.Service<EntityRegistry>()($I`EntityRe
             captureStackTrace: false,
             attributes: { normalizedText },
           })
-        ),
+        )
+      ),
 
       /**
        * Fetch text matches from database
@@ -134,9 +134,7 @@ export class EntityRegistry extends Effect.Service<EntityRegistry>()($I`EntityRe
        * @param normalizedText - Normalized text to search
        * @returns Array of matching entities
        */
-      fetchTextMatches: (
-        normalizedText: string
-      ): Effect.Effect<ReadonlyArray<Entities.Entity.Model>, Errors.RegistryError> =>
+      fetchTextMatches: Effect.fn((normalizedText: string) =>
         Effect.gen(function* () {
           // STUB: Return empty array
           yield* Effect.logDebug("EntityRegistry.fetchTextMatches: stub implementation", {
@@ -148,7 +146,8 @@ export class EntityRegistry extends Effect.Service<EntityRegistry>()($I`EntityRe
             captureStackTrace: false,
             attributes: { normalizedText },
           })
-        ),
+        )
+      ),
 
       /**
        * Rank candidates by embedding similarity
@@ -159,23 +158,22 @@ export class EntityRegistry extends Effect.Service<EntityRegistry>()($I`EntityRe
        * @param candidates - Candidate entities to rank
        * @returns Array of EntityCandidates sorted by similarity score (descending)
        */
-      rankBySimilarity: (
-        mention: Entities.MentionRecord.Model,
-        candidates: ReadonlyArray<Entities.Entity.Model>
-      ): Effect.Effect<ReadonlyArray<ValueObjects.EntityCandidate>, Errors.SimilarityError> =>
-        Effect.gen(function* () {
-          // STUB: Return empty array
-          yield* Effect.logDebug("EntityRegistry.rankBySimilarity: stub implementation", {
-            mentionId: mention.id,
-            candidateCount: candidates.length,
-          });
-          return A.empty<ValueObjects.EntityCandidate>();
-        }).pipe(
-          Effect.withSpan("EntityRegistry.rankBySimilarity", {
-            captureStackTrace: false,
-            attributes: { mentionId: mention.id, candidateCount: candidates.length },
-          })
-        ),
+      rankBySimilarity: Effect.fn(
+        (mention: Entities.MentionRecord.Model, candidates: ReadonlyArray<Entities.Entity.Model>) =>
+          Effect.gen(function* () {
+            // STUB: Return empty array
+            yield* Effect.logDebug("EntityRegistry.rankBySimilarity: stub implementation", {
+              mentionId: mention.id,
+              candidateCount: candidates.length,
+            });
+            return A.empty<ValueObjects.EntityCandidate>();
+          }).pipe(
+            Effect.withSpan("EntityRegistry.rankBySimilarity", {
+              captureStackTrace: false,
+              attributes: { mentionId: mention.id, candidateCount: candidates.length },
+            })
+          )
+      ),
     };
   }),
 }) {}

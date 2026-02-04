@@ -19,8 +19,7 @@ const $I = $KnowledgeDomainId.create("value-objects/reasoning/ReasoningConfig");
  * @since 0.1.0
  * @category value-objects
  */
-const PositiveInt = S.Number.pipe(
-  S.int(),
+const PositiveInt = S.Int.pipe(
   S.positive(),
   S.annotations({
     title: "Positive Integer",

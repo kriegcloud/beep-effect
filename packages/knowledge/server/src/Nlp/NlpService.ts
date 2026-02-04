@@ -7,11 +7,14 @@
  * @module knowledge-server/Nlp/NlpService
  * @since 0.1.0
  */
+import { $KnowledgeServerId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Stream from "effect/Stream";
 import * as Str from "effect/String";
 import { type ChunkingConfig, defaultChunkingConfig, TextChunk } from "./TextChunk";
+
+const $I = $KnowledgeServerId.create("Nlp/NlpService");
 
 /**
  * Sentence boundary patterns
@@ -204,57 +207,66 @@ const splitIntoChunks = (text: string, config: ChunkingConfig): readonly TextChu
  * @since 0.1.0
  * @category services
  */
-export class NlpService extends Effect.Service<NlpService>()("@beep/knowledge-server/NlpService", {
+export class NlpService extends Effect.Service<NlpService>()($I`NlpService`, {
   accessors: true,
   effect: Effect.gen(function* () {
+    /**
+     * Chunk text into processable segments
+     *
+     * Returns a Stream of TextChunks with preserved character offsets.
+     * Supports sentence-aware chunking with configurable overlap.
+     *
+     * @param text - The document text to chunk
+     * @param config - Chunking configuration (optional)
+     * @returns Stream of TextChunk
+     */
+    const chunkText = (text: string, config: ChunkingConfig = defaultChunkingConfig) =>
+      Stream.fromIterable(splitIntoChunks(text, config));
+
+    /**
+     * Chunk text and collect all chunks into an array
+     *
+     * Convenience method for small documents.
+     *
+     * @param text - The document text to chunk
+     * @param config - Chunking configuration (optional)
+     * @returns Effect yielding array of TextChunk
+     */
+    const chunkTextAll = Effect.fn("NlpService.chunkTextAll")(
+      (text: string, config: ChunkingConfig = defaultChunkingConfig) => Effect.sync(() => splitIntoChunks(text, config))
+    );
+
+    /**
+     * Split text into sentences
+     *
+     * @param text - The text to split
+     * @returns Array of sentences
+     */
+    const splitSentences = Effect.fn("NlpService.splitSentences")((text: string) =>
+      Effect.sync(() => splitIntoSentences(text))
+    );
+
+    /**
+     * Count approximate tokens in text
+     *
+     * Uses rough estimation (4 characters per token).
+     * For precise counts, use a tokenizer library.
+     *
+     * @param text - The text to count
+     * @returns Approximate token count
+     */
+    const estimateTokens = Effect.fn("NlpService.estimateTokens")((text: string) =>
+      Effect.sync(() => {
+        // Rough estimation: ~4 characters per token
+        return Math.ceil(text.length / 4);
+      })
+    );
+
     return {
-      /**
-       * Chunk text into processable segments
-       *
-       * Returns a Stream of TextChunks with preserved character offsets.
-       * Supports sentence-aware chunking with configurable overlap.
-       *
-       * @param text - The document text to chunk
-       * @param config - Chunking configuration (optional)
-       * @returns Stream of TextChunk
-       */
-      chunkText: (text: string, config: ChunkingConfig = defaultChunkingConfig) =>
-        Stream.fromIterable(splitIntoChunks(text, config)),
-
-      /**
-       * Chunk text and collect all chunks into an array
-       *
-       * Convenience method for small documents.
-       *
-       * @param text - The document text to chunk
-       * @param config - Chunking configuration (optional)
-       * @returns Effect yielding array of TextChunk
-       */
-      chunkTextAll: (text: string, config: ChunkingConfig = defaultChunkingConfig) =>
-        Effect.sync(() => splitIntoChunks(text, config)),
-
-      /**
-       * Split text into sentences
-       *
-       * @param text - The text to split
-       * @returns Array of sentences
-       */
-      splitSentences: (text: string) => Effect.sync(() => splitIntoSentences(text)),
-
-      /**
-       * Count approximate tokens in text
-       *
-       * Uses rough estimation (4 characters per token).
-       * For precise counts, use a tokenizer library.
-       *
-       * @param text - The text to count
-       * @returns Approximate token count
-       */
-      estimateTokens: (text: string) =>
-        Effect.sync(() => {
-          // Rough estimation: ~4 characters per token
-          return Math.ceil(text.length / 4);
-        }),
+      chunkText,
+      chunkTextAll,
+      splitSentences,
+      estimateTokens,
     };
   }),
 }) {}

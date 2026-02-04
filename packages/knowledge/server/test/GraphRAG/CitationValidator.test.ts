@@ -12,7 +12,7 @@ import {
   InferenceProvenance,
   InferenceResult,
   InferenceStats,
-  makeIRI,
+  IRI,
   Quad,
 } from "@beep/knowledge-domain/value-objects";
 import { Citation } from "@beep/knowledge-server/GraphRAG/AnswerSchemas";
@@ -69,8 +69,7 @@ const createMockSparqlService = (config: {
         }
 
         // Check if any known relation is in the query
-        const relationExists = A.some(config.knownRelations, (relationId) => query.includes(relationId));
-        return !!relationExists;
+        return A.some(config.knownRelations, (relationId) => query.includes(relationId));
       }),
     select: () => Effect.succeed({ columns: [], rows: [] }),
     construct: () => Effect.succeed([]),
@@ -94,9 +93,9 @@ const createInferenceResultWithRelation = (relationId: string, depth = 1): Infer
   new InferenceResult({
     derivedTriples: [
       new Quad({
-        subject: makeIRI("http://example.org/subject"),
-        predicate: makeIRI(relationId),
-        object: makeIRI("http://example.org/object"),
+        subject: IRI.make("http://example.org/subject"),
+        predicate: IRI.make(relationId),
+        object: IRI.make("http://example.org/object"),
       }),
     ],
     provenance: {

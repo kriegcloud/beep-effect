@@ -115,7 +115,7 @@ export declare namespace HttpIRI {
  *
  * @internal
  */
-const isValidUrn = (iri: string): boolean => URN_PATTERN.test(iri);
+const isValidUrn = (iri: string): boolean => Str.match(URN_PATTERN)(iri).pipe(O.isSome);
 
 /**
  * Validates a file:// URI.
@@ -242,7 +242,9 @@ export class ClassIri extends S.Trimmed.pipe(
       ],
     },
   })
-) {}
+) {
+  static readonly is = S.is(ClassIri);
+}
 
 /**
  * Namespace for ClassIri type exports.
@@ -266,31 +268,3 @@ export declare namespace ClassIri {
    */
   export type Encoded = typeof ClassIri.Encoded;
 }
-
-/**
- * Creates a ClassIri from a string, throwing on invalid input.
- *
- * @example
- * ```typescript
- * const iri = makeClassIri("https://schema.org/Person");
- * ```
- *
- * @since 0.1.0
- * @category value-objects
- */
-export const makeClassIri = S.decodeUnknownSync(ClassIri);
-
-/**
- * Type guard for ClassIri values.
- *
- * @example
- * ```typescript
- * if (isClassIri(value)) {
- *   // value is typed as ClassIri.Type
- * }
- * ```
- *
- * @since 0.1.0
- * @category value-objects
- */
-export const isClassIri = S.is(ClassIri);

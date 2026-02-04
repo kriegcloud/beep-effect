@@ -50,7 +50,7 @@ export class InferenceStats extends S.Class<InferenceStats>($I`InferenceStats`)(
   /**
    * Number of rule application iterations performed
    */
-  iterations: S.Number.pipe(S.int(), S.nonNegative()).annotations({
+  iterations: S.NonNegativeInt.annotations({
     title: "Iterations",
     description: "Number of rule application iterations",
   }),
@@ -58,7 +58,7 @@ export class InferenceStats extends S.Class<InferenceStats>($I`InferenceStats`)(
   /**
    * Total number of new triples inferred
    */
-  triplesInferred: S.Number.pipe(S.int(), S.nonNegative()).annotations({
+  triplesInferred: S.NonNegativeInt.annotations({
     title: "Triples Inferred",
     description: "Total number of new triples generated",
   }),
@@ -66,7 +66,7 @@ export class InferenceStats extends S.Class<InferenceStats>($I`InferenceStats`)(
   /**
    * Execution time in milliseconds
    */
-  durationMs: S.Number.pipe(S.nonNegative()).annotations({
+  durationMs: S.NonNegative.annotations({
     title: "Duration (ms)",
     description: "Execution time in milliseconds",
   }),

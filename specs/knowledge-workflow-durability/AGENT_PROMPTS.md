@@ -4,6 +4,18 @@
 
 ---
 
+## ⚠️ CRITICAL: API Verification Required
+
+**IMPORTANT**: Code examples in prompts are conceptual, NOT verified API patterns. Agents MUST:
+
+1. **Tables auto-created**: `@effect/cluster` creates tables automatically. Do NOT create custom Drizzle tables.
+2. **Activity factory pattern**: Input captured in closure, NOT passed to execute.
+3. **Verify all APIs**: Reference `.repos/effect-ontology/packages/@core-v2/src/` for canonical patterns.
+
+See `QUICK_START.md` "Critical Patterns" section for correct API examples.
+
+---
+
 ## Agent Selection Matrix
 
 | Phase | Primary Agent | Secondary Agent | Research Agent |

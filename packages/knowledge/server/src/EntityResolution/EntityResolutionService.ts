@@ -7,7 +7,7 @@
  * @module knowledge-server/EntityResolution/EntityResolutionService
  * @since 0.1.0
  */
-import type { CanonicalSelectionError } from "@beep/knowledge-domain/errors";
+import { $KnowledgeServerId } from "@beep/identity/packages";
 import type { SharedEntityIds } from "@beep/shared-domain";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
@@ -21,6 +21,8 @@ import type { AssembledEntity, AssembledRelation, KnowledgeGraph } from "../Extr
 import { CanonicalSelector, type CanonicalSelectorConfig } from "./CanonicalSelector";
 import { type ClusterConfig, type EntityCluster, EntityClusterer } from "./EntityClusterer";
 import { type SameAsLink, SameAsLinker } from "./SameAsLinker";
+
+const $I = $KnowledgeServerId.create("EntityResolution/EntityResolutionService");
 
 // Re-export EntityCluster type for external use
 export type { EntityCluster } from "./EntityClusterer";
@@ -202,31 +204,30 @@ const buildResolvedGraph = (
  * @since 0.1.0
  * @category services
  */
-export class EntityResolutionService extends Effect.Service<EntityResolutionService>()(
-  "@beep/knowledge-server/EntityResolutionService",
-  {
-    accessors: true,
-    effect: Effect.gen(function* () {
-      const clusterer = yield* EntityClusterer;
-      const canonicalSelector = yield* CanonicalSelector;
-      const sameAsLinker = yield* SameAsLinker;
+export class EntityResolutionService extends Effect.Service<EntityResolutionService>()($I`EntityResolutionService`, {
+  accessors: true,
+  effect: Effect.gen(function* () {
+    const clusterer = yield* EntityClusterer;
+    const canonicalSelector = yield* CanonicalSelector;
+    const sameAsLinker = yield* SameAsLinker;
 
-      return {
-        /**
-         * Resolve entities across multiple knowledge graphs
-         *
-         * @param graphs - Knowledge graphs to resolve
-         * @param organizationId - Organization ID
-         * @param ontologyId - Ontology ID
-         * @param config - Resolution configuration
-         * @returns Resolution result with deduplicated graph and provenance
-         */
-        resolve: (
+    return {
+      /**
+       * Resolve entities across multiple knowledge graphs
+       *
+       * @param graphs - Knowledge graphs to resolve
+       * @param organizationId - Organization ID
+       * @param ontologyId - Ontology ID
+       * @param config - Resolution configuration
+       * @returns Resolution result with deduplicated graph and provenance
+       */
+      resolve: Effect.fn(
+        (
           graphs: readonly KnowledgeGraph[],
           organizationId: SharedEntityIds.OrganizationId.Type,
           ontologyId: string,
           config: ResolutionConfig = {}
-        ): Effect.Effect<ResolutionResult, CanonicalSelectionError> =>
+        ) =>
           Effect.gen(function* () {
             // Calculate original entity count
             const originalCount = graphs.reduce((sum, g) => sum + g.entities.length, 0);
@@ -343,11 +344,11 @@ export class EntityResolutionService extends Effect.Service<EntityResolutionServ
                 graphCount: graphs.length,
               },
             })
-          ),
-      };
-    }),
-  }
-) {}
+          )
+      ),
+    };
+  }),
+}) {}
 
 /**
  * EntityResolutionService layer with all dependencies

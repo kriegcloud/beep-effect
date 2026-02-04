@@ -7,6 +7,7 @@
  * @module knowledge-server/Sparql/SparqlService
  * @since 0.1.0
  */
+import { $KnowledgeServerId } from "@beep/identity/packages";
 import {
   type SparqlExecutionError,
   type SparqlSyntaxError,
@@ -14,10 +15,15 @@ import {
 } from "@beep/knowledge-domain/errors";
 import type { Quad, SparqlBindings } from "@beep/knowledge-domain/value-objects";
 import * as Effect from "effect/Effect";
+import * as F from "effect/Function";
+import * as Match from "effect/Match";
+import * as O from "effect/Option";
 import type * as sparqljs from "sparqljs";
 import { RdfStore } from "../Rdf/RdfStoreService";
 import { executeAsk, executeConstruct, executeSelect } from "./QueryExecutor";
 import { type ParseResult, SparqlParser } from "./SparqlParser";
+
+const $I = $KnowledgeServerId.create("Sparql/SparqlService");
 
 /**
  * Result types for different query forms
@@ -46,39 +52,44 @@ export type QueryResult = SelectResult | ConstructResult | AskResult;
 export type SparqlServiceError = SparqlSyntaxError | SparqlExecutionError | SparqlUnsupportedFeatureError;
 
 /**
- * Type guard: Check if AST is a query (not update)
+ * Extract query type string for error messages using Match
  */
-const isQueryAst = (
-  ast: sparqljs.SparqlQuery
-): ast is sparqljs.SelectQuery | sparqljs.ConstructQuery | sparqljs.AskQuery | sparqljs.DescribeQuery =>
-  ast.type === "query";
+const getQueryTypeString: (ast: sparqljs.SparqlQuery) => string = Match.type<sparqljs.SparqlQuery>().pipe(
+  Match.when({ type: "update" }, () => "UPDATE"),
+  Match.when({ type: "query" }, (q) => q.queryType),
+  Match.exhaustive
+);
 
 /**
- * Type guard: Check if AST is a SELECT query
+ * Narrow SparqlQuery to Query (SELECT/CONSTRUCT/ASK/DESCRIBE)
  */
-const isSelectQuery = (ast: sparqljs.SparqlQuery): ast is sparqljs.SelectQuery =>
-  isQueryAst(ast) && ast.queryType === "SELECT";
+const asQuery: (ast: sparqljs.SparqlQuery) => O.Option<sparqljs.Query> = F.flow(
+  O.liftPredicate((ast): ast is sparqljs.Query => ast.type === "query")
+);
 
 /**
- * Type guard: Check if AST is a CONSTRUCT query
+ * Narrow Query to SelectQuery
  */
-const isConstructQuery = (ast: sparqljs.SparqlQuery): ast is sparqljs.ConstructQuery =>
-  isQueryAst(ast) && ast.queryType === "CONSTRUCT";
+const asSelectQuery: (ast: sparqljs.SparqlQuery) => O.Option<sparqljs.SelectQuery> = F.flow(
+  asQuery,
+  O.flatMap(O.liftPredicate((q): q is sparqljs.SelectQuery => q.queryType === "SELECT"))
+);
 
 /**
- * Type guard: Check if AST is an ASK query
+ * Narrow Query to ConstructQuery
  */
-const isAskQuery = (ast: sparqljs.SparqlQuery): ast is sparqljs.AskQuery => isQueryAst(ast) && ast.queryType === "ASK";
+const asConstructQuery: (ast: sparqljs.SparqlQuery) => O.Option<sparqljs.ConstructQuery> = F.flow(
+  asQuery,
+  O.flatMap(O.liftPredicate((q): q is sparqljs.ConstructQuery => q.queryType === "CONSTRUCT"))
+);
 
 /**
- * Get query type string for error messages
+ * Narrow Query to AskQuery
  */
-const getQueryTypeString = (ast: sparqljs.SparqlQuery): string => {
-  if (ast.type === "update") {
-    return "UPDATE";
-  }
-  return ast.queryType;
-};
+const asAskQuery: (ast: sparqljs.SparqlQuery) => O.Option<sparqljs.AskQuery> = F.flow(
+  asQuery,
+  O.flatMap(O.liftPredicate((q): q is sparqljs.AskQuery => q.queryType === "ASK"))
+);
 
 /**
  * SparqlService Effect.Service
@@ -108,7 +119,7 @@ const getQueryTypeString = (ast: sparqljs.SparqlQuery): string => {
  * });
  * ```
  */
-export class SparqlService extends Effect.Service<SparqlService>()("@beep/knowledge-server/SparqlService", {
+export class SparqlService extends Effect.Service<SparqlService>()($I`SparqlService`, {
   accessors: true,
   effect: Effect.gen(function* () {
     const parser = yield* SparqlParser;
@@ -123,15 +134,22 @@ export class SparqlService extends Effect.Service<SparqlService>()("@beep/knowle
       Effect.gen(function* () {
         const result = yield* parser.parse(queryString);
 
-        if (!isSelectQuery(result.ast)) {
-          return yield* new SparqlUnsupportedFeatureError({
-            feature: `non-SELECT query`,
-            queryString,
-            message: `Expected SELECT query but got ${getQueryTypeString(result.ast)}`,
-          });
-        }
+        const maybeSelect = F.pipe(
+          asSelectQuery(result.ast),
+          O.map((ast) => ({ ...result, ast }))
+        );
 
-        return { ...result, ast: result.ast };
+        return yield* O.match(maybeSelect, {
+          onNone: () =>
+            Effect.fail(
+              new SparqlUnsupportedFeatureError({
+                feature: `non-SELECT query`,
+                queryString,
+                message: `Expected SELECT query but got ${getQueryTypeString(result.ast)}`,
+              })
+            ),
+          onSome: Effect.succeed,
+        });
       });
 
     /**
@@ -146,15 +164,22 @@ export class SparqlService extends Effect.Service<SparqlService>()("@beep/knowle
       Effect.gen(function* () {
         const result = yield* parser.parse(queryString);
 
-        if (!isConstructQuery(result.ast)) {
-          return yield* new SparqlUnsupportedFeatureError({
-            feature: `non-CONSTRUCT query`,
-            queryString,
-            message: `Expected CONSTRUCT query but got ${getQueryTypeString(result.ast)}`,
-          });
-        }
+        const maybeConstruct = F.pipe(
+          asConstructQuery(result.ast),
+          O.map((ast) => ({ ...result, ast }))
+        );
 
-        return { ...result, ast: result.ast };
+        return yield* O.match(maybeConstruct, {
+          onNone: () =>
+            Effect.fail(
+              new SparqlUnsupportedFeatureError({
+                feature: `non-CONSTRUCT query`,
+                queryString,
+                message: `Expected CONSTRUCT query but got ${getQueryTypeString(result.ast)}`,
+              })
+            ),
+          onSome: Effect.succeed,
+        });
       });
 
     /**
@@ -166,15 +191,22 @@ export class SparqlService extends Effect.Service<SparqlService>()("@beep/knowle
       Effect.gen(function* () {
         const result = yield* parser.parse(queryString);
 
-        if (!isAskQuery(result.ast)) {
-          return yield* new SparqlUnsupportedFeatureError({
-            feature: `non-ASK query`,
-            queryString,
-            message: `Expected ASK query but got ${getQueryTypeString(result.ast)}`,
-          });
-        }
+        const maybeAsk = F.pipe(
+          asAskQuery(result.ast),
+          O.map((ast) => ({ ...result, ast }))
+        );
 
-        return { ...result, ast: result.ast };
+        return yield* O.match(maybeAsk, {
+          onNone: () =>
+            Effect.fail(
+              new SparqlUnsupportedFeatureError({
+                feature: `non-ASK query`,
+                queryString,
+                message: `Expected ASK query but got ${getQueryTypeString(result.ast)}`,
+              })
+            ),
+          onSome: Effect.succeed,
+        });
       });
 
     return {
@@ -244,23 +276,24 @@ export class SparqlService extends Effect.Service<SparqlService>()("@beep/knowle
         Effect.gen(function* () {
           const { ast } = yield* parser.parse(queryString);
 
-          if (isSelectQuery(ast)) {
-            return yield* executeSelect(ast, store);
-          }
+          const dispatchQuery = F.pipe(
+            Match.type<sparqljs.SparqlQuery>(),
+            Match.when({ type: "query", queryType: "SELECT" }, (q) => executeSelect(q, store)),
+            Match.when({ type: "query", queryType: "CONSTRUCT" }, (q) => executeConstruct(q, store)),
+            Match.when({ type: "query", queryType: "ASK" }, (q) => executeAsk(q, store)),
+            Match.orElse(
+              (unsupported) =>
+                new SparqlUnsupportedFeatureError({
+                  feature: `${getQueryTypeString(unsupported)} queries`,
+                  queryString,
+                  message: `${getQueryTypeString(unsupported)} queries are not supported`,
+                })
+            )
+          );
 
-          if (isConstructQuery(ast)) {
-            return yield* executeConstruct(ast, store);
-          }
+          const result = dispatchQuery(ast);
 
-          if (isAskQuery(ast)) {
-            return yield* executeAsk(ast, store);
-          }
-
-          return yield* new SparqlUnsupportedFeatureError({
-            feature: `${getQueryTypeString(ast)} queries`,
-            queryString,
-            message: `${getQueryTypeString(ast)} queries are not supported`,
-          });
+          return yield* result instanceof SparqlUnsupportedFeatureError ? Effect.fail(result) : result;
         }).pipe(
           Effect.withSpan("SparqlService.query", {
             attributes: { queryLength: queryString.length },

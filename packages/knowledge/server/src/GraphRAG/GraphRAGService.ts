@@ -9,7 +9,8 @@
  */
 import { $KnowledgeServerId } from "@beep/identity/packages";
 import { Entities } from "@beep/knowledge-domain";
-import { EntityRepo, RelationRepo } from "@beep/knowledge-server/db";
+import { EntityRepo } from "../db/repos/Entity.repo";
+import { RelationRepo } from "../db/repos/Relation.repo";
 import { BS } from "@beep/schema";
 import { KnowledgeEntityIds, type SharedEntityIds } from "@beep/shared-domain";
 import type { DatabaseError } from "@beep/shared-domain/errors";

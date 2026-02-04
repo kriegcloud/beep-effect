@@ -6,6 +6,7 @@
  * @module knowledge-server/Extraction/ExtractionPipeline
  * @since 0.1.0
  */
+import { $KnowledgeServerId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import * as DateTime from "effect/DateTime";
 import * as Duration from "effect/Duration";
@@ -22,6 +23,8 @@ import { MentionExtractor } from "./MentionExtractor";
 import { RelationExtractor } from "./RelationExtractor";
 import type { ClassifiedEntity } from "./schemas/entity-output.schema";
 import type { ExtractedMention } from "./schemas/mention-output.schema";
+
+const $I = $KnowledgeServerId.create("knowledge-server/Extraction/ExtractionPipeline");
 /**
  * Pipeline configuration
  *
@@ -138,7 +141,7 @@ export interface ExtractionResult {
  * @category services
  */
 export class ExtractionPipeline extends Effect.Service<ExtractionPipeline>()(
-  "@beep/knowledge-server/ExtractionPipeline",
+  $I`ExtractionPipeline`,
   {
     accessors: true,
     dependencies: [

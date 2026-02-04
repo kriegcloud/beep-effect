@@ -24,11 +24,7 @@ const $I = $KnowledgeDomainId.create("entities/MergeHistory");
  * @since 0.1.0
  * @category enums
  */
-export const MergeReason = S.Literal(
-  "embedding_similarity",
-  "manual_override",
-  "text_exact_match"
-);
+export const MergeReason = S.Literal("embedding_similarity", "manual_override", "text_exact_match");
 
 export type MergeReason = S.Schema.Type<typeof MergeReason>;
 

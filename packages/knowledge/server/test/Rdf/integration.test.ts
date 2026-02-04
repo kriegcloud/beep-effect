@@ -7,7 +7,7 @@
  * @module knowledge-server/test/Rdf/integration.test
  * @since 0.1.0
  */
-import { Literal, makeIRI, Quad, QuadPattern } from "@beep/knowledge-domain/value-objects";
+import { IRI, Literal, Quad, QuadPattern } from "@beep/knowledge-domain/value-objects";
 import { RdfBuilder } from "@beep/knowledge-server/Rdf/RdfBuilder";
 import { RdfStore } from "@beep/knowledge-server/Rdf/RdfStoreService";
 import { Serializer } from "@beep/knowledge-server/Rdf/Serializer";
@@ -45,22 +45,22 @@ const RDFS = "http://www.w3.org/2000/01/rdf-schema#";
  * Test fixture helpers
  */
 const fixtures = {
-  alice: makeIRI(`${EX}alice`),
-  bob: makeIRI(`${EX}bob`),
-  carol: makeIRI(`${EX}carol`),
-  project1: makeIRI(`${EX}project1`),
-  foafName: makeIRI(`${FOAF}name`),
-  foafKnows: makeIRI(`${FOAF}knows`),
-  foafAge: makeIRI(`${FOAF}age`),
-  rdfsLabel: makeIRI(`${RDFS}label`),
-  rdfsComment: makeIRI(`${RDFS}comment`),
-  exWorksOn: makeIRI(`${EX}worksOn`),
-  exTitle: makeIRI(`${EX}title`),
-  xsdInteger: makeIRI(`${XSD}integer`),
-  graph1: makeIRI(`${EX}graph1`),
-  graph2: makeIRI(`${EX}graph2`),
-  graphPeople: makeIRI(`${EX}people`),
-  graphProjects: makeIRI(`${EX}projects`),
+  alice: IRI.make(`${EX}alice`),
+  bob: IRI.make(`${EX}bob`),
+  carol: IRI.make(`${EX}carol`),
+  project1: IRI.make(`${EX}project1`),
+  foafName: IRI.make(`${FOAF}name`),
+  foafKnows: IRI.make(`${FOAF}knows`),
+  foafAge: IRI.make(`${FOAF}age`),
+  rdfsLabel: IRI.make(`${RDFS}label`),
+  rdfsComment: IRI.make(`${RDFS}comment`),
+  exWorksOn: IRI.make(`${EX}worksOn`),
+  exTitle: IRI.make(`${EX}title`),
+  xsdInteger: IRI.make(`${XSD}integer`),
+  graph1: IRI.make(`${EX}graph1`),
+  graph2: IRI.make(`${EX}graph2`),
+  graphPeople: IRI.make(`${EX}people`),
+  graphProjects: IRI.make(`${EX}projects`),
 };
 
 describe("RDF Integration", () => {
@@ -104,7 +104,7 @@ describe("RDF Integration", () => {
           (q: Quad) =>
             q.subject === fixtures.alice &&
             q.predicate === fixtures.foafName &&
-            q.object instanceof Literal &&
+            Literal.is(q.object) &&
             q.object.value === "Alice"
         );
         assertTrue(hasAliceName);
@@ -120,7 +120,7 @@ describe("RDF Integration", () => {
           (q: Quad) =>
             q.subject === fixtures.bob &&
             q.predicate === fixtures.foafName &&
-            q.object instanceof Literal &&
+            Literal.is(q.object) &&
             q.object.value === "Bob"
         );
         assertTrue(hasBobName);
@@ -151,7 +151,7 @@ describe("RDF Integration", () => {
         strictEqual(A.length(parsedQuads), 1);
         const quad = parsedQuads[0];
         assertTrue(quad !== undefined);
-        assertTrue(quad.object instanceof Literal);
+        assertTrue(Literal.is(quad.object));
         strictEqual(quad.object.value, "30");
         strictEqual(quad.object.datatype, fixtures.xsdInteger);
       })
@@ -178,10 +178,10 @@ describe("RDF Integration", () => {
         // Verify both language variants preserved
         strictEqual(A.length(parsedQuads), 2);
 
-        const hasEnglish = A.some(parsedQuads, (q: Quad) => q.object instanceof Literal && q.object.language === "en");
+        const hasEnglish = A.some(parsedQuads, (q: Quad) => Literal.is(q.object) && q.object.language === "en");
         assertTrue(hasEnglish);
 
-        const hasSpanish = A.some(parsedQuads, (q: Quad) => q.object instanceof Literal && q.object.language === "es");
+        const hasSpanish = A.some(parsedQuads, (q: Quad) => Literal.is(q.object) && q.object.language === "es");
         assertTrue(hasSpanish);
       })
     );
@@ -633,7 +633,7 @@ describe("RDF Integration", () => {
         // Verify default graph quad has undefined graph
         const defaultQuad = A.findFirst(aliceQuads, (q: Quad) => q.graph === undefined);
         assertTrue(defaultQuad._tag === "Some");
-        assertTrue(defaultQuad.value.object instanceof Literal);
+        assertTrue(Literal.is(defaultQuad.value.object));
         strictEqual(defaultQuad.value.object.value, "Alice Default");
       })
     );
@@ -774,7 +774,7 @@ ex:bob foaf:name "Bob" .
           })
         );
         strictEqual(A.length(nameQuads), 1);
-        assertTrue(nameQuads[0]?.object instanceof Literal);
+        assertTrue(Literal.is(nameQuads[0]?.object));
         strictEqual(nameQuads[0]?.object.value, "Alice Smith");
 
         // "Update": Remove old, add new
@@ -796,7 +796,7 @@ ex:bob foaf:name "Bob" .
           })
         );
         strictEqual(A.length(nameQuads), 1);
-        assertTrue(nameQuads[0]?.object instanceof Literal);
+        assertTrue(Literal.is(nameQuads[0]?.object));
         strictEqual(nameQuads[0]?.object.value, "Alice Johnson");
       })
     );

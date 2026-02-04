@@ -1,4 +1,4 @@
-import type { KnowledgeDb } from "@beep/knowledge-server/db";
+import type { KnowledgeDb } from "./Db";
 import type { DbClient } from "@beep/shared-server";
 import * as Layer from "effect/Layer";
 import * as repos from "./repos";

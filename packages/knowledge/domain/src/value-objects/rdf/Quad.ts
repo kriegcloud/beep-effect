@@ -29,7 +29,9 @@ export class IRI extends S.NonEmptyTrimmedString.pipe(S.brand("IRI")).annotation
     title: "IRI",
     description: "RDF Internationalized Resource Identifier",
   })
-) {}
+) {
+  static readonly is = S.is(IRI);
+}
 
 export declare namespace IRI {
   export type Type = typeof IRI.Type;
@@ -37,25 +39,9 @@ export declare namespace IRI {
 }
 
 /**
- * Creates an IRI from a string, throwing on invalid input.
- *
- * @since 0.1.0
- * @category value-objects
- */
-export const makeIRI = S.decodeUnknownSync(IRI);
-
-/**
- * Type guard for IRI values.
- *
- * @since 0.1.0
- * @category value-objects
- */
-export const isIRI = S.is(IRI);
-
-/**
  * BlankNode prefix pattern for validation
  */
-const BLANK_NODE_PREFIX = "_:";
+const BLANK_NODE_PREFIX = "_:" as const;
 
 /**
  * BlankNode - RDF Blank Node identifier
@@ -66,17 +52,14 @@ const BLANK_NODE_PREFIX = "_:";
  * @since 0.1.0
  * @category value-objects
  */
-export class BlankNode extends S.NonEmptyTrimmedString.pipe(
-  S.filter((s) => s.startsWith(BLANK_NODE_PREFIX), {
-    message: () => 'Blank node must start with "_:" prefix',
-  }),
-  S.brand("BlankNode")
-).annotations(
-  $I.annotations("BlankNode", {
-    title: "Blank Node",
-    description: "RDF blank node identifier (starts with _:)",
-  })
-) {}
+export const BlankNode = S.TemplateLiteral(BLANK_NODE_PREFIX, S.String)
+  .pipe(S.brand("BlankNode"))
+  .annotations(
+    $I.annotations("BlankNode", {
+      title: "Blank Node",
+      description: "RDF blank node identifier (starts with _:)",
+    })
+  );
 
 export declare namespace BlankNode {
   export type Type = typeof BlankNode.Type;
@@ -133,7 +116,9 @@ export class Literal extends S.Class<Literal>($I`Literal`)({
     title: "Language",
     description: "BCP 47 language tag (e.g., 'en', 'en-US')",
   }),
-}) {}
+}) {
+  static readonly is = S.is(Literal);
+}
 
 /**
  * Subject - Valid RDF subject types
@@ -143,14 +128,17 @@ export class Literal extends S.Class<Literal>($I`Literal`)({
  * @since 0.1.0
  * @category value-objects
  */
-export const Subject = S.Union(IRI, BlankNode).annotations(
+export class Subject extends S.Union(IRI, BlankNode).annotations(
   $I.annotations("Subject", {
     title: "Subject",
     description: "RDF subject (IRI or blank node)",
   })
-);
+) {}
 
-export type Subject = typeof Subject.Type;
+export declare namespace Subject {
+  export type Type = typeof Subject.Type;
+  export type Encoded = typeof Subject.Encoded;
+}
 
 /**
  * Predicate - Valid RDF predicate type
@@ -160,14 +148,17 @@ export type Subject = typeof Subject.Type;
  * @since 0.1.0
  * @category value-objects
  */
-export const Predicate = IRI.annotations(
+export class Predicate extends IRI.annotations(
   $I.annotations("Predicate", {
     title: "Predicate",
     description: "RDF predicate (IRI only)",
   })
-);
+) {}
 
-export type Predicate = typeof Predicate.Type;
+export declare namespace Predicate {
+  export type Type = typeof Predicate.Type;
+  export type Encoded = typeof Predicate.Encoded;
+}
 
 /**
  * Term - Any RDF term type
@@ -177,14 +168,19 @@ export type Predicate = typeof Predicate.Type;
  * @since 0.1.0
  * @category value-objects
  */
-export const Term = S.Union(IRI, BlankNode, Literal).annotations(
+export class Term extends S.Union(IRI, BlankNode, Literal).annotations(
   $I.annotations("Term", {
     title: "Term",
     description: "Any RDF term (IRI, blank node, or literal)",
   })
-);
+) {
+  static readonly make = S.decodeUnknownSync(this);
+}
 
-export type Term = typeof Term.Type;
+export declare namespace Term {
+  export type Type = typeof Term.Type;
+  export type Encoded = typeof Term.Encoded;
+}
 
 /**
  * Object - Valid RDF object types
@@ -194,14 +190,17 @@ export type Term = typeof Term.Type;
  * @since 0.1.0
  * @category value-objects
  */
-export const Object = Term.annotations(
+export class Object extends Term.annotations(
   $I.annotations("Object", {
     title: "Object",
     description: "RDF object (any term type)",
   })
-);
+) {}
 
-export type Object = typeof Object.Type;
+export declare namespace Object {
+  export type Type = typeof Object.Type;
+  export type Encoded = typeof Object.Encoded;
+}
 
 /**
  * Graph - Optional named graph identifier
@@ -218,7 +217,10 @@ export const Graph = S.optional(IRI).annotations(
   })
 );
 
-export type Graph = S.Schema.Type<typeof Graph>;
+export declare namespace Graph {
+  export type Type = S.Schema.Type<typeof Graph>;
+  export type Encoded = S.Schema.Encoded<typeof Graph>;
+}
 
 /**
  * Quad - RDF Quad (statement in a graph)

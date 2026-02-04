@@ -6,6 +6,7 @@
  * @module knowledge-server/EntityResolution/EntityClusterer
  * @since 0.1.0
  */
+import { $KnowledgeServerId } from "@beep/identity/packages";
 import { KnowledgeEntityIds, type SharedEntityIds } from "@beep/shared-domain";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
@@ -14,11 +15,12 @@ import * as MutableHashMap from "effect/MutableHashMap";
 import * as MutableHashSet from "effect/MutableHashSet";
 import * as O from "effect/Option";
 import * as Order from "effect/Order";
-import type { EmbeddingError } from "../Embedding/EmbeddingProvider";
 import { EmbeddingService } from "../Embedding/EmbeddingService";
 import type { AssembledEntity, KnowledgeGraph } from "../Extraction/GraphAssembler";
 import { formatEntityForEmbedding } from "../utils/formatting";
 import { cosineSimilarity } from "../utils/vector";
+
+const $I = $KnowledgeServerId.create("EntityResolution/EntityClusterer");
 
 // =============================================================================
 // Configuration Types
@@ -170,7 +172,7 @@ const findSharedTypes = (entities: readonly AssembledEntity[]): readonly string[
  * @since 0.1.0
  * @category services
  */
-export class EntityClusterer extends Effect.Service<EntityClusterer>()("@beep/knowledge-server/EntityClusterer", {
+export class EntityClusterer extends Effect.Service<EntityClusterer>()($I`EntityClusterer`, {
   accessors: true,
   effect: Effect.gen(function* () {
     const embeddingService = yield* EmbeddingService;
@@ -374,13 +376,14 @@ export class EntityClusterer extends Effect.Service<EntityClusterer>()("@beep/kn
        * @param config - Clustering configuration
        * @returns Array of entity clusters
        */
-      cluster: (
-        graphs: readonly KnowledgeGraph[],
-        organizationId: SharedEntityIds.OrganizationId.Type,
-        ontologyId: string,
-        config: ClusterConfig = {}
-      ): Effect.Effect<readonly EntityCluster[]> =>
-        Effect.gen(function* () {
+      cluster: Effect.fn(
+        (
+          graphs: readonly KnowledgeGraph[],
+          organizationId: SharedEntityIds.OrganizationId.Type,
+          ontologyId: string,
+          config: ClusterConfig = {}
+        ) =>
+          Effect.gen(function* () {
           const threshold = config.similarityThreshold ?? 0.85;
           const maxClusterSize = config.maxClusterSize ?? 50;
           const requireTypeCompatibility = config.requireTypeCompatibility ?? true;
@@ -448,7 +451,8 @@ export class EntityClusterer extends Effect.Service<EntityClusterer>()("@beep/kn
               threshold: config.similarityThreshold ?? 0.85,
             },
           })
-        ),
+        )
+      ),
 
       /**
        * Find entities similar to a query entity
@@ -460,14 +464,15 @@ export class EntityClusterer extends Effect.Service<EntityClusterer>()("@beep/kn
        * @param threshold - Minimum similarity
        * @returns Similar entities with scores
        */
-      findSimilar: (
-        queryEntity: AssembledEntity,
-        candidateEntities: readonly AssembledEntity[],
-        organizationId: SharedEntityIds.OrganizationId.Type,
-        ontologyId: string,
-        threshold = 0.8
-      ): Effect.Effect<readonly { entity: AssembledEntity; similarity: number }[], EmbeddingError> =>
-        Effect.gen(function* () {
+      findSimilar: Effect.fn(
+        (
+          queryEntity: AssembledEntity,
+          candidateEntities: readonly AssembledEntity[],
+          organizationId: SharedEntityIds.OrganizationId.Type,
+          ontologyId: string,
+          threshold = 0.8
+        ) =>
+          Effect.gen(function* () {
           const queryText = formatEntityForEmbedding(queryEntity);
           const queryEmbedding = yield* embeddingService.getOrCreate(
             queryText,
@@ -505,7 +510,8 @@ export class EntityClusterer extends Effect.Service<EntityClusterer>()("@beep/kn
               )
             )
           );
-        }),
+        })
+      ),
     };
   }),
 }) {}

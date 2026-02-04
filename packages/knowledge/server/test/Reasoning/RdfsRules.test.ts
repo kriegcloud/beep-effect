@@ -6,21 +6,21 @@
  * @module knowledge-server/test/Reasoning/RdfsRules
  * @since 0.1.0
  */
-import { makeIRI, Quad } from "@beep/knowledge-domain/value-objects";
+import { IRI, Quad } from "@beep/knowledge-domain/value-objects";
 import { quadId, type RuleInference, rdfs2, rdfs3, rdfs9, rdfs11 } from "@beep/knowledge-server/Reasoning/RdfsRules";
 import { assertTrue, describe, effect, strictEqual } from "@beep/testkit";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 
 // Standard namespace IRIs
-const RDF_TYPE = makeIRI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
-const RDFS_DOMAIN = makeIRI("http://www.w3.org/2000/01/rdf-schema#domain");
-const RDFS_RANGE = makeIRI("http://www.w3.org/2000/01/rdf-schema#range");
-const RDFS_SUBCLASS_OF = makeIRI("http://www.w3.org/2000/01/rdf-schema#subClassOf");
+const RDF_TYPE = IRI.make("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
+const RDFS_DOMAIN = IRI.make("http://www.w3.org/2000/01/rdf-schema#domain");
+const RDFS_RANGE = IRI.make("http://www.w3.org/2000/01/rdf-schema#range");
+const RDFS_SUBCLASS_OF = IRI.make("http://www.w3.org/2000/01/rdf-schema#subClassOf");
 
 // Test namespace
 const EX = "http://example.org/";
-const ex = (name: string) => makeIRI(`${EX}${name}`);
+const ex = (name: string) => IRI.make(`${EX}${name}`);
 
 describe("RdfsRules", () => {
   describe("quadId", () => {

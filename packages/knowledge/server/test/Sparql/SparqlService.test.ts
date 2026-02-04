@@ -10,7 +10,7 @@
  */
 
 import { SparqlUnsupportedFeatureError } from "@beep/knowledge-domain/errors";
-import { Literal, makeIRI, Quad, type SparqlBinding, SparqlBindings } from "@beep/knowledge-domain/value-objects";
+import { IRI, Literal, Quad, type SparqlBinding, SparqlBindings } from "@beep/knowledge-domain/value-objects";
 import { RdfStore } from "@beep/knowledge-server/Rdf";
 import {
   executeAsk,
@@ -133,11 +133,11 @@ const addTestData = Effect.fn(function* (quads: ReadonlyArray<Quad>) {
  * Helper: Create Person quads
  */
 const createPersonQuads = (id: string, name: string, age?: number): ReadonlyArray<Quad> => {
-  const subject = makeIRI(`http://example.org/${id}`);
-  const rdfType = makeIRI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
-  const personType = makeIRI("http://example.org/Person");
-  const namePred = makeIRI("http://example.org/name");
-  const agePred = makeIRI("http://example.org/age");
+  const subject = IRI.make(`http://example.org/${id}`);
+  const rdfType = IRI.make("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
+  const personType = IRI.make("http://example.org/Person");
+  const namePred = IRI.make("http://example.org/name");
+  const agePred = IRI.make("http://example.org/age");
 
   const quads: Quad[] = [
     new Quad({ subject, predicate: rdfType, object: personType }),
@@ -151,7 +151,7 @@ const createPersonQuads = (id: string, name: string, age?: number): ReadonlyArra
         predicate: agePred,
         object: new Literal({
           value: String(age),
-          datatype: makeIRI("http://www.w3.org/2001/XMLSchema#integer"),
+          datatype: IRI.make("http://www.w3.org/2001/XMLSchema#integer"),
         }),
       })
     );
@@ -165,9 +165,9 @@ const createPersonQuads = (id: string, name: string, age?: number): ReadonlyArra
  */
 const createKnowsQuad = (fromId: string, toId: string): Quad =>
   new Quad({
-    subject: makeIRI(`http://example.org/${fromId}`),
-    predicate: makeIRI("http://example.org/knows"),
-    object: makeIRI(`http://example.org/${toId}`),
+    subject: IRI.make(`http://example.org/${fromId}`),
+    predicate: IRI.make("http://example.org/knows"),
+    object: IRI.make(`http://example.org/${toId}`),
   });
 
 /**
@@ -183,10 +183,10 @@ const findBinding = (bindings: SparqlBindings, rowIndex: number, varName: string
   const term = binding.value.value;
   // Check if term is a Literal (object with value property) vs IRI/BlankNode (branded string)
   if (typeof term === "object" && term !== null && "value" in term) {
-    return O.some((term as Literal).value);
+    return O.some(Literal.make(term).value);
   }
   // IRI or BlankNode - branded strings
-  return O.some(term as string);
+  return O.some(term);
 };
 
 describe("SparqlService", () => {
@@ -246,7 +246,7 @@ describe("SparqlService", () => {
         // Check that names are bound correctly
         const names = A.filterMap(result.rows, (row: ReadonlyArray<SparqlBinding>) => {
           const nameBinding = A.findFirst(row, (b: SparqlBinding) => b.name === "name");
-          return O.map(nameBinding, (b: SparqlBinding) => (b.value instanceof Literal ? b.value.value : ""));
+          return O.map(nameBinding, (b: SparqlBinding) => (Literal.is(b.value) ? b.value.value : ""));
         });
         assertTrue(A.contains(names, "Alice"));
         assertTrue(A.contains(names, "Bob"));
@@ -568,10 +568,10 @@ describe("SparqlService", () => {
       "should handle DISTINCT",
       Effect.fn(function* () {
         // Add duplicate type assertions
-        const alice = makeIRI("http://example.org/alice");
-        const rdfType = makeIRI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
-        const person = makeIRI("http://example.org/Person");
-        const employee = makeIRI("http://example.org/Employee");
+        const alice = IRI.make("http://example.org/alice");
+        const rdfType = IRI.make("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
+        const person = IRI.make("http://example.org/Person");
+        const employee = IRI.make("http://example.org/Employee");
 
         yield* addTestData([
           new Quad({ subject: alice, predicate: rdfType, object: person }),

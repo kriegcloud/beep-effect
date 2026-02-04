@@ -56,11 +56,12 @@ After each phase, add an entry using this structure:
 
 ### Key Learnings
 
-- @effect/workflow integration is greenfield - no existing patterns in codebase to reference
-- PostgreSQL persistence is critical dependency (no alternative backends documented)
+- @effect/workflow integration has canonical patterns in `.repos/effect-ontology/packages/@core-v2/src/`
+- PostgreSQL persistence is handled automatically by `@effect/cluster` via `SqlMessageStorage`/`SqlRunnerStorage`
 - Need to verify ALL @effect/workflow API methods against library source before implementing
-- Workflow state persistence requires JSONB columns for checkpoint data
-- EntityId additions (WorkflowExecutionId, WorkflowActivityId, WorkflowSignalId) are prerequisite for table creation
+- **CRITICAL**: Tables are auto-created by @effect/cluster - do NOT create custom Drizzle tables
+- Activity.make uses factory pattern with input captured in closure, NOT passed to execute
+- Custom EntityIds (WorkflowExecutionId, etc.) are NOT needed - @effect/cluster manages its own IDs
 
 ### Pattern Candidates
 
@@ -84,3 +85,55 @@ After each phase, add an entry using this structure:
 - Research tasks clearly defined for codebase-researcher
 - Success criteria well-specified
 - Verification commands documented
+
+---
+
+## API Verification Review - 2026-02-04
+
+### What Worked
+
+- Cross-referencing `.repos/effect-ontology/packages/@core-v2/src/` revealed canonical patterns
+- Identified correct Activity factory pattern with closure-captured input
+- Discovered @effect/cluster auto-creates tables via SqlMessageStorage/SqlRunnerStorage
+
+### What Didn't Work
+
+- Initial spec examples had incorrect @effect/workflow API patterns
+- Assumptions about custom table creation were wrong
+- Activity.make example showed `input`/`output` params that don't exist
+
+### Key Learnings
+
+1. **Tables auto-created**: `@effect/cluster` creates `{prefix}_cluster_messages`, `{prefix}_cluster_replies`, `{prefix}_cluster_runners` automatically
+2. **Activity factory pattern**: Input must be captured in closure, NOT passed to execute:
+   ```typescript
+   export const makeActivity = (input: Input) =>
+     Activity.make({
+       name: `activity-${input.id}`,
+       success: OutputSchema,
+       error: ErrorSchema,
+       execute: Effect.gen(function*() {
+         // input captured in closure
+         return yield* process(input)
+       })
+     })
+   ```
+3. **Workflow.make API**: Uses `payload`, `success`, `error`, `idempotencyKey`, `annotations`, `suspendedRetrySchedule`
+4. **No custom EntityIds needed**: @effect/cluster manages workflow execution IDs internally
+
+### Files Updated
+
+- `QUICK_START.md` - Corrected Critical Patterns, Starting Phase 1, Key Technologies
+- `README.md` - Corrected Activity pattern example, added Effect import to Orchestrator
+- `MASTER_ORCHESTRATION.md` - Added API warning, fixed Phase 1 diagram
+- `AGENT_PROMPTS.md` - Added API verification warning
+- `handoffs/HANDOFF_P1.md` - Corrected success criteria and file list
+- `handoffs/P1_ORCHESTRATOR_PROMPT.md` - Corrected mission and part descriptions
+- `REFLECTION_LOG.md` - Updated key learnings
+
+### Pattern Candidates
+
+- [x] Activity Factory Pattern (score: 85/102) - Closure-captured input for durable activities
+  - Location: `.repos/effect-ontology/packages/@core-v2/src/Workflow/DurableActivities.ts`
+  - Evidence: Used throughout effect-ontology workflow implementation
+  - Promotion: spec-local (document in QUICK_START.md Critical Patterns)

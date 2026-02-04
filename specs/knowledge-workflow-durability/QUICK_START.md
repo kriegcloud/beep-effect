@@ -19,11 +19,17 @@ The workflow durability spec is **PLANNED**. This spec adds @effect/workflow to 
 
 ### What Needs Building
 
-- Workflow persistence tables (workflow-execution, workflow-activity, workflow-signal)
-- WorkflowService abstraction wrapping @effect/workflow runtime
+- PostgresLayer.ts for @effect/cluster persistence (tables auto-created by SqlMessageStorage/SqlRunnerStorage)
+- ClusterRuntime.ts with SingleRunner layer composition
+- WorkflowOrchestrator service wrapping WorkflowEngine
 - ExtractionWorkflow definition with durable activities
 - SSE progress streaming for real-time updates
 - Batch state machine for orchestrating multiple extractions
+
+**IMPORTANT**: Do NOT create custom persistence tables. `@effect/cluster` automatically creates:
+- `knowledge_cluster_messages` - Pending workflow messages
+- `knowledge_cluster_replies` - Message replies
+- `knowledge_cluster_runners` - Runner registration
 
 ---
 
@@ -35,8 +41,8 @@ The workflow durability spec is **PLANNED**. This spec adds @effect/workflow to 
 | **Phases** | 4 |
 | **Sessions** | 12-16 estimated (3-4 weeks) |
 | **Success Metric** | Extraction survives server restart and resumes from last checkpoint |
-| **Tech** | @effect/workflow + PostgreSQL persistence |
-| **Cross-Package** | Knowledge tables + server + domain |
+| **Tech** | @effect/workflow + @effect/cluster (auto-tables via SqlMessageStorage/SqlRunnerStorage) |
+| **Cross-Package** | Knowledge server + domain (NO custom tables needed) |
 
 ---
 
@@ -44,7 +50,7 @@ The workflow durability spec is **PLANNED**. This spec adds @effect/workflow to 
 
 | Phase | Name | Description | Status |
 |-------|------|-------------|--------|
-| **P1** | Workflow Integration | @effect/workflow runtime + PostgreSQL persistence tables | Pending |
+| **P1** | Workflow Integration | @effect/workflow + @effect/cluster runtime with auto-table persistence | Pending |
 | **P2** | ExtractionWorkflow Definition | Durable activities for each extraction stage | Pending |
 | **P3** | SSE Progress Streaming | Real-time progress events via Server-Sent Events | Pending |
 | **P4** | Batch State Machine | Cross-batch orchestration and retry logic | Pending |
@@ -56,14 +62,16 @@ The workflow durability spec is **PLANNED**. This spec adds @effect/workflow to 
 ```
 START
   |
-  +-- Do workflow-execution tables exist?
+  +-- Does PostgresLayer.ts exist in Runtime/Persistence?
   |     +-- NO -> Start Phase 1 (Workflow Integration)
-  |     +-- YES -> Does WorkflowService compile?
+  |     +-- YES -> Does ClusterRuntime.ts compile?
   |           +-- NO -> Continue Phase 1
   |           +-- YES -> Does ExtractionWorkflow exist?
   |                 +-- NO -> Start Phase 2 (Workflow Definition)
   |                 +-- YES -> Check handoffs/HANDOFF_P[N].md
 ```
+
+**Note**: Tables are auto-created by `@effect/cluster` on first use - don't check for tables manually.
 
 ---
 
@@ -90,11 +98,14 @@ bun run lint:fix
 
 | Technology | Purpose |
 |------------|---------|
-| `@effect/workflow` | Durable workflow execution runtime |
-| PostgreSQL | Workflow state persistence |
-| Drizzle ORM | Table definitions |
-| Effect Schema | Type-safe schemas |
+| `@effect/workflow` | Durable workflow execution (Workflow.make, Activity) |
+| `@effect/cluster` | SingleRunner, SqlMessageStorage, SqlRunnerStorage (auto-tables) |
+| PostgreSQL / SQLite | Workflow state persistence (via @effect/cluster) |
+| `@effect/sql-pg` | PostgreSQL client for production |
+| Effect Schema | Type-safe schemas for workflow payload/success/error |
 | SSE (Server-Sent Events) | Real-time progress streaming |
+
+**Note**: Drizzle ORM is NOT used for workflow tables - @effect/cluster manages its own schema.
 
 ---
 
@@ -122,50 +133,90 @@ bun run lint:fix
 
 ## Critical Patterns
 
-### Effect Workflow Usage
+> **Reference**: `.repos/effect-ontology/packages/@core-v2/src/` for canonical patterns
+
+### Workflow Definition Pattern (CORRECT API)
 
 ```typescript
-import * as Effect from "effect/Effect";
-import { Workflow } from "@effect/workflow";
+import { Workflow } from "@effect/workflow"
+import { Context, Schedule, Schema } from "effect"
 
-const ExtractionWorkflow = Workflow.make({
-  name: "ExtractionWorkflow",
-  execute: Effect.gen(function* () {
-    const chunks = yield* ChunkTextActivity.execute(input);
-    const mentions = yield* ExtractMentionsActivity.execute(chunks);
-    const entities = yield* ClassifyEntitiesActivity.execute(mentions);
-    const relations = yield* ExtractRelationsActivity.execute(chunks, entities);
-    return yield* AssembleGraphActivity.execute(entities, relations);
-  }),
-});
+// Workflow.make with typed payload/success/error schemas
+export const ExtractionWorkflow = Workflow.make({
+  name: "knowledge-extraction",
+  payload: ExtractionPayloadSchema,      // Schema for input
+  success: ExtractionResultSchema,       // Schema for success output
+  error: Schema.String,                  // Schema for error output
+  idempotencyKey: (payload) => payload.documentId,
+  annotations: Context.make(Workflow.SuspendOnFailure, true).pipe(
+    Context.add(Workflow.CaptureDefects, true)
+  ),
+  suspendedRetrySchedule: Schedule.exponential("1 second").pipe(
+    Schedule.compose(Schedule.recurs(5)),
+    Schedule.jittered
+  )
+})
+
+// Register with WorkflowEngine via .toLayer
+export const ExtractionWorkflowLayer = ExtractionWorkflow.toLayer(
+  (payload) => Effect.gen(function*() {
+    // Workflow implementation using durable activities
+    const result = yield* makeChunkTextActivity({ documentId: payload.documentId }).execute
+    // ... more stages
+    return result
+  })
+)
 ```
 
-### Durable Activity Pattern
+### Durable Activity Pattern (CORRECT API)
 
 ```typescript
-const ChunkTextActivity = Activity.make({
-  name: "chunk-text",
-  execute: (input: DocumentInput) =>
-    Effect.gen(function* () {
-      const chunker = yield* ChunkingService;
-      const chunks = yield* chunker.chunk(input.text);
-      // Checkpoint: chunks persisted to database
-      return chunks;
+import { Activity } from "@effect/workflow"
+import { Schema } from "effect"
+
+// Activity factory function - input captured in closure
+export const makeChunkTextActivity = (input: { documentId: string }) =>
+  Activity.make({
+    name: `chunk-text-${input.documentId}`,  // Unique per invocation
+    success: ChunkOutputSchema,               // Schema (not "output")
+    error: ActivityErrorSchema,               // Schema (not just Schema.String)
+    execute: Effect.gen(function*() {
+      const chunker = yield* ChunkingService
+      const chunks = yield* chunker.chunk(input.documentId)
+      return { chunks, durationMs: 100 }      // Must match success schema
     }),
-});
+    interruptRetryPolicy: Schedule.exponential("1 second").pipe(
+      Schedule.jittered,
+      Schedule.compose(Schedule.recurs(3))
+    )
+  })
+
+// Usage in workflow: makeActivity(input).execute
+const result = yield* makeChunkTextActivity({ documentId }).execute
 ```
 
-### SSE Progress Pattern
+### WorkflowOrchestrator Pattern
 
 ```typescript
-const progressStream = Workflow.signal({
-  name: "progress",
-  handler: (event: ProgressEvent) =>
-    Effect.gen(function* () {
-      const sse = yield* SSEService;
-      yield* sse.send(event);
+import { WorkflowEngine } from "@effect/workflow"
+
+export const makeWorkflowOrchestrator = Effect.gen(function*() {
+  const engine = yield* WorkflowEngine.WorkflowEngine
+
+  return {
+    start: (payload) => Effect.gen(function*() {
+      const executionId = yield* ExtractionWorkflow.executionId(payload)
+      return yield* engine.execute(ExtractionWorkflow, {
+        executionId,
+        payload,
+        discard: true  // fire-and-forget
+      })
     }),
-});
+    poll: (executionId) => engine.poll(ExtractionWorkflow, executionId),
+    interrupt: (executionId) => engine.interrupt(ExtractionWorkflow, executionId),
+    resume: (executionId) => engine.resume(ExtractionWorkflow, executionId)
+  }
+})
 ```
 
 ---
@@ -186,12 +237,15 @@ const progressStream = Workflow.signal({
 
 1. Read the orchestrator prompt: `handoffs/P1_ORCHESTRATOR_PROMPT.md`
 2. Read full context: `handoffs/HANDOFF_P1.md`
-3. Add EntityIds to `@beep/knowledge-domain`: WorkflowExecutionId, WorkflowActivityId, WorkflowSignalId
-4. Create workflow tables in `@beep/knowledge-tables`
-5. Implement WorkflowService in `@beep/knowledge-server`
-6. Verify with `bun run check --filter @beep/knowledge-*`
-7. Update `REFLECTION_LOG.md`
-8. Create handoffs for P2
+3. Install dependencies: `@effect/workflow` and `@effect/cluster` in `@beep/knowledge-server`
+4. Create PostgresLayer.ts with SqlMessageStorage/SqlRunnerStorage (tables auto-created)
+5. Create ClusterRuntime.ts with SingleRunner layer composition
+6. Implement WorkflowOrchestrator service wrapping WorkflowEngine
+7. Verify with `bun run check --filter @beep/knowledge-*`
+8. Update `REFLECTION_LOG.md`
+9. Create handoffs for P2
+
+**Note**: Do NOT create custom Drizzle tables for workflow persistence. `@effect/cluster` auto-creates `knowledge_cluster_*` tables on first use via SqlMessageStorage/SqlRunnerStorage.
 
 ---
 

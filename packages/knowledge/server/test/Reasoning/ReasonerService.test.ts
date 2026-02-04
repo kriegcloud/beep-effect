@@ -8,7 +8,7 @@
  * @since 0.1.0
  */
 import { MaxDepthExceededError, MaxInferencesExceededError } from "@beep/knowledge-domain/errors";
-import { makeIRI, Quad, QuadPattern, ReasoningConfig } from "@beep/knowledge-domain/value-objects";
+import { IRI, Quad, QuadPattern, ReasoningConfig } from "@beep/knowledge-domain/value-objects";
 import { RdfStore } from "@beep/knowledge-server/Rdf/RdfStoreService";
 import { ReasonerService } from "@beep/knowledge-server/Reasoning/ReasonerService";
 import { assertTrue, describe, live, strictEqual } from "@beep/testkit";
@@ -17,20 +17,20 @@ import * as Effect from "effect/Effect";
 import * as Either from "effect/Either";
 import * as Layer from "effect/Layer";
 
-const RDF_TYPE = makeIRI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
-const RDFS_DOMAIN = makeIRI("http://www.w3.org/2000/01/rdf-schema#domain");
-const RDFS_SUBCLASS_OF = makeIRI("http://www.w3.org/2000/01/rdf-schema#subClassOf");
+const RDF_TYPE = IRI.make("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
+const RDFS_DOMAIN = IRI.make("http://www.w3.org/2000/01/rdf-schema#domain");
+const RDFS_SUBCLASS_OF = IRI.make("http://www.w3.org/2000/01/rdf-schema#subClassOf");
 
 const EX = "http://example.org/";
 
 const fixtures = {
-  alice: makeIRI(`${EX}alice`),
-  bob: makeIRI(`${EX}bob`),
-  enrolledIn: makeIRI(`${EX}enrolledIn`),
-  CS101: makeIRI(`${EX}CS101`),
-  Student: makeIRI(`${EX}Student`),
-  Person: makeIRI(`${EX}Person`),
-  Agent: makeIRI(`${EX}Agent`),
+  alice: IRI.make(`${EX}alice`),
+  bob: IRI.make(`${EX}bob`),
+  enrolledIn: IRI.make(`${EX}enrolledIn`),
+  CS101: IRI.make(`${EX}CS101`),
+  Student: IRI.make(`${EX}Student`),
+  Person: IRI.make(`${EX}Person`),
+  Agent: IRI.make(`${EX}Agent`),
 };
 
 // Fresh layer per test - do not memoize
@@ -155,9 +155,9 @@ describe("ReasonerService", () => {
           A.range(0, 19),
           (i) =>
             new Quad({
-              subject: makeIRI(`${EX}Class${i}`),
+              subject: IRI.make(`${EX}Class${i}`),
               predicate: RDFS_SUBCLASS_OF,
-              object: makeIRI(`${EX}Class${i + 1}`),
+              object: IRI.make(`${EX}Class${i + 1}`),
             })
         );
         const quads = A.append(
@@ -165,7 +165,7 @@ describe("ReasonerService", () => {
           new Quad({
             subject: fixtures.alice,
             predicate: RDF_TYPE,
-            object: makeIRI(`${EX}Class0`),
+            object: IRI.make(`${EX}Class0`),
           })
         );
 
@@ -191,7 +191,7 @@ describe("ReasonerService", () => {
           A.range(0, 19),
           (i) =>
             new Quad({
-              subject: makeIRI(`${EX}instance${i}`),
+              subject: IRI.make(`${EX}instance${i}`),
               predicate: RDF_TYPE,
               object: fixtures.Student,
             })
@@ -326,7 +326,7 @@ describe("ReasonerService", () => {
         yield* store.addQuad(
           new Quad({
             subject: fixtures.alice,
-            predicate: makeIRI(`${EX}likes`),
+            predicate: IRI.make(`${EX}likes`),
             object: fixtures.bob,
           })
         );

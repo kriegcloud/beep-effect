@@ -7,6 +7,7 @@
  * @module knowledge-server/Ontology/OntologyCache
  * @since 0.1.0
  */
+import { $KnowledgeServerId } from "@beep/identity/packages";
 import * as DateTime from "effect/DateTime";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
@@ -14,6 +15,8 @@ import * as HashMap from "effect/HashMap";
 import * as O from "effect/Option";
 import * as Ref from "effect/Ref";
 import type { ParsedOntology } from "./OntologyParser";
+
+const $I = $KnowledgeServerId.create("Ontology/OntologyCache");
 
 /**
  * Cached ontology entry with metadata
@@ -35,7 +38,7 @@ interface CachedOntology {
  * @since 0.1.0
  * @category services
  */
-export class OntologyCache extends Effect.Service<OntologyCache>()("@beep/knowledge-server/OntologyCache", {
+export class OntologyCache extends Effect.Service<OntologyCache>()($I`OntologyCache`, {
   effect: Effect.gen(function* () {
     // Default TTL of 5 minutes
     const defaultTtl = Duration.minutes(5);

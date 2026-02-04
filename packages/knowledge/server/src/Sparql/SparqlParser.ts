@@ -6,13 +6,26 @@
  * @module knowledge-server/Sparql/SparqlParser
  * @since 0.1.0
  */
+import { $KnowledgeServerId } from "@beep/identity/packages";
 import { SparqlSyntaxError, SparqlUnsupportedFeatureError } from "@beep/knowledge-domain/errors";
-import { type PrefixMap, SparqlQuery, type SparqlQueryType } from "@beep/knowledge-domain/value-objects";
+import { SparqlQuery, SparqlQueryType } from "@beep/knowledge-domain/value-objects";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import * as F from "effect/Function";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
+import * as S from "effect/Schema";
 import type * as sparqljs from "sparqljs";
 import * as Sparqljs from "sparqljs";
+
+/** Local type alias for SparqlQueryType */
+type SparqlQueryTypeValue = S.Schema.Type<typeof SparqlQueryType>;
+/** Local type alias for PrefixMap (Record<string, string>) */
+type PrefixMapValue = Record<string, string>;
+/** Decoder for SparqlQueryType */
+const decodeSparqlQueryType = S.decodeUnknownSync(SparqlQueryType);
+
+const $I = $KnowledgeServerId.create("Sparql/SparqlParser");
 
 /**
  * Result of parsing a SPARQL query.
@@ -27,113 +40,162 @@ export interface ParseResult {
 }
 
 /**
- * Extract query type from sparqljs AST
+ * Type predicate: checks if AST is a Query (not Update)
  */
-const extractQueryType = (ast: sparqljs.SparqlQuery): SparqlQueryType | undefined => {
-  if (ast.type === "query") {
-    return ast.queryType as SparqlQueryType;
-  }
-  return undefined; // UPDATE operations not supported
-};
+const isQuery = (ast: sparqljs.SparqlQuery): ast is sparqljs.Query => ast.type === "query";
+
+/**
+ * Type predicate: checks if AST is an Update operation
+ */
+const isUpdate = (ast: sparqljs.SparqlQuery): ast is sparqljs.Update => ast.type === "update";
+
+/**
+ * Type predicate: checks if Query is a SELECT query
+ */
+const isSelectQuery = (ast: sparqljs.SparqlQuery): ast is sparqljs.SelectQuery =>
+  isQuery(ast) && ast.queryType === "SELECT";
+
+/**
+ * Type predicate: checks if Query is a DESCRIBE query
+ */
+const isDescribeQuery = (ast: sparqljs.SparqlQuery): ast is sparqljs.DescribeQuery =>
+  isQuery(ast) && ast.queryType === "DESCRIBE";
+
+/**
+ * Type predicate: checks if value is a Wildcard
+ */
+const isWildcard = (v: sparqljs.Variable | sparqljs.Wildcard): v is sparqljs.Wildcard =>
+  P.hasProperty(v, "termType") && (v as sparqljs.Wildcard).termType === "Wildcard";
+
+/**
+ * Type predicate: checks if value is a VariableTerm
+ */
+const isVariableTerm = (v: sparqljs.Variable | sparqljs.Wildcard | sparqljs.VariableTerm): v is sparqljs.VariableTerm =>
+  P.hasProperty(v, "termType") && (v as sparqljs.VariableTerm).termType === "Variable";
+
+/**
+ * Type predicate: checks if value is a VariableExpression
+ */
+const isVariableExpression = (v: sparqljs.Variable | sparqljs.Wildcard): v is sparqljs.VariableExpression =>
+  P.hasProperty(v, "variable") && P.isNotUndefined((v as sparqljs.VariableExpression).variable);
+
+/**
+ * Extract query type from sparqljs AST
+ * Returns Option.none for UPDATE operations (not supported)
+ */
+const extractQueryType = (ast: sparqljs.SparqlQuery): O.Option<SparqlQueryTypeValue> =>
+  F.pipe(
+    ast,
+    O.liftPredicate(isQuery),
+    O.map((query) => decodeSparqlQueryType(query.queryType))
+  );
 
 /**
  * Extract PREFIX declarations from sparqljs AST
  */
-const extractPrefixes = (ast: sparqljs.SparqlQuery): PrefixMap => {
-  // sparqljs stores prefixes as Record<string, string>
-  // Clone to domain PrefixMap
-  return { ...ast.prefixes };
-};
-
-/**
- * Check if a value is a Wildcard
- */
-const isWildcard = (v: sparqljs.Variable | sparqljs.Wildcard): v is sparqljs.Wildcard =>
-  "termType" in v && v.termType === "Wildcard";
-
-/**
- * Check if a value is a VariableTerm
- */
-const isVariableTerm = (v: sparqljs.Variable | sparqljs.Wildcard | sparqljs.VariableTerm): v is sparqljs.VariableTerm =>
-  "termType" in v && v.termType === "Variable";
-
-/**
- * Check if a value is a VariableExpression
- */
-const isVariableExpression = (v: sparqljs.Variable | sparqljs.Wildcard): v is sparqljs.VariableExpression =>
-  "variable" in v && v.variable !== undefined;
+const extractPrefixes = (ast: sparqljs.SparqlQuery): PrefixMapValue => ({ ...ast.prefixes });
 
 /**
  * Extract variable name from a Variable or Wildcard element
  * Returns Option.none for Wildcards
  */
-const extractVariableName = (v: sparqljs.Variable | sparqljs.Wildcard): O.Option<string> => {
-  // Skip wildcards (SELECT *)
-  if (isWildcard(v)) {
-    return O.none();
-  }
-
-  // Check for VariableTerm (regular variable like ?s)
-  if (isVariableTerm(v)) {
-    return O.some(v.value); // Variable name without ?
-  }
-
-  // Check for VariableExpression (SELECT (?a AS ?b))
-  if (isVariableExpression(v) && isVariableTerm(v.variable)) {
-    return O.some(v.variable.value);
-  }
-
-  return O.none();
-};
+const extractVariableName = (v: sparqljs.Variable | sparqljs.Wildcard): O.Option<string> =>
+  F.pipe(
+    v,
+    O.liftPredicate(P.not(isWildcard)),
+    O.flatMap((nonWildcard) =>
+      F.pipe(
+        nonWildcard,
+        O.liftPredicate(isVariableTerm),
+        O.map((term) => term.value),
+        O.orElse(() =>
+          F.pipe(
+            nonWildcard,
+            O.liftPredicate(isVariableExpression),
+            O.flatMap((expr) =>
+              F.pipe(
+                expr.variable,
+                O.liftPredicate(isVariableTerm),
+                O.map((vt) => vt.value)
+              )
+            )
+          )
+        )
+      )
+    )
+  );
 
 /**
  * Extract projected variable names from SELECT query
  * Returns empty array for CONSTRUCT/ASK
  */
-const extractVariables = (ast: sparqljs.SparqlQuery): ReadonlyArray<string> => {
-  if (ast.type !== "query" || ast.queryType !== "SELECT") {
-    return [];
-  }
-
-  const selectQuery = ast as sparqljs.SelectQuery;
-  if (!selectQuery.variables) {
-    return [];
-  }
-
-  // Variables is Variable[] | [Wildcard]
-  // We handle both cases by iterating and filtering
-  return A.filterMap(selectQuery.variables, extractVariableName);
-};
+const extractVariables = (ast: sparqljs.SparqlQuery): ReadonlyArray<string> =>
+  F.pipe(
+    ast,
+    O.liftPredicate(isSelectQuery),
+    O.flatMap((selectQuery) => O.fromNullable(selectQuery.variables)),
+    O.map((variables) => A.filterMap(variables, extractVariableName)),
+    O.getOrElse(() => A.empty<string>())
+  );
 
 /**
- * Check for unsupported SPARQL features
+ * Create an unsupported feature error for UPDATE operations
+ */
+const makeUpdateError = (queryString: string): SparqlUnsupportedFeatureError =>
+  new SparqlUnsupportedFeatureError({
+    feature: "UPDATE operations",
+    queryString,
+    message: "UPDATE operations (INSERT/DELETE) are not supported in Phase 1",
+  });
+
+/**
+ * Create an unsupported feature error for DESCRIBE queries
+ */
+const makeDescribeError = (queryString: string): SparqlUnsupportedFeatureError =>
+  new SparqlUnsupportedFeatureError({
+    feature: "DESCRIBE queries",
+    queryString,
+    message: "DESCRIBE queries are not supported in Phase 1",
+  });
+
+/**
+ * Create an unsupported feature error for non-query operations
+ */
+const makeNonQueryError = (queryString: string): SparqlUnsupportedFeatureError =>
+  new SparqlUnsupportedFeatureError({
+    feature: "non-query operations",
+    queryString,
+    message: "Only SELECT, CONSTRUCT, and ASK queries are supported",
+  });
+
+/**
+ * Check for unsupported SPARQL features using Option pipelines
  */
 const checkUnsupportedFeatures = (
   ast: sparqljs.SparqlQuery,
   queryString: string
 ): Effect.Effect<void, SparqlUnsupportedFeatureError> =>
-  Effect.gen(function* () {
-    // UPDATE operations not supported
-    if (ast.type === "update") {
-      return yield* new SparqlUnsupportedFeatureError({
-        feature: "UPDATE operations",
-        queryString,
-        message: "UPDATE operations (INSERT/DELETE) are not supported in Phase 1",
-      });
-    }
-
-    // DESCRIBE not supported in Phase 1
-    if (ast.type === "query" && ast.queryType === "DESCRIBE") {
-      return yield* new SparqlUnsupportedFeatureError({
-        feature: "DESCRIBE queries",
-        queryString,
-        message: "DESCRIBE queries are not supported in Phase 1",
-      });
-    }
-
-    // Check for property paths (would need to inspect patterns deeply)
-    // For now, basic support - we'll catch this during execution if needed
-  });
+  F.pipe(
+    O.none<SparqlUnsupportedFeatureError>(),
+    O.orElse(() =>
+      F.pipe(
+        ast,
+        O.liftPredicate(isUpdate),
+        O.map(() => makeUpdateError(queryString))
+      )
+    ),
+    O.orElse(() =>
+      F.pipe(
+        ast,
+        O.liftPredicate(isDescribeQuery),
+        O.map(() => makeDescribeError(queryString))
+      )
+    ),
+    O.match({
+      onNone: () => Effect.void,
+      onSome: Effect.fail,
+    })
+  );
 
 /**
  * Convert sparqljs AST to domain SparqlQuery
@@ -145,14 +207,13 @@ const astToSparqlQuery = (
   Effect.gen(function* () {
     yield* checkUnsupportedFeatures(ast, queryString);
 
-    const queryType = extractQueryType(ast);
-    if (queryType === undefined) {
-      return yield* new SparqlUnsupportedFeatureError({
-        feature: "non-query operations",
-        queryString,
-        message: "Only SELECT, CONSTRUCT, and ASK queries are supported",
-      });
-    }
+    const queryType = yield* F.pipe(
+      extractQueryType(ast),
+      O.match({
+        onNone: () => Effect.fail(makeNonQueryError(queryString)),
+        onSome: Effect.succeed,
+      })
+    );
 
     return new SparqlQuery({
       queryString,
@@ -170,7 +231,7 @@ const astToSparqlQuery = (
  * @since 0.1.0
  * @category services
  */
-export class SparqlParser extends Effect.Service<SparqlParser>()("@beep/knowledge-server/SparqlParser", {
+export class SparqlParser extends Effect.Service<SparqlParser>()($I`SparqlParser`, {
   accessors: true,
   effect: Effect.gen(function* () {
     // Create parser instance

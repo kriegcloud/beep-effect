@@ -7,11 +7,14 @@
  * @module knowledge-server/Rdf/RdfBuilder
  * @since 0.1.0
  */
+import { $KnowledgeServerId } from "@beep/identity/packages";
 import { type BlankNode, type IRI, Literal, Quad } from "@beep/knowledge-domain/value-objects";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import { RdfStore } from "./RdfStoreService";
+
+const $I = $KnowledgeServerId.create("Rdf/RdfBuilder");
 
 /**
  * Context for building quads with an optional named graph
@@ -136,14 +139,11 @@ export interface SubjectBuilder {
  * @since 0.1.0
  * @category services
  */
-export class RdfBuilder extends Effect.Service<RdfBuilder>()("@beep/knowledge-server/RdfBuilder", {
+export class RdfBuilder extends Effect.Service<RdfBuilder>()($I`RdfBuilder`, {
   accessors: true,
   effect: Effect.gen(function* () {
     const store = yield* RdfStore;
 
-    /**
-     * Create a QuadBuilder from a complete quad context
-     */
     const createQuadBuilder = (ctx: QuadContext): QuadBuilder => {
       const buildQuad = (): Quad =>
         new Quad({
@@ -175,9 +175,6 @@ export class RdfBuilder extends Effect.Service<RdfBuilder>()("@beep/knowledge-se
       };
     };
 
-    /**
-     * Create an ObjectBuilder from predicate context
-     */
     const createObjectBuilder = (ctx: ObjectContext): ObjectBuilder => ({
       literal: (value: string, language?: string): QuadBuilder => {
         const literalObj = language !== undefined ? new Literal({ value, language }) : new Literal({ value });
@@ -201,9 +198,6 @@ export class RdfBuilder extends Effect.Service<RdfBuilder>()("@beep/knowledge-se
         }),
     });
 
-    /**
-     * Create a PredicateBuilder from subject context
-     */
     const createPredicateBuilder = (ctx: PredicateContext): PredicateBuilder => ({
       predicate: (p: IRI.Type): ObjectBuilder =>
         createObjectBuilder({
@@ -212,9 +206,6 @@ export class RdfBuilder extends Effect.Service<RdfBuilder>()("@beep/knowledge-se
         }),
     });
 
-    /**
-     * Create a SubjectBuilder from graph context
-     */
     const createSubjectBuilder = (ctx: SubjectContext): SubjectBuilder => ({
       subject: (s: Quad["subject"]): PredicateBuilder =>
         createPredicateBuilder({
@@ -223,42 +214,29 @@ export class RdfBuilder extends Effect.Service<RdfBuilder>()("@beep/knowledge-se
         }),
     });
 
+    const subject = (s: Quad["subject"]): PredicateBuilder =>
+      createPredicateBuilder({
+        graph: O.none(),
+        subject: s,
+      });
+
+    const inGraph = (g: IRI.Type): SubjectBuilder =>
+      createSubjectBuilder({
+        graph: O.some(g),
+      });
+
+    const batch = Effect.fn("RdfBuilder.batch")((quads: ReadonlyArray<Quad>) =>
+      store.addQuads(quads).pipe(
+        Effect.withSpan("RdfBuilder.batch", {
+          attributes: { count: A.length(quads) },
+        })
+      )
+    );
+
     return {
-      /**
-       * Start building a quad with the given subject
-       *
-       * @param s - The subject IRI or BlankNode
-       * @returns PredicateBuilder for chaining
-       */
-      subject: (s: Quad["subject"]): PredicateBuilder =>
-        createPredicateBuilder({
-          graph: O.none(),
-          subject: s,
-        }),
-
-      /**
-       * Set a named graph context for subsequent quads
-       *
-       * @param g - The named graph IRI
-       * @returns SubjectBuilder for specifying subject
-       */
-      inGraph: (g: IRI.Type): SubjectBuilder =>
-        createSubjectBuilder({
-          graph: O.some(g),
-        }),
-
-      /**
-       * Add multiple quads to the store at once
-       *
-       * @param quads - The quads to add
-       * @returns Effect that adds all quads
-       */
-      batch: (quads: ReadonlyArray<Quad>): Effect.Effect<void> =>
-        store.addQuads(quads).pipe(
-          Effect.withSpan("RdfBuilder.batch", {
-            attributes: { count: A.length(quads) },
-          })
-        ),
+      subject,
+      inGraph,
+      batch,
     };
   }),
 }) {}

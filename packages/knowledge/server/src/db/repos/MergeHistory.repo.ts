@@ -13,7 +13,6 @@ import { DatabaseError } from "@beep/shared-domain/errors";
 import { DbRepo } from "@beep/shared-domain/factories";
 import * as SqlClient from "@effect/sql/SqlClient";
 import * as SqlSchema from "@effect/sql/SqlSchema";
-import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 import { dependencies } from "./_common";

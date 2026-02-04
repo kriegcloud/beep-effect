@@ -6,7 +6,7 @@
  * @module knowledge-server/db/repos/_common
  * @since 0.1.0
  */
-import { KnowledgeDb } from "@beep/knowledge-server/db";
+import { KnowledgeDb } from "../Db";
 
 /**
  * Common dependencies for all knowledge repositories.

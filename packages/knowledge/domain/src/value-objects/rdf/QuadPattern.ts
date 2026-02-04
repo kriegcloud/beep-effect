@@ -29,7 +29,10 @@ export const SubjectPattern = S.optional(S.Union(IRI, BlankNode)).annotations(
   })
 );
 
-export type SubjectPattern = S.Schema.Type<typeof SubjectPattern>;
+export declare namespace SubjectPattern {
+  export type Type = S.Schema.Type<typeof SubjectPattern>;
+  export type Encoded = S.Schema.Encoded<typeof SubjectPattern>;
+}
 
 /**
  * PredicatePattern - Optional predicate for pattern matching
@@ -46,7 +49,10 @@ export const PredicatePattern = S.optional(IRI).annotations(
   })
 );
 
-export type PredicatePattern = S.Schema.Type<typeof PredicatePattern>;
+export declare namespace PredicatePattern {
+  export type Type = S.Schema.Type<typeof PredicatePattern>;
+  export type Encoded = S.Schema.Encoded<typeof PredicatePattern>;
+}
 
 /**
  * ObjectPattern - Optional object for pattern matching
@@ -63,7 +69,10 @@ export const ObjectPattern = S.optional(Term).annotations(
   })
 );
 
-export type ObjectPattern = S.Schema.Type<typeof ObjectPattern>;
+export declare namespace ObjectPattern {
+  export type Type = S.Schema.Type<typeof ObjectPattern>;
+  export type Encoded = S.Schema.Encoded<typeof ObjectPattern>;
+}
 
 /**
  * GraphPattern - Optional graph for pattern matching

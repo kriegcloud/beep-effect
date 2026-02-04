@@ -8,6 +8,7 @@
  * @module knowledge-server/GraphRAG/CitationValidator
  * @since 0.1.0
  */
+import { $KnowledgeServerId } from "@beep/identity/packages";
 import type { MaxDepthExceededError, MaxInferencesExceededError } from "@beep/knowledge-domain/errors";
 import type { Quad } from "@beep/knowledge-domain/value-objects";
 import type { KnowledgeEntityIds } from "@beep/shared-domain";
@@ -18,6 +19,8 @@ import * as Struct from "effect/Struct";
 import { ReasonerService } from "../Reasoning/ReasonerService";
 import { SparqlService, type SparqlServiceError } from "../Sparql/SparqlService";
 import { type Citation, InferenceStep, type ReasoningTrace } from "./AnswerSchemas";
+
+const $I = $KnowledgeServerId.create("GraphRAG/CitationValidator");
 
 /**
  * Result of validating a single entity reference.
@@ -192,7 +195,7 @@ const buildReasoningTrace = (
  * });
  * ```
  */
-export class CitationValidator extends Effect.Service<CitationValidator>()("@beep/knowledge-server/CitationValidator", {
+export class CitationValidator extends Effect.Service<CitationValidator>()($I`CitationValidator`, {
   accessors: true,
   effect: Effect.gen(function* () {
     const sparql = yield* SparqlService;

@@ -8,7 +8,7 @@
  * @since 0.1.0
  */
 import { $KnowledgeDomainId } from "@beep/identity/packages";
-import * as S from "effect/Schema";
+import { BS } from "@beep/schema";
 
 const $I = $KnowledgeDomainId.create("value-objects/rdf/RdfFormat");
 
@@ -23,22 +23,23 @@ const $I = $KnowledgeDomainId.create("value-objects/rdf/RdfFormat");
  * @since 0.1.0
  * @category value-objects
  */
-export const RdfFormat = S.Literal("Turtle", "NTriples", "JSONLD").annotations(
-  $I.annotations("RdfFormat", {
-    title: "RDF Format",
-    description: "Supported RDF serialization formats",
-  })
-);
+export class RdfFormat extends BS.StringLiteralKit("Turtle", "NTriples", "JSONLD")
+  .annotations(
+    $I.annotations("RdfFormat", {
+      title: "RDF Format",
+      description: "Supported RDF serialization formats",
+    })
+  )
+  .annotations(
+    $I.annotations("RdfFormat", {
+      title: "RDF Format",
+      description: "Supported RDF serialization formats",
+    })
+  ) {}
 
-export type RdfFormat = typeof RdfFormat.Type;
-
-/**
- * Type guard for RdfFormat values.
- *
- * @since 0.1.0
- * @category value-objects
- */
-export const isRdfFormat = S.is(RdfFormat);
+export declare namespace RdfFormat {
+  export type Type = typeof RdfFormat.Type;
+}
 
 /**
  * RdfFormatMimeType - MIME type mapping for RDF formats
@@ -49,11 +50,21 @@ export const isRdfFormat = S.is(RdfFormat);
  * @since 0.1.0
  * @category value-objects
  */
-export const RdfFormatMimeType: Record<RdfFormat, string> = {
-  Turtle: "text/turtle",
-  NTriples: "application/n-triples",
-  JSONLD: "application/ld+json",
-} as const;
+export class RdfFormatMimeType extends BS.MappedLiteralKit(
+  ["Turtle", BS.MimeType.Enum["text/turtle"]],
+  ["NTriples", BS.MimeType.Enum["application/n-triples"]],
+  ["JSONLD", BS.MimeType.Enum["application/ld+json"]]
+).annotations(
+  $I.annotations("RdfFormatMimeType", {
+    title: "RDF Format MIME Type",
+    description: "MIME type mapping for RDF formats",
+  })
+) {}
+
+export declare namespace RdfFormatMimeType {
+  export type Type = typeof RdfFormatMimeType.Type;
+  export type Encoded = typeof RdfFormatMimeType.Encoded;
+}
 
 /**
  * Get the MIME type for a given RDF format.
@@ -61,4 +72,4 @@ export const RdfFormatMimeType: Record<RdfFormat, string> = {
  * @since 0.1.0
  * @category value-objects
  */
-export const getMimeType = (format: RdfFormat): string => RdfFormatMimeType[format];
+export const getMimeType = (format: RdfFormat.Type): RdfFormatMimeType.Type => RdfFormatMimeType.DecodedEnum[format];

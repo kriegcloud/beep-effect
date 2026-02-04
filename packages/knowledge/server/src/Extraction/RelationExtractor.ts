@@ -6,6 +6,7 @@
  * @module knowledge-server/Extraction/RelationExtractor
  * @since 0.1.0
  */
+import { $KnowledgeServerId } from "@beep/identity/packages";
 import { LanguageModel, Prompt } from "@effect/ai";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
@@ -17,6 +18,8 @@ import type { TextChunk } from "../Nlp/TextChunk";
 import type { OntologyContext } from "../Ontology";
 import type { ClassifiedEntity } from "./schemas/entity-output.schema";
 import { ExtractedTriple, RelationOutput } from "./schemas/relation-output.schema";
+
+const $I = $KnowledgeServerId.create("knowledge-server/Extraction/RelationExtractor");
 
 /**
  * Configuration for relation extraction
@@ -84,7 +87,7 @@ export interface RelationExtractionResult {
  * @since 0.1.0
  * @category services
  */
-export class RelationExtractor extends Effect.Service<RelationExtractor>()("@beep/knowledge-server/RelationExtractor", {
+export class RelationExtractor extends Effect.Service<RelationExtractor>()($I`RelationExtractor`, {
   accessors: true,
   effect: Effect.gen(function* () {
     const model = yield* LanguageModel.LanguageModel;

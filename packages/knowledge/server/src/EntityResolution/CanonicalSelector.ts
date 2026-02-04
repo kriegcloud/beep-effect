@@ -7,7 +7,10 @@
  * @module knowledge-server/EntityResolution/CanonicalSelector
  * @since 0.1.0
  */
+
+import { $KnowledgeServerId } from "@beep/identity/packages";
 import { CanonicalSelectionError } from "@beep/knowledge-domain/errors";
+import { BS } from "@beep/schema";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
@@ -16,6 +19,8 @@ import * as MutableHashSet from "effect/MutableHashSet";
 import * as O from "effect/Option";
 import * as Struct from "effect/Struct";
 import type { AssembledEntity } from "../Extraction/GraphAssembler";
+
+const $I = $KnowledgeServerId.create("EntityResolution/CanonicalSelector");
 // =============================================================================
 // Configuration Types
 // =============================================================================
@@ -26,7 +31,20 @@ import type { AssembledEntity } from "../Extraction/GraphAssembler";
  * @since 0.1.0
  * @category types
  */
-export type SelectionStrategy = "highest_confidence" | "most_attributes" | "most_mentions" | "hybrid";
+export class SelectionStrategy extends BS.StringLiteralKit(
+  "highest_confidence",
+  "most_attributes",
+  "most_mentions",
+  "hybrid"
+).annotations(
+  $I.annotations("SelectionStrategy", {
+    description: "Strategy for selecting canonical entity",
+  })
+) {}
+
+export declare namespace SelectionStrategy {
+  export type Type = typeof SelectionStrategy.Type;
+}
 
 /**
  * Configuration for canonical selection
@@ -39,7 +57,7 @@ export interface CanonicalSelectorConfig {
    * Selection strategy
    * @default "hybrid"
    */
-  readonly strategy?: undefined | SelectionStrategy;
+  readonly strategy?: undefined | SelectionStrategy.Type;
 
   /**
    * Weights for hybrid strategy
@@ -106,7 +124,7 @@ const computeHybridScore = (
  * @since 0.1.0
  * @category services
  */
-export class CanonicalSelector extends Effect.Service<CanonicalSelector>()("@beep/knowledge-server/CanonicalSelector", {
+export class CanonicalSelector extends Effect.Service<CanonicalSelector>()($I`CanonicalSelector`, {
   accessors: true,
   effect: Effect.succeed({
     /**
@@ -116,11 +134,9 @@ export class CanonicalSelector extends Effect.Service<CanonicalSelector>()("@bee
      * @param config - Selection configuration
      * @returns Selected canonical entity
      */
-    selectCanonical: (
-      cluster: readonly AssembledEntity[],
-      config: CanonicalSelectorConfig = {}
-    ): Effect.Effect<AssembledEntity, CanonicalSelectionError> =>
-      Effect.gen(function* () {
+    selectCanonical: Effect.fn(
+      (cluster: readonly AssembledEntity[], config: CanonicalSelectorConfig = {}) =>
+        Effect.gen(function* () {
         if (A.isEmptyReadonlyArray(cluster)) {
           return yield* new CanonicalSelectionError({
             message: "Cannot select canonical from empty cluster",
@@ -141,7 +157,7 @@ export class CanonicalSelector extends Effect.Service<CanonicalSelector>()("@bee
           return single;
         }
 
-        const strategy = config.strategy ?? "hybrid";
+        const strategy = config.strategy ?? SelectionStrategy.Enum.hybrid;
 
         yield* Effect.logDebug("CanonicalSelector.selectCanonical", {
           strategy,
@@ -149,7 +165,7 @@ export class CanonicalSelector extends Effect.Service<CanonicalSelector>()("@bee
         });
 
         const selected = Match.value(strategy).pipe(
-          Match.when("highest_confidence", () =>
+          Match.when(SelectionStrategy.Enum.highest_confidence, () =>
             // Select entity with highest confidence
             F.pipe(
               A.head(cluster),
@@ -159,7 +175,7 @@ export class CanonicalSelector extends Effect.Service<CanonicalSelector>()("@bee
               O.getOrUndefined
             )
           ),
-          Match.when("most_attributes", () =>
+          Match.when(SelectionStrategy.Enum.most_attributes, () =>
             // Select entity with most attributes
             F.pipe(
               A.head(cluster),
@@ -171,7 +187,7 @@ export class CanonicalSelector extends Effect.Service<CanonicalSelector>()("@bee
               O.getOrUndefined
             )
           ),
-          Match.when("most_mentions", () =>
+          Match.when(SelectionStrategy.Enum.most_mentions, () =>
             // Select entity with longest mention (proxy for specificity)
             F.pipe(
               A.head(cluster),
@@ -218,7 +234,8 @@ export class CanonicalSelector extends Effect.Service<CanonicalSelector>()("@bee
         });
 
         return selected;
-      }),
+      })
+    ),
 
     /**
      * Merge attributes from cluster members into canonical entity
@@ -230,11 +247,9 @@ export class CanonicalSelector extends Effect.Service<CanonicalSelector>()("@bee
      * @param members - Other cluster members
      * @returns Canonical entity with merged attributes
      */
-    mergeAttributes: (
-      canonical: AssembledEntity,
-      members: readonly AssembledEntity[]
-    ): Effect.Effect<AssembledEntity> =>
-      Effect.gen(function* () {
+    mergeAttributes: Effect.fn(
+      (canonical: AssembledEntity, members: readonly AssembledEntity[]) =>
+        Effect.gen(function* () {
         if (A.isEmptyReadonlyArray(members)) {
           return canonical;
         }
@@ -284,7 +299,8 @@ export class CanonicalSelector extends Effect.Service<CanonicalSelector>()("@bee
         });
 
         return merged;
-      }),
+      })
+    ),
 
     /**
      * Compute a quality score for an entity
@@ -294,7 +310,7 @@ export class CanonicalSelector extends Effect.Service<CanonicalSelector>()("@bee
      * @param entity - Entity to score
      * @returns Quality score (0-1)
      */
-    computeQualityScore: (entity: AssembledEntity): Effect.Effect<number> =>
+    computeQualityScore: Effect.fn((entity: AssembledEntity) =>
       Effect.sync(() => {
         const weights = {
           confidence: 0.4,
@@ -309,6 +325,7 @@ export class CanonicalSelector extends Effect.Service<CanonicalSelector>()("@bee
         const typeScore = Math.min(entity.types.length / 5, 1) * weights.typeCount;
 
         return confidenceScore + attributeScore + mentionScore + typeScore;
-      }),
+      })
+    ),
   }),
 }) {}

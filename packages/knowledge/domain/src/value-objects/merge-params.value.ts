@@ -7,7 +7,6 @@
  * @since 0.1.0
  */
 import { $KnowledgeDomainId } from "@beep/identity/packages";
-import { BS } from "@beep/schema";
 import { KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import * as S from "effect/Schema";
 import { MergeReason } from "../entities/merge-history/merge-history.model";
@@ -38,11 +37,9 @@ export class MergeParams extends S.Class<MergeParams>($I`MergeParams`)(
     confidence: S.Number.pipe(S.between(0, 1)).annotations({
       description: "Confidence score for the merge decision",
     }),
-    mergedBy: BS.FieldOptionOmittable(
-      SharedEntityIds.UserId.annotations({
-        description: "User ID who approved the merge (undefined for automatic)",
-      })
-    ),
+    mergedBy: S.optional(SharedEntityIds.UserId).annotations({
+      description: "User ID who approved the merge (undefined for automatic)",
+    }),
   },
   $I.annotations("MergeParams", {
     description: "Parameters for recording an entity merge",

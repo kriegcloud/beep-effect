@@ -7,6 +7,7 @@
  * @module knowledge-server/Ontology/OntologyService
  * @since 0.1.0
  */
+import { $KnowledgeServerId } from "@beep/identity/packages";
 import { Entities, ValueObjects } from "@beep/knowledge-domain";
 import { KnowledgeEntityIds, type SharedEntityIds } from "@beep/shared-domain";
 import * as A from "effect/Array";
@@ -25,6 +26,8 @@ import {
   type ParsedOntology,
   type ParsedPropertyDefinition,
 } from "./OntologyParser";
+
+const $I = $KnowledgeServerId.create("Ontology/OntologyService");
 
 /**
  * OntologyContext represents a fully loaded ontology with lookup capabilities
@@ -186,7 +189,7 @@ const createOntologyContext = (parsed: ParsedOntology): OntologyContext => {
  * @since 0.1.0
  * @category services
  */
-export class OntologyService extends Effect.Service<OntologyService>()("@beep/knowledge-server/OntologyService", {
+export class OntologyService extends Effect.Service<OntologyService>()($I`OntologyService`, {
   effect: Effect.gen(function* () {
     const parser = yield* OntologyParser;
     const cache = yield* OntologyCache;
@@ -281,7 +284,7 @@ export class OntologyService extends Effect.Service<OntologyService>()("@beep/kn
             id,
             organizationId,
             ontologyId,
-            iri: ValueObjects.makeClassIri(parsed.iri),
+            iri: ValueObjects.ClassIri.make(parsed.iri),
             label: parsed.label,
             localName: O.some(parsed.localName),
             comment: parsed.comment,
@@ -321,7 +324,7 @@ export class OntologyService extends Effect.Service<OntologyService>()("@beep/kn
             id,
             organizationId,
             ontologyId,
-            iri: ValueObjects.makeClassIri(parsed.iri),
+            iri: ValueObjects.ClassIri.make(parsed.iri),
             label: parsed.label,
             localName: O.some(parsed.localName),
             comment: parsed.comment,
@@ -361,7 +364,7 @@ export class OntologyService extends Effect.Service<OntologyService>()("@beep/kn
               // Search in label, prefLabels, altLabels
               if (F.pipe(cls.label, Str.toLowerCase, Str.includes(lowerQuery))) return true;
               if (A.some(cls.prefLabels, (l) => F.pipe(l, Str.toLowerCase, Str.includes(lowerQuery)))) return true;
-              return !!A.some(cls.altLabels, (l) => F.pipe(l, Str.toLowerCase, Str.includes(lowerQuery)));
+              return A.some(cls.altLabels, (l) => F.pipe(l, Str.toLowerCase, Str.includes(lowerQuery)));
             }),
             limit
           );
@@ -384,7 +387,7 @@ export class OntologyService extends Effect.Service<OntologyService>()("@beep/kn
               // Search in label, prefLabels, altLabels
               if (F.pipe(prop.label, Str.toLowerCase, Str.includes(lowerQuery))) return true;
               if (A.some(prop.prefLabels, (l) => F.pipe(l, Str.toLowerCase, Str.includes(lowerQuery)))) return true;
-              return !!A.some(prop.altLabels, (l) => F.pipe(l, Str.toLowerCase, Str.includes(lowerQuery)));
+              return A.some(prop.altLabels, (l) => F.pipe(l, Str.toLowerCase, Str.includes(lowerQuery)));
             }),
             limit
           );

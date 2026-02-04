@@ -6,6 +6,7 @@
  * @module knowledge-server/Extraction/MentionExtractor
  * @since 0.1.0
  */
+import { $KnowledgeServerId } from "@beep/identity/packages";
 import { LanguageModel, Prompt } from "@effect/ai";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
@@ -14,6 +15,8 @@ import * as Order from "effect/Order";
 import { buildMentionPrompt, buildSystemPrompt } from "../Ai/PromptTemplates";
 import type { TextChunk } from "../Nlp/TextChunk";
 import { ExtractedMention, MentionOutput } from "./schemas/mention-output.schema";
+
+const $I = $KnowledgeServerId.create("knowledge-server/Extraction/MentionExtractor");
 
 /**
  * Configuration for mention extraction
@@ -71,7 +74,7 @@ export interface MentionExtractionResult {
  * @since 0.1.0
  * @category services
  */
-export class MentionExtractor extends Effect.Service<MentionExtractor>()("@beep/knowledge-server/MentionExtractor", {
+export class MentionExtractor extends Effect.Service<MentionExtractor>()($I`MentionExtractor`, {
   accessors: true,
   effect: Effect.gen(function* () {
     const model = yield* LanguageModel.LanguageModel;

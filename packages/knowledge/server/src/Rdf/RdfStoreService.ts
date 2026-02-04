@@ -8,15 +8,14 @@
  * @module knowledge-server/Rdf/RdfStoreService
  * @since 0.1.0
  */
+import { $KnowledgeServerId } from "@beep/identity/packages";
 import { RdfTermConversionError } from "@beep/knowledge-domain/errors";
 import {
-  type BlankNode,
-  type IRI,
+  BlankNode,
+  IRI,
   isBlankNode,
-  isIRI,
   Literal,
   makeBlankNode,
-  makeIRI,
   Quad,
   type QuadPattern,
   type Term,
@@ -25,6 +24,8 @@ import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Str from "effect/String";
 import * as N3 from "n3";
+
+const $I = $KnowledgeServerId.create("Rdf/RdfStoreService");
 
 /**
  * XSD namespace for literal datatype IRIs
@@ -74,7 +75,7 @@ const subjectToN3 = (subject: Quad["subject"]): N3.Quad_Subject => {
     return blankNodeToN3(subject);
   }
   // Must be IRI
-  return iriToN3(subject as IRI.Type);
+  return iriToN3(IRI.make(subject));
 };
 
 /**
@@ -85,15 +86,15 @@ const predicateToN3 = (predicate: Quad["predicate"]): N3.Quad_Predicate => iriTo
 /**
  * Convert a domain Term (IRI | BlankNode | Literal) to N3 Term
  */
-const termToN3 = (term: Term): N3.Quad_Object => {
+const termToN3 = (term: Term.Type): N3.Quad_Object => {
   if (isBlankNode(term)) {
     return blankNodeToN3(term);
   }
-  if (isIRI(term)) {
+  if (IRI.is(term)) {
     return iriToN3(term);
   }
   // Must be Literal
-  return literalToN3(term as Literal);
+  return literalToN3(Literal.make(term));
 };
 
 /**
@@ -153,24 +154,24 @@ const rdfJsSubjectToDomain = (term: RdfJsTerm): Quad["subject"] => {
   if (term.termType === "BlankNode") {
     return makeBlankNode(`_:${term.value}`);
   }
-  return makeIRI(term.value);
+  return IRI.make(term.value);
 };
 
 /**
  * Convert an RDF/JS Predicate term to domain Predicate (IRI)
  */
-const rdfJsPredicateToDomain = (term: RdfJsTerm): Quad["predicate"] => makeIRI(term.value);
+const rdfJsPredicateToDomain = (term: RdfJsTerm): Quad["predicate"] => IRI.make(term.value);
 
 /**
  * Convert an RDF/JS Object term to domain Term (IRI | BlankNode | Literal)
  */
-const rdfJsObjectToDomain = (term: RdfJsTerm): Term => {
+const rdfJsObjectToDomain = (term: RdfJsTerm): Term.Type => {
   switch (term.termType) {
     case "NamedNode":
-      return makeIRI(term.value);
+      return IRI.make(term.value);
 
     case "BlankNode":
-      return makeBlankNode(`_:${term.value}`);
+      return BlankNode.make(`_:${term.value}`);
 
     case "Literal": {
       const lit = term as RdfJsLiteral;
@@ -189,7 +190,7 @@ const rdfJsObjectToDomain = (term: RdfJsTerm): Term => {
       if (datatype && datatype !== XSD_STRING && datatype !== RDF_LANG_STRING) {
         return new Literal({
           value: lit.value,
-          datatype: makeIRI(datatype),
+          datatype: IRI.make(datatype),
         });
       }
 
@@ -216,7 +217,7 @@ const rdfJsGraphToDomain = (term: RdfJsTerm): Quad["graph"] => {
   if (term.termType === "DefaultGraph" || term.value === "") {
     return undefined;
   }
-  return makeIRI(term.value);
+  return IRI.make(term.value);
 };
 
 /**
@@ -291,273 +292,170 @@ const patternGraphToN3 = (graph: QuadPattern["graph"]): N3.Quad_Graph | null => 
  * });
  * ```
  */
-export class RdfStore extends Effect.Service<RdfStore>()("@beep/knowledge-server/RdfStore", {
+export class RdfStore extends Effect.Service<RdfStore>()($I`RdfStore`, {
   accessors: true,
   effect: Effect.gen(function* () {
     // Internal N3 store instance
     const store = new N3.Store();
 
+    const addQuad = Effect.fn("RdfStore.addQuad")((quad: Quad) =>
+      Effect.sync(() => {
+        store.addQuad(quadToN3(quad));
+      })
+    );
+
+    const addQuads = Effect.fn("RdfStore.addQuads")((quads: ReadonlyArray<Quad>) =>
+      Effect.sync(() => {
+        const n3Quads = A.map(quads, quadToN3);
+        store.addQuads(n3Quads);
+      }).pipe(
+        Effect.withSpan("RdfStore.addQuads", {
+          attributes: { quadCount: quads.length },
+        })
+      )
+    );
+
+    const removeQuad = Effect.fn("RdfStore.removeQuad")((quad: Quad) =>
+      Effect.sync(() => {
+        store.removeQuad(quadToN3(quad));
+      })
+    );
+
+    const removeQuads = Effect.fn("RdfStore.removeQuads")((quads: ReadonlyArray<Quad>) =>
+      Effect.sync(() => {
+        const n3Quads = A.map(quads, quadToN3);
+        store.removeQuads(n3Quads);
+      }).pipe(
+        Effect.withSpan("RdfStore.removeQuads", {
+          attributes: { quadCount: quads.length },
+        })
+      )
+    );
+
+    const hasQuad = Effect.fn("RdfStore.hasQuad")((quad: Quad) =>
+      Effect.sync(() => store.has(quadToN3(quad)))
+    );
+
+    const match = Effect.fn("RdfStore.match")((pattern: QuadPattern) =>
+      Effect.sync(() => {
+        const n3Subject = patternSubjectToN3(pattern.subject);
+        const n3Predicate = patternPredicateToN3(pattern.predicate);
+        const n3Object = patternObjectToN3(pattern.object);
+        const n3Graph = patternGraphToN3(pattern.graph);
+
+        const results: Quad[] = [];
+        for (const n3Quad of store.match(n3Subject, n3Predicate, n3Object, n3Graph)) {
+          results.push(rdfJsQuadToDomain(n3Quad));
+        }
+        return results as ReadonlyArray<Quad>;
+      })
+    );
+
+    const getQuads = Effect.fn("RdfStore.getQuads")(() =>
+      Effect.sync(() => {
+        const results: Quad[] = [];
+        for (const n3Quad of store.getQuads(null, null, null, null)) {
+          results.push(rdfJsQuadToDomain(n3Quad));
+        }
+        return results as ReadonlyArray<Quad>;
+      })
+    );
+
+    const size = Effect.sync(() => store.size).pipe(Effect.withSpan("RdfStore.size"));
+
+    const countMatches = Effect.fn("RdfStore.countMatches")((pattern: QuadPattern) =>
+      Effect.sync(() => {
+        const n3Subject = patternSubjectToN3(pattern.subject);
+        const n3Predicate = patternPredicateToN3(pattern.predicate);
+        const n3Object = patternObjectToN3(pattern.object);
+        const n3Graph = patternGraphToN3(pattern.graph);
+
+        return store.countQuads(n3Subject, n3Predicate, n3Object, n3Graph);
+      })
+    );
+
+    const clear = Effect.fn("RdfStore.clear")(() =>
+      Effect.sync(() => {
+        const allQuads = store.getQuads(null, null, null, null);
+        store.removeQuads(allQuads);
+      })
+    );
+
+    const getSubjects = Effect.fn("RdfStore.getSubjects")(() =>
+      Effect.sync(() => {
+        const subjects = store.getSubjects(null, null, null);
+        return A.map(A.fromIterable(subjects), rdfJsSubjectToDomain);
+      })
+    );
+
+    const getPredicates = Effect.fn("RdfStore.getPredicates")(() =>
+      Effect.sync(() => {
+        const predicates = store.getPredicates(null, null, null);
+        return A.map(A.fromIterable(predicates), rdfJsPredicateToDomain);
+      })
+    );
+
+    const getObjects = Effect.fn("RdfStore.getObjects")(() =>
+      Effect.sync(() => {
+        const objects = store.getObjects(null, null, null);
+        return A.map(A.fromIterable(objects), rdfJsObjectToDomain);
+      })
+    );
+
+    const getGraphs = Effect.fn("RdfStore.getGraphs")(() =>
+      Effect.sync(() => {
+        const graphs = store.getGraphs(null, null, null);
+        return A.map(A.fromIterable(graphs), rdfJsGraphToDomain);
+      })
+    );
+
+    const createGraph = Effect.fn("RdfStore.createGraph")((iri: IRI.Type) =>
+      Effect.sync(() => {
+        const marker = N3.DataFactory.quad(
+          N3.DataFactory.namedNode(iri),
+          N3.DataFactory.namedNode("urn:beep:internal#marker"),
+          N3.DataFactory.literal(""),
+          N3.DataFactory.namedNode(iri)
+        );
+        store.addQuad(marker);
+        store.removeQuad(marker);
+      })
+    );
+
+    const dropGraph = Effect.fn("RdfStore.dropGraph")((iri: IRI.Type) =>
+      Effect.sync(() => {
+        store.deleteGraph(iri);
+      })
+    );
+
+    const listGraphs = Effect.fn("RdfStore.listGraphs")(() =>
+      Effect.sync(() => {
+        const graphs = store.getGraphs(null, null, null);
+        return A.filter(
+          A.map(A.fromIterable(graphs), (g) => rdfJsGraphToDomain(g)),
+          (g): g is IRI.Type => g !== undefined
+        );
+      })
+    );
+
     return {
-      /**
-       * Add a quad to the store
-       *
-       * @param quad - The quad to add
-       * @returns Effect that completes when the quad is added
-       *
-       * @since 0.1.0
-       */
-      addQuad: (quad: Quad): Effect.Effect<void> =>
-        Effect.sync(() => {
-          store.addQuad(quadToN3(quad));
-        }).pipe(Effect.withSpan("RdfStore.addQuad")),
-
-      /**
-       * Add multiple quads to the store
-       *
-       * @param quads - The quads to add
-       * @returns Effect that completes when all quads are added
-       *
-       * @since 0.1.0
-       */
-      addQuads: (quads: ReadonlyArray<Quad>): Effect.Effect<void> =>
-        Effect.sync(() => {
-          const n3Quads = A.map(quads, quadToN3);
-          store.addQuads(n3Quads);
-        }).pipe(
-          Effect.withSpan("RdfStore.addQuads", {
-            attributes: { quadCount: quads.length },
-          })
-        ),
-
-      /**
-       * Remove a quad from the store
-       *
-       * @param quad - The quad to remove
-       * @returns Effect that completes when the quad is removed
-       *
-       * @since 0.1.0
-       */
-      removeQuad: (quad: Quad): Effect.Effect<void> =>
-        Effect.sync(() => {
-          store.removeQuad(quadToN3(quad));
-        }).pipe(Effect.withSpan("RdfStore.removeQuad")),
-
-      /**
-       * Remove multiple quads from the store
-       *
-       * @param quads - The quads to remove
-       * @returns Effect that completes when all quads are removed
-       *
-       * @since 0.1.0
-       */
-      removeQuads: (quads: ReadonlyArray<Quad>): Effect.Effect<void> =>
-        Effect.sync(() => {
-          const n3Quads = A.map(quads, quadToN3);
-          store.removeQuads(n3Quads);
-        }).pipe(
-          Effect.withSpan("RdfStore.removeQuads", {
-            attributes: { quadCount: quads.length },
-          })
-        ),
-
-      /**
-       * Check if a quad exists in the store
-       *
-       * @param quad - The quad to check
-       * @returns Effect yielding true if the quad exists
-       *
-       * @since 0.1.0
-       */
-      hasQuad: (quad: Quad): Effect.Effect<boolean> =>
-        Effect.sync(() => store.has(quadToN3(quad))).pipe(Effect.withSpan("RdfStore.hasQuad")),
-
-      /**
-       * Match quads by pattern
-       *
-       * All pattern fields are optional. Undefined fields act as wildcards.
-       *
-       * @param pattern - The quad pattern to match
-       * @returns Effect yielding matching quads
-       *
-       * @since 0.1.0
-       */
-      match: (pattern: QuadPattern): Effect.Effect<ReadonlyArray<Quad>> =>
-        Effect.sync(() => {
-          const n3Subject = patternSubjectToN3(pattern.subject);
-          const n3Predicate = patternPredicateToN3(pattern.predicate);
-          const n3Object = patternObjectToN3(pattern.object);
-          const n3Graph = patternGraphToN3(pattern.graph);
-
-          const results: Quad[] = [];
-          for (const n3Quad of store.match(n3Subject, n3Predicate, n3Object, n3Graph)) {
-            results.push(rdfJsQuadToDomain(n3Quad));
-          }
-          return results as ReadonlyArray<Quad>;
-        }).pipe(Effect.withSpan("RdfStore.match")),
-
-      /**
-       * Get all quads in the store
-       *
-       * @returns Effect yielding all quads
-       *
-       * @since 0.1.0
-       */
-      getQuads: (): Effect.Effect<ReadonlyArray<Quad>> =>
-        Effect.sync(() => {
-          const results: Quad[] = [];
-          for (const n3Quad of store.getQuads(null, null, null, null)) {
-            results.push(rdfJsQuadToDomain(n3Quad));
-          }
-          return results as ReadonlyArray<Quad>;
-        }).pipe(Effect.withSpan("RdfStore.getQuads")),
-
-      /**
-       * Get the number of quads in the store
-       *
-       * @returns Effect yielding the quad count
-       *
-       * @since 0.1.0
-       */
-      size: Effect.sync(() => store.size).pipe(Effect.withSpan("RdfStore.size")),
-
-      /**
-       * Count quads matching a pattern
-       *
-       * @param pattern - The quad pattern to match
-       * @returns Effect yielding the count of matching quads
-       *
-       * @since 0.1.0
-       */
-      countMatches: (pattern: QuadPattern): Effect.Effect<number> =>
-        Effect.sync(() => {
-          const n3Subject = patternSubjectToN3(pattern.subject);
-          const n3Predicate = patternPredicateToN3(pattern.predicate);
-          const n3Object = patternObjectToN3(pattern.object);
-          const n3Graph = patternGraphToN3(pattern.graph);
-
-          return store.countQuads(n3Subject, n3Predicate, n3Object, n3Graph);
-        }).pipe(Effect.withSpan("RdfStore.countMatches")),
-
-      /**
-       * Clear all quads from the store
-       *
-       * @returns Effect that completes when the store is cleared
-       *
-       * @since 0.1.0
-       */
-      clear: (): Effect.Effect<void> =>
-        Effect.sync(() => {
-          // N3.Store doesn't have a clear method, so we remove all quads
-          const allQuads = store.getQuads(null, null, null, null);
-          store.removeQuads(allQuads);
-        }).pipe(Effect.withSpan("RdfStore.clear")),
-
-      /**
-       * Get all unique subjects in the store
-       *
-       * @returns Effect yielding unique subject IRIs/BlankNodes
-       *
-       * @since 0.1.0
-       */
-      getSubjects: (): Effect.Effect<ReadonlyArray<Quad["subject"]>> =>
-        Effect.sync(() => {
-          const subjects = store.getSubjects(null, null, null);
-          return A.map(A.fromIterable(subjects), rdfJsSubjectToDomain);
-        }).pipe(Effect.withSpan("RdfStore.getSubjects")),
-
-      /**
-       * Get all unique predicates in the store
-       *
-       * @returns Effect yielding unique predicate IRIs
-       *
-       * @since 0.1.0
-       */
-      getPredicates: (): Effect.Effect<ReadonlyArray<Quad["predicate"]>> =>
-        Effect.sync(() => {
-          const predicates = store.getPredicates(null, null, null);
-          return A.map(A.fromIterable(predicates), rdfJsPredicateToDomain);
-        }).pipe(Effect.withSpan("RdfStore.getPredicates")),
-
-      /**
-       * Get all unique objects in the store
-       *
-       * @returns Effect yielding unique object Terms
-       *
-       * @since 0.1.0
-       */
-      getObjects: (): Effect.Effect<ReadonlyArray<Term>> =>
-        Effect.sync(() => {
-          const objects = store.getObjects(null, null, null);
-          return A.map(A.fromIterable(objects), rdfJsObjectToDomain);
-        }).pipe(Effect.withSpan("RdfStore.getObjects")),
-
-      /**
-       * Get all unique graphs in the store
-       *
-       * @returns Effect yielding unique graph IRIs (undefined for default graph)
-       *
-       * @since 0.1.0
-       */
-      getGraphs: (): Effect.Effect<ReadonlyArray<Quad["graph"]>> =>
-        Effect.sync(() => {
-          const graphs = store.getGraphs(null, null, null);
-          return A.map(A.fromIterable(graphs), rdfJsGraphToDomain);
-        }).pipe(Effect.withSpan("RdfStore.getGraphs")),
-
-      /**
-       * Create a named graph
-       *
-       * N3 creates graphs implicitly when adding quads, so this method
-       * exists for API completeness and explicit intent. It ensures the
-       * graph exists by adding and immediately removing a marker quad.
-       *
-       * @param iri - The IRI of the graph to create
-       * @returns Effect that completes when the graph is created
-       *
-       * @since 0.1.0
-       */
-      createGraph: (iri: IRI.Type): Effect.Effect<void> =>
-        Effect.sync(() => {
-          // N3 creates graphs implicitly when adding quads
-          // We add and immediately remove a marker quad to ensure graph exists
-          const marker = N3.DataFactory.quad(
-            N3.DataFactory.namedNode(iri),
-            N3.DataFactory.namedNode("urn:beep:internal#marker"),
-            N3.DataFactory.literal(""),
-            N3.DataFactory.namedNode(iri)
-          );
-          store.addQuad(marker);
-          store.removeQuad(marker);
-        }).pipe(Effect.withSpan("RdfStore.createGraph")),
-
-      /**
-       * Drop a named graph and all its quads
-       *
-       * @param iri - The IRI of the graph to drop
-       * @returns Effect that completes when the graph is dropped
-       *
-       * @since 0.1.0
-       */
-      dropGraph: (iri: IRI.Type): Effect.Effect<void> =>
-        Effect.sync(() => {
-          store.deleteGraph(iri);
-        }).pipe(Effect.withSpan("RdfStore.dropGraph")),
-
-      /**
-       * List all named graphs (excluding the default graph)
-       *
-       * @returns Effect yielding IRIs of all named graphs
-       *
-       * @since 0.1.0
-       */
-      listGraphs: (): Effect.Effect<ReadonlyArray<IRI.Type>> =>
-        Effect.sync(() => {
-          const graphs = store.getGraphs(null, null, null);
-          return A.filter(
-            A.map(A.fromIterable(graphs), (g) => rdfJsGraphToDomain(g)),
-            (g): g is IRI.Type => g !== undefined
-          );
-        }).pipe(Effect.withSpan("RdfStore.listGraphs")),
+      addQuad,
+      addQuads,
+      removeQuad,
+      removeQuads,
+      hasQuad,
+      match,
+      getQuads,
+      size,
+      countMatches,
+      clear,
+      getSubjects,
+      getPredicates,
+      getObjects,
+      getGraphs,
+      createGraph,
+      dropGraph,
+      listGraphs,
     };
   }),
 }) {}

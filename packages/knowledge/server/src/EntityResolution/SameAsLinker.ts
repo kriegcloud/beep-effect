@@ -70,7 +70,7 @@ interface TransitiveClosure {
  * @since 0.1.0
  * @category services
  */
-export class SameAsLinker extends Effect.Service<SameAsLinker>()("@beep/knowledge-server/SameAsLinker", {
+export class SameAsLinker extends Effect.Service<SameAsLinker>()($I`SameAsLinker`, {
   accessors: true,
   effect: Effect.succeed({
     /**
@@ -82,11 +82,12 @@ export class SameAsLinker extends Effect.Service<SameAsLinker>()("@beep/knowledg
      * @param entityConfidences - Map of entity ID to confidence score
      * @returns Array of same-as links
      */
-    generateLinks: (
-      clusters: readonly EntityCluster[],
-      entityConfidences: MutableHashMap.MutableHashMap<string, number>
-    ): Effect.Effect<readonly SameAsLink[]> =>
-      Effect.gen(function* () {
+    generateLinks: Effect.fn(
+      (
+        clusters: readonly EntityCluster[],
+        entityConfidences: MutableHashMap.MutableHashMap<string, number>
+      ) =>
+        Effect.gen(function* () {
         const links = A.empty<SameAsLink>();
 
         yield* Effect.logDebug("SameAsLinker.generateLinks: starting", {
@@ -122,7 +123,8 @@ export class SameAsLinker extends Effect.Service<SameAsLinker>()("@beep/knowledg
         });
 
         return links;
-      }),
+      })
+    ),
 
     /**
      * Generate links with source provenance
@@ -134,12 +136,13 @@ export class SameAsLinker extends Effect.Service<SameAsLinker>()("@beep/knowledg
      * @param entitySources - Map of entity ID to source ID
      * @returns Links with source provenance
      */
-    generateLinksWithProvenance: (
-      clusters: readonly EntityCluster[],
-      entityConfidences: MutableHashMap.MutableHashMap<string, number>,
-      entitySources: MutableHashMap.MutableHashMap<string, string>
-    ): Effect.Effect<readonly SameAsLink[]> =>
-      Effect.gen(function* () {
+    generateLinksWithProvenance: Effect.fn(
+      (
+        clusters: readonly EntityCluster[],
+        entityConfidences: MutableHashMap.MutableHashMap<string, number>,
+        entitySources: MutableHashMap.MutableHashMap<string, string>
+      ) =>
+        Effect.gen(function* () {
         const links = A.empty<SameAsLink>();
 
         for (const cluster of clusters) {
@@ -162,7 +165,8 @@ export class SameAsLinker extends Effect.Service<SameAsLinker>()("@beep/knowledg
         }
 
         return links;
-      }),
+      })
+    ),
 
     /**
      * Check if two entities are transitively same-as
@@ -174,7 +178,7 @@ export class SameAsLinker extends Effect.Service<SameAsLinker>()("@beep/knowledg
      * @param links - Same-as links to traverse
      * @returns True if entities are transitively linked
      */
-    areLinked: (entityA: string, entityB: string, links: readonly SameAsLink[]): Effect.Effect<boolean> =>
+    areLinked: Effect.fn((entityA: string, entityB: string, links: readonly SameAsLink[]) =>
       Effect.sync(() => {
         if (entityA === entityB) return true;
 
@@ -198,7 +202,8 @@ export class SameAsLinker extends Effect.Service<SameAsLinker>()("@beep/knowledg
         };
 
         return getCanonical(entityA) === getCanonical(entityB);
-      }),
+      })
+    ),
 
     /**
      * Get canonical entity for a given entity
@@ -209,7 +214,7 @@ export class SameAsLinker extends Effect.Service<SameAsLinker>()("@beep/knowledg
      * @param links - Same-as links
      * @returns Canonical entity ID (or self if no links)
      */
-    getCanonical: (entityId: string, links: readonly SameAsLink[]): Effect.Effect<string> =>
+    getCanonical: Effect.fn((entityId: string, links: readonly SameAsLink[]) =>
       Effect.sync(() => {
         const canonicalMap = MutableHashMap.empty<string, string>();
         for (const link of links) {
@@ -225,7 +230,8 @@ export class SameAsLinker extends Effect.Service<SameAsLinker>()("@beep/knowledg
         }
 
         return current;
-      }),
+      })
+    ),
 
     /**
      * Compute transitive closure for all entities
@@ -235,7 +241,7 @@ export class SameAsLinker extends Effect.Service<SameAsLinker>()("@beep/knowledg
      * @param links - Same-as links
      * @returns Array of canonical entities with their members
      */
-    computeTransitiveClosure: (links: readonly SameAsLink[]): Effect.Effect<readonly TransitiveClosure[]> =>
+    computeTransitiveClosure: Effect.fn((links: readonly SameAsLink[]) =>
       Effect.sync(() => {
         // Build canonical mapping
         const canonicalMap = MutableHashMap.empty<string, string>();
@@ -280,7 +286,8 @@ export class SameAsLinker extends Effect.Service<SameAsLinker>()("@beep/knowledg
           result.push({ canonical, members });
         });
         return result;
-      }),
+      })
+    ),
 
     /**
      * Validate links for consistency
@@ -290,7 +297,7 @@ export class SameAsLinker extends Effect.Service<SameAsLinker>()("@beep/knowledg
      * @param links - Links to validate
      * @returns Validation result with any issues found
      */
-    validateLinks: (links: readonly SameAsLink[]): Effect.Effect<{ valid: boolean; issues: readonly string[] }> =>
+    validateLinks: Effect.fn((links: readonly SameAsLink[]) =>
       Effect.sync(() => {
         const issues = A.empty<string>();
 
@@ -335,6 +342,7 @@ export class SameAsLinker extends Effect.Service<SameAsLinker>()("@beep/knowledg
           valid: A.isEmptyReadonlyArray(issues),
           issues,
         };
-      }),
+      })
+    ),
   }),
 }) {}

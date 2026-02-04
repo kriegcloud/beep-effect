@@ -10,150 +10,170 @@
 import type { SparqlExecutionError, SparqlUnsupportedFeatureError } from "@beep/knowledge-domain/errors";
 import {
   type BlankNode,
-  type IRI,
+  IRI,
   isBlankNode,
-  isIRI,
   Literal,
   makeBlankNode,
-  makeIRI,
   Quad,
   QuadPattern,
   SparqlBinding,
   SparqlBindings,
-  type Term,
-  type VariableName,
+  VariableName,
 } from "@beep/knowledge-domain/value-objects";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import * as F from "effect/Function";
 import * as HashSet from "effect/HashSet";
+import * as Match from "effect/Match";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import * as R from "effect/Record";
+import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import type * as sparqljs from "sparqljs";
 import type { RdfStore } from "../Rdf/RdfStoreService";
-import { evaluateFilters, isFilterExpression, type SolutionBindings } from "./FilterEvaluator";
 
 /**
- * Type guard: Check if a term-like value is a Variable
+ * Local type aliases to avoid namespace import issues
+ * These types match the .Type exports from the domain value objects
  */
-const isVariable = (term: unknown): term is sparqljs.VariableTerm =>
-  term !== null &&
-  typeof term === "object" &&
-  "termType" in term &&
-  (term as { termType: string }).termType === "Variable";
+type TermType = IRI.Type | BlankNode.Type | Literal;
+type VariableNameType = S.Schema.Type<typeof VariableName>;
+import { evaluateFilters, type SolutionBindings } from "./FilterEvaluator";
 
 /**
- * Type guard: Check if a term-like value is a NamedNode (IRI)
+ * Base interface for SPARQL term-like values with termType discriminator
  */
-const isNamedNode = (term: unknown): term is sparqljs.IriTerm =>
-  term !== null &&
-  typeof term === "object" &&
-  "termType" in term &&
-  (term as { termType: string }).termType === "NamedNode";
+interface SparqlTermLike {
+  readonly termType: string;
+  readonly value: string;
+}
 
 /**
- * Type guard: Check if a term-like value is a BlankNode
+ * Type guard for objects with termType property
  */
-const isSparqlBlankNode = (term: unknown): term is sparqljs.BlankTerm =>
-  term !== null &&
-  typeof term === "object" &&
-  "termType" in term &&
-  (term as { termType: string }).termType === "BlankNode";
+const hasSparqlTermType = (term: unknown): term is SparqlTermLike =>
+  P.isObject(term) && P.isNotNull(term) && "termType" in term && P.isString((term as SparqlTermLike).termType);
 
 /**
- * Type guard: Check if a term-like value is a Literal
+ * Type guard for property paths (not simple terms)
  */
-const isSparqlLiteral = (term: unknown): term is sparqljs.LiteralTerm =>
-  term !== null &&
-  typeof term === "object" &&
-  "termType" in term &&
-  (term as { termType: string }).termType === "Literal";
+const hasPathType = (term: unknown): term is { type: "path" } =>
+  P.isObject(term) && P.isNotNull(term) && "type" in term && (term as { type: string }).type === "path";
 
 /**
- * Type guard: Check if a value is a PropertyPath (not a simple term)
+ * Runtime type guards for domain types
  */
-const isPropertyPath = (term: unknown): boolean =>
-  term !== null && typeof term === "object" && "type" in term && (term as { type: string }).type === "path";
+const isIRI = S.is(IRI);
+const isLiteral = S.is(Literal);
+
+/**
+ * Discriminator-based matcher for SPARQL term types
+ */
+const matchSparqlTermType =
+  <R>(matchers: {
+    readonly Variable: (term: sparqljs.VariableTerm) => R;
+    readonly NamedNode: (term: sparqljs.IriTerm) => R;
+    readonly BlankNode: (term: sparqljs.BlankTerm) => R;
+    readonly Literal: (term: sparqljs.LiteralTerm) => R;
+    readonly _: () => R;
+  }) =>
+  (term: SparqlTermLike): R =>
+    Match.value(term.termType).pipe(
+      Match.when("Variable", () => matchers.Variable(term as sparqljs.VariableTerm)),
+      Match.when("NamedNode", () => matchers.NamedNode(term as sparqljs.IriTerm)),
+      Match.when("BlankNode", () => matchers.BlankNode(term as sparqljs.BlankTerm)),
+      Match.when("Literal", () => matchers.Literal(term as sparqljs.LiteralTerm)),
+      Match.orElse(matchers._)
+    ) as R;
+
+/**
+ * Create IRI from string value
+ */
+const makeIRI = S.decodeUnknownSync(IRI);
+
+/**
+ * Create VariableName from string value
+ */
+const makeVariableName = S.decodeUnknownSync(VariableName);
 
 /**
  * Convert sparqljs term to domain Term (for non-variable terms)
- * Returns None for variables or property paths
+ * Returns None for variables, property paths, or unknown types
  */
-const sparqlTermToDomain = (term: unknown): O.Option<Term> => {
-  if (isVariable(term) || isPropertyPath(term)) {
-    return O.none();
-  }
+const sparqlTermToDomain = (term: unknown): O.Option<TermType> =>
+  F.pipe(
+    term,
+    O.liftPredicate(hasSparqlTermType),
+    O.filter((t) => t.termType !== "Variable"),
+    O.filter(P.not(hasPathType)),
+    O.flatMap((t) =>
+      matchSparqlTermType({
+        Variable: () => O.none<TermType>(),
+        NamedNode: (node) => O.some<TermType>(makeIRI(node.value)),
+        BlankNode: (node) => O.some<TermType>(makeBlankNode(`_:${node.value}`)),
+        Literal: (lit) => {
+          const datatype = F.pipe(O.fromNullable(lit.datatype?.value), O.map(makeIRI));
+          const language = F.pipe(lit.language, O.liftPredicate(P.not(Str.isEmpty)), O.getOrUndefined);
 
-  if (isNamedNode(term)) {
-    return O.some(makeIRI(term.value));
-  }
-
-  if (isSparqlBlankNode(term)) {
-    return O.some(makeBlankNode(`_:${term.value}`));
-  }
-
-  if (isSparqlLiteral(term)) {
-    const datatype = term.datatype?.value as IRI.Type | undefined;
-    const language = Str.isEmpty(term.language) ? undefined : term.language;
-
-    return O.some(
-      new Literal({
-        value: term.value,
-        datatype: language !== undefined ? undefined : datatype,
-        language,
-      })
-    );
-  }
-
-  return O.none();
-};
+          return O.some<TermType>(
+            new Literal({
+              value: lit.value,
+              datatype: language !== undefined ? undefined : O.getOrUndefined(datatype),
+              language,
+            })
+          );
+        },
+        _: () => O.none<TermType>(),
+      })(t)
+    )
+  );
 
 /**
  * Convert sparqljs subject to QuadPattern subject component
  */
-const subjectToPatternComponent = (subject: sparqljs.Triple["subject"]): IRI.Type | BlankNode.Type | undefined => {
-  if (isVariable(subject)) {
-    return undefined;
-  }
-
-  if (isNamedNode(subject)) {
-    return makeIRI(subject.value);
-  }
-
-  if (isSparqlBlankNode(subject)) {
-    return makeBlankNode(`_:${subject.value}`);
-  }
-
-  return undefined;
-};
+const subjectToPatternComponent = (subject: sparqljs.Triple["subject"]): IRI.Type | BlankNode.Type | undefined =>
+  F.pipe(
+    subject,
+    O.liftPredicate(hasSparqlTermType),
+    O.flatMap((t) =>
+      matchSparqlTermType({
+        Variable: O.none<IRI.Type | BlankNode.Type>,
+        NamedNode: (node) => O.some<IRI.Type | BlankNode.Type>(makeIRI(node.value)),
+        BlankNode: (node) => O.some<IRI.Type | BlankNode.Type>(makeBlankNode(`_:${node.value}`)),
+        Literal: O.none<IRI.Type | BlankNode.Type>,
+        _: O.none<IRI.Type | BlankNode.Type>,
+      })(t)
+    ),
+    O.getOrUndefined
+  );
 
 /**
  * Convert sparqljs predicate to QuadPattern predicate component
  * Property paths are not supported and return undefined
  */
-const predicateToPatternComponent = (predicate: sparqljs.Triple["predicate"]): IRI.Type | undefined => {
-  if (isVariable(predicate)) {
-    return undefined;
-  }
-
-  if (isNamedNode(predicate)) {
-    return makeIRI(predicate.value);
-  }
-
-  // PropertyPath - not supported
-  return undefined;
-};
+const predicateToPatternComponent = (predicate: sparqljs.Triple["predicate"]): IRI.Type | undefined =>
+  F.pipe(
+    predicate,
+    O.liftPredicate(hasSparqlTermType),
+    O.filter(P.not(hasPathType)),
+    O.flatMap((t) =>
+      matchSparqlTermType({
+        Variable: O.none<IRI.Type>,
+        NamedNode: (node) => O.some(makeIRI(node.value)),
+        BlankNode: O.none<IRI.Type>,
+        Literal: O.none<IRI.Type>,
+        _: O.none<IRI.Type>,
+      })(t)
+    ),
+    O.getOrUndefined
+  );
 
 /**
  * Convert sparqljs object to QuadPattern object component
  */
-const objectToPatternComponent = (object: sparqljs.Triple["object"]): Term | undefined => {
-  if (isVariable(object) || isPropertyPath(object)) {
-    return undefined;
-  }
-
-  return O.getOrUndefined(sparqlTermToDomain(object));
-};
+const objectToPatternComponent = (object: sparqljs.Triple["object"]): TermType | undefined =>
+  F.pipe(object, O.liftPredicate(P.not(hasPathType)), O.flatMap(sparqlTermToDomain), O.getOrUndefined);
 
 /**
  * Build QuadPattern from sparqljs triple pattern
@@ -170,45 +190,44 @@ const tripleToQuadPattern = (triple: sparqljs.Triple): QuadPattern =>
  * Returns a partial binding for variables that match positions
  */
 const extractBindingsFromQuad = (triple: sparqljs.Triple, quad: Quad): SolutionBindings => {
-  const entries: Array<readonly [string, Term]> = [];
+  const maybeAddBinding = (term: unknown, value: TermType): O.Option<readonly [string, TermType]> =>
+    F.pipe(
+      term,
+      O.liftPredicate(hasSparqlTermType),
+      O.filter((t) => t.termType === "Variable"),
+      O.map((t) => [t.value, value] as const)
+    );
 
-  if (isVariable(triple.subject)) {
-    entries.push([triple.subject.value, quad.subject] as const);
-  }
-
-  if (isVariable(triple.predicate)) {
-    entries.push([triple.predicate.value, quad.predicate] as const);
-  }
-
-  if (isVariable(triple.object)) {
-    entries.push([triple.object.value, quad.object] as const);
-  }
-
-  return R.fromEntries(entries);
+  return R.fromEntries(
+    A.filterMap(
+      [
+        maybeAddBinding(triple.subject, quad.subject),
+        maybeAddBinding(triple.predicate, quad.predicate),
+        maybeAddBinding(triple.object, quad.object),
+      ],
+      F.identity
+    )
+  );
 };
 
 /**
  * Check if two terms are equal for binding compatibility
  */
-const termsCompatible = (a: Term, b: Term): boolean => {
-  // Check if both are literals
-  const aIsLiteral = a instanceof Literal;
-  const bIsLiteral = b instanceof Literal;
+const termsCompatible = (a: TermType, b: TermType): boolean => {
+  const aLit = isLiteral(a);
+  const bLit = isLiteral(b);
 
-  if (aIsLiteral && bIsLiteral) {
-    return a.value === b.value && a.datatype === b.datatype && a.language === b.language;
+  if (aLit && bLit) {
+    const aTyped = a as Literal;
+    const bTyped = b as Literal;
+    return aTyped.value === bTyped.value && aTyped.datatype === bTyped.datatype && aTyped.language === bTyped.language;
   }
 
-  // Both must be same branded type (IRI or BlankNode)
   if (isIRI(a) && isIRI(b)) {
     return a === b;
   }
 
-  if (isBlankNode(a) && isBlankNode(b)) {
-    return a === b;
-  }
-
-  return false;
+  return isBlankNode(a) && isBlankNode(b) && a === b;
 };
 
 /**
@@ -218,18 +237,21 @@ const termsCompatible = (a: Term, b: Term): boolean => {
 const mergeBindings = (a: SolutionBindings, b: SolutionBindings): O.Option<SolutionBindings> => {
   const bEntries = R.toEntries(b);
 
-  // Check for conflicts
-  const hasConflict = A.some(bEntries, ([key, value]) => {
-    const existing = R.get(a, key);
-    return O.isSome(existing) && !termsCompatible(existing.value, value);
-  });
+  const hasConflict = A.some(bEntries, ([key, value]) =>
+    F.pipe(
+      R.get(a, key),
+      O.match({
+        onNone: () => false,
+        onSome: (existing) => !termsCompatible(existing, value),
+      })
+    )
+  );
 
-  if (hasConflict) {
-    return O.none();
-  }
-
-  // Merge entries
-  return O.some({ ...a, ...b });
+  return F.pipe(
+    hasConflict,
+    O.liftPredicate(P.not(F.identity)),
+    O.map(() => ({ ...a, ...b }))
+  );
 };
 
 /**
@@ -237,30 +259,39 @@ const mergeBindings = (a: SolutionBindings, b: SolutionBindings): O.Option<Solut
  * Variables with known bindings are replaced with their bound values
  */
 const applyBindingsToTriple = (triple: sparqljs.Triple, bindings: SolutionBindings): QuadPattern => {
-  const resolveSubject = (): IRI.Type | BlankNode.Type | undefined => {
-    if (isVariable(triple.subject)) {
-      return O.flatMap(R.get(bindings, triple.subject.value), (val) =>
-        isIRI(val) || isBlankNode(val) ? O.some(val) : O.none()
-      ).pipe(O.getOrUndefined);
-    }
-    return subjectToPatternComponent(triple.subject);
-  };
+  const resolveSubject = (): IRI.Type | BlankNode.Type | undefined =>
+    F.pipe(
+      triple.subject,
+      O.liftPredicate(hasSparqlTermType),
+      O.filter((t) => t.termType === "Variable"),
+      O.flatMap((t) => R.get(bindings, t.value)),
+      O.flatMap((val) =>
+        F.pipe(
+          val,
+          O.liftPredicate((v): v is IRI.Type | BlankNode.Type => isIRI(v) || isBlankNode(v))
+        )
+      ),
+      O.getOrElse(() => subjectToPatternComponent(triple.subject))
+    );
 
-  const resolvePredicate = (): IRI.Type | undefined => {
-    if (isVariable(triple.predicate)) {
-      return O.flatMap(R.get(bindings, triple.predicate.value), (val) => (isIRI(val) ? O.some(val) : O.none())).pipe(
-        O.getOrUndefined
-      );
-    }
-    return predicateToPatternComponent(triple.predicate);
-  };
+  const resolvePredicate = (): IRI.Type | undefined =>
+    F.pipe(
+      triple.predicate,
+      O.liftPredicate(hasSparqlTermType),
+      O.filter((t) => t.termType === "Variable"),
+      O.flatMap((t) => R.get(bindings, t.value)),
+      O.flatMap((val) => F.pipe(val, O.liftPredicate(isIRI))),
+      O.getOrElse(() => predicateToPatternComponent(triple.predicate))
+    );
 
-  const resolveObject = (): Term | undefined => {
-    if (isVariable(triple.object)) {
-      return O.getOrUndefined(R.get(bindings, triple.object.value));
-    }
-    return objectToPatternComponent(triple.object);
-  };
+  const resolveObject = (): TermType | undefined =>
+    F.pipe(
+      triple.object,
+      O.liftPredicate(hasSparqlTermType),
+      O.filter((t) => t.termType === "Variable"),
+      O.flatMap((t) => R.get(bindings, t.value)),
+      O.getOrElse(() => objectToPatternComponent(triple.object))
+    );
 
   return new QuadPattern({
     subject: resolveSubject(),
@@ -297,21 +328,17 @@ const executeBGP = (
 ): Effect.Effect<ReadonlyArray<SolutionBindings>, SparqlExecutionError> =>
   Effect.gen(function* () {
     if (A.isEmptyReadonlyArray(triples)) {
-      // Empty pattern matches once with empty bindings
       return [{}];
     }
 
-    // Start with the first pattern
     const firstTriple = A.unsafeGet(triples, 0);
     const firstPattern = tripleToQuadPattern(firstTriple);
     const firstMatches = yield* store.match(firstPattern);
 
-    // Build initial solutions from first pattern matches
     const initialSolutions: ReadonlyArray<SolutionBindings> = A.map(firstMatches, (quad) =>
       extractBindingsFromQuad(firstTriple, quad)
     );
 
-    // Join with remaining patterns using reduce
     const remainingTriples = A.drop(triples, 1);
 
     return yield* Effect.reduce(remainingTriples, initialSolutions, (solutions, triple) =>
@@ -333,6 +360,26 @@ interface ExtractedPatterns {
 }
 
 /**
+ * Pattern type matcher for WHERE clause patterns
+ */
+const matchPatternType =
+  <R>(matchers: {
+    readonly bgp: (pattern: sparqljs.BgpPattern) => R;
+    readonly filter: (pattern: { type: "filter"; expression: sparqljs.Expression }) => R;
+    readonly optional: (pattern: sparqljs.OptionalPattern) => R;
+    readonly union: (pattern: sparqljs.UnionPattern) => R;
+    readonly _: () => R;
+  }) =>
+  (pattern: sparqljs.Pattern): R =>
+    Match.value(pattern.type).pipe(
+      Match.when("bgp", () => matchers.bgp(pattern as sparqljs.BgpPattern)),
+      Match.when("filter", () => matchers.filter(pattern as { type: "filter"; expression: sparqljs.Expression })),
+      Match.when("optional", () => matchers.optional(pattern as sparqljs.OptionalPattern)),
+      Match.when("union", () => matchers.union(pattern as sparqljs.UnionPattern)),
+      Match.orElse(matchers._)
+    ) as R;
+
+/**
  * Extract filters and BGP triples from a WHERE clause pattern
  */
 const extractPatternsAndFilters = (patterns: ReadonlyArray<sparqljs.Pattern>): ExtractedPatterns =>
@@ -344,22 +391,14 @@ const extractPatternsAndFilters = (patterns: ReadonlyArray<sparqljs.Pattern>): E
       optionals: [] as sparqljs.OptionalPattern[],
       unions: [] as sparqljs.UnionPattern[],
     },
-    (acc, pattern) => {
-      if (pattern.type === "bgp") {
-        const bgp = pattern as sparqljs.BgpPattern;
-        return { ...acc, triples: A.appendAll(acc.triples, bgp.triples) };
-      }
-      if (isFilterExpression(pattern)) {
-        return { ...acc, filters: A.append(acc.filters, pattern.expression) };
-      }
-      if (pattern.type === "optional") {
-        return { ...acc, optionals: A.append(acc.optionals, pattern as sparqljs.OptionalPattern) };
-      }
-      if (pattern.type === "union") {
-        return { ...acc, unions: A.append(acc.unions, pattern as sparqljs.UnionPattern) };
-      }
-      return acc;
-    }
+    (acc, pattern) =>
+      matchPatternType({
+        bgp: (bgp) => ({ ...acc, triples: A.appendAll(acc.triples, bgp.triples) }),
+        filter: (flt) => ({ ...acc, filters: A.append(acc.filters, flt.expression) }),
+        optional: (opt) => ({ ...acc, optionals: A.append(acc.optionals, opt) }),
+        union: (uni) => ({ ...acc, unions: A.append(acc.unions, uni) }),
+        _: () => acc,
+      })(pattern)
   );
 
 /**
@@ -374,13 +413,11 @@ const processOptionalForSolution = (
     const { triples, filters } = extractPatternsAndFilters(optional.patterns);
     const extendedSolutions = yield* executeBGP(triples, store);
 
-    // Find compatible extensions that pass filters
     const compatible = yield* Effect.filter(
       A.filterMap(extendedSolutions, (ext) => mergeBindings(solution, ext)),
       (merged) => evaluateFilters(filters, merged)
     );
 
-    // If no compatible extensions, keep original solution
     return A.isEmptyReadonlyArray(compatible) ? [solution] : compatible;
   });
 
@@ -425,10 +462,7 @@ const executeUnions = (
       return [{}];
     }
 
-    // Flatten all union patterns into branches
     const allBranches = A.flatMap(patterns, (union) => union.patterns);
-
-    // Execute each branch and collect solutions
     const branchResults = yield* Effect.forEach(allBranches, (branch) => executeUnionBranch(branch, store));
 
     return A.flatten(branchResults);
@@ -456,26 +490,37 @@ const executeWhereClause = (
   Effect.gen(function* () {
     const { triples, filters, optionals, unions } = extractPatternsAndFilters(where);
 
-    // Execute basic graph pattern first
     let solutions = yield* executeBGP(triples, store);
 
-    // Execute UNION patterns if present
-    if (!A.isEmptyReadonlyArray(unions)) {
-      const unionSolutions = yield* executeUnions(unions, store);
+    solutions = yield* F.pipe(
+      unions,
+      O.liftPredicate(P.not(A.isEmptyReadonlyArray)),
+      O.match({
+        onNone: () => Effect.succeed(solutions),
+        onSome: (nonEmptyUnions) =>
+          Effect.map(executeUnions(nonEmptyUnions, store), (unionSolutions) =>
+            A.isEmptyReadonlyArray(triples) ? unionSolutions : joinBgpAndUnion(solutions, unionSolutions)
+          ),
+      })
+    );
 
-      // If we have both BGP and UNION, we need to join them
-      solutions = A.isEmptyReadonlyArray(triples) ? unionSolutions : joinBgpAndUnion(solutions, unionSolutions);
-    }
+    solutions = yield* F.pipe(
+      optionals,
+      O.liftPredicate(P.not(A.isEmptyReadonlyArray)),
+      O.match({
+        onNone: () => Effect.succeed(solutions),
+        onSome: (nonEmptyOptionals) => executeOptionals(solutions, nonEmptyOptionals, store),
+      })
+    );
 
-    // Execute OPTIONAL patterns (before filters, per SPARQL semantics)
-    if (!A.isEmptyReadonlyArray(optionals)) {
-      solutions = yield* executeOptionals(solutions, optionals, store);
-    }
-
-    // Apply FILTER expressions (after optionals so bound() can check optional vars)
-    if (!A.isEmptyReadonlyArray(filters)) {
-      solutions = yield* Effect.filter(solutions, (solution) => evaluateFilters(filters, solution));
-    }
+    solutions = yield* F.pipe(
+      filters,
+      O.liftPredicate(P.not(A.isEmptyReadonlyArray)),
+      O.match({
+        onNone: () => Effect.succeed(solutions),
+        onSome: (nonEmptyFilters) => Effect.filter(solutions, (solution) => evaluateFilters(nonEmptyFilters, solution)),
+      })
+    );
 
     return solutions;
   }).pipe(Effect.withSpan("QueryExecutor.executeWhereClause"));
@@ -487,11 +532,11 @@ const projectSolutions = (
   solutions: ReadonlyArray<SolutionBindings>,
   variables: ReadonlyArray<string>
 ): SparqlBindings => {
-  const columns = variables as ReadonlyArray<VariableName>;
+  const columns = variables as ReadonlyArray<VariableNameType>;
 
   const rows = A.map(solutions, (solution) =>
     A.filterMap(variables, (varName) =>
-      O.map(R.get(solution, varName), (value) => new SparqlBinding({ name: varName as VariableName, value }))
+      O.map(R.get(solution, varName), (value) => new SparqlBinding({ name: makeVariableName(varName), value }))
     )
   );
 
@@ -501,12 +546,15 @@ const projectSolutions = (
 /**
  * Get a unique key for a term (for deduplication)
  */
-const getTermKey = (term: Term): string => {
-  if (term instanceof Literal) {
-    return `L:${term.value}:${term.datatype ?? ""}:${term.language ?? ""}`;
-  }
-  return `T:${term}`;
-};
+const getTermKey = (term: TermType): string =>
+  F.pipe(
+    term,
+    O.liftPredicate(isLiteral),
+    O.match({
+      onNone: () => `T:${term}`,
+      onSome: (lit) => `L:${lit.value}:${lit.datatype ?? ""}:${lit.language ?? ""}`,
+    })
+  );
 
 /**
  * Create a solution key for deduplication
@@ -534,10 +582,14 @@ const deduplicateSolutions = (
     { seen: HashSet.empty<string>(), result: [] as SolutionBindings[] },
     (acc, sol) => {
       const key = getSolutionKey(sol, variables);
-      if (HashSet.has(acc.seen, key)) {
-        return acc;
-      }
-      return { seen: HashSet.add(acc.seen, key), result: A.append(acc.result, sol) };
+      return F.pipe(
+        key,
+        O.liftPredicate((k) => !HashSet.has(acc.seen, k)),
+        O.match({
+          onNone: () => acc,
+          onSome: () => ({ seen: HashSet.add(acc.seen, key), result: A.append(acc.result, sol) }),
+        })
+      );
     }
   );
   return result;
@@ -545,20 +597,26 @@ const deduplicateSolutions = (
 
 /**
  * Extract projected variable names from SELECT clause
+ * Handles both direct VariableTerm and VariableExpression (AS expressions)
  */
 const extractProjectedVariables = (
   variables: ReadonlyArray<sparqljs.Variable | sparqljs.Wildcard>
 ): ReadonlyArray<string> =>
   A.filterMap(variables, (v): O.Option<string> => {
-    if ("termType" in v && v.termType === "Wildcard") {
-      return O.none();
-    }
-    if ("termType" in v && v.termType === "Variable") {
-      return O.some(v.value);
-    }
+    // Handle VariableExpression (SELECT (expr AS ?var) case)
     if ("variable" in v && v.variable?.termType === "Variable") {
       return O.some(v.variable.value);
     }
+
+    // Handle direct termType cases (VariableTerm and Wildcard)
+    if ("termType" in v) {
+      return Match.value(v.termType).pipe(
+        Match.when("Wildcard", O.none<string>),
+        Match.when("Variable", () => O.some((v as sparqljs.VariableTerm).value)),
+        Match.orElse(O.none<string>)
+      );
+    }
+
     return O.none();
   });
 
@@ -583,20 +641,14 @@ export const executeSelect = (
   store: RdfStore
 ): Effect.Effect<SparqlBindings, SparqlExecutionError | SparqlUnsupportedFeatureError> =>
   Effect.gen(function* () {
-    // Execute WHERE clause
     const where = ast.where ?? [];
     const solutions = yield* executeWhereClause(where, store);
 
-    // Determine projected variables
     const projectedVars = extractProjectedVariables(ast.variables);
-
-    // Handle SELECT * - collect all variables from solutions
     const variables = A.isEmptyReadonlyArray(projectedVars) ? collectAllVariables(solutions) : projectedVars;
 
-    // Apply DISTINCT if specified
     const afterDistinct = ast.distinct ? deduplicateSolutions(solutions, variables) : solutions;
 
-    // Apply LIMIT and OFFSET
     const offset = ast.offset ?? 0;
     const limit = ast.limit ?? A.length(afterDistinct);
     const finalSolutions = A.take(A.drop(afterDistinct, offset), limit);
@@ -614,20 +666,29 @@ export const executeSelect = (
 const resolveTemplateSubject = (
   subject: sparqljs.Triple["subject"],
   bindings: SolutionBindings
-): O.Option<IRI.Type | BlankNode.Type> => {
-  if (isVariable(subject)) {
-    return O.flatMap(R.get(bindings, subject.value), (val) =>
-      isIRI(val) || isBlankNode(val) ? O.some(val) : O.none()
-    );
-  }
-  if (isNamedNode(subject)) {
-    return O.some(makeIRI(subject.value));
-  }
-  if (isSparqlBlankNode(subject)) {
-    return O.some(makeBlankNode(`_:${subject.value}`));
-  }
-  return O.none();
-};
+): O.Option<IRI.Type | BlankNode.Type> =>
+  F.pipe(
+    subject,
+    O.liftPredicate(hasSparqlTermType),
+    O.flatMap((t) =>
+      matchSparqlTermType({
+        Variable: (term) =>
+          F.pipe(
+            R.get(bindings, term.value),
+            O.flatMap((val) =>
+              F.pipe(
+                val,
+                O.liftPredicate((v): v is IRI.Type | BlankNode.Type => isIRI(v) || isBlankNode(v))
+              )
+            )
+          ),
+        NamedNode: (node) => O.some<IRI.Type | BlankNode.Type>(makeIRI(node.value)),
+        BlankNode: (node) => O.some<IRI.Type | BlankNode.Type>(makeBlankNode(`_:${node.value}`)),
+        Literal: O.none<IRI.Type | BlankNode.Type>,
+        _: O.none<IRI.Type | BlankNode.Type>,
+      })(t)
+    )
+  );
 
 /**
  * Resolve predicate for template instantiation
@@ -635,26 +696,43 @@ const resolveTemplateSubject = (
 const resolveTemplatePredicate = (
   predicate: sparqljs.Triple["predicate"],
   bindings: SolutionBindings
-): O.Option<IRI.Type> => {
-  if (isVariable(predicate)) {
-    return O.flatMap(R.get(bindings, predicate.value), (val) => (isIRI(val) ? O.some(val) : O.none()));
-  }
-  if (isNamedNode(predicate)) {
-    return O.some(makeIRI(predicate.value));
-  }
-  // PropertyPath - not supported
-  return O.none();
-};
+): O.Option<IRI.Type> =>
+  F.pipe(
+    predicate,
+    O.liftPredicate(hasSparqlTermType),
+    O.filter(P.not(hasPathType)),
+    O.flatMap((t) =>
+      matchSparqlTermType({
+        Variable: (term) =>
+          F.pipe(
+            R.get(bindings, term.value),
+            O.flatMap((val) => F.pipe(val, O.liftPredicate(isIRI)))
+          ),
+        NamedNode: (node) => O.some(makeIRI(node.value)),
+        BlankNode: O.none<IRI.Type>,
+        Literal: O.none<IRI.Type>,
+        _: O.none<IRI.Type>,
+      })(t)
+    )
+  );
 
 /**
  * Resolve object for template instantiation
  */
-const resolveTemplateObject = (object: sparqljs.Triple["object"], bindings: SolutionBindings): O.Option<Term> => {
-  if (isVariable(object)) {
-    return R.get(bindings, object.value);
-  }
-  return sparqlTermToDomain(object);
-};
+const resolveTemplateObject = (object: sparqljs.Triple["object"], bindings: SolutionBindings): O.Option<TermType> =>
+  F.pipe(
+    object,
+    O.liftPredicate(hasSparqlTermType),
+    O.flatMap((t) =>
+      matchSparqlTermType({
+        Variable: (term) => R.get(bindings, term.value),
+        NamedNode: () => sparqlTermToDomain(object),
+        BlankNode: () => sparqlTermToDomain(object),
+        Literal: () => sparqlTermToDomain(object),
+        _: () => O.none<TermType>(),
+      })(t)
+    )
+  );
 
 /**
  * Instantiate a triple template with bindings
@@ -676,10 +754,14 @@ const deduplicateQuads = (quads: ReadonlyArray<Quad>): ReadonlyArray<Quad> => {
 
   const { result } = A.reduce(quads, { seen: HashSet.empty<string>(), result: [] as Quad[] }, (acc, quad) => {
     const key = getQuadKey(quad);
-    if (HashSet.has(acc.seen, key)) {
-      return acc;
-    }
-    return { seen: HashSet.add(acc.seen, key), result: A.append(acc.result, quad) };
+    return F.pipe(
+      key,
+      O.liftPredicate((k) => !HashSet.has(acc.seen, k)),
+      O.match({
+        onNone: () => acc,
+        onSome: () => ({ seen: HashSet.add(acc.seen, key), result: A.append(acc.result, quad) }),
+      })
+    );
   });
   return result;
 };
@@ -699,20 +781,16 @@ export const executeConstruct = (
   store: RdfStore
 ): Effect.Effect<ReadonlyArray<Quad>, SparqlExecutionError | SparqlUnsupportedFeatureError> =>
   Effect.gen(function* () {
-    // Execute WHERE clause
     const where = ast.where ?? [];
     const solutions = yield* executeWhereClause(where, store);
 
-    // Get template triples
     const template = ast.template ?? [];
 
-    // Construct quads for each solution and template triple
     const quads = A.filterMap(
       A.flatMap(solutions, (solution) => A.map(template, (tripleTemplate) => ({ solution, tripleTemplate }))),
       ({ solution, tripleTemplate }) => instantiateTemplate(tripleTemplate, solution)
     );
 
-    // Remove duplicates
     return deduplicateQuads(quads);
   }).pipe(Effect.withSpan("QueryExecutor.executeConstruct"));
 
@@ -731,10 +809,8 @@ export const executeAsk = (
   store: RdfStore
 ): Effect.Effect<boolean, SparqlExecutionError | SparqlUnsupportedFeatureError> =>
   Effect.gen(function* () {
-    // Execute WHERE clause
     const where = ast.where ?? [];
     const solutions = yield* executeWhereClause(where, store);
 
-    // ASK returns true if there's at least one solution
     return !A.isEmptyReadonlyArray(solutions);
   }).pipe(Effect.withSpan("QueryExecutor.executeAsk"));
