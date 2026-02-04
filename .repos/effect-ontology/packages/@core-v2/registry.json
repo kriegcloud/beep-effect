@@ -1,0 +1,26 @@
+{
+  "version": "1.0.0",
+  "generatedAt": "2024-12-20T00:00:00Z",
+  "ontologies": [
+    {
+      "id": "seattle",
+      "iri": "http://effect-ontology.dev/seattle",
+      "version": "1.0.0",
+      "title": "Seattle Knowledge Graph",
+      "description": "Knowledge graph for Seattle-related entities, organizations, events, and locations",
+      "storagePath": "canonical/seattle/ontology.ttl",
+      "shapesPath": "canonical/seattle/shapes.ttl",
+      "imports": [
+        "http://xmlns.com/foaf/0.1/",
+        "http://www.w3.org/ns/org#",
+        "http://www.w3.org/ns/prov#"
+      ],
+      "externalVocabsPath": "canonical/external/merged.ttl",
+      "embeddingsPath": null,
+      "targetNamespace": "http://effect-ontology.dev/seattle/entities/"
+    }
+  ],
+  "sharedResources": {
+    "externalVocabs": "canonical/external/merged.ttl"
+  }
+}

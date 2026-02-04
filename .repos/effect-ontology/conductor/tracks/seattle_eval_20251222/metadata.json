@@ -1,0 +1,8 @@
+{
+  "track_id": "seattle_eval_20251222",
+  "type": "chore",
+  "status": "new",
+  "created_at": "2025-12-22T19:15:00Z",
+  "updated_at": "2025-12-22T19:15:00Z",
+  "description": "Evaluate status for core features and capabilities using the seattle ontology as case study: ingestion, extraction, timeline, recursive improvement, and infra configuration."
+}

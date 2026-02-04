@@ -1,0 +1,550 @@
+---
+title: Handle Atom Results with Loading and Error States
+id: effect-atom-result-handling
+skillLevel: intermediate
+useCase: frontend-state
+summary: >-
+  Use the Result type from @effect-atom/atom to handle loading, success, and
+  error states elegantly, providing users with proper feedback during async operations.
+tags:
+  - frontend
+  - react
+  - atom
+  - result
+  - loading
+  - error-handling
+  - async
+related:
+  - frontend-state-with-effect-atom
+  - effect-atom-mutations
+  - handle-errors-with-catch
+author: Effect Community
+---
+
+# Handle Atom Results with Loading and Error States
+
+## Guideline
+
+Always use the `Result` type when working with Effect Atoms that involve async operations, providing proper loading states, error handling, and success rendering.
+
+## Rationale
+
+Async operations in UIs have three states:
+1. **Loading**: Operation in progress
+2. **Success**: Operation completed with data
+3. **Failure**: Operation failed with error
+
+The `Result` type from Effect Atom models this explicitly, making it impossible to forget handling any state. Benefits:
+
+- **Type Safety**: Compiler ensures all states are handled
+- **Consistent UX**: Standard loading/error patterns
+- **No Race Conditions**: Atomic state transitions
+- **Composability**: Results compose with Result.all
+- **Pattern Matching**: Clean, exhaustive handling
+
+## Good Example
+
+### Basic Result Handling
+
+```typescript
+import { Atom, Result, useAtomValue } from "@effect-atom/atom-react"
+import { Effect } from "effect"
+
+const runtime = Atom.runtime(UserService.Default)
+
+// This atom returns a Result<User, Error>
+const userAtom = runtime.make(() =>
+  Effect.gen(function* () {
+    const userService = yield* UserService
+    return yield* userService.getCurrentUser()
+  })
+)
+
+function UserProfile() {
+  const userResult = useAtomValue(userAtom)
+  
+  // Handle all three states explicitly
+  return Result.match(userResult, {
+    onLoading: () => <Spinner />,
+    onSuccess: (user) => (
+      <div>
+        <h1>{user.name}</h1>
+        <p>{user.email}</p>
+      </div>
+    ),
+    onFailure: (error) => (
+      <ErrorMessage error={error} />
+    )
+  })
+}
+```
+
+### Result Utilities
+
+```typescript
+import { Result } from "@effect-atom/atom"
+
+function UserStats() {
+  const userResult = useAtomValue(userAtom)
+  
+  // Check state
+  if (Result.isLoading(userResult)) {
+    return <Spinner />
+  }
+  
+  if (Result.isFailure(userResult)) {
+    return <ErrorMessage error={Result.getFailure(userResult)} />
+  }
+  
+  // Type-safe: userResult is now Success<User>
+  if (Result.isSuccess(userResult)) {
+    const user = Result.getSuccess(userResult)
+    return <div>{user.name}</div>
+  }
+  
+  // Or use getOrElse for a fallback
+  const user = Result.getOrElse(userResult, () => null)
+  return user ? <div>{user.name}</div> : <div>No user</div>
+}
+```
+
+### Combining Multiple Results
+
+```typescript
+const userAtom = runtime.make(() => fetchUser())
+const postsAtom = runtime.make(() => fetchPosts())
+const commentsAtom = runtime.make(() => fetchComments())
+
+const dashboardAtom = Atom.make((get) => {
+  const user = get(userAtom)
+  const posts = get(postsAtom)
+  const comments = get(commentsAtom)
+  
+  // Combine results - shows loading until all are ready
+  return Result.all([user, posts, comments]).pipe(
+    Result.map(([user, posts, comments]) => ({
+      user,
+      postCount: posts.length,
+      commentCount: comments.length
+    }))
+  )
+})
+
+function Dashboard() {
+  const dashboard = useAtomValue(dashboardAtom)
+  
+  return Result.match(dashboard, {
+    onLoading: () => <FullPageSpinner />,
+    onSuccess: ({ user, postCount, commentCount }) => (
+      <div>
+        <h1>Welcome, {user.name}</h1>
+        <p>Posts: {postCount}</p>
+        <p>Comments: {commentCount}</p>
+      </div>
+    ),
+    onFailure: (error) => <ErrorPage error={error} />
+  })
+}
+```
+
+### Partial Loading States
+
+```typescript
+function Dashboard() {
+  const userResult = useAtomValue(userAtom)
+  const postsResult = useAtomValue(postsAtom)
+  
+  return (
+    <div>
+      {/* Show user immediately when loaded */}
+      {Result.match(userResult, {
+        onLoading: () => <UserSkeleton />,
+        onSuccess: (user) => <UserHeader user={user} />,
+        onFailure: () => <UserErrorBanner />
+      })}
+      
+      {/* Posts can load independently */}
+      {Result.match(postsResult, {
+        onLoading: () => <PostsSkeleton />,
+        onSuccess: (posts) => <PostsList posts={posts} />,
+        onFailure: () => <PostsError />
+      })}
+    </div>
+  )
+}
+```
+
+### Transforming Results
+
+```typescript
+function UserGreeting() {
+  const userResult = useAtomValue(userAtom)
+  
+  // Transform success value
+  const greeting = Result.map(userResult, (user) =>
+    `Hello, ${user.name}!`
+  )
+  
+  return Result.match(greeting, {
+    onLoading: () => <span>Loading...</span>,
+    onSuccess: (text) => <h1>{text}</h1>,
+    onFailure: () => <h1>Hello, Guest!</h1>
+  })
+}
+
+// Or use pipe for multiple transformations
+const formattedUserAtom = Atom.make((get) => {
+  const userResult = get(userAtom)
+  
+  return userResult.pipe(
+    Result.map(user => ({
+      ...user,
+      displayName: `${user.firstName} ${user.lastName}`,
+      initials: `${user.firstName[0]}${user.lastName[0]}`
+    })),
+    Result.mapFailure(error => new FormattedError(error))
+  )
+})
+```
+
+### Result with Fallback
+
+```typescript
+function UserAvatar() {
+  const userResult = useAtomValue(userAtom)
+  
+  // Provide a fallback value
+  const user = Result.getOrElse(userResult, () => ({
+    name: "Guest",
+    avatar: "/default-avatar.png"
+  }))
+  
+  return <img src={user.avatar} alt={user.name} />
+}
+```
+
+### Selective Loading
+
+```typescript
+function TodoList() {
+  const todosResult = useAtomValue(todosAtom)
+  
+  // Only show spinner on initial load, not on refetch
+  const [hasLoadedOnce, setHasLoadedOnce] = useState(false)
+  
+  useEffect(() => {
+    if (Result.isSuccess(todosResult)) {
+      setHasLoadedOnce(true)
+    }
+  }, [todosResult])
+  
+  if (Result.isLoading(todosResult) && !hasLoadedOnce) {
+    return <FullPageSpinner />
+  }
+  
+  if (Result.isFailure(todosResult)) {
+    return <ErrorMessage error={Result.getFailure(todosResult)} />
+  }
+  
+  const todos = Result.getSuccess(todosResult)
+  
+  return (
+    <div>
+      {Result.isLoading(todosResult) && <RefreshIndicator />}
+      <ul>
+        {todos.map(todo => <TodoItem key={todo.id} todo={todo} />)}
+      </ul>
+    </div>
+  )
+}
+```
+
+## Bad Example
+
+### ❌ Not Handling All States
+
+```typescript
+// BAD: Assumes success
+function UserProfile() {
+  const userResult = useAtomValue(userAtom)
+  const user = userResult.value // Type error! Might be loading/failed
+  return <div>{user.name}</div>
+}
+
+// GOOD: Handle all states
+function UserProfile() {
+  const userResult = useAtomValue(userAtom)
+  return Result.match(userResult, {
+    onLoading: () => <Spinner />,
+    onSuccess: (user) => <div>{user.name}</div>,
+    onFailure: (error) => <ErrorMessage error={error} />
+  })
+}
+```
+
+### ❌ Separate Loading/Error State
+
+```typescript
+// BAD: Managing state manually
+function UserProfile() {
+  const [user, setUser] = useState<User | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<Error | null>(null)
+  
+  // Complex state management, potential race conditions
+  useEffect(() => {
+    setLoading(true)
+    Effect.runPromise(fetchUser()).then(
+      (user) => {
+        setUser(user)
+        setLoading(false)
+      },
+      (error) => {
+        setError(error)
+        setLoading(false)
+      }
+    )
+  }, [])
+  
+  // Easy to forget handling edge cases
+}
+
+// GOOD: Use Result
+const userAtom = runtime.make(() => fetchUser())
+
+function UserProfile() {
+  const user = useAtomValue(userAtom)
+  return Result.match(user, {...})
+}
+```
+
+### ❌ Ignoring Loading State
+
+```typescript
+// BAD: No loading indicator
+function Posts() {
+  const postsResult = useAtomValue(postsAtom)
+  
+  if (Result.isFailure(postsResult)) {
+    return <Error />
+  }
+  
+  // Screen flashes empty before data loads!
+  const posts = Result.getOrElse(postsResult, () => [])
+  return <PostsList posts={posts} />
+}
+
+// GOOD: Show loading state
+function Posts() {
+  const postsResult = useAtomValue(postsAtom)
+  
+  return Result.match(postsResult, {
+    onLoading: () => <Spinner />,
+    onSuccess: (posts) => <PostsList posts={posts} />,
+    onFailure: () => <Error />
+  })
+}
+```
+
+### ❌ Not Composing Results
+
+```typescript
+// BAD: Nested result handling
+function Dashboard() {
+  const userResult = useAtomValue(userAtom)
+  
+  return Result.match(userResult, {
+    onLoading: () => <Spinner />,
+    onSuccess: (user) => {
+      const postsResult = useAtomValue(postsAtom)
+      return Result.match(postsResult, {
+        onLoading: () => <Spinner />,
+        onSuccess: (posts) => <div>{...}</div>,
+        onFailure: () => <Error />
+      })
+    },
+    onFailure: () => <Error />
+  })
+}
+
+// GOOD: Compose results
+const dashboardAtom = Atom.make((get) => {
+  const user = get(userAtom)
+  const posts = get(postsAtom)
+  return Result.all([user, posts])
+})
+
+function Dashboard() {
+  const dashboard = useAtomValue(dashboardAtom)
+  return Result.match(dashboard, {
+    onLoading: () => <Spinner />,
+    onSuccess: ([user, posts]) => <div>{...}</div>,
+    onFailure: () => <Error />
+  })
+}
+```
+
+## Pattern: Skeleton Screens
+
+```typescript
+function UserProfile() {
+  const userResult = useAtomValue(userAtom)
+  
+  return Result.match(userResult, {
+    onLoading: () => (
+      <div className="skeleton">
+        <div className="skeleton-avatar" />
+        <div className="skeleton-text" />
+        <div className="skeleton-text" />
+      </div>
+    ),
+    onSuccess: (user) => (
+      <div>
+        <Avatar src={user.avatar} />
+        <h1>{user.name}</h1>
+        <p>{user.bio}</p>
+      </div>
+    ),
+    onFailure: () => <ErrorState />
+  })
+}
+```
+
+## Pattern: Retry on Error
+
+```typescript
+function DataView() {
+  const dataResult = useAtomValue(dataAtom)
+  const refresh = useAtomSet(refreshDataAtom)
+  
+  return Result.match(dataResult, {
+    onLoading: () => <Spinner />,
+    onSuccess: (data) => <DataDisplay data={data} />,
+    onFailure: (error) => (
+      <div>
+        <ErrorMessage error={error} />
+        <button onClick={() => refresh()}>Retry</button>
+      </div>
+    )
+  })
+}
+```
+
+## Pattern: Empty State
+
+```typescript
+function PostsList() {
+  const postsResult = useAtomValue(postsAtom)
+  
+  return Result.match(postsResult, {
+    onLoading: () => <Spinner />,
+    onSuccess: (posts) =>
+      posts.length === 0 ? (
+        <EmptyState message="No posts yet" />
+      ) : (
+        <div>{posts.map(post => <Post key={post.id} post={post} />)}</div>
+      ),
+    onFailure: (error) => <ErrorMessage error={error} />
+  })
+}
+```
+
+## Pattern: Stale-While-Revalidate
+
+```typescript
+function UserProfile() {
+  const userResult = useAtomValue(userAtom)
+  const [cachedUser, setCachedUser] = useState<User | null>(null)
+  
+  // Cache successful result
+  useEffect(() => {
+    if (Result.isSuccess(userResult)) {
+      setCachedUser(Result.getSuccess(userResult))
+    }
+  }, [userResult])
+  
+  // Show cached data while revalidating
+  if (Result.isLoading(userResult) && cachedUser) {
+    return (
+      <div className="stale">
+        <UserDisplay user={cachedUser} />
+        <RefreshIndicator />
+      </div>
+    )
+  }
+  
+  return Result.match(userResult, {
+    onLoading: () => <Spinner />,
+    onSuccess: (user) => <UserDisplay user={user} />,
+    onFailure: (error) => <ErrorMessage error={error} />
+  })
+}
+```
+
+## Best Practices
+
+1. **Always use Result.match** for exhaustive handling
+2. **Provide meaningful loading states** - skeletons, spinners, progress bars
+3. **Make errors actionable** - include retry buttons, help text
+4. **Use Result.all** to combine multiple async atoms
+5. **Transform results with Result.map** instead of in components
+6. **Consider partial loading** for independent data sources
+7. **Cache successful results** for better UX during refetch
+8. **Use Result.getOrElse** for optional data with sensible defaults
+
+## Result API Reference
+
+```typescript
+// Creation
+Result.initial() // Initial state
+Result.loading() // Loading state
+Result.success(value) // Success with value
+Result.failure(error) // Failure with error
+
+// Checks
+Result.isInitial(result) // true if initial
+Result.isLoading(result) // true if loading
+Result.isSuccess(result) // true if success
+Result.isFailure(result) // true if failure
+
+// Access
+Result.getSuccess(result) // Get success value (unsafe)
+Result.getFailure(result) // Get failure error (unsafe)
+Result.getOrElse(result, () => fallback) // Get or fallback
+
+// Transform
+Result.map(result, fn) // Transform success value
+Result.mapFailure(result, fn) // Transform error
+Result.all([result1, result2]) // Combine results
+
+// Match
+Result.match(result, {
+  onLoading: () => ...,
+  onSuccess: (value) => ...,
+  onFailure: (error) => ...
+})
+```
+
+## Common Use Cases
+
+- **API Data Fetching**: Loading → Success → Display
+- **Form Submission**: Idle → Submitting → Success/Error
+- **Search Results**: Typing → Searching → Results
+- **Image Loading**: Loading → Loaded → Display
+- **Pagination**: Loading page → Show → Next page
+- **Infinite Scroll**: Loading more → Append
+- **Optimistic Updates**: Updating → Updated → Rollback if error
+
+## Related Patterns
+
+- [`frontend-state-with-effect-atom.mdx`](./frontend-state-with-effect-atom.mdx) - Atom basics
+- [`effect-atom-mutations.mdx`](./effect-atom-mutations.mdx) - Handling mutations
+- [`handle-errors-with-catch.mdx`](./handle-errors-with-catch.mdx) - Error handling
+- [`pattern-match.mdx`](./pattern-match.mdx) - Pattern matching
+
+## References
+
+- [Result Handling](https://effect-atom.kitlangton.com/get-result)
+- [Effect Atom Documentation](https://tim-smart.github.io/effect-atom/)
+- [Todo Example](https://effect-atom.kitlangton.com/todos)
+

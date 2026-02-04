@@ -1,0 +1,100 @@
+{
+  "runId": "doc-xyz789abc123",
+  "documentId": "doc-xyz789abc123",
+  "createdAt": "2025-12-09T11:00:00Z",
+  "completedAt": null,
+  "config": {
+    "chunking": {
+      "maxChunkSize": 500,
+      "preserveSentences": true
+    },
+    "concurrency": 4,
+    "ontologyPath": "./ontologies/football.ttl"
+  },
+  "outputDir": "./output/runs/doc-xyz789abc123",
+  "stats": null,
+  "outputs": [],
+  "events": [
+    {
+      "timestamp": "2025-12-09T11:00:00Z",
+      "type": "run.created",
+      "data": {
+        "textLength": 2500,
+        "textHash": "xyz789abc123"
+      }
+    },
+    {
+      "timestamp": "2025-12-09T11:00:05Z",
+      "type": "chunking.complete",
+      "data": {
+        "chunkCount": 12,
+        "avgChunkSize": 208,
+        "maxChunkSize": 500
+      }
+    },
+    {
+      "timestamp": "2025-12-09T11:00:15Z",
+      "type": "chunk_extraction.complete",
+      "data": {
+        "chunkIndex": 0,
+        "chunkLength": 210,
+        "mentionCount": 4,
+        "candidateClassCount": 16,
+        "entityCount": 5,
+        "relationCount": 2,
+        "verifiedRelationCount": 2
+      }
+    },
+    {
+      "timestamp": "2025-12-09T11:00:25Z",
+      "type": "chunk_extraction.complete",
+      "data": {
+        "chunkIndex": 1,
+        "chunkLength": 195,
+        "mentionCount": 3,
+        "candidateClassCount": 12,
+        "entityCount": 4,
+        "relationCount": 1,
+        "verifiedRelationCount": 1
+      }
+    },
+    {
+      "timestamp": "2025-12-09T11:00:35Z",
+      "type": "chunk_extraction.complete",
+      "data": {
+        "chunkIndex": 2,
+        "chunkLength": 220,
+        "mentionCount": 5,
+        "candidateClassCount": 18,
+        "entityCount": 6,
+        "relationCount": 3,
+        "verifiedRelationCount": 3
+      }
+    },
+    {
+      "timestamp": "2025-12-09T11:01:15Z",
+      "type": "run.failed",
+      "data": {
+        "failedAtStage": "chunk-processing",
+        "failedChunkIndex": 3,
+        "reason": "LLM rate limit exceeded",
+        "processedChunks": 3,
+        "totalChunks": 12
+      }
+    }
+  ],
+  "errors": [
+    {
+      "timestamp": "2025-12-09T11:01:15Z",
+      "type": "LlmRateLimit",
+      "message": "Rate limit exceeded: 429 Too Many Requests",
+      "context": {
+        "stage": "chunk-processing",
+        "chunkIndex": 3,
+        "phase": "entity-extraction",
+        "llmProvider": "anthropic",
+        "retryAfter": 45
+      }
+    }
+  ]
+}

@@ -1,0 +1,68 @@
+# Ignore node_modules in all packages (will be installed fresh in Docker)
+**/node_modules
+
+# Git
+.git
+.gitignore
+
+# Build artifacts
+**/dist
+**/build
+**/.tsbuildinfo
+
+# Environment files (secrets should come from Cloud Run env)
+.env
+.env.*
+**/.env
+**/.env.*
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# Documentation and plans (not needed in container)
+docs/
+**/*.md
+!README.md
+
+# Test files (not needed in production)
+**/*.test.ts
+**/*.spec.ts
+**/test/
+**/tests/
+**/__tests__/
+**/fixtures/
+**/vitest.config.ts
+
+# Local tools not needed in container (deploy used for package.json)
+# Note: tools/deploy/package.json is copied by Dockerfile for workspace deps
+
+# Analysis and benchmarks
+analysis/
+benchmarks/
+
+# Terraform and infrastructure
+ops/
+infra/
+infra/tfplan
+*.tfplan
+*.tfstate
+*.tfstate.*
+
+# Output directories (cache, runs, generated files)
+output/
+test-output/
+**/output/
+**/test-output/
+
+# Scratchpad and experimental code
+scratchpad/
+**/scratchpad/
+
+# Misc
+*.log
+*.tmp
+.DS_Store
+Thumbs.db

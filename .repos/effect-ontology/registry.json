@@ -1,0 +1,25 @@
+{
+  "version": "1.0.0",
+  "generatedAt": "2025-12-22T00:00:00Z",
+  "ontologies": [
+    {
+      "id": "seattle",
+      "iri": "http://effect-ontology.dev/seattle",
+      "version": "1.0.0",
+      "title": "Seattle Urban Development Ontology",
+      "description": "Ontology for Seattle urban planning, transportation, and development topics",
+      "storagePath": "canonical/seattle/ontology.ttl",
+      "shapesPath": "canonical/seattle/shapes.ttl",
+      "imports": [
+        "http://www.w3.org/ns/prov#",
+        "http://xmlns.com/foaf/0.1/",
+        "http://www.w3.org/ns/org#"
+      ],
+      "externalVocabsPath": "canonical/external/merged.ttl",
+      "targetNamespace": "http://effect-ontology.dev/seattle/entities/"
+    }
+  ],
+  "sharedResources": {
+    "externalVocabs": "canonical/external/merged.ttl"
+  }
+}

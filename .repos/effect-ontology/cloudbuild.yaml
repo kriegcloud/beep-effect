@@ -1,0 +1,37 @@
+steps:
+  # Build the Docker image (effect-ontology-core for Terraform-managed Cloud Run)
+  # --pull ensures we always use the latest patched base image
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '--pull'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/effect-ontology-core:$BUILD_ID'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/effect-ontology-core:latest'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/effect-ontology-core:dev'
+      - '--build-arg'
+      - 'GIT_SHA=$COMMIT_SHA'
+      - '--build-arg'
+      - 'BUILD_ID=$BUILD_ID'
+      - '-f'
+      - 'packages/@core-v2/Dockerfile'
+      - '.'
+
+  # Push all tags to Container Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/effect-ontology-core:$BUILD_ID']
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/effect-ontology-core:latest']
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/effect-ontology-core:dev']
+
+images:
+  - 'gcr.io/$PROJECT_ID/effect-ontology-core:$BUILD_ID'
+  - 'gcr.io/$PROJECT_ID/effect-ontology-core:latest'
+  - 'gcr.io/$PROJECT_ID/effect-ontology-core:dev'
+
+timeout: '1200s'

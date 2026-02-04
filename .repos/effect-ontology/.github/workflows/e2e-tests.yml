@@ -1,0 +1,194 @@
+name: E2E Tests
+
+on:
+  workflow_dispatch:
+    inputs:
+      test_mode:
+        description: 'Test mode (pure, cached, cheap, production)'
+        required: true
+        default: 'pure'
+        type: choice
+        options:
+          - pure
+          - cached
+          - cheap
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  schedule:
+    # Run nightly at 3 AM UTC (8 PM PT)
+    - cron: '0 3 * * *'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+
+env:
+  WORKING_DIR: packages/@core-v2
+
+jobs:
+  # ===========================================================================
+  # Pure Mode E2E Tests - Runs on every PR (no LLM cost)
+  # ===========================================================================
+  e2e-pure:
+    name: E2E Tests (Pure Mode)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        uses: ./.github/actions/setup
+
+      - name: Run E2E tests (pure mode)
+        env:
+          E2E_TEST_MODE: pure
+        run: |
+          cd ${{ env.WORKING_DIR }}
+          bun run test test/E2E/
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: e2e-pure-results
+          path: |
+            ${{ env.WORKING_DIR }}/test-results/
+            ${{ env.WORKING_DIR }}/coverage/
+          retention-days: 14
+
+  # ===========================================================================
+  # Integration E2E Tests - Nightly with real LLM (cheap model)
+  # ===========================================================================
+  e2e-integration:
+    name: E2E Tests (Integration - Cheap LLM)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    # Only run on schedule or manual dispatch, not on PR
+    if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.test_mode == 'cheap')
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        uses: ./.github/actions/setup
+
+      - name: Run E2E tests (cheap mode)
+        env:
+          E2E_TEST_MODE: cheap
+          LLM_PROVIDER: anthropic
+          LLM_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          cd ${{ env.WORKING_DIR }}
+          bun run test test/E2E/
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: e2e-integration-results
+          path: |
+            ${{ env.WORKING_DIR }}/test-results/
+            ${{ env.WORKING_DIR }}/coverage/
+          retention-days: 30
+
+      - name: Save metrics baseline
+        if: success()
+        run: |
+          cd ${{ env.WORKING_DIR }}
+          mkdir -p regression-baselines
+          cp -r ontologies/football/test-data/regression-baselines/* regression-baselines/ 2>/dev/null || true
+
+      - name: Upload metrics baseline
+        uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: metrics-baseline-${{ github.sha }}
+          path: ${{ env.WORKING_DIR }}/regression-baselines/
+          retention-days: 90
+
+  # ===========================================================================
+  # Regression Check - Compare against baseline metrics
+  # ===========================================================================
+  regression-check:
+    name: Regression Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [e2e-pure]
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        uses: ./.github/actions/setup
+
+      - name: Download baseline (if exists)
+        continue-on-error: true
+        uses: dawidd6/action-download-artifact@v3
+        with:
+          workflow: e2e-tests.yml
+          branch: main
+          name: metrics-baseline-*
+          path: ${{ env.WORKING_DIR }}/baseline/
+          search_artifacts: true
+
+      - name: Check for regressions
+        id: regression
+        run: |
+          cd ${{ env.WORKING_DIR }}
+          if [ -d "baseline" ] && [ -n "$(ls -A baseline 2>/dev/null)" ]; then
+            echo "Baseline found, checking for regressions..."
+            echo "has_baseline=true" >> $GITHUB_OUTPUT
+            # Future: Run regression analysis script
+            # bun run scripts/check-regression.ts --baseline baseline/ --current test-results/
+          else
+            echo "No baseline found, skipping regression check"
+            echo "has_baseline=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Comment on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const hasBaseline = '${{ steps.regression.outputs.has_baseline }}' === 'true';
+
+            let body = '## E2E Test Results\n\n';
+            body += '✅ **Pure mode tests passed**\n\n';
+
+            if (hasBaseline) {
+              body += '📊 **Regression Check**: Baseline comparison completed\n';
+            } else {
+              body += '📊 **Regression Check**: No baseline available (first run on main will establish baseline)\n';
+            }
+
+            body += '\n---\n';
+            body += '*Run `E2E_TEST_MODE=cheap` locally with an API key to test with real LLM.*';
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: body
+            });
+
+  # ===========================================================================
+  # All E2E Tests Summary
+  # ===========================================================================
+  e2e-summary:
+    name: E2E Summary
+    runs-on: ubuntu-latest
+    needs: [e2e-pure]
+    if: always()
+    steps:
+      - name: Check E2E results
+        run: |
+          if [[ "${{ needs.e2e-pure.result }}" != "success" ]]; then
+            echo "E2E pure tests failed"
+            exit 1
+          fi
+          echo "All E2E tests passed"

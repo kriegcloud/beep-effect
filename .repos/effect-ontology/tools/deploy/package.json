@@ -1,0 +1,32 @@
+{
+    "name": "@effect-ontology/deploy",
+    "version": "0.0.1",
+    "type": "module",
+    "private": true,
+    "description": "Effect-based Terraform deploy CLI for effect-ontology",
+    "bin": {
+        "effect-deploy": "./dist/cli.js"
+    },
+    "exports": {
+        ".": "./src/index.ts"
+    },
+    "scripts": {
+        "build": "tsc --project tsconfig.json",
+        "dev": "bun run src/cli.ts",
+        "check": "tsc --noEmit",
+        "test": "vitest --run",
+        "test:watch": "vitest"
+    },
+    "dependencies": {
+        "@effect/cli": "^0.72.1",
+        "@effect/platform": "^0.93.3",
+        "@effect/platform-bun": "^0.84.0",
+        "effect": "^3.19.6"
+    },
+    "devDependencies": {
+        "@effect/vitest": "^0.25.1",
+        "@types/bun": "^1.2.23",
+        "typescript": "^5.6.2",
+        "vitest": "^3.2.0"
+    }
+}

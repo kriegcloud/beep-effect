@@ -1,0 +1,7 @@
+Dr. Sarah Chen is a research scientist at MIT who specializes in machine learning.
+She knows Professor James Wilson from Stanford and Dr. Maria Garcia from Berkeley.
+Sarah created a paper titled "Neural Network Optimization" published in 2024.
+Her homepage is https://sarah-chen.mit.edu and email is sarah.chen@mit.edu.
+James and Maria are co-authors on several papers with Sarah.
+James works at Stanford University and Maria works at UC Berkeley.
+The three of them formed a research group called "Deep Learning Consortium".

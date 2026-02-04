@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="glow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#22d3ee;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#a855f7;stop-opacity:1" />
+    </linearGradient>
+    <filter id="blur">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="2" />
+    </filter>
+  </defs>
+
+  <!-- Outer glow ring -->
+  <circle cx="50" cy="50" r="40" fill="none" stroke="url(#glow)" stroke-width="2" opacity="0.3" filter="url(#blur)"/>
+
+  <!-- Main orbital ring -->
+  <circle cx="50" cy="50" r="35" fill="none" stroke="url(#glow)" stroke-width="1.5" opacity="0.8"/>
+
+  <!-- Inner orbital ring -->
+  <circle cx="50" cy="50" r="22" fill="none" stroke="#14b8a6" stroke-width="1" opacity="0.6"/>
+
+  <!-- Center node -->
+  <circle cx="50" cy="50" r="8" fill="#22d3ee"/>
+  <circle cx="50" cy="50" r="4" fill="#030712"/>
+
+  <!-- Orbital nodes -->
+  <circle cx="50" cy="15" r="4" fill="#fbbf24"/>
+  <circle cx="80" cy="60" r="3" fill="#a855f7"/>
+  <circle cx="25" cy="70" r="3" fill="#5eead4"/>
+
+  <!-- Connection lines -->
+  <line x1="50" y1="50" x2="50" y2="19" stroke="#22d3ee" stroke-width="0.5" opacity="0.4"/>
+  <line x1="50" y1="50" x2="77" y2="58" stroke="#a855f7" stroke-width="0.5" opacity="0.4"/>
+  <line x1="50" y1="50" x2="28" y2="68" stroke="#5eead4" stroke-width="0.5" opacity="0.4"/>
+</svg>

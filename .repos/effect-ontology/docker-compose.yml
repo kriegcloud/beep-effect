@@ -1,0 +1,48 @@
+version: "3.8"
+
+services:
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    container_name: jaeger
+    ports:
+      # Jaeger UI
+      - "16686:16686"
+      # Jaeger HTTP collector (for traces)
+      - "14268:14268"
+      # OTLP HTTP receiver
+      - "4318:4318"
+      # OTLP gRPC receiver
+      - "4317:4317"
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+      - LOG_LEVEL=info
+    restart: unless-stopped
+    networks:
+      - effect-ontology
+
+  postgres:
+    image: pgvector/pgvector:pg15
+    container_name: workflow-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: workflow
+      POSTGRES_PASSWORD: workflow
+      POSTGRES_DB: workflow
+    ports:
+      - "5432:5432"
+    volumes:
+      - workflow-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U workflow -d workflow"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - effect-ontology
+
+networks:
+  effect-ontology:
+    driver: bridge
+
+volumes:
+  workflow-postgres-data:

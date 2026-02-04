@@ -1,0 +1,27 @@
+The AI Research Consortium includes six prominent researchers from major tech companies.
+
+Alice Chen works at Google Research, specializing in natural language processing.
+Bob Martinez is a principal engineer at Microsoft AI, focusing on computer vision.
+Carol Thompson leads the machine learning team at Meta AI.
+David Kumar is a senior researcher at Apple's ML division.
+Eve Williams works at Amazon Web Services on cloud AI infrastructure.
+Frank Lee is the head of safety research at OpenAI.
+
+The consortium was founded in 2023 to promote responsible AI development.
+
+Alice knows Bob, Carol, and David from their graduate school days at Stanford.
+Bob knows Alice, Eve, and Frank through various industry conferences.
+Carol knows Alice, David, and Eve from their time at UC Berkeley.
+David knows Alice, Carol, and Frank through the NeurIPS community.
+Eve knows Bob, Carol, and Frank from AWS partnerships.
+Frank knows Bob, David, and Eve through the AI safety research community.
+
+Each researcher maintains professional contact information:
+Alice's email is alice.chen@google.com and homepage is https://research.google/people/alice-chen
+Bob's email is bob.martinez@microsoft.com and homepage is https://microsoft.com/research/bob-martinez
+Carol's email is carol.thompson@meta.com and homepage is https://ai.meta.com/people/carol-thompson
+David's email is david.kumar@apple.com
+Eve's email is eve.williams@amazon.com and homepage is https://aws.amazon.com/ai/eve-williams
+Frank's email is frank.lee@openai.com and homepage is https://openai.com/team/frank-lee
+
+The consortium has published 15 joint papers on AI ethics and safety.

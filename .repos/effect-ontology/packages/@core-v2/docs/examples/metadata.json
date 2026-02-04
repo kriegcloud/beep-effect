@@ -1,0 +1,229 @@
+{
+  "runId": "doc-abc123def456",
+  "documentId": "doc-abc123def456",
+  "createdAt": "2025-12-09T10:30:00Z",
+  "completedAt": "2025-12-09T10:31:45Z",
+  "config": {
+    "chunking": {
+      "maxChunkSize": 500,
+      "preserveSentences": true
+    },
+    "concurrency": 4,
+    "ontologyPath": "./ontologies/football.ttl"
+  },
+  "outputDir": "./output/runs/doc-abc123def456",
+  "stats": {
+    "chunkCount": 8,
+    "entityCount": 45,
+    "relationCount": 23,
+    "resolvedCount": 12,
+    "clusterCount": 8
+  },
+  "outputs": [
+    {
+      "type": "knowledge-graph",
+      "path": "outputs/knowledge-graph.json",
+      "hash": "a1b2c3d4e5f6g7h8",
+      "size": 45278,
+      "savedAt": "2025-12-09T10:31:30Z"
+    },
+    {
+      "type": "entity-resolution-graph",
+      "path": "outputs/entity-resolution-graph.json",
+      "hash": "x9y8z7w6v5u4t3s2",
+      "size": 12450,
+      "savedAt": "2025-12-09T10:31:35Z"
+    },
+    {
+      "type": "mermaid-diagram",
+      "path": "outputs/mermaid-diagram.md",
+      "hash": "m7n6o5p4q3r2s1t0",
+      "size": 3200,
+      "savedAt": "2025-12-09T10:31:38Z"
+    },
+    {
+      "type": "rdf-turtle",
+      "path": "outputs/rdf-turtle.ttl",
+      "hash": "t1u2v3w4x5y6z7a8",
+      "size": 67890,
+      "savedAt": "2025-12-09T10:31:42Z"
+    }
+  ],
+  "events": [
+    {
+      "timestamp": "2025-12-09T10:30:00Z",
+      "type": "run.created",
+      "data": {
+        "textLength": 1500,
+        "textHash": "abc123def456"
+      }
+    },
+    {
+      "timestamp": "2025-12-09T10:30:05Z",
+      "type": "chunking.complete",
+      "data": {
+        "chunkCount": 8,
+        "avgChunkSize": 187,
+        "maxChunkSize": 500
+      }
+    },
+    {
+      "timestamp": "2025-12-09T10:30:10Z",
+      "type": "chunk_extraction.complete",
+      "data": {
+        "chunkIndex": 0,
+        "chunkLength": 200,
+        "mentionCount": 3,
+        "candidateClassCount": 15,
+        "entityCount": 5,
+        "relationCount": 2,
+        "verifiedRelationCount": 2
+      }
+    },
+    {
+      "timestamp": "2025-12-09T10:30:18Z",
+      "type": "chunk_extraction.complete",
+      "data": {
+        "chunkIndex": 1,
+        "chunkLength": 220,
+        "mentionCount": 4,
+        "candidateClassCount": 12,
+        "entityCount": 6,
+        "relationCount": 3,
+        "verifiedRelationCount": 3
+      }
+    },
+    {
+      "timestamp": "2025-12-09T10:30:26Z",
+      "type": "chunk_extraction.complete",
+      "data": {
+        "chunkIndex": 2,
+        "chunkLength": 180,
+        "mentionCount": 2,
+        "candidateClassCount": 10,
+        "entityCount": 4,
+        "relationCount": 1,
+        "verifiedRelationCount": 1
+      }
+    },
+    {
+      "timestamp": "2025-12-09T10:30:34Z",
+      "type": "chunk_extraction.complete",
+      "data": {
+        "chunkIndex": 3,
+        "chunkLength": 210,
+        "mentionCount": 5,
+        "candidateClassCount": 18,
+        "entityCount": 7,
+        "relationCount": 4,
+        "verifiedRelationCount": 4
+      }
+    },
+    {
+      "timestamp": "2025-12-09T10:30:42Z",
+      "type": "chunk_extraction.complete",
+      "data": {
+        "chunkIndex": 4,
+        "chunkLength": 190,
+        "mentionCount": 3,
+        "candidateClassCount": 14,
+        "entityCount": 5,
+        "relationCount": 2,
+        "verifiedRelationCount": 2
+      }
+    },
+    {
+      "timestamp": "2025-12-09T10:30:50Z",
+      "type": "chunk_extraction.complete",
+      "data": {
+        "chunkIndex": 5,
+        "chunkLength": 205,
+        "mentionCount": 4,
+        "candidateClassCount": 16,
+        "entityCount": 6,
+        "relationCount": 3,
+        "verifiedRelationCount": 3
+      }
+    },
+    {
+      "timestamp": "2025-12-09T10:30:58Z",
+      "type": "chunk_extraction.complete",
+      "data": {
+        "chunkIndex": 6,
+        "chunkLength": 195,
+        "mentionCount": 2,
+        "candidateClassCount": 11,
+        "entityCount": 3,
+        "relationCount": 1,
+        "verifiedRelationCount": 1
+      }
+    },
+    {
+      "timestamp": "2025-12-09T10:31:06Z",
+      "type": "chunk_extraction.complete",
+      "data": {
+        "chunkIndex": 7,
+        "chunkLength": 200,
+        "mentionCount": 3,
+        "candidateClassCount": 13,
+        "entityCount": 4,
+        "relationCount": 2,
+        "verifiedRelationCount": 2
+      }
+    },
+    {
+      "timestamp": "2025-12-09T10:31:10Z",
+      "type": "extraction.complete",
+      "data": {
+        "totalChunks": 8,
+        "totalMentions": 26,
+        "entityCount": 40,
+        "relationCount": 18,
+        "averageEntitiesPerChunk": 5.0,
+        "averageRelationsPerChunk": 2.25
+      }
+    },
+    {
+      "timestamp": "2025-12-09T10:31:25Z",
+      "type": "resolution.complete",
+      "data": {
+        "originalMentionCount": 40,
+        "resolvedCount": 12,
+        "clusterCount": 8,
+        "resolutionRate": 0.30,
+        "averageClusterSize": 1.5
+      }
+    },
+    {
+      "timestamp": "2025-12-09T10:31:30Z",
+      "type": "refine.complete",
+      "data": {
+        "originalEntities": 40,
+        "refinedEntities": 45,
+        "originalRelations": 18,
+        "refinedRelations": 23,
+        "entitiesAdded": 5,
+        "relationsAdded": 5
+      }
+    },
+    {
+      "timestamp": "2025-12-09T10:31:42Z",
+      "type": "rdf.complete",
+      "data": {
+        "tripleCount": 156,
+        "namespaces": 3
+      }
+    },
+    {
+      "timestamp": "2025-12-09T10:31:45Z",
+      "type": "run.completed",
+      "data": {
+        "duration": 105,
+        "status": "completed",
+        "outputFilesCount": 4,
+        "totalOutputSize": 129018
+      }
+    }
+  ],
+  "errors": []
+}
