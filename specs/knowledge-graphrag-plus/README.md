@@ -1,7 +1,7 @@
 # Knowledge GraphRAG Plus
 
 **Status:** IN_PROGRESS
-**Current Phase:** 2 (Answer Generation)
+**Current Phase:** 3 (Citation Validation)
 **Complexity:** H (High - 44 points)
 **Priority:** P2 (Nice to have for production quality)
 
@@ -9,8 +9,8 @@
 | Phase | Name | Status | Completed |
 |-------|------|--------|-----------|
 | 1 | Schema Foundation | ✅ COMPLETE | 2026-02-04 |
-| 2 | Answer Generation | 🔄 NOT STARTED | - |
-| 3 | Citation Validation | ⏳ PENDING | - |
+| 2 | Answer Generation | ✅ COMPLETE | 2026-02-04 |
+| 3 | Citation Validation | 🔄 NOT STARTED | - |
 
 ---
 
@@ -183,10 +183,17 @@ Answer:
 ```
 
 **Success Criteria**:
-- [ ] Prompts generate structured citations
-- [ ] Answer text includes citation markers
-- [ ] Service integrates with OpenAI client
-- [ ] Handles missing context gracefully
+- [x] Prompts generate structured citations ✅
+- [x] Answer text includes citation markers ✅
+- [x] Service integrates with LanguageModel (via @effect/ai) ✅
+- [x] Handles missing context gracefully ✅
+
+**Completion Notes** (2026-02-04):
+- Created `PromptTemplates.ts` with citation format instructions
+- Created `CitationParser.ts` for extracting entity/relation markers
+- Created `GroundedAnswerGenerator.ts` Effect service with LanguageModel integration
+- 47+ unit tests passing for Phase 2 modules
+- See `REFLECTION_LOG.md` for detailed learnings
 
 ### Phase 3: Citation Validation (5 days)
 
