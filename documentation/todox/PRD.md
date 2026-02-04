@@ -367,23 +367,72 @@ Page
 - Compliance-approved signature blocks
 - Attachment management with document linking
 
-### 5.5 FlexLayout Dashboard System
+### 5.5 Collaborative Dashboard System
 
-**Capabilities:**
-- Drag-and-drop panel arrangement
-- Tabbed interfaces with docking
-- Save/restore layout configurations
-- Agent-assisted layout creation ("Show me accounts and recent emails side by side")
+**Reference Implementation:** [Liveblocks Collaborative Dashboard](https://liveblocks.io/examples/collaborative-dashboard/nextjs-dashboard)
 
-**Pre-built Dashboard Components:**
-- Client summary cards
-- Account performance charts
-- Calendar widget
-- Email inbox
-- Task/action item list
-- Document browser
-- Knowledge graph explorer
-- AI chat panel
+**Architecture:** FlexLayout + Liveblocks for real-time collaborative dashboards where multiple users can simultaneously view, rearrange, and interact with widgets.
+
+```
+┌────────────────────────────────────────────────────────────┐
+│            COLLABORATIVE DASHBOARD ARCHITECTURE            │
+├────────────────────────────────────────────────────────────┤
+│                                                            │
+│  ┌─────────────────────────────────────────────────────┐  │
+│  │                   Liveblocks Room                    │  │
+│  │  • Real-time presence (who's viewing)               │  │
+│  │  • Cursor positions (collaborative awareness)        │  │
+│  │  • Layout state sync (CRDT-based)                   │  │
+│  │  • Widget data sync (live updates)                  │  │
+│  └─────────────────────────────────────────────────────┘  │
+│                          │                                 │
+│                          ▼                                 │
+│  ┌─────────────────────────────────────────────────────┐  │
+│  │                 FlexLayout Model                     │  │
+│  │  • Drag-and-drop panel arrangement                  │  │
+│  │  • Tabbed interfaces with docking                   │  │
+│  │  • Floating windows                                 │  │
+│  │  • Save/restore configurations                      │  │
+│  └─────────────────────────────────────────────────────┘  │
+│                          │                                 │
+│                          ▼                                 │
+│  ┌──────┐ ┌──────┐ ┌──────┐ ┌──────┐ ┌──────┐           │
+│  │Chart │ │Email │ │Tasks │ │Graph │ │ Chat │           │
+│  │Widget│ │Widget│ │Widget│ │Widget│ │Widget│           │
+│  └──────┘ └──────┘ └──────┘ └──────┘ └──────┘           │
+│                                                            │
+└────────────────────────────────────────────────────────────┘
+```
+
+**Collaborative Features:**
+- **Live Presence**: See who else is viewing the dashboard
+- **Cursor Tracking**: Real-time cursor positions of collaborators
+- **Synchronized Layout**: Layout changes sync instantly across all viewers
+- **Widget Interactions**: Chart selections, filters, and zooms sync in real-time
+- **Comments & Annotations**: Add contextual comments to any widget
+
+**Pre-built Dashboard Widgets:**
+
+| Widget | Data Source | Collaborative Features |
+|--------|-------------|------------------------|
+| **Client Summary** | Knowledge Graph | Shared entity selection |
+| **Account Charts** | Custodian API | Synced date ranges, filters |
+| **Calendar** | Google Calendar | Shared event focus |
+| **Email Inbox** | Gmail API | Threaded discussions |
+| **Task Board** | Internal | Real-time task updates |
+| **Document Browser** | S3 + Knowledge | Co-browsing, annotations |
+| **Knowledge Graph** | GraphRAG | Shared graph exploration |
+| **AI Chat** | Agent SDK | Conversation sharing |
+
+**Agent-Assisted Layout:**
+```
+User: "Show me the Thompson family accounts next to their recent emails"
+
+Agent: Creates layout with:
+  - Left panel: Account performance chart (filtered: Thompson)
+  - Right panel: Email inbox (filtered: Thompson contacts)
+  - Bottom panel: Recent action items for Thompson
+```
 
 ### 5.6 Workspace Agent SDK
 
@@ -1353,6 +1402,109 @@ pipe(
 )
 ```
 
+### 7.5 Local-First Architecture
+
+**Design Philosophy:** TodoX operates offline-first with background sync. All reads and writes happen against local storage, providing instant responsiveness regardless of network conditions.
+
+```
+┌────────────────────────────────────────────────────────────┐
+│                LOCAL-FIRST DATA FLOW                       │
+├────────────────────────────────────────────────────────────┤
+│                                                            │
+│  Browser                                                   │
+│  ┌─────────────────────────────────────────────────────┐  │
+│  │  React Components                                    │  │
+│  │       │                                              │  │
+│  │       ▼                                              │  │
+│  │  ┌─────────────┐    ┌─────────────┐                 │  │
+│  │  │    Zero     │◄──►│  Liveblocks │                 │  │
+│  │  │   Client    │    │    Room     │                 │  │
+│  │  └──────┬──────┘    └──────┬──────┘                 │  │
+│  │         │                  │                         │  │
+│  │         ▼                  │                         │  │
+│  │  ┌─────────────┐           │                         │  │
+│  │  │   SQLite    │           │ (presence, cursors,     │  │
+│  │  │   (WASM)    │           │  collaborative state)   │  │
+│  │  └──────┬──────┘           │                         │  │
+│  │         │                  │                         │  │
+│  └─────────┼──────────────────┼─────────────────────────┘  │
+│            │                  │                            │
+│            ▼                  ▼                            │
+│  ┌─────────────────────────────────────────────────────┐  │
+│  │              Background Sync Layer                   │  │
+│  │  • Incremental sync (changes only)                  │  │
+│  │  • Conflict resolution (last-write-wins + CRDTs)    │  │
+│  │  • Offline queue (writes stored until online)       │  │
+│  └─────────────────────────────────────────────────────┘  │
+│                          │                                 │
+│                          ▼                                 │
+│  ┌─────────────────────────────────────────────────────┐  │
+│  │              PostgreSQL (Source of Truth)            │  │
+│  └─────────────────────────────────────────────────────┘  │
+│                                                            │
+└────────────────────────────────────────────────────────────┘
+```
+
+**Technology Stack (Bleeding Edge):**
+
+| Layer | Technology | Purpose | Why |
+|-------|------------|---------|-----|
+| **Sync Engine** | [Zero](https://zero.rocicorp.dev/) | Postgres ↔ SQLite sync | Instant reads, automatic sync, Effect-friendly |
+| **Local DB** | SQLite (WASM) | Client-side persistence | Full SQL, offline capable |
+| **Collaboration** | Liveblocks | Real-time presence/cursors | Best-in-class DX, React integration |
+| **Document Sync** | Yjs | CRDT for rich text | Conflict-free collaborative editing |
+| **State** | TanStack Query + Zero | Reactive data layer | Automatic cache invalidation |
+
+**Zero Integration Pattern:**
+
+```typescript
+import { Zero } from "@rocicorp/zero";
+import { Schema } from "./schema";
+
+// Initialize Zero with Effect-compatible schema
+const zero = new Zero({
+  server: import.meta.env.VITE_ZERO_SERVER,
+  schema: Schema,
+  auth: () => getAuthToken(),
+});
+
+// Reactive queries (instant, local-first)
+const { data: clients } = useQuery(
+  zero.query.clients
+    .where("organizationId", "=", currentOrgId)
+    .orderBy("name", "asc")
+);
+
+// Mutations (instant local, background sync)
+await zero.mutate.clients.insert({
+  id: generateId(),
+  name: "Thompson Family",
+  organizationId: currentOrgId,
+});
+```
+
+**Sync Strategies by Data Type:**
+
+| Data Type | Sync Strategy | Conflict Resolution |
+|-----------|---------------|---------------------|
+| **Pages** | Partial sync (user's pages only) | CRDT merge (Yjs) |
+| **Email** | Full sync to local SQLite | Server wins (immutable) |
+| **Calendar** | Full sync with push updates | Last-write-wins |
+| **Knowledge Graph** | On-demand + prefetch | Server wins (extraction results) |
+| **Tasks** | Full sync | Last-write-wins + merge |
+| **Preferences** | Full sync | Last-write-wins |
+
+**Offline Capabilities:**
+
+| Feature | Offline Support | Notes |
+|---------|-----------------|-------|
+| **Read pages** | Full | All synced pages available |
+| **Edit pages** | Full | Changes queued for sync |
+| **Search** | Local only | Synced content searchable |
+| **AI chat** | Degraded | Cached responses only |
+| **Email read** | Full | Synced emails available |
+| **Email compose** | Queued | Sent when online |
+
 ---
 
 ## 8. Integration Architecture
@@ -1631,6 +1783,29 @@ interface AuditEntry {
 
 ## 11. Roadmap
 
+### 11.0 MVP Definition (Current Focus)
+
+**MVP Goal:** A working product that demonstrates the core value proposition - AI-native knowledge management with Gmail and Google Calendar integration.
+
+**MVP Scope (P0 - Must Have):**
+
+| Feature | Status | Notes |
+|---------|--------|-------|
+| Notion-style page hierarchy | In Progress | Infinite nesting, sharing via link |
+| Gmail OAuth + full sync | Planned | Local-first with Zero |
+| Google Calendar sync | Planned | Bidirectional with local cache |
+| Knowledge extraction from email | Planned | Auto-extract entities/relations |
+| GraphRAG meeting prep | Planned | "Prepare me for Thompson meeting" |
+| Collaborative dashboard | Planned | Liveblocks + FlexLayout |
+| Workspace Agent SDK | Planned | Per-workspace AI configuration |
+
+**MVP Non-Goals (Post-MVP):**
+- Outlook/Microsoft 365 integration
+- Custodian integrations (Schwab, Fidelity)
+- Voice interface (Whisper, ElevenLabs)
+- Advanced compliance reporting
+- SSO (SAML/OIDC)
+
 ### 11.1 Phase 1: Foundation (Q1 2026)
 
 **Goal:** Core platform with knowledge graph and document editing
@@ -1643,26 +1818,28 @@ interface AuditEntry {
 | Lexical editor (50+ plugins) | Complete | P0 |
 | Real-time collaboration (Liveblocks) | Complete | P0 |
 | Knowledge domain models | Complete | P0 |
-| Entity extraction pipeline | Complete | P1 |
-| GraphRAG query system | Complete | P1 |
-| Knowledge graph UI | In Progress | P1 |
-| FlexLayout dashboard | In Progress | P1 |
+| Entity extraction pipeline | Complete | P0 |
+| GraphRAG query system | Complete | P0 |
+| Notion-style page model | In Progress | P0 |
+| Collaborative dashboard (Liveblocks) | In Progress | P0 |
+| Local-first architecture (Zero) | In Progress | P0 |
 
-### 11.2 Phase 2: Communications (Q2 2026)
+### 11.2 Phase 2: Communications - MVP (Q2 2026)
 
-**Goal:** Email and calendar integration with extraction
+**Goal:** Gmail and Google Calendar integration with knowledge extraction
 
 | Feature | Status | Priority |
 |---------|--------|----------|
 | Gmail OAuth integration | Planned | P0 |
-| Email sync (full + incremental) | Planned | P0 |
+| Email sync (Zero + SQLite WASM) | Planned | P0 |
 | Email UI (inbox, compose, threads) | Planned | P0 |
 | Email → knowledge extraction | Planned | P0 |
-| Google Calendar integration | Planned | P1 |
-| Calendar UI (day/week/month) | Planned | P1 |
-| Meeting prep automation | Planned | P1 |
-| Outlook/M365 integration | Planned | P2 |
-| Local-first PGlite sync | Planned | P2 |
+| Google Calendar OAuth | Planned | P0 |
+| Calendar sync (Zero + SQLite WASM) | Planned | P0 |
+| Calendar UI (day/week/month) | Planned | P0 |
+| Meeting prep agent | Planned | P0 |
+| Workspace Agent SDK integration | Planned | P0 |
+| Outlook/M365 integration | Planned | P2 (post-MVP) |
 
 ### 11.3 Phase 3: AI Assistant (Q3 2026)
 
@@ -1764,8 +1941,11 @@ Q4 2026  ───────────────────────�
 | **Cache** | Redis | 7.x | Session/cache |
 | **Storage** | S3 | - | Document storage |
 | **Auth** | better-auth | latest | Authentication |
-| **Collaboration** | Liveblocks | latest | Real-time sync |
+| **Collaboration** | Liveblocks | latest | Real-time presence, dashboards |
 | **Editor** | Lexical | 0.21.x | Rich text editor |
+| **CRDT** | Yjs | latest | Collaborative document sync |
+| **Local-First Sync** | Zero (Rocicorp) | alpha | Postgres ↔ SQLite WASM sync |
+| **Local DB** | SQLite WASM | latest | Client-side persistence |
 | **AI** | @effect/ai | latest | LLM integration |
 | **Agent SDK** | @anthropic-ai/claude-agent-sdk | latest | Workspace agents |
 
