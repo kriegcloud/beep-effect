@@ -53,10 +53,7 @@ const formatOption = Options.choice("format", ["table", "json"]).pipe(
 /**
  * Layer providing FileSystem and CommandExecutor for the handler.
  */
-const ContextFreshnessServiceLayer = Layer.mergeAll(
-  BunFileSystem.layer,
-  BunCommandExecutor.layer
-);
+const ContextFreshnessServiceLayer = Layer.mergeAll(BunFileSystem.layer, BunCommandExecutor.layer);
 
 // -----------------------------------------------------------------------------
 // Command

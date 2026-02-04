@@ -34,7 +34,7 @@ All spec-creation infrastructure lives in [`_guide/`](_guide/):
 |------|-------------|--------|
 | [agent-config-optimization](agent-config-optimization/) | Agent configuration tuning | Active |
 | [agent-context-optimization](agent-context-optimization/) | Git subtrees, module context, navigation index | **Complete** |
-| [agent-effectiveness-audit](agent-effectiveness-audit/) | Measure and improve agent infrastructure effectiveness | **P0 Ready** |
+| [agent-effectiveness-audit](agent-effectiveness-audit/) | Measure and improve agent infrastructure effectiveness | **Complete** |
 | [agent-infrastructure-rationalization](agent-infrastructure-rationalization/) | Agent config consolidation and IDE sync | **Complete** |
 | [agents-md-audit](agents-md-audit/) | AGENTS.md file standardization | New |
 | [agents](agents/) | Specialized agent creation specs | Active |

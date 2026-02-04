@@ -13,9 +13,9 @@
  */
 
 import * as Command from "@effect/platform/Command";
-import * as CommandExecutor from "@effect/platform/CommandExecutor";
-import * as FileSystem from "@effect/platform/FileSystem";
+import type * as CommandExecutor from "@effect/platform/CommandExecutor";
 import type { PlatformError } from "@effect/platform/Error";
+import * as FileSystem from "@effect/platform/FileSystem";
 import * as A from "effect/Array";
 import * as Clock from "effect/Clock";
 import * as Console from "effect/Console";
@@ -93,7 +93,11 @@ const itemsByAgeDesc: Order.Order<FreshnessItem> = F.pipe(
  */
 const getGitLastCommitDate = (
   repoPath: string
-): Effect.Effect<number, GitCommandError | DirectoryNotFoundError | PlatformError, FileSystem.FileSystem | CommandExecutor.CommandExecutor> =>
+): Effect.Effect<
+  number,
+  GitCommandError | DirectoryNotFoundError | PlatformError,
+  FileSystem.FileSystem | CommandExecutor.CommandExecutor
+> =>
   Effect.gen(function* () {
     const fs = yield* FileSystem.FileSystem;
 
@@ -107,10 +111,7 @@ const getGitLastCommitDate = (
       );
     }
 
-    const command = F.pipe(
-      Command.make("git", "log", "-1", "--format=%ci"),
-      Command.workingDirectory(repoPath)
-    );
+    const command = F.pipe(Command.make("git", "log", "-1", "--format=%ci"), Command.workingDirectory(repoPath));
 
     const result = yield* F.pipe(
       Command.string(command),
@@ -194,9 +195,7 @@ const getFilesRecursive = (
  * Get file modification time in milliseconds.
  * Returns Option.none if mtime is not available.
  */
-const getFileMtimeMs = (
-  filePath: string
-): Effect.Effect<O.Option<number>, PlatformError, FileSystem.FileSystem> =>
+const getFileMtimeMs = (filePath: string): Effect.Effect<O.Option<number>, PlatformError, FileSystem.FileSystem> =>
   Effect.gen(function* () {
     const fs = yield* FileSystem.FileSystem;
     const stat = yield* fs.stat(filePath);
@@ -211,7 +210,11 @@ const getFileMtimeMs = (
  */
 const getOldestFileMtime = (
   dirPath: string
-): Effect.Effect<O.Option<{ path: string; mtimeMs: number }>, PlatformError | DirectoryNotFoundError, FileSystem.FileSystem> =>
+): Effect.Effect<
+  O.Option<{ path: string; mtimeMs: number }>,
+  PlatformError | DirectoryNotFoundError,
+  FileSystem.FileSystem
+> =>
   Effect.gen(function* () {
     const files = yield* getFilesRecursive(dirPath);
 

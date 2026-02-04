@@ -967,6 +967,358 @@ ls -la .windsurf/skills
 
 ---
 
+## Agent Effectiveness Patterns
+
+### mtime-based-cache-invalidation
+
+| Field | Value |
+|-------|-------|
+| **ID** | `pattern-2026-023` |
+| **Source** | agent-effectiveness-audit, Phase 2 |
+| **Quality Score** | 90/102 |
+| **Status** | Validated |
+
+**Description**: Cache data with TTL + mtime invalidation. Check directory mtime and TTL before returning cached data.
+
+**Applicable When**:
+- Hook needs to load data from disk frequently
+- Data changes rarely (skills, config files)
+- Reducing per-prompt I/O overhead
+
+**Example**:
+```typescript
+interface SkillIndexCache {
+  readonly loadedAt: number
+  readonly directoryMtime: number
+  readonly skills: ReadonlyArray<SkillMetadata>
+}
+
+const isSkillCacheValid = (cache: SkillIndexCache | undefined, currentMtime: number): boolean => {
+  if (!cache) return false
+  const TTL_MS = 30 * 60 * 1000 // 30 minutes
+  const isExpired = Date.now() - cache.loadedAt > TTL_MS
+  const isMtimeChanged = cache.directoryMtime !== currentMtime
+  return !isExpired && !isMtimeChanged
+}
+```
+
+**Validation**:
+- Reduced file reads from 36 per prompt to 0 (cached)
+- 98% I/O reduction achieved
+- Tested across 30+ prompts in session
+
+---
+
+### privacy-safe-telemetry
+
+| Field | Value |
+|-------|-------|
+| **ID** | `pattern-2026-024` |
+| **Source** | agent-effectiveness-audit, Phase 3 |
+| **Quality Score** | 90/102 |
+| **Status** | Validated |
+
+**Description**: Schema-enforced event structure strips unknown fields. Test that sensitive fields are rejected.
+
+**Applicable When**:
+- Capturing telemetry from hooks
+- Logging agent activity
+- Privacy-conscious instrumentation
+
+**Example**:
+```typescript
+// Schema strips unknown fields automatically
+const TelemetryEvent = S.Struct({
+  timestamp: S.DateFromString,
+  agentType: S.String,
+  duration: S.Number,
+  outcome: S.Literal("success", "failure", "unknown"),
+})
+
+// Test that sensitive data is NOT captured
+effect("rejects prompts in events", () =>
+  Effect.gen(function* () {
+    const badEvent = { ...validEvent, userPrompt: "secret" }
+    const decoded = yield* S.decodeUnknown(TelemetryEvent)(badEvent)
+    strictEqual("userPrompt" in decoded, false) // Field stripped
+  })
+)
+```
+
+**Validation**:
+- 43 tests verify privacy compliance
+- No user prompts or sensitive data captured
+- Schema enforcement prevents accidental leakage
+
+---
+
+### telemetry-hook-pattern
+
+| Field | Value |
+|-------|-------|
+| **ID** | `pattern-2026-025` |
+| **Source** | agent-effectiveness-audit, Phase 3 |
+| **Quality Score** | 85/102 |
+| **Status** | Validated |
+
+**Description**: Hook PreToolUse + SubagentStop to capture full agent lifecycle. Store start time in state, calculate duration on stop.
+
+**Applicable When**:
+- Tracking agent spawn and completion
+- Measuring agent performance
+- Building usage analytics
+
+**Example**:
+```typescript
+// PreToolUse (agent start)
+const handleToolUse = (input: ToolUseInput) => {
+  if (input.tool_name === "Task") {
+    state.pendingAgents[agentId] = { startTime: Date.now(), agentType }
+    writeHookState(state)
+  }
+}
+
+// SubagentStop (agent complete)
+const handleSubagentStop = (input: SubagentStopInput) => {
+  const pending = state.pendingAgents[input.agent_id]
+  const duration = Date.now() - pending.startTime
+  appendToLog({ agentType, duration, outcome: input.result.success ? "success" : "failure" })
+}
+```
+
+**Validation**:
+- 8 agent calls tracked with 100% success rate
+- Duration calculation accurate to milliseconds
+- CLI report command functional
+
+---
+
+### context-freshness-automation
+
+| Field | Value |
+|-------|-------|
+| **ID** | `pattern-2026-026` |
+| **Source** | agent-effectiveness-audit, Phase 4 |
+| **Quality Score** | 85/102 |
+| **Status** | Validated |
+
+**Description**: Scan multiple source types with category-specific thresholds. Use mtime for files, git log for repos. Output table/JSON with exit code for CI.
+
+**Applicable When**:
+- Monitoring context documentation freshness
+- CI/CD pipeline integration
+- Preventing stale documentation
+
+**Example**:
+```typescript
+const THRESHOLDS = {
+  "effect-repo": { warning: 30, critical: 60 },
+  "context": { warning: 30, critical: 45 },
+  "skill": { warning: 60, critical: 90 },
+}
+
+const scanSource = (path: string, category: Category) => Effect.gen(function* () {
+  const mtime = yield* fs.stat(path).pipe(Effect.map(s => s.mtime))
+  const ageInDays = Math.floor((Date.now() - mtime.getTime()) / (1000 * 60 * 60 * 24))
+  const threshold = THRESHOLDS[category]
+  const status = ageInDays > threshold.critical ? "critical"
+               : ageInDays > threshold.warning ? "warning"
+               : "fresh"
+  return { path, category, ageInDays, status }
+})
+```
+
+**Validation**:
+- 48 sources scanned, all fresh
+- Exit code 1 on critical staleness
+- Table and JSON output formats working
+
+---
+
+### category-specific-thresholds
+
+| Field | Value |
+|-------|-------|
+| **ID** | `pattern-2026-027` |
+| **Source** | agent-effectiveness-audit, Phase 4 |
+| **Quality Score** | 80/102 |
+| **Status** | Validated |
+
+**Description**: Different staleness thresholds for different content types based on their update cadence.
+
+**Applicable When**:
+- Context freshness monitoring
+- Multi-category content management
+- Documentation with varying update frequencies
+
+**Example**:
+```
+| Source Type | Warning | Critical | Rationale |
+|-------------|---------|----------|-----------|
+| Effect repo | 30 days | 60 days  | Upstream releases monthly |
+| Context docs| 30 days | 45 days  | Should track upstream |
+| Skills      | 60 days | 90 days  | More stable, less frequent |
+```
+
+**Validation**:
+- Thresholds calibrated against actual update patterns
+- Prevents false positives for stable content
+- Catches genuinely stale documentation
+
+---
+
+### parallel-skill-scoring
+
+| Field | Value |
+|-------|-------|
+| **ID** | `pattern-2026-028` |
+| **Source** | agent-effectiveness-audit, Phase 1 |
+| **Quality Score** | 85/102 |
+| **Status** | Validated |
+
+**Description**: Deploy N parallel code-reviewer agents with standardized rubric. Batch skills for parallel evaluation, merge results.
+
+**Applicable When**:
+- Large-scale quality assessment
+- Skill or documentation audits
+- Consistent scoring across batches
+
+**Example**:
+```
+# Deploy 3 parallel agents
+Agent 1: Score skills 1-15 against rubric
+Agent 2: Score skills 16-30 against rubric
+Agent 3: Score skills 31-45 against rubric
+
+# All agents use same rubric:
+| Category | Weight | Max |
+|----------|--------|-----|
+| Clarity | 15 | 15 |
+| Completeness | 15 | 15 |
+| Accuracy | 20 | 20 |
+| Usefulness | 25 | 25 |
+| Discoverability | 15 | 15 |
+| Maintenance | 10 | 12 |
+```
+
+**Validation**:
+- 45 skills scored in ~6 minutes
+- Consistent scoring across batches
+- Cross-validation showed no scoring drift
+
+---
+
+### quality-rubric-standardization
+
+| Field | Value |
+|-------|-------|
+| **ID** | `pattern-2026-029` |
+| **Source** | agent-effectiveness-audit, Phase 1 |
+| **Quality Score** | 80/102 |
+| **Status** | Validated |
+
+**Description**: 6-category weighted rubric providing consistent evaluation framework across agents and sessions.
+
+**Applicable When**:
+- Skill quality assessment
+- Documentation review
+- Agent output evaluation
+- Multi-agent consensus building
+
+**Example**:
+```
+Quality Rubric (102 points max):
+
+| Category | Weight | Criteria |
+|----------|--------|----------|
+| Clarity | 15 | Clear trigger conditions, unambiguous purpose |
+| Completeness | 15 | Sufficient content to be actionable |
+| Accuracy | 20 | Technically correct, follows patterns |
+| Usefulness | 25 | Provides value agents can't derive themselves |
+| Discoverability | 15 | Name/triggers match user intent |
+| Maintenance | 12 | Low staleness risk, minimal dependencies |
+```
+
+**Validation**:
+- Mean score 94.6/102 (92.7%) across 45 skills
+- Consistent scoring between 3 parallel agents
+- Clear differentiation between quality levels
+
+---
+
+### append-only-jsonl
+
+| Field | Value |
+|-------|-------|
+| **ID** | `pattern-2026-030` |
+| **Source** | agent-effectiveness-audit, Phase 3 |
+| **Quality Score** | 80/102 |
+| **Status** | Validated |
+
+**Description**: Use JSON Lines format for telemetry log - simple, reliable, grep-friendly.
+
+**Applicable When**:
+- Event logging from hooks
+- Telemetry data storage
+- Log aggregation pipelines
+
+**Example**:
+```typescript
+const appendToLog = (event: TelemetryEvent) => {
+  const line = JSON.stringify(event) + "\n"
+  fs.appendFileSync(".claude/.telemetry/usage.jsonl", line)
+}
+
+// Query with standard Unix tools
+// grep "effect-code-writer" .claude/.telemetry/usage.jsonl | jq '.duration'
+```
+
+**Validation**:
+- Simple file append, no locking complexity
+- Works with standard Unix tools (grep, jq)
+- Easy to parse and aggregate
+
+---
+
+### state-preservation-pattern
+
+| Field | Value |
+|-------|-------|
+| **ID** | `pattern-2026-031` |
+| **Source** | agent-effectiveness-audit, Phase 2 |
+| **Quality Score** | 80/102 |
+| **Status** | Validated |
+
+**Description**: When extending hook state, preserve existing fields from other hooks (patternCache, etc.).
+
+**Applicable When**:
+- Multiple hooks sharing state file
+- Adding new state fields
+- Hook state schema evolution
+
+**Example**:
+```typescript
+interface HookState {
+  readonly lastCallMs: number | null
+  readonly skillIndex?: SkillIndexCache      // Added by skill-suggester
+  readonly patternCache?: PatternCache       // Added by pattern-detector
+  readonly pendingAgents?: PendingAgentMap   // Added by telemetry
+}
+
+// ALWAYS preserve existing fields
+const updateState = (update: Partial<HookState>) => {
+  const existing = readHookState()
+  writeHookState({ ...existing, ...update })  // Spread preserves other hooks' data
+}
+```
+
+**Validation**:
+- skill-suggester and telemetry hooks coexist in same state file
+- No data loss when one hook updates state
+- Schema evolution without breaking existing hooks
+
+---
+
 ## Contributing New Patterns
 
 ### Quality Score Rubric (102 points)
