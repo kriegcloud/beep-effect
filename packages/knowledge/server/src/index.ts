@@ -73,6 +73,12 @@ export * as Ontology from "./Ontology";
 export * as Rdf from "./Rdf";
 
 /**
+ * RDFS reasoning and inference exports
+ * @since 0.1.0
+ */
+export * as Reasoning from "./Reasoning";
+
+/**
  * RPC handler exports
  * @since 0.1.0
  */

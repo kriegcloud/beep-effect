@@ -10,4 +10,5 @@ export * from "./graphrag.errors";
 export * from "./grounding.errors";
 export * from "./ontology.errors";
 export * from "./rdf.errors";
+export * from "./reasoning.errors";
 export * from "./sparql.errors";
