@@ -116,14 +116,48 @@ None yet - this is scaffolding phase.
 
 > Tracking evolution of agent prompts based on learnings from spec execution.
 
-### Prompt Refinement #1: [To be added during execution]
+### Prompt Refinement #1: Handoff Document Structure
 
 **Original prompt approach:**
-> [Original text]
+> Create handoff documents with implementation details
 
 **Refined to:**
-> [Improved text]
+> Create BOTH files for each phase transition:
+> 1. `HANDOFF_P[N].md` - Full context with Working/Episodic/Semantic/Procedural sections
+> 2. `P[N]_ORCHESTRATOR_PROMPT.md` - Copy-paste ready prompt for fresh session
 
-**Rationale:** [Why the change was made]
+**Rationale:** Single handoff documents were too large and lacked actionability. Splitting into context document + orchestrator prompt enables:
+- Fresh sessions can start immediately with copy-paste prompt
+- Full context available for reference without overwhelming the prompt
+- Token budget compliance (each handoff ≤4K tokens)
+
+### Prompt Refinement #2: Context Memory Hierarchy
+
+**Original prompt approach:**
+> Include all relevant context in handoff documents
+
+**Refined to:**
+> Organize context into tiered memory model:
+> - **Working** (≤2K tokens): Current task, success criteria, immediate dependencies
+> - **Episodic** (≤1K tokens): Prior phase outcomes, key decisions
+> - **Semantic** (≤500 tokens): Tech stack, naming conventions
+> - **Procedural** (links only): Pattern docs, reference files
+
+**Rationale:** Research shows models have "lost in the middle" effect. Structured context with budget limits ensures critical information appears at document start/end where recall is highest.
+
+### Prompt Refinement #3: Phase Completion Definition
+
+**Original prompt approach:**
+> Phase is complete when implementation work is done
+
+**Refined to:**
+> Phase is complete when:
+> 1. Implementation work verified (type check, lint, tests)
+> 2. REFLECTION_LOG.md updated with learnings
+> 3. `HANDOFF_P[N+1].md` created
+> 4. `P[N+1]_ORCHESTRATOR_PROMPT.md` created
+> 5. Both handoff files pass verification checklist
+
+**Rationale:** Context transfer is as important as implementation. Without handoffs, subsequent sessions waste time re-discovering context that could have been preserved.
 
 ---

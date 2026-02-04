@@ -126,13 +126,11 @@ This is an **architecture and scaffolding** specification only.
 
 | Document | Purpose | Location |
 |----------|---------|----------|
-| PACKAGE_ALLOCATION.md | Package-to-capability mapping | outputs/ |
-| RPC_PATTERNS.md | RPC contract and handler patterns | outputs/ |
-| LAYER_BOUNDARIES.md | Package dependency rules | outputs/ |
-| ENTITYID_AUDIT.md | EntityId definitions and usage | outputs/ |
-| ERROR_SCHEMAS.md | Tagged error definitions | outputs/ |
-| VALUE_OBJECTS.md | Core RDF type schemas | outputs/ |
-| ADR.md | Architecture Decision Record | outputs/ |
+| PACKAGE_ALLOCATION.md | Package-to-capability mapping with dependency rules | outputs/ |
+| ARCHITECTURE_DECISIONS.md | Architecture Decision Records (ADR-001 through ADR-006) | outputs/ |
+| IMPLEMENTATION_INSTRUCTIONS.md | Step-by-step implementation guide for all phases | outputs/ |
+
+> **Note**: Original plan had 7 separate documents; consolidated to 3 comprehensive documents for maintainability. ARCHITECTURE_DECISIONS.md covers ADRs, layer boundaries, and EntityId patterns. IMPLEMENTATION_INSTRUCTIONS.md covers value objects, error schemas, and RPC patterns.
 
 ---
 
@@ -218,6 +216,7 @@ knowledge-server:
 
 ## Success Criteria
 
+### Implementation Criteria
 - [ ] Package allocation matrix documents all capabilities
 - [ ] RPC contracts compile without implementation
 - [ ] All EntityIds defined in `@beep/knowledge-domain`
@@ -226,6 +225,14 @@ knowledge-server:
 - [ ] Value objects use `S.Class` or `S.Struct` as appropriate
 - [ ] ADR documents all key decisions with rationale
 - [ ] Team aligned on layer boundaries
+
+### Multi-Session Handoff Criteria
+Each phase is complete ONLY when:
+- [ ] Phase work is implemented and verified (`bun run check`)
+- [ ] REFLECTION_LOG.md updated with phase learnings
+- [ ] `handoffs/HANDOFF_P[N+1].md` created (full context document)
+- [ ] `handoffs/P[N+1]_ORCHESTRATOR_PROMPT.md` created (copy-paste prompt)
+- [ ] Both handoff files pass verification checklist from HANDOFF_STANDARDS.md
 
 ---
 
