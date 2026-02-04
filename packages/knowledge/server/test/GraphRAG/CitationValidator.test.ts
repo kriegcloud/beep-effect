@@ -71,8 +71,6 @@ const createMockSparqlService = (config: {
         // Check if any known relation is in the query
         const relationExists = A.some(config.knownRelations, (relationId) => query.includes(relationId));
         return !!relationExists;
-
-
       }),
     select: () => Effect.succeed({ columns: [], rows: [] }),
     construct: () => Effect.succeed([]),
