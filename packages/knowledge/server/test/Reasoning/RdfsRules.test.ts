@@ -7,14 +7,7 @@
  * @since 0.1.0
  */
 import { makeIRI, Quad } from "@beep/knowledge-domain/value-objects";
-import {
-  quadId,
-  type RuleInference,
-  rdfs2,
-  rdfs3,
-  rdfs9,
-  rdfs11,
-} from "@beep/knowledge-server/Reasoning/RdfsRules";
+import { quadId, type RuleInference, rdfs2, rdfs3, rdfs9, rdfs11 } from "@beep/knowledge-server/Reasoning/RdfsRules";
 import { assertTrue, describe, effect, strictEqual } from "@beep/testkit";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
@@ -180,12 +173,8 @@ describe("RdfsRules", () => {
         const inferences = rdfs9.apply(quads);
 
         strictEqual(A.length(inferences), 2);
-        assertTrue(
-          A.some(inferences, (i: RuleInference) => i.quad.subject === ex("alice"))
-        );
-        assertTrue(
-          A.some(inferences, (i: RuleInference) => i.quad.subject === ex("bob"))
-        );
+        assertTrue(A.some(inferences, (i: RuleInference) => i.quad.subject === ex("alice")));
+        assertTrue(A.some(inferences, (i: RuleInference) => i.quad.subject === ex("bob")));
       })
     );
   });

@@ -85,8 +85,7 @@ interface SentenceCitations {
  * @since 0.1.0
  * @category helpers
  */
-const deduplicateIds = (ids: ReadonlyArray<string>): ReadonlyArray<string> =>
-  A.dedupe(ids);
+const deduplicateIds = (ids: ReadonlyArray<string>): ReadonlyArray<string> => A.dedupe(ids);
 
 /**
  * Extract all matches from a regex applied to text.
@@ -96,10 +95,7 @@ const deduplicateIds = (ids: ReadonlyArray<string>): ReadonlyArray<string> =>
  * @since 0.1.0
  * @category helpers
  */
-const extractAllMatches = (
-  text: string,
-  regex: RegExp
-): ReadonlyArray<CitationMatch> => {
+const extractAllMatches = (text: string, regex: RegExp): ReadonlyArray<CitationMatch> => {
   const matches = text.matchAll(new RegExp(regex.source, regex.flags));
   return pipe(
     A.fromIterable(matches),
@@ -173,30 +169,26 @@ const extractClaimText = (text: string, position: number): string => {
     readonly found: O.Option<string>;
   }
 
-  const result = A.reduce(
-    sentences,
-    { currentPosition: 0, found: O.none() } as Accumulator,
-    (acc, sentence) => {
-      if (O.isSome(acc.found)) {
-        return acc;
-      }
+  const result = A.reduce(sentences, { currentPosition: 0, found: O.none() } as Accumulator, (acc, sentence) => {
+    if (O.isSome(acc.found)) {
+      return acc;
+    }
 
-      const sentenceEnd = acc.currentPosition + Str.length(sentence);
+    const sentenceEnd = acc.currentPosition + Str.length(sentence);
 
-      if (position >= acc.currentPosition && position < sentenceEnd) {
-        const trimmed = Str.trim(sentence);
-        return {
-          currentPosition: sentenceEnd + 1,
-          found: O.some(Str.isEmpty(trimmed) ? "Unknown claim" : trimmed),
-        };
-      }
-
+    if (position >= acc.currentPosition && position < sentenceEnd) {
+      const trimmed = Str.trim(sentence);
       return {
         currentPosition: sentenceEnd + 1,
-        found: O.none(),
+        found: O.some(Str.isEmpty(trimmed) ? "Unknown claim" : trimmed),
       };
     }
-  );
+
+    return {
+      currentPosition: sentenceEnd + 1,
+      found: O.none(),
+    };
+  });
 
   return O.getOrElse(result.found, () => {
     const fallback = Str.trim(text);
@@ -241,12 +233,8 @@ const mergeMatchIntoRecord = (
     }),
     onSome: (prev) => ({
       ...prev,
-      entityIds:
-        type === "entity" ? A.append(prev.entityIds, match.id) : prev.entityIds,
-      relationIds:
-        type === "relation"
-          ? A.append(prev.relationIds, match.id)
-          : prev.relationIds,
+      entityIds: type === "entity" ? A.append(prev.entityIds, match.id) : prev.entityIds,
+      relationIds: type === "relation" ? A.append(prev.relationIds, match.id) : prev.relationIds,
     }),
   });
 
@@ -261,29 +249,20 @@ const mergeMatchIntoRecord = (
  * @since 0.1.0
  * @category helpers
  */
-const groupCitationsBySentence = (
-  text: string
-): ReadonlyArray<SentenceCitations> => {
+const groupCitationsBySentence = (text: string): ReadonlyArray<SentenceCitations> => {
   const entityMatches = extractAllMatches(text, ENTITY_CITATION_REGEX);
   const relationMatches = extractAllMatches(text, RELATION_CITATION_REGEX);
 
-  if (
-    A.isEmptyReadonlyArray(entityMatches) &&
-    A.isEmptyReadonlyArray(relationMatches)
-  ) {
+  if (A.isEmptyReadonlyArray(entityMatches) && A.isEmptyReadonlyArray(relationMatches)) {
     return [];
   }
 
-  const afterEntities = A.reduce(
-    entityMatches,
-    {} as Record<string, SentenceCitations>,
-    (acc, match) => mergeMatchIntoRecord(acc, text, match, "entity")
+  const afterEntities = A.reduce(entityMatches, {} as Record<string, SentenceCitations>, (acc, match) =>
+    mergeMatchIntoRecord(acc, text, match, "entity")
   );
 
-  const afterRelations = A.reduce(
-    relationMatches,
-    afterEntities,
-    (acc, match) => mergeMatchIntoRecord(acc, text, match, "relation")
+  const afterRelations = A.reduce(relationMatches, afterEntities, (acc, match) =>
+    mergeMatchIntoRecord(acc, text, match, "relation")
   );
 
   return R.values(afterRelations);
@@ -322,10 +301,7 @@ const parseNonEmptyString = (s: string): O.Option<NonEmptyString> =>
  * @since 0.1.0
  * @category helpers
  */
-const sentenceGroupToCitation = (
-  group: SentenceCitations,
-  contextSet: HashSet.HashSet<string>
-): O.Option<Citation> => {
+const sentenceGroupToCitation = (group: SentenceCitations, contextSet: HashSet.HashSet<string>): O.Option<Citation> => {
   const validEntityIds = pipe(
     deduplicateIds(group.entityIds),
     A.filter((id) => isValidEntityId(id) && HashSet.has(contextSet, id))
@@ -335,9 +311,7 @@ const sentenceGroupToCitation = (
     return O.none();
   }
 
-  const typedEntityIds = A.filterMap(validEntityIds, (id) =>
-    isValidEntityId(id) ? O.some(id) : O.none()
-  );
+  const typedEntityIds = A.filterMap(validEntityIds, (id) => (isValidEntityId(id) ? O.some(id) : O.none()));
 
   const typedRelationId = pipe(
     deduplicateIds(group.relationIds),
@@ -345,13 +319,15 @@ const sentenceGroupToCitation = (
     A.head
   );
 
-  return O.map(parseNonEmptyString(group.sentence), (claimText) =>
-    new Citation({
-      claimText,
-      entityIds: typedEntityIds,
-      relationId: O.getOrUndefined(typedRelationId),
-      confidence: 1.0,
-    })
+  return O.map(
+    parseNonEmptyString(group.sentence),
+    (claimText) =>
+      new Citation({
+        claimText,
+        entityIds: typedEntityIds,
+        relationId: O.getOrUndefined(typedRelationId),
+        confidence: 1.0,
+      })
   );
 };
 
@@ -368,10 +344,7 @@ const sentenceGroupToCitation = (
  * @since 0.1.0
  * @category parsers
  */
-export const parseCitations = (
-  text: string,
-  contextEntityIds: ReadonlyArray<string>
-): ReadonlyArray<Citation> => {
+export const parseCitations = (text: string, contextEntityIds: ReadonlyArray<string>): ReadonlyArray<Citation> => {
   const sentenceGroups = groupCitationsBySentence(text);
 
   if (A.isEmptyReadonlyArray(sentenceGroups)) {
@@ -380,9 +353,7 @@ export const parseCitations = (
 
   const contextSet = HashSet.fromIterable(contextEntityIds);
 
-  return A.filterMap(sentenceGroups, (group) =>
-    sentenceGroupToCitation(group, contextSet)
-  );
+  return A.filterMap(sentenceGroups, (group) => sentenceGroupToCitation(group, contextSet));
 };
 
 /**
@@ -397,8 +368,7 @@ export const parseCitations = (
  * @since 0.1.0
  * @category utilities
  */
-export const stripAllCitations = (text: string): string =>
-  stripCitationMarkers(text);
+export const stripAllCitations = (text: string): string => stripCitationMarkers(text);
 
 /**
  * Count the total number of citations in text.
@@ -410,8 +380,7 @@ export const stripAllCitations = (text: string): string =>
  * @category utilities
  */
 export const countCitations = (text: string): number =>
-  A.length(extractAllMatches(text, ENTITY_CITATION_REGEX)) +
-  A.length(extractAllMatches(text, RELATION_CITATION_REGEX));
+  A.length(extractAllMatches(text, ENTITY_CITATION_REGEX)) + A.length(extractAllMatches(text, RELATION_CITATION_REGEX));
 
 /**
  * Check if text contains any citation markers.

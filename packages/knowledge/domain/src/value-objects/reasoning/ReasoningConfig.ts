@@ -45,27 +45,21 @@ export class ReasoningConfig extends S.Class<ReasoningConfig>($I`ReasoningConfig
    * Prevents infinite loops in cyclic ontologies.
    * @default 10
    */
-  maxDepth: S.propertySignature(PositiveInt).pipe(
-    S.withConstructorDefault(() => 10)
-  ),
+  maxDepth: S.propertySignature(PositiveInt).pipe(S.withConstructorDefault(() => 10)),
 
   /**
    * Maximum number of inferences to generate.
    * Acts as a safety limit to prevent runaway inference.
    * @default 10_000
    */
-  maxInferences: S.propertySignature(PositiveInt).pipe(
-    S.withConstructorDefault(() => 10_000)
-  ),
+  maxInferences: S.propertySignature(PositiveInt).pipe(S.withConstructorDefault(() => 10_000)),
 
   /**
    * Reasoning profile to use for inference.
    * Determines which rule sets are applied.
    * @default "RDFS"
    */
-  profile: S.propertySignature(ReasoningProfile).pipe(
-    S.withConstructorDefault(() => "RDFS" as const)
-  ),
+  profile: S.propertySignature(ReasoningProfile).pipe(S.withConstructorDefault(() => "RDFS" as const)),
 }) {}
 
 /**

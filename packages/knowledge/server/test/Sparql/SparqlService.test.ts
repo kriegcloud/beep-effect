@@ -12,7 +12,13 @@
 import { SparqlUnsupportedFeatureError } from "@beep/knowledge-domain/errors";
 import { Literal, makeIRI, Quad, type SparqlBinding, SparqlBindings } from "@beep/knowledge-domain/value-objects";
 import { RdfStore } from "@beep/knowledge-server/Rdf";
-import { executeAsk, executeConstruct, executeSelect, SparqlParser, SparqlService } from "@beep/knowledge-server/Sparql";
+import {
+  executeAsk,
+  executeConstruct,
+  executeSelect,
+  SparqlParser,
+  SparqlService,
+} from "@beep/knowledge-server/Sparql";
 import { assertTrue, describe, layer, strictEqual } from "@beep/testkit";
 import * as A from "effect/Array";
 import * as Duration from "effect/Duration";
@@ -33,8 +39,7 @@ const isConstructQuery = (ast: sparqljs.SparqlQuery): ast is sparqljs.ConstructQ
 const isAskQuery = (ast: sparqljs.SparqlQuery): ast is sparqljs.AskQuery =>
   ast.type === "query" && ast.queryType === "ASK";
 
-const getQueryTypeString = (ast: sparqljs.SparqlQuery): string =>
-  ast.type === "update" ? "UPDATE" : ast.queryType;
+const getQueryTypeString = (ast: sparqljs.SparqlQuery): string => (ast.type === "update" ? "UPDATE" : ast.queryType);
 
 /**
  * Manually build SparqlService that uses external RdfStore and Parser.
@@ -113,20 +118,16 @@ const sparqlServiceLayer = Layer.effect(
  * The layer() utility creates fresh layer instances for each test,
  * ensuring state isolation for the stateful RdfStore.
  */
-const TestLayer = Layer.provideMerge(
-  sparqlServiceLayer,
-  Layer.merge(RdfStore.Default, SparqlParser.Default)
-);
+const TestLayer = Layer.provideMerge(sparqlServiceLayer, Layer.merge(RdfStore.Default, SparqlParser.Default));
 
 /**
  * Helper: Add test data to store (clears first to ensure isolation)
  */
-const addTestData =
-  Effect.fn(function* (quads: ReadonlyArray<Quad>) {
-    const store = yield* RdfStore;
-    yield* store.clear();
-    yield* store.addQuads(quads);
-  });
+const addTestData = Effect.fn(function* (quads: ReadonlyArray<Quad>) {
+  const store = yield* RdfStore;
+  yield* store.clear();
+  yield* store.addQuads(quads);
+});
 
 /**
  * Helper: Create Person quads
@@ -190,7 +191,9 @@ const findBinding = (bindings: SparqlBindings, rowIndex: number, varName: string
 
 describe("SparqlService", () => {
   layer(TestLayer, { timeout: Duration.seconds(30) })("select - single pattern", (it) => {
-    it.effect("should return bindings for simple type query", Effect.fn(function* () {
+    it.effect(
+      "should return bindings for simple type query",
+      Effect.fn(function* () {
         yield* addTestData([...createPersonQuads("alice", "Alice", 30), ...createPersonQuads("bob", "Bob", 25)]);
 
         const sparql = yield* SparqlService;
@@ -206,7 +209,8 @@ describe("SparqlService", () => {
       })
     );
 
-    it.effect("should return empty bindings when no matches",
+    it.effect(
+      "should return empty bindings when no matches",
       Effect.fn(function* () {
         const sparql = yield* SparqlService;
         const result = yield* sparql.select(`
@@ -221,7 +225,9 @@ describe("SparqlService", () => {
   });
 
   layer(TestLayer, { timeout: Duration.seconds(30) })("select - multiple patterns (join)", (it) => {
-    it.effect("should join patterns and return combined bindings", Effect.fn(function* () {
+    it.effect(
+      "should join patterns and return combined bindings",
+      Effect.fn(function* () {
         yield* addTestData([...createPersonQuads("alice", "Alice", 30), ...createPersonQuads("bob", "Bob", 25)]);
 
         const sparql = yield* SparqlService;
@@ -247,7 +253,9 @@ describe("SparqlService", () => {
       })
     );
 
-    it.effect("should handle join with no matches", Effect.fn(function* () {
+    it.effect(
+      "should handle join with no matches",
+      Effect.fn(function* () {
         yield* addTestData(createPersonQuads("alice", "Alice"));
 
         const sparql = yield* SparqlService;
@@ -264,7 +272,9 @@ describe("SparqlService", () => {
   });
 
   layer(TestLayer, { timeout: Duration.seconds(30) })("select - FILTER", (it) => {
-    it.effect("should filter results with equality", Effect.fn(function* () {
+    it.effect(
+      "should filter results with equality",
+      Effect.fn(function* () {
         yield* addTestData([...createPersonQuads("alice", "Alice"), ...createPersonQuads("bob", "Bob")]);
 
         const sparql = yield* SparqlService;
@@ -282,7 +292,9 @@ describe("SparqlService", () => {
       })
     );
 
-    it.effect("should filter results with inequality", Effect.fn(function* () {
+    it.effect(
+      "should filter results with inequality",
+      Effect.fn(function* () {
         yield* addTestData([...createPersonQuads("alice", "Alice"), ...createPersonQuads("bob", "Bob")]);
 
         const sparql = yield* SparqlService;
@@ -300,7 +312,9 @@ describe("SparqlService", () => {
       })
     );
 
-    it.effect("should filter results with numeric comparison", Effect.fn(function* () {
+    it.effect(
+      "should filter results with numeric comparison",
+      Effect.fn(function* () {
         yield* addTestData([...createPersonQuads("alice", "Alice", 30), ...createPersonQuads("bob", "Bob", 25)]);
 
         const sparql = yield* SparqlService;
@@ -318,7 +332,9 @@ describe("SparqlService", () => {
       })
     );
 
-    it.effect("should filter results with regex", Effect.fn(function* () {
+    it.effect(
+      "should filter results with regex",
+      Effect.fn(function* () {
         yield* addTestData([...createPersonQuads("alice", "Alice"), ...createPersonQuads("bob", "Bob")]);
 
         const sparql = yield* SparqlService;
@@ -336,7 +352,9 @@ describe("SparqlService", () => {
       })
     );
 
-    it.effect("should filter results with case-insensitive regex", Effect.fn(function* () {
+    it.effect(
+      "should filter results with case-insensitive regex",
+      Effect.fn(function* () {
         yield* addTestData([...createPersonQuads("alice", "Alice"), ...createPersonQuads("bob", "Bob")]);
 
         const sparql = yield* SparqlService;
@@ -354,7 +372,9 @@ describe("SparqlService", () => {
       })
     );
 
-    it.effect("should handle bound() function", Effect.fn(function* () {
+    it.effect(
+      "should handle bound() function",
+      Effect.fn(function* () {
         // Create data where alice has age but bob doesn't
         yield* addTestData([...createPersonQuads("alice", "Alice", 30), ...createPersonQuads("bob", "Bob")]);
 
@@ -374,7 +394,9 @@ describe("SparqlService", () => {
       })
     );
 
-    it.effect("should handle !bound() function", Effect.fn(function* () {
+    it.effect(
+      "should handle !bound() function",
+      Effect.fn(function* () {
         yield* addTestData([...createPersonQuads("alice", "Alice", 30), ...createPersonQuads("bob", "Bob")]);
 
         const sparql = yield* SparqlService;
@@ -393,7 +415,9 @@ describe("SparqlService", () => {
       })
     );
 
-    it.effect("should handle isIRI() function", Effect.fn(function* () {
+    it.effect(
+      "should handle isIRI() function",
+      Effect.fn(function* () {
         yield* addTestData([
           ...createPersonQuads("alice", "Alice"),
           createKnowsQuad("alice", "bob"),
@@ -412,7 +436,9 @@ describe("SparqlService", () => {
       })
     );
 
-    it.effect("should handle isLiteral() function", Effect.fn(function* () {
+    it.effect(
+      "should handle isLiteral() function",
+      Effect.fn(function* () {
         yield* addTestData(createPersonQuads("alice", "Alice"));
 
         const sparql = yield* SparqlService;
@@ -427,7 +453,8 @@ describe("SparqlService", () => {
       })
     );
 
-    it.effect("should handle && (logical and)",
+    it.effect(
+      "should handle && (logical and)",
       Effect.fn(function* () {
         yield* addTestData([
           ...createPersonQuads("alice", "Alice", 30),
@@ -450,7 +477,8 @@ describe("SparqlService", () => {
       })
     );
 
-    it.effect("should handle || (logical or)",
+    it.effect(
+      "should handle || (logical or)",
       Effect.fn(function* () {
         yield* addTestData([
           ...createPersonQuads("alice", "Alice", 30),
@@ -472,7 +500,8 @@ describe("SparqlService", () => {
   });
 
   layer(TestLayer, { timeout: Duration.seconds(30) })("select - modifiers", (it) => {
-    it.effect("should handle LIMIT",
+    it.effect(
+      "should handle LIMIT",
       Effect.fn(function* () {
         yield* addTestData([
           ...createPersonQuads("alice", "Alice"),
@@ -492,7 +521,8 @@ describe("SparqlService", () => {
       })
     );
 
-    it.effect("should handle OFFSET",
+    it.effect(
+      "should handle OFFSET",
       Effect.fn(function* () {
         yield* addTestData([
           ...createPersonQuads("alice", "Alice"),
@@ -512,7 +542,8 @@ describe("SparqlService", () => {
       })
     );
 
-    it.effect("should handle LIMIT with OFFSET",
+    it.effect(
+      "should handle LIMIT with OFFSET",
       Effect.fn(function* () {
         yield* addTestData([
           ...createPersonQuads("alice", "Alice"),
@@ -533,7 +564,8 @@ describe("SparqlService", () => {
       })
     );
 
-    it.effect("should handle DISTINCT",
+    it.effect(
+      "should handle DISTINCT",
       Effect.fn(function* () {
         // Add duplicate type assertions
         const alice = makeIRI("http://example.org/alice");
@@ -559,7 +591,8 @@ describe("SparqlService", () => {
   });
 
   layer(TestLayer, { timeout: Duration.seconds(30) })("construct", (it) => {
-    it.effect("should construct new quads from pattern",
+    it.effect(
+      "should construct new quads from pattern",
       Effect.fn(function* () {
         yield* addTestData(createPersonQuads("alice", "Alice"));
 
@@ -579,7 +612,8 @@ describe("SparqlService", () => {
       })
     );
 
-    it.effect("should return empty array when no matches",
+    it.effect(
+      "should return empty array when no matches",
       Effect.fn(function* () {
         const sparql = yield* SparqlService;
         const result = yield* sparql.construct(`
@@ -597,7 +631,8 @@ describe("SparqlService", () => {
   });
 
   layer(TestLayer, { timeout: Duration.seconds(30) })("ask", (it) => {
-    it.effect("should return true when pattern matches",
+    it.effect(
+      "should return true when pattern matches",
       Effect.fn(function* () {
         yield* addTestData(createPersonQuads("alice", "Alice"));
 
@@ -612,7 +647,8 @@ describe("SparqlService", () => {
       })
     );
 
-    it.effect("should return false when pattern doesn't match",
+    it.effect(
+      "should return false when pattern doesn't match",
       Effect.fn(function* () {
         yield* addTestData(createPersonQuads("alice", "Alice"));
 
@@ -629,7 +665,8 @@ describe("SparqlService", () => {
   });
 
   layer(TestLayer, { timeout: Duration.seconds(30) })("query (generic)", (it) => {
-    it.effect("should execute SELECT query via generic query method",
+    it.effect(
+      "should execute SELECT query via generic query method",
       Effect.fn(function* () {
         yield* addTestData(createPersonQuads("alice", "Alice"));
 
@@ -643,7 +680,8 @@ describe("SparqlService", () => {
       })
     );
 
-    it.effect("should execute ASK query via generic query method",
+    it.effect(
+      "should execute ASK query via generic query method",
       Effect.fn(function* () {
         yield* addTestData(createPersonQuads("alice", "Alice"));
 
@@ -658,7 +696,8 @@ describe("SparqlService", () => {
       })
     );
 
-    it.effect("should execute CONSTRUCT query via generic query method",
+    it.effect(
+      "should execute CONSTRUCT query via generic query method",
       Effect.fn(function* () {
         yield* addTestData(createPersonQuads("alice", "Alice"));
 
@@ -676,7 +715,8 @@ describe("SparqlService", () => {
   });
 
   layer(TestLayer, { timeout: Duration.seconds(30) })("error handling", (it) => {
-    it.effect("should fail on syntax error",
+    it.effect(
+      "should fail on syntax error",
       Effect.fn(function* () {
         const sparql = yield* SparqlService;
         const result = yield* Effect.either(
@@ -689,7 +729,8 @@ describe("SparqlService", () => {
       })
     );
 
-    it.effect("should fail on unsupported query type",
+    it.effect(
+      "should fail on unsupported query type",
       Effect.fn(function* () {
         const sparql = yield* SparqlService;
         const result = yield* Effect.either(

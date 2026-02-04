@@ -119,116 +119,110 @@ const computeConfidence = (citations: ReadonlyArray<Citation>): number => {
  * @since 0.1.0
  * @category services
  */
-export class GroundedAnswerGenerator extends Effect.Service<GroundedAnswerGenerator>()(
-  $I`GroundedAnswerGenerator`,
-  {
-    accessors: true,
-    effect: Effect.gen(function* () {
-      const languageModel = yield* LanguageModel.LanguageModel;
+export class GroundedAnswerGenerator extends Effect.Service<GroundedAnswerGenerator>()($I`GroundedAnswerGenerator`, {
+  accessors: true,
+  effect: Effect.gen(function* () {
+    const languageModel = yield* LanguageModel.LanguageModel;
 
-      /**
-       * Generate a grounded answer for a question using graph context
-       *
-       * @param context - Graph context with entities and relations
-       * @param question - User's natural language question
-       * @returns GroundedAnswer with text, citations, and confidence
-       */
-      const generate = (
-        context: GraphContext,
-        question: string
-      ): Effect.Effect<GroundedAnswer, GenerationError> =>
-        Effect.gen(function* () {
-          yield* Effect.logInfo("GroundedAnswerGenerator.generate: starting", {
-            entityCount: A.length(context.entities),
-            relationCount: A.length(context.relations),
-            questionLength: question.length,
-          });
+    /**
+     * Generate a grounded answer for a question using graph context
+     *
+     * @param context - Graph context with entities and relations
+     * @param question - User's natural language question
+     * @returns GroundedAnswer with text, citations, and confidence
+     */
+    const generate = (context: GraphContext, question: string): Effect.Effect<GroundedAnswer, GenerationError> =>
+      Effect.gen(function* () {
+        yield* Effect.logInfo("GroundedAnswerGenerator.generate: starting", {
+          entityCount: A.length(context.entities),
+          relationCount: A.length(context.relations),
+          questionLength: question.length,
+        });
 
-          // 1. Build prompts
-          const prompts = buildGroundedAnswerPrompt(context, question);
+        // 1. Build prompts
+        const prompts = buildGroundedAnswerPrompt(context, question);
 
-          yield* Effect.logDebug("GroundedAnswerGenerator.generate: prompts built", {
-            systemPromptLength: prompts.system.length,
-            userPromptLength: prompts.user.length,
-          });
+        yield* Effect.logDebug("GroundedAnswerGenerator.generate: prompts built", {
+          systemPromptLength: prompts.system.length,
+          userPromptLength: prompts.user.length,
+        });
 
-          // 2. Call LLM with generateText
-          const response = yield* languageModel.generateText({
-            prompt: [
-              { role: "system" as const, content: prompts.system },
-              { role: "user" as const, content: prompts.user },
-            ],
-          });
+        // 2. Call LLM with generateText
+        const response = yield* languageModel.generateText({
+          prompt: [
+            { role: "system" as const, content: prompts.system },
+            { role: "user" as const, content: prompts.user },
+          ],
+        });
 
-          yield* Effect.logDebug("GroundedAnswerGenerator.generate: LLM response received", {
-            textLength: response.text.length,
-            hasToolCalls: response.toolCalls.length > 0,
-          });
+        yield* Effect.logDebug("GroundedAnswerGenerator.generate: LLM response received", {
+          textLength: response.text.length,
+          hasToolCalls: response.toolCalls.length > 0,
+        });
 
-          const responseText = response.text;
+        const responseText = response.text;
 
-          // 3. Check if response has content
-          if (responseText.trim().length === 0) {
-            yield* Effect.logWarning("GroundedAnswerGenerator.generate: empty response from LLM");
-            return new GroundedAnswer({
-              text: "I don't have enough information to answer this question." as string & {
-                readonly NonEmptyString: unique symbol;
-              },
-              citations: [],
-              confidence: 0.0,
-              reasoning: undefined,
-            });
-          }
-
-          // 4. Parse citations
-          const contextEntityIds = A.map(context.entities, (e) => e.id);
-          const citations = parseCitations(responseText, contextEntityIds);
-
-          yield* Effect.logDebug("GroundedAnswerGenerator.generate: citations parsed", {
-            citationCount: A.length(citations),
-            extractedEntityIds: extractEntityIds(responseText).length,
-          });
-
-          // 5. Compute confidence
-          const confidence = computeConfidence(citations);
-
-          // 6. Clean the response text for display (strip citation markers)
-          const cleanText = stripAllCitations(responseText);
-
-          yield* Effect.logInfo("GroundedAnswerGenerator.generate: complete", {
-            citationCount: A.length(citations),
-            confidence,
-            textLength: cleanText.length,
-          });
-
-          // 7. Return GroundedAnswer
+        // 3. Check if response has content
+        if (responseText.trim().length === 0) {
+          yield* Effect.logWarning("GroundedAnswerGenerator.generate: empty response from LLM");
           return new GroundedAnswer({
-            text: cleanText as string & { readonly NonEmptyString: unique symbol },
-            citations: [...citations],
-            confidence,
+            text: "I don't have enough information to answer this question." as string & {
+              readonly NonEmptyString: unique symbol;
+            },
+            citations: [],
+            confidence: 0.0,
             reasoning: undefined,
           });
-        }).pipe(
-          Effect.mapError(
-            (e) =>
-              new GenerationError({
-                message: `Failed to generate grounded answer: ${String(e)}`,
-                cause: e,
-              })
-          ),
-          Effect.withSpan("GroundedAnswerGenerator.generate", {
-            captureStackTrace: false,
-            attributes: {
-              entityCount: A.length(context.entities),
-              relationCount: A.length(context.relations),
-            },
-          })
-        );
+        }
 
-      return { generate };
-    }),
-  }
-) {}
+        // 4. Parse citations
+        const contextEntityIds = A.map(context.entities, (e) => e.id);
+        const citations = parseCitations(responseText, contextEntityIds);
+
+        yield* Effect.logDebug("GroundedAnswerGenerator.generate: citations parsed", {
+          citationCount: A.length(citations),
+          extractedEntityIds: extractEntityIds(responseText).length,
+        });
+
+        // 5. Compute confidence
+        const confidence = computeConfidence(citations);
+
+        // 6. Clean the response text for display (strip citation markers)
+        const cleanText = stripAllCitations(responseText);
+
+        yield* Effect.logInfo("GroundedAnswerGenerator.generate: complete", {
+          citationCount: A.length(citations),
+          confidence,
+          textLength: cleanText.length,
+        });
+
+        // 7. Return GroundedAnswer
+        return new GroundedAnswer({
+          text: cleanText as string & { readonly NonEmptyString: unique symbol },
+          citations: [...citations],
+          confidence,
+          reasoning: undefined,
+        });
+      }).pipe(
+        Effect.mapError(
+          (e) =>
+            new GenerationError({
+              message: `Failed to generate grounded answer: ${String(e)}`,
+              cause: e,
+            })
+        ),
+        Effect.withSpan("GroundedAnswerGenerator.generate", {
+          captureStackTrace: false,
+          attributes: {
+            entityCount: A.length(context.entities),
+            relationCount: A.length(context.relations),
+          },
+        })
+      );
+
+    return { generate };
+  }),
+}) {}
 
 // =============================================================================
 // Re-exports for convenience

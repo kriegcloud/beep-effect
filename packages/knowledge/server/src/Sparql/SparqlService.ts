@@ -68,8 +68,7 @@ const isConstructQuery = (ast: sparqljs.SparqlQuery): ast is sparqljs.ConstructQ
 /**
  * Type guard: Check if AST is an ASK query
  */
-const isAskQuery = (ast: sparqljs.SparqlQuery): ast is sparqljs.AskQuery =>
-  isQueryAst(ast) && ast.queryType === "ASK";
+const isAskQuery = (ast: sparqljs.SparqlQuery): ast is sparqljs.AskQuery => isQueryAst(ast) && ast.queryType === "ASK";
 
 /**
  * Get query type string for error messages
@@ -120,10 +119,7 @@ export class SparqlService extends Effect.Service<SparqlService>()("@beep/knowle
      */
     const parseAsSelect = (
       queryString: string
-    ): Effect.Effect<
-      ParseResult & { ast: sparqljs.SelectQuery },
-      SparqlSyntaxError | SparqlUnsupportedFeatureError
-    > =>
+    ): Effect.Effect<ParseResult & { ast: sparqljs.SelectQuery }, SparqlSyntaxError | SparqlUnsupportedFeatureError> =>
       Effect.gen(function* () {
         const result = yield* parser.parse(queryString);
 

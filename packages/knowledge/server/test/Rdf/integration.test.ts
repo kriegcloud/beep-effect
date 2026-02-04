@@ -11,7 +11,7 @@ import { Literal, makeIRI, Quad, QuadPattern } from "@beep/knowledge-domain/valu
 import { RdfBuilder } from "@beep/knowledge-server/Rdf/RdfBuilder";
 import { RdfStore } from "@beep/knowledge-server/Rdf/RdfStoreService";
 import { Serializer } from "@beep/knowledge-server/Rdf/Serializer";
-import { describe, effect, layer, strictEqual, assertTrue } from "@beep/testkit";
+import { assertTrue, describe, effect, layer, strictEqual } from "@beep/testkit";
 import * as A from "effect/Array";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
@@ -64,10 +64,7 @@ const fixtures = {
 };
 
 describe("RDF Integration", () => {
-  layer(
-    TestLayer,
-    { timeout: Duration.seconds(30) }
-  )("RdfBuilder + Serializer Round-Trip", (it) => {
+  layer(TestLayer, { timeout: Duration.seconds(30) })("RdfBuilder + Serializer Round-Trip", (it) => {
     it.effect(
       "should build quads, serialize to Turtle, parse back, and verify data matches",
       Effect.fn(function* () {
@@ -211,10 +208,7 @@ describe("RDF Integration", () => {
     );
   });
 
-  layer(
-    TestLayer,
-    { timeout: Duration.seconds(30) }
-  )("Multiple Builders Sharing Same Store", (it) => {
+  layer(TestLayer, { timeout: Duration.seconds(30) })("Multiple Builders Sharing Same Store", (it) => {
     it.effect(
       "should accumulate quads from sequential builder operations",
       Effect.fn(function* () {
@@ -318,10 +312,7 @@ describe("RDF Integration", () => {
     );
   });
 
-  layer(
-    TestLayer,
-    { timeout: Duration.seconds(30) }
-  )("Builder + Store Operations", (it) => {
+  layer(TestLayer, { timeout: Duration.seconds(30) })("Builder + Store Operations", (it) => {
     it.effect(
       "should build quads, match by pattern, and verify counts",
       Effect.fn(function* () {
@@ -456,10 +447,7 @@ describe("RDF Integration", () => {
     );
   });
 
-  layer(
-    TestLayer,
-    { timeout: Duration.seconds(30) }
-  )("Named Graph Isolation", (it) => {
+  layer(TestLayer, { timeout: Duration.seconds(30) })("Named Graph Isolation", (it) => {
     it.effect(
       "should build quads in different named graphs and verify isolation",
       Effect.fn(function* () {
@@ -681,10 +669,7 @@ ex:bob foaf:name "Bob" .
     );
   });
 
-  layer(
-    TestLayer,
-    { timeout: Duration.seconds(30) }
-  )("Complex Integration Scenarios", (it) => {
+  layer(TestLayer, { timeout: Duration.seconds(30) })("Complex Integration Scenarios", (it) => {
     it.effect(
       "should handle complete workflow: build, serialize, clear, parse, match",
       Effect.fn(function* () {
@@ -817,10 +802,7 @@ ex:bob foaf:name "Bob" .
     );
   });
 
-  layer(
-    TestLayer,
-    { timeout: Duration.seconds(30) }
-  )("Store Isolation Between Test Runs", (it) => {
+  layer(TestLayer, { timeout: Duration.seconds(30) })("Store Isolation Between Test Runs", (it) => {
     it.effect(
       "first test adds quads and verifies count",
       Effect.fn(function* () {

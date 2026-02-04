@@ -6,6 +6,7 @@
  * @module knowledge-domain/value-objects/reasoning
  * @since 0.1.0
  */
-export * from "./ReasoningProfile";
-export * from "./ReasoningConfig";
+
 export * from "./InferenceResult";
+export * from "./ReasoningConfig";
+export * from "./ReasoningProfile";

@@ -7,16 +7,8 @@
  * @module knowledge-server/test/Reasoning/ReasonerService
  * @since 0.1.0
  */
-import {
-  MaxDepthExceededError,
-  MaxInferencesExceededError,
-} from "@beep/knowledge-domain/errors";
-import {
-  makeIRI,
-  Quad,
-  QuadPattern,
-  ReasoningConfig,
-} from "@beep/knowledge-domain/value-objects";
+import { MaxDepthExceededError, MaxInferencesExceededError } from "@beep/knowledge-domain/errors";
+import { makeIRI, Quad, QuadPattern, ReasoningConfig } from "@beep/knowledge-domain/value-objects";
 import { RdfStore } from "@beep/knowledge-server/Rdf/RdfStoreService";
 import { ReasonerService } from "@beep/knowledge-server/Reasoning/ReasonerService";
 import { assertTrue, describe, live, strictEqual } from "@beep/testkit";
@@ -27,9 +19,7 @@ import * as Layer from "effect/Layer";
 
 const RDF_TYPE = makeIRI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
 const RDFS_DOMAIN = makeIRI("http://www.w3.org/2000/01/rdf-schema#domain");
-const RDFS_SUBCLASS_OF = makeIRI(
-  "http://www.w3.org/2000/01/rdf-schema#subClassOf"
-);
+const RDFS_SUBCLASS_OF = makeIRI("http://www.w3.org/2000/01/rdf-schema#subClassOf");
 
 const EX = "http://example.org/";
 
@@ -48,7 +38,8 @@ const makeTestLayer = () => Layer.provideMerge(ReasonerService.Default, RdfStore
 
 describe("ReasonerService", () => {
   describe("infer", () => {
-    live("infers from populated store",
+    live(
+      "infers from populated store",
       Effect.fn(function* () {
         const store = yield* RdfStore;
 
@@ -73,16 +64,14 @@ describe("ReasonerService", () => {
 
         const hasPersonType = A.some(
           result.derivedTriples,
-          (q: Quad) =>
-            q.subject === fixtures.alice &&
-            q.predicate === RDF_TYPE &&
-            q.object === fixtures.Person
+          (q: Quad) => q.subject === fixtures.alice && q.predicate === RDF_TYPE && q.object === fixtures.Person
         );
         assertTrue(hasPersonType);
       }, Effect.provide(makeTestLayer()))
     );
 
-    live("returns empty result for empty store",
+    live(
+      "returns empty result for empty store",
       Effect.fn(function* () {
         const result = yield* ReasonerService.infer();
 
@@ -91,7 +80,8 @@ describe("ReasonerService", () => {
       }, Effect.provide(makeTestLayer()))
     );
 
-    live("accepts custom config",
+    live(
+      "accepts custom config",
       Effect.fn(function* () {
         const store = yield* RdfStore;
 
@@ -117,7 +107,8 @@ describe("ReasonerService", () => {
       }, Effect.provide(makeTestLayer()))
     );
 
-    live("combines domain and subclass inferences",
+    live(
+      "combines domain and subclass inferences",
       Effect.fn(function* () {
         const store = yield* RdfStore;
 
@@ -143,17 +134,11 @@ describe("ReasonerService", () => {
 
         const hasStudentType = A.some(
           result.derivedTriples,
-          (q: Quad) =>
-            q.subject === fixtures.alice &&
-            q.predicate === RDF_TYPE &&
-            q.object === fixtures.Student
+          (q: Quad) => q.subject === fixtures.alice && q.predicate === RDF_TYPE && q.object === fixtures.Student
         );
         const hasPersonType = A.some(
           result.derivedTriples,
-          (q: Quad) =>
-            q.subject === fixtures.alice &&
-            q.predicate === RDF_TYPE &&
-            q.object === fixtures.Person
+          (q: Quad) => q.subject === fixtures.alice && q.predicate === RDF_TYPE && q.object === fixtures.Person
         );
 
         assertTrue(hasStudentType);
@@ -161,22 +146,28 @@ describe("ReasonerService", () => {
       }, Effect.provide(makeTestLayer()))
     );
 
-    live("fails with MaxDepthExceededError for deep hierarchies",
+    live(
+      "fails with MaxDepthExceededError for deep hierarchies",
       Effect.fn(function* () {
         const store = yield* RdfStore;
 
-        const classChain = A.map(A.range(0, 19), (i) =>
+        const classChain = A.map(
+          A.range(0, 19),
+          (i) =>
+            new Quad({
+              subject: makeIRI(`${EX}Class${i}`),
+              predicate: RDFS_SUBCLASS_OF,
+              object: makeIRI(`${EX}Class${i + 1}`),
+            })
+        );
+        const quads = A.append(
+          classChain,
           new Quad({
-            subject: makeIRI(`${EX}Class${i}`),
-            predicate: RDFS_SUBCLASS_OF,
-            object: makeIRI(`${EX}Class${i + 1}`),
+            subject: fixtures.alice,
+            predicate: RDF_TYPE,
+            object: makeIRI(`${EX}Class0`),
           })
         );
-        const quads = A.append(classChain, new Quad({
-          subject: fixtures.alice,
-          predicate: RDF_TYPE,
-          object: makeIRI(`${EX}Class0`),
-        }));
 
         yield* store.addQuads(quads);
 
@@ -191,16 +182,19 @@ describe("ReasonerService", () => {
       }, Effect.provide(makeTestLayer()))
     );
 
-    live("fails with MaxInferencesExceededError for many inferences",
+    live(
+      "fails with MaxInferencesExceededError for many inferences",
       Effect.fn(function* () {
         const store = yield* RdfStore;
 
-        const instanceQuads = A.map(A.range(0, 19), (i) =>
-          new Quad({
-            subject: makeIRI(`${EX}instance${i}`),
-            predicate: RDF_TYPE,
-            object: fixtures.Student,
-          })
+        const instanceQuads = A.map(
+          A.range(0, 19),
+          (i) =>
+            new Quad({
+              subject: makeIRI(`${EX}instance${i}`),
+              predicate: RDF_TYPE,
+              object: fixtures.Student,
+            })
         );
         const quads = A.appendAll(instanceQuads, [
           new Quad({
@@ -230,7 +224,8 @@ describe("ReasonerService", () => {
   });
 
   describe("inferAndMaterialize", () => {
-    live("does not modify store when materialize is false",
+    live(
+      "does not modify store when materialize is false",
       Effect.fn(function* () {
         const store = yield* RdfStore;
 
@@ -251,10 +246,7 @@ describe("ReasonerService", () => {
 
         const beforeCount = yield* store.size;
 
-        yield* ReasonerService.inferAndMaterialize(
-          new ReasoningConfig({}),
-          false
-        );
+        yield* ReasonerService.inferAndMaterialize(new ReasoningConfig({}), false);
 
         const afterCount = yield* store.size;
 
@@ -262,7 +254,8 @@ describe("ReasonerService", () => {
       }, Effect.provide(makeTestLayer()))
     );
 
-    live("adds inferred triples to store when materialize is true",
+    live(
+      "adds inferred triples to store when materialize is true",
       Effect.fn(function* () {
         const store = yield* RdfStore;
 
@@ -283,10 +276,7 @@ describe("ReasonerService", () => {
 
         const beforeCount = yield* store.size;
 
-        const result = yield* ReasonerService.inferAndMaterialize(
-          new ReasoningConfig({}),
-          true
-        );
+        const result = yield* ReasonerService.inferAndMaterialize(new ReasoningConfig({}), true);
 
         const afterCount = yield* store.size;
 
@@ -295,7 +285,8 @@ describe("ReasonerService", () => {
       }, Effect.provide(makeTestLayer()))
     );
 
-    live("materialized triples are queryable",
+    live(
+      "materialized triples are queryable",
       Effect.fn(function* () {
         const store = yield* RdfStore;
 
@@ -314,10 +305,7 @@ describe("ReasonerService", () => {
           })
         );
 
-        yield* ReasonerService.inferAndMaterialize(
-          new ReasoningConfig({}),
-          true
-        );
+        yield* ReasonerService.inferAndMaterialize(new ReasoningConfig({}), true);
 
         const pattern = new QuadPattern({
           subject: fixtures.alice,
@@ -330,7 +318,8 @@ describe("ReasonerService", () => {
       }, Effect.provide(makeTestLayer()))
     );
 
-    live("no-op when no inferences generated",
+    live(
+      "no-op when no inferences generated",
       Effect.fn(function* () {
         const store = yield* RdfStore;
 
@@ -344,10 +333,7 @@ describe("ReasonerService", () => {
 
         const beforeCount = yield* store.size;
 
-        yield* ReasonerService.inferAndMaterialize(
-          new ReasoningConfig({}),
-          true
-        );
+        yield* ReasonerService.inferAndMaterialize(new ReasoningConfig({}), true);
 
         const afterCount = yield* store.size;
 
@@ -355,7 +341,8 @@ describe("ReasonerService", () => {
       }, Effect.provide(makeTestLayer()))
     );
 
-    live("defaults to not materializing",
+    live(
+      "defaults to not materializing",
       Effect.fn(function* () {
         const store = yield* RdfStore;
 
@@ -386,7 +373,8 @@ describe("ReasonerService", () => {
   });
 
   describe("store isolation", () => {
-    live("each test gets fresh store instance",
+    live(
+      "each test gets fresh store instance",
       Effect.fn(function* () {
         const store = yield* RdfStore;
         const size = yield* store.size;
@@ -395,7 +383,8 @@ describe("ReasonerService", () => {
       }, Effect.provide(makeTestLayer()))
     );
 
-    live("modifications do not persist across tests",
+    live(
+      "modifications do not persist across tests",
       Effect.fn(function* () {
         const store = yield* RdfStore;
 
@@ -414,7 +403,8 @@ describe("ReasonerService", () => {
   });
 
   describe("provenance in results", () => {
-    live("includes provenance for all inferred triples",
+    live(
+      "includes provenance for all inferred triples",
       Effect.fn(function* () {
         const store = yield* RdfStore;
 

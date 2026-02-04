@@ -7,7 +7,6 @@
  * @since 0.1.0
  */
 
-
 import {
   assignGraphRanks,
   combineEmbeddingAndGraphRanks,
@@ -21,7 +20,8 @@ import * as MutableHashMap from "effect/MutableHashMap";
 import * as O from "effect/Option";
 
 describe("RrfScorer", () => {
-  effect("calculates rrfComponent correctly",
+  effect(
+    "calculates rrfComponent correctly",
     Effect.fn(function* () {
       // RRF(rank) = 1 / (k + rank)
       const score1 = rrfComponent(1); // 1 / (60 + 1) = 1/61
@@ -32,7 +32,8 @@ describe("RrfScorer", () => {
     })
   );
 
-  effect("calculates rrfScore from multiple ranks",
+  effect(
+    "calculates rrfScore from multiple ranks",
     Effect.fn(function* () {
       const ranks = [1, 2, 3];
       const score = rrfScore(ranks);
@@ -55,7 +56,8 @@ describe("RrfScorer", () => {
     })
   );
 
-  effect("fuses multiple ranked lists",
+  effect(
+    "fuses multiple ranked lists",
     Effect.fn(function* () {
       const list1 = ["a", "b", "c"];
       const list2 = ["b", "a", "d"];
@@ -86,7 +88,8 @@ describe("RrfScorer", () => {
     })
   );
 
-  effect("assigns graph ranks based on hop distance",
+  effect(
+    "assigns graph ranks based on hop distance",
     Effect.fn(function* () {
       const entityHops = MutableHashMap.fromIterable<string, number>([
         ["e1", 0], // seed
@@ -109,14 +112,16 @@ describe("RrfScorer", () => {
     })
   );
 
-  effect("handles empty input in fuseRankings",
+  effect(
+    "handles empty input in fuseRankings",
     Effect.fn(function* () {
       const fused = fuseRankings([]);
       strictEqual(fused.length, 0);
     })
   );
 
-  effect("handles single list in fuseRankings",
+  effect(
+    "handles single list in fuseRankings",
     Effect.fn(function* () {
       const list = ["x", "y", "z"];
       const fused = fuseRankings([list]);

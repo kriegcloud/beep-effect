@@ -10,7 +10,7 @@ import { SerializerError } from "@beep/knowledge-domain/errors";
 import { Literal, makeIRI, Quad, QuadPattern } from "@beep/knowledge-domain/value-objects";
 import { RdfStore } from "@beep/knowledge-server/Rdf/RdfStoreService";
 import { Serializer } from "@beep/knowledge-server/Rdf/Serializer";
-import { describe, effect, layer, strictEqual, assertTrue } from "@beep/testkit";
+import { assertTrue, describe, effect, layer, strictEqual } from "@beep/testkit";
 import * as A from "effect/Array";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
@@ -75,10 +75,7 @@ ex:alice foaf:name "Alice
 `;
 
 describe("Serializer", () => {
-  layer(
-    TestLayer,
-    { timeout: Duration.seconds(30) }
-  )("parseTurtle", (it) => {
+  layer(TestLayer, { timeout: Duration.seconds(30) })("parseTurtle", (it) => {
     it.effect(
       "should parse simple Turtle with one triple and verify count = 1",
       Effect.fn(function* () {
@@ -192,10 +189,7 @@ describe("Serializer", () => {
     );
   });
 
-  layer(
-    TestLayer,
-    { timeout: Duration.seconds(30) }
-  )("parseOnly", (it) => {
+  layer(TestLayer, { timeout: Duration.seconds(30) })("parseOnly", (it) => {
     it.effect(
       "should parse and return quads without modifying store",
       Effect.fn(function* () {
@@ -270,10 +264,7 @@ describe("Serializer", () => {
     );
   });
 
-  layer(
-    TestLayer,
-    { timeout: Duration.seconds(30) }
-  )("serialize", (it) => {
+  layer(TestLayer, { timeout: Duration.seconds(30) })("serialize", (it) => {
     it.effect(
       "should serialize quads from store to Turtle format",
       Effect.fn(function* () {
@@ -404,10 +395,7 @@ describe("Serializer", () => {
     );
   });
 
-  layer(
-    TestLayer,
-    { timeout: Duration.seconds(30) }
-  )("serializeQuads", (it) => {
+  layer(TestLayer, { timeout: Duration.seconds(30) })("serializeQuads", (it) => {
     it.effect(
       "should serialize provided quads to Turtle",
       Effect.fn(function* () {
@@ -501,10 +489,7 @@ describe("Serializer", () => {
     );
   });
 
-  layer(
-    TestLayer,
-    { timeout: Duration.seconds(30) }
-  )("Round-Trip Tests", (it) => {
+  layer(TestLayer, { timeout: Duration.seconds(30) })("Round-Trip Tests", (it) => {
     it.effect(
       "should preserve data: parseTurtle -> serialize -> parseOnly -> compare",
       Effect.fn(function* () {
@@ -643,10 +628,7 @@ ex:alice foaf:knows ex:bob .
     );
   });
 
-  layer(
-    TestLayer,
-    { timeout: Duration.seconds(30) }
-  )("Named Graph Integration", (it) => {
+  layer(TestLayer, { timeout: Duration.seconds(30) })("Named Graph Integration", (it) => {
     it.effect(
       "should parse into separate graphs and serialize only one",
       Effect.fn(function* () {
@@ -763,10 +745,7 @@ ex:bob foaf:name "Bob" .
     );
   });
 
-  layer(
-    TestLayer,
-    { timeout: Duration.seconds(30) }
-  )("Edge Cases", (it) => {
+  layer(TestLayer, { timeout: Duration.seconds(30) })("Edge Cases", (it) => {
     it.effect(
       "should handle Turtle with blank nodes",
       Effect.fn(function* () {

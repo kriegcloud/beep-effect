@@ -7,8 +7,8 @@
  * @module knowledge-server/Sparql/FilterEvaluator
  * @since 0.1.0
  */
-import {SparqlExecutionError} from "@beep/knowledge-domain/errors";
-import {type IRI, isBlankNode, isIRI, Literal, type Term} from "@beep/knowledge-domain/value-objects";
+import { SparqlExecutionError } from "@beep/knowledge-domain/errors";
+import { type IRI, isBlankNode, isIRI, Literal, type Term } from "@beep/knowledge-domain/value-objects";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Match from "effect/Match";
@@ -40,8 +40,7 @@ const XSD_NUMERIC_TYPES = [
  * Check if a term is a Literal using structural check
  * (instanceof can fail across module boundaries in monorepos)
  */
-const isLiteral = (term: Term): term is Literal =>
-  typeof term === "object" && term !== null && "value" in term;
+const isLiteral = (term: Term): term is Literal => typeof term === "object" && term !== null && "value" in term;
 
 /**
  * Get the effective value of a term for comparison

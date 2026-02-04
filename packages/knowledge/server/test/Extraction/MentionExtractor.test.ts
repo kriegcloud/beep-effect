@@ -151,7 +151,14 @@ describe("MentionExtractor", () => {
           {
             chunk: new TextChunk({ index: 0, text: "Test", startOffset: 0, endOffset: 10 }),
             mentions: [
-              { text: "John", startChar: 0, endChar: 4, confidence: 0.95, suggestedType: undefined, context: undefined },
+              {
+                text: "John",
+                startChar: 0,
+                endChar: 4,
+                confidence: 0.95,
+                suggestedType: undefined,
+                context: undefined,
+              },
               {
                 text: "John Smith",
                 startChar: 0,

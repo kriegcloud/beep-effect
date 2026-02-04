@@ -8,18 +8,15 @@
  * @module knowledge-server/Reasoning/ForwardChainer
  * @since 0.1.0
  */
+
+import { MaxDepthExceededError, MaxInferencesExceededError } from "@beep/knowledge-domain/errors";
 import {
   InferenceProvenance,
   InferenceResult,
   InferenceStats,
-  type ReasoningConfig,
   type Quad,
+  type ReasoningConfig,
 } from "@beep/knowledge-domain/value-objects";
-import {
-  MaxDepthExceededError,
-  MaxInferencesExceededError,
-} from "@beep/knowledge-domain/errors";
-import { quadId, rdfsRules, type RuleInference } from "./RdfsRules";
 import * as A from "effect/Array";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
@@ -27,6 +24,7 @@ import { pipe } from "effect/Function";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as MutableHashSet from "effect/MutableHashSet";
 import * as O from "effect/Option";
+import { quadId, type RuleInference, rdfsRules } from "./RdfsRules";
 
 /**
  * Internal state for forward-chaining iteration
@@ -43,9 +41,7 @@ interface ChainState {
 /**
  * Initialize chain state from input quads
  */
-const initializeState = (
-  initialQuads: ReadonlyArray<Quad>
-): ChainState => {
+const initializeState = (initialQuads: ReadonlyArray<Quad>): ChainState => {
   const knownQuadIds = MutableHashSet.empty<string>();
   const allQuads: Quad[] = [];
 
@@ -80,9 +76,7 @@ const initializeState = (
 /**
  * Collect all new inferences from applying rules to current knowledge base
  */
-const collectNewInferences = (
-  state: ChainState
-): ReadonlyArray<RuleInference> =>
+const collectNewInferences = (state: ChainState): ReadonlyArray<RuleInference> =>
   pipe(
     rdfsRules,
     A.flatMap((rule) => rule.apply(state.allQuads)),
@@ -98,10 +92,7 @@ const collectNewInferences = (
  * Deduplicates within the batch to handle same-iteration duplicates
  * from different rules generating the same quad.
  */
-const applyInferences = (
-  state: ChainState,
-  inferences: ReadonlyArray<RuleInference>
-): number => {
+const applyInferences = (state: ChainState, inferences: ReadonlyArray<RuleInference>): number => {
   // Filter to unique inferences not already known, deduplicating within batch
   const uniqueInferences = pipe(
     inferences,
@@ -180,10 +171,7 @@ const finalizeProvenance = (
 export const forwardChain = (
   initialQuads: ReadonlyArray<Quad>,
   config: ReasoningConfig
-): Effect.Effect<
-  InferenceResult,
-  MaxDepthExceededError | MaxInferencesExceededError
-> =>
+): Effect.Effect<InferenceResult, MaxDepthExceededError | MaxInferencesExceededError> =>
   Effect.gen(function* () {
     const startTime = yield* DateTime.now;
     const state = initializeState(initialQuads);
@@ -226,8 +214,7 @@ export const forwardChain = (
     }
 
     const endTime = yield* DateTime.now;
-    const durationMs =
-      DateTime.toEpochMillis(endTime) - DateTime.toEpochMillis(startTime);
+    const durationMs = DateTime.toEpochMillis(endTime) - DateTime.toEpochMillis(startTime);
 
     return new InferenceResult({
       derivedTriples: state.derivedQuads,

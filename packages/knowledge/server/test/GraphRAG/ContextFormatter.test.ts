@@ -7,7 +7,7 @@
  * @since 0.1.0
  */
 
-import {Entity, Relation} from "@beep/knowledge-domain/entities";
+import { Entity, Relation } from "@beep/knowledge-domain/entities";
 import {
   estimateTokens,
   formatContext,
@@ -15,9 +15,9 @@ import {
   formatEntity,
   truncateToTokenBudget,
 } from "@beep/knowledge-server/GraphRAG/ContextFormatter";
-import {extractLocalName} from "@beep/knowledge-server/Ontology/constants";
-import {KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
-import {assertTrue, describe, effect, strictEqual } from "@beep/testkit";
+import { extractLocalName } from "@beep/knowledge-server/Ontology/constants";
+import { KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
+import { assertTrue, describe, effect, strictEqual } from "@beep/testkit";
 import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as DateTime from "effect/DateTime";
@@ -183,7 +183,7 @@ describe("ContextFormatter", () => {
 
       const context = formatContext(entities, relations);
 
-      assertTrue(context.includes("\"30\""));
+      assertTrue(context.includes('"30"'));
       assertTrue(context.includes("xsd:integer"));
     })
   );

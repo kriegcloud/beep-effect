@@ -54,16 +54,14 @@ const isWildcard = (v: sparqljs.Variable | sparqljs.Wildcard): v is sparqljs.Wil
 /**
  * Check if a value is a VariableTerm
  */
-const isVariableTerm = (
-  v: sparqljs.Variable | sparqljs.Wildcard | sparqljs.VariableTerm
-): v is sparqljs.VariableTerm => "termType" in v && v.termType === "Variable";
+const isVariableTerm = (v: sparqljs.Variable | sparqljs.Wildcard | sparqljs.VariableTerm): v is sparqljs.VariableTerm =>
+  "termType" in v && v.termType === "Variable";
 
 /**
  * Check if a value is a VariableExpression
  */
-const isVariableExpression = (
-  v: sparqljs.Variable | sparqljs.Wildcard
-): v is sparqljs.VariableExpression => "variable" in v && v.variable !== undefined;
+const isVariableExpression = (v: sparqljs.Variable | sparqljs.Wildcard): v is sparqljs.VariableExpression =>
+  "variable" in v && v.variable !== undefined;
 
 /**
  * Extract variable name from a Variable or Wildcard element
@@ -187,9 +185,7 @@ export class SparqlParser extends Effect.Service<SparqlParser>()("@beep/knowledg
        *
        * @since 0.1.0
        */
-      parse: (
-        queryString: string
-      ): Effect.Effect<ParseResult, SparqlSyntaxError | SparqlUnsupportedFeatureError> =>
+      parse: (queryString: string): Effect.Effect<ParseResult, SparqlSyntaxError | SparqlUnsupportedFeatureError> =>
         Effect.gen(function* () {
           // Parse with sparqljs (synchronous, may throw)
           const ast = yield* Effect.try({

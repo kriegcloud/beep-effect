@@ -30,9 +30,7 @@ const testEntityId1 = KnowledgeEntityIds.KnowledgeEntityId.make(
 const testEntityId2 = KnowledgeEntityIds.KnowledgeEntityId.make(
   "knowledge_entity__22222222-2222-2222-2222-222222222222"
 );
-const testRelationId = KnowledgeEntityIds.RelationId.make(
-  "knowledge_relation__33333333-3333-3333-3333-333333333333"
-);
+const testRelationId = KnowledgeEntityIds.RelationId.make("knowledge_relation__33333333-3333-3333-3333-333333333333");
 
 // Test context
 const createTestContext = (): GraphContext => ({
@@ -40,9 +38,7 @@ const createTestContext = (): GraphContext => ({
     { id: testEntityId1, mention: "Alice", types: ["Person"] },
     { id: testEntityId2, mention: "Acme Corp", types: ["Organization"] },
   ],
-  relations: [
-    { id: testRelationId, subjectId: testEntityId1, predicate: "worksFor", objectId: testEntityId2 },
-  ],
+  relations: [{ id: testRelationId, subjectId: testEntityId1, predicate: "worksFor", objectId: testEntityId2 }],
 });
 
 // Mock LLM response with citations
@@ -73,14 +69,10 @@ const buildTextResponse = (text: string): Array<Response.PartEncoded> => [
  * raw text responses for generators that use generateText.
  */
 const withTextLanguageModel: {
-  (text: string): <A, E, R>(
-    effect: Effect.Effect<A, E, R>
-  ) => Effect.Effect<A, E, Exclude<R, LanguageModel.LanguageModel>>;
-  <A, E, R>(effect: Effect.Effect<A, E, R>, text: string): Effect.Effect<
-    A,
-    E,
-    Exclude<R, LanguageModel.LanguageModel>
-  >;
+  (
+    text: string
+  ): <A, E, R>(effect: Effect.Effect<A, E, R>) => Effect.Effect<A, E, Exclude<R, LanguageModel.LanguageModel>>;
+  <A, E, R>(effect: Effect.Effect<A, E, R>, text: string): Effect.Effect<A, E, Exclude<R, LanguageModel.LanguageModel>>;
 } = dual(2, <A, E, R>(effect: Effect.Effect<A, E, R>, text: string) => {
   const makeService = LanguageModel.make({
     generateText: () => Effect.succeed(buildTextResponse(text)),

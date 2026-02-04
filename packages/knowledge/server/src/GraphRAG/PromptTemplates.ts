@@ -90,7 +90,8 @@ export interface PromptParts {
  * @since 0.1.0
  * @category prompts
  */
-export const GROUNDED_ANSWER_SYSTEM_PROMPT = `You are a knowledge assistant that answers questions using ONLY the provided context.
+export const GROUNDED_ANSWER_SYSTEM_PROMPT =
+  `You are a knowledge assistant that answers questions using ONLY the provided context.
 
 CITATION FORMAT (REQUIRED):
 - When mentioning an entity, cite it: {{entity:entity_id}}
@@ -123,9 +124,7 @@ RULES:
  */
 export const formatEntityForPrompt = (entity: GraphContextEntity): string => {
   const localTypes = A.map(entity.types, extractLocalName);
-  const typeStr = A.isNonEmptyReadonlyArray(localTypes)
-    ? A.join(localTypes, ", ")
-    : "Unknown";
+  const typeStr = A.isNonEmptyReadonlyArray(localTypes) ? A.join(localTypes, ", ") : "Unknown";
 
   const attrPart = F.pipe(
     O.fromNullable(entity.attributes),
@@ -190,9 +189,7 @@ export const formatRelationForPrompt = (
  * @since 0.1.0
  * @category utilities
  */
-const buildEntityLookup = (
-  entities: ReadonlyArray<GraphContextEntity>
-): HashMap.HashMap<string, GraphContextEntity> =>
+const buildEntityLookup = (entities: ReadonlyArray<GraphContextEntity>): HashMap.HashMap<string, GraphContextEntity> =>
   F.pipe(
     entities,
     A.map((e) => [e.id, e] as const),
@@ -217,12 +214,7 @@ const buildUserPrompt = (context: GraphContext, question: string): string => {
   const entityLookup = buildEntityLookup(context.entities);
 
   const entitiesSection = A.isNonEmptyReadonlyArray(context.entities)
-    ? F.pipe(
-        context.entities,
-        A.map(formatEntityForPrompt),
-        A.join("\n"),
-        (lines) => `### Entities\n${lines}`
-      )
+    ? F.pipe(context.entities, A.map(formatEntityForPrompt), A.join("\n"), (lines) => `### Entities\n${lines}`)
     : "### Entities\nNo entities available in context.";
 
   const relationsSection = A.isNonEmptyReadonlyArray(context.relations)
@@ -260,10 +252,7 @@ const buildUserPrompt = (context: GraphContext, question: string): string => {
  * @since 0.1.0
  * @category prompts
  */
-export const buildGroundedAnswerPrompt = (
-  context: GraphContext,
-  question: string
-): PromptParts => ({
+export const buildGroundedAnswerPrompt = (context: GraphContext, question: string): PromptParts => ({
   system: GROUNDED_ANSWER_SYSTEM_PROMPT,
   user: buildUserPrompt(context, question),
 });
@@ -346,7 +335,10 @@ export const extractCitations = (text: string): ReadonlyArray<ParsedCitation> =>
   }
 
   // Sort by position in text
-  return A.sort(citations, Order.mapInput(Order.number, (c: ParsedCitation) => c.matchStart));
+  return A.sort(
+    citations,
+    Order.mapInput(Order.number, (c: ParsedCitation) => c.matchStart)
+  );
 };
 
 /**

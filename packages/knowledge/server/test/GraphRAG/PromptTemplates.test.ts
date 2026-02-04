@@ -32,9 +32,7 @@ const testEntityId1 = KnowledgeEntityIds.KnowledgeEntityId.make(
 const testEntityId2 = KnowledgeEntityIds.KnowledgeEntityId.make(
   "knowledge_entity__22222222-2222-2222-2222-222222222222"
 );
-const testRelationId = KnowledgeEntityIds.RelationId.make(
-  "knowledge_relation__33333333-3333-3333-3333-333333333333"
-);
+const testRelationId = KnowledgeEntityIds.RelationId.make("knowledge_relation__33333333-3333-3333-3333-333333333333");
 
 // Test entities
 const createTestEntity = (
@@ -150,12 +148,7 @@ describe("PromptTemplates", () => {
         ];
         const entityLookup = HashMap.fromIterable(A.map(entities, (e) => [e.id, e] as const));
 
-        const relation = createTestRelation(
-          testRelationId,
-          testEntityId1,
-          "http://schema.org/worksFor",
-          testEntityId2
-        );
+        const relation = createTestRelation(testRelationId, testEntityId1, "http://schema.org/worksFor", testEntityId2);
 
         const formatted = formatRelationForPrompt(relation, entityLookup);
 
@@ -189,9 +182,7 @@ describe("PromptTemplates", () => {
             createTestEntity(testEntityId1, "Alice", ["http://schema.org/Person"]),
             createTestEntity(testEntityId2, "Acme Corp", ["http://schema.org/Organization"]),
           ],
-          relations: [
-            createTestRelation(testRelationId, testEntityId1, "http://schema.org/worksFor", testEntityId2),
-          ],
+          relations: [createTestRelation(testRelationId, testEntityId1, "http://schema.org/worksFor", testEntityId2)],
         };
 
         const prompts = buildGroundedAnswerPrompt(context, "Where does Alice work?");

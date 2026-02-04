@@ -8,12 +8,7 @@
  * @since 0.1.0
  */
 
-import {
-  Citation,
-  GroundedAnswer,
-  InferenceStep,
-  ReasoningTrace,
-} from "@beep/knowledge-server/GraphRAG/AnswerSchemas";
+import { Citation, GroundedAnswer, InferenceStep, ReasoningTrace } from "@beep/knowledge-server/GraphRAG/AnswerSchemas";
 import { KnowledgeEntityIds } from "@beep/shared-domain";
 import { assertTrue, describe, effect, strictEqual } from "@beep/testkit";
 import * as Effect from "effect/Effect";
@@ -27,9 +22,7 @@ const testEntityId1 = KnowledgeEntityIds.KnowledgeEntityId.make(
 const testEntityId2 = KnowledgeEntityIds.KnowledgeEntityId.make(
   "knowledge_entity__22222222-2222-2222-2222-222222222222"
 );
-const testRelationId = KnowledgeEntityIds.RelationId.make(
-  "knowledge_relation__33333333-3333-3333-3333-333333333333"
-);
+const testRelationId = KnowledgeEntityIds.RelationId.make("knowledge_relation__33333333-3333-3333-3333-333333333333");
 
 describe("AnswerSchemas", () => {
   describe("InferenceStep", () => {

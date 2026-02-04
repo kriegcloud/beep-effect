@@ -54,17 +54,21 @@ const generateTestQuads = (n: number): ReadonlyArray<Quad> =>
  * @param effect - The effect to measure
  * @returns Effect yielding the duration in milliseconds
  */
-const measureMs: <A, E, R>(effect: Effect.Effect<A, E, R>) => Effect.Effect<number, E, R> =
-  Effect.fn(function* <A, E, R>(effect: Effect.Effect<A, E, R>) {
-    const start = yield* Effect.clockWith((clock) => clock.currentTimeMillis);
-    yield* effect;
-    const end = yield* Effect.clockWith((clock) => clock.currentTimeMillis);
-    return end - start;
-  });
+const measureMs: <A, E, R>(effect: Effect.Effect<A, E, R>) => Effect.Effect<number, E, R> = Effect.fn(function* <
+  A,
+  E,
+  R,
+>(effect: Effect.Effect<A, E, R>) {
+  const start = yield* Effect.clockWith((clock) => clock.currentTimeMillis);
+  yield* effect;
+  const end = yield* Effect.clockWith((clock) => clock.currentTimeMillis);
+  return end - start;
+});
 
 describe("Rdf Performance Benchmarks", () => {
   describe("Batch Operations", () => {
-    live("should add 1000 quads via batch in under 100ms",
+    live(
+      "should add 1000 quads via batch in under 100ms",
       Effect.fn(function* () {
         const builder = yield* RdfBuilder;
         const store = yield* RdfStore;
@@ -87,7 +91,8 @@ describe("Rdf Performance Benchmarks", () => {
       }, Effect.provide(TestLayer))
     );
 
-    live("should document individual add performance baseline",
+    live(
+      "should document individual add performance baseline",
       Effect.fn(function* () {
         const store = yield* RdfStore;
         const quads = generateTestQuads(1000);
@@ -115,7 +120,8 @@ describe("Rdf Performance Benchmarks", () => {
   });
 
   describe("Query Performance", () => {
-    live("should match after bulk load efficiently",
+    live(
+      "should match after bulk load efficiently",
       Effect.fn(function* () {
         const builder = yield* RdfBuilder;
         const store = yield* RdfStore;
@@ -156,7 +162,8 @@ describe("Rdf Performance Benchmarks", () => {
       }, Effect.provide(TestLayer))
     );
 
-    live("should count matches efficiently",
+    live(
+      "should count matches efficiently",
       Effect.fn(function* () {
         const builder = yield* RdfBuilder;
         const store = yield* RdfStore;
@@ -179,7 +186,8 @@ describe("Rdf Performance Benchmarks", () => {
   });
 
   describe("Serialization Performance", () => {
-    live("should serialize 1000 quads to Turtle efficiently",
+    live(
+      "should serialize 1000 quads to Turtle efficiently",
       Effect.fn(function* () {
         const builder = yield* RdfBuilder;
         const serializer = yield* Serializer;
@@ -201,7 +209,8 @@ describe("Rdf Performance Benchmarks", () => {
       }, Effect.provide(TestLayer))
     );
 
-    live("should serialize 1000 quads to N-Triples efficiently",
+    live(
+      "should serialize 1000 quads to N-Triples efficiently",
       Effect.fn(function* () {
         const builder = yield* RdfBuilder;
         const serializer = yield* Serializer;
@@ -222,7 +231,8 @@ describe("Rdf Performance Benchmarks", () => {
       }, Effect.provide(TestLayer))
     );
 
-    live("should serialize quads directly without store efficiently",
+    live(
+      "should serialize quads directly without store efficiently",
       Effect.fn(function* () {
         const serializer = yield* Serializer;
         const quads = generateTestQuads(1000);
@@ -241,7 +251,8 @@ describe("Rdf Performance Benchmarks", () => {
   });
 
   describe("Stress Tests", () => {
-    live("should handle 10000 quads batch add",
+    live(
+      "should handle 10000 quads batch add",
       Effect.fn(function* () {
         const builder = yield* RdfBuilder;
         const store = yield* RdfStore;
@@ -264,7 +275,8 @@ describe("Rdf Performance Benchmarks", () => {
       }, Effect.provide(TestLayer))
     );
 
-    live("should round-trip 1000 quads through serialization",
+    live(
+      "should round-trip 1000 quads through serialization",
       Effect.fn(function* () {
         const builder = yield* RdfBuilder;
         const serializer = yield* Serializer;

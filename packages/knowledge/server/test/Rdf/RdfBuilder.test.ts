@@ -9,7 +9,7 @@
 import { Literal, makeBlankNode, makeIRI, Quad, QuadPattern } from "@beep/knowledge-domain/value-objects";
 import { RdfBuilder } from "@beep/knowledge-server/Rdf/RdfBuilder";
 import { RdfStore } from "@beep/knowledge-server/Rdf/RdfStoreService";
-import { layer, strictEqual, assertTrue } from "@beep/testkit";
+import { assertTrue, layer, strictEqual } from "@beep/testkit";
 import * as A from "effect/Array";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
@@ -101,11 +101,7 @@ layer(TestLayer, { timeout: Duration.seconds(30) })("RdfBuilder", (it) => {
       yield* store.clear();
       const builder = yield* RdfBuilder;
 
-      yield* builder
-        .subject(fixtures.alice)
-        .predicate(fixtures.foafAge)
-        .typedLiteral("30", fixtures.xsdInteger)
-        .add();
+      yield* builder.subject(fixtures.alice).predicate(fixtures.foafAge).typedLiteral("30", fixtures.xsdInteger).add();
 
       const results = yield* store.match(
         new QuadPattern({

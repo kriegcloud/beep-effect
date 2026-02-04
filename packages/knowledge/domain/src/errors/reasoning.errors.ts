@@ -55,10 +55,7 @@ export class MaxInferencesExceededError extends S.TaggedError<MaxInferencesExcee
  * @since 0.1.0
  * @category errors
  */
-export class ReasoningError extends S.Union(
-  MaxDepthExceededError,
-  MaxInferencesExceededError
-).annotations(
+export class ReasoningError extends S.Union(MaxDepthExceededError, MaxInferencesExceededError).annotations(
   $I.annotations("ReasoningError", {
     description: "Union of all reasoning error types",
   })
