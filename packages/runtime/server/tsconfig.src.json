@@ -101,6 +101,9 @@
     },
     {
       "path": "../../../packages/knowledge/server"
+    },
+    {
+      "path": "../../../packages/integrations/google-workspace/server"
     }
   ],
   "compilerOptions": {

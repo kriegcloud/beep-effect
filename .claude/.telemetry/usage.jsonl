@@ -116,3 +116,11 @@
 {"eventType":"stop","timestamp":"2026-02-04T09:52:48.645Z","sessionId":"37bb4a2e-97c7-4ebe-866d-0d92907753f4","agentType":"test-writer","durationMs":408057,"outcome":"success"}
 {"eventType":"start","timestamp":"2026-02-04T09:53:49.616Z","sessionId":"37bb4a2e-97c7-4ebe-866d-0d92907753f4","agentType":"package-error-fixer","triggeredBy":"auto"}
 {"eventType":"stop","timestamp":"2026-02-04T10:08:35.387Z","sessionId":"37bb4a2e-97c7-4ebe-866d-0d92907753f4","agentType":"unknown","durationMs":0,"outcome":"success"}
+{"eventType":"start","timestamp":"2026-02-04T14:05:14.206Z","sessionId":"757380de-c583-4c88-8b4d-82a3f88aab01","agentType":"codebase-researcher","triggeredBy":"auto"}
+{"eventType":"stop","timestamp":"2026-02-04T14:07:02.235Z","sessionId":"757380de-c583-4c88-8b4d-82a3f88aab01","agentType":"codebase-researcher","durationMs":108029,"outcome":"success"}
+{"eventType":"start","timestamp":"2026-02-04T14:07:59.725Z","sessionId":"757380de-c583-4c88-8b4d-82a3f88aab01","agentType":"effect-code-writer","triggeredBy":"auto"}
+{"eventType":"stop","timestamp":"2026-02-04T14:13:56.388Z","sessionId":"757380de-c583-4c88-8b4d-82a3f88aab01","agentType":"effect-code-writer","durationMs":356663,"outcome":"success"}
+{"eventType":"start","timestamp":"2026-02-04T14:14:38.610Z","sessionId":"757380de-c583-4c88-8b4d-82a3f88aab01","agentType":"test-writer","triggeredBy":"auto"}
+{"eventType":"stop","timestamp":"2026-02-04T14:31:46.208Z","sessionId":"757380de-c583-4c88-8b4d-82a3f88aab01","agentType":"test-writer","durationMs":1027598,"outcome":"success"}
+{"eventType":"start","timestamp":"2026-02-04T14:32:50.264Z","sessionId":"757380de-c583-4c88-8b4d-82a3f88aab01","agentType":"package-error-fixer","triggeredBy":"auto"}
+{"eventType":"stop","timestamp":"2026-02-04T14:45:11.874Z","sessionId":"757380de-c583-4c88-8b4d-82a3f88aab01","agentType":"package-error-fixer","durationMs":741610,"outcome":"success"}

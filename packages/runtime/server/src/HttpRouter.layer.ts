@@ -11,6 +11,7 @@ import * as Layer from "effect/Layer";
 import * as P from "effect/Predicate";
 import * as AuthContext from "./AuthContext.layer";
 import { BetterAuthRouterLive } from "./BetterAuthRouter.layer";
+import * as GoogleWorkspace from "./GoogleWorkspace.layer";
 import * as Logger from "./Logger.layer";
 import * as Rpc from "./Rpc.layer";
 
@@ -26,7 +27,8 @@ const CorsMiddleware = HttpLayerRouter.cors({
 });
 
 // Protected routes that require authentication
-const ProtectedRoutes = Layer.mergeAll(Rpc.layer).pipe(Layer.provide(AuthContext.layer));
+// GoogleWorkspace.layer requires AuthContext which is provided here
+const ProtectedRoutes = Layer.mergeAll(Rpc.layer, GoogleWorkspace.layer).pipe(Layer.provide(AuthContext.layer));
 
 // Public routes that don't require authentication
 // BetterAuthRouterLive handles authentication internally via Better Auth
