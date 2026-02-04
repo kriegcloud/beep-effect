@@ -287,8 +287,9 @@ export const evaluateFilter = (
           message: `Unknown expression type in FILTER`,
         })
       )
-    )
-  ).pipe(Effect.withSpan("FilterEvaluator.evaluateFilter"));
+    ),
+    Effect.withSpan("FilterEvaluator.evaluateFilter")
+  );
 
 /**
  * Operator handler type for cleaner dispatch

@@ -7,12 +7,12 @@
  * @since 0.1.0
  */
 import { Entities } from "@beep/knowledge-domain";
-import { EntityRepo } from "../../../db/repos/Entity.repo";
 import type { KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import { Policy } from "@beep/shared-domain";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
+import { EntityRepo } from "../../../db/repos/Entity.repo";
 
 interface Payload {
   readonly id: KnowledgeEntityIds.KnowledgeEntityId.Type;

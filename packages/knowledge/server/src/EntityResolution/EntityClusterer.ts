@@ -384,74 +384,74 @@ export class EntityClusterer extends Effect.Service<EntityClusterer>()($I`Entity
           config: ClusterConfig = {}
         ) =>
           Effect.gen(function* () {
-          const threshold = config.similarityThreshold ?? 0.85;
-          const maxClusterSize = config.maxClusterSize ?? 50;
-          const requireTypeCompatibility = config.requireTypeCompatibility ?? true;
+            const threshold = config.similarityThreshold ?? 0.85;
+            const maxClusterSize = config.maxClusterSize ?? 50;
+            const requireTypeCompatibility = config.requireTypeCompatibility ?? true;
 
-          // Collect all entities
-          const allEntities: AssembledEntity[] = [];
-          for (const graph of graphs) {
-            for (const entity of graph.entities) {
-              allEntities.push(entity);
+            // Collect all entities
+            const allEntities: AssembledEntity[] = [];
+            for (const graph of graphs) {
+              for (const entity of graph.entities) {
+                allEntities.push(entity);
+              }
             }
-          }
 
-          if (A.isEmptyReadonlyArray(allEntities)) {
-            yield* Effect.logDebug("EntityClusterer.cluster: no entities to cluster");
-            return [];
-          }
-
-          yield* Effect.logInfo("EntityClusterer.cluster: starting", {
-            entityCount: allEntities.length,
-            threshold,
-            maxClusterSize,
-            requireTypeCompatibility,
-          });
-
-          // Generate embeddings for all entities
-          const embeddings = MutableHashMap.empty<string, readonly number[]>();
-
-          for (const entity of allEntities) {
-            const text = formatEntityForEmbedding(entity);
-            const embedding = yield* embeddingService
-              .getOrCreate(text, "clustering", organizationId, ontologyId)
-              .pipe(Effect.catchAll(() => Effect.succeed([] as readonly number[])));
-
-            if (A.isNonEmptyReadonlyArray(embedding)) {
-              MutableHashMap.set(embeddings, entity.id, embedding);
+            if (A.isEmptyReadonlyArray(allEntities)) {
+              yield* Effect.logDebug("EntityClusterer.cluster: no entities to cluster");
+              return [];
             }
-          }
 
-          yield* Effect.logDebug("EntityClusterer.cluster: embeddings generated", {
-            embeddedCount: MutableHashMap.size(embeddings),
-          });
+            yield* Effect.logInfo("EntityClusterer.cluster: starting", {
+              entityCount: allEntities.length,
+              threshold,
+              maxClusterSize,
+              requireTypeCompatibility,
+            });
 
-          // Compute similarity matrix
-          const similarities = computeSimilarities(allEntities, embeddings, threshold, requireTypeCompatibility);
+            // Generate embeddings for all entities
+            const embeddings = MutableHashMap.empty<string, readonly number[]>();
 
-          yield* Effect.logDebug("EntityClusterer.cluster: similarities computed", {
-            pairCount: similarities.length,
-          });
+            for (const entity of allEntities) {
+              const text = formatEntityForEmbedding(entity);
+              const embedding = yield* embeddingService
+                .getOrCreate(text, "clustering", organizationId, ontologyId)
+                .pipe(Effect.catchAll(() => Effect.succeed([] as readonly number[])));
 
-          // Perform clustering
-          const clusters = agglomerativeClustering(allEntities, similarities, maxClusterSize);
+              if (A.isNonEmptyReadonlyArray(embedding)) {
+                MutableHashMap.set(embeddings, entity.id, embedding);
+              }
+            }
 
-          yield* Effect.logInfo("EntityClusterer.cluster: complete", {
-            clusterCount: clusters.length,
-            singletonCount: A.filter(clusters, (c) => c.memberIds.length === 1).length,
-            multiMemberCount: A.filter(clusters, (c) => c.memberIds.length > 1).length,
-          });
+            yield* Effect.logDebug("EntityClusterer.cluster: embeddings generated", {
+              embeddedCount: MutableHashMap.size(embeddings),
+            });
 
-          return clusters;
-        }).pipe(
-          Effect.withSpan("EntityClusterer.cluster", {
-            captureStackTrace: false,
-            attributes: {
-              graphCount: graphs.length,
-              threshold: config.similarityThreshold ?? 0.85,
-            },
-          })
-        )
+            // Compute similarity matrix
+            const similarities = computeSimilarities(allEntities, embeddings, threshold, requireTypeCompatibility);
+
+            yield* Effect.logDebug("EntityClusterer.cluster: similarities computed", {
+              pairCount: similarities.length,
+            });
+
+            // Perform clustering
+            const clusters = agglomerativeClustering(allEntities, similarities, maxClusterSize);
+
+            yield* Effect.logInfo("EntityClusterer.cluster: complete", {
+              clusterCount: clusters.length,
+              singletonCount: A.filter(clusters, (c) => c.memberIds.length === 1).length,
+              multiMemberCount: A.filter(clusters, (c) => c.memberIds.length > 1).length,
+            });
+
+            return clusters;
+          }).pipe(
+            Effect.withSpan("EntityClusterer.cluster", {
+              captureStackTrace: false,
+              attributes: {
+                graphCount: graphs.length,
+                threshold: config.similarityThreshold ?? 0.85,
+              },
+            })
+          )
       ),
 
       /**
@@ -473,44 +473,44 @@ export class EntityClusterer extends Effect.Service<EntityClusterer>()($I`Entity
           threshold = 0.8
         ) =>
           Effect.gen(function* () {
-          const queryText = formatEntityForEmbedding(queryEntity);
-          const queryEmbedding = yield* embeddingService.getOrCreate(
-            queryText,
-            "search_query",
-            organizationId,
-            ontologyId
-          );
+            const queryText = formatEntityForEmbedding(queryEntity);
+            const queryEmbedding = yield* embeddingService.getOrCreate(
+              queryText,
+              "search_query",
+              organizationId,
+              ontologyId
+            );
 
-          const results = A.empty<{ readonly entity: AssembledEntity; readonly similarity: number }>();
+            const results = A.empty<{ readonly entity: AssembledEntity; readonly similarity: number }>();
 
-          for (const candidate of candidateEntities) {
-            if (candidate.id === queryEntity.id) continue;
+            for (const candidate of candidateEntities) {
+              if (candidate.id === queryEntity.id) continue;
 
-            const candidateText = formatEntityForEmbedding(candidate);
-            const candidateEmbedding = yield* embeddingService
-              .getOrCreate(candidateText, "search_document", organizationId, ontologyId)
-              .pipe(Effect.catchAll(() => Effect.succeed([] as readonly number[])));
+              const candidateText = formatEntityForEmbedding(candidate);
+              const candidateEmbedding = yield* embeddingService
+                .getOrCreate(candidateText, "search_document", organizationId, ontologyId)
+                .pipe(Effect.catchAll(() => Effect.succeed([] as readonly number[])));
 
-            if (A.isEmptyReadonlyArray(candidateEmbedding)) continue;
+              if (A.isEmptyReadonlyArray(candidateEmbedding)) continue;
 
-            const similarity = cosineSimilarity(queryEmbedding, candidateEmbedding);
+              const similarity = cosineSimilarity(queryEmbedding, candidateEmbedding);
 
-            if (similarity >= threshold) {
-              results.push({ entity: candidate, similarity });
+              if (similarity >= threshold) {
+                results.push({ entity: candidate, similarity });
+              }
             }
-          }
 
-          // Sort by similarity descending
-          return A.sort(
-            results,
-            Order.reverse(
-              Order.mapInput(
-                Order.number,
-                (r: { readonly entity: AssembledEntity; readonly similarity: number }) => r.similarity
+            // Sort by similarity descending
+            return A.sort(
+              results,
+              Order.reverse(
+                Order.mapInput(
+                  Order.number,
+                  (r: { readonly entity: AssembledEntity; readonly similarity: number }) => r.similarity
+                )
               )
-            )
-          );
-        })
+            );
+          })
       ),
     };
   }),

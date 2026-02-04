@@ -7,12 +7,12 @@
  * @since 0.1.0
  */
 
-import type { ClassifiedEntity } from "../Extraction/schemas/entity-output.schema";
-import type { ExtractedMention } from "../Extraction/schemas/mention-output.schema";
 import { thunkEmptyStr } from "@beep/utils";
 import * as A from "effect/Array";
 import * as F from "effect/Function";
 import * as O from "effect/Option";
+import type { ClassifiedEntity } from "../Extraction/schemas/entity-output.schema";
+import type { ExtractedMention } from "../Extraction/schemas/mention-output.schema";
 import type { OntologyContext } from "../Ontology";
 
 /**

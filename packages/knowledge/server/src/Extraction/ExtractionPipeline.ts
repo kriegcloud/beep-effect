@@ -140,149 +140,146 @@ export interface ExtractionResult {
  * @since 0.1.0
  * @category services
  */
-export class ExtractionPipeline extends Effect.Service<ExtractionPipeline>()(
-  $I`ExtractionPipeline`,
-  {
-    accessors: true,
-    dependencies: [
-      NlpService.Default,
-      MentionExtractor.Default,
-      EntityExtractor.Default,
-      RelationExtractor.Default,
-      GraphAssembler.Default,
-      OntologyService.Default,
-    ],
-    effect: Effect.gen(function* () {
-      const nlp = yield* NlpService;
-      const mentionExtractor = yield* MentionExtractor;
-      const entityExtractor = yield* EntityExtractor;
-      const relationExtractor = yield* RelationExtractor;
-      const graphAssembler = yield* GraphAssembler;
-      const ontologyService = yield* OntologyService;
+export class ExtractionPipeline extends Effect.Service<ExtractionPipeline>()($I`ExtractionPipeline`, {
+  accessors: true,
+  dependencies: [
+    NlpService.Default,
+    MentionExtractor.Default,
+    EntityExtractor.Default,
+    RelationExtractor.Default,
+    GraphAssembler.Default,
+    OntologyService.Default,
+  ],
+  effect: Effect.gen(function* () {
+    const nlp = yield* NlpService;
+    const mentionExtractor = yield* MentionExtractor;
+    const entityExtractor = yield* EntityExtractor;
+    const relationExtractor = yield* RelationExtractor;
+    const graphAssembler = yield* GraphAssembler;
+    const ontologyService = yield* OntologyService;
 
-      return {
-        /**
-         * Run the full extraction pipeline
-         *
-         * @param text - Document text to extract from
-         * @param ontologyContent - Turtle content of the ontology
-         * @param config - Pipeline configuration
-         * @returns Extraction result
-         */
-        run: Effect.fnUntraced(function* (text: string, ontologyContent: string, config: ExtractionPipelineConfig) {
-          const startTime = yield* DateTime.now;
-          let totalTokens = 0;
+    return {
+      /**
+       * Run the full extraction pipeline
+       *
+       * @param text - Document text to extract from
+       * @param ontologyContent - Turtle content of the ontology
+       * @param config - Pipeline configuration
+       * @returns Extraction result
+       */
+      run: Effect.fnUntraced(function* (text: string, ontologyContent: string, config: ExtractionPipelineConfig) {
+        const startTime = yield* DateTime.now;
+        let totalTokens = 0;
 
-          yield* Effect.logInfo("Starting extraction pipeline", {
-            documentId: config.documentId,
-            textLength: text.length,
-          });
+        yield* Effect.logInfo("Starting extraction pipeline", {
+          documentId: config.documentId,
+          textLength: text.length,
+        });
 
-          // Stage 1: Load ontology
-          yield* Effect.logDebug("Loading ontology");
-          const ontologyContext = yield* ontologyService.load(config.ontologyId, ontologyContent);
+        // Stage 1: Load ontology
+        yield* Effect.logDebug("Loading ontology");
+        const ontologyContext = yield* ontologyService.load(config.ontologyId, ontologyContent);
 
-          // Stage 2: Chunk text
-          yield* Effect.logDebug("Chunking text");
-          const chunks = yield* nlp.chunkTextAll(text, config.chunkingConfig ?? defaultChunkingConfig);
+        // Stage 2: Chunk text
+        yield* Effect.logDebug("Chunking text");
+        const chunks = yield* nlp.chunkTextAll(text, config.chunkingConfig ?? defaultChunkingConfig);
 
-          yield* Effect.logInfo("Text chunked", { chunkCount: chunks.length });
+        yield* Effect.logInfo("Text chunked", { chunkCount: chunks.length });
 
-          // Stage 3: Extract mentions from each chunk
-          yield* Effect.logDebug("Extracting mentions");
+        // Stage 3: Extract mentions from each chunk
+        yield* Effect.logDebug("Extracting mentions");
 
-          const mentionResults = yield* mentionExtractor.extractFromChunks(
-            [...chunks],
-            filterUndefined({
-              minConfidence: config.mentionMinConfidence,
-            })
-          );
+        const mentionResults = yield* mentionExtractor.extractFromChunks(
+          [...chunks],
+          filterUndefined({
+            minConfidence: config.mentionMinConfidence,
+          })
+        );
 
-          const allMentions = yield* mentionExtractor.mergeMentions(mentionResults);
-          totalTokens += A.reduce([...mentionResults], 0, (acc, r) => acc + r.tokensUsed);
+        const allMentions = yield* mentionExtractor.mergeMentions(mentionResults);
+        totalTokens += A.reduce([...mentionResults], 0, (acc, r) => acc + r.tokensUsed);
 
-          yield* Effect.logInfo("Mentions extracted", {
-            totalMentions: allMentions.length,
-          });
+        yield* Effect.logInfo("Mentions extracted", {
+          totalMentions: allMentions.length,
+        });
 
-          // Stage 4: Classify entities
-          yield* Effect.logDebug("Classifying entities");
-          const entityResult = yield* entityExtractor.classify(
-            allMentions,
-            ontologyContext,
-            filterUndefined({
-              minConfidence: config.entityMinConfidence,
-              batchSize: config.entityBatchSize,
-            })
-          );
+        // Stage 4: Classify entities
+        yield* Effect.logDebug("Classifying entities");
+        const entityResult = yield* entityExtractor.classify(
+          allMentions,
+          ontologyContext,
+          filterUndefined({
+            minConfidence: config.entityMinConfidence,
+            batchSize: config.entityBatchSize,
+          })
+        );
 
-          totalTokens += entityResult.tokensUsed;
+        totalTokens += entityResult.tokensUsed;
 
-          yield* Effect.logInfo("Entities classified", {
-            validEntities: entityResult.entities.length,
-            invalidTypes: entityResult.invalidTypes.length,
-          });
+        yield* Effect.logInfo("Entities classified", {
+          validEntities: entityResult.entities.length,
+          invalidTypes: entityResult.invalidTypes.length,
+        });
 
-          // Stage 5: Extract relations
-          // Group entities by chunk for relation extraction
-          yield* Effect.logDebug("Extracting relations");
+        // Stage 5: Extract relations
+        // Group entities by chunk for relation extraction
+        yield* Effect.logDebug("Extracting relations");
 
-          // Map mentions back to chunks for context
-          const entitiesByChunk = mapEntitiesToChunks([...entityResult.entities], [...allMentions], [...chunks]);
+        // Map mentions back to chunks for context
+        const entitiesByChunk = mapEntitiesToChunks([...entityResult.entities], [...allMentions], [...chunks]);
 
-          const relationResult = yield* relationExtractor.extractFromChunks(
-            entitiesByChunk,
-            [...chunks],
-            ontologyContext,
-            filterUndefined({
-              minConfidence: config.relationMinConfidence,
-              validatePredicates: true,
-            })
-          );
+        const relationResult = yield* relationExtractor.extractFromChunks(
+          entitiesByChunk,
+          [...chunks],
+          ontologyContext,
+          filterUndefined({
+            minConfidence: config.relationMinConfidence,
+            validatePredicates: true,
+          })
+        );
 
-          totalTokens += relationResult.tokensUsed;
+        totalTokens += relationResult.tokensUsed;
 
-          const dedupedRelations = yield* relationExtractor.deduplicateRelations(relationResult.triples);
+        const dedupedRelations = yield* relationExtractor.deduplicateRelations(relationResult.triples);
 
-          yield* Effect.logInfo("Relations extracted", {
-            totalRelations: dedupedRelations.length,
-          });
+        yield* Effect.logInfo("Relations extracted", {
+          totalRelations: dedupedRelations.length,
+        });
 
-          // Stage 6: Assemble graph
-          yield* Effect.logDebug("Assembling knowledge graph");
-          const graph = yield* graphAssembler.assemble([...entityResult.entities], [...dedupedRelations], {
-            organizationId: config.organizationId,
-            ontologyId: config.ontologyId,
-            mergeEntities: config.mergeEntities ?? true,
-          });
+        // Stage 6: Assemble graph
+        yield* Effect.logDebug("Assembling knowledge graph");
+        const graph = yield* graphAssembler.assemble([...entityResult.entities], [...dedupedRelations], {
+          organizationId: config.organizationId,
+          ontologyId: config.ontologyId,
+          mergeEntities: config.mergeEntities ?? true,
+        });
 
-          const endTime = yield* DateTime.now;
-          const durationMs = Duration.toMillis(DateTime.distance(startTime, endTime));
+        const endTime = yield* DateTime.now;
+        const durationMs = Duration.toMillis(DateTime.distance(startTime, endTime));
 
-          yield* Effect.logInfo("Extraction pipeline complete", {
+        yield* Effect.logInfo("Extraction pipeline complete", {
+          entityCount: graph.stats.entityCount,
+          relationCount: graph.stats.relationCount,
+          tokensUsed: totalTokens,
+          durationMs,
+        });
+
+        return {
+          graph,
+          stats: {
+            chunkCount: chunks.length,
+            mentionCount: allMentions.length,
             entityCount: graph.stats.entityCount,
             relationCount: graph.stats.relationCount,
             tokensUsed: totalTokens,
             durationMs,
-          });
-
-          return {
-            graph,
-            stats: {
-              chunkCount: chunks.length,
-              mentionCount: allMentions.length,
-              entityCount: graph.stats.entityCount,
-              relationCount: graph.stats.relationCount,
-              tokensUsed: totalTokens,
-              durationMs,
-            },
-            config,
-          };
-        }),
-      };
-    }),
-  }
-) {}
+          },
+          config,
+        };
+      }),
+    };
+  }),
+}) {}
 
 /**
  * Map classified entities back to their source chunks

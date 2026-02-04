@@ -8,13 +8,14 @@
  * @since 0.1.0
  */
 import { $KnowledgeDomainId } from "@beep/identity/packages";
+import { Attributes, Confidence } from "@beep/knowledge-domain/value-objects/attributes.value";
+import { EvidenceSpan } from "@beep/knowledge-domain/value-objects/evidence-span.value";
 import { BS } from "@beep/schema";
 import { KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import { makeFields } from "@beep/shared-domain/common";
 import { modelKit } from "@beep/shared-domain/factories";
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
-import { Attributes, Confidence, EvidenceSpan } from "../../value-objects";
 
 const $I = $KnowledgeDomainId.create("entities/Entity");
 

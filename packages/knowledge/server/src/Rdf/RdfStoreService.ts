@@ -332,9 +332,7 @@ export class RdfStore extends Effect.Service<RdfStore>()($I`RdfStore`, {
       )
     );
 
-    const hasQuad = Effect.fn("RdfStore.hasQuad")((quad: Quad) =>
-      Effect.sync(() => store.has(quadToN3(quad)))
-    );
+    const hasQuad = Effect.fn("RdfStore.hasQuad")((quad: Quad) => Effect.sync(() => store.has(quadToN3(quad))));
 
     const match = Effect.fn("RdfStore.match")((pattern: QuadPattern) =>
       Effect.sync(() => {

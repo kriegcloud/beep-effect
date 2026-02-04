@@ -39,6 +39,7 @@ import type { RdfStore } from "../Rdf/RdfStoreService";
  */
 type TermType = IRI.Type | BlankNode.Type | Literal;
 type VariableNameType = S.Schema.Type<typeof VariableName>;
+
 import { evaluateFilters, type SolutionBindings } from "./FilterEvaluator";
 
 /**

@@ -24,6 +24,7 @@ import { pipe } from "effect/Function";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as MutableHashSet from "effect/MutableHashSet";
 import * as O from "effect/Option";
+import * as R from "effect/Record";
 import { quadId, type RuleInference, rdfsRules } from "./RdfsRules";
 
 /**
@@ -43,7 +44,7 @@ interface ChainState {
  */
 const initializeState = (initialQuads: ReadonlyArray<Quad>): ChainState => {
   const knownQuadIds = MutableHashSet.empty<string>();
-  const allQuads: Quad[] = [];
+  const allQuads = A.empty<Quad>();
 
   // Deduplicate initial quads using functional filter
   const uniqueQuads = pipe(
@@ -145,7 +146,7 @@ const wouldGenerateMore = (state: ChainState): boolean =>
 const finalizeProvenance = (
   provenance: MutableHashMap.MutableHashMap<string, InferenceProvenance>
 ): Record<string, InferenceProvenance> => {
-  const result: Record<string, InferenceProvenance> = {};
+  const result = R.empty<string, InferenceProvenance>();
   MutableHashMap.forEach(provenance, (value, key) => {
     result[key] = value;
   });

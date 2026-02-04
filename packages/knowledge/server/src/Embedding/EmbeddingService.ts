@@ -10,7 +10,6 @@
 
 import { $KnowledgeServerId } from "@beep/identity/packages";
 import type { Entities } from "@beep/knowledge-domain";
-import { EmbeddingRepo } from "../db/repos/Embedding.repo";
 import { KnowledgeEntityIds, type SharedEntityIds } from "@beep/shared-domain";
 import { thunkEmptyStr, thunkFalse, thunkTrue } from "@beep/utils";
 import type * as AiError from "@effect/ai/AiError";
@@ -23,6 +22,7 @@ import * as Match from "effect/Match";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as O from "effect/Option";
 import * as Str from "effect/String";
+import { EmbeddingRepo } from "../db/repos/Embedding.repo";
 import type { AssembledEntity } from "../Extraction/GraphAssembler";
 import { formatEntityForEmbedding } from "../utils/formatting";
 import { EmbeddingError, type TaskType } from "./EmbeddingProvider";

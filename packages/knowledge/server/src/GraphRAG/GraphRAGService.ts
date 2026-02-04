@@ -9,8 +9,6 @@
  */
 import { $KnowledgeServerId } from "@beep/identity/packages";
 import { Entities } from "@beep/knowledge-domain";
-import { EntityRepo } from "../db/repos/Entity.repo";
-import { RelationRepo } from "../db/repos/Relation.repo";
 import { BS } from "@beep/schema";
 import { KnowledgeEntityIds, type SharedEntityIds } from "@beep/shared-domain";
 import type { DatabaseError } from "@beep/shared-domain/errors";
@@ -25,6 +23,8 @@ import * as Order from "effect/Order";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Struct from "effect/Struct";
+import { EntityRepo } from "../db/repos/Entity.repo";
+import { RelationRepo } from "../db/repos/Relation.repo";
 import { type EmbeddingError, EmbeddingService } from "../Embedding";
 import { formatContextWithScores, truncateToTokenBudget } from "./ContextFormatter";
 import { assignGraphRanks, fuseRankings } from "./RrfScorer";

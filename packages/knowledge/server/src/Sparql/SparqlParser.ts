@@ -135,7 +135,7 @@ const extractVariables = (ast: sparqljs.SparqlQuery): ReadonlyArray<string> =>
     O.liftPredicate(isSelectQuery),
     O.flatMap((selectQuery) => O.fromNullable(selectQuery.variables)),
     O.map((variables) => A.filterMap(variables, extractVariableName)),
-    O.getOrElse(() => A.empty<string>())
+    O.getOrElse(A.empty<string>)
   );
 
 /**

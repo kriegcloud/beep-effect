@@ -134,9 +134,8 @@ export class CanonicalSelector extends Effect.Service<CanonicalSelector>()($I`Ca
      * @param config - Selection configuration
      * @returns Selected canonical entity
      */
-    selectCanonical: Effect.fn(
-      (cluster: readonly AssembledEntity[], config: CanonicalSelectorConfig = {}) =>
-        Effect.gen(function* () {
+    selectCanonical: Effect.fn((cluster: readonly AssembledEntity[], config: CanonicalSelectorConfig = {}) =>
+      Effect.gen(function* () {
         if (A.isEmptyReadonlyArray(cluster)) {
           return yield* new CanonicalSelectionError({
             message: "Cannot select canonical from empty cluster",
@@ -247,9 +246,8 @@ export class CanonicalSelector extends Effect.Service<CanonicalSelector>()($I`Ca
      * @param members - Other cluster members
      * @returns Canonical entity with merged attributes
      */
-    mergeAttributes: Effect.fn(
-      (canonical: AssembledEntity, members: readonly AssembledEntity[]) =>
-        Effect.gen(function* () {
+    mergeAttributes: Effect.fn((canonical: AssembledEntity, members: readonly AssembledEntity[]) =>
+      Effect.gen(function* () {
         if (A.isEmptyReadonlyArray(members)) {
           return canonical;
         }

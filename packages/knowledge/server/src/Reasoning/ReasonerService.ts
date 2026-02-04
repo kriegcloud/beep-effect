@@ -50,9 +50,7 @@ export class ReasonerService extends Effect.Service<ReasonerService>()($I`Reason
      * Core inference logic - shared between infer and inferAndMaterialize
      */
     const runInference = Effect.fn("ReasonerService.runInference")(
-      (
-        config: ReasoningConfig
-      ): Effect.Effect<InferenceResult, MaxDepthExceededError | MaxInferencesExceededError> =>
+      (config: ReasoningConfig): Effect.Effect<InferenceResult, MaxDepthExceededError | MaxInferencesExceededError> =>
         Effect.gen(function* () {
           // Get all quads from the store using wildcard pattern
           const quads = yield* store.match(new QuadPattern({}));

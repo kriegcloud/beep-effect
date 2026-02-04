@@ -83,47 +83,44 @@ export class SameAsLinker extends Effect.Service<SameAsLinker>()($I`SameAsLinker
      * @returns Array of same-as links
      */
     generateLinks: Effect.fn(
-      (
-        clusters: readonly EntityCluster[],
-        entityConfidences: MutableHashMap.MutableHashMap<string, number>
-      ) =>
+      (clusters: readonly EntityCluster[], entityConfidences: MutableHashMap.MutableHashMap<string, number>) =>
         Effect.gen(function* () {
-        const links = A.empty<SameAsLink>();
+          const links = A.empty<SameAsLink>();
 
-        yield* Effect.logDebug("SameAsLinker.generateLinks: starting", {
-          clusterCount: clusters.length,
-        });
+          yield* Effect.logDebug("SameAsLinker.generateLinks: starting", {
+            clusterCount: clusters.length,
+          });
 
-        for (const cluster of clusters) {
-          // Skip singleton clusters (no links needed)
-          if (cluster.memberIds.length <= 1) {
-            continue;
-          }
-
-          for (const memberId of cluster.memberIds) {
-            // Don't create self-link for canonical
-            if (memberId === cluster.canonicalEntityId) {
+          for (const cluster of clusters) {
+            // Skip singleton clusters (no links needed)
+            if (cluster.memberIds.length <= 1) {
               continue;
             }
 
-            const confidence = O.getOrElse(MutableHashMap.get(entityConfidences, memberId), () => cluster.cohesion);
+            for (const memberId of cluster.memberIds) {
+              // Don't create self-link for canonical
+              if (memberId === cluster.canonicalEntityId) {
+                continue;
+              }
 
-            links.push({
-              id: KnowledgeEntityIds.SameAsLinkId.create(),
-              canonicalId: cluster.canonicalEntityId,
-              memberId,
-              confidence,
-            });
+              const confidence = O.getOrElse(MutableHashMap.get(entityConfidences, memberId), () => cluster.cohesion);
+
+              links.push({
+                id: KnowledgeEntityIds.SameAsLinkId.create(),
+                canonicalId: cluster.canonicalEntityId,
+                memberId,
+                confidence,
+              });
+            }
           }
-        }
 
-        yield* Effect.logInfo("SameAsLinker.generateLinks: complete", {
-          linkCount: links.length,
-          clusterCount: clusters.length,
-        });
+          yield* Effect.logInfo("SameAsLinker.generateLinks: complete", {
+            linkCount: links.length,
+            clusterCount: clusters.length,
+          });
 
-        return links;
-      })
+          return links;
+        })
     ),
 
     /**
@@ -143,29 +140,29 @@ export class SameAsLinker extends Effect.Service<SameAsLinker>()($I`SameAsLinker
         entitySources: MutableHashMap.MutableHashMap<string, string>
       ) =>
         Effect.gen(function* () {
-        const links = A.empty<SameAsLink>();
+          const links = A.empty<SameAsLink>();
 
-        for (const cluster of clusters) {
-          if (cluster.memberIds.length <= 1) continue;
+          for (const cluster of clusters) {
+            if (cluster.memberIds.length <= 1) continue;
 
-          for (const memberId of cluster.memberIds) {
-            if (memberId === cluster.canonicalEntityId) continue;
+            for (const memberId of cluster.memberIds) {
+              if (memberId === cluster.canonicalEntityId) continue;
 
-            const confidence = O.getOrElse(MutableHashMap.get(entityConfidences, memberId), () => cluster.cohesion);
-            const sourceIdOpt = MutableHashMap.get(entitySources, memberId);
+              const confidence = O.getOrElse(MutableHashMap.get(entityConfidences, memberId), () => cluster.cohesion);
+              const sourceIdOpt = MutableHashMap.get(entitySources, memberId);
 
-            links.push({
-              id: KnowledgeEntityIds.SameAsLinkId.create(),
-              canonicalId: cluster.canonicalEntityId,
-              memberId,
-              confidence,
-              ...(O.isSome(sourceIdOpt) && { sourceId: sourceIdOpt.value }),
-            });
+              links.push({
+                id: KnowledgeEntityIds.SameAsLinkId.create(),
+                canonicalId: cluster.canonicalEntityId,
+                memberId,
+                confidence,
+                ...(O.isSome(sourceIdOpt) && { sourceId: sourceIdOpt.value }),
+              });
+            }
           }
-        }
 
-        return links;
-      })
+          return links;
+        })
     ),
 
     /**

@@ -250,7 +250,7 @@ export const rdfs7: RdfsRule = {
       A.filter((q) => q.predicate === RDFS_SUBPROPERTY_OF)
     );
 
-    const inferences: RuleInference[] = [];
+    const inferences = A.empty<RuleInference>();
 
     for (const subPropDecl of subPropQuads) {
       const subProp = subPropDecl.subject;
@@ -311,7 +311,7 @@ export const rdfs9: RdfsRule = {
       A.filter((q) => q.predicate === RDFS_SUBCLASS_OF)
     );
 
-    const inferences: RuleInference[] = [];
+    const inferences = A.empty<RuleInference>();
 
     for (const typeQuad of typeQuads) {
       const instanceClass = typeQuad.object;
@@ -371,7 +371,7 @@ export const rdfs11: RdfsRule = {
       A.filter((q) => q.predicate === RDFS_SUBCLASS_OF)
     );
 
-    const inferences: RuleInference[] = [];
+    const inferences = A.empty<RuleInference>();
 
     for (const q1 of subClassQuads) {
       // Skip if object is a literal (invalid RDFS)
