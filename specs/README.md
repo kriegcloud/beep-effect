@@ -33,6 +33,7 @@ All spec-creation infrastructure lives in [`_guide/`](_guide/):
 | Spec | Description | Status |
 |------|-------------|--------|
 | [agent-config-optimization](agent-config-optimization/) | Agent configuration tuning | Active |
+| [ai-friendliness-10-of-10](ai-friendliness-10-of-10/) | Achieve 10/10 AI-friendliness through context engineering | **P0 Ready** |
 | [agent-context-optimization](agent-context-optimization/) | Git subtrees, module context, navigation index | **Complete** |
 | [agent-effectiveness-audit](agent-effectiveness-audit/) | Measure and improve agent infrastructure effectiveness | **Complete** |
 | [agent-infrastructure-rationalization](agent-infrastructure-rationalization/) | Agent config consolidation and IDE sync | **Complete** |
