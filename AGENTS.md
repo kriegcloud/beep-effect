@@ -104,9 +104,15 @@ Quick access to AI agent context resources.
 
 ### Library Reference
 
-| Library | Subtree | Index | Key Modules |
-|---------|---------|-------|-------------|
-| Effect | `.repos/effect/` | [INDEX](context/INDEX.md) | [Effect](context/effect/Effect.md), [Schema](context/effect/Schema.md), [Layer](context/effect/Layer.md), [Context](context/effect/Context.md), [Function](context/effect/Function.md) |
+| Library | Subtree | Purpose | Key Resources |
+|---------|---------|---------|---------------|
+| Effect | `.repos/effect/` | Core Effect library | [Effect](context/effect/Effect.md), [Schema](context/effect/Schema.md), [Layer](context/effect/Layer.md) |
+| better-auth | `.repos/better-auth/` | Authentication framework | Session handling, OAuth, credentials |
+| drizzle-orm | `.repos/drizzle-orm/` | ORM patterns | Schema definitions, migrations, queries |
+| effect-ontology | `.repos/effect-ontology/` | Knowledge graph patterns | RDF, triples, ontology modeling |
+| effect-claude-agent-sdk | `.repos/effect-claude-agent-sdk/` | Claude agent SDK | Tool definitions, agent patterns |
+
+See [subtree-workflow.md](documentation/subtree-workflow.md) for update procedures.
 
 ### Effect Modules by Tier
 
