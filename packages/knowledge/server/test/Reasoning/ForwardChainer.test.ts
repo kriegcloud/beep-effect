@@ -455,7 +455,7 @@ describe("ForwardChainer", () => {
           onLeft: (err: unknown) => assertTrue(err instanceof MaxInferencesExceededError),
           onRight: () => assertTrue(false),
         });
-      })
+      }) as Effect.Effect<void>
     );
 
     live("succeeds within inference limit", () =>
@@ -477,7 +477,7 @@ describe("ForwardChainer", () => {
         const result = yield* forwardChain(quads, config);
 
         assertTrue(result.stats.triplesInferred <= 100);
-      })
+      }) as Effect.Effect<void>
     );
   });
 
@@ -501,7 +501,7 @@ describe("ForwardChainer", () => {
         const result = yield* forwardChain(quads, config);
 
         assertTrue(A.length(result.derivedTriples) >= 1);
-      })
+      }) as Effect.Effect<void>
     );
   });
 });
