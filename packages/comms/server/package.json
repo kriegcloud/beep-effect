@@ -35,12 +35,12 @@
     "lint:circular": "bunx madge -c ."
   },
   "peerDependencies": {
+    "@beep/google-workspace-domain": "workspace:^",
     "@beep/shared-domain": "workspace:^",
+    "@beep/google-workspace-client": "workspace:^",
     "@beep/comms-domain": "workspace:^",
     "@beep/shared-server": "workspace:^",
     "@beep/comms-tables": "workspace:^",
-    "@beep/google-workspace-client": "workspace:^",
-    "@beep/google-workspace-domain": "workspace:^",
     "@effect/platform": "catalog:",
     "@effect/sql": "catalog:",
     "@effect/sql-drizzle": "catalog:",
@@ -49,12 +49,12 @@
     "effect": "catalog:"
   },
   "devDependencies": {
+    "@beep/google-workspace-domain": "workspace:^",
     "@beep/shared-domain": "workspace:^",
+    "@beep/google-workspace-client": "workspace:^",
     "@beep/comms-domain": "workspace:^",
     "@beep/shared-server": "workspace:^",
     "@beep/comms-tables": "workspace:^",
-    "@beep/google-workspace-client": "workspace:^",
-    "@beep/google-workspace-domain": "workspace:^",
     "@effect/docgen": "catalog:",
     "@effect/platform": "catalog:",
     "@effect/sql": "catalog:",

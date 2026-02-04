@@ -1,3 +1,3 @@
-export * from "./calendar.scopes.js";
-export * from "./drive.scopes.js";
-export * from "./gmail.scopes.js";
+export * from "./calendar.scopes";
+export * from "./drive.scopes";
+export * from "./gmail.scopes";

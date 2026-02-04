@@ -3,9 +3,6 @@
   "include": ["src"],
   "references": [
     {
-      "path": "../domain"
-    },
-    {
       "path": "../../../../packages/common/identity"
     },
     {
@@ -22,6 +19,9 @@
     },
     {
       "path": "../../../../packages/common/schema"
+    },
+    {
+      "path": "../../../../packages/integrations/google-workspace/domain"
     }
   ],
   "compilerOptions": {

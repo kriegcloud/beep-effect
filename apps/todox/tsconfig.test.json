@@ -63,6 +63,9 @@
       "path": "../../packages/common/constants"
     },
     {
+      "path": "../../packages/integrations/google-workspace/domain"
+    },
+    {
       "path": "../../packages/ui/core"
     },
     {
@@ -70,6 +73,9 @@
     },
     {
       "path": "../../packages/common/errors"
+    },
+    {
+      "path": "../../packages/integrations/google-workspace/client"
     },
     {
       "path": "../../packages/shared/domain"

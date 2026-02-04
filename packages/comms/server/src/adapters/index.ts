@@ -1,1 +1,1 @@
-export * from "./GmailAdapter.js";
+export * from "./GmailAdapter";

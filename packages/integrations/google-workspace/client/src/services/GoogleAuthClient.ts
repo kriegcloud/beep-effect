@@ -3,16 +3,18 @@ import type {
   GoogleOAuthToken,
   GoogleScopeExpansionRequiredError,
 } from "@beep/google-workspace-domain";
+import { $GoogleWorkspaceClientId } from "@beep/identity/packages";
 import * as Context from "effect/Context";
 import type * as Effect from "effect/Effect";
 
+const $I = $GoogleWorkspaceClientId.create("services/GoogleAuthClient");
 /**
  * GoogleAuthClient provides Effect-based OAuth token management for Google Workspace APIs.
  *
  * This service depends on AuthContext being available in the runtime, which provides
  * the user context and OAuth API methods needed to retrieve and validate tokens.
  */
-export class GoogleAuthClient extends Context.Tag("GoogleAuthClient")<
+export class GoogleAuthClient extends Context.Tag($I`GoogleAuthClient`)<
   GoogleAuthClient,
   {
     /**

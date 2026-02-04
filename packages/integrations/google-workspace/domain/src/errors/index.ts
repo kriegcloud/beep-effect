@@ -1,2 +1,2 @@
-export * from "./api.errors.js";
-export * from "./auth.errors.js";
+export * from "./api.errors";
+export * from "./auth.errors";

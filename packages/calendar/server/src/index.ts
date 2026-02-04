@@ -11,5 +11,5 @@
  * @module calendar-server
  * @since 0.1.0
  */
-export * from "./adapters/index.js";
+export * from "./adapters/index";
 export * from "./db";

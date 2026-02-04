@@ -438,7 +438,7 @@
     "@liveblocks/react": "^3.13.3",
     "@liveblocks/react-lexical": "^3.13.3",
     "@liveblocks/react-ui": "^3.13.3",
-    "markdown-to-jsx": "^9.6.1",
+    "markdown-to-jsx": "^9.7.0",
     "nanoid": "^5.1.6",
     "swr": "^2.4.0",
     "ag-grid-community": "^35.0.1",

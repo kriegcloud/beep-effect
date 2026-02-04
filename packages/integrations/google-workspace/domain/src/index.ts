@@ -1,3 +1,3 @@
-export * from "./errors/index.js";
-export * from "./models/index.js";
-export * from "./scopes/index.js";
+export * from "./errors/index";
+export * from "./models/index";
+export * from "./scopes/index";

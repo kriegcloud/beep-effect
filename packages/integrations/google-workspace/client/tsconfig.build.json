@@ -7,9 +7,6 @@
   },
   "references": [
     {
-      "path": "../domain/tsconfig.build.json"
-    },
-    {
       "path": "../../../../packages/common/identity/tsconfig.build.json"
     },
     {
@@ -26,6 +23,9 @@
     },
     {
       "path": "../../../../packages/common/schema/tsconfig.build.json"
+    },
+    {
+      "path": "../../../../packages/integrations/google-workspace/domain/tsconfig.build.json"
     }
   ]
 }

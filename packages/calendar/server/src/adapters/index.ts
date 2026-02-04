@@ -5,4 +5,4 @@ export {
   GoogleCalendarAdapterLive,
   REQUIRED_SCOPES,
   type UpdateEventInput,
-} from "./GoogleCalendarAdapter.js";
+} from "./GoogleCalendarAdapter";

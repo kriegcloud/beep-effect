@@ -12,4 +12,4 @@ export {
   GmailExtractionAdapterLive,
   REQUIRED_SCOPES as GMAIL_EXTRACTION_REQUIRED_SCOPES,
   type ThreadContext,
-} from "./GmailExtractionAdapter.js";
+} from "./GmailExtractionAdapter";

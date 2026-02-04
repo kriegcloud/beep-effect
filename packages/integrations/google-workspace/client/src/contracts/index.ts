@@ -1,1 +1,1 @@
-export * from "./oauth.contracts.js";
+export * from "./oauth.contracts";
