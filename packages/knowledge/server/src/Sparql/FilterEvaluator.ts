@@ -36,9 +36,11 @@ const XSD_NUMERIC_TYPES = [
 ] as const;
 
 /**
- * Check if a term is a Literal (class instance check)
+ * Check if a term is a Literal using structural check
+ * (instanceof can fail across module boundaries in monorepos)
  */
-const isLiteral = (term: Term): term is Literal => term instanceof Literal;
+const isLiteral = (term: Term): term is Literal =>
+  typeof term === "object" && term !== null && "value" in term;
 
 /**
  * Get the effective value of a term for comparison
