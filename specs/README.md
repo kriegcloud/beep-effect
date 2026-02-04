@@ -45,8 +45,11 @@ All spec-creation infrastructure lives in [`_guide/`](_guide/):
 | [html-sanitize-schema-test-parity](html-sanitize-schema-test-parity/) | Test parity between schema and utils HTML sanitization | Phase 0 |
 | [integration-architecture-migration](integration-architecture-migration/) | Migrate third-party integrations from packages/shared/integrations to three-tier architecture | Active |
 | [knowledge-effect-ai-migration](knowledge-effect-ai-migration/) | Migrate EmbeddingService to @effect/ai | **Complete** |
+| [knowledge-effect-ontology-audit](knowledge-effect-ontology-audit/) | Full audit comparing knowledge slice to effect-ontology for feature parity | **P0 Ready** |
+| [knowledge-entity-resolution-v2](knowledge-entity-resolution-v2/) | Entity resolution clustering v2 | Active |
 | [knowledge-graph-integration](knowledge-graph-integration/) | Document knowledge extraction | Active |
 | [knowledge-graph-poc-demo](knowledge-graph-poc-demo/) | Demo page showcasing knowledge graph extraction | **P1 Ready** |
+| [knowledge-workflow-durability](knowledge-workflow-durability/) | Durable extraction workflows with @effect/workflow + @effect/cluster | **P0 Ready** |
 | [lexical-editor-ai-features](lexical-editor-ai-features/) | AI features for Lexical editor | **Complete** |
 | [lexical-effect-alignment](lexical-effect-alignment/) | Effect-align lexical playground code (170+ files) | **P1 Ready** |
 | [liveblocks-lexical-ai-integration](liveblocks-lexical-ai-integration/) | Complete Liveblocks + Lexical AI integration with real APIs | **P1 Ready** |

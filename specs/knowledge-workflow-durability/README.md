@@ -1,6 +1,6 @@
 # Knowledge Workflow Durability (Phase 3)
 
-> Add @effect/workflow for durable execution with SSE progress streaming and batch state machine.
+> Integrate @effect/workflow and @effect/cluster for durable extraction pipelines with SSE progress streaming.
 
 ---
 
@@ -10,204 +10,296 @@
 
 ---
 
+> **CRITICAL: Follow effect-ontology Patterns**
+>
+> This spec uses the **actual** `@effect/workflow` and `@effect/cluster` packages.
+> Do NOT create custom persistence tables - `@effect/cluster` auto-creates its tables.
+>
+> **Reference Implementation**: `.repos/effect-ontology/packages/@core-v2/`
+>
+> **Key Files to Study**:
+> - `src/Runtime/Persistence/PostgresLayer.ts` - PostgreSQL persistence via @effect/cluster
+> - `src/Workflow/DurableActivities.ts` - Activity.make patterns
+> - `src/Service/WorkflowOrchestrator.ts` - Workflow.make and WorkflowEngine usage
+> - `src/Runtime/ClusterRuntime.ts` - SingleRunner layer composition
+> - `src/Cluster/ExtractionEntity.ts` - Entity.make with RPC definitions
+
+---
+
 ## Purpose
 
-This specification implements durable workflow execution for the knowledge extraction pipeline using @effect/workflow. The current ExtractionPipeline runs as a single Effect - if it fails mid-extraction, all progress is lost. This phase adds:
+This specification implements durable workflow execution for the knowledge extraction pipeline using `@effect/workflow` and `@effect/cluster`. The current ExtractionPipeline runs as a single Effect - if it fails mid-extraction, all progress is lost. This phase adds:
 
-1. **Durable activities** that survive server restarts
-2. **State machine** for batch processing with SSE progress streaming
-3. **PostgreSQL persistence** for workflow state
-4. **Cross-batch orchestration** for entity resolution coordination
-
-This is Phase 3 from the `knowledge-ontology-comparison` spec roadmap, running in parallel with Phase 0 (RDF Foundation), Phase 1 (Query Layer), and Phase 2 (Entity Resolution).
-
----
-
-## Complexity Classification
-
-Using the formula from `specs/_guide/README.md`:
-
-```
-Complexity = (Phases × 2) + (Agents × 3) + (CrossPkg × 4) + (ExtDeps × 3) + (Uncertainty × 5) + (Research × 2)
-```
-
-| Factor | Value | Contribution |
-|--------|-------|--------------|
-| Phases | 4 | 8 |
-| Agents | 3 | 9 |
-| Cross-Package Dependencies | 3 | 12 |
-| External Dependencies | 1 | 3 |
-| Uncertainty | 3 | 15 |
-| Research Required | 2 | 4 |
-| **Total** | | **51** |
-
-**Classification: High** (41-60 points)
-
-This is a multi-phase spec with significant architectural impact and moderate uncertainty around @effect/workflow integration patterns.
+1. **Durable activities** via `Activity.make` from `@effect/workflow`
+2. **Workflow engine** via `WorkflowEngine` from `@effect/workflow`
+3. **PostgreSQL persistence** via `SqlMessageStorage` and `SqlRunnerStorage` from `@effect/cluster`
+4. **SSE progress streaming** for real-time updates
+5. **Cross-batch orchestration** for entity resolution coordination
 
 ---
 
-## Background
+## Required Dependencies
 
-### Context
+**MUST add these packages to `packages/knowledge/server/package.json`:**
 
-The knowledge slice ExtractionPipeline runs as a single Effect - if it fails mid-extraction, all progress is lost. The effect-ontology reference implementation uses @effect/workflow for:
-
-1. Durable activities that checkpoint progress at each stage
-2. State machine for batch processing with real-time SSE progress
-3. PostgreSQL persistence for workflow execution state
-4. Cross-batch orchestration for entity resolution coordination
-
-### Related Specs
-
-| Spec | Status | Relationship |
-|------|--------|--------------|
-| `specs/knowledge-architecture-foundation/` | COMPLETE | **Predecessor** - Package allocation |
-| `specs/knowledge-ontology-comparison/` | COMPLETE | Source of roadmap |
-| `specs/knowledge-rdf-foundation/` | PLANNED | **Parallel** - No dependency |
-| `specs/knowledge-entity-resolution-v2/` | PLANNED | **Parallel** - No dependency |
-
-### Key Documents
-
-- [IMPLEMENTATION_ROADMAP.md](../knowledge-ontology-comparison/outputs/IMPLEMENTATION_ROADMAP.md) - Phase 3 details
-- [PACKAGE_ALLOCATION.md](../knowledge-architecture-foundation/outputs/PACKAGE_ALLOCATION.md) - Package boundaries
-- [ARCHITECTURE_DECISIONS.md](../knowledge-architecture-foundation/outputs/ARCHITECTURE_DECISIONS.md) - Layer rules
-
----
-
-## Goals
-
-1. **@effect/workflow Integration**
-   - Integrate @effect/workflow runtime with PostgreSQL backend
-   - Define workflow execution tables
-   - Create workflow service layer
-
-2. **ExtractionWorkflow Definition**
-   - Convert ExtractionPipeline to durable workflow
-   - Define activities for each extraction stage
-   - Implement checkpoint logic at stage boundaries
-
-3. **Durable Activities**
-   - ChunkText activity (durable)
-   - ExtractMentions activity (durable, per-chunk)
-   - ClassifyEntities activity (durable, batched)
-   - ExtractRelations activity (durable, per-chunk)
-   - AssembleGraph activity (durable)
-
-4. **SSE Progress Streaming**
-   - Define progress event schema
-   - Implement SSE stream for real-time updates
-   - Connect workflow signals to SSE events
-
-5. **Batch State Machine**
-   - Define batch processing states
-   - Implement state transitions
-   - Handle batch lifecycle (queued → processing → completed → failed)
-
-6. **Cross-Batch Orchestration**
-   - Coordinate entity resolution across batches
-   - Track batch dependencies
-   - Handle batch retry and recovery
-
----
-
-## Non-Goals
-
-- **NOT** modifying existing ExtractionPipeline behavior (additive only)
-- **NOT** implementing new extraction algorithms (reuse existing)
-- **NOT** implementing RDF store or SPARQL services (Phase 0-1)
-- **NOT** implementing entity resolution enhancements (Phase 2)
-- **NOT** implementing GraphRAG enhancements (Phase 4)
-- **NOT** implementing production resilience patterns (Phase 5)
-
-This spec focuses on workflow durability infrastructure only.
-
----
-
-## Deliverables
-
-| Document | Purpose | Location |
-|----------|---------|----------|
-| WORKFLOW_ARCHITECTURE.md | Workflow design, activity definitions, state machine | outputs/ |
-| IMPLEMENTATION_GUIDE.md | Step-by-step implementation instructions | outputs/ |
-| MIGRATION_PLAN.md | Gradual migration from ExtractionPipeline to ExtractionWorkflow | outputs/ |
-
----
-
-## Phase Overview
-
-| Phase | Description | Agent | Output |
-|-------|-------------|-------|--------|
-| **P1** | @effect/workflow integration + persistence tables | codebase-researcher, doc-writer | Integration layer, table schemas |
-| **P2** | ExtractionWorkflow definition + durable activities | effect-code-writer | Workflow implementation |
-| **P3** | SSE progress streaming | effect-code-writer | Progress stream service |
-| **P4** | Batch state machine + cross-batch orchestration | effect-code-writer | State machine implementation |
-
----
-
-## Workflow Architecture
-
-```
-ExtractionWorkflow (Durable)
-  |
-  +-- Activity: ChunkText
-  |     |
-  |     +-- Checkpoint: Chunks persisted
-  |
-  +-- Activity: ExtractMentions (per-chunk, parallel)
-  |     |
-  |     +-- Checkpoint: Mentions persisted (per chunk)
-  |
-  +-- Activity: ClassifyEntities (batched)
-  |     |
-  |     +-- Checkpoint: Entities persisted (per batch)
-  |
-  +-- Activity: ExtractRelations (per-chunk, parallel)
-  |     |
-  |     +-- Checkpoint: Relations persisted (per chunk)
-  |
-  +-- Activity: AssembleGraph
-  |     |
-  |     +-- Checkpoint: Graph assembled
-  |
-  +-- Signal: Progress (SSE stream)
-        |
-        +-- Event: stage progress updates
+```json
+{
+  "dependencies": {
+    "@effect/workflow": "^0.15.x",
+    "@effect/cluster": "^0.55.x"
+  }
+}
 ```
 
-### Batch State Machine
+**Note**: Tables are auto-created by `@effect/cluster`. Do NOT create custom workflow tables.
+
+---
+
+## Architecture Overview
+
+### Package Architecture
 
 ```
-[Queued] → [Processing] → [Completed]
-              ↓
-         [Failed] → [Retry] → [Processing]
-              ↓
-         [Abandoned]
+@effect/workflow
+├── Workflow.make        # Define workflows with typed payload/success/error
+├── Activity             # Durable activities (journaled for crash recovery)
+└── WorkflowEngine       # Execute, poll, interrupt, resume workflows
+
+@effect/cluster
+├── SingleRunner         # Single-node durable execution
+├── SqlMessageStorage    # PostgreSQL message persistence (auto-creates tables)
+├── SqlRunnerStorage     # PostgreSQL runner registration (auto-creates tables)
+└── ShardingConfig       # Cluster configuration
 ```
+
+### How @effect/cluster Creates Tables
+
+`@effect/cluster` automatically creates these tables with a configurable prefix:
+
+```sql
+-- Tables created by SqlMessageStorage.layerWith({ prefix: "knowledge_" })
+knowledge_cluster_messages   -- Pending workflow messages
+knowledge_cluster_replies    -- Message replies
+
+-- Tables created by SqlRunnerStorage.layerWith({ prefix: "knowledge_" })
+knowledge_cluster_runners    -- Runner registration
+```
+
+**Do NOT manually create these tables** - they are managed by `@effect/cluster`.
+
+---
+
+## Implementation Phases
+
+### Phase 1: @effect/workflow + @effect/cluster Integration
+
+**Goal**: Wire up `@effect/workflow` and `@effect/cluster` with PostgreSQL persistence.
+
+**Tasks**:
+1. Add `@effect/workflow` and `@effect/cluster` dependencies
+2. Create `PostgresLayer.ts` - persistence layer using `SqlMessageStorage` and `SqlRunnerStorage`
+3. Create `ClusterRuntime.ts` - `SingleRunner` layer composition
+4. Verify tables are auto-created by running the server
+
+**Reference**: `.repos/effect-ontology/packages/@core-v2/src/Runtime/Persistence/PostgresLayer.ts`
+
+```typescript
+// Example from effect-ontology - DO NOT create custom tables
+import { ShardingConfig, SqlMessageStorage, SqlRunnerStorage } from "@effect/cluster"
+import { PgClient } from "@effect/sql-pg"
+
+// Tables are auto-created by these layers
+export const MessageStorageLive = SqlMessageStorage.layerWith({ prefix: "knowledge_" })
+export const RunnerStorageLive = SqlRunnerStorage.layerWith({ prefix: "knowledge_" })
+
+export const PostgresPersistenceLive = Layer.mergeAll(
+  MessageStorageLive,
+  RunnerStorageLive
+).pipe(
+  Layer.provide(ShardingConfigLive),
+  Layer.provide(PgClientLive)
+)
+```
+
+### Phase 2: ExtractionWorkflow Definition + Durable Activities
+
+**Goal**: Define the extraction workflow and convert pipeline stages to durable activities.
+
+**Tasks**:
+1. Create `ExtractionWorkflow.ts` using `Workflow.make`
+2. Create `DurableActivities.ts` using `Activity` from `@effect/workflow`
+3. Create `WorkflowOrchestrator.ts` service for high-level API
+4. Wire workflow layer with `BatchExtractionWorkflow.toLayer`
+
+**Reference**: `.repos/effect-ontology/packages/@core-v2/src/Service/WorkflowOrchestrator.ts`
+
+```typescript
+// Example from effect-ontology
+import { Workflow, WorkflowEngine } from "@effect/workflow"
+
+export const BatchExtractionWorkflow = Workflow.make({
+  name: "batch-extraction",
+  payload: BatchWorkflowPayload,
+  success: BatchState,
+  error: Schema.String,
+  idempotencyKey: (payload) => `${payload.batchId}-${hash}`,
+  annotations: Context.make(Workflow.SuspendOnFailure, true),
+  suspendedRetrySchedule: Schedule.exponential("1 second").pipe(
+    Schedule.compose(Schedule.recurs(5)),
+    Schedule.jittered
+  )
+})
+
+// Register workflow with engine
+export const BatchExtractionWorkflowLayer = BatchExtractionWorkflow.toLayer(
+  (payload) => Effect.gen(function*() {
+    // ... workflow implementation using durable activities
+  })
+)
+```
+
+### Phase 3: SSE Progress Streaming
+
+**Goal**: Implement real-time progress updates via Server-Sent Events.
+
+**Tasks**:
+1. Define progress event schema in `Contract/ProgressStreaming.ts`
+2. Implement progress state persistence via `StorageService`
+3. Create SSE endpoint in HTTP router
+4. Connect workflow stages to progress events
+
+### Phase 4: Batch State Machine + Cross-Batch Orchestration
+
+**Goal**: Implement batch lifecycle management and entity resolution coordination.
+
+**Tasks**:
+1. Define `BatchState` tagged union (Pending | Preprocessing | Extracting | Resolving | Validating | Ingesting | Complete | Failed)
+2. Implement state transitions in workflow
+3. Create cross-batch entity resolution activity
+4. Implement batch retry and recovery
 
 ---
 
 ## Key Files to Create
 
 ```
-packages/knowledge/server/src/Workflow/
-  index.ts                      # Public exports
-  ExtractionWorkflow.ts         # Workflow definition
-  DurableActivities.ts          # Activity implementations
-  WorkflowPersistence.ts        # PostgreSQL persistence layer
-  ProgressStream.ts             # SSE progress events
-  BatchStateMachine.ts          # State machine for batch processing
+packages/knowledge/server/src/
+├── Runtime/
+│   ├── Persistence/
+│   │   └── PostgresLayer.ts       # @effect/cluster persistence (SqlMessageStorage, SqlRunnerStorage)
+│   └── ClusterRuntime.ts          # SingleRunner layer composition
+├── Workflow/
+│   ├── index.ts                   # Public exports
+│   ├── ExtractionWorkflow.ts      # Workflow.make definition
+│   ├── DurableActivities.ts       # Activity implementations
+│   └── WorkflowOrchestrator.ts    # High-level workflow API service
+├── Contract/
+│   └── ProgressStreaming.ts       # SSE progress event schemas
+└── Cluster/
+    ├── ExtractionEntity.ts        # Entity.make with RPC definitions (optional)
+    └── ExtractionEntityHandler.ts # Entity handler implementation (optional)
 
-packages/knowledge/tables/src/tables/
-  workflow-execution.table.ts   # Workflow execution state
-  workflow-activity.table.ts    # Activity execution history
-  workflow-signal.table.ts      # Signal event log
+packages/knowledge/domain/src/
+└── Schema/
+    ├── BatchWorkflow.ts           # BatchState, BatchWorkflowPayload
+    └── ProgressEvent.ts           # Progress event schemas
+```
 
-packages/knowledge/domain/src/value-objects/
-  workflow/
-    WorkflowProgress.ts         # Progress event schema
-    BatchState.ts               # Batch state enum
-    ExtractionStage.ts          # Extraction stage enum
+**Note**: No custom table files needed - `@effect/cluster` manages persistence tables automatically.
+
+---
+
+## Critical Patterns from effect-ontology
+
+### 1. Workflow Definition Pattern
+
+```typescript
+import { Workflow } from "@effect/workflow"
+import { Context, Schema, Schedule } from "effect"
+
+export const ExtractionWorkflow = Workflow.make({
+  name: "knowledge-extraction",
+  payload: ExtractionPayload,           // Schema for workflow input
+  success: ExtractionResult,            // Schema for success output
+  error: Schema.String,                 // Schema for error output
+  idempotencyKey: (payload) => payload.documentId,
+  annotations: Context.make(Workflow.SuspendOnFailure, true).pipe(
+    Context.add(Workflow.CaptureDefects, true)
+  ),
+  suspendedRetrySchedule: Schedule.exponential("1 second").pipe(
+    Schedule.compose(Schedule.recurs(5)),
+    Schedule.jittered
+  )
+})
+```
+
+### 2. Durable Activity Pattern
+
+```typescript
+import { Activity } from "@effect/workflow"
+import { Schema } from "effect"
+
+// Activities are automatically journaled for crash recovery
+const extractEntitiesActivity = Activity.make({
+  name: "extract-entities",
+  input: Schema.Struct({ text: Schema.String, ontologyId: Schema.String }),
+  output: Schema.Array(EntitySchema),
+  error: Schema.String
+})
+
+// Usage in workflow
+const entities = yield* extractEntitiesActivity.execute({ text, ontologyId })
+```
+
+### 3. Workflow Orchestrator Pattern
+
+```typescript
+import { WorkflowEngine } from "@effect/workflow"
+
+export const makeWorkflowOrchestrator = Effect.gen(function*() {
+  const engine = yield* WorkflowEngine.WorkflowEngine
+
+  return {
+    start: (payload) => Effect.gen(function*() {
+      const executionId = yield* ExtractionWorkflow.executionId(payload)
+      return yield* engine.execute(ExtractionWorkflow, {
+        executionId,
+        payload,
+        discard: true  // fire-and-forget
+      })
+    }),
+
+    startAndWait: (payload) => engine.execute(ExtractionWorkflow, {
+      executionId: yield* ExtractionWorkflow.executionId(payload),
+      payload,
+      discard: false
+    }),
+
+    poll: (executionId) => engine.poll(ExtractionWorkflow, executionId),
+    interrupt: (executionId) => engine.interrupt(ExtractionWorkflow, executionId),
+    resume: (executionId) => engine.resume(ExtractionWorkflow, executionId)
+  }
+})
+```
+
+### 4. PostgreSQL Persistence Layer
+
+```typescript
+import { ShardingConfig, SqlMessageStorage, SqlRunnerStorage } from "@effect/cluster"
+import { PgClient } from "@effect/sql-pg"
+
+// Tables auto-created: knowledge_cluster_messages, knowledge_cluster_replies, knowledge_cluster_runners
+export const MessageStorageLive = SqlMessageStorage.layerWith({ prefix: "knowledge_" })
+export const RunnerStorageLive = SqlRunnerStorage.layerWith({ prefix: "knowledge_" })
+export const ShardingConfigLive = ShardingConfig.layerDefaults
+
+export const PostgresPersistenceLive = Layer.mergeAll(
+  MessageStorageLive,
+  RunnerStorageLive
+).pipe(
+  Layer.provide(ShardingConfigLive),
+  Layer.provide(PgClientLive)
+)
 ```
 
 ---
@@ -215,12 +307,13 @@ packages/knowledge/domain/src/value-objects/
 ## Success Criteria
 
 ### Implementation Criteria
-- [ ] @effect/workflow runtime integrated with PostgreSQL backend
-- [ ] ExtractionWorkflow definition compiles and passes type checks
-- [ ] All activities (ChunkText, ExtractMentions, ClassifyEntities, ExtractRelations, AssembleGraph) implemented
+- [ ] `@effect/workflow` and `@effect/cluster` added as dependencies
+- [ ] PostgreSQL persistence layer wired with `SqlMessageStorage` and `SqlRunnerStorage`
+- [ ] Tables auto-created by `@effect/cluster` on server start
+- [ ] `ExtractionWorkflow` defined using `Workflow.make`
+- [ ] Durable activities defined using `Activity` from `@effect/workflow`
+- [ ] `WorkflowOrchestrator` service implements start/poll/interrupt/resume
 - [ ] SSE progress stream shows real-time updates
-- [ ] Batch state machine transitions correctly
-- [ ] Workflow state persisted in PostgreSQL
 - [ ] Test: kill server mid-extraction, restart, extraction resumes from last checkpoint
 
 ### Integration Criteria
@@ -229,13 +322,40 @@ packages/knowledge/domain/src/value-objects/
 - [ ] Migration path documented for switching to workflow-based extraction
 - [ ] Performance: workflow overhead < 10% compared to direct pipeline
 
-### Multi-Session Handoff Criteria
-Each phase is complete ONLY when:
-- [ ] Phase work is implemented and verified (`bun run check`)
-- [ ] REFLECTION_LOG.md updated with phase learnings
-- [ ] `handoffs/HANDOFF_P[N+1].md` created (full context document)
-- [ ] `handoffs/P[N+1]_ORCHESTRATOR_PROMPT.md` created (copy-paste prompt)
-- [ ] Both handoff files pass verification checklist from HANDOFF_STANDARDS.md
+---
+
+## Anti-Patterns to Avoid
+
+### DO NOT create custom persistence tables
+
+```typescript
+// WRONG - Do NOT do this
+export const workflowExecution = OrgTable.make(WorkflowExecutionId)({
+  workflowType: pg.text("workflow_type").notNull(),
+  status: pg.text("status").notNull(),
+  // ...
+})
+```
+
+### DO NOT create custom WorkflowPersistence service
+
+```typescript
+// WRONG - Do NOT do this
+export class WorkflowPersistence extends Effect.Service<WorkflowPersistence>()(...) {
+  insertExecution: (...) => ...
+  updateExecution: (...) => ...
+}
+```
+
+### DO use @effect/cluster's built-in persistence
+
+```typescript
+// CORRECT - Use @effect/cluster
+import { SqlMessageStorage, SqlRunnerStorage } from "@effect/cluster"
+
+export const MessageStorageLive = SqlMessageStorage.layerWith({ prefix: "knowledge_" })
+export const RunnerStorageLive = SqlRunnerStorage.layerWith({ prefix: "knowledge_" })
+```
 
 ---
 
@@ -245,86 +365,19 @@ Each phase is complete ONLY when:
 
 | Week | Focus |
 |------|-------|
-| 1 | @effect/workflow integration + persistence tables (P1) |
+| 1 | @effect/workflow + @effect/cluster integration (P1) |
 | 2 | ExtractionWorkflow definition + durable activities (P2) |
 | 3 | SSE progress streaming (P3) |
 | 4 | Batch state machine + cross-batch orchestration (P4) |
 
 ---
 
-## Dependencies
-
-**Depends on**:
-- Phase -1 (Architecture Foundation) MUST be complete
-
-**Blocks**:
-- Phase 5 (Production Resilience) - soft dependency
-- Phase 6 (POC Integration) - soft dependency
-
-**Parallel with**:
-- Phase 0 (RDF Foundation)
-- Phase 1 (Query & Reasoning Layer)
-- Phase 2 (Entity Resolution Enhancements)
-
----
-
-## Risks
-
-| Risk | Likelihood | Impact | Mitigation |
-|------|------------|--------|------------|
-| @effect/workflow learning curve | Medium | Medium | Study effect-ontology patterns, pair programming |
-| Persistence schema evolution | Low | Medium | Use migrations, version workflow definitions |
-| SSE connection management | Medium | Low | Implement reconnection, heartbeat |
-| Migration complexity | Medium | High | Gradual migration, feature flag for workflow vs pipeline |
-| Activity timeout configuration | Medium | Medium | Make timeouts configurable, tune based on metrics |
-
----
-
-## Team
-
-| Role | Responsibility |
-|------|----------------|
-| Architect | Workflow design, activity boundaries |
-| Developer | Activity implementation, state machine |
-| Reviewer | Workflow pattern review, testing |
-
----
-
-## Reference Files
-
-### Existing Patterns to Follow
-
-```
-packages/documents/server/src/workflows/
-  (no existing workflows - this is greenfield)
-
-packages/knowledge/server/src/services/
-  ExtractionPipeline.ts          # Current pipeline to convert
-```
-
-### Knowledge Slice Current State
-
-```
-packages/knowledge/
-  domain/src/
-    entities/
-      Entity/                    # Existing entity model
-      Relation/                  # Existing relation model
-    value-objects/
-      Confidence.ts              # Existing value object
-  tables/src/
-    tables/                      # Existing table definitions
-  server/src/
-    services/
-      ExtractionPipeline.ts      # Existing pipeline to convert
-```
-
----
-
 ## Related Documentation
 
+- **[effect-ontology reference](.repos/effect-ontology/)** - CANONICAL patterns for @effect/workflow and @effect/cluster
+- **[LESSONS_FROM_PRIOR_SPECS.md](./LESSONS_FROM_PRIOR_SPECS.md)** - Critical patterns from completed specs
 - [REFLECTION_LOG.md](./REFLECTION_LOG.md) - Session learnings
 - [Effect Patterns](../../.claude/rules/effect-patterns.md) - Mandatory patterns
-- [Database Patterns](../../documentation/patterns/database-patterns.md) - Table patterns
 - [knowledge-ontology-comparison](../knowledge-ontology-comparison/) - Source spec
 - [knowledge-architecture-foundation](../knowledge-architecture-foundation/) - Package allocation
+- [KNOWLEDGE_LESSONS_LEARNED.md](../KNOWLEDGE_LESSONS_LEARNED.md) - Lessons from all knowledge specs

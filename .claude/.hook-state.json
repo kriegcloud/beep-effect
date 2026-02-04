@@ -1,8 +1,8 @@
 {
-  "lastCallMs": 1770200358080,
+  "lastCallMs": 1770218054047,
   "skillIndex": {
-    "loadedAt": 1770200358117,
-    "directoryMtime": 1770187792169,
+    "loadedAt": 1770216303646,
+    "directoryMtime": 1770202172260,
     "skills": [
       {
         "name": "effect-ai-prompt",
@@ -942,7 +942,7 @@
     ]
   },
   "patternCache": {
-    "loadedAt": 1770200372020,
+    "loadedAt": 1770218049505,
     "directoryMtime": 1770167800598,
     "patterns": [
       {
