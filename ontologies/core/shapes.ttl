@@ -1,0 +1,166 @@
+@prefix : <http://effect-ontology.dev/core#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# =============================================================================
+# SHACL Shapes for Effect Core Ontology
+# =============================================================================
+#
+# Validates extracted knowledge graphs against core ontology constraints.
+# Used for post-extraction validation and quality assurance.
+#
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# TrackedEntity Shape
+# -----------------------------------------------------------------------------
+
+:TrackedEntityShape a sh:NodeShape ;
+    sh:targetClass :TrackedEntity ;
+    rdfs:label "Tracked Entity Shape"@en ;
+    rdfs:comment "Validates TrackedEntity instances have required properties."@en ;
+    sh:property [
+        sh:path :name ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "TrackedEntity must have exactly one name (string)."
+    ] .
+
+# -----------------------------------------------------------------------------
+# Person Shape
+# -----------------------------------------------------------------------------
+
+:PersonShape a sh:NodeShape ;
+    sh:targetClass :Person ;
+    rdfs:label "Person Shape"@en ;
+    sh:property [
+        sh:path :name ;
+        sh:minCount 1 ;
+        sh:pattern "^[A-Z]" ;
+        sh:message "Person name should start with a capital letter."
+    ] .
+
+# -----------------------------------------------------------------------------
+# Organization Shape
+# -----------------------------------------------------------------------------
+
+:OrganizationShape a sh:NodeShape ;
+    sh:targetClass :Organization ;
+    rdfs:label "Organization Shape"@en ;
+    sh:property [
+        sh:path :name ;
+        sh:minCount 1 ;
+        sh:message "Organization must have a name."
+    ] .
+
+# -----------------------------------------------------------------------------
+# Place Shape
+# -----------------------------------------------------------------------------
+
+:PlaceShape a sh:NodeShape ;
+    sh:targetClass :Place ;
+    rdfs:label "Place Shape"@en ;
+    sh:property [
+        sh:path :name ;
+        sh:minCount 1 ;
+        sh:message "Place must have a name."
+    ] .
+
+# -----------------------------------------------------------------------------
+# TrackedEvent Shape
+# -----------------------------------------------------------------------------
+
+:TrackedEventShape a sh:NodeShape ;
+    sh:targetClass :TrackedEvent ;
+    rdfs:label "Tracked Event Shape"@en ;
+    rdfs:comment "Validates TrackedEvent instances."@en ;
+    sh:property [
+        sh:path :hasParticipant ;
+        sh:minCount 1 ;
+        sh:class :TrackedEntity ;
+        sh:message "Events must have at least one participant (TrackedEntity)."
+    ] ;
+    sh:property [
+        sh:path :description ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Events should have a description."
+    ] .
+
+# -----------------------------------------------------------------------------
+# Mention Shape
+# -----------------------------------------------------------------------------
+
+:MentionShape a sh:NodeShape ;
+    sh:targetClass :Mention ;
+    rdfs:label "Mention Shape"@en ;
+    rdfs:comment "Validates Mention instances have evidence text."@en ;
+    sh:property [
+        sh:path :evidenceText ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Mention must have evidence text."
+    ] ;
+    sh:property [
+        sh:path :startOffset ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:integer ;
+        sh:message "Start offset must be an integer."
+    ] ;
+    sh:property [
+        sh:path :endOffset ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:integer ;
+        sh:message "End offset must be an integer."
+    ] .
+
+# -----------------------------------------------------------------------------
+# Temporal Consistency
+# -----------------------------------------------------------------------------
+
+:TemporalConsistencyShape a sh:NodeShape ;
+    sh:targetClass :TrackedEvent ;
+    rdfs:label "Temporal Consistency Shape"@en ;
+    sh:sparql [
+        sh:message "End time must be after start time." ;
+        sh:prefixes : ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this :startTime ?start .
+                $this :endTime ?end .
+                FILTER (?end < ?start)
+            }
+        """
+    ] .
+
+# -----------------------------------------------------------------------------
+# Confidence Score Constraints
+# -----------------------------------------------------------------------------
+
+:ConfidenceShape a sh:PropertyShape ;
+    sh:path :confidence ;
+    sh:datatype xsd:decimal ;
+    sh:minInclusive 0.0 ;
+    sh:maxInclusive 1.0 ;
+    sh:message "Confidence must be between 0.0 and 1.0." .
+
+:GroundingConfidenceShape a sh:PropertyShape ;
+    sh:path :groundingConfidence ;
+    sh:datatype xsd:decimal ;
+    sh:minInclusive 0.0 ;
+    sh:maxInclusive 1.0 ;
+    sh:message "Grounding confidence must be between 0.0 and 1.0." .
+
+:ResolutionConfidenceShape a sh:PropertyShape ;
+    sh:path :resolutionConfidence ;
+    sh:datatype xsd:decimal ;
+    sh:minInclusive 0.0 ;
+    sh:maxInclusive 1.0 ;
+    sh:message "Resolution confidence must be between 0.0 and 1.0." .
+
+# =============================================================================
+# End of SHACL Shapes
+# =============================================================================

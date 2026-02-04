@@ -1,0 +1,19 @@
+Technical documentation often contains special characters that must be handled correctly.
+
+The company "Smith & Johnson, LLC" was founded by Alice Smith and Bob Johnson in 2010. Their official email format is firstname.lastname@smith-johnson.com (note the hyphen, not ampersand, in the domain).
+
+Alice's title is "Chief Technology Officer (CTO)" and Bob's is "Chief Executive Officer (CEO)". The company slogan is: "Innovation > Tradition" which appears on their website https://smith-johnson.com/about-us#mission.
+
+Their first product was called "DataFlow++" (with two plus signs). The documentation states: "DataFlow++ enables [real-time] processing of {structured} and <unstructured> data."
+
+The pricing page shows: "$99/month per user" or "€89/month per user" for European customers. The enterprise tier is listed as "$10,000/year (50% discount for non-profits)".
+
+Technical specifications include: "Latency < 100ms @ 99th percentile" and "Throughput >= 10,000 requests/second". The API endpoint is https://api.smith-johnson.com/v2/data?format=json&limit=100.
+
+Customer reviews mention: "Best-in-class solution!" and "5/5 stars - would recommend to anyone!". One review noted: "The `batch_process()` function handles edge cases well."
+
+The legal page contains: "Copyright © 2010-2024 Smith & Johnson, LLC. All rights reserved. Patent pending #US2015/0123456." Their terms state: "Users must NOT: (a) reverse engineer, (b) redistribute, or (c) create derivative works."
+
+Contact information includes: Alice Smith <alice@smith-johnson.com>, Bob Johnson <bob@smith-johnson.com>, and general inquiries at info@smith-johnson.com.
+
+The office is located at "123 Main St., Suite #456, San Francisco, CA 94102-1234, USA". Phone: +1 (415) 555-0123 | Fax: +1 (415) 555-0124.

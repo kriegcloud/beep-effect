@@ -1,0 +1,3 @@
+Alice Smith is a software engineer. She knows Bob Johnson.
+Bob works at Acme Corporation. Alice's email is alice@example.com.
+Bob's homepage is https://bob.example.com.

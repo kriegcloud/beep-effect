@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<catalog prefer="public" xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog">
+    <uri name="http://effect-ontology.dev/core" uri="core.ttl"/>
+    <uri name="http://effect-ontology.dev/core#" uri="core.ttl"/>
+    <uri name="http://www.ontologydesignpatterns.org/ont/dul/DUL.owl" uri="../external/dul.owl"/>
+    <uri name="http://www.ontologydesignpatterns.org/ont/dul/DUL.owl#" uri="../external/dul.owl"/>
+</catalog>

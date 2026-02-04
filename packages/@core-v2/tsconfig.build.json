@@ -1,0 +1,26 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "composite": false,
+    "declaration": false,
+    "declarationMap": false,
+    "noEmit": false,
+    "skipLibCheck": true,
+    "types": []
+  },
+  "include": ["src/**/*"],
+  "exclude": [
+    "test/**/*",
+    "**/*.test.ts",
+    "src/Runtime/ClusterRuntime.ts",
+    "src/Runtime/TestRuntime.ts",
+    "src/Cluster/**/*",
+    "src/playground.ts",
+    "src/main.ts",
+    "src/index.ts",
+    "src/Utils/RefineKG.ts",
+    "src/Service/RelationLinker.ts",
+    "src/Service/LlmWithRetry.ts",
+    "src/Workflow/TwoStageExtraction.ts"
+  ]
+}

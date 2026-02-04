@@ -1,0 +1,1421 @@
+{
+  "_tag": "KnowledgeGraph",
+  "entities": [
+    {
+      "_tag": "Entity",
+      "id": "alamo",
+      "mention": "Alamo",
+      "types": [
+        "http://visualdataweb.org/newOntology/Match"
+      ],
+      "attributes": {},
+      "chunkIndex": 21
+    },
+    {
+      "_tag": "Entity",
+      "id": "amad_diallo",
+      "mention": "Amad Diallo",
+      "types": [
+        "http://visualdataweb.org/newOntology/Player"
+      ],
+      "attributes": {
+        "http://visualdataweb.org/newOntology/GoalsScored": 9,
+        "http://visualdataweb.org/newOntology/Assists": 0
+      },
+      "chunkIndex": 33
+    },
+    {
+      "_tag": "Entity",
+      "id": "amorim",
+      "mention": "Amorim",
+      "types": [
+        "http://visualdataweb.org/newOntology/Coach",
+        "http://visualdataweb.org/newOntology/Player"
+      ],
+      "attributes": {
+        "http://visualdataweb.org/newOntology/CPreferredFormation": "wing-backs",
+        "http://visualdataweb.org/newOntology/PlayerPosition": "three at the back",
+        "http://visualdataweb.org/newOntology/CoachName": "Amorim",
+        "http://visualdataweb.org/newOntology/CPreviousTeams": "Sporting"
+      }
+    },
+    {
+      "_tag": "Entity",
+      "id": "argentina",
+      "mention": "Argentina",
+      "types": [
+        "http://visualdataweb.org/newOntology/League",
+        "http://visualdataweb.org/newOntology/Team"
+      ],
+      "attributes": {
+        "http://visualdataweb.org/newOntology/Region": "Argentina",
+        "http://visualdataweb.org/newOntology/TeamName": "Argentina"
+      }
+    },
+    {
+      "_tag": "Entity",
+      "id": "benjamin_sesko",
+      "mention": "Benjamin Sesko",
+      "types": [
+        "http://visualdataweb.org/newOntology/Player"
+      ],
+      "attributes": {
+        "http://visualdataweb.org/newOntology/PlayerName": "Benjamin Sesko"
+      }
+    },
+    {
+      "_tag": "Entity",
+      "id": "bruno_fernandes",
+      "mention": "Bruno Fernandes",
+      "types": [
+        "http://visualdataweb.org/newOntology/Team"
+      ],
+      "attributes": {},
+      "chunkIndex": 3
+    },
+    {
+      "_tag": "Entity",
+      "id": "bryan_mbeumo",
+      "mention": "Bryan Mbeumo",
+      "types": [
+        "http://visualdataweb.org/newOntology/Team"
+      ],
+      "attributes": {},
+      "chunkIndex": 3
+    },
+    {
+      "_tag": "Entity",
+      "id": "casemiro",
+      "mention": "Casemiro",
+      "types": [
+        "http://visualdataweb.org/newOntology/Player"
+      ],
+      "attributes": {
+        "http://visualdataweb.org/newOntology/PlayerName": "Casemiro"
+      }
+    },
+    {
+      "_tag": "Entity",
+      "id": "charlie_austin",
+      "mention": "Charlie Austin",
+      "types": [
+        "http://visualdataweb.org/newOntology/Player"
+      ],
+      "attributes": {
+        "http://visualdataweb.org/newOntology/PlayerName": "Charlie Austin"
+      }
+    },
+    {
+      "_tag": "Entity",
+      "id": "dalot",
+      "mention": "Dalot",
+      "types": [
+        "http://visualdataweb.org/newOntology/Player"
+      ],
+      "attributes": {
+        "http://visualdataweb.org/newOntology/PlayerName": "Dalot",
+        "http://visualdataweb.org/newOntology/PlayerPosition": "wing-back"
+      }
+    },
+    {
+      "_tag": "Entity",
+      "id": "de_ligt",
+      "mention": "De Ligt",
+      "types": [
+        "http://visualdataweb.org/newOntology/Player"
+      ],
+      "attributes": {
+        "http://visualdataweb.org/newOntology/PlayerName": "Matthijs de Ligt"
+      }
+    },
+    {
+      "_tag": "Entity",
+      "id": "diogo_dalot",
+      "mention": "Diogo Dalot",
+      "types": [
+        "http://visualdataweb.org/newOntology/Player"
+      ],
+      "attributes": {
+        "http://visualdataweb.org/newOntology/PlayerName": "Diogo Dalot"
+      }
+    },
+    {
+      "_tag": "Entity",
+      "id": "dorgu",
+      "mention": "Dorgu",
+      "types": [
+        "http://visualdataweb.org/newOntology/Player"
+      ],
+      "attributes": {
+        "http://visualdataweb.org/newOntology/PlayerPosition": "wing-back"
+      },
+      "chunkIndex": 33
+    },
+    {
+      "_tag": "Entity",
+      "id": "everton",
+      "mention": "Everton",
+      "types": [
+        "http://visualdataweb.org/newOntology/Team"
+      ],
+      "attributes": {
+        "http://visualdataweb.org/newOntology/TeamName": "Everton",
+        "http://visualdataweb.org/newOntology/TeamLeague": "Premier League"
+      }
+    },
+    {
+      "_tag": "Entity",
+      "id": "everton_fc",
+      "mention": "Everton",
+      "types": [
+        "http://visualdataweb.org/newOntology/Team"
+      ],
+      "attributes": {
+        "http://visualdataweb.org/newOntology/TeamName": "Everton Football Club"
+      }
+    },
+    {
+      "_tag": "Entity",
+      "id": "gary_neville",
+      "mention": "Gary Neville",
+      "types": [
+        "http://visualdataweb.org/newOntology/Coach"
+      ],
+      "attributes": {
+        "http://visualdataweb.org/newOntology/PlayerName": "Gary Neville",
+        "http://visualdataweb.org/newOntology/CoachName": "Gary Neville"
+      }
+    },
+    {
+      "_tag": "Entity",
+      "id": "gary_neville_podcast",
+      "mention": "Gary Neville Podcast",
+      "types": [
+        "http://visualdataweb.org/newOntology/Coach"
+      ],
+      "attributes": {},
+      "chunkIndex": 8
+    },
+    {
+      "_tag": "Entity",
+      "id": "geny_catamo",
+      "mention": "Geny Catamo",
+      "types": [
+        "http://visualdataweb.org/newOntology/Player"
+      ],
+      "attributes": {
+        "http://visualdataweb.org/newOntology/PlayerPosition": "wing-back",
+        "http://visualdataweb.org/newOntology/PlayerName": "Geny Catamo"
+      }
+    },
+    {
+      "_tag": "Entity",
+      "id": "harry_amass",
+      "mention": "Harry Amass",
+      "types": [
+        "http://visualdataweb.org/newOntology/Player"
+      ],
+      "attributes": {
+        "http://visualdataweb.org/newOntology/PlayerPosition": "wing-back"
+      },
+      "chunkIndex": 33
+    },
+    {
+      "_tag": "Entity",
+      "id": "head_coach",
+      "mention": "head coach",
+      "types": [
+        "http://visualdataweb.org/newOntology/Coach"
+      ],
+      "attributes": {},
+      "chunkIndex": 37
+    },
+    {
+      "_tag": "Entity",
+      "id": "jamie_carragher",
+      "mention": "Jamie Carragher",
+      "types": [
+        "http://visualdataweb.org/newOntology/Player"
+      ],
+      "attributes": {
+        "http://visualdataweb.org/newOntology/PlayerName": "Jamie Carragher"
+      }
+    },
+    {
+      "_tag": "Entity",
+      "id": "jamie_o_hara",
+      "mention": "Jamie O'Hara",
+      "types": [
+        "http://visualdataweb.org/newOntology/Player"
+      ],
+      "attributes": {
+        "http://visualdataweb.org/newOntology/PlayerName": "Jamie O'Hara"
+      },
+      "chunkIndex": 32
+    },
+    {
+      "_tag": "Entity",
+      "id": "jamie_ohara",
+      "mention": "Jamie O'Hara",
+      "types": [
+        "http://visualdataweb.org/newOntology/Player"
+      ],
+      "attributes": {},
+      "chunkIndex": 33
+    },
+    {
+      "_tag": "Entity",
+      "id": "kobbie_mainoo",
+      "mention": "Kobbie Mainoo",
+      "types": [
+        "http://visualdataweb.org/newOntology/Player"
+      ],
+      "attributes": {
+        "http://visualdataweb.org/newOntology/PlayerName": "Kobbie Mainoo"
+      }
+    },
+    {
+      "_tag": "Entity",
+      "id": "left_centre_back_position",
+      "mention": "left-sided centre-back",
+      "types": [
+        "http://visualdataweb.org/newOntology/Position"
+      ],
+      "attributes": {
+        "http://visualdataweb.org/newOntology/PlayerPosition": "left-sided centre-back"
+      },
+      "chunkIndex": 30
+    },
+    {
+      "_tag": "Entity",
+      "id": "leny_yoro",
+      "mention": "Leny Yoro",
+      "types": [
+        "http://visualdataweb.org/newOntology/Player"
+      ],
+      "attributes": {
+        "http://visualdataweb.org/newOntology/PlayerName": "Leny Yoro"
+      },
+      "chunkIndex": 7
+    },
+    {
+      "_tag": "Entity",
+      "id": "lisandro_martinez",
+      "mention": "Lisandro Martinez",
+      "types": [
+        "http://visualdataweb.org/newOntology/Player"
+      ],
+      "attributes": {
+        "http://visualdataweb.org/newOntology/PlayerName": "Lisandro Martinez",
+        "http://visualdataweb.org/newOntology/PlayerPosition": "centre-back"
+      },
+      "chunkIndex": 29
+    },
+    {
+      "_tag": "Entity",
+      "id": "luke_shaw",
+      "mention": "Luke Shaw",
+      "types": [
+        "http://visualdataweb.org/newOntology/Player"
+      ],
+      "attributes": {
+        "http://visualdataweb.org/newOntology/PlayerName": "Luke Shaw"
+      }
+    },
+    {
+      "_tag": "Entity",
+      "id": "man_utd",
+      "mention": "Man Utd",
+      "types": [
+        "http://visualdataweb.org/newOntology/Team"
+      ],
+      "attributes": {
+        "http://visualdataweb.org/newOntology/TeamName": "Manchester United"
+      },
+      "chunkIndex": 19
+    },
+    {
+      "_tag": "Entity",
+      "id": "man_utd_everton_match",
+      "mention": "Man Utd's loss to Everton",
+      "types": [
+        "http://visualdataweb.org/newOntology/Match"
+      ],
+      "attributes": {
+        "http://visualdataweb.org/newOntology/MatchHomeTeam": "Everton Football Club",
+        "http://visualdataweb.org/newOntology/MatchAwayTeam": "Manchester United",
+        "http://visualdataweb.org/newOntology/MatchWinner": "Everton Football Club",
+        "http://visualdataweb.org/newOntology/Date": "25 November 2025",
+        "http://visualdataweb.org/newOntology/Score": "0-1"
+      }
+    },
+    {
+      "_tag": "Entity",
+      "id": "man_utd_performance",
+      "mention": "Man Utd performance statistics",
+      "types": [
+        "http://visualdataweb.org/newOntology/PerformanceStats"
+      ],
+      "attributes": {
+        "http://visualdataweb.org/newOntology/Season": "2023/24"
+      },
+      "chunkIndex": 31
+    },
+    {
+      "_tag": "Entity",
+      "id": "man_utd_vs_everton",
+      "mention": "Man Utd's defeat to Everton",
+      "types": [
+        "http://visualdataweb.org/newOntology/Match"
+      ],
+      "attributes": {
+        "http://visualdataweb.org/newOntology/MatchHomeTeam": "Manchester United",
+        "http://visualdataweb.org/newOntology/MatchAwayTeam": "Everton",
+        "http://visualdataweb.org/newOntology/MatchWinner": "Everton"
+      },
+      "chunkIndex": 32
+    },
+    {
+      "_tag": "Entity",
+      "id": "manchester_united",
+      "mention": "Manchester United",
+      "types": [
+        "http://visualdataweb.org/newOntology/Team"
+      ],
+      "attributes": {
+        "http://visualdataweb.org/newOntology/TeamLeague": "Premier League",
+        "http://visualdataweb.org/newOntology/TeamName": "Manchester United",
+        "http://visualdataweb.org/newOntology/TeamFormation": "3-4-3"
+      }
+    },
+    {
+      "_tag": "Entity",
+      "id": "manchester_united_vs_everton",
+      "mention": "Manchester United's 1-0 defeat to 10-man Everton",
+      "types": [
+        "http://visualdataweb.org/newOntology/Match"
+      ],
+      "attributes": {
+        "http://visualdataweb.org/newOntology/MatchHomeTeam": "Manchester United",
+        "http://visualdataweb.org/newOntology/MatchAwayTeam": "Everton",
+        "http://visualdataweb.org/newOntology/Score": "1-0",
+        "http://visualdataweb.org/newOntology/MatchWinner": "Everton"
+      }
+    },
+    {
+      "_tag": "Entity",
+      "id": "manchester_united_vs_everton_match",
+      "mention": "Manchester United vs Everton 1-0 defeat",
+      "types": [
+        "http://visualdataweb.org/newOntology/Match"
+      ],
+      "attributes": {
+        "http://visualdataweb.org/newOntology/MatchHomeTeam": "Manchester United",
+        "http://visualdataweb.org/newOntology/MatchAwayTeam": "Everton",
+        "http://visualdataweb.org/newOntology/Score": "1-0",
+        "http://visualdataweb.org/newOntology/MatchWinner": "Everton"
+      }
+    },
+    {
+      "_tag": "Entity",
+      "id": "match_vs_everton",
+      "mention": "match against Everton",
+      "types": [
+        "http://visualdataweb.org/newOntology/Match"
+      ],
+      "attributes": {
+        "http://visualdataweb.org/newOntology/MatchAwayTeam": "Everton"
+      },
+      "chunkIndex": 27
+    },
+    {
+      "_tag": "Entity",
+      "id": "matheus_cunha",
+      "mention": "Matheus Cunha",
+      "types": [
+        "http://visualdataweb.org/newOntology/Player"
+      ],
+      "attributes": {
+        "http://visualdataweb.org/newOntology/PlayerName": "Matheus Cunha"
+      }
+    },
+    {
+      "_tag": "Entity",
+      "id": "matthijs_de_ligt",
+      "mention": "Matthijs De Ligt",
+      "types": [
+        "http://visualdataweb.org/newOntology/Player"
+      ],
+      "attributes": {
+        "http://visualdataweb.org/newOntology/PlayerName": "Matthijs De Ligt"
+      }
+    },
+    {
+      "_tag": "Entity",
+      "id": "mnf",
+      "mention": "MNF",
+      "types": [
+        "http://visualdataweb.org/newOntology/League"
+      ],
+      "attributes": {},
+      "chunkIndex": 13
+    },
+    {
+      "_tag": "Entity",
+      "id": "monday_night_football",
+      "mention": "Monday Night Football",
+      "types": [
+        "http://visualdataweb.org/newOntology/Match"
+      ],
+      "attributes": {
+        "http://visualdataweb.org/newOntology/Date": "Monday"
+      }
+    },
+    {
+      "_tag": "Entity",
+      "id": "neville",
+      "mention": "Neville",
+      "types": [
+        "http://visualdataweb.org/newOntology/Coach",
+        "http://visualdataweb.org/newOntology/Player"
+      ],
+      "attributes": {
+        "http://visualdataweb.org/newOntology/CoachName": "Neville",
+        "http://visualdataweb.org/newOntology/PlayerName": "Neville"
+      }
+    },
+    {
+      "_tag": "Entity",
+      "id": "noussair_mazraoui",
+      "mention": "Noussair Mazraoui",
+      "types": [
+        "http://visualdataweb.org/newOntology/Player"
+      ],
+      "attributes": {
+        "http://visualdataweb.org/newOntology/PlayerPosition": "wing-back"
+      },
+      "chunkIndex": 33
+    },
+    {
+      "_tag": "Entity",
+      "id": "nuno_santos",
+      "mention": "Nuno Santos",
+      "types": [
+        "http://visualdataweb.org/newOntology/Player"
+      ],
+      "attributes": {
+        "http://visualdataweb.org/newOntology/PlayerPosition": "wing-back",
+        "http://visualdataweb.org/newOntology/PlayerName": "Nuno Santos"
+      }
+    },
+    {
+      "_tag": "Entity",
+      "id": "patrick_dorgu",
+      "mention": "Patrick Dorgu",
+      "types": [
+        "http://visualdataweb.org/newOntology/Player"
+      ],
+      "attributes": {
+        "http://visualdataweb.org/newOntology/PlayerName": "Patrick Dorgu"
+      }
+    },
+    {
+      "_tag": "Entity",
+      "id": "premier_league",
+      "mention": "Premier League",
+      "types": [
+        "http://visualdataweb.org/newOntology/League"
+      ],
+      "attributes": {
+        "http://visualdataweb.org/newOntology/LeagueName": "Premier League",
+        "http://visualdataweb.org/newOntology/Region": "England"
+      }
+    },
+    {
+      "_tag": "Entity",
+      "id": "ricardo_esagio",
+      "mention": "Ricardo Esagio",
+      "types": [
+        "http://visualdataweb.org/newOntology/Player"
+      ],
+      "attributes": {
+        "http://visualdataweb.org/newOntology/PlayerPosition": "wing-back",
+        "http://visualdataweb.org/newOntology/PlayerName": "Ricardo Esagio"
+      }
+    },
+    {
+      "_tag": "Entity",
+      "id": "ruben_amorim",
+      "mention": "Ruben Amorim",
+      "types": [
+        "http://visualdataweb.org/newOntology/Coach"
+      ],
+      "attributes": {
+        "http://visualdataweb.org/newOntology/CoachName": "Ruben Amorim",
+        "http://visualdataweb.org/newOntology/CPreferredFormation": "system-based formation"
+      }
+    },
+    {
+      "_tag": "Entity",
+      "id": "season_2023_24",
+      "mention": "2023/24",
+      "types": [
+        "http://visualdataweb.org/newOntology/League"
+      ],
+      "attributes": {
+        "http://visualdataweb.org/newOntology/SeasonYear": "2023/24"
+      },
+      "chunkIndex": 30
+    },
+    {
+      "_tag": "Entity",
+      "id": "shaw",
+      "mention": "Shaw",
+      "types": [
+        "http://visualdataweb.org/newOntology/Player"
+      ],
+      "attributes": {
+        "http://visualdataweb.org/newOntology/PlayerName": "Shaw",
+        "http://visualdataweb.org/newOntology/PlayerPosition": "wing-back",
+        "http://visualdataweb.org/newOntology/Assists": "declining",
+        "http://visualdataweb.org/newOntology/Season": "last five seasons"
+      }
+    },
+    {
+      "_tag": "Entity",
+      "id": "sky_sports",
+      "mention": "Sky Sports",
+      "types": [
+        "http://visualdataweb.org/newOntology/Team"
+      ],
+      "attributes": {},
+      "chunkIndex": 2
+    },
+    {
+      "_tag": "Entity",
+      "id": "sporting",
+      "mention": "Sporting",
+      "types": [
+        "http://visualdataweb.org/newOntology/Team"
+      ],
+      "attributes": {
+        "http://visualdataweb.org/newOntology/TeamName": "Sporting",
+        "http://visualdataweb.org/newOntology/TeamSeason": "2023/24"
+      }
+    },
+    {
+      "_tag": "Entity",
+      "id": "tyrell_malacia",
+      "mention": "Tyrell Malacia",
+      "types": [
+        "http://visualdataweb.org/newOntology/Player"
+      ],
+      "attributes": {
+        "http://visualdataweb.org/newOntology/PlayerPosition": "wing-back"
+      },
+      "chunkIndex": 33
+    },
+    {
+      "_tag": "Entity",
+      "id": "wing_back_position",
+      "mention": "wing-back",
+      "types": [
+        "http://visualdataweb.org/newOntology/Position"
+      ],
+      "attributes": {
+        "http://visualdataweb.org/newOntology/PlayerPosition": "wing-back"
+      },
+      "chunkIndex": 30
+    },
+    {
+      "_tag": "Entity",
+      "id": "yoro",
+      "mention": "Yoro",
+      "types": [
+        "http://visualdataweb.org/newOntology/Player"
+      ],
+      "attributes": {
+        "http://visualdataweb.org/newOntology/PlayerName": "Leny Yoro"
+      }
+    }
+  ],
+  "relations": [
+    {
+      "_tag": "Relation",
+      "subjectId": "amad_diallo",
+      "predicate": "http://visualdataweb.org/newOntology/playsFor",
+      "object": "manchester_united",
+      "isEntityReference": true
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "amorim",
+      "predicate": "http://visualdataweb.org/newOntology/CPreferredFormation",
+      "object": "3-4-3",
+      "isEntityReference": false
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "amorim",
+      "predicate": "http://visualdataweb.org/newOntology/CPreferredFormation",
+      "object": "3-at-the-back",
+      "isEntityReference": false
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "amorim",
+      "predicate": "http://visualdataweb.org/newOntology/CPreviousTeams",
+      "object": "Sporting",
+      "isEntityReference": false
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "amorim",
+      "predicate": "http://visualdataweb.org/newOntology/CoachName",
+      "object": "Amorim",
+      "isEntityReference": false
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "amorim",
+      "predicate": "http://visualdataweb.org/newOntology/manages",
+      "object": "manchester_united",
+      "isEntityReference": true
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "amorim",
+      "predicate": "http://visualdataweb.org/newOntology/manages",
+      "object": "sporting",
+      "isEntityReference": true
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "benjamin_sesko",
+      "predicate": "http://visualdataweb.org/newOntology/PlayerName",
+      "object": "Benjamin Sesko",
+      "isEntityReference": false
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "benjamin_sesko",
+      "predicate": "http://visualdataweb.org/newOntology/playsFor",
+      "object": "everton",
+      "isEntityReference": true
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "casemiro",
+      "predicate": "http://visualdataweb.org/newOntology/playsFor",
+      "object": "manchester_united",
+      "isEntityReference": true
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "dalot",
+      "predicate": "http://visualdataweb.org/newOntology/playsFor",
+      "object": "manchester_united",
+      "isEntityReference": true
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "de_ligt",
+      "predicate": "http://visualdataweb.org/newOntology/playsFor",
+      "object": "manchester_united",
+      "isEntityReference": true
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "diogo_dalot",
+      "predicate": "http://visualdataweb.org/newOntology/playsFor",
+      "object": "manchester_united",
+      "isEntityReference": true
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "dorgu",
+      "predicate": "http://visualdataweb.org/newOntology/playsFor",
+      "object": "manchester_united",
+      "isEntityReference": true
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "everton",
+      "predicate": "http://visualdataweb.org/newOntology/competesIn",
+      "object": "man_utd_everton_match",
+      "isEntityReference": true
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "everton",
+      "predicate": "http://visualdataweb.org/newOntology/competesIn",
+      "object": "man_utd_vs_everton",
+      "isEntityReference": true
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "everton",
+      "predicate": "http://visualdataweb.org/newOntology/competesIn",
+      "object": "manchester_united_vs_everton",
+      "isEntityReference": true
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "everton",
+      "predicate": "http://visualdataweb.org/newOntology/competesIn",
+      "object": "manchester_united_vs_everton_match",
+      "isEntityReference": true
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "everton",
+      "predicate": "http://visualdataweb.org/newOntology/partOf",
+      "object": "premier_league",
+      "isEntityReference": true
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "everton_fc",
+      "predicate": "http://visualdataweb.org/newOntology/TeamName",
+      "object": "Everton",
+      "isEntityReference": false
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "everton_fc",
+      "predicate": "http://visualdataweb.org/newOntology/competesIn",
+      "object": "man_utd_everton_match",
+      "isEntityReference": true
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "everton_fc",
+      "predicate": "http://visualdataweb.org/newOntology/competesIn",
+      "object": "manchester_united_vs_everton",
+      "isEntityReference": true
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "geny_catamo",
+      "predicate": "http://visualdataweb.org/newOntology/hasPosition",
+      "object": "wing_back_position",
+      "isEntityReference": true
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "geny_catamo",
+      "predicate": "http://visualdataweb.org/newOntology/playsFor",
+      "object": "sporting",
+      "isEntityReference": true
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "harry_amass",
+      "predicate": "http://visualdataweb.org/newOntology/playsFor",
+      "object": "manchester_united",
+      "isEntityReference": true
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "jamie_carragher",
+      "predicate": "http://visualdataweb.org/newOntology/PlayerName",
+      "object": "Jamie Carragher",
+      "isEntityReference": false
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "kobbie_mainoo",
+      "predicate": "http://visualdataweb.org/newOntology/playsFor",
+      "object": "manchester_united",
+      "isEntityReference": true
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "left_centre_back_position",
+      "predicate": "http://visualdataweb.org/newOntology/PlayerPosition",
+      "object": "left-sided centre-back",
+      "isEntityReference": false
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "leny_yoro",
+      "predicate": "http://visualdataweb.org/newOntology/PlayerName",
+      "object": "Leny Yoro",
+      "isEntityReference": false
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "lisandro_martinez",
+      "predicate": "http://visualdataweb.org/newOntology/playsFor",
+      "object": "manchester_united",
+      "isEntityReference": true
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "luke_shaw",
+      "predicate": "http://visualdataweb.org/newOntology/PlayerName",
+      "object": "Shaw",
+      "isEntityReference": false
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "luke_shaw",
+      "predicate": "http://visualdataweb.org/newOntology/playsFor",
+      "object": "manchester_united",
+      "isEntityReference": true
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "man_utd",
+      "predicate": "http://visualdataweb.org/newOntology/includesPlayer",
+      "object": "dalot",
+      "isEntityReference": true
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "man_utd",
+      "predicate": "http://visualdataweb.org/newOntology/includesPlayer",
+      "object": "shaw",
+      "isEntityReference": true
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "man_utd_everton_match",
+      "predicate": "http://visualdataweb.org/newOntology/Date",
+      "object": "2025-11-25",
+      "isEntityReference": false
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "man_utd_everton_match",
+      "predicate": "http://visualdataweb.org/newOntology/MatchAwayTeam",
+      "object": "Everton",
+      "isEntityReference": false
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "man_utd_everton_match",
+      "predicate": "http://visualdataweb.org/newOntology/MatchHomeTeam",
+      "object": "Manchester United",
+      "isEntityReference": false
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "man_utd_everton_match",
+      "predicate": "http://visualdataweb.org/newOntology/MatchWinner",
+      "object": "Everton",
+      "isEntityReference": false
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "man_utd_everton_match",
+      "predicate": "http://visualdataweb.org/newOntology/includes",
+      "object": "everton",
+      "isEntityReference": true
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "man_utd_vs_everton",
+      "predicate": "http://visualdataweb.org/newOntology/MatchWinner",
+      "object": "Everton",
+      "isEntityReference": false
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "man_utd_vs_everton",
+      "predicate": "http://visualdataweb.org/newOntology/includes",
+      "object": "everton",
+      "isEntityReference": true
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "manchester_united",
+      "predicate": "http://visualdataweb.org/newOntology/TeamFormation",
+      "object": "3-4-3",
+      "isEntityReference": false
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "manchester_united",
+      "predicate": "http://visualdataweb.org/newOntology/TeamFormation",
+      "object": "five at the back",
+      "isEntityReference": false
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "manchester_united",
+      "predicate": "http://visualdataweb.org/newOntology/TeamFormation",
+      "object": "three-at-the-back",
+      "isEntityReference": false
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "manchester_united",
+      "predicate": "http://visualdataweb.org/newOntology/TeamLeague",
+      "object": "Premier League",
+      "isEntityReference": false
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "manchester_united",
+      "predicate": "http://visualdataweb.org/newOntology/TeamName",
+      "object": "Manchester United",
+      "isEntityReference": false
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "manchester_united",
+      "predicate": "http://visualdataweb.org/newOntology/competesIn",
+      "object": "man_utd_everton_match",
+      "isEntityReference": true
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "manchester_united",
+      "predicate": "http://visualdataweb.org/newOntology/competesIn",
+      "object": "man_utd_vs_everton",
+      "isEntityReference": true
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "manchester_united",
+      "predicate": "http://visualdataweb.org/newOntology/competesIn",
+      "object": "manchester_united_vs_everton",
+      "isEntityReference": true
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "manchester_united",
+      "predicate": "http://visualdataweb.org/newOntology/competesIn",
+      "object": "manchester_united_vs_everton_match",
+      "isEntityReference": true
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "manchester_united",
+      "predicate": "http://visualdataweb.org/newOntology/includesPlayer",
+      "object": "amad_diallo",
+      "isEntityReference": true
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "manchester_united",
+      "predicate": "http://visualdataweb.org/newOntology/includesPlayer",
+      "object": "bruno_fernandes",
+      "isEntityReference": true
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "manchester_united",
+      "predicate": "http://visualdataweb.org/newOntology/includesPlayer",
+      "object": "casemiro",
+      "isEntityReference": true
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "manchester_united",
+      "predicate": "http://visualdataweb.org/newOntology/includesPlayer",
+      "object": "dalot",
+      "isEntityReference": true
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "manchester_united",
+      "predicate": "http://visualdataweb.org/newOntology/includesPlayer",
+      "object": "de_ligt",
+      "isEntityReference": true
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "manchester_united",
+      "predicate": "http://visualdataweb.org/newOntology/includesPlayer",
+      "object": "diogo_dalot",
+      "isEntityReference": true
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "manchester_united",
+      "predicate": "http://visualdataweb.org/newOntology/includesPlayer",
+      "object": "dorgu",
+      "isEntityReference": true
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "manchester_united",
+      "predicate": "http://visualdataweb.org/newOntology/includesPlayer",
+      "object": "harry_amass",
+      "isEntityReference": true
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "manchester_united",
+      "predicate": "http://visualdataweb.org/newOntology/includesPlayer",
+      "object": "kobbie_mainoo",
+      "isEntityReference": true
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "manchester_united",
+      "predicate": "http://visualdataweb.org/newOntology/includesPlayer",
+      "object": "lisandro_martinez",
+      "isEntityReference": true
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "manchester_united",
+      "predicate": "http://visualdataweb.org/newOntology/includesPlayer",
+      "object": "luke_shaw",
+      "isEntityReference": true
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "manchester_united",
+      "predicate": "http://visualdataweb.org/newOntology/includesPlayer",
+      "object": "matthijs_de_ligt",
+      "isEntityReference": true
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "manchester_united",
+      "predicate": "http://visualdataweb.org/newOntology/includesPlayer",
+      "object": "noussair_mazraoui",
+      "isEntityReference": true
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "manchester_united",
+      "predicate": "http://visualdataweb.org/newOntology/includesPlayer",
+      "object": "patrick_dorgu",
+      "isEntityReference": true
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "manchester_united",
+      "predicate": "http://visualdataweb.org/newOntology/includesPlayer",
+      "object": "shaw",
+      "isEntityReference": true
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "manchester_united",
+      "predicate": "http://visualdataweb.org/newOntology/includesPlayer",
+      "object": "tyrell_malacia",
+      "isEntityReference": true
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "manchester_united",
+      "predicate": "http://visualdataweb.org/newOntology/includesPlayer",
+      "object": "yoro",
+      "isEntityReference": true
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "manchester_united",
+      "predicate": "http://visualdataweb.org/newOntology/managedBy",
+      "object": "amorim",
+      "isEntityReference": true
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "manchester_united",
+      "predicate": "http://visualdataweb.org/newOntology/managedBy",
+      "object": "ruben_amorim",
+      "isEntityReference": true
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "manchester_united",
+      "predicate": "http://visualdataweb.org/newOntology/partOf",
+      "object": "premier_league",
+      "isEntityReference": true
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "manchester_united_vs_everton",
+      "predicate": "http://visualdataweb.org/newOntology/MatchAwayTeam",
+      "object": "Everton",
+      "isEntityReference": false
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "manchester_united_vs_everton",
+      "predicate": "http://visualdataweb.org/newOntology/MatchHomeTeam",
+      "object": "Man Utd",
+      "isEntityReference": false
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "manchester_united_vs_everton",
+      "predicate": "http://visualdataweb.org/newOntology/MatchHomeTeam",
+      "object": "Manchester United",
+      "isEntityReference": false
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "manchester_united_vs_everton",
+      "predicate": "http://visualdataweb.org/newOntology/MatchWinner",
+      "object": "Everton",
+      "isEntityReference": false
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "manchester_united_vs_everton",
+      "predicate": "http://visualdataweb.org/newOntology/Score",
+      "object": 1,
+      "isEntityReference": false
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "manchester_united_vs_everton",
+      "predicate": "http://visualdataweb.org/newOntology/Score",
+      "object": "1-0",
+      "isEntityReference": false
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "manchester_united_vs_everton_match",
+      "predicate": "http://visualdataweb.org/newOntology/MatchWinner",
+      "object": "Everton",
+      "isEntityReference": false
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "manchester_united_vs_everton_match",
+      "predicate": "http://visualdataweb.org/newOntology/Score",
+      "object": 1,
+      "isEntityReference": false
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "manchester_united_vs_everton_match",
+      "predicate": "http://visualdataweb.org/newOntology/competesIn",
+      "object": "everton",
+      "isEntityReference": true
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "manchester_united_vs_everton_match",
+      "predicate": "http://visualdataweb.org/newOntology/competesIn",
+      "object": "manchester_united",
+      "isEntityReference": true
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "matheus_cunha",
+      "predicate": "http://visualdataweb.org/newOntology/PlayerName",
+      "object": "Matheus Cunha",
+      "isEntityReference": false
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "matheus_cunha",
+      "predicate": "http://visualdataweb.org/newOntology/playsFor",
+      "object": "everton",
+      "isEntityReference": true
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "matthijs_de_ligt",
+      "predicate": "http://visualdataweb.org/newOntology/PlayerName",
+      "object": "Matthijs De Ligt",
+      "isEntityReference": false
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "matthijs_de_ligt",
+      "predicate": "http://visualdataweb.org/newOntology/playsFor",
+      "object": "manchester_united",
+      "isEntityReference": true
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "noussair_mazraoui",
+      "predicate": "http://visualdataweb.org/newOntology/playsFor",
+      "object": "manchester_united",
+      "isEntityReference": true
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "nuno_santos",
+      "predicate": "http://visualdataweb.org/newOntology/hasPosition",
+      "object": "wing_back_position",
+      "isEntityReference": true
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "nuno_santos",
+      "predicate": "http://visualdataweb.org/newOntology/playsFor",
+      "object": "sporting",
+      "isEntityReference": true
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "patrick_dorgu",
+      "predicate": "http://visualdataweb.org/newOntology/playsFor",
+      "object": "manchester_united",
+      "isEntityReference": true
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "premier_league",
+      "predicate": "http://visualdataweb.org/newOntology/LeagueName",
+      "object": "Premier League",
+      "isEntityReference": false
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "ricardo_esagio",
+      "predicate": "http://visualdataweb.org/newOntology/hasPosition",
+      "object": "wing_back_position",
+      "isEntityReference": true
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "ricardo_esagio",
+      "predicate": "http://visualdataweb.org/newOntology/playsFor",
+      "object": "sporting",
+      "isEntityReference": true
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "ruben_amorim",
+      "predicate": "http://visualdataweb.org/newOntology/CPreferredFormation",
+      "object": "back three",
+      "isEntityReference": false
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "ruben_amorim",
+      "predicate": "http://visualdataweb.org/newOntology/CPreferredFormation",
+      "object": "formation-based system",
+      "isEntityReference": false
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "ruben_amorim",
+      "predicate": "http://visualdataweb.org/newOntology/CPreferredFormation",
+      "object": "three-at-the-back",
+      "isEntityReference": false
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "ruben_amorim",
+      "predicate": "http://visualdataweb.org/newOntology/manages",
+      "object": "manchester_united",
+      "isEntityReference": true
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "season_2023_24",
+      "predicate": "http://visualdataweb.org/newOntology/SeasonYear",
+      "object": "2023/24",
+      "isEntityReference": false
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "shaw",
+      "predicate": "http://visualdataweb.org/newOntology/LeagueName",
+      "object": "Premier League",
+      "isEntityReference": false
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "shaw",
+      "predicate": "http://visualdataweb.org/newOntology/PlayerName",
+      "object": "Shaw",
+      "isEntityReference": false
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "shaw",
+      "predicate": "http://visualdataweb.org/newOntology/playsFor",
+      "object": "manchester_united",
+      "isEntityReference": true
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "sporting",
+      "predicate": "http://visualdataweb.org/newOntology/includesPlayer",
+      "object": "geny_catamo",
+      "isEntityReference": true
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "sporting",
+      "predicate": "http://visualdataweb.org/newOntology/includesPlayer",
+      "object": "nuno_santos",
+      "isEntityReference": true
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "sporting",
+      "predicate": "http://visualdataweb.org/newOntology/includesPlayer",
+      "object": "ricardo_esagio",
+      "isEntityReference": true
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "sporting",
+      "predicate": "http://visualdataweb.org/newOntology/managedBy",
+      "object": "amorim",
+      "isEntityReference": true
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "tyrell_malacia",
+      "predicate": "http://visualdataweb.org/newOntology/playsFor",
+      "object": "manchester_united",
+      "isEntityReference": true
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "wing_back_position",
+      "predicate": "http://visualdataweb.org/newOntology/PlayerPosition",
+      "object": "wing-back",
+      "isEntityReference": false
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "wing_back_position",
+      "predicate": "http://visualdataweb.org/newOntology/isPositionOf",
+      "object": "geny_catamo",
+      "isEntityReference": true
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "wing_back_position",
+      "predicate": "http://visualdataweb.org/newOntology/isPositionOf",
+      "object": "nuno_santos",
+      "isEntityReference": true
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "wing_back_position",
+      "predicate": "http://visualdataweb.org/newOntology/isPositionOf",
+      "object": "ricardo_esagio",
+      "isEntityReference": true
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "wing_back_position",
+      "predicate": "http://visualdataweb.org/newOntology/isPositionOf",
+      "object": "shaw",
+      "isEntityReference": true
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "yoro",
+      "predicate": "http://visualdataweb.org/newOntology/PlayerName",
+      "object": "Yoro",
+      "isEntityReference": false
+    },
+    {
+      "_tag": "Relation",
+      "subjectId": "yoro",
+      "predicate": "http://visualdataweb.org/newOntology/playsFor",
+      "object": "manchester_united",
+      "isEntityReference": true
+    }
+  ]
+}

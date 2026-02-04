@@ -1,0 +1,472 @@
+---
+title: Handle Mutations with Atom.fn
+id: effect-atom-mutations
+skillLevel: intermediate
+useCase: frontend-state
+summary: >-
+  Use Atom.fn to create type-safe mutation functions that trigger Effect-based
+  side effects and automatically invalidate reactive queries.
+tags:
+  - frontend
+  - react
+  - atom
+  - mutations
+  - reactivity
+  - effect-fn
+related:
+  - frontend-state-with-effect-atom
+  - effect-atom-result-handling
+  - retry-based-on-specific-errors
+author: Effect Community
+---
+
+# Handle Mutations with Atom.fn
+
+## Guideline
+
+Use `runtime.fn()` to create mutation functions that execute Effects with automatic reactivity integration, enabling type-safe side effects that trigger UI updates.
+
+## Rationale
+
+Mutations in frontend applications involve:
+1. **Side effects**: API calls, local storage updates
+2. **State updates**: Reflecting changes immediately
+3. **Error handling**: Recovering from failures
+4. **Invalidation**: Refreshing dependent data
+
+`Atom.fn` provides a clean pattern for all of these concerns with:
+- Type-safe function signatures
+- Automatic Effect execution
+- Reactivity key invalidation
+- Integration with the Reactivity service
+
+## Good Example
+
+### Basic Mutation
+
+```typescript
+import { Atom } from "@effect-atom/atom"
+import { Effect } from "effect"
+import { Reactivity } from "@effect/experimental"
+
+const runtime = Atom.runtime(
+  Layer.mergeAll(TodoService.Default, Reactivity.layer)
+)
+
+// Define a mutation that adds a todo
+const addTodoMutation = runtime.fn(
+  (todo: NewTodo) =>
+    Effect.gen(function* () {
+      const todoService = yield* TodoService
+      const newTodo = yield* todoService.addTodo(todo)
+      yield* Effect.logInfo(`Todo added: ${newTodo.id}`)
+      return newTodo
+    }),
+  {
+    // Automatically invalidate the "todos" reactivity key
+    reactivityKeys: ["todos"]
+  }
+)
+
+// Use in React
+function AddTodoForm() {
+  const addTodo = useAtomSet(addTodoMutation)
+  
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault()
+    addTodo({ title: "New todo", completed: false })
+  }
+  
+  return <form onSubmit={handleSubmit}>...</form>
+}
+```
+
+### Mutation with Optimistic Updates
+
+```typescript
+import { Atom, Result } from "@effect-atom/atom"
+import { Effect } from "effect"
+
+const todosAtom = runtime.make(() =>
+  Effect.gen(function* () {
+    const todoService = yield* TodoService
+    return yield* todoService.getTodos()
+  }).pipe(
+    Atom.withReactivity(["todos"]) // Refresh when "todos" key invalidated
+  )
+)
+
+const toggleTodoMutation = runtime.fn(
+  (todoId: string) =>
+    Effect.gen(function* () {
+      const todoService = yield* TodoService
+      
+      // Get current todos
+      const currentResult = yield* Atom.get(todosAtom)
+      const current = Result.getOrElse(currentResult, () => [])
+      
+      // Optimistic update
+      const optimistic = current.map(t =>
+        t.id === todoId ? { ...t, completed: !t.completed } : t
+      )
+      yield* Atom.set(todosAtom, Result.success(optimistic))
+      
+      // Actual API call
+      const updated = yield* todoService.toggleTodo(todoId)
+      
+      return updated
+    }).pipe(
+      Effect.catchAll((error) =>
+        Effect.gen(function* () {
+          // Rollback on error
+          yield* Atom.refresh(todosAtom)
+          return yield* Effect.fail(error)
+        })
+      )
+    ),
+  {
+    reactivityKeys: ["todos"]
+  }
+)
+```
+
+### Mutation with Multiple Invalidations
+
+```typescript
+const deleteUserMutation = runtime.fn(
+  (userId: string) =>
+    Effect.gen(function* () {
+      const userService = yield* UserService
+      yield* userService.deleteUser(userId)
+      
+      // Manually invalidate multiple keys
+      yield* Reactivity.invalidate(["users", "user-stats", `user:${userId}`])
+      
+      yield* Effect.logInfo(`User ${userId} deleted`)
+    }),
+  {
+    // These keys are also invalidated automatically
+    reactivityKeys: ["users", "user-list"]
+  }
+)
+```
+
+### Chained Mutations
+
+```typescript
+const createAndPublishPostMutation = runtime.fn(
+  (post: NewPost) =>
+    Effect.gen(function* () {
+      const postService = yield* PostService
+      
+      // Create the post
+      const created = yield* postService.createPost(post)
+      yield* Effect.logInfo(`Post created: ${created.id}`)
+      
+      // Publish it
+      const published = yield* postService.publishPost(created.id)
+      yield* Effect.logInfo(`Post published: ${published.id}`)
+      
+      // Invalidate queries
+      yield* Reactivity.invalidate(["posts", "published-posts", `post:${published.id}`])
+      
+      return published
+    }),
+  {
+    reactivityKeys: ["posts", "draft-posts"]
+  }
+)
+```
+
+### Mutation with Retry
+
+```typescript
+import { Schedule } from "effect"
+
+const saveDraftMutation = runtime.fn(
+  (draft: Draft) =>
+    Effect.gen(function* () {
+      const draftService = yield* DraftService
+      return yield* draftService.saveDraft(draft)
+    }).pipe(
+      // Retry on transient errors
+      Effect.retry(
+        Schedule.exponential("100 millis").pipe(
+          Schedule.compose(Schedule.recurs(3))
+        )
+      ),
+      Effect.catchTag("NetworkError", (error) =>
+        Effect.gen(function* () {
+          yield* Effect.logWarning("Failed to save draft, will retry", error)
+          // Save to local storage as fallback
+          yield* saveToLocalStorage(draft)
+          return yield* Effect.fail(error)
+        })
+      )
+    ),
+  {
+    reactivityKeys: ["drafts"]
+  }
+)
+```
+
+## Bad Example
+
+### ❌ Using useEffect for Mutations
+
+```typescript
+// BAD: Complex imperative mutation logic
+function TodoItem({ todo }: { todo: Todo }) {
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<Error | null>(null)
+  
+  const handleToggle = async () => {
+    setLoading(true)
+    setError(null)
+    
+    try {
+      await Effect.runPromise(toggleTodo(todo.id))
+      // Manually trigger refetch
+      refetchTodos()
+    } catch (e) {
+      setError(e as Error)
+    } finally {
+      setLoading(false)
+    }
+  }
+  
+  return <button onClick={handleToggle} disabled={loading}>...</button>
+}
+
+// GOOD: Use Atom.fn
+const toggleTodoMutation = runtime.fn(
+  (todoId: string) => toggleTodo(todoId),
+  { reactivityKeys: ["todos"] }
+)
+
+function TodoItem({ todo }: { todo: Todo }) {
+  const toggle = useAtomSet(toggleTodoMutation)
+  return <button onClick={() => toggle(todo.id)}>...</button>
+}
+```
+
+### ❌ Not Handling Errors
+
+```typescript
+// BAD: Ignoring errors
+const addTodoMutation = runtime.fn(
+  (todo: NewTodo) => addTodoEffect(todo),
+  { reactivityKeys: ["todos"] }
+)
+
+function AddTodo() {
+  const addTodo = useAtomSet(addTodoMutation)
+  // No error handling!
+  return <button onClick={() => addTodo(newTodo)}>Add</button>
+}
+
+// GOOD: Handle errors properly
+const addTodoMutation = runtime.fn(
+  (todo: NewTodo) =>
+    addTodoEffect(todo).pipe(
+      Effect.catchAll((error) =>
+        Effect.gen(function* () {
+          yield* Effect.logError("Failed to add todo", error)
+          // Show toast notification
+          yield* showErrorToast(`Failed to add todo: ${error.message}`)
+          return yield* Effect.fail(error)
+        })
+      )
+    ),
+  { reactivityKeys: ["todos"] }
+)
+```
+
+### ❌ Forgetting Reactivity Keys
+
+```typescript
+// BAD: No reactivity keys
+const updateUserMutation = runtime.fn((user: User) =>
+  updateUserEffect(user)
+  // Dependent queries won't refresh!
+)
+
+// GOOD: Specify reactivity keys
+const updateUserMutation = runtime.fn(
+  (user: User) => updateUserEffect(user),
+  {
+    reactivityKeys: ["users", `user:${user.id}`, "current-user"]
+  }
+)
+```
+
+## Pattern: Mutation with Loading State
+
+```typescript
+import { Atom, Result } from "@effect-atom/atom"
+
+// Create a mutation result atom
+const addTodoResultAtom = Atom.make<Result.Result<Todo, Error>>(
+  Result.initial()
+)
+
+const addTodoMutation = runtime.fn(
+  (todo: NewTodo) =>
+    Effect.gen(function* () {
+      // Set loading state
+      yield* Atom.set(addTodoResultAtom, Result.loading())
+      
+      try {
+        const todoService = yield* TodoService
+        const result = yield* todoService.addTodo(todo)
+        
+        // Set success state
+        yield* Atom.set(addTodoResultAtom, Result.success(result))
+        
+        return result
+      } catch (error) {
+        // Set error state
+        yield* Atom.set(addTodoResultAtom, Result.failure(error))
+        return yield* Effect.fail(error)
+      }
+    }),
+  { reactivityKeys: ["todos"] }
+)
+
+function AddTodo() {
+  const addTodo = useAtomSet(addTodoMutation)
+  const result = useAtomValue(addTodoResultAtom)
+  
+  return (
+    <div>
+      <button
+        onClick={() => addTodo(newTodo)}
+        disabled={Result.isLoading(result)}
+      >
+        {Result.isLoading(result) ? "Adding..." : "Add Todo"}
+      </button>
+      {Result.isFailure(result) && (
+        <ErrorMessage error={Result.getFailure(result)} />
+      )}
+    </div>
+  )
+}
+```
+
+## Pattern: Batch Mutations
+
+```typescript
+const batchUpdateTodosMutation = runtime.fn(
+  (updates: Array<{ id: string; changes: Partial<Todo> }>) =>
+    Effect.gen(function* () {
+      const todoService = yield* TodoService
+      
+      // Execute all updates in parallel
+      const results = yield* Effect.all(
+        updates.map(({ id, changes }) => todoService.updateTodo(id, changes)),
+        { concurrency: 5 }
+      )
+      
+      yield* Effect.logInfo(`Updated ${results.length} todos`)
+      
+      return results
+    }),
+  { reactivityKeys: ["todos"] }
+)
+```
+
+## Pattern: Conditional Mutations
+
+```typescript
+const saveTodoMutation = runtime.fn(
+  (todo: Todo) =>
+    Effect.gen(function* () {
+      const todoService = yield* TodoService
+      const config = yield* ConfigService
+      
+      // Check if offline
+      const isOnline = yield* config.isOnline
+      
+      if (!isOnline) {
+        // Save to local storage
+        yield* saveToLocalStorage(todo)
+        yield* Effect.logInfo("Saved todo locally (offline)")
+      } else {
+        // Save to server
+        yield* todoService.saveTodo(todo)
+        yield* Effect.logInfo("Saved todo to server")
+      }
+      
+      return todo
+    }),
+  { reactivityKeys: ["todos"] }
+)
+```
+
+## Pattern: Mutation with Validation
+
+```typescript
+import { Schema } from "@effect/schema"
+
+const TodoInput = Schema.Struct({
+  title: Schema.String.pipe(Schema.minLength(1), Schema.maxLength(100)),
+  description: Schema.optional(Schema.String),
+  dueDate: Schema.optional(Schema.Date)
+})
+
+const addTodoMutation = runtime.fn(
+  (input: unknown) =>
+    Effect.gen(function* () {
+      // Validate input
+      const validated = yield* Schema.decode(TodoInput)(input)
+      
+      // Add todo
+      const todoService = yield* TodoService
+      const todo = yield* todoService.addTodo(validated)
+      
+      return todo
+    }).pipe(
+      Effect.catchTag("ParseError", (error) =>
+        Effect.gen(function* () {
+          yield* showErrorToast("Invalid todo data")
+          return yield* Effect.fail(error)
+        })
+      )
+    ),
+  { reactivityKeys: ["todos"] }
+)
+```
+
+## Best Practices
+
+1. **Always specify reactivity keys** to invalidate dependent queries
+2. **Handle errors explicitly** with proper user feedback
+3. **Use optimistic updates** for better UX
+4. **Log mutations** for debugging and auditing
+5. **Validate inputs** before mutation
+6. **Use retry strategies** for transient failures
+7. **Consider offline scenarios** with local storage fallbacks
+8. **Keep mutations focused** - one action per mutation
+
+## Common Patterns
+
+- **CRUD Operations**: Create, Read, Update, Delete
+- **Optimistic Updates**: Update UI immediately, rollback on error
+- **Batch Operations**: Process multiple items efficiently
+- **Queue Mutations**: Handle offline scenarios
+- **Debounced Mutations**: Auto-save with debouncing
+- **Chained Mutations**: Multi-step operations
+
+## Related Patterns
+
+- [`frontend-state-with-effect-atom.mdx`](./frontend-state-with-effect-atom.mdx) - Atom basics
+- [`effect-atom-result-handling.mdx`](./effect-atom-result-handling.mdx) - Result types
+- [`retry-based-on-specific-errors.mdx`](./retry-based-on-specific-errors.mdx) - Retry strategies
+- [`handle-errors-with-catch.mdx`](./handle-errors-with-catch.mdx) - Error handling
+
+## References
+
+- [Effect Atom Mutations](https://effect-atom.kitlangton.com/atom-fn)
+- [Optimistic Updates](https://effect-atom.kitlangton.com/optimistic)
+- [Reactivity Service](https://effect.website/docs/guides/observability/reactivity)
+

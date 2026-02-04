@@ -1,0 +1,31 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: effect-ontology-core
+  labels:
+    cloud.googleapis.com/location: us-central1
+spec:
+  template:
+    metadata:
+      annotations:
+        autoscaling.knative.dev/minScale: "0"
+        autoscaling.knative.dev/maxScale: "10"
+        run.googleapis.com/execution-environment: gen2
+    spec:
+      containers:
+        - image: gcr.io/PROJECT_ID/effect-ontology-core:latest
+          ports:
+            - containerPort: 8080
+          resources:
+            limits:
+              cpu: "1000m"
+              memory: "1Gi"
+          env:
+            - name: NODE_ENV
+              value: "production"
+            - name: ONTOLOGY_PATH
+              value: "ontologies/football/ontology_skos.ttl"
+            - name: GCS_BUCKET_NAME
+              value: "effect-ontology-data"
+            - name: GCS_PREFIX
+              value: "data"

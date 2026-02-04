@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  OWL Import Catalog for Effect Ontology
+
+  This catalog provides local resolution for DUL (DOLCE+DnS Ultralite).
+  Used by Protégé and OWL API to resolve owl:imports locally.
+
+  Last updated: 2025-12-25
+-->
+<catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog"
+         prefer="public">
+
+  <!-- DOLCE+DnS Ultralite (DUL) -->
+  <!-- Version: 4.1 - Foundational ontology -->
+  <uri name="http://www.ontologydesignpatterns.org/ont/dul/DUL.owl" uri="dul.owl"/>
+  <uri name="http://www.ontologydesignpatterns.org/ont/dul/DUL.owl#" uri="dul.owl"/>
+
+</catalog>

@@ -1,0 +1,63 @@
+# Terraform Variables Example for Effect Ontology MVP
+#
+# Copy this file to terraform.tfvars and fill in your values.
+# NEVER commit terraform.tfvars to source control (it may contain secrets).
+#
+# For MVP deployment with full PostgreSQL persistence:
+#   cp terraform.tfvars.example terraform.tfvars
+#   # Edit terraform.tfvars with your project settings
+#   terraform init
+#   terraform plan
+#   terraform apply
+
+# =============================================================================
+# Required Variables
+# =============================================================================
+
+# GCP Project ID (e.g., "my-project-123")
+project_id = "your-gcp-project-id"
+
+# Environment name (affects resource naming)
+environment = "dev"
+
+# Docker image to deploy (from Artifact Registry or Container Registry)
+# Example: "us-docker.pkg.dev/PROJECT/REPO/effect-ontology-core:latest"
+image = "us-docker.pkg.dev/your-project/effect-ontology/core:latest"
+
+# =============================================================================
+# Optional Variables (defaults shown)
+# =============================================================================
+
+# GCP Region
+region = "us-central1"
+
+# Allow public access to Cloud Run (set to true for testing)
+allow_unauthenticated = false
+
+# =============================================================================
+# MVP PostgreSQL Configuration
+# =============================================================================
+
+# Enable PostgreSQL for workflow persistence and metadata storage
+# IMPORTANT: Set to true for MVP - required for claims, corrections, timeline queries
+enable_postgres = true
+
+# =============================================================================
+# Pre-requisites for PostgreSQL
+# =============================================================================
+#
+# Before enabling PostgreSQL, you must create the password secret:
+#
+# 1. Generate a secure password:
+#    POSTGRES_PASSWORD=$(openssl rand -base64 32)
+#
+# 2. Create the secret in Secret Manager:
+#    gcloud secrets create postgres-password-dev \
+#      --data-file=<(echo -n "$POSTGRES_PASSWORD")
+#
+# 3. Grant Cloud Run service account access:
+#    gcloud secrets add-iam-policy-binding postgres-password-dev \
+#      --member="serviceAccount:YOUR_PROJECT_NUMBER-compute@developer.gserviceaccount.com" \
+#      --role="roles/secretmanager.secretAccessor"
+#
+# The Terraform secrets module will verify the secret exists.
