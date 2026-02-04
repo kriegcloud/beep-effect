@@ -576,6 +576,9 @@
       "devDependencies": {
         "@beep/calendar-domain": "workspace:^",
         "@beep/calendar-tables": "workspace:^",
+        "@beep/google-workspace-client": "workspace:^",
+        "@beep/google-workspace-domain": "workspace:^",
+        "@beep/identity": "workspace:^",
         "@beep/schema": "workspace:^",
         "@beep/shared-domain": "workspace:^",
         "@beep/shared-server": "workspace:^",
@@ -591,6 +594,9 @@
       "peerDependencies": {
         "@beep/calendar-domain": "workspace:^",
         "@beep/calendar-tables": "workspace:^",
+        "@beep/google-workspace-client": "workspace:^",
+        "@beep/google-workspace-domain": "workspace:^",
+        "@beep/identity": "workspace:^",
         "@beep/schema": "workspace:^",
         "@beep/shared-domain": "workspace:^",
         "@beep/shared-server": "workspace:^",
@@ -833,6 +839,8 @@
       "devDependencies": {
         "@beep/comms-domain": "workspace:^",
         "@beep/comms-tables": "workspace:^",
+        "@beep/google-workspace-client": "workspace:^",
+        "@beep/google-workspace-domain": "workspace:^",
         "@beep/shared-domain": "workspace:^",
         "@beep/shared-server": "workspace:^",
         "@effect/docgen": "catalog:",
@@ -847,6 +855,8 @@
       "peerDependencies": {
         "@beep/comms-domain": "workspace:^",
         "@beep/comms-tables": "workspace:^",
+        "@beep/google-workspace-client": "workspace:^",
+        "@beep/google-workspace-domain": "workspace:^",
         "@beep/shared-domain": "workspace:^",
         "@beep/shared-server": "workspace:^",
         "@effect/platform": "catalog:",
@@ -1447,6 +1457,58 @@
         "react-dom": "catalog:",
       },
     },
+    "packages/integrations/google-workspace/client": {
+      "name": "@beep/google-workspace-client",
+      "version": "0.0.0",
+      "devDependencies": {
+        "@beep/google-workspace-domain": "workspace:^",
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "effect": "catalog:",
+      },
+      "peerDependencies": {
+        "@beep/google-workspace-domain": "workspace:^",
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "effect": "catalog:",
+      },
+    },
+    "packages/integrations/google-workspace/domain": {
+      "name": "@beep/google-workspace-domain",
+      "version": "0.0.0",
+      "devDependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "effect": "catalog:",
+      },
+      "peerDependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "effect": "catalog:",
+      },
+    },
+    "packages/integrations/google-workspace/server": {
+      "name": "@beep/google-workspace-server",
+      "version": "0.0.0",
+      "devDependencies": {
+        "@beep/google-workspace-client": "workspace:^",
+        "@beep/google-workspace-domain": "workspace:^",
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "@beep/shared-domain": "workspace:^",
+        "@effect/platform": "catalog:",
+        "effect": "catalog:",
+      },
+      "peerDependencies": {
+        "@beep/google-workspace-client": "workspace:^",
+        "@beep/google-workspace-domain": "workspace:^",
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "@beep/shared-domain": "workspace:^",
+        "@effect/platform": "catalog:",
+        "effect": "catalog:",
+      },
+    },
     "packages/knowledge/client": {
       "name": "@beep/knowledge-client",
       "version": "0.0.0",
@@ -1490,6 +1552,8 @@
         "openai": "catalog:",
       },
       "devDependencies": {
+        "@beep/google-workspace-client": "workspace:^",
+        "@beep/google-workspace-domain": "workspace:^",
         "@beep/knowledge-domain": "workspace:^",
         "@beep/knowledge-tables": "workspace:^",
         "@beep/schema": "workspace:^",
@@ -1507,6 +1571,8 @@
         "effect": "catalog:",
       },
       "peerDependencies": {
+        "@beep/google-workspace-client": "workspace:^",
+        "@beep/google-workspace-domain": "workspace:^",
         "@beep/knowledge-domain": "workspace:^",
         "@beep/knowledge-tables": "workspace:^",
         "@beep/schema": "workspace:^",
@@ -2892,7 +2958,7 @@
     "lowlight": "^3.3.0",
     "lucide-react": "^0.563.0",
     "madge": "^8.0.0",
-    "markdown-to-jsx": "^9.6.1",
+    "markdown-to-jsx": "^9.7.0",
     "mdi-material-ui": "^7.9.4",
     "motion": "^12.31.0",
     "mui-one-time-password-input": "^5.0.0",
@@ -3357,6 +3423,12 @@
     "@beep/documents-ui": ["@beep/documents-ui@workspace:packages/documents/ui"],
 
     "@beep/errors": ["@beep/errors@workspace:packages/common/errors"],
+
+    "@beep/google-workspace-client": ["@beep/google-workspace-client@workspace:packages/integrations/google-workspace/client"],
+
+    "@beep/google-workspace-domain": ["@beep/google-workspace-domain@workspace:packages/integrations/google-workspace/domain"],
+
+    "@beep/google-workspace-server": ["@beep/google-workspace-server@workspace:packages/integrations/google-workspace/server"],
 
     "@beep/iam-client": ["@beep/iam-client@workspace:packages/iam/client"],
 
@@ -6370,7 +6442,7 @@
 
     "markdown-table": ["markdown-table@3.0.4", "", {}, "sha512-wiYz4+JrLyb/DqW2hkFJxP7Vd7JuTDm77fvbM8VfEQdmSMqcImWeeRbHwZjBjIFki/VaMK2BhFi7oUUZeM5bqw=="],
 
-    "markdown-to-jsx": ["markdown-to-jsx@9.6.1", "", { "peerDependencies": { "react": ">= 16.0.0", "solid-js": ">=1.0.0", "vue": ">=3.0.0" }, "optionalPeers": ["react", "solid-js", "vue"] }, "sha512-FLZPygHQzEGNUwIJ3Egdf3Lzm5M4ebswji8aMfM5tAq1vxkSw31a7OBmYXA3tg264PPyJw5UMDHw1fU+wFaQ9Q=="],
+    "markdown-to-jsx": ["markdown-to-jsx@9.7.0", "", { "peerDependencies": { "react": ">= 16.0.0", "solid-js": ">=1.0.0", "vue": ">=3.0.0" }, "optionalPeers": ["react", "solid-js", "vue"] }, "sha512-mo8Bbdyc1yJs7yIPDFJi6IIzVfG1nzKRslNnx9HdOhQNa6xQumVohAD1u/CdxYIC5vHR4YFDrbjE8lICVIQIUg=="],
 
     "marked": ["marked@15.0.12", "", { "bin": { "marked": "bin/marked.js" } }, "sha512-8dD6FusOQSrpv9Z1rdNMdlSgQOIP880DHqnohobOmYLElGEqAL/JvxvuxZO16r4HtjTlfPRDC1hbvxC9dPN2nA=="],
 

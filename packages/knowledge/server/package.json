@@ -37,7 +37,9 @@
   "peerDependencies": {
     "@beep/utils": "workspace:^",
     "@beep/schema": "workspace:^",
+    "@beep/google-workspace-domain": "workspace:^",
     "@beep/shared-domain": "workspace:^",
+    "@beep/google-workspace-client": "workspace:^",
     "@beep/knowledge-domain": "workspace:^",
     "@beep/shared-server": "workspace:^",
     "@beep/knowledge-tables": "workspace:^",
@@ -51,7 +53,9 @@
   "devDependencies": {
     "@beep/utils": "workspace:^",
     "@beep/schema": "workspace:^",
+    "@beep/google-workspace-domain": "workspace:^",
     "@beep/shared-domain": "workspace:^",
+    "@beep/google-workspace-client": "workspace:^",
     "@beep/knowledge-domain": "workspace:^",
     "@beep/shared-server": "workspace:^",
     "@beep/knowledge-tables": "workspace:^",

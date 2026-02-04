@@ -12,17 +12,17 @@ Transform the monolithic integration layer into a composable architecture that s
 
 **Solution**: Three-tier architecture:
 1. **Infrastructure Layer** (`packages/integrations/google-workspace`): OAuth client, HTTP retry logic, common error types
-2. **Credential Layer** (IAM): Encrypted token storage, scope expansion flows, revocation
+2. **Auth Context Layer** (`@beep/shared-domain/Policy`): OAuth API methods via `AuthContext.oauth` that leverage Better Auth's built-in encrypted token storage
 3. **Anti-Corruption Layer** (slice adapters): Domain ↔ Google translation, slice-specific scope declaration
 
 ---
 
 ## Success Criteria
 
-- [ ] Gmail infrastructure migrated to `packages/integrations/google-workspace/`
-- [ ] `IntegrationTokenStore` service created in `packages/iam/server/`
+- [x] Gmail infrastructure migrated to `packages/integrations/google-workspace/`
+- [x] `AuthContext` extended with OAuth API in `@beep/shared-domain/Policy`
 - [ ] Slice-specific adapters created for calendar, comms, knowledge
-- [ ] OAuth scope expansion flow implemented (incremental authorization)
+- [x] OAuth scope expansion flow implemented (incremental authorization)
 - [ ] All existing Gmail actions functional under new architecture
 - [ ] Zero cross-slice dependencies from adapters
 - [ ] `packages/shared/integrations` deleted after migration
@@ -80,24 +80,23 @@ packages/
 │       ├── domain/
 │       │   └── src/
 │       │       ├── errors/              # GoogleApiError, RateLimitError, ScopeExpansionRequired
-│       │       └── entity-ids/          # GoogleWorkspaceEntityIds (if needed)
+│       │       └── models/              # GoogleOAuthToken
 │       ├── client/
 │       │   └── src/
 │       │       ├── GoogleAuthClient.ts     # Context.Tag for OAuth operations
-│       │       ├── GoogleHttpClient.ts     # Retry/backoff HTTP wrapper
-│       │       └── contracts/              # Scope enums, config schemas
+│       │       └── contracts/              # OAuth response schemas
 │       └── server/
 │           └── src/
-│               ├── services/
-│               │   └── GoogleAuthService.ts  # Token refresh, scope management
 │               └── layers/
-│                   └── GoogleWorkspaceLive.ts
+│                   └── GoogleAuthClientLive.ts  # Uses AuthContext.oauth
 │
-├── iam/
-│   └── server/
-│       └── src/
-│           └── services/
-│               └── IntegrationTokenStore.ts  # OWNS encrypted token storage
+├── shared/domain/
+│   └── src/
+│       └── Policy.ts                    # AuthContext extended with OAuth API
+│
+├── runtime/server/
+│   └── src/
+│       └── AuthContext.layer.ts         # OAuth API implementation via Better Auth
 │
 ├── calendar/
 │   └── server/
@@ -122,17 +121,18 @@ packages/
 
 | Layer | Owns | Example Components |
 |-------|------|-------------------|
-| **Infrastructure** (`packages/integrations/google-workspace`) | OAuth client, HTTP retry, common errors | `GoogleAuthClient`, `GoogleHttpClient`, `RateLimitError` |
-| **Credential** (`packages/iam/server`) | Encrypted token storage, scope expansion | `IntegrationTokenStore`, `expandScopes()` |
+| **Infrastructure** (`packages/integrations/google-workspace`) | OAuth client interface, domain errors, token models | `GoogleAuthClient`, `GoogleOAuthToken`, `GoogleAuthenticationError` |
+| **Auth Context** (`@beep/shared-domain/Policy`) | OAuth API surface, Better Auth integration | `AuthContext.oauth`, `getAccessToken()`, `getProviderAccount()` |
 | **Anti-Corruption** (slice adapters) | Domain ↔ Google translation, scope declaration | `GmailAdapter.sendEmail()`, `COMMS_SCOPES` |
 
 ### Key Design Decisions
 
-1. **IAM Owns TokenStore**: Centralizes security policy, reuses existing `Account` model for user association
-2. **GoogleAuthClient is Interface-Only**: Infrastructure package provides `Context.Tag`; IAM provides token storage dependency
-3. **Slice Adapters Declare Scopes**: Each slice declares its required OAuth scopes in adapter constants
-4. **Incremental Authorization**: Don't request all scopes upfront; catch `ScopeExpansionRequired` and trigger OAuth flow
-5. **No Cross-Slice Dependencies**: Adapters only depend on infrastructure layer and their own slice's domain
+1. **Better Auth Owns Token Storage**: Leverages existing encrypted `account` table instead of a separate token store
+2. **AuthContext Provides OAuth API**: Integration packages access tokens via `AuthContext.oauth` without cross-slice imports
+3. **GoogleAuthClient Depends on AuthContext**: Server layer captures AuthContext at construction time for user context
+4. **Slice Adapters Declare Scopes**: Each slice declares its required OAuth scopes in adapter constants
+5. **Incremental Authorization**: Don't request all scopes upfront; catch `ScopeExpansionRequired` and trigger OAuth flow
+6. **No Cross-Slice Dependencies**: Adapters only depend on infrastructure layer, AuthContext, and their own slice's domain
 
 ---
 
@@ -142,7 +142,7 @@ packages/
 |-------|-------|---------|----------|
 | **P0** | Scaffolding | README.md, REFLECTION_LOG.md, handoffs/ | doc-writer |
 | **P1** | Infrastructure Package | `packages/integrations/google-workspace` | codebase-researcher, effect-code-writer |
-| **P2** | Token Storage | `packages/iam/server/services/IntegrationTokenStore.ts` | codebase-researcher, effect-code-writer |
+| **P2** | AuthContext OAuth API | `@beep/shared-domain/Policy`, `packages/runtime/server/src/AuthContext.layer.ts` | codebase-researcher, effect-code-writer |
 | **P3** | Slice Adapters | Calendar/Comms/Knowledge adapters | effect-code-writer (3x parallel) |
 | **P4** | Migration | Move existing Gmail actions to new structure | codebase-researcher, effect-code-writer |
 | **P5** | Cleanup | Delete old `packages/shared/integrations` | package-error-fixer |
@@ -170,23 +170,22 @@ packages/
 - [ ] `GoogleHttpClient` handles rate limiting
 - [ ] Error schemas include structured error details
 
-### Phase 2: Token Storage
+### Phase 2: AuthContext OAuth API
 
-**Goal**: Create `IntegrationTokenStore` in IAM with encrypted token storage.
+**Goal**: Extend `AuthContext` with OAuth API methods that leverage Better Auth's built-in token management.
 
 **Work Items**:
-1. Create `IntegrationTokenStore` service interface
-2. Implement encrypted token CRUD operations
-3. Add `integration_tokens` table (Drizzle schema)
-4. Implement scope expansion detection
-5. Create layer composition with IAM dependencies
-6. Add integration tests
+1. Define OAuth API types (`OAuthApi`, `OAuthTokenResult`, `OAuthAccount`)
+2. Create tagged error types (`OAuthTokenError`, `OAuthAccountsError`)
+3. Implement OAuth API in `AuthContext.layer.ts`
+4. Refactor `GoogleAuthClientLive` to use `AuthContext.oauth`
+5. Add scope validation for incremental OAuth
 
 **Success Criteria**:
-- [ ] Tokens stored with encryption at rest
-- [ ] Scope expansion triggers OAuth re-consent flow
-- [ ] Service accessible via IAM layer
-- [ ] Tests verify token lifecycle (store, refresh, revoke)
+- [x] AuthContext extended with `oauth: OAuthApi`
+- [x] OAuth API leverages Better Auth's automatic token refresh
+- [x] Integration packages depend only on AuthContext (no IAM server imports)
+- [x] Scope validation via `getProviderAccount` works correctly
 
 ### Phase 3: Slice Adapters
 
@@ -271,7 +270,7 @@ packages/
 
 | Risk | Impact | Mitigation |
 |------|--------|------------|
-| **OAuth Token Migration** | Existing tokens in old schema | Create migration script to copy tokens to `integration_tokens` table |
+| **OAuth Token Migration** | Existing tokens in old schema | N/A - Better Auth's `account` table already stores tokens; no migration needed |
 | **Scope Conflicts** | Overlapping scopes between slices | Document scope ownership; IAM manages consolidated scope list |
 | **Breaking Changes** | Consumers depend on old integration API | Parallel implementation; swap adapters atomically per slice |
 | **Rate Limiting** | Google API quotas during migration | Implement exponential backoff in `GoogleHttpClient` |
@@ -312,7 +311,7 @@ This migration qualifies as critical complexity due to:
 
 ### Intra-Monorepo
 - `@beep/iam-domain` - Account model for token association
-- `@beep/iam-tables` - Database schema for integration_tokens table
+- `@beep/runtime-server` - AuthContext.layer.ts for OAuth API implementation
 - `@beep/shared-domain` - Error types, base schemas
 - `@beep/common-schema` - Schema utilities, transformations
 

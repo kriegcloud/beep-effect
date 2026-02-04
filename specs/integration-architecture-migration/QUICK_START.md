@@ -9,8 +9,8 @@
 Migrate Gmail integration from `packages/shared/integrations` to three-tier architecture:
 
 **Tier 1**: Shared infrastructure (`packages/integrations/google-workspace`)
-**Tier 2**: Slice-specific adapters (`packages/{calendar,comms,knowledge}/server/adapters`)
-**Tier 3**: Token management (`packages/iam/server/services/IntegrationTokenStore.ts`)
+**Tier 2**: Auth context OAuth API (`@beep/shared-domain/Policy` + `packages/runtime/server/src/AuthContext.layer.ts`)
+**Tier 3**: Slice-specific adapters (`packages/{calendar,comms,knowledge}/server/adapters`)
 
 ---
 
@@ -18,11 +18,11 @@ Migrate Gmail integration from `packages/shared/integrations` to three-tier arch
 
 | Current | Target |
 |---------|--------|
-| Mixed infrastructure + domain logic in `packages/shared/integrations` | Clean separation: infra → adapters → domain |
-| No token store | IAM-owned `IntegrationTokenStore` service |
+| Mixed infrastructure + domain logic in `packages/shared/integrations` | Clean separation: infra → auth context → adapters → domain |
+| No standard OAuth access | AuthContext.oauth API leveraging Better Auth's built-in token management |
 | Direct Gmail SDK usage in slices | Slice adapters translate Gmail concepts to domain concepts |
 
-**Why**: Security policy centralization (IAM owns tokens), infrastructure reuse (OAuth/HTTP shared), domain isolation (no Google concepts leak into business logic).
+**Why**: Better Auth already handles token storage (account table), AuthContext provides clean OAuth access without cross-slice dependencies, infrastructure reuse (OAuth/HTTP shared), domain isolation (no Google concepts leak into business logic).
 
 ---
 
@@ -31,10 +31,10 @@ Migrate Gmail integration from `packages/shared/integrations` to three-tier arch
 | Phase | Task | Agent | Status |
 |-------|------|-------|--------|
 | **P0** | Scaffolding | doc-writer | ✅ Complete |
-| **P1a** | Domain Package | effect-code-writer | Ready |
-| **P1b** | Client/Server Packages | effect-code-writer | Blocked by P1a |
-| **P2** | Token Store | effect-code-writer | Blocked by P1b |
-| **P3** | Slice Adapters | effect-code-writer ×3 | Blocked by P2 |
+| **P1a** | Domain Package | effect-code-writer | ✅ Complete |
+| **P1b** | Client/Server Packages | effect-code-writer | ✅ Complete |
+| **P2** | AuthContext OAuth API | effect-code-writer | ✅ Complete |
+| **P3** | Slice Adapters | effect-code-writer ×3 | Ready |
 | **P4** | Migration | effect-code-writer | Blocked by P3 |
 | **P5** | Cleanup | general-purpose | Blocked by P4 |
 | **P6** | Verification | package-error-fixer | Blocked by P5 |
@@ -45,7 +45,7 @@ Migrate Gmail integration from `packages/shared/integrations` to three-tier arch
 |-------|------|--------|------|
 | **P1a** | Domain schemas and entity IDs | `@beep/integrations-google-workspace-domain` package | 20min |
 | **P1b** | Infrastructure services | OAuth client, HTTP client, Gmail service | 45min |
-| **P2** | Token Store | Token CRUD, encryption, refresh logic in IAM | 30min |
+| **P2** | AuthContext OAuth API | OAuth methods in AuthContext, leveraging Better Auth | 30min |
 | **P3a** | Calendar adapter | `GmailToCalendarAdapter` in `packages/calendar/server/adapters` | 30min |
 | **P3b** | Comms adapter | `GmailToCommsAdapter` in `packages/comms/server/adapters` | 30min |
 | **P3c** | Knowledge adapter | `GmailToKnowledgeAdapter` in `packages/knowledge/server/adapters` | 30min |
@@ -126,10 +126,11 @@ After completing EVERY phase, verify these items:
 
 ## Critical Architectural Rules
 
-1. **Token ownership**: ONLY `IntegrationTokenStore` (IAM) accesses credentials
-2. **No Google concepts in slices**: Adapters translate `gmail.Message` → `CalendarEvent` / `EmailMessage` / `Knowledge.Entity`
-3. **Infrastructure reuse**: OAuth/HTTP clients in Tier 1, NOT duplicated per slice
-4. **Layer composition**: Slices depend on `@beep/integrations-google-workspace`, NOT vice versa
+1. **Token ownership**: Better Auth's `account` table stores tokens; `AuthContext.oauth` provides access
+2. **No cross-slice imports**: Integration packages use `AuthContext`, NOT direct IAM server imports
+3. **No Google concepts in slices**: Adapters translate `gmail.Message` → `CalendarEvent` / `EmailMessage` / `Knowledge.Entity`
+4. **Infrastructure reuse**: OAuth/HTTP clients in Tier 1, NOT duplicated per slice
+5. **Layer composition**: Slices depend on `@beep/integrations-google-workspace` + `AuthContext`, NOT vice versa
 
 ---
 
@@ -157,9 +158,9 @@ Update `REFLECTION_LOG.md` after each phase to capture learnings.
 
 ## Success Criteria
 
-- [ ] `packages/integrations/google-workspace/domain/` created with entity IDs and schemas (P1a)
-- [ ] `packages/integrations/google-workspace/client/` and `server/` created with OAuth/HTTP/Gmail services (P1b)
-- [ ] `IntegrationTokenStore` in IAM slice handles token lifecycle (P2)
+- [x] `packages/integrations/google-workspace/domain/` created with error types and scopes (P1a)
+- [x] `packages/integrations/google-workspace/client/` and `server/` created with GoogleAuthClient (P1b)
+- [x] `AuthContext.oauth` API added to `@beep/shared-domain/Policy` (P2)
 - [ ] Adapters in 3 slices (calendar, comms, knowledge) translate Gmail → domain (P3)
 - [ ] Old `packages/shared/integrations/gmail/` removed (P5)
 - [ ] All tests passing: `bun run test` (P6)

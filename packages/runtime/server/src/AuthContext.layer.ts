@@ -2,23 +2,39 @@ import { BeepError } from "@beep/errors";
 import { Auth, IamDb } from "@beep/iam-server";
 import { IamDbSchema } from "@beep/iam-tables";
 import { Organization, Session, User } from "@beep/shared-domain/entities";
+import { SharedEntityIds } from "@beep/shared-domain/entity-ids";
 import {
   AuthContext,
   AuthContextHttpMiddleware,
   AuthContextRpcMiddleware,
   type AuthContextShape,
+  OAuthAccountsError,
+  OAuthTokenError,
 } from "@beep/shared-domain/Policy";
+import type { DateTimeInput } from "@beep/shared-tables/columns";
 import * as PlatformHeaders from "@effect/platform/Headers";
 import type * as HttpRouter from "@effect/platform/HttpRouter";
 import * as HttpServerRequest from "@effect/platform/HttpServerRequest";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import * as A from "effect/Array";
+import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Redacted from "effect/Redacted";
 import * as S from "effect/Schema";
 import * as Authentication from "./Authentication.layer";
+
+/**
+ * Converts DateTimeInput (string | number | Date | DateTime.Utc) to Date.
+ * The database returns strings, but the type system sees the full union.
+ */
+const toDate = (input: DateTimeInput): Date => {
+  if (input instanceof Date) return input;
+  if (typeof input === "string" || typeof input === "number") return new Date(input);
+  // DateTime.Utc - convert to JS Date
+  return DateTime.toDate(input);
+};
 
 /**
  * Type for the cookie security handler expected by AuthContextHttpMiddleware.
@@ -32,7 +48,7 @@ import * as Authentication from "./Authentication.layer";
  * with Unauthorized.
  */
 type CookieSecurityHandler = (
-  token: Redacted.Redacted<string>
+  token: Redacted.Redacted
 ) => Effect.Effect<AuthContextShape, BeepError.Unauthorized, HttpRouter.HttpRouter.Provided>;
 
 /**
@@ -103,11 +119,55 @@ const getAuthContext = Effect.fnUntraced(function* ({
     )
   );
 
-  return {
+  return AuthContext.of({
     user,
     session,
     organization: currentOrg,
-  };
+    oauth: {
+      getAccessToken: ({ providerId, userId }: { providerId: string; userId: string }) =>
+        Effect.tryPromise({
+          try: () => auth.api.getAccessToken({ body: { providerId, userId } }),
+          catch: (error) =>
+            new OAuthTokenError({
+              message: `Failed to get access token: ${String(error)}`,
+              providerId,
+            }),
+        }).pipe(
+          Effect.map((result) => O.fromNullable(result?.accessToken ? { accessToken: result.accessToken } : null))
+        ),
+      getProviderAccount: ({ providerId, userId }: { providerId: string; userId: string }) =>
+        execute((client) =>
+          client
+            .select()
+            .from(IamDbSchema.account)
+            .where(
+              and(
+                eq(IamDbSchema.account.userId, SharedEntityIds.UserId.make(userId)),
+                eq(IamDbSchema.account.providerId, providerId)
+              )
+            )
+        ).pipe(
+          Effect.map(A.head),
+          Effect.map(
+            O.map((acc) => ({
+              id: acc.id,
+              providerId: acc.providerId,
+              accountId: acc.accountId,
+              userId: acc.userId,
+              scope: O.fromNullable(acc.scope),
+              accessTokenExpiresAt: O.fromNullable(acc.accessTokenExpiresAt ? toDate(acc.accessTokenExpiresAt) : null),
+              refreshToken: O.fromNullable(acc.refreshToken),
+            }))
+          ),
+          Effect.mapError(
+            (error) =>
+              new OAuthAccountsError({
+                message: `Failed to get provider account: ${String(error)}`,
+              })
+          )
+        ),
+    },
+  });
 });
 
 /**
@@ -158,7 +218,7 @@ export const AuthContextRpcMiddlewaresLayer = Layer.effect(
 const getAuthContextFromToken = Effect.fnUntraced(function* (
   auth: Auth.Auth,
   iamDb: IamDb.Shape,
-  token: Redacted.Redacted<string>
+  token: Redacted.Redacted
 ) {
   // Get session using the extracted token directly
   const { user, session } = yield* Effect.tryPromise({
@@ -197,11 +257,59 @@ const getAuthContextFromToken = Effect.fnUntraced(function* (
       Effect.mapError(() => new BeepError.Unauthorized({ message: "Organization not found" }))
     );
 
-  return {
+  return AuthContext.of({
     user,
     session,
     organization: currentOrg,
-  };
+    oauth: {
+      getAccessToken: ({ providerId, userId }: { providerId: string; userId: string }) =>
+        Effect.tryPromise({
+          try: () => auth.api.getAccessToken({ body: { providerId, userId } }),
+          catch: (error) =>
+            new OAuthTokenError({
+              message: `Failed to get access token: ${String(error)}`,
+              providerId,
+            }),
+        }).pipe(
+          Effect.map((result) => O.fromNullable(result?.accessToken ? { accessToken: result.accessToken } : null))
+        ),
+      getProviderAccount: ({ providerId, userId }: { providerId: string; userId: string }) =>
+        iamDb
+          .execute((client) =>
+            client
+              .select()
+              .from(IamDbSchema.account)
+              .where(
+                and(
+                  eq(IamDbSchema.account.userId, SharedEntityIds.UserId.make(userId)),
+                  eq(IamDbSchema.account.providerId, providerId)
+                )
+              )
+          )
+          .pipe(
+            Effect.map(A.head),
+            Effect.map(
+              O.map((acc) => ({
+                id: acc.id,
+                providerId: acc.providerId,
+                accountId: acc.accountId,
+                userId: acc.userId,
+                scope: O.fromNullable(acc.scope),
+                accessTokenExpiresAt: O.fromNullable(
+                  acc.accessTokenExpiresAt ? toDate(acc.accessTokenExpiresAt) : null
+                ),
+                refreshToken: O.fromNullable(acc.refreshToken),
+              }))
+            ),
+            Effect.mapError(
+              (error) =>
+                new OAuthAccountsError({
+                  message: `Failed to get provider account: ${String(error)}`,
+                })
+            )
+          ),
+    },
+  });
 });
 
 /**

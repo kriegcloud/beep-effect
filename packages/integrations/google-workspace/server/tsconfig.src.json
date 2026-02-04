@@ -1,0 +1,48 @@
+{
+  "extends": "../../../../tsconfig.base.jsonc",
+  "include": ["src"],
+  "references": [
+    {
+      "path": "../../../../packages/common/identity"
+    },
+    {
+      "path": "../../../../packages/common/invariant"
+    },
+    {
+      "path": "../../../../tooling/testkit"
+    },
+    {
+      "path": "../../../../packages/common/types"
+    },
+    {
+      "path": "../../../../packages/common/utils"
+    },
+    {
+      "path": "../../../../packages/common/schema"
+    },
+    {
+      "path": "../../../../packages/common/constants"
+    },
+    {
+      "path": "../../../../packages/integrations/google-workspace/domain"
+    },
+    {
+      "path": "../../../../packages/common/errors"
+    },
+    {
+      "path": "../../../../packages/integrations/google-workspace/client"
+    },
+    {
+      "path": "../../../../packages/shared/domain"
+    }
+  ],
+  "compilerOptions": {
+    "types": ["node", "bun"],
+    "outDir": "build/src",
+    "rootDir": "src",
+    "moduleResolution": "bundler",
+    "incremental": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true
+  }
+}

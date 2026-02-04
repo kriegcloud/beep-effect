@@ -2,6 +2,8 @@
 
 > Copy-paste ready prompts for each phase of the integration architecture migration.
 
+> ⚠️ **Note on Phase 2**: The original Phase 2 prompts for `IntegrationTokenStore` have been superseded. Phase 2 now extends `AuthContext` with OAuth API methods instead. See [REFLECTION_LOG.md](./REFLECTION_LOG.md) for the architectural pivot details.
+
 ---
 
 ## Overview
@@ -9,7 +11,7 @@
 This document contains ready-to-use prompts for migrating third-party integrations from `packages/shared/integrations` to a three-tier architecture:
 
 1. **Infrastructure Layer**: Shared Google Workspace packages (`@beep/google-workspace-*`)
-2. **Token Storage Layer**: IAM-owned token management (`@beep/iam-server`)
+2. **Auth Context Layer**: OAuth API via `AuthContext.oauth` leveraging Better Auth's token management
 3. **Adapter Layer**: Slice-specific integration adapters (`@beep/*-server`)
 
 ---
