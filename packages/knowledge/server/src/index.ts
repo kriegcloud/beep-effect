@@ -63,3 +63,27 @@ export * as Nlp from "./Nlp";
  * @since 0.1.0
  */
 export * as Ontology from "./Ontology";
+
+/**
+ * RDF store and quad manipulation exports
+ * @since 0.1.0
+ */
+export * as Rdf from "./Rdf";
+
+/**
+ * RDFS reasoning and inference exports
+ * @since 0.1.0
+ */
+export * as Reasoning from "./Reasoning";
+
+/**
+ * RPC handler exports
+ * @since 0.1.0
+ */
+export * as Rpc from "./rpc";
+
+/**
+ * SPARQL parsing and query execution exports
+ * @since 0.1.0
+ */
+export * as Sparql from "./Sparql";

@@ -1,0 +1,65 @@
+The TechNetwork organization maintains an extensive online presence.
+
+Primary websites:
+- Corporate site: https://www.technetwork.com
+- Developer portal: https://developers.technetwork.com/docs/api/v3
+- Blog: https://blog.technetwork.com/category/engineering
+- Status page: https://status.technetwork.com
+- Support: https://support.technetwork.com/tickets/new
+
+Team member contacts:
+
+Alice Chen (CEO)
+- Work email: alice.chen@technetwork.com
+- Personal email: alice.chen.personal@gmail.com
+- LinkedIn: https://www.linkedin.com/in/alice-chen-ceo
+- Twitter/X: https://x.com/alicechen_tech
+- GitHub: https://github.com/alicechen
+- Personal site: https://alicechen.io
+
+Bob Martinez (CTO)
+- Work email: bob.martinez@technetwork.com
+- Work email (alternate): b.martinez@technetwork.com
+- Calendar booking: https://calendly.com/bob-martinez-tech
+- Mastodon: https://mastodon.social/@bobmartinez
+- Medium: https://medium.com/@bob.martinez.tech
+- Stack Overflow: https://stackoverflow.com/users/12345/bobmartinez
+
+Carol Thompson (VP Engineering)
+- Work email: carol.thompson@technetwork.com
+- Team email: engineering-team@technetwork.com
+- GitLab: https://gitlab.com/cthompson
+- Dev.to: https://dev.to/carolthompson
+- YouTube: https://www.youtube.com/@TechWithCarol
+
+David Kumar (Head of Research)
+- Work email: david.kumar@technetwork.com
+- Research email: research@technetwork.com
+- Google Scholar: https://scholar.google.com/citations?user=ABC123
+- ResearchGate: https://www.researchgate.net/profile/David-Kumar-42
+- ORCID: https://orcid.org/0000-0001-2345-6789
+- ArXiv: https://arxiv.org/search/?searchtype=author&query=Kumar%2C+David
+
+Product URLs:
+- Main app: https://app.technetwork.com
+- API endpoint: https://api.technetwork.com/v3/resources
+- WebSocket: wss://realtime.technetwork.com/events
+- CDN: https://cdn.technetwork.com/assets/v2
+- Downloads: https://downloads.technetwork.com/releases/latest
+
+Support channels:
+- General: support@technetwork.com
+- Sales: sales@technetwork.com
+- Enterprise: enterprise@technetwork.com
+- Security: security@technetwork.com
+- Legal: legal@technetwork.com
+- Press: press@technetwork.com
+- Careers: careers@technetwork.com
+
+Social media:
+- https://www.facebook.com/TechNetwork
+- https://www.instagram.com/technetwork_official
+- https://www.tiktok.com/@technetwork
+- https://discord.gg/technetwork
+
+The company has 25 employees, each with corporate email following the pattern firstname.lastname@technetwork.com.

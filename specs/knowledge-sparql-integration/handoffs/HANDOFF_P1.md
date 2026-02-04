@@ -1,9 +1,22 @@
 # Phase 1 Handoff - Value Objects & Parser
 
 **Phase**: 1.1 - SPARQL Value Objects & Parser
-**Status**: NOT_STARTED
+**Status**: COMPLETE ✅
+**Completed**: 2026-02-04
 **Estimated Duration**: 3.5 days
-**Dependencies**: `specs/knowledge-rdf-foundation/` (RdfStore API)
+**Dependencies**: `specs/knowledge-rdf-foundation/` (RdfStore, Serializer, RdfBuilder - COMPLETE)
+
+> **PHASE COMPLETION REQUIREMENT**: A phase is NOT complete until:
+> 1. All deliverables pass type checking and tests
+> 2. REFLECTION_LOG.md is updated with learnings
+> 3. Next phase handoff documents (HANDOFF_P{N+1}.md, P{N+1}_ORCHESTRATOR_PROMPT.md) are created
+
+> **IMPORTANT**: This handoff has been updated based on lessons learned from implementing the RDF foundation spec. Key changes:
+> - SparqlBindings already exists in domain layer (only need SparqlQuery)
+> - Use Effect.Service pattern with `accessors: true` (not Context.Tag)
+> - RdfStore uses `match(QuadPattern)` not `query(s, p, o)`
+> - Errors go in domain layer, not server layer
+> - Use Layer.provideMerge for test Layer composition
 
 ---
 
@@ -16,17 +29,25 @@
 **Active Files**:
 ```
 packages/knowledge/domain/src/value-objects/sparql/
-  index.ts
-  SparqlQuery.ts
-  SparqlBindings.ts
+  index.ts              # NEW - barrel export
+  SparqlQuery.ts        # NEW - query value object
+
+packages/knowledge/domain/src/errors/
+  sparql.errors.ts      # NEW - SPARQL error classes
+  index.ts              # UPDATE - add sparql exports
 
 packages/knowledge/server/src/Sparql/
-  index.ts
-  SparqlParser.ts
-  errors.ts
+  index.ts              # NEW - barrel export
+  SparqlParser.ts       # NEW - parser service
 
 packages/knowledge/server/test/Sparql/
-  SparqlParser.test.ts
+  SparqlParser.test.ts  # NEW - parser tests
+```
+
+**EXISTING (do not recreate)**:
+```
+packages/knowledge/domain/src/value-objects/rdf/SparqlBindings.ts  # ALREADY EXISTS
+packages/knowledge/server/src/Rdf/                                  # Reference implementation
 ```
 
 **Immediate TODOs**:
@@ -114,66 +135,128 @@ See README.md for full specification details.
 
 ### Value Object Contracts
 
-**SparqlQuery** (domain layer):
+> **NOTE**: SparqlBindings ALREADY EXISTS at `packages/knowledge/domain/src/value-objects/rdf/SparqlBindings.ts`.
+> It uses domain `Term` types (IRI, BlankNode, Literal) not W3C JSON format.
+> Only SparqlQuery needs to be created.
+
+**SparqlQuery** (domain layer - NEW):
 ```typescript
+import { $KnowledgeDomainId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
 
-export class SparqlQuery extends S.Class<SparqlQuery>("SparqlQuery")({
-  queryString: S.String,      // Original SPARQL text
-  parsedAst: S.Unknown,       // sparqljs AST (opaque)
-  queryType: S.Literal("SELECT", "CONSTRUCT", "ASK"),
-  prefixes: S.Record({ key: S.String, value: S.String }),
-  variables: S.Array(S.String), // Projection variables (SELECT only)
+const $I = $KnowledgeDomainId.create("value-objects/sparql/SparqlQuery");
+
+// Query type discriminator
+export const SparqlQueryType = S.Literal("SELECT", "CONSTRUCT", "ASK", "DESCRIBE");
+export type SparqlQueryType = typeof SparqlQueryType.Type;
+
+// Prefix mapping (prefix → IRI expansion)
+export const PrefixMap = S.Record({ key: S.String, value: S.String });
+export type PrefixMap = typeof PrefixMap.Type;
+
+export class SparqlQuery extends S.Class<SparqlQuery>($I`SparqlQuery`)({
+  queryString: S.String.annotations({
+    description: "Original SPARQL query text",
+  }),
+  queryType: SparqlQueryType.annotations({
+    description: "Type of SPARQL query",
+  }),
+  prefixes: PrefixMap.annotations({
+    description: "PREFIX declarations (prefix → IRI)",
+  }),
+  variables: S.Array(S.String).annotations({
+    description: "Projected variables (SELECT only, without ? prefix)",
+  }),
+  // Note: parsedAst is NOT stored in the value object.
+  // The parser service returns both the SparqlQuery and the AST separately.
+  // This keeps the domain layer free from sparqljs library types.
 }) {}
 ```
 
-**SparqlBindings** (domain layer):
+**SparqlBindings** (domain layer - ALREADY EXISTS):
 ```typescript
-// W3C SPARQL Query Results JSON Format
-export class SparqlBindings extends S.Class<SparqlBindings>("SparqlBindings")({
-  head: S.Struct({
-    vars: S.Array(S.String),
-  }),
-  results: S.Struct({
-    bindings: S.Array(
-      S.Record({
-        key: S.String,
-        value: S.Struct({
-          type: S.Literal("uri", "literal", "bnode"),
-          value: S.String,
-          datatype: S.optional(S.String),
-          "xml:lang": S.optional(S.String),
-        }),
-      })
-    ),
-  }),
-}) {}
+// Location: packages/knowledge/domain/src/value-objects/rdf/SparqlBindings.ts
+// Uses domain Term types (IRI, BlankNode, Literal), NOT W3C JSON format
+import { SparqlBindings, SparqlBinding, SparqlRow } from "@beep/knowledge-domain/value-objects";
 ```
 
 ### Parser Service Contract
 
+> **NOTE**: Use Effect.Service with `accessors: true` (not Context.Tag).
+> This pattern matches RdfStore, Serializer, and RdfBuilder from RDF foundation.
+
 **SparqlParser** (server layer):
 ```typescript
 import * as Effect from "effect/Effect";
-import * as Context from "effect/Context";
+import { SparqlParseError, SparqlUnsupportedFeatureError } from "@beep/knowledge-domain/errors";
+import { SparqlQuery } from "@beep/knowledge-domain/value-objects";
+import * as sparqljs from "sparqljs";
 
-export class SparqlParser extends Context.Tag("SparqlParser")<
-  SparqlParser,
+/**
+ * Result of parsing a SPARQL query.
+ * Separates domain value object from library-specific AST.
+ */
+export interface ParseResult {
+  readonly query: SparqlQuery;
+  readonly ast: sparqljs.SparqlQuery;  // Library type for Phase 2 executor
+}
+
+/**
+ * SparqlParser Effect.Service
+ *
+ * Wraps sparqljs library for parsing SPARQL queries.
+ *
+ * @since 0.1.0
+ * @category services
+ */
+export class SparqlParser extends Effect.Service<SparqlParser>()(
+  "@beep/knowledge-server/SparqlParser",
   {
-    readonly parse: (queryString: string) => Effect.Effect<
-      SparqlQuery,
-      ParseError | UnsupportedFeatureError
-    >;
+    accessors: true,
+    effect: Effect.gen(function* () {
+      const parser = new sparqljs.Parser();
+
+      return {
+        /**
+         * Parse a SPARQL query string into domain value object and AST.
+         *
+         * @param queryString - SPARQL query text
+         * @returns Effect yielding ParseResult with query and AST
+         */
+        parse: (queryString: string): Effect.Effect<
+          ParseResult,
+          SparqlParseError | SparqlUnsupportedFeatureError
+        > =>
+          Effect.try({
+            try: () => {
+              const ast = parser.parse(queryString);
+              // Convert AST to domain SparqlQuery...
+              return { query: /* ... */, ast };
+            },
+            catch: (error) => new SparqlParseError({
+              message: String(error),
+              queryString,
+              location: /* extract from error if available */,
+            }),
+          }).pipe(Effect.withSpan("SparqlParser.parse")),
+      };
+    }),
   }
->() {}
+) {}
 ```
 
 ### Error Contracts
 
-**ParseError**:
+> **NOTE**: Errors go in DOMAIN layer at `packages/knowledge/domain/src/errors/sparql.errors.ts`.
+> This follows the pattern from RDF foundation (RdfTermConversionError, SerializerError are in domain).
+
+**SparqlParseError** (domain layer):
 ```typescript
-export class ParseError extends S.TaggedError<ParseError>()(
-  "ParseError",
+// File: packages/knowledge/domain/src/errors/sparql.errors.ts
+import * as S from "effect/Schema";
+
+export class SparqlParseError extends S.TaggedError<SparqlParseError>()(
+  "SparqlParseError",
   {
     message: S.String,
     queryString: S.String,
@@ -187,14 +270,26 @@ export class ParseError extends S.TaggedError<ParseError>()(
 ) {}
 ```
 
-**UnsupportedFeatureError**:
+**SparqlUnsupportedFeatureError** (domain layer):
 ```typescript
-export class UnsupportedFeatureError extends S.TaggedError<UnsupportedFeatureError>()(
-  "UnsupportedFeatureError",
+export class SparqlUnsupportedFeatureError extends S.TaggedError<SparqlUnsupportedFeatureError>()(
+  "SparqlUnsupportedFeatureError",
   {
     feature: S.String,
     queryString: S.String,
     message: S.String,
+  }
+) {}
+```
+
+**SparqlExecutionError** (domain layer - for Phase 2):
+```typescript
+export class SparqlExecutionError extends S.TaggedError<SparqlExecutionError>()(
+  "SparqlExecutionError",
+  {
+    message: S.String,
+    queryString: S.String,
+    cause: S.optional(S.String),
   }
 ) {}
 ```
@@ -244,29 +339,60 @@ PREFIX foaf http://xmlns.com/foaf/0.1/  -- Missing colon
 
 ### Test Runner
 
+> **NOTE**: Use patterns from RDF foundation tests. Key learnings:
+> - Use `effect()` helper from @beep/testkit
+> - Use `Effect.flip()` for testing error cases
+> - Use `assertTrue()` for type checks (instanceof)
+> - Provide Layer with `.pipe(Effect.provide(TestLayer))`
+
 ```typescript
-import { effect, strictEqual, throws } from "@beep/testkit";
+import { SparqlParseError } from "@beep/knowledge-domain/errors";
+import { SparqlParser } from "@beep/knowledge-server/Sparql";
+import { assertTrue, describe, effect, strictEqual } from "@beep/testkit";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 
-effect("parses basic SELECT query", () =>
-  Effect.gen(function* () {
-    const parser = yield* SparqlParser;
-    const query = yield* parser.parse("SELECT ?s WHERE { ?s ?p ?o }");
+// Parser only needs its own layer (no RdfStore dependency in Phase 1)
+const TestLayer = SparqlParser.Default;
 
-    strictEqual(query.queryType, "SELECT");
-    strictEqual(query.variables.length, 1);
-    strictEqual(query.variables[0], "s");
-  })
-);
+describe("SparqlParser", () => {
+  describe("parse", () => {
+    effect("should parse basic SELECT query", () =>
+      Effect.gen(function* () {
+        const parser = yield* SparqlParser;
+        const { query } = yield* parser.parse("SELECT ?s WHERE { ?s ?p ?o }");
 
-effect("fails on malformed query", () =>
-  Effect.gen(function* () {
-    const parser = yield* SparqlParser;
-    const result = yield* Effect.either(parser.parse("SELECT ?s WHERE { ?s"));
+        strictEqual(query.queryType, "SELECT");
+        strictEqual(A.length(query.variables), 1);
+        strictEqual(A.unsafeGet(query.variables, 0), "s");
+      }).pipe(Effect.provide(TestLayer))
+    );
 
-    throws(result, (error) => error._tag === "ParseError");
-  })
-);
+    effect("should return SparqlParseError for malformed query", () =>
+      Effect.gen(function* () {
+        const parser = yield* SparqlParser;
+        const error = yield* Effect.flip(
+          parser.parse("SELECT ?s WHERE { ?s")
+        );
+
+        assertTrue(error instanceof SparqlParseError);
+        strictEqual(error._tag, "SparqlParseError");
+      }).pipe(Effect.provide(TestLayer))
+    );
+
+    effect("should extract PREFIX declarations", () =>
+      Effect.gen(function* () {
+        const parser = yield* SparqlParser;
+        const { query } = yield* parser.parse(`
+          PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+          SELECT ?name WHERE { ?person foaf:name ?name }
+        `);
+
+        strictEqual(query.prefixes["foaf"], "http://xmlns.com/foaf/0.1/");
+      }).pipe(Effect.provide(TestLayer))
+    );
+  });
+});
 ```
 
 ---
@@ -287,22 +413,34 @@ Before creating HANDOFF_P2.md, verify:
 
 ---
 
-## Integration with Phase 0 (RdfStore)
+## Integration with RDF Foundation (COMPLETE)
 
-**Dependency**: Parser output (SparqlQuery) will be consumed by SparqlService in Phase 2.
+> **NOTE**: RDF foundation is COMPLETE. RdfStore, Serializer, and RdfBuilder are all implemented and tested.
 
-**RdfStore API** (from `specs/knowledge-rdf-foundation/`):
+**RdfStore API** (actual implementation):
 ```typescript
-export interface RdfStore {
-  readonly query: (
-    subject: string | null,
-    predicate: string | null,
-    object: string | null
-  ) => Effect.Effect<Array<Triple>, StoreError>;
+// File: packages/knowledge/server/src/Rdf/RdfStoreService.ts
+export class RdfStore extends Effect.Service<RdfStore>()(
+  "@beep/knowledge-server/RdfStore",
+  { accessors: true, ... }
+) {}
+
+// Key operations:
+interface RdfStoreApi {
+  addQuad: (quad: Quad) => Effect.Effect<void>;
+  addQuads: (quads: ReadonlyArray<Quad>) => Effect.Effect<void>;
+  match: (pattern: QuadPattern) => Effect.Effect<ReadonlyArray<Quad>>;
+  countMatches: (pattern: QuadPattern) => Effect.Effect<number>;
+  hasQuad: (quad: Quad) => Effect.Effect<boolean>;
+  getSubjects: () => Effect.Effect<ReadonlyArray<Quad["subject"]>>;
+  getPredicates: () => Effect.Effect<ReadonlyArray<Quad["predicate"]>>;
+  getObjects: () => Effect.Effect<ReadonlyArray<Term>>;
+  clear: () => Effect.Effect<void>;
+  size: Effect.Effect<number>;
 }
 ```
 
-**Phase 2 Integration**: SparqlService will translate SparqlQuery.parsedAst into RdfStore.query() calls.
+**Phase 2 Integration**: SparqlService will translate SPARQL patterns to `RdfStore.match()` calls.
 
 **Example Translation**:
 ```sparql
@@ -311,8 +449,24 @@ SELECT ?name WHERE { ?person ex:name ?name }
 
 Becomes:
 ```typescript
-rdfStore.query(null, "http://example.org/name", null)
-// Returns triples, extract object values as ?name bindings
+import { makeIRI, QuadPattern } from "@beep/knowledge-domain/value-objects";
+
+const pattern = new QuadPattern({
+  predicate: makeIRI("http://example.org/name"),
+  // subject and object undefined = wildcards
+});
+
+const matches = yield* rdfStore.match(pattern);
+// Returns Quad[], extract object values as ?name bindings
+```
+
+**Layer Composition Pattern** (from RDF foundation):
+```typescript
+// For tests requiring multiple services
+const TestLayer = Layer.mergeAll(
+  SparqlParser.Default,
+  Serializer.Default,
+).pipe(Layer.provideMerge(RdfStore.Default));
 ```
 
 ---
@@ -340,12 +494,74 @@ rdfStore.query(null, "http://example.org/name", null)
 
 ---
 
+## Lessons from RDF Foundation Implementation
+
+> These patterns were validated during RDF foundation implementation (179 tests, all passing).
+
+### 1. Effect.Service Pattern
+```typescript
+// CORRECT - Use Effect.Service with accessors
+export class SparqlParser extends Effect.Service<SparqlParser>()(
+  "@beep/knowledge-server/SparqlParser",
+  { accessors: true, effect: Effect.gen(...) }
+) {}
+
+// WRONG - Don't use Context.Tag
+export class SparqlParser extends Context.Tag("SparqlParser")<...>() {}
+```
+
+### 2. Library Type Conversion Layer
+Create explicit conversion functions between domain types and library types:
+```typescript
+// In SparqlParser.ts, create functions like:
+const sparqljsAstToSparqlQuery = (ast: sparqljs.SparqlQuery): SparqlQuery => {...}
+const extractVariables = (ast: sparqljs.SelectQuery): ReadonlyArray<string> => {...}
+const extractPrefixes = (ast: sparqljs.SparqlQuery): PrefixMap => {...}
+```
+
+### 3. Error Types in Domain Layer
+Errors go in domain, not server:
+```
+packages/knowledge/domain/src/errors/
+  sparql.errors.ts   # SparqlParseError, SparqlUnsupportedFeatureError
+  index.ts           # Export all errors
+```
+
+### 4. Test Layer Composition
+Use Layer.provideMerge when services share dependencies:
+```typescript
+// When SparqlService needs both Parser and RdfStore
+const TestLayer = Layer.mergeAll(
+  SparqlParser.Default,
+  Serializer.Default,
+).pipe(Layer.provideMerge(RdfStore.Default));
+```
+
+### 5. Effect.try for Synchronous Library Calls
+```typescript
+parse: (queryString) => Effect.try({
+  try: () => parser.parse(queryString),
+  catch: (error) => new SparqlParseError({ message: String(error), ... }),
+}).pipe(Effect.withSpan("SparqlParser.parse")),
+```
+
+### 6. Observability Spans
+Add spans to all service methods:
+```typescript
+.pipe(Effect.withSpan("SparqlParser.parse", {
+  attributes: { queryLength: queryString.length },
+}))
+```
+
+---
+
 ## References
 
 - [sparqljs API Documentation](https://github.com/RubenVerborgh/SPARQL.js#api)
 - [W3C SPARQL 1.1 Query Language](https://www.w3.org/TR/sparql11-query/)
 - `.claude/rules/effect-patterns.md` - Import conventions
-- `specs/knowledge-rdf-foundation/README.md` - RdfStore API
+- `specs/knowledge-rdf-foundation/REFLECTION_LOG.md` - Implementation learnings
+- `packages/knowledge/server/src/Rdf/` - Reference implementations
 
 ---
 

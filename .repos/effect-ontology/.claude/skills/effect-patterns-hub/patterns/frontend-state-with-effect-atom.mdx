@@ -1,0 +1,387 @@
+---
+title: Manage Frontend State with Effect Atom
+id: frontend-state-with-effect-atom
+skillLevel: intermediate
+useCase: frontend-state
+summary: >-
+  Use @effect-atom/atom to manage reactive frontend state with Effect-TS,
+  enabling type-safe, composable state management with automatic dependency tracking.
+tags:
+  - frontend
+  - react
+  - state-management
+  - atom
+  - reactivity
+related:
+  - effect-atom-derived
+  - effect-atom-mutations
+  - model-dependencies-as-services
+author: Effect Community
+---
+
+# Manage Frontend State with Effect Atom
+
+## Guideline
+
+Use `@effect-atom/atom` to create reactive state atoms that integrate seamlessly with Effect-TS, providing type-safe state management with automatic dependency tracking and Effect composition.
+
+## Rationale
+
+Traditional React state management (useState, useReducer, Context) doesn't integrate well with Effect-TS. Effect Atom bridges this gap by:
+
+1. **Effect Integration**: Atoms can contain Effects, enabling async operations, error handling, and service dependencies
+2. **Automatic Tracking**: Dependencies between atoms are automatically tracked
+3. **Type Safety**: Full TypeScript support with inferred types
+4. **Composability**: Atoms compose like Effect programs
+5. **Reactivity**: Changes propagate automatically through the dependency graph
+
+## Good Example
+
+### Basic Atom Creation
+
+```typescript
+import { Atom } from "@effect-atom/atom"
+import { Effect } from "effect"
+
+// Simple value atom
+const counterAtom = Atom.make(0)
+
+// Atom from an Effect
+const userAtom = Atom.make(() =>
+  Effect.gen(function* () {
+    const response = yield* fetchUser()
+    return response
+  })
+)
+
+// Atom with initial value and updater
+const todoListAtom = Atom.make<Array<Todo>>([])
+```
+
+### Using Atoms in React
+
+```typescript
+import { useAtomValue, useAtomSet } from "@effect-atom/atom-react"
+import { Atom } from "@effect-atom/atom"
+import { Effect } from "effect"
+
+// Define the atom
+const counterAtom = Atom.make(0)
+
+function Counter() {
+  // Read the current value (automatically subscribes to changes)
+  const count = useAtomValue(counterAtom)
+  
+  // Get a setter function
+  const setCount = useAtomSet(counterAtom)
+  
+  return (
+    <div>
+      <p>Count: {count}</p>
+      <button onClick={() => setCount(count + 1)}>Increment</button>
+    </div>
+  )
+}
+```
+
+### Atom with Effect Dependencies
+
+```typescript
+import { Atom } from "@effect-atom/atom"
+import { Effect, Layer } from "effect"
+
+// Create a runtime with services
+const runtimeAtom = Atom.runtime(
+  Layer.mergeAll(UserService.Default, ConfigService.Default)
+)
+
+// Atom that uses services
+const currentUserAtom = runtimeAtom.make(() =>
+  Effect.gen(function* () {
+    const userService = yield* UserService
+    const user = yield* userService.getCurrentUser()
+    return user
+  })
+)
+
+function UserProfile() {
+  const user = useAtomValue(currentUserAtom)
+  
+  return (
+    <div>
+      {Result.match(user, {
+        onLoading: () => <Spinner />,
+        onSuccess: (user) => <div>Hello, {user.name}</div>,
+        onFailure: (error) => <ErrorMessage error={error} />
+      })}
+    </div>
+  )
+}
+```
+
+### Derived Atoms
+
+```typescript
+import { Atom } from "@effect-atom/atom"
+
+const todosAtom = Atom.make<Array<Todo>>([])
+
+// Derived atom - automatically recomputes when todosAtom changes
+const completedTodosAtom = Atom.make((get) => {
+  const todos = get(todosAtom)
+  return todos.filter(todo => todo.completed)
+})
+
+const todoStatsAtom = Atom.make((get) => {
+  const todos = get(todosAtom)
+  return {
+    total: todos.length,
+    completed: todos.filter(t => t.completed).length,
+    active: todos.filter(t => !t.completed).length
+  }
+})
+
+function TodoStats() {
+  const stats = useAtomValue(todoStatsAtom)
+  
+  return (
+    <div>
+      <p>Total: {stats.total}</p>
+      <p>Completed: {stats.completed}</p>
+      <p>Active: {stats.active}</p>
+    </div>
+  )
+}
+```
+
+### Writable Atoms
+
+```typescript
+import { Atom } from "@effect-atom/atom"
+import { Effect } from "effect"
+
+// Atom with custom write logic
+const filteredTodosAtom = Atom.make<Array<Todo>, Array<Todo>>(
+  // Read
+  (get) => get(todosAtom).filter(t => !t.archived),
+  // Write
+  (get, set, newTodos) => set(todosAtom, newTodos)
+)
+
+// Atom with Effect-based write
+const userPreferencesAtom = Atom.make<Preferences, Preferences>(
+  (get) => get(preferencesAtom),
+  (get, set, newPrefs) => Effect.gen(function* () {
+    // Save to localStorage or API
+    yield* savePreferences(newPrefs)
+    set(preferencesAtom, newPrefs)
+  })
+)
+```
+
+## Bad Example
+
+### ❌ Mixing useState with Effect
+
+```typescript
+// BAD: Using React state for Effect-based data
+function UserProfile() {
+  const [user, setUser] = useState<User | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<Error | null>(null)
+  
+  useEffect(() => {
+    setLoading(true)
+    Effect.runPromise(fetchUser()).then(
+      (user) => {
+        setUser(user)
+        setLoading(false)
+      },
+      (error) => {
+        setError(error)
+        setLoading(false)
+      }
+    )
+  }, [])
+  
+  // Complex loading/error state management
+  if (loading) return <Spinner />
+  if (error) return <ErrorMessage error={error} />
+  return <div>{user?.name}</div>
+}
+
+// GOOD: Use Effect Atom
+const userAtom = runtimeAtom.make(() => fetchUser())
+
+function UserProfile() {
+  const user = useAtomValue(userAtom)
+  
+  return Result.match(user, {
+    onLoading: () => <Spinner />,
+    onSuccess: (user) => <div>{user.name}</div>,
+    onFailure: (error) => <ErrorMessage error={error} />
+  })
+}
+```
+
+### ❌ Not Using Derived Atoms
+
+```typescript
+// BAD: Redundant computations
+function TodoList() {
+  const todos = useAtomValue(todosAtom)
+  const completed = todos.filter(t => t.completed).length
+  const active = todos.filter(t => !t.completed).length
+  // These filter operations run on every render!
+  
+  return <div>Completed: {completed}, Active: {active}</div>
+}
+
+// GOOD: Use derived atoms
+const todoStatsAtom = Atom.make((get) => {
+  const todos = get(todosAtom)
+  return {
+    completed: todos.filter(t => t.completed).length,
+    active: todos.filter(t => !t.completed).length
+  }
+})
+
+function TodoList() {
+  const stats = useAtomValue(todoStatsAtom)
+  return <div>Completed: {stats.completed}, Active: {stats.active}</div>
+}
+```
+
+### ❌ Ignoring Result Type
+
+```typescript
+// BAD: Assuming success
+function UserProfile() {
+  const user = useAtomValue(userAtom)
+  return <div>{user.name}</div> // Runtime error if loading or failed!
+}
+
+// GOOD: Handle all states
+function UserProfile() {
+  const user = useAtomValue(userAtom)
+  
+  return Result.match(user, {
+    onLoading: () => <Spinner />,
+    onSuccess: (user) => <div>{user.name}</div>,
+    onFailure: (error) => <ErrorMessage error={error} />
+  })
+}
+```
+
+## Pattern: Atom Runtime Setup
+
+```typescript
+import { Atom } from "@effect-atom/atom"
+import { Layer } from "effect"
+
+// Create application-wide runtime with all services
+const AppRuntimeAtom = Atom.runtime(
+  Layer.mergeAll(
+    HttpClient.Default,
+    ConfigService.Default,
+    Logger.Default,
+    UserService.Default
+  )
+)
+
+// Export for use in atoms
+export const runtime = AppRuntimeAtom
+
+// Use in atoms
+export const userAtom = runtime.make(() =>
+  Effect.gen(function* () {
+    const userService = yield* UserService
+    return yield* userService.getCurrentUser()
+  })
+)
+```
+
+## Pattern: Registry Context
+
+```typescript
+import { RegistryContext } from "@effect-atom/atom-react"
+import { Atom } from "@effect-atom/atom"
+
+// Create a registry for your atoms
+const registry = Atom.registry()
+
+function App() {
+  return (
+    <RegistryContext.Provider value={registry}>
+      <YourApp />
+    </RegistryContext.Provider>
+  )
+}
+```
+
+## Integration with Effect Services
+
+```typescript
+import { Atom } from "@effect-atom/atom"
+import { Effect } from "effect"
+
+class TodoService extends Effect.Service<TodoService>()("TodoService", {
+  effect: Effect.gen(function* () {
+    return {
+      getTodos: () => Effect.succeed([...]),
+      addTodo: (todo: Todo) => Effect.succeed(todo),
+      updateTodo: (id: string, todo: Partial<Todo>) => Effect.succeed(...)
+    }
+  }),
+  dependencies: [HttpClient.Default]
+}) {}
+
+const runtime = Atom.runtime(TodoService.Default)
+
+const todosAtom = runtime.make(() =>
+  Effect.gen(function* () {
+    const todoService = yield* TodoService
+    return yield* todoService.getTodos()
+  })
+)
+
+const addTodoAtom = runtime.fn(
+  (todo: Todo) => Effect.gen(function* () {
+    const todoService = yield* TodoService
+    return yield* todoService.addTodo(todo)
+  })
+)
+```
+
+## Best Practices
+
+1. **Use runtime atoms** for atoms that need Effect services
+2. **Create derived atoms** for computed values to avoid redundant calculations
+3. **Handle Result types** properly (Loading, Success, Failure)
+4. **Keep atoms focused** - one concern per atom
+5. **Use Atom.fn** for mutations with side effects
+6. **Provide a Registry** at the app root
+7. **Type atoms explicitly** for better IDE support
+
+## Common Use Cases
+
+- **API Data**: Fetch and cache data from APIs
+- **Form State**: Manage complex form state with validation
+- **UI State**: Modal open/close, sidebar visibility, themes
+- **Derived Data**: Filtered lists, computed statistics
+- **Local Storage**: Persist state across sessions
+- **Real-time Data**: WebSocket or SSE data streams
+
+## Related Patterns
+
+- [`effect-atom-derived.mdx`](./effect-atom-derived.mdx) - Advanced derived atoms
+- [`effect-atom-mutations.mdx`](./effect-atom-mutations.mdx) - Mutations with Atom.fn
+- [`effect-atom-result-handling.mdx`](./effect-atom-result-handling.mdx) - Result type patterns
+- [`model-dependencies-as-services.mdx`](./model-dependencies-as-services.mdx) - Service integration
+
+## References
+
+- [Effect Atom Documentation](https://tim-smart.github.io/effect-atom/)
+- [Effect Atom GitHub](https://github.com/tim-smart/effect-atom)
+- [Interactive Examples](https://effect-atom.kitlangton.com/)
+

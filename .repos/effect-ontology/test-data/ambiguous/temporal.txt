@@ -1,0 +1,21 @@
+Bob Johnson's career has spanned multiple companies over the past decade.
+
+From 2015 to 2018, Bob worked at StartupA Inc as a software engineer. During this time, his email was bob.johnson@startupa.com and he maintained a personal blog at https://bob-at-startupa.com. He developed their initial product architecture and led a team of three engineers.
+
+In 2018, Bob joined MidCorp Technologies as a senior engineer. His email changed to bob.johnson@midcorp.io. He worked on their data platform, redesigning the entire system to handle increased scale. His profile was at https://midcorp.io/team/bob-johnson.
+
+Bob stayed at MidCorp until 2021 when he was recruited by BigTech Corporation. His new email became bob.j@bigtech.com and his corporate page is https://bigtech.com/people/bjohnson. He was promoted to Principal Engineer within his first year.
+
+Throughout these changes, Bob maintained relationships with several colleagues:
+
+Alice Chen knew Bob from StartupA, where they worked together. When Bob moved to MidCorp, Alice stayed at StartupA as CTO. They kept in touch through Bob's personal email, bobjohnson.personal@gmail.com.
+
+Carol Smith met Bob at MidCorp, where she was his manager. When Bob left for BigTech, Carol wished him well but they lost touch for a while. Carol is now at DifferentCorp with email carol.smith@differentcorp.com.
+
+David Park has known Bob since their university days at Stanford. David has always worked at Google, at david.park@google.com. He introduced Bob to the hiring manager at BigTech, helping Bob get his current position.
+
+Currently, Bob reports to Emily Watson at BigTech. Emily is the VP of Engineering and can be reached at emily.watson@bigtech.com. She joined BigTech in 2019 and has been Bob's manager since he arrived.
+
+Bob's LinkedIn shows his complete history: https://linkedin.com/in/bob-johnson-engineer. His personal website, https://bobjohnson.dev, has remained constant through all his career changes, though the content has evolved to reflect his current role and interests.
+
+As of 2024, Bob is considering his next move. He has been approached by both a promising startup and another large tech company. His decision will likely depend on the opportunities for technical leadership and impact.

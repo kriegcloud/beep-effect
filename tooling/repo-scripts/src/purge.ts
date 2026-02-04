@@ -30,6 +30,7 @@ const WORKSPACE_PATTERNS = [
   "packages/ui/*/",
   "packages/knowledge/*/",
   "packages/customization/*/",
+  "packages/integrations/*/*/",
   "packages/comms/*/",
   "packages/calendar/*/",
   "tooling/*/",

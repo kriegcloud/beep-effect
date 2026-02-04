@@ -423,6 +423,12 @@ For each significant change:
 - Integration tests for new layers
 - Property-based tests for schemas
 
+CRITICAL: Follow Effect testing standards from patterns/effect-testing-standards.md:
+- Use Effect.fn(function* () {...}) for test bodies (NOT () => Effect.gen)
+- Use layer() utility for shared test layers (NOT individual .pipe(Effect.provide))
+- Add explicit type annotations in callbacks (item: ItemType)
+- Use TestClock for time-dependent tests
+
 Follow @beep/testkit patterns (effect, layer, scoped helpers).
 ```
 
@@ -917,6 +923,7 @@ See [patterns/anti-patterns.md](patterns/anti-patterns.md) for all 14 anti-patte
 - [Agent Specifications](agents/README.md) - All specialized agents
 
 ### Pattern Library
+- [patterns/effect-testing-standards.md](patterns/effect-testing-standards.md) - **MANDATORY testing patterns** (Effect.fn, layer utility, type annotations)
 - [patterns/reflection-system.md](patterns/reflection-system.md) - Reflection schema, scoring, skill promotion
 - [patterns/validation-dry-runs.md](patterns/validation-dry-runs.md) - Pre-flight verification, dry run protocols
 - [patterns/anti-patterns.md](patterns/anti-patterns.md) - 14 anti-patterns to avoid

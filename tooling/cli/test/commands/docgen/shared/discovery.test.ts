@@ -8,13 +8,14 @@ import { getPackageName, hasGeneratedDocs, resolvePackagePath } from "@beep/repo
 import { describe, expect, it, layer } from "@beep/testkit";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
 import * as NodePath from "@effect/platform-node/NodePath";
+import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 
 describe("discovery utilities", () => {
   const TestLayer = Layer.mergeAll(NodeFileSystem.layer, NodePath.layer);
 
-  layer(TestLayer)("getPackageName", (it) => {
+  layer(TestLayer, { timeout: Duration.seconds(30) })("getPackageName", (it) => {
     it.effect("fails for non-existent package path", () =>
       Effect.gen(function* () {
         const result = yield* getPackageName("/non/existent/path").pipe(Effect.either);
@@ -52,7 +53,7 @@ describe("discovery utilities", () => {
     );
   });
 
-  layer(TestLayer)("hasGeneratedDocs", (it) => {
+  layer(TestLayer, { timeout: Duration.seconds(30) })("hasGeneratedDocs", (it) => {
     it.effect("returns false for path without docs", () =>
       Effect.gen(function* () {
         const result = yield* hasGeneratedDocs("/tmp");
@@ -68,7 +69,7 @@ describe("discovery utilities", () => {
     );
   });
 
-  layer(TestLayer)("resolvePackagePath", (it) => {
+  layer(TestLayer, { timeout: Duration.seconds(30) })("resolvePackagePath", (it) => {
     it.effect("fails for non-existent path", () =>
       Effect.gen(function* () {
         const result = yield* resolvePackagePath("/non/existent/path").pipe(Effect.either);

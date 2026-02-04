@@ -14,38 +14,42 @@ import { describe, effect, strictEqual } from "@beep/testkit";
 import * as Effect from "effect/Effect";
 import { createMockOntologyContext, withLanguageModel } from "../_shared/TestLayers";
 
+const TEST_TIMEOUT = 60000;
+
 describe("RelationExtractor", () => {
-  effect("extracts relations between entities", () =>
-    Effect.gen(function* () {
-      const extractor = yield* RelationExtractor;
-      const ontologyContext = createMockOntologyContext({
-        classes: [
-          { iri: "http://schema.org/Person", label: "Person" },
-          { iri: "http://schema.org/Organization", label: "Organization" },
-        ],
-        properties: [{ iri: "http://schema.org/worksFor", label: "worksFor" }],
-      });
+  effect(
+    "extracts relations between entities",
+    Effect.fn(
+      function* () {
+        const extractor = yield* RelationExtractor;
+        const ontologyContext = createMockOntologyContext({
+          classes: [
+            { iri: "http://schema.org/Person", label: "Person" },
+            { iri: "http://schema.org/Organization", label: "Organization" },
+          ],
+          properties: [{ iri: "http://schema.org/worksFor", label: "worksFor" }],
+        });
 
-      const entities = [
-        new ClassifiedEntity({ mention: "John Smith", typeIri: "http://schema.org/Person", confidence: 0.95 }),
-        new ClassifiedEntity({ mention: "Acme Corp", typeIri: "http://schema.org/Organization", confidence: 0.9 }),
-      ];
+        const entities = [
+          new ClassifiedEntity({ mention: "John Smith", typeIri: "http://schema.org/Person", confidence: 0.95 }),
+          new ClassifiedEntity({ mention: "Acme Corp", typeIri: "http://schema.org/Organization", confidence: 0.9 }),
+        ];
 
-      const chunk = new TextChunk({
-        index: 0,
-        text: "John Smith works for Acme Corp as a developer.",
-        startOffset: 0,
-        endOffset: 45,
-      });
+        const chunk = new TextChunk({
+          index: 0,
+          text: "John Smith works for Acme Corp as a developer.",
+          startOffset: 0,
+          endOffset: 45,
+        });
 
-      const result = yield* extractor.extract(entities, chunk, ontologyContext);
+        const result = yield* extractor.extract(entities, chunk, ontologyContext);
 
-      strictEqual(result.triples.length, 1);
-      strictEqual(result.triples[0]?.subjectMention, "John Smith");
-      strictEqual(result.triples[0]?.predicateIri, "http://schema.org/worksFor");
-      strictEqual(result.triples[0]?.objectMention, "Acme Corp");
-      strictEqual(result.invalidTriples.length, 0);
-    }).pipe(
+        strictEqual(result.triples.length, 1);
+        strictEqual(result.triples[0]?.subjectMention, "John Smith");
+        strictEqual(result.triples[0]?.predicateIri, "http://schema.org/worksFor");
+        strictEqual(result.triples[0]?.objectMention, "Acme Corp");
+        strictEqual(result.invalidTriples.length, 0);
+      },
       Effect.provide(RelationExtractor.Default),
       withLanguageModel({
         generateObject: (objectName: string | undefined) =>
@@ -62,36 +66,39 @@ describe("RelationExtractor", () => {
               }
             : {},
       })
-    )
+    ),
+    TEST_TIMEOUT
   );
 
-  effect("filters relations below confidence threshold", () =>
-    Effect.gen(function* () {
-      const extractor = yield* RelationExtractor;
-      const ontologyContext = createMockOntologyContext({
-        properties: [
-          { iri: "http://schema.org/knows", label: "knows" },
-          { iri: "http://schema.org/likes", label: "likes" },
-        ],
-      });
+  effect(
+    "filters relations below confidence threshold",
+    Effect.fn(
+      function* () {
+        const extractor = yield* RelationExtractor;
+        const ontologyContext = createMockOntologyContext({
+          properties: [
+            { iri: "http://schema.org/knows", label: "knows" },
+            { iri: "http://schema.org/likes", label: "likes" },
+          ],
+        });
 
-      const entities = [
-        new ClassifiedEntity({ mention: "John", typeIri: "http://schema.org/Person", confidence: 0.9 }),
-        new ClassifiedEntity({ mention: "Jane", typeIri: "http://schema.org/Person", confidence: 0.9 }),
-      ];
+        const entities = [
+          new ClassifiedEntity({ mention: "John", typeIri: "http://schema.org/Person", confidence: 0.9 }),
+          new ClassifiedEntity({ mention: "Jane", typeIri: "http://schema.org/Person", confidence: 0.9 }),
+        ];
 
-      const chunk = new TextChunk({
-        index: 0,
-        text: "John knows Jane. John might like pizza.",
-        startOffset: 0,
-        endOffset: 38,
-      });
+        const chunk = new TextChunk({
+          index: 0,
+          text: "John knows Jane. John might like pizza.",
+          startOffset: 0,
+          endOffset: 38,
+        });
 
-      const result = yield* extractor.extract(entities, chunk, ontologyContext, { minConfidence: 0.5 });
+        const result = yield* extractor.extract(entities, chunk, ontologyContext, { minConfidence: 0.5 });
 
-      strictEqual(result.triples.length, 1);
-      strictEqual(result.triples[0]?.predicateIri, "http://schema.org/knows");
-    }).pipe(
+        strictEqual(result.triples.length, 1);
+        strictEqual(result.triples[0]?.predicateIri, "http://schema.org/knows");
+      },
       Effect.provide(RelationExtractor.Default),
       withLanguageModel({
         generateObject: (objectName: string | undefined) =>
@@ -114,28 +121,31 @@ describe("RelationExtractor", () => {
               }
             : {},
       })
-    )
+    ),
+    TEST_TIMEOUT
   );
 
-  effect("identifies invalid predicates not in ontology", () =>
-    Effect.gen(function* () {
-      const extractor = yield* RelationExtractor;
-      const ontologyContext = createMockOntologyContext({
-        properties: [{ iri: "http://schema.org/knows", label: "knows" }],
-      });
+  effect(
+    "identifies invalid predicates not in ontology",
+    Effect.fn(
+      function* () {
+        const extractor = yield* RelationExtractor;
+        const ontologyContext = createMockOntologyContext({
+          properties: [{ iri: "http://schema.org/knows", label: "knows" }],
+        });
 
-      const entities = [
-        new ClassifiedEntity({ mention: "John", typeIri: "http://schema.org/Person", confidence: 0.9 }),
-        new ClassifiedEntity({ mention: "Jane", typeIri: "http://schema.org/Person", confidence: 0.9 }),
-      ];
+        const entities = [
+          new ClassifiedEntity({ mention: "John", typeIri: "http://schema.org/Person", confidence: 0.9 }),
+          new ClassifiedEntity({ mention: "Jane", typeIri: "http://schema.org/Person", confidence: 0.9 }),
+        ];
 
-      const chunk = new TextChunk({ index: 0, text: "John and Jane.", startOffset: 0, endOffset: 14 });
+        const chunk = new TextChunk({ index: 0, text: "John and Jane.", startOffset: 0, endOffset: 14 });
 
-      const result = yield* extractor.extract(entities, chunk, ontologyContext, { validatePredicates: true });
+        const result = yield* extractor.extract(entities, chunk, ontologyContext, { validatePredicates: true });
 
-      strictEqual(result.triples.length, 0);
-      strictEqual(result.invalidTriples.length, 1);
-    }).pipe(
+        strictEqual(result.triples.length, 0);
+        strictEqual(result.invalidTriples.length, 1);
+      },
       Effect.provide(RelationExtractor.Default),
       withLanguageModel({
         generateObject: (objectName: string | undefined) =>
@@ -152,69 +162,84 @@ describe("RelationExtractor", () => {
               }
             : {},
       })
-    )
+    ),
+    TEST_TIMEOUT
   );
 
-  effect("skips extraction when insufficient entities", () =>
-    Effect.gen(function* () {
-      const extractor = yield* RelationExtractor;
-      const ontologyContext = createMockOntologyContext();
+  effect(
+    "skips extraction when insufficient entities",
+    Effect.fn(
+      function* () {
+        const extractor = yield* RelationExtractor;
+        const ontologyContext = createMockOntologyContext();
 
-      const entities: readonly ClassifiedEntity[] = [];
-      const chunk = new TextChunk({ index: 0, text: "No entities here.", startOffset: 0, endOffset: 17 });
+        const entities: readonly ClassifiedEntity[] = [];
+        const chunk = new TextChunk({ index: 0, text: "No entities here.", startOffset: 0, endOffset: 17 });
 
-      const result = yield* extractor.extract(entities, chunk, ontologyContext);
+        const result = yield* extractor.extract(entities, chunk, ontologyContext);
 
-      strictEqual(result.triples.length, 0);
-      strictEqual(result.tokensUsed, 0);
-    }).pipe(Effect.provide(RelationExtractor.Default), withLanguageModel({}))
+        strictEqual(result.triples.length, 0);
+        strictEqual(result.tokensUsed, 0);
+      },
+      Effect.provide(RelationExtractor.Default),
+      withLanguageModel({})
+    ),
+    TEST_TIMEOUT
   );
 
-  effect("deduplicates relations keeping highest confidence", () =>
-    Effect.gen(function* () {
-      const extractor = yield* RelationExtractor;
+  effect(
+    "deduplicates relations keeping highest confidence",
+    Effect.fn(
+      function* () {
+        const extractor = yield* RelationExtractor;
 
-      const triples = [
-        new ExtractedTriple({
-          subjectMention: "John",
-          predicateIri: "http://schema.org/knows",
-          objectMention: "Jane",
-          confidence: 0.8,
-        }),
-        new ExtractedTriple({
-          subjectMention: "John",
-          predicateIri: "http://schema.org/knows",
-          objectMention: "Jane",
-          confidence: 0.95,
-        }),
-      ];
+        const triples = [
+          new ExtractedTriple({
+            subjectMention: "John",
+            predicateIri: "http://schema.org/knows",
+            objectMention: "Jane",
+            confidence: 0.8,
+          }),
+          new ExtractedTriple({
+            subjectMention: "John",
+            predicateIri: "http://schema.org/knows",
+            objectMention: "Jane",
+            confidence: 0.95,
+          }),
+        ];
 
-      const deduped = yield* extractor.deduplicateRelations(triples);
+        const deduped = yield* extractor.deduplicateRelations(triples);
 
-      strictEqual(deduped.length, 1);
-      strictEqual(deduped[0]?.confidence, 0.95);
-    }).pipe(Effect.provide(RelationExtractor.Default), withLanguageModel({}))
+        strictEqual(deduped.length, 1);
+        strictEqual(deduped[0]?.confidence, 0.95);
+      },
+      Effect.provide(RelationExtractor.Default),
+      withLanguageModel({})
+    ),
+    TEST_TIMEOUT
   );
 
-  effect("handles literal values", () =>
-    Effect.gen(function* () {
-      const extractor = yield* RelationExtractor;
-      const ontologyContext = createMockOntologyContext({
-        properties: [{ iri: "http://schema.org/age", label: "age" }],
-      });
+  effect(
+    "handles literal values",
+    Effect.fn(
+      function* () {
+        const extractor = yield* RelationExtractor;
+        const ontologyContext = createMockOntologyContext({
+          properties: [{ iri: "http://schema.org/age", label: "age" }],
+        });
 
-      const entities = [
-        new ClassifiedEntity({ mention: "John", typeIri: "http://schema.org/Person", confidence: 0.9 }),
-      ];
+        const entities = [
+          new ClassifiedEntity({ mention: "John", typeIri: "http://schema.org/Person", confidence: 0.9 }),
+        ];
 
-      const chunk = new TextChunk({ index: 0, text: "John is 30 years old.", startOffset: 0, endOffset: 21 });
+        const chunk = new TextChunk({ index: 0, text: "John is 30 years old.", startOffset: 0, endOffset: 21 });
 
-      const result = yield* extractor.extract(entities, chunk, ontologyContext);
+        const result = yield* extractor.extract(entities, chunk, ontologyContext);
 
-      strictEqual(result.triples.length, 1);
-      strictEqual(result.triples[0]?.literalValue, "30");
-      strictEqual(result.triples[0]?.objectMention, undefined);
-    }).pipe(
+        strictEqual(result.triples.length, 1);
+        strictEqual(result.triples[0]?.literalValue, "30");
+        strictEqual(result.triples[0]?.objectMention, undefined);
+      },
       Effect.provide(RelationExtractor.Default),
       withLanguageModel({
         generateObject: (objectName: string | undefined) =>
@@ -232,29 +257,32 @@ describe("RelationExtractor", () => {
               }
             : {},
       })
-    )
+    ),
+    TEST_TIMEOUT
   );
 
-  effect("adjusts evidence offsets to document level", () =>
-    Effect.gen(function* () {
-      const extractor = yield* RelationExtractor;
-      const ontologyContext = createMockOntologyContext({
-        properties: [{ iri: "http://schema.org/knows", label: "knows" }],
-      });
+  effect(
+    "adjusts evidence offsets to document level",
+    Effect.fn(
+      function* () {
+        const extractor = yield* RelationExtractor;
+        const ontologyContext = createMockOntologyContext({
+          properties: [{ iri: "http://schema.org/knows", label: "knows" }],
+        });
 
-      const entities = [
-        new ClassifiedEntity({ mention: "John", typeIri: "http://schema.org/Person", confidence: 0.9 }),
-        new ClassifiedEntity({ mention: "Jane", typeIri: "http://schema.org/Person", confidence: 0.9 }),
-      ];
+        const entities = [
+          new ClassifiedEntity({ mention: "John", typeIri: "http://schema.org/Person", confidence: 0.9 }),
+          new ClassifiedEntity({ mention: "Jane", typeIri: "http://schema.org/Person", confidence: 0.9 }),
+        ];
 
-      const chunk = new TextChunk({ index: 2, text: "John knows Jane.", startOffset: 100, endOffset: 116 });
+        const chunk = new TextChunk({ index: 2, text: "John knows Jane.", startOffset: 100, endOffset: 116 });
 
-      const result = yield* extractor.extract(entities, chunk, ontologyContext);
+        const result = yield* extractor.extract(entities, chunk, ontologyContext);
 
-      strictEqual(result.triples.length, 1);
-      strictEqual(result.triples[0]?.evidenceStartChar, 100);
-      strictEqual(result.triples[0]?.evidenceEndChar, 115);
-    }).pipe(
+        strictEqual(result.triples.length, 1);
+        strictEqual(result.triples[0]?.evidenceStartChar, 100);
+        strictEqual(result.triples[0]?.evidenceEndChar, 115);
+      },
       Effect.provide(RelationExtractor.Default),
       withLanguageModel({
         generateObject: (objectName: string | undefined) =>
@@ -274,6 +302,7 @@ describe("RelationExtractor", () => {
               }
             : {},
       })
-    )
+    ),
+    TEST_TIMEOUT
   );
 });

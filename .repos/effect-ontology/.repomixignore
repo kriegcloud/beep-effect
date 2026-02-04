@@ -1,0 +1,7 @@
+docs/
+bun.lock
+.claude/
+*.ttl
+*.rdf
+CLAUDE.md
+*.json

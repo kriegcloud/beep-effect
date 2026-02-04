@@ -1,0 +1,463 @@
+---
+title: Create Derived Atoms for Computed State
+id: effect-atom-derived
+skillLevel: intermediate
+useCase: frontend-state
+summary: >-
+  Use derived atoms to compute values from other atoms, creating an automatic
+  dependency graph that eliminates redundant calculations and keeps UI in sync.
+tags:
+  - frontend
+  - react
+  - atom
+  - derived
+  - computed
+  - memoization
+related:
+  - frontend-state-with-effect-atom
+  - effect-atom-mutations
+  - use-pipe-for-composition
+author: Effect Community
+---
+
+# Create Derived Atoms for Computed State
+
+## Guideline
+
+Use derived atoms (atoms that read from other atoms) to compute values automatically, creating a reactive dependency graph where changes propagate efficiently without manual coordination.
+
+## Rationale
+
+In complex UIs, state often depends on other state:
+- Filtered lists depend on filter criteria
+- Statistics depend on source data
+- UI state depends on user permissions
+- Display formatting depends on preferences
+
+Derived atoms solve this by:
+1. **Automatic tracking**: Dependencies are detected automatically
+2. **Efficient updates**: Only recompute when dependencies change
+3. **No duplication**: Single source of truth for computed values
+4. **Type safety**: Full TypeScript inference
+5. **Composability**: Derived atoms can depend on other derived atoms
+
+## Good Example
+
+### Basic Derived Atom
+
+```typescript
+import { Atom } from "@effect-atom/atom"
+
+// Source atoms
+const todosAtom = Atom.make<Array<Todo>>([])
+const filterAtom = Atom.make<"all" | "active" | "completed">("all")
+
+// Derived atom - automatically recomputes when dependencies change
+const filteredTodosAtom = Atom.make((get) => {
+  const todos = get(todosAtom)
+  const filter = get(filterAtom)
+  
+  switch (filter) {
+    case "active":
+      return todos.filter(t => !t.completed)
+    case "completed":
+      return todos.filter(t => t.completed)
+    default:
+      return todos
+  }
+})
+
+function TodoList() {
+  // Automatically subscribes to filteredTodosAtom
+  // Recomputes only when todosAtom or filterAtom changes
+  const todos = useAtomValue(filteredTodosAtom)
+  
+  return (
+    <ul>
+      {todos.map(todo => <TodoItem key={todo.id} todo={todo} />)}
+    </ul>
+  )
+}
+```
+
+### Effectful Derived Atom
+
+```typescript
+import { Atom } from "@effect-atom/atom"
+import { Effect } from "effect"
+
+const runtime = Atom.runtime(Layer.mergeAll(UserService.Default))
+
+const userIdAtom = Atom.make<string | null>(null)
+
+// Derived atom with Effect
+const userProfileAtom = runtime.make((get) =>
+  Effect.gen(function* () {
+    const userId = get(userIdAtom)
+    
+    if (!userId) {
+      return yield* Effect.succeed(null)
+    }
+    
+    const userService = yield* UserService
+    const profile = yield* userService.getProfile(userId)
+    
+    return profile
+  })
+)
+
+function UserProfile() {
+  const profile = useAtomValue(userProfileAtom)
+  
+  return Result.match(profile, {
+    onLoading: () => <Spinner />,
+    onSuccess: (profile) =>
+      profile ? <div>{profile.name}</div> : <div>No user selected</div>,
+    onFailure: (error) => <ErrorMessage error={error} />
+  })
+}
+```
+
+### Multi-Level Derived Atoms
+
+```typescript
+// Level 1: Base data
+const todosAtom = Atom.make<Array<Todo>>([])
+
+// Level 2: Derive completed and active
+const completedTodosAtom = Atom.make((get) =>
+  get(todosAtom).filter(t => t.completed)
+)
+
+const activeTodosAtom = Atom.make((get) =>
+  get(todosAtom).filter(t => !t.completed)
+)
+
+// Level 3: Derive statistics from Level 2
+const todoStatsAtom = Atom.make((get) => ({
+  total: get(todosAtom).length,
+  completed: get(completedTodosAtom).length,
+  active: get(activeTodosAtom).length,
+  completionRate: get(completedTodosAtom).length / get(todosAtom).length || 0
+}))
+
+// Level 4: Derive UI message from Level 3
+const statsMessageAtom = Atom.make((get) => {
+  const stats = get(todoStatsAtom)
+  
+  if (stats.total === 0) return "No todos yet"
+  if (stats.completed === stats.total) return "All done! 🎉"
+  return `${stats.active} remaining`
+})
+
+function TodoStats() {
+  // Efficiently updates only when underlying data changes
+  const message = useAtomValue(statsMessageAtom)
+  return <div>{message}</div>
+}
+```
+
+### Derived Atom with Multiple Dependencies
+
+```typescript
+const searchQueryAtom = Atom.make<string>("")
+const sortByAtom = Atom.make<"name" | "date">("name")
+const itemsAtom = Atom.make<Array<Item>>([])
+
+const processedItemsAtom = Atom.make((get) => {
+  const items = get(itemsAtom)
+  const query = get(searchQueryAtom).toLowerCase()
+  const sortBy = get(sortByAtom)
+  
+  // Filter
+  let filtered = items
+  if (query) {
+    filtered = items.filter(item =>
+      item.name.toLowerCase().includes(query) ||
+      item.description?.toLowerCase().includes(query)
+    )
+  }
+  
+  // Sort
+  return filtered.sort((a, b) => {
+    if (sortBy === "name") {
+      return a.name.localeCompare(b.name)
+    } else {
+      return b.createdAt.getTime() - a.createdAt.getTime()
+    }
+  })
+})
+```
+
+### Derived Atom with Async Transformation
+
+```typescript
+const runtime = Atom.runtime(TranslationService.Default)
+
+const textAtom = Atom.make<string>("")
+const languageAtom = Atom.make<string>("en")
+
+const translatedTextAtom = runtime.make((get) =>
+  Effect.gen(function* () {
+    const text = get(textAtom)
+    const language = get(languageAtom)
+    
+    if (!text || language === "en") {
+      return text
+    }
+    
+    const translationService = yield* TranslationService
+    const translated = yield* translationService.translate(text, language)
+    
+    return translated
+  })
+)
+
+function TranslatedContent() {
+  const translated = useAtomValue(translatedTextAtom)
+  
+  return Result.match(translated, {
+    onLoading: () => <span>Translating...</span>,
+    onSuccess: (text) => <p>{text}</p>,
+    onFailure: () => <p>Translation failed</p>
+  })
+}
+```
+
+## Bad Example
+
+### ❌ Computing in Component
+
+```typescript
+// BAD: Recomputes on every render
+function TodoList() {
+  const todos = useAtomValue(todosAtom)
+  const filter = useAtomValue(filterAtom)
+  
+  // This runs on EVERY render, even if todos/filter haven't changed!
+  const filtered = todos.filter(t => {
+    if (filter === "active") return !t.completed
+    if (filter === "completed") return t.completed
+    return true
+  })
+  
+  return <ul>{filtered.map(...)}</ul>
+}
+
+// GOOD: Use derived atom
+const filteredTodosAtom = Atom.make((get) => {
+  const todos = get(todosAtom)
+  const filter = get(filterAtom)
+  // Computed only when dependencies change!
+  return todos.filter(...)
+})
+
+function TodoList() {
+  const filtered = useAtomValue(filteredTodosAtom)
+  return <ul>{filtered.map(...)}</ul>
+}
+```
+
+### ❌ Duplicating Computation
+
+```typescript
+// BAD: Same computation in multiple places
+function TodoStats() {
+  const todos = useAtomValue(todosAtom)
+  const completed = todos.filter(t => t.completed).length
+  return <div>Completed: {completed}</div>
+}
+
+function TodoProgress() {
+  const todos = useAtomValue(todosAtom)
+  const completed = todos.filter(t => t.completed).length
+  const rate = completed / todos.length
+  return <div>Progress: {rate * 100}%</div>
+}
+
+// GOOD: Compute once in derived atom
+const todoStatsAtom = Atom.make((get) => {
+  const todos = get(todosAtom)
+  const completed = todos.filter(t => t.completed).length
+  return { total: todos.length, completed, rate: completed / todos.length }
+})
+
+function TodoStats() {
+  const stats = useAtomValue(todoStatsAtom)
+  return <div>Completed: {stats.completed}</div>
+}
+
+function TodoProgress() {
+  const stats = useAtomValue(todoStatsAtom)
+  return <div>Progress: {stats.rate * 100}%</div>
+}
+```
+
+### ❌ Manual Dependency Management
+
+```typescript
+// BAD: Manually managing dependencies
+function UserDashboard() {
+  const [userData, setUserData] = useState(null)
+  const userId = useAtomValue(userIdAtom)
+  const settings = useAtomValue(settingsAtom)
+  
+  useEffect(() => {
+    // Manually fetching and coordinating
+    fetchUserData(userId, settings).then(setUserData)
+  }, [userId, settings])
+  
+  // Complex, error-prone
+}
+
+// GOOD: Automatic dependency tracking
+const userDashboardAtom = runtime.make((get) =>
+  Effect.gen(function* () {
+    const userId = get(userIdAtom)
+    const settings = get(settingsAtom)
+    
+    const userService = yield* UserService
+    return yield* userService.getDashboard(userId, settings)
+  })
+)
+
+function UserDashboard() {
+  const dashboard = useAtomValue(userDashboardAtom)
+  return Result.match(dashboard, {...})
+}
+```
+
+## Pattern: Conditional Derived Atom
+
+```typescript
+const userRoleAtom = Atom.make<"admin" | "user" | null>(null)
+const dataAtom = Atom.make<Array<Data>>([])
+
+const filteredDataAtom = Atom.make((get) => {
+  const role = get(userRoleAtom)
+  const data = get(dataAtom)
+  
+  // Only admins see all data
+  if (role === "admin") {
+    return data
+  }
+  
+  // Regular users see only their own data
+  return data.filter(d => d.ownerId === getCurrentUserId())
+})
+```
+
+## Pattern: Derived Atom with Caching
+
+```typescript
+import { Cache, Duration } from "effect"
+
+const runtime = Atom.runtime(CacheService.Default)
+
+const expensiveComputationAtom = runtime.make((get) =>
+  Effect.gen(function* () {
+    const input = get(inputAtom)
+    
+    // Create a cache with 5-minute TTL
+    const cache = yield* Cache.make({
+      capacity: 100,
+      timeToLive: Duration.minutes(5),
+      lookup: (key: string) => performExpensiveComputation(key)
+    })
+    
+    return yield* cache.get(input)
+  })
+)
+```
+
+## Pattern: Derived Atom with Debouncing
+
+```typescript
+import { Effect, Schedule } from "effect"
+
+const searchQueryAtom = Atom.make<string>("")
+
+// Debounced search results
+const searchResultsAtom = runtime.make((get) =>
+  Effect.gen(function* () {
+    const query = get(searchQueryAtom)
+    
+    if (!query) return []
+    
+    // Debounce for 300ms
+    yield* Effect.sleep("300 millis")
+    
+    const searchService = yield* SearchService
+    return yield* searchService.search(query)
+  })
+)
+```
+
+## Pattern: Combining Multiple Derived Atoms
+
+```typescript
+const userAtom = runtime.make(() => fetchCurrentUser())
+const notificationsAtom = runtime.make(() => fetchNotifications())
+const messagesAtom = runtime.make(() => fetchMessages())
+
+// Combine into a single dashboard atom
+const dashboardAtom = Atom.make((get) => {
+  const user = get(userAtom)
+  const notifications = get(notificationsAtom)
+  const messages = get(messagesAtom)
+  
+  return Result.all([user, notifications, messages]).pipe(
+    Result.map(([user, notifications, messages]) => ({
+      user,
+      unreadNotifications: notifications.filter(n => !n.read).length,
+      unreadMessages: messages.filter(m => !m.read).length,
+      recentActivity: [...notifications, ...messages]
+        .sort((a, b) => b.timestamp - a.timestamp)
+        .slice(0, 10)
+    }))
+  )
+})
+```
+
+## Best Practices
+
+1. **Use derived atoms for computed values** - Don't compute in components
+2. **Keep derivations pure** when possible - Side effects should be explicit
+3. **Create focused atoms** - One computation per atom
+4. **Chain derivations** - Build complex state from simple pieces
+5. **Use Effect for async derivations** - Leverage Effect's error handling
+6. **Cache expensive computations** - Use Cache or memoization
+7. **Debounce rapid changes** - Use Effect.sleep for debouncing
+8. **Handle loading states** - Use Result.match for async atoms
+
+## Performance Tips
+
+- **Minimize dependencies**: Only `get()` atoms you actually need
+- **Batch updates**: Group related state changes
+- **Use selective subscriptions**: Subscribe only to data you use
+- **Profile derivations**: Identify expensive computations
+- **Consider caching**: Cache results of expensive derivations
+
+## Common Patterns
+
+- **Filtered Lists**: Filter based on criteria atom
+- **Sorted Data**: Sort based on sort order atom
+- **Search Results**: Derive from search query
+- **Statistics**: Compute from source data
+- **Formatted Display**: Transform for UI
+- **Aggregations**: Combine multiple sources
+- **Conditional Views**: Filter by permissions
+
+## Related Patterns
+
+- [`frontend-state-with-effect-atom.mdx`](./frontend-state-with-effect-atom.mdx) - Atom basics
+- [`effect-atom-mutations.mdx`](./effect-atom-mutations.mdx) - State mutations
+- [`use-pipe-for-composition.mdx`](./use-pipe-for-composition.mdx) - Effect composition
+- [`use-chunk-for-high-performance-collections.mdx`](./use-chunk-for-high-performance-collections.mdx) - Performance
+
+## References
+
+- [Derived Atoms](https://effect-atom.kitlangton.com/derived-atom-ii)
+- [Effectful Atoms](https://effect-atom.kitlangton.com/effectful-atom)
+- [Effect Atom Examples](https://effect-atom.kitlangton.com/)
+

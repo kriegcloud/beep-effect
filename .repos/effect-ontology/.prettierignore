@@ -1,0 +1,16 @@
+# Let ESLint handle formatting for these files
+*.ts
+*.tsx
+*.js
+*.jsx
+*.mjs
+
+# Build outputs
+build/
+dist/
+.effect/
+node_modules/
+
+# Generated files
+*.tsbuildinfo
+coverage/

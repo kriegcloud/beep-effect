@@ -4,6 +4,20 @@
 
 ---
 
+## Phase Completion Requirements
+
+> **CRITICAL**: A phase is NOT considered complete until ALL of the following are satisfied:
+
+1. **Deliverables**: All phase deliverables pass type checking (`bun run check`) and tests (`bun run test`)
+2. **Reflection**: `REFLECTION_LOG.md` is updated with phase learnings (what worked, what didn't, patterns discovered)
+3. **Handoff**: Next phase handoff documents are created:
+   - `handoffs/HANDOFF_P{N+1}.md` - Detailed handoff with 4-tier memory structure
+   - `handoffs/P{N+1}_ORCHESTRATOR_PROMPT.md` - Copy-paste prompt for starting next phase
+
+**Rationale**: Creating handoff documents ensures knowledge transfer between sessions and maintains implementation continuity. Without handoffs, context is lost and subsequent phases may repeat mistakes or miss critical decisions.
+
+---
+
 ## Quick Navigation
 
 | Document | Purpose | Target Audience |

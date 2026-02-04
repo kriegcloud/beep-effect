@@ -106,3 +106,13 @@
 {"eventType":"start","timestamp":"2026-02-04T09:14:26.425Z","sessionId":"467cd48c-9ebc-4821-8044-85ee9a483530","agentType":"documentation-expert","triggeredBy":"auto"}
 {"eventType":"stop","timestamp":"2026-02-04T09:15:54.135Z","sessionId":"467cd48c-9ebc-4821-8044-85ee9a483530","agentType":"documentation-expert","durationMs":87710,"outcome":"success"}
 {"eventType":"stop","timestamp":"2026-02-04T09:15:58.409Z","sessionId":"467cd48c-9ebc-4821-8044-85ee9a483530","agentType":"unknown","durationMs":0,"outcome":"success"}
+{"eventType":"start","timestamp":"2026-02-04T09:38:53.278Z","sessionId":"37bb4a2e-97c7-4ebe-866d-0d92907753f4","agentType":"effect-code-writer","triggeredBy":"auto"}
+{"eventType":"start","timestamp":"2026-02-04T09:39:09.118Z","sessionId":"37bb4a2e-97c7-4ebe-866d-0d92907753f4","agentType":"effect-code-writer","triggeredBy":"auto"}
+{"eventType":"start","timestamp":"2026-02-04T09:39:27.374Z","sessionId":"37bb4a2e-97c7-4ebe-866d-0d92907753f4","agentType":"effect-code-writer","triggeredBy":"auto"}
+{"eventType":"stop","timestamp":"2026-02-04T09:42:39.961Z","sessionId":"37bb4a2e-97c7-4ebe-866d-0d92907753f4","agentType":"effect-code-writer","durationMs":192587,"outcome":"success"}
+{"eventType":"stop","timestamp":"2026-02-04T09:43:14.375Z","sessionId":"37bb4a2e-97c7-4ebe-866d-0d92907753f4","agentType":"unknown","durationMs":0,"outcome":"success"}
+{"eventType":"stop","timestamp":"2026-02-04T09:44:28.955Z","sessionId":"37bb4a2e-97c7-4ebe-866d-0d92907753f4","agentType":"unknown","durationMs":0,"outcome":"success"}
+{"eventType":"start","timestamp":"2026-02-04T09:46:00.587Z","sessionId":"37bb4a2e-97c7-4ebe-866d-0d92907753f4","agentType":"test-writer","triggeredBy":"auto"}
+{"eventType":"stop","timestamp":"2026-02-04T09:52:48.645Z","sessionId":"37bb4a2e-97c7-4ebe-866d-0d92907753f4","agentType":"test-writer","durationMs":408057,"outcome":"success"}
+{"eventType":"start","timestamp":"2026-02-04T09:53:49.616Z","sessionId":"37bb4a2e-97c7-4ebe-866d-0d92907753f4","agentType":"package-error-fixer","triggeredBy":"auto"}
+{"eventType":"stop","timestamp":"2026-02-04T10:08:35.387Z","sessionId":"37bb4a2e-97c7-4ebe-866d-0d92907753f4","agentType":"unknown","durationMs":0,"outcome":"success"}

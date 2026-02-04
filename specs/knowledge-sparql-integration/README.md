@@ -2,10 +2,24 @@
 
 **Spec ID**: `knowledge-sparql-integration`
 **Phase**: 1.1 - Query Layer (SPARQL)
-**Status**: PLANNED
+**Status**: IN_PROGRESS (Phase 1 Complete)
 **Owner**: TBD
 **Created**: 2026-02-03
 **Complexity**: HIGH
+
+---
+
+## Phase Completion Requirements
+
+> **CRITICAL**: A phase is NOT considered complete until ALL of the following are satisfied:
+
+1. **Deliverables**: All phase deliverables pass type checking (`bun run check`) and tests (`bun run test`)
+2. **Reflection**: `REFLECTION_LOG.md` is updated with phase learnings (what worked, what didn't, patterns discovered)
+3. **Handoff**: Next phase handoff documents are created:
+   - `handoffs/HANDOFF_P{N+1}.md` - Detailed handoff with 4-tier memory structure
+   - `handoffs/P{N+1}_ORCHESTRATOR_PROMPT.md` - Copy-paste prompt for starting next phase
+
+**Rationale**: Creating handoff documents ensures knowledge transfer between sessions and maintains implementation continuity. Without handoffs, context is lost and subsequent phases may repeat mistakes or miss critical decisions.
 
 ---
 
@@ -35,7 +49,7 @@ Enable SPARQL query capability over the RDF knowledge graph, providing semantic 
 
 | Spec | Status | Relationship |
 |------|--------|--------------|
-| `specs/knowledge-rdf-foundation/` | PLANNED | **Predecessor** - RdfStore must exist |
+| `specs/knowledge-rdf-foundation/` | COMPLETE | **Predecessor** - RdfStore, Serializer, RdfBuilder exist |
 | `specs/knowledge-architecture-foundation/` | COMPLETE | Package allocation patterns |
 | `specs/knowledge-reasoning-engine/` | PLANNED | Parallel track (both depend on RdfStore) |
 | `specs/knowledge-graphrag-plus/` | PLANNED | **Successor** - Citation validation needs SPARQL |
@@ -245,28 +259,37 @@ Enable SPARQL query capability over the RDF knowledge graph, providing semantic 
 
 ## Key Files to Create
 
+> **UPDATED**: Based on RDF foundation implementation (complete).
+> - SparqlBindings ALREADY EXISTS at `packages/knowledge/domain/src/value-objects/rdf/SparqlBindings.ts`
+> - Errors go in domain layer, not server layer
+
 ### Domain Layer (`@beep/knowledge-domain`)
 ```
 packages/knowledge/domain/src/value-objects/sparql/
   index.ts              # Barrel export
-  SparqlQuery.ts        # Query value object
-  SparqlBindings.ts     # Result bindings value object
+  SparqlQuery.ts        # Query value object (NEW)
+  # SparqlBindings.ts   # ALREADY EXISTS in rdf/ directory
+
+packages/knowledge/domain/src/errors/
+  sparql.errors.ts      # SPARQL error classes (NEW)
+  index.ts              # Update with sparql exports
 ```
 
 ### Server Layer (`@beep/knowledge-server`)
 ```
 packages/knowledge/server/src/Sparql/
   index.ts              # Service export
-  SparqlService.ts      # Query execution service
-  SparqlParser.ts       # sparqljs wrapper
-  QueryExecutor.ts      # Pattern matching executor
-  ResultFormatter.ts    # Format conversion utilities
-  errors.ts             # SPARQL-specific errors
+  SparqlService.ts      # Query execution service (Phase 2)
+  SparqlParser.ts       # sparqljs wrapper (Phase 1)
+  QueryExecutor.ts      # Pattern matching executor (Phase 2)
+  ResultFormatter.ts    # Format conversion utilities (Phase 3)
+  # NOTE: errors.ts removed - errors go in domain layer
 
 packages/knowledge/server/test/Sparql/
-  SparqlParser.test.ts
-  SparqlService.test.ts
-  integration.test.ts   # E2E query tests
+  SparqlParser.test.ts     # Phase 1
+  SparqlService.test.ts    # Phase 2
+  integration.test.ts      # Phase 3 - E2E query tests
+  benchmark.test.ts        # Phase 3 - Performance tests
 ```
 
 ---
@@ -278,7 +301,61 @@ packages/knowledge/server/test/Sparql/
 | Query performance insufficient | MEDIUM | HIGH | Benchmark early, design Oxigraph migration path |
 | SPARQL feature gaps block use cases | MEDIUM | MEDIUM | Prioritize common queries, incremental features |
 | sparqljs parsing errors | LOW | MEDIUM | Extensive parser tests, fallback error handling |
-| RdfStore query API limitations | LOW | HIGH | Verify RdfStore capabilities in Phase 0 handoff |
+| RdfStore query API limitations | LOW | LOW | RdfStore verified complete with 179 tests |
+
+---
+
+## Lessons Applied from RDF Foundation
+
+> The RDF foundation spec (Phases 1-3) is COMPLETE with 179 passing tests. Apply these lessons:
+
+### 1. Effect.Service Pattern
+Use `Effect.Service` with `accessors: true`, not `Context.Tag`:
+```typescript
+export class SparqlParser extends Effect.Service<SparqlParser>()(
+  "@beep/knowledge-server/SparqlParser",
+  { accessors: true, effect: Effect.gen(...) }
+) {}
+```
+
+### 2. Library Type Conversion Layer
+Create explicit conversion functions at service boundary (like `toN3`/`fromN3` in RdfStore):
+```typescript
+const sparqljsAstToSparqlQuery = (ast: sparqljs.SparqlQuery): SparqlQuery => {...}
+```
+
+### 3. Errors in Domain Layer
+All tagged errors go in `@beep/knowledge-domain/errors`, not server layer.
+
+### 4. Test Layer Composition
+Use `Layer.provideMerge` for shared dependencies:
+```typescript
+const TestLayer = Layer.mergeAll(
+  SparqlParser.Default,
+  Serializer.Default,
+).pipe(Layer.provideMerge(RdfStore.Default));
+```
+
+### 5. Performance Benchmarks
+Use `live()` helper from @beep/testkit for real clock access:
+```typescript
+live("should execute query in under 100ms", () =>
+  Effect.gen(function* () {
+    const start = yield* Effect.clockWith(c => c.currentTimeMillis);
+    yield* service.query(...);
+    const end = yield* Effect.clockWith(c => c.currentTimeMillis);
+    assertTrue(end - start < 100);
+  }).pipe(Effect.provide(TestLayer))
+);
+```
+
+### 6. RdfStore API Reference
+The actual RdfStore API (not shown in original spec):
+```typescript
+store.match(new QuadPattern({ predicate: makeIRI(...) }))  // Returns ReadonlyArray<Quad>
+store.countMatches(pattern)   // Returns number
+store.hasQuad(quad)           // Returns boolean
+```
 
 ---
 

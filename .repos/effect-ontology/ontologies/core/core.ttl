@@ -1,0 +1,297 @@
+@prefix : <http://effect-ontology.dev/core#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix dul: <http://www.ontologydesignpatterns.org/ont/dul/DUL.owl#> .
+@base <http://effect-ontology.dev/core#> .
+
+# =============================================================================
+# Effect Core Ontology
+# =============================================================================
+#
+# A minimal DUL-based ontology for knowledge extraction. Extends DOLCE+DnS
+# Ultralite with Entity/Event/Mention modeling patterns.
+#
+# Design Principles:
+# - Build on DUL, only add what is strictly needed
+# - TrackedEntity extends dul:Object (spatiotemporal things)
+# - TrackedEvent extends dul:Event (occurrences in time)
+# - Mention for textual evidence (standalone, W3C OA aligned)
+# - Provide shortcuts for LLM-friendly extraction
+#
+# =============================================================================
+
+<http://effect-ontology.dev/core> a owl:Ontology ;
+    rdfs:label "Effect Core Ontology"@en ;
+    rdfs:comment "Extends DUL with Entity/Event/Mention modeling for ontology-guided knowledge extraction."@en ;
+    owl:versionInfo "1.0.0" ;
+    dcterms:created "2024-12-25"^^xsd:date ;
+    dcterms:creator <https://github.com/pooks> ;
+    owl:imports <http://www.ontologydesignpatterns.org/ont/dul/DUL.owl> .
+
+# =============================================================================
+# Core Classes
+# =============================================================================
+
+:TrackedEntity a owl:Class ;
+    rdfs:subClassOf dul:Object ;
+    rdfs:label "Tracked Entity"@en ;
+    skos:prefLabel "TrackedEntity"@en ;
+    skos:scopeNote "Use for any persistent real-world entity extracted from text."@en ;
+    rdfs:comment """A persistent entity in the domain (Person, Organization, Place, Artifact)
+that is tracked across multiple documents and extraction runs.
+
+Extends dul:Object because extracted entities are things with spatiotemporal extent."""@en .
+
+:TrackedEvent a owl:Class ;
+    rdfs:subClassOf dul:Event ;
+    rdfs:label "Tracked Event"@en ;
+    skos:prefLabel "TrackedEvent"@en ;
+    skos:example "product launch, merger announcement, political speech"@en ;
+    skos:scopeNote "Use for specific occurrences with temporal extent."@en ;
+    rdfs:comment """A specific occurrence in time involving TrackedEntities.
+Events have temporal extent and participants.
+
+Extends dul:Event because occurrences happen, have duration, and involve participants."""@en .
+
+:Mention a owl:Class ;
+    rdfs:subClassOf dul:InformationObject ;
+    rdfs:label "Text Mention"@en ;
+    skos:prefLabel "Mention"@en ;
+    skos:scopeNote "Text span that evidences an extracted entity or event."@en ;
+    rdfs:comment """A specific span of text in a source document that references
+an Entity or Event. Provides the evidence trail for extracted knowledge.
+
+Extends dul:InformationObject because mentions are information-bearing artifacts.
+Aligned with W3C Web Annotation model (oa:Annotation) but standalone."""@en .
+
+# Disjointness
+[] a owl:AllDisjoint ;
+    owl:members ( :TrackedEntity :TrackedEvent :Mention ) .
+
+# =============================================================================
+# Domain Entity Subclasses
+# =============================================================================
+# These shadow external vocab classes (foaf:Person, org:Organization) to avoid
+# namespace collisions during LLM extraction. LLM should output :Person not foaf:Person.
+
+:Person a owl:Class ;
+    rdfs:subClassOf :TrackedEntity, dul:Agent ;
+    rdfs:label "Person"@en ;
+    skos:prefLabel "Person"@en ;
+    skos:example "John Smith, CEO of Acme Corp"@en ;
+    rdfs:comment "A human individual tracked across documents."@en .
+
+:Organization a owl:Class ;
+    rdfs:subClassOf :TrackedEntity, dul:SocialAgent ;
+    rdfs:label "Organization"@en ;
+    skos:prefLabel "Organization"@en ;
+    skos:example "Acme Corporation, United Nations"@en ;
+    rdfs:comment "A structured group of people with a common purpose."@en .
+
+:Place a owl:Class ;
+    rdfs:subClassOf :TrackedEntity, dul:Place ;
+    rdfs:label "Place"@en ;
+    skos:prefLabel "Place"@en ;
+    skos:example "Seattle, Washington; Eiffel Tower"@en ;
+    rdfs:comment "A geographic location or named place."@en .
+
+:Artifact a owl:Class ;
+    rdfs:subClassOf :TrackedEntity, dul:PhysicalArtifact ;
+    rdfs:label "Artifact"@en ;
+    skos:prefLabel "Artifact"@en ;
+    skos:example "iPhone 15, Boeing 737"@en ;
+    rdfs:comment "A physical object created by humans."@en .
+
+# Domain entity subclasses are mutually exclusive
+:Person owl:disjointWith :Organization , :Place , :Artifact .
+:Organization owl:disjointWith :Place , :Artifact .
+:Place owl:disjointWith :Artifact .
+
+# =============================================================================
+# Object Properties - Evidence Linking
+# =============================================================================
+
+:hasEvidentialMention a owl:ObjectProperty ;
+    rdfs:subPropertyOf dul:isReferenceOf ;
+    rdfs:label "has evidential mention"@en ;
+    rdfs:comment "Links a TrackedEntity or TrackedEvent to text spans that evidence its existence."@en ;
+    skos:scopeNote "Use from ENTITY/EVENT perspective: 'JohnSmith hasEvidentialMention mention_123'. Prefer this over 'mentions'."@en ;
+    rdfs:domain [ a owl:Class ;
+                  owl:unionOf ( :TrackedEntity :TrackedEvent ) ] ;
+    rdfs:range :Mention .
+
+:mentions a owl:ObjectProperty ;
+    owl:inverseOf :hasEvidentialMention ;
+    rdfs:label "mentions"@en ;
+    rdfs:comment "Links a text Mention to the Entity or Event it references."@en ;
+    skos:scopeNote "Inverse of hasEvidentialMention. RARELY use directly - prefer hasEvidentialMention from entity perspective."@en ;
+    rdfs:domain :Mention ;
+    rdfs:range [ a owl:Class ;
+                 owl:unionOf ( :TrackedEntity :TrackedEvent ) ] .
+
+# =============================================================================
+# Object Properties - Event Participation
+# =============================================================================
+
+:hasParticipant a owl:ObjectProperty ;
+    rdfs:subPropertyOf dul:hasParticipant ;
+    rdfs:label "has participant"@en ;
+    rdfs:comment "Links a TrackedEvent to participating TrackedEntities."@en ;
+    skos:scopeNote "Use from EVENT perspective: 'AcquisitionEvent hasParticipant AcmeCorp'. Prefer this over 'isParticipantIn'."@en ;
+    rdfs:domain :TrackedEvent ;
+    rdfs:range :TrackedEntity .
+
+:isParticipantIn a owl:ObjectProperty ;
+    owl:inverseOf :hasParticipant ;
+    rdfs:label "is participant in"@en ;
+    rdfs:comment "Links a TrackedEntity to events it participates in."@en ;
+    skos:scopeNote "Inverse of hasParticipant. RARELY use directly - prefer hasParticipant from event perspective."@en ;
+    rdfs:domain :TrackedEntity ;
+    rdfs:range :TrackedEvent .
+
+# =============================================================================
+# Object Properties - Entity Resolution
+# =============================================================================
+
+:canonicalEntity a owl:ObjectProperty , owl:FunctionalProperty ;
+    rdfs:label "canonical entity"@en ;
+    rdfs:comment """Points to the canonical/merged entity this instance represents.
+Unlike owl:sameAs, this is asymmetric - preserving audit trail of which
+entities were resolved to which canonical form."""@en ;
+    rdfs:domain :TrackedEntity ;
+    rdfs:range :TrackedEntity .
+
+:isCanonicalFormOf a owl:ObjectProperty ;
+    owl:inverseOf :canonicalEntity ;
+    rdfs:label "is canonical form of"@en ;
+    rdfs:comment "Inverse of canonicalEntity - entities that resolved to this canonical form."@en ;
+    rdfs:domain :TrackedEntity ;
+    rdfs:range :TrackedEntity .
+
+:mergedFrom a owl:ObjectProperty ;
+    rdfs:label "merged from"@en ;
+    rdfs:comment "Records which entities were merged into this canonical entity."@en ;
+    rdfs:domain :TrackedEntity ;
+    rdfs:range :TrackedEntity .
+
+:wasMergedInto a owl:ObjectProperty ;
+    owl:inverseOf :mergedFrom ;
+    rdfs:label "was merged into"@en ;
+    rdfs:comment "Inverse of mergedFrom - the canonical entity this was merged into."@en ;
+    rdfs:domain :TrackedEntity ;
+    rdfs:range :TrackedEntity .
+
+# =============================================================================
+# Object Properties - Spatial Grounding
+# =============================================================================
+
+:hasLocation a owl:ObjectProperty ;
+    rdfs:subPropertyOf dul:hasLocation ;
+    rdfs:label "has location"@en ;
+    rdfs:comment "Links an entity or event to its spatial location."@en ;
+    skos:scopeNote "Use when SUBJECT is located AT the object: 'AcmeCorp hasLocation SanFrancisco'. ALWAYS prefer this over 'isLocationOf'."@en ;
+    rdfs:domain [ a owl:Class ;
+                  owl:unionOf ( :TrackedEntity :TrackedEvent ) ] ;
+    rdfs:range dul:Place .
+
+:isLocationOf a owl:ObjectProperty ;
+    owl:inverseOf :hasLocation ;
+    rdfs:subPropertyOf dul:isLocationOf ;
+    rdfs:label "is location of"@en ;
+    rdfs:comment "Inverse of hasLocation - entities or events at this place."@en ;
+    skos:scopeNote "Inverse of hasLocation. DO NOT use directly - always use hasLocation instead."@en ;
+    rdfs:domain dul:Place ;
+    rdfs:range [ a owl:Class ;
+                 owl:unionOf ( :TrackedEntity :TrackedEvent ) ] .
+
+# =============================================================================
+# Datatype Properties - Core Attributes
+# =============================================================================
+
+:name a owl:DatatypeProperty , owl:FunctionalProperty ;
+    rdfs:subPropertyOf dul:hasDataValue ;
+    rdfs:label "name"@en ;
+    rdfs:comment "The canonical name of the entity."@en ;
+    rdfs:domain :TrackedEntity ;
+    rdfs:range xsd:string .
+
+:description a owl:DatatypeProperty ;
+    rdfs:subPropertyOf dul:hasDataValue ;
+    rdfs:label "description"@en ;
+    rdfs:comment "A brief description of the entity or event."@en ;
+    rdfs:domain [ a owl:Class ;
+                  owl:unionOf ( :TrackedEntity :TrackedEvent ) ] ;
+    rdfs:range xsd:string .
+
+:occurrenceTime a owl:DatatypeProperty ;
+    rdfs:label "occurrence time"@en ;
+    rdfs:comment "When the event occurred (ISO 8601 datetime)."@en ;
+    rdfs:domain :TrackedEvent ;
+    rdfs:range xsd:dateTime .
+
+:startTime a owl:DatatypeProperty ;
+    rdfs:subPropertyOf dul:hasDataValue ;
+    rdfs:label "start time"@en ;
+    rdfs:comment "When the event started (ISO 8601 datetime)."@en ;
+    rdfs:domain :TrackedEvent ;
+    rdfs:range xsd:dateTime .
+
+:endTime a owl:DatatypeProperty ;
+    rdfs:subPropertyOf dul:hasDataValue ;
+    rdfs:label "end time"@en ;
+    rdfs:comment "When the event ended (ISO 8601 datetime)."@en ;
+    rdfs:domain :TrackedEvent ;
+    rdfs:range xsd:dateTime .
+
+# =============================================================================
+# Datatype Properties - System Confidence Scores
+# =============================================================================
+
+:groundingConfidence a owl:DatatypeProperty ;
+    rdfs:label "grounding confidence"@en ;
+    rdfs:comment "System-computed confidence that extraction is grounded in source text (0.0-1.0)."@en ;
+    rdfs:domain [ a owl:Class ;
+                  owl:unionOf ( :TrackedEntity :TrackedEvent ) ] ;
+    rdfs:range xsd:decimal .
+
+:resolutionConfidence a owl:DatatypeProperty ;
+    rdfs:label "resolution confidence"@en ;
+    rdfs:comment "Confidence score for entity resolution match (0.0-1.0)."@en ;
+    rdfs:domain :TrackedEntity ;
+    rdfs:range xsd:decimal .
+
+# =============================================================================
+# Datatype Properties - Mention Evidence
+# =============================================================================
+
+:evidenceText a owl:DatatypeProperty ;
+    rdfs:label "evidence text"@en ;
+    rdfs:comment "The exact quoted text from the source document."@en ;
+    rdfs:domain :Mention ;
+    rdfs:range xsd:string .
+
+:startOffset a owl:DatatypeProperty ;
+    rdfs:label "start offset"@en ;
+    rdfs:comment "Character offset where the mention starts (0-indexed)."@en ;
+    rdfs:domain :Mention ;
+    rdfs:range xsd:integer .
+
+:endOffset a owl:DatatypeProperty ;
+    rdfs:label "end offset"@en ;
+    rdfs:comment "Character offset where the mention ends (exclusive)."@en ;
+    rdfs:domain :Mention ;
+    rdfs:range xsd:integer .
+
+:confidence a owl:DatatypeProperty ;
+    rdfs:label "confidence"@en ;
+    rdfs:comment "Extraction confidence score (0.0-1.0)."@en ;
+    rdfs:domain :Mention ;
+    rdfs:range xsd:decimal .
+
+# =============================================================================
+# End of Core Ontology
+# =============================================================================

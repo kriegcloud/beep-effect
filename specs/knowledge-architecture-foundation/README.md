@@ -6,7 +6,7 @@
 
 ## Status
 
-**ACTIVE** - Foundation phase for knowledge slice implementation
+**COMPLETE** - Foundation phase for knowledge slice implementation
 
 ---
 
@@ -217,14 +217,14 @@ knowledge-server:
 ## Success Criteria
 
 ### Implementation Criteria
-- [ ] Package allocation matrix documents all capabilities
-- [ ] RPC contracts compile without implementation
-- [ ] All EntityIds defined in `@beep/knowledge-domain`
-- [ ] Dependency rules enforced by TypeScript imports
-- [ ] Error schemas follow `S.TaggedError` pattern
-- [ ] Value objects use `S.Class` or `S.Struct` as appropriate
-- [ ] ADR documents all key decisions with rationale
-- [ ] Team aligned on layer boundaries
+- [x] Package allocation matrix documents all capabilities
+- [x] RPC contracts compile without implementation
+- [x] All EntityIds defined in `@beep/knowledge-domain`
+- [x] Dependency rules enforced by TypeScript imports
+- [x] Error schemas follow `S.TaggedError` pattern
+- [x] Value objects use `S.Class` or `S.Struct` as appropriate
+- [x] ADR documents all key decisions with rationale
+- [x] Team aligned on layer boundaries (verified by successful builds)
 
 ### Multi-Session Handoff Criteria
 Each phase is complete ONLY when:

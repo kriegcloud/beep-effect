@@ -1,0 +1,115 @@
+{
+  "name": "effect-ontology",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "bun@1.2.23",
+  "workspaces": [
+    "packages/@core-v2",
+    "packages/web",
+    "tools/deploy"
+  ],
+  "license": "MIT",
+  "description": "Effect-based ontology framework monorepo",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mepuka/effect-ontology.git"
+  },
+  "scripts": {
+    "build": "cd packages/@core-v2 && bun run build",
+    "check": "cd packages/@core-v2 && bun run check",
+    "test": "cd packages/@core-v2 && bun run test",
+    "test:watch": "cd packages/@core-v2 && bun run test:watch",
+    "coverage": "cd packages/@core-v2 && vitest run --coverage",
+    "lint": "eslint \"**/{src,test,examples,scripts,dtslint}/**/*.{ts,mjs}\"",
+    "lint-fix": "bun run lint --fix",
+    "clean": "rm -rf packages/@core-v2/dist",
+    "clean:processes": "pkill -f vitest || true",
+    "benchmark:smoke": "bun --env-file=.env run benchmarks/src/cli.ts --samples 10",
+    "benchmark:quick": "bun --env-file=.env run benchmarks/src/cli.ts --samples 100",
+    "benchmark:full": "bun --env-file=.env run benchmarks/src/cli.ts --samples all",
+    "benchmark:all-providers": "bash benchmarks/scripts/run-all-providers.sh",
+    "benchmark:download": "bash benchmarks/scripts/download-datasets.sh",
+    "deploy": "bun run tools/deploy/src/cli.ts"
+  },
+  "dependencies": {
+    "@anthropic-ai/tokenizer": "^0.0.4",
+    "@effect-atom/atom-react": "^0.4.4",
+    "@effect/ai": "^0.32.1",
+    "@effect/ai-anthropic": "^0.22.0",
+    "@effect/ai-google": "^0.11.0",
+    "@effect/ai-openai": "^0.35.0",
+    "@effect/cli": "^0.72.1",
+    "@effect/cluster": "^0.55.0",
+    "@effect/experimental": "0.58.0",
+    "@effect/platform": "0.94.0",
+    "@effect/platform-bun": "^0.84.0",
+    "@effect/schema": "^0.75.5",
+    "@effect/sql": "^0.48.6",
+    "@effect/sql-pg": "^0.49.7",
+    "@effect/sql-sqlite-bun": "^0.49.0",
+    "@effect/typeclass": "^0.38.0",
+    "@effect/workflow": "^0.15.2",
+    "@opentelemetry/exporter-trace-otlp-http": "^0.208.0",
+    "@radix-ui/react-slot": "^1.2.4",
+    "@zazuko/env": "^3.0.1",
+    "effect": "^3.19.6",
+    "fast-xml-parser": "^5.3.2",
+    "glob": "^13.0.0",
+    "jotai": "^2.15.1",
+    "n3": "^1.26.0",
+    "rdf-validate-shacl": "^0.6.5",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "tiktoken": "^1.0.22"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.24.8",
+    "@babel/core": "^7.25.2",
+    "@babel/plugin-transform-export-namespace-from": "^7.24.7",
+    "@babel/plugin-transform-modules-commonjs": "^7.24.8",
+    "@effect/build-utils": "^0.8.9",
+    "@effect/eslint-plugin": "^0.3.2",
+    "@effect/language-service": "latest",
+    "@effect/vitest": "^0.25.1",
+    "@eslint/compat": "1.1.1",
+    "@eslint/eslintrc": "3.1.0",
+    "@eslint/js": "9.10.0",
+    "@types/glob": "^9.0.0",
+    "@types/n3": "^1.26.1",
+    "@types/node": "^22.5.2",
+    "@typescript-eslint/eslint-plugin": "^8.4.0",
+    "@typescript-eslint/parser": "^8.4.0",
+    "@vitejs/plugin-react": "^5.1.1",
+    "autoprefixer": "^10.4.22",
+    "babel-plugin-annotate-pure-calls": "^0.5.0",
+    "eslint": "^9.10.0",
+    "eslint-import-resolver-typescript": "^3.6.3",
+    "eslint-plugin-codegen": "^0.28.0",
+    "eslint-plugin-import": "^2.30.0",
+    "eslint-plugin-simple-import-sort": "^12.1.1",
+    "eslint-plugin-sort-destructure-keys": "^2.0.0",
+    "fast-check": "^4.3.0",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.1.17",
+    "tsx": "^4.17.0",
+    "typescript": "^5.6.2",
+    "vite": "^7.2.2",
+    "vitest": "^3.2.0"
+  },
+  "effect": {
+    "generateExports": {
+      "include": [
+        "**/*.ts"
+      ]
+    },
+    "generateIndex": {
+      "include": [
+        "**/*.ts"
+      ]
+    }
+  },
+  "pnpm": {
+    "patchedDependencies": {}
+  }
+}

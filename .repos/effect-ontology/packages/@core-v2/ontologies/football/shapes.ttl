@@ -1,0 +1,44 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix fb: <http://ontology.football/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Person must have a name
+fb:PersonShape a sh:NodeShape ;
+    sh:targetClass fb:Person ;
+    sh:property [
+        sh:path fb:name ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] .
+
+# Player must reference a valid Team
+fb:PlayerShape a sh:NodeShape ;
+    sh:targetClass fb:Player ;
+    sh:property [
+        sh:path fb:playsFor ;
+        sh:class fb:Team ;
+        sh:minCount 0 ;
+    ] ;
+    sh:property [
+        sh:path fb:jerseyNumber ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 99 ;
+    ] .
+
+# Match must have two teams
+fb:MatchShape a sh:NodeShape ;
+    sh:targetClass fb:Match ;
+    sh:property [
+        sh:path fb:homeTeam ;
+        sh:class fb:Team ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path fb:awayTeam ;
+        sh:class fb:Team ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] .

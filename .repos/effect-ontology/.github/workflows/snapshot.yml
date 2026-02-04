@@ -1,0 +1,21 @@
+name: Snapshot
+
+on:
+  pull_request:
+    branches: [main, next-minor, next-major]
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  snapshot:
+    name: Snapshot
+    if: github.repository_owner == 'mepuka'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install dependencies
+        uses: ./.github/actions/setup
+      - name: Build package
+        run: bun run build

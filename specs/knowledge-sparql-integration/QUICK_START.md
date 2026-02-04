@@ -19,11 +19,14 @@ The SPARQL integration is **NOT STARTED**. This spec adds semantic query capabil
 
 ### What Needs Building
 
-- SPARQL query value objects (SparqlQuery, SparqlBindings)
-- SPARQL parser wrapping sparqljs library
+- SPARQL query value objects (SparqlQuery - **SparqlBindings already exists**)
+- SPARQL error classes in domain layer
+- SPARQL parser wrapping sparqljs library (using Effect.Service pattern)
 - SparqlService executing queries against RdfStore
 - Result formatting utilities (JSON bindings, RDF graphs)
 - Integration tests for E2E query flows
+
+> **NOTE**: RDF foundation is COMPLETE (179 tests). RdfStore API is `match(QuadPattern)` returning `ReadonlyArray<Quad>`.
 
 ---
 
@@ -119,13 +122,15 @@ ASK { ?s rdf:type ex:Organization }
 
 ### Effect Service Usage
 
+> **IMPORTANT**: Use Effect.Service with `accessors: true`, NOT Context.Tag.
+
 ```typescript
 import * as Effect from "effect/Effect";
-import { SparqlService } from "@beep/knowledge-server";
+import { SparqlService } from "@beep/knowledge-server/Sparql";
 
 const program = Effect.gen(function* () {
-  const service = yield* SparqlService;
-  const result = yield* service.executeQuery(query);
+  // Direct yield* with accessors: true
+  const result = yield* SparqlService.executeSelect(parsedQuery);
   return result;
 });
 ```
@@ -133,12 +138,12 @@ const program = Effect.gen(function* () {
 ### Parser Integration
 
 ```typescript
-import { SparqlParser } from "@beep/knowledge-server/Sparql";
 import * as Effect from "effect/Effect";
+import { SparqlParser } from "@beep/knowledge-server/Sparql";
 
 const program = Effect.gen(function* () {
-  const parser = yield* SparqlParser;
-  const parsedQuery = yield* parser.parse("SELECT ?s WHERE { ?s ?p ?o }");
+  // Direct yield* with accessors: true
+  const parsedQuery = yield* SparqlParser.parse("SELECT ?s WHERE { ?s ?p ?o }");
   return parsedQuery;
 });
 ```
@@ -190,12 +195,18 @@ const program = Effect.gen(function* () {
 
 | Pitfall | Solution |
 |---------|----------|
+| Recreating SparqlBindings | **Already exists** in `@beep/knowledge-domain/value-objects/rdf/` |
+| Using Context.Tag | Use `Effect.Service` with `accessors: true` |
+| Putting errors in server | Errors belong in domain layer (`@beep/knowledge-domain/errors/`) |
+| Wrong RdfStore API | Use `store.match(QuadPattern)` NOT `store.query()` |
+| Native Date.now() | Use `Effect.clockWith(c => c.currentTimeMillis)` with `live()` |
 | Forgetting Effect patterns | Use `Effect.gen` + `yield*`, never async/await |
 | Native JS methods | Use `A.map`, `A.filter` from `effect/Array` |
 | Plain string IDs | Use branded EntityIds from `@beep/shared-domain` |
 | Skipping handoffs | Create BOTH `HANDOFF_P[N+1].md` AND `P[N+1]_ORCHESTRATOR_PROMPT.md` |
 | Parser completeness | Accept incremental SPARQL features, defer advanced to Phase 3 |
 | Query performance | Benchmark early, design Oxigraph migration path |
+| Missing Layer.provideMerge | Share RdfStore between services with `Layer.provideMerge` |
 
 ---
 

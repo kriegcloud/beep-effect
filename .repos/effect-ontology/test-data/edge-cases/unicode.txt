@@ -1,0 +1,19 @@
+International researchers collaborate on the Global AI Initiative.
+
+Dr. François Müller from ETH Zürich specializes in natural language processing for European languages. His email is francois.mueller@ethz.ch and website is https://ethz.ch/de/forschung/müller.
+
+Prof. 田中優子 (Yuko Tanaka) from Tokyo University works on Japanese semantic technologies. Her email is tanaka@u-tokyo.ac.jp and her research page is at https://www.u-tokyo.ac.jp/研究者/田中.
+
+Dr. Björk Sigurðsson from the University of Iceland studies Nordic language processing. Contact: bjork.sigurdsson@hi.is with homepage https://hi.is/staff/björk.
+
+Prof. Αλέξανδρος Παπαδόπουλος (Alexandros Papadopoulos) from the National Technical University of Athens researches Greek computational linguistics. Email: alexandros.papadopoulos@ntua.gr.
+
+Dr. Анна Петрова (Anna Petrova) from Moscow State University works on Slavic language technologies. Her contact is anna.petrova@msu.ru and website https://msu.ru/сотрудники/петрова.
+
+Prof. 李明 (Ming Li) from Tsinghua University specializes in Chinese knowledge graphs. Email: ming.li@tsinghua.edu.cn and research page at https://tsinghua.edu.cn/研究/李明.
+
+Dr. José García-López from Universidad Complutense de Madrid studies Spanish semantic web applications. Contact: jgarcia-lopez@ucm.es with site https://ucm.es/investigación/garcía-lópez.
+
+The group has published papers in multiple languages including "Représentation des connaissances multilingues" (French), "知識グラフの構築" (Japanese), and "Семантическая паутина" (Russian).
+
+Their collaborative project "Πολύγλωσση Γνώση" (Multilingual Knowledge) aims to create interoperable knowledge systems across language barriers. The project website is https://multilingual-knowledge.org/über-uns.

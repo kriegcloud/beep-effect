@@ -1,0 +1,16 @@
+# packages/@core-v2/.dockerignore
+node_modules
+dist
+*.log
+.git
+.env
+.env.*
+coverage
+*.test.ts
+test/
+vitest.config.ts
+tsconfig.json
+tsconfig.build.json
+scratchpad/
+docs/
+TROUBLESHOOTING_REPORT.md

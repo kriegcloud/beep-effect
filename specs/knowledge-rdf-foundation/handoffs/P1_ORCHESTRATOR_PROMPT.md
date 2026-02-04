@@ -25,6 +25,8 @@ Create the core RdfStore service with:
 - `packages/knowledge/domain/src/value-objects/rdf/QuadPattern.ts`
 - `packages/knowledge/server/src/Rdf/RdfStoreService.ts`
 - `packages/knowledge/server/test/Rdf/RdfStoreService.test.ts`
+- `specs/knowledge-rdf-foundation/handoffs/HANDOFF_P2.md` (Phase 2 context)
+- `specs/knowledge-rdf-foundation/handoffs/P2_ORCHESTRATOR_PROMPT.md` (Phase 2 prompt)
 
 ### Critical Patterns
 
@@ -127,6 +129,9 @@ bun run lint:fix --filter @beep/knowledge-server
 - [ ] Pattern matching with wildcards works correctly
 - [ ] No lint errors
 - [ ] Exports added to domain and server index files
+- [ ] REFLECTION_LOG.md updated with Phase 1 learnings
+- [ ] **HANDOFF_P2.md created** (full context for Phase 2)
+- [ ] **P2_ORCHESTRATOR_PROMPT.md created** (copy-paste prompt for Phase 2)
 
 ### Known Issues
 
@@ -141,8 +146,10 @@ bun run lint:fix --filter @beep/knowledge-server
 3. Type-check both packages (15 min)
 4. Create unit tests (1.5 hours)
 5. Verify all tests pass (15 min)
+6. Update REFLECTION_LOG.md (15 min)
+7. **Create HANDOFF_P2.md and P2_ORCHESTRATOR_PROMPT.md** (30 min)
 
-**Estimated time**: 4-5 hours
+**Estimated time**: 5-6 hours
 
 ### Handoff Document
 
@@ -150,6 +157,17 @@ Read the full context in: `specs/knowledge-rdf-foundation/handoffs/HANDOFF_P1.md
 
 This document contains detailed implementation specifications, N3.Quad conversion patterns, and test examples.
 
+### CRITICAL: Phase Completion Requirements
+
+**A phase is NOT complete until handoff documents for the next phase exist.**
+
+Before marking Phase 1 complete:
+1. All implementation tasks done
+2. All tests pass
+3. REFLECTION_LOG.md updated
+4. HANDOFF_P2.md created with full context
+5. P2_ORCHESTRATOR_PROMPT.md created for easy continuation
+
 ---
 
-**Start by reading HANDOFF_P1.md, then implement the schemas, service, and tests in order.**
+**Start by reading HANDOFF_P1.md, then implement the schemas, service, and tests in order. Create Phase 2 handoff documents as the final step.**

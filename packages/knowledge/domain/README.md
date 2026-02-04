@@ -176,5 +176,5 @@ Validated KnowledgeGraph
 ## References
 
 - [effect-ontology](https://github.com/pooks/effect-ontology) — Reference implementation
-- `tmp/effect-ontology/packages/@core-v2/src/Domain/` — Original domain models
-- `tmp/effect-ontology/packages/@core-v2/src/Workflow/Merge.ts` — Monoid merge implementation
+- `.repos/effect-ontology/packages/@core-v2/src/Domain/` — Original domain models
+- `.repos/effect-ontology/packages/@core-v2/src/Workflow/Merge.ts` — Monoid merge implementation
