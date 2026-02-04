@@ -20,6 +20,73 @@ Each reflection entry should include:
 
 ---
 
+## Pre-Implementation Review - 2026-02-03
+
+> Lessons applied from implementing the RDF foundation spec (Phases 0-3, 179 tests).
+
+### Critical Corrections Applied
+
+**1. SparqlBindings Already Exists**
+- Location: `packages/knowledge/domain/src/value-objects/rdf/SparqlBindings.ts`
+- Uses domain Term types (IRI, BlankNode, Literal) - NOT recreate in SPARQL spec
+- Updated HANDOFF_P1.md Task 1.3 to reference existing implementation
+
+**2. Effect.Service Pattern (NOT Context.Tag)**
+- RDF foundation confirmed: use `Effect.Service` with `accessors: true`
+- Enables `yield* ServiceName` instead of `yield* ServiceName.pipe()`
+- Updated all service definitions in handoffs and master orchestration
+
+**3. RdfStore API Correction**
+- WRONG: `store.query(subject, predicate, object)`
+- CORRECT: `store.match(new QuadPattern({ subject, predicate, object }))`
+- Returns `ReadonlyArray<Quad>` not `ReadonlyArray<Triple>`
+- Updated Phase 2 task examples
+
+**4. Errors Belong in Domain Layer**
+- All tagged errors go in `@beep/knowledge-domain/errors/sparql.errors.ts`
+- NOT in server layer (server is implementation, domain is contracts)
+- Updated file locations in handoffs
+
+**5. Library Type Conversion Layer**
+- Pattern from RdfStore: create explicit `toSparqlJs`/`fromSparqlJs` functions
+- Isolates library types from domain types
+- Apply same pattern for sparqljs AST ↔ SparqlQuery conversion
+
+**6. Layer.provideMerge for Shared Dependencies**
+- RdfStore must be shared between Parser tests and Service tests
+- Pattern: `Layer.provideMerge(SparqlParser.Default, RdfStore.Default)`
+- Updated test layer composition examples
+
+**7. Performance Benchmarking Pattern**
+- Use `live()` helper from @beep/testkit for real clock access
+- Use `Effect.clockWith(c => c.currentTimeMillis)` NOT `Date.now()`
+- RDF foundation achieved 13ms for 1000 quads (target was 100ms)
+
+### Spec Artifacts Updated
+
+| File | Changes |
+|------|---------|
+| README.md | Added "Lessons Applied from RDF Foundation" section |
+| HANDOFF_P1.md | Effect.Service pattern, errors in domain, SparqlBindings exists |
+| P1_ORCHESTRATOR_PROMPT.md | Fixed path, updated deliverables |
+| MASTER_ORCHESTRATION.md | Pending updates |
+| QUICK_START.md | Pending updates |
+
+### Pattern Candidates from RDF Foundation
+
+1. **library-type-conversion-layer** (confidence: 5/5)
+   - Wrap external library types with explicit conversion functions
+   - Apply to sparqljs: `sparqljsAstToSparqlQuery()`, `sparqlQueryToSparqljsAst()`
+
+2. **effect-async-callback-bridge** (confidence: 5/5)
+   - Wrap callback-based APIs with Effect.async
+   - N3 callbacks → Effect patterns (may apply to sparqljs if needed)
+
+3. **fluent-builder-with-closure-context** (confidence: 5/5)
+   - RdfBuilder pattern may inform QueryBuilder if needed
+
+---
+
 ## Phase 0 - Scaffolding
 
 ### Session 1 - 2026-02-03
@@ -72,19 +139,63 @@ Each reflection entry should include:
 
 ## Phase 1 - Value Objects & Parser
 
-### Session 1 - [Date]
+### Session 1 - 2026-02-04
 
 **What Worked:**
+- Effect.Service pattern with `accessors: true` enabled clean `yield* SparqlParser` usage
+- Type guard pattern for sparqljs union types (`Variable[] | [Wildcard]`) resolved TypeScript errors
+- `yield* new TaggedError()` pattern (not `yield* Effect.fail(new TaggedError())`) for yieldable errors
+- Existing domain infrastructure (SparqlBindings, sparql.errors.ts) reduced scaffolding work
+- Test-writer agent produced comprehensive 45 tests covering edge cases
 
 **What Didn't Work:**
+- Initial extractVariables implementation failed with `Variable[] | [Wildcard]` union type
+- sparqljs types required careful handling - `A.filterMap` with type guards was solution
+- Effect.fail() with yieldable errors triggers linter warning (should yield* directly)
 
 **Learnings:**
+1. **sparqljs Variable Union Type**: `SelectQuery.variables` is `Variable[] | [Wildcard]` - use type guards (`isWildcard`, `isVariableTerm`, `isVariableExpression`) to safely handle
+2. **Yieldable Error Pattern**: Use `yield* new TaggedError()` instead of `yield* Effect.fail(new TaggedError())`
+3. **Parser Line/Column Extraction**: sparqljs error messages contain line/column info - extract with regex
+4. **Dual Import Pattern**: Use `import type * as sparqljs` for types and `import * as Sparqljs` for runtime
 
 **Pattern Discoveries:**
+- **sparqljs-type-guard-pattern**: Handle union types with explicit type guards before A.filterMap
+- **yieldable-error-yield-pattern**: Direct yield of S.TaggedError instances
 
 **Decisions & Rationale:**
 
+1. **Type guards over type assertions**
+   - Rationale: Compile-time safety for sparqljs union types
+   - Implementation: `isWildcard`, `isVariableTerm`, `isVariableExpression` predicates
+
+2. **Empty variables array for SELECT ***
+   - Rationale: Wildcard expansion requires RdfStore context (Phase 2 concern)
+   - Alternative: Could return ["*"] - rejected as misleading
+
+3. **DESCRIBE/UPDATE rejection in parser**
+   - Rationale: Fail fast before Phase 2 executor, clear error messages
+   - Implementation: `SparqlUnsupportedFeatureError` with feature name
+
+**Phase 1 Deliverables:**
+| Artifact | Status | Location |
+|----------|--------|----------|
+| SparqlQuery value object | ✅ Complete | `domain/src/value-objects/sparql/SparqlQuery.ts` |
+| SparqlUnsupportedFeatureError | ✅ Complete | `domain/src/errors/sparql.errors.ts` |
+| SparqlParser service | ✅ Complete | `server/src/Sparql/SparqlParser.ts` |
+| Parser unit tests (45) | ✅ Complete | `server/test/Sparql/SparqlParser.test.ts` |
+| Barrel exports | ✅ Complete | `server/src/Sparql/index.ts`, `server/src/index.ts` |
+
+**Test Summary:**
+- 224 total tests in @beep/knowledge-server (45 new SparqlParser tests)
+- All tests pass
+- Key test categories: SELECT queries, CONSTRUCT queries, ASK queries, PREFIX extraction, error cases
+
 **Handoff Notes:**
+- SparqlParser returns both `SparqlQuery` (domain value object) and `ast` (sparqljs AST)
+- Phase 2 should use the AST directly for query execution against RdfStore
+- Variable expansion for `SELECT *` deferred to Phase 2 (requires store access)
+- Property path detection deferred to Phase 2 (requires pattern inspection)
 
 ---
 

@@ -8,3 +8,4 @@ export * from "./attributes.value";
 export * from "./class-iri.value";
 export * from "./evidence-span.value";
 export * from "./rdf";
+export * from "./sparql";

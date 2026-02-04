@@ -6,5 +6,6 @@
  * @module knowledge-server/Rdf
  * @since 0.1.0
  */
+export * from "./RdfBuilder";
 export * from "./RdfStoreService";
 export * from "./Serializer";

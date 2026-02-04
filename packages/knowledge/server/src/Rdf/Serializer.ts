@@ -24,6 +24,7 @@ import {
 } from "@beep/knowledge-domain/value-objects";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import * as Either from "effect/Either";
 import * as Match from "effect/Match";
 import * as Str from "effect/String";
 import * as N3 from "n3";
@@ -107,7 +108,12 @@ const graphToN3 = (graph: Quad["graph"]): N3.Quad_Graph => {
  * Convert a domain Quad to N3 Quad
  */
 const quadToN3 = (quad: Quad): N3.Quad =>
-  N3.DataFactory.quad(subjectToN3(quad.subject), predicateToN3(quad.predicate), termToN3(quad.object), graphToN3(quad.graph));
+  N3.DataFactory.quad(
+    subjectToN3(quad.subject),
+    predicateToN3(quad.predicate),
+    termToN3(quad.object),
+    graphToN3(quad.graph)
+  );
 
 /**
  * RDF/JS Term interface (common interface for all term types)
@@ -249,9 +255,23 @@ const parseTurtleToQuads = (content: string, graph?: IRI.Type): Effect.Effect<Re
           )
         );
       } else if (quad) {
-        // Convert N3 quad to domain Quad
-        try {
-          const domainQuad = rdfJsQuadToDomain(quad as RdfJsQuad);
+        // Convert N3 quad to domain Quad using Either.try
+        const conversionResult = Either.try({
+          try: () => rdfJsQuadToDomain(quad as RdfJsQuad),
+          catch: (error) =>
+            new SerializerError({
+              operation: "parseTurtle",
+              format: "text/turtle",
+              message: `Failed to convert quad: ${String(error)}`,
+              cause: String(error),
+            }),
+        });
+
+        if (Either.isLeft(conversionResult)) {
+          hasError = true;
+          resume(Effect.fail(conversionResult.left));
+        } else {
+          const domainQuad = conversionResult.right;
           // Override graph if specified
           if (graph !== undefined) {
             quads.push(
@@ -265,18 +285,6 @@ const parseTurtleToQuads = (content: string, graph?: IRI.Type): Effect.Effect<Re
           } else {
             quads.push(domainQuad);
           }
-        } catch (conversionError) {
-          hasError = true;
-          resume(
-            Effect.fail(
-              new SerializerError({
-                operation: "parseTurtle",
-                format: "text/turtle",
-                message: `Failed to convert quad: ${String(conversionError)}`,
-                cause: String(conversionError),
-              })
-            )
-          );
         }
       } else {
         // Parsing complete
@@ -288,7 +296,10 @@ const parseTurtleToQuads = (content: string, graph?: IRI.Type): Effect.Effect<Re
 /**
  * Serialize quads to RDF string (pure serialization)
  */
-const serializeQuadsToString = (quads: ReadonlyArray<Quad>, format: RdfFormat): Effect.Effect<string, SerializerError> =>
+const serializeQuadsToString = (
+  quads: ReadonlyArray<Quad>,
+  format: RdfFormat
+): Effect.Effect<string, SerializerError> =>
   Effect.async<string, SerializerError>((resume) => {
     const n3Format = getN3Format(format);
     const writer = new N3.Writer({ format: n3Format });

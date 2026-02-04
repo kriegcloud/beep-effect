@@ -77,3 +77,9 @@ export * as Rdf from "./Rdf";
  * @since 0.1.0
  */
 export * as Rpc from "./rpc";
+
+/**
+ * SPARQL parsing and query execution exports
+ * @since 0.1.0
+ */
+export * as Sparql from "./Sparql";

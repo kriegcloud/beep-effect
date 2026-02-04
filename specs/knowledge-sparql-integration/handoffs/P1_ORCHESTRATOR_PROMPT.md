@@ -2,41 +2,52 @@
 
 **Copy-paste this prompt to start Phase 1 implementation.**
 
+> **UPDATED**: Based on lessons learned from implementing RDF foundation spec (Phase 1-3 complete).
+
 ---
 
 ## Prompt
 
 I need you to implement Phase 1 of the Knowledge SPARQL Integration spec: SPARQL Value Objects & Parser.
 
-**Specification Location**: `/home/elpresidank/YeeBois/projects/beep-effect2/specs/knowledge-sparql-integration/`
+**Specification Location**: `specs/knowledge-sparql-integration/`
 
 **Context Files to Read**:
 1. `specs/knowledge-sparql-integration/README.md` - Full specification
-2. `specs/knowledge-sparql-integration/handoffs/HANDOFF_P1.md` - Phase 1 detailed handoff
+2. `specs/knowledge-sparql-integration/handoffs/HANDOFF_P1.md` - Phase 1 detailed handoff (UPDATED)
 3. `.claude/rules/effect-patterns.md` - Effect import conventions and patterns
-4. `specs/knowledge-rdf-foundation/README.md` - RdfStore API (dependency)
+4. `specs/knowledge-rdf-foundation/REFLECTION_LOG.md` - Lessons learned from RDF implementation
 
-**Phase 1 Objective**: Create SPARQL value objects in domain layer and parser wrapper in server layer.
+**IMPORTANT - RDF Foundation is COMPLETE**:
+- RdfStore, Serializer, RdfBuilder are all implemented and tested (179 tests)
+- SparqlBindings ALREADY EXISTS in domain layer
+- Use patterns from `packages/knowledge/server/src/Rdf/` as reference
+
+**Phase 1 Objective**: Create SparqlQuery value object and SparqlParser service wrapping sparqljs.
 
 **Deliverables**:
 1. **Value Objects** (`@beep/knowledge-domain`):
-   - `SparqlQuery` - Represents parsed SPARQL query
-   - `SparqlBindings` - Represents W3C SPARQL JSON result format
+   - `SparqlQuery` - Represents parsed SPARQL query (NEW)
+   - Note: `SparqlBindings` ALREADY EXISTS - do not recreate
 
-2. **Parser Service** (`@beep/knowledge-server`):
-   - `SparqlParser` - Service wrapping sparqljs library
-   - Tagged errors: `ParseError`, `UnsupportedFeatureError`
+2. **Error Classes** (`@beep/knowledge-domain/errors`):
+   - `SparqlParseError` - Parse failure with location info
+   - `SparqlUnsupportedFeatureError` - Unsupported SPARQL feature
 
-3. **Tests** (`@beep/knowledge-server/test`):
+3. **Parser Service** (`@beep/knowledge-server`):
+   - `SparqlParser` - Effect.Service wrapping sparqljs (use `accessors: true`)
+
+4. **Tests** (`@beep/knowledge-server/test/Sparql/`):
    - Parser unit tests (valid/invalid queries)
    - Test coverage for SELECT, CONSTRUCT, ASK query types
 
 **Critical Requirements**:
 - Install sparqljs: `bun add sparqljs @types/sparqljs -w`
 - Use namespace imports: `import * as Effect from "effect/Effect"`
+- Use `Effect.Service` with `accessors: true` (NOT Context.Tag)
 - Use `@beep/testkit` for tests (NEVER raw bun:test)
 - Value objects must use `S.Class` from `effect/Schema`
-- Parser errors must use `S.TaggedError`
+- Errors go in DOMAIN layer (like RdfTermConversionError, SerializerError)
 - NEVER use native JavaScript methods (use Effect utilities)
 
 **Workflow**:

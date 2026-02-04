@@ -1,6 +1,13 @@
 # Agent Prompts: Knowledge SPARQL Integration
 
 > Ready-to-use prompts for specialized agents working on SPARQL query capability.
+>
+> **IMPORTANT**: Updated based on lessons learned from RDF foundation implementation.
+> - SparqlBindings ALREADY EXISTS - do not recreate
+> - Use Effect.Service with `accessors: true` - NOT Context.Tag
+> - Errors go in domain layer (`@beep/knowledge-domain/errors/`)
+> - RdfStore API is `match(QuadPattern)` NOT `query(s, p, o)`
+> - Use `Effect.clockWith` NOT `Date.now()` for benchmarks
 
 ---
 
@@ -28,13 +35,16 @@
 ### Primary Agent: effect-code-writer
 
 ```markdown
-## Task: Create SPARQL Value Objects
+## Task: Create SPARQL Value Objects & Errors
 
 You are implementing Phase 1 of the Knowledge SPARQL Integration spec.
 
 ### Mission
 
-Create domain value objects for SPARQL queries and result bindings in the knowledge domain layer.
+Create SparqlQuery value object and SPARQL error classes in the domain layer.
+
+> **IMPORTANT**: SparqlBindings ALREADY EXISTS at `packages/knowledge/domain/src/value-objects/rdf/SparqlBindings.ts`
+> Do NOT recreate it. Only create SparqlQuery and error classes.
 
 ### Files to Create
 
@@ -43,13 +53,16 @@ Create domain value objects for SPARQL queries and result bindings in the knowle
    - Fields: queryString, parsedAst, queryType, prefixes, variables
    - Use S.Literal for queryType enum
 
-2. `packages/knowledge/domain/src/value-objects/sparql/SparqlBindings.ts`
-   - Schema.Class for W3C SPARQL JSON format
-   - Fields: head (vars), results (bindings)
-   - Nested structures for binding values
-
-3. `packages/knowledge/domain/src/value-objects/sparql/index.ts`
+2. `packages/knowledge/domain/src/value-objects/sparql/index.ts`
    - Barrel export for sparql value objects
+   - Re-export SparqlBindings from ../rdf/ for convenience
+
+3. `packages/knowledge/domain/src/errors/sparql.errors.ts`
+   - SparqlParseError, SparqlUnsupportedFeatureError, SparqlExecutionError
+   - Use S.TaggedError pattern
+
+4. Update `packages/knowledge/domain/src/errors/index.ts`
+   - Export sparql errors
 
 ### Critical Patterns
 
@@ -113,31 +126,31 @@ bun run check --filter @beep/knowledge-domain
 
 ---
 
-### Secondary Agent: codebase-researcher
+### Secondary Agent: effect-code-writer
 
 ```markdown
-## Task: Integrate sparqljs Parser
+## Task: Implement SparqlParser Service
 
 You are implementing Phase 1 of the Knowledge SPARQL Integration spec.
 
 ### Mission
 
-Wrap the sparqljs library in an Effect-native SparqlParser service and create tagged errors for parse failures.
+Wrap the sparqljs library in an Effect-native SparqlParser service using Effect.Service pattern.
+
+> **IMPORTANT**:
+> - Use Effect.Service with `accessors: true` (NOT Context.Tag)
+> - Errors are in domain layer (NOT server layer)
+> - Create library type conversion layer (sparqljs AST ↔ domain types)
 
 ### Files to Create
 
-1. `packages/knowledge/server/src/Sparql/errors.ts`
-   - ParseError tagged error
-   - UnsupportedFeatureError tagged error
-   - Use S.TaggedError pattern
-
-2. `packages/knowledge/server/src/Sparql/SparqlParser.ts`
-   - SparqlParser service tag
-   - SparqlParserLive layer
-   - Wraps sparqljs Parser
+1. `packages/knowledge/server/src/Sparql/SparqlParser.ts`
+   - SparqlParser using Effect.Service with `accessors: true`
+   - Wraps sparqljs Parser with Effect.try
    - Validates supported features
+   - Type conversion layer: sparqljsAstToSparqlQuery()
 
-3. `packages/knowledge/server/src/Sparql/index.ts`
+2. `packages/knowledge/server/src/Sparql/index.ts`
    - Barrel export for Sparql services
 
 ### Research Tasks
@@ -161,87 +174,93 @@ Before implementation:
 
 ### Critical Patterns
 
-#### Service Tag Pattern
+#### Effect.Service Pattern (REQUIRED)
+
+> **CRITICAL**: Use Effect.Service with `accessors: true`, NOT Context.Tag.
+> This enables `yield* SparqlParser.parse(query)` instead of service lookup.
 
 ```typescript
 import * as Effect from "effect/Effect";
-import * as Context from "effect/Context";
-import { SparqlQuery } from "@beep/knowledge-domain";
-import { ParseError, UnsupportedFeatureError } from "./errors.js";
-
-export class SparqlParser extends Context.Tag("SparqlParser")<
-  SparqlParser,
-  {
-    readonly parse: (queryString: string) => Effect.Effect<
-      SparqlQuery,
-      ParseError | UnsupportedFeatureError
-    >;
-  }
->() {}
-```
-
-#### Layer Implementation
-
-```typescript
-import * as Layer from "effect/Layer";
+import * as A from "effect/Array";
 import { Parser } from "sparqljs";
+import { SparqlQuery } from "@beep/knowledge-domain";
+import { SparqlParseError, SparqlUnsupportedFeatureError } from "@beep/knowledge-domain/errors";
 
-export const SparqlParserLive = Layer.succeed(
-  SparqlParser,
-  SparqlParser.of({
-    parse: (queryString) =>
-      Effect.gen(function* () {
-        const parser = new Parser();
+// Type conversion layer (isolates library types from domain)
+const sparqljsAstToSparqlQuery = (
+  ast: sparqljs.SparqlQuery,
+  queryString: string
+): SparqlQuery => {
+  const queryType = ast.queryType as "SELECT" | "CONSTRUCT" | "ASK";
+  const prefixes = ast.prefixes || {};
+  const variables = queryType === "SELECT" && ast.variables
+    ? A.map(ast.variables, (v) =>
+        typeof v === "object" && "variable" in v ? v.variable.value : String(v)
+      )
+    : [];
 
-        try {
-          const ast = parser.parse(queryString);
+  return new SparqlQuery({
+    queryString,
+    parsedAst: ast,
+    queryType,
+    prefixes,
+    variables,
+  });
+};
 
-          // Validate supported features
-          if (ast.queryType === "DESCRIBE") {
-            return yield* Effect.fail(
-              new UnsupportedFeatureError({
-                feature: "DESCRIBE queries",
-                queryString,
-                message: "DESCRIBE queries not supported in Phase 1",
-              })
-            );
-          }
+export class SparqlParser extends Effect.Service<SparqlParser>()(
+  "@beep/knowledge-server/SparqlParser",
+  {
+    accessors: true,
+    effect: Effect.gen(function* () {
+      const sparqljsParser = new Parser();
 
-          // Extract query metadata
-          const queryType = ast.queryType as "SELECT" | "CONSTRUCT" | "ASK";
-          const prefixes = ast.prefixes || {};
-          const variables = queryType === "SELECT"
-            ? ast.variables.map((v) => v.variable.value)
-            : [];
+      return {
+        parse: (queryString: string) =>
+          Effect.gen(function* () {
+            // Use Effect.try for synchronous library call
+            const ast = yield* Effect.try({
+              try: () => sparqljsParser.parse(queryString),
+              catch: (error) =>
+                new SparqlParseError({
+                  message: String(error),
+                  queryString,
+                  location: undefined,
+                }),
+            });
 
-          return new SparqlQuery({
-            queryString,
-            parsedAst: ast,
-            queryType,
-            prefixes,
-            variables,
-          });
-        } catch (error) {
-          return yield* Effect.fail(
-            new ParseError({
-              message: String(error),
-              queryString,
-              location: undefined,
-            })
-          );
-        }
-      }),
-  })
-);
+            // Validate supported features
+            if (ast.queryType === "DESCRIBE") {
+              return yield* Effect.fail(
+                new SparqlUnsupportedFeatureError({
+                  feature: "DESCRIBE queries",
+                  queryString,
+                  message: "DESCRIBE queries not supported in Phase 1",
+                })
+              );
+            }
+
+            return sparqljsAstToSparqlQuery(ast, queryString);
+          }).pipe(Effect.withSpan("SparqlParser.parse")),
+      };
+    }),
+  }
+) {}
+
+// Usage: SparqlParser.Default (auto-provided layer)
+// In tests: Effect.provide(SparqlParser.Default)
 ```
 
-#### Tagged Error Pattern
+#### Tagged Error Pattern (Domain Layer)
+
+> **IMPORTANT**: Errors go in `@beep/knowledge-domain/errors/sparql.errors.ts`
 
 ```typescript
+// File: packages/knowledge/domain/src/errors/sparql.errors.ts
 import * as S from "effect/Schema";
 
-export class ParseError extends S.TaggedError<ParseError>()(
-  "ParseError",
+export class SparqlParseError extends S.TaggedError<SparqlParseError>()(
+  "SparqlParseError",
   {
     message: S.String,
     queryString: S.String,
@@ -251,6 +270,23 @@ export class ParseError extends S.TaggedError<ParseError>()(
         column: S.Number,
       })
     ),
+  }
+) {}
+
+export class SparqlUnsupportedFeatureError extends S.TaggedError<SparqlUnsupportedFeatureError>()(
+  "SparqlUnsupportedFeatureError",
+  {
+    feature: S.String,
+    queryString: S.String,
+    message: S.String,
+  }
+) {}
+
+export class SparqlExecutionError extends S.TaggedError<SparqlExecutionError>()(
+  "SparqlExecutionError",
+  {
+    message: S.String,
+    queryString: S.String,
   }
 ) {}
 ```
@@ -333,42 +369,63 @@ Create comprehensive unit tests for the SparqlParser service.
    - Test valid queries (SELECT, CONSTRUCT, ASK)
    - Test PREFIX declarations
    - Test invalid queries (syntax errors)
-   - Test unsupported features
+   - Test unsupported features (DESCRIBE)
 
 ### Critical Patterns
 
 #### Effect Test Pattern (REQUIRED)
 
+> Use SparqlParser.Default layer (from Effect.Service pattern).
+> Use accessors: `yield* SparqlParser.parse(query)`
+
 ```typescript
-import { effect, strictEqual } from "@beep/testkit";
+import { describe, effect, strictEqual, assertTrue } from "@beep/testkit";
 import * as Effect from "effect/Effect";
-import { SparqlParser, SparqlParserLive } from "../../src/Sparql/SparqlParser.js";
+import * as A from "effect/Array";
+import { SparqlParser } from "../../src/Sparql/SparqlParser.js";
 
-effect("parses basic SELECT query", () =>
-  Effect.gen(function* () {
-    const parser = yield* SparqlParser;
-    const query = yield* parser.parse("SELECT ?s WHERE { ?s ?p ?o }");
+const TestLayer = SparqlParser.Default;
 
-    strictEqual(query.queryType, "SELECT");
-    strictEqual(query.variables.length, 1);
-    strictEqual(query.variables[0], "s");
-  }).pipe(Effect.provide(SparqlParserLive))
-);
+describe("SparqlParser", () => {
+  effect("parses basic SELECT query", () =>
+    Effect.gen(function* () {
+      const query = yield* SparqlParser.parse("SELECT ?s WHERE { ?s ?p ?o }");
+
+      strictEqual(query.queryType, "SELECT");
+      strictEqual(A.length(query.variables), 1);
+      strictEqual(query.variables[0], "s");
+    }).pipe(Effect.provide(TestLayer))
+  );
+});
 ```
 
 #### Testing Errors
 
 ```typescript
-effect("fails on malformed query", () =>
+effect("fails on malformed query with SparqlParseError", () =>
   Effect.gen(function* () {
-    const parser = yield* SparqlParser;
-    const result = yield* Effect.either(parser.parse("SELECT ?s WHERE { ?s"));
+    const result = yield* Effect.either(
+      SparqlParser.parse("SELECT ?s WHERE { ?s")
+    );
 
     strictEqual(result._tag, "Left");
     if (result._tag === "Left") {
-      strictEqual(result.left._tag, "ParseError");
+      strictEqual(result.left._tag, "SparqlParseError");
     }
-  }).pipe(Effect.provide(SparqlParserLive))
+  }).pipe(Effect.provide(TestLayer))
+);
+
+effect("rejects DESCRIBE with SparqlUnsupportedFeatureError", () =>
+  Effect.gen(function* () {
+    const result = yield* Effect.either(
+      SparqlParser.parse("DESCRIBE <http://example.org/resource>")
+    );
+
+    strictEqual(result._tag, "Left");
+    if (result._tag === "Left") {
+      strictEqual(result.left._tag, "SparqlUnsupportedFeatureError");
+    }
+  }).pipe(Effect.provide(TestLayer))
 );
 ```
 
@@ -442,89 +499,85 @@ Create the SparqlService that executes parsed SPARQL queries against RdfStore.
 
 ### Critical Patterns
 
-#### Service Interface
+#### Effect.Service Pattern (REQUIRED)
+
+> **CRITICAL**: Use Effect.Service with `accessors: true`, NOT Context.Tag.
 
 ```typescript
 import * as Effect from "effect/Effect";
-import * as Context from "effect/Context";
-import { SparqlQuery, SparqlBindings } from "@beep/knowledge-domain";
-import { Triple } from "@beep/knowledge-server/RdfStore";
+import * as A from "effect/Array";
+import { SparqlQuery, SparqlBindings, Quad } from "@beep/knowledge-domain";
+import { SparqlExecutionError } from "@beep/knowledge-domain/errors";
+import { RdfStore } from "../Rdf/index.js";
+import { executeBasicGraphPattern } from "./QueryExecutor.js";
+import { ResultFormatter } from "./ResultFormatter.js";
 
-export class SparqlService extends Context.Tag("SparqlService")<
-  SparqlService,
+export class SparqlService extends Effect.Service<SparqlService>()(
+  "@beep/knowledge-server/SparqlService",
   {
-    readonly executeSelect: (
-      query: SparqlQuery
-    ) => Effect.Effect<SparqlBindings, ExecutionError>;
+    accessors: true,
+    effect: Effect.gen(function* () {
+      const store = yield* RdfStore;
 
-    readonly executeConstruct: (
-      query: SparqlQuery
-    ) => Effect.Effect<ReadonlyArray<Triple>, ExecutionError>;
+      return {
+        executeSelect: (query: SparqlQuery) =>
+          Effect.gen(function* () {
+            const bindings = yield* executeBasicGraphPattern(
+              query.parsedAst.where,
+              store
+            );
+            return yield* ResultFormatter.formatSelectResults(
+              bindings,
+              query.variables
+            );
+          }).pipe(Effect.withSpan("SparqlService.executeSelect")),
 
-    readonly executeAsk: (
-      query: SparqlQuery
-    ) => Effect.Effect<boolean, ExecutionError>;
+        executeConstruct: (query: SparqlQuery) =>
+          Effect.gen(function* () {
+            const bindings = yield* executeBasicGraphPattern(
+              query.parsedAst.where,
+              store
+            );
+            // Apply CONSTRUCT template to bindings
+            return applyConstructTemplate(query.parsedAst.template, bindings);
+          }).pipe(Effect.withSpan("SparqlService.executeConstruct")),
+
+        executeAsk: (query: SparqlQuery) =>
+          Effect.gen(function* () {
+            const bindings = yield* executeBasicGraphPattern(
+              query.parsedAst.where,
+              store
+            );
+            return A.isNonEmptyReadonlyArray(bindings);
+          }).pipe(Effect.withSpan("SparqlService.executeAsk")),
+      };
+    }),
   }
->() {}
+) {}
+
+// Layer composition: SparqlService.Default automatically includes dependencies
+// In tests: Layer.provideMerge(SparqlService.Default, RdfStore.Default)
 ```
 
-#### Layer with Dependencies
+#### RdfStore Integration (CORRECTED)
+
+> **IMPORTANT**: RdfStore API is `match(QuadPattern)` NOT `query(s, p, o)`.
 
 ```typescript
-import * as Layer from "effect/Layer";
-import { RdfStore } from "@beep/knowledge-server/RdfStore";
+import * as O from "effect/Option";
+import { QuadPattern, IRI, Quad } from "@beep/knowledge-domain";
+import { RdfStore } from "../Rdf/index.js";
 
-export const SparqlServiceLive = Layer.effect(
-  SparqlService,
-  Effect.gen(function* () {
-    const store = yield* RdfStore;
+// Translation: SPARQL triple pattern → QuadPattern
+// { ?s ex:name ?o } →
+const pattern = new QuadPattern({
+  subject: O.none(),  // wildcard for variable ?s
+  predicate: O.some(IRI.make("http://example.org/name")),
+  object: O.none(),   // wildcard for variable ?o
+  graph: O.none(),    // default graph
+});
 
-    return SparqlService.of({
-      executeSelect: (query) =>
-        Effect.gen(function* () {
-          const bindings = yield* QueryExecutor.executeBasicGraphPattern(
-            query.parsedAst.where,
-            store
-          );
-          return formatAsJson(bindings, query.variables);
-        }),
-
-      executeConstruct: (query) =>
-        Effect.gen(function* () {
-          const bindings = yield* QueryExecutor.executeBasicGraphPattern(
-            query.parsedAst.where,
-            store
-          );
-          return applyConstructTemplate(query.parsedAst.template, bindings);
-        }),
-
-      executeAsk: (query) =>
-        Effect.gen(function* () {
-          const bindings = yield* QueryExecutor.executeBasicGraphPattern(
-            query.parsedAst.where,
-            store
-          );
-          return A.isNonEmptyReadonlyArray(bindings);
-        }),
-    });
-  })
-);
-```
-
-#### RdfStore Integration
-
-```typescript
-// RdfStore API from Phase 0
-interface RdfStore {
-  readonly query: (
-    subject: string | null,
-    predicate: string | null,
-    object: string | null
-  ) => Effect.Effect<ReadonlyArray<Triple>, StoreError>;
-}
-
-// Translation: SPARQL triple pattern → RdfStore query
-// { ?s ex:name ?o } → store.query(null, "ex:name", null)
+const quads = yield* RdfStore.match(pattern);  // Returns ReadonlyArray<Quad>
 ```
 
 ### FORBIDDEN Patterns
@@ -636,70 +689,80 @@ Create comprehensive integration tests for E2E SPARQL query flows.
 
 ### Critical Patterns
 
-#### Layer Integration Test
+#### Layer Integration Test (CORRECTED)
+
+> Use Layer.provideMerge for shared dependencies.
+> Use Effect.Service accessors pattern.
 
 ```typescript
-import { layer, strictEqual } from "@beep/testkit";
+import { describe, layer, strictEqual } from "@beep/testkit";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
-import { RdfStore, RdfStoreLive } from "../../src/RdfStore/index.js";
-import { SparqlService, SparqlServiceLive } from "../../src/Sparql/index.js";
-import { SparqlParser, SparqlParserLive } from "../../src/Sparql/SparqlParser.js";
+import * as A from "effect/Array";
+import * as Duration from "effect/Duration";
+import { RdfStore } from "../../src/Rdf/index.js";
+import { SparqlService, SparqlParser } from "../../src/Sparql/index.js";
+import { makeIRI, makeLiteral, Quad } from "@beep/knowledge-domain";
 
-const TestLayer = Layer.mergeAll(
-  RdfStoreLive,
-  SparqlParserLive,
-  SparqlServiceLive
+// Layer composition with shared RdfStore
+const TestLayer = SparqlService.Default.pipe(
+  Layer.provideMerge(SparqlParser.Default),
+  Layer.provideMerge(RdfStore.Default)
 );
 
-layer(TestLayer)("SPARQL Integration", (it) => {
-  it.effect("queries entities from store", () =>
-    Effect.gen(function* () {
-      const store = yield* RdfStore;
-      const parser = yield* SparqlParser;
-      const service = yield* SparqlService;
+describe("SPARQL Integration", () => {
+  layer(TestLayer, { timeout: Duration.seconds(30) })("E2E", (it) => {
+    it.effect("queries entities from store", () =>
+      Effect.gen(function* () {
+        // Populate store using accessors
+        const typeIRI = makeIRI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
+        const personClass = makeIRI("http://example.org/Person");
+        const nameProperty = makeIRI("http://example.org/name");
+        const entity1 = makeIRI("http://example.org/entity1");
 
-      // Populate store
-      yield* store.addTriple({
-        subject: "ex:entity1",
-        predicate: "rdf:type",
-        object: "ex:Person",
-      });
-      yield* store.addTriple({
-        subject: "ex:entity1",
-        predicate: "ex:name",
-        object: "John Doe",
-      });
+        yield* RdfStore.addQuad(
+          new Quad({ subject: entity1, predicate: typeIRI, object: personClass })
+        );
+        yield* RdfStore.addQuad(
+          new Quad({ subject: entity1, predicate: nameProperty, object: makeLiteral("John Doe") })
+        );
 
-      // Parse query
-      const query = yield* parser.parse("SELECT ?name WHERE { ?s ex:name ?name }");
+        // Parse and execute using accessors
+        const query = yield* SparqlParser.parse(
+          "PREFIX ex: <http://example.org/> SELECT ?name WHERE { ?s ex:name ?name }"
+        );
+        const result = yield* SparqlService.executeSelect(query);
 
-      // Execute query
-      const result = yield* service.executeSelect(query);
-
-      // Verify results
-      strictEqual(result.results.bindings.length, 1);
-      strictEqual(result.results.bindings[0].name.value, "John Doe");
-    })
-  );
+        // Verify results
+        strictEqual(A.length(result.results.bindings), 1);
+        strictEqual(result.results.bindings[0].name.value, "John Doe");
+      })
+    );
+  });
 });
 ```
 
-#### Performance Test
+#### Performance Test (CORRECTED)
+
+> Use `live()` helper and `Effect.clockWith` - NOT `Date.now()`.
 
 ```typescript
-import { effect, strictEqual } from "@beep/testkit";
-import * as Duration from "effect/Duration";
+import { live, assertTrue } from "@beep/testkit";
+import * as Effect from "effect/Effect";
 
-effect("simple query completes in < 100ms", () =>
+live("simple query completes in < 100ms", () =>
   Effect.gen(function* () {
-    const start = Date.now();
+    // Use Effect clock, not Date.now()
+    const start = yield* Effect.clockWith((c) => c.currentTimeMillis);
 
-    yield* service.executeSelect(simpleQuery);
+    yield* SparqlService.executeSelect(simpleQuery);
 
-    const elapsed = Date.now() - start;
-    strictEqual(elapsed < 100, true);
-  })
+    const end = yield* Effect.clockWith((c) => c.currentTimeMillis);
+    const elapsed = end - start;
+
+    console.log(`Query completed in ${elapsed}ms`);
+    assertTrue(elapsed < 100, `Query took ${elapsed}ms, expected < 100ms`);
+  }).pipe(Effect.provide(TestLayer))
 );
 ```
 
@@ -908,14 +971,50 @@ Task tool:
 
 ### RdfStore API Reference
 
-From `knowledge-rdf-foundation` spec:
+> **UPDATED**: Actual API from RDF foundation implementation (179 tests passing).
 
 ```typescript
-interface RdfStore {
-  readonly query: (
-    subject: string | null,
-    predicate: string | null,
-    object: string | null
-  ) => Effect.Effect<ReadonlyArray<Triple>, StoreError>;
-}
+// RdfStore uses Effect.Service with accessors: true
+export class RdfStore extends Effect.Service<RdfStore>()(
+  "@beep/knowledge-server/RdfStore",
+  {
+    accessors: true,
+    effect: Effect.gen(function* () {
+      // ... implementation
+      return {
+        // Pattern matching (wildcards via Option.none())
+        match: (pattern: QuadPattern) =>
+          Effect.Effect<ReadonlyArray<Quad>, never>,
+
+        // Count matches
+        countMatches: (pattern: QuadPattern) =>
+          Effect.Effect<number, never>,
+
+        // Check existence
+        hasQuad: (quad: Quad) =>
+          Effect.Effect<boolean, never>,
+
+        // Add quad
+        addQuad: (quad: Quad) =>
+          Effect.Effect<void, never>,
+      };
+    }),
+  }
+) {}
+```
+
+**Usage**:
+```typescript
+import * as O from "effect/Option";
+import { QuadPattern, IRI } from "@beep/knowledge-domain";
+
+// Match all quads with specific predicate
+const pattern = new QuadPattern({
+  subject: O.none(),  // wildcard
+  predicate: O.some(IRI.make("http://example.org/name")),
+  object: O.none(),   // wildcard
+  graph: O.none(),    // wildcard (default graph)
+});
+
+const quads = yield* RdfStore.match(pattern);
 ```

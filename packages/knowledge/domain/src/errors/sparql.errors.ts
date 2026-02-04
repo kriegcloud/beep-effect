@@ -67,12 +67,39 @@ export class SparqlExecutionError extends S.TaggedError<SparqlExecutionError>($I
 ) {}
 
 /**
+ * SPARQL unsupported feature error
+ *
+ * Indicates the query uses a SPARQL feature not supported by the implementation.
+ *
+ * @since 0.1.0
+ * @category errors
+ */
+export class SparqlUnsupportedFeatureError extends S.TaggedError<SparqlUnsupportedFeatureError>(
+  $I`SparqlUnsupportedFeatureError`
+)(
+  "SparqlUnsupportedFeatureError",
+  {
+    feature: S.String,
+    queryString: S.String,
+    message: S.String,
+  },
+  $I.annotations("SparqlUnsupportedFeatureError", {
+    description: "SPARQL query uses unsupported feature",
+  })
+) {}
+
+/**
  * Union of all SPARQL error types
  *
  * @since 0.1.0
  * @category errors
  */
-export class SparqlError extends S.Union(SparqlSyntaxError, SparqlTimeoutError, SparqlExecutionError).annotations(
+export class SparqlError extends S.Union(
+  SparqlSyntaxError,
+  SparqlTimeoutError,
+  SparqlExecutionError,
+  SparqlUnsupportedFeatureError
+).annotations(
   $I.annotations("SparqlError", {
     description: "Union of all SPARQL error types",
   })
