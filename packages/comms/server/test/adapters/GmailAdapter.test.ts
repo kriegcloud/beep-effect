@@ -7,11 +7,7 @@
  * @module comms-server/test/adapters/GmailAdapter.test
  * @since 0.1.0
  */
-import {
-  GmailAdapter,
-  GmailAdapterLive,
-  REQUIRED_SCOPES,
-} from "@beep/comms-server/adapters";
+import { GmailAdapter, GmailAdapterLive, REQUIRED_SCOPES } from "@beep/comms-server/adapters";
 import { GoogleAuthClient } from "@beep/google-workspace-client";
 import {
   GmailScopes,
@@ -20,8 +16,8 @@ import {
   GoogleOAuthToken,
   GoogleScopeExpansionRequiredError,
 } from "@beep/google-workspace-domain";
-import { describe, effect, layer, strictEqual, assertTrue } from "@beep/testkit";
-import { HttpClient, HttpClientRequest, HttpClientResponse } from "@effect/platform";
+import { assertTrue, describe, effect, layer, strictEqual } from "@beep/testkit";
+import { HttpClient, type HttpClientRequest, HttpClientResponse } from "@effect/platform";
 import * as A from "effect/Array";
 import * as DateTime from "effect/DateTime";
 import * as Duration from "effect/Duration";
@@ -157,10 +153,7 @@ describe("GmailAdapter", () => {
       return Effect.succeed({ status: 404, body: { error: "Not found" } });
     });
 
-    const TestLayer = GmailAdapterLive.pipe(
-      Layer.provide(MockGoogleAuthClient),
-      Layer.provide(MockHttpClient)
-    );
+    const TestLayer = GmailAdapterLive.pipe(Layer.provide(MockGoogleAuthClient), Layer.provide(MockHttpClient));
 
     layer(TestLayer, { timeout: Duration.seconds(30) })("listMessages tests", (it) => {
       it.effect("returns messages matching query", () =>
@@ -263,10 +256,7 @@ describe("GmailAdapter", () => {
       return Effect.succeed({ status: 404, body: { error: "Not found" } });
     });
 
-    const TestLayer = GmailAdapterLive.pipe(
-      Layer.provide(MockGoogleAuthClient),
-      Layer.provide(MockHttpClient)
-    );
+    const TestLayer = GmailAdapterLive.pipe(Layer.provide(MockGoogleAuthClient), Layer.provide(MockHttpClient));
 
     layer(TestLayer, { timeout: Duration.seconds(30) })("getMessage tests", (it) => {
       it.effect("returns full message details", () =>
@@ -318,20 +308,13 @@ describe("GmailAdapter", () => {
       return Effect.succeed({ status: 404, body: { error: "Not found" } });
     });
 
-    const TestLayer = GmailAdapterLive.pipe(
-      Layer.provide(MockGoogleAuthClient),
-      Layer.provide(MockHttpClient)
-    );
+    const TestLayer = GmailAdapterLive.pipe(Layer.provide(MockGoogleAuthClient), Layer.provide(MockHttpClient));
 
     layer(TestLayer, { timeout: Duration.seconds(30) })("sendMessage tests", (it) => {
       it.effect("sends message and returns response", () =>
         Effect.gen(function* () {
           const adapter = yield* GmailAdapter;
-          const result = yield* adapter.sendMessage(
-            "recipient@example.com",
-            "Test Subject",
-            "Test body content"
-          );
+          const result = yield* adapter.sendMessage("recipient@example.com", "Test Subject", "Test body content");
 
           strictEqual(result.id, "sent-msg-789");
           strictEqual(result.threadId, "new-thread-123");
@@ -356,9 +339,7 @@ describe("GmailAdapter", () => {
       it.effect("returns GoogleApiError for invalid request", () =>
         Effect.gen(function* () {
           const adapter = yield* GmailAdapter;
-          const error = yield* Effect.flip(
-            adapter.sendMessage("invalid-email", "Subject", "Body")
-          );
+          const error = yield* Effect.flip(adapter.sendMessage("invalid-email", "Subject", "Body"));
 
           assertTrue(error instanceof GoogleApiError);
           strictEqual(error.statusCode, 400);
@@ -411,10 +392,7 @@ describe("GmailAdapter", () => {
       return Effect.succeed({ status: 404, body: { error: "Not found" } });
     });
 
-    const TestLayer = GmailAdapterLive.pipe(
-      Layer.provide(MockGoogleAuthClient),
-      Layer.provide(MockHttpClient)
-    );
+    const TestLayer = GmailAdapterLive.pipe(Layer.provide(MockGoogleAuthClient), Layer.provide(MockHttpClient));
 
     layer(TestLayer, { timeout: Duration.seconds(30) })("getThread tests", (it) => {
       it.effect("returns thread with all messages", () =>
@@ -442,29 +420,24 @@ describe("GmailAdapter", () => {
   });
 
   describe("authentication errors", () => {
-    const MockHttpClient = makeHttpClientMock((_request) =>
-      Effect.succeed({ status: 200, body: { messages: [] } })
-    );
+    const MockHttpClient = makeHttpClientMock((_request) => Effect.succeed({ status: 200, body: { messages: [] } }));
 
     const TestLayerMissingScopes = GmailAdapterLive.pipe(
       Layer.provide(MockGoogleAuthClientMissingScopes),
       Layer.provide(MockHttpClient)
     );
 
-    layer(TestLayerMissingScopes, { timeout: Duration.seconds(30) })(
-      "authentication error handling",
-      (it) => {
-        it.effect("returns GoogleScopeExpansionRequiredError when scopes are missing", () =>
-          Effect.gen(function* () {
-            const adapter = yield* GmailAdapter;
-            const error = yield* Effect.flip(adapter.listMessages("in:inbox", 10));
+    layer(TestLayerMissingScopes, { timeout: Duration.seconds(30) })("authentication error handling", (it) => {
+      it.effect("returns GoogleScopeExpansionRequiredError when scopes are missing", () =>
+        Effect.gen(function* () {
+          const adapter = yield* GmailAdapter;
+          const error = yield* Effect.flip(adapter.listMessages("in:inbox", 10));
 
-            assertTrue(error instanceof GoogleScopeExpansionRequiredError);
-            assertTrue(error.missingScopes.length > 0);
-          })
-        );
-      }
-    );
+          assertTrue(error instanceof GoogleScopeExpansionRequiredError);
+          assertTrue(error.missingScopes.length > 0);
+        })
+      );
+    });
   });
 
   describe("REQUIRED_SCOPES", () => {

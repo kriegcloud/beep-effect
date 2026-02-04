@@ -116,6 +116,12 @@
       "@beep/google-workspace-domain/*": [
         "../../packages/integrations/google-workspace/domain/src/*"
       ],
+      "@beep/google-workspace-server": [
+        "../../packages/integrations/google-workspace/server/src/index"
+      ],
+      "@beep/google-workspace-server/*": [
+        "../../packages/integrations/google-workspace/server/src/*"
+      ],
       "@beep/iam-client": ["../../packages/iam/client/src/index"],
       "@beep/iam-client/*": ["../../packages/iam/client/src/*"],
       "@beep/iam-domain": ["../../packages/iam/domain/src/index"],
@@ -281,6 +287,9 @@
     },
     {
       "path": "../../packages/integrations/google-workspace/domain/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/integrations/google-workspace/server/tsconfig.build.json"
     },
     {
       "path": "../../packages/knowledge/client/tsconfig.build.json"

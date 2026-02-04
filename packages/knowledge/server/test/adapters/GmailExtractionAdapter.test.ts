@@ -7,11 +7,7 @@
  * @module knowledge-server/test/adapters/GmailExtractionAdapter.test
  * @since 0.1.0
  */
-import {
-  GmailExtractionAdapter,
-  GmailExtractionAdapterLive,
-  GMAIL_EXTRACTION_REQUIRED_SCOPES,
-} from "@beep/knowledge-server/adapters";
+
 import { GoogleAuthClient } from "@beep/google-workspace-client";
 import {
   GmailScopes,
@@ -20,8 +16,13 @@ import {
   GoogleOAuthToken,
   GoogleScopeExpansionRequiredError,
 } from "@beep/google-workspace-domain";
-import { describe, effect, layer, strictEqual, assertTrue } from "@beep/testkit";
-import { HttpClient, HttpClientRequest, HttpClientResponse } from "@effect/platform";
+import {
+  GMAIL_EXTRACTION_REQUIRED_SCOPES,
+  GmailExtractionAdapter,
+  GmailExtractionAdapterLive,
+} from "@beep/knowledge-server/adapters";
+import { assertTrue, describe, effect, layer, strictEqual } from "@beep/testkit";
+import { HttpClient, type HttpClientRequest, HttpClientResponse } from "@effect/platform";
 import * as A from "effect/Array";
 import * as DateTime from "effect/DateTime";
 import * as Duration from "effect/Duration";
@@ -128,9 +129,9 @@ describe("GmailExtractionAdapter", () => {
           size: 150,
           data: encodeBase64Url(
             "Discussed revenue targets for Q4. Action items:\n" +
-            "1. Alice to prepare sales forecast\n" +
-            "2. Bob to review marketing budget\n" +
-            "3. Charlie to coordinate with engineering"
+              "1. Alice to prepare sales forecast\n" +
+              "2. Bob to review marketing budget\n" +
+              "3. Charlie to coordinate with engineering"
           ),
         },
       },
@@ -164,8 +165,8 @@ describe("GmailExtractionAdapter", () => {
               size: 100,
               data: encodeBase64Url(
                 "Project Alpha is on track.\n" +
-                "Milestones completed: Design review, API spec\n" +
-                "Next steps: Implementation phase begins Monday"
+                  "Milestones completed: Design review, API spec\n" +
+                  "Next steps: Implementation phase begins Monday"
               ),
             },
           },
@@ -176,9 +177,7 @@ describe("GmailExtractionAdapter", () => {
             headers: [],
             body: {
               size: 200,
-              data: encodeBase64Url(
-                "<html><body><h1>Project Alpha</h1><p>On track!</p></body></html>"
-              ),
+              data: encodeBase64Url("<html><body><h1>Project Alpha</h1><p>On track!</p></body></html>"),
             },
           },
         ],
@@ -281,22 +280,16 @@ describe("GmailExtractionAdapter", () => {
       Layer.provide(MockHttpClientEmpty)
     );
 
-    layer(TestLayerEmpty, { timeout: Duration.seconds(30) })(
-      "extractEmailsForKnowledgeGraph empty results",
-      (it) => {
-        it.effect("returns empty array when no messages match", () =>
-          Effect.gen(function* () {
-            const adapter = yield* GmailExtractionAdapter;
-            const documents = yield* adapter.extractEmailsForKnowledgeGraph(
-              "label:nonexistent",
-              10
-            );
+    layer(TestLayerEmpty, { timeout: Duration.seconds(30) })("extractEmailsForKnowledgeGraph empty results", (it) => {
+      it.effect("returns empty array when no messages match", () =>
+        Effect.gen(function* () {
+          const adapter = yield* GmailExtractionAdapter;
+          const documents = yield* adapter.extractEmailsForKnowledgeGraph("label:nonexistent", 10);
 
-            strictEqual(documents.length, 0);
-          })
-        );
-      }
-    );
+          strictEqual(documents.length, 0);
+        })
+      );
+    });
   });
 
   describe("extractThreadContext", () => {
@@ -323,9 +316,9 @@ describe("GmailExtractionAdapter", () => {
               size: 100,
               data: encodeBase64Url(
                 "Hi Bob,\n\n" +
-                "I propose we implement a new CRM system.\n" +
-                "Key benefits: improved tracking, better analytics.\n\n" +
-                "Best,\nAlice"
+                  "I propose we implement a new CRM system.\n" +
+                  "Key benefits: improved tracking, better analytics.\n\n" +
+                  "Best,\nAlice"
               ),
             },
           },
@@ -350,9 +343,9 @@ describe("GmailExtractionAdapter", () => {
               size: 80,
               data: encodeBase64Url(
                 "Alice,\n\n" +
-                "Great idea! I have some questions about the budget.\n" +
-                "Can we schedule a call?\n\n" +
-                "Bob"
+                  "Great idea! I have some questions about the budget.\n" +
+                  "Can we schedule a call?\n\n" +
+                  "Bob"
               ),
             },
           },
@@ -375,9 +368,7 @@ describe("GmailExtractionAdapter", () => {
             body: {
               size: 60,
               data: encodeBase64Url(
-                "Team,\n\n" +
-                "I approve this proposal. Please proceed with planning.\n\n" +
-                "Manager"
+                "Team,\n\n" + "I approve this proposal. Please proceed with planning.\n\n" + "Manager"
               ),
             },
           },
@@ -436,9 +427,7 @@ describe("GmailExtractionAdapter", () => {
           const adapter = yield* GmailExtractionAdapter;
           const context = yield* adapter.extractThreadContext("thread-conversation");
 
-          assertTrue(
-            DateTime.lessThanOrEqualTo(context.dateRange.earliest, context.dateRange.latest)
-          );
+          assertTrue(DateTime.lessThanOrEqualTo(context.dateRange.earliest, context.dateRange.latest));
         })
       );
 
@@ -464,31 +453,24 @@ describe("GmailExtractionAdapter", () => {
   });
 
   describe("authentication errors", () => {
-    const MockHttpClient = makeHttpClientMock((_request) =>
-      Effect.succeed({ status: 200, body: {} })
-    );
+    const MockHttpClient = makeHttpClientMock((_request) => Effect.succeed({ status: 200, body: {} }));
 
     const TestLayerMissingScopes = GmailExtractionAdapterLive.pipe(
       Layer.provide(MockGoogleAuthClientMissingScopes),
       Layer.provide(MockHttpClient)
     );
 
-    layer(TestLayerMissingScopes, { timeout: Duration.seconds(30) })(
-      "authentication error handling",
-      (it) => {
-        it.effect("returns GoogleScopeExpansionRequiredError when scopes are missing", () =>
-          Effect.gen(function* () {
-            const adapter = yield* GmailExtractionAdapter;
-            const error = yield* Effect.flip(
-              adapter.extractEmailsForKnowledgeGraph("label:INBOX", 10)
-            );
+    layer(TestLayerMissingScopes, { timeout: Duration.seconds(30) })("authentication error handling", (it) => {
+      it.effect("returns GoogleScopeExpansionRequiredError when scopes are missing", () =>
+        Effect.gen(function* () {
+          const adapter = yield* GmailExtractionAdapter;
+          const error = yield* Effect.flip(adapter.extractEmailsForKnowledgeGraph("label:INBOX", 10));
 
-            assertTrue(error instanceof GoogleScopeExpansionRequiredError);
-            assertTrue(error.missingScopes.length > 0);
-          })
-        );
-      }
-    );
+          assertTrue(error instanceof GoogleScopeExpansionRequiredError);
+          assertTrue(error.missingScopes.length > 0);
+        })
+      );
+    });
   });
 
   describe("GMAIL_EXTRACTION_REQUIRED_SCOPES", () => {

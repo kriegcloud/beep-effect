@@ -260,6 +260,120 @@ bun run lint --filter @beep/knowledge-server
 bun run test --filter @beep/knowledge-server
 ```
 
+## Gmail Extraction Integration
+
+The `GmailExtractionAdapter` provides read-only email extraction optimized for knowledge graph ingestion.
+
+### Required Scopes
+
+```typescript
+import { GmailScopes } from "@beep/google-workspace-domain";
+
+export const REQUIRED_SCOPES = [GmailScopes.read] as const;
+```
+
+Scope: `https://www.googleapis.com/auth/gmail.readonly` - Read-only access for extraction (principle of least privilege).
+
+### Key Operations
+
+| Method | Purpose | Returns |
+|--------|---------|---------|
+| `extractEmailsForKnowledgeGraph` | Extract emails matching query | `ReadonlyArray<ExtractedEmailDocument>` |
+| `extractThreadContext` | Extract full conversation thread | `ThreadContext` |
+
+### Usage Pattern
+
+The `GmailExtractionAdapter` requires `AuthContext` at layer construction time, so it must be provided within the request context where `AuthContext` is available.
+
+```typescript
+import { GmailExtractionAdapter } from "@beep/knowledge-server/adapters";
+import * as GoogleWorkspace from "@beep/runtime-server/GoogleWorkspace.layer";
+import * as Effect from "effect/Effect";
+
+// In a handler with AuthContext available:
+const extractEmailsForKnowledge = Effect.gen(function* () {
+  const extractor = yield* GmailExtractionAdapter;
+
+  // Extract recent emails from a specific sender
+  const documents = yield* extractor.extractEmailsForKnowledgeGraph(
+    "from:investor@example.com after:2024/01/01",
+    maxResults: 50
+  );
+
+  // Documents are ready for entity/relation extraction
+  return documents;
+}).pipe(
+  Effect.provide(GoogleWorkspace.layer)
+);
+```
+
+### Extracted Document Format
+
+```typescript
+export interface ExtractedEmailDocument {
+  readonly sourceId: string;              // Gmail message ID
+  readonly sourceType: "gmail";
+  readonly title: string;                 // Email subject
+  readonly content: string;               // Extracted text (HTML stripped)
+  readonly metadata: EmailMetadata;
+  readonly extractedAt: DateTime.Utc;
+}
+
+export interface EmailMetadata {
+  readonly from: string;
+  readonly to: ReadonlyArray<string>;
+  readonly cc: ReadonlyArray<string>;
+  readonly date: O.Option<DateTime.Utc>;
+  readonly threadId: string;
+  readonly labels: ReadonlyArray<string>;
+}
+```
+
+### Thread Context Extraction
+
+For extracting full conversation context:
+
+```typescript
+const extractConversation = (threadId: string) =>
+  Effect.gen(function* () {
+    const extractor = yield* GmailExtractionAdapter;
+    const thread = yield* extractor.extractThreadContext(threadId);
+
+    // thread.participants - all unique email addresses
+    // thread.messages - all messages in chronological order
+    // thread.dateRange - earliest and latest timestamps
+    return thread;
+  }).pipe(
+    Effect.provide(GoogleWorkspace.layer)
+  );
+```
+
+### Content Extraction Features
+
+- **HTML stripping**: Converts HTML emails to plain text for LLM consumption
+- **Multipart handling**: Prefers `text/plain` over `text/html` when available
+- **Nested parts**: Recursively extracts content from nested MIME structures
+- **Base64 URL decoding**: Handles Gmail's base64url-encoded content
+- **Header parsing**: Extracts and validates email addresses from headers
+
+### Error Handling
+
+The adapter emits these tagged errors:
+- `GoogleApiError` - HTTP/API failures (network, invalid response)
+- `GoogleAuthenticationError` - OAuth token failures
+- `GoogleScopeExpansionRequiredError` - User lacks required OAuth scopes (triggers incremental consent)
+
+```typescript
+import { GoogleScopeExpansionRequiredError } from "@beep/google-workspace-domain";
+
+const program = extractEmailsForKnowledge.pipe(
+  Effect.catchTag("GoogleScopeExpansionRequiredError", (error) =>
+    // Redirect user to OAuth consent with read-only scope
+    redirectToOAuthConsent(error.requiredScopes)
+  )
+);
+```
+
 ## Contributor Checklist
 
 - [ ] LLM calls use `LanguageModel.LanguageModel` from `@effect/ai`
@@ -270,6 +384,7 @@ bun run test --filter @beep/knowledge-server
 - [ ] Tests use `@beep/testkit` with `effect()` wrapper
 - [ ] Tests use `clearMockResponses()` before setting mocks
 - [ ] Telemetry spans added via `Effect.withSpan`
+- [ ] Gmail extraction operations check for scope expansion errors
 
 ## Dependencies
 

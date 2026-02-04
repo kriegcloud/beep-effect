@@ -21,8 +21,8 @@ import {
   GoogleOAuthToken,
   GoogleScopeExpansionRequiredError,
 } from "@beep/google-workspace-domain";
-import { describe, effect, layer, strictEqual, assertTrue } from "@beep/testkit";
-import { HttpClient, HttpClientRequest, HttpClientResponse } from "@effect/platform";
+import { assertTrue, describe, effect, layer, strictEqual } from "@beep/testkit";
+import { HttpClient, type HttpClientRequest, HttpClientResponse } from "@effect/platform";
 import * as A from "effect/Array";
 import * as DateTime from "effect/DateTime";
 import * as Duration from "effect/Duration";
@@ -343,32 +343,27 @@ describe("GoogleCalendarAdapter", () => {
   });
 
   describe("authentication errors", () => {
-    const MockHttpClient = makeHttpClientMock((_request) =>
-      Effect.succeed({ status: 200, body: { items: [] } })
-    );
+    const MockHttpClient = makeHttpClientMock((_request) => Effect.succeed({ status: 200, body: { items: [] } }));
 
     const TestLayerMissingScopes = GoogleCalendarAdapterLive.pipe(
       Layer.provide(MockGoogleAuthClientMissingScopes),
       Layer.provide(MockHttpClient)
     );
 
-    layer(TestLayerMissingScopes, { timeout: Duration.seconds(30) })(
-      "authentication error handling",
-      (it) => {
-        it.effect("returns GoogleScopeExpansionRequiredError when scopes are missing", () =>
-          Effect.gen(function* () {
-            const adapter = yield* GoogleCalendarAdapter;
-            const now = DateTime.unsafeNow();
-            const weekLater = DateTime.add(now, { days: 7 });
+    layer(TestLayerMissingScopes, { timeout: Duration.seconds(30) })("authentication error handling", (it) => {
+      it.effect("returns GoogleScopeExpansionRequiredError when scopes are missing", () =>
+        Effect.gen(function* () {
+          const adapter = yield* GoogleCalendarAdapter;
+          const now = DateTime.unsafeNow();
+          const weekLater = DateTime.add(now, { days: 7 });
 
-            const error = yield* Effect.flip(adapter.listEvents("primary", now, weekLater));
+          const error = yield* Effect.flip(adapter.listEvents("primary", now, weekLater));
 
-            assertTrue(error instanceof GoogleScopeExpansionRequiredError);
-            assertTrue(error.missingScopes.length > 0);
-          })
-        );
-      }
-    );
+          assertTrue(error instanceof GoogleScopeExpansionRequiredError);
+          assertTrue(error.missingScopes.length > 0);
+        })
+      );
+    });
   });
 
   describe("REQUIRED_SCOPES", () => {

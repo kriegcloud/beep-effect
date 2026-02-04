@@ -63,20 +63,27 @@ export type Services = GoogleCalendarAdapter | GmailAdapter | GmailExtractionAda
 /**
  * Combined Google Workspace adapter layer.
  *
- * Requires AuthContext to be provided by the request context. This layer
- * should be composed with routes that have authentication middleware applied.
+ * **IMPORTANT**: This layer requires `AuthContext` at construction time because
+ * `GoogleAuthClientLive` captures user context during layer initialization.
+ * This means it CANNOT be composed at router-level (before requests exist).
+ *
+ * Instead, provide this layer within handlers or RPC implementations where
+ * `AuthContext` is available in the request context.
  *
  * @example
  * ```typescript
  * import * as GoogleWorkspace from "@beep/runtime-server/GoogleWorkspace.layer";
- * import * as AuthContext from "./AuthContext.layer";
+ * import { GoogleCalendarAdapter } from "@beep/calendar-server/adapters";
+ * import * as Effect from "effect/Effect";
  * import * as Layer from "effect/Layer";
  *
- * // In HttpRouter.layer.ts
- * const ProtectedRoutes = Layer.mergeAll(
- *   Rpc.layer,
- *   GoogleWorkspace.layer
- * ).pipe(Layer.provide(AuthContext.layer));
+ * // In a handler with AuthContext available in the request context:
+ * const handler = Effect.gen(function* () {
+ *   const calendar = yield* GoogleCalendarAdapter;
+ *   return yield* calendar.listEvents("primary", timeMin, timeMax);
+ * }).pipe(
+ *   Effect.provide(GoogleWorkspace.layer)
+ * );
  * ```
  */
 export const layer: Layer.Layer<Services, never, AuthContext> = Layer.mergeAll(

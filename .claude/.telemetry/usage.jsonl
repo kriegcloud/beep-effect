@@ -124,3 +124,6 @@
 {"eventType":"stop","timestamp":"2026-02-04T14:31:46.208Z","sessionId":"757380de-c583-4c88-8b4d-82a3f88aab01","agentType":"test-writer","durationMs":1027598,"outcome":"success"}
 {"eventType":"start","timestamp":"2026-02-04T14:32:50.264Z","sessionId":"757380de-c583-4c88-8b4d-82a3f88aab01","agentType":"package-error-fixer","triggeredBy":"auto"}
 {"eventType":"stop","timestamp":"2026-02-04T14:45:11.874Z","sessionId":"757380de-c583-4c88-8b4d-82a3f88aab01","agentType":"package-error-fixer","durationMs":741610,"outcome":"success"}
+{"eventType":"stop","timestamp":"2026-02-04T19:45:50.652Z","sessionId":"61eb0cee-0bac-4f84-8696-ac491b96dbc4","agentType":"unknown","durationMs":0,"outcome":"success"}
+{"eventType":"start","timestamp":"2026-02-04T19:54:22.026Z","sessionId":"61eb0cee-0bac-4f84-8696-ac491b96dbc4","agentType":"doc-writer","triggeredBy":"auto"}
+{"eventType":"stop","timestamp":"2026-02-04T19:56:49.005Z","sessionId":"61eb0cee-0bac-4f84-8696-ac491b96dbc4","agentType":"doc-writer","durationMs":146979,"outcome":"success"}
