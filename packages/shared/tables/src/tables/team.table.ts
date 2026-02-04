@@ -12,18 +12,12 @@ export const team = OrgTable.make(SharedEntityIds.TeamId)(
   },
   (t) => [
     // Foreign key index for join performance
-    pg
-      .index("team_organization_id_idx")
-      .on(t.organizationId),
+    pg.index("team_organization_id_idx").on(t.organizationId),
 
     // Composite index for organization-team name queries (ensures unique names per org)
-    pg
-      .uniqueIndex("team_org_name_unique_idx")
-      .on(t.organizationId, t.name),
+    pg.uniqueIndex("team_org_name_unique_idx").on(t.organizationId, t.name),
 
     // Index for team name searches within organizations
-    pg
-      .index("team_name_idx")
-      .on(t.name),
+    pg.index("team_name_idx").on(t.name),
   ]
 );

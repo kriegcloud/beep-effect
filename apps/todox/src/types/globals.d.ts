@@ -1,7 +1,27 @@
 // src/types/globals.d.ts
 
-// Augment the global Window interface
+// Web Speech API types (not included in standard TypeScript lib)
 declare global {
+  interface SpeechRecognitionEvent extends Event {
+    readonly resultIndex: number;
+    readonly results: SpeechRecognitionResultList;
+  }
+
+  interface SpeechRecognitionErrorEvent extends Event {
+    readonly error: SpeechRecognitionErrorCode;
+    readonly message: string;
+  }
+
+  type SpeechRecognitionErrorCode =
+    | "aborted"
+    | "audio-capture"
+    | "bad-grammar"
+    | "language-not-supported"
+    | "network"
+    | "no-speech"
+    | "not-allowed"
+    | "service-not-allowed";
+
   interface Window {
     readonly twttr?:
       | undefined
@@ -11,6 +31,9 @@ declare global {
           };
         };
     readonly webkitAudioContext: typeof AudioContext;
+    readonly SpeechRecognition?: typeof SpeechRecognition;
+    readonly webkitSpeechRecognition?: typeof SpeechRecognition;
   }
 }
+
 export {};

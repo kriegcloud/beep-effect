@@ -28,6 +28,10 @@ const WORKSPACE_PATTERNS = [
   "packages/runtime/*/",
   "packages/shared/*/",
   "packages/ui/*/",
+  "packages/knowledge/*/",
+  "packages/customization/*/",
+  "packages/comms/*/",
+  "packages/calendar/*/",
   "tooling/*/",
 ] as const;
 

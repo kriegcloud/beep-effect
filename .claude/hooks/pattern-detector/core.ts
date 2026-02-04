@@ -2,7 +2,79 @@ import { Effect, pipe, Array, Option, Config } from "effect"
 import { FileSystem, Path } from "@effect/platform"
 import * as Schema from "effect/Schema"
 import picomatch from "picomatch"
-import { PatternFrontmatter, type PatternDefinition } from "../../patterns/schema"
+import * as fs from "fs"
+import { PatternFrontmatter, type PatternDefinition, PatternDefinition as PatternDefinitionSchema } from "../../patterns/schema"
+
+const CACHE_TTL_MS = 30 * 60 * 1000
+
+interface PatternCache {
+  readonly loadedAt: number
+  readonly directoryMtime: number
+  readonly patterns: ReadonlyArray<PatternDefinition>
+}
+
+interface HookState {
+  readonly lastCallMs: number
+  readonly patternCache?: PatternCache
+}
+
+const STATE_PATH = ".claude/.hook-state.json"
+
+const readHookState = (): HookState => {
+  try {
+    const content = fs.readFileSync(STATE_PATH, "utf-8")
+    return JSON.parse(content)
+  } catch {
+    return { lastCallMs: Date.now() }
+  }
+}
+
+const writeHookState = (state: HookState): void => {
+  try {
+    fs.writeFileSync(STATE_PATH, JSON.stringify(state, null, 2), "utf-8")
+  } catch {
+    // Silently fail if we can't write state
+  }
+}
+
+const getDirectoryMtime = (dirPath: string): number => {
+  try {
+    const stat = fs.statSync(dirPath)
+    return stat.mtimeMs
+  } catch {
+    return 0
+  }
+}
+
+const getNewestMtimeRecursive = (dirPath: string): number => {
+  let newest = getDirectoryMtime(dirPath)
+  try {
+    const entries = fs.readdirSync(dirPath, { withFileTypes: true })
+    for (const entry of entries) {
+      const fullPath = `${dirPath}/${entry.name}`
+      if (entry.isDirectory()) {
+        const subMtime = getNewestMtimeRecursive(fullPath)
+        if (subMtime > newest) newest = subMtime
+      } else if (entry.isFile() && entry.name.endsWith(".md")) {
+        const fileMtime = fs.statSync(fullPath).mtimeMs
+        if (fileMtime > newest) newest = fileMtime
+      }
+    }
+  } catch {
+    // Ignore errors, use current newest
+  }
+  return newest
+}
+
+const validateCachedPatterns = (patterns: unknown): patterns is PatternDefinition[] => {
+  if (!globalThis.Array.isArray(patterns)) return false
+  return patterns.every(p =>
+    typeof p === "object" && p !== null &&
+    typeof p.name === "string" &&
+    typeof p.pattern === "string" &&
+    typeof p.body === "string"
+  )
+}
 
 export const HookInput = Schema.Struct({
   hook_event_name: Schema.Literal("PreToolUse", "PostToolUse"),
@@ -70,54 +142,89 @@ const readPattern = (filePath: string) =>
     } as PatternDefinition))
   })
 
+const loadPatternsFromDisk = (root: string) =>
+  Effect.gen(function* () {
+    const fsService = yield* FileSystem.FileSystem
+    const path = yield* Path.Path
+
+    const walk = (dir: string): Effect.Effect<PatternDefinition[], never, FileSystem.FileSystem> =>
+      Effect.gen(function* () {
+        const entries = yield* fsService.readDirectory(dir).pipe(Effect.orElseSucceed(() => []))
+
+        const processEntry = (entry: string) =>
+          Effect.gen(function* () {
+            const full = path.join(dir, entry)
+            const stat = yield* fsService.stat(full).pipe(Effect.option)
+            if (Option.isNone(stat)) return [] as PatternDefinition[]
+
+            if (stat.value.type === "Directory") return yield* Effect.suspend(() => walk(full))
+
+            if (entry.endsWith(".md")) {
+              return yield* readPattern(full)
+                .pipe(
+                  Effect.option,
+                  Effect.map(Option.flatten),
+                  Effect.map(Option.match({
+                    onNone: () => Array.empty<PatternDefinition>(),
+                    onSome: (pattern) => [pattern],
+                  }))
+                )
+            }
+
+            return Array.empty<PatternDefinition>()
+          })
+
+        return yield* pipe(
+          entries,
+          Array.map(processEntry),
+          Effect.all,
+          Effect.map(Array.flatten),
+        )
+      })
+
+    return yield* walk(root)
+  })
+
+const isCacheValid = (cache: PatternCache | undefined, currentMtime: number): boolean => {
+  if (!cache) return false
+  const now = Date.now()
+  const cacheAge = now - cache.loadedAt
+  if (cacheAge > CACHE_TTL_MS) return false
+  if (cache.directoryMtime !== currentMtime) return false
+  if (!validateCachedPatterns(cache.patterns)) return false
+  return true
+}
+
 export const loadPatterns = Effect.gen(function* () {
-  const fs = yield* FileSystem.FileSystem
+  const fsService = yield* FileSystem.FileSystem
   const path = yield* Path.Path
 
-  // For tests running from .claude, detect and use parent as project root
   const configDir = yield* Config.string("CLAUDE_PROJECT_DIR").pipe(Config.withDefault("."))
   const cwd = process.cwd()
   const projectDir = cwd.endsWith(".claude") ? path.join(cwd, "..") : configDir
   const root = path.join(projectDir, ".claude", "patterns")
 
-  if (!(yield* fs.exists(root))) return [] as PatternDefinition[]
+  if (!(yield* fsService.exists(root))) return [] as PatternDefinition[]
 
-  const walk = (dir: string): Effect.Effect<PatternDefinition[], never, FileSystem.FileSystem> =>
-    Effect.gen(function* () {
-      const entries = yield* fs.readDirectory(dir).pipe(Effect.orElseSucceed(() => []))
+  const state = readHookState()
+  const currentMtime = getNewestMtimeRecursive(root)
 
-      const processEntry = (entry: string) =>
-        Effect.gen(function* () {
-          const full = path.join(dir, entry)
-          const stat = yield* fs.stat(full).pipe(Effect.option)
-          if (Option.isNone(stat)) return [] as PatternDefinition[]
+  if (isCacheValid(state.patternCache, currentMtime)) {
+    return state.patternCache!.patterns as PatternDefinition[]
+  }
 
-          if (stat.value.type === "Directory") return yield* Effect.suspend(() => walk(full))
+  const patterns = yield* loadPatternsFromDisk(root)
 
-          if (entry.endsWith(".md")) {
-            return yield* readPattern(full)
-              .pipe(
-                Effect.option,
-                Effect.map(Option.flatten),
-                Effect.map(Option.match({
-                  onNone: () => Array.empty<PatternDefinition>(),
-                  onSome: (pattern) => [pattern],
-                }))
-              )
-          }
+  writeHookState({
+    ...state,
+    patternCache: {
+      loadedAt: Date.now(),
+      directoryMtime: currentMtime,
+      patterns,
+    },
+  })
 
-          return Array.empty<PatternDefinition>()
-        })
-
-      return yield* pipe(
-        entries,
-        Array.map(processEntry),
-        Effect.all,
-        Effect.map(Array.flatten),
-      )
-    })
-
-  return yield* walk(root)
+  return patterns
 })
 
 export const matches = (input: HookInput, p: PatternDefinition): boolean => {

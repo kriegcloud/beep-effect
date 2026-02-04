@@ -41,10 +41,11 @@ type T5 = IsReadonlyKeyOf<User | Admin, 'id'>;
 @category Type Guard
 @category Utilities
 */
-export type IsReadonlyKeyOf<Type extends object, Key extends keyof Type> = IsAny<Type | Key> extends true
-  ? never
-  : Key extends unknown // For distributing `Key`
-    ? Type extends unknown // For distributing `Type`
-      ? IsEqual<{ [K in Key]: Type[Key] }, { readonly [K in Key]: Type[Key] }>
-      : never // Should never happen
-    : never; // Should never happen
+export type IsReadonlyKeyOf<Type extends object, Key extends keyof Type> =
+  IsAny<Type | Key> extends true
+    ? never
+    : Key extends unknown // For distributing `Key`
+      ? Type extends unknown // For distributing `Type`
+        ? IsEqual<{ [K in Key]: Type[Key] }, { readonly [K in Key]: Type[Key] }>
+        : never // Should never happen
+      : never; // Should never happen

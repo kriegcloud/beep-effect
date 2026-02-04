@@ -16,6 +16,7 @@ interface ResultsTabsProps {
   readonly highlightedSpans?: undefined | readonly EvidenceSpan[];
   readonly activeSpanIndex?: undefined | number;
   readonly onEvidenceClick?: undefined | ((span: EvidenceSpan) => void);
+  readonly isLoading?: undefined | boolean;
 }
 
 export function ResultsTabs({
@@ -27,6 +28,7 @@ export function ResultsTabs({
   highlightedSpans,
   activeSpanIndex,
   onEvidenceClick,
+  isLoading,
 }: ResultsTabsProps) {
   return (
     <Tabs defaultValue="entities" className="w-full">
@@ -36,10 +38,15 @@ export function ResultsTabs({
         <TabsTrigger value="source">Source</TabsTrigger>
       </TabsList>
       <TabsContent value="entities" className="mt-4">
-        <EntityCardList entities={entities} onEntityClick={onEntitySelect} />
+        <EntityCardList entities={entities} onEntityClick={onEntitySelect} isLoading={isLoading} />
       </TabsContent>
       <TabsContent value="relations" className="mt-4">
-        <RelationTable relations={relations} entities={entities} onEvidenceClick={onEvidenceClick} />
+        <RelationTable
+          relations={relations}
+          entities={entities}
+          onEvidenceClick={onEvidenceClick}
+          isLoading={isLoading}
+        />
       </TabsContent>
       <TabsContent value="source" className="mt-4">
         <SourceTextPanel

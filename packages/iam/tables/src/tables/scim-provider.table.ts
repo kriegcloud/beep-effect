@@ -14,8 +14,6 @@ export const scimProvider = Table.make(ScimProviderId)(
   },
   (t) => [
     // Organization ID index for RLS filtering
-    pg
-      .index("scim_provider_org_id_idx")
-      .on(t.organizationId),
+    pg.index("scim_provider_org_id_idx").on(t.organizationId),
   ]
 );

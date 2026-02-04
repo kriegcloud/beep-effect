@@ -73,9 +73,7 @@ export const uploadSession = OrgTable.make(SharedEntityIds.UploadSessionId)(
     /**
      * Organization ID index for RLS filtering.
      */
-    pg
-      .index("upload_session_org_id_idx")
-      .on(t.organizationId),
+    pg.index("upload_session_org_id_idx").on(t.organizationId),
 
     /**
      * Index for efficient cleanup queries.
@@ -84,9 +82,7 @@ export const uploadSession = OrgTable.make(SharedEntityIds.UploadSessionId)(
      * Supports: `DELETE FROM upload_session WHERE expires_at < NOW()`
      * Cleanup runs every 5 minutes.
      */
-    pg
-      .index("upload_session_expires_at_idx")
-      .on(t.expiresAt),
+    pg.index("upload_session_expires_at_idx").on(t.expiresAt),
 
     /**
      * Index for fileKey lookups during verification.
@@ -94,8 +90,6 @@ export const uploadSession = OrgTable.make(SharedEntityIds.UploadSessionId)(
      * @remarks
      * Supports efficient lookups by fileKey during upload completion.
      */
-    pg
-      .index("upload_session_file_key_idx")
-      .on(t.fileKey),
+    pg.index("upload_session_file_key_idx").on(t.fileKey),
   ]
 );

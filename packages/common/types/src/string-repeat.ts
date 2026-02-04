@@ -32,12 +32,13 @@ type StringRepeatHelper<
   Count extends number,
   Counter extends never[] = [],
   Accumulator extends string = "",
-> = IsNegative<Count> extends true
-  ? never
-  : Input extends ""
-    ? ""
-    : Count extends Counter["length"]
-      ? Accumulator
-      : IsNumericLiteral<Count> extends false
-        ? string
-        : StringRepeatHelper<Input, Count, [...Counter, never], `${Accumulator}${Input}`>;
+> =
+  IsNegative<Count> extends true
+    ? never
+    : Input extends ""
+      ? ""
+      : Count extends Counter["length"]
+        ? Accumulator
+        : IsNumericLiteral<Count> extends false
+          ? string
+          : StringRepeatHelper<Input, Count, [...Counter, never], `${Accumulator}${Input}`>;

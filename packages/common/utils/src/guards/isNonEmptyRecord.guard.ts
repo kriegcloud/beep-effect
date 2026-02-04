@@ -21,11 +21,12 @@ type ReadonlyRecord<in out K extends StringTypes.NonEmptyString, out A> = {
   readonly [P in K]: A;
 };
 
-type NonEmptyReadonlyRecord<K extends StringTypes.NonEmptyString, A> = ReadonlyRecord<K, A> extends NonNullable<unknown>
-  ? NonNullable<unknown> extends ReadonlyRecord<K, A>
-    ? never
-    : ReadonlyRecord<K, A>
-  : ReadonlyRecord<K, A>;
+type NonEmptyReadonlyRecord<K extends StringTypes.NonEmptyString, A> =
+  ReadonlyRecord<K, A> extends NonNullable<unknown>
+    ? NonNullable<unknown> extends ReadonlyRecord<K, A>
+      ? never
+      : ReadonlyRecord<K, A>
+    : ReadonlyRecord<K, A>;
 
 const RecordStringKeysSchema = S.Record({
   key: S.NonEmptyString,

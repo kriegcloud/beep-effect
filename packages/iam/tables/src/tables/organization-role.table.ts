@@ -8,8 +8,6 @@ export const organizationRole = OrgTable.make(IamEntityIds.OrganizationRoleId)(
   },
   (t) => [
     // Organization ID index for RLS filtering
-    pg
-      .index("organization_role_org_id_idx")
-      .on(t.organizationId),
+    pg.index("organization_role_org_id_idx").on(t.organizationId),
   ]
 );

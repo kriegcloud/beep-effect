@@ -40,14 +40,12 @@ If `Options['strict']` is `true`, includes `undefined` in the returned type when
 Known limitations:
 - Does not include `undefined` in the type on object types with an index signature (for example, `{a: string; [key: string]: string}`).
 */
-type StrictPropertyOf<BaseType, Key extends keyof BaseType, Options extends Required<GetOptions>> = Record<
-  string,
-  UnsafeTypes.UnsafeAny
-> extends BaseType
-  ? string extends keyof BaseType
-    ? Strictify<BaseType[Key], Options> // Record<string, UnsafeTypes.UnsafeAny>
-    : BaseType[Key] // Record<'a' | 'b', UnsafeTypes.UnsafeAny> (Records with a string union as keys have required properties)
-  : BaseType[Key];
+type StrictPropertyOf<BaseType, Key extends keyof BaseType, Options extends Required<GetOptions>> =
+  Record<string, UnsafeTypes.UnsafeAny> extends BaseType
+    ? string extends keyof BaseType
+      ? Strictify<BaseType[Key], Options> // Record<string, UnsafeTypes.UnsafeAny>
+      : BaseType[Key] // Record<'a' | 'b', UnsafeTypes.UnsafeAny> (Records with a string union as keys have required properties)
+    : BaseType[Key];
 
 /**
 Splits a dot-prop style path into a tuple comprised of the properties in the path. Handles square-bracket notation.

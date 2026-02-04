@@ -39,6 +39,7 @@ All spec-creation infrastructure lives in [`_guide/`](_guide/):
 | [canonical-naming-conventions](canonical-naming-conventions/) | AI-native naming standards | P0 Ready |
 | [e2e-testkit-migration](e2e-testkit-migration/) | Migrate e2e tests to @beep/testkit/playwright | Planning |
 | [html-sanitize-schema-test-parity](html-sanitize-schema-test-parity/) | Test parity between schema and utils HTML sanitization | Phase 0 |
+| [integration-architecture-migration](integration-architecture-migration/) | Migrate third-party integrations from packages/shared/integrations to three-tier architecture | Active |
 | [knowledge-effect-ai-migration](knowledge-effect-ai-migration/) | Migrate EmbeddingService to @effect/ai | **Complete** |
 | [knowledge-graph-integration](knowledge-graph-integration/) | Document knowledge extraction | Active |
 | [knowledge-graph-poc-demo](knowledge-graph-poc-demo/) | Demo page showcasing knowledge graph extraction | **P1 Ready** |

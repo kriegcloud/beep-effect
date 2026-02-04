@@ -56,32 +56,18 @@ export const relation = OrgTable.make(KnowledgeEntityIds.RelationId)(
   },
   (t) => [
     // Organization ID index for RLS filtering
-    pg
-      .index("relation_organization_id_idx")
-      .on(t.organizationId),
+    pg.index("relation_organization_id_idx").on(t.organizationId),
     // Subject index for querying outgoing relations
-    pg
-      .index("relation_subject_id_idx")
-      .on(t.subjectId),
+    pg.index("relation_subject_id_idx").on(t.subjectId),
     // Object index for querying incoming relations
-    pg
-      .index("relation_object_id_idx")
-      .on(t.objectId),
+    pg.index("relation_object_id_idx").on(t.objectId),
     // Predicate index for querying by property type
-    pg
-      .index("relation_predicate_idx")
-      .on(t.predicate),
+    pg.index("relation_predicate_idx").on(t.predicate),
     // Ontology index for filtering by ontology
-    pg
-      .index("relation_ontology_id_idx")
-      .on(t.ontologyId),
+    pg.index("relation_ontology_id_idx").on(t.ontologyId),
     // Extraction index for grouping by extraction run
-    pg
-      .index("relation_extraction_id_idx")
-      .on(t.extractionId),
+    pg.index("relation_extraction_id_idx").on(t.extractionId),
     // Composite index for triple lookups
-    pg
-      .index("relation_triple_idx")
-      .on(t.subjectId, t.predicate, t.objectId),
+    pg.index("relation_triple_idx").on(t.subjectId, t.predicate, t.objectId),
   ]
 );

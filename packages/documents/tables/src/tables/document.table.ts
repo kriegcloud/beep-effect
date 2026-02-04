@@ -34,9 +34,7 @@ export const document = OrgTable.make(DocumentsEntityIds.DocumentId)(
   },
   (t) => [
     // Organization ID index for RLS filtering
-    pg
-      .index("document_organization_id_idx")
-      .on(t.organizationId),
+    pg.index("document_organization_id_idx").on(t.organizationId),
     pg.uniqueIndex("document_user_template_idx").on(t.userId, t.templateId),
     pg.index("document_user_idx").on(t.userId),
     pg.index("document_parent_idx").on(t.parentDocumentId),
@@ -44,14 +42,12 @@ export const document = OrgTable.make(DocumentsEntityIds.DocumentId)(
     pg.index("document_is_archived_idx").on(t.isArchived),
     // Full-text search GIN index on title and content
     // Title is weighted higher (A) than content (B) for relevance ranking
-    pg
-      .index("document_search_idx")
-      .using(
-        "gin",
-        sql`(
+    pg.index("document_search_idx").using(
+      "gin",
+      sql`(
         setweight(to_tsvector('english', coalesce(${t.title}, '')), 'A') ||
         setweight(to_tsvector('english', coalesce(${t.content}, '')), 'B')
       )`
-      ),
+    ),
   ]
 );

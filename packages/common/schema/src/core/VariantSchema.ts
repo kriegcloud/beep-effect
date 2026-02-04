@@ -327,19 +327,20 @@ export declare namespace fromKey {
   /**
    * @since 1.0.0
    */
-  export type Rename<S, Key extends string> = S extends S.PropertySignature<
-    infer _TypeToken,
-    infer _Type,
-    infer _Key,
-    infer _EncodedToken,
-    infer _Encoded,
-    infer _HasDefault,
-    infer _R
-  >
-    ? S.PropertySignature<_TypeToken, _Type, Key, _EncodedToken, _Encoded, _HasDefault, _R>
-    : S extends S.Schema.All
-      ? fromKey<S, Key>
-      : never;
+  export type Rename<S, Key extends string> =
+    S extends S.PropertySignature<
+      infer _TypeToken,
+      infer _Type,
+      infer _Key,
+      infer _EncodedToken,
+      infer _Encoded,
+      infer _HasDefault,
+      infer _R
+    >
+      ? S.PropertySignature<_TypeToken, _Type, Key, _EncodedToken, _Encoded, _HasDefault, _R>
+      : S extends S.Schema.All
+        ? fromKey<S, Key>
+        : never;
 }
 
 /**

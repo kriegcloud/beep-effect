@@ -61,24 +61,14 @@ export const extraction = OrgTable.make(KnowledgeEntityIds.ExtractionId)(
   },
   (t) => [
     // Organization ID index for RLS filtering
-    pg
-      .index("extraction_organization_id_idx")
-      .on(t.organizationId),
+    pg.index("extraction_organization_id_idx").on(t.organizationId),
     // Document index for finding extractions for a document
-    pg
-      .index("extraction_document_id_idx")
-      .on(t.documentId),
+    pg.index("extraction_document_id_idx").on(t.documentId),
     // Ontology index for filtering by ontology
-    pg
-      .index("extraction_ontology_id_idx")
-      .on(t.ontologyId),
+    pg.index("extraction_ontology_id_idx").on(t.ontologyId),
     // Status index for filtering by status
-    pg
-      .index("extraction_status_idx")
-      .on(t.status),
+    pg.index("extraction_status_idx").on(t.status),
     // Compound index for recent extractions
-    pg
-      .index("extraction_status_created_at_idx")
-      .on(t.status, t.createdAt),
+    pg.index("extraction_status_created_at_idx").on(t.status, t.createdAt),
   ]
 );

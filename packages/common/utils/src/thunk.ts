@@ -231,3 +231,10 @@ export const thunkThrow =
 export const thunkSomeNull = pipe(null, O.some, thunk);
 
 export const thunkNegativeOne = thunk(-1);
+
+export const thunkNoOpTyped =
+  <I>() =>
+  (_: I) =>
+    void 0;
+
+export const thunkNoOp = thunk(() => void 0);

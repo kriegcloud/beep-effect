@@ -30,30 +30,20 @@ export const member = OrgTable.make(IamEntityIds.MemberId)(
   },
   (t) => [
     // Foreign key indexes for join performance
-    pg
-      .index("member_organization_id_idx")
-      .on(t.organizationId),
+    pg.index("member_organization_id_idx").on(t.organizationId),
     pg.index("member_user_id_idx").on(t.userId),
 
     // Composite index for organization-user queries (ensures uniqueness)
-    pg
-      .uniqueIndex("member_org_user_unique_idx")
-      .on(t.organizationId, t.userId),
+    pg.uniqueIndex("member_org_user_unique_idx").on(t.organizationId, t.userId),
 
     // Composite index for organization-role queries (find all admins in org)
-    pg
-      .index("member_org_role_idx")
-      .on(t.organizationId, t.role),
+    pg.index("member_org_role_idx").on(t.organizationId, t.role),
 
     // Index for role-based queries across organizations
-    pg
-      .index("member_role_idx")
-      .on(t.role),
+    pg.index("member_role_idx").on(t.role),
 
     // Enhanced tracking indexes
-    pg
-      .index("member_status_idx")
-      .on(t.status),
+    pg.index("member_status_idx").on(t.status),
     pg.index("member_org_status_idx").on(t.organizationId, t.status),
     pg.index("member_invited_by_idx").on(t.invitedBy),
     pg.index("member_last_active_idx").on(t.lastActiveAt),

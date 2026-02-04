@@ -56,21 +56,13 @@ export const ontology = OrgTable.make(KnowledgeEntityIds.OntologyId)(
   },
   (t) => [
     // Organization ID index for RLS filtering
-    pg
-      .index("ontology_organization_id_idx")
-      .on(t.organizationId),
+    pg.index("ontology_organization_id_idx").on(t.organizationId),
     // Name index for lookups
-    pg
-      .index("ontology_name_idx")
-      .on(t.name),
+    pg.index("ontology_name_idx").on(t.name),
     // Namespace index for lookups
-    pg
-      .index("ontology_namespace_idx")
-      .on(t.namespace),
+    pg.index("ontology_namespace_idx").on(t.namespace),
     // Status index for filtering active ontologies
-    pg
-      .index("ontology_status_idx")
-      .on(t.status),
+    pg.index("ontology_status_idx").on(t.status),
     // Unique constraint on namespace + name + ontologyVersion per org
     pg
       .uniqueIndex("ontology_org_namespace_name_version_idx")

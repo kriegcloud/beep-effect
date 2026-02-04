@@ -22,9 +22,7 @@ export const comment = OrgTable.make(DocumentsEntityIds.CommentId)(
   },
   (t) => [
     // Organization ID index for RLS filtering
-    pg
-      .index("comment_organization_id_idx")
-      .on(t.organizationId),
+    pg.index("comment_organization_id_idx").on(t.organizationId),
     pg.index("comment_discussion_idx").on(t.discussionId),
     pg.index("comment_user_idx").on(t.userId),
   ]

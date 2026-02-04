@@ -96,24 +96,25 @@ function displayPetInfoWithSharedUnionFieldsDeep(petInfo: SharedUnionFieldsDeep<
 @category Object
 @category Union
 */
-export type SharedUnionFieldsDeep<Union, Options extends SharedUnionFieldsDeepOptions = {}> = ApplyDefaultOptions<
-  SharedUnionFieldsDeepOptions,
-  DefaultSharedUnionFieldsDeepOptions,
-  Options
-> extends infer OptionsWithDefaults extends Required<SharedUnionFieldsDeepOptions>
-  ? // `Union extends` will convert `Union`
-    // to a [distributive conditionaltype](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-2-8.html#distributive-conditional-types).
-    // But this is not what we want, so we need to wrap `Union` with `[]` to prevent it.
-    [Union] extends [NonRecursiveType | ReadonlyMap<unknown, unknown> | ReadonlySet<unknown>]
-    ? Union
-    : [Union] extends [UnknownArray]
-      ? OptionsWithDefaults["recurseIntoArrays"] extends true
-        ? SetArrayAccess<SharedArrayUnionFieldsDeep<Union, OptionsWithDefaults>, IsArrayReadonly<Union>>
-        : Union
-      : [Union] extends [object]
-        ? SharedObjectUnionFieldsDeep<Union, OptionsWithDefaults>
-        : Union
-  : never;
+export type SharedUnionFieldsDeep<Union, Options extends SharedUnionFieldsDeepOptions = {}> =
+  ApplyDefaultOptions<
+    SharedUnionFieldsDeepOptions,
+    DefaultSharedUnionFieldsDeepOptions,
+    Options
+  > extends infer OptionsWithDefaults extends Required<SharedUnionFieldsDeepOptions>
+    ? // `Union extends` will convert `Union`
+      // to a [distributive conditionaltype](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-2-8.html#distributive-conditional-types).
+      // But this is not what we want, so we need to wrap `Union` with `[]` to prevent it.
+      [Union] extends [NonRecursiveType | ReadonlyMap<unknown, unknown> | ReadonlySet<unknown>]
+      ? Union
+      : [Union] extends [UnknownArray]
+        ? OptionsWithDefaults["recurseIntoArrays"] extends true
+          ? SetArrayAccess<SharedArrayUnionFieldsDeep<Union, OptionsWithDefaults>, IsArrayReadonly<Union>>
+          : Union
+        : [Union] extends [object]
+          ? SharedObjectUnionFieldsDeep<Union, OptionsWithDefaults>
+          : Union
+    : never;
 
 /**
 Same as `SharedUnionFieldsDeep`, but accepts only `object`s and as inputs. Internal helper for `SharedUnionFieldsDeep`.
@@ -149,38 +150,39 @@ type InternalSharedArrayUnionFieldsDeep<
   Union extends UnknownArray,
   Options extends Required<SharedUnionFieldsDeepOptions>,
   ResultTuple extends UnknownArray = [],
-> = IsNever<TupleLength<Union>> extends true // We should build a minimum possible length tuple where each element in the tuple exists in the union tuple.
-  ? // Rule 1: If all the arrays in the union have non-fixed lengths,
-    // like `Array<string> | [number, ...string[]]`
-    // we should build a tuple that is [the_fixed_parts_of_union, ...the_rest_of_union[]].
-    // For example: `InternalSharedArrayUnionFieldsDeep<Array<string> | [number, ...string[]]>`
-    // => `[string | number, ...string[]]`.
-    ResultTuple["length"] extends UnionMax<StaticPartOfArray<Union>["length"]>
-    ? [
-        // The fixed-length part of the tuple.
-        ...ResultTuple,
-        // The rest of the union.
-        // Due to `ResultTuple` is the maximum possible fixed-length part of the tuple,
-        // so we can use `StaticPartOfArray` to get the rest of the union.
-        ...Array<SharedUnionFieldsDeep<VariablePartOfArray<Union>[number], Options>>,
-      ]
-    : // Build the fixed-length tuple recursively.
-      InternalSharedArrayUnionFieldsDeep<
-        Union,
-        Options,
-        [...ResultTuple, SharedUnionFieldsDeep<Union[ResultTuple["length"]], Options>]
-      >
-  : // Rule 2: If at least one of the arrays in the union have fixed lengths,
-    // like `Array<string> | [number, string]`,
-    // we should build a tuple of the smallest possible length to ensure any
-    // item in the result tuple exists in the union tuple.
-    // For example: `InternalSharedArrayUnionFieldsDeep<Array<string> | [number, string]>`
-    // => `[string | number, string]`.
-    ResultTuple["length"] extends UnionMin<TupleLength<Union>>
-    ? ResultTuple
-    : // As above, build tuple recursively.
-      InternalSharedArrayUnionFieldsDeep<
-        Union,
-        Options,
-        [...ResultTuple, SharedUnionFieldsDeep<Union[ResultTuple["length"]], Options>]
-      >;
+> =
+  IsNever<TupleLength<Union>> extends true // We should build a minimum possible length tuple where each element in the tuple exists in the union tuple.
+    ? // Rule 1: If all the arrays in the union have non-fixed lengths,
+      // like `Array<string> | [number, ...string[]]`
+      // we should build a tuple that is [the_fixed_parts_of_union, ...the_rest_of_union[]].
+      // For example: `InternalSharedArrayUnionFieldsDeep<Array<string> | [number, ...string[]]>`
+      // => `[string | number, ...string[]]`.
+      ResultTuple["length"] extends UnionMax<StaticPartOfArray<Union>["length"]>
+      ? [
+          // The fixed-length part of the tuple.
+          ...ResultTuple,
+          // The rest of the union.
+          // Due to `ResultTuple` is the maximum possible fixed-length part of the tuple,
+          // so we can use `StaticPartOfArray` to get the rest of the union.
+          ...Array<SharedUnionFieldsDeep<VariablePartOfArray<Union>[number], Options>>,
+        ]
+      : // Build the fixed-length tuple recursively.
+        InternalSharedArrayUnionFieldsDeep<
+          Union,
+          Options,
+          [...ResultTuple, SharedUnionFieldsDeep<Union[ResultTuple["length"]], Options>]
+        >
+    : // Rule 2: If at least one of the arrays in the union have fixed lengths,
+      // like `Array<string> | [number, string]`,
+      // we should build a tuple of the smallest possible length to ensure any
+      // item in the result tuple exists in the union tuple.
+      // For example: `InternalSharedArrayUnionFieldsDeep<Array<string> | [number, string]>`
+      // => `[string | number, string]`.
+      ResultTuple["length"] extends UnionMin<TupleLength<Union>>
+      ? ResultTuple
+      : // As above, build tuple recursively.
+        InternalSharedArrayUnionFieldsDeep<
+          Union,
+          Options,
+          [...ResultTuple, SharedUnionFieldsDeep<Union[ResultTuple["length"]], Options>]
+        >;

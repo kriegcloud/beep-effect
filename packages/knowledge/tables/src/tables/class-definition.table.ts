@@ -80,25 +80,15 @@ export const classDefinition = OrgTable.make(KnowledgeEntityIds.ClassDefinitionI
   },
   (t) => [
     // Organization ID index for RLS filtering
-    pg
-      .index("class_definition_organization_id_idx")
-      .on(t.organizationId),
+    pg.index("class_definition_organization_id_idx").on(t.organizationId),
     // Ontology ID index for filtering by ontology
-    pg
-      .index("class_definition_ontology_id_idx")
-      .on(t.ontologyId),
+    pg.index("class_definition_ontology_id_idx").on(t.ontologyId),
     // IRI index for lookups
-    pg
-      .index("class_definition_iri_idx")
-      .on(t.iri),
+    pg.index("class_definition_iri_idx").on(t.iri),
     // Label index for text search
-    pg
-      .index("class_definition_label_idx")
-      .on(t.label),
+    pg.index("class_definition_label_idx").on(t.label),
     // Unique constraint on IRI per ontology
-    pg
-      .uniqueIndex("class_definition_ontology_iri_idx")
-      .on(t.ontologyId, t.iri),
+    pg.uniqueIndex("class_definition_ontology_iri_idx").on(t.ontologyId, t.iri),
     // FK with short custom name to avoid PostgreSQL 63-char limit
     foreignKey({
       name: "class_def_ontology_fk",

@@ -41,37 +41,23 @@ export const session = Table.make(SharedEntityIds.SessionId)(
     pg.check("session_expires_after_created_check", d.sql`${t.expiresAt} > ${t.createdAt}`),
 
     // Critical indexes for authentication performance
-    pg
-      .index("session_token_idx")
-      .on(t.token), // Already unique, but explicit for performance
-    pg
-      .index("session_user_id_idx")
-      .on(t.userId), // Foreign key index
+    pg.index("session_token_idx").on(t.token), // Already unique, but explicit for performance
+    pg.index("session_user_id_idx").on(t.userId), // Foreign key index
 
     // Index for session cleanup (expired sessions)
-    pg
-      .index("session_expires_at_idx")
-      .on(t.expiresAt),
+    pg.index("session_expires_at_idx").on(t.expiresAt),
 
     // Composite index for user session management
-    pg
-      .index("session_user_expires_idx")
-      .on(t.userId, t.expiresAt),
+    pg.index("session_user_expires_idx").on(t.userId, t.expiresAt),
 
     // Indexes for organization/team context switching
-    pg
-      .index("session_active_org_idx")
-      .on(t.activeOrganizationId),
+    pg.index("session_active_org_idx").on(t.activeOrganizationId),
     pg.index("session_active_team_idx").on(t.activeTeamId),
 
     // Index for impersonation queries
-    pg
-      .index("session_impersonated_by_idx")
-      .on(t.impersonatedBy),
+    pg.index("session_impersonated_by_idx").on(t.impersonatedBy),
 
     // Composite index for active sessions by user in organization
-    pg
-      .index("session_user_org_active_idx")
-      .on(t.userId, t.activeOrganizationId, t.expiresAt),
+    pg.index("session_user_org_active_idx").on(t.userId, t.activeOrganizationId, t.expiresAt),
   ]
 );

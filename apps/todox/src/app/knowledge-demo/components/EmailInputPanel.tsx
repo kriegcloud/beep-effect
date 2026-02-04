@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@beep/todox/components/ui/textarea";
 import * as React from "react";
 import { SAMPLE_EMAILS, type SampleEmail } from "../data/sample-emails";
+import { DemoHintIcon } from "./DemoHint";
 
 interface EmailInputPanelProps {
   onExtract: (text: string) => void;
@@ -46,7 +47,13 @@ export function EmailInputPanel({ onExtract, isLoading }: EmailInputPanelProps) 
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-2">
-          <Label>Select Sample Email</Label>
+          <div className="flex items-center gap-2">
+            <Label>Select Sample Email</Label>
+            <DemoHintIcon
+              hint="Choose a sample email to populate the text area, or paste your own text below"
+              side="right"
+            />
+          </div>
           <Select onValueChange={handleEmailSelect} value={selectedEmailId}>
             <SelectTrigger>
               <SelectValue placeholder="Choose an email..." />
@@ -71,9 +78,15 @@ export function EmailInputPanel({ onExtract, isLoading }: EmailInputPanelProps) 
           />
         </div>
 
-        <Button onClick={() => onExtract(textContent)} disabled={isLoading || !textContent.trim()} className="w-full">
-          {isLoading ? "Extracting..." : "Extract Entities"}
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button onClick={() => onExtract(textContent)} disabled={isLoading || !textContent.trim()} className="flex-1">
+            {isLoading ? "Extracting..." : "Extract Entities"}
+          </Button>
+          <DemoHintIcon
+            hint="Extract entities (people, organizations, events), relations between them, and evidence spans from the source text"
+            side="left"
+          />
+        </div>
       </CardContent>
     </Card>
   );

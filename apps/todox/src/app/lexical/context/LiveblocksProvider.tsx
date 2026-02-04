@@ -2,6 +2,7 @@
 
 import { ClientSideSuspense, RoomProvider } from "@liveblocks/react";
 import { type ReactNode, useMemo } from "react";
+import { AiActivityOverlay } from "../plugins/AiAssistantPlugin/components/AiActivityIndicator";
 
 /**
  * Serialized selection range for Liveblocks presence.
@@ -85,7 +86,10 @@ export function LiveblocksProvider({ isCollab, roomId, children }: LiveblocksPro
 
   return (
     <RoomProvider id={resolvedRoomId} initialPresence={initialPresence} initialStorage={{ title: "" }}>
-      <ClientSideSuspense fallback={<LoadingIndicator />}>{children}</ClientSideSuspense>
+      <ClientSideSuspense fallback={<LoadingIndicator />}>
+        {children}
+        <AiActivityOverlay />
+      </ClientSideSuspense>
     </RoomProvider>
   );
 }

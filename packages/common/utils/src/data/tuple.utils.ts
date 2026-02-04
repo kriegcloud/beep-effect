@@ -50,11 +50,12 @@ type AllLiteralsCovered<
 export type ValidMapping<
   Literals extends A.NonEmptyReadonlyArray<StringTypes.NonEmptyString>,
   Mapping extends A.NonEmptyReadonlyArray<readonly [StringTypes.NonEmptyString, StringTypes.NonEmptyString]>,
-> = ValidateEnumMapping<Literals, Mapping> extends true
-  ? AllLiteralsCovered<Literals, Mapping> extends true
-    ? Mapping
-    : never
-  : never;
+> =
+  ValidateEnumMapping<Literals, Mapping> extends true
+    ? AllLiteralsCovered<Literals, Mapping> extends true
+      ? Mapping
+      : never
+    : never;
 /**
  * Extracts the mapped key portion from the tuple entries produced by
  * `makeMappedEnum`.
@@ -85,11 +86,12 @@ export type ExtractMappedValues<
 export type CreateEnumType<
   Literals extends A.NonEmptyReadonlyArray<StringTypes.NonEmptyString>,
   Mapping extends A.NonEmptyReadonlyArray<readonly [Literals[number], StringTypes.NonEmptyString]> | undefined,
-> = Mapping extends A.NonEmptyReadonlyArray<readonly [StringTypes.NonEmptyString, StringTypes.NonEmptyString]>
-  ? {
-      readonly [K in ExtractMappedValues<Mapping>]: Extract<Mapping[number], readonly [UnsafeTypes.UnsafeAny, K]>[0];
-    }
-  : { readonly [K in Literals[number]]: K };
+> =
+  Mapping extends A.NonEmptyReadonlyArray<readonly [StringTypes.NonEmptyString, StringTypes.NonEmptyString]>
+    ? {
+        readonly [K in ExtractMappedValues<Mapping>]: Extract<Mapping[number], readonly [UnsafeTypes.UnsafeAny, K]>[0];
+      }
+    : { readonly [K in Literals[number]]: K };
 
 /**
  * Builds a frozen mapped enum object plus the original literal options. The

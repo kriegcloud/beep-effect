@@ -25,24 +25,16 @@ export const account = Table.make(IamEntityIds.AccountId)(
   },
   (t) => [
     // Foreign key index for user lookups
-    pg
-      .index("account_user_id_idx")
-      .on(t.userId),
+    pg.index("account_user_id_idx").on(t.userId),
 
     // Unique constraint to prevent duplicate accounts per provider
-    pg
-      .uniqueIndex("account_provider_account_unique_idx")
-      .on(t.providerId, t.accountId),
+    pg.uniqueIndex("account_provider_account_unique_idx").on(t.providerId, t.accountId),
 
     // Index for provider-based queries
-    pg
-      .index("account_provider_id_idx")
-      .on(t.providerId),
+    pg.index("account_provider_id_idx").on(t.providerId),
 
     // Composite index for user-provider queries (find user's accounts per provider)
-    pg
-      .index("account_user_provider_idx")
-      .on(t.userId, t.providerId),
+    pg.index("account_user_provider_idx").on(t.userId, t.providerId),
 
     // Index for token expiration cleanup
     pg

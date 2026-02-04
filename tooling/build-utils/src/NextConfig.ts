@@ -91,7 +91,7 @@ const defaultCSPDirectives = {
     "http://localhost:4318",
     "http://127.0.0.1:4318",
   ],
-  mediaSrc: ["'self'", "data:"],
+  mediaSrc: ["'self'", "data:", "https://storage.googleapis.com"],
   frameAncestors: ["'self'", "https://www.google.com", "https://vercel.live", "https://vercel.com"],
   imgSrc: [
     "'self'",

@@ -29,15 +29,11 @@ export const invitation = Table.make(IamEntityIds.InvitationId)(
   },
   (t) => [
     // Foreign key indexes for join performance
-    pg
-      .index("invitation_organization_id_idx")
-      .on(t.organizationId),
+    pg.index("invitation_organization_id_idx").on(t.organizationId),
     pg.index("invitation_inviter_id_idx").on(t.inviterId),
 
     // Index for email-based invitation lookups
-    pg
-      .index("invitation_email_idx")
-      .on(t.email),
+    pg.index("invitation_email_idx").on(t.email),
 
     // Composite index for organization-email invitations (prevent duplicates for pending status)
     pg
@@ -46,14 +42,10 @@ export const invitation = Table.make(IamEntityIds.InvitationId)(
       .where(d.sql`${t.status} = 'pending'`),
 
     // Index for status-based queries
-    pg
-      .index("invitation_status_idx")
-      .on(t.status),
+    pg.index("invitation_status_idx").on(t.status),
 
     // Index for cleanup of expired invitations
-    pg
-      .index("invitation_expires_at_idx")
-      .on(t.expiresAt),
+    pg.index("invitation_expires_at_idx").on(t.expiresAt),
 
     // Index for pending invitations (removed NOW() predicate - filter at query time instead)
     pg
@@ -62,9 +54,6 @@ export const invitation = Table.make(IamEntityIds.InvitationId)(
       .where(d.sql`${t.status} = 'pending'`),
 
     // Index for team-based invitations (if teamId is used)
-    pg
-      .index("invitation_team_id_idx")
-      .on(t.teamId)
-      .where(d.sql`${t.teamId} IS NOT NULL`),
+    pg.index("invitation_team_id_idx").on(t.teamId).where(d.sql`${t.teamId} IS NOT NULL`),
   ]
 );

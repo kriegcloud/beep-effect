@@ -42,8 +42,5 @@ type T5 = IsWritableKeyOf<User | Admin, 'id'>;
 @category Type Guard
 @category Utilities
 */
-export type IsWritableKeyOf<Type extends object, Key extends keyof Type> = IsAny<Type | Key> extends true
-  ? never
-  : Key extends keyof Type
-    ? Not<IsReadonlyKeyOf<Type, Key>>
-    : false;
+export type IsWritableKeyOf<Type extends object, Key extends keyof Type> =
+  IsAny<Type | Key> extends true ? never : Key extends keyof Type ? Not<IsReadonlyKeyOf<Type, Key>> : false;

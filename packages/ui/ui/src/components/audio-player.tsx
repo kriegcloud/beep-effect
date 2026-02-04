@@ -1,19 +1,20 @@
 "use client";
+import { Slider as SliderPrimitive } from "@base-ui/react/slider";
 import { $UiId } from "@beep/identity/packages";
 import { makeRunClientPromise, useRuntime } from "@beep/runtime-client";
 import { BS } from "@beep/schema";
 import { cn } from "@beep/ui-core/utils";
 import { CheckIcon, GearIcon, PauseIcon, PlayIcon } from "@phosphor-icons/react";
-import * as SliderPrimitive from "@radix-ui/react-slider";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
+import * as Match from "effect/Match";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import type * as React from "react";
-import type { ComponentProps, HTMLProps, ReactNode, RefObject } from "react";
+import type { HTMLProps, ReactNode, RefObject } from "react";
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "./button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./dropdown-menu";
@@ -283,8 +284,10 @@ export function AudioPlayerProvider<TData = unknown>({ children }: { readonly ch
 }
 
 export const AudioPlayerProgress = ({
+  className,
+  ref,
   ...otherProps
-}: Omit<ComponentProps<typeof SliderPrimitive.Root>, "min" | "max" | "value">) => {
+}: Omit<SliderPrimitive.Root.Props, "min" | "max" | "value">) => {
   const player = useAudioPlayer();
   const time = useAudioPlayerTime();
   const wasPlayingRef = useRef(false);
@@ -292,54 +295,66 @@ export const AudioPlayerProgress = ({
   return (
     <SliderPrimitive.Root
       {...otherProps}
+      {...(ref ? { ref } : {})}
       value={[time]}
-      onValueChange={(vals) => {
-        const valueOption = A.head(vals);
+      onValueChange={(value, eventDetails) => {
+        const values = Match.value(value).pipe(
+          Match.when(
+            (u: unknown): u is ReadonlyArray<number> => Array.isArray(u),
+            (v) => v
+          ),
+          Match.when(
+            (u: unknown): u is number => P.isNumber(u),
+            (v) => [v] as const
+          ),
+          Match.orElse(A.empty<number>)
+        );
+        const valueOption = A.head(values);
         if (O.isSome(valueOption)) {
           player.seek(valueOption.value);
         }
-        otherProps.onValueChange?.(vals);
+        otherProps.onValueChange?.(value, eventDetails);
       }}
       min={0}
       max={player.duration ?? 0}
       step={otherProps.step || 0.25}
-      onPointerDown={(e) => {
-        wasPlayingRef.current = player.isPlaying;
-        player.pause();
-        otherProps.onPointerDown?.(e);
-      }}
-      onPointerUp={(e) => {
-        if (wasPlayingRef.current) {
-          void player.play();
-        }
-        otherProps.onPointerUp?.(e);
-      }}
-      className={cn(
-        "group/player relative flex h-4 touch-none items-center select-none data-[disabled]:opacity-50 data-[orientation=vertical]:h-full data-[orientation=vertical]:min-h-44 data-[orientation=vertical]:w-auto data-[orientation=vertical]:flex-col",
-        otherProps.className
-      )}
-      onKeyDown={(e) => {
-        if (e.key === " ") {
-          e.preventDefault();
-          if (!player.isPlaying) {
-            void player.play();
-          } else {
-            player.pause();
-          }
-        }
-        otherProps.onKeyDown?.(e);
-      }}
       disabled={player.duration === undefined || !Number.isFinite(player.duration) || Number.isNaN(player.duration)}
     >
-      <SliderPrimitive.Track className="bg-muted relative h-[4px] w-full grow overflow-hidden rounded-full">
-        <SliderPrimitive.Range className="bg-primary absolute h-full" />
-      </SliderPrimitive.Track>
-      <SliderPrimitive.Thumb
-        className="relative flex h-0 w-0 items-center justify-center opacity-0 group-hover/player:opacity-100 focus-visible:opacity-100 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50"
-        data-slot="slider-thumb"
+      <SliderPrimitive.Control
+        className={cn(
+          "group/player relative flex h-4 touch-none items-center select-none data-disabled:opacity-50 data-vertical:h-full data-vertical:min-h-44 data-vertical:w-auto data-vertical:flex-col",
+          className
+        )}
+        onPointerDown={(_) => {
+          wasPlayingRef.current = player.isPlaying;
+          player.pause();
+        }}
+        onPointerUp={(_) => {
+          if (wasPlayingRef.current) {
+            void player.play();
+          }
+        }}
+        onKeyDown={(e) => {
+          if (e.key === " ") {
+            e.preventDefault();
+            if (!player.isPlaying) {
+              void player.play();
+            } else {
+              player.pause();
+            }
+          }
+        }}
       >
-        <div className="bg-foreground absolute size-3 rounded-full" />
-      </SliderPrimitive.Thumb>
+        <SliderPrimitive.Track className="bg-muted relative h-[4px] w-full grow overflow-hidden rounded-full">
+          <SliderPrimitive.Indicator className="bg-primary absolute h-full" />
+        </SliderPrimitive.Track>
+        <SliderPrimitive.Thumb
+          className="relative flex h-0 w-0 items-center justify-center opacity-0 group-hover/player:opacity-100 focus-visible:opacity-100 focus-visible:outline-hidden disabled:pointer-events-none disabled:opacity-50"
+          data-slot="slider-thumb"
+        >
+          <div className="bg-foreground absolute size-3 rounded-full" />
+        </SliderPrimitive.Thumb>
+      </SliderPrimitive.Control>
     </SliderPrimitive.Root>
   );
 };

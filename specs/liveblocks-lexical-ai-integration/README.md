@@ -28,39 +28,67 @@ This spec defines the migration path from mock-authenticated, Vercel AI SDK-base
 - [ ] Session data flows correctly to Liveblocks presence
 - [ ] Auth latency < 200ms
 
-### Phase 2: Effect AI Migration
-- [ ] `@effect/ai-openai` replaces `@ai-sdk/openai`
-- [ ] Streaming uses Effect Stream patterns
+### Phase 2: Real Session Integration
+- [ ] Liveblocks auth endpoint retrieves real session from better-auth
+- [ ] User ID, name, avatar sourced from authenticated session
+- [ ] Unauthenticated requests return 401
+- [ ] Session data flows correctly to Liveblocks presence
+- [ ] Auth latency < 200ms
+
+### Phase 3: AI Streaming Verification
+- [ ] Effect Stream produces chunks with @effect/ai-openai
 - [ ] Server action uses Effect.gen, not async/await
-- [ ] Error handling uses S.TaggedError
+- [ ] Error handling uses S.TaggedError + Effect.catchTag
+- [ ] Streaming latency verified in browser console
 - [ ] First token latency < 2s
 
-### Phase 3: UI Integration
-- [ ] AiActivityIndicator component rendered in editor
-- [ ] Visual overlay shows active AI operation region
-- [ ] Floating panel uses @floating-ui for positioning
-- [ ] Conflict warnings display when ranges overlap
+### Phase 3.5: Browser Testing & Error Fixing
+- [ ] Lexical version mismatch error resolved
+- [ ] Editor loads without runtime errors
+- [ ] AI panel opens and displays prompts
+- [ ] AI streaming works (tokens appear progressively)
+- [ ] First token latency < 2s verified via browser
+- [ ] AiActivityOverlay shows collaborator AI activity
+- [ ] Conflict warning displays for overlapping selections
+- [ ] No console error-level messages
+- [ ] `bun run check --filter @beep/todox` passes
+- [ ] `bun run lint --filter @beep/todox` passes
 
-### Phase 4: Testing & Observability
+### Phase 4: Effect AI Migration
+- [ ] `@effect/ai-openai` replaces `@ai-sdk/openai`
+- [ ] LLM Layer follows pattern from `@beep/knowledge-server`
+- [ ] Error handling uses S.TaggedError + catchTag flows
+- [ ] UI streaming consumes Effect Stream correctly
+- [ ] All AI operations follow Effect patterns (no native methods)
+
+### Phase 5: Testing & Observability (Optional)
 - [ ] E2E test for multi-user AI conflict detection
 - [ ] Effect.log* structured logging in AI operations
-- [ ] All code follows Effect patterns (no native methods)
+- [ ] Span annotations for performance tracing
 - [ ] 3+ tabs show consistent presence state
 
 ### Acceptance Matrix
 
 | Test | Criteria | Phase | Status |
 |------|----------|-------|--------|
-| Auth with valid session | Returns Liveblocks token with userInfo | P1 | [ ] |
-| Auth with invalid session | Returns 401 Unauthorized | P1 | [ ] |
-| Room connection | WebSocket established within 5 seconds | P1 | [ ] |
-| Effect AI streaming | Effect Stream produces chunks | P2 | [ ] |
-| TaggedError handling | AI errors use S.TaggedError | P2 | [ ] |
-| Presence broadcast | Other users see presence update < 1s | P3 | [ ] |
-| Conflict warning | UI shows warning for overlapping selection | P3 | [ ] |
-| Activity indicator | Overlay visible during AI operations | P3 | [ ] |
-| E2E multi-user | Automated test passes | P4 | [ ] |
-| Structured logging | Effect.log* calls present | P4 | [ ] |
+| Auth with valid session | Returns Liveblocks token with userInfo | P2 | [ ] |
+| Auth with invalid session | Returns 401 Unauthorized | P2 | [ ] |
+| Room connection | WebSocket established within 5 seconds | P2 | [ ] |
+| Effect AI streaming | Effect Stream produces chunks | P3 | [ ] |
+| TaggedError handling | AI errors use S.TaggedError + catchTag | P3 | [ ] |
+| Streaming latency (console) | First token < 2s, verified in console | P3 | [ ] |
+| Lexical version alignment | All @lexical/* packages identical version | P3.5 | [ ] |
+| Editor loads without errors | No runtime errors on page load | P3.5 | [ ] |
+| Editor renders correctly | Lexical content editable area visible | P3.5 | [ ] |
+| Console clean | No error-level messages | P3.5 | [ ] |
+| AI panel interaction | Panel opens, prompts display | P3.5 | [ ] |
+| Streaming latency (browser) | First token < 2s via browser test | P3.5 | [ ] |
+| AiActivityOverlay renders | Collaborator activity visible in multi-tab | P3.5 | [ ] |
+| Conflict detection multi-tab | Warning displays for overlapping selections | P3.5 | [ ] |
+| Effect AI migration | @effect/ai-openai integrated with LLM Layer | P4 | [ ] |
+| Pattern compliance | All AI operations follow Effect patterns | P4 | [ ] |
+| E2E multi-user | Automated test passes | P5 | [ ] |
+| Structured logging | Effect.log* calls present | P5 | [ ] |
 
 ---
 
@@ -102,12 +130,12 @@ These items are explicitly **out of scope** for this spec:
 
 | Gap | Current State | Required State | Phase | Impact |
 |-----|---------------|----------------|-------|--------|
-| Mock auth | Hard-coded user from `_database.ts` | Real session from better-auth | P1 | Blocking for production |
-| Vercel AI SDK | `@ai-sdk/openai`, `@ai-sdk/rsc` | `@effect/ai-openai`, Effect patterns | P2 | Inconsistent with codebase |
-| No observability | No logging in AI operations | Effect.log* structured logging | P4 | Debugging difficult |
+| Mock auth | Hard-coded user from `_database.ts` | Real session from better-auth | P2 | Blocking for production |
+| Vercel AI SDK | `@ai-sdk/openai`, `@ai-sdk/rsc` | `@effect/ai-openai`, Effect patterns | P4 | Inconsistent with codebase |
+| No observability | No logging in AI operations | Effect.log* structured logging | P5 | Debugging difficult |
 | UI not integrated | AiActivityIndicator exists, not rendered | Visual overlay in editor viewport | P3 | UX incomplete |
-| No E2E tests | Manual testing only | Automated multi-user conflict test | P4 | Regression risk |
-| Native JS methods | Uses `.map()`, `.filter()` | Effect/Array utilities | P2 | Codebase inconsistency |
+| No E2E tests | Manual testing only | Automated multi-user conflict test | P5 | Regression risk |
+| Native JS methods | Uses `.map()`, `.filter()` | Effect/Array utilities | P4 | Codebase inconsistency |
 
 ### Authentication Flow (Current)
 
@@ -159,13 +187,36 @@ Client consumes stream --> inserts into editor
 
 ## Phase Breakdown
 
-### Phase 1: Real Authentication (Est. 1 session)
+### Phase 1: Infrastructure Verification (Est. 0.5 session)
+
+**Objective**: Verify existing collaborative infrastructure works correctly.
+
+**Tasks**:
+1. Confirm LiveblocksProvider mounts correctly with conditional RoomProvider
+2. Verify presence schema (`AiActivityPresence`, `UserMeta`) is properly typed
+3. Confirm mock auth endpoint responses structure
+4. Verify Lexical editor + AiAssistantPlugin orchestration
+5. Document baseline streaming behavior with Vercel AI SDK
+
+**Deliverables**:
+- Verified integration baseline
+- Test results in `outputs/baseline-verification.md`
+
+**Verification**:
+```bash
+bun run dev
+# Verify Liveblocks connects (check browser console for room connection)
+# Verify presence updates in two tabs
+# Verify AI streaming works (mock auth sufficient)
+```
+
+### Phase 2: Real Session Integration (Est. 1 session)
 
 **Objective**: Wire Liveblocks auth endpoint to better-auth session.
 
 **Tasks**:
 1. Create auth utility to extract session from request cookies
-2. Replace `getSession()` with better-auth session lookup
+2. Replace mock `getSession()` with better-auth session lookup
 3. Map better-auth user fields to Liveblocks UserMeta (id, name, avatar, color)
 4. Return 401 for unauthenticated requests
 5. Handle session expiry gracefully
@@ -184,78 +235,143 @@ bun run dev
 curl -X POST http://localhost:3000/api/liveblocks-auth  # Should return 401
 ```
 
-### Phase 2: Effect AI Migration (Est. 2 sessions)
+### Phase 3: AI Streaming Verification (Est. 1 session)
 
-**Objective**: Replace Vercel AI SDK with Effect AI patterns.
+**Objective**: Verify Effect Stream patterns work with real-time streaming.
 
 **Tasks**:
-1. Create Effect-based AI service layer
-2. Replace `@ai-sdk/openai` with `@effect/ai-openai`
-3. Convert `improveText` server action to Effect.gen
-4. Implement streaming via Effect Stream
-5. Add S.TaggedError for AI operation errors
-6. Create response schema for type-safe streaming
-7. Update `useAiStreaming` to consume Effect streams
-8. Replace native `.map()`, `.filter()` with Effect/Array
+1. Confirm Vercel AI SDK streaming produces correct output structure
+2. Measure first-token latency (baseline for P4 comparison)
+3. Verify presence broadcasting during AI operations works
+4. Confirm conflict detection triggers correctly
+5. Document streaming behavior for P4 migration reference
 
 **Deliverables**:
-- New `apps/todox/src/services/ai/TextImprovement.ts` service
-- New `apps/todox/src/services/ai/errors.ts` tagged errors
-- Modified `apps/todox/src/actions/ai.ts` using Effect patterns
+- Baseline streaming performance report in `outputs/`
+- Verified conflict detection logic
+
+**Verification**:
+```bash
+bun run dev
+# Test AI streaming with multiple tabs
+# Measure first-token latency in browser console
+# Verify conflict warnings appear on overlapping selections
+```
+
+### Phase 3.5: Browser Testing & Error Fixing (Est. 0.5 session)
+
+**Objective**: Fix runtime errors blocking browser testing and validate all features work via browser automation.
+
+**Tasks**:
+1. Diagnose and fix Lexical version mismatch error (critical blocker)
+2. Use `claude-in-chrome` MCP for automated browser testing
+3. Verify editor loads without console errors
+4. Test AI panel interactions and streaming
+5. Validate AiActivityOverlay renders correctly
+6. Test multi-tab presence broadcasting and conflict detection
+7. Fix any runtime errors discovered during browser testing
+
+**Deliverables**:
+- Fixed `package.json` with aligned Lexical versions
+- Browser test results in `outputs/p3.5-browser-tests.md`
+- All runtime errors resolved
+- Screenshots/GIFs of successful feature validation
+
+**Critical Blocker**:
+```
+HeadingNode (type heading) does not subclass LexicalNode from the lexical package
+used by this editor (version <unknown>). All lexical and @lexical/* packages used
+by an editor must have identical versions.
+
+Location: apps/todox/src/app/lexical/App.tsx:127
+```
+
+**Resolution Steps**:
+1. Analyze `bun.lock` for multiple Lexical version resolutions
+2. Check `package.json` files for version inconsistencies
+3. Align all `@lexical/*` packages to same exact version
+4. Run `bun install` to regenerate lock file
+5. Clear dev server cache and verify editor loads
+
+**MCP Tools**:
+- `claude-in-chrome` for browser automation and testing
+- `next-devtools` for console error monitoring
+
+**Verification**:
+```bash
+bun run dev
+# Navigate to http://localhost:3000/lexical
+# Use claude-in-chrome MCP to:
+#   - Check console for errors
+#   - Interact with editor
+#   - Test AI features
+#   - Verify overlay rendering
+```
+
+### Phase 4: Effect AI Migration (Est. 2 sessions)
+
+**Objective**: Replace Vercel AI SDK with `@effect/ai-openai` and follow Effect patterns.
+
+**Tasks**:
+1. Install `@effect/ai` and `@effect/ai-openai` dependencies
+2. Create Effect-based AI service layer with LLM Layer pattern
+3. Replace `@ai-sdk/openai` with `@effect/ai-openai`
+4. Convert `improveText` server action to Effect.gen syntax
+5. Implement streaming via Effect Stream patterns
+6. Add S.TaggedError for AI operation errors with catchTag handlers
+7. Create response schema for type-safe streaming
+8. Update `useAiStreaming` hook to consume Effect streams
+9. Replace native `.map()`, `.filter()` with Effect/Array utilities
+10. Verify pattern compliance with `.claude/rules/effect-patterns.md`
+
+**Deliverables**:
+- New `apps/todox/src/services/ai/TextImprovement.ts` service with LLM Layer
+- New `apps/todox/src/services/ai/errors.ts` with S.TaggedError definitions
+- Modified `apps/todox/src/actions/ai.ts` using Effect.gen patterns
 - Modified `hooks/useAiStreaming.ts` consuming Effect streams
+- Updated `services/ai/` layer composition following `@beep/knowledge-server`
 
-**Reference Patterns**:
+**Reference Patterns** (from `@beep/knowledge-server`):
 ```typescript
-// Service definition
-export class TextImprovementService extends Context.Tag(
-  "TextImprovementService"
-)<TextImprovementService, {
-  readonly improve: (
-    text: string,
-    instruction: string
-  ) => Stream.Stream<string, TextImprovementError>
-}>() {}
+// LLM Layer definition
+export const TextImprovementLive = Layer.succeed(
+  TextImprovementService,
+  TextImprovementService.of({
+    improve: (text, instruction) =>
+      Effect.gen(function* () {
+        const llm = yield* LanguageModel;
+        return yield* llm.stream.text(prompt);
+      })
+  })
+);
 
-// Error schema
+// Error handling
 export class TextImprovementError extends S.TaggedError<TextImprovementError>()(
   "TextImprovementError",
-  { message: S.String, cause: S.optional(S.Unknown) }
+  { message: S.String, code: S.optional(S.String) }
 ) {}
+
+// Server action
+export const improveText = async (payload) =>
+  Effect.gen(function* () {
+    const service = yield* TextImprovementService;
+    return yield* service.improve(text, instruction).pipe(
+      Effect.catchTag("TextImprovementError", handler)
+    );
+  }).pipe(Effect.provide(TextImprovementLive))
+    .pipe(Effect.runPromise);
 ```
 
 **Verification**:
 ```bash
 bun run check --filter @beep/todox
 bun run lint --filter @beep/todox
-# Manual: Test AI streaming in editor, verify first token < 2s
+# Manual: Test AI streaming in editor
+# Verify first token latency < 2s (compare to P3 baseline)
+# Verify error handling with invalid prompts
 ```
 
-### Phase 3: UI Enhancements (Est. 1 session)
-
-**Objective**: Integrate activity indicators and improve positioning.
-
-**Tasks**:
-1. Render AiActivityIndicator in editor container (Editor.tsx)
-2. Add visual overlay highlighting AI operation region
-3. Integrate @floating-ui for panel positioning
-4. Display conflict warning when ranges overlap
-5. Add loading states and progress indicators
-6. CSS animations for overlay appearance
-
-**Deliverables**:
-- Modified `Editor.tsx` to render AiActivityIndicator
-- New `components/AiOperationOverlay.tsx` for visual region
-- Modified `CollaborativeFloatingAiPanel.tsx` with floating-ui
-- CSS for overlay animations in `themes/`
-
-**Verification**:
-```bash
-# Visual testing with two browser windows
-# Verify overlay appears during AI operations
-# Verify conflict warning displays on selection overlap
-```
-
-### Phase 4: Testing & Observability (Est. 1 session)
+### Phase 5: Testing & Observability (Optional, Est. 1 session)
 
 **Objective**: Add automated tests and structured logging.
 
@@ -264,13 +380,13 @@ bun run lint --filter @beep/todox
 2. Add Effect.log* calls to AI service operations
 3. Add span annotations for performance tracing
 4. Create unit tests for conflict detection logic (useCollaborativeAi)
-5. Measure and document streaming latency baseline
+5. Document P4 performance improvements vs Vercel AI SDK
 
 **Deliverables**:
 - E2E test in `apps/todox/test/e2e/collaborative-ai.spec.ts`
 - Unit tests in `apps/todox/test/plugins/AiAssistantPlugin/`
 - Logging instrumentation in AI service layer
-- Performance baseline documentation in `outputs/`
+- Performance comparison report in `outputs/`
 
 **Verification**:
 ```bash
@@ -283,20 +399,29 @@ bun run e2e --filter @beep/todox
 
 ## Reference Files
 
-### Core Implementation (P1 Targets)
+### Infrastructure Verification (P1 Targets)
 
 | File | Purpose |
 |------|---------|
-| `apps/todox/src/app/api/liveblocks-auth/route.ts` | Auth endpoint - primary P1 target |
-| `apps/todox/src/app/api/liveblocks-auth/_example.ts` | Mock session helper - remove in P1 |
-| `apps/todox/src/app/api/_database.ts` | Mock user database - remove in P1 |
+| `apps/todox/src/app/api/liveblocks-auth/route.ts` | Current auth endpoint with mock data |
 | `apps/todox/liveblocks.config.ts` | Presence types (AiActivityPresence, UserMeta) |
+| `apps/todox/src/app/api/_database.ts` | Mock database baseline |
 
-### AI Infrastructure (P2 Targets)
+### Real Session Integration (P2 Targets)
 
 | File | Purpose |
 |------|---------|
-| `apps/todox/src/actions/ai.ts` | Server action - migrate to Effect AI |
+| `apps/todox/src/app/api/liveblocks-auth/route.ts` | Auth endpoint - wire to better-auth |
+| `apps/todox/src/lib/liveblocks-auth.ts` | NEW - Auth helper with session extraction |
+| `apps/todox/src/app/api/_database.ts` | REMOVE - Mock database |
+
+### AI Streaming & Effect AI (P3-P4 Targets)
+
+| File | Purpose |
+|------|---------|
+| `apps/todox/src/actions/ai.ts` | Server action - migrate to Effect.gen (P4) |
+| `apps/todox/src/services/ai/TextImprovement.ts` | NEW - Effect AI service with LLM Layer (P4) |
+| `apps/todox/src/services/ai/errors.ts` | NEW - S.TaggedError definitions (P4) |
 | `apps/todox/src/actions/liveblocks.ts` | Room management actions |
 | `apps/todox/src/utils/liveblocks.ts` | Server-side Liveblocks utilities |
 
@@ -384,23 +509,24 @@ curl -X POST http://localhost:3000/api/liveblocks-auth
 
 | Factor | Value | Weight | Score | Notes |
 |--------|-------|--------|-------|-------|
-| Phases | 4 | x2 | 8 | P1-P4 clearly defined |
+| Phases | 5 | x2 | 10 | P1-P5 with P5 optional |
 | Agents | 5 | x3 | 15 | codebase-researcher, code-reviewer, test-writer, doc-writer, reflector |
-| Cross-Package | 2 | x4 | 8 | todox app + iam-server |
+| Cross-Package | 2 | x4 | 8 | todox app + iam-server + knowledge-server (reference) |
 | External Dependencies | 3 | x3 | 9 | Liveblocks, OpenAI, better-auth |
-| Uncertainty | 2 | x5 | 10 | Effect AI streaming patterns need research |
-| Research Required | 2 | x2 | 4 | Effect AI docs, better-auth integration |
-| **Total** | | | **54** | HIGH Complexity (41-60) |
+| Uncertainty | 1 | x5 | 5 | Effect AI patterns documented in `@beep/knowledge-server` |
+| Research Required | 1 | x2 | 2 | LLM Layer pattern reference available |
+| **Total** | | | **49** | HIGH Complexity (41-60) |
 
 **Risk Factors**:
-- Effect AI streaming integration may have undocumented edge cases
 - better-auth session extraction in API routes needs verification
 - Real-time conflict detection timing sensitive
+- LLM Layer pattern must match `@beep/knowledge-server` conventions
 
 **Mitigation**:
-- Reference implementation available in `.context/ai-repo/`
+- Reference implementation: `@beep/knowledge-server` for LLM Layer pattern
 - Existing Vercel AI SDK code provides working baseline
 - Phased approach allows early detection of blockers
+- P1 infrastructure verification provides fast feedback loop
 
 ---
 
@@ -419,8 +545,19 @@ curl -X POST http://localhost:3000/api/liveblocks-auth
 ## Getting Started
 
 1. Read current implementation files listed in Reference Files
-2. Review Effect AI patterns in `.context/ai-repo/`
+2. Review Effect AI patterns in `@beep/knowledge-server` for LLM Layer reference
 3. Review better-auth integration in `packages/iam/server/`
 4. Start with Phase 1 handoff:
    - Full context: `handoffs/HANDOFF_P1.md`
    - Quick start prompt: `handoffs/P1_ORCHESTRATOR_PROMPT.md`
+5. Progress through phases:
+   - **P1-P3**: Sequential delivery of infrastructure → streaming verification
+   - **P3.5 (NEW)**: Browser testing & error fixing using MCP tools (fixes Lexical version mismatch)
+   - **P4**: Main implementation using Effect AI patterns from `@beep/knowledge-server`
+   - **P5 (optional)**: Testing and observability enhancements
+6. Handoff files available:
+   - `handoffs/HANDOFF_P2.md` → P2_ORCHESTRATOR_PROMPT.md
+   - `handoffs/HANDOFF_P3.md` → P3_ORCHESTRATOR_PROMPT.md
+   - `handoffs/HANDOFF_P3.5.md` → P3.5_ORCHESTRATOR_PROMPT.md (NEW)
+   - `handoffs/HANDOFF_P4.md` → P4_ORCHESTRATOR_PROMPT.md
+   - `handoffs/HANDOFF_P5.md` → P5_ORCHESTRATOR_PROMPT.md (optional)

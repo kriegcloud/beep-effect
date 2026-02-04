@@ -7,7 +7,14 @@ import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as React from "react";
 import { extractFromText, resolveEntities } from "./actions";
-import { EmailInputPanel, EntityResolutionPanel, GraphRAGQueryPanel, ResultsTabs } from "./components";
+import {
+  DemoCallout,
+  DemoHintIcon,
+  EmailInputPanel,
+  EntityResolutionPanel,
+  GraphRAGQueryPanel,
+  ResultsTabs,
+} from "./components";
 import { EntityDetailDrawer } from "./components/EntityDetailDrawer";
 import { ErrorAlert } from "./components/ErrorAlert";
 import type { AssembledEntity, EvidenceSpan, ExtractionSession, Relation, ResolutionResult } from "./types";
@@ -154,13 +161,18 @@ export default function KnowledgeDemoPage() {
   );
 
   return (
-    <div className="container mx-auto py-8 px-4">
-      <div className="mb-8">
+    <div className="container mx-auto py-4 px-3">
+      <div className="mb-4">
         <h1 className="text-3xl font-bold">Knowledge Graph Demo</h1>
         <p className="text-muted-foreground mt-2">
           Extract entities from email text using the knowledge graph pipeline.
         </p>
       </div>
+
+      <DemoCallout
+        title="Getting Started"
+        message="1. Select a sample email or paste your own text  2. Click Extract to identify entities and relations  3. Run multiple extractions, then Resolve to merge duplicates  4. Use the Query panel to search the knowledge graph"
+      />
 
       {error && (
         <div className="mb-6">
@@ -178,6 +190,10 @@ export default function KnowledgeDemoPage() {
         <Button onClick={handleResolve} disabled={extractionSessions.length < 2 || isResolving} variant="outline">
           {isResolving ? "Resolving..." : "Resolve Entities"}
         </Button>
+        <DemoHintIcon
+          hint="Run 2+ extractions from different emails, then resolve to merge duplicate entities (e.g., same person mentioned in multiple emails)"
+          side="bottom"
+        />
         <Button variant="outline" size="sm" onClick={handleClearAll} disabled={extractionSessions.length === 0}>
           <TrashIcon className="size-4 mr-2" />
           Clear All
@@ -185,13 +201,13 @@ export default function KnowledgeDemoPage() {
       </div>
 
       {resolutionResult && (
-        <div className="mb-8">
+        <div className="mb-4">
           <EntityResolutionPanel result={resolutionResult} />
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div className="flex flex-col gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div className="flex flex-col gap-4">
           <EmailInputPanel onExtract={handleExtract} isLoading={isLoading} />
           <GraphRAGQueryPanel onEntitySelect={setSelectedEntityId} />
         </div>
@@ -204,6 +220,7 @@ export default function KnowledgeDemoPage() {
           highlightedSpans={highlightedSpans}
           activeSpanIndex={activeSpanIndex}
           onEvidenceClick={handleEvidenceClick}
+          isLoading={isLoading}
         />
       </div>
 

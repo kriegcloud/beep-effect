@@ -42,7 +42,7 @@ export function EntityCardList({ entities, onEntityClick, isLoading = false }: E
       <h3 className="text-lg font-medium">Extracted Entities ({A.length(entities)})</h3>
 
       {A.isEmptyReadonlyArray(entities) ? (
-        <EmptyState emoji="&#128203;" title="No entities yet" description="Extract text to discover entities" />
+        <EmptyState emoji="📋" title="No entities yet" description="Extract text to discover entities" />
       ) : (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           {A.map(entities, (entity) => {
