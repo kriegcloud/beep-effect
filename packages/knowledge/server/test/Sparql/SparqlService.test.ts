@@ -2,12 +2,13 @@
  * SparqlService integration tests
  *
  * Tests SPARQL query execution against an in-memory RDF store.
+ * Uses per-test Layer provision for state isolation (RdfStore accumulates data).
  *
  * @module knowledge-server/test/Sparql/SparqlService.test
  * @since 0.1.0
  */
 
-import type * as sparqljs from "sparqljs";
+
 import { SparqlUnsupportedFeatureError } from "@beep/knowledge-domain/errors";
 import { Literal, makeIRI, Quad, type SparqlBinding, SparqlBindings } from "@beep/knowledge-domain/value-objects";
 import { RdfStore } from "@beep/knowledge-server/Rdf";
@@ -17,6 +18,7 @@ import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
+import type * as sparqljs from "sparqljs";
 
 /**
  * Type guards for query types
@@ -108,6 +110,10 @@ const sparqlServiceLayer = Layer.effect(
 /**
  * Test layer that provides SparqlService with fresh RdfStore per test.
  * Each effect() call with Effect.provide(TestLayer) creates a fresh layer instance.
+ *
+ * NOTE: This file uses per-test Layer provision (not shared layer()) because
+ * RdfStore is stateful and tests need isolated state. This is the correct pattern
+ * for tests that mutate shared state.
  */
 const TestLayer = Layer.provideMerge(
   sparqlServiceLayer,
@@ -676,7 +682,7 @@ describe("SparqlService", () => {
         `);
 
         // Result should be array of quads
-        assertTrue(Array.isArray(result));
+        assertTrue(A.isArray(result));
         strictEqual(A.length(result as ReadonlyArray<Quad>), 1);
       }).pipe(Effect.provide(TestLayer))
     );

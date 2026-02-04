@@ -2,13 +2,17 @@
 
 ## Overview
 
-The Effect repository is integrated as a git subtree at `.repos/effect/` to provide AI agents with direct access to Effect source code for pattern discovery and implementation reference.
+Reference repositories are integrated as git subtrees in `.repos/` to provide AI agents with direct access to source code for pattern discovery and implementation reference.
 
-**Location**: `.repos/effect/`
+## Repositories
 
-**Purpose**: Reference source for AI agents to discover Effect patterns, internals, and best practices.
-
-**Contents**: Complete Effect monorepo with all packages (`effect`, `platform`, `schema`, `ai`, etc.)
+| Repository | Location | Remote | Purpose |
+|------------|----------|--------|---------|
+| Effect | `.repos/effect/` | `git@github.com:Effect-TS/effect.git` | Core Effect library, platform, schema, AI packages |
+| effect-ontology | `.repos/effect-ontology/` | `git@github.com:mepuka/effect-ontology.git` | Effect-based ontology/knowledge graph patterns |
+| better-auth | `.repos/better-auth/` | `git@github.com:better-auth/better-auth.git` | Authentication framework reference |
+| drizzle-orm | `.repos/drizzle-orm/` | `git@github.com:drizzle-team/drizzle-orm.git` | ORM patterns and SQL generation |
+| effect-claude-agent-sdk | `.repos/effect-claude-agent-sdk/` | `git@github.com:mepuka/effect-claude-agent-sdk.git` | Effect-based Claude agent SDK |
 
 ## Key Packages
 

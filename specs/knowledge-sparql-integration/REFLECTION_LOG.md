@@ -199,21 +199,119 @@ Each reflection entry should include:
 
 ---
 
-## Phase 2 - SPARQL Service
+## Phase 2 - SPARQL Service Implementation
 
-### Session 1 - [Date]
+### Session 1 - 2026-02-04
 
 **What Worked:**
+- Modular decomposition: FilterEvaluator, QueryExecutor, SparqlService as separate concerns
+- Type guards for sparqljs AST traversal (isVariable, isNamedNode, isSparqlBlankNode, isSparqlLiteral)
+- Solution binding pattern: `SolutionBindings = Record<string, Term>` for variable bindings
+- Nested loop join for pattern matching (acceptable O(n²) for Phase 2)
+- Effect.reduce for chaining pattern execution across BGP triples
+- Custom TestLayer for test isolation (rebuilds service with shared RdfStore)
+- 28 comprehensive tests covering SELECT, CONSTRUCT, ASK, FILTER, OPTIONAL, UNION
 
 **What Didn't Work:**
+- Initial attempt to use SparqlService.Default in tests failed - tests need shared RdfStore for setup/query
+- Direct `bun tsc` check failed due to missing tsconfig context - use Turborepo instead
+- Pre-existing Reasoning test errors (ForwardChainer, RdfsRules) block full `bun run check`
 
 **Learnings:**
+1. **Test Layer Pattern for Shared State**: When tests need to add data to a service's dependency (RdfStore), construct custom TestLayer via `Layer.effect` that yields* both services from same context
+2. **sparqljs Pattern Types**: BGP (`type: "bgp"`) contains `triples` array; Filter (`type: "filter"`) contains `expression`; Optional (`type: "optional"`) contains `patterns`
+3. **Variable Resolution Flow**: Triple pattern variable → QuadPattern undefined (wildcard) → match() returns quads → extract bindings from matched quad positions
+4. **FILTER Evaluation Timing**: Execute filters AFTER OPTIONAL patterns per SPARQL semantics (so `bound()` can check optional variables)
+5. **Term Comparison**: Literals require value + datatype + language comparison; IRIs/BlankNodes use direct equality
+6. **SELECT * Expansion**: Collect all variables from solution bindings after WHERE execution
 
 **Pattern Discoveries:**
+- **test-layer-shared-dependency-pattern**: For service tests needing shared mutable state
+```typescript
+const sparqlServiceLayer = Layer.effect(SparqlService, Effect.gen(function* () {
+  const parser = yield* SparqlParser;
+  const store = yield* RdfStore;
+  return { ... } as SparqlService;
+}));
+const TestLayer = Layer.provideMerge(sparqlServiceLayer, Layer.merge(RdfStore.Default, SparqlParser.Default));
+```
+
+- **sparqljs-term-type-guards**: Exhaustive type guards for sparqljs term hierarchy
+```typescript
+const isVariable = (term: unknown): term is sparqljs.VariableTerm => ...termType === "Variable"
+const isNamedNode = (term: unknown): term is sparqljs.IriTerm => ...termType === "NamedNode"
+```
+
+- **nested-loop-join-pattern**: Join solutions across patterns using Effect.reduce + flatMap
+```typescript
+Effect.reduce(triples, initialSolutions, (solutions, triple) =>
+  Effect.flatMap(
+    Effect.forEach(solutions, (sol) => joinSolutionWithTriple(sol, triple, store)),
+    (nested) => Effect.succeed(A.flatten(nested))
+  )
+);
+```
 
 **Decisions & Rationale:**
 
+1. **Modular executor over monolithic service**
+   - Rationale: FilterEvaluator testable independently; QueryExecutor reusable
+   - Implementation: Three files with clear separation of concerns
+
+2. **Helper module pattern (not Effect.Service) for QueryExecutor/FilterEvaluator**
+   - Rationale: Pure functions operating on RdfStore instance passed as parameter
+   - Alternative: Could be services - rejected as over-engineering for internal helpers
+
+3. **Nested loop join for Phase 2**
+   - Rationale: Simple, correct, adequate for < 100K triples
+   - Migration path: Replace with hash join or merge join in Phase 3 if needed
+
+4. **FILTER short-circuit evaluation**
+   - Rationale: `&&` and `||` operators short-circuit per SPARQL spec
+   - Implementation: Return early on false/true respectively
+
+5. **Unbound variables in FILTER → false**
+   - Rationale: Per SPARQL 1.1 spec, comparisons involving unbound produce false
+   - Alternative: Error mode - rejected as spec-compliant behavior preferred
+
+**Phase 2 Deliverables:**
+| Artifact | Status | Location |
+|----------|--------|----------|
+| FilterEvaluator | ✅ Complete | `server/src/Sparql/FilterEvaluator.ts` |
+| QueryExecutor | ✅ Complete | `server/src/Sparql/QueryExecutor.ts` |
+| SparqlService | ✅ Complete | `server/src/Sparql/SparqlService.ts` |
+| Service tests (28) | ✅ Complete | `server/test/Sparql/SparqlService.test.ts` |
+| Barrel exports | ✅ Complete | `server/src/Sparql/index.ts` |
+
+**Test Summary:**
+- 73 total SPARQL tests (45 parser + 28 service)
+- SELECT: single pattern, joins, FILTER (=, !=, <, >, regex, bound, isIRI, isLiteral, &&, ||)
+- SELECT modifiers: LIMIT, OFFSET, DISTINCT
+- CONSTRUCT: template instantiation
+- ASK: existence check
+- Error handling: syntax errors, unsupported query types
+
+**FILTER Coverage:**
+| Operator | Status | Test |
+|----------|--------|------|
+| = | ✅ | `should filter results with equality` |
+| != | ✅ | `should filter results with inequality` |
+| < > <= >= | ✅ | `should filter results with numeric comparison` |
+| regex | ✅ | `should filter results with regex` |
+| regex (flags) | ✅ | `should filter results with case-insensitive regex` |
+| bound | ✅ | `should handle bound() function` |
+| !bound | ✅ | `should handle !bound() function` |
+| isIRI | ✅ | `should handle isIRI() function` |
+| isLiteral | ✅ | `should handle isLiteral() function` |
+| && | ✅ | `should handle && (logical and)` |
+| \|\| | ✅ | `should handle \|\| (logical or)` |
+
 **Handoff Notes:**
+- SparqlService provides `select()`, `construct()`, `ask()`, and generic `query()` methods
+- QueryExecutor functions are exported for advanced use cases
+- FilterEvaluator supports standard comparison and logical operators
+- OPTIONAL and UNION patterns are supported in WHERE clauses
+- Phase 3 should focus on ResultFormatter for W3C JSON format and integration tests
 
 ---
 

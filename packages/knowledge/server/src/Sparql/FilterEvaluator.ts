@@ -11,6 +11,7 @@ import {SparqlExecutionError} from "@beep/knowledge-domain/errors";
 import {type IRI, isBlankNode, isIRI, Literal, type Term} from "@beep/knowledge-domain/value-objects";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import * as Match from "effect/Match";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
@@ -126,16 +127,32 @@ const resolveTerm = (
   });
 
 /**
+ * XSD string datatype - default for plain literals
+ */
+const XSD_STRING = "http://www.w3.org/2001/XMLSchema#string";
+
+/**
+ * Normalize datatype for comparison
+ * Per RDF/SPARQL semantics, undefined datatype is equivalent to xsd:string
+ */
+const normalizeDatatype = (datatype: string | undefined): string | undefined =>
+  datatype === undefined ? XSD_STRING : datatype;
+
+/**
  * Compare two terms for equality per SPARQL semantics
- * - Literals must match value, datatype, and language
+ * - Literals must match value, datatype (with xsd:string normalization), and language
  * - IRIs must match exactly
  * - BlankNodes must match exactly
  */
 const termsEqual = (a: Term, b: Term): boolean => {
   // Both must be same type
   if (isLiteral(a) && isLiteral(b)) {
-    // Literal comparison: value, datatype, language must all match
-    return a.value === b.value && a.datatype === b.datatype && a.language === b.language;
+    // Literal comparison: value, normalized datatype, language must all match
+    return (
+      a.value === b.value &&
+      normalizeDatatype(a.datatype) === normalizeDatatype(b.datatype) &&
+      a.language === b.language
+    );
   }
 
   if (isIRI(a) && isIRI(b)) {
@@ -408,18 +425,13 @@ const evaluateOperation = (
       }
 
       const cmpVal = cmp.value;
-      switch (operator) {
-        case "<":
-          return cmpVal < 0;
-        case ">":
-          return cmpVal > 0;
-        case "<=":
-          return cmpVal <= 0;
-        case ">=":
-          return cmpVal >= 0;
-        default:
-          return false;
-      }
+      return Match.value(operator).pipe(
+        Match.when("<", () => cmpVal < 0),
+        Match.when(">", () => cmpVal > 0),
+        Match.when("<=", () => cmpVal <= 0),
+        Match.when(">=", () => cmpVal >= 0),
+        Match.orElse(() => false)
+      );
     }
 
     // Unsupported operator

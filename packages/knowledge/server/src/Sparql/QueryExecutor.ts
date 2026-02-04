@@ -347,16 +347,16 @@ const extractPatternsAndFilters = (patterns: ReadonlyArray<sparqljs.Pattern>): E
     (acc, pattern) => {
       if (pattern.type === "bgp") {
         const bgp = pattern as sparqljs.BgpPattern;
-        return { ...acc, triples: [...acc.triples, ...bgp.triples] };
+        return { ...acc, triples: A.appendAll(acc.triples, bgp.triples) };
       }
       if (isFilterExpression(pattern)) {
-        return { ...acc, filters: [...acc.filters, pattern.expression] };
+        return { ...acc, filters: A.append(acc.filters, pattern.expression) };
       }
       if (pattern.type === "optional") {
-        return { ...acc, optionals: [...acc.optionals, pattern as sparqljs.OptionalPattern] };
+        return { ...acc, optionals: A.append(acc.optionals, pattern as sparqljs.OptionalPattern) };
       }
       if (pattern.type === "union") {
-        return { ...acc, unions: [...acc.unions, pattern as sparqljs.UnionPattern] };
+        return { ...acc, unions: A.append(acc.unions, pattern as sparqljs.UnionPattern) };
       }
       return acc;
     }
@@ -467,14 +467,14 @@ const executeWhereClause = (
       solutions = A.isEmptyReadonlyArray(triples) ? unionSolutions : joinBgpAndUnion(solutions, unionSolutions);
     }
 
-    // Apply FILTER expressions
-    if (!A.isEmptyReadonlyArray(filters)) {
-      solutions = yield* Effect.filter(solutions, (solution) => evaluateFilters(filters, solution));
-    }
-
-    // Execute OPTIONAL patterns
+    // Execute OPTIONAL patterns (before filters, per SPARQL semantics)
     if (!A.isEmptyReadonlyArray(optionals)) {
       solutions = yield* executeOptionals(solutions, optionals, store);
+    }
+
+    // Apply FILTER expressions (after optionals so bound() can check optional vars)
+    if (!A.isEmptyReadonlyArray(filters)) {
+      solutions = yield* Effect.filter(solutions, (solution) => evaluateFilters(filters, solution));
     }
 
     return solutions;
@@ -512,12 +512,15 @@ const getTermKey = (term: Term): string => {
  * Create a solution key for deduplication
  */
 const getSolutionKey = (solution: SolutionBindings, variables: ReadonlyArray<string>): string =>
-  A.map(variables, (v) =>
-    O.match(R.get(solution, v), {
-      onNone: () => "null",
-      onSome: (term) => getTermKey(term),
-    })
-  ).join("|");
+  A.join(
+    A.map(variables, (v) =>
+      O.match(R.get(solution, v), {
+        onNone: () => "null",
+        onSome: (term) => getTermKey(term),
+      })
+    ),
+    "|"
+  );
 
 /**
  * Deduplicate solutions by their variable bindings
@@ -534,7 +537,7 @@ const deduplicateSolutions = (
       if (HashSet.has(acc.seen, key)) {
         return acc;
       }
-      return { seen: HashSet.add(acc.seen, key), result: [...acc.result, sol] };
+      return { seen: HashSet.add(acc.seen, key), result: A.append(acc.result, sol) };
     }
   );
   return result;
@@ -676,7 +679,7 @@ const deduplicateQuads = (quads: ReadonlyArray<Quad>): ReadonlyArray<Quad> => {
     if (HashSet.has(acc.seen, key)) {
       return acc;
     }
-    return { seen: HashSet.add(acc.seen, key), result: [...acc.result, quad] };
+    return { seen: HashSet.add(acc.seen, key), result: A.append(acc.result, quad) };
   });
   return result;
 };

@@ -94,26 +94,46 @@ const collectNewInferences = (
 
 /**
  * Apply inferences to state, recording provenance
+ *
+ * Deduplicates within the batch to handle same-iteration duplicates
+ * from different rules generating the same quad.
  */
 const applyInferences = (
   state: ChainState,
   inferences: ReadonlyArray<RuleInference>
-): void => {
-  for (const inference of inferences) {
-    const id = quadId(inference.quad);
-    MutableHashSet.add(state.knownQuadIds, id);
-    state.allQuads.push(inference.quad);
-    state.derivedQuads.push(inference.quad);
+): number => {
+  // Filter to unique inferences not already known, deduplicating within batch
+  const uniqueInferences = pipe(
+    inferences,
+    A.filterMap((inference) => {
+      const id = quadId(inference.quad);
+      if (MutableHashSet.has(state.knownQuadIds, id)) {
+        return O.none();
+      }
+      // Mark as known immediately to dedupe within this batch
+      MutableHashSet.add(state.knownQuadIds, id);
+      return O.some({ inference, id });
+    })
+  );
 
-    MutableHashMap.set(
-      state.provenance,
-      id,
-      new InferenceProvenance({
-        ruleId: inference.ruleId,
-        sourceQuads: inference.sourceQuadIds,
-      })
-    );
-  }
+  // Apply all unique inferences
+  pipe(
+    uniqueInferences,
+    A.forEach(({ inference, id }) => {
+      state.allQuads.push(inference.quad);
+      state.derivedQuads.push(inference.quad);
+      MutableHashMap.set(
+        state.provenance,
+        id,
+        new InferenceProvenance({
+          ruleId: inference.ruleId,
+          sourceQuads: inference.sourceQuadIds,
+        })
+      );
+    })
+  );
+
+  return A.length(uniqueInferences);
 };
 
 /**
@@ -182,21 +202,20 @@ export const forwardChain = (
         break;
       }
 
-      const newCount = A.length(newInferences);
+      // Apply inferences (deduplicates within batch)
+      const addedCount = applyInferences(state, newInferences);
 
-      // Check inference limit before adding new inferences
-      if (totalInferences + newCount > config.maxInferences) {
+      // Check inference limit after adding
+      totalInferences += addedCount;
+      if (totalInferences > config.maxInferences) {
         return yield* Effect.fail(
           new MaxInferencesExceededError({
             message: `Exceeded maximum inferences limit: ${config.maxInferences}`,
             limit: config.maxInferences,
-            inferencesGenerated: totalInferences + newCount,
+            inferencesGenerated: totalInferences,
           })
         );
       }
-
-      applyInferences(state, newInferences);
-      totalInferences += newCount;
     }
 
     // Check if we hit depth limit without reaching fixed-point
