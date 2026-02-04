@@ -35,6 +35,20 @@ const MuiCardContent: Components<Theme>["MuiCardContent"] = {
   },
 };
 
+const MuiCardActions: Components<Theme>["MuiCardActions"] = {
+  // ▼▼▼▼▼▼▼▼ ⚙️ PROPS ▼▼▼▼▼▼▼▼
+  defaultProps: {
+    disableSpacing: true,
+  },
+  // ▼▼▼▼▼▼▼▼ 🎨 STYLE ▼▼▼▼▼▼▼▼
+  styleOverrides: {
+    root: ({ theme }) => ({
+      padding: theme.spacing(2),
+      gap: theme.spacing(1),
+    }),
+  },
+};
+
 /* **********************************************************************
  * 🚀 Export
  * **********************************************************************/
@@ -42,4 +56,5 @@ export const card: Components<Theme> = {
   MuiCard,
   MuiCardHeader,
   MuiCardContent,
+  MuiCardActions,
 };

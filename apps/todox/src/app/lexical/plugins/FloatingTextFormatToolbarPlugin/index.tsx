@@ -1,7 +1,7 @@
 "use client";
 
-import { Toggle } from "@beep/todox/components/ui/toggle";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@beep/todox/components/ui/tooltip";
+import { Toggle } from "@beep/ui/components/toggle";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@beep/ui/components/tooltip";
 import { $isCodeHighlightNode } from "@lexical/code";
 import { $isLinkNode, TOGGLE_LINK_COMMAND } from "@lexical/link";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";

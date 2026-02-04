@@ -1,7 +1,7 @@
 "use client";
 
-import { Button } from "@beep/todox/components/ui/button";
-import { Popover, PopoverContent, PopoverTrigger } from "@beep/todox/components/ui/popover";
+import { Button } from "@beep/ui/components/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@beep/ui/components/popover";
 import { cn } from "@beep/todox/lib/utils";
 import { CaretDownIcon } from "@phosphor-icons/react";
 import type { ReactNode } from "react";

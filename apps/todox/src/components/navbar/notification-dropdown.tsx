@@ -6,7 +6,7 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@beep/todox/components/ui/dropdown-menu";
+} from "@beep/ui/components/dropdown-menu";
 import { thunk } from "@beep/utils";
 import { BellIcon, CheckIcon, EnvelopeIcon, UserPlusIcon, WarningIcon } from "@phosphor-icons/react";
 import * as A from "effect/Array";

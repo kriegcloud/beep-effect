@@ -1,8 +1,8 @@
 "use client";
 
-import { Button } from "@beep/todox/components/ui/button";
-import { Label } from "@beep/todox/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@beep/todox/components/ui/select";
+import { Button } from "@beep/ui/components/button";
+import { Label } from "@beep/ui/components/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@beep/ui/components/select";
 import type { LexicalEditor } from "lexical";
 import type { JSX } from "react";
 import { useId, useState } from "react";

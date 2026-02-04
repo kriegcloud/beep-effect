@@ -1,9 +1,9 @@
 "use client";
 
-import { Button } from "@beep/todox/components/ui/button";
-import { Input } from "@beep/todox/components/ui/input";
-import { Label } from "@beep/todox/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@beep/todox/components/ui/tabs";
+import { Button } from "@beep/ui/components/button";
+import { Input } from "@beep/ui/components/input";
+import { Label } from "@beep/ui/components/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@beep/ui/components/tabs";
 import { $isAutoLinkNode, $isLinkNode, type LinkNode, TOGGLE_LINK_COMMAND } from "@lexical/link";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { $findMatchingParent, $wrapNodeInElement, mergeRegister } from "@lexical/utils";

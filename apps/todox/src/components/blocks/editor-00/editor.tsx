@@ -1,7 +1,7 @@
 "use client";
 
 import { editorTheme } from "@beep/todox/components/editor/themes/editor-theme";
-import { TooltipProvider } from "@beep/todox/components/ui/tooltip";
+import { TooltipProvider } from "@beep/ui/components/tooltip";
 import { type InitialConfigType, LexicalComposer } from "@lexical/react/LexicalComposer";
 import { OnChangePlugin } from "@lexical/react/LexicalOnChangePlugin";
 import type { EditorState, SerializedEditorState } from "lexical";

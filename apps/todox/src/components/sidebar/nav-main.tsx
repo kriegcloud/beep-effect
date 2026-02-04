@@ -1,6 +1,6 @@
 "use client";
 
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@beep/todox/components/ui/collapsible";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@beep/ui/components/collapsible";
 import {
   SidebarGroup,
   SidebarGroupLabel,
@@ -10,7 +10,7 @@ import {
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
-} from "@beep/todox/components/ui/sidebar";
+} from "@beep/ui/components/sidebar";
 import type { Icon } from "@phosphor-icons/react";
 import { CaretRightIcon } from "@phosphor-icons/react";
 import * as A from "effect/Array";

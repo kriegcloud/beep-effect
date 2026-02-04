@@ -1,6 +1,6 @@
 "use client";
 
-import { Alert, AlertDescription, AlertTitle } from "@beep/todox/components/ui/alert";
+import { Alert, AlertDescription, AlertTitle } from "@beep/ui/components/alert";
 import { LightbulbIcon } from "@phosphor-icons/react";
 
 interface DemoCalloutProps {

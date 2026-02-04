@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@beep/todox/components/ui/button";
+import { Button } from "@beep/ui/components/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,8 +10,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuShortcut,
   DropdownMenuTrigger,
-} from "@beep/todox/components/ui/dropdown-menu";
-import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@beep/todox/components/ui/sidebar";
+} from "@beep/ui/components/dropdown-menu";
+import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@beep/ui/components/sidebar";
 import type { Icon } from "@phosphor-icons/react";
 import { CaretUpDownIcon, CheckIcon, PlusIcon } from "@phosphor-icons/react";
 import * as A from "effect/Array";

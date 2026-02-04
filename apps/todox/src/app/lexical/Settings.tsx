@@ -1,7 +1,7 @@
 "use client";
 
-import { Label } from "@beep/todox/components/ui/label";
-import { Switch } from "@beep/todox/components/ui/switch";
+import { Label } from "@beep/ui/components/label";
+import { Switch } from "@beep/ui/components/switch";
 import { CAN_USE_BEFORE_INPUT } from "@lexical/utils";
 import type { JSX } from "react";
 import { useEffect, useId, useMemo, useState } from "react";

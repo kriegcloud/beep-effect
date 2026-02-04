@@ -1,10 +1,10 @@
 "use client";
 
-import { Badge } from "@beep/todox/components/ui/badge";
-import { Button } from "@beep/todox/components/ui/button";
-import { ScrollArea } from "@beep/todox/components/ui/scroll-area";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@beep/todox/components/ui/sheet";
-import { Table, TableBody, TableCell, TableRow } from "@beep/todox/components/ui/table";
+import { Badge } from "@beep/ui/components/badge";
+import { Button } from "@beep/ui/components/button";
+import { ScrollArea } from "@beep/ui/components/scroll-area";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@beep/ui/components/sheet";
+import { Table, TableBody, TableCell, TableRow } from "@beep/ui/components/table";
 import { ArrowSquareOutIcon } from "@phosphor-icons/react";
 import * as A from "effect/Array";
 import * as F from "effect/Function";

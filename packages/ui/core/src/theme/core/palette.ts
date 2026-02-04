@@ -38,6 +38,8 @@ export type CommonColorsExtend = {
 // Extended text colors
 export type TypeTextExtend = {
   disabledChannel: string;
+  icon: string;      // Icon default color state
+  tertiary: string;  // Third-level text hierarchy
 };
 
 // Extended background colors
@@ -187,16 +189,26 @@ const vibrantDark = {
  * ➤
  */
 export const text = {
-  light: createPaletteChannel({
-    primary: grey[800],
-    secondary: grey[600],
-    disabled: grey[500],
-  }),
-  dark: createPaletteChannel({
-    primary: "#FFFFFF",
-    secondary: grey[500],
-    disabled: grey[600],
-  }),
+  light: {
+    ...createPaletteChannel({
+      primary: grey[800],
+      secondary: grey[600],
+      disabled: grey[500],
+    }),
+    // Non-hex values added after channelization
+    icon: rgbaFromChannel(common.blackChannel, 0.4),        // Icon default state
+    tertiary: rgbaFromChannel(common.blackChannel, 0.54),   // Third-level text hierarchy
+  },
+  dark: {
+    ...createPaletteChannel({
+      primary: "#FFFFFF",
+      secondary: grey[500],
+      disabled: grey[600],
+    }),
+    // Non-hex values added after channelization
+    icon: rgbaFromChannel(common.whiteChannel, 0.54),       // Icon default state (dark)
+    tertiary: rgbaFromChannel(common.whiteChannel, 0.6),    // Third-level text hierarchy (dark)
+  },
 };
 
 export const basic = {

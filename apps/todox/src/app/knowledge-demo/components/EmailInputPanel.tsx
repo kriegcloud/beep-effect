@@ -1,10 +1,10 @@
 "use client";
 
-import { Button } from "@beep/todox/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@beep/todox/components/ui/card";
-import { Label } from "@beep/todox/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@beep/todox/components/ui/select";
-import { Textarea } from "@beep/todox/components/ui/textarea";
+import { Button } from "@beep/ui/components/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@beep/ui/components/card";
+import { Label } from "@beep/ui/components/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@beep/ui/components/select";
+import { Textarea } from "@beep/ui/components/textarea";
 import * as React from "react";
 import { SAMPLE_EMAILS, type SampleEmail } from "../data/sample-emails";
 import { DemoHintIcon } from "./DemoHint";

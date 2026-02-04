@@ -1,11 +1,11 @@
 "use client";
 
-import { Button } from "@beep/todox/components/ui/button";
-import { Calendar } from "@beep/todox/components/ui/calendar";
-import { Checkbox } from "@beep/todox/components/ui/checkbox";
-import { Input } from "@beep/todox/components/ui/input";
-import { Label } from "@beep/todox/components/ui/label";
-import { Popover, PopoverContent, PopoverTrigger } from "@beep/todox/components/ui/popover";
+import { Button } from "@beep/ui/components/button";
+import { Calendar } from "@beep/ui/components/calendar";
+import { Checkbox } from "@beep/ui/components/checkbox";
+import { Input } from "@beep/ui/components/input";
+import { Label } from "@beep/ui/components/label";
+import { Popover, PopoverContent, PopoverTrigger } from "@beep/ui/components/popover";
 import { cn } from "@beep/todox/lib/utils";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { useLexicalNodeSelection } from "@lexical/react/useLexicalNodeSelection";

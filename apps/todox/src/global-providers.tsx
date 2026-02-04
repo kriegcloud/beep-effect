@@ -3,7 +3,6 @@
 import { BeepProvider } from "@beep/runtime-client";
 import RecaptchaV3Atom from "@beep/shared-client/services/react-recaptcha-v3/recaptcha-v3-atom";
 import type { AppConfig } from "@beep/todox/app-config";
-import { themeOverrides } from "@beep/todox/theme";
 import { MotionLazy } from "@beep/ui/animate/motion-lazy";
 import { I18nProvider } from "@beep/ui/i18n/i18n.provider";
 import { LocalizationProvider } from "@beep/ui/i18n/localization.provider";
@@ -37,11 +36,7 @@ export function GlobalProviders({ children, appConfig }: GlobalProviders) {
         <SettingsProvider cookieSettings={appConfig.cookieSettings} defaultSettings={defaultSettings}>
           <LocalizationProvider>
             <AppRouterCacheProvider options={{ enableCssLayer: true }}>
-              <ThemeProvider
-                themeOverrides={themeOverrides}
-                modeStorageKey={themeConfig.modeStorageKey}
-                defaultMode={themeConfig.defaultMode}
-              >
+              <ThemeProvider modeStorageKey={themeConfig.modeStorageKey} defaultMode={themeConfig.defaultMode}>
                 <RecaptchaV3Atom>
                   <BreakpointsProvider>
                     <ConfirmProvider>

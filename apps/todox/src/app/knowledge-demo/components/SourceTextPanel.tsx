@@ -1,7 +1,7 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@beep/todox/components/ui/card";
-import { ScrollArea } from "@beep/todox/components/ui/scroll-area";
+import { Card, CardContent, CardHeader, CardTitle } from "@beep/ui/components/card";
+import { ScrollArea } from "@beep/ui/components/scroll-area";
 import { cn } from "@beep/todox/lib/utils";
 import * as A from "effect/Array";
 import * as F from "effect/Function";

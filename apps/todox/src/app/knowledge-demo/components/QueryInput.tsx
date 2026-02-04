@@ -1,7 +1,7 @@
 "use client";
 
-import { Button } from "@beep/todox/components/ui/button";
-import { Input } from "@beep/todox/components/ui/input";
+import { Button } from "@beep/ui/components/button";
+import { Input } from "@beep/ui/components/input";
 import { CircleNotchIcon, MagnifyingGlassIcon } from "@phosphor-icons/react";
 
 interface QueryInputProps {

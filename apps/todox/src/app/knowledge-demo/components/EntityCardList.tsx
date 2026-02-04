@@ -1,7 +1,7 @@
 "use client";
 
-import { Badge } from "@beep/todox/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@beep/todox/components/ui/card";
+import { Badge } from "@beep/ui/components/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@beep/ui/components/card";
 import * as A from "effect/Array";
 import * as F from "effect/Function";
 import * as O from "effect/Option";

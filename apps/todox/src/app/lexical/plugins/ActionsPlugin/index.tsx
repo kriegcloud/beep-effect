@@ -13,10 +13,10 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@beep/todox/components/ui/alert-dialog";
-import { Button } from "@beep/todox/components/ui/button";
-import { Toggle } from "@beep/todox/components/ui/toggle";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@beep/todox/components/ui/tooltip";
+} from "@beep/ui/components/alert-dialog";
+import { Button } from "@beep/ui/components/button";
+import { Toggle } from "@beep/ui/components/toggle";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@beep/ui/components/tooltip";
 import { cn } from "@beep/todox/lib/utils";
 import { withToast } from "@beep/ui/common";
 import * as FetchHttpClient from "@effect/platform/FetchHttpClient";

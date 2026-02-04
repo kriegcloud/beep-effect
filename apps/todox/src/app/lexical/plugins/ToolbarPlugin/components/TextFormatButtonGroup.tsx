@@ -1,7 +1,7 @@
 "use client";
 
-import { ToggleGroup, ToggleGroupItem } from "@beep/todox/components/ui/toggle-group";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@beep/todox/components/ui/tooltip";
+import { ToggleGroup, ToggleGroupItem } from "@beep/ui/components/toggle-group";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@beep/ui/components/tooltip";
 import { CodeIcon, TextBIcon, TextItalicIcon, TextUnderlineIcon } from "@phosphor-icons/react";
 import * as A from "effect/Array";
 import { FORMAT_TEXT_COMMAND, type LexicalEditor } from "lexical";

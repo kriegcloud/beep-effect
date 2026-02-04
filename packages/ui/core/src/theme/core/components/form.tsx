@@ -1,5 +1,6 @@
 import { formLabelClasses } from "@mui/material/FormLabel";
 import { inputLabelClasses } from "@mui/material/InputLabel";
+import { switchClasses } from "@mui/material/Switch";
 import type { Components, Theme } from "@mui/material/styles";
 
 import { getInputTypography } from "./text-field";
@@ -73,6 +74,13 @@ const MuiFormLabel: Components<Theme>["MuiFormLabel"] = {
 const MuiFormControlLabel: Components<Theme>["MuiFormControlLabel"] = {
   // ▼▼▼▼▼▼▼▼ 🎨 STYLE ▼▼▼▼▼▼▼▼
   styleOverrides: {
+    root: ({ theme }) => ({
+      gap: "var(--form-control-label-gap)",
+      [`&:has(.${switchClasses.root})`]: {
+        "--form-control-label-gap": theme.spacing(1),
+        margin: 0,
+      },
+    }),
     label: ({ theme }) => ({
       ...theme.typography.body2,
     }),

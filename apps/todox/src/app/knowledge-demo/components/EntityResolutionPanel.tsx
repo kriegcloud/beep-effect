@@ -1,7 +1,7 @@
 "use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@beep/todox/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@beep/todox/components/ui/tabs";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@beep/ui/components/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@beep/ui/components/tabs";
 import * as A from "effect/Array";
 import { useMemo } from "react";
 import type { AssembledEntity, ResolutionResult } from "../types";

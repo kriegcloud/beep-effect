@@ -1,7 +1,7 @@
 "use client";
 
-import { Button } from "@beep/todox/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@beep/todox/components/ui/dialog";
+import { Button } from "@beep/ui/components/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@beep/ui/components/dialog";
 import { cn } from "@beep/todox/lib/utils";
 import { useCollaborationContext } from "@lexical/react/LexicalCollaborationContext";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";

@@ -1,10 +1,10 @@
 "use client";
 
-import { Button } from "@beep/todox/components/ui/button";
-import { Checkbox } from "@beep/todox/components/ui/checkbox";
-import { Input } from "@beep/todox/components/ui/input";
-import { Label } from "@beep/todox/components/ui/label";
-import { Textarea } from "@beep/todox/components/ui/textarea";
+import { Button } from "@beep/ui/components/button";
+import { Checkbox } from "@beep/ui/components/checkbox";
+import { Input } from "@beep/ui/components/input";
+import { Label } from "@beep/ui/components/label";
+import { Textarea } from "@beep/ui/components/textarea";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import type { JSX } from "react";
 import { useCallback, useId, useState } from "react";

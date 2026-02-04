@@ -65,6 +65,16 @@ const MuiDialogActions: Components<Theme>["MuiDialogActions"] = {
   },
 };
 
+const MuiDialogContentText: Components<Theme>["MuiDialogContentText"] = {
+  // ▼▼▼▼▼▼▼▼ 🎨 STYLE ▼▼▼▼▼▼▼▼
+  styleOverrides: {
+    root: ({ theme }) => ({
+      color: theme.vars.palette.text.secondary,
+      marginBottom: 0,
+    }),
+  },
+};
+
 /* **********************************************************************
  * 🚀 Export
  * **********************************************************************/
@@ -73,4 +83,5 @@ export const dialog: Components<Theme> = {
   MuiDialogTitle,
   MuiDialogContent,
   MuiDialogActions,
+  MuiDialogContentText,
 };

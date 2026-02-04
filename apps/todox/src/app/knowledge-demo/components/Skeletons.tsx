@@ -1,7 +1,7 @@
 "use client";
 
-import { Card, CardContent, CardHeader } from "@beep/todox/components/ui/card";
-import { Skeleton } from "@beep/todox/components/ui/skeleton";
+import { Card, CardContent, CardHeader } from "@beep/ui/components/card";
+import { Skeleton } from "@beep/ui/components/skeleton";
 import * as A from "effect/Array";
 
 interface EntityCardSkeletonProps {

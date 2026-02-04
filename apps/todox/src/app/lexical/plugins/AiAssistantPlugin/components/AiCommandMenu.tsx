@@ -7,7 +7,7 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from "@beep/todox/components/ui/command";
+} from "@beep/ui/components/command";
 import * as Str from "effect/String";
 import { type KeyboardEvent, useCallback, useState } from "react";
 import { type AiPromptTemplate, PREDEFINED_PROMPTS } from "../prompts";

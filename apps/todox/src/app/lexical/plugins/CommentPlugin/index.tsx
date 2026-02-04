@@ -10,9 +10,9 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@beep/todox/components/ui/alert-dialog";
-import { Button } from "@beep/todox/components/ui/button";
-import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from "@beep/todox/components/ui/drawer";
+} from "@beep/ui/components/alert-dialog";
+import { Button } from "@beep/ui/components/button";
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from "@beep/ui/components/drawer";
 import {
   $createMarkNode,
   $getMarkIDs,

@@ -14,11 +14,11 @@
   "menuColor": "default",
   "menuAccent": "subtle",
   "aliases": {
-    "components": "@beep/todox/components",
-    "utils": "@beep/todox/lib/utils",
-    "ui": "@beep/todox/components/ui",
-    "lib": "@beep/todox/lib",
-    "hooks": "@beep/todox/hooks"
+    "utils": "@beep/ui-core/utils",
+    "components": "@beep/ui/components",
+    "hooks": "@beep/ui/hooks",
+    "lib": "@beep/ui/lib",
+    "ui": "@beep/ui/components"
   },
   "registries": {
     "@mui-treasury": "https://mui-treasury.com/r/{name}.json",

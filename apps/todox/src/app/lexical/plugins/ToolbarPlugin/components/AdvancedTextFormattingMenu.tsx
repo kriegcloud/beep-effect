@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@beep/todox/components/ui/button";
+import { Button } from "@beep/ui/components/button";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -9,8 +9,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuShortcut,
   DropdownMenuTrigger,
-} from "@beep/todox/components/ui/dropdown-menu";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@beep/todox/components/ui/tooltip";
+} from "@beep/ui/components/dropdown-menu";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@beep/ui/components/tooltip";
 import { cn } from "@beep/todox/lib/utils";
 import {
   DotsThreeIcon,

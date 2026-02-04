@@ -1,8 +1,8 @@
 "use client";
 
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@beep/todox/components/ui/accordion";
-import { Badge } from "@beep/todox/components/ui/badge";
-import { Card, CardContent } from "@beep/todox/components/ui/card";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@beep/ui/components/accordion";
+import { Badge } from "@beep/ui/components/badge";
+import { Card, CardContent } from "@beep/ui/components/card";
 import * as A from "effect/Array";
 import * as F from "effect/Function";
 import * as O from "effect/Option";

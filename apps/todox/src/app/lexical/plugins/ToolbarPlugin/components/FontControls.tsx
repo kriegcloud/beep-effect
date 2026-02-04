@@ -1,7 +1,7 @@
 "use client";
 
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@beep/todox/components/ui/select";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@beep/todox/components/ui/tooltip";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@beep/ui/components/select";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@beep/ui/components/tooltip";
 import { $patchStyleText } from "@lexical/selection";
 import { $addUpdateTag, $getSelection, type LexicalEditor, SKIP_SELECTION_FOCUS_TAG } from "lexical";
 import type { JSX } from "react";

@@ -1,12 +1,12 @@
 "use client";
 
-import { Badge } from "@beep/todox/components/ui/badge";
-import { Button } from "@beep/todox/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@beep/todox/components/ui/card";
-import { ScrollArea } from "@beep/todox/components/ui/scroll-area";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@beep/todox/components/ui/table";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@beep/todox/components/ui/tabs";
-import { Textarea } from "@beep/todox/components/ui/textarea";
+import { Badge } from "@beep/ui/components/badge";
+import { Button } from "@beep/ui/components/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@beep/ui/components/card";
+import { ScrollArea } from "@beep/ui/components/scroll-area";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@beep/ui/components/table";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@beep/ui/components/tabs";
+import { Textarea } from "@beep/ui/components/textarea";
 import { CheckIcon, CopyIcon } from "@phosphor-icons/react";
 import * as A from "effect/Array";
 import * as F from "effect/Function";

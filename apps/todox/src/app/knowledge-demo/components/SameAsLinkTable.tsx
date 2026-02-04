@@ -1,7 +1,7 @@
 "use client";
 
-import { Badge } from "@beep/todox/components/ui/badge";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@beep/todox/components/ui/table";
+import { Badge } from "@beep/ui/components/badge";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@beep/ui/components/table";
 import * as A from "effect/Array";
 import * as F from "effect/Function";
 import * as O from "effect/Option";

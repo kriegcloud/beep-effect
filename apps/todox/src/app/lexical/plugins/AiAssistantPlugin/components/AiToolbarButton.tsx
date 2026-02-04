@@ -1,14 +1,14 @@
 "use client";
 
-import { Button } from "@beep/todox/components/ui/button";
+import { Button } from "@beep/ui/components/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@beep/todox/components/ui/dropdown-menu";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@beep/todox/components/ui/tooltip";
+} from "@beep/ui/components/dropdown-menu";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@beep/ui/components/tooltip";
 import { cn } from "@beep/todox/lib/utils";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { CaretDownIcon, CircleNotchIcon, SparkleIcon } from "@phosphor-icons/react";

@@ -1,6 +1,6 @@
 "use client";
 
-import { Tooltip, TooltipContent, TooltipTrigger } from "@beep/todox/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@beep/ui/components/tooltip";
 import { HighlighterCircleIcon, TextAaIcon } from "@phosphor-icons/react";
 import { useToolbarState } from "../../../context/toolbar-context";
 import DropdownColorPicker from "../../../ui/DropdownColorPicker";

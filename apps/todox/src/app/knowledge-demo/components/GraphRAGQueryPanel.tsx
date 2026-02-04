@@ -1,6 +1,6 @@
 "use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@beep/todox/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@beep/ui/components/card";
 import * as React from "react";
 import { queryGraphRAG } from "../actions";
 import type { GraphRAGResult } from "../types";

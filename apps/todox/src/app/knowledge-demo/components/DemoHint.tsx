@@ -1,6 +1,6 @@
 "use client";
 
-import { Tooltip, TooltipContent, TooltipTrigger } from "@beep/todox/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@beep/ui/components/tooltip";
 import { InfoIcon } from "@phosphor-icons/react";
 import type * as React from "react";
 

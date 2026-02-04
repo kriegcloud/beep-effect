@@ -1,7 +1,7 @@
 "use client";
 
-import { Input } from "@beep/todox/components/ui/input";
-import { Label } from "@beep/todox/components/ui/label";
+import { Input } from "@beep/ui/components/input";
+import { Label } from "@beep/ui/components/label";
 import { cn } from "@beep/todox/lib/utils";
 import { calculateZoomLevel } from "@lexical/utils";
 import * as A from "effect/Array";

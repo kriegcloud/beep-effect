@@ -6,14 +6,14 @@ import { TopNavbar } from "@beep/todox/components/navbar";
 import { PlaceholderView } from "@beep/todox/components/placeholder-view";
 import { SidePanel, SidePanelProvider, useSidePanel } from "@beep/todox/components/side-panel";
 import { MainContentPanelSidebar } from "@beep/todox/components/sidebar";
-import { SidebarInset, SidebarProvider, SidebarTrigger } from "@beep/todox/components/ui/sidebar";
-import { ToggleGroup, ToggleGroupItem } from "@beep/todox/components/ui/toggle-group";
 import { MailCompose } from "@beep/todox/features/mail/mail-compose";
 import { MailDetails } from "@beep/todox/features/mail/mail-details";
 import { MailList } from "@beep/todox/features/mail/mail-list";
 import { MailProvider, useMail } from "@beep/todox/features/mail/provider";
 import { cn } from "@beep/todox/lib/utils";
 import { AuthGuard } from "@beep/todox/providers/AuthGuard";
+import { SidebarInset, SidebarProvider, SidebarTrigger } from "@beep/ui/components/sidebar";
+import { ToggleGroup, ToggleGroupItem } from "@beep/ui/components/toggle-group";
 import { useAuthAdapterProvider } from "@beep/ui/providers";
 import Stack from "@mui/material/Stack";
 import {

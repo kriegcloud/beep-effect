@@ -1,6 +1,6 @@
 "use client";
 
-import { Sidebar, SidebarContent, SidebarFooter, SidebarRail } from "@beep/todox/components/ui/sidebar";
+import { Sidebar, SidebarContent, SidebarFooter, SidebarRail } from "@beep/ui/components/sidebar";
 import { MailNav } from "@beep/todox/features/mail/mail-nav";
 import { useMail } from "@beep/todox/features/mail/provider";
 import type * as React from "react";

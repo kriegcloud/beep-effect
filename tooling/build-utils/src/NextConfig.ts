@@ -345,6 +345,7 @@ const withDefaultsImpl = Effect.fn("withDefaults")(function* (packageName: `@bee
       )
     ),
     outputFileTracingRoot: pipe(config?.outputFileTracingRoot, O.fromNullable, O.getOrElse(constant(repoRoot))),
+    logging: { fetches: { fullUrl: true } },
     experimental: O.fromNullable(config?.experimental).pipe((opt) => {
       const optimizePackageImports = pipe(
         [
@@ -361,11 +362,9 @@ const withDefaultsImpl = Effect.fn("withDefaults")(function* (packageName: `@bee
             optimizePackageImports,
             mcpServer: true,
             turbopackFileSystemCacheForDev: true,
-            logging: { browserToTerminal: true },
           }),
           onSome: ({ optimizePackageImports: _, ...experimental }) => ({
             ...experimental,
-            logging: { browserToTerminal: true },
             turbotrace: {
               contextDirectory: __dirname,
               loadersToBundle: ["babel-loader"],

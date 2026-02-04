@@ -1,12 +1,12 @@
 "use client";
 
-import { Button } from "@beep/todox/components/ui/button";
+import { Button } from "@beep/ui/components/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@beep/todox/components/ui/dropdown-menu";
+} from "@beep/ui/components/dropdown-menu";
 import { cn } from "@beep/todox/lib/utils";
 import { autoUpdate, offset, shift, useFloating, type VirtualElement } from "@floating-ui/react";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";

@@ -1,8 +1,8 @@
 "use client";
 
-import { Label } from "@beep/todox/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@beep/todox/components/ui/select";
-import { Slider } from "@beep/todox/components/ui/slider";
+import { Label } from "@beep/ui/components/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@beep/ui/components/select";
+import { Slider } from "@beep/ui/components/slider";
 import * as A from "effect/Array";
 import { pipe } from "effect/Function";
 import * as O from "effect/Option";

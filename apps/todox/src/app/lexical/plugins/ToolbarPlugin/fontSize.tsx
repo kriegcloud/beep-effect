@@ -1,6 +1,6 @@
 "use client";
 
-import { Tooltip, TooltipContent, TooltipTrigger } from "@beep/todox/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@beep/ui/components/tooltip";
 import { cn } from "@beep/todox/lib/utils";
 import { MinusIcon, PlusIcon } from "@phosphor-icons/react";
 import * as F from "effect/Function";

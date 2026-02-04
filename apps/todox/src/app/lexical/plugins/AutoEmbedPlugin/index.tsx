@@ -1,8 +1,8 @@
 "use client";
 
 import { $TodoxId } from "@beep/identity/packages";
-import { Button } from "@beep/todox/components/ui/button";
-import { Input } from "@beep/todox/components/ui/input";
+import { Button } from "@beep/ui/components/button";
+import { Input } from "@beep/ui/components/input";
 import { thunkNull } from "@beep/utils";
 import {
   AutoEmbedOption,

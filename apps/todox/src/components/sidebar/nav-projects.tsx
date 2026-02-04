@@ -6,7 +6,7 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@beep/todox/components/ui/dropdown-menu";
+} from "@beep/ui/components/dropdown-menu";
 import {
   SidebarGroup,
   SidebarGroupLabel,
@@ -15,7 +15,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
-} from "@beep/todox/components/ui/sidebar";
+} from "@beep/ui/components/sidebar";
 import type { Icon } from "@phosphor-icons/react";
 import { DotsThreeIcon, FolderIcon, ShareIcon, TrashIcon } from "@phosphor-icons/react";
 import * as A from "effect/Array";

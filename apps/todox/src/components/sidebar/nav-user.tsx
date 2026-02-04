@@ -2,7 +2,7 @@
 
 import { Core } from "@beep/iam-client";
 import { paths } from "@beep/shared-domain";
-import { Avatar, AvatarFallback, AvatarImage } from "@beep/todox/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@beep/ui/components/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,9 +11,9 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@beep/todox/components/ui/dropdown-menu";
-import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@beep/todox/components/ui/sidebar";
-import { ToggleGroup, ToggleGroupItem } from "@beep/todox/components/ui/toggle-group";
+} from "@beep/ui/components/dropdown-menu";
+import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@beep/ui/components/sidebar";
+import { ToggleGroup, ToggleGroupItem } from "@beep/ui/components/toggle-group";
 import {
   BellIcon,
   CaretUpDownIcon,

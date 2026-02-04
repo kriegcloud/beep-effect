@@ -1,6 +1,6 @@
 "use client";
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@beep/todox/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@beep/ui/components/dialog";
 import type { JSX } from "react";
 import { useCallback, useMemo, useState } from "react";
 

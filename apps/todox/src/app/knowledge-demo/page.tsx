@@ -1,7 +1,7 @@
 "use client";
 
-import { Badge } from "@beep/todox/components/ui/badge";
-import { Button } from "@beep/todox/components/ui/button";
+import { Badge } from "@beep/ui/components/badge";
+import { Button } from "@beep/ui/components/button";
 import { TrashIcon } from "@phosphor-icons/react";
 import * as A from "effect/Array";
 import * as O from "effect/Option";

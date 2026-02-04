@@ -1,7 +1,7 @@
 "use client";
 
-import { Alert, AlertAction, AlertDescription, AlertTitle } from "@beep/todox/components/ui/alert";
-import { Button } from "@beep/todox/components/ui/button";
+import { Alert, AlertAction, AlertDescription, AlertTitle } from "@beep/ui/components/alert";
+import { Button } from "@beep/ui/components/button";
 import { AlertCircle, RefreshCw, X } from "lucide-react";
 
 export interface ErrorAlertProps {

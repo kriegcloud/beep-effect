@@ -1,7 +1,7 @@
 "use client";
 
 import { Core } from "@beep/iam-client";
-import { Avatar, AvatarFallback, AvatarImage } from "@beep/todox/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@beep/ui/components/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,8 +10,8 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@beep/todox/components/ui/dropdown-menu";
-import { ToggleGroup, ToggleGroupItem } from "@beep/todox/components/ui/toggle-group";
+} from "@beep/ui/components/dropdown-menu";
+import { ToggleGroup, ToggleGroupItem } from "@beep/ui/components/toggle-group";
 import {
   BellIcon,
   CreditCardIcon,

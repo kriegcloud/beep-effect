@@ -3,8 +3,8 @@
 import { MiniSidebarTrigger } from "@beep/todox/components/mini-sidebar";
 import { TeamSwitcherCompact } from "@beep/todox/components/sidebar";
 import { type Org, OrgSwitcherCompact } from "@beep/todox/components/sidebar/org-switcher";
-import { Avatar, AvatarFallback, AvatarImage } from "@beep/todox/components/ui/avatar";
-import { Button } from "@beep/todox/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@beep/ui/components/avatar";
+import { Button } from "@beep/ui/components/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,7 +14,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuShortcut,
   DropdownMenuTrigger,
-} from "@beep/todox/components/ui/dropdown-menu";
+} from "@beep/ui/components/dropdown-menu";
 import type { Icon } from "@phosphor-icons/react";
 import {
   BuildingsIcon,

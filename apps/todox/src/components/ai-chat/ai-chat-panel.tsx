@@ -2,8 +2,8 @@
 
 import { MiniSidebarPanel } from "@beep/todox/components/mini-sidebar";
 import { useSidePanel } from "@beep/todox/components/side-panel";
-import { Button } from "@beep/todox/components/ui/button";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@beep/todox/components/ui/tooltip";
+import { Button } from "@beep/ui/components/button";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@beep/ui/components/tooltip";
 import { cn } from "@beep/todox/lib/utils";
 import {
   ArrowLineLeftIcon,

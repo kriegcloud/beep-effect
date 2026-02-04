@@ -10,7 +10,7 @@ import {
   CommandList,
   CommandSeparator,
   CommandShortcut,
-} from "@beep/todox/components/ui/command";
+} from "@beep/ui/components/command";
 import {
   CalendarIcon,
   FileIcon,

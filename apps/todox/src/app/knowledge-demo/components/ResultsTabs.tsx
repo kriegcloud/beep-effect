@@ -1,6 +1,6 @@
 "use client";
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@beep/todox/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@beep/ui/components/tabs";
 import * as A from "effect/Array";
 import type { AssembledEntity, EvidenceSpan, Relation } from "../types";
 import { EntityCardList } from "./EntityCardList";
