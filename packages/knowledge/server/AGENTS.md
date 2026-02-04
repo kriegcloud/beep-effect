@@ -113,11 +113,14 @@ const result = yield* model.generateObject({
 ### Schema Patterns
 
 ```typescript
-// REQUIRED - Use BS.toOptionalWithDefault for defaults
-topK: BS.toOptionalWithDefault(S.Number.pipe(S.greaterThan(0)))(10)
+// REQUIRED - Use S.optionalWith for fields with defaults
+topK: S.optionalWith(S.Number.pipe(S.greaterThan(0)), { default: () => 10 })
 
-// NEVER - Use S.optional with default argument (invalid)
-// topK: S.optional(S.Number, { default: () => 10 })  // WRONG!
+// For booleans with defaults, use the BS helper
+enabled: BS.BoolWithDefault(false)
+
+// NEVER - Use deprecated BS.toOptionalWithDefault
+// topK: BS.toOptionalWithDefault(S.Number)(10)  // WRONG! Deprecated
 ```
 
 ### Sorting with Effect
@@ -261,7 +264,7 @@ bun run test --filter @beep/knowledge-server
 
 - [ ] LLM calls use `LanguageModel.LanguageModel` from `@effect/ai`
 - [ ] Prompts use `Prompt.make()` with `as const` for role literals
-- [ ] Schema defaults use `BS.toOptionalWithDefault(schema)(value)`
+- [ ] Schema defaults use `S.optionalWith(schema, { default: () => value })` or `BS.BoolWithDefault(value)` for booleans
 - [ ] Sorting uses `Order.mapInput` not compare objects
 - [ ] SQL arrays use `sql.in()` not string interpolation
 - [ ] Tests use `@beep/testkit` with `effect()` wrapper

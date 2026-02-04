@@ -92,8 +92,5 @@ type Works = IncludesWithoutIf<HundredZeroes, '1'>;
 @category Type Guard
 @category Utilities
 */
-export type If<Type extends boolean, IfBranch, ElseBranch> = IsNever<Type> extends true
-  ? ElseBranch
-  : Type extends true
-    ? IfBranch
-    : ElseBranch;
+export type If<Type extends boolean, IfBranch, ElseBranch> =
+  IsNever<Type> extends true ? ElseBranch : Type extends true ? IfBranch : ElseBranch;

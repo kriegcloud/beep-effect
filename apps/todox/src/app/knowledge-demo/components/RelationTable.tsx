@@ -1,36 +1,25 @@
 "use client";
 
-import * as React from "react";
-import * as A from "effect/Array";
-import * as O from "effect/Option";
-import * as F from "effect/Function";
-import * as Str from "effect/String";
 import { Badge } from "@beep/todox/components/ui/badge";
 import { Button } from "@beep/todox/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@beep/todox/components/ui/select";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@beep/todox/components/ui/table";
-import { ChevronDown, ChevronRight } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@beep/todox/components/ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@beep/todox/components/ui/table";
+import { CaretDownIcon, CaretRightIcon } from "@phosphor-icons/react";
+import * as A from "effect/Array";
+import * as F from "effect/Function";
+import * as O from "effect/Option";
+import * as Str from "effect/String";
+import * as React from "react";
 import type { AssembledEntity, EvidenceSpan, Relation } from "../types";
+import { RelationTableSkeleton } from "./Skeletons";
 
 interface RelationTableProps {
   relations: readonly Relation[];
   entities: readonly AssembledEntity[];
-  onRelationSelect?: (relationId: string) => void;
-  onEvidenceClick?: (span: EvidenceSpan) => void;
-  selectedRelationId?: string;
+  onRelationSelect?: undefined | ((relationId: string) => void);
+  onEvidenceClick?: undefined | ((span: EvidenceSpan) => void);
+  selectedRelationId?: undefined | string;
+  isLoading?: undefined | boolean;
 }
 
 const ALL_PREDICATES = "__all__";
@@ -56,9 +45,14 @@ export function RelationTable({
   onRelationSelect,
   onEvidenceClick,
   selectedRelationId,
+  isLoading = false,
 }: RelationTableProps) {
   const [predicateFilter, setPredicateFilter] = React.useState<string>(ALL_PREDICATES);
   const [expandedRelationId, setExpandedRelationId] = React.useState<string | null>(null);
+
+  if (isLoading) {
+    return <RelationTableSkeleton rows={5} />;
+  }
 
   const getEntityName = React.useCallback(
     (entityId: string) =>
@@ -83,9 +77,7 @@ export function RelationTable({
 
   const filteredRelations = React.useMemo(
     () =>
-      predicateFilter === ALL_PREDICATES
-        ? relations
-        : A.filter(relations, (r) => r.predicate === predicateFilter),
+      predicateFilter === ALL_PREDICATES ? relations : A.filter(relations, (r) => r.predicate === predicateFilter),
     [relations, predicateFilter]
   );
 
@@ -107,7 +99,7 @@ export function RelationTable({
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold">Relations ({A.length(filteredRelations)})</h3>
+        <h3 className="text-lg font-medium">Relations ({A.length(filteredRelations)})</h3>
         <div className="flex items-center gap-2">
           <span className="text-muted-foreground text-sm">Filter by predicate:</span>
           <Select value={predicateFilter} onValueChange={handlePredicateFilterChange}>
@@ -148,7 +140,7 @@ export function RelationTable({
               const confidence = relation.groundingConfidence ?? 0;
               const objectDisplay = relation.objectId
                 ? getEntityName(relation.objectId)
-                : relation.literalValue ?? "-";
+                : (relation.literalValue ?? "-");
 
               const rows: React.ReactNode[] = [
                 <TableRow
@@ -159,9 +151,9 @@ export function RelationTable({
                   <TableCell>
                     {relation.evidence ? (
                       isExpanded ? (
-                        <ChevronDown className="text-muted-foreground size-4" />
+                        <CaretDownIcon className="text-muted-foreground size-4" />
                       ) : (
-                        <ChevronRight className="text-muted-foreground size-4" />
+                        <CaretRightIcon className="text-muted-foreground size-4" />
                       )
                     ) : null}
                   </TableCell>
@@ -169,9 +161,7 @@ export function RelationTable({
                   <TableCell className="text-muted-foreground">{getPredicateName(relation.predicate)}</TableCell>
                   <TableCell>{objectDisplay}</TableCell>
                   <TableCell>
-                    <Badge variant={getConfidenceBadgeVariant(confidence)}>
-                      {Math.round(confidence * 100)}%
-                    </Badge>
+                    <Badge variant={getConfidenceBadgeVariant(confidence)}>{Math.round(confidence * 100)}%</Badge>
                   </TableCell>
                 </TableRow>,
               ];

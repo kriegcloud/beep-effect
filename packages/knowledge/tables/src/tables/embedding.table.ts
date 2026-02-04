@@ -50,9 +50,7 @@ export const embedding = OrgTable.make(KnowledgeEntityIds.EmbeddingId)(
   },
   (t) => [
     // Organization ID index for RLS filtering
-    pg
-      .index("embedding_organization_id_idx")
-      .on(t.organizationId),
+    pg.index("embedding_organization_id_idx").on(t.organizationId),
     // Unique per (ontology, type, id) - enables upsert
     // pg.uniqueIndex("idx_embeddings_ontology_entity_unique").on(
     //   table.ontologyId,

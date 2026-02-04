@@ -46,12 +46,9 @@ export default async function RootLayout({
         <head>
           {isDev && (
             <>
+              <Script src="https://unpkg.com/react-grab@0.1.1/dist/index.global.js" strategy="beforeInteractive" />
               <Script
-                src="https://unpkg.com/react-grab@0.1.0-beta.12/dist/index.global.js"
-                strategy="beforeInteractive"
-              />
-              <Script
-                src="https://unpkg.com/@react-grab/claude-code@0.1.0-beta.12/dist/client.global.js"
+                src="https://unpkg.com/@react-grab/claude-code@0.1.1/dist/client.global.js"
                 strategy="afterInteractive"
               />
             </>

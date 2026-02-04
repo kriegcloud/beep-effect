@@ -119,11 +119,12 @@ export type UnionMax<N extends number> =
 /**
 The actual implementation of `UnionMax`. It's private because it has some arguments that don't need to be exposed.
 */
-type InternalUnionMax<N extends number, T extends UnknownArray = []> = IsNever<N> extends true
-  ? T["length"]
-  : T["length"] extends N
-    ? InternalUnionMax<Exclude<N, T["length"]>, T>
-    : InternalUnionMax<N, [...T, unknown]>;
+type InternalUnionMax<N extends number, T extends UnknownArray = []> =
+  IsNever<N> extends true
+    ? T["length"]
+    : T["length"] extends N
+      ? InternalUnionMax<Exclude<N, T["length"]>, T>
+      : InternalUnionMax<N, [...T, unknown]>;
 
 /**
 Returns the number with reversed sign.

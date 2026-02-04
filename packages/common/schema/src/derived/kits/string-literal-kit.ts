@@ -110,19 +110,20 @@ type TaggedMembersResult<Literals extends LiteralsType, D extends string> = {
  * @since 0.1.0
  * @category Derived/Kits
  */
-export type StructComposer<Literals extends LiteralsType, D extends string, Defaults extends S.Struct.Fields = {}> = /**
- * Call with default fields to create a new composer with those defaults baked in.
- */
-(<const DefaultFields extends S.Struct.Fields>(
-  defaultFields: DefaultFields
-) => StructComposer<Literals, D, Defaults & DefaultFields>) & {
+export type StructComposer<Literals extends LiteralsType, D extends string, Defaults extends S.Struct.Fields = {}> =
   /**
-   * Method accessors for each literal - merges defaults with new fields.
+   * Call with default fields to create a new composer with those defaults baked in.
    */
-  readonly [K in Literals[number]]: <Fields extends S.Struct.Fields>(
-    fields: Fields
-  ) => DiscriminatedStruct.Schema<D, K, Defaults & Fields>;
-};
+  (<const DefaultFields extends S.Struct.Fields>(
+    defaultFields: DefaultFields
+  ) => StructComposer<Literals, D, Defaults & DefaultFields>) & {
+    /**
+     * Method accessors for each literal - merges defaults with new fields.
+     */
+    readonly [K in Literals[number]]: <Fields extends S.Struct.Fields>(
+      fields: Fields
+    ) => DiscriminatedStruct.Schema<D, K, Defaults & Fields>;
+  };
 
 /**
  * Creates a callable struct composer with support for default fields.

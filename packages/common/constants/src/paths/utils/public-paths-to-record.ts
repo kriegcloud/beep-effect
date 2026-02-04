@@ -150,14 +150,12 @@ export function buildPathTuples<const A extends readonly [string, ...string[]]>(
  * Folder names are object keys; file leaves are camelized base names.
  * Leaves can be exact literal strings or widened to `string` based on the `Widen` flag.
  */
-type ObjFromPath<P extends string, Widen extends boolean> = SplitPath<StripLeadingSlash<P>> extends [
-  ...infer Dirs extends string[],
-  infer File extends string,
-]
-  ? Dirs extends []
-    ? { [K in FileKey<File>]: Widen extends true ? string : P } // root file
-    : BuildNest<Dirs, File, P, Widen>
-  : never;
+type ObjFromPath<P extends string, Widen extends boolean> =
+  SplitPath<StripLeadingSlash<P>> extends [...infer Dirs extends string[], infer File extends string]
+    ? Dirs extends []
+      ? { [K in FileKey<File>]: Widen extends true ? string : P } // root file
+      : BuildNest<Dirs, File, P, Widen>
+    : never;
 
 /** Recursively build `{ dir: ... }` … `{ fileKey: value }` for the final leaf. */
 type BuildNest<
@@ -170,11 +168,10 @@ type BuildNest<
   : { [K in FileKey<File>]: Widen extends true ? string : P };
 
 /** Merge all per-path objects into one tree, keeping literal keys. */
-export type PathObjectFrom<Paths extends readonly string[], Widen extends boolean> = UnionToIntersection<
-  ObjFromPath<Paths[number] & string, Widen>
-> extends infer I
-  ? { readonly [K in keyof I]: I[K] }
-  : never;
+export type PathObjectFrom<Paths extends readonly string[], Widen extends boolean> =
+  UnionToIntersection<ObjFromPath<Paths[number] & string, Widen>> extends infer I
+    ? { readonly [K in keyof I]: I[K] }
+    : never;
 
 /** Options controlling the leaf value types for the accessor object. */
 export type BuildOptions = {

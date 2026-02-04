@@ -89,29 +89,17 @@ export const propertyDefinition = OrgTable.make(KnowledgeEntityIds.PropertyDefin
   },
   (t) => [
     // Organization ID index for RLS filtering
-    pg
-      .index("property_definition_organization_id_idx")
-      .on(t.organizationId),
+    pg.index("property_definition_organization_id_idx").on(t.organizationId),
     // Ontology ID index for filtering by ontology
-    pg
-      .index("property_definition_ontology_id_idx")
-      .on(t.ontologyId),
+    pg.index("property_definition_ontology_id_idx").on(t.ontologyId),
     // IRI index for lookups
-    pg
-      .index("property_definition_iri_idx")
-      .on(t.iri),
+    pg.index("property_definition_iri_idx").on(t.iri),
     // Label index for text search
-    pg
-      .index("property_definition_label_idx")
-      .on(t.label),
+    pg.index("property_definition_label_idx").on(t.label),
     // Range type index for filtering
-    pg
-      .index("property_definition_range_type_idx")
-      .on(t.rangeType),
+    pg.index("property_definition_range_type_idx").on(t.rangeType),
     // Unique constraint on IRI per ontology
-    pg
-      .uniqueIndex("property_definition_ontology_iri_idx")
-      .on(t.ontologyId, t.iri),
+    pg.uniqueIndex("property_definition_ontology_iri_idx").on(t.ontologyId, t.iri),
     // FK with short custom name to avoid PostgreSQL 63-char limit
     foreignKey({
       name: "prop_def_ontology_fk",

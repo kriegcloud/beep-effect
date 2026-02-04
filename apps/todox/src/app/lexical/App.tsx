@@ -13,7 +13,7 @@ import { FlashMessageContext } from "./context/FlashMessageContext";
 import { LiveblocksProvider } from "./context/LiveblocksProvider";
 import { SettingsContext, useSettings } from "./context/SettingsContext";
 import { SharedHistoryContext } from "./context/SharedHistoryContext";
-import { ToolbarContext } from "./context/toolbar-context";
+import { ToolbarContextWrapper } from "./context/toolbar-context";
 import Editor from "./Editor";
 import PlaygroundNodes from "./nodes/PlaygroundNodes";
 import DocsPlugin from "./plugins/DocsPlugin";
@@ -127,7 +127,7 @@ function App(): JSX.Element {
       <LexicalExtensionComposer extension={app} contentEditable={null}>
         <SharedHistoryContext>
           <TableContext>
-            <ToolbarContext>
+            <ToolbarContextWrapper>
               <AiContextProvider>
                 {/* LiveblocksProvider enables presence for AI collaboration awareness */}
                 <LiveblocksProvider isCollab={isCollab} roomId={LIVEBLOCKS_ROOM_ID}>
@@ -142,7 +142,7 @@ function App(): JSX.Element {
                   {measureTypingPerf ? <TypingPerfPlugin /> : null}
                 </LiveblocksProvider>
               </AiContextProvider>
-            </ToolbarContext>
+            </ToolbarContextWrapper>
           </TableContext>
         </SharedHistoryContext>
       </LexicalExtensionComposer>

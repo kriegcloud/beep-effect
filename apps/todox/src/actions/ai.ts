@@ -1,33 +1,43 @@
 "use server";
 
-import { openai } from "@ai-sdk/openai";
-import { createStreamableValue } from "@ai-sdk/rsc";
-import { streamText } from "ai";
+import * as Effect from "effect/Effect";
+import { pipe } from "effect/Function";
+import * as Layer from "effect/Layer";
+import * as Str from "effect/String";
+import { type AiErrorCode, LlmLive, TextImprovementService } from "../services/ai";
 
-export async function improveText(selectedText: string, instruction: string) {
-  const systemPrompt = `You are a professional writing assistant. Your task is to improve or transform the given text according to the user's instruction.
+export interface AiError {
+  readonly code: AiErrorCode;
+  readonly message: string;
+}
 
-IMPORTANT:
-- Return ONLY the improved/transformed text
-- Do NOT include explanations, comments, or meta-text
-- Do NOT wrap the text in quotes or code blocks
-- Preserve the original formatting style unless the instruction specifically asks to change it`;
+export type AiResult =
+  | { readonly success: true; readonly text: string }
+  | { readonly success: false; readonly error: AiError };
 
-  const userPrompt = `Here is the text to improve:
-"""
-${selectedText}
-"""
+const TextImprovementLive = TextImprovementService.Default.pipe(Layer.provide(LlmLive));
 
-Instruction: ${instruction}`;
+export async function improveText(selectedText: string, instruction: string): Promise<AiResult> {
+  const program = Effect.gen(function* () {
+    const service = yield* TextImprovementService;
+    const text = yield* service.improveText(selectedText, instruction);
+    return { success: true, text } as const;
+  }).pipe(
+    Effect.tapError((error) =>
+      Effect.logError("AI text improvement failed", {
+        code: error.code,
+        selectedTextPreview: pipe(selectedText, Str.slice(0, 50)),
+        instruction,
+      })
+    ),
+    Effect.catchTag("TextImprovementError", (error) =>
+      Effect.succeed({
+        success: false,
+        error: { code: error.code, message: error.message },
+      } as const)
+    ),
+    Effect.provide(TextImprovementLive)
+  );
 
-  const result = streamText({
-    model: openai("gpt-4-turbo"),
-    system: systemPrompt,
-    prompt: userPrompt,
-    temperature: 0.7,
-  });
-
-  const stream = createStreamableValue(result.textStream);
-
-  return stream.value;
+  return Effect.runPromise(program);
 }

@@ -161,10 +161,8 @@ export const fromIterable = <A>(collection: Iterable<A>): A.NonEmptyReadonlyArra
 };
 
 export namespace NonEmptyReadonlyArray {
-  export type With<
-    S extends Iterable<UnsafeTypes.UnsafeAny>,
-    A,
-  > = S extends A.NonEmptyReadonlyArray<UnsafeTypes.UnsafeAny> ? A.NonEmptyReadonlyArray<A> : never;
+  export type With<S extends Iterable<UnsafeTypes.UnsafeAny>, A> =
+    S extends A.NonEmptyReadonlyArray<UnsafeTypes.UnsafeAny> ? A.NonEmptyReadonlyArray<A> : never;
 }
 type MapNonEmpty = {
   <const S extends ReadonlyArray<UnsafeTypes.UnsafeAny>, const B>(

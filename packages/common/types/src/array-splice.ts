@@ -83,8 +83,9 @@ export type ArraySplice<
   Start extends number,
   DeleteCount extends number,
   Items extends UnknownArray = [],
-> = SplitArrayByIndex<T, Start> extends [infer U extends UnknownArray, infer V extends UnknownArray]
-  ? SplitArrayByIndex<V, DeleteCount> extends [infer _Deleted extends UnknownArray, infer X extends UnknownArray]
-    ? [...U, ...Items, ...X]
-    : never // Should never happen
-  : never; // Should never happen
+> =
+  SplitArrayByIndex<T, Start> extends [infer U extends UnknownArray, infer V extends UnknownArray]
+    ? SplitArrayByIndex<V, DeleteCount> extends [infer _Deleted extends UnknownArray, infer X extends UnknownArray]
+      ? [...U, ...Items, ...X]
+      : never // Should never happen
+    : never; // Should never happen

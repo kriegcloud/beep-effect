@@ -15,8 +15,6 @@ export const twoFactor = OrgTable.make(IamEntityIds.TwoFactorId)(
   },
   (t) => [
     // Organization ID index for RLS filtering
-    pg
-      .index("two_factor_organization_id_idx")
-      .on(t.organizationId),
+    pg.index("two_factor_organization_id_idx").on(t.organizationId),
   ]
 );

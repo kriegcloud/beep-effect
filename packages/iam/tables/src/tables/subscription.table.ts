@@ -15,8 +15,6 @@ export const subscription = OrgTable.make(IamEntityIds.SubscriptionId)(
   },
   (t) => [
     // Organization ID index for RLS filtering
-    pg
-      .index("subscription_organization_id_idx")
-      .on(t.organizationId),
+    pg.index("subscription_organization_id_idx").on(t.organizationId),
   ]
 );

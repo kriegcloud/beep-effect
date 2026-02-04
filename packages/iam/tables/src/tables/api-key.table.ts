@@ -32,9 +32,7 @@ export const apiKey = OrgTable.make(IamEntityIds.ApiKeyId)(
   },
   (t) => [
     // Organization ID index for RLS filtering
-    pg
-      .index("api_key_organization_id_idx")
-      .on(t.organizationId),
+    pg.index("api_key_organization_id_idx").on(t.organizationId),
 
     // Count constraints
     pg.check("apikey_request_count_non_negative_check", d.sql`${t.requestCount} IS NULL OR ${t.requestCount} >= 0`),

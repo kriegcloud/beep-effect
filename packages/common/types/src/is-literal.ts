@@ -22,15 +22,16 @@ type C = LiteralCheck<1, string>;
 //=> false
 ```
 */
-type LiteralCheck<T, LiteralType extends Primitive> = IsNever<T> extends false // Must be wider than `never`
-  ? [T] extends [LiteralType & infer U] // Remove any branding
-    ? [U] extends [LiteralType] // Must be narrower than `LiteralType`
-      ? [LiteralType] extends [U] // Cannot be wider than `LiteralType`
-        ? false
-        : true
+type LiteralCheck<T, LiteralType extends Primitive> =
+  IsNever<T> extends false // Must be wider than `never`
+    ? [T] extends [LiteralType & infer U] // Remove any branding
+      ? [U] extends [LiteralType] // Must be narrower than `LiteralType`
+        ? [LiteralType] extends [U] // Cannot be wider than `LiteralType`
+          ? false
+          : true
+        : false
       : false
-    : false
-  : false;
+    : false;
 
 /**
 Returns a boolean for whether the given type `T` is one of the specified literal types in `LiteralUnionType`.

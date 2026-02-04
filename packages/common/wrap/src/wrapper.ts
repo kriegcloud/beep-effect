@@ -352,29 +352,19 @@ export type MiddlewareClient<R> =
  * @since 0.1.0
  * @category models
  */
-export type AddError<R extends Any, Error extends S.Schema.All> = R extends Wrapper<
-  infer _Tag,
-  infer _Payload,
-  infer _Success,
-  infer _Error,
-  infer _Middleware
->
-  ? Wrapper<_Tag, _Payload, _Success, _Error | Error, _Middleware>
-  : never;
+export type AddError<R extends Any, Error extends S.Schema.All> =
+  R extends Wrapper<infer _Tag, infer _Payload, infer _Success, infer _Error, infer _Middleware>
+    ? Wrapper<_Tag, _Payload, _Success, _Error | Error, _Middleware>
+    : never;
 
 /**
  * @since 0.1.0
  * @category models
  */
-export type AddMiddleware<R extends Any, Middleware extends WrapperMiddleware.TagClassAny> = R extends Wrapper<
-  infer _Tag,
-  infer _Payload,
-  infer _Success,
-  infer _Error,
-  infer _Middleware
->
-  ? Wrapper<_Tag, _Payload, _Success, _Error, _Middleware | Middleware>
-  : never;
+export type AddMiddleware<R extends Any, Middleware extends WrapperMiddleware.TagClassAny> =
+  R extends Wrapper<infer _Tag, infer _Payload, infer _Success, infer _Error, infer _Middleware>
+    ? Wrapper<_Tag, _Payload, _Success, _Error, _Middleware | Middleware>
+    : never;
 
 /**
  * @since 0.1.0
@@ -400,47 +390,30 @@ export type ToHandlerFn<Current extends Any, R = UnsafeTypes.UnsafeAny> = (
  * @since 0.1.0
  * @category models
  */
-export type IsStream<R extends Any, Tag extends string> = R extends Wrapper<
-  Tag,
-  infer _Payload,
-  WrapperSchema.Stream<infer _A, infer _E>,
-  infer _Error,
-  infer _Middleware
->
-  ? true
-  : never;
+export type IsStream<R extends Any, Tag extends string> =
+  R extends Wrapper<Tag, infer _Payload, WrapperSchema.Stream<infer _A, infer _E>, infer _Error, infer _Middleware>
+    ? true
+    : never;
 
 /**
  * @since 0.1.0
  * @category models
  */
-export type ExtractTag<R extends Any, Tag extends string> = R extends Wrapper<
-  Tag,
-  infer _Payload,
-  infer _Success,
-  infer _Error,
-  infer _Middleware
->
-  ? R
-  : never;
+export type ExtractTag<R extends Any, Tag extends string> =
+  R extends Wrapper<Tag, infer _Payload, infer _Success, infer _Error, infer _Middleware> ? R : never;
 
 /**
  * @since 0.1.0
  * @category models
  */
-export type ExtractProvides<R extends Any, Tag extends string> = R extends Wrapper<
-  Tag,
-  infer _Payload,
-  infer _Success,
-  infer _Error,
-  infer _Middleware
->
-  ? _Middleware extends {
-      readonly provides: Context_.Tag<infer _I, infer _S>;
-    }
-    ? _I
-    : never
-  : never;
+export type ExtractProvides<R extends Any, Tag extends string> =
+  R extends Wrapper<Tag, infer _Payload, infer _Success, infer _Error, infer _Middleware>
+    ? _Middleware extends {
+        readonly provides: Context_.Tag<infer _I, infer _S>;
+      }
+      ? _I
+      : never
+    : never;
 
 /**
  * @since 0.1.0
@@ -458,37 +431,27 @@ export interface From<S extends AnyTaggedRequestSchema> extends Wrapper<S["_tag"
  * @since 0.1.0
  * @category models
  */
-export type ResultFrom<R extends Any, Context> = R extends Wrapper<
-  infer _Tag,
-  infer _Payload,
-  infer _Success,
-  infer _Error,
-  infer _Middleware
->
-  ? [_Success] extends [WrapperSchema.Stream<infer _SA, infer _SE>]
-    ?
-        | Stream<_SA["Type"], _SE["Type"] | _Error["Type"], Context>
-        | Effect<
-            ReadonlyMailbox<_SA["Type"], _SE["Type"] | _Error["Type"]>,
-            _SE["Type"] | S.Schema.Type<_Error>,
-            Context
-          >
-    : Effect<_Success["Type"], _Error["Type"], Context>
-  : never;
+export type ResultFrom<R extends Any, Context> =
+  R extends Wrapper<infer _Tag, infer _Payload, infer _Success, infer _Error, infer _Middleware>
+    ? [_Success] extends [WrapperSchema.Stream<infer _SA, infer _SE>]
+      ?
+          | Stream<_SA["Type"], _SE["Type"] | _Error["Type"], Context>
+          | Effect<
+              ReadonlyMailbox<_SA["Type"], _SE["Type"] | _Error["Type"]>,
+              _SE["Type"] | S.Schema.Type<_Error>,
+              Context
+            >
+      : Effect<_Success["Type"], _Error["Type"], Context>
+    : never;
 
 /**
  * @since 0.1.0
  * @category models
  */
-export type Prefixed<Wrappers extends Any, Prefix extends string> = Wrappers extends Wrapper<
-  infer _Tag,
-  infer _Payload,
-  infer _Success,
-  infer _Error,
-  infer _Middleware
->
-  ? Wrapper<`${Prefix}${_Tag}`, _Payload, _Success, _Error, _Middleware>
-  : never;
+export type Prefixed<Wrappers extends Any, Prefix extends string> =
+  Wrappers extends Wrapper<infer _Tag, infer _Payload, infer _Success, infer _Error, infer _Middleware>
+    ? Wrapper<`${Prefix}${_Tag}`, _Payload, _Success, _Error, _Middleware>
+    : never;
 
 const Proto = {
   [TypeId]: TypeId,

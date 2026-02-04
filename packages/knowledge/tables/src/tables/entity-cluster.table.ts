@@ -46,17 +46,11 @@ export const entityCluster = OrgTable.make(KnowledgeEntityIds.EntityClusterId)(
   },
   (t) => [
     // Index for looking up clusters by canonical entity
-    pg
-      .index("entity_cluster_canonical_idx")
-      .on(t.canonicalEntityId),
+    pg.index("entity_cluster_canonical_idx").on(t.canonicalEntityId),
     // Organization ID index for RLS filtering
-    pg
-      .index("entity_cluster_org_idx")
-      .on(t.organizationId),
+    pg.index("entity_cluster_org_idx").on(t.organizationId),
     // Ontology index for filtering
-    pg
-      .index("entity_cluster_ontology_idx")
-      .on(t.ontologyId),
+    pg.index("entity_cluster_ontology_idx").on(t.ontologyId),
     // FK with short custom name to avoid PostgreSQL 63-char limit
     foreignKey({
       name: "entity_cluster_canonical_fk",

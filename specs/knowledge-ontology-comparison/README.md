@@ -15,6 +15,59 @@ This specification provides a comprehensive analysis comparing the reference imp
 
 ---
 
+## Complexity Classification
+
+Using the formula from `specs/_guide/README.md`:
+
+```
+Complexity = (Phases × 2) + (Agents × 3) + (CrossPkg × 4) + (ExtDeps × 3) + (Uncertainty × 5) + (Research × 2)
+```
+
+| Factor | Value | Contribution |
+|--------|-------|--------------|
+| Phases | 1 | 2 |
+| Agents | 2 | 6 |
+| Cross-Package Dependencies | 0 | 0 |
+| External Dependencies | 0 | 0 |
+| Uncertainty | 1 | 5 |
+| Research Required | 1 | 2 |
+| **Total** | | **15** |
+
+**Classification: Simple** (≤20 points)
+
+This is a single-phase research spec with no code changes. The primary uncertainty is the thoroughness of gap identification.
+
+---
+
+## Orchestration Strategy
+
+This spec follows the orchestrator-delegate pattern where the orchestrator NEVER performs >3 file operations directly.
+
+### Agent Assignments
+
+| Task | Delegated Agent | Rationale |
+|------|-----------------|-----------|
+| effect-ontology capability inventory | `Explore` agent | 60+ service files require thorough exploration |
+| knowledge-slice audit | `Explore` agent | Multi-package traversal (domain, tables, server, client, ui) |
+| Comparison matrix creation | `general-purpose` agent | Aggregates findings into structured format |
+| Gap analysis and prioritization | `general-purpose` agent | Applies P0-P3 criteria to gaps |
+| Roadmap creation | `general-purpose` agent | Synthesizes gaps into phased plan |
+| Context document writing | `general-purpose` agent | Creates implementation-ready context |
+
+### Delegation Rules Applied
+
+1. **Research tasks** → `Explore` agent (handles multi-file discovery)
+2. **Aggregation tasks** → `general-purpose` agent (combines findings)
+3. **Writing tasks** → `general-purpose` agent (produces deliverables)
+
+### Context Budget Management
+
+- Each agent receives focused prompt scoped to specific capability area
+- Findings passed between agents via `<contextualization>` blocks
+- Handoff files maintain ≤4,000 tokens for session resumption
+
+---
+
 ## Background
 
 ### Reference Implementation: tmp/effect-ontology

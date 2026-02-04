@@ -1,0 +1,10 @@
+# Placeholder for spec outputs
+
+This directory will contain:
+- PACKAGE_ALLOCATION.md
+- RPC_PATTERNS.md
+- LAYER_BOUNDARIES.md
+- ENTITYID_AUDIT.md
+- ERROR_SCHEMAS.md
+- VALUE_OBJECTS.md
+- ADR.md

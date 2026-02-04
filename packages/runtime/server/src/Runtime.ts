@@ -1,8 +1,22 @@
+import { serverEnv } from "@beep/shared-env/ServerEnv";
+import * as FetchHttpClient from "@effect/platform/FetchHttpClient";
 import * as Effect from "effect/Effect";
+import * as Layer from "effect/Layer";
+import * as EffectLogger from "effect/Logger";
 import * as ManagedRuntime from "effect/ManagedRuntime";
 import * as Authentication from "./Authentication.layer";
+import * as Persistence from "./Persistence.layer";
+import * as Tooling from "./Tooling.layer";
 
-export const serverRuntime = ManagedRuntime.make(Authentication.layer);
+export const serverRuntimeLayer = Layer.mergeAll(
+  Authentication.layer,
+  FetchHttpClient.layer,
+  EffectLogger.minimumLogLevel(serverEnv.app.logLevel),
+  Persistence.layer,
+  Tooling.layer
+);
+
+export const serverRuntime = ManagedRuntime.make(serverRuntimeLayer);
 
 export type ServerRuntimeEnv = ManagedRuntime.ManagedRuntime.Context<typeof serverRuntime>;
 

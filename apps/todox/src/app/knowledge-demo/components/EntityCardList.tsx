@@ -8,10 +8,13 @@ import * as O from "effect/Option";
 import * as Str from "effect/String";
 import * as Struct from "effect/Struct";
 import type { AssembledEntity } from "../types";
+import { EmptyState } from "./EmptyState";
+import { EntityCardListSkeleton } from "./Skeletons";
 
 interface EntityCardListProps {
   readonly entities: readonly AssembledEntity[];
   readonly onEntityClick?: (entityId: string) => void;
+  readonly isLoading?: boolean;
 }
 
 function getSimpleType(typeUri: string): string {
@@ -29,15 +32,17 @@ function getTypeBadgeVariant(type: string): "default" | "secondary" | "outline" 
   return "outline";
 }
 
-export function EntityCardList({ entities, onEntityClick }: EntityCardListProps) {
+export function EntityCardList({ entities, onEntityClick, isLoading = false }: EntityCardListProps) {
+  if (isLoading) {
+    return <EntityCardListSkeleton count={6} />;
+  }
+
   return (
     <div className="space-y-4">
-      <h3 className="text-lg font-semibold">Extracted Entities ({A.length(entities)})</h3>
+      <h3 className="text-lg font-medium">Extracted Entities ({A.length(entities)})</h3>
 
       {A.isEmptyReadonlyArray(entities) ? (
-        <p className="text-muted-foreground py-8 text-center">
-          No entities extracted yet. Select an email and click "Extract Entities".
-        </p>
+        <EmptyState emoji="📋" title="No entities yet" description="Extract text to discover entities" />
       ) : (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           {A.map(entities, (entity) => {

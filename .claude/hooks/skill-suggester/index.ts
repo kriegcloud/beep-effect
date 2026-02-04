@@ -1,15 +1,20 @@
 #!/usr/bin/env bun
 /**
- * UserPromptSubmit Hook - System Reminder
+ * UserPromptSubmit Hook - Lightweight Context Hints
  *
- * Provides contextual reminders on each prompt:
- * - Always: Relevant skills based on prompt keywords
- * - Probabilistic: Concurrency tips, available commands
+ * Provides minimal, non-redundant context on each prompt:
+ * - hook_state: Timing info for debugging
+ * - skills: Matched skills based on prompt keywords (when found)
+ * - relevant-modules: Module search results (when found)
+ * - available-scripts: Mise tasks (when script execution detected)
+ * - version: Current package version
  *
- * Uses HTML-like syntax for all context enhancements.
+ * NOTE: Rule reminders (critical_thinking, delegation, gates, etc.) are
+ * intentionally NOT included here - they are already injected by SessionStart
+ * and CLAUDE.md. Repeating them wastes tokens.
  *
  * @category Hooks
- * @since 1.0.0
+ * @since 2.0.0
  */
 
 import { Effect, Console, pipe, Array, Record, Option, String } from "effect"
@@ -281,149 +286,6 @@ Run these with: mise run <task-name>
 ${miseTasksResult.value}
 </available-scripts>`)
   }
-
-  // Thoughtful pushback when there's genuine signal
-  parts.push(`<critical_thinking>
--- Genuine pushback (when there's signal)
-pushBack :: Request → Maybe Concern
-pushBack req
-  | hasRisk req           = Just $ identifyRisk req
-  | overEngineered req    = Just $ proposeSimpler req
-  | unclear req           = Just $ askClarification req
-  | betterWayKnown req    = Just $ suggestAlternative req
-  | otherwise             = Nothing  -- proceed, don't manufacture objections
-
--- Root cause analysis (for bugs/fixes)
-diagnose :: Problem → Effect Solution
-diagnose problem = do
-  symptoms ← observe problem
-  rootCause ← analyze symptoms   -- type errors often mask deeper issues
-  -- Don't jump to "layer issue" or "missing dependency"
-  -- Understand the actual problem first
-
-  when (stuckInLoop attempts) $ do
-    log "Step back - multiple failed attempts suggest treating symptoms, not cause"
-    reassess problem
-
--- Trust the type system (when not bypassed)
-redundantConcern :: Concern → Bool
-redundantConcern concern =
-  caughtByTypeSystem concern || caughtByLinter concern
-
--- The compiler is a better bug-finder than speculation
--- Trust: tsc, eslint, Effect's typed errors
--- Don't: predict runtime bugs that would fail at compile time
--- Don't: suggest fixes for issues the types will catch anyway
-
--- UNLESS type safety was bypassed:
-typeSystemBypassed :: Code → Bool
-typeSystemBypassed code = any code
-  [ "as any"
-  , "as unknown"
-  , "@ts-ignore"
-  , "@ts-expect-error"
-  , "// @ts-nocheck"
-  ]
--- When escape hatches present → skepticism warranted
--- Question the cast, not the type system
-</critical_thinking>`)
-
-  // Forbidden tools reminder
-  parts.push(`<FORBIDDEN_TOOLS>
-NEVER USE DIRECTLY:
-- Read   → spawn agent to read
-- Edit   → spawn agent to edit
-- Write  → spawn agent to write
-- Glob   → spawn agent to search
-- Grep   → spawn agent to search
-
-ALLOWED:
-- Task (spawn agents) ← YOUR PRIMARY TOOL
-- AskUserQuestion ← clarify with human
-- TodoWrite ← track delegated work
-- Bash ← gates (typecheck/test) - DELEGATE from orchestrators, run from implementation agents
-</FORBIDDEN_TOOLS>`)
-
-  // Fix loop detection
-  parts.push(`<fix_loops>
--- Fix loops indicate symptom-chasing, not root cause understanding
-inFixLoop :: [Attempt] → Bool
-inFixLoop attempts = length attempts > 2 ∧ ¬progressing attempts
-
--- When in fix loop: step back, reassess, don't try harder
-</fix_loops>`)
-
-  // Delegation enforcement
-  parts.push(`<DELEGATION_RULES>
-handle :: Task → Effect ()
-handle task = spawn agent task  -- ALWAYS. NO EXCEPTIONS.
-
--- "It's just one small edit" → NO. Delegate.
--- "I'll quickly check this" → NO. Delegate.
--- "This is trivial" → NO. Delegate.
-
-minimum_agents :: NonTrivialTask → Int
-minimum_agents _ = 3  -- If fewer, decompose more
-</DELEGATION_RULES>`)
-
-  // Gates (delegation rules)
-  parts.push(`<GATES>
--- Implementation agents: run gates directly via Bash
--- Orchestrating agents: DELEGATE gates to implementation agents
-
-typecheck :: Scope → Effect Result
-typecheck scope = Bash "mise run typecheck:pkg"
-
-test :: Package → Effect Result
-test pkg = Bash "mise run test:pkg"
-
--- Report success ONLY when both pass
--- For significant changes (multiple files, architectural impact):
--- Invoke /legal-review before finalizing
-</GATES>`)
-
-  parts.push(`<TODO_ENFORCEMENT>
--- Todos are MANDATORY infrastructure, not optional
-
-createTodos :: Task → [Todo] ++ gateTodos
-gateTodos = ["Run typecheck gate", "Run test gate"]
-
--- Every non-trivial task MUST have:
--- 1. Decomposed subtask todos
--- 2. Gate todos (typecheck + test)
-
--- No todos = No visibility = Violation
-</TODO_ENFORCEMENT>`)
-
-  parts.push(`<code-field>
-¬code     ← ¬assumptions
-¬correct  ← ¬verified
-¬happy    ← ¬edges
-correct   := conditions(works)?
-</code-field>`)
-
-  parts.push(`<SUBAGENT_PROMPTING>
--- Agents start fresh - context not passed explicitly is LOST
-
-priorResearch :: [AgentResult] → SpawnNew → MUST include <contextualization>
-
-<contextualization>
-  [thorough findings from prior agents]
-  [file paths, patterns, code snippets discovered]
-  [decisions made, trade-offs considered]
-</contextualization>
-
--- When spawning after research/aggregation:
--- Pass ALL learnings, not summaries
--- Better verbose than information loss
--- The receiving agent cannot access prior conversation
-
-contextRule :: Spawn → Context
-contextRule spawn
-  | afterDeepResearch spawn = thoroughContextualization  -- MANDATORY
-  | aggregatingAgents spawn = thoroughContextualization  -- MANDATORY
-  | otherwise = standardPrompt
-</SUBAGENT_PROMPTING>`)
 
   // Always: Show version
   const commandExecutor = yield* CommandExecutor.CommandExecutor

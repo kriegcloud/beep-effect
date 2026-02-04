@@ -21,8 +21,6 @@ export const ssoProvider = Table.make(IamEntityIds.SsoProviderId)(
   },
   (t) => [
     // Organization ID index for RLS filtering
-    pg
-      .index("sso_provider_org_id_idx")
-      .on(t.organizationId),
+    pg.index("sso_provider_org_id_idx").on(t.organizationId),
   ]
 );

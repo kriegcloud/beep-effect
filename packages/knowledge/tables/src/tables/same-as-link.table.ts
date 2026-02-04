@@ -44,20 +44,12 @@ export const sameAsLink = OrgTable.make(KnowledgeEntityIds.SameAsLinkId)(
   },
   (t) => [
     // Index for looking up links by canonical entity
-    pg
-      .index("same_as_canonical_idx")
-      .on(t.canonicalId),
+    pg.index("same_as_canonical_idx").on(t.canonicalId),
     // Index for looking up links by member entity
-    pg
-      .index("same_as_member_idx")
-      .on(t.memberId),
+    pg.index("same_as_member_idx").on(t.memberId),
     // Organization ID index for RLS filtering
-    pg
-      .index("same_as_org_idx")
-      .on(t.organizationId),
+    pg.index("same_as_org_idx").on(t.organizationId),
     // Unique constraint to prevent duplicate links
-    pg
-      .unique("same_as_unique")
-      .on(t.canonicalId, t.memberId),
+    pg.unique("same_as_unique").on(t.canonicalId, t.memberId),
   ]
 );

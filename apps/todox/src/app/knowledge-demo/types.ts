@@ -2,17 +2,17 @@ export interface EvidenceSpan {
   text: string;
   startChar: number;
   endChar: number;
-  confidence?: number;
+  confidence?: undefined | number;
 }
 
 export interface Relation {
   id: string;
   subjectId: string;
   predicate: string;
-  objectId?: string;
-  literalValue?: string;
-  evidence?: EvidenceSpan;
-  groundingConfidence?: number;
+  objectId?: undefined | string;
+  literalValue?: undefined | string;
+  evidence?: undefined | EvidenceSpan;
+  groundingConfidence?: undefined | number;
 }
 
 export interface AssembledEntity {
@@ -22,7 +22,7 @@ export interface AssembledEntity {
   types: readonly string[];
   attributes: Record<string, string | number | boolean>;
   confidence: number;
-  canonicalName?: string;
+  canonicalName?: undefined | string;
 }
 
 export interface ExtractionResult {
@@ -34,4 +34,71 @@ export interface ExtractionResult {
     relationCount: number;
     durationMs: number;
   };
+}
+
+export interface GraphRAGConfig {
+  readonly topK: number;
+  readonly maxHops: number;
+}
+
+export interface GraphRAGStats {
+  readonly seedEntityCount: number;
+  readonly totalEntityCount: number;
+  readonly totalRelationCount: number;
+  readonly hopsTraversed: number;
+  readonly estimatedTokens: number;
+  readonly truncated: boolean;
+}
+
+export interface GraphRAGResult {
+  readonly entities: readonly AssembledEntity[];
+  readonly relations: readonly Relation[];
+  readonly seeds: readonly AssembledEntity[];
+  readonly context: string;
+  readonly scores: Record<string, number>;
+  readonly stats: GraphRAGStats;
+}
+
+// Entity cluster for resolution display
+export interface EntityCluster {
+  readonly id: string;
+  readonly canonicalEntityId: string;
+  readonly canonicalEntity: AssembledEntity;
+  readonly memberIds: readonly string[];
+  readonly memberEntities: readonly AssembledEntity[];
+  readonly cohesion: number;
+  readonly sharedTypes: readonly string[];
+}
+
+// Same-as link for provenance display
+export interface SameAsLink {
+  readonly id: string;
+  readonly canonicalId: string;
+  readonly memberId: string;
+  readonly confidence: number;
+  readonly reason: string; // "name_similarity", "attribute_match", etc.
+  readonly sourceId?: undefined | string;
+}
+
+// Resolution result
+export interface ResolutionResult {
+  readonly clusters: readonly EntityCluster[];
+  readonly sameAsLinks: readonly SameAsLink[];
+  readonly stats: {
+    readonly originalEntityCount: number;
+    readonly resolvedEntityCount: number;
+    readonly clusterCount: number;
+    readonly sameAsLinkCount: number;
+    readonly mergedEntityCount: number;
+  };
+}
+
+// Extraction session for tracking multiple extractions
+export interface ExtractionSession {
+  readonly id: string;
+  readonly timestamp: number;
+  readonly sourceText: string;
+  readonly entities: readonly AssembledEntity[];
+  readonly relations: readonly Relation[];
+  readonly stats: ExtractionResult["stats"];
 }

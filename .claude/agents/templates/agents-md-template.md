@@ -65,13 +65,13 @@ Client package for documents.
 ## Usage
 
 ```typescript
-import { DocumentClient } from "@beep/core-db"
+import { DocumentClient } from "@beep/documents-client"
 const docs = await DocumentClient.getAll()
 ```
 
 ## Deps
 - effect
-- @beep/core-db
+- @beep/documents-client
 ```
 
 ### AFTER (Quality AGENTS.md Following Template)

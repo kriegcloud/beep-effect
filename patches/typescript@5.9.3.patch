@@ -1,0 +1,24 @@
+diff --git a/lib/_tsc.js b/lib/_tsc.js
+index 6fe07ba740e2567497a22acf63386acf03bfb032..ce582ebbd7c5b3ddf8a6b1db43e3312de54a39fd 100644
+--- a/lib/_tsc.js
++++ b/lib/_tsc.js
+@@ -336709,6 +336709,7 @@ function effectLspPatchUtils(){
+           const sourceFile = program.getSourceFile(fileName);
+           if (!sourceFile) continue;
+           const resolvedPackages = getEffectRelatedPackages(sourceFile);
++          if (!resolvedPackages["effect"]) continue;
+           for (const version of Object.keys(resolvedPackages["effect"])) {
+             if (String(version).startsWith("4")) return "v4";
+             if (String(version).startsWith("3")) return "v3";
+diff --git a/lib/typescript.js b/lib/typescript.js
+index a0e283f2b69d3f3cdb72346810b137a18f14dd6d..bb996958a84bc8d187b5c553434e1bb6b18018de 100644
+--- a/lib/typescript.js
++++ b/lib/typescript.js
+@@ -200629,6 +200629,7 @@ function effectLspPatchUtils(){
+           const sourceFile = program.getSourceFile(fileName);
+           if (!sourceFile) continue;
+           const resolvedPackages = getEffectRelatedPackages(sourceFile);
++          if (!resolvedPackages["effect"]) continue;
+           for (const version of Object.keys(resolvedPackages["effect"])) {
+             if (String(version).startsWith("4")) return "v4";
+             if (String(version).startsWith("3")) return "v3";

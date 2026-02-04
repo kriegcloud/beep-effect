@@ -40,9 +40,10 @@ type ArrayExample = SetRequiredDeep<{a: [number?, number?, number?]}, 'a.0' | 'a
 
 @category Object
 */
-export type SetRequiredDeep<BaseType, KeyPaths extends Paths<BaseType>> = IsAny<KeyPaths> extends true
-  ? SimplifyDeep<RequiredDeep<BaseType>>
-  : SetRequiredDeepHelper<BaseType, UnionToTuple<KeyPaths>>;
+export type SetRequiredDeep<BaseType, KeyPaths extends Paths<BaseType>> =
+  IsAny<KeyPaths> extends true
+    ? SimplifyDeep<RequiredDeep<BaseType>>
+    : SetRequiredDeepHelper<BaseType, UnionToTuple<KeyPaths>>;
 
 /**
 Internal helper for {@link SetRequiredDeep}.

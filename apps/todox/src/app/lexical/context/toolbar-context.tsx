@@ -1,5 +1,6 @@
 "use client";
 
+import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import * as Str from "effect/String";
 import type { ElementFormatType, LexicalEditor } from "lexical";
 import type { JSX, ReactNode } from "react";
@@ -202,48 +203,32 @@ export function ToolbarContextProvider({
 }
 
 // ============================================================================
-// Legacy Provider (Backward Compatibility)
+// Wrapper Provider (for use within LexicalExtensionComposer)
 // ============================================================================
 
-/**
- * @deprecated Use ToolbarContextProvider instead for full functionality.
- * This is kept for backward compatibility with existing code.
- */
-export function ToolbarContext({ children }: { readonly children: ReactNode }): JSX.Element {
-  const [toolbarState, setToolbarState] = useState(INITIAL_TOOLBAR_STATE);
-  const selectionFontSize = toolbarState.fontSize;
-
-  const updateToolbarState = useCallback(<Key extends ToolbarStateKey>(key: Key, value: ToolbarStateValue<Key>) => {
-    setToolbarState((prev) => ({
-      ...prev,
-      [key]: value,
-    }));
-  }, []);
-
-  useEffect(() => {
-    updateToolbarState("fontSizeInputValue", Str.slice(0, -2)(selectionFontSize));
-  }, [selectionFontSize, updateToolbarState]);
-
-  // Create a minimal context value for legacy usage
-  // This won't have activeEditor, showModal, etc.
-  const contextValue = useMemo(
-    () => ({
-      toolbarState,
-      updateToolbarState,
-    }),
-    [toolbarState, updateToolbarState]
-  );
-
-  return <LegacyToolbarContext.Provider value={contextValue}>{children}</LegacyToolbarContext.Provider>;
+interface ToolbarContextWrapperProps {
+  readonly children: ReactNode;
 }
 
-// Legacy context for backward compatibility
-interface LegacyContextShape {
+const noopShowModal: ShowModalFn = () => {};
+
+export function ToolbarContextWrapper({ children }: ToolbarContextWrapperProps): JSX.Element {
+  const [editor] = useLexicalComposerContext();
+  return (
+    <ToolbarContextProvider editor={editor} showModal={noopShowModal}>
+      {children}
+    </ToolbarContextProvider>
+  );
+}
+
+// ============================================================================
+// Toolbar State Context Shape (for useToolbarState consumers)
+// ============================================================================
+
+interface ToolbarStateOnlyShape {
   readonly toolbarState: ToolbarState;
   readonly updateToolbarState: <Key extends ToolbarStateKey>(key: Key, value: ToolbarStateValue<Key>) => void;
 }
-
-const LegacyToolbarContext = createContext<LegacyContextShape | undefined>(undefined);
 
 // ============================================================================
 // Hooks
@@ -270,28 +255,21 @@ export function useToolbarContext(): ToolbarContextShape {
 
 /**
  * Access just the toolbar state (formatting flags, font settings, etc.)
- * Compatible with both old and new context providers.
  *
- * @throws Error if used outside of ToolbarContext or ToolbarContextProvider
+ * @throws Error if used outside of ToolbarContextProvider
  */
-export function useToolbarState(): LegacyContextShape {
-  // Try new context first
-  const newContext = useContext(ToolbarStateContext);
-  if (newContext !== undefined) {
-    return {
-      toolbarState: newContext.toolbarState,
-      updateToolbarState: newContext.updateToolbarState,
-    };
+export function useToolbarState(): ToolbarStateOnlyShape {
+  const context = useContext(ToolbarStateContext);
+
+  if (context === undefined) {
+    throw new MissingContextError({
+      message: "useToolbarState must be used within a ToolbarContextProvider",
+      contextName: "ToolbarContextProvider",
+    });
   }
 
-  // Fall back to legacy context
-  const legacyContext = useContext(LegacyToolbarContext);
-  if (legacyContext !== undefined) {
-    return legacyContext;
-  }
-
-  throw new MissingContextError({
-    message: "useToolbarState must be used within a ToolbarProvider",
-    contextName: "ToolbarProvider",
-  });
+  return {
+    toolbarState: context.toolbarState,
+    updateToolbarState: context.updateToolbarState,
+  };
 }

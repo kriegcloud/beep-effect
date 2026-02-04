@@ -83,14 +83,16 @@ type SubtractPostChecks<
 /**
 Subtracts two positive numbers.
 */
-type SubtractPositives<A extends number, B extends number> = LessThan<A, B> extends true
-  ? // When A < B we can reverse the result of B - A
-    ReverseSign<SubtractIfAGreaterThanB<B, A>>
-  : SubtractIfAGreaterThanB<A, B>;
+type SubtractPositives<A extends number, B extends number> =
+  LessThan<A, B> extends true
+    ? // When A < B we can reverse the result of B - A
+      ReverseSign<SubtractIfAGreaterThanB<B, A>>
+    : SubtractIfAGreaterThanB<A, B>;
 
 /**
 Subtracts two positive numbers A and B such that A > B.
 */
-type SubtractIfAGreaterThanB<A extends number, B extends number> = TupleOf<A> extends [...TupleOf<B>, ...infer R] // This is where we always want to end up and do the actual subtraction
-  ? R["length"]
-  : never;
+type SubtractIfAGreaterThanB<A extends number, B extends number> =
+  TupleOf<A> extends [...TupleOf<B>, ...infer R] // This is where we always want to end up and do the actual subtraction
+    ? R["length"]
+    : never;

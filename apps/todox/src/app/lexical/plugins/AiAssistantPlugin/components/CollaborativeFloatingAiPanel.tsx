@@ -11,6 +11,7 @@ import { useAiContext } from "../../../context/AiContext";
 import { INSERT_AI_TEXT_COMMAND } from "../commands";
 import { useAiStreaming } from "../hooks/useAiStreaming";
 import { type SerializedRange, useCollaborativeAi } from "../hooks/useCollaborativeAi";
+import { AiActivityOverlay } from "./AiActivityIndicator";
 import { AiCommandMenu } from "./AiCommandMenu";
 import { InsertionModeSelector } from "./InsertionModeSelector";
 import { StreamingPreview } from "./StreamingPreview";
@@ -81,7 +82,8 @@ export function CollaborativeFloatingAiPanel({ anchorElem }: CollaborativeFloati
   }, [editor, isAiPanelOpen, selectedText]);
 
   // Collaborative AI hook for conflict detection and presence
-  const { hasConflict, conflictingUsers, broadcastAiActivity, clearAiActivity } = useCollaborativeAi(selectionRange);
+  const { hasConflict, canProceed, conflictingUsers, broadcastAiActivity, clearAiActivity } =
+    useCollaborativeAi(selectionRange);
 
   // Broadcast AI activity when operation state changes
   useEffect(() => {
@@ -101,11 +103,15 @@ export function CollaborativeFloatingAiPanel({ anchorElem }: CollaborativeFloati
 
   const handlePromptSelect = useCallback(
     (promptId: string, instruction: string) => {
+      if (!canProceed) {
+        // Block operation when there's an active conflict
+        return;
+      }
       setLastInstruction(instruction);
       setLastPromptLabel(promptId);
       void streamResponse(selectedText, instruction);
     },
-    [selectedText, streamResponse]
+    [canProceed, selectedText, streamResponse]
   );
 
   const handleInsert = useCallback(() => {
@@ -137,8 +143,10 @@ export function CollaborativeFloatingAiPanel({ anchorElem }: CollaborativeFloati
     return null;
   }
 
+  // Always render the activity overlay to show other collaborators' AI usage,
+  // even when this user's panel is closed
   if (!isAiPanelOpen) {
-    return null;
+    return createPortal(<AiActivityOverlay />, document.body);
   }
 
   const portalTarget = anchorElem ?? document.body;
@@ -263,5 +271,12 @@ export function CollaborativeFloatingAiPanel({ anchorElem }: CollaborativeFloati
     </div>
   );
 
-  return createPortal(panelContent, portalTarget);
+  return (
+    <>
+      {/* Overlay showing all collaborators using AI - always visible */}
+      {createPortal(<AiActivityOverlay />, document.body)}
+      {/* Main AI panel content */}
+      {createPortal(panelContent, portalTarget)}
+    </>
+  );
 }

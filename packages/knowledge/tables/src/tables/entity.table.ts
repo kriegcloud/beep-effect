@@ -59,20 +59,12 @@ export const entity = OrgTable.make(KnowledgeEntityIds.KnowledgeEntityId)(
   },
   (t) => [
     // Organization ID index for RLS filtering
-    pg
-      .index("entity_organization_id_idx")
-      .on(t.organizationId),
+    pg.index("entity_organization_id_idx").on(t.organizationId),
     // Ontology index for filtering by ontology
-    pg
-      .index("entity_ontology_id_idx")
-      .on(t.ontologyId),
+    pg.index("entity_ontology_id_idx").on(t.ontologyId),
     // Document index for provenance queries
-    pg
-      .index("entity_document_id_idx")
-      .on(t.documentId),
+    pg.index("entity_document_id_idx").on(t.documentId),
     // Extraction index for grouping by extraction run
-    pg
-      .index("entity_extraction_id_idx")
-      .on(t.extractionId),
+    pg.index("entity_extraction_id_idx").on(t.extractionId),
   ]
 );

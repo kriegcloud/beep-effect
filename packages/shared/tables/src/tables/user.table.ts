@@ -28,9 +28,7 @@ export const user = Table.make(SharedEntityIds.UserId)(
   },
   (t) => [
     // Index for email lookups (authentication)
-    pg
-      .index("user_email_idx")
-      .on(t.email),
+    pg.index("user_email_idx").on(t.email),
 
     // Partial index for active users (high selectivity)
     pg
@@ -39,10 +37,7 @@ export const user = Table.make(SharedEntityIds.UserId)(
       .where(d.sql`${t.banned} IS NOT TRUE AND ${t.emailVerified} = true`),
 
     // Index for role-based queries (if roles are used for authorization)
-    pg
-      .index("user_role_idx")
-      .on(t.role)
-      .where(d.sql`${t.role} IS NOT NULL`),
+    pg.index("user_role_idx").on(t.role).where(d.sql`${t.role} IS NOT NULL`),
 
     // Index for banned users cleanup and queries
     pg
@@ -51,9 +46,6 @@ export const user = Table.make(SharedEntityIds.UserId)(
       .where(d.sql`${t.banned} = true AND ${t.banExpires} IS NOT NULL`),
 
     // Index for two-factor enabled users
-    pg
-      .index("user_2fa_enabled_idx")
-      .on(t.twoFactorEnabled)
-      .where(d.sql`${t.twoFactorEnabled} = true`),
+    pg.index("user_2fa_enabled_idx").on(t.twoFactorEnabled).where(d.sql`${t.twoFactorEnabled} = true`),
   ]
 );

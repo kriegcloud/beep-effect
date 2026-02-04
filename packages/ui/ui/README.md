@@ -492,7 +492,7 @@ const markdown = htmlToMarkdown("<h1>Hello</h1><p>World</p>");
 | `@mui/x-date-pickers` | Date/time pickers              |
 | `@mui/x-tree-view`    | Tree view component            |
 | `@mui/lab`            | MUI experimental components    |
-| `@radix-ui/*`         | Radix UI primitives for shadcn |
+| `@base-ui/*`          | Base UI primitives for shadcn  |
 | `lucide-react`        | Icon library                   |
 | `@iconify/react`      | Iconify icon framework         |
 

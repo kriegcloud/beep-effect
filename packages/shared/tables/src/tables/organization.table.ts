@@ -42,19 +42,13 @@ export const organization = Table.make(SharedEntityIds.OrganizationId)(
   },
   (t) => [
     // Index for name-based searches (case-insensitive)
-    pg
-      .index("organization_name_idx")
-      .on(t.name),
+    pg.index("organization_name_idx").on(t.name),
 
     // Index for slug lookups (already unique, but explicit index for performance)
-    pg
-      .index("organization_slug_idx")
-      .on(t.slug),
+    pg.index("organization_slug_idx").on(t.slug),
 
     // Multi-tenant indexes
-    pg
-      .index("organization_type_idx")
-      .on(t.type),
+    pg.index("organization_type_idx").on(t.type),
     pg.index("organization_owner_idx").on(t.ownerUserId),
     pg.index("organization_personal_idx").on(t.isPersonal).where(d.sql`${t.isPersonal} = true`),
     pg.index("organization_subscription_idx").on(t.subscriptionTier, t.subscriptionStatus),

@@ -40,10 +40,11 @@ type T5 = IsOptionalKeyOf<User | Admin, 'surname'>;
 @category Type Guard
 @category Utilities
 */
-export type IsOptionalKeyOf<Type extends object, Key extends keyof Type> = IsAny<Type | Key> extends true
-  ? never
-  : Key extends keyof Type
-    ? Type extends Record<Key, Type[Key]>
-      ? false
-      : true
-    : false;
+export type IsOptionalKeyOf<Type extends object, Key extends keyof Type> =
+  IsAny<Type | Key> extends true
+    ? never
+    : Key extends keyof Type
+      ? Type extends Record<Key, Type[Key]>
+        ? false
+        : true
+      : false;

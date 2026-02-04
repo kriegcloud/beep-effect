@@ -55,28 +55,16 @@ export const mention = OrgTable.make(KnowledgeEntityIds.MentionId)(
   },
   (t) => [
     // Organization ID index for RLS filtering
-    pg
-      .index("mention_organization_id_idx")
-      .on(t.organizationId),
+    pg.index("mention_organization_id_idx").on(t.organizationId),
     // Entity index for finding all mentions of an entity
-    pg
-      .index("mention_entity_id_idx")
-      .on(t.entityId),
+    pg.index("mention_entity_id_idx").on(t.entityId),
     // Document index for finding mentions in a document
-    pg
-      .index("mention_document_id_idx")
-      .on(t.documentId),
+    pg.index("mention_document_id_idx").on(t.documentId),
     // Extraction index for grouping by extraction run
-    pg
-      .index("mention_extraction_id_idx")
-      .on(t.extractionId),
+    pg.index("mention_extraction_id_idx").on(t.extractionId),
     // Character offset index for text position queries
-    pg
-      .index("mention_char_range_idx")
-      .on(t.documentId, t.startChar, t.endChar),
+    pg.index("mention_char_range_idx").on(t.documentId, t.startChar, t.endChar),
     // Primary mention index
-    pg
-      .index("mention_primary_idx")
-      .on(t.entityId, t.isPrimary),
+    pg.index("mention_primary_idx").on(t.entityId, t.isPrimary),
   ]
 );

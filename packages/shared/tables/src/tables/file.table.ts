@@ -34,8 +34,6 @@ export const file = OrgTable.make(SharedEntityIds.FileId)(
   },
   (t) => [
     // Organization ID index for RLS filtering
-    pg
-      .index("file_organization_id_idx")
-      .on(t.organizationId),
+    pg.index("file_organization_id_idx").on(t.organizationId),
   ]
 );

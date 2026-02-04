@@ -17,24 +17,16 @@ export const teamMember = OrgTable.make(IamEntityIds.TeamMemberId)(
   },
   (t) => [
     // Organization ID index for RLS filtering
-    pg
-      .index("team_member_organization_id_idx")
-      .on(t.organizationId),
+    pg.index("team_member_organization_id_idx").on(t.organizationId),
 
     // Foreign key indexes for join performance
-    pg
-      .index("team_member_team_id_idx")
-      .on(t.teamId),
+    pg.index("team_member_team_id_idx").on(t.teamId),
     pg.index("team_member_user_id_idx").on(t.userId),
 
     // Unique constraint to prevent duplicate memberships
-    pg
-      .uniqueIndex("team_member_team_user_unique_idx")
-      .on(t.teamId, t.userId),
+    pg.uniqueIndex("team_member_team_user_unique_idx").on(t.teamId, t.userId),
 
     // Composite index for team member queries
-    pg
-      .index("team_member_team_user_idx")
-      .on(t.teamId, t.userId),
+    pg.index("team_member_team_user_idx").on(t.teamId, t.userId),
   ]
 );

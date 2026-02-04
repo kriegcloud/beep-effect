@@ -155,14 +155,12 @@ export type HandlersFrom<Wrapper extends Wrapper.Any> = {
  * @since 0.1.0
  * @category groups
  */
-export type HandlerFrom<Wrapper extends Wrapper.Any, Tag extends Wrapper["_tag"]> = Extract<
-  Wrapper,
-  { readonly _tag: Tag }
-> extends infer Current
-  ? Current extends Wrapper.Any
-    ? Wrapper.ToHandlerFn<Current>
-    : never
-  : never;
+export type HandlerFrom<Wrapper extends Wrapper.Any, Tag extends Wrapper["_tag"]> =
+  Extract<Wrapper, { readonly _tag: Tag }> extends infer Current
+    ? Current extends Wrapper.Any
+      ? Wrapper.ToHandlerFn<Current>
+      : never
+    : never;
 
 /**
  * @since 0.1.0

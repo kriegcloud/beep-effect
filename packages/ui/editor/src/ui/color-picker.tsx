@@ -884,7 +884,7 @@ function ColorPickerRoot(props: ColorPickerRootProps): React.JSX.Element {
   );
 }
 
-interface ColorPickerTriggerProps extends Omit<React.ComponentProps<typeof Button>, "asChild"> {}
+interface ColorPickerTriggerProps extends React.ComponentProps<typeof Button> {}
 
 /**
  * Trigger button for ColorPicker popover.
@@ -898,7 +898,7 @@ function ColorPickerTrigger(props: ColorPickerTriggerProps): React.JSX.Element {
   );
 }
 
-interface ColorPickerContentProps extends Omit<React.ComponentProps<typeof PopoverContent>, "asChild"> {}
+interface ColorPickerContentProps extends React.ComponentProps<typeof PopoverContent> {}
 
 /**
  * Content container for ColorPicker.

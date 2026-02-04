@@ -78,28 +78,23 @@ export type ArraySlice<
         : never // Never happens
   : never; // Never happens
 
-type _ArraySlice<
-  Array_ extends readonly unknown[],
-  Start extends number = 0,
-  End extends number = Array_["length"],
-> = And<IsEqual<Start, never>, IsEqual<End, never>> extends true
-  ? Array_
-  : number extends Array_["length"]
-    ? VariableLengthArraySliceHelper<Array_, Start, End>
-    : ArraySliceHelper<
-        Array_,
-        IsEqual<Start, never> extends true ? 0 : Start,
-        IsEqual<End, never> extends true ? Array_["length"] : End
-      >;
+type _ArraySlice<Array_ extends readonly unknown[], Start extends number = 0, End extends number = Array_["length"]> =
+  And<IsEqual<Start, never>, IsEqual<End, never>> extends true
+    ? Array_
+    : number extends Array_["length"]
+      ? VariableLengthArraySliceHelper<Array_, Start, End>
+      : ArraySliceHelper<
+          Array_,
+          IsEqual<Start, never> extends true ? 0 : Start,
+          IsEqual<End, never> extends true ? Array_["length"] : End
+        >;
 
-type VariableLengthArraySliceHelper<Array_ extends readonly unknown[], Start extends number, End extends number> = And<
-  Not<IsNegative<Start>>,
-  IsEqual<End, never>
-> extends true
-  ? ArraySplice<Array_, 0, Start>
-  : And<And<Not<IsNegative<Start>>, Not<IsNegative<End>>>, IsEqual<GreaterThan<End, Start>, true>> extends true
-    ? ArraySliceByPositiveIndex<Array_, Start, End>
-    : [];
+type VariableLengthArraySliceHelper<Array_ extends readonly unknown[], Start extends number, End extends number> =
+  And<Not<IsNegative<Start>>, IsEqual<End, never>> extends true
+    ? ArraySplice<Array_, 0, Start>
+    : And<And<Not<IsNegative<Start>>, Not<IsNegative<End>>>, IsEqual<GreaterThan<End, Start>, true>> extends true
+      ? ArraySliceByPositiveIndex<Array_, Start, End>
+      : [];
 
 type ArraySliceHelper<
   Array_ extends readonly unknown[],

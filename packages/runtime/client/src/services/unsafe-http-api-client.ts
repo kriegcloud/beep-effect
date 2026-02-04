@@ -150,14 +150,18 @@ export declare namespace UnsafeClient {
       >
     : never;
 
-  export type TopLevelMethods<Groups extends HttpApiGroup.HttpApiGroup.Any, ApiError> = Extract<
-    Groups,
-    { readonly topLevel: true }
-  > extends HttpApiGroup.HttpApiGroup<infer _Id, infer _Endpoints, infer _Error, infer _ErrorR, infer _TopLevel>
-    ? _Endpoints extends infer Endpoint
-      ? [HttpApiEndpoint.HttpApiEndpoint.Name<Endpoint>, Method<Endpoint, ApiError, _Error>]
-      : never
-    : never;
+  export type TopLevelMethods<Groups extends HttpApiGroup.HttpApiGroup.Any, ApiError> =
+    Extract<Groups, { readonly topLevel: true }> extends HttpApiGroup.HttpApiGroup<
+      infer _Id,
+      infer _Endpoints,
+      infer _Error,
+      infer _ErrorR,
+      infer _TopLevel
+    >
+      ? _Endpoints extends infer Endpoint
+        ? [HttpApiEndpoint.HttpApiEndpoint.Name<Endpoint>, Method<Endpoint, ApiError, _Error>]
+        : never
+      : never;
 }
 
 const makeUnsafeClientInternalImpl = Effect.fnUntraced(function* (

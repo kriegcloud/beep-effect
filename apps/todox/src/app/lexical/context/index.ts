@@ -26,9 +26,9 @@ export {
   MIN_ALLOWED_FONT_SIZE,
   type RootType,
   type ShowModalFn,
-  ToolbarContext,
   // Components
   ToolbarContextProvider,
+  ToolbarContextWrapper,
   type ToolbarState,
   type ToolbarStateKey,
   type ToolbarStateValue,

@@ -22,9 +22,7 @@ export const discussion = OrgTable.make(DocumentsEntityIds.DiscussionId)(
   },
   (t) => [
     // Organization ID index for RLS filtering
-    pg
-      .index("discussion_org_id_idx")
-      .on(t.organizationId),
+    pg.index("discussion_org_id_idx").on(t.organizationId),
     pg.index("discussion_document_idx").on(t.documentId),
     pg.index("discussion_user_idx").on(t.userId),
     pg.index("discussion_is_resolved_idx").on(t.isResolved),

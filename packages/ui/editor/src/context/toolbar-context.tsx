@@ -1,6 +1,6 @@
 "use client";
 
-import { noOp } from "@beep/utils";
+import { thunkNoOp, thunkNoOpTyped } from "@beep/utils";
 /**
  * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
@@ -185,8 +185,8 @@ export function useToolbarContext(): ToolbarContextState {
       })
   );
 
-  const $updateToolbar = O.getOrElse(state.$updateToolbar, () => noOp);
-  const setBlockTypeFn = O.getOrElse(state.setBlockType, () => (_: string) => {});
+  const $updateToolbar = O.getOrElse(state.$updateToolbar, thunkNoOp);
+  const setBlockTypeFn = O.getOrElse(state.setBlockType, thunkNoOpTyped<string>);
   const showModalFn = O.getOrElse(state.showModal, () => (_: string, __: (onClose: () => void) => JSX.Element) => {});
 
   return {
@@ -256,7 +256,7 @@ export function useActiveEditor(): LexicalEditor {
  */
 export function useBlockType(): [string, (blockType: string) => void] {
   const blockType = useAtomRef(blockTypeRef);
-  const setBlockTypeFn = O.getOrElse(setBlockTypeRef.value, () => (_: string) => {});
+  const setBlockTypeFn = O.getOrElse(setBlockTypeRef.value, thunkNoOpTyped<string>);
 
   return [blockType, setBlockTypeFn];
 }
@@ -286,7 +286,7 @@ export function useBlockType(): [string, (blockType: string) => void] {
  */
 export function useUpdateToolbar(): () => void {
   const updateToolbarOption = useAtomRef(updateToolbarRef);
-  return O.getOrElse(updateToolbarOption, () => noOp);
+  return O.getOrElse(updateToolbarOption, thunkNoOp);
 }
 
 /**
