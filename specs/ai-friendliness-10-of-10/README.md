@@ -65,6 +65,17 @@ Transform the beep-effect repository from 8.5/10 to 10/10 AI-friendliness by imp
 
 **Estimated Total**: 8-11 sessions
 
+## Phase Exit Criteria
+
+| Phase | Done When |
+|-------|-----------|
+| P0 | 5 output files exist, REFLECTION_LOG updated |
+| P1 | 62+ ai-context.md files, `/modules` returns 100% |
+| P2 | 50+ error catalog entries, CLAUDE.md table added |
+| P3 | Onboarding docs + `/onboarding` skill functional |
+| P4 | 2 hooks registered, safe errors auto-fixable |
+| P5 | Ambiguity audit ≥95%, final score 10/10 |
+
 ## Quick Start
 
 ```bash
@@ -180,6 +191,30 @@ Complexity = (Phases × 2) + (Agents × 3) + (CrossPkg × 4) +
 - `.claude/skills/ai-context-writer/` - template and format
 - `.claude/scripts/context-crawler.ts` - indexing infrastructure
 - Biome configuration - lint/format rules for self-healing
+
+## Verification Commands
+
+```bash
+# Check ai-context.md coverage
+find packages apps tooling -name "ai-context.md" | wc -l
+# Target: 62+
+
+# Test module discovery
+bun run .claude/scripts/context-crawler.ts -- --mode=list
+
+# Count error catalog entries (after P2)
+grep -c "^  - id:" .claude/errors/catalog.yaml
+# Target: 50+
+
+# Validate YAML syntax
+bun x yaml-lint .claude/errors/catalog.yaml
+
+# Test onboarding skill (after P3)
+/onboarding
+
+# Check hook registration (after P4)
+grep -A5 '"hooks"' .claude/settings.json
+```
 
 ## Related Specs
 

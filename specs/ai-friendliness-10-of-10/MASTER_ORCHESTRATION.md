@@ -24,13 +24,15 @@ Establish comprehensive baseline of current AI-friendliness state.
 
 ### Tasks
 
-| # | Task | Tool Calls | Output |
-|---|------|------------|--------|
-| 0.1 | Inventory all packages missing ai-context.md | 5-8 | `outputs/packages-inventory.md` |
-| 0.2 | Catalog existing AGENTS.md quality | 8-12 | `outputs/agents-md-quality.md` |
-| 0.3 | Identify common error patterns from specs | 10-15 | `outputs/error-patterns.md` |
-| 0.4 | Audit abstract rules lacking examples | 5-8 | `outputs/rules-without-examples.md` |
-| 0.5 | Assess onboarding friction points | 3-5 | `outputs/onboarding-gaps.md` |
+| # | Task | Agent | Tool Calls | Output |
+|---|------|-------|------------|--------|
+| 0.1 | Inventory all packages missing ai-context.md | **codebase-researcher** | 5-8 | `outputs/packages-inventory.md` |
+| 0.2 | Catalog existing AGENTS.md quality | **codebase-researcher** + **code-reviewer** | 8-12 | `outputs/agents-md-quality.md` |
+| 0.3 | Identify common error patterns from specs | **codebase-researcher** | 10-15 | `outputs/error-patterns.md` |
+| 0.4 | Audit abstract rules lacking examples | **codebase-researcher** | 5-8 | `outputs/rules-without-examples.md` |
+| 0.5 | Assess onboarding friction points | **codebase-researcher** | 3-5 | `outputs/onboarding-gaps.md` |
+
+**DELEGATION RULE**: Orchestrator does NOT perform sequential Glob/Read operations. All tasks delegate to `codebase-researcher` agent which returns consolidated findings.
 
 ### Success Criteria
 
@@ -180,154 +182,23 @@ Create machine-readable error catalog with fix strategies.
 
 ### Error Catalog Schema
 
+**Full schema**: See `templates/error-catalog.template.yaml` (150+ lines)
+
+**Summary**:
+- Categories: `typescript`, `effect`, `biome`, `turborepo`, `runtime`
+- Fix types: `safe` (auto-apply), `unsafe` (requires review), `manual`
+- Remediation: `trivial` (<5 min), `easy` (5-15 min), `major` (>15 min)
+
+**Example entry structure**:
 ```yaml
-# .claude/errors/catalog.yaml
-version: "1.0"
-categories:
-  - id: typescript
-    name: TypeScript Errors
-    auto_fixable: partial
-  - id: effect
-    name: Effect-TS Errors
-    auto_fixable: false
-  - id: biome
-    name: Biome Lint/Format
-    auto_fixable: true
-  - id: turborepo
-    name: Build Pipeline
-    auto_fixable: false
-
-errors:
-  # TypeScript Errors
-  - id: TS_001
-    pattern: "Property '(.+)' is missing in type"
-    category: typescript
-    severity: error
-    fix_type: safe
-    remediation: easy
-    description: Missing required property in type definition
-    diagnosis: Check schema definition for required fields
-    fix_steps:
-      - Identify the missing property from error message
-      - Add property to the type/interface/schema
-      - Ensure property type matches expected
-    example:
-      error: "Property 'id' is missing in type '{ name: string; }'"
-      before: |
-        S.Struct({ name: S.String })
-      after: |
-        S.Struct({ name: S.String, id: S.String })
-
-  - id: TS_002
-    pattern: "Type 'string' is not assignable to type '(.+)Id'"
-    category: typescript
-    severity: error
-    fix_type: safe
-    remediation: easy
-    description: Plain string used where branded EntityId required
-    diagnosis: Using plain string instead of branded EntityId type
-    fix_steps:
-      - Import EntityId from @beep/shared-domain
-      - Use EntityId schema instead of S.String
-      - For table columns, add .$type<EntityId.Type>()
-    auto_fix: false
-    example:
-      error: "Type 'string' is not assignable to type 'UserId'"
-      before: |
-        userId: S.String
-      after: |
-        userId: SharedEntityIds.UserId
-
-  # Effect Errors
-  - id: EFF_001
-    pattern: "Argument of type .* is not assignable to parameter of type 'Effect<"
-    category: effect
-    severity: error
-    fix_type: unsafe
-    remediation: major
-    description: Effect type mismatch in pipeline
-    diagnosis: Return type doesn't match expected Effect signature
-    fix_steps:
-      - Check the expected Effect<A, E, R> signature
-      - Verify your return matches Success type A
-      - Check Error channel E includes your errors
-      - Verify Requirements R are satisfied
-    manual_review: true
-
-  - id: EFF_002
-    pattern: "Cannot find name 'yield'"
-    category: effect
-    severity: error
-    fix_type: safe
-    remediation: trivial
-    description: Using yield outside generator function
-    diagnosis: Missing Effect.gen wrapper or function* syntax
-    fix_steps:
-      - Wrap code in Effect.gen(function* () { ... })
-      - Or use pipe() with flatMap instead of yield*
-    example:
-      before: |
-        const result = yield* someEffect;
-      after: |
-        Effect.gen(function* () {
-          const result = yield* someEffect;
-        })
-
-  # Biome Errors
-  - id: BIOME_001
-    pattern: "Unexpected any"
-    category: biome
-    severity: warning
-    fix_type: unsafe
-    remediation: easy
-    description: Explicit any type used
-    diagnosis: Code uses 'any' type which bypasses type checking
-    fix_steps:
-      - Replace with specific type
-      - Use unknown if type truly unknown
-      - Use Schema.decode for runtime validation
-    auto_fix: false
-
-  - id: BIOME_002
-    pattern: "missing semicolon|extra semicolon"
-    category: biome
-    severity: warning
-    fix_type: safe
-    remediation: trivial
-    description: Semicolon formatting issue
-    auto_fix_command: "bun run lint:fix"
-
-  # Turborepo Errors
-  - id: TURBO_001
-    pattern: "error TS\\d+ in packages/(.+)/"
-    category: turborepo
-    severity: error
-    fix_type: manual
-    remediation: major
-    description: Cascading type error from upstream package
-    diagnosis: |
-      Turborepo's --filter cascades through dependencies.
-      Error may be in upstream package, not target.
-    fix_steps:
-      - Check error path to identify actual failing package
-      - Fix upstream package errors first
-      - Re-run check on target package
-    example:
-      error: "packages/iam-domain/src/Member.ts(42,5): error TS2322"
-      diagnosis: "Error is in iam-domain, not your target package"
-
-  - id: TURBO_002
-    pattern: "Cannot find module '@beep/(.+)'"
-    category: turborepo
-    severity: error
-    fix_type: safe
-    remediation: easy
-    description: Missing package reference
-    auto_fix_command: "bun run repo-cli tsconfig-sync"
-    fix_steps:
-      - Run tsconfig-sync to update references
-      - Verify package exists in packages/
-      - Check tsconfig.json references
+- id: TS_001
+  pattern: "Property '(.+)' is missing in type"
+  category: typescript
+  fix_type: safe
+  remediation: easy
+  description: Missing required property
+  fix_steps: [ordered list]
+  example: {error, before, after}
 ```
 
 ### Troubleshooting Table (for CLAUDE.md)

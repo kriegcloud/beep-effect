@@ -1,15 +1,15 @@
 # Phase 0 Handoff: Discovery & Baseline
 
-**Date**: 2026-02-04
 **From**: Spec Creation
 **To**: Phase 0 (Discovery)
 **Status**: Ready for execution
+**Date**: 2026-02-04
 
 ---
 
 ## Context for Phase 0
 
-### Working Context (≤2,000 tokens)
+### Working Context (≤2,000 tokens) <!-- TARGET: 800 tokens -->
 
 **Current Task**: Establish comprehensive baseline of AI-friendliness state.
 
@@ -27,7 +27,7 @@
 - `specs/*/REFLECTION_LOG.md` - Error pattern source
 - `.claude/rules/*.md` - Rules to audit
 
-### Episodic Context (≤1,000 tokens)
+### Episodic Context (≤1,000 tokens) <!-- TARGET: 400 tokens -->
 
 **Spec Creation Outcome**: Comprehensive spec created with 6 phases, validated against real-world sources.
 
@@ -41,13 +41,13 @@
 - Infrastructure exists but content missing (0% ai-context.md coverage)
 - 66 AGENTS.md files available as source material
 
-### Semantic Context (≤500 tokens)
+### Semantic Context (≤500 tokens) <!-- TARGET: 200 tokens -->
 
 **Tech Stack**: Effect-TS monorepo, Bun, TypeScript
 **Package Count**: 62+ packages across packages/, apps/, tooling/
 **Doc Infrastructure**: `/modules`, `/module`, `/module-search` commands ready
 
-### Procedural Context (links only)
+### Procedural Context (links only) <!-- NO TOKEN BUDGET - links only -->
 
 - Spec guide: `specs/_guide/README.md`
 - Effect patterns: `.claude/rules/effect-patterns.md`
