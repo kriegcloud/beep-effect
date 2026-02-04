@@ -8,12 +8,56 @@
 - Use Effect testing utilities from `@beep/testkit`
 - Use `Effect.log*` with structured objects for logging
 
+### Code Quality Examples
+
+**Avoid `any`, use Schema.decode:**
+```typescript
+// FORBIDDEN
+const data = response.json() as any;
+
+// REQUIRED
+import * as S from "effect/Schema";
+const UserSchema = S.Struct({ id: S.String, name: S.String });
+const data = yield* S.decodeUnknown(UserSchema)(response.json());
+```
+
+**Structured logging:**
+```typescript
+// FORBIDDEN
+console.log("User created:", userId);
+
+// REQUIRED
+Effect.logInfo("User created").pipe(
+  Effect.annotateLogs({ userId, action: "create" })
+);
+```
+
 ## Architecture Boundaries
 
 - NEVER use direct cross-slice imports
 - NEVER use relative `../../../` paths
 - ALWAYS use `@beep/*` path aliases
 - Cross-slice imports ONLY through `packages/shared/*` or `packages/common/*`
+
+### Architecture Examples
+
+**Cross-slice imports:**
+```typescript
+// FORBIDDEN - Direct cross-slice import
+import { Member } from "@beep/iam-domain";  // From calendar package
+
+// REQUIRED - Import through shared
+import { UserId } from "@beep/shared-domain";
+```
+
+**Slice layer direction (domain → tables → server → client → ui):**
+```typescript
+// FORBIDDEN - UI importing from server
+import { UserRepo } from "@beep/iam-server";  // In ui package
+
+// REQUIRED - UI imports from client
+import { UserContract } from "@beep/iam-client";  // In ui package
+```
 
 ## Slice Structure
 
@@ -41,6 +85,18 @@ domain -> tables -> server -> client -> ui
 - ALWAYS use the `@beep/env` package for typed environment access
 - NEVER commit `.env` files or secrets to version control
 - Use `dotenvx` for environment management
+
+### Environment Examples
+
+```typescript
+// FORBIDDEN
+const apiKey = process.env.API_KEY;
+
+// REQUIRED
+import { ServerEnv } from "@beep/env";
+const config = yield* ServerEnv;
+const apiKey = config.API_KEY;
+```
 
 ## Testing
 
