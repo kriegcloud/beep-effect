@@ -189,3 +189,16 @@
 {"eventType":"start","timestamp":"2026-02-04T19:30:59.209Z","sessionId":"d1bd5a09-fdcc-4197-83e9-e0a71bf27bbf","agentType":"Explore","triggeredBy":"auto"}
 {"eventType":"stop","timestamp":"2026-02-04T19:31:50.234Z","sessionId":"d1bd5a09-fdcc-4197-83e9-e0a71bf27bbf","agentType":"Explore","durationMs":51025,"outcome":"success"}
 {"eventType":"stop","timestamp":"2026-02-04T19:32:04.515Z","sessionId":"d1bd5a09-fdcc-4197-83e9-e0a71bf27bbf","agentType":"unknown","durationMs":0,"outcome":"success"}
+{"eventType":"start","timestamp":"2026-02-04T20:02:01.673Z","sessionId":"d1bd5a09-fdcc-4197-83e9-e0a71bf27bbf","agentType":"effect-code-writer","triggeredBy":"auto"}
+{"eventType":"start","timestamp":"2026-02-04T20:02:12.504Z","sessionId":"d1bd5a09-fdcc-4197-83e9-e0a71bf27bbf","agentType":"effect-code-writer","triggeredBy":"auto"}
+{"eventType":"start","timestamp":"2026-02-04T20:02:24.067Z","sessionId":"d1bd5a09-fdcc-4197-83e9-e0a71bf27bbf","agentType":"effect-code-writer","triggeredBy":"auto"}
+{"eventType":"start","timestamp":"2026-02-04T20:02:35.862Z","sessionId":"d1bd5a09-fdcc-4197-83e9-e0a71bf27bbf","agentType":"effect-code-writer","triggeredBy":"auto"}
+{"eventType":"stop","timestamp":"2026-02-04T20:04:10.597Z","sessionId":"d1bd5a09-fdcc-4197-83e9-e0a71bf27bbf","agentType":"effect-code-writer","durationMs":94735,"outcome":"success"}
+{"eventType":"stop","timestamp":"2026-02-04T20:04:27.902Z","sessionId":"d1bd5a09-fdcc-4197-83e9-e0a71bf27bbf","agentType":"unknown","durationMs":0,"outcome":"success"}
+{"eventType":"stop","timestamp":"2026-02-04T20:05:36.811Z","sessionId":"d1bd5a09-fdcc-4197-83e9-e0a71bf27bbf","agentType":"unknown","durationMs":0,"outcome":"success"}
+{"eventType":"stop","timestamp":"2026-02-04T20:08:45.222Z","sessionId":"d1bd5a09-fdcc-4197-83e9-e0a71bf27bbf","agentType":"unknown","durationMs":0,"outcome":"success"}
+{"eventType":"start","timestamp":"2026-02-04T20:09:27.292Z","sessionId":"d1bd5a09-fdcc-4197-83e9-e0a71bf27bbf","agentType":"effect-code-writer","triggeredBy":"auto"}
+{"eventType":"stop","timestamp":"2026-02-04T20:12:34.663Z","sessionId":"d1bd5a09-fdcc-4197-83e9-e0a71bf27bbf","agentType":"effect-code-writer","durationMs":187371,"outcome":"success"}
+{"eventType":"start","timestamp":"2026-02-04T20:13:12.305Z","sessionId":"d1bd5a09-fdcc-4197-83e9-e0a71bf27bbf","agentType":"test-writer","triggeredBy":"auto"}
+{"eventType":"start","timestamp":"2026-02-04T20:13:27.993Z","sessionId":"d1bd5a09-fdcc-4197-83e9-e0a71bf27bbf","agentType":"effect-code-writer","triggeredBy":"auto"}
+{"eventType":"stop","timestamp":"2026-02-04T20:17:59.194Z","sessionId":"d1bd5a09-fdcc-4197-83e9-e0a71bf27bbf","agentType":"unknown","durationMs":0,"outcome":"success"}

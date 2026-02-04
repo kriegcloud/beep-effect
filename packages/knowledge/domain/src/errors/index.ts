@@ -4,6 +4,7 @@
  * @module knowledge-domain/errors
  * @since 0.1.0
  */
+export * from "./cluster.errors";
 export * from "./entity-resolution.errors";
 export * from "./extraction.errors";
 export * from "./graphrag.errors";

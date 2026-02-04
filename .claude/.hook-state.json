@@ -1,5 +1,5 @@
 {
-  "lastCallMs": 1770235268917,
+  "lastCallMs": 1770236242208,
   "skillIndex": {
     "loadedAt": 1770235268945,
     "directoryMtime": 1770235177507,
@@ -965,7 +965,7 @@
     ]
   },
   "patternCache": {
-    "loadedAt": 1770233468474,
+    "loadedAt": 1770235353538,
     "directoryMtime": 1770167800598,
     "patterns": [
       {

@@ -45,7 +45,7 @@ export interface MergeHistoryService {
     userId: SharedEntityIds.UserId.Type
   ) => Effect.Effect<ReadonlyArray<MergeHistoryModel>, MergeError>;
 }
-
+export const $MergeHistoryId = $I`MergeHistory`
 /**
  * MergeHistory service for audit trail of entity resolution decisions.
  *
@@ -55,7 +55,7 @@ export interface MergeHistoryService {
  * @since 0.1.0
  * @category services
  */
-export class MergeHistory extends Effect.Service<MergeHistory>()($I`MergeHistory`, {
+export class MergeHistory extends Effect.Service<MergeHistory>()($MergeHistoryId, {
   accessors: true,
   effect: Effect.gen(function* () {
     const service: MergeHistoryService = {

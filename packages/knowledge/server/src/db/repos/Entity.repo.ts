@@ -48,6 +48,12 @@ class CountByOrganizationRequest extends S.Class<CountByOrganizationRequest>("Co
   organizationId: SharedEntityIds.OrganizationId,
 }) {}
 
+class FindByNormalizedTextRequest extends S.Class<FindByNormalizedTextRequest>("FindByNormalizedTextRequest")({
+  normalizedText: S.String,
+  organizationId: SharedEntityIds.OrganizationId,
+  limit: S.Number,
+}) {}
+
 class CountResult extends S.Class<CountResult>("CountResult")({
   count: S.String,
 }) {}
@@ -104,6 +110,19 @@ const makeEntityExtensions = Effect.gen(function* () {
         SELECT COUNT(*) as count
         FROM ${sql(tableName)}
         WHERE organization_id = ${req.organizationId}
+    `,
+  });
+
+  const findByNormalizedTextSchema = SqlSchema.findAll({
+    Request: FindByNormalizedTextRequest,
+    Result: Entities.Entity.Model,
+    execute: (req) => sql`
+        SELECT *
+        FROM ${sql(tableName)}
+        WHERE organization_id = ${req.organizationId}
+          AND similarity(mention, ${req.normalizedText}) > 0.3
+        ORDER BY similarity(mention, ${req.normalizedText}) DESC
+        LIMIT ${req.limit}
     `,
   });
 
@@ -202,11 +221,38 @@ const makeEntityExtensions = Effect.gen(function* () {
       })
     );
 
+  /**
+   * Find entities by normalized text using trigram similarity
+   *
+   * Uses PostgreSQL pg_trgm extension for fuzzy text matching.
+   * Returns entities where similarity(mention, normalizedText) > 0.3,
+   * ordered by similarity score descending.
+   *
+   * @param normalizedText - Normalized text to search for
+   * @param organizationId - Organization ID for scoping
+   * @param limit - Maximum number of results (default: 50)
+   * @returns Array of matching entities ordered by similarity
+   */
+  const findByNormalizedText = (
+    normalizedText: string,
+    organizationId: SharedEntityIds.OrganizationId.Type,
+    limit = 50
+  ): Effect.Effect<ReadonlyArray<Entities.Entity.Model>, DatabaseError> =>
+    findByNormalizedTextSchema({ normalizedText, organizationId, limit }).pipe(
+      Effect.catchTag("ParseError", (e) => Effect.die(e)),
+      Effect.mapError(DatabaseError.$match),
+      Effect.withSpan("EntityRepo.findByNormalizedText", {
+        captureStackTrace: false,
+        attributes: { normalizedText, organizationId, limit },
+      })
+    );
+
   return {
     findByIds,
     findByOntology,
     findByType,
     countByOrganization,
+    findByNormalizedText,
   };
 });
 

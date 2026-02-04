@@ -7,6 +7,7 @@
  * @since 0.1.0
  */
 
+import {$KnowledgeServerId} from "@beep/identity/packages";
 import {
   emptyInferenceResult,
   InferenceProvenance,
@@ -50,7 +51,7 @@ const inferredRelation = KnowledgeEntityIds.RelationId.make("knowledge_relation_
 // =============================================================================
 // Mock Service Factories
 // =============================================================================
-
+const $I = $KnowledgeServerId.create("Sparql/SparqlService");
 /**
  * Create a mock SparqlService with configurable entity/relation existence
  */
@@ -59,7 +60,7 @@ const createMockSparqlService = (config: {
   knownRelations: ReadonlyArray<string>;
 }) =>
   Layer.succeed(SparqlService, {
-    _tag: "@beep/knowledge-server/SparqlService" as const,
+    _tag: $I`SparqlService`,
     ask: (query: string) =>
       Effect.gen(function* () {
         // Check if any known entity is in the query
@@ -79,9 +80,10 @@ const createMockSparqlService = (config: {
 /**
  * Create a mock ReasonerService that returns empty or configured inference results
  */
+const $IReasonerService = $KnowledgeServerId.create("Reasoning/ReasonerService");
 const createMockReasonerService = (inferenceResult: InferenceResult = emptyInferenceResult) =>
   Layer.succeed(ReasonerService, {
-    _tag: "@beep/knowledge-server/ReasonerService" as const,
+    _tag: $IReasonerService`ReasonerService`,
     infer: () => Effect.succeed(inferenceResult),
     inferAndMaterialize: () => Effect.succeed(inferenceResult),
   });
@@ -126,7 +128,7 @@ const createTestLayer = (config: {
   });
 
   const MockReasoner = createMockReasonerService(config.inferenceResult ?? emptyInferenceResult);
-
+const $ICitationValidator = $KnowledgeServerId.create("GraphRAG/CitationValidator");
   return Layer.provideMerge(
     Layer.effect(
       CitationValidator,
@@ -222,7 +224,7 @@ const createTestLayer = (config: {
           Effect.all(A.map(citations, validateCitation), { concurrency: "unbounded" });
 
         return {
-          _tag: "@beep/knowledge-server/CitationValidator" as const,
+          _tag:$ICitationValidator`CitationValidator`,
           validateEntity,
           validateRelation,
           validateCitation,
