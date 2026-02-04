@@ -48,8 +48,8 @@ const makeTestLayer = () => Layer.provideMerge(ReasonerService.Default, RdfStore
 
 describe("ReasonerService", () => {
   describe("infer", () => {
-    live("infers from populated store", () =>
-      Effect.gen(function* () {
+    live("infers from populated store",
+      Effect.fn(function* () {
         const store = yield* RdfStore;
 
         yield* store.addQuad(
@@ -79,20 +79,20 @@ describe("ReasonerService", () => {
             q.object === fixtures.Person
         );
         assertTrue(hasPersonType);
-      }).pipe(Effect.provide(makeTestLayer())) as Effect.Effect<void>
+      }, Effect.provide(makeTestLayer()))
     );
 
-    live("returns empty result for empty store", () =>
-      Effect.gen(function* () {
+    live("returns empty result for empty store",
+      Effect.fn(function* () {
         const result = yield* ReasonerService.infer();
 
         strictEqual(result.stats.triplesInferred, 0);
         strictEqual(A.length(result.derivedTriples), 0);
-      }).pipe(Effect.provide(makeTestLayer())) as Effect.Effect<void>
+      }, Effect.provide(makeTestLayer()))
     );
 
-    live("accepts custom config", () =>
-      Effect.gen(function* () {
+    live("accepts custom config",
+      Effect.fn(function* () {
         const store = yield* RdfStore;
 
         yield* store.addQuad(
@@ -114,11 +114,11 @@ describe("ReasonerService", () => {
         const result = yield* ReasonerService.infer(config);
 
         assertTrue(result.stats.triplesInferred >= 1);
-      }).pipe(Effect.provide(makeTestLayer())) as Effect.Effect<void>
+      }, Effect.provide(makeTestLayer()))
     );
 
-    live("combines domain and subclass inferences", () =>
-      Effect.gen(function* () {
+    live("combines domain and subclass inferences",
+      Effect.fn(function* () {
         const store = yield* RdfStore;
 
         yield* store.addQuads([
@@ -158,11 +158,11 @@ describe("ReasonerService", () => {
 
         assertTrue(hasStudentType);
         assertTrue(hasPersonType);
-      }).pipe(Effect.provide(makeTestLayer())) as Effect.Effect<void>
+      }, Effect.provide(makeTestLayer()))
     );
 
-    live("fails with MaxDepthExceededError for deep hierarchies", () =>
-      Effect.gen(function* () {
+    live("fails with MaxDepthExceededError for deep hierarchies",
+      Effect.fn(function* () {
         const store = yield* RdfStore;
 
         const classChain = A.map(A.range(0, 19), (i) =>
@@ -188,11 +188,11 @@ describe("ReasonerService", () => {
           onLeft: (err) => assertTrue(err instanceof MaxDepthExceededError),
           onRight: () => assertTrue(false),
         });
-      }).pipe(Effect.provide(makeTestLayer())) as Effect.Effect<void>
+      }, Effect.provide(makeTestLayer()))
     );
 
-    live("fails with MaxInferencesExceededError for many inferences", () =>
-      Effect.gen(function* () {
+    live("fails with MaxInferencesExceededError for many inferences",
+      Effect.fn(function* () {
         const store = yield* RdfStore;
 
         const instanceQuads = A.map(A.range(0, 19), (i) =>
@@ -225,13 +225,13 @@ describe("ReasonerService", () => {
           onLeft: (err) => assertTrue(err instanceof MaxInferencesExceededError),
           onRight: () => assertTrue(false),
         });
-      }).pipe(Effect.provide(makeTestLayer())) as Effect.Effect<void>
+      }, Effect.provide(makeTestLayer()))
     );
   });
 
   describe("inferAndMaterialize", () => {
-    live("does not modify store when materialize is false", () =>
-      Effect.gen(function* () {
+    live("does not modify store when materialize is false",
+      Effect.fn(function* () {
         const store = yield* RdfStore;
 
         yield* store.addQuad(
@@ -259,11 +259,11 @@ describe("ReasonerService", () => {
         const afterCount = yield* store.size;
 
         strictEqual(afterCount, beforeCount);
-      }).pipe(Effect.provide(makeTestLayer())) as Effect.Effect<void>
+      }, Effect.provide(makeTestLayer()))
     );
 
-    live("adds inferred triples to store when materialize is true", () =>
-      Effect.gen(function* () {
+    live("adds inferred triples to store when materialize is true",
+      Effect.fn(function* () {
         const store = yield* RdfStore;
 
         yield* store.addQuad(
@@ -292,11 +292,11 @@ describe("ReasonerService", () => {
 
         assertTrue(afterCount > beforeCount);
         strictEqual(afterCount, beforeCount + result.stats.triplesInferred);
-      }).pipe(Effect.provide(makeTestLayer())) as Effect.Effect<void>
+      }, Effect.provide(makeTestLayer()))
     );
 
-    live("materialized triples are queryable", () =>
-      Effect.gen(function* () {
+    live("materialized triples are queryable",
+      Effect.fn(function* () {
         const store = yield* RdfStore;
 
         yield* store.addQuad(
@@ -327,11 +327,11 @@ describe("ReasonerService", () => {
         const results = yield* store.match(pattern);
 
         strictEqual(A.length(results), 1);
-      }).pipe(Effect.provide(makeTestLayer())) as Effect.Effect<void>
+      }, Effect.provide(makeTestLayer()))
     );
 
-    live("no-op when no inferences generated", () =>
-      Effect.gen(function* () {
+    live("no-op when no inferences generated",
+      Effect.fn(function* () {
         const store = yield* RdfStore;
 
         yield* store.addQuad(
@@ -352,11 +352,11 @@ describe("ReasonerService", () => {
         const afterCount = yield* store.size;
 
         strictEqual(afterCount, beforeCount);
-      }).pipe(Effect.provide(makeTestLayer())) as Effect.Effect<void>
+      }, Effect.provide(makeTestLayer()))
     );
 
-    live("defaults to not materializing", () =>
-      Effect.gen(function* () {
+    live("defaults to not materializing",
+      Effect.fn(function* () {
         const store = yield* RdfStore;
 
         yield* store.addQuad(
@@ -381,22 +381,22 @@ describe("ReasonerService", () => {
         const afterCount = yield* store.size;
 
         strictEqual(afterCount, beforeCount);
-      }).pipe(Effect.provide(makeTestLayer())) as Effect.Effect<void>
+      }, Effect.provide(makeTestLayer()))
     );
   });
 
   describe("store isolation", () => {
-    live("each test gets fresh store instance", () =>
-      Effect.gen(function* () {
+    live("each test gets fresh store instance",
+      Effect.fn(function* () {
         const store = yield* RdfStore;
         const size = yield* store.size;
 
         strictEqual(size, 0);
-      }).pipe(Effect.provide(makeTestLayer())) as Effect.Effect<void>
+      }, Effect.provide(makeTestLayer()))
     );
 
-    live("modifications do not persist across tests", () =>
-      Effect.gen(function* () {
+    live("modifications do not persist across tests",
+      Effect.fn(function* () {
         const store = yield* RdfStore;
 
         yield* store.addQuad(
@@ -409,13 +409,13 @@ describe("ReasonerService", () => {
 
         const size = yield* store.size;
         strictEqual(size, 1);
-      }).pipe(Effect.provide(makeTestLayer())) as Effect.Effect<void>
+      }, Effect.provide(makeTestLayer()))
     );
   });
 
   describe("provenance in results", () => {
-    live("includes provenance for all inferred triples", () =>
-      Effect.gen(function* () {
+    live("includes provenance for all inferred triples",
+      Effect.fn(function* () {
         const store = yield* RdfStore;
 
         yield* store.addQuads([
@@ -440,7 +440,7 @@ describe("ReasonerService", () => {
 
         const provenanceCount = Object.keys(result.provenance).length;
         strictEqual(provenanceCount, result.stats.triplesInferred);
-      }).pipe(Effect.provide(makeTestLayer())) as Effect.Effect<void>
+      }, Effect.provide(makeTestLayer()))
     );
   });
 });

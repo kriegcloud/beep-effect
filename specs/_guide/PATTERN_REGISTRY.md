@@ -1319,6 +1319,170 @@ const updateState = (update: Partial<HookState>) => {
 
 ---
 
+## Testing Patterns
+
+### effect-fn-test-bodies
+
+| Field | Value |
+|-------|-------|
+| **ID** | `pattern-2026-032` |
+| **Source** | knowledge-full-implementation, test fixes |
+| **Quality Score** | 95/102 |
+| **Status** | Validated |
+
+**Description**: Use `Effect.fn(function* () {...})` for test bodies and callbacks to ensure proper type inference. Never use arrow functions wrapping `Effect.gen`.
+
+**Applicable When**:
+- Writing Effect-based tests with @beep/testkit
+- Writing callbacks in array operations (A.findFirst, A.filterEffect)
+- Any generator function requiring Effect context
+
+**Example**:
+```typescript
+// REQUIRED - Proper type inference
+effect("test name", Effect.fn(function* () {
+  const result = yield* someEffect()  // Type inferred correctly
+  strictEqual(result, 42)
+}))
+
+// REQUIRED - Callbacks with yield*
+const found = yield* A.findFirst(
+  items,
+  Effect.fn(function* (item: ItemType) {
+    const isValid = yield* validateItem(item)
+    return isValid
+  })
+)
+
+// FORBIDDEN - Arrow function wrapper
+effect("test name", () =>
+  Effect.gen(function* () {
+    const result = yield* someEffect()  // Type: unknown
+  })
+)
+```
+
+**Validation**:
+- Fixed 15+ test files in knowledge-server package
+- Eliminated all `unknown` type errors in test bodies
+- Proper IDE autocomplete and type checking restored
+
+**Related Patterns**:
+- `layer-shared-runtime` (use layer() utility for shared layers)
+- `explicit-callback-types` (add type annotations to callbacks)
+
+---
+
+### layer-shared-runtime
+
+| Field | Value |
+|-------|-------|
+| **ID** | `pattern-2026-033` |
+| **Source** | knowledge-full-implementation, test fixes |
+| **Quality Score** | 90/102 |
+| **Status** | Validated |
+
+**Description**: Use `layer()` utility for test suites sharing expensive resources. Never use individual `.pipe(Effect.provide(TestLayer))` per test.
+
+**Applicable When**:
+- Multiple tests require same Layer (database, services)
+- Integration tests with shared setup
+- Tests requiring memoized runtime
+
+**Example**:
+```typescript
+// REQUIRED - Shared layer runtime
+const TestLayer = Layer.mergeAll(
+  DbConnectionLive,
+  UserRepoLive,
+  AuthServiceLive
+)
+
+layer(TestLayer, { timeout: Duration.seconds(60) })("user service", (it) => {
+  it.effect("creates user", Effect.fn(function* () {
+    const service = yield* UserService
+    const user = yield* service.create({ name: "Alice" })
+    strictEqual(user.name, "Alice")
+  }))
+
+  it.effect("finds user", Effect.fn(function* () {
+    const service = yield* UserService
+    const found = yield* service.findByName("Alice")
+    assertSome(found)
+  }))
+})
+
+// FORBIDDEN - Individual layer provision
+effect("creates user", () =>
+  Effect.gen(function* () {
+    const service = yield* UserService
+  }).pipe(Effect.provide(TestLayer))  // Expensive Layer reconstruction
+)
+
+effect("finds user", () =>
+  Effect.gen(function* () {
+    const service = yield* UserService
+  }).pipe(Effect.provide(TestLayer))  // Duplicated Layer provision
+)
+```
+
+**Validation**:
+- Reduced test runtime by ~40% (no Layer reconstruction)
+- Fixed context type mismatches (Effect<void, unknown, unknown> vs Effect<void, unknown, Services>)
+- Consistent service availability across test suite
+
+---
+
+### explicit-callback-types
+
+| Field | Value |
+|-------|-------|
+| **ID** | `pattern-2026-034` |
+| **Source** | knowledge-full-implementation, test fixes |
+| **Quality Score** | 85/102 |
+| **Status** | Validated |
+
+**Description**: Add explicit type annotations to callback parameters in Effect array operations. TypeScript cannot always infer callback parameter types.
+
+**Applicable When**:
+- Using A.some, A.filter, A.map with predicates
+- Using A.findFirst, A.findLast with conditions
+- Using A.filterEffect, A.forEach with Effects
+
+**Example**:
+```typescript
+// REQUIRED - Explicit type annotation
+const hasValid = A.some(items, (item: ItemType) => item.isValid)
+
+const filtered = A.filter(items, (item: ItemType) => item.count > 0)
+
+const found = yield* A.findFirst(
+  items,
+  Effect.fn(function* (item: ItemType) {
+    const isValid = yield* validateItem(item)
+    return isValid
+  })
+)
+
+// FORBIDDEN - Missing type annotation
+const hasValid = A.some(items, (item) => item.isValid)  // item: unknown
+
+const found = yield* A.findFirst(
+  items,
+  Effect.fn(function* (item) {  // item: unknown
+    const isValid = yield* validateItem(item)  // Type error
+    return isValid
+  })
+)
+```
+
+**Validation**:
+- Fixed 20+ callback type errors in knowledge-server tests
+- Prevented type inference failures in complex predicates
+- Improved IDE autocomplete in callbacks
+
+---
+
 ## Contributing New Patterns
 
 ### Quality Score Rubric (102 points)

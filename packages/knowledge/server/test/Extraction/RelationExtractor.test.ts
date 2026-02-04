@@ -19,8 +19,7 @@ const TEST_TIMEOUT = 60000;
 describe("RelationExtractor", () => {
   effect(
     "extracts relations between entities",
-    () =>
-      Effect.gen(function* () {
+    Effect.fn(function* () {
         const extractor = yield* RelationExtractor;
         const ontologyContext = createMockOntologyContext({
           classes: [
@@ -49,8 +48,7 @@ describe("RelationExtractor", () => {
         strictEqual(result.triples[0]?.predicateIri, "http://schema.org/worksFor");
         strictEqual(result.triples[0]?.objectMention, "Acme Corp");
         strictEqual(result.invalidTriples.length, 0);
-      }).pipe(
-        Effect.provide(RelationExtractor.Default),
+      }, Effect.provide(RelationExtractor.Default),
         withLanguageModel({
           generateObject: (objectName: string | undefined) =>
             objectName === "RelationOutput"
@@ -65,15 +63,13 @@ describe("RelationExtractor", () => {
                   ],
                 }
               : {},
-        })
-      ),
+        })),
     TEST_TIMEOUT
   );
 
   effect(
     "filters relations below confidence threshold",
-    () =>
-      Effect.gen(function* () {
+    Effect.fn(function* () {
         const extractor = yield* RelationExtractor;
         const ontologyContext = createMockOntologyContext({
           properties: [
@@ -98,8 +94,7 @@ describe("RelationExtractor", () => {
 
         strictEqual(result.triples.length, 1);
         strictEqual(result.triples[0]?.predicateIri, "http://schema.org/knows");
-      }).pipe(
-        Effect.provide(RelationExtractor.Default),
+      }, Effect.provide(RelationExtractor.Default),
         withLanguageModel({
           generateObject: (objectName: string | undefined) =>
             objectName === "RelationOutput"
@@ -120,15 +115,13 @@ describe("RelationExtractor", () => {
                   ],
                 }
               : {},
-        })
-      ),
+        })),
     TEST_TIMEOUT
   );
 
   effect(
     "identifies invalid predicates not in ontology",
-    () =>
-      Effect.gen(function* () {
+    Effect.fn(function* () {
         const extractor = yield* RelationExtractor;
         const ontologyContext = createMockOntologyContext({
           properties: [{ iri: "http://schema.org/knows", label: "knows" }],
@@ -145,8 +138,7 @@ describe("RelationExtractor", () => {
 
         strictEqual(result.triples.length, 0);
         strictEqual(result.invalidTriples.length, 1);
-      }).pipe(
-        Effect.provide(RelationExtractor.Default),
+      },   Effect.provide(RelationExtractor.Default),
         withLanguageModel({
           generateObject: (objectName: string | undefined) =>
             objectName === "RelationOutput"
@@ -161,15 +153,13 @@ describe("RelationExtractor", () => {
                   ],
                 }
               : {},
-        })
-      ),
+        })),
     TEST_TIMEOUT
   );
 
   effect(
     "skips extraction when insufficient entities",
-    () =>
-      Effect.gen(function* () {
+    Effect.fn(function* () {
         const extractor = yield* RelationExtractor;
         const ontologyContext = createMockOntologyContext();
 
@@ -180,14 +170,13 @@ describe("RelationExtractor", () => {
 
         strictEqual(result.triples.length, 0);
         strictEqual(result.tokensUsed, 0);
-      }).pipe(Effect.provide(RelationExtractor.Default), withLanguageModel({})),
+      }, Effect.provide(RelationExtractor.Default), withLanguageModel({})),
     TEST_TIMEOUT
   );
 
   effect(
     "deduplicates relations keeping highest confidence",
-    () =>
-      Effect.gen(function* () {
+    Effect.fn(function* () {
         const extractor = yield* RelationExtractor;
 
         const triples = [
@@ -209,14 +198,13 @@ describe("RelationExtractor", () => {
 
         strictEqual(deduped.length, 1);
         strictEqual(deduped[0]?.confidence, 0.95);
-      }).pipe(Effect.provide(RelationExtractor.Default), withLanguageModel({})),
+      }, Effect.provide(RelationExtractor.Default), withLanguageModel({})),
     TEST_TIMEOUT
   );
 
   effect(
     "handles literal values",
-    () =>
-      Effect.gen(function* () {
+    Effect.fn(function* () {
         const extractor = yield* RelationExtractor;
         const ontologyContext = createMockOntologyContext({
           properties: [{ iri: "http://schema.org/age", label: "age" }],
@@ -233,8 +221,7 @@ describe("RelationExtractor", () => {
         strictEqual(result.triples.length, 1);
         strictEqual(result.triples[0]?.literalValue, "30");
         strictEqual(result.triples[0]?.objectMention, undefined);
-      }).pipe(
-        Effect.provide(RelationExtractor.Default),
+      },  Effect.provide(RelationExtractor.Default),
         withLanguageModel({
           generateObject: (objectName: string | undefined) =>
             objectName === "RelationOutput"
@@ -250,15 +237,13 @@ describe("RelationExtractor", () => {
                   ],
                 }
               : {},
-        })
-      ),
+        })),
     TEST_TIMEOUT
   );
 
   effect(
     "adjusts evidence offsets to document level",
-    () =>
-      Effect.gen(function* () {
+    Effect.fn(function* () {
         const extractor = yield* RelationExtractor;
         const ontologyContext = createMockOntologyContext({
           properties: [{ iri: "http://schema.org/knows", label: "knows" }],
@@ -276,8 +261,7 @@ describe("RelationExtractor", () => {
         strictEqual(result.triples.length, 1);
         strictEqual(result.triples[0]?.evidenceStartChar, 100);
         strictEqual(result.triples[0]?.evidenceEndChar, 115);
-      }).pipe(
-        Effect.provide(RelationExtractor.Default),
+      }, Effect.provide(RelationExtractor.Default),
         withLanguageModel({
           generateObject: (objectName: string | undefined) =>
             objectName === "RelationOutput"
@@ -295,8 +279,7 @@ describe("RelationExtractor", () => {
                   ],
                 }
               : {},
-        })
-      ),
+        })),
     TEST_TIMEOUT
   );
 });

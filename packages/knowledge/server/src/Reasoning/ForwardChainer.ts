@@ -208,25 +208,21 @@ export const forwardChain = (
       // Check inference limit after adding
       totalInferences += addedCount;
       if (totalInferences > config.maxInferences) {
-        return yield* Effect.fail(
-          new MaxInferencesExceededError({
-            message: `Exceeded maximum inferences limit: ${config.maxInferences}`,
-            limit: config.maxInferences,
-            inferencesGenerated: totalInferences,
-          })
-        );
+        return yield* new MaxInferencesExceededError({
+          message: `Exceeded maximum inferences limit: ${config.maxInferences}`,
+          limit: config.maxInferences,
+          inferencesGenerated: totalInferences,
+        });
       }
     }
 
     // Check if we hit depth limit without reaching fixed-point
     if (iterations >= config.maxDepth && wouldGenerateMore(state)) {
-      return yield* Effect.fail(
-        new MaxDepthExceededError({
-          message: `Exceeded maximum reasoning depth: ${config.maxDepth}`,
-          limit: config.maxDepth,
-          iterations,
-        })
-      );
+      return yield* new MaxDepthExceededError({
+        message: `Exceeded maximum reasoning depth: ${config.maxDepth}`,
+        limit: config.maxDepth,
+        iterations,
+      });
     }
 
     const endTime = yield* DateTime.now;

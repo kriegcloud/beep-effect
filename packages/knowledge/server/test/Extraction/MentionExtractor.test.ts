@@ -18,8 +18,8 @@ const TEST_TIMEOUT = 60000;
 describe("MentionExtractor", () => {
   effect(
     "extracts mentions from a single chunk",
-    () =>
-      Effect.gen(function* () {
+    Effect.fn(
+      function* () {
         const extractor = yield* MentionExtractor;
         const chunk = new TextChunk({
           index: 0,
@@ -35,27 +35,27 @@ describe("MentionExtractor", () => {
         strictEqual(result.mentions[0]?.suggestedType, "Person");
         strictEqual(result.mentions[1]?.text, "Acme Corp");
         strictEqual(result.tokensUsed, 150);
-      }).pipe(
-        Effect.provide(MentionExtractor.Default),
-        withLanguageModel({
-          generateObject: (objectName: string | undefined) =>
-            objectName === "MentionOutput"
-              ? {
-                  mentions: [
-                    { text: "John Smith", startChar: 0, endChar: 10, confidence: 0.95, suggestedType: "Person" },
-                    { text: "Acme Corp", startChar: 20, endChar: 29, confidence: 0.9, suggestedType: "Organization" },
-                  ],
-                }
-              : {},
-        })
-      ),
+      },
+      Effect.provide(MentionExtractor.Default),
+      withLanguageModel({
+        generateObject: (objectName: string | undefined) =>
+          objectName === "MentionOutput"
+            ? {
+                mentions: [
+                  { text: "John Smith", startChar: 0, endChar: 10, confidence: 0.95, suggestedType: "Person" },
+                  { text: "Acme Corp", startChar: 20, endChar: 29, confidence: 0.9, suggestedType: "Organization" },
+                ],
+              }
+            : {},
+      })
+    ),
     TEST_TIMEOUT
   );
 
   effect(
     "filters mentions below confidence threshold",
-    () =>
-      Effect.gen(function* () {
+    Effect.fn(
+      function* () {
         const extractor = yield* MentionExtractor;
         const chunk = new TextChunk({
           index: 0,
@@ -68,27 +68,27 @@ describe("MentionExtractor", () => {
 
         strictEqual(result.mentions.length, 1);
         strictEqual(result.mentions[0]?.text, "John");
-      }).pipe(
-        Effect.provide(MentionExtractor.Default),
-        withLanguageModel({
-          generateObject: (objectName: string | undefined) =>
-            objectName === "MentionOutput"
-              ? {
-                  mentions: [
-                    { text: "John", startChar: 0, endChar: 4, confidence: 0.9 },
-                    { text: "maybe", startChar: 10, endChar: 15, confidence: 0.3 },
-                  ],
-                }
-              : {},
-        })
-      ),
+      },
+      Effect.provide(MentionExtractor.Default),
+      withLanguageModel({
+        generateObject: (objectName: string | undefined) =>
+          objectName === "MentionOutput"
+            ? {
+                mentions: [
+                  { text: "John", startChar: 0, endChar: 4, confidence: 0.9 },
+                  { text: "maybe", startChar: 10, endChar: 15, confidence: 0.3 },
+                ],
+              }
+            : {},
+      })
+    ),
     TEST_TIMEOUT
   );
 
   effect(
     "adjusts character offsets to document level",
-    () =>
-      Effect.gen(function* () {
+    Effect.fn(
+      function* () {
         const extractor = yield* MentionExtractor;
         const chunk = new TextChunk({
           index: 2,
@@ -102,22 +102,22 @@ describe("MentionExtractor", () => {
         strictEqual(result.mentions.length, 1);
         strictEqual(result.mentions[0]?.startChar, 100);
         strictEqual(result.mentions[0]?.endChar, 105);
-      }).pipe(
-        Effect.provide(MentionExtractor.Default),
-        withLanguageModel({
-          generateObject: (objectName: string | undefined) =>
-            objectName === "MentionOutput"
-              ? { mentions: [{ text: "Alice", startChar: 0, endChar: 5, confidence: 0.95 }] }
-              : {},
-        })
-      ),
+      },
+      Effect.provide(MentionExtractor.Default),
+      withLanguageModel({
+        generateObject: (objectName: string | undefined) =>
+          objectName === "MentionOutput"
+            ? { mentions: [{ text: "Alice", startChar: 0, endChar: 5, confidence: 0.95 }] }
+            : {},
+      })
+    ),
     TEST_TIMEOUT
   );
 
   effect(
     "extracts from multiple chunks",
-    () =>
-      Effect.gen(function* () {
+    Effect.fn(
+      function* () {
         const extractor = yield* MentionExtractor;
         const chunks = [
           new TextChunk({ index: 0, text: "Entity one.", startOffset: 0, endOffset: 11 }),
@@ -129,22 +129,22 @@ describe("MentionExtractor", () => {
         strictEqual(results.length, 2);
         strictEqual(results[0]?.mentions.length, 1);
         strictEqual(results[1]?.mentions.length, 1);
-      }).pipe(
-        Effect.provide(MentionExtractor.Default),
-        withLanguageModel({
-          generateObject: (objectName: string | undefined) =>
-            objectName === "MentionOutput"
-              ? { mentions: [{ text: "Entity", startChar: 0, endChar: 6, confidence: 0.9 }] }
-              : {},
-        })
-      ),
+      },
+      Effect.provide(MentionExtractor.Default),
+      withLanguageModel({
+        generateObject: (objectName: string | undefined) =>
+          objectName === "MentionOutput"
+            ? { mentions: [{ text: "Entity", startChar: 0, endChar: 6, confidence: 0.9 }] }
+            : {},
+      })
+    ),
     TEST_TIMEOUT
   );
 
   effect(
     "merges overlapping mentions keeping higher confidence",
-    () =>
-      Effect.gen(function* () {
+    Effect.fn(
+      function* () {
         const extractor = yield* MentionExtractor;
 
         const results = [
@@ -170,14 +170,17 @@ describe("MentionExtractor", () => {
         strictEqual(merged.length, 1);
         strictEqual(merged[0]?.text, "John");
         strictEqual(merged[0]?.confidence, 0.95);
-      }).pipe(Effect.provide(MentionExtractor.Default), withLanguageModel({})),
+      },
+      Effect.provide(MentionExtractor.Default),
+      withLanguageModel({})
+    ),
     TEST_TIMEOUT
   );
 
   effect(
     "handles empty input",
-    () =>
-      Effect.gen(function* () {
+    Effect.fn(
+      function* () {
         const extractor = yield* MentionExtractor;
         const chunk = new TextChunk({
           index: 0,
@@ -190,12 +193,12 @@ describe("MentionExtractor", () => {
 
         strictEqual(result.mentions.length, 0);
         assertTrue(result.tokensUsed >= 0);
-      }).pipe(
-        Effect.provide(MentionExtractor.Default),
-        withLanguageModel({
-          generateObject: (objectName: string | undefined) => (objectName === "MentionOutput" ? { mentions: [] } : {}),
-        })
-      ),
+      },
+      Effect.provide(MentionExtractor.Default),
+      withLanguageModel({
+        generateObject: (objectName: string | undefined) => (objectName === "MentionOutput" ? { mentions: [] } : {}),
+      })
+    ),
     TEST_TIMEOUT
   );
 });

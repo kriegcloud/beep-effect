@@ -101,32 +101,36 @@ const createMockRelation = (
 };
 
 describe("ContextFormatter", () => {
-  effect("extracts local name from hash IRI", () =>
-    Effect.gen(function* () {
+  effect(
+    "extracts local name from hash IRI",
+    Effect.fn(function* () {
       const iri = "http://www.w3.org/2002/07/owl#Class";
       const localName = extractLocalName(iri);
       strictEqual(localName, "Class");
     })
   );
 
-  effect("extracts local name from slash IRI", () =>
-    Effect.gen(function* () {
+  effect(
+    "extracts local name from slash IRI",
+    Effect.fn(function* () {
       const iri = "http://schema.org/Person";
       const localName = extractLocalName(iri);
       strictEqual(localName, "Person");
     })
   );
 
-  effect("returns full string when no separator found", () =>
-    Effect.gen(function* () {
+  effect(
+    "returns full string when no separator found",
+    Effect.fn(function* () {
       const iri = "SimpleString";
       const localName = extractLocalName(iri);
       strictEqual(localName, "SimpleString");
     })
   );
 
-  effect("formats entity with types", () =>
-    Effect.gen(function* () {
+  effect(
+    "formats entity with types",
+    Effect.fn(function* () {
       const entity = createMockEntity("John Smith", ["http://schema.org/Person"]);
       const formatted = formatEntity(entity);
 
@@ -135,8 +139,9 @@ describe("ContextFormatter", () => {
     })
   );
 
-  effect("formats entity with attributes", () =>
-    Effect.gen(function* () {
+  effect(
+    "formats entity with attributes",
+    Effect.fn(function* () {
       const entity = createMockEntity("John Smith", ["http://schema.org/Person"], {
         "http://schema.org/age": "30",
       });
@@ -147,8 +152,9 @@ describe("ContextFormatter", () => {
     })
   );
 
-  effect("formats context with entities and relations", () =>
-    Effect.gen(function* () {
+  effect(
+    "formats context with entities and relations",
+    Effect.fn(function* () {
       const e1Id = KnowledgeEntityIds.KnowledgeEntityId.create();
       const e2Id = KnowledgeEntityIds.KnowledgeEntityId.create();
 
@@ -168,8 +174,9 @@ describe("ContextFormatter", () => {
     })
   );
 
-  effect("formats literal relations", () =>
-    Effect.gen(function* () {
+  effect(
+    "formats literal relations",
+    Effect.fn(function* () {
       const e1Id = KnowledgeEntityIds.KnowledgeEntityId.create();
       const entities = [createMockEntityWithId(e1Id, "John", ["http://schema.org/Person"])];
       const relations = [createMockRelation(e1Id, "http://schema.org/age", undefined, "30", "xsd:integer")];
@@ -181,8 +188,9 @@ describe("ContextFormatter", () => {
     })
   );
 
-  effect("formats context with scores", () =>
-    Effect.gen(function* () {
+  effect(
+    "formats context with scores",
+    Effect.fn(function* () {
       const e1Id = KnowledgeEntityIds.KnowledgeEntityId.create();
       const entities = [createMockEntityWithId(e1Id, "John", ["http://schema.org/Person"])];
       const scores = MutableHashMap.fromIterable([[e1Id, 0.0312]]);
@@ -194,8 +202,9 @@ describe("ContextFormatter", () => {
     })
   );
 
-  effect("estimates token count", () =>
-    Effect.gen(function* () {
+  effect(
+    "estimates token count",
+    Effect.fn(function* () {
       const text = "This is a test string with 32 characters!";
       const tokens = estimateTokens(text);
 
@@ -204,8 +213,9 @@ describe("ContextFormatter", () => {
     })
   );
 
-  effect("truncates context to token budget", () =>
-    Effect.gen(function* () {
+  effect(
+    "truncates context to token budget",
+    Effect.fn(function* () {
       // Create many entities with proper IDs
       const entityIds = A.makeBy(50, () => KnowledgeEntityIds.KnowledgeEntityId.create());
       const entities = A.map(entityIds, (id, i) =>
@@ -216,15 +226,16 @@ describe("ContextFormatter", () => {
       );
 
       // Small token budget
-      const {context, entityCount} = truncateToTokenBudget(entities, relations, 200);
+      const { context, entityCount } = truncateToTokenBudget(entities, relations, 200);
 
       assertTrue(entityCount < 50);
       assertTrue(estimateTokens(context) <= 200);
     })
   );
 
-  effect("returns full context when within budget", () =>
-    Effect.gen(function* () {
+  effect(
+    "returns full context when within budget",
+    Effect.fn(function* () {
       const e1Id = KnowledgeEntityIds.KnowledgeEntityId.create();
       const entities = [createMockEntityWithId(e1Id, "John", ["http://schema.org/Person"])];
       const relations: Relation.Model[] = [];
@@ -236,8 +247,9 @@ describe("ContextFormatter", () => {
     })
   );
 
-  effect("handles empty entities", () =>
-    Effect.gen(function* () {
+  effect(
+    "handles empty entities",
+    Effect.fn(function* () {
       const context = formatContext([], []);
       strictEqual(context, "");
     })

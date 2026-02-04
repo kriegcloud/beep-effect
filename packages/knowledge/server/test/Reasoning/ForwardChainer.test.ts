@@ -501,7 +501,7 @@ describe("ForwardChainer", () => {
         const result = yield* forwardChain(quads, config);
 
         assertTrue(A.length(result.derivedTriples) >= 1);
-      }) as Effect.Effect<void>
+      })
     );
   });
 });

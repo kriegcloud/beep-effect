@@ -290,6 +290,47 @@ Phase 2b: Pipeline & Extensions
 | **Architecture** | #6 CLI vs Skill, #7 Effect Patterns |
 | **Documentation** | #8 Template Variables, #9 Decision Frameworks, #10 Missing Prompts |
 | **Context Management** | #12 Unbounded Phases, #13 Late Checkpoints, #14 Context Hoarding |
+| **Testing** | #15 Effect Testing Anti-Patterns |
+
+---
+
+## 15. Effect Testing Anti-Patterns
+
+**Wrong**: Using arrow functions for test bodies and missing type annotations
+```typescript
+// Wrong - Arrow function wrapper
+effect("test name", () =>
+  Effect.gen(function* () {
+    const result = yield* someEffect()  // Type: unknown
+  })
+)
+
+// Wrong - Missing type annotation
+const found = yield* A.findFirst(items, (item) => item.isValid)  // item: unknown
+
+// Wrong - Individual layer provision
+effect("test 1", () => Effect.gen(...).pipe(Effect.provide(TestLayer)))
+effect("test 2", () => Effect.gen(...).pipe(Effect.provide(TestLayer)))
+```
+
+**Right**: Using Effect.fn, explicit type annotations, and layer utility
+```typescript
+// Right - Effect.fn provides proper inference
+effect("test name", Effect.fn(function* () {
+  const result = yield* someEffect()  // Proper type inference
+}))
+
+// Right - Explicit type annotation
+const found = yield* A.findFirst(items, (item: ItemType) => item.isValid)
+
+// Right - Shared layer runtime
+layer(TestLayer)("suite", (it) => {
+  it.effect("test 1", Effect.fn(...))
+  it.effect("test 2", Effect.fn(...))
+})
+```
+
+**Critical**: See [patterns/effect-testing-standards.md](effect-testing-standards.md) for comprehensive testing patterns. These mistakes cause `unknown` type errors and expensive Layer reconstruction.
 
 ---
 
@@ -299,3 +340,4 @@ Phase 2b: Pipeline & Extensions
 - [HANDOFF_STANDARDS](../HANDOFF_STANDARDS.md) - Context transfer standards
 - [reflection-system](./reflection-system.md) - Pattern extraction workflow
 - [validation-dry-runs](./validation-dry-runs.md) - Validation protocols
+- [effect-testing-standards](./effect-testing-standards.md) - Mandatory testing patterns

@@ -21,8 +21,8 @@ import * as MutableHashMap from "effect/MutableHashMap";
 import * as O from "effect/Option";
 
 describe("RrfScorer", () => {
-  effect("calculates rrfComponent correctly", () =>
-    Effect.gen(function* () {
+  effect("calculates rrfComponent correctly",
+    Effect.fn(function* () {
       // RRF(rank) = 1 / (k + rank)
       const score1 = rrfComponent(1); // 1 / (60 + 1) = 1/61
       const score2 = rrfComponent(2); // 1 / (60 + 2) = 1/62
@@ -32,8 +32,8 @@ describe("RrfScorer", () => {
     })
   );
 
-  effect("calculates rrfScore from multiple ranks", () =>
-    Effect.gen(function* () {
+  effect("calculates rrfScore from multiple ranks",
+    Effect.fn(function* () {
       const ranks = [1, 2, 3];
       const score = rrfScore(ranks);
 
@@ -55,8 +55,8 @@ describe("RrfScorer", () => {
     })
   );
 
-  effect("fuses multiple ranked lists", () =>
-    Effect.gen(function* () {
+  effect("fuses multiple ranked lists",
+    Effect.fn(function* () {
       const list1 = ["a", "b", "c"];
       const list2 = ["b", "a", "d"];
 
@@ -66,7 +66,7 @@ describe("RrfScorer", () => {
       assertTrue(fused.length >= 3);
 
       // Find 'a' - appears at rank 1 in list1, rank 2 in list2
-      const aItem = fused.find((item) => item.id === "a");
+      const aItem = fused.find((item: { id: string; score: number }) => item.id === "a");
       assertTrue(aItem !== undefined);
       strictEqual(
         Math.round(aItem.score * 10000) / 10000,
@@ -74,7 +74,7 @@ describe("RrfScorer", () => {
       );
 
       // Find 'b' - appears at rank 2 in list1, rank 1 in list2
-      const bItem = fused.find((item) => item.id === "b");
+      const bItem = fused.find((item: { id: string; score: number }) => item.id === "b");
       assertTrue(bItem !== undefined);
       strictEqual(
         Math.round(bItem.score * 10000) / 10000,
@@ -86,8 +86,8 @@ describe("RrfScorer", () => {
     })
   );
 
-  effect("assigns graph ranks based on hop distance", () =>
-    Effect.gen(function* () {
+  effect("assigns graph ranks based on hop distance",
+    Effect.fn(function* () {
       const entityHops = MutableHashMap.fromIterable<string, number>([
         ["e1", 0], // seed
         ["e2", 0], // seed
@@ -109,15 +109,15 @@ describe("RrfScorer", () => {
     })
   );
 
-  effect("handles empty input in fuseRankings", () =>
-    Effect.gen(function* () {
+  effect("handles empty input in fuseRankings",
+    Effect.fn(function* () {
       const fused = fuseRankings([]);
       strictEqual(fused.length, 0);
     })
   );
 
-  effect("handles single list in fuseRankings", () =>
-    Effect.gen(function* () {
+  effect("handles single list in fuseRankings",
+    Effect.fn(function* () {
       const list = ["x", "y", "z"];
       const fused = fuseRankings([list]);
 

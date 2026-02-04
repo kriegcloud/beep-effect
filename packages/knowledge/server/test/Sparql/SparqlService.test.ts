@@ -2,19 +2,20 @@
  * SparqlService integration tests
  *
  * Tests SPARQL query execution against an in-memory RDF store.
- * Uses per-test Layer provision for state isolation (RdfStore accumulates data).
+ * Uses the layer() utility which creates fresh layer instances per test,
+ * providing state isolation for the stateful RdfStore.
  *
  * @module knowledge-server/test/Sparql/SparqlService.test
  * @since 0.1.0
  */
 
-
 import { SparqlUnsupportedFeatureError } from "@beep/knowledge-domain/errors";
 import { Literal, makeIRI, Quad, type SparqlBinding, SparqlBindings } from "@beep/knowledge-domain/value-objects";
 import { RdfStore } from "@beep/knowledge-server/Rdf";
 import { executeAsk, executeConstruct, executeSelect, SparqlParser, SparqlService } from "@beep/knowledge-server/Sparql";
-import { assertTrue, describe, effect, strictEqual } from "@beep/testkit";
+import { assertTrue, describe, layer, strictEqual } from "@beep/testkit";
 import * as A from "effect/Array";
+import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
@@ -109,11 +110,8 @@ const sparqlServiceLayer = Layer.effect(
 
 /**
  * Test layer that provides SparqlService with fresh RdfStore per test.
- * Each effect() call with Effect.provide(TestLayer) creates a fresh layer instance.
- *
- * NOTE: This file uses per-test Layer provision (not shared layer()) because
- * RdfStore is stateful and tests need isolated state. This is the correct pattern
- * for tests that mutate shared state.
+ * The layer() utility creates fresh layer instances for each test,
+ * ensuring state isolation for the stateful RdfStore.
  */
 const TestLayer = Layer.provideMerge(
   sparqlServiceLayer,
@@ -121,11 +119,12 @@ const TestLayer = Layer.provideMerge(
 );
 
 /**
- * Helper: Add test data to store
+ * Helper: Add test data to store (clears first to ensure isolation)
  */
-const addTestData = (quads: ReadonlyArray<Quad>) =>
-  Effect.gen(function* () {
+const addTestData =
+  Effect.fn(function* (quads: ReadonlyArray<Quad>) {
     const store = yield* RdfStore;
+    yield* store.clear();
     yield* store.addQuads(quads);
   });
 
@@ -190,9 +189,8 @@ const findBinding = (bindings: SparqlBindings, rowIndex: number, varName: string
 };
 
 describe("SparqlService", () => {
-  describe("select - single pattern", () => {
-    effect("should return bindings for simple type query", () =>
-      Effect.gen(function* () {
+  layer(TestLayer, { timeout: Duration.seconds(30) })("select - single pattern", (it) => {
+    it.effect("should return bindings for simple type query", Effect.fn(function* () {
         yield* addTestData([...createPersonQuads("alice", "Alice", 30), ...createPersonQuads("bob", "Bob", 25)]);
 
         const sparql = yield* SparqlService;
@@ -205,11 +203,11 @@ describe("SparqlService", () => {
         strictEqual(A.length(result.columns), 1);
         strictEqual(A.unsafeGet(result.columns, 0), "s");
         strictEqual(A.length(result.rows), 2);
-      }).pipe(Effect.provide(TestLayer))
+      })
     );
 
-    effect("should return empty bindings when no matches", () =>
-      Effect.gen(function* () {
+    it.effect("should return empty bindings when no matches",
+      Effect.fn(function* () {
         const sparql = yield* SparqlService;
         const result = yield* sparql.select(`
           SELECT ?s WHERE {
@@ -218,13 +216,12 @@ describe("SparqlService", () => {
         `);
 
         strictEqual(A.length(result.rows), 0);
-      }).pipe(Effect.provide(TestLayer))
+      })
     );
   });
 
-  describe("select - multiple patterns (join)", () => {
-    effect("should join patterns and return combined bindings", () =>
-      Effect.gen(function* () {
+  layer(TestLayer, { timeout: Duration.seconds(30) })("select - multiple patterns (join)", (it) => {
+    it.effect("should join patterns and return combined bindings", Effect.fn(function* () {
         yield* addTestData([...createPersonQuads("alice", "Alice", 30), ...createPersonQuads("bob", "Bob", 25)]);
 
         const sparql = yield* SparqlService;
@@ -247,11 +244,10 @@ describe("SparqlService", () => {
         });
         assertTrue(A.contains(names, "Alice"));
         assertTrue(A.contains(names, "Bob"));
-      }).pipe(Effect.provide(TestLayer))
+      })
     );
 
-    effect("should handle join with no matches", () =>
-      Effect.gen(function* () {
+    it.effect("should handle join with no matches", Effect.fn(function* () {
         yield* addTestData(createPersonQuads("alice", "Alice"));
 
         const sparql = yield* SparqlService;
@@ -263,13 +259,12 @@ describe("SparqlService", () => {
         `);
 
         strictEqual(A.length(result.rows), 0);
-      }).pipe(Effect.provide(TestLayer))
+      })
     );
   });
 
-  describe("select - FILTER", () => {
-    effect("should filter results with equality", () =>
-      Effect.gen(function* () {
+  layer(TestLayer, { timeout: Duration.seconds(30) })("select - FILTER", (it) => {
+    it.effect("should filter results with equality", Effect.fn(function* () {
         yield* addTestData([...createPersonQuads("alice", "Alice"), ...createPersonQuads("bob", "Bob")]);
 
         const sparql = yield* SparqlService;
@@ -284,11 +279,10 @@ describe("SparqlService", () => {
         const name = findBinding(result, 0, "name");
         assertTrue(O.isSome(name));
         strictEqual(O.getOrThrow(name), "Alice");
-      }).pipe(Effect.provide(TestLayer))
+      })
     );
 
-    effect("should filter results with inequality", () =>
-      Effect.gen(function* () {
+    it.effect("should filter results with inequality", Effect.fn(function* () {
         yield* addTestData([...createPersonQuads("alice", "Alice"), ...createPersonQuads("bob", "Bob")]);
 
         const sparql = yield* SparqlService;
@@ -303,11 +297,10 @@ describe("SparqlService", () => {
         const name = findBinding(result, 0, "name");
         assertTrue(O.isSome(name));
         strictEqual(O.getOrThrow(name), "Bob");
-      }).pipe(Effect.provide(TestLayer))
+      })
     );
 
-    effect("should filter results with numeric comparison", () =>
-      Effect.gen(function* () {
+    it.effect("should filter results with numeric comparison", Effect.fn(function* () {
         yield* addTestData([...createPersonQuads("alice", "Alice", 30), ...createPersonQuads("bob", "Bob", 25)]);
 
         const sparql = yield* SparqlService;
@@ -322,11 +315,10 @@ describe("SparqlService", () => {
         const age = findBinding(result, 0, "age");
         assertTrue(O.isSome(age));
         strictEqual(O.getOrThrow(age), "30");
-      }).pipe(Effect.provide(TestLayer))
+      })
     );
 
-    effect("should filter results with regex", () =>
-      Effect.gen(function* () {
+    it.effect("should filter results with regex", Effect.fn(function* () {
         yield* addTestData([...createPersonQuads("alice", "Alice"), ...createPersonQuads("bob", "Bob")]);
 
         const sparql = yield* SparqlService;
@@ -341,11 +333,10 @@ describe("SparqlService", () => {
         const name = findBinding(result, 0, "name");
         assertTrue(O.isSome(name));
         strictEqual(O.getOrThrow(name), "Alice");
-      }).pipe(Effect.provide(TestLayer))
+      })
     );
 
-    effect("should filter results with case-insensitive regex", () =>
-      Effect.gen(function* () {
+    it.effect("should filter results with case-insensitive regex", Effect.fn(function* () {
         yield* addTestData([...createPersonQuads("alice", "Alice"), ...createPersonQuads("bob", "Bob")]);
 
         const sparql = yield* SparqlService;
@@ -360,11 +351,10 @@ describe("SparqlService", () => {
         const name = findBinding(result, 0, "name");
         assertTrue(O.isSome(name));
         strictEqual(O.getOrThrow(name), "Alice");
-      }).pipe(Effect.provide(TestLayer))
+      })
     );
 
-    effect("should handle bound() function", () =>
-      Effect.gen(function* () {
+    it.effect("should handle bound() function", Effect.fn(function* () {
         // Create data where alice has age but bob doesn't
         yield* addTestData([...createPersonQuads("alice", "Alice", 30), ...createPersonQuads("bob", "Bob")]);
 
@@ -381,11 +371,10 @@ describe("SparqlService", () => {
         const name = findBinding(result, 0, "name");
         assertTrue(O.isSome(name));
         strictEqual(O.getOrThrow(name), "Alice");
-      }).pipe(Effect.provide(TestLayer))
+      })
     );
 
-    effect("should handle !bound() function", () =>
-      Effect.gen(function* () {
+    it.effect("should handle !bound() function", Effect.fn(function* () {
         yield* addTestData([...createPersonQuads("alice", "Alice", 30), ...createPersonQuads("bob", "Bob")]);
 
         const sparql = yield* SparqlService;
@@ -401,11 +390,10 @@ describe("SparqlService", () => {
         const name = findBinding(result, 0, "name");
         assertTrue(O.isSome(name));
         strictEqual(O.getOrThrow(name), "Bob");
-      }).pipe(Effect.provide(TestLayer))
+      })
     );
 
-    effect("should handle isIRI() function", () =>
-      Effect.gen(function* () {
+    it.effect("should handle isIRI() function", Effect.fn(function* () {
         yield* addTestData([
           ...createPersonQuads("alice", "Alice"),
           createKnowsQuad("alice", "bob"),
@@ -421,11 +409,10 @@ describe("SparqlService", () => {
         `);
 
         strictEqual(A.length(result.rows), 1);
-      }).pipe(Effect.provide(TestLayer))
+      })
     );
 
-    effect("should handle isLiteral() function", () =>
-      Effect.gen(function* () {
+    it.effect("should handle isLiteral() function", Effect.fn(function* () {
         yield* addTestData(createPersonQuads("alice", "Alice"));
 
         const sparql = yield* SparqlService;
@@ -437,11 +424,11 @@ describe("SparqlService", () => {
         `);
 
         strictEqual(A.length(result.rows), 1);
-      }).pipe(Effect.provide(TestLayer))
+      })
     );
 
-    effect("should handle && (logical and)", () =>
-      Effect.gen(function* () {
+    it.effect("should handle && (logical and)",
+      Effect.fn(function* () {
         yield* addTestData([
           ...createPersonQuads("alice", "Alice", 30),
           ...createPersonQuads("bob", "Bob", 25),
@@ -460,11 +447,11 @@ describe("SparqlService", () => {
         const age = findBinding(result, 0, "age");
         assertTrue(O.isSome(age));
         strictEqual(O.getOrThrow(age), "30");
-      }).pipe(Effect.provide(TestLayer))
+      })
     );
 
-    effect("should handle || (logical or)", () =>
-      Effect.gen(function* () {
+    it.effect("should handle || (logical or)",
+      Effect.fn(function* () {
         yield* addTestData([
           ...createPersonQuads("alice", "Alice", 30),
           ...createPersonQuads("bob", "Bob", 25),
@@ -480,13 +467,13 @@ describe("SparqlService", () => {
         `);
 
         strictEqual(A.length(result.rows), 2);
-      }).pipe(Effect.provide(TestLayer))
+      })
     );
   });
 
-  describe("select - modifiers", () => {
-    effect("should handle LIMIT", () =>
-      Effect.gen(function* () {
+  layer(TestLayer, { timeout: Duration.seconds(30) })("select - modifiers", (it) => {
+    it.effect("should handle LIMIT",
+      Effect.fn(function* () {
         yield* addTestData([
           ...createPersonQuads("alice", "Alice"),
           ...createPersonQuads("bob", "Bob"),
@@ -502,11 +489,11 @@ describe("SparqlService", () => {
         `);
 
         strictEqual(A.length(result.rows), 2);
-      }).pipe(Effect.provide(TestLayer))
+      })
     );
 
-    effect("should handle OFFSET", () =>
-      Effect.gen(function* () {
+    it.effect("should handle OFFSET",
+      Effect.fn(function* () {
         yield* addTestData([
           ...createPersonQuads("alice", "Alice"),
           ...createPersonQuads("bob", "Bob"),
@@ -522,11 +509,11 @@ describe("SparqlService", () => {
         `);
 
         strictEqual(A.length(result.rows), 2);
-      }).pipe(Effect.provide(TestLayer))
+      })
     );
 
-    effect("should handle LIMIT with OFFSET", () =>
-      Effect.gen(function* () {
+    it.effect("should handle LIMIT with OFFSET",
+      Effect.fn(function* () {
         yield* addTestData([
           ...createPersonQuads("alice", "Alice"),
           ...createPersonQuads("bob", "Bob"),
@@ -543,11 +530,11 @@ describe("SparqlService", () => {
         `);
 
         strictEqual(A.length(result.rows), 1);
-      }).pipe(Effect.provide(TestLayer))
+      })
     );
 
-    effect("should handle DISTINCT", () =>
-      Effect.gen(function* () {
+    it.effect("should handle DISTINCT",
+      Effect.fn(function* () {
         // Add duplicate type assertions
         const alice = makeIRI("http://example.org/alice");
         const rdfType = makeIRI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
@@ -567,13 +554,13 @@ describe("SparqlService", () => {
         `);
 
         strictEqual(A.length(result.rows), 1);
-      }).pipe(Effect.provide(TestLayer))
+      })
     );
   });
 
-  describe("construct", () => {
-    effect("should construct new quads from pattern", () =>
-      Effect.gen(function* () {
+  layer(TestLayer, { timeout: Duration.seconds(30) })("construct", (it) => {
+    it.effect("should construct new quads from pattern",
+      Effect.fn(function* () {
         yield* addTestData(createPersonQuads("alice", "Alice"));
 
         const sparql = yield* SparqlService;
@@ -587,13 +574,13 @@ describe("SparqlService", () => {
         `);
 
         strictEqual(A.length(result), 1);
-        const quad = A.unsafeGet(result, 0);
+        const quad: Quad = A.unsafeGet(result, 0);
         strictEqual(quad.predicate, "http://example.org/displayName");
-      }).pipe(Effect.provide(TestLayer))
+      })
     );
 
-    effect("should return empty array when no matches", () =>
-      Effect.gen(function* () {
+    it.effect("should return empty array when no matches",
+      Effect.fn(function* () {
         const sparql = yield* SparqlService;
         const result = yield* sparql.construct(`
           CONSTRUCT {
@@ -605,13 +592,13 @@ describe("SparqlService", () => {
         `);
 
         strictEqual(A.length(result), 0);
-      }).pipe(Effect.provide(TestLayer))
+      })
     );
   });
 
-  describe("ask", () => {
-    effect("should return true when pattern matches", () =>
-      Effect.gen(function* () {
+  layer(TestLayer, { timeout: Duration.seconds(30) })("ask", (it) => {
+    it.effect("should return true when pattern matches",
+      Effect.fn(function* () {
         yield* addTestData(createPersonQuads("alice", "Alice"));
 
         const sparql = yield* SparqlService;
@@ -622,11 +609,11 @@ describe("SparqlService", () => {
         `);
 
         strictEqual(result, true);
-      }).pipe(Effect.provide(TestLayer))
+      })
     );
 
-    effect("should return false when pattern doesn't match", () =>
-      Effect.gen(function* () {
+    it.effect("should return false when pattern doesn't match",
+      Effect.fn(function* () {
         yield* addTestData(createPersonQuads("alice", "Alice"));
 
         const sparql = yield* SparqlService;
@@ -637,13 +624,13 @@ describe("SparqlService", () => {
         `);
 
         strictEqual(result, false);
-      }).pipe(Effect.provide(TestLayer))
+      })
     );
   });
 
-  describe("query (generic)", () => {
-    effect("should execute SELECT query via generic query method", () =>
-      Effect.gen(function* () {
+  layer(TestLayer, { timeout: Duration.seconds(30) })("query (generic)", (it) => {
+    it.effect("should execute SELECT query via generic query method",
+      Effect.fn(function* () {
         yield* addTestData(createPersonQuads("alice", "Alice"));
 
         const sparql = yield* SparqlService;
@@ -653,11 +640,11 @@ describe("SparqlService", () => {
 
         // Result should be SparqlBindings
         assertTrue(result instanceof SparqlBindings);
-      }).pipe(Effect.provide(TestLayer))
+      })
     );
 
-    effect("should execute ASK query via generic query method", () =>
-      Effect.gen(function* () {
+    it.effect("should execute ASK query via generic query method",
+      Effect.fn(function* () {
         yield* addTestData(createPersonQuads("alice", "Alice"));
 
         const sparql = yield* SparqlService;
@@ -668,11 +655,11 @@ describe("SparqlService", () => {
         // Result should be boolean
         strictEqual(typeof result, "boolean");
         strictEqual(result, true);
-      }).pipe(Effect.provide(TestLayer))
+      })
     );
 
-    effect("should execute CONSTRUCT query via generic query method", () =>
-      Effect.gen(function* () {
+    it.effect("should execute CONSTRUCT query via generic query method",
+      Effect.fn(function* () {
         yield* addTestData(createPersonQuads("alice", "Alice"));
 
         const sparql = yield* SparqlService;
@@ -684,13 +671,13 @@ describe("SparqlService", () => {
         // Result should be array of quads
         assertTrue(A.isArray(result));
         strictEqual(A.length(result as ReadonlyArray<Quad>), 1);
-      }).pipe(Effect.provide(TestLayer))
+      })
     );
   });
 
-  describe("error handling", () => {
-    effect("should fail on syntax error", () =>
-      Effect.gen(function* () {
+  layer(TestLayer, { timeout: Duration.seconds(30) })("error handling", (it) => {
+    it.effect("should fail on syntax error",
+      Effect.fn(function* () {
         const sparql = yield* SparqlService;
         const result = yield* Effect.either(
           sparql.select(`
@@ -699,11 +686,11 @@ describe("SparqlService", () => {
         );
 
         assertTrue(result._tag === "Left");
-      }).pipe(Effect.provide(TestLayer))
+      })
     );
 
-    effect("should fail on unsupported query type", () =>
-      Effect.gen(function* () {
+    it.effect("should fail on unsupported query type",
+      Effect.fn(function* () {
         const sparql = yield* SparqlService;
         const result = yield* Effect.either(
           sparql.select(`
@@ -715,7 +702,7 @@ describe("SparqlService", () => {
         if (result._tag === "Left") {
           assertTrue(result.left instanceof SparqlUnsupportedFeatureError);
         }
-      }).pipe(Effect.provide(TestLayer))
+      })
     );
   });
 });

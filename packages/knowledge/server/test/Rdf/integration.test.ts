@@ -11,8 +11,9 @@ import { Literal, makeIRI, Quad, QuadPattern } from "@beep/knowledge-domain/valu
 import { RdfBuilder } from "@beep/knowledge-server/Rdf/RdfBuilder";
 import { RdfStore } from "@beep/knowledge-server/Rdf/RdfStoreService";
 import { Serializer } from "@beep/knowledge-server/Rdf/Serializer";
-import { assertTrue, describe, effect, strictEqual } from "@beep/testkit";
+import { describe, effect, layer, strictEqual, assertTrue } from "@beep/testkit";
 import * as A from "effect/Array";
+import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Str from "effect/String";
@@ -63,12 +64,17 @@ const fixtures = {
 };
 
 describe("RDF Integration", () => {
-  describe("RdfBuilder + Serializer Round-Trip", () => {
-    effect("should build quads, serialize to Turtle, parse back, and verify data matches", () =>
-      Effect.gen(function* () {
+  layer(
+    TestLayer,
+    { timeout: Duration.seconds(30) }
+  )("RdfBuilder + Serializer Round-Trip", (it) => {
+    it.effect(
+      "should build quads, serialize to Turtle, parse back, and verify data matches",
+      Effect.fn(function* () {
         const builder = yield* RdfBuilder;
         const serializer = yield* Serializer;
         const store = yield* RdfStore;
+        yield* store.clear();
 
         // Build quads using fluent API
         yield* builder.subject(fixtures.alice).predicate(fixtures.foafName).literal("Alice").add();
@@ -98,7 +104,7 @@ describe("RDF Integration", () => {
         // Verify specific data is preserved
         const hasAliceName = A.some(
           parsedQuads,
-          (q) =>
+          (q: Quad) =>
             q.subject === fixtures.alice &&
             q.predicate === fixtures.foafName &&
             q.object instanceof Literal &&
@@ -108,27 +114,29 @@ describe("RDF Integration", () => {
 
         const hasAliceKnowsBob = A.some(
           parsedQuads,
-          (q) => q.subject === fixtures.alice && q.predicate === fixtures.foafKnows && q.object === fixtures.bob
+          (q: Quad) => q.subject === fixtures.alice && q.predicate === fixtures.foafKnows && q.object === fixtures.bob
         );
         assertTrue(hasAliceKnowsBob);
 
         const hasBobName = A.some(
           parsedQuads,
-          (q) =>
+          (q: Quad) =>
             q.subject === fixtures.bob &&
             q.predicate === fixtures.foafName &&
             q.object instanceof Literal &&
             q.object.value === "Bob"
         );
         assertTrue(hasBobName);
-      }).pipe(Effect.provide(TestLayer))
+      })
     );
 
-    effect("should preserve typed literals through build-serialize-parse cycle", () =>
-      Effect.gen(function* () {
+    it.effect(
+      "should preserve typed literals through build-serialize-parse cycle",
+      Effect.fn(function* () {
         const builder = yield* RdfBuilder;
         const serializer = yield* Serializer;
         const store = yield* RdfStore;
+        yield* store.clear();
 
         // Build a typed literal
         yield* builder
@@ -149,14 +157,16 @@ describe("RDF Integration", () => {
         assertTrue(quad.object instanceof Literal);
         strictEqual(quad.object.value, "30");
         strictEqual(quad.object.datatype, fixtures.xsdInteger);
-      }).pipe(Effect.provide(TestLayer))
+      })
     );
 
-    effect("should preserve language-tagged literals through round-trip", () =>
-      Effect.gen(function* () {
+    it.effect(
+      "should preserve language-tagged literals through round-trip",
+      Effect.fn(function* () {
         const builder = yield* RdfBuilder;
         const serializer = yield* Serializer;
         const store = yield* RdfStore;
+        yield* store.clear();
 
         // Build with language tag
         yield* builder.subject(fixtures.alice).predicate(fixtures.foafName).literal("Alice", "en").add();
@@ -171,16 +181,17 @@ describe("RDF Integration", () => {
         // Verify both language variants preserved
         strictEqual(A.length(parsedQuads), 2);
 
-        const hasEnglish = A.some(parsedQuads, (q) => q.object instanceof Literal && q.object.language === "en");
+        const hasEnglish = A.some(parsedQuads, (q: Quad) => q.object instanceof Literal && q.object.language === "en");
         assertTrue(hasEnglish);
 
-        const hasSpanish = A.some(parsedQuads, (q) => q.object instanceof Literal && q.object.language === "es");
+        const hasSpanish = A.some(parsedQuads, (q: Quad) => q.object instanceof Literal && q.object.language === "es");
         assertTrue(hasSpanish);
-      }).pipe(Effect.provide(TestLayer))
+      })
     );
 
-    effect("should handle N-Triples format in round-trip", () =>
-      Effect.gen(function* () {
+    it.effect(
+      "should handle N-Triples format in round-trip",
+      Effect.fn(function* () {
         const builder = yield* RdfBuilder;
         const serializer = yield* Serializer;
         const store = yield* RdfStore;
@@ -196,15 +207,20 @@ describe("RDF Integration", () => {
         strictEqual(parsedQuads[0]?.subject, fixtures.alice);
         strictEqual(parsedQuads[0]?.predicate, fixtures.foafKnows);
         strictEqual(parsedQuads[0]?.object, fixtures.bob);
-      }).pipe(Effect.provide(TestLayer))
+      })
     );
   });
 
-  describe("Multiple Builders Sharing Same Store", () => {
-    effect("should accumulate quads from sequential builder operations", () =>
-      Effect.gen(function* () {
+  layer(
+    TestLayer,
+    { timeout: Duration.seconds(30) }
+  )("Multiple Builders Sharing Same Store", (it) => {
+    it.effect(
+      "should accumulate quads from sequential builder operations",
+      Effect.fn(function* () {
         const builder = yield* RdfBuilder;
         const store = yield* RdfStore;
+        yield* store.clear();
 
         // Simulate "source A" adding quads
         yield* builder.subject(fixtures.alice).predicate(fixtures.foafName).literal("Alice").add();
@@ -228,13 +244,15 @@ describe("RDF Integration", () => {
         // Count subjects
         const subjects = yield* store.getSubjects();
         strictEqual(A.length(subjects), 3);
-      }).pipe(Effect.provide(TestLayer))
+      })
     );
 
-    effect("should allow concurrent builder operations with parallel add", () =>
-      Effect.gen(function* () {
+    it.effect(
+      "should allow concurrent builder operations with parallel add",
+      Effect.fn(function* () {
         const builder = yield* RdfBuilder;
         const store = yield* RdfStore;
+        yield* store.clear();
 
         // Build quads without adding
         const quad1 = builder.subject(fixtures.alice).predicate(fixtures.foafName).literal("Alice").build();
@@ -248,13 +266,15 @@ describe("RDF Integration", () => {
 
         const size = yield* store.size;
         strictEqual(size, 3);
-      }).pipe(Effect.provide(TestLayer))
+      })
     );
 
-    effect("should chain predicates on same subject to add final quad only", () =>
-      Effect.gen(function* () {
+    it.effect(
+      "should chain predicates on same subject to add final quad only",
+      Effect.fn(function* () {
         const builder = yield* RdfBuilder;
         const store = yield* RdfStore;
+        yield* store.clear();
 
         // Predicate chaining navigates to new predicate context but only adds the final quad
         // This is useful for exploring/building but NOT for adding multiple quads
@@ -270,13 +290,15 @@ describe("RDF Integration", () => {
         const aliceQuads = yield* store.match(new QuadPattern({ subject: fixtures.alice }));
         strictEqual(A.length(aliceQuads), 1);
         strictEqual(aliceQuads[0]?.predicate, fixtures.foafKnows);
-      }).pipe(Effect.provide(TestLayer))
+      })
     );
 
-    effect("should add multiple quads for same subject using separate calls", () =>
-      Effect.gen(function* () {
+    it.effect(
+      "should add multiple quads for same subject using separate calls",
+      Effect.fn(function* () {
         const builder = yield* RdfBuilder;
         const store = yield* RdfStore;
+        yield* store.clear();
 
         // To add multiple quads, call add() for each
         yield* builder.subject(fixtures.alice).predicate(fixtures.foafName).literal("Alice").add();
@@ -292,15 +314,20 @@ describe("RDF Integration", () => {
         // Should have created 3 quads for alice
         const aliceQuads = yield* store.match(new QuadPattern({ subject: fixtures.alice }));
         strictEqual(A.length(aliceQuads), 3);
-      }).pipe(Effect.provide(TestLayer))
+      })
     );
   });
 
-  describe("Builder + Store Operations", () => {
-    effect("should build quads, match by pattern, and verify counts", () =>
-      Effect.gen(function* () {
+  layer(
+    TestLayer,
+    { timeout: Duration.seconds(30) }
+  )("Builder + Store Operations", (it) => {
+    it.effect(
+      "should build quads, match by pattern, and verify counts",
+      Effect.fn(function* () {
         const builder = yield* RdfBuilder;
         const store = yield* RdfStore;
+        yield* store.clear();
 
         // Build a social network graph
         yield* builder.subject(fixtures.alice).predicate(fixtures.foafName).literal("Alice").add();
@@ -329,13 +356,15 @@ describe("RDF Integration", () => {
         // Match by object
         const carolAsObject = yield* store.match(new QuadPattern({ object: fixtures.carol }));
         strictEqual(A.length(carolAsObject), 2);
-      }).pipe(Effect.provide(TestLayer))
+      })
     );
 
-    effect("should build quads, remove specific ones, and verify remaining", () =>
-      Effect.gen(function* () {
+    it.effect(
+      "should build quads, remove specific ones, and verify remaining",
+      Effect.fn(function* () {
         const builder = yield* RdfBuilder;
         const store = yield* RdfStore;
+        yield* store.clear();
 
         // Build quads
         yield* builder.subject(fixtures.alice).predicate(fixtures.foafName).literal("Alice").add();
@@ -365,13 +394,15 @@ describe("RDF Integration", () => {
         // Verify name quads remain
         const nameQuads = yield* store.match(new QuadPattern({ predicate: fixtures.foafName }));
         strictEqual(A.length(nameQuads), 2);
-      }).pipe(Effect.provide(TestLayer))
+      })
     );
 
-    effect("should use countMatches for efficient counting without fetching quads", () =>
-      Effect.gen(function* () {
+    it.effect(
+      "should use countMatches for efficient counting without fetching quads",
+      Effect.fn(function* () {
         const builder = yield* RdfBuilder;
         const store = yield* RdfStore;
+        yield* store.clear();
 
         // Build many quads
         const subjects = [fixtures.alice, fixtures.bob, fixtures.carol];
@@ -391,13 +422,15 @@ describe("RDF Integration", () => {
         // Count all quads
         const totalCount = yield* store.countMatches(new QuadPattern({}));
         strictEqual(totalCount, 9);
-      }).pipe(Effect.provide(TestLayer))
+      })
     );
 
-    effect("should verify hasQuad for existence checks", () =>
-      Effect.gen(function* () {
+    it.effect(
+      "should verify hasQuad for existence checks",
+      Effect.fn(function* () {
         const builder = yield* RdfBuilder;
         const store = yield* RdfStore;
+        yield* store.clear();
 
         // Build a quad
         yield* builder.subject(fixtures.alice).predicate(fixtures.foafName).literal("Alice").add();
@@ -419,15 +452,20 @@ describe("RDF Integration", () => {
         });
         const doesNotExist = yield* store.hasQuad(nonExistingQuad);
         assertTrue(!doesNotExist);
-      }).pipe(Effect.provide(TestLayer))
+      })
     );
   });
 
-  describe("Named Graph Isolation", () => {
-    effect("should build quads in different named graphs and verify isolation", () =>
-      Effect.gen(function* () {
+  layer(
+    TestLayer,
+    { timeout: Duration.seconds(30) }
+  )("Named Graph Isolation", (it) => {
+    it.effect(
+      "should build quads in different named graphs and verify isolation",
+      Effect.fn(function* () {
         const builder = yield* RdfBuilder;
         const store = yield* RdfStore;
+        yield* store.clear();
 
         // Add quads to graph1 (people)
         yield* builder
@@ -476,13 +514,16 @@ describe("RDF Integration", () => {
         strictEqual(A.length(graphs), 2);
         assertTrue(A.contains(graphs, fixtures.graphPeople));
         assertTrue(A.contains(graphs, fixtures.graphProjects));
-      }).pipe(Effect.provide(TestLayer))
+      })
     );
 
-    effect("should serialize only specific graph and verify content isolation", () =>
-      Effect.gen(function* () {
+    it.effect(
+      "should serialize only specific graph and verify content isolation",
+      Effect.fn(function* () {
         const builder = yield* RdfBuilder;
         const serializer = yield* Serializer;
+        const store = yield* RdfStore;
+        yield* store.clear();
 
         // Build quads in separate graphs
         yield* builder
@@ -508,13 +549,15 @@ describe("RDF Integration", () => {
         const graph2Turtle = yield* serializer.serialize("Turtle", fixtures.graph2);
         assertTrue(includes(graph2Turtle, "Bob in Graph2"));
         assertTrue(!includes(graph2Turtle, "Alice in Graph1"));
-      }).pipe(Effect.provide(TestLayer))
+      })
     );
 
-    effect("should remove quads from a specific named graph", () =>
-      Effect.gen(function* () {
+    it.effect(
+      "should remove quads from a specific named graph",
+      Effect.fn(function* () {
         const builder = yield* RdfBuilder;
         const store = yield* RdfStore;
+        yield* store.clear();
 
         // Build quads in two graphs
         yield* builder
@@ -541,13 +584,15 @@ describe("RDF Integration", () => {
         const remainingQuads = yield* store.getQuads();
         strictEqual(A.length(remainingQuads), 1);
         strictEqual(remainingQuads[0]?.graph, fixtures.graph2);
-      }).pipe(Effect.provide(TestLayer))
+      })
     );
 
-    effect("should list named graphs after adding quads", () =>
-      Effect.gen(function* () {
+    it.effect(
+      "should list named graphs after adding quads",
+      Effect.fn(function* () {
         const builder = yield* RdfBuilder;
         const store = yield* RdfStore;
+        yield* store.clear();
 
         // Add quads to different named graphs
         yield* builder
@@ -564,13 +609,15 @@ describe("RDF Integration", () => {
         strictEqual(A.length(graphs), 2);
         assertTrue(A.contains(graphs, fixtures.graph1));
         assertTrue(A.contains(graphs, fixtures.graph2));
-      }).pipe(Effect.provide(TestLayer))
+      })
     );
 
-    effect("should mix default graph and named graphs correctly", () =>
-      Effect.gen(function* () {
+    it.effect(
+      "should mix default graph and named graphs correctly",
+      Effect.fn(function* () {
         const builder = yield* RdfBuilder;
         const store = yield* RdfStore;
+        yield* store.clear();
 
         // Add to default graph (no inGraph call)
         yield* builder.subject(fixtures.alice).predicate(fixtures.foafName).literal("Alice Default").add();
@@ -596,17 +643,19 @@ describe("RDF Integration", () => {
         strictEqual(A.length(graph1Quads), 1);
 
         // Verify default graph quad has undefined graph
-        const defaultQuad = A.findFirst(aliceQuads, (q) => q.graph === undefined);
+        const defaultQuad = A.findFirst(aliceQuads, (q: Quad) => q.graph === undefined);
         assertTrue(defaultQuad._tag === "Some");
         assertTrue(defaultQuad.value.object instanceof Literal);
         strictEqual(defaultQuad.value.object.value, "Alice Default");
-      }).pipe(Effect.provide(TestLayer))
+      })
     );
 
-    effect("should parse Turtle into named graph and serialize back", () =>
-      Effect.gen(function* () {
+    it.effect(
+      "should parse Turtle into named graph and serialize back",
+      Effect.fn(function* () {
         const serializer = yield* Serializer;
         const store = yield* RdfStore;
+        yield* store.clear();
 
         const turtle = `
 @prefix ex: <http://example.org/> .
@@ -622,19 +671,23 @@ ex:bob foaf:name "Bob" .
         // Verify quads are in the named graph
         const quads = yield* store.getQuads();
         strictEqual(A.length(quads), 2);
-        assertTrue(A.every(quads, (q) => q.graph === fixtures.graph1));
+        assertTrue(A.every(quads, (q: Quad) => q.graph === fixtures.graph1));
 
         // Serialize only that graph
         const serialized = yield* serializer.serialize("Turtle", fixtures.graph1);
         assertTrue(includes(serialized, "Alice"));
         assertTrue(includes(serialized, "Bob"));
-      }).pipe(Effect.provide(TestLayer))
+      })
     );
   });
 
-  describe("Complex Integration Scenarios", () => {
-    effect("should handle complete workflow: build, serialize, clear, parse, match", () =>
-      Effect.gen(function* () {
+  layer(
+    TestLayer,
+    { timeout: Duration.seconds(30) }
+  )("Complex Integration Scenarios", (it) => {
+    it.effect(
+      "should handle complete workflow: build, serialize, clear, parse, match",
+      Effect.fn(function* () {
         const builder = yield* RdfBuilder;
         const serializer = yield* Serializer;
         const store = yield* RdfStore;
@@ -679,13 +732,15 @@ ex:bob foaf:name "Bob" .
 
         const projectQuads = yield* store.match(new QuadPattern({ subject: fixtures.project1 }));
         strictEqual(A.length(projectQuads), 1);
-      }).pipe(Effect.provide(TestLayer))
+      })
     );
 
-    effect("should support builder with predicate chaining across multiple subjects", () =>
-      Effect.gen(function* () {
+    it.effect(
+      "should support builder with predicate chaining across multiple subjects",
+      Effect.fn(function* () {
         const builder = yield* RdfBuilder;
         const store = yield* RdfStore;
+        yield* store.clear();
 
         // Build alice's full profile with chaining
         const aliceQuad1 = builder.subject(fixtures.alice).predicate(fixtures.foafName).literal("Alice").build();
@@ -713,13 +768,15 @@ ex:bob foaf:name "Bob" .
 
         const bobQuads = yield* store.match(new QuadPattern({ subject: fixtures.bob }));
         strictEqual(A.length(bobQuads), 2);
-      }).pipe(Effect.provide(TestLayer))
+      })
     );
 
-    effect("should handle incremental updates: add, modify, remove pattern", () =>
-      Effect.gen(function* () {
+    it.effect(
+      "should handle incremental updates: add, modify, remove pattern",
+      Effect.fn(function* () {
         const builder = yield* RdfBuilder;
         const store = yield* RdfStore;
+        yield* store.clear();
 
         // Initial state
         yield* builder.subject(fixtures.alice).predicate(fixtures.foafName).literal("Alice Smith").add();
@@ -756,53 +813,62 @@ ex:bob foaf:name "Bob" .
         strictEqual(A.length(nameQuads), 1);
         assertTrue(nameQuads[0]?.object instanceof Literal);
         strictEqual(nameQuads[0]?.object.value, "Alice Johnson");
-      }).pipe(Effect.provide(TestLayer))
+      })
     );
   });
 
-  describe("Store Isolation Between Test Runs", () => {
-    effect("first test adds quads and verifies count", () =>
-      Effect.gen(function* () {
+  layer(
+    TestLayer,
+    { timeout: Duration.seconds(30) }
+  )("Store Isolation Between Test Runs", (it) => {
+    it.effect(
+      "first test adds quads and verifies count",
+      Effect.fn(function* () {
         const builder = yield* RdfBuilder;
         const store = yield* RdfStore;
+        yield* store.clear();
 
         yield* builder.subject(fixtures.alice).predicate(fixtures.foafName).literal("Alice").add();
         yield* builder.subject(fixtures.bob).predicate(fixtures.foafName).literal("Bob").add();
 
         const size = yield* store.size;
         strictEqual(size, 2);
-      }).pipe(Effect.provide(TestLayer))
+      })
     );
 
-    effect("second test should start with empty store", () =>
-      Effect.gen(function* () {
+    it.effect(
+      "second test should start with empty store",
+      Effect.fn(function* () {
         const store = yield* RdfStore;
+        yield* store.clear();
 
-        // Store should be empty because each test gets a fresh layer
+        // Store should be empty after clearing
         const size = yield* store.size;
         strictEqual(size, 0);
-      }).pipe(Effect.provide(TestLayer))
-    );
-
-    effect("parallel layer provisions should be independent", () =>
-      Effect.gen(function* () {
-        // Run two effects with their own layer provisions
-        const result1 = yield* Effect.gen(function* () {
-          const builder = yield* RdfBuilder;
-          const store = yield* RdfStore;
-          yield* builder.subject(fixtures.alice).predicate(fixtures.foafName).literal("Alice").add();
-          return yield* store.size;
-        }).pipe(Effect.provide(TestLayer));
-
-        const result2 = yield* Effect.gen(function* () {
-          const store = yield* RdfStore;
-          return yield* store.size;
-        }).pipe(Effect.provide(TestLayer));
-
-        // Each provision creates independent stores
-        strictEqual(result1, 1);
-        strictEqual(result2, 0);
       })
     );
   });
+
+  // This test intentionally does NOT use the layer pattern because it's testing
+  // that independent layer provisions are isolated from each other
+  effect("parallel layer provisions should be independent", () =>
+    Effect.gen(function* () {
+      // Run two effects with their own layer provisions
+      const result1 = yield* Effect.gen(function* () {
+        const builder = yield* RdfBuilder;
+        const store = yield* RdfStore;
+        yield* builder.subject(fixtures.alice).predicate(fixtures.foafName).literal("Alice").add();
+        return yield* store.size;
+      }).pipe(Effect.provide(TestLayer));
+
+      const result2 = yield* Effect.gen(function* () {
+        const store = yield* RdfStore;
+        return yield* store.size;
+      }).pipe(Effect.provide(TestLayer));
+
+      // Each provision creates independent stores
+      strictEqual(result1, 1);
+      strictEqual(result2, 0);
+    })
+  );
 });

@@ -15,14 +15,11 @@ import { assertTrue, describe, layer, strictEqual } from "@beep/testkit";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 
-const TEST_TIMEOUT = 60000;
-
 describe("GraphAssembler", () => {
   layer(GraphAssembler.Default, { timeout: Duration.seconds(60) })("GraphAssembler operations", (it) => {
     it.effect(
       "assembles entities into graph",
-      () =>
-        Effect.gen(function* () {
+      Effect.fn(function* () {
           const assembler = yield* GraphAssembler;
 
           const entities = [
@@ -40,14 +37,12 @@ describe("GraphAssembler", () => {
           strictEqual(graph.stats.entityCount, 2);
           strictEqual(graph.stats.relationCount, 0);
           strictEqual(graph.entities.length, 2);
-        }),
-      TEST_TIMEOUT
+        })
     );
 
     it.effect(
       "links relations to entities",
-      () =>
-        Effect.gen(function* () {
+      Effect.fn(function* () {
           const assembler = yield* GraphAssembler;
 
           const entities = [
@@ -79,14 +74,12 @@ describe("GraphAssembler", () => {
           assertTrue(relation !== undefined);
           assertTrue(graph.entityIndex.john !== undefined);
           assertTrue(graph.entityIndex.acme !== undefined);
-        }),
-      TEST_TIMEOUT
+        })
     );
 
     it.effect(
       "tracks unresolved subjects",
-      () =>
-        Effect.gen(function* () {
+      Effect.fn(function* () {
           const assembler = yield* GraphAssembler;
 
           const entities = [
@@ -109,14 +102,12 @@ describe("GraphAssembler", () => {
 
           strictEqual(graph.stats.relationCount, 0);
           strictEqual(graph.stats.unresolvedSubjects, 1);
-        }),
-      TEST_TIMEOUT
+        })
     );
 
     it.effect(
       "tracks unresolved objects",
-      () =>
-        Effect.gen(function* () {
+      Effect.fn(function* () {
           const assembler = yield* GraphAssembler;
 
           const entities = [
@@ -139,14 +130,12 @@ describe("GraphAssembler", () => {
 
           strictEqual(graph.stats.relationCount, 0);
           strictEqual(graph.stats.unresolvedObjects, 1);
-        }),
-      TEST_TIMEOUT
+        })
     );
 
     it.effect(
       "handles literal values in relations",
-      () =>
-        Effect.gen(function* () {
+      Effect.fn(function* () {
           const assembler = yield* GraphAssembler;
 
           const entities = [
@@ -171,14 +160,12 @@ describe("GraphAssembler", () => {
           strictEqual(graph.stats.relationCount, 1);
           strictEqual(graph.relations[0]?.literalValue, "30");
           strictEqual(graph.relations[0]?.literalType, "xsd:integer");
-        }),
-      TEST_TIMEOUT
+        })
     );
 
     it.effect(
       "merges entities by canonical name when enabled",
-      () =>
-        Effect.gen(function* () {
+      Effect.fn(function* () {
           const assembler = yield* GraphAssembler;
 
           const entities = [
@@ -203,14 +190,12 @@ describe("GraphAssembler", () => {
           });
 
           strictEqual(graph.stats.entityCount, 1);
-        }),
-      TEST_TIMEOUT
+        })
     );
 
     it.effect(
       "handles empty input",
-      () =>
-        Effect.gen(function* () {
+      Effect.fn(function* () {
           const assembler = yield* GraphAssembler;
 
           const graph = yield* assembler.assemble([], [], {
@@ -220,14 +205,12 @@ describe("GraphAssembler", () => {
 
           strictEqual(graph.stats.entityCount, 0);
           strictEqual(graph.stats.relationCount, 0);
-        }),
-      TEST_TIMEOUT
+        })
     );
 
     it.effect(
       "merges multiple graphs",
-      () =>
-        Effect.gen(function* () {
+      Effect.fn(function* () {
           const assembler = yield* GraphAssembler;
 
           const entities1 = [
@@ -255,8 +238,7 @@ describe("GraphAssembler", () => {
           });
 
           strictEqual(merged.stats.entityCount, 2);
-        }),
-      TEST_TIMEOUT
+        })
     );
   });
 });

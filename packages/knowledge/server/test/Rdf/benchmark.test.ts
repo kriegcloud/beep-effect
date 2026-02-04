@@ -54,8 +54,8 @@ const generateTestQuads = (n: number): ReadonlyArray<Quad> =>
  * @param effect - The effect to measure
  * @returns Effect yielding the duration in milliseconds
  */
-const measureMs = <A, E, R>(effect: Effect.Effect<A, E, R>): Effect.Effect<number, E, R> =>
-  Effect.gen(function* () {
+const measureMs: <A, E, R>(effect: Effect.Effect<A, E, R>) => Effect.Effect<number, E, R> =
+  Effect.fn(function* <A, E, R>(effect: Effect.Effect<A, E, R>) {
     const start = yield* Effect.clockWith((clock) => clock.currentTimeMillis);
     yield* effect;
     const end = yield* Effect.clockWith((clock) => clock.currentTimeMillis);
@@ -64,8 +64,8 @@ const measureMs = <A, E, R>(effect: Effect.Effect<A, E, R>): Effect.Effect<numbe
 
 describe("Rdf Performance Benchmarks", () => {
   describe("Batch Operations", () => {
-    live("should add 1000 quads via batch in under 100ms", () =>
-      Effect.gen(function* () {
+    live("should add 1000 quads via batch in under 100ms",
+      Effect.fn(function* () {
         const builder = yield* RdfBuilder;
         const store = yield* RdfStore;
         const quads = generateTestQuads(1000);
@@ -84,11 +84,11 @@ describe("Rdf Performance Benchmarks", () => {
 
         // Assert performance threshold
         assertTrue(duration < 100, `Expected <100ms, got ${duration}ms`);
-      }).pipe(Effect.provide(TestLayer))
+      }, Effect.provide(TestLayer))
     );
 
-    live("should document individual add performance baseline", () =>
-      Effect.gen(function* () {
+    live("should document individual add performance baseline",
+      Effect.fn(function* () {
         const store = yield* RdfStore;
         const quads = generateTestQuads(1000);
 
@@ -110,13 +110,13 @@ describe("Rdf Performance Benchmarks", () => {
           individualMs: duration,
           note: "Individual adds expected to be slower than batch",
         });
-      }).pipe(Effect.provide(TestLayer))
+      }, Effect.provide(TestLayer))
     );
   });
 
   describe("Query Performance", () => {
-    live("should match after bulk load efficiently", () =>
-      Effect.gen(function* () {
+    live("should match after bulk load efficiently",
+      Effect.fn(function* () {
         const builder = yield* RdfBuilder;
         const store = yield* RdfStore;
 
@@ -153,11 +153,11 @@ describe("Rdf Performance Benchmarks", () => {
 
         // Even matching all 1000 should be reasonably fast
         assertTrue(matchAllDuration < 50, `Expected <50ms for full predicate match, got ${matchAllDuration}ms`);
-      }).pipe(Effect.provide(TestLayer))
+      }, Effect.provide(TestLayer))
     );
 
-    live("should count matches efficiently", () =>
-      Effect.gen(function* () {
+    live("should count matches efficiently",
+      Effect.fn(function* () {
         const builder = yield* RdfBuilder;
         const store = yield* RdfStore;
 
@@ -174,13 +174,13 @@ describe("Rdf Performance Benchmarks", () => {
         });
 
         assertTrue(countDuration < 10, `Expected <10ms for count, got ${countDuration}ms`);
-      }).pipe(Effect.provide(TestLayer))
+      }, Effect.provide(TestLayer))
     );
   });
 
   describe("Serialization Performance", () => {
-    live("should serialize 1000 quads to Turtle efficiently", () =>
-      Effect.gen(function* () {
+    live("should serialize 1000 quads to Turtle efficiently",
+      Effect.fn(function* () {
         const builder = yield* RdfBuilder;
         const serializer = yield* Serializer;
 
@@ -198,11 +198,11 @@ describe("Rdf Performance Benchmarks", () => {
         // Serialization of 1000 quads should complete in reasonable time
         // Turtle format is more complex (prefix handling, grouping) - allow 500ms
         assertTrue(serializeDuration < 500, `Expected <500ms for Turtle serialization, got ${serializeDuration}ms`);
-      }).pipe(Effect.provide(TestLayer))
+      }, Effect.provide(TestLayer))
     );
 
-    live("should serialize 1000 quads to N-Triples efficiently", () =>
-      Effect.gen(function* () {
+    live("should serialize 1000 quads to N-Triples efficiently",
+      Effect.fn(function* () {
         const builder = yield* RdfBuilder;
         const serializer = yield* Serializer;
 
@@ -219,11 +219,11 @@ describe("Rdf Performance Benchmarks", () => {
 
         // N-Triples is simpler format, should be at least as fast as Turtle
         assertTrue(serializeDuration < 200, `Expected <200ms for N-Triples serialization, got ${serializeDuration}ms`);
-      }).pipe(Effect.provide(TestLayer))
+      }, Effect.provide(TestLayer))
     );
 
-    live("should serialize quads directly without store efficiently", () =>
-      Effect.gen(function* () {
+    live("should serialize quads directly without store efficiently",
+      Effect.fn(function* () {
         const serializer = yield* Serializer;
         const quads = generateTestQuads(1000);
 
@@ -236,13 +236,13 @@ describe("Rdf Performance Benchmarks", () => {
 
         // Direct serialization should be efficient
         assertTrue(serializeDuration < 200, `Expected <200ms for direct serialization, got ${serializeDuration}ms`);
-      }).pipe(Effect.provide(TestLayer))
+      }, Effect.provide(TestLayer))
     );
   });
 
   describe("Stress Tests", () => {
-    live("should handle 10000 quads batch add", () =>
-      Effect.gen(function* () {
+    live("should handle 10000 quads batch add",
+      Effect.fn(function* () {
         const builder = yield* RdfBuilder;
         const store = yield* RdfStore;
         const quads = generateTestQuads(10000);
@@ -261,11 +261,11 @@ describe("Rdf Performance Benchmarks", () => {
 
         // 10000 quads should still be under 1 second
         assertTrue(duration < 1000, `Expected <1000ms for 10000 quads, got ${duration}ms`);
-      }).pipe(Effect.provide(TestLayer))
+      }, Effect.provide(TestLayer))
     );
 
-    live("should round-trip 1000 quads through serialization", () =>
-      Effect.gen(function* () {
+    live("should round-trip 1000 quads through serialization",
+      Effect.fn(function* () {
         const builder = yield* RdfBuilder;
         const serializer = yield* Serializer;
         const store = yield* RdfStore;
@@ -294,7 +294,7 @@ describe("Rdf Performance Benchmarks", () => {
 
         // Parsing should be reasonably fast
         assertTrue(roundTripDuration < 200, `Expected <200ms for parsing, got ${roundTripDuration}ms`);
-      }).pipe(Effect.provide(TestLayer))
+      }, Effect.provide(TestLayer))
     );
   });
 });

@@ -310,7 +310,7 @@ export const createMockOntologyContext = (options?: {
     getPropertiesForClass: () => [],
     isSubClassOf: () => false,
     getAncestors: () => [],
-    findClass: (iri) => MutableHashMap.get(classMap, iri),
-    findProperty: (iri) => MutableHashMap.get(propertyMap, iri),
+    findClass: (iri: string) => MutableHashMap.get(classMap, iri),
+    findProperty: (iri: string) => MutableHashMap.get(propertyMap, iri),
   };
 };

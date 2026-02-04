@@ -10,8 +10,9 @@ import { SerializerError } from "@beep/knowledge-domain/errors";
 import { Literal, makeIRI, Quad, QuadPattern } from "@beep/knowledge-domain/value-objects";
 import { RdfStore } from "@beep/knowledge-server/Rdf/RdfStoreService";
 import { Serializer } from "@beep/knowledge-server/Rdf/Serializer";
-import { assertTrue, describe, effect, strictEqual } from "@beep/testkit";
+import { describe, effect, layer, strictEqual, assertTrue } from "@beep/testkit";
 import * as A from "effect/Array";
+import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Str from "effect/String";
@@ -74,11 +75,16 @@ ex:alice foaf:name "Alice
 `;
 
 describe("Serializer", () => {
-  describe("parseTurtle", () => {
-    effect("should parse simple Turtle with one triple and verify count = 1", () =>
-      Effect.gen(function* () {
+  layer(
+    TestLayer,
+    { timeout: Duration.seconds(30) }
+  )("parseTurtle", (it) => {
+    it.effect(
+      "should parse simple Turtle with one triple and verify count = 1",
+      Effect.fn(function* () {
         const serializer = yield* Serializer;
         const store = yield* RdfStore;
+        yield* store.clear();
 
         const count = yield* serializer.parseTurtle(SIMPLE_TURTLE);
 
@@ -86,13 +92,15 @@ describe("Serializer", () => {
 
         const size = yield* store.size;
         strictEqual(size, 1);
-      }).pipe(Effect.provide(TestLayer))
+      })
     );
 
-    effect("should parse Turtle with prefixes and verify quads loaded correctly", () =>
-      Effect.gen(function* () {
+    it.effect(
+      "should parse Turtle with prefixes and verify quads loaded correctly",
+      Effect.fn(function* () {
         const serializer = yield* Serializer;
         const store = yield* RdfStore;
+        yield* store.clear();
 
         yield* serializer.parseTurtle(SIMPLE_TURTLE);
 
@@ -104,13 +112,15 @@ describe("Serializer", () => {
         strictEqual(results[0]?.predicate, fixtures.foafName);
         assertTrue(results[0]?.object instanceof Literal);
         strictEqual((results[0]?.object as Literal).value, "Alice");
-      }).pipe(Effect.provide(TestLayer))
+      })
     );
 
-    effect("should parse Turtle with multiple triples and verify count", () =>
-      Effect.gen(function* () {
+    it.effect(
+      "should parse Turtle with multiple triples and verify count",
+      Effect.fn(function* () {
         const serializer = yield* Serializer;
         const store = yield* RdfStore;
+        yield* store.clear();
 
         const count = yield* serializer.parseTurtle(MULTI_TRIPLE_TURTLE);
 
@@ -118,13 +128,15 @@ describe("Serializer", () => {
 
         const size = yield* store.size;
         strictEqual(size, 3);
-      }).pipe(Effect.provide(TestLayer))
+      })
     );
 
-    effect("should parse Turtle into named graph and verify graph field set", () =>
-      Effect.gen(function* () {
+    it.effect(
+      "should parse Turtle into named graph and verify graph field set",
+      Effect.fn(function* () {
         const serializer = yield* Serializer;
         const store = yield* RdfStore;
+        yield* store.clear();
 
         yield* serializer.parseTurtle(SIMPLE_TURTLE, fixtures.graph1);
 
@@ -132,24 +144,27 @@ describe("Serializer", () => {
 
         strictEqual(quads.length, 1);
         strictEqual(quads[0]?.graph, fixtures.graph1);
-      }).pipe(Effect.provide(TestLayer))
+      })
     );
 
-    effect("should return SerializerError for invalid Turtle", () =>
-      Effect.gen(function* () {
+    it.effect(
+      "should return SerializerError for invalid Turtle",
+      Effect.fn(function* () {
         const serializer = yield* Serializer;
 
         const result = yield* Effect.flip(serializer.parseTurtle(INVALID_TURTLE));
 
         assertTrue(result instanceof SerializerError);
         strictEqual(result.operation, "parseTurtle");
-      }).pipe(Effect.provide(TestLayer))
+      })
     );
 
-    effect("should handle empty Turtle content", () =>
-      Effect.gen(function* () {
+    it.effect(
+      "should handle empty Turtle content",
+      Effect.fn(function* () {
         const serializer = yield* Serializer;
         const store = yield* RdfStore;
+        yield* store.clear();
 
         const count = yield* serializer.parseTurtle("");
 
@@ -157,11 +172,12 @@ describe("Serializer", () => {
 
         const size = yield* store.size;
         strictEqual(size, 0);
-      }).pipe(Effect.provide(TestLayer))
+      })
     );
 
-    effect("should handle Turtle with only prefixes (no triples)", () =>
-      Effect.gen(function* () {
+    it.effect(
+      "should handle Turtle with only prefixes (no triples)",
+      Effect.fn(function* () {
         const serializer = yield* Serializer;
 
         const turtleWithOnlyPrefixes = `
@@ -172,15 +188,20 @@ describe("Serializer", () => {
         const count = yield* serializer.parseTurtle(turtleWithOnlyPrefixes);
 
         strictEqual(count, 0);
-      }).pipe(Effect.provide(TestLayer))
+      })
     );
   });
 
-  describe("parseOnly", () => {
-    effect("should parse and return quads without modifying store", () =>
-      Effect.gen(function* () {
+  layer(
+    TestLayer,
+    { timeout: Duration.seconds(30) }
+  )("parseOnly", (it) => {
+    it.effect(
+      "should parse and return quads without modifying store",
+      Effect.fn(function* () {
         const serializer = yield* Serializer;
         const store = yield* RdfStore;
+        yield* store.clear();
 
         const quads = yield* serializer.parseOnly(SIMPLE_TURTLE);
 
@@ -188,22 +209,24 @@ describe("Serializer", () => {
 
         const storeSize = yield* store.size;
         strictEqual(storeSize, 0);
-      }).pipe(Effect.provide(TestLayer))
+      })
     );
 
-    effect("should parse into specific graph and set graph on returned quads", () =>
-      Effect.gen(function* () {
+    it.effect(
+      "should parse into specific graph and set graph on returned quads",
+      Effect.fn(function* () {
         const serializer = yield* Serializer;
 
         const quads = yield* serializer.parseOnly(SIMPLE_TURTLE, fixtures.graph1);
 
         strictEqual(quads.length, 1);
         strictEqual(quads[0]?.graph, fixtures.graph1);
-      }).pipe(Effect.provide(TestLayer))
+      })
     );
 
-    effect("should return correct quad structure from parsed Turtle", () =>
-      Effect.gen(function* () {
+    it.effect(
+      "should return correct quad structure from parsed Turtle",
+      Effect.fn(function* () {
         const serializer = yield* Serializer;
 
         const quads = yield* serializer.parseOnly(SIMPLE_TURTLE);
@@ -215,13 +238,15 @@ describe("Serializer", () => {
         assertTrue(quad?.object instanceof Literal);
         strictEqual((quad?.object as Literal).value, "Alice");
         strictEqual(quad?.graph, undefined);
-      }).pipe(Effect.provide(TestLayer))
+      })
     );
 
-    effect("should parse multiple triples without modifying store", () =>
-      Effect.gen(function* () {
+    it.effect(
+      "should parse multiple triples without modifying store",
+      Effect.fn(function* () {
         const serializer = yield* Serializer;
         const store = yield* RdfStore;
+        yield* store.clear();
 
         const quads = yield* serializer.parseOnly(MULTI_TRIPLE_TURTLE);
 
@@ -229,26 +254,32 @@ describe("Serializer", () => {
 
         const storeSize = yield* store.size;
         strictEqual(storeSize, 0);
-      }).pipe(Effect.provide(TestLayer))
+      })
     );
 
-    effect("should return SerializerError for invalid Turtle", () =>
-      Effect.gen(function* () {
+    it.effect(
+      "should return SerializerError for invalid Turtle",
+      Effect.fn(function* () {
         const serializer = yield* Serializer;
 
         const result = yield* Effect.flip(serializer.parseOnly(INVALID_TURTLE));
 
         assertTrue(result instanceof SerializerError);
         strictEqual(result.operation, "parseTurtle");
-      }).pipe(Effect.provide(TestLayer))
+      })
     );
   });
 
-  describe("serialize", () => {
-    effect("should serialize quads from store to Turtle format", () =>
-      Effect.gen(function* () {
+  layer(
+    TestLayer,
+    { timeout: Duration.seconds(30) }
+  )("serialize", (it) => {
+    it.effect(
+      "should serialize quads from store to Turtle format",
+      Effect.fn(function* () {
         const serializer = yield* Serializer;
         const store = yield* RdfStore;
+        yield* store.clear();
 
         yield* store.addQuad(
           new Quad({
@@ -263,13 +294,15 @@ describe("Serializer", () => {
         assertTrue(includes(turtle, "http://example.org/alice"));
         assertTrue(includes(turtle, "http://xmlns.com/foaf/0.1/name"));
         assertTrue(includes(turtle, "Alice"));
-      }).pipe(Effect.provide(TestLayer))
+      })
     );
 
-    effect("should serialize to N-Triples format", () =>
-      Effect.gen(function* () {
+    it.effect(
+      "should serialize to N-Triples format",
+      Effect.fn(function* () {
         const serializer = yield* Serializer;
         const store = yield* RdfStore;
+        yield* store.clear();
 
         yield* store.addQuad(
           new Quad({
@@ -285,13 +318,15 @@ describe("Serializer", () => {
         assertTrue(includes(ntriples, "<http://xmlns.com/foaf/0.1/name>"));
         assertTrue(includes(ntriples, '"Alice"'));
         assertTrue(includes(ntriples, " ."));
-      }).pipe(Effect.provide(TestLayer))
+      })
     );
 
-    effect("should serialize specific graph only", () =>
-      Effect.gen(function* () {
+    it.effect(
+      "should serialize specific graph only",
+      Effect.fn(function* () {
         const serializer = yield* Serializer;
         const store = yield* RdfStore;
+        yield* store.clear();
 
         yield* store.addQuads([
           new Quad({
@@ -312,11 +347,12 @@ describe("Serializer", () => {
 
         assertTrue(includes(turtle, "Alice"));
         assertTrue(!includes(turtle, "Bob"));
-      }).pipe(Effect.provide(TestLayer))
+      })
     );
 
-    effect("should return SerializerError for JSON-LD format", () =>
-      Effect.gen(function* () {
+    it.effect(
+      "should return SerializerError for JSON-LD format",
+      Effect.fn(function* () {
         const serializer = yield* Serializer;
 
         const result = yield* Effect.flip(serializer.serialize("JSONLD"));
@@ -324,23 +360,28 @@ describe("Serializer", () => {
         assertTrue(result instanceof SerializerError);
         strictEqual(result.operation, "serialize");
         assertTrue(includes(result.message, "JSON-LD"));
-      }).pipe(Effect.provide(TestLayer))
+      })
     );
 
-    effect("should serialize empty store to empty string", () =>
-      Effect.gen(function* () {
+    it.effect(
+      "should serialize empty store to empty string",
+      Effect.fn(function* () {
+        const store = yield* RdfStore;
+        yield* store.clear();
         const serializer = yield* Serializer;
 
         const turtle = yield* serializer.serialize("Turtle");
 
         strictEqual(Str.trim(turtle), "");
-      }).pipe(Effect.provide(TestLayer))
+      })
     );
 
-    effect("should serialize multiple quads to Turtle", () =>
-      Effect.gen(function* () {
+    it.effect(
+      "should serialize multiple quads to Turtle",
+      Effect.fn(function* () {
         const serializer = yield* Serializer;
         const store = yield* RdfStore;
+        yield* store.clear();
 
         yield* store.addQuads([
           new Quad({
@@ -359,13 +400,17 @@ describe("Serializer", () => {
 
         assertTrue(includes(turtle, "Alice"));
         assertTrue(includes(turtle, "http://example.org/bob"));
-      }).pipe(Effect.provide(TestLayer))
+      })
     );
   });
 
-  describe("serializeQuads", () => {
-    effect("should serialize provided quads to Turtle", () =>
-      Effect.gen(function* () {
+  layer(
+    TestLayer,
+    { timeout: Duration.seconds(30) }
+  )("serializeQuads", (it) => {
+    it.effect(
+      "should serialize provided quads to Turtle",
+      Effect.fn(function* () {
         const serializer = yield* Serializer;
 
         const quads = [
@@ -380,11 +425,12 @@ describe("Serializer", () => {
 
         assertTrue(includes(turtle, "http://example.org/alice"));
         assertTrue(includes(turtle, "Alice"));
-      }).pipe(Effect.provide(TestLayer))
+      })
     );
 
-    effect("should serialize provided quads to N-Triples", () =>
-      Effect.gen(function* () {
+    it.effect(
+      "should serialize provided quads to N-Triples",
+      Effect.fn(function* () {
         const serializer = yield* Serializer;
 
         const quads = [
@@ -399,11 +445,12 @@ describe("Serializer", () => {
 
         assertTrue(includes(ntriples, "<http://example.org/alice>"));
         assertTrue(includes(ntriples, '"Alice"'));
-      }).pipe(Effect.provide(TestLayer))
+      })
     );
 
-    effect("should return SerializerError for JSON-LD format", () =>
-      Effect.gen(function* () {
+    it.effect(
+      "should return SerializerError for JSON-LD format",
+      Effect.fn(function* () {
         const serializer = yield* Serializer;
 
         const quads = [
@@ -418,21 +465,23 @@ describe("Serializer", () => {
 
         assertTrue(result instanceof SerializerError);
         strictEqual(result.operation, "serializeQuads");
-      }).pipe(Effect.provide(TestLayer))
+      })
     );
 
-    effect("should serialize empty quad array to empty string", () =>
-      Effect.gen(function* () {
+    it.effect(
+      "should serialize empty quad array to empty string",
+      Effect.fn(function* () {
         const serializer = yield* Serializer;
 
         const turtle = yield* serializer.serializeQuads([], "Turtle");
 
         strictEqual(Str.trim(turtle), "");
-      }).pipe(Effect.provide(TestLayer))
+      })
     );
 
-    effect("should not modify store when serializing quads directly", () =>
-      Effect.gen(function* () {
+    it.effect(
+      "should not modify store when serializing quads directly",
+      Effect.fn(function* () {
         const serializer = yield* Serializer;
         const store = yield* RdfStore;
 
@@ -448,15 +497,20 @@ describe("Serializer", () => {
 
         const storeSize = yield* store.size;
         strictEqual(storeSize, 0);
-      }).pipe(Effect.provide(TestLayer))
+      })
     );
   });
 
-  describe("Round-Trip Tests", () => {
-    effect("should preserve data: parseTurtle -> serialize -> parseOnly -> compare", () =>
-      Effect.gen(function* () {
+  layer(
+    TestLayer,
+    { timeout: Duration.seconds(30) }
+  )("Round-Trip Tests", (it) => {
+    it.effect(
+      "should preserve data: parseTurtle -> serialize -> parseOnly -> compare",
+      Effect.fn(function* () {
         const serializer = yield* Serializer;
         const store = yield* RdfStore;
+        yield* store.clear();
 
         yield* serializer.parseTurtle(MULTI_TRIPLE_TURTLE);
 
@@ -485,11 +539,12 @@ describe("Serializer", () => {
           (q) => q.subject === fixtures.bob && q.predicate === fixtures.foafName
         );
         assertTrue(hasBobName);
-      }).pipe(Effect.provide(TestLayer))
+      })
     );
 
-    effect("should preserve data through N-Triples round-trip", () =>
-      Effect.gen(function* () {
+    it.effect(
+      "should preserve data through N-Triples round-trip",
+      Effect.fn(function* () {
         const serializer = yield* Serializer;
 
         const originalQuads = yield* serializer.parseOnly(SIMPLE_TURTLE);
@@ -505,11 +560,12 @@ describe("Serializer", () => {
         assertTrue(reparsedQuads[0]?.object instanceof Literal);
         assertTrue(originalQuads[0]?.object instanceof Literal);
         strictEqual((reparsedQuads[0]?.object as Literal).value, (originalQuads[0]?.object as Literal).value);
-      }).pipe(Effect.provide(TestLayer))
+      })
     );
 
-    effect("should preserve literal with language tag through round-trip", () =>
-      Effect.gen(function* () {
+    it.effect(
+      "should preserve literal with language tag through round-trip",
+      Effect.fn(function* () {
         const serializer = yield* Serializer;
 
         const turtleWithLang = `
@@ -531,11 +587,12 @@ ex:alice foaf:name "Alice"@en .
         assertTrue(reparsed[0]?.object instanceof Literal);
         strictEqual((reparsed[0]?.object as Literal).value, "Alice");
         strictEqual((reparsed[0]?.object as Literal).language, "en");
-      }).pipe(Effect.provide(TestLayer))
+      })
     );
 
-    effect("should preserve typed literal through round-trip", () =>
-      Effect.gen(function* () {
+    it.effect(
+      "should preserve typed literal through round-trip",
+      Effect.fn(function* () {
         const serializer = yield* Serializer;
 
         const turtleWithTypedLiteral = `
@@ -558,11 +615,12 @@ ex:alice ex:age "30"^^xsd:integer .
         assertTrue(reparsed[0]?.object instanceof Literal);
         strictEqual((reparsed[0]?.object as Literal).value, "30");
         strictEqual((reparsed[0]?.object as Literal).datatype, makeIRI("http://www.w3.org/2001/XMLSchema#integer"));
-      }).pipe(Effect.provide(TestLayer))
+      })
     );
 
-    effect("should preserve IRI object through round-trip", () =>
-      Effect.gen(function* () {
+    it.effect(
+      "should preserve IRI object through round-trip",
+      Effect.fn(function* () {
         const serializer = yield* Serializer;
 
         const turtleWithIriObject = `
@@ -581,13 +639,17 @@ ex:alice foaf:knows ex:bob .
 
         strictEqual(reparsed.length, 1);
         strictEqual(reparsed[0]?.object, fixtures.bob);
-      }).pipe(Effect.provide(TestLayer))
+      })
     );
   });
 
-  describe("Named Graph Integration", () => {
-    effect("should parse into separate graphs and serialize only one", () =>
-      Effect.gen(function* () {
+  layer(
+    TestLayer,
+    { timeout: Duration.seconds(30) }
+  )("Named Graph Integration", (it) => {
+    it.effect(
+      "should parse into separate graphs and serialize only one",
+      Effect.fn(function* () {
         const serializer = yield* Serializer;
         const store = yield* RdfStore;
 
@@ -620,13 +682,15 @@ ex:bob foaf:name "Bob" .
 
         assertTrue(includes(serializedGraphB, "Bob"));
         assertTrue(!includes(serializedGraphB, "Alice"));
-      }).pipe(Effect.provide(TestLayer))
+      })
     );
 
-    effect("should serialize all graphs when no graph filter specified", () =>
-      Effect.gen(function* () {
+    it.effect(
+      "should serialize all graphs when no graph filter specified",
+      Effect.fn(function* () {
         const serializer = yield* Serializer;
         const store = yield* RdfStore;
+        yield* store.clear();
 
         yield* store.addQuads([
           new Quad({
@@ -653,24 +717,27 @@ ex:bob foaf:name "Bob" .
         assertTrue(includes(serialized, "Alice"));
         assertTrue(includes(serialized, "Bob"));
         assertTrue(includes(serialized, "Carol"));
-      }).pipe(Effect.provide(TestLayer))
+      })
     );
 
-    effect("should preserve graph through parseOnly with graph parameter", () =>
-      Effect.gen(function* () {
+    it.effect(
+      "should preserve graph through parseOnly with graph parameter",
+      Effect.fn(function* () {
         const serializer = yield* Serializer;
 
         const quads = yield* serializer.parseOnly(SIMPLE_TURTLE, fixtures.graph1);
 
         strictEqual(quads.length, 1);
         strictEqual(quads[0]?.graph, fixtures.graph1);
-      }).pipe(Effect.provide(TestLayer))
+      })
     );
 
-    effect("should handle mixed default and named graph quads", () =>
-      Effect.gen(function* () {
+    it.effect(
+      "should handle mixed default and named graph quads",
+      Effect.fn(function* () {
         const serializer = yield* Serializer;
         const store = yield* RdfStore;
+        yield* store.clear();
 
         yield* store.addQuads([
           new Quad({
@@ -686,21 +753,23 @@ ex:bob foaf:name "Bob" .
           }),
         ]);
 
-        // Note: graph: undefined in QuadPattern is a wildcard (matches ALL graphs)
-        // To match default graph only, you would need to explicitly filter
         const allQuads = yield* store.getQuads();
         strictEqual(allQuads.length, 2);
 
         const graph1Turtle = yield* serializer.serialize("Turtle", fixtures.graph1);
         assertTrue(includes(graph1Turtle, "Alice Graph1"));
         assertTrue(!includes(graph1Turtle, "Alice Default"));
-      }).pipe(Effect.provide(TestLayer))
+      })
     );
   });
 
-  describe("Edge Cases", () => {
-    effect("should handle Turtle with blank nodes", () =>
-      Effect.gen(function* () {
+  layer(
+    TestLayer,
+    { timeout: Duration.seconds(30) }
+  )("Edge Cases", (it) => {
+    it.effect(
+      "should handle Turtle with blank nodes",
+      Effect.fn(function* () {
         const serializer = yield* Serializer;
 
         const turtleWithBnode = `
@@ -713,11 +782,12 @@ ex:alice foaf:knows [ foaf:name "Anonymous" ] .
         const quads = yield* serializer.parseOnly(turtleWithBnode);
 
         assertTrue(quads.length >= 2);
-      }).pipe(Effect.provide(TestLayer))
+      })
     );
 
-    effect("should handle Turtle with special characters in literals", () =>
-      Effect.gen(function* () {
+    it.effect(
+      "should handle Turtle with special characters in literals",
+      Effect.fn(function* () {
         const serializer = yield* Serializer;
 
         const turtleWithSpecialChars = `
@@ -732,11 +802,12 @@ ex:alice foaf:name "Alice \\"the Great\\"" .
         strictEqual(quads.length, 1);
         assertTrue(quads[0]?.object instanceof Literal);
         assertTrue(includes((quads[0]?.object as Literal).value, "the Great"));
-      }).pipe(Effect.provide(TestLayer))
+      })
     );
 
-    effect("should handle Turtle with multiline literals", () =>
-      Effect.gen(function* () {
+    it.effect(
+      "should handle Turtle with multiline literals",
+      Effect.fn(function* () {
         const serializer = yield* Serializer;
 
         const turtleWithMultiline = `
@@ -753,11 +824,12 @@ comment.""" .
         strictEqual(quads.length, 1);
         assertTrue(quads[0]?.object instanceof Literal);
         assertTrue(includes((quads[0]?.object as Literal).value, "multiline"));
-      }).pipe(Effect.provide(TestLayer))
+      })
     );
 
-    effect("should handle Turtle with numeric datatypes", () =>
-      Effect.gen(function* () {
+    it.effect(
+      "should handle Turtle with numeric datatypes",
+      Effect.fn(function* () {
         const serializer = yield* Serializer;
 
         const turtleWithNumbers = `
@@ -776,11 +848,12 @@ ex:alice ex:height 1.75 .
         assertTrue(ageQuad._tag === "Some");
         assertTrue(ageQuad.value.object instanceof Literal);
         strictEqual(ageQuad.value.object.value, "30");
-      }).pipe(Effect.provide(TestLayer))
+      })
     );
 
-    effect("should handle Turtle with boolean literals", () =>
-      Effect.gen(function* () {
+    it.effect(
+      "should handle Turtle with boolean literals",
+      Effect.fn(function* () {
         const serializer = yield* Serializer;
 
         const turtleWithBool = `
@@ -793,13 +866,14 @@ ex:bob ex:active false .
         const quads = yield* serializer.parseOnly(turtleWithBool);
 
         strictEqual(quads.length, 2);
-      }).pipe(Effect.provide(TestLayer))
+      })
     );
   });
 
   describe("Store Isolation", () => {
-    effect("should provide fresh store instance per test layer", () =>
-      Effect.gen(function* () {
+    effect(
+      "should provide fresh store instance per test layer",
+      Effect.fn(function* () {
         const result1 = yield* Effect.gen(function* () {
           const serializer = yield* Serializer;
           const store = yield* RdfStore;

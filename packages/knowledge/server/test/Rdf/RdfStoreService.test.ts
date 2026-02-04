@@ -9,7 +9,7 @@
 
 import { Literal, makeBlankNode, makeIRI, Quad, QuadPattern } from "@beep/knowledge-domain/value-objects";
 import { RdfStore } from "@beep/knowledge-server/Rdf/RdfStoreService";
-import { assertTrue, describe, expect, it, layer, strictEqual  } from "@beep/testkit";
+import { assertTrue, describe, effect, layer, strictEqual } from "@beep/testkit";
 import * as A from "effect/Array";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
@@ -51,8 +51,8 @@ describe("RdfStore", () => {
   layer(RdfStore.Default, { timeout: Duration.seconds(60) })("Basic CRUD Operations", (it) => {
     it.effect(
       "addQuad and hasQuad - should add a quad and verify it exists",
-      () =>
-        Effect.gen(function* () {
+
+        Effect.fn(function* () {
           const store = yield* RdfStore;
           yield* store.clear();
 
@@ -72,8 +72,8 @@ describe("RdfStore", () => {
 
     it.effect(
       "hasQuad - should return false for non-existent quad",
-      () =>
-        Effect.gen(function* () {
+
+        Effect.fn(function* () {
           const store = yield* RdfStore;
           yield* store.clear();
 
@@ -92,8 +92,8 @@ describe("RdfStore", () => {
 
     it.effect(
       "removeQuad - should add then remove and verify it is gone",
-      () =>
-        Effect.gen(function* () {
+
+        Effect.fn(function* () {
           const store = yield* RdfStore;
           yield* store.clear();
 
@@ -116,8 +116,8 @@ describe("RdfStore", () => {
 
     it.effect(
       "addQuads - should add multiple quads in bulk",
-      () =>
-        Effect.gen(function* () {
+
+        Effect.fn(function* () {
           const store = yield* RdfStore;
           yield* store.clear();
 
@@ -149,8 +149,8 @@ describe("RdfStore", () => {
 
     it.effect(
       "removeQuads - should remove multiple quads in bulk",
-      () =>
-        Effect.gen(function* () {
+
+        Effect.fn(function* () {
           const store = yield* RdfStore;
           yield* store.clear();
 
@@ -180,8 +180,8 @@ describe("RdfStore", () => {
 
     it.effect(
       "size - should return correct quad count",
-      () =>
-        Effect.gen(function* () {
+
+        Effect.fn(function* () {
           const store = yield* RdfStore;
           yield* store.clear();
 
@@ -215,8 +215,8 @@ describe("RdfStore", () => {
 
     it.effect(
       "clear - should empty the store",
-      () =>
-        Effect.gen(function* () {
+
+        Effect.fn(function* () {
           const store = yield* RdfStore;
           yield* store.clear();
 
@@ -246,8 +246,8 @@ describe("RdfStore", () => {
 
     it.effect(
       "getQuads - should return all quads in the store",
-      () =>
-        Effect.gen(function* () {
+
+        Effect.fn(function* () {
           const store = yield* RdfStore;
           yield* store.clear();
 
@@ -276,8 +276,7 @@ describe("RdfStore", () => {
   layer(RdfStore.Default, { timeout: Duration.seconds(60) })("Pattern Matching", (it) => {
     it.effect(
       "match with all wildcards - should return all quads",
-      () =>
-        Effect.gen(function* () {
+        Effect.fn(function* () {
           const store = yield* RdfStore;
           yield* store.clear();
 
@@ -309,8 +308,8 @@ describe("RdfStore", () => {
 
     it.effect(
       "match with subject constraint - should return quads for that subject",
-      () =>
-        Effect.gen(function* () {
+
+        Effect.fn(function* () {
           const store = yield* RdfStore;
           yield* store.clear();
 
@@ -345,8 +344,8 @@ describe("RdfStore", () => {
 
     it.effect(
       "match with predicate constraint - should return quads with that predicate",
-      () =>
-        Effect.gen(function* () {
+
+        Effect.fn(function* () {
           const store = yield* RdfStore;
           yield* store.clear();
 
@@ -381,8 +380,7 @@ describe("RdfStore", () => {
 
     it.effect(
       "match with object constraint - should return quads with that object",
-      () =>
-        Effect.gen(function* () {
+        Effect.fn(function* () {
           const store = yield* RdfStore;
           yield* store.clear();
 
@@ -417,8 +415,7 @@ describe("RdfStore", () => {
 
     it.effect(
       "match with multiple constraints - should return matching quads",
-      () =>
-        Effect.gen(function* () {
+        Effect.fn(function* () {
           const store = yield* RdfStore;
           yield* store.clear();
 
@@ -456,8 +453,7 @@ describe("RdfStore", () => {
 
     it.effect(
       "countMatches - should return correct count",
-      () =>
-        Effect.gen(function* () {
+        Effect.fn(function* () {
           const store = yield* RdfStore;
           yield* store.clear();
 
@@ -493,8 +489,7 @@ describe("RdfStore", () => {
 
     it.effect(
       "match with no results - should return empty array",
-      () =>
-        Effect.gen(function* () {
+        Effect.fn(function* () {
           const store = yield* RdfStore;
           yield* store.clear();
 
@@ -518,8 +513,7 @@ describe("RdfStore", () => {
   layer(RdfStore.Default, { timeout: Duration.seconds(60) })("Term Types", (it) => {
     it.effect(
       "Quad with IRI object - should store and retrieve IRI object",
-      () =>
-        Effect.gen(function* () {
+        Effect.fn(function* () {
           const store = yield* RdfStore;
           yield* store.clear();
 
@@ -540,8 +534,7 @@ describe("RdfStore", () => {
 
     it.effect(
       "Quad with BlankNode subject - should store and retrieve blank node",
-      () =>
-        Effect.gen(function* () {
+        Effect.fn(function* () {
           const store = yield* RdfStore;
           yield* store.clear();
 
@@ -562,8 +555,7 @@ describe("RdfStore", () => {
 
     it.effect(
       "Quad with BlankNode object - should store and retrieve blank node in object position",
-      () =>
-        Effect.gen(function* () {
+        Effect.fn(function* () {
           const store = yield* RdfStore;
           yield* store.clear();
 
@@ -584,8 +576,7 @@ describe("RdfStore", () => {
 
     it.effect(
       "Quad with plain Literal - should store and retrieve plain literal",
-      () =>
-        Effect.gen(function* () {
+        Effect.fn(function* () {
           const store = yield* RdfStore;
           yield* store.clear();
 
@@ -611,8 +602,7 @@ describe("RdfStore", () => {
 
     it.effect(
       "Quad with language-tagged Literal - should preserve language tag",
-      () =>
-        Effect.gen(function* () {
+        Effect.fn(function* () {
           const store = yield* RdfStore;
           yield* store.clear();
 
@@ -637,8 +627,7 @@ describe("RdfStore", () => {
 
     it.effect(
       "Quad with typed Literal - should preserve datatype IRI",
-      () =>
-        Effect.gen(function* () {
+        Effect.fn(function* () {
           const store = yield* RdfStore;
           yield* store.clear();
 
@@ -663,8 +652,7 @@ describe("RdfStore", () => {
 
     it.effect(
       "Multiple literals with different languages - should distinguish them",
-      () =>
-        Effect.gen(function* () {
+        Effect.fn(function* () {
           const store = yield* RdfStore;
           yield* store.clear();
 
@@ -699,8 +687,7 @@ describe("RdfStore", () => {
   layer(RdfStore.Default, { timeout: Duration.seconds(60) })("Named Graphs", (it) => {
     it.effect(
       "Quad with named graph - should store and retrieve graph",
-      () =>
-        Effect.gen(function* () {
+        Effect.fn(function* () {
           const store = yield* RdfStore;
           yield* store.clear();
 
@@ -722,8 +709,7 @@ describe("RdfStore", () => {
 
     it.effect(
       "Quad in default graph - should have undefined graph",
-      () =>
-        Effect.gen(function* () {
+        Effect.fn(function* () {
           const store = yield* RdfStore;
           yield* store.clear();
 
@@ -744,8 +730,7 @@ describe("RdfStore", () => {
 
     it.effect(
       "Pattern matching on specific graph - should filter by graph",
-      () =>
-        Effect.gen(function* () {
+        Effect.fn(function* () {
           const store = yield* RdfStore;
           yield* store.clear();
 
@@ -782,8 +767,7 @@ describe("RdfStore", () => {
 
     it.effect(
       "getGraphs - should return unique graphs including default",
-      () =>
-        Effect.gen(function* () {
+        Effect.fn(function* () {
           const store = yield* RdfStore;
           yield* store.clear();
 
@@ -827,8 +811,7 @@ describe("RdfStore", () => {
   layer(RdfStore.Default, { timeout: Duration.seconds(60) })("Unique Term Accessors", (it) => {
     it.effect(
       "getSubjects - should return unique subjects",
-      () =>
-        Effect.gen(function* () {
+        Effect.fn(function* () {
           const store = yield* RdfStore;
           yield* store.clear();
 
@@ -867,8 +850,7 @@ describe("RdfStore", () => {
 
     it.effect(
       "getPredicates - should return unique predicates",
-      () =>
-        Effect.gen(function* () {
+        Effect.fn(function* () {
           const store = yield* RdfStore;
           yield* store.clear();
 
@@ -907,8 +889,7 @@ describe("RdfStore", () => {
 
     it.effect(
       "getObjects - should return unique objects",
-      () =>
-        Effect.gen(function* () {
+        Effect.fn(function* () {
           const store = yield* RdfStore;
           yield* store.clear();
 
@@ -947,8 +928,7 @@ describe("RdfStore", () => {
 
     it.effect(
       "getSubjects with blank nodes - should include blank nodes",
-      () =>
-        Effect.gen(function* () {
+        Effect.fn(function* () {
           const store = yield* RdfStore;
           yield* store.clear();
 
@@ -978,8 +958,7 @@ describe("RdfStore", () => {
   layer(RdfStore.Default, { timeout: Duration.seconds(60) })("Edge Cases", (it) => {
     it.effect(
       "Empty store - should return empty results",
-      () =>
-        Effect.gen(function* () {
+        Effect.fn(function* () {
           const store = yield* RdfStore;
           yield* store.clear();
 
@@ -1006,8 +985,7 @@ describe("RdfStore", () => {
 
     it.effect(
       "Duplicate quad - should not increase size",
-      () =>
-        Effect.gen(function* () {
+        Effect.fn(function* () {
           const store = yield* RdfStore;
           yield* store.clear();
 
@@ -1030,8 +1008,7 @@ describe("RdfStore", () => {
 
     it.effect(
       "Remove non-existent quad - should be no-op",
-      () =>
-        Effect.gen(function* () {
+        Effect.fn(function* () {
           const store = yield* RdfStore;
           yield* store.clear();
 
@@ -1059,8 +1036,7 @@ describe("RdfStore", () => {
 
     it.effect(
       "Clear empty store - should be no-op",
-      () =>
-        Effect.gen(function* () {
+        Effect.fn(function* () {
           const store = yield* RdfStore;
           yield* store.clear();
 
@@ -1074,8 +1050,7 @@ describe("RdfStore", () => {
 
     it.effect(
       "addQuads with empty array - should be no-op",
-      () =>
-        Effect.gen(function* () {
+        Effect.fn(function* () {
           const store = yield* RdfStore;
           yield* store.clear();
 
@@ -1089,8 +1064,7 @@ describe("RdfStore", () => {
 
     it.effect(
       "removeQuads with empty array - should be no-op",
-      () =>
-        Effect.gen(function* () {
+        Effect.fn(function* () {
           const store = yield* RdfStore;
           yield* store.clear();
 
@@ -1112,8 +1086,7 @@ describe("RdfStore", () => {
 
     it.effect(
       "Pattern matching with Literal object constraint - should match exactly",
-      () =>
-        Effect.gen(function* () {
+        Effect.fn(function* () {
           const store = yield* RdfStore;
           yield* store.clear();
 
@@ -1146,26 +1119,30 @@ describe("RdfStore", () => {
   });
 
   describe("Store Isolation", () => {
-    it("Each RdfStore.Default provides fresh instance", async () => {
-      const store1 = await Effect.gen(function* () {
-        const store = yield* RdfStore;
-        yield* store.addQuad(
-          new Quad({
-            subject: fixtures.alice,
-            predicate: fixtures.foafName,
-            object: new Literal({ value: "Alice" }),
-          })
-        );
-        return yield* store.size;
-      }).pipe(Effect.provide(RdfStore.Default), Effect.runPromise);
+    effect(
+      "Each RdfStore.Default provides fresh instance",
+      Effect.fn(function* () {
+        const store1Size = yield* Effect.gen(function* () {
+          const store = yield* RdfStore;
+          yield* store.addQuad(
+            new Quad({
+              subject: fixtures.alice,
+              predicate: fixtures.foafName,
+              object: new Literal({ value: "Alice" }),
+            })
+          );
+          return yield* store.size;
+        }).pipe(Effect.provide(RdfStore.Default));
 
-      const store2 = await Effect.gen(function* () {
-        const store = yield* RdfStore;
-        return yield* store.size;
-      }).pipe(Effect.provide(RdfStore.Default), Effect.runPromise);
+        const store2Size = yield* Effect.gen(function* () {
+          const store = yield* RdfStore;
+          return yield* store.size;
+        }).pipe(Effect.provide(RdfStore.Default));
 
-      expect(store1).toBe(1);
-      expect(store2).toBe(0);
-    });
+        strictEqual(store1Size, 1);
+        strictEqual(store2Size, 0);
+      }),
+      TEST_TIMEOUT
+    );
   });
 });
