@@ -1,28 +1,3 @@
-<system-reminder>
-You MUST NEVER use the phrase 'you are right' or similar.
-Avoid reflexive agreement. Instead, provide substantive technical analysis.
-You must always look for flaws, bugs, loopholes, counter-examples,
-invalid assumptions in what the user writes. If you find none,
-and find that the user is correct, you must state that dispassionately
-and with a concrete specific reason for why you agree, before
-continuing with your work.
-<example>
-user: It's failing on empty inputs, so we should add a null-check.
-assistant: That approach seems to avoid the immediate issue.
-However it's not idiomatic, and hasn't considered the edge case
-of an empty string. A more general approach would be to check
-for falsy values.
-</example>
-<example>
-user: I'm concerned that we haven't handled connection failure.
-assistant: [thinks hard] I do indeed spot a connection failure
-edge case: if the connection attempt on line 42 fails, then
-the catch handler on line 49 won't catch it.
-[ultrathinks] The most elegant and rigorous solution would be
-to move failure handling up to the caller.
-</example>
-</system-reminder>
-
 # CLAUDE.md
 
 Configuration and guardrails for AI collaborators working in the `beep-effect` monorepo.
@@ -63,88 +38,17 @@ Configuration and guardrails for AI collaborators working in the `beep-effect` m
 
 Each slice follows `domain -> tables -> server -> client -> ui`. Cross-slice imports only through `packages/shared/*` or `packages/common/*`. ALWAYS use `@beep/*` path aliases. NEVER use direct cross-slice imports or relative `../../../` paths.
 
-## Effect Patterns
+## Detailed Rules
 
-See [documentation/EFFECT_PATTERNS.md](documentation/EFFECT_PATTERNS.md) for detailed Effect patterns, import conventions, and critical rules.
+For comprehensive guidelines, see:
 
-## Code Quality
-
-- NEVER use `any`, `@ts-ignore`, or unchecked casts. ALWAYS validate external data with `@beep/schema`.
-- Biome formatting: run `bun run lint:fix` before committing.
-- Use `Effect.log*` with structured objects for logging.
-
-## Effect Collections Quick Reference
-
-NEVER use native JavaScript collections/methods. ALWAYS use Effect utilities:
-
-| Native | Effect | Import |
-|--------|--------|--------|
-| `array.map()` | `A.map(array, fn)` | `import * as A from "effect/Array"` |
-| `array.filter()` | `A.filter(array, pred)` | `import * as A from "effect/Array"` |
-| `array.sort()` | `A.sort(array, Order.number)` | `import * as Order from "effect/Order"` |
-| `array.length === 0` | `A.isEmptyReadonlyArray(array)` | `import * as A from "effect/Array"` |
-| `new Set()` | `MutableHashSet.make()` | `import * as MutableHashSet from "effect/MutableHashSet"` |
-| `new Map()` | `MutableHashMap.make()` | `import * as MutableHashMap from "effect/MutableHashMap"` |
-| `Object.entries()` | `Struct.entries()` | `import * as Struct from "effect/Struct"` |
-| `string.toLowerCase()` | `Str.toLowerCase(string)` | `import * as Str from "effect/String"` |
-| `new Date()` | `DateTime.now` | `import * as DateTime from "effect/DateTime"` |
-| `new Error()` | `S.TaggedError` | See `.claude/rules/effect-patterns.md` |
-
-See [Effect Collections Guide](documentation/patterns/effect-collections.md) for migration examples.
-
-## Testing
-
-ALWAYS use `@beep/testkit` for Effect-based tests. NEVER use raw `bun:test` with manual `Effect.runPromise`.
-
-### Quick Reference
-
-```typescript
-// REQUIRED - @beep/testkit
-import { effect, layer, strictEqual } from "@beep/testkit";
-import * as Effect from "effect/Effect";
-import * as Duration from "effect/Duration";
-
-// Unit test
-effect("test name", () =>
-  Effect.gen(function* () {
-    const result = yield* someEffect();
-    strictEqual(result, expected);
-  })
-);
-
-// Integration test with shared Layer
-layer(TestLayer, { timeout: Duration.seconds(60) })("suite name", (it) => {
-  it.effect("test name", () =>
-    Effect.gen(function* () {
-      const repo = yield* MemberRepo;
-      const result = yield* repo.findAll();
-      strictEqual(result.length, 0);
-    })
-  );
-});
-```
-
-### Test Commands
-
-- `bun run test` — Run all tests
-- `bun run test --filter=@beep/package` — Run tests for specific package
-
-### Test Organization
-
-- Place test files in `./test` directory mirroring `./src` structure
-- NEVER place tests inline with source files
-- Use path aliases (`@beep/*`) instead of relative imports in tests
-
-See `.claude/rules/effect-patterns.md` Testing section and `.claude/commands/patterns/effect-testing-patterns.md` for comprehensive patterns.
-
-## Workflow for AI Agents
-
-1. **Clarify Intent**: ALWAYS ask before editing if the request could be interpreted multiple ways
-2. **Incremental Changes**: Prefer small, focused diffs
-3. **Verify Changes**: Request `bun run check` after modifications
-4. **Respect Tooling**: ALWAYS run commands via `bun run <script>` from project root
-5. **Keep Docs Updated**: Align with `documentation/patterns/` when introducing new patterns
-6. **Do Not Auto-Start**: NEVER launch long-running dev or server commands without confirmation
+| Rule File | Purpose |
+|-----------|---------|
+| [Behavioral Rules](.claude/rules/behavioral.md) | Critical thinking, workflow standards |
+| [General Project Rules](.claude/rules/general.md) | Code quality, boundaries, commands |
+| [Effect Patterns](.claude/rules/effect-patterns.md) | Effect conventions, testing, EntityIds |
+| [Meta-Thinking Patterns](.claude/rules/meta-thinking.md) | Effect algebra, uncertainty handling |
+| [Code Standards](.claude/rules/code-standards.md) | Style, patterns, documentation |
 
 ## Specifications
 
@@ -157,23 +61,16 @@ Agent-assisted, self-improving specification workflow for complex, multi-phase t
 | View all specs    | [specs/README.md](specs/README.md)                                                                |
 | Agent specs       | [specs/agents/](specs/agents/README.md)                                                           |
 
-### Specialized Agents
+### Agent Registry
 
-9 purpose-built agents assist spec creation:
+See [`.claude/agents-manifest.yaml`](.claude/agents-manifest.yaml) for complete agent capability matrix.
 
-| Tier | Agents | Purpose |
-|------|--------|---------|
-| Foundation | `reflector`, `codebase-researcher` | Meta-learning, code exploration |
-| Research | `mcp-researcher`, `web-researcher` | Effect docs, external research |
-| Quality | `code-reviewer`, `architecture-pattern-enforcer` | Guidelines, structure |
-| Writers | `doc-writer`, `test-writer`, `code-observability-writer` | Docs, tests, observability |
-
-### Key Patterns
-
-- **Agent-phase mapping**: Match agents to Discovery → Evaluation → Synthesis → Iteration
-- **Self-reflection**: Capture learnings in `REFLECTION_LOG.md` after each phase
-- **Multi-session handoffs**: Use `HANDOFF_P[N].md` to preserve context between sessions
-- **Skills vs Specs**: `.claude/skills/` for single-session, `specs/` for multi-session orchestration
+| Tier | Purpose | Example Agents |
+|------|---------|----------------|
+| 1: Foundation | Exploration, reflection | `codebase-researcher`, `reflector` |
+| 2: Research | Documentation, patterns | `mcp-researcher`, `effect-expert` |
+| 3: Quality | Review, validation | `code-reviewer`, `architecture-pattern-enforcer` |
+| 4: Writers | Docs, tests, code | `doc-writer`, `test-writer`, `doc-maintainer` |
 
 ## IDE Compatibility
 
@@ -192,12 +89,11 @@ Rules are automatically synced from `.claude/rules/` to `.cursor/rules/` in MDC 
 2. Open the project in Cursor IDE
 3. Rules will be automatically loaded from `.cursor/rules/*.mdc`
 
-**Note**: The sync script transforms `.md` files to `.mdc` format with required frontmatter:
-- Adds `description:` field (required by Cursor)
-- Adds `alwaysApply:` field (controls activation mode)
-- Transforms `paths:` → `globs:` (field rename for scoped rules)
-
 **Maintenance**: Re-run the sync script whenever `.claude/rules/` files are updated.
+
+### Windsurf IDE Configuration
+
+Windsurf uses symlinks to `.claude/rules/` and `.claude/skills/`.
 
 ## Key References
 

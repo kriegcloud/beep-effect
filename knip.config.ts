@@ -13,7 +13,8 @@ const config = {
     "**/test-results/**",
     "**/routeTree.gen.ts",
     "**/routeTree.gen.tsx",
-    "**/*.tsbuildinfo"
+    "**/*.tsbuildinfo",
+    ".repos/**"
   ],
   entry: [
     "tooling/**/*.{ts,tsx,js,jsx,mts,cts}",

@@ -31,8 +31,10 @@ import * as BunRuntime from "@effect/platform-bun/BunRuntime";
 import * as BunTerminal from "@effect/platform-bun/BunTerminal";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
+import { agentsUsageReportCommand } from "./commands/agents-usage-report/index.js";
 import { agentsValidateCommand } from "./commands/agents-validate.js";
 import { bootstrapSpecCommand } from "./commands/bootstrap-spec/index.js";
+import { contextFreshnessCommand } from "./commands/context-freshness/index.js";
 import { createSliceCommand } from "./commands/create-slice/index.js";
 import { docgenCommand } from "./commands/docgen.js";
 import { envCommand } from "./commands/env.js";
@@ -44,8 +46,10 @@ import { verifyCommand } from "./commands/verify/index.js";
 const repoCommand = CliCommand.make("beep").pipe(
   CliCommand.withDescription("Beep repository maintenance CLI."),
   CliCommand.withSubcommands([
+    agentsUsageReportCommand,
     agentsValidateCommand,
     bootstrapSpecCommand,
+    contextFreshnessCommand,
     createSliceCommand,
     docgenCommand,
     envCommand,

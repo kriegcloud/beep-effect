@@ -8,13 +8,13 @@
 
 | Memory Type | Est. Tokens | Budget | Status |
 |-------------|-------------|--------|--------|
-| Working | TBD | ≤2,000 | ⏳ Pending |
-| Episodic | TBD | ≤1,000 | ⏳ Pending |
+| Working | ~600 | ≤2,000 | ✅ OK |
+| Episodic | ~500 | ≤1,000 | ✅ OK |
 | Semantic | ~200 | ≤500 | ✅ OK |
 | Procedural | Links | N/A | ✅ OK |
-| **Total** | **TBD** | **≤4,000** | **⏳ Pending** |
+| **Total** | **~1,300** | **≤4,000** | **✅ OK** |
 
-> ⚠️ This handoff will be fully populated when Phase 1 completes.
+> Phase 1 complete. Ready for Phase 2 execution.
 
 ---
 
@@ -53,10 +53,27 @@ Generate best practices documentation for heavily-used Effect modules.
 
 ### Phase 1 Summary
 
-*To be filled by Phase 1 orchestrator with:*
-- Subtree setup results
-- Tooling configuration changes
-- Any issues encountered
+**Completed Successfully**:
+- Effect repository added as git subtree at `.repos/effect/`
+- Contains all Effect packages: `effect`, `platform`, `schema`, `ai`, `sql`, `rpc`, etc.
+- Tooling exclusions configured (Knip, Biome)
+- Workflow documentation created at `documentation/subtree-workflow.md`
+
+**Key Artifacts**:
+| Artifact | Path | Purpose |
+|----------|------|---------|
+| Effect subtree | `.repos/effect/` | Source reference for agents |
+| Core Effect | `.repos/effect/packages/effect/src/` | Effect module implementations |
+| Platform | `.repos/effect/packages/platform/src/` | FileSystem, HttpClient, etc. |
+| Workflow doc | `documentation/subtree-workflow.md` | Update procedures |
+
+**Tooling Changes**:
+- `knip.config.ts`: Added `.repos/**` to ignore array
+- `biome.jsonc`: Added `!.repos/**` to file excludes
+
+**Issues Encountered**:
+- Git subtree requires clean working tree (user committed changes manually)
+- Remote added as `effect-upstream` for future updates
 
 ---
 

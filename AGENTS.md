@@ -98,6 +98,47 @@ Key patterns:
 - **Multi-session handoffs**: Use `HANDOFF_P[N].md` AND `P[N]_ORCHESTRATOR_PROMPT.md` (both required) to preserve context
 - **Skills vs Specs**: `.claude/skills/` for single-session, `specs/` for multi-session orchestration
 
+## Context Navigation
+
+Quick access to AI agent context resources.
+
+### Library Reference
+
+| Library | Subtree | Index | Key Modules |
+|---------|---------|-------|-------------|
+| Effect | `.repos/effect/` | [INDEX](context/INDEX.md) | [Effect](context/effect/Effect.md), [Schema](context/effect/Schema.md), [Layer](context/effect/Layer.md), [Context](context/effect/Context.md), [Function](context/effect/Function.md) |
+
+### Effect Modules by Tier
+
+| Tier | Modules | When to Use |
+|------|---------|-------------|
+| Tier 1 (Critical) | [Effect](context/effect/Effect.md), [Schema](context/effect/Schema.md), [Layer](context/effect/Layer.md), [Context](context/effect/Context.md), [Function](context/effect/Function.md) | Every file uses these |
+| Tier 2 (Important) | [Array](context/effect/Array.md), [Option](context/effect/Option.md), [Stream](context/effect/Stream.md), [Either](context/effect/Either.md), [Match](context/effect/Match.md), [Duration](context/effect/Duration.md), [Data](context/effect/Data.md), [ParseResult](context/effect/ParseResult.md), [Redacted](context/effect/Redacted.md), [HashMap](context/effect/HashMap.md), [Config](context/effect/Config.md), [Schedule](context/effect/Schedule.md) | Most features |
+| Tier 3 (Common) | [DateTime](context/effect/DateTime.md), [String](context/effect/String.md), [Struct](context/effect/Struct.md), [Record](context/effect/Record.md), [Predicate](context/effect/Predicate.md), [Cause](context/effect/Cause.md), [SchemaAST](context/effect/SchemaAST.md), [Order](context/effect/Order.md), [HashSet](context/effect/HashSet.md), [MutableHashMap](context/effect/MutableHashMap.md), [MutableHashSet](context/effect/MutableHashSet.md), [Number](context/effect/Number.md), [Encoding](context/effect/Encoding.md) | Common utilities |
+| Platform | [FileSystem](context/platform/FileSystem.md), [HttpClient](context/platform/HttpClient.md), [Command](context/platform/Command.md) | System operations |
+
+### Skills by Category
+
+| Category | Skills | When to Use |
+|----------|--------|-------------|
+| Domain Modeling | domain-modeling, domain-predicates, pattern-matching, typeclass-design | Creating entities, ADTs, type guards |
+| Services | service-implementation, layer-design, context-witness, error-handling | Building Effect services |
+| Schema | schema-composition | Complex schema transformations |
+| Effect AI | effect-ai-prompt, effect-ai-tool, effect-ai-streaming, effect-ai-provider, effect-ai-language-model | LLM integrations |
+| Platform | platform-abstraction, command-executor | Cross-platform operations |
+| React/UI | react-vm, react-composition, atom-state, the-vm-standard, wide-events | Frontend patterns |
+| Testing | effect-concurrency-testing | Testing concurrent effects |
+| Auth | Better Auth Best Practices, Create Auth Skill | Authentication |
+| Meta | spec-driven-development, ai-context-writer, legal-review, parallel-explore | Agent workflows |
+
+### Specs by Status
+
+| Status | Specs |
+|--------|-------|
+| ✅ Complete | [artifact-file-cleanup](specs/artifact-file-cleanup/), [lexical-playground-port](specs/lexical-playground-port/), [lexical-utils-effect-refactor](specs/lexical-utils-effect-refactor/), [spec-creation-improvements](specs/spec-creation-improvements/), [agent-context-optimization](specs/agent-context-optimization/) |
+| 🔄 Active | [agent-infrastructure-rationalization](specs/agent-infrastructure-rationalization/), [knowledge-architecture-foundation](specs/knowledge-architecture-foundation/), [todox-design](specs/todox-design/) |
+| 📋 Planning | [e2e-testkit-migration](specs/e2e-testkit-migration/), [knowledge-*](specs/) (see [full list](specs/README.md)) |
+
 ## Key References
 
 | Document                       | Purpose                          |
@@ -106,6 +147,7 @@ Key patterns:
 | `docs/`                        | Generated API docs (via docgen)  |
 | `documentation/`               | Internal contributor docs        |
 | `documentation/patterns/`      | Implementation recipes           |
+| `documentation/context-maintenance.md` | Maintaining agent context artifacts |
 | `specs/`                       | Specification library            |
 | `turbo.json`                   | Pipeline graph                   |
 | `tsconfig.base.jsonc`          | Path aliases                     |
