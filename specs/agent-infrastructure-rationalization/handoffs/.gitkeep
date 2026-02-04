@@ -1,0 +1,7 @@
+# Phase handoff documents
+
+Each phase produces two files:
+- HANDOFF_P[N].md - Full context document for next phase
+- P[N]_ORCHESTRATOR_PROMPT.md - Copy-paste ready prompt to start phase
+
+Phase completion requires BOTH files to exist.
