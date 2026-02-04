@@ -1,0 +1,85 @@
+{
+  "name": "@better-auth/sso",
+  "author": "Bereket Engida",
+  "version": "1.4.18",
+  "type": "module",
+  "main": "dist/index.mjs",
+  "types": "dist/index.d.mts",
+  "homepage": "https://www.better-auth.com/docs/plugins/sso",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/better-auth/better-auth.git",
+    "directory": "packages/sso"
+  },
+  "license": "MIT",
+  "keywords": [
+    "sso",
+    "auth",
+    "sso",
+    "saml",
+    "oauth",
+    "oidc",
+    "openid",
+    "openid connect",
+    "openid connect",
+    "single sign on"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "module": "dist/index.mjs",
+  "description": "SSO plugin for Better Auth",
+  "scripts": {
+    "test": "vitest",
+    "coverage": "vitest run --coverage --coverage.provider=istanbul",
+    "lint:package": "publint run --strict",
+    "lint:types": "attw --profile esm-only --pack .",
+    "build": "tsdown",
+    "dev": "tsdown --watch",
+    "typecheck": "tsc --project tsconfig.json"
+  },
+  "exports": {
+    ".": {
+      "dev-source": "./src/index.ts",
+      "types": "./dist/index.d.mts",
+      "default": "./dist/index.mjs"
+    },
+    "./client": {
+      "dev-source": "./src/client.ts",
+      "types": "./dist/client.d.mts",
+      "default": "./dist/client.mjs"
+    }
+  },
+  "typesVersions": {
+    "*": {
+      "*": [
+        "./dist/index.d.mts"
+      ],
+      "client": [
+        "./dist/client.d.mts"
+      ]
+    }
+  },
+  "dependencies": {
+    "@better-auth/utils": "catalog:",
+    "@better-fetch/fetch": "catalog:",
+    "fast-xml-parser": "^5.2.5",
+    "jose": "^6.1.0",
+    "samlify": "^2.10.1",
+    "zod": "^4.3.5"
+  },
+  "devDependencies": {
+    "@types/body-parser": "^1.19.6",
+    "@types/express": "^5.0.5",
+    "better-auth": "workspace:*",
+    "better-call": "catalog:",
+    "body-parser": "^2.2.1",
+    "express": "^5.1.0",
+    "oauth2-mock-server": "^8.2.0",
+    "tsdown": "catalog:"
+  },
+  "peerDependencies": {
+    "@better-auth/utils": "catalog:",
+    "better-auth": "workspace:*"
+  }
+}

@@ -1,0 +1,955 @@
+---
+title: Database
+description: Learn how to use a database with Better Auth.
+---
+
+## Adapters
+
+Better Auth connects to a database to store data. The database will be used to store data such as users, sessions, and more. Plugins can also define their own database tables to store data.
+
+You can pass a database connection to Better Auth by passing a supported database instance in the database options. You can learn more about supported database adapters in the [Other relational databases](/docs/adapters/other-relational-databases) documentation.
+
+<Callout type="info">
+Better Auth also works without any database. For more details, see [Stateless Session Management](/docs/concepts/session-management#stateless-session-management).
+</Callout>
+
+## CLI
+
+Better Auth comes with a CLI tool to manage database migrations and generate schema.
+
+### Running Migrations
+
+The cli checks your database and prompts you to add missing tables or update existing ones with new columns. This is only supported for the built-in Kysely adapter. For other adapters, you can use the `generate` command to create the schema and handle the migration through your ORM.
+
+```bash
+npx @better-auth/cli migrate
+```
+
+<Callout type="info">
+For PostgreSQL users: The migrate command supports non-default schemas. It automatically detects your `search_path` configuration and creates tables in the correct schema. See [PostgreSQL adapter](/docs/adapters/postgresql#use-a-non-default-schema) for details.
+</Callout>
+
+### Generating Schema
+
+Better Auth also provides a `generate` command to generate the schema required by Better Auth. The `generate` command creates the schema required by Better Auth. If you're using a database adapter like Prisma or Drizzle, this command will generate the right schema for your ORM. If you're using the built-in Kysely adapter, it will generate an SQL file you can run directly on your database.
+
+```bash
+npx @better-auth/cli generate
+```
+
+See the [CLI](/docs/concepts/cli) documentation for more information on the CLI.
+
+<Callout>
+  If you prefer adding tables manually, you can do that as well. The core schema
+  required by Better Auth is described below and you can find additional schema
+  required by plugins in the plugin documentation.
+</Callout>
+
+### Programmatic Migrations
+
+In some environments (like Cloudflare Workers, serverless functions, or custom deployment setups), running the CLI may not be possible or practical. In these cases, you can run migrations programmatically from within your application code.
+
+Better Auth provides a `getMigrations` function that you can use to generate and run migrations programmatically. This is particularly useful when:
+
+- You're deploying to edge environments (Cloudflare Workers, Deno Deploy, etc.)
+- Your environment variables are only available at runtime (not at build time)
+- You need to run migrations as part of your application startup or through a custom endpoint
+
+#### Using `getMigrations`
+
+The `getMigrations` function is available from `better-auth/db` and works with the built-in Kysely adapter (SQLite, PostgreSQL, MySQL, MSSQL).
+
+```typescript
+import { getMigrations } from "better-auth/db";
+
+const { toBeCreated, toBeAdded, runMigrations, compileMigrations } = await getMigrations(authConfig);
+
+// Check what migrations are needed
+console.log("Tables to create:", toBeCreated);
+console.log("Fields to add:", toBeAdded);
+
+// Run migrations
+await runMigrations();
+
+// Or get the SQL to run manually
+const sql = await compileMigrations();
+console.log(sql);
+```
+
+#### Example: Cloudflare Workers Migration Endpoint
+
+For Cloudflare Workers using D1 (SQLite), you can create a migration endpoint that runs when your worker starts or through a manual trigger:
+
+```typescript title="src/index.ts"
+import { Hono } from "hono";
+import { auth } from "./auth"; // your auth instance
+import { getMigrations } from "better-auth/db";
+
+const app = new Hono<{ Bindings: Env }>();
+
+// Migration endpoint - call this once to set up your database
+app.post("/migrate", async (c) => {
+  const env = c.env;
+
+  // Create auth config with runtime environment
+  const authConfig = {
+    database: env.DB, // D1 database binding
+    // ... rest of your auth config
+  };
+
+  try {
+    const { toBeCreated, toBeAdded, runMigrations } = await getMigrations(authConfig);
+
+    if (toBeCreated.length === 0 && toBeAdded.length === 0) {
+      return c.json({ message: "No migrations needed" });
+    }
+
+    await runMigrations();
+
+    return c.json({
+      message: "Migrations completed successfully",
+      created: toBeCreated.map(t => t.table),
+      added: toBeAdded.map(t => t.table)
+    });
+  } catch (error) {
+    return c.json({ error: error instanceof Error ? error.message : String(error) }, 500);
+  }
+});
+
+// Your normal auth endpoints
+app.on(["POST", "GET"], "/api/auth/*", (c) => {
+  return auth.handler(c.req.raw);
+});
+
+export default app;
+```
+
+<Callout type="warn">
+**Important Limitations**
+
+Programmatic migrations currently work **only** with:
+- Built-in database adapters (SQLite/D1, PostgreSQL, MySQL, MSSQL) using the Kysely adapter
+- Does **not** work with Prisma or Drizzle ORM adapters
+
+For Prisma or Drizzle in Cloudflare Workers, see the [Cloudflare Workers](#cloudflare-workers-with-prisma-drizzle) section below.
+</Callout>
+
+#### Cloudflare Workers with Prisma/Drizzle
+
+If you're using Prisma or Drizzle with Cloudflare Workers, you have a few options:
+
+1. **Use `cloudflare:workers` import** (Recommended for newer Cloudflare projects):
+
+   Cloudflare now supports importing environment variables from `cloudflare:workers`, which allows you to access `env` at the top level:
+
+   ```typescript title="auth.ts"
+   import { env } from "cloudflare:workers";
+   import { drizzle } from "drizzle-orm/d1";
+
+   export const auth = betterAuth({
+     database: drizzle(env.DB),
+     // ... rest of config
+   });
+   ```
+
+   With this approach, you can run the standard CLI commands:
+
+   ```bash
+   npx @better-auth/cli migrate
+   # or
+   npx @better-auth/cli generate
+   ```
+
+2. **Use `process.env` with compatibility flag**:
+
+   Add the `nodejs_compat_populate_process_env` compatibility flag to your `wrangler.toml`:
+
+   ```toml title="wrangler.toml"
+   compatibility_flags = ["nodejs_compat_populate_process_env"]
+   ```
+
+   Then use `process.env` in your auth config:
+
+   ```typescript title="auth.ts"
+   import { drizzle } from "drizzle-orm/d1";
+
+   export const auth = betterAuth({
+     database: drizzle(process.env.DB as any),
+     // ... rest of config
+   });
+   ```
+
+   After setting this up, run the CLI commands as normal:
+
+   ```bash
+   npx @better-auth/cli generate
+   ```
+
+3. **Generate schema locally and push manually**:
+
+   Run the generate command locally with a mock configuration, then use your ORM's push/migrate commands to apply the schema.
+
+<Callout type="info">
+See the [Hono integration documentation](/docs/integrations/hono#cloudflare-workers) for a complete example of using Better Auth with Cloudflare Workers.
+</Callout>
+
+## Secondary Storage
+
+Secondary storage in Better Auth allows you to use key-value stores for managing session data, rate limiting counters, etc. This can be useful when you want to offload the storage of this intensive records to a high performance storage or even RAM.
+
+### Implementation
+
+To use secondary storage, implement the `SecondaryStorage` interface:
+
+```typescript
+interface SecondaryStorage {
+  get: (key: string) => Promise<unknown>; 
+  set: (key: string, value: string, ttl?: number) => Promise<void>;
+  delete: (key: string) => Promise<void>;
+}
+```
+
+Then, provide your implementation to the `betterAuth` function:
+
+```typescript
+betterAuth({
+  // ... other options
+  secondaryStorage: {
+    // Your implementation here
+  },
+});
+```
+
+**Example: Redis Implementation**
+
+Here's a basic example using Redis:
+
+```typescript
+import { createClient } from "redis";
+import { betterAuth } from "better-auth";
+
+const redis = createClient();
+await redis.connect();
+
+export const auth = betterAuth({
+	// ... other options
+	secondaryStorage: {
+		get: async (key) => {
+			return await redis.get(key);
+		},
+		set: async (key, value, ttl) => {
+			if (ttl) await redis.set(key, value, { EX: ttl });
+			// or for ioredis:
+			// if (ttl) await redis.set(key, value, 'EX', ttl)
+			else await redis.set(key, value);
+		},
+		delete: async (key) => {
+			await redis.del(key);
+		}
+	}
+});
+```
+
+This implementation allows Better Auth to use Redis for storing session data and rate limiting counters. You can also add prefixes to the keys names.
+
+## Core Schema
+
+Better Auth requires the following tables to be present in the database. The types are in `typescript` format. You can use corresponding types in your database.
+
+### User
+
+Table Name: `user`
+
+<DatabaseTable
+  fields={[
+    {
+      name: "id",
+      type: "string",
+      description: "Unique identifier for each user",
+      isPrimaryKey: true,
+    },
+    {
+      name: "name",
+      type: "string",
+      description: "User's chosen display name",
+    },
+    {
+      name: "email",
+      type: "string",
+      description: "User's email address for communication and login",
+    },
+    {
+      name: "emailVerified",
+      type: "boolean",
+      description: "Whether the user's email is verified",
+    },
+    {
+      name: "image",
+      type: "string",
+      description: "User's image url",
+      isOptional: true,
+    },
+    {
+      name: "createdAt",
+      type: "Date",
+      description: "Timestamp of when the user account was created",
+    },
+    {
+      name: "updatedAt",
+      type: "Date",
+      description: "Timestamp of the last update to the user's information",
+    },
+  ]}
+/>
+
+### Session
+
+Table Name: `session`
+
+<DatabaseTable
+  fields={[
+    {
+      name: "id",
+      type: "string",
+      description: "Unique identifier for each session",
+      isPrimaryKey: true,
+    },
+    {
+      name: "userId",
+      type: "string",
+      description: "The ID of the user",
+      isForeignKey: true,
+    },
+    {
+      name: "token",
+      type: "string",
+      description: "The unique session token",
+      isUnique: true,
+    },
+    {
+      name: "expiresAt",
+      type: "Date",
+      description: "The time when the session expires",
+    },
+    {
+      name: "ipAddress",
+      type: "string",
+      description: "The IP address of the device",
+      isOptional: true,
+    },
+    {
+      name: "userAgent",
+      type: "string",
+      description: "The user agent information of the device",
+      isOptional: true,
+    },
+    {
+      name: "createdAt",
+      type: "Date",
+      description: "Timestamp of when the session was created",
+    },
+    {
+      name: "updatedAt",
+      type: "Date",
+      description: "Timestamp of when the session was updated",
+    },
+  ]}
+/>
+
+### Account
+
+Table Name: `account`
+
+<DatabaseTable
+  fields={[
+    {
+      name: "id",
+      type: "string",
+      description: "Unique identifier for each account",
+      isPrimaryKey: true,
+    },
+    {
+      name: "userId",
+      type: "string",
+      description: "The ID of the user",
+      isForeignKey: true,
+    },
+    {
+      name: "accountId",
+      type: "string",
+      description:
+        "The ID of the account as provided by the SSO or equal to userId for credential accounts",
+    },
+    {
+      name: "providerId",
+      type: "string",
+      description: "The ID of the provider",
+    },
+    {
+      name: "accessToken",
+      type: "string",
+      description: "The access token of the account. Returned by the provider",
+      isOptional: true,
+    },
+    {
+      name: "refreshToken",
+      type: "string",
+      description: "The refresh token of the account. Returned by the provider",
+      isOptional: true,
+    },
+    {
+      name: "accessTokenExpiresAt",
+      type: "Date",
+      description: "The time when the access token expires",
+      isOptional: true,
+    },
+    {
+      name: "refreshTokenExpiresAt",
+      type: "Date",
+      description: "The time when the refresh token expires",
+      isOptional: true,
+    },
+    {
+      name: "scope",
+      type: "string",
+      description: "The scope of the account. Returned by the provider",
+      isOptional: true,
+    },
+    {
+      name: "idToken",
+      type: "string",
+      description: "The ID token returned from the provider",
+      isOptional: true,
+    },
+    {
+      name: "password",
+      type: "string",
+      description:
+        "The password of the account. Mainly used for email and password authentication",
+      isOptional: true,
+    },
+    {
+      name: "createdAt",
+      type: "Date",
+      description: "Timestamp of when the account was created",
+    },
+    {
+      name: "updatedAt",
+      type: "Date",
+      description: "Timestamp of when the account was updated",
+    },
+  ]}
+/>
+
+### Verification
+
+Table Name: `verification`
+
+<DatabaseTable
+  fields={[
+    {
+      name: "id",
+      type: "string",
+      description: "Unique identifier for each verification",
+      isPrimaryKey: true,
+    },
+    {
+      name: "identifier",
+      type: "string",
+      description: "The identifier for the verification request",
+    },
+    {
+      name: "value",
+      type: "string",
+      description: "The value to be verified",
+    },
+    {
+      name: "expiresAt",
+      type: "Date",
+      description: "The time when the verification request expires",
+    },
+    {
+      name: "createdAt",
+      type: "Date",
+      description: "Timestamp of when the verification request was created",
+    },
+    {
+      name: "updatedAt",
+      type: "Date",
+      description: "Timestamp of when the verification request was updated",
+    },
+  ]}
+/>
+
+## Custom Tables
+
+Better Auth allows you to customize the table names and column names for the core schema. You can also extend the core schema by adding additional fields to the user and session tables.
+
+### Custom Table Names
+
+You can customize the table names and column names for the core schema by using the `modelName` and `fields` properties in your auth config:
+
+```ts title="auth.ts"
+export const auth = betterAuth({
+  user: {
+    modelName: "users",
+    fields: {
+      name: "full_name",
+      email: "email_address",
+    },
+  },
+  session: {
+    modelName: "user_sessions",
+    fields: {
+      userId: "user_id",
+    },
+  },
+});
+```
+
+<Callout>
+  Type inference in your code will still use the original field names (e.g.,
+  `user.name`, not `user.full_name`).
+</Callout>
+
+To customize table names and column name for plugins, you can use the `schema` property in the plugin config:
+
+```ts title="auth.ts"
+import { betterAuth } from "better-auth";
+import { twoFactor } from "better-auth/plugins";
+
+export const auth = betterAuth({
+  plugins: [
+    twoFactor({
+      schema: {
+        user: {
+          fields: {
+            twoFactorEnabled: "two_factor_enabled",
+            secret: "two_factor_secret",
+          },
+        },
+      },
+    }),
+  ],
+});
+```
+
+### Extending Core Schema
+
+Better Auth provides a type-safe way to extend the `user` and `session` schemas. You can add custom fields to your auth config, and the CLI will automatically update the database schema. These additional fields will be properly inferred in functions like `useSession`, `signUp.email`, and other endpoints that work with user or session objects.
+
+To add custom fields, use the `additionalFields` property in the `user` or `session` object of your auth config. The `additionalFields` object uses field names as keys, with each value being a `FieldAttributes` object containing:
+
+- `type`: The data type of the field (e.g., "string", "number", "boolean").
+- `required`: A boolean indicating if the field is mandatory.
+- `defaultValue`: The default value for the field (note: this only applies in the JavaScript layer; in the database, the field will be optional).
+- `input`: This determines whether a value can be provided when creating a new record (default: `true`). If there are additional fields, like `role`, that should not be provided by the user during signup, you can set this to `false`.
+
+Here's an example of how to extend the user schema with additional fields:
+
+```ts title="auth.ts"
+import { betterAuth } from "better-auth";
+
+export const auth = betterAuth({
+  user: {
+    additionalFields: {
+      role: {
+        type: ["user", "admin"],
+        required: false,
+        defaultValue: "user",
+        input: false, // don't allow user to set role
+      },
+      lang: {
+        type: "string",
+        required: false,
+        defaultValue: "en",
+      },
+    },
+  },
+});
+```
+
+Now you can access the additional fields in your application logic.
+
+```ts
+//on signup
+const res = await auth.api.signUpEmail({
+  email: "test@example.com",
+  password: "password",
+  name: "John Doe",
+  lang: "fr",
+});
+
+//user object
+res.user.role; // > "admin"
+res.user.lang; // > "fr"
+```
+
+<Callout>
+  See the
+  [TypeScript](/docs/concepts/typescript#inferring-additional-fields-on-client)
+  documentation for more information on how to infer additional fields on the
+  client side.
+</Callout>
+
+If you're using social / OAuth providers, you may want to provide `mapProfileToUser` to map the profile data to the user object. So, you can populate additional fields from the provider's profile.
+
+**Example: Mapping Profile to User For `firstName` and `lastName`**
+
+```ts title="auth.ts"
+import { betterAuth } from "better-auth";
+
+export const auth = betterAuth({
+  socialProviders: {
+    github: {
+      clientId: "YOUR_GITHUB_CLIENT_ID",
+      clientSecret: "YOUR_GITHUB_CLIENT_SECRET",
+      mapProfileToUser: (profile) => {
+        return {
+          firstName: profile.name.split(" ")[0],
+          lastName: profile.name.split(" ")[1],
+        };
+      },
+    },
+    google: {
+      clientId: "YOUR_GOOGLE_CLIENT_ID",
+      clientSecret: "YOUR_GOOGLE_CLIENT_SECRET",
+      mapProfileToUser: (profile) => {
+        return {
+          firstName: profile.given_name,
+          lastName: profile.family_name,
+        };
+      },
+    },
+  },
+});
+```
+
+### ID Generation
+
+Better Auth by default will generate unique IDs for users, sessions, and other entities.
+You can customize ID generation behavior using the `advanced.database.generateId` option.
+
+#### Option 1: Let Database Generate IDs
+
+Setting `generateId` to `false` allows your database handle all ID generation: (outside of `generateId` being `serial` and some cases of `generateId` being `uuid`)
+
+```ts title="auth.ts"
+import { betterAuth } from "better-auth";
+import { db } from "./db";
+
+export const auth = betterAuth({
+  database: db,
+  advanced: {
+    database: {
+      generateId: false, // "serial" for auto-incrementing numeric IDs
+    },
+  },
+});
+```
+
+#### Option 2: Custom ID Generation Function
+
+Use a function to generate IDs. You can return `false` or `undefined` from the function to let the database generate the ID for specific models:
+
+```ts title="auth.ts"
+import { betterAuth } from "better-auth";
+import { db } from "./db";
+
+export const auth = betterAuth({
+  database: db,
+  advanced: {
+    database: {
+      generateId: (options) => {
+        // Let database auto-generate for specific models
+        if (options.model === "user" || options.model === "users") {
+          return false; // Let database generate ID
+        }
+        // Generate UUIDs for other tables
+        return crypto.randomUUID();
+      },
+    },
+  },
+});
+```
+
+<Callout type="info">
+  **Important**: Returning `false` or `undefined` from the `generateId` function lets the database handle ID generation for that specific model. Setting `generateId: false` (without a function) disables ID generation for **all** tables.
+</Callout>
+
+#### Option 3: Consistent Custom ID Generator
+
+Generate the same type of ID for all tables:
+
+```ts title="auth.ts"
+import { betterAuth } from "better-auth";
+import { db } from "./db";
+
+export const auth = betterAuth({
+  database: db,
+  advanced: {
+    database: {
+      generateId: () => crypto.randomUUID(),
+    },
+  },
+});
+```
+
+### Numeric IDs
+
+If you prefer auto-incrementing numeric IDs, you can set the `advanced.database.generateId` option to `"serial"`.
+Doing this will disable Better-Auth from generating IDs for any table, and will assume your
+database will generate the numeric ID automatically.
+
+When enabled, the Better-Auth CLI will generate or migrate the schema with the `id` field as a numeric type for your database
+with auto-incrementing attributes associated with it.
+
+```ts
+import { betterAuth } from "better-auth";
+import { db } from "./db";
+
+export const auth = betterAuth({
+  database: db,
+  advanced: {
+    database: {
+      generateId: "serial",
+    },
+  },
+});
+```
+
+<Callout type="info">
+  Better-Auth will continue to infer the type of the `id` field as a `string` for the database, but will
+  automatically convert it to a numeric type when fetching or inserting data from the database.
+
+  It's likely when grabbing `id` values returned from Better-Auth that you'll receive a string version of a number,
+  this is normal. It's also expected that all id values passed to Better-Auth (eg via an endpoint body) is expected to be a string.
+</Callout>
+
+### UUIDs
+
+If you prefer UUIDs for the `id` field, you can set the `advanced.database.generateId` option to `"uuid"`.
+By default, Better-Auth will generate UUIDs for the `id` field for all tables, except adapters that use `PostgreSQL` where we allow the
+database to generate the UUID automatically.
+
+By enabling this option, the Better-Auth CLI will generate or migrate the schema with the `id` field as a UUID type for your database.
+If the `uuid` type is not supported, we will generate a normal `string` type for the `id` field.
+
+### Mixed ID Types
+
+If you need different ID types across tables (e.g., integer IDs for users, UUID strings for sessions/accounts/verification), use a `generateId` callback function.
+
+```ts title="auth.ts"
+import { betterAuth } from "better-auth";
+import { db } from "./db";
+
+export const auth = betterAuth({
+  database: db,
+  user: {
+    modelName: "users", // PostgreSQL: id serial primary key
+  },
+  session: {
+    modelName: "session", // PostgreSQL: id text primary key
+  },
+  advanced: {
+    database: {
+      // Do NOT set useNumberId - it's global and affects all tables
+      generateId: (options) => {
+        if (options.model === "user" || options.model === "users") {
+          return false; // Let PostgreSQL serial generate it
+        }
+        return crypto.randomUUID(); // UUIDs for session, account, verification
+      },
+    },
+  },
+});
+```
+
+This configuration allows you to:
+- Use database auto-increment (serial, auto_increment, etc.) for the users table
+- Generate UUIDs for all other tables (session, account, verification)
+- Maintain compatibility with existing schemas that use different ID types
+
+<Callout type="info">
+  **Use Case**: This is particularly useful when migrating from other authentication providers (like Clerk) where you have existing users with integer IDs but want UUID strings for new tables.
+</Callout>
+
+### Database Hooks
+
+Database hooks allow you to define custom logic that can be executed during the lifecycle of core database operations in Better Auth. You can create hooks for the following models: **user**, **session**, and **account**.
+
+<Callout type="warn">
+  Additional fields are supported, however full type inference for these fields isn't yet supported.
+  Improved type support is planned.
+</Callout>
+
+There are two types of hooks you can define:
+
+#### 1. Before Hook
+
+- **Purpose**: This hook is called before the respective entity (user, session, or account) is created, updated, or deleted.
+- **Behavior**: If the hook returns `false`, the operation will be aborted. And If it returns a data object, it'll replace the original payload.
+
+#### 2. After Hook
+
+- **Purpose**: This hook is called after the respective entity is created or updated.
+- **Behavior**: You can perform additional actions or modifications after the entity has been successfully created or updated.
+
+**Example Usage**
+
+```typescript title="auth.ts"
+import { betterAuth } from "better-auth";
+
+export const auth = betterAuth({
+  databaseHooks: {
+    user: {
+      create: {
+        before: async (user, ctx) => {
+          // Modify the user object before it is created
+          return {
+            data: {
+              // Ensure to return Better-Auth named fields, not the original field names in your database.
+              ...user,
+              firstName: user.name.split(" ")[0],
+              lastName: user.name.split(" ")[1],
+            },
+          };
+        },
+        after: async (user) => {
+          //perform additional actions, like creating a stripe customer
+        },
+      },
+      delete: {
+        before: async (user, ctx) => {
+          console.log(`User ${user.email} is being deleted`);
+          if (user.email.includes("admin")) {
+            return false; // Abort deletion
+          }
+          
+          return true; // Allow deletion
+        },
+        after: async (user) => {
+          console.log(`User ${user.email} has been deleted`);
+        },
+      },
+    },
+    session: {
+      delete: {
+        before: async (session, ctx) => {
+          console.log(`Session ${session.token} is being deleted`);
+          if (session.userId === "admin-user-id") {
+            return false; // Abort deletion
+          }
+          return true; // Allow deletion
+        },
+        after: async (session) => {
+          console.log(`Session ${session.token} has been deleted`);
+        },
+      },
+    },
+  },
+});
+```
+
+
+#### Throwing Errors
+
+If you want to stop the database hook from proceeding, you can throw errors using the `APIError` class imported from `better-auth/api`.
+
+```typescript title="auth.ts"
+import { betterAuth } from "better-auth";
+import { APIError } from "better-auth/api";
+
+export const auth = betterAuth({
+  databaseHooks: {
+    user: {
+      create: {
+        before: async (user, ctx) => {
+          if (user.isAgreedToTerms === false) {
+            // Your special condition.
+            // Send the API error.
+            throw new APIError("BAD_REQUEST", {
+              message: "User must agree to the TOS before signing up.",
+            });
+          }
+          return {
+            data: user,
+          };
+        },
+      },
+    },
+  },
+});
+```
+
+#### Using the Context Object
+
+The context object (`ctx`), passed as the second argument to the hook, contains useful information. For `update` hooks, this includes the current `session`, which you can use to access the logged-in user's details.
+
+```typescript title="auth.ts"
+import { betterAuth } from "better-auth";
+
+export const auth = betterAuth({
+  databaseHooks: {
+    user: {
+      update: {
+        before: async (data, ctx) => {
+          // You can access the session from the context object.
+          if (ctx.context.session) {
+            console.log("User update initiated by:", ctx.context.session.userId);
+          }
+          return { data };
+        },
+      },
+    },
+  },
+});
+```
+
+Much like standard hooks, database hooks also provide a `ctx` object that offers a variety of useful properties. Learn more in the [Hooks Documentation](/docs/concepts/hooks#ctx).
+
+## Plugins Schema
+
+Plugins can define their own tables in the database to store additional data. They can also add columns to the core tables to store additional data. For example, the two factor authentication plugin adds the following columns to the `user` table:
+
+- `twoFactorEnabled`: Whether two factor authentication is enabled for the user.
+- `twoFactorSecret`: The secret key used to generate TOTP codes.
+- `twoFactorBackupCodes`: Encrypted backup codes for account recovery.
+
+To add new tables and columns to your database, you have two options:
+
+`CLI`: Use the migrate or generate command. These commands will scan your database and guide you through adding any missing tables or columns.
+`Manual Method`: Follow the instructions in the plugin documentation to manually add tables and columns.
+
+Both methods ensure your database schema stays up to date with your plugins' requirements.
+
+
+## Experimental Joins
+
+Since Better-Auth version `1.4` we've introduced experimental database joins support.
+This allows Better-Auth to perform multiple database queries in a single request, reducing the number of database roundtrips.
+Over 50 endpoints support joins, and we're constantly adding more. 
+
+Under the hood, our adapter system supports joins natively, meaning even if you don't enable experimental joins,
+it will still fallback to making multiple database queries and combining the results.
+
+To enable joins, update your auth config with the following:
+
+```ts title="auth.ts"
+export const auth = betterAuth({
+  experimental: { joins: true }
+});
+```
+
+The Better-Auth `1.4` CLI will generate DrizzleORM and PrismaORM relationships for you so if you do not have those already
+be sure to update your schema by running our migrate or generate CLI commands to be up-to-date with the latest required schema.
+
+It's very important to read the documentation regarding experimental joins for your given adapter:
+
+- [DrizzleORM](/docs/adapters/drizzle#joins-experimental)
+- [PrismaORM](/docs/adapters/prisma#joins-experimental)
+- [SQLite](/docs/adapters/sqlite#joins-experimental)
+- [MySQL](/docs/adapters/mysql#joins-experimental)
+- [PostgreSQL](/docs/adapters/postgresql#joins-experimental)
+- [MSSQL](/docs/adapters/mssql#joins-experimental)
+- [MongoDB](/docs/adapters/mongo#joins-experimental)
