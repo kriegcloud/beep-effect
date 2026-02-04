@@ -55,6 +55,10 @@
           {
             "type": "command",
             "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/subagent-init/run.sh"
+          },
+          {
+            "type": "command",
+            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/telemetry/run-start.sh"
           }
         ]
       },
@@ -80,6 +84,15 @@
       }
     ],
     "Stop": [],
-    "SubagentStop": []
+    "SubagentStop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/telemetry/run-stop.sh"
+          }
+        ]
+      }
+    ]
   }
 }

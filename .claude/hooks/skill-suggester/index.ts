@@ -29,15 +29,30 @@ interface SkillMetadata {
   readonly keywords: ReadonlyArray<string>
 }
 
+interface SkillIndexCache {
+  readonly loadedAt: number
+  readonly directoryMtime: number
+  readonly skills: ReadonlyArray<SkillMetadata>
+}
+
 interface HookState {
   readonly lastCallMs: number | null
+  readonly skillIndex?: SkillIndexCache
+  // Preserve pattern-detector's cache field
+  readonly patternCache?: unknown
 }
+
+const CACHE_TTL_MS = 30 * 60 * 1000 // 30 minutes
 
 const readHookState = (): HookState => {
   try {
     const content = fs.readFileSync(".claude/.hook-state.json", "utf-8")
     const parsed = JSON.parse(content)
-    return { lastCallMs: typeof parsed.lastCallMs === "number" ? parsed.lastCallMs : null }
+    return {
+      lastCallMs: typeof parsed.lastCallMs === "number" ? parsed.lastCallMs : null,
+      skillIndex: parsed.skillIndex,
+      patternCache: parsed.patternCache,
+    }
   } catch {
     return { lastCallMs: null }
   }
@@ -46,9 +61,53 @@ const readHookState = (): HookState => {
 const writeHookState = (state: HookState): void => {
   try {
     fs.writeFileSync(".claude/.hook-state.json", JSON.stringify(state, null, 2), "utf-8")
-  } catch (error) {
+  } catch {
     // Silently fail if we can't write state
   }
+}
+
+const getDirectoryMtime = (dirPath: string): number => {
+  try {
+    const stat = fs.statSync(dirPath)
+    return stat.mtimeMs
+  } catch {
+    return 0
+  }
+}
+
+const getNewestMtimeRecursive = (dirPath: string): number => {
+  let newest = getDirectoryMtime(dirPath)
+  try {
+    const entries = fs.readdirSync(dirPath, { withFileTypes: true })
+    for (const entry of entries) {
+      const fullPath = `${dirPath}/${entry.name}`
+      if (entry.isDirectory()) {
+        const subMtime = getNewestMtimeRecursive(fullPath)
+        if (subMtime > newest) newest = subMtime
+      } else if (entry.isFile() && entry.name === "SKILL.md") {
+        const fileMtime = fs.statSync(fullPath).mtimeMs
+        if (fileMtime > newest) newest = fileMtime
+      }
+    }
+  } catch {
+    // Ignore errors, use current newest
+  }
+  return newest
+}
+
+const isSkillCacheValid = (cache: SkillIndexCache | undefined, currentMtime: number): boolean => {
+  if (!cache) return false
+  const now = Date.now()
+  const cacheAge = now - cache.loadedAt
+  if (cacheAge > CACHE_TTL_MS) return false
+  if (cache.directoryMtime !== currentMtime) return false
+  // Validate cache structure
+  if (!globalThis.Array.isArray(cache.skills)) return false
+  return cache.skills.every(s =>
+    typeof s === "object" && s !== null &&
+    typeof s.name === "string" &&
+    globalThis.Array.isArray(s.keywords)
+  )
 }
 
 const MiseTask = Schema.Struct({
@@ -159,22 +218,50 @@ const readSkillFile = (skillPath: string) =>
     return { name, keywords }
   })
 
-const loadSkills = Effect.gen(function* () {
-  const fs = yield* FileSystem.FileSystem
+const loadSkillsFromDisk = Effect.gen(function* () {
+  const fsService = yield* FileSystem.FileSystem
   const path = yield* Path.Path
 
   const skillsDir = path.join(".claude", "skills")
-  const exists = yield* fs.exists(skillsDir)
+  const exists = yield* fsService.exists(skillsDir)
 
   if (!exists) return Array.empty<SkillMetadata>()
 
-  const entries = yield* fs.readDirectory(skillsDir)
+  const entries = yield* fsService.readDirectory(skillsDir)
   const skillEffects = Array.map(entries, entry =>
     Effect.option(readSkillFile(path.join(skillsDir, entry, "SKILL.md")))
   )
 
   const skillOptions = yield* Effect.all(skillEffects, { concurrency: "unbounded" })
   return Array.getSomes(skillOptions)
+})
+
+const loadSkillsWithCache = Effect.gen(function* () {
+  const path = yield* Path.Path
+
+  const skillsDir = path.join(".claude", "skills")
+  const state = readHookState()
+  const currentMtime = getNewestMtimeRecursive(skillsDir)
+
+  // Return cached skills if valid
+  if (isSkillCacheValid(state.skillIndex, currentMtime)) {
+    return state.skillIndex!.skills as SkillMetadata[]
+  }
+
+  // Cache invalid - rebuild index from disk
+  const skills = yield* loadSkillsFromDisk
+
+  // Persist cache (preserve other state fields)
+  writeHookState({
+    ...state,
+    skillIndex: {
+      loadedAt: Date.now(),
+      directoryMtime: currentMtime,
+      skills,
+    },
+  })
+
+  return skills
 })
 
 const matchesKeyword = (prompt: string, keyword: string): boolean =>
@@ -240,9 +327,13 @@ const program = Effect.gen(function* () {
   const previousState = readHookState()
   const currentCallMs = Date.now()
 
-  writeHookState({ lastCallMs: currentCallMs })
+  // Load skills with caching (may update state)
+  const skills = yield* loadSkillsWithCache
 
-  const skills = yield* loadSkills
+  // Update lastCallMs but preserve skillIndex and patternCache
+  const currentState = readHookState() // Re-read to get updated skillIndex
+  writeHookState({ ...currentState, lastCallMs: currentCallMs })
+
   const terminal = yield* Terminal.Terminal
 
   const stdin = yield* terminal.readLine

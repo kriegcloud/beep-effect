@@ -77,6 +77,24 @@ agents:
     use_when: "Phase complete, need to capture learnings and generate improvement recommendations"
     do_not_use_when: "Active development work - this is for reflection only"
 
+  codebase-explorer:
+    tier: 1
+    capability: read-only
+    output_type: none
+    description: "Fast parallel codebase exploration for finding patterns and understanding systems"
+    tools:
+      - Glob
+      - Grep
+      - Read
+    phases: [1]
+    triggers:
+      - "explore"
+      - "understand system"
+      - "find patterns"
+      - "how does this work"
+    use_when: "Need quick parallel exploration of codebase questions"
+    do_not_use_when: "Need persistent output or need to modify files"
+
 # =============================================================================
 # TIER 2: RESEARCH AGENTS
 # =============================================================================
@@ -128,6 +146,91 @@ agents:
       - "industry standard"
     use_when: "Need external information not in Effect docs or codebase"
     do_not_use_when: "Effect-specific questions (use mcp-researcher) or codebase questions"
+
+  domain-modeler:
+    tier: 2
+    capability: write-files
+    output_type: code
+    description: "Creates domain models using Effect Schema.TaggedStruct, Data patterns, and ADTs"
+    tools:
+      - Read
+      - Write
+      - Edit
+      - Glob
+      - Grep
+    phases: [1, 4]
+    triggers:
+      - "domain model"
+      - "entity"
+      - "value object"
+      - "tagged struct"
+      - "ADT"
+    use_when: "Need to create domain entities, value objects, or algebraic data types"
+    do_not_use_when: "General code implementation or documentation"
+
+  effect-expert:
+    tier: 2
+    capability: write-files
+    output_type: code
+    description: "Effect services, Layers, typed errors, Streams, Fibers, and Scopes specialist"
+    tools:
+      - Read
+      - Write
+      - Edit
+      - Glob
+      - Grep
+    phases: [1, 4]
+    triggers:
+      - "effect service"
+      - "layer composition"
+      - "typed error"
+      - "stream"
+      - "fiber"
+      - "scope"
+    use_when: "Need to design Effect services, compose Layers, or implement typed error handling"
+    do_not_use_when: "Domain modeling (use domain-modeler) or documentation"
+
+  effect-platform:
+    tier: 2
+    capability: write-files
+    output_type: code
+    description: "Cross-platform file I/O, CLI tools, process spawning using @effect/platform"
+    tools:
+      - Read
+      - Write
+      - Edit
+      - Glob
+      - Grep
+    phases: [1, 4]
+    triggers:
+      - "file io"
+      - "cli tool"
+      - "process spawn"
+      - "platform"
+      - "cross-platform"
+    use_when: "Need to implement cross-platform file I/O, CLI tools, or process management"
+    do_not_use_when: "Effect services without platform concerns"
+
+  schema-expert:
+    tier: 2
+    capability: write-files
+    output_type: code
+    description: "Schema composition, transformations, filters, and validation patterns"
+    tools:
+      - Read
+      - Write
+      - Edit
+      - Glob
+      - Grep
+    phases: [1, 4]
+    triggers:
+      - "schema composition"
+      - "transform"
+      - "filter"
+      - "validation"
+      - "schema pattern"
+    use_when: "Need help with complex Schema compositions or transformations"
+    do_not_use_when: "Domain modeling (use domain-modeler)"
 
 # =============================================================================
 # TIER 3: QUALITY AGENTS
@@ -192,6 +295,26 @@ agents:
     use_when: "Need to validate spec structure, reflection logs, or handoff protocol"
     do_not_use_when: "Code review or architecture validation"
 
+  lawyer:
+    tier: 3
+    capability: write-files
+    output_type: code
+    description: "Codebase law enforcement - reviews code against applicable laws and renders formal opinions"
+    tools:
+      - Read
+      - Write
+      - Edit
+      - Glob
+      - Grep
+    phases: [2, 4]
+    triggers:
+      - "legal review"
+      - "law compliance"
+      - "covenant"
+      - "enforce rules"
+    use_when: "Need to review code for compliance with codebase laws or covenants"
+    do_not_use_when: "General code review (use code-reviewer)"
+
 # =============================================================================
 # TIER 4: WRITER AGENTS
 # =============================================================================
@@ -248,36 +371,85 @@ agents:
     use_when: "Need to create test files for new or existing functionality"
     do_not_use_when: "Documentation or code implementation"
 
-  code-observability-writer:
+  documentation-expert:
+    tier: 4
+    capability: write-files
+    output_type: documentation
+    description: "Creates and maintains ai-context.md files for module discovery system"
+    tools:
+      - Read
+      - Write
+      - Edit
+      - Glob
+      - Grep
+    phases: [3, 4]
+    triggers:
+      - "ai context"
+      - "module documentation"
+      - "discoverable module"
+      - "ai-context.md"
+    use_when: "Need to create or update ai-context.md files for module discovery"
+    do_not_use_when: "README or AGENTS.md updates (use doc-maintainer)"
+
+  observability-expert:
     tier: 4
     capability: write-files
     output_type: code
-    description: "Observability instrumentation - modifies source with logging/tracing/metrics"
+    description: "Observability instrumentation - wide events, telemetry, and trace design"
     tools:
       - Read
-      - Edit
       - Write
-      - Grep
+      - Edit
       - Glob
-      - mcp__effect_docs__effect_docs_search
-      - mcp__MCP_DOCKER__mcp-find
-      - mcp__MCP_DOCKER__mcp-add
-      - mcp__MCP_DOCKER__mcp-exec
-    mcp_prerequisites:
-      server: effect-mcp
-      enable_command: "mcp__MCP_DOCKER__mcp-add({ name: 'effect-mcp', activate: true })"
-      fallback: "node_modules/effect/src/"
-      requires_user_enablement: true
-      user_instructions: "Docker Desktop → Settings → MCP Toolkit → Enable effect-mcp"
+      - Grep
     phases: [4]
     triggers:
-      - "add logging"
-      - "add tracing"
-      - "add metrics"
-      - "instrument code"
       - "observability"
-    use_when: "Need to add structured logging, tracing spans, or metrics to code"
-    do_not_use_when: "Writing tests or documentation"
+      - "telemetry"
+      - "wide events"
+      - "tracing"
+      - "metrics"
+    use_when: "Need to add observability instrumentation or design telemetry architecture"
+    do_not_use_when: "Documentation or testing tasks"
+
+  react-expert:
+    tier: 4
+    capability: write-files
+    output_type: code
+    description: "React components with VM architecture and Effect Atom state management"
+    tools:
+      - Read
+      - Write
+      - Edit
+      - Glob
+      - Grep
+    phases: [4]
+    triggers:
+      - "react component"
+      - "vm pattern"
+      - "effect atom"
+      - "ui component"
+    use_when: "Need to implement React components with VM architecture or Atom state"
+    do_not_use_when: "Backend code or non-React UI"
+
+  wealth-management-domain-expert:
+    tier: 4
+    capability: read-only
+    output_type: none
+    description: "Domain expert for wealth management serving UHNWI clients ($30M+ net worth)"
+    tools:
+      - Read
+      - Grep
+      - Glob
+    phases: [1]
+    triggers:
+      - "wealth management"
+      - "trust structure"
+      - "beneficiary"
+      - "UHNWI"
+      - "portfolio"
+    use_when: "Need domain expertise about wealth management concepts or terminology"
+    do_not_use_when: "Code implementation or general domain modeling"
 
 # =============================================================================
 # UTILITY AGENTS
@@ -308,35 +480,6 @@ agents:
       - "effect help"
     use_when: "General Effect questions when mcp-researcher is too specific"
     do_not_use_when: "Specific API lookup (use mcp-researcher)"
-
-  effect-schema-expert:
-    tier: 2
-    capability: read-only
-    output_type: none
-    description: "Effect Schema patterns and validation specialist"
-    tools:
-      - Glob
-      - Grep
-      - Read
-      - mcp__effect_docs__effect_docs_search
-      - mcp__effect_docs__get_effect_doc
-      - mcp__MCP_DOCKER__mcp-find
-      - mcp__MCP_DOCKER__mcp-add
-      - mcp__MCP_DOCKER__mcp-exec
-    mcp_prerequisites:
-      server: effect-mcp
-      enable_command: "mcp__MCP_DOCKER__mcp-add({ name: 'effect-mcp', activate: true })"
-      fallback: "node_modules/effect/src/"
-      requires_user_enablement: true
-      user_instructions: "Docker Desktop → Settings → MCP Toolkit → Enable effect-mcp"
-    phases: [1, 4]
-    triggers:
-      - "schema design"
-      - "schema validation"
-      - "tagged error"
-      - "schema pattern"
-    use_when: "Need help designing or validating Effect Schemas"
-    do_not_use_when: "General Effect API questions"
 
   effect-predicate-master:
     tier: 2
@@ -385,11 +528,11 @@ agents:
     use_when: "Need to apply learnings to improve agent prompts"
     do_not_use_when: "Initial agent creation"
 
-  agents-md-updater:
+  doc-maintainer:
     tier: 4
     capability: write-files
     output_type: documentation
-    description: "AGENTS.md file auditor and updater"
+    description: "Documentation maintainer - creates/updates AGENTS.md and README.md files"
     tools:
       - Glob
       - Grep
@@ -399,29 +542,13 @@ agents:
     phases: [4]
     triggers:
       - "update agents.md"
-      - "audit agents.md"
-      - "fix agents.md"
-    use_when: "Need to update AGENTS.md files across packages"
-    do_not_use_when: "README or JSDoc updates"
-
-  readme-updater:
-    tier: 4
-    capability: write-files
-    output_type: documentation
-    description: "README.md file auditor and updater"
-    tools:
-      - Glob
-      - Grep
-      - Read
-      - Write
-      - Edit
-    phases: [4]
-    triggers:
       - "update readme"
-      - "audit readme"
-      - "fix readme"
-    use_when: "Need to update README.md files across packages"
-    do_not_use_when: "AGENTS.md or JSDoc updates"
+      - "audit documentation"
+      - "fix documentation"
+      - "create readme"
+      - "create agents.md"
+    use_when: "Need to update AGENTS.md or README.md files across packages"
+    do_not_use_when: "JSDoc updates (use jsdoc-fixer)"
 
   jsdoc-fixer:
     tier: 4
@@ -512,15 +639,16 @@ selection_rules:
   - condition: "need artifact/report/output file"
     exclude:
       - codebase-researcher
+      - codebase-explorer
       - mcp-researcher
       - web-researcher
       - effect-researcher
-      - effect-schema-expert
       - effect-predicate-master
+      - wealth-management-domain-expert
     prefer_by_output_type:
       reports: [code-reviewer, architecture-pattern-enforcer, spec-reviewer, reflector]
-      documentation: [doc-writer, agents-md-updater, readme-updater]
-      code: [code-observability-writer, jsdoc-fixer, package-error-fixer]
+      documentation: [doc-writer, doc-maintainer, documentation-expert]
+      code: [observability-expert, jsdoc-fixer, package-error-fixer, react-expert]
       tests: [test-writer]
 
   # Phase-based selection
@@ -528,16 +656,16 @@ selection_rules:
     prefer: [doc-writer, architecture-pattern-enforcer]
 
   - condition: "phase 1 discovery"
-    prefer: [codebase-researcher, mcp-researcher, web-researcher]
+    prefer: [codebase-researcher, codebase-explorer, mcp-researcher, web-researcher]
 
   - condition: "phase 2 evaluation"
-    prefer: [code-reviewer, architecture-pattern-enforcer, spec-reviewer]
+    prefer: [code-reviewer, architecture-pattern-enforcer, spec-reviewer, lawyer]
 
   - condition: "phase 3 synthesis"
-    prefer: [reflector, doc-writer]
+    prefer: [reflector, doc-writer, documentation-expert]
 
   - condition: "phase 4+ iteration"
-    prefer: [test-writer, code-observability-writer, doc-writer, package-error-fixer]
+    prefer: [test-writer, observability-expert, doc-writer, doc-maintainer, package-error-fixer]
 
   # Output type requirements
   - condition: "must produce markdown report"
@@ -556,11 +684,12 @@ selection_rules:
 quick_reference:
   read_only_agents:
     - codebase-researcher  # Explore code, no output
+    - codebase-explorer    # Fast parallel exploration, no output
     - mcp-researcher       # Effect docs lookup, no output
     - web-researcher       # External research, no output
     - effect-researcher    # General Effect help, no output
-    - effect-schema-expert # Schema patterns, no output
     - effect-predicate-master # Predicate patterns, no output
+    - wealth-management-domain-expert # Domain expertise, no output
 
   report_producing_agents:
     - reflector            # Meta-reflection reports
@@ -568,13 +697,19 @@ quick_reference:
     - architecture-pattern-enforcer # Architecture audit reports
     - spec-reviewer        # Spec quality reports
     - tsconfig-auditor     # TSConfig audit reports
+    - lawyer               # Law compliance reports
 
   file_modifying_agents:
     - doc-writer           # README, AGENTS.md, JSDoc
+    - doc-maintainer       # AGENTS.md and README.md maintenance
+    - documentation-expert # ai-context.md files
     - test-writer          # Test files
-    - code-observability-writer # Logging/tracing/metrics
+    - observability-expert # Logging/tracing/metrics
     - prompt-refiner       # Agent prompt files
-    - agents-md-updater    # AGENTS.md files
-    - readme-updater       # README.md files
     - jsdoc-fixer          # JSDoc in source
     - package-error-fixer  # Source fixes
+    - domain-modeler       # Domain models and ADTs
+    - effect-expert        # Effect services and Layers
+    - effect-platform      # Platform abstractions
+    - schema-expert        # Schema compositions
+    - react-expert         # React components with VM
