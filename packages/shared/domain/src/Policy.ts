@@ -8,6 +8,7 @@ import * as RpcMiddleware from "@effect/rpc/RpcMiddleware";
 import type { NonEmptyReadonlyArray } from "effect/Array";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
+import type * as O from "effect/Option";
 import type * as S from "effect/Schema";
 import * as Schema from "effect/Schema";
 import * as internal from "./_internal/policy";
@@ -70,10 +71,79 @@ export type Permission = typeof Permission.Type;
 // ==========================================
 // Authentication Middleware
 // ==========================================
+
+/**
+ * Error getting OAuth access token from provider.
+ */
+export class OAuthTokenError extends Schema.TaggedError<OAuthTokenError>()("OAuthTokenError", {
+  message: Schema.String,
+  providerId: Schema.String,
+}) {}
+
+/**
+ * Error listing OAuth accounts for a user.
+ */
+export class OAuthAccountsError extends Schema.TaggedError<OAuthAccountsError>()("OAuthAccountsError", {
+  message: Schema.String,
+}) {}
+
+/**
+ * OAuth account information from the account table.
+ * Contains full token and scope details needed by integration packages.
+ */
+export type OAuthAccount = {
+  readonly id: string;
+  readonly providerId: string;
+  readonly accountId: string;
+  readonly userId: string;
+  readonly scope: O.Option<string>;
+  readonly accessTokenExpiresAt: O.Option<Date>;
+  readonly refreshToken: O.Option<string>;
+};
+
+/**
+ * OAuth access token result.
+ */
+export type OAuthTokenResult = {
+  readonly accessToken: string;
+};
+
+/**
+ * OAuth API subset exposed to integration packages.
+ *
+ * These methods wrap Better Auth capabilities and database access
+ * through AuthContext to avoid integration packages importing from IAM server internals.
+ * All methods return Effects for seamless composition.
+ */
+export type OAuthApi = {
+  /**
+   * Gets an access token for an OAuth provider, automatically refreshing if expired.
+   * Returns Option.none() if no token exists for the provider.
+   */
+  readonly getAccessToken: (params: {
+    providerId: string;
+    userId: string;
+  }) => Effect.Effect<O.Option<OAuthTokenResult>, OAuthTokenError>;
+
+  /**
+   * Gets OAuth account details for a specific provider.
+   * Returns the full account record including scope, token expiry, and refresh token.
+   */
+  readonly getProviderAccount: (params: {
+    providerId: string;
+    userId: string;
+  }) => Effect.Effect<O.Option<OAuthAccount>, OAuthAccountsError>;
+};
+
 export type AuthContextShape = {
   readonly user: typeof User.Model.Type;
   readonly session: typeof Session.Model.Type;
   readonly organization: typeof Organization.Model.Type;
+  /**
+   * OAuth API methods for integration packages.
+   * Provided by Better Auth at runtime.
+   */
+  readonly oauth: OAuthApi;
 };
 
 export class AuthContext extends Context.Tag($I`AuthContext`)<AuthContext, AuthContextShape>() {}

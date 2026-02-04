@@ -35,8 +35,11 @@
     "lint:circular": "bunx madge -c ."
   },
   "peerDependencies": {
+    "@beep/identity": "workspace:^",
     "@beep/schema": "workspace:^",
+    "@beep/google-workspace-domain": "workspace:^",
     "@beep/shared-domain": "workspace:^",
+    "@beep/google-workspace-client": "workspace:^",
     "@beep/calendar-domain": "workspace:^",
     "@beep/shared-server": "workspace:^",
     "@beep/calendar-tables": "workspace:^",
@@ -48,8 +51,11 @@
     "effect": "catalog:"
   },
   "devDependencies": {
+    "@beep/identity": "workspace:^",
     "@beep/schema": "workspace:^",
+    "@beep/google-workspace-domain": "workspace:^",
     "@beep/shared-domain": "workspace:^",
+    "@beep/google-workspace-client": "workspace:^",
     "@beep/calendar-domain": "workspace:^",
     "@beep/shared-server": "workspace:^",
     "@beep/calendar-tables": "workspace:^",

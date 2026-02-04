@@ -104,6 +104,18 @@
       "@beep/errors/client": ["../../packages/common/errors/src/client"],
       "@beep/errors/server": ["../../packages/common/errors/src/server"],
       "@beep/errors/shared": ["../../packages/common/errors/src/shared"],
+      "@beep/google-workspace-client": [
+        "../../packages/integrations/google-workspace/client/src/index"
+      ],
+      "@beep/google-workspace-client/*": [
+        "../../packages/integrations/google-workspace/client/src/*"
+      ],
+      "@beep/google-workspace-domain": [
+        "../../packages/integrations/google-workspace/domain/src/index"
+      ],
+      "@beep/google-workspace-domain/*": [
+        "../../packages/integrations/google-workspace/domain/src/*"
+      ],
       "@beep/iam-client": ["../../packages/iam/client/src/index"],
       "@beep/iam-client/*": ["../../packages/iam/client/src/*"],
       "@beep/iam-domain": ["../../packages/iam/domain/src/index"],
@@ -263,6 +275,12 @@
     },
     {
       "path": "../../packages/iam/ui/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/integrations/google-workspace/client/tsconfig.build.json"
+    },
+    {
+      "path": "../../packages/integrations/google-workspace/domain/tsconfig.build.json"
     },
     {
       "path": "../../packages/knowledge/client/tsconfig.build.json"
