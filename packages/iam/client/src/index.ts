@@ -5,7 +5,6 @@ export { ApiKey } from "./api-key";
 export * as AuthCallback from "./auth-callback";
 export { Core } from "./core";
 export { Device } from "./device";
-export * from "./services";
 // =====================================================================================================================
 // LEGACY MUST REFACTOR
 // =====================================================================================================================

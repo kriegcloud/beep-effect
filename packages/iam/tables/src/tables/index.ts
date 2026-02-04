@@ -6,7 +6,6 @@ export * from "@beep/shared-tables/tables/user.table";
 export * from "./account.table";
 export * from "./api-key.table";
 export * from "./device-codes.table";
-export * from "./integration-token.table";
 export * from "./invitation.table";
 export * from "./jwks.table";
 export * from "./member.table";

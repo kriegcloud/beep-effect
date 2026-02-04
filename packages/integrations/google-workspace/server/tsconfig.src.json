@@ -25,6 +25,9 @@
     },
     {
       "path": "../../../../packages/common/schema"
+    },
+    {
+      "path": "../../../../packages/shared/domain"
     }
   ],
   "compilerOptions": {

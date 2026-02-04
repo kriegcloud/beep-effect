@@ -1,6 +1,28 @@
 # Handoff P2: IAM Token Storage Implementation
 
+> ⚠️ **SUPERSEDED**: This handoff document describes the original `IntegrationTokenStore` approach which has been replaced. See the **Phase 2 Revision** section in [REFLECTION_LOG.md](../REFLECTION_LOG.md) for the current implementation using `AuthContext.oauth`.
+
 > **Quick Start:** [QUICK_START.md](../QUICK_START.md)
+
+---
+
+## Architectural Pivot Summary
+
+The original Phase 2 planned to create `IntegrationTokenStore` in `@beep/iam-server`. This was replaced with extending `AuthContext` with OAuth API methods because:
+
+1. **Better Auth Already Handles Token Storage**: OAuth tokens are stored in the `account` table with built-in encryption and automatic refresh
+2. **Avoids Cross-Slice Dependencies**: Integration packages shouldn't import from `@beep/iam-server`
+3. **Simpler Architecture**: No need for duplicate storage logic
+
+### Current Implementation
+
+- **OAuth API Types**: `@beep/shared-domain/Policy` exports `OAuthApi`, `OAuthTokenError`, `OAuthAccountsError`
+- **OAuth API Implementation**: `packages/runtime/server/src/AuthContext.layer.ts`
+- **GoogleAuthClientLive**: Uses `AuthContext.oauth` instead of `IntegrationTokenStore`
+
+---
+
+## Original Document (For Reference)
 
 ---
 

@@ -1,16 +1,10 @@
-import { GoogleAuthClient, OAuthRefreshResponse } from "@beep/google-workspace-client";
+import { GoogleAuthClient } from "@beep/google-workspace-client";
 import {
   GoogleAuthenticationError,
   GoogleOAuthToken,
   GoogleScopeExpansionRequiredError,
-  GoogleTokenExpiredError,
-  GoogleTokenRefreshError,
 } from "@beep/google-workspace-domain";
-import { IntegrationTokenStore, StoredToken } from "@beep/iam-client";
-import * as HttpBody from "@effect/platform/HttpBody";
-import * as HttpClient from "@effect/platform/HttpClient";
-import * as HttpClientRequest from "@effect/platform/HttpClientRequest";
-import * as HttpClientResponse from "@effect/platform/HttpClientResponse";
+import { AuthContext } from "@beep/shared-domain/Policy";
 import * as A from "effect/Array";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
@@ -19,173 +13,160 @@ import * as O from "effect/Option";
 import * as Redacted from "effect/Redacted";
 
 const GOOGLE_PROVIDER = "google";
-const GOOGLE_TOKEN_REFRESH_URL = "https://oauth2.googleapis.com/token";
-const TOKEN_EXPIRY_BUFFER_MS = 5 * 60 * 1000;
 
-const storedTokenToGoogleToken = (stored: StoredToken): GoogleOAuthToken =>
-  new GoogleOAuthToken({
-    access_token: O.some(stored.accessToken),
-    refresh_token: O.map(stored.refreshToken, Redacted.make),
-    expiry_date: O.some(DateTime.unsafeMake(stored.expiresAt)),
-    scope: O.some(A.join(stored.scopes, " ")),
-    token_type: O.some("Bearer"),
-  });
+/**
+ * Dependencies for GoogleAuthClientLive.
+ *
+ * Only requires `AuthContext` which provides user context and OAuth API methods.
+ * This keeps integration packages properly scoped without importing from IAM server.
+ */
+export type GoogleAuthClientDeps = AuthContext;
 
-const refreshResponseToStoredToken = (
-  response: typeof OAuthRefreshResponse.Type,
-  existingRefreshToken: O.Option<string>
-): StoredToken =>
-  new StoredToken({
-    accessToken: response.access_token,
-    refreshToken: existingRefreshToken,
-    expiresAt: DateTime.unsafeNow().pipe(DateTime.toEpochMillis) + response.expires_in * 1000,
-    scopes: A.fromIterable(response.scope.split(" ")),
-    provider: GOOGLE_PROVIDER,
-  });
-
-const hasRequiredScopes = (currentScopes: ReadonlyArray<string>, requiredScopes: ReadonlyArray<string>): boolean =>
-  A.every(requiredScopes, (scope) => A.contains(currentScopes, scope));
-
-export type GoogleAuthClientDeps = IntegrationTokenStore | HttpClient.HttpClient;
-
+/**
+ * Live implementation of GoogleAuthClient using Better Auth's OAuth capabilities.
+ *
+ * Better Auth handles:
+ * - Token storage (encrypted in account table)
+ * - Automatic token refresh when expired
+ * - Scope tracking
+ *
+ * This layer provides:
+ * - Effect-based wrapper around Better Auth's getAccessToken API
+ * - Scope validation for incremental OAuth flows
+ * - Domain error translation
+ *
+ * Note: AuthContext is captured at layer construction time, so the service
+ * methods themselves have no requirements (Effect<..., ..., never>).
+ */
 export const GoogleAuthClientLive: Layer.Layer<GoogleAuthClient, never, GoogleAuthClientDeps> = Layer.effect(
   GoogleAuthClient,
   Effect.gen(function* () {
-    const tokenStore = yield* IntegrationTokenStore;
-    const httpClient = yield* HttpClient.HttpClient;
-
-    const getClientCredentials = Effect.sync(() => ({
-      clientId: process.env.GOOGLE_CLIENT_ID || "",
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
-    }));
-
-    const refreshGoogleToken = (
-      refreshToken: string,
-      existingRefreshToken: O.Option<string>
-    ): Effect.Effect<StoredToken, GoogleTokenRefreshError> =>
-      Effect.gen(function* () {
-        const { clientId, clientSecret } = yield* getClientCredentials;
-
-        if (!clientId || !clientSecret) {
-          return yield* Effect.fail(
-            new GoogleTokenRefreshError({
-              message: "Missing Google OAuth client credentials",
-            })
-          );
-        }
-
-        const formData = new URLSearchParams({
-          client_id: clientId,
-          client_secret: clientSecret,
-          refresh_token: refreshToken,
-          grant_type: "refresh_token",
-        });
-
-        const request = HttpClientRequest.post(GOOGLE_TOKEN_REFRESH_URL).pipe(
-          HttpClientRequest.setBody(HttpBody.text(formData.toString(), "application/x-www-form-urlencoded"))
-        );
-
-        const response = yield* httpClient.execute(request).pipe(
-          Effect.flatMap((res) => HttpClientResponse.schemaBodyJson(OAuthRefreshResponse)(res)),
-          Effect.catchAll((error) =>
-            Effect.fail(
-              new GoogleTokenRefreshError({
-                message: `Failed to refresh Google token: ${String(error)}`,
-                originalError: String(error),
-              })
-            )
-          )
-        );
-
-        return refreshResponseToStoredToken(response, existingRefreshToken);
-      });
-
-    const getCurrentUserId = Effect.fail(
-      new GoogleAuthenticationError({
-        message: "User context not available - Phase 3 will add session integration",
-        suggestion: "Ensure user is authenticated before accessing Google services",
-      })
-    );
+    // Capture AuthContext at layer construction time
+    const { user, oauth } = yield* AuthContext;
 
     return GoogleAuthClient.of({
-      getValidToken: (requiredScopes) =>
-        Effect.gen(function* () {
-          const userId = yield* getCurrentUserId;
-
-          const maybeToken = yield* tokenStore.get(userId, GOOGLE_PROVIDER);
-
-          if (O.isNone(maybeToken)) {
-            return yield* Effect.fail(
-              new GoogleAuthenticationError({
-                message: "No Google OAuth token found for this user",
-                suggestion: "User needs to authorize Google Workspace access",
-              })
+      getValidToken:
+        Effect.fn(function* (requiredScopes) {
+          // Use Better Auth's getAccessToken which handles:
+          // 1. Token retrieval from account table
+          // 2. Automatic refresh if expired
+          // 3. Encrypted storage
+          const tokenResult = yield* oauth
+            .getAccessToken({
+              providerId: GOOGLE_PROVIDER,
+              userId: user.id,
+            })
+            .pipe(
+              Effect.mapError(
+                (e) =>
+                  new GoogleAuthenticationError({
+                    message: e.message,
+                    suggestion: "User may need to re-authorize Google Workspace access",
+                  })
+              )
             );
+
+          if (O.isNone(tokenResult)) {
+            return yield* new GoogleAuthenticationError({
+              message: "No Google OAuth token found for this user",
+              suggestion: "User needs to authorize Google Workspace access",
+            });
           }
 
-          const storedToken = maybeToken.value;
+          const { accessToken } = tokenResult.value;
 
-          if (!hasRequiredScopes(storedToken.scopes, requiredScopes)) {
-            return yield* Effect.fail(
-              new GoogleScopeExpansionRequiredError({
-                message: "Additional Google OAuth scopes are required",
-                currentScopes: [...storedToken.scopes],
-                requiredScopes: [...requiredScopes],
-                missingScopes: A.filter(requiredScopes, (s) => !A.contains(storedToken.scopes, s)),
-              })
+          // Get the account to check scopes
+          // Better Auth stores scope in the account table
+          const accountResult = yield* oauth
+            .getProviderAccount({
+              providerId: GOOGLE_PROVIDER,
+              userId: user.id,
+            })
+            .pipe(
+              Effect.mapError(
+                (e) =>
+                  new GoogleAuthenticationError({
+                    message: e.message,
+                    suggestion: "Check Better Auth configuration",
+                  })
+              )
             );
+
+          if (O.isNone(accountResult)) {
+            return yield* new GoogleAuthenticationError({
+              message: "No Google account linked for this user",
+              suggestion: "User needs to link their Google account",
+            });
           }
 
-          const nowMs = DateTime.unsafeNow().pipe(DateTime.toEpochMillis);
-          const isExpired = storedToken.expiresAt <= nowMs + TOKEN_EXPIRY_BUFFER_MS;
+          const account = accountResult.value;
+          const scopeString = O.getOrElse(account.scope, () => "");
+          const currentScopes = scopeString ? A.fromIterable(scopeString.split(" ")) : [];
 
-          if (isExpired) {
-            if (O.isNone(storedToken.refreshToken)) {
-              return yield* Effect.fail(
-                new GoogleTokenExpiredError({
-                  message: "Google OAuth token expired and no refresh token available",
-                  expiryDate: DateTime.unsafeMake(storedToken.expiresAt),
-                })
-              );
-            }
+          // Validate scopes for incremental OAuth
+          const hasAllScopes = A.every(requiredScopes, (scope) => A.contains(currentScopes, scope));
 
-            const refreshedToken = yield* tokenStore
-              .refresh(userId, GOOGLE_PROVIDER, (rt) => refreshGoogleToken(rt, storedToken.refreshToken))
-              .pipe(
-                Effect.catchTag("TokenRefreshError", (e) =>
-                  Effect.fail(
-                    new GoogleTokenRefreshError({
-                      message: e.message,
-                      originalError: e.cause ? String(e.cause) : undefined,
-                    })
-                  )
-                ),
-                Effect.catchTag("TokenNotFoundError", () =>
-                  Effect.fail(
-                    new GoogleAuthenticationError({
-                      message: "Token was revoked during refresh attempt",
-                      suggestion: "User needs to re-authorize Google Workspace access",
-                    })
-                  )
-                )
-              );
-
-            return storedTokenToGoogleToken(refreshedToken);
+          if (!hasAllScopes) {
+            const missingScopes = A.filter(requiredScopes, (s) => !A.contains(currentScopes, s));
+            return yield* new GoogleScopeExpansionRequiredError({
+              message: "Additional Google OAuth scopes are required",
+              currentScopes: [...currentScopes],
+              requiredScopes: [...requiredScopes],
+              missingScopes: [...missingScopes],
+            });
           }
 
-          return storedTokenToGoogleToken(storedToken);
-        }),
+          // Build the token response
+          const expiresAt = O.match(account.accessTokenExpiresAt, {
+            onNone: () => DateTime.unsafeNow(),
+            onSome: (date) => DateTime.unsafeMake(date),
+          });
 
-      refreshToken: (refreshToken) =>
-        Effect.gen(function* () {
-          const userId = yield* getCurrentUserId;
+          return new GoogleOAuthToken({
+            accessToken: O.some(accessToken),
+            refreshToken: O.map(account.refreshToken, Redacted.make),
+            expiryDate: O.some(expiresAt),
+            scope: O.some(scopeString),
+            tokenType: O.some("Bearer"),
+          });
+        }, Effect.withSpan("GoogleAuthClient.getValidToken")),
 
-          const refreshedToken = yield* refreshGoogleToken(refreshToken, O.some(refreshToken));
+      refreshToken:
+        Effect.fn(function* (_refreshToken) {
+          // Better Auth handles refresh automatically via getAccessToken
+          // This method is provided for explicit refresh requests, but
+          // normally callers should just use getValidToken which auto-refreshes
+          const tokenResult = yield* oauth
+            .getAccessToken({
+              providerId: GOOGLE_PROVIDER,
+              userId: user.id,
+            })
+            .pipe(
+              Effect.mapError(
+                (e) =>
+                  new GoogleAuthenticationError({
+                    message: e.message,
+                    suggestion: "User may need to re-authorize Google Workspace access",
+                  })
+              )
+            );
 
-          yield* tokenStore.store(userId, GOOGLE_PROVIDER, refreshedToken);
+          if (O.isNone(tokenResult)) {
+            return yield* new GoogleAuthenticationError({
+              message: "Failed to refresh Google OAuth token",
+              suggestion: "User needs to re-authorize Google Workspace access",
+            });
+          }
 
-          return storedTokenToGoogleToken(refreshedToken);
-        }),
+          // Return minimal token info since Better Auth handles storage
+          return new GoogleOAuthToken({
+            accessToken: O.some(tokenResult.value.accessToken),
+            refreshToken: O.none(),
+            expiryDate: O.none(),
+            scope: O.none(),
+            tokenType: O.some("Bearer"),
+          });
+        }, Effect.withSpan("GoogleAuthClient.refreshToken")),
     });
   })
 );

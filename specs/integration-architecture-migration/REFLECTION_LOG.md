@@ -272,7 +272,7 @@ When implementing encrypted token storage:
    });
    ```
 
-**Phase 2 Deliverables:**
+**Phase 2 Deliverables (Original - SUPERSEDED):**
 
 - [x] `IntegrationsEntityIds.IntegrationTokenId` in `@beep/shared-domain`
 - [x] `IntegrationTokenStore` interface in `@beep/iam-domain` (relocated from client)
@@ -282,3 +282,79 @@ When implementing encrypted token storage:
 - [x] Type checks pass for all affected packages
 - [x] Lint passes for all affected packages
 - [ ] Database migration (deferred - requires db:generate + db:migrate)
+
+---
+
+### Phase 2 Revision: AuthContext OAuth API (2026-02-04)
+
+**Architectural Pivot:**
+
+The original Phase 2 implementation created a separate `IntegrationTokenStore` service in `@beep/iam-server`. After further analysis, this approach was replaced with extending `AuthContext` with OAuth API methods that leverage Better Auth's built-in token management.
+
+**What Worked:**
+
+1. **Better Auth's Built-in Token Management**: Better Auth already stores OAuth tokens in the `account` table with built-in encryption and automatic refresh - no need to duplicate this
+2. **AuthContext Extension**: Adding `oauth: OAuthApi` to `AuthContext` provides clean access to OAuth capabilities without cross-slice imports
+3. **Layer Construction Capture**: Capturing `AuthContext` at layer construction time in `GoogleAuthClientLive` means service methods have no additional requirements
+4. **Option<T> for API Results**: Using `O.Option<OAuthTokenResult>` and `O.Option<OAuthAccount>` for methods that may not find data is idiomatic Effect
+
+**What Didn't Work:**
+
+1. **Original IntegrationTokenStore Approach**: Created unnecessary complexity when Better Auth already handles token storage
+2. **Cross-Slice Dependencies**: The original approach would have required integration packages to import from `@beep/iam-server`, violating slice scoping rules
+3. **Duplicate Storage Logic**: Would have duplicated Better Auth's encryption and refresh logic
+
+**Methodology Improvements:**
+
+1. **Research existing capabilities first**: Before creating new services, check if existing infrastructure (like Better Auth) already provides the needed functionality
+2. **Respect slice boundaries strictly**: If an approach requires importing from another slice's server package, reconsider the architecture
+3. **Use composition over creation**: Extending existing Tags (like AuthContext) is often cleaner than creating new services
+
+**Prompt Refinements:**
+
+```markdown
+# Enhanced OAuth integration prompt:
+When implementing OAuth token access for integration packages:
+1. Check if Better Auth already handles token storage (it does, in account table)
+2. Extend AuthContext with OAuth API methods instead of creating new services
+3. Use Effect.tryPromise to wrap Better Auth's promise-based APIs
+4. Capture AuthContext at layer construction time for user context
+5. Return Option<T> for methods that may not find data
+```
+
+**Codebase-Specific Insights:**
+
+1. **Better Auth's Account Table**: Stores `accessToken`, `refreshToken`, `accessTokenExpiresAt`, `scope` for OAuth providers
+2. **Better Auth's getAccessToken API**: Handles automatic token refresh internally
+3. **AuthContext Location**: Defined in `@beep/shared-domain/Policy`, implemented in `packages/runtime/server/src/AuthContext.layer.ts`
+4. **Layer Dependency Capture**: Use `const { user, oauth } = yield* AuthContext;` at layer construction to capture context before defining service methods
+5. **DateTimeInput Type**: Better Auth uses a union type `Date | string | number` for timestamps - use a helper to convert
+
+**Decisions Made:**
+
+| Decision | Rationale | Alternative Considered |
+|----------|-----------|------------------------|
+| Extend AuthContext instead of new service | Avoids cross-slice dependencies, leverages existing Better Auth | IntegrationTokenStore in IAM (rejected - slice boundary violation) |
+| OAuth API returns Option<T> | Idiomatic Effect, clear semantics for missing data | Throw errors for missing data (rejected - less composable) |
+| Capture AuthContext at layer construction | Service methods have no requirements, cleaner API | Require AuthContext in each method (rejected - clutters interface) |
+| Use Better Auth's automatic refresh | Less code, proven implementation | Manual refresh logic (rejected - duplicate effort) |
+
+**Phase 2 Revised Deliverables:**
+
+- [x] `OAuthTokenError` and `OAuthAccountsError` TaggedErrors in `@beep/shared-domain/Policy`
+- [x] `OAuthApi` type with `getAccessToken` and `getProviderAccount` methods
+- [x] `AuthContext` extended with `oauth: OAuthApi` field
+- [x] OAuth API implemented in `packages/runtime/server/src/AuthContext.layer.ts`
+- [x] `GoogleAuthClientLive` refactored to use `AuthContext.oauth`
+- [x] `@beep/google-workspace-server` dependencies updated (removed `@beep/iam-client`, added `@beep/shared-domain`)
+- [x] Type checks pass for all affected packages
+- [x] No cross-slice dependencies from integration packages to IAM server
+
+**Cleanup Performed:**
+
+The following files/artifacts from the original IntegrationTokenStore approach were removed:
+- `packages/iam/domain/src/services/IntegrationTokenStore.ts`
+- `packages/iam/server/src/services/IntegrationTokenStoreLive.ts`
+- `packages/iam/tables/src/tables/integration-token.table.ts`
+- `packages/shared/domain/src/entity-ids/integrations/*` (IntegrationsEntityIds)
+- Related exports from index files

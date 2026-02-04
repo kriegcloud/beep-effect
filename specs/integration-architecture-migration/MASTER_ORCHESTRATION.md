@@ -9,7 +9,7 @@
 This specification orchestrates the migration of Google Workspace integrations from a monolithic shared package to a layered architecture that separates concerns:
 
 1. **Infrastructure Layer**: `packages/integrations/google-workspace/*` - Reusable Google API clients and auth primitives
-2. **Storage Layer**: `packages/iam/server/services/IntegrationTokenStore` - Encrypted token storage and refresh logic
+2. **Auth Context Layer**: `@beep/shared-domain/Policy` - OAuth API methods via `AuthContext.oauth` (leverages Better Auth's built-in token management)
 3. **Adapter Layer**: `packages/{calendar,comms,knowledge}/server/adapters/*` - Slice-specific integration adapters
 
 ### Workflow Diagram
@@ -30,9 +30,9 @@ flowchart TD
         P1B5 --> P1B6[Verification]
     end
 
-    subgraph Phase2["Phase 2: IAM Token Storage"]
-        P2A[IntegrationTokenStore Service] --> P2B[Encrypted Token Persistence]
-        P2B --> P2C[Token Refresh Logic]
+    subgraph Phase2["Phase 2: AuthContext OAuth API"]
+        P2A[Extend AuthContext with OAuth API] --> P2B[getAccessToken via Better Auth]
+        P2B --> P2C[getProviderAccount for scope validation]
         P2C --> P2D[Scope Expansion Support]
     end
 
@@ -77,7 +77,7 @@ flowchart TD
 | P0 | doc-writer | Spec scaffolding | README.md, MASTER_ORCHESTRATION.md |
 | P1a | effect-code-writer | Domain package | packages/integrations/google-workspace/domain/src/* |
 | P1b | effect-code-writer | Client/Server packages | packages/integrations/google-workspace/{client,server}/src/* |
-| P2 | effect-code-writer | Token storage service | packages/iam/server/src/services/IntegrationTokenStore.ts |
+| P2 | effect-code-writer | AuthContext OAuth API | packages/shared/domain/src/Policy.ts, packages/runtime/server/src/AuthContext.layer.ts |
 | P3 | effect-code-writer ×3 | Slice adapters | packages/{calendar,comms,knowledge}/server/src/adapters/* |
 | P4 | effect-code-writer | Migrated code | Updated imports, layer composition |
 | P5 | general-purpose | Cleanup | Deleted packages/shared/integrations |
@@ -98,8 +98,8 @@ stateDiagram-v2
     P1b_Layers --> P1b_Layers: Layer composition errors
     P1b_Layers --> P2_TokenStorage: Infrastructure package complete
 
-    P2_TokenStorage --> P2_TokenStorage: Token storage fails
-    P2_TokenStorage --> P3_Adapters: Service integrates with Account
+    P2_TokenStorage --> P2_TokenStorage: OAuth API errors
+    P2_TokenStorage --> P3_Adapters: AuthContext.oauth integrates with Better Auth
 
     P3_Adapters --> P3_Adapters: Adapter type errors
     P3_Adapters --> P4_Migration: All adapters compile
@@ -161,9 +161,13 @@ packages/integrations/google-workspace/
         ├── GoogleAuthService.ts # Service implementation
         └── index.ts             # Layer exports
 
-packages/iam/server/
-└── src/services/
-    └── IntegrationTokenStore.ts # Token CRUD + refresh
+packages/shared/domain/
+└── src/
+    └── Policy.ts                # AuthContext extended with OAuth API
+
+packages/runtime/server/
+└── src/
+    └── AuthContext.layer.ts     # OAuth API implementation via Better Auth
 
 packages/calendar/server/
 └── src/adapters/
@@ -179,8 +183,9 @@ packages/knowledge/server/
 ```
 
 **Benefits**:
-- Clear separation: infra vs. storage vs. slice logic
-- IAM owns credentials (single source of truth)
+- Clear separation: infra vs. auth context vs. slice logic
+- Better Auth owns token storage (leverages existing encrypted account table)
+- AuthContext provides OAuth API without cross-slice dependencies
 - Each slice declares required scopes
 - Reusable infrastructure across integrations
 - Testable layers with clear boundaries
@@ -714,284 +719,201 @@ Create `handoffs/HANDOFF_P2.md` with:
 
 ---
 
-## Phase 2: Create IntegrationTokenStore in IAM
+## Phase 2: Extend AuthContext with OAuth API
 
 **Duration**: 2 sessions
-**Status**: Pending
+**Status**: ✅ Complete
 **Agents**: `effect-code-writer`, `codebase-researcher`
 
 ### Objectives
 
-Create the `IntegrationTokenStore` service in `packages/iam/server` that:
-1. Stores encrypted OAuth tokens in the Account model
-2. Provides token CRUD operations
-3. Implements token refresh coordination
-4. Supports scope expansion flows
+Extend the `AuthContext` Tag in `@beep/shared-domain/Policy` with OAuth API methods that:
+1. Leverage Better Auth's built-in encrypted token storage in the account table
+2. Provide Effect-wrapped access to OAuth tokens without cross-slice dependencies
+3. Support scope validation for incremental OAuth flows
+
+### Architectural Decision: AuthContext OAuth API vs IntegrationTokenStore
+
+The original spec planned to create a separate `IntegrationTokenStore` service in `@beep/iam-server`. During implementation, we pivoted to extending `AuthContext` instead because:
+
+1. **Better Auth Already Handles Token Storage**: Better Auth stores OAuth tokens in the `account` table with built-in encryption and automatic refresh
+2. **Avoids Cross-Slice Dependencies**: Integration packages shouldn't import from `@beep/iam-server` - that violates slice scoping
+3. **Simpler Architecture**: No need for a separate token storage layer when Better Auth provides it
+4. **AuthContext is Already Available**: Any code with user context already has AuthContext
 
 ### Tasks
 
-#### Task 2.1: Extend Account Model for Tokens
-
-**Agent**: `codebase-researcher`
-
-Research the current Account model structure:
-- Locate `packages/iam/tables/src/tables/account.table.ts`
-- Identify existing columns and patterns
-- Determine encryption approach (likely using Better Auth's built-in encryption)
-
-#### Task 2.2: Add Integration Token Columns
+#### Task 2.1: Define OAuth API Types
 
 **Agent**: `effect-code-writer`
 
-Extend the Account table to support integration tokens:
+Add typed Error schemas and OAuth API types to Policy.ts:
 
 ```typescript
-// packages/iam/tables/src/tables/account.table.ts
-import * as pg from "drizzle-orm/pg-core";
-import { Table } from "@beep/shared-server";
-import { IamEntityIds } from "@beep/shared-domain";
+// packages/shared/domain/src/Policy.ts
+import * as Schema from "effect/Schema";
+import * as O from "effect/Option";
 
-export const accountTable = Table.make(IamEntityIds.AccountId)({
-  // ... existing columns
+export class OAuthTokenError extends Schema.TaggedError<OAuthTokenError>()("OAuthTokenError", {
+  message: Schema.String,
+  providerId: Schema.String,
+}) {}
 
-  // Integration token storage (encrypted by Better Auth)
-  googleRefreshToken: pg.text("google_refresh_token"),
-  googleAccessToken: pg.text("google_access_token"),
-  googleTokenExpiresAt: pg.timestamp("google_token_expires_at", { mode: "date" }),
-  googleScopes: pg.text("google_scopes"), // JSON array stored as text
-});
-```
+export class OAuthAccountsError extends Schema.TaggedError<OAuthAccountsError>()("OAuthAccountsError", {
+  message: Schema.String,
+}) {}
 
-**Pattern**: Store tokens as nullable text fields, use Better Auth's encryption layer.
-
-#### Task 2.3: Create IntegrationTokenStore Service
-
-**Agent**: `effect-code-writer`
-
-```typescript
-// packages/iam/server/src/services/IntegrationTokenStore.ts
-import * as Context from "effect/Context";
-import * as Effect from "effect/Effect";
-import * as S from "effect/Schema";
-import * as A from "effect/Array";
-import { SharedEntityIds } from "@beep/shared-domain";
-
-export interface StoredToken {
+export type OAuthTokenResult = {
   readonly accessToken: string;
-  readonly refreshToken: string;
-  readonly expiresAt: Date;
-  readonly scopes: ReadonlyArray<string>;
-}
+};
 
-export class IntegrationTokenStore extends Context.Tag("IntegrationTokenStore")<
-  IntegrationTokenStore,
-  {
-    readonly getToken: (
-      provider: "google",
-      userId: SharedEntityIds.UserId.Type
-    ) => Effect.Effect<StoredToken, TokenNotFoundError>;
+export type OAuthAccount = {
+  readonly id: string;
+  readonly providerId: string;
+  readonly accountId: string;
+  readonly userId: string;
+  readonly scope: O.Option<string>;
+  readonly accessTokenExpiresAt: O.Option<Date>;
+  readonly refreshToken: O.Option<string>;
+};
 
-    readonly storeToken: (
-      provider: "google",
-      userId: SharedEntityIds.UserId.Type,
-      token: StoredToken
-    ) => Effect.Effect<void>;
+export type OAuthApi = {
+  readonly getAccessToken: (params: {
+    providerId: string;
+    userId: string;
+  }) => Effect.Effect<O.Option<OAuthTokenResult>, OAuthTokenError>;
 
-    readonly updateToken: (
-      provider: "google",
-      userId: SharedEntityIds.UserId.Type,
-      updates: Partial<Pick<StoredToken, "accessToken" | "expiresAt">>
-    ) => Effect.Effect<void>;
+  readonly getProviderAccount: (params: {
+    providerId: string;
+    userId: string;
+  }) => Effect.Effect<O.Option<OAuthAccount>, OAuthAccountsError>;
+};
 
-    readonly deleteToken: (
-      provider: "google",
-      userId: SharedEntityIds.UserId.Type
-    ) => Effect.Effect<void>;
+export type AuthContextShape = {
+  readonly user: typeof User.Model.Type;
+  readonly session: typeof Session.Model.Type;
+  readonly organization: typeof Organization.Model.Type;
+  readonly oauth: OAuthApi;
+};
 
-    readonly expandScopes: (
-      provider: "google",
-      userId: SharedEntityIds.UserId.Type,
-      additionalScopes: ReadonlyArray<string>
-    ) => Effect.Effect<void, ScopeExpansionRequiredError>;
-  }
->() {}
-
-export class TokenNotFoundError extends S.TaggedError<TokenNotFoundError>()(
-  "TokenNotFoundError",
-  {
-    message: S.String,
-    provider: S.String,
-    userId: S.String,
-  }
-) {}
+export class AuthContext extends Context.Tag("AuthContext")<AuthContext, AuthContextShape>() {}
 ```
 
-#### Task 2.4: Implement IntegrationTokenStore Service
+#### Task 2.2: Implement OAuth API in AuthContext.layer.ts
 
 **Agent**: `effect-code-writer`
 
+Implement the OAuth API methods using Better Auth's APIs:
+
 ```typescript
-// packages/iam/server/src/services/IntegrationTokenStoreLive.ts
-import * as Effect from "effect/Effect";
-import * as Layer from "effect/Layer";
-import * as A from "effect/Array";
-import * as Str from "effect/String";
-import { Sql } from "@effect/sql";
-import { IntegrationTokenStore, TokenNotFoundError } from "./IntegrationTokenStore.js";
-import { accountTable } from "@beep/iam-tables";
+// packages/runtime/server/src/AuthContext.layer.ts
+// Inside the Layer implementation:
 
-export const IntegrationTokenStoreLive = Layer.effect(
-  IntegrationTokenStore,
+const oauth: OAuthApi = {
+  getAccessToken: ({ providerId, userId }) =>
+    Effect.tryPromise({
+      try: async () => {
+        const result = await betterAuth.api.getAccessToken({
+          body: { providerId, userId },
+        });
+        if (!result) return O.none();
+        return O.some({ accessToken: result.accessToken });
+      },
+      catch: (error) =>
+        new OAuthTokenError({
+          message: error instanceof Error ? error.message : "Failed to get access token",
+          providerId,
+        }),
+    }),
+
+  getProviderAccount: ({ providerId, userId }) =>
+    Effect.tryPromise({
+      try: async () => {
+        // Query account table directly for provider account
+        const account = await db.query.accountTable.findFirst({
+          where: (t, { and, eq }) =>
+            and(eq(t.userId, userId), eq(t.providerId, providerId)),
+        });
+        if (!account) return O.none();
+        return O.some({
+          id: account.id,
+          providerId: account.providerId,
+          accountId: account.accountId,
+          userId: account.userId,
+          scope: O.fromNullable(account.scope),
+          accessTokenExpiresAt: O.fromNullable(account.accessTokenExpiresAt),
+          refreshToken: O.fromNullable(account.refreshToken),
+        });
+      },
+      catch: (error) =>
+        new OAuthAccountsError({
+          message: error instanceof Error ? error.message : "Failed to get provider account",
+        }),
+    }),
+};
+```
+
+#### Task 2.3: Update GoogleAuthClientLive to Use AuthContext.oauth
+
+**Agent**: `effect-code-writer`
+
+Refactor GoogleAuthClientLive to depend only on AuthContext:
+
+```typescript
+// packages/integrations/google-workspace/server/src/layers/GoogleAuthClientLive.ts
+export type GoogleAuthClientDeps = AuthContext;
+
+export const GoogleAuthClientLive: Layer.Layer<GoogleAuthClient, never, GoogleAuthClientDeps> = Layer.effect(
+  GoogleAuthClient,
   Effect.gen(function* () {
-    const sql = yield* Sql.Sql;
+    // Capture AuthContext at layer construction time
+    const { user, oauth } = yield* AuthContext;
 
-    const getToken = (provider: "google", userId: string) =>
-      Effect.gen(function* () {
-        const result = yield* sql`
-          SELECT
-            google_access_token as "accessToken",
-            google_refresh_token as "refreshToken",
-            google_token_expires_at as "expiresAt",
-            google_scopes as "scopes"
-          FROM ${accountTable}
-          WHERE user_id = ${userId}
-          AND google_refresh_token IS NOT NULL
-        `.pipe(Effect.flatMap(A.head));
+    return GoogleAuthClient.of({
+      getValidToken: Effect.fn(function* (requiredScopes) {
+        // Use Better Auth's getAccessToken (handles refresh automatically)
+        const tokenResult = yield* oauth.getAccessToken({
+          providerId: "google",
+          userId: user.id,
+        }).pipe(Effect.mapError((e) => new GoogleAuthenticationError({...})));
 
-        if (result._tag === "None") {
-          return yield* Effect.fail(
-            new TokenNotFoundError({
-              message: `No ${provider} token found for user`,
-              provider,
-              userId,
-            })
-          );
-        }
+        // Get account for scope validation
+        const accountResult = yield* oauth.getProviderAccount({
+          providerId: "google",
+          userId: user.id,
+        });
 
-        const scopes = JSON.parse(result.value.scopes) as string[];
-
-        return {
-          accessToken: result.value.accessToken,
-          refreshToken: result.value.refreshToken,
-          expiresAt: result.value.expiresAt,
-          scopes,
-        };
-      });
-
-    const storeToken = (provider: "google", userId: string, token: StoredToken) =>
-      Effect.gen(function* () {
-        const scopesJson = JSON.stringify(token.scopes);
-
-        yield* sql`
-          UPDATE ${accountTable}
-          SET
-            google_access_token = ${token.accessToken},
-            google_refresh_token = ${token.refreshToken},
-            google_token_expires_at = ${token.expiresAt},
-            google_scopes = ${scopesJson}
-          WHERE user_id = ${userId}
-        `;
-      });
-
-    const updateToken = (provider: "google", userId: string, updates: Partial<Pick<StoredToken, "accessToken" | "expiresAt">>) =>
-      Effect.gen(function* () {
-        const setParts: string[] = [];
-
-        if (updates.accessToken) {
-          setParts.push(`google_access_token = ${updates.accessToken}`);
-        }
-        if (updates.expiresAt) {
-          setParts.push(`google_token_expires_at = ${updates.expiresAt}`);
-        }
-
-        if (A.isNonEmptyReadonlyArray(setParts)) {
-          const setClause = Str.join(setParts, ", ");
-          yield* sql`UPDATE ${accountTable} SET ${setClause} WHERE user_id = ${userId}`;
-        }
-      });
-
-    const deleteToken = (provider: "google", userId: string) =>
-      Effect.gen(function* () {
-        yield* sql`
-          UPDATE ${accountTable}
-          SET
-            google_access_token = NULL,
-            google_refresh_token = NULL,
-            google_token_expires_at = NULL,
-            google_scopes = NULL
-          WHERE user_id = ${userId}
-        `;
-      });
-
-    const expandScopes = (provider: "google", userId: string, additionalScopes: ReadonlyArray<string>) =>
-      Effect.gen(function* () {
-        const current = yield* getToken(provider, userId);
-        const merged = A.union(current.scopes, additionalScopes);
-        const scopesJson = JSON.stringify(merged);
-
-        yield* sql`
-          UPDATE ${accountTable}
-          SET google_scopes = ${scopesJson}
-          WHERE user_id = ${userId}
-        `;
-      });
-
-    return IntegrationTokenStore.of({
-      getToken,
-      storeToken,
-      updateToken,
-      deleteToken,
-      expandScopes,
+        // Validate scopes for incremental OAuth
+        // ...
+      }, Effect.withSpan("GoogleAuthClient.getValidToken")),
     });
   })
 );
 ```
 
-**Pattern**: Use raw SQL with `@effect/sql` for precise control, serialize scopes as JSON.
-
-#### Task 2.5: Add Database Migration
-
-**Agent**: `effect-code-writer`
-
-Create a migration to add the new columns:
-
-```sql
--- packages/iam/tables/migrations/YYYYMMDDHHMMSS_add_integration_tokens.sql
-ALTER TABLE account
-ADD COLUMN google_refresh_token TEXT,
-ADD COLUMN google_access_token TEXT,
-ADD COLUMN google_token_expires_at TIMESTAMP,
-ADD COLUMN google_scopes TEXT;
-
--- Add index for faster token lookups
-CREATE INDEX idx_account_google_token ON account(user_id) WHERE google_refresh_token IS NOT NULL;
-```
-
 ### Success Criteria
 
-- [ ] Account table extended with token columns
-- [ ] IntegrationTokenStore service interface defined
-- [ ] IntegrationTokenStoreLive implementation complete
-- [ ] Migration file created
-- [ ] `bun run check --filter @beep/iam-server` passes
-- [ ] REFLECTION_LOG.md updated
-- [ ] HANDOFF_P3.md created
-- [ ] P3_ORCHESTRATOR_PROMPT.md created
+- [x] OAuthApi types defined in `@beep/shared-domain/Policy`
+- [x] OAuth API implemented in `packages/runtime/server/src/AuthContext.layer.ts`
+- [x] GoogleAuthClientLive refactored to use AuthContext.oauth
+- [x] No cross-slice dependencies from integration packages to IAM server
+- [x] `bun run check --filter @beep/google-workspace-server` passes
+- [x] REFLECTION_LOG.md updated
+- [x] HANDOFF_P3.md created
 
 ### Checkpoint
 
 Before proceeding to Phase 3:
-- [ ] Token storage compiles without errors
-- [ ] Encryption approach verified (Better Auth handles it)
-- [ ] Migration can be applied successfully
-- [ ] Service integrates with Account model correctly
+- [x] AuthContext.oauth methods work correctly
+- [x] Better Auth token refresh is leveraged automatically
+- [x] Scope validation works for incremental OAuth
+- [x] Integration packages have clean dependency graph
 
 ### Handoff
 
 Create `handoffs/HANDOFF_P3.md` with:
-- Account model extension decisions
-- Token encryption approach
-- Scope expansion logic
+- AuthContext OAuth API design decisions
+- Scope validation approach
 - Phase 3 adapter requirements
 
 ---
