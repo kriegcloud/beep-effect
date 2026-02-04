@@ -144,11 +144,19 @@ See [Schema.md](effect/Schema.md) for EntityId patterns.
 
 ## Source Reference
 
-All Effect source code is available at:
+Reference repositories are available at `.repos/`:
 
-- **Effect Core**: `.repos/effect/packages/effect/src/`
-- **Platform**: `.repos/effect/packages/platform/src/`
-- **Schema**: `.repos/effect/packages/effect/src/Schema.ts`
+| Repository | Location | Purpose |
+|------------|----------|---------|
+| **Effect Core** | `.repos/effect/packages/effect/src/` | Core Effect library |
+| **Effect Platform** | `.repos/effect/packages/platform/src/` | Cross-platform services |
+| **Effect AI** | `.repos/effect/packages/ai/` | AI/LLM integrations |
+| **better-auth** | `.repos/better-auth/` | Authentication patterns |
+| **drizzle-orm** | `.repos/drizzle-orm/` | ORM and SQL patterns |
+| **effect-ontology** | `.repos/effect-ontology/` | Knowledge graph patterns |
+| **effect-claude-agent-sdk** | `.repos/effect-claude-agent-sdk/` | Claude agent SDK |
+
+See [documentation/subtree-workflow.md](../documentation/subtree-workflow.md) for update procedures.
 
 ---
 
