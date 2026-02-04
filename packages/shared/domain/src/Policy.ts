@@ -8,7 +8,7 @@ import * as RpcMiddleware from "@effect/rpc/RpcMiddleware";
 import type { NonEmptyReadonlyArray } from "effect/Array";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
-import * as O from "effect/Option";
+import type * as O from "effect/Option";
 import type * as S from "effect/Schema";
 import * as Schema from "effect/Schema";
 import * as internal from "./_internal/policy";

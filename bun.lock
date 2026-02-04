@@ -572,6 +572,9 @@
       "devDependencies": {
         "@beep/calendar-domain": "workspace:^",
         "@beep/calendar-tables": "workspace:^",
+        "@beep/google-workspace-client": "workspace:^",
+        "@beep/google-workspace-domain": "workspace:^",
+        "@beep/identity": "workspace:^",
         "@beep/schema": "workspace:^",
         "@beep/shared-domain": "workspace:^",
         "@beep/shared-server": "workspace:^",
@@ -587,6 +590,9 @@
       "peerDependencies": {
         "@beep/calendar-domain": "workspace:^",
         "@beep/calendar-tables": "workspace:^",
+        "@beep/google-workspace-client": "workspace:^",
+        "@beep/google-workspace-domain": "workspace:^",
+        "@beep/identity": "workspace:^",
         "@beep/schema": "workspace:^",
         "@beep/shared-domain": "workspace:^",
         "@beep/shared-server": "workspace:^",
@@ -829,6 +835,8 @@
       "devDependencies": {
         "@beep/comms-domain": "workspace:^",
         "@beep/comms-tables": "workspace:^",
+        "@beep/google-workspace-client": "workspace:^",
+        "@beep/google-workspace-domain": "workspace:^",
         "@beep/shared-domain": "workspace:^",
         "@beep/shared-server": "workspace:^",
         "@effect/docgen": "catalog:",
@@ -843,6 +851,8 @@
       "peerDependencies": {
         "@beep/comms-domain": "workspace:^",
         "@beep/comms-tables": "workspace:^",
+        "@beep/google-workspace-client": "workspace:^",
+        "@beep/google-workspace-domain": "workspace:^",
         "@beep/shared-domain": "workspace:^",
         "@beep/shared-server": "workspace:^",
         "@effect/platform": "catalog:",
@@ -1538,6 +1548,8 @@
         "openai": "catalog:",
       },
       "devDependencies": {
+        "@beep/google-workspace-client": "workspace:^",
+        "@beep/google-workspace-domain": "workspace:^",
         "@beep/knowledge-domain": "workspace:^",
         "@beep/knowledge-tables": "workspace:^",
         "@beep/schema": "workspace:^",
@@ -1555,6 +1567,8 @@
         "effect": "catalog:",
       },
       "peerDependencies": {
+        "@beep/google-workspace-client": "workspace:^",
+        "@beep/google-workspace-domain": "workspace:^",
         "@beep/knowledge-domain": "workspace:^",
         "@beep/knowledge-tables": "workspace:^",
         "@beep/schema": "workspace:^",

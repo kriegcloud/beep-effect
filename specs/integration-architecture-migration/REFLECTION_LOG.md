@@ -358,3 +358,128 @@ The following files/artifacts from the original IntegrationTokenStore approach w
 - `packages/iam/tables/src/tables/integration-token.table.ts`
 - `packages/shared/domain/src/entity-ids/integrations/*` (IntegrationsEntityIds)
 - Related exports from index files
+
+---
+
+### Phase 3: Slice-Specific Adapters (2026-02-04)
+
+**What Worked:**
+
+1. **Parallel agent delegation for independent adapters**: Three effect-code-writer agents created adapters simultaneously with full contextualization - completed in ~7 minutes total
+2. **Comprehensive contextualization blocks**: Providing full context about GoogleOAuthToken structure, scopes, and error types enabled agents to produce correct code on first attempt
+3. **HttpClient pattern from @effect/platform**: Using `HttpClientRequest`/`HttpClientResponse` provided clean, typed HTTP interactions without external dependencies
+4. **ACL translation inside Layer.effect**: Defining `toGoogleFormat`/`fromGoogleFormat` functions within the Layer closure kept translation logic co-located with API calls
+5. **REQUIRED_SCOPES export pattern**: Each adapter exports a const array that can be used by consumers to request incremental OAuth consent
+
+**What Didn't Work:**
+
+1. **Initial Option extraction**: Some agent attempts used `O.getOrElse` with empty strings instead of `O.getOrThrow` - inconsistent with error semantics (missing token should fail, not silently proceed)
+2. **DateTime handling variations**: Different agents chose different DateTime APIs (`DateTime.make` vs `DateTime.unsafeMake` vs `DateTime.unsafeFromString`) - should standardize
+
+**Methodology Improvements:**
+
+1. For adapters with similar structure, provide a template in the prompt:
+   ```typescript
+   export const REQUIRED_SCOPES = [...] as const;
+   export class Adapter extends Context.Tag<...>() {...}
+   export const AdapterLive = Layer.effect(Adapter, Effect.gen(...));
+   ```
+   This reduces variation between agent outputs.
+
+2. Specify DateTime handling explicitly in prompts:
+   - For API responses with ISO strings: `DateTime.unsafeFromString(isoString)`
+   - For creating timestamps: `DateTime.now`
+   - For optional timestamps: `O.map(dateOption, DateTime.unsafeFromString)`
+
+3. For HTTP-based adapters, always include:
+   - Error mapping to typed errors (`GoogleApiError`)
+   - Observability spans (`Effect.withSpan`)
+   - Base64 encoding/decoding helpers if needed (Gmail)
+
+**Prompt Refinements:**
+
+```markdown
+# Enhanced adapter creation prompt:
+When creating Google Workspace adapters:
+1. Export REQUIRED_SCOPES as const array with only necessary scopes
+2. Use O.getOrThrow(token.accessToken) - missing token is a fatal error
+3. Map HTTP errors to GoogleApiError with endpoint and statusCode
+4. Use DateTime.unsafeFromString for ISO timestamp strings from APIs
+5. Include Effect.withSpan for all public methods
+6. Define ACL translation functions inside Layer.effect closure
+```
+
+**Codebase-Specific Insights:**
+
+1. **HttpClient in Effect**: Use `HttpClient.HttpClient` service, build requests with `HttpClientRequest.*`, parse responses with `HttpClientResponse.json`
+2. **Gmail API quirks**: Message bodies are base64url encoded, need decoding; RFC 2822 format for sending
+3. **Calendar API quirks**: Uses `dateTime` and `timeZone` nested objects for event times
+4. **Knowledge extraction adapter**: Different from comms adapter - outputs `ExtractedEmailDocument` format optimized for graph ingestion
+
+**Decisions Made:**
+
+| Decision | Rationale | Alternative Considered |
+|----------|-----------|------------------------|
+| Separate adapters per slice | Each slice has different output formats and scopes | Shared Gmail adapter (rejected - knowledge needs extraction format, comms needs raw format) |
+| Read-only scopes for knowledge | Extraction never needs send capability | Full scopes (rejected - principle of least privilege) |
+| Option<T> for optional fields | Consistent with Effect idioms | Nullable types (rejected - not idiomatic) |
+| Layer.effect not Layer.succeed | Need HttpClient and GoogleAuthClient services | Layer.succeed (rejected - can't access services) |
+
+**Phase 3 Deliverables:**
+
+- [x] `GoogleCalendarAdapter` in `@beep/calendar-server/adapters`
+  - `REQUIRED_SCOPES`: `[CalendarScopes.events]`
+  - Methods: `listEvents`, `createEvent`, `updateEvent`, `deleteEvent`
+- [x] `GmailAdapter` in `@beep/comms-server/adapters`
+  - `REQUIRED_SCOPES`: `[GmailScopes.read, GmailScopes.send]`
+  - Methods: `listMessages`, `getMessage`, `sendMessage`, `getThread`
+- [x] `GmailExtractionAdapter` in `@beep/knowledge-server/adapters`
+  - `REQUIRED_SCOPES`: `[GmailScopes.read]` (read-only)
+  - Methods: `extractEmailsForKnowledgeGraph`, `extractThreadContext`
+- [x] Package dependencies updated (package.json + tsconfig references)
+- [x] Type checks pass for all three packages
+- [x] Lint passes for all three packages
+
+**Patterns Extracted:**
+
+1. **Slice-Specific Adapter Pattern** (Skill-worthy):
+   ```typescript
+   // 1. Declare required scopes
+   export const REQUIRED_SCOPES = [Scopes.required] as const;
+
+   // 2. Define Context.Tag interface
+   export class MyAdapter extends Context.Tag("MyAdapter")<MyAdapter, {...}>() {}
+
+   // 3. Implement with Layer.effect
+   export const MyAdapterLive = Layer.effect(
+     MyAdapter,
+     Effect.gen(function* () {
+       const http = yield* HttpClient.HttpClient;
+       const auth = yield* GoogleAuthClient;
+
+       // ACL translation
+       const toFormat = (domain) => ({...});
+       const fromFormat = (api) => ({...});
+
+       return MyAdapter.of({
+         method: (args) => Effect.gen(function* () {
+           const token = yield* auth.getValidToken(REQUIRED_SCOPES);
+           const accessToken = O.getOrThrow(token.accessToken);
+           // ... HTTP calls
+         }).pipe(Effect.withSpan("MyAdapter.method"))
+       });
+     })
+   );
+   ```
+
+2. **Knowledge Extraction Output Format**:
+   ```typescript
+   interface ExtractedDocument {
+     sourceId: string;       // Original system ID
+     sourceType: string;     // e.g., "gmail", "calendar"
+     title: string;
+     content: string;        // Plain text for entity extraction
+     metadata: {...};        // Source-specific metadata
+     extractedAt: DateTime.Utc;
+   }
+   ```

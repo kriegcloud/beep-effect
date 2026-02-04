@@ -295,7 +295,9 @@ const getAuthContextFromToken = Effect.fnUntraced(function* (
                 accountId: acc.accountId,
                 userId: acc.userId,
                 scope: O.fromNullable(acc.scope),
-                accessTokenExpiresAt: O.fromNullable(acc.accessTokenExpiresAt ? toDate(acc.accessTokenExpiresAt) : null),
+                accessTokenExpiresAt: O.fromNullable(
+                  acc.accessTokenExpiresAt ? toDate(acc.accessTokenExpiresAt) : null
+                ),
                 refreshToken: O.fromNullable(acc.refreshToken),
               }))
             ),

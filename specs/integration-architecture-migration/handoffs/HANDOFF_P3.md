@@ -20,7 +20,7 @@
 
 ### Phase 3 Goal
 
-Implement slice-specific adapters that use the Google Workspace infrastructure and IntegrationTokenStore to provide Gmail, Calendar, and Drive functionality to their respective slices.
+Implement slice-specific adapters that use the Google Workspace infrastructure (`GoogleAuthClient` backed by `AuthContext.oauth`) to provide Gmail, Calendar, and Drive functionality to their respective slices.
 
 ### Deliverables
 
@@ -46,14 +46,16 @@ Implement slice-specific adapters that use the Google Workspace infrastructure a
 
 ### Success Criteria
 
-- [ ] GoogleCalendarAdapter implemented in `@beep/calendar-server`
-- [ ] GmailAdapter implemented in `@beep/comms-server`
-- [ ] GmailExtractionAdapter implemented in `@beep/knowledge-server`
-- [ ] Each adapter declares `REQUIRED_SCOPES` constant
-- [ ] ACL translation functions preserve data integrity
-- [ ] All packages compile: `bun run check --filter @beep/calendar-server`
-- [ ] All packages compile: `bun run check --filter @beep/comms-server`
-- [ ] All packages compile: `bun run check --filter @beep/knowledge-server`
+- [x] GoogleCalendarAdapter implemented in `@beep/calendar-server`
+- [x] GmailAdapter implemented in `@beep/comms-server`
+- [x] GmailExtractionAdapter implemented in `@beep/knowledge-server`
+- [x] Each adapter declares `REQUIRED_SCOPES` constant
+- [x] ACL translation functions preserve data integrity
+- [x] All packages compile: `bun run check --filter @beep/calendar-server`
+- [x] All packages compile: `bun run check --filter @beep/comms-server`
+- [x] All packages compile: `bun run check --filter @beep/knowledge-server`
+
+**Status: COMPLETED (2026-02-04)**
 
 ### Blocking Issues
 

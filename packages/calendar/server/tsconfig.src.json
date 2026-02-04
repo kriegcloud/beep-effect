@@ -40,6 +40,12 @@
     },
     {
       "path": "../../../packages/calendar/tables"
+    },
+    {
+      "path": "../../../packages/integrations/google-workspace/domain"
+    },
+    {
+      "path": "../../../packages/integrations/google-workspace/client"
     }
   ],
   "compilerOptions": {
