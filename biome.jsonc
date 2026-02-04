@@ -22,7 +22,8 @@
       "!!**/.cache",
       "!!**/build",
       "!!**/bun.lock",
-      "!!**/dist"
+      "!!**/dist",
+      "!.repos/**"
     ]
   },
   "json": {
