@@ -283,15 +283,17 @@ FINRA Rule 4512 and SEC Rule 17a-4 require comprehensive documentation:
 │  │   ├── Operations Team                                   │
 │  │   └── Compliance Team                                   │
 │  │                                                         │
-│  ├── Workspaces (Internal Collaboration)                   │
-│  │   ├── Quarterly Planning Workspace                      │
-│  │   ├── Compliance Review Workspace                       │
-│  │   └── Training Materials Workspace                      │
-│  │                                                         │
-│  └── Client Databases (External Client Data)               │
-│      ├── Thompson Family Database                          │
-│      ├── Chen Holdings Database                            │
-│      └── Williams Trust Database                           │
+│  └── Pages (Notion-style, infinite nesting)                │
+│      ├── 📁 Thompson Family                                │
+│      │   ├── 📄 Meeting Notes                              │
+│      │   │   └── 📄 Q1 2026 Review                         │
+│      │   ├── 📄 Financial Plan                             │
+│      │   └── 📁 Estate Planning                            │
+│      │       ├── 📄 Trust Documents                        │
+│      │       └── 📄 Beneficiary Analysis                   │
+│      ├── 📁 Compliance                                     │
+│      │   └── 📄 Audit Checklist                            │
+│      └── 📁 Training Materials                             │
 │                                                            │
 │  Authorization: ABAC with functional roles                 │
 │  ├── controller: Period lock/unlock, full oversight        │
@@ -302,16 +304,45 @@ FINRA Rule 4512 and SEC Rule 17a-4 require comprehensive documentation:
 └────────────────────────────────────────────────────────────┘
 ```
 
-**Workspace vs Client Database Distinction:**
+### 5.4 Page Model (Notion-Style Hierarchy)
 
-| Aspect | Workspace | Client Database |
-|--------|-----------|-----------------|
-| **Purpose** | Internal team collaboration | Client-specific data repository |
-| **Data Sources** | Internal documents, meeting notes | Gmail, calendar, CRM, custodian feeds |
-| **Sharing Model** | Teams, users, other workspaces | Advisor teams assigned to client |
-| **Knowledge Graph** | Optional (manual tagging) | Required (automatic extraction) |
-| **Compliance Scope** | Internal audit only | Full FINRA/SEC audit trail |
-| **Example** | "Q1 2026 Planning" | "Thompson Family" |
+**Core Concept:** Pages are the universal container - like Notion, but for wealth management. Every page can contain sub-pages ad infinitum, and any page can be shared.
+
+```
+Page
+├── content: Lexical document (rich text, embeds, etc.)
+├── children: Page[] (infinite nesting)
+├── data-sources: Integration[] (Gmail, Calendar, etc.)
+├── agents/: Agent configuration folder
+├── permissions: ShareSettings
+└── knowledge-graph: Extracted entities & relations
+```
+
+**Sharing Model:**
+
+| Share Type | Description | Use Case |
+|------------|-------------|----------|
+| **Private** | Only creator can access | Personal notes |
+| **Team** | Specific team(s) can access | Department docs |
+| **Organization** | All org members can access | Company wiki |
+| **Link (View)** | Anyone with link can view | Client portal |
+| **Link (Edit)** | Anyone with link can edit | Collaborative planning |
+| **Cross-Org** | Shared with external org | Multi-family coordination |
+
+**Page Types (Semantic):**
+
+| Type | Purpose | Auto-Features |
+|------|---------|---------------|
+| **Client Database** | Client-specific data hub | Knowledge extraction, compliance audit |
+| **Workspace** | Team collaboration space | Real-time editing, task tracking |
+| **Document** | Single rich document | Version history, comments |
+| **Dashboard** | FlexLayout panels | Collaborative widgets |
+| **Template** | Reusable page structure | Variable substitution |
+
+**Inheritance:**
+- Child pages inherit parent permissions by default
+- Can be overridden at any level
+- Agent configurations cascade: Org → Parent Page → Page → Session
 
 ### 5.4 Rich Document Editor
 
