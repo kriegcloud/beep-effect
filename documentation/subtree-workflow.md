@@ -98,39 +98,125 @@ find .repos/effect/packages/effect/test -name "*.test.ts"
 cat .repos/effect/packages/effect/test/Effect.test.ts | head -50
 ```
 
-## Update Workflow
+---
 
-The Effect subtree is updated manually when upgrading to a newer Effect version.
+## better-auth Repository
 
-### Add Remote (One-time Setup)
+Reference for authentication patterns and Better Auth integration.
+
+### Key Paths
+
+| Path | Purpose |
+|------|---------|
+| `.repos/better-auth/packages/better-auth/` | Core authentication library |
+| `.repos/better-auth/docs/` | Documentation and guides |
+
+### Agent Usage
 
 ```bash
-# Add Effect upstream remote (if not already added)
-git remote add effect-upstream https://github.com/Effect-TS/effect.git
+# Search for authentication patterns
+grep -r "signIn" .repos/better-auth/packages/better-auth/src/
+
+# Find session handling
+grep -r "session" .repos/better-auth/packages/better-auth/src/
 ```
 
-### Update Subtree
+---
+
+## drizzle-orm Repository
+
+Reference for Drizzle ORM patterns and SQL generation.
+
+### Key Paths
+
+| Path | Purpose |
+|------|---------|
+| `.repos/drizzle-orm/drizzle-orm/` | Core ORM implementation |
+| `.repos/drizzle-orm/drizzle-kit/` | Migration toolkit |
+
+### Agent Usage
 
 ```bash
-# Fetch latest Effect changes
-git fetch effect-upstream main
+# Search for schema patterns
+grep -r "pgTable" .repos/drizzle-orm/drizzle-orm/src/
 
-# Update Effect subtree (uses --squash to avoid history bloat)
+# Find migration patterns
+grep -r "migrate" .repos/drizzle-orm/drizzle-kit/src/
+```
+
+---
+
+## effect-ontology Repository
+
+Effect-based ontology and knowledge graph patterns.
+
+### Agent Usage
+
+```bash
+# Explore ontology patterns
+ls .repos/effect-ontology/src/
+
+# Find RDF/graph patterns
+grep -r "Triple" .repos/effect-ontology/src/
+```
+
+---
+
+## effect-claude-agent-sdk Repository
+
+Effect-based Claude agent SDK for building AI agents.
+
+### Agent Usage
+
+```bash
+# Explore agent patterns
+ls .repos/effect-claude-agent-sdk/src/
+
+# Find tool definitions
+grep -r "Tool" .repos/effect-claude-agent-sdk/src/
+```
+
+---
+
+## Update Workflow
+
+Subtrees are updated manually when upgrading dependency versions or needing newer patterns.
+
+### Add Remotes (One-time Setup)
+
+```bash
+# Add remotes for each subtree
+git remote add effect-upstream https://github.com/Effect-TS/effect.git
+git remote add better-auth-upstream git@github.com:better-auth/better-auth.git
+git remote add drizzle-upstream git@github.com:drizzle-team/drizzle-orm.git
+git remote add ontology-upstream git@github.com:mepuka/effect-ontology.git
+git remote add agent-sdk-upstream git@github.com:mepuka/effect-claude-agent-sdk.git
+```
+
+### Update a Subtree
+
+```bash
+# Generic update pattern
+git fetch <remote-name> <branch>
+git subtree pull --prefix=.repos/<name> <remote-name> <branch> --squash
+
+# Example: Update Effect
+git fetch effect-upstream main
 git subtree pull --prefix=.repos/effect effect-upstream main --squash
 
-# Commit the update
-git add .repos/effect
-git commit -m "chore(subtree): update Effect to latest main"
+# Example: Update better-auth
+git fetch better-auth-upstream main
+git subtree pull --prefix=.repos/better-auth better-auth-upstream main --squash
 ```
 
 ### Verify Update
 
 ```bash
-# Check Effect version in subtree
-cat .repos/effect/packages/effect/package.json | grep version
+# Check version in subtree (varies by repo)
+cat .repos/<name>/package.json | grep version
 
 # Verify directory structure
-ls .repos/effect/packages/
+ls .repos/<name>/
 ```
 
 ## Maintenance Notes
@@ -158,13 +244,17 @@ The following tools are configured to exclude `.repos/`:
 
 ### Cleanup
 
-If the subtree becomes stale or corrupted:
+If a subtree becomes stale or corrupted:
 
 ```bash
 # Remove subtree
-rm -rf .repos/effect
+rm -rf .repos/<name>
 
 # Re-add fresh subtree
+git subtree add --prefix=.repos/<name> <remote-name> <branch> --squash
+
+# Example: Re-add Effect
+rm -rf .repos/effect
 git subtree add --prefix=.repos/effect effect-upstream main --squash
 ```
 
@@ -201,6 +291,17 @@ cat .repos/effect/packages/platform-bun/src/BunFileSystem.ts
 
 ## References
 
-- **Effect Repository**: https://github.com/Effect-TS/effect
-- **Git Subtree Documentation**: https://git-scm.com/book/en/v2/Git-Tools-Advanced-Merging#_subtree_merge
+### Upstream Repositories
+
+- **Effect**: https://github.com/Effect-TS/effect
+- **better-auth**: https://github.com/better-auth/better-auth
+- **drizzle-orm**: https://github.com/drizzle-team/drizzle-orm
+- **effect-ontology**: https://github.com/mepuka/effect-ontology
+- **effect-claude-agent-sdk**: https://github.com/mepuka/effect-claude-agent-sdk
+
+### Documentation
+
 - **Effect Documentation**: https://effect.website/
+- **better-auth Documentation**: https://www.better-auth.com/
+- **Drizzle Documentation**: https://orm.drizzle.team/
+- **Git Subtree Documentation**: https://git-scm.com/book/en/v2/Git-Tools-Advanced-Merging#_subtree_merge
