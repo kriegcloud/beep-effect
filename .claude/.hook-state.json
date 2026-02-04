@@ -1,8 +1,8 @@
 {
-  "lastCallMs": 1770234985906,
+  "lastCallMs": 1770235268917,
   "skillIndex": {
-    "loadedAt": 1770233441287,
-    "directoryMtime": 1770202172260,
+    "loadedAt": 1770235268945,
+    "directoryMtime": 1770235177507,
     "skills": [
       {
         "name": "effect-ai-prompt",
@@ -908,6 +908,29 @@
           "through",
           "multiple",
           "stages"
+        ]
+      },
+      {
+        "name": "onboarding",
+        "keywords": [
+          "onboarding",
+          "interactive",
+          "checklist",
+          "new",
+          "agents",
+          "when",
+          "starting",
+          "work",
+          "beep",
+          "effect",
+          "verify",
+          "environment",
+          "understand",
+          "architecture",
+          "confirm",
+          "proficiency",
+          "before",
+          "contributing"
         ]
       },
       {
