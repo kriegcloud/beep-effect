@@ -6,5 +6,8 @@
  */
 export * from "./entity-resolution.errors";
 export * from "./extraction.errors";
+export * from "./graphrag.errors";
 export * from "./grounding.errors";
 export * from "./ontology.errors";
+export * from "./rdf.errors";
+export * from "./sparql.errors";

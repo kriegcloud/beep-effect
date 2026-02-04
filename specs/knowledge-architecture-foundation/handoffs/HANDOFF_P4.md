@@ -10,17 +10,37 @@
 
 ## Phase 3 Summary
 
-Implemented server-side RPC handlers:
-- Entity handlers: get, list, count with auth middleware
-- GraphRAG query handler connected to GraphRAGService
-- Relation handlers stubbed
-- Aggregate handler layer at `rpc/v1/_rpcs.ts`
+Implemented server-side RPC handlers in `packages/knowledge/server/src/rpc/`:
+
+**Entity Handlers** (`rpc/v1/entity/`):
+- `get.ts` - Retrieves entity by ID with organization access control
+- `list.ts` - Streams entities with filtering by ontology/type
+- `count.ts` - Returns entity count for organization
+- `_rpcs.ts` - Layer composition with AuthContextRpcMiddleware
+- `index.ts` - Barrel export
+
+**GraphRAG Handler** (`rpc/v1/graphrag/`):
+- `query.ts` - Full GraphRAG query implementation
+- `_rpcs.ts` - Layer with stub for queryFromSeeds
+- `index.ts` - Barrel export
+
+**Relation Handlers** (`rpc/v1/relation/`):
+- `_rpcs.ts` - All operations stubbed with "Not implemented"
+- `index.ts` - Barrel export
+
+**Aggregate Layers**:
+- `v1/_rpcs.ts` - Merges Entity, Relation, GraphRAG layers
+- `v1/index.ts`, `rpc/index.ts` - Barrel exports
+
+**Server Index Updated**:
+- Added `export * as Rpc from "./rpc"`
 
 ### Key Learnings Applied
 
-- Middleware must be applied BEFORE `.toLayer()`
-- Handler keys must exactly match prefixed operation names
-- Streaming handlers use `Stream.unwrap(Effect.gen(...))`
+- Middleware must be applied BEFORE `.toLayer()` (ADR-006)
+- Handler keys must exactly match prefixed operation names (e.g., `entity_get`)
+- Streaming handlers use `Effect.fnUntraced(function* () {...}, Stream.unwrap)`
+- Organization access control: `session.activeOrganizationId !== payload.organizationId`
 
 ---
 

@@ -373,30 +373,132 @@ export const KnowledgeRpcs = EntityRpcs
 
 ---
 
+## Implementation Notes
+
+Key learnings from Phase 3 handler implementation:
+
+### 1. Middleware Composition Order
+
+AuthContextRpcMiddleware MUST be applied via `.middleware()` BEFORE `.toLayer()`:
+
+```typescript
+// CORRECT - Middleware first
+const RpcsWithMiddleware = Entity.Rpc.Rpcs.middleware(
+  Policy.AuthContextRpcMiddleware
+);
+const implementation = RpcsWithMiddleware.of({ handlers });
+export const layer = RpcsWithMiddleware.toLayer(implementation);
+
+// WRONG - Middleware after .toLayer() fails
+const layer = Entity.Rpc.Rpcs.of({ handlers })
+  .toLayer()
+  .middleware(Policy.AuthContextRpcMiddleware);  // Too late!
+```
+
+**Rationale**: The middleware pattern `.middleware()` returns a new RpcGroup that has the middleware baked into its Layer construction. Calling `.toLayer()` first creates the Layer without middleware.
+
+### 2. Handler Key Naming
+
+Handler object keys must exactly match prefixed operation names:
+
+```typescript
+// CORRECT - Includes prefix from RpcGroup
+EntityRpcsWithMiddleware.of({
+  entity_get: Get.Handler,      // Prefix + operation name
+  entity_list: List.Handler,
+  entity_count: Count.Handler,
+})
+
+// WRONG - Missing prefix fails at runtime
+EntityRpcsWithMiddleware.of({
+  get: Get.Handler,             // Missing "entity_" prefix
+  list: List.Handler,
+})
+```
+
+**Rationale**: RpcGroup applies the prefix during registration. The handler lookup uses the full prefixed name.
+
+### 3. Streaming Pattern
+
+Use `Effect.fnUntraced()` with `Stream.unwrap` for streaming handlers:
+
+```typescript
+export const Handler: (payload: Payload) => Stream.Stream<
+  Item,
+  Error,
+  Requirements
+> = Effect.fnUntraced(function* (payload: Payload) {
+  // 1. Yield Effect that produces Stream
+  const items = yield* someEffect();
+  return Stream.fromIterable(items);
+}, Stream.unwrap);  // 2. unwrap converts Effect<Stream> to Stream
+```
+
+**Why `Effect.fnUntraced()`**: Prevents telemetry spans from being created for every item in the stream. Without it, streaming 10,000 entities creates 10,000 spans.
+
+### 4. Access Control Pattern
+
+Verify `session.activeOrganizationId === payload.organizationId` in every handler:
+
+```typescript
+// Single-item handlers - fail with NotFoundError
+const { session } = yield* Policy.AuthContext;
+if (session.activeOrganizationId !== payload.organizationId) {
+  return yield* Effect.fail(
+    new NotFoundError({ id: payload.id })
+  );
+}
+
+// Streaming handlers - return empty stream
+const { session } = yield* Policy.AuthContext;
+if (session.activeOrganizationId !== payload.organizationId) {
+  return Stream.empty;
+}
+```
+
+**Rationale**: RLS-style tenant isolation prevents data leakage across organizations.
+
+### 5. S.Schema.Type Pattern
+
+For optional schema types, use `S.Schema.Type<typeof Schema>` not `typeof Schema.Type`:
+
+```typescript
+// CORRECT - Works for optional schemas
+export const Graph = S.optional(IRI);
+export type Graph = S.Schema.Type<typeof Graph>;
+
+// WRONG - Optional schemas don't expose .Type
+export type Graph = typeof Graph.Type;  // TypeScript error
+```
+
+**Rationale**: `S.optional()` returns a schema wrapper without `.Type` property. Use `S.Schema.Type<>` utility for extracting types from any schema.
+
+---
+
 ## Appendix: Implementation Checklist
 
 Based on these decisions, the following artifacts need creation:
 
 ### Domain Layer
-- [ ] RDF value objects (`src/value-objects/rdf/`)
-- [ ] SPARQL types (`src/value-objects/sparql/`)
-- [ ] Entity RPC contracts (`src/entities/entity/entity.rpc.ts`)
-- [ ] Relation RPC contracts (`src/entities/relation/relation.rpc.ts`)
-- [ ] GraphRAG RPC contracts (`src/rpc/v1/graphrag/`)
-- [ ] SPARQL RPC contracts (`src/rpc/v1/sparql/`)
-- [ ] Extraction RPC contracts (`src/rpc/v1/extraction/`)
-- [ ] Resolution RPC contracts (`src/rpc/v1/resolution/`)
+- [x] RDF value objects (`src/value-objects/rdf/`) - Quad.ts, QuadPattern.ts, SparqlBindings.ts
+- [x] Entity RPC contracts (`src/entities/entity/entity.rpc.ts`) - 7 operations
+- [x] Relation RPC contracts (`src/entities/relation/relation.rpc.ts`) - 6 operations
+- [x] GraphRAG RPC contracts (`src/rpc/graphrag.rpc.ts`) - 2 operations
+- [x] Extraction RPC contracts (`src/rpc/extraction.rpc.ts`) - 4 operations
+- [x] Ontology RPC contracts (`src/rpc/ontology.rpc.ts`) - 7 operations
+- [ ] SPARQL RPC contracts - Deferred to Phase 0 (RDF Foundation)
+- [ ] Resolution RPC contracts - Deferred to entity-resolution spec
 
 ### Server Layer
-- [ ] Entity handlers (`src/handlers/Entity.handlers.ts`)
-- [ ] Relation handlers (`src/handlers/Relation.handlers.ts`)
-- [ ] GraphRAG handlers (`src/rpc/v1/graphrag/_rpcs.ts`)
-- [ ] SPARQL handlers (`src/rpc/v1/sparql/_rpcs.ts`)
-- [ ] Extraction handlers (`src/rpc/v1/extraction/_rpcs.ts`)
-- [ ] Resolution handlers (`src/rpc/v1/resolution/_rpcs.ts`)
-- [ ] Combined handlers layer (`src/handlers/index.ts`)
+- [x] Entity handlers (`src/rpc/v1/entity/`) - get, list, count implemented; search/create/update/delete stubbed
+- [x] Relation handlers (`src/rpc/v1/relation/`) - All stubbed for future implementation
+- [x] GraphRAG handlers (`src/rpc/v1/graphrag/`) - query implemented; queryFromSeeds stubbed
+- [ ] SPARQL handlers - Deferred to Phase 0 (RDF Foundation)
+- [ ] Extraction handlers - Deferred to workflow-durability spec
+- [ ] Resolution handlers - Deferred to entity-resolution spec
+- [x] Combined handlers layer (`src/rpc/v1/_rpcs.ts`) - Merges Entity, Relation, GraphRAG
 
 ### Integration
-- [ ] Register knowledge RPCs with runtime
-- [ ] Add to app router
-- [ ] Client bindings in `@beep/knowledge-client`
+- [x] RPC export from knowledge-server (`export * as Rpc from "./rpc"`)
+- [ ] Client bindings - Deferred
+- [ ] App router registration - Deferred

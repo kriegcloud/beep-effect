@@ -20,6 +20,8 @@ Implement the core RdfStore service as an Effect.Service wrapping N3.Store, prov
 | Create unit tests | P0 | `packages/knowledge/server/test/Rdf/RdfStoreService.test.ts` | Tests pass |
 | Update domain index | P0 | `packages/knowledge/domain/src/index.ts` | Exports available |
 | Update server index | P0 | `packages/knowledge/server/src/index.ts` | Exports available |
+| Update REFLECTION_LOG.md | P0 | `specs/knowledge-rdf-foundation/REFLECTION_LOG.md` | Entry added |
+| **Create Phase 2 handoff documents** | P0 | `handoffs/HANDOFF_P2.md`, `handoffs/P2_ORCHESTRATOR_PROMPT.md` | Documents created |
 
 ### Success Criteria
 
@@ -29,6 +31,9 @@ Implement the core RdfStore service as an Effect.Service wrapping N3.Store, prov
 - [ ] `bun run test --filter @beep/knowledge-server` passes
 - [ ] Quad add/remove/has operations work correctly (tested)
 - [ ] Pattern matching returns correct results (tested)
+- [ ] REFLECTION_LOG.md updated with Phase 1 learnings
+- [ ] **HANDOFF_P2.md created** (full context for Phase 2)
+- [ ] **P2_ORCHESTRATOR_PROMPT.md created** (copy-paste prompt for Phase 2)
 
 ### Critical Constraints
 
@@ -37,6 +42,7 @@ Implement the core RdfStore service as an Effect.Service wrapping N3.Store, prov
 3. **MUST use Schema classes** - `S.Class` for Quad, `S.Struct` for QuadPattern
 4. **MUST wrap operations in spans** - `Effect.withSpan("RdfStore.operation")`
 5. **MUST use @beep/testkit** - `effect()` helper, NOT raw bun:test
+6. **MUST create Phase 2 handoff documents** - Required for phase completion
 
 ---
 

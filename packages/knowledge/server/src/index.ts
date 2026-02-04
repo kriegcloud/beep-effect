@@ -65,3 +65,15 @@ export * as Nlp from "./Nlp";
  * @since 0.1.0
  */
 export * as Ontology from "./Ontology";
+
+/**
+ * RDF store and quad manipulation exports
+ * @since 0.1.0
+ */
+export * as Rdf from "./Rdf";
+
+/**
+ * RPC handler exports
+ * @since 0.1.0
+ */
+export * as Rpc from "./rpc";

@@ -60,4 +60,52 @@ pattern_candidates:
 - **Evidence**: N3.Store provides CRUD operations, service wrapper enables testing and future migration
 - **Improvement Areas**: None identified yet, pending Phase 1 implementation
 
+---
+
+### Phase 1: Core RdfStore Service - 2026-02-03
+
+**What Worked**:
+- Domain value objects (IRI, BlankNode, Literal, Quad, QuadPattern) were already well-designed with branded types
+- Effect.Service pattern with `accessors: true` enabled clean `yield* RdfStore` usage
+- RdfJs interface abstraction handled type mismatches between @rdfjs/types and @types/n3
+- Effect.sync wrapping of synchronous N3 operations provided observability with zero overhead
+- @beep/testkit provided clean test structure with 38 comprehensive tests
+
+**What Didn't Work**:
+- Initial handoff suggested plain string types for Quad fields; actual domain used sophisticated branded types
+- N3.js callback patterns required careful Effect.async wrapping (will need more in Phase 2)
+
+**Key Learnings**:
+1. **BlankNode prefix handling** - Domain BlankNodes include `_:` prefix, N3 expects just identifier. Must strip/add appropriately.
+2. **Literal conversion complexity** - Language tags vs datatype IRIs require different N3.DataFactory.literal() calls
+3. **Default graph representation** - N3 uses `""` for default graph, domain uses `undefined`. Convert via `rdfJsGraphToDomain`.
+4. **TaggedError for defects** - Created `RdfTermConversionError` for unexpected term types (library defects), never use native `Error`
+5. **Term type detection** - N3 terms have `termType` property: "NamedNode", "BlankNode", "Literal", "DefaultGraph"
+
+**Insights**:
+- Service-level type conversions (toN3, fromN3) keep domain types clean and separate from library implementation
+- Effect.withSpan on every operation provides excellent observability for debugging
+- Each `RdfStore.Default` provides a fresh store instance - good for test isolation
+- Duplicate quad insertion is a no-op in N3.Store (idempotent)
+
+**Pattern Candidates**:
+- **Name**: library-type-conversion-layer
+- **Confidence**: high (5/5)
+- **Description**: Create explicit conversion functions between domain types and library types at service boundary
+- **Applicability**: Any service wrapping external library with different type representations
+- **Evidence**: RdfStoreService has clear `toN3*` and `fromN3*` functions isolating all N3 dependencies
+- **Improvement Areas**: Could extract to separate module if used elsewhere
+
+**Phase Deliverables**:
+- `packages/knowledge/server/src/Rdf/RdfStoreService.ts` - 500 lines
+- `packages/knowledge/server/src/Rdf/index.ts` - barrel export
+- `packages/knowledge/server/test/Rdf/RdfStoreService.test.ts` - 38 tests
+- `packages/knowledge/domain/src/errors/rdf.errors.ts` - RdfTermConversionError, RdfStoreError
+
+**Next Phase Requirements**:
+- HANDOFF_P2.md created: YES
+- P2_ORCHESTRATOR_PROMPT.md created: YES
+
+---
+
 <!-- Add subsequent reflection entries here as phases are completed -->
