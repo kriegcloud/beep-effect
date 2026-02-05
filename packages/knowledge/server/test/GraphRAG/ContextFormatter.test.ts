@@ -90,7 +90,7 @@ const createMockRelation = (
     literalValue: O.fromNullable(literalValue),
     literalType: O.fromNullable(literalType),
     organizationId: SharedEntityIds.OrganizationId.create(),
-    ontologyId: "default",
+    ontologyId: KnowledgeEntityIds.OntologyId.create(),
     createdAt: DateTime.unsafeNow(),
     updatedAt: DateTime.unsafeNow(),
     _rowId: KnowledgeEntityIds.RelationId.privateSchema.make(relationRowIdCounter),

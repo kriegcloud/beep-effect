@@ -1,16 +1,3 @@
-/**
- * Test Layers for Knowledge Server Tests
- *
- * Provides mock implementations for testing services that depend on
- * @effect/ai LanguageModel and other external dependencies.
- *
- * Uses `LanguageModel.make()` pattern from @effect/ai - intercepting at the
- * provider level (generateText/streamText) rather than the service level.
- *
- * @module knowledge-server/test/_shared/TestLayers
- * @since 0.1.0
- */
-
 import type { ParsedClassDefinition, ParsedPropertyDefinition } from "@beep/knowledge-server/Ontology/OntologyParser";
 import type { OntologyContext } from "@beep/knowledge-server/Ontology/OntologyService";
 import { LanguageModel } from "@effect/ai";
@@ -24,26 +11,8 @@ import * as P from "effect/Predicate";
 import * as Ref from "effect/Ref";
 import * as Stream from "effect/Stream";
 
-// =============================================================================
-// Mock Response Types
-// =============================================================================
-
-/**
- * Options for mock LanguageModel responses
- *
- * @since 0.1.0
- * @category types
- */
 export interface MockLanguageModelOptions {
-  /**
-   * Mock response for generateObject calls.
-   * Can be a static value or a function that receives the objectName.
-   */
   readonly generateObject?: unknown | ((objectName: string | undefined) => unknown | Effect.Effect<unknown>);
-
-  /**
-   * Token usage to report
-   */
   readonly usage?: {
     readonly inputTokens: number;
     readonly outputTokens: number;
@@ -51,24 +20,8 @@ export interface MockLanguageModelOptions {
   };
 }
 
-// =============================================================================
-// Default Usage
-// =============================================================================
-
 const defaultUsage = { inputTokens: 100, outputTokens: 50, totalTokens: 150 };
 
-// =============================================================================
-// Provider-Level Mock (Clean Pattern)
-// =============================================================================
-
-/**
- * Build response parts for the mock provider.
- *
- * When responseFormat.type === "json", returns a text part with JSON-stringified
- * mock data. The framework's resolveStructuredOutput will parse it.
- *
- * @internal
- */
 const buildProviderResponse = (value: unknown, usage: typeof defaultUsage): Array<Response.PartEncoded> => [
   { type: "text", text: JSON.stringify(value) },
   {
@@ -82,46 +35,6 @@ const buildProviderResponse = (value: unknown, usage: typeof defaultUsage): Arra
   },
 ];
 
-// =============================================================================
-// withLanguageModel - Effect AI Pattern
-// =============================================================================
-
-/**
- * Provide a mock LanguageModel for testing
- *
- * Uses `LanguageModel.make()` to create a properly-typed service from
- * provider-level callbacks. This approach:
- * - Intercepts at generateText/streamText (simple signatures)
- * - Lets the framework derive generateObject internally
- * - Minimizes type assertion surface area
- *
- * @example
- * ```typescript
- * import { effect } from "@beep/testkit";
- * import { withLanguageModel } from "../_shared/TestLayers";
- *
- * effect("extracts mentions", () =>
- *   Effect.gen(function* () {
- *     const extractor = yield* MentionExtractor;
- *     const result = yield* extractor.extractFromChunk(chunk);
- *     strictEqual(result.mentions.length, 2);
- *   }).pipe(
- *     Effect.provide(MentionExtractor.Default),
- *     withLanguageModel({
- *       generateObject: (objectName) => {
- *         if (objectName === "MentionOutput") {
- *           return { mentions: [...] };
- *         }
- *         return {};
- *       }
- *     })
- *   )
- * );
- * ```
- *
- * @since 0.1.0
- * @category test utilities
- */
 export const withLanguageModel: {
   (
     options: MockLanguageModelOptions
@@ -151,15 +64,12 @@ export const withLanguageModel: {
       return Effect.succeed(options.generateObject);
     };
 
-    // Use LanguageModel.make() - this returns Effect<Service> with proper types
     const makeService = LanguageModel.make({
       generateText: (providerOptions) => {
-        // When responseFormat.type === "json", extract objectName and return mock
         if (providerOptions.responseFormat.type === "json") {
           const objectName = providerOptions.responseFormat.objectName;
           return Effect.map(getResponseValue(objectName), (value) => buildProviderResponse(value, usage));
         }
-        // For text responses, return empty
         return Effect.succeed(buildProviderResponse("", usage));
       },
       streamText: () => Stream.empty,
@@ -173,24 +83,8 @@ export const withLanguageModel: {
   }
 );
 
-// =============================================================================
-// Specialized Mock Factories
-// =============================================================================
-
-/**
- * Create a mock LanguageModel with a specific fixed response
- *
- * @since 0.1.0
- * @category test utilities
- */
 export const createMockLlmWithResponse = <A>(response: A) => withLanguageModel({ generateObject: () => response });
 
-/**
- * Create a failing mock LanguageModel for error testing
- *
- * @since 0.1.0
- * @category test utilities
- */
 export const createFailingMockLlm =
   <E>(error: E) =>
   <A, E2, R>(effect: Effect.Effect<A, E2, R>): Effect.Effect<A, E | E2, Exclude<R, LanguageModel.LanguageModel>> => {
@@ -205,15 +99,9 @@ export const createFailingMockLlm =
     >;
   };
 
-/**
- * Create a mock that tracks calls for verification
- *
- * @since 0.1.0
- * @category test utilities
- */
 export const createTrackingMockLlm = <A>(response: A) =>
   Effect.gen(function* () {
-    const callsRef = yield* Ref.make<Array<{ objectName: string | undefined }>>([]);
+    const callsRef = yield* Ref.make<ReadonlyArray<{ objectName: string | undefined }>>([]);
 
     const withTracking = <A2, E, R>(
       effect: Effect.Effect<A2, E, R>
@@ -237,26 +125,16 @@ export const createTrackingMockLlm = <A>(response: A) =>
     };
 
     const getCalls = Ref.get(callsRef);
-    const clearCalls = Ref.set(callsRef, []);
+    const clearCalls = Ref.set(callsRef, [] as ReadonlyArray<{ objectName: string | undefined }>);
 
     return { withTracking, getCalls, clearCalls };
   });
 
-// =============================================================================
-// Test Data Factories
-// =============================================================================
-
-/**
- * Create a minimal OntologyContext for testing
- *
- * @since 0.1.0
- * @category test data
- */
 export const createMockOntologyContext = (options?: {
-  classes?: Array<{ iri: string; label: string }>;
-  properties?: Array<{ iri: string; label: string }>;
+  classes?: ReadonlyArray<{ iri: string; label: string }>;
+  properties?: ReadonlyArray<{ iri: string; label: string }>;
 }): OntologyContext => {
-  const classes: ParsedClassDefinition[] = A.map(options?.classes ?? [], (c) => ({
+  const classes: ReadonlyArray<ParsedClassDefinition> = A.map(options?.classes ?? [], (c) => ({
     iri: c.iri,
     label: c.label,
     localName: c.label,
@@ -276,7 +154,7 @@ export const createMockOntologyContext = (options?: {
     closeMatch: [],
   }));
 
-  const properties: ParsedPropertyDefinition[] = A.map(options?.properties ?? [], (p) => ({
+  const properties: ReadonlyArray<ParsedPropertyDefinition> = A.map(options?.properties ?? [], (p) => ({
     iri: p.iri,
     label: p.label,
     localName: p.label,

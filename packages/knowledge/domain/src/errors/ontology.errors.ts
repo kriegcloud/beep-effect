@@ -1,26 +1,13 @@
-/**
- * Ontology errors for Knowledge slice
- *
- * Typed errors for ontology operations (parsing, loading, validation).
- *
- * @module knowledge-domain/errors/ontology
- * @since 0.1.0
- */
 import { $KnowledgeDomainId } from "@beep/identity/packages";
+import { KnowledgeEntityIds } from "@beep/shared-domain";
 import * as S from "effect/Schema";
 
 const $I = $KnowledgeDomainId.create("errors/ontology");
 
-/**
- * RDF parsing error (invalid Turtle/RDF-XML syntax)
- *
- * @since 0.1.0
- * @category errors
- */
 export class OntologyParseError extends S.TaggedError<OntologyParseError>($I`OntologyParseError`)(
   "OntologyParseError",
   {
-    ontologyId: S.optional(S.String),
+    ontologyId: S.optional(KnowledgeEntityIds.OntologyId),
     format: S.optional(S.String),
     line: S.optional(S.Number),
     message: S.String,
@@ -31,16 +18,10 @@ export class OntologyParseError extends S.TaggedError<OntologyParseError>($I`Ont
   })
 ) {}
 
-/**
- * Ontology not found error
- *
- * @since 0.1.0
- * @category errors
- */
 export class OntologyNotFoundError extends S.TaggedError<OntologyNotFoundError>($I`OntologyNotFoundError`)(
   "OntologyNotFoundError",
   {
-    ontologyId: S.String,
+    ontologyId: KnowledgeEntityIds.OntologyId,
     namespace: S.optional(S.String),
     message: S.String,
   },
@@ -49,16 +30,10 @@ export class OntologyNotFoundError extends S.TaggedError<OntologyNotFoundError>(
   })
 ) {}
 
-/**
- * Ontology validation error (semantic issues)
- *
- * @since 0.1.0
- * @category errors
- */
 export class OntologyValidationError extends S.TaggedError<OntologyValidationError>($I`OntologyValidationError`)(
   "OntologyValidationError",
   {
-    ontologyId: S.optional(S.String),
+    ontologyId: S.optional(KnowledgeEntityIds.OntologyId),
     constraint: S.String,
     reason: S.String,
     message: S.String,
@@ -68,16 +43,10 @@ export class OntologyValidationError extends S.TaggedError<OntologyValidationErr
   })
 ) {}
 
-/**
- * Ontology import resolution error
- *
- * @since 0.1.0
- * @category errors
- */
 export class OntologyImportError extends S.TaggedError<OntologyImportError>($I`OntologyImportError`)(
   "OntologyImportError",
   {
-    ontologyId: S.optional(S.String),
+    ontologyId: S.optional(KnowledgeEntityIds.OntologyId),
     importUri: S.String,
     message: S.String,
     cause: S.optional(S.String),
@@ -87,16 +56,10 @@ export class OntologyImportError extends S.TaggedError<OntologyImportError>($I`O
   })
 ) {}
 
-/**
- * Ontology storage error
- *
- * @since 0.1.0
- * @category errors
- */
 export class OntologyStorageError extends S.TaggedError<OntologyStorageError>($I`OntologyStorageError`)(
   "OntologyStorageError",
   {
-    ontologyId: S.optional(S.String),
+    ontologyId: S.optional(KnowledgeEntityIds.OntologyId),
     operation: S.String,
     message: S.String,
     cause: S.optional(S.String),
@@ -106,16 +69,10 @@ export class OntologyStorageError extends S.TaggedError<OntologyStorageError>($I
   })
 ) {}
 
-/**
- * Generic ontology error (fallback)
- *
- * @since 0.1.0
- * @category errors
- */
 export class OntologyGenericError extends S.TaggedError<OntologyGenericError>($I`OntologyGenericError`)(
   "OntologyGenericError",
   {
-    ontologyId: S.optional(S.String),
+    ontologyId: S.optional(KnowledgeEntityIds.OntologyId),
     message: S.String,
     cause: S.optional(S.String),
   },
@@ -124,12 +81,6 @@ export class OntologyGenericError extends S.TaggedError<OntologyGenericError>($I
   })
 ) {}
 
-/**
- * Union of all ontology error types
- *
- * @since 0.1.0
- * @category errors
- */
 export class OntologyError extends S.Union(
   OntologyParseError,
   OntologyNotFoundError,
@@ -146,4 +97,15 @@ export class OntologyError extends S.Union(
 export declare namespace OntologyError {
   export type Type = typeof OntologyError.Type;
   export type Encoded = typeof OntologyError.Encoded;
+}
+
+export class OntologyMutationError extends S.Union(OntologyParseError, OntologyValidationError).annotations(
+  $I.annotations("OntologyMutationError", {
+    description: "Errors that can occur during ontology create/update operations",
+  })
+) {}
+
+export declare namespace OntologyMutationError {
+  export type Type = typeof OntologyMutationError.Type;
+  export type Encoded = typeof OntologyMutationError.Encoded;
 }

@@ -1,14 +1,3 @@
-/**
- * Forward-Chaining Inference Engine
- *
- * Implements a forward-chaining algorithm for RDFS reasoning.
- * Repeatedly applies entailment rules until no new inferences are generated
- * (fixed-point) or limits are reached.
- *
- * @module knowledge-server/Reasoning/ForwardChainer
- * @since 0.1.0
- */
-
 import { MaxDepthExceededError, MaxInferencesExceededError } from "@beep/knowledge-domain/errors";
 import {
   InferenceProvenance,
@@ -27,9 +16,6 @@ import * as O from "effect/Option";
 import * as R from "effect/Record";
 import { quadId, type RuleInference, rdfsRules } from "./RdfsRules";
 
-/**
- * Internal state for forward-chaining iteration
- */
 interface ChainState {
   readonly knownQuadIds: MutableHashSet.MutableHashSet<string>;
   readonly allQuads: Quad[];
@@ -39,14 +25,10 @@ interface ChainState {
   readonly iterations: number;
 }
 
-/**
- * Initialize chain state from input quads
- */
 const initializeState = (initialQuads: ReadonlyArray<Quad>): ChainState => {
   const knownQuadIds = MutableHashSet.empty<string>();
   const allQuads = A.empty<Quad>();
 
-  // Deduplicate initial quads using functional filter
   const uniqueQuads = pipe(
     initialQuads,
     A.filterMap((quad) => {
@@ -59,10 +41,9 @@ const initializeState = (initialQuads: ReadonlyArray<Quad>): ChainState => {
     })
   );
 
-  // Add unique quads to working set
-  for (const quad of uniqueQuads) {
+  A.forEach(uniqueQuads, (quad) => {
     allQuads.push(quad);
-  }
+  });
 
   return {
     knownQuadIds,
@@ -74,9 +55,6 @@ const initializeState = (initialQuads: ReadonlyArray<Quad>): ChainState => {
   };
 };
 
-/**
- * Collect all new inferences from applying rules to current knowledge base
- */
 const collectNewInferences = (state: ChainState): ReadonlyArray<RuleInference> =>
   pipe(
     rdfsRules,
@@ -87,14 +65,7 @@ const collectNewInferences = (state: ChainState): ReadonlyArray<RuleInference> =
     })
   );
 
-/**
- * Apply inferences to state, recording provenance
- *
- * Deduplicates within the batch to handle same-iteration duplicates
- * from different rules generating the same quad.
- */
 const applyInferences = (state: ChainState, inferences: ReadonlyArray<RuleInference>): number => {
-  // Filter to unique inferences not already known, deduplicating within batch
   const uniqueInferences = pipe(
     inferences,
     A.filterMap((inference) => {
@@ -102,13 +73,11 @@ const applyInferences = (state: ChainState, inferences: ReadonlyArray<RuleInfere
       if (MutableHashSet.has(state.knownQuadIds, id)) {
         return O.none();
       }
-      // Mark as known immediately to dedupe within this batch
       MutableHashSet.add(state.knownQuadIds, id);
       return O.some({ inference, id });
     })
   );
 
-  // Apply all unique inferences
   pipe(
     uniqueInferences,
     A.forEach(({ inference, id }) => {
@@ -128,11 +97,6 @@ const applyInferences = (state: ChainState, inferences: ReadonlyArray<RuleInfere
   return A.length(uniqueInferences);
 };
 
-/**
- * Check if rules would still generate new inferences
- *
- * Used to determine if we've hit depth limit mid-inference vs at natural fixed-point.
- */
 const wouldGenerateMore = (state: ChainState): boolean =>
   pipe(
     rdfsRules,
@@ -140,35 +104,16 @@ const wouldGenerateMore = (state: ChainState): boolean =>
     A.some((inference) => !MutableHashSet.has(state.knownQuadIds, quadId(inference.quad)))
   );
 
-/**
- * Convert mutable provenance map to immutable Record
- */
 const finalizeProvenance = (
   provenance: MutableHashMap.MutableHashMap<string, InferenceProvenance>
 ): Record<string, InferenceProvenance> => {
-  const result = R.empty<string, InferenceProvenance>();
+  const entries: Array<[string, InferenceProvenance]> = [];
   MutableHashMap.forEach(provenance, (value, key) => {
-    result[key] = value;
+    entries.push([key, value]);
   });
-  return result;
+  return R.fromEntries(entries);
 };
 
-/**
- * Execute forward-chaining inference on a set of quads
- *
- * Implements a fixed-point algorithm that repeatedly applies RDFS entailment
- * rules until either:
- * - No new inferences are generated (convergence)
- * - Maximum depth limit is reached
- * - Maximum inference count limit is reached
- *
- * @param initialQuads - The base quads to reason over
- * @param config - Reasoning configuration (depth limit, inference limit)
- * @returns InferenceResult with derived quads and provenance
- *
- * @since 0.1.0
- * @category reasoning
- */
 export const forwardChain = (
   initialQuads: ReadonlyArray<Quad>,
   config: ReasoningConfig
@@ -180,21 +125,17 @@ export const forwardChain = (
     let iterations = 0;
     let totalInferences = 0;
 
-    // Fixed-point iteration
     while (iterations < config.maxDepth) {
       iterations++;
 
       const newInferences = collectNewInferences(state);
 
-      // If no new inferences, we've reached fixed-point
       if (A.isEmptyReadonlyArray(newInferences)) {
         break;
       }
 
-      // Apply inferences (deduplicates within batch)
       const addedCount = applyInferences(state, newInferences);
 
-      // Check inference limit after adding
       totalInferences += addedCount;
       if (totalInferences > config.maxInferences) {
         return yield* new MaxInferencesExceededError({
@@ -205,7 +146,6 @@ export const forwardChain = (
       }
     }
 
-    // Check if we hit depth limit without reaching fixed-point
     if (iterations >= config.maxDepth && wouldGenerateMore(state)) {
       return yield* new MaxDepthExceededError({
         message: `Exceeded maximum reasoning depth: ${config.maxDepth}`,

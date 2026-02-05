@@ -1,12 +1,3 @@
-/**
- * Serializer Service
- *
- * Effect.Service for parsing and serializing RDF content in various formats.
- * Wraps N3.js Parser and Writer with Effect-based error handling.
- *
- * @module knowledge-server/Rdf/Serializer
- * @since 0.1.0
- */
 import { $KnowledgeServerId } from "@beep/identity/packages";
 import { SerializerError } from "@beep/knowledge-domain/errors";
 import {
@@ -21,40 +12,28 @@ import {
   type Term,
 } from "@beep/knowledge-domain/value-objects";
 import * as A from "effect/Array";
+import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Either from "effect/Either";
+import * as Layer from "effect/Layer";
 import * as Match from "effect/Match";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import * as N3 from "n3";
-import { RdfStore } from "./RdfStoreService";
+import { RdfStore, RdfStoreLive } from "./RdfStoreService";
 
 const $I = $KnowledgeServerId.create("Rdf/Serializer");
 
-/**
- * XSD namespace for literal datatype IRIs
- */
 const XSD_STRING = "http://www.w3.org/2001/XMLSchema#string";
 const RDF_LANG_STRING = "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString";
 
-/**
- * Convert a domain IRI to N3 NamedNode
- */
 const iriToN3 = (iri: IRI.Type): N3.NamedNode => N3.DataFactory.namedNode(iri);
 
-/**
- * Convert a domain BlankNode to N3 BlankNode
- * Domain BlankNode includes "_:" prefix, N3 expects just the identifier
- */
 const blankNodeToN3 = (bnode: BlankNode.Type): N3.BlankNode => {
   const id = Str.slice(2)(bnode);
   return N3.DataFactory.blankNode(id);
 };
 
-/**
- * Convert a domain Literal to N3 Literal
- * Handles language tags and datatype IRIs according to RDF spec
- */
 const literalToN3 = (literal: Literal): N3.Literal => {
   if (literal.language !== undefined) {
     return N3.DataFactory.literal(literal.value, literal.language);
@@ -67,24 +46,15 @@ const literalToN3 = (literal: Literal): N3.Literal => {
   return N3.DataFactory.literal(literal.value);
 };
 
-/**
- * Convert a domain Subject (IRI | BlankNode) to N3 Subject
- */
 const subjectToN3 = (subject: Quad["subject"]): N3.Quad_Subject => {
   if (S.is(BlankNode)(subject)) {
     return blankNodeToN3(subject);
   }
-  return iriToN3(subject as IRI.Type);
+  return iriToN3(IRI.make(subject));
 };
 
-/**
- * Convert a domain Predicate (IRI) to N3 Predicate
- */
 const predicateToN3 = (predicate: Quad["predicate"]): N3.Quad_Predicate => iriToN3(predicate);
 
-/**
- * Convert a domain Term (IRI | BlankNode | Literal) to N3 Term
- */
 const termToN3 = (term: Term.Type): N3.Quad_Object => {
   if (S.is(BlankNode)(term)) {
     return blankNodeToN3(term);
@@ -95,9 +65,6 @@ const termToN3 = (term: Term.Type): N3.Quad_Object => {
   return literalToN3(Literal.make(term));
 };
 
-/**
- * Convert a domain Graph (optional IRI) to N3 Graph
- */
 const graphToN3 = (graph: Quad["graph"]): N3.Quad_Graph => {
   if (graph !== undefined) {
     return iriToN3(graph);
@@ -105,9 +72,6 @@ const graphToN3 = (graph: Quad["graph"]): N3.Quad_Graph => {
   return N3.DataFactory.defaultGraph();
 };
 
-/**
- * Convert a domain Quad to N3 Quad
- */
 const quadToN3 = (quad: Quad): N3.Quad =>
   N3.DataFactory.quad(
     subjectToN3(quad.subject),
@@ -116,26 +80,17 @@ const quadToN3 = (quad: Quad): N3.Quad =>
     graphToN3(quad.graph)
   );
 
-/**
- * RDF/JS Term interface (common interface for all term types)
- */
 interface RdfJsTerm {
   readonly termType: string;
   readonly value: string;
 }
 
-/**
- * RDF/JS Literal term interface
- */
 interface RdfJsLiteral extends RdfJsTerm {
   readonly termType: "Literal";
   readonly language: string;
   readonly datatype: RdfJsTerm;
 }
 
-/**
- * RDF/JS Quad interface
- */
 interface RdfJsQuad {
   readonly subject: RdfJsTerm;
   readonly predicate: RdfJsTerm;
@@ -143,9 +98,6 @@ interface RdfJsQuad {
   readonly graph: RdfJsTerm;
 }
 
-/**
- * Convert an RDF/JS Subject term to domain Subject (IRI | BlankNode)
- */
 const rdfJsSubjectToDomain = (term: RdfJsTerm): Quad["subject"] => {
   if (term.termType === "BlankNode") {
     return makeBlankNode(`_:${term.value}`);
@@ -153,55 +105,41 @@ const rdfJsSubjectToDomain = (term: RdfJsTerm): Quad["subject"] => {
   return IRI.make(term.value);
 };
 
-/**
- * Convert an RDF/JS Predicate term to domain Predicate (IRI)
- */
 const rdfJsPredicateToDomain = (term: RdfJsTerm): Quad["predicate"] => IRI.make(term.value);
 
-/**
- * Convert an RDF/JS Object term to domain Term (IRI | BlankNode | Literal)
- */
-const rdfJsObjectToDomain = (term: RdfJsTerm): Term.Type => {
-  if (term.termType === "NamedNode") {
-    return IRI.make(term.value);
-  }
+const rdfJsObjectToDomain = (term: RdfJsTerm): Term.Type =>
+  Match.value(term.termType).pipe(
+    Match.when("NamedNode", () => IRI.make(term.value)),
+    Match.when("BlankNode", () => BlankNode.make(`_:${term.value}`)),
+    Match.when("Literal", () => {
+      const lit = term as RdfJsLiteral;
+      const datatype = lit.datatype?.value;
+      const language = lit.language;
 
-  if (term.termType === "BlankNode") {
-    return BlankNode.make(`_:${term.value}`);
-  }
+      if (language && Str.length(language) > 0) {
+        return new Literal({
+          value: lit.value,
+          language,
+        });
+      }
 
-  if (term.termType === "Literal") {
-    const lit = term as RdfJsLiteral;
-    const datatype = lit.datatype?.value;
-    const language = lit.language;
+      if (datatype && datatype !== XSD_STRING && datatype !== RDF_LANG_STRING) {
+        return new Literal({
+          value: lit.value,
+          datatype: IRI.make(datatype),
+        });
+      }
 
-    if (language && Str.length(language) > 0) {
-      return new Literal({
-        value: lit.value,
-        language,
+      return new Literal({ value: lit.value });
+    }),
+    Match.orElse(() => {
+      throw new SerializerError({
+        operation: "rdfJsObjectToDomain",
+        message: `Unexpected term type in object position: ${term.termType}`,
       });
-    }
+    })
+  );
 
-    if (datatype && datatype !== XSD_STRING && datatype !== RDF_LANG_STRING) {
-      return new Literal({
-        value: lit.value,
-        datatype: IRI.make(datatype),
-      });
-    }
-
-    return new Literal({ value: lit.value });
-  }
-
-  // Defect: unexpected term type - fail with SerializerError
-  throw new SerializerError({
-    operation: "rdfJsObjectToDomain",
-    message: `Unexpected term type in object position: ${term.termType}`,
-  });
-};
-
-/**
- * Convert an RDF/JS Graph term to domain Graph (optional IRI)
- */
 const rdfJsGraphToDomain = (term: RdfJsTerm): Quad["graph"] => {
   if (term.termType === "DefaultGraph" || term.value === "") {
     return undefined;
@@ -209,9 +147,6 @@ const rdfJsGraphToDomain = (term: RdfJsTerm): Quad["graph"] => {
   return IRI.make(term.value);
 };
 
-/**
- * Convert an RDF/JS Quad to domain Quad
- */
 const rdfJsQuadToDomain = (quad: RdfJsQuad): Quad =>
   new Quad({
     subject: rdfJsSubjectToDomain(quad.subject),
@@ -220,9 +155,6 @@ const rdfJsQuadToDomain = (quad: RdfJsQuad): Quad =>
     graph: rdfJsGraphToDomain(quad.graph),
   });
 
-/**
- * Get N3.js format string from RdfFormat
- */
 const getN3Format = (format: RdfFormat.Type): string =>
   Match.value(format).pipe(
     Match.when("Turtle", () => "text/turtle"),
@@ -231,9 +163,6 @@ const getN3Format = (format: RdfFormat.Type): string =>
     Match.exhaustive
   );
 
-/**
- * Parse Turtle content into domain quads (pure parsing, no store interaction)
- */
 const parseTurtleToQuads = (content: string, graph?: IRI.Type): Effect.Effect<ReadonlyArray<Quad>, SerializerError> =>
   Effect.async<ReadonlyArray<Quad>, SerializerError>((resume) => {
     const parser = new N3.Parser();
@@ -256,15 +185,14 @@ const parseTurtleToQuads = (content: string, graph?: IRI.Type): Effect.Effect<Re
           )
         );
       } else if (quad) {
-        // Convert N3 quad to domain Quad using Either.try
         const conversionResult = Either.try({
           try: () => rdfJsQuadToDomain(quad as RdfJsQuad),
-          catch: (error) =>
+          catch: (convError) =>
             new SerializerError({
               operation: "parseTurtle",
               format: "text/turtle",
-              message: `Failed to convert quad: ${String(error)}`,
-              cause: String(error),
+              message: `Failed to convert quad: ${String(convError)}`,
+              cause: String(convError),
             }),
         });
 
@@ -273,7 +201,6 @@ const parseTurtleToQuads = (content: string, graph?: IRI.Type): Effect.Effect<Re
           resume(Effect.fail(conversionResult.left));
         } else {
           const domainQuad = conversionResult.right;
-          // Override graph if specified
           if (graph !== undefined) {
             quads.push(
               new Quad({
@@ -288,15 +215,11 @@ const parseTurtleToQuads = (content: string, graph?: IRI.Type): Effect.Effect<Re
           }
         }
       } else {
-        // Parsing complete
         resume(Effect.succeed(quads as ReadonlyArray<Quad>));
       }
     });
   });
 
-/**
- * Serialize quads to RDF string (pure serialization)
- */
 const serializeQuadsToString = (
   quads: ReadonlyArray<Quad>,
   format: RdfFormat.Type
@@ -305,12 +228,10 @@ const serializeQuadsToString = (
     const n3Format = getN3Format(format);
     const writer = new N3.Writer({ format: n3Format });
 
-    // Add all quads to writer
-    for (const quad of quads) {
+    A.forEach(quads, (quad) => {
       writer.addQuad(quadToN3(quad));
-    }
+    });
 
-    // End and get result
     writer.end((error, result) => {
       if (error) {
         resume(
@@ -329,105 +250,88 @@ const serializeQuadsToString = (
     });
   });
 
-/**
- * Serializer Effect.Service
- *
- * Provides parsing and serialization capabilities for RDF content.
- * Uses N3.js for Turtle and N-Triples format support.
- *
- * @since 0.1.0
- * @category services
- *
- * @example
- * ```ts
- * import { Serializer, RdfStore } from "@beep/knowledge-server/Rdf";
- *
- * const program = Effect.gen(function* () {
- *   const serializer = yield* Serializer;
- *
- *   // Parse Turtle content into store
- *   const count = yield* serializer.parseTurtle(`
- *     @prefix ex: <http://example.org/> .
- *     ex:alice ex:knows ex:bob .
- *   `);
- *
- *   // Serialize store contents to N-Triples
- *   const ntriples = yield* serializer.serialize("NTriples");
- * });
- * ```
- */
-export class Serializer extends Effect.Service<Serializer>()($I`Serializer`, {
-  accessors: true,
-  effect: Effect.gen(function* () {
-    const store = yield* RdfStore;
+export interface SerializerShape {
+  readonly parseTurtle: (content: string, graph?: IRI.Type) => Effect.Effect<number, SerializerError>;
+  readonly parseOnly: (content: string, graph?: IRI.Type) => Effect.Effect<ReadonlyArray<Quad>, SerializerError>;
+  readonly serialize: (format: RdfFormat.Type, graph?: undefined | IRI.Type) => Effect.Effect<string, SerializerError>;
+  readonly serializeQuads: (
+    quads: ReadonlyArray<Quad>,
+    format: RdfFormat.Type
+  ) => Effect.Effect<string, SerializerError>;
+}
 
-    const parseTurtle = Effect.fn("Serializer.parseTurtle")((content: string, graph?: IRI.Type) =>
-      Effect.gen(function* () {
-        const quads = yield* parseTurtleToQuads(content, graph);
-        yield* store.addQuads(quads);
-        return A.length(quads);
-      }).pipe(
-        Effect.withSpan("Serializer.parseTurtle", {
-          attributes: { contentLength: Str.length(content), graph: graph ?? "default" },
-        })
-      )
-    );
+export class Serializer extends Context.Tag($I`Serializer`)<Serializer, SerializerShape>() {}
 
-    const parseOnly = Effect.fn("Serializer.parseOnly")((content: string, graph?: IRI.Type) =>
-      parseTurtleToQuads(content, graph).pipe(
-        Effect.withSpan("Serializer.parseOnly", {
-          attributes: { contentLength: Str.length(content), graph: graph ?? "default" },
-        })
-      )
-    );
+const serviceEffect: Effect.Effect<SerializerShape, never, RdfStore> = Effect.gen(function* () {
+  const store = yield* RdfStore;
 
-    const serialize = Effect.fn("Serializer.serialize")((format: RdfFormat.Type, graph?: undefined | IRI.Type) =>
-      Effect.gen(function* () {
-        if (format === "JSONLD") {
-          return yield* new SerializerError({
-            operation: "serialize",
-            format: RdfFormatMimeType.DecodedEnum[format],
-            message: "JSON-LD serialization is not supported. Use Turtle or N-Triples instead.",
-          });
-        }
+  const parseTurtle = Effect.fn("Serializer.parseTurtle")((content: string, graph?: IRI.Type) =>
+    Effect.gen(function* () {
+      const quads = yield* parseTurtleToQuads(content, graph);
+      yield* store.addQuads(quads);
+      return A.length(quads);
+    }).pipe(
+      Effect.withSpan("Serializer.parseTurtle", {
+        attributes: { contentLength: Str.length(content), graph: graph ?? "default" },
+      })
+    )
+  );
 
-        const pattern = new QuadPattern({
-          graph,
+  const parseOnly = Effect.fn("Serializer.parseOnly")((content: string, graph?: IRI.Type) =>
+    parseTurtleToQuads(content, graph).pipe(
+      Effect.withSpan("Serializer.parseOnly", {
+        attributes: { contentLength: Str.length(content), graph: graph ?? "default" },
+      })
+    )
+  );
+
+  const serialize = Effect.fn("Serializer.serialize")((format: RdfFormat.Type, graph?: undefined | IRI.Type) =>
+    Effect.gen(function* () {
+      if (format === "JSONLD") {
+        return yield* new SerializerError({
+          operation: "serialize",
+          format: RdfFormatMimeType.DecodedEnum[format],
+          message: "JSON-LD serialization is not supported. Use Turtle or N-Triples instead.",
         });
-        const quads = yield* store.match(pattern);
+      }
 
-        return yield* serializeQuadsToString(quads, format);
-      }).pipe(
-        Effect.withSpan("Serializer.serialize", {
-          attributes: { format, graph: graph ?? "all" },
-        })
-      )
-    );
+      const pattern = new QuadPattern({
+        graph,
+      });
+      const quads = yield* store.match(pattern);
 
-    const serializeQuads = Effect.fn("Serializer.serializeQuads")(
-      (quads: ReadonlyArray<Quad>, format: RdfFormat.Type) =>
-        Effect.gen(function* () {
-          if (format === "JSONLD") {
-            return yield* new SerializerError({
-              operation: "serializeQuads",
-              format: RdfFormatMimeType.DecodedEnum[format],
-              message: "JSON-LD serialization is not supported. Use Turtle or N-Triples instead.",
-            });
-          }
+      return yield* serializeQuadsToString(quads, format);
+    }).pipe(
+      Effect.withSpan("Serializer.serialize", {
+        attributes: { format, graph: graph ?? "all" },
+      })
+    )
+  );
 
-          return yield* serializeQuadsToString(quads, format);
-        }).pipe(
-          Effect.withSpan("Serializer.serializeQuads", {
-            attributes: { format, quadCount: A.length(quads) },
-          })
-        )
-    );
+  const serializeQuads = Effect.fn("Serializer.serializeQuads")((quads: ReadonlyArray<Quad>, format: RdfFormat.Type) =>
+    Effect.gen(function* () {
+      if (format === "JSONLD") {
+        return yield* new SerializerError({
+          operation: "serializeQuads",
+          format: RdfFormatMimeType.DecodedEnum[format],
+          message: "JSON-LD serialization is not supported. Use Turtle or N-Triples instead.",
+        });
+      }
 
-    return {
-      parseTurtle,
-      parseOnly,
-      serialize,
-      serializeQuads,
-    };
-  }),
-}) {}
+      return yield* serializeQuadsToString(quads, format);
+    }).pipe(
+      Effect.withSpan("Serializer.serializeQuads", {
+        attributes: { format, quadCount: A.length(quads) },
+      })
+    )
+  );
+
+  return Serializer.of({
+    parseTurtle,
+    parseOnly,
+    serialize,
+    serializeQuads,
+  });
+});
+
+export const SerializerLive = Layer.effect(Serializer, serviceEffect).pipe(Layer.provide(RdfStoreLive));

@@ -1,15 +1,12 @@
-/**
- * RelationExtractor - Triple extraction service
- *
- * Stage 4 of the extraction pipeline: Extract relations between entities.
- *
- * @module knowledge-server/Extraction/RelationExtractor
- * @since 0.1.0
- */
 import { $KnowledgeServerId } from "@beep/identity/packages";
 import { LanguageModel, Prompt } from "@effect/ai";
+import type * as AiError from "@effect/ai/AiError";
+import type * as HttpServerError from "@effect/platform/HttpServerError";
 import * as A from "effect/Array";
+import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
+import * as F from "effect/Function";
+import * as Layer from "effect/Layer";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as O from "effect/Option";
 import * as Str from "effect/String";
@@ -21,108 +18,58 @@ import { ExtractedTriple, RelationOutput } from "./schemas/relation-output.schem
 
 const $I = $KnowledgeServerId.create("knowledge-server/Extraction/RelationExtractor");
 
-/**
- * Configuration for relation extraction
- *
- * @since 0.1.0
- * @category schemas
- */
 export interface RelationExtractionConfig {
-  /**
-   * Minimum confidence threshold for relations
-   */
   readonly minConfidence?: undefined | number;
-
-  /**
-   * Whether to validate predicate IRIs against ontology
-   */
   readonly validatePredicates?: undefined | boolean;
 }
 
-/**
- * Result of relation extraction
- *
- * @since 0.1.0
- * @category schemas
- */
 export interface RelationExtractionResult {
-  /**
-   * Extracted triples with valid predicates
-   */
   readonly triples: readonly ExtractedTriple[];
-
-  /**
-   * Triples with invalid predicates (not in ontology)
-   */
   readonly invalidTriples: readonly ExtractedTriple[];
-
-  /**
-   * Total tokens used
-   */
   readonly tokensUsed: number;
 }
 
-/**
- * RelationExtractor Service
- *
- * Extracts subject-predicate-object triples from text using ontology properties.
- *
- * @example
- * ```ts
- * import { RelationExtractor } from "@beep/knowledge-server/Extraction";
- * import { OntologyService } from "@beep/knowledge-server/Ontology";
- * import * as Effect from "effect/Effect";
- *
- * const program = Effect.gen(function* () {
- *   const ontology = yield* OntologyService;
- *   const extractor = yield* RelationExtractor;
- *
- *   const ontologyContext = yield* ontology.load("my-ontology", turtleContent);
- *   const result = yield* extractor.extract(entities, textChunk, ontologyContext);
- *
- *   console.log(`Extracted ${result.triples.length} relations`);
- * });
- * ```
- *
- * @since 0.1.0
- * @category services
- */
-export class RelationExtractor extends Effect.Service<RelationExtractor>()($I`RelationExtractor`, {
-  accessors: true,
-  effect: Effect.gen(function* () {
+export interface RelationExtractorShape {
+  readonly extract: (
+    entities: readonly ClassifiedEntity[],
+    chunk: TextChunk,
+    ontologyContext: OntologyContext,
+    config?: RelationExtractionConfig
+  ) => Effect.Effect<RelationExtractionResult, AiError.AiError | HttpServerError.RequestError>;
+  readonly extractFromChunks: (
+    entitiesByChunk: MutableHashMap.MutableHashMap<number, readonly ClassifiedEntity[]>,
+    chunks: readonly TextChunk[],
+    ontologyContext: OntologyContext,
+    config?: RelationExtractionConfig
+  ) => Effect.Effect<RelationExtractionResult, AiError.AiError | HttpServerError.RequestError>;
+  readonly deduplicateRelations: (
+    triples: readonly ExtractedTriple[]
+  ) => Effect.Effect<readonly ExtractedTriple[], never>;
+}
+
+export class RelationExtractor extends Context.Tag($I`RelationExtractor`)<
+  RelationExtractor,
+  RelationExtractorShape
+>() {}
+
+const serviceEffect: Effect.Effect<RelationExtractorShape, never, LanguageModel.LanguageModel> = Effect.gen(
+  function* () {
     const model = yield* LanguageModel.LanguageModel;
 
-    /**
-     * Validate predicate IRIs against ontology
-     */
-    const validatePredicates = (
+    const partitionByPredicateValidity = (
       triples: readonly ExtractedTriple[],
       ontologyContext: OntologyContext
-    ): { valid: ExtractedTriple[]; invalid: ExtractedTriple[] } => {
-      const valid = A.empty<ExtractedTriple>();
-      const invalid = A.empty<ExtractedTriple>();
-
-      for (const triple of triples) {
-        const propertyExists = O.isSome(ontologyContext.findProperty(triple.predicateIri));
-
-        if (propertyExists) {
-          valid.push(triple);
-        } else {
-          invalid.push(triple);
-        }
-      }
-
+    ): { readonly valid: readonly ExtractedTriple[]; readonly invalid: readonly ExtractedTriple[] } => {
+      const [invalid, valid] = A.partition(triples, (triple) =>
+        O.isSome(ontologyContext.findProperty(triple.predicateIri))
+      );
       return { valid, invalid };
     };
 
-    /**
-     * Adjust evidence offsets to document level
-     */
     const adjustOffsets = (triple: ExtractedTriple, chunkOffset: number): ExtractedTriple => {
       if (triple.evidenceStartChar === undefined || triple.evidenceEndChar === undefined) {
         return triple;
       }
-
       return new ExtractedTriple({
         ...triple,
         evidenceStartChar: triple.evidenceStartChar + chunkOffset,
@@ -130,187 +77,151 @@ export class RelationExtractor extends Effect.Service<RelationExtractor>()($I`Re
       });
     };
 
-    return {
-      /**
-       * Extract relations from a text chunk given classified entities
-       *
-       * @param entities - Classified entities in this chunk
-       * @param chunk - Text chunk to process
-       * @param ontologyContext - Loaded ontology with property definitions
-       * @param config - Extraction configuration
-       * @returns Extraction result
-       */
-      extract: Effect.fnUntraced(function* (
-        entities: readonly ClassifiedEntity[],
-        chunk: TextChunk,
-        ontologyContext: OntologyContext,
-        config: RelationExtractionConfig = {}
-      ) {
-        const minConfidence = config.minConfidence ?? 0.5;
-        const shouldValidate = config.validatePredicates ?? true;
+    const tripleDeduplicationKey = (triple: ExtractedTriple): string => {
+      const objectPart = triple.objectMention ?? triple.literalValue ?? "";
+      return Str.toLowerCase([triple.subjectMention, triple.predicateIri, objectPart].join("|"));
+    };
 
-        if (entities.length < 1) {
-          yield* Effect.logDebug("Skipping relation extraction - insufficient entities", {
-            entityCount: entities.length,
-          });
+    const extract = Effect.fnUntraced(function* (
+      entities: readonly ClassifiedEntity[],
+      chunk: TextChunk,
+      ontologyContext: OntologyContext,
+      config: RelationExtractionConfig = {}
+    ) {
+      const minConfidence = config.minConfidence ?? 0.5;
+      const shouldValidate = config.validatePredicates ?? true;
 
-          return {
-            triples: A.empty<ExtractedTriple>(),
-            invalidTriples: A.empty<ExtractedTriple>(),
-            tokensUsed: 0,
-          };
-        }
-
-        yield* Effect.logDebug("Extracting relations", {
-          entityCount: entities.length,
-          chunkIndex: chunk.index,
-          propertyCount: ontologyContext.properties.length,
+      if (A.isEmptyReadonlyArray(entities)) {
+        yield* Effect.logDebug("Skipping relation extraction - insufficient entities", {
+          entityCount: A.length(entities),
         });
+
+        return {
+          triples: A.empty<ExtractedTriple>(),
+          invalidTriples: A.empty<ExtractedTriple>(),
+          tokensUsed: 0,
+        };
+      }
+
+      yield* Effect.logDebug("Extracting relations", {
+        entityCount: A.length(entities),
+        chunkIndex: chunk.index,
+        propertyCount: A.length(ontologyContext.properties),
+      });
+
+      const prompt = Prompt.make([
+        { role: "system" as const, content: buildSystemPrompt() },
+        { role: "user" as const, content: buildRelationPrompt([...entities], chunk.text, ontologyContext) },
+      ]);
+
+      const result = yield* model.generateObject({
+        prompt,
+        schema: RelationOutput,
+        objectName: "RelationOutput",
+      });
+
+      const tokensUsed = (result.usage.inputTokens ?? 0) + (result.usage.outputTokens ?? 0);
+
+      const offsetAdjusted = F.pipe(
+        result.value.triples,
+        A.filter((t) => t.confidence >= minConfidence),
+        A.map((t) => adjustOffsets(t, chunk.startOffset))
+      );
+
+      const { valid, invalid } = shouldValidate
+        ? partitionByPredicateValidity(offsetAdjusted, ontologyContext)
+        : { valid: offsetAdjusted, invalid: A.empty<ExtractedTriple>() };
+
+      yield* Effect.logDebug("Relation extraction complete", {
+        validTriples: A.length(valid),
+        invalidTriples: A.length(invalid),
+        tokensUsed,
+      });
+
+      return { triples: valid, invalidTriples: invalid, tokensUsed };
+    });
+
+    const extractFromChunks = Effect.fnUntraced(function* (
+      entitiesByChunk: MutableHashMap.MutableHashMap<number, readonly ClassifiedEntity[]>,
+      chunks: readonly TextChunk[],
+      ontologyContext: OntologyContext,
+      config: RelationExtractionConfig = {}
+    ) {
+      const allTriples = A.empty<ExtractedTriple>();
+      const allInvalid = A.empty<ExtractedTriple>();
+      let totalTokens = 0;
+
+      const minConfidence = config.minConfidence ?? 0.5;
+      const shouldValidate = config.validatePredicates ?? true;
+
+      for (const chunk of chunks) {
+        const entities = F.pipe(
+          MutableHashMap.get(entitiesByChunk, chunk.index),
+          O.getOrElse(() => A.empty<ClassifiedEntity>())
+        );
+
+        if (A.isEmptyReadonlyArray(entities)) continue;
 
         const prompt = Prompt.make([
           { role: "system" as const, content: buildSystemPrompt() },
           { role: "user" as const, content: buildRelationPrompt([...entities], chunk.text, ontologyContext) },
         ]);
 
-        const result = yield* model.generateObject({
+        const aiResult = yield* model.generateObject({
           prompt,
           schema: RelationOutput,
           objectName: "RelationOutput",
         });
 
-        const tokensUsed = (result.usage.inputTokens ?? 0) + (result.usage.outputTokens ?? 0);
-
-        // Filter by confidence and adjust offsets
-        const confidenceFiltered = A.filter(result.value.triples, (t) => t.confidence >= minConfidence);
-
-        const offsetAdjusted = A.map(confidenceFiltered, (t) => adjustOffsets(t, chunk.startOffset));
-
-        // Validate predicates if enabled
-        let valid = A.empty<ExtractedTriple>();
-        let invalid = A.empty<ExtractedTriple>();
+        const offsetAdjusted = F.pipe(
+          aiResult.value.triples,
+          A.filter((t) => t.confidence >= minConfidence),
+          A.map((t) => adjustOffsets(t, chunk.startOffset))
+        );
 
         if (shouldValidate) {
-          const validation = validatePredicates(offsetAdjusted, ontologyContext);
-          valid = validation.valid;
-          invalid = validation.invalid;
+          const { valid, invalid } = partitionByPredicateValidity(offsetAdjusted, ontologyContext);
+          allTriples.push(...valid);
+          allInvalid.push(...invalid);
         } else {
-          valid = [...offsetAdjusted];
-          invalid = [];
+          allTriples.push(...offsetAdjusted);
         }
 
-        yield* Effect.logDebug("Relation extraction complete", {
-          validTriples: valid.length,
-          invalidTriples: invalid.length,
-          tokensUsed,
+        totalTokens += (aiResult.usage.inputTokens ?? 0) + (aiResult.usage.outputTokens ?? 0);
+      }
+
+      yield* Effect.logInfo("Relation extraction from chunks complete", {
+        chunkCount: A.length(chunks),
+        totalTriples: A.length(allTriples),
+        invalidTriples: A.length(allInvalid),
+        tokensUsed: totalTokens,
+      });
+
+      return { triples: allTriples, invalidTriples: allInvalid, tokensUsed: totalTokens };
+    });
+
+    const deduplicateRelations = (
+      triples: readonly ExtractedTriple[]
+    ): Effect.Effect<readonly ExtractedTriple[], never> =>
+      Effect.sync(() => {
+        const seen = A.reduce(triples, MutableHashMap.empty<string, ExtractedTriple>(), (acc, triple) => {
+          const key = tripleDeduplicationKey(triple);
+          const existingOpt = MutableHashMap.get(acc, key);
+          if (O.isNone(existingOpt) || triple.confidence > existingOpt.value.confidence) {
+            MutableHashMap.set(acc, key, triple);
+          }
+          return acc;
         });
 
-        return {
-          triples: valid,
-          invalidTriples: invalid,
-          tokensUsed,
-        };
-      }),
-
-      /**
-       * Extract relations from multiple chunks
-       *
-       * @param entitiesByChunk - Map of chunk index to entities
-       * @param chunks - Text chunks
-       * @param ontologyContext - Loaded ontology
-       * @param config - Extraction configuration
-       * @returns Combined extraction results
-       */
-      extractFromChunks: Effect.fnUntraced(function* (
-        entitiesByChunk: MutableHashMap.MutableHashMap<number, readonly ClassifiedEntity[]>,
-        chunks: readonly TextChunk[],
-        ontologyContext: OntologyContext,
-        config: RelationExtractionConfig = {}
-      ) {
-        const allTriples = A.empty<ExtractedTriple>();
-        const allInvalid = A.empty<ExtractedTriple>();
-        let totalTokens = 0;
-
-        const minConfidence = config.minConfidence ?? 0.5;
-        const shouldValidate = config.validatePredicates ?? true;
-
-        for (const chunk of chunks) {
-          const entitiesOpt = MutableHashMap.get(entitiesByChunk, chunk.index);
-          const entities = O.getOrElse(entitiesOpt, () => A.empty<ClassifiedEntity>());
-
-          if (A.isEmptyReadonlyArray(entities)) {
-            continue;
-          }
-
-          const prompt = Prompt.make([
-            { role: "system" as const, content: buildSystemPrompt() },
-            { role: "user" as const, content: buildRelationPrompt([...entities], chunk.text, ontologyContext) },
-          ]);
-
-          const aiResult = yield* model.generateObject({
-            prompt,
-            schema: RelationOutput,
-            objectName: "RelationOutput",
-          });
-
-          const confidenceFiltered = A.filter(aiResult.value.triples, (t) => t.confidence >= minConfidence);
-
-          const offsetAdjusted = A.map(confidenceFiltered, (t) => adjustOffsets(t, chunk.startOffset));
-
-          if (shouldValidate) {
-            const validation = validatePredicates(offsetAdjusted, ontologyContext);
-            allTriples.push(...validation.valid);
-            allInvalid.push(...validation.invalid);
-          } else {
-            allTriples.push(...offsetAdjusted);
-          }
-
-          totalTokens += (aiResult.usage.inputTokens ?? 0) + (aiResult.usage.outputTokens ?? 0);
-        }
-
-        yield* Effect.logInfo("Relation extraction from chunks complete", {
-          chunkCount: chunks.length,
-          totalTriples: allTriples.length,
-          invalidTriples: allInvalid.length,
-          tokensUsed: totalTokens,
+        const result = A.empty<ExtractedTriple>();
+        MutableHashMap.forEach(seen, (triple) => {
+          result.push(triple);
         });
+        return result;
+      });
 
-        return {
-          triples: allTriples,
-          invalidTriples: allInvalid,
-          tokensUsed: totalTokens,
-        };
-      }),
+    return RelationExtractor.of({ extract, extractFromChunks, deduplicateRelations });
+  }
+);
 
-      /**
-       * Deduplicate relations
-       *
-       * Removes duplicate triples, keeping highest confidence.
-       *
-       * @param triples - Extracted triples
-       * @returns Deduplicated triples
-       */
-      deduplicateRelations: (triples: readonly ExtractedTriple[]): Effect.Effect<readonly ExtractedTriple[], never> => {
-        return Effect.sync(() => {
-          const seen = MutableHashMap.empty<string, ExtractedTriple>();
-
-          for (const triple of triples) {
-            // Create unique key for triple
-            const objectPart = triple.objectMention ?? triple.literalValue ?? "";
-            const key = Str.toLowerCase(`${triple.subjectMention}|${triple.predicateIri}|${objectPart}`);
-
-            const existingOpt = MutableHashMap.get(seen, key);
-            if (O.isNone(existingOpt) || triple.confidence > existingOpt.value.confidence) {
-              MutableHashMap.set(seen, key, triple);
-            }
-          }
-
-          const result = A.empty<ExtractedTriple>();
-          MutableHashMap.forEach(seen, (triple) => {
-            result.push(triple);
-          });
-          return result;
-        });
-      },
-    };
-  }),
-}) {}
+export const RelationExtractorLive = Layer.effect(RelationExtractor, serviceEffect);

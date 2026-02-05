@@ -1,9 +1,3 @@
-/**
- * Knowledge domain entity exports
- *
- * @module knowledge-domain/entities
- * @since 0.1.0
- */
 export * as ClassDefinition from "./class-definition";
 export * as Embedding from "./embedding";
 export * as Entity from "./entity";

@@ -8,10 +8,10 @@ export type Repos = repos.ClassDefinitionRepo | repos.EmbeddingRepo | repos.Onto
 export type ReposLayer = Layer.Layer<Repos, never, DbClient.SliceDbRequirements | KnowledgeDb.Db>;
 
 export const layer: ReposLayer = Layer.mergeAll(
-  repos.ClassDefinitionRepo.Default,
-  repos.EmbeddingRepo.Default,
-  repos.OntologyRepo.Default,
-  repos.PropertyDefinitionRepo.Default
+  repos.ClassDefinitionRepoLive,
+  repos.EmbeddingRepoLive,
+  repos.OntologyRepoLive,
+  repos.PropertyDefinitionRepoLive
 );
 
 export * from "./repos";

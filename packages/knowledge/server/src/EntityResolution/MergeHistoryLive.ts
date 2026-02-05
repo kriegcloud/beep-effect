@@ -1,36 +1,16 @@
-/**
- * MergeHistoryLive Layer
- *
- * Provides the live implementation of the MergeHistory domain service
- * by wiring it to the MergeHistoryRepo for database operations.
- * Gets organization context from AuthContext.
- *
- * @module knowledge-server/EntityResolution/MergeHistoryLive
- * @since 0.1.0
- */
 import { $KnowledgeServerId } from "@beep/identity/packages";
 import { MergeError } from "@beep/knowledge-domain/errors";
-import {$MergeHistoryId, MergeHistory} from "@beep/knowledge-domain/services";
+import { MergeHistory } from "@beep/knowledge-domain/services";
+import { MergeHistoryRepo } from "@beep/knowledge-server/db/repos/MergeHistory.repo";
 import { KnowledgeEntityIds } from "@beep/shared-domain";
 import { AuthContext } from "@beep/shared-domain/Policy";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
-import { MergeHistoryRepo } from "../db/repos/MergeHistory.repo";
 
 const $I = $KnowledgeServerId.create("EntityResolution/MergeHistoryLive");
 
-/**
- * Live implementation of MergeHistory service.
- *
- * Wires the domain MergeHistory service to the MergeHistoryRepo for
- * database operations. Organization context is obtained from AuthContext
- * to scope all queries to the current user's organization.
- *
- * @since 0.1.0
- * @category layers
- */
 export const MergeHistoryLive = Layer.effect(
   MergeHistory,
   Effect.gen(function* () {
@@ -38,15 +18,12 @@ export const MergeHistoryLive = Layer.effect(
     const authContext = yield* AuthContext;
     const organizationId = authContext.session.activeOrganizationId;
 
-    return MergeHistory.of({
-      _tag: $MergeHistoryId,
+    return {
       recordMerge: (params) =>
         Effect.gen(function* () {
           const id = KnowledgeEntityIds.MergeHistoryId.create();
           const now = yield* DateTime.now;
 
-          // Use repo.insert to get back the created record
-          // The insert type requires all fields from makeFields including optional audit fields
           return yield* repo.insert({
             id,
             organizationId: params.organizationId,
@@ -56,7 +33,6 @@ export const MergeHistoryLive = Layer.effect(
             confidence: params.confidence,
             mergedBy: O.fromNullable(params.mergedBy),
             mergedAt: now,
-            // Audit fields from makeFields - optional fields as O.none()
             source: O.none(),
             deletedAt: O.none(),
             createdBy: O.fromNullable(authContext.user.id),
@@ -108,6 +84,6 @@ export const MergeHistoryLive = Layer.effect(
               })
           )
         ),
-    });
+    };
   })
 );

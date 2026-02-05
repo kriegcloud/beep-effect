@@ -1,12 +1,3 @@
-/**
- * EntityResolution module exports
- *
- * Provides entity resolution capabilities for deduplicating and linking
- * entities across multiple knowledge graph extractions.
- *
- * @module knowledge-server/EntityResolution
- * @since 0.1.0
- */
 export { BloomFilter } from "./BloomFilter";
 export { CanonicalSelector, type CanonicalSelectorConfig, type SelectionStrategy } from "./CanonicalSelector";
 export {
@@ -21,5 +12,7 @@ export {
   type ResolutionConfig,
   type ResolutionResult,
 } from "./EntityResolutionService";
+export { IncrementalClustererLive } from "./IncrementalClustererLive";
 export { MergeHistoryLive } from "./MergeHistoryLive";
 export { type SameAsLink, SameAsLinker } from "./SameAsLinker";
+export { SplitServiceLive } from "./SplitService";

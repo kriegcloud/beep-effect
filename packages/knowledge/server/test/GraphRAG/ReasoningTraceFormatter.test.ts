@@ -1,27 +1,15 @@
-/**
- * ReasoningTraceFormatter Tests
- *
- * Tests for converting inference provenance to human-readable reasoning traces.
- *
- * @module knowledge-server/test/GraphRAG/ReasoningTraceFormatter.test
- * @since 0.1.0
- */
-
 import { InferenceProvenance, InferenceResult, InferenceStats } from "@beep/knowledge-domain/value-objects";
 import { InferenceStep, ReasoningTrace } from "@beep/knowledge-server/GraphRAG/AnswerSchemas";
-import { ReasoningTraceFormatter } from "@beep/knowledge-server/GraphRAG/ReasoningTraceFormatter";
+import {
+  ReasoningTraceFormatter,
+  ReasoningTraceFormatterLive,
+} from "@beep/knowledge-server/GraphRAG/ReasoningTraceFormatter";
 import { assertTrue, describe, effect, strictEqual } from "@beep/testkit";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
+import * as Str from "effect/String";
 
-// =============================================================================
-// Test Fixtures
-// =============================================================================
-
-/**
- * Create an empty inference result for explicit facts
- */
 const createEmptyInferenceResult = (): InferenceResult =>
   new InferenceResult({
     derivedTriples: [],
@@ -33,9 +21,6 @@ const createEmptyInferenceResult = (): InferenceResult =>
     }),
   });
 
-/**
- * Create an inference result with a single derived triple
- */
 const createSingleInferenceResult = (
   tripleId: string,
   ruleId: string,
@@ -56,10 +41,6 @@ const createSingleInferenceResult = (
     }),
   });
 
-/**
- * Create an inference result with a chain of inferences
- * triple3 -> triple2 -> triple1 (explicit)
- */
 const createChainedInferenceResult = (): InferenceResult =>
   new InferenceResult({
     derivedTriples: [],
@@ -80,9 +61,6 @@ const createChainedInferenceResult = (): InferenceResult =>
     }),
   });
 
-/**
- * Create an inference result with multiple source quads
- */
 const createMultiSourceInferenceResult = (): InferenceResult =>
   new InferenceResult({
     derivedTriples: [],
@@ -99,10 +77,6 @@ const createMultiSourceInferenceResult = (): InferenceResult =>
     }),
   });
 
-// =============================================================================
-// Tests
-// =============================================================================
-
 describe("ReasoningTraceFormatter", () => {
   describe("formatReasoningTrace", () => {
     effect(
@@ -114,7 +88,7 @@ describe("ReasoningTraceFormatter", () => {
         const trace = formatter.formatReasoningTrace(result, "explicit_triple");
 
         assertTrue(O.isNone(trace));
-      }, Effect.provide(ReasoningTraceFormatter.Default))
+      }, Effect.provide(ReasoningTraceFormatterLive))
     );
 
     effect(
@@ -130,7 +104,7 @@ describe("ReasoningTraceFormatter", () => {
           assertTrue(A.length(trace.value.inferenceSteps) > 0);
           assertTrue(trace.value.depth >= 1);
         }
-      }, Effect.provide(ReasoningTraceFormatter.Default))
+      }, Effect.provide(ReasoningTraceFormatterLive))
     );
 
     effect(
@@ -149,7 +123,7 @@ describe("ReasoningTraceFormatter", () => {
             strictEqual(firstStep.value.rule, "rdfs:domain");
           }
         }
-      }, Effect.provide(ReasoningTraceFormatter.Default))
+      }, Effect.provide(ReasoningTraceFormatterLive))
     );
 
     effect(
@@ -171,7 +145,7 @@ describe("ReasoningTraceFormatter", () => {
             assertTrue(A.contains(firstStep.value.premises, "source3"));
           }
         }
-      }, Effect.provide(ReasoningTraceFormatter.Default))
+      }, Effect.provide(ReasoningTraceFormatterLive))
     );
 
     effect(
@@ -184,10 +158,9 @@ describe("ReasoningTraceFormatter", () => {
 
         assertTrue(O.isSome(trace));
         if (O.isSome(trace)) {
-          // Should have steps for triple3 and triple2 (triple1 is explicit)
           strictEqual(A.length(trace.value.inferenceSteps), 2);
         }
-      }, Effect.provide(ReasoningTraceFormatter.Default))
+      }, Effect.provide(ReasoningTraceFormatterLive))
     );
   });
 
@@ -201,7 +174,7 @@ describe("ReasoningTraceFormatter", () => {
         const depth = formatter.calculateDepth(provenanceMap, "explicit_triple");
 
         strictEqual(depth, 0);
-      }, Effect.provide(ReasoningTraceFormatter.Default))
+      }, Effect.provide(ReasoningTraceFormatterLive))
     );
 
     effect(
@@ -218,7 +191,7 @@ describe("ReasoningTraceFormatter", () => {
         const depth = formatter.calculateDepth(provenanceMap, "inferred");
 
         strictEqual(depth, 1);
-      }, Effect.provide(ReasoningTraceFormatter.Default))
+      }, Effect.provide(ReasoningTraceFormatterLive))
     );
 
     effect(
@@ -239,7 +212,7 @@ describe("ReasoningTraceFormatter", () => {
         const depth = formatter.calculateDepth(provenanceMap, "level2");
 
         strictEqual(depth, 2);
-      }, Effect.provide(ReasoningTraceFormatter.Default))
+      }, Effect.provide(ReasoningTraceFormatterLive))
     );
 
     effect(
@@ -272,7 +245,7 @@ describe("ReasoningTraceFormatter", () => {
         const depth = formatter.calculateDepth(provenanceMap, "level5");
 
         strictEqual(depth, 5);
-      }, Effect.provide(ReasoningTraceFormatter.Default))
+      }, Effect.provide(ReasoningTraceFormatterLive))
     );
 
     effect(
@@ -290,13 +263,11 @@ describe("ReasoningTraceFormatter", () => {
           }),
         };
 
-        // Should not hang - cycle detection should break the loop
         const depth = formatter.calculateDepth(provenanceMap, "cycleA");
 
-        // Depth should be finite (cycle broken)
         assertTrue(depth >= 0);
         assertTrue(depth < 100);
-      }, Effect.provide(ReasoningTraceFormatter.Default))
+      }, Effect.provide(ReasoningTraceFormatterLive))
     );
 
     effect(
@@ -324,9 +295,8 @@ describe("ReasoningTraceFormatter", () => {
 
         const depth = formatter.calculateDepth(provenanceMap, "target");
 
-        // shallow has depth 1, deep has depth 2, so target = 1 + max(1, 2) = 3
         strictEqual(depth, 3);
-      }, Effect.provide(ReasoningTraceFormatter.Default))
+      }, Effect.provide(ReasoningTraceFormatterLive))
     );
   });
 
@@ -347,9 +317,9 @@ describe("ReasoningTraceFormatter", () => {
 
         const summary = formatter.summarizeTrace(trace);
 
-        assertTrue(summary.includes("1 step"));
-        assertTrue(summary.includes("rdfs:subClassOf"));
-      }, Effect.provide(ReasoningTraceFormatter.Default))
+        assertTrue(Str.includes("1 step")(summary));
+        assertTrue(Str.includes("rdfs:subClassOf")(summary));
+      }, Effect.provide(ReasoningTraceFormatterLive))
     );
 
     effect(
@@ -376,9 +346,9 @@ describe("ReasoningTraceFormatter", () => {
 
         const summary = formatter.summarizeTrace(trace);
 
-        assertTrue(summary.includes("3 steps"));
-        assertTrue(summary.includes("sameAs transitivity -> knows direct -> sameAs transitivity"));
-      }, Effect.provide(ReasoningTraceFormatter.Default))
+        assertTrue(Str.includes("3 steps")(summary));
+        assertTrue(Str.includes("sameAs transitivity -> knows direct -> sameAs transitivity")(summary));
+      }, Effect.provide(ReasoningTraceFormatterLive))
     );
 
     effect(
@@ -401,9 +371,9 @@ describe("ReasoningTraceFormatter", () => {
 
         const summary = formatter.summarizeTrace(trace);
 
-        assertTrue(summary.includes("2 steps"));
-        assertTrue(!summary.includes("2 step:"));
-      }, Effect.provide(ReasoningTraceFormatter.Default))
+        assertTrue(Str.includes("2 steps")(summary));
+        assertTrue(!Str.includes("2 step:")(summary));
+      }, Effect.provide(ReasoningTraceFormatterLive))
     );
 
     effect(
@@ -422,16 +392,15 @@ describe("ReasoningTraceFormatter", () => {
 
         const summary = formatter.summarizeTrace(trace);
 
-        assertTrue(summary.includes("1 step:"));
-        assertTrue(!summary.includes("1 steps"));
-      }, Effect.provide(ReasoningTraceFormatter.Default))
+        assertTrue(Str.includes("1 step:")(summary));
+        assertTrue(!Str.includes("1 steps")(summary));
+      }, Effect.provide(ReasoningTraceFormatterLive))
     );
 
     effect(
       "handles empty steps gracefully",
       Effect.fn(function* () {
         const formatter = yield* ReasoningTraceFormatter;
-        // Create trace manually since schema requires depth >= 1
         const trace = {
           inferenceSteps: [] as ReadonlyArray<InferenceStep>,
           depth: 1,
@@ -440,7 +409,7 @@ describe("ReasoningTraceFormatter", () => {
         const summary = formatter.summarizeTrace(trace);
 
         strictEqual(summary, "No inference steps recorded");
-      }, Effect.provide(ReasoningTraceFormatter.Default))
+      }, Effect.provide(ReasoningTraceFormatterLive))
     );
 
     effect(
@@ -459,8 +428,8 @@ describe("ReasoningTraceFormatter", () => {
 
         const summary = formatter.summarizeTrace(trace);
 
-        assertTrue(summary.startsWith("Inferred via"));
-      }, Effect.provide(ReasoningTraceFormatter.Default))
+        assertTrue(Str.startsWith("Inferred via")(summary));
+      }, Effect.provide(ReasoningTraceFormatterLive))
     );
   });
 });

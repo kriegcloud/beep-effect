@@ -1,22 +1,8 @@
-/**
- * Reasoning errors for Knowledge slice
- *
- * Typed errors for RDFS/OWL reasoning operations.
- *
- * @module knowledge-domain/errors/reasoning
- * @since 0.1.0
- */
 import { $KnowledgeDomainId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
 
 const $I = $KnowledgeDomainId.create("errors/reasoning");
 
-/**
- * Maximum reasoning depth exceeded
- *
- * @since 0.1.0
- * @category errors
- */
 export class MaxDepthExceededError extends S.TaggedError<MaxDepthExceededError>($I`MaxDepthExceededError`)(
   "MaxDepthExceededError",
   {
@@ -29,12 +15,6 @@ export class MaxDepthExceededError extends S.TaggedError<MaxDepthExceededError>(
   })
 ) {}
 
-/**
- * Maximum inferences limit exceeded
- *
- * @since 0.1.0
- * @category errors
- */
 export class MaxInferencesExceededError extends S.TaggedError<MaxInferencesExceededError>(
   $I`MaxInferencesExceededError`
 )(
@@ -49,12 +29,6 @@ export class MaxInferencesExceededError extends S.TaggedError<MaxInferencesExcee
   })
 ) {}
 
-/**
- * Union of all reasoning error types
- *
- * @since 0.1.0
- * @category errors
- */
 export class ReasoningError extends S.Union(MaxDepthExceededError, MaxInferencesExceededError).annotations(
   $I.annotations("ReasoningError", {
     description: "Union of all reasoning error types",

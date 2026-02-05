@@ -1,18 +1,11 @@
-/**
- * Entity List RPC Handler
- *
- * Streams entities with optional filtering by ontology or type.
- *
- * @module knowledge-server/rpc/v1/entity/list
- * @since 0.1.0
- */
 import type { Entities } from "@beep/knowledge-domain";
+import { EntityRepo } from "@beep/knowledge-server/db/repos/Entity.repo";
 import type { KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import { Policy } from "@beep/shared-domain";
+import { thunkSucceedEffect } from "@beep/utils";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import * as Stream from "effect/Stream";
-import { EntityRepo } from "../../../db/repos/Entity.repo";
 
 interface Payload {
   readonly organizationId: SharedEntityIds.OrganizationId.Type;
@@ -50,5 +43,5 @@ export const Handler = (
 
       const entities = yield* repo.findByOntology("", payload.organizationId, limit);
       return Stream.fromIterable(entities);
-    }).pipe(Effect.catchTag("DatabaseError", () => Effect.succeed(Stream.empty)))
+    }).pipe(Effect.catchTag("DatabaseError", thunkSucceedEffect(Stream.empty)))
   );

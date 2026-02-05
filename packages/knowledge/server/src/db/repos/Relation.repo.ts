@@ -1,11 +1,3 @@
-/**
- * Relation Repository
- *
- * Database operations for Relation entities with graph traversal support.
- *
- * @module knowledge-server/db/repos/Relation
- * @since 0.1.0
- */
 import { $KnowledgeServerId } from "@beep/identity/packages";
 import { Entities } from "@beep/knowledge-domain";
 import { KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
@@ -15,17 +7,17 @@ import { thunkSucceedEffect, thunkZero } from "@beep/utils";
 import * as SqlClient from "@effect/sql/SqlClient";
 import * as SqlSchema from "@effect/sql/SqlSchema";
 import * as A from "effect/Array";
+import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
+import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import { dependencies } from "./_common";
+import { KnowledgeDb } from "../Db";
 
 const $I = $KnowledgeServerId.create("db/repos/RelationRepo");
 
 const tableName = KnowledgeEntityIds.RelationId.tableName;
-
-// --- Request Schemas ---
 
 class FindBySourceIdsRequest extends S.Class<FindBySourceIdsRequest>("FindBySourceIdsRequest")({
   sourceIds: S.Array(KnowledgeEntityIds.KnowledgeEntityId),
@@ -56,13 +48,8 @@ class CountResult extends S.Class<CountResult>("CountResult")({
   count: S.String,
 }) {}
 
-/**
- * Custom repo operations for relations
- */
 const makeRelationExtensions = Effect.gen(function* () {
   const sql = yield* SqlClient.SqlClient;
-
-  // --- SqlSchemas ---
 
   const findBySourceIdsSchema = SqlSchema.findAll({
     Request: FindBySourceIdsRequest,
@@ -120,16 +107,6 @@ const makeRelationExtensions = Effect.gen(function* () {
     `,
   });
 
-  // --- Methods ---
-
-  /**
-   * Find relations where any of the given IDs are the subject
-   * Used for N-hop graph traversal (outgoing edges)
-   *
-   * @param sourceIds - Array of entity IDs to match as subjects
-   * @param organizationId - Organization ID for scoping
-   * @returns Array of matching relations
-   */
   const findBySourceIds = (
     sourceIds: ReadonlyArray<KnowledgeEntityIds.KnowledgeEntityId.Type>,
     organizationId: SharedEntityIds.OrganizationId.Type
@@ -144,18 +121,10 @@ const makeRelationExtensions = Effect.gen(function* () {
       Effect.mapError(DatabaseError.$match),
       Effect.withSpan("RelationRepo.findBySourceIds", {
         captureStackTrace: false,
-        attributes: { count: sourceIds.length, organizationId },
+        attributes: { count: A.length(sourceIds), organizationId },
       })
     );
 
-  /**
-   * Find relations where any of the given IDs are the object
-   * Used for reverse graph traversal (incoming edges)
-   *
-   * @param targetIds - Array of entity IDs to match as objects
-   * @param organizationId - Organization ID for scoping
-   * @returns Array of matching relations
-   */
   const findByTargetIds = (
     targetIds: ReadonlyArray<KnowledgeEntityIds.KnowledgeEntityId.Type>,
     organizationId: SharedEntityIds.OrganizationId.Type
@@ -170,18 +139,10 @@ const makeRelationExtensions = Effect.gen(function* () {
       Effect.mapError(DatabaseError.$match),
       Effect.withSpan("RelationRepo.findByTargetIds", {
         captureStackTrace: false,
-        attributes: { count: targetIds.length, organizationId },
+        attributes: { count: A.length(targetIds), organizationId },
       })
     );
 
-  /**
-   * Find all relations for given entity IDs (both as subject and object)
-   * Used for bidirectional graph traversal
-   *
-   * @param entityIds - Array of entity IDs to match
-   * @param organizationId - Organization ID for scoping
-   * @returns Array of matching relations
-   */
   const findByEntityIds = (
     entityIds: ReadonlyArray<KnowledgeEntityIds.KnowledgeEntityId.Type>,
     organizationId: SharedEntityIds.OrganizationId.Type
@@ -196,18 +157,10 @@ const makeRelationExtensions = Effect.gen(function* () {
       Effect.mapError(DatabaseError.$match),
       Effect.withSpan("RelationRepo.findByEntityIds", {
         captureStackTrace: false,
-        attributes: { count: entityIds.length, organizationId },
+        attributes: { count: A.length(entityIds), organizationId },
       })
     );
 
-  /**
-   * Find relations by predicate IRI
-   *
-   * @param predicateIri - Ontology property IRI
-   * @param organizationId - Organization ID for scoping
-   * @param limit - Maximum number of results
-   * @returns Array of matching relations
-   */
   const findByPredicate = (
     predicateIri: string,
     organizationId: SharedEntityIds.OrganizationId.Type,
@@ -222,12 +175,6 @@ const makeRelationExtensions = Effect.gen(function* () {
       })
     );
 
-  /**
-   * Count relations by organization
-   *
-   * @param organizationId - Organization ID for scoping
-   * @returns Count of relations
-   */
   const countByOrganization = (
     organizationId: SharedEntityIds.OrganizationId.Type
   ): Effect.Effect<number, DatabaseError> =>
@@ -255,17 +202,10 @@ const makeRelationExtensions = Effect.gen(function* () {
   };
 });
 
-/**
- * RelationRepo Effect.Service
- *
- * Provides CRUD operations for Relation entities plus
- * graph traversal support.
- *
- * @since 0.1.0
- * @category services
- */
-export class RelationRepo extends Effect.Service<RelationRepo>()($I`RelationRepo`, {
-  dependencies,
-  accessors: true,
-  effect: DbRepo.make(KnowledgeEntityIds.RelationId, Entities.Relation.Model, makeRelationExtensions),
-}) {}
+const serviceEffect = DbRepo.make(KnowledgeEntityIds.RelationId, Entities.Relation.Model, makeRelationExtensions);
+
+export type RelationRepoShape = Effect.Effect.Success<typeof serviceEffect>;
+
+export class RelationRepo extends Context.Tag($I`RelationRepo`)<RelationRepo, RelationRepoShape>() {}
+
+export const RelationRepoLive = Layer.effect(RelationRepo, serviceEffect).pipe(Layer.provide(KnowledgeDb.layer));

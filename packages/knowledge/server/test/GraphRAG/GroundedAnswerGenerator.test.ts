@@ -1,16 +1,8 @@
-/**
- * GroundedAnswerGenerator Tests
- *
- * Tests for grounded answer generation service with mocked LLM.
- *
- * @module knowledge-server/test/GraphRAG/GroundedAnswerGenerator.test
- * @since 0.1.0
- */
-
 import {
   GenerationError,
   type GraphContext,
   GroundedAnswerGenerator,
+  GroundedAnswerGeneratorLive,
 } from "@beep/knowledge-server/GraphRAG/GroundedAnswerGenerator";
 import { KnowledgeEntityIds } from "@beep/shared-domain";
 import { assertTrue, describe, effect, strictEqual } from "@beep/testkit";
@@ -18,12 +10,12 @@ import { LanguageModel } from "@effect/ai";
 import type * as Response from "@effect/ai/Response";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
-import { dual } from "effect/Function";
+import * as F from "effect/Function";
 import * as Stream from "effect/Stream";
+import * as Str from "effect/String";
 
 const TEST_TIMEOUT = 60000;
 
-// Test IDs
 const testEntityId1 = KnowledgeEntityIds.KnowledgeEntityId.make(
   "knowledge_entity__11111111-1111-1111-1111-111111111111"
 );
@@ -32,7 +24,6 @@ const testEntityId2 = KnowledgeEntityIds.KnowledgeEntityId.make(
 );
 const testRelationId = KnowledgeEntityIds.RelationId.make("knowledge_relation__33333333-3333-3333-3333-333333333333");
 
-// Test context
 const createTestContext = (): GraphContext => ({
   entities: [
     { id: testEntityId1, mention: "Alice", types: ["Person"] },
@@ -41,15 +32,9 @@ const createTestContext = (): GraphContext => ({
   relations: [{ id: testRelationId, subjectId: testEntityId1, predicate: "worksFor", objectId: testEntityId2 }],
 });
 
-// Mock LLM response with citations
 const mockResponseWithCitations = `Alice {{entity:${testEntityId1}}} works at Acme Corp {{entity:${testEntityId2}}} as shown by {{relation:${testRelationId}}}.`;
 
-// Mock LLM response without citations
 const mockResponseWithoutCitations = "I don't have enough information to answer this question.";
-
-// ---------------------------------------------------------------------------
-// Text-based LanguageModel Mock (for generateText responses)
-// ---------------------------------------------------------------------------
 
 const defaultUsage = { inputTokens: 100, outputTokens: 50, totalTokens: 150 };
 
@@ -62,18 +47,12 @@ const buildTextResponse = (text: string): Array<Response.PartEncoded> => [
   },
 ];
 
-/**
- * Provide a mock LanguageModel that returns specified text for generateText calls.
- *
- * Unlike withLanguageModel which is designed for generateObject, this returns
- * raw text responses for generators that use generateText.
- */
 const withTextLanguageModel: {
   (
     text: string
   ): <A, E, R>(effect: Effect.Effect<A, E, R>) => Effect.Effect<A, E, Exclude<R, LanguageModel.LanguageModel>>;
   <A, E, R>(effect: Effect.Effect<A, E, R>, text: string): Effect.Effect<A, E, Exclude<R, LanguageModel.LanguageModel>>;
-} = dual(2, <A, E, R>(effect: Effect.Effect<A, E, R>, text: string) => {
+} = F.dual(2, <A, E, R>(effect: Effect.Effect<A, E, R>, text: string) => {
   const makeService = LanguageModel.make({
     generateText: () => Effect.succeed(buildTextResponse(text)),
     streamText: () => Stream.empty,
@@ -86,10 +65,6 @@ const withTextLanguageModel: {
   >;
 });
 
-// ---------------------------------------------------------------------------
-// Tests
-// ---------------------------------------------------------------------------
-
 describe("GroundedAnswerGenerator", () => {
   describe("generate", () => {
     effect(
@@ -101,17 +76,14 @@ describe("GroundedAnswerGenerator", () => {
 
           const answer = yield* generator.generate(context, "Where does Alice work?");
 
-          // Answer should have clean text (no citation markers)
-          assertTrue(answer.text.length > 0);
-          assertTrue(!answer.text.includes("{{"));
+          assertTrue(Str.length(answer.text) > 0);
+          assertTrue(!Str.includes("{{")(answer.text));
 
-          // Should have parsed citations
           assertTrue(A.length(answer.citations) > 0);
 
-          // Confidence should be 1.0 for Phase 2 (all citations start at 1.0)
           strictEqual(answer.confidence, 1.0);
         },
-        Effect.provide(GroundedAnswerGenerator.Default),
+        Effect.provide(GroundedAnswerGeneratorLive),
         withTextLanguageModel(mockResponseWithCitations)
       ),
       TEST_TIMEOUT
@@ -126,14 +98,12 @@ describe("GroundedAnswerGenerator", () => {
 
           const answer = yield* generator.generate(context, "What is quantum physics?");
 
-          // Should have text
-          assertTrue(answer.text.length > 0);
+          assertTrue(Str.length(answer.text) > 0);
 
-          // No citations = 0.0 confidence
           strictEqual(A.length(answer.citations), 0);
           strictEqual(answer.confidence, 0.0);
         },
-        Effect.provide(GroundedAnswerGenerator.Default),
+        Effect.provide(GroundedAnswerGeneratorLive),
         withTextLanguageModel(mockResponseWithoutCitations)
       ),
       TEST_TIMEOUT
@@ -148,11 +118,10 @@ describe("GroundedAnswerGenerator", () => {
 
           const answer = yield* generator.generate(context, "Test?");
 
-          // Should return default "no information" response
-          assertTrue(answer.text.includes("don't have enough information"));
+          assertTrue(Str.includes("don't have enough information")(answer.text));
           strictEqual(answer.confidence, 0.0);
         },
-        Effect.provide(GroundedAnswerGenerator.Default),
+        Effect.provide(GroundedAnswerGeneratorLive),
         withTextLanguageModel("")
       ),
       TEST_TIMEOUT
@@ -167,10 +136,9 @@ describe("GroundedAnswerGenerator", () => {
 
           const answer = yield* generator.generate(emptyContext, "Who is Alice?");
 
-          // Should still produce an answer (LLM should say no info)
-          assertTrue(answer.text.length > 0);
+          assertTrue(Str.length(answer.text) > 0);
         },
-        Effect.provide(GroundedAnswerGenerator.Default),
+        Effect.provide(GroundedAnswerGeneratorLive),
         withTextLanguageModel(mockResponseWithoutCitations)
       ),
       TEST_TIMEOUT
@@ -185,12 +153,11 @@ describe("GroundedAnswerGenerator", () => {
 
           const answer = yield* generator.generate(context, "Where does Alice work?");
 
-          // Output text should not contain raw citation markers
-          assertTrue(!answer.text.includes("{{entity:"));
-          assertTrue(!answer.text.includes("{{relation:"));
-          assertTrue(!answer.text.includes("}}"));
+          assertTrue(!Str.includes("{{entity:")(answer.text));
+          assertTrue(!Str.includes("{{relation:")(answer.text));
+          assertTrue(!Str.includes("}}")(answer.text));
         },
-        Effect.provide(GroundedAnswerGenerator.Default),
+        Effect.provide(GroundedAnswerGeneratorLive),
         withTextLanguageModel(mockResponseWithCitations)
       ),
       TEST_TIMEOUT
@@ -205,11 +172,10 @@ describe("GroundedAnswerGenerator", () => {
 
           const answer = yield* generator.generate(context, "Where does Alice work?");
 
-          // Citations should reference the test entity IDs
           const allEntityIds = A.flatMap(answer.citations, (c) => c.entityIds);
           assertTrue(A.length(allEntityIds) > 0);
         },
-        Effect.provide(GroundedAnswerGenerator.Default),
+        Effect.provide(GroundedAnswerGeneratorLive),
         withTextLanguageModel(mockResponseWithCitations)
       ),
       TEST_TIMEOUT

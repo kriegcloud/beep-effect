@@ -1,16 +1,9 @@
-/**
- * RelationExtractor Tests
- *
- * Tests for triple extraction service.
- *
- * @module knowledge-server/test/Extraction/RelationExtractor.test
- * @since 0.1.0
- */
-import { RelationExtractor } from "@beep/knowledge-server/Extraction/RelationExtractor";
+import { RelationExtractor, RelationExtractorLive } from "@beep/knowledge-server/Extraction/RelationExtractor";
 import { ClassifiedEntity } from "@beep/knowledge-server/Extraction/schemas/entity-output.schema";
 import { ExtractedTriple } from "@beep/knowledge-server/Extraction/schemas/relation-output.schema";
 import { TextChunk } from "@beep/knowledge-server/Nlp/TextChunk";
 import { describe, effect, strictEqual } from "@beep/testkit";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import { createMockOntologyContext, withLanguageModel } from "../_shared/TestLayers";
 
@@ -44,13 +37,13 @@ describe("RelationExtractor", () => {
 
         const result = yield* extractor.extract(entities, chunk, ontologyContext);
 
-        strictEqual(result.triples.length, 1);
+        strictEqual(A.length(result.triples), 1);
         strictEqual(result.triples[0]?.subjectMention, "John Smith");
         strictEqual(result.triples[0]?.predicateIri, "http://schema.org/worksFor");
         strictEqual(result.triples[0]?.objectMention, "Acme Corp");
-        strictEqual(result.invalidTriples.length, 0);
+        strictEqual(A.length(result.invalidTriples), 0);
       },
-      Effect.provide(RelationExtractor.Default),
+      Effect.provide(RelationExtractorLive),
       withLanguageModel({
         generateObject: (objectName: string | undefined) =>
           objectName === "RelationOutput"
@@ -96,10 +89,10 @@ describe("RelationExtractor", () => {
 
         const result = yield* extractor.extract(entities, chunk, ontologyContext, { minConfidence: 0.5 });
 
-        strictEqual(result.triples.length, 1);
+        strictEqual(A.length(result.triples), 1);
         strictEqual(result.triples[0]?.predicateIri, "http://schema.org/knows");
       },
-      Effect.provide(RelationExtractor.Default),
+      Effect.provide(RelationExtractorLive),
       withLanguageModel({
         generateObject: (objectName: string | undefined) =>
           objectName === "RelationOutput"
@@ -143,10 +136,10 @@ describe("RelationExtractor", () => {
 
         const result = yield* extractor.extract(entities, chunk, ontologyContext, { validatePredicates: true });
 
-        strictEqual(result.triples.length, 0);
-        strictEqual(result.invalidTriples.length, 1);
+        strictEqual(A.length(result.triples), 0);
+        strictEqual(A.length(result.invalidTriples), 1);
       },
-      Effect.provide(RelationExtractor.Default),
+      Effect.provide(RelationExtractorLive),
       withLanguageModel({
         generateObject: (objectName: string | undefined) =>
           objectName === "RelationOutput"
@@ -178,10 +171,10 @@ describe("RelationExtractor", () => {
 
         const result = yield* extractor.extract(entities, chunk, ontologyContext);
 
-        strictEqual(result.triples.length, 0);
+        strictEqual(A.length(result.triples), 0);
         strictEqual(result.tokensUsed, 0);
       },
-      Effect.provide(RelationExtractor.Default),
+      Effect.provide(RelationExtractorLive),
       withLanguageModel({})
     ),
     TEST_TIMEOUT
@@ -210,10 +203,10 @@ describe("RelationExtractor", () => {
 
         const deduped = yield* extractor.deduplicateRelations(triples);
 
-        strictEqual(deduped.length, 1);
+        strictEqual(A.length(deduped), 1);
         strictEqual(deduped[0]?.confidence, 0.95);
       },
-      Effect.provide(RelationExtractor.Default),
+      Effect.provide(RelationExtractorLive),
       withLanguageModel({})
     ),
     TEST_TIMEOUT
@@ -236,11 +229,11 @@ describe("RelationExtractor", () => {
 
         const result = yield* extractor.extract(entities, chunk, ontologyContext);
 
-        strictEqual(result.triples.length, 1);
+        strictEqual(A.length(result.triples), 1);
         strictEqual(result.triples[0]?.literalValue, "30");
         strictEqual(result.triples[0]?.objectMention, undefined);
       },
-      Effect.provide(RelationExtractor.Default),
+      Effect.provide(RelationExtractorLive),
       withLanguageModel({
         generateObject: (objectName: string | undefined) =>
           objectName === "RelationOutput"
@@ -279,11 +272,11 @@ describe("RelationExtractor", () => {
 
         const result = yield* extractor.extract(entities, chunk, ontologyContext);
 
-        strictEqual(result.triples.length, 1);
+        strictEqual(A.length(result.triples), 1);
         strictEqual(result.triples[0]?.evidenceStartChar, 100);
         strictEqual(result.triples[0]?.evidenceEndChar, 115);
       },
-      Effect.provide(RelationExtractor.Default),
+      Effect.provide(RelationExtractorLive),
       withLanguageModel({
         generateObject: (objectName: string | undefined) =>
           objectName === "RelationOutput"

@@ -1,13 +1,3 @@
-/**
- * GmailExtractionAdapter Integration Tests
- *
- * Tests the adapter using mocked GoogleAuthClient and HttpClient
- * to verify correct email extraction for knowledge graph ingestion.
- *
- * @module knowledge-server/test/adapters/GmailExtractionAdapter.test
- * @since 0.1.0
- */
-
 import { GoogleAuthClient } from "@beep/google-workspace-client";
 import {
   GmailScopes,
@@ -27,13 +17,14 @@ import * as A from "effect/Array";
 import * as DateTime from "effect/DateTime";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
+import * as F from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
+import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
-const encodeBase64Url = (data: string): string => {
-  const base64 = btoa(data);
-  return base64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
-};
+const encodeBase64Url = (data: string): string =>
+  F.pipe(btoa(data), Str.replaceAll("+", "-"), Str.replaceAll("/", "_"), Str.replace(/=+$/, ""));
 
 const MockGoogleAuthClient = Layer.succeed(
   GoogleAuthClient,
@@ -88,14 +79,15 @@ const makeHttpClientMock = (
     HttpClient.make((request) =>
       Effect.gen(function* () {
         const result = yield* handler(request);
+        const encoded = yield* S.encodeUnknown(S.parseJson(S.Unknown))(result.body);
         return HttpClientResponse.fromWeb(
           request,
-          new Response(JSON.stringify(result.body), {
+          new Response(encoded, {
             status: result.status,
             headers: { "Content-Type": "application/json" },
           })
         );
-      })
+      }).pipe(Effect.catchTag("ParseError", Effect.die))
     )
   );
 
@@ -186,13 +178,13 @@ describe("GmailExtractionAdapter", () => {
 
     const MockHttpClient = makeHttpClientMock((request) => {
       const url = request.url;
-      if (url.includes("/messages/msg-1")) {
+      if (Str.includes("/messages/msg-1")(url)) {
         return Effect.succeed({ status: 200, body: mockMessage1 });
       }
-      if (url.includes("/messages/msg-2")) {
+      if (Str.includes("/messages/msg-2")(url)) {
         return Effect.succeed({ status: 200, body: mockMessage2 });
       }
-      if (url.includes("/messages")) {
+      if (Str.includes("/messages")(url)) {
         return Effect.succeed({ status: 200, body: mockListResponse });
       }
       return Effect.succeed({ status: 404, body: { error: "Not found" } });
@@ -209,7 +201,7 @@ describe("GmailExtractionAdapter", () => {
           const adapter = yield* GmailExtractionAdapter;
           const documents = yield* adapter.extractEmailsForKnowledgeGraph("label:INBOX", 10);
 
-          strictEqual(documents.length, 2);
+          strictEqual(A.length(documents), 2);
           strictEqual(documents[0]?.sourceType, "gmail");
           strictEqual(documents[0]?.sourceId, "msg-1");
           strictEqual(documents[0]?.title, "Q4 Planning Meeting Notes");
@@ -223,14 +215,14 @@ describe("GmailExtractionAdapter", () => {
 
           const metadata = documents[0]?.metadata;
           strictEqual(metadata?.from, "alice@company.com");
-          strictEqual(metadata?.to.length, 2);
-          assertTrue(metadata?.to.includes("bob@company.com"));
-          assertTrue(metadata?.to.includes("charlie@company.com"));
-          strictEqual(metadata?.cc.length, 1);
-          assertTrue(metadata?.cc.includes("dave@company.com"));
+          strictEqual(metadata ? A.length(metadata.to) : 0, 2);
+          assertTrue(metadata ? A.contains(metadata.to, "bob@company.com") : false);
+          assertTrue(metadata ? A.contains(metadata.to, "charlie@company.com") : false);
+          strictEqual(metadata ? A.length(metadata.cc) : 0, 1);
+          assertTrue(metadata ? A.contains(metadata.cc, "dave@company.com") : false);
           strictEqual(metadata?.threadId, "thread-1");
-          assertTrue(metadata?.labels.includes("INBOX"));
-          assertTrue(metadata?.labels.includes("IMPORTANT"));
+          assertTrue(metadata ? A.contains(metadata.labels, "INBOX") : false);
+          assertTrue(metadata ? A.contains(metadata.labels, "IMPORTANT") : false);
         })
       );
 
@@ -241,8 +233,8 @@ describe("GmailExtractionAdapter", () => {
 
           const doc2 = documents[1];
           strictEqual(doc2?.title, "Project Alpha - Weekly Status");
-          assertTrue(doc2?.content.includes("Project Alpha is on track"));
-          assertTrue(doc2?.content.includes("Milestones completed"));
+          assertTrue(doc2 ? Str.includes("Project Alpha is on track")(doc2.content) : false);
+          assertTrue(doc2 ? Str.includes("Milestones completed")(doc2.content) : false);
         })
       );
 
@@ -269,7 +261,7 @@ describe("GmailExtractionAdapter", () => {
 
     const MockHttpClientEmpty = makeHttpClientMock((request) => {
       const url = request.url;
-      if (url.includes("/messages")) {
+      if (Str.includes("/messages")(url)) {
         return Effect.succeed({ status: 200, body: {} });
       }
       return Effect.succeed({ status: 404, body: { error: "Not found" } });
@@ -286,7 +278,7 @@ describe("GmailExtractionAdapter", () => {
           const adapter = yield* GmailExtractionAdapter;
           const documents = yield* adapter.extractEmailsForKnowledgeGraph("label:nonexistent", 10);
 
-          strictEqual(documents.length, 0);
+          strictEqual(A.length(documents), 0);
         })
       );
     });
@@ -378,16 +370,16 @@ describe("GmailExtractionAdapter", () => {
 
     const MockHttpClient = makeHttpClientMock((request) => {
       const url = request.url;
-      if (url.includes("/threads/thread-conversation")) {
+      if (Str.includes("/threads/thread-conversation")(url)) {
         return Effect.succeed({ status: 200, body: mockThread });
       }
-      if (url.includes("/threads/empty-thread")) {
+      if (Str.includes("/threads/empty-thread")(url)) {
         return Effect.succeed({
           status: 200,
           body: { id: "empty-thread", messages: [] },
         });
       }
-      if (url.includes("/threads/nonexistent")) {
+      if (Str.includes("/threads/nonexistent")(url)) {
         return Effect.succeed({ status: 404, body: { error: { message: "Thread not found" } } });
       }
       return Effect.succeed({ status: 404, body: { error: "Not found" } });
@@ -405,7 +397,7 @@ describe("GmailExtractionAdapter", () => {
           const context = yield* adapter.extractThreadContext("thread-conversation");
 
           strictEqual(context.threadId, "thread-conversation");
-          strictEqual(context.messages.length, 3);
+          strictEqual(A.length(context.messages), 3);
           strictEqual(context.subject, "Project Proposal: New CRM System");
         })
       );
@@ -415,10 +407,10 @@ describe("GmailExtractionAdapter", () => {
           const adapter = yield* GmailExtractionAdapter;
           const context = yield* adapter.extractThreadContext("thread-conversation");
 
-          assertTrue(context.participants.includes("alice@company.com"));
-          assertTrue(context.participants.includes("bob@company.com"));
-          assertTrue(context.participants.includes("manager@company.com"));
-          strictEqual(context.participants.length, 3);
+          assertTrue(A.contains(context.participants, "alice@company.com"));
+          assertTrue(A.contains(context.participants, "bob@company.com"));
+          assertTrue(A.contains(context.participants, "manager@company.com"));
+          strictEqual(A.length(context.participants), 3);
         })
       );
 
@@ -437,7 +429,7 @@ describe("GmailExtractionAdapter", () => {
           const error = yield* Effect.flip(adapter.extractThreadContext("empty-thread"));
 
           assertTrue(error instanceof GoogleApiError);
-          assertTrue(error.message.includes("no messages"));
+          assertTrue(Str.includes("no messages")(error.message));
         })
       );
 
@@ -467,7 +459,7 @@ describe("GmailExtractionAdapter", () => {
           const error = yield* Effect.flip(adapter.extractEmailsForKnowledgeGraph("label:INBOX", 10));
 
           assertTrue(error instanceof GoogleScopeExpansionRequiredError);
-          assertTrue(error.missingScopes.length > 0);
+          assertTrue(A.isNonEmptyReadonlyArray(error.missingScopes));
         })
       );
     });
@@ -476,15 +468,14 @@ describe("GmailExtractionAdapter", () => {
   describe("GMAIL_EXTRACTION_REQUIRED_SCOPES", () => {
     effect("contains only gmail.readonly scope", () =>
       Effect.gen(function* () {
-        strictEqual(GMAIL_EXTRACTION_REQUIRED_SCOPES.length, 1);
-        assertTrue(GMAIL_EXTRACTION_REQUIRED_SCOPES.includes(GmailScopes.read));
+        strictEqual(A.length(GMAIL_EXTRACTION_REQUIRED_SCOPES), 1);
+        assertTrue(A.contains(GMAIL_EXTRACTION_REQUIRED_SCOPES, GmailScopes.read));
       })
     );
 
     effect("does not include gmail.send scope (read-only adapter)", () =>
       Effect.gen(function* () {
-        const scopes = GMAIL_EXTRACTION_REQUIRED_SCOPES as ReadonlyArray<string>;
-        assertTrue(!scopes.includes(GmailScopes.send));
+        assertTrue(!A.contains(GMAIL_EXTRACTION_REQUIRED_SCOPES as ReadonlyArray<string>, GmailScopes.send));
       })
     );
   });

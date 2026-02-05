@@ -1,42 +1,17 @@
-/**
- * RDF Performance Benchmark Tests
- *
- * Performance benchmarks for RDF store operations targeting Phase 3 specification:
- * - Batch add 1000 quads in under 100ms
- * - Match performance after bulk load
- * - Serialization performance
- *
- * @module knowledge-server/test/Rdf/benchmark.test
- * @since 0.1.0
- */
 import { IRI, Literal, Quad, QuadPattern } from "@beep/knowledge-domain/value-objects";
-import { RdfBuilder } from "@beep/knowledge-server/Rdf/RdfBuilder";
-import { RdfStore } from "@beep/knowledge-server/Rdf/RdfStoreService";
-import { Serializer } from "@beep/knowledge-server/Rdf/Serializer";
+import { RdfBuilder, RdfBuilderLive } from "@beep/knowledge-server/Rdf/RdfBuilder";
+import { RdfStore, RdfStoreLive } from "@beep/knowledge-server/Rdf/RdfStoreService";
+import { Serializer, SerializerLive } from "@beep/knowledge-server/Rdf/Serializer";
 import { assertTrue, describe, live, strictEqual } from "@beep/testkit";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
+import * as Num from "effect/Number";
 
-/**
- * Test layer combining all RDF services
- * We must use Layer.provideMerge so that:
- * 1. RdfStore.Default is provided to both Serializer.Default and RdfBuilder.Default
- * 2. The SAME RdfStore instance is exposed for direct test access
- */
-const TestLayer = Layer.mergeAll(RdfBuilder.Default, Serializer.Default).pipe(Layer.provideMerge(RdfStore.Default));
+const TestLayer = Layer.mergeAll(RdfBuilderLive, SerializerLive).pipe(Layer.provideMerge(RdfStoreLive));
 
-/**
- * Common namespace for test fixtures
- */
 const EX = "http://example.org/";
 
-/**
- * Generate N test quads with unique subjects
- *
- * @param n - Number of quads to generate
- * @returns ReadonlyArray of Quad instances
- */
 const generateTestQuads = (n: number): ReadonlyArray<Quad> =>
   A.makeBy(
     n,
@@ -48,12 +23,6 @@ const generateTestQuads = (n: number): ReadonlyArray<Quad> =>
       })
   );
 
-/**
- * Measure execution time of an Effect in milliseconds
- *
- * @param effect - The effect to measure
- * @returns Effect yielding the duration in milliseconds
- */
 const measureMs: <A, E, R>(effect: Effect.Effect<A, E, R>) => Effect.Effect<number, E, R> = Effect.fn(function* <
   A,
   E,
@@ -76,17 +45,17 @@ describe("Rdf Performance Benchmarks", () => {
 
         const duration = yield* measureMs(builder.batch(quads));
 
-        yield* Effect.logInfo("Batch add 1000 quads completed", {
-          durationMs: duration,
-          quadCount: 1000,
-          threshold: 100,
-        });
+        yield* Effect.logInfo("Batch add 1000 quads completed").pipe(
+          Effect.annotateLogs({
+            durationMs: duration,
+            quadCount: 1000,
+            threshold: 100,
+          })
+        );
 
-        // Verify quads were added
         const size = yield* store.size;
         strictEqual(size, 1000);
 
-        // Assert performance threshold
         assertTrue(duration < 100, `Expected <100ms, got ${duration}ms`);
       }, Effect.provide(TestLayer))
     );
@@ -99,22 +68,23 @@ describe("Rdf Performance Benchmarks", () => {
 
         const duration = yield* measureMs(Effect.forEach(quads, (quad) => store.addQuad(quad), { discard: true }));
 
-        yield* Effect.logInfo("Individual add 1000 quads completed", {
-          durationMs: duration,
-          quadCount: 1000,
-          avgPerQuad: duration / 1000,
-        });
+        yield* Effect.logInfo("Individual add 1000 quads completed").pipe(
+          Effect.annotateLogs({
+            durationMs: duration,
+            quadCount: 1000,
+            avgPerQuad: duration / 1000,
+          })
+        );
 
-        // Verify quads were added
         const size = yield* store.size;
         strictEqual(size, 1000);
 
-        // Document but do not enforce threshold for individual adds
-        // This establishes a baseline for comparison with batch operations
-        yield* Effect.logInfo("Performance comparison", {
-          individualMs: duration,
-          note: "Individual adds expected to be slower than batch",
-        });
+        yield* Effect.logInfo("Performance comparison").pipe(
+          Effect.annotateLogs({
+            individualMs: duration,
+            note: "Individual adds expected to be slower than batch",
+          })
+        );
       }, Effect.provide(TestLayer))
     );
   });
@@ -126,40 +96,37 @@ describe("Rdf Performance Benchmarks", () => {
         const builder = yield* RdfBuilder;
         const store = yield* RdfStore;
 
-        // Load 1000 quads
         const quads = generateTestQuads(1000);
         yield* builder.batch(quads);
 
-        // Measure match by subject pattern
         const subjectPattern = new QuadPattern({
           subject: IRI.make(`${EX}entity/500`),
         });
 
         const matchDuration = yield* measureMs(store.match(subjectPattern));
 
-        yield* Effect.logInfo("Match single subject after 1000 quads", {
-          durationMs: matchDuration,
-          storeSize: 1000,
-        });
+        yield* Effect.logInfo("Match single subject after 1000 quads").pipe(
+          Effect.annotateLogs({
+            durationMs: matchDuration,
+            storeSize: 1000,
+          })
+        );
 
-        // Match should be very fast (indexed operation)
-        // Threshold increased for CI stability under load
         assertTrue(matchDuration < 50, `Expected <50ms for indexed match, got ${matchDuration}ms`);
 
-        // Measure match by predicate (matches all quads)
         const predicatePattern = new QuadPattern({
           predicate: IRI.make(`${EX}value`),
         });
 
         const matchAllDuration = yield* measureMs(store.match(predicatePattern));
 
-        yield* Effect.logInfo("Match all quads by predicate", {
-          durationMs: matchAllDuration,
-          expectedResults: 1000,
-        });
+        yield* Effect.logInfo("Match all quads by predicate").pipe(
+          Effect.annotateLogs({
+            durationMs: matchAllDuration,
+            expectedResults: 1000,
+          })
+        );
 
-        // Even matching all 1000 should be reasonably fast
-        // Threshold increased for CI stability under load
         assertTrue(matchAllDuration < 200, `Expected <200ms for full predicate match, got ${matchAllDuration}ms`);
       }, Effect.provide(TestLayer))
     );
@@ -170,17 +137,18 @@ describe("Rdf Performance Benchmarks", () => {
         const builder = yield* RdfBuilder;
         const store = yield* RdfStore;
 
-        // Load 1000 quads
         const quads = generateTestQuads(1000);
         yield* builder.batch(quads);
 
         const wildcardPattern = new QuadPattern({});
         const countDuration = yield* measureMs(store.countMatches(wildcardPattern));
 
-        yield* Effect.logInfo("Count all quads", {
-          durationMs: countDuration,
-          count: 1000,
-        });
+        yield* Effect.logInfo("Count all quads").pipe(
+          Effect.annotateLogs({
+            durationMs: countDuration,
+            count: 1000,
+          })
+        );
 
         assertTrue(countDuration < 10, `Expected <10ms for count, got ${countDuration}ms`);
       }, Effect.provide(TestLayer))
@@ -194,19 +162,18 @@ describe("Rdf Performance Benchmarks", () => {
         const builder = yield* RdfBuilder;
         const serializer = yield* Serializer;
 
-        // Load 1000 quads
         const quads = generateTestQuads(1000);
         yield* builder.batch(quads);
 
         const serializeDuration = yield* measureMs(serializer.serialize("Turtle"));
 
-        yield* Effect.logInfo("Serialize 1000 quads to Turtle", {
-          durationMs: serializeDuration,
-          quadCount: 1000,
-        });
+        yield* Effect.logInfo("Serialize 1000 quads to Turtle").pipe(
+          Effect.annotateLogs({
+            durationMs: serializeDuration,
+            quadCount: 1000,
+          })
+        );
 
-        // Serialization of 1000 quads should complete in reasonable time
-        // Turtle format is more complex (prefix handling, grouping) - allow 500ms
         assertTrue(serializeDuration < 500, `Expected <500ms for Turtle serialization, got ${serializeDuration}ms`);
       }, Effect.provide(TestLayer))
     );
@@ -217,18 +184,18 @@ describe("Rdf Performance Benchmarks", () => {
         const builder = yield* RdfBuilder;
         const serializer = yield* Serializer;
 
-        // Load 1000 quads
         const quads = generateTestQuads(1000);
         yield* builder.batch(quads);
 
         const serializeDuration = yield* measureMs(serializer.serialize("NTriples"));
 
-        yield* Effect.logInfo("Serialize 1000 quads to N-Triples", {
-          durationMs: serializeDuration,
-          quadCount: 1000,
-        });
+        yield* Effect.logInfo("Serialize 1000 quads to N-Triples").pipe(
+          Effect.annotateLogs({
+            durationMs: serializeDuration,
+            quadCount: 1000,
+          })
+        );
 
-        // N-Triples is simpler format, should be at least as fast as Turtle
         assertTrue(serializeDuration < 200, `Expected <200ms for N-Triples serialization, got ${serializeDuration}ms`);
       }, Effect.provide(TestLayer))
     );
@@ -241,12 +208,13 @@ describe("Rdf Performance Benchmarks", () => {
 
         const serializeDuration = yield* measureMs(serializer.serializeQuads(quads, "NTriples"));
 
-        yield* Effect.logInfo("Direct serialize 1000 quads to N-Triples", {
-          durationMs: serializeDuration,
-          quadCount: 1000,
-        });
+        yield* Effect.logInfo("Direct serialize 1000 quads to N-Triples").pipe(
+          Effect.annotateLogs({
+            durationMs: serializeDuration,
+            quadCount: 1000,
+          })
+        );
 
-        // Direct serialization should be efficient
         assertTrue(serializeDuration < 200, `Expected <200ms for direct serialization, got ${serializeDuration}ms`);
       }, Effect.provide(TestLayer))
     );
@@ -262,17 +230,17 @@ describe("Rdf Performance Benchmarks", () => {
 
         const duration = yield* measureMs(builder.batch(quads));
 
-        yield* Effect.logInfo("Batch add 10000 quads completed", {
-          durationMs: duration,
-          quadCount: 10000,
-          throughput: `${Math.round(10000 / (duration / 1000))} quads/sec`,
-        });
+        yield* Effect.logInfo("Batch add 10000 quads completed").pipe(
+          Effect.annotateLogs({
+            durationMs: duration,
+            quadCount: 10000,
+            throughput: `${Num.round(10000 / (duration / 1000))} quads/sec`,
+          })
+        );
 
-        // Verify quads were added
         const size = yield* store.size;
         strictEqual(size, 10000);
 
-        // 10000 quads should still be under 1 second
         assertTrue(duration < 1000, `Expected <1000ms for 10000 quads, got ${duration}ms`);
       }, Effect.provide(TestLayer))
     );
@@ -284,30 +252,25 @@ describe("Rdf Performance Benchmarks", () => {
         const serializer = yield* Serializer;
         const store = yield* RdfStore;
 
-        // Load 1000 quads
         const originalQuads = generateTestQuads(1000);
         yield* builder.batch(originalQuads);
 
-        // Serialize to Turtle
         const turtle = yield* serializer.serialize("Turtle");
 
-        // Clear store
         yield* store.clear();
 
-        // Parse back
         const roundTripDuration = yield* measureMs(serializer.parseTurtle(turtle));
 
-        yield* Effect.logInfo("Round-trip 1000 quads through Turtle", {
-          parseDurationMs: roundTripDuration,
-          quadCount: 1000,
-        });
+        yield* Effect.logInfo("Round-trip 1000 quads through Turtle").pipe(
+          Effect.annotateLogs({
+            parseDurationMs: roundTripDuration,
+            quadCount: 1000,
+          })
+        );
 
-        // Verify data integrity
         const size = yield* store.size;
         strictEqual(size, 1000);
 
-        // Parsing should be reasonably fast
-        // Threshold increased for CI stability under load
         assertTrue(roundTripDuration < 500, `Expected <500ms for parsing, got ${roundTripDuration}ms`);
       }, Effect.provide(TestLayer))
     );

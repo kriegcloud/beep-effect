@@ -1,9 +1,3 @@
-/**
- * Knowledge table exports
- *
- * @module knowledge-tables/tables
- * @since 0.1.0
- */
 export * from "./class-definition.table";
 export * from "./embedding.table";
 export * from "./entity.table";

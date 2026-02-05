@@ -1,18 +1,11 @@
-/**
- * Forward Chainer Tests
- *
- * Tests for the forward-chaining inference engine.
- *
- * @module knowledge-server/test/Reasoning/ForwardChainer
- * @since 0.1.0
- */
-import { MaxDepthExceededError, MaxInferencesExceededError } from "@beep/knowledge-domain/errors";
-import { type InferenceProvenance, IRI, Quad, ReasoningConfig } from "@beep/knowledge-domain/value-objects";
+import { IRI, Quad, ReasoningConfig } from "@beep/knowledge-domain/value-objects";
 import { forwardChain } from "@beep/knowledge-server/Reasoning/ForwardChainer";
 import { assertTrue, describe, live, strictEqual } from "@beep/testkit";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Either from "effect/Either";
+import * as R from "effect/Record";
+import * as Str from "effect/String";
 
 const RDF_TYPE = IRI.make("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
 const RDFS_DOMAIN = IRI.make("http://www.w3.org/2000/01/rdf-schema#domain");
@@ -248,13 +241,13 @@ describe("ForwardChainer", () => {
           const config = new ReasoningConfig({ maxDepth: 10, maxInferences: 1000 });
           const result = yield* forwardChain(quads, config);
 
-          const provenanceKeys = Object.keys(result.provenance);
+          const provenanceKeys = R.keys(result.provenance);
           assertTrue(A.length(provenanceKeys) > 0);
 
           for (const key of provenanceKeys) {
             const entry = result.provenance[key];
             assertTrue(entry !== undefined);
-            assertTrue(entry.ruleId.length > 0);
+            assertTrue(Str.isNonEmpty(entry.ruleId));
             assertTrue(A.length(entry.sourceQuads) > 0);
           }
         }) as Effect.Effect<void>
@@ -280,8 +273,8 @@ describe("ForwardChainer", () => {
           const config = new ReasoningConfig({ maxDepth: 10, maxInferences: 1000 });
           const result = yield* forwardChain(quads, config);
 
-          const provenanceEntries = Object.values(result.provenance) as InferenceProvenance[];
-          const hasRdfs9 = A.some(provenanceEntries, (e: InferenceProvenance) => e.ruleId === "rdfs9");
+          const provenanceEntries = R.values(result.provenance);
+          const hasRdfs9 = A.some(provenanceEntries, (e) => e.ruleId === "rdfs9");
           assertTrue(hasRdfs9);
         }) as Effect.Effect<void>
     );
@@ -389,7 +382,7 @@ describe("ForwardChainer", () => {
 
           assertTrue(Either.isLeft(result));
           Either.match(result, {
-            onLeft: (err: unknown) => assertTrue(err instanceof MaxDepthExceededError),
+            onLeft: (err) => strictEqual(err._tag, "MaxDepthExceededError"),
             onRight: () => assertTrue(false),
           });
         }) as Effect.Effect<void>
@@ -453,7 +446,7 @@ describe("ForwardChainer", () => {
 
           assertTrue(Either.isLeft(result));
           Either.match(result, {
-            onLeft: (err: unknown) => assertTrue(err instanceof MaxInferencesExceededError),
+            onLeft: (err) => strictEqual(err._tag, "MaxInferencesExceededError"),
             onRight: () => assertTrue(false),
           });
         }) as Effect.Effect<void>

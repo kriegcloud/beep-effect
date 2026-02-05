@@ -1,14 +1,3 @@
-/**
- * GmailExtractionAdapter - Gmail email extraction for knowledge graph ingestion
- *
- * This adapter is READ-ONLY and specifically designed for knowledge extraction.
- * It extracts emails in a format optimized for entity/relation extraction
- * in the knowledge graph pipeline.
- *
- * @module knowledge-server/adapters/GmailExtractionAdapter
- * @since 0.1.0
- */
-
 import { GoogleAuthClient } from "@beep/google-workspace-client";
 import {
   GmailScopes,
@@ -16,35 +5,25 @@ import {
   type GoogleAuthenticationError,
   type GoogleScopeExpansionRequiredError,
 } from "@beep/google-workspace-domain";
+import { BS } from "@beep/schema";
+import { thunkEmptyStr } from "@beep/utils";
 import { HttpClient, HttpClientRequest, HttpClientResponse } from "@effect/platform";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
+import * as Either from "effect/Either";
+import * as F from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 
-// =============================================================================
-// Constants
-// =============================================================================
-
-/**
- * Required OAuth scopes for email extraction.
- * Only read scope is needed - this adapter does not send emails.
- */
 export const REQUIRED_SCOPES = [GmailScopes.read] as const;
 
 const GMAIL_API_BASE = "https://gmail.googleapis.com/gmail/v1/users/me";
 
-// =============================================================================
-// Output Types (Knowledge Graph Oriented)
-// =============================================================================
-
-/**
- * Email metadata extracted for knowledge graph processing
- */
 export interface EmailMetadata {
   readonly from: string;
   readonly to: ReadonlyArray<string>;
@@ -54,9 +33,6 @@ export interface EmailMetadata {
   readonly labels: ReadonlyArray<string>;
 }
 
-/**
- * Extracted email document optimized for knowledge graph ingestion
- */
 export interface ExtractedEmailDocument {
   readonly sourceId: string;
   readonly sourceType: "gmail";
@@ -66,9 +42,6 @@ export interface ExtractedEmailDocument {
   readonly extractedAt: DateTime.Utc;
 }
 
-/**
- * Thread context for multi-message conversations
- */
 export interface ThreadContext {
   readonly threadId: string;
   readonly subject: string;
@@ -79,10 +52,6 @@ export interface ThreadContext {
     readonly latest: DateTime.Utc;
   };
 }
-
-// =============================================================================
-// Gmail API Response Types
-// =============================================================================
 
 const GmailMessageHeaderSchema = S.Struct({
   name: S.String,
@@ -95,8 +64,6 @@ const GmailMessagePartBodySchema = S.Struct({
   data: S.optional(S.String),
 });
 
-// Gmail message parts can be nested, but we use a simpler approach:
-// We define parts as unknown and handle extraction manually
 const GmailMessagePartSchema = S.Struct({
   partId: S.String,
   mimeType: S.String,
@@ -148,55 +115,45 @@ const GmailThreadSchema = S.Struct({
   messages: S.optional(S.Array(GmailMessageSchema)),
 });
 
-// =============================================================================
-// Error Type Alias
-// =============================================================================
-
 type GmailExtractionError = GoogleApiError | GoogleAuthenticationError | GoogleScopeExpansionRequiredError;
-
-// =============================================================================
-// Header Parsing Utilities
-// =============================================================================
 
 const findHeader = (
   headers: ReadonlyArray<{ readonly name: string; readonly value: string }> | undefined,
   name: string
-): O.Option<string> => {
-  if (!headers) return O.none();
-  const lowerName = Str.toLowerCase(name);
-  return A.findFirst(headers, (h) => Str.toLowerCase(h.name) === lowerName).pipe(O.map((h) => h.value));
-};
+): O.Option<string> =>
+  F.pipe(
+    O.fromNullable(headers),
+    O.flatMap((hdrs) => {
+      const lowerName = Str.toLowerCase(name);
+      return F.pipe(
+        A.findFirst(hdrs, (h) => Str.toLowerCase(h.name) === lowerName),
+        O.map((h) => h.value)
+      );
+    })
+  );
 
-const parseEmailList = (value: string): ReadonlyArray<string> => {
-  const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
-  const matches = value.match(emailRegex);
-  return matches ? A.fromIterable(matches) : [];
-};
+const parseEmailList = (value: string): ReadonlyArray<string> =>
+  F.pipe(
+    Str.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g)(value),
+    O.map(A.fromIterable),
+    O.getOrElse(A.empty<string>)
+  );
 
-const parseDate = (internalDate: string | undefined): O.Option<DateTime.Utc> => {
-  if (!internalDate) return O.none();
-  const timestamp = Number.parseInt(internalDate, 10);
-  if (Number.isNaN(timestamp)) return O.none();
-  return O.some(DateTime.unsafeMake(timestamp));
-};
-
-// =============================================================================
-// Base64 URL Decoding
-// =============================================================================
+const parseDate = (internalDate: string | undefined): O.Option<DateTime.Utc> =>
+  F.pipe(
+    O.fromNullable(internalDate),
+    O.map((d) => Number.parseInt(d, 10)),
+    O.filter(P.not(Number.isNaN)),
+    O.map(DateTime.unsafeMake)
+  );
 
 const decodeBase64Url = (encoded: string): string => {
-  const base64 = Str.replaceAll("-", "+")(encoded).replace(/_/g, "/");
-  const padded = base64.length % 4 === 0 ? base64 : base64 + "=".repeat(4 - (base64.length % 4));
-  try {
-    return atob(padded);
-  } catch {
-    return "";
-  }
+  const base64 = F.pipe(encoded, Str.replaceAll("-", "+"), Str.replaceAll("_", "/"));
+  const len = Str.length(base64);
+  const remainder = len % 4;
+  const padded = remainder === 0 ? base64 : base64 + "=".repeat(4 - remainder);
+  return Either.try(() => atob(padded)).pipe(Either.getOrElse(thunkEmptyStr));
 };
-
-// =============================================================================
-// Content Extraction
-// =============================================================================
 
 type PartLike = {
   readonly mimeType?: string | undefined;
@@ -216,41 +173,37 @@ type PayloadLike = {
 };
 
 const isPartArray = (parts: unknown): parts is ReadonlyArray<PartLike> =>
-  Array.isArray(parts) && parts.every((p) => typeof p === "object" && p !== null);
+  A.isArray(parts) && A.every(parts, (p) => P.isNotNull(p) && P.isObject(p));
 
 const extractTextContent = (payload: PayloadLike | undefined): string => {
-  if (!payload) return "";
+  if (!payload) return Str.empty;
 
-  // Direct body content
   if (payload.body?.data) {
-    const mimeType = payload.mimeType ?? "";
-    if (mimeType === "text/plain" || !Str.includes("html")(mimeType)) {
+    const mimeType = payload.mimeType ?? Str.empty;
+    if (BS.MimeType.is["text/plain"](mimeType) || !Str.includes("html")(mimeType)) {
       return decodeBase64Url(payload.body.data);
     }
   }
 
-  // Multipart - prefer text/plain over text/html
   if (payload.parts && isPartArray(payload.parts)) {
     const parts = payload.parts;
-    const plainPart = A.findFirst(parts, (p) => p.mimeType === "text/plain");
+    const plainPart = A.findFirst(parts, (p) => BS.MimeType.is["text/plain"](p.mimeType));
     if (O.isSome(plainPart) && plainPart.value.body?.data) {
       return decodeBase64Url(plainPart.value.body.data);
     }
 
-    const htmlPart = A.findFirst(parts, (p) => p.mimeType === "text/html");
+    const htmlPart = A.findFirst(parts, (p) => BS.MimeType.is["text/html"](p.mimeType));
     if (O.isSome(htmlPart) && htmlPart.value.body?.data) {
       return stripHtml(decodeBase64Url(htmlPart.value.body.data));
     }
 
-    // Recursive check for nested parts (cast to PayloadLike for recursive call)
     const nestedContent = A.findFirst(parts, (part) => {
       if (!part.parts || !isPartArray(part.parts)) return false;
       const nested = extractTextContent(part as PayloadLike);
       return !Str.isEmpty(nested);
     }).pipe(
-      O.flatMap((part) =>
-        part.parts && isPartArray(part.parts) ? O.some(extractTextContent(part as PayloadLike)) : O.none()
-      )
+      O.flatMap(O.liftPredicate((part): part is PayloadLike => P.isNotNullable(part.parts) && isPartArray(part.parts))),
+      O.map(extractTextContent)
     );
 
     if (O.isSome(nestedContent)) {
@@ -258,40 +211,31 @@ const extractTextContent = (payload: PayloadLike | undefined): string => {
     }
   }
 
-  return "";
+  return Str.empty;
 };
 
-const stripHtml = (html: string): string => {
-  return html
-    .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "")
-    .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "")
-    .replace(/<[^>]+>/g, " ")
-    .replace(/&nbsp;/g, " ")
-    .replace(/&amp;/g, "&")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/\s+/g, " ")
-    .trim();
-};
-
-// =============================================================================
-// ACL Translation
-// =============================================================================
+const stripHtml = (html: string): string =>
+  F.pipe(
+    html,
+    Str.replaceAll(/<style[^>]*>[\s\S]*?<\/style>/gi, ""),
+    Str.replaceAll(/<script[^>]*>[\s\S]*?<\/script>/gi, ""),
+    Str.replaceAll(/<[^>]+>/g, " "),
+    Str.replaceAll(/&nbsp;/g, " "),
+    Str.replaceAll(/&amp;/g, "&"),
+    Str.replaceAll(/&lt;/g, "<"),
+    Str.replaceAll(/&gt;/g, ">"),
+    Str.replaceAll(/&quot;/g, '"'),
+    Str.replaceAll(/&#39;/g, "'"),
+    Str.replaceAll(/\s+/g, " "),
+    Str.trim
+  );
 
 const toExtractedDocument = (message: GmailMessage, extractedAt: DateTime.Utc): ExtractedEmailDocument => {
   const headers = message.payload?.headers;
   const subject = findHeader(headers, "Subject").pipe(O.getOrElse(() => "(No Subject)"));
-  const from = findHeader(headers, "From").pipe(O.getOrElse(() => ""));
-  const to = findHeader(headers, "To").pipe(
-    O.map(parseEmailList),
-    O.getOrElse(() => [])
-  );
-  const cc = findHeader(headers, "Cc").pipe(
-    O.map(parseEmailList),
-    O.getOrElse(() => [])
-  );
+  const from = findHeader(headers, "From").pipe(O.getOrElse(thunkEmptyStr));
+  const to = findHeader(headers, "To").pipe(O.map(parseEmailList), O.getOrElse(A.empty<string>));
+  const cc = findHeader(headers, "Cc").pipe(O.map(parseEmailList), O.getOrElse(A.empty<string>));
   const date = parseDate(message.internalDate);
   const content = extractTextContent(message.payload);
 
@@ -306,80 +250,50 @@ const toExtractedDocument = (message: GmailMessage, extractedAt: DateTime.Utc): 
       cc,
       date,
       threadId: message.threadId,
-      labels: message.labelIds ?? [],
+      labels: message.labelIds ?? A.empty<string>(),
     },
     extractedAt,
   };
 };
 
-// =============================================================================
-// Service Definition
-// =============================================================================
+export interface GmailExtractionAdapterShape {
+  readonly extractEmailsForKnowledgeGraph: (
+    query: string,
+    maxResults?: undefined | number
+  ) => Effect.Effect<ReadonlyArray<ExtractedEmailDocument>, GmailExtractionError>;
+  readonly extractThreadContext: (threadId: string) => Effect.Effect<ThreadContext, GmailExtractionError>;
+}
 
-/**
- * GmailExtractionAdapter provides email extraction for knowledge graph ingestion.
- *
- * This adapter is READ-ONLY and optimized for extracting emails in a format
- * suitable for entity and relation extraction in the knowledge pipeline.
- */
 export class GmailExtractionAdapter extends Context.Tag("GmailExtractionAdapter")<
   GmailExtractionAdapter,
-  {
-    /**
-     * Extract emails matching a query for knowledge graph processing.
-     *
-     * @param query - Gmail search query (e.g., "from:user@example.com after:2024/01/01")
-     * @param maxResults - Maximum number of emails to extract (default: 50)
-     * @returns Array of extracted email documents
-     */
-    readonly extractEmailsForKnowledgeGraph: (
-      query: string,
-      maxResults?: number
-    ) => Effect.Effect<ReadonlyArray<ExtractedEmailDocument>, GmailExtractionError>;
-
-    /**
-     * Extract full thread context for a conversation.
-     *
-     * @param threadId - Gmail thread ID
-     * @returns Thread context with all messages and participant info
-     */
-    readonly extractThreadContext: (threadId: string) => Effect.Effect<ThreadContext, GmailExtractionError>;
-  }
+  GmailExtractionAdapterShape
 >() {}
 
-// =============================================================================
-// Layer Implementation
-// =============================================================================
-
-/**
- * Live implementation of GmailExtractionAdapter.
- *
- * Requires GoogleAuthClient and HttpClient to be provided.
- */
-export const GmailExtractionAdapterLive = Layer.effect(
-  GmailExtractionAdapter,
+const serviceEffect: Effect.Effect<GmailExtractionAdapterShape, never, HttpClient.HttpClient | GoogleAuthClient> =
   Effect.gen(function* () {
     const http = yield* HttpClient.HttpClient;
     const auth = yield* GoogleAuthClient;
 
-    const makeAuthorizedRequest = <A, I, R>(request: HttpClientRequest.HttpClientRequest, schema: S.Schema<A, I, R>) =>
-      Effect.gen(function* () {
-        const token = yield* auth.getValidToken(REQUIRED_SCOPES);
-        const accessToken = O.getOrThrow(token.accessToken);
+    const makeAuthorizedRequest = Effect.fn(function* <A, I, R>(
+      request: HttpClientRequest.HttpClientRequest,
+      schema: S.Schema<A, I, R>
+    ) {
+      const token = yield* auth.getValidToken(REQUIRED_SCOPES);
+      const accessToken = O.getOrThrow(token.accessToken);
 
-        return yield* http.execute(request.pipe(HttpClientRequest.bearerToken(accessToken))).pipe(
-          Effect.flatMap(HttpClientResponse.schemaBodyJson(schema)),
-          Effect.mapError(
-            (error) =>
-              new GoogleApiError({
-                message: `Gmail API request failed: ${String(error)}`,
-                statusCode: 500,
-                endpoint: request.url,
-              })
-          ),
-          Effect.scoped
-        );
-      });
+      return yield* http.execute(request.pipe(HttpClientRequest.bearerToken(accessToken))).pipe(
+        Effect.flatMap(HttpClientResponse.schemaBodyJson(schema)),
+        Effect.mapError(
+          (error) =>
+            new GoogleApiError({
+              message: `Gmail API request failed: ${String(error)}`,
+              statusCode: 500,
+              endpoint: request.url,
+            })
+        ),
+        Effect.scoped
+      );
+    });
 
     const fetchMessage = (messageId: string) =>
       makeAuthorizedRequest(
@@ -409,12 +323,10 @@ export const GmailExtractionAdapterLive = Layer.effect(
 
     const extractEmailsForKnowledgeGraph = (query: string, maxResults = 50) =>
       Effect.gen(function* () {
-        yield* Effect.logDebug("GmailExtractionAdapter.extractEmailsForKnowledgeGraph", {
-          query,
-          maxResults,
-        });
+        yield* Effect.logDebug("Extracting emails for knowledge graph").pipe(
+          Effect.annotateLogs({ query, maxResults })
+        );
 
-        // List message IDs matching query
         const listResponse = yield* makeAuthorizedRequest(
           HttpClientRequest.get(`${GMAIL_API_BASE}/messages`).pipe(
             HttpClientRequest.setUrlParam("q", query),
@@ -425,15 +337,12 @@ export const GmailExtractionAdapterLive = Layer.effect(
 
         const messageRefs = listResponse.messages ?? [];
         if (A.isEmptyReadonlyArray(messageRefs)) {
-          yield* Effect.logDebug("GmailExtractionAdapter: no messages found");
+          yield* Effect.logDebug("No messages found");
           return [];
         }
 
-        yield* Effect.logDebug("GmailExtractionAdapter: fetching message details", {
-          count: messageRefs.length,
-        });
+        yield* Effect.logDebug("Fetching message details").pipe(Effect.annotateLogs({ count: A.length(messageRefs) }));
 
-        // Fetch full message details in parallel
         const messages = yield* Effect.all(
           A.map(messageRefs, (ref) => fetchMessage(ref.id)),
           { concurrency: 10 }
@@ -442,9 +351,9 @@ export const GmailExtractionAdapterLive = Layer.effect(
         const extractedAt = DateTime.unsafeNow();
         const documents = A.map(messages, (msg) => toExtractedDocument(msg, extractedAt));
 
-        yield* Effect.logInfo("GmailExtractionAdapter.extractEmailsForKnowledgeGraph: complete", {
-          extracted: documents.length,
-        });
+        yield* Effect.logInfo("Email extraction complete").pipe(
+          Effect.annotateLogs({ extracted: A.length(documents) })
+        );
 
         return documents;
       }).pipe(
@@ -456,7 +365,7 @@ export const GmailExtractionAdapterLive = Layer.effect(
 
     const extractThreadContext = (threadId: string) =>
       Effect.gen(function* () {
-        yield* Effect.logDebug("GmailExtractionAdapter.extractThreadContext", { threadId });
+        yield* Effect.logDebug("Extracting thread context").pipe(Effect.annotateLogs({ threadId }));
 
         const thread = yield* fetchThread(threadId);
         const messages = thread.messages ?? [];
@@ -472,19 +381,21 @@ export const GmailExtractionAdapterLive = Layer.effect(
         const extractedAt = DateTime.unsafeNow();
         const extractedMessages = A.map(messages, (msg) => toExtractedDocument(msg, extractedAt));
 
-        // Extract subject from first message
-        const firstMessage = A.head(extractedMessages);
-        const subject = O.isSome(firstMessage) ? firstMessage.value.title : "(No Subject)";
+        const subject = F.pipe(
+          A.head(extractedMessages),
+          O.map((m) => m.title),
+          O.getOrElse(() => "(No Subject)")
+        );
 
-        // Collect all unique participants
-        const allParticipants = A.flatMap(extractedMessages, (doc) => [
-          doc.metadata.from,
-          ...doc.metadata.to,
-          ...doc.metadata.cc,
-        ]);
-        const uniqueParticipants = A.dedupe(A.filter(allParticipants, (p) => !Str.isEmpty(p)));
+        const allParticipants = A.flatMap(extractedMessages, (doc) =>
+          F.pipe(A.make(doc.metadata.from), A.appendAll(doc.metadata.to), A.appendAll(doc.metadata.cc))
+        );
+        const uniqueParticipants = F.pipe(
+          allParticipants,
+          A.filter((p) => !Str.isEmpty(p)),
+          A.dedupe
+        );
 
-        // Calculate date range
         const dates = A.filterMap(extractedMessages, (doc) => doc.metadata.date);
         const sortedDates = A.sort(dates, DateTime.Order);
         const earliest = A.head(sortedDates);
@@ -501,11 +412,13 @@ export const GmailExtractionAdapterLive = Layer.effect(
           },
         };
 
-        yield* Effect.logInfo("GmailExtractionAdapter.extractThreadContext: complete", {
-          threadId,
-          messageCount: extractedMessages.length,
-          participantCount: uniqueParticipants.length,
-        });
+        yield* Effect.logInfo("Thread context extraction complete").pipe(
+          Effect.annotateLogs({
+            threadId,
+            messageCount: A.length(extractedMessages),
+            participantCount: A.length(uniqueParticipants),
+          })
+        );
 
         return context;
       }).pipe(
@@ -519,5 +432,5 @@ export const GmailExtractionAdapterLive = Layer.effect(
       extractEmailsForKnowledgeGraph,
       extractThreadContext,
     });
-  })
-);
+  });
+export const GmailExtractionAdapterLive = Layer.effect(GmailExtractionAdapter, serviceEffect);

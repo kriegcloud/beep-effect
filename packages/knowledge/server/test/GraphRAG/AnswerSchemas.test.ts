@@ -1,21 +1,11 @@
-/**
- * AnswerSchemas Tests
- *
- * Tests for grounded answer schema validation including
- * confidence range enforcement and required field validation.
- *
- * @module knowledge-server/test/GraphRAG/AnswerSchemas.test
- * @since 0.1.0
- */
-
 import { Citation, GroundedAnswer, InferenceStep, ReasoningTrace } from "@beep/knowledge-server/GraphRAG/AnswerSchemas";
 import { KnowledgeEntityIds } from "@beep/shared-domain";
 import { assertTrue, describe, effect, strictEqual } from "@beep/testkit";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 
-// Test entity IDs
 const testEntityId1 = KnowledgeEntityIds.KnowledgeEntityId.make(
   "knowledge_entity__11111111-1111-1111-1111-111111111111"
 );
@@ -34,8 +24,10 @@ describe("AnswerSchemas", () => {
         });
 
         strictEqual(step.rule, "sameAs transitivity");
-        strictEqual(step.premises.length, 2);
-        strictEqual(step.premises[0], "Alice");
+        strictEqual(A.length(step.premises), 2);
+        const first = A.head(step.premises);
+        assertTrue(O.isSome(first));
+        strictEqual(O.getOrThrow(first), "Alice");
       })
     );
 
@@ -57,7 +49,7 @@ describe("AnswerSchemas", () => {
           premises: [],
         });
 
-        strictEqual(step.premises.length, 0);
+        strictEqual(A.length(step.premises), 0);
       })
     );
   });
@@ -73,7 +65,7 @@ describe("AnswerSchemas", () => {
           depth: 2,
         });
 
-        strictEqual(trace.inferenceSteps.length, 2);
+        strictEqual(A.length(trace.inferenceSteps), 2);
         strictEqual(trace.depth, 2);
       })
     );
@@ -118,7 +110,7 @@ describe("AnswerSchemas", () => {
           depth: 1,
         });
 
-        strictEqual(trace.inferenceSteps.length, 0);
+        strictEqual(A.length(trace.inferenceSteps), 0);
         strictEqual(trace.depth, 1);
       })
     );
@@ -135,7 +127,7 @@ describe("AnswerSchemas", () => {
         });
 
         strictEqual(citation.claimText, "Alice knows Bob");
-        strictEqual(citation.entityIds.length, 2);
+        strictEqual(A.length(citation.entityIds), 2);
         assertTrue(O.isSome(O.fromNullable(citation.relationId)));
         strictEqual(citation.confidence, 0.95);
       })
@@ -149,7 +141,7 @@ describe("AnswerSchemas", () => {
           confidence: 1.0,
         });
 
-        strictEqual(citation.entityIds.length, 1);
+        strictEqual(A.length(citation.entityIds), 1);
         assertTrue(citation.relationId === undefined);
       })
     );
@@ -216,7 +208,7 @@ describe("AnswerSchemas", () => {
           confidence: 0.1,
         });
 
-        strictEqual(citation.entityIds.length, 0);
+        strictEqual(A.length(citation.entityIds), 0);
       })
     );
   });
@@ -245,7 +237,7 @@ describe("AnswerSchemas", () => {
         });
 
         strictEqual(answer.text, "Alice knows Bob through their LinkedIn connection.");
-        strictEqual(answer.citations.length, 1);
+        strictEqual(A.length(answer.citations), 1);
         strictEqual(answer.confidence, 0.85);
         assertTrue(answer.reasoning !== undefined);
         strictEqual(answer.reasoning?.depth, 2);
@@ -314,7 +306,7 @@ describe("AnswerSchemas", () => {
           confidence: 0.0,
         });
 
-        strictEqual(answer.citations.length, 0);
+        strictEqual(A.length(answer.citations), 0);
         strictEqual(answer.confidence, 0.0);
       })
     );
@@ -338,7 +330,7 @@ describe("AnswerSchemas", () => {
           confidence: 0.92,
         });
 
-        strictEqual(answer.citations.length, 2);
+        strictEqual(A.length(answer.citations), 2);
       })
     );
   });

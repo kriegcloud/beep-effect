@@ -1,58 +1,25 @@
-/**
- * EmbeddingService - Embedding generation with caching
- *
- * Provides cached embedding generation using @effect/ai EmbeddingModel
- * and pgvector-backed storage via EmbeddingRepo.
- *
- * @module knowledge-server/Embedding/EmbeddingService
- * @since 0.1.0
- */
-
 import { $KnowledgeServerId } from "@beep/identity/packages";
-import type { Entities } from "@beep/knowledge-domain";
+import { EmbeddingRepo, type SimilarityResult } from "@beep/knowledge-server/db/repos/Embedding.repo";
+import type { AssembledEntity } from "@beep/knowledge-server/Extraction/GraphAssembler";
+import { formatEntityForEmbedding } from "@beep/knowledge-server/utils/formatting";
 import { KnowledgeEntityIds, type SharedEntityIds } from "@beep/shared-domain";
 import { thunkEmptyStr, thunkFalse, thunkTrue } from "@beep/utils";
 import type * as AiError from "@effect/ai/AiError";
 import * as EmbeddingModel from "@effect/ai/EmbeddingModel";
 import * as A from "effect/Array";
+import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Either from "effect/Either";
 import * as Layer from "effect/Layer";
 import * as Match from "effect/Match";
-import * as MutableHashMap from "effect/MutableHashMap";
 import * as O from "effect/Option";
 import * as Str from "effect/String";
-import { EmbeddingRepo } from "../db/repos/Embedding.repo";
-import type { AssembledEntity } from "../Extraction/GraphAssembler";
-import { formatEntityForEmbedding } from "../utils/formatting";
 import { EmbeddingError, type TaskType } from "./EmbeddingProvider";
 
 const $I = $KnowledgeServerId.create("Embedding/EmbeddingService");
 
-// Type alias for proper TypeScript type access
-type EmbeddingModelEntity = (typeof Entities.Embedding.Model)["Type"];
-
-// =============================================================================
-// Constants
-// =============================================================================
-
-/**
- * Default embedding model name for caching purposes
- *
- * Used as a cache key component since EmbeddingModel.Service doesn't expose model config.
- */
 const DEFAULT_EMBEDDING_MODEL = "text-embedding-3-small";
 
-// =============================================================================
-// Error Mapping
-// =============================================================================
-
-/**
- * Map @effect/ai AiError to knowledge domain EmbeddingError
- *
- * Preserves error semantics while adapting to the knowledge domain's error contract.
- * HTTP errors are considered retryable; validation/parsing errors are not.
- */
 const mapAiError = (error: AiError.AiError): EmbeddingError =>
   new EmbeddingError({
     message: error.message,
@@ -65,295 +32,231 @@ const mapAiError = (error: AiError.AiError): EmbeddingError =>
     cause: Either.try(() => JSON.stringify({ _tag: error._tag })).pipe(Either.getOrElse(thunkEmptyStr)),
   });
 
-// =============================================================================
-// Cache Key Utilities
-// =============================================================================
-
-/**
- * Generate a deterministic cache key for an embedding
- *
- * Uses a simple hash of the text to create a reproducible key.
- */
 const computeCacheKey = (text: string, model: string): string => {
-  // Simple hash function (djb2)
   let hash = 5381;
   for (let i = 0; i < text.length; i++) {
     hash = (hash << 5) + hash + text.charCodeAt(i);
-    hash = hash & hash; // Convert to 32-bit integer
+    hash = hash & hash;
   }
-  // Convert to hex and combine with model
   const hashHex = Math.abs(hash).toString(16).padStart(8, "0");
   return `${model}:${hashHex}`;
 };
 
-// =============================================================================
-// Service Implementation
-// =============================================================================
+export interface EmbeddingServiceShape {
+  readonly getConfig: () => Effect.Effect<
+    {
+      model: string;
+      dimensions: number;
+      provider: string;
+    },
+    never,
+    never
+  >;
+  readonly getOrCreate: (
+    text: string,
+    taskType: TaskType.Type,
+    organizationId: SharedEntityIds.OrganizationId.Type,
+    ontologyId: KnowledgeEntityIds.OntologyId.Type
+  ) => Effect.Effect<readonly number[], EmbeddingError>;
+  readonly findSimilar: (
+    queryVector: readonly number[],
+    organizationId: SharedEntityIds.OrganizationId.Type,
+    limit?: undefined | number,
+    threshold?: undefined | number
+  ) => Effect.Effect<readonly SimilarityResult[], EmbeddingError, never>;
+  readonly embedEntities: (
+    entities: readonly AssembledEntity[],
+    organizationId: SharedEntityIds.OrganizationId.Type,
+    ontologyId?: KnowledgeEntityIds.OntologyId.Type
+  ) => Effect.Effect<void, EmbeddingError, never>;
+  readonly embed: (
+    text: string,
+    _taskType: TaskType.Type,
+    organizationId: SharedEntityIds.OrganizationId.Type,
+    _ontologyId?: undefined | KnowledgeEntityIds.OntologyId.Type
+  ) => Effect.Effect<readonly number[], EmbeddingError, never>;
+}
 
-/**
- * EmbeddingService - Cached embedding generation
- *
- * Provides embedding generation with automatic caching via pgvector.
- * Uses the configured EmbeddingProvider for actual embedding generation.
- *
- * @example
- * ```ts
- * import { EmbeddingService } from "@beep/knowledge-server/Embedding";
- * import * as Effect from "effect/Effect";
- *
- * const program = Effect.gen(function* () {
- *   const service = yield* EmbeddingService;
- *
- *   // Single embedding with caching
- *   const vector = yield* service.embed(
- *     "Machine learning is a subset of AI",
- *     "search_document",
- *     organizationId,
- *     ontologyId
- *   );
- *
- *   // Find similar content
- *   const similar = yield* service.findSimilar(vector, organizationId);
- * });
- * ```
- *
- * @since 0.1.0
- * @category services
- */
-export class EmbeddingService extends Effect.Service<EmbeddingService>()($I`EmbeddingService`, {
-  accessors: true,
-  effect: Effect.gen(function* () {
-    const embeddingModel = yield* EmbeddingModel.EmbeddingModel;
-    const repo = yield* EmbeddingRepo;
+export class EmbeddingService extends Context.Tag($I`EmbeddingService`)<EmbeddingService, EmbeddingServiceShape>() {}
+const serviceEffect: Effect.Effect<
+  EmbeddingServiceShape,
+  EmbeddingError,
+  EmbeddingRepo | EmbeddingModel.EmbeddingModel
+> = Effect.gen(function* () {
+  const embeddingModel = yield* EmbeddingModel.EmbeddingModel;
+  const repo = yield* EmbeddingRepo;
 
-    /**
-     * Generate embedding for a single text with caching
-     *
-     * Checks cache first, generates if not found, stores in cache.
-     * Note: taskType parameter is kept for backward compatibility but is not used
-     * by @effect/ai's EmbeddingModel interface.
-     */
-    const embed = Effect.fn("EmbeddingService.embed")(function* (
-      text: string,
-      _taskType: TaskType.Type,
-      organizationId: SharedEntityIds.OrganizationId.Type,
-      _ontologyId?: undefined | KnowledgeEntityIds.OntologyId.Type
-    ) {
-      const cacheKey = computeCacheKey(text, DEFAULT_EMBEDDING_MODEL);
+  const embed = Effect.fn("EmbeddingService.embed")(function* (
+    text: string,
+    _taskType: TaskType.Type,
+    organizationId: SharedEntityIds.OrganizationId.Type,
+    _ontologyId?: undefined | KnowledgeEntityIds.OntologyId.Type
+  ) {
+    const cacheKey = computeCacheKey(text, DEFAULT_EMBEDDING_MODEL);
 
-      // Check cache
-      const cached: O.Option<EmbeddingModelEntity> = yield* repo
-        .findByCacheKey(cacheKey, organizationId)
-        .pipe(Effect.catchAll(() => Effect.succeed(O.none<EmbeddingModelEntity>())));
+    const cached = yield* repo.findByCacheKey(cacheKey, organizationId).pipe(Effect.orElseSucceed(() => O.none()));
 
-      if (O.isSome(cached)) {
-        yield* Effect.logDebug("EmbeddingService.embed: cache hit", { cacheKey });
-        return cached.value.embedding;
-      }
+    if (O.isSome(cached)) {
+      yield* Effect.logDebug("EmbeddingService.embed: cache hit").pipe(Effect.annotateLogs({ cacheKey }));
+      return cached.value.embedding;
+    }
 
-      yield* Effect.logDebug("EmbeddingService.embed: cache miss, generating", {
-        cacheKey,
-        textLength: text.length,
-      });
+    yield* Effect.logDebug("EmbeddingService.embed: cache miss, generating").pipe(
+      Effect.annotateLogs({ cacheKey, textLength: text.length })
+    );
 
-      // Generate embedding using @effect/ai EmbeddingModel
-      const vector = yield* embeddingModel.embed(text).pipe(Effect.mapError(mapAiError));
+    const vector = yield* embeddingModel.embed(text).pipe(Effect.mapError(mapAiError));
 
-      // Note: Caching disabled - the entityId must now be a proper entity ID
-      // (ClassDefinitionId | KnowledgeEntityId | RelationId), not a cache key hash.
-      // TODO: Implement separate caching mechanism or use in-memory cache.
-      yield* Effect.logDebug("EmbeddingService: embedding generated (caching disabled)", {
-        cacheKey,
-        vectorLength: vector.length,
-      });
+    yield* Effect.logDebug("EmbeddingService: embedding generated (caching disabled)").pipe(
+      Effect.annotateLogs({ cacheKey, vectorLength: vector.length })
+    );
 
-      return vector;
-    });
+    return vector;
+  });
 
-    /**
-     * Generate embeddings for multiple entities from an extraction
-     *
-     * Batches embeddings for efficiency and stores all in cache.
-     */
-    const embedEntities = Effect.fn("EmbeddingService.embedEntities")(function* (
-      entities: ReadonlyArray<AssembledEntity>,
-      organizationId: SharedEntityIds.OrganizationId.Type,
-      ontologyId?: undefined | KnowledgeEntityIds.OntologyId.Type
-    ) {
-      if (A.isEmptyReadonlyArray(entities)) {
-        yield* Effect.logDebug("EmbeddingService.embedEntities: no entities to embed");
-        return;
-      }
+  const embedEntities = Effect.fn("EmbeddingService.embedEntities")(function* (
+    entities: ReadonlyArray<AssembledEntity>,
+    organizationId: SharedEntityIds.OrganizationId.Type,
+    ontologyId?: undefined | KnowledgeEntityIds.OntologyId.Type
+  ) {
+    if (A.isEmptyReadonlyArray(entities)) {
+      yield* Effect.logDebug("EmbeddingService.embedEntities: no entities to embed");
+      return;
+    }
 
-      yield* Effect.logInfo("EmbeddingService.embedEntities: starting", {
-        count: entities.length,
-      });
+    yield* Effect.logInfo("EmbeddingService.embedEntities: starting").pipe(
+      Effect.annotateLogs({ count: entities.length })
+    );
 
-      // Prepare texts for batch embedding
-      const texts = A.map(entities, formatEntityForEmbedding);
+    const indexed = A.map(entities, (entity, i) => ({
+      index: i,
+      entity,
+      text: formatEntityForEmbedding(entity),
+    }));
 
-      // Check which are already cached
-      const uncachedIndices = A.empty<number>();
-      const cachedVectors = MutableHashMap.empty<number, ReadonlyArray<number>>();
+    const cacheResults = yield* Effect.forEach(indexed, (item) =>
+      repo.findByCacheKey(computeCacheKey(item.text, DEFAULT_EMBEDDING_MODEL), organizationId).pipe(
+        Effect.option,
+        Effect.map((cached) => ({ ...item, cached }))
+      )
+    );
 
-      for (let i = 0; i < texts.length; i++) {
-        const textOpt = A.get(texts, i);
-        if (O.isNone(textOpt)) continue;
-        const text = textOpt.value;
-        const cacheKey = computeCacheKey(text, DEFAULT_EMBEDDING_MODEL);
-        const cached: O.Option<EmbeddingModelEntity> = yield* repo
-          .findByCacheKey(cacheKey, organizationId)
-          .pipe(Effect.catchAll(() => Effect.succeed(O.none<EmbeddingModelEntity>())));
+    const { uncached, cachedCount } = A.reduce(
+      cacheResults,
+      { uncached: A.empty<(typeof cacheResults)[number]>(), cachedCount: 0 },
+      (acc, item) =>
+        O.isSome(item.cached)
+          ? { ...acc, cachedCount: acc.cachedCount + 1 }
+          : { ...acc, uncached: A.append(acc.uncached, item) }
+    );
 
-        if (O.isSome(cached)) {
-          MutableHashMap.set(cachedVectors, i, cached.value.embedding);
-        } else {
-          uncachedIndices.push(i);
-        }
-      }
+    yield* Effect.logDebug("EmbeddingService.embedEntities: cache check complete").pipe(
+      Effect.annotateLogs({
+        cached: cachedCount,
+        uncached: uncached.length,
+      })
+    );
 
-      yield* Effect.logDebug("EmbeddingService.embedEntities: cache check complete", {
-        cached: MutableHashMap.size(cachedVectors),
-        uncached: uncachedIndices.length,
-      });
+    if (A.isEmptyReadonlyArray(uncached)) {
+      yield* Effect.logInfo("EmbeddingService.embedEntities: all cached");
+      return;
+    }
 
-      if (A.isEmptyReadonlyArray(uncachedIndices)) {
-        yield* Effect.logInfo("EmbeddingService.embedEntities: all cached");
-        return;
-      }
+    const uncachedTexts = A.map(uncached, (item) => item.text);
+    const vectors = yield* embeddingModel.embedMany(uncachedTexts).pipe(Effect.mapError(mapAiError));
 
-      // Batch generate uncached embeddings using @effect/ai EmbeddingModel
-      const uncachedTexts = A.filterMap(uncachedIndices, (i) => A.get(texts, i));
-      const vectors = yield* embeddingModel.embedMany(uncachedTexts).pipe(Effect.mapError(mapAiError));
-
-      // Store new embeddings
-      for (let j = 0; j < uncachedIndices.length; j++) {
-        const combined = O.all({
-          entityIndex: A.get(uncachedIndices, j),
-          vector: A.get(vectors, j),
-        });
-
-        if (O.isNone(combined)) continue;
-        const { entityIndex, vector } = combined.value;
-
-        const entityAndText = O.all({
-          entity: A.get(entities, entityIndex),
-          text: A.get(texts, entityIndex),
-        });
-
-        if (O.isNone(entityAndText)) continue;
-        const { entity, text } = entityAndText.value;
-
-        yield* repo
-          .insertVoid({
-            id: KnowledgeEntityIds.EmbeddingId.create(),
-            organizationId,
-            ontologyId: O.fromNullable(ontologyId),
-            entityType: "entity",
-            entityId: entity.id, // Use entity ID for later lookup
-            embedding: vector,
-            contentText: O.some(Str.slice(0, 1000)(text)),
-            model: DEFAULT_EMBEDDING_MODEL,
-            // Audit fields
-            source: O.some("embedding-service"),
-            deletedAt: O.none(),
-            createdBy: O.none(),
-            updatedBy: O.none(),
-            deletedBy: O.none(),
-          })
-          .pipe(
-            Effect.catchAll((error) =>
-              Effect.logWarning("EmbeddingService: failed to store entity embedding", {
-                error: String(error),
-                entityId: entity.id,
-              })
-            )
-          );
-      }
-
-      yield* Effect.logInfo("EmbeddingService.embedEntities: complete", {
-        total: entities.length,
-        generated: uncachedIndices.length,
-        cached: MutableHashMap.size(cachedVectors),
-      });
-    });
-
-    /**
-     * Find similar embeddings via pgvector
-     */
-    const findSimilar = Effect.fn("EmbeddingService.findSimilar")(function* (
-      queryVector: ReadonlyArray<number>,
-      organizationId: SharedEntityIds.OrganizationId.Type,
-      limit = 10,
-      threshold = 0.7
-    ) {
-      yield* Effect.logDebug("EmbeddingService.findSimilar", {
-        organizationId,
-        limit,
-        threshold,
-      });
-
-      const results = yield* repo.findSimilar(queryVector, organizationId, limit, threshold).pipe(
-        Effect.mapError(
-          (error) =>
-            new EmbeddingError({
-              message: `Similarity search failed: ${String(error)}`,
-              provider: "pgvector",
-              retryable: false,
+    yield* Effect.forEach(uncached, (item, j) =>
+      O.match(A.get(vectors, j), {
+        onNone: () => Effect.void,
+        onSome: (vector) =>
+          repo
+            .insertVoid({
+              id: KnowledgeEntityIds.EmbeddingId.create(),
+              organizationId,
+              ontologyId: O.fromNullable(ontologyId),
+              entityType: "entity",
+              entityId: item.entity.id,
+              embedding: vector,
+              contentText: O.some(Str.slice(0, 1000)(item.text)),
+              model: DEFAULT_EMBEDDING_MODEL,
+              source: O.some("embedding-service"),
+              deletedAt: O.none(),
+              createdBy: O.none(),
+              updatedBy: O.none(),
+              deletedBy: O.none(),
             })
-        )
-      );
+            .pipe(
+              Effect.catchTag("DatabaseError", (error) =>
+                Effect.logWarning("EmbeddingService: failed to store entity embedding").pipe(
+                  Effect.annotateLogs({
+                    error: String(error),
+                    entityId: item.entity.id,
+                  })
+                )
+              )
+            ),
+      })
+    );
 
-      yield* Effect.logDebug("EmbeddingService.findSimilar: complete", {
-        resultCount: results.length,
-      });
+    yield* Effect.logInfo("EmbeddingService.embedEntities: complete").pipe(
+      Effect.annotateLogs({
+        total: entities.length,
+        generated: uncached.length,
+        cached: cachedCount,
+      })
+    );
+  });
 
-      return results;
-    });
+  const findSimilar = Effect.fn("EmbeddingService.findSimilar")(function* (
+    queryVector: ReadonlyArray<number>,
+    organizationId: SharedEntityIds.OrganizationId.Type,
+    limit = 10,
+    threshold = 0.7
+  ) {
+    yield* Effect.logDebug("EmbeddingService.findSimilar").pipe(
+      Effect.annotateLogs({ organizationId, limit, threshold })
+    );
 
-    /**
-     * Get embedding for a text (generate or retrieve from cache)
-     *
-     * Convenience method that always returns a vector.
-     * Note: taskType parameter is kept for backward compatibility but is not used.
-     */
-    const getOrCreate = (
-      text: string,
-      taskType: TaskType.Type,
-      organizationId: SharedEntityIds.OrganizationId.Type,
-      ontologyId: string
-    ): Effect.Effect<ReadonlyArray<number>, EmbeddingError> => embed(text, taskType, organizationId, ontologyId);
+    const results = yield* repo.findSimilar(queryVector, organizationId, limit, threshold).pipe(
+      Effect.mapError(
+        (error) =>
+          new EmbeddingError({
+            message: `Similarity search failed: ${String(error)}`,
+            provider: "pgvector",
+            retryable: false,
+          })
+      )
+    );
 
-    /**
-     * Get embedding configuration
-     *
-     * Returns static configuration since @effect/ai EmbeddingModel doesn't expose config.
-     */
-    const getConfig = Effect.fn("EmbeddingService.getConfig")(function* () {
-      return {
-        model: DEFAULT_EMBEDDING_MODEL,
-        dimensions: 768,
-        provider: "openai",
-      };
-    });
+    yield* Effect.logDebug("EmbeddingService.findSimilar: complete").pipe(
+      Effect.annotateLogs({ resultCount: results.length })
+    );
 
+    return results;
+  });
+
+  const getOrCreate = (
+    text: string,
+    taskType: TaskType.Type,
+    organizationId: SharedEntityIds.OrganizationId.Type,
+    ontologyId: KnowledgeEntityIds.OntologyId.Type
+  ): Effect.Effect<ReadonlyArray<number>, EmbeddingError> => embed(text, taskType, organizationId, ontologyId);
+
+  const getConfig = Effect.fn("EmbeddingService.getConfig")(function* () {
     return {
-      embed,
-      embedEntities,
-      findSimilar,
-      getOrCreate,
-      getConfig,
+      model: DEFAULT_EMBEDDING_MODEL,
+      dimensions: 768,
+      provider: "openai",
     };
-  }),
-}) {}
+  });
 
-/**
- * EmbeddingService layer with dependencies
- *
- * Requires EmbeddingModel.EmbeddingModel and EmbeddingRepo to be provided.
- * Use MockEmbeddingModelLayer for tests or OpenAiEmbeddingLayerConfig for production.
- *
- * @since 0.1.0
- * @category layers
- */
-export const EmbeddingServiceLive = EmbeddingService.Default.pipe(Layer.provide(EmbeddingRepo.Default));
+  return EmbeddingService.of({
+    embed,
+    embedEntities,
+    findSimilar,
+    getOrCreate,
+    getConfig,
+  });
+});
+
+export const EmbeddingServiceLive = Layer.effect(EmbeddingService, serviceEffect);

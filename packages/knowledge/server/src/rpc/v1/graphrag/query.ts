@@ -1,17 +1,8 @@
-/**
- * GraphRAG Query RPC Handler
- *
- * Performs GraphRAG query combining embedding search with graph traversal.
- *
- * @module knowledge-server/rpc/v1/graphrag/query
- * @since 0.1.0
- */
-
 import { Errors } from "@beep/knowledge-domain";
+import * as GraphRAG from "@beep/knowledge-server/GraphRAG";
 import type { KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import { Policy } from "@beep/shared-domain";
 import * as Effect from "effect/Effect";
-import * as GraphRAG from "../../../GraphRAG";
 
 interface Payload {
   readonly query: string;

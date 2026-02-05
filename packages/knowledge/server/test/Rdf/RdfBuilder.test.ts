@@ -1,30 +1,16 @@
-/**
- * RdfBuilder Tests
- *
- * Tests for the fluent RDF quad builder service.
- *
- * @module knowledge-server/test/Rdf/RdfBuilder.test
- * @since 0.1.0
- */
 import { IRI, Literal, makeBlankNode, Quad, QuadPattern } from "@beep/knowledge-domain/value-objects";
-import { RdfBuilder } from "@beep/knowledge-server/Rdf/RdfBuilder";
-import { RdfStore } from "@beep/knowledge-server/Rdf/RdfStoreService";
+import { RdfBuilder, RdfBuilderLive } from "@beep/knowledge-server/Rdf/RdfBuilder";
+import { RdfStore, RdfStoreLive } from "@beep/knowledge-server/Rdf/RdfStoreService";
 import { assertTrue, layer, strictEqual } from "@beep/testkit";
 import * as A from "effect/Array";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 
-/**
- * Common RDF namespace prefixes for test fixtures
- */
 const FOAF = "http://xmlns.com/foaf/0.1/";
 const XSD = "http://www.w3.org/2001/XMLSchema#";
 const EX = "http://example.org/";
 
-/**
- * Test fixture helpers
- */
 const fixtures = {
   alice: IRI.make(`${EX}alice`),
   bob: IRI.make(`${EX}bob`),
@@ -39,11 +25,7 @@ const fixtures = {
   blankB1: makeBlankNode("_:b1"),
 };
 
-/**
- * Test Layer combining RdfStore and RdfBuilder
- * RdfBuilder.Default depends on RdfStore, so we provide RdfStore to it
- */
-const TestLayer = RdfBuilder.Default.pipe(Layer.provideMerge(RdfStore.Default));
+const TestLayer = RdfBuilderLive.pipe(Layer.provideMerge(RdfStoreLive));
 
 layer(TestLayer, { timeout: Duration.seconds(30) })("RdfBuilder", (it) => {
   it.effect(

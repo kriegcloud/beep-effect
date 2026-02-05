@@ -1,40 +1,37 @@
-/**
- * Test Layers for Knowledge Domain Tests
- *
- * Provides test layers for EntityRegistry and MergeHistory services.
- *
- * CRITICAL: Uses Layer.merge for Phase 2.
- * Phase 3 will add Layer.provideMerge with EntityRepo.
- *
- * @module knowledge-domain/test/_shared/TestLayers
- * @since 0.1.0
- */
-
+import { MergeError } from "@beep/knowledge-domain/errors/merge.errors";
 import { EntityRegistry, MergeHistory } from "@beep/knowledge-domain/services";
+import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 
-/**
- * Test layer for EntityRegistry (stub implementation)
- *
- * @since 0.1.0
- * @category test layers
- */
-export const EntityRegistryTestLayer = EntityRegistry.Default;
+export const EntityRegistryTestLayer = Layer.succeed(EntityRegistry, {
+  findCandidates: () => Effect.succeed([]),
+  bloomFilterCheck: () => Effect.succeed(true),
+  fetchTextMatches: () => Effect.succeed([]),
+  rankBySimilarity: () => Effect.succeed([]),
+});
 
-/**
- * Test layer for MergeHistory (stub implementation)
- *
- * @since 0.1.0
- * @category test layers
- */
-export const MergeHistoryTestLayer = MergeHistory.Default;
+export const MergeHistoryTestLayer = Layer.succeed(MergeHistory, {
+  recordMerge: (params) =>
+    Effect.fail(
+      new MergeError({
+        message: "MergeHistory.recordMerge not implemented - provide implementation via Layer",
+        sourceEntityId: params.sourceEntityId,
+        targetEntityId: params.targetEntityId,
+      })
+    ),
+  getMergeHistory: (entityId) =>
+    Effect.fail(
+      new MergeError({
+        message: "MergeHistory.getMergeHistory not implemented - provide implementation via Layer",
+        targetEntityId: entityId,
+      })
+    ),
+  getMergesByUser: () =>
+    Effect.fail(
+      new MergeError({
+        message: "MergeHistory.getMergesByUser not implemented - provide implementation via Layer",
+      })
+    ),
+});
 
-/**
- * Combined test layer for entity resolution services
- *
- * Provides both EntityRegistry and MergeHistory for integration testing.
- *
- * @since 0.1.0
- * @category test layers
- */
 export const EntityResolutionTestLayer = Layer.merge(EntityRegistryTestLayer, MergeHistoryTestLayer);

@@ -1,18 +1,5 @@
-/**
- * EntityRegistry Unit Tests
- *
- * Tests for the entity registry service that provides candidate search
- * and entity resolution capabilities.
- *
- * Note: Full integration tests require database and embedding services.
- * These unit tests focus on the pure normalizeText function and
- * BloomFilter integration patterns.
- *
- * @module knowledge-server/test/EntityResolution/EntityRegistry.test
- * @since 0.1.0
- */
 import { normalizeText } from "@beep/knowledge-server/EntityResolution/EntityRegistry";
-import { describe, effect, strictEqual, assertTrue } from "@beep/testkit";
+import { assertTrue, describe, effect, strictEqual } from "@beep/testkit";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 
@@ -109,14 +96,7 @@ describe("EntityRegistry", () => {
     effect(
       "produces consistent output for entity matching",
       Effect.fn(function* () {
-        // All these variations should normalize to the same output
-        const variations = [
-          "Apple Inc.",
-          "APPLE INC.",
-          "  Apple Inc.  ",
-          "apple inc.",
-          "  APPLE INC.  ",
-        ];
+        const variations = ["Apple Inc.", "APPLE INC.", "  Apple Inc.  ", "apple inc.", "  APPLE INC.  "];
 
         const normalized = A.map(variations, normalizeText);
         const expected = "apple inc.";

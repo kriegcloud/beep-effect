@@ -1,12 +1,3 @@
-/**
- * PromptTemplates Tests
- *
- * Tests for grounded answer prompt construction utilities.
- *
- * @module knowledge-server/test/GraphRAG/PromptTemplates.test
- * @since 0.1.0
- */
-
 import {
   buildGroundedAnswerPrompt,
   extractCitations,
@@ -24,8 +15,8 @@ import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as HashMap from "effect/HashMap";
 import * as O from "effect/Option";
+import * as Str from "effect/String";
 
-// Test IDs
 const testEntityId1 = KnowledgeEntityIds.KnowledgeEntityId.make(
   "knowledge_entity__11111111-1111-1111-1111-111111111111"
 );
@@ -34,7 +25,6 @@ const testEntityId2 = KnowledgeEntityIds.KnowledgeEntityId.make(
 );
 const testRelationId = KnowledgeEntityIds.RelationId.make("knowledge_relation__33333333-3333-3333-3333-333333333333");
 
-// Test entities
 const createTestEntity = (
   id: string,
   mention: string,
@@ -48,7 +38,6 @@ const createTestEntity = (
   return entity;
 };
 
-// Test relations
 const createTestRelation = (
   id: string,
   subjectId: string,
@@ -66,22 +55,22 @@ describe("PromptTemplates", () => {
     effect(
       "contains citation format instructions",
       Effect.fn(function* () {
-        assertTrue(GROUNDED_ANSWER_SYSTEM_PROMPT.includes("{{entity:entity_id}}"));
-        assertTrue(GROUNDED_ANSWER_SYSTEM_PROMPT.includes("{{relation:relation_id}}"));
+        assertTrue(Str.includes("{{entity:entity_id}}")(GROUNDED_ANSWER_SYSTEM_PROMPT));
+        assertTrue(Str.includes("{{relation:relation_id}}")(GROUNDED_ANSWER_SYSTEM_PROMPT));
       })
     );
 
     effect(
       "contains ONLY context instruction",
       Effect.fn(function* () {
-        assertTrue(GROUNDED_ANSWER_SYSTEM_PROMPT.includes("ONLY"));
+        assertTrue(Str.includes("ONLY")(GROUNDED_ANSWER_SYSTEM_PROMPT));
       })
     );
 
     effect(
       "contains insufficient information guidance",
       Effect.fn(function* () {
-        assertTrue(GROUNDED_ANSWER_SYSTEM_PROMPT.includes("don't have enough information"));
+        assertTrue(Str.includes("don't have enough information")(GROUNDED_ANSWER_SYSTEM_PROMPT));
       })
     );
   });
@@ -93,9 +82,9 @@ describe("PromptTemplates", () => {
         const entity = createTestEntity(testEntityId1, "Alice Smith", ["http://schema.org/Person"]);
         const formatted = formatEntityForPrompt(entity);
 
-        assertTrue(formatted.includes(`[id: ${testEntityId1}]`));
-        assertTrue(formatted.includes("Alice Smith"));
-        assertTrue(formatted.includes("Person"));
+        assertTrue(Str.includes(`[id: ${testEntityId1}]`)(formatted));
+        assertTrue(Str.includes("Alice Smith")(formatted));
+        assertTrue(Str.includes("Person")(formatted));
       })
     );
 
@@ -108,8 +97,8 @@ describe("PromptTemplates", () => {
         ]);
         const formatted = formatEntityForPrompt(entity);
 
-        assertTrue(formatted.includes("Person"));
-        assertTrue(formatted.includes("Employee"));
+        assertTrue(Str.includes("Person")(formatted));
+        assertTrue(Str.includes("Employee")(formatted));
       })
     );
 
@@ -122,8 +111,8 @@ describe("PromptTemplates", () => {
         });
         const formatted = formatEntityForPrompt(entity);
 
-        assertTrue(formatted.includes("age: 30"));
-        assertTrue(formatted.includes("jobTitle: Engineer"));
+        assertTrue(Str.includes("age: 30")(formatted));
+        assertTrue(Str.includes("jobTitle: Engineer")(formatted));
       })
     );
 
@@ -133,7 +122,7 @@ describe("PromptTemplates", () => {
         const entity = createTestEntity(testEntityId1, "Something", []);
         const formatted = formatEntityForPrompt(entity);
 
-        assertTrue(formatted.includes("Unknown"));
+        assertTrue(Str.includes("Unknown")(formatted));
       })
     );
   });
@@ -152,10 +141,10 @@ describe("PromptTemplates", () => {
 
         const formatted = formatRelationForPrompt(relation, entityLookup);
 
-        assertTrue(formatted.includes(`[id: ${testRelationId}]`));
-        assertTrue(formatted.includes("Alice"));
-        assertTrue(formatted.includes("Acme Corp"));
-        assertTrue(formatted.includes("worksFor"));
+        assertTrue(Str.includes(`[id: ${testRelationId}]`)(formatted));
+        assertTrue(Str.includes("Alice")(formatted));
+        assertTrue(Str.includes("Acme Corp")(formatted));
+        assertTrue(Str.includes("worksFor")(formatted));
       })
     );
 
@@ -167,8 +156,8 @@ describe("PromptTemplates", () => {
 
         const formatted = formatRelationForPrompt(relation, entityLookup);
 
-        assertTrue(formatted.includes(testEntityId1));
-        assertTrue(formatted.includes(testEntityId2));
+        assertTrue(Str.includes(testEntityId1)(formatted));
+        assertTrue(Str.includes(testEntityId2)(formatted));
       })
     );
   });
@@ -187,16 +176,14 @@ describe("PromptTemplates", () => {
 
         const prompts = buildGroundedAnswerPrompt(context, "Where does Alice work?");
 
-        // System prompt should be the constant
         strictEqual(prompts.system, GROUNDED_ANSWER_SYSTEM_PROMPT);
 
-        // User prompt should contain sections
-        assertTrue(prompts.user.includes("## Context"));
-        assertTrue(prompts.user.includes("### Entities"));
-        assertTrue(prompts.user.includes("### Relations"));
-        assertTrue(prompts.user.includes("## Question"));
-        assertTrue(prompts.user.includes("Where does Alice work?"));
-        assertTrue(prompts.user.includes("## Answer (with citations)"));
+        assertTrue(Str.includes("## Context")(prompts.user));
+        assertTrue(Str.includes("### Entities")(prompts.user));
+        assertTrue(Str.includes("### Relations")(prompts.user));
+        assertTrue(Str.includes("## Question")(prompts.user));
+        assertTrue(Str.includes("Where does Alice work?")(prompts.user));
+        assertTrue(Str.includes("## Answer (with citations)")(prompts.user));
       })
     );
 
@@ -210,8 +197,8 @@ describe("PromptTemplates", () => {
 
         const prompts = buildGroundedAnswerPrompt(context, "Test question");
 
-        assertTrue(prompts.user.includes("No entities available"));
-        assertTrue(prompts.user.includes("No relations available"));
+        assertTrue(Str.includes("No entities available")(prompts.user));
+        assertTrue(Str.includes("No relations available")(prompts.user));
       })
     );
 
@@ -225,7 +212,7 @@ describe("PromptTemplates", () => {
 
         const prompts = buildGroundedAnswerPrompt(context, "Who is Alice?");
 
-        assertTrue(prompts.user.includes(testEntityId1));
+        assertTrue(Str.includes(testEntityId1)(prompts.user));
       })
     );
   });
@@ -296,10 +283,10 @@ describe("PromptTemplates", () => {
         const text = `Alice {{entity:${testEntityId1}}} works at {{entity:${testEntityId2}}} {{relation:${testRelationId}}}.`;
         const clean = stripCitationMarkers(text);
 
-        assertFalse(clean.includes("{{"));
-        assertFalse(clean.includes("}}"));
-        assertTrue(clean.includes("Alice"));
-        assertTrue(clean.includes("works at"));
+        assertFalse(Str.includes("{{")(clean));
+        assertFalse(Str.includes("}}")(clean));
+        assertTrue(Str.includes("Alice")(clean));
+        assertTrue(Str.includes("works at")(clean));
       })
     );
 
@@ -309,7 +296,7 @@ describe("PromptTemplates", () => {
         const text = `A {{entity:id1}}  {{entity:id2}} B`;
         const clean = stripCitationMarkers(text);
 
-        assertFalse(clean.includes("  "));
+        assertFalse(Str.includes("  ")(clean));
       })
     );
   });

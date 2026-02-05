@@ -1,24 +1,13 @@
-/**
- * SparqlParser unit tests
- *
- * Comprehensive tests for SPARQL query parsing service.
- *
- * @module knowledge-server/test/Sparql/SparqlParser.test
- * @since 0.1.0
- */
-
-import { SparqlSyntaxError, SparqlUnsupportedFeatureError } from "@beep/knowledge-domain/errors";
-import { SparqlParser } from "@beep/knowledge-server/Sparql";
+import { SparqlParser, SparqlParserLive } from "@beep/knowledge-server/Sparql";
 import { assertTrue, describe, layer, strictEqual } from "@beep/testkit";
 import * as A from "effect/Array";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
+import * as P from "effect/Predicate";
+import * as R from "effect/Record";
 
-const TestLayer = SparqlParser.Default;
+const TestLayer = SparqlParserLive;
 
-/**
- * Timeout in milliseconds for bun test. Duration objects are not supported by bun test.
- */
 const TEST_TIMEOUT = 60000;
 
 describe("SparqlParser", () => {
@@ -300,7 +289,7 @@ describe("SparqlParser", () => {
         const parser = yield* SparqlParser;
         const { query } = yield* parser.parse("SELECT ?s WHERE { ?s ?p ?o }");
 
-        strictEqual(Object.keys(query.prefixes).length, 0);
+        strictEqual(A.length(R.keys(query.prefixes)), 0);
       }),
       TEST_TIMEOUT
     );
@@ -335,8 +324,7 @@ describe("SparqlParser", () => {
         const parser = yield* SparqlParser;
         const error = yield* Effect.flip(parser.parse("SELECT ?s WHERE { ?s ?p ?o"));
 
-        assertTrue(error instanceof SparqlSyntaxError);
-        strictEqual(error._tag, "SparqlSyntaxError");
+        assertTrue(P.isTagged("SparqlSyntaxError")(error));
         strictEqual(error.query, "SELECT ?s WHERE { ?s ?p ?o");
       }),
       TEST_TIMEOUT
@@ -348,7 +336,6 @@ describe("SparqlParser", () => {
         const parser = yield* SparqlParser;
         const error = yield* Effect.flip(parser.parse("SELEKT ?s WHERE { ?s ?p ?o }"));
 
-        assertTrue(error instanceof SparqlSyntaxError);
         strictEqual(error._tag, "SparqlSyntaxError");
       }),
       TEST_TIMEOUT
@@ -360,7 +347,7 @@ describe("SparqlParser", () => {
         const parser = yield* SparqlParser;
         const error = yield* Effect.flip(parser.parse(""));
 
-        assertTrue(error instanceof SparqlSyntaxError || error instanceof SparqlUnsupportedFeatureError);
+        assertTrue(error._tag === "SparqlSyntaxError" || error._tag === "SparqlUnsupportedFeatureError");
       }),
       TEST_TIMEOUT
     );
@@ -371,7 +358,7 @@ describe("SparqlParser", () => {
         const parser = yield* SparqlParser;
         const error = yield* Effect.flip(parser.parse("SELECT ?s WHERE { ?s ?p }"));
 
-        assertTrue(error instanceof SparqlSyntaxError);
+        strictEqual(error._tag, "SparqlSyntaxError");
       }),
       TEST_TIMEOUT
     );
@@ -382,8 +369,7 @@ describe("SparqlParser", () => {
         const parser = yield* SparqlParser;
         const error = yield* Effect.flip(parser.parse("DESCRIBE <http://example.org/alice>"));
 
-        assertTrue(error instanceof SparqlUnsupportedFeatureError);
-        strictEqual(error._tag, "SparqlUnsupportedFeatureError");
+        assertTrue(P.isTagged(error, "SparqlUnsupportedFeatureError"));
         strictEqual(error.feature, "DESCRIBE queries");
       }),
       TEST_TIMEOUT
@@ -397,8 +383,7 @@ describe("SparqlParser", () => {
           parser.parse("INSERT DATA { <http://example.org/s> <http://example.org/p> 'o' }")
         );
 
-        assertTrue(error instanceof SparqlUnsupportedFeatureError);
-        strictEqual(error._tag, "SparqlUnsupportedFeatureError");
+        assertTrue(P.isTagged(error, "SparqlUnsupportedFeatureError"));
         strictEqual(error.feature, "UPDATE operations");
       }),
       TEST_TIMEOUT
@@ -412,8 +397,7 @@ describe("SparqlParser", () => {
           parser.parse("DELETE DATA { <http://example.org/s> <http://example.org/p> 'o' }")
         );
 
-        assertTrue(error instanceof SparqlUnsupportedFeatureError);
-        strictEqual(error._tag, "SparqlUnsupportedFeatureError");
+        assertTrue(P.isTagged(error, "SparqlUnsupportedFeatureError"));
         strictEqual(error.feature, "UPDATE operations");
       }),
       TEST_TIMEOUT
@@ -425,8 +409,7 @@ describe("SparqlParser", () => {
         const parser = yield* SparqlParser;
         const error = yield* Effect.flip(parser.parse("DELETE WHERE { ?s <http://example.org/p> ?o }"));
 
-        assertTrue(error instanceof SparqlUnsupportedFeatureError);
-        strictEqual(error._tag, "SparqlUnsupportedFeatureError");
+        assertTrue(P.isTagged(error, "SparqlUnsupportedFeatureError"));
         strictEqual(error.feature, "UPDATE operations");
       }),
       TEST_TIMEOUT
@@ -474,7 +457,7 @@ describe("SparqlParser", () => {
 
         strictEqual(ast.type, "query");
         assertTrue("queryType" in ast && ast.queryType === "SELECT");
-        assertTrue("where" in ast && Array.isArray(ast.where));
+        assertTrue("where" in ast && A.isArray(ast.where));
       }),
       TEST_TIMEOUT
     );

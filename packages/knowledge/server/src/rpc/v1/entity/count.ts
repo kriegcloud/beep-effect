@@ -1,16 +1,7 @@
-/**
- * Entity Count RPC Handler
- *
- * Returns count of entities matching criteria.
- *
- * @module knowledge-server/rpc/v1/entity/count
- * @since 0.1.0
- */
-
+import { EntityRepo } from "@beep/knowledge-server/db/repos/Entity.repo";
 import type { KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import { Policy } from "@beep/shared-domain";
 import * as Effect from "effect/Effect";
-import { EntityRepo } from "../../../db/repos/Entity.repo";
 
 interface Payload {
   readonly organizationId: SharedEntityIds.OrganizationId.Type;

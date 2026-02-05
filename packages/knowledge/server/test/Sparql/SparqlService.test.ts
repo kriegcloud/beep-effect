@@ -1,23 +1,14 @@
-/**
- * SparqlService integration tests
- *
- * Tests SPARQL query execution against an in-memory RDF store.
- * Uses the layer() utility which creates fresh layer instances per test,
- * providing state isolation for the stateful RdfStore.
- *
- * @module knowledge-server/test/Sparql/SparqlService.test
- * @since 0.1.0
- */
-
 import { SparqlUnsupportedFeatureError } from "@beep/knowledge-domain/errors";
 import { IRI, Literal, Quad, type SparqlBinding, SparqlBindings } from "@beep/knowledge-domain/value-objects";
-import { RdfStore } from "@beep/knowledge-server/Rdf";
+import { RdfStore, RdfStoreLive } from "@beep/knowledge-server/Rdf";
 import {
   executeAsk,
   executeConstruct,
   executeSelect,
   SparqlParser,
+  SparqlParserLive,
   SparqlService,
+  type SparqlServiceShape,
 } from "@beep/knowledge-server/Sparql";
 import { assertTrue, describe, layer, strictEqual } from "@beep/testkit";
 import * as A from "effect/Array";
@@ -25,11 +16,9 @@ import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import type * as sparqljs from "sparqljs";
 
-/**
- * Type guards for query types
- */
 const isSelectQuery = (ast: sparqljs.SparqlQuery): ast is sparqljs.SelectQuery =>
   ast.type === "query" && ast.queryType === "SELECT";
 
@@ -41,10 +30,6 @@ const isAskQuery = (ast: sparqljs.SparqlQuery): ast is sparqljs.AskQuery =>
 
 const getQueryTypeString = (ast: sparqljs.SparqlQuery): string => (ast.type === "update" ? "UPDATE" : ast.queryType);
 
-/**
- * Manually build SparqlService that uses external RdfStore and Parser.
- * This allows tests to access the same RdfStore instance for adding test data.
- */
 const sparqlServiceLayer = Layer.effect(
   SparqlService,
   Effect.gen(function* () {
@@ -109,29 +94,18 @@ const sparqlServiceLayer = Layer.effect(
             message: `${getQueryTypeString(ast)} queries are not supported`,
           });
         }),
-    } as SparqlService;
+    } as SparqlServiceShape;
   })
 );
 
-/**
- * Test layer that provides SparqlService with fresh RdfStore per test.
- * The layer() utility creates fresh layer instances for each test,
- * ensuring state isolation for the stateful RdfStore.
- */
-const TestLayer = Layer.provideMerge(sparqlServiceLayer, Layer.merge(RdfStore.Default, SparqlParser.Default));
+const TestLayer = Layer.provideMerge(sparqlServiceLayer, Layer.merge(RdfStoreLive, SparqlParserLive));
 
-/**
- * Helper: Add test data to store (clears first to ensure isolation)
- */
 const addTestData = Effect.fn(function* (quads: ReadonlyArray<Quad>) {
   const store = yield* RdfStore;
   yield* store.clear();
   yield* store.addQuads(quads);
 });
 
-/**
- * Helper: Create Person quads
- */
 const createPersonQuads = (id: string, name: string, age?: number): ReadonlyArray<Quad> => {
   const subject = IRI.make(`http://example.org/${id}`);
   const rdfType = IRI.make("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
@@ -139,13 +113,14 @@ const createPersonQuads = (id: string, name: string, age?: number): ReadonlyArra
   const namePred = IRI.make("http://example.org/name");
   const agePred = IRI.make("http://example.org/age");
 
-  const quads: Quad[] = [
+  const baseQuads: ReadonlyArray<Quad> = [
     new Quad({ subject, predicate: rdfType, object: personType }),
     new Quad({ subject, predicate: namePred, object: new Literal({ value: name }) }),
   ];
 
   if (age !== undefined) {
-    quads.push(
+    return A.append(
+      baseQuads,
       new Quad({
         subject,
         predicate: agePred,
@@ -157,12 +132,9 @@ const createPersonQuads = (id: string, name: string, age?: number): ReadonlyArra
     );
   }
 
-  return quads;
+  return baseQuads;
 };
 
-/**
- * Helper: Create knows relationship quad
- */
 const createKnowsQuad = (fromId: string, toId: string): Quad =>
   new Quad({
     subject: IRI.make(`http://example.org/${fromId}`),
@@ -170,9 +142,6 @@ const createKnowsQuad = (fromId: string, toId: string): Quad =>
     object: IRI.make(`http://example.org/${toId}`),
   });
 
-/**
- * Helper: Find binding value for a variable in a row
- */
 const findBinding = (bindings: SparqlBindings, rowIndex: number, varName: string): O.Option<string> => {
   const row = A.get(bindings.rows, rowIndex);
   if (O.isNone(row)) return O.none();
@@ -181,11 +150,9 @@ const findBinding = (bindings: SparqlBindings, rowIndex: number, varName: string
   if (O.isNone(binding)) return O.none();
 
   const term = binding.value.value;
-  // Check if term is a Literal (object with value property) vs IRI/BlankNode (branded string)
-  if (typeof term === "object" && term !== null && "value" in term) {
-    return O.some(Literal.make(term).value);
+  if (Literal.is(term)) {
+    return O.some(term.value);
   }
-  // IRI or BlankNode - branded strings
   return O.some(term);
 };
 
@@ -243,7 +210,6 @@ describe("SparqlService", () => {
         assertTrue(A.contains(result.columns, "name"));
         strictEqual(A.length(result.rows), 2);
 
-        // Check that names are bound correctly
         const names = A.filterMap(result.rows, (row: ReadonlyArray<SparqlBinding>) => {
           const nameBinding = A.findFirst(row, (b: SparqlBinding) => b.name === "name");
           return O.map(nameBinding, (b: SparqlBinding) => (Literal.is(b.value) ? b.value.value : ""));
@@ -375,7 +341,6 @@ describe("SparqlService", () => {
     it.effect(
       "should handle bound() function",
       Effect.fn(function* () {
-        // Create data where alice has age but bob doesn't
         yield* addTestData([...createPersonQuads("alice", "Alice", 30), ...createPersonQuads("bob", "Bob")]);
 
         const sparql = yield* SparqlService;
@@ -567,7 +532,6 @@ describe("SparqlService", () => {
     it.effect(
       "should handle DISTINCT",
       Effect.fn(function* () {
-        // Add duplicate type assertions
         const alice = IRI.make("http://example.org/alice");
         const rdfType = IRI.make("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
         const person = IRI.make("http://example.org/Person");
@@ -675,7 +639,6 @@ describe("SparqlService", () => {
           SELECT ?s WHERE { ?s <http://example.org/name> "Alice" }
         `);
 
-        // Result should be SparqlBindings
         assertTrue(result instanceof SparqlBindings);
       })
     );
@@ -690,8 +653,7 @@ describe("SparqlService", () => {
           ASK { ?s <http://example.org/name> "Alice" }
         `);
 
-        // Result should be boolean
-        strictEqual(typeof result, "boolean");
+        assertTrue(P.isBoolean(result));
         strictEqual(result, true);
       })
     );
@@ -707,7 +669,6 @@ describe("SparqlService", () => {
           WHERE { ?s <http://example.org/name> ?name }
         `);
 
-        // Result should be array of quads
         assertTrue(A.isArray(result));
         strictEqual(A.length(result as ReadonlyArray<Quad>), 1);
       })

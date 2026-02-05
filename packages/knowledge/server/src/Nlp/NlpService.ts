@@ -1,35 +1,19 @@
-/**
- * NlpService - Text processing for knowledge extraction
- *
- * Provides sentence-aware text chunking with configurable overlap.
- * Preserves character offsets for provenance tracking.
- *
- * @module knowledge-server/Nlp/NlpService
- * @since 0.1.0
- */
 import { $KnowledgeServerId } from "@beep/identity/packages";
 import * as A from "effect/Array";
+import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
+import * as Layer from "effect/Layer";
+import * as O from "effect/Option";
 import * as Stream from "effect/Stream";
 import * as Str from "effect/String";
 import { type ChunkingConfig, defaultChunkingConfig, TextChunk } from "./TextChunk";
 
 const $I = $KnowledgeServerId.create("Nlp/NlpService");
 
-/**
- * Sentence boundary patterns
- * Matches periods, question marks, and exclamation marks followed by space or end-of-string
- */
 const SENTENCE_END_PATTERN = /(?<=[.!?])\s+(?=[A-Z])|(?<=[.!?])$/g;
 
-/**
- * Split text into sentences
- *
- * @internal
- */
 const splitIntoSentences = (text: string): readonly string[] => {
-  // Simple sentence splitting - preserves original text exactly
-  const parts = A.empty<string>();
+  const parts: Array<string> = [];
   let lastEnd = 0;
   const matches = text.matchAll(SENTENCE_END_PATTERN);
 
@@ -40,19 +24,13 @@ const splitIntoSentences = (text: string): readonly string[] => {
     }
   }
 
-  // Add remaining text
-  if (lastEnd < text.length) {
+  if (lastEnd < Str.length(text)) {
     parts.push(Str.slice(lastEnd)(text));
   }
 
   return A.isNonEmptyReadonlyArray(parts) ? parts : [text];
 };
 
-/**
- * Create text chunks from sentences with overlap
- *
- * @internal
- */
 const createChunksFromSentences = (
   sentences: readonly string[],
   config: ChunkingConfig,
@@ -67,52 +45,51 @@ const createChunksFromSentences = (
   const flushChunk = () => {
     if (A.isEmptyReadonlyArray(currentChunkSentences)) return;
 
-    const text = A.join("")(currentChunkSentences);
+    const text = A.join(currentChunkSentences, "");
     const chunk = new TextChunk({
       index: chunkIndex,
       text,
       startOffset: currentChunkStart,
-      endOffset: currentChunkStart + text.length,
+      endOffset: currentChunkStart + Str.length(text),
     });
     chunks.push(chunk);
     chunkIndex++;
 
-    // Handle overlap: keep last N sentences for next chunk
-    if (config.overlapSentences > 0 && currentChunkSentences.length > config.overlapSentences) {
+    if (config.overlapSentences > 0 && A.length(currentChunkSentences) > config.overlapSentences) {
       const overlapSentences = A.takeRight(currentChunkSentences, config.overlapSentences);
-      const overlapText = A.join("")(overlapSentences);
-      currentChunkStart = currentChunkStart + text.length - overlapText.length;
+      const overlapText = A.join(overlapSentences, "");
+      currentChunkStart = currentChunkStart + Str.length(text) - Str.length(overlapText);
       currentChunkSentences = [...overlapSentences];
     } else {
-      currentChunkStart = currentChunkStart + text.length;
+      currentChunkStart = currentChunkStart + Str.length(text);
       currentChunkSentences = [];
     }
   };
 
   for (const sentence of sentences) {
-    const currentLength = A.join("")(currentChunkSentences).length;
+    const currentLength = Str.length(A.join(currentChunkSentences, ""));
 
-    // If adding this sentence would exceed max size, flush current chunk
-    if (currentLength + sentence.length > config.maxChunkSize && A.isNonEmptyReadonlyArray(currentChunkSentences)) {
+    if (
+      currentLength + Str.length(sentence) > config.maxChunkSize &&
+      A.isNonEmptyReadonlyArray(currentChunkSentences)
+    ) {
       flushChunk();
     }
 
     currentChunkSentences.push(sentence);
-    currentCharPos += sentence.length;
+    currentCharPos += Str.length(sentence);
   }
 
-  // Flush remaining sentences
   if (A.isNonEmptyReadonlyArray(currentChunkSentences)) {
-    const text = A.join("")(currentChunkSentences);
-    const prevChunk = chunks[chunks.length - 1];
-    // Check if final chunk is too small and should merge with previous
-    if (text.length < (config.minChunkSize ?? 100) && prevChunk !== undefined) {
-      // Merge with previous chunk
-      chunks[chunks.length - 1] = new TextChunk({
-        index: prevChunk.index,
-        text: prevChunk.text + text,
-        startOffset: prevChunk.startOffset,
-        endOffset: prevChunk.endOffset + text.length,
+    const text = A.join(currentChunkSentences, "");
+    const prevChunk = A.last(chunks);
+    if (Str.length(text) < (config.minChunkSize ?? 100) && O.isSome(prevChunk)) {
+      const prev = prevChunk.value;
+      chunks[A.length(chunks) - 1] = new TextChunk({
+        index: prev.index,
+        text: prev.text + text,
+        startOffset: prev.startOffset,
+        endOffset: prev.endOffset + Str.length(text),
       });
     } else {
       flushChunk();
@@ -122,18 +99,14 @@ const createChunksFromSentences = (
   return chunks;
 };
 
-/**
- * Create text chunks without sentence preservation (raw character-based)
- *
- * @internal
- */
 const createRawChunks = (text: string, config: ChunkingConfig): readonly TextChunk[] => {
   const chunks = A.empty<TextChunk>();
   let offset = 0;
   let index = 0;
+  const textLen = Str.length(text);
 
-  while (offset < text.length) {
-    const endOffset = Math.min(offset + config.maxChunkSize, text.length);
+  while (offset < textLen) {
+    const endOffset = Math.min(offset + config.maxChunkSize, textLen);
     const chunkText = Str.slice(offset, endOffset)(text);
 
     chunks.push(
@@ -152,23 +125,20 @@ const createRawChunks = (text: string, config: ChunkingConfig): readonly TextChu
   return chunks;
 };
 
-/**
- * Split text into chunks
- *
- * @internal
- */
 const splitIntoChunks = (text: string, config: ChunkingConfig): readonly TextChunk[] => {
-  if (text.length === 0) {
+  const textLen = Str.length(text);
+
+  if (textLen === 0) {
     return [];
   }
 
-  if (text.length <= config.maxChunkSize) {
+  if (textLen <= config.maxChunkSize) {
     return [
       new TextChunk({
         index: 0,
         text,
         startOffset: 0,
-        endOffset: text.length,
+        endOffset: textLen,
       }),
     ];
   }
@@ -181,92 +151,37 @@ const splitIntoChunks = (text: string, config: ChunkingConfig): readonly TextChu
   return createRawChunks(text, config);
 };
 
-/**
- * NlpService - Text processing service
- *
- * Provides sentence-aware chunking with configurable overlap.
- *
- * @example
- * ```ts
- * import { NlpService } from "@beep/knowledge-server/Nlp";
- * import * as Effect from "effect/Effect";
- * import * as Stream from "effect/Stream";
- *
- * const program = Effect.gen(function* () {
- *   const nlp = yield* NlpService;
- *   const chunks = yield* nlp.chunkText(longDocument, {
- *     maxChunkSize: 2000,
- *     preserveSentences: true,
- *     overlapSentences: 1,
- *   }).pipe(Stream.runCollect);
- *
- *   console.log(`Created ${chunks.length} chunks`);
- * });
- * ```
- *
- * @since 0.1.0
- * @category services
- */
-export class NlpService extends Effect.Service<NlpService>()($I`NlpService`, {
-  accessors: true,
-  effect: Effect.gen(function* () {
-    /**
-     * Chunk text into processable segments
-     *
-     * Returns a Stream of TextChunks with preserved character offsets.
-     * Supports sentence-aware chunking with configurable overlap.
-     *
-     * @param text - The document text to chunk
-     * @param config - Chunking configuration (optional)
-     * @returns Stream of TextChunk
-     */
-    const chunkText = (text: string, config: ChunkingConfig = defaultChunkingConfig) =>
-      Stream.fromIterable(splitIntoChunks(text, config));
+export interface NlpServiceShape {
+  readonly chunkText: (text: string, config?: ChunkingConfig) => Stream.Stream<TextChunk>;
+  readonly chunkTextAll: (text: string, config?: ChunkingConfig) => Effect.Effect<readonly TextChunk[]>;
+  readonly splitSentences: (text: string) => Effect.Effect<readonly string[]>;
+  readonly estimateTokens: (text: string) => Effect.Effect<number>;
+}
 
-    /**
-     * Chunk text and collect all chunks into an array
-     *
-     * Convenience method for small documents.
-     *
-     * @param text - The document text to chunk
-     * @param config - Chunking configuration (optional)
-     * @returns Effect yielding array of TextChunk
-     */
-    const chunkTextAll = Effect.fn("NlpService.chunkTextAll")(
-      (text: string, config: ChunkingConfig = defaultChunkingConfig) => Effect.sync(() => splitIntoChunks(text, config))
-    );
+export class NlpService extends Context.Tag($I`NlpService`)<NlpService, NlpServiceShape>() {}
 
-    /**
-     * Split text into sentences
-     *
-     * @param text - The text to split
-     * @returns Array of sentences
-     */
-    const splitSentences = Effect.fn("NlpService.splitSentences")((text: string) =>
-      Effect.sync(() => splitIntoSentences(text))
-    );
+const serviceEffect: Effect.Effect<NlpServiceShape> = Effect.gen(function* () {
+  const chunkText = (text: string, config: ChunkingConfig = defaultChunkingConfig) =>
+    Stream.fromIterable(splitIntoChunks(text, config));
 
-    /**
-     * Count approximate tokens in text
-     *
-     * Uses rough estimation (4 characters per token).
-     * For precise counts, use a tokenizer library.
-     *
-     * @param text - The text to count
-     * @returns Approximate token count
-     */
-    const estimateTokens = Effect.fn("NlpService.estimateTokens")((text: string) =>
-      Effect.sync(() => {
-        // Rough estimation: ~4 characters per token
-        return Math.ceil(text.length / 4);
-      })
-    );
+  const chunkTextAll = Effect.fn("NlpService.chunkTextAll")(
+    (text: string, config: ChunkingConfig = defaultChunkingConfig) => Effect.sync(() => splitIntoChunks(text, config))
+  );
 
-    return {
-      chunkText,
-      chunkTextAll,
-      splitSentences,
-      estimateTokens,
-    };
-  }),
-}) {}
+  const splitSentences = Effect.fn("NlpService.splitSentences")((text: string) =>
+    Effect.sync(() => splitIntoSentences(text))
+  );
+
+  const estimateTokens = Effect.fn("NlpService.estimateTokens")((text: string) =>
+    Effect.sync(() => Math.ceil(Str.length(text) / 4))
+  );
+
+  return NlpService.of({
+    chunkText,
+    chunkTextAll,
+    splitSentences,
+    estimateTokens,
+  });
+});
+
+export const NlpServiceLive = Layer.effect(NlpService, serviceEffect);

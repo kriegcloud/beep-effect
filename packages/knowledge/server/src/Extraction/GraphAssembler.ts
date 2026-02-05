@@ -1,152 +1,46 @@
-/**
- * GraphAssembler - Knowledge graph construction
- *
- * Stage 5 of the extraction pipeline: Assemble entities and relations into a graph.
- *
- * @module knowledge-server/Extraction/GraphAssembler
- * @since 0.1.0
- */
-
 import { $KnowledgeServerId } from "@beep/identity/packages";
 import { KnowledgeEntityIds } from "@beep/shared-domain";
 import * as A from "effect/Array";
+import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
+import * as F from "effect/Function";
+import * as Layer from "effect/Layer";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as MutableHashSet from "effect/MutableHashSet";
 import * as O from "effect/Option";
-import * as R from "effect/Record";
 import * as Str from "effect/String";
 import type { ClassifiedEntity } from "./schemas/entity-output.schema";
 import type { ExtractedTriple } from "./schemas/relation-output.schema";
 
 const $I = $KnowledgeServerId.create("knowledge-server/Extraction/GraphAssembler");
 
-/**
- * Assembled entity with generated ID
- *
- * @since 0.1.0
- * @category schemas
- */
 export interface AssembledEntity {
-  /**
-   * Generated entity ID
-   */
   readonly id: string;
-
-  /**
-   * Original mention text
-   */
   readonly mention: string;
-
-  /**
-   * Primary ontology type IRI
-   */
   readonly primaryType: string;
-
-  /**
-   * All type IRIs
-   */
   readonly types: readonly string[];
-
-  /**
-   * Entity attributes
-   */
   readonly attributes: Record<string, string | number | boolean>;
-
-  /**
-   * Classification confidence
-   */
   readonly confidence: number;
-
-  /**
-   * Canonical name for entity resolution
-   */
   readonly canonicalName?: undefined | string;
 }
 
-/**
- * Assembled relation with entity ID references
- *
- * @since 0.1.0
- * @category schemas
- */
 export interface AssembledRelation {
-  /**
-   * Generated relation ID
-   */
   readonly id: string;
-
-  /**
-   * Subject entity ID
-   */
   readonly subjectId: string;
-
-  /**
-   * Predicate IRI
-   */
   readonly predicate: string;
-
-  /**
-   * Object entity ID (for object properties)
-   */
   readonly objectId?: undefined | string;
-
-  /**
-   * Literal value (for datatype properties)
-   */
   readonly literalValue?: undefined | string;
-
-  /**
-   * Literal type (XSD datatype or language tag)
-   */
   readonly literalType?: undefined | string;
-
-  /**
-   * Extraction confidence
-   */
   readonly confidence: number;
-
-  /**
-   * Evidence text
-   */
   readonly evidence?: undefined | string;
-
-  /**
-   * Evidence start character offset
-   */
   readonly evidenceStartChar?: undefined | number;
-
-  /**
-   * Evidence end character offset
-   */
   readonly evidenceEndChar?: undefined | number;
 }
 
-/**
- * Complete assembled knowledge graph
- *
- * @since 0.1.0
- * @category schemas
- */
 export interface KnowledgeGraph {
-  /**
-   * Assembled entities
-   */
   readonly entities: readonly AssembledEntity[];
-
-  /**
-   * Assembled relations
-   */
   readonly relations: readonly AssembledRelation[];
-
-  /**
-   * Entity lookup by mention text (lowercase)
-   */
   readonly entityIndex: Record<string, string>;
-
-  /**
-   * Statistics
-   */
   readonly stats: {
     readonly entityCount: number;
     readonly relationCount: number;
@@ -155,161 +49,104 @@ export interface KnowledgeGraph {
   };
 }
 
-/**
- * Configuration for graph assembly
- *
- * @since 0.1.0
- * @category schemas
- */
 export interface GraphAssemblyConfig {
-  /**
-   * Organization ID for generated entities
-   */
   readonly organizationId: string;
-
-  /**
-   * Ontology ID for scoping
-   */
   readonly ontologyId: string;
-
-  /**
-   * Whether to merge entities with same canonical name
-   */
   readonly mergeEntities?: undefined | boolean;
 }
 
-/**
- * GraphAssembler Service
- *
- * Combines classified entities and extracted relations into a knowledge graph.
- *
- * @example
- * ```ts
- * import { GraphAssembler } from "@beep/knowledge-server/Extraction";
- * import * as Effect from "effect/Effect";
- *
- * const program = Effect.gen(function* () {
- *   const assembler = yield* GraphAssembler;
- *   const graph = yield* assembler.assemble(entities, relations, {
- *     organizationId: "org-123",
- *     ontologyId: "my-ontology",
- *   });
- *
- *   console.log(`Graph: ${graph.stats.entityCount} entities, ${graph.stats.relationCount} relations`);
- * });
- * ```
- *
- * @since 0.1.0
- * @category services
- */
-export class GraphAssembler extends Effect.Service<GraphAssembler>()($I`GraphAssembler`, {
-  accessors: true,
-  effect: Effect.succeed({
-    /**
-     * Assemble entities and relations into a knowledge graph
-     *
-     * @param entities - Classified entities
-     * @param relations - Extracted triples
-     * @param config - Assembly configuration
-     * @returns Assembled knowledge graph
-     */
-    assemble: Effect.fnUntraced(function* (
-      entities: readonly ClassifiedEntity[],
-      relations: readonly ExtractedTriple[],
-      config: GraphAssemblyConfig
-    ) {
-      yield* Effect.logDebug("Assembling knowledge graph", {
-        entityCount: entities.length,
-        relationCount: relations.length,
-      });
+export interface GraphAssemblerShape {
+  readonly assemble: (
+    entities: readonly ClassifiedEntity[],
+    relations: readonly ExtractedTriple[],
+    config: GraphAssemblyConfig
+  ) => Effect.Effect<KnowledgeGraph, never>;
+  readonly merge: (
+    graphs: readonly KnowledgeGraph[],
+    config: GraphAssemblyConfig
+  ) => Effect.Effect<KnowledgeGraph, never>;
+}
 
-      // Generate IDs and create entity index
-      const entityIndex = MutableHashMap.empty<string, string>();
-      const assembledEntities = A.empty<AssembledEntity>();
+export class GraphAssembler extends Context.Tag($I`GraphAssembler`)<GraphAssembler, GraphAssemblerShape>() {}
 
-      for (const entity of entities) {
-        const key = Str.toLowerCase(entity.canonicalName ?? entity.mention);
+const serviceEffect: Effect.Effect<GraphAssemblerShape> = Effect.succeed({
+  assemble: Effect.fnUntraced(function* (
+    entities: readonly ClassifiedEntity[],
+    relations: readonly ExtractedTriple[],
+    config: GraphAssemblyConfig
+  ) {
+    yield* Effect.logDebug("Assembling knowledge graph", {
+      entityCount: A.length(entities),
+      relationCount: A.length(relations),
+    });
 
-        // Check if entity already exists (for merging)
-        if (config.mergeEntities && MutableHashMap.has(entityIndex, key)) {
-          continue;
-        }
+    const entityIndex = MutableHashMap.empty<string, string>();
+    const assembledEntities = A.reduce(entities, A.empty<AssembledEntity>(), (acc, entity) => {
+      const key = Str.toLowerCase(entity.canonicalName ?? entity.mention);
 
-        const id = KnowledgeEntityIds.KnowledgeEntityId.create();
-
-        MutableHashMap.set(entityIndex, key, id);
-
-        // Also index by raw mention
-        const mentionKey = Str.toLowerCase(entity.mention);
-        if (!MutableHashMap.has(entityIndex, mentionKey)) {
-          MutableHashMap.set(entityIndex, mentionKey, id);
-        }
-
-        const types = entity.additionalTypes ? [entity.typeIri, ...entity.additionalTypes] : [entity.typeIri];
-
-        const assembledEntity: AssembledEntity = {
-          id,
-          mention: entity.mention,
-          primaryType: entity.typeIri,
-          types,
-          attributes: entity.attributes ?? {},
-          confidence: entity.confidence,
-          ...(entity.canonicalName !== undefined && { canonicalName: entity.canonicalName }),
-        };
-        assembledEntities.push(assembledEntity);
+      if (config.mergeEntities && MutableHashMap.has(entityIndex, key)) {
+        return acc;
       }
 
-      // Assemble relations with entity ID lookups
-      const assembledRelations = A.empty<AssembledRelation>();
-      let unresolvedSubjects = 0;
-      let unresolvedObjects = 0;
+      const id = KnowledgeEntityIds.KnowledgeEntityId.create();
+      MutableHashMap.set(entityIndex, key, id);
 
-      for (const triple of relations) {
+      const mentionKey = Str.toLowerCase(entity.mention);
+      if (!MutableHashMap.has(entityIndex, mentionKey)) {
+        MutableHashMap.set(entityIndex, mentionKey, id);
+      }
+
+      const types = entity.additionalTypes ? [entity.typeIri, ...entity.additionalTypes] : [entity.typeIri];
+
+      acc.push({
+        id,
+        mention: entity.mention,
+        primaryType: entity.typeIri,
+        types,
+        attributes: entity.attributes ?? {},
+        confidence: entity.confidence,
+        ...(entity.canonicalName !== undefined && { canonicalName: entity.canonicalName }),
+      });
+      return acc;
+    });
+
+    const {
+      assembled: assembledRelations,
+      unresolvedSubjects,
+      unresolvedObjects,
+    } = A.reduce(
+      relations,
+      { assembled: A.empty<AssembledRelation>(), unresolvedSubjects: 0, unresolvedObjects: 0 },
+      (acc, triple) => {
         const subjectKey = Str.toLowerCase(triple.subjectMention);
         const subjectIdOpt = MutableHashMap.get(entityIndex, subjectKey);
 
         if (O.isNone(subjectIdOpt)) {
-          unresolvedSubjects++;
-          yield* Effect.logDebug("Unresolved subject in relation", {
-            subject: triple.subjectMention,
-            predicate: triple.predicateIri,
-          });
-          continue;
+          return { ...acc, unresolvedSubjects: acc.unresolvedSubjects + 1 };
         }
         const subjectId = subjectIdOpt.value;
-
         const relationId = KnowledgeEntityIds.RelationId.create();
 
         if (triple.objectMention) {
-          // Object property
           const objectKey = Str.toLowerCase(triple.objectMention);
           const objectIdOpt = MutableHashMap.get(entityIndex, objectKey);
 
           if (O.isNone(objectIdOpt)) {
-            unresolvedObjects++;
-            yield* Effect.logDebug("Unresolved object in relation", {
-              subject: triple.subjectMention,
-              predicate: triple.predicateIri,
-              object: triple.objectMention,
-            });
-            continue;
+            return { ...acc, unresolvedObjects: acc.unresolvedObjects + 1 };
           }
-          const objectId = objectIdOpt.value;
 
-          const relation: AssembledRelation = {
+          acc.assembled.push({
             id: relationId,
             subjectId,
             predicate: triple.predicateIri,
-            objectId,
+            objectId: objectIdOpt.value,
             confidence: triple.confidence,
             ...(triple.evidence !== undefined && { evidence: triple.evidence }),
             ...(triple.evidenceStartChar !== undefined && { evidenceStartChar: triple.evidenceStartChar }),
             ...(triple.evidenceEndChar !== undefined && { evidenceEndChar: triple.evidenceEndChar }),
-          };
-          assembledRelations.push(relation);
+          });
         } else if (triple.literalValue !== undefined) {
-          // Datatype property
-          const relation: AssembledRelation = {
+          acc.assembled.push({
             id: relationId,
             subjectId,
             predicate: triple.predicateIri,
@@ -319,130 +156,129 @@ export class GraphAssembler extends Effect.Service<GraphAssembler>()($I`GraphAss
             ...(triple.evidence !== undefined && { evidence: triple.evidence }),
             ...(triple.evidenceStartChar !== undefined && { evidenceStartChar: triple.evidenceStartChar }),
             ...(triple.evidenceEndChar !== undefined && { evidenceEndChar: triple.evidenceEndChar }),
-          };
-          assembledRelations.push(relation);
+          });
+        }
+
+        return acc;
+      }
+    );
+
+    const entityIndexRecord = mutableHashMapToRecord(entityIndex);
+
+    const graph: KnowledgeGraph = {
+      entities: assembledEntities,
+      relations: assembledRelations,
+      entityIndex: entityIndexRecord,
+      stats: {
+        entityCount: A.length(assembledEntities),
+        relationCount: A.length(assembledRelations),
+        unresolvedSubjects,
+        unresolvedObjects,
+      },
+    };
+
+    yield* Effect.logInfo("Knowledge graph assembled", graph.stats);
+
+    return graph;
+  }),
+
+  merge: (graphs: readonly KnowledgeGraph[], _config: GraphAssemblyConfig): Effect.Effect<KnowledgeGraph, never> =>
+    Effect.sync(() => {
+      if (A.isEmptyReadonlyArray(graphs)) {
+        return {
+          entities: A.empty<AssembledEntity>(),
+          relations: A.empty<AssembledRelation>(),
+          entityIndex: {},
+          stats: { entityCount: 0, relationCount: 0, unresolvedSubjects: 0, unresolvedObjects: 0 },
+        };
+      }
+
+      if (A.isNonEmptyReadonlyArray(graphs) && A.length(graphs) === 1) {
+        return graphs[0];
+      }
+
+      const entityIndex = MutableHashMap.empty<string, AssembledEntity>();
+      const idMapping = MutableHashMap.empty<string, string>();
+
+      for (const graph of graphs) {
+        for (const entity of graph.entities) {
+          const key = Str.toLowerCase(entity.canonicalName ?? entity.mention);
+
+          if (!MutableHashMap.has(entityIndex, key)) {
+            MutableHashMap.set(entityIndex, key, entity);
+            MutableHashMap.set(idMapping, entity.id, entity.id);
+          } else {
+            const existing = O.getOrThrow(MutableHashMap.get(entityIndex, key));
+            MutableHashMap.set(idMapping, entity.id, existing.id);
+          }
         }
       }
 
-      // Convert entity index to record
-      const entityIndexRecord = R.empty<string, string>();
-      MutableHashMap.forEach(entityIndex, (value, key) => {
-        entityIndexRecord[key] = value;
+      const relationSet = MutableHashSet.empty<string>();
+
+      const relations = F.pipe(
+        A.flatMap([...graphs], (graph) => [...graph.relations]),
+        A.filterMap((relation) => {
+          const mappedSubjectId = F.pipe(
+            MutableHashMap.get(idMapping, relation.subjectId),
+            O.getOrElse(() => relation.subjectId)
+          );
+          const mappedObjectId = F.pipe(
+            O.fromNullable(relation.objectId),
+            O.map((oid) =>
+              F.pipe(
+                MutableHashMap.get(idMapping, oid),
+                O.getOrElse(() => oid)
+              )
+            ),
+            O.getOrUndefined
+          );
+
+          const key = [mappedSubjectId, relation.predicate, mappedObjectId ?? relation.literalValue ?? ""].join("|");
+
+          if (MutableHashSet.has(relationSet, key)) {
+            return O.none();
+          }
+
+          MutableHashSet.add(relationSet, key);
+          return O.some({
+            ...relation,
+            subjectId: mappedSubjectId,
+            ...(mappedObjectId !== undefined && { objectId: mappedObjectId }),
+          } as AssembledRelation);
+        })
+      );
+
+      const entities = A.empty<AssembledEntity>();
+      MutableHashMap.forEach(entityIndex, (entity) => {
+        entities.push(entity);
       });
 
-      const graph: KnowledgeGraph = {
-        entities: assembledEntities,
-        relations: assembledRelations,
+      const entityIndexRecord: Record<string, string> = {};
+      MutableHashMap.forEach(entityIndex, (entity, key) => {
+        entityIndexRecord[key] = entity.id;
+      });
+
+      return {
+        entities,
+        relations,
         entityIndex: entityIndexRecord,
         stats: {
-          entityCount: assembledEntities.length,
-          relationCount: assembledRelations.length,
-          unresolvedSubjects,
-          unresolvedObjects,
+          entityCount: A.length(entities),
+          relationCount: A.length(relations),
+          unresolvedSubjects: 0,
+          unresolvedObjects: 0,
         },
       };
-
-      yield* Effect.logInfo("Knowledge graph assembled", graph.stats);
-
-      return graph;
     }),
+});
 
-    /**
-     * Merge multiple knowledge graphs
-     *
-     * @param graphs - Graphs to merge
-     * @param _config - Assembly configuration
-     * @returns Merged graph
-     */
-    merge: (graphs: readonly KnowledgeGraph[], _config: GraphAssemblyConfig): Effect.Effect<KnowledgeGraph, never> => {
-      return Effect.sync(() => {
-        if (A.isEmptyReadonlyArray(graphs)) {
-          return {
-            entities: A.empty<AssembledEntity>(),
-            relations: A.empty<AssembledRelation>(),
-            entityIndex: {},
-            stats: {
-              entityCount: 0,
-              relationCount: 0,
-              unresolvedSubjects: 0,
-              unresolvedObjects: 0,
-            },
-          };
-        }
+export const GraphAssemblerLive = Layer.effect(GraphAssembler, serviceEffect);
 
-        if (A.isNonEmptyReadonlyArray(graphs) && graphs.length === 1) {
-          return graphs[0];
-        }
-
-        // Collect all entities, deduplicating by canonical name
-        const entityIndex = MutableHashMap.empty<string, AssembledEntity>();
-        const idMapping = MutableHashMap.empty<string, string>();
-
-        for (const graph of graphs) {
-          for (const entity of graph.entities) {
-            const key = Str.toLowerCase(entity.canonicalName ?? entity.mention);
-
-            if (!MutableHashMap.has(entityIndex, key)) {
-              MutableHashMap.set(entityIndex, key, entity);
-              MutableHashMap.set(idMapping, entity.id, entity.id);
-            } else {
-              // Map old ID to existing entity's ID
-              const existing = O.getOrThrow(MutableHashMap.get(entityIndex, key));
-              MutableHashMap.set(idMapping, entity.id, existing.id);
-            }
-          }
-        }
-
-        // Collect relations, updating IDs
-        const relationSet = MutableHashSet.empty<string>();
-        const relations = A.empty<AssembledRelation>();
-
-        for (const graph of graphs) {
-          for (const relation of graph.relations) {
-            const mappedSubjectId = O.getOrElse(
-              MutableHashMap.get(idMapping, relation.subjectId),
-              () => relation.subjectId
-            );
-            const mappedObjectId = relation.objectId
-              ? O.getOrElse(MutableHashMap.get(idMapping, relation.objectId), () => relation.objectId)
-              : undefined;
-
-            // Create dedup key
-            const key = `${mappedSubjectId}|${relation.predicate}|${mappedObjectId ?? relation.literalValue ?? ""}`;
-
-            if (!MutableHashSet.has(relationSet, key)) {
-              MutableHashSet.add(relationSet, key);
-              const mappedRelation: AssembledRelation = {
-                ...relation,
-                subjectId: mappedSubjectId,
-                ...(mappedObjectId !== undefined && { objectId: mappedObjectId }),
-              };
-              relations.push(mappedRelation);
-            }
-          }
-        }
-
-        const entities = A.empty<AssembledEntity>();
-        MutableHashMap.forEach(entityIndex, (entity) => {
-          entities.push(entity);
-        });
-        const entityIndexRecord = R.empty<string, string>();
-        MutableHashMap.forEach(entityIndex, (entity, key) => {
-          entityIndexRecord[key] = entity.id;
-        });
-
-        return {
-          entities,
-          relations,
-          entityIndex: entityIndexRecord,
-          stats: {
-            entityCount: entities.length,
-            relationCount: relations.length,
-            unresolvedSubjects: 0,
-            unresolvedObjects: 0,
-          },
-        };
-      });
-    },
-  }),
-}) {}
+const mutableHashMapToRecord = (map: MutableHashMap.MutableHashMap<string, string>): Record<string, string> => {
+  const result: Record<string, string> = {};
+  MutableHashMap.forEach(map, (value, key) => {
+    result[key] = value;
+  });
+  return result;
+};

@@ -1,15 +1,6 @@
-/**
- * SPARQL Filter Expression Evaluator
- *
- * Evaluates FILTER expressions from sparqljs AST against variable bindings.
- * Supports comparison, logical, and string operations per SPARQL 1.1 spec.
- *
- * @module knowledge-server/Sparql/FilterEvaluator
- * @since 0.1.0
- */
-
 import { SparqlExecutionError } from "@beep/knowledge-domain/errors";
 import { BlankNode, IRI, Literal, Term } from "@beep/knowledge-domain/value-objects";
+import { thunkEmptyStr, thunkFalse, thunkSucceedEffect, thunkTrue, thunkUndefined } from "@beep/utils";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
@@ -20,18 +11,10 @@ import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import type * as sparqljs from "sparqljs";
+import { SparqlPattern } from "./SparqlModels.ts";
 
-/**
- * Solution binding map: variable name (without ?) -> bound Term
- *
- * @since 0.1.0
- * @category types
- */
 export type SolutionBindings = Record<string, typeof Term.Type>;
 
-/**
- * XSD namespace constants for datatype handling
- */
 const XSD_NUMERIC_TYPES = [
   "http://www.w3.org/2001/XMLSchema#integer",
   "http://www.w3.org/2001/XMLSchema#decimal",
@@ -39,42 +22,19 @@ const XSD_NUMERIC_TYPES = [
   "http://www.w3.org/2001/XMLSchema#double",
 ] as const;
 
-/**
- * XSD string datatype - default for plain literals
- */
 const XSD_STRING = "http://www.w3.org/2001/XMLSchema#string";
 
-/**
- * Type guard for Literal terms
- */
-const isLiteral = (term: typeof Term.Type): term is Literal => P.isObject(term) && "value" in term;
+const isLiteral = (term: typeof Term.Type): term is S.Schema.Type<typeof Literal> =>
+  P.isObject(term) && P.hasProperty("value")(term);
 
-/**
- * Type guard for IRI terms
- */
 const isIRI = S.is(IRI);
 
-/**
- * Type guard for BlankNode terms
- */
 const isBlankNode = S.is(BlankNode);
 
-/**
- * Get the effective value of a term for comparison
- * IRIs and BlankNodes use their string value
- * Literals use their lexical value
- */
-const getTermValue = (term: typeof Term.Type): string =>
-  F.pipe(
-    term,
-    O.liftPredicate(isLiteral),
-    O.map((lit) => lit.value),
-    O.getOrElse(() => term as string)
-  );
-
-/**
- * Attempt to parse a literal as a number for numeric comparisons
- */
+const getTermValue = Match.type<Term.Type>().pipe(
+  Match.when(isLiteral, (lit) => lit.value),
+  Match.orElse((lit) => lit)
+);
 const tryParseNumber = (term: typeof Term.Type): O.Option<number> =>
   F.pipe(
     term,
@@ -84,66 +44,55 @@ const tryParseNumber = (term: typeof Term.Type): O.Option<number> =>
         lit.datatype,
         O.fromNullable,
         O.match({
-          onNone: () => true,
+          onNone: thunkTrue,
           onSome: (dt) => A.some(XSD_NUMERIC_TYPES, (t) => t === dt),
         })
       )
     ),
     O.map((lit) => Number(lit.value)),
-    O.filter((n) => !Number.isNaN(n))
+    O.filter(P.not(Number.isNaN))
   );
 
-/**
- * Convert sparqljs term to domain Term
- * Variables are resolved from bindings
- *
- * @internal
- */
 const resolveTerm = (
   sparqlTerm: sparqljs.Term,
   bindings: SolutionBindings
 ): Effect.Effect<O.Option<typeof Term.Type>, SparqlExecutionError> =>
-  F.pipe(
-    Match.value(sparqlTerm.termType),
-    Match.when("Variable", () => Effect.succeed(R.get(bindings, sparqlTerm.value))),
-    Match.when("NamedNode", () => Effect.succeed(O.some(S.decodeUnknownSync(IRI)(sparqlTerm.value)))),
-    Match.when("BlankNode", () => Effect.succeed(O.some(S.decodeUnknownSync(Term)(`_:${sparqlTerm.value}`)))),
-    Match.when("Literal", () => {
-      const literalTerm = sparqlTerm as sparqljs.LiteralTerm;
-      const datatype = S.decodeOption(S.UndefinedOr(IRI))(literalTerm.datatype?.value);
-      const language = F.pipe(literalTerm.language, O.fromNullable, O.filter(P.not(Str.isEmpty)), O.getOrUndefined);
+  Match.value(sparqlTerm).pipe(
+    Match.discriminatorsExhaustive("termType")({
+      Variable: (term) => Effect.succeed(R.get(bindings, term.value)),
+      NamedNode: (term) => Effect.succeed(O.some(S.decodeUnknownSync(IRI)(term.value))),
+      BlankNode: (term) => Effect.succeed(O.some(S.decodeUnknownSync(Term)(`_:${term.value}`))),
+      Literal: (lit) => {
+        const datatype = S.decodeOption(S.UndefinedOr(IRI))(lit.datatype?.value);
+        const language = F.pipe(lit.language, O.fromNullable, O.filter(P.not(Str.isEmpty)), O.getOrUndefined);
 
-      return Effect.succeed(
-        O.some(
-          new Literal({
-            value: literalTerm.value,
-            datatype: F.pipe(
+        return Effect.succeed(
+          O.some(
+            new Literal({
+              value: lit.value,
+              datatype: F.pipe(
+                language,
+                O.fromNullable,
+                O.match({
+                  onNone: () => O.getOrUndefined(datatype),
+                  onSome: thunkUndefined,
+                })
+              ),
               language,
-              O.fromNullable,
-              O.match({
-                onNone: () => O.getOrUndefined(datatype),
-                onSome: () => undefined,
-              })
-            ),
-            language,
+            })
+          )
+        );
+      },
+      Quad: () =>
+        Effect.fail(
+          new SparqlExecutionError({
+            query: "",
+            message: `Unsupported term type in filter expression: Quad`,
           })
-        )
-      );
-    }),
-    Match.orElse((termType) =>
-      Effect.fail(
-        new SparqlExecutionError({
-          query: "",
-          message: `Unknown term type in filter expression: ${termType}`,
-        })
-      )
-    )
+        ),
+    })
   );
 
-/**
- * Normalize datatype for comparison
- * Per RDF/SPARQL semantics, undefined datatype is equivalent to xsd:string
- */
 const normalizeDatatype = (datatype: string | undefined): string =>
   F.pipe(
     datatype,
@@ -151,12 +100,6 @@ const normalizeDatatype = (datatype: string | undefined): string =>
     O.getOrElse(() => XSD_STRING)
   );
 
-/**
- * Compare two terms for equality per SPARQL semantics
- * - Literals must match value, datatype (with xsd:string normalization), and language
- * - IRIs must match exactly
- * - BlankNodes must match exactly
- */
 const termsEqual = (a: typeof Term.Type, b: typeof Term.Type): boolean => {
   if (isLiteral(a) && isLiteral(b)) {
     return (
@@ -177,10 +120,6 @@ const termsEqual = (a: typeof Term.Type, b: typeof Term.Type): boolean => {
   return false;
 };
 
-/**
- * Compare two terms for ordering per SPARQL semantics
- * Returns -1, 0, or 1 for less than, equal, or greater than
- */
 const compareTerms = (a: typeof Term.Type, b: typeof Term.Type): O.Option<number> =>
   F.pipe(
     O.all([tryParseNumber(a), tryParseNumber(b)]),
@@ -198,57 +137,26 @@ const compareTerms = (a: typeof Term.Type, b: typeof Term.Type): O.Option<number
     })
   );
 
-/**
- * Safely get an expression argument from args array
- * Returns None if index is out of bounds or element is not an Expression
- */
+const isExpressionNotPattern = (val: sparqljs.Expression | sparqljs.Pattern): val is sparqljs.Expression =>
+  P.hasProperty("termType")(val) ||
+  (P.hasProperty("type")(val) && !A.some(SparqlPattern.Options, (pt) => pt === (val as { type: string }).type));
+
 const getExpressionArg = (
   args: ReadonlyArray<sparqljs.Expression | sparqljs.Pattern | undefined>,
   index: number
 ): O.Option<sparqljs.Expression> =>
-  F.pipe(
-    A.get(args, index),
-    O.flatMap(O.fromNullable),
-    O.filter((val): val is sparqljs.Expression => "termType" in val || ("type" in val && val.type === "operation"))
-  );
+  F.pipe(A.get(args, index), O.flatMap(O.fromNullable), O.filter(isExpressionNotPattern));
 
-/**
- * Check if expression is an OperationExpression
- */
 const isOperationExpression = (e: sparqljs.Expression): e is sparqljs.OperationExpression =>
-  "type" in e && e.type === "operation";
+  P.hasProperty("type")(e) && e.type === "operation";
 
-/**
- * Expression term types - subset of Term that appears in Expression
- */
 type ExpressionTerm = sparqljs.IriTerm | sparqljs.VariableTerm | sparqljs.LiteralTerm | sparqljs.QuadTerm;
 
-/**
- * Check if expression is a Term (IriTerm, VariableTerm, LiteralTerm, or QuadTerm)
- */
-const isTermExpression = (e: sparqljs.Expression): e is ExpressionTerm => "termType" in e;
+const isTermExpression = (e: sparqljs.Expression): e is ExpressionTerm => P.hasProperty("termType")(e);
 
-/**
- * Check if a value is a Variable term
- */
 const isVariableTerm = (v: unknown): v is sparqljs.VariableTerm =>
-  P.isObject(v) && "termType" in v && v.termType === "Variable";
+  P.isObject(v) && P.hasProperty("termType")(v) && v.termType === "Variable";
 
-/**
- * Evaluate a SPARQL FILTER expression against bindings
- *
- * Supports:
- * - Comparison operators: =, !=, <, >, <=, >=
- * - Logical operators: &&, ||, !
- * - Functions: bound, isIRI, isBlank, isLiteral, str, regex
- *
- * @param expression - sparqljs filter expression
- * @param bindings - current solution bindings
- * @returns Effect yielding boolean result
- *
- * @since 0.1.0
- * @category evaluation
- */
 export const evaluateFilter = (
   expression: sparqljs.Expression,
   bindings: SolutionBindings
@@ -263,13 +171,13 @@ export const evaluateFilter = (
         return F.pipe(
           resolved,
           O.match({
-            onNone: () => false,
+            onNone: thunkFalse,
             onSome: (termVal) =>
               F.pipe(
                 termVal,
                 O.liftPredicate(isLiteral),
                 O.match({
-                  onNone: () => true,
+                  onNone: thunkTrue,
                   onSome: (lit) => {
                     const val = lit.value;
                     return !Str.isEmpty(val) && Str.toLowerCase(val) !== "false" && val !== "0";
@@ -291,22 +199,16 @@ export const evaluateFilter = (
     Effect.withSpan("FilterEvaluator.evaluateFilter")
   );
 
-/**
- * Operator handler type for cleaner dispatch
- */
 type OperatorHandler = (
   args: ReadonlyArray<sparqljs.Expression | sparqljs.Pattern | undefined>,
   bindings: SolutionBindings
 ) => Effect.Effect<boolean, SparqlExecutionError>;
 
-/**
- * Handle logical NOT operator
- */
 const handleNot: OperatorHandler = (args, bindings) =>
   F.pipe(
     getExpressionArg(args, 0),
     O.match({
-      onNone: () => Effect.succeed(false),
+      onNone: thunkSucceedEffect(false),
       onSome: (arg) =>
         F.pipe(
           evaluateFilter(arg, bindings),
@@ -315,14 +217,11 @@ const handleNot: OperatorHandler = (args, bindings) =>
     })
   );
 
-/**
- * Handle logical AND operator
- */
 const handleAnd: OperatorHandler = (args, bindings) =>
   F.pipe(
     O.all([getExpressionArg(args, 0), getExpressionArg(args, 1)]),
     O.match({
-      onNone: () => Effect.succeed(false),
+      onNone: thunkSucceedEffect(false),
       onSome: ([arg0, arg1]) =>
         Effect.gen(function* () {
           const left = yield* evaluateFilter(arg0, bindings);
@@ -331,14 +230,11 @@ const handleAnd: OperatorHandler = (args, bindings) =>
     })
   );
 
-/**
- * Handle logical OR operator
- */
 const handleOr: OperatorHandler = (args, bindings) =>
   F.pipe(
     O.all([getExpressionArg(args, 0), getExpressionArg(args, 1)]),
     O.match({
-      onNone: () => Effect.succeed(false),
+      onNone: thunkSucceedEffect(false),
       onSome: ([arg0, arg1]) =>
         Effect.gen(function* () {
           const left = yield* evaluateFilter(arg0, bindings);
@@ -347,15 +243,12 @@ const handleOr: OperatorHandler = (args, bindings) =>
     })
   );
 
-/**
- * Handle BOUND function
- */
 const handleBound: OperatorHandler = (args, bindings) =>
   F.pipe(
     A.get(args, 0),
     O.flatMap(O.fromNullable),
     O.match({
-      onNone: () => Effect.succeed(false),
+      onNone: thunkSucceedEffect(false),
       onSome: (varArg) =>
         F.pipe(
           Match.value(varArg),
@@ -372,41 +265,35 @@ const handleBound: OperatorHandler = (args, bindings) =>
     })
   );
 
-/**
- * Handle isIRI/isURI function
- */
 const handleIsIRI: OperatorHandler = (args, bindings) =>
   F.pipe(
     getExpressionArg(args, 0),
     O.match({
-      onNone: () => Effect.succeed(false),
+      onNone: thunkSucceedEffect(false),
       onSome: (arg) =>
         F.pipe(
           resolveExpressionToTerm(arg, bindings),
           Effect.map(
             O.match({
-              onNone: () => false,
-              onSome: (term) => isIRI(term),
+              onNone: thunkFalse,
+              onSome: isIRI,
             })
           )
         ),
     })
   );
 
-/**
- * Handle isBlank function
- */
 const handleIsBlank: OperatorHandler = (args, bindings) =>
   F.pipe(
     getExpressionArg(args, 0),
     O.match({
-      onNone: () => Effect.succeed(false),
+      onNone: thunkSucceedEffect(false),
       onSome: (arg) =>
         F.pipe(
           resolveExpressionToTerm(arg, bindings),
           Effect.map(
             O.match({
-              onNone: () => false,
+              onNone: thunkFalse,
               onSome: (term) => isBlankNode(term),
             })
           )
@@ -414,35 +301,29 @@ const handleIsBlank: OperatorHandler = (args, bindings) =>
     })
   );
 
-/**
- * Handle isLiteral function
- */
 const handleIsLiteral: OperatorHandler = (args, bindings) =>
   F.pipe(
     getExpressionArg(args, 0),
     O.match({
-      onNone: () => Effect.succeed(false),
+      onNone: thunkSucceedEffect(false),
       onSome: (arg) =>
         F.pipe(
           resolveExpressionToTerm(arg, bindings),
           Effect.map(
             O.match({
-              onNone: () => false,
-              onSome: (term) => isLiteral(term),
+              onNone: thunkFalse,
+              onSome: isLiteral,
             })
           )
         ),
     })
   );
 
-/**
- * Handle REGEX function
- */
 const handleRegex: OperatorHandler = (args, bindings) =>
   F.pipe(
     O.all([getExpressionArg(args, 0), getExpressionArg(args, 1)]),
     O.match({
-      onNone: () => Effect.succeed(false),
+      onNone: thunkSucceedEffect(false),
       onSome: ([arg0, arg1]) =>
         Effect.gen(function* () {
           const textResolved = yield* resolveExpressionToTerm(arg0, bindings);
@@ -451,7 +332,7 @@ const handleRegex: OperatorHandler = (args, bindings) =>
           return yield* F.pipe(
             O.all([textResolved, patternResolved]),
             O.match({
-              onNone: () => Effect.succeed(false),
+              onNone: thunkSucceedEffect(false),
               onSome: ([textTerm, patternTerm]) =>
                 Effect.gen(function* () {
                   const text = getTermValue(textTerm);
@@ -460,13 +341,13 @@ const handleRegex: OperatorHandler = (args, bindings) =>
                   const flags = yield* F.pipe(
                     getExpressionArg(args, 2),
                     O.match({
-                      onNone: () => Effect.succeed(""),
+                      onNone: thunkSucceedEffect(Str.empty),
                       onSome: (arg2) =>
                         F.pipe(
                           resolveExpressionToTerm(arg2, bindings),
                           Effect.map(
                             O.match({
-                              onNone: () => "",
+                              onNone: thunkEmptyStr,
                               onSome: getTermValue,
                             })
                           )
@@ -477,9 +358,9 @@ const handleRegex: OperatorHandler = (args, bindings) =>
                   return yield* F.pipe(
                     Effect.try({
                       try: () => new RegExp(pattern, flags).test(text),
-                      catch: () => false as const,
+                      catch: thunkFalse,
                     }),
-                    Effect.orElseSucceed(() => false)
+                    Effect.orElseSucceed(thunkFalse)
                   );
                 }),
             })
@@ -488,16 +369,13 @@ const handleRegex: OperatorHandler = (args, bindings) =>
     })
   );
 
-/**
- * Handle equality operators (= and !=)
- */
 const handleEquality =
   (isEquals: boolean): OperatorHandler =>
   (args, bindings) =>
     F.pipe(
       O.all([getExpressionArg(args, 0), getExpressionArg(args, 1)]),
       O.match({
-        onNone: () => Effect.succeed(false),
+        onNone: thunkSucceedEffect(false),
         onSome: ([arg0, arg1]) =>
           Effect.gen(function* () {
             const leftResolved = yield* resolveExpressionToTerm(arg0, bindings);
@@ -506,7 +384,7 @@ const handleEquality =
             return F.pipe(
               O.all([leftResolved, rightResolved]),
               O.match({
-                onNone: () => false,
+                onNone: thunkFalse,
                 onSome: ([left, right]) => {
                   const equal = termsEqual(left, right);
                   return isEquals ? equal : !equal;
@@ -517,16 +395,13 @@ const handleEquality =
       })
     );
 
-/**
- * Handle ordering comparisons (<, >, <=, >=)
- */
 const handleOrdering =
   (compareFn: (cmp: number) => boolean): OperatorHandler =>
   (args, bindings) =>
     F.pipe(
       O.all([getExpressionArg(args, 0), getExpressionArg(args, 1)]),
       O.match({
-        onNone: () => Effect.succeed(false),
+        onNone: thunkSucceedEffect(false),
         onSome: ([arg0, arg1]) =>
           Effect.gen(function* () {
             const leftResolved = yield* resolveExpressionToTerm(arg0, bindings);
@@ -536,7 +411,7 @@ const handleOrdering =
               O.all([leftResolved, rightResolved]),
               O.flatMap(([left, right]) => compareTerms(left, right)),
               O.match({
-                onNone: () => false,
+                onNone: thunkFalse,
                 onSome: compareFn,
               })
             );
@@ -544,11 +419,6 @@ const handleOrdering =
       })
     );
 
-/**
- * Evaluate an operation expression
- *
- * @internal
- */
 const evaluateOperation = (
   op: sparqljs.OperationExpression,
   bindings: SolutionBindings
@@ -590,12 +460,6 @@ const evaluateOperation = (
   );
 };
 
-/**
- * Resolve an expression to a Term value
- * Handles both direct terms and nested operations
- *
- * @internal
- */
 const resolveExpressionToTerm = (
   expr: sparqljs.Expression,
   bindings: SolutionBindings
@@ -610,7 +474,7 @@ const resolveExpressionToTerm = (
           F.pipe(
             getExpressionArg(op.args, 0),
             O.match({
-              onNone: () => Effect.succeed(O.none()),
+              onNone: thunkSucceedEffect(O.none()),
               onSome: (arg) =>
                 F.pipe(
                   resolveExpressionToTerm(arg, bindings),
@@ -619,19 +483,12 @@ const resolveExpressionToTerm = (
             })
           )
         ),
-        Match.orElse(() => Effect.succeed(O.none()))
+        Match.orElse(thunkSucceedEffect(O.none()))
       )
     ),
-    Match.orElse(() => Effect.succeed(O.none()))
+    Match.orElse(thunkSucceedEffect(O.none()))
   );
 
-/**
- * Evaluate multiple FILTER expressions with AND semantics
- * All must be true for the solution to pass
- *
- * @since 0.1.0
- * @category evaluation
- */
 export const evaluateFilters = (
   expressions: ReadonlyArray<sparqljs.Expression>,
   bindings: SolutionBindings
@@ -640,14 +497,7 @@ export const evaluateFilters = (
     acc ? evaluateFilter(expr, bindings) : Effect.succeed(false)
   ).pipe(Effect.withSpan("FilterEvaluator.evaluateFilters"));
 
-/**
- * Check if an expression is a filter expression
- * Used to identify FILTER patterns in WHERE clause
- *
- * @since 0.1.0
- * @category utilities
- */
 export const isFilterExpression = (
   pattern: sparqljs.Pattern
-): pattern is { type: "filter"; expression: sparqljs.Expression } =>
-  P.isObject(pattern) && "type" in pattern && pattern.type === "filter";
+): pattern is { readonly type: "filter"; readonly expression: sparqljs.Expression } =>
+  P.isObject(pattern) && P.hasProperty("type")(pattern) && pattern.type === "filter";

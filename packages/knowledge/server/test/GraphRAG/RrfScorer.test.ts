@@ -1,12 +1,3 @@
-/**
- * RrfScorer Tests
- *
- * Tests for Reciprocal Rank Fusion scoring utilities.
- *
- * @module knowledge-server/test/GraphRAG/RrfScorer.test
- * @since 0.1.0
- */
-
 import {
   assignGraphRanks,
   combineEmbeddingAndGraphRanks,
@@ -15,6 +6,7 @@ import {
   rrfScore,
 } from "@beep/knowledge-server/GraphRAG/RrfScorer";
 import { assertTrue, describe, effect, strictEqual } from "@beep/testkit";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as O from "effect/Option";
@@ -23,11 +15,10 @@ describe("RrfScorer", () => {
   effect(
     "calculates rrfComponent correctly",
     Effect.fn(function* () {
-      // RRF(rank) = 1 / (k + rank)
-      const score1 = rrfComponent(1); // 1 / (60 + 1) = 1/61
-      const score2 = rrfComponent(2); // 1 / (60 + 2) = 1/62
+      const score1 = rrfComponent(1);
+      const score2 = rrfComponent(2);
 
-      assertTrue(score1 > score2); // Rank 1 should have higher score
+      assertTrue(score1 > score2);
       strictEqual(Math.round(score1 * 1000) / 1000, Math.round((1 / 61) * 1000) / 1000);
     })
   );
@@ -38,7 +29,6 @@ describe("RrfScorer", () => {
       const ranks = [1, 2, 3];
       const score = rrfScore(ranks);
 
-      // Should be sum of individual components
       const expected = rrfComponent(1) + rrfComponent(2) + rrfComponent(3);
       strictEqual(Math.round(score * 10000) / 10000, Math.round(expected * 10000) / 10000);
     })
@@ -64,27 +54,26 @@ describe("RrfScorer", () => {
 
       const fused = fuseRankings([list1, list2]);
 
-      // Both 'a' and 'b' appear in both lists
-      assertTrue(fused.length >= 3);
+      assertTrue(A.length(fused) >= 3);
 
-      // Find 'a' - appears at rank 1 in list1, rank 2 in list2
-      const aItem = fused.find((item: { id: string; score: number }) => item.id === "a");
-      assertTrue(aItem !== undefined);
+      const aItem = A.findFirst(fused, (item: { id: string; score: number }) => item.id === "a");
+      assertTrue(O.isSome(aItem));
       strictEqual(
-        Math.round(aItem.score * 10000) / 10000,
+        Math.round(O.getOrThrow(aItem).score * 10000) / 10000,
         Math.round((rrfComponent(1) + rrfComponent(2)) * 10000) / 10000
       );
 
-      // Find 'b' - appears at rank 2 in list1, rank 1 in list2
-      const bItem = fused.find((item: { id: string; score: number }) => item.id === "b");
-      assertTrue(bItem !== undefined);
+      const bItem = A.findFirst(fused, (item: { id: string; score: number }) => item.id === "b");
+      assertTrue(O.isSome(bItem));
       strictEqual(
-        Math.round(bItem.score * 10000) / 10000,
+        Math.round(O.getOrThrow(bItem).score * 10000) / 10000,
         Math.round((rrfComponent(2) + rrfComponent(1)) * 10000) / 10000
       );
 
-      // 'a' and 'b' should have same score
-      strictEqual(Math.round(aItem.score * 10000) / 10000, Math.round(bItem.score * 10000) / 10000);
+      strictEqual(
+        Math.round(O.getOrThrow(aItem).score * 10000) / 10000,
+        Math.round(O.getOrThrow(bItem).score * 10000) / 10000
+      );
     })
   );
 
@@ -92,22 +81,19 @@ describe("RrfScorer", () => {
     "assigns graph ranks based on hop distance",
     Effect.fn(function* () {
       const entityHops = MutableHashMap.fromIterable<string, number>([
-        ["e1", 0], // seed
-        ["e2", 0], // seed
-        ["e3", 1], // 1-hop
-        ["e4", 2], // 2-hop
+        ["e1", 0],
+        ["e2", 0],
+        ["e3", 1],
+        ["e4", 2],
       ]);
 
       const ranks = assignGraphRanks(entityHops);
 
-      // Seeds at hop 0 should have rank 1
       strictEqual(O.getOrThrow(MutableHashMap.get(ranks, "e1")), 1);
       strictEqual(O.getOrThrow(MutableHashMap.get(ranks, "e2")), 1);
 
-      // Entity at hop 1 should have rank 3 (after 2 seeds)
       strictEqual(O.getOrThrow(MutableHashMap.get(ranks, "e3")), 3);
 
-      // Entity at hop 2 should have rank 4
       strictEqual(O.getOrThrow(MutableHashMap.get(ranks, "e4")), 4);
     })
   );
@@ -116,7 +102,7 @@ describe("RrfScorer", () => {
     "handles empty input in fuseRankings",
     Effect.fn(function* () {
       const fused = fuseRankings([]);
-      strictEqual(fused.length, 0);
+      strictEqual(A.length(fused), 0);
     })
   );
 
@@ -126,10 +112,14 @@ describe("RrfScorer", () => {
       const list = ["x", "y", "z"];
       const fused = fuseRankings([list]);
 
-      strictEqual(fused.length, 3);
-      // First item should have highest score
-      strictEqual(fused[0]?.id, "x");
-      assertTrue(fused[0]!.score > fused[1]!.score);
+      strictEqual(A.length(fused), 3);
+
+      const first = A.head(fused);
+      const second = A.get(fused, 1);
+      assertTrue(O.isSome(first));
+      assertTrue(O.isSome(second));
+      strictEqual(O.getOrThrow(first).id, "x");
+      assertTrue(O.getOrThrow(first).score > O.getOrThrow(second).score);
     })
   );
 });

@@ -1,22 +1,8 @@
-/**
- * GraphRAG errors for Knowledge slice
- *
- * Typed errors for GraphRAG operations (embedding, vector search, graph traversal).
- *
- * @module knowledge-domain/errors/graphrag
- * @since 0.1.0
- */
 import { $KnowledgeDomainId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
 
 const $I = $KnowledgeDomainId.create("errors/graphrag");
 
-/**
- * Embedding generation error
- *
- * @since 0.1.0
- * @category errors
- */
 export class EmbeddingGenerationError extends S.TaggedError<EmbeddingGenerationError>($I`EmbeddingGenerationError`)(
   "EmbeddingGenerationError",
   {
@@ -30,12 +16,6 @@ export class EmbeddingGenerationError extends S.TaggedError<EmbeddingGenerationE
   })
 ) {}
 
-/**
- * Vector search error
- *
- * @since 0.1.0
- * @category errors
- */
 export class VectorSearchError extends S.TaggedError<VectorSearchError>($I`VectorSearchError`)(
   "VectorSearchError",
   {
@@ -49,12 +29,6 @@ export class VectorSearchError extends S.TaggedError<VectorSearchError>($I`Vecto
   })
 ) {}
 
-/**
- * Graph traversal error
- *
- * @since 0.1.0
- * @category errors
- */
 export class GraphTraversalError extends S.TaggedError<GraphTraversalError>($I`GraphTraversalError`)(
   "GraphTraversalError",
   {
@@ -68,12 +42,6 @@ export class GraphTraversalError extends S.TaggedError<GraphTraversalError>($I`G
   })
 ) {}
 
-/**
- * Union of all GraphRAG error types
- *
- * @since 0.1.0
- * @category errors
- */
 export class GraphRAGError extends S.Union(
   EmbeddingGenerationError,
   VectorSearchError,

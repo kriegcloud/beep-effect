@@ -1,15 +1,8 @@
-/**
- * EntityExtractor Tests
- *
- * Tests for ontology-guided entity classification service.
- *
- * @module knowledge-server/test/Extraction/EntityExtractor.test
- * @since 0.1.0
- */
-import { EntityExtractor } from "@beep/knowledge-server/Extraction/EntityExtractor";
+import { EntityExtractor, EntityExtractorLive } from "@beep/knowledge-server/Extraction/EntityExtractor";
 import { ClassifiedEntity } from "@beep/knowledge-server/Extraction/schemas/entity-output.schema";
 import { ExtractedMention } from "@beep/knowledge-server/Extraction/schemas/mention-output.schema";
 import { assertTrue, describe, effect, strictEqual } from "@beep/testkit";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import { createMockOntologyContext, withLanguageModel } from "../_shared/TestLayers";
 
@@ -36,12 +29,12 @@ describe("EntityExtractor", () => {
 
         const result = yield* extractor.classify(mentions, ontologyContext);
 
-        strictEqual(result.entities.length, 1);
+        strictEqual(A.length(result.entities), 1);
         strictEqual(result.entities[0]?.mention, "John Smith");
         strictEqual(result.entities[0]?.typeIri, "http://schema.org/Person");
-        strictEqual(result.invalidTypes.length, 0);
+        strictEqual(A.length(result.invalidTypes), 0);
       },
-      Effect.provide(EntityExtractor.Default),
+      Effect.provide(EntityExtractorLive),
       withLanguageModel({
         generateObject: (objectName: string | undefined) =>
           objectName === "EntityOutput"
@@ -79,10 +72,10 @@ describe("EntityExtractor", () => {
 
         const result = yield* extractor.classify(mentions, ontologyContext, { minConfidence: 0.5 });
 
-        strictEqual(result.entities.length, 1);
+        strictEqual(A.length(result.entities), 1);
         strictEqual(result.entities[0]?.mention, "John");
       },
-      Effect.provide(EntityExtractor.Default),
+      Effect.provide(EntityExtractorLive),
       withLanguageModel({
         generateObject: (objectName: string | undefined) =>
           objectName === "EntityOutput"
@@ -111,11 +104,11 @@ describe("EntityExtractor", () => {
 
         const result = yield* extractor.classify(mentions, ontologyContext);
 
-        strictEqual(result.entities.length, 0);
-        strictEqual(result.invalidTypes.length, 1);
+        strictEqual(A.length(result.entities), 0);
+        strictEqual(A.length(result.invalidTypes), 1);
         strictEqual(result.invalidTypes[0]?.typeIri, "http://invalid.org/UnknownType");
       },
-      Effect.provide(EntityExtractor.Default),
+      Effect.provide(EntityExtractorLive),
       withLanguageModel({
         generateObject: (objectName: string | undefined) =>
           objectName === "EntityOutput"
@@ -135,11 +128,11 @@ describe("EntityExtractor", () => {
 
         const result = yield* extractor.classify([], ontologyContext);
 
-        strictEqual(result.entities.length, 0);
-        strictEqual(result.unclassified.length, 0);
+        strictEqual(A.length(result.entities), 0);
+        strictEqual(A.length(result.unclassified), 0);
         strictEqual(result.tokensUsed, 0);
       },
-      Effect.provide(EntityExtractor.Default),
+      Effect.provide(EntityExtractorLive),
       withLanguageModel({})
     ),
     TEST_TIMEOUT
@@ -161,11 +154,11 @@ describe("EntityExtractor", () => {
 
         const result = yield* extractor.classify(mentions, ontologyContext);
 
-        strictEqual(result.entities.length, 1);
-        strictEqual(result.unclassified.length, 1);
+        strictEqual(A.length(result.entities), 1);
+        strictEqual(A.length(result.unclassified), 1);
         strictEqual(result.unclassified[0]?.text, "Unknown");
       },
-      Effect.provide(EntityExtractor.Default),
+      Effect.provide(EntityExtractorLive),
       withLanguageModel({
         generateObject: (objectName: string | undefined) =>
           objectName === "EntityOutput"
@@ -202,10 +195,10 @@ describe("EntityExtractor", () => {
         strictEqual(groups.size, 1);
         const group = groups.get("john_smith");
         assertTrue(group !== undefined);
-        strictEqual(group.mentions.length, 2);
+        strictEqual(A.length(group.mentions), 2);
         strictEqual(group.canonical.confidence, 0.95);
       },
-      Effect.provide(EntityExtractor.Default),
+      Effect.provide(EntityExtractorLive),
       withLanguageModel({})
     ),
     TEST_TIMEOUT

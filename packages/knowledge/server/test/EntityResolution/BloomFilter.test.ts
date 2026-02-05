@@ -1,14 +1,5 @@
-/**
- * BloomFilter Unit Tests
- *
- * Tests for the probabilistic set membership service used for
- * candidate pruning during entity resolution.
- *
- * @module knowledge-server/test/EntityResolution/BloomFilter.test
- * @since 0.1.0
- */
 import { BloomFilter } from "@beep/knowledge-server/EntityResolution/BloomFilter";
-import { describe, layer, strictEqual, assertTrue } from "@beep/testkit";
+import { assertTrue, describe, layer, strictEqual } from "@beep/testkit";
 import * as A from "effect/Array";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
@@ -95,7 +86,6 @@ describe("BloomFilter", () => {
         const stats = yield* bf.getStats();
         strictEqual(stats.itemCount, 5);
 
-        // Verify all items are present
         const results = yield* Effect.forEach(items, (item) => bf.contains(item));
         const allPresent = A.every(results, (exists) => exists);
         assertTrue(allPresent);
@@ -266,30 +256,26 @@ describe("BloomFilter", () => {
         const bf = yield* BloomFilter;
         yield* bf.clear();
 
-        // Add 1000 known items
         const knownItems = A.makeBy(1000, (i) => `known-item-${i}`);
         yield* bf.bulkAdd(knownItems);
 
-        // Test 1000 items that were NOT added
         const unknownItems = A.makeBy(1000, (i) => `unknown-item-${i}`);
 
-        // Count false positives using Effect.forEach
         const results = yield* Effect.forEach(unknownItems, (item) => bf.contains(item));
-        const falsePositives = A.filter(results, (exists) => exists).length;
+        const falsePositives = A.length(A.filter(results, (exists) => exists));
 
         const falsePositiveRate = falsePositives / 1000;
 
-        // With 1M bits, 3 hash functions, and 1000 items,
-        // false positive rate should be well under 1%
-        // We use 5% as a generous upper bound
         assertTrue(falsePositiveRate < 0.05);
 
-        yield* Effect.logDebug("BloomFilter false positive rate test", {
-          falsePositives,
-          falsePositiveRate,
-          itemsAdded: 1000,
-          itemsTested: 1000,
-        });
+        yield* Effect.logDebug("BloomFilter false positive rate test").pipe(
+          Effect.annotateLogs({
+            falsePositives,
+            falsePositiveRate,
+            itemsAdded: 1000,
+            itemsTested: 1000,
+          })
+        );
       })
     );
 
@@ -302,7 +288,6 @@ describe("BloomFilter", () => {
         const items = A.makeBy(500, (i) => `item-${i}`);
         yield* bf.bulkAdd(items);
 
-        // Every added item MUST be found (no false negatives)
         const results = yield* Effect.forEach(items, (item) => bf.contains(item));
         const allFound = A.every(results, (exists) => exists);
         assertTrue(allFound);
@@ -317,25 +302,18 @@ describe("BloomFilter", () => {
         const bf = yield* BloomFilter;
         yield* bf.clear();
 
-        // Add one string
         yield* bf.add("apple");
 
-        // Very similar strings should not automatically match
-        // (though they might due to hash collisions)
         const similar1 = yield* bf.contains("appla");
         const similar2 = yield* bf.contains("bpple");
 
-        // At least one should NOT match (demonstrating hash independence)
-        // This is probabilistic, but with 3 hash functions the chance
-        // of collision on similar strings is low
         const atLeastOneDifferent = !similar1 || !similar2;
 
-        // We add the exact item to ensure it's found
         yield* bf.add("appla");
         const afterAdd = yield* bf.contains("appla");
 
         strictEqual(afterAdd, true);
-        assertTrue(atLeastOneDifferent || true); // Allow for rare collisions
+        assertTrue(atLeastOneDifferent || true);
       })
     );
   });

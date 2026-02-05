@@ -4,6 +4,8 @@ import { makeFields } from "@beep/shared-domain/common";
 import { SharedEntityIds } from "@beep/shared-domain/entity-ids";
 import { modelKit } from "@beep/shared-domain/factories";
 import * as M from "@effect/sql/Model";
+import * as Arbitrary from "effect/Arbitrary";
+import * as FC from "effect/FastCheck";
 import * as S from "effect/Schema";
 
 const $I = $SharedDomainId.create("entities/Session/Session.model");
@@ -66,4 +68,7 @@ export class Model extends M.Class<Model>($I`SessionModel`)(
 ) {
   static readonly utils = modelKit(Model);
   static readonly decodeUnknown = S.decodeUnknown(Model);
+  static readonly Arb = Arbitrary.make(Model);
+  static readonly MockOne = () => this.Mock(1)[0]!;
+  static readonly Mock = (qty = 1) => FC.sample(this.Arb, qty);
 }

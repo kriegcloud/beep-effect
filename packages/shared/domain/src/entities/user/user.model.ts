@@ -4,6 +4,8 @@ import { makeFields } from "@beep/shared-domain/common";
 import { SharedEntityIds } from "@beep/shared-domain/entity-ids";
 import { modelKit } from "@beep/shared-domain/factories";
 import * as M from "@effect/sql/Model";
+import * as Arbitrary from "effect/Arbitrary";
+import * as FC from "effect/FastCheck";
 import * as S from "effect/Schema";
 import { UserRole } from "./schemas";
 import { USER_UPLOAD_LIMIT } from "./user.constants";
@@ -115,6 +117,9 @@ export class Model extends M.Class<Model>($I`UserModel`)(
 
   static readonly decodeUnknown = S.decodeUnknown(Model);
   // static readonly insertOmittableDefaults = Model.insert
+  static readonly Arb = Arbitrary.make(Model);
+  static readonly MockOne = () => this.Mock(1)[0]!;
+  static readonly Mock = (qty = 1) => FC.sample(this.Arb, qty);
 }
 
 // type OmitOptions<T extends Record<string, unknown>> = {

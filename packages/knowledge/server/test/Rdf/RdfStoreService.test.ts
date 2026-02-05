@@ -1,35 +1,17 @@
-/**
- * RdfStoreService Tests
- *
- * Comprehensive tests for the in-memory RDF quad storage service.
- *
- * @module knowledge-server/test/Rdf/RdfStoreService.test
- * @since 0.1.0
- */
-
 import { IRI, Literal, makeBlankNode, Quad, QuadPattern } from "@beep/knowledge-domain/value-objects";
-import { RdfStore } from "@beep/knowledge-server/Rdf/RdfStoreService";
+import { RdfStore, RdfStoreLive } from "@beep/knowledge-server/Rdf/RdfStoreService";
 import { assertTrue, describe, effect, layer, strictEqual } from "@beep/testkit";
 import * as A from "effect/Array";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 
-/**
- * Timeout in milliseconds for bun test. Duration objects are not supported by bun test.
- */
 const TEST_TIMEOUT = 60000;
 
-/**
- * Common RDF namespace prefixes for test fixtures
- */
 const FOAF = "http://xmlns.com/foaf/0.1/";
 const SCHEMA = "http://schema.org/";
 const XSD = "http://www.w3.org/2001/XMLSchema#";
 const EX = "http://example.org/";
 
-/**
- * Test fixture helpers
- */
 const fixtures = {
   alice: IRI.make(`${EX}alice`),
   bob: IRI.make(`${EX}bob`),
@@ -48,7 +30,7 @@ const fixtures = {
 };
 
 describe("RdfStore", () => {
-  layer(RdfStore.Default, { timeout: Duration.seconds(60) })("Basic CRUD Operations", (it) => {
+  layer(RdfStoreLive, { timeout: Duration.seconds(60) })("Basic CRUD Operations", (it) => {
     it.effect(
       "addQuad and hasQuad - should add a quad and verify it exists",
 
@@ -267,13 +249,13 @@ describe("RdfStore", () => {
         yield* store.addQuads(quads);
         const allQuads = yield* store.getQuads();
 
-        strictEqual(allQuads.length, 2);
+        strictEqual(A.length(allQuads), 2);
       }),
       TEST_TIMEOUT
     );
   });
 
-  layer(RdfStore.Default, { timeout: Duration.seconds(60) })("Pattern Matching", (it) => {
+  layer(RdfStoreLive, { timeout: Duration.seconds(60) })("Pattern Matching", (it) => {
     it.effect(
       "match with all wildcards - should return all quads",
       Effect.fn(function* () {
@@ -301,7 +283,7 @@ describe("RdfStore", () => {
         const pattern = new QuadPattern({});
         const results = yield* store.match(pattern);
 
-        strictEqual(results.length, 3);
+        strictEqual(A.length(results), 3);
       }),
       TEST_TIMEOUT
     );
@@ -334,7 +316,7 @@ describe("RdfStore", () => {
         const pattern = new QuadPattern({ subject: fixtures.alice });
         const results = yield* store.match(pattern);
 
-        strictEqual(results.length, 2);
+        strictEqual(A.length(results), 2);
         for (const quad of results) {
           strictEqual(quad.subject, fixtures.alice);
         }
@@ -370,7 +352,7 @@ describe("RdfStore", () => {
         const pattern = new QuadPattern({ predicate: fixtures.foafName });
         const results = yield* store.match(pattern);
 
-        strictEqual(results.length, 2);
+        strictEqual(A.length(results), 2);
         for (const quad of results) {
           strictEqual(quad.predicate, fixtures.foafName);
         }
@@ -405,7 +387,7 @@ describe("RdfStore", () => {
         const pattern = new QuadPattern({ object: fixtures.bob });
         const results = yield* store.match(pattern);
 
-        strictEqual(results.length, 2);
+        strictEqual(A.length(results), 2);
         for (const quad of results) {
           strictEqual(quad.object, fixtures.bob);
         }
@@ -443,7 +425,7 @@ describe("RdfStore", () => {
         });
         const results = yield* store.match(pattern);
 
-        strictEqual(results.length, 1);
+        strictEqual(A.length(results), 1);
         strictEqual(results[0]?.subject, fixtures.alice);
         strictEqual(results[0]?.predicate, fixtures.foafKnows);
         strictEqual(results[0]?.object, fixtures.bob);
@@ -504,13 +486,13 @@ describe("RdfStore", () => {
         const pattern = new QuadPattern({ subject: fixtures.bob });
         const results = yield* store.match(pattern);
 
-        strictEqual(results.length, 0);
+        strictEqual(A.length(results), 0);
       }),
       TEST_TIMEOUT
     );
   });
 
-  layer(RdfStore.Default, { timeout: Duration.seconds(60) })("Term Types", (it) => {
+  layer(RdfStoreLive, { timeout: Duration.seconds(60) })("Term Types", (it) => {
     it.effect(
       "Quad with IRI object - should store and retrieve IRI object",
       Effect.fn(function* () {
@@ -526,7 +508,7 @@ describe("RdfStore", () => {
         yield* store.addQuad(quad);
         const results = yield* store.getQuads();
 
-        strictEqual(results.length, 1);
+        strictEqual(A.length(results), 1);
         strictEqual(results[0]?.object, fixtures.bob);
       }),
       TEST_TIMEOUT
@@ -547,7 +529,7 @@ describe("RdfStore", () => {
         yield* store.addQuad(quad);
         const results = yield* store.getQuads();
 
-        strictEqual(results.length, 1);
+        strictEqual(A.length(results), 1);
         strictEqual(results[0]?.subject, fixtures.blankB1);
       }),
       TEST_TIMEOUT
@@ -568,7 +550,7 @@ describe("RdfStore", () => {
         yield* store.addQuad(quad);
         const results = yield* store.getQuads();
 
-        strictEqual(results.length, 1);
+        strictEqual(A.length(results), 1);
         strictEqual(results[0]?.object, fixtures.blankB1);
       }),
       TEST_TIMEOUT
@@ -590,7 +572,7 @@ describe("RdfStore", () => {
         yield* store.addQuad(quad);
         const results = yield* store.getQuads();
 
-        strictEqual(results.length, 1);
+        strictEqual(A.length(results), 1);
         const resultObject = results[0]?.object;
         assertTrue(Literal.is(resultObject));
         strictEqual(resultObject.value, "Alice Smith");
@@ -616,7 +598,7 @@ describe("RdfStore", () => {
         yield* store.addQuad(quad);
         const results = yield* store.getQuads();
 
-        strictEqual(results.length, 1);
+        strictEqual(A.length(results), 1);
         const resultObject = results[0]?.object;
         assertTrue(Literal.is(resultObject));
         strictEqual(resultObject.value, "Alice");
@@ -641,7 +623,7 @@ describe("RdfStore", () => {
         yield* store.addQuad(quad);
         const results = yield* store.getQuads();
 
-        strictEqual(results.length, 1);
+        strictEqual(A.length(results), 1);
         const resultObject = results[0]?.object;
         assertTrue(Literal.is(resultObject));
         strictEqual(resultObject.value, "42");
@@ -678,13 +660,13 @@ describe("RdfStore", () => {
         strictEqual(size, 3);
 
         const results = yield* store.match(new QuadPattern({ subject: fixtures.alice, predicate: fixtures.foafName }));
-        strictEqual(results.length, 3);
+        strictEqual(A.length(results), 3);
       }),
       TEST_TIMEOUT
     );
   });
 
-  layer(RdfStore.Default, { timeout: Duration.seconds(60) })("Named Graphs", (it) => {
+  layer(RdfStoreLive, { timeout: Duration.seconds(60) })("Named Graphs", (it) => {
     it.effect(
       "Quad with named graph - should store and retrieve graph",
       Effect.fn(function* () {
@@ -701,7 +683,7 @@ describe("RdfStore", () => {
         yield* store.addQuad(quad);
         const results = yield* store.getQuads();
 
-        strictEqual(results.length, 1);
+        strictEqual(A.length(results), 1);
         strictEqual(results[0]?.graph, fixtures.graph1);
       }),
       TEST_TIMEOUT
@@ -722,7 +704,7 @@ describe("RdfStore", () => {
         yield* store.addQuad(quad);
         const results = yield* store.getQuads();
 
-        strictEqual(results.length, 1);
+        strictEqual(A.length(results), 1);
         strictEqual(results[0]?.graph, undefined);
       }),
       TEST_TIMEOUT
@@ -755,11 +737,11 @@ describe("RdfStore", () => {
         ]);
 
         const graph1Results = yield* store.match(new QuadPattern({ graph: fixtures.graph1 }));
-        strictEqual(graph1Results.length, 1);
+        strictEqual(A.length(graph1Results), 1);
         strictEqual(graph1Results[0]?.graph, fixtures.graph1);
 
         const graph2Results = yield* store.match(new QuadPattern({ graph: fixtures.graph2 }));
-        strictEqual(graph2Results.length, 1);
+        strictEqual(A.length(graph2Results), 1);
         strictEqual(graph2Results[0]?.graph, fixtures.graph2);
       }),
       TEST_TIMEOUT
@@ -799,7 +781,7 @@ describe("RdfStore", () => {
 
         const graphs = yield* store.getGraphs();
 
-        strictEqual(graphs.length, 3);
+        strictEqual(A.length(graphs), 3);
         assertTrue(A.some(graphs, (g) => g === undefined));
         assertTrue(A.some(graphs, (g) => g === fixtures.graph1));
         assertTrue(A.some(graphs, (g) => g === fixtures.graph2));
@@ -808,7 +790,7 @@ describe("RdfStore", () => {
     );
   });
 
-  layer(RdfStore.Default, { timeout: Duration.seconds(60) })("Unique Term Accessors", (it) => {
+  layer(RdfStoreLive, { timeout: Duration.seconds(60) })("Unique Term Accessors", (it) => {
     it.effect(
       "getSubjects - should return unique subjects",
       Effect.fn(function* () {
@@ -840,7 +822,7 @@ describe("RdfStore", () => {
 
         const subjects = yield* store.getSubjects();
 
-        strictEqual(subjects.length, 3);
+        strictEqual(A.length(subjects), 3);
         assertTrue(A.some(subjects, (s) => s === fixtures.alice));
         assertTrue(A.some(subjects, (s) => s === fixtures.bob));
         assertTrue(A.some(subjects, (s) => s === fixtures.blankB1));
@@ -879,7 +861,7 @@ describe("RdfStore", () => {
 
         const predicates = yield* store.getPredicates();
 
-        strictEqual(predicates.length, 3);
+        strictEqual(A.length(predicates), 3);
         assertTrue(A.some(predicates, (p) => p === fixtures.foafName));
         assertTrue(A.some(predicates, (p) => p === fixtures.foafKnows));
         assertTrue(A.some(predicates, (p) => p === fixtures.schemaWorksFor));
@@ -921,7 +903,7 @@ describe("RdfStore", () => {
 
         const objects = yield* store.getObjects();
 
-        strictEqual(objects.length, 3);
+        strictEqual(A.length(objects), 3);
       }),
       TEST_TIMEOUT
     );
@@ -947,7 +929,7 @@ describe("RdfStore", () => {
 
         const subjects = yield* store.getSubjects();
 
-        strictEqual(subjects.length, 2);
+        strictEqual(A.length(subjects), 2);
         assertTrue(A.some(subjects, (s) => s === fixtures.blankB1));
         assertTrue(A.some(subjects, (s) => s === fixtures.blankB2));
       }),
@@ -955,7 +937,7 @@ describe("RdfStore", () => {
     );
   });
 
-  layer(RdfStore.Default, { timeout: Duration.seconds(60) })("Edge Cases", (it) => {
+  layer(RdfStoreLive, { timeout: Duration.seconds(60) })("Edge Cases", (it) => {
     it.effect(
       "Empty store - should return empty results",
       Effect.fn(function* () {
@@ -966,19 +948,19 @@ describe("RdfStore", () => {
         strictEqual(size, 0);
 
         const quads = yield* store.getQuads();
-        strictEqual(quads.length, 0);
+        strictEqual(A.length(quads), 0);
 
         const subjects = yield* store.getSubjects();
-        strictEqual(subjects.length, 0);
+        strictEqual(A.length(subjects), 0);
 
         const predicates = yield* store.getPredicates();
-        strictEqual(predicates.length, 0);
+        strictEqual(A.length(predicates), 0);
 
         const objects = yield* store.getObjects();
-        strictEqual(objects.length, 0);
+        strictEqual(A.length(objects), 0);
 
         const graphs = yield* store.getGraphs();
-        strictEqual(graphs.length, 0);
+        strictEqual(A.length(graphs), 0);
       }),
       TEST_TIMEOUT
     );
@@ -1107,11 +1089,11 @@ describe("RdfStore", () => {
         ]);
 
         const plainResults = yield* store.match(new QuadPattern({ object: aliceLiteral }));
-        strictEqual(plainResults.length, 1);
+        strictEqual(A.length(plainResults), 1);
         strictEqual(plainResults[0]?.subject, fixtures.alice);
 
         const langResults = yield* store.match(new QuadPattern({ object: aliceLiteralEn }));
-        strictEqual(langResults.length, 1);
+        strictEqual(A.length(langResults), 1);
         strictEqual(langResults[0]?.subject, fixtures.bob);
       }),
       TEST_TIMEOUT
@@ -1120,7 +1102,7 @@ describe("RdfStore", () => {
 
   describe("Store Isolation", () => {
     effect(
-      "Each RdfStore.Default provides fresh instance",
+      "Each RdfStoreLive provides fresh instance",
       Effect.fn(function* () {
         const store1Size = yield* Effect.gen(function* () {
           const store = yield* RdfStore;
@@ -1132,12 +1114,12 @@ describe("RdfStore", () => {
             })
           );
           return yield* store.size;
-        }).pipe(Effect.provide(RdfStore.Default));
+        }).pipe(Effect.provide(RdfStoreLive));
 
         const store2Size = yield* Effect.gen(function* () {
           const store = yield* RdfStore;
           return yield* store.size;
-        }).pipe(Effect.provide(RdfStore.Default));
+        }).pipe(Effect.provide(RdfStoreLive));
 
         strictEqual(store1Size, 1);
         strictEqual(store2Size, 0);

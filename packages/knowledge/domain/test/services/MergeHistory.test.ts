@@ -1,13 +1,3 @@
-/**
- * MergeHistory service tests
- *
- * Tests for the MergeHistory service stub implementation.
- * Phase 3 will add integration tests with actual database.
- *
- * @module knowledge-domain/test/services/MergeHistory.test
- * @since 0.1.0
- */
-
 import { MergeHistory } from "@beep/knowledge-domain/services";
 import { MergeParams } from "@beep/knowledge-domain/value-objects";
 import { KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
