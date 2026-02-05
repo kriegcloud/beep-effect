@@ -195,13 +195,13 @@ export class CentralRateLimiterService extends Context.Tag($I`CentralRateLimiter
 /**
  * Compute elapsed milliseconds between lastReset and now as a Duration.
  */
-const elapsedSinceReset = (nowUtc: DateTime.DateTime.Utc, lastReset: DateTime.DateTime.Utc): Duration.Duration =>
+const elapsedSinceReset = (nowUtc: DateTime.Utc, lastReset: DateTime.Utc): Duration.Duration =>
   Duration.millis(DateTime.distance(lastReset, nowUtc));
 
 /**
  * Compute ms until the next minute window reset.
  */
-const msUntilNextReset = (nowUtc: DateTime.DateTime.Utc, lastReset: DateTime.DateTime.Utc): Duration.Duration => {
+const msUntilNextReset = (nowUtc: DateTime.Utc, lastReset: DateTime.Utc): Duration.Duration => {
   const elapsed = elapsedSinceReset(nowUtc, lastReset);
   return Duration.subtract(Duration.minutes(1), elapsed);
 };
@@ -228,7 +228,7 @@ export const make = Effect.fn(
     /**
      * Reset counters if minute has elapsed
      */
-    const maybeResetCounters = Effect.fn(function* (nowUtc: DateTime.DateTime.Utc) {
+    const maybeResetCounters = Effect.fn(function* (nowUtc: DateTime.Utc) {
       return yield* Ref.update(state, (s) =>
         Bool.match(Duration.greaterThan(elapsedSinceReset(nowUtc, s.lastReset), Duration.minutes(1)), {
           onTrue: () => ({ ...s, requestsThisMinute: 0, tokensThisMinute: 0, lastReset: nowUtc }),
@@ -240,7 +240,7 @@ export const make = Effect.fn(
     /**
      * Check rate limits after counter reset, fail if limits are exceeded.
      */
-    const checkRateLimits = Effect.fn(function* (nowUtc: DateTime.DateTime.Utc, estimatedTokens: number) {
+    const checkRateLimits = Effect.fn(function* (nowUtc: DateTime.Utc, estimatedTokens: number) {
       const current = yield* Ref.get(state);
 
       if (current.requestsThisMinute >= config.requestsPerMinute) {

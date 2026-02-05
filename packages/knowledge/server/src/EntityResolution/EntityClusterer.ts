@@ -1,5 +1,6 @@
 import { $KnowledgeServerId } from "@beep/identity/packages";
 import type { EmbeddingError } from "@beep/knowledge-server/Embedding";
+import { CircuitOpenError, RateLimitError } from "@beep/knowledge-domain/errors";
 import { KnowledgeEntityIds } from "@beep/shared-domain";
 import { AuthContext } from "@beep/shared-domain/Policy";
 import * as A from "effect/Array";
@@ -89,7 +90,7 @@ export interface EntityClustererShape {
       readonly entity: AssembledEntity;
       readonly similarity: number;
     }[],
-    EmbeddingError,
+    EmbeddingError | RateLimitError | CircuitOpenError,
     never
   >;
   readonly cluster: (

@@ -424,3 +424,9 @@
 {"eventType":"start","timestamp":"2026-02-05T13:48:34.759Z","sessionId":"a1e2c5f8-497c-4651-9b1d-dabee970bccc","agentType":"effect-code-writer","triggeredBy":"auto"}
 {"eventType":"stop","timestamp":"2026-02-05T13:52:22.757Z","sessionId":"a1e2c5f8-497c-4651-9b1d-dabee970bccc","agentType":"effect-code-writer","durationMs":227998,"outcome":"success"}
 {"eventType":"start","timestamp":"2026-02-05T13:54:23.018Z","sessionId":"a1e2c5f8-497c-4651-9b1d-dabee970bccc","agentType":"effect-code-writer","triggeredBy":"auto"}
+{"eventType":"stop","timestamp":"2026-02-05T14:12:48.204Z","sessionId":"a1e2c5f8-497c-4651-9b1d-dabee970bccc","agentType":"effect-code-writer","durationMs":1105186,"outcome":"success"}
+{"eventType":"start","timestamp":"2026-02-05T14:14:44.118Z","sessionId":"a1e2c5f8-497c-4651-9b1d-dabee970bccc","agentType":"test-writer","triggeredBy":"auto"}
+{"eventType":"stop","timestamp":"2026-02-05T14:24:22.838Z","sessionId":"a1e2c5f8-497c-4651-9b1d-dabee970bccc","agentType":"test-writer","durationMs":578720,"outcome":"success"}
+{"eventType":"stop","timestamp":"2026-02-05T14:36:05.533Z","sessionId":"a1e2c5f8-497c-4651-9b1d-dabee970bccc","agentType":"unknown","durationMs":0,"outcome":"success"}
+{"eventType":"start","timestamp":"2026-02-05T14:44:03.991Z","sessionId":"a1e2c5f8-497c-4651-9b1d-dabee970bccc","agentType":"package-error-fixer","triggeredBy":"auto"}
+{"eventType":"stop","timestamp":"2026-02-05T14:46:47.608Z","sessionId":"a1e2c5f8-497c-4651-9b1d-dabee970bccc","agentType":"package-error-fixer","durationMs":163617,"outcome":"success"}

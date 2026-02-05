@@ -4,6 +4,7 @@ import {
   GroundedAnswerGenerator,
   GroundedAnswerGeneratorLive,
 } from "@beep/knowledge-server/GraphRAG/GroundedAnswerGenerator";
+import { CentralRateLimiterService } from "@beep/knowledge-server/LlmControl/RateLimiter";
 import { KnowledgeEntityIds } from "@beep/shared-domain";
 import { assertTrue, describe, effect, strictEqual } from "@beep/testkit";
 import { LanguageModel } from "@effect/ai";
@@ -11,8 +12,22 @@ import type * as Response from "@effect/ai/Response";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
+import * as Layer from "effect/Layer";
 import * as Stream from "effect/Stream";
 import * as Str from "effect/String";
+
+const NoopRateLimiterLayer = Layer.succeed(
+  CentralRateLimiterService,
+  CentralRateLimiterService.of({
+    acquire: () => Effect.void,
+    release: () => Effect.void,
+    getMetrics: () => Effect.die("not implemented in test"),
+    getResetTime: () => Effect.succeed(0),
+    setCircuitState: () => Effect.void,
+  })
+);
+
+const TestGeneratorLayer = Layer.provide(GroundedAnswerGeneratorLive, NoopRateLimiterLayer);
 
 const TEST_TIMEOUT = 60000;
 
@@ -83,7 +98,7 @@ describe("GroundedAnswerGenerator", () => {
 
           strictEqual(answer.confidence, 1.0);
         },
-        Effect.provide(GroundedAnswerGeneratorLive),
+        Effect.provide(TestGeneratorLayer),
         withTextLanguageModel(mockResponseWithCitations)
       ),
       TEST_TIMEOUT
@@ -103,7 +118,7 @@ describe("GroundedAnswerGenerator", () => {
           strictEqual(A.length(answer.citations), 0);
           strictEqual(answer.confidence, 0.0);
         },
-        Effect.provide(GroundedAnswerGeneratorLive),
+        Effect.provide(TestGeneratorLayer),
         withTextLanguageModel(mockResponseWithoutCitations)
       ),
       TEST_TIMEOUT
@@ -121,7 +136,7 @@ describe("GroundedAnswerGenerator", () => {
           assertTrue(Str.includes("don't have enough information")(answer.text));
           strictEqual(answer.confidence, 0.0);
         },
-        Effect.provide(GroundedAnswerGeneratorLive),
+        Effect.provide(TestGeneratorLayer),
         withTextLanguageModel("")
       ),
       TEST_TIMEOUT
@@ -138,7 +153,7 @@ describe("GroundedAnswerGenerator", () => {
 
           assertTrue(Str.length(answer.text) > 0);
         },
-        Effect.provide(GroundedAnswerGeneratorLive),
+        Effect.provide(TestGeneratorLayer),
         withTextLanguageModel(mockResponseWithoutCitations)
       ),
       TEST_TIMEOUT
@@ -157,7 +172,7 @@ describe("GroundedAnswerGenerator", () => {
           assertTrue(!Str.includes("{{relation:")(answer.text));
           assertTrue(!Str.includes("}}")(answer.text));
         },
-        Effect.provide(GroundedAnswerGeneratorLive),
+        Effect.provide(TestGeneratorLayer),
         withTextLanguageModel(mockResponseWithCitations)
       ),
       TEST_TIMEOUT
@@ -175,7 +190,7 @@ describe("GroundedAnswerGenerator", () => {
           const allEntityIds = A.flatMap(answer.citations, (c) => c.entityIds);
           assertTrue(A.length(allEntityIds) > 0);
         },
-        Effect.provide(GroundedAnswerGeneratorLive),
+        Effect.provide(TestGeneratorLayer),
         withTextLanguageModel(mockResponseWithCitations)
       ),
       TEST_TIMEOUT

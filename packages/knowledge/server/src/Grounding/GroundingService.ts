@@ -1,4 +1,5 @@
 import { $KnowledgeServerId } from "@beep/identity/packages";
+import { CircuitOpenError, RateLimitError } from "@beep/knowledge-domain/errors";
 import type { SharedEntityIds } from "@beep/shared-domain";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";
@@ -67,7 +68,7 @@ export interface GroundingServiceShape {
     organizationId: SharedEntityIds.OrganizationId.Type,
     ontologyId: string,
     config?: GroundingConfig
-  ) => Effect.Effect<GroundingResult, EmbeddingError>;
+  ) => Effect.Effect<GroundingResult, EmbeddingError | RateLimitError | CircuitOpenError>;
   readonly applyGrounding: (graph: KnowledgeGraph, groundingResult: GroundingResult) => KnowledgeGraph;
   readonly verifyRelation: (
     relation: AssembledRelation,
@@ -76,7 +77,7 @@ export interface GroundingServiceShape {
     sourceText: string,
     organizationId: SharedEntityIds.OrganizationId.Type,
     ontologyId: string
-  ) => Effect.Effect<number, EmbeddingError>;
+  ) => Effect.Effect<number, EmbeddingError | RateLimitError | CircuitOpenError>;
 }
 
 export class GroundingService extends Context.Tag($I`GroundingService`)<GroundingService, GroundingServiceShape>() {}
@@ -91,7 +92,7 @@ const serviceEffect: Effect.Effect<GroundingServiceShape, never, EmbeddingServic
       organizationId: SharedEntityIds.OrganizationId.Type,
       ontologyId: string,
       config: GroundingConfig = {}
-    ): Effect.Effect<GroundingResult, EmbeddingError> =>
+    ): Effect.Effect<GroundingResult, EmbeddingError | RateLimitError | CircuitOpenError> =>
       Effect.gen(function* () {
         const threshold = config.confidenceThreshold ?? DEFAULT_CONFIDENCE_THRESHOLD;
 

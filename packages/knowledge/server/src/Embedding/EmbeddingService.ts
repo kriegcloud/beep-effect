@@ -1,4 +1,5 @@
 import { $KnowledgeServerId } from "@beep/identity/packages";
+import type { CircuitOpenError, RateLimitError } from "@beep/knowledge-domain/errors";
 import { EmbeddingRepo, type SimilarityResult } from "@beep/knowledge-server/db/repos/Embedding.repo";
 import type { AssembledEntity } from "@beep/knowledge-server/Extraction/GraphAssembler";
 import { formatEntityForEmbedding } from "@beep/knowledge-server/utils/formatting";
@@ -19,7 +20,6 @@ import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { CentralRateLimiterService } from "../LlmControl/RateLimiter";
 import { EmbeddingError, type TaskType } from "./EmbeddingProvider";
-import type{CircuitOpenError,  RateLimitError} from "@beep/knowledge-domain/errors";
 
 const $I = $KnowledgeServerId.create("Embedding/EmbeddingService");
 
@@ -267,7 +267,8 @@ const serviceEffect: Effect.Effect<
     text: string,
     taskType: TaskType.Type,
     ontologyId: KnowledgeEntityIds.OntologyId.Type
-  ): Effect.Effect<ReadonlyArray<number>, EmbeddingError | CircuitOpenError | RateLimitError> => embed(text, taskType, ontologyId);
+  ): Effect.Effect<ReadonlyArray<number>, EmbeddingError | CircuitOpenError | RateLimitError> =>
+    embed(text, taskType, ontologyId);
 
   const getConfig = Effect.fn("EmbeddingService.getConfig")(function* () {
     return {

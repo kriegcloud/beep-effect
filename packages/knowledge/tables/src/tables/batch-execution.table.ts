@@ -1,4 +1,4 @@
-import { DocumentsEntityIds, KnowledgeEntityIds } from "@beep/shared-domain";
+import { type DocumentsEntityIds, KnowledgeEntityIds } from "@beep/shared-domain";
 import { OrgTable } from "@beep/shared-tables";
 import { datetime } from "@beep/shared-tables/columns";
 import * as pg from "drizzle-orm/pg-core";

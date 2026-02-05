@@ -564,6 +564,103 @@ Additional files: `circuit.errors.ts`, `embedding.errors.ts`, `event-bus.error.t
 
 ---
 
+## Entry 6: Phase 3 Implementation -- State Management + Orchestration (2026-02-05)
+
+### Phase
+Phase 3 - Implementation (Complete)
+
+### What Was Done
+
+Implemented batch lifecycle state machine and cross-document orchestration across 7 sub-tasks:
+
+| Sub-Task | Deliverable | Files Created/Modified |
+|----------|-------------|----------------------|
+| 3A-1: Domain Models | BatchState ADT, BatchEvent union, BatchConfig, errors | `batch-state.value.ts`, `batch-event.value.ts`, `batch-config.value.ts`, `batch.errors.ts` |
+| 3A-2: State Machine + Emitter | In-memory state machine, PubSub event emitter | `BatchStateMachine.ts`, `BatchEventEmitter.ts` |
+| 3A-3: RPC Contracts | 4 RPC endpoints including streaming | `rpc/Batch/{StartBatch,StreamProgress,GetBatchStatus,CancelBatch}.ts`, `rpc/v1/batch/*.ts` |
+| 3B-1: Entity Model | Batch execution entity + config | `entities/Batch/Batch.model.ts` |
+| 3B-2: Table | Drizzle table with indexes | `batch-execution.table.ts` |
+| 3B-3: Orchestrator + Aggregator | Multi-document coordinator + result aggregation | `BatchOrchestrator.ts`, `BatchAggregator.ts` |
+| Tests | State machine + aggregator tests | `test/Workflow/BatchStateMachine.test.ts`, `test/Workflow/BatchAggregator.test.ts` |
+
+Additional: `BatchExecutionId` branded EntityId added to `@beep/shared-domain`, `WorkflowType` extended with `"batch_extraction"`.
+
+### Key Decisions
+
+1. **State Machine ADT via `S.Union` of `S.TaggedStruct`**
+   - Decision: 6 state variants (Pending, Extracting, Resolving, Completed, Failed, Cancelled) as `S.TaggedStruct` members
+   - Rationale: Compile-time exhaustiveness with `Match.typeTags`, each state carries only relevant fields
+   - Alternative: Single enum + optional fields -- rejected because it allows nonsensical field combinations
+
+2. **In-Memory State Machine with `Ref<HashMap>`**
+   - Decision: State stored in Effect `Ref` with `HashMap`, not database
+   - Rationale: State transitions are frequent during batch processing; DB persistence is handled separately by WorkflowPersistence
+   - Impact: State is lost on crash, but DurableActivities handles crash recovery at the activity level
+
+3. **`PubSub.unbounded` for Event Emission**
+   - Decision: Unbounded PubSub (no backpressure) for batch events
+   - Rationale: Event consumers (SSE endpoints) are fast; bounded queue would block document processing on slow consumers
+   - Pattern: Same as existing `ProgressStream` from Phase 2
+
+4. **Streaming RPC with `Rpc.make("name", { stream: true })`**
+   - Decision: StreamProgress returns `Stream<BatchEvent>` to clients via SSE
+   - Rationale: Real-time progress updates required for UI
+   - Pattern: Verified against existing `shared/domain/src/rpc/v1/event-stream.ts` pattern
+
+5. **Three Failure Policy Strategies via `Match.exhaustive`**
+   - Decision: `continue-on-failure` (Effect.either wrap), `abort-all` (Effect.iterate with early exit), `retry-failed` (two-pass with HashMap merge)
+   - Rationale: Different use cases require different failure behavior; Match.exhaustive ensures compile-time completeness
+   - Key insight: `abort-all` uses `Effect.iterate` with accumulator state rather than `Effect.forEach` to enable early termination
+
+6. **`DistributiveOmit<T, K>` for Union Type Manipulation**
+   - Decision: Custom conditional type `T extends unknown ? Omit<T, K> : never` for omitting `timestamp` from `BatchEvent` union
+   - Rationale: Standard `Omit<Union, K>` collapses to intersection of non-K fields, losing discriminator-specific properties
+   - Impact: Event emission helper can construct events without timestamps and add them dynamically
+
+7. **`as BatchState` Casts on State Transition Objects**
+   - Decision: Explicit cast when constructing state objects for transition calls
+   - Rationale: `S.TaggedStruct` union types don't auto-widen from plain object literals; the cast is safe because the state machine validates transitions
+   - Pattern: Same `as BatchState` pattern throughout BatchOrchestrator.ts
+
+### What Worked Well
+
+- **Parallel sub-agent delegation**: Tasks 2-6 were delegated to specialized agents (domain-modeler, effect-code-writer) with full context passing, completing in parallel tracks
+- **NonNegInt helper pattern**: `asNonNeg = (n: number) => n as NonNegInt` provided clean branded number construction throughout
+- **Existing streaming RPC as template**: Found `event-stream.ts` pattern in shared domain, directly applicable to `StreamProgress`
+- **Compilation isolation**: Using `bun run check --filter @beep/knowledge-domain` independently from `--filter @beep/knowledge-server` enabled verifying domain changes without cascading through server errors
+- **Test-first state machine verification**: 14 tests for BatchStateMachine caught transition rule correctness; 6 tests for BatchAggregator verified aggregation math
+
+### What Could Be Improved
+
+- **State machine transition objects are verbose**: Each `stateMachine.transition(batchId, { _tag: "BatchState.X", batchId, ... } as BatchState)` call requires repeating `batchId` and casting. A builder helper would reduce boilerplate
+- **Entity resolution in orchestrator is stubbed**: The `enableEntityResolution` path emits events but doesn't actually invoke IncrementalClusterer. This is a known gap for future work
+- **No integration test for BatchOrchestrator**: Unit tests cover StateMachine and Aggregator, but end-to-end orchestration requires mocking ExtractionWorkflow which was deferred
+- **Event timestamp handling**: The `DistributiveOmit` + manual `DateTime.now` pattern works but is slightly fragile; a dedicated EventFactory would be cleaner
+
+### Learnings for MEMORY.md
+
+1. **`DistributiveOmit<T, K>` for union Omit**: Standard `Omit` collapses unions; use conditional type distribution
+2. **Streaming RPC pattern**: `Rpc.make("name", { stream: true, success: EventSchema })` + `Stream.unwrap` in handler
+3. **`BS.StringLiteralKit` for failure policies**: Clean enum pattern with schema validation
+4. **`Effect.iterate` for abort-all**: Better than `Effect.forEach` when early termination is needed
+5. **`HashMap.fromIterable` for retry merge**: Efficient deduplication when merging retry results
+
+### Pattern Candidates
+
+1. **State Machine ADT Pattern**: `S.Union` of `S.TaggedStruct` + `HashMap<StateTag, AllowedTransitions>` + `Match.typeTags` for exhaustive handling
+2. **Batch Processing with Configurable Failure Policies**: Match.exhaustive over policy enum driving different concurrency strategies
+3. **PubSub Event Emission with Fire-and-Forget**: `catchAllCause` wrapper prevents event delivery from blocking business logic
+4. **Streaming RPC**: `Rpc.make({ stream: true })` + `Stream.unwrap` + `PubSub.subscribe` pattern for real-time updates
+
+### Recommendations for Phase 4
+
+1. **IncrementalClusterer integration**: Wire the entity resolution phase in BatchOrchestrator to actually invoke the clusterer
+2. **Batch persistence**: Store batch results in the batch_execution table via a repository
+3. **SSE consumer testing**: Add integration test that subscribes to StreamProgress and verifies event sequence
+4. **State machine persistence**: Consider persisting state transitions to batch_execution table for crash recovery visibility
+
+---
+
 ## Entry Template
 
 ```markdown

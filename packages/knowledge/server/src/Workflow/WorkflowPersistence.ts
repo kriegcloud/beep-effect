@@ -1,11 +1,11 @@
-import {$KnowledgeServerId} from "@beep/identity/packages";
-import {WorkflowNotFoundError} from "@beep/knowledge-domain/errors";
+import { $KnowledgeServerId } from "@beep/identity/packages";
+import { WorkflowNotFoundError } from "@beep/knowledge-domain/errors";
 import type {
   WorkflowActivityStatus,
   WorkflowExecutionStatus,
   WorkflowType,
 } from "@beep/knowledge-domain/value-objects";
-import {KnowledgeEntityIds} from "@beep/shared-domain";
+import { KnowledgeEntityIds } from "@beep/shared-domain";
 import * as SqlClient from "@effect/sql/SqlClient";
 import type * as SqlError from "@effect/sql/SqlError";
 import * as A from "effect/Array";
@@ -18,7 +18,7 @@ import * as S from "effect/Schema";
 
 const $I = $KnowledgeServerId.create("Workflow/WorkflowPersistence");
 
-const JsonRecord = S.Record({key: S.String, value: S.Unknown});
+const JsonRecord = S.Record({ key: S.String, value: S.Unknown });
 const toJsonb = S.encodeSync(S.parseJson(JsonRecord));
 
 const executionTable = KnowledgeEntityIds.WorkflowExecutionId.tableName;
@@ -105,8 +105,7 @@ export interface WorkflowPersistenceShape {
 export class WorkflowPersistence extends Context.Tag($I`WorkflowPersistence`)<
   WorkflowPersistence,
   WorkflowPersistenceShape
->() {
-}
+>() {}
 
 const serviceEffect = Effect.gen(function* () {
   const sql = yield* SqlClient.SqlClient;
@@ -231,7 +230,7 @@ const serviceEffect = Effect.gen(function* () {
       `;
       const row = A.head(rows);
       if (O.isNone(row)) {
-        return yield* new WorkflowNotFoundError({executionId: id});
+        return yield* new WorkflowNotFoundError({ executionId: id });
       }
       return row.value;
     });

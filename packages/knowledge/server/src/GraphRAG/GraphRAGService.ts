@@ -202,7 +202,13 @@ const serviceEffect: Effect.Effect<GraphRAGServiceShape, never, EmbeddingService
         Effect.withSpan("GraphRAGService.query", {
           captureStackTrace: false,
           attributes: { topK: input.topK, hops: input.hops, organizationId, ontologyId },
-        })
+        }),
+        Effect.catchTag("RateLimitError", (e) =>
+          Effect.fail(new GraphRAGError({ message: `Rate limit exceeded: ${e.reason}`, cause: String(e.retryAfterMs) }))
+        ),
+        Effect.catchTag("CircuitOpenError", (e) =>
+          Effect.fail(new GraphRAGError({ message: "Circuit breaker open", cause: String(e.resetTimeoutMs) }))
+        )
       );
 
     const queryFromSeeds = (

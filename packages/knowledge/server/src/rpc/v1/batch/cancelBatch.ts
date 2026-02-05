@@ -8,10 +8,7 @@ import * as S from "effect/Schema";
 
 const zero = S.decodeSync(S.NonNegativeInt)(0);
 
-const toCancelledState = (
-  batchId: BatchState["batchId"],
-  currentState: BatchState
-): BatchState =>
+const toCancelledState = (batchId: BatchState["batchId"], currentState: BatchState): BatchState =>
   Match.value(currentState).pipe(
     Match.tag("BatchState.Extracting", (s) => ({
       _tag: "BatchState.Cancelled" as const,
@@ -27,32 +24,27 @@ const toCancelledState = (
     }))
   );
 
-export const Handler = Effect.fn("batch_cancel")(
-  function* (payload: Batch.CancelBatch.Payload) {
-    const stateMachine = yield* BatchStateMachine;
-    const emitter = yield* BatchEventEmitter;
+export const Handler = Effect.fn("batch_cancel")(function* (payload: Batch.CancelBatch.Payload) {
+  const stateMachine = yield* BatchStateMachine;
+  const emitter = yield* BatchEventEmitter;
 
-    const currentState = yield* stateMachine.getState(payload.batchId);
-    const cancelledState = toCancelledState(payload.batchId, currentState);
+  const currentState = yield* stateMachine.getState(payload.batchId);
+  const cancelledState = toCancelledState(payload.batchId, currentState);
 
-    yield* stateMachine.transition(payload.batchId, cancelledState);
+  yield* stateMachine.transition(payload.batchId, cancelledState);
 
-    const now = yield* DateTime.now.pipe(
-      Effect.map(DateTime.toUtc)
-    );
+  const now = yield* DateTime.now.pipe(Effect.map(DateTime.toUtc));
 
-    yield* emitter.emit({
-      _tag: "BatchEvent.BatchFailed" as const,
-      batchId: payload.batchId,
-      error: "Batch cancelled by user",
-      failedDocuments: zero,
-      timestamp: now,
-    });
+  yield* emitter.emit({
+    _tag: "BatchEvent.BatchFailed" as const,
+    batchId: payload.batchId,
+    error: "Batch cancelled by user",
+    failedDocuments: zero,
+    timestamp: now,
+  });
 
-    return new Batch.CancelBatch.Success({
-      batchId: payload.batchId,
-      cancelled: true,
-    });
-  },
-  Effect.withSpan("batch_cancel")
-);
+  return new Batch.CancelBatch.Success({
+    batchId: payload.batchId,
+    cancelled: true,
+  });
+}, Effect.withSpan("batch_cancel"));

@@ -1,9 +1,9 @@
 import { $KnowledgeDomainId } from "@beep/identity/packages";
+import { FailurePolicy } from "@beep/knowledge-domain/value-objects";
 import { BS } from "@beep/schema";
 import { DocumentsEntityIds, KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import { makeFields } from "@beep/shared-domain/common";
 import { modelKit } from "@beep/shared-domain/factories";
-import { FailurePolicy } from "@beep/knowledge-domain/value-objects";
 import * as M from "@effect/sql/Model";
 import * as S from "effect/Schema";
 
@@ -64,8 +64,6 @@ export class Model extends M.Class<Model>($I`BatchExecutionModel`)(
   }
 
   get progress(): number {
-    return this.totalDocuments === 0
-      ? 0
-      : (this.completedDocuments + this.failedDocuments) / this.totalDocuments;
+    return this.totalDocuments === 0 ? 0 : (this.completedDocuments + this.failedDocuments) / this.totalDocuments;
   }
 }
