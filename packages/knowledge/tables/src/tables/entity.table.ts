@@ -1,53 +1,17 @@
-/**
- * Entity table definition for Knowledge slice
- *
- * Stores extracted knowledge graph entities with types,
- * attributes, and provenance information.
- *
- * @module knowledge-tables/tables/entity
- * @since 0.1.0
- */
-
 import { type DocumentsEntityIds, KnowledgeEntityIds } from "@beep/shared-domain";
 import { OrgTable } from "@beep/shared-tables";
 import * as pg from "drizzle-orm/pg-core";
 
-/**
- * Entity table for the knowledge slice.
- *
- * Uses OrgTable.make factory to include standard audit columns
- * and organization scoping.
- *
- * @since 0.1.0
- * @category tables
- */
 export const entity = OrgTable.make(KnowledgeEntityIds.KnowledgeEntityId)(
   {
-    // Original text mention from source
     mention: pg.text("mention").notNull(),
-
-    // Ontology class URIs this entity instantiates (JSON array, NonEmptyArray)
     types: pg.jsonb("types").notNull().$type<readonly [string, ...string[]]>(),
-
-    // Entity attributes as property-value pairs (JSON object)
     attributes: pg.jsonb("attributes").notNull().$type<Record<string, string | number | boolean>>(),
-
-    // Ontology scoping (optional - null means default ontology)
     ontologyId: pg.text("ontology_id").$type<KnowledgeEntityIds.OntologyId.Type>(),
-
-    // Source document ID for provenance
     documentId: pg.text("document_id").$type<DocumentsEntityIds.DocumentId.Type>(),
-
-    // Source URI where document was loaded from
     sourceUri: pg.text("source_uri"),
-
-    // Extraction run ID that created this entity
     extractionId: pg.text("extraction_id").$type<KnowledgeEntityIds.ExtractionId.Type>(),
-
-    // System-generated grounding confidence (0-1)
     groundingConfidence: pg.real("grounding_confidence"),
-
-    // Evidence spans (JSON array of EvidenceSpan objects)
     mentions: pg.jsonb("mentions").$type<
       ReadonlyArray<{
         text: string;
@@ -58,13 +22,9 @@ export const entity = OrgTable.make(KnowledgeEntityIds.KnowledgeEntityId)(
     >(),
   },
   (t) => [
-    // Organization ID index for RLS filtering
     pg.index("entity_organization_id_idx").on(t.organizationId),
-    // Ontology index for filtering by ontology
     pg.index("entity_ontology_id_idx").on(t.ontologyId),
-    // Document index for provenance queries
     pg.index("entity_document_id_idx").on(t.documentId),
-    // Extraction index for grouping by extraction run
     pg.index("entity_extraction_id_idx").on(t.extractionId),
   ]
 );

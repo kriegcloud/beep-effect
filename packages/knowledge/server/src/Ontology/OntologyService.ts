@@ -1,15 +1,8 @@
-/**
- * OntologyService
- *
- * High-level ontology operations combining parsing, caching, and database persistence.
- * Provides the main API for ontology management.
- *
- * @module knowledge-server/Ontology/OntologyService
- * @since 0.1.0
- */
+import { $KnowledgeServerId } from "@beep/identity/packages";
 import { Entities, ValueObjects } from "@beep/knowledge-domain";
 import { KnowledgeEntityIds, type SharedEntityIds } from "@beep/shared-domain";
 import * as A from "effect/Array";
+import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
 import * as Iterable from "effect/Iterable";
@@ -18,57 +11,35 @@ import * as MutableHashMap from "effect/MutableHashMap";
 import * as MutableHashSet from "effect/MutableHashSet";
 import * as O from "effect/Option";
 import * as Str from "effect/String";
-import { OntologyCache } from "./OntologyCache";
+import { OntologyCache, OntologyCacheLive } from "./OntologyCache";
 import {
   OntologyParser,
+  OntologyParserLive,
   type ParsedClassDefinition,
   type ParsedOntology,
   type ParsedPropertyDefinition,
 } from "./OntologyParser";
 
-/**
- * OntologyContext represents a fully loaded ontology with lookup capabilities
- *
- * @since 0.1.0
- * @category schemas
- */
+const $I = $KnowledgeServerId.create("Ontology/OntologyService");
+
 export interface OntologyContext {
   readonly classes: ReadonlyArray<ParsedClassDefinition>;
   readonly properties: ReadonlyArray<ParsedPropertyDefinition>;
   readonly classHierarchy: Record<string, ReadonlyArray<string>>;
   readonly propertyHierarchy: Record<string, ReadonlyArray<string>>;
 
-  /**
-   * Get properties applicable to a class (by domain)
-   */
   getPropertiesForClass(classIri: string): ReadonlyArray<ParsedPropertyDefinition>;
 
-  /**
-   * Check if a class is a subclass of another (using rdfs:subClassOf)
-   */
   isSubClassOf(childIri: string, parentIri: string): boolean;
 
-  /**
-   * Get all ancestor classes (transitive rdfs:subClassOf)
-   */
   getAncestors(classIri: string): ReadonlyArray<string>;
 
-  /**
-   * Find class by IRI
-   */
   findClass(iri: string): O.Option<ParsedClassDefinition>;
 
-  /**
-   * Find property by IRI
-   */
   findProperty(iri: string): O.Option<ParsedPropertyDefinition>;
 }
 
-/**
- * Create OntologyContext from parsed ontology
- */
 const createOntologyContext = (parsed: ParsedOntology): OntologyContext => {
-  // Build lookup maps
   const classMap = MutableHashMap.empty<string, ParsedClassDefinition>();
   for (const cls of parsed.classes) {
     MutableHashMap.set(classMap, cls.iri, cls);
@@ -79,18 +50,17 @@ const createOntologyContext = (parsed: ParsedOntology): OntologyContext => {
     MutableHashMap.set(propertyMap, prop.iri, prop);
   }
 
-  // Build class -> properties index
-  const classPropertiesMap = MutableHashMap.empty<string, ParsedPropertyDefinition[]>();
+  const classPropertiesMap = MutableHashMap.empty<string, Array<ParsedPropertyDefinition>>();
   for (const prop of parsed.properties) {
     for (const domainIri of prop.domain) {
       if (!MutableHashMap.has(classPropertiesMap, domainIri)) {
         MutableHashMap.set(classPropertiesMap, domainIri, []);
       }
-      O.getOrThrow(MutableHashMap.get(classPropertiesMap, domainIri)).push(prop);
+      const arr = O.getOrThrow(MutableHashMap.get(classPropertiesMap, domainIri));
+      arr.push(prop);
     }
   }
 
-  // Memoized ancestor computation
   const ancestorCache = MutableHashMap.empty<string, MutableHashSet.MutableHashSet<string>>();
 
   const getAncestorsSet = (
@@ -103,7 +73,7 @@ const createOntologyContext = (parsed: ParsedOntology): OntologyContext => {
     }
 
     if (MutableHashSet.has(visited, classIri)) {
-      return MutableHashSet.empty<string>(); // Cycle detection
+      return MutableHashSet.empty<string>();
     }
 
     MutableHashSet.add(visited, classIri);
@@ -134,7 +104,6 @@ const createOntologyContext = (parsed: ParsedOntology): OntologyContext => {
         A.empty<ParsedPropertyDefinition>
       );
 
-      // Include properties from ancestor classes
       const ancestors = getAncestorsSet(classIri);
       const inheritedProps = A.empty<ParsedPropertyDefinition>();
       Iterable.forEach(ancestors, (ancestorIri) => {
@@ -145,7 +114,6 @@ const createOntologyContext = (parsed: ParsedOntology): OntologyContext => {
         inheritedProps.push(...ancestorProps);
       });
 
-      // Deduplicate by IRI
       const allPropsMap = MutableHashMap.empty<string, ParsedPropertyDefinition>();
       for (const prop of [...directProps, ...inheritedProps]) {
         MutableHashMap.set(allPropsMap, prop.iri, prop);
@@ -178,97 +146,109 @@ const createOntologyContext = (parsed: ParsedOntology): OntologyContext => {
   };
 };
 
-/**
- * OntologyService Effect.Service
- *
- * Main API for ontology operations.
- *
- * @since 0.1.0
- * @category services
- */
-export class OntologyService extends Effect.Service<OntologyService>()("@beep/knowledge-server/OntologyService", {
-  effect: Effect.gen(function* () {
+export interface OntologyServiceShape {
+  readonly load: (
+    key: string,
+    content: string
+  ) => Effect.Effect<OntologyContext, import("@beep/knowledge-domain/errors").OntologyParseError>;
+  readonly loadWithExternal: (
+    key: string,
+    content: string,
+    externalContent: string
+  ) => Effect.Effect<OntologyContext, import("@beep/knowledge-domain/errors").OntologyParseError>;
+  readonly toClassInsert: (
+    organizationId: SharedEntityIds.OrganizationId.Type,
+    ontologyId: KnowledgeEntityIds.OntologyId.Type,
+    parsed: ParsedClassDefinition
+  ) => Effect.Effect<typeof Entities.ClassDefinition.Model.insert.Type>;
+  readonly toPropertyInsert: (
+    organizationId: SharedEntityIds.OrganizationId.Type,
+    ontologyId: KnowledgeEntityIds.OntologyId.Type,
+    parsed: ParsedPropertyDefinition
+  ) => Effect.Effect<typeof Entities.PropertyDefinition.Model.insert.Type>;
+  readonly searchClasses: (
+    context: OntologyContext,
+    query: string,
+    limit?: number
+  ) => Effect.Effect<ReadonlyArray<ParsedClassDefinition>>;
+  readonly searchProperties: (
+    context: OntologyContext,
+    query: string,
+    limit?: number
+  ) => Effect.Effect<ReadonlyArray<ParsedPropertyDefinition>>;
+  readonly invalidateCache: (key: string) => Effect.Effect<void>;
+  readonly clearCache: () => Effect.Effect<void>;
+  readonly getCacheStats: () => Effect.Effect<{
+    readonly total: number;
+    readonly active: number;
+    readonly expired: number;
+  }>;
+}
+
+export class OntologyService extends Context.Tag($I`OntologyService`)<OntologyService, OntologyServiceShape>() {}
+
+const serviceEffect: Effect.Effect<OntologyServiceShape, never, OntologyParser | OntologyCache> = Effect.gen(
+  function* () {
     const parser = yield* OntologyParser;
     const cache = yield* OntologyCache;
 
-    return {
-      /**
-       * Parse ontology content and return OntologyContext
-       *
-       * Uses caching to avoid repeated parsing.
-       *
-       * @param key - Cache key (e.g., ontology path or IRI)
-       * @param content - Turtle/RDF content
-       * @returns OntologyContext with lookup methods
-       */
-      load: Effect.fn((key: string, content: string) =>
+    return OntologyService.of({
+      load: Effect.fn("OntologyService.load")((key: string, content: string) =>
         Effect.gen(function* () {
-          // Check cache first
           const cached = yield* cache.getIfValid(key, content);
           if (O.isSome(cached)) {
-            yield* Effect.logDebug("Using cached ontology", { key });
+            yield* Effect.logDebug("Using cached ontology").pipe(Effect.annotateLogs({ key }));
             return createOntologyContext(cached.value);
           }
 
-          // Parse and cache
-          yield* Effect.logInfo("Parsing ontology", { key, contentLength: content.length });
+          yield* Effect.logInfo("Parsing ontology").pipe(
+            Effect.annotateLogs({ key, contentLength: Str.length(content) })
+          );
           const parsed = yield* parser.parse(content);
 
           yield* cache.set(key, parsed, content);
 
-          yield* Effect.logInfo("Ontology loaded", {
-            key,
-            classCount: parsed.classes.length,
-            propertyCount: parsed.properties.length,
-          });
+          yield* Effect.logInfo("Ontology loaded").pipe(
+            Effect.annotateLogs({
+              key,
+              classCount: A.length(parsed.classes),
+              propertyCount: A.length(parsed.properties),
+            })
+          );
 
           return createOntologyContext(parsed);
-        })
+        }).pipe(Effect.withSpan("OntologyService.load", { attributes: { key } }))
       ),
 
-      /**
-       * Parse ontology with external vocabulary content
-       *
-       * @param key - Cache key
-       * @param content - Main ontology content
-       * @param externalContent - External vocabulary content to merge
-       * @returns OntologyContext with merged vocabularies
-       */
-      loadWithExternal: Effect.fn((key: string, content: string, externalContent: string) =>
-        Effect.gen(function* () {
-          const combinedKey = `${key}:with-external`;
+      loadWithExternal: Effect.fn("OntologyService.loadWithExternal")(
+        (key: string, content: string, externalContent: string) =>
+          Effect.gen(function* () {
+            const combinedKey = `${key}:with-external`;
+            const combinedContent = content + externalContent;
 
-          // Check cache first
-          const cached = yield* cache.getIfValid(combinedKey, content + externalContent);
-          if (O.isSome(cached)) {
-            yield* Effect.logDebug("Using cached ontology with externals", { key });
-            return createOntologyContext(cached.value);
-          }
+            const cached = yield* cache.getIfValid(combinedKey, combinedContent);
+            if (O.isSome(cached)) {
+              yield* Effect.logDebug("Using cached ontology with externals").pipe(Effect.annotateLogs({ key }));
+              return createOntologyContext(cached.value);
+            }
 
-          // Parse with externals
-          yield* Effect.logInfo("Parsing ontology with external vocabularies", { key });
-          const parsed = yield* parser.parseWithExternal(content, externalContent);
+            yield* Effect.logInfo("Parsing ontology with external vocabularies").pipe(Effect.annotateLogs({ key }));
+            const parsed = yield* parser.parseWithExternal(content, externalContent);
 
-          yield* cache.set(combinedKey, parsed, content + externalContent);
+            yield* cache.set(combinedKey, parsed, combinedContent);
 
-          yield* Effect.logInfo("Ontology with externals loaded", {
-            key,
-            classCount: parsed.classes.length,
-            propertyCount: parsed.properties.length,
-          });
+            yield* Effect.logInfo("Ontology with externals loaded").pipe(
+              Effect.annotateLogs({
+                key,
+                classCount: A.length(parsed.classes),
+                propertyCount: A.length(parsed.properties),
+              })
+            );
 
-          return createOntologyContext(parsed);
-        })
+            return createOntologyContext(parsed);
+          }).pipe(Effect.withSpan("OntologyService.loadWithExternal", { attributes: { key } }))
       ),
 
-      /**
-       * Convert parsed class to domain model insert data
-       *
-       * @param organizationId - Organization ID
-       * @param ontologyId - Ontology ID
-       * @param parsed - Parsed class definition
-       * @returns Insert-ready model data
-       */
       toClassInsert: (
         organizationId: SharedEntityIds.OrganizationId.Type,
         ontologyId: KnowledgeEntityIds.OntologyId.Type,
@@ -281,7 +261,7 @@ export class OntologyService extends Effect.Service<OntologyService>()("@beep/kn
             id,
             organizationId,
             ontologyId,
-            iri: ValueObjects.makeClassIri(parsed.iri),
+            iri: ValueObjects.ClassIri.make(parsed.iri),
             label: parsed.label,
             localName: O.some(parsed.localName),
             comment: parsed.comment,
@@ -301,14 +281,6 @@ export class OntologyService extends Effect.Service<OntologyService>()("@beep/kn
           });
         }),
 
-      /**
-       * Convert parsed property to domain model insert data
-       *
-       * @param organizationId - Organization ID
-       * @param ontologyId - Ontology ID
-       * @param parsed - Parsed property definition
-       * @returns Insert-ready model data
-       */
       toPropertyInsert: (
         organizationId: SharedEntityIds.OrganizationId.Type,
         ontologyId: KnowledgeEntityIds.OntologyId.Type,
@@ -321,7 +293,7 @@ export class OntologyService extends Effect.Service<OntologyService>()("@beep/kn
             id,
             organizationId,
             ontologyId,
-            iri: ValueObjects.makeClassIri(parsed.iri),
+            iri: ValueObjects.ClassIri.make(parsed.iri),
             label: parsed.label,
             localName: O.some(parsed.localName),
             comment: parsed.comment,
@@ -344,82 +316,47 @@ export class OntologyService extends Effect.Service<OntologyService>()("@beep/kn
           });
         }),
 
-      /**
-       * Search classes by label (simple text match)
-       *
-       * @param context - OntologyContext
-       * @param query - Search query
-       * @param limit - Max results
-       * @returns Matching classes
-       */
       searchClasses: (context: OntologyContext, query: string, limit = 10) =>
         Effect.sync(() => {
           const lowerQuery = Str.toLowerCase(query);
 
-          return A.take(
-            A.filter(context.classes, (cls) => {
-              // Search in label, prefLabels, altLabels
+          return F.pipe(
+            context.classes,
+            A.filter((cls) => {
               if (F.pipe(cls.label, Str.toLowerCase, Str.includes(lowerQuery))) return true;
               if (A.some(cls.prefLabels, (l) => F.pipe(l, Str.toLowerCase, Str.includes(lowerQuery)))) return true;
-              return !!A.some(cls.altLabels, (l) => F.pipe(l, Str.toLowerCase, Str.includes(lowerQuery)));
+              return A.some(cls.altLabels, (l) => F.pipe(l, Str.toLowerCase, Str.includes(lowerQuery)));
             }),
-            limit
+            A.take(limit)
           );
         }),
 
-      /**
-       * Search properties by label (simple text match)
-       *
-       * @param context - OntologyContext
-       * @param query - Search query
-       * @param limit - Max results
-       * @returns Matching properties
-       */
       searchProperties: (context: OntologyContext, query: string, limit = 10) =>
         Effect.sync(() => {
           const lowerQuery = Str.toLowerCase(query);
 
-          return A.take(
-            A.filter(context.properties, (prop) => {
-              // Search in label, prefLabels, altLabels
+          return F.pipe(
+            context.properties,
+            A.filter((prop) => {
               if (F.pipe(prop.label, Str.toLowerCase, Str.includes(lowerQuery))) return true;
               if (A.some(prop.prefLabels, (l) => F.pipe(l, Str.toLowerCase, Str.includes(lowerQuery)))) return true;
-              return !!A.some(prop.altLabels, (l) => F.pipe(l, Str.toLowerCase, Str.includes(lowerQuery)));
+              return A.some(prop.altLabels, (l) => F.pipe(l, Str.toLowerCase, Str.includes(lowerQuery)));
             }),
-            limit
+            A.take(limit)
           );
         }),
 
-      /**
-       * Invalidate cached ontology
-       *
-       * @param key - Cache key to invalidate
-       */
       invalidateCache: cache.invalidate,
 
-      /**
-       * Clear all cached ontologies
-       */
       clearCache: cache.clear,
 
-      /**
-       * Get cache statistics
-       */
       getCacheStats: cache.stats,
-    };
-  }),
-  dependencies: [OntologyParser.Default, OntologyCache.Default],
-  accessors: true,
-}) {}
-
-/**
- * Default layer for OntologyService with all dependencies
- *
- * @since 0.1.0
- * @category layers
- */
-export const OntologyServiceLive = Layer.mergeAll(
-  OntologyParser.Default,
-  OntologyCache.Default,
-  OntologyService.Default
+    });
+  }
 );
+
+export const OntologyServiceLive = Layer.effect(OntologyService, serviceEffect).pipe(
+  Layer.provide(Layer.mergeAll(OntologyParserLive, OntologyCacheLive))
+);
+
+export const OntologyFullLive = Layer.mergeAll(OntologyParserLive, OntologyCacheLive, OntologyServiceLive);

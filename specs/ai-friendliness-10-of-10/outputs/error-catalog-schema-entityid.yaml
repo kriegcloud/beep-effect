@@ -1,0 +1,606 @@
+# Error Catalog: Schema/Type + EntityId
+# Generated: 2026-02-04
+# Categories: schema, entityid
+
+version: "1.0"
+errors:
+  # ============================================================================
+  # SCHEMA ERRORS (SCH_001 - SCH_010)
+  # ============================================================================
+
+  - id: SCH_001
+    pattern: "Property '(struct|array|string|number|boolean)' does not exist on type"
+    category: schema
+    severity: error
+    fix_type: safe
+    remediation: trivial
+    description: Using deprecated lowercase Schema constructors (old Effect API)
+    diagnosis: |
+      Effect Schema 3.x uses PascalCase constructors. The lowercase versions
+      (S.struct, S.array, S.string) were from older Effect versions and no
+      longer exist.
+    fix_steps:
+      - Replace lowercase schema constructors with PascalCase versions
+      - "S.struct -> S.Struct"
+      - "S.array -> S.Array"
+      - "S.string -> S.String"
+      - "S.number -> S.Number"
+      - "S.boolean -> S.Boolean"
+    example:
+      error: "Property 'struct' does not exist on type 'typeof Schema'"
+      before: |
+        import * as S from "effect/Schema";
+
+        const UserSchema = S.struct({
+          name: S.string,
+          age: S.number,
+          active: S.boolean,
+        });
+      after: |
+        import * as S from "effect/Schema";
+
+        const UserSchema = S.Struct({
+          name: S.String,
+          age: S.Number,
+          active: S.Boolean,
+        });
+
+  - id: SCH_002
+    pattern: "Argument of type 'Date' is not assignable to parameter of type 'string'"
+    category: schema
+    severity: error
+    fix_type: unsafe
+    remediation: easy
+    description: S.Date vs S.DateFromString confusion - wrong schema for data source
+    diagnosis: |
+      S.Date expects JavaScript Date objects in memory.
+      S.DateFromString expects ISO 8601 strings (from JSON/APIs).
+
+      If data comes from API/JSON: use S.DateFromString
+      If data is a Date object: use S.Date
+    fix_steps:
+      - Identify the source of the date value (API response vs in-memory)
+      - For JSON/API data use S.DateFromString
+      - For JavaScript Date objects use S.Date
+      - Update schema to match actual runtime value type
+    example:
+      error: "Type 'string' is not assignable to type 'Date'"
+      before: |
+        // API returns: { createdAt: "2025-01-15T00:00:00Z" }
+        const EventSchema = S.Struct({
+          createdAt: S.Date,  // Wrong - expects Date object
+        });
+      after: |
+        // API returns: { createdAt: "2025-01-15T00:00:00Z" }
+        const EventSchema = S.Struct({
+          createdAt: S.DateFromString,  // Correct - expects ISO string
+        });
+
+  - id: SCH_003
+    pattern: "Expected 2-3 arguments, but got 1|Argument of type '\\{ default:"
+    category: schema
+    severity: error
+    fix_type: unsafe
+    remediation: easy
+    description: S.optional with default argument (wrong API)
+    diagnosis: |
+      S.optional() does not accept a default value argument.
+      Use S.optionalWith() or BS.toOptionalWithDefault() for defaults.
+      For booleans, prefer BS.BoolWithDefault().
+    fix_steps:
+      - Remove default from S.optional call
+      - "For booleans: use BS.BoolWithDefault(defaultValue)"
+      - "For other types: use S.optionalWith(schema, { default: () => value })"
+      - Import BS from "@beep/schema" if using BS helpers
+    example:
+      error: "Argument of type '{ default: () => false; }' is not assignable"
+      before: |
+        const SettingsSchema = S.Struct({
+          enabled: S.optional(S.Boolean, { default: () => false }),
+          timeout: S.optional(S.Number, { default: () => 30 }),
+        });
+      after: |
+        import { BS } from "@beep/schema";
+
+        const SettingsSchema = S.Struct({
+          enabled: BS.BoolWithDefault(false),
+          timeout: S.optionalWith(S.Number, { default: () => 30 }),
+        });
+
+  - id: SCH_004
+    pattern: "toOptionalWithDefault.*is deprecated|deprecated.*BS\\.toOptionalWithDefault"
+    category: schema
+    severity: warning
+    fix_type: safe
+    remediation: trivial
+    description: Using deprecated BS.toOptionalWithDefault pattern
+    diagnosis: |
+      BS.toOptionalWithDefault is an internal/deprecated helper.
+      For booleans, use the modern BS.BoolWithDefault() helper.
+      For other types, use S.optionalWith() directly.
+    fix_steps:
+      - "For booleans: Replace with BS.BoolWithDefault(value)"
+      - "For other types: Use S.optionalWith(schema, { default: () => value })"
+    example:
+      error: "BS.toOptionalWithDefault is deprecated"
+      before: |
+        import { BS } from "@beep/schema";
+
+        const ConfigSchema = S.Struct({
+          enabled: BS.toOptionalWithDefault(S.Boolean, false),
+        });
+      after: |
+        import { BS } from "@beep/schema";
+
+        const ConfigSchema = S.Struct({
+          enabled: BS.BoolWithDefault(false),
+        });
+
+  - id: SCH_005
+    pattern: "Type 'null' is not assignable to type 'string \\| undefined'"
+    category: schema
+    severity: error
+    fix_type: unsafe
+    remediation: easy
+    description: S.optional vs S.optionalWith nullable confusion
+    diagnosis: |
+      S.optional only handles undefined, not null.
+      Database columns or APIs returning null need S.optionalWith({ nullable: true }).
+
+      Check if the source can return null (databases often do).
+    fix_steps:
+      - Identify if the field can be null (check database schema or API response)
+      - "For undefined only: S.optional(Schema)"
+      - "For null OR undefined: S.optionalWith(Schema, { nullable: true })"
+      - "Also available: BS.FieldOptionOmittable for omitted-when-undefined fields"
+    example:
+      error: "Type 'null' is not assignable to type 'string | undefined'"
+      before: |
+        // Database returns null for missing values
+        const UserSchema = S.Struct({
+          nickname: S.optional(S.String),  // Handles undefined but not null
+          ipAddress: S.optional(S.String),
+        });
+      after: |
+        const UserSchema = S.Struct({
+          nickname: S.optionalWith(S.String, { nullable: true }),  // Handles null and undefined
+          ipAddress: S.optionalWith(S.String, { nullable: true }),
+        });
+
+  - id: SCH_006
+    pattern: "Argument.*not assignable.*'\\{ prompt.*schema.*\\}'"
+    category: schema
+    severity: error
+    fix_type: safe
+    remediation: easy
+    description: generateObject with positional arguments (@effect/ai API error)
+    diagnosis: |
+      The @effect/ai generateObject API uses a single options object,
+      not positional arguments. This is a common mistake when migrating
+      from other AI libraries.
+    fix_steps:
+      - Wrap all arguments in a single options object
+      - "Required fields: prompt, schema"
+      - "Optional but recommended: objectName (helps with debugging)"
+    example:
+      error: "Expected 1 arguments, but got 2"
+      before: |
+        import { LanguageModel } from "@effect/ai";
+
+        const result = yield* model.generateObject(
+          systemPrompt,
+          OutputSchema,  // Wrong - positional args
+        );
+      after: |
+        import { LanguageModel } from "@effect/ai";
+
+        const result = yield* model.generateObject({
+          prompt: systemPrompt,
+          schema: OutputSchema,
+          objectName: "OutputResult",  // Optional but helpful
+        });
+
+  - id: SCH_007
+    pattern: "Type 'string' is not assignable to type '\"system\" \\| \"user\" \\| \"assistant\"'"
+    category: schema
+    severity: error
+    fix_type: safe
+    remediation: trivial
+    description: Role literal type without 'as const'
+    diagnosis: |
+      When creating Prompt messages, TypeScript infers 'string' for the role
+      instead of the literal union type. Use 'as const' to preserve the literal type.
+    fix_steps:
+      - Add 'as const' assertion after role string values
+      - This preserves the literal type "system" | "user" | "assistant"
+    example:
+      error: "Type 'string' is not assignable to type '\"system\" | \"user\"'"
+      before: |
+        import { Prompt } from "@effect/ai";
+
+        const messages = Prompt.make([
+          { role: "system", content: systemPrompt },  // role inferred as string
+          { role: "user", content: userInput },
+        ]);
+      after: |
+        import { Prompt } from "@effect/ai";
+
+        const messages = Prompt.make([
+          { role: "system" as const, content: systemPrompt },  // role is literal "system"
+          { role: "user" as const, content: userInput },
+        ]);
+
+  - id: SCH_008
+    pattern: "is not assignable to type 'TaggedError.*_tag"
+    category: schema
+    severity: error
+    fix_type: safe
+    remediation: easy
+    description: S.TaggedError signature wrong (parentheses placement)
+    diagnosis: |
+      S.TaggedError uses a double-invocation pattern:
+      S.TaggedError<T>()("Tag", { fields })
+
+      The first () is empty, the second contains tag and fields.
+      Common mistake is putting fields in the first parentheses.
+    fix_steps:
+      - Ensure empty parentheses after the generic type parameter
+      - Put tag string and fields object in second parentheses
+      - "Pattern: S.TaggedError<ClassName>()(\"TagName\", { fields })"
+    example:
+      error: "Type '{ message: typeof String$; }' is not assignable to type 'never'"
+      before: |
+        import * as S from "effect/Schema";
+
+        export class ValidationError extends S.TaggedError<ValidationError>("ValidationError")({
+          message: S.String,
+        }) {}
+      after: |
+        import * as S from "effect/Schema";
+
+        export class ValidationError extends S.TaggedError<ValidationError>()(
+          "ValidationError",
+          {
+            message: S.String,
+          }
+        ) {}
+
+  - id: SCH_009
+    pattern: "Missing transformation schema for external API"
+    category: schema
+    severity: warning
+    fix_type: manual
+    remediation: major
+    description: External API responses not validated before entering domain
+    diagnosis: |
+      External APIs (Better Auth, third-party services) return plain strings for IDs.
+      Without transformation schemas, invalid IDs can enter the domain layer.
+
+      Use S.transformOrFail to validate and convert external data to domain types.
+    fix_steps:
+      - Create a schema for the external API response structure
+      - Create the target domain model schema
+      - Use S.transformOrFail to define the mapping with validation
+      - Validate EntityIds using the .is() method before accepting
+    example:
+      error: "Runtime error: Invalid member ID format passed to domain function"
+      before: |
+        // External API returns plain object with string ID
+        const member = await betterAuth.getMember(id);
+        // Directly used without validation - ID might be invalid format
+        yield* MemberRepo.save(member);
+      after: |
+        import * as S from "effect/Schema";
+        import { IamEntityIds } from "@beep/shared-domain";
+
+        export const DomainMemberFromBetterAuth = S.transformOrFail(
+          BetterAuthMemberSchema,
+          DomainMember.Model,
+          {
+            strict: true,
+            decode: Effect.fn(function* (external, _options, ast) {
+              if (!IamEntityIds.MemberId.is(external.id)) {
+                return yield* ParseResult.fail(
+                  new ParseResult.Type(ast, external.id, "Invalid member ID format")
+                );
+              }
+              return {
+                id: external.id as IamEntityIds.MemberId.Type,
+                // ... map other fields
+              };
+            }),
+          }
+        );
+
+  - id: SCH_010
+    pattern: "Type '.*' is not assignable.*domain.*table.*field mismatch"
+    category: schema
+    severity: error
+    fix_type: manual
+    remediation: major
+    description: Schema mismatch between domain model and database table
+    diagnosis: |
+      Domain model fields must align with table column types.
+      The _check.ts file may pass while hiding incomplete domain models.
+
+      Common issues:
+      - Domain missing fields that table has
+      - Type mismatches (String vs Number, Date vs DateFromString)
+      - Nullable handling differences
+    fix_steps:
+      - Compare domain model fields against table column definitions
+      - Ensure every table column has a corresponding domain field
+      - Check nullable/optional alignment
+      - Verify type correspondence (S.Date for Date, S.String for text, etc.)
+      - Run _check.ts to validate structural compatibility
+    example:
+      error: "Property 'metadata' is missing in type but required in table"
+      before: |
+        // Domain model - incomplete
+        export class Embedding extends M.Class<Embedding>("Embedding")({
+          ...makeFields(EmbeddingId, {
+            embedding: S.Array(S.Number),
+            // Missing: model, metadata
+          }),
+        }) {}
+
+        // Table has additional columns
+        export const embeddingTable = Table.make(EmbeddingId)({
+          embedding: pg.vector("embedding").notNull(),
+          model: pg.text("model").notNull(),
+          metadata: pg.jsonb("metadata"),
+        });
+      after: |
+        // Domain model - complete
+        export class Embedding extends M.Class<Embedding>("Embedding")({
+          ...makeFields(EmbeddingId, {
+            embedding: S.Array(S.Number),
+            model: S.String,
+            metadata: BS.FieldOptionOmittable(S.Record({ key: S.String, value: S.Unknown })),
+          }),
+        }) {}
+
+  # ============================================================================
+  # ENTITYID ERRORS (EID_001 - EID_006)
+  # ============================================================================
+
+  - id: EID_001
+    pattern: "Type 'string' is not assignable to type '.*Id\\.Type'"
+    category: entityid
+    severity: error
+    fix_type: unsafe
+    remediation: easy
+    description: Plain S.String used for entity ID fields instead of branded EntityId
+    diagnosis: |
+      Entity IDs must use branded types from @beep/shared-domain to ensure
+      type safety. Plain S.String allows mixing incompatible ID types.
+
+      Domain models, table columns, and client schemas all require proper EntityIds.
+    fix_steps:
+      - Import the appropriate EntityIds module
+      - "For shared entities: SharedEntityIds from @beep/shared-domain"
+      - "For IAM entities: IamEntityIds from @beep/shared-domain"
+      - "For domain-specific: Import from the domain's EntityIds module"
+      - Replace S.String with the correct EntityId schema
+    example:
+      error: "Type 'string' is not assignable to type 'UserId.Type'"
+      before: |
+        import * as S from "effect/Schema";
+        import * as M from "@effect/sql/Model";
+
+        export class Member extends M.Class<Member>("Member")({
+          id: S.String,           // No type safety!
+          userId: S.String,       // Wrong ID could be passed
+          organizationId: S.String,
+        }) {}
+      after: |
+        import * as S from "effect/Schema";
+        import * as M from "@effect/sql/Model";
+        import { IamEntityIds, SharedEntityIds } from "@beep/shared-domain";
+
+        export class Member extends M.Class<Member>("Member")({
+          id: IamEntityIds.MemberId,
+          userId: SharedEntityIds.UserId,
+          organizationId: SharedEntityIds.OrganizationId,
+        }) {}
+
+  - id: EID_002
+    pattern: "Type assertion.*as.*Id\\.Type.*bypasses validation"
+    category: entityid
+    severity: error
+    fix_type: unsafe
+    remediation: easy
+    description: Type casting used for EntityIds instead of validation methods
+    diagnosis: |
+      Type casting (as EntityId.Type) bypasses format validation.
+      Invalid IDs can enter the system causing runtime errors.
+
+      Always use EntityId.make() or EntityId.is() for validation.
+    fix_steps:
+      - Remove type assertion (as EntityId.Type)
+      - Use EntityId.make(stringValue) to validate and create
+      - Or use EntityId.is(value) for runtime type guards
+      - For new IDs, use EntityId.create() to generate with correct prefix
+    example:
+      error: "Type assertion may hide invalid ID format"
+      before: |
+        import { SharedEntityIds } from "@beep/shared-domain";
+
+        // Type casting - bypasses validation!
+        const userId = rawString as SharedEntityIds.UserId.Type;
+        const orgId = "" as SharedEntityIds.OrganizationId.Type;
+
+        // Empty string now typed as valid OrganizationId!
+      after: |
+        import { SharedEntityIds } from "@beep/shared-domain";
+
+        // Validated - throws if format invalid
+        const userId = SharedEntityIds.UserId.make(rawString);
+
+        // For new IDs, generate with correct prefix
+        const newOrgId = SharedEntityIds.OrganizationId.create();
+        // Result: "shared_organization__<uuid>"
+
+        // For type guards
+        if (SharedEntityIds.UserId.is(someValue)) {
+          // someValue is typed as UserId.Type
+        }
+
+  - id: EID_003
+    pattern: "Property '\\$type' does not exist|Missing \\.\\$type<>\\(\\)"
+    category: entityid
+    severity: error
+    fix_type: safe
+    remediation: easy
+    description: Missing .$type<>() annotation on table columns for foreign keys
+    diagnosis: |
+      Drizzle table columns referencing EntityIds need .$type<EntityId.Type>()
+      to maintain type safety. Without it, TypeScript cannot prevent mixing
+      different entity ID types in joins.
+
+      This causes runtime bugs that are hard to diagnose.
+    fix_steps:
+      - Identify all table columns that reference entity IDs
+      - Add .$type<EntityId.Type>() after the column definition
+      - Import the appropriate EntityIds module
+      - Verify by checking that joins enforce correct ID types
+    example:
+      error: "Type 'UserId.Type' is not assignable to type 'string' in join condition"
+      before: |
+        import * as pg from "drizzle-orm/pg-core";
+        import { Table } from "@beep/shared-tables";
+
+        export const memberTable = Table.make(MemberId)({
+          userId: pg.text("user_id").notNull(),      // Type: string
+          organizationId: pg.text("organization_id").notNull(),  // Type: string
+        });
+
+        // This compiles but is WRONG - mixing ID types
+        const query = db.select()
+          .from(memberTable)
+          .where(eq(memberTable.userId, someOrganizationId));  // No error!
+      after: |
+        import * as pg from "drizzle-orm/pg-core";
+        import { Table } from "@beep/shared-tables";
+        import { SharedEntityIds, IamEntityIds } from "@beep/shared-domain";
+
+        export const memberTable = Table.make(IamEntityIds.MemberId)({
+          userId: pg.text("user_id").notNull()
+            .$type<SharedEntityIds.UserId.Type>(),
+          organizationId: pg.text("organization_id").notNull()
+            .$type<SharedEntityIds.OrganizationId.Type>(),
+        });
+
+        // Now TypeScript catches the error!
+        const query = db.select()
+          .from(memberTable)
+          .where(eq(memberTable.userId, someOrganizationId));  // ERROR: Type mismatch
+
+  - id: EID_004
+    pattern: "Argument of type 'ReadonlyArray<.*Id>' is not assignable to parameter of type 'Array<.*Id>'"
+    category: entityid
+    severity: error
+    fix_type: safe
+    remediation: trivial
+    description: ReadonlyArray of EntityIds not accepted by SqlSchema
+    diagnosis: |
+      SqlSchema query functions expect mutable arrays, but EntityId collections
+      are often ReadonlyArray. Spread the array to convert to mutable.
+    fix_steps:
+      - Spread the ReadonlyArray into a new mutable array
+      - "Pattern: [...readonlyIds]"
+      - This creates a mutable copy acceptable by SqlSchema
+    example:
+      error: "Argument of type 'ReadonlyArray<EntityId.Type>' is not assignable"
+      before: |
+        import * as A from "effect/Array";
+
+        const findEntities = (ids: ReadonlyArray<EntityId.Type>) =>
+          findByIdsSchema({ ids, organizationId });  // Error: ReadonlyArray
+      after: |
+        import * as A from "effect/Array";
+
+        const findEntities = (ids: ReadonlyArray<EntityId.Type>) =>
+          findByIdsSchema({ ids: [...ids], organizationId });  // Spread to mutable
+
+  - id: EID_005
+    pattern: "type-only import.*cannot be used as a value"
+    category: entityid
+    severity: error
+    fix_type: safe
+    remediation: trivial
+    description: Type-only import used where EntityId value methods needed
+    diagnosis: |
+      When using EntityId.Schema, EntityId.make(), or EntityId.is(), the
+      EntityIds module must be imported as a value, not as a type-only import.
+
+      Type-only imports (import type) can only be used for type annotations.
+    fix_steps:
+      - Change 'import type { EntityIds }' to 'import { EntityIds }'
+      - Remove 'type' keyword from the import statement
+      - Verify that EntityId methods (.make, .is, .create) work
+    example:
+      error: "'SharedEntityIds' cannot be used as a value because it was imported using 'import type'"
+      before: |
+        import { type SharedEntityIds } from "@beep/shared-domain";
+
+        // Error: SharedEntityIds is type-only
+        const userId = SharedEntityIds.UserId.make(rawString);
+        const isValid = SharedEntityIds.UserId.is(value);
+      after: |
+        import { SharedEntityIds } from "@beep/shared-domain";
+
+        // Now works - imported as value
+        const userId = SharedEntityIds.UserId.make(rawString);
+        const isValid = SharedEntityIds.UserId.is(value);
+
+  - id: EID_006
+    pattern: "Invalid.*Id.*format|prefix.*does not match"
+    category: entityid
+    severity: error
+    fix_type: manual
+    remediation: easy
+    description: EntityId format validation failed (invalid prefix or structure)
+    diagnosis: |
+      EntityIds have a required format: "{prefix}__{uuid}"
+
+      Each EntityId type has a specific prefix:
+      - UserId: "shared_user__"
+      - OrganizationId: "shared_organization__"
+      - MemberId: "iam_member__"
+
+      This error occurs when:
+      - Data from external API has wrong format
+      - ID was generated without proper prefix
+      - Migration data has old ID format
+    fix_steps:
+      - Check the expected prefix for the EntityId type
+      - Verify the ID string follows pattern "{prefix}__{uuid}"
+      - For external APIs, create transformation schemas
+      - For migrations, transform old IDs to new format
+      - Use EntityId.create() for new IDs (generates correct format)
+    example:
+      error: "Invalid MemberId format: expected prefix 'iam_member__'"
+      before: |
+        // External API returns plain UUID
+        const externalMember = await betterAuth.getMember(id);
+        // externalMember.id = "550e8400-e29b-41d4-a716-446655440000"
+
+        // Fails validation
+        const memberId = IamEntityIds.MemberId.make(externalMember.id);
+        // Error: Invalid MemberId format
+      after: |
+        // Option 1: Transform external ID to proper format
+        const memberId = IamEntityIds.MemberId.make(
+          `iam_member__${externalMember.id}`
+        );
+
+        // Option 2: Use transformation schema for consistent mapping
+        export const MemberIdFromExternal = S.transform(
+          S.String,
+          IamEntityIds.MemberId,
+          {
+            decode: (externalId) => `iam_member__${externalId}`,
+            encode: (memberId) => Str.replace(memberId, "iam_member__", ""),
+          }
+        );

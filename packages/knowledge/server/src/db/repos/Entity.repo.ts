@@ -1,11 +1,3 @@
-/**
- * Entity Repository
- *
- * Database operations for Entity entities with graph traversal support.
- *
- * @module knowledge-server/db/repos/Entity
- * @since 0.1.0
- */
 import { $KnowledgeServerId } from "@beep/identity/packages";
 import { Entities } from "@beep/knowledge-domain";
 import { KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
@@ -15,17 +7,18 @@ import { thunkSucceedEffect, thunkZero } from "@beep/utils";
 import * as SqlClient from "@effect/sql/SqlClient";
 import * as SqlSchema from "@effect/sql/SqlSchema";
 import * as A from "effect/Array";
+import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
+import * as Layer from "effect/Layer";
+import * as Num from "effect/Number";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import { dependencies } from "./_common";
+import { KnowledgeDb } from "../Db";
 
 const $I = $KnowledgeServerId.create("db/repos/EntityRepo");
 
 const tableName = KnowledgeEntityIds.KnowledgeEntityId.tableName;
-
-// --- Request Schemas ---
 
 class FindByIdsRequest extends S.Class<FindByIdsRequest>("FindByIdsRequest")({
   ids: S.Array(KnowledgeEntityIds.KnowledgeEntityId),
@@ -48,17 +41,18 @@ class CountByOrganizationRequest extends S.Class<CountByOrganizationRequest>("Co
   organizationId: SharedEntityIds.OrganizationId,
 }) {}
 
+class FindByNormalizedTextRequest extends S.Class<FindByNormalizedTextRequest>("FindByNormalizedTextRequest")({
+  normalizedText: S.String,
+  organizationId: SharedEntityIds.OrganizationId,
+  limit: S.Number,
+}) {}
+
 class CountResult extends S.Class<CountResult>("CountResult")({
   count: S.String,
 }) {}
 
-/**
- * Custom repo operations for entities
- */
 const makeEntityExtensions = Effect.gen(function* () {
   const sql = yield* SqlClient.SqlClient;
-
-  // --- SqlSchemas ---
 
   const findByIdsSchema = SqlSchema.findAll({
     Request: FindByIdsRequest,
@@ -107,15 +101,19 @@ const makeEntityExtensions = Effect.gen(function* () {
     `,
   });
 
-  // --- Methods ---
+  const findByNormalizedTextSchema = SqlSchema.findAll({
+    Request: FindByNormalizedTextRequest,
+    Result: Entities.Entity.Model,
+    execute: (req) => sql`
+        SELECT *
+        FROM ${sql(tableName)}
+        WHERE organization_id = ${req.organizationId}
+          AND similarity(mention, ${req.normalizedText}) > 0.3
+        ORDER BY similarity(mention, ${req.normalizedText}) DESC
+        LIMIT ${req.limit}
+    `,
+  });
 
-  /**
-   * Find entities by their IDs
-   *
-   * @param ids - Array of entity IDs
-   * @param organizationId - Organization ID for scoping
-   * @returns Array of matching entities
-   */
   const findByIds = (
     ids: ReadonlyArray<KnowledgeEntityIds.KnowledgeEntityId.Type>,
     organizationId: SharedEntityIds.OrganizationId.Type
@@ -130,18 +128,10 @@ const makeEntityExtensions = Effect.gen(function* () {
       Effect.mapError(DatabaseError.$match),
       Effect.withSpan("EntityRepo.findByIds", {
         captureStackTrace: false,
-        attributes: { count: ids.length, organizationId },
+        attributes: { count: A.length(ids), organizationId },
       })
     );
 
-  /**
-   * Find entities by ontology ID
-   *
-   * @param ontologyId - Ontology ID for filtering
-   * @param organizationId - Organization ID for scoping
-   * @param limit - Maximum number of results
-   * @returns Array of matching entities
-   */
   const findByOntology = (
     ontologyId: string,
     organizationId: SharedEntityIds.OrganizationId.Type,
@@ -156,14 +146,6 @@ const makeEntityExtensions = Effect.gen(function* () {
       })
     );
 
-  /**
-   * Find entities by type IRI
-   *
-   * @param typeIri - Ontology type IRI to match
-   * @param organizationId - Organization ID for scoping
-   * @param limit - Maximum number of results
-   * @returns Array of matching entities
-   */
   const findByType = (
     typeIri: string,
     organizationId: SharedEntityIds.OrganizationId.Type,
@@ -178,12 +160,6 @@ const makeEntityExtensions = Effect.gen(function* () {
       })
     );
 
-  /**
-   * Count entities by organization
-   *
-   * @param organizationId - Organization ID for scoping
-   * @returns Count of entities
-   */
   const countByOrganization = (
     organizationId: SharedEntityIds.OrganizationId.Type
   ): Effect.Effect<number, DatabaseError> =>
@@ -191,7 +167,7 @@ const makeEntityExtensions = Effect.gen(function* () {
       const result = yield* countByOrganizationSchema({ organizationId });
       return O.match(A.head(result), {
         onNone: thunkZero,
-        onSome: (row) => Number.parseInt(row.count, 10),
+        onSome: (row) => O.getOrElse(Num.parse(row.count), thunkZero),
       });
     }).pipe(
       Effect.catchTag("ParseError", (e) => Effect.die(e)),
@@ -202,25 +178,33 @@ const makeEntityExtensions = Effect.gen(function* () {
       })
     );
 
+  const findByNormalizedText = (
+    normalizedText: string,
+    organizationId: SharedEntityIds.OrganizationId.Type,
+    limit = 50
+  ): Effect.Effect<ReadonlyArray<Entities.Entity.Model>, DatabaseError> =>
+    findByNormalizedTextSchema({ normalizedText, organizationId, limit }).pipe(
+      Effect.catchTag("ParseError", (e) => Effect.die(e)),
+      Effect.mapError(DatabaseError.$match),
+      Effect.withSpan("EntityRepo.findByNormalizedText", {
+        captureStackTrace: false,
+        attributes: { normalizedText, organizationId, limit },
+      })
+    );
+
   return {
     findByIds,
     findByOntology,
     findByType,
     countByOrganization,
+    findByNormalizedText,
   };
 });
 
-/**
- * EntityRepo Effect.Service
- *
- * Provides CRUD operations for Entity entities plus
- * graph traversal support.
- *
- * @since 0.1.0
- * @category services
- */
-export class EntityRepo extends Effect.Service<EntityRepo>()($I`EntityRepo`, {
-  dependencies,
-  accessors: true,
-  effect: DbRepo.make(KnowledgeEntityIds.KnowledgeEntityId, Entities.Entity.Model, makeEntityExtensions),
-}) {}
+const serviceEffect = DbRepo.make(KnowledgeEntityIds.KnowledgeEntityId, Entities.Entity.Model, makeEntityExtensions);
+
+export type EntityRepoShape = Effect.Effect.Success<typeof serviceEffect>;
+
+export class EntityRepo extends Context.Tag($I`EntityRepo`)<EntityRepo, EntityRepoShape>() {}
+
+export const EntityRepoLive = Layer.effect(EntityRepo, serviceEffect).pipe(Layer.provide(KnowledgeDb.layer));

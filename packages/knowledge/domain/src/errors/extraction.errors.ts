@@ -1,22 +1,9 @@
-/**
- * Extraction errors for Knowledge slice
- *
- * Typed errors for knowledge extraction operations.
- *
- * @module knowledge-domain/errors/extraction
- * @since 0.1.0
- */
 import { $KnowledgeDomainId } from "@beep/identity/packages";
+import { KnowledgeEntityIds } from "@beep/shared-domain";
 import * as S from "effect/Schema";
 
 const $I = $KnowledgeDomainId.create("errors/extraction");
 
-/**
- * Document parsing error during extraction
- *
- * @since 0.1.0
- * @category errors
- */
 export class DocumentParseError extends S.TaggedError<DocumentParseError>($I`DocumentParseError`)(
   "DocumentParseError",
   {
@@ -29,16 +16,10 @@ export class DocumentParseError extends S.TaggedError<DocumentParseError>($I`Doc
   })
 ) {}
 
-/**
- * LLM extraction failure
- *
- * @since 0.1.0
- * @category errors
- */
 export class LlmExtractionError extends S.TaggedError<LlmExtractionError>($I`LlmExtractionError`)(
   "LlmExtractionError",
   {
-    extractionId: S.optional(S.String),
+    extractionId: S.optional(KnowledgeEntityIds.ExtractionId),
     chunkIndex: S.optional(S.Number),
     message: S.String,
     retryable: S.Boolean,
@@ -49,16 +30,10 @@ export class LlmExtractionError extends S.TaggedError<LlmExtractionError>($I`Llm
   })
 ) {}
 
-/**
- * Extraction timeout error
- *
- * @since 0.1.0
- * @category errors
- */
 export class ExtractionTimeoutError extends S.TaggedError<ExtractionTimeoutError>($I`ExtractionTimeoutError`)(
   "ExtractionTimeoutError",
   {
-    extractionId: S.String,
+    extractionId: KnowledgeEntityIds.ExtractionId,
     stage: S.String,
     durationMs: S.Number,
     message: S.String,
@@ -68,16 +43,10 @@ export class ExtractionTimeoutError extends S.TaggedError<ExtractionTimeoutError
   })
 ) {}
 
-/**
- * Schema validation error during extraction
- *
- * @since 0.1.0
- * @category errors
- */
 export class ExtractionValidationError extends S.TaggedError<ExtractionValidationError>($I`ExtractionValidationError`)(
   "ExtractionValidationError",
   {
-    extractionId: S.optional(S.String),
+    extractionId: S.optional(KnowledgeEntityIds.ExtractionId),
     field: S.optional(S.String),
     reason: S.String,
     message: S.String,
@@ -87,12 +56,6 @@ export class ExtractionValidationError extends S.TaggedError<ExtractionValidatio
   })
 ) {}
 
-/**
- * Resource not found during extraction
- *
- * @since 0.1.0
- * @category errors
- */
 export class ExtractionNotFoundError extends S.TaggedError<ExtractionNotFoundError>($I`ExtractionNotFoundError`)(
   "ExtractionNotFoundError",
   {
@@ -105,16 +68,10 @@ export class ExtractionNotFoundError extends S.TaggedError<ExtractionNotFoundErr
   })
 ) {}
 
-/**
- * Generic extraction error (fallback)
- *
- * @since 0.1.0
- * @category errors
- */
 export class ExtractionGenericError extends S.TaggedError<ExtractionGenericError>($I`ExtractionGenericError`)(
   "ExtractionGenericError",
   {
-    extractionId: S.optional(S.String),
+    extractionId: S.optional(KnowledgeEntityIds.ExtractionId),
     message: S.String,
     cause: S.optional(S.String),
   },
@@ -123,12 +80,6 @@ export class ExtractionGenericError extends S.TaggedError<ExtractionGenericError
   })
 ) {}
 
-/**
- * Union of all extraction error types
- *
- * @since 0.1.0
- * @category errors
- */
 export class ExtractionError extends S.Union(
   DocumentParseError,
   LlmExtractionError,

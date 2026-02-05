@@ -1,44 +1,32 @@
-/**
- * NlpService Tests
- *
- * Tests for text chunking and NLP utilities.
- *
- * @module knowledge-server/test/Nlp/NlpService.test
- * @since 0.1.0
- */
-
-import { NlpService } from "@beep/knowledge-server/Nlp/NlpService";
+import { NlpService, NlpServiceLive } from "@beep/knowledge-server/Nlp/NlpService";
 import { assertTrue, describe, layer, strictEqual } from "@beep/testkit";
+import * as A from "effect/Array";
+import * as Chunk from "effect/Chunk";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as Stream from "effect/Stream";
 import * as Str from "effect/String";
 
-const TEST_TIMEOUT = 60000;
-
 describe("NlpService", () => {
-  layer(NlpService.Default, { timeout: Duration.seconds(60) })("NlpService operations", (it) => {
-    it.effect(
-      "chunks short text into single chunk",
-      Effect.fn(function* () {
+  layer(NlpServiceLive, { timeout: Duration.seconds(60) })("NlpService operations", (it) => {
+    it.effect("chunks short text into single chunk", () =>
+      Effect.gen(function* () {
         const nlp = yield* NlpService;
         const text = "This is a short sentence.";
 
         const chunks = yield* nlp.chunkTextAll(text);
 
-        strictEqual(chunks.length, 1);
+        strictEqual(A.length(chunks), 1);
         strictEqual(chunks[0]?.text, text);
         strictEqual(chunks[0]?.startOffset, 0);
-        strictEqual(chunks[0]?.endOffset, text.length);
-      }),
-      TEST_TIMEOUT
+        strictEqual(chunks[0]?.endOffset, Str.length(text));
+      })
     );
 
-    it.effect(
-      "chunks long text into multiple chunks",
-      Effect.fn(function* () {
+    it.effect("chunks long text into multiple chunks", () =>
+      Effect.gen(function* () {
         const nlp = yield* NlpService;
-        const sentences = Array(50).fill("This is a test sentence that will be repeated.").join(" ");
+        const sentences = A.join(A.replicate("This is a test sentence that will be repeated.", 50), " ");
 
         const chunks = yield* nlp.chunkTextAll(sentences, {
           maxChunkSize: 200,
@@ -46,22 +34,15 @@ describe("NlpService", () => {
           overlapSentences: 0,
         });
 
-        assertTrue(chunks.length > 1);
-        // Verify offsets are continuous
-        for (let i = 0; i < chunks.length - 1; i++) {
-          const current = chunks[i];
-          const next = chunks[i + 1];
-          if (current && next) {
-            strictEqual(current.endOffset, next.startOffset);
-          }
-        }
-      }),
-      TEST_TIMEOUT
+        assertTrue(A.length(chunks) > 1);
+        A.forEach(A.zip(A.dropRight(chunks, 1), A.drop(chunks, 1)), ([current, next]) => {
+          strictEqual(current.endOffset, next.startOffset);
+        });
+      })
     );
 
-    it.effect(
-      "preserves sentence boundaries",
-      Effect.fn(function* () {
+    it.effect("preserves sentence boundaries", () =>
+      Effect.gen(function* () {
         const nlp = yield* NlpService;
         const text = "First sentence. Second sentence. Third sentence.";
 
@@ -71,75 +52,62 @@ describe("NlpService", () => {
           overlapSentences: 0,
         });
 
-        // Each chunk should contain complete sentences
         for (const chunk of chunks) {
-          // Should not end mid-word (rough check)
           const trimmed = Str.trim(chunk.text);
           const lastChar = Str.takeRight(1)(trimmed);
           assertTrue(lastChar === "." || lastChar === "!" || lastChar === "?" || Str.isEmpty(trimmed));
         }
-      }),
-      TEST_TIMEOUT
+      })
     );
 
-    it.effect(
-      "handles empty input",
-      Effect.fn(function* () {
+    it.effect("handles empty input", () =>
+      Effect.gen(function* () {
         const nlp = yield* NlpService;
 
         const chunks = yield* nlp.chunkTextAll("");
 
-        strictEqual(chunks.length, 0);
-      }),
-      TEST_TIMEOUT
+        strictEqual(A.length(chunks), 0);
+      })
     );
 
-    it.effect(
-      "returns stream of chunks",
-      Effect.fn(function* () {
+    it.effect("returns stream of chunks", () =>
+      Effect.gen(function* () {
         const nlp = yield* NlpService;
         const text = "Sentence one. Sentence two. Sentence three.";
 
         const stream = nlp.chunkText(text, { maxChunkSize: 1000, preserveSentences: true, overlapSentences: 0 });
         const collected = yield* Stream.runCollect(stream);
 
-        strictEqual(collected.length, 1);
-      }),
-      TEST_TIMEOUT
+        strictEqual(Chunk.size(collected), 1);
+      })
     );
 
-    it.effect(
-      "splits sentences correctly",
-      Effect.fn(function* () {
+    it.effect("splits sentences correctly", () =>
+      Effect.gen(function* () {
         const nlp = yield* NlpService;
         const text = "First. Second? Third!";
 
         const sentences = yield* nlp.splitSentences(text);
 
-        assertTrue(sentences.length >= 1);
-      }),
-      TEST_TIMEOUT
+        assertTrue(A.length(sentences) >= 1);
+      })
     );
 
-    it.effect(
-      "estimates tokens",
-      Effect.fn(function* () {
+    it.effect("estimates tokens", () =>
+      Effect.gen(function* () {
         const nlp = yield* NlpService;
-        const text = "This is a test."; // 16 chars
+        const text = "This is a test.";
 
         const tokens = yield* nlp.estimateTokens(text);
 
-        // Rough estimate: ~4 chars per token
         strictEqual(tokens, 4);
-      }),
-      TEST_TIMEOUT
+      })
     );
 
-    it.effect(
-      "maintains chunk indices",
-      Effect.fn(function* () {
+    it.effect("maintains chunk indices", () =>
+      Effect.gen(function* () {
         const nlp = yield* NlpService;
-        const sentences = Array(10).fill("This is sentence number X.").join(" ");
+        const sentences = A.join(A.replicate("This is sentence number X.", 10), " ");
 
         const chunks = yield* nlp.chunkTextAll(sentences, {
           maxChunkSize: 50,
@@ -147,11 +115,10 @@ describe("NlpService", () => {
           overlapSentences: 0,
         });
 
-        for (let i = 0; i < chunks.length; i++) {
-          strictEqual(chunks[i]?.index, i);
-        }
-      }),
-      TEST_TIMEOUT
+        A.forEach(chunks, (chunk, i) => {
+          strictEqual(chunk.index, i);
+        });
+      })
     );
   });
 });

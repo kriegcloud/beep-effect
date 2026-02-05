@@ -1,29 +1,12 @@
-/**
- * PromptTemplates - Extraction prompt builders
- *
- * Contains prompt templates for each extraction stage.
- *
- * @module knowledge-server/Ai/PromptTemplates
- * @since 0.1.0
- */
-
-import type { ClassifiedEntity } from "@beep/knowledge-server/Extraction/schemas/entity-output.schema";
-import type { ExtractedMention } from "@beep/knowledge-server/Extraction/schemas/mention-output.schema";
 import { thunkEmptyStr } from "@beep/utils";
 import * as A from "effect/Array";
 import * as F from "effect/Function";
 import * as O from "effect/Option";
+import * as Str from "effect/String";
+import type { ClassifiedEntity } from "../Extraction/schemas/entity-output.schema";
+import type { ExtractedMention } from "../Extraction/schemas/mention-output.schema";
 import type { OntologyContext } from "../Ontology";
 
-/**
- * Build prompt for mention extraction
- *
- * @param chunkText - The text chunk to extract mentions from
- * @param chunkIndex - Index of the chunk in the document
- * @returns Formatted prompt for mention extraction
- * @since 0.1.0
- * @category prompts
- */
 export const buildMentionPrompt = (chunkText: string, chunkIndex: number): string => {
   return `You are an expert entity mention detector. Your task is to identify all named entity mentions in the following text.
 
@@ -33,7 +16,7 @@ export const buildMentionPrompt = (chunkText: string, chunkIndex: number): strin
 3. Assign a confidence score (0-1) based on how certain you are this is a named entity
 4. Optionally suggest a preliminary entity type
 
-## Input Text (Chunk ${chunkIndex})
+## Input Text (Chunk ${String(chunkIndex)})
 """
 ${chunkText}
 """
@@ -51,23 +34,12 @@ Return a JSON object with:
 Be precise with character offsets. Count from the beginning of the text provided.`;
 };
 
-/**
- * Build prompt for entity classification
- *
- * @param mentions - List of detected mentions to classify
- * @param ontologyContext - Loaded ontology with class definitions
- * @returns Formatted prompt for entity classification
- * @since 0.1.0
- * @category prompts
- */
 export const buildEntityPrompt = (mentions: readonly ExtractedMention[], ontologyContext: OntologyContext): string => {
-  // Build type options from ontology classes
-
   const typeOptions = F.pipe(
     ontologyContext.classes,
     A.map((cls) => {
       const comment = O.getOrElse(cls.comment, thunkEmptyStr);
-      const altLabels = A.isNonEmptyReadonlyArray(cls.altLabels) ? ` (also: ${A.join(", ")(cls.altLabels)})` : "";
+      const altLabels = A.isNonEmptyReadonlyArray(cls.altLabels) ? ` (also: ${A.join(cls.altLabels, ", ")})` : "";
       return `- ${cls.iri}: ${cls.label}${altLabels}${comment ? ` - ${comment}` : ""}`;
     }),
     A.join("\n")
@@ -111,31 +83,20 @@ Return a JSON object with:
 Only use type IRIs from the available ontology classes listed above.`;
 };
 
-/**
- * Build prompt for relation extraction
- *
- * @param entities - List of classified entities
- * @param chunkText - The text chunk to extract relations from
- * @param ontologyContext - Loaded ontology with property definitions
- * @returns Formatted prompt for relation extraction
- * @since 0.1.0
- * @category prompts
- */
 export const buildRelationPrompt = (
   entities: readonly ClassifiedEntity[],
   chunkText: string,
   ontologyContext: OntologyContext
 ): string => {
-  // Build property options from ontology
   const propertyOptions = F.pipe(
     ontologyContext.properties,
     A.map((prop) => {
       const comment = O.getOrElse(prop.comment, () => "");
       const domainLabels = A.filterMap(prop.domain, (d) => O.map(ontologyContext.findClass(d), (c) => c.label));
       const rangeLabels = A.filterMap(prop.range, (r) => O.map(ontologyContext.findClass(r), (c) => c.label));
-      const domainStr = A.isNonEmptyReadonlyArray(domainLabels) ? `domain: ${A.join(", ")(domainLabels)}` : "";
-      const rangeStr = A.isNonEmptyReadonlyArray(rangeLabels) ? `range: ${A.join(", ")(rangeLabels)}` : "";
-      const constraints = F.pipe(A.make(domainStr, rangeStr), A.filter(Boolean), A.join("; "));
+      const domainStr = A.isNonEmptyReadonlyArray(domainLabels) ? `domain: ${A.join(domainLabels, ", ")}` : "";
+      const rangeStr = A.isNonEmptyReadonlyArray(rangeLabels) ? `range: ${A.join(rangeLabels, ", ")}` : "";
+      const constraints = F.pipe(A.make(domainStr, rangeStr), A.filter(Str.isNonEmpty), A.join("; "));
       return `- ${prop.iri}: ${prop.label} (${prop.rangeType}${constraints ? ` | ${constraints}` : ""})${comment ? ` - ${comment}` : ""}`;
     }),
     A.join("\n")
@@ -144,7 +105,7 @@ export const buildRelationPrompt = (
   const entityList = F.pipe(
     entities,
     A.map((e) => {
-      const types = e.additionalTypes ? `[${e.typeIri}, ${A.join(", ")(e.additionalTypes)}]` : e.typeIri;
+      const types = e.additionalTypes ? `[${e.typeIri}, ${A.join(e.additionalTypes, ", ")}]` : e.typeIri;
       return `- "${e.mention}" (type: ${types})`;
     }),
     A.join("\n")
@@ -187,13 +148,6 @@ Return a JSON object with:
 Only use predicate IRIs from the available ontology properties listed above.`;
 };
 
-/**
- * Build system prompt for extraction tasks
- *
- * @returns System prompt for extraction context
- * @since 0.1.0
- * @category prompts
- */
 export const buildSystemPrompt = (): string => {
   return `You are an expert knowledge extraction system. Your task is to extract structured knowledge from text following ontology-guided schemas.
 

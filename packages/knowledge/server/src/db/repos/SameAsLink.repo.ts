@@ -1,11 +1,3 @@
-/**
- * SameAsLink Repository
- *
- * Database operations for SameAsLink entities.
- *
- * @module knowledge-server/db/repos/SameAsLink
- * @since 0.1.0
- */
 import { $KnowledgeServerId } from "@beep/identity/packages";
 import { Entities } from "@beep/knowledge-domain";
 import { KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
@@ -14,16 +6,16 @@ import { DbRepo } from "@beep/shared-domain/factories";
 import * as SqlClient from "@effect/sql/SqlClient";
 import * as SqlSchema from "@effect/sql/SqlSchema";
 import * as A from "effect/Array";
+import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
+import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import { dependencies } from "./_common";
+import { KnowledgeDb } from "../Db";
 
 const $I = $KnowledgeServerId.create("db/repos/SameAsLinkRepo");
 
 const tableName = KnowledgeEntityIds.SameAsLinkId.tableName;
-
-// --- Request Schemas ---
 
 class FindByCanonicalRequest extends S.Class<FindByCanonicalRequest>("FindByCanonicalRequest")({
   canonicalId: KnowledgeEntityIds.KnowledgeEntityId,
@@ -69,13 +61,8 @@ class CountResult extends S.Class<CountResult>("CountResult")({
   count: S.String,
 }) {}
 
-/**
- * Custom repo operations for same-as links
- */
 const makeSameAsLinkExtensions = Effect.gen(function* () {
   const sql = yield* SqlClient.SqlClient;
-
-  // --- SqlSchemas ---
 
   const findByCanonicalSchema = SqlSchema.findAll({
     Request: FindByCanonicalRequest,
@@ -169,15 +156,6 @@ const makeSameAsLinkExtensions = Effect.gen(function* () {
     `,
   });
 
-  // --- Methods ---
-
-  /**
-   * Find links by canonical entity
-   *
-   * @param canonicalId - The canonical entity ID
-   * @param organizationId - Organization ID for scoping
-   * @returns Array of links pointing to this canonical
-   */
   const findByCanonical = (
     canonicalId: KnowledgeEntityIds.KnowledgeEntityId.Type,
     organizationId: SharedEntityIds.OrganizationId.Type
@@ -191,13 +169,6 @@ const makeSameAsLinkExtensions = Effect.gen(function* () {
       })
     );
 
-  /**
-   * Find link by member entity
-   *
-   * @param memberId - The member entity ID
-   * @param organizationId - Organization ID for scoping
-   * @returns Option of the link for this member
-   */
   const findByMember = (
     memberId: KnowledgeEntityIds.KnowledgeEntityId.Type,
     organizationId: SharedEntityIds.OrganizationId.Type
@@ -211,13 +182,6 @@ const makeSameAsLinkExtensions = Effect.gen(function* () {
       })
     );
 
-  /**
-   * Find canonical entity for a given entity (resolves through links)
-   *
-   * @param entityId - Entity ID to resolve
-   * @param organizationId - Organization ID for scoping
-   * @returns Canonical entity ID (or self if no link)
-   */
   const resolveCanonical = (
     entityId: KnowledgeEntityIds.KnowledgeEntityId.Type,
     organizationId: SharedEntityIds.OrganizationId.Type
@@ -225,7 +189,6 @@ const makeSameAsLinkExtensions = Effect.gen(function* () {
     Effect.gen(function* () {
       const result = yield* resolveCanonicalSchema({ entityId, organizationId });
 
-      // If no link found, return the original entity ID
       const first = A.head(result);
       if (O.isSome(first)) {
         return KnowledgeEntityIds.KnowledgeEntityId.make(first.value.canonical_id);
@@ -240,14 +203,6 @@ const makeSameAsLinkExtensions = Effect.gen(function* () {
       })
     );
 
-  /**
-   * Find all links with confidence above threshold
-   *
-   * @param minConfidence - Minimum confidence score
-   * @param organizationId - Organization ID for scoping
-   * @param limit - Maximum results
-   * @returns Array of high-confidence links
-   */
   const findHighConfidence = (
     minConfidence: number,
     organizationId: SharedEntityIds.OrganizationId.Type,
@@ -262,13 +217,6 @@ const makeSameAsLinkExtensions = Effect.gen(function* () {
       })
     );
 
-  /**
-   * Find links by source extraction/document ID
-   *
-   * @param sourceId - The source ID
-   * @param organizationId - Organization ID for scoping
-   * @returns Array of links from this source
-   */
   const findBySource = (
     sourceId: string,
     organizationId: SharedEntityIds.OrganizationId.Type
@@ -282,12 +230,6 @@ const makeSameAsLinkExtensions = Effect.gen(function* () {
       })
     );
 
-  /**
-   * Delete links by canonical entity
-   *
-   * @param canonicalId - The canonical entity ID
-   * @param organizationId - Organization ID for scoping
-   */
   const deleteByCanonical = (
     canonicalId: KnowledgeEntityIds.KnowledgeEntityId.Type,
     organizationId: SharedEntityIds.OrganizationId.Type
@@ -301,13 +243,6 @@ const makeSameAsLinkExtensions = Effect.gen(function* () {
       })
     );
 
-  /**
-   * Count all members linked to a canonical entity (transitive)
-   *
-   * @param canonicalId - The canonical entity ID
-   * @param organizationId - Organization ID for scoping
-   * @returns Count of linked members
-   */
   const countMembers = (
     canonicalId: KnowledgeEntityIds.KnowledgeEntityId.Type,
     organizationId: SharedEntityIds.OrganizationId.Type
@@ -336,16 +271,10 @@ const makeSameAsLinkExtensions = Effect.gen(function* () {
   };
 });
 
-/**
- * SameAsLinkRepo Effect.Service
- *
- * Provides CRUD operations for SameAsLink entities.
- *
- * @since 0.1.0
- * @category services
- */
-export class SameAsLinkRepo extends Effect.Service<SameAsLinkRepo>()($I`SameAsLinkRepo`, {
-  dependencies,
-  accessors: true,
-  effect: DbRepo.make(KnowledgeEntityIds.SameAsLinkId, Entities.SameAsLink.Model, makeSameAsLinkExtensions),
-}) {}
+const serviceEffect = DbRepo.make(KnowledgeEntityIds.SameAsLinkId, Entities.SameAsLink.Model, makeSameAsLinkExtensions);
+
+export type SameAsLinkRepoShape = Effect.Effect.Success<typeof serviceEffect>;
+
+export class SameAsLinkRepo extends Context.Tag($I`SameAsLinkRepo`)<SameAsLinkRepo, SameAsLinkRepoShape>() {}
+
+export const SameAsLinkRepoLive = Layer.effect(SameAsLinkRepo, serviceEffect).pipe(Layer.provide(KnowledgeDb.layer));

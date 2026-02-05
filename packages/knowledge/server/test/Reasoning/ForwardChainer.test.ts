@@ -1,33 +1,26 @@
-/**
- * Forward Chainer Tests
- *
- * Tests for the forward-chaining inference engine.
- *
- * @module knowledge-server/test/Reasoning/ForwardChainer
- * @since 0.1.0
- */
-import { MaxDepthExceededError, MaxInferencesExceededError } from "@beep/knowledge-domain/errors";
-import { type InferenceProvenance, makeIRI, Quad, ReasoningConfig } from "@beep/knowledge-domain/value-objects";
+import { IRI, Quad, ReasoningConfig } from "@beep/knowledge-domain/value-objects";
 import { forwardChain } from "@beep/knowledge-server/Reasoning/ForwardChainer";
 import { assertTrue, describe, live, strictEqual } from "@beep/testkit";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Either from "effect/Either";
+import * as R from "effect/Record";
+import * as Str from "effect/String";
 
-const RDF_TYPE = makeIRI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
-const RDFS_DOMAIN = makeIRI("http://www.w3.org/2000/01/rdf-schema#domain");
-const RDFS_SUBCLASS_OF = makeIRI("http://www.w3.org/2000/01/rdf-schema#subClassOf");
+const RDF_TYPE = IRI.make("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
+const RDFS_DOMAIN = IRI.make("http://www.w3.org/2000/01/rdf-schema#domain");
+const RDFS_SUBCLASS_OF = IRI.make("http://www.w3.org/2000/01/rdf-schema#subClassOf");
 
 const EX = "http://example.org/";
 
 const fixtures = {
-  alice: makeIRI(`${EX}alice`),
-  bob: makeIRI(`${EX}bob`),
-  enrolledIn: makeIRI(`${EX}enrolledIn`),
-  CS101: makeIRI(`${EX}CS101`),
-  Student: makeIRI(`${EX}Student`),
-  Person: makeIRI(`${EX}Person`),
-  Agent: makeIRI(`${EX}Agent`),
+  alice: IRI.make(`${EX}alice`),
+  bob: IRI.make(`${EX}bob`),
+  enrolledIn: IRI.make(`${EX}enrolledIn`),
+  CS101: IRI.make(`${EX}CS101`),
+  Student: IRI.make(`${EX}Student`),
+  Person: IRI.make(`${EX}Person`),
+  Agent: IRI.make(`${EX}Agent`),
 };
 
 describe("ForwardChainer", () => {
@@ -161,7 +154,7 @@ describe("ForwardChainer", () => {
           const quads = [
             new Quad({
               subject: fixtures.alice,
-              predicate: makeIRI(`${EX}likes`),
+              predicate: IRI.make(`${EX}likes`),
               object: fixtures.bob,
             }),
           ];
@@ -248,13 +241,13 @@ describe("ForwardChainer", () => {
           const config = new ReasoningConfig({ maxDepth: 10, maxInferences: 1000 });
           const result = yield* forwardChain(quads, config);
 
-          const provenanceKeys = Object.keys(result.provenance);
+          const provenanceKeys = R.keys(result.provenance);
           assertTrue(A.length(provenanceKeys) > 0);
 
           for (const key of provenanceKeys) {
             const entry = result.provenance[key];
             assertTrue(entry !== undefined);
-            assertTrue(entry.ruleId.length > 0);
+            assertTrue(Str.isNonEmpty(entry.ruleId));
             assertTrue(A.length(entry.sourceQuads) > 0);
           }
         }) as Effect.Effect<void>
@@ -280,8 +273,8 @@ describe("ForwardChainer", () => {
           const config = new ReasoningConfig({ maxDepth: 10, maxInferences: 1000 });
           const result = yield* forwardChain(quads, config);
 
-          const provenanceEntries = Object.values(result.provenance) as InferenceProvenance[];
-          const hasRdfs9 = A.some(provenanceEntries, (e: InferenceProvenance) => e.ruleId === "rdfs9");
+          const provenanceEntries = R.values(result.provenance);
+          const hasRdfs9 = A.some(provenanceEntries, (e) => e.ruleId === "rdfs9");
           assertTrue(hasRdfs9);
         }) as Effect.Effect<void>
     );
@@ -370,9 +363,9 @@ describe("ForwardChainer", () => {
             A.range(0, 19),
             (i) =>
               new Quad({
-                subject: makeIRI(`${EX}Class${i}`),
+                subject: IRI.make(`${EX}Class${i}`),
                 predicate: RDFS_SUBCLASS_OF,
-                object: makeIRI(`${EX}Class${i + 1}`),
+                object: IRI.make(`${EX}Class${i + 1}`),
               })
           );
           const classes = A.append(
@@ -380,7 +373,7 @@ describe("ForwardChainer", () => {
             new Quad({
               subject: fixtures.alice,
               predicate: RDF_TYPE,
-              object: makeIRI(`${EX}Class0`),
+              object: IRI.make(`${EX}Class0`),
             })
           );
 
@@ -389,7 +382,7 @@ describe("ForwardChainer", () => {
 
           assertTrue(Either.isLeft(result));
           Either.match(result, {
-            onLeft: (err: unknown) => assertTrue(err instanceof MaxDepthExceededError),
+            onLeft: (err) => strictEqual(err._tag, "MaxDepthExceededError"),
             onRight: () => assertTrue(false),
           });
         }) as Effect.Effect<void>
@@ -430,7 +423,7 @@ describe("ForwardChainer", () => {
             A.range(0, 9),
             (i) =>
               new Quad({
-                subject: makeIRI(`${EX}instance${i}`),
+                subject: IRI.make(`${EX}instance${i}`),
                 predicate: RDF_TYPE,
                 object: fixtures.Student,
               })
@@ -453,7 +446,7 @@ describe("ForwardChainer", () => {
 
           assertTrue(Either.isLeft(result));
           Either.match(result, {
-            onLeft: (err: unknown) => assertTrue(err instanceof MaxInferencesExceededError),
+            onLeft: (err) => strictEqual(err._tag, "MaxInferencesExceededError"),
             onRight: () => assertTrue(false),
           });
         }) as Effect.Effect<void>

@@ -1,8 +1,8 @@
 {
-  "lastCallMs": 1770200358080,
+  "lastCallMs": 1770270594244,
   "skillIndex": {
-    "loadedAt": 1770200358117,
-    "directoryMtime": 1770187792169,
+    "loadedAt": 1770270421843,
+    "directoryMtime": 1770235177507,
     "skills": [
       {
         "name": "effect-ai-prompt",
@@ -911,6 +911,29 @@
         ]
       },
       {
+        "name": "onboarding",
+        "keywords": [
+          "onboarding",
+          "interactive",
+          "checklist",
+          "new",
+          "agents",
+          "when",
+          "starting",
+          "work",
+          "beep",
+          "effect",
+          "verify",
+          "environment",
+          "understand",
+          "architecture",
+          "confirm",
+          "proficiency",
+          "before",
+          "contributing"
+        ]
+      },
+      {
         "name": "skill-judge",
         "keywords": [
           "skill",
@@ -942,7 +965,7 @@
     ]
   },
   "patternCache": {
-    "loadedAt": 1770200372020,
+    "loadedAt": 1770270427720,
     "directoryMtime": 1770167800598,
     "patterns": [
       {

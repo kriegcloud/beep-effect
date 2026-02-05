@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "allowImportingTsExtensions": true,
+    "types": ["node"],
+    "paths": {
+      "@accountability/core/*": ["../core/src/*"],
+      "@accountability/persistence/*": ["../persistence/src/*"],
+      "@accountability/api/*": ["../api/src/*"]
+    }
+  },
+  "include": ["test-e2e", "playwright.config.ts"]
+}

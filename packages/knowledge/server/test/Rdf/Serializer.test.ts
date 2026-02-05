@@ -1,15 +1,7 @@
-/**
- * Serializer Service Tests
- *
- * Comprehensive tests for RDF parsing and serialization operations.
- *
- * @module knowledge-server/test/Rdf/Serializer.test
- * @since 0.1.0
- */
 import { SerializerError } from "@beep/knowledge-domain/errors";
-import { Literal, makeIRI, Quad, QuadPattern } from "@beep/knowledge-domain/value-objects";
-import { RdfStore } from "@beep/knowledge-server/Rdf/RdfStoreService";
-import { Serializer } from "@beep/knowledge-server/Rdf/Serializer";
+import { IRI, Literal, Quad, QuadPattern } from "@beep/knowledge-domain/value-objects";
+import { RdfStore, RdfStoreLive } from "@beep/knowledge-server/Rdf/RdfStoreService";
+import { Serializer, SerializerLive } from "@beep/knowledge-server/Rdf/Serializer";
 import { assertTrue, describe, effect, layer, strictEqual } from "@beep/testkit";
 import * as A from "effect/Array";
 import * as Duration from "effect/Duration";
@@ -17,42 +9,23 @@ import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Str from "effect/String";
 
-/**
- * Helper for string includes check with correct argument order
- * Str.includes is curried: Str.includes(searchString)(str) -> boolean
- */
 const includes = (str: string, search: string): boolean => Str.includes(search)(str);
 
-/**
- * Test layer combining Serializer with its RdfStore dependency
- * We must use Layer.provideMerge so that:
- * 1. RdfStore.Default is provided to Serializer.Default
- * 2. The SAME RdfStore instance is exposed for direct test access
- */
-const TestLayer = Layer.provideMerge(Serializer.Default, RdfStore.Default);
+const TestLayer = Layer.provideMerge(SerializerLive, RdfStoreLive);
 
-/**
- * Common RDF namespace prefixes for test fixtures
- */
 const EX = "http://example.org/";
 const FOAF = "http://xmlns.com/foaf/0.1/";
 
-/**
- * Test fixture helpers
- */
 const fixtures = {
-  alice: makeIRI(`${EX}alice`),
-  bob: makeIRI(`${EX}bob`),
-  carol: makeIRI(`${EX}carol`),
-  foafName: makeIRI(`${FOAF}name`),
-  foafKnows: makeIRI(`${FOAF}knows`),
-  graph1: makeIRI(`${EX}graph1`),
-  graph2: makeIRI(`${EX}graph2`),
+  alice: IRI.make(`${EX}alice`),
+  bob: IRI.make(`${EX}bob`),
+  carol: IRI.make(`${EX}carol`),
+  foafName: IRI.make(`${FOAF}name`),
+  foafKnows: IRI.make(`${FOAF}knows`),
+  graph1: IRI.make(`${EX}graph1`),
+  graph2: IRI.make(`${EX}graph2`),
 };
 
-/**
- * Sample Turtle content for tests
- */
 const SIMPLE_TURTLE = `
 @prefix ex: <http://example.org/> .
 @prefix foaf: <http://xmlns.com/foaf/0.1/> .
@@ -104,11 +77,11 @@ describe("Serializer", () => {
         const pattern = new QuadPattern({ subject: fixtures.alice });
         const results = yield* store.match(pattern);
 
-        strictEqual(results.length, 1);
+        strictEqual(A.length(results), 1);
         strictEqual(results[0]?.subject, fixtures.alice);
         strictEqual(results[0]?.predicate, fixtures.foafName);
-        assertTrue(results[0]?.object instanceof Literal);
-        strictEqual((results[0]?.object as Literal).value, "Alice");
+        assertTrue(Literal.is(results[0]?.object));
+        strictEqual(Literal.make(results[0]?.object).value, "Alice");
       })
     );
 
@@ -139,7 +112,7 @@ describe("Serializer", () => {
 
         const quads = yield* store.getQuads();
 
-        strictEqual(quads.length, 1);
+        strictEqual(A.length(quads), 1);
         strictEqual(quads[0]?.graph, fixtures.graph1);
       })
     );
@@ -199,7 +172,7 @@ describe("Serializer", () => {
 
         const quads = yield* serializer.parseOnly(SIMPLE_TURTLE);
 
-        strictEqual(quads.length, 1);
+        strictEqual(A.length(quads), 1);
 
         const storeSize = yield* store.size;
         strictEqual(storeSize, 0);
@@ -213,7 +186,7 @@ describe("Serializer", () => {
 
         const quads = yield* serializer.parseOnly(SIMPLE_TURTLE, fixtures.graph1);
 
-        strictEqual(quads.length, 1);
+        strictEqual(A.length(quads), 1);
         strictEqual(quads[0]?.graph, fixtures.graph1);
       })
     );
@@ -225,12 +198,12 @@ describe("Serializer", () => {
 
         const quads = yield* serializer.parseOnly(SIMPLE_TURTLE);
 
-        strictEqual(quads.length, 1);
+        strictEqual(A.length(quads), 1);
         const quad = quads[0];
         strictEqual(quad?.subject, fixtures.alice);
         strictEqual(quad?.predicate, fixtures.foafName);
-        assertTrue(quad?.object instanceof Literal);
-        strictEqual((quad?.object as Literal).value, "Alice");
+        assertTrue(Literal.is(quad?.object));
+        strictEqual(Literal.make(quad?.object).value, "Alice");
         strictEqual(quad?.graph, undefined);
       })
     );
@@ -244,7 +217,7 @@ describe("Serializer", () => {
 
         const quads = yield* serializer.parseOnly(MULTI_TRIPLE_TURTLE);
 
-        strictEqual(quads.length, 3);
+        strictEqual(A.length(quads), 3);
 
         const storeSize = yield* store.size;
         strictEqual(storeSize, 0);
@@ -505,7 +478,7 @@ describe("Serializer", () => {
 
         const reparsedQuads = yield* serializer.parseOnly(serialized);
 
-        strictEqual(reparsedQuads.length, 3);
+        strictEqual(A.length(reparsedQuads), 3);
 
         const hasAliceName = A.some(
           reparsedQuads,
@@ -538,13 +511,13 @@ describe("Serializer", () => {
 
         const reparsedQuads = yield* serializer.parseOnly(ntriples);
 
-        strictEqual(reparsedQuads.length, 1);
+        strictEqual(A.length(reparsedQuads), 1);
         strictEqual(reparsedQuads[0]?.subject, originalQuads[0]?.subject);
         strictEqual(reparsedQuads[0]?.predicate, originalQuads[0]?.predicate);
 
-        assertTrue(reparsedQuads[0]?.object instanceof Literal);
-        assertTrue(originalQuads[0]?.object instanceof Literal);
-        strictEqual((reparsedQuads[0]?.object as Literal).value, (originalQuads[0]?.object as Literal).value);
+        assertTrue(Literal.is(reparsedQuads[0]?.object));
+        assertTrue(Literal.is(originalQuads[0]?.object));
+        strictEqual(Literal.make(reparsedQuads[0]?.object).value, Literal.make(originalQuads[0]?.object).value);
       })
     );
 
@@ -561,17 +534,17 @@ ex:alice foaf:name "Alice"@en .
 `;
 
         const quads = yield* serializer.parseOnly(turtleWithLang);
-        strictEqual(quads.length, 1);
-        assertTrue(quads[0]?.object instanceof Literal);
-        strictEqual((quads[0]?.object as Literal).language, "en");
+        strictEqual(A.length(quads), 1);
+        assertTrue(Literal.is(quads[0]?.object));
+        strictEqual(Literal.make(quads[0]?.object).language, "en");
 
         const serialized = yield* serializer.serializeQuads(quads, "Turtle");
         const reparsed = yield* serializer.parseOnly(serialized);
 
-        strictEqual(reparsed.length, 1);
-        assertTrue(reparsed[0]?.object instanceof Literal);
-        strictEqual((reparsed[0]?.object as Literal).value, "Alice");
-        strictEqual((reparsed[0]?.object as Literal).language, "en");
+        strictEqual(A.length(reparsed), 1);
+        assertTrue(Literal.is(reparsed[0]?.object));
+        strictEqual(Literal.make(reparsed[0]?.object).value, "Alice");
+        strictEqual(Literal.make(reparsed[0]?.object).language, "en");
       })
     );
 
@@ -588,18 +561,18 @@ ex:alice ex:age "30"^^xsd:integer .
 `;
 
         const quads = yield* serializer.parseOnly(turtleWithTypedLiteral);
-        strictEqual(quads.length, 1);
-        assertTrue(quads[0]?.object instanceof Literal);
-        strictEqual((quads[0]?.object as Literal).value, "30");
-        strictEqual((quads[0]?.object as Literal).datatype, makeIRI("http://www.w3.org/2001/XMLSchema#integer"));
+        strictEqual(A.length(quads), 1);
+        assertTrue(Literal.is(quads[0]?.object));
+        strictEqual(Literal.make(quads[0]?.object).value, "30");
+        strictEqual(Literal.make(quads[0]?.object).datatype, IRI.make("http://www.w3.org/2001/XMLSchema#integer"));
 
         const serialized = yield* serializer.serializeQuads(quads, "NTriples");
         const reparsed = yield* serializer.parseOnly(serialized);
 
-        strictEqual(reparsed.length, 1);
-        assertTrue(reparsed[0]?.object instanceof Literal);
-        strictEqual((reparsed[0]?.object as Literal).value, "30");
-        strictEqual((reparsed[0]?.object as Literal).datatype, makeIRI("http://www.w3.org/2001/XMLSchema#integer"));
+        strictEqual(A.length(reparsed), 1);
+        assertTrue(Literal.is(reparsed[0]?.object));
+        strictEqual(Literal.make(reparsed[0]?.object).value, "30");
+        strictEqual(Literal.make(reparsed[0]?.object).datatype, IRI.make("http://www.w3.org/2001/XMLSchema#integer"));
       })
     );
 
@@ -616,13 +589,13 @@ ex:alice foaf:knows ex:bob .
 `;
 
         const quads = yield* serializer.parseOnly(turtleWithIriObject);
-        strictEqual(quads.length, 1);
+        strictEqual(A.length(quads), 1);
         strictEqual(quads[0]?.object, fixtures.bob);
 
         const serialized = yield* serializer.serializeQuads(quads, "Turtle");
         const reparsed = yield* serializer.parseOnly(serialized);
 
-        strictEqual(reparsed.length, 1);
+        strictEqual(A.length(reparsed), 1);
         strictEqual(reparsed[0]?.object, fixtures.bob);
       })
     );
@@ -709,7 +682,7 @@ ex:bob foaf:name "Bob" .
 
         const quads = yield* serializer.parseOnly(SIMPLE_TURTLE, fixtures.graph1);
 
-        strictEqual(quads.length, 1);
+        strictEqual(A.length(quads), 1);
         strictEqual(quads[0]?.graph, fixtures.graph1);
       })
     );
@@ -736,7 +709,7 @@ ex:bob foaf:name "Bob" .
         ]);
 
         const allQuads = yield* store.getQuads();
-        strictEqual(allQuads.length, 2);
+        strictEqual(A.length(allQuads), 2);
 
         const graph1Turtle = yield* serializer.serialize("Turtle", fixtures.graph1);
         assertTrue(includes(graph1Turtle, "Alice Graph1"));
@@ -760,7 +733,7 @@ ex:alice foaf:knows [ foaf:name "Anonymous" ] .
 
         const quads = yield* serializer.parseOnly(turtleWithBnode);
 
-        assertTrue(quads.length >= 2);
+        assertTrue(A.length(quads) >= 2);
       })
     );
 
@@ -778,9 +751,9 @@ ex:alice foaf:name "Alice \\"the Great\\"" .
 
         const quads = yield* serializer.parseOnly(turtleWithSpecialChars);
 
-        strictEqual(quads.length, 1);
-        assertTrue(quads[0]?.object instanceof Literal);
-        assertTrue(includes((quads[0]?.object as Literal).value, "the Great"));
+        strictEqual(A.length(quads), 1);
+        assertTrue(Literal.is(quads[0]?.object));
+        assertTrue(includes(Literal.make(quads[0]?.object).value, "the Great"));
       })
     );
 
@@ -800,9 +773,9 @@ comment.""" .
 
         const quads = yield* serializer.parseOnly(turtleWithMultiline);
 
-        strictEqual(quads.length, 1);
-        assertTrue(quads[0]?.object instanceof Literal);
-        assertTrue(includes((quads[0]?.object as Literal).value, "multiline"));
+        strictEqual(A.length(quads), 1);
+        assertTrue(Literal.is(quads[0]?.object));
+        assertTrue(includes(Literal.make(quads[0]?.object).value, "multiline"));
       })
     );
 
@@ -821,11 +794,11 @@ ex:alice ex:height 1.75 .
 
         const quads = yield* serializer.parseOnly(turtleWithNumbers);
 
-        strictEqual(quads.length, 2);
+        strictEqual(A.length(quads), 2);
 
         const ageQuad = A.findFirst(quads, (q) => includes(q.predicate, "age"));
         assertTrue(ageQuad._tag === "Some");
-        assertTrue(ageQuad.value.object instanceof Literal);
+        assertTrue(Literal.is(ageQuad.value.object));
         strictEqual(ageQuad.value.object.value, "30");
       })
     );
@@ -844,7 +817,7 @@ ex:bob ex:active false .
 
         const quads = yield* serializer.parseOnly(turtleWithBool);
 
-        strictEqual(quads.length, 2);
+        strictEqual(A.length(quads), 2);
       })
     );
   });

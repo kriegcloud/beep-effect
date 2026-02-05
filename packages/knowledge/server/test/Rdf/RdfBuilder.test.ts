@@ -1,49 +1,31 @@
-/**
- * RdfBuilder Tests
- *
- * Tests for the fluent RDF quad builder service.
- *
- * @module knowledge-server/test/Rdf/RdfBuilder.test
- * @since 0.1.0
- */
-import { Literal, makeBlankNode, makeIRI, Quad, QuadPattern } from "@beep/knowledge-domain/value-objects";
-import { RdfBuilder } from "@beep/knowledge-server/Rdf/RdfBuilder";
-import { RdfStore } from "@beep/knowledge-server/Rdf/RdfStoreService";
+import { IRI, Literal, makeBlankNode, Quad, QuadPattern } from "@beep/knowledge-domain/value-objects";
+import { RdfBuilder, RdfBuilderLive } from "@beep/knowledge-server/Rdf/RdfBuilder";
+import { RdfStore, RdfStoreLive } from "@beep/knowledge-server/Rdf/RdfStoreService";
 import { assertTrue, layer, strictEqual } from "@beep/testkit";
 import * as A from "effect/Array";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 
-/**
- * Common RDF namespace prefixes for test fixtures
- */
 const FOAF = "http://xmlns.com/foaf/0.1/";
 const XSD = "http://www.w3.org/2001/XMLSchema#";
 const EX = "http://example.org/";
 
-/**
- * Test fixture helpers
- */
 const fixtures = {
-  alice: makeIRI(`${EX}alice`),
-  bob: makeIRI(`${EX}bob`),
-  carol: makeIRI(`${EX}carol`),
-  foafName: makeIRI(`${FOAF}name`),
-  foafKnows: makeIRI(`${FOAF}knows`),
-  foafAge: makeIRI(`${FOAF}age`),
-  graph1: makeIRI(`${EX}graph1`),
-  graph2: makeIRI(`${EX}graph2`),
-  xsdInteger: makeIRI(`${XSD}integer`),
-  xsdDate: makeIRI(`${XSD}date`),
+  alice: IRI.make(`${EX}alice`),
+  bob: IRI.make(`${EX}bob`),
+  carol: IRI.make(`${EX}carol`),
+  foafName: IRI.make(`${FOAF}name`),
+  foafKnows: IRI.make(`${FOAF}knows`),
+  foafAge: IRI.make(`${FOAF}age`),
+  graph1: IRI.make(`${EX}graph1`),
+  graph2: IRI.make(`${EX}graph2`),
+  xsdInteger: IRI.make(`${XSD}integer`),
+  xsdDate: IRI.make(`${XSD}date`),
   blankB1: makeBlankNode("_:b1"),
 };
 
-/**
- * Test Layer combining RdfStore and RdfBuilder
- * RdfBuilder.Default depends on RdfStore, so we provide RdfStore to it
- */
-const TestLayer = RdfBuilder.Default.pipe(Layer.provideMerge(RdfStore.Default));
+const TestLayer = RdfBuilderLive.pipe(Layer.provideMerge(RdfStoreLive));
 
 layer(TestLayer, { timeout: Duration.seconds(30) })("RdfBuilder", (it) => {
   it.effect(
@@ -64,9 +46,9 @@ layer(TestLayer, { timeout: Duration.seconds(30) })("RdfBuilder", (it) => {
 
       strictEqual(A.length(results), 1);
       const quad = A.unsafeGet(results, 0);
-      assertTrue(quad.object instanceof Literal);
-      strictEqual((quad.object as Literal).value, "Alice");
-      strictEqual((quad.object as Literal).language, undefined);
+      assertTrue(Literal.is(quad.object));
+      strictEqual(Literal.make(quad.object).value, "Alice");
+      strictEqual(Literal.make(quad.object).language, undefined);
     })
   );
 
@@ -88,9 +70,9 @@ layer(TestLayer, { timeout: Duration.seconds(30) })("RdfBuilder", (it) => {
 
       strictEqual(A.length(results), 1);
       const quad = A.unsafeGet(results, 0);
-      assertTrue(quad.object instanceof Literal);
-      strictEqual((quad.object as Literal).value, "Alicia");
-      strictEqual((quad.object as Literal).language, "es");
+      assertTrue(Literal.is(quad.object));
+      strictEqual(Literal.make(quad.object).value, "Alicia");
+      strictEqual(Literal.make(quad.object).language, "es");
     })
   );
 
@@ -112,9 +94,9 @@ layer(TestLayer, { timeout: Duration.seconds(30) })("RdfBuilder", (it) => {
 
       strictEqual(A.length(results), 1);
       const quad = A.unsafeGet(results, 0);
-      assertTrue(quad.object instanceof Literal);
-      strictEqual((quad.object as Literal).value, "30");
-      strictEqual((quad.object as Literal).datatype, fixtures.xsdInteger);
+      assertTrue(Literal.is(quad.object));
+      strictEqual(Literal.make(quad.object).value, "30");
+      strictEqual(Literal.make(quad.object).datatype, fixtures.xsdInteger);
     })
   );
 
@@ -127,7 +109,7 @@ layer(TestLayer, { timeout: Duration.seconds(30) })("RdfBuilder", (it) => {
 
       yield* builder
         .subject(fixtures.alice)
-        .predicate(makeIRI(`${FOAF}birthday`))
+        .predicate(IRI.make(`${FOAF}birthday`))
         .typedLiteral("1990-05-15", fixtures.xsdDate)
         .add();
 
@@ -139,9 +121,9 @@ layer(TestLayer, { timeout: Duration.seconds(30) })("RdfBuilder", (it) => {
 
       strictEqual(A.length(results), 1);
       const quad = A.unsafeGet(results, 0);
-      assertTrue(quad.object instanceof Literal);
-      strictEqual((quad.object as Literal).value, "1990-05-15");
-      strictEqual((quad.object as Literal).datatype, fixtures.xsdDate);
+      assertTrue(Literal.is(quad.object));
+      strictEqual(Literal.make(quad.object).value, "1990-05-15");
+      strictEqual(Literal.make(quad.object).datatype, fixtures.xsdDate);
     })
   );
 
@@ -278,7 +260,7 @@ layer(TestLayer, { timeout: Duration.seconds(30) })("RdfBuilder", (it) => {
       assertTrue(quad instanceof Quad);
       strictEqual(quad.subject, fixtures.alice);
       strictEqual(quad.predicate, fixtures.foafName);
-      assertTrue(quad.object instanceof Literal);
+      assertTrue(Literal.is(quad.object));
 
       const results = yield* store.match(new QuadPattern({}));
       strictEqual(A.length(results), 0);

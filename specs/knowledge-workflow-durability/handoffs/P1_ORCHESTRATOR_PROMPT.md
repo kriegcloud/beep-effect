@@ -4,36 +4,48 @@ Copy-paste this prompt to start Phase 1 implementation.
 
 ---
 
+## ⚠️ CRITICAL: API Corrections Applied
+
+**Tables are auto-created by @effect/cluster** - Do NOT create custom Drizzle tables.
+
+Reference `.repos/effect-ontology/packages/@core-v2/src/` for canonical patterns.
+
+---
+
 ## Prompt
 
-You are implementing Phase 1 of the knowledge-workflow-durability spec: @effect/workflow integration and workflow persistence tables.
+You are implementing Phase 1 of the knowledge-workflow-durability spec: @effect/workflow integration with @effect/cluster persistence.
 
 ### Context
 
 This is Phase 3 from the knowledge-ontology-comparison roadmap. The current ExtractionPipeline runs as a single Effect with no durability - if it fails mid-extraction, all progress is lost.
 
 Phase 1 establishes the foundation:
-- @effect/workflow runtime integration
-- PostgreSQL persistence tables (workflow-execution, workflow-activity, workflow-signal)
-- WorkflowService abstraction
+- @effect/workflow and @effect/cluster integration
+- PostgreSQL persistence via SqlMessageStorage/SqlRunnerStorage (auto-creates tables)
+- WorkflowOrchestrator service wrapping WorkflowEngine
 
 ### Your Mission
 
 Implement the following in order:
 
-**Part A: EntityIds (prerequisite)**
-1. Add WorkflowExecutionId, WorkflowActivityId, WorkflowSignalId to `packages/knowledge/domain/src/entities/EntityIds.ts`
+**Part A: Dependencies**
+1. Add `@effect/workflow` and `@effect/cluster` to `packages/knowledge/server/package.json`
 
-**Part B: Workflow Persistence Tables**
-2. Create `packages/knowledge/tables/src/tables/workflow-execution.table.ts`
-3. Create `packages/knowledge/tables/src/tables/workflow-activity.table.ts`
-4. Create `packages/knowledge/tables/src/tables/workflow-signal.table.ts`
-5. Update `packages/knowledge/tables/src/tables/index.ts` to export new tables
+**Part B: Persistence Layer (auto-tables)**
+2. Create `packages/knowledge/server/src/Runtime/Persistence/PostgresLayer.ts`
+   - Use `SqlMessageStorage.layerWith({ prefix: "knowledge_" })`
+   - Use `SqlRunnerStorage.layerWith({ prefix: "knowledge_" })`
+   - Tables auto-created: `knowledge_cluster_messages`, `knowledge_cluster_replies`, `knowledge_cluster_runners`
 
-**Part C: Workflow Service Layer**
-6. Create `packages/knowledge/server/src/Workflow/WorkflowPersistence.ts`
-7. Create `packages/knowledge/server/src/Workflow/WorkflowService.ts`
-8. Create `packages/knowledge/server/src/Workflow/index.ts`
+**Part C: Cluster Runtime**
+3. Create `packages/knowledge/server/src/Runtime/ClusterRuntime.ts`
+   - SingleRunner layer composition
+   - Provide PostgresPersistenceLive
+
+**Part D: Workflow Orchestrator**
+4. Create `packages/knowledge/server/src/Workflow/WorkflowOrchestrator.ts`
+5. Create `packages/knowledge/server/src/Workflow/index.ts`
 
 ### Critical Patterns
 

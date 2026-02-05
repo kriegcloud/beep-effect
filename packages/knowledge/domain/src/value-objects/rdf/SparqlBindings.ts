@@ -20,14 +20,21 @@ const $I = $KnowledgeDomainId.create("value-objects/rdf/SparqlBindings");
  * @since 0.1.0
  * @category value-objects
  */
-export const VariableName = S.NonEmptyTrimmedString.annotations(
+export class VariableName extends S.NonEmptyTrimmedString.annotations(
   $I.annotations("VariableName", {
     title: "Variable Name",
     description: "SPARQL variable name (without ? prefix)",
   })
-);
+).annotations(
+  $I.annotations("VariableName", {
+    title: "Variable Name",
+    description: "SPARQL variable name (without ? prefix)",
+  })
+) {}
 
-export type VariableName = typeof VariableName.Type;
+export declare namespace VariableName {
+  export type Type = typeof VariableName.Type;
+}
 
 /**
  * SparqlBinding - A single variable binding
@@ -64,14 +71,16 @@ export class SparqlBinding extends S.Class<SparqlBinding>($I`SparqlBinding`)({
  * @since 0.1.0
  * @category value-objects
  */
-export const SparqlRow = S.Array(SparqlBinding).annotations(
+export class SparqlRow extends S.Array(SparqlBinding).annotations(
   $I.annotations("SparqlRow", {
     title: "SPARQL Row",
     description: "Single result row with variable bindings",
   })
-);
+) {}
 
-export type SparqlRow = typeof SparqlRow.Type;
+export declare namespace SparqlRow {
+  export type Type = typeof SparqlRow.Type;
+}
 
 /**
  * SparqlBindings - Complete SPARQL query result set
@@ -106,5 +115,5 @@ export class SparqlBindings extends S.Class<SparqlBindings>($I`SparqlBindings`)(
  * @since 0.1.0
  * @category value-objects
  */
-export const emptySparqlBindings = (columns: ReadonlyArray<VariableName>): SparqlBindings =>
+export const emptySparqlBindings = (columns: ReadonlyArray<VariableName.Type>): SparqlBindings =>
   new SparqlBindings({ columns: [...columns], rows: [] });

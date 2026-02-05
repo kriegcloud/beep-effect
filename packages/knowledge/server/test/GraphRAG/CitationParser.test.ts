@@ -1,12 +1,3 @@
-/**
- * CitationParser Tests
- *
- * Tests for citation marker parsing and extraction utilities.
- *
- * @module knowledge-server/test/GraphRAG/CitationParser.test
- * @since 0.1.0
- */
-
 import {
   countCitations,
   extractEntityIds,
@@ -20,8 +11,8 @@ import { assertFalse, assertTrue, describe, effect, strictEqual } from "@beep/te
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
+import * as Str from "effect/String";
 
-// Test entity IDs
 const testEntityId1 = KnowledgeEntityIds.KnowledgeEntityId.make(
   "knowledge_entity__11111111-1111-1111-1111-111111111111"
 );
@@ -189,10 +180,10 @@ describe("CitationParser", () => {
         const text = `Alice {{entity:${testEntityId1}}} is a person.`;
         const clean = stripAllCitations(text);
 
-        assertFalse(clean.includes("{{"));
-        assertFalse(clean.includes("}}"));
-        assertTrue(clean.includes("Alice"));
-        assertTrue(clean.includes("is a person"));
+        assertFalse(Str.includes("{{")(clean));
+        assertFalse(Str.includes("}}")(clean));
+        assertTrue(Str.includes("Alice")(clean));
+        assertTrue(Str.includes("is a person")(clean));
       })
     );
 
@@ -202,8 +193,8 @@ describe("CitationParser", () => {
         const text = `They are connected {{relation:${testRelationId}}}.`;
         const clean = stripAllCitations(text);
 
-        assertFalse(clean.includes("{{"));
-        assertFalse(clean.includes("}}"));
+        assertFalse(Str.includes("{{")(clean));
+        assertFalse(Str.includes("}}")(clean));
       })
     );
 
@@ -213,8 +204,7 @@ describe("CitationParser", () => {
         const text = `Alice {{entity:${testEntityId1}}}  {{entity:${testEntityId2}}} works.`;
         const clean = stripAllCitations(text);
 
-        // Should not have double spaces
-        assertFalse(clean.includes("  "));
+        assertFalse(Str.includes("  ")(clean));
       })
     );
 

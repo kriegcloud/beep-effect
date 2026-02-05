@@ -1,6 +1,6 @@
-# Phase 1 Handoff: @effect/workflow Integration & Persistence Tables
+# Phase 1 Handoff: @effect/workflow Integration
 
-**Date**: 2026-02-03
+**Date**: 2026-02-03 (Updated: 2026-02-04)
 **From**: Spec Scaffolding
 **To**: Phase 1 (@effect/workflow Integration)
 **Status**: Ready for implementation
@@ -8,27 +8,38 @@
 
 ---
 
+## ⚠️ CRITICAL CORRECTIONS
+
+**Tables are auto-created by @effect/cluster**. Do NOT create custom Drizzle tables.
+
+`SqlMessageStorage` and `SqlRunnerStorage` auto-create:
+- `knowledge_cluster_messages`
+- `knowledge_cluster_replies`
+- `knowledge_cluster_runners`
+
+See `.repos/effect-ontology/packages/@core-v2/src/Runtime/Persistence/PostgresLayer.ts` for canonical patterns.
+
+---
+
 ## Context for Phase 1
 
 ### Working Context (current task focus)
 
-**Objective**: Integrate @effect/workflow runtime with PostgreSQL backend and create workflow persistence tables
+**Objective**: Integrate @effect/workflow runtime with @effect/cluster persistence layer
 
 **Success Criteria**:
-- [ ] @effect/workflow runtime integrated in `@beep/knowledge-server`
-- [ ] Workflow persistence tables created in `@beep/knowledge-tables`
-- [ ] WorkflowService abstraction wraps @effect/workflow runtime
+- [ ] `@effect/workflow` and `@effect/cluster` installed in `@beep/knowledge-server`
+- [ ] PostgresLayer.ts with SqlMessageStorage/SqlRunnerStorage
+- [ ] ClusterRuntime.ts with SingleRunner layer composition
+- [ ] WorkflowOrchestrator service wrapping WorkflowEngine
 - [ ] `bun run check --filter @beep/knowledge-server` passes
-- [ ] `bun run check --filter @beep/knowledge-tables` passes
-- [ ] `bun run db:generate` generates migration for new tables
+- [ ] Tables auto-created on first server start
 
 **Files to Create**:
-1. `packages/knowledge/tables/src/tables/workflow-execution.table.ts`
-2. `packages/knowledge/tables/src/tables/workflow-activity.table.ts`
-3. `packages/knowledge/tables/src/tables/workflow-signal.table.ts`
-4. `packages/knowledge/server/src/Workflow/WorkflowPersistence.ts`
-5. `packages/knowledge/server/src/Workflow/WorkflowService.ts`
-6. `packages/knowledge/server/src/Workflow/index.ts`
+1. `packages/knowledge/server/src/Runtime/Persistence/PostgresLayer.ts`
+2. `packages/knowledge/server/src/Runtime/ClusterRuntime.ts`
+3. `packages/knowledge/server/src/Workflow/WorkflowOrchestrator.ts`
+4. `packages/knowledge/server/src/Workflow/index.ts`
 
 ### Episodic Context (prior decisions)
 

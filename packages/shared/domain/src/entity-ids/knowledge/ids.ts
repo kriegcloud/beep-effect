@@ -176,6 +176,60 @@ export declare namespace MentionId {
 }
 
 /**
+ * MentionRecord ID for immutable mention evidence records.
+ *
+ * Identifier for raw mention extraction records preserving LLM output provenance.
+ *
+ * @since 0.1.0
+ * @category ids
+ */
+export const MentionRecordId = make("mention_record", {
+  brand: "MentionRecordId",
+  actions: ["create", "read", "update", "delete", "*"],
+}).annotations(
+  $I.annotations("MentionRecordId", {
+    description: "A unique identifier for an immutable mention extraction record",
+  })
+);
+
+export declare namespace MentionRecordId {
+  export type Type = S.Schema.Type<typeof MentionRecordId>;
+  export type Encoded = S.Schema.Encoded<typeof MentionRecordId>;
+
+  export namespace RowId {
+    export type Type = typeof MentionRecordId.privateSchema.Type;
+    export type Encoded = typeof MentionRecordId.privateSchema.Encoded;
+  }
+}
+
+/**
+ * MergeHistory ID for entity merge audit records.
+ *
+ * Identifier for audit trail of entity resolution decisions.
+ *
+ * @since 0.1.0
+ * @category ids
+ */
+export const MergeHistoryId = make("merge_history", {
+  brand: "MergeHistoryId",
+  actions: ["create", "read", "update", "delete", "*"],
+}).annotations(
+  $I.annotations("MergeHistoryId", {
+    description: "A unique identifier for an entity merge audit record",
+  })
+);
+
+export declare namespace MergeHistoryId {
+  export type Type = S.Schema.Type<typeof MergeHistoryId>;
+  export type Encoded = S.Schema.Encoded<typeof MergeHistoryId>;
+
+  export namespace RowId {
+    export type Type = typeof MergeHistoryId.privateSchema.Type;
+    export type Encoded = typeof MergeHistoryId.privateSchema.Encoded;
+  }
+}
+
+/**
  * ClassDefinition ID for OWL/RDFS class definitions.
  *
  * Identifier for class definitions parsed from ontology files.
@@ -290,6 +344,8 @@ export const Ids = {
   OntologyId,
   ExtractionId,
   MentionId,
+  MentionRecordId,
+  MergeHistoryId,
   ClassDefinitionId,
   PropertyDefinitionId,
   EntityClusterId,

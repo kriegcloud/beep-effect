@@ -1,11 +1,3 @@
-/**
- * Embedding Repository
- *
- * Database operations for Embedding entities with pgvector similarity search.
- *
- * @module knowledge-server/db/repos/Embedding
- * @since 0.1.0
- */
 import { $KnowledgeServerId } from "@beep/identity/packages";
 import { Entities } from "@beep/knowledge-domain";
 import { KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
@@ -14,19 +6,15 @@ import { DbRepo } from "@beep/shared-domain/factories";
 import * as SqlClient from "@effect/sql/SqlClient";
 import * as SqlSchema from "@effect/sql/SqlSchema";
 import * as A from "effect/Array";
+import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
+import * as Layer from "effect/Layer";
 import type * as O from "effect/Option";
 import * as S from "effect/Schema";
-import { dependencies } from "./_common";
+import { KnowledgeDb } from "../Db";
 
 const $I = $KnowledgeServerId.create("db/repos/EmbeddingRepo");
 
-/**
- * Result type for similarity search
- *
- * @since 0.1.0
- * @category schemas
- */
 export class SimilarityResult extends S.Class<SimilarityResult>("SimilarityResult")({
   id: KnowledgeEntityIds.EmbeddingId,
   entityType: Entities.Embedding.EntityType,
@@ -36,8 +24,6 @@ export class SimilarityResult extends S.Class<SimilarityResult>("SimilarityResul
 }) {}
 
 const tableName = KnowledgeEntityIds.EmbeddingId.tableName;
-
-// --- Request Schemas ---
 
 class FindByCacheKeyRequest extends S.Class<FindByCacheKeyRequest>("FindByCacheKeyRequest")({
   cacheKey: S.String,
@@ -57,13 +43,8 @@ class FindByEntityTypeRequest extends S.Class<FindByEntityTypeRequest>("FindByEn
   limit: S.Number,
 }) {}
 
-/**
- * Custom repo operations for embeddings
- */
 const makeEmbeddingExtensions = Effect.gen(function* () {
   const sql = yield* SqlClient.SqlClient;
-
-  // --- SqlSchemas ---
 
   const findByCacheKeySchema = SqlSchema.findOne({
     Request: FindByCacheKeyRequest,
@@ -81,7 +62,6 @@ const makeEmbeddingExtensions = Effect.gen(function* () {
     Request: FindSimilarRequest,
     Result: SimilarityResult,
     execute: (req) => {
-      // Format vector for pgvector: "[0.1,0.2,...]"
       const vectorString = `[${A.join(A.map(req.queryVector, String), ",")}]`;
       return sql`
         SELECT id,
@@ -110,15 +90,6 @@ const makeEmbeddingExtensions = Effect.gen(function* () {
     `,
   });
 
-  // --- Methods ---
-
-  /**
-   * Find embedding by cache key (entityId) and organization
-   *
-   * @param cacheKey - The cache key (stored as entityId)
-   * @param organizationId - Organization ID for scoping
-   * @returns Option of the matching embedding
-   */
   const findByCacheKey = (
     cacheKey: string,
     organizationId: SharedEntityIds.OrganizationId.Type
@@ -132,15 +103,6 @@ const makeEmbeddingExtensions = Effect.gen(function* () {
       })
     );
 
-  /**
-   * Find similar embeddings using pgvector cosine distance
-   *
-   * @param queryVector - The query embedding vector
-   * @param organizationId - Organization ID for scoping
-   * @param limit - Maximum number of results (default 10)
-   * @param threshold - Minimum similarity threshold (default 0.7)
-   * @returns Array of similar embeddings with similarity scores
-   */
   const findSimilar = (
     queryVector: ReadonlyArray<number>,
     organizationId: SharedEntityIds.OrganizationId.Type,
@@ -156,14 +118,6 @@ const makeEmbeddingExtensions = Effect.gen(function* () {
       })
     );
 
-  /**
-   * Find embeddings by entity type within an organization
-   *
-   * @param entityType - Type of entity (class, entity, claim, example)
-   * @param organizationId - Organization ID for scoping
-   * @param limit - Maximum number of results
-   * @returns Array of matching embeddings
-   */
   const findByEntityType = (
     entityType: Entities.Embedding.EntityType.Type,
     organizationId: SharedEntityIds.OrganizationId.Type,
@@ -178,16 +132,6 @@ const makeEmbeddingExtensions = Effect.gen(function* () {
       })
     );
 
-  /**
-   * Delete embeddings by entity ID prefix
-   *
-   * Useful for removing all embeddings associated with a specific
-   * document or extraction run.
-   *
-   * @param entityIdPrefix - Prefix to match (e.g., "knowledge_entity__")
-   * @param organizationId - Organization ID for scoping
-   * @returns Number of deleted rows
-   */
   const deleteByEntityIdPrefix = (
     entityIdPrefix: string,
     organizationId: SharedEntityIds.OrganizationId.Type
@@ -219,17 +163,10 @@ const makeEmbeddingExtensions = Effect.gen(function* () {
   };
 });
 
-/**
- * EmbeddingRepo Effect.Service
- *
- * Provides CRUD operations for Embedding entities plus
- * pgvector-powered similarity search.
- *
- * @since 0.1.0
- * @category services
- */
-export class EmbeddingRepo extends Effect.Service<EmbeddingRepo>()($I`EmbeddingRepo`, {
-  dependencies,
-  accessors: true,
-  effect: DbRepo.make(KnowledgeEntityIds.EmbeddingId, Entities.Embedding.Model, makeEmbeddingExtensions),
-}) {}
+const serviceEffect = DbRepo.make(KnowledgeEntityIds.EmbeddingId, Entities.Embedding.Model, makeEmbeddingExtensions);
+
+export type EmbeddingRepoShape = Effect.Effect.Success<typeof serviceEffect>;
+
+export class EmbeddingRepo extends Context.Tag($I`EmbeddingRepo`)<EmbeddingRepo, EmbeddingRepoShape>() {}
+
+export const EmbeddingRepoLive = Layer.effect(EmbeddingRepo, serviceEffect).pipe(Layer.provide(KnowledgeDb.layer));

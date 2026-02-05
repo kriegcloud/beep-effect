@@ -1,15 +1,11 @@
-/**
- * Knowledge domain entity exports
- *
- * @module knowledge-domain/entities
- * @since 0.1.0
- */
 export * as ClassDefinition from "./class-definition";
 export * as Embedding from "./embedding";
 export * as Entity from "./entity";
 export * as EntityCluster from "./entity-cluster";
 export * as Extraction from "./extraction";
 export * as Mention from "./mention";
+export * as MentionRecord from "./mention-record";
+export * as MergeHistory from "./merge-history";
 export * as Ontology from "./ontology";
 export * as PropertyDefinition from "./property-definition";
 export * as Relation from "./relation";

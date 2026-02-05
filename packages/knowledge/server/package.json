@@ -51,6 +51,7 @@
     "effect": "catalog:"
   },
   "devDependencies": {
+    "@beep/testkit": "workspace:^",
     "@beep/utils": "workspace:^",
     "@beep/schema": "workspace:^",
     "@beep/google-workspace-domain": "workspace:^",

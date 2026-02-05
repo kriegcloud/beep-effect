@@ -26,7 +26,10 @@ const CorsMiddleware = HttpLayerRouter.cors({
 });
 
 // Protected routes that require authentication
-const ProtectedRoutes = Layer.mergeAll(Rpc.layer).pipe(Layer.provide(AuthContext.layer));
+// Note: GoogleWorkspace adapters are NOT composed here because they require per-request
+// AuthContext at layer construction time. Handlers needing Google Workspace services
+// should provide GoogleWorkspace.layer within the request context where AuthContext is available.
+const ProtectedRoutes = Rpc.layer.pipe(Layer.provide(AuthContext.layer));
 
 // Public routes that don't require authentication
 // BetterAuthRouterLive handles authentication internally via Better Auth

@@ -1,16 +1,8 @@
-/**
- * ConfidenceScorer Tests
- *
- * Tests for confidence scoring of citations and answers.
- *
- * @module knowledge-server/test/GraphRAG/ConfidenceScorer.test
- * @since 0.1.0
- */
-
 import { Citation, InferenceStep, ReasoningTrace } from "@beep/knowledge-server/GraphRAG/AnswerSchemas";
 import {
   type CitationValidationResult,
   ConfidenceScorer,
+  ConfidenceScorerLive,
   DEPTH_PENALTY_FACTOR,
   type EntityValidationResult,
   EXCLUDE_THRESHOLD,
@@ -23,10 +15,6 @@ import { assertTrue, describe, effect, strictEqual } from "@beep/testkit";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 
-// =============================================================================
-// Test Fixtures
-// =============================================================================
-
 const testEntityId1 = KnowledgeEntityIds.KnowledgeEntityId.make(
   "knowledge_entity__11111111-1111-1111-1111-111111111111"
 );
@@ -35,9 +23,6 @@ const testEntityId2 = KnowledgeEntityIds.KnowledgeEntityId.make(
 );
 const testRelationId = KnowledgeEntityIds.RelationId.make("knowledge_relation__33333333-3333-3333-3333-333333333333");
 
-/**
- * Create a Citation with the given claim text
- */
 const createCitation = (
   claimText: string,
   entityIds: ReadonlyArray<KnowledgeEntityIds.KnowledgeEntityId.Type> = []
@@ -48,9 +33,6 @@ const createCitation = (
     confidence: 1.0,
   });
 
-/**
- * Create an EntityValidationResult
- */
 const createEntityResult = (
   entityId: KnowledgeEntityIds.KnowledgeEntityId.Type,
   found: boolean
@@ -60,9 +42,6 @@ const createEntityResult = (
   confidence: found ? 1.0 : 0.0,
 });
 
-/**
- * Create a RelationValidationResult for a direct relation
- */
 const createDirectRelationResult = (
   relationId: KnowledgeEntityIds.RelationId.Type,
   found: boolean
@@ -73,9 +52,6 @@ const createDirectRelationResult = (
   confidence: found ? 1.0 : 0.0,
 });
 
-/**
- * Create a RelationValidationResult for an inferred relation
- */
 const createInferredRelationResult = (
   relationId: KnowledgeEntityIds.RelationId.Type,
   depth: number,
@@ -96,9 +72,6 @@ const createInferredRelationResult = (
   }),
 });
 
-/**
- * Create a CitationValidationResult
- */
 const createValidationResult = (config: {
   citation: Citation;
   entityResults: ReadonlyArray<EntityValidationResult>;
@@ -111,10 +84,6 @@ const createValidationResult = (config: {
   overallConfidence: config.overallConfidence,
 });
 
-// =============================================================================
-// Tests
-// =============================================================================
-
 describe("ConfidenceScorer", () => {
   describe("applyDepthPenalty", () => {
     effect(
@@ -124,7 +93,7 @@ describe("ConfidenceScorer", () => {
         const result = scorer.applyDepthPenalty(1.0, 0);
 
         strictEqual(result, 1.0);
-      }, Effect.provide(ConfidenceScorer.Default))
+      }, Effect.provide(ConfidenceScorerLive))
     );
 
     effect(
@@ -133,9 +102,8 @@ describe("ConfidenceScorer", () => {
         const scorer = yield* ConfidenceScorer;
         const result = scorer.applyDepthPenalty(1.0, 1);
 
-        // 1.0 * (1.0 - 0.1 * 1) = 1.0 * 0.9 = 0.9
         strictEqual(result, 0.9);
-      }, Effect.provide(ConfidenceScorer.Default))
+      }, Effect.provide(ConfidenceScorerLive))
     );
 
     effect(
@@ -144,9 +112,8 @@ describe("ConfidenceScorer", () => {
         const scorer = yield* ConfidenceScorer;
         const result = scorer.applyDepthPenalty(1.0, 2);
 
-        // 1.0 * (1.0 - 0.1 * 2) = 1.0 * 0.8 = 0.8
         strictEqual(result, 0.8);
-      }, Effect.provide(ConfidenceScorer.Default))
+      }, Effect.provide(ConfidenceScorerLive))
     );
 
     effect(
@@ -156,11 +123,9 @@ describe("ConfidenceScorer", () => {
         const result5 = scorer.applyDepthPenalty(1.0, 5);
         const result10 = scorer.applyDepthPenalty(1.0, 10);
 
-        // depth 5: 1.0 * max(1.0 - 0.5, 0.5) = 0.5
         strictEqual(result5, 0.5);
-        // depth 10: would be 0.0 but min is 0.5
         strictEqual(result10, 0.5);
-      }, Effect.provide(ConfidenceScorer.Default))
+      }, Effect.provide(ConfidenceScorerLive))
     );
 
     effect(
@@ -169,10 +134,8 @@ describe("ConfidenceScorer", () => {
         const scorer = yield* ConfidenceScorer;
         const result = scorer.applyDepthPenalty(0.8, 2);
 
-        // 0.8 * (1.0 - 0.1 * 2) = 0.8 * 0.8 = 0.64
-        // Use tolerance for floating point comparison
-        assertTrue(Math.abs(result - 0.64) < 0.0001);
-      }, Effect.provide(ConfidenceScorer.Default))
+        assertTrue(result - 0.64 < 0.0001 && result - 0.64 > -0.0001);
+      }, Effect.provide(ConfidenceScorerLive))
     );
 
     effect(
@@ -180,14 +143,12 @@ describe("ConfidenceScorer", () => {
       Effect.fn(function* () {
         const scorer = yield* ConfidenceScorer;
 
-        // Edge case: negative base confidence should clamp to 0
         const resultLow = scorer.applyDepthPenalty(-0.5, 0);
         strictEqual(resultLow, 0.0);
 
-        // Edge case: greater than 1 should clamp to 1
         const resultHigh = scorer.applyDepthPenalty(1.5, 0);
         strictEqual(resultHigh, 1.0);
-      }, Effect.provide(ConfidenceScorer.Default))
+      }, Effect.provide(ConfidenceScorerLive))
     );
   });
 
@@ -208,7 +169,7 @@ describe("ConfidenceScorer", () => {
         strictEqual(scored.finalConfidence, 0.0);
         assertTrue(!scored.isGrounded);
         assertTrue(scored.shouldExclude);
-      }, Effect.provide(ConfidenceScorer.Default))
+      }, Effect.provide(ConfidenceScorerLive))
     );
 
     effect(
@@ -228,7 +189,7 @@ describe("ConfidenceScorer", () => {
         strictEqual(scored.finalConfidence, 1.0);
         assertTrue(scored.isGrounded);
         assertTrue(!scored.shouldExclude);
-      }, Effect.provide(ConfidenceScorer.Default))
+      }, Effect.provide(ConfidenceScorerLive))
     );
 
     effect(
@@ -245,12 +206,10 @@ describe("ConfidenceScorer", () => {
 
         const scored = scorer.scoreCitation(validationResult);
 
-        // Base confidence 0.8, depth 2 -> penalty multiplier 0.8
-        // 0.8 * 0.8 = 0.64 (use tolerance for floating point)
-        assertTrue(Math.abs(scored.finalConfidence - 0.64) < 0.0001);
-        assertTrue(scored.isGrounded); // 0.64 >= 0.5
-        assertTrue(!scored.shouldExclude); // 0.64 >= 0.3
-      }, Effect.provide(ConfidenceScorer.Default))
+        assertTrue(scored.finalConfidence - 0.64 < 0.0001 && scored.finalConfidence - 0.64 > -0.0001);
+        assertTrue(scored.isGrounded);
+        assertTrue(!scored.shouldExclude);
+      }, Effect.provide(ConfidenceScorerLive))
     );
 
     effect(
@@ -259,7 +218,6 @@ describe("ConfidenceScorer", () => {
         const scorer = yield* ConfidenceScorer;
         const citation = createCitation("Test claim", [testEntityId1]);
 
-        // Confidence exactly 0.5
         const validationResult = createValidationResult({
           citation,
           entityResults: [{ entityId: testEntityId1 as string, found: true, confidence: 0.5 }],
@@ -270,7 +228,7 @@ describe("ConfidenceScorer", () => {
 
         strictEqual(scored.finalConfidence, 0.5);
         assertTrue(scored.isGrounded);
-      }, Effect.provide(ConfidenceScorer.Default))
+      }, Effect.provide(ConfidenceScorerLive))
     );
 
     effect(
@@ -289,7 +247,7 @@ describe("ConfidenceScorer", () => {
 
         assertTrue(scored.finalConfidence < 0.5);
         assertTrue(!scored.isGrounded);
-      }, Effect.provide(ConfidenceScorer.Default))
+      }, Effect.provide(ConfidenceScorerLive))
     );
 
     effect(
@@ -308,7 +266,7 @@ describe("ConfidenceScorer", () => {
 
         assertTrue(scored.finalConfidence < 0.3);
         assertTrue(scored.shouldExclude);
-      }, Effect.provide(ConfidenceScorer.Default))
+      }, Effect.provide(ConfidenceScorerLive))
     );
 
     effect(
@@ -327,7 +285,7 @@ describe("ConfidenceScorer", () => {
 
         strictEqual(scored.finalConfidence, 0.3);
         assertTrue(!scored.shouldExclude);
-      }, Effect.provide(ConfidenceScorer.Default))
+      }, Effect.provide(ConfidenceScorerLive))
     );
 
     effect(
@@ -336,7 +294,6 @@ describe("ConfidenceScorer", () => {
         const scorer = yield* ConfidenceScorer;
         const citation = createCitation("Test", [testEntityId1]);
 
-        // Entity has high confidence, relation has low confidence
         const validationResult = createValidationResult({
           citation,
           entityResults: [{ entityId: testEntityId1 as string, found: true, confidence: 1.0 }],
@@ -352,7 +309,7 @@ describe("ConfidenceScorer", () => {
         const scored = scorer.scoreCitation(validationResult);
 
         strictEqual(scored.finalConfidence, 0.4);
-      }, Effect.provide(ConfidenceScorer.Default))
+      }, Effect.provide(ConfidenceScorerLive))
     );
 
     effect(
@@ -364,13 +321,13 @@ describe("ConfidenceScorer", () => {
         const validationResult = createValidationResult({
           citation,
           entityResults: [],
-          overallConfidence: 1.0, // No entities = defaults to 1.0
+          overallConfidence: 1.0,
         });
 
         const scored = scorer.scoreCitation(validationResult);
 
         strictEqual(scored.finalConfidence, 1.0);
-      }, Effect.provide(ConfidenceScorer.Default))
+      }, Effect.provide(ConfidenceScorerLive))
     );
   });
 
@@ -380,12 +337,9 @@ describe("ConfidenceScorer", () => {
       Effect.fn(function* () {
         const scorer = yield* ConfidenceScorer;
 
-        // Short claim (10 chars) with confidence 1.0, long claim (21 chars) with confidence 0.5
         const shortCitation = createCitation("Short text", [testEntityId1]);
         const longCitation = createCitation("This is a longer text", [testEntityId2]);
 
-        // scorer.scoreCitation uses minEntityConfidence from entityResults, not overallConfidence
-        // So we need to set the entity confidence directly
         const validationResults: ReadonlyArray<CitationValidationResult> = [
           createValidationResult({
             citation: shortCitation,
@@ -401,11 +355,9 @@ describe("ConfidenceScorer", () => {
 
         const scored = scorer.scoreAnswer("Full answer text", validationResults);
 
-        // Weight for short: 10, weight for long: 21
-        // Weighted avg: (1.0 * 10 + 0.5 * 21) / (10 + 21) = (10 + 10.5) / 31 = 20.5 / 31 ≈ 0.661
         assertTrue(scored.overallConfidence > 0.6);
         assertTrue(scored.overallConfidence < 0.7);
-      }, Effect.provide(ConfidenceScorer.Default))
+      }, Effect.provide(ConfidenceScorerLive))
     );
 
     effect(
@@ -421,25 +373,24 @@ describe("ConfidenceScorer", () => {
           createValidationResult({
             citation: citation1,
             entityResults: [createEntityResult(testEntityId1, true)],
-            overallConfidence: 1.0, // grounded
+            overallConfidence: 1.0,
           }),
           createValidationResult({
             citation: citation2,
             entityResults: [createEntityResult(testEntityId1, true)],
-            overallConfidence: 0.6, // grounded
+            overallConfidence: 0.6,
           }),
           createValidationResult({
             citation: citation3,
             entityResults: [createEntityResult(testEntityId1, false)],
-            overallConfidence: 0.0, // not grounded
+            overallConfidence: 0.0,
           }),
         ];
 
         const scored = scorer.scoreAnswer("Answer text", validationResults);
 
-        // 2 out of 3 are grounded
         strictEqual(scored.groundedRatio, 2 / 3);
-      }, Effect.provide(ConfidenceScorer.Default))
+      }, Effect.provide(ConfidenceScorerLive))
     );
 
     effect(
@@ -466,7 +417,7 @@ describe("ConfidenceScorer", () => {
         const scored = scorer.scoreAnswer("Answer", validationResults);
 
         strictEqual(scored.groundedRatio, 0);
-      }, Effect.provide(ConfidenceScorer.Default))
+      }, Effect.provide(ConfidenceScorerLive))
     );
 
     effect(
@@ -479,7 +430,7 @@ describe("ConfidenceScorer", () => {
         strictEqual(scored.overallConfidence, 0);
         strictEqual(scored.groundedRatio, 0);
         strictEqual(A.length(scored.citations), 0);
-      }, Effect.provide(ConfidenceScorer.Default))
+      }, Effect.provide(ConfidenceScorerLive))
     );
 
     effect(
@@ -507,7 +458,7 @@ describe("ConfidenceScorer", () => {
 
         strictEqual(A.length(scored.citations), 2);
         strictEqual(scored.text, "Answer");
-      }, Effect.provide(ConfidenceScorer.Default))
+      }, Effect.provide(ConfidenceScorerLive))
     );
   });
 
@@ -519,7 +470,7 @@ describe("ConfidenceScorer", () => {
         const result = scorer.weightedAverage([]);
 
         strictEqual(result, 0);
-      }, Effect.provide(ConfidenceScorer.Default))
+      }, Effect.provide(ConfidenceScorerLive))
     );
 
     effect(
@@ -532,7 +483,7 @@ describe("ConfidenceScorer", () => {
         ]);
 
         strictEqual(result, 0);
-      }, Effect.provide(ConfidenceScorer.Default))
+      }, Effect.provide(ConfidenceScorerLive))
     );
 
     effect(
@@ -544,9 +495,8 @@ describe("ConfidenceScorer", () => {
           { value: 0.5, weight: 1 },
         ]);
 
-        // (1.0 * 1 + 0.5 * 1) / 2 = 0.75
         strictEqual(result, 0.75);
-      }, Effect.provide(ConfidenceScorer.Default))
+      }, Effect.provide(ConfidenceScorerLive))
     );
 
     effect(
@@ -558,9 +508,8 @@ describe("ConfidenceScorer", () => {
           { value: 0.0, weight: 1 },
         ]);
 
-        // (1.0 * 3 + 0.0 * 1) / 4 = 0.75
         strictEqual(result, 0.75);
-      }, Effect.provide(ConfidenceScorer.Default))
+      }, Effect.provide(ConfidenceScorerLive))
     );
 
     effect(
@@ -570,7 +519,7 @@ describe("ConfidenceScorer", () => {
         const result = scorer.weightedAverage([{ value: 0.7, weight: 10 }]);
 
         strictEqual(result, 0.7);
-      }, Effect.provide(ConfidenceScorer.Default))
+      }, Effect.provide(ConfidenceScorerLive))
     );
 
     effect(
@@ -578,14 +527,10 @@ describe("ConfidenceScorer", () => {
       Effect.fn(function* () {
         const scorer = yield* ConfidenceScorer;
 
-        // This shouldn't happen in practice, but test the clamping
-        const result = scorer.weightedAverage([
-          { value: 1.5, weight: 1 }, // Invalid but possible input
-        ]);
+        const result = scorer.weightedAverage([{ value: 1.5, weight: 1 }]);
 
-        // Should be clamped to 1.0
         strictEqual(result, 1.0);
-      }, Effect.provide(ConfidenceScorer.Default))
+      }, Effect.provide(ConfidenceScorerLive))
     );
   });
 

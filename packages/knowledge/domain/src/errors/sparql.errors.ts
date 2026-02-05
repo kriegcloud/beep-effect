@@ -1,22 +1,8 @@
-/**
- * SPARQL errors for Knowledge slice
- *
- * Typed errors for SPARQL query operations (syntax, execution, timeout).
- *
- * @module knowledge-domain/errors/sparql
- * @since 0.1.0
- */
 import { $KnowledgeDomainId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
 
 const $I = $KnowledgeDomainId.create("errors/sparql");
 
-/**
- * SPARQL query syntax error
- *
- * @since 0.1.0
- * @category errors
- */
 export class SparqlSyntaxError extends S.TaggedError<SparqlSyntaxError>($I`SparqlSyntaxError`)(
   "SparqlSyntaxError",
   {
@@ -30,12 +16,6 @@ export class SparqlSyntaxError extends S.TaggedError<SparqlSyntaxError>($I`Sparq
   })
 ) {}
 
-/**
- * SPARQL query timeout error
- *
- * @since 0.1.0
- * @category errors
- */
 export class SparqlTimeoutError extends S.TaggedError<SparqlTimeoutError>($I`SparqlTimeoutError`)(
   "SparqlTimeoutError",
   {
@@ -48,12 +28,6 @@ export class SparqlTimeoutError extends S.TaggedError<SparqlTimeoutError>($I`Spa
   })
 ) {}
 
-/**
- * SPARQL query execution error
- *
- * @since 0.1.0
- * @category errors
- */
 export class SparqlExecutionError extends S.TaggedError<SparqlExecutionError>($I`SparqlExecutionError`)(
   "SparqlExecutionError",
   {
@@ -66,14 +40,6 @@ export class SparqlExecutionError extends S.TaggedError<SparqlExecutionError>($I
   })
 ) {}
 
-/**
- * SPARQL unsupported feature error
- *
- * Indicates the query uses a SPARQL feature not supported by the implementation.
- *
- * @since 0.1.0
- * @category errors
- */
 export class SparqlUnsupportedFeatureError extends S.TaggedError<SparqlUnsupportedFeatureError>(
   $I`SparqlUnsupportedFeatureError`
 )(
@@ -88,12 +54,6 @@ export class SparqlUnsupportedFeatureError extends S.TaggedError<SparqlUnsupport
   })
 ) {}
 
-/**
- * Union of all SPARQL error types
- *
- * @since 0.1.0
- * @category errors
- */
 export class SparqlError extends S.Union(
   SparqlSyntaxError,
   SparqlTimeoutError,

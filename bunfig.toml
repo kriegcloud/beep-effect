@@ -23,4 +23,4 @@ registry = "https://buf.build/gen/npm/v1"
 
 [test]
 preload = ["./tooling/testkit/src/test-preload.ts"]
-exclude = ["./tmp/**/*", "./node_modules/**/*"]
+exclude = ["./tmp/**/*", "./node_modules/**/*", "./.repos/**/*"]

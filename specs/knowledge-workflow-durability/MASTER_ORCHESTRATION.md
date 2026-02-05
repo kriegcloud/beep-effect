@@ -4,6 +4,32 @@
 
 ---
 
+## ⚠️ CRITICAL: API Verification Required
+
+**IMPORTANT**: The code examples in this spec are conceptual guidance, NOT verified API patterns. Before implementing:
+
+1. **Tables auto-created**: `@effect/cluster` creates tables automatically via `SqlMessageStorage`/`SqlRunnerStorage`. Do NOT create custom Drizzle tables for workflow persistence.
+
+2. **Activity factory pattern**: Activities use a factory function with input captured in closure:
+   ```typescript
+   // CORRECT: Factory function with closure-captured input
+   export const makeMyActivity = (input: MyInput) =>
+     Activity.make({
+       name: `my-activity-${input.id}`,
+       success: OutputSchema,
+       error: ErrorSchema,
+       execute: Effect.gen(function*() {
+         // input is captured in closure, NOT passed to execute
+         return yield* doWork(input)
+       })
+     })
+   // Usage: makeMyActivity(input).execute
+   ```
+
+3. **Verify all APIs**: Cross-reference `.repos/effect-ontology/packages/@core-v2/src/` for canonical patterns.
+
+---
+
 ## Overview
 
 This specification orchestrates the integration of @effect/workflow runtime into the knowledge slice, transforming the current single-Effect ExtractionPipeline into a durable, resumable workflow that survives server restarts and provides real-time progress streaming.
@@ -13,9 +39,9 @@ This specification orchestrates the integration of @effect/workflow runtime into
 ```mermaid
 flowchart TD
     subgraph Phase1["Phase 1: Workflow Integration"]
-        P1A[Add EntityIds] --> P1B[Create Workflow Tables]
-        P1B --> P1C[Implement WorkflowPersistence]
-        P1C --> P1D[Create WorkflowService]
+        P1A[Install Dependencies] --> P1B[Create PostgresLayer]
+        P1B --> P1C[Create ClusterRuntime]
+        P1C --> P1D[Implement WorkflowOrchestrator]
     end
 
     subgraph Phase2["Phase 2: ExtractionWorkflow Definition"]

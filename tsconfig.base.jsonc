@@ -237,15 +237,6 @@
       "@beep/shared-ai/test/*": [
         "./packages/shared/ai/test/*"
       ],
-      "@beep/shared-integrations": [
-        "./packages/shared/integrations/src/index"
-      ],
-      "@beep/shared-integrations/*": [
-        "./packages/shared/integrations/src/*"
-      ],
-      "@beep/shared-integrations/test/*": [
-        "./packages/shared/integrations/test/*"
-      ],
       "@beep/ui-core/*": [
         "./packages/ui/core/src/*"
       ],

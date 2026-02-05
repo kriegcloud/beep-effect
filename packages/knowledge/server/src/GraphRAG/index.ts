@@ -1,10 +1,3 @@
-/**
- * GraphRAG module exports
- *
- * @module knowledge-server/GraphRAG
- * @since 0.1.0
- */
-
 export * as AnswerSchemas from "./AnswerSchemas";
 export * as CitationParser from "./CitationParser";
 export * from "./CitationValidator";

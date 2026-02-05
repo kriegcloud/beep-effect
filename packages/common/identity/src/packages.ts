@@ -42,7 +42,6 @@ const composers = $I.compose(
   "ui-editor",
   "iam-ui",
   "shared-ai",
-  "shared-integrations",
   "shared-server",
   "identity",
   "utils",
@@ -924,21 +923,6 @@ export const $KnowledgeUiId = composers.$KnowledgeUiId;
  * @since 0.1.0
  */
 export const $SharedAiId = composers.$SharedAiId;
-
-/**
- * Identity composer for the `@beep/wrap` namespace.
- *
- * @example
- * ```typescript
- * import { $SharedIntegrationsId } from "@beep/identity/packages"
- *
- * const componentId = $SharedIntegrationsId.make("EventCard")
- * ```
- *
- * @category symbols
- * @since 0.1.0
- */
-export const $SharedIntegrationsId = composers.$SharedIntegrationsId;
 
 /**
  * Identity composer for the `@beep/wrap` namespace.

@@ -1,22 +1,14 @@
-/**
- * GraphAssembler Tests
- *
- * Tests for knowledge graph construction.
- *
- * @module knowledge-server/test/Extraction/GraphAssembler.test
- * @since 0.1.0
- */
-
-import { GraphAssembler } from "@beep/knowledge-server/Extraction/GraphAssembler";
+import { GraphAssembler, GraphAssemblerLive } from "@beep/knowledge-server/Extraction/GraphAssembler";
 import { ClassifiedEntity } from "@beep/knowledge-server/Extraction/schemas/entity-output.schema";
 import { ExtractedTriple } from "@beep/knowledge-server/Extraction/schemas/relation-output.schema";
 import { KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import { assertTrue, describe, layer, strictEqual } from "@beep/testkit";
+import * as A from "effect/Array";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 
 describe("GraphAssembler", () => {
-  layer(GraphAssembler.Default, { timeout: Duration.seconds(60) })("GraphAssembler operations", (it) => {
+  layer(GraphAssemblerLive, { timeout: Duration.seconds(60) })("GraphAssembler operations", (it) => {
     it.effect(
       "assembles entities into graph",
       Effect.fn(function* () {
@@ -36,7 +28,7 @@ describe("GraphAssembler", () => {
 
         strictEqual(graph.stats.entityCount, 2);
         strictEqual(graph.stats.relationCount, 0);
-        strictEqual(graph.entities.length, 2);
+        strictEqual(A.length(graph.entities), 2);
       })
     );
 
@@ -69,7 +61,6 @@ describe("GraphAssembler", () => {
         strictEqual(graph.stats.unresolvedSubjects, 0);
         strictEqual(graph.stats.unresolvedObjects, 0);
 
-        // Verify relation has valid entity IDs
         const relation = graph.relations[0];
         assertTrue(relation !== undefined);
         assertTrue(graph.entityIndex.john !== undefined);

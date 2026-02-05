@@ -1,15 +1,7 @@
-/**
- * MentionExtractor Tests
- *
- * Tests for entity mention detection service.
- *
- * @module knowledge-server/test/Extraction/MentionExtractor.test
- * @since 0.1.0
- */
-
-import { MentionExtractor } from "@beep/knowledge-server/Extraction/MentionExtractor";
+import { MentionExtractor, MentionExtractorLive } from "@beep/knowledge-server/Extraction/MentionExtractor";
 import { TextChunk } from "@beep/knowledge-server/Nlp/TextChunk";
 import { assertTrue, describe, effect, strictEqual } from "@beep/testkit";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import { withLanguageModel } from "../_shared/TestLayers";
 
@@ -30,13 +22,13 @@ describe("MentionExtractor", () => {
 
         const result = yield* extractor.extractFromChunk(chunk);
 
-        strictEqual(result.mentions.length, 2);
+        strictEqual(A.length(result.mentions), 2);
         strictEqual(result.mentions[0]?.text, "John Smith");
         strictEqual(result.mentions[0]?.suggestedType, "Person");
         strictEqual(result.mentions[1]?.text, "Acme Corp");
         strictEqual(result.tokensUsed, 150);
       },
-      Effect.provide(MentionExtractor.Default),
+      Effect.provide(MentionExtractorLive),
       withLanguageModel({
         generateObject: (objectName: string | undefined) =>
           objectName === "MentionOutput"
@@ -66,10 +58,10 @@ describe("MentionExtractor", () => {
 
         const result = yield* extractor.extractFromChunk(chunk, { minConfidence: 0.5 });
 
-        strictEqual(result.mentions.length, 1);
+        strictEqual(A.length(result.mentions), 1);
         strictEqual(result.mentions[0]?.text, "John");
       },
-      Effect.provide(MentionExtractor.Default),
+      Effect.provide(MentionExtractorLive),
       withLanguageModel({
         generateObject: (objectName: string | undefined) =>
           objectName === "MentionOutput"
@@ -99,11 +91,11 @@ describe("MentionExtractor", () => {
 
         const result = yield* extractor.extractFromChunk(chunk);
 
-        strictEqual(result.mentions.length, 1);
+        strictEqual(A.length(result.mentions), 1);
         strictEqual(result.mentions[0]?.startChar, 100);
         strictEqual(result.mentions[0]?.endChar, 105);
       },
-      Effect.provide(MentionExtractor.Default),
+      Effect.provide(MentionExtractorLive),
       withLanguageModel({
         generateObject: (objectName: string | undefined) =>
           objectName === "MentionOutput"
@@ -126,11 +118,11 @@ describe("MentionExtractor", () => {
 
         const results = yield* extractor.extractFromChunks(chunks);
 
-        strictEqual(results.length, 2);
-        strictEqual(results[0]?.mentions.length, 1);
-        strictEqual(results[1]?.mentions.length, 1);
+        strictEqual(A.length(results), 2);
+        strictEqual(A.length(results[0]?.mentions ?? []), 1);
+        strictEqual(A.length(results[1]?.mentions ?? []), 1);
       },
-      Effect.provide(MentionExtractor.Default),
+      Effect.provide(MentionExtractorLive),
       withLanguageModel({
         generateObject: (objectName: string | undefined) =>
           objectName === "MentionOutput"
@@ -174,11 +166,11 @@ describe("MentionExtractor", () => {
 
         const merged = yield* extractor.mergeMentions(results);
 
-        strictEqual(merged.length, 1);
+        strictEqual(A.length(merged), 1);
         strictEqual(merged[0]?.text, "John");
         strictEqual(merged[0]?.confidence, 0.95);
       },
-      Effect.provide(MentionExtractor.Default),
+      Effect.provide(MentionExtractorLive),
       withLanguageModel({})
     ),
     TEST_TIMEOUT
@@ -198,10 +190,10 @@ describe("MentionExtractor", () => {
 
         const result = yield* extractor.extractFromChunk(chunk);
 
-        strictEqual(result.mentions.length, 0);
+        strictEqual(A.length(result.mentions), 0);
         assertTrue(result.tokensUsed >= 0);
       },
-      Effect.provide(MentionExtractor.Default),
+      Effect.provide(MentionExtractorLive),
       withLanguageModel({
         generateObject: (objectName: string | undefined) => (objectName === "MentionOutput" ? { mentions: [] } : {}),
       })

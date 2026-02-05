@@ -1,36 +1,18 @@
-/**
- * Relation RPC Layer composition
- *
- * Wires Relation RPC handlers with authentication middleware.
- * All handlers are currently stubs pending implementation.
- *
- * @module knowledge-server/rpc/v1/relation/_rpcs
- * @since 0.1.0
- */
-import { Entities } from "@beep/knowledge-domain";
+import { Rpc as RpcContracts } from "@beep/knowledge-domain";
 import { Policy } from "@beep/shared-domain";
+import * as Effect from "effect/Effect";
 
-const RelationRpcsWithMiddleware = Entities.Relation.Rpc.Rpcs.middleware(Policy.AuthContextRpcMiddleware);
+const RelationRpcsWithMiddleware = RpcContracts.Relation.Rpcs.middleware(Policy.AuthContextRpcMiddleware);
+
+const notImplemented = Effect.die("Not implemented");
 
 const implementation = RelationRpcsWithMiddleware.of({
-  relation_get: () => {
-    throw new Error("Not implemented");
-  },
-  relation_listByEntity: () => {
-    throw new Error("Not implemented");
-  },
-  relation_listByPredicate: () => {
-    throw new Error("Not implemented");
-  },
-  relation_create: () => {
-    throw new Error("Not implemented");
-  },
-  relation_delete: () => {
-    throw new Error("Not implemented");
-  },
-  relation_count: () => {
-    throw new Error("Not implemented");
-  },
+  relation_get: () => notImplemented,
+  relation_listByEntity: () => notImplemented,
+  relation_listByPredicate: () => notImplemented,
+  relation_create: () => notImplemented,
+  relation_delete: () => notImplemented,
+  relation_count: () => notImplemented,
 });
 
 export const layer = RelationRpcsWithMiddleware.toLayer(implementation);

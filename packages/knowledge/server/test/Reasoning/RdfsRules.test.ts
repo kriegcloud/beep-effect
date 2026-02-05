@@ -1,26 +1,17 @@
-/**
- * RDFS Rules Tests
- *
- * Tests for RDFS entailment rules.
- *
- * @module knowledge-server/test/Reasoning/RdfsRules
- * @since 0.1.0
- */
-import { makeIRI, Quad } from "@beep/knowledge-domain/value-objects";
+import { IRI, Quad } from "@beep/knowledge-domain/value-objects";
 import { quadId, type RuleInference, rdfs2, rdfs3, rdfs9, rdfs11 } from "@beep/knowledge-server/Reasoning/RdfsRules";
 import { assertTrue, describe, effect, strictEqual } from "@beep/testkit";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import * as Str from "effect/String";
 
-// Standard namespace IRIs
-const RDF_TYPE = makeIRI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
-const RDFS_DOMAIN = makeIRI("http://www.w3.org/2000/01/rdf-schema#domain");
-const RDFS_RANGE = makeIRI("http://www.w3.org/2000/01/rdf-schema#range");
-const RDFS_SUBCLASS_OF = makeIRI("http://www.w3.org/2000/01/rdf-schema#subClassOf");
+const RDF_TYPE = IRI.make("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
+const RDFS_DOMAIN = IRI.make("http://www.w3.org/2000/01/rdf-schema#domain");
+const RDFS_RANGE = IRI.make("http://www.w3.org/2000/01/rdf-schema#range");
+const RDFS_SUBCLASS_OF = IRI.make("http://www.w3.org/2000/01/rdf-schema#subClassOf");
 
-// Test namespace
 const EX = "http://example.org/";
-const ex = (name: string) => makeIRI(`${EX}${name}`);
+const ex = (name: string) => IRI.make(`${EX}${name}`);
 
 describe("RdfsRules", () => {
   describe("quadId", () => {
@@ -37,8 +28,8 @@ describe("RdfsRules", () => {
         const id2 = quadId(quad);
 
         strictEqual(id1, id2);
-        assertTrue(id1.includes("alice"));
-        assertTrue(id1.includes("Person"));
+        assertTrue(Str.includes("alice")(id1));
+        assertTrue(Str.includes("Person")(id1));
       })
     );
   });
@@ -48,13 +39,11 @@ describe("RdfsRules", () => {
       "infers subject type from property domain",
       Effect.fn(function* () {
         const quads = [
-          // enrolledIn rdfs:domain Student
           new Quad({
             subject: ex("enrolledIn"),
             predicate: RDFS_DOMAIN,
             object: ex("Student"),
           }),
-          // alice enrolledIn CS101
           new Quad({
             subject: ex("alice"),
             predicate: ex("enrolledIn"),
@@ -95,13 +84,11 @@ describe("RdfsRules", () => {
       "infers object type from property range",
       Effect.fn(function* () {
         const quads = [
-          // enrolledIn rdfs:range Course
           new Quad({
             subject: ex("enrolledIn"),
             predicate: RDFS_RANGE,
             object: ex("Course"),
           }),
-          // alice enrolledIn CS101
           new Quad({
             subject: ex("alice"),
             predicate: ex("enrolledIn"),
@@ -125,13 +112,11 @@ describe("RdfsRules", () => {
       "infers type from subclass hierarchy",
       Effect.fn(function* () {
         const quads = [
-          // alice rdf:type Student
           new Quad({
             subject: ex("alice"),
             predicate: RDF_TYPE,
             object: ex("Student"),
           }),
-          // Student rdfs:subClassOf Person
           new Quad({
             subject: ex("Student"),
             predicate: RDFS_SUBCLASS_OF,
@@ -184,13 +169,11 @@ describe("RdfsRules", () => {
       "infers transitive subclass relationships",
       Effect.fn(function* () {
         const quads = [
-          // Student rdfs:subClassOf Person
           new Quad({
             subject: ex("Student"),
             predicate: RDFS_SUBCLASS_OF,
             object: ex("Person"),
           }),
-          // Person rdfs:subClassOf Agent
           new Quad({
             subject: ex("Person"),
             predicate: RDFS_SUBCLASS_OF,
@@ -231,7 +214,6 @@ describe("RdfsRules", () => {
 
         const inferences = rdfs11.apply(quads);
 
-        // Should infer A->C, B->D, and potentially A->D depending on iteration
         assertTrue(A.length(inferences) >= 2);
       })
     );

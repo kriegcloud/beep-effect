@@ -1,11 +1,3 @@
-/**
- * EntityCluster Repository
- *
- * Database operations for EntityCluster entities.
- *
- * @module knowledge-server/db/repos/EntityCluster
- * @since 0.1.0
- */
 import { $KnowledgeServerId } from "@beep/identity/packages";
 import { Entities } from "@beep/knowledge-domain";
 import { KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
@@ -13,16 +5,16 @@ import { DatabaseError } from "@beep/shared-domain/errors";
 import { DbRepo } from "@beep/shared-domain/factories";
 import * as SqlClient from "@effect/sql/SqlClient";
 import * as SqlSchema from "@effect/sql/SqlSchema";
+import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
+import * as Layer from "effect/Layer";
 import type * as O from "effect/Option";
 import * as S from "effect/Schema";
-import { dependencies } from "./_common";
+import { KnowledgeDb } from "../Db";
 
 const $I = $KnowledgeServerId.create("db/repos/EntityClusterRepo");
 
 const tableName = KnowledgeEntityIds.EntityClusterId.tableName;
-
-// --- Request Schemas ---
 
 class FindByCanonicalEntityRequest extends S.Class<FindByCanonicalEntityRequest>("FindByCanonicalEntityRequest")({
   canonicalEntityId: KnowledgeEntityIds.KnowledgeEntityId,
@@ -30,12 +22,12 @@ class FindByCanonicalEntityRequest extends S.Class<FindByCanonicalEntityRequest>
 }) {}
 
 class FindByMemberRequest extends S.Class<FindByMemberRequest>("FindByMemberRequest")({
-  memberId: S.String,
+  memberId: KnowledgeEntityIds.KnowledgeEntityId,
   organizationId: SharedEntityIds.OrganizationId,
 }) {}
 
 class FindClustersByOntologyRequest extends S.Class<FindClustersByOntologyRequest>("FindClustersByOntologyRequest")({
-  ontologyId: S.String,
+  ontologyId: KnowledgeEntityIds.OntologyId,
   organizationId: SharedEntityIds.OrganizationId,
   limit: S.Number,
 }) {}
@@ -47,17 +39,12 @@ class FindHighCohesionRequest extends S.Class<FindHighCohesionRequest>("FindHigh
 }) {}
 
 class DeleteByOntologyRequest extends S.Class<DeleteByOntologyRequest>("DeleteByOntologyRequest")({
-  ontologyId: S.String,
+  ontologyId: KnowledgeEntityIds.OntologyId,
   organizationId: SharedEntityIds.OrganizationId,
 }) {}
 
-/**
- * Custom repo operations for entity clusters
- */
 const makeEntityClusterExtensions = Effect.gen(function* () {
   const sql = yield* SqlClient.SqlClient;
-
-  // --- SqlSchemas ---
 
   const findByCanonicalEntitySchema = SqlSchema.findOne({
     Request: FindByCanonicalEntityRequest,
@@ -118,15 +105,6 @@ const makeEntityClusterExtensions = Effect.gen(function* () {
     `,
   });
 
-  // --- Methods ---
-
-  /**
-   * Find cluster by canonical entity ID
-   *
-   * @param canonicalEntityId - The canonical entity ID
-   * @param organizationId - Organization ID for scoping
-   * @returns Option of the matching cluster
-   */
   const findByCanonicalEntity = (
     canonicalEntityId: KnowledgeEntityIds.KnowledgeEntityId.Type,
     organizationId: SharedEntityIds.OrganizationId.Type
@@ -140,15 +118,8 @@ const makeEntityClusterExtensions = Effect.gen(function* () {
       })
     );
 
-  /**
-   * Find cluster containing a specific member entity
-   *
-   * @param memberId - The member entity ID to search for
-   * @param organizationId - Organization ID for scoping
-   * @returns Option of the cluster containing this member
-   */
   const findByMember = (
-    memberId: string,
+    memberId: KnowledgeEntityIds.KnowledgeEntityId.Type,
     organizationId: SharedEntityIds.OrganizationId.Type
   ): Effect.Effect<O.Option<Entities.EntityCluster.Model>, DatabaseError> =>
     findByMemberSchema({ memberId, organizationId }).pipe(
@@ -160,16 +131,8 @@ const makeEntityClusterExtensions = Effect.gen(function* () {
       })
     );
 
-  /**
-   * Find clusters by ontology ID
-   *
-   * @param ontologyId - The ontology ID
-   * @param organizationId - Organization ID for scoping
-   * @param limit - Maximum results
-   * @returns Array of matching clusters
-   */
   const findByOntology = (
-    ontologyId: string,
+    ontologyId: KnowledgeEntityIds.OntologyId.Type,
     organizationId: SharedEntityIds.OrganizationId.Type,
     limit = 100
   ): Effect.Effect<ReadonlyArray<Entities.EntityCluster.Model>, DatabaseError> =>
@@ -182,14 +145,6 @@ const makeEntityClusterExtensions = Effect.gen(function* () {
       })
     );
 
-  /**
-   * Find clusters with high cohesion
-   *
-   * @param minCohesion - Minimum cohesion score (0-1)
-   * @param organizationId - Organization ID for scoping
-   * @param limit - Maximum results
-   * @returns Array of clusters meeting threshold
-   */
   const findHighCohesion = (
     minCohesion: number,
     organizationId: SharedEntityIds.OrganizationId.Type,
@@ -204,14 +159,8 @@ const makeEntityClusterExtensions = Effect.gen(function* () {
       })
     );
 
-  /**
-   * Delete clusters by ontology
-   *
-   * @param ontologyId - The ontology ID
-   * @param organizationId - Organization ID for scoping
-   */
   const deleteByOntology = (
-    ontologyId: string,
+    ontologyId: KnowledgeEntityIds.OntologyId.Type,
     organizationId: SharedEntityIds.OrganizationId.Type
   ): Effect.Effect<void, DatabaseError> =>
     deleteByOntologySchema({ ontologyId, organizationId }).pipe(
@@ -232,16 +181,19 @@ const makeEntityClusterExtensions = Effect.gen(function* () {
   };
 });
 
-/**
- * EntityClusterRepo Effect.Service
- *
- * Provides CRUD operations for EntityCluster entities.
- *
- * @since 0.1.0
- * @category services
- */
-export class EntityClusterRepo extends Effect.Service<EntityClusterRepo>()($I`EntityClusterRepo`, {
-  dependencies,
-  accessors: true,
-  effect: DbRepo.make(KnowledgeEntityIds.EntityClusterId, Entities.EntityCluster.Model, makeEntityClusterExtensions),
-}) {}
+const serviceEffect = DbRepo.make(
+  KnowledgeEntityIds.EntityClusterId,
+  Entities.EntityCluster.Model,
+  makeEntityClusterExtensions
+);
+
+export type EntityClusterRepoShape = Effect.Effect.Success<typeof serviceEffect>;
+
+export class EntityClusterRepo extends Context.Tag($I`EntityClusterRepo`)<
+  EntityClusterRepo,
+  EntityClusterRepoShape
+>() {}
+
+export const EntityClusterRepoLive = Layer.effect(EntityClusterRepo, serviceEffect).pipe(
+  Layer.provide(KnowledgeDb.layer)
+);

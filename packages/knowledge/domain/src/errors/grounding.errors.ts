@@ -1,26 +1,13 @@
-/**
- * Grounding errors for Knowledge slice
- *
- * Typed errors for entity grounding/verification operations.
- *
- * @module knowledge-domain/errors/grounding
- * @since 0.1.0
- */
 import { $KnowledgeDomainId } from "@beep/identity/packages";
+import { KnowledgeEntityIds } from "@beep/shared-domain";
 import * as S from "effect/Schema";
 
 const $I = $KnowledgeDomainId.create("errors/grounding");
 
-/**
- * Entity not found in source text during grounding
- *
- * @since 0.1.0
- * @category errors
- */
 export class EntityNotGroundedError extends S.TaggedError<EntityNotGroundedError>($I`EntityNotGroundedError`)(
   "EntityNotGroundedError",
   {
-    entityId: S.String,
+    entityId: KnowledgeEntityIds.KnowledgeEntityId,
     mention: S.String,
     documentId: S.optional(S.String),
     message: S.String,
@@ -30,16 +17,10 @@ export class EntityNotGroundedError extends S.TaggedError<EntityNotGroundedError
   })
 ) {}
 
-/**
- * Type mismatch during grounding
- *
- * @since 0.1.0
- * @category errors
- */
 export class TypeMismatchError extends S.TaggedError<TypeMismatchError>($I`TypeMismatchError`)(
   "TypeMismatchError",
   {
-    entityId: S.String,
+    entityId: KnowledgeEntityIds.KnowledgeEntityId,
     expectedTypes: S.Array(S.String),
     actualTypes: S.Array(S.String),
     message: S.String,
@@ -49,12 +30,6 @@ export class TypeMismatchError extends S.TaggedError<TypeMismatchError>($I`TypeM
   })
 ) {}
 
-/**
- * Embedding service failure during grounding
- *
- * @since 0.1.0
- * @category errors
- */
 export class EmbeddingServiceError extends S.TaggedError<EmbeddingServiceError>($I`EmbeddingServiceError`)(
   "EmbeddingServiceError",
   {
@@ -68,16 +43,10 @@ export class EmbeddingServiceError extends S.TaggedError<EmbeddingServiceError>(
   })
 ) {}
 
-/**
- * Similarity threshold not met during grounding
- *
- * @since 0.1.0
- * @category errors
- */
 export class LowConfidenceError extends S.TaggedError<LowConfidenceError>($I`LowConfidenceError`)(
   "LowConfidenceError",
   {
-    entityId: S.String,
+    entityId: KnowledgeEntityIds.KnowledgeEntityId,
     confidence: S.Number,
     threshold: S.Number,
     message: S.String,
@@ -87,16 +56,10 @@ export class LowConfidenceError extends S.TaggedError<LowConfidenceError>($I`Low
   })
 ) {}
 
-/**
- * Grounding timeout error
- *
- * @since 0.1.0
- * @category errors
- */
 export class GroundingTimeoutError extends S.TaggedError<GroundingTimeoutError>($I`GroundingTimeoutError`)(
   "GroundingTimeoutError",
   {
-    entityId: S.optional(S.String),
+    entityId: S.optional(KnowledgeEntityIds.KnowledgeEntityId),
     stage: S.String,
     durationMs: S.Number,
     message: S.String,
@@ -106,16 +69,10 @@ export class GroundingTimeoutError extends S.TaggedError<GroundingTimeoutError>(
   })
 ) {}
 
-/**
- * Generic grounding error (fallback)
- *
- * @since 0.1.0
- * @category errors
- */
 export class GroundingGenericError extends S.TaggedError<GroundingGenericError>($I`GroundingGenericError`)(
   "GroundingGenericError",
   {
-    entityId: S.optional(S.String),
+    entityId: S.optional(KnowledgeEntityIds.KnowledgeEntityId),
     message: S.String,
     cause: S.optional(S.String),
   },
@@ -124,12 +81,6 @@ export class GroundingGenericError extends S.TaggedError<GroundingGenericError>(
   })
 ) {}
 
-/**
- * Union of all grounding error types
- *
- * @since 0.1.0
- * @category errors
- */
 export class GroundingError extends S.Union(
   EntityNotGroundedError,
   TypeMismatchError,

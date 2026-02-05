@@ -4,6 +4,8 @@ import { Slug, Url } from "@beep/schema/primitives";
 import { makeFields } from "@beep/shared-domain/common";
 import { modelKit } from "@beep/shared-domain/factories";
 import * as M from "@effect/sql/Model";
+import * as Arbitrary from "effect/Arbitrary";
+import * as FC from "effect/FastCheck";
 import * as S from "effect/Schema";
 import { SharedEntityIds } from "../../entity-ids";
 import { OrganizationType, OrganizationTypeEnum, SubscriptionStatus, SubscriptionTier } from "./schemas";
@@ -68,4 +70,7 @@ export class Model extends M.Class<Model>($I`OrganizationModel`)(
   })
 ) {
   static readonly utils = modelKit(Model);
+  static readonly Arb = Arbitrary.make(Model);
+  static readonly MockOne = () => this.Mock(1)[0]!;
+  static readonly Mock = (qty = 1) => FC.sample(this.Arb, qty);
 }

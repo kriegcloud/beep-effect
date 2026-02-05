@@ -483,3 +483,110 @@ When creating Google Workspace adapters:
      extractedAt: DateTime.Utc;
    }
    ```
+
+---
+
+### Phase 6: Final Verification (2026-02-04)
+
+**What Worked:**
+
+1. **Three-tier architecture cleanly separates concerns**: Infrastructure (domain errors, token model, scopes), Auth Context (OAuth API via Better Auth), and ACL (slice-specific adapters) each have clear responsibilities
+2. **AuthContext.oauth bridges IAM and integrations without tight coupling**: Integration packages access OAuth tokens via `AuthContext.oauth` without importing from `@beep/iam-server`
+3. **Slice-specific adapters allow per-slice scope requirements**: Calendar needs `events` scope, Comms needs `send` + `read`, Knowledge needs only `read`
+4. **Layer composition in `GoogleWorkspace.layer.ts` makes dependencies explicit**: All three adapters share the same `GoogleAuthLayer` with proper `AuthContext` requirement
+5. **Zero cross-slice dependencies verified**: All adapters depend only on `@beep/google-workspace-*` packages and `@beep/shared-domain/Policy`
+
+**What Didn't Work:**
+
+1. **Initial IntegrationTokenStore approach (P2)**: Created unnecessary complexity when Better Auth already handles token storage - this was caught and refactored mid-implementation
+2. **Verification file template placeholders**: Initial outputs had incomplete placeholders that required manual completion
+
+**Methodology Improvements:**
+
+1. **Research existing infrastructure first**: Before creating new services, check if existing frameworks (Better Auth, Effect Platform) already provide needed functionality
+2. **Strict slice boundary enforcement**: If an approach requires importing from another slice's server package, reconsider the architecture immediately
+3. **AuthContext extension pattern**: For cross-cutting concerns that need user context, extend AuthContext rather than creating new services
+
+**Codebase-Specific Insights:**
+
+1. **Better Auth's `account` table**: Already stores OAuth tokens with automatic refresh - no custom token table needed
+2. **AuthContext pattern**: Defined in `@beep/shared-domain/Policy`, implemented per-request in `AuthContext.layer.ts`, provides user + organization context
+3. **Layer.effect for adapters**: Use `Layer.effect` (not `Layer.succeed`) when adapter needs services like `HttpClient` and `GoogleAuthClient`
+4. **GoogleAuthClientLive captures AuthContext at construction**: Service methods have no additional requirements, making them easier to use
+
+**Decisions Made:**
+
+| Decision | Rationale | Alternative Considered |
+|----------|-----------|------------------------|
+| Delete IntegrationTokenStore | Better Auth handles token storage | Keep custom store (rejected - duplication) |
+| AuthContext.oauth for token access | Clean cross-slice API | Direct IAM imports (rejected - tight coupling) |
+| Per-slice adapter scopes | Principle of least privilege | Shared max scopes (rejected - over-permissioned) |
+| Read-only knowledge adapter | Extraction never needs send | Full Gmail scopes (rejected - unnecessary permissions) |
+
+**Patterns Extracted:**
+
+1. **OAuth Integration Pattern** (Skill-worthy, reusability ~90%):
+   - **Infrastructure Layer**: `packages/integrations/{provider}/` with domain errors, token model, scope enums
+   - **Auth Context Extension**: Add `oauth: OAuthApi` to `AuthContext` with `getAccessToken`, `getProviderAccount`
+   - **Slice Adapters**: `packages/{slice}/server/src/adapters/` with `REQUIRED_SCOPES` constant and ACL translation
+   - **Runtime Composition**: Single `{Provider}Workspace.layer.ts` merging all adapters with shared auth layer
+
+2. **ACL Translation Pattern**:
+   ```typescript
+   // Inside Layer.effect closure
+   const toDomainFormat = (apiResponse: ApiType): DomainType => ({...});
+   const toApiFormat = (domainInput: DomainInput): ApiPayload => ({...});
+
+   return Adapter.of({
+     method: (input) => Effect.gen(function* () {
+       const token = yield* auth.getValidToken(REQUIRED_SCOPES);
+       const response = yield* http.execute(request);
+       return toDomainFormat(response);
+     }).pipe(Effect.withSpan("Adapter.method"))
+   });
+   ```
+
+3. **Scope Declaration Pattern**:
+   ```typescript
+   // Each adapter declares its required scopes
+   export const REQUIRED_SCOPES = [Scopes.read] as const;
+
+   // Consumer can use for incremental OAuth consent
+   const adapter = yield* MyAdapter;
+   // If GoogleScopeExpansionRequiredError is thrown,
+   // use REQUIRED_SCOPES to request additional consent
+   ```
+
+**Final Architecture:**
+
+```
+packages/integrations/google-workspace/
+├── domain/     # GoogleOAuthToken, errors, scopes
+├── client/     # GoogleAuthClient Context.Tag
+└── server/     # GoogleAuthClientLive (uses AuthContext.oauth)
+
+@beep/shared-domain/Policy
+└── AuthContext { user, organization, oauth }
+    └── oauth: OAuthApi { getAccessToken, getProviderAccount }
+
+packages/{calendar,comms,knowledge}/server/src/adapters/
+└── {GoogleCalendarAdapter, GmailAdapter, GmailExtractionAdapter}Live
+    ├── depends on: GoogleAuthClient, HttpClient
+    └── exports: REQUIRED_SCOPES
+
+packages/runtime/server/src/GoogleWorkspace.layer.ts
+└── layer: Layer<All Adapters, never, AuthContext>
+```
+
+**Spec Completion Status:**
+
+- [x] All verification outputs complete
+- [x] README success criteria all checked
+- [x] REFLECTION_LOG updated with final learnings
+- [x] Architecture review confirms no violations
+- [x] Integration tests passing (39 total across 3 adapters)
+
+**Total Implementation Time:** ~4 hours across 6 phases
+**Files Created:** 45 new files
+**Files Deleted:** ~70 files (old shared/integrations)
+**Net Change:** -25 files (cleaner, better organized)

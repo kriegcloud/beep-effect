@@ -6,7 +6,29 @@
 
 ## Status
 
-**PLANNED** - Parallel track with Phase 0 (RDF Foundation), Phase 1 (Query Layer), and Phase 3 (Workflow Durability)
+**COMPLETE** - All phases (P1-P4) implemented. All success criteria met.
+
+---
+
+> **⚠️ CRITICAL: Read Lessons Learned First**
+>
+> Before starting implementation, **READ**: [`LESSONS_FROM_PRIOR_SPECS.md`](./LESSONS_FROM_PRIOR_SPECS.md)
+>
+> This document contains:
+> - 7 critical patterns specific to entity resolution
+> - Two-tier architecture enforcement (MentionRecord → Entity)
+> - Forward-only migration strategy (no backfill)
+> - EntityId branding verification commands
+> - Performance targets (<100ms candidate search, <5s clustering)
+> - Anti-patterns that caused rework in prior specs
+>
+> **Key Decisions**:
+> 1. MentionRecord immutability (only `resolvedEntityId` is mutable)
+> 2. No backfill of existing data (forward-only)
+> 3. Candidate search strategy (bloom filter + embeddings)
+> 4. MergeHistory is service, not helper module
+>
+> Ignoring these lessons WILL cause rework.
 
 ---
 
@@ -449,6 +471,10 @@ packages/knowledge/tables/src/tables/
 
 ## Related Documentation
 
+- **[LESSONS_FROM_PRIOR_SPECS.md](./LESSONS_FROM_PRIOR_SPECS.md)** - ⚠️ READ FIRST - Critical patterns and anti-patterns from completed specs
 - [REFLECTION_LOG.md](./REFLECTION_LOG.md) - Session learnings
 - [knowledge-architecture-foundation](../knowledge-architecture-foundation/) - Prerequisite spec
 - [knowledge-ontology-comparison](../knowledge-ontology-comparison/) - Source roadmap
+- [KNOWLEDGE_LESSONS_LEARNED.md](../KNOWLEDGE_LESSONS_LEARNED.md) - Comprehensive lessons from all completed knowledge specs
+- [Effect Patterns](../../.claude/rules/effect-patterns.md) - Mandatory patterns
+- [Database Patterns](../../documentation/patterns/database-patterns.md) - Table creation, foreign keys

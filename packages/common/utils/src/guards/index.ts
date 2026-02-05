@@ -1,3 +1,5 @@
+export * from "./isDiscriminatedWith.guard";
+
 /**
  * Collects guard implementations (record safety, unsafe property detection)
  * for namespaced docs and runtime imports.
@@ -27,8 +29,8 @@
  * @category Documentation
  * @since 0.1.0
  */
-export * from "@beep/utils/guards/isNonEmptyRecord.guard";
 
+export * from "@beep/utils/guards/isNonEmptyRecord.guard";
 /**
  * Re-exports the unsafe property guard.
  *

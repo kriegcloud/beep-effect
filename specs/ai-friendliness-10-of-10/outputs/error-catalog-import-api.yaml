@@ -1,0 +1,496 @@
+# Error Catalog: Import/Module + API/RPC
+# Generated: 2026-02-04
+# Categories: import, api
+
+version: "1.0"
+errors:
+  # =============================================================================
+  # IMPORT/MODULE ERRORS (IMP_)
+  # =============================================================================
+
+  - id: IMP_001
+    pattern: "import \\{ .* \\} from \"effect\""
+    category: import
+    severity: error
+    fix_type: safe
+    remediation: easy
+    description: Named import from "effect" instead of namespace imports
+    diagnosis: |
+      The codebase requires namespace imports for all Effect modules.
+      Named imports like `import { Effect, Layer } from "effect"` violate this rule.
+      Check the import statement at the top of the file for named imports.
+    fix_steps:
+      - Replace named import with namespace imports
+      - Use the correct module path (e.g., "effect/Effect" not "effect")
+      - Apply standard aliases (A for Array, O for Option, S for Schema, etc.)
+    auto_fix_command: null
+    manual_review: false
+    example:
+      error: "Biome: Use namespace imports for Effect modules"
+      before: |
+        import { Effect, Layer, pipe } from "effect";
+        import { Schema } from "@effect/schema";
+      after: |
+        import * as Effect from "effect/Effect";
+        import * as Layer from "effect/Layer";
+        import { pipe } from "effect/Function";
+        import * as S from "effect/Schema";
+
+  - id: IMP_002
+    pattern: "Cannot find module '@beep/(.+)'"
+    category: import
+    severity: error
+    fix_type: safe
+    remediation: easy
+    description: Missing package reference in TypeScript project configuration
+    diagnosis: |
+      The tsconfig.json is missing a reference to the imported @beep/* package.
+      This typically happens when:
+      1. A new package was created but tsconfig-sync wasn't run
+      2. A dependency was added to package.json but tsconfig references weren't updated
+      3. The package path alias isn't registered in tsconfig.base.jsonc
+    fix_steps:
+      - Run `bun run repo-cli tsconfig-sync` to update all references
+      - Verify the package exists in packages/ directory
+      - Check tsconfig.json references array includes the dependency
+      - Ensure package.json has the dependency listed
+    auto_fix_command: "bun run repo-cli tsconfig-sync"
+    manual_review: false
+    example:
+      error: "Cannot find module '@beep/knowledge-domain' or its corresponding type declarations."
+      before: |
+        // tsconfig.json missing reference
+        {
+          "references": [
+            { "path": "../shared/domain" }
+          ]
+        }
+      after: |
+        // After running: bun run repo-cli tsconfig-sync
+        {
+          "references": [
+            { "path": "../shared/domain" },
+            { "path": "../knowledge/domain" }
+          ]
+        }
+
+  - id: IMP_003
+    pattern: "from \"\\.\\./(\\.\\./)+"
+    category: import
+    severity: error
+    fix_type: safe
+    remediation: easy
+    description: Relative path import violating path alias convention
+    diagnosis: |
+      The codebase forbids relative imports that traverse multiple directories (../../..).
+      All cross-package imports MUST use @beep/* path aliases.
+      This makes refactoring safer and imports more readable.
+    fix_steps:
+      - Identify which @beep/* package the import target belongs to
+      - Replace relative path with the appropriate path alias
+      - Verify the path alias resolves correctly with `bun run check`
+    auto_fix_command: null
+    manual_review: false
+    example:
+      error: "Architecture violation: relative path imports are forbidden"
+      before: |
+        import { UserId } from "../../../shared/domain/src/EntityIds";
+        import { MemberRepo } from "../../iam/server/src/repos/MemberRepo";
+      after: |
+        import { SharedEntityIds } from "@beep/shared-domain";
+        // Note: cross-slice import may need architectural review
+        import { MemberRepo } from "@beep/iam-server/repos";
+
+  - id: IMP_004
+    pattern: "from \"@beep/(iam|documents|calendar|knowledge|comms)-(server|infra)\""
+    category: import
+    severity: warning
+    fix_type: manual
+    remediation: major
+    description: Cross-slice import violating architectural boundaries
+    diagnosis: |
+      Importing from another slice's server/infra layer creates tight coupling.
+      Cross-slice communication should happen through:
+      1. Shared domain types (@beep/shared-domain)
+      2. Events/messages (for async communication)
+      3. RPC contracts (for sync API calls)
+
+      Check if the import is truly necessary or if the dependency can be inverted.
+    fix_steps:
+      - Evaluate if the imported type/function belongs in @beep/shared-domain
+      - Consider using events for cross-slice communication
+      - If truly needed, use RPC contracts instead of direct imports
+      - Document the architectural decision if cross-slice coupling is intentional
+    auto_fix_command: null
+    manual_review: true
+    example:
+      error: "Architecture violation: direct cross-slice import detected"
+      before: |
+        // In packages/documents/server/src/services/DocumentService.ts
+        import { MemberRepo } from "@beep/iam-server/repos";
+
+        const getDocumentWithAuthor = (docId: string) =>
+          Effect.gen(function* () {
+            const doc = yield* DocumentRepo.findById(docId);
+            const author = yield* MemberRepo.findById(doc.authorId);
+            return { ...doc, author };
+          });
+      after: |
+        // Option 1: Use shared domain types only
+        import { SharedEntityIds } from "@beep/shared-domain";
+
+        // Option 2: Accept author data as parameter (inversion of control)
+        const getDocumentWithAuthor = (docId: string, authorResolver: AuthorResolver) =>
+          Effect.gen(function* () {
+            const doc = yield* DocumentRepo.findById(docId);
+            const author = yield* authorResolver.findById(doc.authorId);
+            return { ...doc, author };
+          });
+
+  - id: IMP_005
+    pattern: "Circular dependency detected|Cannot access .* before initialization"
+    category: import
+    severity: error
+    fix_type: manual
+    remediation: major
+    description: Circular import dependency between modules
+    diagnosis: |
+      Module A imports Module B which imports Module A, creating a cycle.
+      This causes runtime errors where values are undefined during initialization.
+      Common causes:
+      1. Schemas importing from each other
+      2. Domain models with bidirectional references
+      3. Service layers importing each other
+
+      Use topological analysis to identify the cycle.
+    fix_steps:
+      - Run `bun run repo-cli topo-sort` to identify dependency cycles
+      - Extract shared types to a common module imported by both
+      - Use lazy imports (import inside function) for runtime-only dependencies
+      - Consider inverting the dependency direction
+      - Split large files into smaller, focused modules
+    auto_fix_command: "bun run repo-cli topo-sort"
+    manual_review: true
+    example:
+      error: "ReferenceError: Cannot access 'UserSchema' before initialization"
+      before: |
+        // schemas/User.ts
+        import { TeamSchema } from "./Team";
+        export const UserSchema = S.Struct({
+          id: SharedEntityIds.UserId,
+          teams: S.Array(TeamSchema),  // User has teams
+        });
+
+        // schemas/Team.ts
+        import { UserSchema } from "./User";  // CIRCULAR!
+        export const TeamSchema = S.Struct({
+          id: SharedEntityIds.TeamId,
+          members: S.Array(UserSchema),  // Team has users
+        });
+      after: |
+        // schemas/base/ids.ts (shared, no circular deps)
+        export const UserIdRef = SharedEntityIds.UserId;
+        export const TeamIdRef = SharedEntityIds.TeamId;
+
+        // schemas/User.ts
+        import { TeamIdRef } from "./base/ids";
+        export const UserSchema = S.Struct({
+          id: SharedEntityIds.UserId,
+          teamIds: S.Array(TeamIdRef),  // Reference by ID only
+        });
+
+        // schemas/Team.ts
+        import { UserIdRef } from "./base/ids";
+        export const TeamSchema = S.Struct({
+          id: SharedEntityIds.TeamId,
+          memberIds: S.Array(UserIdRef),  // Reference by ID only
+        });
+
+  - id: IMP_006
+    pattern: "import \\{ type (.+) \\} from"
+    category: import
+    severity: warning
+    fix_type: safe
+    remediation: easy
+    description: Type-only import used where value import is needed
+    diagnosis: |
+      Using `import { type X }` imports only the type, not the runtime value.
+      This causes errors when using X as a value (e.g., in Schema definitions).
+
+      Type-only imports are correct for:
+      - Interface/type declarations only used for typing
+      - Generic type parameters
+
+      Regular imports are needed for:
+      - Schema definitions (S.Struct, EntityIds, etc.)
+      - Runtime values (functions, classes, constants)
+    fix_steps:
+      - Remove `type` keyword if the import is used as a runtime value
+      - Check if EntityId schemas are imported without `type` keyword
+      - Verify Schema definitions have access to runtime values
+    auto_fix_command: null
+    manual_review: false
+    example:
+      error: "'SharedEntityIds' cannot be used as a value because it was imported using 'import type'"
+      before: |
+        import { type SharedEntityIds } from "@beep/shared-domain";
+
+        // Error: SharedEntityIds.UserId is type-only
+        export const UserSchema = S.Struct({
+          id: SharedEntityIds.UserId,
+        });
+      after: |
+        import { SharedEntityIds } from "@beep/shared-domain";
+
+        // Works: SharedEntityIds is a runtime value
+        export const UserSchema = S.Struct({
+          id: SharedEntityIds.UserId,
+        });
+
+  # =============================================================================
+  # API/RPC ERRORS (API_)
+  # =============================================================================
+
+  - id: API_001
+    pattern: "service.*not.*found.*HttpClient|Cannot read properties of undefined.*HttpClient"
+    category: api
+    severity: error
+    fix_type: safe
+    remediation: easy
+    description: HttpClient service not provided in Layer composition
+    diagnosis: |
+      Effect services that make HTTP requests require HttpClient.HttpClient to be provided.
+      The error occurs when:
+      1. Layer composition is missing HttpClient.layer
+      2. Effect.provide() doesn't include the HttpClient dependency
+      3. Test setup is missing FetchHttpClient.layer or mock HttpClient
+
+      Check the service definition's dependencies and ensure they're all provided.
+    fix_steps:
+      - Add HttpClient.layer to Layer composition
+      - For Bun runtime, use BunHttpClient.layer
+      - For tests, use FetchHttpClient.layer or create a mock
+      - Verify all transitive dependencies are provided
+    auto_fix_command: null
+    manual_review: false
+    example:
+      error: "Effect failed: service HttpClient not found"
+      before: |
+        // Missing HttpClient in layer composition
+        const program = Effect.gen(function* () {
+          const client = yield* DocumentsClient;
+          return yield* client.getDocument(docId);
+        });
+
+        // Runtime fails - HttpClient not provided
+        await program.pipe(
+          Effect.provide(DocumentsClient.Default),
+          Effect.runPromise
+        );
+      after: |
+        import { FetchHttpClient } from "@effect/platform";
+
+        const program = Effect.gen(function* () {
+          const client = yield* DocumentsClient;
+          return yield* client.getDocument(docId);
+        });
+
+        // Provide HttpClient layer
+        await program.pipe(
+          Effect.provide(
+            Layer.mergeAll(
+              DocumentsClient.Default,
+              FetchHttpClient.layer
+            )
+          ),
+          Effect.runPromise
+        );
+
+  - id: API_002
+    pattern: "contract not found|RPC handler .* not registered"
+    category: api
+    severity: error
+    fix_type: manual
+    remediation: easy
+    description: RPC contract name mismatch between client and server
+    diagnosis: |
+      RPC calls fail when the contract name on the client doesn't match
+      the handler name registered on the server.
+
+      Common causes:
+      1. Typo in contract/handler name
+      2. Contract renamed on one side but not the other
+      3. Handler not added to RpcGroup
+      4. Router not including the handler
+    fix_steps:
+      - Verify client contract name matches server handler exactly
+      - Check RpcGroup.make() includes the handler
+      - Ensure Router composition includes all RpcGroups
+      - Compare exported names in client and server packages
+    auto_fix_command: null
+    manual_review: true
+    example:
+      error: "RPC Error: handler 'Documents.getById' not found"
+      before: |
+        // Client: contracts/Document.ts
+        export class GetDocument extends Rpc.Request<GetDocument>()(
+          "Documents.get",  // Wrong name
+          { ... }
+        ) {}
+
+        // Server: handlers/Document.ts
+        const getById = Rpc.make("Documents.getById", { ... });
+      after: |
+        // Client: contracts/Document.ts - name MUST match server
+        export class GetDocument extends Rpc.Request<GetDocument>()(
+          "Documents.getById",  // Matches server handler name
+          { ... }
+        ) {}
+
+        // Server: handlers/Document.ts
+        const getById = Rpc.make("Documents.getById", { ... });
+
+  - id: API_003
+    pattern: "ParseError|Decode error|Expected .* but got"
+    category: api
+    severity: error
+    fix_type: manual
+    remediation: major
+    description: Schema decode failure on API response
+    diagnosis: |
+      The server response doesn't match the expected client schema.
+      This indicates schema drift between client and server.
+
+      Common causes:
+      1. Server schema was updated but client wasn't
+      2. Field names differ (camelCase vs snake_case)
+      3. Optional vs required field mismatch
+      4. Date/DateTime encoding mismatch (ISO string vs Date object)
+    fix_steps:
+      - Compare client schema with server response schema
+      - Check for field name mismatches (use consistent casing)
+      - Verify optional field annotations match (S.optional, S.optionalWith)
+      - Ensure Date handling is consistent (S.Date vs S.DateFromString)
+      - Import schemas from domain package to avoid drift
+    auto_fix_command: null
+    manual_review: true
+    example:
+      error: "ParseError: Expected { id: string, createdAt: Date } but got { id: string, created_at: string }"
+      before: |
+        // Client schema expects camelCase and Date
+        const DocumentSchema = S.Struct({
+          id: S.String,
+          createdAt: S.Date,  // Expects Date object
+        });
+
+        // Server returns snake_case and ISO string
+        // { "id": "doc_123", "created_at": "2026-02-04T10:00:00Z" }
+      after: |
+        // Import shared schema from domain to prevent drift
+        import { Document } from "@beep/documents-domain/entities";
+
+        // Or define with correct transformations
+        const DocumentSchema = S.Struct({
+          id: S.String,
+          createdAt: S.DateFromString,  // Handles ISO string from JSON
+        });
+
+  - id: API_004
+    pattern: "ECONNREFUSED|fetch failed|Network request failed"
+    category: api
+    severity: error
+    fix_type: manual
+    remediation: easy
+    description: HTTP connection failure to API endpoint
+    diagnosis: |
+      The HTTP client cannot connect to the target server.
+
+      Common causes:
+      1. Server not running
+      2. Wrong base URL configured
+      3. Firewall/network blocking the connection
+      4. CORS issues in browser environment
+      5. SSL/TLS certificate problems
+    fix_steps:
+      - Verify the server is running (`bun run dev` or `bun run services:up`)
+      - Check base URL configuration in environment/config
+      - Test endpoint directly with curl or browser
+      - For local development, ensure ports aren't blocked
+      - Check CORS headers if running in browser
+    auto_fix_command: null
+    manual_review: true
+    example:
+      error: "TypeError: fetch failed - cause: connect ECONNREFUSED 127.0.0.1:3000"
+      before: |
+        // Config pointing to non-running server
+        const config = {
+          baseUrl: "http://localhost:3000",
+        };
+
+        // Attempting to call API when server is down
+        const result = yield* client.getDocument(docId);
+      after: |
+        // 1. Start the server first
+        // $ bun run services:up
+        // $ bun run dev
+
+        // 2. Or use environment-specific config
+        import { Env } from "@beep/env";
+        const baseUrl = yield* Env.get("API_BASE_URL");
+
+        // 3. Add retry logic for transient failures
+        const result = yield* client.getDocument(docId).pipe(
+          Effect.retry(
+            Schedule.exponential(Duration.seconds(1)).pipe(
+              Schedule.compose(Schedule.recurs(3))
+            )
+          )
+        );
+
+  - id: API_005
+    pattern: "Request.*payload.*mismatch|Argument of type .* is not assignable to parameter of type"
+    category: api
+    severity: error
+    fix_type: safe
+    remediation: easy
+    description: RPC request payload type mismatch
+    diagnosis: |
+      The data passed to an RPC call doesn't match the expected payload schema.
+      TypeScript catches this at compile time, but schema validation catches at runtime.
+
+      Common causes:
+      1. Missing required fields in request payload
+      2. Wrong field types (string instead of number, etc.)
+      3. EntityId type mismatch (plain string vs branded type)
+      4. Payload not encoded before sending
+    fix_steps:
+      - Check the contract's payload schema definition
+      - Ensure all required fields are provided
+      - Use EntityId.make() for branded ID types
+      - Verify field types match schema expectations
+    auto_fix_command: null
+    manual_review: false
+    example:
+      error: "Argument of type '{ id: string }' is not assignable - missing property 'organizationId'"
+      before: |
+        // Contract expects organizationId
+        export class GetDocument extends Rpc.Request<GetDocument>()(
+          "Documents.getById",
+          {
+            payload: S.Struct({
+              id: DocumentsEntityIds.DocumentId,
+              organizationId: SharedEntityIds.OrganizationId,
+            }),
+            success: Document.Schema,
+            failure: DocumentNotFoundError,
+          }
+        ) {}
+
+        // Call missing organizationId
+        yield* client.getById({ id: docId });
+      after: |
+        // Provide all required fields with correct types
+        yield* client.getById({
+          id: DocumentsEntityIds.DocumentId.make(docId),
+          organizationId: SharedEntityIds.OrganizationId.make(orgId),
+        });

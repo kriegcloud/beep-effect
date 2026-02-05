@@ -21,12 +21,12 @@ Transform the monolithic integration layer into a composable architecture that s
 
 - [x] Gmail infrastructure migrated to `packages/integrations/google-workspace/`
 - [x] `AuthContext` extended with OAuth API in `@beep/shared-domain/Policy`
-- [ ] Slice-specific adapters created for calendar, comms, knowledge
+- [x] Slice-specific adapters created for calendar, comms, knowledge
 - [x] OAuth scope expansion flow implemented (incremental authorization)
-- [ ] All existing Gmail actions functional under new architecture
-- [ ] Zero cross-slice dependencies from adapters
-- [ ] `packages/shared/integrations` deleted after migration
-- [ ] Integration tests passing for all three slices
+- [x] All existing Gmail actions functional under new architecture
+- [x] Zero cross-slice dependencies from adapters
+- [x] `packages/shared/integrations` deleted after migration
+- [x] Integration tests passing for all three slices
 
 ---
 
@@ -165,10 +165,10 @@ packages/
 6. Create `GoogleWorkspaceLive` layer
 
 **Success Criteria**:
-- [ ] Package compiles without errors
-- [ ] `GoogleAuthClient` exports token refresh interface
-- [ ] `GoogleHttpClient` handles rate limiting
-- [ ] Error schemas include structured error details
+- [x] Package compiles without errors
+- [x] `GoogleAuthClient` exports token refresh interface
+- [x] `GoogleHttpClient` handles rate limiting
+- [x] Error schemas include structured error details
 
 ### Phase 2: AuthContext OAuth API
 
@@ -194,27 +194,27 @@ packages/
 **Work Items (Parallel)**:
 
 **Calendar Adapter**:
-- [ ] `GoogleCalendarAdapter` service
-- [ ] `CALENDAR_SCOPES` constant
-- [ ] Domain ↔ Google Calendar event translation
-- [ ] Layer composition with infrastructure dependency
+- [x] `GoogleCalendarAdapter` service
+- [x] `CALENDAR_SCOPES` constant
+- [x] Domain ↔ Google Calendar event translation
+- [x] Layer composition with infrastructure dependency
 
 **Comms Adapter**:
-- [ ] `GmailAdapter` service
-- [ ] `COMMS_SCOPES` constant (mail.send, mail.readonly)
-- [ ] Domain email ↔ Gmail message translation
-- [ ] Layer composition with infrastructure dependency
+- [x] `GmailAdapter` service
+- [x] `COMMS_SCOPES` constant (mail.send, mail.readonly)
+- [x] Domain email ↔ Gmail message translation
+- [x] Layer composition with infrastructure dependency
 
 **Knowledge Adapter**:
-- [ ] `GmailExtractionAdapter` service
-- [ ] `KNOWLEDGE_SCOPES` constant (mail.readonly only)
-- [ ] Email extraction for knowledge graph
-- [ ] Layer composition with infrastructure dependency
+- [x] `GmailExtractionAdapter` service
+- [x] `KNOWLEDGE_SCOPES` constant (mail.readonly only)
+- [x] Email extraction for knowledge graph
+- [x] Layer composition with infrastructure dependency
 
 **Success Criteria**:
-- [ ] Zero cross-slice dependencies between adapters
-- [ ] Each adapter only uses scopes needed for its domain
-- [ ] Domain models don't leak Google-specific types
+- [x] Zero cross-slice dependencies between adapters
+- [x] Each adapter only uses scopes needed for its domain
+- [x] Domain models don't leak Google-specific types
 
 ### Phase 4: Migration
 
@@ -229,9 +229,9 @@ packages/
 6. Update consuming code to use new adapter layers
 
 **Success Criteria**:
-- [ ] All 12+ actions functional under new architecture
-- [ ] Consuming code in apps/ updated
-- [ ] No references to old `packages/shared/integrations` remain
+- [x] All 12+ actions functional under new architecture
+- [x] Consuming code in apps/ updated
+- [x] No references to old `packages/shared/integrations` remain
 
 ### Phase 5: Cleanup
 
@@ -244,9 +244,9 @@ packages/
 4. Update path aliases in `tsconfig.base.jsonc`
 
 **Success Criteria**:
-- [ ] `bun run check` passes
-- [ ] No broken imports
-- [ ] Package removed from monorepo
+- [x] `bun run check` passes
+- [x] No broken imports
+- [x] Package removed from monorepo
 
 ### Phase 6: Verification
 
@@ -260,9 +260,9 @@ packages/
 5. Update architecture documentation
 
 **Success Criteria**:
-- [ ] Integration tests passing for all adapters
-- [ ] Documentation reflects new architecture
-- [ ] Verification report confirms no architectural violations
+- [x] Integration tests passing for all adapters
+- [x] Documentation reflects new architecture
+- [x] Verification report confirms no architectural violations
 
 ---
 
