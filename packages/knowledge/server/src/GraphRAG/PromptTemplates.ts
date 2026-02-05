@@ -1,3 +1,4 @@
+import { thunkEmptyStr } from "@beep/utils";
 import * as A from "effect/Array";
 import * as F from "effect/Function";
 import * as HashMap from "effect/HashMap";
@@ -68,7 +69,7 @@ export const formatEntityForPrompt = (entity: GraphContextEntity): string => {
         : O.none();
     }),
     O.map((str) => ` - ${str}`),
-    O.getOrElse(() => "")
+    O.getOrElse(thunkEmptyStr)
   );
 
   return `- [id: ${entity.id}] ${entity.mention} (${typeStr})${attrPart}`;
@@ -152,8 +153,8 @@ const collectRegexMatches = (
   regex: RegExp,
   type: "entity" | "relation"
 ): ReadonlyArray<ParsedCitation> => {
-  const matches = text.matchAll(regex);
-  const results: Array<ParsedCitation> = [];
+  const matches = Str.matchAll(regex)(text);
+  const results = A.empty<ParsedCitation>();
   for (const match of matches) {
     if (P.isNotUndefined(match.index) && P.isNotUndefined(match[1])) {
       results.push({
@@ -180,8 +181,8 @@ export const extractCitations = (text: string): ReadonlyArray<ParsedCitation> =>
 export const stripCitationMarkers = (text: string): string =>
   F.pipe(
     text,
-    (t) => t.replace(ENTITY_CITATION_REGEX, ""),
-    (t) => t.replace(RELATION_CITATION_REGEX, ""),
-    (t) => t.replace(/\s{2,}/g, " "),
+    Str.replace(ENTITY_CITATION_REGEX, ""),
+    Str.replace(RELATION_CITATION_REGEX, ""),
+    Str.replace(/\s{2,}/g, " "),
     Str.trim
   );

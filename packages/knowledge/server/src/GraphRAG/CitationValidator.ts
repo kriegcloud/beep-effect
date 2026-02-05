@@ -74,7 +74,7 @@ const buildReasoningTrace = (
     const prov = provenance[key];
     return new InferenceStep({
       rule: prov?.ruleId ?? "unknown",
-      premises: A.map(prov?.sourceQuads ?? [], String),
+      premises: A.map(prov?.sourceQuads ?? A.empty<string>(), String),
     });
   });
 
@@ -178,8 +178,9 @@ const serviceEffect: Effect.Effect<CitationValidatorShape, never, SparqlService 
 
     const validateCitation = (citation: Citation): Effect.Effect<CitationValidationResult, CitationValidationError> =>
       Effect.gen(function* () {
-        const entityResults = yield* Effect.all(A.map(citation.entityIds, validateEntity), {
-          concurrency: "unbounded",
+        const effects = A.map(citation.entityIds, validateEntity);
+        const entityResults = yield* Effect.all(effects, {
+          concurrency: A.length(effects),
         });
 
         const relationResult = O.isSome(O.fromNullable(citation.relationId))

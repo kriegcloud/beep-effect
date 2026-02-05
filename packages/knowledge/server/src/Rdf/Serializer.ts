@@ -166,7 +166,7 @@ const getN3Format = (format: RdfFormat.Type): string =>
 const parseTurtleToQuads = (content: string, graph?: IRI.Type): Effect.Effect<ReadonlyArray<Quad>, SerializerError> =>
   Effect.async<ReadonlyArray<Quad>, SerializerError>((resume) => {
     const parser = new N3.Parser();
-    const quads: Quad[] = [];
+    const quads = A.empty<Quad>();
     let hasError = false;
 
     parser.parse(content, (error, quad, _prefixes) => {

@@ -1,1375 +1,925 @@
-# Implementation Roadmap
+# Implementation Roadmap (Corrected)
 
 ## Executive Summary
 
-This roadmap provides a phased strategy to close the capability gaps between the effect-ontology reference implementation and the beep-effect knowledge slice. The plan is organized around parallel work streams with carefully managed dependencies:
+This roadmap provides a phased strategy to close the **20 remaining capability gaps** between the effect-ontology reference implementation and the beep-effect knowledge slice. It supersedes the previous roadmap (2026-02-03) which was based on an outdated gap analysis that incorrectly listed SPARQL, RDF, Reasoning, GraphRAG, and Entity Resolution as missing. Those subsystems are fully implemented.
 
-1. **Architectural Foundation** (Phase -1): Establish package allocation, RPC patterns, and layer boundaries
-2. **RDF Foundation** (Phase 0): Build the semantic infrastructure (triple store, serialization) that enables query and reasoning capabilities
-3. **Query & Reasoning** (Phase 1): Add SPARQL queries, RDFS reasoning, and SHACL validation on top of RDF foundation
-4. **Entity Resolution & Evidence** (Phase 2): Enhance the two-tier mention/entity architecture and cross-batch resolution (parallel track)
-5. **Workflow Durability** (Phase 3): Add @effect/workflow for durable execution and state machines (parallel track)
-6. **GraphRAG Enhancements** (Phase 4): Add grounded answer generation leveraging reasoning infrastructure
-7. **Production Resilience** (Phase 5): Add circuit breakers, rate limiting, and operational hardening
-8. **POC Integration** (Phase 6): Wire up `apps/todox/src/app/knowledge-demo/` to production services
+The knowledge slice has achieved substantial parity: **65 FULL + 19 PARTIAL** capabilities across semantic infrastructure, entity resolution, and GraphRAG. The remaining work concentrates in two areas:
 
-**Total Estimated Duration**: 18-23 weeks with 2-3 engineers
-**Critical Path**: Phase -1 -> Phase 0 -> Phase 1 -> Phase 4 -> Phase 6
+1. **Workflow Durability** (P0): No crash recovery, no batch state machine, no cross-batch orchestration
+2. **Semantic Enrichment** (P1-P2): No SHACL validation, incomplete reasoning profiles/OWL rules, no PROV-O provenance
+
+### What Changed From Previous Roadmap
+
+| Previous Roadmap (Outdated) | Corrected Roadmap |
+|----------------------------|-------------------|
+| 8 phases (Phase -1 through Phase 6) | 4 phases |
+| 18-23 weeks estimated | 12-14 weeks estimated |
+| Included RDF Foundation, SPARQL, Reasoning, GraphRAG as gaps | All implemented -- removed |
+| Included Entity Resolution as gap | 19/23 parity -- removed |
+| Included Architectural Foundation phase | Architecture established -- removed |
+| Included POC Integration phase | Deferred to separate spec |
+
+### Phase Summary
+
+| Phase | Name | Focus | Duration |
+|-------|------|-------|----------|
+| 1 | Workflow Durability + Resilience | Crash recovery, LLM protection | Weeks 1-5 |
+| 2 | State Management + Orchestration | Batch lifecycle, multi-document coordination | Weeks 6-8 |
+| 3 | Semantic Enrichment | SHACL, reasoning profiles, OWL rules, DESCRIBE | Weeks 9-11 |
+| 4 | Infrastructure Polish | Named graphs, provenance, token budget, bundles, NL-to-SPARQL | Weeks 12-14 |
+
+**Total Estimated Duration**: 12-14 weeks with 2 engineers
+**Critical Path**: Phase 1 -> Phase 2 -> Phase 3 (10.5 weeks)
+
+---
 
 ## Guiding Principles
 
-1. **Foundation-first**: Build infrastructure before features - RDF store must exist before SPARQL
-2. **Parallel tracks**: Workflow durability and Entity Resolution can proceed independently
-3. **Incremental value**: Each phase delivers usable capability - no "big bang" integration
-4. **Minimal disruption**: Additive changes with backward compatibility - existing ExtractionPipeline continues working
-5. **Effect patterns**: All new code follows established @beep Effect patterns (namespace imports, tagged errors, Layer composition)
-6. **Slice ownership**: Each vertical slice owns its domain RPCs - NOT in shared kernel
+1. **Build on existing foundation**: SPARQL, Reasoning, RDF, GraphRAG, and Entity Resolution are implemented. New work extends these, not replaces them.
+2. **Workflow-first**: Durable execution is the single largest production-readiness risk and must be addressed first.
+3. **Incremental value**: Each phase delivers usable capability. No "big bang" integration.
+4. **Minimal disruption**: Additive changes with backward compatibility. The existing ExtractionPipeline continues working throughout.
+5. **Effect patterns**: All new code follows established @beep Effect patterns (namespace imports, tagged errors, Layer composition).
+6. **Slice ownership**: New services stay within `packages/knowledge/*`. No shared kernel pollution.
 
-## Phase Overview
+---
 
-| Phase | Name                     | Focus                                              | Dependencies                          | Estimated Scope | Duration  |
-|-------|--------------------------|----------------------------------------------------|---------------------------------------|-----------------|-----------|
-| -1    | Architectural Foundation | Package allocation, RPC patterns, layer boundaries | None                                  | M               | 1 week    |
-| 0     | RDF Foundation           | Triple store abstraction                           | Phase -1                              | L-XL            | 2-3 weeks |
-| 1     | Query Layer              | SPARQL + Reasoning                                 | Phase 0                               | XL              | 3-4 weeks |
-| 2     | Resolution               | Cross-batch + Evidence                             | Phase -1 (parallel)                   | L               | 2-3 weeks |
-| 3     | Workflow                 | Durable execution                                  | Phase -1 (parallel)                   | XL              | 3-4 weeks |
-| 4     | GraphRAG+                | Answer generation                                  | Phase 1                               | M               | 2 weeks   |
-| 5     | Resilience               | Production hardening                               | Phases 1-4                            | M               | 2-3 weeks |
-| 6     | POC Integration          | Wire knowledge-demo to services                    | Phase 0, 1, 4 (hard); 2, 3, 5 (soft)  | M               | 1-2 weeks |
+## Implemented Baseline (No Work Required)
+
+For reference, these capabilities are fully implemented and require no roadmap work:
+
+| Subsystem | Key Files | Capability Count |
+|-----------|-----------|-----------------|
+| **SPARQL** | `server/src/Sparql/SparqlService.ts`, `QueryExecutor.ts`, `SparqlParser.ts`, `FilterEvaluator.ts` | 5/6 (DESCRIBE is Gap #5) |
+| **Reasoning** | `server/src/Reasoning/ForwardChainer.ts`, `ReasonerService.ts`, `RdfsRules.ts` | 3/5 (Profiles, OWL are gaps) |
+| **RDF** | `server/src/Rdf/RdfStoreService.ts`, `Serializer.ts`, `RdfBuilder.ts` | 3/4 (Named Graphs is Gap #6) |
+| **GraphRAG** | `server/src/GraphRAG/` (8 files: GraphRAGService, GroundedAnswerGenerator, CitationParser, CitationValidator, ConfidenceScorer, ReasoningTraceFormatter, RrfScorer, PromptTemplates) | 12/12 FULL |
+| **Entity Resolution** | `server/src/EntityResolution/` (8 files: EntityRegistry, EntityResolutionService, IncrementalClustererLive, EntityClusterer, SplitService, MergeHistoryLive, SameAsLinker, CanonicalSelector, BloomFilter) | 19/23 |
+| **Extraction** | `server/src/Extraction/ExtractionPipeline.ts`, MentionExtractor, EntityExtractor, RelationExtractor, GraphAssembler | 6/6 FULL |
+| **NLP** | `server/src/Nlp/NlpService.ts` | FULL |
+| **Embedding** | `server/src/Embedding/EmbeddingService.ts` | FULL |
+| **Ontology** | `server/src/Ontology/OntologyService.ts`, OntologyParser, OntologyCache | FULL |
+| **Domain Models** | `domain/src/entities/` (Entity, Relation, MentionRecord, MergeHistory, SameAsLink, EntityCluster, Mention, etc.) | FULL |
+| **Tables** | `tables/src/tables/` (entity, relation, mention-record, merge-history, same-as-link, entity-cluster, embedding, extraction, etc.) | FULL |
+| **RPC Layer** | `server/src/rpc/v1/` (entity, relation, graphrag RPCs) | Established |
+
+All file paths below are relative to `packages/knowledge/`.
 
 ---
 
 ## Detailed Phases
 
-### Phase -1: Architectural Foundation
+### Phase 1: Workflow Durability + Resilience (Weeks 1-5)
 
-**Objective**: Establish package allocation, API patterns, and layer boundaries before implementation begins
+**Objective**: Establish crash-recoverable extraction workflows and protect LLM/embedding calls from cascade failures.
 
-**Priority**: P0 - Critical (blocks all other phases)
+**Addresses**: Gap #3 (PostgreSQL Workflow Persistence), Gap #1 (Durable Workflow Execution), Gap #11 (CircuitBreaker), Gap #12 (Rate Limiting)
 
-**Context**: The beep-effect codebase uses a hybrid RPC pattern where truly cross-cutting concerns live in the shared kernel, but **slice-specific RPCs live within each vertical slice**. This pattern must be followed for the knowledge slice to maintain architectural consistency.
+**Rationale**: Workflow durability is the single largest production-readiness risk. Without it, long-running extractions (large documents, slow LLM calls) cannot recover from failures. CircuitBreaker and rate limiting are small, high-value wins that protect LLM calls immediately while the larger workflow refactoring proceeds.
 
-#### A. Package Allocation Matrix
+#### 1A. PostgreSQL Workflow Persistence (Gap #3) -- Days 1-4
 
-| Capability                          | Package                  | File Location                                                  | Rationale                        |
-|-------------------------------------|--------------------------|----------------------------------------------------------------|----------------------------------|
-| RDF value types (Quad, QuadPattern) | `@beep/knowledge-domain` | `packages/knowledge/domain/src/value-objects/rdf/`             | Domain values - no implementation |
-| RDF service interface               | `@beep/knowledge-domain` | `packages/knowledge/domain/src/services/RdfStore.ts`           | Service contract only            |
-| RdfStore implementation             | `@beep/knowledge-server` | `packages/knowledge/server/src/Rdf/RdfStoreService.ts`         | Server-side implementation       |
-| SPARQL types (SparqlBindings)       | `@beep/knowledge-domain` | `packages/knowledge/domain/src/value-objects/sparql/`          | Query types - no implementation  |
-| SparqlService                       | `@beep/knowledge-server` | `packages/knowledge/server/src/Sparql/SparqlService.ts`        | Server-side implementation       |
-| Reasoner types (InferenceResult)    | `@beep/knowledge-domain` | `packages/knowledge/domain/src/value-objects/reasoning/`       | Inference types - no implementation |
-| ReasonerService                     | `@beep/knowledge-server` | `packages/knowledge/server/src/Reasoning/ReasonerService.ts`   | Server-side implementation       |
-| MentionRecord model                 | `@beep/knowledge-domain` | `packages/knowledge/domain/src/entities/MentionRecord/`        | Domain entity with schema        |
-| Entity RPC contracts                | `@beep/knowledge-domain` | `packages/knowledge/domain/src/entities/Entity/Entity.rpc.ts`  | Slice-specific RPC definitions   |
-| Relation RPC contracts              | `@beep/knowledge-domain` | `packages/knowledge/domain/src/entities/Relation/Relation.rpc.ts`| Slice-specific RPC definitions   |
-| GraphRAG RPC contracts              | `@beep/knowledge-domain` | `packages/knowledge/domain/src/entities/GraphRAG/GraphRAG.rpc.ts`| Slice-specific RPC definitions   |
-| Entity handlers                     | `@beep/knowledge-server` | `packages/knowledge/server/src/rpc/v1/entity/_rpcs.ts`         | RPC handler layer composition    |
-| Relation handlers                   | `@beep/knowledge-server` | `packages/knowledge/server/src/rpc/v1/relation/_rpcs.ts`       | RPC handler layer composition    |
-| GraphRAG handlers                   | `@beep/knowledge-server` | `packages/knowledge/server/src/rpc/v1/graph-rag/_rpcs.ts`      | RPC handler layer composition    |
+**Priority**: P0 | **Complexity**: M | **Estimate**: 4 days
 
-#### B. RPC Pattern Decision
+**Description**: Create Drizzle table definitions for @effect/workflow persistence: workflow execution state, activity journal, runner coordination, and signal delivery.
 
-**Decision**: Use `@effect/rpc` with slice-specific RPCs (NOT HttpApi, NOT shared kernel)
-
-**Pattern Reference**: Follow `packages/documents/domain/src/entities/Document/Document.rpc.ts`
-
-**Domain Layer RPC Definition** (`packages/knowledge/domain/src/entities/Entity/Entity.rpc.ts`):
-
-```typescript
-import * as Rpc from "@effect/rpc/Rpc";
-import * as RpcGroup from "@effect/rpc/RpcGroup";
-import * as S from "effect/Schema";
-import { KnowledgeEntityIds } from "../EntityIds.js";
-import { SharedEntityIds } from "@beep/shared-domain";
-import * as Model from "./Entity.model.js";
-import * as Errors from "./Entity.errors.js";
-
-export class Rpcs extends RpcGroup.make(
-  Rpc.make("get", {
-    payload: { id: KnowledgeEntityIds.EntityId },
-    success: Model.json,
-    error: Errors.EntityNotFoundError,
-  }),
-  Rpc.make("list", {
-    payload: { organizationId: SharedEntityIds.OrganizationId },
-    success: Model.json,
-    stream: true,
-  }),
-  Rpc.make("create", {
-    payload: Model.CreatePayload,
-    success: Model.json,
-    error: Errors.EntityCreationError,
-  }),
-  Rpc.make("update", {
-    payload: Model.UpdatePayload,
-    success: Model.json,
-    error: S.Union(Errors.EntityNotFoundError, Errors.EntityUpdateError),
-  }),
-  Rpc.make("delete", {
-    payload: { id: KnowledgeEntityIds.EntityId },
-    success: S.Void,
-    error: Errors.EntityNotFoundError,
-  }),
-).prefix("entity_") {}  // ADD PREFIX for namespace isolation
-```
-
-**Server Layer Handler Implementation** (`packages/knowledge/server/src/rpc/v1/entity/_rpcs.ts`):
-
-```typescript
-import * as Effect from "effect/Effect";
-import { Policy } from "@beep/shared-domain";
-import { Entity } from "@beep/knowledge-domain";
-import { EntityRepo } from "../../repositories/EntityRepo.js";
-
-// 1. Apply middleware FIRST - informs toLayer that AuthContext will be provided
-const EntityRpcsWithMiddleware = Entity.Rpcs.middleware(Policy.AuthContextRpcMiddleware);
-
-// 2. Create implementation object using .of()
-const implementation = EntityRpcsWithMiddleware.of({
-  entity_get: (payload) =>
-    Effect.gen(function* () {
-      const repo = yield* EntityRepo;
-      return yield* repo.findByIdOrFail(payload.id);
-    }).pipe(Effect.withSpan("Entity.handlers.get", { captureStackTrace: false })),
-
-  entity_list: (payload) =>
-    Effect.gen(function* () {
-      const repo = yield* EntityRepo;
-      return yield* repo.streamByOrganization(payload.organizationId);
-    }).pipe(Effect.withSpan("Entity.handlers.list", { captureStackTrace: false })),
-
-  entity_create: (payload) =>
-    Effect.gen(function* () {
-      const repo = yield* EntityRepo;
-      return yield* repo.create(payload);
-    }).pipe(Effect.withSpan("Entity.handlers.create", { captureStackTrace: false })),
-
-  entity_update: (payload) =>
-    Effect.gen(function* () {
-      const repo = yield* EntityRepo;
-      return yield* repo.update(payload);
-    }).pipe(Effect.withSpan("Entity.handlers.update", { captureStackTrace: false })),
-
-  entity_delete: (payload) =>
-    Effect.gen(function* () {
-      const repo = yield* EntityRepo;
-      return yield* repo.delete(payload.id);
-    }).pipe(Effect.withSpan("Entity.handlers.delete", { captureStackTrace: false })),
-});
-
-// 3. Create layer from implementation
-export const layer = EntityRpcsWithMiddleware.toLayer(implementation);
-```
-
-**Key Pattern Notes**:
-1. **Middleware FIRST**: `Rpcs.middleware(Policy.AuthContextRpcMiddleware)` MUST be applied before `.toLayer()` when handlers need `Policy.AuthContext`
-2. **Use `.of()`**: Create implementation using `RpcsWithMiddleware.of({...})` - NOT by passing an Effect.gen to `.toLayer()`
-3. **Prefixed handler names**: Handler keys include the prefix (e.g., `entity_get`, not `get`)
-4. **Each handler is an Effect.gen**: Dependencies are resolved inside each handler, not shared at the top level
-
-**Why NOT Shared Kernel**: Knowledge RPCs are domain-specific. Only truly cross-cutting concerns (health checks, file operations) belong in `@beep/shared-domain/server`.
-
-#### C. Layer Boundary Rules
+**Files to Create**:
 
 ```
-knowledge-domain:
-  ALLOWED:
-    - Value objects (Quad, QuadPattern, SparqlBindings, InferenceResult)
-    - Entity models (Entity, Relation, MentionRecord, EntityCluster)
-    - Tagged errors (EntityNotFoundError, SparqlError, etc.)
-    - RPC contracts (Rpcs classes using RpcGroup.make)
-    - EntityId definitions
-    - Schema definitions
-
-  FORBIDDEN:
-    - Service implementations
-    - Database access
-    - External API calls
-    - Layer definitions
-
-knowledge-tables:
-  ALLOWED:
-    - Drizzle table definitions
-    - Column type mappings with .$type<EntityId.Type>()
-    - Index definitions
-    - Foreign key relationships
-
-  FORBIDDEN:
-    - Query logic
-    - Repository methods
-    - Business logic
-
-knowledge-server:
-  ALLOWED:
-    - Service implementations (RdfStore, SparqlService, etc.)
-    - RPC handlers (using .toLayer())
-    - Repository implementations
-    - Layer composition
-    - External service integration (N3.js, LLM calls)
-
-  FORBIDDEN:
-    - Domain type definitions (use knowledge-domain)
-    - Table definitions (use knowledge-tables)
+tables/src/tables/
+  workflow-execution.table.ts   # Workflow instance state (id, type, status, input, output, error)
+  workflow-activity.table.ts    # Activity journal (execution_id, activity_name, status, result)
+  workflow-signal.table.ts      # Signal delivery queue (execution_id, signal_name, payload)
 ```
 
-#### D. Dependency Direction Rules
+**Files to Modify**:
 
 ```
-ALLOWED DEPENDENCIES:
-
-knowledge-server --> knowledge-domain     (implementation imports contracts)
-knowledge-server --> knowledge-tables     (queries import table definitions)
-knowledge-server --> @beep/shared-domain  (shared entity IDs, common types)
-knowledge-server --> @beep/common-utils   (utility functions)
-
-knowledge-tables --> knowledge-domain     (tables reference entity IDs)
-knowledge-tables --> @beep/shared-domain  (shared entity IDs)
-
-knowledge-domain --> @beep/shared-domain  (shared entity IDs only)
-
-FORBIDDEN DEPENDENCIES:
-
-knowledge-* --> iam-*                     (NO cross-slice imports)
-knowledge-* --> documents-*              (NO cross-slice imports)
-knowledge-* --> calendar-*               (NO cross-slice imports)
-
-knowledge-domain --> knowledge-server    (NO reverse dependency)
-knowledge-domain --> knowledge-tables    (NO reverse dependency)
-knowledge-tables --> knowledge-server    (NO reverse dependency)
-
-Any circular dependency path             (NO cycles)
+tables/src/tables/index.ts     # Export new tables
+tables/src/schema.ts           # Register in schema
+tables/src/relations.ts        # FK: workflow_activity -> workflow_execution
 ```
 
-#### E. RPC Exposure Decisions
-
-| Capability          | Expose via RPC? | RPC Location        | Rationale                          |
-|---------------------|-----------------|---------------------|------------------------------------|
-| Entity CRUD         | YES             | `Entity.rpc.ts`     | Standard domain operations         |
-| Relation CRUD       | YES             | `Relation.rpc.ts`   | Standard domain operations         |
-| GraphRAG queries    | YES             | `GraphRAG.rpc.ts`   | Core product feature               |
-| SPARQL queries      | YES             | `Sparql.rpc.ts`     | Power-user feature, needed for POC |
-| Batch extraction    | YES             | `Extraction.rpc.ts` | Streaming RPC for progress         |
-| Entity resolution   | YES             | `Resolution.rpc.ts` | Manual resolution UI support       |
-| RDF store operations| NO              | Internal only       | Implementation detail              |
-| Reasoning operations| NO              | Internal only       | Used by SPARQL/GraphRAG internally |
-
-#### F. Deliverables
-
-| Item                               | Priority | Complexity | Estimate | Dependencies |
-|------------------------------------|----------|------------|----------|--------------|
-| Package structure scaffold         | P0       | S          | 0.5 day  | None         |
-| EntityId definitions               | P0       | S          | 0.5 day  | None         |
-| Base error schemas                 | P0       | S          | 0.5 day  | EntityIds    |
-| Value object schemas (Quad, etc.)  | P0       | M          | 1 day    | None         |
-| RPC contract templates             | P0       | M          | 1 day    | Errors       |
-| Layer composition documentation    | P0       | S          | 0.5 day  | None         |
-| Architecture decision record       | P0       | S          | 0.5 day  | All above    |
-
-**Dependencies**: None - this is foundational work
-
-**Risks**:
-
-| Risk                        | Likelihood | Impact | Mitigation                                  |
-|-----------------------------|------------|--------|---------------------------------------------|
-| RPC pattern misalignment    | Low        | High   | Study documents slice, follow exact pattern |
-| Layer boundary violations   | Medium     | Medium | Enforce via TypeScript imports, CI checks   |
-| Team alignment              | Low        | Medium | ADR review with all engineers               |
+**Key Design Decisions**:
+- Workflow execution table stores serialized input/output as JSONB
+- Activity journal enables replay from last completed activity
+- Signal table supports SSE progress streaming via polling or LISTEN/NOTIFY
+- All tables scoped by `organizationId` for multi-tenant isolation
 
 **Success Criteria**:
-- [ ] Package structure matches allocation matrix
-- [ ] All EntityIds defined in `@beep/knowledge-domain`
-- [ ] RPC contracts compile without implementation
-- [ ] Dependency rules enforced by TypeScript imports
-- [ ] ADR documents RPC pattern decision
-- [ ] Team aligned on layer boundaries
+- [ ] Drizzle schema compiles with `bun run check --filter @beep/knowledge-tables`
+- [ ] Migration generates valid SQL
+- [ ] `_check.ts` passes for domain model alignment
+- [ ] Foreign key from `workflow_activity` to `workflow_execution` uses `.$type<>()` annotation
 
 ---
 
-### Phase 0: RDF Foundation
+#### 1B. Durable Workflow Execution (Gap #1) -- Days 5-25
 
-*Addresses Gap #7 (No Triple Store) from GAP_ANALYSIS*
+**Priority**: P0 | **Complexity**: XL | **Estimate**: 4 weeks
 
-**Objective**: Establish triple store abstraction enabling all semantic features
+**Description**: Integrate @effect/workflow to make ExtractionPipeline crash-recoverable. Each extraction stage becomes a durable activity with automatic checkpointing and resume.
 
-**Priority**: P0 - Critical (blocks Phase 1 and Phase 4)
-
-**Context**: The knowledge slice currently uses N3.js only for Turtle parsing in `OntologyParser.ts`. effect-ontology wraps N3.Store for in-memory triple operations and Oxigraph for SPARQL. We need a service abstraction that can start with N3.Store and potentially migrate to Oxigraph later.
-
-**Deliverables**:
-
-| Item                                       | Priority | Complexity | Estimate | Dependencies  |
-|--------------------------------------------|----------|------------|----------|---------------|
-| RdfStore service (N3.Store wrapper)        | P0       | L          | 4 days   | Phase -1      |
-| QuadPattern query interface                | P0       | M          | 2 days   | RdfStore      |
-| Named graph support                        | P0       | M          | 2 days   | RdfStore      |
-| RDF serialization (Turtle, N-Triples)      | P0       | S          | 1 day    | RdfStore      |
-| RdfBuilder service for fluent construction | P1       | M          | 2 days   | RdfStore      |
-| RDF/JSON-LD import/export                  | P2       | S          | 1 day    | Serialization |
-
-**Key Files to Create**:
+**Files to Create**:
 
 ```
-packages/knowledge/domain/src/value-objects/rdf/
-  index.ts                    # Public exports
-  Quad.ts                     # Quad schema (subject, predicate, object, graph)
-  QuadPattern.ts              # Pattern matching schema
-  RdfFormat.ts                # Serialization format enum
-
-packages/knowledge/server/src/Rdf/
-  index.ts                    # Public exports
-  RdfStoreService.ts          # Effect.Service wrapping N3.Store
-  NamedGraph.ts               # Named graph support for provenance
-  RdfBuilder.ts               # Fluent RDF construction API
-  Serializer.ts               # Turtle/N-Triples/JSON-LD serialization
+server/src/Workflow/
+  index.ts                      # Public exports
+  ExtractionWorkflow.ts         # @effect/workflow definition with 6 durable activities
+  DurableActivities.ts          # Activity wrappers for each extraction stage
+  WorkflowPersistence.ts        # PostgreSQL persistence adapter using workflow tables
+  ProgressStream.ts             # SSE progress event emission
 ```
 
-**Service Interface Design**:
-
-```typescript
-// RdfStoreService.ts - Core triple store abstraction
-export class RdfStore extends Effect.Service<RdfStore>()("@beep/knowledge-server/RdfStore", {
-  accessors: true,
-  effect: Effect.gen(function* () {
-    // Initialize N3.Store or other backend here
-    const store = new N3.Store();
-
-    return {
-      // Core quad operations
-      addQuad: (quad: Quad) =>
-        Effect.gen(function* () {
-          store.addQuad(quad);
-        }).pipe(Effect.withSpan("RdfStore.addQuad", { captureStackTrace: false })),
-
-      removeQuad: (quad: Quad) =>
-        Effect.gen(function* () {
-          store.removeQuad(quad);
-        }).pipe(Effect.withSpan("RdfStore.removeQuad", { captureStackTrace: false })),
-
-      hasQuad: (quad: Quad) =>
-        Effect.gen(function* () {
-          return store.has(quad);
-        }).pipe(Effect.withSpan("RdfStore.hasQuad", { captureStackTrace: false })),
-
-      // Pattern matching (foundation for SPARQL)
-      match: (pattern: QuadPattern) =>
-        Effect.gen(function* () {
-          return store.getQuads(pattern.subject, pattern.predicate, pattern.object, pattern.graph);
-        }).pipe(Effect.withSpan("RdfStore.match", { captureStackTrace: false })),
-
-      // Named graphs
-      createGraph: (iri: string) =>
-        Effect.gen(function* () {
-          // Named graph creation logic
-        }).pipe(Effect.withSpan("RdfStore.createGraph", { captureStackTrace: false })),
-
-      dropGraph: (iri: string) =>
-        Effect.gen(function* () {
-          store.deleteGraph(iri);
-        }).pipe(Effect.withSpan("RdfStore.dropGraph", { captureStackTrace: false })),
-
-      // Bulk operations
-      loadTurtle: (content: string, graph?: string) =>
-        Effect.gen(function* () {
-          // Parse and load Turtle content
-          return 0; // Return number of quads loaded
-        }).pipe(Effect.withSpan("RdfStore.loadTurtle", { captureStackTrace: false })),
-
-      serialize: (format: RdfFormat, graph?: string) =>
-        Effect.gen(function* () {
-          // Serialize graph to specified format
-          return "";
-        }).pipe(Effect.withSpan("RdfStore.serialize", { captureStackTrace: false })),
-    };
-  }),
-}) {}
+```
+domain/src/value-objects/
+  workflow-state.value.ts       # WorkflowExecutionState schema
+  extraction-progress.value.ts  # Progress event schema for SSE
 ```
 
-**Dependencies**: Phase -1 MUST be complete
-
-**Risks**:
-
-| Risk                              | Likelihood | Impact | Mitigation                                             |
-|-----------------------------------|------------|--------|--------------------------------------------------------|
-| N3.js API changes                 | Low        | Medium | Pin N3.js version, wrap all access through abstraction |
-| Performance at scale              | Medium     | High   | Design for future Oxigraph migration, benchmark early  |
-| Memory pressure from large graphs | Medium     | Medium | Add graph size limits, streaming APIs for large loads  |
-
-**Success Criteria**:
-- [ ] RdfStore can load Turtle ontologies from existing `OntologyParser`
-- [ ] QuadPattern queries return correct results for subject/predicate/object patterns
-- [ ] Named graphs properly isolate triples
-- [ ] Serialization round-trips without data loss
-- [ ] Unit tests cover all public APIs
-- [ ] `OntologyService.load()` can optionally populate RdfStore
-
----
-
-### Phase 1: Query & Reasoning Layer
-
-**Objective**: Enable SPARQL queries and RDFS/OWL reasoning over the knowledge graph
-
-**Priority**: P0-P1 - Critical for semantic features
-
-**Context**: effect-ontology uses Oxigraph WASM for SPARQL execution and implements forward-chaining RDFS reasoning. The knowledge slice currently has no query language beyond SQL - GraphRAG does traversal in application code. Adding SPARQL enables declarative graph queries; reasoning enables inference of implicit knowledge.
-
-**Deliverables**:
-
-| Item                           | Priority | Complexity | Estimate | Dependencies     |
-|--------------------------------|----------|------------|----------|------------------|
-| SPARQL query service           | P0       | XL         | 5 days   | Phase 0 RdfStore |
-| Basic SPARQL parser (subset)   | P0       | L          | 3 days   | None             |
-| Query result formatting        | P0       | M          | 2 days   | SPARQL service   |
-| RDFS forward-chaining reasoner | P1       | L          | 4 days   | RdfStore         |
-| SHACL validation service       | P1       | L          | 4 days   | RdfStore         |
-| Reasoning result caching       | P2       | M          | 2 days   | Reasoner         |
-| N3 rules engine (optional)     | P3       | XL         | 5 days   | Reasoner         |
-
-**Key Files to Create**:
+**Files to Modify**:
 
 ```
-packages/knowledge/domain/src/value-objects/sparql/
-  index.ts
-  SparqlBindings.ts           # Query result bindings schema
-  SparqlQuery.ts              # Query string wrapper
-
-packages/knowledge/server/src/Sparql/
-  index.ts
-  SparqlService.ts            # SPARQL query execution
-  SparqlParser.ts             # Parse SPARQL to algebra (using sparqljs)
-  ResultFormatter.ts          # Format SPARQL results (bindings, graph)
-
-packages/knowledge/domain/src/value-objects/reasoning/
-  index.ts
-  InferenceResult.ts          # Inference output schema
-  ReasoningProfile.ts         # RDFS, OWL-RL profiles
-
-packages/knowledge/server/src/Reasoning/
-  index.ts
-  ReasonerService.ts          # Forward-chaining reasoner
-  RdfsRules.ts                # RDFS entailment rules
-  OwlRlRules.ts               # OWL RL subset rules
-  InferenceCache.ts           # Cache inferred triples
-
-packages/knowledge/server/src/Validation/
-  index.ts
-  ShaclService.ts             # SHACL shape validation
-  ShaclParser.ts              # Parse SHACL shapes from RDF
-  ValidationReport.ts         # SHACL validation report schema
-```
-
-**Service Interface Design**:
-
-```typescript
-// SparqlService.ts
-export class SparqlService extends Effect.Service<SparqlService>()("@beep/knowledge-server/SparqlService", {
-  accessors: true,
-  effect: Effect.gen(function* () {
-    const rdfStore = yield* RdfStore;
-
-    return {
-      // Execute SELECT query
-      select: (query: string, defaultGraph?: string) =>
-        Effect.gen(function* () {
-          // Parse query, execute against store, return bindings
-          yield* Effect.logDebug("SparqlService.select", { query, defaultGraph });
-          // Implementation using sparqljs or Oxigraph
-          return {} as SparqlBindings;
-        }).pipe(Effect.withSpan("SparqlService.select", { captureStackTrace: false })),
-
-      // Execute CONSTRUCT query
-      construct: (query: string, defaultGraph?: string) =>
-        Effect.gen(function* () {
-          yield* Effect.logDebug("SparqlService.construct", { query, defaultGraph });
-          // Implementation returning constructed quads
-          return [] as ReadonlyArray<Quad>;
-        }).pipe(Effect.withSpan("SparqlService.construct", { captureStackTrace: false })),
-
-      // Execute ASK query
-      ask: (query: string, defaultGraph?: string) =>
-        Effect.gen(function* () {
-          yield* Effect.logDebug("SparqlService.ask", { query, defaultGraph });
-          // Implementation returning boolean
-          return false;
-        }).pipe(Effect.withSpan("SparqlService.ask", { captureStackTrace: false })),
-    };
-  }),
-}) {}
-
-// ReasonerService.ts
-export class ReasonerService extends Effect.Service<ReasonerService>()("@beep/knowledge-server/ReasonerService", {
-  accessors: true,
-  effect: Effect.gen(function* () {
-    const rdfStore = yield* RdfStore;
-
-    return {
-      // Compute closure (all inferred triples)
-      computeClosure: (profile: ReasoningProfile) =>
-        Effect.gen(function* () {
-          yield* Effect.logDebug("ReasonerService.computeClosure", { profile });
-          // Forward-chaining inference implementation
-          return {} as InferenceResult;
-        }).pipe(Effect.withSpan("ReasonerService.computeClosure", { captureStackTrace: false })),
-
-      // Check entailment
-      entails: (pattern: QuadPattern) =>
-        Effect.gen(function* () {
-          yield* Effect.logDebug("ReasonerService.entails", { pattern });
-          // Check if pattern is entailed by current knowledge
-          return false;
-        }).pipe(Effect.withSpan("ReasonerService.entails", { captureStackTrace: false })),
-
-      // Explain inference chain
-      explain: (quad: Quad) =>
-        Effect.gen(function* () {
-          yield* Effect.logDebug("ReasonerService.explain", { quad });
-          // Build explanation trace
-          return {} as InferenceTrace;
-        }).pipe(Effect.withSpan("ReasonerService.explain", { captureStackTrace: false })),
-    };
-  }),
-}) {}
-```
-
-**Technology Decision - SPARQL Implementation**:
-
-| Option                     | Pros                         | Cons                          | Recommendation          |
-|----------------------------|------------------------------|-------------------------------|-------------------------|
-| sparqljs + custom executor | Pure JS, no WASM             | Limited optimization          | Start here              |
-| Oxigraph WASM              | Full SPARQL 1.1, fast        | Large bundle, WASM complexity | Migrate later           |
-| Comunica                   | Federated queries, streaming | Complex setup                 | Consider for federation |
-
-**Recommendation**: Start with sparqljs for parsing + custom executor over RdfStore. Design abstraction to allow Oxigraph migration when performance requires it.
-
-**Dependencies**:
-- Phase 0 (RdfStore) MUST be complete
-- Reasoning depends on SPARQL for some rule applications
-
-**Risks**:
-
-| Risk                       | Likelihood | Impact | Mitigation                                        |
-|----------------------------|------------|--------|---------------------------------------------------|
-| SPARQL subset insufficient | Medium     | Medium | Document supported features, add incrementally    |
-| Reasoning performance      | High       | Medium | Limit reasoning depth, use incremental algorithms |
-| SHACL complexity           | Low        | Low    | Start with core constraints, expand as needed     |
-
-**Success Criteria**:
-- [ ] Basic SELECT/CONSTRUCT/ASK queries execute correctly
-- [ ] RDFS subclass/subproperty reasoning produces correct inferences
-- [ ] SHACL validation catches constraint violations
-- [ ] Query performance acceptable for knowledge graphs < 100K triples
-- [ ] Integration test: query entities extracted by ExtractionPipeline via SPARQL
-
----
-
-### Phase 2: Entity Resolution Enhancements
-
-**Objective**: Add immutable evidence layer and cross-batch entity resolution
-
-**Priority**: P1 - Important for production use
-
-**Context**: The knowledge slice has a good foundation with `MentionModel` and `EntityClusterer`, but lacks:
-1. Immutable `MentionRecord` layer (effect-ontology pattern for preserving raw extractions)
-2. Cross-batch resolution (currently resolution is per-extraction-run)
-3. Global entity registry for organization-wide deduplication
-
-**Deliverables**:
-
-| Item                             | Priority | Complexity | Estimate | Dependencies     |
-|----------------------------------|----------|------------|----------|------------------|
-| MentionRecord immutable layer    | P1       | M          | 3 days   | Phase -1         |
-| Cross-batch entity registry      | P1       | L          | 4 days   | MentionRecord    |
-| Entity merge history tracking    | P1       | M          | 2 days   | Registry         |
-| Incremental clustering algorithm | P2       | L          | 3 days   | Registry         |
-| Entity split/unmerge capability  | P2       | M          | 2 days   | History tracking |
-
-**Key Files to Create/Modify**:
-
-```
-packages/knowledge/domain/src/entities/MentionRecord/
-  index.ts
-  MentionRecord.model.ts      # Immutable extraction evidence
-  MentionRecord.rpc.ts        # RPC contracts
-
-packages/knowledge/server/src/EntityResolution/
-  EntityRegistry.ts           # Cross-batch entity lookup
-  MergeHistory.ts             # Track entity merge decisions
-  IncrementalClusterer.ts     # Add new mentions to existing clusters
-
-packages/knowledge/server/src/rpc/v1/
-  mention-record/_rpcs.ts     # RPC handler layer composition
-  resolution/_rpcs.ts         # Resolution RPC handler layer composition
-
-packages/knowledge/tables/src/tables/
-  mention-record.table.ts     # Immutable mention storage
-  entity-merge-history.table.ts
-```
-
-**Data Model Enhancement**:
-
-```
-Current Flow:
-  Text -> Mentions -> Entities (merged within batch)
-
-Enhanced Flow:
-  Text -> MentionRecords (immutable) -> Mentions -> Entities
-                    |                        |
-                    v                        v
-              Evidence Layer          Resolution Layer
-              (never modified)        (clusters evolve)
-```
-
-**MentionRecord Schema**:
-
-```typescript
-// MentionRecord.model.ts
-export class Model extends M.Class<Model>($I`MentionRecordModel`)(
-  makeFields(KnowledgeEntityIds.MentionRecordId, {
-    organizationId: SharedEntityIds.OrganizationId,
-
-    // Extraction provenance (immutable)
-    extractionId: KnowledgeEntityIds.ExtractionId,
-    documentId: DocumentsEntityIds.DocumentId,
-    chunkIndex: S.NonNegativeInt,
-
-    // Raw extraction output (immutable)
-    rawText: S.String,
-    startChar: S.NonNegativeInt,
-    endChar: S.NonNegativeInt,
-    extractorConfidence: Confidence,
-
-    // LLM response preservation
-    llmResponseHash: S.String,  // Hash of raw LLM output for audit
-
-    // Link to resolved entity (mutable via resolution)
-    resolvedEntityId: BS.FieldOptionOmittable(KnowledgeEntityIds.EntityId),
-  }),
-) {}
-```
-
-**Dependencies**: Phase -1 MUST be complete - can proceed in parallel with Phases 0-1
-
-**Risks**:
-
-| Risk                    | Likelihood | Impact | Mitigation                                             |
-|-------------------------|------------|--------|--------------------------------------------------------|
-| Migration complexity    | Medium     | Medium | Add MentionRecord alongside Mention, migrate gradually |
-| Cross-batch performance | Medium     | High   | Index on normalized text, use bloom filters            |
-| Merge conflicts         | Low        | Medium | Conflict resolution UI, human-in-the-loop              |
-
-**Success Criteria**:
-- [ ] MentionRecords created during extraction are never modified
-- [ ] Cross-batch resolution finds existing entities for new extractions
-- [ ] Merge history enables auditing of resolution decisions
-- [ ] Existing ExtractionPipeline continues working during migration
-- [ ] Test: same entity extracted from different documents merges correctly
-
----
-
-### Phase 3: Workflow Durability
-
-**Objective**: Add @effect/workflow for durable execution with SSE progress streaming
-
-**Priority**: P0 - Critical for reliability
-
-**Context**: The knowledge slice ExtractionPipeline runs as a single Effect - if it fails mid-extraction, all progress is lost. effect-ontology uses @effect/workflow for:
-1. Durable activities that survive restarts
-2. State machine for batch processing with SSE progress
-3. PostgreSQL persistence for workflow state
-
-**Deliverables**:
-
-| Item                              | Priority | Complexity | Estimate | Dependencies       |
-|-----------------------------------|----------|------------|----------|--------------------|
-| @effect/workflow integration      | P0       | L          | 4 days   | Phase -1           |
-| Workflow persistence tables       | P0       | M          | 2 days   | None               |
-| ExtractionWorkflow definition     | P0       | L          | 3 days   | Integration        |
-| Durable activities for each stage | P0       | L          | 4 days   | ExtractionWorkflow |
-| SSE progress streaming            | P0       | M          | 3 days   | Workflow state     |
-| Batch state machine               | P0       | L          | 3 days   | SSE                |
-| Cross-batch orchestration         | P1       | M          | 2 days   | State machine      |
-
-> **Note**: Batch state machine elevated to P0 to align with GAP_ANALYSIS Gap #4 priority.
-
-**Key Files to Create**:
-
-```
-packages/knowledge/server/src/Workflow/
-  index.ts
-  ExtractionWorkflow.ts       # @effect/workflow definition
-  DurableActivities.ts        # Activity implementations
-  WorkflowPersistence.ts      # PostgreSQL persistence layer
-  ProgressStream.ts           # SSE progress events
-  BatchStateMachine.ts        # State machine for batch processing
-
-packages/knowledge/tables/src/tables/
-  workflow-execution.table.ts
-  workflow-activity.table.ts
-  workflow-signal.table.ts
+server/src/Extraction/ExtractionPipeline.ts  # Refactor stages into activity calls
+server/src/Runtime/LlmLayers.ts              # Add workflow persistence layer
 ```
 
 **Workflow Architecture**:
+
+The ExtractionPipeline currently runs as a single Effect.gen block. This refactoring splits it into discrete durable activities:
 
 ```
 ExtractionWorkflow
   |
   +-- Activity: ChunkText (durable)
-  |     |
   |     +-- [checkpoint]
   |
   +-- Activity: ExtractMentions (durable, per-chunk)
-  |     |
   |     +-- [checkpoint per chunk]
   |
   +-- Activity: ClassifyEntities (durable, batched)
-  |     |
   |     +-- [checkpoint per batch]
   |
   +-- Activity: ExtractRelations (durable, per-chunk)
-  |     |
   |     +-- [checkpoint per chunk]
   |
   +-- Activity: AssembleGraph (durable)
-  |     |
+  |     +-- [checkpoint]
+  |
+  +-- Activity: ResolveEntities (durable, optional)
   |     +-- [final checkpoint]
   |
-  +-- Signal: Progress (SSE stream)
+  +-- Signal: Progress (SSE stream at each checkpoint)
 ```
 
-**Workflow Service Interface**:
-
-```typescript
-// ExtractionWorkflow.ts
-export const ExtractionWorkflow = Workflow.workflow("extraction", {
-  input: ExtractionWorkflowInput,
-  output: ExtractionWorkflowOutput,
-
-  run: Effect.gen(function* (input) {
-    // Stage 1: Chunk
-    const chunks = yield* Workflow.activity("chunk", ChunkActivity, {
-      text: input.text,
-      config: input.chunkingConfig,
-    });
-
-    yield* Workflow.signal("progress", { stage: "chunking", complete: true });
-
-    // Stage 2: Extract mentions (parallel with checkpoints)
-    const mentions = yield* Workflow.all(
-      A.map(chunks, (chunk, i) =>
-        Workflow.activity(`mentions-${i}`, MentionActivity, { chunk })
-      ),
-      { concurrency: 5 }
-    );
-
-    yield* Workflow.signal("progress", { stage: "mentions", complete: true });
-
-    // ... remaining stages
-  }),
-});
-```
-
-**SSE Progress Protocol**:
-
-```typescript
-// ProgressStream.ts
-export class ExtractionProgress extends S.Class<ExtractionProgress>("ExtractionProgress")({
-  workflowId: KnowledgeEntityIds.WorkflowId,
-  stage: S.Literal("chunking", "mentions", "entities", "relations", "assembly"),
-  progress: S.Number.pipe(S.greaterThanOrEqualTo(0), S.lessThanOrEqualTo(1)),
-  currentItem: S.optional(S.Number),
-  totalItems: S.optional(S.Number),
-  error: S.optional(S.String),
-}) {}
-```
-
-**Dependencies**: Phase -1 MUST be complete - can proceed in parallel with Phases 0-2
+**Backward Compatibility**: The existing `ExtractionPipeline.run()` method signature is preserved. The workflow wraps the pipeline stages, not replaces them. Non-workflow mode continues to work for simple/test scenarios.
 
 **Risks**:
 
-| Risk                            | Likelihood | Impact | Mitigation                                       |
-|---------------------------------|------------|--------|--------------------------------------------------|
-| @effect/workflow learning curve | Medium     | Medium | Study effect-ontology patterns, pair programming |
-| Persistence schema evolution    | Low        | Medium | Use migrations, version workflow definitions     |
-| SSE connection management       | Medium     | Low    | Implement reconnection, heartbeat                |
+| Risk | Likelihood | Impact | Mitigation |
+|------|-----------|--------|------------|
+| @effect/workflow API evolution | Medium | Medium | Pin version, abstract persistence adapter |
+| Persistence schema evolution | Low | Medium | Use Drizzle migrations, version workflow definitions |
+| ExtractionPipeline refactoring scope | Medium | High | Keep activity boundaries at existing stage boundaries |
+| SSE connection management | Medium | Low | Implement reconnection with last-event-id |
 
 **Success Criteria**:
 - [ ] Extraction survives server restart at any stage
-- [ ] SSE stream shows real-time progress
-- [ ] Failed activities retry automatically
+- [ ] Failed activities retry automatically with configurable policy
 - [ ] Workflow state persisted in PostgreSQL
+- [ ] Progress events emitted at each activity checkpoint
 - [ ] Test: kill server mid-extraction, restart, extraction completes
+- [ ] Existing `ExtractionPipeline.run()` continues working without workflow
 
 ---
 
-### Phase 4: GraphRAG Enhancements
+#### 1C. CircuitBreaker for LLM Calls (Gap #11) -- Days 26-27
 
-**Objective**: Add grounded answer generation with reasoning traces and citation validation
+**Priority**: P2 | **Complexity**: S | **Estimate**: 2 days
 
-**Priority**: P2 - Nice to have for production quality
+**Description**: Wrap LLM and embedding service calls with circuit breaker pattern to prevent cascade failures during provider outages.
 
-**Context**: The knowledge slice has a solid GraphRAGService with k-NN + N-hop traversal and RRF scoring. Missing capabilities:
-1. Grounded answer generation (answers cite specific entities/relations)
-2. Reasoning trace generation (show inference path)
-3. Citation validation (verify claims against graph)
-
-**Deliverables**:
-
-| Item                               | Priority | Complexity | Estimate | Dependencies     |
-|------------------------------------|----------|------------|----------|------------------|
-| Grounded answer schema             | P2       | S          | 1 day    | None             |
-| Answer generation prompt templates | P2       | M          | 2 days   | Schema           |
-| Reasoning trace formatter          | P2       | M          | 2 days   | Phase 1 Reasoner |
-| Citation validation service        | P2       | M          | 3 days   | Phase 1 SPARQL   |
-| Confidence propagation             | P3       | M          | 2 days   | Validation       |
-
-**Key Files to Create/Modify**:
+**Files to Create**:
 
 ```
-packages/knowledge/server/src/GraphRAG/
-  GroundedAnswerGenerator.ts  # Generate answers with citations
-  ReasoningTraceFormatter.ts  # Format inference paths
-  CitationValidator.ts        # Validate claims against graph
-  AnswerSchemas.ts            # Grounded answer output schemas
-```
-
-**Grounded Answer Schema**:
-
-```typescript
-// AnswerSchemas.ts
-export class GroundedClaim extends S.Class<GroundedClaim>("GroundedClaim")({
-  text: S.String,
-  confidence: Confidence,
-
-  // Citations
-  entityRefs: S.Array(S.Struct({
-    entityId: KnowledgeEntityIds.EntityId,
-    entityName: S.String,
-    relevance: S.Number,
-  })),
-
-  relationRefs: S.Array(S.Struct({
-    relationId: KnowledgeEntityIds.RelationId,
-    predicate: S.String,
-    subjectName: S.String,
-    objectName: S.String,
-  })),
-
-  // Reasoning trace (if inference was used)
-  inferenceTrace: S.optional(S.Array(S.Struct({
-    rule: S.String,
-    premise: S.String,
-    conclusion: S.String,
-  }))),
-}) {}
-
-export class GroundedAnswer extends S.Class<GroundedAnswer>("GroundedAnswer")({
-  claims: S.Array(GroundedClaim),
-  overallConfidence: Confidence,
-  unsupportedClaims: S.Array(S.String),  // Claims that couldn't be grounded
-}) {}
-```
-
-**Citation Validation Flow**:
-
-```
-LLM Response -> Parse Claims -> For each claim:
-  |
-  +-- Extract entity mentions
-  |     |
-  |     +-- SPARQL: Find matching entities
-  |     +-- Verify existence in retrieved subgraph
-  |
-  +-- Extract relation claims
-  |     |
-  |     +-- SPARQL: Verify relation exists
-  |     +-- If not direct: check for inference path
-  |
-  +-- Score claim confidence
-        |
-        +-- Based on: entity match quality, relation verification, inference depth
-```
-
-**Dependencies**:
-- Phase 1 (SPARQL + Reasoning) MUST be complete for citation validation
-- Can start answer schema and prompts in parallel
-
-**Risks**:
-
-| Risk                                | Likelihood | Impact | Mitigation                                       |
-|-------------------------------------|------------|--------|--------------------------------------------------|
-| LLM hallucination despite grounding | High       | Medium | Strict validation, low confidence for ungrounded |
-| Performance of validation           | Medium     | Low    | Cache SPARQL results, batch queries              |
-| Complex inference traces            | Low        | Low    | Limit trace depth, simplify presentation         |
-
-**Success Criteria**:
-- [ ] Generated answers include entity/relation citations
-- [ ] Citations link to actual graph nodes
-- [ ] Ungrounded claims flagged with low confidence
-- [ ] Inference traces show reasoning path when applicable
-- [ ] Test: answer about inferred relationship includes reasoning trace
-
----
-
-### Phase 5: Production Resilience
-
-**Objective**: Add operational hardening for production deployment
-
-**Priority**: P3 - Future (but important before production launch)
-
-**Context**: effect-ontology includes resilience patterns that the knowledge slice lacks:
-1. CircuitBreaker for external service calls (LLM, embedding)
-2. Retry with exponential backoff
-3. Rate limiting service
-4. Service bundles for cleaner Layer composition
-
-**Deliverables**:
-
-| Item                   | Priority | Complexity | Estimate | Dependencies |
-|------------------------|----------|------------|----------|--------------|
-| CircuitBreaker service | P3       | M          | 2 days   | None         |
-| Retry policies         | P3       | S          | 1 day    | None         |
-| Rate limiting service  | P3       | M          | 2 days   | None         |
-| Service bundles        | P3       | M          | 2 days   | None         |
-| Health check endpoints | P3       | S          | 1 day    | None         |
-| Metrics collection     | P3       | M          | 2 days   | None         |
-
-**Key Files to Create**:
-
-```
-packages/knowledge/server/src/Resilience/
+server/src/Resilience/
   index.ts
-  CircuitBreaker.ts           # Circuit breaker pattern
-  RetryPolicy.ts              # Configurable retry policies
-  RateLimiter.ts              # Token bucket rate limiting
-
-packages/knowledge/server/src/Runtime/
-  ServiceBundles.ts           # Grouped Layer compositions
-  HealthCheck.ts              # Service health endpoints
+  CircuitBreaker.ts             # Generic circuit breaker using Effect.retry + Ref state
 ```
 
-**Circuit Breaker Service**:
+**Files to Modify**:
 
-```typescript
-// CircuitBreaker.ts
-export class CircuitBreaker extends Effect.Service<CircuitBreaker>()("@beep/knowledge-server/CircuitBreaker", {
-  accessors: true,
-  effect: Effect.gen(function* () {
-    // Initialize circuit state tracking
-    const circuits = yield* Ref.make(new Map<string, CircuitState>());
-
-    return {
-      // Wrap an effect with circuit breaker
-      protect: <A, E, R>(
-        name: string,
-        effect: Effect.Effect<A, E, R>,
-        config?: CircuitBreakerConfig
-      ) =>
-        Effect.gen(function* () {
-          const state = yield* Ref.get(circuits);
-          const circuitState = state.get(name) ?? { status: "closed", failures: 0 };
-
-          if (circuitState.status === "open") {
-            return yield* Effect.fail(new CircuitOpenError({ circuit: name }));
-          }
-
-          return yield* effect;
-        }).pipe(Effect.withSpan("CircuitBreaker.protect", { captureStackTrace: false })),
-
-      // Get circuit state
-      getState: (name: string) =>
-        Effect.gen(function* () {
-          const state = yield* Ref.get(circuits);
-          return state.get(name) ?? { status: "closed", failures: 0 };
-        }).pipe(Effect.withSpan("CircuitBreaker.getState", { captureStackTrace: false })),
-
-      // Manual circuit control
-      trip: (name: string) =>
-        Effect.gen(function* () {
-          yield* Ref.update(circuits, (state) => {
-            state.set(name, { status: "open", failures: 0 });
-            return state;
-          });
-        }).pipe(Effect.withSpan("CircuitBreaker.trip", { captureStackTrace: false })),
-
-      reset: (name: string) =>
-        Effect.gen(function* () {
-          yield* Ref.update(circuits, (state) => {
-            state.set(name, { status: "closed", failures: 0 });
-            return state;
-          });
-        }).pipe(Effect.withSpan("CircuitBreaker.reset", { captureStackTrace: false })),
-    };
-  }),
-}) {}
+```
+server/src/Runtime/LlmLayers.ts                    # Wrap LLM layer with circuit breaker
+server/src/Embedding/EmbeddingService.ts            # Wrap embedding calls with circuit breaker
+server/src/GraphRAG/GroundedAnswerGenerator.ts      # Wrap LLM calls with circuit breaker
 ```
 
-**Service Bundle Pattern**:
-
-```typescript
-// ServiceBundles.ts - Following effect-ontology pattern
-export const LlmBundle = Layer.mergeAll(
-  LlmLive,
-  CircuitBreaker.Default,
-  RateLimiter.Default,
-);
-
-export const ExtractionBundle = Layer.mergeAll(
-  NlpService.Default,
-  MentionExtractor.Default,
-  EntityExtractor.Default,
-  RelationExtractor.Default,
-  GraphAssembler.Default,
-);
-
-export const KnowledgeServerLive = Layer.mergeAll(
-  LlmBundle,
-  ExtractionBundle,
-  // ... other bundles
-).pipe(
-  Layer.provide(DatabaseLayer),
-  Layer.provide(ConfigLayer),
-);
-```
-
-**Dependencies**: Phases 1-4 should be stable before adding resilience wrappers
-
-**Risks**:
-
-| Risk                     | Likelihood | Impact | Mitigation                               |
-|--------------------------|------------|--------|------------------------------------------|
-| Over-engineering         | Medium     | Low    | Start with critical paths only           |
-| Configuration complexity | Low        | Low    | Sensible defaults, environment overrides |
+**Implementation Approach**: Use Effect's built-in `Effect.retry` with `Schedule` combinators plus `Ref<CircuitState>` for state tracking. Three states: closed (normal), open (failing fast), half-open (probing recovery).
 
 **Success Criteria**:
-- [ ] LLM calls protected by circuit breaker
-- [ ] Embedding calls rate-limited per organization
-- [ ] Failed extractions retry with backoff
-- [ ] Health check endpoint reports service status
-- [ ] Test: circuit opens after N failures, half-opens after timeout
+- [ ] Circuit opens after N consecutive LLM failures
+- [ ] Calls fail fast when circuit is open (no wasted API calls)
+- [ ] Circuit half-opens after timeout, probes with single request
+- [ ] Test: simulate provider outage, verify circuit opens and recovers
 
 ---
 
-### Phase 6: POC Integration
+#### 1D. Rate Limiting for API Calls (Gap #12) -- Days 28-29
 
-**Objective**: Connect `apps/todox/src/app/knowledge-demo/` to production knowledge services
+**Priority**: P2 | **Complexity**: S | **Estimate**: 1.5 days
 
-**Priority**: P1 - Validates entire pipeline end-to-end
+**Description**: Add semaphore-based rate limiting for LLM and embedding API calls to prevent provider rate limit errors and cost overruns.
 
-**Dependencies**:
-- **Hard requirements**: Phase 0 (RDF Foundation), Phase 1 (Query Layer), Phase 4 (GraphRAG+)
-- **Soft requirements**: Phases 2, 3, 5 can proceed in parallel with Phase 6
-
-> **Note**: The critical path (12 weeks) assumes Phase 6 starts after Phase 4.
-> Full dependency on Phases 0-5 extends timeline to 18+ weeks.
-
-**Context**: The knowledge-demo application contains 23 production-ready React components for knowledge graph visualization and interaction. Currently, it uses mock server actions with pattern matching and BFS traversal. This phase replaces mocks with real service calls while preserving the UI.
-
-#### Current POC Components (23 total)
-
-| Component               | Purpose                      | Mock Dependency       |
-|-------------------------|------------------------------|-----------------------|
-| EntityCardList          | Display extracted entities   | `extractFromText()`   |
-| RelationTable           | Show entity relationships    | `extractFromText()`   |
-| SourceTextPanel         | Highlight mentions in source | `extractFromText()`   |
-| EntityDetailDrawer      | Entity details sidebar       | Mock data             |
-| EntityResolutionPanel   | Manual entity merging        | `resolveEntities()`   |
-| GraphRAGQueryPanel      | Natural language queries     | `queryGraphRAG()`     |
-| QueryResultDisplay      | Show RAG answers             | `queryGraphRAG()`     |
-| ClusterList             | Entity clusters visualization| `resolveEntities()`   |
-| SameAsLinkTable         | owl:sameAs relationships     | Mock data             |
-| EmailInputPanel         | Email-based extraction       | `extractFromText()`   |
-| ErrorAlert              | Error display                | N/A                   |
-| Various skeletons       | Loading states               | N/A                   |
-
-#### Mock Server Actions to Replace
-
-| Current Mock         | Mock Behavior                       | Production Service          | RPC                        |
-|----------------------|-------------------------------------|-----------------------------|----------------------------|
-| `extractFromText()`  | Pattern matching + random confidence| `ExtractionPipeline`        | `Extraction.Rpcs.extract`  |
-| `queryGraphRAG()`    | BFS traversal + mock scores         | `GraphRAGService`           | `GraphRAG.Rpcs.query`      |
-| `resolveEntities()`  | Name similarity heuristic           | `EntityResolutionService`   | `Resolution.Rpcs.resolve`  |
-
-#### Deliverables
-
-| Item                               | Priority | Complexity | Estimate | Dependencies  |
-|------------------------------------|----------|------------|----------|---------------|
-| Knowledge RPC client setup         | P0       | S          | 0.5 day  | Phases 0-5    |
-| Replace `extractFromText()` action | P0       | M          | 2 days   | RPC client    |
-| Replace `queryGraphRAG()` action   | P0       | M          | 2 days   | RPC client    |
-| Replace `resolveEntities()` action | P0       | M          | 1 day    | RPC client    |
-| Add authentication context         | P0       | S          | 1 day    | RPC client    |
-| Add tagged error handling          | P1       | M          | 1 day    | All actions   |
-| Add loading/streaming states       | P1       | S          | 0.5 day  | All actions   |
-| Database persistence verification  | P0       | M          | 1 day    | All actions   |
-| Integration tests                  | P1       | M          | 2 days   | All above     |
-
-#### Key Files to Modify
+**Files to Create**:
 
 ```
-apps/todox/src/app/knowledge-demo/
-  actions.ts                  # Replace mock implementations
-  page.tsx                    # Add RPC provider context
-
-packages/knowledge/client/src/
-  index.ts                    # Export RPC client
-  KnowledgeRpcClient.ts       # RPC client setup
+server/src/Resilience/
+  RateLimiter.ts                # Semaphore-based rate limiter with configurable concurrency
 ```
 
-#### RPC Client Setup
+**Files to Modify**:
 
-**File**: `apps/todox/src/app/knowledge-demo/actions.ts`
-
-```typescript
-"use server";
-
-import * as Effect from "effect/Effect";
-import { KnowledgeRpcClient, KnowledgeRpcClientLive } from "@beep/knowledge-client";
-
-// Replace mock with real extraction
-export async function extractFromText(
-  text: string,
-  organizationId: string
-): Promise<ExtractionResult> {
-  return Effect.gen(function* () {
-    const client = yield* KnowledgeRpcClient;
-
-    const result = yield* client.extraction.extract({
-      text,
-      organizationId,
-      config: {
-        chunkSize: 1000,
-        chunkOverlap: 100,
-      },
-    });
-
-    return result;
-  }).pipe(
-    Effect.provide(KnowledgeRpcClientLive),
-    Effect.runPromise
-  );
-}
-
-// Replace mock with real GraphRAG
-export async function queryGraphRAG(
-  query: string,
-  organizationId: string
-): Promise<GraphRAGResult> {
-  return Effect.gen(function* () {
-    const client = yield* KnowledgeRpcClient;
-
-    const result = yield* client.graphRag.query({
-      query,
-      organizationId,
-      config: {
-        topK: 10,
-        maxHops: 2,
-        includeReasoningTrace: true,
-      },
-    });
-
-    return result;
-  }).pipe(
-    Effect.provide(KnowledgeRpcClientLive),
-    Effect.runPromise
-  );
-}
-
-// Replace mock with real resolution
-export async function resolveEntities(
-  entityIds: ReadonlyArray<string>,
-  organizationId: string
-): Promise<ResolutionResult> {
-  return Effect.gen(function* () {
-    const client = yield* KnowledgeRpcClient;
-
-    const result = yield* client.resolution.resolve({
-      entityIds,
-      organizationId,
-    });
-
-    return result;
-  }).pipe(
-    Effect.provide(KnowledgeRpcClientLive),
-    Effect.runPromise
-  );
-}
+```
+server/src/Runtime/LlmLayers.ts                    # Add rate limiter to LLM layer composition
+server/src/Embedding/EmbeddingService.ts            # Add rate limiter to embedding calls
 ```
 
-#### Error Handling Pattern
-
-```typescript
-import * as Match from "effect/Match";
-import { Extraction } from "@beep/knowledge-domain";
-
-export async function extractFromText(text: string): Promise<ExtractionResult | ErrorResult> {
-  return Effect.gen(function* () {
-    // ... extraction logic
-  }).pipe(
-    Effect.catchTag("ExtractionError", (error) =>
-      Effect.succeed({
-        _tag: "Error" as const,
-        message: error.message,
-        recoverable: true,
-      })
-    ),
-    Effect.catchTag("RateLimitError", (error) =>
-      Effect.succeed({
-        _tag: "Error" as const,
-        message: "Rate limit exceeded. Please try again later.",
-        recoverable: true,
-        retryAfter: error.retryAfter,
-      })
-    ),
-    Effect.catchAll((error) =>
-      Effect.succeed({
-        _tag: "Error" as const,
-        message: "An unexpected error occurred.",
-        recoverable: false,
-      })
-    ),
-    Effect.provide(KnowledgeRpcClientLive),
-    Effect.runPromise
-  );
-}
-```
-
-#### Database Persistence Verification
-
-| Table           | Verification Query                                              | Expected                   |
-|-----------------|-----------------------------------------------------------------|----------------------------|
-| `entity`        | `SELECT COUNT(*) FROM entity WHERE organization_id = ?`         | > 0 after extraction       |
-| `relation`      | `SELECT COUNT(*) FROM relation WHERE organization_id = ?`       | > 0 after extraction       |
-| `entity_cluster`| `SELECT COUNT(*) FROM entity_cluster WHERE organization_id = ?` | > 0 after resolution       |
-| `same_as_link`  | `SELECT COUNT(*) FROM same_as_link WHERE organization_id = ?`   | >= 0 after resolution      |
-
-**Dependencies**: Phases 0-5 MUST be substantially complete
-
-**Risks**:
-
-| Risk                     | Likelihood | Impact | Mitigation                                   |
-|--------------------------|------------|--------|----------------------------------------------|
-| Service API mismatch     | Medium     | Medium | Use shared schemas from knowledge-domain     |
-| Performance regression   | Medium     | Medium | Add loading states, pagination               |
-| Auth context missing     | Low        | High   | Test with real organization IDs              |
-| UI component breakage    | Low        | Low    | Minimal changes to components                |
+**Implementation Approach**: `Effect.Semaphore` with configurable permits per provider. Stacks with circuit breaker: request -> rate limit -> circuit breaker -> LLM call.
 
 **Success Criteria**:
-- [ ] `extractFromText()` calls `ExtractionPipeline` and persists to database
-- [ ] `queryGraphRAG()` calls `GraphRAGService` with real embeddings
-- [ ] `resolveEntities()` calls `EntityResolutionService`
-- [ ] All 23 UI components render correctly with real data
-- [ ] Errors display in `ErrorAlert` component with recovery options
-- [ ] Entities persist across page refreshes
-- [ ] Integration test: full extraction -> query -> resolution flow
-- [ ] Performance: extraction < 30s for 5000 word document
+- [ ] Concurrent LLM calls limited to configured maximum
+- [ ] Concurrent embedding calls limited to configured maximum
+- [ ] Excess requests queue rather than fail
+- [ ] Test: launch 20 concurrent extractions, verify rate limiting engages
+
+---
+
+### Phase 2: State Management + Orchestration (Weeks 6-8)
+
+**Objective**: Add formal batch lifecycle tracking and multi-document coordination.
+
+**Addresses**: Gap #2 (Batch State Machine), Gap #10 (Cross-Batch Orchestration)
+
+**Rationale**: With durable workflows in place (Phase 1), this phase adds the state management layer that enables real-time progress visibility and batch-level coordination. These gaps are the second-highest priority for production readiness.
+
+#### 2A. Batch State Machine (Gap #2) -- Days 1-8
+
+**Priority**: P0 | **Complexity**: L | **Estimate**: 1.5 weeks
+
+**Description**: Implement formal state transitions for extraction batches with event emission for SSE streaming to clients.
+
+**State Machine Definition**:
+
+```
+PENDING -> CHUNKING -> EXTRACTING_MENTIONS -> EXTRACTING_ENTITIES
+  -> EXTRACTING_RELATIONS -> ASSEMBLING -> RESOLVING -> COMPLETED
+                                                    -> FAILED (from any state)
+                                                    -> CANCELLED (from any state)
+```
+
+**Files to Create**:
+
+```
+domain/src/value-objects/
+  batch-state.value.ts          # BatchState union type (S.Union of TaggedStructs)
+  batch-event.value.ts          # BatchEvent schema for SSE emission
+
+server/src/Workflow/
+  BatchStateMachine.ts          # State machine with transition validation
+  BatchEventEmitter.ts          # PubSub-based event emission for SSE
+```
+
+```
+domain/src/rpc/Extraction/
+  StreamProgress.ts             # SSE streaming RPC contract for progress events
+```
+
+**Files to Modify**:
+
+```
+server/src/Workflow/ExtractionWorkflow.ts   # Emit state transitions at each activity
+server/src/Workflow/ProgressStream.ts       # Wire state machine to SSE stream
+domain/src/rpc/Extraction/_rpcs.ts          # Add StreamProgress to RPC group
+```
+
+**Key Design Decisions**:
+- State machine uses `S.Union` of `S.TaggedStruct` variants for exhaustive matching
+- Transition validation prevents invalid state changes (e.g., COMPLETED -> EXTRACTING)
+- Events emitted via Effect PubSub for decoupled SSE delivery
+- In-memory PubSub initially; durable event log via workflow signal table (from Phase 1)
+
+**Success Criteria**:
+- [ ] All state transitions validated (invalid transitions rejected with tagged error)
+- [ ] SSE endpoint streams real-time progress events
+- [ ] State machine integrates with durable workflow activities
+- [ ] Progress events include stage name, percentage, current/total items
+- [ ] FAILED state captures error details for display
+- [ ] CANCELLED state supports user-initiated cancellation
+
+---
+
+#### 2B. Cross-Batch Orchestration (Gap #10) -- Days 9-16
+
+**Priority**: P1 | **Complexity**: L | **Estimate**: 1.5 weeks
+
+**Description**: Coordinate multi-document batch processing as a single unit with aggregate progress tracking and configurable failure behavior.
+
+**Files to Create**:
+
+```
+domain/src/entities/Batch/
+  index.ts
+  Batch.model.ts                # Batch definition (documents[], config, status)
+
+domain/src/value-objects/
+  batch-config.value.ts         # Batch-level config (concurrency, failure policy)
+  batch-failure-policy.value.ts # continue-on-failure | abort-all | retry-failed
+
+server/src/Workflow/
+  BatchOrchestrator.ts          # Coordinates multiple ExtractionWorkflows
+  BatchAggregator.ts            # Aggregates per-document progress into batch progress
+```
+
+```
+tables/src/tables/
+  batch.table.ts                # Batch definition and aggregate status
+```
+
+**Files to Modify**:
+
+```
+server/src/Workflow/ExtractionWorkflow.ts   # Accept batch context for cross-document resolution
+domain/src/rpc/Extraction/_rpcs.ts          # Add batch-level RPCs
+tables/src/tables/index.ts                  # Export batch table
+tables/src/schema.ts                        # Register batch table
+```
+
+**Orchestration Architecture**:
+
+```
+BatchOrchestrator
+  |
+  +-- For each document in batch:
+  |     +-- ExtractionWorkflow (durable, parallel with concurrency limit)
+  |           +-- [per-document state machine]
+  |
+  +-- BatchAggregator
+  |     +-- Aggregate individual progress -> batch progress
+  |     +-- Apply failure policy (continue, abort, retry)
+  |
+  +-- Post-batch resolution
+        +-- IncrementalClusterer across all batch documents
+        +-- SameAsLinker for cross-document entity links
+```
+
+**Dependencies**: Phase 1 (durable workflows) must be complete.
+
+**Success Criteria**:
+- [ ] Submit batch of N documents, all processed with aggregate progress
+- [ ] Configurable concurrency (process M documents in parallel)
+- [ ] Failure policy: continue-on-failure processes remaining documents
+- [ ] Failure policy: abort-all stops all documents on first failure
+- [ ] Cross-document entity resolution runs after all extractions complete
+- [ ] Test: batch of 5 documents with 1 failure, verify continue-on-failure behavior
+
+---
+
+### Phase 3: Semantic Enrichment (Weeks 9-11)
+
+**Objective**: Add SHACL validation, complete reasoning capabilities, and fill SPARQL gaps.
+
+**Addresses**: Gap #4 (SHACL Validation), Gap #8 (Reasoning Profiles), Gap #9 (OWL Rules), Gap #5 (SPARQL DESCRIBE)
+
+**Rationale**: These gaps leverage the existing SPARQL and Reasoning infrastructure. SHACL is the highest-priority semantic gap (P1) as it enables data quality enforcement. Reasoning profiles and OWL rules are small additions with outsized impact on inference quality. SPARQL DESCRIBE is a trivial gap closure.
+
+#### 3A. SHACL Validation (Gap #4) -- Days 1-8
+
+**Priority**: P1 | **Complexity**: L | **Estimate**: 1.5 weeks
+
+**Description**: Add SHACL (Shapes Constraint Language) validation for data quality enforcement, with policy-based control (warn, reject, ignore per violation severity).
+
+**Files to Create**:
+
+```
+server/src/Validation/
+  index.ts
+  ShaclService.ts               # SHACL validation engine (wrapping shacl-engine or rdf-validate-shacl)
+  ShaclParser.ts                # Parse SHACL shapes from Turtle/RDF
+  ShapeGenerator.ts             # Auto-generate shapes from ontology property definitions
+  ValidationReport.ts           # Validation report schema
+
+domain/src/value-objects/
+  shacl-policy.value.ts         # Policy configuration (warn/reject/ignore per shape)
+  validation-report.value.ts    # Validation result schema
+```
+
+**Files to Modify**:
+
+```
+server/src/Extraction/GraphAssembler.ts     # Optional SHACL validation after graph assembly
+server/src/Ontology/OntologyService.ts      # Generate SHACL shapes from loaded ontology
+```
+
+**Key Design Decisions**:
+- Use `shacl-engine` npm package (pure JS, works with N3.Store)
+- Re-SHACL pattern: apply only subclass inference (via ReasonerService with rdfs-subclass profile) before validation
+- Shapes cached via content hashing for performance
+- Auto-generate shapes from ontology `rdfs:domain`, `rdfs:range`, cardinality definitions
+- Policy-based control: each shape maps to warn/reject/ignore based on severity configuration
+
+**Dependencies**: RdfStoreService (exists), ReasonerService (exists), OntologyService (exists)
+
+**Success Criteria**:
+- [ ] SHACL shapes auto-generated from ontology property definitions
+- [ ] Validation detects missing required properties, wrong cardinality, incorrect value types
+- [ ] Policy-based control: warn for minor issues, reject for critical violations
+- [ ] Validation report includes human-readable violation descriptions
+- [ ] Integration: GraphAssembler optionally validates before persisting
+- [ ] Test: entity with missing required property triggers configured policy action
+
+---
+
+#### 3B. Reasoning Profiles (Gap #8) -- Days 9-10
+
+**Priority**: P1 | **Complexity**: S | **Estimate**: 1.5 days
+
+**Description**: Make ForwardChainer respect the `profile` field in ReasoningConfig, mapping profile names to rule subsets rather than always applying all RDFS rules.
+
+**Files to Modify**:
+
+```
+server/src/Reasoning/ForwardChainer.ts      # Add profile -> rule set mapping
+server/src/Reasoning/ReasonerService.ts     # Pass profile to ForwardChainer
+domain/src/value-objects/reasoning/ReasoningProfile.ts  # Define standard profile names
+```
+
+**Standard Profiles**:
+
+| Profile | Rules Applied | Use Case |
+|---------|--------------|----------|
+| `rdfs-full` | rdfs2, rdfs3, rdfs5, rdfs7, rdfs9, rdfs11 | Full RDFS inference |
+| `rdfs-subclass` | rdfs9, rdfs11 | Re-SHACL validation pre-processing |
+| `rdfs-domain-range` | rdfs2, rdfs3 | Type inference from property usage |
+| `owl-sameas` | OWL sameAs rules (from Gap #9) | Entity resolution inference |
+| `owl-full` | All OWL rules (from Gap #9) | Full OWL RL inference |
+| `custom` | User-specified rule array | Advanced scenarios |
+
+**Success Criteria**:
+- [ ] `profile: "rdfs-subclass"` applies only rdfs9 + rdfs11
+- [ ] `profile: "rdfs-full"` applies all 6 RDFS rules (current behavior)
+- [ ] Custom rule arrays accepted
+- [ ] Performance test: rdfs-subclass is measurably faster than rdfs-full on large graphs
+
+---
+
+#### 3C. OWL Rules (Gap #9) -- Days 11-13
+
+**Priority**: P1 | **Complexity**: S-M | **Estimate**: 2.5 days
+
+**Description**: Add OWL reasoning rules beyond RDFS, enabling sameAs propagation, inverse property inference, and transitive property inference.
+
+**Files to Create**:
+
+```
+server/src/Reasoning/
+  OwlRules.ts                   # OWL RL rules (sameAs, inverseOf, transitive, symmetric)
+```
+
+**Files to Modify**:
+
+```
+server/src/Reasoning/ForwardChainer.ts      # Register OWL rules alongside RDFS rules
+server/src/Reasoning/ReasonerService.ts     # Support OWL profiles
+```
+
+**OWL Rules to Implement**:
+
+| Rule | Pattern | Inference |
+|------|---------|-----------|
+| sameAs-symmetry | `?x owl:sameAs ?y` | `?y owl:sameAs ?x` |
+| sameAs-transitivity | `?x owl:sameAs ?y . ?y owl:sameAs ?z` | `?x owl:sameAs ?z` |
+| sameAs-property-propagation | `?x owl:sameAs ?y . ?x ?p ?o` | `?y ?p ?o` |
+| inverseOf | `?p owl:inverseOf ?q . ?s ?p ?o` | `?o ?q ?s` |
+| transitiveProperty | `?p rdf:type owl:TransitiveProperty . ?x ?p ?y . ?y ?p ?z` | `?x ?p ?z` |
+| symmetricProperty | `?p rdf:type owl:SymmetricProperty . ?x ?p ?y` | `?y ?p ?x` |
+
+**Impact**: SameAsLinker already generates owl:sameAs links in the RDF store. With these rules, ForwardChainer can propagate sameAs implications (symmetric closure, transitive closure, property propagation), significantly improving entity resolution reasoning.
+
+**Success Criteria**:
+- [ ] owl:sameAs links produce symmetric + transitive closure
+- [ ] owl:inverseOf generates inverse triples
+- [ ] owl:TransitiveProperty generates transitive closure
+- [ ] OWL rules registered under `owl-sameas` and `owl-full` profiles
+- [ ] Test: sameAs chain A->B->C produces A->C inference
+
+---
+
+#### 3D. SPARQL DESCRIBE (Gap #5) -- Day 14
+
+**Priority**: P1 | **Complexity**: S | **Estimate**: 1 day
+
+**Description**: Add DESCRIBE query type support to SparqlService. DESCRIBE returns all triples where a given IRI appears as subject or object.
+
+**Files to Modify**:
+
+```
+server/src/Sparql/QueryExecutor.ts          # Add executeDescribe method
+server/src/Sparql/SparqlService.ts          # Add DESCRIBE dispatch in query() method
+```
+
+**Implementation**: DESCRIBE is equivalent to CONSTRUCT of all triples where the target IRI appears as subject or object. Since SparqlParser (sparqljs) already parses DESCRIBE queries, the only work is dispatching to a new `executeDescribe` method in QueryExecutor.
+
+**Success Criteria**:
+- [ ] `DESCRIBE <urn:entity:123>` returns all triples about that entity
+- [ ] Multiple DESCRIBE targets supported
+- [ ] Test: describe entity returns both outgoing and incoming relations
+
+---
+
+### Phase 4: Infrastructure Polish (Weeks 12-14)
+
+**Objective**: Add named graph management, W3C provenance, token cost control, layer bundles, and NL-to-SPARQL translation.
+
+**Addresses**: Gap #6 (Named Graphs), Gap #7 (PROV-O Provenance), Gap #13 (Token Budget), Gap #14 (Layer Bundles), Gap #15 (NL-to-SPARQL)
+
+**Rationale**: These are enhancement-level gaps (P1-P2) that improve interoperability, cost control, developer experience, and end-user accessibility. They have no dependencies on each other and can be parallelized across engineers.
+
+#### 4A. Named Graphs Management (Gap #6) -- Days 1-4
+
+**Priority**: P1 | **Complexity**: M | **Estimate**: 4 days
+
+**Description**: Add graph management API to RdfStoreService and GRAPH clause support in SPARQL queries.
+
+**Files to Modify**:
+
+```
+server/src/Rdf/RdfStoreService.ts           # Add createGraph, listGraphs, dropGraph, getGraphSize
+server/src/Sparql/QueryExecutor.ts           # Add GRAPH clause evaluation
+server/src/Sparql/FilterEvaluator.ts         # Handle graph-scoped pattern matching
+```
+
+**Files to Create**:
+
+```
+domain/src/value-objects/rdf/
+  NamedGraph.ts                 # Named graph metadata schema (IRI, created, quad count)
+```
+
+**Graph Naming Convention**:
+- `urn:beep:document:<documentId>` -- per-document graph
+- `urn:beep:extraction:<extractionId>` -- per-extraction graph
+- `urn:beep:inference:<profile>` -- inferred triples by profile
+- `urn:beep:provenance` -- PROV-O provenance triples (Phase 4B)
+
+**Success Criteria**:
+- [ ] Create, list, and drop named graphs
+- [ ] SPARQL GRAPH clause scopes queries to specific graphs
+- [ ] Extraction pipeline stores triples in per-extraction named graph
+- [ ] Test: query only triples from a specific document's graph
+
+---
+
+#### 4B. PROV-O Provenance (Gap #7) -- Days 5-8
+
+**Priority**: P1 | **Complexity**: M | **Estimate**: 4 days
+
+**Description**: Generate W3C PROV-O provenance triples during extraction for full lineage tracking at the RDF level.
+
+**Files to Create**:
+
+```
+server/src/Rdf/
+  ProvOConstants.ts             # PROV-O namespace and predicate constants
+  ProvenanceEmitter.ts          # Generate PROV-O triples during extraction
+
+domain/src/value-objects/rdf/
+  ProvenanceVocabulary.ts       # PROV-O type definitions (Activity, Entity, Agent)
+```
+
+**Files to Modify**:
+
+```
+server/src/Extraction/ExtractionPipeline.ts  # Emit PROV-O triples at extraction start/end
+server/src/Extraction/GraphAssembler.ts      # Tag assembled triples with prov:wasGeneratedBy
+server/src/Ontology/constants.ts             # Add PROV-O namespace alongside existing RDF/RDFS/OWL/SKOS
+```
+
+**PROV-O Triples Generated**:
+
+```turtle
+# Activity (extraction run)
+<urn:beep:extraction:abc123> a prov:Activity ;
+  prov:startedAtTime "2026-02-05T10:00:00Z"^^xsd:dateTime ;
+  prov:endedAtTime "2026-02-05T10:05:00Z"^^xsd:dateTime ;
+  prov:wasAssociatedWith <urn:beep:agent:gpt-4o> .
+
+# Agent (LLM model)
+<urn:beep:agent:gpt-4o> a prov:Agent ;
+  rdfs:label "gpt-4o" .
+
+# Entity provenance
+<urn:beep:entity:xyz789> prov:wasGeneratedBy <urn:beep:extraction:abc123> ;
+  prov:generatedAtTime "2026-02-05T10:03:00Z"^^xsd:dateTime .
+```
+
+**Integration**: Provenance triples stored in `urn:beep:provenance` named graph (from Phase 4A). Existing relational provenance (extractionId, documentId on MentionRecord) continues to work for application queries.
+
+**Success Criteria**:
+- [ ] Extraction generates PROV-O Activity, Agent, wasGeneratedBy triples
+- [ ] Provenance triples stored in dedicated named graph
+- [ ] SPARQL query can answer "what extraction produced this entity?"
+- [ ] Test: extract text, query PROV-O graph, verify lineage chain
+
+---
+
+#### 4C. Token Budget Service (Gap #13) -- Days 9-12
+
+**Priority**: P2 | **Complexity**: M | **Estimate**: 4 days
+
+**Description**: Track and enforce per-stage token budgets to prevent runaway LLM costs during extraction.
+
+**Files to Create**:
+
+```
+server/src/Resilience/
+  TokenBudget.ts                # Per-stage token budget tracking and enforcement
+
+domain/src/value-objects/
+  token-budget.value.ts         # Budget configuration schema (per-stage limits)
+```
+
+**Files to Modify**:
+
+```
+server/src/Extraction/MentionExtractor.ts    # Report token usage to budget service
+server/src/Extraction/EntityExtractor.ts     # Report token usage to budget service
+server/src/Extraction/RelationExtractor.ts   # Report token usage to budget service
+server/src/GraphRAG/GroundedAnswerGenerator.ts  # Report token usage to budget service
+```
+
+**Implementation Approach**:
+- `Ref<Map<string, { used: number, limit: number }>>` tracks per-stage usage
+- Each LLM call reports token count via `TokenBudget.recordUsage(stage, tokens)`
+- Budget exceeded emits warning or fails based on policy (warn vs. hard limit)
+- Token counting: use `@effect/ai` response metadata or tiktoken for pre-call estimation
+
+**Success Criteria**:
+- [ ] Token usage tracked per extraction stage
+- [ ] Warning emitted when stage exceeds 80% of budget
+- [ ] Hard limit prevents further LLM calls when budget exhausted
+- [ ] Usage statistics available for operational monitoring
+
+---
+
+#### 4D. Layer Bundles (Gap #14) -- Days 13-14
+
+**Priority**: P2 | **Complexity**: S | **Estimate**: 1.5 days
+
+**Description**: Create pre-composed Layer bundles for common service groupings, reducing repetitive layer composition across consumers and test files.
+
+**Files to Create**:
+
+```
+server/src/Runtime/
+  ServiceBundles.ts             # Pre-composed Layer bundles
+```
+
+**Bundle Definitions**:
+
+```typescript
+// Semantic infrastructure
+export const SemanticInfraBundle = Layer.mergeAll(
+  RdfStoreServiceLive,
+  SerializerLive,
+  SparqlServiceLive,
+  ReasonerServiceLive,
+);
+
+// Extraction pipeline
+export const ExtractionBundle = Layer.mergeAll(
+  NlpServiceLive,
+  MentionExtractorLive,
+  EntityExtractorLive,
+  RelationExtractorLive,
+  GraphAssemblerLive,
+);
+
+// GraphRAG
+export const GraphRAGBundle = Layer.mergeAll(
+  GraphRAGServiceLive,
+  GroundedAnswerGeneratorLive,
+  CitationValidatorLive,
+  ReasoningTraceFormatterLive,
+  RrfScorerLive,
+  ConfidenceScorerLive,
+);
+
+// Entity resolution
+export const ResolutionBundle = Layer.mergeAll(
+  EntityResolutionServiceLive,
+  EntityRegistryLive,
+  IncrementalClustererLive,
+  SplitServiceLive,
+  MergeHistoryLive,
+  SameAsLinkerLive,
+);
+
+// LLM control (Phase 1 additions)
+export const LlmControlBundle = Layer.mergeAll(
+  LlmLive,
+  CircuitBreakerLive,
+  RateLimiterLive,
+);
+```
+
+**Success Criteria**:
+- [ ] All bundles compose without layer conflicts
+- [ ] Test files can use bundles instead of individual layer composition
+- [ ] Bundle exports documented in module index
+
+---
+
+#### 4E. NL-to-SPARQL Generation (Gap #15) -- Days 15-18
+
+**Priority**: P2 | **Complexity**: M | **Estimate**: 4 days
+
+**Description**: Add LLM-powered natural language to SPARQL translation, enabling non-technical users to query the knowledge graph.
+
+**Files to Create**:
+
+```
+server/src/Sparql/
+  SparqlGenerator.ts            # NL-to-SPARQL translation service
+  SparqlGeneratorPrompts.ts     # Prompt templates with ontology context
+```
+
+**Files to Modify**:
+
+```
+server/src/GraphRAG/GraphRAGService.ts      # Add SPARQL generation as alternative query path
+domain/src/rpc/GraphRag/_rpcs.ts            # Optionally extend query RPC with SPARQL generation mode
+```
+
+**Implementation Approach**:
+1. Load active ontology schema (classes, properties, domains, ranges) as prompt context
+2. LLM generates SPARQL query from natural language
+3. Parse generated SPARQL with SparqlParser for syntax validation
+4. If parse fails, retry with error feedback (up to 3 attempts)
+5. Execute validated SPARQL via SparqlService
+6. Return results alongside generated query for transparency
+
+**Success Criteria**:
+- [ ] Natural language question generates syntactically valid SPARQL
+- [ ] Generated SPARQL executes against RdfStore and returns correct results
+- [ ] Parse errors trigger retry with feedback
+- [ ] Generated SPARQL shown alongside results for user verification
+- [ ] Test: "What entities are related to Company X?" generates working SPARQL
+
+---
+
+## P3 Gaps (Deferred)
+
+The following gaps are P3 (Low priority) and are not scheduled in this roadmap. They should be addressed after P0-P2 gaps are closed.
+
+| Gap # | Name | Complexity | Estimated Effort | Notes |
+|-------|------|-----------|-----------------|-------|
+| 16 | Content Enrichment Agent | M | 4 days | LLM-powered entity enrichment post-extraction |
+| 17 | Document Classifier | M | 4 days | Adaptive chunking by document type |
+| 18 | Image Extraction | L | 1.5 weeks | Multi-modal extraction from images/PDFs |
+| 19 | Curation Workflow | XL | 3 weeks | Human-in-the-loop claim review; depends on Phase 1 |
+| 20 | Wikidata Linking | M | 4 days | External KB integration for disambiguation |
+
+---
+
+## Dependency Graph
+
+```mermaid
+graph TD
+    subgraph "Phase 1: Workflow Durability + Resilience (Weeks 1-5)"
+        G3[Gap #3: PostgreSQL Workflow Tables]
+        G1[Gap #1: Durable Workflow Execution]
+        G11[Gap #11: CircuitBreaker]
+        G12[Gap #12: Rate Limiting]
+
+        G3 --> G1
+    end
+
+    subgraph "Phase 2: State Management + Orchestration (Weeks 6-8)"
+        G2[Gap #2: Batch State Machine]
+        G10[Gap #10: Cross-Batch Orchestration]
+
+        G1 --> G2
+        G1 --> G10
+        G2 --> G10
+    end
+
+    subgraph "Phase 3: Semantic Enrichment (Weeks 9-11)"
+        G4[Gap #4: SHACL Validation]
+        G8[Gap #8: Reasoning Profiles]
+        G9[Gap #9: OWL Rules]
+        G5[Gap #5: SPARQL DESCRIBE]
+
+        G8 --> G9
+    end
+
+    subgraph "Phase 4: Infrastructure Polish (Weeks 12-14)"
+        G6[Gap #6: Named Graphs]
+        G7[Gap #7: PROV-O Provenance]
+        G13[Gap #13: Token Budget]
+        G14[Gap #14: Layer Bundles]
+        G15[Gap #15: NL-to-SPARQL]
+
+        G6 --> G7
+    end
+
+    subgraph "Deferred (P3)"
+        G19[Gap #19: Curation Workflow]
+        G16[Gap #16: Content Enrichment]
+        G17[Gap #17: Document Classifier]
+        G18[Gap #18: Image Extraction]
+        G20[Gap #20: Wikidata Linking]
+    end
+
+    G1 --> G19
+
+    style G3 fill:#ff6b6b,stroke:#333,stroke-width:2px
+    style G1 fill:#ff6b6b,stroke:#333,stroke-width:2px
+    style G2 fill:#ff6b6b,stroke:#333,stroke-width:2px
+    style G10 fill:#feca57,stroke:#333,stroke-width:2px
+    style G4 fill:#feca57,stroke:#333,stroke-width:2px
+    style G8 fill:#feca57,stroke:#333,stroke-width:2px
+    style G9 fill:#feca57,stroke:#333,stroke-width:2px
+    style G5 fill:#feca57,stroke:#333,stroke-width:2px
+    style G11 fill:#48dbfb,stroke:#333,stroke-width:2px
+    style G12 fill:#48dbfb,stroke:#333,stroke-width:2px
+    style G6 fill:#48dbfb,stroke:#333,stroke-width:2px
+    style G7 fill:#48dbfb,stroke:#333,stroke-width:2px
+    style G13 fill:#48dbfb,stroke:#333,stroke-width:2px
+    style G14 fill:#48dbfb,stroke:#333,stroke-width:2px
+    style G15 fill:#48dbfb,stroke:#333,stroke-width:2px
+    style G19 fill:#95a5a6,stroke:#333,stroke-width:1px
+    style G16 fill:#95a5a6,stroke:#333,stroke-width:1px
+    style G17 fill:#95a5a6,stroke:#333,stroke-width:1px
+    style G18 fill:#95a5a6,stroke:#333,stroke-width:1px
+    style G20 fill:#95a5a6,stroke:#333,stroke-width:1px
+```
+
+**Legend**: Red = P0 Critical | Yellow = P1 High | Blue = P2 Medium | Gray = P3 Deferred
 
 ---
 
 ## Critical Path Analysis
 
-```mermaid
-graph TD
-    subgraph "Foundation Track"
-        PM1[Phase -1: Architecture]
-        P0[Phase 0: RDF Foundation]
-        P1[Phase 1: Query & Reasoning]
-        P4[Phase 4: GraphRAG+]
-    end
-
-    subgraph "Resolution Track (Parallel)"
-        P2[Phase 2: Entity Resolution]
-    end
-
-    subgraph "Durability Track (Parallel)"
-        P3[Phase 3: Workflow Durability]
-    end
-
-    subgraph "Hardening"
-        P5[Phase 5: Production Resilience]
-    end
-
-    subgraph "Integration"
-        P6[Phase 6: POC Integration]
-    end
-
-    PM1 --> P0
-    PM1 --> P2
-    PM1 --> P3
-
-    P0 --> P1
-    P1 --> P4
-
-    P1 --> P5
-    P2 --> P5
-    P3 --> P5
-    P4 --> P5
-
-    P5 --> P6
-    P4 --> P6
-
-    style PM1 fill:#9b59b6,stroke:#333,stroke-width:2px
-    style P0 fill:#ff6b6b,stroke:#333,stroke-width:2px
-    style P1 fill:#ff6b6b,stroke:#333,stroke-width:2px
-    style P4 fill:#feca57,stroke:#333,stroke-width:2px
-    style P2 fill:#48dbfb,stroke:#333,stroke-width:2px
-    style P3 fill:#48dbfb,stroke:#333,stroke-width:2px
-    style P5 fill:#1dd1a1,stroke:#333,stroke-width:2px
-    style P6 fill:#e74c3c,stroke:#333,stroke-width:2px
+```
+Phase 1 (5 weeks) -> Phase 2 (3 weeks) -> [Phase 3, Phase 4 parallel] (3 weeks)
+                                            Total: 11 weeks minimum
 ```
 
-**Critical Path**: Phase -1 (1 week) -> Phase 0 (3 weeks) -> Phase 1 (4 weeks) -> Phase 4 (2 weeks) -> Phase 6 (2 weeks) = **12 weeks minimum**
+**Critical Path**: Gap #3 -> Gap #1 -> Gap #2 -> Gap #10 = 8.5 weeks
 
 **Parallel Opportunities**:
-- Phase 2 can start after Phase -1 completes
-- Phase 3 can start after Phase -1 completes
-- Phase 5 should wait until core features stabilize
-- Phase 6 requires Phases 0-5 substantially complete
+- Phase 1C/1D (CircuitBreaker, RateLimiter) are independent of Phase 1B and can proceed in parallel
+- Phase 3 and Phase 4 have no inter-phase dependencies and can run in parallel with 2 engineers
+- Within Phase 4, all items (4A-4E) are independent of each other
 
-**Resource Allocation Recommendation**:
+### Resource Allocation Recommendation (2 Engineers)
 
-| Week  | Engineer A | Engineer B | Engineer C (optional) |
-|-------|------------|------------|-----------------------|
-| 1     | Phase -1   | Phase -1   | Phase -1              |
-| 2-4   | Phase 0    | Phase 3    | Phase 2               |
-| 5-8   | Phase 1    | Phase 3    | Phase 2               |
-| 9-10  | Phase 1    | Phase 4    | Phase 5               |
-| 11-12 | Phase 4    | Phase 5    | Phase 6               |
-| 13-14 | Phase 6    | Phase 6    | Buffer/Testing        |
+| Week | Engineer A | Engineer B |
+|------|-----------|-----------|
+| 1 | Gap #3: Workflow Tables | Gap #11: CircuitBreaker + Gap #12: Rate Limiting |
+| 2-5 | Gap #1: Durable Workflow Execution | Gap #1: Durable Workflow Execution (pair) |
+| 6-7 | Gap #2: Batch State Machine | Gap #8: Reasoning Profiles + Gap #9: OWL Rules + Gap #5: DESCRIBE |
+| 8 | Gap #10: Cross-Batch Orchestration | Gap #4: SHACL Validation (start) |
+| 9-10 | Gap #10: Cross-Batch Orchestration (finish) + Gap #6: Named Graphs | Gap #4: SHACL Validation (finish) + Gap #7: PROV-O |
+| 11-12 | Gap #13: Token Budget + Gap #14: Layer Bundles | Gap #15: NL-to-SPARQL |
+| 13-14 | Buffer / Testing / P3 gaps | Buffer / Testing / P3 gaps |
 
 ---
 
-## Resource Considerations
+## Risk Assessment
 
-### Required Skills
+### Phase-Level Risks
 
-| Skill            | Phases     | Proficiency Needed       |
-|------------------|------------|--------------------------|
-| Effect ecosystem | All        | Expert                   |
-| RDF/SPARQL       | 0, 1, 4    | Intermediate             |
-| @effect/workflow | 3          | Intermediate (can learn) |
-| @effect/rpc      | -1, 6      | Intermediate             |
-| PostgreSQL       | 2, 3       | Intermediate             |
-| LLM prompting    | 4          | Intermediate             |
-| React/Next.js    | 6          | Intermediate             |
+| Phase | Risk | Likelihood | Impact | Mitigation |
+|-------|------|-----------|--------|------------|
+| 1 | @effect/workflow API instability | Medium | High | Pin version, abstract persistence adapter, maintain non-workflow fallback |
+| 1 | ExtractionPipeline refactoring breaks existing tests | Medium | Medium | Preserve existing `.run()` signature, run test suite continuously |
+| 2 | State machine complexity exceeds estimates | Low | Medium | Start with in-memory state machine, persist later |
+| 2 | Cross-batch orchestration interacts poorly with durable workflows | Medium | Medium | Design BatchOrchestrator as thin coordinator over ExtractionWorkflows |
+| 3 | SHACL engine performance on large graphs | Medium | Medium | Shapes caching, Re-SHACL pattern (targeted inference) |
+| 3 | OWL rules cause inference explosion | Medium | High | Configurable max inference depth, profile-based rule selection |
+| 4 | NL-to-SPARQL generates invalid/unsafe queries | High | Low | Parse validation, execution timeout, read-only queries only |
 
-### External Dependencies
+### If Phases Are Delayed
 
-| Dependency       | Version | Purpose             | Risk                  |
-|------------------|---------|---------------------|-----------------------|
-| N3.js            | ^1.17.0 | RDF parsing/storage | Low - stable          |
-| sparqljs         | ^3.7.0  | SPARQL parsing      | Low - stable          |
-| @effect/workflow | ^0.x    | Durable execution   | Medium - evolving API |
-| @effect/rpc      | ^0.x    | RPC framework       | Low - already using   |
-| @effect/ai       | ^0.x    | LLM integration     | Low - already using   |
-
-### Infrastructure Requirements
-
-| Requirement           | Phase | Notes                              |
-|-----------------------|-------|------------------------------------|
-| PostgreSQL extensions | 3     | May need pgcrypto for workflow IDs |
-| Redis (optional)      | 5     | For rate limiting state            |
-| Increased memory      | 1     | In-memory triple store             |
+| Scenario | Impact | Acceptable? |
+|----------|--------|-------------|
+| Phase 1 delayed | No crash recovery for extraction | Not acceptable for production |
+| Phase 2 delayed | No batch processing, no progress UI | Acceptable for MVP (single-document works) |
+| Phase 3 delayed | No SHACL validation, incomplete reasoning | Acceptable for MVP (existing RDFS works) |
+| Phase 4 delayed | No PROV-O, no NL-to-SPARQL | Acceptable (enhancement-level gaps) |
 
 ---
 
@@ -1377,25 +927,38 @@ graph TD
 
 ### Phase Completion Criteria
 
-| Phase | Metric                        | Target                     |
-|-------|-------------------------------|----------------------------|
-| -1    | Package structure complete    | 100% files created         |
-| 0     | Triple operations/sec         | > 10,000                   |
-| 1     | SPARQL query latency p95      | < 100ms (10K triples)      |
-| 2     | Cross-batch merge accuracy    | > 95%                      |
-| 3     | Extraction recovery rate      | 100% (survives restart)    |
-| 4     | Answer grounding rate         | > 90% claims cited         |
-| 5     | Circuit breaker effectiveness | < 5% cascading failures    |
-| 6     | POC feature parity            | 100% mock functions replaced|
+| Phase | Metric | Target |
+|-------|--------|--------|
+| 1 | Extraction recovery rate | 100% (survives restart at any stage) |
+| 1 | Circuit breaker effectiveness | < 5% cascading failures during LLM outage |
+| 2 | Batch processing throughput | N documents processed with aggregate progress |
+| 2 | State machine coverage | All extraction stages tracked with SSE events |
+| 3 | SHACL validation coverage | Auto-generated shapes for all ontology properties |
+| 3 | Reasoning profile performance | rdfs-subclass 3x faster than rdfs-full |
+| 4 | Named graph query correctness | SPARQL GRAPH clause returns graph-scoped results |
+| 4 | NL-to-SPARQL success rate | >70% of natural language queries produce valid SPARQL |
 
 ### Overall Project Success
 
-- [ ] All P0/P1 gaps from GAP_ANALYSIS.md closed
+- [ ] All P0 gaps from GAP_ANALYSIS.md closed (Gaps #1, #2, #3)
+- [ ] All P1 gaps from GAP_ANALYSIS.md closed (Gaps #4, #5, #6, #7, #8, #9, #10)
+- [ ] P2 gaps closed or deferred with documented rationale (Gaps #11-#15)
 - [ ] Existing ExtractionPipeline works unchanged during migration
 - [ ] Performance regression < 10% for current workloads
 - [ ] Test coverage > 80% for new services
-- [ ] Documentation updated for all new APIs
-- [ ] POC demo fully functional with real data
+- [ ] All new code follows @beep Effect patterns (namespace imports, tagged errors, Layer composition)
+
+---
+
+## External Dependencies
+
+| Dependency | Version | Purpose | Phase | Risk |
+|-----------|---------|---------|-------|------|
+| @effect/workflow | ^0.x | Durable execution | 1 | Medium - evolving API |
+| shacl-engine | ^1.x | SHACL validation | 3 | Low - stable |
+| N3.js | ^1.17.0 | RDF storage (existing) | 3-4 | Low - already in use |
+| sparqljs | ^3.7.0 | SPARQL parsing (existing) | 3 | Low - already in use |
+| @effect/ai | ^0.x | LLM integration (existing) | 4 | Low - already in use |
 
 ---
 
@@ -1403,144 +966,99 @@ graph TD
 
 ### Technical Questions
 
-1. **SPARQL Implementation Strategy**
-   - Question: Should we start with sparqljs + custom executor or jump to Oxigraph WASM?
-   - Context: Oxigraph is faster but adds WASM complexity
-   - Options: Start simple, migrate later vs. invest upfront
-   - Decision needed by: Phase 0 completion
-   - Recommendation: Start with sparqljs, design for migration
+1. **@effect/workflow Persistence Model**
+   - Question: Does @effect/workflow provide a built-in PostgreSQL persistence adapter, or must we build one?
+   - Impact: Phase 1B effort estimate
+   - Decision needed by: Phase 1 start
+   - Recommendation: Investigate @effect/workflow docs; build custom adapter if needed using workflow tables from Phase 1A
 
-2. **Workflow Persistence Backend**
-   - Question: PostgreSQL only or support Redis/DynamoDB?
-   - Context: PostgreSQL simplifies but may limit scale
-   - Options: PostgreSQL-only vs. pluggable backend
+2. **SHACL Engine Selection**
+   - Question: `shacl-engine` vs `rdf-validate-shacl` -- which integrates better with N3.Store?
+   - Impact: Phase 3A implementation approach
    - Decision needed by: Phase 3 start
-   - Recommendation: PostgreSQL-only initially
+   - Recommendation: Prototype both during Phase 2, select based on N3.Store compatibility
 
-3. **MentionRecord Migration**
-   - Question: Backfill existing Mentions or start fresh?
-   - Context: Backfill preserves history but adds complexity
-   - Options: Backfill vs. forward-only
-   - Decision needed by: Phase 2 start
-   - Recommendation: Forward-only, document gap in older extractions
-
-4. **POC Authentication**
-   - Question: Use real auth or mock organization context?
-   - Context: Real auth adds complexity but ensures integration
-   - Options: Mock org ID vs. real better-auth integration
-   - Decision needed by: Phase 6 start
-   - Recommendation: Real auth to validate full stack
+3. **Named Graph Storage Strategy**
+   - Question: Single N3.Store with graph-tagged quads vs. separate N3.Store per graph?
+   - Impact: Phase 4A performance characteristics
+   - Decision needed by: Phase 4 start
+   - Recommendation: Single store with graph field (N3.Store already supports this via quad's graph component)
 
 ### Business Questions
 
-1. **Priority of GraphRAG Grounding**
-   - Question: Is citation validation a launch blocker?
+1. **Cross-Batch Orchestration Priority**
+   - Question: Is multi-document batch processing a launch requirement or post-launch enhancement?
+   - Impact: Could defer Phase 2B
    - Stakeholder: Product
-   - Impact: Could defer Phase 4
 
-2. **Cross-Batch Resolution Scope**
-   - Question: Organization-wide or narrower scope (project/team)?
-   - Stakeholder: Product
-   - Impact: Affects Phase 2 complexity
-
-3. **POC Demo Timeline**
-   - Question: When is POC demo needed for stakeholders?
-   - Stakeholder: Product
-   - Impact: May need to prioritize Phase 6
+2. **PROV-O Interoperability Need**
+   - Question: Are there external tools consuming provenance data that require W3C PROV-O?
+   - Impact: Could defer Phase 4B if no external consumers
+   - Stakeholder: Product/Integration team
 
 ---
 
-## Appendix: Effect Pattern Reference
+## Appendix: File Reference Summary
 
-All new code MUST follow these patterns from the codebase:
+### Existing Files (Implemented, No Work Required)
 
-### Service Definition
+| Directory | File Count | Key Services |
+|-----------|-----------|-------------|
+| `server/src/Sparql/` | 5 | SparqlService, SparqlParser, QueryExecutor, FilterEvaluator, SparqlModels |
+| `server/src/Reasoning/` | 3 | ForwardChainer, ReasonerService, RdfsRules |
+| `server/src/Rdf/` | 3 | RdfStoreService, Serializer, RdfBuilder |
+| `server/src/GraphRAG/` | 9 | GraphRAGService, GroundedAnswerGenerator, CitationParser, CitationValidator, ConfidenceScorer, ReasoningTraceFormatter, RrfScorer, PromptTemplates, AnswerSchemas |
+| `server/src/EntityResolution/` | 9 | EntityRegistry, EntityResolutionService, IncrementalClustererLive, EntityClusterer, SplitService, MergeHistoryLive, SameAsLinker, CanonicalSelector, BloomFilter |
+| `server/src/Extraction/` | 5 | ExtractionPipeline, MentionExtractor, EntityExtractor, RelationExtractor, GraphAssembler |
+| `server/src/Embedding/` | 4 | EmbeddingService, EmbeddingProvider, MockProvider, OpenAiLayer |
+| `server/src/Ontology/` | 4 | OntologyService, OntologyParser, OntologyCache, constants |
+| `server/src/Nlp/` | 2 | NlpService, TextChunk |
+| `server/src/Grounding/` | 2 | GroundingService, ConfidenceFilter |
+| `server/src/db/repos/` | 10 | Entity, Relation, MentionRecord, MergeHistory, SameAsLink, EntityCluster, Embedding, Ontology, ClassDefinition, PropertyDefinition |
+| `tables/src/tables/` | 12 | entity, relation, mention, mention-record, merge-history, same-as-link, entity-cluster, embedding, extraction, ontology, class-definition, property-definition |
+| `domain/src/entities/` | 11 | Entity, Relation, Mention, MentionRecord, MergeHistory, SameAsLink, EntityCluster, Embedding, Extraction, Ontology, ClassDefinition, PropertyDefinition |
 
-```typescript
-export class MyService extends Effect.Service<MyService>()("@beep/knowledge-server/MyService", {
-  accessors: true,
-  effect: Effect.gen(function* () {
-    const dep = yield* SomeDependency;
-    return {
-      method: (input: Input): Effect.Effect<Output, MyError> =>
-        Effect.gen(function* () {
-          // implementation
-        }).pipe(
-          Effect.withSpan("MyService.method", { captureStackTrace: false })
-        ),
-    };
-  }),
-}) {}
-```
+### New Files to Create (This Roadmap)
 
-### Error Definition
+| Phase | Directory | Files | Purpose |
+|-------|-----------|-------|---------|
+| 1A | `tables/src/tables/` | workflow-execution.table.ts, workflow-activity.table.ts, workflow-signal.table.ts | Workflow persistence |
+| 1B | `server/src/Workflow/` | ExtractionWorkflow.ts, DurableActivities.ts, WorkflowPersistence.ts, ProgressStream.ts, index.ts | Durable workflow execution |
+| 1B | `domain/src/value-objects/` | workflow-state.value.ts, extraction-progress.value.ts | Workflow domain types |
+| 1C | `server/src/Resilience/` | CircuitBreaker.ts, index.ts | LLM failure protection |
+| 1D | `server/src/Resilience/` | RateLimiter.ts | API rate limiting |
+| 2A | `domain/src/value-objects/` | batch-state.value.ts, batch-event.value.ts | Batch state machine types |
+| 2A | `server/src/Workflow/` | BatchStateMachine.ts, BatchEventEmitter.ts | State management |
+| 2A | `domain/src/rpc/Extraction/` | StreamProgress.ts | SSE RPC contract |
+| 2B | `domain/src/entities/Batch/` | Batch.model.ts, index.ts | Batch definition model |
+| 2B | `domain/src/value-objects/` | batch-config.value.ts, batch-failure-policy.value.ts | Batch configuration |
+| 2B | `server/src/Workflow/` | BatchOrchestrator.ts, BatchAggregator.ts | Batch coordination |
+| 2B | `tables/src/tables/` | batch.table.ts | Batch persistence |
+| 3A | `server/src/Validation/` | ShaclService.ts, ShaclParser.ts, ShapeGenerator.ts, ValidationReport.ts, index.ts | SHACL validation |
+| 3A | `domain/src/value-objects/` | shacl-policy.value.ts, validation-report.value.ts | SHACL domain types |
+| 3C | `server/src/Reasoning/` | OwlRules.ts | OWL reasoning rules |
+| 4A | `domain/src/value-objects/rdf/` | NamedGraph.ts | Graph metadata |
+| 4B | `server/src/Rdf/` | ProvOConstants.ts, ProvenanceEmitter.ts | PROV-O provenance |
+| 4B | `domain/src/value-objects/rdf/` | ProvenanceVocabulary.ts | PROV-O types |
+| 4C | `server/src/Resilience/` | TokenBudget.ts | Token cost control |
+| 4C | `domain/src/value-objects/` | token-budget.value.ts | Budget configuration |
+| 4D | `server/src/Runtime/` | ServiceBundles.ts | Layer bundles |
+| 4E | `server/src/Sparql/` | SparqlGenerator.ts, SparqlGeneratorPrompts.ts | NL-to-SPARQL |
 
-```typescript
-export class MyError extends S.TaggedError<MyError>()("MyError", {
-  message: S.String,
-  cause: S.optional(S.Unknown),
-}) {}
-```
-
-### Layer Composition
-
-```typescript
-export const MyServiceLive = MyService.Default.pipe(
-  Layer.provide(DependencyA.Default),
-  Layer.provide(DependencyB.Default),
-);
-```
-
-### RPC Definition (Slice-Specific Pattern)
-
-```typescript
-// In knowledge-domain: src/rpc/v1/entity/_rpcs.ts (contract composition)
-import * as Rpc from "@effect/rpc/Rpc";
-import * as RpcGroup from "@effect/rpc/RpcGroup";
-import * as Get from "./get";
-import * as List from "./list";
-
-export class Rpcs extends RpcGroup.make(
-  Get.Contract,
-  List.Contract,
-).prefix("entity_") {}  // ADD PREFIX for namespace isolation
-
-// In knowledge-domain: src/rpc/v1/entity/get.ts (individual contract)
-import * as Rpc from "@effect/rpc/Rpc";
-
-export const Contract = Rpc.make("get", {
-  payload: PayloadSchema,
-  success: SuccessSchema,
-  error: ErrorSchema,
-});
-
-// In knowledge-server: src/rpc/v1/entity/_rpcs.ts (handler layer)
-import { Policy } from "@beep/shared-domain";
-import { Entity } from "@beep/knowledge-domain";
-import * as Get from "./get";
-import * as List from "./list";
-
-// 1. Apply middleware FIRST
-const EntityRpcsWithMiddleware = Entity.Rpcs.middleware(Policy.AuthContextRpcMiddleware);
-
-// 2. Create implementation using .of()
-const implementation = EntityRpcsWithMiddleware.of({
-  entity_get: Get.Handler,   // Note: prefixed key
-  entity_list: List.Handler,
-});
-
-// 3. Create layer from implementation
-export const layer = EntityRpcsWithMiddleware.toLayer(implementation);
-```
+**Total new files**: ~40
+**Total modified files**: ~20
 
 ---
 
 ## Document Metadata
 
-| Field        | Value                         |
-|--------------|-------------------------------|
-| Status       | COMPLETE                      |
-| Created      | 2026-02-03                    |
-| Last Updated | 2026-02-03                    |
-| Author       | Implementation Planning Agent |
-| Reviewers    | Pending                       |
+| Field | Value |
+|-------|-------|
+| Status | COMPLETE |
+| Created | 2026-02-03 |
+| Last Updated | 2026-02-05 |
+| Supersedes | IMPLEMENTATION_ROADMAP.md (2026-02-03, 1546 lines, 8 phases) |
+| Author | Implementation Planning Agent |
+| Key Correction | Removed 4 phases for already-implemented capabilities (RDF, SPARQL, Reasoning, GraphRAG, Entity Resolution) |
+| Gap Source | GAP_ANALYSIS.md (Corrected, 2026-02-05) |
+| Matrix Source | COMPARISON_MATRIX.md (Corrected, 2026-02-05) |

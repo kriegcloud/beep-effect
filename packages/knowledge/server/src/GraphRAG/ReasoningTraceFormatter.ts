@@ -1,5 +1,6 @@
 import { $KnowledgeServerId } from "@beep/identity/packages";
 import type { InferenceProvenance, InferenceResult } from "@beep/knowledge-domain/value-objects";
+import { thunkZero } from "@beep/utils";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
@@ -32,7 +33,7 @@ const calculateDepth = (
   const maybeProvenance = R.get(provenanceMap, tripleId);
 
   return O.match(maybeProvenance, {
-    onNone: () => 0,
+    onNone: thunkZero,
     onSome: (provenance) => {
       MutableHashSet.add(visited, tripleId);
 
@@ -129,7 +130,7 @@ const serviceEffect: Effect.Effect<ReasoningTraceFormatterShape> = Effect.succee
       const maybeProvenance = R.get(result.provenance, tripleId);
 
       return O.match(maybeProvenance, {
-        onNone: () => O.none(),
+        onNone: O.none<ReasoningTrace>,
         onSome: (_provenance) => {
           const inferenceSteps = collectInferenceSteps(result.provenance, tripleId);
 

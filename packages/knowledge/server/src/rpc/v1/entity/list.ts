@@ -1,22 +1,14 @@
 import type { Entities } from "@beep/knowledge-domain";
+import type { Entity } from "@beep/knowledge-domain/rpc/Entity";
 import { EntityRepo } from "@beep/knowledge-server/db/repos/Entity.repo";
-import type { KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import { Policy } from "@beep/shared-domain";
 import { thunkSucceedEffect } from "@beep/utils";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import * as Stream from "effect/Stream";
 
-interface Payload {
-  readonly organizationId: SharedEntityIds.OrganizationId.Type;
-  readonly ontologyId?: KnowledgeEntityIds.OntologyId.Type | undefined;
-  readonly type?: string | undefined;
-  readonly cursor?: KnowledgeEntityIds.KnowledgeEntityId.Type | undefined;
-  readonly limit?: number | undefined;
-}
-
 export const Handler = (
-  payload: Payload
+  payload: Entity.List.Payload
 ): Stream.Stream<Entities.Entity.Model, never, EntityRepo | Policy.AuthContext> =>
   Stream.unwrap(
     Effect.gen(function* () {

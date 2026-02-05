@@ -15,7 +15,6 @@ import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Match from "effect/Match";
-import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import * as N3 from "n3";
 
@@ -94,38 +93,6 @@ interface RdfJsQuadLike {
   readonly object: RdfJsTermLike;
   readonly graph: RdfJsTermLike;
 }
-
-export class RdfJsTerm extends S.Class<RdfJsTerm>($I`RdfJsTerm`)(
-  {
-    value: S.String,
-  },
-  $I.annotations("RdfJsTerm", {
-    description: "RDF.js term",
-  })
-) {}
-
-export class RdfJsLiteral extends RdfJsTerm.extend<RdfJsLiteral>($I`RdfJsLiteral`)(
-  {
-    termType: S.tag("Literal"),
-    language: S.String,
-    datatype: RdfJsTerm,
-  },
-  $I.annotations("RdfJsLiteral", {
-    description: "RDF.js literal",
-  })
-) {}
-
-export class RdfJsQuad extends S.Class<RdfJsQuad>($I`RdfJsQuad`)(
-  {
-    subject: RdfJsTerm,
-    predicate: RdfJsTerm,
-    object: RdfJsTerm,
-    graph: RdfJsTerm,
-  },
-  $I.annotations("RdfJsQuad", {
-    description: "RDF.js quad",
-  })
-) {}
 
 const rdfJsSubjectToDomain = (term: RdfJsTermLike): Quad["subject"] => {
   if (term.termType === "BlankNode") {

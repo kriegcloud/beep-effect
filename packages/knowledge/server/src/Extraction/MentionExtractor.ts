@@ -73,8 +73,8 @@ const serviceEffect: Effect.Effect<MentionExtractorShape, never, LanguageModel.L
       });
 
       const prompt = Prompt.make([
-        { role: "system" as const, content: buildSystemPrompt() },
-        { role: "user" as const, content: buildMentionPrompt(chunk.text, chunk.index) },
+        Prompt.systemMessage({ content: buildSystemPrompt() }),
+        Prompt.userMessage({ content: A.make(Prompt.textPart({ text: buildMentionPrompt(chunk.text, chunk.index) })) }),
       ]);
 
       const result = yield* model.generateObject({
@@ -108,8 +108,14 @@ const serviceEffect: Effect.Effect<MentionExtractorShape, never, LanguageModel.L
 
       for (const chunk of chunks) {
         const prompt = Prompt.make([
-          { role: "system" as const, content: buildSystemPrompt() },
-          { role: "user" as const, content: buildMentionPrompt(chunk.text, chunk.index) },
+          Prompt.systemMessage({ content: buildSystemPrompt() }),
+          Prompt.userMessage({
+            content: A.make(
+              Prompt.textPart({
+                text: buildMentionPrompt(chunk.text, chunk.index),
+              })
+            ),
+          }),
         ]);
 
         const genResult = yield* model.generateObject({

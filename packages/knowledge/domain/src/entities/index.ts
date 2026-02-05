@@ -1,3 +1,4 @@
+export * as Batch from "./Batch";
 export * as ClassDefinition from "./ClassDefinition";
 export * as Embedding from "./Embedding";
 export * as Entity from "./Entity";

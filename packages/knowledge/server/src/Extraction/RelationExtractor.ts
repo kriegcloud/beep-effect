@@ -110,8 +110,14 @@ const serviceEffect: Effect.Effect<RelationExtractorShape, never, LanguageModel.
       });
 
       const prompt = Prompt.make([
-        { role: "system" as const, content: buildSystemPrompt() },
-        { role: "user" as const, content: buildRelationPrompt([...entities], chunk.text, ontologyContext) },
+        Prompt.systemMessage({ content: buildSystemPrompt() }),
+        Prompt.userMessage({
+          content: A.make(
+            Prompt.textPart({
+              text: buildRelationPrompt([...entities], chunk.text, ontologyContext),
+            })
+          ),
+        }),
       ]);
 
       const result = yield* model.generateObject({
@@ -163,8 +169,14 @@ const serviceEffect: Effect.Effect<RelationExtractorShape, never, LanguageModel.
         if (A.isEmptyReadonlyArray(entities)) continue;
 
         const prompt = Prompt.make([
-          { role: "system" as const, content: buildSystemPrompt() },
-          { role: "user" as const, content: buildRelationPrompt([...entities], chunk.text, ontologyContext) },
+          Prompt.systemMessage({ content: buildSystemPrompt() }),
+          Prompt.userMessage({
+            content: A.make(
+              Prompt.textPart({
+                text: buildRelationPrompt([...entities], chunk.text, ontologyContext),
+              })
+            ),
+          }),
         ]);
 
         const aiResult = yield* model.generateObject({

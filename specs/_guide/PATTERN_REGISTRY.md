@@ -795,7 +795,7 @@ Invoke doc-writer with:
 ln -s ../../.claude/rules .windsurf/rules
 
 # Generated approach (Cursor - requires conversion)
-bun run scripts/sync-cursor-rules.ts
+bun run repo-cli sync-cursor-rules
 
 # Result: Single edit point
 vim .claude/rules/effect-patterns.md

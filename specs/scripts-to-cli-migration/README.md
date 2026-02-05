@@ -2,7 +2,7 @@
 
 > Migrate ad-hoc scripts from `scripts/` into `@effect/cli` commands in `tooling/cli/`, update documentation references, and delete originals.
 
-**Status**: Phase 0 Complete (Scaffolding)
+**Status**: **Complete**
 **Complexity**: Medium (Score: 39)
 
 ---

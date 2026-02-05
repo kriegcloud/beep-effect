@@ -21,7 +21,7 @@ export interface RelationValidationResult {
   readonly found: boolean;
   readonly isInferred: boolean;
   readonly confidence: number;
-  readonly reasoningTrace?: ReasoningTrace;
+  readonly reasoningTrace?: undefined | ReasoningTrace;
 }
 
 export interface CitationValidationResult {
@@ -81,7 +81,7 @@ export interface ConfidenceScorerShape {
 
 export class ConfidenceScorer extends Context.Tag($I`ConfidenceScorer`)<ConfidenceScorer, ConfidenceScorerShape>() {}
 
-const weightedAverage = (values: ReadonlyArray<{ value: number; weight: number }>): number => {
+const weightedAverage = (values: ReadonlyArray<{ readonly value: number; readonly weight: number }>): number => {
   if (A.isEmptyReadonlyArray(values)) {
     return 0;
   }

@@ -12,6 +12,7 @@ import * as MutableHashSet from "effect/MutableHashSet";
 import * as Num from "effect/Number";
 import * as O from "effect/Option";
 import * as Order from "effect/Order";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import * as Struct from "effect/Struct";
@@ -153,14 +154,14 @@ const serviceEffect: Effect.Effect<GraphRAGServiceShape, never, EmbeddingService
         const relations = yield* relationRepo.findByEntityIds(allEntityIds, organizationId);
 
         const graphRanks = assignGraphRanks(entityHops);
-        const graphRankList: Array<string> = [];
+        const graphRankList = A.empty<string>();
         MutableHashMap.forEach(graphRanks, (_, id) => {
           graphRankList.push(id);
         });
 
         const fusedRanking = fuseRankings([embeddingRanks, graphRankList]);
 
-        const scores: Record<string, number> = {};
+        const scores = R.empty<string, number>();
         for (const item of fusedRanking) {
           scores[item.id] = item.score;
         }
@@ -237,7 +238,7 @@ const serviceEffect: Effect.Effect<GraphRAGServiceShape, never, EmbeddingService
         const relations = yield* relationRepo.findByEntityIds(allEntityIds, organizationId);
 
         const graphRanks = assignGraphRanks(entityHops);
-        const scores: Record<string, number> = {};
+        const scores = R.empty<string, number>();
         MutableHashMap.forEach(graphRanks, (rank, id) => {
           scores[id] = 1 / (60 + rank);
         });
@@ -303,7 +304,7 @@ const traverseGraph = (
       const relations = yield* relationRepo.findBySourceIds(frontier, organizationId);
       const incomingRelations = yield* relationRepo.findByTargetIds(frontier, organizationId);
 
-      const newFrontier: Array<KnowledgeEntityIds.KnowledgeEntityId.Type> = [];
+      const newFrontier = A.empty<KnowledgeEntityIds.KnowledgeEntityId.Type>();
 
       for (const rel of relations) {
         const objectIdOpt = rel.objectId;
@@ -328,7 +329,7 @@ const traverseGraph = (
       frontier = newFrontier;
     }
 
-    const allEntityIds: Array<KnowledgeEntityIds.KnowledgeEntityId.Type> = [];
+    const allEntityIds = A.empty<KnowledgeEntityIds.KnowledgeEntityId.Type>();
     MutableHashMap.forEach(entityHops, (_, id) => {
       allEntityIds.push(id);
     });

@@ -205,10 +205,10 @@ export const SplitServiceLive = Layer.effect(
             extractionId: targetEntity.extractionId,
             groundingConfidence: O.none(),
             mentions: O.none(),
-            source: O.none(),
+            source: O.some(SplitService.Identifier.toString()),
             deletedAt: O.none(),
-            createdBy: O.fromNullable(authContext.user.id),
-            updatedBy: O.none(),
+            createdBy: O.some(authContext.user.id),
+            updatedBy: O.some(authContext.user.id),
             deletedBy: O.none(),
           });
 

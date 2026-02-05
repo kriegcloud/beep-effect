@@ -10,6 +10,7 @@ import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
+import type * as S from "effect/Schema";
 import { EntityRegistry } from "./EntityRegistry";
 
 const $I = $KnowledgeServerId.create("EntityResolution/IncrementalClustererLive");
@@ -24,7 +25,9 @@ export const IncrementalClustererLive = Layer.effect(
     const authContext = yield* AuthContext;
     const organizationId = authContext.session.activeOrganizationId;
 
-    const resolveMention = (mention: Entities.MentionRecord.Model): Effect.Effect<void, ClusterError> =>
+    const resolveMention = (
+      mention: S.Schema.Type<typeof Entities.MentionRecord.Model.insert>
+    ): Effect.Effect<void, ClusterError> =>
       Effect.gen(function* () {
         const candidates = yield* entityRegistry.findCandidates(mention);
 
@@ -37,7 +40,6 @@ export const IncrementalClustererLive = Layer.effect(
           if (O.isSome(previousEntityId) && previousEntityId.value !== best.entity.id) {
             yield* mergeHistory.recordMerge(
               new ValueObjects.MergeParams({
-                organizationId,
                 sourceEntityId: previousEntityId.value,
                 targetEntityId: best.entity.id,
                 mergeReason: "embedding_similarity",
@@ -106,7 +108,7 @@ export const IncrementalClustererLive = Layer.effect(
 
     return IncrementalClusterer.of({
       cluster: Effect.fn(
-        function* (mentions: ReadonlyArray<Entities.MentionRecord.Model>) {
+        function* (mentions: ReadonlyArray<S.Schema.Type<typeof Entities.MentionRecord.Model.insert>>) {
           yield* Effect.logInfo("IncrementalClusterer.cluster: starting").pipe(
             Effect.annotateLogs({ mentionCount: A.length(mentions) })
           );

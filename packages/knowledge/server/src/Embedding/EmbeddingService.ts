@@ -1,23 +1,25 @@
-import {$KnowledgeServerId} from "@beep/identity/packages";
-import {EmbeddingRepo, type SimilarityResult} from "@beep/knowledge-server/db/repos/Embedding.repo";
-import type {AssembledEntity} from "@beep/knowledge-server/Extraction/GraphAssembler";
-import {formatEntityForEmbedding} from "@beep/knowledge-server/utils/formatting";
-import {KnowledgeEntityIds, type SharedEntityIds} from "@beep/shared-domain";
-import {thunkEffectVoid, thunkEmptyStr, thunkFalse, thunkTrue} from "@beep/utils";
+import { $KnowledgeServerId } from "@beep/identity/packages";
+import { EmbeddingRepo, type SimilarityResult } from "@beep/knowledge-server/db/repos/Embedding.repo";
+import type { AssembledEntity } from "@beep/knowledge-server/Extraction/GraphAssembler";
+import { formatEntityForEmbedding } from "@beep/knowledge-server/utils/formatting";
+import { KnowledgeEntityIds, type SharedEntityIds } from "@beep/shared-domain";
+import { AuthContext } from "@beep/shared-domain/Policy";
+import { thunkEffectVoid, thunkEmptyStr, thunkFalse, thunkTrue } from "@beep/utils";
 import * as AiError from "@effect/ai/AiError";
 import * as EmbeddingModel from "@effect/ai/EmbeddingModel";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Either from "effect/Either";
+import * as F from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as Match from "effect/Match";
-import * as F from "effect/Function";
-import { AuthContext } from "@beep/shared-domain/Policy";
 import * as O from "effect/Option";
-import * as Str from "effect/String";
-import {EmbeddingError, type TaskType} from "./EmbeddingProvider";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
+import { CentralRateLimiterService } from "../LlmControl/RateLimiter";
+import { EmbeddingError, type TaskType } from "./EmbeddingProvider";
+import type{CircuitOpenError,  RateLimitError} from "@beep/knowledge-domain/errors";
 
 const $I = $KnowledgeServerId.create("Embedding/EmbeddingService");
 
@@ -27,17 +29,22 @@ const mapAiError = (error: AiError.AiError): EmbeddingError =>
   new EmbeddingError({
     message: error.message,
     provider: "openai",
-    retryable: Match.value(error).pipe(Match.tags({
-      HttpRequestError: thunkTrue,
-      HttpResponseError: thunkTrue
-    }), Match.orElse(thunkFalse)),
+    retryable: Match.value(error).pipe(
+      Match.tags({
+        HttpRequestError: thunkTrue,
+        HttpResponseError: thunkTrue,
+      }),
+      Match.orElse(thunkFalse)
+    ),
     cause: S.encodeEither(S.parseJson(S.instanceOf(AiError.AiError)))({
       _tag: error._tag,
-      cause: error.cause
-    }).pipe(Either.match({
-      onRight: F.identity,
-      onLeft: thunkEmptyStr
-    })),
+      cause: error.cause,
+    }).pipe(
+      Either.match({
+        onRight: F.identity,
+        onLeft: thunkEmptyStr,
+      })
+    ),
   });
 
 const computeCacheKey = (text: string, model: string): string => {
@@ -65,7 +72,7 @@ export interface EmbeddingServiceShape {
     taskType: TaskType.Type,
     organizationId: SharedEntityIds.OrganizationId.Type,
     ontologyId: KnowledgeEntityIds.OntologyId.Type
-  ) => Effect.Effect<readonly number[], EmbeddingError>;
+  ) => Effect.Effect<readonly number[], EmbeddingError | RateLimitError | CircuitOpenError>;
   readonly findSimilar: (
     queryVector: readonly number[],
     organizationId: SharedEntityIds.OrganizationId.Type,
@@ -76,26 +83,26 @@ export interface EmbeddingServiceShape {
     entities: readonly AssembledEntity[],
     organizationId: SharedEntityIds.OrganizationId.Type,
     ontologyId?: KnowledgeEntityIds.OntologyId.Type
-  ) => Effect.Effect<void, EmbeddingError, never>;
+  ) => Effect.Effect<void, EmbeddingError | RateLimitError | CircuitOpenError, never>;
   readonly embed: (
     text: string,
     _taskType: TaskType.Type,
     organizationId: SharedEntityIds.OrganizationId.Type,
     _ontologyId?: undefined | KnowledgeEntityIds.OntologyId.Type
-  ) => Effect.Effect<readonly number[], EmbeddingError, never>;
+  ) => Effect.Effect<readonly number[], EmbeddingError | RateLimitError | CircuitOpenError, never>;
 }
 
-export class EmbeddingService extends Context.Tag($I`EmbeddingService`)<EmbeddingService, EmbeddingServiceShape>() {
-}
+export class EmbeddingService extends Context.Tag($I`EmbeddingService`)<EmbeddingService, EmbeddingServiceShape>() {}
 
 const serviceEffect: Effect.Effect<
   EmbeddingServiceShape,
   EmbeddingError,
-  EmbeddingRepo | EmbeddingModel.EmbeddingModel | AuthContext
+  EmbeddingRepo | EmbeddingModel.EmbeddingModel | AuthContext | CentralRateLimiterService
 > = Effect.gen(function* () {
   const embeddingModel = yield* EmbeddingModel.EmbeddingModel;
   const repo = yield* EmbeddingRepo;
   const authCtx = yield* AuthContext;
+  const limiter = yield* CentralRateLimiterService;
   const organizationId = authCtx.session.activeOrganizationId;
   const currentUserId = authCtx.session.userId;
 
@@ -109,18 +116,23 @@ const serviceEffect: Effect.Effect<
     const cached = yield* repo.findByCacheKey(cacheKey, organizationId).pipe(Effect.orElseSucceed(() => O.none()));
 
     if (O.isSome(cached)) {
-      yield* Effect.logDebug("EmbeddingService.embed: cache hit").pipe(Effect.annotateLogs({cacheKey}));
+      yield* Effect.logDebug("EmbeddingService.embed: cache hit").pipe(Effect.annotateLogs({ cacheKey }));
       return cached.value.embedding;
     }
 
     yield* Effect.logDebug("EmbeddingService.embed: cache miss, generating").pipe(
-      Effect.annotateLogs({cacheKey, textLength: text.length})
+      Effect.annotateLogs({ cacheKey, textLength: text.length })
     );
 
-    const vector = yield* embeddingModel.embed(text).pipe(Effect.mapError(mapAiError));
+    yield* limiter.acquire(Str.length(text));
+    const vector = yield* embeddingModel.embed(text).pipe(
+      Effect.tap(() => limiter.release(0, true)),
+      Effect.tapError(() => limiter.release(0, false)),
+      Effect.mapError(mapAiError)
+    );
 
     yield* Effect.logDebug("EmbeddingService: embedding generated (caching disabled)").pipe(
-      Effect.annotateLogs({cacheKey, vectorLength: vector.length})
+      Effect.annotateLogs({ cacheKey, vectorLength: vector.length })
     );
 
     return vector;
@@ -136,7 +148,7 @@ const serviceEffect: Effect.Effect<
     }
 
     yield* Effect.logInfo("EmbeddingService.embedEntities: starting").pipe(
-      Effect.annotateLogs({count: entities.length})
+      Effect.annotateLogs({ count: entities.length })
     );
 
     const indexed = A.map(entities, (entity, i) => ({
@@ -148,17 +160,17 @@ const serviceEffect: Effect.Effect<
     const cacheResults = yield* Effect.forEach(indexed, (item) =>
       repo.findByCacheKey(computeCacheKey(item.text, DEFAULT_EMBEDDING_MODEL), organizationId).pipe(
         Effect.option,
-        Effect.map((cached) => ({...item, cached}))
+        Effect.map((cached) => ({ ...item, cached }))
       )
     );
 
-    const {uncached, cachedCount} = A.reduce(
+    const { uncached, cachedCount } = A.reduce(
       cacheResults,
-      {uncached: A.empty<(typeof cacheResults)[number]>(), cachedCount: 0},
+      { uncached: A.empty<(typeof cacheResults)[number]>(), cachedCount: 0 },
       (acc, item) =>
         O.isSome(item.cached)
-          ? {...acc, cachedCount: acc.cachedCount + 1}
-          : {...acc, uncached: A.append(acc.uncached, item)}
+          ? { ...acc, cachedCount: acc.cachedCount + 1 }
+          : { ...acc, uncached: A.append(acc.uncached, item) }
     );
 
     yield* Effect.logDebug("EmbeddingService.embedEntities: cache check complete").pipe(
@@ -174,7 +186,13 @@ const serviceEffect: Effect.Effect<
     }
 
     const uncachedTexts = A.map(uncached, (item) => item.text);
-    const vectors = yield* embeddingModel.embedMany(uncachedTexts).pipe(Effect.mapError(mapAiError));
+    const estimatedTokens = A.reduce(uncachedTexts, 0, (acc, t) => acc + Str.length(t));
+    yield* limiter.acquire(estimatedTokens);
+    const vectors = yield* embeddingModel.embedMany(uncachedTexts).pipe(
+      Effect.tap(() => limiter.release(0, true)),
+      Effect.tapError(() => limiter.release(0, false)),
+      Effect.mapError(mapAiError)
+    );
 
     yield* Effect.forEach(uncached, (item, j) =>
       O.match(A.get(vectors, j), {
@@ -224,7 +242,7 @@ const serviceEffect: Effect.Effect<
     threshold = 0.7
   ) {
     yield* Effect.logDebug("EmbeddingService.findSimilar").pipe(
-      Effect.annotateLogs({organizationId, limit, threshold})
+      Effect.annotateLogs({ organizationId, limit, threshold })
     );
 
     const results = yield* repo.findSimilar(queryVector, limit, threshold).pipe(
@@ -239,7 +257,7 @@ const serviceEffect: Effect.Effect<
     );
 
     yield* Effect.logDebug("EmbeddingService.findSimilar: complete").pipe(
-      Effect.annotateLogs({resultCount: results.length})
+      Effect.annotateLogs({ resultCount: results.length })
     );
 
     return results;
@@ -249,7 +267,7 @@ const serviceEffect: Effect.Effect<
     text: string,
     taskType: TaskType.Type,
     ontologyId: KnowledgeEntityIds.OntologyId.Type
-  ): Effect.Effect<ReadonlyArray<number>, EmbeddingError> => embed(text, taskType, ontologyId);
+  ): Effect.Effect<ReadonlyArray<number>, EmbeddingError | CircuitOpenError | RateLimitError> => embed(text, taskType, ontologyId);
 
   const getConfig = Effect.fn("EmbeddingService.getConfig")(function* () {
     return {

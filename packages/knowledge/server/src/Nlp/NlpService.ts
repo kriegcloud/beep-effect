@@ -15,7 +15,7 @@ const SENTENCE_END_PATTERN = /(?<=[.!?])\s+(?=[A-Z])|(?<=[.!?])$/g;
 const splitIntoSentences = (text: string): readonly string[] => {
   const parts: Array<string> = [];
   let lastEnd = 0;
-  const matches = text.matchAll(SENTENCE_END_PATTERN);
+  const matches = Str.matchAll(SENTENCE_END_PATTERN)(text);
 
   for (const match of matches) {
     if (match.index !== undefined) {
@@ -62,7 +62,7 @@ const createChunksFromSentences = (
       currentChunkSentences = [...overlapSentences];
     } else {
       currentChunkStart = currentChunkStart + Str.length(text);
-      currentChunkSentences = [];
+      currentChunkSentences = A.empty<string>();
     }
   };
 
@@ -129,7 +129,7 @@ const splitIntoChunks = (text: string, config: ChunkingConfig): readonly TextChu
   const textLen = Str.length(text);
 
   if (textLen === 0) {
-    return [];
+    return A.empty<TextChunk>();
   }
 
   if (textLen <= config.maxChunkSize) {

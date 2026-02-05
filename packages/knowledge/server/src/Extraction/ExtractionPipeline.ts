@@ -2,7 +2,10 @@ import { $KnowledgeServerId } from "@beep/identity/packages";
 import { MentionRecord } from "@beep/knowledge-domain/entities";
 import type { OntologyParseError } from "@beep/knowledge-domain/errors";
 import { IncrementalClusterer } from "@beep/knowledge-domain/services";
+import { Confidence } from "@beep/knowledge-domain/value-objects";
 import { DocumentsEntityIds, KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
+import { AuthContext, type AuthContextShape } from "@beep/shared-domain/Policy";
+import { thunkTrue } from "@beep/utils";
 import type * as AiError from "@effect/ai/AiError";
 import type * as HttpServerError from "@effect/platform/HttpServerError";
 import * as A from "effect/Array";
@@ -15,11 +18,12 @@ import * as Layer from "effect/Layer";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
+import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import { type ChunkingConfig, defaultChunkingConfig, NlpService, type TextChunk } from "../Nlp";
+import { ChunkingConfig, defaultChunkingConfig, NlpService, type TextChunk } from "../Nlp";
 import { OntologyService } from "../Ontology";
 import { EntityExtractor, EntityExtractorLive } from "./EntityExtractor";
-import { GraphAssembler, GraphAssemblerLive, type KnowledgeGraph } from "./GraphAssembler";
+import { GraphAssembler, GraphAssemblerLive, KnowledgeGraph } from "./GraphAssembler";
 import { type MentionExtractionResult, MentionExtractor, MentionExtractorLive } from "./MentionExtractor";
 import { RelationExtractor, RelationExtractorLive } from "./RelationExtractor";
 import type { ClassifiedEntity } from "./schemas/entity-output.schema";
@@ -27,33 +31,50 @@ import type { ExtractedMention } from "./schemas/mention-output.schema";
 
 const $I = $KnowledgeServerId.create("knowledge-server/Extraction/ExtractionPipeline");
 
-export interface ExtractionPipelineConfig {
-  readonly organizationId: string;
-  readonly ontologyId: string;
-  readonly documentId: string;
-  readonly sourceUri?: undefined | string;
-  readonly chunkingConfig?: undefined | ChunkingConfig;
-  readonly mentionMinConfidence?: undefined | number;
-  readonly entityMinConfidence?: undefined | number;
-  readonly relationMinConfidence?: undefined | number;
-  readonly entityBatchSize?: undefined | number;
-  readonly mergeEntities?: undefined | boolean;
-  readonly enableIncrementalClustering?: undefined | boolean;
-}
+export class ExtractionPipelineConfig extends S.Class<ExtractionPipelineConfig>($I`ExtractionPipelineConfig`)(
+  {
+    organizationId: SharedEntityIds.OrganizationId,
+    ontologyId: KnowledgeEntityIds.OntologyId,
+    documentId: DocumentsEntityIds.DocumentId,
+    sourceUri: S.optionalWith(S.String, { as: "Option" }),
+    chunkingConfig: S.optionalWith(ChunkingConfig, { as: "Option" }),
+    mentionMinConfidence: S.optionalWith(Confidence, { as: "Option" }),
+    entityMinConfidence: S.optionalWith(Confidence, { as: "Option" }),
+    relationMinConfidence: S.optionalWith(Confidence, { as: "Option" }),
+    entityBatchSize: S.optionalWith(S.Int, { as: "Option" }),
+    mergeEntities: S.optionalWith(S.Boolean, { as: "Option" }),
+    enableIncrementalClustering: S.optionalWith(S.Boolean, { as: "Option" }),
+  },
+  $I.annotations("ExtractionPipelineConfig", {
+    description: "Configuration for the extraction pipeline",
+  })
+) {}
 
-export interface ExtractionResult {
-  readonly graph: KnowledgeGraph;
-  readonly stats: {
-    readonly chunkCount: number;
-    readonly mentionCount: number;
-    readonly entityCount: number;
-    readonly relationCount: number;
-    readonly tokensUsed: number;
-    readonly durationMs: number;
-    readonly clusteringEnabled: boolean;
-  };
-  readonly config: ExtractionPipelineConfig;
-}
+export class ExtractionResultStats extends S.Class<ExtractionResultStats>($I`ExtractionResultStats`)(
+  {
+    chunkCount: S.NonNegativeInt,
+    mentionCount: S.NonNegativeInt,
+    entityCount: S.NonNegativeInt,
+    relationCount: S.NonNegativeInt,
+    tokensUsed: S.Number,
+    durationMs: S.DurationFromMillis,
+    clusteringEnabled: S.Boolean,
+  },
+  $I.annotations("ExtractionResultStats", {
+    description: "Statistics for the extraction pipeline",
+  })
+) {}
+
+export class ExtractionResult extends S.Class<ExtractionResult>($I`ExtractionResult`)(
+  {
+    graph: KnowledgeGraph,
+    stats: ExtractionResultStats,
+    config: ExtractionPipelineConfig,
+  },
+  $I.annotations("ExtractionResult", {
+    description: "Result of the extraction pipeline",
+  })
+) {}
 
 export interface ExtractionPipelineShape {
   readonly run: (
@@ -71,7 +92,7 @@ export class ExtractionPipeline extends Context.Tag($I`ExtractionPipeline`)<
 const serviceEffect: Effect.Effect<
   ExtractionPipelineShape,
   never,
-  NlpService | MentionExtractor | EntityExtractor | RelationExtractor | GraphAssembler | OntologyService
+  NlpService | MentionExtractor | EntityExtractor | RelationExtractor | GraphAssembler | OntologyService | AuthContext
 > = Effect.gen(function* () {
   const nlp = yield* NlpService;
   const mentionExtractor = yield* MentionExtractor;
@@ -81,135 +102,148 @@ const serviceEffect: Effect.Effect<
   const ontologyService = yield* OntologyService;
   const maybeClusterer = yield* Effect.serviceOption(IncrementalClusterer);
 
-  const run = Effect.fnUntraced(function* (text: string, ontologyContent: string, config: ExtractionPipelineConfig) {
-    const startTime = yield* DateTime.now;
-    let totalTokens = 0;
+  const authCtx = yield* AuthContext;
+  const run = Effect.fnUntraced(
+    function* (text: string, ontologyContent: string, config: ExtractionPipelineConfig) {
+      const encodedConfig = yield* S.encode(ExtractionPipelineConfig)(config);
+      const startTime = yield* DateTime.now;
+      let totalTokens = 0;
 
-    yield* Effect.logInfo("Starting extraction pipeline", {
-      documentId: config.documentId,
-      textLength: Str.length(text),
-    });
-
-    yield* Effect.logDebug("Loading ontology");
-    const ontologyContext = yield* ontologyService.load(config.ontologyId, ontologyContent);
-
-    yield* Effect.logDebug("Chunking text");
-    const chunks = yield* nlp.chunkTextAll(text, config.chunkingConfig ?? defaultChunkingConfig);
-
-    yield* Effect.logInfo("Text chunked", { chunkCount: A.length(chunks) });
-
-    yield* Effect.logDebug("Extracting mentions");
-
-    const mentionResults = yield* mentionExtractor.extractFromChunks(
-      [...chunks],
-      filterUndefined({
-        minConfidence: config.mentionMinConfidence,
-      })
-    );
-
-    const allMentions = yield* mentionExtractor.mergeMentions(mentionResults);
-    totalTokens += A.reduce([...mentionResults], 0, (acc, r) => acc + r.tokensUsed);
-
-    yield* Effect.logInfo("Mentions extracted", {
-      totalMentions: A.length(allMentions),
-    });
-
-    yield* Effect.logDebug("Classifying entities");
-    const entityResult = yield* entityExtractor.classify(
-      allMentions,
-      ontologyContext,
-      filterUndefined({
-        minConfidence: config.entityMinConfidence,
-        batchSize: config.entityBatchSize,
-      })
-    );
-
-    totalTokens += entityResult.tokensUsed;
-
-    yield* Effect.logInfo("Entities classified", {
-      validEntities: A.length(entityResult.entities),
-      invalidTypes: A.length(entityResult.invalidTypes),
-    });
-
-    yield* Effect.logDebug("Extracting relations");
-
-    const entitiesByChunk = mapEntitiesToChunks([...entityResult.entities], [...allMentions], [...chunks]);
-
-    const relationResult = yield* relationExtractor.extractFromChunks(
-      entitiesByChunk,
-      [...chunks],
-      ontologyContext,
-      filterUndefined({
-        minConfidence: config.relationMinConfidence,
-        validatePredicates: true,
-      })
-    );
-
-    totalTokens += relationResult.tokensUsed;
-
-    const dedupedRelations = yield* relationExtractor.deduplicateRelations(relationResult.triples);
-
-    yield* Effect.logInfo("Relations extracted", {
-      totalRelations: A.length(dedupedRelations),
-    });
-
-    yield* Effect.logDebug("Assembling knowledge graph");
-    const graph = yield* graphAssembler.assemble([...entityResult.entities], [...dedupedRelations], {
-      organizationId: config.organizationId,
-      ontologyId: config.ontologyId,
-      mergeEntities: config.mergeEntities ?? true,
-    });
-
-    const clusteringEnabled = config.enableIncrementalClustering === true;
-
-    if (clusteringEnabled) {
-      yield* O.match(maybeClusterer, {
-        onNone: () => Effect.logDebug("IncrementalClustering requested but IncrementalClusterer not provided"),
-        onSome: Effect.fn(
-          function* (clusterer) {
-            const records = yield* buildMentionRecords(mentionResults, config);
-            yield* clusterer.cluster(records);
-            yield* Effect.logInfo("Incremental clustering completed").pipe(
-              Effect.annotateLogs({ mentionCount: A.length(records) })
-            );
-          },
-          Effect.catchTag("ClusterError", (err) =>
-            Effect.logWarning("Incremental clustering failed, continuing without clustering").pipe(
-              Effect.annotateLogs({ error: err.message })
-            )
-          ),
-          Effect.withSpan("ExtractionPipeline.incrementalClustering", {
-            attributes: { documentId: config.documentId },
-          })
-        ),
+      yield* Effect.logInfo("Starting extraction pipeline", {
+        documentId: config.documentId,
+        textLength: Str.length(text),
       });
-    }
 
-    const endTime = yield* DateTime.now;
-    const durationMs = Duration.toMillis(DateTime.distance(startTime, endTime));
+      yield* Effect.logDebug("Loading ontology");
+      const ontologyContext = yield* ontologyService.load(config.ontologyId, ontologyContent);
 
-    yield* Effect.logInfo("Extraction pipeline complete", {
-      entityCount: graph.stats.entityCount,
-      relationCount: graph.stats.relationCount,
-      tokensUsed: totalTokens,
-      durationMs,
-      clusteringEnabled,
-    });
+      yield* Effect.logDebug("Chunking text");
+      const chunks = yield* nlp.chunkTextAll(
+        text,
+        config.chunkingConfig.pipe(O.getOrElse(() => defaultChunkingConfig))
+      );
 
-    return {
-      graph,
-      stats: {
-        chunkCount: A.length(chunks),
-        mentionCount: A.length(allMentions),
+      yield* Effect.logInfo("Text chunked", { chunkCount: A.length(chunks) });
+
+      yield* Effect.logDebug("Extracting mentions");
+
+      const mentionResults = yield* mentionExtractor.extractFromChunks(
+        [...chunks],
+        filterUndefined({
+          minConfidence: encodedConfig.mentionMinConfidence,
+        })
+      );
+
+      const allMentions = yield* mentionExtractor.mergeMentions(mentionResults);
+      totalTokens += A.reduce([...mentionResults], 0, (acc, r) => acc + r.tokensUsed);
+
+      yield* Effect.logInfo("Mentions extracted", {
+        totalMentions: A.length(allMentions),
+      });
+
+      yield* Effect.logDebug("Classifying entities");
+      const entityResult = yield* entityExtractor.classify(
+        allMentions,
+        ontologyContext,
+        filterUndefined({
+          minConfidence: encodedConfig.entityMinConfidence,
+          batchSize: encodedConfig.entityBatchSize,
+        })
+      );
+
+      totalTokens += entityResult.tokensUsed;
+
+      yield* Effect.logInfo("Entities classified", {
+        validEntities: A.length(entityResult.entities),
+        invalidTypes: A.length(entityResult.invalidTypes),
+      });
+
+      yield* Effect.logDebug("Extracting relations");
+
+      const entitiesByChunk = mapEntitiesToChunks([...entityResult.entities], [...allMentions], [...chunks]);
+
+      const relationResult = yield* relationExtractor.extractFromChunks(
+        entitiesByChunk,
+        [...chunks],
+        ontologyContext,
+        filterUndefined({
+          minConfidence: encodedConfig.relationMinConfidence,
+          validatePredicates: true,
+        })
+      );
+
+      totalTokens += relationResult.tokensUsed;
+
+      const dedupedRelations = yield* relationExtractor.deduplicateRelations(relationResult.triples);
+
+      yield* Effect.logInfo("Relations extracted", {
+        totalRelations: A.length(dedupedRelations),
+      });
+
+      yield* Effect.logDebug("Assembling knowledge graph");
+      const graph = yield* graphAssembler.assemble([...entityResult.entities], [...dedupedRelations], {
+        organizationId: config.organizationId,
+        ontologyId: config.ontologyId,
+        mergeEntities: config.mergeEntities.pipe(O.getOrElse(thunkTrue)),
+      });
+
+      const clusteringEnabled = config.enableIncrementalClustering.pipe(
+        O.match({
+          onNone: () => false,
+          onSome: (b) => b,
+        })
+      );
+
+      if (clusteringEnabled) {
+        yield* O.match(maybeClusterer, {
+          onNone: () => Effect.logDebug("IncrementalClustering requested but IncrementalClusterer not provided"),
+          onSome: Effect.fn(
+            function* (clusterer) {
+              const records = yield* buildMentionRecords(mentionResults, authCtx, config);
+              yield* clusterer.cluster(records);
+              yield* Effect.logInfo("Incremental clustering completed").pipe(
+                Effect.annotateLogs({ mentionCount: A.length(records) })
+              );
+            },
+            Effect.catchTag("ClusterError", (err) =>
+              Effect.logWarning("Incremental clustering failed, continuing without clustering").pipe(
+                Effect.annotateLogs({ error: err.message })
+              )
+            ),
+            Effect.withSpan("ExtractionPipeline.incrementalClustering", {
+              attributes: { documentId: config.documentId },
+            })
+          ),
+        });
+      }
+
+      const endTime = yield* DateTime.now;
+      const durationMs = Duration.millis(DateTime.distance(startTime, endTime));
+
+      yield* Effect.logInfo("Extraction pipeline complete", {
         entityCount: graph.stats.entityCount,
         relationCount: graph.stats.relationCount,
         tokensUsed: totalTokens,
         durationMs,
         clusteringEnabled,
-      },
-      config,
-    };
-  });
+      });
+
+      return new ExtractionResult({
+        graph,
+        stats: {
+          chunkCount: A.length(chunks),
+          mentionCount: A.length(allMentions),
+          entityCount: graph.stats.entityCount,
+          relationCount: graph.stats.relationCount,
+          tokensUsed: totalTokens,
+          durationMs,
+          clusteringEnabled,
+        },
+        config,
+      });
+    },
+    Effect.catchTag("ParseError", Effect.die)
+  );
 
   return ExtractionPipeline.of({ run });
 });
@@ -268,8 +302,9 @@ const filterUndefined = <T extends Record<string, unknown>>(obj: T): Partial<T> 
 
 const buildMentionRecords = (
   mentionResults: readonly MentionExtractionResult[],
+  authCtx: AuthContextShape,
   config: ExtractionPipelineConfig
-): Effect.Effect<ReadonlyArray<MentionRecord.Model>> =>
+): Effect.Effect<ReadonlyArray<S.Schema.Type<typeof MentionRecord.Model.insert>>> =>
   Effect.gen(function* () {
     const extractionId = KnowledgeEntityIds.ExtractionId.create();
     const now = yield* DateTime.now;
@@ -280,10 +315,8 @@ const buildMentionRecords = (
     return A.flatMap(mentionResults, (result) =>
       A.map(result.mentions, (mention) => {
         rowIdSeq += 1;
-        return MentionRecord.Model.make({
+        return MentionRecord.Model.insert.make({
           id: KnowledgeEntityIds.MentionRecordId.create(),
-          _rowId: KnowledgeEntityIds.MentionRecordId.privateSchema.make(rowIdSeq),
-          version: 1,
           organizationId: orgId,
           extractionId,
           documentId: docId,
@@ -293,12 +326,10 @@ const buildMentionRecords = (
           confidence: mention.confidence,
           responseHash: "",
           extractedAt: now,
-          createdAt: now,
-          updatedAt: now,
-          source: O.none(),
+          source: O.some($I`ExtractionPipeline`),
           deletedAt: O.none(),
-          createdBy: O.none(),
-          updatedBy: O.none(),
+          createdBy: authCtx.session.userId,
+          updatedBy: authCtx.session.userId,
           deletedBy: O.none(),
           resolvedEntityId: O.none(),
         });

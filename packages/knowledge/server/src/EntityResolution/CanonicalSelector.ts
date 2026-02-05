@@ -9,6 +9,7 @@ import * as Layer from "effect/Layer";
 import * as Match from "effect/Match";
 import * as MutableHashSet from "effect/MutableHashSet";
 import * as O from "effect/Option";
+import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import * as Struct from "effect/Struct";
 import type { AssembledEntity } from "../Extraction/GraphAssembler";
@@ -30,16 +31,28 @@ export declare namespace SelectionStrategy {
   export type Type = typeof SelectionStrategy.Type;
 }
 
-export interface CanonicalSelectorConfig {
-  readonly strategy?: undefined | SelectionStrategy.Type;
-  readonly weights?:
-    | undefined
-    | {
-        readonly confidence?: undefined | number;
-        readonly attributeCount?: undefined | number;
-        readonly mentionLength?: undefined | number;
-      };
-}
+export class CanonicalSelectorConfigWeights extends S.Class<CanonicalSelectorConfigWeights>(
+  "CanonicalSelectorConfigWeights"
+)(
+  {
+    confidence: S.optional(S.Number),
+    attributeCount: S.optional(S.Number),
+    mentionLength: S.optional(S.Number),
+  },
+  $I.annotations("CanonicalSelectorConfigWeights", {
+    description: "Weights for hybrid canonical entity selection",
+  })
+) {}
+
+export class CanonicalSelectorConfig extends S.Class<CanonicalSelectorConfig>($I`CanonicalSelectorConfig`)(
+  {
+    strategy: S.optional(SelectionStrategy),
+    weights: S.optional(CanonicalSelectorConfigWeights),
+  },
+  $I.annotations("CanonicalSelectorConfig", {
+    description: "Configuration for canonical entity selection",
+  })
+) {}
 
 const countAttributes = (entity: AssembledEntity): number => A.length(Struct.keys(entity.attributes));
 
@@ -57,7 +70,7 @@ const computeHybridScore = (
 export interface CanonicalSelectorShape {
   readonly selectCanonical: (
     cluster: readonly AssembledEntity[],
-    config?: CanonicalSelectorConfig | undefined
+    config?: CanonicalSelectorConfig
   ) => Effect.Effect<AssembledEntity, CanonicalSelectionError, never>;
   readonly mergeAttributes: (
     canonical: AssembledEntity,
@@ -74,7 +87,7 @@ export class CanonicalSelector extends Context.Tag($I`CanonicalSelector`)<
 const serviceEffect: Effect.Effect<CanonicalSelectorShape, never, never> = Effect.gen(function* () {
   const selectCanonical = Effect.fn(function* (
     cluster: readonly AssembledEntity[],
-    config: CanonicalSelectorConfig = {}
+    config = new CanonicalSelectorConfig({})
   ) {
     if (A.isEmptyReadonlyArray(cluster)) {
       return yield* new CanonicalSelectionError({
@@ -84,11 +97,8 @@ const serviceEffect: Effect.Effect<CanonicalSelectorShape, never, never> = Effec
       });
     }
 
-    if (A.length(cluster) === 1) {
-      return F.pipe(
-        A.head(cluster),
-        O.getOrElse(() => undefined as never)
-      );
+    if (A.isNonEmptyReadonlyArray(cluster) && A.length(cluster) === 1) {
+      return A.headNonEmpty(cluster);
     }
 
     const strategy = config.strategy ?? SelectionStrategy.Enum.hybrid;

@@ -1,4 +1,5 @@
 import { $KnowledgeServerId } from "@beep/identity/packages";
+import { Confidence } from "@beep/knowledge-domain/value-objects";
 import { LanguageModel, Prompt } from "@effect/ai";
 import type * as AiError from "@effect/ai/AiError";
 import type * as HttpServerError from "@effect/platform/HttpServerError";
@@ -10,31 +11,42 @@ import * as Layer from "effect/Layer";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as MutableHashSet from "effect/MutableHashSet";
 import * as O from "effect/Option";
+import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { buildEntityPrompt, buildSystemPrompt } from "../Ai/PromptTemplates";
 import type { OntologyContext } from "../Ontology";
 import { ClassifiedEntity, EntityOutput } from "./schemas/entity-output.schema";
-import type { ExtractedMention } from "./schemas/mention-output.schema";
+import { ExtractedMention } from "./schemas/mention-output.schema";
 
 const $I = $KnowledgeServerId.create("knowledge-server/Extraction/EntityExtractor");
 
-export interface EntityExtractionConfig {
-  readonly minConfidence?: undefined | number;
-  readonly batchSize?: undefined | number;
-}
+export class EntityExtractionConfig extends S.Class<EntityExtractionConfig>($I`EntityExtractionConfig`)(
+  {
+    minConfidence: S.optional(Confidence),
+    batchSize: S.optional(S.Number),
+  },
+  $I.annotations("EntityExtractionConfig", {
+    description: "Configuration for entity extraction",
+  })
+) {}
 
-export interface EntityExtractionResult {
-  readonly entities: readonly ClassifiedEntity[];
-  readonly unclassified: readonly ExtractedMention[];
-  readonly invalidTypes: readonly ClassifiedEntity[];
-  readonly tokensUsed: number;
-}
+export class EntityExtractionResult extends S.Class<EntityExtractionResult>($I`EntityExtractionResult`)(
+  {
+    entities: S.Array(ClassifiedEntity),
+    unclassified: S.Array(ExtractedMention),
+    invalidTypes: S.Array(ClassifiedEntity),
+    tokensUsed: S.Number,
+  },
+  $I.annotations("EntityExtractionResult", {
+    description: "Result of entity extraction",
+  })
+) {}
 
 export interface EntityExtractorShape {
   readonly classify: (
     mentions: readonly ExtractedMention[],
     ontologyContext: OntologyContext,
-    config?: EntityExtractionConfig
+    config?: undefined | EntityExtractionConfig
   ) => Effect.Effect<EntityExtractionResult, HttpServerError.RequestError | AiError.AiError>;
   readonly enrichEntities: (
     entities: readonly ClassifiedEntity[],
@@ -43,7 +55,7 @@ export interface EntityExtractorShape {
   readonly resolveEntities: (
     entities: readonly ClassifiedEntity[]
   ) => Effect.Effect<
-    ReadonlyMap<string, { canonical: ClassifiedEntity; mentions: readonly ClassifiedEntity[] }>,
+    ReadonlyMap<string, { readonly canonical: ClassifiedEntity; readonly mentions: readonly ClassifiedEntity[] }>,
     never
   >;
 }
@@ -99,8 +111,14 @@ const serviceEffect: Effect.Effect<EntityExtractorShape, never, LanguageModel.La
 
     for (const batch of batches) {
       const prompt = Prompt.make([
-        { role: "system" as const, content: buildSystemPrompt() },
-        { role: "user" as const, content: buildEntityPrompt(batch, ontologyContext) },
+        Prompt.systemMessage({ content: buildSystemPrompt() }),
+        Prompt.userMessage({
+          content: A.make(
+            Prompt.textPart({
+              text: buildEntityPrompt(batch, ontologyContext),
+            })
+          ),
+        }),
       ]);
 
       const result = yield* model.generateObject({

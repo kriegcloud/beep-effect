@@ -107,7 +107,7 @@ const wouldGenerateMore = (state: ChainState): boolean =>
 const finalizeProvenance = (
   provenance: MutableHashMap.MutableHashMap<string, InferenceProvenance>
 ): Record<string, InferenceProvenance> => {
-  const entries: Array<[string, InferenceProvenance]> = [];
+  const entries = A.empty<[string, InferenceProvenance]>();
   MutableHashMap.forEach(provenance, (value, key) => {
     entries.push([key, value]);
   });

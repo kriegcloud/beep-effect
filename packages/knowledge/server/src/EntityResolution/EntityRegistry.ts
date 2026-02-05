@@ -7,6 +7,7 @@ import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as Order from "effect/Order";
+import type * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { EntityRepo } from "../db/repos/Entity.repo";
 import { EmbeddingService } from "../Embedding/EmbeddingService";
@@ -23,7 +24,7 @@ export const normalizeText = (text: string): string => Str.toLowerCase(Str.trim(
 
 export interface EntityRegistryShape {
   readonly findCandidates: (
-    mention: Entities.MentionRecord.Model
+    mention: S.Schema.Type<typeof Entities.MentionRecord.Model.insert>
   ) => Effect.Effect<ValueObjects.EntityCandidate[], Errors.RegistryError>;
   readonly bloomFilterCheck: (normalizedText: string) => Effect.Effect<boolean>;
   readonly fetchTextMatches: (
@@ -60,7 +61,7 @@ const serviceEffect: Effect.Effect<
   const authContext = yield* Policy.AuthContext;
 
   const findCandidates = Effect.fn("EntityRegistry.findCandidates")(
-    function* (mention: Entities.MentionRecord.Model) {
+    function* (mention: S.Schema.Type<typeof Entities.MentionRecord.Model.insert>) {
       const normalizedText = normalizeText(mention.rawText);
       const organizationId = authContext.session.activeOrganizationId;
 

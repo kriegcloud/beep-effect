@@ -376,6 +376,194 @@ Phase 1 - Legal Review & Remediation
 
 ---
 
+## Entry 4: P1 Re-Execution -- Data Accuracy Correction (2026-02-05)
+
+### Phase
+Phase 1 - Research (Re-execution)
+
+### What Was Done
+- Re-executed P1 research after discovering all 4 deliverables from 2026-02-03 contained severe factual errors
+- Inventoried effect-ontology reference (68+ services cataloged across 7 categories)
+- Audited knowledge-slice current state with direct file inspection (90+ TypeScript files verified)
+- Rewrote COMPARISON_MATRIX.md: 121 rows (up from 65), parity corrected from 27% to 54%
+- Rewrote GAP_ANALYSIS.md: reduced from 23 gaps to 20 remaining, added "Closed Gaps" traceability section
+- Rewrote IMPLEMENTATION_ROADMAP.md: reduced from 8 phases/18-23 weeks to 4 phases/12-14 weeks
+- Rewrote CONTEXT_DOCUMENT.md: corrected all false claims about missing capabilities, updated file inventory
+
+### Key Findings
+
+#### The Original Deliverables Were Severely Outdated
+
+The 2026-02-03 deliverables incorrectly listed these as gaps (all were actually implemented):
+
+| Falsely Listed as Gap | Actual Implementation |
+|---|---|
+| SPARQL Query Engine | `Sparql/` -- SparqlService, SparqlParser, QueryExecutor, FilterEvaluator (6 files) |
+| Forward-Chaining Reasoner | `Reasoning/` -- ForwardChainer, ReasonerService, RdfsRules (4 files) |
+| Triple Store | `Rdf/RdfStoreService.ts` -- N3.Store wrapper |
+| RDF Serialization | `Rdf/Serializer.ts` -- Turtle/N-Triples via N3.Writer |
+| Grounded Answer Generation | `GraphRAG/GroundedAnswerGenerator.ts` -- @effect/ai LanguageModel |
+| Citation Validation | `GraphRAG/CitationValidator.ts` -- SPARQL ASK queries |
+| Reasoning Traces | `GraphRAG/ReasoningTraceFormatter.ts` -- step-by-step inference chains |
+| Cross-Batch Entity Resolution | `EntityResolution/EntityRegistry.ts` + `BloomFilter.ts` |
+| Cumulative Entity Registry | `EntityResolution/EntityRegistry.ts` -- persists across batches |
+| Immutable Evidence Layer | `MentionRecord` entity with model, table, and repository |
+
+#### Corrected Statistics
+
+| Metric | Previous (Wrong) | Corrected |
+|---|---|---|
+| Comparison rows | 65 | 121 |
+| FULL parity | 18 (27%) | 66 (54%) |
+| PARTIAL parity | 8 | 17 |
+| GAP (remaining) | 40 | 38 |
+| Actionable gaps | 23 | 20 |
+| Implementation estimate | 18-23 weeks | 12-14 weeks |
+| Roadmap phases | 8 | 4 |
+
+### Key Decisions
+
+1. **Direct File Inspection Over Delegated Exploration**
+   - Decision: Read actual source files with Glob/Read instead of relying on haiku-model codebase exploration agents
+   - Rationale: A haiku-model exploration agent was too slow (killed after 10 minutes) and unreliable. Direct file inspection proved faster and more accurate
+   - Impact: Discovery of 10 major capabilities falsely listed as gaps
+
+2. **Parallel Agent Writing Strategy**
+   - Decision: Launch separate agents for each deliverable rather than one agent for all 4
+   - Rationale: Each deliverable requires different source file reading; parallelism reduces total time
+   - Impact: All 4 deliverables completed in ~30 minutes total
+
+3. **Closed Gaps Traceability**
+   - Decision: Added explicit "Closed Gaps" section in GAP_ANALYSIS.md documenting the 10 gaps that were resolved
+   - Rationale: Future readers need to understand why gap count decreased without assuming capabilities were descoped
+   - Impact: Clear audit trail from 40 raw gaps to 20 actionable gaps
+
+### What Worked Well
+
+- **Direct source verification**: Reading actual TypeScript files (SparqlService.ts, ForwardChainer.ts, etc.) immediately revealed the data accuracy problem
+- **Parallel background agents**: Running COMPARISON_MATRIX, GAP_ANALYSIS, IMPLEMENTATION_ROADMAP, and CONTEXT_DOCUMENT agents in parallel maximized throughput
+- **Detailed agent prompts with file inventories**: Passing the complete Glob output to writing agents prevented them from repeating the same error of assuming missing files
+- **Cross-session resumption**: The handoff protocol successfully preserved context across 3 session continuations
+
+### What Could Be Improved
+
+- **Always verify with Glob before claiming something is missing**: The original P1 execution assumed capabilities were absent based on incomplete exploration rather than verifying file existence
+- **Use opus-tier agents for codebase exploration**: The haiku agent (a5ade08) failed to complete the audit task; direct Glob/Read or opus-tier agents are more reliable for large codebases
+- **Session context budgeting**: This task required 3 session continuations. Could be mitigated by more aggressive parallelization upfront
+- **Earlier data validation**: If the 2026-02-03 deliverables had been spot-checked against actual source files, the errors would have been caught immediately
+
+### Root Cause Analysis
+
+The original deliverables were written based on research that predated the implementation of SPARQL, Reasoning, RDF, expanded GraphRAG, and entity resolution improvements. The research agents apparently explored an older branch or incomplete working tree. The fundamental lesson: **research deliverables MUST be validated against the actual current source tree, not cached exploration results.**
+
+### Pattern Candidates
+
+1. **Source-Verified Research**: For comparison/audit specs, mandate a Glob verification step that confirms every "missing" capability is actually absent from the file tree
+2. **Corrected Document Headers**: When rewriting stale deliverables, add "(Corrected)" to the title and a "What Changed" section explaining corrections
+3. **Closed-Gap Traceability**: When gap counts decrease between versions, explicitly document why each gap was closed
+
+### Recommendations for Future Specs
+
+1. **Add verification gate**: Before marking research phase complete, require a "verify gaps against source" step using Glob/Read
+2. **Include file inventories in agent prompts**: When delegating to writing agents, always include the actual Glob output so agents cannot fabricate or assume file existence
+3. **Prefer direct tools over exploration agents for verification**: Glob + Read is faster and more reliable than spawning exploration agents for "does X exist?" questions
+4. **Time-stamp deliverables relative to git state**: Include the git commit hash in deliverables so readers know which state of the code was analyzed
+
+### Prompt Refinement #7: Source Verification Mandate
+
+**Original approach:**
+> "Research the codebases and produce comparison deliverables"
+
+**Refined to:**
+> "Research the codebases, produce comparison deliverables, and VERIFY every 'missing' capability by checking actual file existence with Glob before listing it as a gap"
+
+**Rationale:** The single biggest error in the original P1 execution was listing 10 implemented capabilities as gaps. A mandatory verification step prevents this class of error entirely.
+
+---
+
+## Entry 5: Phase 2 Implementation -- Workflow Durability + Resilience (2026-02-05)
+
+### Phase
+Phase 2 - Implementation (Complete)
+
+### What Was Done
+
+Implemented crash-recoverable extraction workflows and LLM call protection across 5 sub-tasks:
+
+| Sub-Task | Deliverable | Files Created/Modified |
+|----------|-------------|----------------------|
+| 2A: Workflow Tables | 3 Drizzle tables + 3 EntityIds | `workflow-execution.table.ts`, `workflow-activity.table.ts`, `workflow-signal.table.ts` |
+| 2Ba: Domain + Persistence | Value objects, errors, WorkflowPersistence, DurableActivities | `workflow-state.value.ts`, `extraction-progress.value.ts`, `workflow.errors.ts`, `WorkflowPersistence.ts`, `DurableActivities.ts` |
+| 2Bb: Workflow + Progress | ExtractionWorkflow orchestrator, ProgressStream SSE | `ExtractionWorkflow.ts`, `ProgressStream.ts` |
+| 2C: CircuitBreaker | Combined circuit breaker + rate limiter | `LlmControl/RateLimiter.ts` (CentralRateLimiterService) |
+| 2D: Rate Limiter Integration | Wrapped LLM call sites | Modified `EmbeddingService.ts`, `GroundedAnswerGenerator.ts` |
+
+Additional files: `circuit.errors.ts`, `embedding.errors.ts`, `event-bus.error.ts`, `LlmControl/StageTimeout.ts`, `LlmControl/TokenBudget.ts`
+
+### Key Decisions
+
+1. **Custom Workflow Persistence Over @effect/workflow**
+   - Decision: Built lightweight custom persistence with PostgreSQL instead of @effect/workflow
+   - Rationale: @effect/workflow is alpha (v0.16.0) and requires @effect/cluster, which adds significant infrastructure complexity
+   - Alternative: @effect/workflow with cluster -- rejected due to alpha status and cluster dependency
+   - Impact: Simpler DI, no cluster infrastructure, full control over persistence schema
+
+2. **Combined CircuitBreaker + RateLimiter (CentralRateLimiterService)**
+   - Decision: Single service combining circuit breaker states, request/token rate limiting, and semaphore concurrency
+   - Rationale: Discovered existing `CentralRateLimiterService` stub already attempted this pattern; completing it was more coherent than splitting
+   - Location: `server/src/LlmControl/RateLimiter.ts` (NOT `server/src/Resilience/` as originally planned)
+   - Impact: One service to inject, one Layer to provide, cleaner DI graph
+
+3. **Layer-Level DI for Rate Limiting**
+   - Decision: Resolve CentralRateLimiterService at `serviceEffect` construction time (Layer level), not at method call time
+   - Rationale: Keeps method R channels as `never`, avoiding R type pollution through entire call graph
+   - Pattern: `const limiter = yield* CentralRateLimiterService;` in serviceEffect, then `limiter.acquire(tokens)` inline in methods
+
+4. **S.encodeSync(S.parseJson(schema)) for JSONB Serialization**
+   - Decision: Use Schema-based JSON encoding instead of `JSON.stringify` for SQL jsonb columns
+   - Rationale: Validates structure through Schema before serializing; consistent with Effect-first patterns
+   - Pattern: `const toJsonb = S.encodeSync(S.parseJson(S.Record({ key: S.String, value: S.Unknown })));`
+
+5. **DurableActivity Checkpoint/Replay Pattern**
+   - Decision: Check DB for completed activity before execution; skip if already done
+   - Rationale: Enables crash recovery -- restart picks up where it left off
+   - Pattern: `findCompletedActivity(executionId, name)` → `O.match` → cached result or execute fresh
+
+### What Worked Well
+
+- **Parallel sub-agent delegation**: Running 2Ba and 2C/2D agents simultaneously maximized throughput
+- **Existing code patterns as templates**: Entity.repo.ts and EntityCluster.repo.ts provided the `SqlSchema.findAll` + `JSON.stringify(...)::jsonb` patterns that guided WorkflowPersistence implementation
+- **Incremental type checking**: `bun tsc --noEmit -p tsconfig.json` for isolated verification avoided turborepo cascading through all dependencies
+- **OrgTable.make factory**: Correctly handled multi-tenant table creation with organization_id FK
+
+### What Could Be Improved
+
+- **`sql.json()` doesn't exist**: Agent-generated code used `sql.json(value)` which is not a real `@effect/sql` API. Always verify SqlClient API surface against existing repo code, not assumptions
+- **Agent context exhaustion**: Multiple session continuations were needed. More aggressive parallelization and smaller agent scopes would reduce context pressure
+- **File path divergence from plan**: HANDOFF_P2.md specified `server/src/Resilience/` directory but actual implementation went to `server/src/LlmControl/`. Plans should be updated when implementation diverges
+
+### Learnings for MEMORY.md
+
+1. **SqlClient has no `.json()` method**: Use `JSON.stringify(value)::jsonb` or `S.encodeSync(S.parseJson(schema))(value)::jsonb` for PostgreSQL jsonb columns
+2. **@effect/workflow requires @effect/cluster**: Not suitable for lightweight workflow persistence; build custom with SqlClient + Effect primitives
+3. **CentralRateLimiterService location**: `server/src/LlmControl/RateLimiter.ts` -- NOT `server/src/Resilience/`
+4. **BS.StringLiteralKit**: Used for circuit states ("closed" | "open" | "half_open") and workflow statuses
+
+### Pattern Candidates
+
+1. **DurableActivity Checkpoint/Replay**: Generic pattern for any long-running pipeline stage -- check DB, skip if done, record on complete/fail
+2. **Layer-Level Service Resolution**: Resolve dependencies in serviceEffect to keep method signatures clean
+3. **Schema-Based JSONB Serialization**: `S.encodeSync(S.parseJson(schema))` over raw `JSON.stringify`
+
+### Recommendations for Phase 3
+
+1. **Update reference file paths**: Phase 3 handoff references `server/src/Resilience/CircuitBreaker.ts` which doesn't exist; actual location is `server/src/LlmControl/RateLimiter.ts`
+2. **BatchOrchestrator should compose ExtractionWorkflow + DurableActivities**: Each document gets its own workflow execution with durable checkpointing
+3. **PubSub for batch events**: ProgressStream already uses Effect.PubSub -- BatchEventEmitter should aggregate per-document progress streams
+4. **Failure policies leverage CentralRateLimiterService circuit state**: `abort-all` can check circuit breaker state to decide whether to halt
+
+---
+
 ## Entry Template
 
 ```markdown

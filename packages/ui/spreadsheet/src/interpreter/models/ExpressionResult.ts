@@ -41,7 +41,11 @@ export class ExpressionResultString extends S.Class<ExpressionResultString>($I`E
   })
 ) {}
 
-export class ExpressionResult extends S.Union(ExpressionResultError, ExpressionResultNumber, ExpressionResultString).annotations(
+export class ExpressionResult extends S.Union(
+  ExpressionResultError,
+  ExpressionResultNumber,
+  ExpressionResultString
+).annotations(
   $I.annotations("ExpressionResult", {
     description: "The result of an expression",
   })

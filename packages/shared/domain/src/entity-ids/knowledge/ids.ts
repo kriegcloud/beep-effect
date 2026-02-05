@@ -337,6 +337,114 @@ export declare namespace SameAsLinkId {
   }
 }
 
+/**
+ * WorkflowExecution ID for workflow execution instances.
+ *
+ * Identifier for workflow execution runs in the knowledge extraction pipeline.
+ *
+ * @since 0.1.0
+ * @category ids
+ */
+export const WorkflowExecutionId = make("workflow_execution", {
+  brand: "WorkflowExecutionId",
+  actions: ["create", "read", "update", "delete", "*"],
+}).annotations(
+  $I.annotations("WorkflowExecutionId", {
+    description: "A unique identifier for a workflow execution instance",
+  })
+);
+
+export declare namespace WorkflowExecutionId {
+  export type Type = S.Schema.Type<typeof WorkflowExecutionId>;
+  export type Encoded = S.Schema.Encoded<typeof WorkflowExecutionId>;
+
+  export namespace RowId {
+    export type Type = typeof WorkflowExecutionId.privateSchema.Type;
+    export type Encoded = typeof WorkflowExecutionId.privateSchema.Encoded;
+  }
+}
+
+/**
+ * WorkflowActivity ID for workflow activity records.
+ *
+ * Identifier for individual activity steps within a workflow execution.
+ *
+ * @since 0.1.0
+ * @category ids
+ */
+export const WorkflowActivityId = make("workflow_activity", {
+  brand: "WorkflowActivityId",
+  actions: ["create", "read", "update", "delete", "*"],
+}).annotations(
+  $I.annotations("WorkflowActivityId", {
+    description: "A unique identifier for a workflow activity record",
+  })
+);
+
+export declare namespace WorkflowActivityId {
+  export type Type = S.Schema.Type<typeof WorkflowActivityId>;
+  export type Encoded = S.Schema.Encoded<typeof WorkflowActivityId>;
+
+  export namespace RowId {
+    export type Type = typeof WorkflowActivityId.privateSchema.Type;
+    export type Encoded = typeof WorkflowActivityId.privateSchema.Encoded;
+  }
+}
+
+/**
+ * WorkflowSignal ID for workflow signal messages.
+ *
+ * Identifier for signals sent to and from workflow executions.
+ *
+ * @since 0.1.0
+ * @category ids
+ */
+export const WorkflowSignalId = make("workflow_signal", {
+  brand: "WorkflowSignalId",
+  actions: ["create", "read", "update", "delete", "*"],
+}).annotations(
+  $I.annotations("WorkflowSignalId", {
+    description: "A unique identifier for a workflow signal message",
+  })
+);
+
+export declare namespace WorkflowSignalId {
+  export type Type = S.Schema.Type<typeof WorkflowSignalId>;
+  export type Encoded = S.Schema.Encoded<typeof WorkflowSignalId>;
+
+  export namespace RowId {
+    export type Type = typeof WorkflowSignalId.privateSchema.Type;
+    export type Encoded = typeof WorkflowSignalId.privateSchema.Encoded;
+  }
+}
+
+/**
+ * BatchExecution ID for batch extraction executions.
+ *
+ * Identifier for batch extraction execution runs coordinating multiple documents.
+ *
+ * @since 0.1.0
+ * @category ids
+ */
+export const BatchExecutionId = make("batch_execution", {
+  brand: "BatchExecutionId",
+  actions: ["create", "read", "update", "delete", "*"],
+}).annotations(
+  $I.annotations("BatchExecutionId", {
+    description: "A unique identifier for a batch extraction execution",
+  })
+);
+
+export declare namespace BatchExecutionId {
+  export type Type = S.Schema.Type<typeof BatchExecutionId>;
+  export type Encoded = S.Schema.Encoded<typeof BatchExecutionId>;
+
+  export namespace RowId {
+    export type Type = typeof BatchExecutionId.privateSchema.Type;
+    export type Encoded = typeof BatchExecutionId.privateSchema.Encoded;
+  }
+}
+
 export const Ids = {
   EmbeddingId,
   KnowledgeEntityId,
@@ -350,4 +458,8 @@ export const Ids = {
   PropertyDefinitionId,
   EntityClusterId,
   SameAsLinkId,
+  WorkflowExecutionId,
+  WorkflowActivityId,
+  WorkflowSignalId,
+  BatchExecutionId,
 } as const;

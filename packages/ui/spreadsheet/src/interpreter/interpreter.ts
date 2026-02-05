@@ -1,20 +1,14 @@
-import {Numerical} from "../utils/isNumerical.ts";
 import * as Either from "effect/Either";
-import type {
-
-  BinaryExpression,
-
-  Node,
-  NumberLiteral,
-  Ref,
-} from "./parser";
-import parser, {Expression} from "./parser";
-import tokenizer from "./tokenizer";
+import { Numerical } from "../utils/isNumerical.ts";
 import {
-  type ExpressionResult, ExpressionResultError,
+  type ExpressionResult,
+  ExpressionResultError,
   ExpressionResultNumber,
-  ExpressionResultString
+  ExpressionResultString,
 } from "./models/ExpressionResult.ts";
+import type { BinaryExpression, Node, NumberLiteral, Ref } from "./parser";
+import parser, { Expression } from "./parser";
+import tokenizer from "./tokenizer";
 
 interface NumberExpressionResult {
   value: number;
@@ -37,7 +31,7 @@ function evaluateAst(ast: Node, getCellValue: (key: string) => number): NumberEx
       }),
       CellRange: (node) => {
         throw new Error(`Unexpected node kind: ${node}`);
-      }
+      },
     });
   }
 
@@ -80,24 +74,23 @@ function evaluateAst(ast: Node, getCellValue: (key: string) => number): NumberEx
   return visit(ast);
 }
 
-
 export default function (input: string, getCellValue: (key: string) => number): ExpressionResult.Type {
   if (input.length === 0) {
-    return new ExpressionResultString({value: ""});
+    return new ExpressionResultString({ value: "" });
   }
 
   if (input[0] !== "=") {
-    return Numerical.is(input) ? new ExpressionResultNumber({value: Number.parseFloat(input)}) : new ExpressionResultString({value: input});
+    return Numerical.is(input)
+      ? new ExpressionResultNumber({ value: Number.parseFloat(input) })
+      : new ExpressionResultString({ value: input });
   }
 
-  return Either.try(
-    () => {
-      const tokens = tokenizer(input.slice(1));
-      const ast = parser(tokens);
-      const result = evaluateAst(ast, getCellValue);
-      return new ExpressionResultNumber({
-        value: result.value,
-      });
-    },
-  ).pipe(Either.getOrElse(() => new ExpressionResultError()));
+  return Either.try(() => {
+    const tokens = tokenizer(input.slice(1));
+    const ast = parser(tokens);
+    const result = evaluateAst(ast, getCellValue);
+    return new ExpressionResultNumber({
+      value: result.value,
+    });
+  }).pipe(Either.getOrElse(() => new ExpressionResultError()));
 }

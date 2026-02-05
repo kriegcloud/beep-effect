@@ -1,6 +1,10 @@
+export * from "./batch.errors";
+export * from "./circuit.errors";
 export * from "./cluster.errors";
+export * from "./embedding.errors";
 export * from "./entity.errors";
 export * from "./entity-resolution.errors";
+export * from "./event-bus.error";
 export * from "./extraction.errors";
 export * from "./graphrag.errors";
 export * from "./grounding.errors";
@@ -12,3 +16,4 @@ export * from "./registry.errors";
 export * from "./relation.errors";
 export * from "./sparql.errors";
 export * from "./split.errors";
+export * from "./workflow.errors";
