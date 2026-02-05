@@ -6,3 +6,5 @@ export * from "./discussion.table";
 export * from "./document.table";
 export * from "./document-file.table";
 export * from "./document-version.table";
+export * from "./page.table";
+export * from "./page-share.table";

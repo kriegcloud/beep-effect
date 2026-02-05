@@ -94,10 +94,48 @@ export declare namespace DocumentFileId {
   }
 }
 
+export class PageId extends make("page", {
+  brand: "PageId",
+  actions: ["create", "read", "update", "delete", "share", "move", "archive", "*"],
+}).annotations(
+  $I.annotations("PageId", {
+    description: "A unique identifier for a Page (universal container with infinite nesting)",
+  })
+) {}
+
+export declare namespace PageId {
+  export type Type = typeof PageId.Type;
+  export type Encoded = typeof PageId.Encoded;
+  export namespace RowId {
+    export type Type = typeof PageId.privateSchema.Type;
+    export type Encoded = typeof PageId.privateSchema.Encoded;
+  }
+}
+
+export const PageShareId = make("page_share", {
+  brand: "PageShareId",
+  actions: ["create", "read", "update", "delete", "*"],
+}).annotations(
+  $I.annotations("PageShareId", {
+    description: "A unique identifier for a Page Share permission entry",
+  })
+);
+
+export declare namespace PageShareId {
+  export type Type = typeof PageShareId.Type;
+  export type Encoded = typeof PageShareId.Encoded;
+  export namespace RowId {
+    export type Type = typeof PageShareId.privateSchema.Type;
+    export type Encoded = typeof PageShareId.privateSchema.Encoded;
+  }
+}
+
 export const Ids = {
   DocumentId,
   DocumentVersionId,
   DiscussionId,
   CommentId,
   DocumentFileId,
+  PageId,
+  PageShareId,
 } as const;
