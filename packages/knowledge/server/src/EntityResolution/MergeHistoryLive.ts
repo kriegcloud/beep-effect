@@ -15,8 +15,9 @@ export const MergeHistoryLive = Layer.effect(
   MergeHistory,
   Effect.gen(function* () {
     const repo = yield* MergeHistoryRepo;
-    const authContext = yield* AuthContext;
-    const organizationId = authContext.session.activeOrganizationId;
+    const authCtx = yield* AuthContext;
+    const organizationId = authCtx.session.activeOrganizationId;
+    const currentUserId = authCtx.user.id;
 
     return {
       recordMerge: (params) =>
@@ -26,17 +27,17 @@ export const MergeHistoryLive = Layer.effect(
 
           return yield* repo.insert({
             id,
-            organizationId: params.organizationId,
+            organizationId: organizationId,
             sourceEntityId: params.sourceEntityId,
             targetEntityId: params.targetEntityId,
             mergeReason: params.mergeReason,
             confidence: params.confidence,
             mergedBy: O.fromNullable(params.mergedBy),
             mergedAt: now,
-            source: O.none(),
+            source: O.some($I`MergeHistory.recordMerge`),
             deletedAt: O.none(),
-            createdBy: O.fromNullable(authContext.user.id),
-            updatedBy: O.none(),
+            createdBy: O.some(currentUserId),
+            updatedBy: O.some(currentUserId),
             deletedBy: O.none(),
           });
         }).pipe(
@@ -54,6 +55,7 @@ export const MergeHistoryLive = Layer.effect(
                 message: `Failed to record merge: ${String(error)}`,
                 sourceEntityId: params.sourceEntityId,
                 targetEntityId: params.targetEntityId,
+                cause: error,
               })
           )
         ),
@@ -68,6 +70,7 @@ export const MergeHistoryLive = Layer.effect(
               new MergeError({
                 message: `Failed to get merge history: ${String(error)}`,
                 targetEntityId: entityId,
+                cause: error,
               })
           )
         ),
@@ -81,6 +84,7 @@ export const MergeHistoryLive = Layer.effect(
             (error) =>
               new MergeError({
                 message: `Failed to get merges by user: ${String(error)}`,
+                cause: error,
               })
           )
         ),

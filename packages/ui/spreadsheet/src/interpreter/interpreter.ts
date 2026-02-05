@@ -1,7 +1,20 @@
-import { Numerical } from "../utils/isNumerical.ts";
-import type { BinaryExpression, Expression, Node, NumberLiteral, Ref } from "./parser";
-import parser, { NodeKind } from "./parser";
+import {Numerical} from "../utils/isNumerical.ts";
+import * as Either from "effect/Either";
+import type {
+
+  BinaryExpression,
+
+  Node,
+  NumberLiteral,
+  Ref,
+} from "./parser";
+import parser, {Expression} from "./parser";
 import tokenizer from "./tokenizer";
+import {
+  type ExpressionResult, ExpressionResultError,
+  ExpressionResultNumber,
+  ExpressionResultString
+} from "./models/ExpressionResult.ts";
 
 interface NumberExpressionResult {
   value: number;
@@ -9,34 +22,23 @@ interface NumberExpressionResult {
 
 function evaluateAst(ast: Node, getCellValue: (key: string) => number): NumberExpressionResult {
   function visit(node: Expression): NumberExpressionResult {
-    switch (node.kind) {
-      case NodeKind.UnaryPlus:
-        return visit(node.expression);
-      case NodeKind.UnaryMinus: {
-        const result = visit(node.expression);
-        return {
-          value: -result.value,
-        };
-      }
-      case NodeKind.Addition:
-        return visitAdditiveBinaryExpression(node, (l, r) => l + r);
-      case NodeKind.Subtraction:
-        return visitAdditiveBinaryExpression(node, (l, r) => l - r);
-      case NodeKind.Multiplication:
-        return visitSimpleBinaryExpression(node, (l, r) => l * r);
-      case NodeKind.Division:
-        return visitSimpleBinaryExpression(node, (l, r) => l / r);
-      case NodeKind.Modulo:
-        return visitSimpleBinaryExpression(node, (l, r) => l % r);
-      case NodeKind.Exponent:
-        return visitSimpleBinaryExpression(node, Math.pow);
-      case NodeKind.NumberLiteral:
-        return visitNumberLiteral(node);
-      case NodeKind.Ref:
-        return visitCellRef(node);
-      default:
+    return Expression.$match(node, {
+      Ref: (node) => visitCellRef(node),
+      NumberLiteral: (node) => visitNumberLiteral(node),
+      Addition: (node) => visitAdditiveBinaryExpression(node, (l, r) => l + r),
+      Subtraction: (node) => visitAdditiveBinaryExpression(node, (l, r) => l - r),
+      Multiplication: (node) => visitSimpleBinaryExpression(node, (l, r) => l * r),
+      Division: (node) => visitSimpleBinaryExpression(node, (l, r) => l / r),
+      Modulo: (node) => visitSimpleBinaryExpression(node, (l, r) => l % r),
+      Exponent: (node) => visitSimpleBinaryExpression(node, Math.pow),
+      UnaryPlus: (node) => visit(node.expression),
+      UnaryMinus: (node) => ({
+        value: -visit(node.expression).value,
+      }),
+      CellRange: (node) => {
         throw new Error(`Unexpected node kind: ${node}`);
-    }
+      }
+    });
   }
 
   function visitAdditiveBinaryExpression(
@@ -78,37 +80,24 @@ function evaluateAst(ast: Node, getCellValue: (key: string) => number): NumberEx
   return visit(ast);
 }
 
-export type ExpressionResult =
-  | {
-      type: "error";
-    }
-  | {
-      type: "number";
-      value: number;
-    }
-  | {
-      type: "string";
-      value: string;
-    };
 
-export default function (input: string, getCellValue: (key: string) => number): ExpressionResult {
+export default function (input: string, getCellValue: (key: string) => number): ExpressionResult.Type {
   if (input.length === 0) {
-    return { type: "string", value: "" };
+    return new ExpressionResultString({value: ""});
   }
 
   if (input[0] !== "=") {
-    return Numerical.is(input) ? { type: "number", value: Number.parseFloat(input) } : { type: "string", value: input };
+    return Numerical.is(input) ? new ExpressionResultNumber({value: Number.parseFloat(input)}) : new ExpressionResultString({value: input});
   }
 
-  try {
-    const tokens = tokenizer(input.slice(1));
-    const ast = parser(tokens);
-    const result = evaluateAst(ast, getCellValue);
-    return {
-      type: "number",
-      value: result.value,
-    };
-  } catch {
-    return { type: "error" };
-  }
+  return Either.try(
+    () => {
+      const tokens = tokenizer(input.slice(1));
+      const ast = parser(tokens);
+      const result = evaluateAst(ast, getCellValue);
+      return new ExpressionResultNumber({
+        value: result.value,
+      });
+    },
+  ).pipe(Either.getOrElse(() => new ExpressionResultError()));
 }

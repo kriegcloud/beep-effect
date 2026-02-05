@@ -120,7 +120,6 @@ export const SplitServiceLive = Layer.effect(
         );
 
         yield* mergeHistory.recordMerge({
-          organizationId,
           sourceEntityId: params.entityId,
           targetEntityId: newEntityId,
           mergeReason: "manual_override",
@@ -221,7 +220,6 @@ export const SplitServiceLive = Layer.effect(
         }
 
         yield* mergeHistory.recordMerge({
-          organizationId,
           sourceEntityId: historyRecord.targetEntityId,
           targetEntityId: historyRecord.sourceEntityId,
           mergeReason: "manual_override",

@@ -1,5 +1,5 @@
 #!/usr/bin/env bun
-import { readdirSync, existsSync, statSync } from "node:fs";
+import { existsSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 
 const BASE = "/home/elpresidank/YeeBois/projects/beep-effect";

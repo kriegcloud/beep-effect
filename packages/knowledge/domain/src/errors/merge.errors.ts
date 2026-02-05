@@ -10,6 +10,7 @@ export class MergeError extends S.TaggedError<MergeError>($I`MergeError`)(
     message: S.String,
     sourceEntityId: S.optional(KnowledgeEntityIds.KnowledgeEntityId),
     targetEntityId: S.optional(KnowledgeEntityIds.KnowledgeEntityId),
+    cause: S.optional(S.Defect)
   },
   $I.annotations("MergeError", {
     description: "Entity merge operation failed",

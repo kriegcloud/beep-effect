@@ -1,6 +1,7 @@
 import { $KnowledgeServerId } from "@beep/identity/packages";
 import type { EmbeddingError } from "@beep/knowledge-server/Embedding";
-import { KnowledgeEntityIds, type SharedEntityIds } from "@beep/shared-domain";
+import { KnowledgeEntityIds } from "@beep/shared-domain";
+import  {AuthContext} from "@beep/shared-domain/Policy";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
@@ -65,7 +66,6 @@ export interface EntityClustererShape {
   readonly findSimilar: (
     queryEntity: AssembledEntity,
     candidateEntities: readonly AssembledEntity[],
-    organizationId: SharedEntityIds.OrganizationId.Type,
     ontologyId: KnowledgeEntityIds.OntologyId.Type,
     threshold?: undefined | number
   ) => Effect.Effect<
@@ -78,7 +78,6 @@ export interface EntityClustererShape {
   >;
   readonly cluster: (
     graphs: readonly KnowledgeGraph[],
-    organizationId: SharedEntityIds.OrganizationId.Type,
     ontologyId: KnowledgeEntityIds.OntologyId.Type,
     config?: ClusterConfig | undefined
   ) => Effect.Effect<readonly EntityCluster[], never, never>;
@@ -86,8 +85,12 @@ export interface EntityClustererShape {
 
 export class EntityClusterer extends Context.Tag($I`EntityClusterer`)<EntityClusterer, EntityClustererShape>() {}
 
-const serviceEffect: Effect.Effect<EntityClustererShape, EmbeddingError, EmbeddingService> = Effect.gen(function* () {
+const serviceEffect: Effect.Effect<EntityClustererShape, EmbeddingError, EmbeddingService | AuthContext> = Effect.gen(function* () {
   const embeddingService = yield* EmbeddingService;
+  const authCtx = yield* AuthContext;
+
+
+  const organizationId = authCtx.session.activeOrganizationId;
 
   const computeSimilarities = (
     entities: readonly AssembledEntity[],
@@ -260,7 +263,6 @@ const serviceEffect: Effect.Effect<EntityClustererShape, EmbeddingError, Embeddi
   const findSimilar = Effect.fn(function* (
     queryEntity: AssembledEntity,
     candidateEntities: readonly AssembledEntity[],
-    organizationId: SharedEntityIds.OrganizationId.Type,
     ontologyId: string,
     threshold = 0.8
   ) {
@@ -299,7 +301,6 @@ const serviceEffect: Effect.Effect<EntityClustererShape, EmbeddingError, Embeddi
   const cluster = Effect.fn(
     function* (
       graphs: readonly KnowledgeGraph[],
-      organizationId: SharedEntityIds.OrganizationId.Type,
       ontologyId: string,
       config: ClusterConfig = {}
     ) {

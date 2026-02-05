@@ -1,6 +1,6 @@
 import { $KnowledgeDomainId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
-import { Model as Entity } from "../entities/entity/entity.model";
+import { Model as Entity } from "../entities/Entity/Entity.model";
 
 const $I = $KnowledgeDomainId.create("value-objects/EntityCandidate");
 

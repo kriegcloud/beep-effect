@@ -58,6 +58,7 @@ All spec-creation infrastructure lives in [`_guide/`](_guide/):
 | [orgtable-auto-rls](orgtable-auto-rls/) | Automatic RLS for org tables | Active |
 | [repo-cli-verify-commands](repo-cli-verify-commands/) | Convert verification shell scripts to Effect-based repo-cli commands | New |
 | [rls-implementation](rls-implementation/) | Row-level security | Active |
+| [scripts-to-cli-migration](scripts-to-cli-migration/) | Migrate ad-hoc scripts/ to repo-cli commands | New |
 | [sanitize-html-schema](sanitize-html-schema/) | Schema-driven HTML sanitization with S.TaggedClass unions | P1 Ready |
 | [spec-creation-improvements](spec-creation-improvements/) | Spec workflow enhancements | Complete |
 | [storybook-implementation](storybook-implementation/) | Storybook for @beep/ui and @beep/ui-editor with MUI + Tailwind | **P1 Ready** |

@@ -1,8 +1,8 @@
 {
-  "lastCallMs": 1770270594244,
+  "lastCallMs": 1770275096314,
   "skillIndex": {
-    "loadedAt": 1770270421843,
-    "directoryMtime": 1770235177507,
+    "loadedAt": 1770275096341,
+    "directoryMtime": 1770271944131,
     "skills": [
       {
         "name": "effect-ai-prompt",
@@ -965,7 +965,7 @@
     ]
   },
   "patternCache": {
-    "loadedAt": 1770270427720,
+    "loadedAt": 1770275339004,
     "directoryMtime": 1770167800598,
     "patterns": [
       {
@@ -1537,5 +1537,8 @@
         "filePath": "/home/elpresidank/YeeBois/projects/beep-effect3/.claude/patterns/code-smells/use-console-service.md"
       }
     ]
+  },
+  "telemetry": {
+    "activeAgents": {}
   }
 }

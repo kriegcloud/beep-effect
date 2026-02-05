@@ -34,13 +34,13 @@ export interface RelationExtractorShape {
     entities: readonly ClassifiedEntity[],
     chunk: TextChunk,
     ontologyContext: OntologyContext,
-    config?: RelationExtractionConfig
+    config?: undefined | RelationExtractionConfig
   ) => Effect.Effect<RelationExtractionResult, AiError.AiError | HttpServerError.RequestError>;
   readonly extractFromChunks: (
     entitiesByChunk: MutableHashMap.MutableHashMap<number, readonly ClassifiedEntity[]>,
     chunks: readonly TextChunk[],
     ontologyContext: OntologyContext,
-    config?: RelationExtractionConfig
+    config?: undefined | RelationExtractionConfig
   ) => Effect.Effect<RelationExtractionResult, AiError.AiError | HttpServerError.RequestError>;
   readonly deduplicateRelations: (
     triples: readonly ExtractedTriple[]
