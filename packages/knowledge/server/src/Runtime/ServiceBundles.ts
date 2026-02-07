@@ -1,6 +1,7 @@
 import * as Layer from "effect/Layer";
 import { CentralRateLimiterServiceLive, StageTimeoutServiceLive, TokenBudgetServiceLive } from "../LlmControl";
 import { LlmLive } from "./LlmLayers";
+import { WorkflowRuntimeLive } from "./WorkflowRuntime";
 
 /**
  * LLM provider only (no control-plane services).
@@ -22,3 +23,8 @@ export const LlmControlBundleLive = Layer.mergeAll(
  * Default runtime bundle for LLM-powered extraction/grounded generation paths.
  */
 export const LlmRuntimeBundleLive = Layer.mergeAll(LlmProviderBundleLive, LlmControlBundleLive);
+
+/**
+ * Workflow runtime bundle for mode-gated execution.
+ */
+export const WorkflowRuntimeBundleLive = Layer.mergeAll(WorkflowRuntimeLive);

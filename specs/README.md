@@ -80,6 +80,7 @@ bun run spec:move -- <spec-name> pending|completed|archived
 | [ai-friendliness-10-of-10](completed/ai-friendliness-10-of-10/) |
 | [artifact-file-cleanup](completed/artifact-file-cleanup/) |
 | [integration-architecture-migration](completed/integration-architecture-migration/) |
+| [knowledge-effect-workflow-migration](completed/knowledge-effect-workflow-migration/) |
 | [lexical-playground-port](completed/lexical-playground-port/) |
 | [lexical-utils-effect-refactor](completed/lexical-utils-effect-refactor/) |
 | [orgtable-auto-rls](completed/orgtable-auto-rls/) |

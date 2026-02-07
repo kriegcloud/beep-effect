@@ -788,6 +788,71 @@ describe("RdfStore", () => {
       }),
       TEST_TIMEOUT
     );
+
+    it.effect(
+      "createGraph/listGraphs/getGraphSize - should track named graph lifecycle",
+      Effect.fn(function* () {
+        const store = yield* RdfStore;
+        yield* store.clear();
+
+        yield* store.createGraph(fixtures.graph1);
+
+        const initialSize = yield* store.getGraphSize(fixtures.graph1);
+        strictEqual(initialSize, 0);
+
+        yield* store.addQuad(
+          new Quad({
+            subject: fixtures.alice,
+            predicate: fixtures.foafName,
+            object: new Literal({ value: "Alice" }),
+            graph: fixtures.graph1,
+          })
+        );
+
+        const updatedSize = yield* store.getGraphSize(fixtures.graph1);
+        strictEqual(updatedSize, 1);
+
+        const graphs = yield* store.listGraphs();
+        assertTrue(A.contains(graphs, fixtures.graph1));
+      }),
+      TEST_TIMEOUT
+    );
+
+    it.effect(
+      "dropGraph - should remove graph and all its quads",
+      Effect.fn(function* () {
+        const store = yield* RdfStore;
+        yield* store.clear();
+
+        yield* store.addQuads([
+          new Quad({
+            subject: fixtures.alice,
+            predicate: fixtures.foafName,
+            object: new Literal({ value: "Alice in graph1" }),
+            graph: fixtures.graph1,
+          }),
+          new Quad({
+            subject: fixtures.bob,
+            predicate: fixtures.foafName,
+            object: new Literal({ value: "Bob in graph2" }),
+            graph: fixtures.graph2,
+          }),
+        ]);
+
+        yield* store.dropGraph(fixtures.graph1);
+
+        const graph1Matches = yield* store.match(new QuadPattern({ graph: fixtures.graph1 }));
+        strictEqual(A.length(graph1Matches), 0);
+
+        const graph2Matches = yield* store.match(new QuadPattern({ graph: fixtures.graph2 }));
+        strictEqual(A.length(graph2Matches), 1);
+
+        const listed = yield* store.listGraphs();
+        assertTrue(!A.contains(listed, fixtures.graph1));
+        assertTrue(A.contains(listed, fixtures.graph2));
+      }),
+      TEST_TIMEOUT
+    );
   });
 
   layer(RdfStoreLive, { timeout: Duration.seconds(60) })("Unique Term Accessors", (it) => {

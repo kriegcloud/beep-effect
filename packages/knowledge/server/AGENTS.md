@@ -90,6 +90,52 @@ const TestLayer = EmbeddingServiceLive.pipe(
 
 ## Authoring Guardrails
 
+### Workflow/Service Function Boundaries
+
+For reusable workflow/service helpers, use named `Effect.fn` with explicit fallback/cause handling.
+
+```typescript
+// REQUIRED - reusable boundary
+const emitProgress = Effect.fn("ExtractionWorkflow.emitProgress")(
+  function* (stream: ProgressStream, progress: number) {
+    yield* stream.offer({ progress });
+  },
+  Effect.catchAllCause((cause) =>
+    Effect.logWarning("Failed to emit progress").pipe(
+      Effect.annotateLogs({ cause })
+    )
+  )
+);
+```
+
+```typescript
+// ALLOWED - local orchestration only
+const run = Effect.gen(function* () {
+  const service = yield* ExtractionPipeline;
+  return yield* service.extract(input, context, options);
+});
+```
+
+### Yieldable Tagged Errors
+
+Do not wrap yieldable tagged errors with `Effect.fail(...)`.
+
+```typescript
+// FORBIDDEN
+return yield* Effect.fail(new ActivityFailedError({ /* ... */ }));
+
+// REQUIRED
+return yield* new ActivityFailedError({ /* ... */ });
+```
+
+```typescript
+// FORBIDDEN in catch handlers
+Effect.catchAllCause((cause) => Effect.fail(new ActivityFailedError({ cause: String(cause) })))
+
+// REQUIRED
+Effect.catchAllCause((cause) => new ActivityFailedError({ cause: String(cause) }))
+```
+
 ### LLM Integration
 
 ```typescript

@@ -11,6 +11,37 @@ This document contains the Effect-first development patterns and critical rules 
 - Errors via `Schema.TaggedError` from `effect/Schema`
 - Collections via Effect utilities (`Array`, `Option`, `HashMap`)
 
+### `Effect.fn` Boundary Rule (REQUIRED)
+
+For named, reusable effectful helpers (especially service/workflow boundaries), use `Effect.fn("Name")` instead of raw `Effect.gen`.
+
+```typescript
+// REQUIRED - named reusable helper with explicit cause handling
+const emitProgress = Effect.fn("ExtractionWorkflow.emitProgress")(
+  function* (stream: ProgressStream, value: ProgressEvent) {
+    yield* stream.offer(value);
+  },
+  Effect.catchAllCause((cause) =>
+    Effect.logWarning("progress emission failed").pipe(
+      Effect.annotateLogs({ cause })
+    )
+  )
+);
+```
+
+```typescript
+// ALLOWED - local inline orchestration only
+const program = Effect.gen(function* () {
+  const service = yield* MyService;
+  return yield* service.run();
+});
+```
+
+Use this rule when all are true:
+- The function is reused or exported.
+- The function has a stable semantic name.
+- The function needs a consistent error/cause boundary.
+
 ---
 
 ## Import Conventions
@@ -343,7 +374,7 @@ export const bootstrapSpecHandler = (input: BootstrapSpecInput) =>
 // Handle specific file system errors
 const content = yield* fs.readFileString(path).pipe(
   Effect.catchTag("SystemError", (error) =>
-    Effect.fail(new FileNotFoundError({ path, cause: error }))
+    new FileNotFoundError({ path, cause: error })
   )
 );
 
@@ -354,3 +385,21 @@ const exists = yield* fs.exists(path).pipe(
 ```
 
 **Reference implementation**: See `tooling/cli/src/commands/create-slice/handler.ts` for canonical file system patterns in CLI commands.
+
+### Yieldable Error Rule (REQUIRED)
+
+Do not wrap yieldable tagged errors in `Effect.fail(...)`.
+
+```typescript
+// FORBIDDEN for Schema.TaggedError / yieldable errors
+Effect.fail(new MyTaggedError({ message: "..." }))
+
+// REQUIRED in generators
+yield* new MyTaggedError({ message: "..." })
+
+// ALLOWED when returning an Effect value
+const failed: Effect.Effect<never, MyTaggedError> = new MyTaggedError({ message: "..." })
+```
+
+This avoids `@effect/language-service` warning:
+`effect(unnecessaryFailYieldableError)`.

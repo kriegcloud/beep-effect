@@ -571,6 +571,98 @@ describe("SparqlService", () => {
     );
   });
 
+  layer(TestLayer, { timeout: Duration.seconds(30) })("select - GRAPH clause", (it) => {
+    it.effect(
+      "should scope matches to a specific named graph",
+      Effect.fn(function* () {
+        const graphPeople = IRI.make("http://example.org/graph/people");
+        const graphProjects = IRI.make("http://example.org/graph/projects");
+        const namePred = IRI.make("http://example.org/name");
+
+        yield* addTestData([
+          new Quad({
+            subject: IRI.make("http://example.org/alice"),
+            predicate: namePred,
+            object: new Literal({ value: "Alice" }),
+            graph: graphPeople,
+          }),
+          new Quad({
+            subject: IRI.make("http://example.org/proj1"),
+            predicate: namePred,
+            object: new Literal({ value: "Project One" }),
+            graph: graphProjects,
+          }),
+          new Quad({
+            subject: IRI.make("http://example.org/default"),
+            predicate: namePred,
+            object: new Literal({ value: "Default Node" }),
+          }),
+        ]);
+
+        const sparql = yield* SparqlService;
+        const result = yield* sparql.select(`
+          SELECT ?s ?name WHERE {
+            GRAPH <http://example.org/graph/people> {
+              ?s <http://example.org/name> ?name
+            }
+          }
+        `);
+
+        strictEqual(A.length(result.rows), 1);
+        const name = findBinding(result, 0, "name");
+        assertTrue(O.isSome(name));
+        strictEqual(O.getOrThrow(name), "Alice");
+      })
+    );
+
+    it.effect(
+      "should bind graph variable from GRAPH clause",
+      Effect.fn(function* () {
+        const graphPeople = IRI.make("http://example.org/graph/people");
+        const graphProjects = IRI.make("http://example.org/graph/projects");
+        const namePred = IRI.make("http://example.org/name");
+
+        yield* addTestData([
+          new Quad({
+            subject: IRI.make("http://example.org/alice"),
+            predicate: namePred,
+            object: new Literal({ value: "Alice" }),
+            graph: graphPeople,
+          }),
+          new Quad({
+            subject: IRI.make("http://example.org/proj1"),
+            predicate: namePred,
+            object: new Literal({ value: "Project One" }),
+            graph: graphProjects,
+          }),
+          new Quad({
+            subject: IRI.make("http://example.org/default"),
+            predicate: namePred,
+            object: new Literal({ value: "Default Node" }),
+          }),
+        ]);
+
+        const sparql = yield* SparqlService;
+        const result = yield* sparql.select(`
+          SELECT ?g ?name WHERE {
+            GRAPH ?g {
+              ?s <http://example.org/name> ?name
+            }
+          }
+        `);
+
+        strictEqual(A.length(result.rows), 2);
+
+        const graphNames = A.filterMap(result.rows, (row) => {
+          const graphBinding = A.findFirst(row, (b: SparqlBinding) => b.name === "g");
+          return O.map(graphBinding, (b) => (Literal.is(b.value) ? "" : b.value));
+        });
+        assertTrue(A.contains(graphNames, graphPeople));
+        assertTrue(A.contains(graphNames, graphProjects));
+      })
+    );
+  });
+
   layer(TestLayer, { timeout: Duration.seconds(30) })("construct", (it) => {
     it.effect(
       "should construct new quads from pattern",

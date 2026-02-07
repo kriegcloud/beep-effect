@@ -1,6 +1,6 @@
 import { $KnowledgeServerId } from "@beep/identity/packages";
 import { LanguageModel, Prompt } from "@effect/ai";
-import type * as AiError from "@effect/ai/AiError";
+import * as AiError from "@effect/ai/AiError";
 import type * as HttpServerError from "@effect/platform/HttpServerError";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";
@@ -10,6 +10,7 @@ import * as O from "effect/Option";
 import * as Order from "effect/Order";
 import * as Str from "effect/String";
 import { buildMentionPrompt, buildSystemPrompt } from "../Ai/PromptTemplates";
+import { type LlmResilienceError, withLlmResilience } from "../LlmControl/LlmResilience";
 import type { TextChunk } from "../Nlp/TextChunk";
 import { ExtractedMention, MentionOutput } from "./schemas/mention-output.schema";
 
@@ -40,6 +41,33 @@ export interface MentionExtractorShape {
 }
 
 export class MentionExtractor extends Context.Tag($I`MentionExtractor`)<MentionExtractor, MentionExtractorShape>() {}
+
+const isTagged = (error: unknown, tag: string): boolean =>
+  typeof error === "object" && error !== null && "_tag" in error && (error as { readonly _tag: unknown })._tag === tag;
+
+const mapResilienceError = (
+  method: string,
+  error: LlmResilienceError<AiError.AiError | HttpServerError.RequestError>
+): AiError.AiError | HttpServerError.RequestError => {
+  if (isTagged(error, "RequestError")) {
+    return error as HttpServerError.RequestError;
+  }
+  if (
+    isTagged(error, "HttpRequestError") ||
+    isTagged(error, "HttpResponseError") ||
+    isTagged(error, "MalformedInput") ||
+    isTagged(error, "MalformedOutput") ||
+    isTagged(error, "UnknownError")
+  ) {
+    return error as AiError.AiError;
+  }
+  return new AiError.UnknownError({
+    module: "MentionExtractor",
+    method,
+    description: error.message,
+    cause: error,
+  });
+};
 
 const serviceEffect: Effect.Effect<MentionExtractorShape, never, LanguageModel.LanguageModel> = Effect.gen(
   function* () {
@@ -77,11 +105,18 @@ const serviceEffect: Effect.Effect<MentionExtractorShape, never, LanguageModel.L
         Prompt.userMessage({ content: A.make(Prompt.textPart({ text: buildMentionPrompt(chunk.text, chunk.index) })) }),
       ]);
 
-      const result = yield* model.generateObject({
-        prompt,
-        schema: MentionOutput,
-        objectName: "MentionOutput",
-      });
+      const result = yield* withLlmResilience(
+        model.generateObject({
+          prompt,
+          schema: MentionOutput,
+          objectName: "MentionOutput",
+        }),
+        {
+          stage: "entity_extraction",
+          estimatedTokens: Str.length(chunk.text),
+          maxRetries: 1,
+        }
+      ).pipe(Effect.mapError((error) => mapResilienceError("extractFromChunk", error)));
 
       const tokensUsed = (result.usage.inputTokens ?? 0) + (result.usage.outputTokens ?? 0);
       const mentions = extractMentionsFromOutput(result.value, chunk, minConfidence);
@@ -118,11 +153,18 @@ const serviceEffect: Effect.Effect<MentionExtractorShape, never, LanguageModel.L
           }),
         ]);
 
-        const genResult = yield* model.generateObject({
-          prompt,
-          schema: MentionOutput,
-          objectName: "MentionOutput",
-        });
+        const genResult = yield* withLlmResilience(
+          model.generateObject({
+            prompt,
+            schema: MentionOutput,
+            objectName: "MentionOutput",
+          }),
+          {
+            stage: "entity_extraction",
+            estimatedTokens: Str.length(chunk.text),
+            maxRetries: 1,
+          }
+        ).pipe(Effect.mapError((error) => mapResilienceError("extractFromChunks", error)));
 
         const tokensUsed = (genResult.usage.inputTokens ?? 0) + (genResult.usage.outputTokens ?? 0);
         const mentions = extractMentionsFromOutput(genResult.value, chunk, minConfidence);

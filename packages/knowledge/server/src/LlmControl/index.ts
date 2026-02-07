@@ -10,6 +10,7 @@
  * @module Service/LlmControl
  */
 
+export * from "./LlmResilience";
 export * from "./RateLimiter";
 export * from "./StageTimeout";
 export * from "./TokenBudget";

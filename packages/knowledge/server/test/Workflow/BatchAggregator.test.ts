@@ -1,27 +1,57 @@
-import type { ExtractionResult } from "@beep/knowledge-server/Extraction/ExtractionPipeline";
+import {
+  ExtractionPipelineConfig,
+  ExtractionResult,
+  ExtractionResultStats,
+} from "@beep/knowledge-server/Extraction/ExtractionPipeline";
+import { KnowledgeGraph, KnowledgeGraphStats } from "@beep/knowledge-server/Extraction/GraphAssembler";
 import type { DocumentResult } from "@beep/knowledge-server/Workflow";
 import { BatchAggregator, BatchAggregatorLive } from "@beep/knowledge-server/Workflow";
-import { KnowledgeEntityIds } from "@beep/shared-domain";
+import { DocumentsEntityIds, KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import { describe, effect, strictEqual } from "@beep/testkit";
+import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as Either from "effect/Either";
-import type * as S from "effect/Schema";
-
-type NonNegInt = S.Schema.Type<typeof S.NonNegativeInt>;
-const asNonNeg = (n: number): NonNegInt => n as NonNegInt;
+import * as O from "effect/Option";
 
 const makeSuccessResult = (docId: string, entityCount: number, relationCount: number): DocumentResult => ({
   documentId: docId,
-  result: Either.right({
-    stats: {
-      entityCount: asNonNeg(entityCount),
-      relationCount: asNonNeg(relationCount),
-      chunkCount: asNonNeg(1),
-      mentionCount: asNonNeg(5),
-      tokensUsed: 100,
-      clusteringEnabled: false,
-    },
-  } as unknown as ExtractionResult),
+  result: Either.right(
+    new ExtractionResult({
+      graph: new KnowledgeGraph({
+        entities: [],
+        relations: [],
+        entityIndex: {},
+        stats: new KnowledgeGraphStats({
+          entityCount,
+          relationCount,
+          unresolvedSubjects: 0,
+          unresolvedObjects: 0,
+        }),
+      }),
+      stats: new ExtractionResultStats({
+        entityCount,
+        relationCount,
+        chunkCount: 1,
+        mentionCount: 5,
+        tokensUsed: 100,
+        clusteringEnabled: false,
+        durationMs: Duration.millis(1),
+      }),
+      config: new ExtractionPipelineConfig({
+        organizationId: SharedEntityIds.OrganizationId.create(),
+        ontologyId: KnowledgeEntityIds.OntologyId.create(),
+        documentId: DocumentsEntityIds.DocumentId.create(),
+        sourceUri: O.none(),
+        chunkingConfig: O.none(),
+        mentionMinConfidence: O.none(),
+        entityMinConfidence: O.none(),
+        relationMinConfidence: O.none(),
+        entityBatchSize: O.none(),
+        mergeEntities: O.none(),
+        enableIncrementalClustering: O.none(),
+      }),
+    })
+  ),
 });
 
 const makeFailureResult = (docId: string, error: string): DocumentResult => ({

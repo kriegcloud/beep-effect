@@ -12,5 +12,6 @@ export * as Rdf from "./Rdf";
 export * as Reasoning from "./Reasoning";
 export * as Runtime from "./Runtime";
 export * as Rpc from "./rpc";
+export * as Service from "./Service";
 export * as Sparql from "./Sparql";
 export * as Validation from "./Validation";

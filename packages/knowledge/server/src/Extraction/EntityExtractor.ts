@@ -1,7 +1,7 @@
 import { $KnowledgeServerId } from "@beep/identity/packages";
 import { Confidence } from "@beep/knowledge-domain/value-objects";
 import { LanguageModel, Prompt } from "@effect/ai";
-import type * as AiError from "@effect/ai/AiError";
+import * as AiError from "@effect/ai/AiError";
 import type * as HttpServerError from "@effect/platform/HttpServerError";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";
@@ -14,6 +14,7 @@ import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { buildEntityPrompt, buildSystemPrompt } from "../Ai/PromptTemplates";
+import { type LlmResilienceError, withLlmResilience } from "../LlmControl/LlmResilience";
 import type { OntologyContext } from "../Ontology";
 import { ClassifiedEntity, EntityOutput } from "./schemas/entity-output.schema";
 import { ExtractedMention } from "./schemas/mention-output.schema";
@@ -61,6 +62,33 @@ export interface EntityExtractorShape {
 }
 
 export class EntityExtractor extends Context.Tag($I`EntityExtractor`)<EntityExtractor, EntityExtractorShape>() {}
+
+const isTagged = (error: unknown, tag: string): boolean =>
+  typeof error === "object" && error !== null && "_tag" in error && (error as { readonly _tag: unknown })._tag === tag;
+
+const mapResilienceError = (
+  method: string,
+  error: LlmResilienceError<AiError.AiError | HttpServerError.RequestError>
+): AiError.AiError | HttpServerError.RequestError => {
+  if (isTagged(error, "RequestError")) {
+    return error as HttpServerError.RequestError;
+  }
+  if (
+    isTagged(error, "HttpRequestError") ||
+    isTagged(error, "HttpResponseError") ||
+    isTagged(error, "MalformedInput") ||
+    isTagged(error, "MalformedOutput") ||
+    isTagged(error, "UnknownError")
+  ) {
+    return error as AiError.AiError;
+  }
+  return new AiError.UnknownError({
+    module: "EntityExtractor",
+    method,
+    description: error.message,
+    cause: error,
+  });
+};
 
 const serviceEffect: Effect.Effect<EntityExtractorShape, never, LanguageModel.LanguageModel> = Effect.gen(function* () {
   const model = yield* LanguageModel.LanguageModel;
@@ -121,11 +149,18 @@ const serviceEffect: Effect.Effect<EntityExtractorShape, never, LanguageModel.La
         }),
       ]);
 
-      const result = yield* model.generateObject({
-        prompt,
-        schema: EntityOutput,
-        objectName: "EntityOutput",
-      });
+      const result = yield* withLlmResilience(
+        model.generateObject({
+          prompt,
+          schema: EntityOutput,
+          objectName: "EntityOutput",
+        }),
+        {
+          stage: "entity_extraction",
+          estimatedTokens: A.reduce(batch, 0, (acc, mention) => acc + Str.length(mention.text)),
+          maxRetries: 1,
+        }
+      ).pipe(Effect.mapError((error) => mapResilienceError("classify", error)));
 
       const confidenceFiltered = A.filter(result.value.entities, (e) => e.confidence >= minConfidence);
 

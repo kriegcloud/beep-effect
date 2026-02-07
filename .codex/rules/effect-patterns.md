@@ -84,6 +84,25 @@ S.array(S.number)              // Wrong!
 | effect/Match       | Match      |
 | @effect/sql/Model  | M          |
 
+## Effect Function Boundaries (REQUIRED)
+
+For exported or reusable effectful helpers, prefer `Effect.fn("Name")` with a stable name and explicit cause/error boundary.
+
+```typescript
+// REQUIRED - named helper boundary
+const runActivity = Effect.fn("DurableActivities.runActivity")(
+  function* (executionId: string, activityId: string) {
+    // ...
+    return result;
+  },
+  Effect.catchAllCause((cause) =>
+    Effect.fail(new DurableActivityError({ executionId, activityId, cause }))
+  )
+);
+```
+
+Use `Effect.gen` directly only for local inline orchestration that is not a reusable boundary.
+
 ## Native Method Ban
 
 NEVER use native JavaScript array/string methods. Route ALL operations through Effect utilities:
@@ -319,8 +338,22 @@ export class MyError extends S.TaggedError<MyError>()("MyError", {
   message: S.String,
 }) {}
 
-Effect.fail(new MyError({ message: "Something went wrong" }))
+// REQUIRED - yieldable tagged errors should be yielded directly
+yield* new MyError({ message: "Something went wrong" })
+
+// ALLOWED when returning an Effect value from non-generator code
+const fail: Effect.Effect<never, MyError> = new MyError({ message: "Something went wrong" })
 ```
+
+### 2.1 NEVER wrap yieldable tagged errors in `Effect.fail`
+
+If the error type is yieldable (e.g. `Schema.TaggedError`), do not write:
+
+```typescript
+Effect.fail(new MyError({ message: "..." })) // FORBIDDEN
+```
+
+Prefer direct yield/return to satisfy `@effect/language-service` (`effect(unnecessaryFailYieldableError)`).
 
 ### 3. NEVER use non-null assertions
 

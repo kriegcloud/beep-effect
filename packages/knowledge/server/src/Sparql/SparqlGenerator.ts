@@ -14,6 +14,7 @@ import * as Match from "effect/Match";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
+import { withLlmResilience } from "../LlmControl/LlmResilience";
 import { buildSparqlGenerationUserPrompt, SPARQL_GENERATION_SYSTEM_PROMPT } from "./SparqlGeneratorPrompt";
 import { SparqlParser, SparqlParserLive } from "./SparqlParser";
 
@@ -80,23 +81,28 @@ const serviceEffect: Effect.Effect<SparqlGeneratorShape, never, LanguageModel.La
             feedback: errors,
           });
 
-          const response = yield* languageModel
-            .generateText({
+          const response = yield* withLlmResilience(
+            languageModel.generateText({
               prompt: Prompt.make([
                 Prompt.systemMessage({ content: SPARQL_GENERATION_SYSTEM_PROMPT }),
                 Prompt.userMessage({ content: A.make(Prompt.textPart({ text: userPrompt })) }),
               ]),
-            })
-            .pipe(
-              Effect.mapError(
-                (cause) =>
-                  new SparqlGenerationError({
-                    question,
-                    message: `Failed to generate SPARQL on attempt ${attempt}: ${String(cause)}`,
-                    attempts: attempt,
-                  })
-              )
-            );
+            }),
+            {
+              stage: "grounding",
+              estimatedTokens: Str.length(userPrompt),
+              maxRetries: 1,
+            }
+          ).pipe(
+            Effect.mapError(
+              (cause) =>
+                new SparqlGenerationError({
+                  question,
+                  message: `Failed to generate SPARQL on attempt ${attempt}: ${String(cause)}`,
+                  attempts: attempt,
+                })
+            )
+          );
 
           const candidate = extractQueryText(response.text);
           if (WRITE_OPERATION_PATTERN.test(candidate)) {

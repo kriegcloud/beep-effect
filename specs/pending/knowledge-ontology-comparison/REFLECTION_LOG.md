@@ -278,6 +278,61 @@ Phase 4 - Semantic Enrichment (Implemented)
   - `packages/knowledge/server/src/Sparql/{QueryExecutor,SparqlParser,SparqlService}.ts`
 - Added/updated tests:
   - `packages/knowledge/server/test/Validation/ShaclService.test.ts`
+
+---
+
+## Entry 4: Phase 6 Parity Closure (2026-02-07)
+
+### Phase
+Phase 6 - Parity Closure (P0/P1)
+
+### What Was Done
+- Hardened workflow reliability without replacing the existing workflow architecture:
+  - `packages/knowledge/server/src/Workflow/WorkflowPersistence.ts`
+  - `packages/knowledge/server/src/Workflow/DurableActivities.ts`
+  - `packages/knowledge/server/src/Workflow/ExtractionWorkflow.ts`
+  - `packages/knowledge/server/test/Workflow/DurableActivities.test.ts`
+  - `packages/knowledge/server/test/Workflow/ExtractionWorkflow.test.ts`
+- Added platform service abstractions:
+  - `packages/knowledge/server/src/Service/EventBus.ts`
+  - `packages/knowledge/server/src/Service/Storage.ts`
+  - `packages/knowledge/server/src/Service/OntologyRegistry.ts`
+  - `packages/knowledge/server/src/Service/index.ts`
+  - `packages/knowledge/server/test/Service/{EventBus,Storage,OntologyRegistry}.test.ts`
+- Added LLM resilience wrapper + integrations:
+  - `packages/knowledge/server/src/LlmControl/LlmResilience.ts`
+  - `packages/knowledge/server/src/Extraction/{MentionExtractor,EntityExtractor,RelationExtractor}.ts`
+  - `packages/knowledge/server/src/GraphRAG/GroundedAnswerGenerator.ts`
+  - `packages/knowledge/server/src/Sparql/SparqlGenerator.ts`
+  - `packages/knowledge/server/test/Resilience/LlmResilience.test.ts`
+
+### Key Decisions
+
+1. **Workflow parity via divergence, not rewrite**
+   - Chosen: Keep custom durable activities + persistence model.
+   - Added: input-aware replay, retry-count persistence, non-overwriting start timestamps, catch-all failure status updates.
+   - Rationale: lower migration risk than introducing `@effect/workflow` engine midstream.
+
+2. **Platform services landed as memory-first abstractions**
+   - EventBus, Storage, OntologyRegistry were implemented as additive Effect services.
+   - Durable backends and cloud-specific implementations remain follow-up work.
+   - Rationale: closes API-level parity gaps while preserving deployment flexibility.
+
+3. **LLM resilience stabilized at call-site wrapper level**
+   - Added shared resilience wrapper (retry + timeout + circuit feedback).
+   - Integrated into extraction, GraphRAG generation, and SPARQL generation.
+   - Provider fallback chain intentionally deferred; extension seam (`recoverWith`) added.
+
+### Verification Results
+- `bun run check --filter @beep/knowledge-domain`: pass
+- `bun run check --filter @beep/knowledge-server`: pass
+- `bun run lint --filter @beep/knowledge-server`: pass
+- `bun test packages/knowledge/server/test/Workflow/`: pass (73/73)
+- `bun test packages/knowledge/server/test/Resilience/`: pass (6/6)
+
+### Follow-up Risks
+- `P6-01/P6-02` remain intentional divergence from `@effect/workflow` + cluster runner persistence.
+- `P6-03/P6-04/P6-09` are functionally closed but still divergence from effect-ontology’s durable/backed fallback-complete implementations.
   - `packages/knowledge/server/test/Reasoning/ForwardChainer.test.ts`
   - `packages/knowledge/server/test/Sparql/{SparqlParser,SparqlService}.test.ts`
 
@@ -736,3 +791,48 @@ Additional: `BatchExecutionId` branded EntityId added to `@beep/shared-domain`, 
 ### Recommendations
 - [Advice for future phases]
 ```
+
+## Entry 8: Infrastructure Polish (2026-02-07)
+
+### Phase
+Phase 5 - Infrastructure Polish (5A-5E)
+
+### What Was Done
+- Added/finished named graph infrastructure on `RdfStoreService` and SPARQL `GRAPH` clause execution support.
+- Added PROV-O constants and `ProvenanceEmitter`; extraction now emits provenance triples into `urn:beep:provenance` and extraction triples into `urn:beep:extraction:{id}` graphs.
+- Reconciled token budgeting by extending existing `TokenBudgetService` with stage tracking, warning threshold behavior, hard limit enforcement, and usage recording from `@effect/ai` metadata.
+- Added runtime layer bundles in `Runtime/ServiceBundles.ts` for composable infrastructure wiring.
+- Added NL-to-SPARQL generation path (`SparqlGenerator`) with read-only enforcement, parse-retry loop (max 3), and timeout-aware execution path in GraphRAG.
+- Added Phase 5 coverage in RDF/SPARQL/Resilience tests and fixed named-graph lifecycle bugs exposed by tests (`clear`/`dropGraph` semantics).
+
+### Key Decisions
+1. **Reuse existing TokenBudget service instead of creating a duplicate**
+   - Rationale: avoid service collisions and conflicting budgets across extraction/grounding paths.
+   - Alternative: introduce a new `Resilience/TokenBudget` service; rejected due duplicate runtime identity risk.
+
+2. **Named graph support via N3 quads graph component**
+   - Rationale: keeps graph scoping in one store and aligns with `GRAPH` query semantics.
+   - Alternative: per-graph stores; rejected as unnecessary complexity and inconsistent query execution.
+
+3. **Read-only gate for generated SPARQL**
+   - Rationale: NL generation must not execute mutating statements.
+   - Alternative: trust parser output only; rejected because parser acceptance does not imply policy safety.
+
+### What Worked Well
+- Parallel delegation (Track A, Track B, domain VOs, tests) reduced cycle time and kept changes isolated.
+- Existing SPARQL parser/service architecture made `GRAPH` and generator integration incremental.
+- Targeted test additions found implementation edge cases quickly (graph lifecycle semantics).
+
+### What Could Be Improved
+- `lint:fix --filter @beep/knowledge-server` currently fans out to repo-level scripts and fails on unrelated syncpack args; package-scoped lint-fix command path should be isolated.
+- Provenance and extraction graph naming conventions should be documented centrally to avoid drift.
+
+### Pattern Candidates
+- **Read-only NL-to-SPARQL safety pipeline**: generate -> parse -> policy validate -> timeout execute.
+- **Graph-aware store lifecycle pattern**: maintain explicit graph registry synchronized on add/create/drop/clear.
+- **Token budget post-call accounting**: prefer provider usage metadata over heuristic token estimates.
+
+### Recommendations
+1. Add a small policy module for SPARQL operation allow/deny to centralize read-only enforcement.
+2. Add integration tests that run full extraction + GraphRAG query path with provenance assertions end-to-end.
+3. Separate workspace lint-fix orchestration from package-scoped lint-fix for reliable per-package CI checks.

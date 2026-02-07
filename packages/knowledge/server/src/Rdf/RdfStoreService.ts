@@ -286,6 +286,7 @@ const serviceEffect: Effect.Effect<RdfStoreShape> = Effect.gen(function* () {
     Effect.sync(() => {
       const allQuads = store.getQuads(null, null, null, null);
       store.removeQuads(allQuads);
+      knownGraphs.clear();
     })
   );
 
@@ -326,7 +327,8 @@ const serviceEffect: Effect.Effect<RdfStoreShape> = Effect.gen(function* () {
   const dropGraph = Effect.fn("RdfStore.dropGraph")((iri: IRI.Type) =>
     Effect.sync(() => {
       knownGraphs.delete(iri);
-      store.deleteGraph(iri);
+      const quadsInGraph = store.getQuads(null, null, null, N3.DataFactory.namedNode(iri));
+      store.removeQuads(quadsInGraph);
     })
   );
 
