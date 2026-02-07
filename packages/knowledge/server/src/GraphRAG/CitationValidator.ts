@@ -96,7 +96,10 @@ export interface CitationValidatorShape {
   ) => Effect.Effect<EntityValidationResult, SparqlServiceError.Type>;
   readonly validateRelation: (
     relationId: KnowledgeEntityIds.RelationId.Type
-  ) => Effect.Effect<RelationValidationResult, SparqlServiceError.Type | MaxDepthExceededError | MaxInferencesExceededError>;
+  ) => Effect.Effect<
+    RelationValidationResult,
+    SparqlServiceError.Type | MaxDepthExceededError | MaxInferencesExceededError
+  >;
   readonly validateCitation: (citation: Citation) => Effect.Effect<CitationValidationResult, CitationValidationError>;
   readonly validateAllCitations: (
     citations: ReadonlyArray<Citation>

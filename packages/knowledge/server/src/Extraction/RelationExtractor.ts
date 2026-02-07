@@ -18,7 +18,7 @@ import type { OntologyContext } from "../Ontology";
 import type { ClassifiedEntity } from "./schemas/entity-output.schema";
 import { ExtractedTriple, RelationOutput } from "./schemas/relation-output.schema";
 
-const $I = $KnowledgeServerId.create("knowledge-server/Extraction/RelationExtractor");
+const $I = $KnowledgeServerId.create("Extraction/RelationExtractor");
 
 export class RelationExtractionConfig extends S.Class<RelationExtractionConfig>($I`RelationExtractionConfig`)(
   {
@@ -30,11 +30,16 @@ export class RelationExtractionConfig extends S.Class<RelationExtractionConfig>(
   })
 ) {}
 
-export class RelationExtractionResult extends S.Class<RelationExtractionResult>($I`RelationExtractionResult`)({
-  triples: S.Array(ExtractedTriple),
-  invalidTriples: S.Array(ExtractedTriple),
-  tokensUsed: S.Number,
-}) {}
+export class RelationExtractionResult extends S.Class<RelationExtractionResult>($I`RelationExtractionResult`)(
+  {
+    triples: S.Array(ExtractedTriple),
+    invalidTriples: S.Array(ExtractedTriple),
+    tokensUsed: S.Number,
+  },
+  $I.annotations("RelationExtractionResult", {
+    description: "Result of relation extraction (triples, invalid triples, tokens used).",
+  })
+) {}
 
 export interface RelationExtractorShape {
   readonly extract: (

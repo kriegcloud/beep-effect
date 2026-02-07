@@ -1,6 +1,13 @@
 import { BatchNotFoundError } from "@beep/knowledge-domain/errors";
 import type { Batch } from "@beep/knowledge-domain/rpc/Batch";
-import type { BatchState } from "@beep/knowledge-domain/value-objects";
+import {
+  type BatchState,
+  Cancelled,
+  Completed,
+  Extracting,
+  Failed,
+  Pending,
+} from "@beep/knowledge-domain/value-objects";
 import { WorkflowPersistence } from "@beep/knowledge-server/Workflow";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
@@ -28,37 +35,33 @@ const toBatchState = (
 
   switch (status) {
     case "pending":
-      return { _tag: "BatchState.Pending", batchId };
+      return Pending.make({ batchId });
     case "running":
-      return {
-        _tag: "BatchState.Extracting",
+      return Extracting.make({
         batchId,
         completedDocuments: successCount,
         totalDocuments,
         progress: totalDocuments === 0 ? 0 : Number(successCount) / Number(totalDocuments),
-      };
+      });
     case "completed":
-      return {
-        _tag: "BatchState.Completed",
+      return Completed.make({
         batchId,
         totalDocuments,
         entityCount,
         relationCount,
-      };
+      });
     case "cancelled":
-      return {
-        _tag: "BatchState.Cancelled",
+      return Cancelled.make({
         batchId,
         completedDocuments: successCount,
         totalDocuments,
-      };
+      });
     default:
-      return {
-        _tag: "BatchState.Failed",
+      return Failed.make({
         batchId,
         failedDocuments: failureCount,
         error: error ?? "Batch execution failed",
-      };
+      });
   }
 };
 

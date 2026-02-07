@@ -1,10 +1,9 @@
-import {GoogleAuthClient} from "@beep/google-workspace-client";
-import {
-  type GmailExtractionError,
-  GmailScopes, GoogleApiError,
-} from "@beep/google-workspace-domain";
-import {thunkEmptyStr} from "@beep/utils";
-import {HttpClient, HttpClientRequest, HttpClientResponse} from "@effect/platform";
+import { GoogleAuthClient } from "@beep/google-workspace-client";
+import { type GmailExtractionError, GmailScopes, GoogleApiError } from "@beep/google-workspace-domain";
+import { $KnowledgeServerId } from "@beep/identity/packages";
+import { BS } from "@beep/schema";
+import { thunkEmptyStr } from "@beep/utils";
+import { HttpClient, HttpClientRequest, HttpClientResponse } from "@effect/platform";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as DateTime from "effect/DateTime";
@@ -15,11 +14,10 @@ import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import {BS} from "@beep/schema";
-import {$KnowledgeServerId} from "@beep/identity/packages";
 import * as Str from "effect/String";
 
 const $I = $KnowledgeServerId.create("adapters/GmailExtractionAdapter");
+
 export const REQUIRED_SCOPES = [GmailScopes.read] as const;
 
 const GMAIL_API_BASE = "https://gmail.googleapis.com/gmail/v1/users/me";
@@ -32,75 +30,76 @@ const GmailMimeType = S.String.annotations(
   })
 );
 
-export class EmailMetadata extends S.Class<EmailMetadata>("EmailMetadata")({
-  from: S.String,
-  to: S.optionalWith(S.Array(S.String), {default: A.empty<string>}),
-  cc: S.optionalWith(S.Array(S.String), {default: A.empty<string>}),
-  date: S.optionalWith(S.OptionFromSelf(BS.DateTimeUtcFromAllAcceptable), {default: O.none<DateTime.Utc>}),
-  threadId: S.String,
-  labels: S.optionalWith(S.Array(S.String), {default: A.empty<string>}),
-}) {
-}
+export class EmailMetadata extends S.Class<EmailMetadata>($I`EmailMetadata`)(
+  {
+    from: S.String,
+    to: S.optionalWith(S.Array(S.String), { default: A.empty<string> }),
+    cc: S.optionalWith(S.Array(S.String), { default: A.empty<string> }),
+    date: S.optionalWith(S.OptionFromSelf(BS.DateTimeUtcFromAllAcceptable), { default: O.none<DateTime.Utc> }),
+    threadId: S.String,
+    labels: S.optionalWith(S.Array(S.String), { default: A.empty<string> }),
+  },
+  $I.annotations("EmailMetadata", {
+    description: "Normalized email metadata extracted from Gmail headers (participants, date, thread, labels).",
+  })
+) {}
 
-export class ExtractedEmailDocument extends S.Class<ExtractedEmailDocument>($I`ExtractedEmailDocument`)({
+export class ExtractedEmailSourceType extends BS.StringLiteralKit("gmail").annotations(
+  $I.annotations("ExtractedEmailSourceType", {
+    description: "Source discriminator for extracted email documents (currently only Gmail).",
+  })
+) {}
+
+export class ExtractedEmailDocument extends S.Class<ExtractedEmailDocument>($I`ExtractedEmailDocument`)(
+  {
     sourceId: S.String,
-    sourceType: S.Literal("gmail"),
-    title: S.optionalWith(S.String, {default: () => "(No Subject)"}),
-    content: S.optionalWith(S.String, {default: thunkEmptyStr}),
+    sourceType: ExtractedEmailSourceType,
+    title: S.optionalWith(S.String, { default: () => "(No Subject)" }),
+    content: S.optionalWith(S.String, { default: thunkEmptyStr }),
     metadata: EmailMetadata,
     extractedAt: BS.DateTimeUtcFromAllAcceptable,
   },
-  $I.annotations(
-    "ExtractedEmailDocument",
-    {
-      description: "An email document extracted from Gmail for knowledge graph processing, containing the message content, metadata (sender, recipients, dates), and extraction timestamp.",
-    }
-  )
-) {
-}
+  $I.annotations("ExtractedEmailDocument", {
+    description:
+      "An email document extracted from Gmail for knowledge graph processing, containing the message content, metadata (sender, recipients, dates), and extraction timestamp.",
+  })
+) {}
 
-
-class ThreadContextDateRange extends S.Class<ThreadContextDateRange>($I`ThreadContextDateRange`)({
+class ThreadContextDateRange extends S.Class<ThreadContextDateRange>($I`ThreadContextDateRange`)(
+  {
     earliest: BS.DateTimeUtcFromAllAcceptable,
     latest: BS.DateTimeUtcFromAllAcceptable,
   },
-  $I.annotations(
-    "ThreadContextDateRange",
-    {
-      description: "The temporal boundaries of an email thread, capturing the earliest and latest message timestamps to establish the thread's time span.",
-    }
-  )
-) {
-}
+  $I.annotations("ThreadContextDateRange", {
+    description:
+      "The temporal boundaries of an email thread, capturing the earliest and latest message timestamps to establish the thread's time span.",
+  })
+) {}
 
-export class ThreadContext extends S.Class<ThreadContext>($I`ThreadContext`)({
+export class ThreadContext extends S.Class<ThreadContext>($I`ThreadContext`)(
+  {
     threadId: S.String,
     subject: S.String,
     participants: S.Array(S.String),
     messages: S.Array(ExtractedEmailDocument),
     dateRange: ThreadContextDateRange,
   },
-  $I.annotations(
-    "ThreadContext",
-    {
-      description: "Complete context for an email thread, aggregating all messages with their extracted content, the full list of participants, subject line, and the temporal range spanning from the earliest to latest message in the conversation.",
-    }
-  )
-) {
-}
+  $I.annotations("ThreadContext", {
+    description:
+      "Complete context for an email thread, aggregating all messages with their extracted content, the full list of participants, subject line, and the temporal range spanning from the earliest to latest message in the conversation.",
+  })
+) {}
 
-export class GmailMessageHeader extends S.Class<GmailMessageHeader>($I`GmailMessageHeader`)({
+export class GmailMessageHeader extends S.Class<GmailMessageHeader>($I`GmailMessageHeader`)(
+  {
     name: S.String,
     value: S.String,
   },
-  $I.annotations(
-    "GmailMessageHeader",
-    {
-      description: "A single header field from a Gmail message, representing a key-value pair such as 'From', 'To', 'Subject', 'Date', or custom headers that provide metadata about the email.",
-    }
-  )
-) {
-}
+  $I.annotations("GmailMessageHeader", {
+    description:
+      "A single header field from a Gmail message, representing a key-value pair such as 'From', 'To', 'Subject', 'Date', or custom headers that provide metadata about the email.",
+  })
+) {}
 
 export class GmailMessagePartBody extends S.Class<GmailMessagePartBody>($I`GmailMessagePartBody`)(
   {
@@ -108,14 +107,11 @@ export class GmailMessagePartBody extends S.Class<GmailMessagePartBody>($I`Gmail
     size: S.Number,
     data: S.optional(S.String),
   },
-  $I.annotations(
-    "GmailMessagePartBody",
-    {
-      description: "The body content of a Gmail message part, containing the actual data (base64url encoded), its size in bytes, and optionally an attachment ID for retrieving large attachments separately via the Gmail API.",
-    }
-  )
-) {
-}
+  $I.annotations("GmailMessagePartBody", {
+    description:
+      "The body content of a Gmail message part, containing the actual data (base64url encoded), its size in bytes, and optionally an attachment ID for retrieving large attachments separately via the Gmail API.",
+  })
+) {}
 
 export class GmailMessagePart extends S.Class<GmailMessagePart>($I`GmailMessagePart`)(
   {
@@ -126,13 +122,11 @@ export class GmailMessagePart extends S.Class<GmailMessagePart>($I`GmailMessageP
     body: GmailMessagePartBody,
     parts: S.optional(S.Unknown),
   },
-  $I.annotations(
-    "GmailMessagePart",
-    {
-      description: "A structural component of a Gmail message representing a single MIME part, containing the part identifier, MIME type, filename (for attachments), headers specific to this part, the body content, and optionally nested parts for multipart messages.",
-    })
-) {
-}
+  $I.annotations("GmailMessagePart", {
+    description:
+      "A structural component of a Gmail message representing a single MIME part, containing the part identifier, MIME type, filename (for attachments), headers specific to this part, the body content, and optionally nested parts for multipart messages.",
+  })
+) {}
 
 export class GmailMessagePayload extends S.Class<GmailMessagePayload>($I`GmailMessagePayload`)({
   partId: S.optional(S.String),
@@ -141,55 +135,38 @@ export class GmailMessagePayload extends S.Class<GmailMessagePayload>($I`GmailMe
   headers: S.optional(S.Array(GmailMessageHeader)),
   body: S.optional(GmailMessagePartBody),
   parts: S.optional(S.Array(GmailMessagePart)),
-}) {
-}
+}) {}
 
-export class GmailMessage extends S.Class<GmailMessage>($I`GmailMessage`)(
-  {
-    id: S.String,
-    threadId: S.String,
-    labelIds: S.optional(S.Array(S.String)),
-    snippet: S.optional(S.String),
-    historyId: S.optional(S.String),
-    internalDate: S.optional(S.String),
-    payload: S.optional(
-      GmailMessagePayload
-    ),
-    sizeEstimate: S.optional(S.Number),
-    raw: S.optional(S.String),
-  },
-) {
-}
-
-export class GmailMessagesListResponseMessage extends S.Class<GmailMessagesListResponseMessage>($I`GmailMessagesListResponseMessage`)({
+export class GmailMessage extends S.Class<GmailMessage>($I`GmailMessage`)({
   id: S.String,
   threadId: S.String,
-}) {
-}
+  labelIds: S.optional(S.Array(S.String)),
+  snippet: S.optional(S.String),
+  historyId: S.optional(S.String),
+  internalDate: S.optional(S.String),
+  payload: S.optional(GmailMessagePayload),
+  sizeEstimate: S.optional(S.Number),
+  raw: S.optional(S.String),
+}) {}
 
-export class GmailMessagesListResponse extends S.Class<GmailMessagesListResponse>($I`GmailMessagesListResponse`)(
-  {
-    messages: S.optional(
-      S.Array(
-        GmailMessagesListResponseMessage
-      )
-    ),
-    nextPageToken: S.optional(S.String),
-    resultSizeEstimate: S.optional(S.Number),
-  }
-) {
-}
+export class GmailMessagesListResponseMessage extends S.Class<GmailMessagesListResponseMessage>(
+  $I`GmailMessagesListResponseMessage`
+)({
+  id: S.String,
+  threadId: S.String,
+}) {}
 
+export class GmailMessagesListResponse extends S.Class<GmailMessagesListResponse>($I`GmailMessagesListResponse`)({
+  messages: S.optional(S.Array(GmailMessagesListResponseMessage)),
+  nextPageToken: S.optional(S.String),
+  resultSizeEstimate: S.optional(S.Number),
+}) {}
 
-export class GmailThread extends S.Class<GmailThread>($I`GmailThread`)(
-  {
-    id: S.String,
-    historyId: S.optional(S.String),
-    messages: S.optional(S.Array(GmailMessage)),
-  }
-) {
-}
-
+export class GmailThread extends S.Class<GmailThread>($I`GmailThread`)({
+  id: S.String,
+  historyId: S.optional(S.String),
+  messages: S.optional(S.Array(GmailMessage)),
+}) {}
 
 const findHeader = (
   headers: ReadonlyArray<{ readonly name: string; readonly value: string }> | undefined,
@@ -229,44 +206,31 @@ const decodeBase64Url = (encoded: string): string => {
   return Either.try(() => atob(padded)).pipe(Either.getOrElse(thunkEmptyStr));
 };
 
-export class PartBody extends S.Class<PartBody>($I`PartBody`)(
-  {
-    data: S.optional(S.String)
-  }
-) {
-}
+export class PartBody extends S.Class<PartBody>($I`PartBody`)({
+  data: S.optional(S.String),
+}) {}
 
-export class PartLike extends S.Class<PartLike>($I`PartLike`)(
-  {
-    mimeType: S.optional(GmailMimeType),
-    body: S.optional(PartBody),
-    parts: S.optional(S.Unknown)
-  }
-) {
-}
+export class PartLike extends S.Class<PartLike>($I`PartLike`)({
+  mimeType: S.optional(GmailMimeType),
+  body: S.optional(PartBody),
+  parts: S.optional(S.Unknown),
+}) {}
 
-export class PayloadLikeBody extends S.Class<PayloadLikeBody>($I`PayloadLikeBody`)(
-  {
-    attachmentId: S.optional(S.String),
-    // Gmail returns a numeric byte count here (and our decoded GmailMessagePartBody uses Number).
-    size: S.optional(S.Number),
-    data: S.optional(S.String)
-  }
-) {
-}
+export class PayloadLikeBody extends S.Class<PayloadLikeBody>($I`PayloadLikeBody`)({
+  attachmentId: S.optional(S.String),
+  // Gmail returns a numeric byte count here (and our decoded GmailMessagePartBody uses Number).
+  size: S.optional(S.Number),
+  data: S.optional(S.String),
+}) {}
 
-export class PayloadLike extends S.Class<PayloadLike>($I`PayloadLike`)(
-  {
-    partId: S.optional(S.String),
-    mimeType: S.optional(GmailMimeType),
-    filename: S.optional(S.String),
-    headers: S.optional(S.Array(GmailMessageHeader)),
-    body: S.optional(PayloadLikeBody),
-    parts: S.optional(S.Unknown)
-  }
-) {
-}
-
+export class PayloadLike extends S.Class<PayloadLike>($I`PayloadLike`)({
+  partId: S.optional(S.String),
+  mimeType: S.optional(GmailMimeType),
+  filename: S.optional(S.String),
+  headers: S.optional(S.Array(GmailMessageHeader)),
+  body: S.optional(PayloadLikeBody),
+  parts: S.optional(S.Unknown),
+}) {}
 
 const isPartArray = (parts: unknown): parts is ReadonlyArray<PartLike> =>
   A.isArray(parts) && A.every(parts, (p) => P.isNotNull(p) && P.isObject(p));
@@ -320,7 +284,7 @@ const stripHtml = (html: string): string =>
     Str.replaceAll(/&amp;/g, "&"),
     Str.replaceAll(/&lt;/g, "<"),
     Str.replaceAll(/&gt;/g, ">"),
-    Str.replaceAll(/&quot;/g, "\""),
+    Str.replaceAll(/&quot;/g, '"'),
     Str.replaceAll(/&#39;/g, "'"),
     Str.replaceAll(/\s+/g, " "),
     Str.trim
@@ -342,7 +306,7 @@ const decodeExtractedEmailDocument = (u: unknown): Effect.Effect<ExtractedEmailD
 
 const buildExtractedDocument = (message: GmailMessage, extractedAt: DateTime.Utc): ExtractedEmailDocumentEncoded => {
   const headers = message.payload?.headers;
-  const messagePayload = S.decodeUnknownSync(PayloadLike)(message.payload)
+  const messagePayload = S.decodeUnknownSync(PayloadLike)(message.payload);
   const subject = findHeader(headers, "Subject").pipe(O.getOrElse(() => "(No Subject)"));
   const from = findHeader(headers, "From").pipe(O.getOrElse(thunkEmptyStr));
   const to = findHeader(headers, "To").pipe(O.map(parseEmailList), O.getOrElse(A.empty<string>));
@@ -375,11 +339,10 @@ export interface GmailExtractionAdapterShape {
   readonly extractThreadContext: (threadId: string) => Effect.Effect<ThreadContext, GmailExtractionError.Type>;
 }
 
-export class GmailExtractionAdapter extends Context.Tag("GmailExtractionAdapter")<
+export class GmailExtractionAdapter extends Context.Tag($I`GmailExtractionAdapter`)<
   GmailExtractionAdapter,
   GmailExtractionAdapterShape
->() {
-}
+>() {}
 
 const serviceEffect: Effect.Effect<GmailExtractionAdapterShape, never, HttpClient.HttpClient | GoogleAuthClient> =
   Effect.gen(function* () {
@@ -416,7 +379,7 @@ const serviceEffect: Effect.Effect<GmailExtractionAdapterShape, never, HttpClien
       ).pipe(
         Effect.withSpan("GmailExtractionAdapter.fetchMessage", {
           captureStackTrace: false,
-          attributes: {messageId},
+          attributes: { messageId },
         })
       );
 
@@ -429,14 +392,14 @@ const serviceEffect: Effect.Effect<GmailExtractionAdapterShape, never, HttpClien
       ).pipe(
         Effect.withSpan("GmailExtractionAdapter.fetchThread", {
           captureStackTrace: false,
-          attributes: {threadId},
+          attributes: { threadId },
         })
       );
 
     const extractEmailsForKnowledgeGraph = (query: string, maxResults = 50) =>
       Effect.gen(function* () {
         yield* Effect.logDebug("Extracting emails for knowledge graph").pipe(
-          Effect.annotateLogs({query, maxResults})
+          Effect.annotateLogs({ query, maxResults })
         );
 
         const listResponse = yield* makeAuthorizedRequest(
@@ -453,11 +416,11 @@ const serviceEffect: Effect.Effect<GmailExtractionAdapterShape, never, HttpClien
           return [];
         }
 
-        yield* Effect.logDebug("Fetching message details").pipe(Effect.annotateLogs({count: A.length(messageRefs)}));
+        yield* Effect.logDebug("Fetching message details").pipe(Effect.annotateLogs({ count: A.length(messageRefs) }));
 
         const messages = yield* Effect.all(
           A.map(messageRefs, (ref) => fetchMessage(ref.id)),
-          {concurrency: 10}
+          { concurrency: 10 }
         );
 
         const extractedAt = DateTime.unsafeNow();
@@ -467,20 +430,20 @@ const serviceEffect: Effect.Effect<GmailExtractionAdapterShape, never, HttpClien
         });
 
         yield* Effect.logInfo("Email extraction complete").pipe(
-          Effect.annotateLogs({extracted: A.length(documents)})
+          Effect.annotateLogs({ extracted: A.length(documents) })
         );
 
         return documents;
       }).pipe(
         Effect.withSpan("GmailExtractionAdapter.extractEmailsForKnowledgeGraph", {
           captureStackTrace: false,
-          attributes: {query, maxResults},
+          attributes: { query, maxResults },
         })
       );
 
     const extractThreadContext = (threadId: string) =>
       Effect.gen(function* () {
-        yield* Effect.logDebug("Extracting thread context").pipe(Effect.annotateLogs({threadId}));
+        yield* Effect.logDebug("Extracting thread context").pipe(Effect.annotateLogs({ threadId }));
 
         const thread = yield* fetchThread(threadId);
         const messages = thread.messages ?? [];
@@ -542,7 +505,7 @@ const serviceEffect: Effect.Effect<GmailExtractionAdapterShape, never, HttpClien
       }).pipe(
         Effect.withSpan("GmailExtractionAdapter.extractThreadContext", {
           captureStackTrace: false,
-          attributes: {threadId},
+          attributes: { threadId },
         })
       );
 

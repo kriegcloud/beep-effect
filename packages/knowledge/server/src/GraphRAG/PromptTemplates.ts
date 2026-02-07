@@ -1,4 +1,5 @@
-import { $KnowledgeDomainId } from "@beep/identity/packages";
+import { $KnowledgeServerId } from "@beep/identity/packages";
+import { BS } from "@beep/schema";
 import { thunkEmptyStr } from "@beep/utils";
 import * as A from "effect/Array";
 import * as F from "effect/Function";
@@ -11,36 +12,56 @@ import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { extractLocalName } from "../Ontology/constants";
 
-const $I = $KnowledgeDomainId.create("knowledge-domain/GraphRAG/PromptTemplates");
+const $I = $KnowledgeServerId.create("GraphRAG/PromptTemplates");
 
-export class GraphContextEntity extends S.Class<GraphContextEntity>($I`GraphContextEntity`)({
-  id: S.String,
-  mention: S.String,
-  types: S.Array(S.String),
-  attributes: S.optional(
-    S.Record({
-      key: S.String,
-      value: S.String,
-    })
-  ),
-}) {}
+export class GraphContextEntity extends S.Class<GraphContextEntity>($I`GraphContextEntity`)(
+  {
+    id: S.String,
+    mention: S.String,
+    types: S.Array(S.String),
+    attributes: S.optional(
+      S.Record({
+        key: S.String,
+        value: S.String,
+      })
+    ),
+  },
+  $I.annotations("GraphContextEntity", {
+    description: "Entity included in GraphRAG prompt context (id, mention, types, optional attributes).",
+  })
+) {}
 
-export class GraphContextRelation extends S.Class<GraphContextRelation>($I`GraphContextRelation`)({
-  id: S.String,
-  subjectId: S.String,
-  predicate: S.String,
-  objectId: S.String,
-}) {}
+export class GraphContextRelation extends S.Class<GraphContextRelation>($I`GraphContextRelation`)(
+  {
+    id: S.String,
+    subjectId: S.String,
+    predicate: S.String,
+    objectId: S.String,
+  },
+  $I.annotations("GraphContextRelation", {
+    description: "Relation included in GraphRAG prompt context (subject-predicate-object).",
+  })
+) {}
 
-export class GraphContext extends S.Class<GraphContext>($I`GraphContext`)({
-  entities: S.Array(GraphContextEntity),
-  relations: S.Array(GraphContextRelation),
-}) {}
+export class GraphContext extends S.Class<GraphContext>($I`GraphContext`)(
+  {
+    entities: S.Array(GraphContextEntity),
+    relations: S.Array(GraphContextRelation),
+  },
+  $I.annotations("GraphContext", {
+    description: "GraphRAG context (entities + relations) used to ground LLM answers.",
+  })
+) {}
 
-export class PromptParts extends S.Class<PromptParts>($I`PromptParts`)({
-  system: S.String,
-  user: S.String,
-}) {}
+export class PromptParts extends S.Class<PromptParts>($I`PromptParts`)(
+  {
+    system: S.String,
+    user: S.String,
+  },
+  $I.annotations("PromptParts", {
+    description: "System/user prompt parts for the LLM call.",
+  })
+) {}
 
 export const GROUNDED_ANSWER_SYSTEM_PROMPT =
   `You are a knowledge assistant that answers questions using ONLY the provided context.
@@ -141,27 +162,40 @@ const buildUserPrompt = (context: GraphContext, question: string): string => {
   return A.join(sections, "\n\n");
 };
 
-export const buildGroundedAnswerPrompt = (context: GraphContext, question: string): PromptParts => ({
-  system: GROUNDED_ANSWER_SYSTEM_PROMPT,
-  user: buildUserPrompt(context, question),
-});
+export const buildGroundedAnswerPrompt = (context: GraphContext, question: string): PromptParts =>
+  PromptParts.make({
+    system: GROUNDED_ANSWER_SYSTEM_PROMPT,
+    user: buildUserPrompt(context, question),
+  });
 
 export const ENTITY_CITATION_REGEX = /\{\{entity:([^}]+)}}/g;
 
 export const RELATION_CITATION_REGEX = /\{\{relation:([^}]+)}}/g;
 
-export interface ParsedCitation {
-  readonly type: "entity" | "relation";
-  readonly id: string;
-  readonly matchStart: number;
-  readonly matchEnd: number;
+export class CitationType extends BS.StringLiteralKit("entity", "relation").annotations(
+  $I.annotations("CitationType", {
+    description: "Citation kind extracted from `{{entity:...}}` and `{{relation:...}}` markers.",
+  })
+) {}
+
+export declare namespace CitationType {
+  export type Type = typeof CitationType.Type;
+  export type Encoded = typeof CitationType.Encoded;
 }
 
-const collectRegexMatches = (
-  text: string,
-  regex: RegExp,
-  type: "entity" | "relation"
-): ReadonlyArray<ParsedCitation> => {
+export class ParsedCitation extends S.Class<ParsedCitation>($I`ParsedCitation`)(
+  {
+    type: CitationType,
+    id: S.String,
+    matchStart: S.NonNegativeInt,
+    matchEnd: S.NonNegativeInt,
+  },
+  $I.annotations("ParsedCitation", {
+    description: "Parsed citation marker with kind, id, and match index range.",
+  })
+) {}
+
+const collectRegexMatches = (text: string, regex: RegExp, type: CitationType.Type): ReadonlyArray<ParsedCitation> => {
   const matches = Str.matchAll(regex)(text);
   const results = A.empty<ParsedCitation>();
   for (const match of matches) {

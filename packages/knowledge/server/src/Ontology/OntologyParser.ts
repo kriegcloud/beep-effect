@@ -1,9 +1,11 @@
 import { $KnowledgeServerId } from "@beep/identity/packages";
+import { PropertyDefinition } from "@beep/knowledge-domain/entities";
 import { OntologyParseError } from "@beep/knowledge-domain/errors";
 import { thunkEmptyStr, thunkFalse } from "@beep/utils";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
+import * as F from "effect/Function";
 import * as Iterable from "effect/Iterable";
 import * as Layer from "effect/Layer";
 import * as MutableHashMap from "effect/MutableHashMap";
@@ -21,68 +23,83 @@ const EmptyStringArray = (): ReadonlyArray<string> => [];
 const EmptyClassArray = (): ReadonlyArray<ParsedClassDefinition> => [];
 const EmptyPropertyArray = (): ReadonlyArray<ParsedPropertyDefinition> => [];
 
-export class ParsedClassDefinition extends S.Class<ParsedClassDefinition>($I`ParsedClassDefinition`)({
-  iri: S.String,
-  label: S.String,
-  localName: S.String,
+export class ParsedClassDefinition extends S.Class<ParsedClassDefinition>($I`ParsedClassDefinition`)(
+  {
+    iri: S.String,
+    label: S.String,
+    localName: S.String,
 
-  comment: S.optionalWith(S.OptionFromUndefinedOr(S.String), { default: O.none<string> }),
+    comment: S.optionalWith(S.OptionFromUndefinedOr(S.String), { default: O.none<string> }),
 
-  properties: S.optionalWith(S.Array(S.String), { default: EmptyStringArray }),
-  prefLabels: S.optionalWith(S.Array(S.String), { default: EmptyStringArray }),
-  altLabels: S.optionalWith(S.Array(S.String), { default: EmptyStringArray }),
-  hiddenLabels: S.optionalWith(S.Array(S.String), { default: EmptyStringArray }),
+    properties: S.optionalWith(S.Array(S.String), { default: EmptyStringArray }),
+    prefLabels: S.optionalWith(S.Array(S.String), { default: EmptyStringArray }),
+    altLabels: S.optionalWith(S.Array(S.String), { default: EmptyStringArray }),
+    hiddenLabels: S.optionalWith(S.Array(S.String), { default: EmptyStringArray }),
 
-  definition: S.optionalWith(S.OptionFromUndefinedOr(S.String), { default: O.none<string> }),
-  scopeNote: S.optionalWith(S.OptionFromUndefinedOr(S.String), { default: O.none<string> }),
-  example: S.optionalWith(S.OptionFromUndefinedOr(S.String), { default: O.none<string> }),
+    definition: S.optionalWith(S.OptionFromUndefinedOr(S.String), { default: O.none<string> }),
+    scopeNote: S.optionalWith(S.OptionFromUndefinedOr(S.String), { default: O.none<string> }),
+    example: S.optionalWith(S.OptionFromUndefinedOr(S.String), { default: O.none<string> }),
 
-  broader: S.optionalWith(S.Array(S.String), { default: EmptyStringArray }),
-  narrower: S.optionalWith(S.Array(S.String), { default: EmptyStringArray }),
-  related: S.optionalWith(S.Array(S.String), { default: EmptyStringArray }),
+    broader: S.optionalWith(S.Array(S.String), { default: EmptyStringArray }),
+    narrower: S.optionalWith(S.Array(S.String), { default: EmptyStringArray }),
+    related: S.optionalWith(S.Array(S.String), { default: EmptyStringArray }),
 
-  equivalentClass: S.optionalWith(S.Array(S.String), { default: EmptyStringArray }),
-  exactMatch: S.optionalWith(S.Array(S.String), { default: EmptyStringArray }),
-  closeMatch: S.optionalWith(S.Array(S.String), { default: EmptyStringArray }),
-}) {}
+    equivalentClass: S.optionalWith(S.Array(S.String), { default: EmptyStringArray }),
+    exactMatch: S.optionalWith(S.Array(S.String), { default: EmptyStringArray }),
+    closeMatch: S.optionalWith(S.Array(S.String), { default: EmptyStringArray }),
+  },
+  $I.annotations("ParsedClassDefinition", {
+    description: "Parsed ontology class definition extracted from RDF/OWL metadata (labels, notes, relationships).",
+  })
+) {}
 
-export class ParsedPropertyDefinition extends S.Class<ParsedPropertyDefinition>($I`ParsedPropertyDefinition`)({
-  iri: S.String,
-  label: S.String,
-  localName: S.String,
+export class ParsedPropertyDefinition extends S.Class<ParsedPropertyDefinition>($I`ParsedPropertyDefinition`)(
+  {
+    iri: S.String,
+    label: S.String,
+    localName: S.String,
 
-  comment: S.optionalWith(S.OptionFromUndefinedOr(S.String), { default: O.none<string> }),
+    comment: S.optionalWith(S.OptionFromUndefinedOr(S.String), { default: O.none<string> }),
 
-  domain: S.optionalWith(S.Array(S.String), { default: EmptyStringArray }),
-  range: S.optionalWith(S.Array(S.String), { default: EmptyStringArray }),
-  rangeType: S.Literal("object", "datatype"),
-  isFunctional: S.optionalWith(S.Boolean, { default: thunkFalse }),
-  inverseOf: S.optionalWith(S.Array(S.String), { default: EmptyStringArray }),
+    domain: S.optionalWith(S.Array(S.String), { default: EmptyStringArray }),
+    range: S.optionalWith(S.Array(S.String), { default: EmptyStringArray }),
+    rangeType: PropertyDefinition.PropertyRangeType,
+    isFunctional: S.optionalWith(S.Boolean, { default: thunkFalse }),
+    inverseOf: S.optionalWith(S.Array(S.String), { default: EmptyStringArray }),
 
-  prefLabels: S.optionalWith(S.Array(S.String), { default: EmptyStringArray }),
-  altLabels: S.optionalWith(S.Array(S.String), { default: EmptyStringArray }),
-  hiddenLabels: S.optionalWith(S.Array(S.String), { default: EmptyStringArray }),
+    prefLabels: S.optionalWith(S.Array(S.String), { default: EmptyStringArray }),
+    altLabels: S.optionalWith(S.Array(S.String), { default: EmptyStringArray }),
+    hiddenLabels: S.optionalWith(S.Array(S.String), { default: EmptyStringArray }),
 
-  definition: S.optionalWith(S.OptionFromUndefinedOr(S.String), { default: O.none<string> }),
-  scopeNote: S.optionalWith(S.OptionFromUndefinedOr(S.String), { default: O.none<string> }),
-  example: S.optionalWith(S.OptionFromUndefinedOr(S.String), { default: O.none<string> }),
+    definition: S.optionalWith(S.OptionFromUndefinedOr(S.String), { default: O.none<string> }),
+    scopeNote: S.optionalWith(S.OptionFromUndefinedOr(S.String), { default: O.none<string> }),
+    example: S.optionalWith(S.OptionFromUndefinedOr(S.String), { default: O.none<string> }),
 
-  broader: S.optionalWith(S.Array(S.String), { default: EmptyStringArray }),
-  narrower: S.optionalWith(S.Array(S.String), { default: EmptyStringArray }),
-  related: S.optionalWith(S.Array(S.String), { default: EmptyStringArray }),
+    broader: S.optionalWith(S.Array(S.String), { default: EmptyStringArray }),
+    narrower: S.optionalWith(S.Array(S.String), { default: EmptyStringArray }),
+    related: S.optionalWith(S.Array(S.String), { default: EmptyStringArray }),
 
-  exactMatch: S.optionalWith(S.Array(S.String), { default: EmptyStringArray }),
-  closeMatch: S.optionalWith(S.Array(S.String), { default: EmptyStringArray }),
-}) {}
+    exactMatch: S.optionalWith(S.Array(S.String), { default: EmptyStringArray }),
+    closeMatch: S.optionalWith(S.Array(S.String), { default: EmptyStringArray }),
+  },
+  $I.annotations("ParsedPropertyDefinition", {
+    description: "Parsed ontology property definition extracted from RDF/OWL metadata (domain/range, labels, flags).",
+  })
+) {}
 
 const HierarchySchema = S.Record({ key: S.String, value: S.Array(S.String) });
 
-export class ParsedOntology extends S.Class<ParsedOntology>($I`ParsedOntology`)({
-  classes: S.optionalWith(S.Array(ParsedClassDefinition), { default: EmptyClassArray }),
-  properties: S.optionalWith(S.Array(ParsedPropertyDefinition), { default: EmptyPropertyArray }),
-  classHierarchy: S.optionalWith(HierarchySchema, { default: R.empty<string, Array<string>> }),
-  propertyHierarchy: S.optionalWith(HierarchySchema, { default: R.empty<string, Array<string>> }),
-}) {}
+export class ParsedOntology extends S.Class<ParsedOntology>($I`ParsedOntology`)(
+  {
+    classes: S.optionalWith(S.Array(ParsedClassDefinition), { default: EmptyClassArray }),
+    properties: S.optionalWith(S.Array(ParsedPropertyDefinition), { default: EmptyPropertyArray }),
+    classHierarchy: S.optionalWith(HierarchySchema, { default: R.empty<string, Array<string>> }),
+    propertyHierarchy: S.optionalWith(HierarchySchema, { default: R.empty<string, Array<string>> }),
+  },
+  $I.annotations("ParsedOntology", {
+    description: "Parsed ontology bundle (classes/properties plus hierarchy maps) produced by OntologyParser.",
+  })
+) {}
 
 const collectN3Subjects = (
   store: N3.Store,
@@ -379,31 +396,32 @@ const serviceEffect: Effect.Effect<OntologyParserShape> = Effect.gen(function* (
   };
 
   return OntologyParser.of({
-    parse: Effect.fn("OntologyParser.parse")((content: string) =>
-      parseTurtle(content).pipe(Effect.map(parseFromStore), Effect.withSpan("OntologyParser.parse"))
-    ),
+    parse: Effect.fn("OntologyParser.parse")(function* (content: string) {
+      return yield* F.pipe(content, parseTurtle, Effect.map(parseFromStore), Effect.withSpan("OntologyParser.parse"));
+    }),
 
-    parseWithExternal: Effect.fn("OntologyParser.parseWithExternal")((content: string, externalContent: string) =>
-      Effect.gen(function* () {
-        const mainStore = yield* parseTurtle(content);
-        const externalStore = yield* parseTurtle(externalContent).pipe(
-          Effect.catchAll((error) =>
-            Effect.gen(function* () {
-              yield* Effect.logWarning("Failed to parse external vocabularies").pipe(
-                Effect.annotateLogs({ error: error.message })
-              );
-              return new N3.Store();
-            })
-          )
-        );
+    parseWithExternal: Effect.fn("OntologyParser.parseWithExternal")(function* (
+      content: string,
+      externalContent: string
+    ) {
+      const mainStore = yield* parseTurtle(content);
+      const externalStore = yield* parseTurtle(externalContent).pipe(
+        Effect.catchAll((error) =>
+          Effect.gen(function* () {
+            yield* Effect.logWarning("Failed to parse external vocabularies").pipe(
+              Effect.annotateLogs({ error: error.message })
+            );
+            return new N3.Store();
+          })
+        )
+      );
 
-        for (const quad of externalStore.getQuads(null, null, null, null)) {
-          mainStore.addQuad(quad);
-        }
+      for (const quad of externalStore.getQuads(null, null, null, null)) {
+        mainStore.addQuad(quad);
+      }
 
-        return parseFromStore(mainStore);
-      }).pipe(Effect.withSpan("OntologyParser.parseWithExternal"))
-    ),
+      return parseFromStore(mainStore);
+    }, Effect.withSpan("OntologyParser.parseWithExternal")),
   });
 });
 

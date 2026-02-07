@@ -14,15 +14,26 @@ export declare namespace TaskType {
   export type Type = typeof TaskType.Type;
 }
 
-export class EmbeddingConfig extends S.Class<EmbeddingConfig>($I`EmbeddingConfig`)({
-  model: S.String,
-  dimensions: S.Number,
-  provider: S.String,
-}) {}
+export class EmbeddingConfig extends S.Class<EmbeddingConfig>($I`EmbeddingConfig`)(
+  {
+    model: S.String,
+    dimensions: S.Number,
+    provider: S.String,
+  },
+  $I.annotations("EmbeddingConfig", {
+    description: "Embedding provider configuration (model name, vector dimensions, provider identifier).",
+  })
+) {}
 
-export class EmbeddingError extends S.TaggedError<EmbeddingError>()("EmbeddingError", {
-  message: S.String,
-  provider: S.String,
-  retryable: S.Boolean,
-  cause: S.optional(S.String),
-}) {}
+export class EmbeddingError extends S.TaggedError<EmbeddingError>($I`EmbeddingError`)(
+  "EmbeddingError",
+  {
+    message: S.String,
+    provider: S.String,
+    retryable: S.Boolean,
+    cause: S.optional(S.String),
+  },
+  $I.annotations("EmbeddingError", {
+    description: "Embedding provider failure (message, provider id, retryability, optional serialized cause).",
+  })
+) {}

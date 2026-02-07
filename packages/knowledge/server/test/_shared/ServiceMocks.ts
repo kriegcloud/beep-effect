@@ -57,13 +57,7 @@ export const makeMockReasonerServiceLayer = (
 export interface WorkflowStatusUpdate {
   readonly id: string;
   readonly status: string;
-  readonly updates:
-    | {
-        readonly output?: Record<string, unknown>;
-        readonly error?: string;
-        readonly lastActivityName?: string;
-      }
-    | undefined;
+  readonly updates: Parameters<WorkflowPersistenceShape["updateExecutionStatus"]>[2];
 }
 
 export const makeWorkflowPersistenceShape = (statusUpdates: Array<WorkflowStatusUpdate>): WorkflowPersistenceShape => ({

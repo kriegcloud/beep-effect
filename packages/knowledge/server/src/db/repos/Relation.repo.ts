@@ -19,34 +19,65 @@ const $I = $KnowledgeServerId.create("db/repos/RelationRepo");
 
 const tableName = KnowledgeEntityIds.RelationId.tableName;
 
-class FindBySourceIdsRequest extends S.Class<FindBySourceIdsRequest>("FindBySourceIdsRequest")({
-  sourceIds: S.Array(KnowledgeEntityIds.KnowledgeEntityId),
-  organizationId: SharedEntityIds.OrganizationId,
-}) {}
+class FindBySourceIdsRequest extends S.Class<FindBySourceIdsRequest>($I`FindBySourceIdsRequest`)(
+  {
+    sourceIds: S.Array(KnowledgeEntityIds.KnowledgeEntityId),
+    organizationId: SharedEntityIds.OrganizationId,
+  },
+  $I.annotations("FindBySourceIdsRequest", {
+    description: "SQL request schema: fetch relations by subject ids (scoped to organization).",
+  })
+) {}
 
-class FindByTargetIdsRequest extends S.Class<FindByTargetIdsRequest>("FindByTargetIdsRequest")({
-  targetIds: S.Array(KnowledgeEntityIds.KnowledgeEntityId),
-  organizationId: SharedEntityIds.OrganizationId,
-}) {}
+class FindByTargetIdsRequest extends S.Class<FindByTargetIdsRequest>($I`FindByTargetIdsRequest`)(
+  {
+    targetIds: S.Array(KnowledgeEntityIds.KnowledgeEntityId),
+    organizationId: SharedEntityIds.OrganizationId,
+  },
+  $I.annotations("FindByTargetIdsRequest", {
+    description: "SQL request schema: fetch relations by object ids (scoped to organization).",
+  })
+) {}
 
-class FindByEntityIdsRequest extends S.Class<FindByEntityIdsRequest>("FindByEntityIdsRequest")({
-  entityIds: S.Array(KnowledgeEntityIds.KnowledgeEntityId),
-  organizationId: SharedEntityIds.OrganizationId,
-}) {}
+class FindByEntityIdsRequest extends S.Class<FindByEntityIdsRequest>($I`FindByEntityIdsRequest`)(
+  {
+    entityIds: S.Array(KnowledgeEntityIds.KnowledgeEntityId),
+    organizationId: SharedEntityIds.OrganizationId,
+  },
+  $I.annotations("FindByEntityIdsRequest", {
+    description:
+      "SQL request schema: fetch relations where either side matches provided entity ids (scoped to organization).",
+  })
+) {}
 
-class FindByPredicateRequest extends S.Class<FindByPredicateRequest>("FindByPredicateRequest")({
-  predicateIri: S.String,
-  organizationId: SharedEntityIds.OrganizationId,
-  limit: S.Number,
-}) {}
+class FindByPredicateRequest extends S.Class<FindByPredicateRequest>($I`FindByPredicateRequest`)(
+  {
+    predicateIri: S.String,
+    organizationId: SharedEntityIds.OrganizationId,
+    limit: S.Number,
+  },
+  $I.annotations("FindByPredicateRequest", {
+    description: "SQL request schema: fetch relations by predicate IRI (scoped to organization, limited).",
+  })
+) {}
 
-class CountByOrganizationRequest extends S.Class<CountByOrganizationRequest>("CountByOrganizationRequest")({
-  organizationId: SharedEntityIds.OrganizationId,
-}) {}
+class CountByOrganizationRequest extends S.Class<CountByOrganizationRequest>($I`CountByOrganizationRequest`)(
+  {
+    organizationId: SharedEntityIds.OrganizationId,
+  },
+  $I.annotations("CountByOrganizationRequest", {
+    description: "SQL request schema: count relations for an organization.",
+  })
+) {}
 
-class CountResult extends S.Class<CountResult>("CountResult")({
-  count: S.String,
-}) {}
+class CountResult extends S.Class<CountResult>($I`CountResult`)(
+  {
+    count: S.String,
+  },
+  $I.annotations("CountResult", {
+    description: "SQL count query result (string-typed count from database).",
+  })
+) {}
 
 const makeRelationExtensions = Effect.gen(function* () {
   const sql = yield* SqlClient.SqlClient;

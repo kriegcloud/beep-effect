@@ -15,33 +15,53 @@ import { KnowledgeDb } from "../Db";
 
 const $I = $KnowledgeServerId.create("db/repos/EmbeddingRepo");
 
-export class SimilarityResult extends S.Class<SimilarityResult>("SimilarityResult")({
-  id: KnowledgeEntityIds.EmbeddingId,
-  entityType: Entities.Embedding.EntityType,
-  entityId: S.String,
-  contentText: S.optional(S.String),
-  similarity: S.Number,
-}) {}
+export class SimilarityResult extends S.Class<SimilarityResult>($I`SimilarityResult`)(
+  {
+    id: KnowledgeEntityIds.EmbeddingId,
+    entityType: Entities.Embedding.EntityType,
+    entityId: S.String,
+    contentText: S.optional(S.String),
+    similarity: S.Number,
+  },
+  $I.annotations("SimilarityResult", {
+    description: "Similarity search result row (embedding id, entity linkage, optional text, and similarity score).",
+  })
+) {}
 
 const tableName = KnowledgeEntityIds.EmbeddingId.tableName;
 
-class FindByCacheKeyRequest extends S.Class<FindByCacheKeyRequest>("FindByCacheKeyRequest")({
-  cacheKey: S.String,
-  organizationId: SharedEntityIds.OrganizationId,
-}) {}
+class FindByCacheKeyRequest extends S.Class<FindByCacheKeyRequest>($I`FindByCacheKeyRequest`)(
+  {
+    cacheKey: S.String,
+    organizationId: SharedEntityIds.OrganizationId,
+  },
+  $I.annotations("FindByCacheKeyRequest", {
+    description: "SQL request schema: fetch embedding by cache key (scoped to organization).",
+  })
+) {}
 
-class FindSimilarRequest extends S.Class<FindSimilarRequest>("FindSimilarRequest")({
-  queryVector: S.Array(S.Number),
-  organizationId: SharedEntityIds.OrganizationId,
-  limit: S.Number,
-  threshold: S.Number,
-}) {}
+class FindSimilarRequest extends S.Class<FindSimilarRequest>($I`FindSimilarRequest`)(
+  {
+    queryVector: S.Array(S.Number),
+    organizationId: SharedEntityIds.OrganizationId,
+    limit: S.Number,
+    threshold: S.Number,
+  },
+  $I.annotations("FindSimilarRequest", {
+    description: "SQL request schema: vector similarity search request (vector, org, limit, threshold).",
+  })
+) {}
 
-class FindByEntityTypeRequest extends S.Class<FindByEntityTypeRequest>("FindByEntityTypeRequest")({
-  entityType: Entities.Embedding.EntityType,
-  organizationId: SharedEntityIds.OrganizationId,
-  limit: S.Number,
-}) {}
+class FindByEntityTypeRequest extends S.Class<FindByEntityTypeRequest>($I`FindByEntityTypeRequest`)(
+  {
+    entityType: Entities.Embedding.EntityType,
+    organizationId: SharedEntityIds.OrganizationId,
+    limit: S.Number,
+  },
+  $I.annotations("FindByEntityTypeRequest", {
+    description: "SQL request schema: fetch embeddings by entity type (scoped to organization, limited).",
+  })
+) {}
 
 const makeEmbeddingExtensions = Effect.gen(function* () {
   const sql = yield* SqlClient.SqlClient;

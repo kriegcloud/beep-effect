@@ -20,19 +20,24 @@ const toJsonb = S.encodeSync(S.parseJson(JsonRecord));
 
 const executionTable = KnowledgeEntityIds.WorkflowExecutionId.tableName;
 
-export class WorkflowExecutionRecord extends S.Class<WorkflowExecutionRecord>("WorkflowExecutionRecord")({
-  id: KnowledgeEntityIds.WorkflowExecutionId,
-  organizationId: S.String,
-  workflowType: WorkflowType,
-  status: WorkflowExecutionStatus,
-  input: S.optionalWith(S.NullOr(JsonRecord), { default: () => null }),
-  output: S.optionalWith(S.NullOr(JsonRecord), { default: () => null }),
-  error: S.optionalWith(S.NullOr(S.String), { default: () => null }),
-  startedAt: S.optionalWith(S.NullOr(BS.DateFromAllAcceptable), { default: () => null }),
-  completedAt: S.optionalWith(S.NullOr(BS.DateFromAllAcceptable), { default: () => null }),
-  lastActivityName: S.optionalWith(S.NullOr(S.String), { default: () => null }),
-  retryCount: S.optionalWith(S.Int, { default: () => 0 }),
-}) {}
+export class WorkflowExecutionRecord extends S.Class<WorkflowExecutionRecord>($I`WorkflowExecutionRecord`)(
+  {
+    id: KnowledgeEntityIds.WorkflowExecutionId,
+    organizationId: S.String,
+    workflowType: WorkflowType,
+    status: WorkflowExecutionStatus,
+    input: S.optionalWith(S.NullOr(JsonRecord), { default: () => null }),
+    output: S.optionalWith(S.NullOr(JsonRecord), { default: () => null }),
+    error: S.optionalWith(S.NullOr(S.String), { default: () => null }),
+    startedAt: S.optionalWith(S.NullOr(BS.DateFromAllAcceptable), { default: () => null }),
+    completedAt: S.optionalWith(S.NullOr(BS.DateFromAllAcceptable), { default: () => null }),
+    lastActivityName: S.optionalWith(S.NullOr(S.String), { default: () => null }),
+    retryCount: S.optionalWith(S.Int, { default: () => 0 }),
+  },
+  $I.annotations("WorkflowExecutionRecord", {
+    description: "Persisted workflow execution row representation (decoded from SQL results).",
+  })
+) {}
 
 export const decodeWorkflowExecutionRecord = (u: unknown): Effect.Effect<WorkflowExecutionRecord, SqlError.SqlError> =>
   S.decodeUnknown(WorkflowExecutionRecord)(u).pipe(
@@ -44,18 +49,30 @@ export const decodeWorkflowExecutionRecord = (u: unknown): Effect.Effect<Workflo
         })
     )
   );
-export class CreateExcecutionParams extends S.Class<CreateExcecutionParams>($I`CreateExcecutionParams`)({
-  id: KnowledgeEntityIds.WorkflowExecutionId,
-  organizationId: S.String,
-  workflowType: WorkflowType,
-  input: S.optional(JsonRecord),
-}) {}
+export class CreateExcecutionParams extends S.Class<CreateExcecutionParams>($I`CreateExcecutionParams`)(
+  {
+    id: KnowledgeEntityIds.WorkflowExecutionId,
+    organizationId: S.String,
+    workflowType: WorkflowType,
+    input: S.optional(JsonRecord),
+  },
+  $I.annotations("CreateExcecutionParams", {
+    description: "Parameters used when inserting a new workflow execution record.",
+  })
+) {}
 
-export class UpdateExecutionStatusUpdates extends S.Class<UpdateExecutionStatusUpdates>($I`UpdateExecutionStatusUpdates`)({
-  output: S.optional(JsonRecord),
-  error: S.optional(S.String),
-  lastActivityName: S.optional(S.String),
-}) {}
+export class UpdateExecutionStatusUpdates extends S.Class<UpdateExecutionStatusUpdates>(
+  $I`UpdateExecutionStatusUpdates`
+)(
+  {
+    output: S.optional(JsonRecord),
+    error: S.optional(S.String),
+    lastActivityName: S.optional(S.String),
+  },
+  $I.annotations("UpdateExecutionStatusUpdates", {
+    description: "Optional update payload for workflow execution status updates.",
+  })
+) {}
 export interface WorkflowPersistenceShape {
   readonly createExecution: (params: CreateExcecutionParams) => Effect.Effect<void, SqlError.SqlError>;
 

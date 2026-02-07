@@ -7,11 +7,16 @@ import * as S from "effect/Schema";
 
 const $I = $KnowledgeServerId.create("Reasoning/RdfsRules");
 
-export class RuleInference extends S.Class<RuleInference>($I`RuleInference`)({
-  quad: Quad,
-  ruleId: S.String,
-  sourceQuadIds: S.Array(S.String),
-}) {}
+export class RuleInference extends S.Class<RuleInference>($I`RuleInference`)(
+  {
+    quad: Quad,
+    ruleId: S.String,
+    sourceQuadIds: S.Array(S.String),
+  },
+  $I.annotations("RuleInference", {
+    description: "Single inferred quad produced by an RDFS rule application (with rule id and source quad ids).",
+  })
+) {}
 
 const RDF_TYPE = IRI.make("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
 const RDFS_DOMAIN = IRI.make("http://www.w3.org/2000/01/rdf-schema#domain");

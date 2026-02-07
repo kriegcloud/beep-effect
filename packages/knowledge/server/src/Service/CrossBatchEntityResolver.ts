@@ -1,4 +1,4 @@
-import {$KnowledgeServerId} from "@beep/identity/packages";
+import { $KnowledgeServerId } from "@beep/identity/packages";
 import { type Entities, ValueObjects } from "@beep/knowledge-domain";
 import { ClusterError } from "@beep/knowledge-domain/errors";
 import { MergeHistory } from "@beep/knowledge-domain/services";

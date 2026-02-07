@@ -319,10 +319,14 @@ Reference the internal `id` column (UUID primary key) for relationships within t
 
 ```typescript
 // CORRECT - Internal reference
+import { BS } from "@beep/schema";
+
+class MemberRole extends BS.StringLiteralKit("admin", "member", "viewer") {}
+
 export const memberTable = Table.make("member", {
   userId: SharedEntityIds.UserId,  // References user.id (internal UUID)
   organizationId: SharedEntityIds.OrganizationId,  // References organization.id
-  role: S.Literal("admin", "member", "viewer"),
+  role: MemberRole,
 });
 ```
 
@@ -426,10 +430,12 @@ Use `OrgTable.make` for tables that:
 import { OrgTable } from "@beep/iam-tables";
 
 // Organization-scoped data
+class InvitationRole extends BS.StringLiteralKit("admin", "member") {}
+
 export const invitationTable = OrgTable.make("invitation", {
   email: BS.EmailBase,
   inviterId: SharedEntityIds.UserId,
-  role: S.Literal("admin", "member"),
+  role: InvitationRole,
 });
 
 // Multi-tenant team data
@@ -472,17 +478,21 @@ export const twoFactorTable = Table.make("two_factor", {
 });
 
 // Organization-scoped (always belongs to an org)
+class MemberRole extends BS.StringLiteralKit("admin", "member", "viewer") {}
+
 export const memberTable = OrgTable.make("member", {
   userId: SharedEntityIds.UserId,
-  role: S.Literal("admin", "member", "viewer"),
+  role: MemberRole,
   // organizationId is automatically added
 });
 
 // Mixed scoping (optional organization context)
+class SubscriptionPlan extends BS.StringLiteralKit("free", "pro", "enterprise") {}
+
 export const subscriptionTable = Table.make("subscription", {
   userId: SharedEntityIds.UserId,
   organizationId: S.optional(SharedEntityIds.OrganizationId),  // Optional!
-  plan: S.Literal("free", "pro", "enterprise"),
+  plan: SubscriptionPlan,
 });
 ```
 

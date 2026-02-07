@@ -1,4 +1,6 @@
 import { $KnowledgeServerId } from "@beep/identity/packages";
+import { FallbackLanguageModel } from "@beep/knowledge-server/LlmControl/FallbackLanguageModel";
+import { withLlmResilienceWithFallback } from "@beep/knowledge-server/LlmControl/LlmResilience";
 import { BS } from "@beep/schema";
 import { LanguageModel, Prompt } from "@effect/ai";
 import * as A from "effect/Array";
@@ -9,8 +11,6 @@ import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import { FallbackLanguageModel } from "@beep/knowledge-server/LlmControl/FallbackLanguageModel";
-import { withLlmResilienceWithFallback } from "@beep/knowledge-server/LlmControl/LlmResilience";
 
 const $I = $KnowledgeServerId.create("Service/DocumentClassifier");
 
@@ -41,31 +41,71 @@ export class ClassificationError extends S.TaggedError<ClassificationError>($I`C
   $I.annotations("ClassificationError", { description: "Document classifier failure" })
 ) {}
 
-export class DocumentClassification extends S.Class<DocumentClassification>($I`DocumentClassification`)({
-  documentType: DocumentType,
-  domainTags: S.Array(S.String),
-  complexityScore: S.Number.pipe(S.greaterThanOrEqualTo(0), S.lessThanOrEqualTo(1)),
-  entityDensity: EntityDensity,
+export class DocumentClassification extends S.Class<DocumentClassification>($I`DocumentClassification`)(
+  {
+    documentType: DocumentType,
+    domainTags: S.Array(S.String),
+    complexityScore: S.Number.pipe(S.greaterThanOrEqualTo(0), S.lessThanOrEqualTo(1)),
+    entityDensity: EntityDensity,
 
-  // LLMs commonly emit null/undefined for optional fields; treat them as Option.none
-  language: S.optionalWith(S.OptionFromNullishOr(S.String, null), { default: O.none<string> }),
-  title: S.optionalWith(S.OptionFromNullishOr(S.String, null), { default: O.none<string> }),
-}) {}
+    // LLMs commonly emit null/undefined for optional fields; treat them as Option.none
+    language: S.optionalWith(S.OptionFromNullishOr(S.String, null), { default: O.none<string> }),
+    title: S.optionalWith(S.OptionFromNullishOr(S.String, null), { default: O.none<string> }),
+  },
+  $I.annotations("DocumentClassification", {
+    description:
+      "LLM-produced classification for a document preview (type, tags, complexity, entity density, language, title).",
+  })
+) {}
 
-export class ClassifyInput extends S.Class<ClassifyInput>($I`ClassifyInput`)({
-  preview: S.String,
-  contentType: S.optionalWith(S.OptionFromNullishOr(S.String, null), { default: O.none<string> }),
-}) {}
+export class ClassifyInput extends S.Class<ClassifyInput>($I`ClassifyInput`)(
+  {
+    preview: S.String,
+    contentType: S.optionalWith(S.OptionFromNullishOr(S.String, null), { default: O.none<string> }),
+  },
+  $I.annotations("ClassifyInput", {
+    description: "Single document classification request input (preview + optional content type hint).",
+  })
+) {}
 
-export class ClassifyBatchInput extends S.Class<ClassifyBatchInput>($I`ClassifyBatchInput`)({
-  documents: S.Array(
-    S.Struct({
-      index: S.Int,
-      preview: S.String,
-      contentType: S.optionalWith(S.OptionFromNullishOr(S.String, null), { default: O.none<string> }),
-    })
-  ),
-}) {}
+class ClassifyBatchDocumentInput extends S.Class<ClassifyBatchDocumentInput>($I`ClassifyBatchDocumentInput`)(
+  {
+    index: S.Int,
+    preview: S.String,
+    contentType: S.optionalWith(S.OptionFromNullishOr(S.String, null), { default: O.none<string> }),
+  },
+  $I.annotations("ClassifyBatchDocumentInput", {
+    description: "Single item in a batch classification request (index + preview + optional content type hint).",
+  })
+) {}
+
+export class ClassifyBatchInput extends S.Class<ClassifyBatchInput>($I`ClassifyBatchInput`)(
+  {
+    documents: S.Array(ClassifyBatchDocumentInput),
+  },
+  $I.annotations("ClassifyBatchInput", {
+    description: "Batch document classification request input (array of indexed previews).",
+  })
+) {}
+
+class BatchClassificationItem extends S.Class<BatchClassificationItem>($I`BatchClassificationItem`)(
+  {
+    index: S.Int,
+    classification: DocumentClassification,
+  },
+  $I.annotations("BatchClassificationItem", {
+    description: "Single classification result item (document index + classification).",
+  })
+) {}
+
+class BatchClassificationResponse extends S.Class<BatchClassificationResponse>($I`BatchClassificationResponse`)(
+  {
+    classifications: S.Array(BatchClassificationItem),
+  },
+  $I.annotations("BatchClassificationResponse", {
+    description: "Batch classification response wrapper returned by the LLM (array of classification items).",
+  })
+) {}
 
 export const defaultClassification = new DocumentClassification({
   documentType: "unknown",
@@ -185,14 +225,7 @@ const serviceEffect: Effect.Effect<
                 }))
               )
             ),
-            schema: S.Struct({
-              classifications: S.Array(
-                S.Struct({
-                  index: S.Int,
-                  classification: DocumentClassification,
-                })
-              ),
-            }),
+            schema: BatchClassificationResponse,
             objectName: "BatchClassificationResponse",
           }),
         {

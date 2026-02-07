@@ -1,56 +1,69 @@
+import { $KnowledgeServerId } from "@beep/identity/packages";
 import { Confidence } from "@beep/knowledge-domain/value-objects";
 import * as S from "effect/Schema";
 
-export class ExtractedMention extends S.Class<ExtractedMention>("@beep/knowledge-server/ExtractedMention")({
-  text: S.String.annotations({
-    description: "Exact text span of the entity mention",
-  }),
+const $I = $KnowledgeServerId.create("Extraction/schemas/mention-output.schema");
 
-  startChar: S.NonNegativeInt.pipe(
-    S.annotations({
-      description: "Character offset start (0-indexed relative to chunk)",
-    })
-  ),
+export class ExtractedMention extends S.Class<ExtractedMention>($I`ExtractedMention`)(
+  {
+    text: S.String.annotations({
+      description: "Exact text span of the entity mention",
+    }),
 
-  endChar: S.NonNegativeInt.pipe(
-    S.annotations({
-      description: "Character offset end (exclusive, relative to chunk)",
-    })
-  ),
+    startChar: S.NonNegativeInt.pipe(
+      S.annotations({
+        description: "Character offset start (0-indexed relative to chunk)",
+      })
+    ),
 
-  confidence: Confidence.annotations({
-    description: "Extraction confidence score (0-1)",
-  }),
+    endChar: S.NonNegativeInt.pipe(
+      S.annotations({
+        description: "Character offset end (exclusive, relative to chunk)",
+      })
+    ),
 
-  suggestedType: S.optional(
-    S.String.annotations({
-      description: "Preliminary type suggestion (e.g., 'Person', 'Organization')",
-    })
-  ),
+    confidence: Confidence.annotations({
+      description: "Extraction confidence score (0-1)",
+    }),
 
-  context: S.optional(
-    S.String.annotations({
-      description: "Surrounding text for disambiguation",
-    })
-  ),
-}) {}
+    suggestedType: S.optional(
+      S.String.annotations({
+        description: "Preliminary type suggestion (e.g., 'Person', 'Organization')",
+      })
+    ),
+
+    context: S.optional(
+      S.String.annotations({
+        description: "Surrounding text for disambiguation",
+      })
+    ),
+  },
+  $I.annotations("ExtractedMention", {
+    description: "Single mention extracted from text (span offsets, confidence, optional type/context hints).",
+  })
+) {}
 
 export declare namespace ExtractedMention {
   export type Type = typeof ExtractedMention.Type;
   export type Encoded = typeof ExtractedMention.Encoded;
 }
 
-export class MentionOutput extends S.Class<MentionOutput>("@beep/knowledge-server/MentionOutput")({
-  mentions: S.Array(ExtractedMention).annotations({
-    description: "List of detected entity mentions",
-  }),
+export class MentionOutput extends S.Class<MentionOutput>($I`MentionOutput`)(
+  {
+    mentions: S.Array(ExtractedMention).annotations({
+      description: "List of detected entity mentions",
+    }),
 
-  reasoning: S.optional(
-    S.String.annotations({
-      description: "LLM reasoning for mention detection",
-    })
-  ),
-}) {}
+    reasoning: S.optional(
+      S.String.annotations({
+        description: "LLM reasoning for mention detection",
+      })
+    ),
+  },
+  $I.annotations("MentionOutput", {
+    description: "LLM mention-extraction output (mentions + optional reasoning).",
+  })
+) {}
 
 export declare namespace MentionOutput {
   export type Type = typeof MentionOutput.Type;

@@ -1,20 +1,18 @@
-import type {ParsedPropertyDefinition} from "../Ontology/OntologyParser";
-import type {OntologyContext} from "../Ontology/OntologyService";
-import {$KnowledgeServerId} from "@beep/identity/packages";
-import {BS} from "@beep/schema";
-import * as S from "effect/Schema";
+import { $KnowledgeServerId } from "@beep/identity/packages";
+import { BS } from "@beep/schema";
 import * as A from "effect/Array";
+import * as S from "effect/Schema";
+import type { ParsedPropertyDefinition } from "../Ontology/OntologyParser";
+import type { OntologyContext } from "../Ontology/OntologyService";
+
 const $I = $KnowledgeServerId.create("Validation/ShapeGenerator");
 
 export class ShapeSeverity extends BS.StringLiteralKit("Info", "Warning", "Violation").annotations(
-  $I.annotations(
-    "ShapeSeverity",
-    {
-      description: "Severity level for SHACL validation findings: Info for informational messages, Warning for potential issues, Violation for constraint failures",
-    }
-  )
-) {
-}
+  $I.annotations("ShapeSeverity", {
+    description:
+      "Severity level for SHACL validation findings: Info for informational messages, Warning for potential issues, Violation for constraint failures",
+  })
+) {}
 export declare namespace ShapeSeverity {
   export type Type = typeof ShapeSeverity.Type;
   export type Encoded = typeof ShapeSeverity.Encoded;
@@ -41,19 +39,11 @@ export class ViolationPropertyShape extends S.Class<ViolationPropertyShape>($I`V
   makeShapeSeverityKind.Violation({})
 ) {}
 
-export class PropertyShape extends S.Union(
-  InfoPropertyShape,
-  WarningPropertyShape,
-  ViolationPropertyShape
-).annotations(
-  $I.annotations(
-    "PropertyShape",
-    {
-      description: "Union of all possible property shapes",
-    }
-  )
+export class PropertyShape extends S.Union(InfoPropertyShape, WarningPropertyShape, ViolationPropertyShape).annotations(
+  $I.annotations("PropertyShape", {
+    description: "Union of all possible property shapes",
+  })
 ) {}
-
 
 export declare namespace PropertyShape {
   export type Type = typeof PropertyShape.Type;
@@ -68,8 +58,8 @@ const toPropertyShape = (property: ParsedPropertyDefinition, domainIri: string):
     targetClass: domainIri,
     path: property.iri,
     minCount: 1,
-    ...(property.isFunctional ? {maxCount: 1} : {}),
-    ...(primaryRange === undefined ? {} : isDatatype ? {datatype: primaryRange} : {classIri: primaryRange}),
+    ...(property.isFunctional ? { maxCount: 1 } : {}),
+    ...(primaryRange === undefined ? {} : isDatatype ? { datatype: primaryRange } : { classIri: primaryRange }),
   });
 };
 

@@ -8,9 +8,20 @@ import * as S from "effect/Schema";
 
 const $I = $KnowledgeDomainId.create("entities/MergeHistory");
 
-export const MergeReason = S.Literal("embedding_similarity", "manual_override", "text_exact_match");
+export class MergeReason extends BS.StringLiteralKit(
+  "embedding_similarity",
+  "manual_override",
+  "text_exact_match"
+).annotations(
+  $I.annotations("MergeReason", {
+    description: "Reason for an entity merge decision (automatic similarity, manual override, exact text match).",
+  })
+) {}
 
-export type MergeReason = S.Schema.Type<typeof MergeReason>;
+export declare namespace MergeReason {
+  export type Type = typeof MergeReason.Type;
+  export type Encoded = typeof MergeReason.Encoded;
+}
 
 export class Model extends M.Class<Model>($I`MergeHistoryModel`)(
   makeFields(KnowledgeEntityIds.MergeHistoryId, {

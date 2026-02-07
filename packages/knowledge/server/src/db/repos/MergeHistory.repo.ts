@@ -15,26 +15,47 @@ const $I = $KnowledgeServerId.create("db/repos/MergeHistoryRepo");
 
 const tableName = KnowledgeEntityIds.MergeHistoryId.tableName;
 
-class FindByTargetEntityRequest extends S.Class<FindByTargetEntityRequest>("FindByTargetEntityRequest")({
-  targetEntityId: KnowledgeEntityIds.KnowledgeEntityId,
-  organizationId: SharedEntityIds.OrganizationId,
-}) {}
+class FindByTargetEntityRequest extends S.Class<FindByTargetEntityRequest>($I`FindByTargetEntityRequest`)(
+  {
+    targetEntityId: KnowledgeEntityIds.KnowledgeEntityId,
+    organizationId: SharedEntityIds.OrganizationId,
+  },
+  $I.annotations("FindByTargetEntityRequest", {
+    description: "SQL request schema: fetch merge history rows by target entity id (scoped to organization).",
+  })
+) {}
 
-class FindBySourceEntityRequest extends S.Class<FindBySourceEntityRequest>("FindBySourceEntityRequest")({
-  sourceEntityId: KnowledgeEntityIds.KnowledgeEntityId,
-  organizationId: SharedEntityIds.OrganizationId,
-}) {}
+class FindBySourceEntityRequest extends S.Class<FindBySourceEntityRequest>($I`FindBySourceEntityRequest`)(
+  {
+    sourceEntityId: KnowledgeEntityIds.KnowledgeEntityId,
+    organizationId: SharedEntityIds.OrganizationId,
+  },
+  $I.annotations("FindBySourceEntityRequest", {
+    description: "SQL request schema: fetch merge history rows by source entity id (scoped to organization).",
+  })
+) {}
 
-class FindByUserRequest extends S.Class<FindByUserRequest>("FindByUserRequest")({
-  userId: SharedEntityIds.UserId,
-  organizationId: SharedEntityIds.OrganizationId,
-  limit: S.Number,
-}) {}
+class FindByUserRequest extends S.Class<FindByUserRequest>($I`FindByUserRequest`)(
+  {
+    userId: SharedEntityIds.UserId,
+    organizationId: SharedEntityIds.OrganizationId,
+    limit: S.Number,
+  },
+  $I.annotations("FindByUserRequest", {
+    description:
+      "SQL request schema: fetch merge history rows merged by a specific user (scoped to organization, limited).",
+  })
+) {}
 
-class FindByOrganizationRequest extends S.Class<FindByOrganizationRequest>("FindByOrganizationRequest")({
-  organizationId: SharedEntityIds.OrganizationId,
-  limit: S.Number,
-}) {}
+class FindByOrganizationRequest extends S.Class<FindByOrganizationRequest>($I`FindByOrganizationRequest`)(
+  {
+    organizationId: SharedEntityIds.OrganizationId,
+    limit: S.Number,
+  },
+  $I.annotations("FindByOrganizationRequest", {
+    description: "SQL request schema: fetch recent merge history rows for an organization (limited).",
+  })
+) {}
 
 const makeMergeHistoryExtensions = Effect.gen(function* () {
   const sql = yield* SqlClient.SqlClient;

@@ -90,12 +90,10 @@ export class BloomFilterStats extends S.Class<BloomFilterStats>($I`BloomFilterSt
     numHashFunctions: S.Number,
     memoryBytes: S.Number,
   },
-  $I.annotations(
-    "BloomFilterStats",
-    {
-      description: "Statistics about a Bloom filter, including the number of items added, the size of the bit array, the number of set bits, the fill ratio, the estimated false positive rate, the number of hash functions used, and the memory usage in bytes.",
-    }
-  )
+  $I.annotations("BloomFilterStats", {
+    description:
+      "Statistics about a Bloom filter, including the number of items added, the size of the bit array, the number of set bits, the fill ratio, the estimated false positive rate, the number of hash functions used, and the memory usage in bytes.",
+  })
 ) {}
 export interface BloomFilterShape {
   readonly contains: (text: string) => Effect.Effect<boolean>;
@@ -196,9 +194,11 @@ const serviceEffect: Effect.Effect<BloomFilterShape> = Effect.gen(function* () {
       memoryBytes: bitArray.byteLength,
     });
 
-    yield* Effect.logDebug("BloomFilter.getStats").pipe(Effect.annotateLogs({
-      stats
-    }));
+    yield* Effect.logDebug("BloomFilter.getStats").pipe(
+      Effect.annotateLogs({
+        stats,
+      })
+    );
 
     return stats;
   });

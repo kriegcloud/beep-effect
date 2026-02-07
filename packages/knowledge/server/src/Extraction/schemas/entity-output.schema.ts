@@ -1,60 +1,73 @@
+import { $KnowledgeServerId } from "@beep/identity/packages";
 import { Confidence } from "@beep/knowledge-domain/value-objects";
 import * as S from "effect/Schema";
 
-export class ClassifiedEntity extends S.Class<ClassifiedEntity>("@beep/knowledge-server/ClassifiedEntity")({
-  mention: S.String.annotations({
-    description: "Original text span of the entity mention",
-  }),
+const $I = $KnowledgeServerId.create("Extraction/schemas/entity-output.schema");
 
-  typeIri: S.String.annotations({
-    description: "Ontology class IRI (e.g., http://schema.org/Person)",
-  }),
+export class ClassifiedEntity extends S.Class<ClassifiedEntity>($I`ClassifiedEntity`)(
+  {
+    mention: S.String.annotations({
+      description: "Original text span of the entity mention",
+    }),
 
-  additionalTypes: S.optional(
-    S.Array(S.String).annotations({
-      description: "Additional ontology class IRIs",
-    })
-  ),
+    typeIri: S.String.annotations({
+      description: "Ontology class IRI (e.g., http://schema.org/Person)",
+    }),
 
-  confidence: Confidence.annotations({
-    description: "Type classification confidence (0-1)",
-  }),
+    additionalTypes: S.optional(
+      S.Array(S.String).annotations({
+        description: "Additional ontology class IRIs",
+      })
+    ),
 
-  evidence: S.optional(
-    S.String.annotations({
-      description: "Text evidence supporting type classification",
-    })
-  ),
+    confidence: Confidence.annotations({
+      description: "Type classification confidence (0-1)",
+    }),
 
-  attributes: S.optional(
-    S.Record({ key: S.String, value: S.Union(S.String, S.Number, S.Boolean) }).annotations({
-      description: "Extracted entity attributes as property-value pairs",
-    })
-  ),
+    evidence: S.optional(
+      S.String.annotations({
+        description: "Text evidence supporting type classification",
+      })
+    ),
 
-  canonicalName: S.optional(
-    S.String.annotations({
-      description: "Normalized/canonical name for entity resolution",
-    })
-  ),
-}) {}
+    attributes: S.optional(
+      S.Record({ key: S.String, value: S.Union(S.String, S.Number, S.Boolean) }).annotations({
+        description: "Extracted entity attributes as property-value pairs",
+      })
+    ),
+
+    canonicalName: S.optional(
+      S.String.annotations({
+        description: "Normalized/canonical name for entity resolution",
+      })
+    ),
+  },
+  $I.annotations("ClassifiedEntity", {
+    description: "Entity mention classified into ontology types with confidence, evidence, and optional attributes.",
+  })
+) {}
 
 export declare namespace ClassifiedEntity {
   export type Type = typeof ClassifiedEntity.Type;
   export type Encoded = typeof ClassifiedEntity.Encoded;
 }
 
-export class EntityOutput extends S.Class<EntityOutput>("@beep/knowledge-server/EntityOutput")({
-  entities: S.Array(ClassifiedEntity).annotations({
-    description: "List of classified entities with types",
-  }),
+export class EntityOutput extends S.Class<EntityOutput>($I`EntityOutput`)(
+  {
+    entities: S.Array(ClassifiedEntity).annotations({
+      description: "List of classified entities with types",
+    }),
 
-  reasoning: S.optional(
-    S.String.annotations({
-      description: "LLM reasoning for entity type classification",
-    })
-  ),
-}) {}
+    reasoning: S.optional(
+      S.String.annotations({
+        description: "LLM reasoning for entity type classification",
+      })
+    ),
+  },
+  $I.annotations("EntityOutput", {
+    description: "LLM entity-classification output (entities + optional reasoning).",
+  })
+) {}
 
 export declare namespace EntityOutput {
   export type Type = typeof EntityOutput.Type;

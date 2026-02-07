@@ -5,11 +5,17 @@ import * as S from "effect/Schema";
 
 const $I = $KnowledgeDomainId.create("value-objects/extraction-progress");
 
+export class ExtractionProgressStatus extends BS.StringLiteralKit("started", "completed", "failed").annotations(
+  $I.annotations("ExtractionProgressStatus", {
+    description: "Lifecycle status for an extraction progress event.",
+  })
+) {}
+
 export class ExtractionProgressEvent extends S.Class<ExtractionProgressEvent>($I`ExtractionProgressEvent`)(
   {
     executionId: KnowledgeEntityIds.WorkflowExecutionId,
     activityName: S.String,
-    status: S.Literal("started", "completed", "failed"),
+    status: ExtractionProgressStatus,
     progress: S.optionalWith(S.Number.pipe(S.between(0, 1)), {
       default: () => 0,
     }),

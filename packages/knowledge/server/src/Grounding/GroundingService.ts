@@ -19,20 +19,39 @@ import { cosineSimilarity } from "../utils/vector";
 
 const $I = $KnowledgeServerId.create("Grounding/GroundingService");
 
-export class GroundingConfig extends S.Class<GroundingConfig>($I`GroundingConfig`)({
-  confidenceThreshold: S.optional(S.Number),
-  keepUngrounded: S.optional(S.Boolean),
-}) {}
-export class GroundingResult extends S.Class<GroundingResult>($I`GroundingResult`)({
-  groundedRelations: S.Array(AssembledRelation),
-  ungroundedRelations: S.Array(AssembledRelation),
-  stats: S.Struct({
+export class GroundingConfig extends S.Class<GroundingConfig>($I`GroundingConfig`)(
+  {
+    confidenceThreshold: S.optional(S.Number),
+    keepUngrounded: S.optional(S.Boolean),
+  },
+  $I.annotations("GroundingConfig", {
+    description:
+      "Configuration for grounding verification (confidence threshold, whether to keep ungrounded relations).",
+  })
+) {}
+
+class GroundingStats extends S.Class<GroundingStats>($I`GroundingStats`)(
+  {
     total: S.Number,
     grounded: S.Number,
     ungrounded: S.Number,
     averageConfidence: S.Number,
-  }),
-}) {}
+  },
+  $I.annotations("GroundingStats", {
+    description: "Summary statistics for grounding verification results.",
+  })
+) {}
+
+export class GroundingResult extends S.Class<GroundingResult>($I`GroundingResult`)(
+  {
+    groundedRelations: S.Array(AssembledRelation),
+    ungroundedRelations: S.Array(AssembledRelation),
+    stats: GroundingStats,
+  },
+  $I.annotations("GroundingResult", {
+    description: "Result of grounding verification (grounded/ungrounded relations plus aggregate stats).",
+  })
+) {}
 
 const DEFAULT_CONFIDENCE_THRESHOLD = 0.8;
 
@@ -55,11 +74,16 @@ const relationToStatement = (
 
   return `${subjectMention} has property ${readablePredicate}`;
 };
-class VerifyAccumulator extends S.Class<VerifyAccumulator>($I`VerifyAccumulator`)({
-  grounded: S.Array(AssembledRelation),
-  ungrounded: S.Array(AssembledRelation),
-  totalConfidence: Confidence,
-}) {}
+class VerifyAccumulator extends S.Class<VerifyAccumulator>($I`VerifyAccumulator`)(
+  {
+    grounded: S.Array(AssembledRelation),
+    ungrounded: S.Array(AssembledRelation),
+    totalConfidence: Confidence,
+  },
+  $I.annotations("VerifyAccumulator", {
+    description: "Internal accumulator used while verifying relations for grounding.",
+  })
+) {}
 
 export interface GroundingServiceShape {
   readonly verifyRelations: (
@@ -195,7 +219,13 @@ const serviceEffect: Effect.Effect<GroundingServiceShape, never, EmbeddingServic
           },
         };
 
-        yield* Effect.logInfo("GroundingService.verifyRelations: complete").pipe(Effect.annotateLogs(result.stats));
+        const statsLog: Record<string, unknown> = {
+          total: result.stats.total,
+          grounded: result.stats.grounded,
+          ungrounded: result.stats.ungrounded,
+          averageConfidence: result.stats.averageConfidence,
+        };
+        yield* Effect.logInfo("GroundingService.verifyRelations: complete").pipe(Effect.annotateLogs(statsLog));
 
         return result;
       }).pipe(

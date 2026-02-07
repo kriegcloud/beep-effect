@@ -52,7 +52,8 @@ S.Array(S.Number)
 S.String
 S.Number
 S.Boolean
-S.Literal("active", "inactive")
+// Prefer BS.StringLiteralKit over S.Literal for string-literal enums/tags
+class Status extends BS.StringLiteralKit("active", "inactive") {}
 S.Union(S.String, S.Number)
 ```
 
@@ -146,6 +147,7 @@ ALWAYS choose the correct Effect Schema type based on the runtime value:
 When defining a named, reusable data model (especially anything crossing a boundary like DB rows, external API payloads, RPC payloads), prefer `S.Class` over `S.Struct`.
 
 - Use `S.Class` directly as the type (do not duplicate with a separate `interface`).
+- Prefer `S.TaggedClass` / `S.TaggedError` over `S.TaggedStruct` for ADTs and typed errors.
 - Do not name schema classes with a `*Schema` suffix. Use domain names (e.g. `EmailMetadata`, not `EmailMetadataSchema`).
 - If a model has nested object properties (e.g. `dateRange`), break nested shapes into their own `S.Class` rather than using an inline `S.Struct`.
 - For `S.optionalWith(S.Array(...))` defaults, prefer `A.empty<T>` (e.g. `default: A.empty<string>`), not `() => []`.
@@ -157,27 +159,97 @@ import * as DateTime from "effect/DateTime";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { BS } from "@beep/schema";
+import { $SomeSliceId } from "@beep/identity/packages";
 
-export class DateRange extends S.Class<DateRange>("DateRange")({
-  earliest: BS.DateTimeUtcFromAllAcceptable,
-  latest: BS.DateTimeUtcFromAllAcceptable,
-}) {}
+const $I = $SomeSliceId.create("path/to/module");
 
-export class ThreadContext extends S.Class<ThreadContext>("ThreadContext")({
-  threadId: S.String,
-  subject: S.String,
-  participants: S.optionalWith(S.Array(S.String), { default: A.empty<string> }),
-  dateRange: DateRange,
-}) {}
+export class DateRange extends S.Class<DateRange>($I`DateRange`)(
+  {
+    earliest: BS.DateTimeUtcFromAllAcceptable,
+    latest: BS.DateTimeUtcFromAllAcceptable,
+  },
+  $I.annotations("DateRange", { description: "UTC date range (earliest/latest) used to bound a time window." })
+) {}
 
-export class EmailMetadata extends S.Class<EmailMetadata>("EmailMetadata")({
-  from: S.String,
-  to: S.optionalWith(S.Array(S.String), { default: A.empty<string> }),
-  cc: S.optionalWith(S.Array(S.String), { default: A.empty<string> }),
-  date: S.optionalWith(S.OptionFromSelf(BS.DateTimeUtcFromAllAcceptable), { default: O.none<DateTime.Utc> }),
-  threadId: S.String,
-  labels: S.optionalWith(S.Array(S.String), { default: A.empty<string> }),
-}) {}
+export class ThreadContext extends S.Class<ThreadContext>($I`ThreadContext`)(
+  {
+    threadId: S.String,
+    subject: S.String,
+    participants: S.optionalWith(S.Array(S.String), { default: A.empty<string> }),
+    dateRange: DateRange,
+  },
+  $I.annotations("ThreadContext", { description: "Message thread context used for prompting and attribution." })
+) {}
+
+export class EmailMetadata extends S.Class<EmailMetadata>($I`EmailMetadata`)(
+  {
+    from: S.String,
+    to: S.optionalWith(S.Array(S.String), { default: A.empty<string> }),
+    cc: S.optionalWith(S.Array(S.String), { default: A.empty<string> }),
+    date: S.optionalWith(S.OptionFromSelf(BS.DateTimeUtcFromAllAcceptable), { default: O.none<DateTime.Utc> }),
+    threadId: S.String,
+    labels: S.optionalWith(S.Array(S.String), { default: A.empty<string> }),
+  },
+  $I.annotations("EmailMetadata", { description: "Email metadata extracted from headers and used for downstream logic." })
+) {}
+```
+
+## Schema Identifiers & Annotations (REQUIRED)
+
+For all schemas in application code, use the `@beep/identity/packages` TaggedComposer conventions so schema IDs and annotations are canonical and consistent.
+
+- Always define `$I` at the top of the module: `const $I = $PackageId.create("relative/path/to/module")`.
+- Always prefer `$I\`Identifier\`` for schema identifiers where supported.
+- Always attach annotations via `$I.annotations("Identifier", { description: "..." })`:
+  - For `S.Class` / `S.TaggedClass` / `S.TaggedError`: pass the annotations as the final argument.
+  - For `S.Union(...)`: call `.annotations(...)` with `$I.annotations(...)`.
+
+```typescript
+import { $KnowledgeServerId } from "@beep/identity/packages";
+import * as S from "effect/Schema";
+
+const $I = $KnowledgeServerId.create("Service/MyService");
+
+export class MyPayload extends S.Class<MyPayload>($I`MyPayload`)(
+  { id: S.String },
+  $I.annotations("MyPayload", { description: "Request payload for MyService." })
+) {}
+
+export class MyError extends S.TaggedError<MyError>($I`MyError`)(
+  "MyError",
+  { message: S.String },
+  $I.annotations("MyError", { description: "Failure emitted by MyService." })
+) {}
+```
+
+## String Literal Schemas (REQUIRED)
+
+Prefer `BS.StringLiteralKit` over `S.Literal` for string-literal enums and tags. This keeps literal sets as first-class, reusable schema classes (and composes nicely with `.toTagged(...).composer(...)`).
+
+```typescript
+import { BS } from "@beep/schema";
+import * as S from "effect/Schema";
+
+export class Status extends BS.StringLiteralKit("open", "closed") {}
+
+export const makeTicket = Status.toTagged("status").composer({
+  id: S.String,
+  title: S.String,
+});
+```
+
+## Allowed Exceptions (MUST Document In-Code)
+
+Exceptions are allowed, but must be explicit with a short comment explaining why the rule is not applied.
+
+- Allowed: Keep an anonymous `S.Struct(...)` when it is truly one-off and local (not exported), and turning it into a named `S.Class` would add churn without reuse.
+- Allowed: Keep a TypeScript `interface` when the value is not realistically schema-validated (e.g. external AST nodes, function/method contracts, generic helpers).
+- Allowed: Use `S.Literal(...)` only when `BS.StringLiteralKit` cannot be used without changing semantics, and document why.
+
+Use a consistent comment form:
+
+```ts
+// exception(schema-model): <reason, and what would break/change if refactored>
 ```
 
 ## EntityId Usage (MANDATORY)

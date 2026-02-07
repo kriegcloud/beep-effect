@@ -5,12 +5,13 @@ import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
+import * as S from "effect/Schema";
 import type * as N3 from "n3";
 import { type OntologyContext, OntologyService, OntologyServiceLive } from "../Ontology/OntologyService";
 import { hasType, materializeSubclassInference, nodesOfType, valuesForNodeAndPath } from "./ShaclParser";
 import { generateShapesFromOntology, type PropertyShape } from "./ShapeGenerator";
 import { enforceValidationPolicy, makeValidationReport } from "./ValidationReport";
-import * as S from "effect/Schema";
+
 const $I = $KnowledgeServerId.create("Validation/ShaclService");
 
 const XSD_STRING = "http://www.w3.org/2001/XMLSchema#string";
@@ -102,13 +103,10 @@ const validateShapeForNode = (
 
   return findings;
 };
-export class ValidateOptions extends S.Class<ValidateOptions>($I`ValidateOptions`)(
-  {
-    policy: S.optional(ShaclPolicy),
-    maxInferenceDepth: S.optional(S.Number)
-  }
-) {}
-
+export class ValidateOptions extends S.Class<ValidateOptions>($I`ValidateOptions`)({
+  policy: S.optional(ShaclPolicy),
+  maxInferenceDepth: S.optional(S.Number),
+}) {}
 
 export interface ShaclServiceShape {
   readonly generateShapes: (ontology: OntologyContext) => Effect.Effect<ReadonlyArray<PropertyShape.Type>>;

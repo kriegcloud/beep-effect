@@ -38,43 +38,71 @@ import { assignGraphRanks, fuseRankings } from "./RrfScorer";
 
 const $I = $KnowledgeServerId.create("GraphRAG/GraphRAGService");
 
-export class EntityFilters extends S.Class<EntityFilters>("EntityFilters")({
-  typeIris: S.optional(S.Array(S.String)),
-  minConfidence: S.optional(S.Number.pipe(S.greaterThanOrEqualTo(0), S.lessThanOrEqualTo(1))),
-  ontologyId: S.optional(S.String),
-}) {}
+export class EntityFilters extends S.Class<EntityFilters>($I`EntityFilters`)(
+  {
+    typeIris: S.optional(S.Array(S.String)),
+    minConfidence: S.optional(S.Number.pipe(S.greaterThanOrEqualTo(0), S.lessThanOrEqualTo(1))),
+    ontologyId: S.optional(S.String),
+  },
+  $I.annotations("EntityFilters", {
+    description: "Optional filters applied to graph retrieval (type IRIs, confidence threshold, ontology ID).",
+  })
+) {}
 
-export class GraphRAGQuery extends S.Class<GraphRAGQuery>("GraphRAGQuery")({
-  query: S.String.pipe(S.minLength(1)),
-  topK: BS.toOptionalWithDefault(S.Number.pipe(S.greaterThan(0), S.lessThanOrEqualTo(50)))(10),
-  hops: BS.toOptionalWithDefault(S.Number.pipe(S.greaterThanOrEqualTo(0), S.lessThanOrEqualTo(3)))(1),
-  filters: S.optional(EntityFilters),
-  maxTokens: BS.toOptionalWithDefault(S.Number.pipe(S.greaterThan(0)))(4000),
-  similarityThreshold: BS.toOptionalWithDefault(S.Number.pipe(S.greaterThanOrEqualTo(0), S.lessThanOrEqualTo(1)))(0.5),
-  includeScores: BS.toOptionalWithDefault(S.Boolean)(false),
-}) {}
+export class GraphRAGQuery extends S.Class<GraphRAGQuery>($I`GraphRAGQuery`)(
+  {
+    query: S.String.pipe(S.minLength(1)),
+    topK: BS.toOptionalWithDefault(S.Number.pipe(S.greaterThan(0), S.lessThanOrEqualTo(50)))(10),
+    hops: BS.toOptionalWithDefault(S.Number.pipe(S.greaterThanOrEqualTo(0), S.lessThanOrEqualTo(3)))(1),
+    filters: S.optional(EntityFilters),
+    maxTokens: BS.toOptionalWithDefault(S.Number.pipe(S.greaterThan(0)))(4000),
+    similarityThreshold: BS.toOptionalWithDefault(S.Number.pipe(S.greaterThanOrEqualTo(0), S.lessThanOrEqualTo(1)))(
+      0.5
+    ),
+    includeScores: BS.toOptionalWithDefault(S.Boolean)(false),
+  },
+  $I.annotations("GraphRAGQuery", {
+    description: "GraphRAG query input (question + retrieval parameters).",
+  })
+) {}
+
 export class GraphRagResultStats extends S.Class<GraphRagResultStats>($I`GraphRagResultStats`)(
   {
-        seedEntityCount: S.Number,
+    seedEntityCount: S.Number,
     totalEntityCount: S.Number,
     totalRelationCount: S.Number,
     hopsTraversed: S.Number,
     estimatedTokens: S.Number,
     truncated: S.Boolean,
-  }
+  },
+  $I.annotations("GraphRagResultStats", {
+    description: "Query execution stats returned with GraphRAG results (counts, hops, token estimates).",
+  })
 ) {}
-export class GraphRAGResult extends S.Class<GraphRAGResult>("GraphRAGResult")({
-  entities: S.Array(Entities.Entity.Model),
-  relations: S.Array(Entities.Relation.Model),
-  scores: S.Record({ key: S.String, value: S.Number }),
-  context: S.String,
-  stats: GraphRagResultStats,
-}) {}
 
-export class GraphRAGError extends S.TaggedError<GraphRAGError>()("GraphRAGError", {
-  message: S.String,
-  cause: S.optional(S.String),
-}) {}
+export class GraphRAGResult extends S.Class<GraphRAGResult>($I`GraphRAGResult`)(
+  {
+    entities: S.Array(Entities.Entity.Model),
+    relations: S.Array(Entities.Relation.Model),
+    scores: S.Record({ key: S.String, value: S.Number }),
+    context: S.String,
+    stats: GraphRagResultStats,
+  },
+  $I.annotations("GraphRAGResult", {
+    description: "GraphRAG results (entities, relations, optional scores, and formatted context string).",
+  })
+) {}
+
+export class GraphRAGError extends S.TaggedError<GraphRAGError>($I`GraphRAGError`)(
+  "GraphRAGError",
+  {
+    message: S.String,
+    cause: S.optional(S.String),
+  },
+  $I.annotations("GraphRAGError", {
+    description: "GraphRAG service failure (message + optional serialized cause).",
+  })
+) {}
 
 export interface GraphRAGServiceShape {
   readonly query: (
@@ -224,7 +252,7 @@ const serviceEffect: Effect.Effect<
         },
       });
 
-      yield* Effect.logInfo("GraphRAGService.query: complete").pipe(Effect.annotateLogs({stats: result.stats}));
+      yield* Effect.logInfo("GraphRAGService.query: complete").pipe(Effect.annotateLogs({ stats: result.stats }));
 
       return result;
     }).pipe(

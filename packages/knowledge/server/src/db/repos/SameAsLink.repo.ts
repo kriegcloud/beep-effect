@@ -17,49 +17,94 @@ const $I = $KnowledgeServerId.create("db/repos/SameAsLinkRepo");
 
 const tableName = KnowledgeEntityIds.SameAsLinkId.tableName;
 
-class FindByCanonicalRequest extends S.Class<FindByCanonicalRequest>("FindByCanonicalRequest")({
-  canonicalId: KnowledgeEntityIds.KnowledgeEntityId,
-  organizationId: SharedEntityIds.OrganizationId,
-}) {}
+class FindByCanonicalRequest extends S.Class<FindByCanonicalRequest>($I`FindByCanonicalRequest`)(
+  {
+    canonicalId: KnowledgeEntityIds.KnowledgeEntityId,
+    organizationId: SharedEntityIds.OrganizationId,
+  },
+  $I.annotations("FindByCanonicalRequest", {
+    description: "SQL request schema: fetch same-as links by canonical entity id (scoped to organization).",
+  })
+) {}
 
-class FindByMemberRequest extends S.Class<FindByMemberRequest>("FindByMemberRequest")({
-  memberId: KnowledgeEntityIds.KnowledgeEntityId,
-  organizationId: SharedEntityIds.OrganizationId,
-}) {}
+class FindByMemberRequest extends S.Class<FindByMemberRequest>($I`FindByMemberRequest`)(
+  {
+    memberId: KnowledgeEntityIds.KnowledgeEntityId,
+    organizationId: SharedEntityIds.OrganizationId,
+  },
+  $I.annotations("FindByMemberRequest", {
+    description: "SQL request schema: fetch same-as link for a member entity id (scoped to organization).",
+  })
+) {}
 
-class ResolveCanonicalRequest extends S.Class<ResolveCanonicalRequest>("ResolveCanonicalRequest")({
-  entityId: KnowledgeEntityIds.KnowledgeEntityId,
-  organizationId: SharedEntityIds.OrganizationId,
-}) {}
+class ResolveCanonicalRequest extends S.Class<ResolveCanonicalRequest>($I`ResolveCanonicalRequest`)(
+  {
+    entityId: KnowledgeEntityIds.KnowledgeEntityId,
+    organizationId: SharedEntityIds.OrganizationId,
+  },
+  $I.annotations("ResolveCanonicalRequest", {
+    description: "SQL request schema: resolve canonical entity id for a member entity id via recursive traversal.",
+  })
+) {}
 
-class ResolveCanonicalResult extends S.Class<ResolveCanonicalResult>("ResolveCanonicalResult")({
-  canonical_id: S.String,
-}) {}
+class ResolveCanonicalResult extends S.Class<ResolveCanonicalResult>($I`ResolveCanonicalResult`)(
+  {
+    canonical_id: S.String,
+  },
+  $I.annotations("ResolveCanonicalResult", {
+    description: "SQL result row for canonical resolution (canonical_id as returned from database).",
+  })
+) {}
 
-class FindHighConfidenceRequest extends S.Class<FindHighConfidenceRequest>("FindHighConfidenceRequest")({
-  minConfidence: S.Number,
-  organizationId: SharedEntityIds.OrganizationId,
-  limit: S.Number,
-}) {}
+class FindHighConfidenceRequest extends S.Class<FindHighConfidenceRequest>($I`FindHighConfidenceRequest`)(
+  {
+    minConfidence: S.Number,
+    organizationId: SharedEntityIds.OrganizationId,
+    limit: S.Number,
+  },
+  $I.annotations("FindHighConfidenceRequest", {
+    description: "SQL request schema: fetch high-confidence same-as links (scoped to organization, limited).",
+  })
+) {}
 
-class FindBySourceRequest extends S.Class<FindBySourceRequest>("FindBySourceRequest")({
-  sourceId: S.String,
-  organizationId: SharedEntityIds.OrganizationId,
-}) {}
+class FindBySourceRequest extends S.Class<FindBySourceRequest>($I`FindBySourceRequest`)(
+  {
+    sourceId: S.String,
+    organizationId: SharedEntityIds.OrganizationId,
+  },
+  $I.annotations("FindBySourceRequest", {
+    description: "SQL request schema: fetch same-as links by source id (scoped to organization).",
+  })
+) {}
 
-class CountMembersRequest extends S.Class<CountMembersRequest>("CountMembersRequest")({
-  canonicalId: KnowledgeEntityIds.KnowledgeEntityId,
-  organizationId: SharedEntityIds.OrganizationId,
-}) {}
+class CountMembersRequest extends S.Class<CountMembersRequest>($I`CountMembersRequest`)(
+  {
+    canonicalId: KnowledgeEntityIds.KnowledgeEntityId,
+    organizationId: SharedEntityIds.OrganizationId,
+  },
+  $I.annotations("CountMembersRequest", {
+    description: "SQL request schema: count same-as members under a canonical entity id (scoped to organization).",
+  })
+) {}
 
-class DeleteByCanonicalRequest extends S.Class<DeleteByCanonicalRequest>("DeleteByCanonicalRequest")({
-  canonicalId: KnowledgeEntityIds.KnowledgeEntityId,
-  organizationId: SharedEntityIds.OrganizationId,
-}) {}
+class DeleteByCanonicalRequest extends S.Class<DeleteByCanonicalRequest>($I`DeleteByCanonicalRequest`)(
+  {
+    canonicalId: KnowledgeEntityIds.KnowledgeEntityId,
+    organizationId: SharedEntityIds.OrganizationId,
+  },
+  $I.annotations("DeleteByCanonicalRequest", {
+    description: "SQL request schema: delete same-as links for a canonical entity id (scoped to organization).",
+  })
+) {}
 
-class CountResult extends S.Class<CountResult>("CountResult")({
-  count: S.String,
-}) {}
+class CountResult extends S.Class<CountResult>($I`CountResult`)(
+  {
+    count: S.String,
+  },
+  $I.annotations("CountResult", {
+    description: "SQL count query result (string-typed count from database).",
+  })
+) {}
 
 const makeSameAsLinkExtensions = Effect.gen(function* () {
   const sql = yield* SqlClient.SqlClient;

@@ -1,7 +1,7 @@
-import * as A from "effect/Array";
-import * as Str from "effect/String";
 import { $KnowledgeServerId } from "@beep/identity/packages";
+import * as A from "effect/Array";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const $I = $KnowledgeServerId.create("Sparql/SparqlGeneratorPrompt");
 
@@ -12,12 +12,9 @@ export class SparqlGenerationPromptInput extends S.Class<SparqlGenerationPromptI
     attempt: S.Int,
     feedback: S.Array(S.String),
   },
-  $I.annotations(
-    "SparqlGenerationPromptInput",
-    {
-      description: "Input for the SPARQL generation prompt"
-    }
-  )
+  $I.annotations("SparqlGenerationPromptInput", {
+    description: "Input for the SPARQL generation prompt",
+  })
 ) {}
 
 export const SPARQL_GENERATION_SYSTEM_PROMPT = `You generate SPARQL for a read-only RDF knowledge graph.
