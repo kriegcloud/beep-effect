@@ -1,12 +1,12 @@
 You are implementing Phase 3 of the `knowledge-server-test-shared-fixtures-dedup` spec.
 
 Read first:
-- `specs/pending/knowledge-server-test-shared-fixtures-dedup/README.md`
-- `specs/pending/knowledge-server-test-shared-fixtures-dedup/MASTER_ORCHESTRATION.md`
-- `specs/pending/knowledge-server-test-shared-fixtures-dedup/handoffs/HANDOFF_P3.md`
-- `specs/pending/knowledge-server-test-shared-fixtures-dedup/outputs/codebase-context.md`
-- `specs/pending/knowledge-server-test-shared-fixtures-dedup/outputs/evaluation.md`
-- `specs/pending/knowledge-server-test-shared-fixtures-dedup/outputs/remediation-plan.md`
+- `specs/completed/knowledge-server-test-shared-fixtures-dedup/README.md`
+- `specs/completed/knowledge-server-test-shared-fixtures-dedup/MASTER_ORCHESTRATION.md`
+- `specs/completed/knowledge-server-test-shared-fixtures-dedup/handoffs/HANDOFF_P3.md`
+- `specs/completed/knowledge-server-test-shared-fixtures-dedup/outputs/codebase-context.md`
+- `specs/completed/knowledge-server-test-shared-fixtures-dedup/outputs/evaluation.md`
+- `specs/completed/knowledge-server-test-shared-fixtures-dedup/outputs/remediation-plan.md`
 
 Phase 3 objective:
 - Implement shared fixture/layer/mock modules under `packages/knowledge/server/test/_shared` and migrate duplicate test helpers using the risk-ordered plan, while preserving behavior.
@@ -20,7 +20,7 @@ Do:
 
 Outputs required:
 - Code changes in `packages/knowledge/server/test/_shared/**` and migrated test files.
-- Updated `specs/pending/knowledge-server-test-shared-fixtures-dedup/REFLECTION_LOG.md` with a Phase 3 entry.
+- Updated `specs/completed/knowledge-server-test-shared-fixtures-dedup/REFLECTION_LOG.md` with a Phase 3 entry.
 
 Constraints:
 - Keep intentional non-dedup exceptions from Phase 1/2 unless explicitly re-justified in writing.

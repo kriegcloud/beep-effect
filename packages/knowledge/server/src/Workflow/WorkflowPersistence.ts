@@ -1,9 +1,10 @@
 import { $KnowledgeServerId } from "@beep/identity/packages";
 import { BatchNotFoundError, WorkflowNotFoundError } from "@beep/knowledge-domain/errors";
-import type { WorkflowExecutionStatus, WorkflowType } from "@beep/knowledge-domain/value-objects";
+import { WorkflowExecutionStatus, WorkflowType } from "@beep/knowledge-domain/value-objects";
+import { BS } from "@beep/schema";
 import { KnowledgeEntityIds } from "@beep/shared-domain";
 import * as SqlClient from "@effect/sql/SqlClient";
-import type * as SqlError from "@effect/sql/SqlError";
+import * as SqlError from "@effect/sql/SqlError";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as DateTime from "effect/DateTime";
@@ -19,19 +20,30 @@ const toJsonb = S.encodeSync(S.parseJson(JsonRecord));
 
 const executionTable = KnowledgeEntityIds.WorkflowExecutionId.tableName;
 
-export interface WorkflowExecutionRecord {
-  readonly id: KnowledgeEntityIds.WorkflowExecutionId.Type;
-  readonly organizationId: string;
-  readonly workflowType: WorkflowType.Type;
-  readonly status: WorkflowExecutionStatus.Type;
-  readonly input: Record<string, unknown> | null;
-  readonly output: Record<string, unknown> | null;
-  readonly error: string | null;
-  readonly startedAt: Date | null;
-  readonly completedAt: Date | null;
-  readonly lastActivityName: string | null;
-  readonly retryCount: number;
-}
+export class WorkflowExecutionRecord extends S.Class<WorkflowExecutionRecord>("WorkflowExecutionRecord")({
+  id: KnowledgeEntityIds.WorkflowExecutionId,
+  organizationId: S.String,
+  workflowType: WorkflowType,
+  status: WorkflowExecutionStatus,
+  input: S.optionalWith(S.NullOr(JsonRecord), { default: () => null }),
+  output: S.optionalWith(S.NullOr(JsonRecord), { default: () => null }),
+  error: S.optionalWith(S.NullOr(S.String), { default: () => null }),
+  startedAt: S.optionalWith(S.NullOr(BS.DateFromAllAcceptable), { default: () => null }),
+  completedAt: S.optionalWith(S.NullOr(BS.DateFromAllAcceptable), { default: () => null }),
+  lastActivityName: S.optionalWith(S.NullOr(S.String), { default: () => null }),
+  retryCount: S.optionalWith(S.Int, { default: () => 0 }),
+}) {}
+
+export const decodeWorkflowExecutionRecord = (u: unknown): Effect.Effect<WorkflowExecutionRecord, SqlError.SqlError> =>
+  S.decodeUnknown(WorkflowExecutionRecord)(u).pipe(
+    Effect.mapError(
+      (cause) =>
+        new SqlError.SqlError({
+          message: `Failed to decode workflow execution row: ${String(cause)}`,
+          cause,
+        })
+    )
+  );
 
 export interface WorkflowPersistenceShape {
   readonly createExecution: (params: {
@@ -199,7 +211,7 @@ const serviceEffect = Effect.gen(function* () {
       if (O.isNone(row)) {
         return yield* new WorkflowNotFoundError({ executionId: id });
       }
-      return row.value;
+      return yield* decodeWorkflowExecutionRecord(row.value);
     });
 
   const findLatestBatchExecutionByBatchId: WorkflowPersistenceShape["findLatestBatchExecutionByBatchId"] = (batchId) =>
@@ -212,7 +224,12 @@ const serviceEffect = Effect.gen(function* () {
           ORDER BY created_at DESC
           LIMIT 1
       `;
-      return A.head(rows);
+      const row = A.head(rows);
+      if (O.isNone(row)) {
+        return O.none();
+      }
+      const decoded = yield* decodeWorkflowExecutionRecord(row.value);
+      return O.some(decoded);
     });
 
   const cancelExecution: WorkflowPersistenceShape["cancelExecution"] = (id, error) =>

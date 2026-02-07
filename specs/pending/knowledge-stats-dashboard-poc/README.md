@@ -132,6 +132,22 @@ For visual QA and regression screenshots in P6, prefer the Playwright MCP server
 
 ---
 
+## Auth + Nav Notes (For QA Runs)
+
+This dashboard is intended to live under the **Knowledge Base** tab in the main app shell navigation (the tab is present post-auth).
+
+Playwright sign-in flow we validated:
+1. Navigate to `http://localhost:3000/auth/sign-in`.
+2. Fill `Email` with `beep@hole.com`.
+3. Fill `Password` with the local dev password for that account (do not commit plaintext credentials into this repo).
+4. Click `Submit`.
+5. Success signal: the app redirects to `http://localhost:3000/?id=mail-inbox-1` (or another signed-in route), and the left tab panel includes `Knowledge Base`.
+
+Notes:
+- During this run the browser console had non-auth noise (e.g. a Better Auth warning about `/.well-known/...` and a dev WebSocket timeout). Treat redirect + signed-in shell as the primary success criteria.
+
+---
+
 ## Success Criteria
 
 - [ ] Dashboard route renders without runtime errors.

@@ -133,8 +133,7 @@ export const makeEmbeddingRateLimiter = (config: EmbeddingRateLimiterConfig): La
             // Atomic RPM enforcement: previous logic could let multiple concurrent fibers pass the check
             // and exceed RPM in the same window.
             const maybeResetAt = yield* Ref.modify(stateRef, (state) => {
-              const nextState =
-                currentTime >= state.resetAt ? { count: 0, resetAt: currentTime + 60_000 } : state;
+              const nextState = currentTime >= state.resetAt ? { count: 0, resetAt: currentTime + 60_000 } : state;
 
               if (nextState.count >= config.requestsPerMinute) {
                 return [O.some(nextState.resetAt), nextState] as const;

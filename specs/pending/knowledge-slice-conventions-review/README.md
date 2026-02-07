@@ -155,6 +155,17 @@ Reference example:
   - outputs checklist + templates
   - review rubric
 
+### Phase Completion Requirement (Handoffs)
+
+This spec is expected to span multiple sessions, so **handoff documents are mandatory**.
+
+At the end of each phase `P<N>`, the orchestrator must:
+- update `handoffs/HANDOFF_P<N>.md` with concrete progress, verification commands/results, and remaining work
+- create `handoffs/P<N+1>_ORCHESTRATOR_PROMPT.md` for the next phase (or update it if it already exists)
+- create `handoffs/HANDOFF_P<N+1>.md` as the next phase starting point (even if it is only a structured checklist)
+
+If these are not created/updated, the phase is **not** considered complete.
+
 ### Phase 1: Module-By-Module Execution (Audit + Fix As You Go)
 
 This spec is executed **module-by-module**, and the orchestrator should apply fixes while stepping through modules (not as a separate “big bang” refactor at the end).
@@ -245,8 +256,8 @@ This phase is expected to be mostly empty if “fix as you go” is followed, bu
   - `outputs/modules/client.md`
   - `outputs/modules/ui.md`
 - `handoffs/` (required; this spec is expected to span multiple sessions)
-  - `handoffs/P1_ORCHESTRATOR_PROMPT.md`
-  - `handoffs/HANDOFF_P1.md`
+  - `handoffs/P<N>_ORCHESTRATOR_PROMPT.md` (one per phase)
+  - `handoffs/HANDOFF_P<N>.md` (one per phase)
 
 ## Verification (Standard)
 

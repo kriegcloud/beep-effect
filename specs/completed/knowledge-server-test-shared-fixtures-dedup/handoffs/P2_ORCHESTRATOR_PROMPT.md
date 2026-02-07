@@ -1,10 +1,10 @@
 You are implementing Phase 2 of the `knowledge-server-test-shared-fixtures-dedup` spec.
 
 Read first:
-- `specs/pending/knowledge-server-test-shared-fixtures-dedup/README.md`
-- `specs/pending/knowledge-server-test-shared-fixtures-dedup/MASTER_ORCHESTRATION.md`
-- `specs/pending/knowledge-server-test-shared-fixtures-dedup/handoffs/HANDOFF_P2.md`
-- `specs/pending/knowledge-server-test-shared-fixtures-dedup/outputs/codebase-context.md`
+- `specs/completed/knowledge-server-test-shared-fixtures-dedup/README.md`
+- `specs/completed/knowledge-server-test-shared-fixtures-dedup/MASTER_ORCHESTRATION.md`
+- `specs/completed/knowledge-server-test-shared-fixtures-dedup/handoffs/HANDOFF_P2.md`
+- `specs/completed/knowledge-server-test-shared-fixtures-dedup/outputs/codebase-context.md`
 
 Phase 2 objective:
 - Define concrete shared-module design and a migration sequence for deduplicating knowledge-server test fixtures/layers.
@@ -16,8 +16,8 @@ Do:
 4. Define semantic-equivalence verification checks and rollback guidance for medium/high-risk batches.
 
 Outputs required:
-- `specs/pending/knowledge-server-test-shared-fixtures-dedup/outputs/evaluation.md`
-- `specs/pending/knowledge-server-test-shared-fixtures-dedup/outputs/remediation-plan.md`
+- `specs/completed/knowledge-server-test-shared-fixtures-dedup/outputs/evaluation.md`
+- `specs/completed/knowledge-server-test-shared-fixtures-dedup/outputs/remediation-plan.md`
 
 Constraints:
 - Keep recommendations compatible with Effect patterns and repo guardrails.

@@ -41,6 +41,7 @@ These are defaults; P1 can revise with evidence.
 - Transport: `@effect/rpc` pattern used in `packages/knowledge/server/src/rpc/v1/`.
 - Validation: Effect Schema on all RPC inputs/outputs (no unchecked decoding).
 - UI: Next.js (App Router) page in `apps/web` unless discovery indicates TodoX-only routing.
+- Placement: the dashboard described in this spec should be accessible under the **Knowledge Base** tab in the signed-in app shell navigation.
 - Graph: React Flow (`@xyflow/react`) for 2D schema; “3D” toggle may be deferred unless already present in repo.
 
 Risk callout: the Open Ontology reference includes a “3D View” state. If the repo has no existing 3D graph viewer, treat 3D as POC-stretch (implement toggle UI but allow “not supported yet”).
@@ -87,7 +88,7 @@ Each phase ends with:
 
 ### P1: Discovery
 
-Goal: map what exists and decide “where the page lives” and “how stats are exposed”.
+Goal: map what exists and decide “where the page lives” (within the Knowledge Base tab) and “how stats are exposed”.
 
 Tasks:
 1. Identify existing knowledge RPC modules and endpoint patterns.
@@ -96,6 +97,7 @@ Tasks:
 4. Decide target route location:
    - `apps/web/app/(...)`
    - or `apps/todox/app/(...)`
+   - while ensuring the navigation entry lives under the **Knowledge Base** tab.
 
 Deliverables:
 - `outputs/codebase-context.md`
@@ -160,11 +162,12 @@ Goal: wire end-to-end: route -> data fetch -> UI render.
 
 Tasks:
 1. Add page route in chosen app.
-2. Fetch RPC data on server or client (choose one and justify in handoff; POC default: server component fetch if feasible).
-3. Ensure basic responsive behavior:
+2. Add navigation entry under the **Knowledge Base** tab (or whichever shell construct renders that tab panel).
+3. Fetch RPC data on server or client (choose one and justify in handoff; POC default: server component fetch if feasible).
+4. Ensure basic responsive behavior:
    - 1920x1080 “no-scroll” parity is optional
    - mobile should degrade gracefully (graph can collapse behind a tab)
-4. Ensure dark mode renders acceptably.
+5. Ensure dark mode renders acceptably.
 
 Deliverables:
 - Page renders and can be navigated to

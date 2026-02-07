@@ -141,6 +141,45 @@ ALWAYS choose the correct Effect Schema type based on the runtime value:
 - Use `S.Redacted` for user-provided credentials to suppress logging
 - Use plain `S.String` for server-generated tokens (already protected)
 
+## Schema Class Conventions (REQUIRED)
+
+When defining a named, reusable data model (especially anything crossing a boundary like DB rows, external API payloads, RPC payloads), prefer `S.Class` over `S.Struct`.
+
+- Use `S.Class` directly as the type (do not duplicate with a separate `interface`).
+- Do not name schema classes with a `*Schema` suffix. Use domain names (e.g. `EmailMetadata`, not `EmailMetadataSchema`).
+- If a model has nested object properties (e.g. `dateRange`), break nested shapes into their own `S.Class` rather than using an inline `S.Struct`.
+- For `S.optionalWith(S.Array(...))` defaults, prefer `A.empty<T>` (e.g. `default: A.empty<string>`), not `() => []`.
+- Never convert service contracts (the shapes used in `Context.Tag(...)`) into schema classes.
+
+```typescript
+import * as A from "effect/Array";
+import * as DateTime from "effect/DateTime";
+import * as O from "effect/Option";
+import * as S from "effect/Schema";
+import { BS } from "@beep/schema";
+
+export class DateRange extends S.Class<DateRange>("DateRange")({
+  earliest: BS.DateTimeUtcFromAllAcceptable,
+  latest: BS.DateTimeUtcFromAllAcceptable,
+}) {}
+
+export class ThreadContext extends S.Class<ThreadContext>("ThreadContext")({
+  threadId: S.String,
+  subject: S.String,
+  participants: S.optionalWith(S.Array(S.String), { default: A.empty<string> }),
+  dateRange: DateRange,
+}) {}
+
+export class EmailMetadata extends S.Class<EmailMetadata>("EmailMetadata")({
+  from: S.String,
+  to: S.optionalWith(S.Array(S.String), { default: A.empty<string> }),
+  cc: S.optionalWith(S.Array(S.String), { default: A.empty<string> }),
+  date: S.optionalWith(S.OptionFromSelf(BS.DateTimeUtcFromAllAcceptable), { default: O.none<DateTime.Utc> }),
+  threadId: S.String,
+  labels: S.optionalWith(S.Array(S.String), { default: A.empty<string> }),
+}) {}
+```
+
 ## EntityId Usage (MANDATORY)
 
 ALWAYS use branded EntityIds from `@beep/shared-domain` for ID fields. NEVER use plain `S.String`.

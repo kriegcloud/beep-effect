@@ -1,6 +1,7 @@
 import { GmailScopes, GoogleApiError, GoogleScopeExpansionRequiredError } from "@beep/google-workspace-domain";
 import {
   GMAIL_EXTRACTION_REQUIRED_SCOPES,
+  ExtractedEmailDocument,
   GmailExtractionAdapter,
   GmailExtractionAdapterLive,
 } from "@beep/knowledge-server/adapters";
@@ -132,6 +133,7 @@ describe("GmailExtractionAdapter", () => {
           const documents = yield* adapter.extractEmailsForKnowledgeGraph("label:INBOX", 10);
 
           strictEqual(A.length(documents), 2);
+          assertTrue(documents[0] instanceof ExtractedEmailDocument);
           strictEqual(documents[0]?.sourceType, "gmail");
           strictEqual(documents[0]?.sourceId, "msg-1");
           strictEqual(documents[0]?.title, "Q4 Planning Meeting Notes");

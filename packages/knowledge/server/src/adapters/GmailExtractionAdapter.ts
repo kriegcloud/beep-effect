@@ -33,14 +33,23 @@ export interface EmailMetadata {
   readonly labels: ReadonlyArray<string>;
 }
 
-export interface ExtractedEmailDocument {
-  readonly sourceId: string;
-  readonly sourceType: "gmail";
-  readonly title: string;
-  readonly content: string;
-  readonly metadata: EmailMetadata;
-  readonly extractedAt: DateTime.Utc;
-}
+export class EmailMetadata extends S.Class<EmailMetadata>("EmailMetadata")({
+  from: S.String,
+  to: S.optionalWith(S.Array(S.String), { default: A.empty<string> }),
+  cc: S.optionalWith(S.Array(S.String), { default: A.empty<string> }),
+  date: S.optionalWith(S.OptionFromSelf(BS.DateTimeUtcFromAllAcceptable), { default: O.none<DateTime.Utc> }),
+  threadId: S.String,
+  labels: S.optionalWith(S.Array(S.String), { default: A.empty<string> }),
+}) {}
+
+export class ExtractedEmailDocument extends S.Class<ExtractedEmailDocument>("ExtractedEmailDocument")({
+  sourceId: S.String,
+  sourceType: S.Literal("gmail"),
+  title: S.optionalWith(S.String, { default: () => "(No Subject)" }),
+  content: S.optionalWith(S.String, { default: thunkEmptyStr }),
+  metadata: EmailMetadata,
+  extractedAt: BS.DateTimeUtcFromAllAcceptable,
+}) {}
 
 export interface ThreadContext {
   readonly threadId: string;
@@ -230,7 +239,21 @@ const stripHtml = (html: string): string =>
     Str.trim
   );
 
-const toExtractedDocument = (message: GmailMessage, extractedAt: DateTime.Utc): ExtractedEmailDocument => {
+type ExtractedEmailDocumentEncoded = S.Schema.Encoded<typeof ExtractedEmailDocument>;
+
+const decodeExtractedEmailDocument = (u: unknown): Effect.Effect<ExtractedEmailDocument, GoogleApiError> =>
+  S.decodeUnknown(ExtractedEmailDocument)(u).pipe(
+    Effect.mapError(
+      (cause) =>
+        new GoogleApiError({
+          message: `Failed to decode extracted email document: ${String(cause)}`,
+          statusCode: 500,
+          endpoint: "GmailExtractionAdapter.decodeExtractedEmailDocument",
+        })
+    )
+  );
+
+const buildExtractedDocument = (message: GmailMessage, extractedAt: DateTime.Utc): ExtractedEmailDocumentEncoded => {
   const headers = message.payload?.headers;
   const subject = findHeader(headers, "Subject").pipe(O.getOrElse(() => "(No Subject)"));
   const from = findHeader(headers, "From").pipe(O.getOrElse(thunkEmptyStr));
@@ -349,7 +372,10 @@ const serviceEffect: Effect.Effect<GmailExtractionAdapterShape, never, HttpClien
         );
 
         const extractedAt = DateTime.unsafeNow();
-        const documents = A.map(messages, (msg) => toExtractedDocument(msg, extractedAt));
+        const rawDocuments = A.map(messages, (msg) => buildExtractedDocument(msg, extractedAt));
+        const documents = yield* Effect.forEach(rawDocuments, (doc) => decodeExtractedEmailDocument(doc), {
+          concurrency: 10,
+        });
 
         yield* Effect.logInfo("Email extraction complete").pipe(
           Effect.annotateLogs({ extracted: A.length(documents) })
@@ -379,7 +405,10 @@ const serviceEffect: Effect.Effect<GmailExtractionAdapterShape, never, HttpClien
         }
 
         const extractedAt = DateTime.unsafeNow();
-        const extractedMessages = A.map(messages, (msg) => toExtractedDocument(msg, extractedAt));
+        const rawDocuments = A.map(messages, (msg) => buildExtractedDocument(msg, extractedAt));
+        const extractedMessages = yield* Effect.forEach(rawDocuments, (doc) => decodeExtractedEmailDocument(doc), {
+          concurrency: 10,
+        });
 
         const subject = F.pipe(
           A.head(extractedMessages),

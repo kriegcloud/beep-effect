@@ -81,6 +81,7 @@ bun run spec:move -- <spec-name> pending|completed|archived
 | [artifact-file-cleanup](completed/artifact-file-cleanup/) |
 | [integration-architecture-migration](completed/integration-architecture-migration/) |
 | [knowledge-effect-workflow-migration](completed/knowledge-effect-workflow-migration/) |
+| [knowledge-server-test-shared-fixtures-dedup](completed/knowledge-server-test-shared-fixtures-dedup/) |
 | [lexical-playground-port](completed/lexical-playground-port/) |
 | [lexical-utils-effect-refactor](completed/lexical-utils-effect-refactor/) |
 | [orgtable-auto-rls](completed/orgtable-auto-rls/) |

@@ -76,7 +76,7 @@ Return:
 Be conservative: use null when uncertain.`;
 
 const buildPrompt = (content: string, url: O.Option<string>): string => {
-  const truncated = content.length > 8000 ? content.slice(0, 8000) + "\n\n[Content truncated...]" : content;
+  const truncated = content.length > 8000 ? `${content.slice(0, 8000)}\n\n[Content truncated...]` : content;
   const urlBlock = O.match(url, { onNone: () => "", onSome: (u) => `Source URL: ${u}\n\n` });
   return `${urlBlock}Content:\n\n${truncated}`;
 };

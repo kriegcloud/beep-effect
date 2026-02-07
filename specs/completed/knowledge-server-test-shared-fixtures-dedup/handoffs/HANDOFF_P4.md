@@ -34,7 +34,7 @@ Migrated tests (per `outputs/remediation-plan.md` batch order):
 - Adapter: `GmailExtractionAdapter`
 
 Phase reflection is recorded in:
-- `specs/pending/knowledge-server-test-shared-fixtures-dedup/REFLECTION_LOG.md` (Entry 4)
+- `specs/completed/knowledge-server-test-shared-fixtures-dedup/REFLECTION_LOG.md` (Entry 4)
 
 ## Critical Blocker (Must Resolve First)
 
@@ -90,6 +90,6 @@ Do not dedup these unless a new explicit written justification is added:
 3. Run tests:
    - minimum: `bun run test` filtered to `packages/knowledge/server/test/**` if supported
    - otherwise: `bun run test` and confirm no regressions in touched test files
-4. Generate `specs/pending/knowledge-server-test-shared-fixtures-dedup/outputs/verification-report.md`.
+4. Generate `specs/completed/knowledge-server-test-shared-fixtures-dedup/outputs/verification-report.md`.
 5. If anything regresses in medium/high-risk areas, use the rollback guidance in `outputs/remediation-plan.md` and keep changes incremental.
 
