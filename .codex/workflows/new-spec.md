@@ -11,7 +11,7 @@ Adapted from `.claude/commands/new-spec.md`.
 ## Procedure
 
 1. Calculate complexity score and choose structure (`simple`, `medium`, `complex`).
-2. Scaffold under `specs/<name>/` using repository scripts.
+2. Scaffold under `specs/pending/<name>/` using repository scripts.
 3. Create phase plan aligned to `Discovery -> Evaluation -> Synthesis -> Iteration`.
 4. Create required handoff pair for next phase.
 

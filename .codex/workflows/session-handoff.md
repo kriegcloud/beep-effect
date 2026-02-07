@@ -10,7 +10,7 @@ Adapted from `.claude/skills/session-handoff/SKILL.md` without `.claude` script 
 
 ## Create workflow
 
-1. Create or update handoff in `specs/<spec>/handoffs/`.
+1. Create or update handoff in `specs/pending/<spec>/handoffs/`.
 2. Capture working, episodic, semantic, and procedural context.
 3. Include exact next steps and blockers with owners.
 4. Validate referenced files exist.

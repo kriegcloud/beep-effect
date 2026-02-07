@@ -1,6 +1,6 @@
-# Hook Parity Status (Deferred)
+# Hook Parity Status
 
-Status: `defer`
+Status: `proven-in-session`
 
 ## Scope
 
@@ -11,30 +11,38 @@ Source runtime hooks are defined in `.claude/settings.json` for:
 - `PostToolUse`
 - `SubagentStop`
 
-Equivalent Codex lifecycle hook wiring is not proven in-repo, so automated parity is deferred.
+Codex lifecycle execution is now implemented via `.codex/hooks/lifecycle.ts` and wrapper `.codex/hooks/run.sh`.
 
-## Owner and status
+## Implemented Codex hook runtime
 
-- Owner: P2 Implementer (feasibility probe)
-- Acceptance owner: Spec Maintainer
-- Current status: Open; manual fallback enforced
+Entry points:
+- `bun run .codex/hooks/lifecycle.ts session-start`
+- `bun run .codex/hooks/lifecycle.ts user-prompt-submit`
+- `bun run .codex/hooks/lifecycle.ts pre-tool-use`
+- `bun run .codex/hooks/lifecycle.ts post-tool-use`
+- `bun run .codex/hooks/lifecycle.ts subagent-stop`
+- `bun run .codex/hooks/lifecycle.ts run -- <command...>`
 
-## Manual fallback contract
+Automation behavior:
+- `run` executes `PreToolUse` checks before command execution.
+- `run` executes `PostToolUse` checks after command execution.
+- Deny-list enforcement mirrors `.codex/safety/permissions.md` intent.
+- Pattern evaluation reads `.codex/patterns/**` for `PreToolUse` and `PostToolUse`.
+- Session and tool events are persisted to `.codex/runtime/hook-events.jsonl`.
 
-### Session start
-- Read `AGENTS.md` and `.codex/context-index.md` before first edit.
+## In-session feasibility proof requirement
 
-### Before tool/command execution
-- Run `.codex/workflows/pattern-check.md` checklist.
-- Apply deny list from `.codex/safety/permissions.md`.
+Closure condition is met when evidence demonstrates:
+1. Pre-tool enforcement blocks denied command paths.
+2. Allowed command paths execute and still emit pre/post events.
+3. Session lifecycle events are emitted and persisted.
 
-### After edit/write operations
-- Re-run pattern check on changed files.
-- Run relevant verification commands (`bun run check`, focused tests/lint as needed).
+## Evidence artifacts
 
-### Session end
-- Update spec output report and create required handoff pair for next phase.
+- `specs/codex-claude-parity/outputs/validation-evidence/P6.hook-automation-proof.out`
+- `.codex/runtime/hook-events.jsonl`
 
-## Closure condition
+## Notes
 
-Hook parity may be reclassified only after an in-session feasibility proof demonstrates equivalent lifecycle automation in Codex.
+- This is repository-level hook automation, not Codex product-native event wiring.
+- Operational parity is achieved via deterministic wrapper invocation in-session.

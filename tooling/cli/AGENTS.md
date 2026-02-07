@@ -30,7 +30,7 @@
   - Syncs root `.env` to workspace packages (apps/mail, apps/server)
   - Regenerates TypeScript type definitions for environment variables
 - **`src/commands/bootstrap-spec/`** — Specification scaffolding
-  - Creates standardized spec structures in `specs/` directory
+  - Creates standardized spec structures in `specs/pending/` directory
   - Supports three complexity levels: simple, medium, complex
   - Generates README, REFLECTION_LOG, and additional files based on complexity
   - Supports dry-run mode for previewing changes

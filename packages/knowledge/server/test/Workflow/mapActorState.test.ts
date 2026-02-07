@@ -1,7 +1,7 @@
 import { BatchConfig, BatchMachineState } from "@beep/knowledge-domain/value-objects";
 import { mapActorStateToBatchState } from "@beep/knowledge-server/Workflow";
 import { KnowledgeEntityIds } from "@beep/shared-domain";
-import { describe, effect, strictEqual } from "@beep/testkit";
+import { deepStrictEqual, describe, effect } from "@beep/testkit";
 import * as Effect from "effect/Effect";
 import type * as S from "effect/Schema";
 
@@ -24,15 +24,17 @@ describe("mapActorStateToBatchState", () => {
 
         const result = mapActorStateToBatchState(state);
 
-        strictEqual(result._tag, "BatchState.Pending");
-        strictEqual(result.batchId, batchId);
+        deepStrictEqual(result, {
+          _tag: "BatchState.Pending",
+          batchId,
+        });
       })
     );
   });
 
   describe("Extracting", () => {
     effect(
-      "maps Extracting to BatchState.Extracting with field renames",
+      "maps Extracting to BatchState.Extracting renaming completedCount to completedDocuments",
       Effect.fn(function* () {
         const state = BatchMachineState.Extracting({
           batchId,
@@ -48,36 +50,40 @@ describe("mapActorStateToBatchState", () => {
 
         const result = mapActorStateToBatchState(state);
 
-        strictEqual(result._tag, "BatchState.Extracting");
-        strictEqual(result.batchId, batchId);
-        if (result._tag === "BatchState.Extracting") {
-          strictEqual(result.completedDocuments, asNonNeg(2));
-          strictEqual(result.totalDocuments, asNonNeg(3));
-          strictEqual(result.progress, 0.67);
-        }
+        deepStrictEqual(result, {
+          _tag: "BatchState.Extracting",
+          batchId,
+          completedDocuments: asNonNeg(2),
+          totalDocuments: asNonNeg(3),
+          progress: 0.67,
+        });
       })
     );
 
     effect(
-      "maps completedCount to completedDocuments",
+      "maps zero progress at start of extraction",
       Effect.fn(function* () {
         const state = BatchMachineState.Extracting({
           batchId,
-          documentIds: [],
+          documentIds: ["doc-1"],
           config,
-          completedCount: asNonNeg(7),
-          failedCount: asNonNeg(1),
+          completedCount: asNonNeg(0),
+          failedCount: asNonNeg(0),
           totalDocuments: asNonNeg(10),
           entityCount: asNonNeg(0),
           relationCount: asNonNeg(0),
-          progress: 0.7,
+          progress: 0,
         });
 
         const result = mapActorStateToBatchState(state);
 
-        if (result._tag === "BatchState.Extracting") {
-          strictEqual(result.completedDocuments, asNonNeg(7));
-        }
+        deepStrictEqual(result, {
+          _tag: "BatchState.Extracting",
+          batchId,
+          completedDocuments: asNonNeg(0),
+          totalDocuments: asNonNeg(10),
+          progress: 0,
+        });
       })
     );
   });
@@ -97,11 +103,11 @@ describe("mapActorStateToBatchState", () => {
 
         const result = mapActorStateToBatchState(state);
 
-        strictEqual(result._tag, "BatchState.Resolving");
-        strictEqual(result.batchId, batchId);
-        if (result._tag === "BatchState.Resolving") {
-          strictEqual(result.progress, 0.5);
-        }
+        deepStrictEqual(result, {
+          _tag: "BatchState.Resolving",
+          batchId,
+          progress: 0.5,
+        });
       })
     );
   });
@@ -119,20 +125,20 @@ describe("mapActorStateToBatchState", () => {
 
         const result = mapActorStateToBatchState(state);
 
-        strictEqual(result._tag, "BatchState.Completed");
-        strictEqual(result.batchId, batchId);
-        if (result._tag === "BatchState.Completed") {
-          strictEqual(result.totalDocuments, asNonNeg(10));
-          strictEqual(result.entityCount, asNonNeg(42));
-          strictEqual(result.relationCount, asNonNeg(18));
-        }
+        deepStrictEqual(result, {
+          _tag: "BatchState.Completed",
+          batchId,
+          totalDocuments: asNonNeg(10),
+          entityCount: asNonNeg(42),
+          relationCount: asNonNeg(18),
+        });
       })
     );
   });
 
   describe("Failed", () => {
     effect(
-      "maps Failed to BatchState.Failed with field renames",
+      "maps Failed to BatchState.Failed renaming failedCount to failedDocuments",
       Effect.fn(function* () {
         const state = BatchMachineState.Failed({
           batchId,
@@ -144,38 +150,41 @@ describe("mapActorStateToBatchState", () => {
 
         const result = mapActorStateToBatchState(state);
 
-        strictEqual(result._tag, "BatchState.Failed");
-        strictEqual(result.batchId, batchId);
-        if (result._tag === "BatchState.Failed") {
-          strictEqual(result.failedDocuments, asNonNeg(3));
-          strictEqual(result.error, "LLM rate limit exceeded");
-        }
+        deepStrictEqual(result, {
+          _tag: "BatchState.Failed",
+          batchId,
+          failedDocuments: asNonNeg(3),
+          error: "LLM rate limit exceeded",
+        });
       })
     );
 
     effect(
-      "maps failedCount to failedDocuments",
+      "preserves error message verbatim",
       Effect.fn(function* () {
         const state = BatchMachineState.Failed({
           batchId,
           documentIds: [],
           config,
           failedCount: asNonNeg(0),
-          error: "unexpected error",
+          error: "unexpected error: connection reset",
         });
 
         const result = mapActorStateToBatchState(state);
 
-        if (result._tag === "BatchState.Failed") {
-          strictEqual(result.failedDocuments, asNonNeg(0));
-        }
+        deepStrictEqual(result, {
+          _tag: "BatchState.Failed",
+          batchId,
+          failedDocuments: asNonNeg(0),
+          error: "unexpected error: connection reset",
+        });
       })
     );
   });
 
   describe("Cancelled", () => {
     effect(
-      "maps Cancelled to BatchState.Cancelled with field renames",
+      "maps Cancelled to BatchState.Cancelled renaming completedCount to completedDocuments",
       Effect.fn(function* () {
         const state = BatchMachineState.Cancelled({
           batchId,
@@ -185,17 +194,17 @@ describe("mapActorStateToBatchState", () => {
 
         const result = mapActorStateToBatchState(state);
 
-        strictEqual(result._tag, "BatchState.Cancelled");
-        strictEqual(result.batchId, batchId);
-        if (result._tag === "BatchState.Cancelled") {
-          strictEqual(result.completedDocuments, asNonNeg(4));
-          strictEqual(result.totalDocuments, asNonNeg(8));
-        }
+        deepStrictEqual(result, {
+          _tag: "BatchState.Cancelled",
+          batchId,
+          completedDocuments: asNonNeg(4),
+          totalDocuments: asNonNeg(8),
+        });
       })
     );
 
     effect(
-      "maps completedCount to completedDocuments",
+      "handles zero completed documents on immediate cancellation",
       Effect.fn(function* () {
         const state = BatchMachineState.Cancelled({
           batchId,
@@ -205,10 +214,12 @@ describe("mapActorStateToBatchState", () => {
 
         const result = mapActorStateToBatchState(state);
 
-        if (result._tag === "BatchState.Cancelled") {
-          strictEqual(result.completedDocuments, asNonNeg(0));
-          strictEqual(result.totalDocuments, asNonNeg(5));
-        }
+        deepStrictEqual(result, {
+          _tag: "BatchState.Cancelled",
+          batchId,
+          completedDocuments: asNonNeg(0),
+          totalDocuments: asNonNeg(5),
+        });
       })
     );
   });

@@ -10,8 +10,8 @@
 
 | File                            | Purpose                                                                               | Location                      |
 |---------------------------------|---------------------------------------------------------------------------------------|-------------------------------|
-| `HANDOFF_P[N+1].md`             | Full context document with verification tables, schema shapes, implementation details | `specs/[spec-name]/handoffs/` |
-| `P[N+1]_ORCHESTRATOR_PROMPT.md` | Copy-paste ready prompt to start the next phase                                       | `specs/[spec-name]/handoffs/` |
+| `HANDOFF_P[N+1].md`             | Full context document with verification tables, schema shapes, implementation details | `specs/pending/[spec-name]/handoffs/` |
+| `P[N+1]_ORCHESTRATOR_PROMPT.md` | Copy-paste ready prompt to start the next phase                                       | `specs/pending/[spec-name]/handoffs/` |
 
 **Do NOT consider a phase complete until BOTH files exist and pass their verification checklists.**
 
@@ -30,8 +30,8 @@ This document establishes mandatory requirements based on learnings from complet
 | Spec Complexity       | Handoff Required | Location                                |
 |-----------------------|------------------|-----------------------------------------|
 | Simple (1 session)    | No               | N/A                                     |
-| Medium (2-3 sessions) | Yes              | `specs/[name]/handoffs/HANDOFF_P[N].md` |
-| Complex (4+ sessions) | Yes              | `specs/[name]/handoffs/HANDOFF_P[N].md` |
+| Medium (2-3 sessions) | Yes              | `specs/pending/[name]/handoffs/HANDOFF_P[N].md` |
+| Complex (4+ sessions) | Yes              | `specs/pending/[name]/handoffs/HANDOFF_P[N].md` |
 
 **Rule**: Any spec spanning multiple Claude sessions MUST use handoffs to preserve context.
 
@@ -151,6 +151,20 @@ Before finalizing any handoff, verify:
 
 ## Mandatory Requirements
 
+### Phase Finalization and Spec Location
+
+When a phase concludes the full spec:
+
+1. Update `README.md` with explicit completion status.
+2. Move the spec from `specs/pending/` to `specs/completed/`:
+   - `bun run spec:move -- <spec-name> completed`
+3. If work is intentionally paused/deferred, move to `specs/archived/` instead:
+   - `bun run spec:move -- <spec-name> archived`
+
+`specs/pending/` should only contain active/planned/incomplete specs.
+
+---
+
 ### 0. Orchestrator Prompt Creation (CRITICAL)
 
 **Rule**: At the end of EVERY phase, you MUST create BOTH handoff documents:
@@ -162,7 +176,7 @@ Before finalizing any handoff, verify:
 - `HANDOFF_P[N+1].md` provides complete context, verification tables, and detailed specifications
 - `P[N+1]_ORCHESTRATOR_PROMPT.md` is a concise, actionable prompt that can be copied directly into a new chat session
 
-**Location**: Both files go in `specs/[spec-name]/handoffs/`
+**Location**: Both files go in `specs/pending/[spec-name]/handoffs/`
 
 **Do NOT consider a phase complete until BOTH files exist.**
 
@@ -383,7 +397,7 @@ bun run test --filter @beep/package
 
 ### Handoff Document
 
-Read full context in: `specs/[SPEC_NAME]/handoffs/HANDOFF_P[N+1].md`
+Read full context in: `specs/pending/[SPEC_NAME]/handoffs/HANDOFF_P[N+1].md`
 
 ### Next Phase
 
@@ -523,7 +537,7 @@ Before finalizing any handoff, verify BOTH files are complete:
 
 ### Orchestrator Prompt Checklist (`P[N+1]_ORCHESTRATOR_PROMPT.md`)
 
-- [ ] **File exists** in `specs/[spec-name]/handoffs/` directory
+- [ ] **File exists** in `specs/pending/[spec-name]/handoffs/` directory
 - [ ] **Copy-paste ready** - prompt is self-contained and actionable
 - [ ] **Context section** summarizes previous phase completion
 - [ ] **Mission section** clearly states phase objectives
@@ -536,7 +550,7 @@ Before finalizing any handoff, verify BOTH files are complete:
 
 ### Handoff Document Checklist (`HANDOFF_P[N+1].md`)
 
-- [ ] **File exists** in `specs/[spec-name]/handoffs/` directory
+- [ ] **File exists** in `specs/pending/[spec-name]/handoffs/` directory
 - [ ] **Every method's response shape verified from source code**
 - [ ] **Source file references included** (file + line numbers)
 - [ ] **ALL response fields documented** (no omissions)

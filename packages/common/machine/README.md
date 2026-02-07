@@ -1,266 +1,178 @@
-# effect-machine
+# @beep/machine
 
-Type-safe state machines for Effect.
+Type-safe, schema-first state machines for Effect.
 
-## Why State Machines?
+This package provides a fluent machine builder (`Machine.make`), actor runtime (`Machine.spawn`), slot-based guard/effect injection (`Slot.Guards`, `Slot.Effects`), pure transition testing utilities, and optional persistence adapters.
 
-State machines eliminate entire categories of bugs:
+## Purpose
 
-- **No invalid states** - Compile-time enforcement of valid transitions
-- **Explicit side effects** - Effects scoped to states, auto-cancelled on exit
-- **Testable** - Simulate transitions without actors, assert paths deterministically
-- **Serializable** - Schemas power persistence and cluster distribution
+`@beep/machine` is a shared runtime primitive for workflows that need:
 
+- Explicit state transition graphs
+- Typed event handling
+- Scoped side effects
+- Deterministic transition testing
+- Optional durable actor restoration
 
-## Quick Example
+## Key Exports
+
+| Export | Description |
+|--------|-------------|
+| `Machine` | Namespace containing `make`, `spawn`, and transition helpers |
+| `State` / `Event` | Schema-first variant constructors for state/event unions |
+| `Slot` | Slot definition utilities for guards and effects |
+| `simulate` / `createTestHarness` | Actor-free transition testing helpers |
+| `assertPath` / `assertReaches` / `assertNeverReaches` | Assertions for expected machine paths |
+| `createPersistentActor` / `restorePersistentActor` | Persistent actor runtime wrappers |
+| `InMemoryPersistenceAdapter` | In-memory adapter for tests/dev |
+| `consoleInspector` / `collectingInspector` | Runtime inspection instrumentation helpers |
+
+## Architecture Fit
+
+- Pure TypeScript runtime package under `packages/common/*`
+- No domain coupling (knowledge/iam/documents logic stays outside)
+- Effect-native execution model for transitions and side effects
+- Storage-agnostic persistence via adapter interface
+
+## Package Layout
+
+```text
+src/
+├── index.ts                # public exports
+├── schema.ts               # State/Event schema constructors
+├── machine.ts              # fluent builder + BuiltMachine
+├── facade.ts               # Machine namespace assembly
+├── actor.ts                # actor runtime + spawn
+├── slot.ts                 # guards/effects slot definitions
+├── testing.ts              # simulate/test harness/assert helpers
+├── inspection.ts           # inspection events and services
+├── persistence/            # adapter contracts + persistent actor helpers
+├── cluster/                # entity-oriented integration helpers
+└── internal/               # transition and runtime internals
+```
+
+## Quick Start
 
 ```ts
-import { Effect, Schema } from "effect";
-import { Machine, State, Event, Slot, type BuiltMachine } from "@beep/machine";
+import { Event, Machine, Slot, State } from "@beep/machine";
+import * as Effect from "effect/Effect";
+import * as S from "effect/Schema";
 
-// Define state schema - states ARE schemas
 const OrderState = State({
-  Pending: { orderId: Schema.String },
-  Processing: { orderId: Schema.String },
-  Shipped: { orderId: Schema.String, trackingId: Schema.String },
-  Cancelled: {},
+  Pending: { orderId: S.String },
+  Processing: { orderId: S.String },
+  Completed: { orderId: S.String },
+  Failed: { orderId: S.String, reason: S.String },
 });
 
-// Define event schema
 const OrderEvent = Event({
-  Process: {},
-  Ship: { trackingId: Schema.String },
-  Cancel: {},
+  Start: {},
+  Complete: {},
+  Fail: { reason: S.String },
 });
 
-// Define effects (side effects scoped to states)
 const OrderEffects = Slot.Effects({
-  notifyWarehouse: { orderId: Schema.String },
+  notify: { orderId: S.String },
 });
 
-// Build machine with fluent API
 const orderMachine = Machine.make({
   state: OrderState,
   event: OrderEvent,
   effects: OrderEffects,
   initial: OrderState.Pending({ orderId: "order-1" }),
 })
-  .on(OrderState.Pending, OrderEvent.Process, ({ state }) => OrderState.Processing.derive(state))
-  .on(OrderState.Processing, OrderEvent.Ship, ({ state, event }) =>
-    OrderState.Shipped.derive(state, { trackingId: event.trackingId }),
+  .on(OrderState.Pending, OrderEvent.Start, ({ state }) =>
+    OrderState.Processing.derive(state),
   )
-  // Cancel from any state
-  .onAny(OrderEvent.Cancel, () => OrderState.Cancelled)
-  // Effect runs when entering Processing, cancelled on exit
+  .on(OrderState.Processing, OrderEvent.Complete, ({ state }) =>
+    OrderState.Completed.derive(state),
+  )
+  .on(OrderState.Processing, OrderEvent.Fail, ({ state, event }) =>
+    OrderState.Failed.derive(state, { reason: event.reason }),
+  )
   .spawn(OrderState.Processing, ({ effects, state }) =>
-    effects.notifyWarehouse({ orderId: state.orderId }),
+    effects.notify({ orderId: state.orderId }),
   )
-  .final(OrderState.Shipped)
-  .final(OrderState.Cancelled)
+  .final(OrderState.Completed)
+  .final(OrderState.Failed)
   .build({
-    notifyWarehouse: ({ orderId }) => Effect.log(`Warehouse notified: ${orderId}`),
+    notify: ({ orderId }) =>
+      Effect.logInfo("Order entered processing").pipe(
+        Effect.annotateLogs({ orderId }),
+      ),
   });
 
-// Run as actor (simple — no scope required)
 const program = Effect.gen(function* () {
   const actor = yield* Machine.spawn(orderMachine);
-
-  yield* actor.send(OrderEvent.Process);
-  yield* actor.send(OrderEvent.Ship({ trackingId: "TRACK-123" }));
-
-  const state = yield* actor.waitFor(OrderState.Shipped);
-  console.log(state); // Shipped { orderId: "order-1", trackingId: "TRACK-123" }
-
-  yield* actor.stop;
-});
-
-Effect.runPromise(program);
-```
-
-## Core Concepts
-
-### Schema-First
-
-States and events ARE schemas. Single source of truth for types and serialization:
-
-```ts
-const MyState = State({
-  Idle: {}, // Empty = plain value
-  Loading: { url: Schema.String }, // Non-empty = constructor
-});
-
-MyState.Idle; // Value (no parens)
-MyState.Loading({ url: "/api" }); // Constructor
-```
-
-### State.derive()
-
-Construct new states from existing ones — picks overlapping fields, applies overrides:
-
-```ts
-// Same-state: preserve fields, override specific ones
-.on(State.Active, Event.Update, ({ state, event }) =>
-  State.Active.derive(state, { count: event.count })
-)
-
-// Cross-state: picks only target fields from source
-.on(State.Processing, Event.Ship, ({ state, event }) =>
-  State.Shipped.derive(state, { trackingId: event.trackingId })
-)
-```
-
-### Multi-State Transitions
-
-Handle the same event from multiple states:
-
-```ts
-// Array of states — handler receives union type
-.on([State.Draft, State.Review], Event.Cancel, () => State.Cancelled)
-
-// Wildcard — fires from any state (specific .on() takes priority)
-.onAny(Event.Cancel, () => State.Cancelled)
-```
-
-### Guards and Effects as Slots
-
-Define parameterized guards and effects, provide implementations:
-
-```ts
-const MyGuards = Slot.Guards({
-  canRetry: { max: Schema.Number },
-});
-
-const MyEffects = Slot.Effects({
-  fetchData: { url: Schema.String },
-});
-
-machine
-  .on(MyState.Error, MyEvent.Retry, ({ state, guards }) =>
-    Effect.gen(function* () {
-      if (yield* guards.canRetry({ max: 3 })) {
-        return MyState.Loading({ url: state.url }); // Transition first
-      }
-      return MyState.Failed;
-    }),
-  )
-  // Fetch runs when entering Loading, auto-cancelled if state changes
-  .spawn(MyState.Loading, ({ effects, state }) => effects.fetchData({ url: state.url }))
-  .build({
-    canRetry: ({ max }, { state }) => state.attempts < max,
-    fetchData: ({ url }, { self }) =>
-      Effect.gen(function* () {
-        const data = yield* Http.get(url);
-        yield* self.send(MyEvent.Resolve({ data }));
-      }),
-  });
-```
-
-### State-Scoped Effects
-
-`.spawn()` runs effects when entering a state, auto-cancelled on exit:
-
-```ts
-machine
-  .spawn(MyState.Loading, ({ effects, state }) => effects.fetchData({ url: state.url }))
-  .spawn(MyState.Polling, ({ effects }) => effects.poll({ interval: "5 seconds" }));
-```
-
-`.task()` runs on entry and sends success/failure events:
-
-```ts
-machine.task(State.Loading, ({ effects, state }) => effects.fetchData({ url: state.url }), {
-  onSuccess: (data) => MyEvent.Resolve({ data }),
-  onFailure: () => MyEvent.Reject,
+  yield* actor.send(OrderEvent.Start);
+  yield* actor.send(OrderEvent.Complete);
+  const done = yield* actor.waitFor(OrderState.Completed);
+  return done;
 });
 ```
 
-### Testing
-
-Test transitions without actors:
+## Testing Example
 
 ```ts
-import { simulate, assertPath } from "@beep/machine";
+import { assertPath } from "@beep/machine";
 
-// Simulate events and check path
-const result = yield* simulate(machine, [MyEvent.Start, MyEvent.Complete]);
-expect(result.states.map((s) => s._tag)).toEqual(["Idle", "Loading", "Done"]);
-
-// Assert specific path
-yield* assertPath(machine, events, ["Idle", "Loading", "Done"]);
+yield* assertPath(
+  orderMachine,
+  [OrderEvent.Start, OrderEvent.Complete],
+  ["Pending", "Processing", "Completed"],
+);
 ```
 
-## Documentation
+## Persistence
 
-See the [primer](./primer) for comprehensive documentation:
+Use `.persist(...)` on a built machine, then run through persistent actor helpers:
 
-| Topic       | File                                      | Description                    |
-|-------------|-------------------------------------------|--------------------------------|
-| Overview    | [index.md](./primer/index.md)             | Navigation and quick reference |
-| Basics      | [basics.md](./primer/basics.md)           | Core concepts                  |
-| Handlers    | [handlers.md](./primer/handlers.md)       | Transitions and guards         |
-| Effects     | [effects.md](./primer/effects.md)         | spawn, background, timeouts    |
-| Testing     | [testing.md](./primer/testing.md)         | simulate, harness, assertions  |
-| Actors      | [actors.md](./primer/actors.md)           | ActorSystem, ActorRef          |
-| Persistence | [persistence.md](./primer/persistence.md) | Snapshots, event sourcing      |
-| Gotchas     | [gotchas.md](./primer/gotchas.md)         | Common mistakes                |
+```ts
+import {
+  createPersistentActor,
+  makeInMemoryPersistenceAdapter,
+  PersistenceAdapterTag,
+  restorePersistentActor,
+} from "@beep/machine";
+import * as Effect from "effect/Effect";
+import * as Schedule from "effect/Schedule";
 
-## API Quick Reference
+const adapter = makeInMemoryPersistenceAdapter();
 
-### Building
+const persistent = orderMachine.persist({
+  snapshotSchedule: Schedule.recurs(10),
+  journalEvents: true,
+  machineType: "order-workflow",
+});
 
-| Method                                    | Purpose                                                     |
-|-------------------------------------------|-------------------------------------------------------------|
-| `Machine.make({ state, event, initial })` | Create machine                                              |
-| `.on(State.X, Event.Y, handler)`          | Add transition                                              |
-| `.on([State.X, State.Y], Event.Z, h)`     | Multi-state transition                                      |
-| `.onAny(Event.X, handler)`                | Wildcard transition (any state)                             |
-| `.reenter(State.X, Event.Y, handler)`     | Force re-entry on same state                                |
-| `.spawn(State.X, handler)`                | State-scoped effect                                         |
-| `.task(State.X, run, { onSuccess })`      | State-scoped task                                           |
-| `.background(handler)`                    | Machine-lifetime effect                                     |
-| `.final(State.X)`                         | Mark final state                                            |
-| `.build({ slot: impl })`                  | Provide implementations, returns `BuiltMachine` (terminal)  |
-| `.build()`                                | Finalize no-slot machine, returns `BuiltMachine` (terminal) |
-| `.persist(config)`                        | Enable persistence                                          |
+const actor = yield* createPersistentActor("order-actor-1", persistent).pipe(
+  Effect.provideService(PersistenceAdapterTag, adapter),
+);
 
-### State Constructors
+const restored = yield* restorePersistentActor("order-actor-1", persistent).pipe(
+  Effect.provideService(PersistenceAdapterTag, adapter),
+);
+```
 
-| Method                                 | Purpose                        |
-|----------------------------------------|--------------------------------|
-| `State.X.derive(source)`               | Pick target fields from source |
-| `State.X.derive(source, { field: v })` | Pick fields + apply overrides  |
-| `State.$is("X")(value)`                | Type guard                     |
-| `State.$match(value, { X: fn, ... })`  | Pattern matching               |
+## Scripts
 
-### Running
+Run from repo root:
 
-| Method                       | Purpose                                                                                                 |
-|------------------------------|---------------------------------------------------------------------------------------------------------|
-| `Machine.spawn(machine)`     | Single actor, no registry. Caller manages lifetime via `actor.stop`. Auto-cleans up if `Scope` present. |
-| `Machine.spawn(machine, id)` | Same as above with custom ID                                                                            |
-| `system.spawn(id, machine)`  | Registry, lookup by ID, bulk ops, persistence. Cleans up on system teardown.                            |
+- `bunx turbo run check --filter=@beep/machine`
+- `bunx turbo run test --filter=@beep/machine`
+- `bunx turbo run lint --filter=@beep/machine`
+- `bunx turbo run lint:fix --filter=@beep/machine`
 
-### Testing
+## Additional Docs
 
-| Function                                   | Description                                                      |
-|--------------------------------------------|------------------------------------------------------------------|
-| `simulate(machine, events)`                | Run events, get all states (accepts `Machine` or `BuiltMachine`) |
-| `createTestHarness(machine)`               | Step-by-step testing (accepts `Machine` or `BuiltMachine`)       |
-| `assertPath(machine, events, path)`        | Assert exact path                                                |
-| `assertReaches(machine, events, tag)`      | Assert final state                                               |
-| `assertNeverReaches(machine, events, tag)` | Assert state never visited                                       |
-
-### Actor
-
-| Method                           | Description                        |
-|----------------------------------|------------------------------------|
-| `actor.send(event)`              | Queue event                        |
-| `actor.sendSync(event)`          | Fire-and-forget (sync, for UI)     |
-| `actor.snapshot`                 | Get current state                  |
-| `actor.matches(tag)`             | Check state tag                    |
-| `actor.can(event)`               | Can handle event?                  |
-| `actor.changes`                  | Stream of changes                  |
-| `actor.waitFor(State.X)`         | Wait for state (constructor or fn) |
-| `actor.awaitFinal`               | Wait final state                   |
-| `actor.sendAndWait(ev, State.X)` | Send + wait for state              |
-| `actor.subscribe(fn)`            | Sync callback                      |
+- `primer/index.md`
+- `primer/basics.md`
+- `primer/handlers.md`
+- `primer/effects.md`
+- `primer/testing.md`
+- `primer/actors.md`
+- `primer/persistence.md`
+- `primer/gotchas.md`
+- `AGENTS.md`
+- `CLAUDE.md`
+- `ai-context.md`

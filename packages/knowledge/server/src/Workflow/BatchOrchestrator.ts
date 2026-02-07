@@ -33,6 +33,7 @@ import * as Match from "effect/Match";
 import * as O from "effect/Option";
 import * as Schedule from "effect/Schedule";
 
+import { MentionRecordRepo } from "@beep/knowledge-server/db/repos/MentionRecord.repo";
 import type { ExtractionResult } from "../Extraction/ExtractionPipeline";
 import { BatchActorRegistry } from "./BatchActorRegistry";
 import { BatchEventEmitter } from "./BatchEventEmitter";
@@ -45,6 +46,7 @@ const $I = $KnowledgeServerId.create("Workflow/BatchOrchestrator");
 type BatchActor = ActorRef<BatchMachineState, BatchMachineEvent>;
 
 export interface BatchOrchestratorParams {
+  readonly batchId?: KnowledgeEntityIds.BatchExecutionId.Type;
   readonly organizationId: SharedEntityIds.OrganizationId.Type;
   readonly ontologyId: KnowledgeEntityIds.OntologyId.Type;
   readonly documents: ReadonlyArray<{
@@ -86,6 +88,7 @@ const serviceEffect = Effect.gen(function* () {
   const registry = yield* BatchActorRegistry;
   const emitter = yield* BatchEventEmitter;
   const maybeClusterer = yield* Effect.serviceOption(IncrementalClusterer);
+  const maybeMentionRecordRepo = yield* Effect.serviceOption(MentionRecordRepo);
   const persistence = yield* WorkflowPersistence;
   const adapter = yield* PersistenceAdapterTag;
 
@@ -364,7 +367,7 @@ const serviceEffect = Effect.gen(function* () {
   const run: BatchOrchestratorShape["run"] = Effect.fn("BatchOrchestrator.run")(function* (
     params: BatchOrchestratorParams
   ) {
-    const batchId = KnowledgeEntityIds.BatchExecutionId.create();
+    const batchId = params.batchId ?? KnowledgeEntityIds.BatchExecutionId.create();
     const totalDocs = A.length(params.documents);
 
     // Spawn the persistent actor-based machine
@@ -448,10 +451,45 @@ const serviceEffect = Effect.gen(function* () {
         Effect.annotateLogs({ batchId })
       );
 
-      // Send ResolutionComplete to actor
-      yield* actor.send(BatchMachineEvent.ResolutionComplete({ mergeCount: 0 }));
+      const clusterer = maybeClusterer.value;
 
-      yield* emitEvent((timestamp) => ResolutionCompleted.make({ batchId, mergeCount: 0, timestamp }));
+      const mergeCount = yield* Effect.gen(function* () {
+        if (O.isNone(maybeMentionRecordRepo)) {
+          yield* Effect.logWarning(
+            "BatchOrchestrator: MentionRecordRepo not available, skipping entity resolution"
+          ).pipe(Effect.annotateLogs({ batchId }));
+          return 0;
+        }
+
+        const mentionRepo = maybeMentionRecordRepo.value;
+        const unresolvedMentions = yield* mentionRepo.findUnresolved(params.organizationId, 1000);
+        const mentionCount = A.length(unresolvedMentions);
+
+        if (mentionCount === 0) {
+          yield* Effect.logInfo("BatchOrchestrator: no unresolved mentions found, skipping clustering").pipe(
+            Effect.annotateLogs({ batchId })
+          );
+          return 0;
+        }
+
+        yield* Effect.logInfo("BatchOrchestrator: clustering unresolved mentions").pipe(
+          Effect.annotateLogs({ batchId, unresolvedMentionCount: mentionCount })
+        );
+
+        yield* clusterer.cluster(unresolvedMentions);
+
+        return mentionCount;
+      }).pipe(
+        Effect.catchAllCause((cause) =>
+          Effect.logWarning("BatchOrchestrator: entity resolution failed, continuing with mergeCount: 0").pipe(
+            Effect.annotateLogs({ cause: String(cause), batchId }),
+            Effect.as(0)
+          )
+        )
+      );
+
+      yield* actor.send(BatchMachineEvent.ResolutionComplete({ mergeCount }));
+      yield* emitEvent((timestamp) => ResolutionCompleted.make({ batchId, mergeCount, timestamp }));
     }
 
     if (batchResult.failureCount > 0 && batchResult.successCount === 0) {

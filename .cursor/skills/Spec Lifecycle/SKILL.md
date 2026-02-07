@@ -30,8 +30,8 @@ Use this skill when creating new specifications or handing off between phases/se
 
 At the end of **every** phase, create **both**:
 
-1. `specs/[spec]/handoffs/HANDOFF_P[N+1].md` — context for next phase
-2. `specs/[spec]/handoffs/P[N+1]_ORCHESTRATOR_PROMPT.md` — copy-paste prompt for next session
+1. `specs/pending/[spec]/handoffs/HANDOFF_P[N+1].md` — context for next phase
+2. `specs/pending/[spec]/handoffs/P[N+1]_ORCHESTRATOR_PROMPT.md` — copy-paste prompt for next session
 
 Templates: `specs/_guide/HANDOFF_STANDARDS.md`.
 

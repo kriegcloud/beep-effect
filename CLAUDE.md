@@ -56,7 +56,7 @@ Agent-assisted, self-improving specification workflow for complex, multi-phase t
 
 | Action            | Location                                                                                          |
 |-------------------|---------------------------------------------------------------------------------------------------|
-| Create new spec   | `specs/[name]/` following [Spec Guide](specs/_guide/README.md)                                    |
+| Create new spec   | `specs/pending/[name]/` following [Spec Guide](specs/_guide/README.md)                                    |
 | Pattern reference | [PATTERN_REGISTRY](specs/_guide/PATTERN_REGISTRY.md)                                              |
 | View all specs    | [specs/README.md](specs/README.md)                                                                |
 | Agent specs       | [specs/agents/](specs/agents/README.md)                                                           |

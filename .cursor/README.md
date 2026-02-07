@@ -10,10 +10,10 @@ Cursor IDE configuration for the beep-effect monorepo. This directory provides r
 |---------------------|-------------------|----------------|
 | **Commands** (e.g. `/new-spec`, `/done-feature`) | No slash commands | **Skills** + this README; trigger by prompt or @-mention (e.g. @Spec Lifecycle) |
 | **Agents** (registry, delegation) | No agent model | **AGENTS.md** entry points; agent intents mapped to skills and rules |
-| **Hooks** (agent-init, telemetry, self-healing) | No documented hook/lifecycle API | **Deferred** in parity; see `specs/cursor-claude-parity/outputs/parity-decision-log.md` |
+| **Hooks** (agent-init, telemetry, self-healing) | No documented hook/lifecycle API | **Deferred** in parity; see `specs/pending/cursor-claude-parity/outputs/parity-decision-log.md` |
 | **Prompts** (e.g. repo-consistency-audit) | No dedicated prompts dir | Content folded into skills or docs; invoke via natural language |
 
-So parity is achieved by **adaptation**: same intents (spec lifecycle, done-feature, debug/explore/write-test) are triggered via Cursor’s rules + skills + README index, not by replicating .claude’s folder structure. Full rationale: `specs/cursor-claude-parity/outputs/P1_GAP_ANALYSIS.md` and `parity-decision-log.md`.
+So parity is achieved by **adaptation**: same intents (spec lifecycle, done-feature, debug/explore/write-test) are triggered via Cursor’s rules + skills + README index, not by replicating .claude’s folder structure. Full rationale: `specs/pending/cursor-claude-parity/outputs/P1_GAP_ANALYSIS.md` and `parity-decision-log.md`.
 
 ## Entry Points
 
@@ -72,7 +72,7 @@ Cursor does not support slash commands. Use prompts or @-mentions:
 | Intent | How to invoke |
 |--------|----------------|
 | New spec | "Create a new spec for [name] following the spec guide" or @Spec Lifecycle |
-| Phase handoff | "Execute Phase N of specs/[spec]; read handoffs/HANDOFF_PN.md and P[N]_ORCHESTRATOR_PROMPT.md" |
+| Phase handoff | "Execute Phase N of specs/pending/[spec]; read handoffs/HANDOFF_PN.md and P[N]_ORCHESTRATOR_PROMPT.md" |
 | Feature complete | "Run done-feature workflow" or @Done Feature |
 | Debug bug | "Debug: [description]" or @Task Execution (Debug) |
 | Explore codebase | "Explore: [question]" or @Task Execution (Explore) |
@@ -84,4 +84,4 @@ Critical denies and safety expectations are encoded in project rules (e.g. no `a
 
 ## Spec Parity
 
-This configuration is maintained as part of `specs/cursor-claude-parity`. For gap analysis, decision log, and validation reports see `specs/cursor-claude-parity/outputs/`.
+This configuration is maintained as part of `specs/pending/cursor-claude-parity`. For gap analysis, decision log, and validation reports see `specs/pending/cursor-claude-parity/outputs/`.

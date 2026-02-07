@@ -544,3 +544,10 @@
 {"eventType":"stop","timestamp":"2026-02-07T08:53:35.648Z","sessionId":"f067df30-e26f-4a9b-a3ae-c543004d7128","agentType":"unknown","durationMs":0,"outcome":"success"}
 {"eventType":"start","timestamp":"2026-02-07T09:07:22.164Z","sessionId":"8ff9a97a-483c-441a-82c2-d077cdc8361b","agentType":"test-writer","triggeredBy":"auto"}
 {"eventType":"start","timestamp":"2026-02-07T09:07:36.517Z","sessionId":"8ff9a97a-483c-441a-82c2-d077cdc8361b","agentType":"test-writer","triggeredBy":"auto"}
+{"eventType":"stop","timestamp":"2026-02-07T09:10:06.087Z","sessionId":"8ff9a97a-483c-441a-82c2-d077cdc8361b","agentType":"test-writer","durationMs":149570,"outcome":"success"}
+{"eventType":"stop","timestamp":"2026-02-07T09:11:46.410Z","sessionId":"8ff9a97a-483c-441a-82c2-d077cdc8361b","agentType":"unknown","durationMs":0,"outcome":"success"}
+{"eventType":"start","timestamp":"2026-02-07T09:16:40.379Z","sessionId":"f41d92eb-dae7-4a81-8ed6-ec3f3d80533c","agentType":"codebase-researcher","triggeredBy":"auto"}
+{"eventType":"stop","timestamp":"2026-02-07T09:21:00.218Z","sessionId":"f41d92eb-dae7-4a81-8ed6-ec3f3d80533c","agentType":"codebase-researcher","durationMs":259839,"outcome":"success"}
+{"eventType":"start","timestamp":"2026-02-07T09:26:17.103Z","sessionId":"f41d92eb-dae7-4a81-8ed6-ec3f3d80533c","agentType":"effect-code-writer","triggeredBy":"auto"}
+{"eventType":"stop","timestamp":"2026-02-07T09:31:15.575Z","sessionId":"f41d92eb-dae7-4a81-8ed6-ec3f3d80533c","agentType":"effect-code-writer","durationMs":298472,"outcome":"success"}
+{"eventType":"start","timestamp":"2026-02-07T09:32:32.766Z","sessionId":"f41d92eb-dae7-4a81-8ed6-ec3f3d80533c","agentType":"effect-code-writer","triggeredBy":"auto"}

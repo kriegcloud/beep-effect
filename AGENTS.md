@@ -79,7 +79,7 @@ For Codex parity workflows and adaptations, use:
 
 For Cursor IDE parity workflows and adaptations, use:
 - [.cursor/README.md](.cursor/README.md) — Cursor config index, command/workflow mapping, skill list
-- `specs/cursor-claude-parity/` — Spec for achieving `.cursor` parity with `.claude` and `.codex`
+- `specs/pending/cursor-claude-parity/` — Spec for achieving `.cursor` parity with `.claude` and `.codex`
 - `.cursor/rules/` — Synced from `.claude/rules` via `bun run repo-cli sync-cursor-rules`
 - `.cursor/skills/` — Cursor skill catalog (required + workflow skills)
 
@@ -108,7 +108,7 @@ Agent-assisted, self-improving specification workflow for complex, multi-phase t
 
 | Action            | Location                                                                                          |
 |-------------------|---------------------------------------------------------------------------------------------------|
-| Create new spec   | `specs/[name]/` following [Spec Guide](specs/_guide/README.md)                                    |
+| Create new spec   | `specs/pending/[name]/` following [Spec Guide](specs/_guide/README.md)                                    |
 | Pattern reference | [PATTERN_REGISTRY](specs/_guide/PATTERN_REGISTRY.md)                                              |
 | View all specs    | [specs/README.md](specs/README.md)                                                                |
 | Agent specs       | [specs/agents/](specs/agents/README.md)                                                           |
@@ -160,11 +160,12 @@ See [subtree-workflow.md](documentation/subtree-workflow.md) for update procedur
 
 ### Specs by Status
 
-| Status | Specs |
-|--------|-------|
-| ✅ Complete | [artifact-file-cleanup](specs/artifact-file-cleanup/), [lexical-playground-port](specs/lexical-playground-port/), [lexical-utils-effect-refactor](specs/lexical-utils-effect-refactor/), [spec-creation-improvements](specs/spec-creation-improvements/), [agent-context-optimization](specs/agent-context-optimization/) |
-| 🔄 Active | [agent-infrastructure-rationalization](specs/agent-infrastructure-rationalization/), [knowledge-architecture-foundation](specs/knowledge-architecture-foundation/), [todox-design](specs/todox-design/) |
-| 📋 Planning | [e2e-testkit-migration](specs/e2e-testkit-migration/), [knowledge-*](specs/) (see [full list](specs/README.md)) |
+Specs are now organized by folder:
+- Pending: `specs/pending/`
+- Completed: `specs/completed/`
+- Archived (deferred): `specs/archived/`
+
+See [specs/README.md](specs/README.md) for the current index.
 
 ## Key References
 

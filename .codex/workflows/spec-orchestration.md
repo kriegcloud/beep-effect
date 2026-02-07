@@ -1,6 +1,6 @@
 # Spec Orchestration Workflow
 
-Canonical source: `specs/codex-claude-parity/MASTER_ORCHESTRATION.md`
+Canonical source: `specs/pending/codex-claude-parity/MASTER_ORCHESTRATION.md`
 
 ## Condensed execution checklist
 

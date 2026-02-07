@@ -7,11 +7,22 @@ import * as S from "effect/Schema";
 
 const $I = $KnowledgeDomainId.create("rpc/Batch/StartBatch");
 
+export class BatchDocument extends S.Class<BatchDocument>($I`BatchDocument`)(
+  {
+    documentId: DocumentsEntityIds.DocumentId,
+    text: S.String,
+  },
+  $I.annotations("BatchDocument", {
+    description: "Document with text content for batch extraction",
+  })
+) {}
+
 export class Payload extends S.Class<Payload>($I`Payload`)(
   {
     organizationId: SharedEntityIds.OrganizationId,
     ontologyId: KnowledgeEntityIds.OntologyId,
-    documentIds: S.Array(DocumentsEntityIds.DocumentId),
+    documents: S.Array(BatchDocument),
+    ontologyContent: S.String,
     config: S.optional(BatchConfig),
   },
   $I.annotations("Payload", {

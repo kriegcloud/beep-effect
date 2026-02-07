@@ -68,6 +68,8 @@
     "verify:entityids": "bun run repo-cli verify entityids",
     "verify:patterns": "bun run repo-cli verify patterns",
     "verify:all": "bun run repo-cli verify all",
+    "spec:status:check": "bash scripts/specs/spec-status.sh check",
+    "spec:move": "bash scripts/specs/spec-status.sh move",
     "dev:https": "bun run dotenvx -- bunx turbo run dev:https --concurrency=36",
     "dev": "bun run dotenvx -- bunx turbo run dev --concurrency=36",
     "bootstrap": "bunx tsx ./tooling/repo-scripts/src/bootstrap.ts",
@@ -86,7 +88,13 @@
     "iconify": "bun run --cwd tooling/repo-scripts iconify",
     "ui-add": "turbo run ui-add",
     "prepare": "effect-language-service patch",
-    "auth:generate": "bunx --bun @better-auth/cli@latest generate --config ./scratchpad/auth.ts --output ./scratchpad/auth.schema.ts --yes"
+    "auth:generate": "bunx --bun @better-auth/cli@latest generate --config ./scratchpad/auth.ts --output ./scratchpad/auth.schema.ts --yes",
+    "codex:hook:session-start": "bun run .codex/hooks/lifecycle.ts session-start",
+    "codex:hook:user-prompt-submit": "bun run .codex/hooks/lifecycle.ts user-prompt-submit",
+    "codex:hook:pre-tool-use": "bun run .codex/hooks/lifecycle.ts pre-tool-use",
+    "codex:hook:post-tool-use": "bun run .codex/hooks/lifecycle.ts post-tool-use",
+    "codex:hook:subagent-stop": "bun run .codex/hooks/lifecycle.ts subagent-stop",
+    "codex:hook:run": "bun run .codex/hooks/lifecycle.ts run --"
   },
   "resolutions#": {
     "@beep/*": "Needed to force PNPM to install local packages"

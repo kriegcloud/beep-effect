@@ -289,12 +289,11 @@ We are in the recursion now.
 
 ```
 specs/
-├── better-auth-client-wrappers/    # Claude figured out the auth integration
-├── e2e-testkit-migration/          # Claude migrated the test infrastructure
-├── knowledge-graph-integration/    # Claude is building the knowledge system
-├── orgtable-auto-rls/              # Claude is implementing row-level security
-├── readme-troll-variants/          # Claude wrote this README
-└── ... 15 more specifications
+├── pending/                        # active, planning, in-progress specs
+├── completed/                      # finished specs
+├── archived/                       # deferred specs
+├── _guide/                         # templates, standards, workflows
+└── agents/                         # agent-specific specs
 ```
 
 The specs have phases. The phases have agents. The agents have tools. The tools modify the codebase. The codebase spawns new specs.
