@@ -62,7 +62,7 @@ This spec replaces the ad-hoc implementation with a proper `@beep/machine`-based
 
 | Spec | Relationship |
 |------|-------------|
-| `specs/knowledge-ontology-comparison/` | Active spec; batch workflow is a dependency |
+| `specs/knowledge-ontology-comparison/` | Active spec; batch workflow is a dependency. Identified EventLog as gap; rejected @effect/workflow but @effect/experimental is standalone |
 | `specs/knowledge-workflow-durability/` | Earlier exploration of workflow durability patterns |
 | `specs/knowledge-architecture-foundation/` | Foundation architecture for the knowledge slice |
 
@@ -85,7 +85,7 @@ This spec replaces the ad-hoc implementation with a proper `@beep/machine`-based
 
 - Changing the batch RPC contract (API surface stays the same)
 - Modifying `ExtractionWorkflow` or `DurableActivities`
-- Implementing a SQL-backed `PersistenceAdapter` (in-memory adapter first; SQL adapter is a follow-up)
+- Implementing a full SQL-backed `PersistenceAdapter` in Phase 3 (in-memory + `EventJournal.layerMemory` first; PostgreSQL `EventJournal` adapter is Phase 3 follow-up)
 - Changing batch failure policies (continue-on-failure, abort-all, retry-failed)
 - Cluster/entity integration (future work)
 
@@ -145,6 +145,12 @@ This spec replaces the ad-hoc implementation with a proper `@beep/machine`-based
 
 **Rationale**: The in-memory adapter validates the persistence interface contract. A SQL adapter requires table design and migration work that belongs in its own spec.
 
+### 5. Event persistence via @effect/experimental EventLog
+
+**Decision**: Use `@effect/experimental` `EventGroup` + `EventLog` + `EventJournal` for batch event definition, persistence, and handler registration. Build a PostgreSQL `EventJournal` adapter as the production backing store.
+
+**Rationale**: The `@effect/experimental` Event modules provide schema-typed event definitions with `primaryKey` for idempotency, compile-time handler exhaustiveness, event compaction, and replay capability — all features the batch machine needs. Unlike `@effect/workflow`, these modules do NOT require `@effect/cluster` infrastructure. The `EventJournal` interface is small (6 methods), making a PostgreSQL adapter bounded work. This replaces the plan for a fully custom `machine_event_journal` SQL table with a standard, upstream-maintained abstraction.
+
 ## Success Criteria
 
 ### Implementation
@@ -179,6 +185,7 @@ This spec replaces the ad-hoc implementation with a proper `@beep/machine`-based
 |------|-----------|--------|
 | Hard | `@beep/machine` compiles | In Progress |
 | Soft | Existing batch tests pass | Assumed |
+| Soft | `@effect/experimental` EventLog API stable | Assumed (v0.58.0) |
 
 ## Risks
 
@@ -187,6 +194,7 @@ This spec replaces the ad-hoc implementation with a proper `@beep/machine`-based
 | Machine package API changes | Medium | Pin to current API, update if needed |
 | Orchestrator refactor breaks RPC | High | Keep RPC handlers thin, test end-to-end |
 | Persistence adapter mismatch | Low | Start with in-memory, validate interface |
+| `@effect/experimental` API instability | Medium | Pin to v0.58.0; Event/EventGroup/EventLog APIs are well-defined but pre-1.0. Wrap usage behind internal modules so upstream changes are contained |
 
 ## Reference Files
 
@@ -207,6 +215,10 @@ This spec replaces the ad-hoc implementation with a proper `@beep/machine`-based
 | `packages/knowledge/server/src/Workflow/BatchEventEmitter.ts` | Event emission |
 | `packages/knowledge/server/src/Workflow/WorkflowPersistence.ts` | Workflow persistence |
 | `packages/knowledge/server/test/Workflow/BatchStateMachine.test.ts` | Current tests |
+| `.repos/effect/packages/experimental/src/Event.ts` | `@effect/experimental` Event definition (tag, primaryKey, payload) |
+| `.repos/effect/packages/experimental/src/EventGroup.ts` | EventGroup builder (`EventGroup.empty.add(...)`) |
+| `.repos/effect/packages/experimental/src/EventLog.ts` | EventLog schema, group handlers, makeClient, compaction |
+| `.repos/effect/packages/experimental/src/EventJournal.ts` | EventJournal persistence interface (6 methods), `layerMemory` |
 
 ## Outputs
 
@@ -217,7 +229,8 @@ This spec replaces the ad-hoc implementation with a proper `@beep/machine`-based
 ## Follow-Up Work
 
 Items explicitly deferred from this spec:
-- **SQL PersistenceAdapter**: Production crash recovery requires a PostgreSQL-backed adapter with snapshot/event tables
+- **PostgreSQL EventJournal adapter**: Production crash recovery requires a PostgreSQL-backed `EventJournal` implementation (the `EventJournal` interface has 6 methods; `entries`, `write`, `writeFromRemote`, `withRemoteUncommited`, `nextRemoteSequence`, `changes`, `destroy` — remote sync methods can be no-ops for single-node)
 - **Cluster/entity integration**: Distributed batch processing via `@effect/cluster`
 - **Batch queuing**: Background job scheduler for queued batch operations
 - **Cancellation propagation**: Cancel event should interrupt running document extraction fibers
+- **EventLog compaction tuning**: Configure `groupCompaction` to consolidate StageProgress events per document

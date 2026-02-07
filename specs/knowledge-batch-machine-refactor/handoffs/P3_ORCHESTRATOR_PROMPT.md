@@ -22,7 +22,7 @@ These are pure domain schemas. Phase 3 builds the machine and implements the run
 1. **Create `BatchMachine.ts`** with `Machine.make()` builder and all transitions
 2. **Implement `Slot.Effects`** for event emission, document processing, entity resolution
 3. **Migrate `BatchOrchestrator`** to use `ActorRef` for state management
-4. **Configure persistence** with `InMemoryPersistenceAdapter`
+4. **Configure persistence** with `InMemoryPersistenceAdapter` + `EventJournal.layerMemory` for domain event persistence via `@effect/experimental`
 5. **Update RPC handlers** to work with the new machine
 
 ---
@@ -135,8 +135,9 @@ yield* actor.awaitFinal
 const finalState = yield* actor.snapshot
 ```
 
-### Step 4: Configure Persistence
+### Step 4: Configure Persistence (Dual Layer)
 
+**Machine persistence** (actor snapshots + command events):
 ```typescript
 const persistentMachine = machine.persist({
   snapshotSchedule: Schedule.spaced("5 seconds"),
@@ -144,6 +145,26 @@ const persistentMachine = machine.persist({
   machineType: "batch_extraction",
 })
 ```
+
+**Domain event persistence** via `@effect/experimental` EventLog + EventJournal:
+```typescript
+import { EventLog, EventJournal, EventGroup } from "@effect/experimental"
+import { BatchEventGroup, BatchEventHandlers } from "./BatchEventGroup"
+
+// Define schema from event group
+const BatchEventLogSchema = EventLog.schema(BatchEventGroup)
+
+// Create typed client for emission (replaces BatchEventEmitter)
+const client = yield* EventLog.makeClient(BatchEventLogSchema)
+
+// Register handlers (compile-time exhaustive)
+const handlers = BatchEventHandlers  // See design doc Section 5b
+
+// Layer: EventJournal.layerMemory for Phase 1
+const EventPersistenceLive = EventJournal.layerMemory
+```
+
+**Key difference from previous plan**: Domain events are now persisted via `EventJournal` rather than being ephemeral PubSub messages. `WorkflowPersistence` SQL writes become handler projections (materialized views) triggered by EventLog handlers.
 
 ### Step 5: Update RPC Handlers
 
@@ -190,9 +211,13 @@ bun run check --filter @beep/knowledge-server
 - [ ] `BatchMachine.ts` created with all transitions
 - [ ] All 6 states and transition rules preserved
 - [ ] Slot effects implemented (emitBatchEvent, notifyProgress)
+- [ ] `BatchEventGroup` defined using `EventGroup.empty.add(...)` for all 9 domain events
+- [ ] `BatchEventHandlers` registered via `EventLog.group()` with compile-time exhaustiveness
+- [ ] `EventLog.makeClient()` used for typed event emission (replaces `BatchEventEmitter`)
 - [ ] `BatchOrchestrator` uses `ActorRef` API
 - [ ] RPC handlers adapted to new machine
-- [ ] Persistence configured with `InMemoryPersistenceAdapter`
+- [ ] Machine persistence configured with `InMemoryPersistenceAdapter`
+- [ ] Domain event persistence configured with `EventJournal.layerMemory`
 - [ ] `bun run check --filter @beep/knowledge-server` passes
 - [ ] Old `BatchStateMachine.ts` removed or deprecated
 

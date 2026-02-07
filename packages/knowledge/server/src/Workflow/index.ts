@@ -2,6 +2,8 @@ export type { BatchAggregatorShape } from "./BatchAggregator";
 export { BatchAggregator, BatchAggregatorLive } from "./BatchAggregator";
 export type { BatchEventEmitterShape } from "./BatchEventEmitter";
 export { BatchEventEmitter, BatchEventEmitterLive } from "./BatchEventEmitter";
+export type { BatchMachine } from "./BatchMachine";
+export { BatchMachineEffects, makeBatchMachine } from "./BatchMachine";
 export type { BatchOrchestratorParams, BatchOrchestratorShape, BatchResult, DocumentResult } from "./BatchOrchestrator";
 export { BatchOrchestrator, BatchOrchestratorLive } from "./BatchOrchestrator";
 export type { BatchStateMachineShape } from "./BatchStateMachine";

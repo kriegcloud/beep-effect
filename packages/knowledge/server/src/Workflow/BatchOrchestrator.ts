@@ -5,8 +5,24 @@ import type {
   InvalidStateTransitionError,
 } from "@beep/knowledge-domain/errors";
 import { IncrementalClusterer } from "@beep/knowledge-domain/services";
-import type { BatchConfig, BatchEvent } from "@beep/knowledge-domain/value-objects";
-import { BatchMachineEvent } from "@beep/knowledge-domain/value-objects";
+import type { BatchConfig, BatchEvent, BatchState } from "@beep/knowledge-domain/value-objects";
+import {
+  BatchMachineEvent,
+  type BatchMachineState,
+  Extracting as BatchStateExtracting,
+  Resolving as BatchStateResolving,
+  Completed as BatchStateCompleted,
+  Failed as BatchStateFailed,
+  BatchCreated,
+  DocumentStarted,
+  DocumentCompleted,
+  DocumentFailed,
+  ResolutionStarted,
+  ResolutionCompleted,
+  BatchCompleted,
+  BatchFailed,
+} from "@beep/knowledge-domain/value-objects";
+import type { ActorRef } from "@beep/machine";
 import { Machine } from "@beep/machine";
 import { KnowledgeEntityIds, type SharedEntityIds } from "@beep/shared-domain";
 import * as A from "effect/Array";
@@ -19,19 +35,17 @@ import * as HashMap from "effect/HashMap";
 import * as Layer from "effect/Layer";
 import * as Match from "effect/Match";
 import * as O from "effect/Option";
-import type * as S from "effect/Schema";
+
 import type { ExtractionResult } from "../Extraction/ExtractionPipeline";
 import { BatchEventEmitter } from "./BatchEventEmitter";
 import { makeBatchMachine } from "./BatchMachine";
+import { BatchStateMachine } from "./BatchStateMachine";
 import { ExtractionWorkflow, type ExtractionWorkflowParams } from "./ExtractionWorkflow";
 import { WorkflowPersistence } from "./WorkflowPersistence";
 
 const $I = $KnowledgeServerId.create("Workflow/BatchOrchestrator");
 
-type NonNegInt = S.Schema.Type<typeof S.NonNegativeInt>;
-const asNonNeg = (n: number): NonNegInt => n as NonNegInt;
-
-type DistributiveOmit<T, K extends string> = T extends unknown ? Omit<T, K> : never;
+type BatchActor = ActorRef<BatchMachineState, BatchMachineEvent>;
 
 export interface BatchOrchestratorParams {
   readonly organizationId: SharedEntityIds.OrganizationId.Type;
@@ -77,10 +91,10 @@ const serviceEffect = Effect.gen(function* () {
   const maybeClusterer = yield* Effect.serviceOption(IncrementalClusterer);
   const persistence = yield* WorkflowPersistence;
 
-  const emitEvent = (event: DistributiveOmit<BatchEvent, "timestamp"> & { readonly timestamp?: unknown }) =>
+  const emitEvent = (makeEvent: (timestamp: DateTime.Utc) => BatchEvent) =>
     Effect.gen(function* () {
       const now = yield* DateTime.now;
-      yield* emitter.emit({ ...event, timestamp: now } as BatchEvent);
+      yield* emitter.emit(makeEvent(now));
     }).pipe(
       Effect.catchAllCause((cause) =>
         Effect.logDebug("BatchOrchestrator: failed to emit event").pipe(Effect.annotateLogs({ cause: String(cause) }))
@@ -104,7 +118,8 @@ const serviceEffect = Effect.gen(function* () {
 
   const processDocumentsContinue = (
     batchId: KnowledgeEntityIds.BatchExecutionId.Type,
-    params: BatchOrchestratorParams
+    params: BatchOrchestratorParams,
+    actor: BatchActor
   ): Effect.Effect<ReadonlyArray<DocumentResult>> =>
     Effect.gen(function* () {
       let completed = 0;
@@ -118,7 +133,7 @@ const serviceEffect = Effect.gen(function* () {
               _tag: "BatchEvent.DocumentStarted",
               batchId,
               documentId: doc.documentId,
-              documentIndex: asNonNeg(index),
+              documentIndex: index,
             });
 
             const either = yield* Effect.either(workflow.run(makeWorkflowParams(doc, params)));
@@ -130,16 +145,26 @@ const serviceEffect = Effect.gen(function* () {
                 _tag: "BatchEvent.DocumentCompleted",
                 batchId,
                 documentId: doc.documentId,
-                entityCount: asNonNeg(extractionResult.stats.entityCount),
-                relationCount: asNonNeg(extractionResult.stats.relationCount),
+                entityCount: extractionResult.stats.entityCount,
+                relationCount: extractionResult.stats.relationCount,
               });
 
+              // Send actor event for document completion
+              yield* actor.send(
+                BatchMachineEvent.DocumentCompleted({
+                  documentId: doc.documentId,
+                  entityCount: extractionResult.stats.entityCount,
+                  relationCount: extractionResult.stats.relationCount,
+                })
+              );
+
+              // Update read-model state machine
               yield* stateMachine
                 .transition(batchId, {
                   _tag: "BatchState.Extracting",
                   batchId,
-                  completedDocuments: asNonNeg(completed),
-                  totalDocuments: asNonNeg(total),
+                  completedDocuments: completed,
+                  totalDocuments: total,
                   progress: completed / total,
                 } as BatchState)
                 .pipe(Effect.catchAll(() => Effect.void));
@@ -149,6 +174,14 @@ const serviceEffect = Effect.gen(function* () {
                 result: Either.right(extractionResult),
               } satisfies DocumentResult;
             }
+
+            // Send actor event for document failure
+            yield* actor.send(
+              BatchMachineEvent.DocumentFailed({
+                documentId: doc.documentId,
+                error: String(either.left),
+              })
+            );
 
             yield* emitEvent({
               _tag: "BatchEvent.DocumentFailed",
@@ -177,7 +210,8 @@ const serviceEffect = Effect.gen(function* () {
 
   const processDocumentsAbortAll = (
     batchId: KnowledgeEntityIds.BatchExecutionId.Type,
-    params: BatchOrchestratorParams
+    params: BatchOrchestratorParams,
+    actor: BatchActor
   ): Effect.Effect<ReadonlyArray<DocumentResult>> => {
     const total = A.length(params.documents);
     const initial: AbortAllState = {
@@ -197,12 +231,20 @@ const serviceEffect = Effect.gen(function* () {
             _tag: "BatchEvent.DocumentStarted",
             batchId,
             documentId: doc.documentId,
-            documentIndex: asNonNeg(state.index),
+            documentIndex: state.index,
           });
 
           const either = yield* Effect.either(workflow.run(makeWorkflowParams(doc, params)));
 
           if (Either.isLeft(either)) {
+            // Send actor event for document failure
+            yield* actor.send(
+              BatchMachineEvent.DocumentFailed({
+                documentId: doc.documentId,
+                error: String(either.left),
+              })
+            );
+
             yield* emitEvent({
               _tag: "BatchEvent.DocumentFailed",
               batchId,
@@ -230,16 +272,26 @@ const serviceEffect = Effect.gen(function* () {
             _tag: "BatchEvent.DocumentCompleted",
             batchId,
             documentId: doc.documentId,
-            entityCount: asNonNeg(extractionResult.stats.entityCount),
-            relationCount: asNonNeg(extractionResult.stats.relationCount),
+            entityCount: extractionResult.stats.entityCount,
+            relationCount: extractionResult.stats.relationCount,
           });
 
+          // Send actor event for document completion
+          yield* actor.send(
+            BatchMachineEvent.DocumentCompleted({
+              documentId: doc.documentId,
+              entityCount: extractionResult.stats.entityCount,
+              relationCount: extractionResult.stats.relationCount,
+            })
+          );
+
+          // Update read-model state machine
           yield* stateMachine
             .transition(batchId, {
               _tag: "BatchState.Extracting",
               batchId,
-              completedDocuments: asNonNeg(newCompleted),
-              totalDocuments: asNonNeg(total),
+              completedDocuments: newCompleted,
+              totalDocuments: total,
               progress: newCompleted / total,
             } as BatchState)
             .pipe(Effect.catchAll(() => Effect.void));
@@ -266,10 +318,11 @@ const serviceEffect = Effect.gen(function* () {
 
   const processDocumentsRetryFailed = (
     batchId: KnowledgeEntityIds.BatchExecutionId.Type,
-    params: BatchOrchestratorParams
+    params: BatchOrchestratorParams,
+    actor: BatchActor
   ): Effect.Effect<ReadonlyArray<DocumentResult>> =>
     Effect.gen(function* () {
-      const initialResults = yield* processDocumentsContinue(batchId, params);
+      const initialResults = yield* processDocumentsContinue(batchId, params, actor);
 
       const initial: RetryState = {
         results: initialResults,
@@ -301,7 +354,7 @@ const serviceEffect = Effect.gen(function* () {
               documents: retryDocs,
             };
 
-            const retryResults = yield* processDocumentsContinue(batchId, retryParams);
+            const retryResults = yield* processDocumentsContinue(batchId, retryParams, actor);
 
             const retryMap = HashMap.fromIterable(A.map(retryResults, (r) => [r.documentId, r] as const));
 
@@ -353,7 +406,16 @@ const serviceEffect = Effect.gen(function* () {
     const batchId = KnowledgeEntityIds.BatchExecutionId.create();
     const totalDocs = A.length(params.documents);
 
+    // Create read-model entry
     yield* stateMachine.create(batchId);
+
+    // Spawn the actor-based machine
+    const machine = makeBatchMachine({
+      batchId,
+      documentIds: A.map(params.documents, (d) => d.documentId),
+      config: params.config,
+    });
+    const actor = yield* Machine.spawn(machine);
 
     const executionId = KnowledgeEntityIds.WorkflowExecutionId.create();
     yield* persistence
@@ -379,14 +441,18 @@ const serviceEffect = Effect.gen(function* () {
     yield* emitEvent({
       _tag: "BatchEvent.BatchCreated",
       batchId,
-      totalDocuments: asNonNeg(totalDocs),
+      totalDocuments: totalDocs,
     });
 
+    // Transition actor to Extracting
+    yield* actor.send(BatchMachineEvent.StartExtraction);
+
+    // Transition read-model to Extracting
     yield* stateMachine.transition(batchId, {
       _tag: "BatchState.Extracting",
       batchId,
-      completedDocuments: asNonNeg(0),
-      totalDocuments: asNonNeg(totalDocs),
+      completedDocuments: 0,
+      totalDocuments: totalDocs,
       progress: 0,
     } as BatchState);
 
@@ -401,13 +467,26 @@ const serviceEffect = Effect.gen(function* () {
 
     const documentResults = yield* F.pipe(
       Match.value(params.config.failurePolicy),
-      Match.when("continue-on-failure", () => processDocumentsContinue(batchId, params)),
-      Match.when("abort-all", () => processDocumentsAbortAll(batchId, params)),
-      Match.when("retry-failed", () => processDocumentsRetryFailed(batchId, params)),
+      Match.when("continue-on-failure", () => processDocumentsContinue(batchId, params, actor)),
+      Match.when("abort-all", () => processDocumentsAbortAll(batchId, params, actor)),
+      Match.when("retry-failed", () => processDocumentsRetryFailed(batchId, params, actor)),
       Match.exhaustive
     );
 
+    const batchResult = aggregateResults(batchId, documentResults);
+
+    // Send ExtractionComplete to actor
+    yield* actor.send(
+      BatchMachineEvent.ExtractionComplete({
+        successCount: batchResult.successCount,
+        failureCount: batchResult.failureCount,
+        totalEntityCount: batchResult.entityCount,
+        totalRelationCount: batchResult.relationCount,
+      })
+    );
+
     if (params.config.enableEntityResolution && O.isSome(maybeClusterer)) {
+      // Update read-model to Resolving
       yield* stateMachine
         .transition(batchId, {
           _tag: "BatchState.Resolving",
@@ -422,21 +501,26 @@ const serviceEffect = Effect.gen(function* () {
         Effect.annotateLogs({ batchId })
       );
 
+      // Send ResolutionComplete to actor
+      yield* actor.send(BatchMachineEvent.ResolutionComplete({ mergeCount: 0 }));
+
       yield* emitEvent({
         _tag: "BatchEvent.ResolutionCompleted",
         batchId,
-        mergeCount: asNonNeg(0),
+        mergeCount: 0,
       });
     }
 
-    const batchResult = aggregateResults(batchId, documentResults);
-
     if (batchResult.failureCount > 0 && batchResult.successCount === 0) {
+      // Send Fail to actor
+      yield* actor.send(BatchMachineEvent.Fail({ error: "All documents failed" }));
+
+      // Update read-model to Failed
       yield* stateMachine
         .transition(batchId, {
           _tag: "BatchState.Failed",
           batchId,
-          failedDocuments: asNonNeg(batchResult.failureCount),
+          failedDocuments: batchResult.failureCount,
           error: "All documents failed",
         } as BatchState)
         .pipe(Effect.catchAll(() => Effect.void));
@@ -445,27 +529,31 @@ const serviceEffect = Effect.gen(function* () {
         _tag: "BatchEvent.BatchFailed",
         batchId,
         error: "All documents failed",
-        failedDocuments: asNonNeg(batchResult.failureCount),
+        failedDocuments: batchResult.failureCount,
       });
     } else {
+      // Update read-model to Completed
       yield* stateMachine
         .transition(batchId, {
           _tag: "BatchState.Completed",
           batchId,
-          totalDocuments: asNonNeg(batchResult.totalDocuments),
-          entityCount: asNonNeg(batchResult.entityCount),
-          relationCount: asNonNeg(batchResult.relationCount),
+          totalDocuments: batchResult.totalDocuments,
+          entityCount: batchResult.entityCount,
+          relationCount: batchResult.relationCount,
         } as BatchState)
         .pipe(Effect.catchAll(() => Effect.void));
 
       yield* emitEvent({
         _tag: "BatchEvent.BatchCompleted",
         batchId,
-        totalDocuments: asNonNeg(batchResult.totalDocuments),
-        entityCount: asNonNeg(batchResult.entityCount),
-        relationCount: asNonNeg(batchResult.relationCount),
+        totalDocuments: batchResult.totalDocuments,
+        entityCount: batchResult.entityCount,
+        relationCount: batchResult.relationCount,
       });
     }
+
+    // Stop the actor
+    yield* actor.stop;
 
     yield* persistence
       .updateExecutionStatus(executionId, "completed", {

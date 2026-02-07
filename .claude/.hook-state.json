@@ -1,7 +1,7 @@
 {
-  "lastCallMs": 1770448810140,
+  "lastCallMs": 1770450694100,
   "skillIndex": {
-    "loadedAt": 1770447630044,
+    "loadedAt": 1770449615994,
     "directoryMtime": 1770271944131,
     "skills": [
       {
@@ -965,7 +965,7 @@
     ]
   },
   "patternCache": {
-    "loadedAt": 1770448314495,
+    "loadedAt": 1770450253453,
     "directoryMtime": 1770167800598,
     "patterns": [
       {
@@ -1539,6 +1539,11 @@
     ]
   },
   "telemetry": {
-    "activeAgents": {}
+    "activeAgents": {
+      "07c7fed4-72b6-40fb-b6d8-addc4023a285": {
+        "agentType": "effect-code-writer",
+        "startTime": 1770450848518
+      }
+    }
   }
 }

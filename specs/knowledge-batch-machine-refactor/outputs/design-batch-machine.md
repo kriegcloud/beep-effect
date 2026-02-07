@@ -301,6 +301,170 @@ export const BatchMachineEffects = Slot.Effects({
 
 ---
 
+## 5b. Event Persistence via @effect/experimental
+
+### BatchEventGroup Definition
+
+Replace the current `BatchEvent` `S.Union(...)` + `BatchEventEmitter` (PubSub) with `@effect/experimental` `EventGroup`:
+
+```typescript
+import { EventGroup } from "@effect/experimental"
+import * as S from "effect/Schema"
+import { KnowledgeEntityIds } from "@beep/knowledge-domain"
+
+export const BatchEventGroup = EventGroup.empty.pipe(
+  EventGroup.add({
+    tag: "BatchCreated",
+    primaryKey: KnowledgeEntityIds.BatchExecutionId,
+    payload: S.Struct({
+      totalDocuments: S.NonNegativeInt,
+    }),
+  }),
+  EventGroup.add({
+    tag: "DocumentStarted",
+    primaryKey: KnowledgeEntityIds.BatchExecutionId,
+    payload: S.Struct({
+      documentId: S.String,
+    }),
+  }),
+  EventGroup.add({
+    tag: "DocumentCompleted",
+    primaryKey: KnowledgeEntityIds.BatchExecutionId,
+    payload: S.Struct({
+      documentId: S.String,
+      entityCount: S.NonNegativeInt,
+      relationCount: S.NonNegativeInt,
+    }),
+  }),
+  EventGroup.add({
+    tag: "DocumentFailed",
+    primaryKey: KnowledgeEntityIds.BatchExecutionId,
+    payload: S.Struct({
+      documentId: S.String,
+      error: S.String,
+    }),
+  }),
+  EventGroup.add({
+    tag: "StageProgress",
+    primaryKey: KnowledgeEntityIds.BatchExecutionId,
+    payload: S.Struct({
+      completedDocuments: S.NonNegativeInt,
+      totalDocuments: S.NonNegativeInt,
+      progress: S.Number,
+    }),
+  }),
+  EventGroup.add({
+    tag: "ResolutionStarted",
+    primaryKey: KnowledgeEntityIds.BatchExecutionId,
+    payload: S.Struct({}),
+  }),
+  EventGroup.add({
+    tag: "ResolutionCompleted",
+    primaryKey: KnowledgeEntityIds.BatchExecutionId,
+    payload: S.Struct({
+      mergeCount: S.NonNegativeInt,
+    }),
+  }),
+  EventGroup.add({
+    tag: "BatchCompleted",
+    primaryKey: KnowledgeEntityIds.BatchExecutionId,
+    payload: S.Struct({
+      totalDocuments: S.NonNegativeInt,
+      entityCount: S.NonNegativeInt,
+      relationCount: S.NonNegativeInt,
+    }),
+  }),
+  EventGroup.add({
+    tag: "BatchFailed",
+    primaryKey: KnowledgeEntityIds.BatchExecutionId,
+    payload: S.Struct({
+      error: S.String,
+      failedDocuments: S.NonNegativeInt,
+    }),
+  }),
+)
+```
+
+### BatchEventLog Schema & Handlers
+
+Use `EventLog.schema()` to define the log and `EventLog.group()` for compile-time exhaustive handler registration:
+
+```typescript
+import { EventLog, EventJournal } from "@effect/experimental"
+
+export const BatchEventLogSchema = EventLog.schema(BatchEventGroup)
+
+export const BatchEventHandlers = EventLog.group(BatchEventGroup).pipe(
+  EventLog.handle("BatchCreated", (event, primaryKey) =>
+    Effect.logInfo("Batch created").pipe(
+      Effect.annotateLogs({ batchId: primaryKey })
+    )
+  ),
+  EventLog.handle("DocumentCompleted", (event, primaryKey) =>
+    Effect.gen(function* () {
+      const persistence = yield* WorkflowPersistence
+      yield* persistence.recordDocumentCompletion(primaryKey, event.documentId, {
+        entityCount: event.entityCount,
+        relationCount: event.relationCount,
+      })
+    })
+  ),
+  EventLog.handle("BatchCompleted", (event, primaryKey) =>
+    Effect.gen(function* () {
+      const persistence = yield* WorkflowPersistence
+      yield* persistence.updateExecutionStatus(primaryKey, "completed")
+    })
+  ),
+  EventLog.handle("BatchFailed", (event, primaryKey) =>
+    Effect.gen(function* () {
+      const persistence = yield* WorkflowPersistence
+      yield* persistence.updateExecutionStatus(primaryKey, "failed")
+    })
+  ),
+  // ... remaining handlers for DocumentStarted, DocumentFailed,
+  //     StageProgress, ResolutionStarted, ResolutionCompleted
+)
+```
+
+### EventLog Client
+
+`EventLog.makeClient()` provides a typed emitter that replaces `BatchEventEmitter`:
+
+```typescript
+export const makeBatchEventClient = EventLog.makeClient(BatchEventLogSchema)
+
+// Usage in machine effects:
+const client = yield* makeBatchEventClient
+yield* client.emit("DocumentCompleted", batchId, {
+  documentId, entityCount, relationCount,
+})
+```
+
+### StageProgress Compaction
+
+Use `EventLog.groupCompaction()` to consolidate high-frequency progress events:
+
+```typescript
+const compactedHandlers = BatchEventHandlers.pipe(
+  EventLog.groupCompaction("StageProgress", (events) =>
+    // Keep only the latest progress event per primaryKey
+    A.lastNonEmpty(events)
+  )
+)
+```
+
+### Migration Path
+
+| Current Pattern | Replacement |
+|----------------|-------------|
+| `S.Union(BatchEvent.BatchCreated, ...)` | `BatchEventGroup` (EventGroup builder) |
+| `BatchEventEmitter` (PubSub, ephemeral) | `EventLog.makeClient()` (persisted via EventJournal) |
+| `BatchEventEmitter.emit(event)` | `client.emit(tag, primaryKey, payload)` |
+| `WorkflowPersistence` (manual SQL CRUD) | EventLog handlers project state to SQL (materialized view) |
+| No replay capability | `EventJournal` entries enable full replay |
+
+---
+
 ## 6. Machine Builder
 
 Located in `packages/knowledge/server/src/Workflow/BatchMachine.ts`:
@@ -622,27 +786,53 @@ export const buildBatchMachine = Effect.gen(function* () {
 
 ## 7. Persistence Strategy
 
+### Dual Persistence Architecture
+
+The batch machine uses two complementary persistence mechanisms:
+
+1. **Machine PersistenceAdapter** (`@beep/machine`): Snapshots + event journal for actor crash recovery
+2. **EventJournal** (`@effect/experimental`): Domain event persistence for replay, audit, and materialized views
+
 ### Phase 1: In-Memory (this spec)
 
 ```typescript
+import { EventJournal } from "@effect/experimental"
+
+// Machine-level persistence (actor snapshots + command events)
 const persistentBatchMachine = BatchMachine.persist({
   snapshotSchedule: Schedule.forever,  // Snapshot on every transition
   journalEvents: true,                  // Journal all events for replay
   machineType: "batch-extraction",      // For restoreAll filtering
 });
+
+// Domain-level event persistence (EventLog + EventJournal)
+const EventJournalLive = EventJournal.layerMemory  // In-memory for Phase 1
 ```
 
 **Why snapshot on every transition**: Batch state changes are infrequent (per-document, not per-second). The overhead is minimal and provides instant recovery.
 
 **Why journal events**: Enables replaying the exact sequence of events for debugging and audit.
 
-### Phase 2: SQL Adapter (follow-up spec)
+**Why separate EventJournal**: Domain events (BatchCreated, DocumentCompleted, etc.) have different consumers than machine commands (StartExtraction, Cancel). EventJournal persists domain events for handler replay and materialized view projection. Machine event journal persists commands for actor state recovery.
 
-Future work: implement a `PersistenceAdapter` backed by PostgreSQL tables:
-- `machine_snapshot` -- latest state per actorId
-- `machine_event_journal` -- ordered events per actorId
+### Phase 2: PostgreSQL EventJournal Adapter (follow-up)
 
-This will provide true crash recovery across server restarts.
+Future work: implement a PostgreSQL-backed `EventJournal` adapter:
+
+The `EventJournal` interface requires 6 methods:
+- `entries(options)` — read entries with optional filtering
+- `write(entries)` — persist new entries
+- `writeFromRemote(entries)` — persist entries from remote nodes (no-op for single-node)
+- `withRemoteUncommited(entries)` — merge remote uncommitted entries (no-op for single-node)
+- `nextRemoteSequence()` — next sequence for remote sync (no-op for single-node)
+- `changes` — Stream of new entries for reactive consumers
+- `destroy` — cleanup
+
+For single-node deployment, the 3 remote-related methods can be no-ops. Core work is `entries`, `write`, `changes`, and `destroy` backed by a PostgreSQL table with UUIDv7 ordered entries.
+
+Also implement a SQL-backed machine `PersistenceAdapter`:
+- `machine_snapshot` — latest state per actorId
+- `machine_event_journal` — ordered commands per actorId
 
 ### Actor Lifecycle with ActorSystem
 
@@ -663,6 +853,20 @@ const maybeActor = yield* system.restore(
 
 // List all active batches:
 const allBatches = yield* system.restoreAll(persistentBatchMachine);
+```
+
+### Layer Composition
+
+```typescript
+import { EventJournal } from "@effect/experimental"
+
+export const BatchWorkflowLive = Layer.mergeAll(
+  ActorSystemDefault,
+  InMemoryPersistenceAdapter,
+  EventJournal.layerMemory,           // Phase 1: in-memory
+  // EventJournalPostgres.layer,      // Phase 2: PostgreSQL (follow-up)
+  // ... existing service layers
+);
 ```
 
 ---

@@ -1,4 +1,3 @@
-import { $KnowledgeServerId } from "@beep/identity/packages"
 import {
   BatchMachineEvent,
   BatchMachineGuards,
@@ -8,16 +7,6 @@ import { Machine, Slot } from "@beep/machine"
 import * as A from "effect/Array"
 import * as Effect from "effect/Effect"
 import * as S from "effect/Schema"
-
-const _$I = $KnowledgeServerId.create("Workflow/BatchMachine")
-
-// ---------------------------------------------------------------------------
-// NonNegativeInt helper
-// ---------------------------------------------------------------------------
-
-type NonNegInt = S.Schema.Type<typeof S.NonNegativeInt>
-const asNonNeg = (n: number): NonNegInt => n as NonNegInt
-
 // ---------------------------------------------------------------------------
 // Effects slot
 // ---------------------------------------------------------------------------
@@ -60,11 +49,11 @@ export const makeBatchMachine = (params: {
         batchId: state.batchId,
         documentIds: state.documentIds,
         config: state.config,
-        completedCount: asNonNeg(0),
-        failedCount: asNonNeg(0),
-        totalDocuments: asNonNeg(A.length(state.documentIds)),
-        entityCount: asNonNeg(0),
-        relationCount: asNonNeg(0),
+        completedCount: 0,
+        failedCount: 0,
+        totalDocuments: A.length(state.documentIds),
+        entityCount: 0,
+        relationCount: 0,
         progress: 0,
       })
     )
@@ -77,9 +66,9 @@ export const makeBatchMachine = (params: {
       BatchMachineEvent.DocumentCompleted,
       ({ state, event, effects }) =>
         Effect.gen(function* () {
-          const newCompleted = asNonNeg(state.completedCount + 1)
-          const newEntityCount = asNonNeg(state.entityCount + event.entityCount)
-          const newRelationCount = asNonNeg(state.relationCount + event.relationCount)
+          const newCompleted = state.completedCount + 1
+          const newEntityCount = state.entityCount + event.entityCount
+          const newRelationCount = state.relationCount + event.relationCount
           const processed = newCompleted + state.failedCount
           const progress = state.totalDocuments > 0 ? processed / state.totalDocuments : 0
 
@@ -110,7 +99,7 @@ export const makeBatchMachine = (params: {
       BatchMachineState.Extracting,
       BatchMachineEvent.DocumentFailed,
       ({ state }) => {
-        const newFailed = asNonNeg(state.failedCount + 1)
+        const newFailed = state.failedCount + 1
         const processed = state.completedCount + newFailed
         const progress = state.totalDocuments > 0 ? processed / state.totalDocuments : 0
 
@@ -136,15 +125,15 @@ export const makeBatchMachine = (params: {
       BatchMachineEvent.ExtractionComplete,
       ({ state, event, guards }) =>
         Effect.gen(function* () {
-          const shouldResolve = yield* guards.isResolutionEnabled({})
+          const shouldResolve = yield* guards.isResolutionEnabled()
 
           if (shouldResolve) {
             return BatchMachineState.Resolving({
               batchId: state.batchId,
               config: state.config,
               totalDocuments: state.totalDocuments,
-              entityCount: asNonNeg(event.totalEntityCount),
-              relationCount: asNonNeg(event.totalRelationCount),
+              entityCount: event.totalEntityCount,
+              relationCount: event.totalRelationCount,
               progress: 0,
             })
           }
@@ -152,8 +141,8 @@ export const makeBatchMachine = (params: {
           return BatchMachineState.Completed({
             batchId: state.batchId,
             totalDocuments: state.totalDocuments,
-            entityCount: asNonNeg(event.totalEntityCount),
-            relationCount: asNonNeg(event.totalRelationCount),
+            entityCount: event.totalEntityCount,
+            relationCount: event.totalRelationCount,
           })
         })
     )
@@ -213,7 +202,7 @@ export const makeBatchMachine = (params: {
         batchId: state.batchId,
         documentIds: [],
         config: state.config,
-        failedCount: asNonNeg(0),
+        failedCount: 0,
         error: event.error,
       })
     )
@@ -244,8 +233,8 @@ export const makeBatchMachine = (params: {
       const batchId = state.batchId
       return BatchMachineState.Cancelled({
         batchId,
-        completedCount: asNonNeg(0),
-        totalDocuments: asNonNeg(0),
+        completedCount: 0,
+        totalDocuments: 0,
       })
     })
 
