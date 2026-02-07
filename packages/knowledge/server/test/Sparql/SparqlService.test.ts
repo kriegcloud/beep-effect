@@ -4,6 +4,7 @@ import { RdfStore, RdfStoreLive } from "@beep/knowledge-server/Rdf";
 import {
   executeAsk,
   executeConstruct,
+  executeDescribe,
   executeSelect,
   SparqlParser,
   SparqlParserLive,
@@ -76,6 +77,19 @@ const sparqlServiceLayer = Layer.effect(
           return yield* executeAsk(ast, store);
         }),
 
+      describe: (queryString: string) =>
+        Effect.gen(function* () {
+          const { ast } = yield* parser.parse(queryString);
+          if (!(ast.type === "query" && ast.queryType === "DESCRIBE")) {
+            return yield* new SparqlUnsupportedFeatureError({
+              feature: `non-DESCRIBE query`,
+              queryString,
+              message: `Expected DESCRIBE query but got ${getQueryTypeString(ast)}`,
+            });
+          }
+          return yield* executeDescribe(ast, store);
+        }),
+
       query: (queryString: string) =>
         Effect.gen(function* () {
           const { ast } = yield* parser.parse(queryString);
@@ -87,6 +101,9 @@ const sparqlServiceLayer = Layer.effect(
           }
           if (isAskQuery(ast)) {
             return yield* executeAsk(ast, store);
+          }
+          if (ast.type === "query" && ast.queryType === "DESCRIBE") {
+            return yield* executeDescribe(ast, store);
           }
           return yield* new SparqlUnsupportedFeatureError({
             feature: `${getQueryTypeString(ast)} queries`,
@@ -659,6 +676,21 @@ describe("SparqlService", () => {
     );
 
     it.effect(
+      "should execute DESCRIBE query via generic query method",
+      Effect.fn(function* () {
+        yield* addTestData(createPersonQuads("alice", "Alice"));
+
+        const sparql = yield* SparqlService;
+        const result = yield* sparql.query(`
+          DESCRIBE <http://example.org/alice> WHERE { ?s ?p ?o }
+        `);
+
+        assertTrue(A.isArray(result));
+        strictEqual(A.length(result as ReadonlyArray<Quad>) > 0, true);
+      })
+    );
+
+    it.effect(
       "should execute CONSTRUCT query via generic query method",
       Effect.fn(function* () {
         yield* addTestData(createPersonQuads("alice", "Alice"));
@@ -671,6 +703,22 @@ describe("SparqlService", () => {
 
         assertTrue(A.isArray(result));
         strictEqual(A.length(result as ReadonlyArray<Quad>), 1);
+      })
+    );
+  });
+
+  layer(TestLayer, { timeout: Duration.seconds(30) })("describe", (it) => {
+    it.effect(
+      "should return triples where target is subject or object",
+      Effect.fn(function* () {
+        yield* addTestData([...createPersonQuads("alice", "Alice"), createKnowsQuad("bob", "alice")]);
+
+        const sparql = yield* SparqlService;
+        const result = yield* sparql.describe("DESCRIBE <http://example.org/alice> WHERE { ?s ?p ?o }");
+
+        assertTrue(A.length(result) >= 2);
+        assertTrue(A.some(result, (q) => q.subject === IRI.make("http://example.org/alice")));
+        assertTrue(A.some(result, (q) => q.object === IRI.make("http://example.org/alice")));
       })
     );
   });

@@ -201,21 +201,31 @@ export interface RdfStoreShape {
   readonly createGraph: (iri: IRI.Type) => Effect.Effect<void>;
   readonly dropGraph: (iri: IRI.Type) => Effect.Effect<void>;
   readonly listGraphs: () => Effect.Effect<ReadonlyArray<IRI.Type>>;
+  readonly getGraphSize: (iri: IRI.Type) => Effect.Effect<number>;
 }
 
 export class RdfStore extends Context.Tag($I`RdfStore`)<RdfStore, RdfStoreShape>() {}
 
 const serviceEffect: Effect.Effect<RdfStoreShape> = Effect.gen(function* () {
   const store = new N3.Store();
+  const knownGraphs = new Set<IRI.Type>();
 
   const addQuad = Effect.fn("RdfStore.addQuad")((quad: Quad) =>
     Effect.sync(() => {
+      if (quad.graph !== undefined) {
+        knownGraphs.add(quad.graph);
+      }
       store.addQuad(quadToN3(quad));
     })
   );
 
   const addQuads = Effect.fn("RdfStore.addQuads")((quads: ReadonlyArray<Quad>) =>
     Effect.sync(() => {
+      for (const quad of quads) {
+        if (quad.graph !== undefined) {
+          knownGraphs.add(quad.graph);
+        }
+      }
       const n3Quads = A.map(quads, quadToN3);
       store.addQuads(n3Quads);
     }).pipe(
@@ -309,19 +319,13 @@ const serviceEffect: Effect.Effect<RdfStoreShape> = Effect.gen(function* () {
 
   const createGraph = Effect.fn("RdfStore.createGraph")((iri: IRI.Type) =>
     Effect.sync(() => {
-      const marker = N3.DataFactory.quad(
-        N3.DataFactory.namedNode(iri),
-        N3.DataFactory.namedNode("urn:beep:internal#marker"),
-        N3.DataFactory.literal(""),
-        N3.DataFactory.namedNode(iri)
-      );
-      store.addQuad(marker);
-      store.removeQuad(marker);
+      knownGraphs.add(iri);
     })
   );
 
   const dropGraph = Effect.fn("RdfStore.dropGraph")((iri: IRI.Type) =>
     Effect.sync(() => {
+      knownGraphs.delete(iri);
       store.deleteGraph(iri);
     })
   );
@@ -329,11 +333,16 @@ const serviceEffect: Effect.Effect<RdfStoreShape> = Effect.gen(function* () {
   const listGraphs = Effect.fn("RdfStore.listGraphs")(() =>
     Effect.sync(() => {
       const graphs = store.getGraphs(null, null, null);
-      return A.filter(
+      const fromStore = A.filter(
         A.map(A.fromIterable(graphs), (g) => rdfJsGraphToDomain(g)),
         (g): g is IRI.Type => g !== undefined
       );
+      return A.dedupe(A.appendAll([...knownGraphs], fromStore));
     })
+  );
+
+  const getGraphSize = Effect.fn("RdfStore.getGraphSize")((iri: IRI.Type) =>
+    Effect.sync(() => store.countQuads(null, null, null, N3.DataFactory.namedNode(iri)))
   );
 
   return RdfStore.of({
@@ -354,6 +363,7 @@ const serviceEffect: Effect.Effect<RdfStoreShape> = Effect.gen(function* () {
     createGraph,
     dropGraph,
     listGraphs,
+    getGraphSize,
   });
 });
 

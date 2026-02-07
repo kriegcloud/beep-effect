@@ -18,6 +18,7 @@ import {
   ResolutionCompleted,
   ResolutionStarted,
 } from "@beep/knowledge-domain/value-objects";
+import { MentionRecordRepo } from "@beep/knowledge-server/db/repos/MentionRecord.repo";
 import type { ActorRef } from "@beep/machine";
 import { createPersistentActor, PersistenceAdapterTag } from "@beep/machine";
 import { KnowledgeEntityIds, type SharedEntityIds } from "@beep/shared-domain";
@@ -32,8 +33,6 @@ import * as Layer from "effect/Layer";
 import * as Match from "effect/Match";
 import * as O from "effect/Option";
 import * as Schedule from "effect/Schedule";
-
-import { MentionRecordRepo } from "@beep/knowledge-server/db/repos/MentionRecord.repo";
 import type { ExtractionResult } from "../Extraction/ExtractionPipeline";
 import { BatchActorRegistry } from "./BatchActorRegistry";
 import { BatchEventEmitter } from "./BatchEventEmitter";

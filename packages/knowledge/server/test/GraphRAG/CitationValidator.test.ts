@@ -53,6 +53,7 @@ const createMockSparqlService = (config: {
       }),
     select: () => Effect.succeed({ columns: [], rows: [] }),
     construct: () => Effect.succeed([]),
+    describe: () => Effect.succeed([]),
     query: () => Effect.succeed(true),
   });
 

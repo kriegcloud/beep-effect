@@ -22,6 +22,7 @@ import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { ChunkingConfig, defaultChunkingConfig, NlpService, type TextChunk } from "../Nlp";
 import { OntologyService } from "../Ontology";
+import { ProvenanceEmitter, ProvenanceEmitterLive, RdfStore, RdfStoreLive } from "../Rdf";
 import { EntityExtractor, EntityExtractorLive } from "./EntityExtractor";
 import { GraphAssembler, GraphAssemblerLive, KnowledgeGraph } from "./GraphAssembler";
 import { type MentionExtractionResult, MentionExtractor, MentionExtractorLive } from "./MentionExtractor";
@@ -92,7 +93,15 @@ export class ExtractionPipeline extends Context.Tag($I`ExtractionPipeline`)<
 const serviceEffect: Effect.Effect<
   ExtractionPipelineShape,
   never,
-  NlpService | MentionExtractor | EntityExtractor | RelationExtractor | GraphAssembler | OntologyService | AuthContext
+  | NlpService
+  | MentionExtractor
+  | EntityExtractor
+  | RelationExtractor
+  | GraphAssembler
+  | OntologyService
+  | RdfStore
+  | ProvenanceEmitter
+  | AuthContext
 > = Effect.gen(function* () {
   const nlp = yield* NlpService;
   const mentionExtractor = yield* MentionExtractor;
@@ -100,6 +109,8 @@ const serviceEffect: Effect.Effect<
   const relationExtractor = yield* RelationExtractor;
   const graphAssembler = yield* GraphAssembler;
   const ontologyService = yield* OntologyService;
+  const rdfStore = yield* RdfStore;
+  const provenanceEmitter = yield* ProvenanceEmitter;
   const maybeClusterer = yield* Effect.serviceOption(IncrementalClusterer);
 
   const authCtx = yield* AuthContext;
@@ -107,6 +118,7 @@ const serviceEffect: Effect.Effect<
     function* (text: string, ontologyContent: string, config: ExtractionPipelineConfig) {
       const encodedConfig = yield* S.encode(ExtractionPipelineConfig)(config);
       const startTime = yield* DateTime.now;
+      const extractionId = KnowledgeEntityIds.ExtractionId.create();
       let totalTokens = 0;
 
       yield* Effect.logInfo("Starting extraction pipeline", {
@@ -199,7 +211,7 @@ const serviceEffect: Effect.Effect<
           onNone: () => Effect.logDebug("IncrementalClustering requested but IncrementalClusterer not provided"),
           onSome: Effect.fn(
             function* (clusterer) {
-              const records = yield* buildMentionRecords(mentionResults, authCtx, config);
+              const records = yield* buildMentionRecords(mentionResults, authCtx, config, extractionId);
               yield* clusterer.cluster(records);
               yield* Effect.logInfo("Incremental clustering completed").pipe(
                 Effect.annotateLogs({ mentionCount: A.length(records) })
@@ -219,6 +231,19 @@ const serviceEffect: Effect.Effect<
 
       const endTime = yield* DateTime.now;
       const durationMs = Duration.millis(DateTime.distance(startTime, endTime));
+
+      const emitted = yield* provenanceEmitter.emitExtraction(graph, {
+        extractionId,
+        documentId: config.documentId,
+        actorUserId: authCtx.session.userId,
+        startedAt: startTime,
+        endedAt: endTime,
+      });
+
+      yield* rdfStore.createGraph(emitted.extractionGraphIri);
+      yield* rdfStore.createGraph(emitted.provenanceGraphIri);
+      yield* rdfStore.addQuads(emitted.graphQuads);
+      yield* rdfStore.addQuads(emitted.provenanceQuads);
 
       yield* Effect.logInfo("Extraction pipeline complete", {
         entityCount: graph.stats.entityCount,
@@ -252,7 +277,9 @@ export const ExtractionPipelineLive = Layer.effect(ExtractionPipeline, serviceEf
   Layer.provide(MentionExtractorLive),
   Layer.provide(EntityExtractorLive),
   Layer.provide(RelationExtractorLive),
-  Layer.provide(GraphAssemblerLive)
+  Layer.provide(GraphAssemblerLive),
+  Layer.provide(ProvenanceEmitterLive),
+  Layer.provide(RdfStoreLive)
 );
 
 const mapEntitiesToChunks = (
@@ -303,10 +330,10 @@ const filterUndefined = <T extends Record<string, unknown>>(obj: T): Partial<T> 
 const buildMentionRecords = (
   mentionResults: readonly MentionExtractionResult[],
   authCtx: AuthContextShape,
-  config: ExtractionPipelineConfig
+  config: ExtractionPipelineConfig,
+  extractionId: KnowledgeEntityIds.ExtractionId.Type
 ): Effect.Effect<ReadonlyArray<S.Schema.Type<typeof MentionRecord.Model.insert>>> =>
   Effect.gen(function* () {
-    const extractionId = KnowledgeEntityIds.ExtractionId.create();
     const now = yield* DateTime.now;
     const orgId = SharedEntityIds.OrganizationId.make(config.organizationId);
     const docId = DocumentsEntityIds.DocumentId.make(config.documentId);

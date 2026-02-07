@@ -14,7 +14,7 @@ import * as O from "effect/Option";
 import * as Str from "effect/String";
 import type * as sparqljs from "sparqljs";
 import { RdfStore, RdfStoreLive } from "../Rdf/RdfStoreService";
-import { executeAsk, executeConstruct, executeSelect } from "./QueryExecutor";
+import { executeAsk, executeConstruct, executeDescribe, executeSelect } from "./QueryExecutor";
 import { type ParseResult, SparqlParser, SparqlParserLive } from "./SparqlParser";
 
 const $I = $KnowledgeServerId.create("Sparql/SparqlService");
@@ -22,8 +22,9 @@ const $I = $KnowledgeServerId.create("Sparql/SparqlService");
 export type SelectResult = SparqlBindings;
 export type ConstructResult = ReadonlyArray<Quad>;
 export type AskResult = boolean;
+export type DescribeResult = ReadonlyArray<Quad>;
 
-export type QueryResult = SelectResult | ConstructResult | AskResult;
+export type QueryResult = SelectResult | ConstructResult | AskResult | DescribeResult;
 
 export type SparqlServiceError = SparqlSyntaxError | SparqlExecutionError | SparqlUnsupportedFeatureError;
 
@@ -52,10 +53,16 @@ const asAskQuery: (ast: sparqljs.SparqlQuery) => O.Option<sparqljs.AskQuery> = F
   O.flatMap(O.liftPredicate((q): q is sparqljs.AskQuery => q.queryType === "ASK"))
 );
 
+const asDescribeQuery: (ast: sparqljs.SparqlQuery) => O.Option<sparqljs.DescribeQuery> = F.flow(
+  asQuery,
+  O.flatMap(O.liftPredicate((q): q is sparqljs.DescribeQuery => q.queryType === "DESCRIBE"))
+);
+
 export interface SparqlServiceShape {
   readonly select: (queryString: string) => Effect.Effect<SelectResult, SparqlServiceError>;
   readonly construct: (queryString: string) => Effect.Effect<ConstructResult, SparqlServiceError>;
   readonly ask: (queryString: string) => Effect.Effect<AskResult, SparqlServiceError>;
+  readonly describe: (queryString: string) => Effect.Effect<DescribeResult, SparqlServiceError>;
   readonly query: (queryString: string) => Effect.Effect<QueryResult, SparqlServiceError>;
 }
 
@@ -137,6 +144,30 @@ const serviceEffect: Effect.Effect<SparqlServiceShape, never, SparqlParser | Rdf
       });
     });
 
+  const parseAsDescribe = (
+    queryString: string
+  ): Effect.Effect<ParseResult & { ast: sparqljs.DescribeQuery }, SparqlSyntaxError | SparqlUnsupportedFeatureError> =>
+    Effect.gen(function* () {
+      const result = yield* parser.parse(queryString);
+
+      const maybeDescribe = F.pipe(
+        asDescribeQuery(result.ast),
+        O.map((ast) => ({ ...result, ast }))
+      );
+
+      return yield* O.match(maybeDescribe, {
+        onNone: () =>
+          Effect.fail(
+            new SparqlUnsupportedFeatureError({
+              feature: `non-DESCRIBE query`,
+              queryString,
+              message: `Expected DESCRIBE query but got ${getQueryTypeString(result.ast)}`,
+            })
+          ),
+        onSome: Effect.succeed,
+      });
+    });
+
   return SparqlService.of({
     select: (queryString: string): Effect.Effect<SelectResult, SparqlServiceError> =>
       Effect.gen(function* () {
@@ -168,6 +199,16 @@ const serviceEffect: Effect.Effect<SparqlServiceShape, never, SparqlParser | Rdf
         })
       ),
 
+    describe: (queryString: string): Effect.Effect<DescribeResult, SparqlServiceError> =>
+      Effect.gen(function* () {
+        const { ast } = yield* parseAsDescribe(queryString);
+        return yield* executeDescribe(ast, store);
+      }).pipe(
+        Effect.withSpan("SparqlService.describe", {
+          attributes: { queryLength: Str.length(queryString) },
+        })
+      ),
+
     query: (queryString: string): Effect.Effect<QueryResult, SparqlServiceError> =>
       Effect.gen(function* () {
         const { ast } = yield* parser.parse(queryString);
@@ -177,6 +218,7 @@ const serviceEffect: Effect.Effect<SparqlServiceShape, never, SparqlParser | Rdf
           Match.when({ type: "query", queryType: "SELECT" }, (q) => executeSelect(q, store)),
           Match.when({ type: "query", queryType: "CONSTRUCT" }, (q) => executeConstruct(q, store)),
           Match.when({ type: "query", queryType: "ASK" }, (q) => executeAsk(q, store)),
+          Match.when({ type: "query", queryType: "DESCRIBE" }, (q) => executeDescribe(q, store)),
           Match.orElse((unsupported) =>
             Effect.fail(
               new SparqlUnsupportedFeatureError({

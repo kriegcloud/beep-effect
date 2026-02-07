@@ -12,7 +12,7 @@ You are implementing Phase 5 of the `knowledge-ontology-comparison` spec: **Infr
 
 ### Context
 
-Phase 1 (Research) is complete. This phase contains 5 independent sub-tasks (except 5B depends on 5A). Can run in parallel with Phases 2-4 or after them. All additive enhancements.
+Phase 1 (Research) and Phase 4 (Semantic Enrichment) are complete. This phase contains 5 independent sub-tasks (except 5B depends on 5A). Can run in parallel with Phases 2-3 or after them. All additive enhancements.
 
 ### Your Mission
 

@@ -13,5 +13,8 @@ export * from "./MergeParams.value";
 export * from "./RelationDirection.value";
 export * from "./rdf";
 export * from "./reasoning";
+export * from "./shacl-policy.value";
 export * from "./sparql";
+export * from "./token-budget.value";
+export * from "./validation-report.value";
 export * from "./WorkflowState.value";

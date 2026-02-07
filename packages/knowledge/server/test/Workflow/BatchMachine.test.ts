@@ -1,12 +1,11 @@
-import { BatchMachineEvent, BatchMachineState } from "@beep/knowledge-domain/value-objects";
-import { assertNeverReaches, assertPath, assertReaches, createTestHarness, simulate } from "@beep/machine";
+import { BatchConfig, BatchMachineEvent, type BatchMachineState } from "@beep/knowledge-domain/value-objects";
 import { makeBatchMachine } from "@beep/knowledge-server/Workflow";
+import { assertNeverReaches, assertPath, assertReaches, createTestHarness, simulate } from "@beep/machine";
 import { KnowledgeEntityIds } from "@beep/shared-domain";
 import { describe, effect, strictEqual } from "@beep/testkit";
 import * as Effect from "effect/Effect";
-import * as SubscriptionRef from "effect/SubscriptionRef";
 import type * as S from "effect/Schema";
-import { BatchConfig } from "@beep/knowledge-domain/value-objects";
+import * as SubscriptionRef from "effect/SubscriptionRef";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -19,22 +18,25 @@ const defaultBatchId = () => KnowledgeEntityIds.BatchExecutionId.create();
 
 const defaultDocIds = ["doc-1", "doc-2", "doc-3"];
 
-const makeConfig = (overrides: Partial<{
-  concurrency: number;
-  failurePolicy: "continue-on-failure" | "abort-all" | "retry-failed";
-  maxRetries: number;
-  enableEntityResolution: boolean;
-}> = {}) => new BatchConfig(overrides);
+const makeConfig = (
+  overrides: Partial<{
+    concurrency: number;
+    failurePolicy: "continue-on-failure" | "abort-all" | "retry-failed";
+    maxRetries: number;
+    enableEntityResolution: boolean;
+  }> = {}
+) => new BatchConfig(overrides);
 
 const makeMachine = (opts?: {
   batchId?: KnowledgeEntityIds.BatchExecutionId.Type;
   documentIds?: ReadonlyArray<string>;
   config?: BatchConfig;
-}) => makeBatchMachine({
-  batchId: opts?.batchId ?? defaultBatchId(),
-  documentIds: opts?.documentIds ?? defaultDocIds,
-  config: opts?.config ?? makeConfig(),
-});
+}) =>
+  makeBatchMachine({
+    batchId: opts?.batchId ?? defaultBatchId(),
+    documentIds: opts?.documentIds ?? defaultDocIds,
+    config: opts?.config ?? makeConfig(),
+  });
 
 // ---------------------------------------------------------------------------
 // Events helpers (with NonNegativeInt casts)
@@ -187,10 +189,7 @@ describe("BatchMachine", () => {
       "DocumentCompleted increments completedCount, entityCount, relationCount",
       Effect.fn(function* () {
         const machine = makeMachine({ documentIds: ["d1", "d2", "d3"] });
-        const result = yield* simulate(machine, [
-          startExtraction(),
-          documentCompleted("d1", 3, 2),
-        ]);
+        const result = yield* simulate(machine, [startExtraction(), documentCompleted("d1", 3, 2)]);
         const s = result.finalState as typeof BatchMachineState.Type & { _tag: "Extracting" };
         strictEqual(s.completedCount, 1);
         strictEqual(s.entityCount, 3);
@@ -202,10 +201,7 @@ describe("BatchMachine", () => {
       "DocumentCompleted updates progress correctly",
       Effect.fn(function* () {
         const machine = makeMachine({ documentIds: ["d1", "d2"] });
-        const result = yield* simulate(machine, [
-          startExtraction(),
-          documentCompleted("d1", 1, 0),
-        ]);
+        const result = yield* simulate(machine, [startExtraction(), documentCompleted("d1", 1, 0)]);
         const s = result.finalState as typeof BatchMachineState.Type & { _tag: "Extracting" };
         // 1 completed + 0 failed = 1 processed / 2 total = 0.5
         strictEqual(s.progress, 0.5);
@@ -216,10 +212,7 @@ describe("BatchMachine", () => {
       "DocumentFailed increments failedCount and updates progress",
       Effect.fn(function* () {
         const machine = makeMachine({ documentIds: ["d1", "d2", "d3"] });
-        const result = yield* simulate(machine, [
-          startExtraction(),
-          documentFailed("d1", "parse error"),
-        ]);
+        const result = yield* simulate(machine, [startExtraction(), documentFailed("d1", "parse error")]);
         const s = result.finalState as typeof BatchMachineState.Type & { _tag: "Extracting" };
         strictEqual(s.failedCount, 1);
         strictEqual(s.completedCount, 0);
@@ -257,11 +250,7 @@ describe("BatchMachine", () => {
         const machine = makeMachine({ documentIds: ["d1", "d2"] });
         yield* assertPath(
           machine,
-          [
-            startExtraction(),
-            documentCompleted("d1", 1, 0),
-            documentFailed("d2", "err"),
-          ],
+          [startExtraction(), documentCompleted("d1", 1, 0), documentFailed("d2", "err")],
           ["Pending", "Extracting", "Extracting", "Extracting"]
         );
       })
@@ -374,11 +363,7 @@ describe("BatchMachine", () => {
           config: makeConfig({ maxRetries: 2 }),
         });
         // Fail from Extracting without any DocumentFailed events
-        const result = yield* simulate(machine, [
-          startExtraction(),
-          fail("unexpected error"),
-          retry(),
-        ]);
+        const result = yield* simulate(machine, [startExtraction(), fail("unexpected error"), retry()]);
         // failedCount=0 < maxRetries=2 -> retry allowed
         strictEqual(result.finalState._tag, "Pending");
       })
@@ -391,11 +376,7 @@ describe("BatchMachine", () => {
           documentIds: ["d1"],
           config: makeConfig({ maxRetries: 0 }),
         });
-        const result = yield* simulate(machine, [
-          startExtraction(),
-          fail("unexpected error"),
-          retry(),
-        ]);
+        const result = yield* simulate(machine, [startExtraction(), fail("unexpected error"), retry()]);
         // failedCount=0 is NOT < maxRetries=0, so guard blocks
         strictEqual(result.finalState._tag, "Failed");
       })
@@ -419,11 +400,7 @@ describe("BatchMachine", () => {
       "Cancelled from Extracting preserves completedCount and totalDocuments",
       Effect.fn(function* () {
         const machine = makeMachine({ documentIds: ["d1", "d2", "d3"] });
-        const result = yield* simulate(machine, [
-          startExtraction(),
-          documentCompleted("d1", 2, 1),
-          cancel(),
-        ]);
+        const result = yield* simulate(machine, [startExtraction(), documentCompleted("d1", 2, 1), cancel()]);
         const s = result.finalState as typeof BatchMachineState.Type & { _tag: "Cancelled" };
         strictEqual(s.completedCount, 1);
         strictEqual(s.totalDocuments, 3);
@@ -496,11 +473,7 @@ describe("BatchMachine", () => {
       "Extracting + Fail -> Failed",
       Effect.fn(function* () {
         const machine = makeMachine();
-        yield* assertReaches(
-          machine,
-          [startExtraction(), fail("extraction crashed")],
-          "Failed"
-        );
+        yield* assertReaches(machine, [startExtraction(), fail("extraction crashed")], "Failed");
       })
     );
 
@@ -609,9 +582,7 @@ describe("BatchMachine", () => {
       "Pending ignores DocumentCompleted (no transition defined)",
       Effect.fn(function* () {
         const machine = makeMachine();
-        const result = yield* simulate(machine, [
-          documentCompleted("d1", 5, 3),
-        ]);
+        const result = yield* simulate(machine, [documentCompleted("d1", 5, 3)]);
         // No transition matched, stays in Pending
         strictEqual(result.finalState._tag, "Pending");
         strictEqual(result.states.length, 1); // Only initial state
@@ -653,11 +624,7 @@ describe("BatchMachine", () => {
         });
         yield* assertPath(
           machine,
-          [
-            startExtraction(),
-            fail("error"),
-            retry(),
-          ],
+          [startExtraction(), fail("error"), retry()],
           ["Pending", "Extracting", "Failed", "Pending"]
         );
       })
@@ -671,11 +638,7 @@ describe("BatchMachine", () => {
           documentIds: ["x", "y"],
           config,
         });
-        const result = yield* simulate(machine, [
-          startExtraction(),
-          fail("error"),
-          retry(),
-        ]);
+        const result = yield* simulate(machine, [startExtraction(), fail("error"), retry()]);
         const s = result.finalState as typeof BatchMachineState.Type & { _tag: "Pending" };
         strictEqual(s.documentIds.length, 2);
         strictEqual(s.config.concurrency, 10);
@@ -806,8 +769,7 @@ describe("BatchMachine", () => {
         const transitions: Array<{ from: string; event: string; to: string }> = [];
 
         const harness = yield* createTestHarness(machine, {
-          onTransition: (from, event, to) =>
-            transitions.push({ from: from._tag, event: event._tag, to: to._tag }),
+          onTransition: (from, event, to) => transitions.push({ from: from._tag, event: event._tag, to: to._tag }),
         });
 
         yield* harness.send(startExtraction());
@@ -922,10 +884,7 @@ describe("BatchMachine", () => {
       "progress calculation with zero totalDocuments does not divide by zero",
       Effect.fn(function* () {
         const machine = makeMachine({ documentIds: [] });
-        const result = yield* simulate(machine, [
-          startExtraction(),
-          documentCompleted("ghost", 1, 0),
-        ]);
+        const result = yield* simulate(machine, [startExtraction(), documentCompleted("ghost", 1, 0)]);
         const s = result.finalState as typeof BatchMachineState.Type & { _tag: "Extracting" };
         // totalDocuments=0 -> progress=0 (guarded division)
         strictEqual(s.progress, 0);

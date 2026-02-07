@@ -258,6 +258,50 @@ Based on roadmap phases, recommend creating these implementation specs:
 **Original scaffolding approach:**
 > Single AGENT_PROMPT.md file with all context
 
+---
+
+## Entry 3: Phase 4 Semantic Enrichment (2026-02-07)
+
+### Phase
+Phase 4 - Semantic Enrichment (Implemented)
+
+### What Was Done
+- Added SHACL domain value objects:
+  - `packages/knowledge/domain/src/value-objects/shacl-policy.value.ts`
+  - `packages/knowledge/domain/src/value-objects/validation-report.value.ts`
+- Added SHACL validation stack:
+  - `packages/knowledge/server/src/Validation/{ShaclService,ShaclParser,ShapeGenerator,ValidationReport,index}.ts`
+- Implemented reasoning profiles + OWL rule registration:
+  - `packages/knowledge/domain/src/value-objects/reasoning/{ReasoningProfile,ReasoningConfig}.ts`
+  - `packages/knowledge/server/src/Reasoning/{ForwardChainer,ReasonerService,OwlRules,RdfsRules,index}.ts`
+- Implemented SPARQL DESCRIBE end-to-end:
+  - `packages/knowledge/server/src/Sparql/{QueryExecutor,SparqlParser,SparqlService}.ts`
+- Added/updated tests:
+  - `packages/knowledge/server/test/Validation/ShaclService.test.ts`
+  - `packages/knowledge/server/test/Reasoning/ForwardChainer.test.ts`
+  - `packages/knowledge/server/test/Sparql/{SparqlParser,SparqlService}.test.ts`
+
+### Verification
+- `bun run check --filter @beep/knowledge-domain` passed
+- `bun run check --filter @beep/knowledge-server` passed
+- `bun run lint:fix` in `packages/knowledge/server` passed
+- `bun test packages/knowledge/server/test/Validation/` passed
+- `bun test packages/knowledge/server/test/Reasoning/` passed
+- `bun test packages/knowledge/server/test/Sparql/` passed
+
+### Notable Learnings
+1. `decodeUnknownSync` in SPARQL execution hides decoder failures as defects.
+   - Switching to `decodeEither` + explicit mapping to `SparqlExecutionError` gives predictable error semantics.
+2. `exactOptionalPropertyTypes` requires omission of optional keys instead of assigning `undefined`.
+   - Shape generation needed object-spread construction patterns.
+3. OWL rule implementations need strict term narrowing (`IRI` vs `BlankNode` vs `Literal`) to avoid predicate type leakage.
+4. Adding a new method (`describe`) to service shapes requires immediate updates to all test doubles/mocks.
+
+### Follow-on Guidance for Phase 5
+1. Keep SPARQL AST validation explicit at query executor boundaries (current pattern is in place).
+2. Reuse `Validation/` service and ontology-derived shape generation when introducing provenance quality checks.
+3. Preserve `rdfs-full` default compatibility by keeping `ForwardChainer` default branch mapped to current `rdfsRules`.
+
 **Refined to:**
 > Dual handoff protocol: HANDOFF_P1.md (full context, tiered memory) + P1_ORCHESTRATOR_PROMPT.md (copy-paste ready)
 

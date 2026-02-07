@@ -17,7 +17,7 @@ export class ReasoningConfig extends S.Class<ReasoningConfig>($I`ReasoningConfig
 
   maxInferences: S.propertySignature(PositiveInt).pipe(S.withConstructorDefault(() => 10_000)),
 
-  profile: S.propertySignature(ReasoningProfile).pipe(S.withConstructorDefault(() => "RDFS" as const)),
+  profile: S.propertySignature(ReasoningProfile).pipe(S.withConstructorDefault(() => "rdfs-full" as const)),
 }) {}
 
 export const DefaultReasoningConfig = new ReasoningConfig({});

@@ -6,6 +6,9 @@
  * @module knowledge-domain/value-objects/rdf
  * @since 0.1.0
  */
+
+export * from "./NamedGraph";
+export * from "./ProvenanceVocabulary";
 export * from "./Quad";
 export * from "./QuadPattern";
 export * from "./RdfFormat";
