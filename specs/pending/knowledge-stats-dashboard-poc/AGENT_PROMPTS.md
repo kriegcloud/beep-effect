@@ -141,8 +141,11 @@ Commands:
 - bun run test
 - bun run lint
 
+Visual QA:
+- Use the Playwright MCP server (`mcp__playwright__*`) to take snapshots and screenshots.
+- Capture at least light + dark mode, plus one non-default graph layout state.
+
 Deliverable:
 - All gates pass
 - Add short verification notes in outputs/ (optional)
 ```
-

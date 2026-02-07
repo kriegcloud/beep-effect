@@ -178,6 +178,13 @@ Commands:
 - `bun run test`
 - `bun run lint`
 
+Visual QA tooling:
+- Prefer the Playwright MCP server (`mcp__playwright__*`) to capture repeatable screenshots/snapshots for comparison.
+- Capture at least:
+  - default (light) dashboard
+  - dark mode dashboard
+  - schema graph with at least one non-default layout selection
+
 Visual QA checklist:
 - matches 3-region layout (header/sidebar/main)
 - stats row shows 5 metrics

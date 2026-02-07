@@ -96,6 +96,8 @@ export class ReconciliationService extends Context.Tag($I`ReconciliationService`
 const LINKS_PREFIX = "reconciliation/links/";
 const QUEUE_PREFIX = "reconciliation/queue/";
 
+const encodeWikidataLinkJson = S.encode(S.parseJson(WikidataLink));
+const encodeVerificationTaskJson = S.encode(S.parseJson(VerificationTask));
 const decodeVerificationTask = S.decodeUnknown(S.parseJson(VerificationTask));
 
 const serviceEffect: Effect.Effect<ReconciliationServiceShape, never, WikidataClient | Storage> = Effect.gen(
@@ -119,8 +121,8 @@ const serviceEffect: Effect.Effect<ReconciliationServiceShape, never, WikidataCl
           linkedAt: now,
         });
 
-        const encoded = yield* S.encode(WikidataLink)(link);
-        yield* storage.put(`${LINKS_PREFIX}${encodeURIComponent(entityIri)}`, JSON.stringify(encoded));
+        const encodedJson = yield* encodeWikidataLinkJson(link);
+        yield* storage.put(`${LINKS_PREFIX}${encodeURIComponent(entityIri)}`, encodedJson);
       }).pipe(
         Effect.mapError(
           (e) =>
@@ -150,8 +152,8 @@ const serviceEffect: Effect.Effect<ReconciliationServiceShape, never, WikidataCl
           approvedQid: O.none(),
         });
 
-        const encoded = yield* S.encode(VerificationTask)(task);
-        yield* storage.put(`${QUEUE_PREFIX}${taskId}`, JSON.stringify(encoded));
+        const encodedJson = yield* encodeVerificationTaskJson(task);
+        yield* storage.put(`${QUEUE_PREFIX}${taskId}`, encodedJson);
         return taskId;
       }).pipe(
         Effect.mapError(
@@ -293,8 +295,8 @@ const serviceEffect: Effect.Effect<ReconciliationServiceShape, never, WikidataCl
           approvedQid: O.some(qid),
         });
 
-        const encoded = yield* S.encode(VerificationTask)(updated);
-        yield* storage.put(key, JSON.stringify(encoded), { expectedGeneration: storedOpt.value.generation });
+        const encodedJson = yield* encodeVerificationTaskJson(updated);
+        yield* storage.put(key, encodedJson, { expectedGeneration: storedOpt.value.generation });
         yield* storeLink(decoded.entityIri, qid);
       }).pipe(
         Effect.mapError(
@@ -320,8 +322,8 @@ const serviceEffect: Effect.Effect<ReconciliationServiceShape, never, WikidataCl
           status: "rejected",
         });
 
-        const encoded = yield* S.encode(VerificationTask)(updated);
-        yield* storage.put(key, JSON.stringify(encoded), { expectedGeneration: storedOpt.value.generation });
+        const encodedJson = yield* encodeVerificationTaskJson(updated);
+        yield* storage.put(key, encodedJson, { expectedGeneration: storedOpt.value.generation });
       }).pipe(
         Effect.mapError(
           (e) =>

@@ -379,6 +379,10 @@ const withDefaultsImpl = Effect.fn("withDefaults")(function* (packageName: `@bee
             // optimisticClientCache: true,
             ppr: true,
             optimizePackageImports,
+            // Enable filesystem caching for `next dev`
+            turbopackFileSystemCacheForDev: true,
+            // Enable filesystem caching for `next build`
+            turbopackFileSystemCacheForBuild: true,
           }),
         })
       );
@@ -409,7 +413,13 @@ const make = Effect.fn("NextConfig.make")(function* (packageName: `@beep/${strin
   return yield* pipe(
     {
       ...configWithDefaults,
-      allowedDevOrigins: process.env.NODE_ENV === "development" ? ["host.docker.internal"] : [],
+      // Playwright MCP runs in Docker (`mcp/playwright`) by default. On Linux, it often reaches the host via the
+      // Docker bridge gateway (e.g. `172.17.0.1`) unless the container is configured with host networking.
+      // Next's dev server blocks cross-origin access to `/_next/*` unless this allowlist includes the origin host.
+      allowedDevOrigins:
+        process.env.NODE_ENV === "development"
+          ? ["host.docker.internal", "localhost", "127.0.0.1", "172.17.0.1", "0.0.0.0"]
+          : [],
       headers: async () => [
         {
           source: "/:path*",

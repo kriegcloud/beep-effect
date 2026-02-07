@@ -126,6 +126,12 @@ See `MASTER_ORCHESTRATION.md` for task-level detail and handoff expectations.
 
 ---
 
+## Tooling Note: Playwright MCP
+
+For visual QA and regression screenshots in P6, prefer the Playwright MCP server (`mcp__playwright__*`) over ad-hoc manual screenshots so future sessions can reproduce the same captures deterministically.
+
+---
+
 ## Success Criteria
 
 - [ ] Dashboard route renders without runtime errors.
@@ -134,4 +140,3 @@ See `MASTER_ORCHESTRATION.md` for task-level detail and handoff expectations.
 - [ ] RPC contract is schema-validated (Effect Schema), no `any`.
 - [ ] Server aggregates have tests.
 - [ ] Dark mode doesn’t break layout (basic parity with reference).
-

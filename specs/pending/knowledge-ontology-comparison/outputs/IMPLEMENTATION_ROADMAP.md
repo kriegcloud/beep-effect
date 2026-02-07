@@ -7,12 +7,11 @@ This roadmap is reconciled to the current repository state on 2026-02-07.
 Previously, this document treated workflow durability and orchestration as open P0 work. That is now stale. Workflow migration to `@effect/workflow` has been completed and legacy runtime paths were removed in `specs/completed/knowledge-effect-workflow-migration/`.
 
 Current parity acceleration work should focus on remaining capability gaps from `P6_PARITY_GAP_MATRIX.md`:
-- `P6-06` Document classification preprocessing (`GAP`, P1)
-- `P6-07` Content enrichment agent (`GAP`, P2)
-- `P6-08` Reconciliation service (`GAP`, P2)
-- `P6-09` LLM fallback provider chain (`DIVERGENCE`, P1 remainder)
+- `P6-02` Cluster workflow persistence (`DIVERGENCE`, P0)
+- `P6-03` EventBus durability (`DIVERGENCE`, P1)
+- `P6-04` Storage durability/backends (`DIVERGENCE`, P1)
+- `P6-09` Embedding fallback parity decision (`DIVERGENCE`, P1; LanguageModel fallback chain is complete)
 - `P6-10` Workflow composition bundles parity (`PARTIAL`, P2)
-- `P6-11` Cross-batch resolver standalone service (`PARTIAL`, P2)
 - `P6-12` Multi-modal ingestion (`GAP`, P3 deferred)
 
 ## Baseline (Already Implemented)
@@ -56,8 +55,8 @@ Current parity acceleration work should focus on remaining capability gaps from 
 
 | Item | Matrix Row | Target | Notes |
 |---|---|---|---|
-| Document classifier | `P6-06` | `FULL` | Add preprocessing classifier service and extraction integration |
-| LLM fallback chain | `P6-09` | `FULL` or documented `DIVERGENCE` | Extend `LlmResilience` recover path into explicit provider fallback order |
+| Document classifier | `P6-06` | `FULL` | Implemented (see `outputs/P7_PARITY_CLOSURE_REPORT.md`) |
+| LLM fallback chain | `P6-09` | `DIVERGENCE` narrowed | LanguageModel fallback chain implemented; embedding fallback parity still differs |
 
 **Acceptance**:
 - Passing tests for new classifier and fallback behavior.
@@ -69,10 +68,10 @@ Current parity acceleration work should focus on remaining capability gaps from 
 
 | Item | Matrix Row | Target | Notes |
 |---|---|---|---|
-| Content enrichment agent | `P6-07` | `FULL` or `DIVERGENCE` | Service/agent integration with deterministic test seams |
-| Reconciliation service | `P6-08` | `FULL` or `DIVERGENCE` | Reviewable candidate queue semantics |
+| Content enrichment agent | `P6-07` | `FULL` | Implemented (see `outputs/P7_PARITY_CLOSURE_REPORT.md`) |
+| Reconciliation service | `P6-08` | `FULL` | Implemented with reviewable queue semantics |
 | Bundle parity uplift | `P6-10` | `FULL` or `PARTIAL` with rationale | Expand service bundle coverage where needed |
-| Cross-batch resolver service | `P6-11` | `FULL` or `DIVERGENCE` | Promote existing capabilities to dedicated API/service |
+| Cross-batch resolver service | `P6-11` | `FULL` | Implemented as dedicated service API + tests |
 
 **Acceptance**:
 - Status changes backed by concrete code and tests.
@@ -120,7 +119,8 @@ bun test packages/knowledge/server/test/GraphRAG/
 ## Completion Criteria
 
 - [ ] Reconciled artifacts contain no stale workflow assumptions.
-- [ ] `P6-06` and `P6-09` resolved to `FULL` or explicit tested divergence.
-- [ ] `P6-07`, `P6-08`, `P6-10`, `P6-11` resolved or explicitly deferred with rationale.
+- [ ] `P6-02`, `P6-03`, `P6-04` divergence rationale locked (or implemented).
+- [ ] `P6-09` divergence stance explicit (LanguageModel fallback complete; embedding fallback parity decision tracked).
+- [ ] `P6-10` resolved or explicitly deferred with rationale.
 - [ ] Verification suite passes.
 - [ ] `P7_PARITY_CLOSURE_REPORT.md` completed with matrix diff + evidence links.

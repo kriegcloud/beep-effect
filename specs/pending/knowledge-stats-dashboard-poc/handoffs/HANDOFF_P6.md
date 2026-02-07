@@ -12,6 +12,9 @@ Success criteria:
 - [ ] `bun run lint` passes
 - [ ] Visual QA checklist complete (basic parity)
 
+Visual QA tooling:
+- Prefer Playwright MCP (`mcp__playwright__*`) to capture repeatable snapshots and screenshots.
+
 Reference screenshots:
 - `https://static.vaultctx.com/notion/open-ontology/stats/screenshots/stats-default.png`
 - `https://static.vaultctx.com/notion/open-ontology/stats/screenshots/stats-dark-mode.png`

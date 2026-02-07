@@ -9,9 +9,8 @@
 This gap analysis replaces stale assumptions that workflow durability and workflow runtime migration were still open. Those items are now closed at migration-spec level and reflected in the reconciled parity matrix.
 
 Current remaining parity work is concentrated in:
-- ingestion quality features (classifier, enrichment, reconciliation),
-- LLM fallback-chain completion,
-- service composition/resolver uplift,
+- divergence decisions/documentation quality (persistence + EventBus + Storage),
+- bundle uplift,
 - and selected intentional divergences where full parity is not required.
 
 ## Closed / Reclassified Since Earlier Analysis
@@ -33,12 +32,12 @@ Use `outputs/P6_PARITY_GAP_MATRIX.md` as source of truth.
 | P6-03 | EventBus abstraction parity | DIVERGENCE | P1 | Intentional divergence candidate |
 | P6-04 | Storage abstraction parity | DIVERGENCE | P1 | Intentional divergence candidate |
 | P6-05 | Ontology registry parity | FULL | P1 | Closed |
-| P6-06 | Document classification preprocessing | GAP | P1 | Open implementation target |
-| P6-07 | Content enrichment agent | GAP | P2 | Open implementation target |
-| P6-08 | Reconciliation service | GAP | P2 | Open implementation target |
-| P6-09 | LLM resilience fallback chain | DIVERGENCE | P1 | Open parity remainder |
+| P6-06 | Document classification preprocessing | FULL | P1 | Closed |
+| P6-07 | Content enrichment agent | FULL | P2 | Closed |
+| P6-08 | Reconciliation service | FULL | P2 | Closed |
+| P6-09 | LLM resilience fallback chain | DIVERGENCE | P1 | Narrowed (LanguageModel fallback done; embedding fallback differs) |
 | P6-10 | Workflow composition bundles | PARTIAL | P2 | Open uplift target |
-| P6-11 | Cross-batch resolver standalone service | PARTIAL | P2 | Open uplift target |
+| P6-11 | Cross-batch resolver standalone service | FULL | P2 | Closed |
 | P6-12 | Multi-modal/image ingestion | GAP | P3 | Deferred candidate |
 
 ## Priority Breakdown
@@ -46,22 +45,16 @@ Use `outputs/P6_PARITY_GAP_MATRIX.md` as source of truth.
 | Priority | Open Rows | Notes |
 |---|---|---|
 | P0 | 1 (`P6-02`) | Divergence decision/documentation quality matters most |
-| P1 | 4 (`P6-03`, `P6-04`, `P6-06`, `P6-09`) | Highest next implementation value is `P6-06` + `P6-09` |
-| P2 | 4 (`P6-07`, `P6-08`, `P6-10`, `P6-11`) | Feature parity uplift track |
+| P1 | 3 (`P6-03`, `P6-04`, `P6-09`) | Remaining work is divergence tightening + optional embedding fallback parity |
+| P2 | 1 (`P6-10`) | Bundle parity uplift track |
 | P3 | 1 (`P6-12`) | Keep deferred unless product scope changes |
 
-## Recommended Phase 7 Execution Order
+## Recommended Next Execution Order (Post-Phase 7)
 
-1. Track 0 artifact reconciliation (already started): keep all outputs aligned to the canonical matrix.
-2. P1 closure:
-   - `P6-06` document classifier
-   - `P6-09` fallback provider chain
-3. P2 uplift:
-   - `P6-07` enrichment
-   - `P6-08` reconciliation
-   - `P6-10` bundle parity
-   - `P6-11` cross-batch resolver service API
-4. Confirm or tighten divergence rationale for `P6-02`, `P6-03`, `P6-04`.
+1. Tighten divergence rationale and operational evidence for `P6-02`, `P6-03`, `P6-04`.
+2. Decide whether embedding fallback parity is required under `P6-09` (LanguageModel fallback is complete).
+3. Uplift bundle parity (`P6-10`) if call sites need more ergonomic composition.
+4. Keep `P6-12` deferred unless product scope changes.
 
 ## Acceptance Criteria
 

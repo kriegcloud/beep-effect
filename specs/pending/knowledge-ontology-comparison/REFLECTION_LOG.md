@@ -848,3 +848,54 @@ Phase 5 - Infrastructure Polish (5A-5E)
 1. Add a small policy module for SPARQL operation allow/deny to centralize read-only enforcement.
 2. Add integration tests that run full extraction + GraphRAG query path with provenance assertions end-to-end.
 3. Separate workspace lint-fix orchestration from package-scoped lint-fix for reliable per-package CI checks.
+
+---
+
+## Entry 4: Phase 7 Capability Parity Acceleration (2026-02-07)
+
+### Phase
+Phase 7 - Capability Parity Acceleration (Complete)
+
+### What Was Done
+- Reconciled parity artifacts to remove stale “workflow durability gap” language already closed by workflow migration.
+- Closed remaining high-value parity targets against `.repos/effect-ontology` with implementation + tests:
+  - Document classifier service (`P6-06`).
+  - Content enrichment agent (`P6-07`).
+  - Wikidata reconciliation service + review queue semantics (`P6-08`).
+  - LanguageModel fallback chain remainder on top of existing retry/timeout/circuit (`P6-09` remainder).
+  - Cross-batch resolver promoted to dedicated service API with schema-safe outputs (`P6-11`).
+- Refactored several models and service surfaces to use `effect/Schema` classes (`S.Class`) rather than ad-hoc interfaces/structs, enabling opaque constructors and defaulting via `S.optionalWith(...)`.
+- Standardized ID usage in new/updated surfaces to slice entity IDs (`SharedEntityIds.*`, `DocumentsEntityIds.*`, `KnowledgeEntityIds.*`) instead of raw `string`.
+- Updated test layers so effects do not leak missing context:
+  - Added default provision of `FallbackLanguageModel` (as `O.none()`).
+  - Replaced `Layer.mergeAll(...)` misuse with `Layer.provide(...)` where dependency wiring is required.
+
+### Key Decisions
+1. **Fallback as `Option<LanguageModel.Service>` service**
+   - Rationale: keeps the fallback chain type-safe without “optional missing-tag” context games.
+   - Outcome: runtime always provides the tag (default `O.none()`), tests can safely provide `O.none()` as baseline.
+
+2. **Use `S.Class` for core interchange models**
+   - Rationale: improves robustness via schema-safe construction and reduces boilerplate test fixtures by leveraging defaults (`S.optionalWith(...)` + `OptionFromNullishOr(...)`).
+   - Outcome: fewer “hand-built object literals” and fewer unsafe casts around optional fields.
+
+3. **Schema map surfaces use `@beep/schema` schemas**
+   - Rationale: `MutableHashMap` has a dedicated schema surface in `@beep/schema` and should be used for stable JSON/codec semantics.
+   - Outcome: `CrossBatchEntityResolver` uses `BS.MutableHashMap({ key, value })` for its `resolvedMap` output.
+
+### What Worked Well
+- Stop-the-line artifact reconciliation prevented implementing against stale parity claims.
+- Service-first parity closures with dedicated tests made evidence reviewable and regression-resistant.
+- Layer wiring discipline (`Layer.provide(...)` for dependency satisfaction) avoided environment leaks and test flakiness.
+
+### What Could Be Improved
+- Service retry backoff interacts with test-time clocks; setting `baseRetryDelay: Duration.zero` per call site kept tests deterministic and avoided “sleep hangs”.
+- Lint workflows in the monorepo fan out broadly; scoped lint-fix remains noisy and can surface unrelated package lint issues.
+
+### Patterns Worth Preserving
+- **Parity closure standard**: code path + test evidence + matrix row update in the same phase.
+- **Fallback seam**: `withLlmResilienceWithFallback(primary, fallbackOpt, makeOperation, options)` avoids unsafe casting and keeps fallback behavior explicit.
+
+### Follow-ups
+1. Decide whether embedding fallback parity is required under `P6-09` (LanguageModel fallback is implemented).
+2. Tighten divergence rationale for `P6-02`, `P6-03`, `P6-04` with production constraints and tests where feasible.

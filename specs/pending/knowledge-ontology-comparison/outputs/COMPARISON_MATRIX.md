@@ -23,8 +23,8 @@ This matrix reconciles prior stale comparisons with the current implementation s
 | RDF + named graphs + provenance | FULL | Named graph lifecycle + PROV emission implemented |
 | SHACL + reasoning | PARTIAL | Core capability exists with narrower envelope than reference |
 | Batch/workflow orchestration | FULL | `@effect/workflow` engine paths active; legacy runtime removed |
-| LLM control plane | DIVERGENCE | Retry/timeout/circuit present; fallback chain remains deferred |
-| Content enrichment + external reconciliation | GAP | Classifier/enrichment/reconciliation still missing |
+| LLM control plane | DIVERGENCE | Retry/timeout/circuit + LanguageModel fallback chain implemented; embedding fallback differs from reference |
+| Content enrichment + external reconciliation | FULL | Classifier/enrichment/reconciliation implemented with tests |
 | Multi-ontology registry + storage abstraction | DIVERGENCE | In-memory-first backends; cloud/durable variants deferred |
 
 ## Capability Matrix (Prioritized)
@@ -36,22 +36,22 @@ This matrix reconciles prior stale comparisons with the current implementation s
 | P6-03 | Unified EventBus service (durable/event journal + job queue abstraction) | `.repos/effect-ontology/packages/@core-v2/src/Service/EventBus.ts` | `packages/knowledge/server/src/Service/EventBus.ts`, `packages/knowledge/server/test/Service/EventBus.test.ts` | DIVERGENCE | P1 |
 | P6-04 | Storage service abstraction (GCS/local/memory, signed URLs, generation preconditions) | `.repos/effect-ontology/packages/@core-v2/src/Service/Storage.ts` | `packages/knowledge/server/src/Service/Storage.ts`, `packages/knowledge/server/test/Service/Storage.test.ts` | DIVERGENCE | P1 |
 | P6-05 | Ontology registry service (multi-ontology resolution by ID/IRI/path) | `.repos/effect-ontology/packages/@core-v2/src/Service/OntologyRegistry.ts` | `packages/knowledge/server/src/Service/OntologyRegistry.ts`, `packages/knowledge/server/test/Service/OntologyRegistry.test.ts` | FULL | P1 |
-| P6-06 | Document classification preprocessing | `.repos/effect-ontology/packages/@core-v2/src/Service/DocumentClassifier.ts` | No classifier in `packages/knowledge/server/src` | GAP | P1 |
-| P6-07 | Content enrichment agent | `.repos/effect-ontology/packages/@core-v2/src/Service/ContentEnrichmentAgent.ts` | No enrichment agent in `packages/knowledge/server/src` | GAP | P2 |
-| P6-08 | Reconciliation service (Wikidata matching + review queue) | `.repos/effect-ontology/packages/@core-v2/src/Service/ReconciliationService.ts` | No reconciliation service in `packages/knowledge/server/src` | GAP | P2 |
-| P6-09 | LLM resilience parity (circuit breaker + retry wrapper + fallback provider chain) | `.repos/effect-ontology/packages/@core-v2/src/Runtime/CircuitBreaker.ts`, `Service/LlmWithRetry.ts`, `Service/EmbeddingFallback.ts` | `packages/knowledge/server/src/LlmControl/LlmResilience.ts`, `packages/knowledge/server/src/Extraction/{MentionExtractor,EntityExtractor,RelationExtractor}.ts`, `packages/knowledge/server/src/GraphRAG/GroundedAnswerGenerator.ts`, `packages/knowledge/server/src/Sparql/SparqlGenerator.ts`, `packages/knowledge/server/test/Resilience/LlmResilience.test.ts` | DIVERGENCE | P1 |
+| P6-06 | Document classification preprocessing | `.repos/effect-ontology/packages/@core-v2/src/Service/DocumentClassifier.ts` | `packages/knowledge/server/src/Service/DocumentClassifier.ts`, `packages/knowledge/server/test/Service/DocumentClassifier.test.ts` | FULL | P1 |
+| P6-07 | Content enrichment agent | `.repos/effect-ontology/packages/@core-v2/src/Service/ContentEnrichmentAgent.ts` | `packages/knowledge/server/src/Service/ContentEnrichmentAgent.ts`, `packages/knowledge/server/test/Service/ContentEnrichmentAgent.test.ts` | FULL | P2 |
+| P6-08 | Reconciliation service (Wikidata matching + review queue) | `.repos/effect-ontology/packages/@core-v2/src/Service/ReconciliationService.ts` | `packages/knowledge/server/src/Service/{ReconciliationService,WikidataClient}.ts`, `packages/knowledge/server/test/Service/ReconciliationService.test.ts` | FULL | P2 |
+| P6-09 | LLM resilience parity (circuit breaker + retry wrapper + fallback provider chain) | `.repos/effect-ontology/packages/@core-v2/src/Runtime/CircuitBreaker.ts`, `Service/LlmWithRetry.ts`, `Service/EmbeddingFallback.ts` | `packages/knowledge/server/src/LlmControl/{LlmResilience,FallbackLanguageModel}.ts`, `packages/knowledge/server/src/Runtime/LlmLayers.ts`, `packages/knowledge/server/test/Resilience/LlmResilience.test.ts` | DIVERGENCE | P1 |
 | P6-10 | Workflow composition bundles parity | `.repos/effect-ontology/packages/@core-v2/src/Runtime/WorkflowLayers.ts` | `packages/knowledge/server/src/Runtime/ServiceBundles.ts`, `packages/knowledge/server/test/Resilience/TokenBudgetAndBundles.test.ts` | PARTIAL | P2 |
-| P6-11 | Cross-batch entity resolver parity as standalone service | `.repos/effect-ontology/packages/@core-v2/src/Service/CrossBatchEntityResolver.ts` | Incremental/entity registry flows exist, but no dedicated cross-batch orchestrator service | PARTIAL | P2 |
+| P6-11 | Cross-batch entity resolver parity as standalone service | `.repos/effect-ontology/packages/@core-v2/src/Service/CrossBatchEntityResolver.ts` | `packages/knowledge/server/src/Service/CrossBatchEntityResolver.ts`, `packages/knowledge/server/test/Service/CrossBatchEntityResolver.test.ts` | FULL | P2 |
 | P6-12 | Multi-modal/image ingestion path | `.repos/effect-ontology/packages/@core-v2/src/Service/ImageExtractor.ts`, `ImageFetcher.ts`, `ImageBlobStore.ts` | No image pipeline in knowledge slice | GAP | P3 |
 
 ## Summary Counts
 
 | Status | Count |
 |---|---|
-| FULL | 2 |
-| PARTIAL | 2 |
+| FULL | 6 |
+| PARTIAL | 1 |
 | DIVERGENCE | 4 |
-| GAP | 4 |
+| GAP | 1 |
 | Total Rows | 12 |
 
 ## Notes

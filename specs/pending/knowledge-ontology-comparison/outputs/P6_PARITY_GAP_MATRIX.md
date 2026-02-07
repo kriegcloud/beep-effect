@@ -2,7 +2,7 @@
 
 **Spec**: `knowledge-ontology-comparison`  
 **Date**: 2026-02-07  
-**Baseline**: Post-Phase 6 + completed `knowledge-effect-workflow-migration` (P5 legacy removal)
+**Baseline**: Post-Phase 7 (capability parity acceleration applied) + completed `knowledge-effect-workflow-migration` (P5 legacy removal)
 
 ## Purpose
 
@@ -23,8 +23,8 @@ This matrix is a **current-state parity checkpoint** against `.repos/effect-onto
 | RDF + named graphs + provenance | FULL | Named graph lifecycle + PROV emission implemented |
 | SHACL + reasoning | PARTIAL | Present, but effect-ontology has broader rule/profile envelope |
 | Batch/workflow orchestration | FULL | `@effect/workflow` engine paths are active and legacy runtime artifacts are removed |
-| LLM control plane | DIVERGENCE | Retry + timeout + circuit feedback added; provider fallback chain explicitly deferred |
-| Content enrichment + external reconciliation | GAP | Missing classifier, enrichment agent, Wikidata reconciliation |
+| LLM control plane | DIVERGENCE | Retry + timeout + circuit feedback + LanguageModel fallback chain implemented; embedding fallback differs from reference |
+| Content enrichment + external reconciliation | FULL | Document classifier + enrichment + Wikidata reconciliation implemented with tests |
 | Multi-ontology registry + storage abstraction | DIVERGENCE | Registry + storage abstraction implemented with memory-first backends; cloud/durable backends deferred |
 
 ## Capability Matrix (Prioritized)
@@ -36,12 +36,12 @@ This matrix is a **current-state parity checkpoint** against `.repos/effect-onto
 | P6-03 | Unified EventBus service (durable/event journal + job queue abstraction) | `.repos/effect-ontology/packages/@core-v2/src/Service/EventBus.ts` | `packages/knowledge/server/src/Service/EventBus.ts`, `packages/knowledge/server/test/Service/EventBus.test.ts` | DIVERGENCE | P1 |
 | P6-04 | Storage service abstraction (GCS/local/memory, signed URLs, generation preconditions) | `.repos/effect-ontology/packages/@core-v2/src/Service/Storage.ts` | `packages/knowledge/server/src/Service/Storage.ts`, `packages/knowledge/server/test/Service/Storage.test.ts` | DIVERGENCE | P1 |
 | P6-05 | Ontology registry service (multi-ontology resolution by ID/IRI/path) | `.repos/effect-ontology/packages/@core-v2/src/Service/OntologyRegistry.ts` | `packages/knowledge/server/src/Service/OntologyRegistry.ts`, `packages/knowledge/server/test/Service/OntologyRegistry.test.ts` | FULL | P1 |
-| P6-06 | Document classification preprocessing | `.repos/effect-ontology/packages/@core-v2/src/Service/DocumentClassifier.ts` | No classifier in `packages/knowledge/server/src` | GAP | P1 |
-| P6-07 | Content enrichment agent | `.repos/effect-ontology/packages/@core-v2/src/Service/ContentEnrichmentAgent.ts` | No enrichment agent in `packages/knowledge/server/src` | GAP | P2 |
-| P6-08 | Reconciliation service (Wikidata matching + review queue) | `.repos/effect-ontology/packages/@core-v2/src/Service/ReconciliationService.ts` | No reconciliation service in `packages/knowledge/server/src` | GAP | P2 |
-| P6-09 | LLM resilience parity (circuit breaker + retry wrapper + fallback provider chain) | `.repos/effect-ontology/packages/@core-v2/src/Runtime/CircuitBreaker.ts`, `Service/LlmWithRetry.ts`, `Service/EmbeddingFallback.ts` | `packages/knowledge/server/src/LlmControl/LlmResilience.ts`, `packages/knowledge/server/src/Extraction/{MentionExtractor,EntityExtractor,RelationExtractor}.ts`, `packages/knowledge/server/src/GraphRAG/GroundedAnswerGenerator.ts`, `packages/knowledge/server/src/Sparql/SparqlGenerator.ts`, `packages/knowledge/server/test/Resilience/LlmResilience.test.ts` | DIVERGENCE | P1 |
+| P6-06 | Document classification preprocessing | `.repos/effect-ontology/packages/@core-v2/src/Service/DocumentClassifier.ts` | `packages/knowledge/server/src/Service/DocumentClassifier.ts`, `packages/knowledge/server/test/Service/DocumentClassifier.test.ts` | FULL | P1 |
+| P6-07 | Content enrichment agent | `.repos/effect-ontology/packages/@core-v2/src/Service/ContentEnrichmentAgent.ts` | `packages/knowledge/server/src/Service/ContentEnrichmentAgent.ts`, `packages/knowledge/server/test/Service/ContentEnrichmentAgent.test.ts` | FULL | P2 |
+| P6-08 | Reconciliation service (Wikidata matching + review queue) | `.repos/effect-ontology/packages/@core-v2/src/Service/ReconciliationService.ts` | `packages/knowledge/server/src/Service/{ReconciliationService,WikidataClient}.ts`, `packages/knowledge/server/test/Service/ReconciliationService.test.ts` | FULL | P2 |
+| P6-09 | LLM resilience parity (circuit breaker + retry wrapper + fallback provider chain) | `.repos/effect-ontology/packages/@core-v2/src/Runtime/CircuitBreaker.ts`, `Service/LlmWithRetry.ts`, `Service/EmbeddingFallback.ts` | `packages/knowledge/server/src/LlmControl/{LlmResilience,FallbackLanguageModel}.ts`, `packages/knowledge/server/src/Runtime/LlmLayers.ts`, `packages/knowledge/server/test/Resilience/LlmResilience.test.ts` | DIVERGENCE | P1 |
 | P6-10 | Workflow composition bundles parity | `.repos/effect-ontology/packages/@core-v2/src/Runtime/WorkflowLayers.ts` | `packages/knowledge/server/src/Runtime/ServiceBundles.ts` (LLM-focused bundles only) | PARTIAL | P2 |
-| P6-11 | Cross-batch entity resolver parity as standalone service | `.repos/effect-ontology/packages/@core-v2/src/Service/CrossBatchEntityResolver.ts` | Incremental/entity registry flows exist, but no dedicated cross-batch orchestrator service | PARTIAL | P2 |
+| P6-11 | Cross-batch entity resolver parity as standalone service | `.repos/effect-ontology/packages/@core-v2/src/Service/CrossBatchEntityResolver.ts` | `packages/knowledge/server/src/Service/CrossBatchEntityResolver.ts`, `packages/knowledge/server/test/Service/CrossBatchEntityResolver.test.ts` | FULL | P2 |
 | P6-12 | Multi-modal/image ingestion path | `.repos/effect-ontology/packages/@core-v2/src/Service/ImageExtractor.ts`, `ImageFetcher.ts`, `ImageBlobStore.ts` | No image pipeline in knowledge slice | GAP | P3 |
 
 ## What Phase 5 Already Closed (Do Not Re-open)
@@ -54,19 +54,18 @@ This matrix is a **current-state parity checkpoint** against `.repos/effect-onto
 | Token budget service integrations | CLOSED | `packages/knowledge/server/src/LlmControl/TokenBudget.ts` + extractor/GraphRAG integrations |
 | Layer bundles baseline | CLOSED | `packages/knowledge/server/src/Runtime/ServiceBundles.ts` |
 
-## Recommended Phase 7 Scope
+## Remaining High-Value Scope (Post-Phase 7)
 
 ### Required (P0/P1)
 
-1. `P6-06`: Implement document classifier preprocessing.
-2. `P6-09`: Complete provider fallback chain on top of existing retry/timeout/circuit behavior.
-3. Refresh matrix evidence paths and remove stale references from deleted legacy workflow artifacts.
+1. `P6-02`: Confirm/lock in cluster persistence divergence stance (or implement) with production-grade evidence.
+2. `P6-03` / `P6-04`: Tighten divergence rationale and operational evidence for EventBus + Storage (or uplift).
+3. `P6-09`: Divergence is now narrowed (LanguageModel fallback done); decide whether embedding fallback parity is required.
 
 ### Optional (P2/P3)
 
-1. `P6-07` and `P6-08`: Add content enrichment + reconciliation services.
-2. `P6-10` and `P6-11`: Broaden runtime bundles and promote cross-batch resolver to dedicated service API.
-3. `P6-12`: Multi-modal ingestion (future spec candidate).
+1. `P6-10`: Bundle parity uplift (widen service bundles where warranted).
+2. `P6-12`: Multi-modal ingestion (future spec candidate).
 
 ## Acceptance Criteria For “Parity Enough”
 
@@ -89,5 +88,9 @@ This matrix is a **current-state parity checkpoint** against `.repos/effect-onto
 - `bun run check --filter @beep/knowledge-domain` passed on 2026-02-07.
 - `bun run check --filter @beep/knowledge-server` passed on 2026-02-07.
 - `bun run lint --filter @beep/knowledge-server` passed on 2026-02-07.
-- `bun test packages/knowledge/server/test/Workflow/` passed (`73 pass, 0 fail`) on 2026-02-07.
-- `bun test packages/knowledge/server/test/Resilience/` passed (`6 pass, 0 fail`) on 2026-02-07.
+- `bun test packages/knowledge/server/test/Workflow/` passed (`12 pass, 0 fail`) on 2026-02-07.
+- `bun test packages/knowledge/server/test/Resilience/` passed (`9 pass, 0 fail`) on 2026-02-07.
+- `bun test packages/knowledge/server/test/Service/` passed (`18 pass, 0 fail`) on 2026-02-07.
+- `bun test packages/knowledge/server/test/Extraction/` passed (`27 pass, 0 fail`) on 2026-02-07.
+- `bun test packages/knowledge/server/test/EntityResolution/` passed (`40 pass, 0 fail`) on 2026-02-07.
+- `bun test packages/knowledge/server/test/GraphRAG/` passed (`144 pass, 0 fail`) on 2026-02-07.
