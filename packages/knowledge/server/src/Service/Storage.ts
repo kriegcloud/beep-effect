@@ -1,10 +1,11 @@
-import { $KnowledgeServerId } from "@beep/identity/packages";
+import {$KnowledgeServerId} from "@beep/identity/packages";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Ref from "effect/Ref";
 import * as S from "effect/Schema";
+import {BS} from "@beep/schema";
 
 const $I = $KnowledgeServerId.create("Service/Storage");
 
@@ -15,24 +16,31 @@ export class StorageGenerationConflictError extends S.TaggedError<StorageGenerat
     expectedGeneration: S.Number,
     actualGeneration: S.NullOr(S.Number),
   }
-) {}
+) {
+}
 
 export type StorageError = StorageGenerationConflictError;
 
-export interface StoredValue {
-  readonly key: string;
-  readonly value: string;
-  readonly generation: number;
-  readonly updatedAt: number;
+export class StoredValue extends S.Class<StoredValue>($I`StoredValue`)(
+  {
+    key: S.String,
+    value: S.String,
+    generation: S.Number,
+    updatedAt: S.Number,
+  }
+) {
 }
 
-export interface PutOptions {
-  readonly expectedGeneration?: number;
+export class PutOptions extends S.Class<PutOptions>($I`PutOptions`)({
+  expectedGeneration: S.optional(S.Number),
+}) {
 }
 
-export interface DeleteOptions {
-  readonly expectedGeneration?: number;
+export class DeleteOptions extends S.Class<DeleteOptions>($I`DeleteOptions`)({
+  expectedGeneration: S.optional(S.Number),
+}) {
 }
+
 
 export interface StorageShape {
   readonly get: (key: string) => Effect.Effect<O.Option<StoredValue>>;
@@ -41,7 +49,8 @@ export interface StorageShape {
   readonly list: (prefix?: string) => Effect.Effect<ReadonlyArray<StoredValue>>;
 }
 
-export class Storage extends Context.Tag($I`Storage`)<Storage, StorageShape>() {}
+export class Storage extends Context.Tag($I`Storage`)<Storage, StorageShape>() {
+}
 
 const serviceEffect: Effect.Effect<StorageShape> = Effect.gen(function* () {
   const stateRef = yield* Ref.make(new Map<string, StoredValue>());
@@ -52,7 +61,7 @@ const serviceEffect: Effect.Effect<StorageShape> = Effect.gen(function* () {
   });
 
   const put: StorageShape["put"] = Effect.fn("Storage.put")(function* (key, value, options) {
-    const result = yield* Ref.modify(stateRef, (state): readonly [PutOutcome, Map<string, StoredValue>] => {
+    const result = yield* Ref.modify(stateRef, (state): readonly [PutOutcome.Type, Map<string, StoredValue>] => {
       const current = state.get(key);
       const actualGeneration = current?.generation ?? null;
 
@@ -84,7 +93,7 @@ const serviceEffect: Effect.Effect<StorageShape> = Effect.gen(function* () {
       const nextState = new Map(state);
       nextState.set(key, nextValue);
 
-      return [{ _tag: "ok", value: nextValue }, nextState];
+      return [{_tag: "ok", value: nextValue}, nextState];
     });
 
     if (result._tag === "conflict") {
@@ -95,7 +104,7 @@ const serviceEffect: Effect.Effect<StorageShape> = Effect.gen(function* () {
   });
 
   const deleteValue: StorageShape["delete"] = Effect.fn("Storage.delete")(function* (key, options) {
-    const result = yield* Ref.modify(stateRef, (state): readonly [DeleteOutcome, Map<string, StoredValue>] => {
+    const result = yield* Ref.modify(stateRef, (state): readonly [DeleteOutcome.Type, Map<string, StoredValue>] => {
       const current = state.get(key);
       const actualGeneration = current?.generation ?? null;
 
@@ -117,13 +126,13 @@ const serviceEffect: Effect.Effect<StorageShape> = Effect.gen(function* () {
       }
 
       if (!current) {
-        return [{ _tag: "ok", value: false }, state];
+        return [{_tag: "ok", value: false}, state];
       }
 
       const nextState = new Map(state);
       nextState.delete(key);
 
-      return [{ _tag: "ok", value: true }, nextState];
+      return [{_tag: "ok", value: true}, nextState];
     });
 
     if (result._tag === "conflict") {
@@ -150,22 +159,58 @@ const serviceEffect: Effect.Effect<StorageShape> = Effect.gen(function* () {
 
 export const StorageMemoryLive = Layer.effect(Storage, serviceEffect);
 
-type PutOutcome =
-  | {
-      readonly _tag: "ok";
-      readonly value: StoredValue;
-    }
-  | {
-      readonly _tag: "conflict";
-      readonly error: StorageGenerationConflictError;
-    };
+export class OutComeTag extends BS.StringLiteralKit(
+  "ok",
+  "conflict"
+).annotations(
+  $I.annotations("OutComeTag", {
+    description: "Outcome tag for storage operations",
+  })
+) {
+}
 
-type DeleteOutcome =
-  | {
-      readonly _tag: "ok";
-      readonly value: boolean;
-    }
-  | {
-      readonly _tag: "conflict";
-      readonly error: StorageGenerationConflictError;
-    };
+export const makeOutcomeKind = OutComeTag.toTagged("_tag").composer({});
+
+export class OkPutOutcome extends S.Class<OkPutOutcome>($I`OkPutOutcome`)(
+  makeOutcomeKind.ok({
+    value: StoredValue
+  })
+) {
+}
+
+export class ConflictPutOutcome extends S.Class<ConflictPutOutcome>($I`ConflictPutOutcome`)(
+  makeOutcomeKind.conflict({
+    error: StorageGenerationConflictError
+  })
+) {
+}
+
+export class PutOutcome extends S.Union(OkPutOutcome, ConflictPutOutcome) {
+}
+
+export declare namespace PutOutcome {
+  export type Type = typeof PutOutcome.Type;
+  export type Encoded = typeof PutOutcome.Encoded;
+}
+
+export class OkDeleteOutcome extends S.Class<OkDeleteOutcome>($I`OkDeleteOutcome`)(
+  makeOutcomeKind.ok({
+    value: S.Boolean
+  })
+) {
+}
+
+export class ConflictDeleteOutcome extends S.Class<ConflictDeleteOutcome>($I`ConflictDeleteOutcome`)(
+  makeOutcomeKind.conflict({
+    error: StorageGenerationConflictError
+  })
+) {
+}
+
+export class DeleteOutcome extends S.Union(OkDeleteOutcome, ConflictDeleteOutcome) {
+}
+
+export declare namespace DeleteOutcome {
+  export type Type = typeof DeleteOutcome.Type;
+  export type Encoded = typeof DeleteOutcome.Encoded;
+}

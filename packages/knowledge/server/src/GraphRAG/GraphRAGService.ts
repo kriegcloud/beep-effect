@@ -53,20 +53,22 @@ export class GraphRAGQuery extends S.Class<GraphRAGQuery>("GraphRAGQuery")({
   similarityThreshold: BS.toOptionalWithDefault(S.Number.pipe(S.greaterThanOrEqualTo(0), S.lessThanOrEqualTo(1)))(0.5),
   includeScores: BS.toOptionalWithDefault(S.Boolean)(false),
 }) {}
-
-export class GraphRAGResult extends S.Class<GraphRAGResult>("GraphRAGResult")({
-  entities: S.Array(Entities.Entity.Model),
-  relations: S.Array(Entities.Relation.Model),
-  scores: S.Record({ key: S.String, value: S.Number }),
-  context: S.String,
-  stats: S.Struct({
-    seedEntityCount: S.Number,
+export class GraphRagResultStats extends S.Class<GraphRagResultStats>($I`GraphRagResultStats`)(
+  {
+        seedEntityCount: S.Number,
     totalEntityCount: S.Number,
     totalRelationCount: S.Number,
     hopsTraversed: S.Number,
     estimatedTokens: S.Number,
     truncated: S.Boolean,
-  }),
+  }
+) {}
+export class GraphRAGResult extends S.Class<GraphRAGResult>("GraphRAGResult")({
+  entities: S.Array(Entities.Entity.Model),
+  relations: S.Array(Entities.Relation.Model),
+  scores: S.Record({ key: S.String, value: S.Number }),
+  context: S.String,
+  stats: GraphRagResultStats,
 }) {}
 
 export class GraphRAGError extends S.TaggedError<GraphRAGError>()("GraphRAGError", {
@@ -91,7 +93,7 @@ export interface GraphRAGServiceShape {
     schemaContext: string,
     timeoutMs?: number
   ) => Effect.Effect<
-    QueryResult,
+    QueryResult.Type,
     GraphRAGError | SparqlGenerationError | SparqlSyntaxError | SparqlUnsupportedFeatureError | SparqlTimeoutError
   >;
 }
@@ -222,7 +224,7 @@ const serviceEffect: Effect.Effect<
         },
       });
 
-      yield* Effect.logInfo("GraphRAGService.query: complete").pipe(Effect.annotateLogs(result.stats));
+      yield* Effect.logInfo("GraphRAGService.query: complete").pipe(Effect.annotateLogs({stats: result.stats}));
 
       return result;
     }).pipe(
@@ -254,14 +256,14 @@ const serviceEffect: Effect.Effect<
           relations: A.empty<Entities.Relation.Model>(),
           scores: {},
           context: "",
-          stats: {
+          stats: new GraphRagResultStats({
             seedEntityCount: 0,
             totalEntityCount: 0,
             totalRelationCount: 0,
             hopsTraversed: 0,
             estimatedTokens: 0,
             truncated: false,
-          },
+          }),
         });
       }
 
@@ -289,14 +291,14 @@ const serviceEffect: Effect.Effect<
         relations,
         scores,
         context: includeScores ? formatContextWithScores(sortedEntities, relations, scoreMap) : context,
-        stats: {
+        stats: GraphRagResultStats.make({
           seedEntityCount: A.length(seedEntityIds),
           totalEntityCount: A.length(entities),
           totalRelationCount: A.length(relations),
           hopsTraversed: hops,
           estimatedTokens: Math.ceil(Str.length(context) / 4),
           truncated: entityCount < A.length(sortedEntities) || relationCount < A.length(relations),
-        },
+        }),
       });
     }).pipe(
       Effect.withSpan("GraphRAGService.queryFromSeeds", {
@@ -310,7 +312,7 @@ const serviceEffect: Effect.Effect<
     schemaContext: string,
     timeoutMs = 5_000
   ): Effect.Effect<
-    QueryResult,
+    QueryResult.Type,
     GraphRAGError | SparqlGenerationError | SparqlSyntaxError | SparqlUnsupportedFeatureError | SparqlTimeoutError
   > =>
     Effect.gen(function* () {

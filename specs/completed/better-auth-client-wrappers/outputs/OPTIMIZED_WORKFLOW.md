@@ -14,7 +14,7 @@ bun run check --filter @beep/iam-client
 
 # 2. Create working branch (rollback point)
 git checkout -b feat/iam-client-wrappers-p[N]
-git status  # Should be clean
+git status  # Non-clean is OK (parallel agents may be active)
 ```
 
 **If pre-flight fails:** Fix existing issues BEFORE proceeding.

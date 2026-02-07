@@ -19,7 +19,7 @@ Implement 9 better-auth client wrappers for core + username operations.
 **Before ANY code changes:**
 
 ```bash
-# 1. Verify clean baseline
+# 1. Verify baseline compiles
 bun run check --filter @beep/iam-client
 
 # 2. Create working branch

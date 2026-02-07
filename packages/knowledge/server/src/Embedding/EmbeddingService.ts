@@ -56,14 +56,16 @@ const computeCacheKey = (text: string, model: string): string => {
   const hashHex = Str.padStart(8, "0")(Math.abs(hash).toString(16));
   return `${model}:${hashHex}`;
 };
-
+export class EmbeddingServiceConfig extends S.Class<EmbeddingServiceConfig>($I`EmbeddingServiceConfig`)(
+  {
+    model: S.String,
+    dimensions: S.Number,
+    provider: S.String,
+  }
+) {}
 export interface EmbeddingServiceShape {
   readonly getConfig: () => Effect.Effect<
-    {
-      model: string;
-      dimensions: number;
-      provider: string;
-    },
+    EmbeddingServiceConfig,
     never,
     never
   >;

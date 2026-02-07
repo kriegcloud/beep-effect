@@ -68,6 +68,7 @@ bunx turbo run check lint test --filter='@beep/knowledge-*' --ui=stream
 - `bun run --cwd packages/knowledge/ui test`: `PASS` (2026-02-07)
 - `rg ... packages/knowledge/ui/...`: `PASS` (no matches) (2026-02-07)
 - `bunx turbo run check lint test --filter='@beep/knowledge-*' --ui=stream`: `PASS` (2026-02-07)
+- `bun run --cwd packages/knowledge/server check && bun run --cwd packages/knowledge/server lint && bun run --cwd packages/knowledge/server test`: `PASS` (2026-02-07)
 
 ## Required Audits (Per Module)
 

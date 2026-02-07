@@ -1,13 +1,13 @@
-import { createHash } from "node:crypto";
-import { $KnowledgeServerId } from "@beep/identity/packages";
-import type { OntologyParseError, WorkflowNotFoundError } from "@beep/knowledge-domain/errors";
-import { ActivityFailedError } from "@beep/knowledge-domain/errors";
-import { ExtractionProgressEvent } from "@beep/knowledge-domain/value-objects";
-import { DocumentsEntityIds, KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
-import type * as AiError from "@effect/ai/AiError";
-import type * as HttpServerError from "@effect/platform/HttpServerError";
+import {createHash} from "node:crypto";
+import {$KnowledgeServerId} from "@beep/identity/packages";
+import {OntologyParseError, type WorkflowNotFoundError} from "@beep/knowledge-domain/errors";
+import {ActivityFailedError} from "@beep/knowledge-domain/errors";
+import {ExtractionProgressEvent} from "@beep/knowledge-domain/value-objects";
+import {DocumentsEntityIds, KnowledgeEntityIds, SharedEntityIds} from "@beep/shared-domain";
+import * as AiError from "@effect/ai/AiError";
+import * as HttpServerError from "@effect/platform/HttpServerError";
 import type * as SqlError from "@effect/sql/SqlError";
-import { Activity, Workflow, WorkflowEngine } from "@effect/workflow";
+import {Activity, Workflow, WorkflowEngine} from "@effect/workflow";
 import * as Cause from "effect/Cause";
 import * as Context from "effect/Context";
 import * as DateTime from "effect/DateTime";
@@ -22,40 +22,90 @@ import {
   ExtractionResult,
   type ExtractionResult as ExtractionResultType,
 } from "../Extraction/ExtractionPipeline";
-import { ProgressStream } from "./ProgressStream";
-import { WorkflowPersistence } from "./WorkflowPersistence";
+import {ProgressStream} from "./ProgressStream";
+import {WorkflowPersistence} from "./WorkflowPersistence";
+import {BS} from "@beep/schema";
+
 
 const $I = $KnowledgeServerId.create("Workflow/ExtractionWorkflow");
 
-type ExtractionError = OntologyParseError | HttpServerError.RequestError | AiError.AiError;
-type RetryOwner = "activity" | "orchestrator";
-
-export interface ExtractionWorkflowParams {
-  readonly documentId: string;
-  readonly organizationId: string;
-  readonly ontologyId?: string | undefined;
-  readonly text: string;
-  readonly ontologyContent: string;
-  readonly config?: Partial<{
-    readonly mergeEntities: boolean;
-    readonly enableIncrementalClustering: boolean;
-    readonly retryOwner: RetryOwner;
-  }>;
+export class ExtractionError extends S.Union(
+  OntologyParseError,
+  S.instanceOf(HttpServerError.RequestError),
+  S.instanceOf(AiError.AiError)
+) {
 }
+
+export declare namespace ExtractionError {
+  export type Type = typeof ExtractionError.Type;
+  export type Encoded = typeof ExtractionError.Encoded;
+}
+
+export class RetryOwner extends BS.StringLiteralKit(
+  "activity", "orchestrator"
+).annotations(
+  $I.annotations(
+    "RetryOwner",
+    {
+      description: "The owner of the retry"
+    }
+  )
+) {
+}
+
+export declare namespace RetryOwner {
+  export type Type = typeof RetryOwner.Type;
+  export type Encoded = typeof RetryOwner.Encoded;
+}
+const makeExtractionWorkflowConfigKind = RetryOwner.toTagged("retryOwner").composer({
+  mergeEntities: S.Boolean,
+  enableIncrementalClustering: S.Boolean,
+});
+
+export class ActivityExtractionWorkflowConfig extends S.Class<ActivityExtractionWorkflowConfig>($I`ActivityExtractionWorkflowConfig`)(
+  makeExtractionWorkflowConfigKind.activity({})
+) {}
+
+export class OrchestratorExtractionWorkflowConfig extends S.Class<OrchestratorExtractionWorkflowConfig>($I`OrchestratorExtractionWorkflowConfig`)(
+  makeExtractionWorkflowConfigKind.orchestrator({})
+) {}
+
+export class ExtractionWorkflowConfig extends S.Union(
+  ActivityExtractionWorkflowConfig,
+  OrchestratorExtractionWorkflowConfig
+) {
+}
+
+export declare namespace ExtractionWorkflowConfig {
+  export type Type = typeof ExtractionWorkflowConfig.Type;
+  export type Encoded = typeof ExtractionWorkflowConfig.Encoded;
+}
+
+export class ExtractionWorkflowParams extends S.Class<ExtractionWorkflowParams>($I`ExtractionWorkflowParams`)(
+  {
+   documentId: DocumentsEntityIds.DocumentId,
+   organizationId: S.optional(SharedEntityIds.OrganizationId),
+   ontologyId: KnowledgeEntityIds.OntologyId,
+   text: S.String,
+   ontologyContent: S.String,
+   config: S.optional(S.partial(ExtractionWorkflowConfig)),
+  }
+) {}
 
 export interface ExtractionWorkflowShape {
   readonly run: (
     params: ExtractionWorkflowParams
   ) => Effect.Effect<
     ExtractionResultType,
-    ExtractionError | ActivityFailedError | WorkflowNotFoundError | SqlError.SqlError
+    ExtractionError.Type | ActivityFailedError | WorkflowNotFoundError | SqlError.SqlError
   >;
 }
 
 export class ExtractionWorkflow extends Context.Tag($I`ExtractionWorkflow`)<
   ExtractionWorkflow,
   ExtractionWorkflowShape
->() {}
+>() {
+}
 
 const ACTIVITY_NAMES = {
   runPipeline: "run_extraction_pipeline",
@@ -106,7 +156,7 @@ const emitProgressForStream = Effect.fn("ExtractionWorkflow.emitProgressForStrea
     );
   },
   Effect.catchAllCause((cause) =>
-    Effect.logDebug("Failed to emit progress event").pipe(Effect.annotateLogs({ cause: String(cause) }))
+    Effect.logDebug("Failed to emit progress event").pipe(Effect.annotateLogs({cause: String(cause)}))
   )
 );
 
@@ -126,12 +176,34 @@ const emitProgress = Effect.fn("ExtractionWorkflow.emitProgress")(
   },
   Effect.catchAllCause((cause) =>
     Effect.logDebug("Failed to emit progress event").pipe(
-      Effect.annotateLogs({ cause: String(cause), executionId: "unknown", activityName: "unknown" })
+      Effect.annotateLogs({cause: String(cause), executionId: "unknown", activityName: "unknown"})
     )
   )
 );
+export class ExtractionEnginePayloadRetryOwner extends BS.StringLiteralKit("activity", "orchestrator") {
+}
 
-const ExtractionEnginePayload = S.Struct({
+export declare namespace ExtractionEnginePayloadRetryOwner {
+  export type Type = typeof ExtractionEnginePayloadRetryOwner.Type;
+  export type Encoded = typeof ExtractionEnginePayloadRetryOwner.Encoded;
+}
+
+const makeExtractionEnginePayloadRetryOwner = ExtractionEnginePayloadRetryOwner.toTagged("retryOwner").composer({
+  documentId: DocumentsEntityIds.DocumentId,
+  organizationId: SharedEntityIds.OrganizationId,
+  ontologyId: S.optional(KnowledgeEntityIds.OntologyId),
+  text: S.String,
+  ontologyContent: S.String,
+  mergeEntities: S.NullOr(S.Boolean),
+  enableIncrementalClustering: S.NullOr(S.Boolean),
+});
+
+export class ActivityExtractionEnginePayload extends S.Class<ActivityExtractionEnginePayload>($I`ActivityExtractionEnginePayload`)(
+  makeExtractionEnginePayloadRetryOwner.activity({})
+) {
+}
+
+class ExtractionEnginePayload extends S.Class<ExtractionEnginePayload>($I`ExtractionEnginePayload`)({
   documentId: S.String,
   organizationId: S.String,
   ontologyId: S.optional(S.String),
@@ -140,7 +212,7 @@ const ExtractionEnginePayload = S.Struct({
   mergeEntities: S.NullOr(S.Boolean),
   enableIncrementalClustering: S.NullOr(S.Boolean),
   retryOwner: S.Literal("activity", "orchestrator"),
-});
+}) {}
 
 const ExtractionEngineWorkflow = Workflow.make({
   name: "knowledge-extraction",
@@ -191,7 +263,7 @@ const serviceEffect = Effect.gen(function* () {
     );
   });
 
-  return ExtractionWorkflow.of({ run });
+  return ExtractionWorkflow.of({run});
 });
 
 const ExtractionEngineWorkflowLayer = ExtractionEngineWorkflow.toLayer((payload, executionId) =>
@@ -199,7 +271,7 @@ const ExtractionEngineWorkflowLayer = ExtractionEngineWorkflow.toLayer((payload,
     const pipeline = yield* ExtractionPipeline;
     const persistence = yield* WorkflowPersistence;
     const maybeProgressStream = yield* Effect.serviceOption(ProgressStream);
-    const params: ExtractionWorkflowParams = {
+    const params = new ExtractionWorkflowParams({
       documentId: payload.documentId,
       organizationId: payload.organizationId,
       ontologyId: payload.ontologyId,
@@ -207,12 +279,12 @@ const ExtractionEngineWorkflowLayer = ExtractionEngineWorkflow.toLayer((payload,
       ontologyContent: payload.ontologyContent,
       config: {
         retryOwner: payload.retryOwner,
-        ...(payload.mergeEntities === null ? {} : { mergeEntities: payload.mergeEntities }),
+        ...(payload.mergeEntities === null ? {} : {mergeEntities: payload.mergeEntities}),
         ...(payload.enableIncrementalClustering === null
           ? {}
-          : { enableIncrementalClustering: payload.enableIncrementalClustering }),
+          : {enableIncrementalClustering: payload.enableIncrementalClustering}),
       },
-    };
+    });
     const ontologyId = resolveOntologyId(payload.ontologyId);
 
     yield* persistence
@@ -249,7 +321,7 @@ const ExtractionEngineWorkflowLayer = ExtractionEngineWorkflow.toLayer((payload,
     });
 
     const activityEffect =
-      payload.retryOwner === "orchestrator" ? activity.execute : activity.execute.pipe(Activity.retry({ times: 3 }));
+      payload.retryOwner === "orchestrator" ? activity.execute : activity.execute.pipe(Activity.retry({times: 3}));
 
     return yield* activityEffect.pipe(
       Effect.tap(() =>

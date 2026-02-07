@@ -19,12 +19,12 @@ Analyze the 90 methods to implement and create utilities, types, schemas, and bo
 **Before ANY changes:**
 
 ```bash
-# 1. Verify clean baseline
+# 1. Verify baseline compiles
 bun run check --filter @beep/iam-client
 
 # 2. Create working branch
 git checkout -b feat/iam-client-wrappers-p0
-git status  # Should be clean
+git status  # Non-clean is OK (parallel agents may be active)
 ```
 
 **If pre-flight fails**: Fix existing issues FIRST. Do NOT proceed with errors.

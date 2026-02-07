@@ -43,7 +43,7 @@ Agent Infrastructure (173MB total in .claude/)
 ├── .agents/skills/ (9 dirs)    # SECONDARY - Curated subset
 ├── .cursor/rules/ (3 files)    # Cursor IDE (MDC format)
 ├── .windsurf/rules/ (symlink)  # Windsurf (wrong format)
-├── .codex/skills/ (empty)      # UNUSED placeholder
+├── .codex/skills/              # Codex skill source (directory-based `SKILL.md`; see `.codex/skills/README.md`)
 └── .opencode/skills/ (empty)   # UNUSED placeholder
 ```
 

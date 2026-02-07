@@ -48,6 +48,7 @@ to move failure handling up to the caller.
 4. **Respect Tooling**: ALWAYS run commands via `bun run <script>` from project root
 5. **Keep Docs Updated**: Align with `documentation/patterns/` when introducing new patterns
 6. **Do Not Auto-Start**: NEVER launch long-running dev or server commands without confirmation
+7. **Dirty Worktrees Are OK**: Do not stop or block on a non-clean git status; multiple agents may be working in parallel. Only insist on a clean worktree for operations that strictly require it (e.g. `git subtree`, history rewriting). Never propose reverting/stashing unless asked.
 
 ### Workflow Examples
 

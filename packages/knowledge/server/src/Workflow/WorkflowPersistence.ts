@@ -44,23 +44,25 @@ export const decodeWorkflowExecutionRecord = (u: unknown): Effect.Effect<Workflo
         })
     )
   );
+export class CreateExcecutionParams extends S.Class<CreateExcecutionParams>($I`CreateExcecutionParams`)({
+  id: KnowledgeEntityIds.WorkflowExecutionId,
+  organizationId: S.String,
+  workflowType: WorkflowType,
+  input: S.optional(JsonRecord),
+}) {}
 
+export class UpdateExecutionStatusUpdates extends S.Class<UpdateExecutionStatusUpdates>($I`UpdateExecutionStatusUpdates`)({
+  output: S.optional(JsonRecord),
+  error: S.optional(S.String),
+  lastActivityName: S.optional(S.String),
+}) {}
 export interface WorkflowPersistenceShape {
-  readonly createExecution: (params: {
-    readonly id: KnowledgeEntityIds.WorkflowExecutionId.Type;
-    readonly organizationId: string;
-    readonly workflowType: WorkflowType.Type;
-    readonly input?: Record<string, unknown>;
-  }) => Effect.Effect<void, SqlError.SqlError>;
+  readonly createExecution: (params: CreateExcecutionParams) => Effect.Effect<void, SqlError.SqlError>;
 
   readonly updateExecutionStatus: (
     id: KnowledgeEntityIds.WorkflowExecutionId.Type,
     status: WorkflowExecutionStatus.Type,
-    updates?: {
-      readonly output?: Record<string, unknown>;
-      readonly error?: string;
-      readonly lastActivityName?: string;
-    }
+    updates?: undefined | UpdateExecutionStatusUpdates
   ) => Effect.Effect<void, SqlError.SqlError>;
 
   readonly getExecution: (

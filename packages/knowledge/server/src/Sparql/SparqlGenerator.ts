@@ -31,11 +31,11 @@ export class SparqlGenerationError extends S.TaggedError<SparqlGenerationError>(
   message: S.String,
   attempts: S.Int,
 }) {}
+export class SparqlGenerationResult extends S.Class<SparqlGenerationResult>($I`SparqlGenerationResult`)({
+  query: S.String,
+  attempts: S.Int,
+}) {}
 
-export interface SparqlGenerationResult {
-  readonly query: string;
-  readonly attempts: number;
-}
 
 export interface SparqlGeneratorShape {
   readonly generateReadOnlyQuery: (

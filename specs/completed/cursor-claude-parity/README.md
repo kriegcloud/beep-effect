@@ -72,7 +72,7 @@ All decisions must be documented in:
 - `.claude/skills/`: `60` entries (37 structured SKILL.md)
 - `.claude/commands/`: `13` files
 - `.codex/rules/`: `3` files (symlinked/copied from .claude)
-- `.codex/skills/`: index + selected ports
+- `.codex/skills/`: directory-based skills + index (see `.codex/skills/README.md` for the required `SKILL.md` format)
 - `.codex/workflows/`: `8` workflow files
 - `.cursor/rules/`: `5` files (`.mdc` format, synced from .claude)
 - `.cursor/skills/`: `2` skills only

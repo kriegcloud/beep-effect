@@ -1,7 +1,7 @@
 import { GmailScopes, GoogleApiError, GoogleScopeExpansionRequiredError } from "@beep/google-workspace-domain";
 import {
-  GMAIL_EXTRACTION_REQUIRED_SCOPES,
   ExtractedEmailDocument,
+  GMAIL_EXTRACTION_REQUIRED_SCOPES,
   GmailExtractionAdapter,
   GmailExtractionAdapterLive,
 } from "@beep/knowledge-server/adapters";

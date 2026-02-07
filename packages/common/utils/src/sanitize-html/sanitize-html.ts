@@ -108,7 +108,7 @@ const _escapeTag = (
   result = F.pipe(
     selfClosing,
     Match.value,
-    Match.when(true, () => result + " /"),
+    Match.when(true, () => `${result} /`),
     Match.orElse(() => result)
   );
 

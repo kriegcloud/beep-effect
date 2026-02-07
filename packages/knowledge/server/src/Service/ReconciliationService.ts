@@ -40,7 +40,14 @@ export class ReconciliationConfig extends S.Class<ReconciliationConfig>($I`Recon
   maxCandidates: S.optionalWith(S.Int.pipe(S.positive()), { default: () => 5 }),
   language: S.optionalWith(S.String, { default: () => "en" }),
 }) {}
-
+export class ReconciliationConfigInput extends S.Class<ReconciliationConfigInput>($I`ReconciliationConfigInput`)(
+  {
+    autoLinkThreshold: S.optional(S.Number.pipe(S.between(0, 100))),
+    queueThreshold: S.optional(S.Number.pipe(S.between(0, 100))),
+    maxCandidates: S.optional(S.Int.pipe(S.positive())),
+    language: S.optional(S.String),
+  }
+) {}
 export interface ReconciliationConfigInput {
   readonly autoLinkThreshold?: number;
   readonly queueThreshold?: number;

@@ -106,6 +106,7 @@ For Cursor IDE parity workflows and adaptations, use:
 4. **Respect Tooling**: Use root scripts with `dotenvx`
 5. **Keep Docs Updated**: Align with `documentation/patterns/` when introducing new patterns
 6. **Do Not Auto-Start**: Never launch long-running dev or server commands without confirmation
+7. **Dirty Worktrees Are OK**: Do not treat a non-clean git status as a blocker. This repo often runs multiple agents in parallel on the same branch. Only require a clean worktree for operations that strictly need it (e.g. certain codemods, `git subtree`, history rewriting). Never revert/stash/clean unless explicitly requested.
 
 ## Specifications
 

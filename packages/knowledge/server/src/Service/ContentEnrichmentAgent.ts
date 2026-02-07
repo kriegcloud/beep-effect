@@ -10,8 +10,8 @@ import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import { FallbackLanguageModel } from "../LlmControl/FallbackLanguageModel";
-import { withLlmResilienceWithFallback } from "../LlmControl/LlmResilience";
+import { FallbackLanguageModel } from "@beep/knowledge-server/LlmControl/FallbackLanguageModel";
+import { withLlmResilienceWithFallback } from "@beep/knowledge-server/LlmControl/LlmResilience";
 
 const $I = $KnowledgeServerId.create("Service/ContentEnrichmentAgent");
 

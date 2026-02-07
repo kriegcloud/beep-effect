@@ -10,7 +10,7 @@ import { type OntologyContext, OntologyService, OntologyServiceLive } from "../O
 import { hasType, materializeSubclassInference, nodesOfType, valuesForNodeAndPath } from "./ShaclParser";
 import { generateShapesFromOntology, type PropertyShape } from "./ShapeGenerator";
 import { enforceValidationPolicy, makeValidationReport } from "./ValidationReport";
-
+import * as S from "effect/Schema";
 const $I = $KnowledgeServerId.create("Validation/ShaclService");
 
 const XSD_STRING = "http://www.w3.org/2001/XMLSchema#string";
@@ -33,7 +33,7 @@ const datatypeMatches = (value: N3.Term, expectedDatatype: string): boolean => {
 const validateShapeForNode = (
   graph: N3.Store,
   nodeIri: string,
-  shape: PropertyShape,
+  shape: PropertyShape.Type,
   policy: ShaclPolicy
 ): ReadonlyArray<ValidationFinding> => {
   const findings: Array<ValidationFinding> = [];
@@ -102,14 +102,16 @@ const validateShapeForNode = (
 
   return findings;
 };
+export class ValidateOptions extends S.Class<ValidateOptions>($I`ValidateOptions`)(
+  {
+    policy: S.optional(ShaclPolicy),
+    maxInferenceDepth: S.optional(S.Number)
+  }
+) {}
 
-export interface ValidateOptions {
-  readonly policy?: ShaclPolicy;
-  readonly maxInferenceDepth?: number;
-}
 
 export interface ShaclServiceShape {
-  readonly generateShapes: (ontology: OntologyContext) => Effect.Effect<ReadonlyArray<PropertyShape>>;
+  readonly generateShapes: (ontology: OntologyContext) => Effect.Effect<ReadonlyArray<PropertyShape.Type>>;
   readonly validate: (
     graph: N3.Store,
     ontology: OntologyContext,

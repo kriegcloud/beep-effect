@@ -3,6 +3,7 @@ import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
+import * as S from "effect/Schema";
 import * as Str from "effect/String";
 
 const $I = $KnowledgeServerId.create("EntityResolution/BloomFilter");
@@ -79,20 +80,28 @@ const popcount = (n: number): number => {
   }
   return count;
 };
-
+export class BloomFilterStats extends S.Class<BloomFilterStats>($I`BloomFilterStats`)(
+  {
+    itemCount: S.Number,
+    bitArraySize: S.Number,
+    setBitCount: S.Number,
+    fillRatio: S.Number,
+    estimatedFalsePositiveRate: S.Number,
+    numHashFunctions: S.Number,
+    memoryBytes: S.Number,
+  },
+  $I.annotations(
+    "BloomFilterStats",
+    {
+      description: "Statistics about a Bloom filter, including the number of items added, the size of the bit array, the number of set bits, the fill ratio, the estimated false positive rate, the number of hash functions used, and the memory usage in bytes.",
+    }
+  )
+) {}
 export interface BloomFilterShape {
   readonly contains: (text: string) => Effect.Effect<boolean>;
   readonly add: (text: string) => Effect.Effect<void>;
   readonly bulkAdd: (texts: ReadonlyArray<string>) => Effect.Effect<void>;
-  readonly getStats: () => Effect.Effect<{
-    readonly itemCount: number;
-    readonly bitArraySize: number;
-    readonly setBitCount: number;
-    readonly fillRatio: number;
-    readonly estimatedFalsePositiveRate: number;
-    readonly numHashFunctions: number;
-    readonly memoryBytes: number;
-  }>;
+  readonly getStats: () => Effect.Effect<BloomFilterStats>;
   readonly clear: () => Effect.Effect<void>;
 }
 
@@ -177,7 +186,7 @@ const serviceEffect: Effect.Effect<BloomFilterShape> = Effect.gen(function* () {
 
     const estimatedFalsePositiveRate = fillRatio ** NUM_HASH_FUNCTIONS;
 
-    const stats = {
+    const stats = new BloomFilterStats({
       itemCount,
       bitArraySize: DEFAULT_BIT_ARRAY_SIZE,
       setBitCount,
@@ -185,9 +194,11 @@ const serviceEffect: Effect.Effect<BloomFilterShape> = Effect.gen(function* () {
       estimatedFalsePositiveRate,
       numHashFunctions: NUM_HASH_FUNCTIONS,
       memoryBytes: bitArray.byteLength,
-    };
+    });
 
-    yield* Effect.logDebug("BloomFilter.getStats").pipe(Effect.annotateLogs(stats));
+    yield* Effect.logDebug("BloomFilter.getStats").pipe(Effect.annotateLogs({
+      stats
+    }));
 
     return stats;
   });

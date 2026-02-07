@@ -12,8 +12,8 @@
 
 | Module | File | Symbol | Current | Proposed | Boundary | Plan | Evidence |
 |---|---|---|---|---|---|---|---|
-| `packages/knowledge/server` | `packages/knowledge/server/src/Workflow/WorkflowPersistence.ts` | `WorkflowExecutionRecord` | `interface` | `S.Class` | `persist` | Define `S.Class` with `input/output` JSON shape, decode rows at `getExecution`/`requireBatchExecutionByBatchId` boundaries; keep service contract unchanged. | Add tests that fail on invalid row shapes and verify default/null handling. |
-| `packages/knowledge/server` | `packages/knowledge/server/src/adapters/GmailExtractionAdapter.ts` | `ExtractedEmailDocument` | `interface` | `S.Class` | `parse` | Introduce schema class for extracted email payload; decode external API data before emitting `ExtractedEmailDocument` (runtime-safe construction). | Add adapter tests validating decode failures + defaults. |
+| `packages/knowledge/server` | `packages/knowledge/server/src/Workflow/WorkflowPersistence.ts` | `WorkflowExecutionRecord` | `interface` | `S.Class` | `persist` | **Completed (2026-02-07)**: converted `WorkflowExecutionRecord` to `S.Class`, added `decodeWorkflowExecutionRecord`, and decode DB rows at `getExecution` and `findLatestBatchExecutionByBatchId` (service contract unchanged). | `packages/knowledge/server/src/Workflow/WorkflowPersistence.ts` + `packages/knowledge/server/test/Workflow/WorkflowPersistence.schema.test.ts` + `bun run --cwd packages/knowledge/server test` PASS (2026-02-07) |
+| `packages/knowledge/server` | `packages/knowledge/server/src/adapters/GmailExtractionAdapter.ts` | `ExtractedEmailDocument` | `interface` | `S.Class` | `parse` | **Completed (2026-02-07)**: converted `EmailMetadata` + `ExtractedEmailDocument` to `S.Class` and decode documents before returning from adapter (runtime-safe construction). | `packages/knowledge/server/src/adapters/GmailExtractionAdapter.ts` + `packages/knowledge/server/test/adapters/GmailExtractionAdapter.test.ts` + `bun run --cwd packages/knowledge/server test` PASS (2026-02-07) |
 
 ## Defaulting Rules (Concrete)
 

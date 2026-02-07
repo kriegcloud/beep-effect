@@ -18,19 +18,23 @@
 - Candidate `S.Class` conversions are recorded in:
   - `outputs/SCHEMA_CLASS_REFACTOR_PLAN.md`
 
-## Work Queue
+## Completed Work (Phase 2)
 
-- Evaluate/implement candidates:
-  - `packages/knowledge/server/src/Workflow/WorkflowPersistence.ts` (`WorkflowExecutionRecord`)
-  - `packages/knowledge/server/src/adapters/GmailExtractionAdapter.ts` (`ExtractedEmailDocument`)
-- Cross-cut checks:
-  - ensure `@beep/*` aliases and boundary layering hold slice-wide
-  - ensure boundary decoding exists for unknown inputs (Storage JSON, external APIs, LLM outputs, RPC)
+- Implemented planned `S.Class` conversions (with boundary decodes + tests):
+  - `packages/knowledge/server/src/Workflow/WorkflowPersistence.ts`: `WorkflowExecutionRecord` converted to `S.Class`, added `decodeWorkflowExecutionRecord`, and decode DB rows at `getExecution` and `findLatestBatchExecutionByBatchId`.
+  - `packages/knowledge/server/src/adapters/GmailExtractionAdapter.ts`: `EmailMetadata` + `ExtractedEmailDocument` converted to `S.Class`; adapter now decodes extracted documents before returning (tests assert `instanceof ExtractedEmailDocument`).
+- Codified schema-class conventions (so future sessions follow the same rules):
+  - `AGENTS.md`
+  - `documentation/EFFECT_PATTERNS.md`
+  - `.codex/rules/effect-patterns.md`
+  - `.agents/skills/reflect/MEMORY.md`
 
 ## Required Verification
 
 - Full slice:
-  - `bunx turbo run check lint test --filter='@beep/knowledge-*' --ui=stream`
+  - `bunx turbo run check lint test --filter='@beep/knowledge-*' --ui=stream` PASS (2026-02-07)
+- Module (post-P2 edits):
+  - `bun run --cwd packages/knowledge/server check && bun run --cwd packages/knowledge/server lint && bun run --cwd packages/knowledge/server test` PASS (2026-02-07)
 
 ## Phase Completion Requirement (Handoffs)
 
@@ -38,3 +42,11 @@
   - `handoffs/HANDOFF_P2.md`
   - `handoffs/P3_ORCHESTRATOR_PROMPT.md`
 
+## What Remains (Phase 3)
+
+- Produce Phase 3 synthesis outputs:
+  - summarize completed vs deferred work (should be no remaining schema-class candidates)
+  - risk assessment + follow-ups
+- Create Phase 3 handoff docs:
+  - `handoffs/P3_ORCHESTRATOR_PROMPT.md`
+  - `handoffs/HANDOFF_P3.md`

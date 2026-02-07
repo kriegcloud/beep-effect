@@ -1,5 +1,5 @@
 export {
-  type EmailMetadata,
+  EmailMetadata,
   ExtractedEmailDocument,
   GmailExtractionAdapter,
   GmailExtractionAdapterLive,

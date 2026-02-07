@@ -1,7 +1,10 @@
-import { $KnowledgeServerId } from "@beep/identity/packages";
+import {$KnowledgeServerId} from "@beep/identity/packages";
 import { type Entities, ValueObjects } from "@beep/knowledge-domain";
 import { ClusterError } from "@beep/knowledge-domain/errors";
 import { MergeHistory } from "@beep/knowledge-domain/services";
+import { EntityRepo } from "@beep/knowledge-server/db/repos/Entity.repo";
+import { MentionRecordRepo } from "@beep/knowledge-server/db/repos/MentionRecord.repo";
+import { EntityRegistry } from "@beep/knowledge-server/EntityResolution/EntityRegistry";
 import { BS } from "@beep/schema";
 import { KnowledgeEntityIds } from "@beep/shared-domain";
 import * as A from "effect/Array";
@@ -12,9 +15,6 @@ import * as Layer from "effect/Layer";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import { EntityRepo } from "../db/repos/Entity.repo";
-import { MentionRecordRepo } from "../db/repos/MentionRecord.repo";
-import { EntityRegistry } from "../EntityResolution/EntityRegistry";
 
 const $I = $KnowledgeServerId.create("Service/CrossBatchEntityResolver");
 

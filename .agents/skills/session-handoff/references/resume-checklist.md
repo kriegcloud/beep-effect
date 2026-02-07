@@ -18,7 +18,7 @@ Follow this checklist when resuming work from a handoff document to ensure zero-
 
 ## State Verification
 
-- [ ] Run `git status` to see current file state
+- [ ] Run `git status` to see current file state (non-clean is OK; multiple agents may be working in parallel)
 - [ ] Compare modified files list in handoff vs current state
 - [ ] Check if any environment variables need to be set
 - [ ] Verify any required services/processes are running
