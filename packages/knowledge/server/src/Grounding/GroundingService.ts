@@ -1,5 +1,5 @@
 import { $KnowledgeServerId } from "@beep/identity/packages";
-import { CircuitOpenError, RateLimitError } from "@beep/knowledge-domain/errors";
+import type { CircuitOpenError, RateLimitError } from "@beep/knowledge-domain/errors";
 import type { SharedEntityIds } from "@beep/shared-domain";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";
