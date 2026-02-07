@@ -445,6 +445,28 @@ export declare namespace BatchExecutionId {
   }
 }
 
+/**
+ * KnowledgeAgent ID for multi-agent pipeline agents.
+ *
+ * Identifier for agents in the knowledge extraction pipeline (e.g., ExtractorAgent, ValidatorAgent, ResolverAgent).
+ *
+ * @since 0.1.0
+ * @category ids
+ */
+export const KnowledgeAgentId = make("knowledge_agent", {
+  brand: "KnowledgeAgentId",
+  actions: ["create", "read", "update", "delete", "*"],
+}).annotations(
+  $I.annotations("KnowledgeAgentId", {
+    description: "A unique identifier for a knowledge agent",
+  })
+);
+
+export declare namespace KnowledgeAgentId {
+  export type Type = S.Schema.Type<typeof KnowledgeAgentId>;
+  export type Encoded = S.Schema.Encoded<typeof KnowledgeAgentId>;
+}
+
 export const Ids = {
   EmbeddingId,
   KnowledgeEntityId,
@@ -462,4 +484,5 @@ export const Ids = {
   WorkflowActivityId,
   WorkflowSignalId,
   BatchExecutionId,
+  KnowledgeAgentId,
 } as const;

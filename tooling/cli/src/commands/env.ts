@@ -6,7 +6,7 @@
  * offering defaults from .env.example, and writing the completed configuration.
  *
  * @module @beep/tooling-cli/commands/env
- * @since 1.0.0
+ * @since 0.1.0
  * @category Commands
  *
  * @example

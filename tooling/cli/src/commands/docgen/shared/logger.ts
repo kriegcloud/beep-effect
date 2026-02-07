@@ -5,7 +5,7 @@
  * Supports console and JSON output modes.
  *
  * @module docgen/shared/logger
- * @since 1.0.0
+ * @since 0.1.0
  */
 
 import * as A from "effect/Array";

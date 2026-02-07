@@ -4,7 +4,7 @@
  * Re-exports all utility modules for the create-slice CLI command.
  *
  * @module create-slice/utils
- * @since 1.0.0
+ * @since 0.1.0
  */
 
 export * from "./config-updater.js";

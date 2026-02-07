@@ -12,7 +12,7 @@
  * - Cannot use reserved names (shared, common, runtime, ui, _internal)
  *
  * @module create-slice/schemas
- * @since 1.0.0
+ * @since 0.1.0
  */
 
 import * as A from "effect/Array";

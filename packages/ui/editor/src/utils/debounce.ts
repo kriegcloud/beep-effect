@@ -131,7 +131,7 @@ const hasEdge = (edges: O.Option<ReadonlyArray<DebounceEdge>>, edge: DebounceEdg
  * );
  * ```
  *
- * @since 1.0.0
+ * @since 0.1.0
  */
 export const debounce: {
   // Data-last overload (pipeable)

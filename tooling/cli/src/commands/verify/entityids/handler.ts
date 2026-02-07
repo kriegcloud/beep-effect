@@ -7,7 +7,7 @@
  * Detection patterns ported from scripts/verify-entityids.sh
  *
  * @module verify/entityids/handler
- * @since 1.0.0
+ * @since 0.1.0
  */
 
 import { RepoUtils } from "@beep/tooling-utils";

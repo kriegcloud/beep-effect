@@ -445,7 +445,7 @@ interface ImageComponentProps {
  *
  * Uses Atom.family with addFinalizer for Lexical command registration/cleanup.
  *
- * @since 1.0.0
+ * @since 0.1.0
  */
 export function ImageComponent({
   src,

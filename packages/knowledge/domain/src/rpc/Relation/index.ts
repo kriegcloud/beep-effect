@@ -1,1 +1,1 @@
-export * as Relation from "./_rpcs.ts";
+export * as Relation from "./_rpcs";

@@ -5,7 +5,7 @@
  * Extracted from handler.ts for modularity.
  *
  * @module tsconfig-sync/discover
- * @since 1.0.0
+ * @since 0.1.0
  */
 
 import { buildRepoDependencyIndex, collectTsConfigPaths, detectCycles, findRepoRoot } from "@beep/tooling-utils";

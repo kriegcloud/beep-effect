@@ -68,7 +68,7 @@ Implement the full entity resolution pipeline with database integration and perf
 - [ ] Verify: `bun run check --filter @beep/knowledge-domain`
 
 #### Task 2: MergeHistory Full Implementation
-- [ ] Edit `packages/knowledge/domain/src/services/merge-history.service.ts`
+- [ ] Edit `packages/knowledge/domain/src/services/MergeHistory.service.ts`
   - [ ] Replace stub `effect: Effect.gen(...)` with real implementation
   - [ ] Add `const sql = yield* Sql.Sql` dependency
   - [ ] Implement `recordMerge(params: MergeParams)`:
@@ -206,7 +206,7 @@ Implement the full entity resolution pipeline with database integration and perf
 - [ ] Verify: Performance targets met (<100ms candidate search)
 
 #### Task 10: IncrementalClusterer Service (Stub)
-- [ ] Create `packages/knowledge/domain/src/services/incremental-clusterer.service.ts`
+- [ ] Create `packages/knowledge/domain/src/services/IncrementalClusterer.service.ts`
   - [ ] Use `Effect.Service<IncrementalClusterer>()("IncrementalClusterer", { accessors: true, effect: Effect.gen(...) })`
   - [ ] Define interface: `cluster(mentions: ReadonlyArray<MentionRecord>)` → `Effect<void, ClusterError>`
   - [ ] Stub implementation: Log method call, return success
@@ -245,9 +245,9 @@ Implement the full entity resolution pipeline with database integration and perf
 - ✅ `packages/shared/domain/src/entity-ids/knowledge/ids.ts` - `MergeHistoryId` added
 - ✅ `packages/knowledge/domain/src/entities/merge-history/merge-history.model.ts` - Domain model with `MergeReason` enum
 - ✅ `packages/knowledge/tables/src/tables/merge-history.table.ts` - Table with `.$type<>()` on foreign keys
-- ✅ `packages/knowledge/domain/src/value-objects/entity-candidate.value.ts` - EntityCandidate schema
-- ✅ `packages/knowledge/domain/src/value-objects/merge-params.value.ts` - MergeParams schema
-- ✅ `packages/knowledge/domain/src/services/merge-history.service.ts` - STUB service
+- ✅ `packages/knowledge/domain/src/value-objects/EntityCandidate.value.ts` - EntityCandidate schema
+- ✅ `packages/knowledge/domain/src/value-objects/MergeParams.value.ts` - MergeParams schema
+- ✅ `packages/knowledge/domain/src/services/MergeHistory.service.ts` - STUB service
 - ✅ `packages/knowledge/domain/src/services/entity-registry.service.ts` - STUB service
 - ✅ `packages/knowledge/domain/src/services/index.ts` - Service exports
 - ✅ `packages/knowledge/domain/test/_shared/TestLayers.ts` - Test layer with `Layer.provideMerge`
@@ -264,12 +264,12 @@ Implement the full entity resolution pipeline with database integration and perf
 
 **New Files to Create**:
 - `packages/knowledge/domain/src/repositories/entity.repo.ts` - EntityRepo service
-- `packages/knowledge/domain/src/services/incremental-clusterer.service.ts` - IncrementalClusterer stub
+- `packages/knowledge/domain/src/services/IncrementalClusterer.service.ts` - IncrementalClusterer stub
 - `packages/knowledge/domain/test/services/IncrementalClusterer.test.ts` - Stub tests
 - `packages/knowledge/domain/test/benchmarks/EntityRegistry.bench.ts` - Performance benchmarks
 
 **Files to Edit**:
-- `packages/knowledge/domain/src/services/merge-history.service.ts` - Replace stub with SQL implementation
+- `packages/knowledge/domain/src/services/MergeHistory.service.ts` - Replace stub with SQL implementation
 - `packages/knowledge/domain/src/services/entity-registry.service.ts` - Implement bloom filter, text match, embedding similarity
 - `packages/knowledge/domain/test/_shared/TestLayers.ts` - Add real database dependencies
 - `packages/knowledge/domain/test/services/MergeHistory.test.ts` - Integration tests with real database

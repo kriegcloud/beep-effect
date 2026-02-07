@@ -14,7 +14,7 @@ export { FileReadError, BlobSliceError };
 
 /**
  * Configuration for file hashing
- * @since 1.0.0
+ * @since 0.1.0
  * @category Models
  */
 export interface FileHasherConfig {
@@ -23,14 +23,14 @@ export interface FileHasherConfig {
 
 /**
  * Default chunk size: 1MB
- * @since 1.0.0
+ * @since 0.1.0
  * @category Constants
  */
 export const DEFAULT_CHUNK_SIZE = 1048576;
 
 /**
  * Create a FileHasherConfig with defaults
- * @since 1.0.0
+ * @since 0.1.0
  * @category Constructors
  */
 export const makeConfig = (overrides?: Partial<FileHasherConfig>): FileHasherConfig => ({
@@ -39,7 +39,7 @@ export const makeConfig = (overrides?: Partial<FileHasherConfig>): FileHasherCon
 
 /**
  * Slice a blob into a specific chunk
- * @since 1.0.0
+ * @since 0.1.0
  * @category Utilities
  */
 const sliceBlob = (blob: Blob, start: number, end: number): Effect.Effect<Blob, BlobSliceError> =>
@@ -57,7 +57,7 @@ const sliceBlob = (blob: Blob, start: number, end: number): Effect.Effect<Blob, 
 
 /**
  * Read a blob chunk as ArrayBuffer using FileReader
- * @since 1.0.0
+ * @since 0.1.0
  * @category Utilities
  */
 const readBlobChunk = (chunk: Blob): Effect.Effect<ArrayBuffer, FileReadError> =>
@@ -106,7 +106,7 @@ const readBlobChunk = (chunk: Blob): Effect.Effect<ArrayBuffer, FileReadError> =
 
 /**
  * Read a blob chunk synchronously using FileReaderSync (only in workers)
- * @since 1.0.0
+ * @since 0.1.0
  * @category Utilities
  */
 const readBlobChunkSync = (chunk: Blob): Effect.Effect<ArrayBuffer, FileReadError> =>
@@ -130,7 +130,7 @@ const readBlobChunkSync = (chunk: Blob): Effect.Effect<ArrayBuffer, FileReadErro
 
 /**
  * Create a stream of blob chunks
- * @since 1.0.0
+ * @since 0.1.0
  * @category Streams
  */
 const makeBlobChunkStream = (blob: Blob, config: FileHasherConfig): Stream.Stream<Blob, BlobSliceError> => {
@@ -147,7 +147,7 @@ const makeBlobChunkStream = (blob: Blob, config: FileHasherConfig): Stream.Strea
 
 /**
  * Hash a blob using async FileReader (for main thread)
- * @since 1.0.0
+ * @since 0.1.0
  * @category Hashing
  */
 export const hashBlobAsync: (
@@ -186,7 +186,7 @@ export const hashBlobAsync: (
 
 /**
  * Hash a blob using sync FileReaderSync (for workers only)
- * @since 1.0.0
+ * @since 0.1.0
  * @category Hashing
  */
 export const hashBlobSync: (
@@ -224,7 +224,7 @@ export const hashBlobSync: (
 
 /**
  * Hash a blob - automatically selects async or sync based on environment
- * @since 1.0.0
+ * @since 0.1.0
  * @category Hashing
  */
 export const hashBlob = (

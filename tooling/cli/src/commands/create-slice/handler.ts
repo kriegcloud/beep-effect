@@ -18,7 +18,7 @@
  * 8. Display success summary
  *
  * @module create-slice/handler
- * @since 1.0.0
+ * @since 0.1.0
  */
 
 import * as path from "node:path";

@@ -6,7 +6,7 @@
  * with project standards, and generates reports in multiple formats.
  *
  * @module analyze-readmes/handler
- * @since 1.0.0
+ * @since 0.1.0
  */
 
 import { FsUtils, RepoUtils } from "@beep/tooling-utils";

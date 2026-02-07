@@ -115,8 +115,8 @@ server/src/Workflow/
   WorkflowPersistence.ts        # PostgreSQL persistence adapter
 
 domain/src/value-objects/
-  workflow-state.value.ts       # WorkflowExecutionState schema
-  extraction-progress.value.ts  # Progress event schema for SSE
+  WorkflowState.value.ts       # WorkflowExecutionState schema
+  ExtractionProgress.value.ts  # Progress event schema for SSE
 ```
 
 **Checkpoint**: After 2Ba, verify activities compile and persistence adapter works in isolation before proceeding.

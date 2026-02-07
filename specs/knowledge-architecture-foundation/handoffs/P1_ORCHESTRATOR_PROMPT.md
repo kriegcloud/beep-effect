@@ -70,7 +70,7 @@ export class SparqlSyntaxError extends S.TaggedError<SparqlSyntaxError>(
 
 ### Reference Files
 
-- Pattern: `packages/knowledge/domain/src/value-objects/evidence-span.value.ts` - Value object example
+- Pattern: `packages/knowledge/domain/src/value-objects/EvidenceSpan.value.ts` - Value object example
 - Pattern: `packages/knowledge/domain/src/errors/ontology.errors.ts` - Tagged error example
 - Guide: `specs/knowledge-architecture-foundation/outputs/IMPLEMENTATION_INSTRUCTIONS.md` - Full implementation details
 

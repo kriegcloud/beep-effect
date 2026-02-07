@@ -4,7 +4,7 @@
  * Defines tagged error types for the analyze-readmes CLI command.
  *
  * @module analyze-readmes/errors
- * @since 1.0.0
+ * @since 0.1.0
  */
 
 import { $RepoCliId } from "@beep/identity/packages";

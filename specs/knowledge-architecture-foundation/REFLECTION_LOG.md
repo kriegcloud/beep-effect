@@ -147,7 +147,7 @@ Phase 1: Value Objects and Errors Implementation
    - Enables catchTag patterns for error handling by category
 
 ### What Worked Well
-- Following existing patterns from `ontology.errors.ts` and `evidence-span.value.ts`
+- Following existing patterns from `ontology.errors.ts` and `EvidenceSpan.value.ts`
 - The `$I` pattern from `@beep/identity/packages` worked seamlessly
 - Delegation to effect-code-writer agent was effective for bulk implementation
 

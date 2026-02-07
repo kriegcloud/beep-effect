@@ -130,7 +130,7 @@ export const IncrementalClustererLive = Layer.effect(
 
 **Location**: `packages/knowledge/server/src/EntityResolution/SplitService.ts`
 
-**Domain stub**: `packages/knowledge/domain/src/services/split.service.ts`
+**Domain stub**: `packages/knowledge/domain/src/services/Split.service.ts`
 
 **Methods**:
 ```typescript
@@ -365,7 +365,7 @@ This already performs:
 - **EmbeddingService**: `packages/knowledge/server/src/Embedding/EmbeddingService.ts`
 - **EntityRepo**: `packages/knowledge/server/src/db/repos/Entity.repo.ts`
 - **Repositories**: `packages/knowledge/server/src/db/repositories.ts`
-- **IncrementalClusterer stub**: `packages/knowledge/domain/src/services/incremental-clusterer.service.ts`
+- **IncrementalClusterer stub**: `packages/knowledge/domain/src/services/IncrementalClusterer.service.ts`
 - **ClusterError**: `packages/knowledge/domain/src/errors/cluster.errors.ts`
 - **MentionRecord model**: `packages/knowledge/domain/src/entities/mention-record/mention-record.model.ts`
 - **Entity model**: `packages/knowledge/domain/src/entities/entity/entity.model.ts`

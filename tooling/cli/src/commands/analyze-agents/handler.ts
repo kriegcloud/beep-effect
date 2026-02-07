@@ -7,7 +7,7 @@
  * - Formatted output (table, json, summary)
  *
  * @module analyze-agents/handler
- * @since 1.0.0
+ * @since 0.1.0
  */
 
 import { FsUtils, RepoUtils } from "@beep/tooling-utils";

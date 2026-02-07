@@ -16,7 +16,7 @@ Add `.value.ts` postfix to all 18 value object files across 6 packages.
 - Value objects are domain primitives (types, enums, branded types)
 - Located in `*/value-objects/` directories
 - Current state: no consistent postfix (e.g., `Attributes.ts`, `paths.ts`)
-- Target state: `.value.ts` postfix with kebab-case (e.g., `attributes.value.ts`)
+- Target state: `.value.ts` postfix with kebab-case (e.g., `Attributes.value.ts`)
 
 ---
 
@@ -28,8 +28,8 @@ Located in `packages/knowledge/domain/src/value-objects/`:
 
 | Current Name | Target Name | Status |
 |--------------|-------------|--------|
-| `Attributes.ts` | `attributes.value.ts` | Pending |
-| `EvidenceSpan.ts` | `evidence-span.value.ts` | Pending |
+| `Attributes.ts` | `Attributes.value.ts` | Pending |
+| `EvidenceSpan.ts` | `EvidenceSpan.value.ts` | Pending |
 
 ### Package: @beep/shared-domain (2 files)
 
@@ -123,7 +123,7 @@ Complete one package at a time:
 mcp__mcp-refactor-typescript__file_operations({
   operation: "rename_file",
   sourcePath: "packages/knowledge/domain/src/value-objects/Attributes.ts",
-  name: "attributes.value.ts",
+  name: "Attributes.value.ts",
   preview: true
 })
 
@@ -168,7 +168,7 @@ find packages -path "*/src/value-objects/*" -name "*.ts" -not -name "index.ts" -
 
 ## Known Issues & Gotchas
 
-1. **Casing changes**: Some files change from PascalCase to kebab-case (e.g., `Attributes.ts` → `attributes.value.ts`). This is intentional per naming conventions.
+1. **Casing changes**: Some files change from PascalCase to kebab-case (e.g., `Attributes.ts` → `Attributes.value.ts`). This is intentional per naming conventions.
 
 2. **Plural to singular**: Comms domain files use `.values.ts` (plural) which should become `.value.ts` (singular).
 

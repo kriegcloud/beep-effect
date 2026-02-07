@@ -6,7 +6,7 @@
  * violations found during verification.
  *
  * @module verify/schemas
- * @since 1.0.0
+ * @since 0.1.0
  */
 
 import * as A from "effect/Array";

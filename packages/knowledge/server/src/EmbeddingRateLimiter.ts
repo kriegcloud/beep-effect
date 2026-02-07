@@ -4,7 +4,7 @@
  * Provides RPM (requests per minute) and concurrency limiting for embedding providers.
  * Uses Effect patterns: Semaphore for concurrency, Ref + Clock for sliding window.
  *
- * @since 2.0.0
+ * @since 0.1.0
  * @module Service/EmbeddingRateLimiter
  */
 
@@ -14,7 +14,7 @@ import { Clock, Context, Effect, Layer, Ref } from "effect";
 /**
  * Rate limiter state for sliding window
  *
- * @since 2.0.0
+ * @since 0.1.0
  * @category Types
  */
 interface RateLimiterState {
@@ -27,7 +27,7 @@ interface RateLimiterState {
 /**
  * Rate limiter configuration
  *
- * @since 2.0.0
+ * @since 0.1.0
  * @category Types
  */
 export interface EmbeddingRateLimiterConfig {
@@ -42,7 +42,7 @@ export interface EmbeddingRateLimiterConfig {
 /**
  * Default configuration for Voyage AI (100 RPM, 10 concurrent)
  *
- * @since 2.0.0
+ * @since 0.1.0
  * @category Constants
  */
 export const VOYAGE_RATE_LIMITS: EmbeddingRateLimiterConfig = {
@@ -54,7 +54,7 @@ export const VOYAGE_RATE_LIMITS: EmbeddingRateLimiterConfig = {
 /**
  * Default configuration for local models (effectively unlimited)
  *
- * @since 2.0.0
+ * @since 0.1.0
  * @category Constants
  */
 export const LOCAL_RATE_LIMITS: EmbeddingRateLimiterConfig = {
@@ -66,7 +66,7 @@ export const LOCAL_RATE_LIMITS: EmbeddingRateLimiterConfig = {
 /**
  * EmbeddingRateLimiter service interface
  *
- * @since 2.0.0
+ * @since 0.1.0
  * @category Service
  */
 export interface EmbeddingRateLimiterMethods {
@@ -94,7 +94,7 @@ export interface EmbeddingRateLimiterMethods {
 /**
  * EmbeddingRateLimiter service tag
  *
- * @since 2.0.0
+ * @since 0.1.0
  * @category Service
  */
 export class EmbeddingRateLimiter extends Context.Tag("@core-v2/EmbeddingRateLimiter")<
@@ -108,7 +108,7 @@ export class EmbeddingRateLimiter extends Context.Tag("@core-v2/EmbeddingRateLim
  * @param config - Rate limiter configuration
  * @returns Layer providing EmbeddingRateLimiter
  *
- * @since 2.0.0
+ * @since 0.1.0
  * @category Layers
  */
 export const makeEmbeddingRateLimiter = (config: EmbeddingRateLimiterConfig): Layer.Layer<EmbeddingRateLimiter> =>
@@ -170,7 +170,7 @@ export const makeEmbeddingRateLimiter = (config: EmbeddingRateLimiterConfig): La
 /**
  * Default rate limiter for Voyage AI
  *
- * @since 2.0.0
+ * @since 0.1.0
  * @category Layers
  */
 export const EmbeddingRateLimiterVoyage = makeEmbeddingRateLimiter(VOYAGE_RATE_LIMITS);
@@ -178,7 +178,7 @@ export const EmbeddingRateLimiterVoyage = makeEmbeddingRateLimiter(VOYAGE_RATE_L
 /**
  * Rate limiter for local models (effectively unlimited)
  *
- * @since 2.0.0
+ * @since 0.1.0
  * @category Layers
  */
 export const EmbeddingRateLimiterLocal = makeEmbeddingRateLimiter(LOCAL_RATE_LIMITS);
@@ -186,7 +186,7 @@ export const EmbeddingRateLimiterLocal = makeEmbeddingRateLimiter(LOCAL_RATE_LIM
 /**
  * No-op rate limiter for testing
  *
- * @since 2.0.0
+ * @since 0.1.0
  * @category Layers
  */
 export const EmbeddingRateLimiterNoop: Layer.Layer<EmbeddingRateLimiter> = Layer.succeed(EmbeddingRateLimiter, {

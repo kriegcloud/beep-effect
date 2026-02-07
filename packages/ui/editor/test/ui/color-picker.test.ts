@@ -1,7 +1,7 @@
 /**
  * Tests for ColorPicker component utilities and commands.
  *
- * @since 1.0.0
+ * @since 0.1.0
  */
 
 import { live, strictEqual } from "@beep/testkit";

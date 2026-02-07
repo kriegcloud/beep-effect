@@ -138,7 +138,7 @@ CREATE INDEX entity_merge_history_org_idx ON entity_merge_history(organization_i
 - `packages/shared/domain/src/entity-ids/knowledge/ids.ts` - Add `MergeHistoryId`
 - `packages/knowledge/domain/src/entities/merge-history/merge-history.model.ts`
 - `packages/knowledge/tables/src/tables/merge-history.table.ts`
-- `packages/knowledge/domain/src/services/merge-history.service.ts`
+- `packages/knowledge/domain/src/services/MergeHistory.service.ts`
 - `packages/knowledge/domain/src/services/merge-history.test.ts`
 
 ### 3. Supporting Infrastructure
@@ -718,7 +718,7 @@ export class MergeError extends S.TaggedError<MergeError>()(
 
 ### Step 6: MergeHistory Service
 
-**File**: `packages/knowledge/domain/src/services/merge-history.service.ts`
+**File**: `packages/knowledge/domain/src/services/MergeHistory.service.ts`
 
 ```typescript
 import { $KnowledgeDomainId } from "@beep/identity/packages";
@@ -1236,7 +1236,7 @@ Before starting implementation, clarify:
 - [ ] `packages/knowledge/domain/src/entities/index.ts` (update)
 - [ ] `packages/knowledge/tables/src/tables/merge-history.table.ts`
 - [ ] `packages/knowledge/tables/src/tables/index.ts` (update)
-- [ ] `packages/knowledge/domain/src/services/merge-history.service.ts`
+- [ ] `packages/knowledge/domain/src/services/MergeHistory.service.ts`
 - [ ] `packages/knowledge/domain/test/services/MergeHistory.test.ts`
 
 ### Files to Create (EntityRegistry Stub)

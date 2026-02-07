@@ -5,7 +5,7 @@
  * Pre-computes context variables and provides templates for all spec file types.
  *
  * @module bootstrap-spec/utils/template
- * @since 1.0.0
+ * @since 0.1.0
  */
 
 import type { BootstrapSpecInput, SpecComplexity } from "../schemas.js";

@@ -9,7 +9,7 @@
  * Uses Kahn's algorithm to detect cycles and produce a valid topological ordering.
  *
  * @module @beep/tooling-cli/commands/topo-sort
- * @since 1.0.0
+ * @since 0.1.0
  * @category Commands
  *
  * @example

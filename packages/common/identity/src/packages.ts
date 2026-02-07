@@ -26,6 +26,7 @@ const composers = $I.compose(
   "repo-cli",
   "iam-server",
   "repo-scripts",
+  "machine",
   "todox",
   "wrap",
   "documents-tables",
@@ -998,3 +999,18 @@ export const $GoogleWorkspaceClientId = composers.$GoogleWorkspaceClientId;
  * @since 0.1.0
  */
 export const $GoogleWorkspaceServerId = composers.$GoogleWorkspaceServerId;
+
+/**
+ * Identity composer for the `@beep/machine` namespace.
+ *
+ * @example
+ * ```typescript
+ * import { $MachineId } from "@beep/identity/packages"
+ *
+ * const serviceId = $MachineId.make("Machine")
+ * ```
+ *
+ * @category symbols
+ * @since 0.1.0
+ */
+export const $MachineId = composers.$MachineId;

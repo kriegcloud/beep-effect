@@ -29,7 +29,7 @@ This specification orchestrates the execution of file renames to align the codeb
 | Phase | Scope | File Count | Risk Level | Description |
 |-------|-------|------------|------------|-------------|
 | P0 | Table files | 19 | Low | camelCase to kebab-case (e.g., `apiKey.table.ts` → `api-key.table.ts`) |
-| P1 | Value objects | 18 | Medium | Add `.value.ts` postfix (e.g., `Attributes.ts` → `attributes.value.ts`) |
+| P1 | Value objects | 18 | Medium | Add `.value.ts` postfix (e.g., `Attributes.ts` → `Attributes.value.ts`) |
 | P2 | Schema files | 9 | Medium | Add `.schema.ts` postfix (e.g., `member-status.ts` → `member-status.schema.ts`) |
 | P3 | Miscellaneous | ~2 | Low | Job files, edge cases, consolidation |
 

@@ -71,8 +71,8 @@ Phase 2 delivered custom durable workflows (NOT @effect/workflow -- too alpha), 
 | WorkflowPersistence | `server/src/Workflow/WorkflowPersistence.ts` | SQL CRUD for workflow_execution + workflow_activity |
 | CentralRateLimiterService | `server/src/LlmControl/RateLimiter.ts` | CircuitBreaker + Rate Limiting + Semaphore |
 | Workflow tables | `tables/src/tables/workflow-*.table.ts` | 3 tables: execution, activity, signal |
-| Domain VOs | `domain/src/value-objects/workflow-state.value.ts` | Status enums for state machine |
-| Domain errors | `domain/src/errors/workflow.errors.ts` | WorkflowNotFoundError, ActivityFailedError, WorkflowStateError |
+| Domain VOs | `domain/src/value-objects/WorkflowState.value.ts` | Status enums for state machine |
+| Domain errors | `domain/src/errors/Workflow.errors.ts` | WorkflowNotFoundError, ActivityFailedError, WorkflowStateError |
 
 ---
 
@@ -103,8 +103,8 @@ PENDING -> CHUNKING -> EXTRACTING_MENTIONS -> EXTRACTING_ENTITIES
 
 **Files to Create**:
 ```
-domain/src/value-objects/batch-state.value.ts       # S.Union of TaggedStruct variants
-domain/src/value-objects/batch-event.value.ts       # SSE event schema
+domain/src/value-objects/BatchState.value.ts       # S.Union of TaggedStruct variants
+domain/src/value-objects/BatchEvent.value.ts       # SSE event schema
 server/src/Workflow/BatchStateMachine.ts             # Transition validation
 server/src/Workflow/BatchEventEmitter.ts             # PubSub emission
 domain/src/rpc/Extraction/StreamProgress.ts          # SSE RPC contract
@@ -124,9 +124,9 @@ server/src/Workflow/ProgressStream.ts       # Wire to SSE stream
 
 **Files to Create**:
 ```
-domain/src/entities/Batch/Batch.model.ts            # Batch definition model
+domain/src/entities/Batch/Agent.model.ts            # Batch definition model
 domain/src/entities/Batch/index.ts
-domain/src/value-objects/batch-config.value.ts       # Concurrency, failure policy
+domain/src/value-objects/BatchConfig.value.ts       # Concurrency, failure policy
 domain/src/value-objects/batch-failure-policy.value.ts  # continue | abort | retry
 server/src/Workflow/BatchOrchestrator.ts             # Multi-workflow coordinator
 server/src/Workflow/BatchAggregator.ts               # Progress aggregation

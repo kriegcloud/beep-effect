@@ -4,7 +4,7 @@
  * Provides error accumulation, retry policies, and formatting.
  *
  * @module docgen/shared/error-handling
- * @since 1.0.0
+ * @since 0.1.0
  */
 
 import * as A from "effect/Array";

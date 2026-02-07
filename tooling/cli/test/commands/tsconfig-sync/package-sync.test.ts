@@ -10,7 +10,7 @@
  * Note: Effect-based functions that require FileSystem are tested via integration.
  *
  * @module tsconfig-sync/test/package-sync
- * @since 1.0.0
+ * @since 0.1.0
  */
 
 import {

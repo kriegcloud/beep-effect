@@ -11,7 +11,7 @@
  * - Transform paths: -> globs: (field rename)
  *
  * @module sync-cursor-rules
- * @since 1.0.0
+ * @since 0.1.0
  */
 
 import { RepoUtils, RepoUtilsLive } from "@beep/tooling-utils";
@@ -252,7 +252,7 @@ const SyncCursorRulesServiceLayer = Layer.mergeAll(RepoUtilsLive, BunFileSystem.
  * Transforms .claude/rules/*.md files to .cursor/rules/*.mdc format
  * with proper frontmatter for Cursor IDE compatibility.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category constructors
  */
 export const syncCursorRulesCommand = Command.make(

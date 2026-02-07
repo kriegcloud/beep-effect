@@ -5,7 +5,7 @@
  * Handles reading existing content, merging with sorted dependencies, and writing back.
  *
  * @module tsconfig-sync/utils/package-json-writer
- * @since 1.0.0
+ * @since 0.1.0
  */
 
 import { $RepoCliId } from "@beep/identity/packages";

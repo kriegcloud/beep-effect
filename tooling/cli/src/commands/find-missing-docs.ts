@@ -6,7 +6,7 @@
  * via RepoUtils instead of hardcoded paths and node:fs.
  *
  * @module find-missing-docs
- * @since 1.0.0
+ * @since 0.1.0
  */
 
 import { RepoUtils, RepoUtilsLive } from "@beep/tooling-utils";

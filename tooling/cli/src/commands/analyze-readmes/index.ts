@@ -21,7 +21,7 @@
  *   beep analyze-readmes --output report.md           # Write to file
  *
  * @module analyze-readmes
- * @since 1.0.0
+ * @since 0.1.0
  */
 
 import { RepoUtilsLive } from "@beep/tooling-utils";

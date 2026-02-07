@@ -13,7 +13,7 @@
  * - Entity verification: 30s soft / 45s hard
  * - Serialization: 7s soft / 10s hard
  *
- * @since 2.0.0
+ * @since 0.1.0
  * @module Service/LlmControl/StageTimeout
  */
 

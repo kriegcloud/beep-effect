@@ -18,7 +18,7 @@
  *   beep create-slice --name billing --description "Billing and payments" --dry-run
  *
  * @module create-slice
- * @since 1.0.0
+ * @since 0.1.0
  */
 
 import { RepoUtilsLive } from "@beep/tooling-utils";

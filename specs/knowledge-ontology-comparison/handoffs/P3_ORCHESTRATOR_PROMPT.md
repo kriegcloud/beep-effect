@@ -30,10 +30,10 @@ Orchestrator MUST delegate ALL implementation work. If reading >3 reference file
 | Sub-Task | Delegate To | Est. Tool Calls | Expected Output |
 |----------|-------------|-----------------|-----------------|
 | Research Phase 2 deliverables | `codebase-researcher` | ~8-10 | Summary of ExtractionWorkflow, ProgressStream, workflow tables, CircuitBreaker APIs |
-| 3A: State machine ADT | `domain-modeler` | ~5-8 | batch-state.value.ts + batch-event.value.ts |
+| 3A: State machine ADT | `domain-modeler` | ~5-8 | BatchState.value.ts + BatchEvent.value.ts |
 | 3A: BatchStateMachine service | `effect-code-writer` | ~8-10 | BatchStateMachine.ts + BatchEventEmitter.ts |
 | 3A: SSE RPC contract | `effect-code-writer` | ~5-8 | StreamProgress.ts RPC |
-| 3B: Batch entity model | `domain-modeler` | ~5-8 | Batch.model.ts + config VOs |
+| 3B: Batch entity model | `domain-modeler` | ~5-8 | Agent.model.ts + config VOs |
 | 3B: Batch table | `effect-code-writer` | ~5-8 | batch.table.ts + registration |
 | 3B: BatchOrchestrator | `effect-code-writer` | ~10-12 | BatchOrchestrator.ts + BatchAggregator.ts |
 | Tests | `test-writer` | ~10-15 | test/Workflow/*.test.ts |
@@ -102,8 +102,8 @@ Monitor during Phase 3:
 - `server/src/Workflow/WorkflowPersistence.ts` -- SQL CRUD for execution + activity records
 - `server/src/LlmControl/RateLimiter.ts` -- CentralRateLimiterService (CircuitBreaker + RateLimiter + Semaphore)
 - `tables/src/tables/workflow-execution.table.ts` -- workflow state persistence
-- `domain/src/value-objects/workflow-state.value.ts` -- WorkflowExecutionStatus, WorkflowActivityStatus, WorkflowType
-- `domain/src/errors/workflow.errors.ts` -- WorkflowNotFoundError, ActivityFailedError, WorkflowStateError
+- `domain/src/value-objects/WorkflowState.value.ts` -- WorkflowExecutionStatus, WorkflowActivityStatus, WorkflowType
+- `domain/src/errors/Workflow.errors.ts` -- WorkflowNotFoundError, ActivityFailedError, WorkflowStateError
 
 **Entity resolution** (for post-batch wiring):
 - `server/src/EntityResolution/IncrementalClustererLive.ts`

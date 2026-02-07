@@ -11,7 +11,7 @@
  * - Property scoping: 8%
  * - Other: 7%
  *
- * @since 2.0.0
+ * @since 0.1.0
  * @module Service/LlmControl/TokenBudget
  */
 

@@ -5,7 +5,7 @@
  * These prompts encode the documentation standards and Effect patterns.
  *
  * @module docgen/agents/prompts
- * @since 1.0.0
+ * @since 0.1.0
  */
 
 /**

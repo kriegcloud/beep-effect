@@ -3,6 +3,7 @@
  */
 
 import { expect } from "bun:test";
+import { Effect } from "effect";
 import type * as Cause from "effect/Cause";
 import * as Either from "effect/Either";
 import * as Equal from "effect/Equal";
@@ -10,10 +11,16 @@ import * as Exit from "effect/Exit";
 import * as Option from "effect/Option";
 import * as Predicate from "effect/Predicate";
 import type { UnsafeAny } from "./internal/types";
+
 // ----------------------------
 // Primitives
 // ----------------------------
-
+/**
+ * Yield to allow forked fibers to process.
+ * Use after `send()` or when waiting for async effects.
+ * Multiple yields handle delay timer registration.
+ */
+export const yieldFibers = Effect.yieldNow().pipe(Effect.repeatN(9));
 /**
  * Throws an `AssertionError` with the provided error message.
  *

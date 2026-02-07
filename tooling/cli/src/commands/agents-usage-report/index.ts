@@ -19,7 +19,7 @@
  *   beep agents-usage-report --since 2024-01-15 --output json
  *
  * @module agents-usage-report
- * @since 1.0.0
+ * @since 0.1.0
  */
 
 import * as Command from "@effect/cli/Command";

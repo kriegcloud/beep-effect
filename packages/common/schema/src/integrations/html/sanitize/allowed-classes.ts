@@ -1,7 +1,7 @@
 /**
  * @module AllowedClasses
  * @description Discriminated union for allowed CSS classes configuration
- * @since 1.0.0
+ * @since 0.1.0
  */
 import { $SchemaId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
@@ -16,7 +16,7 @@ const $I = $SchemaId.create("integrations/html/sanitize/allowed-classes");
 /**
  * A class pattern - either an exact class name or a regex pattern
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Schema
  * @example
  * ```typescript
@@ -44,7 +44,7 @@ export type ClassPattern = S.Schema.Type<typeof ClassPattern>;
 
 /**
  * Allow all classes on this tag
- * @since 1.0.0
+ * @since 0.1.0
  * @category Variants
  */
 const AllClasses = S.TaggedStruct("AllClasses", {}).annotations({
@@ -54,7 +54,7 @@ const AllClasses = S.TaggedStruct("AllClasses", {}).annotations({
 
 /**
  * Allow specific classes (exact or pattern)
- * @since 1.0.0
+ * @since 0.1.0
  * @category Variants
  */
 const SpecificClasses = S.TaggedStruct("SpecificClasses", {
@@ -96,7 +96,7 @@ const _AllowedClassesForTag = S.Union(AllClasses, SpecificClasses).annotations(
  * - AllClasses: Allow all classes on this tag
  * - SpecificClasses: Allow only specific classes (exact or pattern)
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Schema
  * @example
  * ```typescript
@@ -130,7 +130,7 @@ export type AllowedClassesForTagEncoded = S.Schema.Encoded<typeof _AllowedClasse
  * A record mapping tag names to their allowed classes configuration.
  * Use "*" as key for global classes.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Schema
  * @example
  * ```typescript

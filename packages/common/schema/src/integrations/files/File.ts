@@ -51,7 +51,7 @@ const WORKER_HASH_ERROR_TAG = new WorkerHashError({ message: "", cause: null }).
 /**
  * Branded type for MD5 hash strings (32 lowercase hexadecimal characters).
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Models
  */
 export type Md5Hash = string & B.Brand<"Md5Hash">;
@@ -60,7 +60,7 @@ export type Md5Hash = string & B.Brand<"Md5Hash">;
  * Schema for validating MD5 hash strings.
  * Ensures the string is exactly 32 lowercase hexadecimal characters.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Schemas
  */
 export const Md5Hash = S.String.pipe(S.pattern(/^[a-f0-9]{32}$/), S.brand("Md5Hash"));

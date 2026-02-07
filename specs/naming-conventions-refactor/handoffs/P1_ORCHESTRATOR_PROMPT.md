@@ -29,13 +29,13 @@ Add `.value.ts` postfix to all 17 value object files across 6 packages:
 mcp__mcp-refactor-typescript__file_operations({
   operation: "rename_file",
   sourcePath: "packages/knowledge/domain/src/value-objects/Attributes.ts",
-  name: "attributes.value.ts",
+  name: "Attributes.value.ts",
   preview: true  // ALWAYS preview first
 })
 ```
 
 **Naming transformation:**
-- PascalCase → kebab-case.value.ts: `Attributes.ts` → `attributes.value.ts`
+- PascalCase → kebab-case.value.ts: `Attributes.ts` → `Attributes.value.ts`
 - Already kebab-case → add postfix: `calendar-view.ts` → `calendar-view.value.ts`
 - Plural → singular: `mail.values.ts` → `mail.value.ts`
 

@@ -85,7 +85,7 @@ const getOrCreateSubscriptionRef = (editorKey: string): AtomRef.AtomRef<UpdateTo
  *
  * @param callback - Function to call when selection changes
  *
- * @since 1.0.0
+ * @since 0.1.0
  */
 export function useUpdateToolbarHandler(callback: (selection: BaseSelection) => void): void {
   // Get the Lexical editor from context
@@ -187,7 +187,7 @@ export interface MinimalEditor {
  * @param editor - The LexicalEditor instance to listen to
  * @param callback - Function to call when selection changes
  *
- * @since 1.0.0
+ * @since 0.1.0
  */
 export function useUpdateToolbarHandlerWithEditor(
   editor: MinimalEditor,

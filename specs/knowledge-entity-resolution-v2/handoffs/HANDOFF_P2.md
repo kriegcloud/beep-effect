@@ -110,7 +110,7 @@ Build the candidate search infrastructure and merge audit trail for entity resol
 - [ ] Verify: `bun run check --filter '@beep/knowledge-domain'`
 
 #### Task 6: MergeHistory Service
-- [ ] Create `packages/knowledge/domain/src/services/merge-history.service.ts`
+- [ ] Create `packages/knowledge/domain/src/services/MergeHistory.service.ts`
   - [ ] Use `Effect.Service<MergeHistory>()("MergeHistory", { accessors: true, effect: Effect.gen(...) })`
   - [ ] Implement `recordMerge(params: MergeParams)` with `Effect.withSpan`
   - [ ] Implement `getMergeHistory(entityId)` with `Effect.withSpan`
@@ -191,7 +191,7 @@ Build the candidate search infrastructure and merge audit trail for entity resol
 - `packages/knowledge/tables/src/tables/merge-history.table.ts` - MergeHistory table (Phase 2)
 
 **Services** (Phase 2):
-- `packages/knowledge/domain/src/services/merge-history.service.ts` - MergeHistory service
+- `packages/knowledge/domain/src/services/MergeHistory.service.ts` - MergeHistory service
 - `packages/knowledge/domain/src/services/entity-registry.service.ts` - EntityRegistry service (stub)
 
 **Schemas** (Phase 2):

@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "type": "module",
   "license": "MIT",
-  "description": "A library for system wide constants",
+  "description": "A library for wrapping unsafe trashy promise based code with schema first spec rpc like data contracts validating success, error and payload channels.",
   "publishConfig": {
     "access": "public",
     "provenance": true,

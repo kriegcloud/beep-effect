@@ -134,8 +134,8 @@ server/src/Workflow/
 
 ```
 domain/src/value-objects/
-  workflow-state.value.ts       # WorkflowExecutionState schema
-  extraction-progress.value.ts  # Progress event schema for SSE
+  WorkflowState.value.ts       # WorkflowExecutionState schema
+  ExtractionProgress.value.ts  # Progress event schema for SSE
 ```
 
 **Files to Modify**:
@@ -283,8 +283,8 @@ PENDING -> CHUNKING -> EXTRACTING_MENTIONS -> EXTRACTING_ENTITIES
 
 ```
 domain/src/value-objects/
-  batch-state.value.ts          # BatchState union type (S.Union of TaggedStructs)
-  batch-event.value.ts          # BatchEvent schema for SSE emission
+  BatchState.value.ts          # BatchState union type (S.Union of TaggedStructs)
+  BatchEvent.value.ts          # BatchEvent schema for SSE emission
 
 server/src/Workflow/
   BatchStateMachine.ts          # State machine with transition validation
@@ -331,10 +331,10 @@ domain/src/rpc/Extraction/_rpcs.ts          # Add StreamProgress to RPC group
 ```
 domain/src/entities/Batch/
   index.ts
-  Batch.model.ts                # Batch definition (documents[], config, status)
+  Agent.model.ts                # Batch definition (documents[], config, status)
 
 domain/src/value-objects/
-  batch-config.value.ts         # Batch-level config (concurrency, failure policy)
+  BatchConfig.value.ts         # Batch-level config (concurrency, failure policy)
   batch-failure-policy.value.ts # continue-on-failure | abort-all | retry-failed
 
 server/src/Workflow/
@@ -1024,14 +1024,14 @@ Phase 1 (5 weeks) -> Phase 2 (3 weeks) -> [Phase 3, Phase 4 parallel] (3 weeks)
 |-------|-----------|-------|---------|
 | 1A | `tables/src/tables/` | workflow-execution.table.ts, workflow-activity.table.ts, workflow-signal.table.ts | Workflow persistence |
 | 1B | `server/src/Workflow/` | ExtractionWorkflow.ts, DurableActivities.ts, WorkflowPersistence.ts, ProgressStream.ts, index.ts | Durable workflow execution |
-| 1B | `domain/src/value-objects/` | workflow-state.value.ts, extraction-progress.value.ts | Workflow domain types |
+| 1B | `domain/src/value-objects/` | WorkflowState.value.ts, ExtractionProgress.value.ts | Workflow domain types |
 | 1C | `server/src/Resilience/` | CircuitBreaker.ts, index.ts | LLM failure protection |
 | 1D | `server/src/Resilience/` | RateLimiter.ts | API rate limiting |
-| 2A | `domain/src/value-objects/` | batch-state.value.ts, batch-event.value.ts | Batch state machine types |
+| 2A | `domain/src/value-objects/` | BatchState.value.ts, BatchEvent.value.ts | Batch state machine types |
 | 2A | `server/src/Workflow/` | BatchStateMachine.ts, BatchEventEmitter.ts | State management |
 | 2A | `domain/src/rpc/Extraction/` | StreamProgress.ts | SSE RPC contract |
-| 2B | `domain/src/entities/Batch/` | Batch.model.ts, index.ts | Batch definition model |
-| 2B | `domain/src/value-objects/` | batch-config.value.ts, batch-failure-policy.value.ts | Batch configuration |
+| 2B | `domain/src/entities/Batch/` | Agent.model.ts, index.ts | Batch definition model |
+| 2B | `domain/src/value-objects/` | BatchConfig.value.ts, batch-failure-policy.value.ts | Batch configuration |
 | 2B | `server/src/Workflow/` | BatchOrchestrator.ts, BatchAggregator.ts | Batch coordination |
 | 2B | `tables/src/tables/` | batch.table.ts | Batch persistence |
 | 3A | `server/src/Validation/` | ShaclService.ts, ShaclParser.ts, ShapeGenerator.ts, ValidationReport.ts, index.ts | SHACL validation |

@@ -5,7 +5,7 @@
  * using PostgreSQL Row-Level Security policies.
  *
  * @module rls
- * @since 1.0.0
+ * @since 0.1.0
  */
 
 export * from "./helpers";

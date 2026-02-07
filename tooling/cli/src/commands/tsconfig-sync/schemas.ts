@@ -4,7 +4,7 @@
  * Defines Effect Schema validation for tsconfig-sync command inputs.
  *
  * @module tsconfig-sync/schemas
- * @since 1.0.0
+ * @since 0.1.0
  */
 
 import * as S from "effect/Schema";

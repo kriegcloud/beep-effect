@@ -290,7 +290,7 @@ export type Sha256Hash = typeof Sha256Hash.Type;
 /**
  * @fileoverview HMAC-SHA256 Signed Payload Schema Definitions
  * @module @beep/shared-domain/services/EncryptionService/schemas
- * @since 1.0.0
+ * @since 0.1.0
  *
  * ## Overview
  * Provides generic schema factories for signing and verifying arbitrary payloads
@@ -349,7 +349,7 @@ export type Sha256Hash = typeof Sha256Hash.Type;
 /**
  * HMAC signature pattern for validation.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Constants
  *
  * @remarks
@@ -361,7 +361,7 @@ export const HMAC_SIGNATURE_PATTERN = /^hmac-sha256=[a-f0-9]{64}$/;
 /**
  * Schema for HMAC-SHA256 signature strings.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Schemas
  *
  * @remarks
@@ -383,7 +383,7 @@ export type HmacSignature = typeof HmacSignature.Type;
 /**
  * Helper schema factory that creates a signed payload struct for any payload schema.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Schemas
  *
  * @remarks
@@ -417,7 +417,7 @@ export const SignedPayloadStruct = <T extends S.Schema.Any>(payloadSchema: T) =>
 /**
  * Type alias for signed payload structure.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Types
  *
  * @remarks
@@ -441,7 +441,7 @@ export type SignedPayload<T> = {
 /**
  * Creates a bidirectional schema for HMAC-SHA256 signing and verification.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Transformations
  *
  * @remarks
@@ -582,7 +582,7 @@ export const SignedPayload = <A, I, R>(
 /**
  * Creates a signed payload schema with expiration enforcement.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Transformations
  *
  * @remarks

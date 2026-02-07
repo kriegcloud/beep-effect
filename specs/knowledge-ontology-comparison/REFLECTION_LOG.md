@@ -107,15 +107,15 @@ Phase 1 - Research (Complete)
 ### Key Findings
 
 #### Capability Assessment
-| Category | Full Parity | Partial | Missing |
-|----------|-------------|---------|---------|
-| Entity Resolution | 6 | 2 | 1 |
-| GraphRAG | 6 | 2 | 6 |
-| Query & Reasoning | 2 | 0 | 14 |
-| Workflow & Orchestration | 2 | 0 | 8 |
-| RDF Infrastructure | 2 | 3 | 8 |
-| Service Architecture | 0 | 1 | 3 |
-| **Total** | **18** | **8** | **40** |
+| Category                 | Full Parity | Partial | Missing |
+|--------------------------|-------------|---------|---------|
+| Entity Resolution        | 6           | 2       | 1       |
+| GraphRAG                 | 6           | 2       | 6       |
+| Query & Reasoning        | 2           | 0       | 14      |
+| Workflow & Orchestration | 2           | 0       | 8       |
+| RDF Infrastructure       | 2           | 3       | 8       |
+| Service Architecture     | 0           | 1       | 3       |
+| **Total**                | **18**      | **8**   | **40**  |
 
 #### Critical Gaps (P0)
 1. **Durable Workflow Execution** - No @effect/workflow integration for crash recovery
@@ -201,14 +201,14 @@ Phase 1 - Research (Complete)
 
 Based on roadmap phases, recommend creating these implementation specs:
 
-| Spec Name | Phase | Priority | Est. Effort |
-|-----------|-------|----------|-------------|
-| `specs/knowledge-rdf-foundation/` | 0 | P0 | 2-3 weeks |
-| `specs/knowledge-sparql-integration/` | 1.1 | P0 | 2 weeks |
-| `specs/knowledge-reasoning-engine/` | 1.2 | P0 | 2 weeks |
-| `specs/knowledge-workflow-durability/` | 3 | P0 | 3-4 weeks |
-| `specs/knowledge-entity-resolution-v2/` | 2 | P1 | 2-3 weeks |
-| `specs/knowledge-graphrag-plus/` | 4 | P1 | 2 weeks |
+| Spec Name                               | Phase | Priority | Est. Effort |
+|-----------------------------------------|-------|----------|-------------|
+| `specs/knowledge-rdf-foundation/`       | 0     | P0       | 2-3 weeks   |
+| `specs/knowledge-sparql-integration/`   | 1.1   | P0       | 2 weeks     |
+| `specs/knowledge-reasoning-engine/`     | 1.2   | P0       | 2 weeks     |
+| `specs/knowledge-workflow-durability/`  | 3     | P0       | 3-4 weeks   |
+| `specs/knowledge-entity-resolution-v2/` | 2     | P1       | 2-3 weeks   |
+| `specs/knowledge-graphrag-plus/`        | 4     | P1       | 2 weeks     |
 
 ### Pattern Candidates
 
@@ -318,11 +318,11 @@ Phase 1 - Legal Review & Remediation
 
 ### Violation Summary
 
-| Category | MAJOR | MINOR | Files Affected |
-|----------|-------|-------|----------------|
-| Effect Pattern Violations | 6 | 4 | CONTEXT_DOCUMENT.md, IMPLEMENTATION_ROADMAP.md |
-| Internal Consistency Violations | 3 | 5 | GAP_ANALYSIS.md, COMPARISON_MATRIX.md |
-| RPC Pattern Violations | 3 | 3 | CONTEXT_DOCUMENT.md, IMPLEMENTATION_ROADMAP.md |
+| Category                        | MAJOR | MINOR | Files Affected                                 |
+|---------------------------------|-------|-------|------------------------------------------------|
+| Effect Pattern Violations       | 6     | 4     | CONTEXT_DOCUMENT.md, IMPLEMENTATION_ROADMAP.md |
+| Internal Consistency Violations | 3     | 5     | GAP_ANALYSIS.md, COMPARISON_MATRIX.md          |
+| RPC Pattern Violations          | 3     | 3     | CONTEXT_DOCUMENT.md, IMPLEMENTATION_ROADMAP.md |
 
 ### Key Learnings
 
@@ -396,30 +396,30 @@ Phase 1 - Research (Re-execution)
 
 The 2026-02-03 deliverables incorrectly listed these as gaps (all were actually implemented):
 
-| Falsely Listed as Gap | Actual Implementation |
-|---|---|
-| SPARQL Query Engine | `Sparql/` -- SparqlService, SparqlParser, QueryExecutor, FilterEvaluator (6 files) |
-| Forward-Chaining Reasoner | `Reasoning/` -- ForwardChainer, ReasonerService, RdfsRules (4 files) |
-| Triple Store | `Rdf/RdfStoreService.ts` -- N3.Store wrapper |
-| RDF Serialization | `Rdf/Serializer.ts` -- Turtle/N-Triples via N3.Writer |
-| Grounded Answer Generation | `GraphRAG/GroundedAnswerGenerator.ts` -- @effect/ai LanguageModel |
-| Citation Validation | `GraphRAG/CitationValidator.ts` -- SPARQL ASK queries |
-| Reasoning Traces | `GraphRAG/ReasoningTraceFormatter.ts` -- step-by-step inference chains |
-| Cross-Batch Entity Resolution | `EntityResolution/EntityRegistry.ts` + `BloomFilter.ts` |
-| Cumulative Entity Registry | `EntityResolution/EntityRegistry.ts` -- persists across batches |
-| Immutable Evidence Layer | `MentionRecord` entity with model, table, and repository |
+| Falsely Listed as Gap         | Actual Implementation                                                              |
+|-------------------------------|------------------------------------------------------------------------------------|
+| SPARQL Query Engine           | `Sparql/` -- SparqlService, SparqlParser, QueryExecutor, FilterEvaluator (6 files) |
+| Forward-Chaining Reasoner     | `Reasoning/` -- ForwardChainer, ReasonerService, RdfsRules (4 files)               |
+| Triple Store                  | `Rdf/RdfStoreService.ts` -- N3.Store wrapper                                       |
+| RDF Serialization             | `Rdf/Serializer.ts` -- Turtle/N-Triples via N3.Writer                              |
+| Grounded Answer Generation    | `GraphRAG/GroundedAnswerGenerator.ts` -- @effect/ai LanguageModel                  |
+| Citation Validation           | `GraphRAG/CitationValidator.ts` -- SPARQL ASK queries                              |
+| Reasoning Traces              | `GraphRAG/ReasoningTraceFormatter.ts` -- step-by-step inference chains             |
+| Cross-Batch Entity Resolution | `EntityResolution/EntityRegistry.ts` + `BloomFilter.ts`                            |
+| Cumulative Entity Registry    | `EntityResolution/EntityRegistry.ts` -- persists across batches                    |
+| Immutable Evidence Layer      | `MentionRecord` entity with model, table, and repository                           |
 
 #### Corrected Statistics
 
-| Metric | Previous (Wrong) | Corrected |
-|---|---|---|
-| Comparison rows | 65 | 121 |
-| FULL parity | 18 (27%) | 66 (54%) |
-| PARTIAL parity | 8 | 17 |
-| GAP (remaining) | 40 | 38 |
-| Actionable gaps | 23 | 20 |
-| Implementation estimate | 18-23 weeks | 12-14 weeks |
-| Roadmap phases | 8 | 4 |
+| Metric                  | Previous (Wrong) | Corrected   |
+|-------------------------|------------------|-------------|
+| Comparison rows         | 65               | 121         |
+| FULL parity             | 18 (27%)         | 66 (54%)    |
+| PARTIAL parity          | 8                | 17          |
+| GAP (remaining)         | 40               | 38          |
+| Actionable gaps         | 23               | 20          |
+| Implementation estimate | 18-23 weeks      | 12-14 weeks |
+| Roadmap phases          | 8                | 4           |
 
 ### Key Decisions
 
@@ -490,15 +490,15 @@ Phase 2 - Implementation (Complete)
 
 Implemented crash-recoverable extraction workflows and LLM call protection across 5 sub-tasks:
 
-| Sub-Task | Deliverable | Files Created/Modified |
-|----------|-------------|----------------------|
-| 2A: Workflow Tables | 3 Drizzle tables + 3 EntityIds | `workflow-execution.table.ts`, `workflow-activity.table.ts`, `workflow-signal.table.ts` |
-| 2Ba: Domain + Persistence | Value objects, errors, WorkflowPersistence, DurableActivities | `workflow-state.value.ts`, `extraction-progress.value.ts`, `workflow.errors.ts`, `WorkflowPersistence.ts`, `DurableActivities.ts` |
-| 2Bb: Workflow + Progress | ExtractionWorkflow orchestrator, ProgressStream SSE | `ExtractionWorkflow.ts`, `ProgressStream.ts` |
-| 2C: CircuitBreaker | Combined circuit breaker + rate limiter | `LlmControl/RateLimiter.ts` (CentralRateLimiterService) |
-| 2D: Rate Limiter Integration | Wrapped LLM call sites | Modified `EmbeddingService.ts`, `GroundedAnswerGenerator.ts` |
+| Sub-Task                     | Deliverable                                                   | Files Created/Modified                                                                                                            |
+|------------------------------|---------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------|
+| 2A: Workflow Tables          | 3 Drizzle tables + 3 EntityIds                                | `workflow-execution.table.ts`, `workflow-activity.table.ts`, `workflow-signal.table.ts`                                           |
+| 2Ba: Domain + Persistence    | Value objects, errors, WorkflowPersistence, DurableActivities | `WorkflowState.value.ts`, `ExtractionProgress.value.ts`, `Workflow.errors.ts`, `WorkflowPersistence.ts`, `DurableActivities.ts` |
+| 2Bb: Workflow + Progress     | ExtractionWorkflow orchestrator, ProgressStream SSE           | `ExtractionWorkflow.ts`, `ProgressStream.ts`                                                                                      |
+| 2C: CircuitBreaker           | Combined circuit breaker + rate limiter                       | `LlmControl/RateLimiter.ts` (CentralRateLimiterService)                                                                           |
+| 2D: Rate Limiter Integration | Wrapped LLM call sites                                        | Modified `EmbeddingService.ts`, `GroundedAnswerGenerator.ts`                                                                      |
 
-Additional files: `circuit.errors.ts`, `embedding.errors.ts`, `event-bus.error.ts`, `LlmControl/StageTimeout.ts`, `LlmControl/TokenBudget.ts`
+Additional files: `circuit.errors.ts`, `embedding.errors.ts`, `EventBus.error.ts`, `LlmControl/StageTimeout.ts`, `LlmControl/TokenBudget.ts`
 
 ### Key Decisions
 
@@ -573,15 +573,15 @@ Phase 3 - Implementation (Complete)
 
 Implemented batch lifecycle state machine and cross-document orchestration across 7 sub-tasks:
 
-| Sub-Task | Deliverable | Files Created/Modified |
-|----------|-------------|----------------------|
-| 3A-1: Domain Models | BatchState ADT, BatchEvent union, BatchConfig, errors | `batch-state.value.ts`, `batch-event.value.ts`, `batch-config.value.ts`, `batch.errors.ts` |
-| 3A-2: State Machine + Emitter | In-memory state machine, PubSub event emitter | `BatchStateMachine.ts`, `BatchEventEmitter.ts` |
-| 3A-3: RPC Contracts | 4 RPC endpoints including streaming | `rpc/Batch/{StartBatch,StreamProgress,GetBatchStatus,CancelBatch}.ts`, `rpc/v1/batch/*.ts` |
-| 3B-1: Entity Model | Batch execution entity + config | `entities/Batch/Batch.model.ts` |
-| 3B-2: Table | Drizzle table with indexes | `batch-execution.table.ts` |
-| 3B-3: Orchestrator + Aggregator | Multi-document coordinator + result aggregation | `BatchOrchestrator.ts`, `BatchAggregator.ts` |
-| Tests | State machine + aggregator tests | `test/Workflow/BatchStateMachine.test.ts`, `test/Workflow/BatchAggregator.test.ts` |
+| Sub-Task                        | Deliverable                                           | Files Created/Modified                                                                     |
+|---------------------------------|-------------------------------------------------------|--------------------------------------------------------------------------------------------|
+| 3A-1: Domain Models             | BatchState ADT, BatchEvent union, BatchConfig, errors | `BatchState.value.ts`, `BatchEvent.value.ts`, `BatchConfig.value.ts`, `batch.errors.ts` |
+| 3A-2: State Machine + Emitter   | In-memory state machine, PubSub event emitter         | `BatchStateMachine.ts`, `BatchEventEmitter.ts`                                             |
+| 3A-3: RPC Contracts             | 4 RPC endpoints including streaming                   | `rpc/Batch/{StartBatch,StreamProgress,GetBatchStatus,CancelBatch}.ts`, `rpc/v1/batch/*.ts` |
+| 3B-1: Entity Model              | Batch execution entity + config                       | `entities/Batch/Agent.model.ts`                                                            |
+| 3B-2: Table                     | Drizzle table with indexes                            | `batch-execution.table.ts`                                                                 |
+| 3B-3: Orchestrator + Aggregator | Multi-document coordinator + result aggregation       | `BatchOrchestrator.ts`, `BatchAggregator.ts`                                               |
+| Tests                           | State machine + aggregator tests                      | `test/Workflow/BatchStateMachine.test.ts`, `test/Workflow/BatchAggregator.test.ts`         |
 
 Additional: `BatchExecutionId` branded EntityId added to `@beep/shared-domain`, `WorkflowType` extended with `"batch_extraction"`.
 

@@ -11,7 +11,7 @@ import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import type * as sparqljs from "sparqljs";
-import { SparqlPattern } from "./SparqlModels.ts";
+import { SparqlPattern } from "./SparqlModels";
 
 export type SolutionBindings = Record<string, typeof Term.Type>;
 

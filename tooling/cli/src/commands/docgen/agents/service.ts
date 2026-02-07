@@ -9,7 +9,7 @@
  * Uses @effect/workflow for optional crash-resilient execution.
  *
  * @module docgen/agents/service
- * @since 1.0.0
+ * @since 0.1.0
  */
 
 import type * as FsUtils from "@beep/tooling-utils/FsUtils";

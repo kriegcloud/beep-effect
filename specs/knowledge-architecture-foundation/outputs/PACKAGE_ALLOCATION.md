@@ -34,9 +34,9 @@
 
 | Component      | Current Location                        | Status   | Notes                              |
 |----------------|----------------------------------------|----------|------------------------------------|
-| Attributes     | `src/value-objects/attributes.value.ts` | Complete | Key-value attributes schema        |
-| ClassIri       | `src/value-objects/class-iri.value.ts`  | Complete | Validated IRI schema               |
-| EvidenceSpan   | `src/value-objects/evidence-span.value.ts` | Complete | Text span evidence                |
+| Attributes     | `src/value-objects/Attributes.value.ts` | Complete | Key-value attributes schema        |
+| ClassIri       | `src/value-objects/ClassIri.value.ts`  | Complete | Validated IRI schema               |
+| EvidenceSpan   | `src/value-objects/EvidenceSpan.value.ts` | Complete | Text span evidence                |
 
 #### Errors
 

@@ -4,7 +4,7 @@
  * Reusable CLI options for all verify subcommands.
  *
  * @module verify/options
- * @since 1.0.0
+ * @since 0.1.0
  */
 
 import * as Options from "@effect/cli/Options";

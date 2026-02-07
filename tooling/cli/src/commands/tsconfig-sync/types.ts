@@ -5,7 +5,7 @@
  * This file has no imports from other tsconfig-sync modules to avoid circular dependencies.
  *
  * @module tsconfig-sync/types
- * @since 1.0.0
+ * @since 0.1.0
  */
 
 import type { RepoDepMapValue, WorkspacePkgKey } from "@beep/tooling-utils";

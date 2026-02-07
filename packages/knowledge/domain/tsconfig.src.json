@@ -6,6 +6,9 @@
       "path": "../../../packages/common/identity"
     },
     {
+      "path": "../../../packages/common/machine"
+    },
+    {
       "path": "../../../packages/common/invariant"
     },
     {

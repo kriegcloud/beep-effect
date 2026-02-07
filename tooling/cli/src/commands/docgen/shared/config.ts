@@ -13,7 +13,7 @@
  * - TSCONFIG_PRECEDENCE: Search order for tsconfig files
  *
  * @module docgen/shared/config
- * @since 1.0.0
+ * @since 0.1.0
  */
 
 import type { PlatformError } from "@effect/platform/Error";

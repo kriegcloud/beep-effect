@@ -22,7 +22,7 @@
  * - 4: Partial failure (some packages failed)
  *
  * @module docgen/generate
- * @since 1.0.0
+ * @since 0.1.0
  * @see DOCGEN_CLI_IMPLEMENTATION.md#3-beep-docgen-generate
  */
 

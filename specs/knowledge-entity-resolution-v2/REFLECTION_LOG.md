@@ -281,7 +281,7 @@ Early exit at each stage ensures <100ms performance for 10K entities.
 |-------------|--------|-------|
 | IncrementalClustererLive | Complete | `server/src/EntityResolution/IncrementalClustererLive.ts` |
 | MentionRecordRepo | Complete | `server/src/db/repos/MentionRecord.repo.ts` |
-| SplitService (domain) | Complete | `domain/src/services/split.service.ts`, `domain/src/errors/split.errors.ts` |
+| SplitService (domain) | Complete | `domain/src/services/Split.service.ts`, `domain/src/errors/split.errors.ts` |
 | SplitService (server) | Complete | `server/src/EntityResolution/SplitService.ts` |
 | ExtractionPipeline integration | Complete | `server/src/Extraction/ExtractionPipeline.ts` |
 | Unit tests (15 pass) | Complete | `server/test/EntityResolution/IncrementalClusterer.test.ts`, `SplitService.test.ts` |

@@ -89,7 +89,7 @@ Implement the full incremental clustering pipeline and entity split/unmerge supp
     2. Reverse the merge: reassign MentionRecords back to source entity
     3. Record unmerge in MergeHistory (reason: "unmerge")
   - [ ] Add error type: `SplitError` in domain errors
-- [ ] Create domain stub `packages/knowledge/domain/src/services/split.service.ts`
+- [ ] Create domain stub `packages/knowledge/domain/src/services/Split.service.ts`
 - [ ] Verify: `bun run check --filter @beep/knowledge-server`
 
 #### Task 3: ExtractionPipeline Integration
@@ -173,7 +173,7 @@ Implement the full incremental clustering pipeline and entity split/unmerge supp
 - ✅ `packages/knowledge/server/src/EntityResolution/BloomFilter.ts` - Custom Uint32Array bloom filter (djb2, sdbm, FNV-1a hashes)
 - ✅ `packages/knowledge/server/src/EntityResolution/EntityRegistry.ts` - Full multi-stage candidate search
 - ✅ `packages/knowledge/server/src/EntityResolution/MergeHistoryLive.ts` - PostgreSQL persistence layer
-- ✅ `packages/knowledge/domain/src/services/incremental-clusterer.service.ts` - Stub service
+- ✅ `packages/knowledge/domain/src/services/IncrementalClusterer.service.ts` - Stub service
 - ✅ `packages/knowledge/domain/src/errors/cluster.errors.ts` - ClusterError tagged error
 - ✅ `packages/knowledge/server/test/benchmarks/EntityRegistry.bench.test.ts` - 11 benchmark tests
 - ✅ `packages/knowledge/server/test/EntityResolution/BloomFilter.test.ts` - Unit tests
@@ -201,7 +201,7 @@ Implement the full incremental clustering pipeline and entity split/unmerge supp
 
 ### IncrementalClusterer Domain Stub
 
-**Current file**: `packages/knowledge/domain/src/services/incremental-clusterer.service.ts`
+**Current file**: `packages/knowledge/domain/src/services/IncrementalClusterer.service.ts`
 
 ```typescript
 export interface IncrementalClustererService {
@@ -426,7 +426,7 @@ All MentionRecords resolved → Extraction complete
 |------|---------|
 | `packages/knowledge/server/src/EntityResolution/IncrementalClustererLive.ts` | Live layer implementing domain stub |
 | `packages/knowledge/server/src/EntityResolution/SplitService.ts` | Entity split/unmerge operations |
-| `packages/knowledge/domain/src/services/split.service.ts` | Split service domain stub |
+| `packages/knowledge/domain/src/services/Split.service.ts` | Split service domain stub |
 | `packages/knowledge/domain/src/errors/split.errors.ts` | SplitError tagged error |
 | `packages/knowledge/server/test/EntityResolution/IncrementalClusterer.test.ts` | Unit tests |
 | `packages/knowledge/server/test/EntityResolution/SplitService.test.ts` | Unit tests |

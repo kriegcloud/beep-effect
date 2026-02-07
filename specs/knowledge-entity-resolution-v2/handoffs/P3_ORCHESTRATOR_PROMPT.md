@@ -213,7 +213,7 @@ const cosineSimilarity = (a: ReadonlyArray<number>, b: ReadonlyArray<number>): n
 
 #### 4. IncrementalClusterer Stub
 
-**Location**: `packages/knowledge/domain/src/services/incremental-clusterer.service.ts`
+**Location**: `packages/knowledge/domain/src/services/IncrementalClusterer.service.ts`
 
 **Purpose**: Define service interface for Phase 4 (or future work)
 
@@ -491,13 +491,13 @@ bun run test --filter @beep/knowledge-domain 2>&1 | tee performance-baseline.txt
 
 ### Code References
 - **Current Stub Services**:
-  - `packages/knowledge/domain/src/services/merge-history.service.ts` (Phase 2 stub - REPLACE)
+  - `packages/knowledge/domain/src/services/MergeHistory.service.ts` (Phase 2 stub - REPLACE)
   - `packages/knowledge/domain/src/services/entity-registry.service.ts` (Phase 2 stub - REPLACE)
 - **Test Layers**:
   - `packages/knowledge/domain/test/_shared/TestLayers.ts` (Layer.provideMerge pattern)
 - **Value Objects**:
-  - `packages/knowledge/domain/src/value-objects/entity-candidate.value.ts`
-  - `packages/knowledge/domain/src/value-objects/merge-params.value.ts`
+  - `packages/knowledge/domain/src/value-objects/EntityCandidate.value.ts`
+  - `packages/knowledge/domain/src/value-objects/MergeParams.value.ts`
 
 ---
 

@@ -1,7 +1,7 @@
 /**
  * @module makeSanitizeSchema
  * @description Factory function for creating sanitization transformation schemas
- * @since 1.0.0
+ * @since 0.1.0
  */
 import { $SchemaId } from "@beep/identity/packages";
 import * as Effect from "effect/Effect";
@@ -23,7 +23,7 @@ const $I = $SchemaId.create("integrations/html/sanitize/make-sanitize-schema");
  *
  * This matches sanitize-html's permissive input handling.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Schema
  */
 export const DirtyHtml = S.Union(S.String, S.Number, S.Null, S.Undefined).annotations(
@@ -60,7 +60,7 @@ export type SanitizeFn = (dirty: string, options: ReturnType<typeof toSanitizeOp
  * @param sanitize - The sanitization function (defaults to identity for schema-only usage)
  * @returns A transformation schema from DirtyHtml to SanitizedHtml
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Factory
  * @example
  * ```typescript
@@ -141,7 +141,7 @@ export const makeSanitizeSchema = (
  * @param config - The sanitization configuration
  * @returns A transformation schema from DirtyHtml to SanitizedHtml
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Factory
  * @example
  * ```typescript

@@ -1,4 +1,4 @@
-import { MergeError } from "@beep/knowledge-domain/errors/merge.errors";
+import { MergeError } from "@beep/knowledge-domain/errors/Merge.errors.ts";
 import { EntityRegistry, MergeHistory } from "@beep/knowledge-domain/services";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";

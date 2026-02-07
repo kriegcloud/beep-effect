@@ -4,7 +4,7 @@
  * Tests for the tagged error classes used in the create-slice command.
  *
  * @module create-slice/test/errors
- * @since 1.0.0
+ * @since 0.1.0
  */
 
 import { describe, expect, it } from "bun:test";

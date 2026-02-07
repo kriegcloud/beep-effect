@@ -6,7 +6,7 @@
  * - StageTimeoutService: Soft/hard timeouts per stage
  * - CentralRateLimiterService: Rate limiting with circuit breaker
  *
- * @since 2.0.0
+ * @since 0.1.0
  * @module Service/LlmControl
  */
 

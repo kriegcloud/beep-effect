@@ -24,6 +24,9 @@
     },
     {
       "path": "../packages/common/wrap/tsconfig.build.json"
+    },
+    {
+      "path": "../packages/common/machine/tsconfig.build.json"
     }
   ]
 }

@@ -121,7 +121,7 @@ interface ToolbarContextProps {
  * }
  * ```
  *
- * @since 1.0.0
+ * @since 0.1.0
  */
 export function ToolbarContext({
   activeEditor,
@@ -171,7 +171,7 @@ export function ToolbarContext({
  * @throws ToolbarContextNotMountedError if context is accessed before provider is mounted
  * @returns The toolbar context state object
  *
- * @since 1.0.0
+ * @since 0.1.0
  */
 export function useToolbarContext(): ToolbarContextState {
   const state = useAtomRef(toolbarRef);
@@ -216,7 +216,7 @@ export function useToolbarContext(): ToolbarContextState {
  * @throws ToolbarContextNotMountedError if context is accessed before provider is mounted
  * @returns The active LexicalEditor instance
  *
- * @since 1.0.0
+ * @since 0.1.0
  */
 export function useActiveEditor(): LexicalEditor {
   const editorOption = useAtomRef(activeEditorRef);
@@ -252,7 +252,7 @@ export function useActiveEditor(): LexicalEditor {
  *
  * @returns A tuple of [blockType, setBlockType]
  *
- * @since 1.0.0
+ * @since 0.1.0
  */
 export function useBlockType(): [string, (blockType: string) => void] {
   const blockType = useAtomRef(blockTypeRef);
@@ -282,7 +282,7 @@ export function useBlockType(): [string, (blockType: string) => void] {
  *
  * @returns The $updateToolbar function
  *
- * @since 1.0.0
+ * @since 0.1.0
  */
 export function useUpdateToolbar(): () => void {
   const updateToolbarOption = useAtomRef(updateToolbarRef);
@@ -311,7 +311,7 @@ export function useUpdateToolbar(): () => void {
  *
  * @returns The showModal function
  *
- * @since 1.0.0
+ * @since 0.1.0
  */
 export function useShowModal(): ShowModalFn {
   const showModalOption = useAtomRef(showModalRef);

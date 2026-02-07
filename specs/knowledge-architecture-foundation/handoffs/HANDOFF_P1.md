@@ -67,7 +67,7 @@ From ARCHITECTURE_DECISIONS.md:
 ### Procedural Context (patterns to follow)
 
 - Schema patterns: `.claude/rules/effect-patterns.md`
-- Existing value objects: `packages/knowledge/domain/src/value-objects/evidence-span.value.ts`
+- Existing value objects: `packages/knowledge/domain/src/value-objects/EvidenceSpan.value.ts`
 - Existing errors: `packages/knowledge/domain/src/errors/ontology.errors.ts`
 
 ---

@@ -116,7 +116,7 @@ export class SigningError extends S.TaggedError<SigningError>($I`SigningError`)(
 /**
  * Error thrown when HMAC signature verification fails.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Errors
  *
  * @remarks
@@ -182,7 +182,7 @@ export declare namespace InvalidSignatureError {
 /**
  * Error thrown when a signed payload has expired.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Errors
  *
  * @remarks
@@ -256,7 +256,7 @@ export declare namespace SignatureExpiredError {
 /**
  * Union of all signature-related verification errors.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Types
  *
  * @remarks

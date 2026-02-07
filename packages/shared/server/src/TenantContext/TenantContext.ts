@@ -17,7 +17,7 @@
  * uses `sql.unsafe()` with proper escaping to prevent SQL injection.
  *
  * @module TenantContext
- * @since 1.0.0
+ * @since 0.1.0
  */
 
 import { $SharedServerId } from "@beep/identity/packages";
@@ -32,7 +32,7 @@ const $I = $SharedServerId.create("TenantContext");
 /**
  * Shape interface for TenantContext service
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category models
  */
 export interface TenantContextShape {
@@ -79,14 +79,14 @@ export interface TenantContextShape {
 /**
  * TenantContext service tag for dependency injection
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category tags
  */
 export class TenantContext extends Context.Tag($I`TenantContext`)<TenantContext, TenantContextShape>() {
   /**
    * Layer that provides TenantContext, requires SqlClient
    *
-   * @since 1.0.0
+   * @since 0.1.0
    * @category layers
    */
   static readonly layer: Layer.Layer<TenantContext, never, SqlClient.SqlClient> = Layer.effect(

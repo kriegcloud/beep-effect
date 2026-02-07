@@ -34,7 +34,7 @@ import * as F from "effect/Function";
 /**
  * Brand for HTML strings that have been sanitized according to a security policy.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Brands
  */
 export type SanitizedHtmlBrand = B.Brand<"SanitizedHtml">;
@@ -45,7 +45,7 @@ export type SanitizedHtmlBrand = B.Brand<"SanitizedHtml">;
  * This branded type ensures that HTML content has passed through a sanitization
  * pipeline before being rendered in the browser or stored in the database.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Schema
  * @example
  * ```typescript
@@ -87,25 +87,25 @@ export const SanitizedHtml: S.BrandSchema<
 /**
  * Namespace for SanitizedHtml utilities and type aliases.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Namespace
  */
 export declare namespace SanitizedHtml {
   /**
    * Decoded type (runtime representation).
-   * @since 1.0.0
+   * @since 0.1.0
    */
   export type Type = string & SanitizedHtmlBrand;
 
   /**
    * Encoded type (wire format).
-   * @since 1.0.0
+   * @since 0.1.0
    */
   export type Encoded = string;
 
   /**
    * Type guard for SanitizedHtml brand.
-   * @since 1.0.0
+   * @since 0.1.0
    */
   export const is: (u: unknown) => u is Type;
 
@@ -116,7 +116,7 @@ export declare namespace SanitizedHtml {
    * is already sanitized or in controlled test environments. Misuse can introduce
    * XSS vulnerabilities.
    *
-   * @since 1.0.0
+   * @since 0.1.0
    * @category Unsafe
    * @example
    * ```typescript
@@ -164,7 +164,7 @@ import type { SanitizeConfig } from "./models";
 /**
  * Creates a transformation schema that sanitizes input to produce SanitizedHtml.
  *
- * @since 1.0.0
+ * @since 0.1.0
  * @category Factories
  * @example
  * ```typescript
@@ -222,13 +222,13 @@ export const makeSanitizeSchema = (
 ```typescript
 /**
  * Decoded type (runtime representation).
- * @since 1.0.0
+ * @since 0.1.0
  */
 export type SanitizedHtml = SanitizedHtml.Type;
 
 /**
  * Encoded type (wire format).
- * @since 1.0.0
+ * @since 0.1.0
  */
 export type SanitizedHtmlEncoded = SanitizedHtml.Encoded;
 ```

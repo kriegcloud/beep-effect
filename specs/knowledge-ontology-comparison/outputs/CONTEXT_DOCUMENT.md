@@ -100,10 +100,10 @@ packages/knowledge/
         Ontology/           # Create, Delete, Get, GetClasses, GetProperties, List, Update
         Relation/           # Count, Create, Delete, Get, ListByEntity, ListByPredicate
       services/             # Service interfaces (Context.Tag definitions)
-        entity-registry.service.ts
-        merge-history.service.ts
-        split.service.ts
-        incremental-clusterer.service.ts
+        EntityRegistry.service.ts
+        MergeHistory.service.ts
+        Split.service.ts
+        IncrementalClusterer.service.ts
       projections/
         GraphRagQueryResult.ts
 
@@ -681,7 +681,7 @@ These files exist in the reference implementation AND have functional equivalent
 |-------|----------------|---------|
 | 1 | `server/src/Workflow/ExtractionWorkflow.ts` | Durable @effect/workflow definition |
 | 1 | `server/src/Workflow/WorkflowActivities.ts` | Individual workflow activity definitions |
-| 2 | `domain/src/value-objects/batch-state.value.ts` | BatchState union type (Schema.Union of TaggedStructs) |
+| 2 | `domain/src/value-objects/BatchState.value.ts` | BatchState union type (Schema.Union of TaggedStructs) |
 | 2 | `server/src/Workflow/BatchStateMachine.ts` | State transition logic with PubSub |
 | 3 | `tables/src/tables/workflow-state.table.ts` | Workflow state persistence table |
 | 3 | `tables/src/tables/activity-journal.table.ts` | Activity journal table |

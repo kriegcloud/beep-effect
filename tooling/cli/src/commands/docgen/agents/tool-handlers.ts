@@ -1,7 +1,7 @@
 /**
  * @file Tool handler implementations for docgen agents.
  * @module docgen/agents/tool-handlers
- * @since 1.0.0
+ * @since 0.1.0
  */
 
 import { findRepoRoot } from "@beep/tooling-utils/repo";
