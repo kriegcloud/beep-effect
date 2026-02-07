@@ -25,6 +25,37 @@ All browser interaction uses the Playwright MCP server. Chrome extension tools a
 - `mcp__playwright__playwright_hover` — hover over elements to reveal tooltips (reconnaissance only)
 - `mcp__playwright__playwright_resize` — resize viewport if needed
 
+## S3 Asset Storage
+
+All screenshots taken by Page Scout must be uploaded to S3 for access in Notion and downstream reports.
+
+**Bucket**: `static.vaultctx.com` (fronted by CloudFront)
+
+**Folder structure**:
+```
+notion/
+  open-ontology/          # App name
+    {page-name-lower}/    # e.g., "stats", "schema", "explore"
+      scout/              # Page Scout element screenshots
+```
+
+**Upload command**:
+```bash
+aws s3 cp {local_file} s3://static.vaultctx.com/notion/open-ontology/{PAGE_NAME_LOWER}/scout/{filename} --content-type image/png --region us-east-1
+```
+
+**Public URL pattern**:
+```
+https://static.vaultctx.com/notion/open-ontology/{PAGE_NAME_LOWER}/scout/{filename}
+```
+
+**Workflow**:
+1. After capturing each screenshot with `playwright_screenshot`, upload it to S3 using the Bash tool with the command above
+2. Record the public S3 URL in your output report
+3. Use descriptive filenames: `{page-name}-{section}-{description}.png` (e.g., `stats-sidebar-navigation.png`)
+
+**Important**: Screenshots saved only to local disk are NOT accessible in Notion. All screenshots must be uploaded to S3.
+
 ## Boundaries
 
 This agent:
@@ -92,7 +123,8 @@ This agent:
    - `selector: "main"` -- main content area
    - `selector: ".react-flow"` -- graph canvas (if present)
    - Any other significant container identified during Step 2
-3. Note screenshot references for the report
+3. Upload all screenshots to S3 and record the public URLs
+4. Note screenshot references (including S3 URLs) for the report
 
 ### Step 5: Scroll Exploration
 
@@ -162,8 +194,8 @@ Produce a markdown document with this exact structure:
 
 ## Metadata
 - **URL**: {PAGE_URL}
-- **Full Viewport Screenshot**: {screenshot_reference}
-- **Element Screenshots**: {list of selector -> screenshot_reference}
+- **Full Viewport Screenshot**: {public S3 URL}
+- **Element Screenshots**: {list of selector -> public S3 URL}
 - **Viewport**: {width}x{height}
 - **Scrollable**: Yes/No (total height: {px} if scrollable)
 - **Total Interactive Elements**: {count}
@@ -198,7 +230,7 @@ Produce a markdown document with this exact structure:
 | {page component} | Page-specific | {description} |
 
 ## Downstream Hints
-- **For Reference Builder**: {Suggestions for feature mapping, layout description, TodoX package mappings}
+- **For Reference Builder**: {Suggestions for feature mapping, layout description, TodoX package mappings}. Include S3 URLs for element screenshots so they can populate `Screenshot URL` in Component Inventory.
 - **For State Capturer**: {Which components likely have interesting states, dropdowns to open, toggles to flip, estimated screenshot count, recommended CSS selectors for each interaction}
 ```
 

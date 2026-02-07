@@ -1,44 +1,21 @@
-import { DocumentsEntityIds, KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
-import { assertTrue, describe, effect, strictEqual } from "@beep/testkit";
-import { WorkflowEngine } from "@effect/workflow";
-import * as Duration from "effect/Duration";
-import * as Effect from "effect/Effect";
-import * as Exit from "effect/Exit";
-import * as Layer from "effect/Layer";
-import * as O from "effect/Option";
 import {
   ExtractionPipeline,
   ExtractionPipelineConfig,
   ExtractionResult,
   ExtractionResultStats,
-} from "../../src/Extraction/ExtractionPipeline";
-import { KnowledgeGraph, KnowledgeGraphStats } from "../../src/Extraction/GraphAssembler";
-import { ExtractionWorkflow, ExtractionWorkflowLive } from "../../src/Workflow/ExtractionWorkflow";
-import { WorkflowPersistence, type WorkflowPersistenceShape } from "../../src/Workflow/WorkflowPersistence";
-
-type StatusUpdate = {
-  readonly id: string;
-  readonly status: string;
-  readonly updates:
-    | {
-        readonly output?: Record<string, unknown>;
-        readonly error?: string;
-        readonly lastActivityName?: string;
-      }
-    | undefined;
-};
-
-const makePersistence = (statusUpdates: Array<StatusUpdate>): WorkflowPersistenceShape => ({
-  createExecution: () => Effect.void,
-  updateExecutionStatus: (id, status, updates) =>
-    Effect.sync(() => {
-      statusUpdates.push({ id, status, updates });
-    }),
-  getExecution: () => Effect.die("not used"),
-  findLatestBatchExecutionByBatchId: () => Effect.succeed(O.none()),
-  cancelExecution: () => Effect.void,
-  requireBatchExecutionByBatchId: () => Effect.die("not used"),
-});
+  KnowledgeGraph,
+  KnowledgeGraphStats,
+} from "@beep/knowledge-server/Extraction";
+import { ExtractionWorkflow, WorkflowPersistence } from "@beep/knowledge-server/Workflow";
+import { DocumentsEntityIds, KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
+import { assertTrue, describe, effect, strictEqual } from "@beep/testkit";
+import * as Duration from "effect/Duration";
+import * as Effect from "effect/Effect";
+import * as Exit from "effect/Exit";
+import * as Layer from "effect/Layer";
+import * as O from "effect/Option";
+import { makeExtractionWorkflowTestLayer } from "../_shared/LayerBuilders";
+import { makeWorkflowPersistenceShape, type WorkflowStatusUpdate } from "../_shared/ServiceMocks";
 
 const organizationId = SharedEntityIds.OrganizationId.create();
 const documentId = DocumentsEntityIds.DocumentId.create();
@@ -47,7 +24,7 @@ describe("ExtractionWorkflow", () => {
   effect(
     "marks execution failed when pipeline fails",
     (() => {
-      const statusUpdates: Array<StatusUpdate> = [];
+      const statusUpdates: Array<WorkflowStatusUpdate> = [];
 
       const pipelineLayer = Layer.succeed(
         ExtractionPipeline,
@@ -58,7 +35,7 @@ describe("ExtractionWorkflow", () => {
 
       const persistenceLayer = Layer.succeed(
         WorkflowPersistence,
-        WorkflowPersistence.of(makePersistence(statusUpdates))
+        WorkflowPersistence.of(makeWorkflowPersistenceShape(statusUpdates))
       );
 
       return Effect.fn(
@@ -86,10 +63,10 @@ describe("ExtractionWorkflow", () => {
           assertTrue(failedEntries.some((entry) => (entry.updates?.error ?? "").includes("pipeline failed")));
         },
         Effect.provide(
-          Layer.provide(
-            ExtractionWorkflowLive,
-            Layer.mergeAll(persistenceLayer, pipelineLayer, WorkflowEngine.layerMemory)
-          )
+          makeExtractionWorkflowTestLayer({
+            persistenceLayer,
+            pipelineLayer,
+          })
         )
       );
     })()
@@ -98,7 +75,7 @@ describe("ExtractionWorkflow", () => {
   effect(
     "writes completed execution output when pipeline succeeds",
     (() => {
-      const statusUpdates: Array<StatusUpdate> = [];
+      const statusUpdates: Array<WorkflowStatusUpdate> = [];
 
       const pipelineLayer = Layer.succeed(
         ExtractionPipeline,
@@ -146,7 +123,7 @@ describe("ExtractionWorkflow", () => {
 
       const persistenceLayer = Layer.succeed(
         WorkflowPersistence,
-        WorkflowPersistence.of(makePersistence(statusUpdates))
+        WorkflowPersistence.of(makeWorkflowPersistenceShape(statusUpdates))
       );
 
       return Effect.fn(
@@ -170,10 +147,10 @@ describe("ExtractionWorkflow", () => {
           strictEqual(output?.relationCount, 1);
         },
         Effect.provide(
-          Layer.provide(
-            ExtractionWorkflowLive,
-            Layer.mergeAll(persistenceLayer, pipelineLayer, WorkflowEngine.layerMemory)
-          )
+          makeExtractionWorkflowTestLayer({
+            persistenceLayer,
+            pipelineLayer,
+          })
         )
       );
     })()

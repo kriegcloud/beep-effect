@@ -328,6 +328,12 @@ const withDefaultsImpl = Effect.fn("withDefaults")(function* (packageName: `@bee
     serverExternalPackages: [
       ...pipe(config?.serverExternalPackages, O.fromNullable, O.getOrElse(A.empty)),
       "@node-rs/argon2",
+      // Next/Turbopack can bundle `tiktoken` into server chunks, which breaks its
+      // runtime wasm resolution (it expects `tiktoken_bg.wasm` next to the package).
+      // Keeping it external ensures Node loads it from `node_modules/` with the wasm present.
+      "tiktoken",
+      // Depends on `tiktoken/lite` and should remain external for the same reason.
+      "@anthropic-ai/tokenizer",
     ],
     turbopack: pipe(
       config?.turbopack,

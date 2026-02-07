@@ -1,11 +1,13 @@
 import { $KnowledgeServerId } from "@beep/identity/packages";
 import { IRI, Literal, Quad } from "@beep/knowledge-domain/value-objects";
-import type { SharedEntityIds } from "@beep/shared-domain";
+import { BS } from "@beep/schema";
+import { DocumentsEntityIds, KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
+import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import type { KnowledgeGraph } from "../Extraction/GraphAssembler";
 import { RDFS } from "../Ontology/constants";
@@ -21,13 +23,16 @@ const BEEP = {
 
 const toEntityIri = (entityId: string): IRI.Type => IRI.make(`urn:beep:entity:${entityId}`);
 
-const toExtractionGraphIri = (extractionId: string): IRI.Type => IRI.make(`urn:beep:extraction:${extractionId}`);
+const toExtractionGraphIri = (extractionId: KnowledgeEntityIds.ExtractionId.Type): IRI.Type =>
+  IRI.make(`urn:beep:extraction:${extractionId}`);
 
-const toActivityIri = (extractionId: string): IRI.Type => IRI.make(`urn:beep:activity:${extractionId}`);
+const toActivityIri = (extractionId: KnowledgeEntityIds.ExtractionId.Type): IRI.Type =>
+  IRI.make(`urn:beep:activity:${extractionId}`);
 
 const toAgentIri = (userId: SharedEntityIds.UserId.Type): IRI.Type => IRI.make(`urn:beep:user:${userId}`);
 
-const toDocumentIri = (documentId: string): IRI.Type => IRI.make(`urn:beep:document:${documentId}`);
+const toDocumentIri = (documentId: DocumentsEntityIds.DocumentId.Type): IRI.Type =>
+  IRI.make(`urn:beep:document:${documentId}`);
 
 const toAttributePredicate = (raw: string): IRI.Type => {
   const trimmed = Str.trim(raw);
@@ -54,20 +59,20 @@ const dedupeQuads = (quads: ReadonlyArray<Quad>): ReadonlyArray<Quad> => {
   return out;
 };
 
-export interface ProvenanceMetadata {
-  readonly extractionId: string;
-  readonly documentId: string;
-  readonly actorUserId: SharedEntityIds.UserId.Type;
-  readonly startedAt: DateTime.Utc;
-  readonly endedAt: DateTime.Utc;
-}
+export class ProvenanceMetadata extends S.Class<ProvenanceMetadata>($I`ProvenanceMetadata`)({
+  extractionId: KnowledgeEntityIds.ExtractionId,
+  documentId: DocumentsEntityIds.DocumentId,
+  actorUserId: SharedEntityIds.UserId,
+  startedAt: BS.DateTimeUtcFromAllAcceptable,
+  endedAt: BS.DateTimeUtcFromAllAcceptable,
+}) {}
 
-export interface EmittedExtractionTriples {
-  readonly extractionGraphIri: IRI.Type;
-  readonly graphQuads: ReadonlyArray<Quad>;
-  readonly provenanceGraphIri: IRI.Type;
-  readonly provenanceQuads: ReadonlyArray<Quad>;
-}
+export class EmittedExtractionTriples extends S.Class<EmittedExtractionTriples>($I`EmittedExtractionTriples`)({
+  extractionGraphIri: IRI,
+  graphQuads: S.Array(Quad),
+  provenanceGraphIri: IRI,
+  provenanceQuads: S.Array(Quad),
+}) {}
 
 export interface ProvenanceEmitterShape {
   readonly emitExtraction: (
@@ -248,12 +253,12 @@ const serviceEffect: Effect.Effect<ProvenanceEmitterShape> = Effect.succeed(
           );
         }
 
-        return {
+        return new EmittedExtractionTriples({
           extractionGraphIri,
           graphQuads: dedupeQuads(graphQuads),
           provenanceGraphIri: PROVENANCE_GRAPH_IRI,
           provenanceQuads: dedupeQuads(provenanceQuads),
-        };
+        });
       }),
   })
 );

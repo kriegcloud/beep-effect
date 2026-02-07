@@ -5,16 +5,18 @@ import {
   GroundedAnswerGeneratorLive,
 } from "@beep/knowledge-server/GraphRAG/GroundedAnswerGenerator";
 import { CentralRateLimiterService } from "@beep/knowledge-server/LlmControl/RateLimiter";
-import { KnowledgeEntityIds } from "@beep/shared-domain";
 import { assertTrue, describe, effect, strictEqual } from "@beep/testkit";
-import { LanguageModel } from "@effect/ai";
-import type * as Response from "@effect/ai/Response";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
-import * as F from "effect/Function";
 import * as Layer from "effect/Layer";
-import * as Stream from "effect/Stream";
 import * as Str from "effect/String";
+import {
+  graphRagFixtureIds,
+  makeGraphContext,
+  makeGraphContextEntity,
+  makeGraphContextRelation,
+} from "../_shared/GraphFixtures";
+import { withTextLanguageModel } from "../_shared/TestLayers";
 
 const NoopRateLimiterLayer = Layer.succeed(
   CentralRateLimiterService,
@@ -31,54 +33,28 @@ const TestGeneratorLayer = Layer.provide(GroundedAnswerGeneratorLive, NoopRateLi
 
 const TEST_TIMEOUT = 60000;
 
-const testEntityId1 = KnowledgeEntityIds.KnowledgeEntityId.make(
-  "knowledge_entity__11111111-1111-1111-1111-111111111111"
-);
-const testEntityId2 = KnowledgeEntityIds.KnowledgeEntityId.make(
-  "knowledge_entity__22222222-2222-2222-2222-222222222222"
-);
-const testRelationId = KnowledgeEntityIds.RelationId.make("knowledge_relation__33333333-3333-3333-3333-333333333333");
+const testEntityId1 = graphRagFixtureIds.entity1;
+const testEntityId2 = graphRagFixtureIds.entity2;
+const testRelationId = graphRagFixtureIds.relation1;
 
-const createTestContext = (): GraphContext => ({
+const testContext: GraphContext = makeGraphContext({
   entities: [
-    { id: testEntityId1, mention: "Alice", types: ["Person"] },
-    { id: testEntityId2, mention: "Acme Corp", types: ["Organization"] },
+    makeGraphContextEntity({ id: testEntityId1, mention: "Alice", types: ["Person"] }),
+    makeGraphContextEntity({ id: testEntityId2, mention: "Acme Corp", types: ["Organization"] }),
   ],
-  relations: [{ id: testRelationId, subjectId: testEntityId1, predicate: "worksFor", objectId: testEntityId2 }],
+  relations: [
+    makeGraphContextRelation({
+      id: testRelationId,
+      subjectId: testEntityId1,
+      predicate: "worksFor",
+      objectId: testEntityId2,
+    }),
+  ],
 });
 
 const mockResponseWithCitations = `Alice {{entity:${testEntityId1}}} works at Acme Corp {{entity:${testEntityId2}}} as shown by {{relation:${testRelationId}}}.`;
 
 const mockResponseWithoutCitations = "I don't have enough information to answer this question.";
-
-const defaultUsage = { inputTokens: 100, outputTokens: 50, totalTokens: 150 };
-
-const buildTextResponse = (text: string): Array<Response.PartEncoded> => [
-  { type: "text", text },
-  {
-    type: "finish",
-    reason: "stop",
-    usage: defaultUsage,
-  },
-];
-
-const withTextLanguageModel: {
-  (
-    text: string
-  ): <A, E, R>(effect: Effect.Effect<A, E, R>) => Effect.Effect<A, E, Exclude<R, LanguageModel.LanguageModel>>;
-  <A, E, R>(effect: Effect.Effect<A, E, R>, text: string): Effect.Effect<A, E, Exclude<R, LanguageModel.LanguageModel>>;
-} = F.dual(2, <A, E, R>(effect: Effect.Effect<A, E, R>, text: string) => {
-  const makeService = LanguageModel.make({
-    generateText: () => Effect.succeed(buildTextResponse(text)),
-    streamText: () => Stream.empty,
-  });
-
-  return Effect.provideServiceEffect(effect, LanguageModel.LanguageModel, makeService) as Effect.Effect<
-    A,
-    E,
-    Exclude<R, LanguageModel.LanguageModel>
-  >;
-});
 
 describe("GroundedAnswerGenerator", () => {
   describe("generate", () => {
@@ -87,9 +63,8 @@ describe("GroundedAnswerGenerator", () => {
       Effect.fn(
         function* () {
           const generator = yield* GroundedAnswerGenerator;
-          const context = createTestContext();
 
-          const answer = yield* generator.generate(context, "Where does Alice work?");
+          const answer = yield* generator.generate(testContext, "Where does Alice work?");
 
           assertTrue(Str.length(answer.text) > 0);
           assertTrue(!Str.includes("{{")(answer.text));
@@ -109,9 +84,8 @@ describe("GroundedAnswerGenerator", () => {
       Effect.fn(
         function* () {
           const generator = yield* GroundedAnswerGenerator;
-          const context = createTestContext();
 
-          const answer = yield* generator.generate(context, "What is quantum physics?");
+          const answer = yield* generator.generate(testContext, "What is quantum physics?");
 
           assertTrue(Str.length(answer.text) > 0);
 
@@ -129,9 +103,8 @@ describe("GroundedAnswerGenerator", () => {
       Effect.fn(
         function* () {
           const generator = yield* GroundedAnswerGenerator;
-          const context = createTestContext();
 
-          const answer = yield* generator.generate(context, "Test?");
+          const answer = yield* generator.generate(testContext, "Test?");
 
           assertTrue(Str.includes("don't have enough information")(answer.text));
           strictEqual(answer.confidence, 0.0);
@@ -147,7 +120,7 @@ describe("GroundedAnswerGenerator", () => {
       Effect.fn(
         function* () {
           const generator = yield* GroundedAnswerGenerator;
-          const emptyContext: GraphContext = { entities: [], relations: [] };
+          const emptyContext: GraphContext = makeGraphContext();
 
           const answer = yield* generator.generate(emptyContext, "Who is Alice?");
 
@@ -164,9 +137,8 @@ describe("GroundedAnswerGenerator", () => {
       Effect.fn(
         function* () {
           const generator = yield* GroundedAnswerGenerator;
-          const context = createTestContext();
 
-          const answer = yield* generator.generate(context, "Where does Alice work?");
+          const answer = yield* generator.generate(testContext, "Where does Alice work?");
 
           assertTrue(!Str.includes("{{entity:")(answer.text));
           assertTrue(!Str.includes("{{relation:")(answer.text));
@@ -183,9 +155,8 @@ describe("GroundedAnswerGenerator", () => {
       Effect.fn(
         function* () {
           const generator = yield* GroundedAnswerGenerator;
-          const context = createTestContext();
 
-          const answer = yield* generator.generate(context, "Where does Alice work?");
+          const answer = yield* generator.generate(testContext, "Where does Alice work?");
 
           const allEntityIds = A.flatMap(answer.citations, (c) => c.entityIds);
           assertTrue(A.length(allEntityIds) > 0);

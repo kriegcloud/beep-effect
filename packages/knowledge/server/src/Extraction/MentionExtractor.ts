@@ -10,7 +10,8 @@ import * as O from "effect/Option";
 import * as Order from "effect/Order";
 import * as Str from "effect/String";
 import { buildMentionPrompt, buildSystemPrompt } from "../Ai/PromptTemplates";
-import { type LlmResilienceError, withLlmResilience } from "../LlmControl/LlmResilience";
+import { FallbackLanguageModel } from "../LlmControl/FallbackLanguageModel";
+import { type LlmResilienceError, withLlmResilienceWithFallback } from "../LlmControl/LlmResilience";
 import type { TextChunk } from "../Nlp/TextChunk";
 import { ExtractedMention, MentionOutput } from "./schemas/mention-output.schema";
 
@@ -69,9 +70,10 @@ const mapResilienceError = (
   });
 };
 
-const serviceEffect: Effect.Effect<MentionExtractorShape, never, LanguageModel.LanguageModel> = Effect.gen(
-  function* () {
+const serviceEffect: Effect.Effect<MentionExtractorShape, never, LanguageModel.LanguageModel | FallbackLanguageModel> =
+  Effect.gen(function* () {
     const model = yield* LanguageModel.LanguageModel;
+    const fallback = yield* FallbackLanguageModel;
 
     const extractMentionsFromOutput = (
       result: MentionOutput,
@@ -105,12 +107,15 @@ const serviceEffect: Effect.Effect<MentionExtractorShape, never, LanguageModel.L
         Prompt.userMessage({ content: A.make(Prompt.textPart({ text: buildMentionPrompt(chunk.text, chunk.index) })) }),
       ]);
 
-      const result = yield* withLlmResilience(
-        model.generateObject({
-          prompt,
-          schema: MentionOutput,
-          objectName: "MentionOutput",
-        }),
+      const result = yield* withLlmResilienceWithFallback(
+        model,
+        fallback,
+        (llm) =>
+          llm.generateObject({
+            prompt,
+            schema: MentionOutput,
+            objectName: "MentionOutput",
+          }),
         {
           stage: "entity_extraction",
           estimatedTokens: Str.length(chunk.text),
@@ -153,12 +158,15 @@ const serviceEffect: Effect.Effect<MentionExtractorShape, never, LanguageModel.L
           }),
         ]);
 
-        const genResult = yield* withLlmResilience(
-          model.generateObject({
-            prompt,
-            schema: MentionOutput,
-            objectName: "MentionOutput",
-          }),
+        const genResult = yield* withLlmResilienceWithFallback(
+          model,
+          fallback,
+          (llm) =>
+            llm.generateObject({
+              prompt,
+              schema: MentionOutput,
+              objectName: "MentionOutput",
+            }),
           {
             stage: "entity_extraction",
             estimatedTokens: Str.length(chunk.text),
@@ -214,7 +222,6 @@ const serviceEffect: Effect.Effect<MentionExtractorShape, never, LanguageModel.L
       });
 
     return MentionExtractor.of({ extractFromChunk, extractFromChunks, mergeMentions });
-  }
-);
+  });
 
 export const MentionExtractorLive = Layer.effect(MentionExtractor, serviceEffect);

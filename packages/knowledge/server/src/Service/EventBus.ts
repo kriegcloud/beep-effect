@@ -30,8 +30,8 @@ export interface EnqueueJobInput {
   readonly jobId: string;
   readonly jobType: string;
   readonly payload: unknown;
-  readonly attempts?: number;
-  readonly maxAttempts?: number;
+  readonly attempts?: undefined | number;
+  readonly maxAttempts?: undefined | number;
 }
 
 export interface EventBusShape {

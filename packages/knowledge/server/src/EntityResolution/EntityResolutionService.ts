@@ -9,39 +9,51 @@ import * as MutableHashSet from "effect/MutableHashSet";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import type { AssembledEntity, AssembledRelation, KnowledgeGraph } from "../Extraction/GraphAssembler";
-import { CanonicalSelector, type CanonicalSelectorConfig, CanonicalSelectorLive } from "./CanonicalSelector";
-import { type ClusterConfig, type EntityCluster, EntityClusterer, EntityClustererLive } from "./EntityClusterer";
-import { type SameAsLink, SameAsLinker, SameAsLinkerLive } from "./SameAsLinker";
+import { type AssembledEntity, type AssembledRelation, KnowledgeGraph } from "../Extraction/GraphAssembler";
+import { CanonicalSelector, CanonicalSelectorConfig, CanonicalSelectorLive } from "./CanonicalSelector";
+import { ClusterConfig, EntityCluster, EntityClusterer, EntityClustererLive } from "./EntityClusterer";
+import { SameAsLink, SameAsLinker, SameAsLinkerLive } from "./SameAsLinker";
 
 const $I = $KnowledgeServerId.create("EntityResolution/EntityResolutionService");
 
 export type { EntityCluster } from "./EntityClusterer";
+
 export class ResolutionConfig extends S.Class<ResolutionConfig>($I`ResolutionConfig`)(
-  {},
+  {
+    clustering: S.optional(ClusterConfig),
+    canonical: S.optional(CanonicalSelectorConfig),
+  },
   $I.annotations("ResolutionConfig", {
     description: "Resolution configuration",
   })
 ) {}
-export interface ResolutionConfig {
-  readonly clustering?: undefined | ClusterConfig;
-  readonly canonical?: undefined | CanonicalSelectorConfig;
-}
 
-export interface ResolutionResult {
-  readonly graph: KnowledgeGraph;
-  readonly clusters: readonly EntityCluster[];
-  readonly sameAsLinks: readonly SameAsLink[];
-  readonly stats: {
-    readonly originalEntityCount: number;
-    readonly resolvedEntityCount: number;
-    readonly clusterCount: number;
-    readonly sameAsLinkCount: number;
-    readonly averageClusterSize: number;
-    readonly maxClusterSize: number;
-    readonly mergedEntityCount: number;
-  };
-}
+export class ResolutionResultStats extends S.Class<ResolutionResultStats>($I`ResolutionResultStats`)(
+  {
+    originalEntityCount: S.Number,
+    resolvedEntityCount: S.Number,
+    clusterCount: S.Number,
+    sameAsLinkCount: S.Number,
+    averageClusterSize: S.Number,
+    maxClusterSize: S.Number,
+    mergedEntityCount: S.Number,
+  },
+  $I.annotations("ResolutionResultStats", {
+    description: "Resolution result stats",
+  })
+) {}
+
+export class ResolutionResult extends S.Class<ResolutionResult>($I`ResolutionResult`)(
+  {
+    graph: KnowledgeGraph,
+    clusters: S.Array(EntityCluster),
+    sameAsLinks: S.Array(SameAsLink),
+    stats: ResolutionResultStats,
+  },
+  $I.annotations("ResolutionResult", {
+    description: "Resolution result",
+  })
+) {}
 
 const buildResolvedGraph = (
   graphs: readonly KnowledgeGraph[],
@@ -236,7 +248,11 @@ const serviceEffect: Effect.Effect<
         },
       };
 
-      yield* Effect.logInfo("EntityResolutionService.resolve: complete").pipe(Effect.annotateLogs(result.stats));
+      yield* Effect.logInfo("EntityResolutionService.resolve: complete").pipe(
+        Effect.annotateLogs({
+          stats: result.stats,
+        })
+      );
 
       return result;
     }).pipe(

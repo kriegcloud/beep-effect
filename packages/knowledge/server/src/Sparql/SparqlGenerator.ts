@@ -14,7 +14,8 @@ import * as Match from "effect/Match";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import { withLlmResilience } from "../LlmControl/LlmResilience";
+import { FallbackLanguageModel } from "../LlmControl/FallbackLanguageModel";
+import { withLlmResilienceWithFallback } from "../LlmControl/LlmResilience";
 import { buildSparqlGenerationUserPrompt, SPARQL_GENERATION_SYSTEM_PROMPT } from "./SparqlGeneratorPrompt";
 import { SparqlParser, SparqlParserLive } from "./SparqlParser";
 
@@ -58,106 +59,110 @@ const failWriteOperation = (query: string): Unsupported =>
     message: "Only read-only SPARQL query operations are allowed",
   });
 
-const serviceEffect: Effect.Effect<SparqlGeneratorShape, never, LanguageModel.LanguageModel | SparqlParser> =
-  Effect.gen(function* () {
-    const languageModel = yield* LanguageModel.LanguageModel;
-    const parser = yield* SparqlParser;
+const serviceEffect: Effect.Effect<
+  SparqlGeneratorShape,
+  never,
+  LanguageModel.LanguageModel | FallbackLanguageModel | SparqlParser
+> = Effect.gen(function* () {
+  const parser = yield* SparqlParser;
+  const model = yield* LanguageModel.LanguageModel;
+  const fallback = yield* FallbackLanguageModel;
 
-    const generateReadOnlyQuery = (
-      question: string,
-      schemaContext: string
-    ): Effect.Effect<
-      SparqlGenerationResult,
-      SparqlGenerationError | SparqlSyntaxError | SparqlUnsupportedFeatureError
-    > =>
-      Effect.gen(function* () {
-        const errors = A.empty<string>();
+  const generateReadOnlyQuery = (
+    question: string,
+    schemaContext: string
+  ): Effect.Effect<SparqlGenerationResult, SparqlGenerationError | SparqlSyntaxError | SparqlUnsupportedFeatureError> =>
+    Effect.gen(function* () {
+      const errors = A.empty<string>();
 
-        for (let attempt = 1; attempt <= MAX_PARSE_RETRIES; attempt++) {
-          const userPrompt = buildSparqlGenerationUserPrompt({
-            question,
-            schemaContext,
-            attempt,
-            feedback: errors,
-          });
+      for (let attempt = 1; attempt <= MAX_PARSE_RETRIES; attempt++) {
+        const userPrompt = buildSparqlGenerationUserPrompt({
+          question,
+          schemaContext,
+          attempt,
+          feedback: errors,
+        });
 
-          const response = yield* withLlmResilience(
-            languageModel.generateText({
+        const response = yield* withLlmResilienceWithFallback(
+          model,
+          fallback,
+          (llm) =>
+            llm.generateText({
               prompt: Prompt.make([
                 Prompt.systemMessage({ content: SPARQL_GENERATION_SYSTEM_PROMPT }),
                 Prompt.userMessage({ content: A.make(Prompt.textPart({ text: userPrompt })) }),
               ]),
             }),
-            {
-              stage: "grounding",
-              estimatedTokens: Str.length(userPrompt),
-              maxRetries: 1,
-            }
-          ).pipe(
-            Effect.mapError(
-              (cause) =>
-                new SparqlGenerationError({
-                  question,
-                  message: `Failed to generate SPARQL on attempt ${attempt}: ${String(cause)}`,
-                  attempts: attempt,
-                })
-            )
-          );
-
-          const candidate = extractQueryText(response.text);
-          if (WRITE_OPERATION_PATTERN.test(candidate)) {
-            errors.push("Generated query contained a write/update keyword.");
-            continue;
+          {
+            stage: "grounding",
+            estimatedTokens: Str.length(userPrompt),
+            maxRetries: 1,
           }
+        ).pipe(
+          Effect.mapError(
+            (cause) =>
+              new SparqlGenerationError({
+                question,
+                message: `Failed to generate SPARQL on attempt ${attempt}: ${String(cause)}`,
+                attempts: attempt,
+              })
+          )
+        );
 
-          const parsed = yield* parser.parse(candidate).pipe(
-            Effect.asSome,
-            Effect.catchTags({
-              SparqlSyntaxError: (err) => {
-                errors.push(`Syntax error: ${err.message}`);
-                return Effect.succeed(O.none());
-              },
-              SparqlUnsupportedFeatureError: (err) => {
-                errors.push(`Unsupported feature: ${err.message}`);
-                return Effect.succeed(O.none());
-              },
-            })
-          );
-
-          if (O.isNone(parsed)) {
-            continue;
-          }
-
-          if (WRITE_OPERATION_PATTERN.test(parsed.value.query.queryString)) {
-            return yield* failWriteOperation(parsed.value.query.queryString);
-          }
-
-          yield* Match.value(parsed.value.query.queryType).pipe(
-            Match.when("SELECT", () => Effect.void),
-            Match.when("ASK", () => Effect.void),
-            Match.when("CONSTRUCT", () => Effect.void),
-            Match.when("DESCRIBE", () => Effect.void),
-            Match.orElse(() => Effect.fail(failWriteOperation(parsed.value.query.queryString)))
-          );
-
-          return {
-            query: parsed.value.query.queryString,
-            attempts: attempt,
-          };
+        const candidate = extractQueryText(response.text);
+        if (WRITE_OPERATION_PATTERN.test(candidate)) {
+          errors.push("Generated query contained a write/update keyword.");
+          continue;
         }
 
-        return yield* new SparqlGenerationError({
-          question,
-          message: `Failed to generate parsable read-only SPARQL after ${MAX_PARSE_RETRIES} attempts`,
-          attempts: MAX_PARSE_RETRIES,
-        });
-      }).pipe(
-        Effect.withSpan("SparqlGenerator.generateReadOnlyQuery", {
-          attributes: { questionLength: Str.length(question) },
-        })
-      );
+        const parsed = yield* parser.parse(candidate).pipe(
+          Effect.asSome,
+          Effect.catchTags({
+            SparqlSyntaxError: (err) => {
+              errors.push(`Syntax error: ${err.message}`);
+              return Effect.succeed(O.none());
+            },
+            SparqlUnsupportedFeatureError: (err) => {
+              errors.push(`Unsupported feature: ${err.message}`);
+              return Effect.succeed(O.none());
+            },
+          })
+        );
 
-    return SparqlGenerator.of({ generateReadOnlyQuery });
-  });
+        if (O.isNone(parsed)) {
+          continue;
+        }
+
+        if (WRITE_OPERATION_PATTERN.test(parsed.value.query.queryString)) {
+          return yield* failWriteOperation(parsed.value.query.queryString);
+        }
+
+        yield* Match.value(parsed.value.query.queryType).pipe(
+          Match.when("SELECT", () => Effect.void),
+          Match.when("ASK", () => Effect.void),
+          Match.when("CONSTRUCT", () => Effect.void),
+          Match.when("DESCRIBE", () => Effect.void),
+          Match.orElse(() => Effect.fail(failWriteOperation(parsed.value.query.queryString)))
+        );
+
+        return {
+          query: parsed.value.query.queryString,
+          attempts: attempt,
+        };
+      }
+
+      return yield* new SparqlGenerationError({
+        question,
+        message: `Failed to generate parsable read-only SPARQL after ${MAX_PARSE_RETRIES} attempts`,
+        attempts: MAX_PARSE_RETRIES,
+      });
+    }).pipe(
+      Effect.withSpan("SparqlGenerator.generateReadOnlyQuery", {
+        attributes: { questionLength: Str.length(question) },
+      })
+    );
+
+  return SparqlGenerator.of({ generateReadOnlyQuery });
+});
 
 export const SparqlGeneratorLive = Layer.effect(SparqlGenerator, serviceEffect).pipe(Layer.provide(SparqlParserLive));

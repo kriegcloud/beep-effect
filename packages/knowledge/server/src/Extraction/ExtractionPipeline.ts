@@ -23,6 +23,8 @@ import * as Str from "effect/String";
 import { ChunkingConfig, defaultChunkingConfig, NlpService, type TextChunk } from "../Nlp";
 import { OntologyService } from "../Ontology";
 import { ProvenanceEmitter, ProvenanceEmitterLive, RdfStore, RdfStoreLive } from "../Rdf";
+import { ProvenanceMetadata } from "../Rdf/ProvenanceEmitter";
+import { ClassifyInput, DocumentClassifier, DocumentClassifierLive } from "../Service/DocumentClassifier";
 import { EntityExtractor, EntityExtractorLive } from "./EntityExtractor";
 import { GraphAssembler, GraphAssemblerLive, KnowledgeGraph } from "./GraphAssembler";
 import { type MentionExtractionResult, MentionExtractor, MentionExtractorLive } from "./MentionExtractor";
@@ -101,6 +103,7 @@ const serviceEffect: Effect.Effect<
   | OntologyService
   | RdfStore
   | ProvenanceEmitter
+  | DocumentClassifier
   | AuthContext
 > = Effect.gen(function* () {
   const nlp = yield* NlpService;
@@ -112,6 +115,7 @@ const serviceEffect: Effect.Effect<
   const rdfStore = yield* RdfStore;
   const provenanceEmitter = yield* ProvenanceEmitter;
   const maybeClusterer = yield* Effect.serviceOption(IncrementalClusterer);
+  const maybeClassifier = yield* Effect.serviceOption(DocumentClassifier);
 
   const authCtx = yield* AuthContext;
   const run = Effect.fnUntraced(
@@ -124,6 +128,34 @@ const serviceEffect: Effect.Effect<
       yield* Effect.logInfo("Starting extraction pipeline", {
         documentId: config.documentId,
         textLength: Str.length(text),
+      });
+
+      yield* O.match(maybeClassifier, {
+        onNone: () => Effect.void,
+        onSome: (classifier) =>
+          classifier
+            .classify(
+              new ClassifyInput({
+                preview: text.slice(0, 4000),
+              })
+            )
+            .pipe(
+              Effect.tap((classification) =>
+                Effect.logInfo("Document classified").pipe(
+                  Effect.annotateLogs({
+                    documentType: classification.documentType,
+                    domainTags: classification.domainTags,
+                    complexityScore: classification.complexityScore,
+                    entityDensity: classification.entityDensity,
+                  })
+                )
+              ),
+              Effect.catchAll((error) =>
+                Effect.logWarning("Document classification failed, continuing without classification").pipe(
+                  Effect.annotateLogs({ error: error.message })
+                )
+              )
+            ),
       });
 
       yield* Effect.logDebug("Loading ontology");
@@ -232,13 +264,16 @@ const serviceEffect: Effect.Effect<
       const endTime = yield* DateTime.now;
       const durationMs = Duration.millis(DateTime.distance(startTime, endTime));
 
-      const emitted = yield* provenanceEmitter.emitExtraction(graph, {
-        extractionId,
-        documentId: config.documentId,
-        actorUserId: authCtx.session.userId,
-        startedAt: startTime,
-        endedAt: endTime,
-      });
+      const emitted = yield* provenanceEmitter.emitExtraction(
+        graph,
+        new ProvenanceMetadata({
+          extractionId,
+          documentId: config.documentId,
+          actorUserId: authCtx.session.userId,
+          startedAt: startTime,
+          endedAt: endTime,
+        })
+      );
 
       yield* rdfStore.createGraph(emitted.extractionGraphIri);
       yield* rdfStore.createGraph(emitted.provenanceGraphIri);
@@ -279,6 +314,7 @@ export const ExtractionPipelineLive = Layer.effect(ExtractionPipeline, serviceEf
   Layer.provide(RelationExtractorLive),
   Layer.provide(GraphAssemblerLive),
   Layer.provide(ProvenanceEmitterLive),
+  Layer.provide(DocumentClassifierLive),
   Layer.provide(RdfStoreLive)
 );
 

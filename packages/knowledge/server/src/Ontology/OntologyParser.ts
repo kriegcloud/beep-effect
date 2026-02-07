@@ -1,6 +1,6 @@
 import { $KnowledgeServerId } from "@beep/identity/packages";
 import { OntologyParseError } from "@beep/knowledge-domain/errors";
-import { thunkEmptyStr } from "@beep/utils";
+import { thunkEmptyStr, thunkFalse } from "@beep/utils";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
@@ -10,61 +10,79 @@ import * as MutableHashMap from "effect/MutableHashMap";
 import * as MutableHashSet from "effect/MutableHashSet";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
+import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import * as N3 from "n3";
 import { extractLocalName, OWL, RDF, RDFS, SKOS } from "./constants";
 
 const $I = $KnowledgeServerId.create("Ontology/OntologyParser");
 
-export interface ParsedClassDefinition {
-  readonly iri: string;
-  readonly label: string;
-  readonly localName: string;
-  readonly comment: O.Option<string>;
-  readonly properties: ReadonlyArray<string>;
-  readonly prefLabels: ReadonlyArray<string>;
-  readonly altLabels: ReadonlyArray<string>;
-  readonly hiddenLabels: ReadonlyArray<string>;
-  readonly definition: O.Option<string>;
-  readonly scopeNote: O.Option<string>;
-  readonly example: O.Option<string>;
-  readonly broader: ReadonlyArray<string>;
-  readonly narrower: ReadonlyArray<string>;
-  readonly related: ReadonlyArray<string>;
-  readonly equivalentClass: ReadonlyArray<string>;
-  readonly exactMatch: ReadonlyArray<string>;
-  readonly closeMatch: ReadonlyArray<string>;
-}
+const EmptyStringArray = (): ReadonlyArray<string> => [];
+const EmptyClassArray = (): ReadonlyArray<ParsedClassDefinition> => [];
+const EmptyPropertyArray = (): ReadonlyArray<ParsedPropertyDefinition> => [];
 
-export interface ParsedPropertyDefinition {
-  readonly iri: string;
-  readonly label: string;
-  readonly localName: string;
-  readonly comment: O.Option<string>;
-  readonly domain: ReadonlyArray<string>;
-  readonly range: ReadonlyArray<string>;
-  readonly rangeType: "object" | "datatype";
-  readonly isFunctional: boolean;
-  readonly inverseOf: ReadonlyArray<string>;
-  readonly prefLabels: ReadonlyArray<string>;
-  readonly altLabels: ReadonlyArray<string>;
-  readonly hiddenLabels: ReadonlyArray<string>;
-  readonly definition: O.Option<string>;
-  readonly scopeNote: O.Option<string>;
-  readonly example: O.Option<string>;
-  readonly broader: ReadonlyArray<string>;
-  readonly narrower: ReadonlyArray<string>;
-  readonly related: ReadonlyArray<string>;
-  readonly exactMatch: ReadonlyArray<string>;
-  readonly closeMatch: ReadonlyArray<string>;
-}
+export class ParsedClassDefinition extends S.Class<ParsedClassDefinition>($I`ParsedClassDefinition`)({
+  iri: S.String,
+  label: S.String,
+  localName: S.String,
 
-export interface ParsedOntology {
-  readonly classes: ReadonlyArray<ParsedClassDefinition>;
-  readonly properties: ReadonlyArray<ParsedPropertyDefinition>;
-  readonly classHierarchy: Record<string, ReadonlyArray<string>>;
-  readonly propertyHierarchy: Record<string, ReadonlyArray<string>>;
-}
+  comment: S.optionalWith(S.OptionFromUndefinedOr(S.String), { default: O.none<string> }),
+
+  properties: S.optionalWith(S.Array(S.String), { default: EmptyStringArray }),
+  prefLabels: S.optionalWith(S.Array(S.String), { default: EmptyStringArray }),
+  altLabels: S.optionalWith(S.Array(S.String), { default: EmptyStringArray }),
+  hiddenLabels: S.optionalWith(S.Array(S.String), { default: EmptyStringArray }),
+
+  definition: S.optionalWith(S.OptionFromUndefinedOr(S.String), { default: O.none<string> }),
+  scopeNote: S.optionalWith(S.OptionFromUndefinedOr(S.String), { default: O.none<string> }),
+  example: S.optionalWith(S.OptionFromUndefinedOr(S.String), { default: O.none<string> }),
+
+  broader: S.optionalWith(S.Array(S.String), { default: EmptyStringArray }),
+  narrower: S.optionalWith(S.Array(S.String), { default: EmptyStringArray }),
+  related: S.optionalWith(S.Array(S.String), { default: EmptyStringArray }),
+
+  equivalentClass: S.optionalWith(S.Array(S.String), { default: EmptyStringArray }),
+  exactMatch: S.optionalWith(S.Array(S.String), { default: EmptyStringArray }),
+  closeMatch: S.optionalWith(S.Array(S.String), { default: EmptyStringArray }),
+}) {}
+
+export class ParsedPropertyDefinition extends S.Class<ParsedPropertyDefinition>($I`ParsedPropertyDefinition`)({
+  iri: S.String,
+  label: S.String,
+  localName: S.String,
+
+  comment: S.optionalWith(S.OptionFromUndefinedOr(S.String), { default: O.none<string> }),
+
+  domain: S.optionalWith(S.Array(S.String), { default: EmptyStringArray }),
+  range: S.optionalWith(S.Array(S.String), { default: EmptyStringArray }),
+  rangeType: S.Literal("object", "datatype"),
+  isFunctional: S.optionalWith(S.Boolean, { default: thunkFalse }),
+  inverseOf: S.optionalWith(S.Array(S.String), { default: EmptyStringArray }),
+
+  prefLabels: S.optionalWith(S.Array(S.String), { default: EmptyStringArray }),
+  altLabels: S.optionalWith(S.Array(S.String), { default: EmptyStringArray }),
+  hiddenLabels: S.optionalWith(S.Array(S.String), { default: EmptyStringArray }),
+
+  definition: S.optionalWith(S.OptionFromUndefinedOr(S.String), { default: O.none<string> }),
+  scopeNote: S.optionalWith(S.OptionFromUndefinedOr(S.String), { default: O.none<string> }),
+  example: S.optionalWith(S.OptionFromUndefinedOr(S.String), { default: O.none<string> }),
+
+  broader: S.optionalWith(S.Array(S.String), { default: EmptyStringArray }),
+  narrower: S.optionalWith(S.Array(S.String), { default: EmptyStringArray }),
+  related: S.optionalWith(S.Array(S.String), { default: EmptyStringArray }),
+
+  exactMatch: S.optionalWith(S.Array(S.String), { default: EmptyStringArray }),
+  closeMatch: S.optionalWith(S.Array(S.String), { default: EmptyStringArray }),
+}) {}
+
+const HierarchySchema = S.Record({ key: S.String, value: S.Array(S.String) });
+
+export class ParsedOntology extends S.Class<ParsedOntology>($I`ParsedOntology`)({
+  classes: S.optionalWith(S.Array(ParsedClassDefinition), { default: EmptyClassArray }),
+  properties: S.optionalWith(S.Array(ParsedPropertyDefinition), { default: EmptyPropertyArray }),
+  classHierarchy: S.optionalWith(HierarchySchema, { default: R.empty<string, Array<string>> }),
+  propertyHierarchy: S.optionalWith(HierarchySchema, { default: R.empty<string, Array<string>> }),
+}) {}
 
 const collectN3Subjects = (
   store: N3.Store,
@@ -132,25 +150,27 @@ const buildClassDef = (
 
   if (!label) return O.none();
 
-  return O.some({
-    iri,
-    label,
-    localName: extractLocalName(iri),
-    comment: getFirstValue(metadata.comments, iri),
-    properties: O.getOrElse(MutableHashMap.get(metadata.classProperties, iri), A.empty<string>),
-    prefLabels: getAllValues(metadata.prefLabels, iri),
-    altLabels: getAllValues(metadata.altLabels, iri),
-    hiddenLabels: getAllValues(metadata.hiddenLabels, iri),
-    definition: getFirstValue(metadata.definitions, iri),
-    scopeNote: getFirstValue(metadata.scopeNotes, iri),
-    example: getFirstValue(metadata.examples, iri),
-    broader: A.appendAll(getAllValues(metadata.broaders, iri), getAllValues(metadata.subClassOf, iri)),
-    narrower: getAllValues(metadata.narrowers, iri),
-    related: getAllValues(metadata.relateds, iri),
-    equivalentClass: getAllValues(metadata.equivalentClasses, iri),
-    exactMatch: getAllValues(metadata.exactMatches, iri),
-    closeMatch: getAllValues(metadata.closeMatches, iri),
-  });
+  return O.some(
+    new ParsedClassDefinition({
+      iri,
+      label,
+      localName: extractLocalName(iri),
+      comment: getFirstValue(metadata.comments, iri),
+      properties: O.getOrElse(MutableHashMap.get(metadata.classProperties, iri), A.empty<string>),
+      prefLabels: getAllValues(metadata.prefLabels, iri),
+      altLabels: getAllValues(metadata.altLabels, iri),
+      hiddenLabels: getAllValues(metadata.hiddenLabels, iri),
+      definition: getFirstValue(metadata.definitions, iri),
+      scopeNote: getFirstValue(metadata.scopeNotes, iri),
+      example: getFirstValue(metadata.examples, iri),
+      broader: A.appendAll(getAllValues(metadata.broaders, iri), getAllValues(metadata.subClassOf, iri)),
+      narrower: getAllValues(metadata.narrowers, iri),
+      related: getAllValues(metadata.relateds, iri),
+      equivalentClass: getAllValues(metadata.equivalentClasses, iri),
+      exactMatch: getAllValues(metadata.exactMatches, iri),
+      closeMatch: getAllValues(metadata.closeMatches, iri),
+    })
+  );
 };
 
 const buildPropertyDef = (
@@ -183,28 +203,30 @@ const buildPropertyDef = (
 
   if (!label) return O.none();
 
-  return O.some({
-    iri,
-    label,
-    localName: extractLocalName(iri),
-    comment: getFirstValue(metadata.comments, iri),
-    domain: getAllValues(metadata.domains, iri),
-    range: getAllValues(metadata.ranges, iri),
-    rangeType,
-    isFunctional: MutableHashSet.has(metadata.functionalPropertyIris, iri),
-    inverseOf: getAllValues(metadata.inverseOfs, iri),
-    prefLabels: getAllValues(metadata.prefLabels, iri),
-    altLabels: getAllValues(metadata.altLabels, iri),
-    hiddenLabels: getAllValues(metadata.hiddenLabels, iri),
-    definition: getFirstValue(metadata.definitions, iri),
-    scopeNote: getFirstValue(metadata.scopeNotes, iri),
-    example: getFirstValue(metadata.examples, iri),
-    broader: A.appendAll(getAllValues(metadata.broaders, iri), getAllValues(metadata.subPropertyOf, iri)),
-    narrower: getAllValues(metadata.narrowers, iri),
-    related: getAllValues(metadata.relateds, iri),
-    exactMatch: getAllValues(metadata.exactMatches, iri),
-    closeMatch: getAllValues(metadata.closeMatches, iri),
-  });
+  return O.some(
+    new ParsedPropertyDefinition({
+      iri,
+      label,
+      localName: extractLocalName(iri),
+      comment: getFirstValue(metadata.comments, iri),
+      domain: getAllValues(metadata.domains, iri),
+      range: getAllValues(metadata.ranges, iri),
+      rangeType,
+      isFunctional: MutableHashSet.has(metadata.functionalPropertyIris, iri),
+      inverseOf: getAllValues(metadata.inverseOfs, iri),
+      prefLabels: getAllValues(metadata.prefLabels, iri),
+      altLabels: getAllValues(metadata.altLabels, iri),
+      hiddenLabels: getAllValues(metadata.hiddenLabels, iri),
+      definition: getFirstValue(metadata.definitions, iri),
+      scopeNote: getFirstValue(metadata.scopeNotes, iri),
+      example: getFirstValue(metadata.examples, iri),
+      broader: A.appendAll(getAllValues(metadata.broaders, iri), getAllValues(metadata.subPropertyOf, iri)),
+      narrower: getAllValues(metadata.narrowers, iri),
+      related: getAllValues(metadata.relateds, iri),
+      exactMatch: getAllValues(metadata.exactMatches, iri),
+      closeMatch: getAllValues(metadata.closeMatches, iri),
+    })
+  );
 };
 
 export interface OntologyParserShape {
@@ -348,12 +370,12 @@ const serviceEffect: Effect.Effect<OntologyParserShape> = Effect.gen(function* (
 
     const properties = A.appendAll(objectProps, datatypeProps);
 
-    return {
+    return new ParsedOntology({
       classes,
       properties,
       classHierarchy,
       propertyHierarchy,
-    };
+    });
   };
 
   return OntologyParser.of({

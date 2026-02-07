@@ -1,50 +1,51 @@
 import { $KnowledgeServerId } from "@beep/identity/packages";
+import { Confidence } from "@beep/knowledge-domain/value-objects";
+import { KnowledgeEntityIds } from "@beep/shared-domain";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Num from "effect/Number";
 import * as O from "effect/Option";
+import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import type { Citation, ReasoningTrace } from "./AnswerSchemas";
+import { Citation, ReasoningTrace } from "./AnswerSchemas";
 
 const $I = $KnowledgeServerId.create("GraphRAG/ConfidenceScorer");
+export class EntityValidationResult extends S.Class<EntityValidationResult>($I`EntityValidationResult`)({
+  entityId: KnowledgeEntityIds.KnowledgeEntityId,
+  found: S.Boolean,
+  confidence: Confidence,
+}) {}
 
-export interface EntityValidationResult {
-  readonly entityId: string;
-  readonly found: boolean;
-  readonly confidence: number;
-}
+export class RelationValidationResult extends S.Class<RelationValidationResult>($I`RelationValidationResult`)({
+  relationId: KnowledgeEntityIds.RelationId,
+  found: S.Boolean,
+  isInferred: S.Boolean,
+  confidence: Confidence,
+  reasoningTrace: S.optional(ReasoningTrace),
+}) {}
 
-export interface RelationValidationResult {
-  readonly relationId: string;
-  readonly found: boolean;
-  readonly isInferred: boolean;
-  readonly confidence: number;
-  readonly reasoningTrace?: undefined | ReasoningTrace;
-}
+export class CitationValidationResult extends S.Class<CitationValidationResult>($I`CitationValidationResult`)({
+  citation: Citation,
+  entityResults: S.Array(EntityValidationResult),
+  relationResult: S.optional(RelationValidationResult),
+  overallConfidence: Confidence,
+}) {}
+export class ScoredCitation extends S.Class<ScoredCitation>($I`ScoredCitation`)({
+  citation: Citation,
+  validationResult: CitationValidationResult,
+  finalConfidence: Confidence,
+  isGrounded: S.Boolean,
+  shouldExclude: S.Boolean,
+}) {}
 
-export interface CitationValidationResult {
-  readonly citation: Citation;
-  readonly entityResults: ReadonlyArray<EntityValidationResult>;
-  readonly relationResult?: undefined | RelationValidationResult;
-  readonly overallConfidence: number;
-}
-
-export interface ScoredCitation {
-  readonly citation: Citation;
-  readonly validationResult: CitationValidationResult;
-  readonly finalConfidence: number;
-  readonly isGrounded: boolean;
-  readonly shouldExclude: boolean;
-}
-
-export interface ScoredAnswer {
-  readonly text: string;
-  readonly citations: ReadonlyArray<ScoredCitation>;
-  readonly overallConfidence: number;
-  readonly groundedRatio: number;
-}
+export class ScoredAnswer extends S.Class<ScoredAnswer>($I`ScoredAnswer`)({
+  text: S.String,
+  citations: S.Array(ScoredCitation),
+  overallConfidence: Confidence,
+  groundedRatio: S.Number,
+}) {}
 
 export const GROUNDED_THRESHOLD = 0.5;
 

@@ -29,6 +29,7 @@ You will receive:
 "Order": FLOAT -- sort position (1.0, 2.0, 3.0, ...)
 "Notes": TEXT -- what changed and what to observe
 "Reference": JSON array of Web Reference page URLs
+"Screenshot URL": URL -- public S3 URL of the screenshot for this state
 ```
 
 ## Notion API Constraints
@@ -95,7 +96,51 @@ This agent:
 
 **Key rule**: Use Playwright for everything EXCEPT GIF recording. For GIF pages, open a second browser instance in Chrome, navigate there, and use `gif_creator`.
 
+## S3 Asset Storage
+
+All screenshots and GIFs captured by State Capturer must be uploaded to S3 for access in Notion and downstream reports.
+
+**Bucket**: `static.vaultctx.com` (fronted by CloudFront)
+
+**Folder structure**:
+```
+notion/
+  open-ontology/          # App name
+    {page-name-lower}/    # e.g., "stats", "schema", "explore"
+      screenshots/        # State Capturer static screenshots
+      gifs/               # State Capturer animated GIFs
+```
+
+**Upload commands**:
+
+Screenshots:
+```bash
+aws s3 cp {local_file} s3://static.vaultctx.com/notion/open-ontology/{PAGE_NAME_LOWER}/screenshots/{filename} --content-type image/png --region us-east-1
+```
+
+GIFs:
+```bash
+aws s3 cp {local_file} s3://static.vaultctx.com/notion/open-ontology/{PAGE_NAME_LOWER}/gifs/{filename} --content-type image/gif --region us-east-1
+```
+
+**Public URL patterns**:
+```
+https://static.vaultctx.com/notion/open-ontology/{PAGE_NAME_LOWER}/screenshots/{filename}
+https://static.vaultctx.com/notion/open-ontology/{PAGE_NAME_LOWER}/gifs/{filename}
+```
+
+**Workflow**:
+1. After capturing each screenshot or recording each GIF, upload it to S3 using the Bash tool with the appropriate command above
+2. Record the public S3 URL in your output report
+3. Use descriptive filenames:
+   - Screenshots: `{page-name}-{component}-{state}.png` (e.g., `stats-layout-dropdown-open.png`)
+   - GIFs: `{page-name}-{component}-{action}.gif` (e.g., `stats-layout-dropdown-selection.gif`)
+
+**Important**: Screenshots and GIFs saved only to local disk are NOT accessible in Notion. All assets must be uploaded to S3.
+
 ## Procedure
+
+> **Asset Upload**: After taking each screenshot or recording each GIF, upload it to S3 using the commands in "S3 Asset Storage" above. Record the public URL in your output report. Screenshots saved only to disk are NOT accessible in Notion.
 
 ### Step 1: Navigate & Verify (Playwright)
 
@@ -115,14 +160,16 @@ This agent:
 ### Step 2: Capture Default Full-Page State (Playwright)
 
 1. Take a full viewport screenshot with `playwright_screenshot` (no selector)
-2. Take element-level screenshots of major sections:
+2. Upload the screenshot to S3 and record the public URL
+3. Take element-level screenshots of major sections:
    - `playwright_screenshot` with `selector: "main"` -- main content
    - `playwright_screenshot` with `selector: "aside"` -- sidebar (if present)
-3. Create a Page States entry:
+4. Create a Page States entry:
    - State: "{PAGE_NAME} -- Default"
    - State type: "Default"
    - Order: 1.0
    - Reference: [NOTION_ENTRY_URL]
+   - Screenshot URL: the public S3 URL of the screenshot uploaded for this state
 
 ### Step 3: Systematic Component State Capture (Playwright)
 
@@ -269,8 +316,9 @@ For each:
 1. Trigger the state change using Playwright
 2. Wait: `playwright_evaluate` with `await new Promise(r => setTimeout(r, 1500))`
 3. Screenshot the full page with `playwright_screenshot` (no selector)
-4. Create a Page States entry with appropriate metadata
-5. Reset to default state before proceeding
+4. Upload the screenshot to S3 and record the public URL
+5. Create a Page States entry with appropriate metadata, including the Screenshot URL field set to the S3 public URL
+6. Reset to default state before proceeding
 
 ### Step 5: Record Key GIFs (Chrome Extension)
 
@@ -334,10 +382,10 @@ Produce a state capture report:
 
 ## Page States Created
 
-| # | State Name | Type | Variant Kind | Notes |
-|---|-----------|------|-------------|-------|
-| 1 | ... | Default | -- | ... |
-| 2 | ... | Variant | Dark mode | ... |
+| # | State Name | Type | Variant Kind | Screenshot URL | Notes |
+|---|-----------|------|-------------|----------------|-------|
+| 1 | ... | Default | -- | {S3 URL} | ... |
+| 2 | ... | Variant | Dark mode | {S3 URL} | ... |
 
 ## Issues & Recommendations
 - {What didn't work}

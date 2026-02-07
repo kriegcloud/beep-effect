@@ -45,6 +45,43 @@ These constraints were discovered during dry-run testing. Violating them causes 
 - **Standard markdown tables render correctly** as native Notion tables — no special syntax needed
 - **Inline database appears at bottom of page content**. If you need it between sections, write content in stages.
 
+## S3-Hosted Images
+
+All screenshots and GIFs captured by upstream agents (Page Scout, State Capturer) are hosted on S3/CloudFront for public access in Notion.
+
+**Public URL base**: `https://static.vaultctx.com/notion/open-ontology/{page-name-lower}/`
+
+**Subfolder patterns**:
+- `scout/` — Page Scout element screenshots
+- `screenshots/` — State Capturer static screenshots
+- `gifs/` — State Capturer animated GIFs
+
+**Embedding images in Notion**:
+
+When writing page content, you can embed S3-hosted images using standard markdown image syntax:
+
+```markdown
+![Stats Default View](https://static.vaultctx.com/notion/open-ontology/stats/screenshots/stats-default.png)
+```
+
+Notion will automatically convert this to a native image block.
+
+**Usage guidelines**:
+1. When writing the **Overview** or **Layout** sections, include relevant screenshots from the Page Scout report's S3 URLs to illustrate key page areas
+2. In the **Feature Mapping** table, you can reference specific component screenshots in the Notes column for visual clarity
+3. When creating the **Component Inventory**, if screenshots exist for a component (check the State Capturer report), the Notes field can reference the public S3 URL for that component's states
+
+**Example**:
+```markdown
+## Overview
+
+The Stats Dashboard provides a comprehensive view of ontology metrics and entity distribution.
+
+![Stats Default View](https://static.vaultctx.com/notion/open-ontology/stats/screenshots/stats-default.png)
+
+The interface presents three main visualization types...
+```
+
 ## Tools
 
 - `mcp__plugin_Notion_notion__notion-create-pages` — create the entry
@@ -131,23 +168,25 @@ Priority guide:
 
 ```
 Component (title), Type (select), Section (select), Label (text),
-Interaction (select), TodoX Mapping (text), Priority (select), Notes (text)
+Interaction (select), TodoX Mapping (text), Priority (select), Screenshot URL (url), Notes (text)
 ```
 
 - **Remember**: Select option names CANNOT contain commas. Use slashes or semicolons.
 - Populate all component entries in a single batch call to `notion-create-pages` (up to 100 per call)
+- When populating component entries, if a screenshot exists for that component (from the State Capturer's output or Page Scout's scout screenshots), set the `Screenshot URL` property to the public S3 URL
 
 **Option B (fallback):** If inline DB creation fails, append a markdown table to page content:
 ```markdown
 ## Component Inventory
 
-| Component | Type | Description | Interactions | Options/Values | Default | TodoX Mapping | Priority | Notes |
-|---|---|---|---|---|---|---|---|---|
+| Component | Type | Description | Interactions | Options/Values | Default | TodoX Mapping | Priority | Screenshot URL | Notes |
+|---|---|---|---|---|---|---|---|---|---|
 ```
 
 Populate from the scout report's component inventory, enriching each entry with:
 - TodoX mapping (which package/component)
 - Priority assessment
+- Screenshot URL (if available from Page Scout or State Capturer)
 - Implementation notes (brief, 5-15 words per entry)
 
 ### Step 4: Verify

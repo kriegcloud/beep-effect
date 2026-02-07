@@ -1,3 +1,4 @@
+import { $KnowledgeDomainId } from "@beep/identity/packages";
 import { thunkEmptyStr } from "@beep/utils";
 import * as A from "effect/Array";
 import * as F from "effect/Function";
@@ -6,32 +7,40 @@ import * as O from "effect/Option";
 import * as Order from "effect/Order";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
+import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { extractLocalName } from "../Ontology/constants";
 
-export interface GraphContextEntity {
-  readonly id: string;
-  readonly mention: string;
-  readonly types: ReadonlyArray<string>;
-  readonly attributes?: undefined | Readonly<Record<string, string>>;
-}
+const $I = $KnowledgeDomainId.create("knowledge-domain/GraphRAG/PromptTemplates");
 
-export interface GraphContextRelation {
-  readonly id: string;
-  readonly subjectId: string;
-  readonly predicate: string;
-  readonly objectId: string;
-}
+export class GraphContextEntity extends S.Class<GraphContextEntity>($I`GraphContextEntity`)({
+  id: S.String,
+  mention: S.String,
+  types: S.Array(S.String),
+  attributes: S.optional(
+    S.Record({
+      key: S.String,
+      value: S.String,
+    })
+  ),
+}) {}
 
-export interface GraphContext {
-  readonly entities: ReadonlyArray<GraphContextEntity>;
-  readonly relations: ReadonlyArray<GraphContextRelation>;
-}
+export class GraphContextRelation extends S.Class<GraphContextRelation>($I`GraphContextRelation`)({
+  id: S.String,
+  subjectId: S.String,
+  predicate: S.String,
+  objectId: S.String,
+}) {}
 
-export interface PromptParts {
-  readonly system: string;
-  readonly user: string;
-}
+export class GraphContext extends S.Class<GraphContext>($I`GraphContext`)({
+  entities: S.Array(GraphContextEntity),
+  relations: S.Array(GraphContextRelation),
+}) {}
+
+export class PromptParts extends S.Class<PromptParts>($I`PromptParts`)({
+  system: S.String,
+  user: S.String,
+}) {}
 
 export const GROUNDED_ANSWER_SYSTEM_PROMPT =
   `You are a knowledge assistant that answers questions using ONLY the provided context.

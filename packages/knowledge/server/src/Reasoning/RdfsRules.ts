@@ -1,19 +1,23 @@
+import { $KnowledgeServerId } from "@beep/identity/packages";
 import { type BlankNode, IRI, Literal, Quad } from "@beep/knowledge-domain/value-objects";
 import * as A from "effect/Array";
 import * as F from "effect/Function";
 import * as O from "effect/Option";
+import * as S from "effect/Schema";
+
+const $I = $KnowledgeServerId.create("Reasoning/RdfsRules");
+
+export class RuleInference extends S.Class<RuleInference>($I`RuleInference`)({
+  quad: Quad,
+  ruleId: S.String,
+  sourceQuadIds: S.Array(S.String),
+}) {}
 
 const RDF_TYPE = IRI.make("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
 const RDFS_DOMAIN = IRI.make("http://www.w3.org/2000/01/rdf-schema#domain");
 const RDFS_RANGE = IRI.make("http://www.w3.org/2000/01/rdf-schema#range");
 const RDFS_SUBCLASS_OF = IRI.make("http://www.w3.org/2000/01/rdf-schema#subClassOf");
 const RDFS_SUBPROPERTY_OF = IRI.make("http://www.w3.org/2000/01/rdf-schema#subPropertyOf");
-
-export interface RuleInference {
-  readonly quad: Quad;
-  readonly ruleId: string;
-  readonly sourceQuadIds: ReadonlyArray<string>;
-}
 
 export interface Rule {
   readonly id: string;

@@ -1,40 +1,46 @@
 import { $KnowledgeServerId } from "@beep/identity/packages";
 import type { MaxDepthExceededError, MaxInferencesExceededError } from "@beep/knowledge-domain/errors";
-import type { Quad } from "@beep/knowledge-domain/value-objects";
-import type { KnowledgeEntityIds } from "@beep/shared-domain";
+import { Confidence, type Quad } from "@beep/knowledge-domain/value-objects";
+import { KnowledgeEntityIds } from "@beep/shared-domain";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Num from "effect/Number";
 import * as O from "effect/Option";
+import * as S from "effect/Schema";
 import * as Struct from "effect/Struct";
 import { ReasonerService, ReasonerServiceLive } from "../Reasoning/ReasonerService";
 import { SparqlService, type SparqlServiceError, SparqlServiceLive } from "../Sparql/SparqlService";
-import { type Citation, InferenceStep, type ReasoningTrace } from "./AnswerSchemas";
+import { Citation, InferenceStep, ReasoningTrace } from "./AnswerSchemas";
 
 const $I = $KnowledgeServerId.create("GraphRAG/CitationValidator");
 
-export interface EntityValidationResult {
-  readonly entityId: KnowledgeEntityIds.KnowledgeEntityId.Type;
-  readonly found: boolean;
-  readonly confidence: number;
-}
+export class EntityValidationResult extends S.Class<EntityValidationResult>($I`EntityValidationResult`)({
+  entityId: KnowledgeEntityIds.KnowledgeEntityId,
+  found: S.Boolean,
+  confidence: Confidence,
+}) {}
 
-export interface RelationValidationResult {
-  readonly relationId: KnowledgeEntityIds.RelationId.Type;
-  readonly found: boolean;
-  readonly isInferred: boolean;
-  readonly confidence: number;
-  readonly reasoningTrace?: ReasoningTrace;
-}
+export class RelationValidationResult extends S.Class<RelationValidationResult>($I`RelationValidationResult`)({
+  relationId: KnowledgeEntityIds.RelationId,
+  found: S.Boolean,
+  isInferred: S.Boolean,
+  confidence: Confidence,
+  reasoningTrace: S.optional(ReasoningTrace),
+}) {}
 
-export interface CitationValidationResult {
-  readonly citation: Citation;
-  readonly entityResults: ReadonlyArray<EntityValidationResult>;
-  readonly relationResult?: undefined | RelationValidationResult;
-  readonly overallConfidence: number;
-}
+export class CitationValidationResult extends S.Class<CitationValidationResult>($I`CitationValidationResult`)(
+  {
+    citation: Citation,
+    entityResults: S.Array(EntityValidationResult),
+    relationResult: S.optional(RelationValidationResult),
+    overallConfidence: Confidence,
+  },
+  $I.annotations("CitationValidationResult", {
+    description: "Result of validating a citation",
+  })
+) {}
 
 export type CitationValidationError = SparqlServiceError | MaxDepthExceededError | MaxInferencesExceededError;
 

@@ -19,10 +19,15 @@ export class SameAsLink extends S.Class<SameAsLink>($I`SameAsLink`)({
   sourceId: S.optional(S.String),
 }) {}
 
-interface TransitiveClosure {
-  readonly canonical: string;
-  readonly members: readonly string[];
-}
+export class TransitiveClosure extends S.Class<TransitiveClosure>($I`TransitiveClosure`)(
+  {
+    canonical: S.String,
+    members: S.Array(S.String),
+  },
+  $I.annotations("TransitiveClosure", {
+    description: "Transitive closure of a set of entities",
+  })
+) {}
 
 export interface SameAsLinkerShape {
   readonly generateLinks: (

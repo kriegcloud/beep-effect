@@ -9,6 +9,7 @@ import * as F from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as O from "effect/Option";
+import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { buildRelationPrompt, buildSystemPrompt } from "../Ai/PromptTemplates";
 import { type LlmResilienceError, withLlmResilience } from "../LlmControl/LlmResilience";
@@ -19,16 +20,21 @@ import { ExtractedTriple, RelationOutput } from "./schemas/relation-output.schem
 
 const $I = $KnowledgeServerId.create("knowledge-server/Extraction/RelationExtractor");
 
-export interface RelationExtractionConfig {
-  readonly minConfidence?: undefined | number;
-  readonly validatePredicates?: undefined | boolean;
-}
+export class RelationExtractionConfig extends S.Class<RelationExtractionConfig>($I`RelationExtractionConfig`)(
+  {
+    minConfidence: S.optional(S.Number),
+    validatePredicates: S.optional(S.Boolean),
+  },
+  $I.annotations("RelationExtractionConfig", {
+    description: "Relation extraction configuration",
+  })
+) {}
 
-export interface RelationExtractionResult {
-  readonly triples: readonly ExtractedTriple[];
-  readonly invalidTriples: readonly ExtractedTriple[];
-  readonly tokensUsed: number;
-}
+export class RelationExtractionResult extends S.Class<RelationExtractionResult>($I`RelationExtractionResult`)({
+  triples: S.Array(ExtractedTriple),
+  invalidTriples: S.Array(ExtractedTriple),
+  tokensUsed: S.Number,
+}) {}
 
 export interface RelationExtractorShape {
   readonly extract: (

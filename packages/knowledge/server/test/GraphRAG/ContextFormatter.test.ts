@@ -7,7 +7,6 @@
  * @since 0.1.0
  */
 
-import { Entity, Relation } from "@beep/knowledge-domain/entities";
 import {
   estimateTokens,
   formatContext,
@@ -16,89 +15,12 @@ import {
   truncateToTokenBudget,
 } from "@beep/knowledge-server/GraphRAG/ContextFormatter";
 import { extractLocalName } from "@beep/knowledge-server/Ontology/constants";
-import { KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
+import { KnowledgeEntityIds } from "@beep/shared-domain";
 import { assertTrue, describe, effect, strictEqual } from "@beep/testkit";
-import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
-import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
-import * as FC from "effect/FastCheck";
 import * as MutableHashMap from "effect/MutableHashMap";
-import * as O from "effect/Option";
-
-const entityArb = () => FC.sample(Arbitrary.make(Entity.Model), 1)[0]!;
-const relationArb = () => FC.sample(Arbitrary.make(Relation.Model), 1)[0]!;
-
-// Mock entity factory - generates its own ID
-const createMockEntity = (
-  mention: string,
-  types: A.NonEmptyReadonlyArray<string>,
-  attributes: Record<string, string> = {}
-): Entity.Model => {
-  const base = entityArb();
-  return {
-    ...base,
-    id: KnowledgeEntityIds.KnowledgeEntityId.create(),
-    mention,
-    types,
-    attributes,
-    organizationId: SharedEntityIds.OrganizationId.create(),
-    ontologyId: O.some(KnowledgeEntityIds.OntologyId.create()),
-    createdAt: DateTime.unsafeNow(),
-    updatedAt: DateTime.unsafeNow(),
-  };
-};
-
-// Mock entity factory with specific ID - for when we need to reference the ID
-const createMockEntityWithId = (
-  id: KnowledgeEntityIds.KnowledgeEntityId.Type,
-  mention: string,
-  types: A.NonEmptyReadonlyArray<string>,
-  attributes: Record<string, string> = {}
-): Entity.Model => {
-  const base = entityArb();
-  return new Entity.Model({
-    ...base,
-    id,
-    mention,
-    types,
-    attributes,
-    organizationId: SharedEntityIds.OrganizationId.create(),
-    ontologyId: O.some(KnowledgeEntityIds.OntologyId.create()),
-    createdAt: DateTime.unsafeNow(),
-    updatedAt: DateTime.unsafeNow(),
-  });
-};
-
-// Mock relation factory
-let relationRowIdCounter = 0;
-const createMockRelation = (
-  subjectId: KnowledgeEntityIds.KnowledgeEntityId.Type,
-  predicate: string,
-  objectId?: undefined | KnowledgeEntityIds.KnowledgeEntityId.Type,
-  literalValue?: undefined | string,
-  literalType?: undefined | string
-): Relation.Model => {
-  const base = relationArb();
-  relationRowIdCounter += 1;
-  return new Relation.Model({
-    ...base,
-    id: KnowledgeEntityIds.RelationId.create(),
-    subjectId,
-    predicate,
-    objectId: O.fromNullable(objectId),
-    literalValue: O.fromNullable(literalValue),
-    literalType: O.fromNullable(literalType),
-    organizationId: SharedEntityIds.OrganizationId.create(),
-    ontologyId: KnowledgeEntityIds.OntologyId.create(),
-    createdAt: DateTime.unsafeNow(),
-    updatedAt: DateTime.unsafeNow(),
-    _rowId: KnowledgeEntityIds.RelationId.privateSchema.make(relationRowIdCounter),
-    deletedAt: O.none(),
-    version: 1,
-    source: O.some("test"),
-  });
-};
+import { makeDomainEntity, makeDomainRelation } from "../_shared/GraphFixtures";
 
 describe("ContextFormatter", () => {
   effect(
@@ -131,7 +53,10 @@ describe("ContextFormatter", () => {
   effect(
     "formats entity with types",
     Effect.fn(function* () {
-      const entity = createMockEntity("John Smith", ["http://schema.org/Person"]);
+      const entity = makeDomainEntity({
+        mention: "John Smith",
+        types: ["http://schema.org/Person"],
+      });
       const formatted = formatEntity(entity);
 
       assertTrue(formatted.includes("John Smith"));
@@ -142,8 +67,12 @@ describe("ContextFormatter", () => {
   effect(
     "formats entity with attributes",
     Effect.fn(function* () {
-      const entity = createMockEntity("John Smith", ["http://schema.org/Person"], {
-        "http://schema.org/age": "30",
+      const entity = makeDomainEntity({
+        mention: "John Smith",
+        types: ["http://schema.org/Person"],
+        attributes: {
+          "http://schema.org/age": "30",
+        },
       });
       const formatted = formatEntity(entity);
 
@@ -159,10 +88,12 @@ describe("ContextFormatter", () => {
       const e2Id = KnowledgeEntityIds.KnowledgeEntityId.create();
 
       const entities = [
-        createMockEntityWithId(e1Id, "John", ["http://schema.org/Person"]),
-        createMockEntityWithId(e2Id, "Acme", ["http://schema.org/Organization"]),
+        makeDomainEntity({ id: e1Id, mention: "John", types: ["http://schema.org/Person"] }),
+        makeDomainEntity({ id: e2Id, mention: "Acme", types: ["http://schema.org/Organization"] }),
       ];
-      const relations = [createMockRelation(e1Id, "http://schema.org/worksFor", e2Id)];
+      const relations = [
+        makeDomainRelation({ subjectId: e1Id, predicate: "http://schema.org/worksFor", objectId: e2Id }),
+      ];
 
       const context = formatContext(entities, relations);
 
@@ -178,8 +109,15 @@ describe("ContextFormatter", () => {
     "formats literal relations",
     Effect.fn(function* () {
       const e1Id = KnowledgeEntityIds.KnowledgeEntityId.create();
-      const entities = [createMockEntityWithId(e1Id, "John", ["http://schema.org/Person"])];
-      const relations = [createMockRelation(e1Id, "http://schema.org/age", undefined, "30", "xsd:integer")];
+      const entities = [makeDomainEntity({ id: e1Id, mention: "John", types: ["http://schema.org/Person"] })];
+      const relations = [
+        makeDomainRelation({
+          subjectId: e1Id,
+          predicate: "http://schema.org/age",
+          literalValue: "30",
+          literalType: "xsd:integer",
+        }),
+      ];
 
       const context = formatContext(entities, relations);
 
@@ -192,7 +130,7 @@ describe("ContextFormatter", () => {
     "formats context with scores",
     Effect.fn(function* () {
       const e1Id = KnowledgeEntityIds.KnowledgeEntityId.create();
-      const entities = [createMockEntityWithId(e1Id, "John", ["http://schema.org/Person"])];
+      const entities = [makeDomainEntity({ id: e1Id, mention: "John", types: ["http://schema.org/Person"] })];
       const scores = MutableHashMap.fromIterable([[e1Id, 0.0312]]);
 
       const context = formatContextWithScores(entities, [], scores);
@@ -219,10 +157,14 @@ describe("ContextFormatter", () => {
       // Create many entities with proper IDs
       const entityIds = A.makeBy(50, () => KnowledgeEntityIds.KnowledgeEntityId.create());
       const entities = A.map(entityIds, (id, i) =>
-        createMockEntityWithId(id, `Entity ${i}`, ["http://schema.org/Thing"])
+        makeDomainEntity({ id, mention: `Entity ${i}`, types: ["http://schema.org/Thing"] })
       );
       const relations = A.makeBy(20, (i) =>
-        createMockRelation(entityIds[i]!, "http://schema.org/related", entityIds[i + 1])
+        makeDomainRelation({
+          subjectId: entityIds[i]!,
+          predicate: "http://schema.org/related",
+          objectId: entityIds[i + 1]!,
+        })
       );
 
       // Small token budget
@@ -237,8 +179,8 @@ describe("ContextFormatter", () => {
     "returns full context when within budget",
     Effect.fn(function* () {
       const e1Id = KnowledgeEntityIds.KnowledgeEntityId.create();
-      const entities = [createMockEntityWithId(e1Id, "John", ["http://schema.org/Person"])];
-      const relations: Relation.Model[] = [];
+      const entities = [makeDomainEntity({ id: e1Id, mention: "John", types: ["http://schema.org/Person"] })];
+      const relations = [] as Array<ReturnType<typeof makeDomainRelation>>;
 
       const result = truncateToTokenBudget(entities, relations, 10000);
 

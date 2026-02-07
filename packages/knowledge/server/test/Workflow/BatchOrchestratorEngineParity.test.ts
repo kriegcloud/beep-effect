@@ -26,6 +26,7 @@ import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Stream from "effect/Stream";
+import { makeWorkflowPersistenceShape, type WorkflowStatusUpdate } from "../_shared/ServiceMocks";
 
 type Scenario = {
   readonly workflowRun: ExtractionWorkflowShape["run"];
@@ -86,6 +87,7 @@ const makeSuccessExtraction = (entityCount: number, relationCount: number, docum
 
 const runScenario = Effect.fn("BatchOrchestratorEngineParity.runScenario")(function* (scenario: Scenario) {
   const events: Array<BatchEvent> = [];
+  const statusUpdates: Array<WorkflowStatusUpdate> = [];
   const statuses: Array<{
     status: string;
     updates: Parameters<WorkflowPersistenceShape["updateExecutionStatus"]>[2];
@@ -116,22 +118,16 @@ const runScenario = Effect.fn("BatchOrchestratorEngineParity.runScenario")(funct
 
   const persistenceLayer = Layer.succeed(
     WorkflowPersistence,
-    WorkflowPersistence.of({
-      createExecution: () => Effect.void,
-      updateExecutionStatus: (_id, status, updates) =>
-        Effect.sync(() => {
-          statuses.push({ status, updates });
-        }),
-      getExecution: () => Effect.die("not used"),
-      findLatestBatchExecutionByBatchId: () => Effect.succeed(O.none()),
-      cancelExecution: () => Effect.void,
-      requireBatchExecutionByBatchId: () => Effect.die("not used"),
-    } satisfies WorkflowPersistenceShape)
+    WorkflowPersistence.of(makeWorkflowPersistenceShape(statusUpdates))
   );
 
   const result = yield* executeBatchEngineWorkflow(scenario.payload, "exec-test").pipe(
     Effect.provide(Layer.mergeAll(workflowLayer, eventEmitterLayer, persistenceLayer))
   );
+
+  for (const update of statusUpdates) {
+    statuses.push({ status: update.status, updates: update.updates });
+  }
 
   return { result, events, statuses, calls };
 });

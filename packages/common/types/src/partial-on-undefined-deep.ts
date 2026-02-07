@@ -57,8 +57,7 @@ export type PartialOnUndefinedDeep<T, Options extends PartialOnUndefinedDeepOpti
   ApplyDefaultOptions<PartialOnUndefinedDeepOptions, DefaultPartialOnUndefinedDeepOptions, Options>
 >;
 
-// biome-ignore lint/suspicious/noExplicitAny: Required for type-level record matching in conditional types
-type _PartialOnUndefinedDeep<T, Options extends Required<PartialOnUndefinedDeepOptions>> = T extends
+type _PartialOnUndefinedDeep<T, Options extends Required<PartialOnUndefinedDeepOptions>> = T extends // biome-ignore lint/suspicious/noExplicitAny: Required for type-level record matching in conditional types
   | Record<any, any>
   | undefined
   ? {
@@ -81,9 +80,9 @@ type _PartialOnUndefinedDeep<T, Options extends Required<PartialOnUndefinedDeepO
 /**
 Utility type to get the value type by key and recursively call `PartialOnUndefinedDeep` to transform sub-objects.
 */
-// biome-ignore lint/suspicious/noExplicitAny: Required for matching arbitrary function signatures in type utilities
 type PartialOnUndefinedDeepValue<T, Options extends Required<PartialOnUndefinedDeepOptions>> = T extends
   | BuiltIns
+  // biome-ignore lint/suspicious/noExplicitAny: Required for matching arbitrary function signatures in type utilities
   | ((...arguments_: any[]) => unknown)
   ? T
   : T extends ReadonlyArray<infer U> // Test if type is array or tuple

@@ -11,6 +11,7 @@ import * as MutableHashSet from "effect/MutableHashSet";
 import * as Num from "effect/Number";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
+import * as S from "effect/Schema";
 import { InferenceStep, ReasoningTrace } from "./AnswerSchemas";
 
 const $I = $KnowledgeServerId.create("GraphRAG/ReasoningTraceFormatter");
@@ -49,12 +50,11 @@ const calculateDepth = (
     },
   });
 };
-
-interface BfsState {
-  readonly steps: ReadonlyArray<InferenceStep>;
-  readonly visited: HashSet.HashSet<string>;
-  readonly queue: ReadonlyArray<string>;
-}
+export class BfsState extends S.Class<BfsState>($I`BfsState`)({
+  steps: S.Array(InferenceStep),
+  visited: S.HashSet(S.String),
+  queue: S.Array(S.String),
+}) {}
 
 const processBfsNode = (
   provenanceMap: Record<string, InferenceProvenance>,

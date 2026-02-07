@@ -15,13 +15,17 @@ type MyWrappedFunction = SetReturnType<MyFunctionThatCanThrow, ReturnType<MyFunc
 //=> (foo: string, bar: number) => boolean | undefined;
 ```
 
-@category Function
-*/
-// biome-ignore lint/suspicious/noExplicitAny: Required for matching arbitrary function signatures in type utilities
-export type SetReturnType<Function_ extends (...arguments_: any[]) => any, TypeToReturn> = Function_ extends (
+	@category Function
+	*/
+export type SetReturnType<
+  // biome-ignore lint/suspicious/noExplicitAny: Required for matching arbitrary function signatures in type utilities
+  Function_ extends (...arguments_: any[]) => any,
+  TypeToReturn,
+> = Function_ extends (
   // Just using `Parameters<Fn>` isn't ideal because it doesn't handle the `this` fake parameter.
   this: infer ThisArgument,
   ...arguments_: infer Arguments
+  // biome-ignore lint/suspicious/noExplicitAny: Required for matching arbitrary function signatures in type utilities
 ) => any
   ? // If a function did not specify the `this` fake parameter, it will be inferred to `unknown`.
     // We want to detect this situation just to display a friendlier type upon hovering on an IntelliSense-powered IDE.

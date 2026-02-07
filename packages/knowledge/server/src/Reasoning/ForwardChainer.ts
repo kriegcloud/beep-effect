@@ -1,11 +1,13 @@
+import { $KnowledgeServerId } from "@beep/identity/packages";
 import { MaxDepthExceededError, MaxInferencesExceededError } from "@beep/knowledge-domain/errors";
 import {
   InferenceProvenance,
   InferenceResult,
   InferenceStats,
-  type Quad,
+  Quad,
   type ReasoningConfig,
 } from "@beep/knowledge-domain/value-objects";
+import { BS } from "@beep/schema";
 import * as A from "effect/Array";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
@@ -14,17 +16,19 @@ import * as MutableHashMap from "effect/MutableHashMap";
 import * as MutableHashSet from "effect/MutableHashSet";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
+import * as S from "effect/Schema";
 import { owlRules, owlSameAsRules } from "./OwlRules";
 import { quadId, type Rule, type RuleInference, rdfs2, rdfs3, rdfs9, rdfs11, rdfsRules } from "./RdfsRules";
 
-interface ChainState {
-  readonly knownQuadIds: MutableHashSet.MutableHashSet<string>;
-  readonly allQuads: Quad[];
-  readonly derivedQuads: Quad[];
-  readonly provenance: MutableHashMap.MutableHashMap<string, InferenceProvenance>;
-  readonly totalInferences: number;
-  readonly iterations: number;
-}
+const $I = $KnowledgeServerId.create("Reasoning/ForwardChainer");
+export class ChainState extends S.Class<ChainState>($I`ChainState`)({
+  knownQuadIds: BS.MutableHashSet(S.String),
+  allQuads: S.Array(Quad).pipe(S.mutable),
+  derivedQuads: S.Array(Quad).pipe(S.mutable),
+  provenance: BS.MutableHashMap({ key: S.String, value: InferenceProvenance }),
+  totalInferences: S.Number,
+  iterations: S.Number,
+}) {}
 
 const initializeState = (initialQuads: ReadonlyArray<Quad>): ChainState => {
   const knownQuadIds = MutableHashSet.empty<string>();

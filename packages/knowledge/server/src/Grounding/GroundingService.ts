@@ -1,5 +1,6 @@
 import { $KnowledgeServerId } from "@beep/identity/packages";
 import type { CircuitOpenError, RateLimitError } from "@beep/knowledge-domain/errors";
+import { Confidence } from "@beep/knowledge-domain/value-objects";
 import type { SharedEntityIds } from "@beep/shared-domain";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";
@@ -8,30 +9,30 @@ import * as F from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as O from "effect/Option";
+import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import type { EmbeddingError } from "../Embedding/EmbeddingProvider";
 import { EmbeddingService, EmbeddingServiceLive } from "../Embedding/EmbeddingService";
-import type { AssembledRelation, KnowledgeGraph } from "../Extraction/GraphAssembler";
+import { AssembledRelation, type KnowledgeGraph } from "../Extraction/GraphAssembler";
 import { extractLocalName } from "../Ontology/constants";
 import { cosineSimilarity } from "../utils/vector";
 
 const $I = $KnowledgeServerId.create("Grounding/GroundingService");
 
-export interface GroundingConfig {
-  readonly confidenceThreshold?: undefined | number;
-  readonly keepUngrounded?: undefined | boolean;
-}
-
-export interface GroundingResult {
-  readonly groundedRelations: readonly AssembledRelation[];
-  readonly ungroundedRelations: readonly AssembledRelation[];
-  readonly stats: {
-    readonly total: number;
-    readonly grounded: number;
-    readonly ungrounded: number;
-    readonly averageConfidence: number;
-  };
-}
+export class GroundingConfig extends S.Class<GroundingConfig>($I`GroundingConfig`)({
+  confidenceThreshold: S.optional(S.Number),
+  keepUngrounded: S.optional(S.Boolean),
+}) {}
+export class GroundingResult extends S.Class<GroundingResult>($I`GroundingResult`)({
+  groundedRelations: S.Array(AssembledRelation),
+  ungroundedRelations: S.Array(AssembledRelation),
+  stats: S.Struct({
+    total: S.Number,
+    grounded: S.Number,
+    ungrounded: S.Number,
+    averageConfidence: S.Number,
+  }),
+}) {}
 
 const DEFAULT_CONFIDENCE_THRESHOLD = 0.8;
 
@@ -54,12 +55,11 @@ const relationToStatement = (
 
   return `${subjectMention} has property ${readablePredicate}`;
 };
-
-interface VerifyAccumulator {
-  readonly grounded: ReadonlyArray<AssembledRelation>;
-  readonly ungrounded: ReadonlyArray<AssembledRelation>;
-  readonly totalConfidence: number;
-}
+class VerifyAccumulator extends S.Class<VerifyAccumulator>($I`VerifyAccumulator`)({
+  grounded: S.Array(AssembledRelation),
+  ungrounded: S.Array(AssembledRelation),
+  totalConfidence: Confidence,
+}) {}
 
 export interface GroundingServiceShape {
   readonly verifyRelations: (

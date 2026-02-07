@@ -871,12 +871,14 @@ export const DCTERMS = {
    - SameAsLinker already generates owl:sameAs links -- ForwardChainer will be able to reason over them
 
 6. **Durable ExtractionWorkflow** *(Gaps #1, #2, #3)*
-   - Replace `ExtractionPipeline.run()` with durable workflow activities
-   - Activities for: preprocessing, extraction, resolution, validation, ingestion
-   - State stored in PostgreSQL via `@effect/workflow`
-   - New workflow tables in `knowledge/tables/` (Drizzle schema)
-   - BatchState union type in domain layer
-   - PubSub integration for SSE streaming of state transitions
+   - **Superseded**: this gap is closed by the completed workflow migration to `@effect/workflow`.
+   - Current canonical evidence:
+     - `specs/completed/knowledge-effect-workflow-migration/outputs/P4_PARITY_VALIDATION.md`
+     - `specs/completed/knowledge-effect-workflow-migration/outputs/P5_LEGACY_REMOVAL_REPORT.md`
+     - `packages/knowledge/server/src/Workflow/ExtractionWorkflow.ts`
+     - `packages/knowledge/server/src/Workflow/BatchOrchestrator.ts`
+     - `packages/knowledge/server/src/Runtime/WorkflowRuntime.ts`
+   - Do not implement the "new workflow tables" sketch below; it predates the final persistence design.
 
 7. **Cross-Batch Orchestration** *(Gap #10)*
    - Depends on durable workflow (Gap #1) and batch state machine (Gap #2)
@@ -904,30 +906,8 @@ export const DCTERMS = {
 
 ### Database Schema Extensions (For Remaining Gaps)
 
-New tables needed for workflow durability (Gaps #1, #2, #3):
-
-```sql
--- Workflow state persistence
-CREATE TABLE knowledge_workflow_state (
-  id TEXT PRIMARY KEY,
-  batch_id TEXT NOT NULL,
-  state JSONB NOT NULL,
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
-);
-
--- Activity journal for durability
-CREATE TABLE knowledge_activity_journal (
-  id TEXT PRIMARY KEY,
-  workflow_id TEXT NOT NULL REFERENCES knowledge_workflow_state(id),
-  activity_name TEXT NOT NULL,
-  input JSONB,
-  output JSONB,
-  error TEXT,
-  started_at TIMESTAMPTZ,
-  completed_at TIMESTAMPTZ
-);
-```
+Workflow durability tables are **not** part of the remaining gap set as of 2026-02-07.
+Any persistence work should follow the post-migration `WorkflowPersistence` implementation and its tests, not the pre-migration SQL sketch that used to live here.
 
 ---
 

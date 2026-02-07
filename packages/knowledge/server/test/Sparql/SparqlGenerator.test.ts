@@ -1,55 +1,17 @@
 import { IRI, Literal, Quad } from "@beep/knowledge-domain/value-objects";
-import { RdfStore, RdfStoreLive } from "@beep/knowledge-server/Rdf";
+import { RdfStore } from "@beep/knowledge-server/Rdf";
 import { executeSelect } from "@beep/knowledge-server/Sparql/QueryExecutor";
-import {
-  SparqlGenerationError,
-  SparqlGenerator,
-  SparqlGeneratorLive,
-} from "@beep/knowledge-server/Sparql/SparqlGenerator";
-import { SparqlParser, SparqlParserLive } from "@beep/knowledge-server/Sparql/SparqlParser";
+import { SparqlGenerationError, SparqlGenerator } from "@beep/knowledge-server/Sparql/SparqlGenerator";
+import { SparqlParser } from "@beep/knowledge-server/Sparql/SparqlParser";
 import { assertTrue, describe, effect, strictEqual } from "@beep/testkit";
-import { LanguageModel } from "@effect/ai";
-import type * as Response from "@effect/ai/Response";
 import * as Effect from "effect/Effect";
-import * as F from "effect/Function";
-import * as Layer from "effect/Layer";
-import * as Stream from "effect/Stream";
 import * as Str from "effect/String";
+import { makeSparqlGeneratorLayer } from "../_shared/LayerBuilders";
+import { withTextLanguageModel } from "../_shared/TestLayers";
 
 const TEST_TIMEOUT = 60000;
 
-const TestLayer = Layer.mergeAll(SparqlGeneratorLive, SparqlParserLive, RdfStoreLive);
-
-const buildTextResponse = (text: string): Array<Response.PartEncoded> => [
-  { type: "text", text },
-  {
-    type: "finish",
-    reason: "stop",
-    usage: {
-      inputTokens: 100,
-      outputTokens: 50,
-      totalTokens: 150,
-    },
-  },
-];
-
-const withTextLanguageModel: {
-  (
-    text: string
-  ): <A, E, R>(effect: Effect.Effect<A, E, R>) => Effect.Effect<A, E, Exclude<R, LanguageModel.LanguageModel>>;
-  <A, E, R>(effect: Effect.Effect<A, E, R>, text: string): Effect.Effect<A, E, Exclude<R, LanguageModel.LanguageModel>>;
-} = F.dual(2, <A, E, R>(effect: Effect.Effect<A, E, R>, text: string) => {
-  const makeService = LanguageModel.make({
-    generateText: () => Effect.succeed(buildTextResponse(text)),
-    streamText: () => Stream.empty,
-  });
-
-  return Effect.provideServiceEffect(effect, LanguageModel.LanguageModel, makeService) as Effect.Effect<
-    A,
-    E,
-    Exclude<R, LanguageModel.LanguageModel>
-  >;
-});
+const TestLayer = makeSparqlGeneratorLayer();
 
 describe("SparqlGenerator", () => {
   describe("generateReadOnlyQuery", () => {

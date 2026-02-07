@@ -1,4 +1,5 @@
 import { $KnowledgeServerId } from "@beep/identity/packages";
+import { BS } from "@beep/schema";
 import * as Context from "effect/Context";
 import * as DateTime from "effect/DateTime";
 import * as Duration from "effect/Duration";
@@ -8,15 +9,16 @@ import * as HashMap from "effect/HashMap";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Ref from "effect/Ref";
-import type { ParsedOntology } from "./OntologyParser";
+import * as S from "effect/Schema";
+import { ParsedOntology } from "./OntologyParser";
 
 const $I = $KnowledgeServerId.create("Ontology/OntologyCache");
 
-interface CachedOntology {
-  readonly data: ParsedOntology;
-  readonly loadedAt: DateTime.Utc;
-  readonly contentHash: string;
-}
+export class CachedOntology extends S.Class<CachedOntology>($I`CachedOntology`)({
+  data: ParsedOntology,
+  loadedAt: BS.DateTimeUtcFromAllAcceptable,
+  contentHash: S.String,
+}) {}
 
 export interface OntologyCacheShape {
   readonly get: (key: string) => Effect.Effect<O.Option<ParsedOntology>>;

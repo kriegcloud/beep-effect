@@ -60,9 +60,9 @@ type FindBar = FindGlobalInstanceType<'Bar'>; // Works
 
 @category Utilities
 */
-// biome-ignore lint/suspicious/noExplicitAny: Required for inferring constructor instance types from globalThis
 export type FindGlobalInstanceType<Name extends string> = Name extends string
-  ? typeof globalThis extends Record<Name, abstract new (...arguments_: any[]) => infer T>
+  ? // biome-ignore lint/suspicious/noExplicitAny: Required for inferring constructor instance types from globalThis
+    typeof globalThis extends Record<Name, abstract new (...arguments_: any[]) => infer T>
     ? T
     : never
   : never;

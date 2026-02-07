@@ -1,0 +1,345 @@
+import { $KnowledgeServerId } from "@beep/identity/packages";
+import { BS } from "@beep/schema";
+import * as A from "effect/Array";
+import * as Context from "effect/Context";
+import * as DateTime from "effect/DateTime";
+import * as Effect from "effect/Effect";
+import * as Either from "effect/Either";
+import * as Layer from "effect/Layer";
+import * as O from "effect/Option";
+import * as S from "effect/Schema";
+import * as Str from "effect/String";
+import { Storage } from "./Storage";
+import { WikidataCandidate, WikidataClient, WikidataSearchOptions } from "./WikidataClient";
+
+const $I = $KnowledgeServerId.create("Service/ReconciliationService");
+
+export class ReconciliationError extends S.TaggedError<ReconciliationError>($I`ReconciliationError`)(
+  "ReconciliationError",
+  {
+    message: S.String,
+    entityIri: S.String,
+    cause: S.optional(S.Unknown),
+  },
+  $I.annotations("ReconciliationError", { description: "Entity reconciliation failure" })
+) {}
+
+export class ReconciliationDecision extends BS.StringLiteralKit("auto_linked", "queued", "no_match", "skipped") {}
+export declare namespace ReconciliationDecision {
+  export type Type = typeof ReconciliationDecision.Type;
+}
+
+export class TaskStatus extends BS.StringLiteralKit("pending", "approved", "rejected") {}
+export declare namespace TaskStatus {
+  export type Type = typeof TaskStatus.Type;
+}
+
+export class ReconciliationConfig extends S.Class<ReconciliationConfig>($I`ReconciliationConfig`)({
+  autoLinkThreshold: S.optionalWith(S.Number.pipe(S.between(0, 100)), { default: () => 90 }),
+  queueThreshold: S.optionalWith(S.Number.pipe(S.between(0, 100)), { default: () => 50 }),
+  maxCandidates: S.optionalWith(S.Int.pipe(S.positive()), { default: () => 5 }),
+  language: S.optionalWith(S.String, { default: () => "en" }),
+}) {}
+
+export interface ReconciliationConfigInput {
+  readonly autoLinkThreshold?: number;
+  readonly queueThreshold?: number;
+  readonly maxCandidates?: number;
+  readonly language?: string;
+}
+
+export class VerificationTask extends S.Class<VerificationTask>($I`VerificationTask`)({
+  id: S.String,
+  entityIri: S.String,
+  label: S.String,
+  candidates: S.Array(WikidataCandidate),
+  createdAt: BS.DateTimeUtcFromAllAcceptable,
+  status: TaskStatus,
+  approvedQid: S.optionalWith(S.OptionFromNullishOr(S.String, null), { default: O.none<string> }),
+}) {}
+
+export class ReconciliationResult extends S.Class<ReconciliationResult>($I`ReconciliationResult`)({
+  entityIri: S.String,
+  label: S.String,
+  decision: ReconciliationDecision,
+  candidates: S.Array(WikidataCandidate),
+  bestMatch: S.optionalWith(S.OptionFromNullishOr(WikidataCandidate, null), { default: O.none<WikidataCandidate> }),
+  verificationTaskId: S.optionalWith(S.OptionFromNullishOr(S.String, null), { default: O.none<string> }),
+}) {}
+
+export class WikidataLink extends S.Class<WikidataLink>($I`WikidataLink`)({
+  entityIri: S.String,
+  qid: S.String,
+  wikidataUri: S.String,
+  linkedAt: BS.DateTimeUtcFromAllAcceptable,
+}) {}
+
+export interface ReconciliationServiceShape {
+  readonly reconcileEntity: (
+    entityIri: string,
+    label: string,
+    types?: ReadonlyArray<string>,
+    config?: undefined | ReconciliationConfigInput
+  ) => Effect.Effect<ReconciliationResult, ReconciliationError>;
+
+  readonly getPendingTasks: () => Effect.Effect<ReadonlyArray<VerificationTask>, ReconciliationError>;
+
+  readonly approveTask: (taskId: string, qid: string) => Effect.Effect<void, ReconciliationError>;
+  readonly rejectTask: (taskId: string) => Effect.Effect<void, ReconciliationError>;
+}
+
+export class ReconciliationService extends Context.Tag($I`ReconciliationService`)<
+  ReconciliationService,
+  ReconciliationServiceShape
+>() {}
+
+const LINKS_PREFIX = "reconciliation/links/";
+const QUEUE_PREFIX = "reconciliation/queue/";
+
+const decodeVerificationTask = S.decodeUnknown(S.parseJson(VerificationTask));
+
+const serviceEffect: Effect.Effect<ReconciliationServiceShape, never, WikidataClient | Storage> = Effect.gen(
+  function* () {
+    const wikidata = yield* WikidataClient;
+    const storage = yield* Storage;
+
+    const generateTaskId = (): string => {
+      const timestamp = Date.now().toString(36);
+      const random = Math.random().toString(36).slice(2, 8);
+      return `task-${timestamp}-${random}`;
+    };
+
+    const storeLink = (entityIri: string, qid: string): Effect.Effect<void, ReconciliationError> =>
+      Effect.gen(function* () {
+        const now = yield* DateTime.now;
+        const link = new WikidataLink({
+          entityIri,
+          qid,
+          wikidataUri: `http://www.wikidata.org/entity/${qid}`,
+          linkedAt: now,
+        });
+
+        const encoded = yield* S.encode(WikidataLink)(link);
+        yield* storage.put(`${LINKS_PREFIX}${encodeURIComponent(entityIri)}`, JSON.stringify(encoded));
+      }).pipe(
+        Effect.mapError(
+          (e) =>
+            new ReconciliationError({
+              message: `Failed to store link: ${String(e)}`,
+              entityIri,
+              cause: e,
+            })
+        )
+      );
+
+    const queueForVerification = (
+      entityIri: string,
+      label: string,
+      candidates: ReadonlyArray<WikidataCandidate>
+    ): Effect.Effect<string, ReconciliationError> =>
+      Effect.gen(function* () {
+        const taskId = generateTaskId();
+        const now = yield* DateTime.now;
+        const task = new VerificationTask({
+          id: taskId,
+          entityIri,
+          label,
+          candidates: [...candidates],
+          createdAt: now,
+          status: "pending",
+          approvedQid: O.none(),
+        });
+
+        const encoded = yield* S.encode(VerificationTask)(task);
+        yield* storage.put(`${QUEUE_PREFIX}${taskId}`, JSON.stringify(encoded));
+        return taskId;
+      }).pipe(
+        Effect.mapError(
+          (e) =>
+            new ReconciliationError({
+              message: `Failed to queue verification: ${String(e)}`,
+              entityIri,
+              cause: e,
+            })
+        )
+      );
+
+    const reconcileEntity: ReconciliationServiceShape["reconcileEntity"] = (
+      entityIri,
+      label,
+      _types = [],
+      config = {}
+    ) =>
+      Effect.gen(function* () {
+        const cfg = new ReconciliationConfig(config);
+        const autoLinkThreshold = cfg.autoLinkThreshold ?? 90;
+        const queueThreshold = cfg.queueThreshold ?? 50;
+        const maxCandidates = cfg.maxCandidates ?? 5;
+        const language = cfg.language ?? "en";
+
+        const existing = yield* storage.get(`${LINKS_PREFIX}${encodeURIComponent(entityIri)}`);
+        if (O.isSome(existing)) {
+          return new ReconciliationResult({
+            entityIri,
+            label,
+            decision: "skipped",
+            candidates: [],
+            bestMatch: O.none(),
+            verificationTaskId: O.none(),
+          });
+        }
+
+        const candidates = yield* wikidata.searchEntities(
+          label,
+          new WikidataSearchOptions({ language, limit: maxCandidates })
+        );
+
+        if (A.isEmptyReadonlyArray(candidates)) {
+          return new ReconciliationResult({
+            entityIri,
+            label,
+            decision: "no_match",
+            candidates: [],
+            bestMatch: O.none(),
+            verificationTaskId: O.none(),
+          });
+        }
+
+        const best = candidates[0]!;
+
+        if (best.score >= autoLinkThreshold) {
+          yield* storeLink(entityIri, best.qid);
+          return new ReconciliationResult({
+            entityIri,
+            label,
+            decision: "auto_linked",
+            candidates: [...candidates],
+            bestMatch: O.some(best),
+            verificationTaskId: O.none(),
+          });
+        }
+
+        if (best.score >= queueThreshold) {
+          const taskId = yield* queueForVerification(entityIri, label, candidates);
+          return new ReconciliationResult({
+            entityIri,
+            label,
+            decision: "queued",
+            candidates: [...candidates],
+            bestMatch: O.some(best),
+            verificationTaskId: O.some(taskId),
+          });
+        }
+
+        return new ReconciliationResult({
+          entityIri,
+          label,
+          decision: "no_match",
+          candidates: [...candidates],
+          bestMatch: O.some(best),
+          verificationTaskId: O.none(),
+        });
+      }).pipe(
+        Effect.mapError(
+          (e) =>
+            new ReconciliationError({
+              message: `Reconciliation failed: ${String(e)}`,
+              entityIri,
+              cause: e,
+            })
+        ),
+        Effect.withSpan("ReconciliationService.reconcileEntity", {
+          attributes: { entityIri, labelLength: Str.length(label) },
+        })
+      );
+
+    const getPendingTasks: ReconciliationServiceShape["getPendingTasks"] = () =>
+      Effect.gen(function* () {
+        const entries = yield* storage.list(QUEUE_PREFIX);
+        const tasks = A.empty<VerificationTask>();
+
+        for (const entry of entries) {
+          const decoded = yield* Effect.either(decodeVerificationTask(entry.value));
+
+          if (Either.isRight(decoded) && decoded.right.status === "pending") {
+            tasks.push(decoded.right);
+          }
+        }
+
+        tasks.sort((a, b) => DateTime.toDateUtc(a.createdAt).getTime() - DateTime.toDateUtc(b.createdAt).getTime());
+        return tasks;
+      }).pipe(
+        Effect.mapError(
+          (e) =>
+            new ReconciliationError({
+              message: `Failed to load pending tasks: ${String(e)}`,
+              entityIri: "",
+              cause: e,
+            })
+        )
+      );
+
+    const approveTask: ReconciliationServiceShape["approveTask"] = (taskId, qid) =>
+      Effect.gen(function* () {
+        const key = `${QUEUE_PREFIX}${taskId}`;
+        const storedOpt = yield* storage.get(key);
+        if (O.isNone(storedOpt)) return;
+
+        const decoded = yield* decodeVerificationTask(storedOpt.value.value);
+
+        const updated = new VerificationTask({
+          ...decoded,
+          status: "approved",
+          approvedQid: O.some(qid),
+        });
+
+        const encoded = yield* S.encode(VerificationTask)(updated);
+        yield* storage.put(key, JSON.stringify(encoded), { expectedGeneration: storedOpt.value.generation });
+        yield* storeLink(decoded.entityIri, qid);
+      }).pipe(
+        Effect.mapError(
+          (e) =>
+            new ReconciliationError({
+              message: `Failed to approve task: ${String(e)}`,
+              entityIri: "",
+              cause: e,
+            })
+        )
+      );
+
+    const rejectTask: ReconciliationServiceShape["rejectTask"] = (taskId) =>
+      Effect.gen(function* () {
+        const key = `${QUEUE_PREFIX}${taskId}`;
+        const storedOpt = yield* storage.get(key);
+        if (O.isNone(storedOpt)) return;
+
+        const decoded = yield* decodeVerificationTask(storedOpt.value.value);
+
+        const updated = new VerificationTask({
+          ...decoded,
+          status: "rejected",
+        });
+
+        const encoded = yield* S.encode(VerificationTask)(updated);
+        yield* storage.put(key, JSON.stringify(encoded), { expectedGeneration: storedOpt.value.generation });
+      }).pipe(
+        Effect.mapError(
+          (e) =>
+            new ReconciliationError({
+              message: `Failed to reject task: ${String(e)}`,
+              entityIri: "",
+              cause: e,
+            })
+        )
+      );
+
+    return ReconciliationService.of({
+      reconcileEntity,
+      getPendingTasks,
+      approveTask,
+      rejectTask,
+    });
+  }
+);
+
+export const ReconciliationServiceLive = Layer.effect(ReconciliationService, serviceEffect);

@@ -1,18 +1,25 @@
 import { EventBus, EventBusLive } from "@beep/knowledge-server/Service/EventBus";
-import { assertTrue, deepStrictEqual, describe, effect, strictEqual } from "@beep/testkit";
+import { assertTrue, deepStrictEqual, describe, effect, scoped, strictEqual } from "@beep/testkit";
 import * as Effect from "effect/Effect";
 import * as Fiber from "effect/Fiber";
 import * as O from "effect/Option";
 import * as Stream from "effect/Stream";
 
 describe("Service/EventBus", () => {
-  effect(
+  scoped(
     "publishes events to topic subscribers",
     Effect.fn(function* () {
       const bus = yield* EventBus;
 
+      // PubSub delivers only to active subscribers. Give the subscriber fiber a tick to start
+      // before publishing to avoid a publish-before-subscribe race.
       const subscriber = yield* bus.subscribe("ontology.updated").pipe(Stream.runHead, Effect.fork);
-      yield* Effect.yieldNow();
+      for (let i = 0; i < 200; i++) {
+        const status = yield* Fiber.status(subscriber);
+        if (status._tag === "Suspended") break;
+        yield* Effect.yieldNow();
+      }
+
       yield* bus.publish("ontology.updated", { iri: "https://schema.org", changed: true });
 
       const received = yield* Fiber.join(subscriber);
@@ -25,13 +32,18 @@ describe("Service/EventBus", () => {
     }, Effect.provide(EventBusLive))
   );
 
-  effect(
+  scoped(
     "filters events by topic",
     Effect.fn(function* () {
       const bus = yield* EventBus;
 
       const subscriber = yield* bus.subscribe("job.completed").pipe(Stream.runHead, Effect.fork);
-      yield* Effect.yieldNow();
+      for (let i = 0; i < 200; i++) {
+        const status = yield* Fiber.status(subscriber);
+        if (status._tag === "Suspended") break;
+        yield* Effect.yieldNow();
+      }
+
       yield* bus.publish("job.failed", { id: "j1" });
       yield* bus.publish("job.completed", { id: "j2" });
 

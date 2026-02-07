@@ -115,8 +115,8 @@ type HandleLog2 = SetParameterType<HandleMessage, {2: string}>;
 
 @category Function
 */
-// biome-ignore lint/suspicious/noExplicitAny: Required for matching arbitrary function signatures
 export type SetParameterType<
+  // biome-ignore lint/suspicious/noExplicitAny: Required for matching arbitrary function signatures
   Function_ extends (...arguments_: any[]) => unknown,
   P extends Record<number, unknown>,
 > = Function_ extends (this: infer ThisArgument, ...arguments_: infer Arguments) => unknown // Just using `Parameters<Fn>` isn't ideal because it doesn't handle the `this` fake parameter.

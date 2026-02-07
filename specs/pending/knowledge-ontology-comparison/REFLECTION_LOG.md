@@ -286,12 +286,22 @@ Phase 4 - Semantic Enrichment (Implemented)
 ### Phase
 Phase 6 - Parity Closure (P0/P1)
 
+### Errata (Post-Migration Reality Check)
+
+This entry was written against a pre-migration mental model that referenced `DurableActivities.ts` and a custom durability stack.
+As of **2026-02-07**, the canonical workflow durability/orchestration path is the completed migration to `@effect/workflow`, and legacy artifacts were removed.
+
+Canonical evidence:
+- `specs/completed/knowledge-effect-workflow-migration/outputs/P4_PARITY_VALIDATION.md`
+- `specs/completed/knowledge-effect-workflow-migration/outputs/P5_LEGACY_REMOVAL_REPORT.md`
+- `packages/knowledge/server/src/Workflow/ExtractionWorkflow.ts`
+- `packages/knowledge/server/src/Workflow/BatchOrchestrator.ts`
+- `packages/knowledge/server/src/Runtime/WorkflowRuntime.ts`
+
 ### What Was Done
 - Hardened workflow reliability without replacing the existing workflow architecture:
   - `packages/knowledge/server/src/Workflow/WorkflowPersistence.ts`
-  - `packages/knowledge/server/src/Workflow/DurableActivities.ts`
   - `packages/knowledge/server/src/Workflow/ExtractionWorkflow.ts`
-  - `packages/knowledge/server/test/Workflow/DurableActivities.test.ts`
   - `packages/knowledge/server/test/Workflow/ExtractionWorkflow.test.ts`
 - Added platform service abstractions:
   - `packages/knowledge/server/src/Service/EventBus.ts`
@@ -587,12 +597,14 @@ Phase 2 - Implementation (Complete)
 
 ### What Was Done
 
-Implemented crash-recoverable extraction workflows and LLM call protection across 5 sub-tasks:
+Implemented crash-recoverable extraction workflows and LLM call protection across 5 sub-tasks.
+
+Note: The workflow-related portions of this entry are now **historical context**. As of **2026-02-07**, workflow durability/orchestration is provided by the `@effect/workflow` engine path and the legacy artifacts referenced below were removed (see `P4_PARITY_VALIDATION.md` and `P5_LEGACY_REMOVAL_REPORT.md`).
 
 | Sub-Task                     | Deliverable                                                   | Files Created/Modified                                                                                                            |
 |------------------------------|---------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------|
 | 2A: Workflow Tables          | 3 Drizzle tables + 3 EntityIds                                | `workflow-execution.table.ts`, `workflow-activity.table.ts`, `workflow-signal.table.ts`                                           |
-| 2Ba: Domain + Persistence    | Value objects, errors, WorkflowPersistence, DurableActivities | `WorkflowState.value.ts`, `ExtractionProgress.value.ts`, `Workflow.errors.ts`, `WorkflowPersistence.ts`, `DurableActivities.ts` |
+| 2Ba: Domain + Persistence    | Value objects, errors, WorkflowPersistence (legacy DurableActivities superseded) | `WorkflowState.value.ts`, `ExtractionProgress.value.ts`, `Workflow.errors.ts`, `WorkflowPersistence.ts` |
 | 2Bb: Workflow + Progress     | ExtractionWorkflow orchestrator, ProgressStream SSE           | `ExtractionWorkflow.ts`, `ProgressStream.ts`                                                                                      |
 | 2C: CircuitBreaker           | Combined circuit breaker + rate limiter                       | `LlmControl/RateLimiter.ts` (CentralRateLimiterService)                                                                           |
 | 2D: Rate Limiter Integration | Wrapped LLM call sites                                        | Modified `EmbeddingService.ts`, `GroundedAnswerGenerator.ts`                                                                      |
