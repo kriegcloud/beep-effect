@@ -111,11 +111,11 @@ const serviceEffect: Effect.Effect<
         const channel: SourceChannel.Type = sourceChannel ?? "unknown";
         const wordCount = estimateWordCount(content);
 
-	        const response = yield* withLlmResilienceWithFallback(
-	          model,
-	          fallback,
-	          (llm) =>
-	            llm.generateObject({
+        const response = yield* withLlmResilienceWithFallback(
+          model,
+          fallback,
+          (llm) =>
+            llm.generateObject({
               prompt: Prompt.make([
                 Prompt.systemMessage({ content: ENRICHMENT_SYSTEM_PROMPT }),
                 Prompt.userMessage({
@@ -125,15 +125,15 @@ const serviceEffect: Effect.Effect<
               schema: EnrichedContent,
               objectName: "EnrichedContent",
             }),
-	          {
-	            stage: "entity_extraction",
-	            estimatedTokens: Str.length(content),
-	            maxRetries: 1,
-	            baseRetryDelay: Duration.zero,
-	          }
-	        ).pipe(
-	          Effect.map((r) => r.value),
-	          Effect.mapError(
+          {
+            stage: "entity_extraction",
+            estimatedTokens: Str.length(content),
+            maxRetries: 1,
+            baseRetryDelay: Duration.zero,
+          }
+        ).pipe(
+          Effect.map((r) => r.value),
+          Effect.mapError(
             (e) =>
               new ContentEnrichmentError({
                 message: `Content enrichment failed: ${String(e)}`,

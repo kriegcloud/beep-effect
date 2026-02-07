@@ -1,18 +1,18 @@
-import type {Metadata} from "next";
-import {Geist, Geist_Mono, Inter} from "next/font/google";
+import type { Metadata } from "next";
+import { Geist, Geist_Mono, Inter } from "next/font/google";
 import "./globals.css";
-import {Agentation} from "agentation";
+import { Agentation } from "agentation";
 import Script from "next/script";
-import {connection} from "next/server";
+import { connection } from "next/server";
 import React from "react";
 
-const inter = Inter({subsets: ["latin"], variable: "--font-sans"});
+const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
-import {runServerPromise} from "@beep/runtime-server";
-import {getAppConfig} from "@beep/todox/app-config";
-import {GlobalProviders} from "@beep/todox/global-providers";
+import { runServerPromise } from "@beep/runtime-server";
+import { getAppConfig } from "@beep/todox/app-config";
+import { GlobalProviders } from "@beep/todox/global-providers";
 import * as Effect from "effect/Effect";
-import {ThemeProvider} from "next-themes";
+import { ThemeProvider } from "next-themes";
 
 const getInitialProps = getAppConfig.pipe(Effect.withSpan("getInitialProps"));
 
@@ -33,40 +33,40 @@ export const metadata: Metadata = {
 const isDev = process.env.NODE_ENV === "development";
 
 export default async function RootLayout({
-                                           children,
-                                         }: Readonly<{
+  children,
+}: Readonly<{
   children: React.ReactNode;
 }>) {
   await connection();
   const appConfig = await runServerPromise(getInitialProps, "RootLayout.getInitialProps");
   return (
     <>
-      <Agentation/>
+      <Agentation />
       <html lang={appConfig.lang ?? "en"} dir={appConfig.dir} className={inter.variable} suppressHydrationWarning>
-      <head>
-        {isDev && (
-          <>
-            <Script src="https://unpkg.com/react-grab@0.1.13/dist/index.global.js" strategy="beforeInteractive"/>
-            {/*<Script*/}
-            {/*  src="https://unpkg.com/@react-grab/claude-code@0.1.13/dist/client.global.js"*/}
-            {/*  strategy="afterInteractive"*/}
-            {/*/>*/}
-            <Script
-              src="https://unpkg.com/@react-grab/codex@0.1.13/dist/client.global.js"
-              strategy="afterInteractive"
-            />
-          </>
-        )}
-      </head>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-      <React.Suspense>
-        <GlobalProviders appConfig={appConfig}>
-          <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-            {children}
-          </ThemeProvider>
-        </GlobalProviders>
-      </React.Suspense>
-      </body>
+        <head>
+          {isDev && (
+            <>
+              <Script src="https://unpkg.com/react-grab@0.1.13/dist/index.global.js" strategy="beforeInteractive" />
+              {/*<Script*/}
+              {/*  src="https://unpkg.com/@react-grab/claude-code@0.1.13/dist/client.global.js"*/}
+              {/*  strategy="afterInteractive"*/}
+              {/*/>*/}
+              <Script
+                src="https://unpkg.com/@react-grab/codex@0.1.13/dist/client.global.js"
+                strategy="afterInteractive"
+              />
+            </>
+          )}
+        </head>
+        <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+          <React.Suspense>
+            <GlobalProviders appConfig={appConfig}>
+              <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+                {children}
+              </ThemeProvider>
+            </GlobalProviders>
+          </React.Suspense>
+        </body>
       </html>
     </>
   );

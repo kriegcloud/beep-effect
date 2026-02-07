@@ -153,15 +153,15 @@ const serviceEffect: Effect.Effect<
             schema: DocumentClassification,
             objectName: "DocumentClassification",
           }),
-	          {
-	            stage: "entity_extraction",
-	            estimatedTokens: Str.length(input.preview),
-	            maxRetries: 1,
-	            baseRetryDelay: Duration.zero,
-	          }
-	        ).pipe(
-	          Effect.map((r) => r.value),
-	          Effect.mapError(
+        {
+          stage: "entity_extraction",
+          estimatedTokens: Str.length(input.preview),
+          maxRetries: 1,
+          baseRetryDelay: Duration.zero,
+        }
+      ).pipe(
+        Effect.map((r) => r.value),
+        Effect.mapError(
           (e) =>
             new ClassificationError({
               message: `Document classification failed: ${String(e)}`,
@@ -195,15 +195,15 @@ const serviceEffect: Effect.Effect<
             }),
             objectName: "BatchClassificationResponse",
           }),
-	          {
-	            stage: "entity_extraction",
-	            estimatedTokens: A.reduce(input.documents, 0, (acc, d) => acc + Str.length(d.preview)),
-	            maxRetries: 1,
-	            baseRetryDelay: Duration.zero,
-	          }
-	        ).pipe(
-	          Effect.map((r) => r.value.classifications),
-	          Effect.mapError(
+        {
+          stage: "entity_extraction",
+          estimatedTokens: A.reduce(input.documents, 0, (acc, d) => acc + Str.length(d.preview)),
+          maxRetries: 1,
+          baseRetryDelay: Duration.zero,
+        }
+      ).pipe(
+        Effect.map((r) => r.value.classifications),
+        Effect.mapError(
           (e) =>
             new ClassificationError({
               message: `Batch classification failed: ${String(e)}`,
