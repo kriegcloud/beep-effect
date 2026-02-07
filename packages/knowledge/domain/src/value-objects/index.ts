@@ -1,6 +1,7 @@
 export * from "./Attributes.value";
 export * from "./BatchConfig.value";
 export * from "./BatchEvent.value";
+export * from "./BatchMachine.schema";
 export * from "./BatchState.value";
 export * from "./ClassIri.value";
 export * from "./CountResult.value";
@@ -13,5 +14,4 @@ export * from "./RelationDirection.value";
 export * from "./rdf";
 export * from "./reasoning";
 export * from "./sparql";
-export * from "./BatchMachine.schema";
 export * from "./WorkflowState.value";

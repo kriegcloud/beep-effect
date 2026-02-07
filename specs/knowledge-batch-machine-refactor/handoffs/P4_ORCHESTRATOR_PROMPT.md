@@ -83,6 +83,29 @@ Phase 3 created:
 - cancelBatch sends Cancel event
 - streamProgress delivers state changes
 
+### 4. EventLog Tests (`BatchEventGroup.test.ts`)
+
+**Event Persistence**:
+- EventGroup defines all 9 domain events with correct tags and payload schemas
+- `EventLog.makeClient()` produces typed emitter that persists to EventJournal
+- Events round-trip through EventJournal (write + read back via `entries`)
+
+**Handler Exhaustiveness**:
+- `EventLog.group()` handlers cover all 9 event tags (compile-time verified)
+- Each handler executes correct side effect (e.g., DocumentCompleted handler calls WorkflowPersistence)
+
+**Compaction**:
+- StageProgress compaction keeps only latest event per primaryKey
+- Non-compactable events are preserved in order
+
+**Replay**:
+- EventJournal entries can replay through handlers to reconstruct materialized state
+- Handler idempotency: replaying same events produces same side effects
+
+**Integration with Machine**:
+- Machine `Slot.Effects.emitBatchEvent` uses EventLog client (not PubSub)
+- Full lifecycle: spawn actor -> transitions emit domain events -> events persisted -> handlers project state
+
 ---
 
 ## Testing Utilities Reference
@@ -162,6 +185,7 @@ bun run test --filter @beep/knowledge-server
 - [ ] `bun run check --filter @beep/knowledge-domain` passes
 - [ ] `bun run check --filter @beep/knowledge-server` passes
 - [ ] All new tests pass
+- [ ] EventLog tests: EventGroup schema, handler exhaustiveness, persistence round-trip, compaction
 - [ ] No regressions in existing tests
 - [ ] REFLECTION_LOG.md updated with phase learnings
 
@@ -172,6 +196,8 @@ bun run test --filter @beep/knowledge-server
 1. Update `specs/knowledge-batch-machine-refactor/REFLECTION_LOG.md`
 2. Mark spec status as COMPLETE in README.md
 3. Identify follow-up work:
-   - SQL-backed `PersistenceAdapter` for production crash recovery
+   - **PostgreSQL EventJournal adapter** for production domain event persistence (6-method interface; remote sync methods can be no-ops)
+   - SQL-backed machine `PersistenceAdapter` for production crash recovery
    - Cluster/entity integration for distributed batch processing
    - Batch queuing and scheduling
+   - EventLog compaction tuning for StageProgress events

@@ -37,6 +37,8 @@ All spec-creation infrastructure lives in [`_guide/`](_guide/):
 | [agent-context-optimization](agent-context-optimization/) | Git subtrees, module context, navigation index | **Complete** |
 | [agent-effectiveness-audit](agent-effectiveness-audit/) | Measure and improve agent infrastructure effectiveness | **Complete** |
 | [agent-infrastructure-rationalization](agent-infrastructure-rationalization/) | Agent config consolidation and IDE sync | **Complete** |
+| [codex-claude-parity](codex-claude-parity/) | Configure project-level `.codex` to achieve operational parity with `.claude` | Planning |
+| [cursor-claude-parity](cursor-claude-parity/) | Configure project-level `.cursor` to achieve operational parity with `.claude` and `.codex` | Planning |
 | [agents-md-audit](agents-md-audit/) | AGENTS.md file standardization | New |
 | [agents](agents/) | Specialized agent creation specs | Active |
 | [better-auth-client-wrappers](better-auth-client-wrappers/) | Wrap 90+ better-auth client methods for @beep/iam-clients | P1 Ready |

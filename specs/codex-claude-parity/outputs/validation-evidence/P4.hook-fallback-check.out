@@ -1,0 +1,10 @@
+hook_parity_status_line=Status: `defer`
+AGENTS.md: present
+.codex/context-index.md: present
+.codex/workflows/pattern-check.md: present
+.codex/safety/permissions.md: present
+24:### Session start
+27:### Before tool/command execution
+31:### After edit/write operations
+35:### Session end
+38:## Closure condition

@@ -6,9 +6,9 @@ Refactor the knowledge slice Batch workflow to use `@beep/machine` for type-safe
 
 | Phase | Description | Status |
 |-------|-------------|--------|
-| P1 | Research & Design | PLANNED |
-| P2 | Domain Model Refactor | PLANNED |
-| P3 | Server Implementation | PLANNED |
+| P1 | Research & Design | DONE |
+| P2 | Domain Model Refactor | DONE |
+| P3 | Server Implementation | IN PROGRESS (Task 5 remaining) |
 | P4 | Testing & Verification | PLANNED |
 
 ## Purpose

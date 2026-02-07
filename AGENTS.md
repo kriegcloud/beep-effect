@@ -66,6 +66,27 @@ Each slice follows `domain -> tables -> server -> client -> ui`. Cross-slice imp
 
 See [documentation/EFFECT_PATTERNS.md](documentation/EFFECT_PATTERNS.md) for detailed Effect patterns, import conventions, and critical rules.
 
+## Codex Parity Surface
+
+For Codex parity workflows and adaptations, use:
+- `.codex/README.md`
+- `.codex/context-index.md`
+- `.codex/rules/`
+- `.codex/workflows/`
+- `.codex/safety/permissions.md`
+
+## Cursor Parity Surface
+
+For Cursor IDE parity workflows and adaptations, use:
+- [.cursor/README.md](.cursor/README.md) — Cursor config index, command/workflow mapping, skill list
+- `specs/cursor-claude-parity/` — Spec for achieving `.cursor` parity with `.claude` and `.codex`
+- `.cursor/rules/` — Synced from `.claude/rules` via `bun run repo-cli sync-cursor-rules`
+- `.cursor/skills/` — Cursor skill catalog (required + workflow skills)
+
+**Cursor entry points (no /commands):** Trigger workflows by prompt or @-mention. New spec → "Create a new spec for …" or @Spec Lifecycle. Feature complete → @Done Feature. Debug/explore/write-test → @Task Execution. See `.cursor/README.md` for full index.
+
+**Agent-tier mapping:** Discovery (codebase-researcher, mcp-researcher) → explore via @Task Execution. Evaluation (code-reviewer, architecture-pattern-enforcer) → rules + code-standards/effect-patterns; legal-review skill deferred. Synthesis (reflector, doc-writer) → @Spec Lifecycle + spec-driven-development. Iteration (test-writer, effect-code-writer) → @Task Execution (Write Test) + service-implementation/layer-design.
+
 ## Code Quality
 
 - No `any`, `@ts-ignore`, or unchecked casts. Validate external data with `@beep/schema`.

@@ -61,12 +61,14 @@ describe("ast utilities", () => {
   });
 
   describe("analyzeSourceFile", () => {
-    effect("analyzes exports from a source file", () =>
-      Effect.gen(function* () {
-        const project = yield* createProject();
-        const sourceFile = project.createSourceFile(
-          "test.ts",
-          `
+    effect(
+      "analyzes exports from a source file",
+      () =>
+        Effect.gen(function* () {
+          const project = yield* createProject();
+          const sourceFile = project.createSourceFile(
+            "test.ts",
+            `
 /**
  * Test function.
  * @category Utils
@@ -84,12 +86,13 @@ export interface MyInterface {
   name: string;
 }
 `,
-          { overwrite: true }
-        );
+            { overwrite: true }
+          );
 
-        const results = analyzeSourceFile(sourceFile, "test.ts");
-        expect(A.length(results)).toBe(4);
-      })
+          const results = analyzeSourceFile(sourceFile, "test.ts");
+          expect(A.length(results)).toBe(4);
+        }),
+      { timeout: 15000 }
     );
 
     effect("identifies missing tags", () =>

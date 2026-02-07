@@ -1,12 +1,8 @@
-import {
-  BatchMachineEvent,
-  BatchMachineGuards,
-  BatchMachineState,
-} from "@beep/knowledge-domain/value-objects"
-import { Machine, Slot } from "@beep/machine"
-import * as A from "effect/Array"
-import * as Effect from "effect/Effect"
-import * as S from "effect/Schema"
+import { BatchMachineEvent, BatchMachineGuards, BatchMachineState } from "@beep/knowledge-domain/value-objects";
+import { Machine, Slot } from "@beep/machine";
+import * as A from "effect/Array";
+import * as Effect from "effect/Effect";
+import * as S from "effect/Schema";
 // ---------------------------------------------------------------------------
 // Effects slot
 // ---------------------------------------------------------------------------
@@ -18,16 +14,16 @@ export const BatchMachineEffects = Slot.Effects({
     completedCount: S.Number,
     totalDocuments: S.Number,
   },
-})
+});
 
 // ---------------------------------------------------------------------------
 // Machine factory
 // ---------------------------------------------------------------------------
 
 export const makeBatchMachine = (params: {
-  readonly batchId: S.Schema.Type<typeof BatchMachineState._definition.Pending.batchId>
-  readonly documentIds: ReadonlyArray<string>
-  readonly config: S.Schema.Type<typeof BatchMachineState._definition.Pending.config>
+  readonly batchId: S.Schema.Type<typeof BatchMachineState._definition.Pending.batchId>;
+  readonly documentIds: ReadonlyArray<string>;
+  readonly config: S.Schema.Type<typeof BatchMachineState._definition.Pending.config>;
 }) =>
   Machine.make({
     state: BatchMachineState,
@@ -61,90 +57,80 @@ export const makeBatchMachine = (params: {
     // -----------------------------------------------------------------------
     // 2. Extracting + DocumentCompleted -> Extracting (reenter)
     // -----------------------------------------------------------------------
-    .reenter(
-      BatchMachineState.Extracting,
-      BatchMachineEvent.DocumentCompleted,
-      ({ state, event, effects }) =>
-        Effect.gen(function* () {
-          const newCompleted = state.completedCount + 1
-          const newEntityCount = state.entityCount + event.entityCount
-          const newRelationCount = state.relationCount + event.relationCount
-          const processed = newCompleted + state.failedCount
-          const progress = state.totalDocuments > 0 ? processed / state.totalDocuments : 0
+    .reenter(BatchMachineState.Extracting, BatchMachineEvent.DocumentCompleted, ({ state, event, effects }) =>
+      Effect.gen(function* () {
+        const newCompleted = state.completedCount + 1;
+        const newEntityCount = state.entityCount + event.entityCount;
+        const newRelationCount = state.relationCount + event.relationCount;
+        const processed = newCompleted + state.failedCount;
+        const progress = state.totalDocuments > 0 ? processed / state.totalDocuments : 0;
 
-          yield* effects.notifyProgress({
-            batchId: state.batchId,
-            completedCount: newCompleted,
-            totalDocuments: state.totalDocuments,
-          })
-
-          return BatchMachineState.Extracting({
-            batchId: state.batchId,
-            documentIds: state.documentIds,
-            config: state.config,
-            completedCount: newCompleted,
-            failedCount: state.failedCount,
-            totalDocuments: state.totalDocuments,
-            entityCount: newEntityCount,
-            relationCount: newRelationCount,
-            progress,
-          })
-        })
-    )
-
-    // -----------------------------------------------------------------------
-    // 3. Extracting + DocumentFailed -> Extracting (reenter)
-    // -----------------------------------------------------------------------
-    .reenter(
-      BatchMachineState.Extracting,
-      BatchMachineEvent.DocumentFailed,
-      ({ state }) => {
-        const newFailed = state.failedCount + 1
-        const processed = state.completedCount + newFailed
-        const progress = state.totalDocuments > 0 ? processed / state.totalDocuments : 0
+        yield* effects.notifyProgress({
+          batchId: state.batchId,
+          completedCount: newCompleted,
+          totalDocuments: state.totalDocuments,
+        });
 
         return BatchMachineState.Extracting({
           batchId: state.batchId,
           documentIds: state.documentIds,
           config: state.config,
-          completedCount: state.completedCount,
-          failedCount: newFailed,
+          completedCount: newCompleted,
+          failedCount: state.failedCount,
           totalDocuments: state.totalDocuments,
-          entityCount: state.entityCount,
-          relationCount: state.relationCount,
+          entityCount: newEntityCount,
+          relationCount: newRelationCount,
           progress,
-        })
-      }
+        });
+      })
     )
+
+    // -----------------------------------------------------------------------
+    // 3. Extracting + DocumentFailed -> Extracting (reenter)
+    // -----------------------------------------------------------------------
+    .reenter(BatchMachineState.Extracting, BatchMachineEvent.DocumentFailed, ({ state }) => {
+      const newFailed = state.failedCount + 1;
+      const processed = state.completedCount + newFailed;
+      const progress = state.totalDocuments > 0 ? processed / state.totalDocuments : 0;
+
+      return BatchMachineState.Extracting({
+        batchId: state.batchId,
+        documentIds: state.documentIds,
+        config: state.config,
+        completedCount: state.completedCount,
+        failedCount: newFailed,
+        totalDocuments: state.totalDocuments,
+        entityCount: state.entityCount,
+        relationCount: state.relationCount,
+        progress,
+      });
+    })
 
     // -----------------------------------------------------------------------
     // 4. Extracting + ExtractionComplete -> Resolving | Completed
     // -----------------------------------------------------------------------
-    .on(
-      BatchMachineState.Extracting,
-      BatchMachineEvent.ExtractionComplete,
-      ({ state, event, guards }) =>
-        Effect.gen(function* () {
-          const shouldResolve = yield* guards.isResolutionEnabled()
+    .on(BatchMachineState.Extracting, BatchMachineEvent.ExtractionComplete, ({ state, event, guards }) =>
+      Effect.gen(function* () {
+        const shouldResolve = yield* guards.isResolutionEnabled();
 
-          if (shouldResolve) {
-            return BatchMachineState.Resolving({
-              batchId: state.batchId,
-              config: state.config,
-              totalDocuments: state.totalDocuments,
-              entityCount: event.totalEntityCount,
-              relationCount: event.totalRelationCount,
-              progress: 0,
-            })
-          }
-
-          return BatchMachineState.Completed({
+        if (shouldResolve) {
+          return BatchMachineState.Resolving({
             batchId: state.batchId,
+            config: state.config,
             totalDocuments: state.totalDocuments,
             entityCount: event.totalEntityCount,
             relationCount: event.totalRelationCount,
-          })
-        })
+            progress: 0,
+          });
+        }
+
+        return BatchMachineState.Completed({
+          batchId: state.batchId,
+          totalDocuments: state.totalDocuments,
+          entityCount: event.totalEntityCount,
+          relationCount: event.totalRelationCount,
+        });
+      })
     )
 
     // -----------------------------------------------------------------------
@@ -212,17 +198,17 @@ export const makeBatchMachine = (params: {
     // -----------------------------------------------------------------------
     .on(BatchMachineState.Failed, BatchMachineEvent.Retry, ({ state, guards }) =>
       Effect.gen(function* () {
-        const allowed = yield* guards.canRetry({ maxRetries: state.config.maxRetries })
+        const allowed = yield* guards.canRetry({ maxRetries: state.config.maxRetries });
 
         if (allowed) {
           return BatchMachineState.Pending({
             batchId: state.batchId,
             documentIds: state.documentIds,
             config: state.config,
-          })
+          });
         }
 
-        return state
+        return state;
       })
     )
 
@@ -230,12 +216,12 @@ export const makeBatchMachine = (params: {
     // 11. onAny + Cancel -> Cancelled (fallback)
     // -----------------------------------------------------------------------
     .onAny(BatchMachineEvent.Cancel, ({ state }) => {
-      const batchId = state.batchId
+      const batchId = state.batchId;
       return BatchMachineState.Cancelled({
         batchId,
         completedCount: 0,
         totalDocuments: 0,
-      })
+      });
     })
 
     // -----------------------------------------------------------------------
@@ -248,8 +234,7 @@ export const makeBatchMachine = (params: {
     // Build with handler implementations
     // -----------------------------------------------------------------------
     .build({
-      canRetry: ({ maxRetries }, { state }) =>
-        BatchMachineState.$is("Failed")(state) && state.failedCount < maxRetries,
+      canRetry: ({ maxRetries }, { state }) => BatchMachineState.$is("Failed")(state) && state.failedCount < maxRetries,
 
       isResolutionEnabled: (_params, { state }) =>
         Effect.succeed(
@@ -267,9 +252,7 @@ export const makeBatchMachine = (params: {
         Effect.logDebug("BatchMachine: event emitted").pipe(Effect.annotateLogs({ event })),
 
       notifyProgress: ({ batchId, completedCount, totalDocuments }) =>
-        Effect.logInfo("BatchMachine: progress").pipe(
-          Effect.annotateLogs({ batchId, completedCount, totalDocuments })
-        ),
-    })
+        Effect.logInfo("BatchMachine: progress").pipe(Effect.annotateLogs({ batchId, completedCount, totalDocuments })),
+    });
 
-export type BatchMachine = ReturnType<typeof makeBatchMachine>
+export type BatchMachine = ReturnType<typeof makeBatchMachine>;

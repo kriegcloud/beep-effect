@@ -18,6 +18,9 @@ Build the `@beep/machine` machine in knowledge-server. Implement slot effects. M
 ### Open Questions
 - Should `BatchOrchestrator` own the `ActorSystem`, or should it be a Layer dependency?
 - How to handle the `BatchEventEmitter` PubSub alongside machine effects?
+- Should `EventLog.makeClient()` be resolved once at Layer level or per-batch? (Likely Layer level — single client, keyed by primaryKey/batchId)
+- How should `EventLog.group()` handlers compose with existing `WorkflowPersistence`? (Handlers call persistence methods as projections, or replace persistence entirely?)
+- Should `StageProgress` compaction be configured in Phase 3 or deferred to follow-up?
 
 ## Tier 2: Execution Checklist
 
@@ -42,10 +45,14 @@ Build the `@beep/machine` machine in knowledge-server. Implement slot effects. M
 - [ ] Use `actor.state` for progress tracking
 - [ ] Simplify orchestrator to: spawn actor, send StartExtraction, await completion
 
-### Task 4: Add Persistence
-- [ ] Call `.persist()` on built machine
-- [ ] Configure snapshot schedule and event journaling
-- [ ] Provide `InMemoryPersistenceAdapter` in Layer
+### Task 4: Add Persistence (Dual Layer)
+- [ ] Call `.persist()` on built machine with snapshot schedule and event journaling
+- [ ] Provide `InMemoryPersistenceAdapter` in Layer for machine state
+- [ ] Define `BatchEventGroup` using `EventGroup.empty.add(...)` with all 9 domain events
+- [ ] Define `BatchEventHandlers` via `EventLog.group()` — compile-time exhaustive handlers
+- [ ] Create `EventLog.makeClient(BatchEventLogSchema)` for typed event emission
+- [ ] Provide `EventJournal.layerMemory` in Layer for domain event persistence
+- [ ] Wire `EventLog.makeClient()` into machine `Slot.Effects` (replaces `BatchEventEmitter.emit()`)
 
 ### Task 5: Update RPC Handlers
 - [ ] `startBatch`: Spawn actor, send StartExtraction
@@ -93,8 +100,10 @@ const batchMachine = Machine.make({
 
 ### File Locations
 - New: `packages/knowledge/server/src/Workflow/BatchMachine.ts`
+- New: `packages/knowledge/server/src/Workflow/BatchEventGroup.ts` — EventGroup + EventLog schema + handlers
 - Modified: `packages/knowledge/server/src/Workflow/BatchOrchestrator.ts`
 - Modified: `packages/knowledge/server/src/rpc/v1/batch/*.ts`
+- Deprecated: `packages/knowledge/server/src/Workflow/BatchEventEmitter.ts` — replaced by `EventLog.makeClient()`
 - Possibly removed: `packages/knowledge/server/src/Workflow/BatchStateMachine.ts`
 
 ## Tier 4: Historical Context

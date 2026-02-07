@@ -38,6 +38,7 @@
     "@beep/schema": "workspace:^",
     "@beep/machine": "workspace:^",
     "@beep/shared-domain": "workspace:^",
+    "@effect/experimental": "catalog:",
     "@effect/sql": "catalog:",
     "effect": "catalog:"
   },
@@ -46,6 +47,7 @@
     "@beep/machine": "workspace:^",
     "@beep/shared-domain": "workspace:^",
     "@effect/docgen": "catalog:",
+    "@effect/experimental": "catalog:",
     "@effect/sql": "catalog:",
     "@total-typescript/ts-reset": "catalog:",
     "effect": "catalog:"

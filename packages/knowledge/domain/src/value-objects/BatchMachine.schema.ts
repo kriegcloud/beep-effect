@@ -1,9 +1,8 @@
-import * as S from "effect/Schema"
+import { Event, Slot, State } from "@beep/machine";
+import { KnowledgeEntityIds } from "@beep/shared-domain";
+import * as S from "effect/Schema";
 
-import { Event, Slot, State } from "@beep/machine"
-import { KnowledgeEntityIds } from "@beep/shared-domain"
-
-import { BatchConfig } from "./BatchConfig.value.js"
+import { BatchConfig } from "./BatchConfig.value";
 
 // ---------------------------------------------------------------------------
 // State
@@ -52,9 +51,9 @@ export const BatchMachineState = State({
     completedCount: S.NonNegativeInt,
     totalDocuments: S.NonNegativeInt,
   },
-})
+});
 
-export type BatchMachineState = typeof BatchMachineState.Type
+export type BatchMachineState = typeof BatchMachineState.Type;
 
 // ---------------------------------------------------------------------------
 // Event
@@ -85,9 +84,9 @@ export const BatchMachineEvent = Event({
   Fail: {
     error: S.String,
   },
-})
+});
 
-export type BatchMachineEvent = typeof BatchMachineEvent.Type
+export type BatchMachineEvent = typeof BatchMachineEvent.Type;
 
 // ---------------------------------------------------------------------------
 // Guards
@@ -96,6 +95,6 @@ export type BatchMachineEvent = typeof BatchMachineEvent.Type
 export const BatchMachineGuards = Slot.Guards({
   canRetry: { maxRetries: S.Number },
   isResolutionEnabled: {},
-})
+});
 
-export type BatchMachineGuards = typeof BatchMachineGuards
+export type BatchMachineGuards = typeof BatchMachineGuards;
