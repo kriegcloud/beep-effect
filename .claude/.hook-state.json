@@ -1539,11 +1539,6 @@
     ]
   },
   "telemetry": {
-    "activeAgents": {
-      "07c7fed4-72b6-40fb-b6d8-addc4023a285": {
-        "agentType": "effect-code-writer",
-        "startTime": 1770448992511
-      }
-    }
+    "activeAgents": {}
   }
 }

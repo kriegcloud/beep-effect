@@ -511,3 +511,4 @@
 {"eventType":"stop","timestamp":"2026-02-07T07:22:59.087Z","sessionId":"82a3fddd-617d-4051-9ca9-b309a7397b01","agentType":"unknown","durationMs":0,"outcome":"success"}
 {"eventType":"start","timestamp":"2026-02-07T07:23:12.511Z","sessionId":"07c7fed4-72b6-40fb-b6d8-addc4023a285","agentType":"effect-code-writer","triggeredBy":"auto"}
 {"eventType":"stop","timestamp":"2026-02-07T07:23:41.963Z","sessionId":"82a3fddd-617d-4051-9ca9-b309a7397b01","agentType":"unknown","durationMs":0,"outcome":"success"}
+{"eventType":"stop","timestamp":"2026-02-07T07:24:02.858Z","sessionId":"07c7fed4-72b6-40fb-b6d8-addc4023a285","agentType":"effect-code-writer","durationMs":50347,"outcome":"success"}

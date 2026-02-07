@@ -5,7 +5,9 @@ import type {
   InvalidStateTransitionError,
 } from "@beep/knowledge-domain/errors";
 import { IncrementalClusterer } from "@beep/knowledge-domain/services";
-import type { BatchConfig, BatchEvent, BatchState } from "@beep/knowledge-domain/value-objects";
+import type { BatchConfig, BatchEvent } from "@beep/knowledge-domain/value-objects";
+import { BatchMachineEvent } from "@beep/knowledge-domain/value-objects";
+import { Machine } from "@beep/machine";
 import { KnowledgeEntityIds, type SharedEntityIds } from "@beep/shared-domain";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";
@@ -20,7 +22,7 @@ import * as O from "effect/Option";
 import type * as S from "effect/Schema";
 import type { ExtractionResult } from "../Extraction/ExtractionPipeline";
 import { BatchEventEmitter } from "./BatchEventEmitter";
-import { BatchStateMachine } from "./BatchStateMachine";
+import { makeBatchMachine } from "./BatchMachine";
 import { ExtractionWorkflow, type ExtractionWorkflowParams } from "./ExtractionWorkflow";
 import { WorkflowPersistence } from "./WorkflowPersistence";
 
