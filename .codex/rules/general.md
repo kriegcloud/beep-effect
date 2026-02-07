@@ -145,6 +145,15 @@ packages/example/
 
 See `.claude/commands/patterns/effect-testing-patterns.md` for comprehensive testing patterns.
 
+## Git / Worktree Hygiene (Non-Blocking)
+
+Non-clean worktrees are normal in this repo (multiple agents may work in parallel on the same branch).
+
+- Do **not** treat `git status` showing changes as a blocker.
+- Do **not** ask to revert unrelated changes by default. Proceed with your scoped changes.
+- Only require a clean worktree for operations that strictly need it (e.g. some codemods, `git subtree`, history rewriting).
+- Never run destructive git commands (`git reset --hard`, `git clean -fdx`, etc.) unless explicitly requested.
+
 ## Turborepo Verification Behavior
 
 **IMPORTANT**: Turborepo's `--filter` flag cascades through ALL package dependencies.

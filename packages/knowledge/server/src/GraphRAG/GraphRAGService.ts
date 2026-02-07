@@ -38,41 +38,71 @@ import { assignGraphRanks, fuseRankings } from "./RrfScorer";
 
 const $I = $KnowledgeServerId.create("GraphRAG/GraphRAGService");
 
-export class EntityFilters extends S.Class<EntityFilters>("EntityFilters")({
-  typeIris: S.optional(S.Array(S.String)),
-  minConfidence: S.optional(S.Number.pipe(S.greaterThanOrEqualTo(0), S.lessThanOrEqualTo(1))),
-  ontologyId: S.optional(S.String),
-}) {}
+export class EntityFilters extends S.Class<EntityFilters>($I`EntityFilters`)(
+  {
+    typeIris: S.optional(S.Array(S.String)),
+    minConfidence: S.optional(S.Number.pipe(S.greaterThanOrEqualTo(0), S.lessThanOrEqualTo(1))),
+    ontologyId: S.optional(S.String),
+  },
+  $I.annotations("EntityFilters", {
+    description: "Optional filters applied to graph retrieval (type IRIs, confidence threshold, ontology ID).",
+  })
+) {}
 
-export class GraphRAGQuery extends S.Class<GraphRAGQuery>("GraphRAGQuery")({
-  query: S.String.pipe(S.minLength(1)),
-  topK: BS.toOptionalWithDefault(S.Number.pipe(S.greaterThan(0), S.lessThanOrEqualTo(50)))(10),
-  hops: BS.toOptionalWithDefault(S.Number.pipe(S.greaterThanOrEqualTo(0), S.lessThanOrEqualTo(3)))(1),
-  filters: S.optional(EntityFilters),
-  maxTokens: BS.toOptionalWithDefault(S.Number.pipe(S.greaterThan(0)))(4000),
-  similarityThreshold: BS.toOptionalWithDefault(S.Number.pipe(S.greaterThanOrEqualTo(0), S.lessThanOrEqualTo(1)))(0.5),
-  includeScores: BS.toOptionalWithDefault(S.Boolean)(false),
-}) {}
+export class GraphRAGQuery extends S.Class<GraphRAGQuery>($I`GraphRAGQuery`)(
+  {
+    query: S.String.pipe(S.minLength(1)),
+    topK: BS.toOptionalWithDefault(S.Number.pipe(S.greaterThan(0), S.lessThanOrEqualTo(50)))(10),
+    hops: BS.toOptionalWithDefault(S.Number.pipe(S.greaterThanOrEqualTo(0), S.lessThanOrEqualTo(3)))(1),
+    filters: S.optional(EntityFilters),
+    maxTokens: BS.toOptionalWithDefault(S.Number.pipe(S.greaterThan(0)))(4000),
+    similarityThreshold: BS.toOptionalWithDefault(S.Number.pipe(S.greaterThanOrEqualTo(0), S.lessThanOrEqualTo(1)))(
+      0.5
+    ),
+    includeScores: BS.toOptionalWithDefault(S.Boolean)(false),
+  },
+  $I.annotations("GraphRAGQuery", {
+    description: "GraphRAG query input (question + retrieval parameters).",
+  })
+) {}
 
-export class GraphRAGResult extends S.Class<GraphRAGResult>("GraphRAGResult")({
-  entities: S.Array(Entities.Entity.Model),
-  relations: S.Array(Entities.Relation.Model),
-  scores: S.Record({ key: S.String, value: S.Number }),
-  context: S.String,
-  stats: S.Struct({
+export class GraphRagResultStats extends S.Class<GraphRagResultStats>($I`GraphRagResultStats`)(
+  {
     seedEntityCount: S.Number,
     totalEntityCount: S.Number,
     totalRelationCount: S.Number,
     hopsTraversed: S.Number,
     estimatedTokens: S.Number,
     truncated: S.Boolean,
-  }),
-}) {}
+  },
+  $I.annotations("GraphRagResultStats", {
+    description: "Query execution stats returned with GraphRAG results (counts, hops, token estimates).",
+  })
+) {}
 
-export class GraphRAGError extends S.TaggedError<GraphRAGError>()("GraphRAGError", {
-  message: S.String,
-  cause: S.optional(S.String),
-}) {}
+export class GraphRAGResult extends S.Class<GraphRAGResult>($I`GraphRAGResult`)(
+  {
+    entities: S.Array(Entities.Entity.Model),
+    relations: S.Array(Entities.Relation.Model),
+    scores: S.Record({ key: S.String, value: S.Number }),
+    context: S.String,
+    stats: GraphRagResultStats,
+  },
+  $I.annotations("GraphRAGResult", {
+    description: "GraphRAG results (entities, relations, optional scores, and formatted context string).",
+  })
+) {}
+
+export class GraphRAGError extends S.TaggedError<GraphRAGError>($I`GraphRAGError`)(
+  "GraphRAGError",
+  {
+    message: S.String,
+    cause: S.optional(S.String),
+  },
+  $I.annotations("GraphRAGError", {
+    description: "GraphRAG service failure (message + optional serialized cause).",
+  })
+) {}
 
 export interface GraphRAGServiceShape {
   readonly query: (
@@ -91,7 +121,7 @@ export interface GraphRAGServiceShape {
     schemaContext: string,
     timeoutMs?: number
   ) => Effect.Effect<
-    QueryResult,
+    QueryResult.Type,
     GraphRAGError | SparqlGenerationError | SparqlSyntaxError | SparqlUnsupportedFeatureError | SparqlTimeoutError
   >;
 }
@@ -222,7 +252,7 @@ const serviceEffect: Effect.Effect<
         },
       });
 
-      yield* Effect.logInfo("GraphRAGService.query: complete").pipe(Effect.annotateLogs(result.stats));
+      yield* Effect.logInfo("GraphRAGService.query: complete").pipe(Effect.annotateLogs({ stats: result.stats }));
 
       return result;
     }).pipe(
@@ -254,14 +284,14 @@ const serviceEffect: Effect.Effect<
           relations: A.empty<Entities.Relation.Model>(),
           scores: {},
           context: "",
-          stats: {
+          stats: new GraphRagResultStats({
             seedEntityCount: 0,
             totalEntityCount: 0,
             totalRelationCount: 0,
             hopsTraversed: 0,
             estimatedTokens: 0,
             truncated: false,
-          },
+          }),
         });
       }
 
@@ -289,14 +319,14 @@ const serviceEffect: Effect.Effect<
         relations,
         scores,
         context: includeScores ? formatContextWithScores(sortedEntities, relations, scoreMap) : context,
-        stats: {
+        stats: GraphRagResultStats.make({
           seedEntityCount: A.length(seedEntityIds),
           totalEntityCount: A.length(entities),
           totalRelationCount: A.length(relations),
           hopsTraversed: hops,
           estimatedTokens: Math.ceil(Str.length(context) / 4),
           truncated: entityCount < A.length(sortedEntities) || relationCount < A.length(relations),
-        },
+        }),
       });
     }).pipe(
       Effect.withSpan("GraphRAGService.queryFromSeeds", {
@@ -310,7 +340,7 @@ const serviceEffect: Effect.Effect<
     schemaContext: string,
     timeoutMs = 5_000
   ): Effect.Effect<
-    QueryResult,
+    QueryResult.Type,
     GraphRAGError | SparqlGenerationError | SparqlSyntaxError | SparqlUnsupportedFeatureError | SparqlTimeoutError
   > =>
     Effect.gen(function* () {

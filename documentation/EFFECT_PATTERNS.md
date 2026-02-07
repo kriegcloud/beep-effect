@@ -80,6 +80,109 @@ Always use PascalCase exports: `S.Struct`, `S.Array`, `S.String` (never `S.struc
 
 ## Critical Rules
 
+### Schema Class Conventions (REQUIRED)
+
+When defining a named, reusable data model (especially anything crossing a boundary like DB rows, external API payloads, RPC payloads), prefer `S.Class` over `S.Struct`.
+
+- Use `S.Class` directly as the type (do not duplicate with a separate `interface`).
+- Prefer `S.TaggedClass` / `S.TaggedError` over `S.TaggedStruct` for ADTs and typed errors.
+- Do not name schema classes with a `*Schema` suffix. Use domain names (e.g. `EmailMetadata`, not `EmailMetadataSchema`).
+- If a model has nested object properties (e.g. `dateRange`), break nested shapes into their own `S.Class` rather than using an inline `S.Struct`.
+- For `S.optionalWith(S.Array(...))` defaults, prefer `A.empty<T>` (e.g. `default: A.empty<string>`), not `() => []`.
+- Never convert service contracts (the shapes used in `Context.Tag(...)`) into schema classes.
+
+```typescript
+import * as A from "effect/Array";
+import * as DateTime from "effect/DateTime";
+import * as O from "effect/Option";
+import * as S from "effect/Schema";
+import { BS } from "@beep/schema";
+import { $SomeSliceId } from "@beep/identity/packages";
+
+const $I = $SomeSliceId.create("path/to/module");
+
+export class DateRange extends S.Class<DateRange>($I`DateRange`)(
+  {
+    earliest: BS.DateTimeUtcFromAllAcceptable,
+    latest: BS.DateTimeUtcFromAllAcceptable,
+  },
+  $I.annotations("DateRange", { description: "UTC date range (earliest/latest) used to bound a time window." })
+) {}
+
+export class ThreadContext extends S.Class<ThreadContext>($I`ThreadContext`)(
+  {
+    threadId: S.String,
+    subject: S.String,
+    participants: S.optionalWith(S.Array(S.String), { default: A.empty<string> }),
+    dateRange: DateRange,
+  },
+  $I.annotations("ThreadContext", { description: "Message thread context used for prompting and attribution." })
+) {}
+
+export class EmailMetadata extends S.Class<EmailMetadata>($I`EmailMetadata`)(
+  {
+    from: S.String,
+    to: S.optionalWith(S.Array(S.String), { default: A.empty<string> }),
+    cc: S.optionalWith(S.Array(S.String), { default: A.empty<string> }),
+    date: S.optionalWith(S.OptionFromSelf(BS.DateTimeUtcFromAllAcceptable), { default: O.none<DateTime.Utc> }),
+    threadId: S.String,
+    labels: S.optionalWith(S.Array(S.String), { default: A.empty<string> }),
+  },
+  $I.annotations("EmailMetadata", { description: "Email metadata extracted from headers and used for downstream logic." })
+) {}
+```
+
+### Schema Identifiers & Annotations (REQUIRED)
+
+Use `@beep/identity/packages` TaggedComposer conventions to keep schema IDs and annotations canonical.
+
+- Always define `$I` at the top of the module: `const $I = $PackageId.create("relative/path/to/module")`.
+- Always prefer `$I\`Identifier\`` for schema identifiers where supported.
+- Always attach annotations via `$I.annotations("Identifier", { description: "..." })`.
+
+```typescript
+import { $KnowledgeDomainId } from "@beep/identity/packages";
+import * as S from "effect/Schema";
+
+const $I = $KnowledgeDomainId.create("errors/MyErrors");
+
+export class MyError extends S.TaggedError<MyError>($I`MyError`)(
+  "MyError",
+  { message: S.String },
+  $I.annotations("MyError", { description: "Failure emitted by the domain." })
+) {}
+```
+
+### Prefer BS.StringLiteralKit (REQUIRED)
+
+Prefer `BS.StringLiteralKit` over `S.Literal` for string-literal enums and tags (reusability, composition with `.toTagged(...).composer(...)`, and consistent annotation patterns).
+
+```typescript
+import { BS } from "@beep/schema";
+import * as S from "effect/Schema";
+
+export class Status extends BS.StringLiteralKit("open", "closed") {}
+
+export const makeTicket = Status.toTagged("status").composer({
+  id: S.String,
+  title: S.String,
+});
+```
+
+### Allowed Exceptions (MUST Document In-Code)
+
+Exceptions are allowed, but must be explicit with a short comment explaining why:
+
+- Keep an anonymous `S.Struct(...)` when it is truly one-off and local (not exported), and turning it into a named `S.Class` would add churn without reuse.
+- Keep a TypeScript `interface` when runtime schema validation is not realistic (external AST nodes, function/method contracts, generic helpers).
+- Use `S.Literal(...)` only when `BS.StringLiteralKit` cannot be used without changing semantics.
+
+Use a consistent comment form:
+
+```ts
+// exception(schema-model): <reason, and what would break/change if refactored>
+```
+
 ### NEVER Use Native Array Methods
 
 ```typescript

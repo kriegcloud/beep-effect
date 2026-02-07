@@ -16,10 +16,16 @@ import { buildGroundedAnswerPrompt, type GraphContext } from "./PromptTemplates"
 
 const $I = $KnowledgeServerId.create("GraphRAG/GroundedAnswerGenerator");
 
-export class GenerationError extends S.TaggedError<GenerationError>()("GenerationError", {
-  message: S.String,
-  cause: S.optional(S.Unknown),
-}) {}
+export class GenerationError extends S.TaggedError<GenerationError>($I`GenerationError`)(
+  "GenerationError",
+  {
+    message: S.String,
+    cause: S.optional(S.Unknown),
+  },
+  $I.annotations("GenerationError", {
+    description: "Failure while generating a grounded answer (LLM call, parsing, or validation).",
+  })
+) {}
 
 const DEFAULT_EMPTY_ANSWER_TEXT = S.decodeSync(S.NonEmptyString)(
   "I don't have enough information to answer this question."

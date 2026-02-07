@@ -15,7 +15,14 @@
  * @module Service/LlmControl/TokenBudget
  */
 
-import { Context, Effect, Layer, Ref } from "effect";
+import { $KnowledgeServerId } from "@beep/identity/packages";
+import * as Context from "effect/Context";
+import * as Effect from "effect/Effect";
+import * as Layer from "effect/Layer";
+import * as Ref from "effect/Ref";
+import * as S from "effect/Schema";
+
+const $I = $KnowledgeServerId.create("LlmControl/TokenBudget");
 
 // =============================================================================
 // Types
@@ -29,14 +36,19 @@ export type BudgetedStage = "entity_extraction" | "relation_extraction" | "groun
 /**
  * Token budget state tracking usage across stages
  */
-export interface TokenBudgetState {
-  /** Total token budget for the request */
-  readonly total: number;
-  /** Total tokens used across all stages */
-  readonly used: number;
-  /** Tokens used per stage */
-  readonly byStage: Record<string, number>;
-}
+export class TokenBudgetState extends S.Class<TokenBudgetState>($I`TokenBudgetState`)(
+  {
+    /** Total token budget for the request */
+    total: S.NonNegativeInt,
+    /** Total tokens used across all stages */
+    used: S.NonNegativeInt,
+    /** Tokens used per stage */
+    byStage: S.Record({ key: S.String, value: S.NonNegativeInt }),
+  },
+  $I.annotations("TokenBudgetState", {
+    description: "Token budget tracking state across extraction stages.",
+  })
+) {}
 
 /**
  * Budget allocation percentages by stage
@@ -83,7 +95,7 @@ const STAGE_ALLOCATIONS: Record<BudgetedStage, number> = {
  * })
  * ```
  */
-export class TokenBudgetService extends Context.Tag("TokenBudgetService")<
+export class TokenBudgetService extends Context.Tag($I`TokenBudgetService`)<
   TokenBudgetService,
   {
     /**

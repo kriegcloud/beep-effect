@@ -420,7 +420,7 @@ effect(
 effect(
   "handles many nested tags",
   Effect.fn(function* () {
-    const nested = "<em>".repeat(50) + "Text" + "</em>".repeat(50);
+    const nested = `${"<em>".repeat(50)}Text${"</em>".repeat(50)}`;
     const result = sanitizeHtml(nested);
     expect(result).toContain("Text");
   })

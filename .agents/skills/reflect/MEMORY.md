@@ -1,10 +1,18 @@
 # Skill Memory: reflect
 
 > Cumulative learnings from spec execution analysis.
-> Last updated: 2026-01-29
+> Last updated: 2026-02-07
 > Domain: Self-improving spec execution patterns
 
 ---
+
+## Cross-Spec Pattern: Schema Class Conventions
+
+- → Prefer `S.Class` over `S.Struct` when defining named, reusable data models (especially boundary-crossing: DB rows, external API payloads, RPC payloads); use the `S.Class` directly as the type (avoid a parallel `interface`).
+- → Do not name schema classes with a `*Schema` suffix (e.g. `EmailMetadata`, not `EmailMetadataSchema`).
+- → For nested object properties inside schema classes (e.g. `dateRange`), break the nested shape into its own `S.Class` rather than an inline `S.Struct`.
+- → For `S.optionalWith(S.Array(...))` defaults, use `A.empty<T>` (e.g. `default: A.empty<string>`), not `() => []`.
+- → Never convert service contracts (the shapes used by `Context.Tag(...)`) into schema classes.
 
 ## Phase 1 Analysis: lexical-effect-alignment
 
@@ -408,4 +416,3 @@ These patterns score 75+ and should be promoted to `specs/_guide/PATTERN_REGISTR
 | **Pattern Extraction** | 8/10 | Good patterns identified, not yet captured in registry |
 
 **Overall**: 8.5/10 - Solid execution with clear improvement pathway
-

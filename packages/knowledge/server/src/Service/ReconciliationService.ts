@@ -24,55 +24,92 @@ export class ReconciliationError extends S.TaggedError<ReconciliationError>($I`R
   $I.annotations("ReconciliationError", { description: "Entity reconciliation failure" })
 ) {}
 
-export class ReconciliationDecision extends BS.StringLiteralKit("auto_linked", "queued", "no_match", "skipped") {}
+export class ReconciliationDecision extends BS.StringLiteralKit(
+  "auto_linked",
+  "queued",
+  "no_match",
+  "skipped"
+).annotations(
+  $I.annotations("ReconciliationDecision", {
+    description: "Decision outcome from entity reconciliation (auto linked, queued for review, no match, skipped).",
+  })
+) {}
 export declare namespace ReconciliationDecision {
   export type Type = typeof ReconciliationDecision.Type;
 }
 
-export class TaskStatus extends BS.StringLiteralKit("pending", "approved", "rejected") {}
+export class TaskStatus extends BS.StringLiteralKit("pending", "approved", "rejected").annotations(
+  $I.annotations("TaskStatus", {
+    description: "Verification task status for reconciliation queue items.",
+  })
+) {}
 export declare namespace TaskStatus {
   export type Type = typeof TaskStatus.Type;
 }
 
-export class ReconciliationConfig extends S.Class<ReconciliationConfig>($I`ReconciliationConfig`)({
-  autoLinkThreshold: S.optionalWith(S.Number.pipe(S.between(0, 100)), { default: () => 90 }),
-  queueThreshold: S.optionalWith(S.Number.pipe(S.between(0, 100)), { default: () => 50 }),
-  maxCandidates: S.optionalWith(S.Int.pipe(S.positive()), { default: () => 5 }),
-  language: S.optionalWith(S.String, { default: () => "en" }),
-}) {}
+export class ReconciliationConfig extends S.Class<ReconciliationConfig>($I`ReconciliationConfig`)(
+  {
+    autoLinkThreshold: S.optionalWith(S.Number.pipe(S.between(0, 100)), { default: () => 90 }),
+    queueThreshold: S.optionalWith(S.Number.pipe(S.between(0, 100)), { default: () => 50 }),
+    maxCandidates: S.optionalWith(S.Int.pipe(S.positive()), { default: () => 5 }),
+    language: S.optionalWith(S.String, { default: () => "en" }),
+  },
+  $I.annotations("ReconciliationConfig", {
+    description: "Reconciliation configuration with defaults (thresholds, candidate count, language).",
+  })
+) {}
+export class ReconciliationConfigInput extends S.Class<ReconciliationConfigInput>($I`ReconciliationConfigInput`)(
+  {
+    autoLinkThreshold: S.optionalWith(S.Number.pipe(S.between(0, 100)), { default: () => 90 }),
+    queueThreshold: S.optionalWith(S.Number.pipe(S.between(0, 100)), { default: () => 50 }),
+    maxCandidates: S.optionalWith(S.Int.pipe(S.positive()), { default: () => 5 }),
+    language: S.optionalWith(S.String, { default: () => "en" }),
+  },
+  $I.annotations("ReconciliationConfigInput", {
+    description: "Partial reconciliation configuration overrides (all fields optional).",
+  })
+) {}
 
-export interface ReconciliationConfigInput {
-  readonly autoLinkThreshold?: number;
-  readonly queueThreshold?: number;
-  readonly maxCandidates?: number;
-  readonly language?: string;
-}
+export class VerificationTask extends S.Class<VerificationTask>($I`VerificationTask`)(
+  {
+    id: S.String,
+    entityIri: S.String,
+    label: S.String,
+    candidates: S.Array(WikidataCandidate),
+    createdAt: BS.DateTimeUtcFromAllAcceptable,
+    status: TaskStatus,
+    approvedQid: S.optionalWith(S.OptionFromNullishOr(S.String, null), { default: O.none<string> }),
+  },
+  $I.annotations("VerificationTask", {
+    description: "Manual verification task for entity reconciliation (candidates + status + optional approved QID).",
+  })
+) {}
 
-export class VerificationTask extends S.Class<VerificationTask>($I`VerificationTask`)({
-  id: S.String,
-  entityIri: S.String,
-  label: S.String,
-  candidates: S.Array(WikidataCandidate),
-  createdAt: BS.DateTimeUtcFromAllAcceptable,
-  status: TaskStatus,
-  approvedQid: S.optionalWith(S.OptionFromNullishOr(S.String, null), { default: O.none<string> }),
-}) {}
+export class ReconciliationResult extends S.Class<ReconciliationResult>($I`ReconciliationResult`)(
+  {
+    entityIri: S.String,
+    label: S.String,
+    decision: ReconciliationDecision,
+    candidates: S.Array(WikidataCandidate),
+    bestMatch: S.optionalWith(S.OptionFromNullishOr(WikidataCandidate, null), { default: O.none<WikidataCandidate> }),
+    verificationTaskId: S.optionalWith(S.OptionFromNullishOr(S.String, null), { default: O.none<string> }),
+  },
+  $I.annotations("ReconciliationResult", {
+    description: "Reconciliation result containing decision, candidates, optional best match, and optional task id.",
+  })
+) {}
 
-export class ReconciliationResult extends S.Class<ReconciliationResult>($I`ReconciliationResult`)({
-  entityIri: S.String,
-  label: S.String,
-  decision: ReconciliationDecision,
-  candidates: S.Array(WikidataCandidate),
-  bestMatch: S.optionalWith(S.OptionFromNullishOr(WikidataCandidate, null), { default: O.none<WikidataCandidate> }),
-  verificationTaskId: S.optionalWith(S.OptionFromNullishOr(S.String, null), { default: O.none<string> }),
-}) {}
-
-export class WikidataLink extends S.Class<WikidataLink>($I`WikidataLink`)({
-  entityIri: S.String,
-  qid: S.String,
-  wikidataUri: S.String,
-  linkedAt: BS.DateTimeUtcFromAllAcceptable,
-}) {}
+export class WikidataLink extends S.Class<WikidataLink>($I`WikidataLink`)(
+  {
+    entityIri: S.String,
+    qid: S.String,
+    wikidataUri: S.String,
+    linkedAt: BS.DateTimeUtcFromAllAcceptable,
+  },
+  $I.annotations("WikidataLink", {
+    description: "Persisted link between an entity IRI and a Wikidata QID (with timestamp).",
+  })
+) {}
 
 export interface ReconciliationServiceShape {
   readonly reconcileEntity: (
@@ -170,7 +207,7 @@ const serviceEffect: Effect.Effect<ReconciliationServiceShape, never, WikidataCl
       entityIri,
       label,
       _types = [],
-      config = {}
+      config = new ReconciliationConfigInput()
     ) =>
       Effect.gen(function* () {
         const cfg = new ReconciliationConfig(config);

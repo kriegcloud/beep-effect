@@ -1,9 +1,9 @@
 import { $KnowledgeDomainId } from "@beep/identity/packages";
 import type { Entity } from "@beep/knowledge-domain/entities";
+import type { SplitError } from "@beep/knowledge-domain/errors/Split.errors";
 import type { KnowledgeEntityIds } from "@beep/shared-domain";
 import * as Context from "effect/Context";
 import type * as Effect from "effect/Effect";
-import type { SplitError } from "../errors/Split.errors";
 
 const $I = $KnowledgeDomainId.create("services/SplitService");
 

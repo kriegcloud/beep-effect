@@ -1,3 +1,4 @@
+import { $KnowledgeServerId } from "@beep/identity/packages";
 import type * as EmbeddingModel from "@effect/ai/EmbeddingModel";
 import { OpenAiClient, OpenAiEmbeddingModel } from "@effect/ai-openai";
 import { FetchHttpClient } from "@effect/platform";
@@ -6,19 +7,22 @@ import type { ConfigError } from "effect/ConfigError";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Redacted from "effect/Redacted";
+import * as S from "effect/Schema";
+
+const $I = $KnowledgeServerId.create("Embedding/providers/OpenAiLayer");
 
 const DEFAULT_MODEL = "text-embedding-3-small";
 
 const DEFAULT_DIMENSIONS = 768;
 
-export interface OpenAiEmbeddingConfig {
-  readonly model?: undefined | string;
-  readonly dimensions?: undefined | number;
-  readonly maxBatchSize?: undefined | number;
-}
+export class OpenAiEmbeddingConfig extends S.Class<OpenAiEmbeddingConfig>($I`OpenAiEmbeddingConfig`)({
+  model: S.optional(S.String),
+  dimensions: S.optional(S.Number),
+  maxBatchSize: S.optional(S.Number),
+}) {}
 
 export const makeOpenAiEmbeddingLayer = (
-  options?: OpenAiEmbeddingConfig
+  options?: undefined | OpenAiEmbeddingConfig
 ): Layer.Layer<EmbeddingModel.EmbeddingModel, never, OpenAiClient.OpenAiClient> => {
   const config: OpenAiEmbeddingModel.Config.Batched = {
     dimensions: options?.dimensions ?? DEFAULT_DIMENSIONS,

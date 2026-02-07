@@ -1,11 +1,11 @@
 import { createHash } from "node:crypto";
 import { $KnowledgeServerId } from "@beep/identity/packages";
-import type { OntologyParseError, WorkflowNotFoundError } from "@beep/knowledge-domain/errors";
-import { ActivityFailedError } from "@beep/knowledge-domain/errors";
+import { ActivityFailedError, OntologyParseError, type WorkflowNotFoundError } from "@beep/knowledge-domain/errors";
 import { ExtractionProgressEvent } from "@beep/knowledge-domain/value-objects";
+import { BS } from "@beep/schema";
 import { DocumentsEntityIds, KnowledgeEntityIds, SharedEntityIds } from "@beep/shared-domain";
-import type * as AiError from "@effect/ai/AiError";
-import type * as HttpServerError from "@effect/platform/HttpServerError";
+import * as AiError from "@effect/ai/AiError";
+import * as HttpServerError from "@effect/platform/HttpServerError";
 import type * as SqlError from "@effect/sql/SqlError";
 import { Activity, Workflow, WorkflowEngine } from "@effect/workflow";
 import * as Cause from "effect/Cause";
@@ -27,28 +27,60 @@ import { WorkflowPersistence } from "./WorkflowPersistence";
 
 const $I = $KnowledgeServerId.create("Workflow/ExtractionWorkflow");
 
-type ExtractionError = OntologyParseError | HttpServerError.RequestError | AiError.AiError;
-type RetryOwner = "activity" | "orchestrator";
+export class ExtractionError extends S.Union(
+  OntologyParseError,
+  S.instanceOf(HttpServerError.RequestError),
+  S.instanceOf(AiError.AiError)
+) {}
 
-export interface ExtractionWorkflowParams {
-  readonly documentId: string;
-  readonly organizationId: string;
-  readonly ontologyId?: string | undefined;
-  readonly text: string;
-  readonly ontologyContent: string;
-  readonly config?: Partial<{
-    readonly mergeEntities: boolean;
-    readonly enableIncrementalClustering: boolean;
-    readonly retryOwner: RetryOwner;
-  }>;
+export declare namespace ExtractionError {
+  export type Type = typeof ExtractionError.Type;
+  export type Encoded = typeof ExtractionError.Encoded;
 }
+
+export class RetryOwner extends BS.StringLiteralKit("activity", "orchestrator").annotations(
+  $I.annotations("RetryOwner", {
+    description: "The owner of the retry",
+  })
+) {}
+
+export declare namespace RetryOwner {
+  export type Type = typeof RetryOwner.Type;
+  export type Encoded = typeof RetryOwner.Encoded;
+}
+
+// NOTE:
+// We intentionally keep this config schema simple (no Schema transformations) because Effect's `S.partial`
+// does not support partializing transformed/discriminated schemas reliably. Callers treat all fields as
+// optional anyway, and we default `retryOwner` in `toEnginePayload`.
+export class ExtractionWorkflowConfig extends S.Class<ExtractionWorkflowConfig>($I`ExtractionWorkflowConfig`)({
+  retryOwner: S.optional(RetryOwner),
+  mergeEntities: S.optional(S.Boolean),
+  enableIncrementalClustering: S.optional(S.Boolean),
+}) {}
+
+export declare namespace ExtractionWorkflowConfig {
+  export type Type = typeof ExtractionWorkflowConfig.Type;
+  export type Encoded = typeof ExtractionWorkflowConfig.Encoded;
+}
+
+export class ExtractionWorkflowParams extends S.Class<ExtractionWorkflowParams>($I`ExtractionWorkflowParams`)({
+  documentId: DocumentsEntityIds.DocumentId,
+  organizationId: S.optional(SharedEntityIds.OrganizationId),
+  // Some callers (notably tests and batch orchestrator) rely on the workflow generating an ID
+  // when none is provided.
+  ontologyId: S.optional(KnowledgeEntityIds.OntologyId),
+  text: S.String,
+  ontologyContent: S.String,
+  config: S.optional(ExtractionWorkflowConfig),
+}) {}
 
 export interface ExtractionWorkflowShape {
   readonly run: (
     params: ExtractionWorkflowParams
   ) => Effect.Effect<
     ExtractionResultType,
-    ExtractionError | ActivityFailedError | WorkflowNotFoundError | SqlError.SqlError
+    ExtractionError.Type | ActivityFailedError | WorkflowNotFoundError | SqlError.SqlError
   >;
 }
 
@@ -130,8 +162,32 @@ const emitProgress = Effect.fn("ExtractionWorkflow.emitProgress")(
     )
   )
 );
+export class ExtractionEnginePayloadRetryOwner extends BS.StringLiteralKit("activity", "orchestrator").annotations(
+  $I.annotations("ExtractionEnginePayloadRetryOwner", {
+    description: "Retry owner tag embedded in the workflow engine payload (activity vs orchestrator).",
+  })
+) {}
 
-const ExtractionEnginePayload = S.Struct({
+export declare namespace ExtractionEnginePayloadRetryOwner {
+  export type Type = typeof ExtractionEnginePayloadRetryOwner.Type;
+  export type Encoded = typeof ExtractionEnginePayloadRetryOwner.Encoded;
+}
+
+const makeExtractionEnginePayloadRetryOwner = ExtractionEnginePayloadRetryOwner.toTagged("retryOwner").composer({
+  documentId: DocumentsEntityIds.DocumentId,
+  organizationId: SharedEntityIds.OrganizationId,
+  ontologyId: S.optional(KnowledgeEntityIds.OntologyId),
+  text: S.String,
+  ontologyContent: S.String,
+  mergeEntities: S.NullOr(S.Boolean),
+  enableIncrementalClustering: S.NullOr(S.Boolean),
+});
+
+export class ActivityExtractionEnginePayload extends S.Class<ActivityExtractionEnginePayload>(
+  $I`ActivityExtractionEnginePayload`
+)(makeExtractionEnginePayloadRetryOwner.activity({})) {}
+
+class ExtractionEnginePayload extends S.Class<ExtractionEnginePayload>($I`ExtractionEnginePayload`)({
   documentId: S.String,
   organizationId: S.String,
   ontologyId: S.optional(S.String),
@@ -139,8 +195,8 @@ const ExtractionEnginePayload = S.Struct({
   ontologyContent: S.String,
   mergeEntities: S.NullOr(S.Boolean),
   enableIncrementalClustering: S.NullOr(S.Boolean),
-  retryOwner: S.Literal("activity", "orchestrator"),
-});
+  retryOwner: ExtractionEnginePayloadRetryOwner,
+}) {}
 
 const ExtractionEngineWorkflow = Workflow.make({
   name: "knowledge-extraction",
@@ -194,26 +250,29 @@ const serviceEffect = Effect.gen(function* () {
   return ExtractionWorkflow.of({ run });
 });
 
-const ExtractionEngineWorkflowLayer = ExtractionEngineWorkflow.toLayer((payload, executionId) =>
-  Effect.gen(function* () {
+const ExtractionEngineWorkflowLayer = ExtractionEngineWorkflow.toLayer(
+  Effect.fn(function* (payload, executionId) {
     const pipeline = yield* ExtractionPipeline;
     const persistence = yield* WorkflowPersistence;
     const maybeProgressStream = yield* Effect.serviceOption(ProgressStream);
-    const params: ExtractionWorkflowParams = {
+    const ontologyId = resolveOntologyId(payload.ontologyId);
+    const config = new ExtractionWorkflowConfig({
+      retryOwner: payload.retryOwner,
+      ...(payload.mergeEntities === null ? {} : { mergeEntities: payload.mergeEntities }),
+      ...(payload.enableIncrementalClustering === null
+        ? {}
+        : { enableIncrementalClustering: payload.enableIncrementalClustering }),
+    });
+    const params = new ExtractionWorkflowParams({
       documentId: payload.documentId,
       organizationId: payload.organizationId,
-      ontologyId: payload.ontologyId,
+      // The engine payload allows `ontologyId` to be omitted; we always resolve to a concrete ID
+      // before constructing a schema class instance.
+      ontologyId,
       text: payload.text,
       ontologyContent: payload.ontologyContent,
-      config: {
-        retryOwner: payload.retryOwner,
-        ...(payload.mergeEntities === null ? {} : { mergeEntities: payload.mergeEntities }),
-        ...(payload.enableIncrementalClustering === null
-          ? {}
-          : { enableIncrementalClustering: payload.enableIncrementalClustering }),
-      },
-    };
-    const ontologyId = resolveOntologyId(payload.ontologyId);
+      config,
+    });
 
     yield* persistence
       .createExecution({

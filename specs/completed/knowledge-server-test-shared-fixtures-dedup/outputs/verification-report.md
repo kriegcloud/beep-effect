@@ -6,38 +6,34 @@ Date: 2026-02-07
 
 1. `bun run check`
    - Status: PASS
-   - Notes: `tsc` emits advisory `TS44 effect(preferSchemaOverJson)` messages in a few tests (e.g. `packages/knowledge/server/test/Service/OntologyRegistry.test.ts`), but they do not fail the build.
+   - Notes: `tsc` emits advisory Effect TS plugin messages (e.g. `TS44 effect(preferSchemaOverJson)` in a few test files). These do not fail the check gate.
 
 2. `bun run lint`
    - Status: PASS
+   - Notes: Biome may report warnings in unrelated packages (e.g. `noDangerouslySetInnerHtml`), but `bun run lint` exits successfully.
 
-3. `bun run test`
+3. Targeted tests for dedup-migrated knowledge-server files:
+   - Command:
+     - `bun test packages/knowledge/server/test/GraphRAG/AnswerSchemas.test.ts packages/knowledge/server/test/GraphRAG/CitationParser.test.ts packages/knowledge/server/test/GraphRAG/CitationValidator.test.ts packages/knowledge/server/test/GraphRAG/ConfidenceScorer.test.ts packages/knowledge/server/test/GraphRAG/ContextFormatter.test.ts packages/knowledge/server/test/GraphRAG/GroundedAnswerGenerator.test.ts packages/knowledge/server/test/GraphRAG/PromptTemplates.test.ts packages/knowledge/server/test/Rdf/integration.test.ts packages/knowledge/server/test/Rdf/benchmark.test.ts packages/knowledge/server/test/Sparql/SparqlGenerator.test.ts packages/knowledge/server/test/Workflow/ExtractionWorkflow.test.ts packages/knowledge/server/test/Workflow/BatchOrchestratorEngineParity.test.ts packages/knowledge/server/test/adapters/GmailExtractionAdapter.test.ts`
    - Status: PASS
 
-Additional targeted runs used during stabilization:
+4. Full suite:
+   - `bun run test`
+   - Status: PASS
 
-- `bun test packages/knowledge/server/test/adapters/GmailExtractionAdapter.test.ts` (PASS)
-- `bun test packages/knowledge/server/test/Service/EventBus.test.ts` (PASS)
-- `bun test packages/knowledge/server/test/GraphRAG packages/knowledge/server/test/Rdf packages/knowledge/server/test/Sparql/SparqlGenerator.test.ts packages/knowledge/server/test/Workflow packages/knowledge/server/test/adapters/GmailExtractionAdapter.test.ts` (PASS)
+Worktree note:
+- At the end of this Phase 4 run, `git status` showed unrelated local changes outside this spec (e.g. under `packages/knowledge/domain/**` and other `specs/**` outputs). Those are not part of this test-only dedup effort and were not reverted here.
 
-## Rollbacks / Quarantine Applied (Prod Drift Containment)
+## Known Blocker Status (Prod Drift Containment)
 
-This spec is test-only. The repo had unrelated production drift that blocked `bun run check`.
+The Phase 4 handoff references unexpected production-code drift and untracked production files under `packages/knowledge/server/src/**`.
 
-Actions taken:
+In the current repo state at verification time:
+- The previously-mentioned production files (e.g. `packages/knowledge/server/src/Service/ContentEnrichmentAgent.ts`) are tracked in git on this branch, so they are not “untracked drift” in this environment.
 
-- Reverted tracked diffs back to `HEAD` (examples):
-  - `packages/knowledge/server/src/Service/index.ts`
-  - `packages/knowledge/server/src/Extraction/ExtractionPipeline.ts`
-  - `packages/knowledge/server/src/EntityResolution/IncrementalClustererLive.ts`
-
-- Quarantined untracked production files out of compilation by moving them into spec outputs:
-  - moved from `packages/knowledge/server/src/Service/*.ts`
-  - to `specs/pending/knowledge-server-test-shared-fixtures-dedup/outputs/quarantined-production-drift/<timestamp>/`
-
-Rationale:
-- These files were outside spec scope and introduced `exactOptionalPropertyTypes` failures.
-- Keeping them under `outputs/` preserves the artifact for later recovery without impacting compilation.
+Result:
+- No production rollbacks were applied as part of this Phase 4 verification run.
+- The existing `outputs/quarantined-production-drift/` directory was not modified during this run.
 
 ## Shared Helper Adoption Map
 
@@ -58,7 +54,17 @@ Exports and call sites:
   - `packages/knowledge/server/test/Extraction/EntityExtractor.test.ts` (pre-existing usage)
   - `packages/knowledge/server/test/Extraction/RelationExtractor.test.ts` (pre-existing usage)
 
-Other exports (`buildTextResponseParts`, `createMockLlmWithResponse`, `createFailingMockLlm`, `createTrackingMockLlm`) are currently internal helpers or available for future tests, but were not required for the migrated call sites.
+- `createMockLlmWithResponse`
+  - `packages/knowledge/server/test/Service/ContentEnrichmentAgent.test.ts`
+  - `packages/knowledge/server/test/Service/DocumentClassifier.test.ts`
+
+- `createFailingMockLlm`
+  - `packages/knowledge/server/test/Service/ContentEnrichmentAgent.test.ts`
+  - `packages/knowledge/server/test/Service/DocumentClassifier.test.ts`
+
+Notes:
+- `buildTextResponseParts` is a shared primitive used by the mock LanguageModel implementation; it is not imported directly by call sites.
+- `createTrackingMockLlm` remains available for future tests that need call introspection.
 
 ### `packages/knowledge/server/test/_shared/LayerBuilders.ts`
 
@@ -130,9 +136,7 @@ These remain intentionally local, as specified in `handoffs/HANDOFF_P4.md` and `
 
 ## Additional Stabilization (Test-Only)
 
-- `packages/knowledge/server/test/Service/EventBus.test.ts`
-  - Fixed timeouts caused by publish-before-subscribe races by waiting for the subscriber fiber to reach a suspended state prior to publishing.
-  - No production changes; assertions remain equivalent (still validates topic/payload/sequence behavior).
+No additional stabilization changes were required in this Phase 4 run (verification gates were green as-is).
 
 ## Anti-Regression Guardrails (Documentation-Level)
 
@@ -150,4 +154,3 @@ When adding or modifying knowledge-server tests under `packages/knowledge/server
 
 4. Shared helper bar:
    - New `_shared` helpers should generally have at least 2 call sites at introduction, unless they are a foundational builder required to dedup an existing family.
-

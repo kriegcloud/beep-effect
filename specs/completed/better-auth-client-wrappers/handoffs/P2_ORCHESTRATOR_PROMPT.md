@@ -19,7 +19,7 @@ Implement 7 better-auth admin client wrappers.
 **Before ANY code changes:**
 
 ```bash
-# 1. Verify clean baseline
+# 1. Verify baseline compiles
 bun run check --filter @beep/iam-client
 
 # 2. Create working branch

@@ -9,9 +9,16 @@
  */
 
 import { $KnowledgeDomainId } from "@beep/identity/packages";
+import { BS } from "@beep/schema";
 import * as S from "effect/Schema";
 
 const $I = $KnowledgeDomainId.create("errors/Shacl.errors");
+
+export class ValidationPolicySeverity extends BS.StringLiteralKit("Violation", "Warning").annotations(
+  $I.annotations("ValidationPolicySeverity", {
+    description: "Severity levels considered by ValidationPolicyError (warning vs violation).",
+  })
+) {}
 
 /**
  * ShaclValidationError - SHACL validation processing errors
@@ -80,7 +87,7 @@ export class ValidationPolicyError extends S.TaggedError<ValidationPolicyError>(
     message: S.String,
     violationCount: S.Number,
     warningCount: S.Number,
-    severity: S.Literal("Violation", "Warning"),
+    severity: ValidationPolicySeverity,
     cause: S.optional(S.Unknown),
   },
   $I.annotations("ValidationPolicyError", {

@@ -1,5 +1,6 @@
 import { $GoogleWorkspaceDomainId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
+import { GoogleAuthenticationError, GoogleScopeExpansionRequiredError } from "./auth.errors";
 
 const $I = $GoogleWorkspaceDomainId.create("errors/api");
 
@@ -26,3 +27,18 @@ export class GoogleRateLimitError extends S.TaggedError<GoogleRateLimitError>()(
     description: "Google API rate limit exceeded",
   })
 ) {}
+
+export class GmailExtractionError extends S.Union(
+  GoogleApiError,
+  GoogleAuthenticationError,
+  GoogleScopeExpansionRequiredError
+).annotations(
+  $I.annotations("GmailExtractionError", {
+    description: "Gmail extraction failed",
+  })
+) {}
+
+export declare namespace GmailExtractionError {
+  export type Type = typeof GmailExtractionError.Type;
+  export type Encoded = typeof GmailExtractionError.Encoded;
+}

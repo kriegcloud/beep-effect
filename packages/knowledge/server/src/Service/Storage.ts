@@ -1,4 +1,5 @@
 import { $KnowledgeServerId } from "@beep/identity/packages";
+import { BS } from "@beep/schema";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
@@ -8,31 +9,51 @@ import * as S from "effect/Schema";
 
 const $I = $KnowledgeServerId.create("Service/Storage");
 
-export class StorageGenerationConflictError extends S.TaggedError<StorageGenerationConflictError>()(
+export class StorageGenerationConflictError extends S.TaggedError<StorageGenerationConflictError>(
+  $I`StorageGenerationConflictError`
+)(
   "StorageGenerationConflictError",
   {
     key: S.String,
     expectedGeneration: S.Number,
     actualGeneration: S.NullOr(S.Number),
-  }
+  },
+  $I.annotations("StorageGenerationConflictError", {
+    description: "Optimistic concurrency conflict: expected generation does not match current stored generation.",
+  })
 ) {}
 
 export type StorageError = StorageGenerationConflictError;
 
-export interface StoredValue {
-  readonly key: string;
-  readonly value: string;
-  readonly generation: number;
-  readonly updatedAt: number;
-}
+export class StoredValue extends S.Class<StoredValue>($I`StoredValue`)(
+  {
+    key: S.String,
+    value: S.String,
+    generation: S.Number,
+    updatedAt: S.Number,
+  },
+  $I.annotations("StoredValue", {
+    description: "In-memory storage value with optimistic concurrency generation and last-updated timestamp.",
+  })
+) {}
 
-export interface PutOptions {
-  readonly expectedGeneration?: number;
-}
+export class PutOptions extends S.Class<PutOptions>($I`PutOptions`)(
+  {
+    expectedGeneration: S.optional(S.Number),
+  },
+  $I.annotations("PutOptions", {
+    description: "Options for Storage.put (expected generation for optimistic concurrency).",
+  })
+) {}
 
-export interface DeleteOptions {
-  readonly expectedGeneration?: number;
-}
+export class DeleteOptions extends S.Class<DeleteOptions>($I`DeleteOptions`)(
+  {
+    expectedGeneration: S.optional(S.Number),
+  },
+  $I.annotations("DeleteOptions", {
+    description: "Options for Storage.delete (expected generation for optimistic concurrency).",
+  })
+) {}
 
 export interface StorageShape {
   readonly get: (key: string) => Effect.Effect<O.Option<StoredValue>>;
@@ -52,7 +73,7 @@ const serviceEffect: Effect.Effect<StorageShape> = Effect.gen(function* () {
   });
 
   const put: StorageShape["put"] = Effect.fn("Storage.put")(function* (key, value, options) {
-    const result = yield* Ref.modify(stateRef, (state): readonly [PutOutcome, Map<string, StoredValue>] => {
+    const result = yield* Ref.modify(stateRef, (state): readonly [PutOutcome.Type, Map<string, StoredValue>] => {
       const current = state.get(key);
       const actualGeneration = current?.generation ?? null;
 
@@ -95,7 +116,7 @@ const serviceEffect: Effect.Effect<StorageShape> = Effect.gen(function* () {
   });
 
   const deleteValue: StorageShape["delete"] = Effect.fn("Storage.delete")(function* (key, options) {
-    const result = yield* Ref.modify(stateRef, (state): readonly [DeleteOutcome, Map<string, StoredValue>] => {
+    const result = yield* Ref.modify(stateRef, (state): readonly [DeleteOutcome.Type, Map<string, StoredValue>] => {
       const current = state.get(key);
       const actualGeneration = current?.generation ?? null;
 
@@ -150,22 +171,48 @@ const serviceEffect: Effect.Effect<StorageShape> = Effect.gen(function* () {
 
 export const StorageMemoryLive = Layer.effect(Storage, serviceEffect);
 
-type PutOutcome =
-  | {
-      readonly _tag: "ok";
-      readonly value: StoredValue;
-    }
-  | {
-      readonly _tag: "conflict";
-      readonly error: StorageGenerationConflictError;
-    };
+export class OutComeTag extends BS.StringLiteralKit("ok", "conflict").annotations(
+  $I.annotations("OutComeTag", {
+    description: "Outcome tag for storage operations",
+  })
+) {}
 
-type DeleteOutcome =
-  | {
-      readonly _tag: "ok";
-      readonly value: boolean;
-    }
-  | {
-      readonly _tag: "conflict";
-      readonly error: StorageGenerationConflictError;
-    };
+export const makeOutcomeKind = OutComeTag.toTagged("_tag").composer({});
+
+export class OkPutOutcome extends S.Class<OkPutOutcome>($I`OkPutOutcome`)(
+  makeOutcomeKind.ok({
+    value: StoredValue,
+  })
+) {}
+
+export class ConflictPutOutcome extends S.Class<ConflictPutOutcome>($I`ConflictPutOutcome`)(
+  makeOutcomeKind.conflict({
+    error: StorageGenerationConflictError,
+  })
+) {}
+
+export class PutOutcome extends S.Union(OkPutOutcome, ConflictPutOutcome) {}
+
+export declare namespace PutOutcome {
+  export type Type = typeof PutOutcome.Type;
+  export type Encoded = typeof PutOutcome.Encoded;
+}
+
+export class OkDeleteOutcome extends S.Class<OkDeleteOutcome>($I`OkDeleteOutcome`)(
+  makeOutcomeKind.ok({
+    value: S.Boolean,
+  })
+) {}
+
+export class ConflictDeleteOutcome extends S.Class<ConflictDeleteOutcome>($I`ConflictDeleteOutcome`)(
+  makeOutcomeKind.conflict({
+    error: StorageGenerationConflictError,
+  })
+) {}
+
+export class DeleteOutcome extends S.Union(OkDeleteOutcome, ConflictDeleteOutcome) {}
+
+export declare namespace DeleteOutcome {
+  export type Type = typeof DeleteOutcome.Type;
+  export type Encoded = typeof DeleteOutcome.Encoded;
+}

@@ -20,7 +20,7 @@ import type { OntologyContext } from "../Ontology";
 import { ClassifiedEntity, EntityOutput } from "./schemas/entity-output.schema";
 import { ExtractedMention } from "./schemas/mention-output.schema";
 
-const $I = $KnowledgeServerId.create("knowledge-server/Extraction/EntityExtractor");
+const $I = $KnowledgeServerId.create("Extraction/EntityExtractor");
 
 export class EntityExtractionConfig extends S.Class<EntityExtractionConfig>($I`EntityExtractionConfig`)(
   {

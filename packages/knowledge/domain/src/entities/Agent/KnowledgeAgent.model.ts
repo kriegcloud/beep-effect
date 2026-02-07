@@ -91,42 +91,47 @@ export declare namespace AgentType {
  * @since 0.1.0
  * @category Domain
  */
-export class AgentMetadata extends S.Class<AgentMetadata>("AgentMetadata")({
-  /**
-   * Unique identifier for this agent
-   */
-  id: KnowledgeEntityIds.KnowledgeAgentId.annotations({
-    description: "Unique identifier for this agent",
-  }),
+export class AgentMetadata extends S.Class<AgentMetadata>($I`AgentMetadata`)(
+  {
+    /**
+     * Unique identifier for this agent
+     */
+    id: KnowledgeEntityIds.KnowledgeAgentId.annotations({
+      description: "Unique identifier for this agent",
+    }),
 
-  /**
-   * Human-readable name
-   */
-  name: S.String.annotations({
-    title: "Name",
-    description: "Human-readable agent name",
-  }),
-  /**
-   * Description of what this agent does
-   */
-  description: S.String.annotations({
-    title: "Description",
-    description: "What this agent does",
-  }),
+    /**
+     * Human-readable name
+     */
+    name: S.String.annotations({
+      title: "Name",
+      description: "Human-readable agent name",
+    }),
+    /**
+     * Description of what this agent does
+     */
+    description: S.String.annotations({
+      title: "Description",
+      description: "What this agent does",
+    }),
 
-  /**
-   * Agent type category
-   */
-  type: AgentType,
+    /**
+     * Agent type category
+     */
+    type: AgentType,
 
-  /**
-   * Version of the agent implementation
-   */
-  version: S.optional(S.String).annotations({
-    title: "Version",
-    description: "Agent implementation version",
-  }),
-}) {
+    /**
+     * Version of the agent implementation
+     */
+    version: S.optional(S.String).annotations({
+      title: "Version",
+      description: "Agent implementation version",
+    }),
+  },
+  $I.annotations("AgentMetadata", {
+    description: "Descriptive information about a knowledge agent (used for logging, debugging, and UI display).",
+  })
+) {
   readonly toJSON = () => ({
     _tag: "AgentMetadata" as const,
     id: this.id,
@@ -803,43 +808,48 @@ export declare namespace PipelineMode {
  * @since 2.0.0
  * @category Domain
  */
-export class TerminationCondition extends S.Class<TerminationCondition>("TerminationCondition")({
-  /**
-   * Maximum iterations before forced stop
-   */
-  maxIterations: S.optionalWith(BS.PosInt, {
-    default: () => 5,
-  }).annotations({
-    title: "Max Iterations",
-    description: "Stop after this many iterations",
-  }),
+export class TerminationCondition extends S.Class<TerminationCondition>($I`TerminationCondition`)(
+  {
+    /**
+     * Maximum iterations before forced stop
+     */
+    maxIterations: S.optionalWith(BS.PosInt, {
+      default: () => 5,
+    }).annotations({
+      title: "Max Iterations",
+      description: "Stop after this many iterations",
+    }),
 
-  /**
-   * Stop when all validations pass
-   */
-  stopOnConformance: S.optionalWith(S.Boolean, {
-    default: thunkTrue,
-  }).annotations({
-    title: "Stop on Conformance",
-    description: "Stop when validation passes",
-  }),
+    /**
+     * Stop when all validations pass
+     */
+    stopOnConformance: S.optionalWith(S.Boolean, {
+      default: thunkTrue,
+    }).annotations({
+      title: "Stop on Conformance",
+      description: "Stop when validation passes",
+    }),
 
-  /**
-   * Stop if confidence drops below threshold
-   */
-  minConfidence: S.optionalWith(Confidence, { as: "Option" }).annotations({
-    title: "Min Confidence",
-    description: "Stop if confidence falls below this",
-  }),
+    /**
+     * Stop if confidence drops below threshold
+     */
+    minConfidence: S.optionalWith(Confidence, { as: "Option" }).annotations({
+      title: "Min Confidence",
+      description: "Stop if confidence falls below this",
+    }),
 
-  /**
-   * Timeout in milliseconds
-   */
-  timeoutMs: S.optionalWith(S.DurationFromMillis, { as: "Option" }).annotations({
-    title: "Timeout",
-    description: "Stop after this duration",
-  }),
-}) {
+    /**
+     * Timeout in milliseconds
+     */
+    timeoutMs: S.optionalWith(S.DurationFromMillis, { as: "Option" }).annotations({
+      title: "Timeout",
+      description: "Stop after this duration",
+    }),
+  },
+  $I.annotations("TerminationCondition", {
+    description: "Stopping rules for a looping pipeline (iterations, conformance, confidence threshold, timeout).",
+  })
+) {
   static readonly default = (): TerminationCondition =>
     new TerminationCondition({
       maxIterations: 5,
@@ -855,27 +865,32 @@ export class TerminationCondition extends S.Class<TerminationCondition>("Termina
  * @since 2.0.0
  * @category Domain
  */
-export class CheckpointConfig extends S.Class<CheckpointConfig>("CheckpointConfig")({
-  /**
-   * Checkpoint after these agents complete
-   */
-  afterAgents: S.optionalWith(S.Array(KnowledgeEntityIds.KnowledgeAgentId), { as: "Option" }),
+export class CheckpointConfig extends S.Class<CheckpointConfig>($I`CheckpointConfig`)(
+  {
+    /**
+     * Checkpoint after these agents complete
+     */
+    afterAgents: S.optionalWith(S.Array(KnowledgeEntityIds.KnowledgeAgentId), { as: "Option" }),
 
-  /**
-   * Checkpoint every N iterations (for loop mode)
-   */
-  everyNIterations: S.optionalWith(BS.PosInt, { as: "Option" }),
+    /**
+     * Checkpoint every N iterations (for loop mode)
+     */
+    everyNIterations: S.optionalWith(BS.PosInt, { as: "Option" }),
 
-  /**
-   * Require human approval at checkpoints
-   */
-  requireApproval: S.optionalWith(S.Boolean, { as: "Option" }),
+    /**
+     * Require human approval at checkpoints
+     */
+    requireApproval: S.optionalWith(S.Boolean, { as: "Option" }),
 
-  /**
-   * Auto-continue timeout if approval not received
-   */
-  approvalTimeoutMs: S.optionalWith(S.Positive, { as: "Option" }),
-}) {
+    /**
+     * Auto-continue timeout if approval not received
+     */
+    approvalTimeoutMs: S.optionalWith(S.Positive, { as: "Option" }),
+  },
+  $I.annotations("CheckpointConfig", {
+    description: "Checkpointing configuration for pipelines (when to checkpoint and when to require approvals).",
+  })
+) {
   static readonly default = (): CheckpointConfig =>
     new CheckpointConfig({
       afterAgents: O.none(),

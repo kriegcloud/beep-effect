@@ -32,3 +32,13 @@ Use repo gates:
 
 Avoid starting long-running `dev` servers in automated sessions unless explicitly requested.
 
+## 5. Authenticate + Find The Target Nav (for manual/Playwright QA)
+
+The Knowledge Stats Dashboard POC described in this spec should be reachable from the **Knowledge Base** tab in the main shell navigation.
+
+Sign-in steps (validated with Playwright MCP):
+1. Go to `http://localhost:3000/auth/sign-in`.
+2. Fill `Email` with `beep@hole.com`.
+3. Fill `Password` with the local dev password for that account (keep secrets out of git; prefer env/seeded dev credentials).
+4. Click `Submit`.
+5. Confirm you land on a signed-in route (in our run: `/?id=mail-inbox-1`) and the left tab panel shows `Knowledge Base`.

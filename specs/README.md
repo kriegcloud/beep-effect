@@ -49,7 +49,7 @@ bun run spec:move -- <spec-name> pending|completed|archived
 | [iam-client-entity-alignment](completed/iam-client-entity-alignment/) |
 | [iam-client-schema-consistency-inventory](completed/iam-client-schema-consistency-inventory/) |
 | [knowledge-architecture-foundation](completed/knowledge-architecture-foundation/) |
-| [knowledge-batch-machine-refactor](pending/knowledge-batch-machine-refactor/) |
+| [knowledge-batch-machine-refactor](completed/knowledge-batch-machine-refactor/) |
 | [knowledge-code-quality-audit](completed/knowledge-code-quality-audit/) |
 | [knowledge-entity-resolution-v2](completed/knowledge-entity-resolution-v2/) |
 | [knowledge-graph-integration](completed/knowledge-graph-integration/) |
@@ -81,6 +81,7 @@ bun run spec:move -- <spec-name> pending|completed|archived
 | [artifact-file-cleanup](completed/artifact-file-cleanup/) |
 | [integration-architecture-migration](completed/integration-architecture-migration/) |
 | [knowledge-effect-workflow-migration](completed/knowledge-effect-workflow-migration/) |
+| [knowledge-server-test-shared-fixtures-dedup](completed/knowledge-server-test-shared-fixtures-dedup/) |
 | [lexical-playground-port](completed/lexical-playground-port/) |
 | [lexical-utils-effect-refactor](completed/lexical-utils-effect-refactor/) |
 | [orgtable-auto-rls](completed/orgtable-auto-rls/) |

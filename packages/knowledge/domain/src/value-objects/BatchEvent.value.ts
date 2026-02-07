@@ -1,143 +1,125 @@
 import { $KnowledgeDomainId } from "@beep/identity/packages";
 import { BS } from "@beep/schema";
-import { KnowledgeEntityIds } from "@beep/shared-domain";
+import { DocumentsEntityIds, KnowledgeEntityIds } from "@beep/shared-domain";
 import * as S from "effect/Schema";
 
 const $I = $KnowledgeDomainId.create("value-objects/batch-event");
 
-export const BatchCreated = S.TaggedStruct("BatchEvent.BatchCreated", {
-  batchId: KnowledgeEntityIds.BatchExecutionId,
-  totalDocuments: S.NonNegativeInt,
-  timestamp: BS.DateTimeUtcFromAllAcceptable,
-}).annotations(
-  $I.annotations("BatchEvent.BatchCreated", {
+export class BatchCreated extends S.TaggedClass<BatchCreated>($I`BatchCreated`)(
+  "BatchEvent.BatchCreated",
+  {
+    batchId: KnowledgeEntityIds.BatchExecutionId,
+    totalDocuments: S.NonNegativeInt,
+    timestamp: BS.DateTimeUtcFromAllAcceptable,
+  },
+  $I.annotations("BatchCreated", {
     description: "Emitted when a batch extraction is created",
   })
-);
+) {}
 
-export declare namespace BatchCreated {
-  export type Type = S.Schema.Type<typeof BatchCreated>;
-}
-
-export const DocumentStarted = S.TaggedStruct("BatchEvent.DocumentStarted", {
-  batchId: KnowledgeEntityIds.BatchExecutionId,
-  documentId: S.String,
-  documentIndex: S.NonNegativeInt,
-  timestamp: BS.DateTimeUtcFromAllAcceptable,
-}).annotations(
-  $I.annotations("BatchEvent.DocumentStarted", {
+export class DocumentStarted extends S.TaggedClass<DocumentStarted>($I`DocumentStarted`)(
+  "BatchEvent.DocumentStarted",
+  {
+    batchId: KnowledgeEntityIds.BatchExecutionId,
+    documentId: DocumentsEntityIds.DocumentId,
+    documentIndex: S.NonNegativeInt,
+    timestamp: BS.DateTimeUtcFromAllAcceptable,
+  },
+  $I.annotations("DocumentStarted", {
     description: "Emitted when a document extraction begins within a batch",
   })
-);
+) {}
 
-export declare namespace DocumentStarted {
-  export type Type = S.Schema.Type<typeof DocumentStarted>;
-}
-
-export const DocumentCompleted = S.TaggedStruct("BatchEvent.DocumentCompleted", {
-  batchId: KnowledgeEntityIds.BatchExecutionId,
-  documentId: S.String,
-  entityCount: S.NonNegativeInt,
-  relationCount: S.NonNegativeInt,
-  timestamp: BS.DateTimeUtcFromAllAcceptable,
-}).annotations(
-  $I.annotations("BatchEvent.DocumentCompleted", {
+export class DocumentCompleted extends S.TaggedClass<DocumentCompleted>($I`DocumentCompleted`)(
+  "BatchEvent.DocumentCompleted",
+  {
+    batchId: KnowledgeEntityIds.BatchExecutionId,
+    documentId: DocumentsEntityIds.DocumentId,
+    entityCount: S.NonNegativeInt,
+    relationCount: S.NonNegativeInt,
+    timestamp: BS.DateTimeUtcFromAllAcceptable,
+  },
+  $I.annotations("DocumentCompleted", {
     description: "Emitted when a document extraction completes within a batch",
   })
-);
+) {}
 
-export declare namespace DocumentCompleted {
-  export type Type = S.Schema.Type<typeof DocumentCompleted>;
-}
-
-export const DocumentFailed = S.TaggedStruct("BatchEvent.DocumentFailed", {
-  batchId: KnowledgeEntityIds.BatchExecutionId,
-  documentId: S.String,
-  error: S.String,
-  timestamp: BS.DateTimeUtcFromAllAcceptable,
-}).annotations(
-  $I.annotations("BatchEvent.DocumentFailed", {
+export class DocumentFailed extends S.TaggedClass<DocumentFailed>($I`DocumentFailed`)(
+  "BatchEvent.DocumentFailed",
+  {
+    batchId: KnowledgeEntityIds.BatchExecutionId,
+    documentId: DocumentsEntityIds.DocumentId,
+    error: S.String,
+    timestamp: BS.DateTimeUtcFromAllAcceptable,
+  },
+  $I.annotations("DocumentFailed", {
     description: "Emitted when a document extraction fails within a batch",
   })
-);
+) {}
 
-export declare namespace DocumentFailed {
-  export type Type = S.Schema.Type<typeof DocumentFailed>;
-}
-
-export const StageProgress = S.TaggedStruct("BatchEvent.StageProgress", {
-  batchId: KnowledgeEntityIds.BatchExecutionId,
-  documentId: S.String,
-  stage: S.String,
-  progress: S.Number.pipe(S.between(0, 1)),
-  timestamp: BS.DateTimeUtcFromAllAcceptable,
-}).annotations(
-  $I.annotations("BatchEvent.StageProgress", {
+export class StageProgress extends S.TaggedClass<StageProgress>($I`StageProgress`)(
+  "BatchEvent.StageProgress",
+  {
+    batchId: KnowledgeEntityIds.BatchExecutionId,
+    documentId: DocumentsEntityIds.DocumentId,
+    stage: S.String,
+    progress: S.Number.pipe(S.between(0, 1)),
+    timestamp: BS.DateTimeUtcFromAllAcceptable,
+  },
+  $I.annotations("StageProgress", {
     description: "Emitted for progress updates within a document extraction stage",
   })
-);
+) {}
 
-export declare namespace StageProgress {
-  export type Type = S.Schema.Type<typeof StageProgress>;
-}
-
-export const ResolutionStarted = S.TaggedStruct("BatchEvent.ResolutionStarted", {
-  batchId: KnowledgeEntityIds.BatchExecutionId,
-  timestamp: BS.DateTimeUtcFromAllAcceptable,
-}).annotations(
-  $I.annotations("BatchEvent.ResolutionStarted", {
+export class ResolutionStarted extends S.TaggedClass<ResolutionStarted>($I`ResolutionStarted`)(
+  "BatchEvent.ResolutionStarted",
+  {
+    batchId: KnowledgeEntityIds.BatchExecutionId,
+    timestamp: BS.DateTimeUtcFromAllAcceptable,
+  },
+  $I.annotations("ResolutionStarted", {
     description: "Emitted when cross-document entity resolution begins",
   })
-);
+) {}
 
-export declare namespace ResolutionStarted {
-  export type Type = S.Schema.Type<typeof ResolutionStarted>;
-}
-
-export const ResolutionCompleted = S.TaggedStruct("BatchEvent.ResolutionCompleted", {
-  batchId: KnowledgeEntityIds.BatchExecutionId,
-  mergeCount: S.NonNegativeInt,
-  timestamp: BS.DateTimeUtcFromAllAcceptable,
-}).annotations(
-  $I.annotations("BatchEvent.ResolutionCompleted", {
+export class ResolutionCompleted extends S.TaggedClass<ResolutionCompleted>($I`ResolutionCompleted`)(
+  "BatchEvent.ResolutionCompleted",
+  {
+    batchId: KnowledgeEntityIds.BatchExecutionId,
+    mergeCount: S.NonNegativeInt,
+    timestamp: BS.DateTimeUtcFromAllAcceptable,
+  },
+  $I.annotations("ResolutionCompleted", {
     description: "Emitted when cross-document entity resolution completes",
   })
-);
+) {}
 
-export declare namespace ResolutionCompleted {
-  export type Type = S.Schema.Type<typeof ResolutionCompleted>;
-}
-
-export const BatchCompleted = S.TaggedStruct("BatchEvent.BatchCompleted", {
-  batchId: KnowledgeEntityIds.BatchExecutionId,
-  totalDocuments: S.NonNegativeInt,
-  entityCount: S.NonNegativeInt,
-  relationCount: S.NonNegativeInt,
-  timestamp: BS.DateTimeUtcFromAllAcceptable,
-}).annotations(
-  $I.annotations("BatchEvent.BatchCompleted", {
+export class BatchCompleted extends S.TaggedClass<BatchCompleted>($I`BatchCompleted`)(
+  "BatchEvent.BatchCompleted",
+  {
+    batchId: KnowledgeEntityIds.BatchExecutionId,
+    totalDocuments: S.NonNegativeInt,
+    entityCount: S.NonNegativeInt,
+    relationCount: S.NonNegativeInt,
+    timestamp: BS.DateTimeUtcFromAllAcceptable,
+  },
+  $I.annotations("BatchCompleted", {
     description: "Emitted when the entire batch extraction completes successfully",
   })
-);
+) {}
 
-export declare namespace BatchCompleted {
-  export type Type = S.Schema.Type<typeof BatchCompleted>;
-}
-
-export const BatchFailed = S.TaggedStruct("BatchEvent.BatchFailed", {
-  batchId: KnowledgeEntityIds.BatchExecutionId,
-  error: S.String,
-  failedDocuments: S.NonNegativeInt,
-  timestamp: BS.DateTimeUtcFromAllAcceptable,
-}).annotations(
-  $I.annotations("BatchEvent.BatchFailed", {
+export class BatchFailed extends S.TaggedClass<BatchFailed>($I`BatchFailed`)(
+  "BatchEvent.BatchFailed",
+  {
+    batchId: KnowledgeEntityIds.BatchExecutionId,
+    error: S.String,
+    failedDocuments: S.NonNegativeInt,
+    timestamp: BS.DateTimeUtcFromAllAcceptable,
+  },
+  $I.annotations("BatchFailed", {
     description: "Emitted when the batch extraction fails",
   })
-);
-
-export declare namespace BatchFailed {
-  export type Type = S.Schema.Type<typeof BatchFailed>;
-}
+) {}
 
 export const BatchEvent = S.Union(
   BatchCreated,
@@ -154,5 +136,7 @@ export const BatchEvent = S.Union(
     description: "Events emitted during batch extraction processing for SSE delivery",
   })
 );
-
-export type BatchEvent = S.Schema.Type<typeof BatchEvent>;
+export declare namespace BatchEvent {
+  export type Type = S.Schema.Type<typeof BatchEvent>;
+  export type Encoded = S.Schema.Encoded<typeof BatchEvent>;
+}

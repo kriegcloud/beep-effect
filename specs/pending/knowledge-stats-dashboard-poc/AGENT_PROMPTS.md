@@ -24,6 +24,7 @@ Deliverable:
 
 Include:
 - Candidate route location (`apps/web` vs `apps/todox`) with evidence
+- Confirm how the **Knowledge Base** tab is implemented and where to attach the dashboard route/nav item
 - Existing stats/ontology endpoints, if any
 - Suggested file touch list for P2-P5
 ```
@@ -144,6 +145,7 @@ Commands:
 Visual QA:
 - Use the Playwright MCP server (`mcp__playwright__*`) to take snapshots and screenshots.
 - Capture at least light + dark mode, plus one non-default graph layout state.
+- If auth is required, use the sign-in route and the seeded dev account email (`beep@hole.com`); keep passwords out of committed docs and logs.
 
 Deliverable:
 - All gates pass

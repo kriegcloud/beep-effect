@@ -5,6 +5,7 @@ import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
+import * as S from "effect/Schema";
 import type * as N3 from "n3";
 import { type OntologyContext, OntologyService, OntologyServiceLive } from "../Ontology/OntologyService";
 import { hasType, materializeSubclassInference, nodesOfType, valuesForNodeAndPath } from "./ShaclParser";
@@ -33,7 +34,7 @@ const datatypeMatches = (value: N3.Term, expectedDatatype: string): boolean => {
 const validateShapeForNode = (
   graph: N3.Store,
   nodeIri: string,
-  shape: PropertyShape,
+  shape: PropertyShape.Type,
   policy: ShaclPolicy
 ): ReadonlyArray<ValidationFinding> => {
   const findings: Array<ValidationFinding> = [];
@@ -102,14 +103,13 @@ const validateShapeForNode = (
 
   return findings;
 };
-
-export interface ValidateOptions {
-  readonly policy?: ShaclPolicy;
-  readonly maxInferenceDepth?: number;
-}
+export class ValidateOptions extends S.Class<ValidateOptions>($I`ValidateOptions`)({
+  policy: S.optional(ShaclPolicy),
+  maxInferenceDepth: S.optional(S.Number),
+}) {}
 
 export interface ShaclServiceShape {
-  readonly generateShapes: (ontology: OntologyContext) => Effect.Effect<ReadonlyArray<PropertyShape>>;
+  readonly generateShapes: (ontology: OntologyContext) => Effect.Effect<ReadonlyArray<PropertyShape.Type>>;
   readonly validate: (
     graph: N3.Store,
     ontology: OntologyContext,

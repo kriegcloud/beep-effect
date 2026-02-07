@@ -586,6 +586,12 @@ export const makeAuth = ({
       oauthProvider({
         loginPage: "/sign-in",
         consentPage: "/consent",
+        // We expose the required well-known endpoint in the hosting server:
+        // `/.well-known/oauth-authorization-server/<issuer-path>`.
+        // Once that exists, Better Auth recommends silencing the warning.
+        silenceWarnings: {
+          oauthAuthServerConfig: true,
+        },
       }) as BetterAuthPlugin,
       phoneNumber(
         //  {} satisfies PhoneNumberOptions

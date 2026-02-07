@@ -16,9 +16,9 @@ This handoff starts **Phase 2 (Evaluation + Design)** for deduplicating shared t
 
 ## Inputs to Read First
 
-- `specs/pending/knowledge-server-test-shared-fixtures-dedup/outputs/codebase-context.md`
-- `specs/pending/knowledge-server-test-shared-fixtures-dedup/README.md`
-- `specs/pending/knowledge-server-test-shared-fixtures-dedup/MASTER_ORCHESTRATION.md`
+- `specs/completed/knowledge-server-test-shared-fixtures-dedup/outputs/codebase-context.md`
+- `specs/completed/knowledge-server-test-shared-fixtures-dedup/README.md`
+- `specs/completed/knowledge-server-test-shared-fixtures-dedup/MASTER_ORCHESTRATION.md`
 
 ## Objective for This Phase
 
@@ -39,8 +39,8 @@ Convert the Phase 1 inventory into concrete extraction design + migration sequen
 
 Create:
 
-- `specs/pending/knowledge-server-test-shared-fixtures-dedup/outputs/evaluation.md`
-- `specs/pending/knowledge-server-test-shared-fixtures-dedup/outputs/remediation-plan.md`
+- `specs/completed/knowledge-server-test-shared-fixtures-dedup/outputs/evaluation.md`
+- `specs/completed/knowledge-server-test-shared-fixtures-dedup/outputs/remediation-plan.md`
 
 ## Required Sections (minimum)
 

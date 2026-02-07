@@ -2,15 +2,15 @@
 
 You are implementing **Phase 4 (Stabilization + Anti-regression Guardrails)** of the `knowledge-server-test-shared-fixtures-dedup` spec in:
 
-- `specs/pending/knowledge-server-test-shared-fixtures-dedup/`
+- `specs/completed/knowledge-server-test-shared-fixtures-dedup/`
 
 Read first:
-- `specs/pending/knowledge-server-test-shared-fixtures-dedup/README.md`
-- `specs/pending/knowledge-server-test-shared-fixtures-dedup/MASTER_ORCHESTRATION.md`
-- `specs/pending/knowledge-server-test-shared-fixtures-dedup/handoffs/HANDOFF_P4.md`
-- `specs/pending/knowledge-server-test-shared-fixtures-dedup/outputs/evaluation.md`
-- `specs/pending/knowledge-server-test-shared-fixtures-dedup/outputs/remediation-plan.md`
-- `specs/pending/knowledge-server-test-shared-fixtures-dedup/REFLECTION_LOG.md`
+- `specs/completed/knowledge-server-test-shared-fixtures-dedup/README.md`
+- `specs/completed/knowledge-server-test-shared-fixtures-dedup/MASTER_ORCHESTRATION.md`
+- `specs/completed/knowledge-server-test-shared-fixtures-dedup/handoffs/HANDOFF_P4.md`
+- `specs/completed/knowledge-server-test-shared-fixtures-dedup/outputs/evaluation.md`
+- `specs/completed/knowledge-server-test-shared-fixtures-dedup/outputs/remediation-plan.md`
+- `specs/completed/knowledge-server-test-shared-fixtures-dedup/REFLECTION_LOG.md`
 
 ## Phase 4 Mission
 
@@ -46,14 +46,14 @@ If these production changes are intended, coordinate with the user and treat the
 
 ## Required Outputs
 
-- `specs/pending/knowledge-server-test-shared-fixtures-dedup/outputs/verification-report.md`
+- `specs/completed/knowledge-server-test-shared-fixtures-dedup/outputs/verification-report.md`
   - Include:
     - commands run (exact)
     - pass/fail status
     - mapping of helper exports to files that adopt them
     - list of preserved non-dedup exceptions and confirmation they remain local
     - any rollbacks applied (with rationale)
-- Update `specs/pending/knowledge-server-test-shared-fixtures-dedup/REFLECTION_LOG.md`
+- Update `specs/completed/knowledge-server-test-shared-fixtures-dedup/REFLECTION_LOG.md`
   - Add a Phase 4 entry summarizing stabilization, what was blocked, and what remains.
 
 ## Verification Commands (Minimum)

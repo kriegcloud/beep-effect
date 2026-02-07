@@ -86,7 +86,7 @@ const makeSuccessExtraction = (entityCount: number, relationCount: number, docum
   });
 
 const runScenario = Effect.fn("BatchOrchestratorEngineParity.runScenario")(function* (scenario: Scenario) {
-  const events: Array<BatchEvent> = [];
+  const events: Array<BatchEvent.Type> = [];
   const statusUpdates: Array<WorkflowStatusUpdate> = [];
   const statuses: Array<{
     status: string;

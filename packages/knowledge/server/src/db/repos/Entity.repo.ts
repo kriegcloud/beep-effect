@@ -20,36 +20,67 @@ const $I = $KnowledgeServerId.create("db/repos/EntityRepo");
 
 const tableName = KnowledgeEntityIds.KnowledgeEntityId.tableName;
 
-class FindByIdsRequest extends S.Class<FindByIdsRequest>("FindByIdsRequest")({
-  ids: S.Array(KnowledgeEntityIds.KnowledgeEntityId),
-  organizationId: SharedEntityIds.OrganizationId,
-}) {}
+class FindByIdsRequest extends S.Class<FindByIdsRequest>($I`FindByIdsRequest`)(
+  {
+    ids: S.Array(KnowledgeEntityIds.KnowledgeEntityId),
+    organizationId: SharedEntityIds.OrganizationId,
+  },
+  $I.annotations("FindByIdsRequest", {
+    description: "SQL request schema: fetch entities by id list (scoped to organization).",
+  })
+) {}
 
-class FindByOntologyRequest extends S.Class<FindByOntologyRequest>("FindByOntologyRequest")({
-  ontologyId: S.String,
-  organizationId: SharedEntityIds.OrganizationId,
-  limit: S.Number,
-}) {}
+class FindByOntologyRequest extends S.Class<FindByOntologyRequest>($I`FindByOntologyRequest`)(
+  {
+    ontologyId: S.String,
+    organizationId: SharedEntityIds.OrganizationId,
+    limit: S.Number,
+  },
+  $I.annotations("FindByOntologyRequest", {
+    description: "SQL request schema: fetch entities by ontology id (scoped to organization, limited).",
+  })
+) {}
 
-class FindByTypeRequest extends S.Class<FindByTypeRequest>("FindByTypeRequest")({
-  typeIri: S.String,
-  organizationId: SharedEntityIds.OrganizationId,
-  limit: S.Number,
-}) {}
+class FindByTypeRequest extends S.Class<FindByTypeRequest>($I`FindByTypeRequest`)(
+  {
+    typeIri: S.String,
+    organizationId: SharedEntityIds.OrganizationId,
+    limit: S.Number,
+  },
+  $I.annotations("FindByTypeRequest", {
+    description: "SQL request schema: fetch entities by type IRI (scoped to organization, limited).",
+  })
+) {}
 
-class CountByOrganizationRequest extends S.Class<CountByOrganizationRequest>("CountByOrganizationRequest")({
-  organizationId: SharedEntityIds.OrganizationId,
-}) {}
+class CountByOrganizationRequest extends S.Class<CountByOrganizationRequest>($I`CountByOrganizationRequest`)(
+  {
+    organizationId: SharedEntityIds.OrganizationId,
+  },
+  $I.annotations("CountByOrganizationRequest", {
+    description: "SQL request schema: count entities for an organization.",
+  })
+) {}
 
-class FindByNormalizedTextRequest extends S.Class<FindByNormalizedTextRequest>("FindByNormalizedTextRequest")({
-  normalizedText: S.String,
-  organizationId: SharedEntityIds.OrganizationId,
-  limit: S.Number,
-}) {}
+class FindByNormalizedTextRequest extends S.Class<FindByNormalizedTextRequest>($I`FindByNormalizedTextRequest`)(
+  {
+    normalizedText: S.String,
+    organizationId: SharedEntityIds.OrganizationId,
+    limit: S.Number,
+  },
+  $I.annotations("FindByNormalizedTextRequest", {
+    description:
+      "SQL request schema: fuzzy-search entities by normalized mention text (scoped to organization, limited).",
+  })
+) {}
 
-class CountResult extends S.Class<CountResult>("CountResult")({
-  count: S.String,
-}) {}
+class CountResult extends S.Class<CountResult>($I`CountResult`)(
+  {
+    count: S.String,
+  },
+  $I.annotations("CountResult", {
+    description: "SQL count query result (string-typed count from database).",
+  })
+) {}
 
 const makeEntityExtensions = Effect.gen(function* () {
   const sql = yield* SqlClient.SqlClient;

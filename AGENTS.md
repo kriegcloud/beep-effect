@@ -92,6 +92,11 @@ For Cursor IDE parity workflows and adaptations, use:
 - No `any`, `@ts-ignore`, or unchecked casts. Validate external data with `@beep/schema`.
 - Biome formatting: run `bun run lint:fix` before committing.
 - Effect testing utilities in `@beep/testkit`. Use `Effect.log*` with structured objects.
+- Schema model conventions:
+  - Prefer `S.Class` for named data models, especially anything crossing a boundary (DB rows, external APIs, RPC payloads). `S.Class` can be used directly as the type.
+  - Do not name schema classes with a `*Schema` suffix (e.g. use `EmailMetadata`, not `EmailMetadataSchema`).
+  - When a model has nested object properties (e.g. `dateRange`), break the nested shape out into its own `S.Class` rather than an inline `S.Struct`.
+  - For `S.optionalWith(S.Array(...))` defaults, prefer `A.empty<T>` (e.g. `default: A.empty<string>`), not `() => []`.
 
 ## Workflow for AI Agents
 
@@ -101,6 +106,7 @@ For Cursor IDE parity workflows and adaptations, use:
 4. **Respect Tooling**: Use root scripts with `dotenvx`
 5. **Keep Docs Updated**: Align with `documentation/patterns/` when introducing new patterns
 6. **Do Not Auto-Start**: Never launch long-running dev or server commands without confirmation
+7. **Dirty Worktrees Are OK**: Do not treat a non-clean git status as a blocker. This repo often runs multiple agents in parallel on the same branch. Only require a clean worktree for operations that strictly need it (e.g. certain codemods, `git subtree`, history rewriting). Never revert/stash/clean unless explicitly requested.
 
 ## Specifications
 

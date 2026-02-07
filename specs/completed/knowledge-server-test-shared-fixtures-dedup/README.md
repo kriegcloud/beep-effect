@@ -79,7 +79,7 @@ This spec intentionally includes orchestration docs (`MASTER_ORCHESTRATION.md`, 
 
 - Updated `_shared` module set under `packages/knowledge/server/test/_shared`
 - Migrated test files with duplicate helpers removed
-- Phase artifacts under `specs/pending/knowledge-server-test-shared-fixtures-dedup/outputs`
+- Phase artifacts under `specs/completed/knowledge-server-test-shared-fixtures-dedup/outputs`
 - Reflection entries capturing what refactor patterns worked
 - Handoff and orchestrator prompt files for multi-session continuation
 

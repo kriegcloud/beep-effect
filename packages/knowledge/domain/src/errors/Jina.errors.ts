@@ -63,7 +63,7 @@ export class JinaApiError extends S.TaggedError<JinaApiError>($I`JinaApiError`)(
  * @since 0.1.0
  * @category Error
  */
-export class JinaRateLimitError extends S.TaggedError<JinaRateLimitError>()(
+export class JinaRateLimitError extends S.TaggedError<JinaRateLimitError>($I`JinaRateLimitError`)(
   "JinaRateLimitError",
   {
     retryAfterMs: S.Number.annotations({
@@ -98,7 +98,7 @@ export class JinaRateLimitError extends S.TaggedError<JinaRateLimitError>()(
  * @since 0.1.0
  * @category Error
  */
-export class JinaParseError extends S.TaggedError<JinaParseError>()(
+export class JinaParseError extends S.TaggedError<JinaParseError>($I`JinaParseError`)(
   "JinaParseError",
   {
     message: S.String.annotations({
@@ -129,7 +129,7 @@ export class JinaParseError extends S.TaggedError<JinaParseError>()(
  * @since 0.1.0
  * @category Error
  */
-export class JinaTimeoutError extends S.TaggedError<JinaTimeoutError>()(
+export class JinaTimeoutError extends S.TaggedError<JinaTimeoutError>($I`JinaTimeoutError`)(
   "JinaTimeoutError",
   {
     url: S.String.annotations({

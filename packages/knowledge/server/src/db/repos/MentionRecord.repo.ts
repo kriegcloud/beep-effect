@@ -15,20 +15,35 @@ const $I = $KnowledgeServerId.create("db/repos/MentionRecordRepo");
 
 const tableName = KnowledgeEntityIds.MentionRecordId.tableName;
 
-class FindByExtractionIdRequest extends S.Class<FindByExtractionIdRequest>("FindByExtractionIdRequest")({
-  extractionId: KnowledgeEntityIds.ExtractionId,
-  organizationId: SharedEntityIds.OrganizationId,
-}) {}
+class FindByExtractionIdRequest extends S.Class<FindByExtractionIdRequest>($I`FindByExtractionIdRequest`)(
+  {
+    extractionId: KnowledgeEntityIds.ExtractionId,
+    organizationId: SharedEntityIds.OrganizationId,
+  },
+  $I.annotations("FindByExtractionIdRequest", {
+    description: "SQL request schema: fetch mention records by extraction id (scoped to organization).",
+  })
+) {}
 
-class FindByResolvedEntityIdRequest extends S.Class<FindByResolvedEntityIdRequest>("FindByResolvedEntityIdRequest")({
-  entityId: KnowledgeEntityIds.KnowledgeEntityId,
-  organizationId: SharedEntityIds.OrganizationId,
-}) {}
+class FindByResolvedEntityIdRequest extends S.Class<FindByResolvedEntityIdRequest>($I`FindByResolvedEntityIdRequest`)(
+  {
+    entityId: KnowledgeEntityIds.KnowledgeEntityId,
+    organizationId: SharedEntityIds.OrganizationId,
+  },
+  $I.annotations("FindByResolvedEntityIdRequest", {
+    description: "SQL request schema: fetch mention records by resolved entity id (scoped to organization).",
+  })
+) {}
 
-class FindUnresolvedRequest extends S.Class<FindUnresolvedRequest>("FindUnresolvedRequest")({
-  organizationId: SharedEntityIds.OrganizationId,
-  limit: S.Number,
-}) {}
+class FindUnresolvedRequest extends S.Class<FindUnresolvedRequest>($I`FindUnresolvedRequest`)(
+  {
+    organizationId: SharedEntityIds.OrganizationId,
+    limit: S.Number,
+  },
+  $I.annotations("FindUnresolvedRequest", {
+    description: "SQL request schema: fetch unresolved mention records for an organization (limited).",
+  })
+) {}
 
 const makeMentionRecordExtensions = Effect.gen(function* () {
   const sql = yield* SqlClient.SqlClient;

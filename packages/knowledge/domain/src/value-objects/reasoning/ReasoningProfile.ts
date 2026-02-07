@@ -4,7 +4,7 @@ import * as S from "effect/Schema";
 
 const $I = $KnowledgeDomainId.create("value-objects/reasoning/ReasoningProfile");
 
-export const ReasoningProfile = S.Literal(
+export class ReasoningProfile extends BS.StringLiteralKit(
   "rdfs-full",
   "rdfs-subclass",
   "rdfs-domain-range",
@@ -13,10 +13,9 @@ export const ReasoningProfile = S.Literal(
   "custom"
 ).annotations(
   $I.annotations("ReasoningProfile", {
-    title: "Reasoning Profile",
-    description: "Supported reasoning profiles for the inference engine",
+    description: "Supported reasoning profiles for the inference engine.",
   })
-);
+) {}
 
 export declare namespace ReasoningProfile {
   export type Type = typeof ReasoningProfile.Type;

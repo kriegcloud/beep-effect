@@ -11,28 +11,43 @@ import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { type AssembledEntity, type AssembledRelation, KnowledgeGraph } from "../Extraction/GraphAssembler";
 
-const $I = $KnowledgeServerId.create("knowledge-server/Grounding/ConfidenceFilter");
+const $I = $KnowledgeServerId.create("Grounding/ConfidenceFilter");
 
-export class FilterConfig extends S.Class<FilterConfig>($I`FilterConfig`)({
-  entityThreshold: S.optional(S.Number),
-  relationThreshold: S.optional(S.Number),
-  removeOrphanEntities: S.optional(S.Boolean),
-}) {}
+export class FilterConfig extends S.Class<FilterConfig>($I`FilterConfig`)(
+  {
+    entityThreshold: S.optional(S.Number),
+    relationThreshold: S.optional(S.Number),
+    removeOrphanEntities: S.optional(S.Boolean),
+  },
+  $I.annotations("FilterConfig", {
+    description: "Confidence filtering configuration (entity/relation thresholds and orphan removal behavior).",
+  })
+) {}
 
-export class FilterStats extends S.Class<FilterStats>($I`FilterStats`)({
-  originalEntityCount: S.Number,
-  filteredEntityCount: S.Number,
-  removedEntityCount: S.Number,
-  originalRelationCount: S.Number,
-  filteredRelationCount: S.Number,
-  removedRelationCount: S.Number,
-  orphanEntitiesRemoved: S.Number,
-}) {}
+export class FilterStats extends S.Class<FilterStats>($I`FilterStats`)(
+  {
+    originalEntityCount: S.Number,
+    filteredEntityCount: S.Number,
+    removedEntityCount: S.Number,
+    originalRelationCount: S.Number,
+    filteredRelationCount: S.Number,
+    removedRelationCount: S.Number,
+    orphanEntitiesRemoved: S.Number,
+  },
+  $I.annotations("FilterStats", {
+    description: "Statistics produced by confidence filtering (counts before/after and removals).",
+  })
+) {}
 
-export class FilterResult extends S.Class<FilterResult>($I`FilterResult`)({
-  graph: KnowledgeGraph,
-  stats: FilterStats,
-}) {}
+export class FilterResult extends S.Class<FilterResult>($I`FilterResult`)(
+  {
+    graph: KnowledgeGraph,
+    stats: FilterStats,
+  },
+  $I.annotations("FilterResult", {
+    description: "Confidence filtering result (filtered graph + filter stats).",
+  })
+) {}
 
 const DEFAULT_ENTITY_THRESHOLD = 0.5;
 const DEFAULT_RELATION_THRESHOLD = 0.5;

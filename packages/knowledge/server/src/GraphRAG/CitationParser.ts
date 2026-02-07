@@ -1,3 +1,4 @@
+import { $KnowledgeServerId } from "@beep/identity/packages";
 import { KnowledgeEntityIds } from "@beep/shared-domain";
 import * as A from "effect/Array";
 import * as F from "effect/Function";
@@ -5,26 +6,27 @@ import * as HashSet from "effect/HashSet";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
+import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { Citation } from "./AnswerSchemas";
 
+const $I = $KnowledgeServerId.create("GraphRAG/CitationParser");
 const ENTITY_CITATION_REGEX = /\{\{entity:([^}]+)}}/g;
 
 const RELATION_CITATION_REGEX = /\{\{relation:([^}]+)}}/g;
 
 const SENTENCE_BOUNDARY_REGEX = /[.!?]+\s*/;
+export class CitationMatch extends S.Class<CitationMatch>($I`CitationMatch`)({
+  match: S.String,
+  id: S.String,
+  index: S.Number,
+}) {}
 
-interface CitationMatch {
-  readonly match: string;
-  readonly id: string;
-  readonly index: number;
-}
-
-interface SentenceCitations {
-  readonly sentence: string;
-  readonly entityIds: ReadonlyArray<string>;
-  readonly relationIds: ReadonlyArray<string>;
-}
+export class SentenceCitations extends S.Class<SentenceCitations>($I`SentenceCitations`)({
+  sentence: S.String,
+  entityIds: S.Array(S.String),
+  relationIds: S.Array(S.String),
+}) {}
 
 const deduplicateIds = (ids: ReadonlyArray<string>): ReadonlyArray<string> => A.dedupe(ids);
 
@@ -59,14 +61,12 @@ export const extractRelationIds = (text: string): ReadonlyArray<string> =>
     A.map((m) => m.id),
     deduplicateIds
   );
-
+export class Accumulator extends S.Class<Accumulator>($I`Accumulator`)({
+  currentPosition: S.Number,
+  found: S.Option(S.String),
+}) {}
 const extractClaimText = (text: string, position: number): string => {
   const sentences = Str.split(text, SENTENCE_BOUNDARY_REGEX);
-
-  interface Accumulator {
-    readonly currentPosition: number;
-    readonly found: O.Option<string>;
-  }
 
   const result = A.reduce(sentences, { currentPosition: 0, found: O.none() } as Accumulator, (acc, sentence) => {
     if (O.isSome(acc.found)) {

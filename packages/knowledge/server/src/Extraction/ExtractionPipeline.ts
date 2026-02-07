@@ -32,7 +32,7 @@ import { RelationExtractor, RelationExtractorLive } from "./RelationExtractor";
 import type { ClassifiedEntity } from "./schemas/entity-output.schema";
 import type { ExtractedMention } from "./schemas/mention-output.schema";
 
-const $I = $KnowledgeServerId.create("knowledge-server/Extraction/ExtractionPipeline");
+const $I = $KnowledgeServerId.create("Extraction/ExtractionPipeline");
 
 export class ExtractionPipelineConfig extends S.Class<ExtractionPipelineConfig>($I`ExtractionPipelineConfig`)(
   {

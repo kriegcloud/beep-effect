@@ -177,7 +177,7 @@ const serviceEffect: Effect.Effect<SparqlParserShape> = Effect.gen(function* () 
 
         const query = yield* astToSparqlQuery(ast, queryString);
 
-        return { query, ast } as ParseResult;
+        return { query, ast };
       }).pipe(
         Effect.withSpan("SparqlParser.parse", {
           attributes: { queryLength: Str.length(queryString) },

@@ -37,7 +37,7 @@ Evidence-backed baseline for `.cursor` capability parity planning.
 |-----------|-------|--------|
 | **rules/** | 3 files | `behavioral.md`, `effect-patterns.md`, `general.md` (symlinked/copied from .claude) |
 | **workflows/** | 8 files | `debug.md`, `done-feature.md`, `explore.md`, `new-spec.md`, `pattern-check.md`, `session-handoff.md`, `spec-orchestration.md`, `write-test.md` |
-| **skills/** | 3 ported SKILL.md + index | `skills/ports/`: `domain-modeling.SKILL.md`, `layer-design.SKILL.md`, `schema-composition.SKILL.md`; `skill-index.md`, `README.md` |
+| **skills/** | 3 ported skills + index | `skills/`: `domain-modeling/SKILL.md`, `layer-design/SKILL.md`, `schema-composition/SKILL.md`; `skill-index.md`, `README.md` |
 | **patterns/** | 2 dirs + README/schema | `code-smells/` (27 .md), `dangerous-commands/` (14 .md), `README.md`, `TEMPLATE.md`, `schema.ts` |
 | **agents/** | 1 manifest + 5 profiles | `manifest.md`; `profiles/`: discovery, evaluation, implementation, validation, README |
 | **safety/** | 1 file | `permissions.md` |

@@ -10,9 +10,9 @@ import * as Stream from "effect/Stream";
 const $I = $KnowledgeServerId.create("Workflow/BatchEventEmitter");
 
 export interface BatchEventEmitterShape {
-  readonly emit: (event: BatchEvent) => Effect.Effect<void>;
-  readonly subscribe: (batchId: KnowledgeEntityIds.BatchExecutionId.Type) => Stream.Stream<BatchEvent>;
-  readonly subscribeAll: () => Stream.Stream<BatchEvent>;
+  readonly emit: (event: BatchEvent.Type) => Effect.Effect<void>;
+  readonly subscribe: (batchId: KnowledgeEntityIds.BatchExecutionId.Type) => Stream.Stream<BatchEvent.Type>;
+  readonly subscribeAll: () => Stream.Stream<BatchEvent.Type>;
 }
 
 export class BatchEventEmitter extends Context.Tag($I`BatchEventEmitter`)<
@@ -21,7 +21,7 @@ export class BatchEventEmitter extends Context.Tag($I`BatchEventEmitter`)<
 >() {}
 
 const serviceEffect: Effect.Effect<BatchEventEmitterShape> = Effect.gen(function* () {
-  const pubsub = yield* PubSub.unbounded<BatchEvent>();
+  const pubsub = yield* PubSub.unbounded<BatchEvent.Type>();
 
   const emit: BatchEventEmitterShape["emit"] = (event) =>
     PubSub.publish(pubsub, event).pipe(

@@ -1,12 +1,21 @@
+import { $KnowledgeServerId } from "@beep/identity/packages";
 import * as A from "effect/Array";
+import * as S from "effect/Schema";
 import * as Str from "effect/String";
 
-export interface SparqlGenerationPromptInput {
-  readonly question: string;
-  readonly schemaContext: string;
-  readonly attempt: number;
-  readonly feedback: ReadonlyArray<string>;
-}
+const $I = $KnowledgeServerId.create("Sparql/SparqlGeneratorPrompt");
+
+export class SparqlGenerationPromptInput extends S.Class<SparqlGenerationPromptInput>($I`SparqlGenerationPromptInput`)(
+  {
+    question: S.String,
+    schemaContext: S.String,
+    attempt: S.Int,
+    feedback: S.Array(S.String),
+  },
+  $I.annotations("SparqlGenerationPromptInput", {
+    description: "Input for the SPARQL generation prompt",
+  })
+) {}
 
 export const SPARQL_GENERATION_SYSTEM_PROMPT = `You generate SPARQL for a read-only RDF knowledge graph.
 

@@ -12,7 +12,7 @@ Codex-target parity implementation for `specs/pending/codex-claude-parity` Phase
 
 - `rules/`: core instruction rules (symlinked direct ports)
 - `workflows/`: Codex workflows adapted from `.claude/commands`
-- `skills/`: structured skill index and selected portable ports
+- `skills/`: Codex-loadable skills (directory-based `SKILL.md`) + parity index
 - `agents/`: tool-agnostic delegation manifest and profiles
 - `safety/`: Codex safety policy replacing Claude permission DSL
 - `patterns/`: reusable ask/deny/context pattern corpus

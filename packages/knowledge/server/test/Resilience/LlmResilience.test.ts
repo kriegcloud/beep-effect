@@ -1,3 +1,4 @@
+import { $KnowledgeServerId } from "@beep/identity/packages";
 import { CircuitOpenError } from "@beep/knowledge-domain/errors";
 import { withLlmResilience, withLlmResilienceWithFallback } from "@beep/knowledge-server/LlmControl/LlmResilience";
 import {
@@ -16,6 +17,8 @@ import * as O from "effect/Option";
 import * as Ref from "effect/Ref";
 import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
+
+const $I = $KnowledgeServerId.create("test/Resilience/LlmResilience.test");
 
 const TEST_TIMEOUT = 60_000;
 
@@ -172,7 +175,10 @@ describe("LlmResilience", () => {
         streamText: () => Stream.empty,
       });
 
-      const schema = S.Struct({ ok: S.Boolean });
+      class Result extends S.Class<Result>($I`Result`)(
+        { ok: S.Boolean },
+        $I.annotations("Result", { description: "Test-only schema for fallback JSON decode." })
+      ) {}
 
       const decoded = yield* withLlmResilienceWithFallback(
         primaryFailing,
@@ -180,14 +186,14 @@ describe("LlmResilience", () => {
         (llm) =>
           llm.generateObject({
             prompt: Prompt.make("hi"),
-            schema,
+            schema: Result,
             objectName: "Result",
           }),
         {
           stage: "entity_extraction",
           maxRetries: 0,
         }
-      ).pipe(Effect.map((r) => S.decodeUnknownSync(schema)(r.value)));
+      ).pipe(Effect.map((r) => S.decodeUnknownSync(Result)(r.value)));
 
       strictEqual(decoded.ok, true);
     }, Effect.provide(NoopLimiterLayer)),

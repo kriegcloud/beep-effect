@@ -44,78 +44,70 @@ const serviceEffect: Effect.Effect<OntologyCacheShape> = Effect.gen(function* ()
   const hashContent = (content: string): string => `${Hash.string(content)}`;
 
   return OntologyCache.of({
-    get: Effect.fn("OntologyCache.get")((key: string) =>
-      Effect.gen(function* () {
-        const cache = yield* Ref.get(cacheRef);
-        const entry = HashMap.get(cache, key);
+    get: Effect.fn("OntologyCache.get")(function* (key: string) {
+      const cache = yield* Ref.get(cacheRef);
+      const entry = HashMap.get(cache, key);
 
-        if (O.isNone(entry)) {
-          return O.none<ParsedOntology>();
-        }
+      if (O.isNone(entry)) {
+        return O.none<ParsedOntology>();
+      }
 
-        const now = yield* DateTime.now;
-        if (isExpired(entry.value.loadedAt, now)) {
-          yield* Ref.update(cacheRef, HashMap.remove(key));
-          return O.none<ParsedOntology>();
-        }
+      const now = yield* DateTime.now;
+      if (isExpired(entry.value.loadedAt, now)) {
+        yield* Ref.update(cacheRef, HashMap.remove(key));
+        return O.none<ParsedOntology>();
+      }
 
-        return O.some(entry.value.data);
-      })
-    ),
+      return O.some(entry.value.data);
+    }),
 
-    getIfValid: Effect.fn("OntologyCache.getIfValid")((key: string, content: string) =>
-      Effect.gen(function* () {
-        const cache = yield* Ref.get(cacheRef);
-        const entry = HashMap.get(cache, key);
+    getIfValid: Effect.fn("OntologyCache.getIfValid")(function* (key: string, content: string) {
+      const cache = yield* Ref.get(cacheRef);
+      const entry = HashMap.get(cache, key);
 
-        if (O.isNone(entry)) {
-          return O.none<ParsedOntology>();
-        }
+      if (O.isNone(entry)) {
+        return O.none<ParsedOntology>();
+      }
 
-        const now = yield* DateTime.now;
-        const currentHash = hashContent(content);
+      const now = yield* DateTime.now;
+      const currentHash = hashContent(content);
 
-        if (isExpired(entry.value.loadedAt, now) || entry.value.contentHash !== currentHash) {
-          yield* Ref.update(cacheRef, HashMap.remove(key));
-          return O.none<ParsedOntology>();
-        }
+      if (isExpired(entry.value.loadedAt, now) || entry.value.contentHash !== currentHash) {
+        yield* Ref.update(cacheRef, HashMap.remove(key));
+        return O.none<ParsedOntology>();
+      }
 
-        return O.some(entry.value.data);
-      })
-    ),
+      return O.some(entry.value.data);
+    }),
 
-    set: Effect.fn("OntologyCache.set")((key: string, ontology: ParsedOntology, content: string) =>
-      Effect.gen(function* () {
-        const now = yield* DateTime.now;
-        const entry: CachedOntology = {
-          data: ontology,
-          loadedAt: now,
-          contentHash: hashContent(content),
-        };
-        yield* Ref.update(cacheRef, HashMap.set(key, entry));
-        return entry;
-      })
-    ),
+    set: Effect.fn("OntologyCache.set")(function* (key: string, ontology: ParsedOntology, content: string) {
+      const now = yield* DateTime.now;
+      const entry: CachedOntology = {
+        data: ontology,
+        loadedAt: now,
+        contentHash: hashContent(content),
+      };
+      yield* Ref.update(cacheRef, HashMap.set(key, entry));
+      return entry;
+    }),
 
     invalidate: Effect.fn("OntologyCache.invalidate")((key: string) => Ref.update(cacheRef, HashMap.remove(key))),
 
     clear: Effect.fn("OntologyCache.clear")(() => Ref.set(cacheRef, HashMap.empty<string, CachedOntology>())),
 
-    stats: Effect.fn("OntologyCache.stats")(() =>
-      Effect.gen(function* () {
-        const cache = yield* Ref.get(cacheRef);
-        const now = yield* DateTime.now;
+    stats: Effect.fn("OntologyCache.stats")(function* () {
+      const cache = yield* Ref.get(cacheRef);
+      const now = yield* DateTime.now;
 
-        const expired = HashMap.reduce(cache, 0, (acc, entry) => (isExpired(entry.loadedAt, now) ? acc + 1 : acc));
-        const total = HashMap.size(cache);
+      const expired = HashMap.reduce(cache, 0, (acc, entry) => (isExpired(entry.loadedAt, now) ? acc + 1 : acc));
+      const total = HashMap.size(cache);
 
-        return {
-          total,
-          active: total - expired,
-          expired,
-        };
-      })
-    ),
+      return {
+        total,
+        active: total - expired,
+        expired,
+      };
+    }),
   });
 });
 

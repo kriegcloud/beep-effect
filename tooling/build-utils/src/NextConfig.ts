@@ -322,6 +322,9 @@ const withDefaultsImpl = Effect.fn("withDefaults")(function* (packageName: `@bee
     compress: true,
     productionBrowserSourceMaps: true,
     staticPageGenerationTimeout: 60,
+    // Forward browser console output to the terminal in dev. This is a top-level
+    // Next.js config option (not `experimental.logging`).
+    logging: pipe(config?.logging, O.fromNullable, O.getOrElse(constant({ browserToTerminal: true }))),
     // cacheComponents: true,
     // TODO enable soon
     // typedRoutes: P.isNotNullable(config?.typedRoutes) ? config.typedRoutes : true,
@@ -367,11 +370,9 @@ const withDefaultsImpl = Effect.fn("withDefaults")(function* (packageName: `@bee
             optimizePackageImports,
             mcpServer: true,
             turbopackFileSystemCacheForDev: true,
-            logging: { browserToTerminal: true },
           }),
           onSome: ({ optimizePackageImports: _, ...experimental }) => ({
             ...experimental,
-            logging: { browserToTerminal: true },
             turbotrace: {
               contextDirectory: __dirname,
               loadersToBundle: ["babel-loader"],

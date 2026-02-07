@@ -1,4 +1,7 @@
+import { $KnowledgeDomainId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
+
+const $I = $KnowledgeDomainId.create("errors/Embedding.errors");
 
 /**
  * Base embedding error for general failures
@@ -6,26 +9,38 @@ import * as S from "effect/Schema";
  * @since 0.1.0
  * @category Error
  */
-export class EmbeddingError extends S.TaggedError<EmbeddingError>()("EmbeddingError", {
-  message: S.String,
-  provider: S.String,
-  cause: S.optional(S.Unknown),
-}) {}
+export class EmbeddingError extends S.TaggedError<EmbeddingError>($I`EmbeddingError`)(
+  "EmbeddingError",
+  {
+    message: S.String,
+    provider: S.String,
+    cause: S.optional(S.Unknown),
+  },
+  $I.annotations("EmbeddingError", {
+    description: "Base embedding error for general provider failures.",
+  })
+) {}
 /**
  * Rate limit exceeded for embedding API
  *
  * @since 0.1.0
  * @category Error
  */
-export class EmbeddingRateLimitError extends S.TaggedError<EmbeddingRateLimitError>()("EmbeddingRateLimitError", {
-  message: S.String,
-  provider: S.String,
+export class EmbeddingRateLimitError extends S.TaggedError<EmbeddingRateLimitError>($I`EmbeddingRateLimitError`)(
+  "EmbeddingRateLimitError",
+  {
+    message: S.String,
+    provider: S.String,
 
-  /**
-   * Retry after duration in milliseconds (if available from Retry-After header)
-   */
-  retryAfterMs: S.optional(S.Number),
-}) {}
+    /**
+     * Retry after duration in milliseconds (if available from Retry-After header)
+     */
+    retryAfterMs: S.optional(S.Number),
+  },
+  $I.annotations("EmbeddingRateLimitError", {
+    description: "Embedding provider rate limit exceeded (may include retry-after).",
+  })
+) {}
 
 /**
  * Embedding request timed out
@@ -33,15 +48,21 @@ export class EmbeddingRateLimitError extends S.TaggedError<EmbeddingRateLimitErr
  * @since 0.1.0
  * @category Error
  */
-export class EmbeddingTimeoutError extends S.TaggedError<EmbeddingTimeoutError>()("EmbeddingTimeoutError", {
-  message: S.String,
-  provider: S.String,
+export class EmbeddingTimeoutError extends S.TaggedError<EmbeddingTimeoutError>($I`EmbeddingTimeoutError`)(
+  "EmbeddingTimeoutError",
+  {
+    message: S.String,
+    provider: S.String,
 
-  /**
-   * Configured timeout duration in milliseconds
-   */
-  timeoutMs: S.Number,
-}) {}
+    /**
+     * Configured timeout duration in milliseconds
+     */
+    timeoutMs: S.Number,
+  },
+  $I.annotations("EmbeddingTimeoutError", {
+    description: "Embedding provider request timed out.",
+  })
+) {}
 
 /**
  * Invalid response from embedding provider
@@ -49,7 +70,9 @@ export class EmbeddingTimeoutError extends S.TaggedError<EmbeddingTimeoutError>(
  * @since 0.1.0
  * @category Error
  */
-export class EmbeddingInvalidResponseError extends S.TaggedError<EmbeddingInvalidResponseError>()(
+export class EmbeddingInvalidResponseError extends S.TaggedError<EmbeddingInvalidResponseError>(
+  $I`EmbeddingInvalidResponseError`
+)(
   "EmbeddingInvalidResponseError",
   {
     message: S.String,
@@ -59,7 +82,10 @@ export class EmbeddingInvalidResponseError extends S.TaggedError<EmbeddingInvali
      * Raw response from provider (truncated for debugging)
      */
     response: S.optional(S.String),
-  }
+  },
+  $I.annotations("EmbeddingInvalidResponseError", {
+    description: "Embedding provider returned an invalid or unexpected response payload.",
+  })
 ) {}
 
 /**
@@ -68,7 +94,9 @@ export class EmbeddingInvalidResponseError extends S.TaggedError<EmbeddingInvali
  * @since 0.1.0
  * @category Error
  */
-export class EmbeddingDimensionMismatchError extends S.TaggedError<EmbeddingDimensionMismatchError>()(
+export class EmbeddingDimensionMismatchError extends S.TaggedError<EmbeddingDimensionMismatchError>(
+  $I`EmbeddingDimensionMismatchError`
+)(
   "EmbeddingDimensionMismatchError",
   {
     message: S.String,
@@ -82,7 +110,10 @@ export class EmbeddingDimensionMismatchError extends S.TaggedError<EmbeddingDime
      * Actual vector dimension received
      */
     actual: S.Number,
-  }
+  },
+  $I.annotations("EmbeddingDimensionMismatchError", {
+    description: "Embedding provider returned a vector whose dimensionality did not match expectations.",
+  })
 ) {}
 
 /**
@@ -91,20 +122,26 @@ export class EmbeddingDimensionMismatchError extends S.TaggedError<EmbeddingDime
  * @since 0.1.0
  * @category Error
  */
-export class EmbeddingTokenLimitError extends S.TaggedError<EmbeddingTokenLimitError>()("EmbeddingTokenLimitError", {
-  message: S.String,
-  provider: S.String,
+export class EmbeddingTokenLimitError extends S.TaggedError<EmbeddingTokenLimitError>($I`EmbeddingTokenLimitError`)(
+  "EmbeddingTokenLimitError",
+  {
+    message: S.String,
+    provider: S.String,
 
-  /**
-   * Maximum tokens allowed
-   */
-  maxTokens: S.Number,
+    /**
+     * Maximum tokens allowed
+     */
+    maxTokens: S.Number,
 
-  /**
-   * Actual tokens in request
-   */
-  actualTokens: S.optional(S.Number),
-}) {}
+    /**
+     * Actual tokens in request
+     */
+    actualTokens: S.optional(S.Number),
+  },
+  $I.annotations("EmbeddingTokenLimitError", {
+    description: "Embedding request exceeded the provider token limit (max vs actual).",
+  })
+) {}
 
 /**
  * Union of all embedding errors for convenience

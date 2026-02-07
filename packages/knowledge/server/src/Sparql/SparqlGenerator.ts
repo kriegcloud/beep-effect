@@ -26,16 +26,27 @@ const MAX_PARSE_RETRIES = 3;
 const WRITE_OPERATION_PATTERN =
   /\b(INSERT|DELETE|UPDATE|LOAD|CLEAR|CREATE|DROP|MOVE|COPY|ADD|WITH|USING|USING\s+NAMED)\b/i;
 
-export class SparqlGenerationError extends S.TaggedError<SparqlGenerationError>()("SparqlGenerationError", {
-  question: S.String,
-  message: S.String,
-  attempts: S.Int,
-}) {}
+export class SparqlGenerationError extends S.TaggedError<SparqlGenerationError>($I`SparqlGenerationError`)(
+  "SparqlGenerationError",
+  {
+    question: S.String,
+    message: S.String,
+    attempts: S.Int,
+  },
+  $I.annotations("SparqlGenerationError", {
+    description: "SPARQL query generation failed after retries (question, message, attempts).",
+  })
+) {}
 
-export interface SparqlGenerationResult {
-  readonly query: string;
-  readonly attempts: number;
-}
+export class SparqlGenerationResult extends S.Class<SparqlGenerationResult>($I`SparqlGenerationResult`)(
+  {
+    query: S.String,
+    attempts: S.Int,
+  },
+  $I.annotations("SparqlGenerationResult", {
+    description: "Generated read-only SPARQL query text plus number of attempts needed to produce it.",
+  })
+) {}
 
 export interface SparqlGeneratorShape {
   readonly generateReadOnlyQuery: (

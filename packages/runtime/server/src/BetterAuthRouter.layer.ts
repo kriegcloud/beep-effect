@@ -29,6 +29,46 @@ export const BetterAuthRouterLive = HttpLayerRouter.use((router) =>
   Effect.gen(function* () {
     const auth = yield* Auth.Service;
 
+    // Better Auth's oauth-provider plugin expects the OAuth Authorization Server
+    // Metadata endpoint to exist at:
+    //   /.well-known/oauth-authorization-server/[issuer-path]
+    // When Better Auth is mounted under a basePath (we mount it under /api/v1/auth),
+    // that well-known endpoint must be provided by the hosting server (us).
+    const oauthAuthorizationServerMetadataHandler = Effect.fn(function* () {
+      const baseURL = auth.options.baseURL ?? "";
+      const basePath = auth.options.basePath ?? "/api/auth";
+      const internalWellKnownUrl = `${baseURL}${basePath}/.well-known/oauth-authorization-server`;
+
+      // We intentionally route through Better Auth's handler so we don't rely on
+      // oauth-provider endpoints being present in the inferred `auth.api` type.
+      const internalResponse = yield* Effect.tryPromise({
+        try: () => auth.handler(new Request(internalWellKnownUrl, { method: "GET" })),
+        catch: (error) =>
+          new BetterAuthHandlerError({
+            message: `Better Auth well-known handler error: ${error}`,
+          }),
+      });
+
+      const body = yield* Effect.tryPromise({
+        try: () => internalResponse.text(),
+        catch: (error) =>
+          new BetterAuthHandlerError({
+            message: `Better Auth well-known response body error: ${error}`,
+          }),
+      });
+
+      return HttpServerResponse.fromWeb(
+        new Response(body, {
+          status: internalResponse.status,
+          headers: {
+            // Match Better Auth's recommended caching behavior.
+            "Cache-Control": "public, max-age=15, stale-while-revalidate=15, stale-if-error=86400",
+            "Content-Type": "application/json",
+          },
+        })
+      );
+    });
+
     // Handler that forwards requests to Better Auth's web handler
     const betterAuthHandler = Effect.fn(function* (request: HttpServerRequest.HttpServerRequest) {
       // Convert Effect Platform request to Web Request
@@ -46,6 +86,16 @@ export const BetterAuthRouterLive = HttpLayerRouter.use((router) =>
       // Convert Web Response back to Effect Platform response (not an Effect)
       return HttpServerResponse.fromWeb(webResponse);
     });
+
+    // OAuth Authorization Server metadata (RFC 8414) must be available at root well-known paths.
+    // The warning we see is for `/.well-known/oauth-authorization-server/<issuer-path>`.
+    yield* router.add("GET", "/.well-known/oauth-authorization-server", oauthAuthorizationServerMetadataHandler);
+    yield* router.add(
+      "GET",
+      "/.well-known/oauth-authorization-server/api/v1/auth",
+      oauthAuthorizationServerMetadataHandler
+    );
+    yield* router.add("GET", "/.well-known/oauth-authorization-server/*", oauthAuthorizationServerMetadataHandler);
 
     // Register wildcard route for all Better Auth endpoints
     yield* router.add("*", "/api/v1/auth/*", betterAuthHandler);

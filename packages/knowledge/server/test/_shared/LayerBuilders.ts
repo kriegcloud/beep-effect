@@ -11,20 +11,26 @@ import type { LanguageModel } from "@effect/ai";
 import { WorkflowEngine } from "@effect/workflow";
 import * as Layer from "effect/Layer";
 
-export const makeRdfBuilderSerializerLayer = (): Layer.Layer<RdfBuilder | Serializer | RdfStore, never, never> =>
-  Layer.mergeAll(RdfBuilderLive, SerializerLive).pipe(Layer.provideMerge(RdfStoreLive));
+// Function declarations are intentionally used here to avoid TDZ issues in the presence of
+// test-time circular imports (ESM module initialization ordering).
+export function makeRdfBuilderSerializerLayer(): Layer.Layer<RdfBuilder | Serializer | RdfStore, never, never> {
+  return Layer.mergeAll(RdfBuilderLive, SerializerLive).pipe(Layer.provideMerge(RdfStoreLive));
+}
 
-export const makeSparqlGeneratorLayer = (): Layer.Layer<
+export function makeSparqlGeneratorLayer(): Layer.Layer<
   SparqlGenerator | SparqlParser | RdfStore,
   never,
   LanguageModel.LanguageModel | FallbackLanguageModel
-> => Layer.mergeAll(SparqlGeneratorLive, SparqlParserLive, RdfStoreLive);
+> {
+  return Layer.mergeAll(SparqlGeneratorLive, SparqlParserLive, RdfStoreLive);
+}
 
-export const makeExtractionWorkflowTestLayer = (deps: {
+export function makeExtractionWorkflowTestLayer(deps: {
   readonly persistenceLayer: Layer.Layer<WorkflowPersistence, never, never>;
   readonly pipelineLayer: Layer.Layer<ExtractionPipeline, never, never>;
-}): Layer.Layer<ExtractionWorkflow, never, never> =>
-  Layer.provide(
+}): Layer.Layer<ExtractionWorkflow, never, never> {
+  return Layer.provide(
     ExtractionWorkflowLive,
     Layer.mergeAll(deps.persistenceLayer, deps.pipelineLayer, WorkflowEngine.layerMemory)
   );
+}

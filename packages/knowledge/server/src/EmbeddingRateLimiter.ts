@@ -8,8 +8,13 @@
  * @module Service/EmbeddingRateLimiter
  */
 
+import { $KnowledgeServerId } from "@beep/identity/packages";
 import { EmbeddingRateLimitError } from "@beep/knowledge-domain/errors";
 import { Clock, Context, Effect, Layer, Ref } from "effect";
+import * as O from "effect/Option";
+import * as S from "effect/Schema";
+
+const $I = $KnowledgeServerId.create("Service/EmbeddingRateLimiter");
 
 /**
  * Rate limiter state for sliding window
@@ -17,12 +22,20 @@ import { Clock, Context, Effect, Layer, Ref } from "effect";
  * @since 0.1.0
  * @category Types
  */
-interface RateLimiterState {
-  /** Number of requests in current window */
-  readonly count: number;
-  /** Timestamp when window resets (ms since epoch) */
-  readonly resetAt: number;
-}
+export class RateLimiterState extends S.Class<RateLimiterState>($I`RateLimiterState`)(
+  {
+    /** Number of requests in current window */
+    count: S.Number.annotations({
+      description: "Number of requests in current window",
+    }),
+    resetAt: S.Number.annotations({
+      description: "Timestamp when window resets (ms since epoch)",
+    }),
+  },
+  $I.annotations("RateLimiterState", {
+    description: "Internal rate limiter state for sliding window enforcement.",
+  })
+) {}
 
 /**
  * Rate limiter configuration
@@ -30,14 +43,25 @@ interface RateLimiterState {
  * @since 0.1.0
  * @category Types
  */
-export interface EmbeddingRateLimiterConfig {
-  /** Provider identifier for error messages */
-  readonly provider: string;
-  /** Requests per minute limit */
-  readonly requestsPerMinute: number;
-  /** Maximum concurrent requests */
-  readonly maxConcurrent: number;
-}
+export class EmbeddingRateLimiterConfig extends S.Class<EmbeddingRateLimiterConfig>($I`EmbeddingRateLimiterConfig`)(
+  {
+    /** Provider identifier for error messages */
+    provider: S.String.annotations({
+      description: "Provider identifier for error messages",
+    }),
+    /** Requests per minute limit */
+    requestsPerMinute: S.Number.annotations({
+      description: "Requests per minute limit",
+    }),
+    /** Maximum concurrent requests */
+    maxConcurrent: S.Number.annotations({
+      description: "Maximum concurrent requests",
+    }),
+  },
+  $I.annotations("EmbeddingRateLimiterConfig", {
+    description: "Embedding rate limiter configuration (provider id, RPM limit, concurrency limit).",
+  })
+) {}
 
 /**
  * Default configuration for Voyage AI (100 RPM, 10 concurrent)
@@ -62,7 +86,15 @@ export const LOCAL_RATE_LIMITS: EmbeddingRateLimiterConfig = {
   requestsPerMinute: 10000,
   maxConcurrent: 50,
 };
-
+export class EmbeddingRateLimiterMetrics extends S.Class<EmbeddingRateLimiterMetrics>($I`EmbeddingRateLimiterMetrics`)(
+  {
+    requestsThisMinute: S.Number,
+    msUntilReset: S.Number,
+  },
+  $I.annotations("EmbeddingRateLimiterMetrics", {
+    description: "Metrics for embedding rate limiter",
+  })
+) {}
 /**
  * EmbeddingRateLimiter service interface
  *
@@ -85,10 +117,7 @@ export interface EmbeddingRateLimiterMethods {
   /**
    * Get current metrics
    */
-  readonly getMetrics: () => Effect.Effect<{
-    readonly requestsThisMinute: number;
-    readonly msUntilReset: number;
-  }>;
+  readonly getMetrics: () => Effect.Effect<EmbeddingRateLimiterMetrics>;
 }
 
 /**
@@ -97,7 +126,7 @@ export interface EmbeddingRateLimiterMethods {
  * @since 0.1.0
  * @category Service
  */
-export class EmbeddingRateLimiter extends Context.Tag("@core-v2/EmbeddingRateLimiter")<
+export class EmbeddingRateLimiter extends Context.Tag($I`EmbeddingRateLimiter`)<
   EmbeddingRateLimiter,
   EmbeddingRateLimiterMethods
 >() {}
@@ -122,34 +151,34 @@ export const makeEmbeddingRateLimiter = (config: EmbeddingRateLimiterConfig): La
         resetAt: now + 60_000,
       });
 
-      const maybeResetWindow = Effect.gen(function* () {
-        const currentTime = yield* Clock.currentTimeMillis;
-        yield* Ref.update(stateRef, (state) =>
-          currentTime >= state.resetAt ? { count: 0, resetAt: currentTime + 60_000 } : state
-        );
-      });
-
       return {
         acquire: () =>
           Effect.gen(function* () {
-            yield* maybeResetWindow;
-
-            const state = yield* Ref.get(stateRef);
             const currentTime = yield* Clock.currentTimeMillis;
 
-            yield* Effect.when(
-              Effect.fail(
-                new EmbeddingRateLimitError({
-                  message: `Rate limit exceeded: ${config.requestsPerMinute} RPM`,
-                  provider: config.provider,
-                  retryAfterMs: state.resetAt - currentTime,
-                })
-              ),
-              () => state.count >= config.requestsPerMinute
-            );
-
             yield* semaphore.take(1);
-            yield* Ref.update(stateRef, (s) => ({ ...s, count: s.count + 1 }));
+
+            // Atomic RPM enforcement: previous logic could let multiple concurrent fibers pass the check
+            // and exceed RPM in the same window.
+            const maybeResetAt = yield* Ref.modify(stateRef, (state) => {
+              const nextState = currentTime >= state.resetAt ? { count: 0, resetAt: currentTime + 60_000 } : state;
+
+              if (nextState.count >= config.requestsPerMinute) {
+                return [O.some(nextState.resetAt), nextState] as const;
+              }
+
+              return [O.none(), { ...nextState, count: nextState.count + 1 }] as const;
+            });
+
+            if (O.isSome(maybeResetAt)) {
+              // We already took a concurrency permit; release it before failing.
+              yield* semaphore.release(1);
+              return yield* new EmbeddingRateLimitError({
+                message: `Rate limit exceeded: ${config.requestsPerMinute} RPM`,
+                provider: config.provider,
+                retryAfterMs: maybeResetAt.value - currentTime,
+              });
+            }
           }),
 
         release: () => semaphore.release(1),
@@ -158,10 +187,10 @@ export const makeEmbeddingRateLimiter = (config: EmbeddingRateLimiterConfig): La
           Effect.gen(function* () {
             const currentTime = yield* Clock.currentTimeMillis;
             const state = yield* Ref.get(stateRef);
-            return {
+            return EmbeddingRateLimiterMetrics.make({
               requestsThisMinute: state.count,
               msUntilReset: Math.max(0, state.resetAt - currentTime),
-            };
+            });
           }),
       };
     })
@@ -192,5 +221,5 @@ export const EmbeddingRateLimiterLocal = makeEmbeddingRateLimiter(LOCAL_RATE_LIM
 export const EmbeddingRateLimiterNoop: Layer.Layer<EmbeddingRateLimiter> = Layer.succeed(EmbeddingRateLimiter, {
   acquire: () => Effect.void,
   release: () => Effect.void,
-  getMetrics: () => Effect.succeed({ requestsThisMinute: 0, msUntilReset: 60_000 }),
+  getMetrics: () => Effect.succeed(new EmbeddingRateLimiterMetrics({ requestsThisMinute: 0, msUntilReset: 60_000 })),
 });

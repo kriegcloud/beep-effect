@@ -8,24 +8,35 @@ import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Order from "effect/Order";
+import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { buildMentionPrompt, buildSystemPrompt } from "../Ai/PromptTemplates";
 import { FallbackLanguageModel } from "../LlmControl/FallbackLanguageModel";
 import { type LlmResilienceError, withLlmResilienceWithFallback } from "../LlmControl/LlmResilience";
-import type { TextChunk } from "../Nlp/TextChunk";
+import { TextChunk } from "../Nlp/TextChunk";
 import { ExtractedMention, MentionOutput } from "./schemas/mention-output.schema";
 
-const $I = $KnowledgeServerId.create("knowledge-server/Extraction/MentionExtractor");
+const $I = $KnowledgeServerId.create("Extraction/MentionExtractor");
 
-export interface MentionExtractionConfig {
-  readonly minConfidence?: undefined | number;
-}
+export class MentionExtractionConfig extends S.Class<MentionExtractionConfig>($I`MentionExtractionConfig`)(
+  {
+    minConfidence: S.optional(S.Number),
+  },
+  $I.annotations("MentionExtractionConfig", {
+    description: "Mention extraction configuration (minimum confidence threshold).",
+  })
+) {}
 
-export interface MentionExtractionResult {
-  readonly chunk: TextChunk;
-  readonly mentions: readonly ExtractedMention[];
-  readonly tokensUsed: number;
-}
+export class MentionExtractionResult extends S.Class<MentionExtractionResult>($I`MentionExtractionResult`)(
+  {
+    chunk: TextChunk,
+    mentions: S.Array(ExtractedMention),
+    tokensUsed: S.NonNegativeInt,
+  },
+  $I.annotations("MentionExtractionResult", {
+    description: "Mention extraction result for a single chunk (chunk + extracted mentions + tokens used).",
+  })
+) {}
 
 export interface MentionExtractorShape {
   readonly extractFromChunk: (

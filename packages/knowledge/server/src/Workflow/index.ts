@@ -8,5 +8,10 @@ export type { ExtractionWorkflowParams, ExtractionWorkflowShape } from "./Extrac
 export { ExtractionWorkflow, ExtractionWorkflowLive } from "./ExtractionWorkflow";
 export type { ProgressStreamShape } from "./ProgressStream";
 export { ProgressStream, ProgressStreamLive } from "./ProgressStream";
-export type { WorkflowExecutionRecord, WorkflowPersistenceShape } from "./WorkflowPersistence";
-export { WorkflowPersistence, WorkflowPersistenceLive } from "./WorkflowPersistence";
+export type { WorkflowPersistenceShape } from "./WorkflowPersistence";
+export {
+  decodeWorkflowExecutionRecord,
+  WorkflowExecutionRecord,
+  WorkflowPersistence,
+  WorkflowPersistenceLive,
+} from "./WorkflowPersistence";

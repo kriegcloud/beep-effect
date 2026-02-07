@@ -1,8 +1,11 @@
+import { $KnowledgeServerId } from "@beep/identity/packages";
 import { WorkflowEngine } from "@effect/workflow";
 import * as Config from "effect/Config";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
+
+const $I = $KnowledgeServerId.create("Runtime/WorkflowRuntime");
 
 export type WorkflowRuntimeMode = "engine";
 
@@ -10,7 +13,7 @@ export interface WorkflowRuntimeConfigShape {
   readonly mode: WorkflowRuntimeMode;
 }
 
-export class WorkflowRuntimeConfig extends Context.Tag("knowledge-server/Runtime/WorkflowRuntimeConfig")<
+export class WorkflowRuntimeConfig extends Context.Tag($I`WorkflowRuntimeConfig`)<
   WorkflowRuntimeConfig,
   WorkflowRuntimeConfigShape
 >() {}

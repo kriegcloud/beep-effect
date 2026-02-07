@@ -1,4 +1,6 @@
 import { $KnowledgeServerId } from "@beep/identity/packages";
+import { FallbackLanguageModel } from "@beep/knowledge-server/LlmControl/FallbackLanguageModel";
+import { withLlmResilienceWithFallback } from "@beep/knowledge-server/LlmControl/LlmResilience";
 import { BS } from "@beep/schema";
 import { LanguageModel, Prompt } from "@effect/ai";
 import * as A from "effect/Array";
@@ -10,12 +12,21 @@ import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import { FallbackLanguageModel } from "../LlmControl/FallbackLanguageModel";
-import { withLlmResilienceWithFallback } from "../LlmControl/LlmResilience";
 
 const $I = $KnowledgeServerId.create("Service/ContentEnrichmentAgent");
 
-export class SourceChannel extends BS.StringLiteralKit("email", "calendar", "crm", "documents", "web", "unknown") {}
+export class SourceChannel extends BS.StringLiteralKit(
+  "email",
+  "calendar",
+  "crm",
+  "documents",
+  "web",
+  "unknown"
+).annotations(
+  $I.annotations("SourceChannel", {
+    description: "Origin channel for a piece of content being enriched (email/calendar/CRM/documents/web/unknown).",
+  })
+) {}
 export declare namespace SourceChannel {
   export type Type = typeof SourceChannel.Type;
 }
@@ -28,6 +39,10 @@ export class WebSourceType extends BS.StringLiteralKit(
   "official",
   "academic",
   "unknown"
+).annotations(
+  $I.annotations("WebSourceType", {
+    description: "Sub-classification of web content sources when SourceChannel is `web`.",
+  })
 ) {}
 export declare namespace WebSourceType {
   export type Type = typeof WebSourceType.Type;
@@ -42,21 +57,27 @@ export class ContentEnrichmentError extends S.TaggedError<ContentEnrichmentError
   $I.annotations("ContentEnrichmentError", { description: "Failed to enrich content via LLM" })
 ) {}
 
-export class EnrichedContent extends S.Class<EnrichedContent>($I`EnrichedContent`)({
-  headline: S.String,
-  description: S.String,
-  sourceChannel: S.optionalWith(SourceChannel, { default: () => "unknown" }),
-  webSourceType: S.optionalWith(S.OptionFromNullishOr(WebSourceType, null), { default: O.none<WebSourceType.Type> }),
-  publishedAt: S.optionalWith(S.OptionFromNullishOr(BS.DateTimeUtcFromAllAcceptable, null), {
-    default: O.none<DateTime.Utc>,
-  }),
-  author: S.optionalWith(S.OptionFromNullishOr(S.String, null), { default: O.none<string> }),
-  organization: S.optionalWith(S.OptionFromNullishOr(S.String, null), { default: O.none<string> }),
-  keyEntities: S.Array(S.String),
-  topics: S.Array(S.String),
-  language: S.optionalWith(S.String, { default: () => "en" }),
-  wordCount: S.optionalWith(S.NonNegativeInt, { default: () => 0 }),
-}) {}
+export class EnrichedContent extends S.Class<EnrichedContent>($I`EnrichedContent`)(
+  {
+    headline: S.String,
+    description: S.String,
+    sourceChannel: S.optionalWith(SourceChannel, { default: () => "unknown" }),
+    webSourceType: S.optionalWith(S.OptionFromNullishOr(WebSourceType, null), { default: O.none<WebSourceType.Type> }),
+    publishedAt: S.optionalWith(S.OptionFromNullishOr(BS.DateTimeUtcFromAllAcceptable, null), {
+      default: O.none<DateTime.Utc>,
+    }),
+    author: S.optionalWith(S.OptionFromNullishOr(S.String, null), { default: O.none<string> }),
+    organization: S.optionalWith(S.OptionFromNullishOr(S.String, null), { default: O.none<string> }),
+    keyEntities: S.Array(S.String),
+    topics: S.Array(S.String),
+    language: S.optionalWith(S.String, { default: () => "en" }),
+    wordCount: S.optionalWith(S.NonNegativeInt, { default: () => 0 }),
+  },
+  $I.annotations("EnrichedContent", {
+    description:
+      "Structured metadata extracted from content via LLM enrichment (headline, summary, entities, topics, etc).",
+  })
+) {}
 
 const ENRICHMENT_SYSTEM_PROMPT = `You are a content analysis expert. Extract structured metadata from the provided content.
 
@@ -76,7 +97,7 @@ Return:
 Be conservative: use null when uncertain.`;
 
 const buildPrompt = (content: string, url: O.Option<string>): string => {
-  const truncated = content.length > 8000 ? content.slice(0, 8000) + "\n\n[Content truncated...]" : content;
+  const truncated = content.length > 8000 ? `${content.slice(0, 8000)}\n\n[Content truncated...]` : content;
   const urlBlock = O.match(url, { onNone: () => "", onSome: (u) => `Source URL: ${u}\n\n` });
   return `${urlBlock}Content:\n\n${truncated}`;
 };

@@ -1,16 +1,13 @@
 import { $KnowledgeServerId } from "@beep/identity/packages";
-import {
-  type SparqlExecutionError,
-  type SparqlSyntaxError,
-  SparqlUnsupportedFeatureError,
-} from "@beep/knowledge-domain/errors";
-import type { Quad, SparqlBindings } from "@beep/knowledge-domain/value-objects";
+import { SparqlExecutionError, SparqlSyntaxError, SparqlUnsupportedFeatureError } from "@beep/knowledge-domain/errors";
+import { Quad, SparqlBindings } from "@beep/knowledge-domain/value-objects";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as F from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as Match from "effect/Match";
 import * as O from "effect/Option";
+import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import type * as sparqljs from "sparqljs";
 import { RdfStore, RdfStoreLive } from "../Rdf/RdfStoreService";
@@ -19,14 +16,46 @@ import { type ParseResult, SparqlParser, SparqlParserLive } from "./SparqlParser
 
 const $I = $KnowledgeServerId.create("Sparql/SparqlService");
 
-export type SelectResult = SparqlBindings;
-export type ConstructResult = ReadonlyArray<Quad>;
-export type AskResult = boolean;
-export type DescribeResult = ReadonlyArray<Quad>;
+export class SelectResult extends SparqlBindings.extend<SelectResult>($I`SelectResult`)({}) {}
 
-export type QueryResult = SelectResult | ConstructResult | AskResult | DescribeResult;
+export class ConstructResult extends S.Array(Quad) {}
 
-export type SparqlServiceError = SparqlSyntaxError | SparqlExecutionError | SparqlUnsupportedFeatureError;
+export declare namespace ConstructResult {
+  export type Type = typeof ConstructResult.Type;
+  export type Encoded = typeof ConstructResult.Encoded;
+}
+
+export class AskResult extends S.Boolean {}
+
+export declare namespace AskResult {
+  export type Type = typeof AskResult.Type;
+  export type Encoded = typeof AskResult.Encoded;
+}
+
+export class DescribeResult extends S.Array(Quad) {}
+
+export declare namespace DescribeResult {
+  export type Type = typeof DescribeResult.Type;
+  export type Encoded = typeof DescribeResult.Encoded;
+}
+
+export class QueryResult extends S.Union(SelectResult, ConstructResult, AskResult, DescribeResult) {}
+
+export declare namespace QueryResult {
+  export type Type = typeof QueryResult.Type;
+  export type Encoded = typeof QueryResult.Encoded;
+}
+
+export class SparqlServiceError extends S.Union(
+  SparqlSyntaxError,
+  SparqlExecutionError,
+  SparqlUnsupportedFeatureError
+) {}
+
+export declare namespace SparqlServiceError {
+  export type Type = typeof SparqlServiceError.Type;
+  export type Encoded = typeof SparqlServiceError.Encoded;
+}
 
 const getQueryTypeString: (ast: sparqljs.SparqlQuery) => string = Match.type<sparqljs.SparqlQuery>().pipe(
   Match.when({ type: "update" }, () => "UPDATE"),
@@ -59,11 +88,11 @@ const asDescribeQuery: (ast: sparqljs.SparqlQuery) => O.Option<sparqljs.Describe
 );
 
 export interface SparqlServiceShape {
-  readonly select: (queryString: string) => Effect.Effect<SelectResult, SparqlServiceError>;
-  readonly construct: (queryString: string) => Effect.Effect<ConstructResult, SparqlServiceError>;
-  readonly ask: (queryString: string) => Effect.Effect<AskResult, SparqlServiceError>;
-  readonly describe: (queryString: string) => Effect.Effect<DescribeResult, SparqlServiceError>;
-  readonly query: (queryString: string) => Effect.Effect<QueryResult, SparqlServiceError>;
+  readonly select: (queryString: string) => Effect.Effect<SelectResult, SparqlServiceError.Type>;
+  readonly construct: (queryString: string) => Effect.Effect<ConstructResult.Type, SparqlServiceError.Type>;
+  readonly ask: (queryString: string) => Effect.Effect<AskResult.Type, SparqlServiceError.Type>;
+  readonly describe: (queryString: string) => Effect.Effect<DescribeResult.Type, SparqlServiceError.Type>;
+  readonly query: (queryString: string) => Effect.Effect<QueryResult.Type, SparqlServiceError.Type>;
 }
 
 export class SparqlService extends Context.Tag($I`SparqlService`)<SparqlService, SparqlServiceShape>() {}
@@ -169,7 +198,7 @@ const serviceEffect: Effect.Effect<SparqlServiceShape, never, SparqlParser | Rdf
     });
 
   return SparqlService.of({
-    select: (queryString: string): Effect.Effect<SelectResult, SparqlServiceError> =>
+    select: (queryString: string): Effect.Effect<SelectResult, SparqlServiceError.Type> =>
       Effect.gen(function* () {
         const { ast } = yield* parseAsSelect(queryString);
         return yield* executeSelect(ast, store);
@@ -179,7 +208,7 @@ const serviceEffect: Effect.Effect<SparqlServiceShape, never, SparqlParser | Rdf
         })
       ),
 
-    construct: (queryString: string): Effect.Effect<ConstructResult, SparqlServiceError> =>
+    construct: (queryString: string): Effect.Effect<ConstructResult.Type, SparqlServiceError.Type> =>
       Effect.gen(function* () {
         const { ast } = yield* parseAsConstruct(queryString);
         return yield* executeConstruct(ast, store);
@@ -189,7 +218,7 @@ const serviceEffect: Effect.Effect<SparqlServiceShape, never, SparqlParser | Rdf
         })
       ),
 
-    ask: (queryString: string): Effect.Effect<AskResult, SparqlServiceError> =>
+    ask: (queryString: string): Effect.Effect<AskResult.Type, SparqlServiceError.Type> =>
       Effect.gen(function* () {
         const { ast } = yield* parseAsAsk(queryString);
         return yield* executeAsk(ast, store);
@@ -199,7 +228,7 @@ const serviceEffect: Effect.Effect<SparqlServiceShape, never, SparqlParser | Rdf
         })
       ),
 
-    describe: (queryString: string): Effect.Effect<DescribeResult, SparqlServiceError> =>
+    describe: (queryString: string): Effect.Effect<DescribeResult.Type, SparqlServiceError.Type> =>
       Effect.gen(function* () {
         const { ast } = yield* parseAsDescribe(queryString);
         return yield* executeDescribe(ast, store);
@@ -209,7 +238,7 @@ const serviceEffect: Effect.Effect<SparqlServiceShape, never, SparqlParser | Rdf
         })
       ),
 
-    query: (queryString: string): Effect.Effect<QueryResult, SparqlServiceError> =>
+    query: (queryString: string): Effect.Effect<QueryResult.Type, SparqlServiceError.Type> =>
       Effect.gen(function* () {
         const { ast } = yield* parser.parse(queryString);
 

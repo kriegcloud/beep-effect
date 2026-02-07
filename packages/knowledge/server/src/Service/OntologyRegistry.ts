@@ -11,48 +11,69 @@ const $I = $KnowledgeServerId.create("Service/OntologyRegistry");
 
 export const DEFAULT_ONTOLOGY_REGISTRY_KEY = "ontology/registry.json";
 
-export const OntologyRegistryEntrySchema = S.Struct({
-  id: S.String,
-  iri: S.String,
-  storageKey: S.String,
-  format: S.optional(S.String),
-  title: S.optional(S.String),
-  aliases: S.optional(S.Array(S.String)),
-});
+export class OntologyRegistryEntry extends S.Class<OntologyRegistryEntry>($I`OntologyRegistryEntry`)(
+  {
+    id: S.String,
+    iri: S.String,
+    storageKey: S.String,
+    format: S.optional(S.String),
+    title: S.optional(S.String),
+    aliases: S.optional(S.Array(S.String)),
+  },
+  $I.annotations("OntologyRegistryEntry", {
+    description: "Single ontology registry entry (id, iri, storage key, optional metadata and aliases).",
+  })
+) {}
 
-export type OntologyRegistryEntry = S.Schema.Type<typeof OntologyRegistryEntrySchema>;
+export class OntologyRegistryFile extends S.Class<OntologyRegistryFile>($I`OntologyRegistryFile`)(
+  {
+    version: S.NonNegativeInt,
+    entries: S.Array(OntologyRegistryEntry),
+  },
+  $I.annotations("OntologyRegistryFile", {
+    description: "Ontology registry JSON file payload (schema version + entries array).",
+  })
+) {}
 
-export const OntologyRegistryFileSchema = S.Struct({
-  version: S.NonNegativeInt,
-  entries: S.Array(OntologyRegistryEntrySchema),
-});
-
-export type OntologyRegistryFile = S.Schema.Type<typeof OntologyRegistryFileSchema>;
-
-export class OntologyRegistryNotFoundError extends S.TaggedError<OntologyRegistryNotFoundError>()(
+export class OntologyRegistryNotFoundError extends S.TaggedError<OntologyRegistryNotFoundError>(
+  $I`OntologyRegistryNotFoundError`
+)(
   "OntologyRegistryNotFoundError",
   {
     registryKey: S.String,
-  }
+  },
+  $I.annotations("OntologyRegistryNotFoundError", {
+    description: "Ontology registry file was not found in storage.",
+  })
 ) {}
 
-export class OntologyRegistryParseError extends S.TaggedError<OntologyRegistryParseError>()(
+export class OntologyRegistryParseError extends S.TaggedError<OntologyRegistryParseError>(
+  $I`OntologyRegistryParseError`
+)(
   "OntologyRegistryParseError",
   {
     registryKey: S.String,
     message: S.String,
     cause: S.optional(S.Defect),
-  }
+  },
+  $I.annotations("OntologyRegistryParseError", {
+    description: "Ontology registry file exists but could not be parsed/decoded as JSON with the expected schema.",
+  })
 ) {}
 
 export type OntologyRegistryError = OntologyRegistryNotFoundError | OntologyRegistryParseError;
 
-export interface LoadedOntologyRegistry {
-  readonly registryKey: string;
-  readonly version: number;
-  readonly entries: ReadonlyArray<OntologyRegistryEntry>;
-  readonly loadedAt: number;
-}
+export class LoadedOntologyRegistry extends S.Class<LoadedOntologyRegistry>($I`LoadedOntologyRegistry`)(
+  {
+    registryKey: S.String,
+    version: S.NonNegativeInt,
+    entries: S.Array(OntologyRegistryEntry),
+    loadedAt: S.NonNegativeInt,
+  },
+  $I.annotations("LoadedOntologyRegistry", {
+    description: "In-memory loaded ontology registry with load timestamp (derived from the stored JSON file).",
+  })
+) {}
 
 interface RegistryIndex {
   readonly loaded: LoadedOntologyRegistry;
@@ -61,7 +82,7 @@ interface RegistryIndex {
   readonly byAlias: ReadonlyMap<string, OntologyRegistryEntry>;
 }
 
-const decodeRegistryFile = S.decodeUnknown(S.parseJson(OntologyRegistryFileSchema));
+const decodeRegistryFile = S.decodeUnknown(S.parseJson(OntologyRegistryFile));
 
 const normalize = (value: string): string => value.trim().toLowerCase();
 
@@ -118,12 +139,12 @@ const serviceEffect: Effect.Effect<OntologyRegistryShape, never, Storage> = Effe
       )
     );
 
-    const loaded: LoadedOntologyRegistry = {
+    const loaded = LoadedOntologyRegistry.make({
       registryKey,
       version: parsed.version,
       entries: parsed.entries,
       loadedAt: Date.now(),
-    };
+    });
 
     const indexed = indexRegistry(loaded);
     yield* Ref.set(indexRef, O.some(indexed));

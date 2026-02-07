@@ -34,7 +34,7 @@ Produce a concrete, file-referenced duplication inventory and propose shared-mod
 
 Create:
 
-- `specs/pending/knowledge-server-test-shared-fixtures-dedup/outputs/codebase-context.md`
+- `specs/completed/knowledge-server-test-shared-fixtures-dedup/outputs/codebase-context.md`
 
 Required sections in output:
 

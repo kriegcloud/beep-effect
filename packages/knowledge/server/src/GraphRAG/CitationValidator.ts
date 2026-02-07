@@ -42,7 +42,7 @@ export class CitationValidationResult extends S.Class<CitationValidationResult>(
   })
 ) {}
 
-export type CitationValidationError = SparqlServiceError | MaxDepthExceededError | MaxInferencesExceededError;
+export type CitationValidationError = SparqlServiceError.Type | MaxDepthExceededError | MaxInferencesExceededError;
 
 const INFERENCE_CONFIDENCE_DECAY = 0.1;
 
@@ -93,10 +93,13 @@ const buildReasoningTrace = (
 export interface CitationValidatorShape {
   readonly validateEntity: (
     entityId: KnowledgeEntityIds.KnowledgeEntityId.Type
-  ) => Effect.Effect<EntityValidationResult, SparqlServiceError>;
+  ) => Effect.Effect<EntityValidationResult, SparqlServiceError.Type>;
   readonly validateRelation: (
     relationId: KnowledgeEntityIds.RelationId.Type
-  ) => Effect.Effect<RelationValidationResult, SparqlServiceError | MaxDepthExceededError | MaxInferencesExceededError>;
+  ) => Effect.Effect<
+    RelationValidationResult,
+    SparqlServiceError.Type | MaxDepthExceededError | MaxInferencesExceededError
+  >;
   readonly validateCitation: (citation: Citation) => Effect.Effect<CitationValidationResult, CitationValidationError>;
   readonly validateAllCitations: (
     citations: ReadonlyArray<Citation>
@@ -115,7 +118,7 @@ const serviceEffect: Effect.Effect<CitationValidatorShape, never, SparqlService 
 
     const validateEntity = (
       entityId: KnowledgeEntityIds.KnowledgeEntityId.Type
-    ): Effect.Effect<EntityValidationResult, SparqlServiceError> =>
+    ): Effect.Effect<EntityValidationResult, SparqlServiceError.Type> =>
       Effect.gen(function* () {
         const query = buildEntityExistsQuery(entityId);
         const exists = yield* sparql.ask(query);
@@ -135,7 +138,7 @@ const serviceEffect: Effect.Effect<CitationValidatorShape, never, SparqlService 
       relationId: KnowledgeEntityIds.RelationId.Type
     ): Effect.Effect<
       RelationValidationResult,
-      SparqlServiceError | MaxDepthExceededError | MaxInferencesExceededError
+      SparqlServiceError.Type | MaxDepthExceededError | MaxInferencesExceededError
     > =>
       Effect.gen(function* () {
         const directQuery = buildRelationExistsQuery(relationId);

@@ -14,8 +14,9 @@ Before starting any phase:
 # Verify repository state
 git status
 
-# Ensure clean working directory (commit or stash changes)
-git stash  # if needed
+# NOTE: Non-clean worktrees are OK in this repo (parallel agents may be active).
+# Only require a clean worktree for git operations that strictly need it.
+# If you do need a clean state for a specific command, coordinate with the user before stashing/cleaning.
 
 # Verify agents are accessible
 ls .claude/agents/*.md | wc -l  # Should show 20+ files

@@ -1,14 +1,21 @@
 import { $KnowledgeDomainId } from "@beep/identity/packages";
+import { BS } from "@beep/schema";
 import * as S from "effect/Schema";
 
 const $I = $KnowledgeDomainId.create("errors/rdf");
+
+export class RdfTermPosition extends BS.StringLiteralKit("subject", "predicate", "object", "graph").annotations(
+  $I.annotations("RdfTermPosition", {
+    description: "Position of an RDF term within a quad/triple (subject, predicate, object, graph).",
+  })
+) {}
 
 export class RdfTermConversionError extends S.TaggedError<RdfTermConversionError>($I`RdfTermConversionError`)(
   "RdfTermConversionError",
   {
     termType: S.String,
     termValue: S.optional(S.String),
-    position: S.Literal("subject", "predicate", "object", "graph"),
+    position: RdfTermPosition,
     message: S.String,
   },
   $I.annotations("RdfTermConversionError", {

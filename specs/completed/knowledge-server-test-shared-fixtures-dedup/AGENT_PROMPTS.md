@@ -17,7 +17,7 @@ Tasks:
 3. Provide file-level references for every candidate and estimate migration difficulty (low/medium/high).
 
 Output file:
-- specs/pending/knowledge-server-test-shared-fixtures-dedup/outputs/codebase-context.md
+- specs/completed/knowledge-server-test-shared-fixtures-dedup/outputs/codebase-context.md
 
 Constraints:
 - Read-only phase: no code edits.
@@ -39,8 +39,8 @@ Tasks:
 4. Define acceptance checks for semantic equivalence.
 
 Outputs:
-- specs/pending/knowledge-server-test-shared-fixtures-dedup/outputs/evaluation.md
-- specs/pending/knowledge-server-test-shared-fixtures-dedup/outputs/remediation-plan.md
+- specs/completed/knowledge-server-test-shared-fixtures-dedup/outputs/evaluation.md
+- specs/completed/knowledge-server-test-shared-fixtures-dedup/outputs/remediation-plan.md
 ```
 
 ## P3: Implementation (`effect-code-writer` + `test-writer`)

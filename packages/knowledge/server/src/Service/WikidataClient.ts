@@ -19,17 +19,28 @@ export class WikidataClientError extends S.TaggedError<WikidataClientError>($I`W
   $I.annotations("WikidataClientError", { description: "Wikidata API client failure" })
 ) {}
 
-export class WikidataCandidate extends S.Class<WikidataCandidate>($I`WikidataCandidate`)({
-  qid: S.String,
-  label: S.String,
-  description: S.optionalWith(S.OptionFromNullishOr(S.String, null), { default: O.none<string> }),
-  score: S.Number.pipe(S.between(0, 100)),
-}) {}
+export class WikidataCandidate extends S.Class<WikidataCandidate>($I`WikidataCandidate`)(
+  {
+    qid: S.String,
+    label: S.String,
+    description: S.optionalWith(S.OptionFromNullishOr(S.String, null), { default: O.none<string> }),
+    score: S.Number.pipe(S.between(0, 100)),
+  },
+  $I.annotations("WikidataCandidate", {
+    description:
+      "Scored Wikidata entity candidate returned from `wbsearchentities` (qid, label, optional description, score).",
+  })
+) {}
 
-export class WikidataSearchOptions extends S.Class<WikidataSearchOptions>($I`WikidataSearchOptions`)({
-  language: S.optionalWith(S.String, { default: () => "en" }),
-  limit: S.optionalWith(S.Int.pipe(S.positive()), { default: () => 5 }),
-}) {}
+export class WikidataSearchOptions extends S.Class<WikidataSearchOptions>($I`WikidataSearchOptions`)(
+  {
+    language: S.optionalWith(S.String, { default: () => "en" }),
+    limit: S.optionalWith(S.Int.pipe(S.positive()), { default: () => 5 }),
+  },
+  $I.annotations("WikidataSearchOptions", {
+    description: "Options for Wikidata entity search (language + result limit).",
+  })
+) {}
 
 export interface WikidataClientShape {
   readonly searchEntities: (
@@ -40,15 +51,25 @@ export interface WikidataClientShape {
 
 export class WikidataClient extends Context.Tag($I`WikidataClient`)<WikidataClient, WikidataClientShape>() {}
 
-const WikidataSearchResponse = S.Struct({
-  search: S.Array(
-    S.Struct({
-      id: S.String,
-      label: S.String,
-      description: S.optional(S.String),
-    })
-  ),
-});
+class WikidataSearchItem extends S.Class<WikidataSearchItem>($I`WikidataSearchItem`)(
+  {
+    id: S.String,
+    label: S.String,
+    description: S.optional(S.String),
+  },
+  $I.annotations("WikidataSearchItem", {
+    description: "Single item in Wikidata `wbsearchentities` response search array.",
+  })
+) {}
+
+class WikidataSearchResponse extends S.Class<WikidataSearchResponse>($I`WikidataSearchResponse`)(
+  {
+    search: S.Array(WikidataSearchItem),
+  },
+  $I.annotations("WikidataSearchResponse", {
+    description: "Minimal Wikidata `wbsearchentities` JSON response shape used for decoding.",
+  })
+) {}
 
 const scoreCandidate = (query: string, label: string): number => {
   const q = Str.toLowerCase(Str.trim(query));

@@ -11,11 +11,12 @@ import * as Match from "effect/Match";
 
 const summarizeFindings = (findings: ReadonlyArray<ValidationFinding>): ValidationSummary =>
   A.reduce(findings, new ValidationSummary({ infoCount: 0, warningCount: 0, violationCount: 0 }), (acc, finding) =>
-    Match.value(finding.severity).pipe(
-      Match.when("Info", () => new ValidationSummary({ ...acc, infoCount: acc.infoCount + 1 })),
-      Match.when("Warning", () => new ValidationSummary({ ...acc, warningCount: acc.warningCount + 1 })),
-      Match.when("Violation", () => new ValidationSummary({ ...acc, violationCount: acc.violationCount + 1 })),
-      Match.exhaustive
+    Match.value(finding).pipe(
+      Match.discriminatorsExhaustive("severity")({
+        Info: () => new ValidationSummary({ ...acc, infoCount: acc.infoCount + 1 }),
+        Warning: () => new ValidationSummary({ ...acc, warningCount: acc.warningCount + 1 }),
+        Violation: () => new ValidationSummary({ ...acc, violationCount: acc.violationCount + 1 }),
+      })
     )
   );
 

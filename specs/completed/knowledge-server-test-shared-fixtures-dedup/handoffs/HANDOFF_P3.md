@@ -16,11 +16,11 @@ This handoff starts **Phase 3 (Implementation + Migration)** for deduplicating s
 
 ## Inputs to Read First
 
-- `specs/pending/knowledge-server-test-shared-fixtures-dedup/README.md`
-- `specs/pending/knowledge-server-test-shared-fixtures-dedup/MASTER_ORCHESTRATION.md`
-- `specs/pending/knowledge-server-test-shared-fixtures-dedup/outputs/codebase-context.md`
-- `specs/pending/knowledge-server-test-shared-fixtures-dedup/outputs/evaluation.md`
-- `specs/pending/knowledge-server-test-shared-fixtures-dedup/outputs/remediation-plan.md`
+- `specs/completed/knowledge-server-test-shared-fixtures-dedup/README.md`
+- `specs/completed/knowledge-server-test-shared-fixtures-dedup/MASTER_ORCHESTRATION.md`
+- `specs/completed/knowledge-server-test-shared-fixtures-dedup/outputs/codebase-context.md`
+- `specs/completed/knowledge-server-test-shared-fixtures-dedup/outputs/evaluation.md`
+- `specs/completed/knowledge-server-test-shared-fixtures-dedup/outputs/remediation-plan.md`
 
 ## Objective for This Phase
 
@@ -34,11 +34,11 @@ Implement the approved shared-module design and migrate test call sites in risk-
 - remove dead local helper duplication where replaced
 
 2. Update:
-- `specs/pending/knowledge-server-test-shared-fixtures-dedup/REFLECTION_LOG.md` with a Phase 3 entry
+- `specs/completed/knowledge-server-test-shared-fixtures-dedup/REFLECTION_LOG.md` with a Phase 3 entry
 
 3. Optional (if Phase 3 cannot finish in one session):
-- `specs/pending/knowledge-server-test-shared-fixtures-dedup/handoffs/HANDOFF_P4.md`
-- `specs/pending/knowledge-server-test-shared-fixtures-dedup/handoffs/P4_ORCHESTRATOR_PROMPT.md`
+- `specs/completed/knowledge-server-test-shared-fixtures-dedup/handoffs/HANDOFF_P4.md`
+- `specs/completed/knowledge-server-test-shared-fixtures-dedup/handoffs/P4_ORCHESTRATOR_PROMPT.md`
 
 ## Implementation Rules
 

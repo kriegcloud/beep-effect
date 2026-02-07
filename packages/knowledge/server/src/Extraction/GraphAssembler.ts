@@ -14,7 +14,7 @@ import * as Str from "effect/String";
 import type { ClassifiedEntity } from "./schemas/entity-output.schema";
 import type { ExtractedTriple } from "./schemas/relation-output.schema";
 
-const $I = $KnowledgeServerId.create("knowledge-server/Extraction/GraphAssembler");
+const $I = $KnowledgeServerId.create("Extraction/GraphAssembler");
 
 export class AssembledEntityAttributeValue extends S.Union(S.String, S.Number, S.Boolean).annotations(
   $I.annotations("AssembledEntityAttributeValue", {

@@ -16,32 +16,58 @@ const $I = $KnowledgeServerId.create("db/repos/EntityClusterRepo");
 
 const tableName = KnowledgeEntityIds.EntityClusterId.tableName;
 
-class FindByCanonicalEntityRequest extends S.Class<FindByCanonicalEntityRequest>("FindByCanonicalEntityRequest")({
-  canonicalEntityId: KnowledgeEntityIds.KnowledgeEntityId,
-  organizationId: SharedEntityIds.OrganizationId,
-}) {}
+class FindByCanonicalEntityRequest extends S.Class<FindByCanonicalEntityRequest>($I`FindByCanonicalEntityRequest`)(
+  {
+    canonicalEntityId: KnowledgeEntityIds.KnowledgeEntityId,
+    organizationId: SharedEntityIds.OrganizationId,
+  },
+  $I.annotations("FindByCanonicalEntityRequest", {
+    description: "SQL request schema: fetch entity cluster by canonical entity id (scoped to organization).",
+  })
+) {}
 
-class FindByMemberRequest extends S.Class<FindByMemberRequest>("FindByMemberRequest")({
-  memberId: KnowledgeEntityIds.KnowledgeEntityId,
-  organizationId: SharedEntityIds.OrganizationId,
-}) {}
+class FindByMemberRequest extends S.Class<FindByMemberRequest>($I`FindByMemberRequest`)(
+  {
+    memberId: KnowledgeEntityIds.KnowledgeEntityId,
+    organizationId: SharedEntityIds.OrganizationId,
+  },
+  $I.annotations("FindByMemberRequest", {
+    description: "SQL request schema: fetch entity cluster containing a member entity id (scoped to organization).",
+  })
+) {}
 
-class FindClustersByOntologyRequest extends S.Class<FindClustersByOntologyRequest>("FindClustersByOntologyRequest")({
-  ontologyId: KnowledgeEntityIds.OntologyId,
-  organizationId: SharedEntityIds.OrganizationId,
-  limit: S.Number,
-}) {}
+class FindClustersByOntologyRequest extends S.Class<FindClustersByOntologyRequest>($I`FindClustersByOntologyRequest`)(
+  {
+    ontologyId: KnowledgeEntityIds.OntologyId,
+    organizationId: SharedEntityIds.OrganizationId,
+    limit: S.Number,
+  },
+  $I.annotations("FindClustersByOntologyRequest", {
+    description: "SQL request schema: fetch entity clusters by ontology id (scoped to organization, limited).",
+  })
+) {}
 
-class FindHighCohesionRequest extends S.Class<FindHighCohesionRequest>("FindHighCohesionRequest")({
-  minCohesion: S.Number,
-  organizationId: SharedEntityIds.OrganizationId,
-  limit: S.Number,
-}) {}
+class FindHighCohesionRequest extends S.Class<FindHighCohesionRequest>($I`FindHighCohesionRequest`)(
+  {
+    minCohesion: S.Number,
+    organizationId: SharedEntityIds.OrganizationId,
+    limit: S.Number,
+  },
+  $I.annotations("FindHighCohesionRequest", {
+    description:
+      "SQL request schema: fetch clusters with cohesion above a threshold (scoped to organization, limited).",
+  })
+) {}
 
-class DeleteByOntologyRequest extends S.Class<DeleteByOntologyRequest>("DeleteByOntologyRequest")({
-  ontologyId: KnowledgeEntityIds.OntologyId,
-  organizationId: SharedEntityIds.OrganizationId,
-}) {}
+class DeleteByOntologyRequest extends S.Class<DeleteByOntologyRequest>($I`DeleteByOntologyRequest`)(
+  {
+    ontologyId: KnowledgeEntityIds.OntologyId,
+    organizationId: SharedEntityIds.OrganizationId,
+  },
+  $I.annotations("DeleteByOntologyRequest", {
+    description: "SQL request schema: delete clusters for an ontology (scoped to organization).",
+  })
+) {}
 
 const makeEntityClusterExtensions = Effect.gen(function* () {
   const sql = yield* SqlClient.SqlClient;
